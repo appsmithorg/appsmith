@@ -1,5 +1,10 @@
 import { z } from "zod";
 import { ROOT_WIDGET_ID, type WidgetNode } from "./layout.js";
+import {
+  compileSelectedRowBinding,
+  selectedRowRefSchema,
+  type SelectedRowRef,
+} from "./schema.js";
 
 const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`/;
 const MAX_WIDGET_NAME_LENGTH = 64;
@@ -34,11 +39,15 @@ const optionSchema = z
   })
   .strict();
 
-// This is deliberately a closed, literal-only property vocabulary. In particular it excludes events, bindings,
-// dynamic path lists, and arbitrary style/configuration fields that could become executable at render time.
+// This is deliberately a closed, mostly literal-only property vocabulary. It excludes events, raw bindings,
+// dynamic path lists, and arbitrary style/configuration fields that could become executable at render time. The two
+// exceptions — `source` (text) and `defaultValue` (input) — are STRUCTURED selected-row references compiled by the
+// patch applier into `{{ Table.selectedRow[...] }}` bindings; the agent still never authors expression text.
 export const widgetPropsPatchSchema = z
   .object({
     text: safeText(10_000).optional(),
+    source: selectedRowRefSchema.optional(),
+    defaultValue: selectedRowRefSchema.optional(),
     label: safeText(200).optional(),
     inputType: z.enum(["TEXT", "NUMBER", "EMAIL", "PASSWORD"]).optional(),
     options: z.array(optionSchema).max(200).optional(),
@@ -217,6 +226,52 @@ function positionOf(node: WidgetNode): { topRow: number; leftColumn: number } {
   return { topRow: node.topRow, leftColumn: node.leftColumn };
 }
 
+function registerDynamicBinding(node: WidgetNode, key: string): void {
+  const paths = Array.isArray(node.dynamicBindingPathList)
+    ? (node.dynamicBindingPathList as { key: string }[])
+    : [];
+
+  if (!paths.some((entry) => entry.key === key)) paths.push({ key });
+
+  node.dynamicBindingPathList = paths;
+}
+
+// When a literal replaces a previously bound property, the stale dynamic-path entry must go too — otherwise the
+// widget keeps advertising a binding it no longer has.
+function unregisterDynamicBinding(node: WidgetNode, key: string): void {
+  if (!Array.isArray(node.dynamicBindingPathList)) return;
+
+  node.dynamicBindingPathList = (
+    node.dynamicBindingPathList as { key: string }[]
+  ).filter((entry) => entry.key !== key);
+}
+
+// Compile a structured selected-row reference onto a widget: type-checked target property, dangling-table guard,
+// compiler-emitted binding, and dynamic-path registration. The agent never supplies the expression.
+function applySelectedRowBinding(
+  widgets: Map<string, LocatedWidget>,
+  node: WidgetNode,
+  ref: SelectedRowRef,
+  expected: { widgetType: string; property: string; field: string },
+): void {
+  if (node.type !== expected.widgetType) {
+    throw new Error(
+      `'${expected.field}' can only be set on a ${expected.widgetType} ("${node.widgetName}" is ${node.type})`,
+    );
+  }
+
+  const table = widgets.get(ref.table);
+
+  if (!table) throw new Error(`table "${ref.table}" was not found`);
+
+  if (table.node.type !== "TABLE_WIDGET_V2") {
+    throw new Error(`"${ref.table}" is not a table widget`);
+  }
+
+  node[expected.property] = compileSelectedRowBinding(ref);
+  registerDynamicBinding(node, expected.property);
+}
+
 function moveToPosition(
   node: WidgetNode,
   position: { topRow: number; leftColumn: number },
@@ -244,7 +299,47 @@ export function applyWidgetPatch(
     const located = requireWidget(widgets, operation.name);
 
     if (operation.kind === "update") {
-      Object.assign(located.node, operation.props);
+      // Structured binding refs are compiled (never literal-assigned); everything else is a plain literal.
+      const { defaultValue, source, ...literals } = operation.props;
+
+      // A binding and a literal for the same property in one patch would silently race; reject the ambiguity.
+      if (source !== undefined && literals.text !== undefined) {
+        throw new Error("cannot set both 'text' and 'source' in one update");
+      }
+
+      if (defaultValue !== undefined && literals.defaultText !== undefined) {
+        throw new Error(
+          "cannot set both 'defaultText' and 'defaultValue' in one update",
+        );
+      }
+
+      if (source !== undefined) {
+        applySelectedRowBinding(widgets, located.node, source, {
+          widgetType: "TEXT_WIDGET",
+          property: "text",
+          field: "source",
+        });
+      }
+
+      if (defaultValue !== undefined) {
+        applySelectedRowBinding(widgets, located.node, defaultValue, {
+          widgetType: "INPUT_WIDGET_V2",
+          property: "defaultText",
+          field: "defaultValue",
+        });
+      }
+
+      Object.assign(located.node, literals);
+
+      // A literal overwriting a previously bound property also clears its dynamic-path registration.
+      if (literals.text !== undefined) {
+        unregisterDynamicBinding(located.node, "text");
+      }
+
+      if (literals.defaultText !== undefined) {
+        unregisterDynamicBinding(located.node, "defaultText");
+      }
+
       changes.push({
         kind: "update",
         widgetName: operation.name,

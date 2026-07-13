@@ -95,6 +95,30 @@ const bindingIdentifier = z
 const queryRef = z.object({ query: bindingIdentifier }).strict();
 const runRef = z.object({ run: bindingIdentifier }).strict();
 
+// A structured reference to one column of a table's selected row — the display-binding half of the CRUD loop
+// (detail views, edit-form prefill). Same charset as table column keys; the compiler emits bracket access with
+// double quotes (`{{ Table1.selectedRow["col name"] }}`), and the charset admits no quote/backslash/brace, so the
+// emitted expression cannot be broken out of.
+const selectedRowColumn = z
+  .string()
+  .min(1)
+  .max(100)
+  .regex(
+    /^[A-Za-z0-9_ ]+$/,
+    "column names must be alphanumeric, underscore, or space",
+  );
+
+export const selectedRowRefSchema = z
+  .object({ table: bindingIdentifier, column: selectedRowColumn })
+  .strict();
+
+export type SelectedRowRef = z.infer<typeof selectedRowRefSchema>;
+
+// The single emitter for selected-row display bindings. Both parts are schema-validated charsets.
+export function compileSelectedRowBinding(ref: SelectedRowRef): string {
+  return `{{ ${ref.table}.selectedRow["${ref.column}"] }}`;
+}
+
 // Chart series: a named series of {x,y} points. Static data (x label is safe text, y is a number).
 const chartPoint = z
   .object({ x: z.union([safeText(200), z.number()]), y: z.number() })
@@ -119,6 +143,10 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         type: z.literal("text"),
         name: nameField,
         text: safeText(10000).optional(),
+        // Display binding: show one column of a table's selected row (detail views). Compiler-emitted; mutually
+        // exclusive with static `text` (enforced in the template — a .refine here would break the discriminated
+        // union, same as table data/source).
+        source: selectedRowRefSchema.optional(),
         placement: placementSchema.optional(),
       })
       .strict(),
@@ -128,6 +156,8 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         name: nameField,
         label: safeText(200).optional(),
         inputType: z.enum(["TEXT", "NUMBER", "EMAIL", "PASSWORD"]).optional(),
+        // Display binding: prefill the input from a table's selected row (edit forms). Compiler-emitted.
+        defaultValue: selectedRowRefSchema.optional(),
         placement: placementSchema.optional(),
       })
       .strict(),
@@ -266,12 +296,19 @@ export type TableCell = string | number | boolean | null;
 export type TableRow = Record<string, TableCell>;
 
 export type WidgetSpec =
-  | { type: "text"; name?: string; text?: string; placement?: PlacementSpec }
+  | {
+      type: "text";
+      name?: string;
+      text?: string;
+      source?: SelectedRowRef;
+      placement?: PlacementSpec;
+    }
   | {
       type: "input";
       name?: string;
       label?: string;
       inputType?: "TEXT" | "NUMBER" | "EMAIL" | "PASSWORD";
+      defaultValue?: SelectedRowRef;
       placement?: PlacementSpec;
     }
   | {

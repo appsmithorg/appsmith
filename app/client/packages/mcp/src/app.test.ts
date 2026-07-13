@@ -166,6 +166,7 @@ function createApi(
     listWorkspaces: jest.fn(),
     updateLayout: jest.fn(),
     listDatasources: jest.fn(),
+    createDatasource: jest.fn(),
     getDatasourceStructure: jest.fn(),
     getApplicationPages: jest.fn(async () => ({ workspaceId: "ws1" })),
     listActions: jest.fn(),
@@ -999,6 +1000,7 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     const names = await toolNames(false);
 
     expect(names).not.toContain("list_datasources");
+    expect(names).not.toContain("create_datasource");
     expect(names).not.toContain("get_datasource_structure");
     // The build/authoring tools are still present.
     expect(names).toContain("build_application");
@@ -1010,6 +1012,7 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     const names = await toolNames(true);
 
     expect(names).toContain("list_datasources");
+    expect(names).toContain("create_datasource");
     expect(names).toContain("get_datasource_structure");
     expect(names).not.toContain("import_application_artifact");
   });
@@ -1048,7 +1051,15 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
         params: { name, arguments: args },
       });
 
-    return JSON.parse(parseJsonRpc(call).result.content[0].text);
+    const text = parseJsonRpc(call).result.content[0].text;
+
+    // Tools with typed input schemas are rejected by the SDK BEFORE the handler runs; surface that protocol-level
+    // rejection ("MCP error -32602: Invalid arguments...") as an error body so tests can assert on it.
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { error: text };
+    }
   }
 
   const validQuery = {
@@ -1222,6 +1233,238 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
 
     expect(body.valid).toBe(false);
     expect(createAction).not.toHaveBeenCalled();
+  });
+
+  it("create_query resolves plugin DOCUMENT ids through the workspace plugin list", async () => {
+    // Real servers return the plugin's Mongo id on the datasource, not the packageName; the family check must
+    // resolve it via listPlugins(workspaceId).
+    const createAction = jest.fn(async () => ({ id: "act1" }));
+    const listPlugins = jest.fn(async () => [
+      { id: "656f00000000000000000001", packageName: "postgres-plugin" },
+    ]);
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "DB", pluginId: "656f00000000000000000001" },
+      ]),
+      listPlugins,
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_query", { query: validQuery });
+
+    expect(body.created).toBe(true);
+    expect(listPlugins).toHaveBeenCalledWith("ws1");
+    expect(createAction).toHaveBeenCalledTimes(1);
+  });
+
+  it("create_datasource creates an UNCONFIGURED datasource with no credential fields", async () => {
+    const createDatasource = jest.fn<
+      Promise<Record<string, unknown>>,
+      [Record<string, unknown>]
+    >(async () => ({
+      id: "ds9",
+      name: "My Postgres",
+      pluginId: "656f00000000000000000001",
+      workspaceId: "ws1",
+    }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000001", packageName: "postgres-plugin" },
+      ]),
+      listDatasources: jest.fn(async () => []),
+      createDatasource,
+    };
+    const body = await callTool(api, "create_datasource", {
+      workspaceId: "ws1",
+      name: "My Postgres",
+      plugin: "postgresql",
+      connection: {
+        host: "db.internal",
+        databaseName: "appdb",
+        username: "app_user",
+      },
+    });
+
+    expect(body.created).toBe(true);
+    expect(body.needsCredentials).toBe(true);
+    expect(typeof body.nextStep).toBe("string");
+    expect(createDatasource).toHaveBeenCalledTimes(1);
+
+    const dto = createDatasource.mock.calls[0][0] as unknown as {
+      pluginId: string;
+      datasourceStorages: Record<
+        string,
+        {
+          isConfigured: boolean;
+          datasourceConfiguration: {
+            endpoints: { host: string; port: number }[];
+            authentication: Record<string, unknown>;
+          };
+        }
+      >;
+    };
+
+    // Plugin document id resolved from the packageName; storage keyed by the fixed CE environment.
+    expect(dto.pluginId).toBe("656f00000000000000000001");
+    const storage = dto.datasourceStorages.unused_env;
+
+    expect(storage.isConfigured).toBe(false);
+    expect(storage.datasourceConfiguration.endpoints).toEqual([
+      { host: "db.internal", port: 5432 },
+    ]);
+    // The credential invariant: no password anywhere in the outbound DTO.
+    expect(JSON.stringify(dto)).not.toContain("password");
+    expect(storage.datasourceConfiguration.authentication).toEqual({
+      authenticationType: "dbAuth",
+      databaseName: "appdb",
+      username: "app_user",
+    });
+  });
+
+  it("create_datasource maps family default ports, explicit overrides, and omits an absent username", async () => {
+    const createDatasource = jest.fn<
+      Promise<Record<string, unknown>>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "ds9" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listPlugins: jest.fn(async () => [
+        { id: "p-mysql", packageName: "mysql-plugin" },
+        { id: "p-mssql", packageName: "mssql-plugin" },
+      ]),
+      listDatasources: jest.fn(async () => []),
+      createDatasource,
+    };
+
+    // mysql defaults to 3306, and with no username the key is absent (not null/empty).
+    await callTool(api, "create_datasource", {
+      workspaceId: "ws1",
+      name: "MySQL DB",
+      plugin: "mysql",
+      connection: { host: "db", databaseName: "appdb" },
+    });
+
+    const mysqlConfig = (
+      createDatasource.mock.calls[0][0] as {
+        datasourceStorages: Record<
+          string,
+          {
+            datasourceConfiguration: {
+              endpoints: unknown;
+              authentication: Record<string, unknown>;
+            };
+          }
+        >;
+      }
+    ).datasourceStorages.unused_env.datasourceConfiguration;
+
+    expect(mysqlConfig.endpoints).toEqual([{ host: "db", port: 3306 }]);
+    expect(mysqlConfig.authentication).toEqual({
+      authenticationType: "dbAuth",
+      databaseName: "appdb",
+    });
+    expect("username" in mysqlConfig.authentication).toBe(false);
+
+    // mssql with an explicit port override wins over the family default (1433).
+    await callTool(api, "create_datasource", {
+      workspaceId: "ws1",
+      name: "MSSQL DB",
+      plugin: "mssql",
+      connection: { host: "sqlserver", port: 14330, databaseName: "appdb" },
+    });
+
+    const mssqlConfig = (
+      createDatasource.mock.calls[1][0] as {
+        datasourceStorages: Record<
+          string,
+          { datasourceConfiguration: { endpoints: unknown } }
+        >;
+      }
+    ).datasourceStorages.unused_env.datasourceConfiguration;
+
+    expect(mssqlConfig.endpoints).toEqual([{ host: "sqlserver", port: 14330 }]);
+  });
+
+  it("create_datasource rejects credential/injection input at the schema", async () => {
+    const createDatasource = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listPlugins: jest.fn(async () => [
+        { id: "p1", packageName: "postgres-plugin" },
+      ]),
+      listDatasources: jest.fn(async () => []),
+      createDatasource,
+    };
+
+    // Strict schema: a password (or any unknown key) is rejected outright, never forwarded.
+    const withPassword = await callTool(api, "create_datasource", {
+      workspaceId: "ws1",
+      name: "DB",
+      plugin: "postgresql",
+      connection: {
+        host: "db",
+        databaseName: "appdb",
+        password: "hunter2",
+      },
+    });
+
+    expect(JSON.stringify(withPassword)).toMatch(/error|invalid/i);
+
+    const badHost = await callTool(api, "create_datasource", {
+      workspaceId: "ws1",
+      name: "DB",
+      plugin: "postgresql",
+      connection: { host: "db/../{{evil}}", databaseName: "appdb" },
+    });
+
+    expect(JSON.stringify(badHost)).toMatch(/error|invalid/i);
+    expect(createDatasource).not.toHaveBeenCalled();
+  });
+
+  it("create_datasource is idempotent by workspace + name", async () => {
+    const createDatasource = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listPlugins: jest.fn(async () => [
+        { id: "p1", packageName: "postgres-plugin" },
+      ]),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "My Postgres", pluginId: "p1", workspaceId: "ws1" },
+      ]),
+      createDatasource,
+    };
+    const body = await callTool(api, "create_datasource", {
+      workspaceId: "ws1",
+      name: "My Postgres",
+      plugin: "postgresql",
+      connection: { host: "db", databaseName: "appdb" },
+    });
+
+    expect(body.created).toBe(false);
+    expect(createDatasource).not.toHaveBeenCalled();
+  });
+
+  it("create_datasource errors clearly when the plugin is not installed", async () => {
+    const createDatasource = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listPlugins: jest.fn(async () => [
+        { id: "p1", packageName: "restapi-plugin" },
+      ]),
+      listDatasources: jest.fn(async () => []),
+      createDatasource,
+    };
+    const body = await callTool(api, "create_datasource", {
+      workspaceId: "ws1",
+      name: "DB",
+      plugin: "mssql",
+      connection: { host: "db", databaseName: "appdb" },
+    });
+
+    expect(body.error).toMatch(/not installed/);
+    expect(createDatasource).not.toHaveBeenCalled();
   });
 
   it("list_datasources projects to non-secret fields only, even if upstream leaks", async () => {
@@ -1907,6 +2150,168 @@ describe("governance-wrapped layout mutations", () => {
 
     expect(wired.body.error).toMatch(/was not found/);
     expect(updateLayout).not.toHaveBeenCalled();
+  });
+
+  it("wire_event writes a primary showAlert action (no entity references to validate)", async () => {
+    const store = new MemoryGovernanceStore();
+    const DSL = {
+      ...ROOT_DSL,
+      children: [
+        {
+          widgetId: "b",
+          widgetName: "InfoBtn",
+          type: "BUTTON_WIDGET",
+          topRow: 0,
+          bottomRow: 4,
+          leftColumn: 0,
+          rightColumn: 16,
+        },
+      ],
+    };
+    let current: Record<string, unknown> = DSL;
+    const updateLayout = jest.fn<
+      Promise<{ ok: boolean }>,
+      [string, string, string, Record<string, unknown>]
+    >(async (_app, _page, _layout, dsl) => {
+      current = dsl;
+
+      return { ok: true };
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: current },
+      })),
+      // No queries exist anywhere — a showAlert action needs no entity to resolve against.
+      listActions: jest.fn(async () => []),
+      updateLayout: updateLayout as never,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      dataEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    const wired = await callTool(server, "wire_event", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision: fingerprintDsl(DSL as never),
+      spec: {
+        widget: "InfoBtn",
+        event: "onClick",
+        action: { showAlert: "Heads up", style: "warning" },
+      },
+    });
+
+    expect(wired.body.changeId).toBeDefined();
+    const written = updateLayout.mock.calls[0][3] as {
+      children: { widgetName: string; onClick?: string }[];
+    };
+
+    expect(written.children[0].onClick).toBe(
+      "{{ showAlert('Heads up', 'warning') }}",
+    );
+  });
+
+  it("wire_event validates and compiles a chained onSuccess follow-up (refresh + close + alert)", async () => {
+    const store = new MemoryGovernanceStore();
+    const DSL = {
+      ...ROOT_DSL,
+      children: [
+        {
+          widgetId: "b",
+          widgetName: "SaveBtn",
+          type: "BUTTON_WIDGET",
+          topRow: 0,
+          bottomRow: 4,
+          leftColumn: 0,
+          rightColumn: 16,
+        },
+        {
+          widgetId: "m",
+          widgetName: "AddUserModal",
+          type: "MODAL_WIDGET",
+          topRow: 5,
+          bottomRow: 20,
+          leftColumn: 0,
+          rightColumn: 32,
+        },
+      ],
+    };
+    let current: Record<string, unknown> = DSL;
+    const updateLayout = jest.fn<
+      Promise<{ ok: boolean }>,
+      [string, string, string, Record<string, unknown>]
+    >(async (_app, _page, _layout, dsl) => {
+      current = dsl;
+
+      return { ok: true };
+    });
+    const listActions = jest.fn(async () => [
+      { name: "insertUser", pageId: "p1" },
+      { name: "getUsers", pageId: "p1" },
+    ]);
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: current },
+      })),
+      listActions,
+      updateLayout: updateLayout as never,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      dataEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    // A follow-up referencing an unknown query is rejected before any write.
+    const dangling = await callTool(server, "wire_event", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision: fingerprintDsl(DSL as never),
+      spec: {
+        widget: "SaveBtn",
+        event: "onClick",
+        action: { run: "insertUser", onSuccess: [{ run: "ghostQuery" }] },
+      },
+    });
+
+    expect(dangling.body.error).toMatch(/"ghostQuery" was not found/);
+    expect(updateLayout).not.toHaveBeenCalled();
+
+    const wired = await callTool(server, "wire_event", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision: fingerprintDsl(DSL as never),
+      spec: {
+        widget: "SaveBtn",
+        event: "onClick",
+        action: {
+          run: "insertUser",
+          onSuccess: [
+            { run: "getUsers" },
+            { closeModal: "AddUserModal" },
+            { showAlert: "Saved", style: "success" },
+          ],
+        },
+      },
+    });
+
+    expect(wired.body.changeId).toBeDefined();
+    const written = updateLayout.mock.calls[0][3] as {
+      children: { widgetName: string; onClick?: string }[];
+    };
+    const button = written.children.find((w) => w.widgetName === "SaveBtn");
+
+    expect(button?.onClick).toBe(
+      "{{ insertUser.run().then(() => { getUsers.run(); closeModal('AddUserModal'); showAlert('Saved', 'success'); }) }}",
+    );
   });
 
   it("create_js_object resolves plugin/workspace and commits a governed, restricted JS object", async () => {

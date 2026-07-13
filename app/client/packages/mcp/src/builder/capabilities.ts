@@ -10,14 +10,20 @@ import { listPresets } from "./presets.js";
 export const WIDGET_CATALOG = [
   {
     type: "text",
-    fields: { text: "plain string (no binding/template syntax)" },
-    purpose: "Static text / headings.",
+    fields: {
+      text: "plain string (no binding/template syntax)",
+      source:
+        "{ table: '<tableWidget>', column: '<column>' } — show the selected row's column (detail views). Use text OR source, not both.",
+    },
+    purpose: "Static text / headings, or a bound detail field.",
   },
   {
     type: "input",
     fields: {
       label: "string",
       inputType: "TEXT | NUMBER | EMAIL | PASSWORD",
+      defaultValue:
+        "{ table: '<tableWidget>', column: '<column>' } — prefill from the selected row (edit forms)",
     },
     purpose: "Single-line text entry.",
   },
@@ -157,7 +163,8 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     {
       name: "wire_event",
       gate: "always",
-      summary: "wire a widget event to a safe action",
+      summary:
+        "wire a widget event to a safe action (chainable onSuccess/onError)",
     },
     { name: "inspect_page", gate: "always", summary: "lint a live page" },
     {
@@ -235,6 +242,11 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     },
     // Data layer (APPSMITH_MCP_DATA_ENABLED).
     { name: "list_datasources", gate: "data", summary: "discover datasources" },
+    {
+      name: "create_datasource",
+      gate: "data",
+      summary: "create an unconfigured DB datasource (no credentials)",
+    },
     {
       name: "get_datasource_structure",
       gate: "data",

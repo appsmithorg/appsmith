@@ -75,7 +75,17 @@ evaluated as code in a viewer's browser.
   - Run a query on a button click: \`{ "type": "button", "onClick": { "run": "insertRow" } }\`.
   The query name must be a plain identifier; the compiler emits the safe binding for you. These
   work when the data layer is enabled on the instance (list_datasources / get_datasource_structure
-  help you discover what to query). A table sets \`data\` OR \`source\`, never both.`;
+  help you discover what to query). A table sets \`data\` OR \`source\`, never both.
+- Display bindings (selected row): show or prefill from the table's selected row through the
+  same structured-reference rule:
+  - Detail text: \`{ "type": "text", "source": { "table": "Users", "column": "email" } }\`.
+  - Edit-form prefill: \`{ "type": "input", "defaultValue": { "table": "Users", "column": "email" } }\`.
+  Both are also available as \`patch_widgets\` update props (\`source\` on text, \`defaultValue\` on
+  input) to upgrade an existing page. A text sets \`text\` OR \`source\`, never both.
+- Event chains: \`wire_event\` runs one action per event, and a \`run\` action may chain
+  \`onSuccess\`/\`onError\` follow-ups (run another query, close a modal, navigate, show an alert):
+  \`{ "run": "insertUser", "onSuccess": [{ "run": "getUsers" }, { "closeModal": "AddUserModal" },
+  { "showAlert": "Saved", "style": "success" }] }\` — the canonical submit → refresh → close flow.`;
 
 export const GUIDES: InstructionDoc[] = [
   {
@@ -114,10 +124,16 @@ Goal: a table of records with a details form to view/edit a selected row.
 6. \`inspect_page\` — verify no overlaps/off-grid/clipped-container issues; \`edit_page\` to fix.
 
 To make it live (when the data layer is enabled):
-7. \`list_datasources\` then \`get_datasource_structure\` — find your DB and its tables/columns.
-8. \`create_query\` — e.g. a SELECT over your table (structured spec, no raw SQL).
-9. \`edit_page\` — set the table's \`source\` to { query: '<name>' } and a button's \`onClick\`
-   to { run: '<insertQueryName>' }. The compiler emits the safe bindings for you.`;
+7. \`list_datasources\` — find your DB. If none exists yet, \`create_datasource\` provisions an
+   unconfigured PostgreSQL/MySQL/SQL Server datasource from host/port/database (no credentials
+   pass through MCP — ask the user to enter the password in Appsmith and Test & Save).
+8. \`get_datasource_structure\` — read its tables/columns.
+9. \`create_query\` — e.g. a SELECT plus an UPDATE over your table (structured spec, no raw SQL).
+10. \`edit_page\` / \`patch_widgets\` — bind the table (\`source\` = { query: '<name>' }), prefill the
+    form inputs from the selection (\`defaultValue\` = { table: '<Table>', column: '<col>' }), and
+    show read-only detail text (\`source\` = { table, column }).
+11. \`wire_event\` — wire the save button: { run: '<updateQuery>', onSuccess: [{ run: '<selectQuery>' },
+    { showAlert: 'Saved', style: 'success' }] } so the table refreshes after the write.`;
 
 const RECIPE_FORM = `# Recipe: Form page
 

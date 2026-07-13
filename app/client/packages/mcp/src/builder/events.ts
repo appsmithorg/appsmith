@@ -22,12 +22,45 @@ const pageName = z
   .max(64)
   .regex(/^[A-Za-z0-9_ ]+$/, "must be a safe page name");
 
-// Exactly one action per event.
-export const eventActionSchema = z.union([
+// Alert text is emitted inside a single-quoted argument, so the charset excludes quotes, backslashes, braces, and
+// backticks — nothing in it can terminate the string or open an expression.
+const alertMessage = z
+  .string()
+  .min(1)
+  .max(200)
+  .regex(
+    /^[A-Za-z0-9_ .,:!?()-]+$/,
+    "alert messages allow letters, numbers, spaces, and . , : ! ? ( ) -",
+  );
+
+const alertStyle = z.enum(["info", "success", "warning", "error"]);
+
+// A follow-up step inside a run's onSuccess/onError callback: the same closed kinds plus showAlert. Follow-ups can
+// never nest further (no callbacks on callbacks), so the compiled binding stays one bounded promise chain.
+const followUpActionSchema = z.union([
   z.object({ run: queryName }).strict(),
   z.object({ navigate: pageName }).strict(),
   z.object({ showModal: widgetName }).strict(),
   z.object({ closeModal: widgetName }).strict(),
+  z.object({ showAlert: alertMessage, style: alertStyle.optional() }).strict(),
+]);
+
+export type FollowUpAction = z.infer<typeof followUpActionSchema>;
+
+// One primary action per event. `run` may chain follow-ups: onSuccess runs after the query resolves (refresh a
+// table by re-running its query, close the modal, confirm with an alert) and onError after it rejects.
+export const eventActionSchema = z.union([
+  z
+    .object({
+      run: queryName,
+      onSuccess: z.array(followUpActionSchema).min(1).max(5).optional(),
+      onError: z.array(followUpActionSchema).min(1).max(5).optional(),
+    })
+    .strict(),
+  z.object({ navigate: pageName }).strict(),
+  z.object({ showModal: widgetName }).strict(),
+  z.object({ closeModal: widgetName }).strict(),
+  z.object({ showAlert: alertMessage, style: alertStyle.optional() }).strict(),
 ]);
 
 export type EventAction = z.infer<typeof eventActionSchema>;
@@ -50,31 +83,77 @@ export const wireEventSpecSchema = z
 
 export type WireEventSpec = z.infer<typeof wireEventSpecSchema>;
 
-// The single binding emitter. Every argument is a validated identifier / safe page name.
-export function compileEventBinding(action: EventAction): string {
-  if ("run" in action) return `{{ ${action.run}.run() }}`;
+// One statement of the closed vocabulary, without the outer `{{ }}`. Every interpolated value is a validated
+// identifier / safe charset, so no argument can escape its single-quoted position.
+function compileStatement(action: FollowUpAction): string {
+  if ("run" in action) return `${action.run}.run()`;
 
   if ("navigate" in action) {
-    return `{{ navigateTo('${action.navigate}', {}, 'SAME_WINDOW') }}`;
+    return `navigateTo('${action.navigate}', {}, 'SAME_WINDOW')`;
   }
 
-  if ("showModal" in action) return `{{ showModal('${action.showModal}') }}`;
+  if ("showModal" in action) return `showModal('${action.showModal}')`;
 
-  return `{{ closeModal('${action.closeModal}') }}`;
+  if ("closeModal" in action) return `closeModal('${action.closeModal}')`;
+
+  return `showAlert('${action.showAlert}', '${action.style ?? "info"}')`;
 }
 
-// The entity an event references, so the caller can verify it exists before writing (dangling-reference guard).
-export function eventReference(action: EventAction): {
+// The single binding emitter. A chained run compiles to one bounded promise expression:
+// `{{ Q.run().then(() => { ...; }).catch(() => { ...; }) }}`.
+export function compileEventBinding(action: EventAction): string {
+  if (!("run" in action)) return `{{ ${compileStatement(action)} }}`;
+
+  let expression = `${action.run}.run()`;
+
+  if (action.onSuccess !== undefined) {
+    const steps = action.onSuccess.map(compileStatement).join("; ");
+
+    expression += `.then(() => { ${steps}; })`;
+  }
+
+  if (action.onError !== undefined) {
+    const steps = action.onError.map(compileStatement).join("; ");
+
+    expression += `.catch(() => { ${steps}; })`;
+  }
+
+  return `{{ ${expression} }}`;
+}
+
+// Every entity an event references — the primary action plus all follow-ups — so the caller can verify each exists
+// before writing (dangling-reference guard). showAlert references nothing.
+export function eventReferences(action: EventAction): {
   kind: "query" | "page" | "widget";
   name: string;
-} {
-  if ("run" in action) return { kind: "query", name: action.run };
+}[] {
+  const single = (
+    step: FollowUpAction,
+  ): { kind: "query" | "page" | "widget"; name: string }[] => {
+    if ("run" in step) return [{ kind: "query" as const, name: step.run }];
 
-  if ("navigate" in action) return { kind: "page", name: action.navigate };
+    if ("navigate" in step) {
+      return [{ kind: "page" as const, name: step.navigate }];
+    }
 
-  if ("showModal" in action) return { kind: "widget", name: action.showModal };
+    if ("showModal" in step) {
+      return [{ kind: "widget" as const, name: step.showModal }];
+    }
 
-  return { kind: "widget", name: action.closeModal };
+    if ("closeModal" in step) {
+      return [{ kind: "widget" as const, name: step.closeModal }];
+    }
+
+    return [];
+  };
+
+  if (!("run" in action)) return single(action);
+
+  return [
+    { kind: "query" as const, name: action.run },
+    ...(action.onSuccess ?? []).flatMap(single),
+    ...(action.onError ?? []).flatMap(single),
+  ];
 }
 
 function cloneJson<T>(value: T): T {

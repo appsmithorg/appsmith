@@ -68,6 +68,198 @@ describe("applyWidgetPatch", () => {
     ]);
   });
 
+  it("compiles a selected-row binding onto a text widget (source)", () => {
+    const withTable = page();
+
+    withTable.children!.push(
+      node({ widgetId: "t1", widgetName: "Users", type: "TABLE_WIDGET_V2" }),
+    );
+    const { changes, dsl } = applyWidgetPatch(withTable, {
+      operations: [
+        {
+          kind: "update",
+          name: "Greeting",
+          props: { source: { table: "Users", column: "email" } },
+        },
+      ],
+    });
+    const greeting = dsl.children![0];
+
+    expect(greeting.text).toBe('{{ Users.selectedRow["email"] }}');
+    expect(greeting.dynamicBindingPathList).toEqual([{ key: "text" }]);
+    expect(changes[0].changedProps).toEqual(["source"]);
+  });
+
+  it("compiles a selected-row prefill onto an input widget (defaultValue)", () => {
+    const withInput = page();
+
+    withInput.children!.push(
+      node({ widgetId: "t1", widgetName: "Users", type: "TABLE_WIDGET_V2" }),
+      node({
+        widgetId: "in1",
+        widgetName: "EmailInput",
+        type: "INPUT_WIDGET_V2",
+        dynamicBindingPathList: [{ key: "defaultText" }],
+      }),
+    );
+    const { dsl } = applyWidgetPatch(withInput, {
+      operations: [
+        {
+          kind: "update",
+          name: "EmailInput",
+          props: { defaultValue: { table: "Users", column: "email" } },
+        },
+      ],
+    });
+    const input = dsl.children![3];
+
+    expect(input.defaultText).toBe('{{ Users.selectedRow["email"] }}');
+    // Re-binding does not duplicate the registered dynamic path.
+    expect(input.dynamicBindingPathList).toEqual([{ key: "defaultText" }]);
+  });
+
+  it("rejects binding patches on the wrong widget type, unknown tables, and non-tables", () => {
+    const withTable = page();
+
+    withTable.children!.push(
+      node({ widgetId: "t1", widgetName: "Users", type: "TABLE_WIDGET_V2" }),
+    );
+
+    // source only applies to text widgets.
+    expect(() =>
+      applyWidgetPatch(withTable, {
+        operations: [
+          {
+            kind: "update",
+            name: "Details",
+            props: { source: { table: "Users", column: "email" } },
+          },
+        ],
+      }),
+    ).toThrow(/can only be set on a TEXT_WIDGET/);
+
+    // The referenced table must exist...
+    expect(() =>
+      applyWidgetPatch(withTable, {
+        operations: [
+          {
+            kind: "update",
+            name: "Greeting",
+            props: { source: { table: "Nope", column: "email" } },
+          },
+        ],
+      }),
+    ).toThrow(/table "Nope" was not found/);
+
+    // ...and actually be a table.
+    expect(() =>
+      applyWidgetPatch(withTable, {
+        operations: [
+          {
+            kind: "update",
+            name: "Greeting",
+            props: { source: { table: "Details", column: "email" } },
+          },
+        ],
+      }),
+    ).toThrow(/not a table widget/);
+  });
+
+  it("rejects a literal and a binding for the same property in one update", () => {
+    const withTable = page();
+
+    withTable.children!.push(
+      node({ widgetId: "t1", widgetName: "Users", type: "TABLE_WIDGET_V2" }),
+    );
+
+    expect(() =>
+      applyWidgetPatch(withTable, {
+        operations: [
+          {
+            kind: "update",
+            name: "Greeting",
+            props: {
+              text: "static",
+              source: { table: "Users", column: "email" },
+            },
+          },
+        ],
+      }),
+    ).toThrow(/cannot set both 'text' and 'source'/);
+  });
+
+  it("rejects a literal defaultText and a defaultValue binding in one update", () => {
+    const withInput = page();
+
+    withInput.children!.push(
+      node({ widgetId: "t1", widgetName: "Users", type: "TABLE_WIDGET_V2" }),
+      node({
+        widgetId: "in1",
+        widgetName: "EmailInput",
+        type: "INPUT_WIDGET_V2",
+      }),
+    );
+
+    expect(() =>
+      applyWidgetPatch(withInput, {
+        operations: [
+          {
+            kind: "update",
+            name: "EmailInput",
+            props: {
+              defaultText: "static",
+              defaultValue: { table: "Users", column: "email" },
+            },
+          },
+        ],
+      }),
+    ).toThrow(/cannot set both 'defaultText' and 'defaultValue'/);
+  });
+
+  it("clears the stale dynamic path when a literal later replaces a binding", () => {
+    const withTable = page();
+
+    withTable.children!.push(
+      node({ widgetId: "t1", widgetName: "Users", type: "TABLE_WIDGET_V2" }),
+    );
+
+    // Bind first, then overwrite with a literal in a separate update.
+    const bound = applyWidgetPatch(withTable, {
+      operations: [
+        {
+          kind: "update",
+          name: "Greeting",
+          props: { source: { table: "Users", column: "email" } },
+        },
+      ],
+    });
+    const { dsl } = applyWidgetPatch(bound.dsl, {
+      operations: [
+        { kind: "update", name: "Greeting", props: { text: "Plain again" } },
+      ],
+    });
+    const greeting = dsl.children![0];
+
+    expect(greeting.text).toBe("Plain again");
+    expect(greeting.dynamicBindingPathList).toEqual([]);
+  });
+
+  it("schema rejects injection through binding refs in patches", () => {
+    const bad = [
+      { source: { table: "Users", column: 'x"]; evil()//' } },
+      { source: { table: "{{Users}}", column: "email" } },
+      { defaultValue: { table: "Users", column: "a`b" } },
+    ];
+
+    for (const props of bad) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [{ kind: "update", name: "Greeting", props }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("moves a widget into a container's inner canvas and preserves its size", () => {
     const { changes, dsl } = applyWidgetPatch(page(), {
       operations: [

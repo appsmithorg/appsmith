@@ -216,6 +216,110 @@ describe("compileApp — import artifact contract", () => {
     ).toThrow(/nesting/);
   });
 
+  it("compiles selected-row display bindings for text and input", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              { type: "table", name: "Users", data: [{ id: 1 }] },
+              {
+                type: "text",
+                name: "EmailDetail",
+                source: { table: "Users", column: "email" },
+              },
+              {
+                type: "input",
+                name: "EmailInput",
+                defaultValue: { table: "Users", column: "user email" },
+              },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const children = rootOf(artifact).children as WidgetNode[];
+    const text = children.find((w) => w.widgetName === "EmailDetail")!;
+    const input = children.find((w) => w.widgetName === "EmailInput")!;
+
+    expect(text.text).toBe('{{ Users.selectedRow["email"] }}');
+    expect(text.dynamicBindingPathList).toEqual([{ key: "text" }]);
+    expect(input.defaultText).toBe('{{ Users.selectedRow["user email"] }}');
+    expect(input.dynamicBindingPathList).toEqual([{ key: "defaultText" }]);
+  });
+
+  it("keeps unbound text/input static with no dynamic paths", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              { type: "text", text: "Hello" },
+              { type: "input", label: "Name" },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const children = rootOf(artifact).children as WidgetNode[];
+
+    expect(children[0].dynamicBindingPathList).toEqual([]);
+    expect(children[1].defaultText).toBe("");
+    expect(children[1].dynamicBindingPathList).toEqual([]);
+  });
+
+  it("rejects a text widget setting both text and source", () => {
+    expect(() =>
+      compileApp(
+        {
+          name: "App",
+          pages: [
+            {
+              name: "Home",
+              widgets: [
+                {
+                  type: "text",
+                  text: "static",
+                  source: { table: "Users", column: "email" },
+                },
+              ],
+            },
+          ],
+        },
+        ids(),
+      ),
+    ).toThrow(/cannot set both 'text' and 'source'/);
+  });
+
+  it("schema rejects injection through selected-row refs", () => {
+    const cases = [
+      { table: "Users']; evil()//", column: "email" },
+      { table: "Users", column: 'em"ail' },
+      { table: "Users", column: "x{{evil}}" },
+      { table: "Users", column: "a`b" },
+    ];
+
+    for (const source of cases) {
+      expect(
+        appSpecSchema.safeParse({
+          name: "App",
+          pages: [
+            {
+              name: "Home",
+              widgets: [{ type: "text", source }],
+            },
+          ],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("compiles every preset without error", () => {
     for (const preset of Object.values(PRESETS)) {
       const artifact = compileApp({ name: "P", pages: [preset.spec] }, ids());

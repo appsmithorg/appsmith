@@ -95,6 +95,9 @@ class Linter {
     }
 
     this.walk(root);
+    // Bindings are checked in a second pass so widget-head references (e.g. `{{ Table1.selectedRow[...] }}`) can be
+    // resolved against the COMPLETE name set, wherever the referenced widget sits in the tree.
+    this.walkBindings(root);
     this.checkDuplicateNames();
 
     return this.result();
@@ -102,7 +105,6 @@ class Linter {
 
   private walk(node: WidgetNode): void {
     this.checkIdentity(node);
-    this.checkBindings(node);
 
     // Geometry checks apply to the direct children laid out on a canvas.
     if (node.type === CANVAS_TYPE) this.checkCanvasChildren(node);
@@ -111,6 +113,12 @@ class Linter {
     if (CONTAINER_TYPES.has(node.type)) this.checkContainerHeight(node);
 
     for (const child of node.children ?? []) this.walk(child);
+  }
+
+  private walkBindings(node: WidgetNode): void {
+    this.checkBindings(node);
+
+    for (const child of node.children ?? []) this.walkBindings(child);
   }
 
   private checkIdentity(node: WidgetNode): void {
@@ -239,11 +247,12 @@ class Linter {
 
         const reference = head[1];
 
-        // Only flag when we have a known-name set to check against (M4). `appsmith`/`moment`/JS globals are always
-        // considered valid heads and skipped.
+        // Only flag when we have a known-name set to check against (M4). `appsmith`/`moment`/JS globals and widget
+        // names on this page (display bindings like `{{ Table1.selectedRow[...] }}`) are always valid heads.
         if (
           this.knownDataNames.size > 0 &&
           !this.knownDataNames.has(reference) &&
+          !this.seenNames.has(reference) &&
           !GLOBAL_BINDING_HEADS.has(reference)
         ) {
           this.error(

@@ -20,7 +20,7 @@ import { getCapabilities } from "./builder/capabilities.js";
 import { applyEdit, compileApp } from "./builder/compile.js";
 import {
   applyEvent,
-  eventReference,
+  eventReferences,
   widgetExists,
   wireEventSpecSchema,
 } from "./builder/events.js";
@@ -219,6 +219,7 @@ export interface AppsmithApi {
     dsl: Record<string, unknown>,
   ) => Promise<unknown>;
   listDatasources: (workspaceId: string) => Promise<unknown>;
+  createDatasource: (datasource: Record<string, unknown>) => Promise<unknown>;
   getDatasourceStructure: (datasourceId: string) => Promise<unknown>;
   getApplicationPages: (applicationId: string) => Promise<unknown>;
   listActions: (applicationId: string) => Promise<unknown>;
@@ -242,7 +243,8 @@ export interface AppsmithApi {
   ) => Promise<unknown>;
   deletePage: (pageId: string) => Promise<unknown>;
   publishApplication: (applicationId: string) => Promise<unknown>;
-  listPlugins: () => Promise<unknown>;
+  // workspaceId is a REQUIRED request param on GET /api/v1/plugins; omitting it is a 400.
+  listPlugins: (workspaceId: string) => Promise<unknown>;
   listActionCollections: (applicationId: string) => Promise<unknown>;
   createActionCollection: (body: Record<string, unknown>) => Promise<unknown>;
   updateActionCollection: (
@@ -415,6 +417,11 @@ export function createAppsmithApi(
       request(
         `/api/v1/datasources?workspaceId=${encodeURIComponent(workspaceId)}`,
       ),
+    createDatasource: async (datasource) =>
+      request("/api/v1/datasources", {
+        method: "POST",
+        body: JSON.stringify(datasource),
+      }),
     getDatasourceStructure: async (datasourceId) =>
       request(
         `/api/v1/datasources/${encodeURIComponent(datasourceId)}/structure`,
@@ -483,7 +490,8 @@ export function createAppsmithApi(
         `/api/v1/applications/publish/${encodeURIComponent(applicationId)}`,
         { method: "POST" },
       ),
-    listPlugins: async () => request("/api/v1/plugins"),
+    listPlugins: async (workspaceId) =>
+      request(`/api/v1/plugins?workspaceId=${encodeURIComponent(workspaceId)}`),
     listActionCollections: async (applicationId) =>
       request(
         `/api/v1/collections/actions?applicationId=${encodeURIComponent(applicationId)}`,
@@ -536,6 +544,60 @@ const SQL_PLUGIN_IDS = new Set([
 ]);
 const REST_PLUGIN_IDS = new Set(["restapi-plugin"]);
 
+// CE keys every datasource storage under this fixed environment id (FieldNameCE.UNUSED_ENVIRONMENT_ID).
+const DEFAULT_ENVIRONMENT_ID = "unused_env";
+
+// The closed set of plugin families create_datasource can provision. All three share the endpoints + dbAuth
+// configuration shape (verified against each plugin's form.json). Credentials are never part of the vocabulary.
+const CREATABLE_DATASOURCE_PLUGINS: Record<
+  "postgresql" | "mysql" | "mssql",
+  { packageName: string; defaultPort: number }
+> = {
+  postgresql: { packageName: "postgres-plugin", defaultPort: 5432 },
+  mysql: { packageName: "mysql-plugin", defaultPort: 3306 },
+  mssql: { packageName: "mssql-plugin", defaultPort: 1433 },
+};
+
+function pluginIdByPackageName(
+  plugins: unknown,
+  packageName: string,
+): string | undefined {
+  const match = Array.isArray(plugins)
+    ? plugins.find(
+        (plugin) =>
+          plugin !== null &&
+          typeof plugin === "object" &&
+          (plugin as { packageName?: unknown }).packageName === packageName,
+      )
+    : undefined;
+  const id = (match as { id?: unknown } | undefined)?.id;
+
+  return typeof id === "string" ? id : undefined;
+}
+
+function findDatasourceNamed(list: unknown, name: string): unknown {
+  if (!Array.isArray(list)) return undefined;
+
+  return list.find(
+    (entry) =>
+      entry !== null &&
+      typeof entry === "object" &&
+      (entry as { name?: unknown }).name === name,
+  );
+}
+
+// The credential hand-off: MCP never carries secrets, so the human finishes configuration in the Appsmith UI. This
+// is the same flow as importing an app whose datasources arrive unconfigured.
+function datasourceNextStep(name: string): {
+  needsCredentials: true;
+  nextStep: string;
+} {
+  return {
+    needsCredentials: true,
+    nextStep: `Ask the user to open Appsmith -> workspace -> Datasources -> "${name}", enter the database password (and any missing details), then click "Test configuration" and save. Credentials are intentionally never accepted through MCP.`,
+  };
+}
+
 function projectDatasources(response: unknown): unknown {
   const project = (entry: unknown) => {
     if (!entry || typeof entry !== "object") return entry;
@@ -567,7 +629,35 @@ function datasourceAccessible(list: unknown, datasourceId: string): boolean {
   );
 }
 
-function isSqlDatasource(list: unknown, datasourceId: string): boolean {
+// Datasource.pluginId is the plugin DOCUMENT id (a per-instance Mongo id), not the stable packageName, so family
+// checks must resolve the id through the workspace's plugin list. A datasource whose pluginId happens to BE a
+// packageName (test fixtures) also resolves, keeping the check robust either way.
+function pluginPackageName(
+  plugins: unknown,
+  pluginId: unknown,
+): string | undefined {
+  if (typeof pluginId !== "string") return undefined;
+
+  const match = Array.isArray(plugins)
+    ? plugins.find(
+        (plugin) =>
+          plugin !== null &&
+          typeof plugin === "object" &&
+          (plugin as { id?: unknown }).id === pluginId,
+      )
+    : undefined;
+  const packageName = (match as { packageName?: unknown } | undefined)
+    ?.packageName;
+
+  return typeof packageName === "string" ? packageName : pluginId;
+}
+
+function datasourceInPluginFamily(
+  list: unknown,
+  plugins: unknown,
+  datasourceId: string,
+  family: Set<string>,
+): boolean {
   if (!Array.isArray(list)) return false;
 
   return list.some((entry) => {
@@ -575,28 +665,28 @@ function isSqlDatasource(list: unknown, datasourceId: string): boolean {
 
     const datasource = entry as { id?: unknown; pluginId?: unknown };
 
-    return (
-      datasource.id === datasourceId &&
-      typeof datasource.pluginId === "string" &&
-      SQL_PLUGIN_IDS.has(datasource.pluginId)
-    );
+    if (datasource.id !== datasourceId) return false;
+
+    const packageName = pluginPackageName(plugins, datasource.pluginId);
+
+    return packageName !== undefined && family.has(packageName);
   });
 }
 
-function isRestDatasource(list: unknown, datasourceId: string): boolean {
-  if (!Array.isArray(list)) return false;
+function isSqlDatasource(
+  list: unknown,
+  plugins: unknown,
+  datasourceId: string,
+): boolean {
+  return datasourceInPluginFamily(list, plugins, datasourceId, SQL_PLUGIN_IDS);
+}
 
-  return list.some((entry) => {
-    if (entry === null || typeof entry !== "object") return false;
-
-    const datasource = entry as { id?: unknown; pluginId?: unknown };
-
-    return (
-      datasource.id === datasourceId &&
-      typeof datasource.pluginId === "string" &&
-      REST_PLUGIN_IDS.has(datasource.pluginId)
-    );
-  });
+function isRestDatasource(
+  list: unknown,
+  plugins: unknown,
+  datasourceId: string,
+): boolean {
+  return datasourceInPluginFamily(list, plugins, datasourceId, REST_PLUGIN_IDS);
 }
 
 function workspaceIdFromApplicationPages(
@@ -1299,7 +1389,7 @@ export function buildMcpServer(
 
   server.tool(
     "wire_event",
-    "Wire a widget event to a safe action from a CLOSED vocabulary: run a query, navigate to a page, or show/close a modal. Supported events: button onClick, table onRowSelected, modal onClose, tabs onTabSelected. Read the page first and pass its revision. The compiler emits the binding; no raw JS or bindings are accepted.",
+    "Wire a widget event to a safe action from a CLOSED vocabulary: run a query, navigate to a page, show/close a modal, or show an alert. A run action may chain onSuccess/onError follow-ups from the same vocabulary (e.g. submit -> run insert -> re-run the table's query -> close the modal -> alert). Supported events: button onClick, table onRowSelected, modal onClose, tabs onTabSelected. Read the page first and pass its revision. The compiler emits the binding; no raw JS or bindings are accepted.",
     {
       applicationId: idSchema,
       pageId: idSchema,
@@ -1327,33 +1417,46 @@ export function buildMcpServer(
         return result({ error: "could not read the current page layout" });
       }
 
-      // Dangling-reference guard: the referenced query/page/widget must exist before we write the trigger.
-      const reference = eventReference(parsed.data.action);
+      // Dangling-reference guard: every referenced query/page/widget — the primary action AND any onSuccess/onError
+      // follow-ups — must exist before we write the trigger. Each backing list is fetched at most once.
+      const references = eventReferences(parsed.data.action);
 
-      if (
-        reference.kind === "widget" &&
-        !widgetExists(currentDsl, reference.name)
-      ) {
-        return result({
-          error: `modal/widget "${reference.name}" was not found on this page`,
-        });
+      for (const reference of references) {
+        if (
+          reference.kind === "widget" &&
+          !widgetExists(currentDsl, reference.name)
+        ) {
+          return result({
+            error: `modal/widget "${reference.name}" was not found on this page`,
+          });
+        }
       }
 
-      if (reference.kind === "page") {
+      const pageReferences = references.filter((ref) => ref.kind === "page");
+
+      if (pageReferences.length > 0) {
         const pages = projectPages(
           await api.getApplicationPages(applicationId),
         );
 
-        if (!pages.some((page) => page.name === reference.name)) {
-          return result({ error: `page "${reference.name}" was not found` });
+        for (const reference of pageReferences) {
+          if (!pages.some((page) => page.name === reference.name)) {
+            return result({ error: `page "${reference.name}" was not found` });
+          }
         }
       }
 
-      if (reference.kind === "query" && dataEnabled) {
+      const queryReferences = references.filter((ref) => ref.kind === "query");
+
+      if (queryReferences.length > 0 && dataEnabled) {
         const known = actionNames(await api.listActions(applicationId));
 
-        if (!known.includes(reference.name)) {
-          return result({ error: `query "${reference.name}" was not found` });
+        for (const reference of queryReferences) {
+          if (!known.includes(reference.name)) {
+            return result({
+              error: `query "${reference.name}" was not found`,
+            });
+          }
         }
       }
 
@@ -1945,6 +2048,119 @@ export function buildMcpServer(
     );
 
     server.tool(
+      "create_datasource",
+      "Create a database datasource (PostgreSQL, MySQL, or Microsoft SQL Server) in a workspace from non-secret connection details (host/port/database/username). Credentials are NEVER accepted or transmitted by this tool: the datasource is created unconfigured, and the user completes the password in the Appsmith UI (Workspace -> Datasources -> Edit -> Test & Save). Idempotent by workspace + name.",
+      {
+        workspaceId: idSchema,
+        name: z
+          .string()
+          .trim()
+          .min(1)
+          .max(99)
+          .regex(
+            /^[A-Za-z0-9_ -]+$/,
+            "name must be alphanumeric/underscore/space/dash",
+          ),
+        plugin: z.enum(["postgresql", "mysql", "mssql"]),
+        connection: z
+          .object({
+            host: z
+              .string()
+              .trim()
+              .min(1)
+              .max(255)
+              .regex(
+                /^[A-Za-z0-9_.-]+$/,
+                "host must be a hostname or IP address",
+              ),
+            port: z.number().int().min(1).max(65535).optional(),
+            databaseName: z
+              .string()
+              .trim()
+              .min(1)
+              .max(128)
+              .regex(/^[A-Za-z0-9_-]+$/, "databaseName has unsafe characters"),
+            username: z
+              .string()
+              .trim()
+              .min(1)
+              .max(128)
+              .regex(/^[A-Za-z0-9_.@-]+$/, "username has unsafe characters")
+              .optional(),
+          })
+          .strict(),
+      },
+      async ({ connection, name, plugin, workspaceId }) => {
+        const family = CREATABLE_DATASOURCE_PLUGINS[plugin];
+
+        // Resolve the plugin DOCUMENT id from its stable packageName — plugin ids are per-instance.
+        const plugins = await api.listPlugins(workspaceId);
+        const pluginId = pluginIdByPackageName(plugins, family.packageName);
+
+        if (pluginId === undefined) {
+          return result({
+            error: `the ${plugin} plugin is not installed on this instance`,
+          });
+        }
+
+        // Idempotency: a datasource with this name in this workspace is returned, not duplicated.
+        const existing = findDatasourceNamed(
+          await api.listDatasources(workspaceId),
+          name,
+        );
+
+        if (existing !== undefined) {
+          return result({
+            created: false,
+            reason:
+              "a datasource with this name already exists in this workspace",
+            datasource: projectDatasources(existing),
+            ...datasourceNextStep(name),
+          });
+        }
+
+        // Created UNCONFIGURED (isConfigured: false, no credentials) — the same state as importing an app without
+        // configuring its datasources. CE keys every storage under the fixed "unused_env" environment.
+        const created = await api.createDatasource({
+          name,
+          workspaceId,
+          pluginId,
+          datasourceStorages: {
+            [DEFAULT_ENVIRONMENT_ID]: {
+              environmentId: DEFAULT_ENVIRONMENT_ID,
+              isConfigured: false,
+              datasourceConfiguration: {
+                connection: {
+                  mode: "READ_WRITE",
+                  ssl: { authType: "DEFAULT" },
+                },
+                endpoints: [
+                  {
+                    host: connection.host,
+                    port: connection.port ?? family.defaultPort,
+                  },
+                ],
+                authentication: {
+                  authenticationType: "dbAuth",
+                  databaseName: connection.databaseName,
+                  ...(connection.username !== undefined
+                    ? { username: connection.username }
+                    : {}),
+                },
+              },
+            },
+          },
+        });
+
+        return result({
+          created: true,
+          datasource: projectDatasources(created),
+          ...datasourceNextStep(name),
+        });
+      },
+    );
+
+    server.tool(
       "get_datasource_structure",
       "Read a datasource's structure (tables/columns) so you can shape queries and bindings. Read-only.",
       { datasourceId: idSchema },
@@ -1992,7 +2208,9 @@ export function buildMcpServer(
           });
         }
 
-        if (!isSqlDatasource(datasources, spec.datasourceId)) {
+        const plugins = await api.listPlugins(workspaceId);
+
+        if (!isSqlDatasource(datasources, plugins, spec.datasourceId)) {
           return result({
             error:
               "create_query currently supports only MariaDB, Microsoft SQL Server, MySQL, Oracle, PostgreSQL, and Snowflake datasources",
@@ -2056,7 +2274,9 @@ export function buildMcpServer(
           });
         }
 
-        if (!isRestDatasource(datasources, spec.datasourceId)) {
+        const plugins = await api.listPlugins(workspaceId);
+
+        if (!isRestDatasource(datasources, plugins, spec.datasourceId)) {
           return result({
             error: "create_rest_api requires an existing REST API datasource",
           });
@@ -2432,9 +2652,16 @@ export function buildMcpServer(
           const workspaceId = workspaceIdFromApplicationPages(
             await api.getApplicationPages(applicationId),
           );
-          const pluginId = jsPluginId(await api.listPlugins());
 
-          if (typeof workspaceId !== "string" || pluginId === undefined) {
+          if (typeof workspaceId !== "string") {
+            return result({
+              error: "could not resolve the workspace or JS plugin",
+            });
+          }
+
+          const pluginId = jsPluginId(await api.listPlugins(workspaceId));
+
+          if (pluginId === undefined) {
             return result({
               error: "could not resolve the workspace or JS plugin",
             });

@@ -50,6 +50,14 @@ export interface SemanticGeometry {
   rightColumn: number;
 }
 
+// A structured, safe reflection of a COMPILER-EMITTED binding, recovered from the DSL so the read path round-trips
+// what the write path created (an agent can see "this text shows Users.email" without ever seeing raw expressions).
+export interface SemanticBindingRef {
+  table?: string;
+  column?: string;
+  query?: string;
+}
+
 export interface SemanticWidget {
   id: string;
   name: string;
@@ -58,6 +66,7 @@ export interface SemanticWidget {
   parentWidgetName?: string;
   geometry: SemanticGeometry;
   props: Partial<Record<SafeCommonProp, SafePropValue>>;
+  bindings?: Record<string, SemanticBindingRef>;
 }
 
 export interface SemanticPage {
@@ -122,6 +131,36 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+// Exact shapes the compilers emit — and ONLY those. Anything else (human-authored or arbitrary expressions) stays
+// hidden, preserving the projection's no-raw-bindings guarantee.
+const SELECTED_ROW_BINDING =
+  /^\{\{ ([A-Za-z0-9_]+)\.selectedRow\["([A-Za-z0-9_ ]+)"\] \}\}$/;
+const QUERY_DATA_BINDING = /^\{\{ ([A-Za-z0-9_]+)\.data \}\}$/;
+
+function safeBindings(
+  node: WidgetNode,
+): Record<string, SemanticBindingRef> | undefined {
+  const bindings: Record<string, SemanticBindingRef> = {};
+
+  for (const key of ["text", "defaultText"] as const) {
+    const value = node[key];
+
+    if (typeof value !== "string") continue;
+
+    const match = SELECTED_ROW_BINDING.exec(value);
+
+    if (match) bindings[key] = { table: match[1], column: match[2] };
+  }
+
+  if (typeof node.tableData === "string") {
+    const match = QUERY_DATA_BINDING.exec(node.tableData);
+
+    if (match) bindings.tableData = { query: match[1] };
+  }
+
+  return Object.keys(bindings).length > 0 ? bindings : undefined;
+}
+
 function semanticGeometry(node: WidgetNode): SemanticGeometry {
   return {
     topRow: node.topRow,
@@ -138,6 +177,7 @@ export function projectSemanticPage(dsl: WidgetNode): SemanticPage {
 
   function visit(node: WidgetNode, parentWidgetName?: string): void {
     const catalogType = CATALOG_TYPE_BY_APPSMITH_TYPE[node.type];
+    const bindings = safeBindings(node);
 
     widgets.push({
       id: node.widgetId,
@@ -147,6 +187,7 @@ export function projectSemanticPage(dsl: WidgetNode): SemanticPage {
       ...(parentWidgetName !== undefined ? { parentWidgetName } : {}),
       geometry: semanticGeometry(node),
       props: safeProps(node),
+      ...(bindings !== undefined ? { bindings } : {}),
     });
 
     for (const child of node.children ?? []) visit(child, node.widgetName);

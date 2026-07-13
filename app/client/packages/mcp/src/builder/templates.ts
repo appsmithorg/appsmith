@@ -1,4 +1,8 @@
-import type { WidgetSpec, WidgetType } from "./schema.js";
+import {
+  compileSelectedRowBinding,
+  type WidgetSpec,
+  type WidgetType,
+} from "./schema.js";
 
 // Curated widget templates. Each maps a high-level spec widget to a valid Appsmith DSL node: the Appsmith widget
 // `type`, its DSL `version`, a default grid footprint (in 64-column grid units), the base default props, and a
@@ -32,7 +36,19 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
     version: 1,
     footprint: { columns: 24, rows: 4 },
     build: (spec) => {
-      const text = spec.type === "text" ? spec.text ?? "Text" : "Text";
+      const source = spec.type === "text" ? spec.source : undefined;
+      const staticText = spec.type === "text" ? spec.text : undefined;
+
+      if (source !== undefined && staticText !== undefined) {
+        throw new Error("text cannot set both 'text' and 'source'");
+      }
+
+      // Two safe origins: a static literal, or a compiler-emitted selected-row binding (detail views). The binding
+      // is registered as a dynamic path; the static literal never is.
+      const bound = source !== undefined;
+      const text = bound
+        ? compileSelectedRowBinding(source)
+        : staticText ?? "Text";
 
       return {
         footprint: { columns: 24, rows: 4 },
@@ -46,6 +62,7 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
           overflow: "NONE",
           animateLoading: true,
           responsiveBehavior: "fill",
+          dynamicBindingPathList: bound ? [{ key: "text" }] : [],
         },
       };
     },
@@ -59,6 +76,13 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
       const label = spec.type === "input" ? spec.label ?? "Label" : "Label";
       const inputType =
         spec.type === "input" ? spec.inputType ?? "TEXT" : "TEXT";
+      const defaultValue =
+        spec.type === "input" ? spec.defaultValue : undefined;
+
+      // Edit-form prefill: a compiler-emitted selected-row binding as the default value, registered as a dynamic
+      // path. Unbound inputs keep a plain empty default.
+      const bound = defaultValue !== undefined;
+      const defaultText = bound ? compileSelectedRowBinding(defaultValue) : "";
 
       return {
         footprint: { columns: 24, rows: 7 },
@@ -69,13 +93,14 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
           labelAlignment: "left",
           labelTextSize: "0.875rem",
           labelWidth: 5,
-          defaultText: "",
+          defaultText,
           isRequired: false,
           isDisabled: false,
           resetOnSubmit: true,
           showStepArrows: false,
           animateLoading: true,
           responsiveBehavior: "fill",
+          dynamicBindingPathList: bound ? [{ key: "defaultText" }] : [],
         },
       };
     },

@@ -169,6 +169,35 @@ describe("lintDsl — dangling-binding check is dormant until M4", () => {
 
     expect(diagnostics.errors).toBe(0);
   });
+
+  it("treats widget names as valid binding heads (selected-row display bindings)", () => {
+    // The text widget references the table by widget name — and the table sits AFTER it in the tree, so this also
+    // proves bindings are resolved against the complete name set, not traversal order.
+    const dsl = canvas([
+      widget({
+        widgetId: "t",
+        widgetName: "EmailDetail",
+        text: '{{ Users.selectedRow["email"] }}',
+      }),
+      widget({ widgetId: "u", widgetName: "Users" }),
+    ]);
+    const diagnostics = lintDsl(dsl, { knownDataNames: ["getUsers"] });
+
+    expect(diagnostics.errors).toBe(0);
+  });
+
+  it("still flags a selected-row binding whose table does not exist", () => {
+    const dsl = canvas([
+      widget({
+        widgetId: "t",
+        widgetName: "EmailDetail",
+        text: '{{ Missing.selectedRow["email"] }}',
+      }),
+    ]);
+    const diagnostics = lintDsl(dsl, { knownDataNames: ["getUsers"] });
+
+    expect(diagnostics.issues.map((i) => i.rule)).toContain("dangling-binding");
+  });
 });
 
 describe("lintArtifact — compiler output is lint-clean", () => {

@@ -1,7 +1,7 @@
 import {
   applyEvent,
   compileEventBinding,
-  eventReference,
+  eventReferences,
   widgetExists,
   wireEventSpecSchema,
 } from "./events.js";
@@ -48,6 +48,41 @@ describe("compileEventBinding — closed vocabulary", () => {
     expect(compileEventBinding({ closeModal: "EditModal" })).toBe(
       "{{ closeModal('EditModal') }}",
     );
+    expect(compileEventBinding({ showAlert: "Saved!", style: "success" })).toBe(
+      "{{ showAlert('Saved!', 'success') }}",
+    );
+    // Alert style defaults to info.
+    expect(compileEventBinding({ showAlert: "Heads up" })).toBe(
+      "{{ showAlert('Heads up', 'info') }}",
+    );
+  });
+
+  it("compiles the canonical submit -> refresh -> close -> alert chain", () => {
+    expect(
+      compileEventBinding({
+        run: "insertUser",
+        onSuccess: [
+          { run: "getUsers" },
+          { closeModal: "AddUserModal" },
+          { showAlert: "Saved", style: "success" },
+        ],
+        onError: [{ showAlert: "Save failed", style: "error" }],
+      }),
+    ).toBe(
+      "{{ insertUser.run().then(() => { getUsers.run(); closeModal('AddUserModal'); showAlert('Saved', 'success'); }).catch(() => { showAlert('Save failed', 'error'); }) }}",
+    );
+  });
+
+  it("compiles onSuccess without onError (and vice versa)", () => {
+    expect(
+      compileEventBinding({ run: "save", onSuccess: [{ run: "reload" }] }),
+    ).toBe("{{ save.run().then(() => { reload.run(); }) }}");
+    expect(
+      compileEventBinding({
+        run: "save",
+        onError: [{ showAlert: "Failed", style: "error" }],
+      }),
+    ).toBe("{{ save.run().catch(() => { showAlert('Failed', 'error'); }) }}");
   });
 });
 
@@ -64,6 +99,32 @@ describe("wireEventSpecSchema — rejects anything unsafe", () => {
     { widget: "Btn", event: "onBogus", action: { run: "q" } },
     { widget: "Btn", event: "onClick", action: { run: "q", navigate: "P" } },
     { widget: "Btn", event: "onClick", action: {} },
+    // Alert messages exclude quotes/backticks/braces — nothing can escape the single-quoted argument.
+    { widget: "Btn", event: "onClick", action: { showAlert: "it's done" } },
+    { widget: "Btn", event: "onClick", action: { showAlert: "x'); evil(" } },
+    { widget: "Btn", event: "onClick", action: { showAlert: "{{evil}}" } },
+    // Follow-ups are validated with the same closed vocabulary and cannot nest further chains.
+    {
+      widget: "Btn",
+      event: "onClick",
+      action: { run: "q", onSuccess: [{ run: "a; DROP" }] },
+    },
+    {
+      widget: "Btn",
+      event: "onClick",
+      action: { run: "q", onSuccess: [{ run: "a", onSuccess: [] }] },
+    },
+    {
+      widget: "Btn",
+      event: "onClick",
+      action: { run: "q", onError: [{ showAlert: "bad`tick" }] },
+    },
+    // Chains only hang off run — a navigate cannot have callbacks.
+    {
+      widget: "Btn",
+      event: "onClick",
+      action: { navigate: "P", onSuccess: [{ run: "q" }] },
+    },
   ];
 
   it.each(bad.map((b, i) => [i, b] as const))("rejects case %#", (_i, spec) => {
@@ -76,6 +137,24 @@ describe("wireEventSpecSchema — rejects anything unsafe", () => {
         widget: "SaveButton",
         event: "onClick",
         action: { run: "insertRow" },
+      }).success,
+    ).toBe(true);
+  });
+
+  it("accepts a chained run with onSuccess/onError follow-ups", () => {
+    expect(
+      wireEventSpecSchema.safeParse({
+        widget: "SaveButton",
+        event: "onClick",
+        action: {
+          run: "insertUser",
+          onSuccess: [
+            { run: "getUsers" },
+            { closeModal: "AddUserModal" },
+            { showAlert: "Saved", style: "success" },
+          ],
+          onError: [{ showAlert: "Save failed", style: "error" }],
+        },
       }).success,
     ).toBe(true);
   });
@@ -165,17 +244,38 @@ describe("applyEvent", () => {
   });
 });
 
-describe("eventReference / widgetExists", () => {
+describe("eventReferences / widgetExists", () => {
   it("returns the referenced entity for validation", () => {
-    expect(eventReference({ run: "q" })).toEqual({ kind: "query", name: "q" });
-    expect(eventReference({ navigate: "Home" })).toEqual({
-      kind: "page",
-      name: "Home",
-    });
-    expect(eventReference({ showModal: "M" })).toEqual({
-      kind: "widget",
-      name: "M",
-    });
+    expect(eventReferences({ run: "q" })).toEqual([
+      { kind: "query", name: "q" },
+    ]);
+    expect(eventReferences({ navigate: "Home" })).toEqual([
+      { kind: "page", name: "Home" },
+    ]);
+    expect(eventReferences({ showModal: "M" })).toEqual([
+      { kind: "widget", name: "M" },
+    ]);
+    // showAlert references nothing.
+    expect(eventReferences({ showAlert: "Done" })).toEqual([]);
+  });
+
+  it("collects every reference across a chain (primary + follow-ups)", () => {
+    expect(
+      eventReferences({
+        run: "insertUser",
+        onSuccess: [
+          { run: "getUsers" },
+          { closeModal: "AddUserModal" },
+          { showAlert: "Saved" },
+        ],
+        onError: [{ navigate: "Errors" }],
+      }),
+    ).toEqual([
+      { kind: "query", name: "insertUser" },
+      { kind: "query", name: "getUsers" },
+      { kind: "widget", name: "AddUserModal" },
+      { kind: "page", name: "Errors" },
+    ]);
   });
 
   it("finds nested widgets by name", () => {
