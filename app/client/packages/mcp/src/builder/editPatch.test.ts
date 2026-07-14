@@ -99,6 +99,127 @@ describe("applyWidgetPatch", () => {
     expect(changes[0].changedProps).toEqual(["oddRowColor", "evenRowColor"]);
   });
 
+  it("toggles table interactivity props (search/filter/sort/pagination)", () => {
+    const withTable = page();
+
+    withTable.children!.push(
+      node({ widgetId: "t1", widgetName: "Results", type: "TABLE_WIDGET_V2" }),
+    );
+    const { dsl } = applyWidgetPatch(withTable, {
+      operations: [
+        {
+          kind: "update",
+          name: "Results",
+          props: {
+            isVisibleSearch: true,
+            enableClientSideSearch: true,
+            isVisibleFilters: true,
+            isSortable: true,
+          },
+        },
+      ],
+    });
+
+    expect(dsl.children![2]).toMatchObject({
+      isVisibleSearch: true,
+      enableClientSideSearch: true,
+      isVisibleFilters: true,
+      isSortable: true,
+    });
+  });
+
+  it("binds an image's src to a table's selected row (imageSource)", () => {
+    const withImage = page();
+
+    withImage.children!.push(
+      node({ widgetId: "t1", widgetName: "People", type: "TABLE_WIDGET_V2" }),
+      node({ widgetId: "img1", widgetName: "Photo", type: "IMAGE_WIDGET" }),
+    );
+    const { dsl } = applyWidgetPatch(withImage, {
+      operations: [
+        {
+          kind: "update",
+          name: "Photo",
+          props: { imageSource: { table: "People", column: "photo" } },
+        },
+      ],
+    });
+    const image = dsl.children![3];
+
+    expect(image.image).toBe('{{ People.selectedRow["photo"] }}');
+    expect(image.dynamicBindingPathList).toEqual([{ key: "image" }]);
+  });
+
+  it("clears the stale dynamic path when a literal image replaces an imageSource binding", () => {
+    const withImage = page();
+
+    withImage.children!.push(
+      node({ widgetId: "t1", widgetName: "People", type: "TABLE_WIDGET_V2" }),
+      node({ widgetId: "img1", widgetName: "Photo", type: "IMAGE_WIDGET" }),
+    );
+
+    const bound = applyWidgetPatch(withImage, {
+      operations: [
+        {
+          kind: "update",
+          name: "Photo",
+          props: { imageSource: { table: "People", column: "photo" } },
+        },
+      ],
+    });
+    const { dsl } = applyWidgetPatch(bound.dsl, {
+      operations: [
+        {
+          kind: "update",
+          name: "Photo",
+          props: { image: "https://x/y.png" },
+        },
+      ],
+    });
+    const image = dsl.children![3];
+
+    expect(image.image).toBe("https://x/y.png");
+    expect(image.dynamicBindingPathList).toEqual([]);
+  });
+
+  it("rejects imageSource on a non-image, and a literal image alongside it", () => {
+    const withImage = page();
+
+    withImage.children!.push(
+      node({ widgetId: "t1", widgetName: "People", type: "TABLE_WIDGET_V2" }),
+      node({ widgetId: "img1", widgetName: "Photo", type: "IMAGE_WIDGET" }),
+    );
+
+    // imageSource only applies to image widgets.
+    expect(() =>
+      applyWidgetPatch(withImage, {
+        operations: [
+          {
+            kind: "update",
+            name: "Greeting",
+            props: { imageSource: { table: "People", column: "photo" } },
+          },
+        ],
+      }),
+    ).toThrow(/can only be set on a IMAGE_WIDGET/);
+
+    // A literal image and an imageSource binding in one update is ambiguous.
+    expect(() =>
+      applyWidgetPatch(withImage, {
+        operations: [
+          {
+            kind: "update",
+            name: "Photo",
+            props: {
+              image: "https://x/y.png",
+              imageSource: { table: "People", column: "photo" },
+            },
+          },
+        ],
+      }),
+    ).toThrow(/cannot set both 'image' and 'imageSource'/);
+  });
+
   it("re-binds a table's data with a clear-when-empty guard", () => {
     const withWidgets = page();
 

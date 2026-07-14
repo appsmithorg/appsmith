@@ -32,6 +32,7 @@ import {
   RECIPES,
   scaffoldCrudPlan,
   scaffoldFormPlan,
+  SERVER_INSTRUCTIONS,
   WIDGET_REFERENCE,
 } from "./builder/instructions.js";
 import type { WidgetNode } from "./builder/layout.js";
@@ -1060,12 +1061,36 @@ function result(data: unknown) {
   };
 }
 
+// Project the raw /workspaces/home list (List<Workspace>) to just { id, name } pairs — the two fields an agent needs
+// to turn a workspace NAME into the workspaceId the build/data tools require, without leaking other org metadata.
+function projectWorkspaces(raw: unknown): { id: string; name: string }[] {
+  if (!Array.isArray(raw)) return [];
+
+  const workspaces: { id: string; name: string }[] = [];
+
+  for (const entry of raw) {
+    if (entry === null || typeof entry !== "object") continue;
+
+    const id = (entry as { id?: unknown }).id;
+    const name = (entry as { name?: unknown }).name;
+
+    if (typeof id === "string" && typeof name === "string") {
+      workspaces.push({ id, name });
+    }
+  }
+
+  return workspaces;
+}
+
 export function buildMcpServer(
   api: AppsmithApi,
   ctx: ServerContext = { dataEnabled: false, jsEnabled: false, actorId: "" },
 ) {
   const { actorId, dataEnabled, governance, jsEnabled } = ctx;
-  const server = new McpServer({ name: "appsmith-mcp", version: "0.0.1" });
+  const server = new McpServer(
+    { name: "appsmith-mcp", version: "0.0.1" },
+    { instructions: SERVER_INSTRUCTIONS },
+  );
 
   // Shared commit path for layout mutations (edit_page / patch_widgets). When governance is active it wraps the
   // write in a distributed lock + mandatory revision check + audit record (returning a changeId) and maps
@@ -1169,14 +1194,36 @@ export function buildMcpServer(
 
   server.tool(
     "list_workspaces",
-    "List workspaces accessible to the authenticated Appsmith user.",
+    "List workspaces accessible to the authenticated Appsmith user, as { id, name } pairs. Tools take a workspaceId, not a name — use this (or resolve_workspace) to turn a workspace NAME the user gives you into its id rather than asking the user for a raw id.",
     {},
-    async () => result(await api.listWorkspaces()),
+    async () =>
+      result({ workspaces: projectWorkspaces(await api.listWorkspaces()) }),
+  );
+
+  server.tool(
+    "resolve_workspace",
+    "Resolve a workspace NAME to its workspaceId. Returns matching { id, name } workspaces (an exact case-insensitive name match if one exists, otherwise partial matches). Use the returned id as the workspaceId for build_application and other workspace-scoped tools. If there are zero or multiple matches, show the user the candidates instead of guessing.",
+    { name: z.string().trim().min(1).max(200) },
+    async ({ name }) => {
+      const workspaces = projectWorkspaces(await api.listWorkspaces());
+      const query = name.trim().toLowerCase();
+      const exact = workspaces.filter(
+        (workspace) => workspace.name.toLowerCase() === query,
+      );
+      const matches =
+        exact.length > 0
+          ? exact
+          : workspaces.filter((workspace) =>
+              workspace.name.toLowerCase().includes(query),
+            );
+
+      return result({ query: name, matches });
+    },
   );
 
   server.tool(
     "list_applications",
-    "List applications in a workspace accessible to the authenticated Appsmith user.",
+    "List applications in a workspace accessible to the authenticated Appsmith user. Pass a workspaceId (resolve a workspace name to its id with resolve_workspace / list_workspaces first).",
     { workspaceId: idSchema },
     async ({ workspaceId }) => result(await api.listApplications(workspaceId)),
   );
@@ -1262,7 +1309,7 @@ export function buildMcpServer(
 
   server.tool(
     "build_application",
-    "Create an Appsmith application from a high-level app spec. Widgets are auto-placed on the grid, compiled to an artifact, and imported via the caller's ACL-enforced permissions.",
+    "Create an Appsmith application from a high-level app spec. Widgets are auto-placed on the grid, compiled to an artifact, and imported via the caller's ACL-enforced permissions. workspaceId is required — if the user names a workspace, resolve it to its id with resolve_workspace (or list_workspaces) rather than asking for a raw id.",
     { workspaceId: idSchema, app: z.record(z.unknown()) },
     async ({ app, workspaceId }) => {
       const parsed = appSpecSchema.safeParse(app);

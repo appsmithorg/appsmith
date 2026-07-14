@@ -133,7 +133,12 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     {
       name: "list_workspaces",
       gate: "always",
-      summary: "list accessible workspaces",
+      summary: "list accessible workspaces as { id, name }",
+    },
+    {
+      name: "resolve_workspace",
+      gate: "always",
+      summary: "resolve a workspace name to its id",
     },
     {
       name: "list_applications",
@@ -350,9 +355,70 @@ function gateActive(gate: ToolGate, gates: CapabilityGates): boolean {
   }
 }
 
+// What each (non-always) gate requires to be enabled, and what it unlocks — so an agent can SEE a capability that is
+// currently off and tell the user exactly which setting turns it on, instead of assuming the server simply can't do it.
+// `requires` is phrased as a HUMAN-facing instruction (so an agent relaying it gives an end user something they can
+// act on), with the exact self-hosted env var / backend in parentheses. On Appsmith Cloud the end user cannot set
+// these — the ask still correctly points at "your Appsmith administrator".
+const GATE_REQUIREMENTS: Record<
+  Exclude<ToolGate, "always">,
+  { requires: string; provides: string }
+> = {
+  governance: {
+    requires:
+      "ask your Appsmith administrator to configure MCP governance (a Mongo + Redis backend)",
+    provides:
+      "governed edits, page create/delete, publish, audit history, rollback",
+  },
+  data: {
+    requires:
+      "ask your Appsmith administrator to enable the MCP data layer (self-hosted: env APPSMITH_MCP_DATA_ENABLED)",
+    provides: "datasources, SQL/REST queries, action reads and read-only runs",
+  },
+  data_governance: {
+    requires:
+      "ask your Appsmith administrator to enable the MCP data layer and configure governance (self-hosted: env APPSMITH_MCP_DATA_ENABLED plus a Mongo + Redis backend)",
+    provides: "governed action edits/deletes and confirmed action runs",
+  },
+  js: {
+    requires:
+      "ask your Appsmith administrator to enable MCP JS objects (self-hosted: env APPSMITH_MCP_JS_ENABLED)",
+    provides: "restricted (declarative) JS objects",
+  },
+  js_governance: {
+    requires:
+      "ask your Appsmith administrator to enable MCP JS objects and configure governance (self-hosted: env APPSMITH_MCP_JS_ENABLED plus a Mongo + Redis backend)",
+    provides: "governed JS-object edits/deletes",
+  },
+};
+
+// The capability groups that are NOT registered under the current gates, grouped by the setting that enables them,
+// each listing the exact tool names it would add. Surfacing this (rather than silently hiding the tools) lets an
+// agent advise the user how to unlock data-backed, JS, or governed features.
+function disabledCapabilities(gates: CapabilityGates) {
+  const groups = new Map<
+    string,
+    { requires: string; provides: string; tools: string[] }
+  >();
+
+  for (const tool of TOOL_CATALOG) {
+    if (tool.gate === "always" || gateActive(tool.gate, gates)) continue;
+
+    const requirement = GATE_REQUIREMENTS[tool.gate];
+    const group = groups.get(tool.gate) ?? { ...requirement, tools: [] };
+
+    group.tools.push(tool.name);
+    groups.set(tool.gate, group);
+  }
+
+  return [...groups.values()];
+}
+
 export function getCapabilities(
   gates: CapabilityGates = { data: false, js: false, governance: false },
 ) {
+  const disabledGroups = disabledCapabilities(gates);
+
   return {
     description:
       "Build and safely modify Appsmith apps. The MCP layer auto-places widgets on a 64-column grid and compiles to " +
@@ -379,6 +445,16 @@ export function getCapabilities(
       dataLayer: gates.data,
       restrictedJsObjects: gates.js,
       governance: gates.governance,
+    },
+    // Capabilities that EXIST in this server but are not registered under the current configuration. If the user asks
+    // for something here (datasources, queries, JS objects, publish, ...), don't say it's impossible — relay each
+    // group's 'requires' instruction so they know how to unlock it.
+    disabledCapabilities: {
+      note:
+        disabledGroups.length === 0
+          ? "All capability groups are enabled."
+          : "Not available under this deployment's configuration. To use one of these, follow the group's 'requires' instruction (ask your Appsmith administrator), then reconnect.",
+      groups: disabledGroups,
     },
     governanceNote: gates.governance
       ? "Mutations are locked, revision-checked, and audited; destructive/high-impact operations require a one-time confirmation token."

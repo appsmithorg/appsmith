@@ -1,10 +1,11 @@
-import { WIDGET_CATALOG } from "./capabilities.js";
+import { TOOL_CATALOG, WIDGET_CATALOG } from "./capabilities.js";
 import {
   GUIDES,
   parseFields,
   RECIPES,
   scaffoldCrudPlan,
   scaffoldFormPlan,
+  SERVER_INSTRUCTIONS,
   WIDGET_REFERENCE,
 } from "./instructions.js";
 import { WIDGET_TYPES } from "./schema.js";
@@ -121,5 +122,30 @@ describe("scaffold prompt plans", () => {
 
   it("handles missing fields gracefully", () => {
     expect(scaffoldCrudPlan("Order", "")).toContain("no fields parsed");
+  });
+});
+
+describe("SERVER_INSTRUCTIONS stays in sync with reality (no prose drift)", () => {
+  it("references only real, registered tool names", () => {
+    const known = new Set(TOOL_CATALOG.map((tool) => tool.name));
+    // snake_case identifiers (a tool name shape) referenced in the prose.
+    const referenced =
+      SERVER_INSTRUCTIONS.match(/\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b/g) ?? [];
+    const unknown = [...new Set(referenced)].filter(
+      (token) => !known.has(token),
+    );
+
+    expect(unknown).toEqual([]);
+  });
+
+  it("references only known MCP enablement env vars", () => {
+    const knownEnv = new Set([
+      "APPSMITH_MCP_DATA_ENABLED",
+      "APPSMITH_MCP_JS_ENABLED",
+    ]);
+    const envRefs = SERVER_INSTRUCTIONS.match(/\bAPPSMITH_[A-Z0-9_]+\b/g) ?? [];
+    const unknown = [...new Set(envRefs)].filter((name) => !knownEnv.has(name));
+
+    expect(unknown).toEqual([]);
   });
 });

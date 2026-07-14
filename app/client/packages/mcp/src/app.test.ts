@@ -1962,6 +1962,95 @@ describe("governance-wrapped layout mutations", () => {
     return { body: JSON.parse(text), text };
   }
 
+  const RAW_WORKSPACES = [
+    { id: "ws1", name: "Marketing", email: "x@y.com", plan: "free" },
+    { id: "ws2", name: "Marketing Ops", userPermissions: ["read"] },
+    { id: "ws3", name: "Engineering" },
+  ];
+
+  it("list_workspaces returns only { id, name } pairs (no other org metadata)", async () => {
+    const server = createMcpHttpServer(API_BASE_URL, () => ({
+      ...createApi()(),
+      listWorkspaces: jest.fn(async () => RAW_WORKSPACES),
+    }));
+    const { body, text } = await callTool(server, "list_workspaces", {});
+
+    expect(body.workspaces).toEqual([
+      { id: "ws1", name: "Marketing" },
+      { id: "ws2", name: "Marketing Ops" },
+      { id: "ws3", name: "Engineering" },
+    ]);
+    // Other workspace fields are not surfaced.
+    expect(text).not.toContain("plan");
+    expect(text).not.toContain("userPermissions");
+  });
+
+  it("resolve_workspace matches by exact name, else partial, else empty", async () => {
+    const server = createMcpHttpServer(API_BASE_URL, () => ({
+      ...createApi()(),
+      listWorkspaces: jest.fn(async () => RAW_WORKSPACES),
+    }));
+
+    // Exact (case-insensitive) match wins even though a partial one also exists.
+    const exact = await callTool(server, "resolve_workspace", {
+      name: "marketing",
+    });
+
+    expect(exact.body.matches).toEqual([{ id: "ws1", name: "Marketing" }]);
+
+    // No exact match -> partial (substring) matches.
+    const partial = await callTool(server, "resolve_workspace", {
+      name: "market",
+    });
+
+    expect(partial.body.matches).toEqual([
+      { id: "ws1", name: "Marketing" },
+      { id: "ws2", name: "Marketing Ops" },
+    ]);
+
+    // No match -> empty list (the agent should show candidates, not guess).
+    const none = await callTool(server, "resolve_workspace", { name: "Sales" });
+
+    expect(none.body.matches).toEqual([]);
+  });
+
+  it("resolve_workspace returns all candidates when several share an exact name", async () => {
+    const dupServer = createMcpHttpServer(API_BASE_URL, () => ({
+      ...createApi()(),
+      listWorkspaces: jest.fn(async () => [
+        { id: "a", name: "Support" },
+        { id: "b", name: "support" },
+        { id: "c", name: "Sales" },
+      ]),
+    }));
+
+    const dup = await callTool(dupServer, "resolve_workspace", {
+      name: "Support",
+    });
+
+    expect(dup.body.matches).toEqual([
+      { id: "a", name: "Support" },
+      { id: "b", name: "support" },
+    ]);
+  });
+
+  it("workspace tools degrade to empty when the API returns a non-array", async () => {
+    const badServer = createMcpHttpServer(API_BASE_URL, () => ({
+      ...createApi()(),
+      listWorkspaces: jest.fn(async () => ({ unexpected: "shape" })),
+    }));
+
+    const list = await callTool(badServer, "list_workspaces", {});
+
+    expect(list.body.workspaces).toEqual([]);
+
+    const resolved = await callTool(badServer, "resolve_workspace", {
+      name: "anything",
+    });
+
+    expect(resolved.body.matches).toEqual([]);
+  });
+
   it("read_theme returns only safe tokens and a revision (no stylesheet/config)", async () => {
     const api: AppsmithApi = {
       ...createApi()(),
@@ -2292,6 +2381,71 @@ describe("governance-wrapped layout mutations", () => {
 
       expect([...advertised].sort()).toEqual([...registered].sort());
     }
+  });
+
+  it("get_capabilities advertises disabled capability groups with how to enable them", async () => {
+    // Data + JS off: the agent must still SEE those capabilities and the setting that unlocks them.
+    const offServer = createMcpHttpServer(API_BASE_URL, () => createApi()(), {
+      dataEnabled: false,
+      jsEnabled: false,
+    });
+    const off = await callTool(offServer, "get_capabilities", {});
+    const groups = off.body.disabledCapabilities.groups as {
+      requires: string;
+      provides: string;
+      tools: string[];
+    }[];
+
+    // Every enablement instruction is phrased for a human (not a bare env var) and names the real setting.
+    expect(
+      groups.every((group) =>
+        group.requires.startsWith("ask your Appsmith administrator"),
+      ),
+    ).toBe(true);
+    expect(
+      groups.some((group) =>
+        group.requires.includes("APPSMITH_MCP_DATA_ENABLED"),
+      ),
+    ).toBe(true);
+    expect(
+      groups.some((group) =>
+        group.requires.includes("APPSMITH_MCP_JS_ENABLED"),
+      ),
+    ).toBe(true);
+
+    // The data group names the real tools it would add.
+    const dataGroup = groups.find((group) =>
+      group.tools.includes("create_query"),
+    );
+
+    expect(dataGroup?.requires).toContain("APPSMITH_MCP_DATA_ENABLED");
+
+    // Everything on -> nothing disabled.
+    const onServer = createMcpHttpServer(API_BASE_URL, () => createApi()(), {
+      dataEnabled: true,
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+    const on = await callTool(onServer, "get_capabilities", {});
+
+    expect(on.body.disabledCapabilities.groups).toEqual([]);
+  });
+
+  it("returns server instructions in the initialize response (visible to every client)", async () => {
+    const server = createMcpHttpServer(API_BASE_URL, createApi());
+    const initialized = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .send(initializeRequest);
+    const { instructions } = parseJsonRpc(initialized).result as {
+      instructions?: string;
+    };
+
+    expect(typeof instructions).toBe("string");
+    // The instructions steer the agent to discover capabilities and resolve workspaces by name.
+    expect(instructions).toContain("get_capabilities");
+    expect(instructions).toContain("resolve_workspace");
   });
 
   it("wire_event binds a widget event via the closed vocabulary and is governed", async () => {

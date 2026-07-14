@@ -261,3 +261,26 @@ ${fieldLines}
 export function recipePresetNames(): string[] {
   return listPresets().map((preset) => preset.name);
 }
+
+// Server-level instructions returned in the MCP `initialize` response, so EVERY client (ChatGPT, Claude, ...) sees
+// the full workflow and the fact that data/JS/governed capabilities exist — even before calling get_capabilities.
+// This is the primary visibility surface: it must name the real tools and steer the agent to discover gated tools
+// rather than assume the server can only scaffold.
+// MAINTENANCE: this is hand-authored prose (MCP `instructions` cannot be generated). The tool names, widget list, and
+// env-var names below are NOT bound to TOOL_CATALOG / WIDGET_CATALOG at compile time — on any tool rename, gate
+// change, or widget addition, reconcile this string with those sources. The `SERVER_INSTRUCTIONS names only real
+// tools + env vars` test guards against drift.
+export const SERVER_INSTRUCTIONS = `Appsmith MCP — build and modify REAL Appsmith applications through a safe, structured API. You never write raw widget DSL, SQL, JS, or bindings; you call tools and the server compiles them under the user's own permissions.
+
+ALWAYS call get_capabilities first. It lists the exact tools available under this deployment's configuration, plus 'disabledCapabilities' — capability groups that exist but are turned off (e.g. datasources/queries, JS objects, publish). If a capability you need is disabled, relay that group's 'requires' instruction to the user (it tells them to ask their Appsmith administrator to enable it) — do NOT claim the server cannot do it. Enabling is controlled by APPSMITH_MCP_DATA_ENABLED / APPSMITH_MCP_JS_ENABLED and a Mongo + Redis governance backend.
+
+Recommended workflow for a production-quality app:
+1. Target a workspace: resolve_workspace(name) -> workspaceId (or list_workspaces). Tools take an id, not a name — never ask the user for a raw id if they gave you a name.
+2. Create the app: build_application(workspaceId, appSpec). Widgets: text, input, select, button, image, table, container, form, modal, datepicker, chart, tabs, list. Inputs support named-format validation; tables support a query 'source' (optionally clear-when-empty).
+3. Add data (if listed by get_capabilities): create_datasource (DB or REST, no credentials) -> create_query / create_rest_api -> bind a table to it, and bind detail widgets to the selected row.
+4. Inspect and refine with read_semantic_page / inspect_page, then patch_widgets: bind a table's data, a text/image/input to the selected row (source / imageSource / defaultValue), toggle table search/filter/sort/pagination, set row striping, add input validation, disable a button while an input is invalid, and move/reparent/remove widgets. Append new widgets with edit_page.
+5. Wire behavior: wire_event connects button onClick / table onRowSelected / modal onClose / tabs onTabSelected to run a query (with onSuccess/onError chains), navigate, show/close a modal, show an alert, or reset widgets (a Clear button).
+6. Add JS logic (if listed): create_js_object for restricted, declarative JS objects.
+7. Ship it: prepare_publish -> confirm_publish (governed).
+
+Read the appsmith://reference/widgets resource and appsmith://recipe/* walkthroughs for details. Prefer editing an existing app iteratively (read -> patch -> re-read) over rebuilding.`;

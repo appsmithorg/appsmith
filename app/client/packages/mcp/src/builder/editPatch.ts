@@ -69,6 +69,8 @@ export const widgetPropsPatchSchema = z
     text: safeText(10_000).optional(),
     source: selectedRowRefSchema.optional(),
     defaultValue: selectedRowRefSchema.optional(),
+    // Bind an image's src to a column of a table's selected row (e.g. an employee photo in a detail panel).
+    imageSource: selectedRowRefSchema.optional(),
     // Re-bind a table's data (optionally clear-when-empty). Compiled, never literal-assigned.
     tableData: tableDataRefSchema.optional(),
     // Add named-format validation to an input (compiled to a vetted regex + error message).
@@ -100,6 +102,14 @@ export const widgetPropsPatchSchema = z
     // ships as static style, not an evaluated expression.
     oddRowColor: cssColor.optional(),
     evenRowColor: cssColor.optional(),
+    // Table interactivity toggles (TableWidgetV2). Literal booleans — turn on client-side search across all columns,
+    // the column filter UI, sorting, download, and pagination for a directory-style browse experience.
+    isVisibleSearch: z.boolean().optional(),
+    enableClientSideSearch: z.boolean().optional(),
+    isVisibleFilters: z.boolean().optional(),
+    isSortable: z.boolean().optional(),
+    isVisibleDownload: z.boolean().optional(),
+    isVisiblePagination: z.boolean().optional(),
   })
   .strict()
   .refine((props) => Object.keys(props).length > 0, "must update a property");
@@ -409,6 +419,7 @@ export function applyWidgetPatch(
       const {
         defaultValue,
         disableWhenInvalid,
+        imageSource,
         source,
         tableData,
         validation,
@@ -423,6 +434,12 @@ export function applyWidgetPatch(
       if (defaultValue !== undefined && literals.defaultText !== undefined) {
         throw new Error(
           "cannot set both 'defaultText' and 'defaultValue' in one update",
+        );
+      }
+
+      if (imageSource !== undefined && literals.image !== undefined) {
+        throw new Error(
+          "cannot set both 'image' and 'imageSource' in one update",
         );
       }
 
@@ -460,6 +477,14 @@ export function applyWidgetPatch(
         });
       }
 
+      if (imageSource !== undefined) {
+        applySelectedRowBinding(widgets, located.node, imageSource, {
+          widgetType: "IMAGE_WIDGET",
+          property: "image",
+          field: "imageSource",
+        });
+      }
+
       if (tableData !== undefined) {
         applyTableDataBinding(widgets, located.node, tableData);
       }
@@ -481,6 +506,10 @@ export function applyWidgetPatch(
 
       if (literals.defaultText !== undefined) {
         unregisterDynamicBinding(located.node, "defaultText");
+      }
+
+      if (literals.image !== undefined) {
+        unregisterDynamicBinding(located.node, "image");
       }
 
       // A literal isDisabled replacing a prior disableWhenInvalid binding clears its dynamic-path registration.
