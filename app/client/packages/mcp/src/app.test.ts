@@ -3,6 +3,7 @@ import {
   MAX_ARTIFACT_BYTES,
   createAppsmithApi,
   createMcpHttpServer,
+  hostHeaderName,
   type AppsmithApi,
 } from "./app.js";
 import { fingerprintDsl } from "./builder/semantic.js";
@@ -892,6 +893,84 @@ describe("MCP HTTP server", () => {
     expect(response).toMatchObject({
       status: 403,
       body: { error: "cross-origin requests are not allowed" },
+    });
+  });
+
+  it("rejects a Host not in the configured allowlist before any session/auth work", async () => {
+    const validateToken = jest.fn();
+    const server = createMcpHttpServer(API_BASE_URL, createApi(validateToken), {
+      allowedHosts: ["127.0.0.1", "localhost"],
+    });
+    const rejected = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Host", "attacker.example")
+      .set("Authorization", "Bearer mcp_user-token")
+      .send(initializeRequest);
+
+    expect(rejected).toMatchObject({
+      status: 403,
+      body: { error: "host not allowed" },
+    });
+    // Rejected before authentication — no session is created and the token is never validated.
+    expect(validateToken).not.toHaveBeenCalled();
+
+    // A loopback Host (what supertest and Caddy-to-loopback send) is allowed through to normal processing.
+    const allowed = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Host", "127.0.0.1")
+      .set("Authorization", "Bearer mcp_user-token")
+      .send(initializeRequest);
+
+    expect(allowed.status).not.toBe(403);
+  });
+
+  it("leaves the Host header unchecked when no allowlist is configured (default)", async () => {
+    const server = createMcpHttpServer(API_BASE_URL, createApi());
+    const response = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Host", "any-public-domain.example")
+      .set("Authorization", "Bearer mcp_user-token")
+      .send(initializeRequest);
+
+    // No allowlist -> Host is not a rejection reason (Caddy-fronted deployments preserve the public Host).
+    expect(response.status).not.toBe(403);
+  });
+
+  it("allows a listed host that arrives with a port (loopback deployments send host:port)", async () => {
+    const server = createMcpHttpServer(API_BASE_URL, createApi(), {
+      allowedHosts: ["127.0.0.1"],
+    });
+    const response = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Host", "127.0.0.1:9000")
+      .set("Authorization", "Bearer mcp_user-token")
+      .send(initializeRequest);
+
+    // The port is stripped before the allowlist check, so 127.0.0.1:9000 matches "127.0.0.1".
+    expect(response.status).not.toBe(403);
+  });
+
+  describe("hostHeaderName", () => {
+    it("extracts the lowercased hostname without the port", () => {
+      expect(hostHeaderName("127.0.0.1")).toBe("127.0.0.1");
+      expect(hostHeaderName("127.0.0.1:8092")).toBe("127.0.0.1");
+      expect(hostHeaderName("LocalHost:8092")).toBe("localhost");
+      expect(hostHeaderName("  Example.COM:443  ")).toBe("example.com");
+      // Bracketed IPv6 keeps the address and drops the port.
+      expect(hostHeaderName("[::1]:8092")).toBe("::1");
+      expect(hostHeaderName("[::1]")).toBe("::1");
+    });
+
+    it("returns an empty string for a missing or non-string header (fails closed)", () => {
+      expect(hostHeaderName(undefined)).toBe("");
+      expect(hostHeaderName("")).toBe("");
+      expect(hostHeaderName(["127.0.0.1"])).toBe("");
+      // A malformed bracket does not silently become a loopback match.
+      expect(hostHeaderName("[::1")).not.toBe("::1");
     });
   });
 

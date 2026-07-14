@@ -3142,6 +3142,29 @@ export interface McpHttpServerOptions {
   // Governance coordinator (present only when Mongo+Redis are configured). When absent, governed/destructive tools
   // are not registered and normal mutations run unlocked (still revision-checked).
   governance?: McpGovernanceCoordinator;
+  // Optional Host-header allowlist (hostnames, port ignored) — a configured DNS-rebinding defense to complement the
+  // unconditional Origin rejection. Empty/undefined (the default) leaves Host unchecked, because this service is
+  // fronted by Caddy which preserves the original Host, so a fixed loopback list would reject the proxied public
+  // deployment. A loopback-only or host-pinned deployment sets APPSMITH_MCP_ALLOWED_HOSTS to enforce it.
+  allowedHosts?: string[];
+}
+
+// The hostname portion of a Host header, lowercased and without the port. Handles `host`, `host:port`, and
+// bracketed IPv6 (`[::1]:port` -> `::1`). Returns "" for a missing/empty header. Exported for direct unit testing.
+export function hostHeaderName(hostHeader: unknown): string {
+  if (typeof hostHeader !== "string") return "";
+
+  const trimmed = hostHeader.trim();
+
+  if (trimmed.startsWith("[")) {
+    const end = trimmed.indexOf("]");
+
+    return (end > 0 ? trimmed.slice(1, end) : trimmed).toLowerCase();
+  }
+
+  const colon = trimmed.indexOf(":");
+
+  return (colon >= 0 ? trimmed.slice(0, colon) : trimmed).toLowerCase();
 }
 
 function tokensMatch(left: string, right: string): boolean {
@@ -3176,6 +3199,11 @@ export function createMcpHttpServer(
   const dataEnabled = options.dataEnabled ?? false;
   const jsEnabled = options.jsEnabled ?? false;
   const governance = options.governance;
+  const allowedHosts = new Set(
+    (options.allowedHosts ?? [])
+      .map((host) => host.trim().toLowerCase())
+      .filter((host) => host.length > 0),
+  );
 
   function removeExpiredSessions() {
     const currentTime = now();
@@ -3248,6 +3276,18 @@ export function createMcpHttpServer(
       // rebinding to reach the loopback service, so reject any request that carries a browser Origin header.
       if (req.headers.origin !== undefined) {
         writeJson(res, 403, { error: "cross-origin requests are not allowed" });
+
+        return;
+      }
+
+      // Configured Host allowlist (defense-in-depth against DNS rebinding, where the request arrives with the
+      // attacker's hostname in Host). Enforced only when APPSMITH_MCP_ALLOWED_HOSTS is set — see McpHttpServerOptions.
+      // Checked before any auth/session/transport work so a rejected request never creates a session.
+      if (
+        allowedHosts.size > 0 &&
+        !allowedHosts.has(hostHeaderName(req.headers.host))
+      ) {
+        writeJson(res, 403, { error: "host not allowed" });
 
         return;
       }

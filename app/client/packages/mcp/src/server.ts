@@ -15,6 +15,14 @@ const apiBaseUrl = process.env.APPSMITH_API_BASE_URL ?? "http://127.0.0.1:8080";
 const dataEnabled = gateEnabledByDefault(process.env.APPSMITH_MCP_DATA_ENABLED);
 const jsEnabled = gateEnabledByDefault(process.env.APPSMITH_MCP_JS_ENABLED);
 
+// Optional Host-header allowlist (comma-separated hostnames) enforced on /mcp. Unset by default: this service is
+// fronted by Caddy which preserves the original Host, so a default loopback list would reject the proxied public
+// deployment. A loopback-only or host-pinned deployment sets this to enforce a DNS-rebinding Host check.
+const allowedHosts = (process.env.APPSMITH_MCP_ALLOWED_HOSTS ?? "")
+  .split(",")
+  .map((host) => host.trim())
+  .filter((host) => host.length > 0);
+
 let httpServer: Server | undefined;
 let governanceStore: MongoRedisGovernanceStore | undefined;
 let shuttingDown = false;
@@ -80,6 +88,7 @@ async function main(): Promise<void> {
     dataEnabled,
     jsEnabled,
     governance,
+    allowedHosts,
   });
 
   httpServer.listen(port, "127.0.0.1", () => {
