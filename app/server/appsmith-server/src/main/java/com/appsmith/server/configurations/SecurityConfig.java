@@ -16,6 +16,7 @@ import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.filters.ConditionalFilter;
 import com.appsmith.server.filters.LoginMetricsFilter;
 import com.appsmith.server.filters.LoginRateLimitFilter;
+import com.appsmith.server.filters.McpAllowlistWebFilter;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.AnalyticsService;
@@ -223,6 +224,10 @@ public class SecurityConfig {
         // bean it would be auto-wired as the global default and break form-login.
         McpTokenAuthenticationManager mcpTokenAuthenticationManager =
                 new McpTokenAuthenticationManager(userMcpTokenService, rateLimitService);
+        // Construct here (not a @Component) so it is added ONLY to this security chain: a @Component WebFilter is also
+        // auto-registered globally by WebHttpHandlerBuilder, running it a second time outside the chain. Matches the
+        // peer-filter convention (LoginMetricsFilter / LoginRateLimitFilter).
+        McpAllowlistWebFilter mcpAllowlistWebFilter = new McpAllowlistWebFilter();
         AuthenticationWebFilter mcpTokenAuthenticationWebFilter =
                 new AuthenticationWebFilter(mcpTokenAuthenticationManager);
         mcpTokenAuthenticationWebFilter.setServerAuthenticationConverter(mcpTokenAuthenticationConverter);
@@ -245,6 +250,12 @@ public class SecurityConfig {
                 // same order as form-login breaks its manager wiring (login -> 500). This runs the MCP bearer check
                 // just ahead of form-login and is inert for non-MCP requests (see the matcher above).
                 .addFilterBefore(mcpTokenAuthenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+                // Confine what an MCP-token-authenticated principal may reach on /api/v1 to the allowlist. Runs
+                // just before authorization, after the MCP auth filter has populated the reactive security context,
+                // so a valid mcp_ token hitting a non-allowlisted path/verb gets 403. Kept as a shared filter (not
+                // an authorizeExchange rule) so EE — whose authorizeExchange chain diverges — wires the identical
+                // control.
+                .addFilterBefore(mcpAllowlistWebFilter, SecurityWebFiltersOrder.AUTHORIZATION)
                 // Default security headers configuration from
                 // https://docs.spring.io/spring-security/site/docs/5.0.x/reference/html/headers.html
                 .headers(headerSpec -> headerSpec

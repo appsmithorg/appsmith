@@ -6,6 +6,7 @@ DB_PASSWORD="$2"
 ENCRYPTION_PASSWORD="$3"
 ENCRYPTION_SALT="$4"
 REDIS_PASSWORD="${5:-}"
+MCP_INTERNAL_SECRET="${6:-}"
 
 cat <<EOF
 # Sentry
@@ -94,5 +95,9 @@ APPSMITH_MCP_DATA_ENABLED=true
 APPSMITH_MCP_JS_ENABLED=true
 # How long a newly created/rotated MCP token stays valid (days). Default 90; range 1-3650.
 APPSMITH_MCP_TOKEN_TTL_DAYS=90
+# Internal marker secret the loopback MCP service stamps on its /api/v1 calls (X-Appsmith-Mcp-Internal). Shared by
+# the backend and the mcp process (both source this file). Auto-generated at first boot; keep it secret. Empty
+# disables MCP auth (fails closed). The name contains SECRET so /actuator/env masks it.
+APPSMITH_MCP_INTERNAL_SECRET=$MCP_INTERNAL_SECRET
 
 EOF

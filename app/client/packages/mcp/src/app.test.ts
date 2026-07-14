@@ -111,6 +111,90 @@ describe("Appsmith API client", () => {
     );
   });
 
+  it("stamps the internal marker header when APPSMITH_MCP_INTERNAL_SECRET is set", async () => {
+    const previous = process.env.APPSMITH_MCP_INTERNAL_SECRET;
+
+    process.env.APPSMITH_MCP_INTERNAL_SECRET = "internal-marker-secret";
+    try {
+      const fetchFn = successfulFetch();
+      const api = createAppsmithApi(
+        "user-token",
+        API_BASE_URL,
+        fetchFn as unknown as typeof fetch,
+      );
+
+      await api.listWorkspaces();
+
+      expect(
+        new Headers(fetchFn.mock.calls[0][1]?.headers).get(
+          "X-Appsmith-Mcp-Internal",
+        ),
+      ).toBe("internal-marker-secret");
+    } finally {
+      if (previous === undefined) {
+        delete process.env.APPSMITH_MCP_INTERNAL_SECRET;
+      } else {
+        process.env.APPSMITH_MCP_INTERNAL_SECRET = previous;
+      }
+    }
+  });
+
+  it("omits the internal marker header when APPSMITH_MCP_INTERNAL_SECRET is unset", async () => {
+    const previous = process.env.APPSMITH_MCP_INTERNAL_SECRET;
+
+    delete process.env.APPSMITH_MCP_INTERNAL_SECRET;
+    try {
+      const fetchFn = successfulFetch();
+      const api = createAppsmithApi(
+        "user-token",
+        API_BASE_URL,
+        fetchFn as unknown as typeof fetch,
+      );
+
+      await api.listWorkspaces();
+
+      expect(
+        new Headers(fetchFn.mock.calls[0][1]?.headers).has(
+          "X-Appsmith-Mcp-Internal",
+        ),
+      ).toBe(false);
+    } finally {
+      if (previous !== undefined) {
+        process.env.APPSMITH_MCP_INTERNAL_SECRET = previous;
+      }
+    }
+  });
+
+  it("sends exactly the env marker value on a body-carrying request (never a caller-influenced value)", async () => {
+    // Constraint 3: the marker is sourced ONLY from this process's env and is spread LAST in the header object, so no
+    // request body/shape or internal call site can override or inject it. Exercise the multipart/body path (createAction).
+    const previous = process.env.APPSMITH_MCP_INTERNAL_SECRET;
+
+    process.env.APPSMITH_MCP_INTERNAL_SECRET = "env-only-secret";
+    try {
+      const fetchFn = successfulFetch();
+      const api = createAppsmithApi(
+        "user-token",
+        API_BASE_URL,
+        fetchFn as unknown as typeof fetch,
+      );
+
+      await api.createAction({ name: "q1", pageId: "p1" });
+
+      expect(
+        new Headers(fetchFn.mock.calls[0][1]?.headers).get(
+          "X-Appsmith-Mcp-Internal",
+        ),
+      ).toBe("env-only-secret");
+    } finally {
+      if (previous === undefined) {
+        delete process.env.APPSMITH_MCP_INTERNAL_SECRET;
+      } else {
+        process.env.APPSMITH_MCP_INTERNAL_SECRET = previous;
+      }
+    }
+  });
+
   it("getAction fetches by applicationId and selects the action by id (no GET /actions/{id})", async () => {
     const fetchFn = jest.fn<
       Promise<Response>,

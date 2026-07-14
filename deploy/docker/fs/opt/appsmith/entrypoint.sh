@@ -102,8 +102,14 @@ init_env_file() {
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ''
     )
+    # Internal marker secret shared by the backend and the mcp process to gate mcp_ tokens on /api/v1 (decision D2).
+    # Longer than the passwords above because it is a bearer-grade marker, not a login credential.
+    local generated_appsmith_mcp_internal_secret=$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 48
+      echo ''
+    )
 
-    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_redis_password" > "$ENV_PATH"
+    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_redis_password" "$generated_appsmith_mcp_internal_secret" > "$ENV_PATH"
   else
     tlog "Configuration file already exists"
     # Backfill APPSMITH_REDIS_PASSWORD for existing installs that don't have it yet.
@@ -136,6 +142,15 @@ init_env_file() {
     fi
     if ! grep -q "^APPSMITH_MCP_TOKEN_TTL_DAYS=" "$ENV_PATH"; then
       echo 'APPSMITH_MCP_TOKEN_TTL_DAYS=90' >> "$ENV_PATH"
+    fi
+    # Backfill the MCP internal marker secret for installs whose docker.env predates it, so upgraded instances get a
+    # working (and fail-closed-until-present) MCP trust boundary without a manual step. Generated once, then stable.
+    if ! grep -q "^APPSMITH_MCP_INTERNAL_SECRET=" "$ENV_PATH"; then
+      local generated_appsmith_mcp_internal_secret=$(
+        tr -dc A-Za-z0-9 </dev/urandom | head -c 48
+        echo ''
+      )
+      echo 'APPSMITH_MCP_INTERNAL_SECRET='"$generated_appsmith_mcp_internal_secret" >> "$ENV_PATH"
     fi
   fi
 

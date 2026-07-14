@@ -345,6 +345,12 @@ export function createAppsmithApi(
   fetchFn: typeof fetch = fetch,
   correlationHeaders: Record<string, string> = {},
 ): AppsmithApi {
+  // Internal marker that tells the Appsmith backend this /api/v1 call originates from the trusted loopback MCP
+  // service (decision D2). Sourced ONLY from this process's own env — never copied from an inbound client request —
+  // and added alongside Authorization. When unset the header is omitted, so the backend fails closed (an mcp_ token
+  // without a valid marker is rejected 401). Caddy strips any inbound copy of this header on ingress.
+  const internalMarker = process.env.APPSMITH_MCP_INTERNAL_SECRET;
+
   async function request<T>(path: string, init?: RequestInit): Promise<T> {
     const isMultipart = init?.body instanceof FormData;
     // Bound every upstream call so a hung Appsmith response cannot pin an MCP worker indefinitely. Preserve a
@@ -365,6 +371,11 @@ export function createAppsmithApi(
           ...(isMultipart ? {} : { "Content-Type": "application/json" }),
           ...correlationHeaders,
           ...init?.headers,
+          // Spread LAST so the env-sourced marker always wins: no correlation header or caller-supplied init.header
+          // can override or inject the trusted internal marker (constraint: never sourced from an inbound request).
+          ...(internalMarker
+            ? { "X-Appsmith-Mcp-Internal": internalMarker }
+            : {}),
         },
       });
 

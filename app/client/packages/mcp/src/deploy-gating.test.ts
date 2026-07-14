@@ -26,6 +26,38 @@ describe("Caddy MCP routing defaults on and honors an explicit disable", () => {
     expect(caddy).toMatch(/isMcpEnabled\s*\?\s*`?handle \/mcp/);
     expect(caddy).toContain("APPSMITH_MCP_PORT");
   });
+
+  it("strips the inbound MCP internal marker header in the shared all-config block", () => {
+    // An external client must never be able to forge X-Appsmith-Mcp-Internal; only the loopback MCP service adds
+    // it. Stripping it in (all-config) covers every route (/api/*, /mcp, /rts/*).
+    expect(caddy).toContain("request_header -X-Appsmith-Mcp-Internal");
+  });
+});
+
+describe("MCP internal marker secret is provisioned to backend and mcp process", () => {
+  it("entrypoint generates the secret at first boot and backfills it on upgrade", () => {
+    const entrypoint = readDeployFile(
+      "deploy/docker/fs/opt/appsmith/entrypoint.sh",
+    );
+
+    // First-boot generation, passed as the 6th positional arg to docker.env.sh.
+    expect(entrypoint).toMatch(/generated_appsmith_mcp_internal_secret/);
+    // Backfill for installs whose docker.env predates the secret.
+    expect(entrypoint).toMatch(
+      /grep -q "\^APPSMITH_MCP_INTERNAL_SECRET=" "\$ENV_PATH"/,
+    );
+  });
+
+  it("docker.env template emits APPSMITH_MCP_INTERNAL_SECRET (name masks in /actuator/env)", () => {
+    const dockerEnv = readDeployFile(
+      "deploy/docker/fs/opt/appsmith/templates/docker.env.sh",
+    );
+
+    expect(dockerEnv).toContain(
+      "APPSMITH_MCP_INTERNAL_SECRET=$MCP_INTERNAL_SECRET",
+    );
+    expect(dockerEnv).toMatch(/MCP_INTERNAL_SECRET="\$\{6:-\}"/);
+  });
 });
 
 describe("supervisord, run script, and healthcheck keep MCP default-on and toggleable", () => {

@@ -2,6 +2,7 @@ package com.appsmith.server.authentication;
 
 import com.appsmith.server.authentication.converters.McpTokenAuthenticationConverter;
 import com.appsmith.server.authentication.managers.McpTokenAuthenticationManager;
+import com.appsmith.server.constants.ce.McpHeaders;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.UserMcpTokenService;
 import org.junit.jupiter.api.Test;
@@ -18,18 +19,51 @@ import static org.mockito.Mockito.when;
 
 class McpTokenAuthenticationWebFilterTest {
 
+    private static final String SECRET = "internal-marker-secret";
+
     @Test
-    void invalidMcpBearer_returnsUnauthorizedFromAuthenticationFilter() {
+    void invalidMcpBearer_withValidMarker_returnsUnauthorizedFromAuthenticationFilter() {
         UserMcpTokenService service = mock(UserMcpTokenService.class);
         when(service.authenticate("mcp_invalid")).thenReturn(Mono.empty());
 
         authenticationClient(service)
                 .get()
                 .uri("/protected")
-                .headers(headers -> headers.setBearerAuth("mcp_invalid"))
+                .headers(headers -> {
+                    headers.setBearerAuth("mcp_invalid");
+                    headers.set(McpHeaders.INTERNAL_MARKER, SECRET);
+                })
                 .exchange()
                 .expectStatus()
                 .isUnauthorized();
+    }
+
+    @Test
+    void mcpBearer_withoutMarker_fallsThroughUnauthenticated() {
+        // No marker header -> the converter returns empty -> the MCP filter does not authenticate. The downstream
+        // "chain" in this harness completes the exchange (200), proving the bearer was NOT consumed by MCP auth.
+        // In the full app this same fall-through lands on .anyExchange().authenticated() -> 401.
+        authenticationClient(mock(UserMcpTokenService.class))
+                .get()
+                .uri("/protected")
+                .headers(headers -> headers.setBearerAuth("mcp_invalid"))
+                .exchange()
+                .expectStatus()
+                .isOk();
+    }
+
+    @Test
+    void mcpBearer_withWrongMarker_fallsThroughUnauthenticated() {
+        authenticationClient(mock(UserMcpTokenService.class))
+                .get()
+                .uri("/protected")
+                .headers(headers -> {
+                    headers.setBearerAuth("mcp_invalid");
+                    headers.set(McpHeaders.INTERNAL_MARKER, "wrong-secret");
+                })
+                .exchange()
+                .expectStatus()
+                .isOk();
     }
 
     @Test
@@ -49,7 +83,7 @@ class McpTokenAuthenticationWebFilterTest {
         when(rateLimitService.tryIncreaseCounter(anyString(), anyString())).thenReturn(Mono.just(true));
         AuthenticationWebFilter filter =
                 new AuthenticationWebFilter(new McpTokenAuthenticationManager(service, rateLimitService));
-        filter.setServerAuthenticationConverter(new McpTokenAuthenticationConverter());
+        filter.setServerAuthenticationConverter(new McpTokenAuthenticationConverter(SECRET));
         filter.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(
                 new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED)));
 
