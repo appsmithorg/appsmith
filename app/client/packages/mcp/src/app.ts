@@ -814,35 +814,25 @@ function fingerprintAction(action: unknown): string {
     .digest("hex");
 }
 
-// Classify a stored action as read-only. Read-only actions (REST GET/HEAD, or SQL/DB queries that only SELECT) may be
-// run without a confirmation; anything else is treated as non-read-only and requires prepare/confirm. Defaults to
-// non-read-only (safe) when it cannot be determined.
+// Classify a stored action as read-only. Only a PROTOCOL-LEVEL guarantee counts: a REST action whose HTTP method is
+// GET or HEAD (defined as safe by HTTP semantics). A DB/SQL query body can NEVER be reliably classified read-only
+// from its text, so it is never auto-run: a leading SELECT/WITH/SHOW/EXPLAIN can still mutate — a CTE such as
+// `WITH x AS (DELETE FROM t RETURNING *) SELECT * FROM x`, a mutating function like `SELECT drop_old()`, or
+// `EXPLAIN ANALYZE <mutation>` (which actually executes the plan). Any action with a query body is therefore treated
+// as NON-read-only and must go through prepare_run_action / confirm_run_action. Defaults to non-read-only (safe).
 function isReadOnlyAction(action: unknown): boolean {
   const source =
     (action as { unpublishedAction?: unknown } | null)?.unpublishedAction ??
     action;
   const config = (
     source as {
-      actionConfiguration?: { httpMethod?: unknown; body?: unknown };
+      actionConfiguration?: { httpMethod?: unknown };
     } | null
   )?.actionConfiguration;
   const method = config?.httpMethod;
 
   if (typeof method === "string") {
     return ["GET", "HEAD"].includes(method.toUpperCase());
-  }
-
-  const body = config?.body;
-
-  if (typeof body === "string") {
-    const head = body.trim().toUpperCase();
-
-    return (
-      head.startsWith("SELECT") ||
-      head.startsWith("SHOW") ||
-      head.startsWith("EXPLAIN") ||
-      head.startsWith("WITH")
-    );
   }
 
   return false;
@@ -2439,7 +2429,7 @@ export function buildMcpServer(
 
     server.tool(
       "run_action",
-      "Run a READ-ONLY stored action (REST GET/HEAD or a SELECT-only query) by id and return its result. Non-read-only actions are refused here — use prepare_run_action / confirm_run_action for those. No execute payload is accepted.",
+      "Run a READ-ONLY stored action (a REST GET/HEAD request) by id and return its result. DB/SQL queries are NOT auto-run — their text cannot be proven read-only — and are refused here; use prepare_run_action / confirm_run_action for any query. No execute payload is accepted.",
       { applicationId: idSchema, actionId: idSchema },
       async ({ actionId, applicationId }) => {
         const action = await api.getAction(applicationId, actionId);

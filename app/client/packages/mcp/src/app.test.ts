@@ -2665,19 +2665,24 @@ describe("governance-wrapped layout mutations", () => {
   });
 
   // Item E — run_action / prepare_run_action / confirm_run_action.
+  // Read-only means a PROTOCOL-level guarantee: a REST GET/HEAD. DB/SQL query text is never trusted as read-only.
   const READ_ONLY_ACTION = {
     id: "act1",
     name: "getUsers",
     pageId: "p1",
-    pluginType: "DB",
+    pluginType: "API",
     updatedAt: "2026-07-12T00:00:00.000Z",
-    actionConfiguration: { body: "SELECT * FROM users;" },
-    datasource: { id: "ds1", pluginId: "postgres" },
+    actionConfiguration: { httpMethod: "GET" },
+    datasource: { id: "ds1", pluginId: "restapi" },
   };
   const WRITE_ACTION = {
-    ...READ_ONLY_ACTION,
+    id: "act1",
     name: "insertUser",
+    pageId: "p1",
+    pluginType: "DB",
+    updatedAt: "2026-07-12T00:00:00.000Z",
     actionConfiguration: { body: "INSERT INTO users (name) VALUES ({{x}});" },
+    datasource: { id: "ds1", pluginId: "postgres" },
   };
 
   it("run_action executes a read-only action and refuses a non-read-only one", async () => {
@@ -2716,6 +2721,89 @@ describe("governance-wrapped layout mutations", () => {
 
     expect(rw.body.code).toBe("confirmation_required");
     expect(rwExecute).not.toHaveBeenCalled();
+  });
+
+  it("run_action refuses DB queries whose text looks read-only but can mutate (no confirmation bypass)", async () => {
+    // Each body starts with a keyword the old prefix check treated as read-only, yet each can mutate: a CTE that
+    // DELETEs, a mutating function call, EXPLAIN ANALYZE (which executes the plan), and a plain SELECT (which can
+    // call mutating functions). None may run via run_action without prepare/confirm.
+    const dangerousBodies = [
+      "WITH deleted AS (DELETE FROM logs WHERE level = 'DEBUG' RETURNING *) SELECT * FROM deleted;",
+      "SELECT delete_old_records();",
+      "EXPLAIN ANALYZE DELETE FROM users WHERE id = 1;",
+      "SHOW tables; DROP TABLE users;",
+      "SELECT * FROM users;",
+    ];
+
+    for (const body of dangerousBodies) {
+      const executeAction = jest.fn();
+      const server = createMcpHttpServer(
+        API_BASE_URL,
+        () => ({
+          ...createApi()(),
+          getAction: jest.fn(async () => ({
+            ...WRITE_ACTION,
+            actionConfiguration: { body },
+          })),
+          executeAction,
+        }),
+        { dataEnabled: true },
+      );
+      const res = await callTool(server, "run_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+
+      expect(res.body.code).toBe("confirmation_required");
+      expect(res.body.executed).toBeUndefined();
+      expect(executeAction).not.toHaveBeenCalled();
+    }
+  });
+
+  it("treats REST HEAD as read-only but refuses a REST write (non-GET/HEAD) without confirmation", async () => {
+    // HEAD is a safe HTTP method -> auto-run.
+    const headExecute = jest.fn(async () => ({ isExecutionSuccess: true }));
+    const headServer = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getAction: jest.fn(async () => ({
+          ...READ_ONLY_ACTION,
+          actionConfiguration: { httpMethod: "HEAD" },
+        })),
+        executeAction: headExecute,
+      }),
+      { dataEnabled: true },
+    );
+    const head = await callTool(headServer, "run_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+
+    expect(head.body.executed).toBe(true);
+    expect(headExecute).toHaveBeenCalledWith("act1");
+
+    // A REST write (POST) is not a safe method -> refused, no execution.
+    const postExecute = jest.fn();
+    const postServer = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getAction: jest.fn(async () => ({
+          ...READ_ONLY_ACTION,
+          actionConfiguration: { httpMethod: "POST" },
+        })),
+        executeAction: postExecute,
+      }),
+      { dataEnabled: true },
+    );
+    const post = await callTool(postServer, "run_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+
+    expect(post.body.code).toBe("confirmation_required");
+    expect(postExecute).not.toHaveBeenCalled();
   });
 
   it("prepare_run_action + confirm_run_action runs a non-read-only action with a token", async () => {
