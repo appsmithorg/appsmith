@@ -13,8 +13,13 @@ import {
   toast,
 } from "@appsmith/ads";
 import {
+  COPY_MCP_SERVER_URL,
   COPY_MCP_TOKEN,
   CREATE_MCP_TOKEN,
+  MCP_SERVER_URL_COPIED,
+  MCP_SERVER_URL_COPY_FAILED,
+  MCP_SERVER_URL_HELP,
+  MCP_SERVER_URL_LABEL,
   MCP_TOKEN_COPIED,
   MCP_TOKEN_COPY_FAILED,
   MCP_TOKEN_CREATE_FAILED,
@@ -71,6 +76,47 @@ const TokenMeta = styled.div`
   flex: 1;
   min-width: 0;
 `;
+
+// The MCP server endpoint for this deployment. The /mcp route is served from the app origin (via Caddy), so the URL
+// a user pastes into their MCP client is simply the current origin + /mcp.
+const MCP_SERVER_URL = `${window.location.origin}/mcp`;
+
+// A read-only, monospaced value with a copy-to-clipboard button — used for both the server URL and the one-time token.
+// `description` (when set) renders as the field's helper text, which the design system links via aria-describedby.
+function ReadOnlyCopyField(props: {
+  label: string;
+  value: string;
+  copyLabel: string;
+  onCopy: () => void;
+  className?: string;
+  description?: string;
+}) {
+  return (
+    <Flex alignItems="flex-end" gap="spaces-2" width="100%">
+      <Flex flex="1" minWidth="0">
+        <Input
+          UNSAFE_width="100%"
+          description={props.description}
+          isReadOnly
+          label={props.label}
+          style={{ fontFamily: "var(--ads-v2-font-family-code)" }}
+          value={props.value}
+        />
+      </Flex>
+      <Tooltip content={props.copyLabel}>
+        <Button
+          aria-label={props.copyLabel}
+          className={props.className}
+          isIconButton
+          kind="tertiary"
+          onClick={props.onCopy}
+          size="md"
+          startIcon="copy-control"
+        />
+      </Tooltip>
+    </Flex>
+  );
+}
 
 const getErrorMessage = (error: unknown, fallback: string) => {
   const response = error as Partial<ApiResponse> & { message?: string };
@@ -171,6 +217,15 @@ function McpTokens() {
     }
   };
 
+  const copyServerUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(MCP_SERVER_URL);
+      toast.show(createMessage(MCP_SERVER_URL_COPIED), { kind: "success" });
+    } catch {
+      toast.show(createMessage(MCP_SERVER_URL_COPY_FAILED), { kind: "error" });
+    }
+  };
+
   const revokeToken = async () => {
     if (!revokeTokenId) {
       return;
@@ -242,6 +297,16 @@ function McpTokens() {
             {createMessage(CREATE_MCP_TOKEN)}
           </Button>
         </Flex>
+        <div>
+          <ReadOnlyCopyField
+            className="t--copy-mcp-server-url"
+            copyLabel={createMessage(COPY_MCP_SERVER_URL)}
+            description={createMessage(MCP_SERVER_URL_HELP)}
+            label={createMessage(MCP_SERVER_URL_LABEL)}
+            onCopy={copyServerUrl}
+            value={MCP_SERVER_URL}
+          />
+        </div>
         {error && (
           <Text aria-atomic="true" kind="body-m" role="alert">
             {error}
@@ -304,31 +369,20 @@ function McpTokens() {
             <Text kind="body-m">
               {createMessage(MCP_TOKEN_CREATED_DESCRIPTION)}
             </Text>
-            <Flex alignItems="flex-end" gap="spaces-2" width="100%">
-              <Flex flex="1" minWidth="0">
-                <Input
-                  UNSAFE_width="100%"
-                  isReadOnly
-                  label={createMessage(MCP_TOKEN_VALUE_LABEL)}
-                  style={{
-                    fontFamily:
-                      "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                  }}
-                  value={createdToken?.token ?? ""}
-                />
-              </Flex>
-              <Tooltip content={createMessage(COPY_MCP_TOKEN)}>
-                <Button
-                  aria-label={createMessage(COPY_MCP_TOKEN)}
-                  className="t--copy-mcp-token-icon"
-                  isIconButton
-                  kind="tertiary"
-                  onClick={copyCreatedToken}
-                  size="md"
-                  startIcon="copy-control"
-                />
-              </Tooltip>
-            </Flex>
+            <ReadOnlyCopyField
+              className="t--copy-mcp-token-icon"
+              copyLabel={createMessage(COPY_MCP_TOKEN)}
+              label={createMessage(MCP_TOKEN_VALUE_LABEL)}
+              onCopy={copyCreatedToken}
+              value={createdToken?.token ?? ""}
+            />
+            <ReadOnlyCopyField
+              className="t--copy-mcp-server-url-modal"
+              copyLabel={createMessage(COPY_MCP_SERVER_URL)}
+              label={createMessage(MCP_SERVER_URL_LABEL)}
+              onCopy={copyServerUrl}
+              value={MCP_SERVER_URL}
+            />
             <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
               {createMessage(MCP_TOKEN_EXPIRES_AT)}:{" "}
               {formatTimestamp(createdToken?.expiresAt ?? "")}

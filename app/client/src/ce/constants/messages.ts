@@ -241,6 +241,12 @@ export const USER_RESET_PASSWORD = () => "Reset password";
 export const MCP_TOKENS = () => "MCP tokens";
 export const MCP_TOKENS_DESCRIPTION = () =>
   "Create a token to connect an MCP client to Appsmith. Tokens are shown only once.";
+export const MCP_SERVER_URL_LABEL = () => "MCP server URL";
+export const MCP_SERVER_URL_HELP = () =>
+  "Point your MCP client (e.g. ChatGPT or Claude) at this URL and authenticate with a token below.";
+export const COPY_MCP_SERVER_URL = () => "Copy server URL";
+export const MCP_SERVER_URL_COPIED = () => "Server URL copied";
+export const MCP_SERVER_URL_COPY_FAILED = () => "Unable to copy server URL.";
 export const CREATE_MCP_TOKEN = () => "Create token";
 export const MCP_TOKEN_CREATED = () => "MCP token created";
 export const MCP_TOKEN_CREATED_DESCRIPTION = () =>

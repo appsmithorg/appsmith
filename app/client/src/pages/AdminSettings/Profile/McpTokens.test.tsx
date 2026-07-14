@@ -72,7 +72,7 @@ describe("McpTokens", () => {
     expect(tokenField).toHaveValue("secret-token");
     expect(tokenField).toHaveAttribute("readonly");
     expect(tokenField).toHaveStyle(
-      "font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+      "font-family: var(--ads-v2-font-family-code)",
     );
     fireEvent.click(screen.getByRole("button", { name: "Copy token" }));
 
@@ -86,6 +86,28 @@ describe("McpTokens", () => {
 
     await waitFor(() =>
       expect(screen.queryByLabelText("MCP token")).not.toBeInTheDocument(),
+    );
+  });
+
+  it("shows the MCP server URL (origin + /mcp) with a working copy button", async () => {
+    Object.assign(navigator, {
+      clipboard: { writeText: jest.fn().mockResolvedValue(undefined) },
+    });
+    renderComponent();
+
+    await screen.findByText("token-1");
+
+    const urlField = screen.getByLabelText("MCP server URL");
+
+    expect(urlField).toHaveValue(`${window.location.origin}/mcp`);
+    expect(urlField).toHaveAttribute("readonly");
+
+    fireEvent.click(screen.getByRole("button", { name: "Copy server URL" }));
+
+    await waitFor(() =>
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+        `${window.location.origin}/mcp`,
+      ),
     );
   });
 
