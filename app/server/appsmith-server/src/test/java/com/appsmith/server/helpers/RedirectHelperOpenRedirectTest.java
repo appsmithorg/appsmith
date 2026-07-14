@@ -519,4 +519,14 @@ class RedirectHelperOpenRedirectTest {
         String sanitized = RedirectHelper.sanitizeRedirectUrl("https://evil.com/applications", headers);
         assertFalse(sanitized.contains("evil.com"), "Sanitized fallback URL must not contain the forged Origin domain");
     }
+
+    @Test
+    void testIPv6OriginMatchesRequestHost() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setOrigin("http://[::1]:8080");
+        headers.set("X-Forwarded-Host", "[::1]:8080");
+        assertTrue(
+                RedirectHelper.isSafeRedirectUrl("http://[::1]:8080/applications", headers),
+                "IPv6 Origin matching X-Forwarded-Host must be accepted");
+    }
 }

@@ -137,7 +137,7 @@ public class RedirectHelper {
 
         String trustedOrigin = getTrustedOrigin(httpHeaders);
         if (!(redirectUrl.startsWith("http://") || redirectUrl.startsWith("https://"))
-                && !StringUtils.isEmpty(trustedOrigin)) {
+                && StringUtils.hasText(trustedOrigin)) {
             redirectUrl = trustedOrigin + redirectUrl;
         }
 
@@ -200,7 +200,7 @@ public class RedirectHelper {
         }
 
         String origin = getTrustedOrigin(httpHeaders);
-        if (!StringUtils.isEmpty(origin)) {
+        if (StringUtils.hasText(origin)) {
             // Origin-present path: full host + port + scheme-aware port normalization.
             final URI originUri;
             try {
@@ -322,8 +322,13 @@ public class RedirectHelper {
         }
 
         String originHost = originUri.getHost();
-        if (originHost != null && originHost.equalsIgnoreCase(requestHost)) {
-            return origin;
+        if (originHost != null) {
+            if (originHost.startsWith("[") && originHost.endsWith("]")) {
+                originHost = originHost.substring(1, originHost.length() - 1);
+            }
+            if (originHost.equalsIgnoreCase(requestHost)) {
+                return origin;
+            }
         }
 
         log.warn(
@@ -438,7 +443,7 @@ public class RedirectHelper {
         }
         log.warn("Blocked open redirect attempt to: {}", sanitizeForLog(redirectUrl));
         String trustedOrigin = getTrustedOrigin(httpHeaders);
-        return (!StringUtils.isEmpty(trustedOrigin) ? trustedOrigin : "") + DEFAULT_REDIRECT_URL;
+        return (StringUtils.hasText(trustedOrigin) ? trustedOrigin : "") + DEFAULT_REDIRECT_URL;
     }
 
     /**
