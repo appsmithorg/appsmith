@@ -233,6 +233,34 @@ export function compileSelectedRowBinding(ref: SelectedRowRef): string {
   return `{{ ${ref.table}.selectedRow["${ref.column}"] }}`;
 }
 
+// A value a widget's visibility can be gated on — e.g. a table shown only when a view toggle equals "Table" and a
+// detail panel when it equals "Details", so one control switches between views. The control is a widget
+// name; `equals` is a safe literal (no quotes/braces/backticks) emitted inside single quotes.
+const controlValue = z
+  .string()
+  .min(1)
+  .max(120)
+  .regex(
+    /^[A-Za-z0-9_ .-]+$/,
+    "value may contain letters, numbers, spaces, and _ . -",
+  );
+
+export const visibleWhenRefSchema = z
+  .object({ control: bindingIdentifier, equals: controlValue })
+  .strict();
+
+export type VisibleWhenRef = z.infer<typeof visibleWhenRefSchema>;
+
+// Emits `{{ <control>.<valueProp> === '<equals>' }}`. valueProp is chosen by the compiler from the control's widget
+// type (never agent-supplied), so only a validated identifier and a safe literal are interpolated.
+export function compileVisibleWhenBinding(
+  control: string,
+  valueProp: string,
+  equals: string,
+): string {
+  return `{{ ${control}.${valueProp} === '${equals}' }}`;
+}
+
 // Chart series: a named series of {x,y} points. Static data (x label is safe text, y is a number).
 const chartPoint = z
   .object({ x: z.union([safeText(200), z.number()]), y: z.number() })

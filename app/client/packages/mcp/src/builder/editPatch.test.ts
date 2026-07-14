@@ -220,6 +220,136 @@ describe("applyWidgetPatch", () => {
     ).toThrow(/cannot set both 'image' and 'imageSource'/);
   });
 
+  it("gates a widget's visibility on a select control's value (visibleWhen)", () => {
+    const withToggle = page();
+
+    withToggle.children!.push(
+      node({ widgetId: "t1", widgetName: "Results", type: "TABLE_WIDGET_V2" }),
+      node({ widgetId: "s1", widgetName: "ViewToggle", type: "SELECT_WIDGET" }),
+    );
+    const { dsl } = applyWidgetPatch(withToggle, {
+      operations: [
+        {
+          kind: "update",
+          name: "Results",
+          props: { visibleWhen: { control: "ViewToggle", equals: "Table" } },
+        },
+      ],
+    });
+    const table = dsl.children![2];
+
+    expect(table.isVisible).toBe(
+      "{{ ViewToggle.selectedOptionValue === 'Table' }}",
+    );
+    expect(table.dynamicBindingPathList).toEqual([{ key: "isVisible" }]);
+  });
+
+  it("uses selectedTab for a tabs control, and rejects a non-control or literal-isVisible clash", () => {
+    const withTabs = page();
+
+    withTabs.children!.push(
+      node({ widgetId: "c1", widgetName: "Cards", type: "LIST_WIDGET_V2" }),
+      node({ widgetId: "tb", widgetName: "ViewTabs", type: "TABS_WIDGET" }),
+    );
+
+    const { dsl } = applyWidgetPatch(withTabs, {
+      operations: [
+        {
+          kind: "update",
+          name: "Cards",
+          props: { visibleWhen: { control: "ViewTabs", equals: "Cards" } },
+        },
+      ],
+    });
+
+    expect(dsl.children![2].isVisible).toBe(
+      "{{ ViewTabs.selectedTab === 'Cards' }}",
+    );
+
+    // A non-control target is rejected.
+    expect(() =>
+      applyWidgetPatch(withTabs, {
+        operations: [
+          {
+            kind: "update",
+            name: "Cards",
+            props: { visibleWhen: { control: "Greeting", equals: "x" } },
+          },
+        ],
+      }),
+    ).toThrow(/must be a select or tabs control/);
+
+    // A literal isVisible alongside visibleWhen is ambiguous.
+    expect(() =>
+      applyWidgetPatch(withTabs, {
+        operations: [
+          {
+            kind: "update",
+            name: "Cards",
+            props: {
+              isVisible: true,
+              visibleWhen: { control: "ViewTabs", equals: "Cards" },
+            },
+          },
+        ],
+      }),
+    ).toThrow(/cannot set both 'isVisible' and 'visibleWhen'/);
+  });
+
+  it("supports dotted/hyphenated control values and clears the binding when a literal isVisible replaces it", () => {
+    const withToggle = page();
+
+    withToggle.children!.push(
+      node({ widgetId: "t1", widgetName: "Panel", type: "CONTAINER_WIDGET" }),
+      node({ widgetId: "s1", widgetName: "ViewToggle", type: "SELECT_WIDGET" }),
+    );
+
+    const bound = applyWidgetPatch(withToggle, {
+      operations: [
+        {
+          kind: "update",
+          name: "Panel",
+          props: {
+            visibleWhen: { control: "ViewToggle", equals: "Grid-View.2" },
+          },
+        },
+      ],
+    });
+
+    expect(bound.dsl.children![2].isVisible).toBe(
+      "{{ ViewToggle.selectedOptionValue === 'Grid-View.2' }}",
+    );
+    expect(bound.dsl.children![2].dynamicBindingPathList).toEqual([
+      { key: "isVisible" },
+    ]);
+
+    // A later literal isVisible clears the dynamic-path registration.
+    const { dsl } = applyWidgetPatch(bound.dsl, {
+      operations: [
+        { kind: "update", name: "Panel", props: { isVisible: true } },
+      ],
+    });
+
+    expect(dsl.children![2].isVisible).toBe(true);
+    expect(dsl.children![2].dynamicBindingPathList).toEqual([]);
+  });
+
+  it("rejects a visibleWhen value carrying quote/binding characters at the schema", () => {
+    for (const equals of ["Table' || evil('", "{{ evil() }}", 'a"b']) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [
+            {
+              kind: "update",
+              name: "Results",
+              props: { visibleWhen: { control: "ViewToggle", equals } },
+            },
+          ],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("re-binds a table's data with a clear-when-empty guard", () => {
     const withWidgets = page();
 

@@ -5,12 +5,15 @@ import {
   compileInputValidation,
   compileSelectedRowBinding,
   compileTableDataBinding,
+  compileVisibleWhenBinding,
   inputValidationSchema,
   selectedRowRefSchema,
   tableDataRefSchema,
+  visibleWhenRefSchema,
   type InputValidationRef,
   type SelectedRowRef,
   type TableDataRef,
+  type VisibleWhenRef,
 } from "./schema.js";
 
 const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`/;
@@ -71,6 +74,9 @@ export const widgetPropsPatchSchema = z
     defaultValue: selectedRowRefSchema.optional(),
     // Bind an image's src to a column of a table's selected row (e.g. an employee photo in a detail panel).
     imageSource: selectedRowRefSchema.optional(),
+    // Gate a widget's visibility on a control's value — e.g. show a table when a view toggle equals "Table" and a
+    // detail panel when it equals "Details", so one control switches views. Compiled to isVisible.
+    visibleWhen: visibleWhenRefSchema.optional(),
     // Re-bind a table's data (optionally clear-when-empty). Compiled, never literal-assigned.
     tableData: tableDataRefSchema.optional(),
     // Add named-format validation to an input (compiled to a vetted regex + error message).
@@ -388,6 +394,42 @@ function applyDisableWhenInvalid(
   registerDynamicBinding(node, "isDisabled");
 }
 
+// The meta value property a control widget exposes, used by visibleWhen. Only controls that hold a single selectable
+// value are supported; the agent never supplies the property name.
+const CONTROL_VALUE_PROPS: Record<string, string> = {
+  SELECT_WIDGET: "selectedOptionValue",
+  TABS_WIDGET: "selectedTab",
+};
+
+// Gate a widget's visibility on a control's value — emits `{{ Control.<valueProp> === '<equals>' }}` onto isVisible.
+// The control must exist and be a supported single-value control.
+function applyVisibleWhenBinding(
+  widgets: Map<string, LocatedWidget>,
+  node: WidgetNode,
+  ref: VisibleWhenRef,
+): void {
+  const control = widgets.get(ref.control);
+
+  if (!control) {
+    throw new Error(`visibleWhen control "${ref.control}" was not found`);
+  }
+
+  const valueProp = CONTROL_VALUE_PROPS[control.node.type];
+
+  if (!valueProp) {
+    throw new Error(
+      `visibleWhen "${ref.control}" must be a select or tabs control (it is ${control.node.type})`,
+    );
+  }
+
+  node.isVisible = compileVisibleWhenBinding(
+    ref.control,
+    valueProp,
+    ref.equals,
+  );
+  registerDynamicBinding(node, "isVisible");
+}
+
 function moveToPosition(
   node: WidgetNode,
   position: { topRow: number; leftColumn: number },
@@ -423,6 +465,7 @@ export function applyWidgetPatch(
         source,
         tableData,
         validation,
+        visibleWhen,
         ...literals
       } = operation.props;
 
@@ -440,6 +483,12 @@ export function applyWidgetPatch(
       if (imageSource !== undefined && literals.image !== undefined) {
         throw new Error(
           "cannot set both 'image' and 'imageSource' in one update",
+        );
+      }
+
+      if (visibleWhen !== undefined && literals.isVisible !== undefined) {
+        throw new Error(
+          "cannot set both 'isVisible' and 'visibleWhen' in one update",
         );
       }
 
@@ -497,6 +546,10 @@ export function applyWidgetPatch(
         applyDisableWhenInvalid(widgets, located.node, disableWhenInvalid);
       }
 
+      if (visibleWhen !== undefined) {
+        applyVisibleWhenBinding(widgets, located.node, visibleWhen);
+      }
+
       Object.assign(located.node, literals);
 
       // A literal overwriting a previously bound property also clears its dynamic-path registration.
@@ -515,6 +568,11 @@ export function applyWidgetPatch(
       // A literal isDisabled replacing a prior disableWhenInvalid binding clears its dynamic-path registration.
       if (literals.isDisabled !== undefined) {
         unregisterDynamicBinding(located.node, "isDisabled");
+      }
+
+      // A literal isVisible replacing a prior visibleWhen binding clears its dynamic-path registration.
+      if (literals.isVisible !== undefined) {
+        unregisterDynamicBinding(located.node, "isVisible");
       }
 
       changes.push({

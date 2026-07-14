@@ -65,6 +65,9 @@ export interface SemanticBindingRef {
   clearWhenEmpty?: string;
   // Present on an isDisabled binding: the input whose invalidity disables this widget.
   disableWhenInvalid?: string;
+  // Present on an isVisible binding: the control + value this widget's visibility is gated on.
+  control?: string;
+  equals?: string;
 }
 
 export interface SemanticWidget {
@@ -152,6 +155,9 @@ const GUARDED_QUERY_DATA_BINDING =
   /^\{\{ ([A-Za-z0-9_]+)\.text \? \(([A-Za-z0-9_]+)\.data(?:\?\.([A-Za-z0-9_.]+))? \?\? \[\]\) : \[\] \}\}$/;
 // The disable-when-invalid binding: `{{ !Input.isValid }}`.
 const DISABLE_WHEN_INVALID_BINDING = /^\{\{ !([A-Za-z0-9_]+)\.isValid \}\}$/;
+// The visible-when binding: `{{ Control.selectedOptionValue === 'value' }}` / `{{ Control.selectedTab === 'value' }}`.
+const VISIBLE_WHEN_BINDING =
+  /^\{\{ ([A-Za-z0-9_]+)\.(?:selectedOptionValue|selectedTab) === '([A-Za-z0-9_ .-]+)' \}\}$/;
 
 function safeBindings(
   node: WidgetNode,
@@ -192,6 +198,12 @@ function safeBindings(
     const match = DISABLE_WHEN_INVALID_BINDING.exec(node.isDisabled);
 
     if (match) bindings.isDisabled = { disableWhenInvalid: match[1] };
+  }
+
+  if (typeof node.isVisible === "string") {
+    const match = VISIBLE_WHEN_BINDING.exec(node.isVisible);
+
+    if (match) bindings.isVisible = { control: match[1], equals: match[2] };
   }
 
   return Object.keys(bindings).length > 0 ? bindings : undefined;

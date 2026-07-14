@@ -261,6 +261,29 @@ describe("projectSemanticPage", () => {
     expect(JSON.stringify(input)).not.toContain("appsmith.store");
   });
 
+  it("projects a visible-when binding as a structured ref", () => {
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t",
+          widgetName: "Results",
+          type: "TABLE_WIDGET_V2",
+          isVisible: "{{ ViewToggle.selectedOptionValue === 'Table' }}",
+        }),
+      ],
+    });
+    const results = projectSemanticPage(dsl).widgets.find(
+      (widget) => widget.name === "Results",
+    );
+
+    expect(results?.bindings).toEqual({
+      isVisible: { control: "ViewToggle", equals: "Table" },
+    });
+  });
+
   it("projects a disable-when-invalid binding as a structured ref", () => {
     const dsl = node({
       widgetId: "0",
