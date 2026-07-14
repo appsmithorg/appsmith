@@ -53,7 +53,10 @@ const nameField = z
 // supplies is rejected if it contains binding/interpolation/template syntax, so nothing agent-authored can become an
 // evaluated `{{ }}` expression in a viewer's eval worker. Dynamic data arrives only via the compiler's closed
 // binding vocabulary (structured refs -> `{{ query.data }}`), never as passthrough text.
-const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`/;
+// Also reject U+2028/U+2029 (line/paragraph separators): JSON.stringify does not escape them, and on a pre-ES2019
+// JS engine they terminate a string literal — closing a defense-in-depth gap across every safeText sink (e.g. the
+// select's JS-evaluated sourceData), not just the ones that emit into a binding.
+const RAW_EXPRESSION = /\u007b\u007b|\u007d\u007d|\$\u007b|`|\u2028|\u2029/;
 
 function safeText(max: number) {
   return z

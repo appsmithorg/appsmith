@@ -1037,6 +1037,23 @@ describe("applyWidgetPatch", () => {
     ).toBe(false);
   });
 
+  it("rejects U+2028/U+2029 line/paragraph separators in safe text", () => {
+    // JSON.stringify leaves these unescaped and they terminate a JS string literal on pre-ES2019 engines, so
+    // safeText must reject them (defense-in-depth for the JS-evaluated select sourceData and every other sink).
+    for (const sep of [
+      String.fromCharCode(0x2028),
+      String.fromCharCode(0x2029),
+    ]) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [
+            { kind: "update", name: "Greeting", props: { text: `a${sep}b` } },
+          ],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("rejects reparenting a widget under itself or its descendants", () => {
     expect(() =>
       applyWidgetPatch(page(), {

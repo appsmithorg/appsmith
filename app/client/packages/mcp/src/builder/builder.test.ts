@@ -246,18 +246,41 @@ describe("compileApp — import artifact contract", () => {
     expect((inner.children as WidgetNode[])[0].type).toBe("TEXT_WIDGET");
   });
 
-  it("compiles a select with default options", () => {
+  it("compiles a select with options into sourceData (the prop the widget reads)", () => {
     const artifact = compileApp(
       {
         name: "App",
-        pages: [{ name: "Home", widgets: [{ type: "select", label: "Pick" }] }],
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "select",
+                label: "Pick",
+                options: [
+                  { label: "Hide", value: "Hide" },
+                  { label: "Show", value: "Show" },
+                ],
+              },
+            ],
+          },
+        ],
       },
       ids(),
     );
     const widget = (rootOf(artifact).children as WidgetNode[])[0];
 
     expect(widget.type).toBe("SELECT_WIDGET");
-    expect(Array.isArray(widget.options)).toBe(true);
+    // sourceData is a JS-evaluated JSON array keyed by optionLabel/optionValue.
+    expect(JSON.parse(widget.sourceData as string)).toEqual([
+      { label: "Hide", value: "Hide" },
+      { label: "Show", value: "Show" },
+    ]);
+    expect(widget.optionLabel).toBe("label");
+    expect(widget.optionValue).toBe("value");
+    expect(widget.dynamicPropertyPathList).toEqual([{ key: "sourceData" }]);
+    // The legacy `options` prop is no longer emitted.
+    expect(widget.options).toBeUndefined();
   });
 
   it("rejects container nesting beyond the maximum depth", () => {

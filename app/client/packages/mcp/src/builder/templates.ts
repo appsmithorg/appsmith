@@ -134,7 +134,12 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
         footprint: { columns: 24, rows: 7 },
         props: {
           label,
-          options,
+          // SELECT_WIDGET derives its dropdown from `sourceData` (a JS-evaluated JSON array) keyed by
+          // optionLabel/optionValue — NOT the legacy `options` prop. The options are agent-supplied safe text/scalars
+          // and JSON.stringify escapes them, so the emitted array literal is inert (no binding can be smuggled in).
+          sourceData: JSON.stringify(options),
+          optionLabel: "label",
+          optionValue: "value",
           labelPosition: "Top",
           labelAlignment: "left",
           labelTextSize: "0.875rem",
@@ -144,6 +149,7 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
           serverSideFiltering: false,
           animateLoading: true,
           responsiveBehavior: "fill",
+          dynamicPropertyPathList: [{ key: "sourceData" }],
         },
       };
     },
