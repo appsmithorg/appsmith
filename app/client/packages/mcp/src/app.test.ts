@@ -226,6 +226,8 @@ function createApi(
     createDatasource: jest.fn(),
     getDatasourceStructure: jest.fn(),
     getApplicationPages: jest.fn(async () => ({ workspaceId: "ws1" })),
+    // Default: a non-git application (no gitApplicationMetadata) so layout-edit tests see no git warning.
+    getApplication: jest.fn(async () => ({})),
     listActions: jest.fn(),
     createAction: jest.fn(),
     getAction: jest.fn(),
@@ -2865,6 +2867,101 @@ describe("governance-wrapped layout mutations", () => {
     expect(
       written.children.find((w) => w.widgetName === "Greeting")?.text,
     ).toBe("Welcome");
+    // Non-git app: no git warning.
+    expect(patched.body.gitWarning).toBeUndefined();
+  });
+
+  // M1-T3: a git-connected app edited via MCP produces uncommitted branch changes; the edit proceeds but warns.
+  const GIT_APP = {
+    id: "app1",
+    gitApplicationMetadata: {
+      branchName: "feature/x",
+      remoteUrl: "git@github.com:acme/app.git",
+    },
+  };
+
+  it("patch_widgets warns (and still proceeds) on a git-connected app, naming the branch", async () => {
+    const updateLayout = jest.fn<
+      Promise<{ ok: boolean }>,
+      [string, string, string, Record<string, unknown>]
+    >(async () => ({ ok: true }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: TEXT_DSL },
+      })),
+      getApplication: jest.fn(async () => GIT_APP),
+      updateLayout,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const patched = await callTool(server, "patch_widgets", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision: fingerprintDsl(TEXT_DSL as never),
+      patch: {
+        operations: [
+          { kind: "update", name: "Greeting", props: { text: "Welcome" } },
+        ],
+      },
+    });
+
+    // Proceeds (write happened) but carries a branch-named warning.
+    expect(updateLayout).toHaveBeenCalled();
+    expect(patched.body.changes).toBeDefined();
+    expect(patched.body.gitWarning).toContain("feature/x");
+    expect(patched.body.gitWarning).toContain("UNCOMMITTED");
+  });
+
+  it("confirm_publish refuses a git-connected app and never deploys", async () => {
+    const publishApplication = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplication: jest.fn(async () => GIT_APP),
+      publishApplication,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+
+    const res = await callTool(server, "confirm_publish", {
+      applicationId: "app1",
+      confirmationId: "conf1",
+      revision: "a".repeat(64),
+    });
+
+    expect(res.body.code).toBe("git_connected");
+    expect(res.body.published).toBe(false);
+    expect(res.body.error).toContain("feature/x");
+    expect(publishApplication).not.toHaveBeenCalled();
+  });
+
+  it("confirm_publish fails CLOSED when git state cannot be read (refuses, never deploys)", async () => {
+    // The publish gate is hard: if getApplication throws, we cannot rule out a git connection, so refuse rather than
+    // risk deploying uncommitted git state. (The advisory edit warning fails open; this gate does not.)
+    const publishApplication = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplication: jest.fn(async () => {
+        throw new Error("network");
+      }),
+      publishApplication,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+
+    const res = await callTool(server, "confirm_publish", {
+      applicationId: "app1",
+      confirmationId: "conf1",
+      revision: "a".repeat(64),
+    });
+
+    expect(res.body.code).toBe("git_state_unknown");
+    expect(res.body.published).toBe(false);
+    expect(publishApplication).not.toHaveBeenCalled();
   });
 
   it("list_actions returns safe metadata only (no bodies, headers, or credentials)", async () => {
@@ -2918,14 +3015,16 @@ describe("governance-wrapped layout mutations", () => {
     datasource: { id: "ds1", pluginId: "postgres" },
   };
 
-  it("run_action executes a read-only action and refuses a non-read-only one", async () => {
-    const executeAction = jest.fn(async () => ({ isExecutionSuccess: true }));
+  it("run_action requires confirmation for a REST GET (external egress) and refuses a DB write", async () => {
+    // M1-T2: a REST/API action can egress to any external host, so even a GET must NOT auto-run — it could exfiltrate
+    // query-bound data to an attacker-chosen URL with no human in the loop. It now routes through prepare/confirm.
+    const roExecute = jest.fn();
     const roServer = createMcpHttpServer(
       API_BASE_URL,
       () => ({
         ...createApi()(),
         getAction: jest.fn(async () => READ_ONLY_ACTION),
-        executeAction,
+        executeAction: roExecute,
       }),
       { dataEnabled: true },
     );
@@ -2934,8 +3033,8 @@ describe("governance-wrapped layout mutations", () => {
       actionId: "act1",
     });
 
-    expect(ro.body.executed).toBe(true);
-    expect(executeAction).toHaveBeenCalledWith("act1");
+    expect(ro.body.code).toBe("confirmation_required");
+    expect(roExecute).not.toHaveBeenCalled();
 
     const rwExecute = jest.fn();
     const rwServer = createMcpHttpServer(
@@ -2954,6 +3053,33 @@ describe("governance-wrapped layout mutations", () => {
 
     expect(rw.body.code).toBe("confirmation_required");
     expect(rwExecute).not.toHaveBeenCalled();
+  });
+
+  it("run_action auto-runs ONLY a protocol-read-only action on a host-restricted datasource", async () => {
+    // The auto-run door requires BOTH guarantees: a GET/HEAD method AND a host-restricted (non-external) plugin. No
+    // real plugin family provides both today, so this exercises the predicate with a synthetic host-restricted
+    // read-only action to prove the positive branch still works (and stays the ONLY thing that skips confirmation).
+    const executeAction = jest.fn(async () => ({ isExecutionSuccess: true }));
+    const server = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getAction: jest.fn(async () => ({
+          ...READ_ONLY_ACTION,
+          pluginType: "DB", // host-restricted egress
+          actionConfiguration: { httpMethod: "GET" }, // protocol read-only
+        })),
+        executeAction,
+      }),
+      { dataEnabled: true },
+    );
+    const res = await callTool(server, "run_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+
+    expect(res.body.executed).toBe(true);
+    expect(executeAction).toHaveBeenCalledWith("act1");
   });
 
   it("run_action refuses DB queries whose text looks read-only but can mutate (no confirmation bypass)", async () => {
@@ -2993,9 +3119,9 @@ describe("governance-wrapped layout mutations", () => {
     }
   });
 
-  it("treats REST HEAD as read-only but refuses a REST write (non-GET/HEAD) without confirmation", async () => {
-    // HEAD is a safe HTTP method -> auto-run.
-    const headExecute = jest.fn(async () => ({ isExecutionSuccess: true }));
+  it("refuses a REST HEAD (external egress) and a REST write (non-GET/HEAD) without confirmation", async () => {
+    // M1-T2: HEAD is a safe HTTP method, but a REST/API datasource can egress externally, so it no longer auto-runs.
+    const headExecute = jest.fn();
     const headServer = createMcpHttpServer(
       API_BASE_URL,
       () => ({
@@ -3013,8 +3139,8 @@ describe("governance-wrapped layout mutations", () => {
       actionId: "act1",
     });
 
-    expect(head.body.executed).toBe(true);
-    expect(headExecute).toHaveBeenCalledWith("act1");
+    expect(head.body.code).toBe("confirmation_required");
+    expect(headExecute).not.toHaveBeenCalled();
 
     // A REST write (POST) is not a safe method -> refused, no execution.
     const postExecute = jest.fn();

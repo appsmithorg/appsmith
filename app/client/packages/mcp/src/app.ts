@@ -223,6 +223,9 @@ export interface AppsmithApi {
   createDatasource: (datasource: Record<string, unknown>) => Promise<unknown>;
   getDatasourceStructure: (datasourceId: string) => Promise<unknown>;
   getApplicationPages: (applicationId: string) => Promise<unknown>;
+  // Fetches the application document, whose gitApplicationMetadata reveals whether the app is connected to git and
+  // which branch is checked out — used to guard mutations/publish on git-connected apps.
+  getApplication: (applicationId: string) => Promise<unknown>;
   listActions: (applicationId: string) => Promise<unknown>;
   createAction: (action: Record<string, unknown>) => Promise<unknown>;
   getAction: (applicationId: string, actionId: string) => Promise<unknown>;
@@ -442,6 +445,8 @@ export function createAppsmithApi(
       request(
         `/api/v1/pages?applicationId=${encodeURIComponent(applicationId)}&mode=EDIT`,
       ),
+    getApplication: async (applicationId) =>
+      request(`/api/v1/applications/${encodeURIComponent(applicationId)}`),
     listActions: async (applicationId) =>
       request(
         `/api/v1/actions?applicationId=${encodeURIComponent(applicationId)}`,
@@ -815,28 +820,107 @@ function fingerprintAction(action: unknown): string {
     .digest("hex");
 }
 
-// Classify a stored action as read-only. Only a PROTOCOL-LEVEL guarantee counts: a REST action whose HTTP method is
-// GET or HEAD (defined as safe by HTTP semantics). A DB/SQL query body can NEVER be reliably classified read-only
-// from its text, so it is never auto-run: a leading SELECT/WITH/SHOW/EXPLAIN can still mutate — a CTE such as
-// `WITH x AS (DELETE FROM t RETURNING *) SELECT * FROM x`, a mutating function like `SELECT drop_old()`, or
-// `EXPLAIN ANALYZE <mutation>` (which actually executes the plan). Any action with a query body is therefore treated
-// as NON-read-only and must go through prepare_run_action / confirm_run_action. Defaults to non-read-only (safe).
-function isReadOnlyAction(action: unknown): boolean {
+// Plugin families whose egress is pinned server-side to a configured datasource host, so executing an action cannot
+// exfiltrate query-bound data to an attacker-chosen endpoint. REST/API-family plugins (API, SAAS, REMOTE, GraphQL)
+// can target an arbitrary external URL and are therefore NOT host-restricted.
+const HOST_RESTRICTED_PLUGIN_TYPES = new Set(["DB"]);
+
+function actionSource(action: unknown): Record<string, unknown> | null {
   const source =
     (action as { unpublishedAction?: unknown } | null)?.unpublishedAction ??
     action;
+
+  return (source as Record<string, unknown> | null) ?? null;
+}
+
+// True when the action can egress to an arbitrary external host (its datasource is not server-side host-restricted).
+// Such an action must never auto-run: even a GET could carry query-bound data out to an attacker-chosen URL with no
+// human in the loop (M1-T2). Absence of a pluginType is treated as external (safe default).
+function isExternalEgressAction(action: unknown): boolean {
+  const pluginType = actionSource(action)?.pluginType;
+
+  return (
+    typeof pluginType !== "string" ||
+    !HOST_RESTRICTED_PLUGIN_TYPES.has(pluginType)
+  );
+}
+
+// Classify a stored action as auto-runnable (executable via run_action WITHOUT the prepare/confirm human checkpoint).
+// TWO independent guarantees are required, and no current plugin family provides both — so nothing auto-runs today and
+// every stored action routes through prepare_run_action / confirm_run_action:
+//   (1) PROTOCOL-level read-only: a REST GET/HEAD (safe by HTTP semantics). A DB/SQL body can NEVER be reliably
+//       classified read-only from its text — a leading SELECT/WITH/SHOW/EXPLAIN can still mutate (a CTE such as
+//       `WITH x AS (DELETE FROM t RETURNING *) SELECT * FROM x`, a mutating function like `SELECT drop_old()`, or
+//       `EXPLAIN ANALYZE <mutation>` which executes the plan). So DB actions fail (1).
+//   (2) HOST-RESTRICTED datasource: egress pinned server-side, so a run can't exfiltrate to an external host. REST/API
+//       actions (the only ones that satisfy (1)) can target any external URL, so they fail (2) (M1-T2).
+// The predicate keeps an explicit, auditable door for a future host-restricted, protocol-read-only plugin, rather than
+// widening auto-run today. Defaults to NON-auto-runnable (safe).
+function isReadOnlyAction(action: unknown): boolean {
   const config = (
-    source as {
+    actionSource(action) as {
       actionConfiguration?: { httpMethod?: unknown };
     } | null
   )?.actionConfiguration;
   const method = config?.httpMethod;
 
-  if (typeof method === "string") {
-    return ["GET", "HEAD"].includes(method.toUpperCase());
-  }
+  const protocolReadOnly =
+    typeof method === "string" &&
+    ["GET", "HEAD"].includes(method.toUpperCase());
 
-  return false;
+  return protocolReadOnly && !isExternalEgressAction(action);
+}
+
+// Git-connection state of an application, read from its gitApplicationMetadata. When an app is connected to git, MCP
+// edits land as UNCOMMITTED changes on the checked-out branch and confirm_publish would deploy that uncommitted
+// state. So publish is refused and mutating edits carry a warning naming the branch (M1-T3).
+interface GitState {
+  connected: boolean;
+  branchName?: string;
+}
+
+function gitStateOf(application: unknown): GitState {
+  const meta = (application as { gitApplicationMetadata?: unknown } | null)
+    ?.gitApplicationMetadata as
+    | { branchName?: unknown; remoteUrl?: unknown }
+    | null
+    | undefined;
+
+  if (!meta) return { connected: false };
+
+  const branchName =
+    typeof meta.branchName === "string" && meta.branchName.length > 0
+      ? meta.branchName
+      : undefined;
+  // A live connection carries a remoteUrl (and usually a branch). A bare metadata stub (neither) is not connected.
+  const connected =
+    (typeof meta.remoteUrl === "string" && meta.remoteUrl.length > 0) ||
+    branchName !== undefined;
+
+  return { connected, branchName };
+}
+
+// Fetches the application and returns its git state. Fails safe to "not connected" on a read error so a transient
+// failure never blocks a legitimate edit; confirm_publish re-reads explicitly before the high-impact deploy.
+async function fetchGitState(
+  api: AppsmithApi,
+  applicationId: string,
+): Promise<GitState> {
+  try {
+    return gitStateOf(await api.getApplication(applicationId));
+  } catch {
+    return { connected: false };
+  }
+}
+
+// Human-readable warning attached to a mutating edit's result when the target app is git-connected: the change is
+// uncommitted on the named branch and must be committed via Appsmith's git UI before it ships.
+function gitEditWarning(git: GitState): string | undefined {
+  if (!git.connected) return undefined;
+
+  const branch = git.branchName ? ` on branch "${git.branchName}"` : "";
+
+  return `This application is connected to git. This change is saved as an UNCOMMITTED edit${branch}; commit it via Appsmith's git UI to include it in a deploy. Publishing from MCP is disabled for git-connected apps.`;
 }
 
 // Clone a STORED action (server data, not agent input) under a new name, keeping only the permitted fields and
@@ -1124,6 +1208,13 @@ export function buildMcpServer(
     };
     const revisionAfter = fingerprintDsl(params.newDsl);
 
+    // Every layout edit on a git-connected app is saved UNCOMMITTED on the branch; warn (but proceed) so the agent
+    // surfaces it to the user. Fetched once here so all layout-editing tools (edit_page/patch_widgets/wire_event)
+    // inherit the warning without each re-implementing the check (M1-T3).
+    const gitWarning = gitEditWarning(
+      await fetchGitState(api, params.applicationId),
+    );
+
     // A stale revision is rejected consistently in both paths. The revision is a content hash of the public DSL (not
     // a secret), so a plain comparison is fine and avoids length-mismatch throws.
     if (
@@ -1143,6 +1234,7 @@ export function buildMcpServer(
 
       return result({
         ...params.extra,
+        ...(gitWarning ? { gitWarning } : {}),
         diagnostics,
         layout,
         revision: revisionAfter,
@@ -1182,6 +1274,7 @@ export function buildMcpServer(
 
       return result({
         ...params.extra,
+        ...(gitWarning ? { gitWarning } : {}),
         diagnostics: value.diagnostics,
         layout: value.layout,
         revision: revisionAfter,
@@ -1230,11 +1323,22 @@ export function buildMcpServer(
 
   server.tool(
     "get_application_context",
-    "Read the requested application page and layout. Appsmith authorizes every API request using the caller's bearer token.",
+    "Read the requested application page and layout, plus the app's git-connection state. Appsmith authorizes every API request using the caller's bearer token.",
     { applicationId: idSchema, pageId: idSchema, layoutId: idSchema },
-    async ({ applicationId, layoutId, pageId }) =>
-      result(await api.getApplicationContext(applicationId, pageId, layoutId)),
+    async ({ applicationId, layoutId, pageId }) => {
+      const [context, git] = await Promise.all([
+        api.getApplicationContext(applicationId, pageId, layoutId),
+        fetchGitState(api, applicationId),
+      ]);
+
+      // Surface git state so an agent knows up front that edits will be uncommitted and publish is disabled here.
+      return result({ ...(context as Record<string, unknown>), git });
+    },
   );
+
+  // Note surfaced by get_capabilities so an agent learns the git policy before it starts editing.
+  const GIT_POLICY_NOTE =
+    "Git-connected applications: MCP edits are saved as UNCOMMITTED changes on the checked-out branch (commit them via Appsmith's git UI), and publishing from MCP is disabled for them. get_application_context reports each app's git-connection state.";
 
   // The raw artifact-import tools were removed: they let an agent upload an arbitrary artifact (custom JS libs, JS
   // objects, datasources) — a large content-injection surface. Authoring goes through the validated
@@ -1245,13 +1349,14 @@ export function buildMcpServer(
     "Discover what this MCP server supports: widget types, spec shapes, presets, the layout grid, and the exact set of tools available under the current gates (data layer, restricted JS, governance). Call this first.",
     {},
     async () =>
-      result(
-        getCapabilities({
+      result({
+        ...getCapabilities({
           data: dataEnabled,
           js: jsEnabled,
           governance: governance !== undefined,
         }),
-      ),
+        gitPolicy: GIT_POLICY_NOTE,
+      }),
   );
 
   server.tool(
@@ -1905,6 +2010,36 @@ export function buildMcpServer(
       },
       async ({ applicationId, confirmationId, revision }) => {
         try {
+          // Refuse to deploy a git-connected app: publishing from MCP would ship whatever uncommitted state sits on the
+          // branch, bypassing the git review/commit flow. Checked before consuming the confirmation so the token is not
+          // spent on a refused publish. This is a HARD gate, so — unlike the advisory edit warning (fetchGitState,
+          // fail-open) — it fails CLOSED: if the git state cannot be read, refuse rather than risk deploying
+          // uncommitted git state.
+          let git: GitState;
+
+          try {
+            git = gitStateOf(await api.getApplication(applicationId));
+          } catch {
+            return result({
+              error:
+                "Could not verify the application's git-connection state; refusing to publish. Retry, or deploy through Appsmith's git flow.",
+              code: "git_state_unknown",
+              published: false,
+            });
+          }
+
+          if (git.connected) {
+            const branch = git.branchName
+              ? ` (branch "${git.branchName}")`
+              : "";
+
+            return result({
+              error: `This application is connected to git${branch}. Publishing from MCP is disabled — commit your changes and deploy through Appsmith's git flow instead.`,
+              code: "git_connected",
+              published: false,
+            });
+          }
+
           await gov.consumeDestructiveConfirmation({
             confirmationId,
             actorId,
@@ -2476,7 +2611,7 @@ export function buildMcpServer(
 
     server.tool(
       "run_action",
-      "Run a READ-ONLY stored action (a REST GET/HEAD request) by id and return its result. DB/SQL queries are NOT auto-run — their text cannot be proven read-only — and are refused here; use prepare_run_action / confirm_run_action for any query. No execute payload is accepted.",
+      "Run a stored action by id WITHOUT a confirmation step — allowed only for an action that is both protocol-level read-only AND pinned to a server-side host-restricted datasource. REST/external actions (which can egress to any host) and DB/SQL queries (whose text cannot be proven read-only) are refused here; use prepare_run_action / confirm_run_action for those. No execute payload is accepted.",
       { applicationId: idSchema, actionId: idSchema },
       async ({ actionId, applicationId }) => {
         const action = await api.getAction(applicationId, actionId);
@@ -2484,7 +2619,7 @@ export function buildMcpServer(
         if (!isReadOnlyAction(action)) {
           return result({
             error:
-              "this action is not read-only; use prepare_run_action then confirm_run_action",
+              "this action cannot be auto-run (external egress or non-provably-read-only); use prepare_run_action then confirm_run_action",
             code: "confirmation_required",
             readOnly: false,
           });

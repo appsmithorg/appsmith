@@ -90,10 +90,12 @@ describe("supervisord, run script, and healthcheck keep MCP default-on and toggl
     );
 
     // The env flag is read (default on) and the auth filter's matcher short-circuits when disabled, so disabling
-    // MCP rejects already-issued mcp_ tokens server-side rather than only dropping the Caddy route.
+    // MCP rejects already-issued mcp_ tokens server-side rather than only dropping the Caddy route. The check is
+    // evaluated per request (isMcpAuthenticationRequest), so the toggle takes effect without a bean/JVM rebuild.
     expect(securityConfig).toMatch(
       /@Value\("\$\{APPSMITH_MCP_ENABLED:true\}"\)/,
     );
-    expect(securityConfig).toMatch(/if\s*\(!mcpEnabled\)/);
+    expect(securityConfig).toMatch(/if\s*\(!isMcpEnabled\(\)\)/);
+    expect(securityConfig).toMatch(/boolean isMcpAuthenticationRequest\(/);
   });
 });

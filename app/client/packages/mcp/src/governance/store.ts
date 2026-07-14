@@ -145,6 +145,14 @@ export class MongoRedisGovernanceStore implements McpGovernanceStore {
   }
 }
 
+// Governance needs a MongoDB connection. On `release`, APPSMITH_DB_URL is the Mongo URL, but on deployments where it
+// points at Postgres (or the value is otherwise not a Mongo URL) handing it to `new MongoClient` would throw at
+// startup. Treat the URL as Mongo only when its scheme is mongodb:/mongodb+srv:; otherwise skip governance (the same
+// fail-safe as when the env vars are absent) so the server still starts with governed tools simply unavailable.
+function isMongoUrl(url: string): boolean {
+  return /^mongodb(\+srv)?:\/\//i.test(url.trim());
+}
+
 export function createGovernanceStoreFromEnv():
   | MongoRedisGovernanceStore
   | undefined {
@@ -153,6 +161,15 @@ export function createGovernanceStoreFromEnv():
   const redisUrl = process.env.APPSMITH_REDIS_URL;
 
   if (!mongoUrl || !redisUrl) return undefined;
+
+  if (!isMongoUrl(mongoUrl)) {
+    process.stderr.write(
+      "Appsmith MCP governance disabled: the configured database URL is not a MongoDB URL " +
+        "(expected mongodb:// or mongodb+srv://). Governed tools will be unavailable.\n",
+    );
+
+    return undefined;
+  }
 
   return new MongoRedisGovernanceStore(
     new MongoClient(mongoUrl),

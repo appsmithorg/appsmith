@@ -123,7 +123,8 @@ init_env_file() {
     fi
 
     # Backfill the MCP gates for installs whose docker.env predates them, so the Admin Settings UI
-    # (which reads/writes these variables) mirrors the actual defaults: server on, sub-features off.
+    # (which reads/writes these variables) mirrors the actual defaults. Default-on is intentional: the MCP server,
+    # its data layer, and restricted JS objects are all enabled by default (each stays an Admin off-switch).
     if ! grep -q "^APPSMITH_MCP_ENABLED=" "$ENV_PATH"; then
       echo $'\nAPPSMITH_MCP_ENABLED=true' >> "$ENV_PATH"
     fi

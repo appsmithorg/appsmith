@@ -143,6 +143,21 @@ public class SecurityConfig {
         return mcpEnabledFlag == null || !mcpEnabledFlag.trim().matches("(?i)^(false|0|no|off)$");
     }
 
+    // Whether the MCP bearer-auth filter should engage for this request. Evaluated PER REQUEST (not captured at bean
+    // construction) so flipping APPSMITH_MCP_ENABLED off immediately stops authenticating already-issued mcp_ tokens
+    // — the filter goes inert, the bearer is treated as an unrecognized credential and rejected (401). Returns false
+    // for non-MCP requests and whenever MCP is disabled, leaving the form-login flow untouched. Package-private for
+    // unit testing the runtime kill switch.
+    boolean isMcpAuthenticationRequest(ServerWebExchange exchange) {
+        if (!isMcpEnabled()) {
+            return false;
+        }
+        final String mcpBearerPrefix = "Bearer mcp_";
+        final String authorization = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        return authorization != null
+                && authorization.regionMatches(true, 0, mcpBearerPrefix, 0, mcpBearerPrefix.length());
+    }
+
     /**
      * This routerFunction is required to map /public/** endpoints to the
      * src/main/resources/public folder
@@ -215,21 +230,13 @@ public class SecurityConfig {
         // Only engage for requests that actually carry an MCP token. Without this, the filter's default "any
         // exchange" matcher sits at AUTHENTICATION order alongside the form-login filter and breaks the login flow
         // (No provider found for UsernamePasswordAuthenticationToken -> 500).
-        // When MCP is disabled the filter never engages, so an mcp_ bearer is treated as an unrecognized credential
-        // and rejected (401) instead of authenticating — this makes the Admin Settings toggle a real kill switch for
-        // already-issued tokens, not just a route removal.
-        final boolean mcpEnabled = isMcpEnabled();
-        mcpTokenAuthenticationWebFilter.setRequiresAuthenticationMatcher(exchange -> {
-            if (!mcpEnabled) {
-                return ServerWebExchangeMatcher.MatchResult.notMatch();
-            }
-            final String mcpBearerPrefix = "Bearer mcp_";
-            final String authorization = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-            return authorization != null
-                            && authorization.regionMatches(true, 0, mcpBearerPrefix, 0, mcpBearerPrefix.length())
-                    ? ServerWebExchangeMatcher.MatchResult.match()
-                    : ServerWebExchangeMatcher.MatchResult.notMatch();
-        });
+        // The enabled-state is evaluated PER REQUEST (see isMcpAuthenticationRequest), not captured once here, so
+        // disabling APPSMITH_MCP_ENABLED takes effect immediately for already-issued mcp_ tokens without waiting on a
+        // bean/JVM rebuild — a real kill switch, not just a route removal.
+        mcpTokenAuthenticationWebFilter.setRequiresAuthenticationMatcher(
+                exchange -> isMcpAuthenticationRequest(exchange)
+                        ? ServerWebExchangeMatcher.MatchResult.match()
+                        : ServerWebExchangeMatcher.MatchResult.notMatch());
 
         csrfConfig.applyTo(http);
 

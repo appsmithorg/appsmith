@@ -58,13 +58,16 @@ public class McpTokenControllerCE {
 
     @GetMapping
     public Flux<ResponseDTO<McpTokenResponseDTO>> list(@AuthenticationPrincipal User user) {
-        return userMcpTokenService.list(user).map(token -> new ResponseDTO<>(HttpStatus.OK, token));
+        // Token management is session-only: an MCP-authenticated caller must not be able to enumerate a user's tokens.
+        return requireSessionAuthentication()
+                .thenMany(userMcpTokenService.list(user).map(token -> new ResponseDTO<>(HttpStatus.OK, token)));
     }
 
     @DeleteMapping("/{tokenId}")
     public Mono<ResponseDTO<Boolean>> revoke(@AuthenticationPrincipal User user, @PathVariable String tokenId) {
-        return userMcpTokenService
-                .revoke(user, tokenId)
+        // Revocation changes access state, so — like create/rotate — it must not be reachable with an MCP token.
+        return requireSessionAuthentication()
+                .then(userMcpTokenService.revoke(user, tokenId))
                 .map(revoked -> new ResponseDTO<>(revoked ? HttpStatus.OK : HttpStatus.NOT_FOUND, revoked));
     }
 }
