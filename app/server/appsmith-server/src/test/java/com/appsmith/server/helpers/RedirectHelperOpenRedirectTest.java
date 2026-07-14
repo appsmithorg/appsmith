@@ -500,4 +500,23 @@ class RedirectHelperOpenRedirectTest {
         String result = RedirectHelper.sanitizeRedirectUrl(" https://evil.com", headers);
         assertEquals("https://app.appsmith.com/applications", result);
     }
+
+    // --- Forged Origin header (APP-15347) ---
+
+    @Test
+    void testForgedOriginHeaderIsBlockedWhenHostDiffers() {
+        // Pentest finding: attacker sets Origin: https://evil.com on a form login POST.
+        // isSafeRedirectUrl must cross-check Origin against Host/X-Forwarded-Host
+        // and reject when they disagree.
+        HttpHeaders headers = new HttpHeaders();
+        headers.setOrigin("https://evil.com");
+        headers.setHost(InetSocketAddress.createUnresolved("app.appsmith.com", 0));
+
+        assertFalse(
+                RedirectHelper.isSafeRedirectUrl("https://evil.com/applications", headers),
+                "Redirect matching a forged Origin must be rejected when it differs from the request Host");
+
+        String sanitized = RedirectHelper.sanitizeRedirectUrl("https://evil.com/applications", headers);
+        assertFalse(sanitized.contains("evil.com"), "Sanitized fallback URL must not contain the forged Origin domain");
+    }
 }
