@@ -236,6 +236,32 @@ export function compileSelectedRowBinding(ref: SelectedRowRef): string {
   return `{{ ${ref.table}.selectedRow["${ref.column}"] }}`;
 }
 
+// A reference to one field of the current list item, for a card-grid (List Widget V2) template slot. The card widget
+// repeats a fixed template (image + title + subtitle) over a data source; each slot binds to
+// `{{ currentItem["<field>"] }}`. Same charset as table columns (letters/digits/underscore/space) — admits no
+// quote/brace/backtick, so the compiler-emitted bracket-access binding cannot be broken out of. The compiler authors
+// the binding; the agent only names the field.
+const itemField = z
+  .string()
+  .min(1)
+  .max(100)
+  .regex(
+    /^[A-Za-z0-9_ ]+$/,
+    "item field names must be alphanumeric, underscore, or space",
+  );
+
+// Emits `{{ currentItem["<field>"] }}` — the per-item binding for one card-template slot.
+export function compileCurrentItemBinding(field: string): string {
+  return `{{ currentItem["${field}"] }}`;
+}
+
+// Emits the list's `primaryKeys` binding. List Widget V2 requires a per-row key expression; we key by row index
+// (`currentIndex`), which is always unique and assumes nothing about the data's shape. Only the widget's own name is
+// interpolated (strict identifier), so the compiler-authored expression cannot be broken out of.
+export function compilePrimaryKeys(listName: string): string {
+  return `{{ ${listName}.listData.map((currentItem, currentIndex) => currentIndex) }}`;
+}
+
 // A value a widget's visibility can be gated on — e.g. a table shown only when a view toggle equals "Table" and a
 // detail panel when it equals "Details", so one control switches between views. The control is a widget
 // name; `equals` is a safe literal (no quotes/braces/backticks) emitted inside single quotes.
@@ -426,8 +452,15 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
       .object({
         type: z.literal("list"),
         name: nameField,
-        // The children form one list item template, repeated for each data row.
-        children: z.array(widgetSpecSchema).max(30).optional(),
+        // A card grid (List Widget V2): a fixed template — image + title + subtitle — repeated over a data source.
+        // Binding `source` to the SAME query as a table gives a shared table/cards view. The compiler emits the full
+        // 4-level List-Widget-V2 DSL and every per-item binding; the agent only names the source query and which item
+        // fields fill each slot.
+        source: tableDataRefSchema,
+        image: itemField.optional(),
+        title: itemField,
+        subtitle: itemField.optional(),
+        pageSize: z.number().int().min(1).max(100).optional(),
         placement: placementSchema.optional(),
       })
       .strict(),
@@ -532,7 +565,11 @@ export type WidgetSpec =
   | {
       type: "list";
       name?: string;
-      children?: WidgetSpec[];
+      source: TableDataRef;
+      image?: string;
+      title: string;
+      subtitle?: string;
+      pageSize?: number;
       placement?: PlacementSpec;
     };
 

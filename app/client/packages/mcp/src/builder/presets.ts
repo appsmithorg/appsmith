@@ -54,18 +54,18 @@ export const PRESETS: Record<string, Preset> = {
   "card-grid": {
     name: "card-grid",
     description:
-      "A single card (image + title + action) meant to be duplicated across a grid/list. Bind the image and text to your data, then repeat per row.",
+      "A card grid and a table bound to the SAME query (a shared table/cards view). Point both `source`s at your query and set the card's item fields (image/title/subtitle) to your columns.",
     spec: {
       name: "Gallery",
       widgets: [
+        { type: "table", name: "ItemsTable", source: { query: "getItems" } },
         {
-          type: "container",
-          name: "Card",
-          children: [
-            { type: "image", name: "CardImage", image: "" },
-            { type: "text", name: "CardTitle", text: "Title" },
-            { type: "button", name: "CardAction", text: "Open" },
-          ],
+          type: "list",
+          name: "ItemsCards",
+          source: { query: "getItems" },
+          image: "image",
+          title: "name",
+          subtitle: "description",
         },
       ],
     },

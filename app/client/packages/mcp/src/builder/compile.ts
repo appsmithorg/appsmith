@@ -6,6 +6,11 @@ import type {
   WidgetSpec,
   WidgetType,
 } from "./schema.js";
+import {
+  compileCurrentItemBinding,
+  compilePrimaryKeys,
+  compileTableDataBinding,
+} from "./schema.js";
 import { WIDGET_TEMPLATES } from "./templates.js";
 import {
   createInnerCanvas,
@@ -173,7 +178,23 @@ function compileWidgetAt(
     });
   }
 
-  // Any widget whose template returns `children` is container-like (container, form, modal, list): it gets an inner
+  // List Widget V2 is a curated card grid. Its DSL needs a 4-level structure (list -> main canvas -> item container
+  // -> inner canvas -> template widgets) with cross-referenced ids and compiler-authored `{{ currentItem[...] }}`
+  // bindings — the single-inner-canvas container path can't express it, so it is built directly (like tabs).
+  if (spec.type === "list") {
+    return compileCardWidget(spec, ctx, {
+      widgetId,
+      widgetName,
+      appsmithType: template.appsmithType,
+      version: template.version,
+      parentId,
+      topRow,
+      columns,
+      baseProps: built.props,
+    });
+  }
+
+  // Any widget whose template returns `children` is container-like (container, form, modal): it gets an inner
   // CANVAS_WIDGET that holds the nested widgets.
   if (built.children !== undefined) {
     const innerId = ctx.idGen();
@@ -222,6 +243,251 @@ function compileWidgetAt(
     columns,
     rows: built.footprint.rows,
     props: built.props,
+  });
+}
+
+interface CardWidgetParams {
+  widgetId: string;
+  widgetName: string;
+  appsmithType: string;
+  version: number;
+  parentId: string;
+  topRow: number;
+  columns: number;
+  baseProps: Record<string, unknown>;
+}
+
+// Row heights (in 10px grid rows) for the fixed card template slots.
+const CARD_IMAGE_ROWS = 18;
+const CARD_TEXT_ROWS = 4;
+
+// Build a List-Widget-V2 "card grid": the 4-level DSL (list -> main CANVAS -> item CONTAINER(isListItemContainer) ->
+// inner CANVAS -> template widgets) that the widget's runtime clones per data row. Every per-item binding
+// (`{{ currentItem[...] }}`) and the `primaryKeys`/`listData` expressions are compiler-authored from schema-validated
+// identifiers, so nothing agent-supplied can escape a binding. mainCanvasId/mainContainerId cross-reference the
+// generated canvas/container ids — the MetaWidgetGenerator reads them to materialize each row.
+//
+// The structural props transcribed below (isListItemContainer, noContainerOffset, disabledWidgetFeatures, the main
+// canvas's dropDisabled/detachFromLayout/noPad, etc.) mirror the widget's own blueprint — see the ListWidgetV2 default
+// config at app/client/src/widgets/ListWidgetV2/widget/defaultProps.ts. If that blueprint changes upstream, diff this
+// against it.
+function compileCardWidget(
+  spec: Extract<WidgetSpec, { type: "list" }>,
+  ctx: CompileContext,
+  params: CardWidgetParams,
+): WidgetNode {
+  const { columns, widgetId, widgetName } = params;
+  const mainCanvasId = ctx.idGen();
+  const containerId = ctx.idGen();
+  const innerCanvasId = ctx.idGen();
+  const mainCanvasName = ctx.names.allocate("Canvas");
+  const containerName = ctx.names.allocate("Container");
+  const innerCanvasName = ctx.names.allocate("Canvas");
+
+  // Fixed template: optional image on top, required title, optional subtitle — each bound to a currentItem field.
+  const templateChildren: WidgetNode[] = [];
+  let cursor = 0;
+
+  if (spec.image !== undefined) {
+    const built = WIDGET_TEMPLATES.image.build({ type: "image" });
+    const props = {
+      ...built.props,
+      image: compileCurrentItemBinding(spec.image),
+      dynamicBindingPathList: [{ key: "image" }],
+    };
+
+    applyTheme(props, "IMAGE_WIDGET", ctx.theme);
+    templateChildren.push(
+      stampWidget({
+        widgetId: ctx.idGen(),
+        widgetName: ctx.names.allocate("Image"),
+        appsmithType: "IMAGE_WIDGET",
+        version: 1,
+        parentId: innerCanvasId,
+        topRow: cursor,
+        leftColumn: 0,
+        columns,
+        rows: CARD_IMAGE_ROWS,
+        props,
+      }),
+    );
+    cursor += CARD_IMAGE_ROWS;
+  }
+
+  const titleBuilt = WIDGET_TEMPLATES.text.build({ type: "text" });
+  const titleProps = {
+    ...titleBuilt.props,
+    text: compileCurrentItemBinding(spec.title),
+    // Fixed-height slots: truncate long values with an ellipsis rather than overflowing into the next slot.
+    shouldTruncate: true,
+    dynamicBindingPathList: [{ key: "text" }],
+  };
+
+  applyTheme(titleProps, "TEXT_WIDGET", ctx.theme);
+  templateChildren.push(
+    stampWidget({
+      widgetId: ctx.idGen(),
+      widgetName: ctx.names.allocate("Text"),
+      appsmithType: "TEXT_WIDGET",
+      version: 1,
+      parentId: innerCanvasId,
+      topRow: cursor,
+      leftColumn: 0,
+      columns,
+      rows: CARD_TEXT_ROWS,
+      props: titleProps,
+    }),
+  );
+  cursor += CARD_TEXT_ROWS;
+
+  if (spec.subtitle !== undefined) {
+    const built = WIDGET_TEMPLATES.text.build({ type: "text" });
+    const props = {
+      ...built.props,
+      text: compileCurrentItemBinding(spec.subtitle),
+      // Subtitle reads as secondary text: normal weight, muted colour.
+      fontStyle: "NORMAL",
+      textColor: "#716E6E",
+      shouldTruncate: true,
+      dynamicBindingPathList: [{ key: "text" }],
+    };
+
+    applyTheme(props, "TEXT_WIDGET", ctx.theme);
+    templateChildren.push(
+      stampWidget({
+        widgetId: ctx.idGen(),
+        widgetName: ctx.names.allocate("Text"),
+        appsmithType: "TEXT_WIDGET",
+        version: 1,
+        parentId: innerCanvasId,
+        topRow: cursor,
+        leftColumn: 0,
+        columns,
+        rows: CARD_TEXT_ROWS,
+        props,
+      }),
+    );
+    cursor += CARD_TEXT_ROWS;
+  }
+
+  const contentRows = cursor;
+
+  // Count the card's template widgets against the shared widget budget (compileWidgetAt only charged the list node
+  // itself). The structural canvases/container are scaffolding, not user widgets, so they are not charged.
+  ctx.remaining.widgets -= templateChildren.length;
+
+  if (ctx.remaining.widgets < 0) {
+    throw new Error(`spec exceeds the maximum of ${MAX_TOTAL_WIDGETS} widgets`);
+  }
+
+  // Inner canvas holds the template widgets; fixed layout (not auto-layout).
+  const innerCanvas = createInnerCanvas(
+    innerCanvasId,
+    innerCanvasName,
+    containerId,
+    columns,
+    contentRows,
+    templateChildren,
+  );
+
+  innerCanvas.useAutoLayout = false;
+  innerCanvas.flexLayers = [];
+
+  // The item-template container. `isListItemContainer` marks it as the per-row template the runtime clones.
+  const itemContainer = stampWidget({
+    widgetId: containerId,
+    widgetName: containerName,
+    appsmithType: "CONTAINER_WIDGET",
+    version: 1,
+    parentId: mainCanvasId,
+    topRow: 0,
+    leftColumn: 0,
+    columns,
+    rows: contentRows,
+    props: {
+      isCanvas: true,
+      isListItemContainer: true,
+      dragDisabled: true,
+      isDeletable: false,
+      disallowCopy: true,
+      noContainerOffset: true,
+      positioning: "fixed",
+      shouldScrollContents: false,
+      dynamicHeight: "FIXED",
+      disabledWidgetFeatures: ["dynamicHeight"],
+      containerStyle: "card",
+      backgroundColor: "white",
+      borderColor: "#E0DEDE",
+      borderWidth: "1",
+      flexVerticalAlignment: "start",
+      dynamicBindingPathList: [],
+      dynamicTriggerPathList: [],
+    },
+    children: [innerCanvas],
+  });
+
+  // The list's main canvas: a detached, drop-disabled canvas that holds only the item container.
+  const mainCanvas: WidgetNode = {
+    widgetName: mainCanvasName,
+    type: "CANVAS_WIDGET",
+    version: 1,
+    widgetId: mainCanvasId,
+    parentId: params.widgetId,
+    renderMode: "CANVAS",
+    isVisible: true,
+    containerStyle: "none",
+    canExtend: false,
+    detachFromLayout: true,
+    dropDisabled: true,
+    openParentPropertyPane: true,
+    noPad: true,
+    minHeight: 400,
+    topRow: 0,
+    bottomRow: contentRows,
+    leftColumn: 0,
+    rightColumn: columns,
+    parentColumnSpace: 1,
+    parentRowSpace: 1,
+    dynamicBindingPathList: [],
+    dynamicTriggerPathList: [],
+    flexLayers: [],
+    children: [itemContainer],
+  };
+
+  const pageSize = spec.pageSize ?? 3;
+  // Give the list a visible height for a few cards; the widget paginates/scrolls internally beyond that.
+  const visibleCards = Math.min(pageSize, 3);
+  const listRows = Math.max(30, visibleCards * (contentRows + 1) + 6);
+
+  const listProps = {
+    ...params.baseProps,
+    listData: compileTableDataBinding(spec.source),
+    primaryKeys: compilePrimaryKeys(widgetName),
+    pageSize,
+    mainCanvasId,
+    mainContainerId: containerId,
+    templateBottomRow: contentRows,
+    dynamicBindingPathList: [
+      { key: "currentItemsView" },
+      { key: "selectedItemView" },
+      { key: "triggeredItemView" },
+      { key: "primaryKeys" },
+      { key: "listData" },
+    ],
+  };
+
+  return stampWidget({
+    widgetId,
+    widgetName,
+    appsmithType: params.appsmithType,
+    version: params.version,
+    parentId: params.parentId,
+    topRow: params.topRow,
+    leftColumn: 0,
+    columns,
+    rows: listRows,
+    props: listProps,
+    children: [mainCanvas],
   });
 }
 

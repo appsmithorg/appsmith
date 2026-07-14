@@ -106,8 +106,16 @@ export const WIDGET_CATALOG = [
   },
   {
     type: "list",
-    fields: { children: "widget spec[] (the repeating item template)" },
-    purpose: "Repeat a template of widgets over a list of items.",
+    fields: {
+      source:
+        "{ query: string, field?: string } (bind to the same query as a table for a shared table/cards view)",
+      title: "item field name for the card title",
+      image: "item field name for the card image (optional)",
+      subtitle: "item field name for the card subtitle (optional)",
+      pageSize: "cards per page (optional)",
+    },
+    purpose:
+      "A card grid: repeats an image + title + subtitle card over a data source's rows.",
   },
 ] as const;
 

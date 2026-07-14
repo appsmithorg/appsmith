@@ -322,6 +322,13 @@ const GLOBAL_BINDING_HEADS = new Set([
   "copyToClipboard",
   "download",
   "postWindowMessage",
+  // List Widget V2 template scope: inside a card grid's item template the runtime injects these per-row locals, so
+  // the compiler-emitted `{{ currentItem["field"] }}` slot bindings are valid heads, not dangling references.
+  "currentItem",
+  "currentIndex",
+  "currentView",
+  "level",
+  "levelData",
 ]);
 
 export function lintDsl(

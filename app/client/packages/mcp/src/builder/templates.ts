@@ -422,25 +422,36 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
     appsmithType: "LIST_WIDGET_V2",
     version: 3,
     footprint: { columns: 40, rows: 30 },
-    build: (spec) => {
-      // The children are the repeating item template; they compile into the list's inner canvas.
-      const children = spec.type === "list" ? spec.children ?? [] : [];
-
-      return {
-        footprint: { columns: 40, rows: 30 },
-        children,
-        props: {
-          listData: [],
-          currentItemsView: "[]",
-          pageSize: 3,
-          serverSidePagination: false,
-          animateLoading: true,
-          responsiveBehavior: "fill",
-          dynamicBindingPathList: [],
-          dynamicTriggerPathList: [],
-        },
-      };
-    },
+    // List Widget V2 is a curated card grid whose 4-level DSL (list -> main canvas -> item container -> inner canvas
+    // -> template widgets) with cross-referenced ids and compiler-authored per-item bindings can't be expressed by
+    // the single-inner-canvas container path. The compiler builds it directly (see compileCardWidget); this template
+    // supplies only the base props shared by every card grid.
+    build: () => ({
+      footprint: { columns: 40, rows: 30 },
+      props: {
+        gridType: "vertical",
+        itemSpacing: 8,
+        backgroundColor: "transparent",
+        itemBackgroundColor: "#FFFFFF",
+        currentItemsView: "{{[]}}",
+        selectedItemView: "{{{}}}",
+        triggeredItemView: "{{{}}}",
+        isCanvas: true,
+        hasMetaWidgets: true,
+        requiresFlatWidgetChildren: true,
+        additionalStaticProps: [
+          "level",
+          "levelData",
+          "prefixMetaWidgetId",
+          "metaWidgetId",
+        ],
+        serverSidePagination: false,
+        animateLoading: true,
+        responsiveBehavior: "fill",
+        minWidth: 450,
+        dynamicTriggerPathList: [],
+      },
+    }),
   },
 
   tabs: {

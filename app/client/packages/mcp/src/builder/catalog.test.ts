@@ -2,7 +2,11 @@ import { compileApp } from "./compile.js";
 import { sequentialIdGenerator, type WidgetNode } from "./layout.js";
 import { lintDsl } from "./lint.js";
 import type { WidgetSpec } from "./schema.js";
-import { appSpecSchema } from "./schema.js";
+import {
+  appSpecSchema,
+  compileCurrentItemBinding,
+  compilePrimaryKeys,
+} from "./schema.js";
 
 function build(widgets: WidgetSpec[]): WidgetNode {
   const artifact = compileApp(
@@ -195,16 +199,45 @@ describe("M3b catalog — chart, tabs, list", () => {
     );
   });
 
-  it("compiles a list with a repeating item template canvas", () => {
+  it("compiles a card grid (list) as the 4-level List-Widget-V2 structure", () => {
     const [list] = children(
-      build([{ type: "list", children: [{ type: "text", text: "row" }] }]),
+      build([
+        {
+          type: "list",
+          source: { query: "getUsers" },
+          image: "avatar",
+          title: "name",
+          subtitle: "email",
+        },
+      ]),
     );
 
     expect(list.type).toBe("LIST_WIDGET_V2");
-    const inner = children(list)[0];
+    // list -> main canvas -> item container(isListItemContainer) -> inner canvas -> template widgets.
+    const mainCanvas = children(list)[0];
 
-    expect(inner.type).toBe("CANVAS_WIDGET");
-    expect(children(inner).map((c) => c.type)).toContain("TEXT_WIDGET");
+    expect(mainCanvas.type).toBe("CANVAS_WIDGET");
+    const itemContainer = children(mainCanvas)[0];
+
+    expect(itemContainer.type).toBe("CONTAINER_WIDGET");
+    expect(itemContainer.isListItemContainer).toBe(true);
+    // ids cross-reference: list points at the generated main canvas + item container.
+    expect(list.mainCanvasId).toBe(mainCanvas.widgetId);
+    expect(list.mainContainerId).toBe(itemContainer.widgetId);
+    const innerCanvas = children(itemContainer)[0];
+
+    expect(innerCanvas.type).toBe("CANVAS_WIDGET");
+    expect(children(innerCanvas).map((c) => c.type)).toEqual([
+      "IMAGE_WIDGET",
+      "TEXT_WIDGET",
+      "TEXT_WIDGET",
+    ]);
+    // Per-item bindings are compiler-authored.
+    const [img, title] = children(innerCanvas);
+
+    expect(img.image).toBe('{{ currentItem["avatar"] }}');
+    expect(title.text).toBe('{{ currentItem["name"] }}');
+    expect(list.listData).toBe("{{ getUsers.data ?? [] }}");
   });
 
   it("is lint-clean for chart, tabs, and list", () => {
@@ -214,10 +247,92 @@ describe("M3b catalog — chart, tabs, list", () => {
         type: "tabs",
         tabs: [{ label: "T", children: [{ type: "text", text: "x" }] }],
       },
-      { type: "list", children: [{ type: "text", text: "y" }] },
+      { type: "list", source: { query: "getUsers" }, title: "name" },
     ]);
 
     expect(lintDsl(dsl).errors).toBe(0);
+  });
+
+  // A card grid binds its slots to `{{ currentItem["field"] }}`. In the real flow (lintLiveDsl) the linter runs with
+  // knownDataNames populated, which is when unknown binding heads are flagged as dangling. `currentItem` (and its
+  // list-scope siblings) must be recognized so the compiled card grid does not report false dangling-binding errors.
+  it("card grid is lint-clean under knownDataNames (currentItem is a valid binding head)", () => {
+    const dsl = build([
+      {
+        type: "list",
+        source: { query: "getUsers", field: "users" },
+        image: "image",
+        title: "firstName",
+        subtitle: "email",
+      },
+    ]);
+
+    // The masking case (no knownDataNames) AND the real case (knownDataNames populated) must both be clean.
+    expect(lintDsl(dsl).errors).toBe(0);
+    expect(lintDsl(dsl, { knownDataNames: ["getUsers"] }).errors).toBe(0);
+  });
+
+  it("compiles a title-only card grid (no image/subtitle) with just a title slot", () => {
+    const [list] = children(
+      build([{ type: "list", source: { query: "getUsers" }, title: "name" }]),
+    );
+    const innerCanvas = children(children(children(list)[0])[0])[0];
+
+    expect(children(innerCanvas).map((c) => c.type)).toEqual(["TEXT_WIDGET"]);
+    expect(children(innerCanvas)[0].text).toBe('{{ currentItem["name"] }}');
+  });
+
+  it("binds card slots by exact field (spaces allowed) and registers each as a dynamic path", () => {
+    const [list] = children(
+      build([
+        {
+          type: "list",
+          source: { query: "getUsers", field: "data.items" },
+          image: "Photo URL",
+          title: "Full Name",
+        },
+      ]),
+    );
+
+    // source with a nested field path compiles to the optional-chained query binding.
+    expect(list.listData).toBe("{{ getUsers.data?.data.items ?? [] }}");
+    // primaryKeys keys by row index, referencing only the list's own (allocated) name.
+    expect(list.primaryKeys).toBe(
+      compilePrimaryKeys(list.widgetName as string),
+    );
+
+    const innerCanvas = children(children(children(list)[0])[0])[0];
+    const [img, title] = children(innerCanvas);
+
+    // Field with a space compiles to a bracket-access binding and is registered as dynamic (else it renders literal).
+    expect(img.image).toBe('{{ currentItem["Photo URL"] }}');
+    expect(img.dynamicBindingPathList).toEqual([{ key: "image" }]);
+    expect(title.text).toBe('{{ currentItem["Full Name"] }}');
+    expect(title.dynamicBindingPathList).toEqual([{ key: "text" }]);
+  });
+
+  it("rejects a card item field containing binding-escape characters", () => {
+    for (const badField of ['a"]}}', "a`b", "a${b}", "a}b", "a]b"]) {
+      const result = appSpecSchema.safeParse({
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              { type: "list", source: { query: "q" }, title: badField },
+            ],
+          },
+        ],
+      });
+
+      expect(result.success).toBe(false);
+    }
+  });
+
+  it("compileCurrentItemBinding emits an un-escapable bracket-access binding", () => {
+    expect(compileCurrentItemBinding("first name")).toBe(
+      '{{ currentItem["first name"] }}',
+    );
   });
 });
 
