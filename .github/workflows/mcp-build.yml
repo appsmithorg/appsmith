@@ -38,6 +38,27 @@ jobs:
       github.event_name == 'repository_dispatch' ||
       github.event_name == 'schedule' ||
       github.event_name == 'release'
+    # Mongo + Redis back the governance store's distributed-lock / confirmation-atomicity safety net. Without these
+    # service containers store.integration.test.ts stays describe.skip and that safety net never runs in CI.
+    services:
+      mongodb:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - name: Checkout the merged pull-request commit
         if: inputs.pr != 0
@@ -93,6 +114,19 @@ jobs:
       - name: Run unit tests
         if: inputs.skip-tests != 'true'
         run: yarn test:unit
+
+      # Runs ONLY the governance integration suite against the mongo+redis service containers (kept separate so the
+      # unit run above stays fast). With these env vars set, store.integration.test.ts's describe.skip flips to
+      # describe and the Redis-lock / confirmation-atomicity assertions actually execute.
+      - name: Run governance integration tests
+        if: inputs.skip-tests != 'true'
+        env:
+          APPSMITH_MONGODB_URI: mongodb://127.0.0.1:27017
+          APPSMITH_REDIS_URL: redis://127.0.0.1:6379
+          # Forces the anti-silent-no-op guard: if the mongo/redis wiring ever drifts, the step FAILS instead of the
+          # suite reverting to describe.skip and exiting 0 green.
+          MCP_REQUIRE_INTEGRATION: "1"
+        run: yarn test:unit src/governance/store.integration.test.ts
 
       - name: Build
         run: yarn build

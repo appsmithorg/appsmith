@@ -46,6 +46,18 @@ class SecurityConfigTest {
     }
 
     @Test
+    void flagOff_mcpBearerIsNotAuthenticated() {
+        // M3-T3(a): with APPSMITH_MCP_ENABLED=false, an already-issued, well-formed `Bearer mcp_...` credential must
+        // NOT engage the MCP auth filter. isMcpAuthenticationRequest returning false means the filter's
+        // requiresAuthenticationMatcher never matches, so the bearer is never converted/authenticated and falls
+        // through to `.anyExchange().authenticated()` -> 401. This is the flag-off kill switch for issued tokens.
+        SecurityConfig config = configWithFlag("false");
+        ServerWebExchange mcpRequest = exchangeWithBearer("Bearer mcp_abc.def");
+
+        assertThat(config.isMcpAuthenticationRequest(mcpRequest)).isFalse();
+    }
+
+    @Test
     void denyListValuesDisableTheFilter() {
         ServerWebExchange mcpRequest = exchangeWithBearer("Bearer mcp_abc.def");
         for (String off : new String[] {"false", "0", "no", "off", "OFF", "Off"}) {

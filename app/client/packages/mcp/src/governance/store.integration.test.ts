@@ -13,6 +13,18 @@ const redisUrl = process.env.APPSMITH_REDIS_URL;
 const describeIf = mongoUrl && redisUrl ? describe : describe.skip;
 const TEST_DB = "appsmith_mcp_integration_test";
 
+// Anti-silent-no-op guard: the CI integration step sets MCP_REQUIRE_INTEGRATION=1. In that job the suite MUST run, so
+// if the mongo/redis wiring ever drifts (renamed service, dropped env) this fails LOUDLY instead of the whole suite
+// reverting to describe.skip and the step still exiting 0 green. In the normal (unset) unit run this block is inert.
+if (process.env.MCP_REQUIRE_INTEGRATION === "1") {
+  describe("governance integration prerequisites", () => {
+    it("has Mongo and Redis configured (CI must not silently skip the safety-net suite)", () => {
+      expect(mongoUrl).toBeTruthy();
+      expect(redisUrl).toBeTruthy();
+    });
+  });
+}
+
 describeIf("MongoRedisGovernanceStore (real Mongo + Redis)", () => {
   let mongo: MongoClient;
   let redis: RedisClientType;
