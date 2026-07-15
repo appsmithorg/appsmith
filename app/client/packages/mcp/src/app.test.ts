@@ -406,6 +406,64 @@ describe("MCP HTTP server", () => {
     });
   });
 
+  // M4-T4 adoption telemetry: the structured request event must carry the coarse success/error CLASS and the
+  // gate state, while still never leaking the bearer token, tool arguments, or request bodies.
+  it("emits a request telemetry event with statusClass + gates and no token/args", async () => {
+    const events: Record<string, unknown>[] = [];
+    const stderrSpy = jest
+      .spyOn(process.stderr, "write")
+      .mockImplementation((chunk: string | Uint8Array) => {
+        const line = typeof chunk === "string" ? chunk : chunk.toString();
+
+        try {
+          events.push(JSON.parse(line));
+        } catch {
+          // Non-JSON writes are irrelevant to this assertion.
+        }
+
+        return true;
+      });
+
+    try {
+      const server = createMcpHttpServer(API_BASE_URL, createApi(), {
+        dataEnabled: true,
+        jsEnabled: true,
+      });
+
+      // A malformed body deterministically yields a 4xx without needing a full session; the telemetry event
+      // is still emitted on response finish.
+      await supertest(server)
+        .post("/mcp")
+        .set("Accept", "application/json, text/event-stream")
+        .set("Authorization", "Bearer mcp_user-secret-token")
+        .set("Content-Type", "application/json")
+        .send("{not-json");
+
+      const requestEvent = events.find(
+        (event) => event.event === "appsmith_mcp_request",
+      );
+
+      expect(requestEvent).toBeDefined();
+      expect(requestEvent).toMatchObject({
+        statusClass: "client_error",
+        gates: "data,js",
+      });
+
+      // Proof no secret/args/body leak: the serialized event must not contain the token secret or request body,
+      // and must expose no argument/body-bearing fields.
+      const serialized = JSON.stringify(requestEvent);
+
+      expect(serialized).not.toContain("user-secret-token");
+      expect(serialized).not.toContain("not-json");
+      expect(requestEvent).not.toHaveProperty("arguments");
+      expect(requestEvent).not.toHaveProperty("args");
+      expect(requestEvent).not.toHaveProperty("body");
+      expect(requestEvent).not.toHaveProperty("params");
+    } finally {
+      stderrSpy.mockRestore();
+    }
+  });
+
   it("binds sessions to the bearer token and revalidates reuse", async () => {
     const validateToken = jest.fn(async () => ({
       username: "user@appsmith.com",

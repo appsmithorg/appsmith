@@ -3512,6 +3512,18 @@ function logMcpEvent(event: string, fields: Record<string, unknown>) {
   );
 }
 
+// M4-T4 adoption telemetry: collapse the raw HTTP status into a coarse outcome class so we can measure
+// success/failure rates per tool WITHOUT leaking the error message or response body. Intentionally coarse.
+function mcpStatusClass(status: number): string {
+  if (status >= 500) return "server_error";
+
+  if (status >= 400) return "client_error";
+
+  if (status >= 200 && status < 300) return "success";
+
+  return "other";
+}
+
 function requestOperation(body: unknown): { method?: string; tool?: string } {
   if (!body || typeof body !== "object") return {};
 
@@ -3652,6 +3664,16 @@ export function createMcpHttpServer(
   const dataEnabled = options.dataEnabled ?? false;
   const jsEnabled = options.jsEnabled ?? false;
   const governance = options.governance;
+  // M4-T4 adoption telemetry: a compact, PII-free summary of which gated tool families are enabled for this
+  // server instance (e.g. "data,js,gov"). Threaded into every request event so gaps between what is deployed
+  // and what agents actually use are measurable.
+  const gateSummary = [
+    dataEnabled ? "data" : undefined,
+    jsEnabled ? "js" : undefined,
+    governance ? "gov" : undefined,
+  ]
+    .filter(Boolean)
+    .join(",");
   const allowedHosts = new Set(
     (options.allowedHosts ?? [])
       .map((host) => host.trim().toLowerCase())
@@ -3712,6 +3734,11 @@ export function createMcpHttpServer(
     let operation: { method?: string; tool?: string } = {};
 
     res.once("finish", () => {
+      // This structured stderr line IS the Node-side M4-T4 telemetry: the Node process cannot reach Java's
+      // Segment/AnalyticsService, so rather than building a fragile Node->Java analytics bridge we emit a
+      // machine-readable event consumable by log aggregation. It carries the tool name, a coarse success/error
+      // CLASS (never the error message or body), and the gate state (data/js/gov) — and deliberately still omits
+      // tokens, tool arguments, and request bodies.
       logMcpEvent("appsmith_mcp_request", {
         requestId,
         path: (req.url ?? "").split("?")[0],
@@ -3720,6 +3747,8 @@ export function createMcpHttpServer(
         tool: operation.tool,
         username,
         status: res.statusCode,
+        statusClass: mcpStatusClass(res.statusCode),
+        gates: gateSummary,
         durationMs: Date.now() - startedAt,
       });
     });

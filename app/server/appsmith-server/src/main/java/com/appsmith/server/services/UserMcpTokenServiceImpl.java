@@ -8,7 +8,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserMcpTokenServiceImpl extends UserMcpTokenServiceCEImpl implements UserMcpTokenService {
 
-    public UserMcpTokenServiceImpl(UserMcpTokenRepository userMcpTokenRepository, UserRepository userRepository) {
-        super(userMcpTokenRepository, userRepository);
+    public UserMcpTokenServiceImpl(
+            UserMcpTokenRepository userMcpTokenRepository,
+            UserRepository userRepository,
+            AnalyticsService analyticsService) {
+        super(userMcpTokenRepository, userRepository, analyticsService);
     }
 }

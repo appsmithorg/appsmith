@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserMcpToken;
 import com.appsmith.server.dtos.McpTokenResponseDTO;
@@ -21,10 +22,14 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,8 +42,14 @@ class UserMcpTokenServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private AnalyticsService analyticsService;
+
     @Captor
     private ArgumentCaptor<UserMcpToken> userMcpTokenCaptor;
+
+    @Captor
+    private ArgumentCaptor<Map<String, Object>> analyticsPropsCaptor;
 
     private UserMcpTokenServiceImpl service;
     private User user;
@@ -46,10 +57,15 @@ class UserMcpTokenServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        service = new UserMcpTokenServiceImpl(userMcpTokenRepository, userRepository);
+        service = new UserMcpTokenServiceImpl(userMcpTokenRepository, userRepository, analyticsService);
         user = new User();
         user.setId("user-id");
+        user.setEmail("actor@example.com");
         user.setIsEnabled(true);
+        // Best-effort analytics: stub as a no-op so token creation flows complete without a real pipeline.
+        lenient()
+                .when(analyticsService.sendEvent(anyString(), anyString(), anyMap()))
+                .thenReturn(Mono.empty());
     }
 
     @Test
@@ -70,6 +86,35 @@ class UserMcpTokenServiceImplTest {
         UserMcpToken storedToken = userMcpTokenCaptor.getValue();
         assertThat(storedToken.getUserId()).isEqualTo(user.getId());
         assertThat(storedToken.getTokenHash()).doesNotStartWith("mcp_");
+    }
+
+    // M4-T4 adoption telemetry: create must emit the CREATE_MCP_TOKEN analytics event carrying only non-sensitive
+    // identifiers (tokenId, userId, ttlDays) and NEVER the token secret or its hash.
+    @Test
+    void create_emitsAnalyticsEventWithoutTokenSecret() {
+        when(userMcpTokenRepository.countByUserIdAndDeletedAtIsNull(user.getId()))
+                .thenReturn(Mono.just(0L));
+        when(userMcpTokenRepository.save(any(UserMcpToken.class)))
+                .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
+
+        McpTokenResponseDTO response = service.create(user).block();
+
+        verify(analyticsService)
+                .sendEvent(
+                        eq(AnalyticsEvents.CREATE_MCP_TOKEN.getEventName()),
+                        eq(user.getUsername()),
+                        analyticsPropsCaptor.capture());
+
+        Map<String, Object> props = analyticsPropsCaptor.getValue();
+        assertThat(props).containsOnlyKeys("tokenId", "userId", "ttlDays");
+        assertThat(props).containsEntry("tokenId", response.id());
+        assertThat(props).containsEntry("userId", user.getId());
+        assertThat(props.get("ttlDays")).isNotNull();
+
+        // The one-time secret and any hash material must never travel through analytics.
+        assertThat(props.values()).doesNotContain(response.token());
+        assertThat(props.values().stream().map(String::valueOf))
+                .noneMatch(value -> value.startsWith("mcp_") || value.contains("."));
     }
 
     @Test

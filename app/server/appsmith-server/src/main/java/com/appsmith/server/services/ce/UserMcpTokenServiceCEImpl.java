@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserMcpToken;
 import com.appsmith.server.dtos.McpTokenResponseDTO;
@@ -7,6 +8,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserMcpTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.AnalyticsService;
 import org.springframework.beans.factory.annotation.Value;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -18,6 +20,7 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Map;
 import java.util.UUID;
 
 public class UserMcpTokenServiceCEImpl implements UserMcpTokenServiceCE {
@@ -34,14 +37,19 @@ public class UserMcpTokenServiceCEImpl implements UserMcpTokenServiceCE {
 
     private final UserMcpTokenRepository userMcpTokenRepository;
     private final UserRepository userRepository;
+    private final AnalyticsService analyticsService;
 
     // Instance field (not static) so the admin-configured lifetime applies. Setter-injected below; unit tests that
     // construct the service directly keep the default.
     private Duration tokenTtl = Duration.ofDays(DEFAULT_TOKEN_TTL_DAYS);
 
-    public UserMcpTokenServiceCEImpl(UserMcpTokenRepository userMcpTokenRepository, UserRepository userRepository) {
+    public UserMcpTokenServiceCEImpl(
+            UserMcpTokenRepository userMcpTokenRepository,
+            UserRepository userRepository,
+            AnalyticsService analyticsService) {
         this.userMcpTokenRepository = userMcpTokenRepository;
         this.userRepository = userRepository;
+        this.analyticsService = analyticsService;
     }
 
     @Value("${APPSMITH_MCP_TOKEN_TTL_DAYS:" + DEFAULT_TOKEN_TTL_DAYS + "}")
@@ -69,13 +77,23 @@ public class UserMcpTokenServiceCEImpl implements UserMcpTokenServiceCE {
                     userMcpToken.setTokenHash(hashToken(token));
                     userMcpToken.setExpiresAt(Instant.now().plus(tokenTtl));
 
-                    return userMcpTokenRepository
-                            .save(userMcpToken)
-                            .map(savedToken -> new McpTokenResponseDTO(
-                                    savedToken.getTokenId(),
-                                    token,
-                                    savedToken.getCreatedAt(),
-                                    savedToken.getExpiresAt()));
+                    return userMcpTokenRepository.save(userMcpToken).flatMap(savedToken -> {
+                        McpTokenResponseDTO response = new McpTokenResponseDTO(
+                                savedToken.getTokenId(), token, savedToken.getCreatedAt(), savedToken.getExpiresAt());
+                        // Adoption telemetry: emit only non-sensitive identifiers. The token secret/hash is never
+                        // included so the raw credential can't leak through analytics. sendEvent is best-effort and
+                        // must not fail token creation, mirroring how sibling services chain the analytics Mono.
+                        Map<String, Object> analyticsProps = Map.of(
+                                "tokenId", savedToken.getTokenId(),
+                                "userId", user.getId(),
+                                "ttlDays", tokenTtl.toDays());
+                        return analyticsService
+                                .sendEvent(
+                                        AnalyticsEvents.CREATE_MCP_TOKEN.getEventName(),
+                                        user.getUsername(),
+                                        analyticsProps)
+                                .thenReturn(response);
+                    });
                 });
     }
 
