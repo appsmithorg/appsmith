@@ -1999,6 +1999,11 @@ export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
 export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
   "Only alphanumeric or '-()' are allowed";
 export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App icon";
+export const GENERAL_SETTINGS_APP_LANGUAGE_LABEL = () => "HTML language";
+export const GENERAL_SETTINGS_APP_LANGUAGE_TOOLTIP = () =>
+  "Sets the lang attribute on the published app. This tells browsers what language your content is in and prevents unwanted auto-translation. Use a BCP 47 code (e.g. en, de, fr, ja).";
+export const GENERAL_SETTINGS_APP_LANGUAGE_INVALID = () =>
+  "Enter a valid language code (e.g. en, de, fr-CA)";
 export const GENERAL_SETTINGS_APP_URL_LABEL = () => "App slug";
 export const GENERAL_SETTINGS_APP_URL_PLACEHOLDER = () => "app-url";
 export const GENERAL_SETTINGS_APP_URL_PLACEHOLDER_FETCHING = () =>
