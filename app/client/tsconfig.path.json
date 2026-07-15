@@ -1,8 +1,15 @@
 {
   "compilerOptions": {
     "paths": {
-      "ee/*": ["ee/*"],
-      "test/*": ["../test/*"]
+      "ee/*": [
+        "ee/*"
+      ],
+      "test/*": [
+        "../test/*"
+      ],
+      "@opentelemetry/semantic-conventions/incubating": [
+        "./node_modules/@opentelemetry/semantic-conventions/build/src/index-incubating"
+      ]
     }
   }
 }
