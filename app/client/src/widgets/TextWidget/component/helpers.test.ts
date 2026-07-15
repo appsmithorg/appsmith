@@ -11,9 +11,7 @@ describe("addHttpIfMissing", () => {
   });
 
   it("leaves http and https URLs untouched", () => {
-    expect(addHttpIfMissing("http://appsmith.com")).toBe(
-      "http://appsmith.com",
-    );
+    expect(addHttpIfMissing("http://appsmith.com")).toBe("http://appsmith.com");
     expect(addHttpIfMissing("https://appsmith.com")).toBe(
       "https://appsmith.com",
     );
