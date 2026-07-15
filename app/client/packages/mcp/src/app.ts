@@ -58,6 +58,16 @@ import {
   querySpecSchema,
 } from "./builder/query.js";
 import {
+  buildMongoActionDto,
+  compileMongoQuery,
+  mongoQuerySpecSchema,
+} from "./builder/mongoQuery.js";
+import {
+  buildSheetsActionDto,
+  compileSheetsQuery,
+  sheetsQuerySpecSchema,
+} from "./builder/sheetsQuery.js";
+import {
   buildRestActionDto,
   compileRestApi,
   restApiSpecSchema,
@@ -601,19 +611,28 @@ const SQL_PLUGIN_IDS = new Set([
   "snowflake-plugin",
 ]);
 const REST_PLUGIN_IDS = new Set(["restapi-plugin"]);
+// Mongo and Google Sheets each need their own typed builder (they are NOT SQL and NOT REST): create_mongo_query emits
+// the Mongo formData FIND/INSERT command, create_sheets_query emits the Sheets FETCH_MANY/INSERT_ONE command. Family
+// membership is checked by packageName, resolved from the workspace plugin list.
+const MONGO_PLUGIN_IDS = new Set(["mongo-plugin"]);
+const SHEETS_PLUGIN_IDS = new Set(["google-sheets-plugin"]);
 
 // CE keys every datasource storage under this fixed environment id (FieldNameCE.UNUSED_ENVIRONMENT_ID).
 const DEFAULT_ENVIRONMENT_ID = "unused_env";
 
-// The closed set of plugin families create_datasource can provision. All three share the endpoints + dbAuth
-// configuration shape (verified against each plugin's form.json). Credentials are never part of the vocabulary.
+// The closed set of DATABASE plugin families create_datasource can provision. All share the endpoints + dbAuth
+// configuration shape (verified against each plugin's form.json — Mongo's form.json exposes the same
+// endpoints[host,port] + authentication{databaseName,username} + connection.mode fields). Credentials are never part
+// of the vocabulary; the password is completed by a human in the Appsmith UI. packageNames are sourced from the
+// client PluginPackageName enum (app/client/src/entities/Plugin/index.ts) and the server plugin seed data.
 const CREATABLE_DATASOURCE_PLUGINS: Record<
-  "postgresql" | "mysql" | "mssql",
+  "postgresql" | "mysql" | "mssql" | "mongodb",
   { packageName: string; defaultPort: number }
 > = {
   postgresql: { packageName: "postgres-plugin", defaultPort: 5432 },
   mysql: { packageName: "mysql-plugin", defaultPort: 3306 },
   mssql: { packageName: "mssql-plugin", defaultPort: 1433 },
+  mongodb: { packageName: "mongo-plugin", defaultPort: 27017 },
 };
 
 const REST_DATASOURCE_PACKAGE_NAME = "restapi-plugin";
@@ -760,6 +779,32 @@ function isRestDatasource(
   datasourceId: string,
 ): boolean {
   return datasourceInPluginFamily(list, plugins, datasourceId, REST_PLUGIN_IDS);
+}
+
+function isMongoDatasource(
+  list: unknown,
+  plugins: unknown,
+  datasourceId: string,
+): boolean {
+  return datasourceInPluginFamily(
+    list,
+    plugins,
+    datasourceId,
+    MONGO_PLUGIN_IDS,
+  );
+}
+
+function isSheetsDatasource(
+  list: unknown,
+  plugins: unknown,
+  datasourceId: string,
+): boolean {
+  return datasourceInPluginFamily(
+    list,
+    plugins,
+    datasourceId,
+    SHEETS_PLUGIN_IDS,
+  );
 }
 
 function workspaceIdFromApplicationPages(
@@ -2330,7 +2375,7 @@ export function buildMcpServer(
 
     server.tool(
       "create_datasource",
-      "Create a datasource in a workspace. Supported: PostgreSQL/MySQL/Microsoft SQL Server databases (pass `connection` with non-secret host/port/database/username; the password is completed later in the Appsmith UI), and REST APIs (pass `url` with the base URL — created ready to use when the API needs no auth). Credentials are NEVER accepted or transmitted by this tool. Idempotent by workspace + name.",
+      "Create a datasource in a workspace. Supported: PostgreSQL/MySQL/Microsoft SQL Server/MongoDB databases (pass `connection` with non-secret host/port/database/username; the password is completed later in the Appsmith UI), and REST APIs (pass `url` with the base URL — created ready to use when the API needs no auth). Google Sheets is NOT creatable here: it needs interactive OAuth that must be authorized in the Appsmith UI; create+authorize it there, then query it with create_sheets_query. Credentials are NEVER accepted or transmitted by this tool. Idempotent by workspace + name.",
       {
         workspaceId: idSchema,
         name: z
@@ -2342,7 +2387,14 @@ export function buildMcpServer(
             /^[A-Za-z0-9_ -]+$/,
             "name must be alphanumeric/underscore/space/dash",
           ),
-        plugin: z.enum(["postgresql", "mysql", "mssql", "rest"]),
+        plugin: z.enum([
+          "postgresql",
+          "mysql",
+          "mssql",
+          "mongodb",
+          "rest",
+          "googlesheets",
+        ]),
         // Database datasources only.
         connection: z
           .object({
@@ -2376,6 +2428,17 @@ export function buildMcpServer(
         url: restBaseUrlSchema.optional(),
       },
       async ({ connection, name, plugin, url, workspaceId }) => {
+        // Google Sheets requires interactive OAuth (a user-consent flow) that MUST be completed in the Appsmith UI.
+        // MCP never carries OAuth tokens or credentials, so it cannot create/authorize a Sheets datasource — provide
+        // a clear hand-off instead of a foreign config. The agent references the authorized datasource afterwards.
+        if (plugin === "googlesheets") {
+          return result({
+            error:
+              'Google Sheets datasources require interactive OAuth authorization, which can only be done in the Appsmith UI — MCP never handles credentials or OAuth tokens. Ask the user to open Appsmith -> workspace -> Datasources -> New datasource -> "Google Sheets", authorize their Google account, then find it with list_datasources and author read/append queries with create_sheets_query.',
+            code: "needs_ui_oauth",
+          });
+        }
+
         const isRest = plugin === "rest";
 
         // Enforce the input shape per plugin family: databases take `connection`, REST takes `url`. Reject a
@@ -2654,6 +2717,152 @@ export function buildMcpServer(
         } catch (error) {
           return compileError(error);
         }
+      },
+    );
+
+    server.tool(
+      "create_mongo_query",
+      "Create a MongoDB query (find or insert) on an existing Mongo datasource from a STRUCTURED spec — no raw Mongo command, no raw bindings. find { collection, filter?: [{ field, value }], sort?: [{ field, direction: 'ASC'|'DESC' }], limit? } returns matching documents (filter clauses are AND-ed equality); insert { collection, document: [{ field, value }] } adds one document. Each value is { literal } or { widget, property } and binds as a smart-substitution parameter (never string-concatenated); field/collection names are validated identifiers. Widgets reference the result by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
+      { query: z.record(z.unknown()) },
+      async ({ query }) => {
+        const parsed = mongoQuerySpecSchema.safeParse(query);
+
+        if (!parsed.success) return validationError(parsed.error.issues);
+
+        const spec = parsed.data;
+
+        // Resolve the workspace SERVER-AUTHORITATIVELY from the application (cross-tenant guard), exactly like
+        // create_query.
+        const workspaceId = workspaceIdFromApplicationPages(
+          await api.getApplicationPages(spec.applicationId),
+        );
+
+        if (typeof workspaceId !== "string") {
+          return result({
+            error: `could not resolve the workspace for application ${spec.applicationId}`,
+          });
+        }
+
+        const datasources = await api.listDatasources(workspaceId);
+
+        if (!datasourceAccessible(datasources, spec.datasourceId)) {
+          return result({
+            error: `datasource ${spec.datasourceId} is not accessible in this application's workspace`,
+          });
+        }
+
+        const plugins = await api.listPlugins(workspaceId);
+
+        if (!isMongoDatasource(datasources, plugins, spec.datasourceId)) {
+          return result({
+            error: "create_mongo_query requires an existing MongoDB datasource",
+          });
+        }
+
+        // Idempotency: return the existing query rather than creating a duplicate on retry.
+        const existing = findExistingAction(
+          await api.listActions(spec.applicationId),
+          spec.name,
+          spec.pageId,
+        );
+
+        if (existing !== undefined) {
+          return result({
+            created: false,
+            reason: "a query with this name already exists on this page",
+            action: existing,
+          });
+        }
+
+        let compiled: ReturnType<typeof compileMongoQuery>;
+
+        try {
+          compiled = compileMongoQuery(spec);
+        } catch (error) {
+          return compileError(error);
+        }
+
+        const created = await api.createAction(
+          buildMongoActionDto(spec, compiled),
+        );
+
+        return result({
+          created: true,
+          command: compiled.command,
+          action: created,
+        });
+      },
+    );
+
+    server.tool(
+      "create_sheets_query",
+      "Create a Google Sheets query (read or append) on an ALREADY-AUTHORIZED Google Sheets datasource from a STRUCTURED spec. MCP never creates or authorizes a Sheets datasource (OAuth is interactive and stays in the Appsmith UI) — create+authorize it there first, then reference it here by datasourceId (find it with list_datasources). read { sheetUrl, sheetName, range?, columns?, limit? } fetches rows (optional A1 range like 'A2:Z' and column projection); append { sheetUrl, sheetName, row: [{ column, value }] } adds one row. Row values are { literal } or { widget, property } bound as smart-substitution parameters; sheetUrl/sheetName/range/columns are validated static identifiers. No raw formulas or bindings; for a specific-sheets (drive.file) datasource the server restricts execution to its OAuth-authorized spreadsheets. Idempotent by page + name. NOTE: the emitted Sheets action config is PROVISIONAL — modeled from Appsmith's Sheets plugin forms but not yet verified end-to-end against a live authorized datasource; validate a read + append in your instance before relying on it.",
+      { query: z.record(z.unknown()) },
+      async ({ query }) => {
+        const parsed = sheetsQuerySpecSchema.safeParse(query);
+
+        if (!parsed.success) return validationError(parsed.error.issues);
+
+        const spec = parsed.data;
+
+        const workspaceId = workspaceIdFromApplicationPages(
+          await api.getApplicationPages(spec.applicationId),
+        );
+
+        if (typeof workspaceId !== "string") {
+          return result({
+            error: `could not resolve the workspace for application ${spec.applicationId}`,
+          });
+        }
+
+        const datasources = await api.listDatasources(workspaceId);
+
+        if (!datasourceAccessible(datasources, spec.datasourceId)) {
+          return result({
+            error: `datasource ${spec.datasourceId} is not accessible in this application's workspace`,
+          });
+        }
+
+        const plugins = await api.listPlugins(workspaceId);
+
+        if (!isSheetsDatasource(datasources, plugins, spec.datasourceId)) {
+          return result({
+            error:
+              "create_sheets_query requires an existing, already-authorized Google Sheets datasource (create and authorize it in the Appsmith UI first)",
+          });
+        }
+
+        const existing = findExistingAction(
+          await api.listActions(spec.applicationId),
+          spec.name,
+          spec.pageId,
+        );
+
+        if (existing !== undefined) {
+          return result({
+            created: false,
+            reason: "a query with this name already exists on this page",
+            action: existing,
+          });
+        }
+
+        let compiled: ReturnType<typeof compileSheetsQuery>;
+
+        try {
+          compiled = compileSheetsQuery(spec);
+        } catch (error) {
+          return compileError(error);
+        }
+
+        const created = await api.createAction(
+          buildSheetsActionDto(spec, compiled),
+        );
+
+        return result({
+          created: true,
+          command: compiled.command,
+          action: created,
+        });
       },
     );
 

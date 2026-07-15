@@ -315,7 +315,7 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
       name: "create_datasource",
       gate: "data",
       summary:
-        "create a DB (unconfigured) or REST (base URL) datasource; no credentials",
+        "create a DB (Postgres/MySQL/MSSQL/Mongo, unconfigured) or REST (base URL) datasource; no credentials (Sheets needs UI OAuth)",
     },
     {
       name: "get_datasource_structure",
@@ -324,6 +324,16 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     },
     { name: "list_actions", gate: "data", summary: "safe action metadata" },
     { name: "create_query", gate: "data", summary: "structured SQL query" },
+    {
+      name: "create_mongo_query",
+      gate: "data",
+      summary: "structured MongoDB find/insert query",
+    },
+    {
+      name: "create_sheets_query",
+      gate: "data",
+      summary: "structured Google Sheets read/append query",
+    },
     {
       name: "create_rest_api",
       gate: "data",

@@ -1479,6 +1479,171 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     expect(createAction).toHaveBeenCalledTimes(1);
   });
 
+  const mongoQuery = {
+    name: "getOrders",
+    applicationId: "app1",
+    pageId: "p1",
+    datasourceId: "ds1",
+    collection: "orders",
+    operation: "FIND",
+    filter: [{ field: "status", value: { literal: "open" } }],
+  };
+
+  it("create_mongo_query creates a Mongo find action against a Mongo datasource", async () => {
+    const createAction = jest.fn<
+      Promise<{ id: string }>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "act-m" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "Mongo", pluginId: "656f00000000000000000009" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000009", packageName: "mongo-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_mongo_query", {
+      query: mongoQuery,
+    });
+
+    expect(body.created).toBe(true);
+    expect(body.command).toBe("FIND");
+    expect(createAction).toHaveBeenCalledTimes(1);
+
+    const dto = createAction.mock.calls[0][0] as {
+      actionConfiguration: {
+        formData: {
+          command: { data: string };
+          find: { query: { data: string } };
+          smartSubstitution: { data: boolean };
+        };
+      };
+    };
+
+    expect(dto.actionConfiguration.formData.command.data).toBe("FIND");
+    expect(dto.actionConfiguration.formData.find.query.data).toBe(
+      '{ "status": "open" }',
+    );
+    expect(dto.actionConfiguration.formData.smartSubstitution.data).toBe(true);
+  });
+
+  it("create_mongo_query refuses a non-Mongo (SQL) datasource", async () => {
+    const createAction = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "PG", pluginId: "postgres-plugin" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "postgres-plugin", packageName: "postgres-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_mongo_query", {
+      query: mongoQuery,
+    });
+
+    expect(String(body.error)).toMatch(/requires an existing MongoDB/);
+    expect(createAction).not.toHaveBeenCalled();
+  });
+
+  it("create_mongo_query rejects an injecting collection/field before any write", async () => {
+    const createAction = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [{ id: "ds1" }]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_mongo_query", {
+      query: { ...mongoQuery, collection: "orders; drop" },
+    });
+
+    expect(body.valid).toBe(false);
+    expect(createAction).not.toHaveBeenCalled();
+  });
+
+  const sheetsAppend = {
+    name: "addRow",
+    applicationId: "app1",
+    pageId: "p1",
+    datasourceId: "ds1",
+    sheetUrl: "https://docs.google.com/spreadsheets/d/1AbC_dEf-123/edit",
+    sheetName: "Sheet1",
+    operation: "append",
+    row: [{ column: "name", value: { widget: "NameInput", property: "text" } }],
+  };
+
+  it("create_sheets_query appends a row to an authorized Sheets datasource", async () => {
+    const createAction = jest.fn<
+      Promise<{ id: string }>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "act-s" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "Sheet", pluginId: "656f00000000000000000010" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000010", packageName: "google-sheets-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_sheets_query", {
+      query: sheetsAppend,
+    });
+
+    expect(body.created).toBe(true);
+    expect(body.command).toBe("INSERT_ONE");
+
+    const dto = createAction.mock.calls[0][0] as {
+      actionConfiguration: {
+        formData: { rowObjects: { data: string }; command: { data: string } };
+      };
+    };
+
+    expect(dto.actionConfiguration.formData.command.data).toBe("INSERT_ONE");
+    expect(dto.actionConfiguration.formData.rowObjects.data).toBe(
+      '{ "name": {{ NameInput.text }} }',
+    );
+  });
+
+  it("create_sheets_query refuses a non-Sheets datasource", async () => {
+    const createAction = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "PG", pluginId: "postgres-plugin" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "postgres-plugin", packageName: "postgres-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_sheets_query", {
+      query: sheetsAppend,
+    });
+
+    expect(String(body.error)).toMatch(/Google Sheets datasource/);
+    expect(createAction).not.toHaveBeenCalled();
+  });
+
+  it("create_mongo_query and create_sheets_query appear only when the data flag is on", async () => {
+    const off = await toolNames(false);
+    const on = await toolNames(true);
+
+    expect(off).not.toContain("create_mongo_query");
+    expect(off).not.toContain("create_sheets_query");
+    expect(on).toContain("create_mongo_query");
+    expect(on).toContain("create_sheets_query");
+  });
+
   it("create_datasource creates an UNCONFIGURED datasource with no credential fields", async () => {
     const createDatasource = jest.fn<
       Promise<Record<string, unknown>>,
@@ -1686,6 +1851,109 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
 
     expect(body.error).toMatch(/not installed/);
     expect(createDatasource).not.toHaveBeenCalled();
+  });
+
+  it("create_datasource provisions an UNCONFIGURED Mongo datasource from non-secret fields", async () => {
+    const createDatasource = jest.fn<
+      Promise<Record<string, unknown>>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "ds-mongo", name: "Orders", pluginId: "p-mongo" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listPlugins: jest.fn(async () => [
+        { id: "p-mongo", packageName: "mongo-plugin" },
+      ]),
+      listDatasources: jest.fn(async () => []),
+      createDatasource,
+    };
+    const body = await callTool(api, "create_datasource", {
+      workspaceId: "ws1",
+      name: "Orders",
+      plugin: "mongodb",
+      connection: { host: "mongo.internal", databaseName: "orders" },
+    });
+
+    expect(body.created).toBe(true);
+    expect(body.needsCredentials).toBe(true);
+    expect(createDatasource).toHaveBeenCalledTimes(1);
+
+    const dto = createDatasource.mock.calls[0][0] as unknown as {
+      pluginId: string;
+      datasourceStorages: Record<
+        string,
+        {
+          isConfigured: boolean;
+          datasourceConfiguration: {
+            endpoints: { host: string; port: number }[];
+            authentication: Record<string, unknown>;
+          };
+        }
+      >;
+    };
+
+    expect(dto.pluginId).toBe("p-mongo");
+    const storage = dto.datasourceStorages.unused_env;
+
+    // Created unconfigured (password completed in the UI), Mongo's default port, and NO credential in the DTO.
+    expect(storage.isConfigured).toBe(false);
+    expect(storage.datasourceConfiguration.endpoints).toEqual([
+      { host: "mongo.internal", port: 27017 },
+    ]);
+    expect(storage.datasourceConfiguration.authentication).toEqual({
+      authenticationType: "dbAuth",
+      databaseName: "orders",
+    });
+    expect(JSON.stringify(dto)).not.toMatch(/password/i);
+  });
+
+  it("create_datasource rejects a credential field on a Mongo datasource at the schema", async () => {
+    const createDatasource = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listPlugins: jest.fn(async () => [
+        { id: "p-mongo", packageName: "mongo-plugin" },
+      ]),
+      listDatasources: jest.fn(async () => []),
+      createDatasource,
+    };
+    const withPassword = await callTool(api, "create_datasource", {
+      workspaceId: "ws1",
+      name: "Orders",
+      plugin: "mongodb",
+      connection: {
+        host: "mongo.internal",
+        databaseName: "orders",
+        password: "hunter2",
+      },
+    });
+
+    expect(JSON.stringify(withPassword)).toMatch(/error|invalid/i);
+    expect(createDatasource).not.toHaveBeenCalled();
+  });
+
+  it("create_datasource refuses Google Sheets and hands the user off to the UI OAuth flow", async () => {
+    const createDatasource = jest.fn();
+    const listPlugins = jest.fn(async () => [
+      { id: "p-sheets", packageName: "google-sheets-plugin" },
+    ]);
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listPlugins,
+      listDatasources: jest.fn(async () => []),
+      createDatasource,
+    };
+    const body = await callTool(api, "create_datasource", {
+      workspaceId: "ws1",
+      name: "My Sheet",
+      plugin: "googlesheets",
+    });
+
+    expect(body.code).toBe("needs_ui_oauth");
+    expect(String(body.error)).toMatch(/OAuth/i);
+    expect(String(body.error)).toMatch(/create_sheets_query/);
+    // Rejected before touching any datasource/plugin API — no credential path is even reachable.
+    expect(createDatasource).not.toHaveBeenCalled();
+    expect(listPlugins).not.toHaveBeenCalled();
   });
 
   it("create_datasource creates a CONFIGURED, ready-to-use REST datasource from a base URL", async () => {
