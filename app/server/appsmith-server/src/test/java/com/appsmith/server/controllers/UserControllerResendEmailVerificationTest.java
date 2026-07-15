@@ -83,6 +83,24 @@ public class UserControllerResendEmailVerificationTest {
         assertArrayEquals(baseline, normalize(unknown.getResponseBody()));
     }
 
+    @Test
+    public void resendEmailVerification_emptyServiceCompletion_returnsSameSuccessResponse() {
+        // Guards the controller's empty-completion handling: the service completes empty when the flow is
+        // short-circuited (e.g. the secure base URL is unresolved). The controller chains
+        // .thenReturn(ResponseDTO) on the service Mono, and thenReturn emits its value on an empty upstream
+        // completion just as it does on a value-emitting one, so an empty completion must produce the exact
+        // same HTTP 200 response as the value-emitting path — not an empty body that would be observable.
+        Mockito.when(userService.resendEmailVerification(any(), any())).thenReturn(Mono.just(true));
+        EntityExchangeResult<byte[]> emitted = resend("unverified@example.com");
+
+        Mockito.when(userService.resendEmailVerification(any(), any())).thenReturn(Mono.empty());
+        EntityExchangeResult<byte[]> empty = resend("unverified@example.com");
+
+        assertEquals(HttpStatus.OK, emitted.getStatus());
+        assertEquals(HttpStatus.OK, empty.getStatus());
+        assertArrayEquals(normalize(emitted.getResponseBody()), normalize(empty.getResponseBody()));
+    }
+
     private static byte[] normalize(byte[] body) {
         return body == null ? new byte[0] : body;
     }
