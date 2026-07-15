@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -69,10 +69,29 @@ class McpAllowlistWebFilterTest {
         assertPassesThrough(exchange, ordinaryPrincipal());
     }
 
-    private void assertPassesThrough(MockServerWebExchange exchange, Authentication authentication) {
-        AtomicBoolean chainInvoked = new AtomicBoolean(false);
+    @Test
+    void emptySecurityContext_passesThrough() {
+        // No security context (anonymous, or context populated later in the chain): the control is a no-op. This
+        // exercises the defaultIfEmpty(FALSE) branch, so it must invoke the chain exactly once and set no status.
+        MockServerWebExchange exchange =
+                MockServerWebExchange.from(MockServerHttpRequest.post("/api/v1/users/mcp-tokens"));
+        AtomicInteger chainInvocations = new AtomicInteger(0);
         WebFilterChain chain = ex -> {
-            chainInvoked.set(true);
+            chainInvocations.incrementAndGet();
+            return Mono.empty();
+        };
+
+        // Deliberately no .contextWrite(...) -> ReactiveSecurityContextHolder.getContext() is empty.
+        StepVerifier.create(filter.filter(exchange, chain)).verifyComplete();
+
+        assertThat(chainInvocations).hasValue(1);
+        assertThat(exchange.getResponse().getStatusCode()).isNull();
+    }
+
+    private void assertPassesThrough(MockServerWebExchange exchange, Authentication authentication) {
+        AtomicInteger chainInvocations = new AtomicInteger(0);
+        WebFilterChain chain = ex -> {
+            chainInvocations.incrementAndGet();
             return Mono.empty();
         };
 
@@ -80,14 +99,15 @@ class McpAllowlistWebFilterTest {
                         .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)))
                 .verifyComplete();
 
-        assertThat(chainInvoked).isTrue();
+        // Exactly once — guards against a regression into the Mono<Void> + switchIfEmpty double-invocation bug.
+        assertThat(chainInvocations).hasValue(1);
         assertThat(exchange.getResponse().getStatusCode()).isNull();
     }
 
     private void assertForbidden(MockServerWebExchange exchange, Authentication authentication) {
-        AtomicBoolean chainInvoked = new AtomicBoolean(false);
+        AtomicInteger chainInvocations = new AtomicInteger(0);
         WebFilterChain chain = ex -> {
-            chainInvoked.set(true);
+            chainInvocations.incrementAndGet();
             return Mono.empty();
         };
 
@@ -95,7 +115,8 @@ class McpAllowlistWebFilterTest {
                         .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)))
                 .verifyComplete();
 
-        assertThat(chainInvoked).isFalse();
+        // The chain must never run for a denied request, and the response must be 403.
+        assertThat(chainInvocations).hasValue(0);
         assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 }

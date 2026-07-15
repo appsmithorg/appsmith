@@ -77,17 +77,22 @@ public class McpAllowlistWebFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        ServerHttpRequest request = exchange.getRequest();
+        // Resolve the "should this request be blocked?" decision as a Boolean FIRST, then terminate through exactly one
+        // branch. This deliberately does NOT flatMap straight to forbidden()/chain.filter() and then
+        // .switchIfEmpty(...):
+        // both of those return Mono<Void>, which always completes empty, so switchIfEmpty could not tell a genuinely
+        // empty security context apart from a Void branch that just finished — and would re-invoke chain.filter after
+        // forbidden() (letting a denied request through) and a second time on the allowed path (double invocation).
+        // Keeping the decision as a non-Void Boolean lets defaultIfEmpty handle ONLY the truly-empty-context case (no
+        // MCP constraint applies -> pass through) while the single terminal flatMap runs exactly one of the two paths.
         return ReactiveSecurityContextHolder.getContext()
                 .map(SecurityContext::getAuthentication)
-                .flatMap(authentication -> {
-                    if (isMcpPrincipal(authentication) && !isAllowed(exchange.getRequest())) {
-                        return forbidden(exchange);
-                    }
-                    return chain.filter(exchange);
-                })
+                .map(authentication -> isMcpPrincipal(authentication) && !isAllowed(request))
                 // No security context yet (e.g. anonymous, or a non-MCP request whose context is populated later):
-                // this control is a no-op — leave the rest of the chain to decide.
-                .switchIfEmpty(Mono.defer(() -> chain.filter(exchange)));
+                // this control is a no-op — not blocked, leave the rest of the chain to decide.
+                .defaultIfEmpty(Boolean.FALSE)
+                .flatMap(blocked -> blocked ? forbidden(exchange) : chain.filter(exchange));
     }
 
     private static boolean isMcpPrincipal(Authentication authentication) {
