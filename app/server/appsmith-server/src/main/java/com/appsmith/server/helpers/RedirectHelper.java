@@ -292,7 +292,8 @@ public class RedirectHelper {
 
     /**
      * Returns the {@code Origin} header value only when it is trustworthy —
-     * i.e. its host matches the request's {@code X-Forwarded-Host} / {@code Host}.
+     * i.e. its host <em>and</em> effective port match the request's
+     * {@code X-Forwarded-Host} / {@code Host} (and {@code X-Forwarded-Port}).
      *
      * <p>If Origin is absent, returns {@code null}. If no request host is
      * available for cross-checking (neither {@code X-Forwarded-Host} nor
@@ -300,7 +301,8 @@ public class RedirectHelper {
      * behaviour for environments that do not set proxy headers.
      *
      * <p>This prevents open redirect attacks where an attacker forges the
-     * {@code Origin} header to an external domain (APP-15347).
+     * {@code Origin} header to an external domain or a different port on the
+     * same host (APP-15347).
      */
     static String getTrustedOrigin(HttpHeaders httpHeaders) {
         String origin = httpHeaders.getOrigin();
@@ -322,20 +324,40 @@ public class RedirectHelper {
         }
 
         String originHost = originUri.getHost();
-        if (originHost != null) {
-            if (originHost.startsWith("[") && originHost.endsWith("]")) {
-                originHost = originHost.substring(1, originHost.length() - 1);
-            }
-            if (originHost.equalsIgnoreCase(requestHost)) {
-                return origin;
+        if (originHost == null) {
+            log.warn(
+                    "Origin header '{}' does not match request host '{}'; treating as untrusted",
+                    sanitizeForLog(origin),
+                    requestHost);
+            return null;
+        }
+
+        if (originHost.startsWith("[") && originHost.endsWith("]")) {
+            originHost = originHost.substring(1, originHost.length() - 1);
+        }
+        if (!originHost.equalsIgnoreCase(requestHost)) {
+            log.warn(
+                    "Origin header '{}' does not match request host '{}'; treating as untrusted",
+                    sanitizeForLog(origin),
+                    requestHost);
+            return null;
+        }
+
+        int originPort = originUri.getPort();
+        int requestPort = extractRequestPort(httpHeaders);
+        if (originPort != -1 || requestPort != -1) {
+            int normalizedOriginPort = normalizePort(originUri.getScheme(), originPort);
+            int normalizedRequestPort = normalizePort(originUri.getScheme(), requestPort);
+            if (normalizedOriginPort != normalizedRequestPort) {
+                log.warn(
+                        "Origin port {} does not match request port {}; treating as untrusted",
+                        normalizedOriginPort,
+                        normalizedRequestPort);
+                return null;
             }
         }
 
-        log.warn(
-                "Origin header '{}' does not match request host '{}'; treating as untrusted",
-                sanitizeForLog(origin),
-                requestHost);
-        return null;
+        return origin;
     }
 
     private static String stripPort(String hostMaybeWithPort) {
