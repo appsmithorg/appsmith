@@ -17,6 +17,11 @@ export const WIDGET_TYPES = [
   "chart",
   "tabs",
   "list",
+  "checkbox",
+  "switch",
+  "radio",
+  "multiselect",
+  "filepicker",
 ] as const;
 
 export type WidgetType = (typeof WIDGET_TYPES)[number];
@@ -536,6 +541,56 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         placement: placementSchema.optional(),
       })
       .strict(),
+    z
+      .object({
+        type: z.literal("checkbox"),
+        name: nameField,
+        label: safeText(200).optional(),
+        // Initial checked state. A plain boolean literal — never a binding.
+        defaultChecked: z.boolean().optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("switch"),
+        name: nameField,
+        label: safeText(200).optional(),
+        // Initial on/off state. A plain boolean literal — never a binding.
+        defaultChecked: z.boolean().optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("radio"),
+        name: nameField,
+        label: safeText(200).optional(),
+        // Static single-select options, reusing the select's validated {label,value} shape (safe text / scalars).
+        // RADIO_GROUP_WIDGET stores these in its plain `options` array — never a binding.
+        options: z.array(selectOption).max(200).optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("multiselect"),
+        name: nameField,
+        label: safeText(200).optional(),
+        // Static options, same validated {label,value} shape as select. Emitted as a literal `sourceData` array
+        // (MULTI_SELECT_WIDGET_V2 defaults sourceData to a plain, non-JS array) — never a binding.
+        options: z.array(selectOption).max(200).optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("filepicker"),
+        name: nameField,
+        label: safeText(200).optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
   ]),
 );
 
@@ -644,6 +699,40 @@ export type WidgetSpec =
       title: string;
       subtitle?: string;
       pageSize?: number;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "checkbox";
+      name?: string;
+      label?: string;
+      defaultChecked?: boolean;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "switch";
+      name?: string;
+      label?: string;
+      defaultChecked?: boolean;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "radio";
+      name?: string;
+      label?: string;
+      options?: { label: string; value: string | number }[];
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "multiselect";
+      name?: string;
+      label?: string;
+      options?: { label: string; value: string | number }[];
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "filepicker";
+      name?: string;
+      label?: string;
       placement?: PlacementSpec;
     };
 

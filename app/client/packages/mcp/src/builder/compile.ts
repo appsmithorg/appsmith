@@ -56,6 +56,11 @@ const DEFAULT_BASE_NAME: Record<WidgetType, string> = {
   chart: "Chart",
   tabs: "Tabs",
   list: "List",
+  checkbox: "Checkbox",
+  switch: "Switch",
+  radio: "RadioGroup",
+  multiselect: "MultiSelect",
+  filepicker: "FilePicker",
 };
 
 interface CompileContext {

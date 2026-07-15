@@ -306,6 +306,42 @@ describe("projectSemanticPage", () => {
       isDisabled: { disableWhenInvalid: "ZipInput" },
     });
   });
+
+  it("reverse-maps the M4-T5 widget types to their catalog types (read round-trip)", () => {
+    const dsl = node({
+      widgetId: "root",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({ widgetId: "c", widgetName: "Agree", type: "CHECKBOX_WIDGET" }),
+        node({ widgetId: "s", widgetName: "Toggle", type: "SWITCH_WIDGET" }),
+        node({
+          widgetId: "r",
+          widgetName: "Choice",
+          type: "RADIO_GROUP_WIDGET",
+        }),
+        node({
+          widgetId: "m",
+          widgetName: "Tags",
+          type: "MULTI_SELECT_WIDGET_V2",
+        }),
+        node({
+          widgetId: "f",
+          widgetName: "Upload",
+          type: "FILE_PICKER_WIDGET_V2",
+        }),
+      ],
+    });
+    const byName = Object.fromEntries(
+      projectSemanticPage(dsl).widgets.map((w) => [w.name, w.catalogType]),
+    );
+
+    expect(byName.Agree).toBe("checkbox");
+    expect(byName.Toggle).toBe("switch");
+    expect(byName.Choice).toBe("radio");
+    expect(byName.Tags).toBe("multiselect");
+    expect(byName.Upload).toBe("filepicker");
+  });
 });
 
 describe("DSL fingerprints", () => {

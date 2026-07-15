@@ -511,4 +511,164 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
       },
     }),
   },
+
+  checkbox: {
+    appsmithType: "CHECKBOX_WIDGET",
+    version: 1,
+    footprint: { columns: 12, rows: 4 },
+    build: (spec) => {
+      const label = spec.type === "checkbox" ? spec.label ?? "Label" : "Label";
+      // Matches CHECKBOX_WIDGET.getDefaults (defaultCheckedState: true). A plain boolean literal — never a binding.
+      const defaultCheckedState =
+        spec.type === "checkbox" ? spec.defaultChecked ?? true : true;
+
+      return {
+        footprint: { columns: 12, rows: 4 },
+        props: {
+          label,
+          defaultCheckedState,
+          alignWidget: "LEFT",
+          labelPosition: "Left",
+          isDisabled: false,
+          isRequired: false,
+          animateLoading: true,
+          responsiveBehavior: "fill",
+        },
+      };
+    },
+  },
+
+  switch: {
+    appsmithType: "SWITCH_WIDGET",
+    version: 1,
+    footprint: { columns: 12, rows: 4 },
+    build: (spec) => {
+      const label = spec.type === "switch" ? spec.label ?? "Label" : "Label";
+      // Matches SWITCH_WIDGET.getDefaults (defaultSwitchState: true). A plain boolean literal — never a binding.
+      const defaultSwitchState =
+        spec.type === "switch" ? spec.defaultChecked ?? true : true;
+
+      return {
+        footprint: { columns: 12, rows: 4 },
+        props: {
+          label,
+          defaultSwitchState,
+          alignWidget: "LEFT",
+          labelPosition: "Left",
+          isDisabled: false,
+          animateLoading: true,
+          responsiveBehavior: "fill",
+        },
+      };
+    },
+  },
+
+  radio: {
+    appsmithType: "RADIO_GROUP_WIDGET",
+    version: 1,
+    footprint: { columns: 20, rows: 6 },
+    build: (spec) => {
+      const label = spec.type === "radio" ? spec.label ?? "Label" : "Label";
+      const staticOptions = spec.type === "radio" ? spec.options : undefined;
+      const options = staticOptions ?? [
+        { label: "Yes", value: "Y" },
+        { label: "No", value: "N" },
+      ];
+
+      // RADIO_GROUP_WIDGET stores its choices in the plain `options` array (JS mode off — no dynamicPropertyPathList),
+      // so static options are a literal array of validated {label,value} scalars — never registered as a binding.
+      // `defaultOptionValue` pre-selects the first option (mirrors getDefaults' defaultOptionValue).
+      return {
+        footprint: { columns: 20, rows: 6 },
+        props: {
+          label,
+          options,
+          defaultOptionValue: options.length > 0 ? options[0].value : "",
+          labelPosition: "Top",
+          labelAlignment: "left",
+          labelTextSize: "0.875rem",
+          labelWidth: 5,
+          isRequired: false,
+          isDisabled: false,
+          isInline: true,
+          alignment: "left",
+          animateLoading: true,
+        },
+      };
+    },
+  },
+
+  multiselect: {
+    appsmithType: "MULTI_SELECT_WIDGET_V2",
+    version: 1,
+    footprint: { columns: 20, rows: 7 },
+    build: (spec) => {
+      const label =
+        spec.type === "multiselect" ? spec.label ?? "Label" : "Label";
+      const staticOptions =
+        spec.type === "multiselect" ? spec.options : undefined;
+      const options = staticOptions ?? [
+        { label: "Option 1", value: "1" },
+        { label: "Option 2", value: "2" },
+      ];
+
+      // Unlike SELECT_WIDGET (whose sourceData defaults to a JS-evaluated STRING registered in
+      // dynamicPropertyPathList), MULTI_SELECT_WIDGET_V2.getDefaults keeps sourceData as a PLAIN array (JS mode off).
+      // So static options are a literal array keyed by literal optionLabel/optionValue — NO dynamicPropertyPathList,
+      // no binding. MULTI_SELECT also uses `labelText` (not `label`) for its caption.
+      return {
+        footprint: { columns: 20, rows: 7 },
+        props: {
+          labelText: label,
+          sourceData: options,
+          optionLabel: "label",
+          optionValue: "value",
+          labelPosition: "Top",
+          labelAlignment: "left",
+          labelTextSize: "0.875rem",
+          labelWidth: 5,
+          isFilterable: true,
+          serverSideFiltering: false,
+          isRequired: false,
+          isDisabled: false,
+          placeholderText: "Select option(s)",
+          animateLoading: true,
+          responsiveBehavior: "fill",
+        },
+      };
+    },
+  },
+
+  filepicker: {
+    appsmithType: "FILE_PICKER_WIDGET_V2",
+    version: 1,
+    footprint: { columns: 16, rows: 4 },
+    build: (spec) => {
+      const label =
+        spec.type === "filepicker"
+          ? spec.label ?? "Select Files"
+          : "Select Files";
+
+      // Mirrors FILE_PICKER_WIDGET_V2.getDefaults' minimal render props. `files`/`selectedFiles` are meta-driven
+      // arrays; the literal defaults keep the widget valid before any upload.
+      return {
+        footprint: { columns: 16, rows: 4 },
+        props: {
+          label,
+          files: [],
+          selectedFiles: [],
+          allowedFileTypes: [],
+          maxNumFiles: 1,
+          maxFileSize: 5,
+          fileDataType: "Base64",
+          dynamicTyping: true,
+          isDefaultClickDisabled: true,
+          isRequired: false,
+          isDisabled: false,
+          animateLoading: true,
+          responsiveBehavior: "hug",
+        },
+      };
+    },
+  },
 };

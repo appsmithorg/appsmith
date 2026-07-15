@@ -16,6 +16,11 @@ const CATALOG_TYPE_BY_APPSMITH_TYPE: Record<string, WidgetType> = {
   CHART_WIDGET: "chart",
   TABS_WIDGET: "tabs",
   LIST_WIDGET_V2: "list",
+  CHECKBOX_WIDGET: "checkbox",
+  SWITCH_WIDGET: "switch",
+  RADIO_GROUP_WIDGET: "radio",
+  MULTI_SELECT_WIDGET_V2: "multiselect",
+  FILE_PICKER_WIDGET_V2: "filepicker",
 };
 
 const SAFE_PROP_KEYS = [
@@ -37,6 +42,12 @@ const SAFE_PROP_KEYS = [
   // no reverse structured ref). safeScalar still hides any value carrying binding syntax.
   "regex",
   "errorMessage",
+  // M4-T5 widgets: the caption + inert default-state literals so checkbox/switch/radio/multiselect round-trip their
+  // label and default on read (all safe scalars; safeScalar still hides anything carrying binding syntax).
+  "labelText",
+  "defaultCheckedState",
+  "defaultSwitchState",
+  "defaultOptionValue",
 ] as const;
 
 type SafeCommonProp = (typeof SAFE_PROP_KEYS)[number];

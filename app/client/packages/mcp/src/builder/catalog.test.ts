@@ -692,3 +692,173 @@ describe("M4-T1 — chart & select query sources (compiler-authored, un-escapabl
     ).toContain("dangling-binding");
   });
 });
+
+describe("M4-T5 catalog — checkbox, switch, radio, multiselect, filepicker", () => {
+  it("compiles a checkbox leaf to the correct type/version with a boolean default", () => {
+    const [checkbox] = children(
+      build([{ type: "checkbox", label: "Agree", defaultChecked: false }]),
+    );
+
+    expect(checkbox.type).toBe("CHECKBOX_WIDGET");
+    expect(checkbox.version).toBe(1);
+    expect(checkbox.label).toBe("Agree");
+    expect(checkbox.defaultCheckedState).toBe(false);
+    // Leaf: no inner canvas.
+    expect(checkbox.children).toBeUndefined();
+  });
+
+  it("defaults a checkbox to checked when defaultChecked is omitted", () => {
+    const [checkbox] = children(build([{ type: "checkbox", label: "On" }]));
+
+    expect(checkbox.defaultCheckedState).toBe(true);
+  });
+
+  it("compiles a switch leaf to the correct type/version with a boolean default", () => {
+    const [toggle] = children(
+      build([{ type: "switch", label: "Notify", defaultChecked: false }]),
+    );
+
+    expect(toggle.type).toBe("SWITCH_WIDGET");
+    expect(toggle.version).toBe(1);
+    expect(toggle.label).toBe("Notify");
+    expect(toggle.defaultSwitchState).toBe(false);
+    expect(toggle.children).toBeUndefined();
+  });
+
+  it("compiles a radio group with static options and pre-selects the first", () => {
+    const [radio] = children(
+      build([
+        {
+          type: "radio",
+          label: "Size",
+          options: [
+            { label: "Small", value: "S" },
+            { label: "Large", value: "L" },
+          ],
+        },
+      ]),
+    );
+
+    expect(radio.type).toBe("RADIO_GROUP_WIDGET");
+    expect(radio.version).toBe(1);
+    // Static options are a plain literal array (never a binding); no dynamic paths registered.
+    expect(radio.options).toEqual([
+      { label: "Small", value: "S" },
+      { label: "Large", value: "L" },
+    ]);
+    expect(radio.defaultOptionValue).toBe("S");
+    expect(radio.dynamicPropertyPathList).toBeUndefined();
+    expect(radio.dynamicBindingPathList).toBeUndefined();
+  });
+
+  it("gives a radio group default Yes/No options when none are supplied", () => {
+    const [radio] = children(build([{ type: "radio", label: "Choose" }]));
+
+    expect(radio.options).toEqual([
+      { label: "Yes", value: "Y" },
+      { label: "No", value: "N" },
+    ]);
+    expect(radio.defaultOptionValue).toBe("Y");
+  });
+
+  it("compiles a multiselect using labelText + a plain sourceData array (no JS/dynamic path)", () => {
+    const [multi] = children(
+      build([
+        {
+          type: "multiselect",
+          label: "Tags",
+          options: [
+            { label: "Red", value: "r" },
+            { label: "Blue", value: "b" },
+          ],
+        },
+      ]),
+    );
+
+    expect(multi.type).toBe("MULTI_SELECT_WIDGET_V2");
+    expect(multi.version).toBe(1);
+    // MULTI_SELECT uses labelText, not label, for its caption.
+    expect(multi.labelText).toBe("Tags");
+    // sourceData is a plain literal array (MULTI_SELECT defaults sourceData to non-JS mode) keyed by literal props.
+    expect(multi.sourceData).toEqual([
+      { label: "Red", value: "r" },
+      { label: "Blue", value: "b" },
+    ]);
+    expect(multi.optionLabel).toBe("label");
+    expect(multi.optionValue).toBe("value");
+    // Unlike SELECT_WIDGET, no dynamicPropertyPathList / dynamicBindingPathList for static options.
+    expect(multi.dynamicPropertyPathList).toBeUndefined();
+    expect(multi.dynamicBindingPathList).toBeUndefined();
+  });
+
+  it("compiles a filepicker leaf to the correct type/version", () => {
+    const [picker] = children(
+      build([{ type: "filepicker", label: "Upload receipt" }]),
+    );
+
+    expect(picker.type).toBe("FILE_PICKER_WIDGET_V2");
+    expect(picker.version).toBe(1);
+    expect(picker.label).toBe("Upload receipt");
+    expect(picker.fileDataType).toBe("Base64");
+    expect(picker.children).toBeUndefined();
+  });
+
+  it("produces lint-clean output for a page mixing all five new widgets", () => {
+    const dsl = build([
+      { type: "checkbox", label: "Agree" },
+      { type: "switch", label: "Notify" },
+      {
+        type: "radio",
+        label: "Size",
+        options: [{ label: "S", value: "s" }],
+      },
+      {
+        type: "multiselect",
+        label: "Tags",
+        options: [{ label: "A", value: "a" }],
+      },
+      { type: "filepicker", label: "Upload" },
+    ]);
+    const diagnostics = lintDsl(dsl);
+
+    expect(diagnostics.errors).toBe(0);
+    expect(diagnostics.warnings).toBe(0);
+  });
+
+  it("is lint-clean when the new widgets share a page with existing ones", () => {
+    const dsl = build([
+      { type: "input", label: "Name" },
+      { type: "checkbox", label: "Agree" },
+      { type: "select", options: [{ label: "A", value: "1" }] },
+      { type: "radio", options: [{ label: "Yes", value: "Y" }] },
+      { type: "multiselect", options: [{ label: "X", value: "x" }] },
+      { type: "switch", label: "On" },
+      { type: "filepicker", label: "Upload" },
+      { type: "button", text: "Save" },
+    ]);
+
+    expect(lintDsl(dsl).errors).toBe(0);
+  });
+
+  it("rejects malformed props on the new arms (M4-T5)", () => {
+    function accepts(widget: unknown): boolean {
+      return appSpecSchema.safeParse({
+        name: "App",
+        pages: [{ name: "P", widgets: [widget] }],
+      }).success;
+    }
+
+    // Binding/template syntax in a label is rejected on every new arm.
+    expect(accepts({ type: "checkbox", label: "{{evil()}}" })).toBe(false);
+    expect(accepts({ type: "switch", label: "${evil}" })).toBe(false);
+    expect(accepts({ type: "filepicker", label: "`evil`" })).toBe(false);
+    // defaultChecked must be a boolean, not a string.
+    expect(accepts({ type: "checkbox", defaultChecked: "yes" })).toBe(false);
+    // A radio option label carrying binding-escape syntax is rejected (reuses the select validator).
+    expect(
+      accepts({ type: "radio", options: [{ label: "{{x}}", value: "1" }] }),
+    ).toBe(false);
+    // Unknown prop is rejected (strict object).
+    expect(accepts({ type: "multiselect", bogus: 1 })).toBe(false);
+  });
+});

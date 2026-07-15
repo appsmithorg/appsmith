@@ -90,6 +90,44 @@ export const WIDGET_CATALOG = [
     purpose: "Pick a date/time value.",
   },
   {
+    type: "checkbox",
+    fields: {
+      label: "string",
+      defaultChecked: "boolean — initial checked state (defaults to true)",
+    },
+    purpose: "A single boolean checkbox.",
+  },
+  {
+    type: "switch",
+    fields: {
+      label: "string",
+      defaultChecked: "boolean — initial on/off state (defaults to true)",
+    },
+    purpose: "A boolean on/off toggle.",
+  },
+  {
+    type: "radio",
+    fields: {
+      label: "string",
+      options:
+        "{ label: string, value: string|number }[] — static single-select options",
+    },
+    purpose: "Single-select radio group (choose exactly one option).",
+  },
+  {
+    type: "multiselect",
+    fields: {
+      label: "string",
+      options: "{ label: string, value: string|number }[] — static options",
+    },
+    purpose: "Multi-select dropdown (choose several options).",
+  },
+  {
+    type: "filepicker",
+    fields: { label: "string" },
+    purpose: "Upload one or more files.",
+  },
+  {
     type: "chart",
     fields: {
       title: "string",
