@@ -89,6 +89,47 @@ describe("McpTokens", () => {
     );
   });
 
+  it("renders a copyable client-config snippet (server URL + token) after creation (M4-T3)", async () => {
+    Object.assign(navigator, {
+      clipboard: { writeText: jest.fn().mockResolvedValue(undefined) },
+    });
+    (McpTokenApi.create as jest.Mock).mockResolvedValue(
+      successResponse({
+        id: "token-3",
+        token: "secret-token",
+        createdAt: "2026-07-10T12:00:00.000Z",
+        expiresAt: "2026-10-08T12:00:00.000Z",
+      }),
+    );
+    renderComponent();
+
+    await screen.findByText("token-1");
+    fireEvent.click(screen.getByRole("button", { name: "Create token" }));
+    await screen.findByLabelText("MCP token");
+
+    // The Modal renders in a portal, so query the whole document, not the render container.
+    const snippet = document.querySelector(".t--mcp-client-config");
+
+    expect(snippet).toBeTruthy();
+    // The snippet embeds the server URL (origin + /mcp) and the one-time token as a bearer credential.
+    expect(snippet?.textContent).toContain("/mcp");
+    expect(snippet?.textContent).toContain("Bearer secret-token");
+    expect(snippet?.textContent).toContain("mcpServers");
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Copy client configuration" }),
+    );
+    await waitFor(() =>
+      expect(navigator.clipboard.writeText).toHaveBeenCalled(),
+    );
+
+    const copied = (navigator.clipboard.writeText as jest.Mock).mock
+      .calls[0][0] as string;
+
+    expect(copied).toContain("secret-token");
+    expect(JSON.parse(copied).mcpServers.appsmith.url).toContain("/mcp");
+  });
+
   it("shows the MCP server URL (origin + /mcp) with a working copy button", async () => {
     Object.assign(navigator, {
       clipboard: { writeText: jest.fn().mockResolvedValue(undefined) },

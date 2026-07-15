@@ -2518,7 +2518,7 @@ export function buildMcpServer(
 
     server.tool(
       "create_query",
-      "Create a SQL query (SELECT/INSERT/UPDATE/DELETE) on a datasource from a STRUCTURED spec — no raw SQL, no raw bindings. Values become prepared-statement parameters. Widgets then reference it by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
+      "Create a SQL query (SELECT/INSERT/UPDATE/DELETE) on a datasource from a STRUCTURED spec — no raw SQL, no raw bindings. Values become prepared-statement parameters. SELECT supports columns/filters/limit plus orderBy [{column,direction}], aggregation {fn:count|sum|avg,column?}, and groupBy. Widgets then reference it by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
       { query: z.record(z.unknown()) },
       async ({ query }) => {
         const parsed = querySpecSchema.safeParse(query);

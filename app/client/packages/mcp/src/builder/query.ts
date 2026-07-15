@@ -66,6 +66,15 @@ const OPERATORS = {
   in: "IN",
 } as const;
 
+// A CLOSED set of aggregate functions. The SQL keyword is compiler-emitted from the enum, never interpolated from
+// agent text; the alias is the fn name itself (also from the enum), so agents/queries can reference the result column
+// by a stable, safe name.
+const AGGREGATE_FNS = {
+  count: "COUNT",
+  sum: "SUM",
+  avg: "AVG",
+} as const;
+
 export const querySpecSchema = z
   .object({
     name: bindingIdentifier,
@@ -93,9 +102,48 @@ export const querySpecSchema = z
       .array(z.object({ column: sqlIdentifier, value: valueRef }).strict())
       .max(100)
       .optional(),
+    // SELECT ordering: each column is an allow-listed identifier; direction is a two-value enum (never interpolated
+    // raw). Emitted as `ORDER BY "<col>" <DIR>, ...`.
+    orderBy: z
+      .array(
+        z
+          .object({
+            column: sqlIdentifier,
+            direction: z.enum(["ASC", "DESC"]),
+          })
+          .strict(),
+      )
+      .max(20)
+      .optional(),
+    // SELECT aggregation over a CLOSED set of functions. `count` may omit the column (COUNT(*)); `sum`/`avg` require a
+    // column (enforced in the compiler). Pair with `groupBy` for grouped rollups.
+    aggregate: z
+      .object({
+        fn: z.enum(["count", "sum", "avg"]),
+        column: sqlIdentifier.optional(),
+      })
+      .strict()
+      .optional(),
+    // GROUP BY columns for an aggregated SELECT — each an allow-listed identifier, emitted quoted.
+    groupBy: z.array(sqlIdentifier).max(20).optional(),
     limit: z.number().int().min(1).max(1000).optional(),
   })
-  .strict();
+  .strict()
+  // orderBy/aggregate/groupBy shape a SELECT only; compileQuery ignores them on INSERT/UPDATE/DELETE. Reject them
+  // there so an agent gets clear feedback instead of a silently-dropped clause.
+  .superRefine((spec, ctx) => {
+    if (spec.operation === "SELECT") return;
+
+    for (const field of ["orderBy", "aggregate", "groupBy"] as const) {
+      if (spec[field] !== undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `${field} is only valid on a SELECT query`,
+          path: [field],
+        });
+      }
+    }
+  });
 
 export type QuerySpec = z.infer<typeof querySpecSchema>;
 type ValueRef = z.infer<typeof valueRef>;
@@ -120,6 +168,46 @@ function emitBinding(value: ValueRef): string {
   return binding;
 }
 
+// Emit `ORDER BY "col" ASC, "col2" DESC`. Columns are allow-listed identifiers (the charset admits no
+// quote/backslash), so quoting them is safe and unquotable; direction comes from a two-value enum, never agent text.
+function emitOrderBy(orderBy: QuerySpec["orderBy"]): string {
+  if (!orderBy || orderBy.length === 0) return "";
+
+  const clauses = orderBy.map(
+    (entry) => `"${entry.column}" ${entry.direction}`,
+  );
+
+  return ` ORDER BY ${clauses.join(", ")}`;
+}
+
+// Emit `GROUP BY "col", "col2"`. Same allow-listed, quoted identifiers.
+function emitGroupBy(groupBy: QuerySpec["groupBy"]): string {
+  if (!groupBy || groupBy.length === 0) return "";
+
+  const clauses = groupBy.map((column) => `"${column}"`);
+
+  return ` GROUP BY ${clauses.join(", ")}`;
+}
+
+// Emit one aggregate select item, e.g. `COUNT(*) AS count`, `COUNT("id") AS count`, `SUM("amount") AS sum`. The
+// function keyword and the alias both come from the closed AGGREGATE_FNS enum; the column (when present) is an
+// allow-listed identifier emitted quoted. `sum`/`avg` require a column — a count-less aggregate is nonsensical.
+function emitAggregate(aggregate: NonNullable<QuerySpec["aggregate"]>): string {
+  const fn = AGGREGATE_FNS[aggregate.fn];
+
+  if (aggregate.fn === "count") {
+    const target = aggregate.column ? `"${aggregate.column}"` : "*";
+
+    return `${fn}(${target}) AS ${aggregate.fn}`;
+  }
+
+  if (!aggregate.column) {
+    throw new Error(`${aggregate.fn} aggregation requires a column`);
+  }
+
+  return `${fn}("${aggregate.column}") AS ${aggregate.fn}`;
+}
+
 function emitWhere(filters: QuerySpec["filters"]): string {
   if (!filters || filters.length === 0) return "";
 
@@ -142,11 +230,26 @@ export function compileQuery(spec: QuerySpec): string {
 
   switch (spec.operation) {
     case "SELECT": {
-      const columns =
-        spec.columns && spec.columns.length > 0 ? spec.columns.join(", ") : "*";
+      // Aggregated SELECT: the group-by columns (quoted) followed by the single aggregate item, e.g.
+      // `SELECT "region", SUM("amount") AS sum`. Otherwise the plain column list (unquoted, matching the
+      // existing convention) or `*`.
+      let selectList: string;
+
+      if (spec.aggregate) {
+        const groupCols = (spec.groupBy ?? []).map((column) => `"${column}"`);
+
+        selectList = [...groupCols, emitAggregate(spec.aggregate)].join(", ");
+      } else {
+        selectList =
+          spec.columns && spec.columns.length > 0
+            ? spec.columns.join(", ")
+            : "*";
+      }
+
       const limit = spec.limit !== undefined ? ` LIMIT ${spec.limit}` : "";
 
-      body = `SELECT ${columns} FROM ${spec.table}${emitWhere(spec.filters)}${limit};`;
+      // SQL clause order: SELECT ... FROM ... WHERE ... GROUP BY ... ORDER BY ... LIMIT.
+      body = `SELECT ${selectList} FROM ${spec.table}${emitWhere(spec.filters)}${emitGroupBy(spec.groupBy)}${emitOrderBy(spec.orderBy)}${limit};`;
       break;
     }
     case "INSERT": {

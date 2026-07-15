@@ -4,6 +4,7 @@ import { lintDsl } from "./lint.js";
 import type { WidgetSpec } from "./schema.js";
 import {
   appSpecSchema,
+  compileChartDataBinding,
   compileCurrentItemBinding,
   compilePrimaryKeys,
 } from "./schema.js";
@@ -442,6 +443,250 @@ describe("M4 binding vocabulary — safe query bindings only", () => {
     const dsl = build([{ type: "table", source: { query: "getUsers" } }]);
 
     expect(lintDsl(dsl, { knownDataNames: ["getUsers"] }).errors).toBe(0);
+    expect(
+      lintDsl(dsl, { knownDataNames: ["other"] }).issues.map((i) => i.rule),
+    ).toContain("dangling-binding");
+  });
+});
+
+describe("M4-T1 — chart & select query sources (compiler-authored, un-escapable)", () => {
+  it("compiles chart.source to a mapped chartData binding and registers chartData.series1.data", () => {
+    const [chart] = children(
+      build([
+        {
+          type: "chart",
+          title: "Revenue",
+          chartType: "COLUMN_CHART",
+          source: { query: "getSales", x: "month", y: "revenue" },
+        },
+      ]),
+    );
+
+    expect(chart.type).toBe("CHART_WIDGET");
+    const chartData = chart.chartData as Record<
+      string,
+      { seriesName: string; data: unknown }
+    >;
+
+    // Only the series' data is a binding; seriesName is the static title.
+    expect(chartData.series1.seriesName).toBe("Revenue");
+    expect(chartData.series1.data).toBe(
+      '{{ getSales.data?.map((row) => ({ x: row["month"], y: row["revenue"] })) ?? [] }}',
+    );
+    // Registered at the widget's own nested binding-path format.
+    expect(chart.dynamicBindingPathList).toEqual([
+      { key: "chartData.series1.data" },
+    ]);
+  });
+
+  it("compiles chart.source with a nested response field via optional chaining", () => {
+    const [chart] = children(
+      build([
+        {
+          type: "chart",
+          source: {
+            query: "getSales",
+            field: "data.rows",
+            x: "Month Name",
+            y: "Total",
+          },
+        },
+      ]),
+    );
+    const chartData = chart.chartData as Record<string, { data: unknown }>;
+
+    expect(chartData.series1.data).toBe(
+      '{{ getSales.data?.data.rows?.map((row) => ({ x: row["Month Name"], y: row["Total"] })) ?? [] }}',
+    );
+  });
+
+  it("keeps a static-series chart unbound (no dynamic path)", () => {
+    const [chart] = children(
+      build([
+        { type: "chart", series: [{ name: "s", points: [{ x: 1, y: 2 }] }] },
+      ]),
+    );
+
+    expect(chart.dynamicBindingPathList).toEqual([]);
+  });
+
+  it("rejects a chart that sets both static series and a query source", () => {
+    expect(() =>
+      build([
+        {
+          type: "chart",
+          series: [{ points: [{ x: 1, y: 2 }] }],
+          source: { query: "getSales", x: "a", y: "b" },
+        },
+      ]),
+    ).toThrow(/both 'series' and 'source'/);
+  });
+
+  it("compileChartDataBinding emits an un-escapable bracket-access map", () => {
+    expect(
+      compileChartDataBinding({ query: "q", x: "col a", y: "col b" }),
+    ).toBe(
+      '{{ q.data?.map((row) => ({ x: row["col a"], y: row["col b"] })) ?? [] }}',
+    );
+  });
+
+  it("rejects a chart axis column containing binding-escape characters", () => {
+    for (const badCol of ['a"]}}', "a`b", "a${b}", "a}b", "a]b", "a\\b"]) {
+      const asX = appSpecSchema.safeParse({
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              { type: "chart", source: { query: "q", x: badCol, y: "y" } },
+            ],
+          },
+        ],
+      });
+      const asY = appSpecSchema.safeParse({
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              { type: "chart", source: { query: "q", x: "x", y: badCol } },
+            ],
+          },
+        ],
+      });
+
+      expect(asX.success).toBe(false);
+      expect(asY.success).toBe(false);
+    }
+  });
+
+  it("compiles select.optionsSource to a sourceData binding + literal label/value props", () => {
+    const [select] = children(
+      build([
+        {
+          type: "select",
+          label: "City",
+          optionsSource: {
+            query: "getCities",
+            label: "city name",
+            value: "id",
+          },
+        },
+      ]),
+    );
+
+    expect(select.type).toBe("SELECT_WIDGET");
+    expect(select.sourceData).toBe("{{ getCities.data ?? [] }}");
+    // Column names become literal props (not bindings).
+    expect(select.optionLabel).toBe("city name");
+    expect(select.optionValue).toBe("id");
+    // A query source is a real binding AND a JS-toggled property.
+    expect(select.dynamicBindingPathList).toEqual([{ key: "sourceData" }]);
+    expect(select.dynamicPropertyPathList).toEqual([{ key: "sourceData" }]);
+  });
+
+  it("compiles select.optionsSource with a nested response field", () => {
+    const [select] = children(
+      build([
+        {
+          type: "select",
+          optionsSource: {
+            query: "getCities",
+            field: "results",
+            label: "name",
+            value: "id",
+          },
+        },
+      ]),
+    );
+
+    expect(select.sourceData).toBe("{{ getCities.data?.results ?? [] }}");
+  });
+
+  it("keeps a static-options select unbound (JSON sourceData, no binding path)", () => {
+    const [select] = children(
+      build([
+        {
+          type: "select",
+          options: [{ label: "A", value: "1" }],
+        },
+      ]),
+    );
+
+    expect(JSON.parse(select.sourceData as string)).toEqual([
+      { label: "A", value: "1" },
+    ]);
+    expect(select.optionLabel).toBe("label");
+    expect(select.dynamicBindingPathList).toEqual([]);
+  });
+
+  it("rejects a select that sets both static options and a query source", () => {
+    expect(() =>
+      build([
+        {
+          type: "select",
+          options: [{ label: "A", value: "1" }],
+          optionsSource: { query: "q", label: "l", value: "v" },
+        },
+      ]),
+    ).toThrow(/both 'options' and 'optionsSource'/);
+  });
+
+  it("rejects a select option column containing binding-escape characters", () => {
+    for (const badCol of ['a"]}}', "a`b", "a${b}", "a}b", "a]b", "a\\b"]) {
+      const asLabel = appSpecSchema.safeParse({
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "select",
+                optionsSource: { query: "q", label: badCol, value: "v" },
+              },
+            ],
+          },
+        ],
+      });
+      const asValue = appSpecSchema.safeParse({
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "select",
+                optionsSource: { query: "q", label: "l", value: badCol },
+              },
+            ],
+          },
+        ],
+      });
+
+      expect(asLabel.success).toBe(false);
+      expect(asValue.success).toBe(false);
+    }
+  });
+
+  it("chart & select query sources are lint-clean under populated knownDataNames", () => {
+    const dsl = build([
+      {
+        type: "chart",
+        source: { query: "getSales", x: "month", y: "revenue" },
+      },
+      {
+        type: "select",
+        optionsSource: { query: "getCities", label: "name", value: "id" },
+      },
+    ]);
+
+    // No allowlisting was needed: the chart binding lives in the nested chartData object (not a scanned string leaf),
+    // and the select's sourceData binding head is the query identifier, resolved against knownDataNames.
+    expect(lintDsl(dsl).errors).toBe(0);
+    expect(
+      lintDsl(dsl, { knownDataNames: ["getSales", "getCities"] }).errors,
+    ).toBe(0);
+    // The select binding is genuinely checked: an unknown-only name set flags it as dangling.
     expect(
       lintDsl(dsl, { knownDataNames: ["other"] }).issues.map((i) => i.rule),
     ).toContain("dangling-binding");

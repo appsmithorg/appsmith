@@ -34,9 +34,11 @@ export const WIDGET_CATALOG = [
     type: "select",
     fields: {
       label: "string",
-      options: "{ label: string, value: string|number }[]",
+      options: "{ label: string, value: string|number }[] — static options",
+      optionsSource:
+        "{ query: '<queryName>', field?: '<responsePath>', label: '<column>', value: '<column>' } — bind the dropdown to a query's rows; label/value name the columns for each option's text/value. Use options OR optionsSource, not both (data layer).",
     },
-    purpose: "Dropdown selection.",
+    purpose: "Dropdown selection (static options or query-bound).",
   },
   {
     type: "button",
@@ -94,8 +96,10 @@ export const WIDGET_CATALOG = [
       chartType:
         "LINE_CHART | BAR_CHART | PIE_CHART | COLUMN_CHART | AREA_CHART",
       series: "{ name?: string, points?: { x, y }[] }[] — static series",
+      source:
+        "{ query: '<queryName>', field?: '<responsePath>', x: '<column>', y: '<column>' } — bind the chart to a query's rows; x is the category/label column and y the numeric value column. Use series OR source, not both (data layer).",
     },
-    purpose: "Visualize static series data.",
+    purpose: "Visualize static series data or a query's rows.",
   },
   {
     type: "tabs",

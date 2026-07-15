@@ -255,6 +255,13 @@ export const MCP_TOKEN_VALUE_LABEL = () => "MCP token";
 export const COPY_MCP_TOKEN = () => "Copy token";
 export const MCP_TOKEN_COPIED = () => "MCP token copied";
 export const MCP_TOKEN_COPY_FAILED = () => "Unable to copy MCP token.";
+export const MCP_CLIENT_CONFIG_LABEL = () => "Client configuration";
+export const MCP_CLIENT_CONFIG_HELP = () =>
+  "Paste this into your MCP client's config to connect (server URL + this token). Store it securely — it grants access as you.";
+export const COPY_MCP_CLIENT_CONFIG = () => "Copy client configuration";
+export const MCP_CLIENT_CONFIG_COPIED = () => "Client configuration copied";
+export const MCP_CLIENT_CONFIG_COPY_FAILED = () =>
+  "Unable to copy client configuration.";
 export const MCP_TOKENS_LOADING = () => "Loading MCP tokens…";
 export const MCP_TOKENS_EMPTY = () => "No MCP tokens have been created.";
 export const MCP_TOKEN_CREATED_AT = () => "Created";

@@ -1,4 +1,5 @@
 import {
+  compileChartDataBinding,
   compileInputValidation,
   compileSelectedRowBinding,
   compileTableDataBinding,
@@ -122,24 +123,43 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
     footprint: { columns: 24, rows: 7 },
     build: (spec) => {
       const label = spec.type === "select" ? spec.label ?? "Label" : "Label";
-      const options =
-        spec.type === "select" && spec.options
-          ? spec.options
-          : [
-              { label: "Option 1", value: "1" },
-              { label: "Option 2", value: "2" },
-            ];
+      const optionsSource =
+        spec.type === "select" ? spec.optionsSource : undefined;
+      const staticOptions = spec.type === "select" ? spec.options : undefined;
+
+      if (optionsSource !== undefined && staticOptions !== undefined) {
+        throw new Error("select cannot set both 'options' and 'optionsSource'");
+      }
+
+      // Two safe origins for the dropdown's data:
+      // (1) STATIC: a JSON-serialized array of {label,value} (no binding — JSON.stringify escapes the agent's safe
+      //     text/scalars, so the array literal is inert), keyed by the literal "label"/"value" props.
+      // (2) QUERY source: `sourceData` compiled to `{{ <query>.data ?? [] }}` (reusing the table-data emitter, whose
+      //     query/field are strict identifier paths) and registered as a dynamic binding; optionLabel/optionValue are
+      //     validated column-name LITERALS (charset admits no quote/brace/backtick), so they cannot become bindings.
+      const bound = optionsSource !== undefined;
+      const options = staticOptions ?? [
+        { label: "Option 1", value: "1" },
+        { label: "Option 2", value: "2" },
+      ];
+      const sourceData = bound
+        ? compileTableDataBinding({
+            query: optionsSource.query,
+            field: optionsSource.field,
+          })
+        : JSON.stringify(options);
+      const optionLabel = bound ? optionsSource.label : "label";
+      const optionValue = bound ? optionsSource.value : "value";
 
       return {
         footprint: { columns: 24, rows: 7 },
         props: {
           label,
-          // SELECT_WIDGET derives its dropdown from `sourceData` (a JS-evaluated JSON array) keyed by
-          // optionLabel/optionValue — NOT the legacy `options` prop. The options are agent-supplied safe text/scalars
-          // and JSON.stringify escapes them, so the emitted array literal is inert (no binding can be smuggled in).
-          sourceData: JSON.stringify(options),
-          optionLabel: "label",
-          optionValue: "value",
+          // SELECT_WIDGET derives its dropdown from `sourceData` (a JS-evaluated array) keyed by
+          // optionLabel/optionValue — NOT the legacy `options` prop.
+          sourceData,
+          optionLabel,
+          optionValue,
           labelPosition: "Top",
           labelAlignment: "left",
           labelTextSize: "0.875rem",
@@ -149,7 +169,10 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
           serverSideFiltering: false,
           animateLoading: true,
           responsiveBehavior: "fill",
+          // sourceData is a JS-toggled property either way; a query source additionally holds a `{{ }}` binding, so it
+          // is registered in dynamicBindingPathList (eval evaluates it) as well as dynamicPropertyPathList (JS mode).
           dynamicPropertyPathList: [{ key: "sourceData" }],
+          dynamicBindingPathList: bound ? [{ key: "sourceData" }] : [],
         },
       };
     },
@@ -384,20 +407,37 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
       const title = spec.type === "chart" ? spec.title ?? "Chart" : "Chart";
       const chartType =
         spec.type === "chart" ? spec.chartType ?? "LINE_CHART" : "LINE_CHART";
+      const source = spec.type === "chart" ? spec.source : undefined;
       const series = spec.type === "chart" ? spec.series ?? [] : [];
 
-      // Static chartData: { <seriesId>: { seriesName, data: [{x,y}] } }. No binding — the points are literals.
+      if (source !== undefined && series.length > 0) {
+        throw new Error("chart cannot set both 'series' and 'source'");
+      }
+
+      // Two safe data origins for CHART_WIDGET's `chartData` (an object keyed by series id, each `{ seriesName, data }`):
+      // (1) STATIC series: the points are literals — no binding.
+      // (2) QUERY source: a single series whose `data` is a compiler-authored map of the query's rows to {x,y}. Only
+      //     the series' `data` is a binding, so it is registered at path `chartData.series1.data` (the widget's own
+      //     binding-path format, see ChartWidget getPropertyPaneConfig). Query name, response field, and the x/y
+      //     column names are all schema-validated charsets, so the emitted expression cannot be broken out of.
       const chartData: Record<string, unknown> = {};
 
-      series.forEach((oneSeries, index) => {
-        chartData[`series${index + 1}`] = {
-          seriesName: oneSeries.name ?? `Series ${index + 1}`,
-          data: (oneSeries.points ?? []).map((point) => ({
-            x: point.x,
-            y: point.y,
-          })),
+      if (source !== undefined) {
+        chartData.series1 = {
+          seriesName: title,
+          data: compileChartDataBinding(source),
         };
-      });
+      } else {
+        series.forEach((oneSeries, index) => {
+          chartData[`series${index + 1}`] = {
+            seriesName: oneSeries.name ?? `Series ${index + 1}`,
+            data: (oneSeries.points ?? []).map((point) => ({
+              x: point.x,
+              y: point.y,
+            })),
+          };
+        });
+      }
 
       return {
         footprint: { columns: 24, rows: 32 },
@@ -412,7 +452,9 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
           setAdaptiveYMin: false,
           animateLoading: true,
           responsiveBehavior: "fill",
-          dynamicBindingPathList: [],
+          // A query source's series data is a real dynamic binding; static points are not.
+          dynamicBindingPathList:
+            source !== undefined ? [{ key: "chartData.series1.data" }] : [],
         },
       };
     },

@@ -301,10 +301,74 @@ const chartSeries = z
   })
   .strict();
 
+// M4 chart query source: bind a chart's single series to a named query's rows, mapping column `x`
+// (category/label) and column `y` (numeric value) to {x,y} points. `x`/`y` are COLUMN-NAME refs — the exact same
+// charset as itemField/selectedRowColumn (letters/digits/underscore/space) — NOT raw expressions. The compiler
+// emits `row["<x>"]`/`row["<y>"]` bracket access with double quotes, and the charset admits no
+// quote/bracket/brace/backtick/`$`/backslash, so the compiler-authored map expression cannot be broken out of.
+const chartAxisColumn = z
+  .string()
+  .min(1)
+  .max(100)
+  .regex(
+    /^[A-Za-z0-9_ ]+$/,
+    "chart axis column names must be alphanumeric, underscore, or space",
+  );
+
+export const chartSourceRefSchema = z
+  .object({
+    query: bindingIdentifier,
+    field: responseFieldPath.optional(),
+    x: chartAxisColumn,
+    y: chartAxisColumn,
+  })
+  .strict();
+
+export type ChartSourceRef = z.infer<typeof chartSourceRefSchema>;
+
+// The single emitter for a chart's data binding. Every interpolated part is a schema-validated identifier/column
+// charset, so the expression cannot be broken out of. Optional chaining (`.data?.` ... `?.map(...) ?? []`) keeps the
+// chart valid before the query has run (data undefined -> `[]`, no "undefined is not a function" throw), mirroring
+// compileTableDataBinding's `?? []` guard. The leading head is the query identifier, so the linter resolves it
+// against knownDataNames; `row` is an arrow-local, not a binding head.
+export function compileChartDataBinding(ref: ChartSourceRef): string {
+  const dataPath = ref.field
+    ? `${ref.query}.data?.${ref.field}`
+    : `${ref.query}.data`;
+
+  return `{{ ${dataPath}?.map((row) => ({ x: row["${ref.x}"], y: row["${ref.y}"] })) ?? [] }}`;
+}
+
 const selectOption = z.object({
   label: safeText(200).pipe(z.string().min(1)),
   value: z.union([safeText(200), z.number()]),
 });
+
+// M4 select query source: bind a select's dropdown to a named query. SELECT_WIDGET derives its options from
+// `sourceData` (a JS-evaluated array) keyed by `optionLabel`/`optionValue`. For a query source the compiler emits
+// `sourceData: {{ <query>.data ?? [] }}` (reusing the table-data emitter) registered as a dynamic binding, plus
+// `optionLabel`/`optionValue` as validated column-name LITERALS (not bindings). `label`/`value` use the same
+// column-name charset as chart axes/card fields — no quote/brace/backtick — so nothing agent-supplied is
+// eval-reachable. Query/field validation is shared with tableDataRefSchema so the two entry points cannot drift.
+const optionColumn = z
+  .string()
+  .min(1)
+  .max(100)
+  .regex(
+    /^[A-Za-z0-9_ ]+$/,
+    "option label/value column names must be alphanumeric, underscore, or space",
+  );
+
+export const optionsSourceRefSchema = z
+  .object({
+    query: bindingIdentifier,
+    field: responseFieldPath.optional(),
+    label: optionColumn,
+    value: optionColumn,
+  })
+  .strict();
+
+export type OptionsSourceRef = z.infer<typeof optionsSourceRefSchema>;
 
 // Recursive: a container can hold child widgets. z.lazy handles the self-reference.
 export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
@@ -340,6 +404,10 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         name: nameField,
         label: safeText(200).optional(),
         options: z.array(selectOption).max(200).optional(),
+        // M4: bind the dropdown to a named query instead of static options. Compiler emits a `sourceData` binding +
+        // literal optionLabel/optionValue. Mutually exclusive with `options` (enforced in the template — a `.refine`
+        // here would turn the arm into a ZodEffects, which z.discriminatedUnion rejects).
+        optionsSource: optionsSourceRefSchema.optional(),
         placement: placementSchema.optional(),
       })
       .strict(),
@@ -425,6 +493,10 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
           ])
           .optional(),
         series: z.array(chartSeries).max(10).optional(),
+        // M4: bind the chart to a named query's rows instead of static series. Compiler emits a mapped chartData
+        // binding. Mutually exclusive with `series` (enforced in the template — a `.refine` here would turn the arm
+        // into a ZodEffects, which z.discriminatedUnion rejects).
+        source: chartSourceRefSchema.optional(),
         placement: placementSchema.optional(),
       })
       .strict(),
@@ -497,6 +569,7 @@ export type WidgetSpec =
       name?: string;
       label?: string;
       options?: { label: string; value: string | number }[];
+      optionsSource?: OptionsSourceRef;
       placement?: PlacementSpec;
     }
   | {
@@ -554,6 +627,7 @@ export type WidgetSpec =
         name?: string;
         points?: { x: string | number; y: number }[];
       }[];
+      source?: ChartSourceRef;
       placement?: PlacementSpec;
     }
   | {

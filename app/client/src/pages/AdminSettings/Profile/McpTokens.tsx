@@ -13,9 +13,14 @@ import {
   toast,
 } from "@appsmith/ads";
 import {
+  COPY_MCP_CLIENT_CONFIG,
   COPY_MCP_SERVER_URL,
   COPY_MCP_TOKEN,
   CREATE_MCP_TOKEN,
+  MCP_CLIENT_CONFIG_COPIED,
+  MCP_CLIENT_CONFIG_COPY_FAILED,
+  MCP_CLIENT_CONFIG_HELP,
+  MCP_CLIENT_CONFIG_LABEL,
   MCP_SERVER_URL_COPIED,
   MCP_SERVER_URL_COPY_FAILED,
   MCP_SERVER_URL_HELP,
@@ -80,6 +85,22 @@ const TokenMeta = styled.div`
 // The MCP server endpoint for this deployment. The /mcp route is served from the app origin (via Caddy), so the URL
 // a user pastes into their MCP client is simply the current origin + /mcp.
 const MCP_SERVER_URL = `${window.location.origin}/mcp`;
+
+// A ready-to-paste MCP client configuration (the common `mcpServers` shape used by Claude Desktop and compatible
+// clients): the server URL plus this token as a bearer credential. Rendered once, in the token-created modal.
+const buildClientConfig = (token: string) =>
+  JSON.stringify(
+    {
+      mcpServers: {
+        appsmith: {
+          url: MCP_SERVER_URL,
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      },
+    },
+    null,
+    2,
+  );
 
 // A read-only, monospaced value with a copy-to-clipboard button — used for both the server URL and the one-time token.
 // `description` (when set) renders as the field's helper text, which the design system links via aria-describedby.
@@ -223,6 +244,23 @@ function McpTokens() {
       toast.show(createMessage(MCP_SERVER_URL_COPIED), { kind: "success" });
     } catch {
       toast.show(createMessage(MCP_SERVER_URL_COPY_FAILED), { kind: "error" });
+    }
+  };
+
+  const copyClientConfig = async () => {
+    if (!createdToken) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(
+        buildClientConfig(createdToken.token),
+      );
+      toast.show(createMessage(MCP_CLIENT_CONFIG_COPIED), { kind: "success" });
+    } catch {
+      toast.show(createMessage(MCP_CLIENT_CONFIG_COPY_FAILED), {
+        kind: "error",
+      });
     }
   };
 
@@ -383,6 +421,45 @@ function McpTokens() {
               onCopy={copyServerUrl}
               value={MCP_SERVER_URL}
             />
+            <Flex alignItems="flex-start" gap="spaces-2" width="100%">
+              <Flex flex="1" flexDirection="column" gap="spaces-1" minWidth="0">
+                <Text id="mcp-client-config-label" kind="body-s">
+                  {createMessage(MCP_CLIENT_CONFIG_LABEL)}
+                </Text>
+                <pre
+                  aria-describedby="mcp-client-config-help"
+                  aria-labelledby="mcp-client-config-label"
+                  className="t--mcp-client-config"
+                  role="region"
+                  style={{
+                    margin: 0,
+                    padding: "var(--ads-v2-spaces-3)",
+                    background: "var(--ads-v2-color-bg-subtle)",
+                    borderRadius: "var(--ads-v2-border-radius)",
+                    fontFamily: "var(--ads-v2-font-family-code)",
+                    fontSize: "var(--ads-v2-font-size-2)",
+                    overflowX: "auto",
+                    whiteSpace: "pre",
+                  }}
+                >
+                  {buildClientConfig(createdToken?.token ?? "")}
+                </pre>
+                <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                  {createMessage(MCP_CLIENT_CONFIG_HELP)}
+                </Text>
+              </Flex>
+              <Tooltip content={createMessage(COPY_MCP_CLIENT_CONFIG)}>
+                <Button
+                  aria-label={createMessage(COPY_MCP_CLIENT_CONFIG)}
+                  className="t--copy-mcp-client-config"
+                  isIconButton
+                  kind="tertiary"
+                  onClick={copyClientConfig}
+                  size="md"
+                  startIcon="copy-control"
+                />
+              </Tooltip>
+            </Flex>
             <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
               {createMessage(MCP_TOKEN_EXPIRES_AT)}:{" "}
               {formatTimestamp(createdToken?.expiresAt ?? "")}
