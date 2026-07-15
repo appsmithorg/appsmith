@@ -139,6 +139,15 @@ export class McpGovernanceCoordinator {
     return this.store.listChanges(actorId, limit);
   }
 
+  // Instance-admin cross-actor reads (gated at the tool layer on adminSettingsVisible).
+  async getAnyChange(id: string): Promise<McpChangeRecord | undefined> {
+    return this.store.getAnyChange(id);
+  }
+
+  async listAllChanges(limit: number): Promise<McpChangeRecord[]> {
+    return this.store.listAllChanges(limit);
+  }
+
   async prepareDestructiveConfirmation(
     binding: DestructiveConfirmationBinding,
   ): Promise<PreparedConfirmation> {

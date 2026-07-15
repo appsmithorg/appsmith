@@ -231,6 +231,16 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
       summary: "delete a page with a token",
     },
     { name: "list_changes", gate: "governance", summary: "audit history" },
+    {
+      name: "list_all_changes",
+      gate: "governance",
+      summary: "admin-only cross-actor audit history",
+    },
+    {
+      name: "get_any_change",
+      gate: "governance",
+      summary: "admin-only cross-actor audit record",
+    },
     { name: "get_change", gate: "governance", summary: "one audit record" },
     {
       name: "get_change_diff",

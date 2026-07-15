@@ -89,9 +89,15 @@ function isLayoutRollbackable(change: McpChangeRecord): boolean {
   return rollback?.kind === "layout" && rollback.dsl !== undefined;
 }
 
-function projectChange(change: McpChangeRecord): Record<string, unknown> {
+// `includeActor` adds the actorId so a cross-actor admin audit read can attribute each change to a user; the
+// per-actor list_changes omits it (it is always the caller). The rollback snapshot is never projected.
+function projectChange(
+  change: McpChangeRecord,
+  includeActor = false,
+): Record<string, unknown> {
   return {
     id: change.id,
+    ...(includeActor ? { actorId: change.actorId } : {}),
     operation: change.operation,
     entityKey: change.entityKey,
     revisionBefore: change.revisionBefore,
@@ -109,6 +115,9 @@ export interface ServerContext {
   jsEnabled: boolean;
   governance?: McpGovernanceCoordinator;
   actorId: string;
+  // True when the authenticated user is an instance SUPER-admin (isSuperUser on /api/v1/users/me). Gates the
+  // cross-actor audit read (list_all_changes / get_any_change); a normal actor only ever sees its own change records.
+  isAdmin?: boolean;
 }
 
 // A page is the lock/audit entity for layout, page-metadata, and event mutations.
@@ -1181,7 +1190,7 @@ export function buildMcpServer(
   api: AppsmithApi,
   ctx: ServerContext = { dataEnabled: false, jsEnabled: false, actorId: "" },
 ) {
-  const { actorId, dataEnabled, governance, jsEnabled } = ctx;
+  const { actorId, dataEnabled, governance, isAdmin, jsEnabled } = ctx;
   const server = new McpServer(
     { name: "appsmith-mcp", version: "0.0.1" },
     { instructions: SERVER_INSTRUCTIONS },
@@ -1822,8 +1831,8 @@ export function buildMcpServer(
       { limit: z.number().int().min(1).max(100).optional() },
       async ({ limit }) =>
         result({
-          changes: (await gov.listChanges(actorId, limit ?? 20)).map(
-            projectChange,
+          changes: (await gov.listChanges(actorId, limit ?? 20)).map((change) =>
+            projectChange(change),
           ),
         }),
     );
@@ -1837,6 +1846,48 @@ export function buildMcpServer(
 
         return change
           ? result({ change: projectChange(change) })
+          : result({ error: "change not found" });
+      },
+    );
+
+    server.tool(
+      "list_all_changes",
+      "ADMIN ONLY: list recent MCP governance change records across ALL actors in this instance (audit oversight), each attributed to its actor. Requires the caller to be an Appsmith instance administrator; a non-admin caller is refused. Returns safe change headers + semantic summaries — never rollback snapshots.",
+      { limit: z.number().int().min(1).max(200).optional() },
+      async ({ limit }) => {
+        if (!isAdmin) {
+          return result({
+            error:
+              "list_all_changes is restricted to Appsmith instance administrators; use list_changes for your own change history.",
+            code: "admin_required",
+          });
+        }
+
+        return result({
+          changes: (await gov.listAllChanges(limit ?? 50)).map((change) =>
+            projectChange(change, true),
+          ),
+        });
+      },
+    );
+
+    server.tool(
+      "get_any_change",
+      "ADMIN ONLY: get a single MCP change record by id regardless of which actor made it (audit oversight), attributed to its actor. Requires an Appsmith instance administrator; a non-admin caller is refused. The rollback snapshot is never exposed.",
+      { changeId: idSchema },
+      async ({ changeId }) => {
+        if (!isAdmin) {
+          return result({
+            error:
+              "get_any_change is restricted to Appsmith instance administrators; use get_change for your own changes.",
+            code: "admin_required",
+          });
+        }
+
+        const change = await gov.getAnyChange(changeId);
+
+        return change
+          ? result({ change: projectChange(change, true) })
           : result({ error: "change not found" });
       },
     );
@@ -3409,13 +3460,20 @@ export function createMcpHttpServer(
     }
   }
 
-  async function authenticatedUsername(api: AppsmithApi): Promise<string> {
-    let profile: { username?: string; isAnonymous?: boolean };
+  async function authenticateProfile(
+    api: AppsmithApi,
+  ): Promise<{ username: string; isAdmin: boolean }> {
+    let profile: {
+      username?: string;
+      isAnonymous?: boolean;
+      isSuperUser?: boolean;
+    };
 
     try {
       profile = (await api.validateToken()) as {
         username?: string;
         isAnonymous?: boolean;
+        isSuperUser?: boolean;
       };
     } catch {
       throw new HttpError(401, "invalid bearer token");
@@ -3425,7 +3483,14 @@ export function createMcpHttpServer(
       throw new HttpError(401, "invalid bearer token");
     }
 
-    return profile.username;
+    // isSuperUser on /api/v1/users/me is the precise INSTANCE super-admin signal (set server-side via
+    // userUtils.isSuperUser) — the gate for the cross-actor audit read. It is NOT adminSettingsVisible, which is a
+    // broader "show the Admin Settings menu" flag that EE RBAC can grant to non-super-admin roles. Absent/false for a
+    // normal user.
+    return {
+      username: profile.username,
+      isAdmin: profile.isSuperUser === true,
+    };
   }
 
   const server = createServer(async (req, res) => {
@@ -3512,15 +3577,16 @@ export function createMcpHttpServer(
           return;
         }
 
-        username = await authenticatedUsername(
-          createApi(token, upstreamHeaders),
-        );
+        username = (
+          await authenticateProfile(createApi(token, upstreamHeaders))
+        ).username;
         session.expiresAt = now() + sessionTtlMs;
       }
 
       if (!transport && isInitializeRequest(body)) {
         const api = createApi(token, upstreamHeaders);
-        const authenticatedUser = await authenticatedUsername(api);
+        const { isAdmin, username: authenticatedUser } =
+          await authenticateProfile(api);
 
         username = authenticatedUser;
 
@@ -3584,6 +3650,7 @@ export function createMcpHttpServer(
           jsEnabled,
           governance,
           actorId: authenticatedUser,
+          isAdmin,
         }).connect(transport);
       }
 

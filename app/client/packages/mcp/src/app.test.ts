@@ -1907,6 +1907,12 @@ describe("governance-wrapped layout mutations", () => {
         .slice(-limit)
         .reverse();
     }
+    async getAnyChange(id: string): Promise<McpChangeRecord | undefined> {
+      return this.changes.find((c) => c.id === id);
+    }
+    async listAllChanges(limit: number): Promise<McpChangeRecord[]> {
+      return this.changes.slice(-limit).reverse();
+    }
   }
 
   const ROOT_DSL = {
@@ -2432,6 +2438,82 @@ describe("governance-wrapped layout mutations", () => {
 
     expect(rolled.body.rolledBack).toBe(true);
     expect(rolled.body.revision).toBe(before); // restored to the original snapshot
+  });
+
+  it("list_all_changes: an admin sees cross-actor records; a non-admin is refused (M2-T2)", async () => {
+    const store = new MemoryGovernanceStore();
+    const mk = (id: string, actorId: string, ms: number): McpChangeRecord => ({
+      id,
+      actorId,
+      entityKey: "e",
+      operation: "op",
+      revisionBefore: "",
+      revisionAfter: "",
+      createdAt: new Date(ms),
+      rollback: {},
+      summary: {},
+    });
+
+    await store.saveChange(mk("c1", "alice@appsmith.com", 1000));
+    await store.saveChange(mk("c2", "bob@appsmith.com", 2000));
+
+    // Non-admin (default validateToken has no adminSettingsVisible) -> refused, no records leaked.
+    const nonAdmin = createMcpHttpServer(API_BASE_URL, createApi(), {
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const denied = await callTool(nonAdmin, "list_all_changes", {});
+
+    expect(denied.body.code).toBe("admin_required");
+    expect(denied.body.changes).toBeUndefined();
+
+    // Admin (validateToken reports isSuperUser: true) -> sees BOTH actors' records.
+    const adminServer = createMcpHttpServer(
+      API_BASE_URL,
+      createApi(
+        jest.fn(async () => ({
+          username: "admin@appsmith.com",
+          isAnonymous: false,
+          isSuperUser: true,
+        })),
+      ),
+      { governance: new McpGovernanceCoordinator(store) },
+    );
+    const all = await callTool(adminServer, "list_all_changes", {});
+
+    expect(all.body.changes.map((c: { id: string }) => c.id).sort()).toEqual([
+      "c1",
+      "c2",
+    ]);
+    // Cross-actor audit MUST attribute each record to its actor.
+    const byId = Object.fromEntries(
+      all.body.changes.map((c: { id: string; actorId: string }) => [
+        c.id,
+        c.actorId,
+      ]),
+    );
+
+    expect(byId.c1).toBe("alice@appsmith.com");
+    expect(byId.c2).toBe("bob@appsmith.com");
+    // The rollback SNAPSHOT object is never exposed even to an admin (only the rollbackAvailable boolean is).
+    expect(all.body.changes[0].rollback).toBeUndefined();
+
+    // get_any_change: admin can fetch a specific cross-actor record (attributed); non-admin is refused.
+    const anyChange = await callTool(adminServer, "get_any_change", {
+      changeId: "c2",
+    });
+
+    expect(anyChange.body.change.actorId).toBe("bob@appsmith.com");
+
+    const deniedGet = await callTool(nonAdmin, "get_any_change", {
+      changeId: "c2",
+    });
+
+    expect(deniedGet.body.code).toBe("admin_required");
+
+    // The admin's own actor-scoped list_changes still sees only its own records (none here).
+    const own = await callTool(adminServer, "list_changes", {});
+
+    expect(own.body.changes).toEqual([]);
   });
 
   it("get_capabilities advertises EXACTLY the registered tools (no drift), under all gates", async () => {

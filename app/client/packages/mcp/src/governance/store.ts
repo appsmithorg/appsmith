@@ -36,6 +36,13 @@ export interface McpGovernanceStore {
   saveChange(change: McpChangeRecord): Promise<void>;
   getChange(id: string, actorId: string): Promise<McpChangeRecord | undefined>;
   listChanges(actorId: string, limit: number): Promise<McpChangeRecord[]>;
+  // Instance super-admin reads: NOT actor-scoped, so an administrator can audit MCP changes across all actors on this
+  // INSTANCE. Gated on isSuperUser at the tool layer, never exposed to a normal actor. NOTE: McpChangeRecord has no
+  // org/tenant field, so these reads are correct only for a single-org instance (CE). A multi-org deployment (EE)
+  // MUST add an organizationId to McpChangeRecord and filter by the caller's org before enabling these tools, or one
+  // org's super-admin would see every org's change history (tracked EE follow-up).
+  getAnyChange(id: string): Promise<McpChangeRecord | undefined>;
+  listAllChanges(limit: number): Promise<McpChangeRecord[]>;
 }
 
 const LOCK_PREFIX = "appsmith:mcp:lock:";
@@ -63,6 +70,9 @@ export class MongoRedisGovernanceStore implements McpGovernanceStore {
   async connect(): Promise<void> {
     await Promise.all([this.mongo.connect(), this.redis.connect()]);
     await this.changes.createIndex({ actorId: 1, createdAt: -1 });
+    // Serves the admin cross-actor read (listAllChanges: no actorId predicate, sort by createdAt desc), which the
+    // actor-scoped compound index above cannot cover.
+    await this.changes.createIndex({ createdAt: -1 });
     await this.changes.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
   }
 
@@ -142,6 +152,17 @@ export class MongoRedisGovernanceStore implements McpGovernanceStore {
       .sort({ createdAt: -1 })
       .limit(limit)
       .toArray();
+  }
+
+  async getAnyChange(id: string): Promise<McpChangeRecord | undefined> {
+    return (await this.changes.findOne({ id })) ?? undefined;
+  }
+
+  async listAllChanges(limit: number): Promise<McpChangeRecord[]> {
+    // No actorId filter — the whole mcp_changes collection for this single-org INSTANCE, newest-first. Records carry
+    // no org field, so a multi-org (EE) deployment must add an organizationId predicate before enabling the admin
+    // tool, or one org's super-admin would see every org's records (tracked EE follow-up).
+    return this.changes.find({}).sort({ createdAt: -1 }).limit(limit).toArray();
   }
 }
 

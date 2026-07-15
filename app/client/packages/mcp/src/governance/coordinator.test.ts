@@ -60,6 +60,14 @@ class MemoryGovernanceStore implements McpGovernanceStore {
   async listChanges(): Promise<McpChangeRecord[]> {
     return this.changes;
   }
+
+  async getAnyChange(): Promise<McpChangeRecord | undefined> {
+    return undefined;
+  }
+
+  async listAllChanges(): Promise<McpChangeRecord[]> {
+    return this.changes;
+  }
 }
 
 const binding = {
