@@ -1,6 +1,7 @@
 package com.appsmith.server.filters;
 
 import com.appsmith.server.authentication.tokens.McpTokenAuthentication;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,7 @@ import java.util.List;
  * {@code SecurityConfig} (NOT a {@code @Component}) so it is added only to the security chain, not also
  * auto-registered as a global {@code WebFilter} by WebHttpHandlerBuilder.
  */
+@Slf4j
 public class McpAllowlistWebFilter implements WebFilter {
 
     private static final PathPatternParser PARSER = new PathPatternParser();
@@ -112,6 +114,12 @@ public class McpAllowlistWebFilter implements WebFilter {
     }
 
     private static Mono<Void> forbidden(ServerWebExchange exchange) {
+        // Audit the denial: a valid MCP principal reached an endpoint outside the tool allowlist. Log only method+path
+        // (never the token or principal), so this 403 is greppable for security review without leaking the credential.
+        log.warn(
+                "MCP principal denied on {} {} — endpoint is not in the MCP tool allowlist",
+                exchange.getRequest().getMethod(),
+                exchange.getRequest().getPath().value());
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.FORBIDDEN);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);

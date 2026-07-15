@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import supertest from "supertest";
 import {
   MAX_ARTIFACT_BYTES,
@@ -459,6 +460,60 @@ describe("MCP HTTP server", () => {
       expect(requestEvent).not.toHaveProperty("args");
       expect(requestEvent).not.toHaveProperty("body");
       expect(requestEvent).not.toHaveProperty("params");
+      // The caller's identity is only ever recorded as a hash, never in plaintext.
+      expect(requestEvent).not.toHaveProperty("username");
+    } finally {
+      stderrSpy.mockRestore();
+    }
+  });
+
+  // The telemetry event must correlate per user WITHOUT logging the user's email in plaintext: the username is
+  // recorded only as a stable SHA-256 hash (matching the server-side DigestUtils.sha256Hex posture).
+  it("records the caller's username as a SHA-256 hash, never in plaintext", async () => {
+    const email = "user@appsmith.com";
+    const events: Record<string, unknown>[] = [];
+    const stderrSpy = jest
+      .spyOn(process.stderr, "write")
+      .mockImplementation((chunk: string | Uint8Array) => {
+        const line = typeof chunk === "string" ? chunk : chunk.toString();
+
+        try {
+          events.push(JSON.parse(line));
+        } catch {
+          // Non-JSON writes are irrelevant to this assertion.
+        }
+
+        return true;
+      });
+
+    try {
+      const validateToken = jest.fn(async () => ({
+        username: email,
+        isAnonymous: false,
+      }));
+      const server = createMcpHttpServer(
+        API_BASE_URL,
+        createApi(validateToken),
+      );
+
+      await supertest(server)
+        .post("/mcp")
+        .set("Accept", "application/json, text/event-stream")
+        .set("Authorization", "Bearer mcp_user-token")
+        .send(initializeRequest);
+
+      const requestEvent = events.find(
+        (event) =>
+          event.event === "appsmith_mcp_request" &&
+          event.usernameHash !== undefined,
+      );
+
+      expect(requestEvent).toBeDefined();
+      expect(requestEvent?.usernameHash).toBe(
+        createHash("sha256").update(email).digest("hex"),
+      );
+      // The plaintext email must never appear anywhere in the serialized event.
+      expect(JSON.stringify(requestEvent)).not.toContain(email);
     } finally {
       stderrSpy.mockRestore();
     }

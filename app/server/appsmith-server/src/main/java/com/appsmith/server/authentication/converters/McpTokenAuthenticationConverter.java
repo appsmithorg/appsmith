@@ -2,6 +2,7 @@ package com.appsmith.server.authentication.converters;
 
 import com.appsmith.server.authentication.tokens.McpTokenAuthentication;
 import com.appsmith.server.constants.ce.McpHeaders;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
@@ -14,6 +15,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
+@Slf4j
 @Component
 public class McpTokenAuthenticationConverter implements ServerAuthenticationConverter {
 
@@ -47,6 +49,14 @@ public class McpTokenAuthenticationConverter implements ServerAuthenticationConv
         // (mirrors the APPSMITH_INTERNAL_PASSWORD empty-string guard, GHSA-xfc5-796c-7hr9): MCP is then inoperative
         // but no mcp_ token can be exercised.
         if (!hasValidInternalMarker(exchange)) {
+            // An mcp_ bearer reached here without a valid internal marker. On the legitimate loopback path the Node MCP
+            // service always stamps the marker and Caddy strips any inbound copy, so this is a raw mcp_ token presented
+            // directly to /api/v1 outside the MCP tool flow (or the marker secret is misconfigured/unset). Audit it —
+            // NEVER logging the token or the marker value — then reject (falls through to 401).
+            log.warn(
+                    "Rejecting an MCP bearer with no valid internal marker on {} {} — a raw mcp_ token used directly against /api/v1 (bypassing the loopback MCP service), or APPSMITH_MCP_INTERNAL_SECRET is unset/misconfigured",
+                    exchange.getRequest().getMethod(),
+                    exchange.getRequest().getPath().value());
             return Mono.empty();
         }
 

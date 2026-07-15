@@ -3512,6 +3512,16 @@ function logMcpEvent(event: string, fields: Record<string, unknown>) {
   );
 }
 
+// The telemetry line correlates events per user WITHOUT recording the user's identity in plaintext: the username is
+// the caller's email, so it is hashed (SHA-256 hex, matching the server-side DigestUtils.sha256Hex posture) before it
+// ever reaches the log. The hash is stable, so per-user aggregation still works, but the log never carries a raw
+// email that could sit in aggregation storage.
+function hashUsername(username: string | undefined): string | undefined {
+  if (!username) return undefined;
+
+  return createHash("sha256").update(username).digest("hex");
+}
+
 // M4-T4 adoption telemetry: collapse the raw HTTP status into a coarse outcome class so we can measure
 // success/failure rates per tool WITHOUT leaking the error message or response body. Intentionally coarse.
 function mcpStatusClass(status: number): string {
@@ -3745,7 +3755,7 @@ export function createMcpHttpServer(
         httpMethod: req.method,
         mcpMethod: operation.method,
         tool: operation.tool,
-        username,
+        usernameHash: hashUsername(username),
         status: res.statusCode,
         statusClass: mcpStatusClass(res.statusCode),
         gates: gateSummary,
