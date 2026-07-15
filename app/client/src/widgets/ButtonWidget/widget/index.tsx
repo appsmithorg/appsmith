@@ -25,6 +25,7 @@ import type {
   AutocompletionDefinitions,
 } from "WidgetProvider/types";
 import { isAirgapped } from "ee/utils/airgapHelpers";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
@@ -79,6 +80,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       version: 1,
       responsiveBehavior: ResponsiveBehavior.Hug,
       minWidth: BUTTON_MIN_WIDTH,
+      labelStyle: "",
     };
   }
 
@@ -434,6 +436,90 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         ],
       },
       {
+        sectionName: "Label styles",
+        children: [
+          {
+            propertyName: "labelTextColor",
+            label: "Font color",
+            helpText: "Control the color of the label associated",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+          },
+          {
+            propertyName: "labelTextSize",
+            label: "Font size",
+            helpText: "Control the font size of the label associated",
+            controlType: "DROP_DOWN",
+            defaultValue: "0.875rem",
+            hidden: isAutoLayout,
+            options: [
+              {
+                label: "S",
+                value: "0.875rem",
+                subText: "0.875rem",
+              },
+              {
+                label: "M",
+                value: "1rem",
+                subText: "1rem",
+              },
+              {
+                label: "L",
+                value: "1.25rem",
+                subText: "1.25rem",
+              },
+              {
+                label: "XL",
+                value: "1.875rem",
+                subText: "1.875rem",
+              },
+              {
+                label: "XXL",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3XL",
+                value: "3.75rem",
+                subText: "3.75rem",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelStyle",
+            label: "Emphasis",
+            helpText: "Control if the label should be bold or italics",
+            controlType: "BUTTON_GROUP",
+            options: [
+              {
+                icon: "text-bold",
+                value: "BOLD",
+              },
+              {
+                icon: "text-italic",
+                value: "ITALIC",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
         sectionName: "Color",
         children: [
           {
@@ -593,6 +679,9 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         handleRecaptchaV2Loading={this.handleRecaptchaV2Loading}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
+        labelStyle={this.props.labelStyle}
+        labelTextColor={this.props.labelTextColor}
+        labelTextSize={this.props.labelTextSize}
         isDisabled={isDisabled}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
@@ -630,6 +719,9 @@ export interface ButtonWidgetProps extends WidgetProps {
   placement?: ButtonPlacement;
   disabledWhenInvalid?: boolean;
   resetFormOnClick?: boolean;
+  labelTextColor?: string;
+  labelTextSize?: string;
+  labelStyle?: string;
 }
 
 interface ButtonWidgetState extends WidgetState {

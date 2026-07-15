@@ -24,6 +24,7 @@ import type {
   RecaptchaType,
 } from "components/constants";
 import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
+import { FontStyleTypes } from "constants/WidgetConstants";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
@@ -79,7 +80,7 @@ const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
     ${buttonHoverActiveStyles}
   }
 
-  ${({ buttonColor, buttonVariant, theme }) => `
+  ${({ buttonColor, buttonVariant, labelStyle, labelTextColor, labelTextSize, theme }) => `
     background: ${
       getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
         ? getCustomBackgroundColor(buttonVariant, buttonColor)
@@ -101,6 +102,10 @@ const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
     border-color: var(--wds-color-border-disabled) !important;
 
     > span {
+      color: var(--wds-color-text-disabled) !important;
+    }
+
+    .bp3-icon {
       color: var(--wds-color-text-disabled) !important;
     }
   }
@@ -125,10 +130,28 @@ const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
     line-height: normal;
 
     color: ${
-      buttonVariant === ButtonVariantTypes.PRIMARY
+      labelTextColor ||
+      (buttonVariant === ButtonVariantTypes.PRIMARY
         ? getComplementaryGrayscaleColor(buttonColor)
-        : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
+        : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor))
     } !important;
+    font-size: ${labelTextSize ?? "inherit"};
+    font-weight: ${
+      labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "inherit"
+    };
+    font-style: ${
+      labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : "normal"
+    };
+  }
+
+  ${
+    labelTextColor
+      ? `
+    .bp3-icon {
+      color: ${labelTextColor} !important;
+    }
+  `
+      : ""
   }
 `}
 
@@ -154,6 +177,9 @@ export const StyledButton = styled((props) => (
       "boxShadowColor",
       "buttonColor",
       "buttonVariant",
+      "labelStyle",
+      "labelTextColor",
+      "labelTextSize",
       "primaryColor",
       "navColorStyle",
       "variant",
@@ -178,6 +204,9 @@ export interface ButtonStyleProps {
   maxWidth?: number;
   minWidth?: number;
   minHeight?: number;
+  labelTextColor?: string;
+  labelTextSize?: string;
+  labelStyle?: string;
 }
 
 // To be used in any other part of the app
@@ -193,6 +222,9 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
     icon,
     iconAlign,
     iconName,
+    labelStyle,
+    labelTextColor,
+    labelTextSize,
     loading,
     maxWidth,
     minHeight,
@@ -230,6 +262,9 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
         disabled={disabled}
         fill
         icon={isRightAlign ? icon : iconName || icon}
+        labelStyle={labelStyle}
+        labelTextColor={labelTextColor}
+        labelTextSize={labelTextSize}
         loading={loading}
         onClick={onClick}
         placement={placement}
@@ -261,7 +296,9 @@ interface RecaptchaProps {
   recaptchaType?: RecaptchaType;
 }
 
-interface ButtonComponentProps extends ComponentProps {
+interface ButtonComponentProps
+  extends ComponentProps,
+    Pick<ButtonStyleProps, "labelTextColor" | "labelTextSize" | "labelStyle"> {
   text?: string;
   icon?: IconName | MaybeElement;
   tooltip?: string;
@@ -492,6 +529,9 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
         icon={props.icon}
         iconAlign={props.iconAlign}
         iconName={props.iconName}
+        labelStyle={props.labelStyle}
+        labelTextColor={props.labelTextColor}
+        labelTextSize={props.labelTextSize}
         loading={props.isLoading}
         maxWidth={props.maxWidth}
         minHeight={props.minHeight}
