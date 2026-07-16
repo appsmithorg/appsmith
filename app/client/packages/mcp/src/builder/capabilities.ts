@@ -247,6 +247,12 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
       gate: "always",
       summary: "publish state + revision",
     },
+    {
+      name: "read_git_status",
+      gate: "always",
+      summary:
+        "safe git status projection (branch, clean/dirty + modified-entity counts, protected branches, remote host only; compareRemote opt-in for ahead/behind)",
+    },
     // Governed mutations + audit/rollback + publish (require Mongo+Redis governance).
     {
       name: "update_theme",
@@ -309,6 +315,24 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
       name: "confirm_publish",
       gate: "governance",
       summary: "re-deploy an existing app with a token",
+    },
+    {
+      name: "create_branch",
+      gate: "governance",
+      summary:
+        "create an agent git branch under the reserved mcp/ namespace — PUSHES the new ref to the remote and returns the NEW branched applicationId (governed)",
+    },
+    {
+      name: "prepare_commit",
+      gate: "governance",
+      summary:
+        "prepare a git commit on an mcp/ agent branch: one-time confirmation bound to the app, branch, message, and content revision — the commit API always PUSHES to the remote (governed)",
+    },
+    {
+      name: "confirm_commit",
+      gate: "governance",
+      summary:
+        "commit AND PUSH with a confirmation token after a fresh mcp/-branch re-check; prompts the user for approval via elicitation when the client supports it (governed)",
     },
     // Data layer (APPSMITH_MCP_DATA_ENABLED).
     { name: "list_datasources", gate: "data", summary: "discover datasources" },
@@ -441,7 +465,7 @@ const GATE_REQUIREMENTS: Record<
     // Publish-on-create is NOT gated here: build_application auto-deploys the app it just created on every
     // deployment. Governance gates RE-publishing existing apps (prepare_publish/confirm_publish).
     provides:
-      "governed edits, page create/delete, re-publish of existing apps (new apps auto-deploy on creation), audit history, rollback",
+      "governed edits, page create/delete, re-publish of existing apps (new apps auto-deploy on creation), agent git branches (create_branch), git commits on mcp/ branches (prepare_commit/confirm_commit), audit history, rollback",
   },
   data: {
     requires:
@@ -561,12 +585,12 @@ export function getCapabilities(
       note: "CE workflow tools are not available via MCP.",
     },
     gitSync: {
-      available: false,
-      note: "Git sync is Appsmith platform functionality and is out of MCP scope.",
+      available: true,
+      note: "read_git_status (always on) reads a safe git status projection. Every mutation on a git-connected app REQUIRES a 'branch' parameter equal to the target app's current branch (fail-closed; the error carries the current branch). create_branch (governed) creates an agent branch under the reserved mcp/ namespace — it PUSHES the new ref to the remote and returns the NEW branched applicationId to edit (branch-per-application; no checkout). prepare_commit/confirm_commit (governed) commit AND PUSH — allowed ONLY on mcp/ agent branches (verified by a fresh read at confirm time), with the user's approval (an elicitation prompt when the client supports it; otherwise you must relay the prepare_commit text and get approval first). Publishing from MCP stays disabled for git apps: the deliverable is the mcp/ branch + its review URL, which the user merges via Appsmith's branch UI or a PR on the remote. See appsmith://guide/git.",
     },
     resources: [
       "appsmith://reference/widgets — the widget catalog as a resource",
-      "appsmith://guide/{placement,naming,bindings} — technique guides",
+      "appsmith://guide/{placement,naming,bindings,git} — technique guides",
       "appsmith://recipe/{crud,form,table-detail,zip-lookup} — end-to-end build walkthroughs",
     ],
     prompts: [

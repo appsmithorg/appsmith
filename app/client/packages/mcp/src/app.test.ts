@@ -312,8 +312,14 @@ function createApi(
     createDatasource: jest.fn(),
     getDatasourceStructure: jest.fn(),
     getApplicationPages: jest.fn(async () => ({ workspaceId: "ws1" })),
-    // Default: a non-git application (no gitApplicationMetadata) so layout-edit tests see no git warning.
+    // Default: a non-git application (no gitApplicationMetadata) so layout-edit tests see no git warning and the
+    // M7 branch gate passes without a branch parameter.
     getApplication: jest.fn(async () => ({})),
+    getGitStatus: jest.fn(async () => ({})),
+    getGitProtectedBranches: jest.fn(async () => []),
+    listGitBranches: jest.fn(async () => []),
+    createGitBranch: jest.fn(async () => ({})),
+    commitGitApplication: jest.fn(async () => ({})),
     listActions: jest.fn(),
     createAction: jest.fn(),
     getAction: jest.fn(),
@@ -1522,6 +1528,7 @@ describe("MCP instruction surface (M2)", () => {
     expect(uris).toEqual(
       [
         "appsmith://guide/bindings",
+        "appsmith://guide/git",
         "appsmith://guide/naming",
         "appsmith://guide/placement",
         "appsmith://recipe/crud",
@@ -4195,7 +4202,7 @@ describe("governance-wrapped layout mutations", () => {
     },
   };
 
-  it("patch_widgets warns (and still proceeds) on a git-connected app, naming the branch", async () => {
+  it("patch_widgets on a git-connected app requires the branch parameter (M7 gate) and then proceeds with the warning", async () => {
     const updateLayout = jest.fn<
       Promise<{ ok: boolean }>,
       [string, string, string, Record<string, unknown>]
@@ -4211,7 +4218,7 @@ describe("governance-wrapped layout mutations", () => {
       updateLayout,
     };
     const server = createMcpHttpServer(API_BASE_URL, () => api);
-    const patched = await callTool(server, "patch_widgets", {
+    const args = {
       applicationId: "app1",
       pageId: "p1",
       layoutId: "l1",
@@ -4221,9 +4228,21 @@ describe("governance-wrapped layout mutations", () => {
           { kind: "update", name: "Greeting", props: { text: "Welcome" } },
         ],
       },
+    };
+
+    // M7 BREAKING behavior: without a branch the mutation is refused, carrying the current branch for retry.
+    const gated = await callTool(server, "patch_widgets", args);
+
+    expect(gated.body.code).toBe("git_branch_required");
+    expect(gated.body.currentBranch).toBe("feature/x");
+    expect(updateLayout).not.toHaveBeenCalled();
+
+    // With the matching branch it proceeds (write happened) and still carries the branch-named warning.
+    const patched = await callTool(server, "patch_widgets", {
+      ...args,
+      branch: "feature/x",
     });
 
-    // Proceeds (write happened) but carries a branch-named warning.
     expect(updateLayout).toHaveBeenCalled();
     expect(patched.body.changes).toBeDefined();
     expect(patched.body.gitWarning).toContain("feature/x");

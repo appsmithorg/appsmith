@@ -215,6 +215,69 @@ describe("M6 canvas awareness — docs stay in sync with the vocabulary", () => 
   });
 });
 
+describe("M7 git awareness — docs stay in sync with the tools", () => {
+  it("ships a git guide teaching status-first, the mcp/ namespace, push honesty, and cleanup", () => {
+    const guide = GUIDES.find((doc) => doc.slug === "git")!;
+    const body = guide.render();
+
+    // Status first, then the branch gate.
+    expect(body).toContain("read_git_status");
+    expect(body).toContain("branch");
+    // Agent branches: reserved namespace + the push ground truth + the new applicationId pivot.
+    expect(body).toContain("create_branch");
+    expect(body).toContain("mcp/");
+    expect(body).toContain("RESERVED");
+    expect(body).toContain("PUSHES");
+    expect(body).toContain("NEW applicationId");
+    // Dirty-source and behind-remote teaching.
+    expect(body).toContain("uncommitted changes you did not make");
+    expect(body).toContain("behindCount");
+    expect(body).toContain("MCP cannot pull");
+    // Cleanup story: humans delete stale mcp/ branches; cap 5.
+    expect(body).toContain("agents never delete branches");
+    expect(body).toContain("branch UI");
+    expect(body).toContain("5");
+  });
+
+  it("teaches the git workflow in SERVER_INSTRUCTIONS (gate, mcp/ branches, push, new applicationId)", () => {
+    expect(SERVER_INSTRUCTIONS).toContain("read_git_status");
+    expect(SERVER_INSTRUCTIONS).toContain("create_branch");
+    expect(SERVER_INSTRUCTIONS).toContain("'branch' parameter");
+    expect(SERVER_INSTRUCTIONS).toContain("mcp/");
+    expect(SERVER_INSTRUCTIONS).toContain("PUSHES");
+    expect(SERVER_INSTRUCTIONS).toContain("NEW applicationId");
+  });
+
+  it("lists both git tools in TOOL_CATALOG under the ruled gates (status always-on, branch creation governed)", () => {
+    const status = TOOL_CATALOG.find(
+      (tool) => tool.name === "read_git_status",
+    )!;
+    const branch = TOOL_CATALOG.find((tool) => tool.name === "create_branch")!;
+
+    expect(status.gate).toBe("always");
+    expect(branch.gate).toBe("governance");
+    // The catalog copy carries the load-bearing facts agents skim for.
+    expect(branch.summary).toContain("mcp/");
+    expect(branch.summary).toContain("PUSHES");
+    expect(branch.summary).toContain("applicationId");
+  });
+
+  it("get_capabilities gitSync copy reflects the gate and the reserved namespace", () => {
+    const caps = getCapabilities({ data: true, js: true, governance: true });
+    const gitSync = caps.gitSync as { available: boolean; note: string };
+
+    expect(gitSync.available).toBe(true);
+    expect(gitSync.note).toContain("read_git_status");
+    expect(gitSync.note).toContain("create_branch");
+    expect(gitSync.note).toContain("branch");
+    expect(gitSync.note).toContain("mcp/");
+    // T3 made committing available (mcp/-only, elicitation-confirmed); publishing stays disabled for git apps —
+    // the human merges the branch via Appsmith's branch UI or a PR.
+    expect(gitSync.note).toContain("Publishing from MCP stays disabled");
+    expect(gitSync.note).toContain("branch UI");
+  });
+});
+
 describe("prompt field parsing", () => {
   it("parses name:type pairs and normalizes types", () => {
     expect(parseFields("name:TEXT, email:EMAIL, age:NUMBER")).toEqual([

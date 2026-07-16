@@ -142,6 +142,51 @@ evaluated as code in a viewer's browser.
     the next browser user): results reset on reload. See appsmith://recipe/zip-lookup for the
     full worked example.`;
 
+const GUIDE_GIT = `# Git-connected applications guide
+
+Appsmith models every git branch as its OWN application document (branch-per-application). There
+is no checkout: an applicationId is permanently pinned to one branch, and working on another
+branch means targeting a DIFFERENT applicationId. The human's editor view is never affected by
+agent branch work.
+
+Workflow:
+
+1. \`read_git_status\` on the target application FIRST. Note \`branchName\` (mutations require it),
+   whether the working state is dirty, and the protected branches.
+2. Dirty check: if the status shows uncommitted changes you did not make, STOP and tell the
+   user before editing or branching — branching from a dirty source carries their uncommitted
+   work onto the new branch too, and the source branch stays dirty.
+3. Behind the remote: pass \`compareRemote: true\` to fetch \`aheadCount\`/\`behindCount\` (this
+   contacts the remote, so it is opt-in). If \`behindCount\` > 0, suggest the user pulls the
+   latest changes in Appsmith's git UI first — MCP cannot pull.
+4. Create your own branch with \`create_branch\` (governed): the name MUST start with \`mcp/\`
+   (remainder: 1-60 characters of A-Za-z0-9_-). \`mcp/*\` is the RESERVED agent namespace — keep
+   human branches out of it. Creating the branch PUSHES the new ref to the customer's git
+   remote immediately, so remote CI/webhooks watching branch pushes will run.
+5. Edit the NEW applicationId: the \`create_branch\` result carries the branched applicationId.
+   ALL subsequent reads, edits, and events for this branch target that id, passing
+   \`branch: "mcp/<x>"\`. The original applicationId still points at its own branch.
+6. Every mutation on a git-connected app requires \`branch\` equal to the target app's current
+   branch. A missing or mismatched value fails with the current branch in the error, so
+   recovery is a single retry.
+7. Commit with \`prepare_commit\` -> \`confirm_commit\` (governed). The commit API always PUSHES to
+   the customer's git remote — there is no commit-without-push — so committing is allowed ONLY
+   on \`mcp/\` agent branches (re-verified with a fresh read at confirm time; any other branch
+   fails with \`git_commit_branch_forbidden\`). The message is one printable line (max 200
+   characters, must not start with \`[\`); the server prepends a non-strippable \`[mcp] \` marker.
+   The human approves the commit: on elicitation-capable clients \`confirm_commit\` prompts them
+   directly (only an explicit accept proceeds; at most 3 prompts per confirmation); on other
+   clients you MUST show the user the \`relay\` text from \`prepare_commit\` and get their approval
+   before confirming.
+8. The handoff for a git app is the BRANCH, not a viewerUrl — publishing from MCP stays
+   disabled for git apps. Hand the user the branch name and the branch-scoped editor URL from
+   the \`confirm_commit\` result: they review on the branch, merge via Appsmith's branch UI or a
+   pull request on the remote, then delete the \`mcp/\` branch.
+
+Cleanup: agents never delete branches. At most 5 \`mcp/\` branches exist per application — at the
+cap, reuse a branch you created earlier in the session, or ask the user to delete stale \`mcp/\`
+branches via Appsmith's branch UI.`;
+
 export const GUIDES: InstructionDoc[] = [
   {
     slug: "placement",
@@ -161,6 +206,13 @@ export const GUIDES: InstructionDoc[] = [
     title: "Data & bindings guide",
     description: "Why raw expressions are rejected and how data binding works.",
     render: () => GUIDE_BINDINGS,
+  },
+  {
+    slug: "git",
+    title: "Git-connected applications guide",
+    description:
+      "Status-first workflow, the branch gate, agent mcp/ branches, and cleanup for git-connected apps.",
+    render: () => GUIDE_GIT,
   },
 ];
 
@@ -391,6 +443,8 @@ Recommended workflow for a production-quality app:
 4. Inspect and refine with read_semantic_page / inspect_page, then patch_widgets: bind a table's data, a text/image/input to the selected row (source / imageSource / defaultValue), toggle table search/filter/sort/pagination, set row striping, add input validation, disable a button while an input is invalid, and move/reparent/remove widgets. To switch between views (e.g. a table and a detail panel) with one control, gate each view's visibility on a select/tabs control (visibleWhen). Append new widgets with edit_page.
 5. Wire behavior: wire_event connects button onClick / table onRowSelected / modal onClose / tabs onTabSelected to run a query (with onSuccess/onError chains), navigate, show/close a modal, show an alert, reset widgets (a Clear button), or accumulate query rows in the Appsmith store (appendToStore / clearStoreKey — bind a table to the key with a store source/tableData for a results table that grows with each run; rows are session-only). The action may also be an ordered list of 2-5 statements (at most one run).
 6. Add JS logic (if listed): create_js_object for restricted, declarative JS objects.
-7. Ship it LAST: finish wiring queries and events first — the copy auto-deployed at creation is a scaffold that goes stale as you edit. Then re-publish with prepare_publish -> confirm_publish (governed) and hand the user the viewerUrl as the final step. On deployments without governance, re-publishing is unavailable: relay the editorUrl from build_application plus the governance group's 'requires' instruction from get_capabilities instead of promising an up-to-date viewer link.
+7. Ship it LAST: finish wiring queries and events first — the copy auto-deployed at creation is a scaffold that goes stale as you edit. Then re-publish with prepare_publish -> confirm_publish (governed) and hand the user the viewerUrl as the final step. On deployments without governance, re-publishing is unavailable: relay the editorUrl from build_application plus the governance group's 'requires' instruction from get_capabilities instead of promising an up-to-date viewer link. GIT-APP CARVE-OUT: for a git-connected app the final deliverable is the mcp/ branch plus its branch-scoped review URL from confirm_commit, NOT a viewerUrl — publish refuses git apps.
+
+Git-connected applications: call read_git_status BEFORE mutating one — every mutation on a git-connected app requires a 'branch' parameter equal to the target app's current branch (a missing or stale value fails with the current branch in the error, so retry once with it). Prefer creating your own agent branch with create_branch (governed; the name must start with the reserved 'mcp/' prefix): it PUSHES the new ref to the customer's git remote and returns a NEW applicationId — do ALL further edits against that new id with 'branch' set to the new branch name (Appsmith has no checkout; each branch is its own applicationId, and the human's editor view is unaffected). If read_git_status shows uncommitted changes you did not make, tell the user before branching or editing; if a remote compare shows the branch behind, suggest the user pulls in Appsmith first (MCP cannot pull). Commit your work with prepare_commit -> confirm_commit (governed): the commit API always PUSHES to the remote, so it is allowed ONLY on mcp/ branches, and the human must approve — confirm_commit prompts them directly on elicitation-capable clients (only an explicit accept proceeds), otherwise show the user prepare_commit's relay text and get approval before confirming. Publishing from MCP stays disabled for git apps — the deliverable is the mcp/ branch plus the branch-scoped review URL from confirm_commit (never a viewerUrl); the user merges via Appsmith's branch UI or a PR on the remote, then deletes the branch. At most 5 mcp/ branches per app: reuse yours; humans delete stale ones in Appsmith's branch UI. Full workflow: the appsmith://guide/git resource.
 
 Read the appsmith://reference/widgets resource and appsmith://recipe/* walkthroughs for details. Prefer editing an existing app iteratively (read -> patch -> re-read) over rebuilding.`;

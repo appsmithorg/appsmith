@@ -135,6 +135,9 @@ export interface ServerContext {
   // session at initialize (handlers never see raw requests): options.publicOrigin, else strictly validated
   // X-Forwarded-Proto + Host headers, else undefined — which degrades every constructed URL to a root-relative path.
   requestOrigin?: string;
+  // How long confirm_commit waits for the human to answer the elicitation prompt (default
+  // MCP_COMMIT_ELICITATION_TIMEOUT_MS). Injectable so tests don't wait 120s for the timeout path.
+  commitElicitationTimeoutMs?: number;
 }
 
 // A page is the lock/audit entity for layout, page-metadata, and event mutations.
@@ -195,6 +198,9 @@ export const MAX_MCP_SESSIONS = 100;
 export const MAX_MCP_SESSIONS_PER_USER = 25;
 export const MCP_SESSION_TTL_MS = 15 * 60 * 1000;
 export const REQUEST_TIMEOUT_MS = 30 * 1000;
+// The git commit API exports the whole application, commits, AND pushes — on large apps that comfortably exceeds
+// the default 30s outbound abort, so the commit call alone gets a longer budget [COUNCIL: architect].
+export const GIT_COMMIT_TIMEOUT_MS = 120 * 1000;
 export const HEADERS_TIMEOUT_MS = 10 * 1000;
 export const MAX_INBOUND_CONNECTIONS = 512;
 const MCP_TOKEN_PREFIX = "mcp_";
@@ -204,6 +210,16 @@ const idSchema = z
   .min(1)
   .max(MAX_ID_LENGTH)
   .regex(/^[A-Za-z0-9_-]+$/);
+// The M7-T1 branch-gate parameter carried by every mutating tool that targets an application. Deliberately loose
+// (git branch names allow '/', '.', …): it is only ever compared for equality against the server-side branch name,
+// never embedded in a path or emitted content.
+const gitBranchParamSchema = z
+  .string()
+  .min(1)
+  .max(255)
+  .describe(
+    "REQUIRED when the target application is connected to git: the app's current branch name (from read_git_status). Ignored for non-git apps.",
+  );
 const artifactSchema = z.record(z.unknown()).superRefine((artifact, ctx) => {
   try {
     serializeArtifact(artifact);
@@ -220,6 +236,25 @@ interface ApiResponse<T> {
   data: T;
   responseMeta?: { success?: boolean };
 }
+
+// Upstream Appsmith API failure carrying the HTTP status and — when the error body was parseable — the Appsmith
+// error code (e.g. "AE-GIT-4031" for INVALID_GIT_CONFIGURATION), so tool handlers can map specific upstream
+// failures to agent-legible errors without ever forwarding the raw response body.
+export class AppsmithApiError extends Error {
+  constructor(
+    readonly status: number,
+    readonly errorCode?: string,
+  ) {
+    super(
+      `Appsmith API request failed (${status})${errorCode !== undefined ? ` [${errorCode}]` : ""}`,
+    );
+    this.name = "AppsmithApiError";
+  }
+}
+
+// AppsmithErrorCode.INVALID_GIT_CONFIGURATION — the commit path returns this when the caller has no git author
+// profile configured (and for other broken git configs). Verified against AppsmithErrorCode.java.
+const INVALID_GIT_CONFIGURATION_CODE = "AE-GIT-4031";
 
 export interface AppsmithApi {
   getApplicationContext: (
@@ -252,6 +287,33 @@ export interface AppsmithApi {
   // Fetches the application document, whose gitApplicationMetadata reveals whether the app is connected to git and
   // which branch is checked out — used to guard mutations/publish on git-connected apps.
   getApplication: (applicationId: string) => Promise<unknown>;
+  // --- Git (M7) — wrappers over /api/v1/git/applications/* (GitApplicationControllerCE). ---
+  // Local git status of a branched application. compareRemote is ALWAYS passed explicitly because the server
+  // defaults the query param to true (a remote fetch: slow, remote egress, git locks); the MCP default is false.
+  getGitStatus: (
+    branchedApplicationId: string,
+    compareRemote: boolean,
+  ) => Promise<unknown>;
+  // Protected branch names, stored on the BASE artifact (gitApplicationMetadata.defaultApplicationId).
+  getGitProtectedBranches: (baseArtifactId: string) => Promise<unknown>;
+  // Branch list (GET .../refs?refType=branch) — enforces the mcp/ branch cap for create_branch.
+  listGitBranches: (branchedApplicationId: string) => Promise<unknown>;
+  // POST .../create-ref: creates a new branch application from the source branched application's CURRENT
+  // (possibly uncommitted) state and PUSHES the new ref to the customer remote immediately (remote egress; can
+  // trigger remote CI/webhooks). Returns the NEW branched application document.
+  createGitBranch: (
+    referencedApplicationId: string,
+    branchName: string,
+  ) => Promise<unknown>;
+  // POST .../commit (GitApplicationControllerCE.commit, CommitDTO body): commits the branched application's CURRENT
+  // state AND PUSHES to the customer remote (GitFSServiceCEImpl.commitArtifact pushes unconditionally — there is no
+  // commit-without-push). The wire body carries ONLY { message, isAmendCommit: false }: CommitDTO.author/committer
+  // are never sent (identity derives from the session user server-side) and amend is pinned off (append-only).
+  // Uses the longer GIT_COMMIT_TIMEOUT_MS outbound budget (export + commit + push on large apps).
+  commitGitApplication: (
+    branchedApplicationId: string,
+    message: string,
+  ) => Promise<unknown>;
   listActions: (applicationId: string) => Promise<unknown>;
   createAction: (action: Record<string, unknown>) => Promise<unknown>;
   getAction: (applicationId: string, actionId: string) => Promise<unknown>;
@@ -377,12 +439,20 @@ export function createAppsmithApi(
   // without a valid marker is rejected 401). Caddy strips any inbound copy of this header on ingress.
   const internalMarker = process.env.APPSMITH_MCP_INTERNAL_SECRET;
 
-  async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  async function request<T>(
+    path: string,
+    init?: RequestInit,
+    opts?: { timeoutMs?: number; extractErrorCode?: boolean },
+  ): Promise<T> {
     const isMultipart = init?.body instanceof FormData;
     // Bound every upstream call so a hung Appsmith response cannot pin an MCP worker indefinitely. Preserve a
-    // caller-supplied signal when present; otherwise abort on our own timeout.
+    // caller-supplied signal when present; otherwise abort on our own timeout (default 30s; the git commit call
+    // passes a longer budget because it exports + commits + pushes).
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    const timeout = setTimeout(
+      () => controller.abort(),
+      opts?.timeoutMs ?? REQUEST_TIMEOUT_MS,
+    );
 
     try {
       const response = await fetchFn(`${apiBaseUrl}${path}`, {
@@ -406,6 +476,26 @@ export function createAppsmithApi(
       });
 
       if (!response.ok) {
+        // Opt-in only: callers that need to map a SPECIFIC upstream failure (e.g. the commit path's
+        // INVALID_GIT_CONFIGURATION) get the Appsmith error code off the error body. The default path is
+        // unchanged — status only, body never read.
+        if (opts?.extractErrorCode === true) {
+          let errorCode: string | undefined;
+
+          try {
+            const errorBody = (await response.json()) as {
+              responseMeta?: { error?: { code?: unknown } };
+            } | null;
+            const code = errorBody?.responseMeta?.error?.code;
+
+            errorCode = typeof code === "string" ? code : undefined;
+          } catch {
+            // Unparseable error body: fall through with the status only.
+          }
+
+          throw new AppsmithApiError(response.status, errorCode);
+        }
+
         throw new Error(`Appsmith API request failed (${response.status})`);
       }
 
@@ -484,6 +574,40 @@ export function createAppsmithApi(
       ),
     getApplication: async (applicationId) =>
       request(`/api/v1/applications/${encodeURIComponent(applicationId)}`),
+    getGitStatus: async (branchedApplicationId, compareRemote) =>
+      request(
+        `/api/v1/git/applications/${encodeURIComponent(branchedApplicationId)}/status?compareRemote=${compareRemote ? "true" : "false"}`,
+      ),
+    getGitProtectedBranches: async (baseArtifactId) =>
+      request(
+        `/api/v1/git/applications/${encodeURIComponent(baseArtifactId)}/protected-branches`,
+      ),
+    listGitBranches: async (branchedApplicationId) =>
+      request(
+        `/api/v1/git/applications/${encodeURIComponent(branchedApplicationId)}/refs?refType=branch`,
+      ),
+    createGitBranch: async (referencedApplicationId, branchName) =>
+      request(
+        `/api/v1/git/applications/${encodeURIComponent(referencedApplicationId)}/create-ref`,
+        {
+          method: "POST",
+          // RefType enum constants are lowercase on the server ("branch" | "tag").
+          body: JSON.stringify({ refName: branchName, refType: "branch" }),
+        },
+      ),
+    commitGitApplication: async (branchedApplicationId, message) =>
+      request(
+        `/api/v1/git/applications/${encodeURIComponent(branchedApplicationId)}/commit`,
+        {
+          method: "POST",
+          // CommitDTO (verified against CommitDTO.java): { message, header, isAmendCommit, author, committer }.
+          // Send ONLY message + isAmendCommit pinned false — author/committer/header must never cross the wire
+          // (identity always derives from the session user server-side) [COUNCIL: security F5].
+          body: JSON.stringify({ message, isAmendCommit: false }),
+        },
+        // Longer outbound budget + error-code extraction for the INVALID_GIT_CONFIGURATION mapping.
+        { timeoutMs: GIT_COMMIT_TIMEOUT_MS, extractErrorCode: true },
+      ),
     listActions: async (applicationId) =>
       request(
         `/api/v1/actions?applicationId=${encodeURIComponent(applicationId)}`,
@@ -864,6 +988,151 @@ function fingerprintPages(response: unknown): string {
     .digest("hex");
 }
 
+// The application's display name off an ApplicationPagesDTO read (used in commit confirmation prompts).
+function applicationNameOf(pagesResponse: unknown): string | undefined {
+  const name = (pagesResponse as { application?: { name?: unknown } } | null)
+    ?.application?.name;
+
+  return typeof name === "string" && name.length > 0 ? name : undefined;
+}
+
+// Adapt an ApplicationPagesDTO (GET /pages?applicationId=...) into the applicationUrls inputs so tools that already
+// hold a pages read (confirm_commit) can build the editor URL without a second fetch. Same charset rules: missing
+// or unsafe slugs OMIT the URL, never guess.
+function applicationUrlsFromPages(
+  origin: string | undefined,
+  pagesResponse: unknown,
+): { editorUrl?: string; viewerUrl?: string } {
+  const application = (
+    pagesResponse as { application?: { slug?: unknown } } | null
+  )?.application;
+  const slug =
+    typeof application?.slug === "string" && application.slug.length > 0
+      ? application.slug
+      : undefined;
+  const rawPages = (pagesResponse as { pages?: unknown } | null)?.pages;
+  const pages: ImportedPage[] = Array.isArray(rawPages)
+    ? rawPages.flatMap((page) => {
+        const entry = page as {
+          id?: unknown;
+          slug?: unknown;
+          isDefault?: unknown;
+        } | null;
+
+        if (typeof entry?.id !== "string" || entry.id.length === 0) return [];
+
+        return [
+          {
+            id: entry.id,
+            ...(typeof entry.slug === "string" && entry.slug.length > 0
+              ? { slug: entry.slug }
+              : {}),
+            ...(typeof entry.isDefault === "boolean"
+              ? { isDefault: entry.isDefault }
+              : {}),
+          },
+        ];
+      })
+    : [];
+
+  return applicationUrls(origin, slug, pages);
+}
+
+// --- M7-T3 commit message hygiene [COUNCIL: security F4 + rev-2 condition 3] -------------------------------------
+
+export const MCP_COMMIT_MESSAGE_MAX = 200;
+// The server-side (MCP) marker prepended to every commit message at commit time. Non-strippable: messages that
+// begin with "[" are rejected, so agent text can never impersonate or absorb the marker.
+export const MCP_COMMIT_MARKER = "[mcp] ";
+// safeText rules (matching schema.ts's RAW_EXPRESSION, same escaped-code-point style): no binding/template
+// syntax and no U+2028/U+2029 line separators.
+const COMMIT_TEMPLATE_SYNTAX =
+  /\u007b\u007b|\u007d\u007d|\$\u007b|`|\u2028|\u2029/;
+
+// Explicit code-point scan (kept regex-free so no control characters — literal or escaped — live in a pattern):
+// - C0 controls U+0000-U+001F (a multiline message falls here via \n) and DEL U+007F: the message must be ONE
+//   printable line;
+// - Unicode bidi/format controls U+202A-U+202E (embeddings/overrides) and U+2066-U+2069 (isolates): rejected so
+//   agent text cannot visually reorder the load-bearing facts in git UIs or the approval prompt
+//   [SECURITY REV-2 CONDITION 3].
+function commitCharProblem(message: string): string | undefined {
+  for (const char of message) {
+    const code = char.codePointAt(0) ?? 0;
+
+    if (code <= 0x1f || code === 0x7f) {
+      return "the commit message must be a single line of printable characters (no control characters)";
+    }
+
+    if (
+      (code >= 0x202a && code <= 0x202e) ||
+      (code >= 0x2066 && code <= 0x2069)
+    ) {
+      return "the commit message must not contain Unicode bidirectional/format control characters";
+    }
+  }
+
+  return undefined;
+}
+
+// Returns a human-readable problem for an invalid commit message, or undefined when it passes every rule.
+export function commitMessageProblem(message: string): string | undefined {
+  if (message.length === 0) return "the commit message must not be empty";
+
+  if (message.length > MCP_COMMIT_MESSAGE_MAX) {
+    return `the commit message must be at most ${MCP_COMMIT_MESSAGE_MAX} characters`;
+  }
+
+  if (message.startsWith("[")) {
+    return `the commit message must not start with "[" (the server prepends a non-strippable "${MCP_COMMIT_MARKER.trim()} " marker)`;
+  }
+
+  const charProblem = commitCharProblem(message);
+
+  if (charProblem !== undefined) return charProblem;
+
+  if (COMMIT_TEMPLATE_SYNTAX.test(message)) {
+    return "the commit message must not contain binding/template syntax ({{ }}, ${ }, or backticks) or line separators";
+  }
+
+  return undefined;
+}
+
+function truncateForPrompt(text: string, max: number): string {
+  return text.length > max ? `${text.slice(0, max)}…` : text;
+}
+
+// Everything interpolated into a human-facing approval prompt passes through here: C0 controls/DEL and bidi/format
+// controls are stripped (an app can be RENAMED outside MCP with hostile characters — the commit message is already
+// hygiene-rejected, but names/branches are not under our control) and double quotes are replaced so interpolated
+// text cannot visually escape its quoted position in the prompt (M7 security code review, concerns 2–3).
+function promptSafe(text: string): string {
+  let cleaned = "";
+
+  for (const ch of text) {
+    const code = ch.codePointAt(0) ?? 0;
+
+    if (code <= 0x1f || code === 0x7f) continue;
+
+    if (
+      (code >= 0x202a && code <= 0x202e) ||
+      (code >= 0x2066 && code <= 0x2069)
+    )
+      continue;
+
+    cleaned += ch === '"' ? "'" : ch;
+  }
+
+  return cleaned;
+}
+
+// Explicit elicitInput timeout: the human may deliberate, so the wait is 120s (with progress notifications during
+// the wait so timeout-resetting clients don't abort the tool call underneath the prompt) [COUNCIL: architect].
+export const MCP_COMMIT_ELICITATION_TIMEOUT_MS = 120 * 1000;
+// Bound re-prompting: non-accept answers do NOT consume the one-time confirmation, so at most this many elicitation
+// prompts per confirmationId — then the token is invalidated (prompt-fatigue guard) [SECURITY REV-2 CONDITION 2].
+export const MCP_COMMIT_MAX_ELICITATIONS = 3;
+const COMMIT_ELICITATION_PROGRESS_INTERVAL_MS = 10 * 1000;
+
 // The import endpoint returns an ApplicationImportDTO ({ application, isPartialImport, ... }); tolerate a bare
 // application object too (older shapes/fixtures). Extracts exactly what URL construction and auto-publish need:
 // the application id/slug and each page's id/slug/isDefault. Nothing else from the response is interpreted.
@@ -1042,8 +1311,9 @@ function isReadOnlyAction(action: unknown): boolean {
 
 // Git-connection state of an application, read from its gitApplicationMetadata. When an app is connected to git, MCP
 // edits land as UNCOMMITTED changes on the checked-out branch and confirm_publish would deploy that uncommitted
-// state. So publish is refused and mutating edits carry a warning naming the branch (M1-T3).
-interface GitState {
+// state. So publish is refused, mutating edits carry a warning naming the branch (M1-T3), and — since M7-T1 — every
+// mutation on a git-connected app must pass a `branch` parameter equal to that branch (the branch gate).
+export interface GitState {
   connected: boolean;
   branchName?: string;
 }
@@ -1070,7 +1340,8 @@ function gitStateOf(application: unknown): GitState {
 }
 
 // Fetches the application and returns its git state. Fails safe to "not connected" on a read error so a transient
-// failure never blocks a legitimate edit; confirm_publish re-reads explicitly before the high-impact deploy.
+// failure never blocks a legitimate read; the M7 branch GATE never uses this (it fails closed instead), and
+// confirm_publish re-reads explicitly before the high-impact deploy.
 async function fetchGitState(
   api: AppsmithApi,
   applicationId: string,
@@ -1079,6 +1350,192 @@ async function fetchGitState(
     return gitStateOf(await api.getApplication(applicationId));
   } catch {
     return { connected: false };
+  }
+}
+
+// Extended — still whitelisted — git metadata projection for read_git_status: adds the default branch, the BASE
+// application id (needed for protected-branches), and the remote HOST only. Never gitAuth/keys or the full remote URL.
+interface GitMetadataProjection extends GitState {
+  defaultBranchName?: string;
+  baseApplicationId?: string;
+  remoteHost?: string;
+}
+
+// The HOST of the git remote, and nothing else. Whitelist egress guard: a full remote URL can carry credentials
+// (https://user:token@host/...) or internal path detail, so only the host survives into agent context. Handles
+// scp-like syntax (git@github.com:org/repo.git) and URL forms (ssh://, https://); unknown shapes -> undefined.
+function remoteHostOf(remoteUrl: unknown): string | undefined {
+  if (typeof remoteUrl !== "string" || remoteUrl.length === 0) {
+    return undefined;
+  }
+
+  const scpLike = /^[A-Za-z0-9._-]+@([A-Za-z0-9.-]+):/.exec(remoteUrl);
+
+  if (scpLike) return scpLike[1];
+
+  try {
+    const host = new URL(remoteUrl).hostname;
+
+    return host.length > 0 ? host : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function gitMetadataOf(application: unknown): GitMetadataProjection {
+  const base = gitStateOf(application);
+  const meta = (application as { gitApplicationMetadata?: unknown } | null)
+    ?.gitApplicationMetadata as
+    | {
+        defaultBranchName?: unknown;
+        defaultApplicationId?: unknown;
+        defaultArtifactId?: unknown;
+        remoteUrl?: unknown;
+      }
+    | null
+    | undefined;
+
+  if (!meta || !base.connected) return base;
+
+  const str = (value: unknown): string | undefined =>
+    typeof value === "string" && value.length > 0 ? value : undefined;
+
+  return {
+    ...base,
+    defaultBranchName: str(meta.defaultBranchName),
+    baseApplicationId:
+      str(meta.defaultArtifactId) ?? str(meta.defaultApplicationId),
+    remoteHost: remoteHostOf(meta.remoteUrl),
+  };
+}
+
+// One whitelisted modified-entity count per family from GitStatusDTO: the per-family sets (…Modified/…Added/…Removed)
+// serialize as arrays; older payloads only carry the deprecated numeric fields, so those are the fallback.
+function gitEntityCount(
+  status: Record<string, unknown>,
+  prefix: string,
+  deprecatedKey: string,
+): number | undefined {
+  const sets = [
+    status[`${prefix}Modified`],
+    status[`${prefix}Added`],
+    status[`${prefix}Removed`],
+  ].filter((value): value is unknown[] => Array.isArray(value));
+
+  if (sets.length > 0) {
+    return sets.reduce((total, set) => total + set.length, 0);
+  }
+
+  const deprecated = status[deprecatedKey];
+
+  return typeof deprecated === "number" ? deprecated : undefined;
+}
+
+// Whitelist projection of GET /git/applications/{id}/status: only clean/dirty, per-family modified-entity COUNTS
+// (never the entity/file name sets), and — only when the caller opted into the remote compare — ahead/behind. A
+// server-side DTO change can never leak new fields through this tool because nothing outside this fixed key set is
+// forwarded (same posture as projectDatasources).
+function projectGitStatus(
+  raw: unknown,
+  includeRemoteCounts: boolean,
+): Record<string, unknown> {
+  const status = (raw ?? {}) as Record<string, unknown>;
+  const isClean =
+    typeof status.isClean === "boolean" ? status.isClean : undefined;
+  const families: [key: string, prefix: string, deprecatedKey: string][] = [
+    ["pages", "pages", "modifiedPages"],
+    ["queries", "queries", "modifiedQueries"],
+    ["jsObjects", "jsObjects", "modifiedJSObjects"],
+    ["datasources", "datasources", "modifiedDatasources"],
+    ["jsLibs", "jsLibs", "modifiedJSLibs"],
+  ];
+  const modifiedEntityCounts: Record<string, number> = {};
+
+  for (const [key, prefix, deprecatedKey] of families) {
+    const count = gitEntityCount(status, prefix, deprecatedKey);
+
+    if (count !== undefined) modifiedEntityCounts[key] = count;
+  }
+
+  return {
+    ...(isClean !== undefined ? { isClean, isDirty: !isClean } : {}),
+    modifiedEntityCounts,
+    ...(includeRemoteCounts && typeof status.aheadCount === "number"
+      ? { aheadCount: status.aheadCount }
+      : {}),
+    ...(includeRemoteCounts && typeof status.behindCount === "number"
+      ? { behindCount: status.behindCount }
+      : {}),
+  };
+}
+
+// Branch names from GET .../refs (List<GitRefDTO>). Remote-tracking entries are normalized ("origin/mcp/x" counts
+// as "mcp/x") and deduplicated so the mcp/ cap counts BRANCHES, not listings.
+function gitBranchNames(refs: unknown): string[] {
+  if (!Array.isArray(refs)) return [];
+
+  const names = new Set<string>();
+
+  for (const ref of refs) {
+    const refName = (ref as { refName?: unknown } | null)?.refName;
+
+    if (typeof refName !== "string" || refName.length === 0) continue;
+
+    names.add(
+      refName.startsWith("origin/") ? refName.slice("origin/".length) : refName,
+    );
+  }
+
+  return [...names];
+}
+
+function fingerprintBranchList(names: string[]): string {
+  return createHash("sha256")
+    .update(canonicalStableSerialize([...names].sort()), "utf8")
+    .digest("hex");
+}
+
+// Short TTL for cached "not connected" gate reads: an app can become git-connected mid-session, so a stale
+// not-connected verdict must expire quickly.
+export const GIT_GATE_NOT_CONNECTED_TTL_MS = 30_000;
+
+// Per-session cache for the branch gate's git-state reads [SECURITY REV-2 CONDITION 1 — binding]:
+// - read ERRORS are NEVER cached (callers simply do not call set() on error, and set() cannot store one);
+// - a "not connected" result is cached only for the short TTL above;
+// - connected + branch caches for the session: the branch of a given applicationId is immutable
+//   (branch-per-application model), so this can never go stale.
+// A connected-but-branchless stub is ambiguous and is never cached.
+export class GitGateCache {
+  private readonly entries = new Map<
+    string,
+    { state: GitState; expiresAt?: number }
+  >();
+
+  constructor(private readonly now: () => number = Date.now) {}
+
+  get(applicationId: string): GitState | undefined {
+    const entry = this.entries.get(applicationId);
+
+    if (!entry) return undefined;
+
+    if (entry.expiresAt !== undefined && entry.expiresAt <= this.now()) {
+      this.entries.delete(applicationId);
+
+      return undefined;
+    }
+
+    return entry.state;
+  }
+
+  set(applicationId: string, state: GitState): void {
+    if (state.connected && state.branchName !== undefined) {
+      this.entries.set(applicationId, { state });
+    } else if (!state.connected) {
+      this.entries.set(applicationId, {
+        state,
+        expiresAt: this.now() + GIT_GATE_NOT_CONNECTED_TTL_MS,
+      });
+    }
   }
 }
 
@@ -1341,6 +1798,7 @@ export function buildMcpServer(
 ) {
   const {
     actorId,
+    commitElicitationTimeoutMs,
     dataEnabled,
     governance,
     isAdmin,
@@ -1352,6 +1810,89 @@ export function buildMcpServer(
     { instructions: SERVER_INSTRUCTIONS },
   );
 
+  // Session-scoped cache for the branch gate's git-state reads (see GitGateCache for the binding caching rules).
+  const gitGateCache = new GitGateCache();
+
+  // Fail-closed, cached git-state read for the branch gate (M7-T1). Unlike the advisory fetchGitState (fail-open:
+  // a read error degrades to "not connected"), a read error here REJECTS the mutation — the gate exists to prove
+  // the agent read the app's git state, so it must not be satisfiable by an unreadable one. Errors are never cached.
+  async function gateGitState(
+    applicationId: string,
+  ): Promise<{ state: GitState } | { error: ToolResult }> {
+    const cached = gitGateCache.get(applicationId);
+
+    if (cached !== undefined) return { state: cached };
+
+    try {
+      const state = gitStateOf(await api.getApplication(applicationId));
+
+      gitGateCache.set(applicationId, state);
+
+      return { state };
+    } catch {
+      return {
+        error: result({
+          error: "could not verify the application's git state; retry",
+          code: "git_state_unknown",
+        }),
+      };
+    }
+  }
+
+  // The M7-T1 branch gate: every mutation on a git-CONNECTED application requires `branch` to equal the app's
+  // current branch. Branch-per-application means the branch of a given applicationId never changes, so this proves
+  // the agent READ the git status (not freshness). Both error codes carry the current branch, making recovery a
+  // single retry. Non-git apps ignore the parameter entirely (zero behavior change).
+  async function gitBranchGate(
+    applicationId: string,
+    branch: string | undefined,
+  ): Promise<
+    { ok: true; gitWarning?: string } | { ok: false; result: ToolResult }
+  > {
+    const read = await gateGitState(applicationId);
+
+    if ("error" in read) return { ok: false, result: read.error };
+
+    const { state } = read;
+
+    if (!state.connected) return { ok: true };
+
+    if (state.branchName === undefined) {
+      // Connected but the branch is unreadable: fail closed like a read error rather than gate against a blank.
+      return {
+        ok: false,
+        result: result({
+          error: "could not verify the application's git branch; retry",
+          code: "git_state_unknown",
+        }),
+      };
+    }
+
+    if (branch === undefined) {
+      return {
+        ok: false,
+        result: result({
+          error: `this application is connected to git on branch "${state.branchName}". Read its git state (read_git_status), then retry this call with branch: "${state.branchName}".`,
+          code: "git_branch_required",
+          currentBranch: state.branchName,
+        }),
+      };
+    }
+
+    if (branch !== state.branchName) {
+      return {
+        ok: false,
+        result: result({
+          error: `this application's branch is "${state.branchName}", not "${branch}". Re-read its git state (read_git_status) and retry with branch: "${state.branchName}".`,
+          code: "git_branch_changed",
+          currentBranch: state.branchName,
+        }),
+      };
+    }
+
+    return { ok: true, gitWarning: gitEditWarning(state) };
+  }
+
   // Shared commit path for layout mutations (edit_page / patch_widgets). When governance is active it wraps the
   // write in a distributed lock + mandatory revision check + audit record (returning a changeId) and maps
   // governance failures to stable error codes; otherwise it performs the plain, already-revision-checked write.
@@ -1362,6 +1903,7 @@ export function buildMcpServer(
     currentDsl: WidgetNode;
     currentRevision: string;
     revision: string | undefined;
+    branch: string | undefined;
     operation: string;
     newDsl: WidgetNode;
     extra: Record<string, unknown>;
@@ -1392,12 +1934,15 @@ export function buildMcpServer(
       ? "Saved to the app's edit copy — the deployed app still shows the last publish. When you are done editing, re-deploy with prepare_publish -> confirm_publish (or tell the user to open the app in the Appsmith editor and click Deploy) so the changes go live."
       : "Saved to the app's edit copy — the deployed app still shows the last publish. Re-publishing via MCP requires governance (not configured on this deployment); tell the user to open the app in the Appsmith editor and click Deploy to see the changes live.";
 
-    // Every layout edit on a git-connected app is saved UNCOMMITTED on the branch; warn (but proceed) so the agent
-    // surfaces it to the user. Fetched once here so all layout-editing tools (edit_page/patch_widgets/wire_event)
-    // inherit the warning without each re-implementing the check (M1-T3).
-    const gitWarning = gitEditWarning(
-      await fetchGitState(api, params.applicationId),
-    );
+    // M7-T1 branch gate + the advisory git warning, from ONE fail-closed read: the layout path piggybacks the
+    // getApplication read the advisory warning (M1-T3) already required, so all layout-editing tools
+    // (edit_page/patch_widgets/wire_event) inherit both without re-implementing the check. A read ERROR rejects
+    // the mutation (fail closed); a successful read showing not-connected proceeds unchanged.
+    const gate = await gitBranchGate(params.applicationId, params.branch);
+
+    if (!gate.ok) return gate.result;
+
+    const gitWarning = gate.gitWarning;
 
     // A stale revision is rejected consistently in both paths. The revision is a content hash of the public DSL (not
     // a secret), so a plain comparison is fine and avoids length-mismatch throws.
@@ -1548,9 +2093,89 @@ export function buildMcpServer(
     },
   );
 
+  // M7-T1 — always-on git status read. A whitelist projection only: connection, branches, clean/dirty with
+  // modified-entity counts, protected branches, remote HOST. gitAuth/keys/the full remote URL are never forwarded.
+  server.tool(
+    "read_git_status",
+    "Read a SAFE projection of an application's git state: connected, current branch, default branch, protected branches, clean/dirty with modified-entity counts, and the remote HOST only (never keys, credentials, or the full remote URL). Mutations on a git-connected app require a `branch` parameter equal to the app's current branch — call this first to learn it. Set compareRemote: true (default false) to also fetch aheadCount/behindCount from the remote (slower; contacts the remote). If the status shows uncommitted changes you did not make, tell the user before editing further; prefer working on your own mcp/ branch via create_branch.",
+    {
+      applicationId: idSchema,
+      compareRemote: z.boolean().optional(),
+    },
+    async ({ applicationId, compareRemote }) => {
+      let meta: GitMetadataProjection;
+
+      try {
+        meta = gitMetadataOf(await api.getApplication(applicationId));
+      } catch {
+        return result({
+          error: "could not read the application's git state; retry",
+          code: "git_state_unknown",
+        });
+      }
+
+      // A successful metadata read is exactly what the branch gate needs — seed its cache so the follow-up
+      // mutation does not repeat the read (the cache applies its own binding rules; errors above are never cached).
+      gitGateCache.set(applicationId, meta);
+
+      if (!meta.connected) {
+        return result({
+          git: { connected: false },
+          note: "This application is not connected to git; mutations do not need the branch parameter.",
+        });
+      }
+
+      const withRemote = compareRemote === true;
+
+      try {
+        const [status, protectedBranches] = await Promise.all([
+          // compareRemote is ALWAYS explicit: the SERVER defaults it to true (remote fetch), the MCP defaults to false.
+          api.getGitStatus(applicationId, withRemote),
+          meta.baseApplicationId !== undefined
+            ? api.getGitProtectedBranches(meta.baseApplicationId)
+            : Promise.resolve(undefined),
+        ]);
+        const projectedStatus = projectGitStatus(status, withRemote);
+        const behindCount = projectedStatus.behindCount;
+
+        return result({
+          git: {
+            connected: true,
+            ...(meta.branchName !== undefined
+              ? { branchName: meta.branchName }
+              : {}),
+            ...(meta.defaultBranchName !== undefined
+              ? { defaultBranchName: meta.defaultBranchName }
+              : {}),
+            ...(meta.remoteHost !== undefined
+              ? { remoteHost: meta.remoteHost }
+              : {}),
+            ...projectedStatus,
+            protectedBranches: Array.isArray(protectedBranches)
+              ? protectedBranches.filter(
+                  (name): name is string => typeof name === "string",
+                )
+              : [],
+          },
+          // Behind-remote teaching: MCP has no pull, so the human resolves it in Appsmith first.
+          ...(typeof behindCount === "number" && behindCount > 0
+            ? {
+                note: `This branch is ${behindCount} commit(s) behind its remote. Suggest the user pulls the latest changes in Appsmith's git UI before further edits (MCP cannot pull).`,
+              }
+            : {}),
+        });
+      } catch {
+        return result({
+          error: "could not read the application's git status; retry",
+          code: "git_status_unavailable",
+        });
+      }
+    },
+  );
+
   // Note surfaced by get_capabilities so an agent learns the git policy before it starts editing.
   const GIT_POLICY_NOTE =
-    "Git-connected applications: MCP edits are saved as UNCOMMITTED changes on the checked-out branch (commit them via Appsmith's git UI), and publishing from MCP is disabled for them. get_application_context reports each app's git-connection state.";
+    "Git-connected applications: every mutation REQUIRES a 'branch' parameter equal to the target app's current branch — call read_git_status first (a missing/mismatched value fails with the current branch in the error). Edits are saved as UNCOMMITTED changes on that branch (commit them via Appsmith's git UI), and publishing from MCP is disabled for git apps. Prefer creating an agent branch with create_branch (reserved mcp/ namespace; PUSHES the new ref to the remote) and editing the NEW applicationId it returns.";
 
   // The raw artifact-import tools were removed: they let an agent upload an arbitrary artifact (custom JS libs, JS
   // objects, datasources) — a large content-injection surface. Authoring goes through the validated
@@ -1744,9 +2369,10 @@ export function buildMcpServer(
         .string()
         .regex(/^[a-f0-9]{64}$/)
         .optional(),
+      branch: gitBranchParamSchema.optional(),
       edit: z.record(z.unknown()),
     },
-    async ({ applicationId, edit, layoutId, pageId, revision }) => {
+    async ({ applicationId, branch, edit, layoutId, pageId, revision }) => {
       const parsed = editSpecSchema.safeParse(edit);
 
       if (!parsed.success) {
@@ -1785,6 +2411,7 @@ export function buildMcpServer(
         currentDsl,
         currentRevision,
         revision,
+        branch,
         operation: "edit_page",
         newDsl: dsl,
         extra: { notes },
@@ -1822,11 +2449,12 @@ export function buildMcpServer(
       pageId: idSchema,
       layoutId: idSchema,
       revision: z.string().regex(/^[a-f0-9]{64}$/),
+      branch: gitBranchParamSchema.optional(),
       // The real structured schema, exposed so MCP clients can introspect the patch vocabulary instead of
       // guessing from prose. The handler re-parses below, which also keeps the rich issue-path errors.
       patch: widgetPatchSchema,
     },
-    async ({ applicationId, layoutId, pageId, patch, revision }) => {
+    async ({ applicationId, branch, layoutId, pageId, patch, revision }) => {
       const parsed = widgetPatchSchema.safeParse(patch);
 
       if (!parsed.success) return validationError(parsed.error.issues);
@@ -1861,6 +2489,7 @@ export function buildMcpServer(
         currentDsl,
         currentRevision,
         revision,
+        branch,
         operation: "patch_widgets",
         newDsl: patched.dsl,
         extra: {
@@ -1884,11 +2513,12 @@ export function buildMcpServer(
         .string()
         .regex(/^[a-f0-9]{64}$/)
         .optional(),
+      branch: gitBranchParamSchema.optional(),
       // The real structured schema (closed action vocabulary), exposed for client introspection; the handler
       // re-parses below for the rich issue-path errors.
       spec: wireEventSpecSchema,
     },
-    async ({ applicationId, layoutId, pageId, revision, spec }) => {
+    async ({ applicationId, branch, layoutId, pageId, revision, spec }) => {
       const parsed = wireEventSpecSchema.safeParse(spec);
 
       if (!parsed.success) return validationError(parsed.error.issues);
@@ -1980,6 +2610,7 @@ export function buildMcpServer(
         currentDsl,
         currentRevision,
         revision,
+        branch,
         operation: "wire_event",
         newDsl,
         extra: {
@@ -2081,12 +2712,17 @@ export function buildMcpServer(
       {
         applicationId: idSchema,
         revision: z.string().regex(/^[a-f0-9]{64}$/),
+        branch: gitBranchParamSchema.optional(),
         patch: z.record(z.unknown()),
       },
-      async ({ applicationId, patch, revision }) => {
+      async ({ applicationId, branch, patch, revision }) => {
         const parsed = themePatchSchema.safeParse(patch);
 
         if (!parsed.success) return validationError(parsed.error.issues);
+
+        const gate = await gitBranchGate(applicationId, branch);
+
+        if (!gate.ok) return gate.result;
 
         let currentTheme: unknown;
         let current: ReturnType<typeof projectTheme>;
@@ -2247,9 +2883,13 @@ export function buildMcpServer(
 
     server.tool(
       "confirm_rollback",
-      "Roll back a layout change using a confirmation token from prepare_rollback. Re-applies the prior layout snapshot only if the page is unchanged since the change.",
-      { changeId: idSchema, confirmationId: idSchema },
-      async ({ changeId, confirmationId }) => {
+      "Roll back a layout change using a confirmation token from prepare_rollback. Re-applies the prior layout snapshot only if the page is unchanged since the change. On a git-connected app, pass the app's current branch (from read_git_status).",
+      {
+        changeId: idSchema,
+        confirmationId: idSchema,
+        branch: gitBranchParamSchema.optional(),
+      },
+      async ({ branch, changeId, confirmationId }) => {
         const change = await gov.getChange(changeId, actorId);
 
         if (!change) return result({ error: "change not found" });
@@ -2274,6 +2914,13 @@ export function buildMcpServer(
             code: "rollback_unavailable",
           });
         }
+
+        // M7 branch gate: a rollback re-applies a layout — a mutation like any other. Gated BEFORE the one-time
+        // confirmation is consumed, so a refusal never burns the token. (The architect's M7 review found this
+        // was the one mutating tool the gate missed.)
+        const gate = await gitBranchGate(rollback.applicationId, branch);
+
+        if (!gate.ok) return gate.result;
 
         try {
           await gov.consumeDestructiveConfirmation({
@@ -2442,14 +3089,600 @@ export function buildMcpServer(
       },
     );
 
+    // M7-T2 — agent branches. Governance-gated like the other high-impact operations: creating a branch is remote
+    // egress (create-ref PUSHES the new ref to the customer remote) and needs the gov audit trail.
+    const MCP_BRANCH_PREFIX = "mcp/";
+    const MCP_BRANCH_REMAINDER = /^[A-Za-z0-9_-]{1,60}$/;
+    const MCP_BRANCH_CAP = 5;
+
+    server.tool(
+      "create_branch",
+      "Create a NEW agent git branch on a git-connected application from its CURRENT (possibly uncommitted) state. The name MUST start with the reserved prefix 'mcp/' (remainder: 1-60 characters of A-Za-z0-9_-). IMPORTANT: this PUSHES the new ref to the customer's git remote immediately (deploy-key egress; remote CI/webhooks watching branch pushes will run). Appsmith models each branch as its OWN application and has no checkout: the result returns the NEW branched applicationId — ALL subsequent reads, edits, and events for this branch must target that id, passing branch: '<name>' (the human's editor view is untouched). At most 5 mcp/ branches per application; at the cap, reuse a branch you created earlier or ask the user to delete stale mcp/ branches in Appsmith's branch UI. If read_git_status shows uncommitted changes you did not make, surface that to the user BEFORE branching — they ride along onto the new branch. Governed.",
+      {
+        applicationId: idSchema,
+        name: z.string().min(1).max(64),
+      },
+      async ({ applicationId, name }) => {
+        // Byte-exact prefix check: no trim, no case folding, bare "mcp" rejected. mcp/* is the RESERVED agent
+        // namespace — this server only ever creates branches inside it.
+        if (!name.startsWith(MCP_BRANCH_PREFIX)) {
+          return result({
+            error: `branch name must start with the reserved agent prefix "${MCP_BRANCH_PREFIX}" (e.g. "mcp/fix-orders-table")`,
+            code: "branch_name_invalid",
+          });
+        }
+
+        const remainder = name.slice(MCP_BRANCH_PREFIX.length);
+
+        if (!MCP_BRANCH_REMAINDER.test(remainder)) {
+          return result({
+            error: `the part after "${MCP_BRANCH_PREFIX}" must be 1-60 characters of A-Za-z0-9_-`,
+            code: "branch_name_invalid",
+          });
+        }
+
+        // Fail-closed git reads: the app must be VERIFIABLY git-connected before anything touches the remote.
+        const read = await gateGitState(applicationId);
+
+        if ("error" in read) return read.error;
+
+        if (!read.state.connected) {
+          return result({
+            error:
+              "this application is not connected to git; create_branch only applies to git-connected applications",
+            code: "git_not_connected",
+          });
+        }
+
+        // Branch cap + duplicate check from the server's branch list — fail closed: an unreadable list refuses
+        // creation rather than risking unbounded refs on the customer remote.
+        let branchNames: string[];
+
+        try {
+          branchNames = gitBranchNames(
+            await api.listGitBranches(applicationId),
+          );
+        } catch {
+          return result({
+            error:
+              "could not verify the application's existing branches; retry",
+            code: "git_state_unknown",
+          });
+        }
+
+        if (branchNames.includes(name)) {
+          return result({
+            error: `branch "${name}" already exists on this application; pick a new name, or continue on that branch's applicationId if you created it earlier`,
+            code: "branch_exists",
+          });
+        }
+
+        const mcpBranches = branchNames.filter((branchName) =>
+          branchName.startsWith(MCP_BRANCH_PREFIX),
+        );
+
+        if (mcpBranches.length >= MCP_BRANCH_CAP) {
+          return result({
+            error: `this application already has ${mcpBranches.length} mcp/ branches (the limit is ${MCP_BRANCH_CAP}). Reuse a branch you created earlier in this session, or ask the user to delete stale mcp/ branches in Appsmith's branch UI, then retry.`,
+            code: "mcp_branch_limit",
+            mcpBranches,
+          });
+        }
+
+        const revisionBefore = fingerprintBranchList(branchNames);
+
+        try {
+          const { changeId, value } = await gov.execute({
+            actorId,
+            entityKey: `application:${applicationId}:branches`,
+            operation: "create_branch",
+            expectedRevision: revisionBefore,
+            currentRevision: revisionBefore,
+            mutate: async () => {
+              const created = await api.createGitBranch(applicationId, name);
+              const projected = projectImportedApplication(created);
+
+              return {
+                value: projected,
+                revisionAfter: fingerprintBranchList([...branchNames, name]),
+                rollback: {},
+                summary: {
+                  sourceApplicationId: applicationId,
+                  branchName: name,
+                  ...(projected.applicationId !== undefined
+                    ? { newApplicationId: projected.applicationId }
+                    : {}),
+                },
+              };
+            },
+          });
+
+          // Branch-scoped editor URL when the response carries usable slugs; omitted otherwise (never guessed).
+          const urls = applicationUrls(
+            requestOrigin,
+            value.applicationSlug,
+            value.pages,
+          );
+          const editorUrl =
+            urls.editorUrl !== undefined
+              ? `${urls.editorUrl}?branch=${encodeURIComponent(name)}`
+              : undefined;
+
+          return result({
+            created: true,
+            branchName: name,
+            ...(value.applicationId !== undefined
+              ? { applicationId: value.applicationId }
+              : {}),
+            ...(editorUrl !== undefined ? { editorUrl } : {}),
+            // Ground truth (verified against the server): create-ref pushes. Stated in the result so the agent
+            // relays it — branch creation is visible on the customer remote and can trigger CI.
+            pushedToRemote: true,
+            note: `The new branch was PUSHED to the git remote. There is no checkout: all further edits, reads, and commits for this branch must target the NEW applicationId${value.applicationId !== undefined ? ` ("${value.applicationId}")` : ""} with branch: "${name}". The original applicationId still points at its own branch.`,
+            changeId,
+          });
+        } catch (error) {
+          return governanceError(error) ?? compileError(error);
+        }
+      },
+    );
+
+    // M7-T3 — governed commits on agent branches. GROUND TRUTH (verified against GitFSServiceCEImpl.commitArtifact):
+    // the commit API commits AND PUSHES — there is no commit-without-push and no push flag. THE LOAD-BEARING RULE
+    // [COUNCIL: security F1, unblock condition]: prepare_commit AND confirm_commit refuse unless a FRESH,
+    // FAIL-CLOSED read (api.getApplication directly — never the gate cache) shows the target app's branch is
+    // byte-exact mcp/-prefixed, and confirm_commit re-reads AT CONFIRM TIME. Protected-branch and EE rules remain
+    // server-side backstops.
+
+    interface PendingCommit {
+      applicationId: string;
+      branch: string;
+      message: string;
+      revision: string;
+      appName?: string;
+      expiresAt: number;
+      // Elicitation prompts sent for this confirmation. Non-accept answers do not consume the token, so this
+      // bounds re-prompting at MCP_COMMIT_MAX_ELICITATIONS [SECURITY REV-2 CONDITION 2].
+      elicitations: number;
+    }
+
+    // Session-scoped side-table keyed by confirmationId: carries what the one-time gov confirmation cannot (the
+    // exact message/branch the digest binds, the app name for prompts, and the elicitation attempt counter). The
+    // gov token stays the authoritative one-time credential — losing this map (a new session) just means a fresh
+    // prepare_commit; a confirmation can never execute without its matching entry AND the matching gov token.
+    const pendingCommits = new Map<string, PendingCommit>();
+
+    function commitDigest(entry: {
+      applicationId: string;
+      branch: string;
+      message: string;
+      revision: string;
+    }): string {
+      // Binds applicationId + branch + message + the CONTENT revision, so the human approves exactly what ships
+      // [COUNCIL: security F6].
+      return operationDigest({
+        applicationId: entry.applicationId,
+        branch: entry.branch,
+        message: entry.message,
+        revision: entry.revision,
+      });
+    }
+
+    // The commit gate's FRESH, fail-closed read: getApplication directly (never gateGitState's cache), refusing on
+    // any read error, on a non-git app, on an unreadable branch, and on any branch not byte-exact mcp/-prefixed.
+    async function freshMcpCommitBranch(
+      applicationId: string,
+    ): Promise<{ branch: string } | { error: ToolResult }> {
+      let state: GitState;
+
+      try {
+        state = gitStateOf(await api.getApplication(applicationId));
+      } catch {
+        return {
+          error: result({
+            error:
+              "could not verify the application's git state; refusing to commit. Retry.",
+            code: "git_state_unknown",
+          }),
+        };
+      }
+
+      if (!state.connected) {
+        return {
+          error: result({
+            error:
+              "this application is not connected to git; prepare_commit/confirm_commit only apply to git-connected applications",
+            code: "git_not_connected",
+          }),
+        };
+      }
+
+      if (state.branchName === undefined) {
+        return {
+          error: result({
+            error:
+              "could not verify the application's git branch; refusing to commit. Retry.",
+            code: "git_state_unknown",
+          }),
+        };
+      }
+
+      if (!state.branchName.startsWith(MCP_BRANCH_PREFIX)) {
+        return {
+          error: result({
+            error: `commits via MCP are only allowed on ${MCP_BRANCH_PREFIX} agent branches, because the commit API always PUSHES to the remote. This application's branch is "${state.branchName}". Create an agent branch with create_branch and commit from the NEW applicationId it returns.`,
+            code: "git_commit_branch_forbidden",
+            currentBranch: state.branchName,
+          }),
+        };
+      }
+
+      return { branch: state.branchName };
+    }
+
+    // Sends the elicitation prompt and returns whether the human EXPLICITLY accepted. Decline, cancel, timeout,
+    // a transport error, or an accept without confirm=true all count as non-accept — never approval. Elicitation
+    // is UX, not a security control [COUNCIL: security F8]: no server rule relaxes around it.
+    async function elicitCommitApproval(
+      entry: PendingCommit,
+      extra: {
+        _meta?: { progressToken?: string | number };
+        sendNotification: (notification: {
+          method: "notifications/progress";
+          params: { progressToken: string | number; progress: number };
+        }) => Promise<void>;
+      },
+    ): Promise<"accept" | "non_accept"> {
+      const appLabel = truncateForPrompt(
+        entry.appName ?? entry.applicationId,
+        40,
+      );
+      // The load-bearing facts (branch, app, PUSH) sit OUTSIDE the quoted agent text, and the wording is
+      // "ALL current changes" — the content fingerprint is page-list-granular, so the prompt never makes an
+      // itemized claim [SECURITY REV-2 CONDITION 4].
+      const promptMessage = `Commit ALL current changes on branch "${promptSafe(entry.branch)}" of "${promptSafe(appLabel)}" and PUSH to the remote? Message: "${promptSafe(truncateForPrompt(entry.message, 80))}"`;
+
+      // Progress notifications during the wait (when the CALLER requested them via a progressToken), so clients
+      // that reset their tool-call timeout on progress don't abort while the human deliberates.
+      const progressToken = extra._meta?.progressToken;
+      let progress = 0;
+      const progressTimer =
+        progressToken !== undefined
+          ? setInterval(() => {
+              progress += 1;
+              void extra
+                .sendNotification({
+                  method: "notifications/progress",
+                  params: { progressToken, progress },
+                })
+                .catch(() => {});
+            }, COMMIT_ELICITATION_PROGRESS_INTERVAL_MS)
+          : undefined;
+
+      progressTimer?.unref?.();
+
+      try {
+        const answer = await server.server.elicitInput(
+          {
+            message: promptMessage,
+            requestedSchema: {
+              type: "object",
+              properties: {
+                confirm: {
+                  type: "boolean",
+                  title: "Approve commit and push",
+                  description:
+                    "Select true to commit all current changes on the agent branch and push them to the git remote.",
+                },
+              },
+              required: ["confirm"],
+            },
+          },
+          {
+            timeout:
+              commitElicitationTimeoutMs ?? MCP_COMMIT_ELICITATION_TIMEOUT_MS,
+          },
+        );
+
+        return answer.action === "accept" && answer.content?.confirm === true
+          ? "accept"
+          : "non_accept";
+      } catch {
+        // elicitInput timeout (McpError) or a transport failure: never approval.
+        return "non_accept";
+      } finally {
+        if (progressTimer !== undefined) clearInterval(progressTimer);
+      }
+    }
+
+    server.tool(
+      "prepare_commit",
+      `Prepare to COMMIT AND PUSH all current changes of a git-connected application. The commit API always pushes to the customer's git remote — there is no commit-without-push — so this is only allowed when the application's branch starts with the reserved agent prefix "mcp/" (create_branch first and use the NEW applicationId it returns). The message must be a single printable line (max ${MCP_COMMIT_MESSAGE_MAX} characters, no control/bidi characters, no binding syntax, must not start with "["); the server prepends a non-strippable "[mcp] " marker. Returns a one-time confirmationId (5-minute TTL, bound to the app, branch, message, and current content revision) plus 'relay' text you MUST show the user before calling confirm_commit. Governed.`,
+      {
+        applicationId: idSchema,
+        message: z.string().min(1).max(1000),
+      },
+      async ({ applicationId, message }) => {
+        const problem = commitMessageProblem(message);
+
+        if (problem !== undefined) {
+          return result({ error: problem, code: "commit_message_invalid" });
+        }
+
+        const read = await freshMcpCommitBranch(applicationId);
+
+        if ("error" in read) return read.error;
+
+        let pagesResponse: unknown;
+
+        try {
+          pagesResponse = await api.getApplicationPages(applicationId);
+        } catch {
+          return result({
+            error:
+              "could not read the application's current content revision; retry",
+            code: "content_revision_unavailable",
+          });
+        }
+
+        const revision = fingerprintPages(pagesResponse);
+        const appName = applicationNameOf(pagesResponse);
+        const entry: PendingCommit = {
+          applicationId,
+          branch: read.branch,
+          message,
+          revision,
+          ...(appName !== undefined ? { appName } : {}),
+          expiresAt: 0,
+          elicitations: 0,
+        };
+        const confirmation = await gov.prepareDestructiveConfirmation({
+          actorId,
+          entityKey: `application:${applicationId}`,
+          operation: "commit",
+          revision,
+          digest: commitDigest(entry),
+        });
+
+        entry.expiresAt = confirmation.expiresAt.getTime();
+        pendingCommits.set(confirmation.id, entry);
+
+        const appLabel = truncateForPrompt(appName ?? applicationId, 40);
+
+        return result({
+          confirmationId: confirmation.id,
+          expiresAt: confirmation.expiresAt,
+          operation: "commit",
+          branch: read.branch,
+          commitMessage: `${MCP_COMMIT_MARKER}${message}`,
+          // Relay text for clients WITHOUT elicitation support: the agent is instructed to put this in front of
+          // the human before confirming. Load-bearing facts outside the quoted agent text; "ALL current changes",
+          // never an itemized claim [SECURITY REV-2 CONDITION 4].
+          relay: `Show the user this and get their approval BEFORE calling confirm_commit: commit ALL current changes on branch "${promptSafe(read.branch)}" of "${promptSafe(appLabel)}" and PUSH them to the git remote. Commit message: "${MCP_COMMIT_MARKER}${promptSafe(message)}". Do not call confirm_commit without the user's explicit approval.`,
+        });
+      },
+    );
+
+    server.tool(
+      "confirm_commit",
+      'Commit AND PUSH using a one-time confirmationId from prepare_commit. Re-verifies AT CONFIRM TIME (fresh, fail-closed read) that the application\'s branch is an "mcp/" agent branch and that its content is unchanged since prepare. When the MCP client supports elicitation, the user is prompted directly and ONLY an explicit accept proceeds (at most 3 prompts per confirmation, then it is invalidated); otherwise you must have shown the user the prepare_commit relay text and obtained their approval first. The pushed commit cannot be rolled back via MCP. Governed.',
+      { applicationId: idSchema, confirmationId: idSchema },
+      async ({ applicationId, confirmationId }, extra) => {
+        const entry = pendingCommits.get(confirmationId);
+
+        if (entry !== undefined && entry.expiresAt <= Date.now()) {
+          pendingCommits.delete(confirmationId);
+        }
+
+        if (
+          entry === undefined ||
+          entry.expiresAt <= Date.now() ||
+          entry.applicationId !== applicationId
+        ) {
+          return result({
+            error:
+              "commit confirmation is missing, expired, already used, or does not match this application; call prepare_commit again",
+            code: "confirmation_invalid",
+          });
+        }
+
+        // 1. The load-bearing rule, re-checked FRESH at confirm time (fail-closed; never the gate cache).
+        const read = await freshMcpCommitBranch(applicationId);
+
+        if ("error" in read) return read.error;
+
+        if (read.branch !== entry.branch) {
+          return result({
+            error: `this application's branch is now "${read.branch}", not "${entry.branch}"; call prepare_commit again`,
+            code: "git_branch_changed",
+            currentBranch: read.branch,
+          });
+        }
+
+        // 2. Content-revision drift check BEFORE any prompt, so the human never approves stale facts. A drifted
+        // confirmation can never succeed (the revision is bound into the token), so drop the session entry; the
+        // unconsumed gov token simply expires.
+        let pagesResponse: unknown;
+
+        try {
+          pagesResponse = await api.getApplicationPages(applicationId);
+        } catch {
+          return result({
+            error:
+              "could not verify the application's content revision; refusing to commit. Retry.",
+            code: "content_revision_unavailable",
+          });
+        }
+
+        let currentRevision = fingerprintPages(pagesResponse);
+
+        if (currentRevision !== entry.revision) {
+          pendingCommits.delete(confirmationId);
+
+          return result({
+            error:
+              "the application's content changed since prepare_commit; re-read the app state and call prepare_commit again",
+            code: "revision_conflict",
+          });
+        }
+
+        // 3. Elicitation — capability read LAZILY per session at confirm time (ServerContext is built before
+        // connect(), so initialize-time capture is impossible). When the client does NOT declare elicitation the
+        // prompt is skipped: the one-time token + the prepare relay text are the (documented) fallback posture,
+        // and no server rule is relaxed either way.
+        const supportsElicitation =
+          server.server.getClientCapabilities()?.elicitation !== undefined;
+
+        if (supportsElicitation) {
+          entry.elicitations += 1;
+
+          const answer = await elicitCommitApproval(entry, extra);
+
+          if (answer !== "accept") {
+            // Non-accept never consumes the token — but re-prompting is bounded [SECURITY REV-2 CONDITION 2].
+            if (entry.elicitations >= MCP_COMMIT_MAX_ELICITATIONS) {
+              pendingCommits.delete(confirmationId);
+
+              try {
+                // Invalidate the one-time token by consuming it (best-effort; it may already have expired).
+                await gov.consumeDestructiveConfirmation({
+                  confirmationId,
+                  actorId,
+                  entityKey: `application:${applicationId}`,
+                  operation: "commit",
+                  revision: entry.revision,
+                  digest: commitDigest(entry),
+                });
+              } catch {
+                // Already gone/expired — invalidation achieved either way.
+              }
+
+              return result({
+                error: `the user did not approve this commit after ${MCP_COMMIT_MAX_ELICITATIONS} prompts; the confirmation has been invalidated and nothing was committed. Stop — only call prepare_commit again if the user explicitly asks.`,
+                code: "confirmation_exhausted",
+              });
+            }
+
+            return result({
+              error:
+                "the user did not approve the commit (declined, cancelled, or did not answer in time); nothing was committed. The confirmation is still valid — call confirm_commit again only after the user approves.",
+              code: "commit_not_confirmed",
+              attemptsRemaining:
+                MCP_COMMIT_MAX_ELICITATIONS - entry.elicitations,
+            });
+          }
+
+          // The human may deliberate for up to the elicitation window: re-verify the content is still exactly
+          // what they approved before consuming anything.
+          try {
+            pagesResponse = await api.getApplicationPages(applicationId);
+          } catch {
+            return result({
+              error:
+                "could not verify the application's content revision after approval; refusing to commit. Retry.",
+              code: "content_revision_unavailable",
+            });
+          }
+
+          currentRevision = fingerprintPages(pagesResponse);
+
+          if (currentRevision !== entry.revision) {
+            pendingCommits.delete(confirmationId);
+
+            return result({
+              error:
+                "the application's content changed while awaiting approval; call prepare_commit again",
+              code: "revision_conflict",
+            });
+          }
+        }
+
+        try {
+          // 4. Consume the one-time confirmation ONLY now — after an accept (or on a non-elicitation client),
+          // immediately before executing.
+          await gov.consumeDestructiveConfirmation({
+            confirmationId,
+            actorId,
+            entityKey: `application:${applicationId}`,
+            operation: "commit",
+            revision: entry.revision,
+            digest: commitDigest(entry),
+          });
+          pendingCommits.delete(confirmationId);
+
+          const fullMessage = `${MCP_COMMIT_MARKER}${entry.message}`;
+          const { changeId } = await gov.execute({
+            actorId,
+            entityKey: `application:${applicationId}`,
+            operation: "commit",
+            expectedRevision: entry.revision,
+            currentRevision,
+            mutate: async () => {
+              await api.commitGitApplication(applicationId, fullMessage);
+
+              return {
+                value: {},
+                revisionAfter: currentRevision,
+                // A pushed commit is on the customer remote: never rollback-able from MCP.
+                rollback: {},
+                summary: {
+                  applicationId,
+                  branch: entry.branch,
+                  message: fullMessage,
+                },
+              };
+            },
+          });
+
+          // The handoff [COUNCIL: product]: branch name + branch-scoped editor URL (when slugs allow) + next
+          // steps. For a git app the branch IS the deliverable — publish stays refused.
+          const urls = applicationUrlsFromPages(requestOrigin, pagesResponse);
+          const editorUrl =
+            urls.editorUrl !== undefined
+              ? `${urls.editorUrl}?branch=${encodeURIComponent(entry.branch)}`
+              : undefined;
+
+          return result({
+            committed: true,
+            pushedToRemote: true,
+            branch: entry.branch,
+            commitMessage: fullMessage,
+            ...(editorUrl !== undefined ? { editorUrl } : {}),
+            nextSteps: `The commit was PUSHED to the git remote on branch "${entry.branch}". Hand the user the branch${editorUrl !== undefined ? ` and the review URL (${editorUrl})` : ""} as the final deliverable: they review on this branch, merge it via Appsmith's branch UI or a pull request on the remote, then delete the mcp/ branch. Publishing from MCP stays disabled for git apps — do NOT promise a viewerUrl.`,
+            changeId,
+          });
+        } catch (error) {
+          if (
+            error instanceof AppsmithApiError &&
+            error.errorCode === INVALID_GIT_CONFIGURATION_CODE
+          ) {
+            return result({
+              error:
+                "the commit was refused by Appsmith because the git configuration is incomplete — the user must set their git author profile in Appsmith (git user settings), then run prepare_commit again",
+              code: "invalid_git_configuration",
+            });
+          }
+
+          return governanceError(error) ?? compileError(error);
+        }
+      },
+    );
+
     server.tool(
       "create_page",
       "Create a new blank page in an application. The caller cannot supply DSL, actions, or bindings — only a safe page name. Pass a page-list revision from the application's pages for optimistic concurrency. Returns the safe page list, new revision, and change id.",
-      { spec: z.record(z.unknown()) },
-      async ({ spec }) => {
+      {
+        spec: z.record(z.unknown()),
+        branch: gitBranchParamSchema.optional(),
+      },
+      async ({ branch, spec }) => {
         const parsed = createPageSpecSchema.safeParse(spec);
 
         if (!parsed.success) return validationError(parsed.error.issues);
+
+        const gate = await gitBranchGate(parsed.data.applicationId, branch);
+
+        if (!gate.ok) return gate.result;
 
         const request = buildCreatePageRequest(parsed.data);
         const currentRevision = fingerprintPages(
@@ -2493,11 +3726,18 @@ export function buildMcpServer(
     server.tool(
       "rename_page",
       "Rename a page. Pass the application's page-list revision for optimistic concurrency. Returns the safe page list, new revision, and change id.",
-      { spec: z.record(z.unknown()) },
-      async ({ spec }) => {
+      {
+        spec: z.record(z.unknown()),
+        branch: gitBranchParamSchema.optional(),
+      },
+      async ({ branch, spec }) => {
         const parsed = renamePageSpecSchema.safeParse(spec);
 
         if (!parsed.success) return validationError(parsed.error.issues);
+
+        const gate = await gitBranchGate(parsed.data.applicationId, branch);
+
+        if (!gate.ok) return gate.result;
 
         const request = buildRenamePageRequest(parsed.data);
         const currentRevision = fingerprintPages(
@@ -2568,11 +3808,17 @@ export function buildMcpServer(
       {
         spec: z.record(z.unknown()),
         confirmationId: idSchema,
+        branch: gitBranchParamSchema.optional(),
       },
-      async ({ confirmationId, spec }) => {
+      async ({ branch, confirmationId, spec }) => {
         const parsed = deletePageSpecSchema.safeParse(spec);
 
         if (!parsed.success) return validationError(parsed.error.issues);
+
+        // Gate BEFORE consuming the confirmation, so the one-time token is not spent on a refused mutation.
+        const gate = await gitBranchGate(parsed.data.applicationId, branch);
+
+        if (!gate.ok) return gate.result;
 
         try {
           await gov.consumeDestructiveConfirmation({
@@ -2840,13 +4086,20 @@ export function buildMcpServer(
     server.tool(
       "create_query",
       "Create a SQL query (SELECT/INSERT/UPDATE/DELETE) on a datasource from a STRUCTURED spec — no raw SQL, no raw bindings. Values become prepared-statement parameters. SELECT supports columns/filters/limit plus orderBy [{column,direction}], aggregation {fn:count|sum|avg,column?}, and groupBy. Widgets then reference it by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
-      { query: z.record(z.unknown()) },
-      async ({ query }) => {
+      {
+        query: z.record(z.unknown()),
+        branch: gitBranchParamSchema.optional(),
+      },
+      async ({ branch, query }) => {
         const parsed = querySpecSchema.safeParse(query);
 
         if (!parsed.success) return validationError(parsed.error.issues);
 
         const spec = parsed.data;
+
+        const gate = await gitBranchGate(spec.applicationId, branch);
+
+        if (!gate.ok) return gate.result;
 
         // Resolve the workspace SERVER-AUTHORITATIVELY from the application — never trust an agent-supplied
         // workspaceId — so a datasource can only be bound within the target page's own workspace (cross-tenant guard).
@@ -2910,13 +4163,21 @@ export function buildMcpServer(
     server.tool(
       "create_rest_api",
       "Create a REST API action from a structured specification using an existing REST datasource. The datasource retains its server-side base URL and credentials. Supports safe path segments, dynamic path segments from widgets (pathParams, e.g. path '/us' + a zip from an input -> /us/{value}), query parameters, fixed headers, literals, and validated widget-property bindings. Idempotent by page + name.",
-      { api: z.record(z.unknown()) },
-      async ({ api: restApi }) => {
+      {
+        api: z.record(z.unknown()),
+        branch: gitBranchParamSchema.optional(),
+      },
+      async ({ api: restApi, branch }) => {
         const parsed = restApiSpecSchema.safeParse(restApi);
 
         if (!parsed.success) return validationError(parsed.error.issues);
 
         const spec = parsed.data;
+
+        const gate = await gitBranchGate(spec.applicationId, branch);
+
+        if (!gate.ok) return gate.result;
+
         const workspaceId = workspaceIdFromApplicationPages(
           await api.getApplicationPages(spec.applicationId),
         );
@@ -2981,13 +4242,20 @@ export function buildMcpServer(
     server.tool(
       "create_mongo_query",
       "Create a MongoDB query (find or insert) on an existing Mongo datasource from a STRUCTURED spec — no raw Mongo command, no raw bindings. find { collection, filter?: [{ field, value }], sort?: [{ field, direction: 'ASC'|'DESC' }], limit? } returns matching documents (filter clauses are AND-ed equality); insert { collection, document: [{ field, value }] } adds one document. Each value is { literal } or { widget, property } and binds as a smart-substitution parameter (never string-concatenated); field/collection names are validated identifiers. Widgets reference the result by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
-      { query: z.record(z.unknown()) },
-      async ({ query }) => {
+      {
+        query: z.record(z.unknown()),
+        branch: gitBranchParamSchema.optional(),
+      },
+      async ({ branch, query }) => {
         const parsed = mongoQuerySpecSchema.safeParse(query);
 
         if (!parsed.success) return validationError(parsed.error.issues);
 
         const spec = parsed.data;
+
+        const gate = await gitBranchGate(spec.applicationId, branch);
+
+        if (!gate.ok) return gate.result;
 
         // Resolve the workspace SERVER-AUTHORITATIVELY from the application (cross-tenant guard), exactly like
         // create_query.
@@ -3055,13 +4323,20 @@ export function buildMcpServer(
     server.tool(
       "create_sheets_query",
       "Create a Google Sheets query (read or append) on an ALREADY-AUTHORIZED Google Sheets datasource from a STRUCTURED spec. MCP never creates or authorizes a Sheets datasource (OAuth is interactive and stays in the Appsmith UI) — create+authorize it there first, then reference it here by datasourceId (find it with list_datasources). read { sheetUrl, sheetName, range?, columns?, limit? } fetches rows (optional A1 range like 'A2:Z' and column projection); append { sheetUrl, sheetName, row: [{ column, value }] } adds one row. Row values are { literal } or { widget, property } bound as smart-substitution parameters; sheetUrl/sheetName/range/columns are validated static identifiers. No raw formulas or bindings; for a specific-sheets (drive.file) datasource the server restricts execution to its OAuth-authorized spreadsheets. Idempotent by page + name. NOTE: the emitted Sheets action config is PROVISIONAL — modeled from Appsmith's Sheets plugin forms but not yet verified end-to-end against a live authorized datasource; validate a read + append in your instance before relying on it.",
-      { query: z.record(z.unknown()) },
-      async ({ query }) => {
+      {
+        query: z.record(z.unknown()),
+        branch: gitBranchParamSchema.optional(),
+      },
+      async ({ branch, query }) => {
         const parsed = sheetsQuerySpecSchema.safeParse(query);
 
         if (!parsed.success) return validationError(parsed.error.issues);
 
         const spec = parsed.data;
+
+        const gate = await gitBranchGate(spec.applicationId, branch);
+
+        if (!gate.ok) return gate.result;
 
         const workspaceId = workspaceIdFromApplicationPages(
           await api.getApplicationPages(spec.applicationId),
@@ -3169,13 +4444,20 @@ export function buildMcpServer(
       server.tool(
         "update_action",
         "Update a stored SQL or REST action from a STRUCTURED spec (no raw SQL, bindings, credentials, base URLs, or headers). Pass a revision from get_action. Returns safe metadata, new revision, and change id.",
-        { spec: z.record(z.unknown()) },
-        async ({ spec }) => {
+        {
+          spec: z.record(z.unknown()),
+          branch: gitBranchParamSchema.optional(),
+        },
+        async ({ branch, spec }) => {
           const parsed = updateActionSpecSchema.safeParse(spec);
 
           if (!parsed.success) return validationError(parsed.error.issues);
 
           const request = buildUpdateActionDto(parsed.data);
+          const gate = await gitBranchGate(request.applicationId, branch);
+
+          if (!gate.ok) return gate.result;
+
           let current: unknown;
 
           try {
@@ -3222,13 +4504,20 @@ export function buildMcpServer(
       server.tool(
         "duplicate_action",
         "Duplicate a stored action under a new name, preserving its datasource server-side. No action configuration is accepted from the caller. Pass a revision from get_action. Governed.",
-        { spec: z.record(z.unknown()) },
-        async ({ spec }) => {
+        {
+          spec: z.record(z.unknown()),
+          branch: gitBranchParamSchema.optional(),
+        },
+        async ({ branch, spec }) => {
           const parsed = duplicateActionSpecSchema.safeParse(spec);
 
           if (!parsed.success) return validationError(parsed.error.issues);
 
           const request = buildDuplicateActionDto(parsed.data);
+          const gate = await gitBranchGate(request.applicationId, branch);
+
+          if (!gate.ok) return gate.result;
+
           let current: unknown;
 
           try {
@@ -3305,11 +4594,20 @@ export function buildMcpServer(
       server.tool(
         "confirm_delete_action",
         "Delete an action using a confirmation token from prepare_delete_action. Token, actor, action, and revision must all match, and the action's revision must be unchanged since preparation.",
-        { spec: z.record(z.unknown()), confirmationId: idSchema },
-        async ({ confirmationId, spec }) => {
+        {
+          spec: z.record(z.unknown()),
+          confirmationId: idSchema,
+          branch: gitBranchParamSchema.optional(),
+        },
+        async ({ branch, confirmationId, spec }) => {
           const parsed = deleteActionSpecSchema.safeParse(spec);
 
           if (!parsed.success) return validationError(parsed.error.issues);
+
+          // Gate BEFORE consuming the confirmation, so the one-time token is not spent on a refused mutation.
+          const gate = await gitBranchGate(parsed.data.applicationId, branch);
+
+          if (!gate.ok) return gate.result;
 
           try {
             await govData.consumeDestructiveConfirmation({
@@ -3457,14 +4755,21 @@ export function buildMcpServer(
       server.tool(
         "create_js_object",
         "Create a restricted JS object from a declarative spec (constants + async functions that run named queries and return literal objects). No raw JS, imports, globals, network calls, or loops. Pass a JS-list revision from read_js_object. Governed.",
-        { spec: z.record(z.unknown()) },
-        async ({ spec }) => {
+        {
+          spec: z.record(z.unknown()),
+          branch: gitBranchParamSchema.optional(),
+        },
+        async ({ branch, spec }) => {
           const raw = spec as Record<string, unknown>;
           const applicationId = raw.applicationId;
 
           if (typeof applicationId !== "string") {
             return result({ error: "spec.applicationId is required" });
           }
+
+          const gate = await gitBranchGate(applicationId, branch);
+
+          if (!gate.ok) return gate.result;
 
           // Resolve workspace + JS plugin server-side; the agent never supplies these ids.
           const workspaceId = workspaceIdFromApplicationPages(
@@ -3532,11 +4837,18 @@ export function buildMcpServer(
       server.tool(
         "update_js_object",
         "Update a restricted JS object from a declarative spec. Pass a revision from read_js_object. No raw JS. Governed.",
-        { spec: z.record(z.unknown()) },
-        async ({ spec }) => {
+        {
+          spec: z.record(z.unknown()),
+          branch: gitBranchParamSchema.optional(),
+        },
+        async ({ branch, spec }) => {
           const parsed = updateJsObjectSpecSchema.safeParse(spec);
 
           if (!parsed.success) return validationError(parsed.error.issues);
+
+          const gate = await gitBranchGate(parsed.data.applicationId, branch);
+
+          if (!gate.ok) return gate.result;
 
           const collections = await api.listActionCollections(
             parsed.data.applicationId,
@@ -3614,11 +4926,20 @@ export function buildMcpServer(
       server.tool(
         "confirm_delete_js_object",
         "Delete a JS object using a confirmation token from prepare_delete_js_object. Token, actor, object, and revision must all match.",
-        { spec: z.record(z.unknown()), confirmationId: idSchema },
-        async ({ confirmationId, spec }) => {
+        {
+          spec: z.record(z.unknown()),
+          confirmationId: idSchema,
+          branch: gitBranchParamSchema.optional(),
+        },
+        async ({ branch, confirmationId, spec }) => {
           const parsed = deleteJsObjectSpecSchema.safeParse(spec);
 
           if (!parsed.success) return validationError(parsed.error.issues);
+
+          // Gate BEFORE consuming the confirmation, so the one-time token is not spent on a refused mutation.
+          const gate = await gitBranchGate(parsed.data.applicationId, branch);
+
+          if (!gate.ok) return gate.result;
 
           try {
             await govJs.consumeDestructiveConfirmation({
@@ -3884,6 +5205,8 @@ export interface McpHttpServerOptions {
   // for the editor/viewer URLs build_application returns. When unset, the origin is derived per session from the
   // INITIALIZE request's validated X-Forwarded-Proto + Host headers; when that also fails, URLs are root-relative.
   publicOrigin?: string;
+  // Override for confirm_commit's elicitation wait (default MCP_COMMIT_ELICITATION_TIMEOUT_MS); injectable for tests.
+  commitElicitationTimeoutMs?: number;
 }
 
 // The hostname portion of a Host header, lowercased and without the port. Handles `host`, `host:port`, and
@@ -4232,6 +5555,7 @@ export function createMcpHttpServer(
           governance,
           actorId: authenticatedUser,
           isAdmin,
+          commitElicitationTimeoutMs: options.commitElicitationTimeoutMs,
           // Session-scoped origin for the URLs build_application returns, captured once here at initialize so
           // tool handlers never touch raw requests (same seam as actorId/isAdmin). The configured public origin
           // wins; header derivation is the validated fallback; undefined means root-relative URLs.

@@ -77,6 +77,55 @@ The absolute origin for the returned URLs resolves in this order, failing closed
 | ---------------------------- | ------- | ---------------------------------------------------------------------------------------- |
 | `APPSMITH_MCP_PUBLIC_ORIGIN` | unset   | Preferred absolute origin for `editorUrl`/`viewerUrl` (e.g. `https://apps.example.com`). |
 
+### Git awareness (M7): status reads, a branch gate, agent branches, and governed commits
+
+**BREAKING for agents editing git-connected apps.** Every mutating tool that targets an application (layout edits,
+events, theme/page changes, query/action/JS-object mutations) now takes a `branch` parameter. For a git-connected
+app it is **required** and must equal the target app's current branch; a missing or mismatched value fails with
+`git_branch_required` / `git_branch_changed` carrying the current branch, so recovery is a single retry. The gate
+read **fails closed**: when the app's git state cannot be read, the mutation is rejected (`git_state_unknown`)
+instead of proceeding. Previously, edits on git apps proceeded with only an advisory warning. Non-git apps are
+unaffected — the parameter is optional and ignored.
+
+- **`read_git_status` (always on).** A whitelist projection of the app's git state: connection, current/default
+  branch, clean/dirty with modified-entity counts, protected branches, and the remote **host only** — never
+  `gitAuth`, keys, or the full remote URL. `compareRemote: true` (default **false**) opts into a remote fetch for
+  `aheadCount`/`behindCount`.
+- **`create_branch` (governed).** Creates an agent branch under the **reserved `mcp/` namespace** (byte-exact
+  prefix; remainder `[A-Za-z0-9_-]{1,60}`; at most 5 `mcp/` branches per application). **Creating a branch PUSHES
+  the new ref to the customer's git remote under the instance deploy key** — remote CI/webhooks configured to run
+  on branch pushes will run on `mcp/*` refs; operators should account for that egress. Appsmith is
+  branch-per-application and has no checkout, so the result returns the **new branched `applicationId`**; all
+  subsequent edits for that branch must target it. A human branch named `mcp/*` falls inside the reserved agent
+  namespace — keep human branches out of it. Agents never delete branches; humans remove stale `mcp/` branches via
+  Appsmith's branch UI.
+- **`prepare_commit` / `confirm_commit` (governed): commit implies push.** Appsmith's commit API **always pushes to
+  the customer's git remote after the local commit** — there is no commit-without-push and no separate push
+  endpoint. Because of that, MCP commits are allowed **only on `mcp/` agent branches**: both tools refuse unless a
+  fresh, fail-closed read shows the target app's branch is byte-exact `mcp/`-prefixed (`confirm_commit` re-reads at
+  confirm time; any other branch fails with `git_commit_branch_forbidden`). The commit message is one printable
+  line (max 200 characters; control and Unicode bidi/format characters rejected; must not start with `[`) and the
+  server prepends a non-strippable `[mcp] ` marker, so agent-authored commits are always identifiable in git
+  history. Author/committer identity always derives from the session user server-side — the MCP never sends author
+  fields — and amend is pinned off. A missing git author profile fails with an error telling the user to set it in
+  Appsmith.
+
+  **Human approval and elicitation.** `prepare_commit` returns a one-time confirmation (5-minute TTL, bound to the
+  app, branch, message, and current content revision — drift between prepare and confirm fails) plus relay text the
+  agent must show the user. On MCP clients that declare **elicitation** support, `confirm_commit` prompts the human
+  directly ("Commit ALL current changes on branch mcp/… and PUSH to the remote?"); only an explicit accept
+  proceeds, and decline/cancel/timeout leave the confirmation unconsumed (bounded at 3 prompts per confirmation,
+  after which it is invalidated). **Honest fallback:** without an elicitation-capable client the confirmation
+  prompt depends on the agent relaying it — the one-time token and relay text are the fallback posture, and no
+  server rule (mcp/-only, TTL, one-time token, content binding) relaxes either way. Client support for elicitation
+  varies (e.g. VS Code and some desktop MCP clients support it; many others do not yet) — operators should assume
+  the fallback posture unless they know their client. Note for operators: an approved commit pushes to your remote
+  under the instance deploy key, so remote CI/webhooks watching branch pushes will run on `mcp/*` commits.
+
+  Publishing from MCP remains disabled for git apps: the deliverable is the `mcp/` branch and its branch-scoped
+  review URL — the user reviews on the branch, merges via Appsmith's branch UI or a pull request on the remote,
+  then deletes the `mcp/` branch.
+
 ## Local development
 
 Copy `.env.example` to `.env` and run the package standalone. See that file for the full set of variables.
