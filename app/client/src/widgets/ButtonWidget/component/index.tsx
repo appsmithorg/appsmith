@@ -143,7 +143,7 @@ const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
         ? getComplementaryGrayscaleColor(buttonColor)
         : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor))
     } !important;
-    font-size: ${safeLabelTextSize ?? "inherit"};
+    font-size: ${safeLabelTextSize || "inherit"};
     font-weight: ${
       labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "inherit"
     };

@@ -449,7 +449,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             validation: {
               type: ValidationTypes.TEXT,
               params: {
-                regex: /^(?![<|{{]).+/,
+                regex: /^(?!(?:<|\{\{)).+/,
               },
             },
           },
