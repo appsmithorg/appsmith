@@ -422,8 +422,12 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
   it("6. Verify Adding new Individual widgets & it can change Color, Border radius, Shadow & can revert [Color/Border Radius] to already selected theme", () => {
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 400 }); //another button widget
     cy.moveToStyleTab();
-    //Change Color & verify
-    cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();
+    //Change Color & verify (scope to Button color — Label styles also has a color picker)
+    cy.get(
+      `.t--property-control-buttoncolor ${widgetsPage.colorPickerV2Popover}`,
+    )
+      .click({ force: true })
+      .click();
     cy.get(widgetsPage.colorPickerV2TailwindColor)
       .eq(33)
       .then(($elem) => {
@@ -607,8 +611,12 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     cy.moveToStyleTab();
 
-    //Change Color & verify
-    cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();
+    //Change Color & verify (scope to Button color — Label styles also has a color picker)
+    cy.get(
+      `.t--property-control-buttoncolor ${widgetsPage.colorPickerV2Popover}`,
+    )
+      .click({ force: true })
+      .click();
     cy.get(widgetsPage.colorPickerV2TailwindColor)
       .eq(13)
       .then(($elem) => {
