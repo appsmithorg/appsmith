@@ -32,6 +32,30 @@ public class FileValidationUtilsTest {
     private static final byte[] TEXT_BYTES =
             "Hello, this is a plain text file.\nWith a second line of content.".getBytes(StandardCharsets.UTF_8);
 
+    private static final byte[] MARKDOWN_BYTES = ("# Release notes\n\n"
+                    + "Some **bold** text, a [link](https://example.com) and a list:\n\n"
+                    + "- first item\n- second item\n\nComparisons like 1 < 2 and a > b are fine.\n")
+            .getBytes(StandardCharsets.UTF_8);
+
+    // SVG that begins only after leading whitespace: Tika's magic detector misses it and the text fallback
+    // reports text/plain, which is the bypass the anti-smuggling check must catch.
+    private static final byte[] SVG_AFTER_WHITESPACE_BYTES =
+            ("   \n\t<svg xmlns=\"http://www.w3.org/2000/svg\"><script>alert(1)</script></svg>")
+                    .getBytes(StandardCharsets.UTF_8);
+
+    private static final byte[] SVG_AFTER_TEXT_BYTES =
+            ("notes for later\n<svg xmlns=\"http://www.w3.org/2000/svg\"><script>alert(1)</script></svg>")
+                    .getBytes(StandardCharsets.UTF_8);
+
+    private static final byte[] MARKDOWN_WITH_SCRIPT_BYTES =
+            "# Title\n\nInline payload: <script>alert(document.cookie)</script>\n".getBytes(StandardCharsets.UTF_8);
+
+    private static final byte[] TEXT_WITH_HTML_BYTES =
+            "Please read below.\n<html><body>hi</body></html>\n".getBytes(StandardCharsets.UTF_8);
+
+    private static final byte[] HTML_AFTER_WHITESPACE_BYTES =
+            "  \n<!DOCTYPE html>\n<html><body>hi</body></html>".getBytes(StandardCharsets.UTF_8);
+
     private static FilePart mockFilePart(String filename, byte[] content) {
         FilePart filePart = mock(FilePart.class);
         lenient().when(filePart.name()).thenReturn("files");
@@ -95,5 +119,53 @@ public class FileValidationUtilsTest {
         StepVerifier.create(FileValidationUtils.validateFileType(text))
                 .assertNext(validated -> assertThat(validated).isInstanceOf(BufferedFilePart.class))
                 .verifyComplete();
+    }
+
+    @Test
+    public void validateFileType_withPlainMarkdown_isAccepted() {
+        FilePart markdown = mockFilePart("notes.md", MARKDOWN_BYTES);
+        StepVerifier.create(FileValidationUtils.validateFileType(markdown))
+                .assertNext(validated -> assertThat(validated).isInstanceOf(BufferedFilePart.class))
+                .verifyComplete();
+    }
+
+    @Test
+    public void validateFileType_withSvgAfterLeadingWhitespace_isRejected() {
+        FilePart svg = mockFilePart("payload.txt", SVG_AFTER_WHITESPACE_BYTES);
+        StepVerifier.create(FileValidationUtils.validateFileType(svg))
+                .expectError(AppsmithPluginException.class)
+                .verify();
+    }
+
+    @Test
+    public void validateFileType_withSvgAfterTextPrefix_isRejected() {
+        FilePart svg = mockFilePart("payload.txt", SVG_AFTER_TEXT_BYTES);
+        StepVerifier.create(FileValidationUtils.validateFileType(svg))
+                .expectError(AppsmithPluginException.class)
+                .verify();
+    }
+
+    @Test
+    public void validateFileType_withMarkdownContainingScript_isRejected() {
+        FilePart markdown = mockFilePart("notes.md", MARKDOWN_WITH_SCRIPT_BYTES);
+        StepVerifier.create(FileValidationUtils.validateFileType(markdown))
+                .expectError(AppsmithPluginException.class)
+                .verify();
+    }
+
+    @Test
+    public void validateFileType_withTextContainingHtml_isRejected() {
+        FilePart text = mockFilePart("notes.txt", TEXT_WITH_HTML_BYTES);
+        StepVerifier.create(FileValidationUtils.validateFileType(text))
+                .expectError(AppsmithPluginException.class)
+                .verify();
+    }
+
+    @Test
+    public void validateFileType_withHtmlAfterLeadingWhitespace_isRejected() {
+        FilePart html = mockFilePart("page.txt", HTML_AFTER_WHITESPACE_BYTES);
+        StepVerifier.create(FileValidationUtils.validateFileType(html))
+                .expectError(AppsmithPluginException.class)
+                .verify();
     }
 }

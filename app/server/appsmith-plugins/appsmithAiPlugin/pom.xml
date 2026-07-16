@@ -120,7 +120,8 @@
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
-            <version>3.2.1</version>
+            <!-- 3.2.2+ required: 1.13-3.2.1 are affected by CVE-2025-66516 (XXE via crafted XFA in PDFs). -->
+            <version>3.2.2</version>
         </dependency>
 
     </dependencies>
