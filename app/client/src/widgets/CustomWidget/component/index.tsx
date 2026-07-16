@@ -213,7 +213,7 @@ function CustomComponent(props: CustomComponentProps) {
   ]);
 
   const srcDoc = `
-    <html>
+    <html translate="no">
       <head>
         <style>${css}</style>
       </head>

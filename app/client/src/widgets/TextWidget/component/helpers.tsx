@@ -1,4 +1,12 @@
 /**
+ * Schemes that a link is allowed to carry explicitly. Mirrors the allowlist
+ * in utils/validation/getIsSafeURL.ts. Values with any other scheme (e.g.
+ * "javascript:") or no scheme at all are treated as web URLs missing their
+ * protocol and get "http://" prepended, which also neutralizes them.
+ */
+const SAFE_SCHEME_PATTERN = /^(?:https?|mailto|tel|ftp|file|sms):/i;
+
+/**
  * add http if missing
  *
  * @param url
@@ -9,7 +17,7 @@ export const addHttpIfMissing = (url: string) => {
     return url;
   }
 
-  if (url.indexOf("http") === 0) {
+  if (SAFE_SCHEME_PATTERN.test(url)) {
     return url;
   }
 
