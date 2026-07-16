@@ -5,8 +5,7 @@ import { theme } from "constants/DefaultTheme";
 import { BaseButton } from "./index";
 import { getSafeCssColor, getSafeFontSize } from "./utils";
 
-const CSS_BREAKOUT_COLOR =
-  "red; } body { background-color: red !important; }";
+const CSS_BREAKOUT_COLOR = "red; } body { background-color: red !important; }";
 const CSS_BREAKOUT_FONT_SIZE = "1rem; } .hack { color: blue; }";
 
 function getDocumentCss(): string {

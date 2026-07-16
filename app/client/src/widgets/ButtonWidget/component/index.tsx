@@ -84,7 +84,14 @@ const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
     ${buttonHoverActiveStyles}
   }
 
-  ${({ buttonColor, buttonVariant, labelStyle, labelTextColor, labelTextSize, theme }) => {
+  ${({
+    buttonColor,
+    buttonVariant,
+    labelStyle,
+    labelTextColor,
+    labelTextSize,
+    theme,
+  }) => {
     const safeLabelTextColor = getSafeCssColor(labelTextColor);
     const safeLabelTextSize = getSafeFontSize(labelTextSize);
 
