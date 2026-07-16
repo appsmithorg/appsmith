@@ -24,7 +24,6 @@ import type {
   RecaptchaType,
 } from "components/constants";
 import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
-import { FontStyleTypes } from "constants/WidgetConstants";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
@@ -151,12 +150,8 @@ const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
         : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor))
     } !important;
     font-size: ${safeLabelTextSize || "inherit"};
-    font-weight: ${
-      labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "inherit"
-    };
-    font-style: ${
-      labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : "normal"
-    };
+    font-weight: ${labelStyle?.includes("BOLD") ? "bold" : "inherit"};
+    font-style: ${labelStyle?.includes("ITALIC") ? "italic" : "normal"};
   }
 
   ${
@@ -217,12 +212,12 @@ export interface ButtonStyleProps {
   iconAlign?: Alignment;
   shouldFitContent?: boolean;
   placement?: ButtonPlacement;
+  labelStyle?: string;
+  labelTextColor?: string;
+  labelTextSize?: string;
   maxWidth?: number;
   minWidth?: number;
   minHeight?: number;
-  labelTextColor?: string;
-  labelTextSize?: string;
-  labelStyle?: string;
 }
 
 // To be used in any other part of the app
@@ -314,7 +309,7 @@ interface RecaptchaProps {
 
 interface ButtonComponentProps
   extends ComponentProps,
-    Pick<ButtonStyleProps, "labelTextColor" | "labelTextSize" | "labelStyle"> {
+    Pick<ButtonStyleProps, "labelStyle" | "labelTextColor" | "labelTextSize"> {
   text?: string;
   icon?: IconName | MaybeElement;
   tooltip?: string;

@@ -25,7 +25,6 @@ import type {
   AutocompletionDefinitions,
 } from "WidgetProvider/types";
 import { isAirgapped } from "ee/utils/airgapHelpers";
-import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
@@ -80,7 +79,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       version: 1,
       responsiveBehavior: ResponsiveBehavior.Hug,
       minWidth: BUTTON_MIN_WIDTH,
-      labelStyle: "",
     };
   }
 
@@ -459,7 +457,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
-            hidden: isAutoLayout,
             options: [
               {
                 label: "S",
@@ -679,12 +676,12 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         handleRecaptchaV2Loading={this.handleRecaptchaV2Loading}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
-        labelStyle={this.props.labelStyle}
-        labelTextColor={this.props.labelTextColor}
-        labelTextSize={this.props.labelTextSize}
         isDisabled={isDisabled}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
+        labelStyle={this.props.labelStyle}
+        labelTextColor={this.props.labelTextColor}
+        labelTextSize={this.props.labelTextSize}
         maxWidth={this.props.maxWidth}
         minHeight={this.props.minHeight}
         minWidth={this.props.minWidth}
@@ -719,9 +716,9 @@ export interface ButtonWidgetProps extends WidgetProps {
   placement?: ButtonPlacement;
   disabledWhenInvalid?: boolean;
   resetFormOnClick?: boolean;
+  labelStyle?: string;
   labelTextColor?: string;
   labelTextSize?: string;
-  labelStyle?: string;
 }
 
 interface ButtonWidgetState extends WidgetState {

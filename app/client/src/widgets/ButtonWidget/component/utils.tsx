@@ -9,7 +9,7 @@ import type { ButtonContainerProps } from "./DragContainer";
 /*
   Created a css util so that we don't repeat our styles.
   Add more styles in the future also make sure you pass the
-    same props to the ButtonContainerProps, because we have to
+  same props to the ButtonContainerProps, because we have to
   repeat on the button and the container.
 */
 
