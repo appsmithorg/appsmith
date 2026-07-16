@@ -214,7 +214,37 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
     @Override
     public Mono<Organization> getOrganizationConfiguration() {
         Mono<Organization> dbOrganizationMono = getCurrentUserOrganization();
-        return getOrganizationConfiguration(dbOrganizationMono);
+        return getOrganizationConfiguration(dbOrganizationMono).flatMap(this::suppressFieldsForAnonymousUser);
+    }
+
+    /**
+     * Checks if the current user is anonymous and, if so, strips fields from the Organization
+     * response that are not required for the login/signup page. This prevents information
+     * disclosure of internal configuration to unauthenticated users (APP-15344).
+     */
+    protected Mono<Organization> suppressFieldsForAnonymousUser(Organization organization) {
+        return ReactiveSecurityContextHolder.getContext()
+                .flatMap(ctx -> Mono.justOrEmpty(ctx.getAuthentication()))
+                .filter(authentication -> authentication.getPrincipal() instanceof User)
+                .map(authentication -> ((User) authentication.getPrincipal()).isAnonymous())
+                .defaultIfEmpty(true)
+                .map(isAnonymous -> {
+                    if (isAnonymous) {
+                        stripOrganizationFieldsForAnonymousUser(organization);
+                    }
+                    return organization;
+                });
+    }
+
+    /**
+     * Strips Organization-level and configuration fields not needed by anonymous users.
+     * EE overrides this to strip additional EE-specific fields.
+     */
+    protected void stripOrganizationFieldsForAnonymousUser(Organization organization) {
+        if (organization.getOrganizationConfiguration() != null) {
+            organization.getOrganizationConfiguration().stripFieldsForAnonymousUser();
+        }
+        organization.setPricingPlan(null);
     }
 
     @Override

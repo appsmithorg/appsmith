@@ -806,6 +806,107 @@ public class ApplicationServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void updateApplicationWithPresets_persistsHtmlLang() {
+        Application application = new Application();
+        application.setName("updateApplicationHtmlLang-Test");
+
+        Mono<Application> resultMono = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(created -> {
+                    // Send only htmlLang (uppercase, to also exercise normalization),
+                    // through the same preset path the controller uses.
+                    Application update = new Application();
+                    ApplicationDetail detail = new ApplicationDetail();
+                    detail.setHtmlLang("DE");
+                    update.setUnpublishedApplicationDetail(detail);
+                    return applicationService.updateApplicationWithPresets(created.getId(), update);
+                })
+                .flatMap(updated -> applicationService.getById(updated.getId()));
+
+        StepVerifier.create(resultMono)
+                .assertNext(app -> {
+                    assertThat(app.getUnpublishedApplicationDetail()).isNotNull();
+                    assertThat(app.getUnpublishedApplicationDetail().getHtmlLang())
+                            .isEqualTo("de");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateApplicationWithPresets_clearsHtmlLang() {
+        Application application = new Application();
+        application.setName("clearApplicationHtmlLang-Test");
+
+        Mono<Application> resultMono = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(created -> {
+                    Application setLang = new Application();
+                    ApplicationDetail detail = new ApplicationDetail();
+                    detail.setHtmlLang("de");
+                    setLang.setUnpublishedApplicationDetail(detail);
+                    return applicationService.updateApplicationWithPresets(created.getId(), setLang);
+                })
+                .flatMap(updated -> {
+                    // An explicitly-empty value clears the previously-saved tag.
+                    Application clear = new Application();
+                    ApplicationDetail detail = new ApplicationDetail();
+                    detail.setHtmlLang("");
+                    clear.setUnpublishedApplicationDetail(detail);
+                    return applicationService.updateApplicationWithPresets(updated.getId(), clear);
+                })
+                .flatMap(updated -> applicationService.getById(updated.getId()));
+
+        StepVerifier.create(resultMono)
+                .assertNext(app -> {
+                    assertThat(app.getUnpublishedApplicationDetail()).isNotNull();
+                    assertThat(app.getUnpublishedApplicationDetail().getHtmlLang())
+                            .isEqualTo("");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateApplicationWithPresets_keepsHtmlLangWhenUpdatingSibling() {
+        Application application = new Application();
+        application.setName("siblingApplicationHtmlLang-Test");
+
+        Mono<Application> resultMono = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(created -> {
+                    Application setLang = new Application();
+                    ApplicationDetail detail = new ApplicationDetail();
+                    detail.setHtmlLang("de");
+                    setLang.setUnpublishedApplicationDetail(detail);
+                    return applicationService.updateApplicationWithPresets(created.getId(), setLang);
+                })
+                .flatMap(updated -> {
+                    // Update only a sibling field; htmlLang is absent and must not be wiped.
+                    Application setNav = new Application();
+                    ApplicationDetail detail = new ApplicationDetail();
+                    Application.NavigationSetting nav = new Application.NavigationSetting();
+                    nav.setOrientation("top");
+                    detail.setNavigationSetting(nav);
+                    setNav.setUnpublishedApplicationDetail(detail);
+                    return applicationService.updateApplicationWithPresets(updated.getId(), setNav);
+                })
+                .flatMap(updated -> applicationService.getById(updated.getId()));
+
+        StepVerifier.create(resultMono)
+                .assertNext(app -> {
+                    assertThat(app.getUnpublishedApplicationDetail().getHtmlLang())
+                            .isEqualTo("de");
+                    assertThat(app.getUnpublishedApplicationDetail()
+                                    .getNavigationSetting()
+                                    .getOrientation())
+                            .isEqualTo("top");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void invalidUpdateApplication() {
         Application testApp1 = new Application();
         testApp1.setName("validApplication1");
