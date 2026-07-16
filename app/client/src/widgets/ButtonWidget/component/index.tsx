@@ -33,7 +33,11 @@ import {
   getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
 import { DragContainer } from "./DragContainer";
-import { buttonHoverActiveStyles } from "./utils";
+import {
+  buttonHoverActiveStyles,
+  getSafeCssColor,
+  getSafeFontSize,
+} from "./utils";
 import type { ThemeProp } from "WidgetProvider/types";
 import { toast } from "@appsmith/ads";
 
@@ -80,7 +84,11 @@ const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
     ${buttonHoverActiveStyles}
   }
 
-  ${({ buttonColor, buttonVariant, labelStyle, labelTextColor, labelTextSize, theme }) => `
+  ${({ buttonColor, buttonVariant, labelStyle, labelTextColor, labelTextSize, theme }) => {
+    const safeLabelTextColor = getSafeCssColor(labelTextColor);
+    const safeLabelTextSize = getSafeFontSize(labelTextSize);
+
+    return `
     background: ${
       getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
         ? getCustomBackgroundColor(buttonVariant, buttonColor)
@@ -130,12 +138,12 @@ const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
     line-height: normal;
 
     color: ${
-      labelTextColor ||
+      safeLabelTextColor ||
       (buttonVariant === ButtonVariantTypes.PRIMARY
         ? getComplementaryGrayscaleColor(buttonColor)
         : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor))
     } !important;
-    font-size: ${labelTextSize ?? "inherit"};
+    font-size: ${safeLabelTextSize ?? "inherit"};
     font-weight: ${
       labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "inherit"
     };
@@ -145,15 +153,16 @@ const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
   }
 
   ${
-    labelTextColor
+    safeLabelTextColor
       ? `
     .bp3-icon {
-      color: ${labelTextColor} !important;
+      color: ${safeLabelTextColor} !important;
     }
   `
       : ""
   }
-`}
+`;
+  }}
 
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => `${boxShadow ?? "none"}`} !important;
