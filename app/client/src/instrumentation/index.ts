@@ -1,7 +1,7 @@
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
 import { trace, context } from "@opentelemetry/api";
-import { Resource } from "@opentelemetry/resources";
+import { resourceFromAttributes } from "@opentelemetry/resources";
 import {
   ATTR_DEPLOYMENT_NAME,
   ATTR_SERVICE_INSTANCE_ID,
@@ -42,7 +42,7 @@ class AppsmithTelemetry {
       observability;
 
     if (isTracingEnabled()) {
-      this.faro = initializeFaro({
+      const faro = initializeFaro({
         url: tracingUrl,
         app: {
           name: serviceName,
@@ -74,22 +74,25 @@ class AppsmithTelemetry {
         },
       });
 
+      this.faro = faro;
+
       const tracerProvider = new WebTracerProvider({
-        resource: new Resource({
+        resource: resourceFromAttributes({
           [ATTR_DEPLOYMENT_NAME]: deploymentName,
           [ATTR_SERVICE_INSTANCE_ID]: serviceInstanceId,
           [ATTR_SERVICE_NAME]: serviceName,
         }),
+        spanProcessors: [
+          new FaroSessionSpanProcessor(
+            new BatchSpanProcessor(new FaroTraceExporter({ ...faro })),
+            faro.metas,
+          ),
+        ],
       });
 
-      tracerProvider.addSpanProcessor(
-        new FaroSessionSpanProcessor(
-          new BatchSpanProcessor(new FaroTraceExporter({ ...this.faro })),
-          this.faro.metas,
-        ),
-      );
+      tracerProvider.register();
 
-      this.faro.api.initOTEL(trace, context);
+      faro.api.initOTEL(trace, context);
     } else {
       this.faro = null;
     }
