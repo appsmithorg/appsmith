@@ -251,6 +251,80 @@ class OrganizationServiceCETest {
     }
 
     @Test
+    @WithUserDetails("anonymousUser")
+    void getOrganizationConfig_AnonymousUser_StripsInternalConfiguration() {
+        // APP-15344: unauthenticated callers must not receive internal configuration fields
+        StepVerifier.create(organizationService.getOrganizationConfiguration())
+                .assertNext(organization -> {
+                    OrganizationConfiguration config = organization.getOrganizationConfiguration();
+                    assertThat(config)
+                            .as("organizationConfiguration must be present")
+                            .isNotNull();
+
+                    // Fields that must be stripped for anonymous users
+                    assertThat(config.getGoogleMapsKey())
+                            .as("googleMapsKey must not be exposed to anonymous users")
+                            .isNull();
+                    assertThat(config.getIsStrongPasswordPolicyEnabled())
+                            .as("isStrongPasswordPolicyEnabled must not be exposed")
+                            .isNull();
+                    assertThat(config.getIsAtomicPushAllowed())
+                            .as("isAtomicPushAllowed must not be exposed")
+                            .isNull();
+                    assertThat(config.getFeaturesWithPendingMigration())
+                            .as("featuresWithPendingMigration must not be exposed")
+                            .isNull();
+                    assertThat(config.getIsSignupDisabled())
+                            .as("isSignupDisabled must not be exposed")
+                            .isNull();
+                    assertThat(config.getEmailVerificationEnabled())
+                            .as("emailVerificationEnabled must not be exposed")
+                            .isNull();
+
+                    // License should be minimal (plan=FREE only)
+                    assertThat(config.getLicense())
+                            .as("license must be present")
+                            .isNotNull();
+                    assertThat(config.getLicense().getPlan())
+                            .as("license.plan should be FREE for anonymous users")
+                            .isEqualTo(LicensePlan.FREE);
+
+                    // Organization-level fields that must be stripped
+                    assertThat(organization.getPricingPlan())
+                            .as("pricingPlan must not be exposed")
+                            .isNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("anonymousUser")
+    void getOrganizationConfig_AnonymousUser_PreservesLoginPageFields() {
+        // APP-15344: login-page fields must still be present for anonymous users
+        StepVerifier.create(organizationService.getOrganizationConfiguration())
+                .assertNext(organization -> {
+                    assertThat(organization.getId())
+                            .as("id must be present for anonymous users")
+                            .isNotNull();
+                    assertThat(organization.getOrganizationConfiguration())
+                            .as("organizationConfiguration must be present")
+                            .isNotNull();
+
+                    // License should still be present (minimal)
+                    assertThat(organization.getOrganizationConfiguration().getLicense())
+                            .as("license must be present (minimal)")
+                            .isNotNull();
+                    assertThat(organization
+                                    .getOrganizationConfiguration()
+                                    .getLicense()
+                                    .getPlan())
+                            .as("license plan must be FREE")
+                            .isEqualTo(LicensePlan.FREE);
+                })
+                .verifyComplete();
+    }
+
+    @Test
     @WithUserDetails("api_user")
     void getOrganizationConfig_AuthenticatedUser_ExposesInstanceMetadata() {
         // APP-14994: authenticated users should still receive instanceId and adminEmailDomainHash
@@ -261,6 +335,36 @@ class OrganizationServiceCETest {
                             .isNotNull();
                     assertThat(organization.getAdminEmailDomainHash())
                             .as("adminEmailDomainHash should be present for authenticated users")
+                            .isNotNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    void getOrganizationConfig_AuthenticatedUser_ExposesFullConfiguration() {
+        // APP-15344: authenticated users must still receive all configuration fields (no regression)
+        final OrganizationConfiguration changes = new OrganizationConfiguration();
+        changes.setGoogleMapsKey("test-maps-key");
+        changes.setIsStrongPasswordPolicyEnabled(TRUE);
+        changes.setIsAtomicPushAllowed(TRUE);
+
+        StepVerifier.create(organizationService
+                        .updateOrganizationConfiguration(changes)
+                        .then(organizationService.getOrganizationConfiguration()))
+                .assertNext(organization -> {
+                    OrganizationConfiguration config = organization.getOrganizationConfiguration();
+                    assertThat(config.getGoogleMapsKey())
+                            .as("googleMapsKey must be visible to authenticated users")
+                            .isEqualTo("test-maps-key");
+                    assertThat(config.getIsStrongPasswordPolicyEnabled())
+                            .as("isStrongPasswordPolicyEnabled must be visible to authenticated users")
+                            .isTrue();
+                    assertThat(config.getIsAtomicPushAllowed())
+                            .as("isAtomicPushAllowed must be visible to authenticated users")
+                            .isTrue();
+                    assertThat(config.getLicense())
+                            .as("license must be present for authenticated users")
                             .isNotNull();
                 })
                 .verifyComplete();
