@@ -22,8 +22,9 @@ if [[ ! -e "$template" ]]; then
   exit 1
 fi
 
-# Render with dummy positional args (mongo user, db pw, enc pw, enc salt, redis pw, temporal pw).
-rendered="$(bash "$template" appsmith dbpw encpw encsalt redispw temporalpw)"
+# Render with dummy positional args matching entrypoint.sh's init_env_file() invocation:
+# mongo user, mongo pw, encryption pw, encryption salt, redis pw.
+rendered="$(bash "$template" appsmith dbpw encpw encsalt redispw)"
 
 fail=0
 
