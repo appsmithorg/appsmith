@@ -7,8 +7,11 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.external.plugins.dtos.SourceDetails;
+import com.external.plugins.utils.FileValidationUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.codec.multipart.FilePart;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -47,8 +50,14 @@ public class TriggerServiceCEImpl implements TriggerService {
 
     private Mono<TriggerResultDTO> uploadFiles(TriggerRequestDTO request) {
         SourceDetails sourceDetails = SourceDetails.createSourceDetails(request);
-        return aiServerService
-                .uploadFiles(request.getFiles(), sourceDetails)
+        List<FilePart> files = request.getFiles() == null ? List.of() : request.getFiles();
+        // Validate every file's true content type (Tika, content-based) before forwarding it upstream, so a
+        // spoofed extension or Content-Type header cannot smuggle in a disallowed type. Validation buffers
+        // each part so it can still be forwarded after inspection.
+        return Flux.fromIterable(files)
+                .concatMap(FileValidationUtils::validateFileType)
+                .collectList()
+                .flatMap(validatedFiles -> aiServerService.uploadFiles(validatedFiles, sourceDetails))
                 .flatMap(response -> {
                     TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
                     triggerResultDTO.setTrigger(response);

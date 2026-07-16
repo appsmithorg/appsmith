@@ -2,6 +2,8 @@ package com.external.plugins.constants;
 
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 
+import java.util.Set;
+
 public class AppsmithAiConstants {
     public static final String USECASE = "usecase";
     public static final String AI_PROXY_BASE_PATH = "/api/v1/proxy";
@@ -63,4 +65,12 @@ public class AppsmithAiConstants {
     public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 150MB */ 150 * 1024 * 1024))
             .build();
+
+    // Server-side allow-list of content types permitted for file uploads. Mirrors the "allowedFileTypes"
+    // hint in form.json, but is enforced here against the file's true (Tika-detected) content type so a
+    // spoofed extension or Content-Type header cannot smuggle in a disallowed type (e.g. an SVG).
+    // Plain text and markdown both surface as text/plain from content-based detection (they carry no magic
+    // signature); text/markdown is kept for parity with form.json.
+    public static final Set<String> SUPPORTED_FILE_MIME_TYPES =
+            Set.of("application/pdf", "text/plain", "text/markdown");
 }

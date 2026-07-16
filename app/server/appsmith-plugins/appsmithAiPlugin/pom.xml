@@ -111,6 +111,18 @@
             <version>32.0.1-jre</version>
         </dependency>
 
+        <!--
+            Apache Tika: content-based file type detection (MIME + magic bytes) for uploaded files.
+            tika-core alone is sufficient here - SVG, PDF and text are detected from their content by the
+            bundled magic/mime definitions and TextDetector; no tika-parsers artifact is required.
+            Compile scope so it is bundled into the shaded plugin jar (same as guava).
+        -->
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>3.2.1</version>
+        </dependency>
+
     </dependencies>
 
     <build>
