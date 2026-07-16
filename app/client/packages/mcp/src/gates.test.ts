@@ -1,4 +1,9 @@
-import { gateEnabled, gateEnabledByDefault } from "./gates.js";
+import {
+  gateEnabled,
+  gateEnabledByDefault,
+  parsePositiveInt,
+  sessionLimitsFromEnv,
+} from "./gates.js";
 
 describe("gateEnabled — opt-in gate parsing (data/JS layers)", () => {
   // The Admin Settings UI writes "true"/"false"; operators historically used "1"/"0". Regression guard: the old
@@ -37,4 +42,128 @@ describe("gateEnabledByDefault — default-ON gate parsing (data/JS layers)", ()
       expect(gateEnabledByDefault(value)).toBe(false);
     },
   );
+});
+
+describe("parsePositiveInt — session cap/TTL env overrides", () => {
+  it.each([
+    ["25", 25],
+    ["1", 1],
+    ["900000", 900000],
+    [" 50 ", 50],
+  ])("parses %j as %d", (value, expected) => {
+    expect(parsePositiveInt(value, 10)).toBe(expected);
+  });
+
+  // Zero and negatives would silently disable the limit or break the TTL math — fall back instead.
+  it.each([undefined, "", "  ", "0", "-5", "2.5", "abc", "NaN", "Infinity"])(
+    "falls back to the default for %j",
+    (value) => {
+      expect(parsePositiveInt(value, 10)).toBe(10);
+    },
+  );
+});
+
+describe("sessionLimitsFromEnv — session cap/TTL resolution", () => {
+  const defaults = {
+    maxSessions: 100,
+    maxSessionsPerUser: 25,
+    sessionTtlMs: 900000,
+  };
+
+  it("returns the defaults without warning when nothing is set", () => {
+    const warn = jest.fn();
+
+    expect(sessionLimitsFromEnv({}, defaults, warn)).toEqual(defaults);
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it("applies valid overrides from the documented variable names without warning", () => {
+    const warn = jest.fn();
+
+    expect(
+      sessionLimitsFromEnv(
+        {
+          APPSMITH_MCP_MAX_SESSIONS: "200",
+          APPSMITH_MCP_MAX_SESSIONS_PER_USER: "50",
+          APPSMITH_MCP_SESSION_TTL_MS: "60000",
+        },
+        defaults,
+        warn,
+      ),
+    ).toEqual({
+      maxSessions: 200,
+      maxSessionsPerUser: 50,
+      sessionTtlMs: 60000,
+    });
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it("falls back AND warns for a present-but-invalid value (a mistyped tightening override must be loud)", () => {
+    const warn = jest.fn();
+
+    expect(
+      sessionLimitsFromEnv(
+        { APPSMITH_MCP_MAX_SESSIONS_PER_USER: "1O" },
+        defaults,
+        warn,
+      ),
+    ).toEqual(defaults);
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0][0]).toContain(
+      "APPSMITH_MCP_MAX_SESSIONS_PER_USER",
+    );
+  });
+
+  it("warns for zero and negative values (they would disable the limit, not tighten it)", () => {
+    const warn = jest.fn();
+
+    sessionLimitsFromEnv(
+      { APPSMITH_MCP_MAX_SESSIONS: "0", APPSMITH_MCP_SESSION_TTL_MS: "-1" },
+      defaults,
+      warn,
+    );
+    expect(warn).toHaveBeenCalledTimes(2);
+  });
+
+  it("clamps absurd overrides to the ceilings with a warning (the caps exist to bound memory)", () => {
+    const warn = jest.fn();
+
+    expect(
+      sessionLimitsFromEnv(
+        {
+          APPSMITH_MCP_MAX_SESSIONS: "1000000000",
+          APPSMITH_MCP_SESSION_TTL_MS: "999999999999",
+        },
+        defaults,
+        warn,
+      ),
+    ).toEqual({
+      maxSessions: 10000,
+      maxSessionsPerUser: 25,
+      sessionTtlMs: 24 * 60 * 60 * 1000,
+    });
+    expect(warn).toHaveBeenCalledTimes(2);
+    expect(warn.mock.calls[0][0]).toContain("exceeds the maximum");
+  });
+
+  it("warns when the per-user cap exceeds the global cap (global wins at runtime)", () => {
+    const warn = jest.fn();
+
+    const limits = sessionLimitsFromEnv(
+      {
+        APPSMITH_MCP_MAX_SESSIONS: "50",
+        APPSMITH_MCP_MAX_SESSIONS_PER_USER: "200",
+      },
+      defaults,
+      warn,
+    );
+
+    expect(limits).toEqual({
+      maxSessions: 50,
+      maxSessionsPerUser: 200,
+      sessionTtlMs: 900000,
+    });
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0][0]).toContain("the global cap applies first");
+  });
 });

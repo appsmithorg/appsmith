@@ -185,7 +185,7 @@ const MAX_ID_LENGTH = 128;
 export const MAX_ARTIFACT_BYTES = 1024 * 1024;
 export const MAX_REQUEST_BODY_BYTES = 2 * 1024 * 1024;
 export const MAX_MCP_SESSIONS = 100;
-export const MAX_MCP_SESSIONS_PER_USER = 10;
+export const MAX_MCP_SESSIONS_PER_USER = 25;
 export const MCP_SESSION_TTL_MS = 15 * 60 * 1000;
 export const REQUEST_TIMEOUT_MS = 30 * 1000;
 export const HEADERS_TIMEOUT_MS = 10 * 1000;
@@ -3847,18 +3847,62 @@ export function createMcpHttpServer(
           if (existing.username === authenticatedUser) userSessionCount += 1;
         }
 
-        if (sessions.size + pendingTotal >= maxSessions) {
+        // At the per-user cap, evict this user's own least-recently-active registered session(s) instead of
+        // rejecting: sessions from unclean disconnects (dropped SSE streams, proxy timeouts) never fire
+        // transport.onclose and would otherwise lock the user out until the TTL sweep. Eviction is safe here
+        // because the request is already authenticated as this same user, so a caller can only ever displace
+        // their own sessions — never another user's (the global cap below stays a hard reject for that reason).
+        // Pending reservations are not evictable, so a cap consumed entirely by in-flight initializes still 429s.
+        //
+        // Victims are only selected here; they are closed after BOTH caps admit the request, so a request that
+        // is rejected anyway never destroys a session. Smallest expiresAt == least recently active: every touch
+        // sets expiresAt to now + sessionTtlMs and the TTL is constant for the life of the process. (If TTLs
+        // ever become per-session, switch to an explicit lastActiveAt field.)
+        const evictable: string[] = [];
+
+        if (userSessionCount >= maxSessionsPerUser) {
+          const own = [...sessions.entries()]
+            .filter(([, existing]) => existing.username === authenticatedUser)
+            .sort(([, a], [, b]) => a.expiresAt - b.expiresAt);
+
+          for (const [id] of own) {
+            if (userSessionCount - evictable.length < maxSessionsPerUser) {
+              break;
+            }
+
+            evictable.push(id);
+          }
+        }
+
+        if (sessions.size - evictable.length + pendingTotal >= maxSessions) {
           writeJson(res, 503, { error: "MCP session limit reached" });
 
           return;
         }
 
-        if (userSessionCount >= maxSessionsPerUser) {
+        if (userSessionCount - evictable.length >= maxSessionsPerUser) {
           writeJson(res, 429, {
             error: "MCP session limit reached for this user",
           });
 
           return;
+        }
+
+        for (const id of evictable) {
+          const evicted = sessions.get(id);
+
+          if (!evicted) continue;
+
+          sessions.delete(id);
+          void evicted.transport.close().catch(() => {});
+          // Evictions displace what may be a live session, so leave a trace: without this, a victim's "my
+          // session died" (or an attacker churning a stolen token to kill sessions) is indistinguishable from
+          // ordinary reconnects in the logs. PII-free, same shape as the request telemetry.
+          logMcpEvent("appsmith_mcp_session_evicted", {
+            requestId,
+            usernameHash: hashUsername(authenticatedUser),
+            idleMs: Math.max(0, sessionTtlMs - (evicted.expiresAt - now())),
+          });
         }
 
         pendingTotal += 1;

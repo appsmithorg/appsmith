@@ -1,6 +1,11 @@
 import type { Server } from "node:http";
-import { createMcpHttpServer } from "./app.js";
-import { gateEnabledByDefault } from "./gates.js";
+import {
+  createMcpHttpServer,
+  MAX_MCP_SESSIONS,
+  MAX_MCP_SESSIONS_PER_USER,
+  MCP_SESSION_TTL_MS,
+} from "./app.js";
+import { gateEnabledByDefault, sessionLimitsFromEnv } from "./gates.js";
 import { McpGovernanceCoordinator } from "./governance/coordinator.js";
 import {
   createGovernanceStoreFromEnv,
@@ -22,6 +27,19 @@ const allowedHosts = (process.env.APPSMITH_MCP_ALLOWED_HOSTS ?? "")
   .split(",")
   .map((host) => host.trim())
   .filter((host) => host.length > 0);
+
+// Session caps and idle TTL. When a user hits the per-user cap, the server evicts their own oldest session
+// rather than rejecting, so these bound memory use rather than acting as a hard rate limit; invalid or unset
+// values fall back to the built-in defaults (a present-but-invalid value is warned about at startup).
+const sessionLimits = sessionLimitsFromEnv(
+  process.env,
+  {
+    maxSessions: MAX_MCP_SESSIONS,
+    maxSessionsPerUser: MAX_MCP_SESSIONS_PER_USER,
+    sessionTtlMs: MCP_SESSION_TTL_MS,
+  },
+  (message) => process.stderr.write(`Appsmith MCP ${message}\n`),
+);
 
 let httpServer: Server | undefined;
 let governanceStore: MongoRedisGovernanceStore | undefined;
@@ -89,6 +107,7 @@ async function main(): Promise<void> {
     jsEnabled,
     governance,
     allowedHosts,
+    ...sessionLimits,
   });
 
   httpServer.listen(port, "127.0.0.1", () => {

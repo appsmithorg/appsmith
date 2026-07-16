@@ -980,14 +980,32 @@ describe("MCP HTTP server", () => {
         fire(),
         fire(),
       ]);
-      const accepted = responses.filter(
-        (r) => r.headers["mcp-session-id"],
-      ).length;
+      const acceptedIds = responses
+        .map((r) => r.headers["mcp-session-id"] as string | undefined)
+        .filter((id): id is string => Boolean(id));
       const rejected = responses.filter((r) => r.status === 429).length;
 
-      // The atomic reservation must admit exactly one; the rest hit the per-user cap.
-      expect(accepted).toBe(1);
-      expect(rejected).toBe(4);
+      // Every request either gets a session or hits the cap — nothing slips through unaccounted. An initialize
+      // that lands while another is still a pending reservation is rejected (reservations are not evictable);
+      // one that lands after a session registered evicts it and takes its place. Timing decides the split, so
+      // assert the invariants rather than an exact count.
+      expect(acceptedIds.length).toBeGreaterThanOrEqual(1);
+      expect(acceptedIds.length + rejected).toBe(5);
+
+      // The cap itself is the hard invariant: at most one of the issued sessions is still alive afterwards.
+      const probes = await Promise.all(
+        acceptedIds.map((id) =>
+          supertest(server)
+            .post("/mcp")
+            .set("Accept", "application/json, text/event-stream")
+            .set("Authorization", "Bearer mcp_user-token")
+            .set("mcp-session-id", id)
+            .send({ jsonrpc: "2.0", method: "notifications/initialized" }),
+        ),
+      );
+      const alive = probes.filter((probe) => probe.status !== 400).length;
+
+      expect(alive).toBe(1);
     } finally {
       await new Promise<void>((resolve) => server.close(() => resolve()));
     }
@@ -1192,7 +1210,8 @@ describe("MCP HTTP server", () => {
     });
   });
 
-  it("rejects new sessions when the per-user limit is reached", async () => {
+  it("rejects a new session when the per-user cap leaves nothing to evict", async () => {
+    // A zero cap means no registered session can ever exist to evict, so the 429 path still fires.
     const server = createMcpHttpServer(API_BASE_URL, createApi(), {
       maxSessionsPerUser: 0,
     });
@@ -1207,6 +1226,161 @@ describe("MCP HTTP server", () => {
       status: 429,
       body: { error: "MCP session limit reached for this user" },
     });
+  });
+
+  it("evicts the user's own oldest session instead of rejecting at the per-user cap", async () => {
+    const server = createMcpHttpServer(API_BASE_URL, createApi(), {
+      maxSessionsPerUser: 1,
+    });
+    const firstId = await initSession(server);
+
+    // The second initialize succeeds — the stale first session is displaced rather than the client seeing a 429.
+    const second = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .send(initializeRequest);
+    const secondId = second.headers["mcp-session-id"] as string;
+
+    expect(second.status).not.toBe(429);
+    expect(secondId).toBeDefined();
+
+    const evicted = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", firstId)
+      .send({ jsonrpc: "2.0", method: "notifications/initialized" });
+
+    expect(evicted).toMatchObject({
+      status: 400,
+      body: { error: "initialize the MCP session first" },
+    });
+
+    const survivor = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", secondId)
+      .send({ jsonrpc: "2.0", method: "notifications/initialized" });
+
+    expect(survivor.status).not.toBe(400);
+  });
+
+  it("evicts the least-recently-active session, not the most recent one", async () => {
+    let time = 0;
+    const server = createMcpHttpServer(API_BASE_URL, createApi(), {
+      maxSessionsPerUser: 2,
+      now: () => time,
+    });
+    const touchedId = await initSession(server);
+
+    time = 1000;
+    const idleId = await initSession(server);
+
+    // Touch the first session at t=2000, making the second one the least recently active of the two.
+    time = 2000;
+    await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", touchedId)
+      .send({ jsonrpc: "2.0", method: "notifications/initialized" });
+
+    time = 3000;
+    const third = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .send(initializeRequest);
+
+    expect(third.headers["mcp-session-id"]).toBeDefined();
+
+    // The idle session was the oldest by last activity and is the one displaced — creation order is irrelevant.
+    const displaced = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", idleId)
+      .send({ jsonrpc: "2.0", method: "notifications/initialized" });
+
+    expect(displaced.status).toBe(400);
+
+    const survivor = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", touchedId)
+      .send({ jsonrpc: "2.0", method: "notifications/initialized" });
+
+    expect(survivor.status).not.toBe(400);
+  });
+
+  it("admits a capped user at global saturation when their own eviction frees the slot", async () => {
+    // Eviction candidates count against the global cap check: displacing the user's own session is net-zero
+    // for the instance, so a full instance must not 503 a user who is only displacing themselves.
+    const server = createMcpHttpServer(API_BASE_URL, createApi(), {
+      maxSessions: 1,
+      maxSessionsPerUser: 1,
+    });
+
+    await initSession(server);
+
+    const second = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .send(initializeRequest);
+
+    expect(second.status).not.toBe(503);
+    expect(second.headers["mcp-session-id"]).toBeDefined();
+  });
+
+  it("never evicts another user's session at the per-user cap", async () => {
+    // Username derives from the token so two bearer tokens act as two distinct users.
+    const apiForToken = (token: string): AppsmithApi => ({
+      ...createApi()(),
+      validateToken: jest.fn(async () => ({
+        username: token.includes("alice") ? "alice" : "bob",
+        isAnonymous: false,
+      })),
+    });
+    const server = createMcpHttpServer(API_BASE_URL, apiForToken, {
+      maxSessionsPerUser: 1,
+    });
+    const init = (token: string) =>
+      supertest(server)
+        .post("/mcp")
+        .set("Accept", "application/json, text/event-stream")
+        .set("Authorization", `Bearer ${token}`)
+        .send(initializeRequest);
+    const aliceFirst = await init("mcp_alice-token");
+    const bobSession = await init("mcp_bob-token");
+    const aliceSecond = await init("mcp_alice-token");
+
+    const aliceFirstId = aliceFirst.headers["mcp-session-id"] as string;
+    const bobSessionId = bobSession.headers["mcp-session-id"] as string;
+
+    expect(aliceSecond.headers["mcp-session-id"]).toBeDefined();
+
+    // Alice's churn displaced only her own session; Bob's is untouched.
+    const aliceEvicted = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_alice-token")
+      .set("mcp-session-id", aliceFirstId)
+      .send({ jsonrpc: "2.0", method: "notifications/initialized" });
+
+    expect(aliceEvicted.status).toBe(400);
+
+    const bobAlive = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_bob-token")
+      .set("mcp-session-id", bobSessionId)
+      .send({ jsonrpc: "2.0", method: "notifications/initialized" });
+
+    expect(bobAlive.status).not.toBe(400);
   });
 });
 

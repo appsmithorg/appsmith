@@ -31,6 +31,21 @@ setting change is applied, already-issued `mcp_…` tokens are rejected (401) ra
 Governed and destructive tools additionally require a MongoDB + Redis backend (`APPSMITH_MONGODB_URI` /
 `APPSMITH_DB_URL` and `APPSMITH_REDIS_URL`); without them the server starts with read + spec-authoring tools only.
 
+### Session limits
+
+Sessions are bounded per instance and per user, with an idle TTL. When a user starts a session beyond their cap, the
+server evicts that user's own least-recently-active session instead of rejecting the new one — so clients that
+reconnect without cleanly closing (dropped SSE streams, proxy timeouts) are never locked out by their own stale
+sessions. The instance-wide cap stays a hard limit (HTTP 503), since evicting across users would let one user
+displace another's sessions. All three limits are tunable; invalid or unset values fall back to the defaults, and
+values above the sanity ceilings (10000 sessions, 24 h TTL) are clamped — both with a startup warning.
+
+| Variable                             | Default         | Effect                                                               |
+| ------------------------------------ | --------------- | -------------------------------------------------------------------- |
+| `APPSMITH_MCP_MAX_SESSIONS`          | 100             | Instance-wide cap on concurrent MCP sessions (hard 503 when full).   |
+| `APPSMITH_MCP_MAX_SESSIONS_PER_USER` | 25              | Per-user cap; at the cap the user's oldest session is evicted.       |
+| `APPSMITH_MCP_SESSION_TTL_MS`        | 900000 (15 min) | Idle session lifetime; every request on a session refreshes its TTL. |
+
 ## Local development
 
 Copy `.env.example` to `.env` and run the package standalone. See that file for the full set of variables.
