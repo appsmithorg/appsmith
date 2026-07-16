@@ -512,7 +512,8 @@ export function getCapabilities(
     // build/edit spec in one place (tableData vs source) and agents are steered to this document first.
     patchSpec: {
       shape:
-        "{ operations: [{ kind: 'update', name: '<widget>', props: {...} } | { kind: 'move', name, placement } | { kind: 'remove', name }] }",
+        "{ operations: [{ kind: 'update', name: '<widget>', props: {...} } | { kind: 'move', name, parent?, position? } | { kind: 'remove', name }] }",
+      move: "parent: '<containerWidget>' reparents; position: { topRow, leftColumn } places on the page grid (rows/columns, see `grid`) — set the same topRow as a sibling to sit widgets side by side. At least one of parent/position is required. NOT the build spec's placement { after/inside } — read the page first to learn current positions.",
       updateProps: {
         literals:
           "text, label, inputType, options, title, image, chartType, chartName, defaultText, placeholderText, dateFormat, isRequired, isDisabled, isVisible, oddRowColor, evenRowColor, isVisibleSearch, enableClientSideSearch, isVisibleFilters, isSortable, isVisibleDownload, isVisiblePagination",

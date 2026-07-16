@@ -1382,6 +1382,14 @@ export function buildMcpServer(
     };
     const revisionAfter = fingerprintDsl(params.newDsl);
 
+    // Every layout edit lands in the app's EDIT copy only — the deployed (viewer) app keeps serving the last
+    // publish until someone re-deploys. Agents reliably forget the publish-last instruction and report "done"
+    // while the user stares at an unchanged app, so every mutating result states it explicitly, worded for the
+    // agent to relay verbatim and matched to whether this deployment can re-publish via MCP at all.
+    const deployNote = governance
+      ? "Saved to the app's edit copy — the deployed app still shows the last publish. When you are done editing, re-deploy with prepare_publish -> confirm_publish (or tell the user to open the app in the Appsmith editor and click Deploy) so the changes go live."
+      : "Saved to the app's edit copy — the deployed app still shows the last publish. Re-publishing via MCP requires governance (not configured on this deployment); tell the user to open the app in the Appsmith editor and click Deploy to see the changes live.";
+
     // Every layout edit on a git-connected app is saved UNCOMMITTED on the branch; warn (but proceed) so the agent
     // surfaces it to the user. Fetched once here so all layout-editing tools (edit_page/patch_widgets/wire_event)
     // inherit the warning without each re-implementing the check (M1-T3).
@@ -1409,6 +1417,7 @@ export function buildMcpServer(
       return result({
         ...params.extra,
         ...(gitWarning ? { gitWarning } : {}),
+        deployNote,
         diagnostics,
         layout,
         revision: revisionAfter,
@@ -1449,6 +1458,7 @@ export function buildMcpServer(
       return result({
         ...params.extra,
         ...(gitWarning ? { gitWarning } : {}),
+        deployNote,
         diagnostics: value.diagnostics,
         layout: value.layout,
         revision: revisionAfter,
@@ -4181,6 +4191,19 @@ export function createMcpHttpServer(
       }
 
       if (!transport) {
+        // Streamable HTTP spec, session management: a request whose Mcp-Session-Id the server no longer
+        // recognizes (expired, evicted, restarted) MUST get 404 — that status is the defined signal on which a
+        // compliant client transparently starts a new session with a fresh InitializeRequest. A 400 here strands
+        // such clients (observed with ChatGPT: it surfaces "400" failures instead of reconnecting). A request
+        // with NO session id that is not an initialize stays 400 per the same spec section.
+        if (sessionId !== undefined) {
+          writeJson(res, 404, {
+            error: "session not found; initialize a new MCP session",
+          });
+
+          return;
+        }
+
         writeJson(res, 400, { error: "initialize the MCP session first" });
 
         return;

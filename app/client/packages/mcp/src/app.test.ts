@@ -956,7 +956,7 @@ describe("MCP HTTP server", () => {
       .set("mcp-session-id", sessionId)
       .send({ jsonrpc: "2.0", method: "notifications/initialized" });
 
-    expect(owner.status).not.toBe(400);
+    expect(owner.status).not.toBe(404);
   });
 
   it("enforces the per-user session cap under concurrent initialize requests", async () => {
@@ -1004,7 +1004,7 @@ describe("MCP HTTP server", () => {
             .send({ jsonrpc: "2.0", method: "notifications/initialized" }),
         ),
       );
-      const alive = probes.filter((probe) => probe.status !== 400).length;
+      const alive = probes.filter((probe) => probe.status !== 404).length;
 
       expect(alive).toBe(1);
     } finally {
@@ -1062,7 +1062,22 @@ describe("MCP HTTP server", () => {
       .set("mcp-session-id", sessionId)
       .send({ jsonrpc: "2.0", method: "notifications/initialized" });
 
+    // 404, not 400: the spec-defined signal on which a compliant client re-initializes transparently.
     expect(expired).toMatchObject({
+      status: 404,
+      body: { error: "session not found; initialize a new MCP session" },
+    });
+  });
+
+  it("answers 400 only when NO session id accompanies a non-initialize request", async () => {
+    const server = createMcpHttpServer(API_BASE_URL, createApi());
+    const response = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .send({ jsonrpc: "2.0", method: "notifications/initialized" });
+
+    expect(response).toMatchObject({
       status: 400,
       body: { error: "initialize the MCP session first" },
     });
@@ -1330,9 +1345,10 @@ describe("MCP HTTP server", () => {
       .set("mcp-session-id", firstId)
       .send({ jsonrpc: "2.0", method: "notifications/initialized" });
 
+    // 404 per spec: the evicted session's client re-initializes transparently instead of stranding.
     expect(evicted).toMatchObject({
-      status: 400,
-      body: { error: "initialize the MCP session first" },
+      status: 404,
+      body: { error: "session not found; initialize a new MCP session" },
     });
 
     const survivor = await supertest(server)
@@ -1342,7 +1358,7 @@ describe("MCP HTTP server", () => {
       .set("mcp-session-id", secondId)
       .send({ jsonrpc: "2.0", method: "notifications/initialized" });
 
-    expect(survivor.status).not.toBe(400);
+    expect(survivor.status).not.toBe(404);
   });
 
   it("evicts the least-recently-active session, not the most recent one", async () => {
@@ -1382,7 +1398,7 @@ describe("MCP HTTP server", () => {
       .set("mcp-session-id", idleId)
       .send({ jsonrpc: "2.0", method: "notifications/initialized" });
 
-    expect(displaced.status).toBe(400);
+    expect(displaced.status).toBe(404);
 
     const survivor = await supertest(server)
       .post("/mcp")
@@ -1391,7 +1407,7 @@ describe("MCP HTTP server", () => {
       .set("mcp-session-id", touchedId)
       .send({ jsonrpc: "2.0", method: "notifications/initialized" });
 
-    expect(survivor.status).not.toBe(400);
+    expect(survivor.status).not.toBe(404);
   });
 
   it("admits a capped user at global saturation when their own eviction frees the slot", async () => {
@@ -1449,7 +1465,7 @@ describe("MCP HTTP server", () => {
       .set("mcp-session-id", aliceFirstId)
       .send({ jsonrpc: "2.0", method: "notifications/initialized" });
 
-    expect(aliceEvicted.status).toBe(400);
+    expect(aliceEvicted.status).toBe(404);
 
     const bobAlive = await supertest(server)
       .post("/mcp")
@@ -1458,7 +1474,7 @@ describe("MCP HTTP server", () => {
       .set("mcp-session-id", bobSessionId)
       .send({ jsonrpc: "2.0", method: "notifications/initialized" });
 
-    expect(bobAlive.status).not.toBe(400);
+    expect(bobAlive.status).not.toBe(404);
   });
 });
 
@@ -3873,6 +3889,42 @@ describe("governance-wrapped layout mutations", () => {
     ).toBe("Welcome");
     // Non-git app: no git warning.
     expect(patched.body.gitWarning).toBeUndefined();
+    // Every layout mutation says the deployed app is stale — ungoverned wording points at the editor's Deploy
+    // button, since re-publish via MCP is unavailable without governance.
+    expect(patched.body.deployNote).toContain("edit copy");
+    expect(patched.body.deployNote).toContain("click Deploy");
+    expect(patched.body.deployNote).toContain("requires governance");
+  });
+
+  it("layout mutations on a governed deployment steer the agent to re-publish (deployNote)", async () => {
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: TEXT_DSL },
+      })),
+      updateLayout: jest.fn(async () => ({ ok: true })),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+    const patched = await callTool(server, "patch_widgets", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision: fingerprintDsl(TEXT_DSL as never),
+      patch: {
+        operations: [
+          { kind: "update", name: "Greeting", props: { text: "Welcome" } },
+        ],
+      },
+    });
+
+    expect(patched.body.deployNote).toContain("edit copy");
+    expect(patched.body.deployNote).toContain(
+      "prepare_publish -> confirm_publish",
+    );
   });
 
   // M1-T3: a git-connected app edited via MCP produces uncommitted branch changes; the edit proceeds but warns.
