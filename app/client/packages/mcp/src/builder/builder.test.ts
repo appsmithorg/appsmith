@@ -1,5 +1,6 @@
 import { applyEdit, compileApp } from "./compile.js";
 import { sequentialIdGenerator, type WidgetNode } from "./layout.js";
+import { overlapDelta, overlappingPairs } from "./occupancy.js";
 import { appSpecSchema, editSpecSchema, type WidgetSpec } from "./schema.js";
 import { PRESETS } from "./presets.js";
 
@@ -14,6 +15,94 @@ function rootOf(artifact: Record<string, unknown>, pageIndex = 0): WidgetNode {
 
   return pageList[pageIndex].unpublishedPage.layouts[0].dsl;
 }
+
+describe("M6 modal discipline — build/edit structural glue", () => {
+  it("compileApp rejects a build spec that nests a modal inside a modal", () => {
+    expect(() =>
+      compileApp(
+        {
+          name: "App",
+          pages: [
+            {
+              name: "Home",
+              widgets: [
+                {
+                  type: "modal",
+                  name: "Outer",
+                  children: [{ type: "modal", name: "Inner" }],
+                },
+              ],
+            },
+          ],
+        },
+        ids(),
+      ),
+    ).toThrow(/cannot be placed inside another modal/);
+  });
+
+  it("applyEdit rejects adding a modal inside an existing modal; pre-existing nesting stays editable", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [{ type: "modal", name: "EditModal", title: "Edit" }],
+          },
+        ],
+      },
+      ids(),
+    );
+    const dsl = rootOf(artifact);
+
+    expect(() =>
+      applyEdit(
+        dsl,
+        {
+          add: [
+            {
+              type: "modal",
+              name: "Nested",
+              placement: { inside: "EditModal" },
+            },
+          ],
+        },
+        ids(),
+      ),
+    ).toThrow(/cannot be placed inside another modal/);
+
+    // Argument-order pin for assertNoNewNestedModals(currentDsl, dsl): a page that ALREADY contains
+    // hand-authored nesting must remain editable — only NEW nesting rejects.
+    const modal = (dsl.children ?? []).find(
+      (child) => child.widgetName === "EditModal",
+    ) as WidgetNode;
+    const modalCanvas = (modal.children ?? [])[0] as WidgetNode;
+
+    modalCanvas.children = [
+      {
+        widgetId: "legacy1",
+        widgetName: "LegacyNested",
+        type: "MODAL_WIDGET",
+        detachFromLayout: true,
+        topRow: 0,
+        bottomRow: 24,
+        leftColumn: 0,
+        rightColumn: 24,
+        children: [],
+      } as unknown as WidgetNode,
+    ];
+
+    const edited = applyEdit(
+      dsl,
+      { add: [{ type: "text", name: "Note", text: "hello" }] },
+      ids(),
+    );
+
+    expect(
+      (edited.dsl.children ?? []).some((child) => child.widgetName === "Note"),
+    ).toBe(true);
+  });
+});
 
 describe("compileApp — import artifact contract", () => {
   it("emits the required top-level fields the import API validates", () => {
@@ -573,6 +662,86 @@ describe("applyEdit — append to an existing page", () => {
 
     expect(names).toContain("Email");
     expect(names).toContain("Details");
+  });
+
+  // M6 CRITICAL regression case (design section D): applyEdit already grows containers — adding a widget inside a
+  // container that must grow PAST a widget below it must keep working under the delta overlap gate: the container
+  // grows AND the widget below is pushed down, so the final DSL introduces no overlapping pair.
+  it("grows a container past the widget below it and pushes that widget down (no introduced overlap)", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "container",
+                name: "Details",
+                children: [{ type: "text", name: "Heading", text: "Hi" }],
+              },
+              { type: "button", name: "Below", text: "Save" },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const dsl = rootOf(artifact);
+    const { dsl: edited, notes } = applyEdit(
+      dsl,
+      {
+        add: Array.from({ length: 12 }, (_, i) => ({
+          type: "input" as const,
+          label: `Note ${i}`,
+          placement: { inside: "Details" },
+        })),
+      },
+      ids(),
+    );
+    const container = (edited.children as WidgetNode[]).find(
+      (c) => c.widgetName === "Details",
+    )!;
+    const below = (edited.children as WidgetNode[]).find(
+      (c) => c.widgetName === "Below",
+    )!;
+
+    // The container grew well past the button's original rows...
+    const originalBelow = (dsl.children as WidgetNode[]).find(
+      (c) => c.widgetName === "Below",
+    )!;
+
+    expect(container.bottomRow).toBeGreaterThan(originalBelow.topRow);
+    // ...and the button was pushed below the grown container instead of being overlapped.
+    expect(below.topRow).toBeGreaterThanOrEqual(container.bottomRow);
+    expect(notes.join(" ")).toContain('"Below"');
+
+    // The exact invariant the commitLayout gate enforces: no overlapping sibling pairs were introduced.
+    expect(overlapDelta(dsl, edited).introduced).toEqual([]);
+    expect(overlappingPairs(edited.children as WidgetNode[])).toEqual([]);
+  });
+
+  it("pushes existing widgets down when an `after` placement inserts into the middle of the page", () => {
+    const dsl = baseDsl(); // Email (rows 0..7) then Details below it
+    const { dsl: edited, notes } = applyEdit(
+      dsl,
+      {
+        add: [{ type: "input", label: "Phone", placement: { after: "Email" } }],
+      },
+      ids(),
+    );
+    const children = edited.children as WidgetNode[];
+    const added = children.find((c) => c.widgetName === "Input")!;
+    const details = children.find((c) => c.widgetName === "Details")!;
+
+    // The new input landed right below Email — where Details used to be — and Details moved down.
+    expect(added.topRow).toBeGreaterThanOrEqual(
+      children.find((c) => c.widgetName === "Email")!.bottomRow,
+    );
+    expect(details.topRow).toBeGreaterThanOrEqual(added.bottomRow);
+    expect(notes.join(" ")).toContain('"Details"');
+    expect(overlapDelta(dsl, edited).introduced).toEqual([]);
+    expect(overlappingPairs(children)).toEqual([]);
   });
 });
 

@@ -182,6 +182,39 @@ describe("M5-T3 auto-publish — docs teach publish-LAST and the automatic creat
   });
 });
 
+describe("M6 canvas awareness — docs stay in sync with the vocabulary", () => {
+  it("patchSpec documents strict, the repair/reparent semantics, resize, and the overlap policy", () => {
+    const caps = getCapabilities({ data: true, js: true, governance: true });
+    const patchSpec = caps.patchSpec as Record<string, unknown>;
+
+    expect(patchSpec.shape).toContain("'resize'");
+    expect(patchSpec.shape).toContain("strict?");
+    expect(patchSpec.move).toContain("strict: true");
+    expect(patchSpec.move).toContain("requestedPosition");
+    // The deliberate reparent semantic change is documented.
+    expect(patchSpec.move).toContain("Reparenting always lands");
+    expect(patchSpec.resize).toContain("rows");
+    expect(patchSpec.resize).toContain("grid.rowHeightPx");
+    expect(patchSpec.overlapPolicy).toContain("overlap_introduced");
+    expect(patchSpec.overlapPolicy).toContain("suggestedFix");
+  });
+
+  it("the placement guide teaches the overlap gate, repair, the swap-needs-a-temp-move note, and resize", () => {
+    const placement = GUIDES.find((guide) => guide.slug === "placement")!;
+    const body = placement.render();
+
+    expect(body).toContain("overlap_introduced");
+    expect(body).toContain("suggestedFix");
+    expect(body).toContain("strict: true");
+    // Swapping two widgets needs a temporary spot.
+    expect(body).toContain("temporary spot");
+    expect(body).toContain('{ kind: "resize"');
+    // Auto-grow + modal scroll semantics.
+    expect(body).toContain("auto-grow");
+    expect(body).toContain("scroll");
+  });
+});
+
 describe("prompt field parsing", () => {
   it("parses name:type pairs and normalizes types", () => {
     expect(parseFields("name:TEXT, email:EMAIL, age:NUMBER")).toEqual([

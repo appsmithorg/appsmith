@@ -3579,6 +3579,183 @@ describe("governance-wrapped layout mutations", () => {
     );
   });
 
+  it("commitLayout's overlap gate rejects when repair cannot escape (M6 backstop)", async () => {
+    // A corrupt-tall obstacle extends past MAX_ROW, so pushdown clamps into a still-colliding position — the
+    // one legitimate in-vocabulary way to reach the gate's rejection envelope, which otherwise only backstops
+    // the repair logic.
+    const DSL = {
+      ...ROOT_DSL,
+      children: [
+        {
+          widgetId: "tall",
+          widgetName: "TallCorrupt",
+          type: "CONTAINER_WIDGET",
+          topRow: 100,
+          bottomRow: 6000,
+          leftColumn: 0,
+          rightColumn: 20,
+        },
+        {
+          widgetId: "mv",
+          widgetName: "Mover",
+          type: "TEXT_WIDGET",
+          text: "hi",
+          topRow: 0,
+          bottomRow: 10,
+          leftColumn: 0,
+          rightColumn: 10,
+        },
+      ],
+    };
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: DSL },
+      })),
+      updateLayout: jest.fn(async () => ({ ok: true })),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const rejected = await callTool(server, "patch_widgets", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision: fingerprintDsl(DSL as never),
+      patch: {
+        operations: [
+          {
+            kind: "move",
+            name: "Mover",
+            position: { topRow: 200, leftColumn: 0 },
+          },
+        ],
+      },
+    });
+
+    expect(rejected.body.code).toBe("overlap_introduced");
+    expect(JSON.stringify(rejected.body.pairs)).toContain("TallCorrupt");
+    // The rejection carries a ready-to-apply repair payload of closed patch operations.
+    expect(rejected.body.suggestedFix.tool).toBe("patch_widgets");
+    expect(Array.isArray(rejected.body.suggestedFix.operations)).toBe(true);
+    // Nothing was written.
+    expect(api.updateLayout).not.toHaveBeenCalled();
+  });
+
+  it("wire_event polices modal stacking: depth 2 warns, depth 3 rejects, wizard transitions pass (M6)", async () => {
+    const modalNode = (
+      id: string,
+      name: string,
+      buttons: { id: string; name: string; onClick?: string }[],
+    ) => ({
+      widgetId: id,
+      widgetName: name,
+      type: "MODAL_WIDGET",
+      detachFromLayout: true,
+      topRow: 0,
+      bottomRow: 24,
+      leftColumn: 0,
+      rightColumn: 24,
+      children: [
+        {
+          widgetId: `${id}c`,
+          widgetName: `${name}Canvas`,
+          type: "CANVAS_WIDGET",
+          topRow: 0,
+          bottomRow: 24,
+          leftColumn: 0,
+          rightColumn: 24,
+          children: buttons.map((b, i) => ({
+            widgetId: b.id,
+            widgetName: b.name,
+            type: "BUTTON_WIDGET",
+            topRow: i * 5,
+            bottomRow: i * 5 + 4,
+            leftColumn: 0,
+            rightColumn: 16,
+            ...(b.onClick
+              ? {
+                  onClick: b.onClick,
+                  dynamicTriggerPathList: [{ key: "onClick" }],
+                }
+              : {}),
+          })),
+        },
+      ],
+    });
+    const DSL = {
+      ...ROOT_DSL,
+      children: [
+        modalNode("m1", "EditModal", [
+          {
+            id: "d",
+            name: "DeleteBtn",
+            onClick: "{{ showModal('ConfirmModal') }}",
+          },
+        ]),
+        modalNode("m2", "ConfirmModal", [{ id: "r", name: "ReallyBtn" }]),
+        modalNode("m3", "ThirdModal", [{ id: "w", name: "WizNext" }]),
+      ],
+    };
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: DSL },
+      })),
+      updateLayout: jest.fn(async () => ({ ok: true })),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const revision = fingerprintDsl(DSL as never);
+    const base = {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision,
+    };
+
+    // Depth 3: page -> EditModal -> ConfirmModal -> ThirdModal. Rejected with the chain.
+    const rejected = await callTool(server, "wire_event", {
+      ...base,
+      spec: {
+        widget: "ReallyBtn",
+        event: "onClick",
+        action: { showModal: "ThirdModal" },
+      },
+    });
+
+    expect(rejected.body.code).toBe("modal_stack");
+    expect(rejected.body.error).toContain("stacks 3 modals");
+
+    // Depth 2 (page -> EditModal already wired; ConfirmModal over it when opened from EditModal) — here we wire
+    // a SECOND stacking edge whose resulting depth is 2: allowed, with a warning in the result.
+    const warned = await callTool(server, "wire_event", {
+      ...base,
+      spec: {
+        widget: "WizNext",
+        event: "onClick",
+        action: { showModal: "ConfirmModal" },
+      },
+    });
+
+    expect(warned.body.error).toBeUndefined();
+    expect(warned.body.modalWarning).toContain("depth 2");
+
+    // Wizard transition: close the host in the same action — passes with no warning.
+    const wizard = await callTool(server, "wire_event", {
+      ...base,
+      spec: {
+        widget: "ReallyBtn",
+        event: "onClick",
+        action: [{ closeModal: "ConfirmModal" }, { showModal: "ThirdModal" }],
+      },
+    });
+
+    expect(wizard.body.error).toBeUndefined();
+    expect(wizard.body.modalWarning).toBeUndefined();
+  });
+
   it("wire_event builds the ZIP-lookup accumulation wiring (M5: appendToStore fields + clearStoreKey/reset list)", async () => {
     const store = new MemoryGovernanceStore();
     const DSL = {
@@ -3894,6 +4071,88 @@ describe("governance-wrapped layout mutations", () => {
     expect(patched.body.deployNote).toContain("edit copy");
     expect(patched.body.deployNote).toContain("click Deploy");
     expect(patched.body.deployNote).toContain("requires governance");
+  });
+
+  // M6 — the occupancy-aware move surfaces its repair end-to-end: requestedPosition vs position in changes, a
+  // top-level note, and a written DSL that is overlap-free (so the commitLayout delta gate passes).
+  it("patch_widgets repairs a colliding move, reports notes, and writes an overlap-free layout", async () => {
+    const STACKED_DSL = {
+      ...ROOT_DSL,
+      children: [
+        {
+          widgetId: "a",
+          widgetName: "Upper",
+          type: "TEXT_WIDGET",
+          topRow: 0,
+          bottomRow: 10,
+          leftColumn: 0,
+          rightColumn: 24,
+        },
+        {
+          widgetId: "b",
+          widgetName: "Lower",
+          type: "TEXT_WIDGET",
+          topRow: 12,
+          bottomRow: 20,
+          leftColumn: 0,
+          rightColumn: 24,
+        },
+      ],
+    };
+    const updateLayout = jest.fn<
+      Promise<{ ok: boolean }>,
+      [string, string, string, Record<string, unknown>]
+    >(async () => ({ ok: true }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: STACKED_DSL },
+      })),
+      updateLayout,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const patched = await callTool(server, "patch_widgets", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision: fingerprintDsl(STACKED_DSL as never),
+      patch: {
+        operations: [
+          {
+            kind: "move",
+            name: "Lower",
+            position: { topRow: 2, leftColumn: 0 },
+          },
+        ],
+      },
+    });
+
+    // Not gated (the repair produced an overlap-free result), and the repair is fully reported.
+    expect(patched.body.code).toBeUndefined();
+    expect(patched.body.changes[0]).toMatchObject({
+      widgetName: "Lower",
+      requestedPosition: { topRow: 2, leftColumn: 0 },
+      position: { topRow: 11, leftColumn: 0 },
+    });
+    expect(String(patched.body.notes)).toContain("placed at");
+
+    const written = updateLayout.mock.calls[0][3] as {
+      children: { widgetName: string; topRow: number }[];
+    };
+
+    expect(written.children.find((w) => w.widgetName === "Lower")?.topRow).toBe(
+      11,
+    );
+    // The post-write diagnostics carry no overlap warning.
+    const diagnostics = patched.body.diagnostics as {
+      issues: { rule: string }[];
+    };
+
+    expect(diagnostics.issues.map((issue) => issue.rule)).not.toContain(
+      "overlap",
+    );
   });
 
   it("layout mutations on a governed deployment steer the agent to re-publish (deployNote)", async () => {

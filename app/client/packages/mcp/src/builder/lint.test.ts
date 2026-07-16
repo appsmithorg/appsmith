@@ -1,4 +1,5 @@
 import { compileApp } from "./compile.js";
+import { applyWidgetPatch, widgetPatchSchema } from "./editPatch.js";
 import { sequentialIdGenerator, type WidgetNode } from "./layout.js";
 import { lintArtifact, lintDsl } from "./lint.js";
 
@@ -109,6 +110,180 @@ describe("lintDsl — geometry", () => {
     };
 
     expect(rules(canvas([container]))).toContain("container-clips");
+  });
+});
+
+// M6 — detached widgets (modals) are overlays, not in-flow: the overlap lint skips their nominal rects (a
+// deliberate change layered on the behavior-identical predicate extraction into occupancy.ts).
+describe("lintDsl — detached widgets are excluded from overlap", () => {
+  it("does not report a modal's nominal rect overlapping an in-flow sibling", () => {
+    const dsl = canvas([
+      widget({
+        widgetId: "t",
+        widgetName: "Results",
+        topRow: 0,
+        bottomRow: 28,
+      }),
+      widget({
+        widgetId: "m",
+        widgetName: "AddModal",
+        type: "MODAL_WIDGET",
+        topRow: 0,
+        bottomRow: 24,
+        rightColumn: 32,
+        detachFromLayout: true,
+      }),
+    ]);
+
+    expect(rules(dsl)).not.toContain("overlap");
+  });
+
+  it("still reports overlap between the in-flow siblings themselves", () => {
+    const dsl = canvas([
+      widget({ widgetId: "a", topRow: 0, bottomRow: 10 }),
+      widget({ widgetId: "b", topRow: 5, bottomRow: 15 }),
+      widget({
+        widgetId: "m",
+        widgetName: "AddModal",
+        type: "MODAL_WIDGET",
+        topRow: 0,
+        bottomRow: 24,
+        detachFromLayout: true,
+      }),
+    ]);
+
+    expect(rules(dsl)).toContain("overlap");
+  });
+});
+
+// M6 — actionable repair payloads (design section F): overlap and clipped diagnostics carry a literal,
+// schema-valid patch_widgets payload the agent can apply verbatim.
+describe("lintDsl — suggestedFix payloads", () => {
+  it("attaches a schema-valid, round-trippable fix to overlap warnings (multi-overlap, sequential)", () => {
+    const dsl = canvas([
+      widget({ widgetId: "a", widgetName: "A", topRow: 0, bottomRow: 10 }),
+      widget({ widgetId: "b", widgetName: "B", topRow: 4, bottomRow: 14 }),
+      widget({ widgetId: "c", widgetName: "C", topRow: 8, bottomRow: 18 }),
+    ]);
+    const overlaps = lintDsl(dsl).issues.filter(
+      (issue) => issue.rule === "overlap",
+    );
+
+    expect(overlaps.length).toBeGreaterThan(1);
+
+    for (const issue of overlaps) {
+      // Every emitted suggestion validates against the real patch schema (not just "clears the diagnostic").
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: issue.suggestedFix!.operations,
+        }).success,
+      ).toBe(true);
+      expect(issue.suggestedFix!.tool).toBe("patch_widgets");
+    }
+
+    // Applying ONE issue's payload clears EVERY overlap on the canvas (fixes are computed sequentially against
+    // simulated occupancy, so the whole payload is conflict-free).
+    const { dsl: repaired } = applyWidgetPatch(dsl, {
+      operations: overlaps[0].suggestedFix!.operations,
+    });
+
+    expect(
+      lintDsl(repaired).issues.filter((issue) => issue.rule === "overlap"),
+    ).toEqual([]);
+  });
+
+  it("attaches an executable resize fix to container-clips and applying it clears the warning", () => {
+    const inner: WidgetNode = {
+      widgetId: "canvas1",
+      widgetName: "Canvas1",
+      type: "CANVAS_WIDGET",
+      topRow: 0,
+      bottomRow: 40,
+      leftColumn: 0,
+      rightColumn: 40,
+      children: [],
+    };
+    const container: WidgetNode = {
+      widgetId: "c1",
+      widgetName: "Container1",
+      type: "CONTAINER_WIDGET",
+      topRow: 0,
+      bottomRow: 20,
+      leftColumn: 0,
+      rightColumn: 40,
+      children: [inner],
+    };
+    const dsl = canvas([container]);
+    const issue = lintDsl(dsl).issues.find(
+      (candidate) => candidate.rule === "container-clips",
+    )!;
+
+    expect(issue.suggestedFix).toEqual({
+      tool: "patch_widgets",
+      operations: [{ kind: "resize", name: "Container1", rows: 40 }],
+    });
+    expect(
+      widgetPatchSchema.safeParse({
+        operations: issue.suggestedFix!.operations,
+      }).success,
+    ).toBe(true);
+
+    const { dsl: repaired } = applyWidgetPatch(dsl, {
+      operations: issue.suggestedFix!.operations,
+    });
+
+    expect(rules(repaired)).not.toContain("container-clips");
+  });
+
+  it("warns (never errors) on a modal body taller than its pixel height, with a resize fix", () => {
+    const inner: WidgetNode = {
+      widgetId: "mc",
+      widgetName: "ModalCanvas",
+      type: "CANVAS_WIDGET",
+      topRow: 0,
+      bottomRow: 24,
+      leftColumn: 0,
+      rightColumn: 32,
+      children: [
+        widget({
+          widgetId: "f",
+          widgetName: "Field",
+          topRow: 0,
+          bottomRow: 40,
+        }),
+      ],
+    };
+    const modal: WidgetNode = {
+      widgetId: "m1",
+      widgetName: "AddModal",
+      type: "MODAL_WIDGET",
+      topRow: 0,
+      bottomRow: 24,
+      leftColumn: 0,
+      rightColumn: 32,
+      height: 252,
+      detachFromLayout: true,
+      children: [inner],
+    };
+    const dsl = canvas([modal]);
+    const diagnostics = lintDsl(dsl);
+    const issue = diagnostics.issues.find(
+      (candidate) => candidate.rule === "modal-clips",
+    )!;
+
+    expect(issue.sev).toBe("warn");
+    expect(diagnostics.errors).toBe(0);
+    expect(issue.suggestedFix).toEqual({
+      tool: "patch_widgets",
+      operations: [{ kind: "resize", name: "AddModal", rows: 40 }],
+    });
+
+    // The fix round-trips: resizing the modal to 40 rows (400px) clears the warning.
+    const { dsl: repaired } = applyWidgetPatch(dsl, {
+      operations: issue.suggestedFix!.operations,
+    });
+
+    expect(rules(repaired)).not.toContain("modal-clips");
   });
 });
 

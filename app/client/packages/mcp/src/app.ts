@@ -38,6 +38,8 @@ import {
 } from "./builder/instructions.js";
 import type { WidgetNode } from "./builder/layout.js";
 import { lintArtifact, lintDsl } from "./builder/lint.js";
+import { overlapDelta, suggestedFix } from "./builder/occupancy.js";
+import { evaluateModalWiring } from "./builder/modalGraph.js";
 import {
   buildCreateJsObjectRequest,
   buildUpdateJsObjectRequest,
@@ -1411,6 +1413,32 @@ export function buildMcpServer(
       });
     }
 
+    // M6 delta overlap gate. commitLayout is the single write choke point for edit_page, patch_widgets, AND
+    // wire_event, so the gate lives here once: a mutation whose final DSL contains an overlapping sibling pair
+    // (keyed by name pair, initial-vs-final for multi-op patches) that the current DSL does not is rejected with
+    // a ready-to-apply repair payload. Carried (pre-existing) overlaps never gate — messy pages stay editable —
+    // and detached overlays (modals) are excluded. This also double-checks the move/resize repair logic itself.
+    const overlapGate = overlapDelta(params.currentDsl, params.newDsl);
+
+    if (overlapGate.introduced.length > 0) {
+      const truncate = (name: string) =>
+        name.length > 40 ? `${name.slice(0, 40)}…` : name;
+      const shown = overlapGate.introduced
+        .slice(0, 5)
+        .map((pair) => `"${truncate(pair.a)}" + "${truncate(pair.b)}"`);
+      const more = overlapGate.introduced.length - shown.length;
+      const fix = suggestedFix(overlapGate.fixOperations);
+
+      return result({
+        error: `this change would introduce overlapping widgets: ${shown.join(", ")}${more > 0 ? ` (and ${more} more pair${more === 1 ? "" : "s"})` : ""}. Read the page (read_semantic_page) for current geometry and pick free positions, or apply the suggestedFix operations verbatim with patch_widgets.`,
+        code: "overlap_introduced",
+        pairs: overlapGate.introduced
+          .slice(0, 20)
+          .map((pair) => ({ a: truncate(pair.a), b: truncate(pair.b) })),
+        ...(fix !== undefined ? { suggestedFix: fix } : {}),
+      });
+    }
+
     if (!governance) {
       const { diagnostics, layout } = await write();
 
@@ -1788,7 +1816,7 @@ export function buildMcpServer(
 
   server.tool(
     "patch_widgets",
-    "Directly update, move, reparent, or remove widgets using a strict typed patch. Read the page with read_semantic_page first and pass its revision. Only allowlisted literal properties can change; removing a widget with children is rejected. Table styling: set literal 'oddRowColor'/'evenRowColor' for alternating (zebra) row backgrounds. Re-bind a table with structured 'tableData' { query, field?, clearWhenEmpty? } — clearWhenEmpty names an input whose emptiness clears the table (so a Clear button that resets that input also empties the table; resetWidget alone cannot clear a query-bound table). Input validation: set 'validation' { format: 'zipcode'|'email'|'number'|'integer'|'usPhone', message? } on an input to add a vetted regex + error message (never author a raw regex). Set 'disableWhenInvalid': '<input>' on a button to grey it out until that input passes validation (compiles to {{ !<input>.isValid }}) — use with validation so a bad value can't run the query. Conditional visibility / view switching: set 'visibleWhen' { control: '<select|tabs widget>', equals: '<value>' } to show a widget only when the control has that value — e.g. show a table when a ViewToggle equals 'Table' and a detail panel when it equals 'Details', switching views with one control.",
+    "Directly update, move, resize, reparent, or remove widgets using a strict typed patch. Read the page with read_semantic_page first and pass its revision. Only allowlisted literal properties can change; removing a widget with children is rejected. Moves are occupancy-aware: a position that lands on another widget is repaired to the nearest free spot below (reported as requestedPosition vs position plus a note) unless the operation sets strict: true, which rejects with the colliding names and the nearest free position; reparenting always lands at the nearest free spot in the new canvas. Resize ({ kind: 'resize', name, rows?, columns?, strict? }, grid units) grows/shrinks a widget: growth pushes overlapping siblings down, width cannot exceed the canvas, containers cannot shrink below their children, and modal rows translate to the modal's pixel height. Table styling: set literal 'oddRowColor'/'evenRowColor' for alternating (zebra) row backgrounds. Re-bind a table with structured 'tableData' { query, field?, clearWhenEmpty? } — clearWhenEmpty names an input whose emptiness clears the table (so a Clear button that resets that input also empties the table; resetWidget alone cannot clear a query-bound table). Input validation: set 'validation' { format: 'zipcode'|'email'|'number'|'integer'|'usPhone', message? } on an input to add a vetted regex + error message (never author a raw regex). Set 'disableWhenInvalid': '<input>' on a button to grey it out until that input passes validation (compiles to {{ !<input>.isValid }}) — use with validation so a bad value can't run the query. Conditional visibility / view switching: set 'visibleWhen' { control: '<select|tabs widget>', equals: '<value>' } to show a widget only when the control has that value — e.g. show a table when a ViewToggle equals 'Table' and a detail panel when it equals 'Details', switching views with one control.",
     {
       applicationId: idSchema,
       pageId: idSchema,
@@ -1835,14 +1863,19 @@ export function buildMcpServer(
         revision,
         operation: "patch_widgets",
         newDsl: patched.dsl,
-        extra: { changes: patched.changes },
+        extra: {
+          changes: patched.changes,
+          // Collision repairs, cascade pushes, and modal-scroll warnings — surfaced top-level because agents
+          // skim `changes` but read notes.
+          ...(patched.notes.length > 0 ? { notes: patched.notes } : {}),
+        },
       });
     },
   );
 
   server.tool(
     "wire_event",
-    "Wire a widget event to a safe action from a CLOSED vocabulary: run a query, navigate to a page, show/close a modal, show an alert, reset one or more widgets ({ reset: 'Widget' } or { reset: ['A','B'] } — e.g. a Clear button that empties an input and resets a table), append a query's rows to a store key ({ appendToStore: { key, query, field?, fields? } } — an accumulating results table; bind the table with a { store: '<key>' } source/tableData; session-only), or empty one store key ({ clearStoreKey: { key } }). A run action may chain onSuccess/onError follow-ups from the same vocabulary (e.g. submit -> run insert -> re-run the table's query -> close the modal -> alert). The action may also be an ordered LIST of 2-5 statements with at most one run (e.g. clearStoreKey + reset in one click). Supported events: button onClick, table onRowSelected, modal onClose, tabs onTabSelected. Read the page first and pass its revision. The compiler emits the binding; no raw JS or bindings are accepted.",
+    "Wire a widget event to a safe action from a CLOSED vocabulary: run a query, navigate to a page, show/close a modal, show an alert, reset one or more widgets ({ reset: 'Widget' } or { reset: ['A','B'] } — e.g. a Clear button that empties an input and resets a table), append a query's rows to a store key ({ appendToStore: { key, query, field?, fields? } } — an accumulating results table; bind the table with a { store: '<key>' } source/tableData; session-only), or empty one store key ({ clearStoreKey: { key } }). A run action may chain onSuccess/onError follow-ups from the same vocabulary (e.g. submit -> run insert -> re-run the table's query -> close the modal -> alert). The action may also be an ordered LIST of 2-5 statements with at most one run (e.g. clearStoreKey + reset in one click). Supported events: button onClick, table onRowSelected, modal onClose, tabs onTabSelected. Modal stacking is policed: opening a modal from inside another modal warns at depth 2 and is rejected at depth 3+ or on a cycle; close the host modal in the same action (closeModal + showModal) for a wizard-style transition that never stacks. Read the page first and pass its revision. The compiler emits the binding; no raw JS or bindings are accepted.",
     {
       applicationId: idSchema,
       pageId: idSchema,
@@ -1915,6 +1948,21 @@ export function buildMcpServer(
         }
       }
 
+      // M6 modal discipline: evaluate the modal-open graph BEFORE writing. Close-aware — an action that also
+      // closes its host modal is a transition (wizards / back-navigation), not stacking. The new edge comes from
+      // the PARSED action (structural walk), so no emitted form can evade it; pre-existing DSL bindings are
+      // text-scanned fail-open (excluded bindings are surfaced by inspect_page).
+      const modalVerdict = evaluateModalWiring({
+        dsl: currentDsl,
+        widgetName: parsed.data.widget,
+        event: parsed.data.event,
+        action: parsed.data.action,
+      });
+
+      if (modalVerdict.error !== undefined) {
+        return result({ error: modalVerdict.error, code: "modal_stack" });
+      }
+
       const currentRevision = fingerprintDsl(currentDsl);
       let newDsl: WidgetNode;
 
@@ -1937,6 +1985,9 @@ export function buildMcpServer(
         extra: {
           widget: parsed.data.widget,
           event: parsed.data.event,
+          ...(modalVerdict.warning !== undefined
+            ? { modalWarning: modalVerdict.warning }
+            : {}),
           // M5 telemetry: the statement verb kinds this wiring uses, so appendToStore/clearStoreKey adoption is
           // measurable from the audit/changes payload.
           actionKinds: eventActionKinds(parsed.data.action),

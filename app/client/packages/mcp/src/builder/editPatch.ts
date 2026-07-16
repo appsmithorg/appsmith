@@ -1,5 +1,23 @@
 import { z } from "zod";
-import { ROOT_WIDGET_ID, type WidgetNode } from "./layout.js";
+import { ROOT_WIDGET_ID, ROW_HEIGHT, type WidgetNode } from "./layout.js";
+import {
+  applyPosition,
+  canvasColumns,
+  cascadeFit,
+  clampRow,
+  collisions,
+  contentExtent,
+  isDetached,
+  isNumber,
+  MAX_ROW,
+  nearestFreePosition,
+  rectOf,
+  syncMobileRows,
+  type CascadeAdjustment,
+  type Position,
+  type Rect,
+} from "./occupancy.js";
+import { containsModal, hostModalOf, PAGE_HOST } from "./modalGraph.js";
 import {
   compileDisableWhenInvalid,
   compileInputValidation,
@@ -144,12 +162,35 @@ const moveOperationSchema = z
     name: widgetNameSchema,
     parent: widgetNameSchema.optional(),
     position: positionSchema.optional(),
+    // Default (false): a position that lands on another widget is REPAIRED to the nearest free spot below, and the
+    // adjustment is reported. strict: true rejects the collision instead, naming the colliders and the nearest
+    // free position so one retry can succeed.
+    strict: z.boolean().optional(),
   })
   .strict()
   .refine(
     (operation) =>
       operation.parent !== undefined || operation.position !== undefined,
     "must set parent or position",
+  );
+
+// M6 (B2): resize a widget in grid units. rows/columns are the widget's SPAN (bottomRow - topRow /
+// rightColumn - leftColumn); at least one is required. Modals translate rows into their pixel height prop.
+const resizeOperationSchema = z
+  .object({
+    kind: z.literal("resize"),
+    name: widgetNameSchema,
+    rows: z.number().int().min(1).max(MAX_ROW).optional(),
+    columns: z.number().int().min(1).max(MAX_ROW).optional(),
+    // Default (false): growth that collides pushes the overlapping siblings down (cascade). strict: true rejects
+    // the collision instead, naming the colliders.
+    strict: z.boolean().optional(),
+  })
+  .strict()
+  .refine(
+    (operation) =>
+      operation.rows !== undefined || operation.columns !== undefined,
+    "must set rows or columns",
   );
 
 const removeOperationSchema = z
@@ -166,6 +207,7 @@ export const widgetPatchSchema = z
         z.union([
           updateOperationSchema,
           moveOperationSchema,
+          resizeOperationSchema,
           removeOperationSchema,
         ]),
       )
@@ -186,11 +228,19 @@ export interface WidgetPatchChange {
   parentWidgetName?: string;
   previousPosition?: { topRow: number; leftColumn: number };
   position?: { topRow: number; leftColumn: number };
+  // Present when a colliding move was repaired: what the caller asked for vs the `position` actually applied.
+  requestedPosition?: { topRow: number; leftColumn: number };
+  // resize semantics: the widget's span in grid units before/after (modals report rows derived from their px height).
+  previousSize?: { rows?: number; columns?: number };
+  size?: { rows?: number; columns?: number };
 }
 
 export interface WidgetPatchResult {
   dsl: WidgetNode;
   changes: WidgetPatchChange[];
+  // Human-readable adjustment reports (collision repairs, cascade pushes, modal-scroll warnings). Agents skim
+  // `changes`; they read notes — every automatic adjustment is surfaced here too.
+  notes: string[];
 }
 
 interface LocatedWidget {
@@ -442,17 +492,34 @@ function applyVisibleWhenBinding(
   registerDynamicBinding(node, "isVisible");
 }
 
-function moveToPosition(
-  node: WidgetNode,
-  position: { topRow: number; leftColumn: number },
-): void {
-  const rowSpan = node.bottomRow - node.topRow;
-  const columnSpan = node.rightColumn - node.leftColumn;
+function formatPosition(position: Position): string {
+  return `{ topRow: ${position.topRow}, leftColumn: ${position.leftColumn} }`;
+}
 
-  node.topRow = position.topRow;
-  node.bottomRow = position.topRow + rowSpan;
-  node.leftColumn = position.leftColumn;
-  node.rightColumn = position.leftColumn + columnSpan;
+function formatNames(names: string[]): string {
+  return names.map((name) => `"${name}"`).join(", ");
+}
+
+// Fold the container-fit cascade's adjustments into the patch result so every server-initiated push/growth is
+// visible in `changes` alongside the operation that caused it.
+function mergeCascade(
+  changes: WidgetPatchChange[],
+  notes: string[],
+  cascade: { adjustments: CascadeAdjustment[]; notes: string[] },
+): void {
+  for (const adjustment of cascade.adjustments) {
+    changes.push({ ...adjustment });
+  }
+
+  notes.push(...cascade.notes);
+}
+
+// The inner CANVAS_WIDGET children of a container-like widget (one for containers/forms/modals, one per tab for
+// tabs). Empty for plain widgets.
+function innerCanvasesOf(node: WidgetNode): WidgetNode[] {
+  return (node.children ?? []).filter(
+    (child) => child.type === "CANVAS_WIDGET",
+  );
 }
 
 // Applies local, typed widget mutations without interpreting templates or bindings. The input DSL is never mutated.
@@ -463,6 +530,7 @@ export function applyWidgetPatch(
   const patch = widgetPatchSchema.parse(patchInput);
   const dsl = cloneDsl(currentDsl);
   const changes: WidgetPatchChange[] = [];
+  const notes: string[] = [];
 
   for (const operation of patch.operations) {
     const widgets = indexWidgets(dsl);
@@ -609,51 +677,357 @@ export function applyWidgetPatch(
       continue;
     }
 
-    const previousParentWidgetName = located.parent?.widgetName;
-    const previousPosition = positionOf(located.node);
-    let parentWidgetName = previousParentWidgetName;
-
-    if (operation.parent !== undefined) {
-      const target = widgets.get(operation.parent);
-      const destination = target && directCanvas(target.node);
-
-      if (!target || !destination) {
-        throw new Error(
-          `parent "${operation.parent}" must name a canvas or widget with an inner canvas`,
-        );
-      }
-
-      if (
-        destination.widgetId === located.node.widgetId ||
-        isDescendant(located.node, destination)
-      ) {
-        throw new Error(
-          `widget "${operation.name}" cannot be parented to itself`,
-        );
-      }
-
-      removeFromParent(located);
-      destination.children = destination.children ?? [];
-      destination.children.push(located.node);
-      located.node.parentId = destination.widgetId;
-      parentWidgetName = target.node.widgetName;
+    if (operation.kind === "resize") {
+      applyResize(dsl, located, operation, changes, notes);
+      continue;
     }
 
+    applyMove(dsl, widgets, located, operation, changes, notes);
+  }
+
+  return { dsl, changes, notes };
+}
+
+type MoveOperation = Extract<WidgetPatchOperation, { kind: "move" }>;
+type ResizeOperation = Extract<WidgetPatchOperation, { kind: "resize" }>;
+
+// Collision-aware move (design section B). Explicit positions are honored when free; a collision is repaired to
+// the nearest free spot below (recorded as requestedPosition vs position, plus a note) or rejected under
+// strict: true. Reparenting is occupancy-aware: the landing position in the new canvas is always server-computed
+// and recorded — a deliberate semantic change from the old "keep the coordinates blindly" behavior.
+function applyMove(
+  dsl: WidgetNode,
+  widgets: Map<string, LocatedWidget>,
+  located: LocatedWidget,
+  operation: MoveOperation,
+  changes: WidgetPatchChange[],
+  notes: string[],
+): void {
+  const strict = operation.strict === true;
+  const previousParentWidgetName = located.parent?.widgetName;
+  const previousPosition = positionOf(located.node);
+  let parentWidgetName = previousParentWidgetName;
+  let destinationCanvas = located.parent;
+  const reparented = operation.parent !== undefined;
+
+  if (operation.parent !== undefined) {
+    const target = widgets.get(operation.parent);
+    const destination = target && directCanvas(target.node);
+
+    if (!target || !destination) {
+      throw new Error(
+        `parent "${operation.parent}" must name a canvas or widget with an inner canvas`,
+      );
+    }
+
+    if (
+      destination.widgetId === located.node.widgetId ||
+      isDescendant(located.node, destination)
+    ) {
+      throw new Error(
+        `widget "${operation.name}" cannot be parented to itself`,
+      );
+    }
+
+    // M6 modal discipline (structural): a modal — or a subtree smuggling one — may not move under another
+    // modal's canvas. Modals are page-level overlays; stacking is an event-graph concern, not a nesting one.
+    if (
+      containsModal(located.node) &&
+      (target.node.type === "MODAL_WIDGET" ||
+        hostModalOf(dsl, String(target.node.widgetName)) !== PAGE_HOST)
+    ) {
+      throw new Error(
+        `cannot move "${operation.name}" into "${operation.parent}": it contains a modal, and a modal cannot ` +
+          "live inside another modal. Keep modals at the page level and open them with a wire_event showModal action",
+      );
+    }
+
+    removeFromParent(located);
+    destination.children = destination.children ?? [];
+    destination.children.push(located.node);
+    located.node.parentId = destination.widgetId;
+    parentWidgetName = target.node.widgetName;
+    destinationCanvas = destination;
+  }
+
+  // Detached overlays (modals) are not in-flow: no occupancy, no cascade — apply the position directly.
+  if (isDetached(located.node)) {
     if (operation.position !== undefined) {
-      moveToPosition(located.node, operation.position);
+      applyPosition(located.node, operation.position);
     }
 
     changes.push({
       kind: "move",
       widgetName: operation.name,
-      ...(operation.parent !== undefined
-        ? { previousParentWidgetName, parentWidgetName }
-        : {}),
+      ...(reparented ? { previousParentWidgetName, parentWidgetName } : {}),
       ...(operation.position !== undefined
         ? { previousPosition, position: positionOf(located.node) }
         : {}),
     });
+
+    return;
   }
 
-  return { dsl, changes };
+  const rect = rectOf(located.node);
+
+  if (!rect) {
+    throw new Error(
+      `widget "${operation.name}" has a non-numeric position and cannot be moved safely`,
+    );
+  }
+
+  if (!destinationCanvas || destinationCanvas.type !== "CANVAS_WIDGET") {
+    throw new Error(`widget "${operation.name}" is not on a canvas`);
+  }
+
+  const columns = canvasColumns(destinationCanvas);
+  const rows = rect.bottomRow - rect.topRow;
+  let width = rect.rightColumn - rect.leftColumn;
+
+  if (rows <= 0 || width <= 0) {
+    throw new Error(
+      `widget "${operation.name}" has a non-positive size and cannot be moved safely`,
+    );
+  }
+
+  if (width > columns) {
+    notes.push(
+      `"${operation.name}" (${width} columns) is wider than "${parentWidgetName}" (${columns} columns); its width was reduced to fit`,
+    );
+    width = columns;
+  }
+
+  // Self-exclusion by node identity (not widgetId) so a corrupt duplicated-id tree cannot misroute the repair.
+  const siblings = (destinationCanvas.children ?? []).filter(
+    (child) => child !== located.node,
+  );
+  const requested: Position = operation.position ?? {
+    topRow: rect.topRow,
+    leftColumn: rect.leftColumn,
+  };
+  let landing: Position;
+  let requestedPosition: Position | undefined;
+
+  if (operation.position !== undefined) {
+    const targetRect: Rect = {
+      topRow: requested.topRow,
+      bottomRow: requested.topRow + rows,
+      leftColumn: requested.leftColumn,
+      rightColumn: requested.leftColumn + width,
+    };
+    const colliders = collisions(siblings, targetRect);
+
+    if (colliders.length === 0) {
+      landing = requested;
+    } else if (strict) {
+      const free = nearestFreePosition(
+        siblings,
+        { rows, columns: width },
+        requested,
+        columns,
+      );
+
+      throw new Error(
+        `moving "${operation.name}" to ${formatPosition(requested)} would overlap ${formatNames(colliders)}; nearest free position is ${formatPosition(free)}`,
+      );
+    } else {
+      landing = nearestFreePosition(
+        siblings,
+        { rows, columns: width },
+        requested,
+        columns,
+      );
+      requestedPosition = requested;
+      notes.push(
+        `"${operation.name}": requested position ${formatPosition(requested)} overlaps ${formatNames(colliders)}; placed at ${formatPosition(landing)} instead`,
+      );
+    }
+  } else {
+    // Reparent without an explicit position: land at the nearest free spot to the old coordinates in the NEW canvas.
+    landing = nearestFreePosition(
+      siblings,
+      { rows, columns: width },
+      requested,
+      columns,
+    );
+  }
+
+  applyPosition(located.node, landing, width);
+
+  changes.push({
+    kind: "move",
+    widgetName: operation.name,
+    ...(reparented ? { previousParentWidgetName, parentWidgetName } : {}),
+    previousPosition,
+    position: positionOf(located.node),
+    ...(requestedPosition !== undefined ? { requestedPosition } : {}),
+  });
+
+  // Container-fit cascade (D): grow the enclosing container chain to the widget's new extent, pushing anything
+  // displaced further down. No-op when the landing fits.
+  mergeCascade(changes, notes, cascadeFit(dsl, operation.name));
+}
+
+// The resize operation (design section B2), in grid units. Growth cascade-pushes colliding below-siblings
+// (strict: true rejects); width cannot exceed the canvas (no horizontal reflow in v1); container-likes may not
+// shrink below their children's occupied extent (the rejection names the executable minimum). Modal heights are a
+// pixel prop: rows are translated via the grid's row height, and an over-tall body warns (the modal scrolls).
+function applyResize(
+  dsl: WidgetNode,
+  located: LocatedWidget,
+  operation: ResizeOperation,
+  changes: WidgetPatchChange[],
+  notes: string[],
+): void {
+  const strict = operation.strict === true;
+  const node = located.node;
+
+  if (node.type === "MODAL_WIDGET") {
+    if (operation.columns !== undefined) {
+      throw new Error(
+        `modal "${operation.name}" width cannot be resized in grid columns; set rows only (height = rows × ${ROW_HEIGHT}px)`,
+      );
+    }
+
+    const rows = operation.rows!;
+    const previousHeight = isNumber(node.height) ? node.height : undefined;
+
+    node.height = rows * ROW_HEIGHT;
+
+    let extent = 0;
+
+    for (const inner of innerCanvasesOf(node)) {
+      extent = Math.max(extent, contentExtent(inner));
+    }
+
+    notes.push(
+      `modal "${operation.name}" height set to ${rows * ROW_HEIGHT}px (${rows} rows × ${ROW_HEIGHT}px)`,
+    );
+
+    if (extent > rows) {
+      notes.push(
+        `modal "${operation.name}" body content is ${extent} rows; at ${rows} rows it will scroll`,
+      );
+    }
+
+    changes.push({
+      kind: "resize",
+      widgetName: operation.name,
+      ...(previousHeight !== undefined
+        ? { previousSize: { rows: Math.round(previousHeight / ROW_HEIGHT) } }
+        : {}),
+      size: { rows },
+    });
+
+    return;
+  }
+
+  const rect = rectOf(node);
+
+  if (!rect) {
+    throw new Error(
+      `widget "${operation.name}" has a non-numeric position and cannot be resized safely`,
+    );
+  }
+
+  const canvas = located.parent;
+
+  if (!canvas || canvas.type !== "CANVAS_WIDGET") {
+    throw new Error(`widget "${operation.name}" is not on a canvas`);
+  }
+
+  const columns = canvasColumns(canvas);
+  const currentRows = rect.bottomRow - rect.topRow;
+  const currentColumns = rect.rightColumn - rect.leftColumn;
+  const targetRows = operation.rows ?? Math.max(1, currentRows);
+  const targetColumns = operation.columns ?? Math.max(1, currentColumns);
+
+  // No horizontal reflow in v1: width growth past the canvas is rejected with the available room.
+  if (rect.leftColumn + targetColumns > columns) {
+    throw new Error(
+      `resizing "${operation.name}" to ${targetColumns} columns exceeds its canvas: ${Math.max(0, columns - rect.leftColumn)} columns are available from leftColumn ${rect.leftColumn}`,
+    );
+  }
+
+  // A container/form/tabs may not shrink below its children's occupied extent — reject with the executable minimum.
+  const innerCanvases = innerCanvasesOf(node);
+
+  if (innerCanvases.length > 0) {
+    let minRows = 0;
+    let minColumns = 0;
+
+    for (const inner of innerCanvases) {
+      minRows = Math.max(minRows, contentExtent(inner));
+
+      for (const child of inner.children ?? []) {
+        const childRect = rectOf(child);
+
+        if (childRect && !isDetached(child)) {
+          minColumns = Math.max(minColumns, childRect.rightColumn);
+        }
+      }
+    }
+
+    if (operation.rows !== undefined && targetRows < minRows) {
+      throw new Error(
+        `cannot shrink "${operation.name}" to ${targetRows} rows; smallest rows that fit the children: ${minRows}`,
+      );
+    }
+
+    if (operation.columns !== undefined && targetColumns < minColumns) {
+      throw new Error(
+        `cannot shrink "${operation.name}" to ${targetColumns} columns; smallest columns that fit the children: ${minColumns}`,
+      );
+    }
+  }
+
+  // strict: reject growth that would land on siblings the widget does not already touch.
+  const targetRect: Rect = {
+    topRow: rect.topRow,
+    bottomRow: rect.topRow + targetRows,
+    leftColumn: rect.leftColumn,
+    rightColumn: rect.leftColumn + targetColumns,
+  };
+  const siblings = (canvas.children ?? []).filter((child) => child !== node);
+  const alreadyColliding = new Set(collisions(siblings, rect));
+  const newColliders = collisions(siblings, targetRect).filter(
+    (name) => !alreadyColliding.has(name),
+  );
+
+  if (newColliders.length > 0 && strict) {
+    throw new Error(
+      `resizing "${operation.name}" to ${targetRows} rows × ${targetColumns} columns would overlap ${formatNames(newColliders)}; retry without strict to push them down, or pick a smaller size`,
+    );
+  }
+
+  // Write hygiene: rows derive from the clamped topRow (same contract as applyPosition — the span is never
+  // distorted); the column write is bounded by the canvas check above.
+  node.bottomRow = clampRow(rect.topRow) + targetRows;
+  node.rightColumn = Math.max(0, Math.round(rect.leftColumn)) + targetColumns;
+  syncMobileRows(node);
+
+  // Keep the inner canvas rect in step with the container's body (build invariant: the canvas spans the container).
+  for (const inner of innerCanvasesOf(node)) {
+    if (isNumber(inner.bottomRow)) {
+      inner.bottomRow = Math.max(targetRows, contentExtent(inner));
+    }
+
+    if (isNumber(inner.rightColumn)) inner.rightColumn = targetColumns;
+  }
+
+  changes.push({
+    kind: "resize",
+    widgetName: operation.name,
+    previousSize: { rows: currentRows, columns: currentColumns },
+    size: { rows: targetRows, columns: targetColumns },
+  });
+
+  if (newColliders.length > 0) {
+    notes.push(
+      `resizing "${operation.name}" grew it into ${formatNames(newColliders)}; they were pushed down`,
+    );
+  }
+
+  // Cascade (D): push displaced siblings down and grow the ancestor chain; the delta gate verifies the final result.
+  mergeCascade(changes, notes, cascadeFit(dsl, operation.name));
 }

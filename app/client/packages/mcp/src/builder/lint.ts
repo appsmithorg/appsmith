@@ -1,4 +1,16 @@
-import { GRID_COLUMNS, ROOT_WIDGET_ID, type WidgetNode } from "./layout.js";
+import { ROW_HEIGHT, type WidgetNode } from "./layout.js";
+import {
+  canvasColumns,
+  computeCanvasOverlapFixes,
+  contentExtent,
+  isNumber,
+  MAX_ROW,
+  overlappingPairs,
+  suggestedFix,
+  VALID_PATCH_NAME,
+  type SuggestedFix,
+} from "./occupancy.js";
+import { modalStackFindings } from "./modalGraph.js";
 
 // Static, deterministic structural linter for a compiled page DSL. It reuses the compiler's grid geometry to catch
 // the classes of defect the builder can produce (bad placement, tree corruption, duplicate names) WITHOUT a browser
@@ -12,6 +24,9 @@ export interface Issue {
   msg: string;
   // The offending widget's name, when the issue is attributable to one.
   widget?: string;
+  // M6: a literal, ready-to-apply repair payload (patch_widgets operations) for overlap / clipped diagnostics —
+  // the agent applies it verbatim instead of doing spatial reasoning on the grid.
+  suggestedFix?: SuggestedFix;
 }
 
 export interface Diagnostics {
@@ -37,28 +52,8 @@ const STORE_TABLE_BINDING =
   /^\{\{ appsmith\.store\.([A-Za-z_][A-Za-z0-9_]*) \?\? \[\] \}\}$/;
 const STORE_WRITE = /storeValue\('([A-Za-z_][A-Za-z0-9_]*)'/g;
 
-function isNumber(value: unknown): value is number {
-  return typeof value === "number" && Number.isFinite(value);
-}
-
-function rangesOverlap(
-  aStart: number,
-  aEnd: number,
-  bStart: number,
-  bEnd: number,
-): boolean {
-  return aStart < bEnd && bStart < aEnd;
-}
-
-// The grid width available to a canvas's direct children: the root canvas is measured in the 64-column page grid,
-// while an inner canvas is measured in its own column count (mirrors compile.ts's availableColumns).
-function canvasColumns(canvas: WidgetNode): number {
-  return canvas.widgetId === ROOT_WIDGET_ID
-    ? GRID_COLUMNS
-    : isNumber(canvas.rightColumn)
-      ? canvas.rightColumn
-      : GRID_COLUMNS;
-}
+// The intersect predicate, canvas column model, and numeric guards live in occupancy.ts (M6) — one shared
+// implementation for the lint, the patch repair, the container-fit cascade, and the commitLayout delta gate.
 
 function childCanvasOf(node: WidgetNode): WidgetNode | undefined {
   return node.children?.find((child) => child.type === CANVAS_TYPE);
@@ -108,8 +103,22 @@ class Linter {
     this.walkBindings(root);
     this.checkDuplicateNames();
     this.checkStoreWriters();
+    this.checkModalGraph(root);
 
     return this.result();
+  }
+
+  // M6 modal discipline (lint twin): existing modal stacks (depth >= 2) and stacking cycles as warnings, plus the
+  // count of bindings excluded from the fail-open analysis so the omission is visible per page.
+  private checkModalGraph(root: WidgetNode): void {
+    for (const finding of modalStackFindings(root)) {
+      this.issues.push({
+        sev: "warn",
+        rule: finding.rule,
+        msg: finding.msg,
+        widget: finding.widget ?? "",
+      });
+    }
   }
 
   private walk(node: WidgetNode): void {
@@ -121,6 +130,9 @@ class Linter {
 
     // A container's own box must be tall enough to hold its inner canvas's extent.
     if (CONTAINER_TYPES.has(node.type)) this.checkContainerHeight(node);
+
+    // A modal body taller than the modal's pixel height scrolls — warn with an executable resize fix.
+    if (node.type === "MODAL_WIDGET") this.checkModalHeight(node);
 
     for (const child of node.children ?? []) this.walk(child);
   }
@@ -188,35 +200,21 @@ class Linter {
       }
     }
 
-    // Sibling overlap: any two children whose column AND row ranges intersect.
-    for (let i = 0; i < children.length; i += 1) {
-      for (let j = i + 1; j < children.length; j += 1) {
-        const a = children[i];
-        const b = children[j];
+    // Sibling overlap: any two IN-FLOW children whose column AND row ranges intersect (shared predicate; detached
+    // overlays like modals are excluded — their nominal rects are not laid out on the canvas). Each warning carries
+    // the canvas's full sequential repair payload, so applying any one issue's suggestedFix clears them all.
+    const pairs = overlappingPairs(children);
 
-        if (
-          isNumber(a.leftColumn) &&
-          isNumber(a.rightColumn) &&
-          isNumber(a.topRow) &&
-          isNumber(a.bottomRow) &&
-          isNumber(b.leftColumn) &&
-          isNumber(b.rightColumn) &&
-          isNumber(b.topRow) &&
-          isNumber(b.bottomRow) &&
-          rangesOverlap(
-            a.leftColumn,
-            a.rightColumn,
-            b.leftColumn,
-            b.rightColumn,
-          ) &&
-          rangesOverlap(a.topRow, a.bottomRow, b.topRow, b.bottomRow)
-        ) {
-          this.warn(
-            "overlap",
-            `"${nameOf(a)}" and "${nameOf(b)}" overlap on the same canvas`,
-            nameOf(a),
-          );
-        }
+    if (pairs.length > 0) {
+      const fix = suggestedFix(computeCanvasOverlapFixes(canvas));
+
+      for (const { a, b } of pairs) {
+        this.warn(
+          "overlap",
+          `"${nameOf(a)}" and "${nameOf(b)}" overlap on the same canvas`,
+          nameOf(a),
+          fix,
+        );
       }
     }
   }
@@ -236,10 +234,54 @@ class Linter {
     const containerHeight = container.bottomRow - container.topRow;
 
     if (containerHeight < inner.bottomRow) {
+      // Executable repair: resize the container to the rows that fit its content (B2 gives the vocabulary a
+      // resize op, so this diagnostic is no longer a dead end).
+      const rows = Math.max(
+        Math.round(inner.bottomRow),
+        Math.round(contentExtent(inner)),
+      );
+      const name = nameOf(container);
+      // rows clamped to the resize schema's ceiling so the emitted suggestion always validates, even on a
+      // corrupt DSL with absurd extents.
+      const fix =
+        rows >= 1 && VALID_PATCH_NAME.test(name)
+          ? suggestedFix([
+              { kind: "resize", name, rows: Math.min(rows, MAX_ROW) },
+            ])
+          : undefined;
+
       this.warn(
         "container-clips",
-        `"${nameOf(container)}" is shorter than its content (height ${containerHeight} < inner extent ${inner.bottomRow}); inner widgets will be clipped`,
-        nameOf(container),
+        `"${name}" is shorter than its content (height ${containerHeight} < inner extent ${inner.bottomRow}); inner widgets will be clipped`,
+        name,
+        fix,
+      );
+    }
+  }
+
+  // A modal's rendered height is a pixel prop, not grid rows. A body taller than the modal scrolls (the runtime
+  // sets shouldScrollContents) — a WARNING, never an error, with an executable resize fix (rows × row height px).
+  private checkModalHeight(modal: WidgetNode): void {
+    const inner = childCanvasOf(modal);
+
+    if (!inner || !isNumber(modal.height)) return;
+
+    const extent = Math.round(contentExtent(inner));
+
+    if (extent * ROW_HEIGHT > modal.height) {
+      const name = nameOf(modal);
+      const fix =
+        extent >= 1 && VALID_PATCH_NAME.test(name)
+          ? suggestedFix([
+              { kind: "resize", name, rows: Math.min(extent, MAX_ROW) },
+            ])
+          : undefined;
+
+      this.warn(
+        "modal-clips",
+        `"${name}" body content (${extent} rows = ${extent * ROW_HEIGHT}px) exceeds its ${modal.height}px height; the body will scroll`,
+        name,
+        fix,
       );
     }
   }
@@ -327,8 +369,21 @@ class Linter {
     this.issues.push({ sev: "error", rule, msg, widget });
   }
 
-  private warn(rule: string, msg: string, widget?: string): void {
-    this.issues.push({ sev: "warn", rule, msg, widget });
+  private warn(
+    rule: string,
+    msg: string,
+    widget?: string,
+    suggestedRepair?: SuggestedFix,
+  ): void {
+    this.issues.push({
+      sev: "warn",
+      rule,
+      msg,
+      widget,
+      ...(suggestedRepair !== undefined
+        ? { suggestedFix: suggestedRepair }
+        : {}),
+    });
   }
 
   private result(): Diagnostics {

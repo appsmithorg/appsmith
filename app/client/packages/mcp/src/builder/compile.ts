@@ -18,7 +18,6 @@ import {
   type IdGenerator,
   GRID_COLUMNS,
   NameAllocator,
-  nextFreeRow,
   randomIdGenerator,
   resolvePlacement,
   ROOT_WIDGET_ID,
@@ -26,6 +25,8 @@ import {
   stampWidget,
   type WidgetNode,
 } from "./layout.js";
+import { cascadeFit } from "./occupancy.js";
+import { assertNoNewNestedModals } from "./modalGraph.js";
 
 export const CLIENT_SCHEMA_VERSION = 2;
 export const SERVER_SCHEMA_VERSION = 12;
@@ -538,6 +539,8 @@ function compilePageDsl(pageSpec: PageSpec, ctx: CompileContext): WidgetNode {
   root.children = nodes;
   root.bottomRow = Math.max(endRow * ROW_HEIGHT, 380);
   root.minHeight = root.bottomRow;
+  // M6 modal discipline (structural): a fresh build may not nest a modal inside another modal's subtree.
+  assertNoNewNestedModals(undefined, root);
 
   return root;
 }
@@ -673,33 +676,19 @@ export function applyEdit(
     placement.canvas.children = placement.canvas.children ?? [];
     placement.canvas.children.push(node);
 
-    // Grow the canvas so the new widget is within bounds.
-    const bottom = nextFreeRow(placement.canvas.children);
+    // M6 container-fit cascade: push down anything the new widget landed on (e.g. an `after` placement into the
+    // middle of a page), grow the enclosing canvas, and grow the enclosing container/form/tabs chain (never
+    // shrink) so nothing is clipped — the pre-M6 container growth, now applied recursively with every adjustment
+    // reported as a note. The commitLayout delta gate verifies the final result introduces no overlaps.
+    const cascade = cascadeFit(dsl, node.widgetName);
 
-    if (placement.canvas.widgetId === ROOT_WIDGET_ID) {
-      placement.canvas.bottomRow = Math.max(
-        typeof placement.canvas.bottomRow === "number"
-          ? placement.canvas.bottomRow
-          : 0,
-        bottom * ROW_HEIGHT,
-      );
-    } else if (bottom > (placement.canvas.bottomRow as number)) {
-      placement.canvas.bottomRow = bottom;
-    }
-
-    // The inner canvas grew, but its enclosing container keeps its own height. Match the build-time invariant
-    // (container.bottomRow = container.topRow + innerCanvas.bottomRow) so the container encompasses the new extent
-    // instead of clipping it.
-    if (placement.container) {
-      const containerTop =
-        typeof placement.container.topRow === "number"
-          ? placement.container.topRow
-          : 0;
-
-      placement.container.bottomRow =
-        containerTop + (placement.canvas.bottomRow as number);
-    }
+    notes.push(...cascade.notes);
   }
+
+  // M6 modal discipline (structural, delta-aware): the edit may not INTRODUCE a nested modal — covers both a
+  // modal spec added inside a modal-resident container and a container subtree that smuggles one in. Pre-existing
+  // human-authored nesting stays editable.
+  assertNoNewNestedModals(currentDsl, dsl);
 
   return { dsl, notes };
 }

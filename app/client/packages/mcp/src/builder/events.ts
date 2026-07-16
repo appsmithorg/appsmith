@@ -59,6 +59,14 @@ const storePathElement = z.union([
     .refine((value) => !RAW_EXPRESSION.test(value), {
       message:
         "path elements must not contain binding/template syntax ({{ }}, ${ }, or backticks)",
+    })
+    // M6 hardening: a single quote in a path element would let an agent embed the literal text
+    // closeModal('Host') / showModal('X') inside the compiled binding's JSON string. The wiring being made is
+    // judged structurally, but LATER text scans of the persisted binding would misread those as edges —
+    // closeModal poisoning could reclassify a real stacking edge as a wizard transition and skip the depth
+    // gate. JSON keys with apostrophes are vanishingly rare; reject the quote outright.
+    .refine((value) => !value.includes("'"), {
+      message: "path elements must not contain single quotes",
     }),
   z.number().int().min(0).max(100_000),
 ]);

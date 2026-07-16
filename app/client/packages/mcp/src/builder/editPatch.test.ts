@@ -1054,6 +1054,8 @@ describe("applyWidgetPatch", () => {
       leftColumn: 4,
       rightColumn: 28,
     });
+    // The move itself, plus the container-fit cascade: Details grows so the widget landing at rows 8..12 is not
+    // clipped (M6 section D).
     expect(changes).toEqual([
       {
         kind: "move",
@@ -1062,6 +1064,12 @@ describe("applyWidgetPatch", () => {
         parentWidgetName: "Details",
         previousPosition: { topRow: 0, leftColumn: 0 },
         position: { topRow: 8, leftColumn: 4 },
+      },
+      {
+        kind: "resize",
+        widgetName: "Details",
+        previousSize: { rows: 4 },
+        size: { rows: 12 },
       },
     ]);
   });
@@ -1141,5 +1149,477 @@ describe("applyWidgetPatch", () => {
         operations: [{ kind: "move", name: "Greeting", unknown: true }],
       }),
     ).toThrow(z.ZodError);
+  });
+});
+
+// M6 — collision-aware move (design section B).
+describe("applyWidgetPatch — occupancy-aware move", () => {
+  function twoStacked(): WidgetNode {
+    const a = node({
+      widgetId: "a",
+      widgetName: "Upper",
+      type: "TEXT_WIDGET",
+      topRow: 0,
+      bottomRow: 10,
+    });
+    const b = node({
+      widgetId: "b",
+      widgetName: "Lower",
+      type: "TEXT_WIDGET",
+      topRow: 12,
+      bottomRow: 20,
+    });
+
+    return node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      bottomRow: 380,
+      rightColumn: 640,
+      children: [a, b],
+    });
+  }
+
+  it("repairs a colliding move to the nearest free spot, recording requestedPosition and a note", () => {
+    const { changes, dsl, notes } = applyWidgetPatch(twoStacked(), {
+      operations: [
+        { kind: "move", name: "Lower", position: { topRow: 2, leftColumn: 0 } },
+      ],
+    });
+    const lower = dsl.children![1];
+
+    // 2 collides with Upper (0..10) -> pushed to 11.
+    expect(lower).toMatchObject({ topRow: 11, bottomRow: 19 });
+    expect(changes[0]).toEqual({
+      kind: "move",
+      widgetName: "Lower",
+      previousPosition: { topRow: 12, leftColumn: 0 },
+      position: { topRow: 11, leftColumn: 0 },
+      requestedPosition: { topRow: 2, leftColumn: 0 },
+    });
+    // The adjustment is ALSO surfaced as a top-level note (agents skim changes; they read notes).
+    expect(notes.join(" ")).toContain('"Lower"');
+    expect(notes.join(" ")).toContain(
+      "placed at { topRow: 11, leftColumn: 0 }",
+    );
+  });
+
+  it("keeps the mobile row mirrors in sync with the repaired desktop rows", () => {
+    const { dsl } = applyWidgetPatch(twoStacked(), {
+      operations: [
+        { kind: "move", name: "Lower", position: { topRow: 2, leftColumn: 0 } },
+      ],
+    });
+    const lower = dsl.children![1];
+
+    expect(lower.mobileTopRow).toBe(11);
+    expect(lower.mobileBottomRow).toBe(19);
+    expect(lower.mobileLeftColumn).toBe(0);
+    expect(lower.mobileRightColumn).toBe(24);
+  });
+
+  it("honors a free explicit position exactly (no repair, no requestedPosition)", () => {
+    const { changes, dsl, notes } = applyWidgetPatch(twoStacked(), {
+      operations: [
+        {
+          kind: "move",
+          name: "Lower",
+          position: { topRow: 30, leftColumn: 8 },
+        },
+      ],
+    });
+
+    expect(dsl.children![1]).toMatchObject({
+      topRow: 30,
+      bottomRow: 38,
+      leftColumn: 8,
+      rightColumn: 32,
+    });
+    expect(changes[0].requestedPosition).toBeUndefined();
+    expect(notes).toEqual([]);
+  });
+
+  it("strict: true rejects a colliding move with the collider names AND the nearest free position", () => {
+    expect(() =>
+      applyWidgetPatch(twoStacked(), {
+        operations: [
+          {
+            kind: "move",
+            name: "Lower",
+            position: { topRow: 2, leftColumn: 0 },
+            strict: true,
+          },
+        ],
+      }),
+    ).toThrow(
+      'moving "Lower" to { topRow: 2, leftColumn: 0 } would overlap "Upper"; nearest free position is { topRow: 11, leftColumn: 0 }',
+    );
+  });
+
+  it("reparenting is occupancy-aware: the landing position avoids occupants and is always recorded", () => {
+    const dsl = twoStacked();
+    const inner = node({
+      widgetId: "cardCanvas",
+      widgetName: "CardCanvas",
+      type: "CANVAS_WIDGET",
+      topRow: 0,
+      bottomRow: 30,
+      rightColumn: 24,
+      children: [
+        node({
+          widgetId: "occ",
+          widgetName: "Occupant",
+          type: "TEXT_WIDGET",
+          topRow: 0,
+          bottomRow: 6,
+        }),
+      ],
+    });
+
+    dsl.children!.push(
+      node({
+        widgetId: "card",
+        widgetName: "Card",
+        type: "CONTAINER_WIDGET",
+        topRow: 22,
+        bottomRow: 52,
+        rightColumn: 24,
+        children: [inner],
+      }),
+    );
+
+    const { changes, dsl: edited } = applyWidgetPatch(dsl, {
+      operations: [{ kind: "move", name: "Upper", parent: "Card" }],
+    });
+    const moved = edited
+      .children!.find((c) => c.widgetName === "Card")!
+      .children![0].children!.find((c) => c.widgetName === "Upper")!;
+
+    // Old coordinates (0..10) collide with Occupant (0..6): server lands it at 7 and records the position.
+    expect(moved).toMatchObject({ topRow: 7, bottomRow: 17, leftColumn: 0 });
+    expect(changes[0]).toMatchObject({
+      kind: "move",
+      widgetName: "Upper",
+      previousParentWidgetName: "MainContainer",
+      parentWidgetName: "Card",
+      previousPosition: { topRow: 0, leftColumn: 0 },
+      position: { topRow: 7, leftColumn: 0 },
+    });
+  });
+
+  it("moves a detached modal without occupancy checks or cascades", () => {
+    const dsl = twoStacked();
+
+    dsl.children!.push(
+      node({
+        widgetId: "m1",
+        widgetName: "AddModal",
+        type: "MODAL_WIDGET",
+        topRow: 0,
+        bottomRow: 24,
+        rightColumn: 32,
+        detachFromLayout: true,
+      }),
+    );
+
+    const {
+      changes,
+      dsl: edited,
+      notes,
+    } = applyWidgetPatch(dsl, {
+      operations: [
+        {
+          kind: "move",
+          name: "AddModal",
+          position: { topRow: 5, leftColumn: 0 },
+        },
+      ],
+    });
+
+    // The nominal rect moved; no repair against the in-flow widgets it "covers".
+    expect(edited.children![2]).toMatchObject({ topRow: 5, bottomRow: 29 });
+    expect(changes).toHaveLength(1);
+    expect(notes).toEqual([]);
+  });
+
+  it("rejects moving a widget whose rect is non-numeric", () => {
+    const dsl = twoStacked();
+
+    dsl.children![0].topRow = Number.NaN;
+
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [
+          {
+            kind: "move",
+            name: "Upper",
+            position: { topRow: 30, leftColumn: 0 },
+          },
+        ],
+      }),
+    ).toThrow(/non-numeric position/);
+  });
+});
+
+// M6 — the resize operation (design section B2).
+describe("applyWidgetPatch — resize", () => {
+  function pageWith(children: WidgetNode[]): WidgetNode {
+    return node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      bottomRow: 380,
+      rightColumn: 640,
+      children,
+    });
+  }
+
+  function card(bodyChildren: WidgetNode[], rows: number): WidgetNode {
+    const inner = node({
+      widgetId: "cardCanvas",
+      widgetName: "CardCanvas",
+      type: "CANVAS_WIDGET",
+      topRow: 0,
+      bottomRow: rows,
+      rightColumn: 40,
+      children: bodyChildren,
+    });
+
+    return node({
+      widgetId: "card",
+      widgetName: "Card",
+      type: "CONTAINER_WIDGET",
+      topRow: 0,
+      bottomRow: rows,
+      rightColumn: 40,
+      children: [inner],
+    });
+  }
+
+  it("grows a widget and cascade-pushes the colliding below-sibling, recording both", () => {
+    const dsl = pageWith([
+      node({
+        widgetId: "a",
+        widgetName: "Upper",
+        type: "TEXT_WIDGET",
+        topRow: 0,
+        bottomRow: 10,
+      }),
+      node({
+        widgetId: "b",
+        widgetName: "Lower",
+        type: "TEXT_WIDGET",
+        topRow: 11,
+        bottomRow: 18,
+      }),
+    ]);
+    const {
+      changes,
+      dsl: edited,
+      notes,
+    } = applyWidgetPatch(dsl, {
+      operations: [{ kind: "resize", name: "Upper", rows: 15 }],
+    });
+    const [upper, lower] = edited.children!;
+
+    expect(upper).toMatchObject({ topRow: 0, bottomRow: 15 });
+    // Lower was pushed just past the grown widget.
+    expect(lower).toMatchObject({ topRow: 16, bottomRow: 23 });
+    expect(lower.mobileTopRow).toBe(16);
+    expect(changes[0]).toEqual({
+      kind: "resize",
+      widgetName: "Upper",
+      previousSize: { rows: 10, columns: 24 },
+      size: { rows: 15, columns: 24 },
+    });
+    expect(changes[1]).toMatchObject({ kind: "move", widgetName: "Lower" });
+    expect(notes.join(" ")).toContain('"Lower"');
+  });
+
+  it("strict: true rejects growth that would land on a sibling", () => {
+    const dsl = pageWith([
+      node({
+        widgetId: "a",
+        widgetName: "Upper",
+        type: "TEXT_WIDGET",
+        topRow: 0,
+        bottomRow: 10,
+      }),
+      node({
+        widgetId: "b",
+        widgetName: "Lower",
+        type: "TEXT_WIDGET",
+        topRow: 11,
+        bottomRow: 18,
+      }),
+    ]);
+
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [{ kind: "resize", name: "Upper", rows: 15, strict: true }],
+      }),
+    ).toThrow(/would overlap "Lower"/);
+  });
+
+  it("rejects width growth past the canvas with the available columns", () => {
+    const dsl = pageWith([
+      node({
+        widgetId: "a",
+        widgetName: "Wide",
+        type: "TEXT_WIDGET",
+        leftColumn: 50,
+        rightColumn: 64,
+      }),
+    ]);
+
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [{ kind: "resize", name: "Wide", columns: 20 }],
+      }),
+    ).toThrow(/14 columns are available from leftColumn 50/);
+  });
+
+  it("rejects shrinking a container below its children with the executable minimum", () => {
+    const dsl = pageWith([
+      card(
+        [
+          node({
+            widgetId: "f",
+            widgetName: "Field",
+            type: "INPUT_WIDGET_V2",
+            topRow: 0,
+            bottomRow: 30,
+          }),
+        ],
+        40,
+      ),
+    ]);
+
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [{ kind: "resize", name: "Card", rows: 10 }],
+      }),
+    ).toThrow(/smallest rows that fit the children: 30/);
+
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [{ kind: "resize", name: "Card", columns: 10 }],
+      }),
+    ).toThrow(/smallest columns that fit the children: 24/);
+  });
+
+  it("shrinks a container down to (but not past) its children, keeping the inner canvas in step", () => {
+    const dsl = pageWith([
+      card(
+        [
+          node({
+            widgetId: "f",
+            widgetName: "Field",
+            type: "INPUT_WIDGET_V2",
+            topRow: 0,
+            bottomRow: 30,
+          }),
+        ],
+        40,
+      ),
+    ]);
+    const { dsl: edited } = applyWidgetPatch(dsl, {
+      operations: [{ kind: "resize", name: "Card", rows: 30 }],
+    });
+    const container = edited.children![0];
+
+    expect(container).toMatchObject({ topRow: 0, bottomRow: 30 });
+    expect(container.children![0]).toMatchObject({ bottomRow: 30 });
+    expect(container.mobileBottomRow).toBe(30);
+  });
+
+  it("translates modal rows into the pixel height prop (rows × rowHeightPx)", () => {
+    const dsl = pageWith([
+      node({
+        widgetId: "m1",
+        widgetName: "AddModal",
+        type: "MODAL_WIDGET",
+        topRow: 0,
+        bottomRow: 24,
+        rightColumn: 32,
+        height: 252,
+        detachFromLayout: true,
+        children: [
+          node({
+            widgetId: "mc",
+            widgetName: "ModalCanvas",
+            type: "CANVAS_WIDGET",
+            topRow: 0,
+            bottomRow: 24,
+            rightColumn: 32,
+            children: [],
+          }),
+        ],
+      }),
+    ]);
+    const {
+      changes,
+      dsl: edited,
+      notes,
+    } = applyWidgetPatch(dsl, {
+      operations: [{ kind: "resize", name: "AddModal", rows: 40 }],
+    });
+
+    expect(edited.children![0].height).toBe(400);
+    expect(changes[0]).toEqual({
+      kind: "resize",
+      widgetName: "AddModal",
+      previousSize: { rows: 25 },
+      size: { rows: 40 },
+    });
+    expect(notes.join(" ")).toContain("400px");
+  });
+
+  it("rejects modal column resizing (height-only vocabulary in v1)", () => {
+    const dsl = pageWith([
+      node({
+        widgetId: "m1",
+        widgetName: "AddModal",
+        type: "MODAL_WIDGET",
+        height: 252,
+        detachFromLayout: true,
+      }),
+    ]);
+
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [{ kind: "resize", name: "AddModal", columns: 40 }],
+      }),
+    ).toThrow(/rows only/);
+  });
+
+  it("schema: resize requires rows or columns, integers >= 1, and is strictly typed", () => {
+    expect(
+      widgetPatchSchema.safeParse({
+        operations: [{ kind: "resize", name: "Card" }],
+      }).success,
+    ).toBe(false);
+    expect(
+      widgetPatchSchema.safeParse({
+        operations: [{ kind: "resize", name: "Card", rows: 0 }],
+      }).success,
+    ).toBe(false);
+    expect(
+      widgetPatchSchema.safeParse({
+        operations: [{ kind: "resize", name: "Card", rows: 2.5 }],
+      }).success,
+    ).toBe(false);
+    expect(
+      widgetPatchSchema.safeParse({
+        operations: [{ kind: "resize", name: "Card", rows: 12, unknown: 1 }],
+      }).success,
+    ).toBe(false);
+    expect(
+      widgetPatchSchema.safeParse({
+        operations: [
+          { kind: "resize", name: "Card", rows: 12, columns: 20, strict: true },
+        ],
+      }).success,
+    ).toBe(true);
   });
 });

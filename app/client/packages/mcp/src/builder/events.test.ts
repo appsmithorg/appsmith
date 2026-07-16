@@ -486,6 +486,28 @@ describe("M5 store accumulation — appendToStore / clearStoreKey / statement li
       }),
     ).toBe(false);
 
+    // M6: single quotes are rejected outright — a path element like "closeModal('EditModal')" would survive
+    // JSON.stringify intact and poison later text scans of the persisted binding (a stacking edge misread as a
+    // wizard transition, skipping the modal depth gate).
+    expect(
+      accepts({
+        appendToStore: {
+          key: "k",
+          query: "q",
+          fields: [{ as: "a", path: ["closeModal('EditModal')"] }],
+        },
+      }),
+    ).toBe(false);
+    expect(
+      accepts({
+        appendToStore: {
+          key: "k",
+          query: "q",
+          fields: [{ as: "a", path: ["post code"] }],
+        },
+      }),
+    ).toBe(true);
+
     // A path element that could terminate the outer {{ }} or open an expression is rejected outright, even though
     // JSON.stringify would escape quotes — the mustache splitter is not JS-aware.
     for (const badElement of ["a}}b", "a{{b", "a${b}", "a`b"]) {

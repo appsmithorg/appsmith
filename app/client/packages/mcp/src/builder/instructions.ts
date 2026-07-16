@@ -51,6 +51,24 @@ Widgets are auto-placed on a 64-column grid, stacked top-to-bottom in spec order
 - \`after\` and \`inside\` are mutually exclusive — set at most one.
 - A placement that can't be resolved falls back to "append" and is reported in the response \`notes\`.
 
+Overlap safety: widgets are never silently written over each other.
+
+- A \`patch_widgets\` move to an occupied position is REPAIRED to the nearest free spot below —
+  the change records \`requestedPosition\` vs the applied \`position\` and the result carries a
+  note. Pass \`strict: true\` to get a rejection (with the colliding names and the nearest free
+  position) instead of a repair.
+- Any layout mutation that would still introduce an overlap is rejected with code
+  \`overlap_introduced\` plus a ready-to-apply \`suggestedFix\` (literal \`patch_widgets\` move
+  operations) — apply it verbatim, then retry. Pre-existing overlaps on a page never block edits.
+- Swapping two widgets needs a temporary spot: move A aside, move B into A's old place, then
+  move A into B's — two widgets cannot occupy the same cells mid-sequence.
+- Containers, forms, and tabs auto-grow when content needs more room, pushing widgets below
+  them down (reported in \`notes\`/\`changes\`). A modal body that outgrows the modal scrolls;
+  its diagnostic includes a \`resize\` suggestedFix to show everything.
+- Resize a widget with \`patch_widgets\` \`{ kind: "resize", name, rows?, columns? }\` (grid
+  units). Overlap and clipped-container diagnostics include ready-to-apply \`suggestedFix\`
+  payloads — prefer applying them over doing grid arithmetic yourself.
+
 After a build or edit, call \`inspect_page\` (or read the inline \`diagnostics\`) to catch overlaps,
 off-grid widgets, or a container that clips its contents, then fix and re-check.`;
 
@@ -95,6 +113,16 @@ evaluated as code in a viewer's browser.
   The action may also be an ordered LIST of 2–5 statements (at most one \`run\`, which alone
   carries \`onSuccess\`/\`onError\`) — e.g. a Clear button that empties a store key AND resets an
   input in one click.
+- Modal discipline: a modal can never live INSIDE another modal (builds/edits/moves that nest
+  one are rejected) — modals are page-level overlays, opened via \`wire_event\` \`showModal\`.
+  Stacking rules on wiring: opening a modal from inside another modal leaves both open — depth
+  2 (e.g. a confirm dialog over an edit modal) is allowed with a warning; depth 3+ and cycles
+  are rejected. To move between modals WITHOUT stacking (wizards, back buttons), close the
+  host in the same action: \`[{ "closeModal": "Step1" }, { "showModal": "Step2" }]\` — a
+  close-then-open is a transition and never counts as a stack. Bindings hand-written in the
+  Appsmith editor that the analyzer can't parse are skipped fail-open; \`inspect_page\` reports
+  how many were excluded (nested trigger paths like table row-button events are also outside
+  the analysis).
 - Accumulating results across runs (store accumulation): re-running a query REPLACES its
   \`data\`, so a query-bound table shows only the latest response. To build a table that grows
   with each run, accumulate rows in the Appsmith store:
