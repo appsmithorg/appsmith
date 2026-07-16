@@ -104,6 +104,26 @@ public class OrganizationConfigurationCE implements Serializable {
         isAtomicPushAllowed = organizationConfiguration.getIsAtomicPushAllowed();
     }
 
+    /**
+     * Strips fields that should not be visible to unauthenticated (anonymous) users.
+     * Only fields required for the login/signup page are preserved (branding, auth method flags,
+     * instance name, form login state, third-party auth list).
+     * EE subclass overrides this to strip additional EE-specific fields.
+     */
+    public void stripFieldsForAnonymousUser() {
+        this.googleMapsKey = null;
+        this.isSignupDisabled = null;
+        this.emailVerificationEnabled = null;
+        this.isStrongPasswordPolicyEnabled = null;
+        this.isAtomicPushAllowed = null;
+        this.featuresWithPendingMigration = null;
+        this.migrationStatus = MigrationStatus.COMPLETED;
+
+        License minimalLicense = new License();
+        minimalLicense.setPlan(LicensePlan.FREE);
+        this.license = minimalLicense;
+    }
+
     protected static <T> T getComputedValue(T defaultValue, T updatedValue, T currentValue) {
         if (currentValue == null && updatedValue == null) {
             return defaultValue;
