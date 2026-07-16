@@ -86,7 +86,7 @@ function ExternalComponent(props: any) {
   }, [props.width, props.height]);
 
   const srcDoc = `
-    <html>
+    <html translate="no">
       <head>
         <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
         <style>${css}</style>

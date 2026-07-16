@@ -21,6 +21,16 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v4
 
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v4.1.4
+
+      # charts/ is gitignored, so pull subcharts before running the tests.
+      # Done here, not in the container, which can't write to the mounted dir.
+      - name: Build chart dependencies
+        run: helm dependency build
+
       - name: Unittest
         run: |
           docker run --rm -v $(pwd):/apps helmunittest/helm-unittest .

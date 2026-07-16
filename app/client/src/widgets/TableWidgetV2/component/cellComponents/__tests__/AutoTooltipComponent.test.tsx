@@ -74,6 +74,48 @@ test("renders content without tooltip for normal text", () => {
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 });
 
+test("shows tooltip for truncated menu button text", () => {
+  const longText =
+    "This is a long text that will be truncated in the menu button";
+  const { getByText } = render(
+    <AutoToolTipComponent columnType={ColumnTypes.MENU_BUTTON} title={longText}>
+      <div>
+        <span
+          style={{
+            width: "50px",
+            display: "inline-block",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {longText}
+        </span>
+      </div>
+    </AutoToolTipComponent>,
+  );
+
+  fireEvent.mouseEnter(getByText(longText));
+  expect(getByText(longText)).toBeInTheDocument();
+});
+
+test("does not show tooltip for non-truncated menu button text", () => {
+  const shortText = "Short text";
+  const { getByText } = render(
+    <AutoToolTipComponent
+      columnType={ColumnTypes.MENU_BUTTON}
+      title={shortText}
+    >
+      <div>
+        <span>{shortText}</span>
+      </div>
+    </AutoToolTipComponent>,
+  );
+
+  fireEvent.mouseEnter(getByText(shortText));
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+});
+
 test("does not show tooltip for non-truncated text", () => {
   const shortText = "Short text";
   const { getByText } = render(
@@ -118,5 +160,38 @@ describe("isButtonTextTruncated", () => {
     const element = document.createElement("div");
 
     expect(isButtonTextTruncated(element)).toBe(false);
+  });
+
+  test("detects truncation on button text span when an icon span is present", () => {
+    const container = document.createElement("div");
+    const iconSpan = document.createElement("span");
+
+    iconSpan.className = "bp3-icon bp3-icon-add";
+    Object.defineProperty(iconSpan, "offsetWidth", { value: 16 });
+    Object.defineProperty(iconSpan, "scrollWidth", { value: 16 });
+
+    const textSpan = document.createElement("span");
+
+    textSpan.className = "bp3-button-text";
+    textSpan.textContent = "Truncated label";
+    Object.defineProperty(textSpan, "offsetWidth", { value: 50 });
+    Object.defineProperty(textSpan, "scrollWidth", { value: 120 });
+
+    container.appendChild(iconSpan);
+    container.appendChild(textSpan);
+
+    expect(isButtonTextTruncated(container)).toBe(true);
+  });
+
+  test("returns false when only icon span is present", () => {
+    const container = document.createElement("div");
+    const iconSpan = document.createElement("span");
+
+    iconSpan.className = "bp3-icon bp3-icon-add";
+    Object.defineProperty(iconSpan, "offsetWidth", { value: 16 });
+    Object.defineProperty(iconSpan, "scrollWidth", { value: 16 });
+    container.appendChild(iconSpan);
+
+    expect(isButtonTextTruncated(container)).toBe(false);
   });
 });

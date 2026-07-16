@@ -96,6 +96,7 @@ public enum AppsmithErrorCode {
     GIT_UPSTREAM_CHANGES("AE-GIT-4048", "Git upstream changes"),
     INVALID_GIT_SSH_URL("AE-GIT-4050", "Invalid git ssh url"),
     REPOSITORY_NOT_FOUND("AE-GIT-4051", "Repository not found"),
+    GIT_DEFAULT_BRANCH_NOT_FOUND("AE-GIT-4052", "Git default branch not found"),
     GIT_FILE_SYSTEM_ERROR("AE-GIT-5013", "Git file system error"),
     GIT_EXECUTION_TIMEOUT("AE-GIT-5014", "Git execution timeout"),
     GIT_GENERIC_ERROR("AE-GIT-5016", "Git generic error"),

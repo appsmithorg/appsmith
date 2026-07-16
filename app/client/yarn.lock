@@ -21818,9 +21818,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"http-proxy-middleware@npm:^2.0.9":
-  version: 2.0.9
-  resolution: "http-proxy-middleware@npm:2.0.9"
+"http-proxy-middleware@npm:2.0.10":
+  version: 2.0.10
+  resolution: "http-proxy-middleware@npm:2.0.10"
   dependencies:
     "@types/http-proxy": ^1.17.8
     http-proxy: ^1.18.1
@@ -21832,7 +21832,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/express":
       optional: true
-  checksum: 0ea88609b9c13fa03b89f8e6b85bd5c537027ec6990005dd81a7fbb3e73fcf8d6a6e3db2b57b1c6cddbcda80965704584dc6291d0e721b2700198c4e59ee0d0b
+  checksum: 94dd3289f888021089ae6beb96c492ecfc0d2ea78fccf97f861ac1772c8ba471cf5f8cb17911d66d6084a9943db4deec841cc0b097b5dec21955e94e7c16dc64
   languageName: node
   linkType: hard
 
@@ -23995,15 +23995,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:3.14.2":
-  version: 3.14.2
-  resolution: "js-yaml@npm:3.14.2"
+"js-yaml@npm:^3.15.0":
+  version: 3.15.0
+  resolution: "js-yaml@npm:3.15.0"
   dependencies:
     argparse: ^1.0.7
     esprima: ^4.0.0
   bin:
     js-yaml: bin/js-yaml.js
-  checksum: 626fc207734a3452d6ba84e1c8c226240e6d431426ed94d0ab043c50926d97c509629c08b1d636f5d27815833b7cfd225865631da9fb33cb957374490bf3e90b
+  checksum: 0209830c3ce51cec4c2cefee4b2b68c547b56b36920004efbf7c6a91ae7eee784bf64341738ef1acffa975d16e7882e9b69234b9a4411f455b72b33d4d74771e
   languageName: node
   linkType: hard
 
@@ -25988,12 +25988,39 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^5.1.8":
+"minimatch@npm:^10.1.1":
+  version: 10.2.5
+  resolution: "minimatch@npm:10.2.5"
+  dependencies:
+    brace-expansion: ^5.0.5
+  checksum: 000423875fecbc7da1d74bf63c9081363a71291ef2588c376c45647ac004582cb5bc8cc09ef84420b26bfb490f4d0818d328e78569c6228e20d90271283f73ba
+  languageName: node
+  linkType: hard
+
+"minimatch@npm:^3.0.2":
+  version: 3.1.5
+  resolution: "minimatch@npm:3.1.5"
+  dependencies:
+    brace-expansion: ^1.1.7
+  checksum: 47ef6f412c08be045a7291d11b1c40777925accf7252dc6d3caa39b1bfbb3a7ea390ba7aba464d762d783265c644143d2c8a204e6b5763145024d52ee65a1941
+  languageName: node
+  linkType: hard
+
+"minimatch@npm:^5.0.1, minimatch@npm:^5.1.8":
   version: 5.1.9
   resolution: "minimatch@npm:5.1.9"
   dependencies:
     brace-expansion: ^2.0.1
   checksum: 418438bd7701ba811f1108f28fcd3a638a6065c7b1245b85e25bcdb674410b4bebd8763c90c91bc8d22d93260c02cc129b354267a463c3399be5732d6e11e120
+  languageName: node
+  linkType: hard
+
+"minimatch@npm:^9.0.4":
+  version: 9.0.9
+  resolution: "minimatch@npm:9.0.9"
+  dependencies:
+    brace-expansion: ^2.0.2
+  checksum: 5292681ba1e14544ca9214ba5e412bb346214fb783354b22752f2d1e5c176e4a2c0bfcafeb1046389b816009ab73ba5410b176ce605632e8aa695db25f87f6b9
   languageName: node
   linkType: hard
 
@@ -36238,9 +36265,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:^8.11.0, ws@npm:^8.18.0, ws@npm:^8.2.3":
-  version: 8.18.0
-  resolution: "ws@npm:8.18.0"
+"ws@npm:^8.21.0":
+  version: 8.21.0
+  resolution: "ws@npm:8.21.0"
   peerDependencies:
     bufferutil: ^4.0.1
     utf-8-validate: ">=5.0.2"
@@ -36249,7 +36276,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 91d4d35bc99ff6df483bdf029b9ea4bfd7af1f16fc91231a96777a63d263e1eabf486e13a2353970efc534f9faa43bdbf9ee76525af22f4752cbc5ebda333975
+  checksum: 83ff89ae011bc5c3c5605a45a0d50e12589143c7500ca4de83a8d43b3cd26e71f422cb3206fd1a9e6d541d666eeb66255c30d095d62d413b3c7afe5d2c5cb928
   languageName: node
   linkType: hard
 

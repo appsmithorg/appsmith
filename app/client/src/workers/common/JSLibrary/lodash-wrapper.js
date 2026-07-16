@@ -58,4 +58,10 @@ if (
 // Given that we *need* to use the full lodash in ./resetJSLibraries.js,
 // we use this workaround where we’re importing Lodash using CommonJS require().
 // It works because babel-plugin-lodash doesn’t support CommonJS require().
-module.exports = require("lodash");
+//
+// We expose it via `export default` (ESM) rather than `module.exports`: when this
+// file is pulled into a worker whose module graph webpack treats as ESM, a raw
+// `module.exports =` throws "ES Modules may not assign module.exports". Using an
+// ESM default export avoids that while still loading lodash through `require()`
+// (not `import`), so babel-plugin-lodash still leaves the full library intact.
+export default require("lodash");

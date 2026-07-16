@@ -172,13 +172,24 @@ Resolution order:
   The image name ("mongodb-community-server") and suffix ("-ubi8") are pinned
   because the operator hardcodes those for MongoDBCommunity resources regardless
   of the chart's other mongodb.* values.
+
+  An existing "-ubi8" suffix on mongodbCommunity.version is trimmed before the
+  suffix is re-appended, so the append is idempotent. The suffix is defined once
+  ($suffix) and used for both the trim and the append, so they can't drift if it
+  ever needs to change. This lets private-registry
+  users (whose mirror only carries "-ubi8" tags, and whose operator consumes the
+  CR spec.version verbatim) set mongodbCommunity.version: "8.0.20-ubi8" once and
+  drive both the CR and this init image from that single value — no separate
+  initContainer.mongodb.image override needed.
 */}}
 {{- define "appsmith.mongoInitContainerImage" -}}
 {{- if ((.Values.initContainer).mongodb).image -}}
 {{- .Values.initContainer.mongodb.image -}}
 {{- else -}}
 {{- $repo := ((.Values.mongodbOperator).mongodb).repo | default "quay.io/mongodb" -}}
-{{- printf "%s/mongodb-community-server:%s-ubi8" $repo .Values.mongodbCommunity.version -}}
+{{- $suffix := "-ubi8" -}}
+{{- $ver := .Values.mongodbCommunity.version | toString | trimSuffix $suffix -}}
+{{- printf "%s/mongodb-community-server:%s%s" $repo $ver $suffix -}}
 {{- end -}}
 {{- end -}}
 
@@ -227,6 +238,57 @@ Uses existing secret if provided, otherwise derives from the CR name
 {{- else -}}
 {{- printf "%s-password" (include "appsmith.mongoCommunityName" .) -}}
 {{- end -}}
+{{- end -}}
+
+{{/*
+Redis: password secret name
+Uses existing secret if provided, otherwise derives "{release}-redis-secret"
+*/}}
+{{- define "appsmith.redisSecretName" -}}
+{{- .Values.redis.auth.existingSecret | default (printf "%s-redis-secret" .Release.Name) -}}
+{{- end -}}
+
+{{/*
+Redis: validate the redis.auth.password configuration.
+
+redis.auth.password is a Bitnami subchart passthrough that the Appsmith
+templates never read on their own. There is exactly ONE supported way to use
+it: the fully self-managed path, where the operator also disables the chart's
+bootstrap secret (existingSecret: "") and hands the app a matching connection
+string via applicationConfig.APPSMITH_REDIS_URL. Any other use silently splits
+the password between Redis and the app, so we fail fast instead.
+
+Invoked from a template that always renders (configMap.yaml) so it evaluates on
+every `helm template`/install/upgrade.
+*/}}
+{{- define "appsmith.validateRedisAuth" -}}
+{{- if .Values.redis.auth.password -}}
+{{- if or .Values.redis.auth.existingSecret (not .Values.applicationConfig.APPSMITH_REDIS_URL) -}}
+{{ fail (printf "redis.auth.password is set, which is only supported on the self-managed path. Choose one of:\n  1. Leave redis.auth.password unset and let the chart bootstrap a password (default), or supply your own secret via redis.auth.existingSecret / redis.auth.existingSecretPasswordKey.\n  2. Self-manage the password: set redis.auth.password, set redis.auth.existingSecret: \"\", and set applicationConfig.APPSMITH_REDIS_URL=redis://:<password>@%s-redis-master:6379 so the app uses the same credential." .Release.Name) }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Redis: master service hostname (FQDN inside the cluster).
+Reuses the bundled `common.names.fullname` helper (the one the subchart's master
+Service uses), evaluated in the redis subchart's context (.Subcharts.redis), so the
+host always matches the Service it renders — including the edge cases where the
+release name contains "redis" (the subchart collapses its fullname to just the
+release name) or redis.nameOverride / redis.fullnameOverride is set.
+Only valid when redis.enabled (the subchart context exists); all callers gate on it.
+*/}}
+{{- define "appsmith.redisMasterHost" -}}
+{{- printf "%s-master.%s.svc.cluster.local" (include "common.names.fullname" .Subcharts.redis) (include "appsmith.namespace" .) -}}
+{{- end -}}
+
+{{/*
+Redis: kubectl image used by the password-init Job.
+Kept independent from the MongoDB equivalent so the two bootstraps don't share config.
+*/}}
+{{- define "appsmith.redisPasswordInitImage" -}}
+{{- $img := .Values.redisAuth.passwordInit.image -}}
+{{- printf "%s/%s:%s" $img.registry $img.repository $img.tag -}}
 {{- end -}}
 
 {{/*

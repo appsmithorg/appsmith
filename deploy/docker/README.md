@@ -162,7 +162,7 @@ docker-compose exec appsmith-ce supervisorctl restart backend
 
 ## Supervisor
 
-The container runs multiple processes, including the Appsmith server, Nginx, MongoDB etc., inside a single Docker container. These processes are started and managed by [supervisord](http://supervisord.org/).
+The container runs multiple processes, including the Appsmith server, Caddy, MongoDB etc., inside a single Docker container. These processes are started and managed by [supervisord](http://supervisord.org/).
 
 Supervisord comes with a web interface for managing the various processes, available at <http://localhost/supervisor/>, as well as a command line interface towards the same goal.
 
@@ -172,7 +172,7 @@ Here's a screenshot of the web interface listing all the processes managed:
   <img src="https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/docker/images/appsmith_supervisord_ui.png" width="80%">
 </p>
 
-The command line interface can also be used to perform operations like restarting the Appsmith server, or restarting Nginx etc. For example, the following command (run in the installation folder) can be used to get a status of all running processes:
+The command line interface can also be used to perform operations like restarting the Appsmith server, or restarting Caddy etc. For example, the following command (run in the installation folder) can be used to get a status of all running processes:
 
 ```sh
 docker-compose exec appsmith-ce supervisorctl status

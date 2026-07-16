@@ -460,7 +460,18 @@ export const getWidgetCards = createSelector(
 
       return !isAnvilWidget;
     });
+    // When a successor widget is registered (e.g. the v8 Anvil table), its
+    // predecessor is dropped from the palette so only one entry is offered.
+    // This is data-driven: it keys off the presence of the successor's config
+    // among the eligible widgets, not off a feature flag.
+    const hasAnvilTableSuccessor = layoutSystemBasesWidgets.some(
+      (config) => config.type === "WDS_ANVIL_TABLE_WIDGET",
+    );
     const cards = layoutSystemBasesWidgets.filter((config) => {
+      if (hasAnvilTableSuccessor && config.type === "WDS_TABLE_WIDGET") {
+        return false;
+      }
+
       if (isAirgapped()) {
         return config.widgetName !== "Map" && !config.hideCard;
       }
