@@ -2,10 +2,6 @@ import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
 import { trace, context } from "@opentelemetry/api";
 import { resourceFromAttributes } from "@opentelemetry/resources";
-import {
-  ATTR_DEPLOYMENT_NAME,
-  ATTR_SERVICE_INSTANCE_ID,
-} from "@opentelemetry/semantic-conventions/incubating";
 import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 import { getAppsmithConfigs } from "ee/configs";
 import {
@@ -25,6 +21,12 @@ import { isTracingEnabled } from "instrumentation/utils";
 import { v4 as uuidv4 } from "uuid";
 import { error as errorLogger } from "loglevel";
 import type { User } from "constants/userConstants";
+
+// Incubating OTel semantic convention constants
+// (defined inline to avoid @opentelemetry/semantic-conventions/incubating subpath
+// which requires moduleResolution:bundler, incompatible with this project's config)
+const ATTR_DEPLOYMENT_NAME = "deployment.name";
+const ATTR_SERVICE_INSTANCE_ID = "service.instance.id";
 
 class AppsmithTelemetry {
   private faro: Faro | null;
