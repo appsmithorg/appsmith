@@ -9,6 +9,7 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypes;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferLimitException;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.codec.multipart.FilePart;
 import reactor.core.publisher.Mono;
@@ -19,7 +20,9 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import static com.external.plugins.constants.AppsmithAiConstants.MAX_UPLOAD_FILE_SIZE_IN_BYTES;
 import static com.external.plugins.constants.AppsmithAiConstants.SUPPORTED_FILE_MIME_TYPES;
+import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_TOO_LARGE;
 import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_TYPE_NOT_SUPPORTED;
 
 /**
@@ -65,10 +68,10 @@ public class FileValidationUtils {
      * bytes are returned as a replayable {@link BufferedFilePart} so the file can still be forwarded upstream.
      */
     public static Mono<FilePart> validateFileType(FilePart filePart) {
-        // The joined content is held in memory only up to the multipart body limit configured for the
-        // deployment (spring.webflux.multipart.max-in-memory-size / Caddy body cap, 150MB by default in
-        // application-ce.properties), which is the size control for this buffering; no bespoke cap here.
-        return DataBufferUtils.join(filePart.content())
+        // Enforce a per-file size cap using DataBufferUtils.join's own fail-fast byte limit, so an oversized
+        // upload is rejected as it is read rather than fully buffered into heap. This is scoped to this
+        // endpoint, unlike the shared 150MB global multipart ceiling.
+        return DataBufferUtils.join(filePart.content(), MAX_UPLOAD_FILE_SIZE_IN_BYTES)
                 .map(dataBuffer -> {
                     byte[] bytes = toByteArray(dataBuffer);
                     String detectedType = detectTrueType(bytes).getBaseType().toString();
@@ -82,7 +85,17 @@ public class FileValidationUtils {
                 // An empty content stream yields no buffer to inspect; treat it as an undetectable file.
                 .switchIfEmpty(Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        String.format(FILE_TYPE_NOT_SUPPORTED, filePart.filename(), OCTET_STREAM))));
+                        String.format(FILE_TYPE_NOT_SUPPORTED, filePart.filename(), OCTET_STREAM))))
+                // join throws DataBufferLimitException once the cap is exceeded; translate it to a clear
+                // rejection rather than surfacing a raw framework error.
+                .onErrorMap(
+                        DataBufferLimitException.class,
+                        e -> new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                String.format(
+                                        FILE_TOO_LARGE,
+                                        filePart.filename(),
+                                        MAX_UPLOAD_FILE_SIZE_IN_BYTES / (1024 * 1024))));
     }
 
     /**

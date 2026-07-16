@@ -7,4 +7,8 @@ public class AppsmithAiErrorMessages {
     public static final String FILE_TYPE_NOT_SUPPORTED =
             "File \"%s\" was rejected because its detected content type \"%s\" is not supported. "
                     + "Only PDF, plain text, and markdown files can be uploaded.";
+
+    // Rendered with String.format(fileName, maxSizeInMb).
+    public static final String FILE_TOO_LARGE =
+            "File \"%s\" was rejected because it exceeds the maximum allowed upload size of %d MB.";
 }

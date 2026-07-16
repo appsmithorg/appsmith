@@ -73,4 +73,11 @@ public class AppsmithAiConstants {
     // signature); text/markdown is kept for parity with form.json.
     public static final Set<String> SUPPORTED_FILE_MIME_TYPES =
             Set.of("application/pdf", "text/plain", "text/markdown");
+
+    // Maximum size accepted for a single uploaded file, enforced server-side via DataBufferUtils.join's
+    // fail-fast byte cap so an oversized upload is rejected before it is fully buffered into heap. Mirrors
+    // form.json's "maxFileSizeInBytes" (20 MiB) - the limit the client already enforces - aligning the server
+    // with the client, and sits well below the shared 150MB global multipart ceiling. 20 MiB is a sensible
+    // bound for AI-context documents (PDF / text / markdown).
+    public static final int MAX_UPLOAD_FILE_SIZE_IN_BYTES = 20 * 1024 * 1024;
 }

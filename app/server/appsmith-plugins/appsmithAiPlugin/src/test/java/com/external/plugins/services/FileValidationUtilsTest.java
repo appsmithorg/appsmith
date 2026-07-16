@@ -1,6 +1,7 @@
 package com.external.plugins.services;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.external.plugins.constants.AppsmithAiConstants;
 import com.external.plugins.utils.BufferedFilePart;
 import com.external.plugins.utils.FileValidationUtils;
 import org.junit.jupiter.api.Test;
@@ -188,5 +189,13 @@ public class FileValidationUtilsTest {
     public void validateFileType_withWideEncodedPlainText_isAccepted() {
         // A genuine UTF-16LE text file is normalized and accepted as text/plain, not rejected as binary.
         expectAccepted("Just an ordinary note in a wide encoding.".getBytes(StandardCharsets.UTF_16LE), "notes.txt");
+    }
+
+    @Test
+    public void validateFileType_withOversizedFile_isRejected() {
+        // One byte past the per-file cap: join must fail fast (DataBufferLimitException translated to a
+        // plugin exception) before the file is fully buffered and inspected.
+        byte[] tooBig = new byte[AppsmithAiConstants.MAX_UPLOAD_FILE_SIZE_IN_BYTES + 1];
+        expectRejected(tooBig, "huge.txt");
     }
 }
