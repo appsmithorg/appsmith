@@ -8,11 +8,11 @@ import {
   compileVisibleWhenBinding,
   inputValidationSchema,
   selectedRowRefSchema,
-  tableDataRefSchema,
+  tableDataBindingSchema,
   visibleWhenRefSchema,
   type InputValidationRef,
   type SelectedRowRef,
-  type TableDataRef,
+  type TableDataBinding,
   type VisibleWhenRef,
 } from "./schema.js";
 
@@ -79,8 +79,9 @@ export const widgetPropsPatchSchema = z
     // Gate a widget's visibility on a control's value — e.g. show a table when a view toggle equals "Table" and a
     // detail panel when it equals "Details", so one control switches views. Compiled to isVisible.
     visibleWhen: visibleWhenRefSchema.optional(),
-    // Re-bind a table's data (optionally clear-when-empty). Compiled, never literal-assigned.
-    tableData: tableDataRefSchema.optional(),
+    // Re-bind a table's data: a query ref (optionally clear-when-empty) OR (M5) a store key accumulated by
+    // wire_event's appendToStore ({ store: '<key>' }). Compiled, never literal-assigned.
+    tableData: tableDataBindingSchema.optional(),
     // Add named-format validation to an input (compiled to a vetted regex + error message).
     validation: inputValidationSchema.optional(),
     // Disable this widget while the named input is invalid — compiled to `{{ !<input>.isValid }}`.
@@ -321,18 +322,27 @@ function applySelectedRowBinding(
   registerDynamicBinding(node, expected.property);
 }
 
-// Re-bind a table's data to a query (optionally clear-when-empty). Type-checks the target, verifies the guard input
-// exists, emits the binding from the closed vocabulary, and registers the dynamic path. The agent never supplies
-// expression text.
+// Re-bind a table's data to a query (optionally clear-when-empty) or to a store key (M5). Type-checks the target,
+// verifies the guard input exists, emits the binding from the closed vocabulary, and registers the dynamic path.
+// The agent never supplies expression text.
 function applyTableDataBinding(
   widgets: Map<string, LocatedWidget>,
   node: WidgetNode,
-  ref: TableDataRef,
+  ref: TableDataBinding,
 ): void {
   if (node.type !== "TABLE_WIDGET_V2") {
     throw new Error(
       `'tableData' can only be set on a TABLE_WIDGET_V2 ("${node.widgetName}" is ${node.type})`,
     );
+  }
+
+  // The store form has no guard/field to verify — its key is schema-validated and the binding head (appsmith) is
+  // always valid, so it compiles directly.
+  if ("store" in ref) {
+    node.tableData = compileTableDataBinding(ref);
+    registerDynamicBinding(node, "tableData");
+
+    return;
   }
 
   // The guard is emitted as `${guard}.text` — so it must be an input widget. A non-input has no `.text` (undefined

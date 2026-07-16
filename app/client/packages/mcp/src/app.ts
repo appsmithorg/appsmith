@@ -20,6 +20,7 @@ import { getCapabilities } from "./builder/capabilities.js";
 import { applyEdit, compileApp } from "./builder/compile.js";
 import {
   applyEvent,
+  eventActionKinds,
   eventReferences,
   widgetExists,
   wireEventSpecSchema,
@@ -128,6 +129,10 @@ export interface ServerContext {
   // True when the authenticated user is an instance SUPER-admin (isSuperUser on /api/v1/users/me). Gates the
   // cross-actor audit read (list_all_changes / get_any_change); a normal actor only ever sees its own change records.
   isAdmin?: boolean;
+  // Absolute http(s) origin used to build the editor/viewer URLs build_application returns, resolved ONCE per
+  // session at initialize (handlers never see raw requests): options.publicOrigin, else strictly validated
+  // X-Forwarded-Proto + Host headers, else undefined — which degrades every constructed URL to a root-relative path.
+  requestOrigin?: string;
 }
 
 // A page is the lock/audit entity for layout, page-metadata, and event mutations.
@@ -857,6 +862,103 @@ function fingerprintPages(response: unknown): string {
     .digest("hex");
 }
 
+// The import endpoint returns an ApplicationImportDTO ({ application, isPartialImport, ... }); tolerate a bare
+// application object too (older shapes/fixtures). Extracts exactly what URL construction and auto-publish need:
+// the application id/slug and each page's id/slug/isDefault. Nothing else from the response is interpreted.
+interface ImportedPage {
+  id: string;
+  slug?: string;
+  isDefault?: boolean;
+}
+
+function projectImportedApplication(imported: unknown): {
+  applicationId?: string;
+  applicationSlug?: string;
+  pages: ImportedPage[];
+} {
+  const root = imported as { application?: unknown } | null;
+  const application = (root?.application ?? imported) as {
+    id?: unknown;
+    slug?: unknown;
+    pages?: unknown;
+  } | null;
+
+  const pages: ImportedPage[] = Array.isArray(application?.pages)
+    ? application.pages.flatMap((page) => {
+        if (page === null || typeof page !== "object") return [];
+
+        const entry = page as {
+          id?: unknown;
+          slug?: unknown;
+          isDefault?: unknown;
+        };
+
+        if (typeof entry.id !== "string" || entry.id.length === 0) return [];
+
+        return [
+          {
+            id: entry.id,
+            ...(typeof entry.slug === "string" && entry.slug.length > 0
+              ? { slug: entry.slug }
+              : {}),
+            ...(typeof entry.isDefault === "boolean"
+              ? { isDefault: entry.isDefault }
+              : {}),
+          },
+        ];
+      })
+    : [];
+
+  return {
+    applicationId:
+      typeof application?.id === "string" && application.id.length > 0
+        ? application.id
+        : undefined,
+    applicationSlug:
+      typeof application?.slug === "string" && application.slug.length > 0
+        ? application.slug
+        : undefined,
+    pages,
+  };
+}
+
+// The slugs/ids come from the Appsmith server, but each URL segment is still charset-checked before it is embedded
+// in a path: if any segment is missing or would not survive as a literal path piece, the URLs are OMITTED (the ids
+// are still returned) — never a guessed or broken path [COUNCIL: slug fallback].
+const URL_PATH_SEGMENT = /^[A-Za-z0-9_-]+$/;
+
+function applicationUrls(
+  origin: string | undefined,
+  applicationSlug: string | undefined,
+  pages: ImportedPage[],
+): { editorUrl?: string; viewerUrl?: string } {
+  const defaultPage = pages.find((page) => page.isDefault) ?? pages[0];
+
+  if (
+    applicationSlug === undefined ||
+    !URL_PATH_SEGMENT.test(applicationSlug) ||
+    defaultPage?.slug === undefined ||
+    !URL_PATH_SEGMENT.test(defaultPage.slug) ||
+    !URL_PATH_SEGMENT.test(defaultPage.id)
+  ) {
+    return {};
+  }
+
+  // Absolute when an origin is available (env override or validated session headers); root-relative otherwise.
+  const viewerUrl = `${origin ?? ""}/app/${applicationSlug}/${defaultPage.slug}-${defaultPage.id}`;
+
+  return { editorUrl: `${viewerUrl}/edit`, viewerUrl };
+}
+
+// Coarse outcome class for an auto-publish failure ("created but not deployed: <class>" + telemetry). Only the
+// upstream HTTP status class survives — the raw error message is never surfaced (it can carry response details).
+function publishFailureClass(error: unknown): string {
+  const match =
+    error instanceof Error ? /\((\d{3})\)/.exec(error.message) : null;
+
+  return match ? mcpStatusClass(Number(match[1])) : "error";
+}
+
 // Safe projection + revision for a single stored action. The revision folds in the server-side `updatedAt` so any
 // change to the (never-exposed) action body still bumps it, giving real optimistic concurrency without leaking the
 // body/headers/credentials.
@@ -1235,7 +1337,14 @@ export function buildMcpServer(
   api: AppsmithApi,
   ctx: ServerContext = { dataEnabled: false, jsEnabled: false, actorId: "" },
 ) {
-  const { actorId, dataEnabled, governance, isAdmin, jsEnabled } = ctx;
+  const {
+    actorId,
+    dataEnabled,
+    governance,
+    isAdmin,
+    jsEnabled,
+    requestOrigin,
+  } = ctx;
   const server = new McpServer(
     { name: "appsmith-mcp", version: "0.0.1" },
     { instructions: SERVER_INSTRUCTIONS },
@@ -1479,7 +1588,7 @@ export function buildMcpServer(
 
   server.tool(
     "build_application",
-    "Create an Appsmith application from a high-level app spec. Widgets are auto-placed on the grid, compiled to an artifact, and imported via the caller's ACL-enforced permissions. workspaceId is required — if the user names a workspace, resolve it to its id with resolve_workspace (or list_workspaces) rather than asking for a raw id.",
+    "Create an Appsmith application from a high-level app spec. Widgets are auto-placed on the grid, compiled to an artifact, and imported via the caller's ACL-enforced permissions. The new app is automatically deployed (published) on creation, and the response includes an editorUrl plus a viewerUrl for the default page when available — treat that first deployed copy as a scaffold and re-publish after wiring data and events. workspaceId is required — if the user names a workspace, resolve it to its id with resolve_workspace (or list_workspaces) rather than asking for a raw id.",
     { workspaceId: idSchema, app: z.record(z.unknown()) },
     async ({ app, workspaceId }) => {
       const parsed = appSpecSchema.safeParse(app);
@@ -1503,8 +1612,86 @@ export function buildMcpServer(
         workspaceId,
         artifact,
       );
+      const { applicationId, applicationSlug, pages } =
+        projectImportedApplication(imported);
+      const urls = applicationUrls(requestOrigin, applicationSlug, pages);
+      const warnings: string[] = [];
 
-      return result({ application: imported, diagnostics });
+      // AUTO-PUBLISH the just-created app (M5-T3). No confirmation token is needed here — this app was created by
+      // THIS call, so it has no existing deployed state a deploy could clobber; the governed
+      // prepare_publish/confirm_publish flow (and its git-connected refusal) remains required for RE-publishing
+      // existing apps, including this one after later edits. A publish failure must never fail the create: it
+      // degrades to a "created but not deployed" warning carrying only a coarse class, never the raw error.
+      if (applicationId === undefined) {
+        warnings.push(
+          "created but not deployed: application id missing from the import response",
+        );
+      } else if (governance) {
+        // Governance present: record the deploy through gov.execute like confirm_publish does, so the audit
+        // trail shows who deployed what. The just-read page-list revision is passed as both expected and current
+        // (nothing can be stale for an app that did not exist a moment ago).
+        try {
+          const currentRevision = fingerprintPages(
+            await api.getApplicationPages(applicationId),
+          );
+
+          await governance.execute({
+            actorId,
+            entityKey: `application:${applicationId}`,
+            operation: "auto_publish",
+            expectedRevision: currentRevision,
+            currentRevision,
+            mutate: async () => {
+              await api.publishApplication(applicationId);
+
+              return {
+                value: {},
+                revisionAfter: currentRevision,
+                rollback: {},
+                summary: { applicationId, trigger: "build_application" },
+              };
+            },
+          });
+        } catch (error) {
+          const statusClass = publishFailureClass(error);
+
+          // A failed governed deploy leaves no gov change record (nothing was executed), so emit the same
+          // structured event the ungoverned path does — failure-rate telemetry stays symmetric across postures.
+          logMcpEvent("appsmith_mcp_auto_publish", {
+            usernameHash: hashUsername(actorId),
+            statusClass,
+          });
+          warnings.push(`created but not deployed: ${statusClass}`);
+        }
+      } else {
+        // Ungoverned deployments have no change records, so the deploy must still never be silent: emit the
+        // M4-T4-style structured event (hashed actor, coarse outcome class — no ids, tokens, or error bodies)
+        // on success AND failure so the auto-publish success vs warning rate stays measurable.
+        try {
+          await api.publishApplication(applicationId);
+          logMcpEvent("appsmith_mcp_auto_publish", {
+            usernameHash: hashUsername(actorId),
+            statusClass: "success",
+          });
+        } catch (error) {
+          const statusClass = publishFailureClass(error);
+
+          logMcpEvent("appsmith_mcp_auto_publish", {
+            usernameHash: hashUsername(actorId),
+            statusClass,
+          });
+          warnings.push(`created but not deployed: ${statusClass}`);
+        }
+      }
+
+      return result({
+        application: imported,
+        ...(applicationId !== undefined ? { applicationId } : {}),
+        pages,
+        ...urls,
+        ...(warnings.length > 0 ? { warnings } : {}),
+        diagnostics,
+      });
     },
   );
 
@@ -1597,7 +1784,9 @@ export function buildMcpServer(
       pageId: idSchema,
       layoutId: idSchema,
       revision: z.string().regex(/^[a-f0-9]{64}$/),
-      patch: z.record(z.unknown()),
+      // The real structured schema, exposed so MCP clients can introspect the patch vocabulary instead of
+      // guessing from prose. The handler re-parses below, which also keeps the rich issue-path errors.
+      patch: widgetPatchSchema,
     },
     async ({ applicationId, layoutId, pageId, patch, revision }) => {
       const parsed = widgetPatchSchema.safeParse(patch);
@@ -1643,7 +1832,7 @@ export function buildMcpServer(
 
   server.tool(
     "wire_event",
-    "Wire a widget event to a safe action from a CLOSED vocabulary: run a query, navigate to a page, show/close a modal, show an alert, or reset one or more widgets ({ reset: 'Widget' } or { reset: ['A','B'] } — e.g. a Clear button that empties an input and resets a table). A run action may chain onSuccess/onError follow-ups from the same vocabulary (e.g. submit -> run insert -> re-run the table's query -> close the modal -> alert). Supported events: button onClick, table onRowSelected, modal onClose, tabs onTabSelected. Read the page first and pass its revision. The compiler emits the binding; no raw JS or bindings are accepted.",
+    "Wire a widget event to a safe action from a CLOSED vocabulary: run a query, navigate to a page, show/close a modal, show an alert, reset one or more widgets ({ reset: 'Widget' } or { reset: ['A','B'] } — e.g. a Clear button that empties an input and resets a table), append a query's rows to a store key ({ appendToStore: { key, query, field?, fields? } } — an accumulating results table; bind the table with a { store: '<key>' } source/tableData; session-only), or empty one store key ({ clearStoreKey: { key } }). A run action may chain onSuccess/onError follow-ups from the same vocabulary (e.g. submit -> run insert -> re-run the table's query -> close the modal -> alert). The action may also be an ordered LIST of 2-5 statements with at most one run (e.g. clearStoreKey + reset in one click). Supported events: button onClick, table onRowSelected, modal onClose, tabs onTabSelected. Read the page first and pass its revision. The compiler emits the binding; no raw JS or bindings are accepted.",
     {
       applicationId: idSchema,
       pageId: idSchema,
@@ -1652,7 +1841,9 @@ export function buildMcpServer(
         .string()
         .regex(/^[a-f0-9]{64}$/)
         .optional(),
-      spec: z.record(z.unknown()),
+      // The real structured schema (closed action vocabulary), exposed for client introspection; the handler
+      // re-parses below for the rich issue-path errors.
+      spec: wireEventSpecSchema,
     },
     async ({ applicationId, layoutId, pageId, revision, spec }) => {
       const parsed = wireEventSpecSchema.safeParse(spec);
@@ -1733,7 +1924,13 @@ export function buildMcpServer(
         revision,
         operation: "wire_event",
         newDsl,
-        extra: { widget: parsed.data.widget, event: parsed.data.event },
+        extra: {
+          widget: parsed.data.widget,
+          event: parsed.data.event,
+          // M5 telemetry: the statement verb kinds this wiring uses, so appendToStore/clearStoreKey adoption is
+          // measurable from the audit/changes payload.
+          actionKinds: eventActionKinds(parsed.data.action),
+        },
       });
     },
   );
@@ -3622,6 +3819,10 @@ export interface McpHttpServerOptions {
   // fronted by Caddy which preserves the original Host, so a fixed loopback list would reject the proxied public
   // deployment. A loopback-only or host-pinned deployment sets APPSMITH_MCP_ALLOWED_HOSTS to enforce it.
   allowedHosts?: string[];
+  // Validated absolute http(s) origin (APPSMITH_MCP_PUBLIC_ORIGIN, parsed fail-closed by publicOriginFromEnv) used
+  // for the editor/viewer URLs build_application returns. When unset, the origin is derived per session from the
+  // INITIALIZE request's validated X-Forwarded-Proto + Host headers; when that also fails, URLs are root-relative.
+  publicOrigin?: string;
 }
 
 // The hostname portion of a Host header, lowercased and without the port. Handles `host`, `host:port`, and
@@ -3640,6 +3841,33 @@ export function hostHeaderName(hostHeader: unknown): string {
   const colon = trimmed.indexOf(":");
 
   return (colon >= 0 ? trimmed.slice(0, colon) : trimmed).toLowerCase();
+}
+
+// Origin for agent-facing absolute URLs, derived from the INITIALIZE request's forwarded headers (used only when no
+// APPSMITH_MCP_PUBLIC_ORIGIN is configured). Strict by design [COUNCIL: security + architect]: X-Forwarded-Proto must
+// be EXACTLY "http" or "https" (Caddy sets a single value; a forged/duplicated header fails the literal comparison),
+// the Host must pass the hostname[:port] charset check, and when a Host allowlist is configured the hostname must be
+// in it. ANY failure returns undefined so URLs degrade to root-relative paths — a guessed absolute origin built from
+// a forged Host/proto on direct port access would put a phishing-grade URL in a trusted agent channel. Exported for
+// direct unit testing.
+export function sessionOriginFromHeaders(
+  headers: { "x-forwarded-proto"?: unknown; host?: unknown },
+  allowedHosts: ReadonlySet<string>,
+): string | undefined {
+  const proto = headers["x-forwarded-proto"];
+
+  if (proto !== "http" && proto !== "https") return undefined;
+
+  const host =
+    typeof headers.host === "string" ? headers.host.trim().toLowerCase() : "";
+
+  if (!/^[a-z0-9.-]+(:[0-9]+)?$/.test(host)) return undefined;
+
+  if (allowedHosts.size > 0 && !allowedHosts.has(hostHeaderName(host))) {
+    return undefined;
+  }
+
+  return `${proto}://${host}`;
 }
 
 function tokensMatch(left: string, right: string): boolean {
@@ -3943,6 +4171,12 @@ export function createMcpHttpServer(
           governance,
           actorId: authenticatedUser,
           isAdmin,
+          // Session-scoped origin for the URLs build_application returns, captured once here at initialize so
+          // tool handlers never touch raw requests (same seam as actorId/isAdmin). The configured public origin
+          // wins; header derivation is the validated fallback; undefined means root-relative URLs.
+          requestOrigin:
+            options.publicOrigin ??
+            sessionOriginFromHeaders(req.headers, allowedHosts),
         }).connect(transport);
       }
 

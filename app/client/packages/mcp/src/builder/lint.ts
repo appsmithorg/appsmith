@@ -31,6 +31,11 @@ const CONTAINER_TYPES = new Set(["CONTAINER_WIDGET", "FORM_WIDGET"]);
 const BINDING_PATTERN = /\{\{([\s\S]*?)\}\}/g;
 // Leading identifier of a binding expression, e.g. `getUsers` in `{{ getUsers.data }}`.
 const BINDING_HEAD = /^\s*([A-Za-z_$][A-Za-z0-9_$]*)/;
+// M5 store accumulation: a table bound to a store key (the exact shape compileTableDataBinding emits) and any
+// compiler-emitted storeValue('<key>', ...) writer, so the linter can flag a store-bound table nothing writes to.
+const STORE_TABLE_BINDING =
+  /^\{\{ appsmith\.store\.([A-Za-z_][A-Za-z0-9_]*) \?\? \[\] \}\}$/;
+const STORE_WRITE = /storeValue\('([A-Za-z_][A-Za-z0-9_]*)'/g;
 
 function isNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
@@ -82,6 +87,9 @@ class Linter {
   private readonly seenNames = new Map<string, number>();
   private readonly seenIds = new Set<string>();
   private readonly knownDataNames: Set<string>;
+  // M5 store accumulation: key -> first store-bound table's name, and the set of keys some event writes.
+  private readonly storeReads = new Map<string, string>();
+  private readonly storeWrites = new Set<string>();
 
   constructor(options: LintOptions) {
     this.knownDataNames = new Set(options.knownDataNames ?? []);
@@ -99,12 +107,14 @@ class Linter {
     // resolved against the COMPLETE name set, wherever the referenced widget sits in the tree.
     this.walkBindings(root);
     this.checkDuplicateNames();
+    this.checkStoreWriters();
 
     return this.result();
   }
 
   private walk(node: WidgetNode): void {
     this.checkIdentity(node);
+    this.collectStoreUsage(node);
 
     // Geometry checks apply to the direct children laid out on a canvas.
     if (node.type === CANVAS_TYPE) this.checkCanvasChildren(node);
@@ -261,6 +271,42 @@ class Linter {
             nameOf(node),
           );
         }
+      }
+    }
+  }
+
+  // Record the node's store reads (a table's store-form tableData binding) and writes (any storeValue('<key>', ...)
+  // in its own string props — event bindings, wherever the compiler put them).
+  private collectStoreUsage(node: WidgetNode): void {
+    if (node.type === "TABLE_WIDGET_V2" && typeof node.tableData === "string") {
+      const read = STORE_TABLE_BINDING.exec(node.tableData);
+
+      if (read && !this.storeReads.has(read[1])) {
+        this.storeReads.set(read[1], nameOf(node));
+      }
+    }
+
+    for (const value of ownStringProps(node)) {
+      STORE_WRITE.lastIndex = 0;
+
+      let match: RegExpExecArray | null;
+
+      while ((match = STORE_WRITE.exec(value)) !== null) {
+        this.storeWrites.add(match[1]);
+      }
+    }
+  }
+
+  // A store-bound table whose key nothing on this page writes is a WARNING, not an error: the store is app-global,
+  // so a legitimate writer (appendToStore/clearStoreKey) may live on another page.
+  private checkStoreWriters(): void {
+    for (const [key, widget] of this.storeReads) {
+      if (!this.storeWrites.has(key)) {
+        this.warn(
+          "store-never-written",
+          `store key '${key}' is never written on this page`,
+          widget,
+        );
       }
     }
   }

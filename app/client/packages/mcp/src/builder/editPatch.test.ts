@@ -464,6 +464,79 @@ describe("applyWidgetPatch", () => {
     );
   });
 
+  it("re-binds a table's data to a store key (M5 store accumulation)", () => {
+    const withTable = page();
+
+    withTable.children!.push(
+      node({ widgetId: "t1", widgetName: "Results", type: "TABLE_WIDGET_V2" }),
+    );
+    const { changes, dsl } = applyWidgetPatch(withTable, {
+      operations: [
+        {
+          kind: "update",
+          name: "Results",
+          props: { tableData: { store: "zipResults" } },
+        },
+      ],
+    });
+    const table = dsl.children![2];
+
+    expect(table.tableData).toBe("{{ appsmith.store.zipResults ?? [] }}");
+    expect(table.dynamicBindingPathList).toEqual([{ key: "tableData" }]);
+    expect(changes[0].changedProps).toEqual(["tableData"]);
+  });
+
+  it("rejects a store tableData binding on a non-table, a bad store key, or mixed forms", () => {
+    const withTable = page();
+
+    withTable.children!.push(
+      node({ widgetId: "t1", widgetName: "Results", type: "TABLE_WIDGET_V2" }),
+    );
+
+    // Store form is table-only, like the query form.
+    expect(() =>
+      applyWidgetPatch(withTable, {
+        operations: [
+          {
+            kind: "update",
+            name: "Greeting",
+            props: { tableData: { store: "zipResults" } },
+          },
+        ],
+      }),
+    ).toThrow(/can only be set on a TABLE_WIDGET_V2/);
+
+    // Prototype-polluting and digit-leading keys are rejected by the schema.
+    for (const badKey of ["__proto__", "constructor", "prototype", "1abc"]) {
+      expect(() =>
+        applyWidgetPatch(withTable, {
+          operations: [
+            {
+              kind: "update",
+              name: "Results",
+              props: { tableData: { store: badKey } },
+            },
+          ],
+        }),
+      ).toThrow();
+    }
+
+    // The union arms are strict: store cannot be mixed with query-form props.
+    expect(() =>
+      applyWidgetPatch(withTable, {
+        operations: [
+          {
+            kind: "update",
+            name: "Results",
+            props: {
+              tableData: { store: "zipResults", clearWhenEmpty: "ZipInput" },
+            },
+          },
+        ],
+      }),
+    ).toThrow();
+  });
+
   it("rejects a clearWhenEmpty guard that is not an input widget", () => {
     const withWidgets = page();
 

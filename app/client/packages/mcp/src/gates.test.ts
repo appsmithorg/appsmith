@@ -2,6 +2,7 @@ import {
   gateEnabled,
   gateEnabledByDefault,
   parsePositiveInt,
+  publicOriginFromEnv,
   sessionLimitsFromEnv,
 } from "./gates.js";
 
@@ -61,6 +62,61 @@ describe("parsePositiveInt — session cap/TTL env overrides", () => {
       expect(parsePositiveInt(value, 10)).toBe(10);
     },
   );
+});
+
+describe("publicOriginFromEnv — APPSMITH_MCP_PUBLIC_ORIGIN parsing (fail-closed)", () => {
+  it.each([
+    ["https://apps.example.com", "https://apps.example.com"],
+    ["http://apps.example.com", "http://apps.example.com"],
+    ["https://apps.example.com:8443", "https://apps.example.com:8443"],
+    ["http://localhost:8080", "http://localhost:8080"],
+    // A bare trailing slash is a common paste artifact; it is normalized away, never emitted into URLs.
+    ["https://apps.example.com/", "https://apps.example.com"],
+    [" https://apps.example.com ", "https://apps.example.com"],
+    // Uppercase scheme/host normalize to the canonical lowercase origin.
+    ["HTTPS://Apps.Example.Com", "https://apps.example.com"],
+  ])("accepts %j as origin %j", (value, expected) => {
+    expect(publicOriginFromEnv(value)).toBe(expected);
+  });
+
+  // Anything that is not a bare http(s) origin fails CLOSED to undefined: a malformed or attacker-shaped value
+  // must degrade URLs to root-relative paths, never produce a broken/phishing-grade absolute URL.
+  it.each([
+    "apps.example.com", // no scheme
+    "ftp://apps.example.com",
+    "javascript:alert(1)",
+    "javascript://apps.example.com",
+    "https://apps.example.com/base", // path
+    "https://apps.example.com/base/", // path with trailing slash
+    "https://apps.example.com//evil", // smuggled path
+    "https://apps.example.com/?q=1", // query
+    "https://apps.example.com/#frag", // fragment
+    "https://user:pass@apps.example.com", // credentials
+    "not a url",
+    "https://",
+  ])("rejects %j (returns undefined)", (value) => {
+    expect(publicOriginFromEnv(value)).toBeUndefined();
+  });
+
+  it("returns undefined without warning when unset or blank", () => {
+    const warn = jest.fn();
+
+    expect(publicOriginFromEnv(undefined, warn)).toBeUndefined();
+    expect(publicOriginFromEnv("", warn)).toBeUndefined();
+    expect(publicOriginFromEnv("   ", warn)).toBeUndefined();
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it("warns for a present-but-invalid value (a mistyped origin must be loud at startup)", () => {
+    const warn = jest.fn();
+
+    expect(
+      publicOriginFromEnv("https://apps.example.com/base", warn),
+    ).toBeUndefined();
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0][0]).toContain("APPSMITH_MCP_PUBLIC_ORIGIN");
+    expect(warn.mock.calls[0][0]).toContain("root-relative");
+  });
 });
 
 describe("sessionLimitsFromEnv — session cap/TTL resolution", () => {

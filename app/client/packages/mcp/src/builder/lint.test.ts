@@ -215,6 +215,73 @@ describe("lintDsl — dangling-binding check is dormant until M4", () => {
   });
 });
 
+describe("lintDsl — M5 store accumulation (store-never-written)", () => {
+  function storeTable(key: string): WidgetNode {
+    return widget({
+      widgetId: "t",
+      widgetName: "ZipResults",
+      type: "TABLE_WIDGET_V2",
+      tableData: `{{ appsmith.store.${key} ?? [] }}`,
+    });
+  }
+
+  it("warns (not errors) when a store-bound table's key has no writer on the page", () => {
+    const diagnostics = lintDsl(canvas([storeTable("zipResults")]));
+    const issue = diagnostics.issues.find(
+      (candidate) => candidate.rule === "store-never-written",
+    );
+
+    expect(issue?.sev).toBe("warn");
+    expect(issue?.msg).toBe(
+      "store key 'zipResults' is never written on this page",
+    );
+    expect(issue?.widget).toBe("ZipResults");
+    expect(diagnostics.errors).toBe(0);
+  });
+
+  it("stays silent when an appendToStore/clearStoreKey writer targets the key", () => {
+    const writer = widget({
+      widgetId: "b",
+      widgetName: "LookupButton",
+      type: "BUTTON_WIDGET",
+      topRow: 30,
+      bottomRow: 34,
+      onClick:
+        "{{ LookupZip.run().then(() => { storeValue('zipResults', [].concat(appsmith.store.zipResults ?? [], LookupZip.data ?? []), false); }) }}",
+    });
+
+    expect(rules(canvas([storeTable("zipResults"), writer]))).not.toContain(
+      "store-never-written",
+    );
+  });
+
+  it("still warns when the only writer targets a DIFFERENT key", () => {
+    const writer = widget({
+      widgetId: "b",
+      widgetName: "ClearButton",
+      type: "BUTTON_WIDGET",
+      topRow: 30,
+      bottomRow: 34,
+      onClick: "{{ storeValue('otherKey', [], false) }}",
+    });
+
+    expect(rules(canvas([storeTable("zipResults"), writer]))).toContain(
+      "store-never-written",
+    );
+  });
+
+  it("does not warn about a query-bound or static table", () => {
+    const queryTable = widget({
+      widgetId: "t",
+      widgetName: "Rows",
+      type: "TABLE_WIDGET_V2",
+      tableData: "{{ getRows.data ?? [] }}",
+    });
+
+    expect(rules(canvas([queryTable]))).not.toContain("store-never-written");
+  });
+});
+
 describe("lintArtifact — compiler output is lint-clean", () => {
   it("produces zero errors and warnings for a compiled app", () => {
     const artifact = compileApp(

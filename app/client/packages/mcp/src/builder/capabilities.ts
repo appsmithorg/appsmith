@@ -58,10 +58,10 @@ export const WIDGET_CATALOG = [
     fields: {
       data: "{ [column]: string|number|boolean|null }[] — static literal rows",
       source:
-        "{ query: '<queryName>', field?: '<responsePath>', clearWhenEmpty?: '<inputWidget>' } — bind to a query's data, optionally a nested array like 'places'; clearWhenEmpty gates the rows on an input holding text so resetting the input clears the table (data layer)",
+        "{ query: '<queryName>', field?: '<responsePath>', clearWhenEmpty?: '<inputWidget>' } — bind to a query's data, optionally a nested array like 'places'; clearWhenEmpty gates the rows on an input holding text so resetting the input clears the table (data layer). OR { store: '<storeKey>' } — bind to rows accumulated in the Appsmith store by wire_event's appendToStore verb (accumulating-results tables; session-only, cleared by clearStoreKey or a reload).",
     },
     purpose:
-      "Tabular data with search/sort/pagination. Use `data` for static rows OR `source` to bind a query (not both). Style alternating rows via patch_widgets oddRowColor/evenRowColor.",
+      "Tabular data with search/sort/pagination. Use `data` for static rows OR `source` to bind a query or a store key (not both). Style alternating rows via patch_widgets oddRowColor/evenRowColor. NOTE: when PATCHING an existing table, this binding is the `tableData` prop (see patchSpec) — `source` on patch_widgets means a selected-row ref.",
   },
   {
     type: "container",
@@ -211,7 +211,8 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     {
       name: "build_application",
       gate: "always",
-      summary: "create an app from a spec",
+      summary:
+        "create an app from a spec (auto-deployed on creation; returns editor/viewer URLs)",
     },
     { name: "edit_page", gate: "always", summary: "append widgets to a page" },
     {
@@ -223,7 +224,7 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
       name: "wire_event",
       gate: "always",
       summary:
-        "wire a widget event to a safe action (chainable onSuccess/onError)",
+        "wire a widget event to a safe action or a 2-5 statement list (chainable onSuccess/onError; appendToStore/clearStoreKey accumulate query rows in the store)",
     },
     { name: "inspect_page", gate: "always", summary: "lint a live page" },
     {
@@ -302,12 +303,12 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     {
       name: "prepare_publish",
       gate: "governance",
-      summary: "prepare publish (confirmation)",
+      summary: "prepare re-publish of an existing app (confirmation)",
     },
     {
       name: "confirm_publish",
       gate: "governance",
-      summary: "deploy with a token",
+      summary: "re-deploy an existing app with a token",
     },
     // Data layer (APPSMITH_MCP_DATA_ENABLED).
     { name: "list_datasources", gate: "data", summary: "discover datasources" },
@@ -437,8 +438,10 @@ const GATE_REQUIREMENTS: Record<
   governance: {
     requires:
       "ask your Appsmith administrator to configure MCP governance (a Mongo + Redis backend)",
+    // Publish-on-create is NOT gated here: build_application auto-deploys the app it just created on every
+    // deployment. Governance gates RE-publishing existing apps (prepare_publish/confirm_publish).
     provides:
-      "governed edits, page create/delete, publish, audit history, rollback",
+      "governed edits, page create/delete, re-publish of existing apps (new apps auto-deploy on creation), audit history, rollback",
   },
   data: {
     requires:
@@ -505,6 +508,25 @@ export function getCapabilities(
     },
     appSpec: { name: "application name", pages: "page spec[]" },
     editSpec: { add: "widget spec[] — appended to an existing page" },
+    // The patch_widgets vocabulary. Deliberately enumerated here because the prop names differ from the
+    // build/edit spec in one place (tableData vs source) and agents are steered to this document first.
+    patchSpec: {
+      shape:
+        "{ operations: [{ kind: 'update', name: '<widget>', props: {...} } | { kind: 'move', name, placement } | { kind: 'remove', name }] }",
+      updateProps: {
+        literals:
+          "text, label, inputType, options, title, image, chartType, chartName, defaultText, placeholderText, dateFormat, isRequired, isDisabled, isVisible, oddRowColor, evenRowColor, isVisibleSearch, enableClientSideSearch, isVisibleFilters, isSortable, isVisibleDownload, isVisiblePagination",
+        tableData:
+          "{ query: '<queryName>', field?: '<responsePath>', clearWhenEmpty?: '<inputWidget>' } OR { store: '<storeKey>' } — bind an EXISTING table's rows to a query, or to a store key accumulated by wire_event's appendToStore (session-only). This is the patch-path name for the build spec's `source`; read_semantic_page also reports it as tableData.",
+        source:
+          "{ table: '<Table>', column: '<col>' } — selected-row display binding on a text widget. NOT the table data binding (use tableData for that).",
+        defaultValue:
+          "{ table: '<Table>', column: '<col>' } — selected-row prefill on an input widget",
+        visibleWhen: "{ control: '<widget>', equals: <literal> }",
+        validation: "input validation spec",
+        disableWhenInvalid: "boolean (button)",
+      },
+    },
     presets: listPresets(),
     grid: { columns: GRID_COLUMNS, rowHeightPx: ROW_HEIGHT },
     // Generated from the single TOOL_CATALOG so this list can never drift from what is actually registered.
@@ -527,8 +549,8 @@ export function getCapabilities(
       groups: disabledGroups,
     },
     governanceNote: gates.governance
-      ? "Mutations are locked, revision-checked, and audited; destructive/high-impact operations require a one-time confirmation token."
-      : "Governance (Mongo+Redis) is not configured, so governed and destructive tools are not registered.",
+      ? "Mutations are locked, revision-checked, and audited; destructive/high-impact operations require a one-time confirmation token. Publish-on-create is automatic (build_application deploys the app it just created, recorded in the audit trail); governance gates RE-publishing existing apps via prepare_publish/confirm_publish."
+      : "Governance (Mongo+Redis) is not configured, so governed and destructive tools are not registered. build_application still auto-deploys the app it just created; RE-publishing an existing app after edits requires governance.",
     workflows: {
       available: false,
       note: "CE workflow tools are not available via MCP.",
@@ -540,7 +562,7 @@ export function getCapabilities(
     resources: [
       "appsmith://reference/widgets — the widget catalog as a resource",
       "appsmith://guide/{placement,naming,bindings} — technique guides",
-      "appsmith://recipe/{crud,form,table-detail} — end-to-end build walkthroughs",
+      "appsmith://recipe/{crud,form,table-detail,zip-lookup} — end-to-end build walkthroughs",
     ],
     prompts: [
       "scaffold_crud — guided workflow to build a CRUD page from an entity + fields",

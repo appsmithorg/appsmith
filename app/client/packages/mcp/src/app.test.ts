@@ -5,6 +5,7 @@ import {
   createAppsmithApi,
   createMcpHttpServer,
   hostHeaderName,
+  sessionOriginFromHeaders,
   type AppsmithApi,
 } from "./app.js";
 import { fingerprintDsl } from "./builder/semantic.js";
@@ -1191,6 +1192,83 @@ describe("MCP HTTP server", () => {
     });
   });
 
+  // M5 — the session-scoped origin for build_application's URLs, derived from the initialize request's headers.
+  describe("sessionOriginFromHeaders", () => {
+    it("builds an origin only from an exact http/https proto and a charset-clean host", () => {
+      expect(
+        sessionOriginFromHeaders(
+          { "x-forwarded-proto": "https", host: "Apps.Example.Com:8443" },
+          new Set(),
+        ),
+      ).toBe("https://apps.example.com:8443");
+      expect(
+        sessionOriginFromHeaders(
+          { "x-forwarded-proto": "http", host: "localhost:8080" },
+          new Set(),
+        ),
+      ).toBe("http://localhost:8080");
+    });
+
+    it("fails closed on a forged/missing/duplicated proto or a hostile host", () => {
+      const noAllowlist = new Set<string>();
+
+      expect(
+        sessionOriginFromHeaders({ host: "apps.example.com" }, noAllowlist),
+      ).toBeUndefined();
+      expect(
+        sessionOriginFromHeaders(
+          { "x-forwarded-proto": "javascript", host: "apps.example.com" },
+          noAllowlist,
+        ),
+      ).toBeUndefined();
+      // Node joins duplicated X-Forwarded-Proto headers with a comma; the literal comparison rejects that too.
+      expect(
+        sessionOriginFromHeaders(
+          { "x-forwarded-proto": "https, http", host: "apps.example.com" },
+          noAllowlist,
+        ),
+      ).toBeUndefined();
+      expect(
+        sessionOriginFromHeaders(
+          { "x-forwarded-proto": ["https"], host: "apps.example.com" },
+          noAllowlist,
+        ),
+      ).toBeUndefined();
+      expect(
+        sessionOriginFromHeaders(
+          { "x-forwarded-proto": "https", host: "evil.com<script>" },
+          noAllowlist,
+        ),
+      ).toBeUndefined();
+      expect(
+        sessionOriginFromHeaders(
+          { "x-forwarded-proto": "https", host: "" },
+          noAllowlist,
+        ),
+      ).toBeUndefined();
+      expect(
+        sessionOriginFromHeaders({ "x-forwarded-proto": "https" }, noAllowlist),
+      ).toBeUndefined();
+    });
+
+    it("enforces the configured Host allowlist (hostname compared, port ignored)", () => {
+      const allowed = new Set(["apps.example.com"]);
+
+      expect(
+        sessionOriginFromHeaders(
+          { "x-forwarded-proto": "https", host: "apps.example.com:443" },
+          allowed,
+        ),
+      ).toBe("https://apps.example.com:443");
+      expect(
+        sessionOriginFromHeaders(
+          { "x-forwarded-proto": "https", host: "other.example.com" },
+          allowed,
+        ),
+      ).toBeUndefined();
+    });
+  });
+
   it("rejects tokens that resolve to an anonymous session", async () => {
     const validateToken = jest.fn(async () => ({
       isAnonymous: true,
@@ -1433,6 +1511,7 @@ describe("MCP instruction surface (M2)", () => {
         "appsmith://recipe/crud",
         "appsmith://recipe/form",
         "appsmith://recipe/table-detail",
+        "appsmith://recipe/zip-lookup",
         "appsmith://reference/widgets",
       ].sort(),
     );
@@ -3106,6 +3185,43 @@ describe("governance-wrapped layout mutations", () => {
     }
   });
 
+  it("documents the patch vocabulary (tableData vs source) and exposes real schemas for patch/wire tools", async () => {
+    const server = createMcpHttpServer(API_BASE_URL, () => createApi()());
+    const caps = await callTool(server, "get_capabilities", {});
+    const patchSpec = caps.body.patchSpec as {
+      updateProps: Record<string, string>;
+    };
+
+    // The one naming trap that broke real agents: a table's data binding is `tableData` on the patch path,
+    // while `source` there means a selected-row ref. Both must be documented, distinctly.
+    expect(patchSpec.updateProps.tableData).toContain("query");
+    expect(patchSpec.updateProps.source).toContain("selected-row");
+
+    // The machine-readable inputSchema must expose real structure, not an opaque record.
+    const sessionId = await initSession(server);
+    const listed = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({ jsonrpc: "2.0", id: 21, method: "tools/list" });
+    const tools = parseJsonRpc(listed).result.tools as unknown as {
+      name: string;
+      inputSchema: {
+        properties?: Record<string, { properties?: Record<string, unknown> }>;
+      };
+    }[];
+    const patchTool = tools.find((tool) => tool.name === "patch_widgets");
+    const wireTool = tools.find((tool) => tool.name === "wire_event");
+
+    expect(
+      patchTool?.inputSchema.properties?.patch?.properties?.operations,
+    ).toBeDefined();
+    expect(
+      wireTool?.inputSchema.properties?.spec?.properties?.event,
+    ).toBeDefined();
+  });
+
   it("get_capabilities advertises disabled capability groups with how to enable them", async () => {
     // Data + JS off: the agent must still SEE those capabilities and the setting that unlocks them.
     const offServer = createMcpHttpServer(API_BASE_URL, () => createApi()(), {
@@ -3445,6 +3561,173 @@ describe("governance-wrapped layout mutations", () => {
     expect(button?.onClick).toBe(
       "{{ insertUser.run().then(() => { getUsers.run(); closeModal('AddUserModal'); showAlert('Saved', 'success'); }) }}",
     );
+  });
+
+  it("wire_event builds the ZIP-lookup accumulation wiring (M5: appendToStore fields + clearStoreKey/reset list)", async () => {
+    const store = new MemoryGovernanceStore();
+    const DSL = {
+      ...ROOT_DSL,
+      children: [
+        {
+          widgetId: "in",
+          widgetName: "ZipInput",
+          type: "INPUT_WIDGET_V2",
+          topRow: 0,
+          bottomRow: 7,
+          leftColumn: 0,
+          rightColumn: 24,
+        },
+        {
+          widgetId: "b1",
+          widgetName: "LookupButton",
+          type: "BUTTON_WIDGET",
+          topRow: 8,
+          bottomRow: 12,
+          leftColumn: 0,
+          rightColumn: 16,
+        },
+        {
+          widgetId: "b2",
+          widgetName: "ClearButton",
+          type: "BUTTON_WIDGET",
+          topRow: 8,
+          bottomRow: 12,
+          leftColumn: 16,
+          rightColumn: 32,
+        },
+        {
+          widgetId: "t",
+          widgetName: "ZipResults",
+          type: "TABLE_WIDGET_V2",
+          topRow: 13,
+          bottomRow: 40,
+          leftColumn: 0,
+          rightColumn: 40,
+          tableData: "{{ appsmith.store.zipResults ?? [] }}",
+          dynamicBindingPathList: [{ key: "tableData" }],
+        },
+      ],
+    };
+    let current: Record<string, unknown> = DSL;
+    const updateLayout = jest.fn<
+      Promise<{ ok: boolean }>,
+      [string, string, string, Record<string, unknown>]
+    >(async (_app, _page, _layout, dsl) => {
+      current = dsl;
+
+      return { ok: true };
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: current },
+      })),
+      listActions: jest.fn(async () => [{ name: "LookupZip", pageId: "p1" }]),
+      updateLayout: updateLayout as never,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      dataEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    // An appendToStore whose query doesn't exist is rejected before any write (dangling-reference guard).
+    const dangling = await callTool(server, "wire_event", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision: fingerprintDsl(DSL as never),
+      spec: {
+        widget: "LookupButton",
+        event: "onClick",
+        action: {
+          run: "LookupZip",
+          onSuccess: [
+            { appendToStore: { key: "zipResults", query: "GhostZip" } },
+          ],
+        },
+      },
+    });
+
+    expect(dangling.body.error).toMatch(/"GhostZip" was not found/);
+    expect(updateLayout).not.toHaveBeenCalled();
+
+    // The Lookup button: run the query, then append ONE projected row per lookup (space-keyed + indexed paths).
+    const lookup = await callTool(server, "wire_event", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision: fingerprintDsl(DSL as never),
+      spec: {
+        widget: "LookupButton",
+        event: "onClick",
+        action: {
+          run: "LookupZip",
+          onSuccess: [
+            {
+              appendToStore: {
+                key: "zipResults",
+                query: "LookupZip",
+                fields: [
+                  { as: "zip", path: ["post code"] },
+                  { as: "city", path: ["places", 0, "place name"] },
+                  { as: "state", path: ["places", 0, "state"] },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    expect(lookup.body.changeId).toBeDefined();
+    // M5 telemetry: the audit/changes payload carries the statement verb kinds.
+    expect(lookup.body.actionKinds).toEqual(["run", "appendToStore"]);
+    const afterLookup = updateLayout.mock.calls[0][3] as {
+      children: { widgetName: string; onClick?: string }[];
+    };
+
+    expect(
+      afterLookup.children.find((w) => w.widgetName === "LookupButton")
+        ?.onClick,
+    ).toBe(
+      "{{ LookupZip.run().then(() => { storeValue('zipResults', [].concat(appsmith.store.zipResults ?? [], " +
+        '{ zip: LookupZip.data?.["post code"], city: LookupZip.data?.["places"]?.[0]?.["place name"], state: LookupZip.data?.["places"]?.[0]?.["state"] }' +
+        " ?? []), false); }) }}",
+    );
+
+    // The Clear button: a statement LIST that empties the store key and resets the input in one click.
+    const clear = await callTool(server, "wire_event", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision: fingerprintDsl(current as never),
+      spec: {
+        widget: "ClearButton",
+        event: "onClick",
+        action: [
+          { clearStoreKey: { key: "zipResults" } },
+          { reset: "ZipInput" },
+        ],
+      },
+    });
+
+    expect(clear.body.changeId).toBeDefined();
+    expect(clear.body.actionKinds).toEqual(["clearStoreKey", "reset"]);
+    const afterClear = updateLayout.mock.calls[1][3] as {
+      children: { widgetName: string; onClick?: string; tableData?: string }[];
+    };
+
+    expect(
+      afterClear.children.find((w) => w.widgetName === "ClearButton")?.onClick,
+    ).toBe(
+      "{{ storeValue('zipResults', [], false); resetWidget('ZipInput', true) }}",
+    );
+    // The store-bound table rides along untouched, and the page now has a writer for its key.
+    expect(
+      afterClear.children.find((w) => w.widgetName === "ZipResults")?.tableData,
+    ).toBe("{{ appsmith.store.zipResults ?? [] }}");
   });
 
   it("create_js_object resolves plugin/workspace and commits a governed, restricted JS object", async () => {
@@ -3922,5 +4205,350 @@ describe("governance-wrapped layout mutations", () => {
     expect(executeAction).toHaveBeenCalledWith("act1");
     expect(typeof confirmed.body.changeId).toBe("string");
     expect(store.changes.some((c) => c.operation === "run_action")).toBe(true);
+  });
+});
+
+// M5 — build_application returns editor/viewer URLs for the default page and AUTO-PUBLISHES the app it just
+// created (governed: change record; ungoverned: structured telemetry event; failure: warning, never a failed create).
+describe("M5 — build_application URLs + auto-publish", () => {
+  const IMPORT_RESPONSE = {
+    application: {
+      id: "app123",
+      slug: "demo-app",
+      pages: [
+        { id: "page2", slug: "other", isDefault: false },
+        { id: "page1", slug: "home", isDefault: true },
+      ],
+    },
+    isPartialImport: false,
+  };
+
+  const APP_SPEC = {
+    name: "Demo",
+    pages: [{ name: "Home", widgets: [{ type: "text", text: "Hi" }] }],
+  };
+
+  function makeApi(overrides: Partial<AppsmithApi> = {}): AppsmithApi {
+    return {
+      ...createApi()(),
+      importApplicationArtifact: jest.fn(async () => IMPORT_RESPONSE),
+      ...overrides,
+    };
+  }
+
+  // The origin is captured ONCE per session from the initialize request, so header-derivation tests set the
+  // forged/forwarded headers on the initialize call only.
+  async function initSession(
+    server: ReturnType<typeof createMcpHttpServer>,
+    headers: Record<string, string> = {},
+  ) {
+    let request = supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token");
+
+    for (const [name, value] of Object.entries(headers)) {
+      request = request.set(name, value);
+    }
+
+    const initialized = await request.send(initializeRequest);
+    const sessionId = initialized.headers["mcp-session-id"] as string;
+
+    let follow = supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId);
+
+    // A configured Host allowlist applies to EVERY request, so the follow-up must carry the same Host.
+    for (const [name, value] of Object.entries(headers)) {
+      follow = follow.set(name, value);
+    }
+
+    await follow.send({ jsonrpc: "2.0", method: "notifications/initialized" });
+
+    return sessionId;
+  }
+
+  async function buildApplication(
+    server: ReturnType<typeof createMcpHttpServer>,
+    sessionId: string,
+    headers: Record<string, string> = {},
+  ) {
+    let request = supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId);
+
+    for (const [name, value] of Object.entries(headers)) {
+      request = request.set(name, value);
+    }
+
+    const call = await request.send({
+      jsonrpc: "2.0",
+      id: 30,
+      method: "tools/call",
+      params: {
+        name: "build_application",
+        arguments: { workspaceId: "ws1", app: APP_SPEC },
+      },
+    });
+
+    return JSON.parse(parseJsonRpc(call).result.content[0].text);
+  }
+
+  it("returns root-relative URLs for the default page and publishes the new app", async () => {
+    const api = makeApi();
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const body = await buildApplication(server, await initSession(server));
+
+    expect(body.applicationId).toBe("app123");
+    expect(body.pages).toEqual([
+      { id: "page2", slug: "other", isDefault: false },
+      { id: "page1", slug: "home", isDefault: true },
+    ]);
+    // No configured or derivable origin -> root-relative URLs (never a guessed absolute origin), built from the
+    // DEFAULT page even when it is not first in the list.
+    expect(body.editorUrl).toBe("/app/demo-app/home-page1/edit");
+    expect(body.viewerUrl).toBe("/app/demo-app/home-page1");
+    expect(body.warnings).toBeUndefined();
+    expect(body.diagnostics).toBeDefined();
+    expect(api.publishApplication).toHaveBeenCalledWith("app123");
+  });
+
+  it("builds absolute URLs from the configured public origin", async () => {
+    const api = makeApi();
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      publicOrigin: "https://apps.example.com",
+    });
+    const body = await buildApplication(server, await initSession(server));
+
+    expect(body.editorUrl).toBe(
+      "https://apps.example.com/app/demo-app/home-page1/edit",
+    );
+    expect(body.viewerUrl).toBe(
+      "https://apps.example.com/app/demo-app/home-page1",
+    );
+  });
+
+  it("derives the origin from validated X-Forwarded-Proto + Host at initialize", async () => {
+    const api = makeApi();
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const sessionId = await initSession(server, {
+      "X-Forwarded-Proto": "https",
+      Host: "apps.example.com",
+    });
+    const body = await buildApplication(server, sessionId);
+
+    expect(body.viewerUrl).toBe(
+      "https://apps.example.com/app/demo-app/home-page1",
+    );
+  });
+
+  it("falls back to root-relative URLs on a forged proto or hostile Host", async () => {
+    const api = makeApi();
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+
+    const forgedProto = await buildApplication(
+      server,
+      await initSession(server, {
+        "X-Forwarded-Proto": "javascript",
+        Host: "apps.example.com",
+      }),
+    );
+
+    expect(forgedProto.editorUrl).toBe("/app/demo-app/home-page1/edit");
+
+    // A Host that fails the hostname charset (underscore) — header-legal, so it reaches the derivation and is
+    // refused there; the harsher injection shapes ("<script>", brackets) are unit-tested on sessionOriginFromHeaders.
+    const hostileHost = await buildApplication(
+      server,
+      await initSession(server, {
+        "X-Forwarded-Proto": "https",
+        Host: "evil_example.com",
+      }),
+    );
+
+    expect(hostileHost.viewerUrl).toBe("/app/demo-app/home-page1");
+  });
+
+  it("honors the Host allowlist when deriving the origin from headers", async () => {
+    const api = makeApi();
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      allowedHosts: ["apps.example.com"],
+    });
+    const allowedHeaders = {
+      "X-Forwarded-Proto": "https",
+      Host: "apps.example.com",
+    };
+    const body = await buildApplication(
+      server,
+      await initSession(server, allowedHeaders),
+      allowedHeaders,
+    );
+
+    // An allowlisted host still derives an absolute origin; a non-member host is rejected at the HTTP layer
+    // (403) before any session exists, and sessionOriginFromHeaders additionally refuses it (unit-tested above).
+    expect(body.viewerUrl).toBe(
+      "https://apps.example.com/app/demo-app/home-page1",
+    );
+  });
+
+  it("omits the URLs (but keeps ids) when the import response lacks slugs", async () => {
+    const api = makeApi({
+      importApplicationArtifact: jest.fn(async () => ({
+        application: {
+          id: "app123",
+          pages: [{ id: "page1", isDefault: true }],
+        },
+      })),
+    });
+    // Even with an origin configured, a missing slug must omit the URLs rather than construct a broken path.
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      publicOrigin: "https://apps.example.com",
+    });
+    const body = await buildApplication(server, await initSession(server));
+
+    expect(body.applicationId).toBe("app123");
+    expect(body.pages).toEqual([{ id: "page1", isDefault: true }]);
+    expect(body.editorUrl).toBeUndefined();
+    expect(body.viewerUrl).toBeUndefined();
+    expect(api.publishApplication).toHaveBeenCalledWith("app123");
+  });
+
+  it("degrades a publish failure to a coarse warning while the create still succeeds", async () => {
+    const api = makeApi({
+      publishApplication: jest.fn(async () => {
+        throw new Error("Appsmith API request failed (503)");
+      }),
+    });
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const body = await buildApplication(server, await initSession(server));
+
+    expect(body.applicationId).toBe("app123");
+    expect(body.editorUrl).toBe("/app/demo-app/home-page1/edit");
+    expect(body.warnings).toEqual(["created but not deployed: server_error"]);
+    // Only the coarse class survives — never the raw upstream error text.
+    expect(JSON.stringify(body)).not.toContain("Appsmith API request failed");
+  });
+
+  it("emits the auto-publish telemetry event on ungoverned deployments (hashed actor, coarse class)", async () => {
+    const events: Record<string, unknown>[] = [];
+    const stderrSpy = jest
+      .spyOn(process.stderr, "write")
+      .mockImplementation((chunk: string | Uint8Array) => {
+        const line = typeof chunk === "string" ? chunk : chunk.toString();
+
+        try {
+          events.push(JSON.parse(line));
+        } catch {
+          // Non-JSON writes are irrelevant to this assertion.
+        }
+
+        return true;
+      });
+
+    try {
+      const api = makeApi();
+      const server = createMcpHttpServer(API_BASE_URL, () => api);
+
+      await buildApplication(server, await initSession(server));
+
+      const event = events.find(
+        (entry) => entry.event === "appsmith_mcp_auto_publish",
+      );
+
+      expect(event).toMatchObject({
+        statusClass: "success",
+        usernameHash: createHash("sha256")
+          .update("user@appsmith.com")
+          .digest("hex"),
+      });
+      // The caller's identity is only ever recorded as a hash, never in plaintext.
+      expect(JSON.stringify(event)).not.toContain("user@appsmith.com");
+    } finally {
+      stderrSpy.mockRestore();
+    }
+  });
+
+  it("records the governed auto-publish as an auto_publish change record", async () => {
+    class MemoryStore implements McpGovernanceStore {
+      readonly changes: McpChangeRecord[] = [];
+      readonly confirmations = new Map<string, PreparedConfirmation>();
+      locked = new Set<string>();
+
+      async acquireLock(entityKey: string): Promise<string | undefined> {
+        if (this.locked.has(entityKey)) return undefined;
+
+        this.locked.add(entityKey);
+
+        return `lock:${entityKey}`;
+      }
+      async releaseLock(entityKey: string): Promise<void> {
+        this.locked.delete(entityKey);
+      }
+      async createConfirmation(c: PreparedConfirmation): Promise<void> {
+        this.confirmations.set(c.id, c);
+      }
+      async consumeConfirmation(
+        id: string,
+      ): Promise<PreparedConfirmation | undefined> {
+        const c = this.confirmations.get(id);
+
+        this.confirmations.delete(id);
+
+        return c;
+      }
+      async saveChange(change: McpChangeRecord): Promise<void> {
+        this.changes.push(change);
+      }
+      async getChange(
+        id: string,
+        actorId: string,
+      ): Promise<McpChangeRecord | undefined> {
+        return this.changes.find((c) => c.id === id && c.actorId === actorId);
+      }
+      async listChanges(
+        actorId: string,
+        limit: number,
+      ): Promise<McpChangeRecord[]> {
+        return this.changes
+          .filter((c) => c.actorId === actorId)
+          .slice(-limit)
+          .reverse();
+      }
+      async getAnyChange(id: string): Promise<McpChangeRecord | undefined> {
+        return this.changes.find((c) => c.id === id);
+      }
+      async listAllChanges(limit: number): Promise<McpChangeRecord[]> {
+        return this.changes.slice(-limit).reverse();
+      }
+    }
+
+    const store = new MemoryStore();
+    const api = makeApi({
+      getApplicationPages: jest.fn(async () => ({
+        pages: [{ id: "page1", name: "Home", slug: "home" }],
+      })),
+    });
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const body = await buildApplication(server, await initSession(server));
+
+    expect(api.publishApplication).toHaveBeenCalledWith("app123");
+    expect(body.warnings).toBeUndefined();
+    expect(body.editorUrl).toBe("/app/demo-app/home-page1/edit");
+
+    // The deploy is never silent under governance: it leaves an attributed change record, like confirm_publish.
+    const change = store.changes.find(
+      (entry) => entry.operation === "auto_publish",
+    );
+
+    expect(change).toBeDefined();
+    expect(change?.actorId).toBe("user@appsmith.com");
+    expect(change?.entityKey).toBe("application:app123");
+    expect(change?.summary).toMatchObject({ applicationId: "app123" });
   });
 });

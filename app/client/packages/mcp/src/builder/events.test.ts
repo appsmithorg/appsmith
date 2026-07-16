@@ -1,6 +1,7 @@
 import {
   applyEvent,
   compileEventBinding,
+  eventActionKinds,
   eventReferences,
   widgetExists,
   wireEventSpecSchema,
@@ -298,6 +299,332 @@ describe("applyEvent", () => {
         }).dsl.children as WidgetNode[]
       )[1].onClose,
     ).toBe("{{ cleanup.run() }}");
+  });
+});
+
+describe("M5 store accumulation — appendToStore / clearStoreKey / statement lists", () => {
+  function accepts(action: unknown): boolean {
+    return wireEventSpecSchema.safeParse({
+      widget: "Btn",
+      event: "onClick",
+      action,
+    }).success;
+  }
+
+  it("compiles a plain appendToStore ([].concat flattening, persist=false)", () => {
+    expect(
+      compileEventBinding({
+        appendToStore: { key: "zipResults", query: "LookupZip" },
+      }),
+    ).toBe(
+      "{{ storeValue('zipResults', [].concat(appsmith.store.zipResults ?? [], LookupZip.data ?? []), false) }}",
+    );
+  });
+
+  it("compiles appendToStore with a dotted response field", () => {
+    expect(
+      compileEventBinding({
+        appendToStore: { key: "rows", query: "LookupZip", field: "places" },
+      }),
+    ).toBe(
+      "{{ storeValue('rows', [].concat(appsmith.store.rows ?? [], LookupZip.data?.places ?? []), false) }}",
+    );
+  });
+
+  it("compiles a fields projection (space-keyed + numeric-index paths) into ONE bracket-access row", () => {
+    expect(
+      compileEventBinding({
+        appendToStore: {
+          key: "zipResults",
+          query: "LookupZip",
+          fields: [
+            { as: "zip", path: ["post code"] },
+            { as: "city", path: ["places", 0, "place name"] },
+            { as: "state", path: ["places", 0, "state"] },
+          ],
+        },
+      }),
+    ).toBe(
+      "{{ storeValue('zipResults', [].concat(appsmith.store.zipResults ?? [], " +
+        '{ zip: LookupZip.data?.["post code"], city: LookupZip.data?.["places"]?.[0]?.["place name"], state: LookupZip.data?.["places"]?.[0]?.["state"] }' +
+        " ?? []), false) }}",
+    );
+  });
+
+  it("JSON.stringify-escapes hostile path elements (quotes/backslashes cannot escape the literal)", () => {
+    expect(
+      compileEventBinding({
+        appendToStore: {
+          key: "k",
+          query: "q",
+          fields: [{ as: "a", path: ['x"] , evil ["y'] }],
+        },
+      }),
+    ).toBe(
+      "{{ storeValue('k', [].concat(appsmith.store.k ?? [], " +
+        '{ a: q.data?.["x\\"] , evil [\\"y"] }' +
+        " ?? []), false) }}",
+    );
+  });
+
+  it("compiles clearStoreKey (one key emptied, never the whole store)", () => {
+    expect(compileEventBinding({ clearStoreKey: { key: "zipResults" } })).toBe(
+      "{{ storeValue('zipResults', [], false) }}",
+    );
+  });
+
+  it("compiles a statement-list primary joined with ';' (the Clear button)", () => {
+    expect(
+      compileEventBinding([
+        { clearStoreKey: { key: "zipResults" } },
+        { reset: "ZipInput" },
+      ]),
+    ).toBe(
+      "{{ storeValue('zipResults', [], false); resetWidget('ZipInput', true) }}",
+    );
+  });
+
+  it("compiles a statement list whose run keeps its onSuccess chain", () => {
+    expect(
+      compileEventBinding([
+        { showAlert: "Looking up" },
+        {
+          run: "LookupZip",
+          onSuccess: [
+            { appendToStore: { key: "zipResults", query: "LookupZip" } },
+          ],
+        },
+      ]),
+    ).toBe(
+      "{{ showAlert('Looking up', 'info'); LookupZip.run().then(() => { storeValue('zipResults', [].concat(appsmith.store.zipResults ?? [], LookupZip.data ?? []), false); }) }}",
+    );
+  });
+
+  it("accepts the new verbs as primary and as onSuccess/onError follow-ups", () => {
+    expect(
+      accepts({ appendToStore: { key: "zipResults", query: "LookupZip" } }),
+    ).toBe(true);
+    expect(accepts({ clearStoreKey: { key: "zipResults" } })).toBe(true);
+    expect(
+      accepts({
+        run: "LookupZip",
+        onSuccess: [
+          {
+            appendToStore: {
+              key: "zipResults",
+              query: "LookupZip",
+              fields: [{ as: "zip", path: ["post code"] }],
+            },
+          },
+        ],
+        onError: [{ clearStoreKey: { key: "zipResults" } }],
+      }),
+    ).toBe(true);
+  });
+
+  it("rejects prototype-polluting, digit-leading, and malformed store keys", () => {
+    for (const badKey of [
+      "__proto__",
+      "constructor",
+      "prototype",
+      "hasOwnProperty",
+      "1zipResults",
+      "zip-results",
+      "zip results",
+      "a".repeat(65),
+      "",
+    ]) {
+      expect(
+        accepts({ appendToStore: { key: badKey, query: "LookupZip" } }),
+      ).toBe(false);
+      expect(accepts({ clearStoreKey: { key: badKey } })).toBe(false);
+      // The same denylist guards `as` — an unquoted object-literal key where __proto__ would pollute the row.
+      expect(
+        accepts({
+          appendToStore: {
+            key: "ok",
+            query: "q",
+            fields: [{ as: badKey, path: ["x"] }],
+          },
+        }),
+      ).toBe(false);
+    }
+  });
+
+  it("rejects field+fields together, oversized projections, and binding syntax in a path element", () => {
+    expect(
+      accepts({
+        appendToStore: {
+          key: "k",
+          query: "q",
+          field: "places",
+          fields: [{ as: "a", path: ["x"] }],
+        },
+      }),
+    ).toBe(false);
+    // > 20 fields.
+    expect(
+      accepts({
+        appendToStore: {
+          key: "k",
+          query: "q",
+          fields: Array.from({ length: 21 }, (_, i) => ({
+            as: `f${i}`,
+            path: ["x"],
+          })),
+        },
+      }),
+    ).toBe(false);
+    // > 5 path elements.
+    expect(
+      accepts({
+        appendToStore: {
+          key: "k",
+          query: "q",
+          fields: [{ as: "a", path: ["a", "b", "c", "d", "e", "f"] }],
+        },
+      }),
+    ).toBe(false);
+
+    // A path element that could terminate the outer {{ }} or open an expression is rejected outright, even though
+    // JSON.stringify would escape quotes — the mustache splitter is not JS-aware.
+    for (const badElement of ["a}}b", "a{{b", "a${b}", "a`b"]) {
+      expect(
+        accepts({
+          appendToStore: {
+            key: "k",
+            query: "q",
+            fields: [{ as: "a", path: [badElement] }],
+          },
+        }),
+      ).toBe(false);
+    }
+
+    // Negative / fractional array indexes are rejected.
+    expect(
+      accepts({
+        appendToStore: {
+          key: "k",
+          query: "q",
+          fields: [{ as: "a", path: [-1] }],
+        },
+      }),
+    ).toBe(false);
+    expect(
+      accepts({
+        appendToStore: {
+          key: "k",
+          query: "q",
+          fields: [{ as: "a", path: [1.5] }],
+        },
+      }),
+    ).toBe(false);
+  });
+
+  it("bounds statement lists to 2–5 entries with at most one run", () => {
+    // A single-entry list is not a list; use the plain form.
+    expect(accepts([{ clearStoreKey: { key: "k" } }])).toBe(false);
+    expect(
+      accepts([{ clearStoreKey: { key: "k" } }, { reset: "ZipInput" }]),
+    ).toBe(true);
+    // Two runs would emit two independent promise chains — rejected.
+    expect(accepts([{ run: "a" }, { run: "b" }])).toBe(false);
+    // > 5 statements.
+    expect(
+      accepts(
+        Array.from({ length: 6 }, () => ({ clearStoreKey: { key: "k" } })),
+      ),
+    ).toBe(false);
+  });
+
+  it("rejects a sibling appendToStore of a query the same list runs (stale-read footgun)", () => {
+    // run() is async: the sibling append would execute before it resolves and read the PREVIOUS response.
+    expect(
+      accepts([
+        { run: "LookupZip" },
+        { appendToStore: { key: "zipResults", query: "LookupZip" } },
+      ]),
+    ).toBe(false);
+    // The correct shape — append inside the run's onSuccess — stays valid.
+    expect(
+      accepts([
+        {
+          run: "LookupZip",
+          onSuccess: [
+            { appendToStore: { key: "zipResults", query: "LookupZip" } },
+          ],
+        },
+        { reset: "ZipInput" },
+      ]),
+    ).toBe(true);
+    // Appending a DIFFERENT query's (existing) response alongside a run is allowed.
+    expect(
+      accepts([
+        { run: "LookupZip" },
+        { appendToStore: { key: "zipResults", query: "Other" } },
+      ]),
+    ).toBe(true);
+  });
+
+  it("routes appendToStore's query through eventReferences (dangling guard) across lists and chains", () => {
+    expect(
+      eventReferences({
+        appendToStore: { key: "zipResults", query: "LookupZip" },
+      }),
+    ).toEqual([{ kind: "query", name: "LookupZip" }]);
+    // clearStoreKey references nothing.
+    expect(eventReferences({ clearStoreKey: { key: "zipResults" } })).toEqual(
+      [],
+    );
+    expect(
+      eventReferences([
+        { clearStoreKey: { key: "zipResults" } },
+        { reset: "ZipInput" },
+        {
+          run: "LookupZip",
+          onSuccess: [{ appendToStore: { key: "zipResults", query: "Other" } }],
+        },
+      ]),
+    ).toEqual([
+      { kind: "widget", name: "ZipInput" },
+      { kind: "query", name: "LookupZip" },
+      { kind: "query", name: "Other" },
+    ]);
+  });
+
+  it("reports deduped statement verb kinds for telemetry", () => {
+    expect(
+      eventActionKinds({
+        run: "LookupZip",
+        onSuccess: [
+          { appendToStore: { key: "zipResults", query: "LookupZip" } },
+        ],
+      }),
+    ).toEqual(["run", "appendToStore"]);
+    expect(
+      eventActionKinds([
+        { clearStoreKey: { key: "zipResults" } },
+        { reset: "ZipInput" },
+        { reset: "Other" },
+      ]),
+    ).toEqual(["clearStoreKey", "reset"]);
+    expect(eventActionKinds({ showAlert: "Done" })).toEqual(["showAlert"]);
+  });
+
+  it("applyEvent writes a statement-list binding and registers the trigger path", () => {
+    const dsl = page([widget({ widgetId: "Clear", widgetName: "Clear" })]);
+    const { binding, dsl: next } = applyEvent(dsl, {
+      widget: "Clear",
+      event: "onClick",
+      action: [{ clearStoreKey: { key: "zipResults" } }, { reset: "ZipInput" }],
+    });
+
+    expect(binding).toBe(
+      "{{ storeValue('zipResults', [], false); resetWidget('ZipInput', true) }}",
+    );
+    expect((next.children as WidgetNode[])[0].dynamicTriggerPathList).toEqual([
+      { key: "onClick" },
+    ]);
   });
 });
 

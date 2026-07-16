@@ -7,6 +7,8 @@ import {
   compileChartDataBinding,
   compileCurrentItemBinding,
   compilePrimaryKeys,
+  compileTableDataBinding,
+  storeKeySchema,
 } from "./schema.js";
 
 function build(widgets: WidgetSpec[]): WidgetNode {
@@ -690,6 +692,102 @@ describe("M4-T1 — chart & select query sources (compiler-authored, un-escapabl
     expect(
       lintDsl(dsl, { knownDataNames: ["other"] }).issues.map((i) => i.rule),
     ).toContain("dangling-binding");
+  });
+});
+
+describe("M5 store accumulation — table store binding (build path)", () => {
+  it("compiles table.source = { store } to the store binding and registers the path", () => {
+    const [table] = children(
+      build([{ type: "table", name: "T", source: { store: "zipResults" } }]),
+    );
+
+    expect(table.tableData).toBe("{{ appsmith.store.zipResults ?? [] }}");
+    expect(table.dynamicBindingPathList).toEqual([{ key: "tableData" }]);
+  });
+
+  it("compileTableDataBinding emits the store form directly", () => {
+    expect(compileTableDataBinding({ store: "zipResults" })).toBe(
+      "{{ appsmith.store.zipResults ?? [] }}",
+    );
+  });
+
+  it("rejects prototype-polluting / digit-leading / malformed store keys at the schema", () => {
+    for (const badKey of [
+      "__proto__",
+      "constructor",
+      "prototype",
+      "hasOwnProperty",
+      "valueOf",
+      "1zipResults",
+      "zip-results",
+      "a".repeat(65),
+    ]) {
+      expect(storeKeySchema.safeParse(badKey).success).toBe(false);
+      expect(
+        appSpecSchema.safeParse({
+          name: "App",
+          pages: [
+            {
+              name: "P",
+              widgets: [{ type: "table", source: { store: badKey } }],
+            },
+          ],
+        }).success,
+      ).toBe(false);
+    }
+
+    expect(storeKeySchema.safeParse("zipResults").success).toBe(true);
+    expect(storeKeySchema.safeParse("_zip_2").success).toBe(true);
+  });
+
+  it("rejects mixing the store form with query-form props (strict union arms)", () => {
+    for (const badSource of [
+      { store: "zipResults", query: "getRows" },
+      { store: "zipResults", clearWhenEmpty: "ZipInput" },
+      { store: "zipResults", field: "places" },
+    ]) {
+      expect(
+        appSpecSchema.safeParse({
+          name: "App",
+          pages: [
+            {
+              name: "P",
+              widgets: [{ type: "table", source: badSource }],
+            },
+          ],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it("keeps the LIST widget query-only (store-bound card grids are out of scope in v1)", () => {
+    expect(
+      appSpecSchema.safeParse({
+        name: "App",
+        pages: [
+          {
+            name: "P",
+            widgets: [
+              { type: "list", source: { store: "zipResults" }, title: "name" },
+            ],
+          },
+        ],
+      }).success,
+    ).toBe(false);
+  });
+
+  it("still rejects a table that sets both static data and a store source", () => {
+    expect(() =>
+      build([
+        { type: "table", data: [{ id: 1 }], source: { store: "zipResults" } },
+      ]),
+    ).toThrow(/both 'data' and 'source'/);
+  });
+
+  it("is lint-clean under populated knownDataNames (appsmith is a global binding head)", () => {
+    const dsl = build([{ type: "table", source: { store: "zipResults" } }]);
+
+    expect(lintDsl(dsl, { knownDataNames: ["LookupZip"] }).errors).toBe(0);
   });
 });
 

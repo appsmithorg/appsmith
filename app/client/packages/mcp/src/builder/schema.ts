@@ -103,7 +103,7 @@ const bindingIdentifier = z
 // An optional dotted field path into a query's response, so a table can bind to a nested array (e.g. a REST API
 // that returns `{ places: [...] }` -> field "places" -> `{{ Query.data.places }}`). Strict identifier path so the
 // emitted binding cannot be broken out of.
-const responseFieldPath = z
+export const responseFieldPath = z
   .string()
   .min(1)
   .max(128)
@@ -133,7 +133,6 @@ export const tableDataRefSchema = z
     clearWhenEmpty: guardWidget.optional(),
   })
   .strict();
-const queryRef = tableDataRefSchema;
 const runRef = z.object({ run: bindingIdentifier }).strict();
 
 export interface TableDataRef {
@@ -142,10 +141,59 @@ export interface TableDataRef {
   clearWhenEmpty?: string;
 }
 
+// M5 store keys — the closed vocabulary for accumulating rows in the Appsmith store (wire_event's appendToStore /
+// clearStoreKey, and the table's `{ store }` binding form). Two rules beyond the usual identifier charset:
+// - No leading digit: the compiler emits a DOT-access read (`appsmith.store.<key>`), where `store.1abc` is a syntax
+//   error.
+// - A denylist of prototype-polluting names: StoreActionSaga assigns `currentStore[key] = value` on a plain object,
+//   so `storeValue('__proto__', ...)` would rewrite the store object's prototype; `{ __proto__: ... }` in the
+//   compiled fields projection would do the same to the row literal. The denylist covers every Object.prototype own
+//   property name plus 'prototype' (not an Object.prototype own prop, but the other classic pollution key).
+const STORE_KEY_DENYLIST = new Set([
+  ...Object.getOwnPropertyNames(Object.prototype),
+  "prototype",
+]);
+
+export const storeKeySchema = z
+  .string()
+  .min(1)
+  .max(64)
+  .regex(
+    /^[A-Za-z_][A-Za-z0-9_]*$/,
+    "store keys must be an identifier: a letter or underscore, then letters, digits, or underscores",
+  )
+  .refine((key) => !STORE_KEY_DENYLIST.has(key), {
+    message: "store key collides with an Object.prototype property name",
+  });
+
+// M5 store binding form: bind a table's rows to a store key that wire_event's appendToStore accumulates into.
+// TABLE-ONLY by design — the list/card widget keeps the query-only tableDataRefSchema (store-bound card grids are
+// out of scope in v1), which is why this union is a SEPARATE schema instead of widening tableDataRefSchema.
+export const storeDataRefSchema = z
+  .object({
+    store: storeKeySchema,
+  })
+  .strict();
+
+export interface StoreDataRef {
+  store: string;
+}
+
+export const tableDataBindingSchema = z.union([
+  tableDataRefSchema,
+  storeDataRefSchema,
+]);
+
+export type TableDataBinding = TableDataRef | StoreDataRef;
+
 // The single emitter for a table's data binding. All parts are schema-validated identifier paths, so the emitted
 // expression cannot be broken out of. Optional chaining + `?? []` keeps the table valid before the query has run.
 // With `clearWhenEmpty`, the data is gated on the guard input holding text: `{{ In.text ? (Q.data ?? []) : [] }}`.
-export function compileTableDataBinding(ref: TableDataRef): string {
+// The store form reads the accumulated rows: `{{ appsmith.store.<key> ?? [] }}` (`?? []` keeps the table valid
+// before the first appendToStore write, and after clearStoreKey resets the key to []).
+export function compileTableDataBinding(ref: TableDataBinding): string {
+  if ("store" in ref) return `{{ appsmith.store.${ref.store} ?? [] }}`;
+
   const dataPath = ref.field
     ? `${ref.query}.data?.${ref.field}`
     : `${ref.query}.data`;
@@ -441,8 +489,9 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         // Static, literal rows only — never a free string registered as a dynamic binding (that was a live
         // injection hole).
         data: z.array(tableRow).max(1000).optional(),
-        // M4: bind the table to a named query instead of static rows. Compiler emits `{{ <query>.data }}`.
-        source: queryRef.optional(),
+        // M4: bind the table to a named query instead of static rows (compiler emits the query-data binding).
+        // M5: OR to a store key accumulated by wire_event's appendToStore ({ store: '<key>' }).
+        source: tableDataBindingSchema.optional(),
         placement: placementSchema.optional(),
       })
       // NOTE: `data` and `source` are mutually exclusive; enforced in the compiler (a `.refine` here would turn the
@@ -639,7 +688,7 @@ export type WidgetSpec =
       type: "table";
       name?: string;
       data?: TableRow[];
-      source?: { query: string; field?: string; clearWhenEmpty?: string };
+      source?: TableDataBinding;
       placement?: PlacementSpec;
     }
   | {

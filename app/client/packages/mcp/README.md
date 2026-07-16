@@ -46,6 +46,37 @@ values above the sanity ceilings (10000 sessions, 24 h TTL) are clamped — both
 | `APPSMITH_MCP_MAX_SESSIONS_PER_USER` | 25              | Per-user cap; at the cap the user's oldest session is evicted.       |
 | `APPSMITH_MCP_SESSION_TTL_MS`        | 900000 (15 min) | Idle session lifetime; every request on a session refreshes its TTL. |
 
+### Auto-publish on creation, and application URLs
+
+`build_application` **automatically publishes (deploys) the app it just created** and returns an `editorUrl` and
+`viewerUrl` for the default page, so the agent can hand the user a working link immediately.
+
+- **New apps only.** Auto-publish applies solely to the app created by that same call — a brand-new app has no
+  existing deployed state to clobber. **Re-publishing** an existing app (including that app after later edits) keeps
+  the governed `prepare_publish` → `confirm_publish` flow (Mongo + Redis backend required), which also refuses to
+  publish git-connected apps. When governance is configured, the auto-publish itself is recorded as a change record;
+  on ungoverned deployments it emits a structured `appsmith_mcp_auto_publish` log event, so a deploy is never silent.
+- **Publishing does not make the app public.** `isPublic` is a separate ACL switch; publishing only materializes the
+  viewer copy for users who already have access to the app. Admins should note that newly created (possibly
+  half-built) apps therefore become visible in view mode to workspace members with access — the agent is instructed
+  to finish wiring and re-publish before sharing the viewer link, since the auto-published copy is just a scaffold.
+- **Publish failures never fail the create.** The app is still created; the result carries a
+  `warnings: ["created but not deployed: …"]` entry with a coarse failure class (never the raw error).
+
+The absolute origin for the returned URLs resolves in this order, failing closed to root-relative paths
+(`/app/<appSlug>/<pageSlug>-<pageId>/edit`):
+
+1. `APPSMITH_MCP_PUBLIC_ORIGIN`, when set to a valid bare http(s) origin (scheme + host + optional port; no path,
+   query, fragment, or credentials — an invalid value is dropped with a startup warning).
+2. Otherwise, per session from the initialize request's `X-Forwarded-Proto` (must be exactly `http`/`https`) and
+   `Host` headers (charset-checked, and required to be in `APPSMITH_MCP_ALLOWED_HOSTS` when that allowlist is set).
+3. Otherwise root-relative URLs — never a guessed absolute origin. If the import response lacks slugs, the URLs are
+   omitted and the ids are still returned.
+
+| Variable                     | Default | Effect                                                                                   |
+| ---------------------------- | ------- | ---------------------------------------------------------------------------------------- |
+| `APPSMITH_MCP_PUBLIC_ORIGIN` | unset   | Preferred absolute origin for `editorUrl`/`viewerUrl` (e.g. `https://apps.example.com`). |
+
 ## Local development
 
 Copy `.env.example` to `.env` and run the package standalone. See that file for the full set of variables.

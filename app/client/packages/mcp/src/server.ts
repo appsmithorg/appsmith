@@ -5,7 +5,11 @@ import {
   MAX_MCP_SESSIONS_PER_USER,
   MCP_SESSION_TTL_MS,
 } from "./app.js";
-import { gateEnabledByDefault, sessionLimitsFromEnv } from "./gates.js";
+import {
+  gateEnabledByDefault,
+  publicOriginFromEnv,
+  sessionLimitsFromEnv,
+} from "./gates.js";
 import { McpGovernanceCoordinator } from "./governance/coordinator.js";
 import {
   createGovernanceStoreFromEnv,
@@ -27,6 +31,13 @@ const allowedHosts = (process.env.APPSMITH_MCP_ALLOWED_HOSTS ?? "")
   .split(",")
   .map((host) => host.trim())
   .filter((host) => host.length > 0);
+
+// Preferred origin for the editor/viewer URLs build_application returns. Fail-closed: an invalid value is warned
+// about and dropped, so URL construction falls back to per-session header derivation and then to root-relative paths.
+const publicOrigin = publicOriginFromEnv(
+  process.env.APPSMITH_MCP_PUBLIC_ORIGIN,
+  (message) => process.stderr.write(`Appsmith MCP ${message}\n`),
+);
 
 // Session caps and idle TTL. When a user hits the per-user cap, the server evicts their own oldest session
 // rather than rejecting, so these bound memory use rather than acting as a hard rate limit; invalid or unset
@@ -107,6 +118,7 @@ async function main(): Promise<void> {
     jsEnabled,
     governance,
     allowedHosts,
+    publicOrigin,
     ...sessionLimits,
   });
 

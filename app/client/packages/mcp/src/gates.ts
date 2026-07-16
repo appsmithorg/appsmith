@@ -25,6 +25,53 @@ export function parsePositiveInt(
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+// Public origin override for the URLs build_application returns (APPSMITH_MCP_PUBLIC_ORIGIN). Accepts ONLY an
+// absolute http(s) origin — scheme + host + optional port, with no path, query, fragment, or credentials (a bare
+// trailing slash is normalized away). Anything else fails CLOSED to undefined, so URLs degrade to root-relative
+// paths rather than carrying a malformed or attacker-shaped absolute origin into a trusted agent channel. A
+// present-but-invalid value is reported via `warn` (like the session-limit overrides) so a mistyped origin is
+// loud at startup instead of silently vanishing.
+export function publicOriginFromEnv(
+  value: string | undefined,
+  warn: (message: string) => void = () => {},
+): string | undefined {
+  if (value === undefined || value.trim() === "") return undefined;
+
+  const trimmed = value.trim();
+  const invalid = (reason: string): undefined => {
+    warn(
+      `APPSMITH_MCP_PUBLIC_ORIGIN=${trimmed} ${reason}; application URLs will be root-relative`,
+    );
+
+    return undefined;
+  };
+
+  let url: URL;
+
+  try {
+    url = new URL(trimmed);
+  } catch {
+    return invalid("is not an absolute URL");
+  }
+
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    return invalid("must use http or https");
+  }
+
+  if (url.username !== "" || url.password !== "") {
+    return invalid("must not carry credentials");
+  }
+
+  // "https://host/" parses to pathname "/" and is tolerated (normalized below); any real path, query, or
+  // fragment — including a smuggled "//evil" pathname — is rejected outright.
+  if (url.pathname !== "/" || url.search !== "" || url.hash !== "") {
+    return invalid("must be a bare origin (no path, query, or fragment)");
+  }
+
+  // url.origin is the normalized form: lowercased scheme+host, non-default port only, no trailing slash.
+  return url.origin;
+}
+
 export interface SessionLimits {
   maxSessions: number;
   maxSessionsPerUser: number;

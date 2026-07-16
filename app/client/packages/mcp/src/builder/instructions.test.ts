@@ -1,4 +1,8 @@
-import { TOOL_CATALOG, WIDGET_CATALOG } from "./capabilities.js";
+import {
+  getCapabilities,
+  TOOL_CATALOG,
+  WIDGET_CATALOG,
+} from "./capabilities.js";
 import {
   GUIDES,
   parseFields,
@@ -69,6 +73,111 @@ describe("guides and recipes", () => {
       for (const tool of NONEXISTENT_TOOLS) {
         expect(body).not.toContain(tool);
       }
+    }
+  });
+});
+
+describe("M5 store accumulation — docs stay in sync with the vocabulary", () => {
+  it("documents the store binding and verbs in the widget catalog and tool catalog", () => {
+    const table = WIDGET_CATALOG.find((w) => w.type === "table")!;
+    const sourceDoc = (table.fields as Record<string, string>).source;
+
+    // The table's source documents the store form alongside the query form.
+    expect(sourceDoc).toContain("store");
+    expect(sourceDoc).toContain("appendToStore");
+
+    // The wire_event tool copy advertises the new verbs and the statement list.
+    const wireEvent = TOOL_CATALOG.find((tool) => tool.name === "wire_event")!;
+
+    expect(wireEvent.summary).toContain("appendToStore");
+    expect(wireEvent.summary).toContain("clearStoreKey");
+    expect(wireEvent.summary).toContain("statement list");
+  });
+
+  it("teaches store accumulation in the bindings guide", () => {
+    const bindings = GUIDES.find((guide) => guide.slug === "bindings")!;
+    const body = bindings.render();
+
+    expect(body).toContain("appendToStore");
+    expect(body).toContain("clearStoreKey");
+    expect(body).toContain('{ "store": "zipResults" }');
+    expect(body).toContain("SESSION-ONLY");
+  });
+
+  it("ships the originating ZIP-lookup app as a worked recipe (exact wiring)", () => {
+    const recipe = RECIPES.find((doc) => doc.slug === "zip-lookup")!;
+    const body = recipe.render();
+
+    // The Lookup button: run + appendToStore with the fields projection reaching "post code" and places[0].
+    expect(body).toContain('"run": "LookupZip"');
+    expect(body).toContain('"appendToStore": { "key": "zipResults"');
+    expect(body).toContain('{ "as": "zip", "path": ["post code"] }');
+    expect(body).toContain(
+      '{ "as": "city", "path": ["places", 0, "place name"] }',
+    );
+    expect(body).toContain('{ "as": "state", "path": ["places", 0, "state"] }');
+    // The table bound to the store key.
+    expect(body).toContain('source: { "store": "zipResults" }');
+    // The Clear button's statement list: clearStoreKey + reset the input.
+    expect(body).toContain(
+      '[{ "clearStoreKey": { "key": "zipResults" } }, { "reset": "ZipInput" }]',
+    );
+    // Session-only (persist=false) is a documented, deliberate choice.
+    expect(body).toContain("SESSION-ONLY");
+    expect(body).toContain("persist=false");
+  });
+
+  it("mentions store accumulation in SERVER_INSTRUCTIONS (wire_event guidance)", () => {
+    expect(SERVER_INSTRUCTIONS).toContain("appendToStore");
+    expect(SERVER_INSTRUCTIONS).toContain("clearStoreKey");
+  });
+});
+
+describe("M5-T3 auto-publish — docs teach publish-LAST and the automatic create-time deploy", () => {
+  it("SERVER_INSTRUCTIONS describes the auto-deploy, the URLs, and the scaffold viewer copy", () => {
+    expect(SERVER_INSTRUCTIONS).toContain("auto-deployed on creation");
+    expect(SERVER_INSTRUCTIONS).toContain("editorUrl");
+    expect(SERVER_INSTRUCTIONS).toContain("viewerUrl");
+    // Publish-last guidance: finish wiring, re-publish governed, hand the viewer link last; ungoverned
+    // deployments relay the editorUrl plus the governance requires message.
+    expect(SERVER_INSTRUCTIONS).toContain("prepare_publish -> confirm_publish");
+    expect(SERVER_INSTRUCTIONS).toContain("scaffold");
+    expect(SERVER_INSTRUCTIONS).toContain("'requires' instruction");
+  });
+
+  it("build_application's catalog entry says the app is auto-deployed on creation", () => {
+    const build = TOOL_CATALOG.find(
+      (tool) => tool.name === "build_application",
+    )!;
+
+    expect(build.summary).toContain("auto-deployed on creation");
+  });
+
+  it("the governance gate copy gates RE-publish only (publish-on-create stays automatic)", () => {
+    // Governance off: the disabled-group copy must not claim first publish is locked behind governance.
+    const off = getCapabilities({ data: true, js: true, governance: false });
+    const governanceGroup = off.disabledCapabilities.groups.find((group) =>
+      group.tools.includes("confirm_publish"),
+    )!;
+
+    expect(governanceGroup.provides).toContain("re-publish of existing apps");
+    expect(governanceGroup.provides).toContain("auto-deploy on creation");
+    expect(off.governanceNote).toContain("auto-deploys");
+
+    // Governance on: the note says publish-on-create is automatic and governance gates re-publishing.
+    const on = getCapabilities({ data: true, js: true, governance: true });
+
+    expect(on.governanceNote).toContain("Publish-on-create is automatic");
+    expect(on.governanceNote).toContain("RE-publishing existing apps");
+  });
+
+  it("the crud and zip-lookup recipes end with the publish-last step", () => {
+    for (const slug of ["crud", "zip-lookup"]) {
+      const body = RECIPES.find((recipe) => recipe.slug === slug)!.render();
+
+      expect(body).toContain("prepare_publish");
+      expect(body).toContain("confirm_publish");
+      expect(body).toContain("scaffold");
     }
   });
 });

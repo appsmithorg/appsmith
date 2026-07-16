@@ -76,16 +76,43 @@ evaluated as code in a viewer's browser.
   The query name must be a plain identifier; the compiler emits the safe binding for you. These
   work when the data layer is enabled on the instance (list_datasources / get_datasource_structure
   help you discover what to query). A table sets \`data\` OR \`source\`, never both.
+- IMPORTANT — the same table binding has a DIFFERENT prop name on each path:
+  - Creating a table (\`build_application\` / \`edit_page\` spec): \`source: { query: "getUsers" }\`.
+  - Patching an EXISTING table (\`patch_widgets\` update props): \`tableData: { query: "getUsers" }\`.
+  On \`patch_widgets\`, \`source\` means a selected-row display binding (\`{ table, column }\`) —
+  passing \`source: { query }\` there is rejected. \`read_semantic_page\` reports the binding back
+  as \`tableData\`, matching the patch name.
 - Display bindings (selected row): show or prefill from the table's selected row through the
   same structured-reference rule:
   - Detail text: \`{ "type": "text", "source": { "table": "Users", "column": "email" } }\`.
   - Edit-form prefill: \`{ "type": "input", "defaultValue": { "table": "Users", "column": "email" } }\`.
   Both are also available as \`patch_widgets\` update props (\`source\` on text, \`defaultValue\` on
   input) to upgrade an existing page. A text sets \`text\` OR \`source\`, never both.
-- Event chains: \`wire_event\` runs one action per event, and a \`run\` action may chain
+- Event chains: \`wire_event\` wires one event, and a \`run\` action may chain
   \`onSuccess\`/\`onError\` follow-ups (run another query, close a modal, navigate, show an alert):
   \`{ "run": "insertUser", "onSuccess": [{ "run": "getUsers" }, { "closeModal": "AddUserModal" },
-  { "showAlert": "Saved", "style": "success" }] }\` — the canonical submit → refresh → close flow.`;
+  { "showAlert": "Saved", "style": "success" }] }\` — the canonical submit → refresh → close flow.
+  The action may also be an ordered LIST of 2–5 statements (at most one \`run\`, which alone
+  carries \`onSuccess\`/\`onError\`) — e.g. a Clear button that empties a store key AND resets an
+  input in one click.
+- Accumulating results across runs (store accumulation): re-running a query REPLACES its
+  \`data\`, so a query-bound table shows only the latest response. To build a table that grows
+  with each run, accumulate rows in the Appsmith store:
+  - \`wire_event\` verb \`appendToStore\`: \`{ "appendToStore": { "key": "zipResults", "query":
+    "LookupZip" } }\` appends the query's response under the store key (an array response adds
+    one row per record; an object response adds a single row). Add \`field\` (dotted identifier
+    path) to append a nested array, OR \`fields\` to project named values into ONE row per run:
+    \`"fields": [{ "as": "zip", "path": ["post code"] }, { "as": "state", "path": ["places", 0,
+    "state"] }]\` — \`path\` is a list of string keys / numeric array indexes, so space-keyed and
+    array-indexed API values are reachable.
+  - \`wire_event\` verb \`clearStoreKey\`: \`{ "clearStoreKey": { "key": "zipResults" } }\` empties
+    that ONE key (never the whole store).
+  - Bind the table to the key: build/edit \`source: { "store": "zipResults" }\`, patch
+    \`tableData: { "store": "zipResults" }\`.
+  - Store keys are identifiers (letter/underscore start, max 64). Accumulated rows are
+    SESSION-ONLY by design (never persisted to localStorage, so one user's rows can't leak to
+    the next browser user): results reset on reload. See appsmith://recipe/zip-lookup for the
+    full worked example.`;
 
 export const GUIDES: InstructionDoc[] = [
   {
@@ -130,11 +157,17 @@ To make it live (when the data layer is enabled):
    \`url\` (created ready to use when the API needs no auth). No credentials pass through MCP.
 8. \`get_datasource_structure\` — read its tables/columns.
 9. \`create_query\` — e.g. a SELECT plus an UPDATE over your table (structured spec, no raw SQL).
-10. \`edit_page\` / \`patch_widgets\` — bind the table (\`source\` = { query: '<name>' }), prefill the
-    form inputs from the selection (\`defaultValue\` = { table: '<Table>', column: '<col>' }), and
-    show read-only detail text (\`source\` = { table, column }).
+10. Bind the table to the query — the prop name differs by path: on \`patch_widgets\` (existing
+    table) use \`tableData\` = { query: '<name>' }; on \`edit_page\` (new table) use \`source\` =
+    { query: '<name>' }. Then prefill the form inputs from the selection (\`defaultValue\` =
+    { table: '<Table>', column: '<col>' }) and show read-only detail text (\`source\` =
+    { table, column }).
 11. \`wire_event\` — wire the save button: { run: '<updateQuery>', onSuccess: [{ run: '<selectQuery>' },
-    { showAlert: 'Saved', style: 'success' }] } so the table refreshes after the write.`;
+    { showAlert: 'Saved', style: 'success' }] } so the table refreshes after the write.
+12. Publish LAST: \`build_application\` auto-deployed the app at creation, but that viewer copy is a
+    scaffold — it does not include the wiring above until re-published. Once everything works, re-publish
+    (\`prepare_publish\` -> \`confirm_publish\`, governed) and only then hand the user the \`viewerUrl\`.
+    Without governance, share the \`editorUrl\` and relay the governance 'requires' message instead.`;
 
 const RECIPE_FORM = `# Recipe: Form page
 
@@ -157,6 +190,48 @@ Goal: a table above a details card (the common admin/read pattern).
 Static layout today; wire the table to a query and the inputs to the selected row when the data
 layer is enabled.`;
 
+// The originating M5 field-report app, end to end: each lookup APPENDS a row to a results table (a re-run query
+// would only replace it), using the closed store-accumulation vocabulary.
+const RECIPE_ZIP_LOOKUP = `# Recipe: ZIP lookup with an accumulating results table
+
+Goal: enter a ZIP code, click Lookup, and add one row per lookup to a results table that keeps
+growing; a Clear button empties the table and the input.
+
+1. Build the page (\`build_application\` / \`edit_page\`):
+   - Input \`ZipInput\` with \`validation: { "format": "zipcode" }\`.
+   - Button \`LookupButton\` (text "Lookup").
+   - Button \`ClearButton\` (text "Clear").
+   - Table \`ZipResults\` bound to the store key: \`source: { "store": "zipResults" }\`
+     (on an EXISTING table: \`patch_widgets\` with \`tableData: { "store": "zipResults" }\`).
+2. Create the lookup query (data layer): \`create_rest_api\` named \`LookupZip\` against the ZIP
+   API. Its response has space-keyed and array-indexed values ("post code", places[0].state) —
+   exactly what the \`fields\` projection below reaches.
+3. Wire the Lookup button (\`wire_event\` on \`LookupButton\` onClick) — run the query, then
+   append ONE projected row per lookup:
+
+   { "run": "LookupZip", "onSuccess": [{ "appendToStore": { "key": "zipResults",
+     "query": "LookupZip", "fields": [
+       { "as": "zip", "path": ["post code"] },
+       { "as": "city", "path": ["places", 0, "place name"] },
+       { "as": "state", "path": ["places", 0, "state"] }
+     ] } }] }
+
+4. Wire the Clear button (\`wire_event\` on \`ClearButton\` onClick) — a statement LIST that
+   empties the store key and resets the input in one click:
+
+   [{ "clearStoreKey": { "key": "zipResults" } }, { "reset": "ZipInput" }]
+
+5. \`inspect_page\` — a store-bound table whose key has no appendToStore/clearStoreKey writer on
+   the page is flagged as a warning (the writer may legitimately live on another page).
+6. Publish last: the copy auto-deployed by \`build_application\` predates all of this wiring, so
+   it is a scaffold until re-published. Re-publish (\`prepare_publish\` -> \`confirm_publish\`,
+   governed) and hand over the \`viewerUrl\` as the final step; without governance, share the
+   \`editorUrl\` and relay the governance 'requires' message from \`get_capabilities\`.
+
+Note: accumulated rows are SESSION-ONLY by design (the server compiles storeValue with
+persist=false, so rows fetched under one user's permissions are never written to the shared
+browser's localStorage) — the table resets on reload.`;
+
 export const RECIPES: InstructionDoc[] = [
   {
     slug: "crud",
@@ -175,6 +250,13 @@ export const RECIPES: InstructionDoc[] = [
     title: "Master–detail recipe",
     description: "Build a table-above-details-card layout.",
     render: () => RECIPE_TABLE_DETAIL,
+  },
+  {
+    slug: "zip-lookup",
+    title: "ZIP lookup recipe (store accumulation)",
+    description:
+      "Build a lookup form whose results table grows one row per lookup via appendToStore.",
+    render: () => RECIPE_ZIP_LOOKUP,
   },
 ];
 
@@ -276,11 +358,11 @@ ALWAYS call get_capabilities first. It lists the exact tools available under thi
 
 Recommended workflow for a production-quality app:
 1. Target a workspace: resolve_workspace(name) -> workspaceId (or list_workspaces). Tools take an id, not a name — never ask the user for a raw id if they gave you a name.
-2. Create the app: build_application(workspaceId, appSpec). Widgets: text, input, select, button, image, table, container, form, modal, datepicker, chart, tabs, list. Inputs support named-format validation; tables support a query 'source' (optionally clear-when-empty). 'list' renders a card grid (image + title + subtitle) bound to a query 'source' — point it at the same query as a table for a shared table/cards view (a query is required; there is no static-data card grid).
+2. Create the app: build_application(workspaceId, appSpec). Widgets: text, input, select, button, image, table, container, form, modal, datepicker, chart, tabs, list. Inputs support named-format validation; tables support a query 'source' (optionally clear-when-empty). 'list' renders a card grid (image + title + subtitle) bound to a query 'source' — point it at the same query as a table for a shared table/cards view (a query is required; there is no static-data card grid). The new app is auto-deployed on creation and the response includes an editorUrl and viewerUrl for the default page — that first deployed copy is only a scaffold until re-published, so don't hand out the viewer link yet.
 3. Add data (if listed by get_capabilities): create_datasource (DB or REST, no credentials) -> create_query / create_rest_api -> bind a table to it, and bind detail widgets to the selected row.
 4. Inspect and refine with read_semantic_page / inspect_page, then patch_widgets: bind a table's data, a text/image/input to the selected row (source / imageSource / defaultValue), toggle table search/filter/sort/pagination, set row striping, add input validation, disable a button while an input is invalid, and move/reparent/remove widgets. To switch between views (e.g. a table and a detail panel) with one control, gate each view's visibility on a select/tabs control (visibleWhen). Append new widgets with edit_page.
-5. Wire behavior: wire_event connects button onClick / table onRowSelected / modal onClose / tabs onTabSelected to run a query (with onSuccess/onError chains), navigate, show/close a modal, show an alert, or reset widgets (a Clear button).
+5. Wire behavior: wire_event connects button onClick / table onRowSelected / modal onClose / tabs onTabSelected to run a query (with onSuccess/onError chains), navigate, show/close a modal, show an alert, reset widgets (a Clear button), or accumulate query rows in the Appsmith store (appendToStore / clearStoreKey — bind a table to the key with a store source/tableData for a results table that grows with each run; rows are session-only). The action may also be an ordered list of 2-5 statements (at most one run).
 6. Add JS logic (if listed): create_js_object for restricted, declarative JS objects.
-7. Ship it: prepare_publish -> confirm_publish (governed).
+7. Ship it LAST: finish wiring queries and events first — the copy auto-deployed at creation is a scaffold that goes stale as you edit. Then re-publish with prepare_publish -> confirm_publish (governed) and hand the user the viewerUrl as the final step. On deployments without governance, re-publishing is unavailable: relay the editorUrl from build_application plus the governance group's 'requires' instruction from get_capabilities instead of promising an up-to-date viewer link.
 
 Read the appsmith://reference/widgets resource and appsmith://recipe/* walkthroughs for details. Prefer editing an existing app iteratively (read -> patch -> re-read) over rebuilding.`;
