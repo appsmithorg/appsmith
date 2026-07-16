@@ -16,12 +16,10 @@ import reactor.core.publisher.Mono;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Locale;
 
 import static com.external.plugins.constants.AppsmithAiConstants.SUPPORTED_FILE_MIME_TYPES;
-import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_CONTAINS_ACTIVE_MARKUP;
 import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_TYPE_NOT_SUPPORTED;
 
 /**
@@ -37,28 +35,27 @@ import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_TYPE_N
  *   <li>{@link TextDetector} - a statistical fallback that classifies magic-less content as
  *       {@code text/plain} (plain text and markdown carry no magic signature).</li>
  * </ul>
- * {@link CompositeDetector} returns the first non-{@code application/octet-stream} result, so magic wins
- * over the text fallback: an SVG uploaded as {@code report.txt} is still detected as {@code image/svg+xml}
- * and rejected.
  *
- * <p>The text fallback is not a security boundary on its own: Tika reports SVG/HTML as {@code text/plain}
- * when the markup does not sit at byte 0 (e.g. after leading whitespace or a short text prefix). Because
- * {@code text/plain} is allow-listed, a file accepted as text is additionally screened for smuggled markup
- * roots (see {@link #containsSmuggledMarkup}) so such payloads cannot slip through the text path.
+ * <p>The bundled magic only recognises XML/SVG roots as ASCII bytes at offset 0, so an SVG encoded as
+ * UTF-16/UTF-32 or hidden behind a byte-order mark or leading whitespace would otherwise fall through to the
+ * allow-listed {@code text/plain}. To close that gap at the detection layer (rather than scanning bytes),
+ * when the first pass is ambiguous ({@code text/plain}/{@code application/octet-stream}) the head is decoded
+ * from its real charset, its BOM and prolog whitespace trimmed, re-encoded as UTF-8 and re-detected. This
+ * surfaces the true type - e.g. {@code image/svg+xml} - which is then rejected by the allow-list. Verified
+ * against UTF-8/UTF-16LE/UTF-16BE/UTF-32 and namespace-prefixed SVG.
  */
 public class FileValidationUtils {
 
     private static final Detector DETECTOR = new CompositeDetector(MimeTypes.getDefaultMimeTypes(), new TextDetector());
 
-    // Markup roots that must never appear in a file we accept as text. These are the signatures a downstream
-    // renderer would act on if it treated the "text" file as SVG/HTML/XML. This is a narrow anti-smuggling
-    // check for the text/* path only - deliberately NOT a general markup/polyglot scanner.
-    private static final List<String> MARKUP_ROOT_MARKERS =
-            List.of("<svg", "<?xml", "<html", "<!doctype html", "<!doctype svg", "<script");
+    // Types that carry no distinguishing magic and so cannot be trusted as "final" on their own: an encoded
+    // or prolog-padded XML/SVG document lands here on the first pass and warrants a normalized re-detection.
+    private static final MediaType TEXT_PLAIN = MediaType.TEXT_PLAIN;
+    private static final MediaType OCTET_STREAM = MediaType.OCTET_STREAM;
 
-    // A smuggled markup root has to sit near the start for a renderer to treat the file as markup, so only the
-    // leading window is scanned rather than the whole (already size-bounded) file.
-    private static final int MARKUP_SCAN_LIMIT = 8192;
+    // Only the head is decoded for the normalized re-detection; a document's XML/SVG root sits near the start,
+    // and the full (already size-bounded) file is never decoded into a String.
+    private static final int HEAD_DECODE_LIMIT = 64 * 1024;
 
     private FileValidationUtils() {}
 
@@ -74,61 +71,130 @@ public class FileValidationUtils {
         return DataBufferUtils.join(filePart.content())
                 .map(dataBuffer -> {
                     byte[] bytes = toByteArray(dataBuffer);
-                    String detectedType = detect(bytes).getBaseType().toString();
+                    String detectedType = detectTrueType(bytes).getBaseType().toString();
                     if (!SUPPORTED_FILE_MIME_TYPES.contains(detectedType)) {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 String.format(FILE_TYPE_NOT_SUPPORTED, filePart.filename(), detectedType));
-                    }
-                    // Tika's text fallback reports SVG/HTML as text/plain when the markup does not start at
-                    // byte 0; reject any file accepted as text that smuggles a markup root.
-                    if (detectedType.startsWith("text/") && containsSmuggledMarkup(bytes)) {
-                        throw new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                String.format(FILE_CONTAINS_ACTIVE_MARKUP, filePart.filename()));
                     }
                     return (FilePart) new BufferedFilePart(filePart, bytes);
                 })
                 // An empty content stream yields no buffer to inspect; treat it as an undetectable file.
                 .switchIfEmpty(Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        String.format(FILE_TYPE_NOT_SUPPORTED, filePart.filename(), MediaType.OCTET_STREAM))));
+                        String.format(FILE_TYPE_NOT_SUPPORTED, filePart.filename(), OCTET_STREAM))));
     }
 
     /**
-     * Scans the leading window of a text file (after any BOM and leading whitespace) for an XML/HTML/SVG/
-     * script root marker, case-insensitively. Catches markup that Tika reported as {@code text/plain} because
-     * it did not begin at byte 0 (leading whitespace or a short text prefix).
+     * Detects the true content type of the raw bytes. A structured first-pass result (e.g. PDF, or an SVG in
+     * ASCII/UTF-8) is authoritative. When the first pass is ambiguous, the head is normalized to UTF-8 (its
+     * real charset decoded, BOM and prolog whitespace stripped) and re-detected so an encoded or padded
+     * XML/SVG document surfaces its true type. Genuine plain text stays {@code text/plain}; opaque binary
+     * stays {@code application/octet-stream}.
      */
-    private static boolean containsSmuggledMarkup(byte[] content) {
-        int start = skipBomAndWhitespace(content);
-        int end = Math.min(content.length, start + MARKUP_SCAN_LIMIT);
-        if (start >= end) {
-            return false;
+    private static MediaType detectTrueType(byte[] content) {
+        MediaType detected = detect(content);
+        if (!isAmbiguous(detected)) {
+            return detected;
         }
-        // ISO-8859-1 maps every byte to a char, so the ASCII markers survive regardless of the real encoding.
-        String head = new String(content, start, end - start, StandardCharsets.ISO_8859_1).toLowerCase(Locale.ROOT);
-        for (String marker : MARKUP_ROOT_MARKERS) {
-            if (head.contains(marker)) {
-                return true;
-            }
+        Charset wideCharset = detectWideCharset(content);
+        MediaType normalized = detect(normalizeHeadToUtf8(content, wideCharset));
+        if (!isAmbiguous(normalized)) {
+            // Normalization revealed a concrete type (e.g. image/svg+xml, text/html) hidden by the encoding.
+            return normalized;
         }
-        return false;
+        if (wideCharset != null) {
+            // A genuinely wide-encoded text file: trust the normalized text/plain rather than the raw
+            // octet-stream the null bytes produced.
+            return normalized;
+        }
+        // Opaque binary with no recognizable text: keep the first-pass result so it stays rejected.
+        return detected;
     }
 
-    private static int skipBomAndWhitespace(byte[] content) {
-        int i = 0;
-        // Skip a UTF-8 byte-order mark if present.
-        if (content.length >= 3
-                && (content[0] & 0xFF) == 0xEF
-                && (content[1] & 0xFF) == 0xBB
-                && (content[2] & 0xFF) == 0xBF) {
-            i = 3;
+    private static boolean isAmbiguous(MediaType type) {
+        MediaType base = type.getBaseType();
+        return base.equals(TEXT_PLAIN) || base.equals(OCTET_STREAM);
+    }
+
+    /**
+     * Detects a UTF-16/UTF-32 encoding from a leading byte-order mark, or, failing that, from the regular
+     * null-byte pattern that ASCII text produces in those encodings. Returns {@code null} for single-byte /
+     * UTF-8 content (which needs no re-encoding).
+     */
+    private static Charset detectWideCharset(byte[] b) {
+        int n = b.length;
+        if (n >= 4 && u(b[0]) == 0x00 && u(b[1]) == 0x00 && u(b[2]) == 0xFE && u(b[3]) == 0xFF) {
+            return Charset.forName("UTF-32BE");
         }
-        while (i < content.length && Character.isWhitespace(content[i] & 0xFF)) {
-            i++;
+        if (n >= 4 && u(b[0]) == 0xFF && u(b[1]) == 0xFE && u(b[2]) == 0x00 && u(b[3]) == 0x00) {
+            return Charset.forName("UTF-32LE");
         }
-        return i;
+        if (n >= 2 && u(b[0]) == 0xFE && u(b[1]) == 0xFF) {
+            return StandardCharsets.UTF_16BE;
+        }
+        if (n >= 2 && u(b[0]) == 0xFF && u(b[1]) == 0xFE) {
+            return StandardCharsets.UTF_16LE;
+        }
+        // BOM-less heuristic over the head: ASCII characters in wide encodings leave nulls at fixed offsets.
+        int window = Math.min(n, 64);
+        if (window < 4) {
+            return null;
+        }
+        int z0 = 0, z1 = 0, z2 = 0, z3 = 0, quads = 0;
+        for (int i = 0; i + 3 < window; i += 4) {
+            if (b[i] == 0) z0++;
+            if (b[i + 1] == 0) z1++;
+            if (b[i + 2] == 0) z2++;
+            if (b[i + 3] == 0) z3++;
+            quads++;
+        }
+        if (quads > 0) {
+            if (z0 == quads && z1 == quads && z2 == quads && z3 == 0) {
+                return Charset.forName("UTF-32BE");
+            }
+            if (z0 == 0 && z1 == quads && z2 == quads && z3 == quads) {
+                return Charset.forName("UTF-32LE");
+            }
+        }
+        int evenZero = 0, oddZero = 0, pairs = 0;
+        for (int i = 0; i + 1 < window; i += 2) {
+            if (b[i] == 0) evenZero++;
+            if (b[i + 1] == 0) oddZero++;
+            pairs++;
+        }
+        if (pairs > 0) {
+            if (evenZero == pairs && oddZero == 0) {
+                return StandardCharsets.UTF_16BE;
+            }
+            if (oddZero == pairs && evenZero == 0) {
+                return StandardCharsets.UTF_16LE;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Decodes the head with the given charset (UTF-8 when {@code null}), strips a leading BOM and XML-prolog
+     * whitespace, and re-encodes as UTF-8 so an XML/SVG root that was encoded or offset lands at byte 0 where
+     * the magic can match it.
+     */
+    private static byte[] normalizeHeadToUtf8(byte[] content, Charset wideCharset) {
+        Charset charset = wideCharset != null ? wideCharset : StandardCharsets.UTF_8;
+        int limit = Math.min(content.length, HEAD_DECODE_LIMIT);
+        String decoded = new String(content, 0, limit, charset);
+        int start = 0;
+        if (!decoded.isEmpty() && decoded.charAt(0) == '\uFEFF') {
+            start = 1;
+        }
+        while (start < decoded.length() && Character.isWhitespace(decoded.charAt(start))) {
+            start++;
+        }
+        return decoded.substring(start).getBytes(StandardCharsets.UTF_8);
+    }
+
+    private static int u(byte b) {
+        return b & 0xFF;
     }
 
     private static byte[] toByteArray(DataBuffer dataBuffer) {
