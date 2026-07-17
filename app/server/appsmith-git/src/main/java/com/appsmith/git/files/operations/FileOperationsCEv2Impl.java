@@ -3,7 +3,6 @@ package com.appsmith.git.files.operations;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.operations.FileOperationsCE;
 import com.appsmith.external.helpers.ObservationHelper;
-import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Git;
 import com.appsmith.git.constants.CommonConstants;
@@ -15,7 +14,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.micrometer.tracing.Span;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -67,13 +65,6 @@ public class FileOperationsCEv2Impl implements FileOperationsCE {
 
         this.objectWriter = objectMapper.writerWithView(Git.class);
         this.observationHelper = observationHelper;
-    }
-
-    @Override
-    public void saveMetadataResource(ApplicationGitReference applicationGitReference, Path baseRepo) {
-        ObjectNode metadata = objectMapper.valueToTree(applicationGitReference.getMetadata());
-        metadata.put(CommonConstants.FILE_FORMAT_VERSION, CommonConstants.fileFormatVersion);
-        saveResource(metadata, baseRepo.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION));
     }
 
     @Override
