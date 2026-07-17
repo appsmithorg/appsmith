@@ -3,7 +3,26 @@ import styled from "styled-components";
 import { TagInput } from "@appsmith/ads-old";
 import { Text } from "@appsmith/ads";
 import { createMessage, IN_APP_EMBED_SETTING } from "ee/constants/messages";
-import { removeAllowAllFrameAncestorChips } from "./Utils/utils";
+import {
+  normalizeFrameAncestorToken,
+  removeAllowAllFrameAncestorChips,
+} from "./Utils/utils";
+
+// Quote bare "self"/"none" keywords in each comma-separated chip so the chip the
+// user sees matches what is stored. Chips can hold whitespace-separated tokens
+// (pasted values), so normalize per token.
+const normalizeChips = (value: string): string =>
+  value
+    .split(",")
+    .filter(Boolean)
+    .map((chip) =>
+      chip
+        .split(/\s+/)
+        .filter(Boolean)
+        .map(normalizeFrameAncestorToken)
+        .join(" "),
+    )
+    .join(",");
 
 const ErrorText = styled(Text)`
   display: block;
@@ -46,7 +65,7 @@ function FrameAncestorsTagInput(props: FrameAncestorsTagInputProps) {
         setError("");
       }
 
-      onChange?.(cleaned);
+      onChange?.(normalizeChips(cleaned));
     },
     [onChange],
   );

@@ -7,14 +7,21 @@ import { AppsmithFrameAncestorsSetting } from "../Constants/constants";
 // "https://*.example.com", which only matches subdomains of a specific host and
 // is a legitimate limit-list entry.
 export const isAllowAllFrameAncestorToken = (token: string): boolean =>
-  token.trim() === "*";
+  (token ?? "").trim() === "*";
 
 // True when the stored frame-ancestors value contains a standalone "*" token.
 // Split on whitespace so we match a bare "*" but not a "*" embedded in a host
-// pattern such as "https://*.example.com".
-export const containsAllowAllFrameAncestor = (value: string): boolean =>
-  value.trim().length > 0 &&
-  value.trim().split(/\s+/).some(isAllowAllFrameAncestorToken);
+// pattern such as "https://*.example.com". Tolerates a null/undefined value:
+// on a cold load of /settings/configuration the admin-settings store is not yet
+// hydrated, so this runs before the value exists.
+export const containsAllowAllFrameAncestor = (value: string): boolean => {
+  const trimmed = (value ?? "").trim();
+
+  return (
+    trimmed.length > 0 &&
+    trimmed.split(/\s+/).some(isAllowAllFrameAncestorToken)
+  );
+};
 
 // Filter the comma-separated limit list emitted by the TagInput, dropping any
 // chip that contains a bare "*". Pasted content can arrive as a single chip
@@ -42,21 +49,42 @@ export const removeAllowAllFrameAncestorChips = (
 // allow-all "*" - e.g. one left in localStorage before allow-all detection
 // existed - can never round-trip back into the stored value.
 export const stripAllowAllFrameAncestorTokens = (value: string): string =>
-  value
+  (value ?? "")
     .trim()
     .split(/\s+/)
     .filter((token) => token.length > 0 && !isAllowAllFrameAncestorToken(token))
     .join(" ");
 
-// Sanitize a whitespace-separated value for use as a limited-embedding list:
-// drop bare "*" tokens and normalize the disable-everywhere sentinel "'none'" to
-// empty, since neither is a valid limit-list source. Stripping "*" from a value
-// like "* 'none'" would otherwise leave the "'none'" sentinel, which LIMIT mode
-// must never emit. Host wildcards such as "https://*.example.com" are preserved.
-export const sanitizeLimitedFrameAncestors = (value: string): string => {
-  const stripped = stripAllowAllFrameAncestorTokens(value);
+// Quote the CSP keyword sources. In a frame-ancestors policy "'self'" and
+// "'none'" must be single-quoted; a bare "self"/"none" is parsed by the browser
+// as a hostname and silently breaks the policy. Normalize them to the quoted
+// form (case-insensitive). Host/scheme sources and wildcards
+// ("https://x.com", "*.example.com", "*") must stay unquoted and are left as-is.
+export const normalizeFrameAncestorToken = (token: string): string => {
+  const trimmed = (token ?? "").trim();
+  const lower = trimmed.toLowerCase();
 
-  return stripped === "'none'" ? "" : stripped;
+  if (lower === "self") return "'self'";
+
+  if (lower === "none") return "'none'";
+
+  return trimmed;
+};
+
+// Sanitize a whitespace-separated value for use as a limited-embedding list:
+// drop bare "*" tokens, quote bare "self"/"none" keywords, and normalize the
+// disable-everywhere sentinel "'none'" to empty (neither "*" nor "'none'" is a
+// valid limit-list source). Stripping "*" from a value like "* 'none'" would
+// otherwise leave the "'none'" sentinel, which LIMIT mode must never emit. Host
+// wildcards such as "https://*.example.com" are preserved.
+export const sanitizeLimitedFrameAncestors = (value: string): string => {
+  const normalized = stripAllowAllFrameAncestorTokens(value)
+    .split(/\s+/)
+    .filter((token) => token.length > 0)
+    .map(normalizeFrameAncestorToken)
+    .join(" ");
+
+  return normalized === "'none'" ? "" : normalized;
 };
 
 export const formatEmbedSettings = (value: string) => {

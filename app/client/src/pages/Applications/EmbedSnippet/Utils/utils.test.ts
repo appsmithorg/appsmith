@@ -2,6 +2,7 @@ import {
   containsAllowAllFrameAncestor,
   formatEmbedSettings,
   isAllowAllFrameAncestorToken,
+  normalizeFrameAncestorToken,
   removeAllowAllFrameAncestorChips,
   sanitizeLimitedFrameAncestors,
   stripAllowAllFrameAncestorTokens,
@@ -18,6 +19,13 @@ describe("isAllowAllFrameAncestorToken", () => {
     expect(isAllowAllFrameAncestorToken("https://*.example.com")).toBe(false);
     expect(isAllowAllFrameAncestorToken("'self'")).toBe(false);
     expect(isAllowAllFrameAncestorToken("")).toBe(false);
+  });
+
+  it("tolerates a null/undefined token", () => {
+    expect(isAllowAllFrameAncestorToken(undefined as unknown as string)).toBe(
+      false,
+    );
+    expect(isAllowAllFrameAncestorToken(null as unknown as string)).toBe(false);
   });
 });
 
@@ -40,6 +48,15 @@ describe("containsAllowAllFrameAncestor", () => {
     expect(containsAllowAllFrameAncestor("'none'")).toBe(false);
     expect(containsAllowAllFrameAncestor("")).toBe(false);
     expect(containsAllowAllFrameAncestor("   ")).toBe(false);
+  });
+
+  it("tolerates a null/undefined value without throwing", () => {
+    expect(containsAllowAllFrameAncestor(undefined as unknown as string)).toBe(
+      false,
+    );
+    expect(containsAllowAllFrameAncestor(null as unknown as string)).toBe(
+      false,
+    );
   });
 });
 
@@ -92,6 +109,20 @@ describe("formatEmbedSettings", () => {
 
   it("maps an empty value to an empty limit-embedding list", () => {
     expect(formatEmbedSettings("")).toEqual({
+      value: AppsmithFrameAncestorsSetting.LIMIT_EMBEDDING,
+      additionalData: "",
+    });
+  });
+
+  it("tolerates an unhydrated (undefined/null) value without throwing", () => {
+    // On a cold load of /settings/configuration the admin-settings store is not
+    // yet populated, so redux-form calls format() with undefined. This must not
+    // crash the settings page - it should behave like an empty limit list.
+    expect(formatEmbedSettings(undefined as unknown as string)).toEqual({
+      value: AppsmithFrameAncestorsSetting.LIMIT_EMBEDDING,
+      additionalData: "",
+    });
+    expect(formatEmbedSettings(null as unknown as string)).toEqual({
       value: AppsmithFrameAncestorsSetting.LIMIT_EMBEDDING,
       additionalData: "",
     });
@@ -155,6 +186,15 @@ describe("stripAllowAllFrameAncestorTokens", () => {
     expect(stripAllowAllFrameAncestorTokens("")).toBe("");
   });
 
+  it("tolerates a null/undefined value", () => {
+    expect(
+      stripAllowAllFrameAncestorTokens(undefined as unknown as string),
+    ).toBe("");
+    expect(stripAllowAllFrameAncestorTokens(null as unknown as string)).toBe(
+      "",
+    );
+  });
+
   it("preserves host wildcards and normal sources unchanged", () => {
     expect(stripAllowAllFrameAncestorTokens("https://*.example.com")).toBe(
       "https://*.example.com",
@@ -186,5 +226,41 @@ describe("sanitizeLimitedFrameAncestors", () => {
     expect(sanitizeLimitedFrameAncestors("'self' https://a.com")).toBe(
       "'self' https://a.com",
     );
+  });
+
+  it("quotes bare self/none keywords so they are never persisted raw", () => {
+    // A bare "self" is parsed as a hostname and breaks the CSP policy, so it must
+    // be stored as the quoted "'self'" keyword.
+    expect(sanitizeLimitedFrameAncestors("self")).toBe("'self'");
+    expect(sanitizeLimitedFrameAncestors("self https://a.com")).toBe(
+      "'self' https://a.com",
+    );
+    expect(sanitizeLimitedFrameAncestors("SELF *")).toBe("'self'");
+    // A lone bare "none" normalizes to the disable sentinel, which LIMIT mode
+    // drops to empty rather than persisting.
+    expect(sanitizeLimitedFrameAncestors("none")).toBe("");
+  });
+});
+
+describe("normalizeFrameAncestorToken", () => {
+  it("quotes the bare self/none keywords (case-insensitive)", () => {
+    expect(normalizeFrameAncestorToken("self")).toBe("'self'");
+    expect(normalizeFrameAncestorToken(" SELF ")).toBe("'self'");
+    expect(normalizeFrameAncestorToken("none")).toBe("'none'");
+    expect(normalizeFrameAncestorToken("None")).toBe("'none'");
+  });
+
+  it("leaves already-quoted keywords unchanged (idempotent)", () => {
+    expect(normalizeFrameAncestorToken("'self'")).toBe("'self'");
+    expect(normalizeFrameAncestorToken("'none'")).toBe("'none'");
+  });
+
+  it("leaves host/scheme sources and wildcards unquoted", () => {
+    expect(normalizeFrameAncestorToken("https://a.com")).toBe("https://a.com");
+    expect(normalizeFrameAncestorToken("https://*.example.com")).toBe(
+      "https://*.example.com",
+    );
+    expect(normalizeFrameAncestorToken("*")).toBe("*");
+    expect(normalizeFrameAncestorToken("")).toBe("");
   });
 });
