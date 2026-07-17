@@ -185,15 +185,13 @@ export default {
     const componentHeight = props.componentHeight - 10;
     const tableSizes = TABLE_SIZES[compactMode];
 
-    let pageSize =
+    const pageSize =
       (componentHeight -
         tableSizes.TABLE_HEADER_HEIGHT -
         tableSizes.COLUMN_HEADER_HEIGHT) /
       tableSizes.ROW_HEIGHT;
 
-    return pageSize % 1 > 0.3 && props.tableData.length > pageSize
-      ? Math.ceil(pageSize)
-      : Math.floor(pageSize);
+    return Math.floor(pageSize);
   },
   //
   getProcessedTableData: (props, moment, _) => {
