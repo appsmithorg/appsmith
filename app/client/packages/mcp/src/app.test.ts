@@ -5,6 +5,7 @@ import supertest from "supertest";
 import {
   MAX_ARTIFACT_BYTES,
   MCP_BUILD_INFO,
+  READ_PAGES_LAYOUT_CONCURRENCY,
   createAppsmithApi,
   createMcpHttpServer,
   hostHeaderName,
@@ -316,6 +317,8 @@ function createApi(
     createDatasource: jest.fn(),
     getDatasourceStructure: jest.fn(),
     getApplicationPages: jest.fn(async () => ({ workspaceId: "ws1" })),
+    // Default: no layouts, so F3 layoutId surfacing degrades to undefined unless a test overrides it.
+    getPage: jest.fn(async () => ({})),
     // Default: a non-git application (no gitApplicationMetadata) so layout-edit tests see no git warning and the
     // M7 branch gate passes without a branch parameter.
     getApplication: jest.fn(async () => ({})),
@@ -3075,6 +3078,95 @@ describe("governance-wrapped layout mutations", () => {
     }
   });
 
+  it("F3: read_pages includes each page's layoutId (per-page GET /pages/{pageId}, N+1)", async () => {
+    const getPage = jest.fn(async (pageId: string) => ({
+      id: pageId,
+      layouts: [{ id: `layout-${pageId}` }],
+    }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => PAGES),
+      getPage: getPage as never,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const read = await callTool(server, "read_pages", {
+      applicationId: APP_ID,
+    });
+
+    // One page fetch per listed page (the N+1 the pages-LIST DTO forces), and the layoutId is surfaced per page.
+    expect(getPage).toHaveBeenCalledWith(PAGE_ID);
+    expect(read.body.pages).toEqual([
+      {
+        id: PAGE_ID,
+        name: "Extra",
+        slug: "extra",
+        layoutId: `layout-${PAGE_ID}`,
+      },
+    ]);
+  });
+
+  it("F3: read_pages omits layoutId (never fails) when a page fetch throws", async () => {
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => PAGES),
+      getPage: jest.fn(async () => {
+        throw new Error("network");
+      }) as never,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const read = await callTool(server, "read_pages", {
+      applicationId: APP_ID,
+    });
+
+    expect(read.body.pages).toEqual([
+      { id: PAGE_ID, name: "Extra", slug: "extra" },
+    ]);
+  });
+
+  it("F3: read_pages fans out one bounded getPage per page and does not cross-contaminate layoutIds", async () => {
+    // Multi-page fixture (the single-page N+1 test above can't prove per-page mapping): each page must receive its
+    // OWN layoutId, one getPage call per page, even when more pages exist than the bounded-concurrency pool size.
+    const pageCount = READ_PAGES_LAYOUT_CONCURRENCY + 3;
+    const manyPages = {
+      pages: Array.from({ length: pageCount }, (_unused, index) => ({
+        id: `page-${index}`,
+        name: `Page ${index}`,
+        slug: `page-${index}`,
+      })),
+    };
+    let inFlight = 0;
+    let peakInFlight = 0;
+    const getPage = jest.fn(async (pageId: string) => {
+      inFlight += 1;
+      peakInFlight = Math.max(peakInFlight, inFlight);
+      await Promise.resolve();
+      inFlight -= 1;
+
+      return { id: pageId, layouts: [{ id: `layout-for-${pageId}` }] };
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => manyPages),
+      getPage: getPage as never,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const read = await callTool(server, "read_pages", {
+      applicationId: APP_ID,
+    });
+
+    expect(getPage).toHaveBeenCalledTimes(pageCount);
+    // Each page carries its own layoutId (no cross-contamination across the fan-out).
+    expect(read.body.pages).toEqual(
+      manyPages.pages.map((page) => ({
+        ...page,
+        layoutId: `layout-for-${page.id}`,
+      })),
+    );
+    // The fan-out is bounded — never more than the pool size in flight at once, despite more pages than the pool.
+    expect(peakInFlight).toBeGreaterThan(0);
+    expect(peakInFlight).toBeLessThanOrEqual(READ_PAGES_LAYOUT_CONCURRENCY);
+  });
+
   const STORED_ACTION = {
     id: "act1",
     name: "OldName",
@@ -4658,6 +4750,16 @@ describe("M5 — build_application URLs + auto-publish", () => {
     isPartialImport: false,
   };
 
+  // M9-F2: build_application now sources page slugs for the URLs from the pages DTO (getApplicationPages), not the
+  // import response — the live import response's pages carry no slugs. This is the realistic 200 pages-DTO shape.
+  const PAGES_DTO = {
+    application: { id: "app123", slug: "demo-app" },
+    pages: [
+      { id: "page2", slug: "other", isDefault: false },
+      { id: "page1", slug: "home", isDefault: true },
+    ],
+  };
+
   const APP_SPEC = {
     name: "Demo",
     pages: [{ name: "Home", widgets: [{ type: "text", text: "Hi" }] }],
@@ -4667,6 +4769,7 @@ describe("M5 — build_application URLs + auto-publish", () => {
     return {
       ...createApi()(),
       importApplicationArtifact: jest.fn(async () => IMPORT_RESPONSE),
+      getApplicationPages: jest.fn(async () => PAGES_DTO),
       ...overrides,
     };
   }
@@ -4752,6 +4855,34 @@ describe("M5 — build_application URLs + auto-publish", () => {
     expect(api.publishApplication).toHaveBeenCalledWith("app123");
   });
 
+  it("F3: attaches the default page's layoutId (from GET /pages/{pageId}) to that page in the result", async () => {
+    const getPage = jest.fn(async () => ({
+      id: "page1",
+      layouts: [{ id: "layout-page1" }],
+    }));
+    const api = makeApi({ getPage });
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const body = await buildApplication(server, await initSession(server));
+
+    // The layoutId is fetched for the DEFAULT page (page1) and attached ONLY to it.
+    expect(getPage).toHaveBeenCalledWith("page1");
+    expect(body.pages).toEqual([
+      { id: "page2", slug: "other", isDefault: false },
+      { id: "page1", slug: "home", isDefault: true, layoutId: "layout-page1" },
+    ]);
+  });
+
+  it("F3: omits layoutId (never fails the build) when the page fetch has no layouts", async () => {
+    const api = makeApi({ getPage: jest.fn(async () => ({ id: "page1" })) });
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const body = await buildApplication(server, await initSession(server));
+
+    expect(body.pages).toEqual([
+      { id: "page2", slug: "other", isDefault: false },
+      { id: "page1", slug: "home", isDefault: true },
+    ]);
+  });
+
   it("builds absolute URLs from the configured public origin", async () => {
     const api = makeApi();
     const server = createMcpHttpServer(API_BASE_URL, () => api, {
@@ -4830,13 +4961,18 @@ describe("M5 — build_application URLs + auto-publish", () => {
     );
   });
 
-  it("omits the URLs (but keeps ids) when the import response lacks slugs", async () => {
+  it("omits the URLs (but keeps ids) when the pages DTO lacks slugs", async () => {
     const api = makeApi({
       importApplicationArtifact: jest.fn(async () => ({
         application: {
           id: "app123",
           pages: [{ id: "page1", isDefault: true }],
         },
+      })),
+      // The URL slugs come from the pages DTO now (F2); a slug-less DTO must omit the URLs.
+      getApplicationPages: jest.fn(async () => ({
+        application: { id: "app123" },
+        pages: [{ id: "page1", isDefault: true }],
       })),
     });
     // Even with an origin configured, a missing slug must omit the URLs rather than construct a broken path.
@@ -4967,9 +5103,12 @@ describe("M5 — build_application URLs + auto-publish", () => {
 
   it("records the governed auto-publish as an auto_publish change record", async () => {
     const store = new MemoryStore();
+    // The governed path reuses this single pages read for BOTH the revision fingerprint and the F2 URLs, so it must
+    // carry the app slug + page slugs (the realistic pages DTO), not a bare page list.
     const api = makeApi({
       getApplicationPages: jest.fn(async () => ({
-        pages: [{ id: "page1", name: "Home", slug: "home" }],
+        application: { id: "app123", slug: "demo-app" },
+        pages: [{ id: "page1", name: "Home", slug: "home", isDefault: true }],
       })),
     });
     const server = createMcpHttpServer(API_BASE_URL, () => api, {

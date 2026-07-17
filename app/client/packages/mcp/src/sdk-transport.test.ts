@@ -18,6 +18,7 @@ function stubApi(): AppsmithApi {
     "listDatasources",
     "getDatasourceStructure",
     "getApplicationPages",
+    "getPage",
     "listActions",
     "createAction",
     "getAction",

@@ -320,8 +320,14 @@ export interface AppsmithApi {
   createDatasource: (datasource: Record<string, unknown>) => Promise<unknown>;
   getDatasourceStructure: (datasourceId: string) => Promise<unknown>;
   getApplicationPages: (applicationId: string) => Promise<unknown>;
-  // Fetches the application document, whose gitApplicationMetadata reveals whether the app is connected to git and
-  // which branch is checked out — used to guard mutations/publish on git-connected apps.
+  // Returns a single page's DTO (GET /api/v1/pages/{pageId}), whose `layouts[0].id` is the layoutId REQUIRED by the
+  // authoring tools (read_semantic_page/patch_widgets/edit_page/wire_event). The pages-LIST DTO does not carry it.
+  getPage: (pageId: string) => Promise<unknown>;
+  // Returns the Application SUB-OBJECT of the pages DTO (GET /api/v1/pages?applicationId=...&mode=EDIT ->
+  // ApplicationPagesDTO.application), whose gitApplicationMetadata reveals whether the app is connected to git and
+  // which branch is checked out — used to guard mutations/publish on git-connected apps. There is NO GET
+  // /api/v1/applications/{id} route (405), so the pages DTO is the working source; returning `.application` (not the
+  // whole DTO) keeps gitApplicationMetadata present so git apps are not silently read as "not connected".
   getApplication: (applicationId: string) => Promise<unknown>;
   // --- Git (M7) — wrappers over /api/v1/git/applications/* (GitApplicationControllerCE). ---
   // Local git status of a branched application. compareRemote is ALWAYS passed explicitly because the server
@@ -608,8 +614,17 @@ export function createAppsmithApi(
       request(
         `/api/v1/pages?applicationId=${encodeURIComponent(applicationId)}&mode=EDIT`,
       ),
+    getPage: async (pageId) =>
+      request(`/api/v1/pages/${encodeURIComponent(pageId)}`),
+    // No GET /api/v1/applications/{id} exists (405). Source the Application from the pages DTO, returning its
+    // `.application` SUB-OBJECT (carries gitApplicationMetadata/name/slug). Returning the whole DTO would leave
+    // gitApplicationMetadata undefined -> git apps silently read "not connected" -> the branch/publish gates disable.
     getApplication: async (applicationId) =>
-      request(`/api/v1/applications/${encodeURIComponent(applicationId)}`),
+      (
+        (await request(
+          `/api/v1/pages?applicationId=${encodeURIComponent(applicationId)}&mode=EDIT`,
+        )) as { application?: unknown } | null
+      )?.application,
     getGitStatus: async (branchedApplicationId, compareRemote) =>
       request(
         `/api/v1/git/applications/${encodeURIComponent(branchedApplicationId)}/status?compareRemote=${compareRemote ? "true" : "false"}`,
@@ -740,7 +755,12 @@ export function createAppsmithApi(
       request(
         `/api/v1/collections/actions/${encodeURIComponent(collectionId)}`,
         {
-          method: "PUT",
+          // ActionCollectionControllerCE exposes @PatchMapping("/{id}") for this
+          // update (PUT /{id} is not mapped -> 405); buildUpdateJsObjectRequest
+          // likewise declares method "PATCH". A prior hardcoded PUT here 405'd on
+          // every js-object update — a live M9-class route mismatch the F5
+          // route-contract test surfaced. Keep PATCH to match the served route.
+          method: "PATCH",
           body: JSON.stringify(body),
         },
       ),
@@ -1072,6 +1092,78 @@ function applicationUrlsFromPages(
     : [];
 
   return applicationUrls(origin, slug, pages);
+}
+
+// The layoutId of a single-page DTO (PageDTO.layouts[0].id), which the authoring tools require as input. The
+// pages-LIST DTO does not carry layouts, so this reads a single page fetched via getPage. Absent/malformed -> undefined.
+function layoutIdOf(page: unknown): string | undefined {
+  const layouts = (page as { layouts?: unknown } | null)?.layouts;
+
+  if (!Array.isArray(layouts) || layouts.length === 0) return undefined;
+
+  const id = (layouts[0] as { id?: unknown } | null)?.id;
+
+  return typeof id === "string" && id.length > 0 ? id : undefined;
+}
+
+// The default page's layoutId, sourced from GET /api/v1/pages/{pageId} (one extra fetch per page). layoutId is an
+// additive convenience for the authoring tools — never load-bearing for a build — so any absence or fetch failure
+// degrades to undefined rather than surfacing an error.
+async function defaultPageLayoutId(
+  api: AppsmithApi,
+  pagesResponse: unknown,
+): Promise<string | undefined> {
+  const rawPages = (pagesResponse as { pages?: unknown } | null)?.pages;
+
+  if (!Array.isArray(rawPages) || rawPages.length === 0) return undefined;
+
+  const defaultPage =
+    rawPages.find(
+      (page) => (page as { isDefault?: unknown } | null)?.isDefault === true,
+    ) ?? rawPages[0];
+  const pageId = (defaultPage as { id?: unknown } | null)?.id;
+
+  if (typeof pageId !== "string" || pageId.length === 0) return undefined;
+
+  try {
+    return layoutIdOf(await api.getPage(pageId));
+  } catch {
+    return undefined;
+  }
+}
+
+// Max concurrent per-page getPage fetches in read_pages. Small pool: keeps a 1–5 page app effectively parallel
+// while bounding a 50-page app to a few sequential waves instead of one N-wide burst of full-DSL reads.
+export const READ_PAGES_LAYOUT_CONCURRENCY = 6;
+
+// Map over items with at most `limit` promises in flight at once, preserving input order in the result. Used to
+// keep per-page fan-out (read_pages' getPage-per-page) from firing an unbounded burst at the server on large apps
+// (each getPage materializes a full page DSL server-side); a small pool caps the worst case while keeping the
+// common few-page case effectively parallel. Mirrors the shape of Promise.all(items.map(fn)) it replaces.
+async function mapWithConcurrency<T, R>(
+  items: readonly T[],
+  limit: number,
+  fn: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let next = 0;
+  const worker = async (): Promise<void> => {
+    while (next < items.length) {
+      const index = next++;
+
+      results[index] = await fn(items[index], index);
+    }
+  };
+  const size = Math.max(1, Math.min(limit, items.length));
+  const workers: Promise<void>[] = [];
+
+  for (let slot = 0; slot < size; slot++) {
+    workers.push(worker());
+  }
+
+  await Promise.all(workers);
+
+  return results;
 }
 
 // Explicit elicitInput timeout: the human may deliberate, so the wait is 120s (with progress notifications during
@@ -1547,6 +1639,17 @@ function result(data: unknown) {
   };
 }
 
+// The fail-CLOSED branch-gate verdict when the app's git state could not be read (a thrown request OR a 2xx that
+// carried no application object). Shared so both failure modes return the identical git_state_unknown refusal.
+function unreadableGitState(): { error: ToolResult } {
+  return {
+    error: result({
+      error: "could not verify the application's git state; retry",
+      code: "git_state_unknown",
+    }),
+  };
+}
+
 // Project the raw /workspaces/home list (List<Workspace>) to just { id, name } pairs — the two fields an agent needs
 // to turn a workspace NAME into the workspaceId the build/data tools require, without leaking other org metadata.
 function projectWorkspaces(raw: unknown): { id: string; name: string }[] {
@@ -1608,18 +1711,24 @@ export function buildMcpServer(
     if (cached !== undefined) return { state: cached };
 
     try {
-      const state = gitStateOf(await api.getApplication(applicationId));
+      const application = await api.getApplication(applicationId);
+
+      // A 2xx with no application object (malformed/missing payload) means we could NOT actually read the app's git
+      // state. Fail CLOSED, exactly like a thrown read: otherwise gitStateOf(undefined) -> {connected:false} and a
+      // git-connected app whose application failed to materialize would silently bypass the branch gate. (The pages
+      // DTO always carries `application` on a real 200, so this is defense-in-depth for the residual edge.) The
+      // advisory fail-open fetchGitState is intentionally NOT changed — there, undefined -> not-connected is correct.
+      if (application === null || application === undefined) {
+        return unreadableGitState();
+      }
+
+      const state = gitStateOf(application);
 
       gitGateCache.set(applicationId, state);
 
       return { state };
     } catch {
-      return {
-        error: result({
-          error: "could not verify the application's git state; retry",
-          code: "git_state_unknown",
-        }),
-      };
+      return unreadableGitState();
     }
   }
 
@@ -2296,7 +2405,7 @@ export function buildMcpServer(
 
   server.tool(
     "build_application",
-    "Create an Appsmith application from a high-level app spec. Widgets are auto-placed on the grid, compiled to an artifact, and imported via the caller's ACL-enforced permissions. The new app is automatically deployed (published) on creation, and the response includes an editorUrl plus a viewerUrl for the default page when available — treat that first deployed copy as a scaffold and re-publish after wiring data and events. workspaceId is required — if the user names a workspace, resolve it to its id with resolve_workspace (or list_workspaces) rather than asking for a raw id.",
+    "Create an Appsmith application from a high-level app spec. Widgets are auto-placed on the grid, compiled to an artifact, and imported via the caller's ACL-enforced permissions. The new app is automatically deployed (published) on creation, and the response includes an editorUrl plus a viewerUrl for the default page when available — treat that first deployed copy as a scaffold and re-publish after wiring data and events. The default page in the returned pages[] carries its layoutId; pass that pageId + layoutId to read_semantic_page / patch_widgets / edit_page / wire_event to author it (for other pages, get layoutId from read_pages). workspaceId is required — if the user names a workspace, resolve it to its id with resolve_workspace (or list_workspaces) rather than asking for a raw id.",
     { workspaceId: idSchema, app: z.record(z.unknown()) },
     async ({ app, workspaceId }) => {
       const parsed = appSpecSchema.safeParse(app);
@@ -2322,7 +2431,11 @@ export function buildMcpServer(
       );
       const { applicationId, applicationSlug, pages } =
         projectImportedApplication(imported);
-      const urls = applicationUrls(requestOrigin, applicationSlug, pages);
+      // Fallback URLs from the import response (its pages lack slugs, so slug-backed URLs are usually omitted here);
+      // overridden below with the pages DTO — whose pages DO carry slugs — as soon as we read it (F2).
+      let urls = applicationUrls(requestOrigin, applicationSlug, pages);
+      // The default page's layoutId, surfaced so the authoring tools are usable straight after a build (F3).
+      let layoutId: string | undefined;
       const warnings: string[] = [];
 
       // AUTO-PUBLISH the just-created app (M5-T3). No confirmation token is needed here — this app was created by
@@ -2339,9 +2452,13 @@ export function buildMcpServer(
         // trail shows who deployed what. The just-read page-list revision is passed as both expected and current
         // (nothing can be stale for an app that did not exist a moment ago).
         try {
-          const currentRevision = fingerprintPages(
-            await api.getApplicationPages(applicationId),
-          );
+          // Reuse this EXISTING pages read (previously only fingerprinted) to also source slug-backed URLs (F2) and
+          // the default page's layoutId (F3) — no extra call on the governed branch.
+          const pagesResponse = await api.getApplicationPages(applicationId);
+          const currentRevision = fingerprintPages(pagesResponse);
+
+          urls = applicationUrlsFromPages(requestOrigin, pagesResponse);
+          layoutId = await defaultPageLayoutId(api, pagesResponse);
 
           await governance.execute({
             actorId,
@@ -2390,12 +2507,41 @@ export function buildMcpServer(
           });
           warnings.push(`created but not deployed: ${statusClass}`);
         }
+
+        // Extra pages read on the ungoverned branch ONLY (the governed branch reuses its fingerprint read) to source
+        // slug-backed URLs (F2) and the default page's layoutId (F3). A separate try so a publish failure above does
+        // not skip URL/layoutId enrichment, and a read failure here does not add a spurious "not deployed" warning.
+        try {
+          const pagesResponse = await api.getApplicationPages(applicationId);
+
+          urls = applicationUrlsFromPages(requestOrigin, pagesResponse);
+          layoutId = await defaultPageLayoutId(api, pagesResponse);
+        } catch {
+          // URLs/layoutId are additive; omit on failure.
+        }
       }
+
+      // Attach the default page's layoutId to that page in the result (the authoring tools need it as input).
+      const flaggedDefaultIndex = pages.findIndex(
+        (page) => page.isDefault === true,
+      );
+      const defaultPageIndex =
+        flaggedDefaultIndex >= 0
+          ? flaggedDefaultIndex
+          : pages.length > 0
+            ? 0
+            : -1;
+      const resultPages =
+        layoutId !== undefined && defaultPageIndex >= 0
+          ? pages.map((page, index) =>
+              index === defaultPageIndex ? { ...page, layoutId } : page,
+            )
+          : pages;
 
       return result({
         application: imported,
         ...(applicationId !== undefined ? { applicationId } : {}),
-        pages,
+        pages: resultPages,
         ...urls,
         ...(warnings.length > 0 ? { warnings } : {}),
         diagnostics,
@@ -2698,13 +2844,30 @@ export function buildMcpServer(
 
   server.tool(
     "read_pages",
-    "List an application's pages (safe metadata: id, name, slug, visibility) plus a revision token for create_page / rename_page / delete_page. Never returns DSL, actions, or bindings.",
+    "List an application's pages (safe metadata: id, name, slug, visibility, layoutId) plus a revision token for create_page / rename_page / delete_page. The per-page layoutId is what read_semantic_page / patch_widgets / edit_page / wire_event require as input. Never returns DSL, actions, or bindings.",
     { applicationId: idSchema },
     async ({ applicationId }) => {
       const pages = await api.getApplicationPages(applicationId);
+      const projected = projectPages(pages);
+      // Per-page layoutId requires a single-page fetch each (the pages-LIST DTO omits layouts), so this is N+1 in the
+      // page count — acceptable because pages per app are few, and layoutId is required by every authoring tool. The
+      // fan-out is bounded (below) so a many-page app degrades to a few sequential waves rather than an N-wide burst.
+      const withLayouts = await mapWithConcurrency(
+        projected,
+        READ_PAGES_LAYOUT_CONCURRENCY,
+        async (page) => {
+          try {
+            const layoutId = layoutIdOf(await api.getPage(page.id));
+
+            return layoutId !== undefined ? { ...page, layoutId } : page;
+          } catch {
+            return page;
+          }
+        },
+      );
 
       return result({
-        pages: projectPages(pages),
+        pages: withLayouts,
         revision: fingerprintPages(pages),
       });
     },

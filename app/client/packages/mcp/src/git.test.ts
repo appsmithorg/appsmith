@@ -34,6 +34,7 @@ function stubApi(): AppsmithApi {
     createDatasource: jest.fn(),
     getDatasourceStructure: jest.fn(),
     getApplicationPages: jest.fn(async () => ({ workspaceId: "ws1" })),
+    getPage: jest.fn(async () => ({})),
     getApplication: jest.fn(async () => ({})),
     getGitStatus: jest.fn(async () => ({})),
     getGitProtectedBranches: jest.fn(async () => []),
@@ -571,6 +572,21 @@ describe("the M7 branch gate on mutating tools", () => {
         throw new Error("network");
       }),
     });
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const { body } = await callTool(server, "patch_widgets", {
+      ...PATCH_ARGS,
+      branch: "feature/x",
+    });
+
+    expect(body.code).toBe("git_state_unknown");
+    expect(api.updateLayout).not.toHaveBeenCalled();
+  });
+
+  it("FAILS CLOSED when the app read is a 2xx that carries no application object", async () => {
+    // The F1 residual edge: getApplication returns undefined (a 200 pages DTO with no `.application` field), so we
+    // could not actually read the app's git state. gitStateOf(undefined) is {connected:false}, which alone would let
+    // a git-connected app silently bypass the gate — the mutation MUST be refused with git_state_unknown instead.
+    const api = layoutApi({ getApplication: jest.fn(async () => undefined) });
     const server = createMcpHttpServer(API_BASE_URL, () => api);
     const { body } = await callTool(server, "patch_widgets", {
       ...PATCH_ARGS,
@@ -1300,5 +1316,197 @@ describe("M7 docs — README release notes carry the operator-facing truths", ()
     expect(readme).toContain("deploy key");
     expect(readme).toContain("CI");
     expect(readme).toContain("mcp/");
+  });
+});
+
+// M9-F1 — the getApplication wrapper is redefined to source the Application from the pages DTO's `.application`
+// SUB-OBJECT (there is NO GET /api/v1/applications/{id}; it 405s). These tests exercise the REAL wrapper through the
+// live fetch layer with a realistically NESTED pages-DTO fixture — the exact integration the mocks (which stub the
+// wrapper output directly) never covered — and assert at the real gate / read_git_status sites, not just gitStateOf.
+describe("M9-F1 — getApplication sourced from the pages DTO's .application sub-object", () => {
+  // A fetch that routes by URL to the shapes the real wrappers expect. `appDoc` becomes the pages DTO's `.application`
+  // sub-object (what getApplication must return). pagesStatus>=400 makes the pages route fail (a throwing source).
+  function routingFetch(
+    appDoc: unknown,
+    opts: {
+      pagesStatus?: number;
+      gitStatus?: unknown;
+      protectedBranches?: unknown;
+    } = {},
+  ) {
+    return jest.fn<Promise<Response>, [RequestInfo | URL, RequestInit?]>(
+      async (url, init) => {
+        const target = String(url);
+        const json = (data: unknown, status = 200) =>
+          Response.json(
+            { responseMeta: { success: status < 400 }, data },
+            { status },
+          );
+
+        if (target.includes("/api/v1/users/me")) {
+          return json({ username: "user@appsmith.com", isAnonymous: false });
+        }
+
+        // getApplication (and getApplicationPages) both read the pages LIST route with mode=EDIT. This is the ONLY
+        // source of git metadata now — its `.application` is what the wrapper returns.
+        if (target.includes("/api/v1/pages?applicationId=app1&mode=EDIT")) {
+          if (opts.pagesStatus !== undefined && opts.pagesStatus >= 400) {
+            return json(null, opts.pagesStatus);
+          }
+
+          return json({
+            application: appDoc,
+            pages: [{ id: "p1", slug: "home", isDefault: true }],
+          });
+        }
+
+        // getApplicationContext's page-list read (no mode).
+        if (target.includes("/api/v1/pages?applicationId=app1")) {
+          return json({ pages: [{ id: "p1" }], application: appDoc });
+        }
+
+        if (
+          target.includes("/api/v1/layouts/l1/pages/p1") &&
+          init?.method === "PUT"
+        ) {
+          return json({ ok: true });
+        }
+
+        if (target.includes("/api/v1/layouts/l1/pages/p1")) {
+          return json({ dsl: ROOT_DSL });
+        }
+
+        if (target.includes("/api/v1/pages/p1")) {
+          return json({ id: "p1", layouts: [{ id: "l1" }] });
+        }
+
+        if (target.includes("/status?compareRemote=")) {
+          return json(opts.gitStatus ?? { isClean: true });
+        }
+
+        if (target.includes("/protected-branches")) {
+          return json(opts.protectedBranches ?? []);
+        }
+
+        return json({});
+      },
+    );
+  }
+
+  function buildApi(fetchFn: ReturnType<typeof routingFetch>): AppsmithApi {
+    return createAppsmithApi(
+      "user-token",
+      API_BASE_URL,
+      fetchFn as unknown as typeof fetch,
+    );
+  }
+
+  it("reads the pages route (not the dead GET /applications/{id}) and returns the .application SUB-OBJECT", async () => {
+    const fetchFn = routingFetch(GIT_APP);
+    const app = await buildApi(fetchFn).getApplication("app1");
+
+    // The working route — never GET /api/v1/applications/app1 (which 405s).
+    expect(String(fetchFn.mock.calls[0][0])).toBe(
+      `${API_BASE_URL}/api/v1/pages?applicationId=app1&mode=EDIT`,
+    );
+    // The `.application` sub-object, carrying gitApplicationMetadata — NOT the whole ApplicationPagesDTO (which would
+    // leave gitApplicationMetadata undefined and silently read every git app as "not connected").
+    expect(app).toEqual(GIT_APP);
+    expect(
+      (app as { gitApplicationMetadata?: unknown }).gitApplicationMetadata,
+    ).toBeDefined();
+    expect((app as { pages?: unknown }).pages).toBeUndefined();
+  });
+
+  it("(i) git DTO -> read_git_status connected+branch, and the gate ENGAGES to refuse a wrong branch", async () => {
+    const fetchFn = routingFetch(GIT_APP, {
+      gitStatus: GIT_STATUS,
+      protectedBranches: ["master"],
+    });
+    const api = buildApi(fetchFn);
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+
+    const status = await callTool(server, "read_git_status", {
+      applicationId: "app1",
+    });
+    const git = status.body.git as Record<string, unknown>;
+
+    expect(git.connected).toBe(true);
+    expect(git.branchName).toBe("feature/x");
+    // Only the host survives — never the full remote URL or its embedded credentials.
+    expect(git.remoteHost).toBe("github.com");
+    expect(status.text).not.toContain(REMOTE_URL);
+    expect(status.text).not.toContain("PRIVATE-KEY-MATERIAL");
+
+    // The actual branch gate refuses a mutation whose branch does not match the app's real branch.
+    const gated = await callTool(server, "patch_widgets", {
+      ...PATCH_ARGS,
+      branch: "feature/old",
+    });
+
+    expect(gated.body.code).toBe("git_branch_changed");
+    expect(gated.body.currentBranch).toBe("feature/x");
+  });
+
+  it("(ii) non-git DTO -> read_git_status returns {connected:false} (NOT an error) and a mutation SUCCEEDS", async () => {
+    const fetchFn = routingFetch({ id: "app1", name: "Plain", slug: "plain" });
+    const api = buildApi(fetchFn);
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+
+    const status = await callTool(server, "read_git_status", {
+      applicationId: "app1",
+    });
+
+    expect(status.body.git).toEqual({ connected: false });
+    expect(status.body.code).toBeUndefined();
+
+    // The branch gate PASSES for a non-git app — the previously-broken 405 made this fail closed with
+    // git_state_unknown for every app, git or not.
+    const patched = await callTool(server, "patch_widgets", {
+      ...PATCH_ARGS,
+      branch: "anything-at-all",
+    });
+
+    expect(patched.body.code).toBeUndefined();
+    expect(patched.body.changes).toBeDefined();
+  });
+
+  it("(iii) a throwing source -> a gated mutation refuses with git_state_unknown (fail closed)", async () => {
+    const fetchFn = routingFetch(GIT_APP, { pagesStatus: 500 });
+    const api = buildApi(fetchFn);
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+
+    const patched = await callTool(server, "patch_widgets", {
+      ...PATCH_ARGS,
+      branch: "feature/x",
+    });
+
+    expect(patched.body.code).toBe("git_state_unknown");
+  });
+
+  it("(iv) a user:token@host remoteUrl surfaces ONLY the host, never the credentials or full URL", async () => {
+    const CREDS_URL = "https://user:token@gitlab.example.com/acme/repo.git";
+    const fetchFn = routingFetch(
+      {
+        id: "app1",
+        gitApplicationMetadata: {
+          branchName: "main",
+          remoteUrl: CREDS_URL,
+        },
+      },
+      { gitStatus: { isClean: true } },
+    );
+    const api = buildApi(fetchFn);
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+
+    const status = await callTool(server, "read_git_status", {
+      applicationId: "app1",
+    });
+
+    expect((status.body.git as Record<string, unknown>).remoteHost).toBe(
+      "gitlab.example.com",
+    );
+    expect(status.text).not.toContain(CREDS_URL);
+    expect(status.text).not.toContain("user:token");
   });
 });

@@ -40,6 +40,7 @@ function stubApi(): AppsmithApi {
     createDatasource: jest.fn(),
     getDatasourceStructure: jest.fn(),
     getApplicationPages: jest.fn(async () => ({ workspaceId: "ws1" })),
+    getPage: jest.fn(async () => ({})),
     getApplication: jest.fn(async () => ({})),
     getGitStatus: jest.fn(async () => ({})),
     getGitProtectedBranches: jest.fn(async () => []),
