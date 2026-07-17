@@ -2,6 +2,7 @@ import {
   containsAllowAllFrameAncestor,
   formatEmbedSettings,
   isAllowAllFrameAncestorToken,
+  removeAllowAllFrameAncestorChips,
 } from "./utils";
 import { AppsmithFrameAncestorsSetting } from "../Constants/constants";
 
@@ -91,6 +92,50 @@ describe("formatEmbedSettings", () => {
     expect(formatEmbedSettings("")).toEqual({
       value: AppsmithFrameAncestorsSetting.LIMIT_EMBEDDING,
       additionalData: "",
+    });
+  });
+});
+
+describe("removeAllowAllFrameAncestorChips", () => {
+  it("drops a bare * committed as its own chip", () => {
+    expect(removeAllowAllFrameAncestorChips("*")).toEqual({
+      value: "",
+      removed: true,
+    });
+    expect(removeAllowAllFrameAncestorChips("'self',*")).toEqual({
+      value: "'self'",
+      removed: true,
+    });
+  });
+
+  it("drops a pasted single chip that contains a bare *", () => {
+    // A pasted value has no comma separator, so the whole "'self' *" arrives as
+    // one chip. The guard must still catch the bare "*" inside it.
+    expect(removeAllowAllFrameAncestorChips("'self' *")).toEqual({
+      value: "",
+      removed: true,
+    });
+    expect(removeAllowAllFrameAncestorChips("* https://a.com")).toEqual({
+      value: "",
+      removed: true,
+    });
+  });
+
+  it("keeps host wildcards and regular URLs", () => {
+    expect(removeAllowAllFrameAncestorChips("https://*.example.com")).toEqual({
+      value: "https://*.example.com",
+      removed: false,
+    });
+    expect(removeAllowAllFrameAncestorChips("'self',https://a.com")).toEqual({
+      value: "'self',https://a.com",
+      removed: false,
+    });
+  });
+
+  it("returns an empty result for an empty value", () => {
+    expect(removeAllowAllFrameAncestorChips("")).toEqual({
+      value: "",
+      removed: false,
     });
   });
 });

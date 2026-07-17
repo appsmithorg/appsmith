@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { TagInput } from "@appsmith/ads-old";
 import { Text } from "@appsmith/ads";
 import { createMessage, IN_APP_EMBED_SETTING } from "ee/constants/messages";
-import { isAllowAllFrameAncestorToken } from "./Utils/utils";
+import { removeAllowAllFrameAncestorChips } from "./Utils/utils";
 
 const ErrorText = styled(Text)`
   display: block;
@@ -22,10 +22,12 @@ interface FrameAncestorsTagInputProps {
 }
 
 // Wraps the shared TagInput for the "Limit embedding to certain URLs" list and
-// rejects a bare "*" entry. A bare "*" is not a URL: in a CSP frame-ancestors
-// policy it re-opens the instance to every origin, contradicting the "limit"
-// intent, so we drop it and steer the admin to the "Allow embedding everywhere"
-// radio. Host wildcards like "https://*.example.com" are left untouched.
+// rejects any chip containing a bare "*". A bare "*" is not a URL: in a CSP
+// frame-ancestors policy it re-opens the instance to every origin, contradicting
+// the "limit" intent, so we drop it and steer the admin to the "Allow embedding
+// everywhere" radio. The check is whitespace-aware because a pasted value can
+// arrive as a single chip (e.g. "'self' *"). Host wildcards like
+// "https://*.example.com" are left untouched.
 function FrameAncestorsTagInput(props: FrameAncestorsTagInputProps) {
   const { input = {}, ...rest } = props;
   const [error, setError] = useState("");
@@ -33,12 +35,10 @@ function FrameAncestorsTagInput(props: FrameAncestorsTagInputProps) {
 
   const handleChange = useCallback(
     (nextValue: string) => {
-      const tokens = nextValue ? nextValue.split(",") : [];
-      const accepted = tokens.filter(
-        (token) => !isAllowAllFrameAncestorToken(token),
-      );
+      const { removed, value: cleaned } =
+        removeAllowAllFrameAncestorChips(nextValue);
 
-      if (accepted.length !== tokens.length) {
+      if (removed) {
         setError(
           createMessage(IN_APP_EMBED_SETTING.limitEmbeddingBareWildcardError),
         );
@@ -46,7 +46,7 @@ function FrameAncestorsTagInput(props: FrameAncestorsTagInputProps) {
         setError("");
       }
 
-      onChange?.(accepted.join(","));
+      onChange?.(cleaned);
     },
     [onChange],
   );

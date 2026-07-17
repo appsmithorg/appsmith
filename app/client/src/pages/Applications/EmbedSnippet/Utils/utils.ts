@@ -16,6 +16,26 @@ export const containsAllowAllFrameAncestor = (value: string): boolean =>
   value.trim().length > 0 &&
   value.trim().split(/\s+/).some(isAllowAllFrameAncestorToken);
 
+// Filter the comma-separated limit list emitted by the TagInput, dropping any
+// chip that contains a bare "*". Pasted content can arrive as a single chip
+// holding whitespace-separated tokens (e.g. "'self' *"), so each chip is checked
+// with the whitespace-aware helper rather than a strict token match - otherwise
+// a bare "*" inside a pasted chip would slip into the list and silently reopen
+// embedding to every origin. A host wildcard like "https://*.example.com" is
+// kept. `removed` reports whether anything was dropped so the caller can surface
+// an inline message.
+export const removeAllowAllFrameAncestorChips = (
+  value: string,
+): { value: string; removed: boolean } => {
+  const chips = value ? value.split(",") : [];
+  const accepted = chips.filter((chip) => !containsAllowAllFrameAncestor(chip));
+
+  return {
+    value: accepted.join(","),
+    removed: accepted.length !== chips.length,
+  };
+};
+
 export const formatEmbedSettings = (value: string) => {
   // A value containing a bare "*" is effectively allow-everywhere, even when it
   // also lists other sources (e.g. "'self' *"). Show the truthful radio rather
