@@ -7,6 +7,7 @@ export enum DocsLink {
   QUERY = "QUERY",
   TROUBLESHOOT_ERROR = "TROUBLESHOOT_ERROR",
   QUERY_SETTINGS = "QUERY_SETTINGS",
+  APPSMITH_AI_DEPRECATION = "APPSMITH_AI_DEPRECATION",
 }
 
 const LinkData: Record<DocsLink, string> = {
@@ -22,6 +23,9 @@ const LinkData: Record<DocsLink, string> = {
     "https://docs.appsmith.com/help-and-support/troubleshooting-guide",
   QUERY_SETTINGS:
     "https://docs.appsmith.com/connect-data/reference/query-settings",
+  // TODO: replace with the dedicated Appsmith AI → BYOK migration guide once published
+  APPSMITH_AI_DEPRECATION:
+    "https://docs.appsmith.com/connect-data/reference/appsmith-ai",
 };
 
 export const openDoc = (type: DocsLink, link?: string, subType?: string) => {

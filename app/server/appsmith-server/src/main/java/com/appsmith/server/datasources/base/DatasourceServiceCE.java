@@ -65,6 +65,12 @@ public interface DatasourceServiceCE {
 
     Mono<Datasource> create(Datasource datasource);
 
+    /**
+     * Same as {@link #create(Datasource)} but skips the deprecated-plugin creation guard. Meant for internal flows
+     * (e.g. forking an application) that must keep working for datasources of deprecated plugins that already exist.
+     */
+    Mono<Datasource> createWithoutDeprecationCheck(Datasource datasource);
+
     Mono<Datasource> createWithoutPermissions(Datasource datasource);
 
     Mono<Datasource> createWithoutPermissions(

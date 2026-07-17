@@ -1,6 +1,7 @@
 package com.appsmith.server.datasources.base;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.constants.PluginConstants;
 import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -139,9 +140,38 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> create(Datasource datasource) {
+        return validatePluginNotDeprecated(datasource)
+                .then(Mono.defer(() -> createWithoutDeprecationCheck(datasource)));
+    }
+
+    @Override
+    public Mono<Datasource> createWithoutDeprecationCheck(Datasource datasource) {
         return workspacePermission
                 .getDatasourceCreatePermission()
                 .flatMap(permission -> createEx(datasource, permission, false, null));
+    }
+
+    /**
+     * Plugins for which creating new datasources is blocked because the plugin is deprecated.
+     * EE overrides this to extend the blocked list (e.g. appsmith-agent-plugin).
+     */
+    protected Set<String> getDeprecatedPluginPackageNames() {
+        return Set.of(PluginConstants.PackageName.APPSMITH_AI_PLUGIN);
+    }
+
+    private Mono<Void> validatePluginNotDeprecated(Datasource datasource) {
+        // Only block brand-new datasources. Calls that carry an id are storage-saves for datasources that already
+        // exist and must keep working so users can keep using them until they migrate. A missing pluginId falls
+        // through to the INVALID_PARAMETER validation in createEx.
+        if (hasText(datasource.getId()) || !hasText(datasource.getPluginId())) {
+            return Mono.empty();
+        }
+
+        return pluginService
+                .findById(datasource.getPluginId())
+                .filter(plugin -> getDeprecatedPluginPackageNames().contains(plugin.getPackageName()))
+                .flatMap(plugin -> Mono.<Void>error(
+                        new AppsmithException(AppsmithError.DEPRECATED_DATASOURCE_PLUGIN, plugin.getName())));
     }
 
     // TODO: Check usage

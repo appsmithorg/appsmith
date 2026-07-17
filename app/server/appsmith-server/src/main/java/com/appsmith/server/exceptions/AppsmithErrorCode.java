@@ -82,6 +82,7 @@ public enum AppsmithErrorCode {
     INVALID_DATASOURCE("AE-DTS-4013", "Invalid datasource"),
     INVALID_DATASOURCE_CONFIGURATION("AE-DTS-4015", "Invalid datasource configuration"),
     DATASOURCE_HAS_ACTIONS("AE-DTS-4030", "Datasource has actions"),
+    DEPRECATED_DATASOURCE_PLUGIN("AE-DTS-4031", "Datasource creation is blocked for a deprecated plugin"),
     APPLICATION_FORKING_NOT_ALLOWED("AE-FRK-4034", "Application forking not allowed"),
     INVALID_GIT_CONFIGURATION("AE-GIT-4031", "Invalid git configuration"),
     INVALID_GIT_SSH_CONFIGURATION("AE-GIT-4032", "Invalid git ssh configuration"),
