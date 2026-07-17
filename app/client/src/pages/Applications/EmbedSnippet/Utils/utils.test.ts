@@ -255,6 +255,10 @@ describe("sanitizeLimitedFrameAncestors", () => {
       "https://a.com 'self'",
     );
     expect(sanitizeLimitedFrameAncestors("* 'none'")).toBe("");
+    // Case-insensitive quoted keyword must be stripped too.
+    expect(sanitizeLimitedFrameAncestors("'NONE' https://a.com")).toBe(
+      "https://a.com",
+    );
   });
 });
 
@@ -263,6 +267,7 @@ describe("isDisableFrameAncestorToken", () => {
     expect(isDisableFrameAncestorToken("none")).toBe(true);
     expect(isDisableFrameAncestorToken("NONE")).toBe(true);
     expect(isDisableFrameAncestorToken("'none'")).toBe(true);
+    expect(isDisableFrameAncestorToken("'NONE'")).toBe(true);
   });
 
   it("does not match other sources", () => {
@@ -313,6 +318,11 @@ describe("removeDisableFrameAncestorChips", () => {
       value: "",
       removed: true,
     });
+    // Quoted-uppercase keyword is still a case-insensitive CSP "'none'".
+    expect(removeDisableFrameAncestorChips("'NONE' https://a.com")).toEqual({
+      value: "",
+      removed: true,
+    });
   });
 
   it("keeps allow-list sources untouched", () => {
@@ -335,9 +345,11 @@ describe("normalizeFrameAncestorToken", () => {
     expect(normalizeFrameAncestorToken("None")).toBe("'none'");
   });
 
-  it("leaves already-quoted keywords unchanged (idempotent)", () => {
+  it("canonicalizes already-quoted keywords, including uppercase", () => {
     expect(normalizeFrameAncestorToken("'self'")).toBe("'self'");
     expect(normalizeFrameAncestorToken("'none'")).toBe("'none'");
+    expect(normalizeFrameAncestorToken("'SELF'")).toBe("'self'");
+    expect(normalizeFrameAncestorToken("'NONE'")).toBe("'none'");
   });
 
   it("leaves host/scheme sources and wildcards unquoted", () => {

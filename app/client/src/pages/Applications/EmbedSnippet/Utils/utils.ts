@@ -62,11 +62,13 @@ export const stripAllowAllFrameAncestorTokens = (value: string): string =>
 // ("https://x.com", "*.example.com", "*") must stay unquoted and are left as-is.
 export const normalizeFrameAncestorToken = (token: string): string => {
   const trimmed = (token ?? "").trim();
+  // CSP keywords are case-insensitive, and users may type them already quoted, so
+  // canonicalize both the bare and quoted forms (e.g. "NONE" and "'NONE'").
   const lower = trimmed.toLowerCase();
 
-  if (lower === "self") return "'self'";
+  if (lower === "self" || lower === "'self'") return "'self'";
 
-  if (lower === "none") return "'none'";
+  if (lower === "none" || lower === "'none'") return "'none'";
 
   return trimmed;
 };
