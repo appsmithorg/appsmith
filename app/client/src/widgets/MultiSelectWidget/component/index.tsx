@@ -75,8 +75,8 @@ function MultiSelectComponent({
   dropdownStyle,
   dropDownWidth,
   isDynamicHeightEnabled,
-  isValid,
   isRequired,
+  isValid,
   labelAlignment,
   labelPosition,
   labelStyle,
@@ -206,8 +206,8 @@ function MultiSelectComponent({
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
-          isRequired={isRequired}
           isDynamicHeightEnabled={isDynamicHeightEnabled}
+          isRequired={isRequired}
           loading={loading}
           position={labelPosition}
           text={labelText}

@@ -277,8 +277,8 @@ function SingleSelectTreeComponent({
           fontSize={labelTextSize}
           fontStyle={labelStyle}
           helpText={labelTooltip}
-          isRequired={isRequired}
           isDynamicHeightEnabled={isDynamicHeightEnabled}
+          isRequired={isRequired}
           loading={loading}
           position={labelPosition}
           ref={labelRef}
