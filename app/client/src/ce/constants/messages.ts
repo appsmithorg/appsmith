@@ -2093,6 +2093,8 @@ export const IN_APP_EMBED_SETTING = {
   copied: () => "Copied",
   limitEmbeddingLabel: () => "Embedding restricted",
   limitEmbeddingTooltip: () => "This app can be embedded in approved URLs only",
+  limitEmbeddingBareWildcardError: () =>
+    'A bare "*" allows embedding on every domain. Select "Allow embedding everywhere" instead, or enter specific URLs.',
   disableEmbeddingLabel: () => "Embedding disabled",
   disableEmbeddingTooltip: () =>
     "This app cannot be embedded anywhere on the internet",
