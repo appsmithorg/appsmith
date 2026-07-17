@@ -2,6 +2,7 @@ package com.external.plugins.services;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.external.plugins.constants.AppsmithAiConstants;
+import com.external.plugins.constants.AppsmithAiErrorMessages;
 import com.external.plugins.utils.BufferedFilePart;
 import com.external.plugins.utils.FileValidationUtils;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,8 @@ import reactor.test.StepVerifier;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.lenient;
@@ -94,6 +97,21 @@ public class FileValidationUtilsTest {
         StepVerifier.create(FileValidationUtils.validateFileType(mockFilePart(filename, content)))
                 .assertNext(validated -> assertThat(validated).isInstanceOf(BufferedFilePart.class))
                 .verifyComplete();
+    }
+
+    // Asserts the file was rejected specifically by the size cap: the exact FILE_TOO_LARGE message, which the
+    // type-rejection path (FILE_TYPE_NOT_SUPPORTED) would not produce.
+    private static void expectSizeRejected(FilePart filePart) {
+        String expectedMessage = String.format(
+                AppsmithAiErrorMessages.FILE_TOO_LARGE,
+                filePart.filename(),
+                AppsmithAiConstants.MAX_UPLOAD_FILE_SIZE_IN_BYTES / (1024 * 1024));
+        StepVerifier.create(FileValidationUtils.validateFileType(filePart))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithPluginException.class);
+                    assertThat(error.getMessage()).isEqualTo(expectedMessage);
+                })
+                .verify();
     }
 
     // --- SVG rejected across encodings and prologs (the core of the finding) ---
@@ -191,11 +209,53 @@ public class FileValidationUtilsTest {
         expectAccepted("Just an ordinary note in a wide encoding.".getBytes(StandardCharsets.UTF_16LE), "notes.txt");
     }
 
+    // --- Per-file size cap (uses 'a'-filled content, which is valid text/plain, so only the size cap - not
+    // type detection - can reject it; and asserts the specific FILE_TOO_LARGE error) ---
+
     @Test
-    public void validateFileType_withOversizedFile_isRejected() {
-        // One byte past the per-file cap: join must fail fast (DataBufferLimitException translated to a
-        // plugin exception) before the file is fully buffered and inspected.
-        byte[] tooBig = new byte[AppsmithAiConstants.MAX_UPLOAD_FILE_SIZE_IN_BYTES + 1];
-        expectRejected(tooBig, "huge.txt");
+    public void validateFileType_atExactlySizeCap_isAccepted() {
+        // Boundary: a file of exactly the cap must pass (guards against a >= off-by-one).
+        byte[] atLimit = new byte[AppsmithAiConstants.MAX_UPLOAD_FILE_SIZE_IN_BYTES];
+        Arrays.fill(atLimit, (byte) 'a');
+        expectAccepted(atLimit, "at-limit.txt");
+    }
+
+    @Test
+    public void validateFileType_oneByteOverSizeCap_isRejectedWithSizeError() {
+        // Boundary: one byte over the cap must be rejected, and specifically by the size cap. 'a'-filled
+        // content is valid text/plain, so if the cap were removed (join without maxByteCount) this would be
+        // accepted - the test can only pass because of the cap.
+        byte[] overLimit = new byte[AppsmithAiConstants.MAX_UPLOAD_FILE_SIZE_IN_BYTES + 1];
+        Arrays.fill(overLimit, (byte) 'a');
+        expectSizeRejected(mockFilePart("huge.txt", overLimit));
+    }
+
+    @Test
+    public void validateFileType_withChunkedStreamExceedingCap_failsFastWithoutBufferingAll() {
+        // The cap must trip mid-stream, not only on a single pre-buffered array: feed the content as many
+        // 1 MiB chunks and assert join stops near the cap rather than draining the whole (3x cap) source.
+        int chunkSize = 1024 * 1024;
+        int capChunks = AppsmithAiConstants.MAX_UPLOAD_FILE_SIZE_IN_BYTES / chunkSize;
+        int sourceChunks = capChunks * 3;
+        byte[] chunk = new byte[chunkSize];
+        Arrays.fill(chunk, (byte) 'a');
+        AtomicInteger emittedChunks = new AtomicInteger();
+
+        FilePart filePart = mock(FilePart.class);
+        lenient().when(filePart.name()).thenReturn("files");
+        lenient().when(filePart.filename()).thenReturn("chunked.txt");
+        lenient().when(filePart.headers()).thenReturn(new HttpHeaders());
+        lenient()
+                .when(filePart.content())
+                .thenReturn(Flux.range(0, sourceChunks).map(i -> {
+                    emittedChunks.incrementAndGet();
+                    return DefaultDataBufferFactory.sharedInstance.wrap(chunk);
+                }));
+
+        expectSizeRejected(filePart);
+
+        // Fail-fast: the source could emit 3x the cap, but join must have cancelled it shortly after the cap
+        // was exceeded rather than pulling the entire oversized payload into memory.
+        assertThat(emittedChunks.get()).isLessThanOrEqualTo(capChunks + 2);
     }
 }
