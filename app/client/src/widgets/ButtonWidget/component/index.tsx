@@ -152,6 +152,8 @@ const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
     font-size: ${safeLabelTextSize || "inherit"};
     font-weight: ${labelStyle?.includes("BOLD") ? "bold" : "inherit"};
     font-style: ${labelStyle?.includes("ITALIC") ? "italic" : "normal"};
+    /* Prevent italic glyph overhang from being clipped by overflow:hidden */
+    padding-inline-end: ${labelStyle?.includes("ITALIC") ? "0.25em" : "0"};
   }
 
   ${

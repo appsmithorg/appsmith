@@ -87,4 +87,13 @@ describe("ButtonWidget CSS injection", () => {
     expect(label).not.toBeNull();
     expect(getComputedStyle(label as Element).fontSize).toBe("1.25rem");
   });
+
+  it("applies italic style and end padding so glyphs are not clipped", () => {
+    const { container } = renderButton({ labelStyle: "ITALIC" });
+    const label = container.querySelector(".bp3-button-text");
+
+    expect(label).not.toBeNull();
+    expect(getComputedStyle(label as Element).fontStyle).toBe("italic");
+    expect(getComputedStyle(label as Element).paddingInlineEnd).toBe("0.25em");
+  });
 });
