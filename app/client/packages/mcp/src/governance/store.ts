@@ -33,6 +33,9 @@ export interface McpGovernanceStore {
     ttlMs: number,
   ): Promise<void>;
   consumeConfirmation(id: string): Promise<PreparedConfirmation | undefined>;
+  // NON-consuming read of a prepared confirmation [SECURITY F1]: lets the elicitation layer verify a confirmation
+  // exists and belongs to the calling actor BEFORE prompting the human, without spending the one-time token.
+  peekConfirmation(id: string): Promise<PreparedConfirmation | undefined>;
   saveChange(change: McpChangeRecord): Promise<void>;
   getChange(id: string, actorId: string): Promise<McpChangeRecord | undefined>;
   listChanges(actorId: string, limit: number): Promise<McpChangeRecord[]>;
@@ -126,6 +129,17 @@ export class MongoRedisGovernanceStore implements McpGovernanceStore {
       keys: [`${CONFIRM_PREFIX}${id}`],
       arguments: [],
     });
+
+    if (typeof value !== "string") return undefined;
+
+    return JSON.parse(value) as PreparedConfirmation;
+  }
+
+  async peekConfirmation(
+    id: string,
+  ): Promise<PreparedConfirmation | undefined> {
+    // consumeConfirmation minus the delete: a plain GET, so the one-time token survives the read.
+    const value = await this.redis.get(`${CONFIRM_PREFIX}${id}`);
 
     if (typeof value !== "string") return undefined;
 

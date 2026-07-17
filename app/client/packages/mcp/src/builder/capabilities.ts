@@ -201,6 +201,12 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
       summary: "read a page + layout",
     },
     { name: "get_capabilities", gate: "always", summary: "this catalog" },
+    {
+      name: "get_guide",
+      gate: "always",
+      summary:
+        "read a built-in guide/recipe/reference doc as markdown by slug (the same content as the appsmith:// resources, for clients that cannot read MCP resources)",
+    },
     { name: "list_presets", gate: "always", summary: "ready page specs" },
     { name: "get_preset", gate: "always", summary: "get a preset page spec" },
     {
@@ -277,7 +283,8 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     {
       name: "confirm_delete_page",
       gate: "governance",
-      summary: "delete a page with a token",
+      summary:
+        "delete a page with a token; prompts the user for approval via elicitation when the client supports it",
     },
     { name: "list_changes", gate: "governance", summary: "audit history" },
     {
@@ -304,7 +311,8 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     {
       name: "confirm_rollback",
       gate: "governance",
-      summary: "roll back a layout change",
+      summary:
+        "roll back a layout change; prompts the user for approval via elicitation when the client supports it",
     },
     {
       name: "prepare_publish",
@@ -314,7 +322,8 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     {
       name: "confirm_publish",
       gate: "governance",
-      summary: "re-deploy an existing app with a token",
+      summary:
+        "re-deploy an existing app with a token; prompts the user for approval via elicitation when the client supports it",
     },
     {
       name: "create_branch",
@@ -393,7 +402,8 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     {
       name: "confirm_delete_action",
       gate: "data_governance",
-      summary: "delete an action with a token",
+      summary:
+        "delete an action with a token; prompts the user for approval via elicitation when the client supports it",
     },
     {
       name: "prepare_run_action",
@@ -403,7 +413,8 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     {
       name: "confirm_run_action",
       gate: "data_governance",
-      summary: "run an action with a token",
+      summary:
+        "run an action with a token; prompts the user for approval via elicitation when the client supports it",
     },
     // Restricted JS objects (APPSMITH_MCP_JS_ENABLED).
     {
@@ -429,7 +440,8 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     {
       name: "confirm_delete_js_object",
       gate: "js_governance",
-      summary: "delete a JS object with a token",
+      summary:
+        "delete a JS object with a token; prompts the user for approval via elicitation when the client supports it",
     },
   ];
 
@@ -578,7 +590,7 @@ export function getCapabilities(
       groups: disabledGroups,
     },
     governanceNote: gates.governance
-      ? "Mutations are locked, revision-checked, and audited; destructive/high-impact operations require a one-time confirmation token. Publish-on-create is automatic (build_application deploys the app it just created, recorded in the audit trail); governance gates RE-publishing existing apps via prepare_publish/confirm_publish."
+      ? "Mutations are locked, revision-checked, and audited; destructive/high-impact operations require a one-time confirmation token, and every confirm_* tool prompts the user for approval via elicitation when the client supports it (otherwise show the user the prepare_* relay text and get their approval first — a declined prompt never consumes the token). Publish-on-create is automatic (build_application deploys the app it just created, recorded in the audit trail); governance gates RE-publishing existing apps via prepare_publish/confirm_publish."
       : "Governance (Mongo+Redis) is not configured, so governed and destructive tools are not registered. build_application still auto-deploys the app it just created; RE-publishing an existing app after edits requires governance.",
     workflows: {
       available: false,
@@ -592,6 +604,7 @@ export function getCapabilities(
       "appsmith://reference/widgets — the widget catalog as a resource",
       "appsmith://guide/{placement,naming,bindings,git} — technique guides",
       "appsmith://recipe/{crud,form,table-detail,zip-lookup} — end-to-end build walkthroughs",
+      "Every doc above is also readable through the get_guide tool by slug (for clients that cannot read MCP resources).",
     ],
     prompts: [
       "scaffold_crud — guided workflow to build a CRUD page from an entity + fields",

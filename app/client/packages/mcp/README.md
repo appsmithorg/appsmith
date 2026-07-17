@@ -110,12 +110,21 @@ unaffected — the parameter is optional and ignored.
   fields — and amend is pinned off. A missing git author profile fails with an error telling the user to set it in
   Appsmith.
 
-  **Human approval and elicitation.** `prepare_commit` returns a one-time confirmation (5-minute TTL, bound to the
-  app, branch, message, and current content revision — drift between prepare and confirm fails) plus relay text the
-  agent must show the user. On MCP clients that declare **elicitation** support, `confirm_commit` prompts the human
-  directly ("Commit ALL current changes on branch mcp/… and PUSH to the remote?"); only an explicit accept
-  proceeds, and decline/cancel/timeout leave the confirmation unconsumed (bounded at 3 prompts per confirmation,
-  after which it is invalidated). **Honest fallback:** without an elicitation-capable client the confirmation
+  **Human approval and elicitation (all destructive operations).** `prepare_commit` returns a one-time confirmation
+  (5-minute TTL, bound to the app, branch, message, and current content revision — drift between prepare and
+  confirm fails) plus relay text the agent must show the user. On MCP clients that declare **elicitation** support,
+  `confirm_commit` prompts the human directly ("Commit ALL current changes on branch mcp/… and PUSH to the
+  remote?"); only an explicit accept proceeds, and decline/cancel/timeout leave the confirmation unconsumed
+  (bounded at 3 prompts per confirmation, after which it is invalidated). The same elicitation layer guards
+  **every** destructive confirm tool — `confirm_delete_page`, `confirm_delete_action`, `confirm_delete_js_object`,
+  `confirm_publish`, `confirm_rollback`, `confirm_run_action`, and `confirm_commit`: each prompt states the
+  operation's load-bearing facts (what is deleted/deployed/run, with any agent-controlled text quoted and
+  sanitized), a declined or unanswered prompt never consumes the one-time confirmation (the same token remains
+  usable after the user approves), and each `prepare_*` tool returns relay text for the fallback posture.
+  Prompting is also bounded **per session**: at most 20 approval prompts in total (across all confirmations) —
+  beyond that budget, elicitation-capable confirms refuse with `elicitation_budget_exhausted` instead of prompting
+  (closing the re-prepare prompt-fatigue loop; a new session resets the budget).
+  **Honest fallback:** without an elicitation-capable client the confirmation
   prompt depends on the agent relaying it — the one-time token and relay text are the fallback posture, and no
   server rule (mcp/-only, TTL, one-time token, content binding) relaxes either way. Client support for elicitation
   varies (e.g. VS Code and some desktop MCP clients support it; many others do not yet) — operators should assume

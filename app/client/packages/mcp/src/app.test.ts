@@ -1,13 +1,17 @@
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import supertest from "supertest";
 import {
   MAX_ARTIFACT_BYTES,
+  MCP_BUILD_INFO,
   createAppsmithApi,
   createMcpHttpServer,
   hostHeaderName,
   sessionOriginFromHeaders,
   type AppsmithApi,
 } from "./app.js";
+import { INSTRUCTION_DOCS } from "./builder/instructions.js";
 import { fingerprintDsl } from "./builder/semantic.js";
 import { McpGovernanceCoordinator } from "./governance/coordinator.js";
 import type {
@@ -386,6 +390,22 @@ describe("MCP HTTP server", () => {
 
     expect(response.status).toBe(401);
     expect(response.headers["www-authenticate"]).toBe("Bearer");
+  });
+
+  it("/health carries the build identity (package.json version), unauthenticated", async () => {
+    const response = await supertest(createMcpHttpServer(API_BASE_URL)).get(
+      "/health",
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.body.status).toBe("ok");
+    // Read once at startup from package.json — the answer to "which build is this instance running".
+    expect(response.body.version).toBe(MCP_BUILD_INFO.version);
+    expect(response.body.version).toBe(
+      // Independent read so the assertion is not a tautology against the same constant.
+      JSON.parse(readFileSync(resolve(__dirname, "../package.json"), "utf8"))
+        .version,
+    );
   });
 
   it("returns a safe response for malformed JSON and oversized requests", async () => {
@@ -1573,6 +1593,73 @@ describe("MCP instruction surface (M2)", () => {
     expect(message.content.text).toContain("build_application");
     expect(message.content.text).not.toContain("create_query");
   });
+
+  // The always-on tool mirror of the resources above: tools-only clients (e.g. ChatGPT) cannot read MCP
+  // resources, so the same InstructionDoc registry must be reachable through get_guide — no forked content.
+  describe("get_guide — the tool mirror of the instruction resources", () => {
+    async function callGuide(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      server: any,
+      sessionId: string,
+      slug: string,
+    ): Promise<Record<string, unknown>> {
+      const response = await supertest(server)
+        .post("/mcp")
+        .set("Accept", "application/json, text/event-stream")
+        .set("Authorization", "Bearer mcp_user-token")
+        .set("mcp-session-id", sessionId)
+        .send({
+          jsonrpc: "2.0",
+          id: 12,
+          method: "tools/call",
+          params: { name: "get_guide", arguments: { slug } },
+        });
+
+      return JSON.parse(parseJsonRpc(response).result.content[0].text);
+    }
+
+    it("returns the SAME rendered markdown as the resource for every registry slug", async () => {
+      const { server, sessionId } = await session();
+
+      for (const doc of INSTRUCTION_DOCS) {
+        const body = await callGuide(server, sessionId, doc.slug);
+
+        expect(body.slug).toBe(doc.slug);
+        expect(body.title).toBe(doc.title);
+        // Byte-identical to the resource content: one registry, no forked copy.
+        expect(body.markdown).toBe(doc.render());
+      }
+    });
+
+    it("rejects an unknown slug with the full slug list", async () => {
+      const { server, sessionId } = await session();
+      const body = await callGuide(server, sessionId, "no-such-guide");
+
+      expect(String(body.error)).toContain("unknown guide");
+      expect(body.available).toEqual(INSTRUCTION_DOCS.map((doc) => doc.slug));
+    });
+
+    it("enumerates every registry slug in the tool description (drift guard)", async () => {
+      const { server, sessionId } = await session();
+      const listed = await supertest(server)
+        .post("/mcp")
+        .set("Accept", "application/json, text/event-stream")
+        .set("Authorization", "Bearer mcp_user-token")
+        .set("mcp-session-id", sessionId)
+        .send({ jsonrpc: "2.0", id: 14, method: "tools/list" });
+      const tools = parseJsonRpc(listed).result.tools as unknown as {
+        name: string;
+        description?: string;
+      }[];
+      const guideTool = tools.find((tool) => tool.name === "get_guide");
+
+      expect(guideTool).toBeDefined();
+
+      for (const doc of INSTRUCTION_DOCS) {
+        expect(guideTool?.description).toContain(doc.slug);
+      }
+    });
+  });
 });
 
 describe("M4 data layer — sub-flag gates the data tools", () => {
@@ -2546,6 +2633,11 @@ describe("governance-wrapped layout mutations", () => {
 
       return c;
     }
+    async peekConfirmation(
+      id: string,
+    ): Promise<PreparedConfirmation | undefined> {
+      return this.confirmations.get(id);
+    }
     async saveChange(change: McpChangeRecord): Promise<void> {
       this.changes.push(change);
     }
@@ -3206,6 +3298,19 @@ describe("governance-wrapped layout mutations", () => {
 
       expect([...advertised].sort()).toEqual([...registered].sort());
     }
+  });
+
+  it("get_capabilities carries the build identity (version), matching /health", async () => {
+    const server = createMcpHttpServer(API_BASE_URL, () => createApi()());
+    const caps = await callTool(server, "get_capabilities", {});
+    const build = caps.body.build as { version: string; buildTime?: string };
+
+    expect(build.version).toBe(MCP_BUILD_INFO.version);
+
+    const health = await supertest(server).get("/health");
+
+    // Both surfaces answer "which build is this instance running" identically.
+    expect(health.body.version).toBe(build.version);
   });
 
   it("documents the patch vocabulary (tableData vs source) and exposes real schemas for patch/wire tools", async () => {
@@ -4802,60 +4907,65 @@ describe("M5 — build_application URLs + auto-publish", () => {
     }
   });
 
-  it("records the governed auto-publish as an auto_publish change record", async () => {
-    class MemoryStore implements McpGovernanceStore {
-      readonly changes: McpChangeRecord[] = [];
-      readonly confirmations = new Map<string, PreparedConfirmation>();
-      locked = new Set<string>();
+  class MemoryStore implements McpGovernanceStore {
+    readonly changes: McpChangeRecord[] = [];
+    readonly confirmations = new Map<string, PreparedConfirmation>();
+    locked = new Set<string>();
 
-      async acquireLock(entityKey: string): Promise<string | undefined> {
-        if (this.locked.has(entityKey)) return undefined;
+    async acquireLock(entityKey: string): Promise<string | undefined> {
+      if (this.locked.has(entityKey)) return undefined;
 
-        this.locked.add(entityKey);
+      this.locked.add(entityKey);
 
-        return `lock:${entityKey}`;
-      }
-      async releaseLock(entityKey: string): Promise<void> {
-        this.locked.delete(entityKey);
-      }
-      async createConfirmation(c: PreparedConfirmation): Promise<void> {
-        this.confirmations.set(c.id, c);
-      }
-      async consumeConfirmation(
-        id: string,
-      ): Promise<PreparedConfirmation | undefined> {
-        const c = this.confirmations.get(id);
-
-        this.confirmations.delete(id);
-
-        return c;
-      }
-      async saveChange(change: McpChangeRecord): Promise<void> {
-        this.changes.push(change);
-      }
-      async getChange(
-        id: string,
-        actorId: string,
-      ): Promise<McpChangeRecord | undefined> {
-        return this.changes.find((c) => c.id === id && c.actorId === actorId);
-      }
-      async listChanges(
-        actorId: string,
-        limit: number,
-      ): Promise<McpChangeRecord[]> {
-        return this.changes
-          .filter((c) => c.actorId === actorId)
-          .slice(-limit)
-          .reverse();
-      }
-      async getAnyChange(id: string): Promise<McpChangeRecord | undefined> {
-        return this.changes.find((c) => c.id === id);
-      }
-      async listAllChanges(limit: number): Promise<McpChangeRecord[]> {
-        return this.changes.slice(-limit).reverse();
-      }
+      return `lock:${entityKey}`;
     }
+    async releaseLock(entityKey: string): Promise<void> {
+      this.locked.delete(entityKey);
+    }
+    async createConfirmation(c: PreparedConfirmation): Promise<void> {
+      this.confirmations.set(c.id, c);
+    }
+    async consumeConfirmation(
+      id: string,
+    ): Promise<PreparedConfirmation | undefined> {
+      const c = this.confirmations.get(id);
 
+      this.confirmations.delete(id);
+
+      return c;
+    }
+    async peekConfirmation(
+      id: string,
+    ): Promise<PreparedConfirmation | undefined> {
+      return this.confirmations.get(id);
+    }
+    async saveChange(change: McpChangeRecord): Promise<void> {
+      this.changes.push(change);
+    }
+    async getChange(
+      id: string,
+      actorId: string,
+    ): Promise<McpChangeRecord | undefined> {
+      return this.changes.find((c) => c.id === id && c.actorId === actorId);
+    }
+    async listChanges(
+      actorId: string,
+      limit: number,
+    ): Promise<McpChangeRecord[]> {
+      return this.changes
+        .filter((c) => c.actorId === actorId)
+        .slice(-limit)
+        .reverse();
+    }
+    async getAnyChange(id: string): Promise<McpChangeRecord | undefined> {
+      return this.changes.find((c) => c.id === id);
+    }
+    async listAllChanges(limit: number): Promise<McpChangeRecord[]> {
+      return this.changes.slice(-limit).reverse();
+    }
+  }
+
+  it("records the governed auto-publish as an auto_publish change record", async () => {
     const store = new MemoryStore();
     const api = makeApi({
       getApplicationPages: jest.fn(async () => ({
@@ -4880,5 +4990,245 @@ describe("M5 — build_application URLs + auto-publish", () => {
     expect(change?.actorId).toBe("user@appsmith.com");
     expect(change?.entityKey).toBe("application:app123");
     expect(change?.summary).toMatchObject({ applicationId: "app123" });
+  });
+
+  it("degrades a GOVERNED auto-publish failure to the same coarse warning (create succeeds, no change record)", async () => {
+    const store = new MemoryStore();
+    const api = makeApi({
+      publishApplication: jest.fn(async () => {
+        throw new Error("Appsmith API request failed (503)");
+      }),
+    });
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const body = await buildApplication(server, await initSession(server));
+
+    // The create still succeeds with its URLs; only the deploy degrades to the coarse warning.
+    expect(body.applicationId).toBe("app123");
+    expect(body.editorUrl).toBe("/app/demo-app/home-page1/edit");
+    expect(body.warnings).toEqual(["created but not deployed: server_error"]);
+    expect(JSON.stringify(body)).not.toContain("Appsmith API request failed");
+    // A FAILED governed deploy leaves no auto_publish change record — nothing was executed.
+    expect(
+      store.changes.find((entry) => entry.operation === "auto_publish"),
+    ).toBeUndefined();
+  });
+
+  it("classifies a 4xx publish failure as client_error and a non-HTTP failure as the 'error' fallback", async () => {
+    const clientError = makeApi({
+      publishApplication: jest.fn(async () => {
+        throw new Error("Appsmith API request failed (403)");
+      }),
+    });
+    const clientServer = createMcpHttpServer(API_BASE_URL, () => clientError);
+    const clientBody = await buildApplication(
+      clientServer,
+      await initSession(clientServer),
+    );
+
+    expect(clientBody.warnings).toEqual([
+      "created but not deployed: client_error",
+    ]);
+
+    // A non-HTTP failure (no "(NNN)" status in the message) falls back to the coarse "error" class —
+    // and the raw message still never leaks.
+    const nonHttp = makeApi({
+      publishApplication: jest.fn(async () => {
+        throw new Error("socket hang up");
+      }),
+    });
+    const nonHttpServer = createMcpHttpServer(API_BASE_URL, () => nonHttp);
+    const nonHttpBody = await buildApplication(
+      nonHttpServer,
+      await initSession(nonHttpServer),
+    );
+
+    expect(nonHttpBody.warnings).toEqual(["created but not deployed: error"]);
+    expect(JSON.stringify(nonHttpBody)).not.toContain("socket hang up");
+  });
+
+  it("projects ids and URLs from a bare (non-DTO-wrapped) import response", async () => {
+    const api = makeApi({
+      // Older import shapes return the application object directly, not { application, isPartialImport }.
+      importApplicationArtifact: jest.fn(async () => ({
+        id: "app123",
+        slug: "demo-app",
+        pages: [{ id: "page1", slug: "home", isDefault: true }],
+      })),
+    });
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const body = await buildApplication(server, await initSession(server));
+
+    expect(body.applicationId).toBe("app123");
+    expect(body.editorUrl).toBe("/app/demo-app/home-page1/edit");
+    expect(body.viewerUrl).toBe("/app/demo-app/home-page1");
+    expect(api.publishApplication).toHaveBeenCalledWith("app123");
+  });
+
+  // The M5 acceptance-test seam, closed: ONE continuous pipeline from build (store-bound table) through wiring
+  // both buttons against the DSL the build actually imported — no per-step fixture resets.
+  it("pipeline: build a store-bound table, then wire lookup (appendToStore fields) and clear (clearStoreKey + reset)", async () => {
+    const STORE_APP_SPEC = {
+      name: "ZipLookup",
+      pages: [
+        {
+          name: "Home",
+          widgets: [
+            {
+              type: "input",
+              name: "ZipInput",
+              label: "Zip",
+              validation: { format: "zipcode" },
+            },
+            { type: "button", name: "LookupButton", text: "Lookup" },
+            { type: "button", name: "ClearButton", text: "Clear" },
+            {
+              type: "table",
+              name: "ZipResults",
+              source: { store: "zipResults" },
+            },
+          ],
+        },
+      ],
+    };
+
+    // The DSL the build imported IS the DSL the wiring edits: captured from the import call, then kept current
+    // through updateLayout, exactly like the live server would serve it back.
+    let currentDsl: Record<string, unknown> | undefined;
+    const api = makeApi({
+      importApplicationArtifact: jest.fn(
+        async (_workspaceId: string, artifact: Record<string, unknown>) => {
+          const pageList = artifact.pageList as {
+            unpublishedPage: { layouts: { dsl: Record<string, unknown> }[] };
+          }[];
+
+          currentDsl = pageList[0].unpublishedPage.layouts[0].dsl;
+
+          return IMPORT_RESPONSE;
+        },
+      ),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: currentDsl },
+      })),
+      updateLayout: jest.fn(
+        async (
+          _app: string,
+          _page: string,
+          _layout: string,
+          dsl: Record<string, unknown>,
+        ) => {
+          currentDsl = dsl;
+
+          return { ok: true };
+        },
+      ) as never,
+      listActions: jest.fn(async () => [
+        { id: "act1", name: "LookupZip", pageId: "page1" },
+      ]),
+    });
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      dataEnabled: true,
+    });
+    const sessionId = await initSession(server);
+
+    async function call(
+      name: string,
+      args: Record<string, unknown>,
+    ): Promise<Record<string, unknown>> {
+      const response = await supertest(server)
+        .post("/mcp")
+        .set("Accept", "application/json, text/event-stream")
+        .set("Authorization", "Bearer mcp_user-token")
+        .set("mcp-session-id", sessionId)
+        .send({
+          jsonrpc: "2.0",
+          id: 31,
+          method: "tools/call",
+          params: { name, arguments: args },
+        });
+
+      return JSON.parse(parseJsonRpc(response).result.content[0].text);
+    }
+
+    const built = await call("build_application", {
+      workspaceId: "ws1",
+      app: STORE_APP_SPEC,
+    });
+
+    // Result URLs present, deploy clean.
+    expect(built.applicationId).toBe("app123");
+    expect(built.editorUrl).toBe("/app/demo-app/home-page1/edit");
+    expect(built.viewerUrl).toBe("/app/demo-app/home-page1");
+    expect(built.warnings).toBeUndefined();
+
+    // The imported DSL carries the store-bound table.
+    const widgets = (currentDsl as { children: Record<string, unknown>[] })
+      .children;
+    const table = widgets.find((w) => w.widgetName === "ZipResults");
+
+    expect(table?.tableData).toBe("{{ appsmith.store.zipResults ?? [] }}");
+
+    // Lookup button: run the query, then append ONE projected row per run (the fields projection).
+    const lookupWired = await call("wire_event", {
+      applicationId: "app123",
+      pageId: "page1",
+      layoutId: "l1",
+      revision: fingerprintDsl(currentDsl as never),
+      spec: {
+        widget: "LookupButton",
+        event: "onClick",
+        action: {
+          run: "LookupZip",
+          onSuccess: [
+            {
+              appendToStore: {
+                key: "zipResults",
+                query: "LookupZip",
+                fields: [
+                  { as: "zip", path: ["post code"] },
+                  { as: "state", path: ["places", 0, "state"] },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    expect(lookupWired.error).toBeUndefined();
+    expect(lookupWired.revision).toBeDefined();
+
+    // Clear button: a statement LIST — empty the store key AND reset the input in one click.
+    const clearWired = await call("wire_event", {
+      applicationId: "app123",
+      pageId: "page1",
+      layoutId: "l1",
+      revision: fingerprintDsl(currentDsl as never),
+      spec: {
+        widget: "ClearButton",
+        event: "onClick",
+        action: [
+          { clearStoreKey: { key: "zipResults" } },
+          { reset: "ZipInput" },
+        ],
+      },
+    });
+
+    expect(clearWired.error).toBeUndefined();
+
+    // The final DSL carries both compiled triggers, wired onto the SAME imported layout.
+    const finalWidgets = (currentDsl as { children: Record<string, unknown>[] })
+      .children;
+    const lookup = finalWidgets.find((w) => w.widgetName === "LookupButton");
+    const clear = finalWidgets.find((w) => w.widgetName === "ClearButton");
+
+    expect(String(lookup?.onClick)).toContain("LookupZip.run(");
+    expect(String(lookup?.onClick)).toContain("storeValue(");
+    expect(String(lookup?.onClick)).toContain("zipResults");
+    expect(String(clear?.onClick)).toContain("storeValue(");
+    expect(String(clear?.onClick)).toContain("resetWidget('ZipInput'");
   });
 });

@@ -9,6 +9,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
+import packageJson from "../package.json";
 import {
   buildDuplicateActionDto,
   buildUpdateActionDto,
@@ -28,7 +29,9 @@ import {
 import { applyWidgetPatch, widgetPatchSchema } from "./builder/editPatch.js";
 import {
   FIELDS_FORMAT,
+  getInstructionDoc,
   GUIDES,
+  INSTRUCTION_DOCS,
   type InstructionDoc,
   RECIPES,
   scaffoldCrudPlan,
@@ -135,9 +138,16 @@ export interface ServerContext {
   // session at initialize (handlers never see raw requests): options.publicOrigin, else strictly validated
   // X-Forwarded-Proto + Host headers, else undefined — which degrades every constructed URL to a root-relative path.
   requestOrigin?: string;
-  // How long confirm_commit waits for the human to answer the elicitation prompt (default
-  // MCP_COMMIT_ELICITATION_TIMEOUT_MS). Injectable so tests don't wait 120s for the timeout path.
+  // How long every destructive confirm tool waits for the human to answer its elicitation prompt (default
+  // MCP_ELICITATION_TIMEOUT_MS). Injectable so tests don't wait 120s for the timeout path.
+  elicitationTimeoutMs?: number;
+  // Deprecated alias for elicitationTimeoutMs (from when only confirm_commit prompted); elicitationTimeoutMs wins
+  // when both are set.
   commitElicitationTimeoutMs?: number;
+  // Interval between notifications/progress pings while an elicitation prompt waits for the human (sent only when
+  // the CALLER supplied a progressToken). Default ELICITATION_PROGRESS_INTERVAL_MS; injectable like the timeout so
+  // tests can observe pings without a 10s wait.
+  elicitationProgressIntervalMs?: number;
 }
 
 // A page is the lock/audit entity for layout, page-metadata, and event mutations.
@@ -191,6 +201,17 @@ function governanceError(error: unknown): ToolResult | undefined {
 }
 
 const MAX_ID_LENGTH = 128;
+
+// Build identity surfaced by /health and get_capabilities so operators can tell WHICH build an instance is running
+// (twice in one week a diagnosis stalled on exactly that question). Read ONCE at startup: the package.json version
+// (a compile-time JSON import — no exec calls, no fs reads), plus an optional deploy-stamped build time
+// (APPSMITH_MCP_BUILD_TIME, passed through verbatim when set).
+export const MCP_BUILD_INFO: { version: string; buildTime?: string } = {
+  version: packageJson.version,
+  ...(process.env.APPSMITH_MCP_BUILD_TIME
+    ? { buildTime: process.env.APPSMITH_MCP_BUILD_TIME }
+    : {}),
+};
 
 export const MAX_ARTIFACT_BYTES = 1024 * 1024;
 export const MAX_REQUEST_BODY_BYTES = 2 * 1024 * 1024;
@@ -1127,11 +1148,20 @@ function promptSafe(text: string): string {
 
 // Explicit elicitInput timeout: the human may deliberate, so the wait is 120s (with progress notifications during
 // the wait so timeout-resetting clients don't abort the tool call underneath the prompt) [COUNCIL: architect].
-export const MCP_COMMIT_ELICITATION_TIMEOUT_MS = 120 * 1000;
+// Shared by EVERY destructive confirm tool (generalized from confirm_commit's M7 machinery).
+export const MCP_ELICITATION_TIMEOUT_MS = 120 * 1000;
 // Bound re-prompting: non-accept answers do NOT consume the one-time confirmation, so at most this many elicitation
 // prompts per confirmationId — then the token is invalidated (prompt-fatigue guard) [SECURITY REV-2 CONDITION 2].
-export const MCP_COMMIT_MAX_ELICITATIONS = 3;
-const COMMIT_ELICITATION_PROGRESS_INTERVAL_MS = 10 * 1000;
+export const MCP_MAX_ELICITATIONS = 3;
+// SESSION-TOTAL budget on destructive-approval prompts, across ALL confirmations (the per-confirmation bound alone
+// still allows a prepare -> 3 prompts -> re-prepare loop to nag the human indefinitely). Once a session has sent
+// this many prompts, elicitation-capable confirms REFUSE with a clear error instead of prompting — they never fall
+// back to executing without the human's answer. A fresh session resets the budget.
+export const MCP_SESSION_MAX_ELICITATIONS = 20;
+// Back-compat aliases from when only confirm_commit prompted; prefer the operation-neutral names above.
+export const MCP_COMMIT_ELICITATION_TIMEOUT_MS = MCP_ELICITATION_TIMEOUT_MS;
+export const MCP_COMMIT_MAX_ELICITATIONS = MCP_MAX_ELICITATIONS;
+const ELICITATION_PROGRESS_INTERVAL_MS = 10 * 1000;
 
 // The import endpoint returns an ApplicationImportDTO ({ application, isPartialImport, ... }); tolerate a bare
 // application object too (older shapes/fixtures). Extracts exactly what URL construction and auto-publish need:
@@ -1307,6 +1337,50 @@ function isReadOnlyAction(action: unknown): boolean {
     ["GET", "HEAD"].includes(method.toUpperCase());
 
   return protocolReadOnly && !isExternalEgressAction(action);
+}
+
+// Best-effort human-facing facts about a stored action for destructive-approval prompts: the action's name plus a
+// datasource label (name, with the host appended when the embedded datasource carries a parseable URL). Never
+// load-bearing — the confirmation digest binds the ids, not these labels — and never a secret: only the name and
+// host, mirroring read_git_status's host-only rule.
+function actionPromptFacts(action: unknown): {
+  name?: string;
+  datasource?: string;
+} {
+  const source = actionSource(action) as {
+    name?: unknown;
+    datasource?: {
+      name?: unknown;
+      datasourceConfiguration?: { url?: unknown };
+    };
+  } | null;
+  const name =
+    typeof source?.name === "string" && source.name.length > 0
+      ? source.name
+      : undefined;
+  const datasourceName = source?.datasource?.name;
+  const url = source?.datasource?.datasourceConfiguration?.url;
+  let host: string | undefined;
+
+  if (typeof url === "string") {
+    try {
+      host = new URL(url).host || undefined;
+    } catch {
+      // Not a parseable URL — omit the host rather than guess.
+    }
+  }
+
+  const datasource =
+    typeof datasourceName === "string" && datasourceName.length > 0
+      ? host !== undefined
+        ? `${datasourceName} (${host})`
+        : datasourceName
+      : host;
+
+  return {
+    ...(name !== undefined ? { name } : {}),
+    ...(datasource !== undefined ? { datasource } : {}),
+  };
 }
 
 // Git-connection state of an application, read from its gitApplicationMetadata. When an app is connected to git, MCP
@@ -1800,13 +1874,21 @@ export function buildMcpServer(
     actorId,
     commitElicitationTimeoutMs,
     dataEnabled,
+    elicitationProgressIntervalMs,
+    elicitationTimeoutMs,
     governance,
     isAdmin,
     jsEnabled,
     requestOrigin,
   } = ctx;
+  const elicitationTimeout =
+    elicitationTimeoutMs ??
+    commitElicitationTimeoutMs ??
+    MCP_ELICITATION_TIMEOUT_MS;
+  const elicitationProgressInterval =
+    elicitationProgressIntervalMs ?? ELICITATION_PROGRESS_INTERVAL_MS;
   const server = new McpServer(
-    { name: "appsmith-mcp", version: "0.0.1" },
+    { name: "appsmith-mcp", version: MCP_BUILD_INFO.version },
     { instructions: SERVER_INSTRUCTIONS },
   );
 
@@ -1891,6 +1973,238 @@ export function buildMcpServer(
     }
 
     return { ok: true, gitWarning: gitEditWarning(state) };
+  }
+
+  // --- Shared elicitation layer for EVERY destructive confirm tool (generalized from confirm_commit's M7-T3
+  // machinery). ONE mechanism: a session-local attempt counter keyed by confirmationId. Non-accept answers never
+  // consume the one-time confirmation, so re-prompting is bounded at MCP_MAX_ELICITATIONS per confirmation — then
+  // the token is invalidated (prompt-fatigue guard) [SECURITY REV-2 CONDITION 2]. Entries are swept lazily once
+  // they outlive any confirmation they could belong to (the gov token TTL is 5 minutes; sweep at 10). -------------
+  const elicitationAttempts = new Map<
+    string,
+    { count: number; spent?: boolean; expiresAt: number }
+  >();
+  const ELICITATION_ATTEMPTS_TTL_MS = 10 * 60 * 1000;
+  // Session-total prompt counter behind MCP_SESSION_MAX_ELICITATIONS (see the constant for the rationale).
+  let sessionElicitationCount = 0;
+
+  // Marks a confirmation as spent the moment its token is consumed, so a replayed confirm call refuses WITHOUT
+  // prompting the human again (the prompt fires before consumption, so only this session-local mark can stop a
+  // dead token from generating another prompt). Confirm handlers call this right after a successful consume.
+  function markElicitationConsumed(confirmationId: string): void {
+    elicitationAttempts.set(confirmationId, {
+      count: MCP_MAX_ELICITATIONS,
+      spent: true,
+      expiresAt: Date.now() + ELICITATION_ATTEMPTS_TTL_MS,
+    });
+  }
+
+  interface DestructiveElicitation {
+    confirmationId: string;
+    // Builds the human-facing prompt. Invoked ONLY when the client declares elicitation, so any best-effort label
+    // read it performs never costs non-elicitation clients anything. EVERY interpolated value must pass through
+    // promptSafe(), with the load-bearing facts rendered OUTSIDE any quoted agent text, and the wording must never
+    // make an itemized claim the confirmation digest does not bind [SECURITY REV-2 CONDITION 4].
+    promptMessage: () => Promise<string> | string;
+    schemaTitle: string;
+    schemaDescription: string;
+    // Copy slots for the shared non-accept results ("the user did not approve the <operationNoun> ...").
+    operationNoun: string;
+    nothingHappened: string;
+    confirmTool: string;
+    prepareTool: string;
+    notConfirmedCode: string;
+    // Invalidates the one-time confirmation after MCP_MAX_ELICITATIONS non-accepts (best-effort token consumption
+    // plus any session-entry cleanup); a failure here is swallowed — the token may already have expired.
+    invalidate: () => Promise<unknown>;
+  }
+
+  interface ElicitationExtra {
+    _meta?: { progressToken?: string | number };
+    sendNotification: (notification: {
+      method: "notifications/progress";
+      params: { progressToken: string | number; progress: number };
+    }) => Promise<void>;
+  }
+
+  // Sends one elicitation prompt and returns whether the human EXPLICITLY accepted. Decline, cancel, timeout,
+  // a transport error, or an accept without confirm=true all count as non-accept — never approval. Elicitation
+  // is UX, not a security control [COUNCIL: security F8]: no server rule relaxes around it.
+  async function sendElicitationPrompt(
+    spec: DestructiveElicitation,
+    extra: ElicitationExtra,
+  ): Promise<"accept" | "non_accept"> {
+    // Progress notifications during the wait (when the CALLER requested them via a progressToken), so clients
+    // that reset their tool-call timeout on progress don't abort while the human deliberates.
+    const progressToken = extra._meta?.progressToken;
+    let progress = 0;
+    const progressTimer =
+      progressToken !== undefined
+        ? setInterval(() => {
+            progress += 1;
+            void extra
+              .sendNotification({
+                method: "notifications/progress",
+                params: { progressToken, progress },
+              })
+              .catch(() => {});
+          }, elicitationProgressInterval)
+        : undefined;
+
+    progressTimer?.unref?.();
+
+    try {
+      const answer = await server.server.elicitInput(
+        {
+          message: await spec.promptMessage(),
+          requestedSchema: {
+            type: "object",
+            properties: {
+              confirm: {
+                type: "boolean",
+                title: spec.schemaTitle,
+                description: spec.schemaDescription,
+              },
+            },
+            required: ["confirm"],
+          },
+        },
+        { timeout: elicitationTimeout },
+      );
+
+      return answer.action === "accept" && answer.content?.confirm === true
+        ? "accept"
+        : "non_accept";
+    } catch {
+      // elicitInput timeout (McpError) or a transport failure: never approval.
+      return "non_accept";
+    } finally {
+      if (progressTimer !== undefined) clearInterval(progressTimer);
+    }
+  }
+
+  // The shared approval step. Call it AFTER every refusal gate (branch gate, git refusals, revision/digest checks)
+  // and BEFORE consuming the one-time confirmation: approved=true means "consume the token and execute now";
+  // approved=false carries the exact refusal result and leaves the token intact and consumable later — except after
+  // MCP_MAX_ELICITATIONS non-accepts, when invalidate() kills it (confirmation_exhausted). prompted=false means the
+  // client does not declare elicitation: the documented fallback posture (the prepare relay text + the one-time
+  // token); no server rule relaxes either way.
+  async function elicitDestructiveApproval(
+    spec: DestructiveElicitation,
+    extra: ElicitationExtra,
+  ): Promise<
+    | { approved: true; prompted: boolean }
+    | { approved: false; result: ToolResult }
+  > {
+    // Capability read LAZILY per session (ServerContext is built before connect(), so initialize-time capture is
+    // impossible). When the client does NOT declare elicitation the prompt is skipped entirely.
+    if (server.server.getClientCapabilities()?.elicitation === undefined) {
+      return { approved: true, prompted: false };
+    }
+
+    const now = Date.now();
+
+    for (const [id, entry] of elicitationAttempts) {
+      if (entry.expiresAt <= now) elicitationAttempts.delete(id);
+    }
+
+    const attempts = elicitationAttempts.get(spec.confirmationId) ?? {
+      count: 0,
+      expiresAt: now + ELICITATION_ATTEMPTS_TTL_MS,
+    };
+
+    // A dead confirmation (already consumed, or invalidated by exhaustion) refuses WITHOUT prompting the human
+    // again — the prompt fires before token consumption, so this session-local check is what keeps a dead token
+    // from generating further prompts.
+    if (attempts.spent === true) {
+      return {
+        approved: false,
+        result: result({
+          error: `this confirmation was already used; call ${spec.prepareTool} again`,
+          code: "confirmation_invalid",
+        }),
+      };
+    }
+
+    if (attempts.count >= MCP_MAX_ELICITATIONS) {
+      return {
+        approved: false,
+        result: result({
+          error: `this confirmation was invalidated after ${MCP_MAX_ELICITATIONS} unapproved prompts; call ${spec.prepareTool} again only if the user explicitly asks`,
+          code: "confirmation_invalid",
+        }),
+      };
+    }
+
+    // Session-total budget: beyond it, REFUSE instead of prompting (never a silent fall-through to execution —
+    // that would weaken the approval posture, not the prompting). The token is left intact; only prompting stops.
+    if (sessionElicitationCount >= MCP_SESSION_MAX_ELICITATIONS) {
+      return {
+        approved: false,
+        result: result({
+          error: `this session has reached its budget of ${MCP_SESSION_MAX_ELICITATIONS} destructive-approval prompts, so this ${spec.operationNoun} was refused and ${spec.nothingHappened}. Stop asking — the user must perform the operation themselves or start a NEW MCP session.`,
+          code: "elicitation_budget_exhausted",
+        }),
+      };
+    }
+
+    // Pre-prompt ownership peek [SECURITY F1]: verify the confirmation EXISTS in the governance store and was
+    // prepared by THIS actor before the human sees any prompt. Without it, a fabricated/expired/foreign
+    // confirmationId (no entry in the session-local elicitationAttempts map) raised a genuine-looking destructive
+    // dialog — a prompt-spoofing / approval-fatigue primitive (execution still failed at consume time). The peek is
+    // NON-consuming and checks existence + actor binding only; the full digest/operation/revision match stays at
+    // consume time. The refusal happens BEFORE the counters above are incremented, so a forged id can never burn
+    // the per-confirmation attempts or the session prompt budget [SECURITY F2]. `governance` (the ServerContext
+    // coordinator) is always defined here in practice — every destructive confirm tool is registered only under
+    // governance — so the undefined guard exists for type-safety and preserves the prior posture if ever reached.
+    if (
+      governance !== undefined &&
+      !(await governance.confirmationBelongsTo(spec.confirmationId, actorId))
+    ) {
+      return {
+        approved: false,
+        result: result({
+          error: `this confirmation is missing, expired, or was not prepared by you; call ${spec.prepareTool} again`,
+          code: "confirmation_invalid",
+        }),
+      };
+    }
+
+    sessionElicitationCount += 1;
+    attempts.count += 1;
+    elicitationAttempts.set(spec.confirmationId, attempts);
+
+    const answer = await sendElicitationPrompt(spec, extra);
+
+    if (answer === "accept") return { approved: true, prompted: true };
+
+    // Non-accept never consumes the token — but re-prompting is bounded [SECURITY REV-2 CONDITION 2]. The
+    // attempts entry is KEPT (until its TTL sweep) so later calls with the dead token refuse without prompting.
+    if (attempts.count >= MCP_MAX_ELICITATIONS) {
+      try {
+        // Invalidate the one-time token by consuming it (best-effort; it may already have expired).
+        await spec.invalidate();
+      } catch {
+        // Already gone/expired — invalidation achieved either way.
+      }
+
+      return {
+        approved: false,
+        result: result({
+          error: `the user did not approve this ${spec.operationNoun} after ${MCP_MAX_ELICITATIONS} prompts; the confirmation has been invalidated and ${spec.nothingHappened}. Stop — only call ${spec.prepareTool} again if the user explicitly asks.`,
+          code: "confirmation_exhausted",
+        }),
+      };
+    }
+
+    return {
+      approved: false,
+      result: result({
+        error: `the user did not approve the ${spec.operationNoun} (declined, cancelled, or did not answer in time); ${spec.nothingHappened}. The confirmation is still valid — call ${spec.confirmTool} again only after the user approves.`,
+        code: spec.notConfirmedCode,
+        attemptsRemaining: MCP_MAX_ELICITATIONS - attempts.count,
+      }),
+    };
   }
 
   // Shared commit path for layout mutations (edit_page / patch_widgets). When governance is active it wraps the
@@ -2192,8 +2506,37 @@ export function buildMcpServer(
           js: jsEnabled,
           governance: governance !== undefined,
         }),
+        // Build identity (also on /health) so "which build is this instance running" is answerable from either side.
+        build: MCP_BUILD_INFO,
         gitPolicy: GIT_POLICY_NOTE,
       }),
+  );
+
+  // Always-on tool mirror of the instruction resources: tools-only MCP clients (e.g. ChatGPT) cannot read MCP
+  // resources, so the guides/recipes/reference would otherwise be invisible to them. Same InstructionDoc registry
+  // as registerInstructions — no forked content; the slug list in the description is generated, so it cannot drift.
+  server.tool(
+    "get_guide",
+    `Read a built-in guide, recipe, or reference document as rendered markdown by slug — the same content exposed as the appsmith:// MCP resources, for clients that cannot read resources. Valid slugs: ${INSTRUCTION_DOCS.map(
+      (doc) => doc.slug,
+    ).join(", ")}.`,
+    { slug: z.string().trim().min(1).max(64) },
+    async ({ slug }) => {
+      const doc = getInstructionDoc(slug);
+
+      if (!doc) {
+        return result({
+          error: `unknown guide "${slug}"`,
+          available: INSTRUCTION_DOCS.map((entry) => entry.slug),
+        });
+      }
+
+      return result({
+        slug: doc.slug,
+        title: doc.title,
+        markdown: doc.render(),
+      });
+    },
   );
 
   server.tool(
@@ -2851,7 +3194,7 @@ export function buildMcpServer(
 
     server.tool(
       "prepare_rollback",
-      "Prepare to roll back a layout change (edit_page/patch_widgets). Returns a one-time confirmation token. Only offered when a safe layout snapshot exists.",
+      "Prepare to roll back a layout change (edit_page/patch_widgets). Returns a one-time confirmation token plus 'relay' text to show the user before confirming. Only offered when a safe layout snapshot exists.",
       { changeId: idSchema },
       async ({ changeId }) => {
         const change = await gov.getChange(changeId, actorId);
@@ -2877,19 +3220,21 @@ export function buildMcpServer(
           confirmationId: confirmation.id,
           expiresAt: confirmation.expiresAt,
           changeId,
+          // Relay text for clients WITHOUT elicitation support: shown to the human before confirming.
+          relay: `Show the user this and get their approval BEFORE calling confirm_rollback: roll back change "${promptSafe(changeId)}" (${promptSafe(change.operation)} on ${promptSafe(change.entityKey)}) by re-applying the earlier layout snapshot, replacing the page's current layout. Do not call confirm_rollback without the user's explicit approval.`,
         });
       },
     );
 
     server.tool(
       "confirm_rollback",
-      "Roll back a layout change using a confirmation token from prepare_rollback. Re-applies the prior layout snapshot only if the page is unchanged since the change. On a git-connected app, pass the app's current branch (from read_git_status).",
+      "Roll back a layout change using a confirmation token from prepare_rollback. Re-applies the prior layout snapshot only if the page is unchanged since the change. On a git-connected app, pass the app's current branch (from read_git_status). When the MCP client supports elicitation, the user is prompted for approval and ONLY an explicit accept proceeds (at most 3 prompts per confirmation, then it is invalidated); otherwise show the user the prepare_rollback relay text and get their approval first.",
       {
         changeId: idSchema,
         confirmationId: idSchema,
         branch: gitBranchParamSchema.optional(),
       },
-      async ({ branch, changeId, confirmationId }) => {
+      async ({ branch, changeId, confirmationId }, extra) => {
         const change = await gov.getChange(changeId, actorId);
 
         if (!change) return result({ error: "change not found" });
@@ -2922,6 +3267,38 @@ export function buildMcpServer(
 
         if (!gate.ok) return gate.result;
 
+        // Elicitation AFTER every refusal gate and BEFORE token consumption: a declined prompt leaves the
+        // one-time confirmation intact and consumable later.
+        const approval = await elicitDestructiveApproval(
+          {
+            confirmationId,
+            // Names the change being reverted; the snapshot is layout-granular, so the prompt claims only that
+            // the page's current layout is replaced — never an itemized list of what changes back.
+            promptMessage: () =>
+              `Roll back change "${promptSafe(changeId)}" (${promptSafe(change.operation)} on ${promptSafe(change.entityKey)})? This re-applies the earlier layout snapshot, replacing that page's CURRENT layout.`,
+            schemaTitle: "Approve layout rollback",
+            schemaDescription:
+              "Select true to re-apply the earlier layout snapshot, replacing the page's current layout.",
+            operationNoun: "rollback",
+            nothingHappened: "nothing was rolled back",
+            confirmTool: "confirm_rollback",
+            prepareTool: "prepare_rollback",
+            notConfirmedCode: "rollback_not_confirmed",
+            invalidate: async () =>
+              gov.consumeDestructiveConfirmation({
+                confirmationId,
+                actorId,
+                entityKey: change.entityKey,
+                operation: "rollback",
+                revision: change.revisionAfter,
+                digest: operationDigest({ changeId }),
+              }),
+          },
+          extra,
+        );
+
+        if (!approval.approved) return approval.result;
+
         try {
           await gov.consumeDestructiveConfirmation({
             confirmationId,
@@ -2931,6 +3308,7 @@ export function buildMcpServer(
             revision: change.revisionAfter,
             digest: operationDigest({ changeId }),
           });
+          markElicitationConsumed(confirmationId);
 
           const context = await api.getApplicationContext(
             rollback.applicationId,
@@ -2990,7 +3368,7 @@ export function buildMcpServer(
     // Item H — publish is high-impact, so it is confirmation-gated.
     server.tool(
       "prepare_publish",
-      "Publishing (deploying) the application is high-impact. Returns a one-time confirmation token bound to the application and its current page-list revision. Call confirm_publish with the token to deploy.",
+      "Publishing (deploying) the application is high-impact. Returns a one-time confirmation token bound to the application and its current page-list revision, plus 'relay' text to show the user before confirming. Call confirm_publish with the token to deploy.",
       {
         applicationId: idSchema,
         revision: z.string().regex(/^[a-f0-9]{64}$/),
@@ -3008,19 +3386,21 @@ export function buildMcpServer(
           confirmationId: confirmation.id,
           expiresAt: confirmation.expiresAt,
           operation: "publish",
+          // Relay text for clients WITHOUT elicitation support: shown to the human before confirming.
+          relay: `Show the user this and get their approval BEFORE calling confirm_publish: publish (deploy) the application "${promptSafe(applicationId)}" — its CURRENT state becomes what everyone who has access to the app sees. Do not call confirm_publish without the user's explicit approval.`,
         });
       },
     );
 
     server.tool(
       "confirm_publish",
-      "Publish (deploy) the application using a confirmation token from prepare_publish. Token, actor, application, and revision must match, and the page-list revision must be unchanged since preparation.",
+      "Publish (deploy) the application using a confirmation token from prepare_publish. Token, actor, application, and revision must match, and the page-list revision must be unchanged since preparation. When the MCP client supports elicitation, the user is prompted for approval and ONLY an explicit accept proceeds (at most 3 prompts per confirmation, then it is invalidated); otherwise show the user the prepare_publish relay text and get their approval first.",
       {
         applicationId: idSchema,
         revision: z.string().regex(/^[a-f0-9]{64}$/),
         confirmationId: idSchema,
       },
-      async ({ applicationId, confirmationId, revision }) => {
+      async ({ applicationId, confirmationId, revision }, extra) => {
         try {
           // Refuse to deploy a git-connected app: publishing from MCP would ship whatever uncommitted state sits on the
           // branch, bypassing the git review/commit flow. Checked before consuming the confirmation so the token is not
@@ -3028,9 +3408,11 @@ export function buildMcpServer(
           // fail-open) — it fails CLOSED: if the git state cannot be read, refuse rather than risk deploying
           // uncommitted git state.
           let git: GitState;
+          let application: unknown;
 
           try {
-            git = gitStateOf(await api.getApplication(applicationId));
+            application = await api.getApplication(applicationId);
+            git = gitStateOf(application);
           } catch {
             return result({
               error:
@@ -3052,6 +3434,45 @@ export function buildMcpServer(
             });
           }
 
+          // Elicitation AFTER every refusal gate and BEFORE token consumption: a declined prompt leaves the
+          // one-time confirmation intact and consumable later.
+          const appName = (application as { name?: unknown } | null)?.name;
+          const appLabel = truncateForPrompt(
+            typeof appName === "string" && appName.length > 0
+              ? appName
+              : applicationId,
+            40,
+          );
+          const approval = await elicitDestructiveApproval(
+            {
+              confirmationId,
+              // Honest scope: publishing deploys the app's CURRENT state to everyone with access — the revision
+              // is page-list-granular, so the prompt never itemizes what ships.
+              promptMessage: () =>
+                `Publish (deploy) "${promptSafe(appLabel)}"? This deploys the application's CURRENT state to everyone who has access to the app.`,
+              schemaTitle: "Approve publish",
+              schemaDescription:
+                "Select true to deploy the application's current state to everyone who has access to it.",
+              operationNoun: "publish",
+              nothingHappened: "nothing was published",
+              confirmTool: "confirm_publish",
+              prepareTool: "prepare_publish",
+              notConfirmedCode: "publish_not_confirmed",
+              invalidate: async () =>
+                gov.consumeDestructiveConfirmation({
+                  confirmationId,
+                  actorId,
+                  entityKey: `application:${applicationId}`,
+                  operation: "publish",
+                  revision,
+                  digest: operationDigest({ applicationId }),
+                }),
+            },
+            extra,
+          );
+
+          if (!approval.approved) return approval.result;
+
           await gov.consumeDestructiveConfirmation({
             confirmationId,
             actorId,
@@ -3060,6 +3481,7 @@ export function buildMcpServer(
             revision,
             digest: operationDigest({ applicationId }),
           });
+          markElicitationConsumed(confirmationId);
 
           const currentRevision = fingerprintPages(
             await api.getApplicationPages(applicationId),
@@ -3094,6 +3516,15 @@ export function buildMcpServer(
     const MCP_BRANCH_PREFIX = "mcp/";
     const MCP_BRANCH_REMAINDER = /^[A-Za-z0-9_-]{1,60}$/;
     const MCP_BRANCH_CAP = 5;
+
+    // Carries a ready ToolResult refusal out of gov.execute's mutate when the mutate-time refs re-read shows the
+    // branch list changed between the pre-check and the locked mutate (cap overshoot / duplicate race).
+    class BranchListRaceError extends Error {
+      constructor(readonly refusal: ToolResult) {
+        super("branch list changed between check and create");
+        this.name = "BranchListRaceError";
+      }
+    }
 
     server.tool(
       "create_branch",
@@ -3179,12 +3610,55 @@ export function buildMcpServer(
             expectedRevision: revisionBefore,
             currentRevision: revisionBefore,
             mutate: async () => {
+              // Re-read the refs list INSIDE the governed mutate (under the entity lock): concurrent creates can
+              // all pass the pre-check above before any of them pushes a ref, so the cap/duplicate decision must
+              // bind to the freshest list. The pre-check stays as the cheap fast-path error; this re-check is what
+              // keeps the customer remote from ever overshooting the cap. Fail closed like the pre-check.
+              let freshNames: string[];
+
+              try {
+                freshNames = gitBranchNames(
+                  await api.listGitBranches(applicationId),
+                );
+              } catch {
+                throw new BranchListRaceError(
+                  result({
+                    error:
+                      "could not verify the application's existing branches; retry",
+                    code: "git_state_unknown",
+                  }),
+                );
+              }
+
+              if (freshNames.includes(name)) {
+                throw new BranchListRaceError(
+                  result({
+                    error: `branch "${name}" already exists on this application; pick a new name, or continue on that branch's applicationId if you created it earlier`,
+                    code: "branch_exists",
+                  }),
+                );
+              }
+
+              const freshMcpBranches = freshNames.filter((branchName) =>
+                branchName.startsWith(MCP_BRANCH_PREFIX),
+              );
+
+              if (freshMcpBranches.length >= MCP_BRANCH_CAP) {
+                throw new BranchListRaceError(
+                  result({
+                    error: `this application already has ${freshMcpBranches.length} mcp/ branches (the limit is ${MCP_BRANCH_CAP}). Reuse a branch you created earlier in this session, or ask the user to delete stale mcp/ branches in Appsmith's branch UI, then retry.`,
+                    code: "mcp_branch_limit",
+                    mcpBranches: freshMcpBranches,
+                  }),
+                );
+              }
+
               const created = await api.createGitBranch(applicationId, name);
               const projected = projectImportedApplication(created);
 
               return {
                 value: projected,
-                revisionAfter: fingerprintBranchList([...branchNames, name]),
+                revisionAfter: fingerprintBranchList([...freshNames, name]),
                 rollback: {},
                 summary: {
                   sourceApplicationId: applicationId,
@@ -3222,6 +3696,8 @@ export function buildMcpServer(
             changeId,
           });
         } catch (error) {
+          if (error instanceof BranchListRaceError) return error.refusal;
+
           return governanceError(error) ?? compileError(error);
         }
       },
@@ -3241,14 +3717,12 @@ export function buildMcpServer(
       revision: string;
       appName?: string;
       expiresAt: number;
-      // Elicitation prompts sent for this confirmation. Non-accept answers do not consume the token, so this
-      // bounds re-prompting at MCP_COMMIT_MAX_ELICITATIONS [SECURITY REV-2 CONDITION 2].
-      elicitations: number;
     }
 
     // Session-scoped side-table keyed by confirmationId: carries what the one-time gov confirmation cannot (the
-    // exact message/branch the digest binds, the app name for prompts, and the elicitation attempt counter). The
-    // gov token stays the authoritative one-time credential — losing this map (a new session) just means a fresh
+    // exact message/branch the digest binds and the app name for prompts). The elicitation attempt counter lives
+    // in the shared elicitationAttempts map (one mechanism for every destructive confirm tool). The gov token
+    // stays the authoritative one-time credential — losing this map (a new session) just means a fresh
     // prepare_commit; a confirmation can never execute without its matching entry AND the matching gov token.
     const pendingCommits = new Map<string, PendingCommit>();
 
@@ -3320,81 +3794,6 @@ export function buildMcpServer(
       return { branch: state.branchName };
     }
 
-    // Sends the elicitation prompt and returns whether the human EXPLICITLY accepted. Decline, cancel, timeout,
-    // a transport error, or an accept without confirm=true all count as non-accept — never approval. Elicitation
-    // is UX, not a security control [COUNCIL: security F8]: no server rule relaxes around it.
-    async function elicitCommitApproval(
-      entry: PendingCommit,
-      extra: {
-        _meta?: { progressToken?: string | number };
-        sendNotification: (notification: {
-          method: "notifications/progress";
-          params: { progressToken: string | number; progress: number };
-        }) => Promise<void>;
-      },
-    ): Promise<"accept" | "non_accept"> {
-      const appLabel = truncateForPrompt(
-        entry.appName ?? entry.applicationId,
-        40,
-      );
-      // The load-bearing facts (branch, app, PUSH) sit OUTSIDE the quoted agent text, and the wording is
-      // "ALL current changes" — the content fingerprint is page-list-granular, so the prompt never makes an
-      // itemized claim [SECURITY REV-2 CONDITION 4].
-      const promptMessage = `Commit ALL current changes on branch "${promptSafe(entry.branch)}" of "${promptSafe(appLabel)}" and PUSH to the remote? Message: "${promptSafe(truncateForPrompt(entry.message, 80))}"`;
-
-      // Progress notifications during the wait (when the CALLER requested them via a progressToken), so clients
-      // that reset their tool-call timeout on progress don't abort while the human deliberates.
-      const progressToken = extra._meta?.progressToken;
-      let progress = 0;
-      const progressTimer =
-        progressToken !== undefined
-          ? setInterval(() => {
-              progress += 1;
-              void extra
-                .sendNotification({
-                  method: "notifications/progress",
-                  params: { progressToken, progress },
-                })
-                .catch(() => {});
-            }, COMMIT_ELICITATION_PROGRESS_INTERVAL_MS)
-          : undefined;
-
-      progressTimer?.unref?.();
-
-      try {
-        const answer = await server.server.elicitInput(
-          {
-            message: promptMessage,
-            requestedSchema: {
-              type: "object",
-              properties: {
-                confirm: {
-                  type: "boolean",
-                  title: "Approve commit and push",
-                  description:
-                    "Select true to commit all current changes on the agent branch and push them to the git remote.",
-                },
-              },
-              required: ["confirm"],
-            },
-          },
-          {
-            timeout:
-              commitElicitationTimeoutMs ?? MCP_COMMIT_ELICITATION_TIMEOUT_MS,
-          },
-        );
-
-        return answer.action === "accept" && answer.content?.confirm === true
-          ? "accept"
-          : "non_accept";
-      } catch {
-        // elicitInput timeout (McpError) or a transport failure: never approval.
-        return "non_accept";
-      } finally {
-        if (progressTimer !== undefined) clearInterval(progressTimer);
-      }
-    }
-
     server.tool(
       "prepare_commit",
       `Prepare to COMMIT AND PUSH all current changes of a git-connected application. The commit API always pushes to the customer's git remote — there is no commit-without-push — so this is only allowed when the application's branch starts with the reserved agent prefix "mcp/" (create_branch first and use the NEW applicationId it returns). The message must be a single printable line (max ${MCP_COMMIT_MESSAGE_MAX} characters, no control/bidi characters, no binding syntax, must not start with "["); the server prepends a non-strippable "[mcp] " marker. Returns a one-time confirmationId (5-minute TTL, bound to the app, branch, message, and current content revision) plus 'relay' text you MUST show the user before calling confirm_commit. Governed.`,
@@ -3434,7 +3833,6 @@ export function buildMcpServer(
           revision,
           ...(appName !== undefined ? { appName } : {}),
           expiresAt: 0,
-          elicitations: 0,
         };
         const confirmation = await gov.prepareDestructiveConfirmation({
           actorId,
@@ -3526,52 +3924,43 @@ export function buildMcpServer(
           });
         }
 
-        // 3. Elicitation — capability read LAZILY per session at confirm time (ServerContext is built before
-        // connect(), so initialize-time capture is impossible). When the client does NOT declare elicitation the
-        // prompt is skipped: the one-time token + the prepare relay text are the (documented) fallback posture,
-        // and no server rule is relaxed either way.
-        const supportsElicitation =
-          server.server.getClientCapabilities()?.elicitation !== undefined;
-
-        if (supportsElicitation) {
-          entry.elicitations += 1;
-
-          const answer = await elicitCommitApproval(entry, extra);
-
-          if (answer !== "accept") {
-            // Non-accept never consumes the token — but re-prompting is bounded [SECURITY REV-2 CONDITION 2].
-            if (entry.elicitations >= MCP_COMMIT_MAX_ELICITATIONS) {
+        // 3. Elicitation — the shared destructive-approval layer (see elicitDestructiveApproval): prompt on
+        // elicitation-capable clients, fall back to the prepare relay-text posture otherwise, and no server rule
+        // relaxes either way.
+        const approval = await elicitDestructiveApproval(
+          {
+            confirmationId,
+            // The load-bearing facts (branch, app, PUSH) sit OUTSIDE the quoted agent text, and the wording is
+            // "ALL current changes" — the content fingerprint is page-list-granular, so the prompt never makes
+            // an itemized claim [SECURITY REV-2 CONDITION 4].
+            promptMessage: () =>
+              `Commit ALL current changes on branch "${promptSafe(entry.branch)}" of "${promptSafe(truncateForPrompt(entry.appName ?? entry.applicationId, 40))}" and PUSH to the remote? Message: "${promptSafe(truncateForPrompt(entry.message, 80))}"`,
+            schemaTitle: "Approve commit and push",
+            schemaDescription:
+              "Select true to commit all current changes on the agent branch and push them to the git remote.",
+            operationNoun: "commit",
+            nothingHappened: "nothing was committed",
+            confirmTool: "confirm_commit",
+            prepareTool: "prepare_commit",
+            notConfirmedCode: "commit_not_confirmed",
+            invalidate: async () => {
               pendingCommits.delete(confirmationId);
-
-              try {
-                // Invalidate the one-time token by consuming it (best-effort; it may already have expired).
-                await gov.consumeDestructiveConfirmation({
-                  confirmationId,
-                  actorId,
-                  entityKey: `application:${applicationId}`,
-                  operation: "commit",
-                  revision: entry.revision,
-                  digest: commitDigest(entry),
-                });
-              } catch {
-                // Already gone/expired — invalidation achieved either way.
-              }
-
-              return result({
-                error: `the user did not approve this commit after ${MCP_COMMIT_MAX_ELICITATIONS} prompts; the confirmation has been invalidated and nothing was committed. Stop — only call prepare_commit again if the user explicitly asks.`,
-                code: "confirmation_exhausted",
+              await gov.consumeDestructiveConfirmation({
+                confirmationId,
+                actorId,
+                entityKey: `application:${applicationId}`,
+                operation: "commit",
+                revision: entry.revision,
+                digest: commitDigest(entry),
               });
-            }
+            },
+          },
+          extra,
+        );
 
-            return result({
-              error:
-                "the user did not approve the commit (declined, cancelled, or did not answer in time); nothing was committed. The confirmation is still valid — call confirm_commit again only after the user approves.",
-              code: "commit_not_confirmed",
-              attemptsRemaining:
-                MCP_COMMIT_MAX_ELICITATIONS - entry.elicitations,
-            });
-          }
+        if (!approval.approved) return approval.result;
 
+        if (approval.prompted) {
           // The human may deliberate for up to the elicitation window: re-verify the content is still exactly
           // what they approved before consuming anything.
           try {
@@ -3775,7 +4164,7 @@ export function buildMcpServer(
 
     server.tool(
       "prepare_delete_page",
-      "Prepare to delete a page. Deleting a page is destructive, so this returns a one-time confirmation token bound to this exact page and revision. Call confirm_delete_page with the token to perform the deletion.",
+      "Prepare to delete a page. Deleting a page is destructive, so this returns a one-time confirmation token bound to this exact page and revision, plus 'relay' text to show the user before confirming. Call confirm_delete_page with the token to perform the deletion.",
       { spec: z.record(z.unknown()) },
       async ({ spec }) => {
         const parsed = deletePageSpecSchema.safeParse(spec);
@@ -3798,19 +4187,21 @@ export function buildMcpServer(
           expiresAt: confirmation.expiresAt,
           operation: "delete_page",
           pageId: parsed.data.pageId,
+          // Relay text for clients WITHOUT elicitation support: shown to the human before confirming.
+          relay: `Show the user this and get their approval BEFORE calling confirm_delete_page: delete the page with id "${promptSafe(parsed.data.pageId)}" and EVERYTHING on it — this cannot be undone via MCP. Do not call confirm_delete_page without the user's explicit approval.`,
         });
       },
     );
 
     server.tool(
       "confirm_delete_page",
-      "Delete a page using a confirmation token from prepare_delete_page. The token, actor, page, and revision must all match, and the page-list revision must be unchanged since preparation.",
+      "Delete a page using a confirmation token from prepare_delete_page. The token, actor, page, and revision must all match, and the page-list revision must be unchanged since preparation. When the MCP client supports elicitation, the user is prompted for approval and ONLY an explicit accept proceeds (at most 3 prompts per confirmation, then it is invalidated); otherwise show the user the prepare_delete_page relay text and get their approval first.",
       {
         spec: z.record(z.unknown()),
         confirmationId: idSchema,
         branch: gitBranchParamSchema.optional(),
       },
-      async ({ branch, confirmationId, spec }) => {
+      async ({ branch, confirmationId, spec }, extra) => {
         const parsed = deletePageSpecSchema.safeParse(spec);
 
         if (!parsed.success) return validationError(parsed.error.issues);
@@ -3819,6 +4210,62 @@ export function buildMcpServer(
         const gate = await gitBranchGate(parsed.data.applicationId, branch);
 
         if (!gate.ok) return gate.result;
+
+        // Elicitation AFTER every refusal gate and BEFORE token consumption: a declined prompt leaves the
+        // one-time confirmation intact and consumable later.
+        const approval = await elicitDestructiveApproval(
+          {
+            confirmationId,
+            // Best-effort label read (runs only on elicitation-capable clients): name the page and app when
+            // readable, else fall back to the ids — the digest binds the ids, never the labels.
+            promptMessage: async () => {
+              let pageLabel = parsed.data.pageId;
+              let appLabel = parsed.data.applicationId;
+
+              try {
+                const pagesResponse = await api.getApplicationPages(
+                  parsed.data.applicationId,
+                );
+                const page = projectPages(pagesResponse).find(
+                  (entry) => entry.id === parsed.data.pageId,
+                );
+
+                if (page !== undefined && page.name.length > 0) {
+                  pageLabel = page.name;
+                }
+
+                appLabel = applicationNameOf(pagesResponse) ?? appLabel;
+              } catch {
+                // Label read failed: prompt with the ids rather than refuse.
+              }
+
+              return `Delete the page "${promptSafe(truncateForPrompt(pageLabel, 40))}" from "${promptSafe(truncateForPrompt(appLabel, 40))}"? This deletes the page and EVERYTHING on it, and cannot be undone via MCP.`;
+            },
+            schemaTitle: "Approve page deletion",
+            schemaDescription:
+              "Select true to delete this page and everything on it.",
+            operationNoun: "page deletion",
+            nothingHappened: "nothing was deleted",
+            confirmTool: "confirm_delete_page",
+            prepareTool: "prepare_delete_page",
+            notConfirmedCode: "delete_page_not_confirmed",
+            invalidate: async () =>
+              gov.consumeDestructiveConfirmation({
+                confirmationId,
+                actorId,
+                entityKey: pagesEntityKey(parsed.data.applicationId),
+                operation: "delete_page",
+                revision: parsed.data.revision,
+                digest: operationDigest({
+                  applicationId: parsed.data.applicationId,
+                  pageId: parsed.data.pageId,
+                }),
+              }),
+          },
+          extra,
+        );
+
+        if (!approval.approved) return approval.result;
 
         try {
           await gov.consumeDestructiveConfirmation({
@@ -3832,6 +4279,7 @@ export function buildMcpServer(
               pageId: parsed.data.pageId,
             }),
           });
+          markElicitationConsumed(confirmationId);
 
           const currentRevision = fingerprintPages(
             await api.getApplicationPages(parsed.data.applicationId),
@@ -4564,7 +5012,7 @@ export function buildMcpServer(
 
       server.tool(
         "prepare_delete_action",
-        "Prepare to delete an action. Returns a one-time confirmation token bound to this exact action and revision. Call confirm_delete_action with the token to delete it.",
+        "Prepare to delete an action. Returns a one-time confirmation token bound to this exact action and revision, plus 'relay' text to show the user before confirming. Call confirm_delete_action with the token to delete it.",
         { spec: z.record(z.unknown()) },
         async ({ spec }) => {
           const parsed = deleteActionSpecSchema.safeParse(spec);
@@ -4587,19 +5035,21 @@ export function buildMcpServer(
             expiresAt: confirmation.expiresAt,
             operation: "delete_action",
             actionId: parsed.data.actionId,
+            // Relay text for clients WITHOUT elicitation support: shown to the human before confirming.
+            relay: `Show the user this and get their approval BEFORE calling confirm_delete_action: delete the action with id "${promptSafe(parsed.data.actionId)}" (its query/API definition) — this cannot be undone via MCP. Do not call confirm_delete_action without the user's explicit approval.`,
           });
         },
       );
 
       server.tool(
         "confirm_delete_action",
-        "Delete an action using a confirmation token from prepare_delete_action. Token, actor, action, and revision must all match, and the action's revision must be unchanged since preparation.",
+        "Delete an action using a confirmation token from prepare_delete_action. Token, actor, action, and revision must all match, and the action's revision must be unchanged since preparation. When the MCP client supports elicitation, the user is prompted for approval and ONLY an explicit accept proceeds (at most 3 prompts per confirmation, then it is invalidated); otherwise show the user the prepare_delete_action relay text and get their approval first.",
         {
           spec: z.record(z.unknown()),
           confirmationId: idSchema,
           branch: gitBranchParamSchema.optional(),
         },
-        async ({ branch, confirmationId, spec }) => {
+        async ({ branch, confirmationId, spec }, extra) => {
           const parsed = deleteActionSpecSchema.safeParse(spec);
 
           if (!parsed.success) return validationError(parsed.error.issues);
@@ -4608,6 +5058,60 @@ export function buildMcpServer(
           const gate = await gitBranchGate(parsed.data.applicationId, branch);
 
           if (!gate.ok) return gate.result;
+
+          // Elicitation AFTER every refusal gate and BEFORE token consumption: a declined prompt leaves the
+          // one-time confirmation intact and consumable later.
+          const approval = await elicitDestructiveApproval(
+            {
+              confirmationId,
+              // Best-effort label read (elicitation-capable clients only): name the action and its datasource
+              // when readable, else fall back to the id — the digest binds the ids, never the labels.
+              promptMessage: async () => {
+                let facts: { name?: string; datasource?: string } = {};
+
+                try {
+                  facts = actionPromptFacts(
+                    await api.getAction(
+                      parsed.data.applicationId,
+                      parsed.data.actionId,
+                    ),
+                  );
+                } catch {
+                  // Label read failed: prompt with the id rather than refuse.
+                }
+
+                const label = truncateForPrompt(
+                  facts.name ?? parsed.data.actionId,
+                  40,
+                );
+
+                return `Delete the action "${promptSafe(label)}"${facts.datasource !== undefined ? ` (datasource: "${promptSafe(truncateForPrompt(facts.datasource, 60))}")` : ""}? This deletes the query/API definition and cannot be undone via MCP.`;
+              },
+              schemaTitle: "Approve action deletion",
+              schemaDescription:
+                "Select true to delete this action (its query/API definition).",
+              operationNoun: "action deletion",
+              nothingHappened: "nothing was deleted",
+              confirmTool: "confirm_delete_action",
+              prepareTool: "prepare_delete_action",
+              notConfirmedCode: "delete_action_not_confirmed",
+              invalidate: async () =>
+                govData.consumeDestructiveConfirmation({
+                  confirmationId,
+                  actorId,
+                  entityKey: `action:${parsed.data.actionId}`,
+                  operation: "delete_action",
+                  revision: parsed.data.revision,
+                  digest: operationDigest({
+                    applicationId: parsed.data.applicationId,
+                    actionId: parsed.data.actionId,
+                  }),
+                }),
+            },
+            extra,
+          );
+
+          if (!approval.approved) return approval.result;
 
           try {
             await govData.consumeDestructiveConfirmation({
@@ -4621,6 +5125,7 @@ export function buildMcpServer(
                 actionId: parsed.data.actionId,
               }),
             });
+            markElicitationConsumed(confirmationId);
 
             const current = await api.getAction(
               parsed.data.applicationId,
@@ -4657,7 +5162,7 @@ export function buildMcpServer(
 
       server.tool(
         "prepare_run_action",
-        "Prepare to run an action. Non-read-only executions require this confirmation step. Returns a one-time token bound to this action and revision, plus whether the action is read-only. Pass a revision from get_action.",
+        "Prepare to run an action. Non-read-only executions require this confirmation step. Returns a one-time token bound to this action and revision, whether the action is read-only, and 'relay' text to show the user before confirming. Pass a revision from get_action.",
         {
           applicationId: idSchema,
           actionId: idSchema,
@@ -4672,26 +5177,78 @@ export function buildMcpServer(
             revision,
             digest: operationDigest({ actionId }),
           });
+          const facts = actionPromptFacts(action);
+          const label = truncateForPrompt(facts.name ?? actionId, 40);
 
           return result({
             confirmationId: confirmation.id,
             expiresAt: confirmation.expiresAt,
             operation: "run_action",
             readOnly: isReadOnlyAction(action),
+            // Relay text for clients WITHOUT elicitation support: shown to the human before confirming.
+            relay: `Show the user this and get their approval BEFORE calling confirm_run_action: run the action "${promptSafe(label)}"${facts.datasource !== undefined ? ` against datasource "${promptSafe(truncateForPrompt(facts.datasource, 60))}"` : ""} — it executes with its current configuration and may modify data. Do not call confirm_run_action without the user's explicit approval.`,
           });
         },
       );
 
       server.tool(
         "confirm_run_action",
-        "Run an action using a confirmation token from prepare_run_action. Token, actor, action, and revision must match, and the action must be unchanged since preparation. Returns the execution result and an audit change id.",
+        "Run an action using a confirmation token from prepare_run_action. Token, actor, action, and revision must match, and the action must be unchanged since preparation. When the MCP client supports elicitation, the user is prompted for approval and ONLY an explicit accept proceeds (at most 3 prompts per confirmation, then it is invalidated); otherwise show the user the prepare_run_action relay text and get their approval first. Returns the execution result and an audit change id.",
         {
           applicationId: idSchema,
           actionId: idSchema,
           revision: z.string().regex(/^[a-f0-9]{64}$/),
           confirmationId: idSchema,
         },
-        async ({ actionId, applicationId, confirmationId, revision }) => {
+        async (
+          { actionId, applicationId, confirmationId, revision },
+          extra,
+        ) => {
+          // Elicitation BEFORE token consumption: a declined prompt leaves the one-time confirmation intact and
+          // consumable later.
+          const approval = await elicitDestructiveApproval(
+            {
+              confirmationId,
+              // Best-effort label read (elicitation-capable clients only): name the action and its datasource
+              // when readable, else fall back to the id — the digest binds the ids, never the labels.
+              promptMessage: async () => {
+                let facts: { name?: string; datasource?: string } = {};
+
+                try {
+                  facts = actionPromptFacts(
+                    await api.getAction(applicationId, actionId),
+                  );
+                } catch {
+                  // Label read failed: prompt with the id rather than refuse.
+                }
+
+                const label = truncateForPrompt(facts.name ?? actionId, 40);
+
+                return `Run the action "${promptSafe(label)}"${facts.datasource !== undefined ? ` against datasource "${promptSafe(truncateForPrompt(facts.datasource, 60))}"` : ""}? This EXECUTES it with its current configuration and may modify data.`;
+              },
+              schemaTitle: "Approve action run",
+              schemaDescription:
+                "Select true to execute this action with its current configuration.",
+              operationNoun: "action run",
+              nothingHappened: "nothing was run",
+              confirmTool: "confirm_run_action",
+              prepareTool: "prepare_run_action",
+              notConfirmedCode: "run_action_not_confirmed",
+              invalidate: async () =>
+                govData.consumeDestructiveConfirmation({
+                  confirmationId,
+                  actorId,
+                  entityKey: `action:${actionId}`,
+                  operation: "run_action",
+                  revision,
+                  digest: operationDigest({ actionId }),
+                }),
+            },
+            extra,
+          );
+
+          if (!approval.approved) return approval.result;
+
           try {
             await govData.consumeDestructiveConfirmation({
               confirmationId,
@@ -4701,6 +5258,7 @@ export function buildMcpServer(
               revision,
               digest: operationDigest({ actionId }),
             });
+            markElicitationConsumed(confirmationId);
 
             const current = await api.getAction(applicationId, actionId);
             const { changeId, value } = await govData.execute({
@@ -4896,7 +5454,7 @@ export function buildMcpServer(
 
       server.tool(
         "prepare_delete_js_object",
-        "Prepare to delete a JS object. Returns a one-time confirmation token bound to this object and revision.",
+        "Prepare to delete a JS object. Returns a one-time confirmation token bound to this object and revision, plus 'relay' text to show the user before confirming.",
         { spec: z.record(z.unknown()) },
         async ({ spec }) => {
           const parsed = deleteJsObjectSpecSchema.safeParse(spec);
@@ -4919,19 +5477,21 @@ export function buildMcpServer(
             expiresAt: confirmation.expiresAt,
             operation: "delete_js_object",
             collectionId: parsed.data.collectionId,
+            // Relay text for clients WITHOUT elicitation support: shown to the human before confirming.
+            relay: `Show the user this and get their approval BEFORE calling confirm_delete_js_object: delete the JS object with id "${promptSafe(parsed.data.collectionId)}" and all its functions — this cannot be undone via MCP. Do not call confirm_delete_js_object without the user's explicit approval.`,
           });
         },
       );
 
       server.tool(
         "confirm_delete_js_object",
-        "Delete a JS object using a confirmation token from prepare_delete_js_object. Token, actor, object, and revision must all match.",
+        "Delete a JS object using a confirmation token from prepare_delete_js_object. Token, actor, object, and revision must all match. When the MCP client supports elicitation, the user is prompted for approval and ONLY an explicit accept proceeds (at most 3 prompts per confirmation, then it is invalidated); otherwise show the user the prepare_delete_js_object relay text and get their approval first.",
         {
           spec: z.record(z.unknown()),
           confirmationId: idSchema,
           branch: gitBranchParamSchema.optional(),
         },
-        async ({ branch, confirmationId, spec }) => {
+        async ({ branch, confirmationId, spec }, extra) => {
           const parsed = deleteJsObjectSpecSchema.safeParse(spec);
 
           if (!parsed.success) return validationError(parsed.error.issues);
@@ -4940,6 +5500,65 @@ export function buildMcpServer(
           const gate = await gitBranchGate(parsed.data.applicationId, branch);
 
           if (!gate.ok) return gate.result;
+
+          // Elicitation AFTER every refusal gate and BEFORE token consumption: a declined prompt leaves the
+          // one-time confirmation intact and consumable later.
+          const approval = await elicitDestructiveApproval(
+            {
+              confirmationId,
+              // Best-effort label read (elicitation-capable clients only): name the JS object when readable,
+              // else fall back to the id — the digest binds the ids, never the labels.
+              promptMessage: async () => {
+                let label = parsed.data.collectionId;
+
+                try {
+                  const collections = await api.listActionCollections(
+                    parsed.data.applicationId,
+                  );
+                  const current = (
+                    Array.isArray(collections) ? collections : []
+                  ).find(
+                    (collection) =>
+                      (collection as { id?: unknown } | null)?.id ===
+                      parsed.data.collectionId,
+                  );
+                  const name = (current as { name?: unknown } | undefined)
+                    ?.name;
+
+                  if (typeof name === "string" && name.length > 0) {
+                    label = name;
+                  }
+                } catch {
+                  // Label read failed: prompt with the id rather than refuse.
+                }
+
+                return `Delete the JS object "${promptSafe(truncateForPrompt(label, 40))}" and ALL its functions? This cannot be undone via MCP.`;
+              },
+              schemaTitle: "Approve JS object deletion",
+              schemaDescription:
+                "Select true to delete this JS object and all its functions.",
+              operationNoun: "JS object deletion",
+              nothingHappened: "nothing was deleted",
+              confirmTool: "confirm_delete_js_object",
+              prepareTool: "prepare_delete_js_object",
+              notConfirmedCode: "delete_js_object_not_confirmed",
+              invalidate: async () =>
+                govJs.consumeDestructiveConfirmation({
+                  confirmationId,
+                  actorId,
+                  entityKey: `jsobject:${parsed.data.collectionId}`,
+                  operation: "delete_js_object",
+                  revision: parsed.data.revision,
+                  digest: operationDigest({
+                    applicationId: parsed.data.applicationId,
+                    collectionId: parsed.data.collectionId,
+                  }),
+                }),
+            },
+            extra,
+          );
+
+          if (!approval.approved) return approval.result;
 
           try {
             await govJs.consumeDestructiveConfirmation({
@@ -4953,6 +5572,7 @@ export function buildMcpServer(
                 collectionId: parsed.data.collectionId,
               }),
             });
+            markElicitationConsumed(confirmationId);
 
             const collections = await api.listActionCollections(
               parsed.data.applicationId,
@@ -5205,8 +5825,14 @@ export interface McpHttpServerOptions {
   // for the editor/viewer URLs build_application returns. When unset, the origin is derived per session from the
   // INITIALIZE request's validated X-Forwarded-Proto + Host headers; when that also fails, URLs are root-relative.
   publicOrigin?: string;
-  // Override for confirm_commit's elicitation wait (default MCP_COMMIT_ELICITATION_TIMEOUT_MS); injectable for tests.
+  // Override for the destructive confirm tools' elicitation wait (default MCP_ELICITATION_TIMEOUT_MS); injectable
+  // for tests.
+  elicitationTimeoutMs?: number;
+  // Deprecated alias for elicitationTimeoutMs (from when only confirm_commit prompted); elicitationTimeoutMs wins.
   commitElicitationTimeoutMs?: number;
+  // Interval between notifications/progress pings during an elicitation wait (default
+  // ELICITATION_PROGRESS_INTERVAL_MS); injectable for tests, like the timeout.
+  elicitationProgressIntervalMs?: number;
 }
 
 // The hostname portion of a Host header, lowercased and without the port. Handles `host`, `host:port`, and
@@ -5379,7 +6005,9 @@ export function createMcpHttpServer(
       const path = (req.url ?? "").split("?")[0];
 
       if (path === "/health") {
-        writeJson(res, 200, { status: "ok" });
+        // Carries the build identity (version + optional deploy-stamped buildTime) so operators can answer
+        // "which build is this instance running" without an authenticated MCP session.
+        writeJson(res, 200, { status: "ok", ...MCP_BUILD_INFO });
 
         return;
       }
@@ -5555,7 +6183,9 @@ export function createMcpHttpServer(
           governance,
           actorId: authenticatedUser,
           isAdmin,
+          elicitationTimeoutMs: options.elicitationTimeoutMs,
           commitElicitationTimeoutMs: options.commitElicitationTimeoutMs,
+          elicitationProgressIntervalMs: options.elicitationProgressIntervalMs,
           // Session-scoped origin for the URLs build_application returns, captured once here at initialize so
           // tool handlers never touch raw requests (same seam as actorId/isAdmin). The configured public origin
           // wins; header derivation is the validated fallback; undefined means root-relative URLs.

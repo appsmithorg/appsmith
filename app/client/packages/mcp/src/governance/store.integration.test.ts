@@ -90,13 +90,20 @@ describeIf("MongoRedisGovernanceStore (real Mongo + Redis)", () => {
 
     await store.createConfirmation(confirmation, 60_000);
 
+    // peekConfirmation is NON-consuming [security F1]: it reads the token without spending it.
+    const peeked = await store.peekConfirmation(confirmation.id);
+
+    expect(peeked?.id).toBe(confirmation.id);
+    expect(peeked?.actorId).toBe("user@appsmith.com");
+
     const consumed = await store.consumeConfirmation(confirmation.id);
 
     expect(consumed?.id).toBe(confirmation.id);
     expect(consumed?.operation).toBe("delete_page");
 
-    // One-time: a second consume finds nothing.
+    // One-time: a second consume finds nothing — and a peek after consumption finds nothing either.
     expect(await store.consumeConfirmation(confirmation.id)).toBeUndefined();
+    expect(await store.peekConfirmation(confirmation.id)).toBeUndefined();
   });
 
   it("persists audit changes and reads them back by actor (scoped + ordered)", async () => {

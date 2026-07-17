@@ -162,6 +162,19 @@ export class McpGovernanceCoordinator {
     return confirmation;
   }
 
+  // NON-consuming ownership check [SECURITY F1]: true iff the confirmation exists (not expired/consumed) AND was
+  // prepared by this actor. The elicitation layer calls this BEFORE prompting the human, so a forged, expired, or
+  // foreign confirmationId can never raise a genuine-looking destructive-approval dialog. Existence + actor binding
+  // only — the full entityKey/operation/revision/digest match stays at consume time.
+  async confirmationBelongsTo(
+    confirmationId: string,
+    actorId: string,
+  ): Promise<boolean> {
+    const confirmation = await this.store.peekConfirmation(confirmationId);
+
+    return confirmation !== undefined && confirmation.actorId === actorId;
+  }
+
   async consumeDestructiveConfirmation(
     request: ConsumeDestructiveConfirmation,
   ): Promise<PreparedConfirmation> {

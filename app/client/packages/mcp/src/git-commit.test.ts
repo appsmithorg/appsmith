@@ -106,6 +106,11 @@ class MemoryGovernanceStore implements McpGovernanceStore {
 
     return confirmation;
   }
+  async peekConfirmation(
+    id: string,
+  ): Promise<PreparedConfirmation | undefined> {
+    return this.confirmations.get(id);
+  }
   async saveChange(change: McpChangeRecord): Promise<void> {
     this.changes.push(change);
   }
@@ -1048,6 +1053,35 @@ describe("confirm_commit — the elicitation layer (real SDK client over a linke
       expect(body.code).toBe("commit_not_confirmed");
       expect(String(body.error)).toContain("did not approve");
       expect(api.commitGitApplication).not.toHaveBeenCalled();
+      expect(store.confirmations.has(confirmationId)).toBe(true);
+    } finally {
+      await session.close();
+    }
+  });
+
+  it("the neutral elicitationTimeoutMs wins when BOTH it and the deprecated commitElicitationTimeoutMs alias are set", async () => {
+    const store = new MemoryGovernanceStore();
+    const api = commitApi();
+    // Precedence by construction: the neutral option (50ms) forces the never-answered wait to time out promptly,
+    // while the deprecated alias alone (10 minutes) would keep waiting far beyond this test. If the alias ever won
+    // the resolution, the tool call would hang on the never-settling answer and fail on the jest timeout.
+    const session = await connectElicitationClient(
+      api,
+      store,
+      [async () => new Promise<ElicitResult>(() => {})],
+      { elicitationTimeoutMs: 50, commitElicitationTimeoutMs: 600_000 },
+    );
+
+    try {
+      const { confirmationId } = await prepareViaClient(session.client);
+      const body = await callViaClient(session.client, "confirm_commit", {
+        applicationId: "app1",
+        confirmationId,
+      });
+
+      expect(body.code).toBe("commit_not_confirmed");
+      expect(api.commitGitApplication).not.toHaveBeenCalled();
+      // A timeout is a non-accept: the one-time token survives, exactly as with the alias alone.
       expect(store.confirmations.has(confirmationId)).toBe(true);
     } finally {
       await session.close();

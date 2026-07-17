@@ -48,6 +48,14 @@ class MemoryGovernanceStore implements McpGovernanceStore {
     return confirmation;
   }
 
+  async peekConfirmation(
+    id: string,
+  ): Promise<PreparedConfirmation | undefined> {
+    this.calls.push(`peek-confirmation:${id}`);
+
+    return this.confirmations.get(id);
+  }
+
   async saveChange(change: McpChangeRecord): Promise<void> {
     this.calls.push(`save-change:${change.id}`);
     this.changes.push(change);
@@ -242,5 +250,31 @@ describe("destructive confirmations", () => {
         ...binding,
       }),
     ).rejects.toBeInstanceOf(DestructiveConfirmationError);
+  });
+
+  it("confirmationBelongsTo: true only for the preparing actor, via a NON-consuming peek [security F1]", async () => {
+    const store = new MemoryGovernanceStore();
+    const service = coordinator(store);
+    const confirmation = await service.prepareDestructiveConfirmation(binding);
+
+    // Never issued: false, without consuming anything.
+    expect(await service.confirmationBelongsTo("forged-id", "user-1")).toBe(
+      false,
+    );
+    // Prepared by a different actor: false.
+    expect(
+      await service.confirmationBelongsTo(confirmation.id, "someone-else"),
+    ).toBe(false);
+    // The owner: true — and the peek left the one-time token intact and consumable.
+    expect(
+      await service.confirmationBelongsTo(confirmation.id, binding.actorId),
+    ).toBe(true);
+    expect(store.confirmations.has(confirmation.id)).toBe(true);
+    await expect(
+      service.consumeDestructiveConfirmation({
+        confirmationId: confirmation.id,
+        ...binding,
+      }),
+    ).resolves.toEqual(confirmation);
   });
 });

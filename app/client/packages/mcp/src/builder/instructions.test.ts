@@ -4,7 +4,9 @@ import {
   WIDGET_CATALOG,
 } from "./capabilities.js";
 import {
+  getInstructionDoc,
   GUIDES,
+  INSTRUCTION_DOCS,
   parseFields,
   RECIPES,
   scaffoldCrudPlan,
@@ -74,6 +76,26 @@ describe("guides and recipes", () => {
         expect(body).not.toContain(tool);
       }
     }
+  });
+});
+
+describe("INSTRUCTION_DOCS — the single registry behind resources AND get_guide", () => {
+  it("contains exactly the reference + guides + recipes, keyed by unique slugs", () => {
+    // Drift guard: get_guide serves from this registry, so it must cover every doc the resources expose —
+    // adding a guide/recipe without it landing here would make it invisible to tools-only clients.
+    expect(INSTRUCTION_DOCS).toEqual([WIDGET_REFERENCE, ...GUIDES, ...RECIPES]);
+
+    const slugs = INSTRUCTION_DOCS.map((doc) => doc.slug);
+
+    expect(new Set(slugs).size).toBe(slugs.length);
+  });
+
+  it("getInstructionDoc resolves every slug and rejects unknown ones", () => {
+    for (const doc of INSTRUCTION_DOCS) {
+      expect(getInstructionDoc(doc.slug)).toBe(doc);
+    }
+
+    expect(getInstructionDoc("nope")).toBeUndefined();
   });
 });
 

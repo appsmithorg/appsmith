@@ -91,6 +91,11 @@ class MemoryGovernanceStore implements McpGovernanceStore {
 
     return confirmation;
   }
+  async peekConfirmation(
+    id: string,
+  ): Promise<PreparedConfirmation | undefined> {
+    return this.confirmations.get(id);
+  }
   async saveChange(change: McpChangeRecord): Promise<void> {
     this.changes.push(change);
   }
@@ -846,6 +851,176 @@ describe("the M7 branch gate on mutating tools", () => {
   });
 });
 
+// M7 QA follow-up: the branch gate is PATTERN-COPIED into every mutating tool that is not funnelled through
+// commitLayout — one parameterized matrix proves each call site actually wired it (a copy that silently dropped the
+// gate would pass every other suite). Each tool is invoked with schema-minimal args against a git-connected app
+// WITHOUT a branch; the gate must refuse with git_branch_required BEFORE any mutating API call. The confirm_* rows
+// use a bogus confirmationId deliberately: the gate runs before the one-time-token lookup (verified in app.ts), so
+// the token is never inspected — reaching a token error instead would itself be a gate-ordering regression.
+describe("M7 gate matrix — every pattern-copied gate call site refuses without a branch", () => {
+  const APP_ID = "a".repeat(24);
+  const PAGE_ID = "b".repeat(24);
+  const ENTITY_ID = "c".repeat(24);
+  const REVISION = "d".repeat(64);
+
+  const CASES: {
+    tool: string;
+    args: Record<string, unknown>;
+    // The API method(s) this tool would call to mutate — none may run when the gate refuses.
+    mutators: (keyof AppsmithApi)[];
+  }[] = [
+    {
+      tool: "create_page",
+      args: {
+        spec: { applicationId: APP_ID, revision: REVISION, name: "New Page" },
+      },
+      mutators: ["createPage"],
+    },
+    {
+      tool: "rename_page",
+      args: {
+        spec: {
+          applicationId: APP_ID,
+          pageId: PAGE_ID,
+          revision: REVISION,
+          name: "Renamed",
+        },
+      },
+      mutators: ["updatePage"],
+    },
+    {
+      tool: "confirm_delete_page",
+      args: {
+        spec: { applicationId: APP_ID, pageId: PAGE_ID, revision: REVISION },
+        confirmationId: "bogus-confirmation",
+      },
+      mutators: ["deletePage"],
+    },
+    {
+      tool: "create_rest_api",
+      args: {
+        api: {
+          name: "GetThing",
+          applicationId: APP_ID,
+          pageId: PAGE_ID,
+          datasourceId: ENTITY_ID,
+          method: "GET",
+          path: "/things",
+        },
+      },
+      mutators: ["createAction"],
+    },
+    {
+      tool: "create_mongo_query",
+      args: {
+        query: {
+          name: "FindUsers",
+          applicationId: APP_ID,
+          pageId: PAGE_ID,
+          datasourceId: ENTITY_ID,
+          collection: "users",
+          operation: "FIND",
+        },
+      },
+      mutators: ["createAction"],
+    },
+    {
+      tool: "create_sheets_query",
+      args: {
+        query: {
+          name: "ReadSheet",
+          applicationId: APP_ID,
+          pageId: PAGE_ID,
+          datasourceId: ENTITY_ID,
+          operation: "read",
+          sheetUrl: "https://docs.google.com/spreadsheets/d/abc123",
+          sheetName: "Sheet1",
+        },
+      },
+      mutators: ["createAction"],
+    },
+    {
+      tool: "update_action",
+      args: {
+        spec: {
+          kind: "SQL",
+          actionId: ENTITY_ID,
+          applicationId: APP_ID,
+          revision: REVISION,
+          name: "renamedQuery",
+        },
+      },
+      mutators: ["updateAction"],
+    },
+    {
+      tool: "duplicate_action",
+      args: {
+        spec: {
+          kind: "SQL",
+          actionId: ENTITY_ID,
+          applicationId: APP_ID,
+          revision: REVISION,
+          name: "copyOfQuery",
+        },
+      },
+      mutators: ["createAction"],
+    },
+    {
+      tool: "update_js_object",
+      args: {
+        spec: {
+          applicationId: APP_ID,
+          collectionId: ENTITY_ID,
+          revision: REVISION,
+          name: "RenamedUtils",
+        },
+      },
+      mutators: ["updateActionCollection"],
+    },
+    {
+      tool: "confirm_delete_js_object",
+      args: {
+        spec: {
+          applicationId: APP_ID,
+          collectionId: ENTITY_ID,
+          revision: REVISION,
+        },
+        confirmationId: "bogus-confirmation",
+      },
+      mutators: ["deleteActionCollection"],
+    },
+  ];
+
+  // One server + one session for the whole matrix. The gate refusal is deterministic per tool; opening a fresh
+  // session per row (via callTool) churned ~10 ephemeral listeners + initializes in rapid succession, and under
+  // heavy parallel jest load one initialize occasionally returned without an mcp-session-id header (test-infra
+  // flake, not a product bug). Reusing a single session removes that churn while asserting the full matrix.
+  it("refuses every pattern-copied gate call site without a branch, calling no mutating API method", async () => {
+    const api: AppsmithApi = {
+      ...stubApi(),
+      getApplication: jest.fn(async () => GIT_APP),
+    };
+    // All gates on so every tool in the matrix is registered.
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      dataEnabled: true,
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+    const sessionId = await openSession(server);
+
+    for (const { args, mutators, tool } of CASES) {
+      const { body } = await callInSession(server, sessionId, tool, args);
+
+      expect(body.code).toBe("git_branch_required");
+      expect(body.currentBranch).toBe("feature/x");
+
+      for (const mutator of mutators) {
+        expect(api[mutator]).not.toHaveBeenCalled();
+      }
+    }
+  });
+});
+
 describe("create_branch — governed agent branches (M7-T2)", () => {
   function gitApi(overrides: Partial<AppsmithApi> = {}): AppsmithApi {
     return {
@@ -985,6 +1160,43 @@ describe("create_branch — governed agent branches (M7-T2)", () => {
       "mcp/e",
     ]);
     expect(api.createGitBranch).not.toHaveBeenCalled();
+  });
+
+  it("re-checks the cap INSIDE the governed mutate: a list that grew between check and create refuses (race)", async () => {
+    const fourMcp = [
+      { refName: "master" },
+      { refName: "mcp/a" },
+      { refName: "mcp/b" },
+      { refName: "mcp/c" },
+      { refName: "mcp/d" },
+    ];
+    // A concurrent create_branch landed the 5th mcp/ ref between our pre-check and our locked mutate.
+    const fiveMcp = [...fourMcp, { refName: "mcp/e" }];
+    const listGitBranches = jest
+      .fn<Promise<unknown>, [string]>()
+      .mockResolvedValueOnce(fourMcp) // pre-check: 4 mcp/ branches, below the cap
+      .mockResolvedValue(fiveMcp); // mutate-time re-read: at the cap
+    const store = new MemoryGovernanceStore();
+    const api = gitApi({ listGitBranches });
+    const server = governedServer(api, store);
+    const { body } = await callTool(server, "create_branch", {
+      applicationId: "app1",
+      name: "mcp/f",
+    });
+
+    expect(body.code).toBe("mcp_branch_limit");
+    // The refusal reflects the FRESH list — the customer remote never overshoots the cap.
+    expect(body.mcpBranches).toEqual([
+      "mcp/a",
+      "mcp/b",
+      "mcp/c",
+      "mcp/d",
+      "mcp/e",
+    ]);
+    expect(listGitBranches).toHaveBeenCalledTimes(2);
+    expect(api.createGitBranch).not.toHaveBeenCalled();
+    // Nothing executed -> no audit record.
+    expect(store.changes).toHaveLength(0);
   });
 
   it("counts BRANCHES for the cap, not listings (origin/mcp/x dedupes with mcp/x)", async () => {

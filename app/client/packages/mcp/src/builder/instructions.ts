@@ -347,6 +347,20 @@ export const WIDGET_REFERENCE: InstructionDoc = {
   render: renderWidgetReference,
 };
 
+// EVERY instruction doc (reference + guides + recipes) in one registry — the single source for both the MCP
+// resources and the always-on get_guide tool (tools-only clients like ChatGPT cannot read MCP resources, so the
+// same content must be reachable through a tool). Slugs are unique across all three groups (guarded by tests);
+// no content is forked.
+export const INSTRUCTION_DOCS: InstructionDoc[] = [
+  WIDGET_REFERENCE,
+  ...GUIDES,
+  ...RECIPES,
+];
+
+export function getInstructionDoc(slug: string): InstructionDoc | undefined {
+  return INSTRUCTION_DOCS.find((doc) => doc.slug === slug);
+}
+
 // --- prompts (guided workflows) --------------------------------------------------------------------------------
 
 // Prompt args are string-only (MCP protocol). `fields` is a documented delimited string, parsed here.
