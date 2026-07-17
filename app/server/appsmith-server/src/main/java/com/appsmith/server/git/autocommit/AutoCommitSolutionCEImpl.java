@@ -115,22 +115,6 @@ public class AutoCommitSolutionCEImpl implements AutoCommitSolutionCE {
         return commonGitFileUtils.saveArtifactToLocalRepoNew(artifactRepoSuffixPath, artifactExchangeJson, refName);
     }
 
-    private Mono<Path> saveApplicationJsonToFileSystem(
-            ApplicationJson applicationJson, AutoCommitEvent autoCommitEvent) {
-        // all the migrations are done, write to file system
-        try {
-            return commonGitFileUtils.saveArtifactToLocalRepo(
-                    autoCommitEvent.getWorkspaceId(),
-                    autoCommitEvent.getApplicationId(),
-                    autoCommitEvent.getRepoName(),
-                    applicationJson,
-                    autoCommitEvent.getBranchName());
-        } catch (Exception e) {
-            log.error("failed to save application to file system using", e);
-            return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
-        }
-    }
-
     public Mono<Boolean> autoCommitDSLMigration(AutoCommitEvent autoCommitEvent) {
         String defaultApplicationId = autoCommitEvent.getApplicationId();
         String branchName = autoCommitEvent.getBranchName();
