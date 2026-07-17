@@ -1,12 +1,11 @@
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
 import { trace, context } from "@opentelemetry/api";
-import { Resource } from "@opentelemetry/resources";
+import { resourceFromAttributes } from "@opentelemetry/resources";
 import {
-  ATTR_DEPLOYMENT_NAME,
   ATTR_SERVICE_INSTANCE_ID,
-} from "@opentelemetry/semantic-conventions/incubating";
-import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
+  ATTR_SERVICE_NAME,
+} from "@opentelemetry/semantic-conventions";
 import { getAppsmithConfigs } from "ee/configs";
 import {
   initializeFaro,
@@ -18,13 +17,15 @@ import {
 } from "@grafana/faro-react";
 import {
   FaroTraceExporter,
-  FaroSessionSpanProcessor,
+  FaroMetaAttributesSpanProcessor,
 } from "@grafana/faro-web-tracing";
 import log from "loglevel";
 import { isTracingEnabled } from "instrumentation/utils";
 import { v4 as uuidv4 } from "uuid";
 import { error as errorLogger } from "loglevel";
 import type { User } from "constants/userConstants";
+
+const ATTR_DEPLOYMENT_NAME = "deployment.name" as const;
 
 class AppsmithTelemetry {
   private faro: Faro | null;
@@ -74,20 +75,20 @@ class AppsmithTelemetry {
         },
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- provider must be instantiated for span processors to be active
       const tracerProvider = new WebTracerProvider({
-        resource: new Resource({
+        resource: resourceFromAttributes({
           [ATTR_DEPLOYMENT_NAME]: deploymentName,
           [ATTR_SERVICE_INSTANCE_ID]: serviceInstanceId,
           [ATTR_SERVICE_NAME]: serviceName,
         }),
+        spanProcessors: [
+          new FaroMetaAttributesSpanProcessor(
+            new BatchSpanProcessor(new FaroTraceExporter({ ...this.faro })),
+            this.faro.metas,
+          ),
+        ],
       });
-
-      tracerProvider.addSpanProcessor(
-        new FaroSessionSpanProcessor(
-          new BatchSpanProcessor(new FaroTraceExporter({ ...this.faro })),
-          this.faro.metas,
-        ),
-      );
 
       this.faro.api.initOTEL(trace, context);
     } else {
