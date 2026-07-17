@@ -3,6 +3,7 @@ package com.appsmith.server.configurations;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.dtos.OAuth2AuthorizedClientDTO;
 import com.appsmith.server.dtos.UserSessionDTO;
+import com.appsmith.util.RestrictedHostFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.lettuce.core.AbstractRedisClient;
@@ -13,6 +14,7 @@ import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.resource.ClientResources;
 import io.micrometer.observation.ObservationRegistry;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,7 +46,9 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.session.data.redis.config.annotation.web.server.EnableRedisWebSession;
 
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -58,6 +62,47 @@ public class RedisConfig {
 
     @Value("${appsmith.redis.url:}")
     private String redisURL;
+
+    @Value("${appsmith.redis.git.url:}")
+    private String redisGitURL;
+
+    /**
+     * Teach the SSRF host filter which Redis the app is actually configured against, using the
+     * Spring-resolved property rather than only the {@code APPSMITH_REDIS_URL} env var the filter
+     * reads at static init. This closes a fail-open gap: an operator who sets {@code appsmith.redis.url}
+     * via application.properties or a {@code -D} system property (no env var) would otherwise leave
+     * the internal-Redis denylist empty, letting a datasource reach an in-cluster Redis. Runs once
+     * at startup, before any datasource can be tested. See GHSA-qhfj-g87x-m39w.
+     */
+    @PostConstruct
+    public void registerInternalRedisHostsWithSsrfFilter() {
+        RestrictedHostFilter.registerInternalRedisHosts(redisURL, redisGitURL);
+    }
+
+    /**
+     * Defense-in-depth: teach the SSRF host filter to block datasources that target the Appsmith
+     * instance's own routable address. That address is typically an RFC 1918 / site-local IP (Docker
+     * bridge {@code 172.17.x}, k8s pod {@code 10.x}, etc.), which the filter otherwise intentionally
+     * allows so legitimate customer datasources on private networks keep working — leaving the
+     * instance reachable from its own datasource layer. Registering the instance's own hostname(s)
+     * lets the filter resolve and block just its own address(es), via either the container hostname
+     * or the raw own IP, without blocking the rest of the private network.
+     *
+     * <p>Coverage is best-effort: only the address(es) the registered own hostname(s) resolve to are
+     * blocked, not a full network-interface enumeration. A multi-homed container's secondary-interface
+     * IPs are out of scope by design (hostname-scope decision). The filter also seeds these at static
+     * init; re-registering here keeps the set aligned with the running container. Runs once at startup,
+     * before any datasource can be tested.
+     */
+    @PostConstruct
+    public void registerOwnHostWithSsrfFilter() {
+        try {
+            RestrictedHostFilter.registerOwnHost(InetAddress.getLocalHost().getHostName());
+        } catch (UnknownHostException e) {
+            log.debug("Could not resolve local hostname for SSRF own-host registration; relying on static seed.");
+        }
+        RestrictedHostFilter.registerOwnHost(System.getenv("HOSTNAME"));
+    }
 
     /**
      * This is the topic to which we will publish & subscribe to. We can have multiple topics based on the messages

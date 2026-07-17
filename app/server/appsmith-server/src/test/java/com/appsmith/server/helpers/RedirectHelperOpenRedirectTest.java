@@ -500,4 +500,131 @@ class RedirectHelperOpenRedirectTest {
         String result = RedirectHelper.sanitizeRedirectUrl(" https://evil.com", headers);
         assertEquals("https://app.appsmith.com/applications", result);
     }
+
+    // --- Forged Origin header (APP-15347) ---
+    // These tests verify that the Origin header is cross-checked against the
+    // request Host / X-Forwarded-Host before it is used to build or validate
+    // redirect URLs. They exercise isSafeRedirectUrl (validation gate) and
+    // sanitizeRedirectUrl (fallback construction) end-to-end.
+
+    @Test
+    void testForgedOriginHeaderIsBlockedWhenHostDiffers() {
+        // Core pentest finding: attacker sets Origin: https://evil.com on a
+        // form login POST while the real Host is app.appsmith.com. Both the
+        // validation and the fallback must reject the forged domain.
+        HttpHeaders headers = new HttpHeaders();
+        headers.setOrigin("https://evil.com");
+        headers.setHost(InetSocketAddress.createUnresolved("app.appsmith.com", 0));
+
+        assertFalse(
+                RedirectHelper.isSafeRedirectUrl("https://evil.com/applications", headers),
+                "Redirect matching a forged Origin must be rejected when it differs from the request Host");
+
+        String sanitized = RedirectHelper.sanitizeRedirectUrl("https://evil.com/applications", headers);
+        assertFalse(sanitized.contains("evil.com"), "Sanitized fallback URL must not contain the forged Origin domain");
+    }
+
+    @Test
+    void testForgedOriginViaXForwardedHost() {
+        // Attacker controls both Origin and X-Forwarded-Host but not the
+        // underlying Host header. X-Forwarded-Host takes precedence in
+        // extractRequestHost, so when forged it becomes the trust anchor.
+        // At the helper level this cannot be distinguished from a legitimate
+        // proxy value — the real defence is ForwardedHeaderTransformer stripping
+        // client-supplied forwarded headers before they reach the handler.
+        // This test documents the helper's behaviour: it trusts whichever
+        // X-Forwarded-Host it receives.
+        HttpHeaders headers = new HttpHeaders();
+        headers.setOrigin("https://evil.com");
+        headers.set("X-Forwarded-Host", "evil.com");
+        headers.setHost(InetSocketAddress.createUnresolved("app.appsmith.com", 0));
+
+        // X-Forwarded-Host wins over Host, so Origin matches it — accepted at
+        // the helper level (runtime protection is ForwardedHeaderTransformer).
+        assertTrue(
+                RedirectHelper.isSafeRedirectUrl("https://evil.com/applications", headers),
+                "X-Forwarded-Host takes precedence; helper trusts it (ForwardedHeaderTransformer is the real guard)");
+    }
+
+    @Test
+    void testLegitimateOriginMatchesXForwardedHostNotHost() {
+        // Standard reverse-proxy setup: X-Forwarded-Host carries the public
+        // hostname while Host carries the internal LB address. Origin matches
+        // the public hostname and must be accepted.
+        HttpHeaders headers = new HttpHeaders();
+        headers.setOrigin("https://app.appsmith.com");
+        headers.set("X-Forwarded-Host", "app.appsmith.com");
+        headers.setHost(InetSocketAddress.createUnresolved("internal.lb", 0));
+
+        assertTrue(
+                RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/applications", headers),
+                "Origin matching X-Forwarded-Host must be accepted even when Host differs (proxy setup)");
+    }
+
+    @Test
+    void testSameHostDifferentPortOriginIsRejected() {
+        // Attacker forges Origin to a different port on the same IPv4 host.
+        // A different port means a different service — must be rejected.
+        HttpHeaders headers = new HttpHeaders();
+        headers.setOrigin("http://localhost:9090");
+        headers.setHost(InetSocketAddress.createUnresolved("localhost", 8080));
+
+        assertFalse(
+                RedirectHelper.isSafeRedirectUrl("http://localhost:9090/applications", headers),
+                "Same host but different port must be rejected — different port means different service");
+
+        String sanitized = RedirectHelper.sanitizeRedirectUrl("http://localhost:9090/applications", headers);
+        assertFalse(sanitized.contains("9090"), "Sanitized fallback must not redirect to the forged port");
+    }
+
+    @Test
+    void testSameHostDifferentPortIPv6OriginIsRejected() {
+        // Same-host different-port attack on IPv6 — exercises bracket stripping
+        // in getTrustedOrigin plus port comparison.
+        HttpHeaders headers = new HttpHeaders();
+        headers.setOrigin("http://[::1]:9090");
+        headers.set("X-Forwarded-Host", "[::1]:8080");
+
+        assertFalse(
+                RedirectHelper.isSafeRedirectUrl("http://[::1]:9090/applications", headers),
+                "IPv6 same host but different port must be rejected");
+    }
+
+    @Test
+    void testIPv6OriginMatchesRequestHost() {
+        // Positive case: IPv6 Origin with matching X-Forwarded-Host (same host
+        // and port) must be accepted. Exercises bracket stripping.
+        HttpHeaders headers = new HttpHeaders();
+        headers.setOrigin("http://[::1]:8080");
+        headers.set("X-Forwarded-Host", "[::1]:8080");
+
+        assertTrue(
+                RedirectHelper.isSafeRedirectUrl("http://[::1]:8080/applications", headers),
+                "IPv6 Origin matching X-Forwarded-Host (host + port) must be accepted");
+    }
+
+    @Test
+    void testSameHostMatchingPortOriginIsAccepted() {
+        // Positive case: Origin and Host agree on both hostname and port.
+        HttpHeaders headers = new HttpHeaders();
+        headers.setOrigin("http://localhost:8080");
+        headers.setHost(InetSocketAddress.createUnresolved("localhost", 8080));
+
+        assertTrue(
+                RedirectHelper.isSafeRedirectUrl("http://localhost:8080/applications", headers),
+                "Origin matching Host on both hostname and port must be accepted");
+    }
+
+    @Test
+    void testImplicitPortsAreAccepted() {
+        // Both Origin and Host omit port (implicit defaults) — common in
+        // production. Must be accepted without false rejection.
+        HttpHeaders headers = new HttpHeaders();
+        headers.setOrigin("https://app.appsmith.com");
+        headers.setHost(InetSocketAddress.createUnresolved("app.appsmith.com", 0));
+
+        assertTrue(
+                RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/applications", headers),
+                "Implicit default ports on both sides must match");
+    }
 }

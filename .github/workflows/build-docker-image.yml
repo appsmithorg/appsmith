@@ -120,21 +120,16 @@ jobs:
           args+=(--label "org.opencontainers.image.version=${{ steps.info_json.outputs.version }}")
           docker build -t cicontainer "${args[@]}" .
 
-      # Saving the docker image to tar file
-      - name: Save Docker image to tar file
+      # Push the SUT image to GHCR so test jobs can pull it with layer-level
+      # parallelism instead of restoring a single-blob tarball from the Actions
+      # cache. Old run-<id> tags are pruned by ghcr-citest-retention.yml.
+      - name: Push docker image to GHCR
+        env:
+          GHCR_IMAGE: ghcr.io/${{ github.repository }}-citest:run-${{ github.run_id }}
         run: |
-          docker image ls --all --no-trunc --format '{{.Repository}},{{.ID}}' \
-            | grep -v cicontainer \
-            | cut -d, -f2 \
-            | xargs -r docker rmi || true
-          docker save cicontainer -o cicontainer.tar
-          gzip cicontainer.tar
-
-      - name: Cache docker image
-        uses: actions/cache/save@v4
-        with:
-          path: cicontainer.tar.gz
-          key: docker-image-${{github.run_id}}
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          docker tag cicontainer "$GHCR_IMAGE"
+          docker push "$GHCR_IMAGE"
 
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result

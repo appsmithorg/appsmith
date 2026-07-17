@@ -47,6 +47,7 @@ import activeFieldReducer from "reducers/uiReducers/activeFieldEditorReducer";
 import selectedWorkspaceReducer from "ee/reducers/uiReducers/selectedWorkspaceReducer";
 import ideReducer from "reducers/uiReducers/ideReducer";
 import consolidatedPageLoadReducer from "reducers/uiReducers/consolidatedPageLoadReducer";
+import copyEntityToAppReducer from "reducers/uiReducers/copyEntityToAppReducer";
 import { pluginActionReducer } from "PluginActionEditor/store";
 
 export const uiReducerObject = {
@@ -100,4 +101,5 @@ export const uiReducerObject = {
   ide: ideReducer,
   consolidatedPageLoad: consolidatedPageLoadReducer,
   pluginActionEditor: pluginActionReducer,
+  copyEntityToApp: copyEntityToAppReducer,
 };

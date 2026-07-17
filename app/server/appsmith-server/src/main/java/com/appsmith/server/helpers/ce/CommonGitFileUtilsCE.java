@@ -10,7 +10,6 @@ import com.appsmith.external.git.operations.FileOperations;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.ArtifactGitReference;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DatasourceStorage;
@@ -52,14 +51,12 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -146,36 +143,6 @@ public class CommonGitFileUtilsCE {
         return applicationGitFileUtils;
     }
 
-    /**
-     * This method will save the complete application in the local repo directory.
-     * Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
-     *
-     * @param baseRepoSuffix       path suffix used to create a local repo path
-     * @param artifactExchangeJson application reference object from which entire application can be rehydrated
-     * @param branchName           name of the branch for the current application
-     * @return repo path where the application is stored
-     */
-    public Mono<Path> saveArtifactToLocalRepo(
-            Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName)
-            throws IOException, GitAPIException {
-
-        // this should come from the specific files
-        ArtifactGitReference artifactGitReference = createArtifactReference(artifactExchangeJson);
-        Mono<Boolean> isRtsResetEnabledMono = featureFlagService.check(FeatureFlagEnum.ab_rts_git_reset_enabled);
-
-        // Save application to git repo
-        return isRtsResetEnabledMono
-                .flatMap(isRtsEnabled -> {
-                    try {
-                        return fileUtils.saveApplicationToGitRepo(
-                                baseRepoSuffix, artifactGitReference, branchName, isRtsEnabled);
-                    } catch (IOException | GitAPIException e) {
-                        throw Exceptions.propagate(e);
-                    }
-                })
-                .subscribeOn(Schedulers.boundedElastic());
-    }
-
     public Mono<Path> saveArtifactToLocalRepoNew(
             Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName) {
 
@@ -194,80 +161,6 @@ public class CommonGitFileUtilsCE {
                 return Mono.error(exception);
             }
         });
-    }
-
-    public Mono<Path> saveArtifactToLocalRepoWithAnalytics(
-            Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName) {
-
-        /*
-           1. Checkout to branch
-           2. Create artifact reference for appsmith-git module
-           3. Save artifact to git repo
-        */
-        // TODO: see if event needs to be generalised or kept specific
-        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.GIT_SERIALIZE_APP_RESOURCES_TO_LOCAL_FILE.getEventName());
-        ArtifactGitFileUtils<?> artifactGitFileUtils =
-                getArtifactBasedFileHelper(artifactExchangeJson.getArtifactJsonType());
-        String artifactConstant = artifactGitFileUtils.getConstantsMap().get(FieldName.ARTIFACT_CONTEXT);
-
-        try {
-            Mono<Path> repoPathMono = saveArtifactToLocalRepo(baseRepoSuffix, artifactExchangeJson, branchName);
-            return Mono.zip(repoPathMono, sessionUserService.getCurrentUser()).flatMap(tuple -> {
-                stopwatch.stopTimer();
-                Path repoPath = tuple.getT1();
-                // Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/
-                final Map<String, Object> data = Map.of(
-                        artifactConstant,
-                        repoPath.getParent().getFileName().toString(),
-                        "workspaceId",
-                        repoPath.getParent().getParent().getFileName().toString(),
-                        FieldName.FLOW_NAME,
-                        stopwatch.getFlow(),
-                        "executionTime",
-                        stopwatch.getExecutionTime());
-                return analyticsService
-                        .sendEvent(
-                                AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(),
-                                tuple.getT2().getUsername(),
-                                data)
-                        .thenReturn(repoPath);
-            });
-        } catch (IOException | GitAPIException e) {
-            log.error("Error occurred while saving files to local git repo: ", e);
-            throw Exceptions.propagate(e);
-        }
-    }
-
-    public Mono<Path> saveArtifactToLocalRepo(
-            String workspaceId,
-            String baseArtifactId,
-            String repoName,
-            ApplicationJson applicationJson,
-            String branchName)
-            throws GitAPIException, IOException {
-
-        // TODO: Paths are to populated by artifact specific services
-        Path baseRepoSuffix = Paths.get(workspaceId, baseArtifactId, repoName);
-        return saveArtifactToLocalRepo(baseRepoSuffix, applicationJson, branchName);
-    }
-
-    /**
-     * Method to convert artifact resources to the structure which can be serialised by appsmith-git module for
-     * serialisation
-     *
-     * @param artifactExchangeJson artifact resource including datasource, jsobjects, actions
-     * @return resource which can be saved to file system
-     */
-    public ArtifactGitReference createArtifactReference(ArtifactExchangeJson artifactExchangeJson) {
-
-        ArtifactGitFileUtils<?> artifactGitFileUtils =
-                getArtifactBasedFileHelper(artifactExchangeJson.getArtifactJsonType());
-        ArtifactGitReference artifactGitReference = artifactGitFileUtils.createArtifactReferenceObject();
-        artifactGitReference.setModifiedResources(artifactExchangeJson.getModifiedResources());
-
-        setDatasourcesInArtifactReference(artifactExchangeJson, artifactGitReference);
-        artifactGitFileUtils.addArtifactReferenceFromExportedJson(artifactExchangeJson, artifactGitReference);
-        return artifactGitReference;
     }
 
     public GitResourceMap createGitResourceMap(ArtifactExchangeJson artifactExchangeJson) {
@@ -598,19 +491,6 @@ public class CommonGitFileUtilsCE {
                     x.putAll(y);
                     return x;
                 });
-    }
-
-    private void setDatasourcesInArtifactReference(
-            ArtifactExchangeJson artifactExchangeJson, ArtifactGitReference artifactGitReference) {
-        Map<String, Object> resourceMap = new HashMap<>();
-        // Send datasources
-
-        artifactExchangeJson.getDatasourceList().forEach(datasource -> {
-            removeUnwantedFieldsFromDatasource(datasource);
-            resourceMap.put(datasource.getName(), datasource);
-        });
-
-        artifactGitReference.setDatasources(resourceMap);
     }
 
     public Mono<? extends ArtifactExchangeJson> constructArtifactExchangeJsonFromGitRepositoryWithAnalytics(

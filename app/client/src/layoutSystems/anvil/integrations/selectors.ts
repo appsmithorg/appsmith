@@ -6,6 +6,19 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { createSelector } from "reselect";
 
+/**
+ * @deprecated DEAD / RETIRED (M5). Reads the retired `release_anvil_enabled`
+ * flag and has ZERO production callers — the last one (WorkspaceAction) now
+ * reads `license_anvil_enabled` (Decision 10: license is the sole Anvil gate).
+ *
+ * Do NOT add new callers: re-introducing `release_anvil_enabled` would create
+ * an ungated Anvil window that diverges from the license entitlement. Use
+ * `getIsAnvilAppLicenseLocked` (ee/selectors/anvilEntitlementSelectors) for the
+ * render/open gate. This stub is kept (not deleted) only to avoid a CE-core
+ * churn edit; scheduled for removal in M6 along with the remaining
+ * `release_anvil_enabled` refs (Cypress fixtures, useFeatureFlagOverride,
+ * ce/entities/FeatureFlag.ts).
+ */
 export const getIsAnvilLayoutEnabled = (state: DefaultRootState) => {
   return selectFeatureFlagCheck(state, FEATURE_FLAG.release_anvil_enabled);
 };

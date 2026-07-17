@@ -1,4 +1,4 @@
-import { Tooltip } from "@blueprintjs/core";
+import { Classes, Tooltip } from "@blueprintjs/core";
 import { importSvg } from "@appsmith/ads-old";
 import React, { createRef, useEffect, useState } from "react";
 import styled from "styled-components";
@@ -37,14 +37,17 @@ const TOOLTIP_OPEN_DELAY = 500;
 const MAX_CHARS_ALLOWED_IN_TOOLTIP = 200;
 
 export function isButtonTextTruncated(element: HTMLElement): boolean {
-  const spanElement = element.querySelector("span");
+  const spanElement =
+    element.querySelector(`.${Classes.BUTTON_TEXT}`) ??
+    element.querySelector("span");
 
   if (!spanElement) {
     return false;
   }
 
-  const offsetWidth = spanElement.offsetWidth;
-  const scrollWidth = spanElement.scrollWidth;
+  const textElement = spanElement as HTMLElement;
+  const offsetWidth = textElement.offsetWidth;
+  const scrollWidth = textElement.scrollWidth;
 
   return scrollWidth > offsetWidth;
 }
@@ -152,22 +155,23 @@ interface Props {
   isCellDisabled?: boolean;
 }
 
+const BUTTON_COLUMN_TYPES = new Set([
+  ColumnTypes.BUTTON,
+  ColumnTypes.MENU_BUTTON,
+]);
+
 export function AutoToolTipComponent(props: Props) {
-  const content = useToolTip(
-    props.children,
-    props.title,
-    props.columnType === ColumnTypes.BUTTON,
+  const isButtonColumn = BUTTON_COLUMN_TYPES.has(
+    props.columnType as ColumnTypes,
   );
+  const content = useToolTip(props.children, props.title, isButtonColumn);
 
   let contentToRender;
 
   switch (props.columnType) {
     case ColumnTypes.BUTTON:
-      if (props.title) {
-        return content;
-      }
-
-      break;
+    case ColumnTypes.MENU_BUTTON:
+      return content;
     case ColumnTypes.URL:
       contentToRender = (
         <>

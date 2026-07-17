@@ -16,6 +16,7 @@ import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.services.SharedConfig;
+import com.appsmith.util.RestrictedHostFilter;
 import com.external.plugins.exceptions.GraphQLPluginError;
 import com.external.utils.GraphQLHintMessageUtils;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -1160,49 +1161,94 @@ public class GraphQLPluginTest {
                 .verifyComplete();
     }
 
+    // These deny tests previously only checked that the request did not succeed, which would
+    // pass on any ordinary network failure as well — making them useless as SSRF regression
+    // coverage. They now (a) re-enable the filter (surefire bypasses it JVM-wide; see root pom)
+    // and (b) assert the downstream error message specifically contains "Host not allowed.",
+    // so a network outage to the target host can no longer mask a filter regression.
+
     @Test
     public void testDenyInstanceMetadataAws() {
-        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
-        dsConfig.setUrl("http://169.254.169.254/latest/meta-data");
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
+            dsConfig.setUrl("http://169.254.169.254/latest/meta-data");
 
-        ActionConfiguration actionConfig = getDefaultActionConfiguration();
-        actionConfig.setHttpMethod(HttpMethod.GET);
+            ActionConfiguration actionConfig = getDefaultActionConfiguration();
+            actionConfig.setHttpMethod(HttpMethod.GET);
 
-        Mono<ActionExecutionResult> resultMono =
-                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
-        StepVerifier.create(resultMono)
-                .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
-                .verifyComplete();
+            Mono<ActionExecutionResult> resultMono =
+                    pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+            StepVerifier.create(resultMono)
+                    .assertNext(result -> {
+                        assertFalse(result.getIsExecutionSuccess());
+                        assertTrue(
+                                result.getPluginErrorDetails()
+                                        .getDownstreamErrorMessage()
+                                        .contains("Host not allowed."),
+                                "Expected the SSRF filter to block, got: "
+                                        + result.getPluginErrorDetails().getDownstreamErrorMessage());
+                    })
+                    .verifyComplete();
+        } finally {
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
     }
 
     @Test
     public void testDenyInstanceMetadataAwsViaCname() {
-        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
-        dsConfig.setUrl("http://169.254.169.254.nip.io/latest/meta-data");
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
+            dsConfig.setUrl("http://169.254.169.254.nip.io/latest/meta-data");
 
-        ActionConfiguration actionConfig = getDefaultActionConfiguration();
-        actionConfig.setHttpMethod(HttpMethod.GET);
+            ActionConfiguration actionConfig = getDefaultActionConfiguration();
+            actionConfig.setHttpMethod(HttpMethod.GET);
 
-        Mono<ActionExecutionResult> resultMono =
-                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
-        StepVerifier.create(resultMono)
-                .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
-                .verifyComplete();
+            Mono<ActionExecutionResult> resultMono =
+                    pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+            StepVerifier.create(resultMono)
+                    .assertNext(result -> {
+                        assertFalse(result.getIsExecutionSuccess());
+                        assertTrue(
+                                result.getPluginErrorDetails()
+                                        .getDownstreamErrorMessage()
+                                        .contains("Host not allowed."),
+                                "Expected the SSRF filter to block, got: "
+                                        + result.getPluginErrorDetails().getDownstreamErrorMessage());
+                    })
+                    .verifyComplete();
+        } finally {
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
     }
 
     @Test
     public void testDenyInstanceMetadataGcp() {
-        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
-        dsConfig.setUrl("http://metadata.google.internal/latest/meta-data");
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
+            dsConfig.setUrl("http://metadata.google.internal/latest/meta-data");
 
-        ActionConfiguration actionConfig = getDefaultActionConfiguration();
-        actionConfig.setHttpMethod(HttpMethod.GET);
+            ActionConfiguration actionConfig = getDefaultActionConfiguration();
+            actionConfig.setHttpMethod(HttpMethod.GET);
 
-        Mono<ActionExecutionResult> resultMono =
-                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
-        StepVerifier.create(resultMono)
-                .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
-                .verifyComplete();
+            Mono<ActionExecutionResult> resultMono =
+                    pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+            StepVerifier.create(resultMono)
+                    .assertNext(result -> {
+                        assertFalse(result.getIsExecutionSuccess());
+                        assertTrue(
+                                result.getPluginErrorDetails()
+                                        .getDownstreamErrorMessage()
+                                        .contains("Host not allowed."),
+                                "Expected the SSRF filter to block, got: "
+                                        + result.getPluginErrorDetails().getDownstreamErrorMessage());
+                    })
+                    .verifyComplete();
+        } finally {
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
     }
 
     /**
