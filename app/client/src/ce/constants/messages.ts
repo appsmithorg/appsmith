@@ -1952,8 +1952,10 @@ export const COPY_ENTITY_TO_APP_SUCCESS = (
 ) => `Copied ${entityName} to ${appName} / ${pageName}`;
 export const COPY_ENTITY_TO_APP_ERROR = () =>
   "Failed to copy to the selected application";
-export const COPY_ENTITY_TO_APP_NOTE = () =>
+export const COPY_ENTITY_TO_APP_NOTE_ACTION = () =>
   "Datasource credentials and any referenced queries aren't copied. Datasources are set up during import, but you may need to re-enter credentials and recreate any referenced queries before the copied item will work in the target application.";
+export const COPY_ENTITY_TO_APP_NOTE_JS_OBJECT = () =>
+  "Queries, JS objects, and other entities referenced by this JS object aren't copied. You may need to recreate them before the copied JS object will work in the target application.";
 
 export const CLEAN_URL_UPDATE = {
   name: () => "Update URLs",

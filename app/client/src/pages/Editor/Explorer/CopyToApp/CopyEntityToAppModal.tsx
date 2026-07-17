@@ -28,7 +28,8 @@ import {
   COPY_ENTITY_TO_APP_NO_APPS,
   COPY_ENTITY_TO_APP_NO_PAGES,
   COPY_ENTITY_TO_APP_NO_WORKSPACES,
-  COPY_ENTITY_TO_APP_NOTE,
+  COPY_ENTITY_TO_APP_NOTE_ACTION,
+  COPY_ENTITY_TO_APP_NOTE_JS_OBJECT,
   COPY_ENTITY_TO_APP_PAGE_LABEL,
   COPY_ENTITY_TO_APP_PAGE_PLACEHOLDER,
   COPY_ENTITY_TO_APP_WORKSPACE_LABEL,
@@ -52,6 +53,11 @@ import {
   getIsFetchingCopyTargetPages,
 } from "selectors/copyToAppSelectors";
 import { CopyToAppEntityType } from "./types";
+
+// The ADS Modal (Radix Dialog) blocks scroll events outside its content, so
+// dropdowns must render inside the modal instead of portaling to the body.
+const getPopupContainerInModal = (triggerNode: HTMLElement) =>
+  triggerNode.parentNode as HTMLElement;
 
 const FieldWrapper = ({
   children,
@@ -214,6 +220,7 @@ function CopyEntityToAppModal() {
             <Select
               aria-label={createMessage(COPY_ENTITY_TO_APP_WORKSPACE_LABEL)}
               dropdownMatchSelectWidth
+              getPopupContainer={getPopupContainerInModal}
               onSelect={handleWorkspaceSelect}
               placeholder={createMessage(
                 COPY_ENTITY_TO_APP_WORKSPACE_PLACEHOLDER,
@@ -240,6 +247,7 @@ function CopyEntityToAppModal() {
             <Select
               aria-label={createMessage(COPY_ENTITY_TO_APP_APPLICATION_LABEL)}
               dropdownMatchSelectWidth
+              getPopupContainer={getPopupContainerInModal}
               isLoading={isFetchingApplications}
               onSelect={handleApplicationSelect}
               placeholder={createMessage(
@@ -266,6 +274,7 @@ function CopyEntityToAppModal() {
             <Select
               aria-label={createMessage(COPY_ENTITY_TO_APP_PAGE_LABEL)}
               dropdownMatchSelectWidth
+              getPopupContainer={getPopupContainerInModal}
               isLoading={isFetchingPages}
               onSelect={(value: string) => setPageId(value)}
               placeholder={createMessage(COPY_ENTITY_TO_APP_PAGE_PLACEHOLDER)}
@@ -285,7 +294,13 @@ function CopyEntityToAppModal() {
           </FieldWrapper>
         )}
 
-        <Callout kind="info">{createMessage(COPY_ENTITY_TO_APP_NOTE)}</Callout>
+        <Callout kind="info">
+          {createMessage(
+            entity?.entityType === CopyToAppEntityType.JS_OBJECT
+              ? COPY_ENTITY_TO_APP_NOTE_JS_OBJECT
+              : COPY_ENTITY_TO_APP_NOTE_ACTION,
+          )}
+        </Callout>
 
         <div
           style={{
