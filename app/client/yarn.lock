@@ -14023,7 +14023,7 @@ __metadata:
     dotenv: ^10.0.0
     dotenv-expand: ^5.1.0
     downloadjs: ^1.4.7
-    echarts: ^5.4.2
+    echarts: ^6.1.0
     eslint: ^8.51.0
     eslint-config-prettier: ^9.0.0
     eslint-config-react-app: ^7.0.1
@@ -18464,13 +18464,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"echarts@npm:^5.4.2":
-  version: 5.4.2
-  resolution: "echarts@npm:5.4.2"
+"echarts@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "echarts@npm:6.1.0"
   dependencies:
     tslib: 2.3.0
-    zrender: 5.4.3
-  checksum: 933c28dada362314f7c7a5fd4243b44b24f75adb233f7c87541ac9a81734cb380a9683c3f56c8e559dacfddd363879e95a96f0047e33820123cd8f5b95b60f8f
+    zrender: 6.1.0
+  checksum: c9a3bd18c822bf5d0c0e4cc69382eb449c64dc1d6c52522b06869b240d97182d811017fca7b178929071d57a42ea76d1951f449eed161976d9407abb52504232
   languageName: node
   linkType: hard
 
@@ -36569,12 +36569,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zrender@npm:5.4.3":
-  version: 5.4.3
-  resolution: "zrender@npm:5.4.3"
+"zrender@npm:6.1.0":
+  version: 6.1.0
+  resolution: "zrender@npm:6.1.0"
   dependencies:
     tslib: 2.3.0
-  checksum: ae89584fbe4256217e500a74183fd5870a2bed7e7b3234cd78fcbc0a1a82da8449596b2019105927069531b567ecf94425fb171abd6cedcbf517e52fdf438722
+  checksum: e02956ab1e4b66d64952f9c6f23f917ad8856eff292714f6b943759526c290356d285556e177977136b8f1097d01600aab6727fa6c0ad61f7093d0fb28eb3920
   languageName: node
   linkType: hard
 
