@@ -423,11 +423,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 400 }); //another button widget
     cy.moveToStyleTab();
     //Change Color & verify (scope to Button color — Label styles also has a color picker)
-    cy.get(
-      `.t--property-control-buttoncolor ${widgetsPage.colorPickerV2Popover}`,
-    )
-      .click({ force: true })
-      .click();
+    cy.get(widgetsPage.buttonColor).click({ force: true }).click();
     cy.get(widgetsPage.colorPickerV2TailwindColor)
       .eq(33)
       .then(($elem) => {
@@ -612,11 +608,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
     cy.moveToStyleTab();
 
     //Change Color & verify (scope to Button color — Label styles also has a color picker)
-    cy.get(
-      `.t--property-control-buttoncolor ${widgetsPage.colorPickerV2Popover}`,
-    )
-      .click({ force: true })
-      .click();
+    cy.get(widgetsPage.buttonColor).click({ force: true }).click();
     cy.get(widgetsPage.colorPickerV2TailwindColor)
       .eq(13)
       .then(($elem) => {
