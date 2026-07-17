@@ -9,7 +9,6 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
-import packageJson from "../package.json";
 import {
   buildDuplicateActionDto,
   buildUpdateActionDto,
@@ -96,6 +95,33 @@ import {
   type McpChangeRecord,
   type McpGovernanceCoordinator,
 } from "./governance/coordinator.js";
+import { MCP_BUILD_INFO } from "./buildInfo.js";
+import {
+  GitGateCache,
+  GIT_GATE_NOT_CONNECTED_TTL_MS,
+  fingerprintBranchList,
+  gitBranchNames,
+  gitEditWarning,
+  gitMetadataOf,
+  gitStateOf,
+  projectGitStatus,
+  type GitMetadataProjection,
+  type GitState,
+} from "./git/projections.js";
+import {
+  MCP_COMMIT_MARKER,
+  MCP_COMMIT_MESSAGE_MAX,
+  commitMessageProblem,
+  promptSafe,
+  truncateForPrompt,
+} from "./prompt/hygiene.js";
+
+// Re-exported so existing importers (tests and other modules that import these by name from "./app.js") keep working
+// after M8 moved the definitions into cohesive modules. Pure code-movement — no behavior change.
+export { MCP_BUILD_INFO };
+export { GitGateCache, GIT_GATE_NOT_CONNECTED_TTL_MS };
+export type { GitState };
+export { MCP_COMMIT_MARKER, MCP_COMMIT_MESSAGE_MAX, commitMessageProblem };
 
 // Safe audit-record projection for the history tools: never returns the rollback snapshot (it can hold full DSL) —
 // only metadata and the semantic summary, plus whether a safe rollback exists.
@@ -201,17 +227,6 @@ function governanceError(error: unknown): ToolResult | undefined {
 }
 
 const MAX_ID_LENGTH = 128;
-
-// Build identity surfaced by /health and get_capabilities so operators can tell WHICH build an instance is running
-// (twice in one week a diagnosis stalled on exactly that question). Read ONCE at startup: the package.json version
-// (a compile-time JSON import — no exec calls, no fs reads), plus an optional deploy-stamped build time
-// (APPSMITH_MCP_BUILD_TIME, passed through verbatim when set).
-export const MCP_BUILD_INFO: { version: string; buildTime?: string } = {
-  version: packageJson.version,
-  ...(process.env.APPSMITH_MCP_BUILD_TIME
-    ? { buildTime: process.env.APPSMITH_MCP_BUILD_TIME }
-    : {}),
-};
 
 export const MAX_ARTIFACT_BYTES = 1024 * 1024;
 export const MAX_REQUEST_BODY_BYTES = 2 * 1024 * 1024;
@@ -1059,93 +1074,6 @@ function applicationUrlsFromPages(
   return applicationUrls(origin, slug, pages);
 }
 
-// --- M7-T3 commit message hygiene [COUNCIL: security F4 + rev-2 condition 3] -------------------------------------
-
-export const MCP_COMMIT_MESSAGE_MAX = 200;
-// The server-side (MCP) marker prepended to every commit message at commit time. Non-strippable: messages that
-// begin with "[" are rejected, so agent text can never impersonate or absorb the marker.
-export const MCP_COMMIT_MARKER = "[mcp] ";
-// safeText rules (matching schema.ts's RAW_EXPRESSION, same escaped-code-point style): no binding/template
-// syntax and no U+2028/U+2029 line separators.
-const COMMIT_TEMPLATE_SYNTAX =
-  /\u007b\u007b|\u007d\u007d|\$\u007b|`|\u2028|\u2029/;
-
-// Explicit code-point scan (kept regex-free so no control characters — literal or escaped — live in a pattern):
-// - C0 controls U+0000-U+001F (a multiline message falls here via \n) and DEL U+007F: the message must be ONE
-//   printable line;
-// - Unicode bidi/format controls U+202A-U+202E (embeddings/overrides) and U+2066-U+2069 (isolates): rejected so
-//   agent text cannot visually reorder the load-bearing facts in git UIs or the approval prompt
-//   [SECURITY REV-2 CONDITION 3].
-function commitCharProblem(message: string): string | undefined {
-  for (const char of message) {
-    const code = char.codePointAt(0) ?? 0;
-
-    if (code <= 0x1f || code === 0x7f) {
-      return "the commit message must be a single line of printable characters (no control characters)";
-    }
-
-    if (
-      (code >= 0x202a && code <= 0x202e) ||
-      (code >= 0x2066 && code <= 0x2069)
-    ) {
-      return "the commit message must not contain Unicode bidirectional/format control characters";
-    }
-  }
-
-  return undefined;
-}
-
-// Returns a human-readable problem for an invalid commit message, or undefined when it passes every rule.
-export function commitMessageProblem(message: string): string | undefined {
-  if (message.length === 0) return "the commit message must not be empty";
-
-  if (message.length > MCP_COMMIT_MESSAGE_MAX) {
-    return `the commit message must be at most ${MCP_COMMIT_MESSAGE_MAX} characters`;
-  }
-
-  if (message.startsWith("[")) {
-    return `the commit message must not start with "[" (the server prepends a non-strippable "${MCP_COMMIT_MARKER.trim()} " marker)`;
-  }
-
-  const charProblem = commitCharProblem(message);
-
-  if (charProblem !== undefined) return charProblem;
-
-  if (COMMIT_TEMPLATE_SYNTAX.test(message)) {
-    return "the commit message must not contain binding/template syntax ({{ }}, ${ }, or backticks) or line separators";
-  }
-
-  return undefined;
-}
-
-function truncateForPrompt(text: string, max: number): string {
-  return text.length > max ? `${text.slice(0, max)}…` : text;
-}
-
-// Everything interpolated into a human-facing approval prompt passes through here: C0 controls/DEL and bidi/format
-// controls are stripped (an app can be RENAMED outside MCP with hostile characters — the commit message is already
-// hygiene-rejected, but names/branches are not under our control) and double quotes are replaced so interpolated
-// text cannot visually escape its quoted position in the prompt (M7 security code review, concerns 2–3).
-function promptSafe(text: string): string {
-  let cleaned = "";
-
-  for (const ch of text) {
-    const code = ch.codePointAt(0) ?? 0;
-
-    if (code <= 0x1f || code === 0x7f) continue;
-
-    if (
-      (code >= 0x202a && code <= 0x202e) ||
-      (code >= 0x2066 && code <= 0x2069)
-    )
-      continue;
-
-    cleaned += ch === '"' ? "'" : ch;
-  }
-
-  return cleaned;
-}
-
 // Explicit elicitInput timeout: the human may deliberate, so the wait is 120s (with progress notifications during
 // the wait so timeout-resetting clients don't abort the tool call underneath the prompt) [COUNCIL: architect].
 // Shared by EVERY destructive confirm tool (generalized from confirm_commit's M7 machinery).
@@ -1383,36 +1311,6 @@ function actionPromptFacts(action: unknown): {
   };
 }
 
-// Git-connection state of an application, read from its gitApplicationMetadata. When an app is connected to git, MCP
-// edits land as UNCOMMITTED changes on the checked-out branch and confirm_publish would deploy that uncommitted
-// state. So publish is refused, mutating edits carry a warning naming the branch (M1-T3), and — since M7-T1 — every
-// mutation on a git-connected app must pass a `branch` parameter equal to that branch (the branch gate).
-export interface GitState {
-  connected: boolean;
-  branchName?: string;
-}
-
-function gitStateOf(application: unknown): GitState {
-  const meta = (application as { gitApplicationMetadata?: unknown } | null)
-    ?.gitApplicationMetadata as
-    | { branchName?: unknown; remoteUrl?: unknown }
-    | null
-    | undefined;
-
-  if (!meta) return { connected: false };
-
-  const branchName =
-    typeof meta.branchName === "string" && meta.branchName.length > 0
-      ? meta.branchName
-      : undefined;
-  // A live connection carries a remoteUrl (and usually a branch). A bare metadata stub (neither) is not connected.
-  const connected =
-    (typeof meta.remoteUrl === "string" && meta.remoteUrl.length > 0) ||
-    branchName !== undefined;
-
-  return { connected, branchName };
-}
-
 // Fetches the application and returns its git state. Fails safe to "not connected" on a read error so a transient
 // failure never blocks a legitimate read; the M7 branch GATE never uses this (it fails closed instead), and
 // confirm_publish re-reads explicitly before the high-impact deploy.
@@ -1425,202 +1323,6 @@ async function fetchGitState(
   } catch {
     return { connected: false };
   }
-}
-
-// Extended — still whitelisted — git metadata projection for read_git_status: adds the default branch, the BASE
-// application id (needed for protected-branches), and the remote HOST only. Never gitAuth/keys or the full remote URL.
-interface GitMetadataProjection extends GitState {
-  defaultBranchName?: string;
-  baseApplicationId?: string;
-  remoteHost?: string;
-}
-
-// The HOST of the git remote, and nothing else. Whitelist egress guard: a full remote URL can carry credentials
-// (https://user:token@host/...) or internal path detail, so only the host survives into agent context. Handles
-// scp-like syntax (git@github.com:org/repo.git) and URL forms (ssh://, https://); unknown shapes -> undefined.
-function remoteHostOf(remoteUrl: unknown): string | undefined {
-  if (typeof remoteUrl !== "string" || remoteUrl.length === 0) {
-    return undefined;
-  }
-
-  const scpLike = /^[A-Za-z0-9._-]+@([A-Za-z0-9.-]+):/.exec(remoteUrl);
-
-  if (scpLike) return scpLike[1];
-
-  try {
-    const host = new URL(remoteUrl).hostname;
-
-    return host.length > 0 ? host : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
-function gitMetadataOf(application: unknown): GitMetadataProjection {
-  const base = gitStateOf(application);
-  const meta = (application as { gitApplicationMetadata?: unknown } | null)
-    ?.gitApplicationMetadata as
-    | {
-        defaultBranchName?: unknown;
-        defaultApplicationId?: unknown;
-        defaultArtifactId?: unknown;
-        remoteUrl?: unknown;
-      }
-    | null
-    | undefined;
-
-  if (!meta || !base.connected) return base;
-
-  const str = (value: unknown): string | undefined =>
-    typeof value === "string" && value.length > 0 ? value : undefined;
-
-  return {
-    ...base,
-    defaultBranchName: str(meta.defaultBranchName),
-    baseApplicationId:
-      str(meta.defaultArtifactId) ?? str(meta.defaultApplicationId),
-    remoteHost: remoteHostOf(meta.remoteUrl),
-  };
-}
-
-// One whitelisted modified-entity count per family from GitStatusDTO: the per-family sets (…Modified/…Added/…Removed)
-// serialize as arrays; older payloads only carry the deprecated numeric fields, so those are the fallback.
-function gitEntityCount(
-  status: Record<string, unknown>,
-  prefix: string,
-  deprecatedKey: string,
-): number | undefined {
-  const sets = [
-    status[`${prefix}Modified`],
-    status[`${prefix}Added`],
-    status[`${prefix}Removed`],
-  ].filter((value): value is unknown[] => Array.isArray(value));
-
-  if (sets.length > 0) {
-    return sets.reduce((total, set) => total + set.length, 0);
-  }
-
-  const deprecated = status[deprecatedKey];
-
-  return typeof deprecated === "number" ? deprecated : undefined;
-}
-
-// Whitelist projection of GET /git/applications/{id}/status: only clean/dirty, per-family modified-entity COUNTS
-// (never the entity/file name sets), and — only when the caller opted into the remote compare — ahead/behind. A
-// server-side DTO change can never leak new fields through this tool because nothing outside this fixed key set is
-// forwarded (same posture as projectDatasources).
-function projectGitStatus(
-  raw: unknown,
-  includeRemoteCounts: boolean,
-): Record<string, unknown> {
-  const status = (raw ?? {}) as Record<string, unknown>;
-  const isClean =
-    typeof status.isClean === "boolean" ? status.isClean : undefined;
-  const families: [key: string, prefix: string, deprecatedKey: string][] = [
-    ["pages", "pages", "modifiedPages"],
-    ["queries", "queries", "modifiedQueries"],
-    ["jsObjects", "jsObjects", "modifiedJSObjects"],
-    ["datasources", "datasources", "modifiedDatasources"],
-    ["jsLibs", "jsLibs", "modifiedJSLibs"],
-  ];
-  const modifiedEntityCounts: Record<string, number> = {};
-
-  for (const [key, prefix, deprecatedKey] of families) {
-    const count = gitEntityCount(status, prefix, deprecatedKey);
-
-    if (count !== undefined) modifiedEntityCounts[key] = count;
-  }
-
-  return {
-    ...(isClean !== undefined ? { isClean, isDirty: !isClean } : {}),
-    modifiedEntityCounts,
-    ...(includeRemoteCounts && typeof status.aheadCount === "number"
-      ? { aheadCount: status.aheadCount }
-      : {}),
-    ...(includeRemoteCounts && typeof status.behindCount === "number"
-      ? { behindCount: status.behindCount }
-      : {}),
-  };
-}
-
-// Branch names from GET .../refs (List<GitRefDTO>). Remote-tracking entries are normalized ("origin/mcp/x" counts
-// as "mcp/x") and deduplicated so the mcp/ cap counts BRANCHES, not listings.
-function gitBranchNames(refs: unknown): string[] {
-  if (!Array.isArray(refs)) return [];
-
-  const names = new Set<string>();
-
-  for (const ref of refs) {
-    const refName = (ref as { refName?: unknown } | null)?.refName;
-
-    if (typeof refName !== "string" || refName.length === 0) continue;
-
-    names.add(
-      refName.startsWith("origin/") ? refName.slice("origin/".length) : refName,
-    );
-  }
-
-  return [...names];
-}
-
-function fingerprintBranchList(names: string[]): string {
-  return createHash("sha256")
-    .update(canonicalStableSerialize([...names].sort()), "utf8")
-    .digest("hex");
-}
-
-// Short TTL for cached "not connected" gate reads: an app can become git-connected mid-session, so a stale
-// not-connected verdict must expire quickly.
-export const GIT_GATE_NOT_CONNECTED_TTL_MS = 30_000;
-
-// Per-session cache for the branch gate's git-state reads [SECURITY REV-2 CONDITION 1 — binding]:
-// - read ERRORS are NEVER cached (callers simply do not call set() on error, and set() cannot store one);
-// - a "not connected" result is cached only for the short TTL above;
-// - connected + branch caches for the session: the branch of a given applicationId is immutable
-//   (branch-per-application model), so this can never go stale.
-// A connected-but-branchless stub is ambiguous and is never cached.
-export class GitGateCache {
-  private readonly entries = new Map<
-    string,
-    { state: GitState; expiresAt?: number }
-  >();
-
-  constructor(private readonly now: () => number = Date.now) {}
-
-  get(applicationId: string): GitState | undefined {
-    const entry = this.entries.get(applicationId);
-
-    if (!entry) return undefined;
-
-    if (entry.expiresAt !== undefined && entry.expiresAt <= this.now()) {
-      this.entries.delete(applicationId);
-
-      return undefined;
-    }
-
-    return entry.state;
-  }
-
-  set(applicationId: string, state: GitState): void {
-    if (state.connected && state.branchName !== undefined) {
-      this.entries.set(applicationId, { state });
-    } else if (!state.connected) {
-      this.entries.set(applicationId, {
-        state,
-        expiresAt: this.now() + GIT_GATE_NOT_CONNECTED_TTL_MS,
-      });
-    }
-  }
-}
-
-// Human-readable warning attached to a mutating edit's result when the target app is git-connected: the change is
-// uncommitted on the named branch and must be committed via Appsmith's git UI before it ships.
-function gitEditWarning(git: GitState): string | undefined {
-  if (!git.connected) return undefined;
-
-  const branch = git.branchName ? ` on branch "${git.branchName}"` : "";
-
-  return `This application is connected to git. This change is saved as an UNCOMMITTED edit${branch}; commit it via Appsmith's git UI to include it in a deploy. Publishing from MCP is disabled for git-connected apps.`;
 }
 
 // Clone a STORED action (server data, not agent input) under a new name, keeping only the permitted fields and
