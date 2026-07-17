@@ -6,6 +6,7 @@ import { createMessage, IN_APP_EMBED_SETTING } from "ee/constants/messages";
 import {
   normalizeFrameAncestorToken,
   removeAllowAllFrameAncestorChips,
+  removeDisableFrameAncestorChips,
 } from "./Utils/utils";
 
 // Quote bare "self"/"none" keywords in each comma-separated chip so the chip the
@@ -41,11 +42,12 @@ interface FrameAncestorsTagInputProps {
 }
 
 // Wraps the shared TagInput for the "Limit embedding to certain URLs" list and
-// rejects any chip containing a bare "*". A bare "*" is not a URL: in a CSP
-// frame-ancestors policy it re-opens the instance to every origin, contradicting
-// the "limit" intent, so we drop it and steer the admin to the "Allow embedding
-// everywhere" radio. The check is whitespace-aware because a pasted value can
-// arrive as a single chip (e.g. "'self' *"). Host wildcards like
+// rejects any chip containing a keyword source that contradicts the "limit"
+// intent: a bare "*" (belongs to "Allow embedding everywhere") or a
+// "none"/"'none'" (belongs to "Disable embedding everywhere" - in CSP "'none'"
+// is exclusive and would silently disable embedding if combined with URLs). Both
+// checks are whitespace-aware because a pasted value can arrive as a single chip
+// (e.g. "'self' *" or "none https://a.com"). Host wildcards like
 // "https://*.example.com" are left untouched.
 function FrameAncestorsTagInput(props: FrameAncestorsTagInputProps) {
   const { input = {}, ...rest } = props;
@@ -54,18 +56,24 @@ function FrameAncestorsTagInput(props: FrameAncestorsTagInputProps) {
 
   const handleChange = useCallback(
     (nextValue: string) => {
-      const { removed, value: cleaned } =
-        removeAllowAllFrameAncestorChips(nextValue);
+      const withoutWildcard = removeAllowAllFrameAncestorChips(nextValue);
+      const withoutDisable = removeDisableFrameAncestorChips(
+        withoutWildcard.value,
+      );
 
-      if (removed) {
+      if (withoutWildcard.removed) {
         setError(
           createMessage(IN_APP_EMBED_SETTING.limitEmbeddingBareWildcardError),
+        );
+      } else if (withoutDisable.removed) {
+        setError(
+          createMessage(IN_APP_EMBED_SETTING.limitEmbeddingDisableKeywordError),
         );
       } else {
         setError("");
       }
 
-      onChange?.(normalizeChips(cleaned));
+      onChange?.(normalizeChips(withoutDisable.value));
     },
     [onChange],
   );

@@ -71,21 +71,52 @@ export const normalizeFrameAncestorToken = (token: string): string => {
   return trimmed;
 };
 
+// True when a single token is the disable-everywhere keyword ("none"/"'none'",
+// case-insensitive).
+export const isDisableFrameAncestorToken = (token: string): boolean =>
+  normalizeFrameAncestorToken(token) === "'none'";
+
+// True when a value contains a disable keyword token. In a CSP frame-ancestors
+// policy "'none'" is exclusive: alongside other sources it disables embedding
+// entirely, so it must never sit in a limit list.
+export const containsDisableFrameAncestor = (value: string): boolean => {
+  const trimmed = (value ?? "").trim();
+
+  return (
+    trimmed.length > 0 && trimmed.split(/\s+/).some(isDisableFrameAncestorToken)
+  );
+};
+
+// Filter the comma-separated limit list emitted by the TagInput, dropping any
+// chip that contains a disable keyword ("none"/"'none'"). Mirrors
+// removeAllowAllFrameAncestorChips; the caller steers the admin to the "Disable
+// embedding everywhere" radio. `removed` reports whether anything was dropped.
+export const removeDisableFrameAncestorChips = (
+  value: string,
+): { value: string; removed: boolean } => {
+  const chips = value ? value.split(",") : [];
+  const accepted = chips.filter((chip) => !containsDisableFrameAncestor(chip));
+
+  return {
+    value: accepted.join(","),
+    removed: accepted.length !== chips.length,
+  };
+};
+
 // Sanitize a whitespace-separated value for use as a limited-embedding list:
-// drop bare "*" tokens, quote bare "self"/"none" keywords, and normalize the
-// disable-everywhere sentinel "'none'" to empty (neither "*" nor "'none'" is a
-// valid limit-list source). Stripping "*" from a value like "* 'none'" would
-// otherwise leave the "'none'" sentinel, which LIMIT mode must never emit. Host
-// wildcards such as "https://*.example.com" are preserved.
-export const sanitizeLimitedFrameAncestors = (value: string): string => {
-  const normalized = stripAllowAllFrameAncestorTokens(value)
+// drop bare "*" tokens, quote bare "self"/"none" keywords, and strip every
+// "'none'" token. Neither "*" nor "'none'" is a valid limit-list source, and
+// because "'none'" is exclusive in CSP a value like "none https://a.com" must
+// not persist as "'none' https://a.com" (which would silently disable embedding);
+// the "'none'" is removed so the allow-list saves as intended. Host wildcards
+// such as "https://*.example.com" are preserved.
+export const sanitizeLimitedFrameAncestors = (value: string): string =>
+  stripAllowAllFrameAncestorTokens(value)
     .split(/\s+/)
     .filter((token) => token.length > 0)
     .map(normalizeFrameAncestorToken)
+    .filter((token) => token !== "'none'")
     .join(" ");
-
-  return normalized === "'none'" ? "" : normalized;
-};
 
 export const formatEmbedSettings = (value: string) => {
   // A value containing a bare "*" is effectively allow-everywhere, even when it

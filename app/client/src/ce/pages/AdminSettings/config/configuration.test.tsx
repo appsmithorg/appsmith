@@ -76,6 +76,17 @@ describe("APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING parse (stored value)", () => 
     ).toBe("'self' https://a.com");
   });
 
+  it("never combines 'none' with allow-list sources when saving", () => {
+    // "'none'" is exclusive in CSP; persisting "'none' https://a.com" would
+    // silently disable embedding despite the "limit" selection.
+    expect(
+      parse({
+        value: AppsmithFrameAncestorsSetting.LIMIT_EMBEDDING,
+        additionalData: "none,https://a.com",
+      }),
+    ).toBe("https://a.com");
+  });
+
   it("stores the quoted keywords for the allow/disable options", () => {
     expect(
       parse({

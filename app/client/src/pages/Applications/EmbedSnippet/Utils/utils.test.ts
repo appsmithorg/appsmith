@@ -1,9 +1,12 @@
 import {
   containsAllowAllFrameAncestor,
+  containsDisableFrameAncestor,
   formatEmbedSettings,
   isAllowAllFrameAncestorToken,
+  isDisableFrameAncestorToken,
   normalizeFrameAncestorToken,
   removeAllowAllFrameAncestorChips,
+  removeDisableFrameAncestorChips,
   sanitizeLimitedFrameAncestors,
   stripAllowAllFrameAncestorTokens,
 } from "./utils";
@@ -239,6 +242,88 @@ describe("sanitizeLimitedFrameAncestors", () => {
     // A lone bare "none" normalizes to the disable sentinel, which LIMIT mode
     // drops to empty rather than persisting.
     expect(sanitizeLimitedFrameAncestors("none")).toBe("");
+  });
+
+  it("strips a none/'none' token combined with allow-list sources", () => {
+    // In CSP "'none'" is exclusive, so "none https://a.com" must never persist as
+    // "'none' https://a.com" (which would silently disable embedding). The
+    // "'none'" is stripped so the allow-list saves as intended.
+    expect(sanitizeLimitedFrameAncestors("none https://a.com")).toBe(
+      "https://a.com",
+    );
+    expect(sanitizeLimitedFrameAncestors("'none' https://a.com 'self'")).toBe(
+      "https://a.com 'self'",
+    );
+    expect(sanitizeLimitedFrameAncestors("* 'none'")).toBe("");
+  });
+});
+
+describe("isDisableFrameAncestorToken", () => {
+  it("matches bare and quoted none (case-insensitive)", () => {
+    expect(isDisableFrameAncestorToken("none")).toBe(true);
+    expect(isDisableFrameAncestorToken("NONE")).toBe(true);
+    expect(isDisableFrameAncestorToken("'none'")).toBe(true);
+  });
+
+  it("does not match other sources", () => {
+    expect(isDisableFrameAncestorToken("'self'")).toBe(false);
+    expect(isDisableFrameAncestorToken("https://a.com")).toBe(false);
+    expect(isDisableFrameAncestorToken("*")).toBe(false);
+    expect(isDisableFrameAncestorToken("")).toBe(false);
+  });
+});
+
+describe("containsDisableFrameAncestor", () => {
+  it("detects a none/'none' token anywhere in the list", () => {
+    expect(containsDisableFrameAncestor("none")).toBe(true);
+    expect(containsDisableFrameAncestor("none https://a.com")).toBe(true);
+    expect(containsDisableFrameAncestor("'self' 'none'")).toBe(true);
+  });
+
+  it("is false for lists without a disable keyword", () => {
+    expect(containsDisableFrameAncestor("'self' https://a.com")).toBe(false);
+    expect(containsDisableFrameAncestor("https://*.example.com")).toBe(false);
+    expect(containsDisableFrameAncestor("")).toBe(false);
+    expect(containsDisableFrameAncestor(undefined as unknown as string)).toBe(
+      false,
+    );
+  });
+});
+
+describe("removeDisableFrameAncestorChips", () => {
+  it("drops a none chip committed on its own", () => {
+    expect(removeDisableFrameAncestorChips("none")).toEqual({
+      value: "",
+      removed: true,
+    });
+    expect(removeDisableFrameAncestorChips("'self',none")).toEqual({
+      value: "'self'",
+      removed: true,
+    });
+  });
+
+  it("drops a pasted single chip that contains a disable keyword", () => {
+    // Pasting "none https://a.com" arrives as one chip; it must be rejected so
+    // "'none'" is never combined with allow-list sources.
+    expect(removeDisableFrameAncestorChips("none https://a.com")).toEqual({
+      value: "",
+      removed: true,
+    });
+    expect(removeDisableFrameAncestorChips("'none' https://a.com")).toEqual({
+      value: "",
+      removed: true,
+    });
+  });
+
+  it("keeps allow-list sources untouched", () => {
+    expect(removeDisableFrameAncestorChips("'self',https://a.com")).toEqual({
+      value: "'self',https://a.com",
+      removed: false,
+    });
+    expect(removeDisableFrameAncestorChips("")).toEqual({
+      value: "",
+      removed: false,
+    });
   });
 });
 
