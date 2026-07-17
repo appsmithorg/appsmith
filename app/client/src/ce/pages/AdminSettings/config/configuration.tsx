@@ -13,8 +13,8 @@ import localStorage from "utils/localStorage";
 import isUndefined from "lodash/isUndefined";
 import { AppsmithFrameAncestorsSetting } from "pages/Applications/EmbedSnippet/Constants/constants";
 import {
-  containsAllowAllFrameAncestor,
   formatEmbedSettings,
+  stripAllowAllFrameAncestorTokens,
 } from "pages/Applications/EmbedSnippet/Utils/utils";
 import FrameAncestorsTagInput from "pages/Applications/EmbedSnippet/FrameAncestorsTagInput";
 import { isAirgapped } from "ee/utils/airgapHelpers";
@@ -127,12 +127,18 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
       ? localStorage.getItem("ALLOWED_FRAME_ANCESTORS") ?? ""
       : value.additionalData.replaceAll(",", " ");
 
-    // If they are one of the other options we don't store it in storage since it will
-    // set in the env variable on save. A value containing a bare "*" is
-    // effectively allow-everywhere (see containsAllowAllFrameAncestor), so we
-    // never persist it as a remembered limit list.
-    if (!containsAllowAllFrameAncestor(sources) && sources !== "'none'") {
-      localStorage.setItem("ALLOWED_FRAME_ANCESTORS", sources);
+    // Strip any bare "*" from the limited list. A stale localStorage value from
+    // before allow-all detection existed could still hold a "*", which would
+    // otherwise round-trip back into the stored value and silently reopen
+    // embedding to every origin. Host wildcards are preserved.
+    const limitedSources = stripAllowAllFrameAncestorTokens(sources);
+
+    // Remember only real limited sources; never persist an allow-all/disabled
+    // value, and clear any stale allow-all entry left in storage.
+    if (limitedSources && limitedSources !== "'none'") {
+      localStorage.setItem("ALLOWED_FRAME_ANCESTORS", limitedSources);
+    } else {
+      localStorage.removeItem("ALLOWED_FRAME_ANCESTORS");
     }
 
     if (
@@ -144,7 +150,7 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
     ) {
       return "'none'";
     } else {
-      return sources;
+      return limitedSources;
     }
   },
   validate: (value: string) => {

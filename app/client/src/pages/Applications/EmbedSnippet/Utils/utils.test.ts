@@ -3,6 +3,7 @@ import {
   formatEmbedSettings,
   isAllowAllFrameAncestorToken,
   removeAllowAllFrameAncestorChips,
+  stripAllowAllFrameAncestorTokens,
 } from "./utils";
 import { AppsmithFrameAncestorsSetting } from "../Constants/constants";
 
@@ -137,5 +138,28 @@ describe("removeAllowAllFrameAncestorChips", () => {
       value: "",
       removed: false,
     });
+  });
+});
+
+describe("stripAllowAllFrameAncestorTokens", () => {
+  it("removes bare * tokens while keeping other sources", () => {
+    expect(stripAllowAllFrameAncestorTokens("'self' *")).toBe("'self'");
+    expect(stripAllowAllFrameAncestorTokens("* 'self' https://a.com")).toBe(
+      "'self' https://a.com",
+    );
+  });
+
+  it("returns an empty string when only a bare * is present", () => {
+    expect(stripAllowAllFrameAncestorTokens("*")).toBe("");
+    expect(stripAllowAllFrameAncestorTokens("")).toBe("");
+  });
+
+  it("preserves host wildcards and normal sources unchanged", () => {
+    expect(stripAllowAllFrameAncestorTokens("https://*.example.com")).toBe(
+      "https://*.example.com",
+    );
+    expect(stripAllowAllFrameAncestorTokens("'self' https://a.com")).toBe(
+      "'self' https://a.com",
+    );
   });
 });

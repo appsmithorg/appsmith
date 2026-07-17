@@ -36,6 +36,18 @@ export const removeAllowAllFrameAncestorChips = (
   };
 };
 
+// Remove any bare "*" tokens from a whitespace-separated frame-ancestors value,
+// keeping legitimate sources (including host wildcards like
+// "https://*.example.com"). Used to sanitize a limited-embedding list so a stale
+// allow-all "*" - e.g. one left in localStorage before allow-all detection
+// existed - can never round-trip back into the stored value.
+export const stripAllowAllFrameAncestorTokens = (value: string): string =>
+  value
+    .trim()
+    .split(/\s+/)
+    .filter((token) => token.length > 0 && !isAllowAllFrameAncestorToken(token))
+    .join(" ");
+
 export const formatEmbedSettings = (value: string) => {
   // A value containing a bare "*" is effectively allow-everywhere, even when it
   // also lists other sources (e.g. "'self' *"). Show the truthful radio rather
