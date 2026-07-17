@@ -93,13 +93,10 @@ describe("CopyEntityToAppModal", () => {
     ).toBeTruthy();
   });
 
-  it("shows a JS-specific note without datasource info when copying a JS object", () => {
+  it("shows no note when copying a JS object", () => {
     mockEntityType = "JS_OBJECT";
     render(<CopyEntityToAppModal />);
 
-    expect(
-      screen.getByText(/referenced by this JS object aren't copied/),
-    ).toBeTruthy();
     expect(screen.queryByText(/Datasource credentials/)).toBeNull();
   });
 });

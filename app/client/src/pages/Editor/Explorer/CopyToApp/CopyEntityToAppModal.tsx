@@ -28,8 +28,7 @@ import {
   COPY_ENTITY_TO_APP_NO_APPS,
   COPY_ENTITY_TO_APP_NO_PAGES,
   COPY_ENTITY_TO_APP_NO_WORKSPACES,
-  COPY_ENTITY_TO_APP_NOTE_ACTION,
-  COPY_ENTITY_TO_APP_NOTE_JS_OBJECT,
+  COPY_ENTITY_TO_APP_NOTE,
   COPY_ENTITY_TO_APP_PAGE_LABEL,
   COPY_ENTITY_TO_APP_PAGE_PLACEHOLDER,
   COPY_ENTITY_TO_APP_WORKSPACE_LABEL,
@@ -294,13 +293,12 @@ function CopyEntityToAppModal() {
           </FieldWrapper>
         )}
 
-        <Callout kind="info">
-          {createMessage(
-            entity?.entityType === CopyToAppEntityType.JS_OBJECT
-              ? COPY_ENTITY_TO_APP_NOTE_JS_OBJECT
-              : COPY_ENTITY_TO_APP_NOTE_ACTION,
-          )}
-        </Callout>
+        {/* The datasource note only applies to queries; JS objects have no datasource. */}
+        {entity?.entityType !== CopyToAppEntityType.JS_OBJECT && (
+          <Callout kind="info">
+            {createMessage(COPY_ENTITY_TO_APP_NOTE)}
+          </Callout>
+        )}
 
         <div
           style={{
