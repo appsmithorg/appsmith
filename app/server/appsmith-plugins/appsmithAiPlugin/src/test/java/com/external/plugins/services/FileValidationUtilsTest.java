@@ -114,6 +114,36 @@ public class FileValidationUtilsTest {
                 .verify();
     }
 
+    // Asserts the file was rejected specifically by the fail-closed markup guard (exact FILE_CONTAINS_MARKUP
+    // message), so the test can only pass because markup padded past the detection head was still caught.
+    private static void expectMarkupRejected(byte[] content, String filename) {
+        String expectedMessage = String.format(AppsmithAiErrorMessages.FILE_CONTAINS_MARKUP, filename);
+        StepVerifier.create(FileValidationUtils.validateFileType(mockFilePart(filename, content)))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithPluginException.class);
+                    assertThat(error.getMessage()).isEqualTo(expectedMessage);
+                })
+                .verify();
+    }
+
+    // Bytes larger than FileValidationUtils' 64 KiB detection head, so markup after the padding sits past it.
+    private static final int OVER_HEAD_PAD = 70 * 1024;
+
+    private static byte[] concat(byte[] a, byte[] b) {
+        byte[] out = new byte[a.length + b.length];
+        System.arraycopy(a, 0, out, 0, a.length);
+        System.arraycopy(b, 0, out, a.length, b.length);
+        return out;
+    }
+
+    private static byte[] padThen(int padSize, byte pad, String tail) {
+        byte[] tailBytes = tail.getBytes(StandardCharsets.UTF_8);
+        byte[] out = new byte[padSize + tailBytes.length];
+        Arrays.fill(out, 0, padSize, pad);
+        System.arraycopy(tailBytes, 0, out, padSize, tailBytes.length);
+        return out;
+    }
+
     // --- SVG rejected across encodings and prologs (the core of the finding) ---
 
     @Test
@@ -257,5 +287,58 @@ public class FileValidationUtilsTest {
         // Fail-fast: the source could emit 3x the cap, but join must have cancelled it shortly after the cap
         // was exceeded rather than pulling the entire oversized payload into memory.
         assertThat(emittedChunks.get()).isLessThanOrEqualTo(capChunks + 2);
+    }
+
+    // --- Fail-closed guard: markup padded past the 64 KiB detection head must still be rejected, WITHOUT
+    // regressing legitimate large plain-text / markdown / PDF uploads ---
+
+    @Test
+    public void validateFileType_withSvgPaddedPastDetectionHead_isRejected() {
+        // >64 KiB of leading whitespace (a valid XML prolog) pushes the SVG root past the detection head.
+        byte[] content = padThen(
+                OVER_HEAD_PAD, (byte) ' ', "<svg xmlns=\"http://www.w3.org/2000/svg\"><script>alert(1)</script></svg>");
+        expectMarkupRejected(content, "padded.svg");
+    }
+
+    @Test
+    public void validateFileType_withScriptPaddedPastDetectionHead_isRejected() {
+        // Non-whitespace benign padding past the head, then an HTML/script payload.
+        byte[] content = padThen(OVER_HEAD_PAD, (byte) 'a', "<script>alert(document.cookie)</script>");
+        expectMarkupRejected(content, "padded.txt");
+    }
+
+    @Test
+    public void validateFileType_withLargeUniformPlainText_isAccepted() {
+        // A large, uniform plain-text file (no markup root) must still pass - the guard is not "reject big".
+        byte[] content = new byte[OVER_HEAD_PAD + 4096];
+        Arrays.fill(content, (byte) 'a');
+        expectAccepted(content, "big.txt");
+    }
+
+    @Test
+    public void validateFileType_withLargeMarkdown_isAccepted() {
+        // >64 KiB of ordinary markdown (angle brackets only as "1 < 2", never a markup root) must pass.
+        String snippet = "# Heading\n\nParagraph with a [link](https://example.com) and 1 < 2 comparisons.\n\n";
+        byte[] content = snippet.repeat(1200).getBytes(StandardCharsets.UTF_8);
+        expectAccepted(content, "big.md");
+    }
+
+    @Test
+    public void validateFileType_withLargePdf_isAccepted() {
+        // A >64 KiB PDF (magic at offset 0) is detected as application/pdf and never markup-scanned.
+        byte[] filler = new byte[OVER_HEAD_PAD];
+        Arrays.fill(filler, (byte) 'a');
+        byte[] content = concat(
+                "%PDF-1.4\n".getBytes(StandardCharsets.UTF_8),
+                concat(filler, "\n%%EOF".getBytes(StandardCharsets.UTF_8)));
+        expectAccepted(content, "big.pdf");
+    }
+
+    @Test
+    public void validateFileType_withPdfEmbeddingMarkup_isAccepted() {
+        // A real PDF may legitimately embed markup; the guard must not scan PDFs, so this is accepted.
+        byte[] content =
+                "%PDF-1.4\n<svg><script>x</script></svg>\nstream ... endstream\n%%EOF".getBytes(StandardCharsets.UTF_8);
+        expectAccepted(content, "with-markup.pdf");
     }
 }

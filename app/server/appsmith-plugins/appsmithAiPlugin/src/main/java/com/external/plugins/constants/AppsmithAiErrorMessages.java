@@ -11,4 +11,8 @@ public class AppsmithAiErrorMessages {
     // Rendered with String.format(fileName, maxSizeInMb).
     public static final String FILE_TOO_LARGE =
             "File \"%s\" was rejected because it exceeds the maximum allowed upload size of %d MB.";
+
+    // Rendered with String.format(fileName).
+    public static final String FILE_CONTAINS_MARKUP = "File \"%s\" was rejected because it contains disallowed markup "
+            + "(e.g. an embedded <svg>, <html>, <?xml> or <script> element).";
 }

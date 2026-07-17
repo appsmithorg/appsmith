@@ -19,9 +19,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static com.external.plugins.constants.AppsmithAiConstants.MAX_UPLOAD_FILE_SIZE_IN_BYTES;
 import static com.external.plugins.constants.AppsmithAiConstants.SUPPORTED_FILE_MIME_TYPES;
+import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_CONTAINS_MARKUP;
 import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_TOO_LARGE;
 import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_TYPE_NOT_SUPPORTED;
 
@@ -46,6 +48,13 @@ import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_TYPE_N
  * from its real charset, its BOM and prolog whitespace trimmed, re-encoded as UTF-8 and re-detected. This
  * surfaces the true type - e.g. {@code image/svg+xml} - which is then rejected by the allow-list. Verified
  * against UTF-8/UTF-16LE/UTF-16BE/UTF-32 and namespace-prefixed SVG.
+ *
+ * <p>Type detection only inspects the head of the file, so a payload padded with more than the head window
+ * of benign bytes can push its markup root past the detector and be accepted as {@code text/plain}. As a
+ * fail-closed backstop, a file accepted as {@code text/*} is scanned in full (bounded by the per-file upload
+ * cap) for markup roots ({@code <svg}, {@code <?xml}, {@code <html}, {@code <!doctype}, {@code <script}); any
+ * hit is rejected. PDFs are not scanned - they legitimately embed markup - and a uniform large text/markdown
+ * file contains no such root, so genuine large allowed-type uploads still pass.
  */
 public class FileValidationUtils {
 
@@ -59,6 +68,12 @@ public class FileValidationUtils {
     // Only the head is decoded for the normalized re-detection; a document's XML/SVG root sits near the start,
     // and the full (already size-bounded) file is never decoded into a String.
     private static final int HEAD_DECODE_LIMIT = 64 * 1024;
+
+    // Markup roots that must never appear in a file accepted as text/*. Tika only recognises these near the
+    // start, so an attacker can pad benign bytes ahead of the markup to push it past the detection head; the
+    // fail-closed guard below scans the whole (size-bounded) file for these so padding buys no pass. Stored
+    // lowercase; all begin with '<' so the scan is anchored on '<'.
+    private static final List<String> MARKUP_ROOT_MARKERS = List.of("<svg", "<?xml", "<html", "<!doctype", "<script");
 
     private FileValidationUtils() {}
 
@@ -79,6 +94,15 @@ public class FileValidationUtils {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 String.format(FILE_TYPE_NOT_SUPPORTED, filePart.filename(), detectedType));
+                    }
+                    // Fail-closed guard: type detection only inspects the head, so a file accepted as text
+                    // could still hide a structured-markup root padded past the detection window. Scan the
+                    // whole (size-bounded) content for markup roots and reject if any is present. Applied only
+                    // to text/* - PDFs are allowed to contain markup internally, so they are not scanned.
+                    if (detectedType.startsWith("text/") && containsMarkupRoot(bytes, detectWideCharset(bytes))) {
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                String.format(FILE_CONTAINS_MARKUP, filePart.filename()));
                     }
                     return (FilePart) new BufferedFilePart(filePart, bytes);
                 })
@@ -208,6 +232,44 @@ public class FileValidationUtils {
 
     private static int u(byte b) {
         return b & 0xFF;
+    }
+
+    /**
+     * Scans the entire (size-bounded) content for a markup root that would otherwise slip through when it is
+     * padded past the detection head. For a wide charset the bytes are collapsed to single-byte first so the
+     * ASCII markers become contiguous; otherwise the raw bytes are scanned. The scan is anchored on {@code '<'}
+     * so benign content costs one comparison per byte, and it is bounded by the per-file upload cap.
+     */
+    private static boolean containsMarkupRoot(byte[] content, Charset wideCharset) {
+        byte[] haystack =
+                wideCharset != null ? new String(content, wideCharset).getBytes(StandardCharsets.ISO_8859_1) : content;
+        for (int i = 0; i < haystack.length; i++) {
+            if (haystack[i] == '<' && matchesMarkerAt(haystack, i)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean matchesMarkerAt(byte[] bytes, int pos) {
+        for (String marker : MARKUP_ROOT_MARKERS) {
+            if (regionMatchesIgnoreCase(bytes, pos, marker)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean regionMatchesIgnoreCase(byte[] bytes, int pos, String marker) {
+        if (pos + marker.length() > bytes.length) {
+            return false;
+        }
+        for (int j = 0; j < marker.length(); j++) {
+            if (Character.toLowerCase((char) (bytes[pos + j] & 0xFF)) != marker.charAt(j)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static byte[] toByteArray(DataBuffer dataBuffer) {
