@@ -125,6 +125,7 @@ export interface UpdateApplicationPayload {
     navigationSetting?: NavigationSetting;
     themeSetting?: ThemeSetting;
     appPositioning?: LayoutSystemTypeConfig;
+    htmlLang?: string;
   };
   forkingEnabled?: boolean;
 }
