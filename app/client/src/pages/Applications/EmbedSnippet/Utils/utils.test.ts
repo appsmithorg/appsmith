@@ -3,6 +3,7 @@ import {
   formatEmbedSettings,
   isAllowAllFrameAncestorToken,
   removeAllowAllFrameAncestorChips,
+  sanitizeLimitedFrameAncestors,
   stripAllowAllFrameAncestorTokens,
 } from "./utils";
 import { AppsmithFrameAncestorsSetting } from "../Constants/constants";
@@ -159,6 +160,30 @@ describe("stripAllowAllFrameAncestorTokens", () => {
       "https://*.example.com",
     );
     expect(stripAllowAllFrameAncestorTokens("'self' https://a.com")).toBe(
+      "'self' https://a.com",
+    );
+  });
+});
+
+describe("sanitizeLimitedFrameAncestors", () => {
+  it("normalizes the disable sentinel to empty so LIMIT mode never emits it", () => {
+    // Stripping "*" from "* 'none'" would leave "'none'"; LIMIT mode must not
+    // return the disable-everywhere sentinel.
+    expect(sanitizeLimitedFrameAncestors("* 'none'")).toBe("");
+    expect(sanitizeLimitedFrameAncestors("'none'")).toBe("");
+  });
+
+  it("drops bare * tokens like the underlying strip", () => {
+    expect(sanitizeLimitedFrameAncestors("*")).toBe("");
+    expect(sanitizeLimitedFrameAncestors("* 'self'")).toBe("'self'");
+    expect(sanitizeLimitedFrameAncestors("")).toBe("");
+  });
+
+  it("preserves host wildcards and normal sources", () => {
+    expect(sanitizeLimitedFrameAncestors("https://*.example.com")).toBe(
+      "https://*.example.com",
+    );
+    expect(sanitizeLimitedFrameAncestors("'self' https://a.com")).toBe(
       "'self' https://a.com",
     );
   });

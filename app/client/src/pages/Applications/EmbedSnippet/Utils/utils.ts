@@ -48,6 +48,17 @@ export const stripAllowAllFrameAncestorTokens = (value: string): string =>
     .filter((token) => token.length > 0 && !isAllowAllFrameAncestorToken(token))
     .join(" ");
 
+// Sanitize a whitespace-separated value for use as a limited-embedding list:
+// drop bare "*" tokens and normalize the disable-everywhere sentinel "'none'" to
+// empty, since neither is a valid limit-list source. Stripping "*" from a value
+// like "* 'none'" would otherwise leave the "'none'" sentinel, which LIMIT mode
+// must never emit. Host wildcards such as "https://*.example.com" are preserved.
+export const sanitizeLimitedFrameAncestors = (value: string): string => {
+  const stripped = stripAllowAllFrameAncestorTokens(value);
+
+  return stripped === "'none'" ? "" : stripped;
+};
+
 export const formatEmbedSettings = (value: string) => {
   // A value containing a bare "*" is effectively allow-everywhere, even when it
   // also lists other sources (e.g. "'self' *"). Show the truthful radio rather

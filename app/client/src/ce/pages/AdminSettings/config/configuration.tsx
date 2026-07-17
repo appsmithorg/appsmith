@@ -14,7 +14,7 @@ import isUndefined from "lodash/isUndefined";
 import { AppsmithFrameAncestorsSetting } from "pages/Applications/EmbedSnippet/Constants/constants";
 import {
   formatEmbedSettings,
-  stripAllowAllFrameAncestorTokens,
+  sanitizeLimitedFrameAncestors,
 } from "pages/Applications/EmbedSnippet/Utils/utils";
 import FrameAncestorsTagInput from "pages/Applications/EmbedSnippet/FrameAncestorsTagInput";
 import { isAirgapped } from "ee/utils/airgapHelpers";
@@ -127,15 +127,16 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
       ? localStorage.getItem("ALLOWED_FRAME_ANCESTORS") ?? ""
       : value.additionalData.replaceAll(",", " ");
 
-    // Strip any bare "*" from the limited list. A stale localStorage value from
-    // before allow-all detection existed could still hold a "*", which would
-    // otherwise round-trip back into the stored value and silently reopen
-    // embedding to every origin. Host wildcards are preserved.
-    const limitedSources = stripAllowAllFrameAncestorTokens(sources);
+    // Sanitize the limited list: drop any bare "*" and normalize the disable
+    // sentinel "'none'" to empty. A stale localStorage value from before allow-all
+    // detection existed could still hold a "*" (or "* 'none'"), which would
+    // otherwise round-trip into the stored value and silently reopen embedding or
+    // emit the disable sentinel from LIMIT mode. Host wildcards are preserved.
+    const limitedSources = sanitizeLimitedFrameAncestors(sources);
 
     // Remember only real limited sources; never persist an allow-all/disabled
-    // value, and clear any stale allow-all entry left in storage.
-    if (limitedSources && limitedSources !== "'none'") {
+    // value, and clear any stale entry left in storage.
+    if (limitedSources) {
       localStorage.setItem("ALLOWED_FRAME_ANCESTORS", limitedSources);
     } else {
       localStorage.removeItem("ALLOWED_FRAME_ANCESTORS");
