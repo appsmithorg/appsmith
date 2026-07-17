@@ -158,7 +158,7 @@ export default {
     const TABLE_SIZES = {
       DEFAULT: {
         COLUMN_HEADER_HEIGHT: 32,
-        TABLE_HEADER_HEIGHT: 38,
+        TABLE_HEADER_HEIGHT: 40,
         ROW_HEIGHT: 40,
         ROW_FONT_SIZE: 14,
         VERTICAL_PADDING: 6,
@@ -166,7 +166,7 @@ export default {
       },
       SHORT: {
         COLUMN_HEADER_HEIGHT: 32,
-        TABLE_HEADER_HEIGHT: 38,
+        TABLE_HEADER_HEIGHT: 40,
         ROW_HEIGHT: 30,
         ROW_FONT_SIZE: 12,
         VERTICAL_PADDING: 0,
@@ -174,7 +174,7 @@ export default {
       },
       TALL: {
         COLUMN_HEADER_HEIGHT: 32,
-        TABLE_HEADER_HEIGHT: 38,
+        TABLE_HEADER_HEIGHT: 40,
         ROW_HEIGHT: 60,
         ROW_FONT_SIZE: 18,
         VERTICAL_PADDING: 16,
