@@ -127,6 +127,18 @@ public class FileValidationUtilsTest {
                 .verify();
     }
 
+    // Asserts the file was rejected by content-type detection (exact FILE_TYPE_NOT_SUPPORTED message with the
+    // given detected type) - i.e. by the allow-list, not by the markup-document guard.
+    private static void expectTypeRejected(byte[] content, String filename, String detectedType) {
+        String expectedMessage = String.format(AppsmithAiErrorMessages.FILE_TYPE_NOT_SUPPORTED, filename, detectedType);
+        StepVerifier.create(FileValidationUtils.validateFileType(mockFilePart(filename, content)))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithPluginException.class);
+                    assertThat(error.getMessage()).isEqualTo(expectedMessage);
+                })
+                .verify();
+    }
+
     // Bytes larger than FileValidationUtils' 64 KiB detection head, so markup after the padding sits past it.
     private static final int OVER_HEAD_PAD = 70 * 1024;
 
@@ -310,10 +322,20 @@ public class FileValidationUtilsTest {
     }
 
     @Test
-    public void validateFileType_withWideEncodedWhitespacePaddedSvgDocument_isRejected() {
-        // Same bypass in a UTF-16LE-encoded document: still rejected.
+    public void validateFileType_withWideEncodedWhitespacePaddedSvg_isRejectedByTypeDetection() {
+        // A UTF-16LE structured document padded past the head does NOT reach the markup guard: encoding-aware
+        // type detection resolves the all-whitespace head to application/octet-stream, which the allow-list
+        // rejects. Assert that exact path (not a generic "rejected") so the wide handling is pinned honestly.
         String doc = " ".repeat(OVER_HEAD_PAD) + "<svg xmlns=\"http://www.w3.org/2000/svg\"/>";
-        expectRejected(doc.getBytes(StandardCharsets.UTF_16LE), "padded-wide.svg");
+        expectTypeRejected(doc.getBytes(StandardCharsets.UTF_16LE), "padded-wide.svg", "application/octet-stream");
+    }
+
+    @Test
+    public void validateFileType_withWideEncodedSvgNearStart_isRejectedByTypeDetection() {
+        // A UTF-16LE SVG whose root is near the start is resolved to image/svg+xml by the encoding-aware
+        // detection and rejected - again before the markup guard.
+        String doc = "  <svg xmlns=\"http://www.w3.org/2000/svg\"/>";
+        expectTypeRejected(doc.getBytes(StandardCharsets.UTF_16LE), "wide.svg", "image/svg+xml");
     }
 
     @Test

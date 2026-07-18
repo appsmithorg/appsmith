@@ -58,7 +58,9 @@ import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_TYPE_N
  * substring scan: text or markdown that merely mentions or embeds markup in prose or a code example (the
  * markup is not the document root) is accepted, as is a PDF (detected by magic, never checked here). A file
  * padded with non-whitespace bytes before its markup is not a renderable document at the root and is accepted
- * as text (low-risk residual - uploads are S3-stored, not served from the app origin).
+ * as text (low-risk residual - uploads are S3-stored, not served from the app origin). A wide (UTF-16/32)
+ * markup document does not need this guard: the encoding-aware detection above already resolves it to
+ * {@code image/svg+xml} or {@code application/octet-stream}, both rejected by the allow-list.
  */
 public class FileValidationUtils {
 
@@ -103,8 +105,7 @@ public class FileValidationUtils {
                     // document can pad its root past the detection window and be accepted as text. Reject a
                     // file accepted as text/* only if it is actually a markup document at its root. Applied
                     // only to text/* - PDFs are allowed to contain markup internally, so they are not checked.
-                    if (detectedType.startsWith("text/")
-                            && isStructuredMarkupDocument(bytes, detectWideCharset(bytes))) {
+                    if (detectedType.startsWith("text/") && isStructuredMarkupDocument(bytes)) {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 String.format(FILE_IS_MARKUP_DOCUMENT, filePart.filename()));
@@ -243,15 +244,16 @@ public class FileValidationUtils {
      * Reports whether the content is actually a structured-markup document (SVG/HTML/XML) - i.e. its root
      * element/prolog is the first content after any leading BOM and whitespace/padding. This is deliberately
      * narrower than "contains a markup substring": text or markdown that merely mentions or embeds markup
-     * away from the document root is not a renderable document and returns false. For a wide charset the bytes
-     * are collapsed to single-byte first so an encoded root is recognised; the work is bounded by the per-file
-     * upload cap.
+     * away from the document root is not a renderable document and returns false.
+     *
+     * <p>Only single-byte content is inspected: a wide (UTF-16/32) markup document never reaches here, because
+     * the encoding-aware {@link #detectTrueType} already resolves it to {@code image/svg+xml} (root near the
+     * start) or {@code application/octet-stream} (root padded past the head), both rejected by the allow-list
+     * before this guard runs.
      */
-    private static boolean isStructuredMarkupDocument(byte[] content, Charset wideCharset) {
-        byte[] bytes =
-                wideCharset != null ? new String(content, wideCharset).getBytes(StandardCharsets.ISO_8859_1) : content;
-        int root = firstNonWhitespaceAfterBom(bytes);
-        return root < bytes.length && startsWithMarkupRoot(bytes, root);
+    private static boolean isStructuredMarkupDocument(byte[] content) {
+        int root = firstNonWhitespaceAfterBom(content);
+        return root < content.length && startsWithMarkupRoot(content, root);
     }
 
     private static int firstNonWhitespaceAfterBom(byte[] bytes) {
