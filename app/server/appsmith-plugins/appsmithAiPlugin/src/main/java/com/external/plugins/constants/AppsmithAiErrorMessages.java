@@ -13,6 +13,7 @@ public class AppsmithAiErrorMessages {
             "File \"%s\" was rejected because it exceeds the maximum allowed upload size of %d MB.";
 
     // Rendered with String.format(fileName).
-    public static final String FILE_CONTAINS_MARKUP = "File \"%s\" was rejected because it contains disallowed markup "
-            + "(e.g. an embedded <svg>, <html>, <?xml> or <script> element).";
+    public static final String FILE_IS_MARKUP_DOCUMENT =
+            "File \"%s\" was rejected because it is a disallowed markup document (e.g. an SVG, HTML or XML "
+                    + "document). Only PDF, plain text, and markdown files can be uploaded.";
 }

@@ -23,7 +23,7 @@ import java.util.List;
 
 import static com.external.plugins.constants.AppsmithAiConstants.MAX_UPLOAD_FILE_SIZE_IN_BYTES;
 import static com.external.plugins.constants.AppsmithAiConstants.SUPPORTED_FILE_MIME_TYPES;
-import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_CONTAINS_MARKUP;
+import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_IS_MARKUP_DOCUMENT;
 import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_TOO_LARGE;
 import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_TYPE_NOT_SUPPORTED;
 
@@ -50,11 +50,15 @@ import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_TYPE_N
  * against UTF-8/UTF-16LE/UTF-16BE/UTF-32 and namespace-prefixed SVG.
  *
  * <p>Type detection only inspects the head of the file, so a payload padded with more than the head window
- * of benign bytes can push its markup root past the detector and be accepted as {@code text/plain}. As a
- * fail-closed backstop, a file accepted as {@code text/*} is scanned in full (bounded by the per-file upload
- * cap) for markup roots ({@code <svg}, {@code <?xml}, {@code <html}, {@code <!doctype}, {@code <script}); any
- * hit is rejected. PDFs are not scanned - they legitimately embed markup - and a uniform large text/markdown
- * file contains no such root, so genuine large allowed-type uploads still pass.
+ * of whitespace can push its markup root past the detector and be accepted as {@code text/plain}. As a
+ * fail-closed backstop, a file accepted as {@code text/*} is checked for being an actual structured-markup
+ * document: after its leading BOM and whitespace/padding are stripped, if the very first content is a markup
+ * root ({@code <svg}, {@code <?xml}, {@code <html}, {@code <!doctype}, {@code <script}) followed by a tag
+ * boundary, it would parse/render as SVG/HTML/XML and is rejected. This is deliberately narrower than a
+ * substring scan: text or markdown that merely mentions or embeds markup in prose or a code example (the
+ * markup is not the document root) is accepted, as is a PDF (detected by magic, never checked here). A file
+ * padded with non-whitespace bytes before its markup is not a renderable document at the root and is accepted
+ * as text (low-risk residual - uploads are S3-stored, not served from the app origin).
  */
 public class FileValidationUtils {
 
@@ -69,10 +73,10 @@ public class FileValidationUtils {
     // and the full (already size-bounded) file is never decoded into a String.
     private static final int HEAD_DECODE_LIMIT = 64 * 1024;
 
-    // Markup roots that must never appear in a file accepted as text/*. Tika only recognises these near the
-    // start, so an attacker can pad benign bytes ahead of the markup to push it past the detection head; the
-    // fail-closed guard below scans the whole (size-bounded) file for these so padding buys no pass. Stored
-    // lowercase; all begin with '<' so the scan is anchored on '<'.
+    // Markup roots that identify a structured document (SVG/HTML/XML) when they are the first content after
+    // any leading BOM/whitespace. Stored lowercase; matched case-insensitively and only at the document root
+    // with a following tag boundary, so a document survives whitespace padding but prose that merely mentions
+    // these strings does not trip the guard.
     private static final List<String> MARKUP_ROOT_MARKERS = List.of("<svg", "<?xml", "<html", "<!doctype", "<script");
 
     private FileValidationUtils() {}
@@ -95,14 +99,15 @@ public class FileValidationUtils {
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 String.format(FILE_TYPE_NOT_SUPPORTED, filePart.filename(), detectedType));
                     }
-                    // Fail-closed guard: type detection only inspects the head, so a file accepted as text
-                    // could still hide a structured-markup root padded past the detection window. Scan the
-                    // whole (size-bounded) content for markup roots and reject if any is present. Applied only
-                    // to text/* - PDFs are allowed to contain markup internally, so they are not scanned.
-                    if (detectedType.startsWith("text/") && containsMarkupRoot(bytes, detectWideCharset(bytes))) {
+                    // Fail-closed guard: type detection only inspects the head, so a structured-markup
+                    // document can pad its root past the detection window and be accepted as text. Reject a
+                    // file accepted as text/* only if it is actually a markup document at its root. Applied
+                    // only to text/* - PDFs are allowed to contain markup internally, so they are not checked.
+                    if (detectedType.startsWith("text/")
+                            && isStructuredMarkupDocument(bytes, detectWideCharset(bytes))) {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                String.format(FILE_CONTAINS_MARKUP, filePart.filename()));
+                                String.format(FILE_IS_MARKUP_DOCUMENT, filePart.filename()));
                     }
                     return (FilePart) new BufferedFilePart(filePart, bytes);
                 })
@@ -235,29 +240,48 @@ public class FileValidationUtils {
     }
 
     /**
-     * Scans the entire (size-bounded) content for a markup root that would otherwise slip through when it is
-     * padded past the detection head. For a wide charset the bytes are collapsed to single-byte first so the
-     * ASCII markers become contiguous; otherwise the raw bytes are scanned. The scan is anchored on {@code '<'}
-     * so benign content costs one comparison per byte, and it is bounded by the per-file upload cap.
+     * Reports whether the content is actually a structured-markup document (SVG/HTML/XML) - i.e. its root
+     * element/prolog is the first content after any leading BOM and whitespace/padding. This is deliberately
+     * narrower than "contains a markup substring": text or markdown that merely mentions or embeds markup
+     * away from the document root is not a renderable document and returns false. For a wide charset the bytes
+     * are collapsed to single-byte first so an encoded root is recognised; the work is bounded by the per-file
+     * upload cap.
      */
-    private static boolean containsMarkupRoot(byte[] content, Charset wideCharset) {
-        byte[] haystack =
+    private static boolean isStructuredMarkupDocument(byte[] content, Charset wideCharset) {
+        byte[] bytes =
                 wideCharset != null ? new String(content, wideCharset).getBytes(StandardCharsets.ISO_8859_1) : content;
-        for (int i = 0; i < haystack.length; i++) {
-            if (haystack[i] == '<' && matchesMarkerAt(haystack, i)) {
+        int root = firstNonWhitespaceAfterBom(bytes);
+        return root < bytes.length && startsWithMarkupRoot(bytes, root);
+    }
+
+    private static int firstNonWhitespaceAfterBom(byte[] bytes) {
+        int i = 0;
+        if (bytes.length >= 3 && u(bytes[0]) == 0xEF && u(bytes[1]) == 0xBB && u(bytes[2]) == 0xBF) {
+            i = 3; // UTF-8 BOM
+        }
+        while (i < bytes.length && Character.isWhitespace(u(bytes[i]))) {
+            i++;
+        }
+        return i;
+    }
+
+    private static boolean startsWithMarkupRoot(byte[] bytes, int pos) {
+        for (String marker : MARKUP_ROOT_MARKERS) {
+            if (regionMatchesIgnoreCase(bytes, pos, marker) && isTagBoundary(bytes, pos + marker.length())) {
                 return true;
             }
         }
         return false;
     }
 
-    private static boolean matchesMarkerAt(byte[] bytes, int pos) {
-        for (String marker : MARKUP_ROOT_MARKERS) {
-            if (regionMatchesIgnoreCase(bytes, pos, marker)) {
-                return true;
-            }
+    // A real tag/prolog root is followed by a tag boundary, not more name characters - so "<script" matches
+    // "<script>" or "<script " (a real element) but not the prose word "<scriptural".
+    private static boolean isTagBoundary(byte[] bytes, int pos) {
+        if (pos >= bytes.length) {
+            return true;
         }
-        return false;
+        char c = (char) (bytes[pos] & 0xFF);
+        return Character.isWhitespace(c) || c == '>' || c == '/' || c == ':';
     }
 
     private static boolean regionMatchesIgnoreCase(byte[] bytes, int pos, String marker) {

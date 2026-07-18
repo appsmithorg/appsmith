@@ -114,10 +114,11 @@ public class FileValidationUtilsTest {
                 .verify();
     }
 
-    // Asserts the file was rejected specifically by the fail-closed markup guard (exact FILE_CONTAINS_MARKUP
-    // message), so the test can only pass because markup padded past the detection head was still caught.
-    private static void expectMarkupRejected(byte[] content, String filename) {
-        String expectedMessage = String.format(AppsmithAiErrorMessages.FILE_CONTAINS_MARKUP, filename);
+    // Asserts the file was rejected specifically by the fail-closed markup-document guard (exact
+    // FILE_IS_MARKUP_DOCUMENT message), so the test can only pass because a structured-markup document padded
+    // past the detection head was still caught.
+    private static void expectMarkupDocumentRejected(byte[] content, String filename) {
+        String expectedMessage = String.format(AppsmithAiErrorMessages.FILE_IS_MARKUP_DOCUMENT, filename);
         StepVerifier.create(FileValidationUtils.validateFileType(mockFilePart(filename, content)))
                 .expectErrorSatisfies(error -> {
                     assertThat(error).isInstanceOf(AppsmithPluginException.class);
@@ -289,27 +290,61 @@ public class FileValidationUtilsTest {
         assertThat(emittedChunks.get()).isLessThanOrEqualTo(capChunks + 2);
     }
 
-    // --- Fail-closed guard: markup padded past the 64 KiB detection head must still be rejected, WITHOUT
-    // regressing legitimate large plain-text / markdown / PDF uploads ---
+    // --- Fail-closed guard: a structured-markup DOCUMENT padded past the 64 KiB detection head must still be
+    // rejected, WITHOUT false-rejecting text/markdown that merely mentions or embeds markup ---
 
     @Test
-    public void validateFileType_withSvgPaddedPastDetectionHead_isRejected() {
-        // >64 KiB of leading whitespace (a valid XML prolog) pushes the SVG root past the detection head.
+    public void validateFileType_withWhitespacePaddedSvgDocument_isRejected() {
+        // The reviewer's reproduced bypass: >64 KiB of whitespace then an SVG root - after stripping the
+        // padding this IS a renderable SVG document.
         byte[] content = padThen(
                 OVER_HEAD_PAD, (byte) ' ', "<svg xmlns=\"http://www.w3.org/2000/svg\"><script>alert(1)</script></svg>");
-        expectMarkupRejected(content, "padded.svg");
+        expectMarkupDocumentRejected(content, "padded.svg");
     }
 
     @Test
-    public void validateFileType_withScriptPaddedPastDetectionHead_isRejected() {
-        // Non-whitespace benign padding past the head, then an HTML/script payload.
+    public void validateFileType_withWhitespacePaddedHtmlDocument_isRejected() {
+        // >64 KiB of whitespace then an HTML document root.
+        byte[] content = padThen(OVER_HEAD_PAD, (byte) ' ', "<!DOCTYPE html>\n<html><body>hi</body></html>");
+        expectMarkupDocumentRejected(content, "padded.html");
+    }
+
+    @Test
+    public void validateFileType_withWideEncodedWhitespacePaddedSvgDocument_isRejected() {
+        // Same bypass in a UTF-16LE-encoded document: still rejected.
+        String doc = " ".repeat(OVER_HEAD_PAD) + "<svg xmlns=\"http://www.w3.org/2000/svg\"/>";
+        expectRejected(doc.getBytes(StandardCharsets.UTF_16LE), "padded-wide.svg");
+    }
+
+    @Test
+    public void validateFileType_withNonWhitespacePaddedMarkup_isAccepted() {
+        // POSTURE (low-risk residual, made explicit): non-whitespace bytes before the markup mean the file is
+        // not a renderable document at its root, so it types as text and is accepted. Uploads are S3-stored,
+        // not served from the app origin.
         byte[] content = padThen(OVER_HEAD_PAD, (byte) 'a', "<script>alert(document.cookie)</script>");
-        expectMarkupRejected(content, "padded.txt");
+        expectAccepted(content, "padded.txt");
+    }
+
+    @Test
+    public void validateFileType_withProseMentioningMarkup_isAccepted() {
+        // The reviewer's repro: prose that mentions a tag is not a markup document.
+        byte[] content =
+                "documentation text mentioning <script tags, not an HTML document.".getBytes(StandardCharsets.UTF_8);
+        expectAccepted(content, "notes.txt");
+    }
+
+    @Test
+    public void validateFileType_withMarkdownEmbeddingMarkupExamples_isAccepted() {
+        // Markdown that embeds markup in prose and a fenced code block - the markup is not the document root.
+        String snippet = "# HTML notes\n\nUse `<script>` for JS and an inline <div> for layout. Example:\n\n"
+                + "```\n<svg><rect/></svg>\n```\n\nAlso 1 < 2 holds.\n\n";
+        byte[] content = snippet.repeat(1000).getBytes(StandardCharsets.UTF_8);
+        expectAccepted(content, "big.md");
     }
 
     @Test
     public void validateFileType_withLargeUniformPlainText_isAccepted() {
-        // A large, uniform plain-text file (no markup root) must still pass - the guard is not "reject big".
+        // A large, uniform plain-text file (no markup root) must pass - the guard is not "reject big".
         byte[] content = new byte[OVER_HEAD_PAD + 4096];
         Arrays.fill(content, (byte) 'a');
         expectAccepted(content, "big.txt");
@@ -325,7 +360,7 @@ public class FileValidationUtilsTest {
 
     @Test
     public void validateFileType_withLargePdf_isAccepted() {
-        // A >64 KiB PDF (magic at offset 0) is detected as application/pdf and never markup-scanned.
+        // A >64 KiB PDF (magic at offset 0) is detected as application/pdf and never markup-checked.
         byte[] filler = new byte[OVER_HEAD_PAD];
         Arrays.fill(filler, (byte) 'a');
         byte[] content = concat(
@@ -336,7 +371,7 @@ public class FileValidationUtilsTest {
 
     @Test
     public void validateFileType_withPdfEmbeddingMarkup_isAccepted() {
-        // A real PDF may legitimately embed markup; the guard must not scan PDFs, so this is accepted.
+        // A real PDF may legitimately embed markup; the guard must not check PDFs, so this is accepted.
         byte[] content =
                 "%PDF-1.4\n<svg><script>x</script></svg>\nstream ... endstream\n%%EOF".getBytes(StandardCharsets.UTF_8);
         expectAccepted(content, "with-markup.pdf");
