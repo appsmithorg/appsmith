@@ -37,7 +37,6 @@ import reactor.core.publisher.Mono;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -571,13 +570,13 @@ public class DataUtils {
             String key;
             String value;
             if (eqIndex > 0) {
-                key = URLDecoder.decode(pair.substring(0, eqIndex), StandardCharsets.UTF_8);
-                value = URLDecoder.decode(pair.substring(eqIndex + 1), StandardCharsets.UTF_8);
+                key = pair.substring(0, eqIndex);
+                value = pair.substring(eqIndex + 1);
             } else if (eqIndex == 0) {
                 // key is empty, skip
                 continue;
             } else {
-                key = URLDecoder.decode(pair, StandardCharsets.UTF_8);
+                key = pair;
                 value = "";
             }
             if (!key.isEmpty()) {
