@@ -274,6 +274,53 @@ describe("applyEvent", () => {
     ).toThrow(/not supported/);
   });
 
+  it("schema rejects event names outside the closed vocabulary", () => {
+    // Pins the closed enum: a regression to z.string() would silently accept arbitrary property names.
+    expect(
+      wireEventSpecSchema.safeParse({
+        widget: "Save",
+        event: "onBlur",
+        action: { run: "q" },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("supports change/submit events on select, input, checkbox, switch, and datepicker", () => {
+    const dsl = page([
+      widget({ widgetId: "S", widgetName: "S", type: "SELECT_WIDGET" }),
+      widget({ widgetId: "I", widgetName: "I", type: "INPUT_WIDGET_V2" }),
+      widget({ widgetId: "C", widgetName: "C", type: "CHECKBOX_WIDGET" }),
+      widget({ widgetId: "W", widgetName: "W", type: "SWITCH_WIDGET" }),
+      widget({ widgetId: "D", widgetName: "D", type: "DATE_PICKER_WIDGET2" }),
+    ]);
+    const cases = [
+      { widget: "S", event: "onOptionChange" },
+      { widget: "I", event: "onSubmit" },
+      { widget: "C", event: "onCheckChange" },
+      { widget: "W", event: "onChange" },
+      { widget: "D", event: "onDateSelected" },
+    ] as const;
+
+    for (const testCase of cases) {
+      const { dsl: next } = applyEvent(dsl, {
+        widget: testCase.widget,
+        event: testCase.event,
+        action: { run: "refresh" },
+      });
+      const node = (next.children as WidgetNode[]).find(
+        (child) => child.widgetName === testCase.widget,
+      )!;
+
+      expect(node[testCase.event]).toBe("{{ refresh.run() }}");
+      expect(node.dynamicTriggerPathList).toEqual([{ key: testCase.event }]);
+    }
+
+    // Cross-type misuse still rejects: a select does not take onSubmit.
+    expect(() =>
+      applyEvent(dsl, { widget: "S", event: "onSubmit", action: { run: "q" } }),
+    ).toThrow(/not supported/);
+  });
+
   it("supports table selection, modal close, and tab change events", () => {
     const dsl = page([
       widget({ widgetId: "T", widgetName: "T", type: "TABLE_WIDGET_V2" }),

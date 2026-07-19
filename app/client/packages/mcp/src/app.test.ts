@@ -3575,6 +3575,70 @@ describe("governance-wrapped layout mutations", () => {
     expect(button?.onClick).toBe("{{ showModal('EditModal') }}");
   });
 
+  it("wire_event wires a select's onOptionChange end-to-end (new event vocabulary)", async () => {
+    const store = new MemoryGovernanceStore();
+    const DSL = {
+      ...ROOT_DSL,
+      children: [
+        {
+          widgetId: "s",
+          widgetName: "Region",
+          type: "SELECT_WIDGET",
+          topRow: 0,
+          bottomRow: 7,
+          leftColumn: 0,
+          rightColumn: 24,
+        },
+      ],
+    };
+    let current: Record<string, unknown> = DSL;
+    const updateLayout = jest.fn<
+      Promise<{ ok: boolean }>,
+      [string, string, string, Record<string, unknown>]
+    >(async (_app, _page, _layout, dsl) => {
+      current = dsl;
+
+      return { ok: true };
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: current },
+      })),
+      updateLayout: updateLayout as never,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    const wired = await callTool(server, "wire_event", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision: fingerprintDsl(DSL as never),
+      spec: {
+        widget: "Region",
+        event: "onOptionChange",
+        action: { run: "getCities" },
+      },
+    });
+
+    expect(wired.body.changeId).toBeDefined();
+    const written = updateLayout.mock.calls[0][3] as {
+      children: {
+        widgetName: string;
+        onOptionChange?: string;
+        dynamicTriggerPathList?: { key: string }[];
+      }[];
+    };
+    const select = written.children.find((w) => w.widgetName === "Region");
+
+    expect(select?.onOptionChange).toBe("{{ getCities.run() }}");
+    expect(select?.dynamicTriggerPathList).toEqual([{ key: "onOptionChange" }]);
+  });
+
   it("wire_event rejects an action targeting a missing modal", async () => {
     const store = new MemoryGovernanceStore();
     const DSL = {

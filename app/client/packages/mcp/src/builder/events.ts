@@ -177,17 +177,35 @@ export const eventActionListSchema = z
 export type EventActionInput = EventAction | EventAction[];
 
 // The event property allowed on each widget type (closed). form submit is wired via the form's button onClick.
+// Change/submit events let controls drive queries directly ("re-run when the dropdown changes") — the page-load
+// case needs no event at all: the server auto-derives on-page-load execution from widget bindings when the
+// layout is saved, so a query bound to any widget already runs on load.
 const EVENTS_BY_TYPE: Record<string, readonly string[]> = {
   BUTTON_WIDGET: ["onClick"],
   TABLE_WIDGET_V2: ["onRowSelected"],
   MODAL_WIDGET: ["onClose"],
   TABS_WIDGET: ["onTabSelected"],
+  SELECT_WIDGET: ["onOptionChange"],
+  INPUT_WIDGET_V2: ["onSubmit"],
+  CHECKBOX_WIDGET: ["onCheckChange"],
+  SWITCH_WIDGET: ["onChange"],
+  DATE_PICKER_WIDGET2: ["onDateSelected"],
 };
 
 export const wireEventSpecSchema = z
   .object({
     widget: widgetName,
-    event: z.enum(["onClick", "onRowSelected", "onClose", "onTabSelected"]),
+    event: z.enum([
+      "onClick",
+      "onRowSelected",
+      "onClose",
+      "onTabSelected",
+      "onOptionChange",
+      "onSubmit",
+      "onCheckChange",
+      "onChange",
+      "onDateSelected",
+    ]),
     // A single action, or (M5) an ordered list of 2–5 statements.
     action: z.union([eventActionSchema, eventActionListSchema]),
   })
