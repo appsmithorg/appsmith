@@ -1,6 +1,7 @@
 import {
   compileChartDataBinding,
   compileInputValidation,
+  compileComputedValue,
   compileQueryFieldBinding,
   compileSelectedRowBinding,
   compileTableDataBinding,
@@ -42,20 +43,34 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
     build: (spec) => {
       const source = spec.type === "text" ? spec.source : undefined;
       const staticText = spec.type === "text" ? spec.text : undefined;
+      const value = spec.type === "text" ? spec.value : undefined;
 
       if (source !== undefined && staticText !== undefined) {
         throw new Error("text cannot set both 'text' and 'source'");
       }
 
-      // Three safe origins: a static literal, a compiler-emitted selected-row binding (detail views), or a
-      // compiler-emitted query-field binding (scalar readouts). Bindings are registered as dynamic paths; the
-      // static literal never is. The strict ref shapes discriminate by key ("table" vs "query").
-      const bound = source !== undefined;
-      const text = !bound
-        ? staticText ?? "Text"
-        : "table" in source
-          ? compileSelectedRowBinding(source)
-          : compileQueryFieldBinding(source);
+      if (
+        value !== undefined &&
+        (source !== undefined || staticText !== undefined)
+      ) {
+        throw new Error(
+          "text cannot set 'value' together with 'text' or 'source'",
+        );
+      }
+
+      // Four safe origins: a static literal, a compiler-emitted selected-row binding (detail views), a
+      // compiler-emitted query-field binding (scalar readouts), or a compiler-emitted computed value (dates,
+      // counts, concat). Bindings are registered as dynamic paths; the static literal never is. The strict ref
+      // shapes discriminate by key ("table" vs "query").
+      const bound = source !== undefined || value !== undefined;
+      const text =
+        value !== undefined
+          ? compileComputedValue(value)
+          : source === undefined
+            ? staticText ?? "Text"
+            : "table" in source
+              ? compileSelectedRowBinding(source)
+              : compileQueryFieldBinding(source);
 
       return {
         footprint: { columns: 24, rows: 4 },

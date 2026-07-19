@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import type { WidgetNode } from "./layout.js";
-import type { WidgetType } from "./schema.js";
+import { COMPUTED_NOW_FORMATS, type WidgetType } from "./schema.js";
 
 const CATALOG_TYPE_BY_APPSMITH_TYPE: Record<string, WidgetType> = {
   TEXT_WIDGET: "text",
@@ -79,6 +79,9 @@ export interface SemanticBindingRef {
   // Present on an isVisible binding: the control + value this widget's visibility is gated on.
   control?: string;
   equals?: string;
+  // Present on computed text values: the current-date preset, or the row count of a query.
+  now?: { format: string };
+  count?: { query: string; field?: string };
 }
 
 export interface SemanticWidget {
@@ -161,6 +164,17 @@ const SELECTED_ROW_BINDING =
 // Matches the compiler's scalar query-field binding: `{{ Query.data ?? "" }}` / `{{ Query.data?.field ?? "" }}`.
 const QUERY_FIELD_BINDING =
   /^\{\{ ([A-Za-z0-9_]+)\.data(?:\?\.([A-Za-z0-9_.]+))? \?\? "" \}\}$/;
+// The computed `now` binding: `{{ moment().format('dddd') }}` — reported only when the format literal reverse-maps
+// to a named preset (anything else is not compiler-emitted and stays hidden).
+const NOW_BINDING = /^\{\{ moment\(\)\.format\('([A-Za-z0-9\-:,/ ]+)'\) \}\}$/;
+// The computed `count` binding: `{{ (Query.data?.field ?? []).length }}`.
+const COUNT_BINDING =
+  /^\{\{ \(([A-Za-z0-9_]+)\.data(?:\?\.([A-Za-z0-9_.]+))? \?\? \[\]\)\.length \}\}$/;
+
+// Reverse map from moment format literal to its preset name, derived from the emitter's map so they cannot drift.
+const NOW_FORMAT_NAMES = new Map<string, string>(
+  Object.entries(COMPUTED_NOW_FORMATS).map(([name, format]) => [format, name]),
+);
 // Matches the compiler's table-source binding: `{{ Query.data ?? [] }}` or `{{ Query.data?.field ?? [] }}`.
 const QUERY_DATA_BINDING =
   /^\{\{ ([A-Za-z0-9_]+)\.data(?:\?\.([A-Za-z0-9_.]+))? \?\? \[\] \}\}$/;
@@ -196,6 +210,27 @@ function safeBindings(
       bindings[key] = queryField[2]
         ? { query: queryField[1], field: queryField[2] }
         : { query: queryField[1] };
+      continue;
+    }
+
+    if (key !== "text") continue;
+
+    const now = NOW_BINDING.exec(value);
+    const nowFormatName = now ? NOW_FORMAT_NAMES.get(now[1]) : undefined;
+
+    if (nowFormatName !== undefined) {
+      bindings[key] = { now: { format: nowFormatName } };
+      continue;
+    }
+
+    const count = COUNT_BINDING.exec(value);
+
+    if (count) {
+      bindings[key] = {
+        count: count[2]
+          ? { query: count[1], field: count[2] }
+          : { query: count[1] },
+      };
     }
   }
 

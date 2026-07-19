@@ -1,7 +1,13 @@
 import { applyEdit, compileApp } from "./compile.js";
 import { sequentialIdGenerator, type WidgetNode } from "./layout.js";
 import { overlapDelta, overlappingPairs } from "./occupancy.js";
-import { appSpecSchema, editSpecSchema, type WidgetSpec } from "./schema.js";
+import {
+  appSpecSchema,
+  COMPUTED_NOW_FORMATS,
+  editSpecSchema,
+  type WidgetSpec,
+} from "./schema.js";
+import { projectSemanticPage } from "./semantic.js";
 import { PRESETS } from "./presets.js";
 
 function ids() {
@@ -534,6 +540,201 @@ describe("compileApp — import artifact contract", () => {
     expect(wholeBody.text).toBe('{{ getDay.data ?? "" }}');
     expect(photo.image).toBe('{{ getProfile.data?.avatarUrl ?? "" }}');
     expect(photo.dynamicBindingPathList).toEqual([{ key: "image" }]);
+  });
+
+  it("compiles computed-value tokens on text: now, count, and concat", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "text",
+                name: "Today",
+                value: { now: { format: "dayOfWeek" } },
+              },
+              {
+                type: "text",
+                name: "Matches",
+                value: { count: { query: "getUsers", field: "items" } },
+              },
+              {
+                type: "text",
+                name: "FullName",
+                value: {
+                  concat: [
+                    { table: "Users", column: "first" },
+                    { literal: " " },
+                    { table: "Users", column: "last" },
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const children = rootOf(artifact).children as WidgetNode[];
+    const today = children.find((w) => w.widgetName === "Today")!;
+    const matches = children.find((w) => w.widgetName === "Matches")!;
+    const fullName = children.find((w) => w.widgetName === "FullName")!;
+
+    // The agent picks a NAMED format; the compiler owns the moment format literal.
+    expect(today.text).toBe("{{ moment().format('dddd') }}");
+    expect(today.dynamicBindingPathList).toEqual([{ key: "text" }]);
+    expect(matches.text).toBe("{{ (getUsers.data?.items ?? []).length }}");
+    // Literals are JSON-escaped at compile time so agent text stays inert.
+    expect(fullName.text).toBe(
+      '{{ [Users.selectedRow["first"], " ", Users.selectedRow["last"]].join("") }}',
+    );
+  });
+
+  it("compiles EVERY named now-format and each round-trips through semantic read-back", () => {
+    // Table-driven over the emitter's own map (mirrors the input-validation formats test): a typo in any
+    // format literal, or drift between the emitter and the read-back reverse map, fails here.
+    for (const name of Object.keys(COMPUTED_NOW_FORMATS)) {
+      const artifact = compileApp(
+        {
+          name: "App",
+          pages: [
+            {
+              name: "Home",
+              widgets: [
+                {
+                  type: "text",
+                  name: "Now",
+                  value: {
+                    now: { format: name as keyof typeof COMPUTED_NOW_FORMATS },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+        ids(),
+      );
+      const text = (rootOf(artifact).children as WidgetNode[])[0];
+
+      expect(text.text).toBe(
+        `{{ moment().format('${COMPUTED_NOW_FORMATS[name as keyof typeof COMPUTED_NOW_FORMATS]}') }}`,
+      );
+
+      const projected = projectSemanticPage(rootOf(artifact)).widgets.find(
+        (w) => w.name === "Now",
+      )!;
+
+      expect(projected.bindings).toEqual({ text: { now: { format: name } } });
+    }
+  });
+
+  it("compiles concat query-field parts and pins JSON escaping of hostile literals", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "text",
+                name: "Combo",
+                value: {
+                  concat: [
+                    { query: "getUser", field: "name" },
+                    { literal: ' says "hi" \\ ' },
+                    { query: "getDay" },
+                  ],
+                },
+              },
+              {
+                type: "text",
+                name: "Total",
+                value: { count: { query: "getUsers" } },
+              },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const children = rootOf(artifact).children as WidgetNode[];
+    const combo = children.find((w) => w.widgetName === "Combo")!;
+    const total = children.find((w) => w.widgetName === "Total")!;
+
+    // Quotes and backslashes in the agent literal arrive JSON-escaped — inert inside the expression.
+    expect(combo.text).toBe(
+      '{{ [getUser.data?.name, " says \\"hi\\" \\\\ ", getDay.data].join("") }}',
+    );
+    // Count without a field reads the whole response array.
+    expect(total.text).toBe("{{ (getUsers.data ?? []).length }}");
+  });
+
+  it("rejects source together with value on the build path", () => {
+    expect(() =>
+      compileApp(
+        {
+          name: "App",
+          pages: [
+            {
+              name: "Home",
+              widgets: [
+                {
+                  type: "text",
+                  source: { query: "getDay" },
+                  value: { now: { format: "date" } },
+                },
+              ],
+            },
+          ],
+        },
+        ids(),
+      ),
+    ).toThrow(/cannot set 'value' together with/);
+  });
+
+  it("rejects a text widget combining value with text or source, and unsafe computed refs", () => {
+    const base = { name: "App" };
+
+    expect(() =>
+      compileApp(
+        {
+          ...base,
+          pages: [
+            {
+              name: "Home",
+              widgets: [
+                {
+                  type: "text",
+                  text: "static",
+                  value: { now: { format: "dayOfWeek" } },
+                },
+              ],
+            },
+          ],
+        },
+        ids(),
+      ),
+    ).toThrow(/cannot set/);
+
+    // Unknown format names, injection in concat literals, and bad refs are schema-rejected.
+    const badValues = [
+      { now: { format: "'; evil() //" } },
+      { count: { query: "get(); x" } },
+      { concat: [{ literal: "a{{evil}}" }, { literal: "b" }] },
+      { concat: [{ literal: "only one part" }] },
+    ];
+
+    for (const value of badValues) {
+      expect(
+        appSpecSchema.safeParse({
+          ...base,
+          pages: [{ name: "Home", widgets: [{ type: "text", value }] }],
+        }).success,
+      ).toBe(false);
+    }
   });
 
   it("rejects an image widget setting both image and source", () => {

@@ -180,6 +180,151 @@ describe("applyWidgetPatch", () => {
     expect(image.dynamicBindingPathList).toEqual([{ key: "image" }]);
   });
 
+  it("patches a computed value onto a text widget and rejects it elsewhere", () => {
+    const withText = page();
+
+    withText.children!.push(
+      node({ widgetId: "txt1", widgetName: "Today", type: "TEXT_WIDGET" }),
+      node({ widgetId: "t1", widgetName: "Results", type: "TABLE_WIDGET_V2" }),
+    );
+    const { dsl } = applyWidgetPatch(withText, {
+      operations: [
+        {
+          kind: "update",
+          name: "Today",
+          props: { value: { now: { format: "dayOfWeek" } } },
+        },
+      ],
+    });
+    const today = dsl.children!.find((w) => w.widgetName === "Today")!;
+
+    expect(today.text).toBe("{{ moment().format('dddd') }}");
+    expect(today.dynamicBindingPathList).toEqual([{ key: "text" }]);
+
+    expect(() =>
+      applyWidgetPatch(withText, {
+        operations: [
+          {
+            kind: "update",
+            name: "Results",
+            props: { value: { now: { format: "dayOfWeek" } } },
+          },
+        ],
+      }),
+    ).toThrow(/can only be set on a TEXT_WIDGET/);
+
+    // Ambiguous combinations in one update are rejected — both the literal and the source variant.
+    expect(() =>
+      applyWidgetPatch(withText, {
+        operations: [
+          {
+            kind: "update",
+            name: "Today",
+            props: { text: "static", value: { now: { format: "date" } } },
+          },
+        ],
+      }),
+    ).toThrow(/cannot set both/);
+
+    expect(() =>
+      applyWidgetPatch(withText, {
+        operations: [
+          {
+            kind: "update",
+            name: "Today",
+            props: {
+              source: { query: "getDay" },
+              value: { now: { format: "date" } },
+            },
+          },
+        ],
+      }),
+    ).toThrow(/cannot set both/);
+  });
+
+  it("rejects concat selected-row parts referencing a missing or non-table widget", () => {
+    const withText = page();
+
+    withText.children!.push(
+      node({ widgetId: "txt1", widgetName: "Combo", type: "TEXT_WIDGET" }),
+      node({
+        widgetId: "i1",
+        widgetName: "NotATable",
+        type: "INPUT_WIDGET_V2",
+      }),
+    );
+
+    // Same dangling-table guard as `source` refs: a missing table is caught at patch time, not
+    // silently compiled into a blank widget.
+    expect(() =>
+      applyWidgetPatch(withText, {
+        operations: [
+          {
+            kind: "update",
+            name: "Combo",
+            props: {
+              value: {
+                concat: [
+                  { table: "Missing", column: "first" },
+                  { literal: " " },
+                ],
+              },
+            },
+          },
+        ],
+      }),
+    ).toThrow(/was not found/);
+
+    expect(() =>
+      applyWidgetPatch(withText, {
+        operations: [
+          {
+            kind: "update",
+            name: "Combo",
+            props: {
+              value: {
+                concat: [
+                  { table: "NotATable", column: "first" },
+                  { literal: " " },
+                ],
+              },
+            },
+          },
+        ],
+      }),
+    ).toThrow(/is not a table widget/);
+  });
+
+  it("patching value over a prior source binding keeps a single dynamic path entry", () => {
+    const withText = page();
+
+    withText.children!.push(
+      node({ widgetId: "txt1", widgetName: "Temp", type: "TEXT_WIDGET" }),
+    );
+    const { dsl: bound } = applyWidgetPatch(withText, {
+      operations: [
+        {
+          kind: "update",
+          name: "Temp",
+          props: { source: { query: "getWeather", field: "temp" } },
+        },
+      ],
+    });
+    const { dsl } = applyWidgetPatch(bound, {
+      operations: [
+        {
+          kind: "update",
+          name: "Temp",
+          props: { value: { now: { format: "time" } } },
+        },
+      ],
+    });
+    const text = dsl.children!.find((w) => w.widgetName === "Temp")!;
+
+    expect(text.text).toBe("{{ moment().format('LT') }}");
+    expect(text.dynamicBindingPathList).toEqual([{ key: "text" }]);
+  });
+
   it("rejects a query-ref source on a non-text widget", () => {
     const withTable = page();
 

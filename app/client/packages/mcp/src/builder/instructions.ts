@@ -106,6 +106,16 @@ evaluated as code in a viewer's browser.
   \`{ "type": "image", "source": { "query": "getProfile", "field": "avatarUrl" } }\`. Omit \`field\`
   to show the whole response body. On \`patch_widgets\` the same ref goes on \`source\` (text) or
   \`imageSource\` (image). A text/image sets its literal (\`text\`/\`image\`) OR \`source\`, never both.
+- Computed values (no query at all): a text can show the current date/time, a row count, or a
+  concatenation through the closed token vocabulary on \`value\`:
+  \`{ "type": "text", "value": { "now": { "format": "dayOfWeek" } } }\` (named formats:
+  dayOfWeek, date, dateShort, time, dateTime, isoDate, monthYear — the compiler owns the
+  actual format string), \`{ "value": { "count": { "query": "getUsers" } } }\`, or
+  \`{ "value": { "concat": [{ "table": "Users", "column": "first" }, { "literal": " " },
+  { "table": "Users", "column": "last" }] } }\`. Same token on \`patch_widgets\` \`value\`
+  (text only). A text sets exactly ONE of \`text\`, \`source\`, or \`value\`. NOTE:
+  \`read_semantic_page\` reports \`now\` and \`count\` values back but NOT \`concat\` — a concat
+  you set is still applied even though it does not appear in read-back; do not re-set it.
 - Display bindings (selected row): show or prefill from the table's selected row through the
   same structured-reference rule:
   - Detail text: \`{ "type": "text", "source": { "table": "Users", "column": "email" } }\`.

@@ -21,8 +21,10 @@ import { containsModal, hostModalOf, PAGE_HOST } from "./modalGraph.js";
 import {
   compileDisableWhenInvalid,
   compileInputValidation,
+  compileComputedValue,
   compileQueryFieldBinding,
   compileSelectedRowBinding,
+  computedValueSchema,
   compileTableDataBinding,
   compileVisibleWhenBinding,
   inputValidationSchema,
@@ -95,6 +97,8 @@ export const widgetPropsPatchSchema = z
     text: safeText(10_000).optional(),
     // Text content: a selected-row ref (detail views) OR a query-field ref (scalar readouts).
     source: z.union([selectedRowRefSchema, queryFieldRefSchema]).optional(),
+    // Computed text value (dates, counts, concat) — compiled onto the text prop. Text-only.
+    value: computedValueSchema.optional(),
     defaultValue: selectedRowRefSchema.optional(),
     // Bind an image's src to a column of a table's selected row (e.g. an employee photo in a detail panel) OR
     // to a field of a query's response.
@@ -577,6 +581,7 @@ export function applyWidgetPatch(
         source,
         tableData,
         validation,
+        value,
         visibleWhen,
         ...literals
       } = operation.props;
@@ -584,6 +589,16 @@ export function applyWidgetPatch(
       // A binding and a literal for the same property in one patch would silently race; reject the ambiguity.
       if (source !== undefined && literals.text !== undefined) {
         throw new Error("cannot set both 'text' and 'source' in one update");
+      }
+
+      // `value` (computed) also compiles onto the text prop — any combination with text/source is ambiguous.
+      if (
+        value !== undefined &&
+        (literals.text !== undefined || source !== undefined)
+      ) {
+        throw new Error(
+          "cannot set both 'value' and 'text'/'source' in one update",
+        );
       }
 
       if (defaultValue !== undefined && literals.defaultText !== undefined) {
@@ -628,6 +643,34 @@ export function applyWidgetPatch(
           property: "text",
           field: "source",
         });
+      }
+
+      if (value !== undefined) {
+        if (located.node.type !== "TEXT_WIDGET") {
+          throw new Error(
+            `'value' can only be set on a TEXT_WIDGET ("${located.node.widgetName}" is ${located.node.type})`,
+          );
+        }
+
+        // Guard parity with `source` [COUNCIL: B2 architect]: concat selected-row parts get the same
+        // dangling-table checks; query parts stay unguarded per the documented posture (queries live
+        // outside the widget map, and a missing query degrades to a blank part, a safe fail).
+        if ("concat" in value) {
+          for (const part of value.concat) {
+            if (!("table" in part)) continue;
+
+            const table = widgets.get(part.table);
+
+            if (!table) throw new Error(`table "${part.table}" was not found`);
+
+            if (table.node.type !== "TABLE_WIDGET_V2") {
+              throw new Error(`"${part.table}" is not a table widget`);
+            }
+          }
+        }
+
+        located.node.text = compileComputedValue(value);
+        registerDynamicBinding(located.node, "text");
       }
 
       if (defaultValue !== undefined) {

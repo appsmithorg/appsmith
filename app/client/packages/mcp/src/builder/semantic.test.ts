@@ -19,6 +19,76 @@ function node(
 }
 
 describe("projectSemanticPage", () => {
+  it("reports computed now/count bindings on text; concat stays hidden (no-raw-bindings default)", () => {
+    const dsl = node({
+      widgetId: "root",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t1",
+          widgetName: "Today",
+          type: "TEXT_WIDGET",
+          text: "{{ moment().format('dddd') }}",
+        }),
+        node({
+          widgetId: "t2",
+          widgetName: "Matches",
+          type: "TEXT_WIDGET",
+          text: "{{ (getUsers.data?.items ?? []).length }}",
+        }),
+        node({
+          widgetId: "t3",
+          widgetName: "FullName",
+          type: "TEXT_WIDGET",
+          text: '{{ [Users.selectedRow["first"], " "].join("") }}',
+        }),
+      ],
+    });
+    const widgets = projectSemanticPage(dsl).widgets;
+    const today = widgets.find((w) => w.name === "Today")!;
+    const matches = widgets.find((w) => w.name === "Matches")!;
+    const fullName = widgets.find((w) => w.name === "FullName")!;
+
+    expect(today.bindings).toEqual({ text: { now: { format: "dayOfWeek" } } });
+    expect(matches.bindings).toEqual({
+      text: { count: { query: "getUsers", field: "items" } },
+    });
+    // Concat is not read back (yet): hidden is the safe default for anything unrecognized.
+    expect(fullName.bindings).toBeUndefined();
+  });
+
+  it("hides hand-authored moment formats and reads back count without a field", () => {
+    const dsl = node({
+      widgetId: "root",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t1",
+          widgetName: "HandAuthored",
+          type: "TEXT_WIDGET",
+          // Matches the NOW regex charset but is NOT a compiler preset: the reverse-map gate must hide it.
+          text: "{{ moment().format('X') }}",
+        }),
+        node({
+          widgetId: "t2",
+          widgetName: "Total",
+          type: "TEXT_WIDGET",
+          text: "{{ (getUsers.data ?? []).length }}",
+        }),
+      ],
+    });
+    const widgets = projectSemanticPage(dsl).widgets;
+
+    expect(
+      widgets.find((w) => w.name === "HandAuthored")!.bindings,
+    ).toBeUndefined();
+    expect(widgets.find((w) => w.name === "Total")!.bindings).toEqual({
+      text: { count: { query: "getUsers" } },
+    });
+  });
+
   it("reports query-field display bindings on text and image", () => {
     const dsl = node({
       widgetId: "root",

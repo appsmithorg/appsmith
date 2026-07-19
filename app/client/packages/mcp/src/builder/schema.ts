@@ -310,6 +310,91 @@ export function compileSelectedRowBinding(ref: SelectedRowRef): string {
   return `{{ ${ref.table}.selectedRow["${ref.column}"] }}`;
 }
 
+// --- Computed display values (B2). Closed vocabulary of tokens a text widget can show WITHOUT any query: the
+// current date/time (named formats — the agent picks a NAME, the compiler owns the moment format literal), a
+// count of a query's rows, or a concatenation of inert literals and structured refs. Every emitted part is either
+// a compiler-owned literal, a JSON-escaped agent literal, or a strict-charset identifier path — the same
+// injection guarantees as every other emitter.
+export const COMPUTED_NOW_FORMATS = {
+  dayOfWeek: "dddd",
+  date: "LL",
+  dateShort: "L",
+  time: "LT",
+  dateTime: "LLL",
+  isoDate: "YYYY-MM-DD",
+  monthYear: "MMMM YYYY",
+} as const;
+
+export type ComputedNowFormat = keyof typeof COMPUTED_NOW_FORMATS;
+
+const COMPUTED_NOW_FORMAT_NAMES = Object.keys(COMPUTED_NOW_FORMATS) as [
+  ComputedNowFormat,
+  ...ComputedNowFormat[],
+];
+
+export const computedValueSchema = z.union([
+  z
+    .object({
+      now: z.object({ format: z.enum(COMPUTED_NOW_FORMAT_NAMES) }).strict(),
+    })
+    .strict(),
+  z
+    .object({
+      count: z
+        .object({
+          query: bindingIdentifier,
+          field: responseFieldPath.optional(),
+        })
+        .strict(),
+    })
+    .strict(),
+  z
+    .object({
+      concat: z
+        .array(
+          z.union([
+            z.object({ literal: safeText(200) }).strict(),
+            selectedRowRefSchema,
+            queryFieldRefSchema,
+          ]),
+        )
+        .min(2)
+        .max(5),
+    })
+    .strict(),
+]);
+
+export type ComputedValue = z.infer<typeof computedValueSchema>;
+
+// The single emitter for computed text values. now: compiler-owned moment format literal; count: the guarded
+// array-length read; concat: JSON.stringify makes agent literals inert (escapes quotes/backslashes), and the
+// ref parts reuse the identifier-charset emission of their sibling emitters.
+export function compileComputedValue(ref: ComputedValue): string {
+  if ("now" in ref) {
+    return `{{ moment().format('${COMPUTED_NOW_FORMATS[ref.now.format]}') }}`;
+  }
+
+  if ("count" in ref) {
+    const dataPath = ref.count.field
+      ? `${ref.count.query}.data?.${ref.count.field}`
+      : `${ref.count.query}.data`;
+
+    return `{{ (${dataPath} ?? []).length }}`;
+  }
+
+  const parts = ref.concat.map((part) => {
+    if ("literal" in part) return JSON.stringify(part.literal);
+
+    if ("table" in part) return `${part.table}.selectedRow["${part.column}"]`;
+
+    return part.field
+      ? `${part.query}.data?.${part.field}`
+      : `${part.query}.data`;
+  });
+
+  return `{{ [${parts.join(", ")}].join("") }}`;
+}
+
 // A reference to one field of the current list item, for a card-grid (List Widget V2) template slot. The card widget
 // repeats a fixed template (image + title + subtitle) over a data source; each slot binds to
 // `{{ currentItem["<field>"] }}`. Same charset as table columns (letters/digits/underscore/space) — admits no
@@ -457,6 +542,9 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         // exclusive with static `text` (enforced in the template — a .refine here would break the discriminated
         // union, same as table data/source). The strict object shapes discriminate the union by key.
         source: z.union([selectedRowRefSchema, queryFieldRefSchema]).optional(),
+        // Computed display value (no query needed): current date/time, a row count, or a concat of safe parts.
+        // Compiler-emitted; mutually exclusive with `text` and `source` (enforced in the template).
+        value: computedValueSchema.optional(),
         placement: placementSchema.optional(),
       })
       .strict(),
@@ -682,6 +770,7 @@ export type WidgetSpec =
       name?: string;
       text?: string;
       source?: SelectedRowRef | QueryFieldRef;
+      value?: ComputedValue;
       placement?: PlacementSpec;
     }
   | {

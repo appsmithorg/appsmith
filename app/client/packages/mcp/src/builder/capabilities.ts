@@ -13,9 +13,12 @@ export const WIDGET_CATALOG = [
     fields: {
       text: "plain string (no binding/template syntax)",
       source:
-        "{ table: '<tableWidget>', column: '<column>' } — show the selected row's column (detail views). Use text OR source, not both.",
+        "{ table: '<tableWidget>', column: '<column>' } — show the selected row's column (detail views); or { query: '<query>', field?: '<path>' } — show one field of a query's response (scalar readout).",
+      value:
+        "computed value, no query needed: { now: { format: 'dayOfWeek'|'date'|'dateShort'|'time'|'dateTime'|'isoDate'|'monthYear' } } (current date/time), { count: { query, field? } } (row count), or { concat: [ { literal }|{ table, column }|{ query, field? }, ... ] }. Set exactly ONE of text, source, value.",
     },
-    purpose: "Static text / headings, or a bound detail field.",
+    purpose:
+      "Static text / headings, a bound detail field, or a computed readout (dates, counts, concatenation).",
   },
   {
     type: "input",

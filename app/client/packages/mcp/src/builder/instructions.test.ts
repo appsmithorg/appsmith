@@ -139,6 +139,19 @@ describe("M5 store accumulation — docs stay in sync with the vocabulary", () =
     expect(body).not.toMatch(/passing `source: \{ query \}` there is rejected/);
   });
 
+  it("teaches computed values (now/count/concat) in the bindings guide and catalog", () => {
+    const bindings = GUIDES.find((guide) => guide.slug === "bindings")!;
+    const body = bindings.render();
+
+    expect(body).toContain('"now": { "format": "dayOfWeek" }');
+    expect(body).toContain('"count": { "query": "getUsers" }');
+    expect(body).toContain('"concat"');
+
+    const text = WIDGET_CATALOG.find((w) => w.type === "text")!;
+
+    expect((text.fields as Record<string, string>).value).toContain("now");
+  });
+
   it("ships the originating ZIP-lookup app as a worked recipe (exact wiring)", () => {
     const recipe = RECIPES.find((doc) => doc.slug === "zip-lookup")!;
     const body = recipe.render();
