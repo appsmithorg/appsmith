@@ -7,7 +7,11 @@ import {
 } from "node:http";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
+import {
+  ErrorCode,
+  isInitializeRequest,
+  McpError,
+} from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import {
   buildDuplicateActionDto,
@@ -1819,7 +1823,8 @@ export function buildMcpServer(
     promptMessage: () => Promise<string> | string;
     schemaTitle: string;
     schemaDescription: string;
-    // Copy slots for the shared non-accept results ("the user did not approve the <operationNoun> ...").
+    // Copy slots for the shared non-accept results: a NON_ACCEPT_PHRASES entry + " " + operationNoun forms
+    // the first clause (e.g. "the user DECLINED the approval prompt for this" + "page deletion").
     operationNoun: string;
     nothingHappened: string;
     confirmTool: string;
@@ -1838,13 +1843,48 @@ export function buildMcpServer(
     }) => Promise<void>;
   }
 
+  type ElicitationNonAcceptReason =
+    | "declined"
+    | "cancelled"
+    | "timeout"
+    | "accepted_without_confirm"
+    | "client_error";
+
+  type ElicitationPromptOutcome =
+    | { kind: "accept" }
+    | {
+        kind: "non_accept";
+        reason: ElicitationNonAcceptReason;
+        detail?: string;
+      };
+
+  // Agent-facing first clause of the non-accept error, per outcome. Only the first three describe a human
+  // answer; the last two are client behavior and must NOT read as a user decision — a claude.ai-class client
+  // that declares elicitation without rendering it otherwise walks the agent into telling the user "you
+  // declined" about a prompt they never saw. GRAMMAR CONTRACT: every phrase must end so that appending
+  // " " + operationNoun still parses (hence the trailing "for this"). Note the classified reason is
+  // client-influenceable (a hostile client can pick any outcome), so it is advisory diagnostics only —
+  // it never feeds approval, the attempt counters, or the budgets.
+  const NON_ACCEPT_PHRASES: Record<ElicitationNonAcceptReason, string> = {
+    declined: "the user DECLINED the approval prompt for this",
+    cancelled: "the user cancelled the approval prompt for this",
+    timeout: "the user did not answer the approval prompt in time for this",
+    accepted_without_confirm:
+      "the MCP client accepted the approval prompt WITHOUT the required confirm flag (not treatable as approval) for this",
+    client_error:
+      "the MCP client failed to deliver or answer the approval prompt (a client-side error — the user never saw or answered it) for this",
+  };
+
   // Sends one elicitation prompt and returns whether the human EXPLICITLY accepted. Decline, cancel, timeout,
   // a transport error, or an accept without confirm=true all count as non-accept — never approval. Elicitation
-  // is UX, not a security control [COUNCIL: security F8]: no server rule relaxes around it.
+  // is UX, not a security control [COUNCIL: security F8]: no server rule relaxes around it. Non-accepts carry
+  // WHICH outcome occurred: a client that declares elicitation but never renders the dialog (auto-decline,
+  // protocol error, silent timeout) must be distinguishable from a real human decline, both for the agent's
+  // next step and for diagnosing broken clients from the tool result alone.
   async function sendElicitationPrompt(
     spec: DestructiveElicitation,
     extra: ElicitationExtra,
-  ): Promise<"accept" | "non_accept"> {
+  ): Promise<ElicitationPromptOutcome> {
     // Progress notifications during the wait (when the CALLER requested them via a progressToken), so clients
     // that reset their tool-call timeout on progress don't abort while the human deliberates.
     const progressToken = extra._meta?.progressToken;
@@ -1883,12 +1923,50 @@ export function buildMcpServer(
         { timeout: elicitationTimeout },
       );
 
-      return answer.action === "accept" && answer.content?.confirm === true
-        ? "accept"
-        : "non_accept";
-    } catch {
-      // elicitInput timeout (McpError) or a transport failure: never approval.
-      return "non_accept";
+      if (answer.action === "accept") {
+        return answer.content?.confirm === true
+          ? { kind: "accept" }
+          : // Some client UIs render elicitation as plain accept/decline buttons and never return the
+            // requested boolean — explicit accept intent, but not the confirm=true the schema demands.
+            { kind: "non_accept", reason: "accepted_without_confirm" };
+      }
+
+      return {
+        kind: "non_accept",
+        reason: answer.action === "cancel" ? "cancelled" : "declined",
+      };
+    } catch (error) {
+      // elicitInput timeout (McpError RequestTimeout) or a client/transport failure: never approval. The
+      // detail (truncated, agent-facing) is what lets a broken client be diagnosed from the tool result.
+      if (error instanceof McpError) {
+        if (error.code === ErrorCode.RequestTimeout) {
+          return { kind: "non_accept", reason: "timeout" };
+        }
+
+        // The SDK validates an accept's content against requestedSchema and throws InvalidParams when the
+        // required confirm field is missing — same client behavior as an accept without content.
+        if (
+          error.code === ErrorCode.InvalidParams &&
+          error.message.includes(
+            "Elicitation response content does not match requested schema",
+          )
+        ) {
+          return { kind: "non_accept", reason: "accepted_without_confirm" };
+        }
+      }
+
+      // The detail text is CLIENT-CONTROLLED and agent-facing: flatten control characters (so it cannot
+      // format-break the result or smuggle terminal escapes) and frame it as untrusted before echoing it.
+      const raw = error instanceof Error ? error.message : String(error);
+
+      return {
+        kind: "non_accept",
+        reason: "client_error",
+        detail: `client-reported (untrusted): ${raw
+          // eslint-disable-next-line no-control-regex
+          .replace(/[\u0000-\u001f\u007f]+/g, " ")
+          .slice(0, 300)}`,
+      };
     } finally {
       if (progressTimer !== undefined) clearInterval(progressTimer);
     }
@@ -1987,7 +2065,7 @@ export function buildMcpServer(
 
     const answer = await sendElicitationPrompt(spec, extra);
 
-    if (answer === "accept") return { approved: true, prompted: true };
+    if (answer.kind === "accept") return { approved: true, prompted: true };
 
     // Non-accept never consumes the token — but re-prompting is bounded [SECURITY REV-2 CONDITION 2]. The
     // attempts entry is KEPT (until its TTL sweep) so later calls with the dead token refuse without prompting.
@@ -2002,8 +2080,10 @@ export function buildMcpServer(
       return {
         approved: false,
         result: result({
-          error: `the user did not approve this ${spec.operationNoun} after ${MCP_MAX_ELICITATIONS} prompts; the confirmation has been invalidated and ${spec.nothingHappened}. Stop — only call ${spec.prepareTool} again if the user explicitly asks.`,
+          error: `this ${spec.operationNoun} was not approved after ${MCP_MAX_ELICITATIONS} prompts (last outcome: ${answer.reason}); the confirmation has been invalidated and ${spec.nothingHappened}. Stop — only call ${spec.prepareTool} again if the user explicitly asks.`,
           code: "confirmation_exhausted",
+          reason: answer.reason,
+          ...(answer.detail !== undefined && { detail: answer.detail }),
         }),
       };
     }
@@ -2011,8 +2091,10 @@ export function buildMcpServer(
     return {
       approved: false,
       result: result({
-        error: `the user did not approve the ${spec.operationNoun} (declined, cancelled, or did not answer in time); ${spec.nothingHappened}. The confirmation is still valid — call ${spec.confirmTool} again only after the user approves.`,
+        error: `${NON_ACCEPT_PHRASES[answer.reason]} ${spec.operationNoun}; ${spec.nothingHappened}. The confirmation is still valid — call ${spec.confirmTool} again only after the user approves.`,
         code: spec.notConfirmedCode,
+        reason: answer.reason,
+        ...(answer.detail !== undefined && { detail: answer.detail }),
         attemptsRemaining: MCP_MAX_ELICITATIONS - attempts.count,
       }),
     };

@@ -1052,7 +1052,10 @@ describe("confirm_commit — the elicitation layer (real SDK client over a linke
       });
 
       expect(body.code).toBe("commit_not_confirmed");
-      expect(String(body.error)).toContain("did not approve");
+      expect(String(body.error)).toContain(
+        "did not answer the approval prompt in time",
+      );
+      expect(body.reason).toBe("timeout");
       expect(api.commitGitApplication).not.toHaveBeenCalled();
       expect(store.confirmations.has(confirmationId)).toBe(true);
     } finally {
