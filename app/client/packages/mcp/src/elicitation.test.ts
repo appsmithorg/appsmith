@@ -1438,11 +1438,59 @@ describe("non-accept outcome disambiguation (reason field)", () => {
     }
   });
 
-  it("an accept WITHOUT the confirm flag reports reason 'accepted_without_confirm'", async () => {
+  it("an accept with an EMPTY content object counts as approval (plain accept/decline client UIs)", async () => {
     const store = new MemoryGovernanceStore();
-    // Some client UIs render elicitation as plain accept/decline buttons and omit the requested boolean.
-    const session = await connectClient(pagesApi(), store, [
+    // Some client UIs render elicitation as plain accept/decline buttons and never return the requested
+    // boolean. An explicit accept is explicit human intent: only confirm === false blocks it.
+    const api = pagesApi();
+    const session = await connectClient(api, store, [
       { action: "accept", content: {} },
+    ]);
+
+    try {
+      const { confirmationId, revision } = await prepareDelete(session.client);
+      const body = await confirmDelete(
+        session.client,
+        confirmationId,
+        revision,
+      );
+
+      expect(body.deleted).toBe(true);
+      expect(api.deletePage).toHaveBeenCalledTimes(1);
+    } finally {
+      await session.close();
+    }
+  });
+
+  it("an accept with confirm=false is NOT approval and reports reason 'declined'", async () => {
+    const store = new MemoryGovernanceStore();
+    const api = pagesApi();
+    const session = await connectClient(api, store, [
+      { action: "accept", content: { confirm: false } },
+    ]);
+
+    try {
+      const { confirmationId, revision } = await prepareDelete(session.client);
+      const body = await confirmDelete(
+        session.client,
+        confirmationId,
+        revision,
+      );
+
+      expect(body.code).toBe("delete_page_not_confirmed");
+      expect(body.reason).toBe("declined");
+      expect(api.deletePage).not.toHaveBeenCalled();
+    } finally {
+      await session.close();
+    }
+  });
+
+  it("an accept with a NON-BOOLEAN confirm reports reason 'accepted_without_confirm'", async () => {
+    const store = new MemoryGovernanceStore();
+    // A malformed content type still trips the SDK's schema validation; that stays a non-accept.
+    const api = pagesApi();
+    const session = await connectClient(api, store, [
+      { action: "accept", content: { confirm: "yes" } },
     ]);
 
     try {
@@ -1455,6 +1503,7 @@ describe("non-accept outcome disambiguation (reason field)", () => {
 
       expect(body.code).toBe("delete_page_not_confirmed");
       expect(body.reason).toBe("accepted_without_confirm");
+      expect(api.deletePage).not.toHaveBeenCalled();
     } finally {
       await session.close();
     }
@@ -1574,11 +1623,10 @@ describe("non-accept outcome disambiguation (reason field)", () => {
     }
   });
 
-  it("an accept with NO content at all reports reason 'accepted_without_confirm'", async () => {
+  it("an accept with NO content at all counts as approval", async () => {
     const store = new MemoryGovernanceStore();
-    const session = await connectClient(pagesApi(), store, [
-      { action: "accept" },
-    ]);
+    const api = pagesApi();
+    const session = await connectClient(api, store, [{ action: "accept" }]);
 
     try {
       const { confirmationId, revision } = await prepareDelete(session.client);
@@ -1588,20 +1636,149 @@ describe("non-accept outcome disambiguation (reason field)", () => {
         revision,
       );
 
-      expect(body.code).toBe("delete_page_not_confirmed");
-      expect(body.reason).toBe("accepted_without_confirm");
+      expect(body.deleted).toBe(true);
+      expect(api.deletePage).toHaveBeenCalledTimes(1);
     } finally {
       await session.close();
     }
   });
 
-  it("the exhaustion result carries reason 'client_error' and its detail when the final attempt errors", async () => {
+  it("a client_error refunds the attempt and falls back to the relay posture for the session", async () => {
+    const store = new MemoryGovernanceStore();
+    // A broken client (declares elicitation, cannot deliver the prompt) must NOT march the user into
+    // confirmation_exhausted: the failed prompt is refunded, the refusal teaches the relay flow, and the
+    // session degrades to the documented relay posture — the retry executes WITHOUT another prompt.
+    const clientFailure = async (): Promise<ElicitResult> =>
+      Promise.reject(new Error("renderer crashed"));
+    const api = pagesApi();
+    const session = await connectClient(api, store, [clientFailure]);
+
+    try {
+      const { confirmationId, revision } = await prepareDelete(session.client);
+      const first = await confirmDelete(
+        session.client,
+        confirmationId,
+        revision,
+      );
+
+      expect(first.code).toBe("delete_page_not_confirmed");
+      expect(first.reason).toBe("client_error");
+      // The failed prompt is refunded: all attempts remain.
+      expect(first.attemptsRemaining).toBe(MCP_MAX_ELICITATIONS);
+      // The refusal teaches the agent the relay flow instead of a dead-end retry loop.
+      expect(String(first.error)).toContain("relay");
+      expect(api.deletePage).not.toHaveBeenCalled();
+      expect(store.confirmations.has(confirmationId)).toBe(true);
+
+      // The retry proceeds under the relay posture: no further elicitation prompt is attempted.
+      const second = await confirmDelete(
+        session.client,
+        confirmationId,
+        revision,
+      );
+
+      expect(second.deleted).toBe(true);
+      expect(api.deletePage).toHaveBeenCalledTimes(1);
+      expect(session.prompts).toHaveLength(1);
+    } finally {
+      await session.close();
+    }
+  });
+
+  it("logs every elicitation outcome with the client name/version (telemetry)", async () => {
+    const store = new MemoryGovernanceStore();
+    const lines: string[] = [];
+    const session = await connectClient(pagesApi(), store, [DECLINE], {
+      logSink: (line: string) => lines.push(line),
+    });
+
+    try {
+      const { confirmationId, revision } = await prepareDelete(session.client);
+
+      await confirmDelete(session.client, confirmationId, revision);
+
+      const outcomeLine = lines.find((line) => line.includes("elicitation"));
+
+      expect(outcomeLine).toBeDefined();
+      expect(outcomeLine).toContain("outcome=declined");
+      expect(outcomeLine).toContain("tool=confirm_delete_page");
+      expect(outcomeLine).toContain("client=elicitation-test/1.0.0");
+    } finally {
+      await session.close();
+    }
+  });
+
+  it("a timeout is still CHARGED against the attempt budget (only client failures refund)", async () => {
+    const store = new MemoryGovernanceStore();
+    const session = await connectClient(
+      pagesApi(),
+      store,
+      [
+        async () =>
+          new Promise<ElicitResult>((resolveAnswer) => {
+            setTimeout(() => resolveAnswer(ACCEPT), 150);
+          }),
+      ],
+      { elicitationTimeoutMs: 50 },
+    );
+
+    try {
+      const { confirmationId, revision } = await prepareDelete(session.client);
+      const body = await confirmDelete(
+        session.client,
+        confirmationId,
+        revision,
+      );
+
+      expect(body.reason).toBe("timeout");
+      // A human may have seen (and ignored) the prompt: the charge stands, bounding prompt fatigue.
+      expect(body.attemptsRemaining).toBe(MCP_MAX_ELICITATIONS - 1);
+    } finally {
+      await session.close();
+    }
+  });
+
+  it("the client_error fallback does NOT leak across sessions: a fresh session still prompts", async () => {
     const store = new MemoryGovernanceStore();
     const clientFailure = async (): Promise<ElicitResult> =>
       Promise.reject(new Error("renderer crashed"));
-    const session = await connectClient(pagesApi(), store, [
-      clientFailure,
-      clientFailure,
+    const broken = await connectClient(pagesApi(), store, [clientFailure]);
+
+    try {
+      const { confirmationId, revision } = await prepareDelete(broken.client);
+      const refusal = await confirmDelete(
+        broken.client,
+        confirmationId,
+        revision,
+      );
+
+      expect(refusal.reason).toBe("client_error");
+    } finally {
+      await broken.close();
+    }
+
+    // A NEW session (fresh buildMcpServer) must prompt again — the fallback is session-local.
+    const fresh = await connectClient(pagesApi(), store, [ACCEPT]);
+
+    try {
+      const { confirmationId, revision } = await prepareDelete(fresh.client);
+      const body = await confirmDelete(fresh.client, confirmationId, revision);
+
+      expect(body.deleted).toBe(true);
+      expect(fresh.prompts).toHaveLength(1);
+    } finally {
+      await fresh.close();
+    }
+  });
+
+  it("a client_error on a LATER attempt refunds that attempt and the next confirm approves under fallback", async () => {
+    const store = new MemoryGovernanceStore();
+    const clientFailure = async (): Promise<ElicitResult> =>
+      Promise.reject(new Error("renderer crashed"));
+    const api = pagesApi();
+    const session = await connectClient(api, store, [
+      DECLINE,
+      DECLINE,
       clientFailure,
     ]);
 
@@ -1609,17 +1786,59 @@ describe("non-accept outcome disambiguation (reason field)", () => {
       const { confirmationId, revision } = await prepareDelete(session.client);
 
       await confirmDelete(session.client, confirmationId, revision);
-      await confirmDelete(session.client, confirmationId, revision);
 
+      const second = await confirmDelete(
+        session.client,
+        confirmationId,
+        revision,
+      );
+
+      expect(second.attemptsRemaining).toBe(1);
+
+      // Third prompt is a client failure: refunded (back to 1 remaining), NOT exhausted, fallback engaged.
       const third = await confirmDelete(
         session.client,
         confirmationId,
         revision,
       );
 
-      expect(third.code).toBe("confirmation_exhausted");
+      expect(third.code).toBe("delete_page_not_confirmed");
       expect(third.reason).toBe("client_error");
-      expect(String(third.detail)).toContain("renderer crashed");
+      expect(third.attemptsRemaining).toBe(1);
+      expect(store.confirmations.has(confirmationId)).toBe(true);
+
+      // The retry proceeds under the relay posture without a fourth prompt.
+      const fourth = await confirmDelete(
+        session.client,
+        confirmationId,
+        revision,
+      );
+
+      expect(fourth.deleted).toBe(true);
+      expect(session.prompts).toHaveLength(3);
+    } finally {
+      await session.close();
+    }
+  });
+
+  it("elicitationDisabled forces the relay posture: no prompt even for a capable client", async () => {
+    const store = new MemoryGovernanceStore();
+    const api = pagesApi();
+    // Scripted answers list is EMPTY: any elicitation attempt would throw in the harness.
+    const session = await connectClient(api, store, [], {
+      elicitationDisabled: true,
+    });
+
+    try {
+      const { confirmationId, revision } = await prepareDelete(session.client);
+      const body = await confirmDelete(
+        session.client,
+        confirmationId,
+        revision,
+      );
+
+      expect(body.deleted).toBe(true);
+      expect(session.prompts).toHaveLength(0);
     } finally {
       await session.close();
     }
@@ -1669,5 +1888,25 @@ describe("elicitation docs — catalog, capabilities copy, and README stay in sy
     expect(readme).toContain("never consumes the one-time confirmation");
     // The per-session prompt budget is operator-facing behavior: the README must name the refusal code.
     expect(readme).toContain("elicitation_budget_exhausted");
+  });
+
+  it("the README pins the reason vocabulary, the broken-client fallback, and the elicitation env knobs", () => {
+    const readme = readFileSync(resolve(__dirname, "../README.md"), "utf8");
+
+    // The five non-accept reasons are part of the tool-result contract for agent authors.
+    for (const reason of [
+      "`declined`",
+      "`cancelled`",
+      "`timeout`",
+      "`accepted_without_confirm`",
+      "`client_error`",
+    ]) {
+      expect(readme).toContain(reason);
+    }
+
+    // Broken-client degradation and the operator knobs are operator-facing behavior.
+    expect(readme).toContain("relay posture");
+    expect(readme).toContain("APPSMITH_MCP_DISABLE_ELICITATION");
+    expect(readme).toContain("APPSMITH_MCP_ELICITATION_TIMEOUT_MS");
   });
 });

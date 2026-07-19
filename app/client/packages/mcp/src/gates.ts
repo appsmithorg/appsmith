@@ -72,6 +72,40 @@ export function publicOriginFromEnv(
   return url.origin;
 }
 
+// Ceiling for the elicitation-wait override: a destructive confirm call holds its HTTP request open for the whole
+// wait, so an absurd value would pin connections arbitrarily long. Clamped with a warning, like the session TTL.
+export const ELICITATION_TIMEOUT_CEILING_MS = 10 * 60 * 1000;
+
+// APPSMITH_MCP_ELICITATION_TIMEOUT_MS resolved to an override (or undefined for the built-in default). Unset and
+// empty are silent; a present-but-invalid value warns and falls back, an over-ceiling value warns and clamps —
+// matching the sessionLimitsFromEnv posture so a mistyped override is loud at startup.
+export function elicitationTimeoutFromEnv(
+  value: string | undefined,
+  warn: (message: string) => void = () => {},
+): number | undefined {
+  if (value === undefined || value.trim() === "") return undefined;
+
+  const parsed = parsePositiveInt(value, 0);
+
+  if (parsed === 0) {
+    warn(
+      `APPSMITH_MCP_ELICITATION_TIMEOUT_MS=${value} is not a positive integer; using the built-in default`,
+    );
+
+    return undefined;
+  }
+
+  if (parsed > ELICITATION_TIMEOUT_CEILING_MS) {
+    warn(
+      `APPSMITH_MCP_ELICITATION_TIMEOUT_MS=${value} exceeds the maximum ${ELICITATION_TIMEOUT_CEILING_MS}; using ${ELICITATION_TIMEOUT_CEILING_MS}`,
+    );
+
+    return ELICITATION_TIMEOUT_CEILING_MS;
+  }
+
+  return parsed;
+}
+
 export interface SessionLimits {
   maxSessions: number;
   maxSessionsPerUser: number;

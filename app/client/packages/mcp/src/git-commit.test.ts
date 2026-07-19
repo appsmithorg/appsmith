@@ -998,7 +998,7 @@ describe("confirm_commit — the elicitation layer (real SDK client over a linke
     }
   });
 
-  it("cancel aborts without consuming, and an accept WITHOUT confirm=true never counts as approval", async () => {
+  it("cancel aborts without consuming, and an accept with an EXPLICIT confirm=false never counts as approval", async () => {
     const store = new MemoryGovernanceStore();
     const api = commitApi();
     const session = await connectElicitationClient(api, store, [

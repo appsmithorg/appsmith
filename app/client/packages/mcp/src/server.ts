@@ -6,6 +6,8 @@ import {
   MCP_SESSION_TTL_MS,
 } from "./app.js";
 import {
+  elicitationTimeoutFromEnv,
+  gateEnabled,
   gateEnabledByDefault,
   publicOriginFromEnv,
   sessionLimitsFromEnv,
@@ -31,6 +33,27 @@ const allowedHosts = (process.env.APPSMITH_MCP_ALLOWED_HOSTS ?? "")
   .split(",")
   .map((host) => host.trim())
   .filter((host) => host.length > 0);
+
+// Operator escape hatch: force the relay posture (no elicitation prompts) for deployments whose client fleet
+// declares elicitation but cannot render it. OFF by default — only an explicit truthy value disables prompting.
+const elicitationDisabled = gateEnabled(
+  process.env.APPSMITH_MCP_DISABLE_ELICITATION,
+);
+
+if (elicitationDisabled) {
+  process.stderr.write(
+    "Appsmith MCP elicitation disabled by APPSMITH_MCP_DISABLE_ELICITATION; destructive confirms use the relay posture\n",
+  );
+}
+
+// Optional override for how long destructive confirms wait for the human to answer the approval prompt. Clients
+// that do not reset their tool-call timeout on progress notifications may abort before the built-in 120s default;
+// invalid values fall back to the default and absurd ones clamp, each with a startup warning (parsed in gates.ts
+// so the behavior is unit-tested).
+const elicitationTimeoutMs = elicitationTimeoutFromEnv(
+  process.env.APPSMITH_MCP_ELICITATION_TIMEOUT_MS,
+  (message) => process.stderr.write(`Appsmith MCP ${message}\n`),
+);
 
 // Preferred origin for the editor/viewer URLs build_application returns. Fail-closed: an invalid value is warned
 // about and dropped, so URL construction falls back to per-session header derivation and then to root-relative paths.
@@ -119,6 +142,8 @@ async function main(): Promise<void> {
     governance,
     allowedHosts,
     publicOrigin,
+    elicitationDisabled,
+    elicitationTimeoutMs,
     ...sessionLimits,
   });
 

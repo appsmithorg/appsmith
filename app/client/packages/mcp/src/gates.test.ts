@@ -1,10 +1,48 @@
 import {
+  ELICITATION_TIMEOUT_CEILING_MS,
+  elicitationTimeoutFromEnv,
   gateEnabled,
   gateEnabledByDefault,
   parsePositiveInt,
   publicOriginFromEnv,
   sessionLimitsFromEnv,
 } from "./gates.js";
+
+describe("elicitationTimeoutFromEnv — APPSMITH_MCP_ELICITATION_TIMEOUT_MS", () => {
+  it("returns undefined (built-in default) when unset or empty, with NO warning", () => {
+    const warn = jest.fn();
+
+    expect(elicitationTimeoutFromEnv(undefined, warn)).toBeUndefined();
+    expect(elicitationTimeoutFromEnv("", warn)).toBeUndefined();
+    expect(elicitationTimeoutFromEnv("   ", warn)).toBeUndefined();
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it("parses a positive integer", () => {
+    expect(elicitationTimeoutFromEnv("45000")).toBe(45_000);
+  });
+
+  it("falls back to the default with a warning on invalid values", () => {
+    for (const value of ["abc", "-5", "0", "1.5"]) {
+      const warn = jest.fn();
+
+      expect(elicitationTimeoutFromEnv(value, warn)).toBeUndefined();
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(String(warn.mock.calls[0][0])).toContain(
+        "APPSMITH_MCP_ELICITATION_TIMEOUT_MS",
+      );
+    }
+  });
+
+  it("clamps absurd values to the ceiling with a warning", () => {
+    const warn = jest.fn();
+
+    expect(elicitationTimeoutFromEnv("999999999", warn)).toBe(
+      ELICITATION_TIMEOUT_CEILING_MS,
+    );
+    expect(warn).toHaveBeenCalledTimes(1);
+  });
+});
 
 describe("gateEnabled — opt-in gate parsing (data/JS layers)", () => {
   // The Admin Settings UI writes "true"/"false"; operators historically used "1"/"0". Regression guard: the old

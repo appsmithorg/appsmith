@@ -178,6 +178,12 @@ export interface ServerContext {
   // the CALLER supplied a progressToken). Default ELICITATION_PROGRESS_INTERVAL_MS; injectable like the timeout so
   // tests can observe pings without a 10s wait.
   elicitationProgressIntervalMs?: number;
+  // Operator escape hatch (APPSMITH_MCP_DISABLE_ELICITATION): forces the documented relay posture — no
+  // elicitation prompt is ever sent, even when the client declares the capability. For deployments whose client
+  // fleet declares elicitation but cannot render it. No other server rule (tokens, TTLs, digests) relaxes.
+  elicitationDisabled?: boolean;
+  // Operator-facing log line sink (default: process.stderr). Injectable so tests can observe telemetry.
+  logSink?: (line: string) => void;
 }
 
 // A page is the lock/audit entity for layout, page-metadata, and event mutations.
@@ -1683,6 +1689,7 @@ export function buildMcpServer(
     actorId,
     commitElicitationTimeoutMs,
     dataEnabled,
+    elicitationDisabled,
     elicitationProgressIntervalMs,
     elicitationTimeoutMs,
     governance,
@@ -1690,6 +1697,7 @@ export function buildMcpServer(
     jsEnabled,
     requestOrigin,
   } = ctx;
+  const logSink = ctx.logSink ?? ((line: string) => process.stderr.write(line));
   const elicitationTimeout =
     elicitationTimeoutMs ??
     commitElicitationTimeoutMs ??
@@ -1802,6 +1810,27 @@ export function buildMcpServer(
   const ELICITATION_ATTEMPTS_TTL_MS = 10 * 60 * 1000;
   // Session-total prompt counter behind MCP_SESSION_MAX_ELICITATIONS (see the constant for the rationale).
   let sessionElicitationCount = 0;
+  // Set after a client_error prompt outcome: the client declares elicitation but cannot deliver the dialog, so
+  // the rest of the session uses the documented relay posture instead of prompting into a dead end.
+  let elicitationFallback = false;
+
+  // Operator telemetry: one line per elicitation outcome, with the client identity from the initialize
+  // handshake — so a client fleet that declares elicitation but cannot render it is identifiable from server
+  // logs instead of user screenshots. The client name/version is client-supplied text: control characters are
+  // flattened like every other client-controlled string the server echoes.
+  function logElicitationOutcome(tool: string, outcome: string): void {
+    const clientInfo = server.server.getClientVersion();
+    const clientLabel = (
+      clientInfo ? `${clientInfo.name}/${clientInfo.version}` : "unknown"
+    )
+      // eslint-disable-next-line no-control-regex
+      .replace(/[\u0000-\u001f\u007f]+/g, " ")
+      .slice(0, 120);
+
+    logSink(
+      `Appsmith MCP elicitation tool=${tool} outcome=${outcome} client=${clientLabel}\n`,
+    );
+  }
 
   // Marks a confirmation as spent the moment its token is consumed, so a replayed confirm call refuses WITHOUT
   // prompting the human again (the prompt fires before consumption, so only this session-local mark can stop a
@@ -1819,7 +1848,9 @@ export function buildMcpServer(
     // Builds the human-facing prompt. Invoked ONLY when the client declares elicitation, so any best-effort label
     // read it performs never costs non-elicitation clients anything. EVERY interpolated value must pass through
     // promptSafe(), with the load-bearing facts rendered OUTSIDE any quoted agent text, and the wording must never
-    // make an itemized claim the confirmation digest does not bind [SECURITY REV-2 CONDITION 4].
+    // make an itemized claim the confirmation digest does not bind [SECURITY REV-2 CONDITION 4]. MUST NOT throw:
+    // it runs inside the prompt try/catch, so an uncaught error is classified as client_error and silently
+    // degrades the session to the relay posture — catch label-read failures internally and fall back to ids.
     promptMessage: () => Promise<string> | string;
     schemaTitle: string;
     schemaDescription: string;
@@ -1863,8 +1894,9 @@ export function buildMcpServer(
   // that declares elicitation without rendering it otherwise walks the agent into telling the user "you
   // declined" about a prompt they never saw. GRAMMAR CONTRACT: every phrase must end so that appending
   // " " + operationNoun still parses (hence the trailing "for this"). Note the classified reason is
-  // client-influenceable (a hostile client can pick any outcome), so it is advisory diagnostics only —
-  // it never feeds approval, the attempt counters, or the budgets.
+  // client-influenceable (a hostile client can pick any outcome). It never feeds approval — but client_error
+  // DOES refund the prompt charges and degrade the session to the relay posture [SECURITY: milestone-A
+  // reviewed — equivalent power to simply not declaring the elicitation capability, so not a new bypass].
   const NON_ACCEPT_PHRASES: Record<ElicitationNonAcceptReason, string> = {
     declined: "the user DECLINED the approval prompt for this",
     cancelled: "the user cancelled the approval prompt for this",
@@ -1907,28 +1939,36 @@ export function buildMcpServer(
     try {
       const answer = await server.server.elicitInput(
         {
-          message: await spec.promptMessage(),
+          // The trailing sentence is the consent frame [SECURITY: milestone-A condition]: accepting the
+          // prompt approves even when the optional boolean is left unset, so the copy must say exactly that —
+          // otherwise a form-rendering client's unchecked box reads as "no" while the server reads approval.
+          message: `${await spec.promptMessage()} Accepting this prompt APPROVES the ${spec.operationNoun}; decline or cancel to refuse.`,
           requestedSchema: {
             type: "object",
             properties: {
               confirm: {
                 type: "boolean",
                 title: spec.schemaTitle,
-                description: spec.schemaDescription,
+                // Same consent frame as the message: leaving the optional box unset does NOT withhold
+                // approval — only an explicit false (or decline/cancel) refuses.
+                description: `${spec.schemaDescription} Accepting approves even if this is left unset; set it to false or decline to refuse.`,
               },
             },
-            required: ["confirm"],
+            // confirm is deliberately OPTIONAL: clients that render elicitation as bare accept/decline
+            // buttons (no form) answer accept without content, and that explicit accept must count.
           },
         },
         { timeout: elicitationTimeout },
       );
 
       if (answer.action === "accept") {
-        return answer.content?.confirm === true
+        // An explicit accept IS explicit human intent, even from client UIs that render plain
+        // accept/decline buttons and never return the optional boolean — only an explicit
+        // confirm=false (accepted the form with the box answered "no") blocks it
+        // [SECURITY: policy change reviewed — accept-without-boolean counts as approval].
+        return answer.content?.confirm !== false
           ? { kind: "accept" }
-          : // Some client UIs render elicitation as plain accept/decline buttons and never return the
-            // requested boolean — explicit accept intent, but not the confirm=true the schema demands.
-            { kind: "non_accept", reason: "accepted_without_confirm" };
+          : { kind: "non_accept", reason: "declined" };
       }
 
       return {
@@ -1944,7 +1984,7 @@ export function buildMcpServer(
         }
 
         // The SDK validates an accept's content against requestedSchema and throws InvalidParams when the
-        // required confirm field is missing — same client behavior as an accept without content.
+        // optional confirm field is present with the wrong type — a malformed accept, never approval.
         if (
           error.code === ErrorCode.InvalidParams &&
           error.message.includes(
@@ -1985,6 +2025,14 @@ export function buildMcpServer(
     | { approved: true; prompted: boolean }
     | { approved: false; result: ToolResult }
   > {
+    // Operator escape hatch, and the session-local broken-client fallback: both force the documented relay
+    // posture (the agent shows the prepare relay text and gets approval) instead of prompting. Set for the
+    // session after a client_error outcome — a client that declares elicitation but cannot deliver the dialog
+    // must not turn every destructive confirm into a dead end.
+    if (elicitationDisabled === true || elicitationFallback) {
+      return { approved: true, prompted: false };
+    }
+
     // Capability read LAZILY per session (ServerContext is built before connect(), so initialize-time capture is
     // impossible). When the client does NOT declare elicitation the prompt is skipped entirely.
     if (server.server.getClientCapabilities()?.elicitation === undefined) {
@@ -2065,7 +2113,37 @@ export function buildMcpServer(
 
     const answer = await sendElicitationPrompt(spec, extra);
 
+    logElicitationOutcome(
+      spec.confirmTool,
+      answer.kind === "accept" ? "accept" : answer.reason,
+    );
+
     if (answer.kind === "accept") return { approved: true, prompted: true };
+
+    // A client_error is the CLIENT failing to deliver or answer the prompt — the human never took part. Refund
+    // the charges (they exist to bound prompt fatigue, and no prompt reached the human), degrade the session to
+    // the relay posture so the next confirm proceeds under the documented fallback, and teach the agent that
+    // flow instead of a dead-end retry loop.
+    if (answer.reason === "client_error") {
+      sessionElicitationCount -= 1;
+      attempts.count -= 1;
+      elicitationAttempts.set(spec.confirmationId, attempts);
+      elicitationFallback = true;
+      logSink(
+        `Appsmith MCP elicitation falling back to relay posture for this session (client_error on ${spec.confirmTool})\n`,
+      );
+
+      return {
+        approved: false,
+        result: result({
+          error: `${NON_ACCEPT_PHRASES.client_error} ${spec.operationNoun}; ${spec.nothingHappened}. The confirmation is still valid. This client cannot render approval prompts, so the session now uses the relay posture: show the user the ${spec.prepareTool} relay text, get their EXPLICIT approval, then call ${spec.confirmTool} again — it will proceed without a prompt.`,
+          code: spec.notConfirmedCode,
+          reason: answer.reason,
+          ...(answer.detail !== undefined && { detail: answer.detail }),
+          attemptsRemaining: MCP_MAX_ELICITATIONS - attempts.count,
+        }),
+      };
+    }
 
     // Non-accept never consumes the token — but re-prompting is bounded [SECURITY REV-2 CONDITION 2]. The
     // attempts entry is KEPT (until its TTL sweep) so later calls with the dead token refuse without prompting.
@@ -5780,6 +5858,11 @@ export interface McpHttpServerOptions {
   // Interval between notifications/progress pings during an elicitation wait (default
   // ELICITATION_PROGRESS_INTERVAL_MS); injectable for tests, like the timeout.
   elicitationProgressIntervalMs?: number;
+  // Operator escape hatch (APPSMITH_MCP_DISABLE_ELICITATION): forces the relay posture for every session —
+  // see ServerContext.elicitationDisabled.
+  elicitationDisabled?: boolean;
+  // Operator-facing log line sink (default: process.stderr) — see ServerContext.logSink.
+  logSink?: (line: string) => void;
 }
 
 // The hostname portion of a Host header, lowercased and without the port. Handles `host`, `host:port`, and
@@ -6133,6 +6216,8 @@ export function createMcpHttpServer(
           elicitationTimeoutMs: options.elicitationTimeoutMs,
           commitElicitationTimeoutMs: options.commitElicitationTimeoutMs,
           elicitationProgressIntervalMs: options.elicitationProgressIntervalMs,
+          elicitationDisabled: options.elicitationDisabled,
+          logSink: options.logSink,
           // Session-scoped origin for the URLs build_application returns, captured once here at initialize so
           // tool handlers never touch raw requests (same seam as actorId/isAdmin). The configured public origin
           // wins; header derivation is the validated fallback; undefined means root-relative URLs.

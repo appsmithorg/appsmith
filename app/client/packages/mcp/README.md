@@ -125,11 +125,43 @@ unaffected — the parameter is optional and ignored.
   beyond that budget, elicitation-capable confirms refuse with `elicitation_budget_exhausted` instead of prompting
   (closing the re-prepare prompt-fatigue loop; a new session resets the budget).
   **Honest fallback:** without an elicitation-capable client the confirmation
-  prompt depends on the agent relaying it — the one-time token and relay text are the fallback posture, and no
-  server rule (mcp/-only, TTL, one-time token, content binding) relaxes either way. Client support for elicitation
-  varies (e.g. VS Code and some desktop MCP clients support it; many others do not yet) — operators should assume
-  the fallback posture unless they know their client. Note for operators: an approved commit pushes to your remote
-  under the instance deploy key, so remote CI/webhooks watching branch pushes will run on `mcp/*` commits.
+  prompt depends on the agent relaying it — the one-time token and relay text are the fallback posture (the
+  **relay posture**), and no server rule (mcp/-only, TTL, one-time token, content binding) relaxes either way.
+  Client support for elicitation varies (e.g. VS Code and some desktop MCP clients support it; many others do not
+  yet) — operators should assume the fallback posture unless they know their client. Note for operators: an
+  approved commit pushes to your remote under the instance deploy key, so remote CI/webhooks watching branch
+  pushes will run on `mcp/*` commits.
+
+  **Non-accept reasons (tool-result contract).** When a prompt does not end in approval, the confirm tool's
+  result carries a `reason` field naming what actually happened, alongside the stable `code` and
+  `attemptsRemaining`: `declined` (the user said no — an accept whose optional boolean came back `false` also
+  counts as declined), `cancelled` (the user dismissed the prompt), `timeout` (no answer within the wait
+  window), `accepted_without_confirm` (the client accepted but returned a malformed confirm value — never
+  approval), and `client_error` (the client failed to deliver or answer the prompt — the human never saw it; a
+  sanitized, untrusted-marked `detail` string carries the client's error text). An explicit accept counts as
+  approval even when the client's UI returns no boolean at all — bare accept/decline button UIs are common.
+
+  **Broken-client degradation.** A `client_error` outcome does not charge the per-confirmation or per-session
+  prompt budgets (the human never took part), and it switches the rest of the session to the relay posture: the
+  refusal instructs the agent to show the user the `prepare_*` relay text, obtain explicit approval, and call
+  the confirm tool again, which then proceeds without another prompt — a client that declares elicitation but
+  cannot render it no longer dead-ends every destructive operation. Each prompt outcome is also logged to
+  stderr with the client name/version from the MCP initialize handshake
+  (`Appsmith MCP elicitation tool=… outcome=… client=…`), so broken client fleets are identifiable from server
+  logs.
+
+  **Operator knobs.**
+
+  | Env var                              | Default | Effect                                                                       |
+  | ------------------------------------ | ------- | ---------------------------------------------------------------------------- |
+  | `APPSMITH_MCP_DISABLE_ELICITATION`   | off     | Forces the relay posture for every session; no elicitation prompts are sent. |
+  | `APPSMITH_MCP_ELICITATION_TIMEOUT_MS`| 120000  | How long a confirm waits for the human's answer before a `timeout` outcome.  |
+
+  Clients that do not reset their tool-call timeout on MCP progress notifications may abort the confirm call
+  before the default 120s elicitation wait ends (the server sends keep-alive progress pings only when the caller
+  supplied a `progressToken`). If your client times out mid-prompt, lower
+  `APPSMITH_MCP_ELICITATION_TIMEOUT_MS` below the client's tool-call timeout or set
+  `APPSMITH_MCP_DISABLE_ELICITATION` and rely on the relay posture.
 
   Publishing from MCP remains disabled for git apps: the deliverable is the `mcp/` branch and its branch-scoped
   review URL — the user reviews on the branch, merges via Appsmith's branch UI or a pull request on the remote,
