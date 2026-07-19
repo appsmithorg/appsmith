@@ -1821,6 +1821,156 @@ describe("non-accept outcome disambiguation (reason field)", () => {
     }
   });
 
+  it("strict mode refuses non-elicitation clients outright (elicitation_required)", async () => {
+    const store = new MemoryGovernanceStore();
+    const api = pagesApi();
+    // answers undefined => the client does NOT declare elicitation; strict mode must refuse, not relay.
+    const session = await connectClient(api, store, undefined, {
+      elicitationStrict: true,
+    });
+
+    try {
+      const { confirmationId, revision } = await prepareDelete(session.client);
+      const body = await confirmDelete(
+        session.client,
+        confirmationId,
+        revision,
+      );
+
+      expect(body.code).toBe("elicitation_required");
+      expect(api.deletePage).not.toHaveBeenCalled();
+      expect(store.confirmations.has(confirmationId)).toBe(true);
+    } finally {
+      await session.close();
+    }
+  });
+
+  it("strict mode never degrades to the relay posture on client_error (still refunds)", async () => {
+    const store = new MemoryGovernanceStore();
+    const clientFailure = async (): Promise<ElicitResult> =>
+      Promise.reject(new Error("renderer crashed"));
+    const api = pagesApi();
+    const session = await connectClient(
+      api,
+      store,
+      [clientFailure, clientFailure],
+      { elicitationStrict: true },
+    );
+
+    try {
+      const { confirmationId, revision } = await prepareDelete(session.client);
+      const first = await confirmDelete(
+        session.client,
+        confirmationId,
+        revision,
+      );
+
+      expect(first.reason).toBe("client_error");
+      expect(first.attemptsRemaining).toBe(MCP_MAX_ELICITATIONS);
+      expect(String(first.error)).toContain("STRICT");
+
+      // No session fallback: the retry attempts ANOTHER prompt instead of auto-approving.
+      const second = await confirmDelete(
+        session.client,
+        confirmationId,
+        revision,
+      );
+
+      expect(second.reason).toBe("client_error");
+      expect(session.prompts).toHaveLength(2);
+      expect(api.deletePage).not.toHaveBeenCalled();
+    } finally {
+      await session.close();
+    }
+  });
+
+  it("strict mode caps refunded client errors: after 3 the session refuses without prompting", async () => {
+    const store = new MemoryGovernanceStore();
+    const clientFailure = async (): Promise<ElicitResult> =>
+      Promise.reject(new Error("renderer crashed"));
+    const api = pagesApi();
+    // Only 3 scripted failures: a 4th prompt attempt would throw in the harness.
+    const session = await connectClient(
+      api,
+      store,
+      [clientFailure, clientFailure, clientFailure],
+      { elicitationStrict: true },
+    );
+
+    try {
+      const { confirmationId, revision } = await prepareDelete(session.client);
+
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        const body = await confirmDelete(
+          session.client,
+          confirmationId,
+          revision,
+        );
+
+        expect(body.reason).toBe("client_error");
+      }
+
+      // The 4th call refuses WITHOUT another elicitInput round-trip (resource-exhaustion cap).
+      const fourth = await confirmDelete(
+        session.client,
+        confirmationId,
+        revision,
+      );
+
+      expect(fourth.code).toBe("elicitation_required");
+      expect(session.prompts).toHaveLength(3);
+      expect(api.deletePage).not.toHaveBeenCalled();
+    } finally {
+      await session.close();
+    }
+  });
+
+  it("strict mode happy path: a capable client's accept executes normally", async () => {
+    const store = new MemoryGovernanceStore();
+    const api = pagesApi();
+    const session = await connectClient(api, store, [ACCEPT], {
+      elicitationStrict: true,
+    });
+
+    try {
+      const { confirmationId, revision } = await prepareDelete(session.client);
+      const body = await confirmDelete(
+        session.client,
+        confirmationId,
+        revision,
+      );
+
+      expect(body.deleted).toBe(true);
+      expect(api.deletePage).toHaveBeenCalledTimes(1);
+      expect(session.prompts).toHaveLength(1);
+    } finally {
+      await session.close();
+    }
+  });
+
+  it("strict mode overrides elicitationDisabled (contradictory operator config fails safe)", async () => {
+    const store = new MemoryGovernanceStore();
+    const api = pagesApi();
+    const session = await connectClient(api, store, undefined, {
+      elicitationDisabled: true,
+      elicitationStrict: true,
+    });
+
+    try {
+      const { confirmationId, revision } = await prepareDelete(session.client);
+      const body = await confirmDelete(
+        session.client,
+        confirmationId,
+        revision,
+      );
+
+      expect(body.code).toBe("elicitation_required");
+      expect(api.deletePage).not.toHaveBeenCalled();
+    } finally {
+      await session.close();
+    }
+  });
+
   it("elicitationDisabled forces the relay posture: no prompt even for a capable client", async () => {
     const store = new MemoryGovernanceStore();
     const api = pagesApi();
@@ -1907,6 +2057,8 @@ describe("elicitation docs — catalog, capabilities copy, and README stay in sy
     // Broken-client degradation and the operator knobs are operator-facing behavior.
     expect(readme).toContain("relay posture");
     expect(readme).toContain("APPSMITH_MCP_DISABLE_ELICITATION");
+    expect(readme).toContain("APPSMITH_MCP_STRICT_ELICITATION");
+    expect(readme).toContain("`elicitation_required`");
     expect(readme).toContain("APPSMITH_MCP_ELICITATION_TIMEOUT_MS");
   });
 });

@@ -566,7 +566,8 @@ export function getCapabilities(
           "{ table: '<Table>', column: '<col>' } — selected-row display binding on a text widget. NOT the table data binding (use tableData for that).",
         defaultValue:
           "{ table: '<Table>', column: '<col>' } — selected-row prefill on an input widget",
-        visibleWhen: "{ control: '<widget>', equals: <literal> }",
+        visibleWhen:
+          "{ control: '<widget>', equals: <literal> } | { rowSelected: '<table>' } | { notEmpty: '<input>' }",
         validation: "input validation spec",
         disableWhenInvalid: "boolean (button)",
       },

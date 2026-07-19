@@ -155,7 +155,8 @@ unaffected — the parameter is optional and ignored.
   | Env var                              | Default | Effect                                                                       |
   | ------------------------------------ | ------- | ---------------------------------------------------------------------------- |
   | `APPSMITH_MCP_DISABLE_ELICITATION`   | off     | Forces the relay posture for every session; no elicitation prompts are sent. |
-  | `APPSMITH_MCP_ELICITATION_TIMEOUT_MS`| 120000  | How long a confirm waits for the human's answer before a `timeout` outcome.  |
+  | `APPSMITH_MCP_STRICT_ELICITATION`    | off     | Requires in-band prompts: non-elicitation clients are refused (`elicitation_required`) and a `client_error` never degrades to the relay posture. Wins over the disable knob. |
+  | `APPSMITH_MCP_ELICITATION_TIMEOUT_MS`| 120000  | How long a confirm waits for the human's answer before a `timeout` outcome (clamped at 10 minutes). |
 
   Clients that do not reset their tool-call timeout on MCP progress notifications may abort the confirm call
   before the default 120s elicitation wait ends (the server sends keep-alive progress pings only when the caller

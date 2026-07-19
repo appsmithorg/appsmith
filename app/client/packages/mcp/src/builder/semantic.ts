@@ -76,9 +76,12 @@ export interface SemanticBindingRef {
   clearWhenEmpty?: string;
   // Present on an isDisabled binding: the input whose invalidity disables this widget.
   disableWhenInvalid?: string;
-  // Present on an isVisible binding: the control + value this widget's visibility is gated on.
+  // Present on an isVisible binding: the control + value this widget's visibility is gated on — or the table
+  // whose row selection, or the input whose non-emptiness, gates it.
   control?: string;
   equals?: string;
+  rowSelected?: string;
+  notEmpty?: string;
   // Present on computed text values: the current-date preset, or the row count of a query.
   now?: { format: string };
   count?: { query: string; field?: string };
@@ -186,6 +189,11 @@ const DISABLE_WHEN_INVALID_BINDING = /^\{\{ !([A-Za-z0-9_]+)\.isValid \}\}$/;
 // The visible-when binding: `{{ Control.selectedOptionValue === 'value' }}` / `{{ Control.selectedTab === 'value' }}`.
 const VISIBLE_WHEN_BINDING =
   /^\{\{ ([A-Za-z0-9_]+)\.(?:selectedOptionValue|selectedTab) === '([A-Za-z0-9_ .-]+)' \}\}$/;
+// The row-selection visibility predicate: `{{ Table.selectedRowIndex !== -1 }}`.
+const ROW_SELECTED_BINDING =
+  /^\{\{ ([A-Za-z0-9_]+)\.selectedRowIndex !== -1 \}\}$/;
+// The non-empty-input visibility predicate: `{{ !!Input.text }}`.
+const NOT_EMPTY_BINDING = /^\{\{ !!([A-Za-z0-9_]+)\.text \}\}$/;
 
 function safeBindings(
   node: WidgetNode,
@@ -262,8 +270,16 @@ function safeBindings(
 
   if (typeof node.isVisible === "string") {
     const match = VISIBLE_WHEN_BINDING.exec(node.isVisible);
+    const rowSelected = ROW_SELECTED_BINDING.exec(node.isVisible);
+    const notEmpty = NOT_EMPTY_BINDING.exec(node.isVisible);
 
-    if (match) bindings.isVisible = { control: match[1], equals: match[2] };
+    if (match) {
+      bindings.isVisible = { control: match[1], equals: match[2] };
+    } else if (rowSelected) {
+      bindings.isVisible = { rowSelected: rowSelected[1] };
+    } else if (notEmpty) {
+      bindings.isVisible = { notEmpty: notEmpty[1] };
+    }
   }
 
   return Object.keys(bindings).length > 0 ? bindings : undefined;

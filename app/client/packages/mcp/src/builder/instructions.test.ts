@@ -139,6 +139,18 @@ describe("M5 store accumulation — docs stay in sync with the vocabulary", () =
     expect(body).not.toMatch(/passing `source: \{ query \}` there is rejected/);
   });
 
+  it("warns about hidden hand-authored bindings before patching (expectation gap)", () => {
+    const bindings = GUIDES.find((guide) => guide.slug === "bindings")!;
+    const body = bindings.render();
+
+    expect(body).toContain("HAND-AUTHORED");
+    // The advice must NOT be conditioned on the excluded-binding count: that count covers only
+    // trigger bindings, never hidden property bindings [COUNCIL: B6 architect].
+    expect(body).toContain("only event/trigger bindings");
+    expect(body).toContain("NEVER means an unbound prop");
+    expect(body).toContain("REPLACED");
+  });
+
   it("teaches computed values (now/count/concat) in the bindings guide and catalog", () => {
     const bindings = GUIDES.find((guide) => guide.slug === "bindings")!;
     const body = bindings.render();

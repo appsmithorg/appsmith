@@ -487,6 +487,87 @@ describe("applyWidgetPatch", () => {
     ).toThrow(/cannot set both 'image' and 'imageSource'/);
   });
 
+  it("gates visibility on a table's row selection (visibleWhen rowSelected)", () => {
+    const withTable = page();
+
+    withTable.children!.push(
+      node({ widgetId: "t1", widgetName: "Users", type: "TABLE_WIDGET_V2" }),
+      node({ widgetId: "b1", widgetName: "EditBtn", type: "BUTTON_WIDGET" }),
+    );
+    const { dsl } = applyWidgetPatch(withTable, {
+      operations: [
+        {
+          kind: "update",
+          name: "EditBtn",
+          props: { visibleWhen: { rowSelected: "Users" } },
+        },
+      ],
+    });
+    const button = dsl.children!.find((w) => w.widgetName === "EditBtn")!;
+
+    expect(button.isVisible).toBe("{{ Users.selectedRowIndex !== -1 }}");
+    expect(button.dynamicBindingPathList).toEqual([{ key: "isVisible" }]);
+
+    // Dangling or wrong-type targets reject, same posture as the control form.
+    expect(() =>
+      applyWidgetPatch(withTable, {
+        operations: [
+          {
+            kind: "update",
+            name: "EditBtn",
+            props: { visibleWhen: { rowSelected: "Missing" } },
+          },
+        ],
+      }),
+    ).toThrow(/was not found/);
+
+    expect(() =>
+      applyWidgetPatch(withTable, {
+        operations: [
+          {
+            kind: "update",
+            name: "EditBtn",
+            props: { visibleWhen: { rowSelected: "EditBtn" } },
+          },
+        ],
+      }),
+    ).toThrow(/is not a table widget/);
+  });
+
+  it("gates visibility on an input holding text (visibleWhen notEmpty)", () => {
+    const withInput = page();
+
+    withInput.children!.push(
+      node({ widgetId: "i1", widgetName: "Search", type: "INPUT_WIDGET_V2" }),
+      node({ widgetId: "b1", widgetName: "GoBtn", type: "BUTTON_WIDGET" }),
+    );
+    const { dsl } = applyWidgetPatch(withInput, {
+      operations: [
+        {
+          kind: "update",
+          name: "GoBtn",
+          props: { visibleWhen: { notEmpty: "Search" } },
+        },
+      ],
+    });
+    const button = dsl.children!.find((w) => w.widgetName === "GoBtn")!;
+
+    expect(button.isVisible).toBe("{{ !!Search.text }}");
+    expect(button.dynamicBindingPathList).toEqual([{ key: "isVisible" }]);
+
+    expect(() =>
+      applyWidgetPatch(withInput, {
+        operations: [
+          {
+            kind: "update",
+            name: "GoBtn",
+            props: { visibleWhen: { notEmpty: "GoBtn" } },
+          },
+        ],
+      }),
+    ).toThrow(/must be an input widget/);
+  });
+
   it("gates a widget's visibility on a select control's value (visibleWhen)", () => {
     const withToggle = page();
 

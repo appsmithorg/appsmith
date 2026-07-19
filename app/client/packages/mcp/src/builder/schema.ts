@@ -433,11 +433,27 @@ const controlValue = z
     "value may contain letters, numbers, spaces, and _ . -",
   );
 
-export const visibleWhenRefSchema = z
-  .object({ control: bindingIdentifier, equals: controlValue })
-  .strict();
+// Three predicate forms, discriminated by their (disjoint, strict) keys: gate on a control's value, on a
+// table having a selected row (detail panels/action buttons), or on an input holding text.
+export const visibleWhenRefSchema = z.union([
+  z.object({ control: bindingIdentifier, equals: controlValue }).strict(),
+  z.object({ rowSelected: bindingIdentifier }).strict(),
+  z.object({ notEmpty: bindingIdentifier }).strict(),
+]);
 
 export type VisibleWhenRef = z.infer<typeof visibleWhenRefSchema>;
+
+// Emits `{{ <table>.selectedRowIndex !== -1 }}` — true only while a row is selected (the widget's own
+// no-selection sentinel). Only a validated identifier is interpolated.
+export function compileRowSelectedBinding(table: string): string {
+  return `{{ ${table}.selectedRowIndex !== -1 }}`;
+}
+
+// Emits `{{ !!<input>.text }}` — true only while the input holds text. Only a validated identifier is
+// interpolated.
+export function compileNotEmptyBinding(input: string): string {
+  return `{{ !!${input}.text }}`;
+}
 
 // Emits `{{ <control>.<valueProp> === '<equals>' }}`. valueProp is chosen by the compiler from the control's widget
 // type (never agent-supplied), so only a validated identifier and a safe literal are interpolated.

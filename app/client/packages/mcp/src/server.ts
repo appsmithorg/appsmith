@@ -40,9 +40,24 @@ const elicitationDisabled = gateEnabled(
   process.env.APPSMITH_MCP_DISABLE_ELICITATION,
 );
 
-if (elicitationDisabled) {
+// Strict mode: in-band approval prompts are REQUIRED; non-elicitation clients are refused instead of relayed.
+const elicitationStrict = gateEnabled(
+  process.env.APPSMITH_MCP_STRICT_ELICITATION,
+);
+
+if (elicitationStrict && elicitationDisabled) {
+  process.stderr.write(
+    "Appsmith MCP: APPSMITH_MCP_STRICT_ELICITATION and APPSMITH_MCP_DISABLE_ELICITATION are both set; strict wins (prompts required)\n",
+  );
+} else if (elicitationDisabled) {
   process.stderr.write(
     "Appsmith MCP elicitation disabled by APPSMITH_MCP_DISABLE_ELICITATION; destructive confirms use the relay posture\n",
+  );
+}
+
+if (elicitationStrict) {
+  process.stderr.write(
+    "Appsmith MCP strict elicitation enforced by APPSMITH_MCP_STRICT_ELICITATION; non-elicitation clients cannot run destructive operations\n",
   );
 }
 
@@ -143,6 +158,7 @@ async function main(): Promise<void> {
     allowedHosts,
     publicOrigin,
     elicitationDisabled,
+    elicitationStrict,
     elicitationTimeoutMs,
     ...sessionLimits,
   });

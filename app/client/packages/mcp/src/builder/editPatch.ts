@@ -26,6 +26,8 @@ import {
   compileSelectedRowBinding,
   computedValueSchema,
   compileTableDataBinding,
+  compileNotEmptyBinding,
+  compileRowSelectedBinding,
   compileVisibleWhenBinding,
   inputValidationSchema,
   queryFieldRefSchema,
@@ -105,8 +107,9 @@ export const widgetPropsPatchSchema = z
     imageSource: z
       .union([selectedRowRefSchema, queryFieldRefSchema])
       .optional(),
-    // Gate a widget's visibility on a control's value — e.g. show a table when a view toggle equals "Table" and a
-    // detail panel when it equals "Details", so one control switches views. Compiled to isVisible.
+    // Gate a widget's visibility: on a control's value ({ control, equals } — a view toggle switching panels),
+    // on a table having a selected row ({ rowSelected } — detail panels/action buttons), or on an input holding
+    // text ({ notEmpty }). Compiled to isVisible.
     visibleWhen: visibleWhenRefSchema.optional(),
     // Re-bind a table's data: a query ref (optionally clear-when-empty) OR (M5) a store key accumulated by
     // wire_event's appendToStore ({ store: '<key>' }). Compiled, never literal-assigned.
@@ -506,6 +509,44 @@ function applyVisibleWhenBinding(
   node: WidgetNode,
   ref: VisibleWhenRef,
 ): void {
+  // Row-selection predicate: visible only while the referenced table has a selected row.
+  if ("rowSelected" in ref) {
+    const table = widgets.get(ref.rowSelected);
+
+    if (!table) {
+      throw new Error(`visibleWhen table "${ref.rowSelected}" was not found`);
+    }
+
+    if (table.node.type !== "TABLE_WIDGET_V2") {
+      throw new Error(`"${ref.rowSelected}" is not a table widget`);
+    }
+
+    node.isVisible = compileRowSelectedBinding(ref.rowSelected);
+    registerDynamicBinding(node, "isVisible");
+
+    return;
+  }
+
+  // Non-empty-input predicate: visible only while the referenced input holds text.
+  if ("notEmpty" in ref) {
+    const input = widgets.get(ref.notEmpty);
+
+    if (!input) {
+      throw new Error(`visibleWhen input "${ref.notEmpty}" was not found`);
+    }
+
+    if (input.node.type !== "INPUT_WIDGET_V2") {
+      throw new Error(
+        `visibleWhen "${ref.notEmpty}" must be an input widget (it is ${input.node.type})`,
+      );
+    }
+
+    node.isVisible = compileNotEmptyBinding(ref.notEmpty);
+    registerDynamicBinding(node, "isVisible");
+
+    return;
+  }
+
   const control = widgets.get(ref.control);
 
   if (!control) {

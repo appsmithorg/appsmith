@@ -58,6 +58,57 @@ describe("projectSemanticPage", () => {
     expect(fullName.bindings).toBeUndefined();
   });
 
+  it("reports rowSelected and notEmpty visibility predicates", () => {
+    const dsl = node({
+      widgetId: "root",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "b1",
+          widgetName: "EditBtn",
+          type: "BUTTON_WIDGET",
+          isVisible: "{{ Users.selectedRowIndex !== -1 }}" as never,
+        }),
+        node({
+          widgetId: "b2",
+          widgetName: "GoBtn",
+          type: "BUTTON_WIDGET",
+          isVisible: "{{ !!Search.text }}" as never,
+        }),
+      ],
+    });
+    const widgets = projectSemanticPage(dsl).widgets;
+
+    expect(widgets.find((w) => w.name === "EditBtn")!.bindings).toEqual({
+      isVisible: { rowSelected: "Users" },
+    });
+    expect(widgets.find((w) => w.name === "GoBtn")!.bindings).toEqual({
+      isVisible: { notEmpty: "Search" },
+    });
+  });
+
+  it("predicate shapes on the WRONG prop stay hidden (isVisible-only scoping)", () => {
+    const dsl = node({
+      widgetId: "root",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t1",
+          widgetName: "Sneaky",
+          type: "TEXT_WIDGET",
+          text: "{{ !!Search.text }}",
+        }),
+      ],
+    });
+
+    expect(
+      projectSemanticPage(dsl).widgets.find((w) => w.name === "Sneaky")!
+        .bindings,
+    ).toBeUndefined();
+  });
+
   it("hides hand-authored moment formats and reads back count without a field", () => {
     const dsl = node({
       widgetId: "root",

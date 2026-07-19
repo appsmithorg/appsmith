@@ -182,6 +182,11 @@ export interface ServerContext {
   // elicitation prompt is ever sent, even when the client declares the capability. For deployments whose client
   // fleet declares elicitation but cannot render it. No other server rule (tokens, TTLs, digests) relaxes.
   elicitationDisabled?: boolean;
+  // Operator strict mode (APPSMITH_MCP_STRICT_ELICITATION): the OPPOSITE posture — an in-band approval prompt
+  // is REQUIRED. Non-elicitation clients are refused (elicitation_required) instead of relayed, and a
+  // client_error never degrades the session to the relay posture. Overrides elicitationDisabled when both are
+  // set (contradictory config fails safe to the stricter posture).
+  elicitationStrict?: boolean;
   // Operator-facing log line sink (default: process.stderr). Injectable so tests can observe telemetry.
   logSink?: (line: string) => void;
 }
@@ -1691,6 +1696,7 @@ export function buildMcpServer(
     dataEnabled,
     elicitationDisabled,
     elicitationProgressIntervalMs,
+    elicitationStrict,
     elicitationTimeoutMs,
     governance,
     isAdmin,
@@ -1813,6 +1819,11 @@ export function buildMcpServer(
   // Set after a client_error prompt outcome: the client declares elicitation but cannot deliver the dialog, so
   // the rest of the session uses the documented relay posture instead of prompting into a dead end.
   let elicitationFallback = false;
+  // Strict-mode resource cap [SECURITY: B3/A7 review Risk 1]: refunded client_error outcomes never charge the
+  // prompt budgets, so an endlessly erroring client could otherwise loop elicitInput attempts forever. After
+  // this many refunded errors, strict sessions refuse further prompt attempts outright.
+  const MCP_STRICT_MAX_CLIENT_ERRORS = 3;
+  let strictClientErrorCount = 0;
 
   // Operator telemetry: one line per elicitation outcome, with the client identity from the initialize
   // handshake — so a client fleet that declares elicitation but cannot render it is identifiable from server
@@ -2025,17 +2036,43 @@ export function buildMcpServer(
     | { approved: true; prompted: boolean }
     | { approved: false; result: ToolResult }
   > {
-    // Operator escape hatch, and the session-local broken-client fallback: both force the documented relay
-    // posture (the agent shows the prepare relay text and gets approval) instead of prompting. Set for the
-    // session after a client_error outcome — a client that declares elicitation but cannot deliver the dialog
-    // must not turn every destructive confirm into a dead end.
-    if (elicitationDisabled === true || elicitationFallback) {
-      return { approved: true, prompted: false };
-    }
+    // Operator strict mode: an in-band prompt is REQUIRED. A client that cannot receive one is refused — the
+    // relay posture is never available. Checked FIRST so a contradictory disabled+strict config fails safe to
+    // the stricter posture.
+    if (elicitationStrict === true) {
+      if (server.server.getClientCapabilities()?.elicitation === undefined) {
+        return {
+          approved: false,
+          result: result({
+            error: `STRICT elicitation is enforced on this instance (APPSMITH_MCP_STRICT_ELICITATION): this MCP client does not support approval prompts, so this ${spec.operationNoun} was refused and ${spec.nothingHappened}. The user must connect with an elicitation-capable client, or the operator must relax strict mode.`,
+            code: "elicitation_required",
+          }),
+        };
+      }
 
-    // Capability read LAZILY per session (ServerContext is built before connect(), so initialize-time capture is
-    // impossible). When the client does NOT declare elicitation the prompt is skipped entirely.
-    if (server.server.getClientCapabilities()?.elicitation === undefined) {
+      // Resource cap: repeated refunded client errors prove the client cannot deliver prompts — stop
+      // attempting (each attempt costs a governance peek + an elicitInput round-trip + telemetry).
+      if (strictClientErrorCount >= MCP_STRICT_MAX_CLIENT_ERRORS) {
+        return {
+          approved: false,
+          result: result({
+            error: `STRICT elicitation is enforced and this client failed to deliver ${MCP_STRICT_MAX_CLIENT_ERRORS} approval prompts (client errors), so further prompt attempts are refused for this session and ${spec.nothingHappened}. The user must connect with a working elicitation-capable client, or the operator must relax strict mode.`,
+            code: "elicitation_required",
+          }),
+        };
+      }
+      // Capable client: fall through to normal prompting (client_error below will NOT degrade the session).
+    } else if (elicitationDisabled === true || elicitationFallback) {
+      // Operator escape hatch, and the session-local broken-client fallback: both force the documented relay
+      // posture (the agent shows the prepare relay text and gets approval) instead of prompting. Set for the
+      // session after a client_error outcome — a client that declares elicitation but cannot deliver the
+      // dialog must not turn every destructive confirm into a dead end.
+      return { approved: true, prompted: false };
+    } else if (
+      server.server.getClientCapabilities()?.elicitation === undefined
+    ) {
+      // Capability read LAZILY per session (ServerContext is built before connect(), so initialize-time
+      // capture is impossible). When the client does NOT declare elicitation the prompt is skipped entirely.
       return { approved: true, prompted: false };
     }
 
@@ -2128,6 +2165,24 @@ export function buildMcpServer(
       sessionElicitationCount -= 1;
       attempts.count -= 1;
       elicitationAttempts.set(spec.confirmationId, attempts);
+
+      // Strict mode never degrades: the refund still applies (no human took part), but the session keeps
+      // requiring a successful in-band prompt — bounded by the strict client-error cap above.
+      if (elicitationStrict === true) {
+        strictClientErrorCount += 1;
+
+        return {
+          approved: false,
+          result: result({
+            error: `${NON_ACCEPT_PHRASES.client_error} ${spec.operationNoun}; ${spec.nothingHappened}. STRICT elicitation is enforced on this instance (APPSMITH_MCP_STRICT_ELICITATION), so the relay posture is unavailable: retrying will prompt again, and if this client cannot render prompts the user must switch clients or the operator must relax strict mode.`,
+            code: spec.notConfirmedCode,
+            reason: answer.reason,
+            ...(answer.detail !== undefined && { detail: answer.detail }),
+            attemptsRemaining: MCP_MAX_ELICITATIONS - attempts.count,
+          }),
+        };
+      }
+
       elicitationFallback = true;
       logSink(
         `Appsmith MCP elicitation falling back to relay posture for this session (client_error on ${spec.confirmTool})\n`,
@@ -2794,7 +2849,7 @@ export function buildMcpServer(
 
   server.tool(
     "patch_widgets",
-    "Directly update, move, resize, reparent, or remove widgets using a strict typed patch. Read the page with read_semantic_page first and pass its revision. Only allowlisted literal properties can change; removing a widget with children is rejected. Moves are occupancy-aware: a position that lands on another widget is repaired to the nearest free spot below (reported as requestedPosition vs position plus a note) unless the operation sets strict: true, which rejects with the colliding names and the nearest free position; reparenting always lands at the nearest free spot in the new canvas. Resize ({ kind: 'resize', name, rows?, columns?, strict? }, grid units) grows/shrinks a widget: growth pushes overlapping siblings down, width cannot exceed the canvas, containers cannot shrink below their children, and modal rows translate to the modal's pixel height. Table styling: set literal 'oddRowColor'/'evenRowColor' for alternating (zebra) row backgrounds. Re-bind a table with structured 'tableData' { query, field?, clearWhenEmpty? } — clearWhenEmpty names an input whose emptiness clears the table (so a Clear button that resets that input also empties the table; resetWidget alone cannot clear a query-bound table). Input validation: set 'validation' { format: 'zipcode'|'email'|'number'|'integer'|'usPhone', message? } on an input to add a vetted regex + error message (never author a raw regex). Set 'disableWhenInvalid': '<input>' on a button to grey it out until that input passes validation (compiles to {{ !<input>.isValid }}) — use with validation so a bad value can't run the query. Conditional visibility / view switching: set 'visibleWhen' { control: '<select|tabs widget>', equals: '<value>' } to show a widget only when the control has that value — e.g. show a table when a ViewToggle equals 'Table' and a detail panel when it equals 'Details', switching views with one control.",
+    "Directly update, move, resize, reparent, or remove widgets using a strict typed patch. Read the page with read_semantic_page first and pass its revision. Only allowlisted literal properties can change; removing a widget with children is rejected. Moves are occupancy-aware: a position that lands on another widget is repaired to the nearest free spot below (reported as requestedPosition vs position plus a note) unless the operation sets strict: true, which rejects with the colliding names and the nearest free position; reparenting always lands at the nearest free spot in the new canvas. Resize ({ kind: 'resize', name, rows?, columns?, strict? }, grid units) grows/shrinks a widget: growth pushes overlapping siblings down, width cannot exceed the canvas, containers cannot shrink below their children, and modal rows translate to the modal's pixel height. Table styling: set literal 'oddRowColor'/'evenRowColor' for alternating (zebra) row backgrounds. Re-bind a table with structured 'tableData' { query, field?, clearWhenEmpty? } — clearWhenEmpty names an input whose emptiness clears the table (so a Clear button that resets that input also empties the table; resetWidget alone cannot clear a query-bound table). Input validation: set 'validation' { format: 'zipcode'|'email'|'number'|'integer'|'usPhone', message? } on an input to add a vetted regex + error message (never author a raw regex). Set 'disableWhenInvalid': '<input>' on a button to grey it out until that input passes validation (compiles to {{ !<input>.isValid }}) — use with validation so a bad value can't run the query. Conditional visibility / view switching: set 'visibleWhen' { control: '<select|tabs widget>', equals: '<value>' } to show a widget only when the control has that value — e.g. show a table when a ViewToggle equals 'Table' and a detail panel when it equals 'Details', switching views with one control. Two more predicate forms: { rowSelected: '<table>' } shows the widget only while that table has a selected row (detail panels, edit buttons), and { notEmpty: '<input>' } only while that input holds text.",
     {
       applicationId: idSchema,
       pageId: idSchema,
@@ -5861,6 +5916,9 @@ export interface McpHttpServerOptions {
   // Operator escape hatch (APPSMITH_MCP_DISABLE_ELICITATION): forces the relay posture for every session —
   // see ServerContext.elicitationDisabled.
   elicitationDisabled?: boolean;
+  // Operator strict mode (APPSMITH_MCP_STRICT_ELICITATION): requires in-band prompts, refuses relay — see
+  // ServerContext.elicitationStrict. Wins over elicitationDisabled.
+  elicitationStrict?: boolean;
   // Operator-facing log line sink (default: process.stderr) — see ServerContext.logSink.
   logSink?: (line: string) => void;
 }
@@ -6217,6 +6275,7 @@ export function createMcpHttpServer(
           commitElicitationTimeoutMs: options.commitElicitationTimeoutMs,
           elicitationProgressIntervalMs: options.elicitationProgressIntervalMs,
           elicitationDisabled: options.elicitationDisabled,
+          elicitationStrict: options.elicitationStrict,
           logSink: options.logSink,
           // Session-scoped origin for the URLs build_application returns, captured once here at initialize so
           // tool handlers never touch raw requests (same seam as actorId/isAdmin). The configured public origin
