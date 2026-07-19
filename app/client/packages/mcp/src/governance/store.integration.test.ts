@@ -108,8 +108,10 @@ describeIf("MongoRedisGovernanceStore (real Mongo + Redis)", () => {
 
   it("persists audit changes and reads them back by actor (scoped + ordered)", async () => {
     const actor = `actor-${suffix}`;
+    const org = `org-${suffix}`;
     const base = {
       actorId: actor,
+      organizationId: org,
       entityKey: "page:app:pg",
       operation: "edit_page",
       revisionBefore: "r1",
@@ -129,17 +131,17 @@ describeIf("MongoRedisGovernanceStore (real Mongo + Redis)", () => {
       createdAt: new Date(2),
     });
 
-    const fetched = await store.getChange(`chg-${suffix}-1`, actor);
+    const fetched = await store.getChange(`chg-${suffix}-1`, actor, org);
 
     expect(fetched?.operation).toBe("edit_page");
 
     // Actor scoping: another user cannot read this change.
     expect(
-      await store.getChange(`chg-${suffix}-1`, "other-actor"),
+      await store.getChange(`chg-${suffix}-1`, "other-actor", org),
     ).toBeUndefined();
 
     // listChanges returns this actor's records, newest first.
-    const listed = await store.listChanges(actor, 10);
+    const listed = await store.listChanges(actor, org, 10);
     const ids = listed.map((change) => change.id);
 
     expect(ids).toContain(`chg-${suffix}-1`);
@@ -147,5 +149,50 @@ describeIf("MongoRedisGovernanceStore (real Mongo + Redis)", () => {
     expect(ids.indexOf(`chg-${suffix}-2`)).toBeLessThan(
       ids.indexOf(`chg-${suffix}-1`),
     ); // createdAt desc
+  });
+
+  // Regression for the Hacktron cross-tenant disclosure: on a multi-org (EE) instance every read MUST be scoped to
+  // the caller's organization. On the unpatched store (no org predicate) tenant B's admin read returns tenant A's
+  // records; on the fix it returns only its own. Same email in both orgs (per-org-unique) proves the actor read is
+  // scoped too, not only the admin read.
+  it("scopes every read to the caller's organization (no cross-tenant disclosure)", async () => {
+    const sharedEmail = `admin-${suffix}@example.com`;
+    const orgA = `orgA-${suffix}`;
+    const orgB = `orgB-${suffix}`;
+    const rec = (id: string, organizationId: string) => ({
+      id,
+      actorId: sharedEmail,
+      organizationId,
+      entityKey: "page:app:pg",
+      operation: "edit_page",
+      revisionBefore: "r1",
+      revisionAfter: "r2",
+      createdAt: new Date(),
+      rollback: { kind: "layout" },
+      summary: {},
+    });
+
+    await store.saveChange(rec(`iso-${suffix}-A`, orgA));
+    await store.saveChange(rec(`iso-${suffix}-B`, orgB));
+
+    // Admin cross-actor read from org A sees only org A's record.
+    const adminA = (await store.listAllChanges(orgA, 100)).map((c) => c.id);
+
+    expect(adminA).toContain(`iso-${suffix}-A`);
+    expect(adminA).not.toContain(`iso-${suffix}-B`);
+
+    // get_any_change from org A cannot fetch org B's record by id.
+    expect(await store.getAnyChange(`iso-${suffix}-B`, orgA)).toBeUndefined();
+
+    // Actor-scoped reads are org-scoped too: the same email in org A cannot see org B's record.
+    const actorA = (await store.listChanges(sharedEmail, orgA, 100)).map(
+      (c) => c.id,
+    );
+
+    expect(actorA).toContain(`iso-${suffix}-A`);
+    expect(actorA).not.toContain(`iso-${suffix}-B`);
+    expect(
+      await store.getChange(`iso-${suffix}-B`, sharedEmail, orgA),
+    ).toBeUndefined();
   });
 });

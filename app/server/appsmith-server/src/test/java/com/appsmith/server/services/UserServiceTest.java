@@ -603,6 +603,9 @@ public class UserServiceTest {
                 .assertNext(userProfileDTO -> {
                     assertNotNull(userProfileDTO);
                     assertThat(userProfileDTO.getIsIntercomConsentGiven()).isTrue();
+                    // The profile carries the caller's organization so the MCP server can scope its governance
+                    // audit reads to the caller's tenant (an org admin must never see another tenant's history).
+                    assertThat(userProfileDTO.getOrganizationId()).isNotBlank();
                     assertEquals(
                             List.of(
                                     UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC),

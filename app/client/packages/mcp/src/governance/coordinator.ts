@@ -40,6 +40,8 @@ export interface MutationResult<TResult> {
 
 export interface CoordinatedMutation<TResult> {
   actorId: string;
+  // The caller's organization (tenant); stamped onto the audit record so every read can be tenant-scoped.
+  organizationId: string;
   entityKey: string;
   operation: string;
   expectedRevision: string;
@@ -109,6 +111,7 @@ export class McpGovernanceCoordinator {
       await this.store.saveChange({
         id: changeId,
         actorId: request.actorId,
+        organizationId: request.organizationId,
         entityKey: request.entityKey,
         operation: request.operation,
         revisionBefore: request.currentRevision,
@@ -128,24 +131,33 @@ export class McpGovernanceCoordinator {
   async getChange(
     id: string,
     actorId: string,
+    organizationId: string,
   ): Promise<McpChangeRecord | undefined> {
-    return this.store.getChange(id, actorId);
+    return this.store.getChange(id, actorId, organizationId);
   }
 
   async listChanges(
     actorId: string,
+    organizationId: string,
     limit: number,
   ): Promise<McpChangeRecord[]> {
-    return this.store.listChanges(actorId, limit);
+    return this.store.listChanges(actorId, organizationId, limit);
   }
 
-  // Instance-admin cross-actor reads (gated at the tool layer on adminSettingsVisible).
-  async getAnyChange(id: string): Promise<McpChangeRecord | undefined> {
-    return this.store.getAnyChange(id);
+  // Cross-actor admin reads (gated on isSuperUser at the tool layer) — still tenant-scoped by organizationId, since
+  // isSuperUser is a per-org signal in EE.
+  async getAnyChange(
+    id: string,
+    organizationId: string,
+  ): Promise<McpChangeRecord | undefined> {
+    return this.store.getAnyChange(id, organizationId);
   }
 
-  async listAllChanges(limit: number): Promise<McpChangeRecord[]> {
-    return this.store.listAllChanges(limit);
+  async listAllChanges(
+    organizationId: string,
+    limit: number,
+  ): Promise<McpChangeRecord[]> {
+    return this.store.listAllChanges(organizationId, limit);
   }
 
   async prepareDestructiveConfirmation(

@@ -13,6 +13,11 @@ public class UserProfileCE_DTO {
 
     Set<String> workspaceIds;
 
+    // The user's organization (tenant) id. Consumed by the MCP server to scope its governance audit reads to the
+    // caller's tenant: isSuperUser is a per-org signal on a multi-org (EE) deployment, so without this an org admin
+    // could read another tenant's MCP change history.
+    String organizationId;
+
     String username;
 
     String name;

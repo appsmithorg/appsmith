@@ -5,6 +5,12 @@ import { createClient, type RedisClientType } from "redis";
 export interface McpChangeRecord {
   id: string;
   actorId: string;
+  // The caller's Appsmith organization (tenant). Every read is scoped to it so that on a multi-org (EE)
+  // deployment one tenant's admin can never see another tenant's change history — actorId (email/username) is only
+  // unique PER organization (Migration067_UpdateUserEmailIndex), so neither the admin nor the actor reads are safe
+  // without this scope. Optional only so records written before this field existed deserialize; such records carry
+  // no org and are therefore invisible to every org-scoped read (fail-closed).
+  organizationId?: string;
   entityKey: string;
   operation: string;
   revisionBefore: string;
@@ -37,15 +43,29 @@ export interface McpGovernanceStore {
   // exists and belongs to the calling actor BEFORE prompting the human, without spending the one-time token.
   peekConfirmation(id: string): Promise<PreparedConfirmation | undefined>;
   saveChange(change: McpChangeRecord): Promise<void>;
-  getChange(id: string, actorId: string): Promise<McpChangeRecord | undefined>;
-  listChanges(actorId: string, limit: number): Promise<McpChangeRecord[]>;
-  // Instance super-admin reads: NOT actor-scoped, so an administrator can audit MCP changes across all actors on this
-  // INSTANCE. Gated on isSuperUser at the tool layer, never exposed to a normal actor. NOTE: McpChangeRecord has no
-  // org/tenant field, so these reads are correct only for a single-org instance (CE). A multi-org deployment (EE)
-  // MUST add an organizationId to McpChangeRecord and filter by the caller's org before enabling these tools, or one
-  // org's super-admin would see every org's change history (tracked EE follow-up).
-  getAnyChange(id: string): Promise<McpChangeRecord | undefined>;
-  listAllChanges(limit: number): Promise<McpChangeRecord[]>;
+  // Every read is scoped to the caller's organization (tenant). getChange/listChanges are additionally actor-scoped
+  // (a normal user sees only their own records); getAnyChange/listAllChanges are the admin cross-actor reads, gated
+  // on isSuperUser at the tool layer. All four take organizationId because isSuperUser is a PER-ORG signal in EE
+  // (MANAGE_ORGANIZATION on the caller's own org) and email/actorId is only per-org unique, so without the org
+  // predicate one tenant's admin — or a colliding email — would read another tenant's history.
+  getChange(
+    id: string,
+    actorId: string,
+    organizationId: string,
+  ): Promise<McpChangeRecord | undefined>;
+  listChanges(
+    actorId: string,
+    organizationId: string,
+    limit: number,
+  ): Promise<McpChangeRecord[]>;
+  getAnyChange(
+    id: string,
+    organizationId: string,
+  ): Promise<McpChangeRecord | undefined>;
+  listAllChanges(
+    organizationId: string,
+    limit: number,
+  ): Promise<McpChangeRecord[]>;
 }
 
 const LOCK_PREFIX = "appsmith:mcp:lock:";
@@ -72,10 +92,15 @@ export class MongoRedisGovernanceStore implements McpGovernanceStore {
 
   async connect(): Promise<void> {
     await Promise.all([this.mongo.connect(), this.redis.connect()]);
-    await this.changes.createIndex({ actorId: 1, createdAt: -1 });
-    // Serves the admin cross-actor read (listAllChanges: no actorId predicate, sort by createdAt desc), which the
-    // actor-scoped compound index above cannot cover.
-    await this.changes.createIndex({ createdAt: -1 });
+    // Org-prefixed so every read's organizationId predicate is index-covered. The actor-scoped read
+    // (listChanges) uses the first; the admin cross-actor read (listAllChanges: org predicate only, sort by
+    // createdAt desc) uses the second.
+    await this.changes.createIndex({
+      organizationId: 1,
+      actorId: 1,
+      createdAt: -1,
+    });
+    await this.changes.createIndex({ organizationId: 1, createdAt: -1 });
     await this.changes.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
   }
 
@@ -153,30 +178,45 @@ export class MongoRedisGovernanceStore implements McpGovernanceStore {
   async getChange(
     id: string,
     actorId: string,
+    organizationId: string,
   ): Promise<McpChangeRecord | undefined> {
-    return (await this.changes.findOne({ id, actorId })) ?? undefined;
+    return (
+      (await this.changes.findOne({ id, actorId, organizationId })) ?? undefined
+    );
   }
 
   async listChanges(
     actorId: string,
+    organizationId: string,
     limit: number,
   ): Promise<McpChangeRecord[]> {
     return this.changes
-      .find({ actorId })
+      .find({ actorId, organizationId })
       .sort({ createdAt: -1 })
       .limit(limit)
       .toArray();
   }
 
-  async getAnyChange(id: string): Promise<McpChangeRecord | undefined> {
-    return (await this.changes.findOne({ id })) ?? undefined;
+  async getAnyChange(
+    id: string,
+    organizationId: string,
+  ): Promise<McpChangeRecord | undefined> {
+    // Cross-actor but STILL org-scoped: an admin's isSuperUser is only per-org in EE, so the org predicate is what
+    // keeps one tenant's admin from reading another tenant's record.
+    return (await this.changes.findOne({ id, organizationId })) ?? undefined;
   }
 
-  async listAllChanges(limit: number): Promise<McpChangeRecord[]> {
-    // No actorId filter — the whole mcp_changes collection for this single-org INSTANCE, newest-first. Records carry
-    // no org field, so a multi-org (EE) deployment must add an organizationId predicate before enabling the admin
-    // tool, or one org's super-admin would see every org's records (tracked EE follow-up).
-    return this.changes.find({}).sort({ createdAt: -1 }).limit(limit).toArray();
+  async listAllChanges(
+    organizationId: string,
+    limit: number,
+  ): Promise<McpChangeRecord[]> {
+    // No actorId filter (cross-actor admin audit) but scoped to the caller's organization — records from other
+    // tenants, and pre-scope records that carry no organizationId, never match.
+    return this.changes
+      .find({ organizationId })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .toArray();
   }
 }
 

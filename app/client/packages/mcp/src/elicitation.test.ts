@@ -67,6 +67,7 @@ function stubApi(): AppsmithApi {
     validateToken: jest.fn(async () => ({
       username: "user@appsmith.com",
       isAnonymous: false,
+      organizationId: "org-default",
     })),
   };
 }
@@ -109,25 +110,45 @@ class MemoryGovernanceStore implements McpGovernanceStore {
   async getChange(
     id: string,
     actorId: string,
+    organizationId: string,
   ): Promise<McpChangeRecord | undefined> {
     return this.changes.find(
-      (change) => change.id === id && change.actorId === actorId,
+      (change) =>
+        change.id === id &&
+        change.actorId === actorId &&
+        change.organizationId === organizationId,
     );
   }
   async listChanges(
     actorId: string,
+    organizationId: string,
     limit: number,
   ): Promise<McpChangeRecord[]> {
     return this.changes
-      .filter((change) => change.actorId === actorId)
+      .filter(
+        (change) =>
+          change.actorId === actorId &&
+          change.organizationId === organizationId,
+      )
       .slice(-limit)
       .reverse();
   }
-  async getAnyChange(id: string): Promise<McpChangeRecord | undefined> {
-    return this.changes.find((change) => change.id === id);
+  async getAnyChange(
+    id: string,
+    organizationId: string,
+  ): Promise<McpChangeRecord | undefined> {
+    return this.changes.find(
+      (change) => change.id === id && change.organizationId === organizationId,
+    );
   }
-  async listAllChanges(limit: number): Promise<McpChangeRecord[]> {
-    return this.changes.slice(-limit).reverse();
+  async listAllChanges(
+    organizationId: string,
+    limit: number,
+  ): Promise<McpChangeRecord[]> {
+    return this.changes
+      .filter((change) => change.organizationId === organizationId)
+      .slice(-limit)
+      .reverse();
   }
 }
 
@@ -155,6 +176,7 @@ async function connectClient(
     jsEnabled: true,
     governance: new McpGovernanceCoordinator(store),
     actorId: "user@appsmith.com",
+    organizationId: "org-default",
     ...ctx,
   });
   const client = new Client(
@@ -1146,6 +1168,9 @@ describe("confirm_delete_action / confirm_delete_js_object / confirm_rollback â€
     store.changes.push({
       id: "chg1",
       actorId: "user@appsmith.com",
+      // Matches the session's organization so the org-scoped rollback read finds it. A record whose org differs
+      // from the caller's is invisible (tenant isolation).
+      organizationId: "org-default",
       entityKey: `page:${APP_ID}:p1`,
       operation: "patch_widgets",
       revisionBefore: "0".repeat(64),

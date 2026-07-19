@@ -301,9 +301,12 @@ describe("Appsmith API client", () => {
 });
 
 function createApi(
-  validateToken = jest.fn(async () => ({
+  // Typed as the real wrapper (() => Promise<unknown>) so a test can pass a custom profile mock without every
+  // field — the default carries a realistic organizationId so governed audit reads are tenant-scoped.
+  validateToken: AppsmithApi["validateToken"] = jest.fn(async () => ({
     username: "user@appsmith.com",
     isAnonymous: false,
+    organizationId: "org-default",
   })),
 ) {
   return (): AppsmithApi => ({
@@ -2647,23 +2650,43 @@ describe("governance-wrapped layout mutations", () => {
     async getChange(
       id: string,
       actorId: string,
+      organizationId: string,
     ): Promise<McpChangeRecord | undefined> {
-      return this.changes.find((c) => c.id === id && c.actorId === actorId);
+      return this.changes.find(
+        (c) =>
+          c.id === id &&
+          c.actorId === actorId &&
+          c.organizationId === organizationId,
+      );
     }
     async listChanges(
       actorId: string,
+      organizationId: string,
       limit: number,
     ): Promise<McpChangeRecord[]> {
       return this.changes
-        .filter((c) => c.actorId === actorId)
+        .filter(
+          (c) => c.actorId === actorId && c.organizationId === organizationId,
+        )
         .slice(-limit)
         .reverse();
     }
-    async getAnyChange(id: string): Promise<McpChangeRecord | undefined> {
-      return this.changes.find((c) => c.id === id);
+    async getAnyChange(
+      id: string,
+      organizationId: string,
+    ): Promise<McpChangeRecord | undefined> {
+      return this.changes.find(
+        (c) => c.id === id && c.organizationId === organizationId,
+      );
     }
-    async listAllChanges(limit: number): Promise<McpChangeRecord[]> {
-      return this.changes.slice(-limit).reverse();
+    async listAllChanges(
+      organizationId: string,
+      limit: number,
+    ): Promise<McpChangeRecord[]> {
+      return this.changes
+        .filter((c) => c.organizationId === organizationId)
+        .slice(-limit)
+        .reverse();
     }
   }
 
@@ -3283,9 +3306,15 @@ describe("governance-wrapped layout mutations", () => {
 
   it("list_all_changes: an admin sees cross-actor records; a non-admin is refused (M2-T2)", async () => {
     const store = new MemoryGovernanceStore();
-    const mk = (id: string, actorId: string, ms: number): McpChangeRecord => ({
+    const mk = (
+      id: string,
+      actorId: string,
+      organizationId: string,
+      ms: number,
+    ): McpChangeRecord => ({
       id,
       actorId,
+      organizationId,
       entityKey: "e",
       operation: "op",
       revisionBefore: "",
@@ -3295,10 +3324,12 @@ describe("governance-wrapped layout mutations", () => {
       summary: {},
     });
 
-    await store.saveChange(mk("c1", "alice@appsmith.com", 1000));
-    await store.saveChange(mk("c2", "bob@appsmith.com", 2000));
+    // Two records in org "acme" and one in a DIFFERENT tenant "globex" — the acme admin must never see globex.
+    await store.saveChange(mk("c1", "alice@appsmith.com", "acme", 1000));
+    await store.saveChange(mk("c2", "bob@appsmith.com", "acme", 2000));
+    await store.saveChange(mk("c3", "carol@globex.com", "globex", 3000));
 
-    // Non-admin (default validateToken has no adminSettingsVisible) -> refused, no records leaked.
+    // Non-admin (default validateToken reports no isSuperUser) -> refused, no records leaked.
     const nonAdmin = createMcpHttpServer(API_BASE_URL, createApi(), {
       governance: new McpGovernanceCoordinator(store),
     });
@@ -3307,7 +3338,7 @@ describe("governance-wrapped layout mutations", () => {
     expect(denied.body.code).toBe("admin_required");
     expect(denied.body.changes).toBeUndefined();
 
-    // Admin (validateToken reports isSuperUser: true) -> sees BOTH actors' records.
+    // Admin of org "acme" (isSuperUser is a PER-ORG signal in EE) -> sees acme's cross-actor records ONLY.
     const adminServer = createMcpHttpServer(
       API_BASE_URL,
       createApi(
@@ -3315,6 +3346,7 @@ describe("governance-wrapped layout mutations", () => {
           username: "admin@appsmith.com",
           isAnonymous: false,
           isSuperUser: true,
+          organizationId: "acme",
         })),
       ),
       { governance: new McpGovernanceCoordinator(store) },
@@ -3325,6 +3357,10 @@ describe("governance-wrapped layout mutations", () => {
       "c1",
       "c2",
     ]);
+    // Cross-tenant isolation: globex's record is NEVER returned to the acme admin (the reported vulnerability).
+    expect(all.body.changes.some((c: { id: string }) => c.id === "c3")).toBe(
+      false,
+    );
     // Cross-actor audit MUST attribute each record to its actor.
     const byId = Object.fromEntries(
       all.body.changes.map((c: { id: string; actorId: string }) => [
@@ -3338,12 +3374,19 @@ describe("governance-wrapped layout mutations", () => {
     // The rollback SNAPSHOT object is never exposed even to an admin (only the rollbackAvailable boolean is).
     expect(all.body.changes[0].rollback).toBeUndefined();
 
-    // get_any_change: admin can fetch a specific cross-actor record (attributed); non-admin is refused.
+    // get_any_change: acme admin can fetch an acme record but NOT globex's, even knowing its id.
     const anyChange = await callTool(adminServer, "get_any_change", {
       changeId: "c2",
     });
 
     expect(anyChange.body.change.actorId).toBe("bob@appsmith.com");
+
+    const crossTenant = await callTool(adminServer, "get_any_change", {
+      changeId: "c3",
+    });
+
+    expect(crossTenant.body.change).toBeUndefined();
+    expect(crossTenant.body.error).toBe("change not found");
 
     const deniedGet = await callTool(nonAdmin, "get_any_change", {
       changeId: "c2",
@@ -3355,6 +3398,71 @@ describe("governance-wrapped layout mutations", () => {
     const own = await callTool(adminServer, "list_changes", {});
 
     expect(own.body.changes).toEqual([]);
+  });
+
+  it("list_all_changes / get_any_change fail closed when the caller's organization is unknown (M2-T2 tenant isolation)", async () => {
+    const store = new MemoryGovernanceStore();
+
+    await store.saveChange({
+      id: "c1",
+      actorId: "alice@appsmith.com",
+      organizationId: "acme",
+      entityKey: "e",
+      operation: "op",
+      revisionBefore: "",
+      revisionAfter: "",
+      createdAt: new Date(1000),
+      rollback: {},
+      summary: {},
+    });
+
+    // Admin WITHOUT an organization on the profile (e.g. an older server that does not report it). The audit read
+    // cannot be tenant-scoped, so it must refuse rather than run an unscoped cross-tenant query.
+    const adminNoOrg = createMcpHttpServer(
+      API_BASE_URL,
+      createApi(
+        jest.fn(async () => ({
+          username: "admin@appsmith.com",
+          isAnonymous: false,
+          isSuperUser: true,
+        })),
+      ),
+      { governance: new McpGovernanceCoordinator(store) },
+    );
+
+    const listed = await callTool(adminNoOrg, "list_all_changes", {});
+
+    expect(listed.body.code).toBe("organization_scope_unavailable");
+    expect(listed.body.changes).toBeUndefined();
+
+    const fetched = await callTool(adminNoOrg, "get_any_change", {
+      changeId: "c1",
+    });
+
+    expect(fetched.body.code).toBe("organization_scope_unavailable");
+    expect(fetched.body.change).toBeUndefined();
+
+    // The ACTOR-scoped reads fail closed too: without an org they cannot be tenant-bounded, so two tenants could
+    // otherwise alias on the empty-org sentinel (colliding email is only per-org unique).
+    const noOrg = createMcpHttpServer(
+      API_BASE_URL,
+      createApi(
+        jest.fn(async () => ({
+          username: "alice@appsmith.com",
+          isAnonymous: false,
+        })),
+      ),
+      { governance: new McpGovernanceCoordinator(store) },
+    );
+
+    const ownList = await callTool(noOrg, "list_changes", {});
+
+    expect(ownList.body.code).toBe("organization_scope_unavailable");
+    expect(ownList.body.changes).toBeUndefined();
+
+    const ownGet = await callTool(noOrg, "get_change", { changeId: "c1" });
+
+    expect(ownGet.body.code).toBe("organization_scope_unavailable");
   });
 
   it("get_capabilities advertises EXACTLY the registered tools (no drift), under all gates", async () => {
@@ -5145,23 +5253,43 @@ describe("M5 — build_application URLs + auto-publish", () => {
     async getChange(
       id: string,
       actorId: string,
+      organizationId: string,
     ): Promise<McpChangeRecord | undefined> {
-      return this.changes.find((c) => c.id === id && c.actorId === actorId);
+      return this.changes.find(
+        (c) =>
+          c.id === id &&
+          c.actorId === actorId &&
+          c.organizationId === organizationId,
+      );
     }
     async listChanges(
       actorId: string,
+      organizationId: string,
       limit: number,
     ): Promise<McpChangeRecord[]> {
       return this.changes
-        .filter((c) => c.actorId === actorId)
+        .filter(
+          (c) => c.actorId === actorId && c.organizationId === organizationId,
+        )
         .slice(-limit)
         .reverse();
     }
-    async getAnyChange(id: string): Promise<McpChangeRecord | undefined> {
-      return this.changes.find((c) => c.id === id);
+    async getAnyChange(
+      id: string,
+      organizationId: string,
+    ): Promise<McpChangeRecord | undefined> {
+      return this.changes.find(
+        (c) => c.id === id && c.organizationId === organizationId,
+      );
     }
-    async listAllChanges(limit: number): Promise<McpChangeRecord[]> {
-      return this.changes.slice(-limit).reverse();
+    async listAllChanges(
+      organizationId: string,
+      limit: number,
+    ): Promise<McpChangeRecord[]> {
+      return this.changes
+        .filter((c) => c.organizationId === organizationId)
+        .slice(-limit)
+        .reverse();
     }
   }
 

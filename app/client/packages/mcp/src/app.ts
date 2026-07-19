@@ -163,7 +163,14 @@ export interface ServerContext {
   actorId: string;
   // True when the authenticated user is an instance SUPER-admin (isSuperUser on /api/v1/users/me). Gates the
   // cross-actor audit read (list_all_changes / get_any_change); a normal actor only ever sees its own change records.
+  // NOTE: on a multi-org (EE) deployment isSuperUser is a PER-ORG signal (MANAGE_ORGANIZATION on the caller's own
+  // org), so it does not by itself bound the read to one tenant — organizationId below does that.
   isAdmin?: boolean;
+  // The caller's Appsmith organization (tenant), from organizationId on /api/v1/users/me. EVERY governance audit
+  // read is scoped to it so one tenant can never read another's change history; it is stamped onto each change
+  // record at write time. Empty when the server does not report it, which fails closed: org-scoped reads then match
+  // no records rather than falling back to an unscoped (cross-tenant) query.
+  organizationId?: string;
   // Absolute http(s) origin used to build the editor/viewer URLs build_application returns, resolved ONCE per
   // session at initialize (handlers never see raw requests): options.publicOrigin, else strictly validated
   // X-Forwarded-Proto + Host headers, else undefined — which degrades every constructed URL to a root-relative path.
@@ -1703,6 +1710,9 @@ export function buildMcpServer(
     jsEnabled,
     requestOrigin,
   } = ctx;
+  // Tenant scope for every governance audit read/write. Empty string when unreported → org-scoped queries match
+  // nothing (fail-closed), never an unscoped cross-tenant read.
+  const organizationId = ctx.organizationId ?? "";
   const logSink = ctx.logSink ?? ((line: string) => process.stderr.write(line));
   const elicitationTimeout =
     elicitationTimeoutMs ??
@@ -2349,6 +2359,7 @@ export function buildMcpServer(
     try {
       const { changeId, value } = await governance.execute({
         actorId,
+        organizationId,
         entityKey: pageEntityKey(params.applicationId, params.pageId),
         operation: params.operation,
         expectedRevision: params.revision,
@@ -2677,6 +2688,7 @@ export function buildMcpServer(
 
           await governance.execute({
             actorId,
+            organizationId,
             entityKey: `application:${applicationId}`,
             operation: "auto_publish",
             expectedRevision: currentRevision,
@@ -3129,6 +3141,20 @@ export function buildMcpServer(
   if (governance) {
     const gov = governance;
 
+    // Every governance AUDIT READ must be tenant-scoped. When the caller's organization is unknown (an older
+    // server that does not report organizationId, or any edition that does not populate it) we cannot bound the
+    // read to one tenant, so we refuse rather than run a query with the empty-org sentinel — which would let two
+    // tenants alias on "" and read each other's records. Returns a ready refusal, or undefined to proceed.
+    // (Governed WRITES are unaffected: they stamp whatever org the session has; a record stamped "" is simply
+    // invisible to every org-scoped read, which is the fail-closed direction.)
+    const organizationScopeRefusal = (tool: string): ToolResult | undefined =>
+      organizationId
+        ? undefined
+        : result({
+            error: `${tool} is unavailable: the caller's organization could not be determined, so the audit read cannot be scoped to your tenant.`,
+            code: "organization_scope_unavailable",
+          });
+
     server.tool(
       "update_theme",
       "Update the application's theme tokens (primaryColor, borderRadius, fontFamily only) using a revision from read_theme. Stylesheets, CSS, URLs, and bindings are never accepted. Returns the new tokens, revision, and change id.",
@@ -3160,6 +3186,7 @@ export function buildMcpServer(
         try {
           const { changeId, value } = await gov.execute({
             actorId,
+            organizationId,
             entityKey: `theme:${applicationId}`,
             operation: "update_theme",
             expectedRevision: revision,
@@ -3191,12 +3218,17 @@ export function buildMcpServer(
       "list_changes",
       "List recent MCP governance change records for the authenticated user (audit trail). Returns safe change headers and semantic summaries — never rollback snapshots.",
       { limit: z.number().int().min(1).max(100).optional() },
-      async ({ limit }) =>
-        result({
-          changes: (await gov.listChanges(actorId, limit ?? 20)).map((change) =>
-            projectChange(change),
-          ),
-        }),
+      async ({ limit }) => {
+        const refusal = organizationScopeRefusal("list_changes");
+
+        if (refusal) return refusal;
+
+        return result({
+          changes: (
+            await gov.listChanges(actorId, organizationId, limit ?? 20)
+          ).map((change) => projectChange(change)),
+        });
+      },
     );
 
     server.tool(
@@ -3204,7 +3236,11 @@ export function buildMcpServer(
       "Get a single MCP change record by id (audit metadata + semantic summary; the rollback snapshot is never exposed).",
       { changeId: idSchema },
       async ({ changeId }) => {
-        const change = await gov.getChange(changeId, actorId);
+        const refusal = organizationScopeRefusal("get_change");
+
+        if (refusal) return refusal;
+
+        const change = await gov.getChange(changeId, actorId, organizationId);
 
         return change
           ? result({ change: projectChange(change) })
@@ -3225,9 +3261,15 @@ export function buildMcpServer(
           });
         }
 
+        // Cross-actor audit is scoped to the caller's organization: on a multi-org (EE) deployment isSuperUser is a
+        // per-org signal, so an admin must never see other tenants' records (fail closed when org is unknown).
+        const refusal = organizationScopeRefusal("list_all_changes");
+
+        if (refusal) return refusal;
+
         return result({
-          changes: (await gov.listAllChanges(limit ?? 50)).map((change) =>
-            projectChange(change, true),
+          changes: (await gov.listAllChanges(organizationId, limit ?? 50)).map(
+            (change) => projectChange(change, true),
           ),
         });
       },
@@ -3246,7 +3288,13 @@ export function buildMcpServer(
           });
         }
 
-        const change = await gov.getAnyChange(changeId);
+        // Tenant-scoped like list_all_changes: refuse when the caller's org is unknown rather than reading across
+        // tenants (see the note there).
+        const refusal = organizationScopeRefusal("get_any_change");
+
+        if (refusal) return refusal;
+
+        const change = await gov.getAnyChange(changeId, organizationId);
 
         return change
           ? result({ change: projectChange(change, true) })
@@ -3259,7 +3307,11 @@ export function buildMcpServer(
       "Get the semantic before/after summary for a change (operation, revisions, summary).",
       { changeId: idSchema },
       async ({ changeId }) => {
-        const change = await gov.getChange(changeId, actorId);
+        const refusal = organizationScopeRefusal("get_change_diff");
+
+        if (refusal) return refusal;
+
+        const change = await gov.getChange(changeId, actorId, organizationId);
 
         return change
           ? result({
@@ -3277,7 +3329,11 @@ export function buildMcpServer(
       "Prepare to roll back a layout change (edit_page/patch_widgets). Returns a one-time confirmation token plus 'relay' text to show the user before confirming. Only offered when a safe layout snapshot exists.",
       { changeId: idSchema },
       async ({ changeId }) => {
-        const change = await gov.getChange(changeId, actorId);
+        const refusal = organizationScopeRefusal("prepare_rollback");
+
+        if (refusal) return refusal;
+
+        const change = await gov.getChange(changeId, actorId, organizationId);
 
         if (!change) return result({ error: "change not found" });
 
@@ -3315,7 +3371,11 @@ export function buildMcpServer(
         branch: gitBranchParamSchema.optional(),
       },
       async ({ branch, changeId, confirmationId }, extra) => {
-        const change = await gov.getChange(changeId, actorId);
+        const refusal = organizationScopeRefusal("confirm_rollback");
+
+        if (refusal) return refusal;
+
+        const change = await gov.getChange(changeId, actorId, organizationId);
 
         if (!change) return result({ error: "change not found" });
 
@@ -3406,6 +3466,7 @@ export function buildMcpServer(
           const snapshot = rollback.dsl;
           const { changeId: newChangeId } = await gov.execute({
             actorId,
+            organizationId,
             entityKey: change.entityKey,
             operation: "rollback",
             // The page must be unchanged since the change being rolled back.
@@ -3568,6 +3629,7 @@ export function buildMcpServer(
           );
           const { changeId } = await gov.execute({
             actorId,
+            organizationId,
             entityKey: `application:${applicationId}`,
             operation: "publish",
             expectedRevision: revision,
@@ -3685,6 +3747,7 @@ export function buildMcpServer(
         try {
           const { changeId, value } = await gov.execute({
             actorId,
+            organizationId,
             entityKey: `application:${applicationId}:branches`,
             operation: "create_branch",
             expectedRevision: revisionBefore,
@@ -4082,6 +4145,7 @@ export function buildMcpServer(
           const fullMessage = `${MCP_COMMIT_MARKER}${entry.message}`;
           const { changeId } = await gov.execute({
             actorId,
+            organizationId,
             entityKey: `application:${applicationId}`,
             operation: "commit",
             expectedRevision: entry.revision,
@@ -4161,6 +4225,7 @@ export function buildMcpServer(
         try {
           const { changeId, value } = await gov.execute({
             actorId,
+            organizationId,
             entityKey: pagesEntityKey(parsed.data.applicationId),
             operation: "create_page",
             expectedRevision: parsed.data.revision,
@@ -4216,6 +4281,7 @@ export function buildMcpServer(
         try {
           const { changeId, value } = await gov.execute({
             actorId,
+            organizationId,
             entityKey: pagesEntityKey(parsed.data.applicationId),
             operation: "rename_page",
             expectedRevision: parsed.data.revision,
@@ -4366,6 +4432,7 @@ export function buildMcpServer(
           );
           const { changeId, value } = await gov.execute({
             actorId,
+            organizationId,
             entityKey: pagesEntityKey(parsed.data.applicationId),
             operation: "delete_page",
             expectedRevision: parsed.data.revision,
@@ -5000,6 +5067,7 @@ export function buildMcpServer(
           try {
             const { changeId, value } = await govData.execute({
               actorId,
+              organizationId,
               entityKey: `action:${request.actionId}`,
               operation: "update_action",
               expectedRevision: parsed.data.revision,
@@ -5060,6 +5128,7 @@ export function buildMcpServer(
           try {
             const { changeId, value } = await govData.execute({
               actorId,
+              organizationId,
               entityKey: `action:${request.actionId}`,
               operation: "duplicate_action",
               expectedRevision: parsed.data.revision,
@@ -5213,6 +5282,7 @@ export function buildMcpServer(
             );
             const { changeId } = await govData.execute({
               actorId,
+              organizationId,
               entityKey: `action:${parsed.data.actionId}`,
               operation: "delete_action",
               expectedRevision: parsed.data.revision,
@@ -5343,6 +5413,7 @@ export function buildMcpServer(
             const current = await api.getAction(applicationId, actionId);
             const { changeId, value } = await govData.execute({
               actorId,
+              organizationId,
               entityKey: `action:${actionId}`,
               operation: "run_action",
               expectedRevision: revision,
@@ -5444,6 +5515,7 @@ export function buildMcpServer(
           try {
             const { changeId, value } = await govJs.execute({
               actorId,
+              organizationId,
               entityKey: `application:${applicationId}:jsobjects`,
               operation: "create_js_object",
               expectedRevision: parsed.data.revision,
@@ -5506,6 +5578,7 @@ export function buildMcpServer(
           try {
             const { changeId, value } = await govJs.execute({
               actorId,
+              organizationId,
               entityKey: `jsobject:${parsed.data.collectionId}`,
               operation: "update_js_object",
               expectedRevision: parsed.data.revision,
@@ -5666,6 +5739,7 @@ export function buildMcpServer(
             );
             const { changeId } = await govJs.execute({
               actorId,
+              organizationId,
               entityKey: `jsobject:${parsed.data.collectionId}`,
               operation: "delete_js_object",
               expectedRevision: parsed.data.revision,
@@ -6029,11 +6103,12 @@ export function createMcpHttpServer(
 
   async function authenticateProfile(
     api: AppsmithApi,
-  ): Promise<{ username: string; isAdmin: boolean }> {
+  ): Promise<{ username: string; isAdmin: boolean; organizationId: string }> {
     let profile: {
       username?: string;
       isAnonymous?: boolean;
       isSuperUser?: boolean;
+      organizationId?: string;
     };
 
     try {
@@ -6041,6 +6116,7 @@ export function createMcpHttpServer(
         username?: string;
         isAnonymous?: boolean;
         isSuperUser?: boolean;
+        organizationId?: string;
       };
     } catch {
       throw new HttpError(401, "invalid bearer token");
@@ -6050,13 +6126,18 @@ export function createMcpHttpServer(
       throw new HttpError(401, "invalid bearer token");
     }
 
-    // isSuperUser on /api/v1/users/me is the precise INSTANCE super-admin signal (set server-side via
-    // userUtils.isSuperUser) — the gate for the cross-actor audit read. It is NOT adminSettingsVisible, which is a
-    // broader "show the Admin Settings menu" flag that EE RBAC can grant to non-super-admin roles. Absent/false for a
-    // normal user.
+    // isSuperUser on /api/v1/users/me gates the cross-actor audit read. On a SINGLE-org (CE) instance it is the
+    // instance super-admin; on a multi-org (EE) instance it is a PER-ORG admin signal (MANAGE_ORGANIZATION on the
+    // caller's own org), so it must be paired with organizationId — every audit read is scoped to that tenant so an
+    // org admin can never see another tenant's change history. organizationId is the caller's own org on
+    // /api/v1/users/me; absent on an older server, which fails closed (org-scoped reads then match nothing).
     return {
       username: profile.username,
       isAdmin: profile.isSuperUser === true,
+      organizationId:
+        typeof profile.organizationId === "string"
+          ? profile.organizationId
+          : "",
     };
   }
 
@@ -6161,8 +6242,11 @@ export function createMcpHttpServer(
 
       if (!transport && isInitializeRequest(body)) {
         const api = createApi(token, upstreamHeaders);
-        const { isAdmin, username: authenticatedUser } =
-          await authenticateProfile(api);
+        const {
+          isAdmin,
+          organizationId,
+          username: authenticatedUser,
+        } = await authenticateProfile(api);
 
         username = authenticatedUser;
 
@@ -6271,6 +6355,7 @@ export function createMcpHttpServer(
           governance,
           actorId: authenticatedUser,
           isAdmin,
+          organizationId,
           elicitationTimeoutMs: options.elicitationTimeoutMs,
           commitElicitationTimeoutMs: options.commitElicitationTimeoutMs,
           elicitationProgressIntervalMs: options.elicitationProgressIntervalMs,

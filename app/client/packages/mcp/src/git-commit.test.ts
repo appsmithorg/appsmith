@@ -76,6 +76,7 @@ function stubApi(): AppsmithApi {
     validateToken: jest.fn(async () => ({
       username: "user@appsmith.com",
       isAnonymous: false,
+      organizationId: "org-default",
     })),
   };
 }
@@ -118,25 +119,45 @@ class MemoryGovernanceStore implements McpGovernanceStore {
   async getChange(
     id: string,
     actorId: string,
+    organizationId: string,
   ): Promise<McpChangeRecord | undefined> {
     return this.changes.find(
-      (change) => change.id === id && change.actorId === actorId,
+      (change) =>
+        change.id === id &&
+        change.actorId === actorId &&
+        change.organizationId === organizationId,
     );
   }
   async listChanges(
     actorId: string,
+    organizationId: string,
     limit: number,
   ): Promise<McpChangeRecord[]> {
     return this.changes
-      .filter((change) => change.actorId === actorId)
+      .filter(
+        (change) =>
+          change.actorId === actorId &&
+          change.organizationId === organizationId,
+      )
       .slice(-limit)
       .reverse();
   }
-  async getAnyChange(id: string): Promise<McpChangeRecord | undefined> {
-    return this.changes.find((change) => change.id === id);
+  async getAnyChange(
+    id: string,
+    organizationId: string,
+  ): Promise<McpChangeRecord | undefined> {
+    return this.changes.find(
+      (change) => change.id === id && change.organizationId === organizationId,
+    );
   }
-  async listAllChanges(limit: number): Promise<McpChangeRecord[]> {
-    return this.changes.slice(-limit).reverse();
+  async listAllChanges(
+    organizationId: string,
+    limit: number,
+  ): Promise<McpChangeRecord[]> {
+    return this.changes
+      .filter((change) => change.organizationId === organizationId)
+      .slice(-limit)
+      .reverse();
   }
 }
 

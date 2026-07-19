@@ -103,6 +103,7 @@ describe("McpGovernanceCoordinator.execute", () => {
     const store = new MemoryGovernanceStore();
     const result = await coordinator(store).execute({
       actorId: "user-1",
+      organizationId: "org-1",
       entityKey: "application:app-1",
       operation: "update",
       expectedRevision: "revision-1",
@@ -124,6 +125,7 @@ describe("McpGovernanceCoordinator.execute", () => {
       {
         id: "change-1",
         actorId: "user-1",
+        organizationId: "org-1",
         entityKey: "application:app-1",
         operation: "update",
         revisionBefore: "revision-1",
@@ -149,6 +151,7 @@ describe("McpGovernanceCoordinator.execute", () => {
     await expect(
       coordinator(store).execute({
         actorId: "user-1",
+        organizationId: "org-1",
         entityKey: "application:app-1",
         operation: "update",
         expectedRevision: "revision-1",
@@ -168,6 +171,7 @@ describe("McpGovernanceCoordinator.execute", () => {
     await expect(
       coordinator(store).execute({
         actorId: "user-1",
+        organizationId: "org-1",
         entityKey: "application:app-1",
         operation: "update",
         expectedRevision: "revision-1",
@@ -190,6 +194,7 @@ describe("McpGovernanceCoordinator.execute", () => {
     await expect(
       coordinator(store).execute({
         actorId: "user-1",
+        organizationId: "org-1",
         entityKey: "application:app-1",
         operation: "update",
         expectedRevision: "revision-1",

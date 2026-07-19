@@ -821,6 +821,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
                     profile.setEmail(userFromDb.getEmail());
                     profile.setWorkspaceIds(userFromDb.getWorkspaceIds());
+                    // The caller's tenant, so the MCP server can scope its governance audit reads to it (an org
+                    // admin must never see another tenant's change history).
+                    profile.setOrganizationId(userFromDb.getOrganizationId());
                     profile.setUsername(userFromDb.getUsername());
                     profile.setName(userFromDb.getName());
                     profile.setGender(userFromDb.getGender());
