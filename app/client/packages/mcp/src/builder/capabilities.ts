@@ -15,7 +15,7 @@ export const WIDGET_CATALOG = [
       source:
         "{ table: '<tableWidget>', column: '<column>' } — show the selected row's column (detail views); or { query: '<query>', field?: '<path>' } — show one field of a query's response (scalar readout).",
       value:
-        "computed value, no query needed: { now: { format: 'dayOfWeek'|'date'|'dateShort'|'time'|'dateTime'|'isoDate'|'monthYear' } } (current date/time), { count: { query, field? } } (row count), or { concat: [ { literal }|{ table, column }|{ query, field? }, ... ] }. Set exactly ONE of text, source, value.",
+        "computed value, no query needed: { now: { format: 'dayOfWeek'|'date'|'dateShort'|'time'|'dateTime'|'isoDate'|'monthYear' } } (current date/time), { count: { query, field? } } (row count), { concat: [ { literal }|{ table, column }|{ query, field? }, ... ] }, or { formula: <expr> } for arithmetic — expr is a number, { query, field? }, { table, column }, or { op: 'add'|'sub'|'mul'|'div'|'round'|'abs'|'min'|'max', args: [expr...] } (round takes an optional 0-6 decimals literal; renders blank if non-numeric). Set exactly ONE of text, source, value.",
     },
     purpose:
       "Static text / headings, a bound detail field, or a computed readout (dates, counts, concatenation).",

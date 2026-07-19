@@ -332,7 +332,195 @@ const COMPUTED_NOW_FORMAT_NAMES = Object.keys(COMPUTED_NOW_FORMATS) as [
   ...ComputedNowFormat[],
 ];
 
+// --- Formula AST (C1). A closed, recursive expression vocabulary for numeric computation: literals, numeric
+// coercions of the existing validated refs, and a whitelisted operator set. The agent supplies STRUCTURE, never
+// expression text; the compiler owns every emitted character, so the no-raw-expressions invariant holds even
+// though real arithmetic is now expressible ("temperature in Fahrenheit" without a workaround).
+export const FORMULA_MAX_NODES = 25;
+export const FORMULA_MAX_DEPTH = 6;
+const FORMULA_OPS = [
+  "add",
+  "sub",
+  "mul",
+  "div",
+  "round",
+  "abs",
+  "min",
+  "max",
+] as const;
+
+export type FormulaOp = (typeof FORMULA_OPS)[number];
+export type FormulaExpr =
+  | number
+  | QueryFieldRef
+  | SelectedRowRef
+  | { op: FormulaOp; args: FormulaExpr[] };
+
+export const formulaExprSchema: z.ZodType<FormulaExpr> = z.lazy(() =>
+  z.union([
+    // finite() rejects Infinity/NaN — JSON's 1e999 parses to Infinity and must not reach the emitter.
+    z.number().finite(),
+    queryFieldRefSchema,
+    selectedRowRefSchema,
+    z
+      .object({
+        op: z.enum(FORMULA_OPS),
+        args: z.array(formulaExprSchema).min(1).max(8),
+      })
+      .strict(),
+  ]),
+);
+
+// Arity/shape rules the recursive schema cannot express, plus the depth bound.
+function formulaProblem(expr: FormulaExpr, depth: number): string | undefined {
+  if (depth > FORMULA_MAX_DEPTH) {
+    return `formula nests deeper than ${FORMULA_MAX_DEPTH} levels`;
+  }
+
+  if (typeof expr === "number" || !("op" in expr)) return undefined;
+
+  const arity = expr.args.length;
+
+  if (
+    (expr.op === "add" ||
+      expr.op === "mul" ||
+      expr.op === "min" ||
+      expr.op === "max") &&
+    arity < 2
+  ) {
+    return `'${expr.op}' needs at least 2 arguments`;
+  }
+
+  if ((expr.op === "sub" || expr.op === "div") && arity !== 2) {
+    return `'${expr.op}' needs exactly 2 arguments`;
+  }
+
+  if (expr.op === "abs" && arity !== 1) return "'abs' needs exactly 1 argument";
+
+  if (expr.op === "round") {
+    if (arity > 2) return "'round' needs 1 or 2 arguments";
+
+    const decimals = expr.args[1];
+
+    if (
+      arity === 2 &&
+      (typeof decimals !== "number" ||
+        !Number.isInteger(decimals) ||
+        decimals < 0 ||
+        decimals > 6)
+    ) {
+      return "'round' decimals must be an integer literal between 0 and 6";
+    }
+  }
+
+  for (const arg of expr.args) {
+    const problem = formulaProblem(arg, depth + 1);
+
+    if (problem !== undefined) return problem;
+  }
+
+  return undefined;
+}
+
+function formulaNodeCount(expr: FormulaExpr): number {
+  if (typeof expr === "number" || !("op" in expr)) return 1;
+
+  return (
+    1 + expr.args.reduce((sum: number, arg) => sum + formulaNodeCount(arg), 0)
+  );
+}
+
+export function validateFormula(expr: FormulaExpr): string | undefined {
+  if (formulaNodeCount(expr) > FORMULA_MAX_NODES) {
+    return `formula exceeds ${FORMULA_MAX_NODES} nodes`;
+  }
+
+  return formulaProblem(expr, 1);
+}
+
+// Emits the raw (unwrapped) expression. Refs are coerced through Number() so string cells/fields behave; every
+// compound is parenthesized; round's operand is parenthesized so a bare literal never produces `1.toFixed(...)`.
+function compileFormulaExpr(expr: FormulaExpr): string {
+  if (typeof expr === "number") return String(expr);
+
+  if ("query" in expr) {
+    return `Number(${expr.query}.data${expr.field ? `?.${expr.field}` : ""})`;
+  }
+
+  if ("table" in expr) {
+    return `Number(${expr.table}.selectedRow["${expr.column}"])`;
+  }
+
+  const args = expr.args.map(compileFormulaExpr);
+
+  switch (expr.op) {
+    case "add":
+      return `(${args.join(" + ")})`;
+    case "mul":
+      return `(${args.join(" * ")})`;
+    case "sub":
+      return `(${args[0]} - ${args[1]})`;
+    case "div":
+      return `(${args[0]} / ${args[1]})`;
+    case "abs":
+      return `Math.abs(${args[0]})`;
+    case "min":
+      return `Math.min(${args.join(", ")})`;
+    case "max":
+      return `Math.max(${args.join(", ")})`;
+    case "round": {
+      const decimals = expr.args.length === 2 ? expr.args[1] : 0;
+
+      // Defense-in-depth [COUNCIL: C1 security]: validateFormula guarantees this, but the emitter must
+      // never trust a cast — a future caller skipping schema parse would otherwise emit "[object Object]".
+      if (typeof decimals !== "number") {
+        throw new Error("formula 'round' decimals must be a number literal");
+      }
+
+      return decimals === 0
+        ? `Math.round(${args[0]})`
+        : `Number((${args[0]}).toFixed(${decimals}))`;
+    }
+  }
+}
+
+// Every { table, column } ref inside a computed value (concat parts or formula leaves), so the edit path can run
+// its dangling-table guard uniformly across token kinds.
+export function computedValueTableRefs(value: ComputedValue): string[] {
+  if ("concat" in value) {
+    return value.concat.flatMap((part) =>
+      "table" in part ? [part.table] : [],
+    );
+  }
+
+  if ("formula" in value) {
+    const walk = (expr: FormulaExpr): string[] => {
+      if (typeof expr === "number") return [];
+
+      if ("table" in expr) return [expr.table];
+
+      if ("op" in expr) return expr.args.flatMap(walk);
+
+      return [];
+    };
+
+    return walk(value.formula);
+  }
+
+  return [];
+}
+
 export const computedValueSchema = z.union([
+  z
+    .object({ formula: formulaExprSchema })
+    .strict()
+    .superRefine((value, ctx) => {
+      const problem = validateFormula(value.formula);
+
+      if (problem !== undefined) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: problem });
+      }
+    }),
   z
     .object({
       now: z.object({ format: z.enum(COMPUTED_NOW_FORMAT_NAMES) }).strict(),
@@ -372,6 +560,11 @@ export type ComputedValue = z.infer<typeof computedValueSchema>;
 export function compileComputedValue(ref: ComputedValue): string {
   if ("now" in ref) {
     return `{{ moment().format('${COMPUTED_NOW_FORMATS[ref.now.format]}') }}`;
+  }
+
+  if ("formula" in ref) {
+    // Finite-guarded: a not-yet-run query or a non-numeric cell renders blank, never NaN/Infinity.
+    return `{{ ((v) => Number.isFinite(v) ? v : "")(${compileFormulaExpr(ref.formula)}) }}`;
   }
 
   if ("count" in ref) {

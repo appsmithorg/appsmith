@@ -25,6 +25,7 @@ import {
   compileQueryFieldBinding,
   compileSelectedRowBinding,
   computedValueSchema,
+  computedValueTableRefs,
   compileTableDataBinding,
   compileNotEmptyBinding,
   compileRowSelectedBinding,
@@ -693,20 +694,17 @@ export function applyWidgetPatch(
           );
         }
 
-        // Guard parity with `source` [COUNCIL: B2 architect]: concat selected-row parts get the same
-        // dangling-table checks; query parts stay unguarded per the documented posture (queries live
-        // outside the widget map, and a missing query degrades to a blank part, a safe fail).
-        if ("concat" in value) {
-          for (const part of value.concat) {
-            if (!("table" in part)) continue;
+        // Guard parity with `source` [COUNCIL: B2 architect]: every { table, column } ref inside the
+        // computed value (concat parts, formula leaves) gets the same dangling-table checks; query refs
+        // stay unguarded per the documented posture (queries live outside the widget map, and a missing
+        // query degrades to a blank part, a safe fail).
+        for (const tableName of computedValueTableRefs(value)) {
+          const table = widgets.get(tableName);
 
-            const table = widgets.get(part.table);
+          if (!table) throw new Error(`table "${tableName}" was not found`);
 
-            if (!table) throw new Error(`table "${part.table}" was not found`);
-
-            if (table.node.type !== "TABLE_WIDGET_V2") {
-              throw new Error(`"${part.table}" is not a table widget`);
-            }
+          if (table.node.type !== "TABLE_WIDGET_V2") {
+            throw new Error(`"${tableName}" is not a table widget`);
           }
         }
 

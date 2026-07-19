@@ -158,6 +158,8 @@ describe("M5 store accumulation — docs stay in sync with the vocabulary", () =
     expect(body).toContain('"now": { "format": "dayOfWeek" }');
     expect(body).toContain('"count": { "query": "getUsers" }');
     expect(body).toContain('"concat"');
+    expect(body).toContain('"formula"');
+    expect(body).toContain("add/sub/mul/div/round/abs/min/max");
 
     const text = WIDGET_CATALOG.find((w) => w.type === "text")!;
 

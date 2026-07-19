@@ -3,6 +3,7 @@ import { sequentialIdGenerator, type WidgetNode } from "./layout.js";
 import { overlapDelta, overlappingPairs } from "./occupancy.js";
 import {
   appSpecSchema,
+  compileComputedValue,
   COMPUTED_NOW_FORMATS,
   editSpecSchema,
   type WidgetSpec,
@@ -670,6 +671,259 @@ describe("compileApp — import artifact contract", () => {
     );
     // Count without a field reads the whole response array.
     expect(total.text).toBe("{{ (getUsers.data ?? []).length }}");
+  });
+
+  it("compiles a formula value: Fahrenheit conversion with rounding, finite-guarded", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "text",
+                name: "TempF",
+                value: {
+                  formula: {
+                    op: "round",
+                    args: [
+                      {
+                        op: "add",
+                        args: [
+                          {
+                            op: "mul",
+                            args: [
+                              { query: "getWeather", field: "current.temp" },
+                              1.8,
+                            ],
+                          },
+                          32,
+                        ],
+                      },
+                      1,
+                    ],
+                  },
+                },
+              },
+              {
+                type: "text",
+                name: "Half",
+                value: {
+                  formula: {
+                    op: "div",
+                    args: [{ table: "Users", column: "amount" }, 2],
+                  },
+                },
+              },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const children = rootOf(artifact).children as WidgetNode[];
+    const tempF = children.find((w) => w.widgetName === "TempF")!;
+    const half = children.find((w) => w.widgetName === "Half")!;
+
+    // The whole expression is finite-guarded (blank instead of NaN/Infinity), refs are coerced via
+    // Number(), and every compound is parenthesized — all compiler-owned characters.
+    // round always parenthesizes its operand (a bare literal would otherwise emit `1.toFixed(...)`,
+    // a syntax error), so compound operands carry doubled parens — harmless and uniform.
+    expect(tempF.text).toBe(
+      '{{ ((v) => Number.isFinite(v) ? v : "")(Number((((Number(getWeather.data?.current.temp) * 1.8) + 32)).toFixed(1))) }}',
+    );
+    expect(tempF.dynamicBindingPathList).toEqual([{ key: "text" }]);
+    expect(half.text).toBe(
+      '{{ ((v) => Number.isFinite(v) ? v : "")((Number(Users.selectedRow["amount"]) / 2)) }}',
+    );
+  });
+
+  it("rejects malformed formulas: bad ops, arity, depth, size, and non-finite literals", () => {
+    const deep = (levels: number): unknown =>
+      levels === 0 ? 1 : { op: "abs", args: [deep(levels - 1)] };
+    const wide = {
+      op: "add",
+      args: [1, 2],
+    } as { op: string; args: unknown[] };
+    let node: { op: string; args: unknown[] } = wide;
+
+    for (let i = 0; i < 30; i += 1) {
+      node.args[1] = { op: "add", args: [1, 2] };
+      node = node.args[1] as { op: string; args: unknown[] };
+    }
+
+    const badFormulas = [
+      { op: "evil()", args: [1, 2] },
+      { op: "sub", args: [1, 2, 3] },
+      { op: "abs", args: [1, 2] },
+      { op: "round", args: [1, 9] },
+      { op: "round", args: [1, { op: "abs", args: [1] }] },
+      { op: "div", args: [{ query: "get(); x" }, 2] },
+      deep(10),
+      wide,
+      // Variadic ops need at least 2 arguments.
+      { op: "add", args: [1] },
+      // Width limit: 9 args rejects (schema max is 8).
+      { op: "add", args: [1, 2, 3, 4, 5, 6, 7, 8, 9] },
+      // Node cap isolated: wide and SHALLOW (depth 3) but 28 nodes > 25 — only the node check can catch it.
+      {
+        op: "add",
+        args: [
+          { op: "add", args: [1, 2, 3, 4, 5, 6, 7, 8] },
+          { op: "add", args: [1, 2, 3, 4, 5, 6, 7, 8] },
+          { op: "add", args: [1, 2, 3, 4, 5, 6, 7, 8] },
+        ],
+      },
+      Number.POSITIVE_INFINITY,
+    ];
+
+    for (const formula of badFormulas) {
+      expect(
+        appSpecSchema.safeParse({
+          name: "App",
+          pages: [
+            { name: "Home", widgets: [{ type: "text", value: { formula } }] },
+          ],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it("pins every formula op branch, bare leaves, mixed refs, and boundary acceptance", () => {
+    const WRAP = (expr: string) =>
+      `{{ ((v) => Number.isFinite(v) ? v : "")(${expr}) }}`;
+    const cases: { name: string; formula: unknown; expected: string }[] = [
+      {
+        name: "Sub",
+        formula: { op: "sub", args: [10, 4] },
+        expected: WRAP("(10 - 4)"),
+      },
+      {
+        name: "Min",
+        formula: { op: "min", args: [1, 2, 3] },
+        expected: WRAP("Math.min(1, 2, 3)"),
+      },
+      {
+        name: "Max",
+        formula: { op: "max", args: [3, 4] },
+        expected: WRAP("Math.max(3, 4)"),
+      },
+      {
+        name: "Abs",
+        formula: { op: "abs", args: [-5] },
+        expected: WRAP("Math.abs(-5)"),
+      },
+      // round arity-1 takes the Math.round branch, not toFixed.
+      {
+        name: "RoundWhole",
+        formula: { op: "round", args: [{ op: "div", args: [10, 3] }] },
+        expected: WRAP("Math.round((10 / 3))"),
+      },
+      { name: "BareNumber", formula: 42, expected: WRAP("42") },
+      {
+        name: "BareRef",
+        formula: { query: "getX", field: "n" },
+        expected: WRAP("Number(getX.data?.n)"),
+      },
+      {
+        name: "MixedLeaves",
+        formula: {
+          op: "add",
+          args: [
+            { query: "getX", field: "n" },
+            { table: "Users", column: "amt" },
+          ],
+        },
+        expected: WRAP(
+          '(Number(getX.data?.n) + Number(Users.selectedRow["amt"]))',
+        ),
+      },
+      // Boundary ACCEPTANCE: exactly 8 args; exactly 25 nodes (1 + 8×3); max valid depth (5 ops + leaf = 6).
+      {
+        name: "Wide8",
+        formula: { op: "add", args: [1, 2, 3, 4, 5, 6, 7, 8] },
+        expected: WRAP("(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8)"),
+      },
+      {
+        name: "Nodes25",
+        formula: {
+          op: "add",
+          args: Array.from({ length: 8 }, () => ({ op: "add", args: [1, 2] })),
+        },
+        expected: WRAP(
+          `(${Array.from({ length: 8 }, () => "(1 + 2)").join(" + ")})`,
+        ),
+      },
+      {
+        name: "Depth6",
+        formula: {
+          op: "abs",
+          args: [
+            {
+              op: "abs",
+              args: [
+                {
+                  op: "abs",
+                  args: [{ op: "abs", args: [{ op: "abs", args: [1] }] }],
+                },
+              ],
+            },
+          ],
+        },
+        expected: WRAP("Math.abs(Math.abs(Math.abs(Math.abs(Math.abs(1)))))"),
+      },
+    ];
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: cases.map((c) => ({
+              type: "text",
+              name: c.name,
+              value: { formula: c.formula },
+            })) as never,
+          },
+        ],
+      },
+      ids(),
+    );
+    const children = rootOf(artifact).children as WidgetNode[];
+
+    for (const c of cases) {
+      expect(children.find((w) => w.widgetName === c.name)?.text).toBe(
+        c.expected,
+      );
+    }
+  });
+
+  it("emitted formulas are parseable JS and evaluate correctly (all 8 ops)", () => {
+    const compiled = compileComputedValue({
+      formula: {
+        op: "round",
+        args: [
+          {
+            op: "add",
+            args: [
+              { op: "mul", args: [2, 3] },
+              { op: "sub", args: [10, { op: "div", args: [8, 4] }] },
+              { op: "min", args: [1, 2] },
+              { op: "max", args: [3, 4] },
+              { op: "abs", args: [-2] },
+            ],
+          },
+          1,
+        ],
+      },
+    } as never);
+    // Strip the {{ }} shell and execute the pure-numeric expression: 6 + 8 + 1 + 4 + 2 = 21.
+    const inner = compiled.slice(3, -3);
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+    const evaluate = new Function(`return ${inner}`) as () => number;
+
+    expect(evaluate()).toBe(21);
   });
 
   it("rejects source together with value on the build path", () => {

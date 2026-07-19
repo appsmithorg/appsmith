@@ -1,4 +1,5 @@
 import type { WidgetNode } from "./layout.js";
+import { compileComputedValue } from "./schema.js";
 import {
   canonicalStableSerialize,
   fingerprintDsl,
@@ -56,6 +57,33 @@ describe("projectSemanticPage", () => {
     });
     // Concat is not read back (yet): hidden is the safe default for anything unrecognized.
     expect(fullName.bindings).toBeUndefined();
+  });
+
+  it("formula bindings stay hidden in read-back (like concat)", () => {
+    const dsl = node({
+      widgetId: "root",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t1",
+          widgetName: "TempF",
+          type: "TEXT_WIDGET",
+          // Built by the REAL emitter so this test tracks the actual emitted shape forever.
+          text: compileComputedValue({
+            formula: {
+              op: "mul",
+              args: [{ query: "getWeather", field: "temp" }, 1.8],
+            },
+          } as never),
+        }),
+      ],
+    });
+
+    expect(
+      projectSemanticPage(dsl).widgets.find((w) => w.name === "TempF")!
+        .bindings,
+    ).toBeUndefined();
   });
 
   it("reports rowSelected and notEmpty visibility predicates", () => {

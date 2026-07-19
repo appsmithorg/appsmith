@@ -242,6 +242,57 @@ describe("applyWidgetPatch", () => {
     ).toThrow(/cannot set both/);
   });
 
+  it("patches a formula value and guards its selected-row refs like concat", () => {
+    const withText = page();
+
+    withText.children!.push(
+      node({ widgetId: "txt1", widgetName: "Calc", type: "TEXT_WIDGET" }),
+      node({ widgetId: "t1", widgetName: "Users", type: "TABLE_WIDGET_V2" }),
+    );
+    const { dsl } = applyWidgetPatch(withText, {
+      operations: [
+        {
+          kind: "update",
+          name: "Calc",
+          props: {
+            value: {
+              formula: {
+                op: "div",
+                args: [{ table: "Users", column: "amount" }, 2],
+              },
+            },
+          },
+        },
+      ],
+    });
+    const calc = dsl.children!.find((w) => w.widgetName === "Calc")!;
+
+    expect(calc.text).toBe(
+      '{{ ((v) => Number.isFinite(v) ? v : "")((Number(Users.selectedRow["amount"]) / 2)) }}',
+    );
+    expect(calc.dynamicBindingPathList).toEqual([{ key: "text" }]);
+
+    // Dangling-table guard walks the formula AST, same posture as concat parts.
+    expect(() =>
+      applyWidgetPatch(withText, {
+        operations: [
+          {
+            kind: "update",
+            name: "Calc",
+            props: {
+              value: {
+                formula: {
+                  op: "abs",
+                  args: [{ table: "Missing", column: "x" }],
+                },
+              },
+            },
+          },
+        ],
+      }),
+    ).toThrow(/was not found/);
+  });
+
   it("rejects concat selected-row parts referencing a missing or non-table widget", () => {
     const withText = page();
 

@@ -112,10 +112,15 @@ evaluated as code in a viewer's browser.
   dayOfWeek, date, dateShort, time, dateTime, isoDate, monthYear — the compiler owns the
   actual format string), \`{ "value": { "count": { "query": "getUsers" } } }\`, or
   \`{ "value": { "concat": [{ "table": "Users", "column": "first" }, { "literal": " " },
-  { "table": "Users", "column": "last" }] } }\`. Same token on \`patch_widgets\` \`value\`
-  (text only). A text sets exactly ONE of \`text\`, \`source\`, or \`value\`. NOTE:
-  \`read_semantic_page\` reports \`now\` and \`count\` values back but NOT \`concat\` — a concat
-  you set is still applied even though it does not appear in read-back; do not re-set it.
+  { "table": "Users", "column": "last" }] } }\`, or ARITHMETIC through the formula AST:
+  \`{ "value": { "formula": { "op": "round", "args": [{ "op": "add", "args": [{ "op": "mul",
+  "args": [{ "query": "getWeather", "field": "current.temp" }, 1.8] }, 32] }, 1] } } }\`
+  (Fahrenheit from Celsius, 1 decimal). Ops: add/sub/mul/div/round/abs/min/max; leaves are
+  numbers, \`{ query, field? }\`, or \`{ table, column }\`; non-numeric inputs render blank.
+  Same tokens on \`patch_widgets\` \`value\` (text only). A text sets exactly ONE of \`text\`,
+  \`source\`, or \`value\`. NOTE: \`read_semantic_page\` reports \`now\` and \`count\` values back
+  but NOT \`concat\` or \`formula\` — those are still applied even though they do not appear in
+  read-back; do not re-set them.
 - Display bindings (selected row): show or prefill from the table's selected row through the
   same structured-reference rule:
   - Detail text: \`{ "type": "text", "source": { "table": "Users", "column": "email" } }\`.
