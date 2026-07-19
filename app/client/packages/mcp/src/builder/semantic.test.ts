@@ -19,6 +19,46 @@ function node(
 }
 
 describe("projectSemanticPage", () => {
+  it("reports query-field display bindings on text and image", () => {
+    const dsl = node({
+      widgetId: "root",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t1",
+          widgetName: "Temp",
+          type: "TEXT_WIDGET",
+          text: '{{ getWeather.data?.current.temp ?? "" }}',
+        }),
+        node({
+          widgetId: "img1",
+          widgetName: "Photo",
+          type: "IMAGE_WIDGET",
+          image: '{{ getProfile.data?.avatarUrl ?? "" }}',
+        }),
+        node({
+          widgetId: "t2",
+          widgetName: "Whole",
+          type: "TEXT_WIDGET",
+          text: '{{ getDay.data ?? "" }}',
+        }),
+      ],
+    });
+    const widgets = projectSemanticPage(dsl).widgets;
+    const temp = widgets.find((w) => w.name === "Temp")!;
+    const photo = widgets.find((w) => w.name === "Photo")!;
+    const whole = widgets.find((w) => w.name === "Whole")!;
+
+    expect(temp.bindings).toEqual({
+      text: { query: "getWeather", field: "current.temp" },
+    });
+    expect(photo.bindings).toEqual({
+      image: { query: "getProfile", field: "avatarUrl" },
+    });
+    expect(whole.bindings).toEqual({ text: { query: "getDay" } });
+  });
+
   it("flattens containers and retains the immediate parent name", () => {
     const dsl = node({
       widgetId: "root",

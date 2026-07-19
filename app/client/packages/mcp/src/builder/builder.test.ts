@@ -498,6 +498,94 @@ describe("compileApp — import artifact contract", () => {
     ).toThrow(/cannot set both 'text' and 'source'/);
   });
 
+  it("binds a text and an image to a query response field (scalar display bindings)", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "text",
+                name: "Temperature",
+                source: { query: "getWeather", field: "current.temp" },
+              },
+              { type: "text", name: "WholeBody", source: { query: "getDay" } },
+              {
+                type: "image",
+                name: "Photo",
+                source: { query: "getProfile", field: "avatarUrl" },
+              },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const children = rootOf(artifact).children as WidgetNode[];
+    const temperature = children.find((w) => w.widgetName === "Temperature")!;
+    const wholeBody = children.find((w) => w.widgetName === "WholeBody")!;
+    const photo = children.find((w) => w.widgetName === "Photo")!;
+
+    // Optional chaining + `?? ""` keeps the widget blank before the query has run.
+    expect(temperature.text).toBe('{{ getWeather.data?.current.temp ?? "" }}');
+    expect(temperature.dynamicBindingPathList).toEqual([{ key: "text" }]);
+    expect(wholeBody.text).toBe('{{ getDay.data ?? "" }}');
+    expect(photo.image).toBe('{{ getProfile.data?.avatarUrl ?? "" }}');
+    expect(photo.dynamicBindingPathList).toEqual([{ key: "image" }]);
+  });
+
+  it("rejects an image widget setting both image and source", () => {
+    expect(() =>
+      compileApp(
+        {
+          name: "App",
+          pages: [
+            {
+              name: "Home",
+              widgets: [
+                {
+                  type: "image",
+                  image: "https://example.com/x.png",
+                  source: { query: "getProfile", field: "avatarUrl" },
+                },
+              ],
+            },
+          ],
+        },
+        ids(),
+      ),
+    ).toThrow(/cannot set both 'image' and 'source'/);
+  });
+
+  it("schema rejects injection through query-field refs", () => {
+    const cases = [
+      { query: "get(); evil//", field: "a" },
+      { query: "getX", field: "a{{evil}}" },
+      { query: "getX", field: 'a"b' },
+      { query: "getX", field: "a b" },
+      // Malformed dotted paths would compile to a JS syntax error in the eval worker.
+      { query: "getX", field: "a." },
+      { query: "getX", field: "a..b" },
+      { query: "getX", field: ".a" },
+    ];
+
+    for (const source of cases) {
+      expect(
+        appSpecSchema.safeParse({
+          name: "App",
+          pages: [
+            {
+              name: "Home",
+              widgets: [{ type: "text", source }],
+            },
+          ],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("schema rejects injection through selected-row refs", () => {
     const cases = [
       { table: "Users']; evil()//", column: "email" },

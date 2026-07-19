@@ -150,6 +150,128 @@ describe("applyWidgetPatch", () => {
     expect(image.dynamicBindingPathList).toEqual([{ key: "image" }]);
   });
 
+  it("binds a text's content and an image's src to a query response field via patch", () => {
+    const withBoth = page();
+
+    withBoth.children!.push(
+      node({ widgetId: "txt1", widgetName: "Temp", type: "TEXT_WIDGET" }),
+      node({ widgetId: "img1", widgetName: "Photo", type: "IMAGE_WIDGET" }),
+    );
+    const { dsl } = applyWidgetPatch(withBoth, {
+      operations: [
+        {
+          kind: "update",
+          name: "Temp",
+          props: { source: { query: "getWeather", field: "current.temp" } },
+        },
+        {
+          kind: "update",
+          name: "Photo",
+          props: { imageSource: { query: "getProfile", field: "avatarUrl" } },
+        },
+      ],
+    });
+    const text = dsl.children!.find((w) => w.widgetName === "Temp")!;
+    const image = dsl.children!.find((w) => w.widgetName === "Photo")!;
+
+    expect(text.text).toBe('{{ getWeather.data?.current.temp ?? "" }}');
+    expect(text.dynamicBindingPathList).toEqual([{ key: "text" }]);
+    expect(image.image).toBe('{{ getProfile.data?.avatarUrl ?? "" }}');
+    expect(image.dynamicBindingPathList).toEqual([{ key: "image" }]);
+  });
+
+  it("rejects a query-ref source on a non-text widget", () => {
+    const withTable = page();
+
+    withTable.children!.push(
+      node({ widgetId: "t1", widgetName: "Results", type: "TABLE_WIDGET_V2" }),
+    );
+
+    expect(() =>
+      applyWidgetPatch(withTable, {
+        operations: [
+          {
+            kind: "update",
+            name: "Results",
+            props: { source: { query: "getUsers" } },
+          },
+        ],
+      }),
+    ).toThrow(/can only be set on a TEXT_WIDGET/);
+  });
+
+  it("binds whole-response query refs (no field) via patch on text and image", () => {
+    const withBoth = page();
+
+    withBoth.children!.push(
+      node({ widgetId: "txt1", widgetName: "Day", type: "TEXT_WIDGET" }),
+      node({ widgetId: "img1", widgetName: "Pic", type: "IMAGE_WIDGET" }),
+    );
+    const { dsl } = applyWidgetPatch(withBoth, {
+      operations: [
+        {
+          kind: "update",
+          name: "Day",
+          props: { source: { query: "getDay" } },
+        },
+        {
+          kind: "update",
+          name: "Pic",
+          props: { imageSource: { query: "getPic" } },
+        },
+      ],
+    });
+
+    expect(dsl.children!.find((w) => w.widgetName === "Day")!.text).toBe(
+      '{{ getDay.data ?? "" }}',
+    );
+    expect(dsl.children!.find((w) => w.widgetName === "Pic")!.image).toBe(
+      '{{ getPic.data ?? "" }}',
+    );
+  });
+
+  it("clears the stale dynamic path when a literal text replaces a query-field binding", () => {
+    const withText = page();
+
+    withText.children!.push(
+      node({ widgetId: "txt1", widgetName: "Temp", type: "TEXT_WIDGET" }),
+    );
+    const { dsl: bound } = applyWidgetPatch(withText, {
+      operations: [
+        {
+          kind: "update",
+          name: "Temp",
+          props: { source: { query: "getWeather", field: "temp" } },
+        },
+      ],
+    });
+    const { dsl } = applyWidgetPatch(bound, {
+      operations: [
+        { kind: "update", name: "Temp", props: { text: "static again" } },
+      ],
+    });
+    const text = dsl.children!.find((w) => w.widgetName === "Temp")!;
+
+    expect(text.text).toBe("static again");
+    expect(text.dynamicBindingPathList).toEqual([]);
+  });
+
+  it("rejects a mixed selected-row/query ref object", () => {
+    expect(
+      widgetPatchSchema.safeParse({
+        operations: [
+          {
+            kind: "update",
+            name: "Temp",
+            props: {
+              source: { table: "Users", column: "email", query: "getUsers" },
+            },
+          },
+        ],
+      }).success,
+    ).toBe(false);
+  });
+
   it("clears the stale dynamic path when a literal image replaces an imageSource binding", () => {
     const withImage = page();
 

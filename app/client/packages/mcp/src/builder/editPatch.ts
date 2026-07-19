@@ -21,14 +21,17 @@ import { containsModal, hostModalOf, PAGE_HOST } from "./modalGraph.js";
 import {
   compileDisableWhenInvalid,
   compileInputValidation,
+  compileQueryFieldBinding,
   compileSelectedRowBinding,
   compileTableDataBinding,
   compileVisibleWhenBinding,
   inputValidationSchema,
+  queryFieldRefSchema,
   selectedRowRefSchema,
   tableDataBindingSchema,
   visibleWhenRefSchema,
   type InputValidationRef,
+  type QueryFieldRef,
   type SelectedRowRef,
   type TableDataBinding,
   type VisibleWhenRef,
@@ -90,10 +93,14 @@ const optionSchema = z
 export const widgetPropsPatchSchema = z
   .object({
     text: safeText(10_000).optional(),
-    source: selectedRowRefSchema.optional(),
+    // Text content: a selected-row ref (detail views) OR a query-field ref (scalar readouts).
+    source: z.union([selectedRowRefSchema, queryFieldRefSchema]).optional(),
     defaultValue: selectedRowRefSchema.optional(),
-    // Bind an image's src to a column of a table's selected row (e.g. an employee photo in a detail panel).
-    imageSource: selectedRowRefSchema.optional(),
+    // Bind an image's src to a column of a table's selected row (e.g. an employee photo in a detail panel) OR
+    // to a field of a query's response.
+    imageSource: z
+      .union([selectedRowRefSchema, queryFieldRefSchema])
+      .optional(),
     // Gate a widget's visibility on a control's value — e.g. show a table when a view toggle equals "Table" and a
     // detail panel when it equals "Details", so one control switches views. Compiled to isVisible.
     visibleWhen: visibleWhenRefSchema.optional(),
@@ -372,6 +379,31 @@ function applySelectedRowBinding(
   registerDynamicBinding(node, expected.property);
 }
 
+// A scalar display slot (text's content, image's src) accepts EITHER a selected-row ref or a query-field ref;
+// the strict object shapes discriminate by key. Selected-row refs get the dangling-table guard; query refs
+// compile directly (queries live outside the widget map, matching applyTableDataBinding's posture).
+function applyScalarDisplayBinding(
+  widgets: Map<string, LocatedWidget>,
+  node: WidgetNode,
+  ref: SelectedRowRef | QueryFieldRef,
+  expected: { widgetType: string; property: string; field: string },
+): void {
+  if ("table" in ref) {
+    applySelectedRowBinding(widgets, node, ref, expected);
+
+    return;
+  }
+
+  if (node.type !== expected.widgetType) {
+    throw new Error(
+      `'${expected.field}' can only be set on a ${expected.widgetType} ("${node.widgetName}" is ${node.type})`,
+    );
+  }
+
+  node[expected.property] = compileQueryFieldBinding(ref);
+  registerDynamicBinding(node, expected.property);
+}
+
 // Re-bind a table's data to a query (optionally clear-when-empty) or to a store key (M5). Type-checks the target,
 // verifies the guard input exists, emits the binding from the closed vocabulary, and registers the dynamic path.
 // The agent never supplies expression text.
@@ -591,7 +623,7 @@ export function applyWidgetPatch(
       }
 
       if (source !== undefined) {
-        applySelectedRowBinding(widgets, located.node, source, {
+        applyScalarDisplayBinding(widgets, located.node, source, {
           widgetType: "TEXT_WIDGET",
           property: "text",
           field: "source",
@@ -607,7 +639,7 @@ export function applyWidgetPatch(
       }
 
       if (imageSource !== undefined) {
-        applySelectedRowBinding(widgets, located.node, imageSource, {
+        applyScalarDisplayBinding(widgets, located.node, imageSource, {
           widgetType: "IMAGE_WIDGET",
           property: "image",
           field: "imageSource",

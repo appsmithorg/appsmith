@@ -1,6 +1,7 @@
 import {
   compileChartDataBinding,
   compileInputValidation,
+  compileQueryFieldBinding,
   compileSelectedRowBinding,
   compileTableDataBinding,
   type WidgetSpec,
@@ -46,12 +47,15 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
         throw new Error("text cannot set both 'text' and 'source'");
       }
 
-      // Two safe origins: a static literal, or a compiler-emitted selected-row binding (detail views). The binding
-      // is registered as a dynamic path; the static literal never is.
+      // Three safe origins: a static literal, a compiler-emitted selected-row binding (detail views), or a
+      // compiler-emitted query-field binding (scalar readouts). Bindings are registered as dynamic paths; the
+      // static literal never is. The strict ref shapes discriminate by key ("table" vs "query").
       const bound = source !== undefined;
-      const text = bound
-        ? compileSelectedRowBinding(source)
-        : staticText ?? "Text";
+      const text = !bound
+        ? staticText ?? "Text"
+        : "table" in source
+          ? compileSelectedRowBinding(source)
+          : compileQueryFieldBinding(source);
 
       return {
         footprint: { columns: 24, rows: 4 },
@@ -213,7 +217,19 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
     version: 1,
     footprint: { columns: 16, rows: 24 },
     build: (spec) => {
-      const image = spec.type === "image" ? spec.image ?? "" : "";
+      const source = spec.type === "image" ? spec.source : undefined;
+      const staticImage = spec.type === "image" ? spec.image : undefined;
+
+      if (source !== undefined && staticImage !== undefined) {
+        throw new Error("image cannot set both 'image' and 'source'");
+      }
+
+      // Two safe origins, mirroring text: a static literal URL, or a compiler-emitted query-field binding
+      // registered as a dynamic path.
+      const bound = source !== undefined;
+      const image = bound
+        ? compileQueryFieldBinding(source)
+        : staticImage ?? "";
 
       return {
         footprint: { columns: 16, rows: 24 },
@@ -226,6 +242,7 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
           enableRotation: false,
           enableDownload: false,
           animateLoading: true,
+          dynamicBindingPathList: bound ? [{ key: "image" }] : [],
         },
       };
     },

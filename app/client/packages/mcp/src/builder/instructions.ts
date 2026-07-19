@@ -97,9 +97,15 @@ evaluated as code in a viewer's browser.
 - IMPORTANT — the same table binding has a DIFFERENT prop name on each path:
   - Creating a table (\`build_application\` / \`edit_page\` spec): \`source: { query: "getUsers" }\`.
   - Patching an EXISTING table (\`patch_widgets\` update props): \`tableData: { query: "getUsers" }\`.
-  On \`patch_widgets\`, \`source\` means a selected-row display binding (\`{ table, column }\`) —
-  passing \`source: { query }\` there is rejected. \`read_semantic_page\` reports the binding back
-  as \`tableData\`, matching the patch name.
+  On \`patch_widgets\`, rebinding a TABLE always uses \`tableData\` — \`source\` there is a
+  text/image display binding (selected-row \`{ table, column }\` or scalar query readout
+  \`{ query, field }\`) and is rejected on a table. \`read_semantic_page\` reports a table's
+  binding back as \`tableData\`, matching the patch name.
+- Scalar readouts (query -> text/image): show ONE field of a query's response directly, no table
+  needed — \`{ "type": "text", "source": { "query": "getWeather", "field": "current.temp" } }\`,
+  \`{ "type": "image", "source": { "query": "getProfile", "field": "avatarUrl" } }\`. Omit \`field\`
+  to show the whole response body. On \`patch_widgets\` the same ref goes on \`source\` (text) or
+  \`imageSource\` (image). A text/image sets its literal (\`text\`/\`image\`) OR \`source\`, never both.
 - Display bindings (selected row): show or prefill from the table's selected row through the
   same structured-reference rule:
   - Detail text: \`{ "type": "text", "source": { "table": "Users", "column": "email" } }\`.
@@ -455,7 +461,7 @@ Recommended workflow for a production-quality app:
 2. Create the app: build_application(workspaceId, appSpec). Widgets: text, input, select, button, image, table, container, form, modal, datepicker, chart, tabs, list. Inputs support named-format validation; tables support a query 'source' (optionally clear-when-empty). 'list' renders a card grid (image + title + subtitle) bound to a query 'source' — point it at the same query as a table for a shared table/cards view (a query is required; there is no static-data card grid). The new app is auto-deployed on creation and the response includes an editorUrl and viewerUrl for the default page — that first deployed copy is only a scaffold until re-published, so don't hand out the viewer link yet.
 3. Add data (if listed by get_capabilities): create_datasource (DB or REST, no credentials) -> create_query / create_rest_api -> bind a table to it, and bind detail widgets to the selected row.
 4. Inspect and refine with read_semantic_page / inspect_page, then patch_widgets: bind a table's data, a text/image/input to the selected row (source / imageSource / defaultValue), toggle table search/filter/sort/pagination, set row striping, add input validation, disable a button while an input is invalid, and move/reparent/remove widgets. To switch between views (e.g. a table and a detail panel) with one control, gate each view's visibility on a select/tabs control (visibleWhen). Append new widgets with edit_page.
-5. Wire behavior: wire_event connects button onClick / table onRowSelected / modal onClose / tabs onTabSelected to run a query (with onSuccess/onError chains), navigate, show/close a modal, show an alert, reset widgets (a Clear button), or accumulate query rows in the Appsmith store (appendToStore / clearStoreKey — bind a table to the key with a store source/tableData for a results table that grows with each run; rows are session-only). The action may also be an ordered list of 2-5 statements (at most one run).
+5. Wire behavior: wire_event connects button onClick / table onRowSelected / modal onClose / tabs onTabSelected / select onOptionChange / input onSubmit / checkbox onCheckChange / switch onChange / datepicker onDateSelected to run a query (with onSuccess/onError chains), navigate, show/close a modal, show an alert, reset widgets (a Clear button), or accumulate query rows in the Appsmith store (appendToStore / clearStoreKey — bind a table to the key with a store source/tableData for a results table that grows with each run; rows are session-only). The action may also be an ordered list of 2-5 statements (at most one run).
 6. Add JS logic (if listed): create_js_object for restricted, declarative JS objects.
 7. Ship it LAST: finish wiring queries and events first — the copy auto-deployed at creation is a scaffold that goes stale as you edit. Then re-publish with prepare_publish -> confirm_publish (governed) and hand the user the viewerUrl as the final step. On deployments without governance, re-publishing is unavailable: relay the editorUrl from build_application plus the governance group's 'requires' instruction from get_capabilities instead of promising an up-to-date viewer link. GIT-APP CARVE-OUT: for a git-connected app the final deliverable is the mcp/ branch plus its branch-scoped review URL from confirm_commit, NOT a viewerUrl — publish refuses git apps.
 

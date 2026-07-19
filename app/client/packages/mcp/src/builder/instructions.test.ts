@@ -126,6 +126,19 @@ describe("M5 store accumulation — docs stay in sync with the vocabulary", () =
     expect(body).toContain("SESSION-ONLY");
   });
 
+  it("teaches scalar query readouts (text/image) in the bindings guide without contradiction", () => {
+    const bindings = GUIDES.find((guide) => guide.slug === "bindings")!;
+    const body = bindings.render();
+
+    expect(body).toContain("Scalar readouts");
+    expect(body).toContain(
+      '{ "query": "getWeather", "field": "current.temp" }',
+    );
+    expect(body).toContain("imageSource");
+    // The old table-path bullet must stay scoped to tables, not claim source:{query} is always rejected.
+    expect(body).not.toMatch(/passing `source: \{ query \}` there is rejected/);
+  });
+
   it("ships the originating ZIP-lookup app as a worked recipe (exact wiring)", () => {
     const recipe = RECIPES.find((doc) => doc.slug === "zip-lookup")!;
     const body = recipe.render();

@@ -158,6 +158,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 // hidden, preserving the projection's no-raw-bindings guarantee.
 const SELECTED_ROW_BINDING =
   /^\{\{ ([A-Za-z0-9_]+)\.selectedRow\["([A-Za-z0-9_ ]+)"\] \}\}$/;
+// Matches the compiler's scalar query-field binding: `{{ Query.data ?? "" }}` / `{{ Query.data?.field ?? "" }}`.
+const QUERY_FIELD_BINDING =
+  /^\{\{ ([A-Za-z0-9_]+)\.data(?:\?\.([A-Za-z0-9_.]+))? \?\? "" \}\}$/;
 // Matches the compiler's table-source binding: `{{ Query.data ?? [] }}` or `{{ Query.data?.field ?? [] }}`.
 const QUERY_DATA_BINDING =
   /^\{\{ ([A-Za-z0-9_]+)\.data(?:\?\.([A-Za-z0-9_.]+))? \?\? \[\] \}\}$/;
@@ -175,14 +178,25 @@ function safeBindings(
 ): Record<string, SemanticBindingRef> | undefined {
   const bindings: Record<string, SemanticBindingRef> = {};
 
-  for (const key of ["text", "defaultText"] as const) {
+  for (const key of ["text", "defaultText", "image"] as const) {
     const value = node[key];
 
     if (typeof value !== "string") continue;
 
     const match = SELECTED_ROW_BINDING.exec(value);
 
-    if (match) bindings[key] = { table: match[1], column: match[2] };
+    if (match) {
+      bindings[key] = { table: match[1], column: match[2] };
+      continue;
+    }
+
+    const queryField = QUERY_FIELD_BINDING.exec(value);
+
+    if (queryField) {
+      bindings[key] = queryField[2]
+        ? { query: queryField[1], field: queryField[2] }
+        : { query: queryField[1] };
+    }
   }
 
   if (typeof node.tableData === "string") {

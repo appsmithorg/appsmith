@@ -108,7 +108,9 @@ export const responseFieldPath = z
   .min(1)
   .max(128)
   .regex(
-    /^[A-Za-z_][A-Za-z0-9_.]*$/,
+    // Dot-SEPARATED identifiers only: a trailing or doubled dot would compile to a JS syntax error in the
+    // eval worker (broken widget), so the shape is validated here, not just the charset [COUNCIL: B1 security].
+    /^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/,
     "field must be a dotted identifier path (e.g. 'places' or 'data.items')",
   );
 
@@ -263,6 +265,25 @@ export function compileInputValidation(ref: InputValidationRef): {
 // to verify the referenced input's existence and type — not on the build-time widget spec.
 export function compileDisableWhenInvalid(input: string): string {
   return `{{ !${input}.isValid }}`;
+}
+
+// A structured reference binding one field of a query's response to a SCALAR display slot (a text's content, an
+// image's src) — the single-value sibling of tableDataRefSchema. Same strict identifier charsets, same emitter
+// discipline: `{{ <query>.data?.<field> ?? "" }}`, blank until the query has run.
+export const queryFieldRefSchema = z
+  .object({ query: bindingIdentifier, field: responseFieldPath.optional() })
+  .strict();
+
+export type QueryFieldRef = z.infer<typeof queryFieldRefSchema>;
+
+// The single emitter for scalar query-field display bindings. Both parts are schema-validated identifier paths, so
+// the emitted expression cannot be broken out of. `?? ""` keeps the widget blank before the query has run.
+export function compileQueryFieldBinding(ref: QueryFieldRef): string {
+  const dataPath = ref.field
+    ? `${ref.query}.data?.${ref.field}`
+    : `${ref.query}.data`;
+
+  return `{{ ${dataPath} ?? "" }}`;
 }
 
 // A structured reference to one column of a table's selected row — the display-binding half of the CRUD loop
@@ -431,10 +452,11 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         type: z.literal("text"),
         name: nameField,
         text: safeText(10000).optional(),
-        // Display binding: show one column of a table's selected row (detail views). Compiler-emitted; mutually
+        // Display binding: one column of a table's selected row (detail views) OR one field of a query's
+        // response (scalar readouts — "show the temperature from this API"). Both compiler-emitted; mutually
         // exclusive with static `text` (enforced in the template — a .refine here would break the discriminated
-        // union, same as table data/source).
-        source: selectedRowRefSchema.optional(),
+        // union, same as table data/source). The strict object shapes discriminate the union by key.
+        source: z.union([selectedRowRefSchema, queryFieldRefSchema]).optional(),
         placement: placementSchema.optional(),
       })
       .strict(),
@@ -479,6 +501,9 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         type: z.literal("image"),
         name: nameField,
         image: safeText(2000).optional(),
+        // Display binding: the image src from one field of a query's response. Compiler-emitted; mutually
+        // exclusive with the static `image` (enforced in the template, like text's text/source).
+        source: queryFieldRefSchema.optional(),
         placement: placementSchema.optional(),
       })
       .strict(),
@@ -656,7 +681,7 @@ export type WidgetSpec =
       type: "text";
       name?: string;
       text?: string;
-      source?: SelectedRowRef;
+      source?: SelectedRowRef | QueryFieldRef;
       placement?: PlacementSpec;
     }
   | {
@@ -683,7 +708,13 @@ export type WidgetSpec =
       onClick?: { run: string };
       placement?: PlacementSpec;
     }
-  | { type: "image"; name?: string; image?: string; placement?: PlacementSpec }
+  | {
+      type: "image";
+      name?: string;
+      image?: string;
+      source?: QueryFieldRef;
+      placement?: PlacementSpec;
+    }
   | {
       type: "table";
       name?: string;
