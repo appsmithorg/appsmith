@@ -43,6 +43,10 @@ export const WIDGET_TYPES = [
   "mapchart",
   "singleselecttree",
   "multiselecttree",
+  "iframe",
+  "video",
+  "audio",
+  "documentviewer",
 ] as const;
 
 export type WidgetType = (typeof WIDGET_TYPES)[number];
@@ -99,6 +103,60 @@ function safeText(max: number) {
     .refine((value) => !RAW_EXPRESSION.test(value), {
       message:
         "must not contain binding/template syntax ({{ }}, ${ }, or backticks)",
+    });
+}
+
+// A validated external URL for the media/embed widgets (iframe/video/audio/documentviewer). The URL is emitted as a
+// literal widget prop that the viewer's browser loads directly (iframe src, <video>/<audio> src, PDF viewer). It is
+// NEVER fetched server-side, so there is no SSRF surface here — the risk is a non-http scheme becoming executable in
+// the app origin. So the gate is strict and allowlist-based:
+//   - must parse as an absolute URL;
+//   - scheme MUST be http/https (blocks javascript:, data:, vbscript:, file:, blob:, about: — i.e. no code/URI
+//     execution and no inline payloads);
+//   - no embedded credentials (user:pass@) — those would leak into the DSL and the request;
+//   - still runs the RAW_EXPRESSION gate so a URL can never carry `{{ }}`/backtick binding syntax.
+// Raw HTML authoring (iframe srcDoc) is intentionally NOT exposed — agents never author markup.
+function safeUrl(max = 2000) {
+  return z
+    .string()
+    .min(1)
+    .max(max)
+    .superRefine((value, ctx) => {
+      if (RAW_EXPRESSION.test(value)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "URL must not contain binding/template syntax",
+        });
+
+        return;
+      }
+
+      let url: URL;
+
+      try {
+        url = new URL(value);
+      } catch {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "must be an absolute http(s) URL",
+        });
+
+        return;
+      }
+
+      if (url.protocol !== "http:" && url.protocol !== "https:") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "URL scheme must be http or https",
+        });
+      }
+
+      if (url.username !== "" || url.password !== "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "URL must not embed credentials",
+        });
+      }
     });
 }
 
@@ -1316,6 +1374,44 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         placement: placementSchema.optional(),
       })
       .strict(),
+    z
+      .object({
+        type: z.literal("iframe"),
+        name: nameField,
+        // The embedded page URL (http/https only; srcDoc/raw HTML is deliberately unsupported).
+        source: safeUrl(),
+        // A caption shown above the frame.
+        title: safeText(200).optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("video"),
+        name: nameField,
+        url: safeUrl(),
+        autoPlay: z.boolean().optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("audio"),
+        name: nameField,
+        url: safeUrl(),
+        autoPlay: z.boolean().optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("documentviewer"),
+        name: nameField,
+        // A URL to a PDF/DOCX/etc. rendered by the viewer.
+        url: safeUrl(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
   ]),
 );
 
@@ -1637,6 +1733,33 @@ export type WidgetSpec =
       options?: TreeOption[];
       defaultSelected?: string[];
       expandAll?: boolean;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "iframe";
+      name?: string;
+      source: string;
+      title?: string;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "video";
+      name?: string;
+      url: string;
+      autoPlay?: boolean;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "audio";
+      name?: string;
+      url: string;
+      autoPlay?: boolean;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "documentviewer";
+      name?: string;
+      url: string;
       placement?: PlacementSpec;
     };
 

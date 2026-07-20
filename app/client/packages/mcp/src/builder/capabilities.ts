@@ -326,6 +326,38 @@ export const WIDGET_CATALOG = [
     purpose: "A dropdown that picks several nodes from a hierarchy.",
   },
   {
+    type: "iframe",
+    fields: {
+      source:
+        "required http(s) URL to embed (raw HTML/srcDoc is not supported)",
+      title: "string caption shown above the frame",
+    },
+    purpose: "Embed an external web page.",
+  },
+  {
+    type: "video",
+    fields: {
+      url: "required http(s) URL to the video",
+      autoPlay: "boolean — start playing on load (default false)",
+    },
+    purpose: "Play a video from a URL.",
+  },
+  {
+    type: "audio",
+    fields: {
+      url: "required http(s) URL to the audio",
+      autoPlay: "boolean — start playing on load (default false)",
+    },
+    purpose: "Play audio from a URL.",
+  },
+  {
+    type: "documentviewer",
+    fields: {
+      url: "required http(s) URL to a PDF/DOCX/etc.",
+    },
+    purpose: "Render a document (PDF, DOCX, ...) from a URL.",
+  },
+  {
     type: "chart",
     fields: {
       title: "string",

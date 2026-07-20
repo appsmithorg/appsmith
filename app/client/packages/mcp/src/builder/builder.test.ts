@@ -841,6 +841,89 @@ describe("compileApp — import artifact contract", () => {
     }
   });
 
+  it("compiles the W2 media/embed widgets with validated http(s) URLs", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "iframe",
+                name: "Site",
+                source: "https://example.com/embed",
+                title: "Embedded",
+              },
+              {
+                type: "video",
+                name: "Clip",
+                url: "https://cdn.example.com/a.mp4",
+                autoPlay: true,
+              },
+              {
+                type: "audio",
+                name: "Tune",
+                url: "http://cdn.example.com/b.mp3",
+              },
+              {
+                type: "documentviewer",
+                name: "Doc",
+                url: "https://example.com/report.pdf",
+              },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const children = rootOf(artifact).children as WidgetNode[];
+    const by = (name: string) => children.find((w) => w.widgetName === name)!;
+
+    expect(by("Site").type).toBe("IFRAME_WIDGET");
+    expect(by("Site").source).toBe("https://example.com/embed");
+    expect(by("Clip").type).toBe("VIDEO_WIDGET");
+    expect(by("Clip").autoPlay).toBe(true);
+    expect(by("Tune").type).toBe("AUDIO_WIDGET");
+    expect(by("Doc").type).toBe("DOCUMENT_VIEWER_WIDGET");
+    expect(by("Doc").docUrl).toBe("https://example.com/report.pdf");
+  });
+
+  it("rejects dangerous media URLs (non-http scheme, credentials, missing, binding)", () => {
+    const bad = [
+      // javascript: URI would execute in the app origin — the core threat this gate blocks.
+      { type: "iframe", source: "javascript:alert(document.cookie)" },
+      { type: "iframe", source: "data:text/html,<script>alert(1)</script>" },
+      { type: "video", url: "file:///etc/passwd" },
+      { type: "audio", url: "vbscript:msgbox(1)" },
+      // Embedded credentials would leak into the DSL and the request.
+      { type: "video", url: "https://user:pass@example.com/a.mp4" },
+      // Not a URL at all.
+      { type: "documentviewer", url: "not a url" },
+      // Binding syntax must never survive into a URL prop.
+      { type: "iframe", source: "https://example.com/{{Query1.data}}" },
+      // The URL is required.
+      { type: "iframe", title: "no source" },
+      // WHATWG-normalization guarantees (council regression pins): leading/mid-scheme whitespace and case
+      // variants of javascript:, protocol-relative, and other non-http schemes must all still be rejected.
+      { type: "iframe", source: "\tjavascript:alert(1)" },
+      { type: "iframe", source: "JavaScript:alert(1)" },
+      { type: "iframe", source: "java\tscript:alert(1)" },
+      { type: "iframe", source: "//evil.com/embed" },
+      { type: "documentviewer", url: "mailto:a@b.com" },
+      { type: "video", url: "ftp://example.com/a.mp4" },
+    ];
+
+    for (const widget of bad) {
+      expect(
+        appSpecSchema.safeParse({
+          name: "App",
+          pages: [{ name: "Home", widgets: [widget] }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("compiles selected-row display bindings for text and input", () => {
     const artifact = compileApp(
       {

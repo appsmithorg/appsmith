@@ -83,6 +83,10 @@ const DEFAULT_BASE_NAME: Record<WidgetType, string> = {
   mapchart: "MapChart",
   singleselecttree: "SingleSelectTree",
   multiselecttree: "MultiSelectTree",
+  iframe: "Iframe",
+  video: "Video",
+  audio: "Audio",
+  documentviewer: "DocumentViewer",
 };
 
 interface CompileContext {

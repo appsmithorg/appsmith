@@ -1351,4 +1351,70 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
       };
     },
   },
+  iframe: {
+    appsmithType: "IFRAME_WIDGET",
+    version: 1,
+    footprint: { columns: 24, rows: 32 },
+    build: (spec) => {
+      const s = spec.type === "iframe" ? spec : undefined;
+
+      return {
+        footprint: { columns: 24, rows: 32 },
+        props: {
+          // A schema-validated http(s) URL literal (no srcDoc/raw HTML is ever emitted).
+          source: s?.source ?? "",
+          title: s?.title ?? "",
+          isVisible: true,
+        },
+      };
+    },
+  },
+  video: {
+    appsmithType: "VIDEO_WIDGET",
+    version: 1,
+    footprint: { columns: 24, rows: 28 },
+    build: (spec) => {
+      const s = spec.type === "video" ? spec : undefined;
+
+      return {
+        footprint: { columns: 24, rows: 28 },
+        props: {
+          url: s?.url ?? "",
+          autoPlay: s?.autoPlay ?? false,
+          backgroundColor: "#000",
+        },
+      };
+    },
+  },
+  audio: {
+    appsmithType: "AUDIO_WIDGET",
+    version: 1,
+    footprint: { columns: 28, rows: 4 },
+    build: (spec) => {
+      const s = spec.type === "audio" ? spec : undefined;
+
+      return {
+        footprint: { columns: 28, rows: 4 },
+        props: {
+          url: s?.url ?? "",
+          autoPlay: s?.autoPlay ?? false,
+        },
+      };
+    },
+  },
+  documentviewer: {
+    appsmithType: "DOCUMENT_VIEWER_WIDGET",
+    version: 1,
+    footprint: { columns: 24, rows: 40 },
+    build: (spec) => {
+      const s = spec.type === "documentviewer" ? spec : undefined;
+
+      return {
+        footprint: { columns: 24, rows: 40 },
+        props: {
+          docUrl: s?.url ?? "",
+        },
+      };
+    },
+  },
 };
