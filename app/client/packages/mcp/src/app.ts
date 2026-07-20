@@ -93,6 +93,11 @@ import {
   s3QuerySpecSchema,
 } from "./builder/s3Query.js";
 import {
+  buildGraphqlActionDto,
+  compileGraphqlQuery,
+  graphqlQuerySpecSchema,
+} from "./builder/graphqlQuery.js";
+import {
   buildRestActionDto,
   compileRestApi,
   restApiSpecSchema,
@@ -849,6 +854,9 @@ const REDIS_PLUGIN_IDS = new Set(["redis-plugin"]);
 // D4: create_s3_query emits the S3 plugin's file-action formData. Like Sheets/Redis/AI, the S3 datasource is created
 // + credential-authorized in the Appsmith UI and queried here by datasourceId.
 const S3_PLUGIN_IDS = new Set(["amazons3-plugin"]);
+// D4: create_graphql_query emits the GraphQL plugin's REST-POST action (operation body + parameterized variables).
+// Like the others, the GraphQL datasource is created + authorized in the Appsmith UI and queried here by datasourceId.
+const GRAPHQL_PLUGIN_IDS = new Set(["graphql-plugin"]);
 // D5: create_ai_query emits the chat formData for the OpenAI / Anthropic / Google AI plugins (appsmithAi is excluded
 // per product decision). Like Sheets/Redis, the AI datasource is created + api-key-authorized in the Appsmith UI and
 // queried here by datasourceId. The supported providers (and their per-provider formData quirks) live in
@@ -1072,6 +1080,19 @@ function isS3Datasource(
   datasourceId: string,
 ): boolean {
   return datasourceInPluginFamily(list, plugins, datasourceId, S3_PLUGIN_IDS);
+}
+
+function isGraphqlDatasource(
+  list: unknown,
+  plugins: unknown,
+  datasourceId: string,
+): boolean {
+  return datasourceInPluginFamily(
+    list,
+    plugins,
+    datasourceId,
+    GRAPHQL_PLUGIN_IDS,
+  );
 }
 
 function datasourcePackageName(
@@ -5231,6 +5252,81 @@ export function buildMcpServer(
           command: compiled.command,
           action: created,
         });
+      },
+    );
+
+    server.tool(
+      "create_graphql_query",
+      "Create a GraphQL query/mutation on an existing GraphQL datasource from a STRUCTURED spec. Pass { applicationId, pageId, datasourceId, name, query, variables? }. query is the GraphQL operation string (must start with '{', 'query', 'mutation', or 'subscription'); it is gated so it can never carry an Appsmith {{ }} binding. Runtime data enters ONLY through variables: [{ name, value }] where value is { literal } or { widget, property } — the query references $name and each value binds as a smart-substitution parameter (never string-concatenated into the query). MCP never creates a GraphQL datasource (create + authorize it in the Appsmith UI, then find it with list_datasources). Idempotent by page + name. NOTE: the emitted GraphQL action config is PROVISIONAL — modeled from Appsmith's GraphQL plugin form but not yet verified end-to-end against a live datasource; validate in your instance before relying on it.",
+      {
+        query: z.record(z.unknown()),
+        branch: gitBranchParamSchema.optional(),
+      },
+      async ({ branch, query }) => {
+        const parsed = graphqlQuerySpecSchema.safeParse(query);
+
+        if (!parsed.success) return validationError(parsed.error.issues);
+
+        const spec = parsed.data;
+
+        const gate = await gitBranchGate(spec.applicationId, branch);
+
+        if (!gate.ok) return gate.result;
+
+        const workspaceId = workspaceIdFromApplicationPages(
+          await api.getApplicationPages(spec.applicationId),
+        );
+
+        if (typeof workspaceId !== "string") {
+          return result({
+            error: `could not resolve the workspace for application ${spec.applicationId}`,
+          });
+        }
+
+        const datasources = await api.listDatasources(workspaceId);
+
+        if (!datasourceAccessible(datasources, spec.datasourceId)) {
+          return result({
+            error: `datasource ${spec.datasourceId} is not accessible in this application's workspace`,
+          });
+        }
+
+        const plugins = await api.listPlugins(workspaceId);
+
+        if (!isGraphqlDatasource(datasources, plugins, spec.datasourceId)) {
+          return result({
+            error:
+              "create_graphql_query requires an existing GraphQL datasource",
+          });
+        }
+
+        const existing = findExistingAction(
+          await api.listActions(spec.applicationId),
+          spec.name,
+          spec.pageId,
+        );
+
+        if (existing !== undefined) {
+          return result({
+            created: false,
+            reason: "a query with this name already exists on this page",
+            action: existing,
+          });
+        }
+
+        let compiled: ReturnType<typeof compileGraphqlQuery>;
+
+        try {
+          compiled = compileGraphqlQuery(spec);
+        } catch (error) {
+          return compileError(error);
+        }
+
+        const created = await api.createAction(
+          buildGraphqlActionDto(spec, compiled),
+        );
+
+        return result({ created: true, action: created });
       },
     );
 

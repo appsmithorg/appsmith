@@ -621,6 +621,11 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
       summary: "structured Amazon S3 file action (list/read/upload/delete)",
     },
     {
+      name: "create_graphql_query",
+      gate: "data",
+      summary: "structured GraphQL query/mutation (parameterized variables)",
+    },
+    {
       name: "create_rest_api",
       gate: "data",
       summary: "structured REST action",

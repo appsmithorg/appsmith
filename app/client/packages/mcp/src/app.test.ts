@@ -2160,6 +2160,115 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     ]);
   });
 
+  it("create_graphql_query creates a POST action with parameterized variables", async () => {
+    const createAction = jest.fn<
+      Promise<{ id: string }>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "act-gql" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "GQL", pluginId: "656f00000000000000000040" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000040", packageName: "graphql-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_graphql_query", {
+      query: {
+        name: "GetUser",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        query: "query($id: ID!) { user(id: $id) { id name } }",
+        variables: [
+          {
+            name: "id",
+            value: { widget: "Table", property: "selectedRow.id" },
+          },
+        ],
+      },
+    });
+
+    expect(body.created).toBe(true);
+
+    const dto = createAction.mock.calls[0][0] as {
+      actionConfiguration: {
+        httpMethod: string;
+        body: string;
+        pluginSpecifiedTemplates: { value: unknown }[];
+        dynamicBindingPathList?: { key: string }[];
+      };
+    };
+
+    expect(dto.actionConfiguration.httpMethod).toBe("POST");
+    expect(dto.actionConfiguration.body).toContain("user(id: $id)");
+    expect(dto.actionConfiguration.pluginSpecifiedTemplates[1].value).toBe(
+      '{ "id": {{ Table.selectedRow.id }} }',
+    );
+    expect(dto.actionConfiguration.dynamicBindingPathList).toEqual([
+      { key: "pluginSpecifiedTemplates[1].value" },
+    ]);
+  });
+
+  it("create_graphql_query is idempotent — returns the existing query, no duplicate write", async () => {
+    const createAction = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "GQL", pluginId: "656f00000000000000000040" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000040", packageName: "graphql-plugin" },
+      ]),
+      listActions: jest.fn(async () => [
+        { id: "existing", name: "GetUser", pageId: "p1" },
+      ]),
+      createAction,
+    };
+    const body = await callTool(api, "create_graphql_query", {
+      query: {
+        name: "GetUser",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        query: "query { a }",
+      },
+    });
+
+    expect(body.created).toBe(false);
+    expect(createAction).not.toHaveBeenCalled();
+  });
+
+  it("create_graphql_query refuses a non-GraphQL datasource", async () => {
+    const createAction = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "PG", pluginId: "656f00000000000000000001" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000001", packageName: "postgres-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_graphql_query", {
+      query: {
+        name: "Q",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        query: "query { a }",
+      },
+    });
+
+    expect(body.error).toMatch(/requires an existing GraphQL datasource/);
+    expect(createAction).not.toHaveBeenCalled();
+  });
+
   it("create_s3_query refuses a non-S3 datasource", async () => {
     const createAction = jest.fn();
     const api: AppsmithApi = {
@@ -2417,11 +2526,13 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     expect(off).not.toContain("create_redis_query");
     expect(off).not.toContain("create_ai_query");
     expect(off).not.toContain("create_s3_query");
+    expect(off).not.toContain("create_graphql_query");
     expect(on).toContain("create_mongo_query");
     expect(on).toContain("create_sheets_query");
     expect(on).toContain("create_redis_query");
     expect(on).toContain("create_ai_query");
     expect(on).toContain("create_s3_query");
+    expect(on).toContain("create_graphql_query");
   });
 
   it("create_datasource creates an UNCONFIGURED datasource with no credential fields", async () => {
