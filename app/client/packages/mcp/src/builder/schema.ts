@@ -39,6 +39,8 @@ export const WIDGET_TYPES = [
   "camera",
   "audiorecorder",
   "codescanner",
+  "map",
+  "mapchart",
 ] as const;
 
 export type WidgetType = (typeof WIDGET_TYPES)[number];
@@ -1193,6 +1195,81 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         placement: placementSchema.optional(),
       })
       .strict(),
+    z
+      .object({
+        type: z.literal("map"),
+        name: nameField,
+        // Initial camera center. Plain numeric lat/long — never a binding. (Needs a tenant Google Maps API key
+        // configured in admin settings to render; that is org config, not an authoring concern.)
+        center: z
+          .object({
+            lat: z.number().min(-90).max(90),
+            long: z.number().min(-180).max(180),
+          })
+          .strict()
+          .optional(),
+        // Appsmith's 0-100 zoom scale (not the raw Google zoom level).
+        zoom: z.number().min(0).max(100).optional(),
+        // Static pins; each title is a literal (safeText), coords are plain numbers.
+        markers: z
+          .array(
+            z
+              .object({
+                lat: z.number().min(-90).max(90),
+                long: z.number().min(-180).max(180),
+                title: safeText(200).optional(),
+              })
+              .strict(),
+          )
+          .max(200)
+          .optional(),
+        enableSearch: z.boolean().optional(),
+        allowZoom: z.boolean().optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("mapchart"),
+        name: nameField,
+        title: safeText(200).optional(),
+        // The geographic region rendered.
+        region: z
+          .enum([
+            "WORLD",
+            "WORLD_WITH_ANTARCTICA",
+            "EUROPE",
+            "NORTH_AMERICA",
+            "SOURTH_AMERICA",
+            "ASIA",
+            "OCEANIA",
+            "AFRICA",
+            "USA",
+          ])
+          .optional(),
+        // Per-region values. `id` is a region code (e.g. "NA", "US-CA"); emitted as a literal, never a binding.
+        data: z
+          .array(
+            z
+              .object({
+                id: z
+                  .string()
+                  .min(1)
+                  .max(20)
+                  .regex(
+                    /^[A-Za-z0-9-]+$/,
+                    "region id must be an alphanumeric code",
+                  ),
+                value: z.number(),
+                label: safeText(200).optional(),
+              })
+              .strict(),
+          )
+          .max(500)
+          .optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
   ]),
 );
 
@@ -1478,6 +1555,24 @@ export type WidgetSpec =
       name?: string;
       label?: string;
       scanMode?: string;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "map";
+      name?: string;
+      center?: { lat: number; long: number };
+      zoom?: number;
+      markers?: { lat: number; long: number; title?: string }[];
+      enableSearch?: boolean;
+      allowZoom?: boolean;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "mapchart";
+      name?: string;
+      title?: string;
+      region?: string;
+      data?: { id: string; value: number; label?: string }[];
       placement?: PlacementSpec;
     };
 

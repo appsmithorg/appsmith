@@ -1192,4 +1192,66 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
       };
     },
   },
+  map: {
+    appsmithType: "MAP_WIDGET",
+    version: 1,
+    footprint: { columns: 24, rows: 40 },
+    build: (spec) => {
+      const s = spec.type === "map" ? spec : undefined;
+      const center = s?.center ?? { lat: 40.7128, long: -74.006 };
+      const markers = (s?.markers ?? [{ lat: 40.7128, long: -74.006 }]).map(
+        (m) => ({
+          lat: m.lat,
+          long: m.long,
+          ...(m.title ? { title: m.title } : {}),
+        }),
+      );
+
+      return {
+        footprint: { columns: 24, rows: 40 },
+        props: {
+          mapCenter: { lat: center.lat, long: center.long },
+          defaultMarkers: markers,
+          zoomLevel: s?.zoom ?? 50,
+          enableSearch: s?.enableSearch ?? true,
+          allowZoom: s?.allowZoom ?? true,
+          enablePickLocation: true,
+          isClickedMarkerCentered: true,
+          enableMapTypeControl: false,
+          isDisabled: false,
+          isVisible: true,
+        },
+      };
+    },
+  },
+  mapchart: {
+    appsmithType: "MAP_CHART_WIDGET",
+    version: 1,
+    footprint: { columns: 24, rows: 40 },
+    build: (spec) => {
+      const s = spec.type === "mapchart" ? spec : undefined;
+      // MAP_CHART_WIDGET stores values as strings; coerce the numeric spec values on the way in.
+      const data = (s?.data ?? [{ id: "NA", value: 0.82 }]).map((d) => ({
+        id: d.id,
+        value: String(d.value),
+        ...(d.label ? { label: d.label } : {}),
+      }));
+
+      return {
+        footprint: { columns: 24, rows: 40 },
+        props: {
+          mapType: s?.region ?? "WORLD",
+          mapTitle: s?.title ?? "Map Chart",
+          showLabels: true,
+          data,
+          // A fixed 3-band ramp; agents pick regions/values, not colors (kept out of the vocabulary).
+          colorRange: [
+            { minValue: 0.5, maxValue: 1.0, code: "#FFD74D" },
+            { minValue: 1.0, maxValue: 2.0, code: "#FB8C00" },
+            { minValue: 2.0, maxValue: 3.0, code: "#E65100" },
+          ],
+        },
+      };
+    },
+  },
 };

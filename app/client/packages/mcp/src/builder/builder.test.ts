@@ -684,6 +684,78 @@ describe("compileApp — import artifact contract", () => {
     }
   });
 
+  it("compiles the W7 map widgets (map, mapchart)", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "map",
+                name: "Loc",
+                center: { lat: 51.5, long: -0.12 },
+                zoom: 70,
+                markers: [{ lat: 51.5, long: -0.12, title: "London" }],
+              },
+              {
+                type: "mapchart",
+                name: "Pop",
+                title: "Populations",
+                region: "EUROPE",
+                data: [
+                  { id: "GB", value: 67 },
+                  { id: "FR", value: 68 },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const children = rootOf(artifact).children as WidgetNode[];
+    const by = (name: string) => children.find((w) => w.widgetName === name)!;
+
+    const map = by("Loc");
+
+    expect(map.type).toBe("MAP_WIDGET");
+    expect(map.zoomLevel).toBe(70);
+    expect(map.mapCenter).toEqual({ lat: 51.5, long: -0.12 });
+    expect(map.defaultMarkers).toEqual([
+      { lat: 51.5, long: -0.12, title: "London" },
+    ]);
+
+    const chart = by("Pop");
+
+    expect(chart.type).toBe("MAP_CHART_WIDGET");
+    expect(chart.mapType).toBe("EUROPE");
+    // Numeric values are coerced to the widget's string form.
+    expect(chart.data).toEqual([
+      { id: "GB", value: "67" },
+      { id: "FR", value: "68" },
+    ]);
+  });
+
+  it("rejects unsafe W7 map props (out-of-range coords, bad region/id)", () => {
+    const bad = [
+      { type: "map", center: { lat: 200, long: 0 } },
+      { type: "map", markers: [{ lat: 0, long: 999 }] },
+      { type: "mapchart", region: "MARS" },
+      { type: "mapchart", data: [{ id: "bad id!", value: 1 }] },
+    ];
+
+    for (const widget of bad) {
+      expect(
+        appSpecSchema.safeParse({
+          name: "App",
+          pages: [{ name: "Home", widgets: [widget] }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("compiles selected-row display bindings for text and input", () => {
     const artifact = compileApp(
       {

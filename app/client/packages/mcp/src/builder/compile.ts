@@ -79,6 +79,8 @@ const DEFAULT_BASE_NAME: Record<WidgetType, string> = {
   camera: "Camera",
   audiorecorder: "AudioRecorder",
   codescanner: "CodeScanner",
+  map: "Map",
+  mapchart: "MapChart",
 };
 
 interface CompileContext {

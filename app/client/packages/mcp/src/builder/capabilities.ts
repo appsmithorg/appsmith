@@ -282,6 +282,28 @@ export const WIDGET_CATALOG = [
     purpose: "Scan a QR code or barcode with the device camera.",
   },
   {
+    type: "map",
+    fields: {
+      center: "{ lat, long } — initial map center",
+      zoom: "number 0-100 — initial zoom (default 50)",
+      markers: "{ lat, long, title? }[] — static pins (up to 200)",
+      enableSearch: "boolean — show the location search box (default true)",
+      allowZoom: "boolean — allow zooming (default true)",
+    },
+    purpose:
+      "An interactive Google map (needs a tenant Google Maps API key configured in admin settings).",
+  },
+  {
+    type: "mapchart",
+    fields: {
+      title: "string — chart title",
+      region:
+        "WORLD (default) | WORLD_WITH_ANTARCTICA | EUROPE | NORTH_AMERICA | SOURTH_AMERICA | ASIA | OCEANIA | AFRICA | USA",
+      data: "{ id, value, label? }[] — per-region values; id is a region code (e.g. 'NA', 'US-CA')",
+    },
+    purpose: "A choropleth map colouring regions by value.",
+  },
+  {
     type: "chart",
     fields: {
       title: "string",
