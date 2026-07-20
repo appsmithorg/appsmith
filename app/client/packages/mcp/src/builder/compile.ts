@@ -74,6 +74,8 @@ const DEFAULT_BASE_NAME: Record<WidgetType, string> = {
   rangeslider: "RangeSlider",
   checkboxgroup: "CheckboxGroup",
   switchgroup: "SwitchGroup",
+  menubutton: "MenuButton",
+  buttongroup: "ButtonGroup",
 };
 
 interface CompileContext {

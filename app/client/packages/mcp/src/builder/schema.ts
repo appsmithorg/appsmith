@@ -34,6 +34,8 @@ export const WIDGET_TYPES = [
   "rangeslider",
   "checkboxgroup",
   "switchgroup",
+  "menubutton",
+  "buttongroup",
 ] as const;
 
 export type WidgetType = (typeof WIDGET_TYPES)[number];
@@ -1124,6 +1126,42 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         placement: placementSchema.optional(),
       })
       .strict(),
+    z
+      .object({
+        type: z.literal("menubutton"),
+        name: nameField,
+        label: safeText(200).optional(),
+        variant: z.enum(["PRIMARY", "SECONDARY", "TERTIARY"]).optional(),
+        // The dropdown's menu items. Each label is a literal; per-item click actions are not wired here (a later
+        // wire_event step targets them), so the menu is inert on creation.
+        items: z
+          .array(z.object({ label: safeText(200) }).strict())
+          .min(1)
+          .max(50)
+          .optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("buttongroup"),
+        name: nameField,
+        orientation: z.enum(["horizontal", "vertical"]).optional(),
+        variant: z.enum(["PRIMARY", "SECONDARY", "TERTIARY"]).optional(),
+        // The buttons in the group. icon is a kebab-case Blueprint name (literal prop). Click actions are wired
+        // later via wire_event, so the buttons are inert on creation.
+        buttons: z
+          .array(
+            z
+              .object({ label: safeText(200), icon: iconName.optional() })
+              .strict(),
+          )
+          .min(1)
+          .max(50)
+          .optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
   ]),
 );
 
@@ -1374,6 +1412,22 @@ export type WidgetSpec =
       options?: { label: string; value: string | number }[];
       defaultSelected?: string[];
       inline?: boolean;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "menubutton";
+      name?: string;
+      label?: string;
+      variant?: string;
+      items?: { label: string }[];
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "buttongroup";
+      name?: string;
+      orientation?: string;
+      variant?: string;
+      buttons?: { label: string; icon?: string }[];
       placement?: PlacementSpec;
     };
 

@@ -560,6 +560,79 @@ describe("compileApp — import artifact contract", () => {
     }
   });
 
+  it("compiles the W4 action widgets (menubutton, buttongroup)", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "menubutton",
+                name: "Actions",
+                label: "Do",
+                items: [{ label: "Edit" }, { label: "Delete" }],
+              },
+              {
+                type: "buttongroup",
+                name: "Toolbar",
+                orientation: "vertical",
+                buttons: [
+                  { label: "Save", icon: "floppy-disk" },
+                  { label: "Cancel" },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const children = rootOf(artifact).children as WidgetNode[];
+    const by = (name: string) => children.find((w) => w.widgetName === name)!;
+
+    const menu = by("Actions");
+
+    expect(menu.type).toBe("MENU_BUTTON_WIDGET");
+    expect(menu.label).toBe("Do");
+    const menuItems = menu.menuItems as Record<string, { label: string }>;
+
+    expect(Object.keys(menuItems)).toEqual(["menuItem1", "menuItem2"]);
+    expect(menuItems.menuItem2.label).toBe("Delete");
+
+    const group = by("Toolbar");
+
+    expect(group.type).toBe("BUTTON_GROUP_WIDGET");
+    expect(group.orientation).toBe("vertical");
+    const groupButtons = group.groupButtons as Record<
+      string,
+      { label: string; iconName?: string }
+    >;
+
+    expect(Object.keys(groupButtons)).toEqual(["groupButton1", "groupButton2"]);
+    expect(groupButtons.groupButton1.iconName).toBe("floppy-disk");
+    // A button with no icon omits iconName entirely.
+    expect(groupButtons.groupButton2.iconName).toBeUndefined();
+  });
+
+  it("rejects unsafe W4 action props (binding label, bad icon)", () => {
+    const bad = [
+      { type: "menubutton", items: [{ label: "Edit {{evil}}" }] },
+      { type: "buttongroup", buttons: [{ label: "Go", icon: "Bad Icon" }] },
+      { type: "menubutton", items: [] },
+    ];
+
+    for (const widget of bad) {
+      expect(
+        appSpecSchema.safeParse({
+          name: "App",
+          pages: [{ name: "Home", widgets: [widget] }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("compiles selected-row display bindings for text and input", () => {
     const artifact = compileApp(
       {

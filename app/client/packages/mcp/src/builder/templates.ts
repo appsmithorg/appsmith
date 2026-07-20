@@ -1054,4 +1054,89 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
       };
     },
   },
+  menubutton: {
+    appsmithType: "MENU_BUTTON_WIDGET",
+    version: 1,
+    footprint: { columns: 16, rows: 4 },
+    build: (spec) => {
+      const s = spec.type === "menubutton" ? spec : undefined;
+      const items = s?.items ?? [
+        { label: "First Menu Item" },
+        { label: "Second Menu Item" },
+      ];
+      // MENU_BUTTON_WIDGET stores its STATIC menu as an id-keyed map. Build it from the supplied labels; ids and
+      // indexes are generated (never agent-supplied). No onClick is set — the menu is inert until wire_event.
+      const menuItems: Record<string, unknown> = {};
+
+      items.forEach((item, index) => {
+        const id = `menuItem${index + 1}`;
+
+        menuItems[id] = {
+          label: item.label,
+          id,
+          widgetId: "",
+          isVisible: true,
+          isDisabled: false,
+          index,
+        };
+      });
+
+      return {
+        footprint: { columns: 16, rows: 4 },
+        props: {
+          label: s?.label ?? "Open Menu",
+          menuVariant: s?.variant ?? "PRIMARY",
+          placement: "CENTER",
+          isCompact: false,
+          isDisabled: false,
+          isVisible: true,
+          animateLoading: true,
+          menuItemsSource: "STATIC",
+          menuItems,
+        },
+      };
+    },
+  },
+  buttongroup: {
+    appsmithType: "BUTTON_GROUP_WIDGET",
+    version: 1,
+    footprint: { columns: 24, rows: 4 },
+    build: (spec) => {
+      const s = spec.type === "buttongroup" ? spec : undefined;
+      const buttons = s?.buttons ?? [{ label: "Favorite" }, { label: "Add" }];
+      // BUTTON_GROUP_WIDGET stores its buttons as an id-keyed map. Each is a plain SIMPLE button (no menu, no
+      // action); ids/indexes are generated. Click actions are wired later via wire_event.
+      const groupButtons: Record<string, unknown> = {};
+
+      buttons.forEach((button, index) => {
+        const id = `groupButton${index + 1}`;
+
+        groupButtons[id] = {
+          label: button.label,
+          ...(button.icon ? { iconName: button.icon } : {}),
+          id,
+          widgetId: "",
+          buttonType: "SIMPLE",
+          placement: "CENTER",
+          isVisible: true,
+          isDisabled: false,
+          disabledWhenInvalid: false,
+          index,
+          menuItems: {},
+        };
+      });
+
+      return {
+        footprint: { columns: 24, rows: 4 },
+        props: {
+          orientation: s?.orientation ?? "horizontal",
+          buttonVariant: s?.variant ?? "PRIMARY",
+          isVisible: true,
+          animateLoading: true,
+          responsiveBehavior: "fill",
+          groupButtons,
+        },
+      };
+    },
+  },
 };

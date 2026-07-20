@@ -241,6 +241,26 @@ export const WIDGET_CATALOG = [
     purpose: "A group of toggle switches for multi-select.",
   },
   {
+    type: "menubutton",
+    fields: {
+      label: "string — the button caption (defaults to 'Open Menu')",
+      variant: "'PRIMARY' (default) | 'SECONDARY' | 'TERTIARY'",
+      items:
+        "{ label }[] — menu entries (1-50); wire clicks later with wire_event",
+    },
+    purpose: "A button that opens a dropdown menu of items.",
+  },
+  {
+    type: "buttongroup",
+    fields: {
+      orientation: "'horizontal' (default) | 'vertical'",
+      variant: "'PRIMARY' (default) | 'SECONDARY' | 'TERTIARY'",
+      buttons:
+        "{ label, icon? }[] — the grouped buttons (1-50); icon is a kebab-case Blueprint name; wire clicks later with wire_event",
+    },
+    purpose: "A row/column of related buttons.",
+  },
+  {
     type: "chart",
     fields: {
       title: "string",
