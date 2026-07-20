@@ -12,6 +12,26 @@
 
 ---
 
+## Progress (updated 2026-07-19)
+
+**Part A — Widgets: COMPLETE.** All seven widget milestones shipped and pushed on `feat/15383/add_mcp_server`. 25 new widgets, one per-milestone commit; every commit green on the full mcp jest suite + check-types + eslint + prettier, versions drift-guarded.
+
+| Milestone | Widgets added | Commit | Notes |
+|-----------|---------------|--------|-------|
+| W1 | divider, progress, circularprogress, rate, iconbutton | `c7dd8b3323` | statbox deferred → W1b (composite canvas) |
+| W2 | iframe, video, audio, documentviewer | `bd2340ab46` | **security council: APPROVE** (safeUrl gate — http/https only, no srcDoc, no SSRF) |
+| W3 | currencyinput, phoneinput, numberslider, categoryslider, rangeslider, checkboxgroup, switchgroup | `00a994647a` | |
+| W4 | menubutton, buttongroup | `947a987980` | per-item click wiring is a wire_event follow-up |
+| W5 | singleselecttree, multiselecttree | `272f04545d` | jsonform deferred → W5b (schema auto-derivation, needs live-DP) |
+| W6 | camera, audiorecorder, codescanner | `d1a96dc909` | |
+| W7 | map, mapchart | `3ca3760880` | map needs a tenant Google Maps key to render |
+
+**Deferred (tracked):** W1b statbox (composite blueprint), W5b jsonform (runtime schema derivation), richtext (RICH_TEXT_EDITOR — renders HTML; treat like W2). Excluded per plan: CUSTOM_WIDGET, CUSTOM_FUSION_CHART.
+
+**Remaining:** Part B — T1 (table columns), Ch1 (chart depth); Part C — D1–D6 (datasources).
+
+---
+
 ## Current coverage (baseline)
 
 **Widgets wrapped (18):** text, input, select, button, image, table, container, form, modal, datepicker, chart, tabs, list, checkbox, switch, radio, multiselect, filepicker.
