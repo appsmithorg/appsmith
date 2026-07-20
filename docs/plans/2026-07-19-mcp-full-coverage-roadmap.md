@@ -28,7 +28,26 @@
 
 **Deferred (tracked):** W1b statbox (composite blueprint), W5b jsonform (runtime schema derivation), richtext (RICH_TEXT_EDITOR — renders HTML; treat like W2). Excluded per plan: CUSTOM_WIDGET, CUSTOM_FUSION_CHART.
 
-**Remaining:** Part B — T1 (table columns), Ch1 (chart depth); Part C — D1–D6 (datasources).
+**Part B — Table & Chart depth: COMPLETE.**
+
+| Milestone | Commit | Notes |
+|-----------|--------|-------|
+| T1 (table columns: types, computed columns via a per-row `cell` formula leaf) | `a062fd56a7` | **security council: APPROVE** (charset-safe, guarded cell leaf). Live-DP: date/url/media column formats, subset-vs-auto-append. |
+| Ch1 (chart depth: multi-series query binding, SCATTER, axis/label config) | `92f277b151` | reuses the M4 chart-binding charset gate — no council needed. Live-DP: multi-series + SCATTER render. |
+
+**Part C — Datasources: scope resolved with the user.** Under "connect + reuse existing query builders" the only clean end-to-end (connect **and** query) win was D1. For deeper coverage the user then chose to relax "no bespoke query vocab" for four high-value plugins, each built as an injection-safe closed vocabulary + security council:
+
+| Milestone | Commit | Notes |
+|-----------|--------|-------|
+| D1 — Oracle + Amazon Redshift datasources | `25bdd15406` | same host/port/dbAuth builder + reuse create_query. Snowflake/Databricks deferred (bespoke connection shape). |
+| Redis query builder (`create_redis_query`) | `2e3b45f261` | **council: APPROVE** — allow-listed commands, single-token args; one command always (jedis). |
+| AI query builder (`create_ai_query`, OpenAI/Anthropic/Google AI) | `224e903308` | **council: APPROVE-w-RISKS** — provider-aware chat formData; appsmithAi excluded per user. |
+| S3 query builder (`create_s3_query`) | `1226dc8ed8` | **council: APPROVE** — list/read/upload/delete, smartSubstitution-parameterized (Mongo-pattern clone). |
+| GraphQL query builder (`create_graphql_query`) | `78ced6bcff` | **council: APPROVE-w-RISKS** — operation string ({{-gated) + parameterized variables; consistent with create_rest_api. |
+
+All four query builders are **PROVISIONAL** pending live-DP verification (their tool descriptions say so) — the connection for Redis/S3/AI/GraphQL is created in the Appsmith UI (credentials/OAuth never touch MCP), then queried by datasourceId, mirroring the create_sheets_query precedent.
+
+**Not pursued (documented decision):** D2 REST-auth (would require MCP to carry secrets — refused by design); the remaining D3 NoSQL (dynamo/firestore/elasticsearch/arango) and D4 (smtp/lambda) and D6 SaaS each need bespoke connection shapes AND bespoke query vocabularies with no reuse path, and most need credentials/OAuth — out of scope under the agreed constraints. Snowflake/Databricks (bespoke connection config).
 
 ---
 
