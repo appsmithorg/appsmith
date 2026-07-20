@@ -437,10 +437,17 @@ const FORMULA_OPS = [
 ] as const;
 
 export type FormulaOp = (typeof FORMULA_OPS)[number];
+// A per-row cell reference — ONLY valid inside a computed table column, where the compiler evaluates the formula in
+// a `.map((currentRow) => ...)` context. `{ cell: "price" }` compiles to `Number(currentRow["price"])`. Rejected in
+// the text-widget value formula (no currentRow there) by validateFormula's default allowCell=false.
+export interface CellRef {
+  cell: string;
+}
 export type FormulaExpr =
   | number
   | QueryFieldRef
   | SelectedRowRef
+  | CellRef
   | { op: FormulaOp; args: FormulaExpr[] };
 
 export const formulaExprSchema: z.ZodType<FormulaExpr> = z.lazy(() =>
@@ -449,6 +456,7 @@ export const formulaExprSchema: z.ZodType<FormulaExpr> = z.lazy(() =>
     z.number().finite(),
     queryFieldRefSchema,
     selectedRowRefSchema,
+    z.object({ cell: columnKey }).strict(),
     z
       .object({
         op: z.enum(FORMULA_OPS),
@@ -458,10 +466,19 @@ export const formulaExprSchema: z.ZodType<FormulaExpr> = z.lazy(() =>
   ]),
 );
 
-// Arity/shape rules the recursive schema cannot express, plus the depth bound.
-function formulaProblem(expr: FormulaExpr, depth: number): string | undefined {
+// Arity/shape rules the recursive schema cannot express, plus the depth bound. `allowCell` gates the per-row cell
+// leaf: only a computed table column supplies a currentRow context, so every other formula sink rejects it.
+function formulaProblem(
+  expr: FormulaExpr,
+  depth: number,
+  allowCell: boolean,
+): string | undefined {
   if (depth > FORMULA_MAX_DEPTH) {
     return `formula nests deeper than ${FORMULA_MAX_DEPTH} levels`;
+  }
+
+  if (typeof expr === "object" && "cell" in expr && !allowCell) {
+    return "a { cell } reference is only valid in a computed table column";
   }
 
   if (typeof expr === "number" || !("op" in expr)) return undefined;
@@ -501,7 +518,7 @@ function formulaProblem(expr: FormulaExpr, depth: number): string | undefined {
   }
 
   for (const arg of expr.args) {
-    const problem = formulaProblem(arg, depth + 1);
+    const problem = formulaProblem(arg, depth + 1, allowCell);
 
     if (problem !== undefined) return problem;
   }
@@ -517,12 +534,15 @@ function formulaNodeCount(expr: FormulaExpr): number {
   );
 }
 
-export function validateFormula(expr: FormulaExpr): string | undefined {
+export function validateFormula(
+  expr: FormulaExpr,
+  allowCell = false,
+): string | undefined {
   if (formulaNodeCount(expr) > FORMULA_MAX_NODES) {
     return `formula exceeds ${FORMULA_MAX_NODES} nodes`;
   }
 
-  return formulaProblem(expr, 1);
+  return formulaProblem(expr, 1, allowCell);
 }
 
 // Emits the raw (unwrapped) expression. Refs are coerced through Number() so string cells/fields behave; every
@@ -536,6 +556,12 @@ function compileFormulaExpr(expr: FormulaExpr): string {
 
   if ("table" in expr) {
     return `Number(${expr.table}.selectedRow["${expr.column}"])`;
+  }
+
+  if ("cell" in expr) {
+    // Per-row: valid only inside a computed column's `.map((currentRow) => ...)`. columnKey's charset admits no
+    // quote/brace/backtick, so the bracket access cannot be broken out of.
+    return `Number(currentRow["${expr.cell}"])`;
   }
 
   const args = expr.args.map(compileFormulaExpr);
@@ -843,6 +869,178 @@ export const optionsSourceRefSchema = z
 
 export type OptionsSourceRef = z.infer<typeof optionsSourceRefSchema>;
 
+// --- T1 table columns. A closed vocabulary for TableWidgetV2's primaryColumns: pick/label/type a data column, or
+// add a per-row computed column. Every emitted character is compiler-owned; the agent supplies structure only.
+// Safe display column types (a subset of the client's ColumnTypes) — all inert renderings of a cell value. Action
+// columns (button/menuButton/iconButton/editActions) and inline-edit types are excluded: they need event wiring and
+// are a separate effort.
+export const TABLE_COLUMN_TYPES = [
+  "text",
+  "number",
+  "date",
+  "image",
+  "video",
+  "url",
+  "boolean",
+] as const;
+export type TableColumnType = (typeof TABLE_COLUMN_TYPES)[number];
+
+// Maps the safe spec type to the client's ColumnTypes literal.
+const TABLE_COLUMN_TYPE_MAP: Record<TableColumnType, string> = {
+  text: "text",
+  number: "number",
+  date: "date",
+  image: "image",
+  video: "video",
+  url: "url",
+  boolean: "checkbox",
+};
+
+export const tableColumnSchema = z
+  .object({
+    // The data field this column reads (also the derived column's id when `computed` is set).
+    key: columnKey,
+    // Header label; defaults to the key.
+    label: safeText(200).optional(),
+    // How the cell renders. Defaults to text (or number for a computed column).
+    type: z.enum(TABLE_COLUMN_TYPES).optional(),
+    // Hide the column (still present in data). Defaults visible.
+    hidden: z.boolean().optional(),
+    // A per-row numeric formula (uses { cell } leaves). Present ⇒ this is a DERIVED column, not a data column.
+    computed: formulaExprSchema.optional(),
+  })
+  .strict()
+  .superRefine((col, ctx) => {
+    if (col.computed !== undefined) {
+      const problem = validateFormula(col.computed, true);
+
+      if (problem !== undefined) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: problem });
+      }
+    }
+  });
+
+export type TableColumnSpec = z.infer<typeof tableColumnSchema>;
+
+// Appsmith's column-id sanitizer (mirrors client sanitizeKey): non-word chars → "_", empty → "_", leading digit
+// gets a "_" prefix. Duplicates within one table are disambiguated with a numeric suffix.
+function sanitizeColumnId(key: string, taken: Set<string>): string {
+  let id = key.replace(/[^\w]/g, "_");
+
+  if (id.length === 0) id = "_";
+
+  if (/\d/.test(id[0])) id = `_${id}`;
+
+  let candidate = id;
+  let n = 1;
+
+  while (taken.has(candidate)) {
+    candidate = `${id}${n}`;
+    n += 1;
+  }
+
+  return candidate;
+}
+
+// SECURITY INVARIANT [council]: `widgetName` is emitted UNESCAPED into these bindings, so its injection-safety rests
+// entirely on nameField's charset (`^[A-Za-z0-9_]+$`) validating spec.name before compile — the NameAllocator only
+// de-dups, it does not sanitize. If nameField is ever loosened (e.g. spaces/punctuation for display names) these
+// emitters would become a JS-injection sink in the viewer's eval worker. The "rejects a table name with
+// metacharacters" test locks this invariant.
+
+// The DSL binding for a DATA column: read currentRow[field] across the table's processed rows (self-name
+// reference), mirroring the client's getDefaultColumnProperties computedValue.
+function dataColumnComputedValue(
+  widgetName: string,
+  originalId: string,
+): string {
+  return `{{(() => { const tableData = ${widgetName}.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow["${originalId}"])) : ${JSON.stringify(
+    originalId,
+  )} })()}}`;
+}
+
+// The DSL binding for a COMPUTED column: evaluate the finite-guarded formula per row.
+function computedColumnComputedValue(
+  widgetName: string,
+  formula: FormulaExpr,
+): string {
+  return `{{(() => { const tableData = ${widgetName}.processedTableData || []; return tableData.map((currentRow, currentIndex) => (((v) => Number.isFinite(v) ? v : "")(${compileFormulaExpr(
+    formula,
+  )}))) })()}}`;
+}
+
+export interface BuiltTableColumns {
+  primaryColumns: Record<string, unknown>;
+  columnOrder: string[];
+  // dynamicBindingPathList keys for every column's computedValue binding.
+  bindingPaths: string[];
+}
+
+// Compile a table's column specs into primaryColumns/columnOrder + the binding paths. Called from compile.ts once
+// the table's widgetName is allocated (computedValue self-references it), mirroring the list-widget precedent.
+export function buildTableColumns(
+  columns: TableColumnSpec[],
+  widgetName: string,
+): BuiltTableColumns {
+  const primaryColumns: Record<string, unknown> = {};
+  const columnOrder: string[] = [];
+  const bindingPaths: string[] = [];
+  const taken = new Set<string>();
+
+  columns.forEach((col, index) => {
+    const id = sanitizeColumnId(col.key, taken);
+
+    taken.add(id);
+    columnOrder.push(id);
+    bindingPaths.push(`primaryColumns.${id}.computedValue`);
+
+    const isDerived = col.computed !== undefined;
+    const columnType = col.type
+      ? TABLE_COLUMN_TYPE_MAP[col.type]
+      : isDerived
+        ? "number"
+        : "text";
+
+    primaryColumns[id] = {
+      allowCellWrapping: false,
+      allowSameOptionsInNewRow: true,
+      index,
+      width: 150,
+      originalId: col.key,
+      id,
+      alias: col.key,
+      horizontalAlignment: "LEFT",
+      verticalAlignment: "CENTER",
+      columnType,
+      textColor: "#231F20",
+      textSize: "0.875rem",
+      fontStyle: "REGULAR",
+      enableFilter: true,
+      enableSort: true,
+      isVisible: col.hidden !== true,
+      isDisabled: false,
+      isCellEditable: false,
+      isEditable: false,
+      isCellVisible: col.hidden !== true,
+      isDerived,
+      label: col.label ?? col.key,
+      isSaveVisible: true,
+      isDiscardVisible: true,
+      computedValue: isDerived
+        ? computedColumnComputedValue(widgetName, col.computed as FormulaExpr)
+        : dataColumnComputedValue(widgetName, col.key),
+      sticky: "",
+      validation: {},
+      currencyCode: "USD",
+      decimals: 0,
+      thousandSeparator: true,
+      notation: "standard",
+    };
+  });
+
+  return { primaryColumns, columnOrder, bindingPaths };
+}
+
 // Recursive: a container can hold child widgets. z.lazy handles the self-reference.
 export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
   z.discriminatedUnion("type", [
@@ -919,6 +1117,9 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         // M4: bind the table to a named query instead of static rows (compiler emits the query-data binding).
         // M5: OR to a store key accumulated by wire_event's appendToStore ({ store: '<key>' }).
         source: tableDataBindingSchema.optional(),
+        // T1: explicit column config (type/label/visibility, or a per-row computed column). Omit to let the table
+        // auto-derive columns from the data at runtime (the prior behaviour).
+        columns: z.array(tableColumnSchema).max(100).optional(),
         placement: placementSchema.optional(),
       })
       // NOTE: `data` and `source` are mutually exclusive; enforced in the compiler (a `.refine` here would turn the
@@ -1468,6 +1669,7 @@ export type WidgetSpec =
       name?: string;
       data?: TableRow[];
       source?: TableDataBinding;
+      columns?: TableColumnSpec[];
       placement?: PlacementSpec;
     }
   | {

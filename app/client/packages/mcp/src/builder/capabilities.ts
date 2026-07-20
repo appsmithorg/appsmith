@@ -62,6 +62,8 @@ export const WIDGET_CATALOG = [
       data: "{ [column]: string|number|boolean|null }[] — static literal rows",
       source:
         "{ query: '<queryName>', field?: '<responsePath>', clearWhenEmpty?: '<inputWidget>' } — bind to a query's data, optionally a nested array like 'places'; clearWhenEmpty gates the rows on an input holding text so resetting the input clears the table (data layer). OR { store: '<storeKey>' } — bind to rows accumulated in the Appsmith store by wire_event's appendToStore verb (accumulating-results tables; session-only, cleared by clearStoreKey or a reload).",
+      columns:
+        "{ key, label?, type?, hidden?, computed? }[] — explicit column config. key is the data field. type is one of text|number|date|image|video|url|boolean. hidden hides the column. computed is a per-row numeric formula (same formula AST as text `value.formula`, but with a { cell: '<field>' } leaf = this row's cell) that ADDS a derived column — e.g. { key: 'total', computed: { op: 'mul', args: [ { cell: 'price' }, { cell: 'qty' } ] } }. Omit `columns` to let the table auto-derive columns from the data.",
     },
     purpose:
       "Tabular data with search/sort/pagination. Use `data` for static rows OR `source` to bind a query or a store key (not both). Style alternating rows via patch_widgets oddRowColor/evenRowColor. NOTE: when PATCHING an existing table, this binding is the `tableData` prop (see patchSpec) — `source` on patch_widgets means a selected-row ref.",

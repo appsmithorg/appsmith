@@ -7,6 +7,7 @@ import type {
   WidgetType,
 } from "./schema.js";
 import {
+  buildTableColumns,
   compileCurrentItemBinding,
   compilePrimaryKeys,
   compileTableDataBinding,
@@ -147,6 +148,25 @@ function compileWidgetAt(
   const widgetName = ctx.names.allocate(
     spec.name ?? DEFAULT_BASE_NAME[spec.type],
   );
+
+  // T1: table columns self-reference the table's own name in their computedValue binding, so they can only be built
+  // once the name is allocated (the list-widget currentItem bindings have the same requirement). Replace the
+  // template's empty primaryColumns/columnOrder defaults and register each computedValue as a binding.
+  if (spec.type === "table" && spec.columns && spec.columns.length > 0) {
+    const compiled = buildTableColumns(spec.columns, widgetName);
+
+    built.props.primaryColumns = compiled.primaryColumns;
+    built.props.columnOrder = compiled.columnOrder;
+
+    const existing =
+      (built.props.dynamicBindingPathList as { key: string }[] | undefined) ??
+      [];
+
+    built.props.dynamicBindingPathList = [
+      ...existing,
+      ...compiled.bindingPaths.map((key) => ({ key })),
+    ];
+  }
 
   // Tabs is multi-canvas: one inner CANVAS_WIDGET per tab, plus a tabsObj describing them. Handled directly because
   // the single-inner-canvas container path can't express it.

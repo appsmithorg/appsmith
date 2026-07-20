@@ -924,6 +924,228 @@ describe("compileApp — import artifact contract", () => {
     }
   });
 
+  it("T1: compiles explicit table columns (type/label/hidden + computed) into primaryColumns", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "table",
+                name: "Orders",
+                data: [{ price: 10, qty: 2, "sign up": "y" }],
+                columns: [
+                  { key: "price", type: "number", label: "Unit Price" },
+                  { key: "sign up", type: "date", hidden: true },
+                  {
+                    key: "total",
+                    computed: {
+                      op: "mul",
+                      args: [{ cell: "price" }, { cell: "qty" }],
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const table = (rootOf(artifact).children as WidgetNode[])[0];
+
+    expect(table.type).toBe("TABLE_WIDGET_V2");
+    const primaryColumns = table.primaryColumns as Record<
+      string,
+      Record<string, unknown>
+    >;
+
+    // A space in the key is sanitized to an underscore for the column id; originalId/alias keep the raw field.
+    expect(table.columnOrder).toEqual(["price", "sign_up", "total"]);
+    expect(primaryColumns.price.columnType).toBe("number");
+    expect(primaryColumns.price.label).toBe("Unit Price");
+    expect(primaryColumns.sign_up.originalId).toBe("sign up");
+    expect(primaryColumns.sign_up.columnType).toBe("date");
+    expect(primaryColumns.sign_up.isVisible).toBe(false);
+
+    // The data column reads currentRow by the raw field name and self-references the table name.
+    expect(primaryColumns.price.isDerived).toBe(false);
+    expect(primaryColumns.price.computedValue).toContain(
+      "Orders.processedTableData",
+    );
+    expect(primaryColumns.price.computedValue).toContain('currentRow["price"]');
+
+    // The computed column is derived and evaluates the per-row formula (finite-guarded).
+    expect(primaryColumns.total.isDerived).toBe(true);
+    expect(primaryColumns.total.columnType).toBe("number");
+    expect(primaryColumns.total.computedValue).toContain(
+      '(Number(currentRow["price"]) * Number(currentRow["qty"]))',
+    );
+
+    // Each column's computedValue is registered as a dynamic binding.
+    const paths = (table.dynamicBindingPathList as { key: string }[]).map(
+      (p) => p.key,
+    );
+
+    expect(paths).toContain("primaryColumns.total.computedValue");
+    expect(paths).toContain("primaryColumns.price.computedValue");
+  });
+
+  it("T1: rejects a { cell } leaf outside a computed column, and bad computed formulas", () => {
+    const bad = [
+      // A cell leaf has no meaning in a text widget's value formula (no currentRow) — must be rejected.
+      {
+        widgets: [{ type: "text", value: { formula: { cell: "price" } } }],
+      },
+      // Bad arity inside a computed column formula.
+      {
+        widgets: [
+          {
+            type: "table",
+            data: [{ a: 1 }],
+            columns: [
+              { key: "x", computed: { op: "sub", args: [{ cell: "a" }] } },
+            ],
+          },
+        ],
+      },
+      // Column key charset (a quote would break out of currentRow["..."]).
+      {
+        widgets: [
+          { type: "table", data: [{ a: 1 }], columns: [{ key: 'a"]//' }] },
+        ],
+      },
+      // SECURITY [council]: a table name with a metacharacter is emitted unescaped into the computedValue binding,
+      // so nameField must reject it — this locks the injection invariant the emitters depend on.
+      {
+        widgets: [
+          {
+            type: "table",
+            name: 'T"];alert(1)//',
+            data: [{ a: 1 }],
+            columns: [{ key: "a" }],
+          },
+        ],
+      },
+      // Formula depth/node limits stay enforced through cell leaves (deeply nested add of cells).
+      {
+        widgets: [
+          {
+            type: "table",
+            data: [{ a: 1 }],
+            columns: [
+              {
+                key: "deep",
+                computed: {
+                  op: "add",
+                  args: [
+                    { cell: "a" },
+                    {
+                      op: "add",
+                      args: [
+                        { cell: "a" },
+                        {
+                          op: "add",
+                          args: [
+                            { cell: "a" },
+                            {
+                              op: "add",
+                              args: [
+                                { cell: "a" },
+                                {
+                                  op: "add",
+                                  args: [
+                                    { cell: "a" },
+                                    {
+                                      op: "add",
+                                      args: [
+                                        { cell: "a" },
+                                        { op: "add", args: [{ cell: "a" }, 1] },
+                                      ],
+                                    },
+                                  ],
+                                },
+                              ],
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+      },
+    ];
+
+    for (const page of bad) {
+      expect(
+        appSpecSchema.safeParse({
+          name: "App",
+          pages: [{ name: "Home", widgets: page.widgets }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it("T1: omitting `columns` preserves auto-derive (primaryColumns stays empty)", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [{ type: "table", name: "Auto", data: [{ a: 1, b: 2 }] }],
+          },
+        ],
+      },
+      ids(),
+    );
+    const table = (rootOf(artifact).children as WidgetNode[])[0];
+
+    expect(table.primaryColumns).toEqual({});
+    expect(table.columnOrder).toEqual([]);
+    expect(table.dynamicBindingPathList).toEqual([]);
+  });
+
+  it("T1: duplicate keys that sanitize to the same id get distinct suffixed ids", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "table",
+                name: "Dup",
+                data: [{ "a b": 1 }],
+                // "a b" and "a_b" both sanitize to "a_b" → the second is disambiguated.
+                columns: [{ key: "a b" }, { key: "a_b" }],
+              },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const table = (rootOf(artifact).children as WidgetNode[])[0];
+
+    expect(table.columnOrder).toEqual(["a_b", "a_b1"]);
+    const primaryColumns = table.primaryColumns as Record<
+      string,
+      Record<string, unknown>
+    >;
+
+    // originalId keeps each raw key even though the ids were disambiguated.
+    expect(primaryColumns.a_b.originalId).toBe("a b");
+    expect(primaryColumns.a_b1.originalId).toBe("a_b");
+  });
+
   it("compiles selected-row display bindings for text and input", () => {
     const artifact = compileApp(
       {
