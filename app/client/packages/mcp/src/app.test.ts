@@ -2104,6 +2104,90 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     ]);
   });
 
+  it("create_s3_query creates a file action against an S3 datasource", async () => {
+    const createAction = jest.fn<
+      Promise<{ id: string }>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "act-s3" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "S3", pluginId: "656f00000000000000000030" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000030", packageName: "amazons3-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_s3_query", {
+      query: {
+        name: "Upload",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        operation: "upload",
+        bucket: "my-bucket",
+        path: { literal: "docs/a.txt" },
+        body: { widget: "Editor", property: "text" },
+      },
+    });
+
+    expect(body.created).toBe(true);
+    expect(body.command).toBe("UPLOAD_FILE_FROM_BODY");
+
+    const dto = createAction.mock.calls[0][0] as {
+      actionConfiguration: {
+        formData: {
+          command: { data: string };
+          bucket: { data: string };
+          smartSubstitution: { data: boolean };
+          body: { data: string };
+        };
+        dynamicBindingPathList?: { key: string }[];
+      };
+    };
+
+    expect(dto.actionConfiguration.formData.command.data).toBe(
+      "UPLOAD_FILE_FROM_BODY",
+    );
+    expect(dto.actionConfiguration.formData.smartSubstitution.data).toBe(true);
+    expect(dto.actionConfiguration.formData.body.data).toBe(
+      "{{ Editor.text }}",
+    );
+    expect(dto.actionConfiguration.dynamicBindingPathList).toEqual([
+      { key: "formData.body.data" },
+    ]);
+  });
+
+  it("create_s3_query refuses a non-S3 datasource", async () => {
+    const createAction = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "PG", pluginId: "656f00000000000000000001" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000001", packageName: "postgres-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_s3_query", {
+      query: {
+        name: "List",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        operation: "list",
+        bucket: "b",
+      },
+    });
+
+    expect(body.error).toMatch(/requires an existing Amazon S3 datasource/);
+    expect(createAction).not.toHaveBeenCalled();
+  });
+
   it("create_ai_query is idempotent — returns the existing query, no duplicate write", async () => {
     const createAction = jest.fn();
     const api: AppsmithApi = {
@@ -2332,10 +2416,12 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     expect(off).not.toContain("create_sheets_query");
     expect(off).not.toContain("create_redis_query");
     expect(off).not.toContain("create_ai_query");
+    expect(off).not.toContain("create_s3_query");
     expect(on).toContain("create_mongo_query");
     expect(on).toContain("create_sheets_query");
     expect(on).toContain("create_redis_query");
     expect(on).toContain("create_ai_query");
+    expect(on).toContain("create_s3_query");
   });
 
   it("create_datasource creates an UNCONFIGURED datasource with no credential fields", async () => {

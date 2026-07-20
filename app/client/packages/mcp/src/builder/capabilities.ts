@@ -616,6 +616,11 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
       summary: "structured OpenAI/Anthropic/Google AI chat query",
     },
     {
+      name: "create_s3_query",
+      gate: "data",
+      summary: "structured Amazon S3 file action (list/read/upload/delete)",
+    },
+    {
       name: "create_rest_api",
       gate: "data",
       summary: "structured REST action",
