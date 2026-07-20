@@ -470,11 +470,11 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
     version: 1,
     footprint: { columns: 24, rows: 32 },
     build: (spec) => {
-      const title = spec.type === "chart" ? spec.title ?? "Chart" : "Chart";
-      const chartType =
-        spec.type === "chart" ? spec.chartType ?? "LINE_CHART" : "LINE_CHART";
-      const source = spec.type === "chart" ? spec.source : undefined;
-      const series = spec.type === "chart" ? spec.series ?? [] : [];
+      const chart = spec.type === "chart" ? spec : undefined;
+      const title = chart?.title ?? "Chart";
+      const chartType = chart?.chartType ?? "LINE_CHART";
+      const source = chart?.source;
+      const series = chart?.series ?? [];
 
       if (source !== undefined && series.length > 0) {
         throw new Error("chart cannot set both 'series' and 'source'");
@@ -482,17 +482,26 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
 
       // Two safe data origins for CHART_WIDGET's `chartData` (an object keyed by series id, each `{ seriesName, data }`):
       // (1) STATIC series: the points are literals — no binding.
-      // (2) QUERY source: a single series whose `data` is a compiler-authored map of the query's rows to {x,y}. Only
-      //     the series' `data` is a binding, so it is registered at path `chartData.series1.data` (the widget's own
-      //     binding-path format, see ChartWidget getPropertyPaneConfig). Query name, response field, and the x/y
-      //     column names are all schema-validated charsets, so the emitted expression cannot be broken out of.
+      // (2) QUERY source(s): one or several series whose `data` is a compiler-authored map of the query's rows to
+      //     {x,y}. Only each series' `data` is a binding, registered at path `chartData.series<N>.data` (the widget's
+      //     own binding-path format). Query name, response field, and the x/y column names are all schema-validated
+      //     charsets, so the emitted expression cannot be broken out of.
       const chartData: Record<string, unknown> = {};
+      const bindingPaths: { key: string }[] = [];
 
       if (source !== undefined) {
-        chartData.series1 = {
-          seriesName: title,
-          data: compileChartDataBinding(source),
-        };
+        // Ch1: normalize a single source or an array of sources to a per-series list.
+        const sources = Array.isArray(source) ? source : [source];
+
+        sources.forEach((oneSource, index) => {
+          const key = `series${index + 1}`;
+
+          chartData[key] = {
+            seriesName: oneSource.name ?? (sources.length > 1 ? key : title),
+            data: compileChartDataBinding(oneSource),
+          };
+          bindingPaths.push({ key: `chartData.${key}.data` });
+        });
       } else {
         series.forEach((oneSeries, index) => {
           chartData[`series${index + 1}`] = {
@@ -512,15 +521,15 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
           chartName: title,
           allowScroll: false,
           chartData,
-          xAxisName: "",
-          yAxisName: "",
-          labelOrientation: "auto",
+          xAxisName: chart?.xAxisLabel ?? "",
+          yAxisName: chart?.yAxisLabel ?? "",
+          labelOrientation: chart?.labelOrientation ?? "auto",
+          showDataPointLabel: chart?.showDataLabels ?? false,
           setAdaptiveYMin: false,
           animateLoading: true,
           responsiveBehavior: "fill",
-          // A query source's series data is a real dynamic binding; static points are not.
-          dynamicBindingPathList:
-            source !== undefined ? [{ key: "chartData.series1.data" }] : [],
+          // Each query source's series data is a real dynamic binding; static points are not.
+          dynamicBindingPathList: bindingPaths,
         },
       };
     },

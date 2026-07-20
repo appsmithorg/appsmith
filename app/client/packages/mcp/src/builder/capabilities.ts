@@ -364,12 +364,17 @@ export const WIDGET_CATALOG = [
     fields: {
       title: "string",
       chartType:
-        "LINE_CHART | BAR_CHART | PIE_CHART | COLUMN_CHART | AREA_CHART",
+        "LINE_CHART | BAR_CHART | PIE_CHART | COLUMN_CHART | AREA_CHART | SCATTER_CHART",
       series: "{ name?: string, points?: { x, y }[] }[] — static series",
       source:
-        "{ query: '<queryName>', field?: '<responsePath>', x: '<column>', y: '<column>' } — bind the chart to a query's rows; x is the category/label column and y the numeric value column. Use series OR source, not both (data layer).",
+        "ONE query source { query, field?, x, y, name? } OR an ARRAY of them for a multi-series chart. x is the category/label column, y the numeric value column, name the series label. Use series OR source, not both (data layer).",
+      xAxisLabel: "string — x-axis title",
+      yAxisLabel: "string — y-axis title",
+      labelOrientation: "'auto' (default) | 'slant' | 'rotate' | 'stagger'",
+      showDataLabels:
+        "boolean — show value labels on data points (default false)",
     },
-    purpose: "Visualize static series data or a query's rows.",
+    purpose: "Visualize static series data or one/many query series.",
   },
   {
     type: "tabs",

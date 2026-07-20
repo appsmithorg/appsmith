@@ -802,10 +802,18 @@ export const chartSourceRefSchema = z
     field: responseFieldPath.optional(),
     x: chartAxisColumn,
     y: chartAxisColumn,
+    // Ch1: an optional series name when several query sources are combined into one chart (multi-series).
+    name: safeText(200).optional(),
   })
   .strict();
 
 export type ChartSourceRef = z.infer<typeof chartSourceRefSchema>;
+
+// Ch1: a chart's query binding is either one source (one series) or an array of sources (multi-series).
+export const chartSourceSchema = z.union([
+  chartSourceRefSchema,
+  z.array(chartSourceRefSchema).min(1).max(10),
+]);
 
 // The single emitter for a chart's data binding. Every interpolated part is a schema-validated identifier/column
 // charset, so the expression cannot be broken out of. Optional chaining (`.data?.` ... `?.map(...) ?? []`) keeps the
@@ -1165,6 +1173,8 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         type: z.literal("chart"),
         name: nameField,
         title: safeText(200).optional(),
+        // The fixed chart types. CUSTOM_ECHART / CUSTOM_FUSION_CHART are excluded — they are agent-authored raw
+        // chart config (the gated raw-code class), not the closed vocabulary.
         chartType: z
           .enum([
             "LINE_CHART",
@@ -1172,13 +1182,22 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
             "PIE_CHART",
             "COLUMN_CHART",
             "AREA_CHART",
+            "SCATTER_CHART",
           ])
           .optional(),
         series: z.array(chartSeries).max(10).optional(),
-        // M4: bind the chart to a named query's rows instead of static series. Compiler emits a mapped chartData
-        // binding. Mutually exclusive with `series` (enforced in the template — a `.refine` here would turn the arm
-        // into a ZodEffects, which z.discriminatedUnion rejects).
-        source: chartSourceRefSchema.optional(),
+        // M4/Ch1: bind the chart to a named query's rows instead of static series — one source (single series) or
+        // an array of sources (multi-series). Compiler emits mapped chartData bindings. Mutually exclusive with
+        // `series` (enforced in the template — a `.refine` here would turn the arm into a ZodEffects, which
+        // z.discriminatedUnion rejects).
+        source: chartSourceSchema.optional(),
+        // Ch1: axis/label config from a closed option set (all inert literal props).
+        xAxisLabel: safeText(200).optional(),
+        yAxisLabel: safeText(200).optional(),
+        labelOrientation: z
+          .enum(["auto", "slant", "rotate", "stagger"])
+          .optional(),
+        showDataLabels: z.boolean().optional(),
         placement: placementSchema.optional(),
       })
       .strict(),
@@ -1707,12 +1726,17 @@ export type WidgetSpec =
         | "BAR_CHART"
         | "PIE_CHART"
         | "COLUMN_CHART"
-        | "AREA_CHART";
+        | "AREA_CHART"
+        | "SCATTER_CHART";
       series?: {
         name?: string;
         points?: { x: string | number; y: number }[];
       }[];
-      source?: ChartSourceRef;
+      source?: ChartSourceRef | ChartSourceRef[];
+      xAxisLabel?: string;
+      yAxisLabel?: string;
+      labelOrientation?: "auto" | "slant" | "rotate" | "stagger";
+      showDataLabels?: boolean;
       placement?: PlacementSpec;
     }
   | {

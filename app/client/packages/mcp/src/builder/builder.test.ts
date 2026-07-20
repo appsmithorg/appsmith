@@ -1146,6 +1146,129 @@ describe("compileApp — import artifact contract", () => {
     expect(primaryColumns.a_b1.originalId).toBe("a_b");
   });
 
+  it("Ch1: compiles a multi-series query chart with axis/label config", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "chart",
+                name: "Sales",
+                chartType: "SCATTER_CHART",
+                source: [
+                  { query: "Q1", x: "month", y: "revenue", name: "Revenue" },
+                  { query: "Q2", x: "month", y: "cost", name: "Cost" },
+                ],
+                xAxisLabel: "Month",
+                yAxisLabel: "USD",
+                labelOrientation: "slant",
+                showDataLabels: true,
+              },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const chart = (rootOf(artifact).children as WidgetNode[])[0];
+
+    expect(chart.type).toBe("CHART_WIDGET");
+    expect(chart.chartType).toBe("SCATTER_CHART");
+    expect(chart.xAxisName).toBe("Month");
+    expect(chart.yAxisName).toBe("USD");
+    expect(chart.labelOrientation).toBe("slant");
+    expect(chart.showDataPointLabel).toBe(true);
+
+    const chartData = chart.chartData as Record<
+      string,
+      { seriesName: string; data: string }
+    >;
+
+    expect(Object.keys(chartData)).toEqual(["series1", "series2"]);
+    expect(chartData.series1.seriesName).toBe("Revenue");
+    expect(chartData.series2.seriesName).toBe("Cost");
+    // Each query series' data is a compiler-authored binding over that query's rows.
+    expect(chartData.series1.data).toContain("Q1.data");
+    expect(chartData.series2.data).toContain("Q2.data");
+
+    // Both series' data are registered as dynamic bindings.
+    const paths = (chart.dynamicBindingPathList as { key: string }[]).map(
+      (p) => p.key,
+    );
+
+    expect(paths).toEqual(["chartData.series1.data", "chartData.series2.data"]);
+  });
+
+  it("Ch1: a single query source still yields one series named after the title", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "chart",
+                name: "One",
+                title: "Trend",
+                source: { query: "Q1", x: "d", y: "v" },
+              },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const chart = (rootOf(artifact).children as WidgetNode[])[0];
+    const chartData = chart.chartData as Record<string, { seriesName: string }>;
+
+    expect(Object.keys(chartData)).toEqual(["series1"]);
+    expect(chartData.series1.seriesName).toBe("Trend");
+  });
+
+  it("Ch1: rejects unsafe chart props (bad type, binding axis label, series+source)", () => {
+    const bad = [
+      { type: "chart", chartType: "CUSTOM_ECHART" },
+      { type: "chart", xAxisLabel: "X {{evil}}" },
+      { type: "chart", labelOrientation: "sideways" },
+      { type: "chart", source: [{ query: "Q1", x: 'x"]//', y: "y" }] },
+    ];
+
+    for (const widget of bad) {
+      expect(
+        appSpecSchema.safeParse({
+          name: "App",
+          pages: [{ name: "Home", widgets: [widget] }],
+        }).success,
+      ).toBe(false);
+    }
+
+    // series + source together is rejected at compile time (mutually exclusive).
+    expect(() =>
+      compileApp(
+        {
+          name: "App",
+          pages: [
+            {
+              name: "Home",
+              widgets: [
+                {
+                  type: "chart",
+                  series: [{ name: "S", points: [{ x: 1, y: 2 }] }],
+                  source: { query: "Q1", x: "d", y: "v" },
+                },
+              ],
+            },
+          ],
+        },
+        ids(),
+      ),
+    ).toThrow(/cannot set both/);
+  });
+
   it("compiles selected-row display bindings for text and input", () => {
     const artifact = compileApp(
       {
