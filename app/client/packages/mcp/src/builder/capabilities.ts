@@ -392,7 +392,7 @@ export const WIDGET_CATALOG = [
     fields: {
       title: "string",
       chartType:
-        "LINE_CHART | BAR_CHART | PIE_CHART | COLUMN_CHART | AREA_CHART | SCATTER_CHART",
+        "LINE_CHART | BAR_CHART | PIE_CHART | COLUMN_CHART | AREA_CHART",
       series: "{ name?: string, points?: { x, y }[] }[] — static series",
       source:
         "ONE query source { query, field?, x, y, name? } OR an ARRAY of them for a multi-series chart. x is the category/label column, y the numeric value column, name the series label. Use series OR source, not both (data layer).",

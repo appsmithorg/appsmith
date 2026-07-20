@@ -1252,7 +1252,7 @@ describe("compileApp — import artifact contract", () => {
               {
                 type: "chart",
                 name: "Sales",
-                chartType: "SCATTER_CHART",
+                chartType: "COLUMN_CHART",
                 source: [
                   { query: "Q1", x: "month", y: "revenue", name: "Revenue" },
                   { query: "Q2", x: "month", y: "cost", name: "Cost" },
@@ -1271,7 +1271,7 @@ describe("compileApp — import artifact contract", () => {
     const chart = (rootOf(artifact).children as WidgetNode[])[0];
 
     expect(chart.type).toBe("CHART_WIDGET");
-    expect(chart.chartType).toBe("SCATTER_CHART");
+    expect(chart.chartType).toBe("COLUMN_CHART");
     expect(chart.xAxisName).toBe("Month");
     expect(chart.yAxisName).toBe("USD");
     expect(chart.labelOrientation).toBe("slant");

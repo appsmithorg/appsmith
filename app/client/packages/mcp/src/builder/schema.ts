@@ -1176,8 +1176,10 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         type: z.literal("chart"),
         name: nameField,
         title: safeText(200).optional(),
-        // The fixed chart types. CUSTOM_ECHART / CUSTOM_FUSION_CHART are excluded — they are agent-authored raw
-        // chart config (the gated raw-code class), not the closed vocabulary.
+        // The fixed chart types — exactly the CHART_WIDGET's runtime allowedValues (propertyConfig.ts). SCATTER_CHART
+        // is NOT here: it is an ECharts sub-type only reachable through CUSTOM_ECHART, and the widget rejects it as a
+        // standalone chartType ("Disallowed value" — confirmed on live DP). CUSTOM_ECHART / CUSTOM_FUSION_CHART are
+        // excluded as agent-authored raw chart config (the gated raw-code class), not the closed vocabulary.
         chartType: z
           .enum([
             "LINE_CHART",
@@ -1185,7 +1187,6 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
             "PIE_CHART",
             "COLUMN_CHART",
             "AREA_CHART",
-            "SCATTER_CHART",
           ])
           .optional(),
         series: z.array(chartSeries).max(10).optional(),
@@ -1770,8 +1771,7 @@ export type WidgetSpec =
         | "BAR_CHART"
         | "PIE_CHART"
         | "COLUMN_CHART"
-        | "AREA_CHART"
-        | "SCATTER_CHART";
+        | "AREA_CHART";
       series?: {
         name?: string;
         points?: { x: string | number; y: number }[];
