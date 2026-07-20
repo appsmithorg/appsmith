@@ -23,9 +23,7 @@ const LinkData: Record<DocsLink, string> = {
     "https://docs.appsmith.com/help-and-support/troubleshooting-guide",
   QUERY_SETTINGS:
     "https://docs.appsmith.com/connect-data/reference/query-settings",
-  // TODO: replace with the dedicated Appsmith AI → BYOK migration guide once
-  // published, and restore the "Learn how to migrate" label in messages.ts
-  // (APPSMITH_AI_DEPRECATION_LEARN_MORE)
+  // This URL hosts the Appsmith AI → BYOK migration guide (appsmith-docs#3025)
   APPSMITH_AI_DEPRECATION:
     "https://docs.appsmith.com/connect-data/reference/appsmith-ai",
 };

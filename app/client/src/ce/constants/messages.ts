@@ -419,9 +419,7 @@ export const CREATE_NEW_AI_SECTION_HEADER = () => "AI Integrations";
 export const APPSMITH_AI_KILL_DATE = "September 30, 2026";
 export const APPSMITH_AI_DEPRECATION_MESSAGE = () =>
   `Appsmith AI is deprecated and will stop working on ${APPSMITH_AI_KILL_DATE}. Migrate to OpenAI, Anthropic, or Google AI with your own API key. Uploaded files (file context) will not be available after this date.`;
-// TODO: restore "Learn how to migrate" once the BYOK migration guide is
-// published and DocsLink.APPSMITH_AI_DEPRECATION points to it
-export const APPSMITH_AI_DEPRECATION_LEARN_MORE = () => "Learn more";
+export const APPSMITH_AI_DEPRECATION_LEARN_MORE = () => "Learn how to migrate";
 export const CONNECT_A_DATASOURCE_HEADING = () => "Connect a datasource";
 export const CONNECT_A_DATASOURCE_SUBHEADING = () =>
   "Select a sample datasource or connect your own";
