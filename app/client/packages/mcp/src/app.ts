@@ -817,6 +817,7 @@ const SQL_PLUGIN_IDS = new Set([
   "mysql-plugin",
   "oracle-plugin",
   "postgres-plugin",
+  "redshift-plugin",
   "snowflake-plugin",
 ]);
 const REST_PLUGIN_IDS = new Set(["restapi-plugin"]);
@@ -834,14 +835,21 @@ const DEFAULT_ENVIRONMENT_ID = "unused_env";
 // endpoints[host,port] + authentication{databaseName,username} + connection.mode fields). Credentials are never part
 // of the vocabulary; the password is completed by a human in the Appsmith UI. packageNames are sourced from the
 // client PluginPackageName enum (app/client/src/entities/Plugin/index.ts) and the server plugin seed data.
+// D1: oracle and redshift join the shared shape — their form.json datasource config is the SAME
+// endpoints[host,port] + authentication{databaseName,username,password} + connection.mode shape (verified against
+// oraclePlugin/redshiftPlugin form.json), and both are SQL (create_query works via SQL_PLUGIN_IDS). Snowflake and
+// databricks are intentionally NOT here: their datasource config is bespoke (account/warehouse or host/httpPath +
+// token, no endpoints[host,port]), so they don't fit this builder or the "reuse existing query builders" scope.
 const CREATABLE_DATASOURCE_PLUGINS: Record<
-  "postgresql" | "mysql" | "mssql" | "mongodb",
+  "postgresql" | "mysql" | "mssql" | "mongodb" | "oracle" | "redshift",
   { packageName: string; defaultPort: number }
 > = {
   postgresql: { packageName: "postgres-plugin", defaultPort: 5432 },
   mysql: { packageName: "mysql-plugin", defaultPort: 3306 },
   mssql: { packageName: "mssql-plugin", defaultPort: 1433 },
   mongodb: { packageName: "mongo-plugin", defaultPort: 27017 },
+  oracle: { packageName: "oracle-plugin", defaultPort: 1521 },
+  redshift: { packageName: "redshift-plugin", defaultPort: 5439 },
 };
 
 const REST_DATASOURCE_PACKAGE_NAME = "restapi-plugin";
@@ -4474,7 +4482,7 @@ export function buildMcpServer(
 
     server.tool(
       "create_datasource",
-      "Create a datasource in a workspace. Supported: PostgreSQL/MySQL/Microsoft SQL Server/MongoDB databases (pass `connection` with non-secret host/port/database/username; the password is completed later in the Appsmith UI), and REST APIs (pass `url` with the base URL — created ready to use when the API needs no auth). Google Sheets is NOT creatable here: it needs interactive OAuth that must be authorized in the Appsmith UI; create+authorize it there, then query it with create_sheets_query. Credentials are NEVER accepted or transmitted by this tool. Idempotent by workspace + name.",
+      "Create a datasource in a workspace. Supported: PostgreSQL/MySQL/Microsoft SQL Server/Oracle/Amazon Redshift/MongoDB databases (pass `connection` with non-secret host/port/database/username; the password is completed later in the Appsmith UI), and REST APIs (pass `url` with the base URL — created ready to use when the API needs no auth). Google Sheets is NOT creatable here: it needs interactive OAuth that must be authorized in the Appsmith UI; create+authorize it there, then query it with create_sheets_query. Credentials are NEVER accepted or transmitted by this tool. Idempotent by workspace + name.",
       {
         workspaceId: idSchema,
         name: z
@@ -4491,6 +4499,8 @@ export function buildMcpServer(
           "mysql",
           "mssql",
           "mongodb",
+          "oracle",
+          "redshift",
           "rest",
           "googlesheets",
         ]),

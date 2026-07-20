@@ -2255,6 +2255,84 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     expect(mssqlConfig.endpoints).toEqual([{ host: "sqlserver", port: 14330 }]);
   });
 
+  it("create_datasource provisions oracle and redshift on the shared host/port/dbAuth shape (D1)", async () => {
+    const createDatasource = jest.fn<
+      Promise<Record<string, unknown>>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "ds-sql" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listPlugins: jest.fn(async () => [
+        { id: "p-oracle", packageName: "oracle-plugin" },
+        { id: "p-redshift", packageName: "redshift-plugin" },
+      ]),
+      listDatasources: jest.fn(async () => []),
+      createDatasource,
+    };
+
+    // oracle -> its plugin id + default port 1521, same dbAuth shape as the other databases.
+    const oracle = await callTool(api, "create_datasource", {
+      workspaceId: "ws1",
+      name: "Oracle DB",
+      plugin: "oracle",
+      connection: {
+        host: "oracle-host",
+        databaseName: "ORCL",
+        username: "app",
+      },
+    });
+
+    expect(oracle).toMatchObject({ needsCredentials: true });
+    const oracleCall = createDatasource.mock.calls[0][0] as {
+      pluginId: string;
+      datasourceStorages: Record<
+        string,
+        {
+          isConfigured: boolean;
+          datasourceConfiguration: {
+            endpoints: unknown;
+            authentication: Record<string, unknown>;
+          };
+        }
+      >;
+    };
+
+    expect(oracleCall.pluginId).toBe("p-oracle");
+    const oracleConfig =
+      oracleCall.datasourceStorages.unused_env.datasourceConfiguration;
+
+    expect(oracleConfig.endpoints).toEqual([
+      { host: "oracle-host", port: 1521 },
+    ]);
+    expect(oracleConfig.authentication).toEqual({
+      authenticationType: "dbAuth",
+      databaseName: "ORCL",
+      username: "app",
+    });
+    // Databases are created UNCONFIGURED — the password is completed in the UI.
+    expect(oracleCall.datasourceStorages.unused_env.isConfigured).toBe(false);
+
+    // redshift -> default port 5439.
+    await callTool(api, "create_datasource", {
+      workspaceId: "ws1",
+      name: "Redshift DB",
+      plugin: "redshift",
+      connection: { host: "rs-host", databaseName: "dev" },
+    });
+
+    const redshiftConfig = (
+      createDatasource.mock.calls[1][0] as {
+        pluginId: string;
+        datasourceStorages: Record<
+          string,
+          { datasourceConfiguration: { endpoints: unknown } }
+        >;
+      }
+    ).datasourceStorages.unused_env.datasourceConfiguration;
+
+    expect(redshiftConfig.endpoints).toEqual([{ host: "rs-host", port: 5439 }]);
+  });
+
   it("create_datasource rejects credential/injection input at the schema", async () => {
     const createDatasource = jest.fn();
     const api: AppsmithApi = {
