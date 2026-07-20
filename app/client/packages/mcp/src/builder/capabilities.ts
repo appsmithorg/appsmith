@@ -131,6 +131,42 @@ export const WIDGET_CATALOG = [
     purpose: "Upload one or more files.",
   },
   {
+    type: "divider",
+    fields: { orientation: "'horizontal' (default) | 'vertical'" },
+    purpose: "A visual separator line.",
+  },
+  {
+    type: "progress",
+    fields: {
+      value: "number 0-100 — percent complete (defaults to 50)",
+      infinite: "boolean — a busy/indeterminate bar with no fixed value",
+    },
+    purpose: "A linear progress bar.",
+  },
+  {
+    type: "circularprogress",
+    fields: { value: "number 0-100 — percent complete (defaults to 65)" },
+    purpose: "A circular progress indicator.",
+  },
+  {
+    type: "rate",
+    fields: {
+      max: "integer 1-10 — number of stars (defaults to 5)",
+      defaultRate: "number — initial rating",
+      allowHalf: "boolean — allow half-star values",
+      readOnly: "boolean — display-only, not editable",
+    },
+    purpose: "A star-rating display/input.",
+  },
+  {
+    type: "iconbutton",
+    fields: {
+      icon: "kebab-case Blueprint icon name (e.g. 'plus', 'trash')",
+      variant: "'PRIMARY' (default) | 'SECONDARY' | 'TERTIARY'",
+    },
+    purpose: "A compact icon-only button (wire its click with wire_event).",
+  },
+  {
     type: "chart",
     fields: {
       title: "string",

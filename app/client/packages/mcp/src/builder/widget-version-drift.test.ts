@@ -76,6 +76,9 @@ function readClientWidgetSource(appsmithType: string): string | undefined {
 // is asserted explicitly rather than auto-extracted.
 const NO_GETCONFIG_VERSION: Record<string, number> = {
   LIST_WIDGET_V2: 3,
+  // RATE_WIDGET declares no version anywhere (getConfig or getDefaults) — a versionless widget cannot drift, so
+  // the template uses the conventional 1, asserted explicitly here.
+  RATE_WIDGET: 1,
 };
 
 describe("widget-version drift tripwire (M4-T6)", () => {

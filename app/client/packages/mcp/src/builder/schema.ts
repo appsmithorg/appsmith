@@ -22,6 +22,11 @@ export const WIDGET_TYPES = [
   "radio",
   "multiselect",
   "filepicker",
+  "divider",
+  "progress",
+  "circularprogress",
+  "rate",
+  "iconbutton",
 ] as const;
 
 export type WidgetType = (typeof WIDGET_TYPES)[number];
@@ -53,6 +58,14 @@ const nameField = z
   .max(64)
   .regex(/^[A-Za-z0-9_]+$/, "name must be alphanumeric/underscore")
   .optional();
+
+// A Blueprint icon name (kebab-case, e.g. "plus", "arrow-right"). Emitted as a literal prop value; the strict
+// charset admits no quote/brace/backtick so it cannot break out. An unknown icon renders as nothing (safe).
+const iconName = z
+  .string()
+  .min(1)
+  .max(40)
+  .regex(/^[a-z0-9-]+$/, "icon must be a kebab-case icon name (e.g. 'plus')");
 
 // Security invariant (Security Reviewer ruling): agents NEVER author raw expressions. Every free-text field an agent
 // supplies is rejected if it contains binding/interpolation/template syntax, so nothing agent-authored can become an
@@ -962,6 +975,54 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         placement: placementSchema.optional(),
       })
       .strict(),
+    z
+      .object({
+        type: z.literal("divider"),
+        name: nameField,
+        orientation: z.enum(["horizontal", "vertical"]).optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("progress"),
+        name: nameField,
+        // Percent complete (0-100). A plain literal — never a binding.
+        value: z.number().min(0).max(100).optional(),
+        // A busy/indeterminate bar with no fixed value.
+        infinite: z.boolean().optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("circularprogress"),
+        name: nameField,
+        value: z.number().min(0).max(100).optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("rate"),
+        name: nameField,
+        max: z.number().int().min(1).max(10).optional(),
+        defaultRate: z.number().min(0).optional(),
+        allowHalf: z.boolean().optional(),
+        readOnly: z.boolean().optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("iconbutton"),
+        name: nameField,
+        // A Blueprint icon name (kebab-case identifier); emitted as a literal prop, never a binding.
+        icon: iconName.optional(),
+        variant: z.enum(["PRIMARY", "SECONDARY", "TERTIARY"]).optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
   ]),
 );
 
@@ -1111,6 +1172,41 @@ export type WidgetSpec =
       type: "filepicker";
       name?: string;
       label?: string;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "divider";
+      name?: string;
+      orientation?: string;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "progress";
+      name?: string;
+      value?: number;
+      infinite?: boolean;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "circularprogress";
+      name?: string;
+      value?: number;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "rate";
+      name?: string;
+      max?: number;
+      defaultRate?: number;
+      allowHalf?: boolean;
+      readOnly?: boolean;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "iconbutton";
+      name?: string;
+      icon?: string;
+      variant?: string;
       placement?: PlacementSpec;
     };
 

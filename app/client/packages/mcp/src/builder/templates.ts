@@ -703,4 +703,122 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
       };
     },
   },
+
+  divider: {
+    appsmithType: "DIVIDER_WIDGET",
+    version: 1,
+    footprint: { columns: 20, rows: 4 },
+    build: (spec) => {
+      const orientation =
+        spec.type === "divider"
+          ? spec.orientation ?? "horizontal"
+          : "horizontal";
+
+      return {
+        footprint: { columns: 20, rows: 4 },
+        props: {
+          orientation,
+          capType: "nc",
+          capSide: 0,
+          strokeStyle: "solid",
+          dividerColor: "#B3B3B3",
+          thickness: 2,
+          animateLoading: true,
+          responsiveBehavior: "fill",
+        },
+      };
+    },
+  },
+
+  progress: {
+    appsmithType: "PROGRESS_WIDGET",
+    version: 1,
+    footprint: { columns: 28, rows: 4 },
+    build: (spec) => {
+      const value = spec.type === "progress" ? spec.value ?? 50 : 50;
+      const isIndeterminate =
+        spec.type === "progress" ? spec.infinite ?? false : false;
+
+      return {
+        footprint: { columns: 28, rows: 4 },
+        props: {
+          progress: value,
+          isIndeterminate,
+          fillColor: "#03B365",
+          showResult: false,
+          counterClosewise: false,
+          steps: 1,
+          progressType: "LINEAR",
+          responsiveBehavior: "fill",
+        },
+      };
+    },
+  },
+
+  circularprogress: {
+    appsmithType: "CIRCULAR_PROGRESS_WIDGET",
+    version: 1,
+    footprint: { columns: 16, rows: 17 },
+    build: (spec) => {
+      const value = spec.type === "circularprogress" ? spec.value ?? 65 : 65;
+
+      return {
+        footprint: { columns: 16, rows: 17 },
+        props: {
+          progress: value,
+          counterClockWise: false,
+          fillColor: "#03B365",
+          showResult: true,
+          shouldScroll: false,
+          shouldTruncate: false,
+          animateLoading: true,
+        },
+      };
+    },
+  },
+
+  rate: {
+    appsmithType: "RATE_WIDGET",
+    version: 1,
+    footprint: { columns: 20, rows: 4 },
+    build: (spec) => {
+      const rate = spec.type === "rate" ? spec : undefined;
+
+      return {
+        footprint: { columns: 20, rows: 4 },
+        props: {
+          maxCount: rate?.max ?? 5,
+          defaultRate: rate?.defaultRate ?? 3,
+          activeColor: "#FEB811",
+          inactiveColor: "#E7E7E7",
+          size: "LARGE",
+          isRequired: false,
+          isAllowHalf: rate?.allowHalf ?? false,
+          isDisabled: false,
+          isReadOnly: rate?.readOnly ?? false,
+          animateLoading: true,
+        },
+      };
+    },
+  },
+
+  iconbutton: {
+    appsmithType: "ICON_BUTTON_WIDGET",
+    version: 1,
+    footprint: { columns: 4, rows: 4 },
+    build: (spec) => {
+      const button = spec.type === "iconbutton" ? spec : undefined;
+
+      return {
+        footprint: { columns: 4, rows: 4 },
+        props: {
+          iconName: button?.icon ?? "plus",
+          buttonVariant: button?.variant ?? "PRIMARY",
+          isDisabled: false,
+          animateLoading: true,
+          responsiveBehavior: "hug",
+        },
+      };
+    },
+  },
 };

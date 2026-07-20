@@ -62,6 +62,11 @@ const DEFAULT_BASE_NAME: Record<WidgetType, string> = {
   radio: "RadioGroup",
   multiselect: "MultiSelect",
   filepicker: "FilePicker",
+  divider: "Divider",
+  progress: "Progress",
+  circularprogress: "CircularProgress",
+  rate: "Rating",
+  iconbutton: "IconButton",
 };
 
 interface CompileContext {

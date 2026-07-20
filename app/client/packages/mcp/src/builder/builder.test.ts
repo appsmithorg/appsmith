@@ -394,6 +394,66 @@ describe("compileApp — import artifact contract", () => {
     ).toThrow(/nesting/);
   });
 
+  it("compiles the W1 display widgets (divider, progress, circularprogress, rate, iconbutton)", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              { type: "divider", name: "Sep", orientation: "vertical" },
+              { type: "progress", name: "Bar", value: 75 },
+              { type: "circularprogress", name: "Ring", value: 40 },
+              {
+                type: "rate",
+                name: "Stars",
+                max: 5,
+                defaultRate: 4,
+                allowHalf: true,
+              },
+              { type: "iconbutton", name: "Add", icon: "plus" },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const children = rootOf(artifact).children as WidgetNode[];
+    const by = (name: string) => children.find((w) => w.widgetName === name)!;
+
+    expect(by("Sep").type).toBe("DIVIDER_WIDGET");
+    expect(by("Sep").orientation).toBe("vertical");
+    expect(by("Bar").type).toBe("PROGRESS_WIDGET");
+    expect(by("Bar").progress).toBe(75);
+    expect(by("Ring").type).toBe("CIRCULAR_PROGRESS_WIDGET");
+    expect(by("Ring").progress).toBe(40);
+    expect(by("Stars").type).toBe("RATE_WIDGET");
+    expect(by("Stars").maxCount).toBe(5);
+    expect(by("Stars").defaultRate).toBe(4);
+    expect(by("Stars").isAllowHalf).toBe(true);
+    expect(by("Add").type).toBe("ICON_BUTTON_WIDGET");
+    expect(by("Add").iconName).toBe("plus");
+  });
+
+  it("rejects unsafe W1 widget props (bad icon, out-of-range progress/rate)", () => {
+    const bad = [
+      { type: "iconbutton", icon: "plus{{evil}}" },
+      { type: "progress", value: 150 },
+      { type: "circularprogress", value: -5 },
+      { type: "rate", max: 0 },
+    ];
+
+    for (const widget of bad) {
+      expect(
+        appSpecSchema.safeParse({
+          name: "App",
+          pages: [{ name: "Home", widgets: [widget] }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("compiles selected-row display bindings for text and input", () => {
     const artifact = compileApp(
       {
