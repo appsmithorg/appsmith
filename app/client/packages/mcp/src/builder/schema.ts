@@ -36,6 +36,9 @@ export const WIDGET_TYPES = [
   "switchgroup",
   "menubutton",
   "buttongroup",
+  "camera",
+  "audiorecorder",
+  "codescanner",
 ] as const;
 
 export type WidgetType = (typeof WIDGET_TYPES)[number];
@@ -1162,6 +1165,34 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         placement: placementSchema.optional(),
       })
       .strict(),
+    z
+      .object({
+        type: z.literal("camera"),
+        name: nameField,
+        // Photo capture ("CAMERA") or video recording ("VIDEO").
+        mode: z.enum(["CAMERA", "VIDEO"]).optional(),
+        // Mirror the live preview (selfie view).
+        mirrored: z.boolean().optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("audiorecorder"),
+        name: nameField,
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("codescanner"),
+        name: nameField,
+        label: safeText(200).optional(),
+        // ALWAYS_ON keeps the scanner live; CLICK_TO_SCAN opens it on a button press.
+        scanMode: z.enum(["ALWAYS_ON", "CLICK_TO_SCAN"]).optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
   ]),
 );
 
@@ -1428,6 +1459,25 @@ export type WidgetSpec =
       orientation?: string;
       variant?: string;
       buttons?: { label: string; icon?: string }[];
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "camera";
+      name?: string;
+      mode?: string;
+      mirrored?: boolean;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "audiorecorder";
+      name?: string;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "codescanner";
+      name?: string;
+      label?: string;
+      scanMode?: string;
       placement?: PlacementSpec;
     };
 

@@ -1139,4 +1139,57 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
       };
     },
   },
+  camera: {
+    appsmithType: "CAMERA_WIDGET",
+    version: 1,
+    footprint: { columns: 32, rows: 33 },
+    build: (spec) => {
+      const s = spec.type === "camera" ? spec : undefined;
+
+      return {
+        footprint: { columns: 32, rows: 33 },
+        props: {
+          mode: s?.mode ?? "CAMERA",
+          isMirrored: s?.mirrored ?? true,
+          isDisabled: false,
+          isVisible: true,
+        },
+      };
+    },
+  },
+  audiorecorder: {
+    appsmithType: "AUDIO_RECORDER_WIDGET",
+    version: 1,
+    footprint: { columns: 12, rows: 7 },
+    build: () => ({
+      footprint: { columns: 12, rows: 7 },
+      props: {
+        iconColor: "white",
+        isDisabled: false,
+        isVisible: true,
+        animateLoading: true,
+      },
+    }),
+  },
+  codescanner: {
+    appsmithType: "CODE_SCANNER_WIDGET",
+    version: 1,
+    footprint: { columns: 16, rows: 33 },
+    build: (spec) => {
+      const s = spec.type === "codescanner" ? spec : undefined;
+
+      return {
+        footprint: { columns: 16, rows: 33 },
+        props: {
+          label: s?.label ?? "Scan a QR/Barcode",
+          scannerLayout: s?.scanMode ?? "ALWAYS_ON",
+          isDefaultClickDisabled: true,
+          isRequired: false,
+          isDisabled: false,
+          animateLoading: true,
+          placement: "CENTER",
+        },
+      };
+    },
+  },
 };

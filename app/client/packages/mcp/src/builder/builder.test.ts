@@ -633,6 +633,57 @@ describe("compileApp — import artifact contract", () => {
     }
   });
 
+  it("compiles the W6 device-capture widgets (camera, audiorecorder, codescanner)", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              { type: "camera", name: "Cam", mode: "VIDEO", mirrored: false },
+              { type: "audiorecorder", name: "Mic" },
+              {
+                type: "codescanner",
+                name: "Scan",
+                label: "Scan ticket",
+                scanMode: "CLICK_TO_SCAN",
+              },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const children = rootOf(artifact).children as WidgetNode[];
+    const by = (name: string) => children.find((w) => w.widgetName === name)!;
+
+    expect(by("Cam").type).toBe("CAMERA_WIDGET");
+    expect(by("Cam").mode).toBe("VIDEO");
+    expect(by("Cam").isMirrored).toBe(false);
+    expect(by("Mic").type).toBe("AUDIO_RECORDER_WIDGET");
+    expect(by("Scan").type).toBe("CODE_SCANNER_WIDGET");
+    expect(by("Scan").scannerLayout).toBe("CLICK_TO_SCAN");
+    expect(by("Scan").label).toBe("Scan ticket");
+  });
+
+  it("rejects unsafe W6 device-capture props (bad enum, binding label)", () => {
+    const bad = [
+      { type: "camera", mode: "PHOTO" },
+      { type: "codescanner", scanMode: "MAYBE" },
+      { type: "codescanner", label: "Scan {{evil}}" },
+    ];
+
+    for (const widget of bad) {
+      expect(
+        appSpecSchema.safeParse({
+          name: "App",
+          pages: [{ name: "Home", widgets: [widget] }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("compiles selected-row display bindings for text and input", () => {
     const artifact = compileApp(
       {

@@ -76,6 +76,9 @@ const DEFAULT_BASE_NAME: Record<WidgetType, string> = {
   switchgroup: "SwitchGroup",
   menubutton: "MenuButton",
   buttongroup: "ButtonGroup",
+  camera: "Camera",
+  audiorecorder: "AudioRecorder",
+  codescanner: "CodeScanner",
 };
 
 interface CompileContext {

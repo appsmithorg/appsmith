@@ -261,6 +261,27 @@ export const WIDGET_CATALOG = [
     purpose: "A row/column of related buttons.",
   },
   {
+    type: "camera",
+    fields: {
+      mode: "'CAMERA' (photo, default) | 'VIDEO' (recording)",
+      mirrored: "boolean — mirror the live preview (default true)",
+    },
+    purpose: "Capture a photo or video from the device camera.",
+  },
+  {
+    type: "audiorecorder",
+    fields: {},
+    purpose: "Record audio from the device microphone.",
+  },
+  {
+    type: "codescanner",
+    fields: {
+      label: "string — the scan button/prompt caption",
+      scanMode: "'ALWAYS_ON' (default, live) | 'CLICK_TO_SCAN'",
+    },
+    purpose: "Scan a QR code or barcode with the device camera.",
+  },
+  {
     type: "chart",
     fields: {
       title: "string",
