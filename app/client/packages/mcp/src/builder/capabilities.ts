@@ -611,6 +611,11 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
       summary: "structured Redis command (closed vocabulary)",
     },
     {
+      name: "create_ai_query",
+      gate: "data",
+      summary: "structured OpenAI/Anthropic/Google AI chat query",
+    },
+    {
       name: "create_rest_api",
       gate: "data",
       summary: "structured REST action",

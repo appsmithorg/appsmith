@@ -2056,6 +2056,112 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     ]);
   });
 
+  it("create_ai_query creates a chat action and resolves the provider from the datasource plugin", async () => {
+    const createAction = jest.fn<
+      Promise<{ id: string }>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "act-ai" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "Claude", pluginId: "656f00000000000000000020" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000020", packageName: "anthropic-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_ai_query", {
+      query: {
+        name: "Ask",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        model: "claude-3-5-sonnet-20241022",
+        messages: [
+          { role: "user", content: { widget: "Prompt", property: "text" } },
+        ],
+      },
+    });
+
+    expect(body.created).toBe(true);
+    expect(body.provider).toBe("Anthropic");
+
+    const dto = createAction.mock.calls[0][0] as {
+      actionConfiguration: {
+        formData: { command: { data: string }; chatModel: { data: string } };
+        dynamicBindingPathList?: { key: string }[];
+      };
+    };
+
+    expect(dto.actionConfiguration.formData.command.data).toBe("CHAT");
+    expect(dto.actionConfiguration.formData.chatModel.data).toBe(
+      "claude-3-5-sonnet-20241022",
+    );
+    expect(dto.actionConfiguration.dynamicBindingPathList).toEqual([
+      { key: "formData.messages.data" },
+    ]);
+  });
+
+  it("create_ai_query is idempotent — returns the existing query, no duplicate write", async () => {
+    const createAction = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "OpenAI", pluginId: "656f00000000000000000021" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000021", packageName: "openai-plugin" },
+      ]),
+      listActions: jest.fn(async () => [
+        { id: "existing", name: "Ask", pageId: "p1" },
+      ]),
+      createAction,
+    };
+    const body = await callTool(api, "create_ai_query", {
+      query: {
+        name: "Ask",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        model: "gpt-4o",
+        messages: [{ role: "user", content: { literal: "hi" } }],
+      },
+    });
+
+    expect(body.created).toBe(false);
+    expect(createAction).not.toHaveBeenCalled();
+  });
+
+  it("create_ai_query refuses a non-AI datasource", async () => {
+    const createAction = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "PG", pluginId: "656f00000000000000000001" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000001", packageName: "postgres-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_ai_query", {
+      query: {
+        name: "Ask",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        model: "gpt-4o",
+        messages: [{ role: "user", content: { literal: "hi" } }],
+      },
+    });
+
+    expect(body.error).toMatch(/OpenAI, Anthropic, or Google AI datasource/);
+    expect(createAction).not.toHaveBeenCalled();
+  });
+
   it("create_redis_query is idempotent — returns the existing query, no duplicate write", async () => {
     const createAction = jest.fn();
     const api: AppsmithApi = {
@@ -2225,9 +2331,11 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     expect(off).not.toContain("create_mongo_query");
     expect(off).not.toContain("create_sheets_query");
     expect(off).not.toContain("create_redis_query");
+    expect(off).not.toContain("create_ai_query");
     expect(on).toContain("create_mongo_query");
     expect(on).toContain("create_sheets_query");
     expect(on).toContain("create_redis_query");
+    expect(on).toContain("create_ai_query");
   });
 
   it("create_datasource creates an UNCONFIGURED datasource with no credential fields", async () => {

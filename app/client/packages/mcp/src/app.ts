@@ -82,6 +82,12 @@ import {
   redisQuerySpecSchema,
 } from "./builder/redisQuery.js";
 import {
+  AI_PROVIDERS,
+  buildAiActionDto,
+  compileAiQuery,
+  aiQuerySpecSchema,
+} from "./builder/aiQuery.js";
+import {
   buildRestActionDto,
   compileRestApi,
   restApiSpecSchema,
@@ -835,6 +841,10 @@ const SHEETS_PLUGIN_IDS = new Set(["google-sheets-plugin"]);
 // vocabulary. Like Sheets, the Redis datasource is created in the Appsmith UI (host/port, optional auth) and queried
 // here by datasourceId — the connection's DB-index/optional-auth shape doesn't fit the shared database builder.
 const REDIS_PLUGIN_IDS = new Set(["redis-plugin"]);
+// D5: create_ai_query emits the chat formData for the OpenAI / Anthropic / Google AI plugins (appsmithAi is excluded
+// per product decision). Like Sheets/Redis, the AI datasource is created + api-key-authorized in the Appsmith UI and
+// queried here by datasourceId. The supported providers (and their per-provider formData quirks) live in
+// AI_PROVIDERS in builder/aiQuery.ts; the tool resolves the provider from the datasource's plugin packageName.
 
 // CE keys every datasource storage under this fixed environment id (FieldNameCE.UNUSED_ENVIRONMENT_ID).
 const DEFAULT_ENVIRONMENT_ID = "unused_env";
@@ -1044,6 +1054,27 @@ function isRedisDatasource(
     datasourceId,
     REDIS_PLUGIN_IDS,
   );
+}
+
+// The datasource's plugin packageName (resolved through the workspace plugin list), used to pick the AI provider
+// config. Returns undefined if the datasource isn't in the list.
+function datasourcePackageName(
+  list: unknown,
+  plugins: unknown,
+  datasourceId: string,
+): string | undefined {
+  if (!Array.isArray(list)) return undefined;
+
+  const entry = list.find(
+    (item) =>
+      item !== null &&
+      typeof item === "object" &&
+      (item as { id?: unknown }).id === datasourceId,
+  );
+
+  if (entry === undefined) return undefined;
+
+  return pluginPackageName(plugins, (entry as { pluginId?: unknown }).pluginId);
 }
 
 function workspaceIdFromApplicationPages(
@@ -5020,6 +5051,90 @@ export function buildMcpServer(
         return result({
           created: true,
           command: compiled.body,
+          action: created,
+        });
+      },
+    );
+
+    server.tool(
+      "create_ai_query",
+      "Create an AI chat-completion query on an existing OpenAI, Anthropic, or Google AI datasource from a STRUCTURED spec — no raw request body, no raw bindings. Pass { applicationId, pageId, datasourceId, name, model, messages, maxTokens?, temperature? }. model is the provider's model id (e.g. 'gpt-4o', 'claude-3-5-sonnet-20241022', 'gemini-1.5-pro'). messages is a list of { role: 'system'|'user'|'assistant', content } where content is { literal: '<text>' } or { widget, property } — bind an input's text to drive the prompt (the AI-app case). The compiler emits the provider's chat formData (command/model/messages resolved from the datasource's plugin). maxTokens/temperature apply to OpenAI/Anthropic. MCP never creates an AI datasource (create it and enter the API key in the Appsmith UI, then find it with list_datasources). Idempotent by page + name. NOTE: the emitted AI action config is PROVISIONAL — modeled from Appsmith's OpenAI/Anthropic/Google AI plugin editor forms but not yet verified end-to-end against a live datasource; validate in your instance before relying on it.",
+      {
+        query: z.record(z.unknown()),
+        branch: gitBranchParamSchema.optional(),
+      },
+      async ({ branch, query }) => {
+        const parsed = aiQuerySpecSchema.safeParse(query);
+
+        if (!parsed.success) return validationError(parsed.error.issues);
+
+        const spec = parsed.data;
+
+        const gate = await gitBranchGate(spec.applicationId, branch);
+
+        if (!gate.ok) return gate.result;
+
+        const workspaceId = workspaceIdFromApplicationPages(
+          await api.getApplicationPages(spec.applicationId),
+        );
+
+        if (typeof workspaceId !== "string") {
+          return result({
+            error: `could not resolve the workspace for application ${spec.applicationId}`,
+          });
+        }
+
+        const datasources = await api.listDatasources(workspaceId);
+
+        if (!datasourceAccessible(datasources, spec.datasourceId)) {
+          return result({
+            error: `datasource ${spec.datasourceId} is not accessible in this application's workspace`,
+          });
+        }
+
+        const plugins = await api.listPlugins(workspaceId);
+        const packageName = datasourcePackageName(
+          datasources,
+          plugins,
+          spec.datasourceId,
+        );
+
+        if (packageName === undefined || !(packageName in AI_PROVIDERS)) {
+          return result({
+            error:
+              "create_ai_query requires an existing OpenAI, Anthropic, or Google AI datasource",
+          });
+        }
+
+        const existing = findExistingAction(
+          await api.listActions(spec.applicationId),
+          spec.name,
+          spec.pageId,
+        );
+
+        if (existing !== undefined) {
+          return result({
+            created: false,
+            reason: "a query with this name already exists on this page",
+            action: existing,
+          });
+        }
+
+        let compiled: ReturnType<typeof compileAiQuery>;
+
+        try {
+          compiled = compileAiQuery(spec, packageName);
+        } catch (error) {
+          return compileError(error);
+        }
+
+        const created = await api.createAction(
+          buildAiActionDto(spec, compiled),
+        );
+
+        return result({
+          created: true,
+          provider: compiled.provider,
           action: created,
         });
       },
