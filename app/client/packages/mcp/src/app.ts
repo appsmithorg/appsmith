@@ -77,6 +77,11 @@ import {
   sheetsQuerySpecSchema,
 } from "./builder/sheetsQuery.js";
 import {
+  buildRedisActionDto,
+  compileRedisQuery,
+  redisQuerySpecSchema,
+} from "./builder/redisQuery.js";
+import {
   buildRestActionDto,
   compileRestApi,
   restApiSpecSchema,
@@ -826,6 +831,10 @@ const REST_PLUGIN_IDS = new Set(["restapi-plugin"]);
 // membership is checked by packageName, resolved from the workspace plugin list.
 const MONGO_PLUGIN_IDS = new Set(["mongo-plugin"]);
 const SHEETS_PLUGIN_IDS = new Set(["google-sheets-plugin"]);
+// D3: create_redis_query emits the Redis plugin's single-command `actionConfiguration.body` from a closed command
+// vocabulary. Like Sheets, the Redis datasource is created in the Appsmith UI (host/port, optional auth) and queried
+// here by datasourceId — the connection's DB-index/optional-auth shape doesn't fit the shared database builder.
+const REDIS_PLUGIN_IDS = new Set(["redis-plugin"]);
 
 // CE keys every datasource storage under this fixed environment id (FieldNameCE.UNUSED_ENVIRONMENT_ID).
 const DEFAULT_ENVIRONMENT_ID = "unused_env";
@@ -1021,6 +1030,19 @@ function isSheetsDatasource(
     plugins,
     datasourceId,
     SHEETS_PLUGIN_IDS,
+  );
+}
+
+function isRedisDatasource(
+  list: unknown,
+  plugins: unknown,
+  datasourceId: string,
+): boolean {
+  return datasourceInPluginFamily(
+    list,
+    plugins,
+    datasourceId,
+    REDIS_PLUGIN_IDS,
   );
 }
 
@@ -4920,6 +4942,84 @@ export function buildMcpServer(
         return result({
           created: true,
           command: compiled.command,
+          action: created,
+        });
+      },
+    );
+
+    server.tool(
+      "create_redis_query",
+      "Create a Redis command on an existing Redis datasource from a STRUCTURED spec — no raw Redis command string, no raw bindings. Pass { applicationId, pageId, datasourceId, name, command, key, ... }. command is an allow-listed verb: reads GET/EXISTS/TTL/TYPE/STRLEN/LLEN/SMEMBERS/SCARD/HGETALL/HKEYS/HVALS, writes SET/APPEND/LPUSH/RPUSH/SADD/SREM/DEL/INCR/DECR/HSET/HDEL/EXPIRE/LRANGE. Provide value (SET/APPEND/list/set writes, HSET), field (HGET/HDEL/HSET), seconds (EXPIRE), or start+stop (LRANGE). Each value is { literal } (a single token — no whitespace/quotes) or { widget, property } (resolved to the widget's value at runtime); keys/fields are single-token identifiers. The compiler emits exactly one Redis command line. MCP never creates a Redis datasource (create it in the Appsmith UI with host/port, then find it with list_datasources). Idempotent by page + name. NOTE: the emitted Redis action config is PROVISIONAL — modeled from Appsmith's Redis plugin editor form but not yet verified end-to-end against a live datasource; validate in your instance before relying on it.",
+      {
+        query: z.record(z.unknown()),
+        branch: gitBranchParamSchema.optional(),
+      },
+      async ({ branch, query }) => {
+        const parsed = redisQuerySpecSchema.safeParse(query);
+
+        if (!parsed.success) return validationError(parsed.error.issues);
+
+        const spec = parsed.data;
+
+        const gate = await gitBranchGate(spec.applicationId, branch);
+
+        if (!gate.ok) return gate.result;
+
+        const workspaceId = workspaceIdFromApplicationPages(
+          await api.getApplicationPages(spec.applicationId),
+        );
+
+        if (typeof workspaceId !== "string") {
+          return result({
+            error: `could not resolve the workspace for application ${spec.applicationId}`,
+          });
+        }
+
+        const datasources = await api.listDatasources(workspaceId);
+
+        if (!datasourceAccessible(datasources, spec.datasourceId)) {
+          return result({
+            error: `datasource ${spec.datasourceId} is not accessible in this application's workspace`,
+          });
+        }
+
+        const plugins = await api.listPlugins(workspaceId);
+
+        if (!isRedisDatasource(datasources, plugins, spec.datasourceId)) {
+          return result({
+            error: "create_redis_query requires an existing Redis datasource",
+          });
+        }
+
+        const existing = findExistingAction(
+          await api.listActions(spec.applicationId),
+          spec.name,
+          spec.pageId,
+        );
+
+        if (existing !== undefined) {
+          return result({
+            created: false,
+            reason: "a query with this name already exists on this page",
+            action: existing,
+          });
+        }
+
+        let compiled: ReturnType<typeof compileRedisQuery>;
+
+        try {
+          compiled = compileRedisQuery(spec);
+        } catch (error) {
+          return compileError(error);
+        }
+
+        const created = await api.createAction(
+          buildRedisActionDto(spec, compiled),
+        );
+
+        return result({
+          created: true,
+          command: compiled.body,
           action: created,
         });
       },

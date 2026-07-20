@@ -2012,6 +2012,108 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     expect(dto.actionConfiguration.formData.smartSubstitution.data).toBe(true);
   });
 
+  it("create_redis_query creates a single-command action against a Redis datasource", async () => {
+    const createAction = jest.fn<
+      Promise<{ id: string }>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "act-r" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "Redis", pluginId: "656f00000000000000000010" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000010", packageName: "redis-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_redis_query", {
+      query: {
+        name: "SetGreeting",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        command: "SET",
+        key: "greeting",
+        value: { widget: "Input1", property: "text" },
+      },
+    });
+
+    expect(body.created).toBe(true);
+    expect(body.command).toBe("SET greeting {{ Input1.text }}");
+
+    const dto = createAction.mock.calls[0][0] as {
+      actionConfiguration: {
+        body: string;
+        dynamicBindingPathList?: { key: string }[];
+      };
+    };
+
+    expect(dto.actionConfiguration.body).toBe("SET greeting {{ Input1.text }}");
+    expect(dto.actionConfiguration.dynamicBindingPathList).toEqual([
+      { key: "body" },
+    ]);
+  });
+
+  it("create_redis_query is idempotent — returns the existing query, no duplicate write", async () => {
+    const createAction = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "Redis", pluginId: "656f00000000000000000010" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000010", packageName: "redis-plugin" },
+      ]),
+      listActions: jest.fn(async () => [
+        { id: "existing", name: "GetK", pageId: "p1" },
+      ]),
+      createAction,
+    };
+    const body = await callTool(api, "create_redis_query", {
+      query: {
+        name: "GetK",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        command: "GET",
+        key: "k",
+      },
+    });
+
+    expect(body.created).toBe(false);
+    expect(createAction).not.toHaveBeenCalled();
+  });
+
+  it("create_redis_query refuses a non-Redis datasource", async () => {
+    const createAction = jest.fn();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "PG", pluginId: "656f00000000000000000001" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000001", packageName: "postgres-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_redis_query", {
+      query: {
+        name: "GetK",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        command: "GET",
+        key: "k",
+      },
+    });
+
+    expect(body.error).toMatch(/requires an existing Redis datasource/);
+    expect(createAction).not.toHaveBeenCalled();
+  });
+
   it("create_mongo_query refuses a non-Mongo (SQL) datasource", async () => {
     const createAction = jest.fn();
     const api: AppsmithApi = {
@@ -2122,8 +2224,10 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
 
     expect(off).not.toContain("create_mongo_query");
     expect(off).not.toContain("create_sheets_query");
+    expect(off).not.toContain("create_redis_query");
     expect(on).toContain("create_mongo_query");
     expect(on).toContain("create_sheets_query");
+    expect(on).toContain("create_redis_query");
   });
 
   it("create_datasource creates an UNCONFIGURED datasource with no credential fields", async () => {

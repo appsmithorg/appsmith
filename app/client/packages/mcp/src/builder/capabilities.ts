@@ -606,6 +606,11 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
       summary: "structured Google Sheets read/append query",
     },
     {
+      name: "create_redis_query",
+      gate: "data",
+      summary: "structured Redis command (closed vocabulary)",
+    },
+    {
       name: "create_rest_api",
       gate: "data",
       summary: "structured REST action",
