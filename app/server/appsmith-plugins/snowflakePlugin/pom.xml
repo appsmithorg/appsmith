@@ -18,7 +18,7 @@
         <dependency>
             <groupId>net.snowflake</groupId>
             <artifactId>snowflake-jdbc</artifactId>
-            <version>3.23.1</version>
+            <version>4.3.2</version>
         </dependency>
 
         <dependency>
