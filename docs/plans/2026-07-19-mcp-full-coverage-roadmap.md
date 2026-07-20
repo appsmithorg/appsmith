@@ -26,7 +26,7 @@
 | W6 | camera, audiorecorder, codescanner | `d1a96dc909` | |
 | W7 | map, mapchart | `3ca3760880` | map needs a tenant Google Maps key to render |
 
-**Deferred (tracked):** W1b statbox (composite blueprint), W5b jsonform (runtime schema derivation), richtext (RICH_TEXT_EDITOR — renders HTML; treat like W2). Excluded per plan: CUSTOM_WIDGET, CUSTOM_FUSION_CHART.
+**Previously-deferred widgets: NOW COMPLETE** (`af2d2d829b`, security council: APPROVE) — richtext (RICH_TEXT_EDITOR, gated to plain-text seed), jsonform (JSON_FORM auto-generated from a data object), statbox (STATBOX KPI card via container composition). Excluded per plan: CUSTOM_WIDGET, CUSTOM_FUSION_CHART.
 
 **Part B — Table & Chart depth: COMPLETE.**
 
