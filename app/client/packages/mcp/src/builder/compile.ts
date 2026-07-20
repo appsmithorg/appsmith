@@ -67,6 +67,13 @@ const DEFAULT_BASE_NAME: Record<WidgetType, string> = {
   circularprogress: "CircularProgress",
   rate: "Rating",
   iconbutton: "IconButton",
+  currencyinput: "CurrencyInput",
+  phoneinput: "PhoneInput",
+  numberslider: "NumberSlider",
+  categoryslider: "CategorySlider",
+  rangeslider: "RangeSlider",
+  checkboxgroup: "CheckboxGroup",
+  switchgroup: "SwitchGroup",
 };
 
 interface CompileContext {

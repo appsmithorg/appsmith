@@ -821,4 +821,237 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
       };
     },
   },
+  currencyinput: {
+    appsmithType: "CURRENCY_INPUT_WIDGET",
+    version: 1,
+    footprint: { columns: 24, rows: 7 },
+    build: (spec) => {
+      const s = spec.type === "currencyinput" ? spec : undefined;
+      // A plain numeric default is emitted as a literal defaultText string — never a binding, so no dynamic path.
+      const defaultText =
+        s?.defaultValue !== undefined ? String(s.defaultValue) : "";
+
+      return {
+        footprint: { columns: 24, rows: 7 },
+        props: {
+          label: s?.label ?? "Label",
+          placeholderText: s?.placeholder ?? "",
+          defaultText,
+          decimals: s?.decimals ?? 0,
+          defaultCurrencyCode: (s?.currencyCode ?? "USD").toUpperCase(),
+          allowCurrencyChange: false,
+          labelPosition: "Top",
+          labelAlignment: "left",
+          labelTextSize: "0.875rem",
+          labelWidth: 5,
+          isRequired: false,
+          isDisabled: false,
+          resetOnSubmit: true,
+          showStepArrows: false,
+          animateLoading: true,
+          responsiveBehavior: "fill",
+        },
+      };
+    },
+  },
+  phoneinput: {
+    appsmithType: "PHONE_INPUT_WIDGET",
+    version: 1,
+    footprint: { columns: 24, rows: 7 },
+    build: (spec) => {
+      const s = spec.type === "phoneinput" ? spec : undefined;
+
+      return {
+        footprint: { columns: 24, rows: 7 },
+        props: {
+          label: s?.label ?? "Label",
+          placeholderText: s?.placeholder ?? "",
+          defaultText: s?.defaultValue ?? "",
+          defaultDialCode: "+1",
+          allowDialCodeChange: false,
+          allowFormatting: s?.allowFormatting ?? true,
+          labelPosition: "Top",
+          labelAlignment: "left",
+          labelTextSize: "0.875rem",
+          labelWidth: 5,
+          isRequired: false,
+          isDisabled: false,
+          resetOnSubmit: true,
+          animateLoading: true,
+          responsiveBehavior: "fill",
+        },
+      };
+    },
+  },
+  numberslider: {
+    appsmithType: "NUMBER_SLIDER_WIDGET",
+    version: 1,
+    footprint: { columns: 40, rows: 8 },
+    build: (spec) => {
+      const s = spec.type === "numberslider" ? spec : undefined;
+      const min = s?.min ?? 0;
+      const step = s?.step ?? 1;
+      // Guard against an inverted/degenerate range (min >= max) so the track is always valid.
+      const max = (s?.max ?? 100) > min ? s?.max ?? 100 : min + step;
+
+      return {
+        footprint: { columns: 40, rows: 8 },
+        props: {
+          labelText: s?.label ?? "Percentage",
+          min,
+          max,
+          step,
+          defaultValue: s?.defaultValue ?? min,
+          // A caller-set min/max makes the fixed 25/50/75 default marks meaningless, so emit none.
+          marks: [],
+          showMarksLabel: false,
+          isVisible: true,
+          isDisabled: false,
+          tooltipAlwaysOn: false,
+          shouldScroll: false,
+          shouldTruncate: false,
+          labelPosition: "Top",
+          labelAlignment: "left",
+          sliderSize: "m",
+        },
+      };
+    },
+  },
+  categoryslider: {
+    appsmithType: "CATEGORY_SLIDER_WIDGET",
+    version: 1,
+    footprint: { columns: 40, rows: 8 },
+    build: (spec) => {
+      const s = spec.type === "categoryslider" ? spec : undefined;
+      const options = s?.options ?? [
+        { label: "xs", value: "xs" },
+        { label: "sm", value: "sm" },
+        { label: "md", value: "md" },
+        { label: "lg", value: "lg" },
+        { label: "xl", value: "xl" },
+      ];
+      // Default to a supplied value only when it names a real option; otherwise fall back to the first stop.
+      const optionValues = options.map((o) => String(o.value));
+      const defaultOptionValue =
+        s?.defaultValue !== undefined && optionValues.includes(s.defaultValue)
+          ? s.defaultValue
+          : optionValues[0];
+
+      return {
+        footprint: { columns: 40, rows: 8 },
+        props: {
+          labelText: s?.label ?? "Size",
+          options,
+          defaultOptionValue,
+          isVisible: true,
+          isDisabled: false,
+          showMarksLabel: true,
+          shouldScroll: false,
+          shouldTruncate: false,
+          labelPosition: "Top",
+          labelAlignment: "left",
+          sliderSize: "m",
+        },
+      };
+    },
+  },
+  rangeslider: {
+    appsmithType: "RANGE_SLIDER_WIDGET",
+    version: 1,
+    footprint: { columns: 40, rows: 8 },
+    build: (spec) => {
+      const s = spec.type === "rangeslider" ? spec : undefined;
+      const min = s?.min ?? 0;
+      const step = s?.step ?? 1;
+      const max = (s?.max ?? 100) > min ? s?.max ?? 100 : min + step;
+
+      return {
+        footprint: { columns: 40, rows: 8 },
+        props: {
+          labelText: s?.label ?? "Percentage",
+          min,
+          max,
+          minRange: 5,
+          step,
+          defaultStartValue: s?.defaultStart ?? min,
+          defaultEndValue: s?.defaultEnd ?? max,
+          marks: [],
+          showMarksLabel: false,
+          isVisible: true,
+          isDisabled: false,
+          tooltipAlwaysOn: false,
+          shouldScroll: false,
+          shouldTruncate: false,
+          labelPosition: "Top",
+          labelAlignment: "left",
+        },
+      };
+    },
+  },
+  checkboxgroup: {
+    appsmithType: "CHECKBOX_GROUP_WIDGET",
+    version: 2,
+    footprint: { columns: 24, rows: 7 },
+    build: (spec) => {
+      const s = spec.type === "checkboxgroup" ? spec : undefined;
+      const options = s?.options ?? [
+        { label: "Blue", value: "BLUE" },
+        { label: "Green", value: "GREEN" },
+        { label: "Red", value: "RED" },
+      ];
+      // Keep only defaults that name a real option value; a stray default would render an orphan checked box.
+      const optionValues = new Set(options.map((o) => String(o.value)));
+      const defaultSelectedValues = (s?.defaultSelected ?? []).filter((v) =>
+        optionValues.has(v),
+      );
+
+      return {
+        footprint: { columns: 24, rows: 7 },
+        props: {
+          labelText: s?.label ?? "Label",
+          options,
+          defaultSelectedValues,
+          isDisabled: false,
+          isInline: s?.inline ?? true,
+          isRequired: false,
+          isVisible: true,
+          labelPosition: "Top",
+          labelAlignment: "left",
+        },
+      };
+    },
+  },
+  switchgroup: {
+    appsmithType: "SWITCH_GROUP_WIDGET",
+    version: 1,
+    footprint: { columns: 24, rows: 7 },
+    build: (spec) => {
+      const s = spec.type === "switchgroup" ? spec : undefined;
+      const options = s?.options ?? [
+        { label: "Blue", value: "BLUE" },
+        { label: "Green", value: "GREEN" },
+        { label: "Red", value: "RED" },
+      ];
+      const optionValues = new Set(options.map((o) => String(o.value)));
+      const defaultSelectedValues = (s?.defaultSelected ?? []).filter((v) =>
+        optionValues.has(v),
+      );
+
+      return {
+        footprint: { columns: 24, rows: 7 },
+        props: {
+          labelText: s?.label ?? "Label",
+          options,
+          defaultSelectedValues,
+          isDisabled: false,
+          isRequired: false,
+          isInline: s?.inline ?? true,
+          alignment: "left",
+          isVisible: true,
+          labelPosition: "Top",
+          labelAlignment: "left",
+        },
+      };
+    },
+  },
 };

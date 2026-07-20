@@ -454,6 +454,112 @@ describe("compileApp — import artifact contract", () => {
     }
   });
 
+  it("compiles the W3 input widgets (currency, phone, sliders, groups)", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "currencyinput",
+                name: "Price",
+                defaultValue: 12.5,
+                decimals: 2,
+                currencyCode: "eur",
+              },
+              { type: "phoneinput", name: "Phone", defaultValue: "5551234" },
+              {
+                type: "numberslider",
+                name: "Vol",
+                min: 0,
+                max: 11,
+                defaultValue: 7,
+              },
+              {
+                type: "categoryslider",
+                name: "Size",
+                options: [
+                  { label: "S", value: "s" },
+                  { label: "L", value: "l" },
+                ],
+                defaultValue: "l",
+              },
+              {
+                type: "rangeslider",
+                name: "Band",
+                min: 0,
+                max: 50,
+                defaultStart: 10,
+                defaultEnd: 40,
+              },
+              {
+                type: "checkboxgroup",
+                name: "Colors",
+                options: [
+                  { label: "Red", value: "R" },
+                  { label: "Blue", value: "B" },
+                ],
+                defaultSelected: ["R", "nonexistent"],
+              },
+              {
+                type: "switchgroup",
+                name: "Flags",
+                options: [{ label: "On", value: "ON" }],
+                defaultSelected: ["ON"],
+                inline: false,
+              },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const children = rootOf(artifact).children as WidgetNode[];
+    const by = (name: string) => children.find((w) => w.widgetName === name)!;
+
+    expect(by("Price").type).toBe("CURRENCY_INPUT_WIDGET");
+    expect(by("Price").defaultText).toBe("12.5");
+    expect(by("Price").decimals).toBe(2);
+    // currencyCode is normalized to upper-case ISO.
+    expect(by("Price").defaultCurrencyCode).toBe("EUR");
+    expect(by("Phone").type).toBe("PHONE_INPUT_WIDGET");
+    expect(by("Phone").defaultText).toBe("5551234");
+    expect(by("Vol").type).toBe("NUMBER_SLIDER_WIDGET");
+    expect(by("Vol").max).toBe(11);
+    expect(by("Vol").defaultValue).toBe(7);
+    expect(by("Size").type).toBe("CATEGORY_SLIDER_WIDGET");
+    expect(by("Size").defaultOptionValue).toBe("l");
+    expect(by("Band").type).toBe("RANGE_SLIDER_WIDGET");
+    expect(by("Band").defaultStartValue).toBe(10);
+    expect(by("Band").defaultEndValue).toBe(40);
+    expect(by("Colors").type).toBe("CHECKBOX_GROUP_WIDGET");
+    // Only the default matching a real option survives; the orphan is dropped.
+    expect(by("Colors").defaultSelectedValues).toEqual(["R"]);
+    expect(by("Flags").type).toBe("SWITCH_GROUP_WIDGET");
+    expect(by("Flags").isInline).toBe(false);
+  });
+
+  it("rejects unsafe W3 input props (binding text, bad currency code/decimals)", () => {
+    const bad = [
+      { type: "currencyinput", label: "Cost {{evil}}" },
+      { type: "currencyinput", currencyCode: "US" },
+      { type: "currencyinput", decimals: 9 },
+      { type: "phoneinput", defaultValue: "`backtick`" },
+      { type: "checkboxgroup", options: [] },
+    ];
+
+    for (const widget of bad) {
+      expect(
+        appSpecSchema.safeParse({
+          name: "App",
+          pages: [{ name: "Home", widgets: [widget] }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("compiles selected-row display bindings for text and input", () => {
     const artifact = compileApp(
       {

@@ -167,6 +167,80 @@ export const WIDGET_CATALOG = [
     purpose: "A compact icon-only button (wire its click with wire_event).",
   },
   {
+    type: "currencyinput",
+    fields: {
+      label: "string caption",
+      placeholder: "string shown when empty",
+      defaultValue: "number — initial amount",
+      decimals: "integer 0-6 — fractional digits (defaults to 0)",
+      currencyCode: "3-letter ISO code, e.g. 'USD' (default), 'EUR'",
+    },
+    purpose: "A currency-formatted number input.",
+  },
+  {
+    type: "phoneinput",
+    fields: {
+      label: "string caption",
+      placeholder: "string shown when empty",
+      defaultValue: "string — initial phone number",
+      allowFormatting:
+        "boolean — auto-format to national format (default true)",
+    },
+    purpose: "A phone-number input with dial-code prefix.",
+  },
+  {
+    type: "numberslider",
+    fields: {
+      label: "string caption",
+      min: "number — track start (default 0)",
+      max: "number — track end (default 100)",
+      step: "positive number — increment (default 1)",
+      defaultValue: "number — initial position",
+    },
+    purpose: "A single-value numeric slider.",
+  },
+  {
+    type: "categoryslider",
+    fields: {
+      label: "string caption",
+      options: "{ label, value }[] — ordered category stops (2-50)",
+      defaultValue: "string — initial option value (must match an option)",
+    },
+    purpose: "A slider that snaps between named categories.",
+  },
+  {
+    type: "rangeslider",
+    fields: {
+      label: "string caption",
+      min: "number — track start (default 0)",
+      max: "number — track end (default 100)",
+      step: "positive number — increment (default 1)",
+      defaultStart: "number — initial low handle",
+      defaultEnd: "number — initial high handle",
+    },
+    purpose: "A two-handle slider selecting a numeric range.",
+  },
+  {
+    type: "checkboxgroup",
+    fields: {
+      label: "string caption",
+      options: "{ label, value }[] — the checkboxes (1-200)",
+      defaultSelected: "string[] — option values checked on load",
+      inline: "boolean — lay out horizontally (default true)",
+    },
+    purpose: "A group of checkboxes for multi-select.",
+  },
+  {
+    type: "switchgroup",
+    fields: {
+      label: "string caption",
+      options: "{ label, value }[] — the switches (1-200)",
+      defaultSelected: "string[] — option values on at load",
+      inline: "boolean — lay out horizontally (default true)",
+    },
+    purpose: "A group of toggle switches for multi-select.",
+  },
+  {
     type: "chart",
     fields: {
       title: "string",

@@ -27,6 +27,13 @@ export const WIDGET_TYPES = [
   "circularprogress",
   "rate",
   "iconbutton",
+  "currencyinput",
+  "phoneinput",
+  "numberslider",
+  "categoryslider",
+  "rangeslider",
+  "checkboxgroup",
+  "switchgroup",
 ] as const;
 
 export type WidgetType = (typeof WIDGET_TYPES)[number];
@@ -1023,6 +1030,100 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         placement: placementSchema.optional(),
       })
       .strict(),
+    z
+      .object({
+        type: z.literal("currencyinput"),
+        name: nameField,
+        label: safeText(200).optional(),
+        placeholder: safeText(200).optional(),
+        // Plain numeric default; emitted as a literal defaultText string, never a binding.
+        defaultValue: z.number().optional(),
+        // Fractional digits shown (0-6). CURRENCY_INPUT_WIDGET clamps beyond that.
+        decimals: z.number().int().min(0).max(6).optional(),
+        // ISO 4217 currency code (e.g. "USD"). Charset-gated to letters only so it stays a literal prop.
+        currencyCode: z
+          .string()
+          .length(3)
+          .regex(/^[A-Za-z]{3}$/, "currencyCode must be a 3-letter ISO code")
+          .optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("phoneinput"),
+        name: nameField,
+        label: safeText(200).optional(),
+        placeholder: safeText(200).optional(),
+        // Plain phone-string default; emitted as a literal defaultText, never a binding.
+        defaultValue: safeText(40).optional(),
+        // Auto-format the entered number to the dial code's national format.
+        allowFormatting: z.boolean().optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("numberslider"),
+        name: nameField,
+        label: safeText(200).optional(),
+        min: z.number().optional(),
+        max: z.number().optional(),
+        step: z.number().positive().optional(),
+        defaultValue: z.number().optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("categoryslider"),
+        name: nameField,
+        label: safeText(200).optional(),
+        // The ordered category stops; each {label,value} is emitted as a literal, never a binding.
+        options: z.array(selectOption).min(2).max(50).optional(),
+        // Must match one of the option values; validated at compile time.
+        defaultValue: safeText(200).optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("rangeslider"),
+        name: nameField,
+        label: safeText(200).optional(),
+        min: z.number().optional(),
+        max: z.number().optional(),
+        step: z.number().positive().optional(),
+        defaultStart: z.number().optional(),
+        defaultEnd: z.number().optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("checkboxgroup"),
+        name: nameField,
+        label: safeText(200).optional(),
+        // Static {label,value} options, emitted as a literal array — never a binding.
+        options: z.array(selectOption).min(1).max(200).optional(),
+        // Values pre-checked on load; each must match an option value.
+        defaultSelected: z.array(safeText(200)).max(200).optional(),
+        // Lay the boxes out horizontally (true) or stacked (false).
+        inline: z.boolean().optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("switchgroup"),
+        name: nameField,
+        label: safeText(200).optional(),
+        options: z.array(selectOption).min(1).max(200).optional(),
+        defaultSelected: z.array(safeText(200)).max(200).optional(),
+        inline: z.boolean().optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
   ]),
 );
 
@@ -1207,6 +1308,72 @@ export type WidgetSpec =
       name?: string;
       icon?: string;
       variant?: string;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "currencyinput";
+      name?: string;
+      label?: string;
+      placeholder?: string;
+      defaultValue?: number;
+      decimals?: number;
+      currencyCode?: string;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "phoneinput";
+      name?: string;
+      label?: string;
+      placeholder?: string;
+      defaultValue?: string;
+      allowFormatting?: boolean;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "numberslider";
+      name?: string;
+      label?: string;
+      min?: number;
+      max?: number;
+      step?: number;
+      defaultValue?: number;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "categoryslider";
+      name?: string;
+      label?: string;
+      options?: { label: string; value: string | number }[];
+      defaultValue?: string;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "rangeslider";
+      name?: string;
+      label?: string;
+      min?: number;
+      max?: number;
+      step?: number;
+      defaultStart?: number;
+      defaultEnd?: number;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "checkboxgroup";
+      name?: string;
+      label?: string;
+      options?: { label: string; value: string | number }[];
+      defaultSelected?: string[];
+      inline?: boolean;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "switchgroup";
+      name?: string;
+      label?: string;
+      options?: { label: string; value: string | number }[];
+      defaultSelected?: string[];
+      inline?: boolean;
       placement?: PlacementSpec;
     };
 
