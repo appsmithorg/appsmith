@@ -7,7 +7,8 @@ import reactor.core.publisher.Mono;
 
 public interface UserMcpTokenServiceCE {
 
-    Mono<McpTokenResponseDTO> create(User user);
+    // name is optional (the user-facing token label); a blank/null name is defaulted to "Token created <date>".
+    Mono<McpTokenResponseDTO> create(User user, String name);
 
     Flux<McpTokenResponseDTO> list(User user);
 

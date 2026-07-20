@@ -248,6 +248,9 @@ export const COPY_MCP_SERVER_URL = () => "Copy server URL";
 export const MCP_SERVER_URL_COPIED = () => "Server URL copied";
 export const MCP_SERVER_URL_COPY_FAILED = () => "Unable to copy server URL.";
 export const CREATE_MCP_TOKEN = () => "Create token";
+export const MCP_TOKEN_NAME_LABEL = () => "Token name";
+export const MCP_TOKEN_NAME_PLACEHOLDER = () =>
+  "Name (optional, e.g. Claude Desktop)";
 export const MCP_TOKEN_CREATED = () => "MCP token created";
 export const MCP_TOKEN_CREATED_DESCRIPTION = () =>
   "Copy this token now. You will not be able to view it again.";

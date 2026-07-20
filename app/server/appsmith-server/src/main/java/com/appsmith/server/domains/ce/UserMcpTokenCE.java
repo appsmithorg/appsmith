@@ -20,6 +20,11 @@ public class UserMcpTokenCE extends BaseDomain {
 
     private String userId;
 
+    // User-facing label so a user can tell their tokens apart (e.g. "Claude Desktop", "CI pipeline"). Optional at
+    // creation; the service defaults a blank one to "Token created <date>". Not a credential — safe to display and
+    // return in the token list.
+    private String name;
+
     @ToString.Exclude
     private String tokenHash;
 

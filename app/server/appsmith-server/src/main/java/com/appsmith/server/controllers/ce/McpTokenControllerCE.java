@@ -2,6 +2,7 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.server.authentication.tokens.McpTokenAuthentication;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.McpTokenCreateRequestDTO;
 import com.appsmith.server.dtos.McpTokenResponseDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -25,9 +27,12 @@ public class McpTokenControllerCE {
     private final UserMcpTokenService userMcpTokenService;
 
     @PostMapping
-    public Mono<ResponseDTO<McpTokenResponseDTO>> create(@AuthenticationPrincipal User user) {
+    public Mono<ResponseDTO<McpTokenResponseDTO>> create(
+            @AuthenticationPrincipal User user, @RequestBody(required = false) McpTokenCreateRequestDTO request) {
+        // The body (and the name within it) is optional; a blank name is defaulted server-side.
+        String name = request == null ? null : request.name();
         return requireSessionAuthentication()
-                .then(userMcpTokenService.create(user))
+                .then(userMcpTokenService.create(user, name))
                 .map(token -> new ResponseDTO<>(HttpStatus.CREATED, token));
     }
 

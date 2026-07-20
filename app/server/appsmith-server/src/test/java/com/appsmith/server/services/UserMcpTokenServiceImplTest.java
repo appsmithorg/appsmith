@@ -75,7 +75,7 @@ class UserMcpTokenServiceImplTest {
         when(userMcpTokenRepository.save(any(UserMcpToken.class)))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
-        StepVerifier.create(service.create(user))
+        StepVerifier.create(service.create(user, null))
                 .assertNext(response -> {
                     assertThat(response.id()).isNotBlank();
                     assertThat(response.token()).startsWith("mcp_" + response.id() + ".");
@@ -97,7 +97,7 @@ class UserMcpTokenServiceImplTest {
         when(userMcpTokenRepository.save(any(UserMcpToken.class)))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
-        McpTokenResponseDTO response = service.create(user).block();
+        McpTokenResponseDTO response = service.create(user, null).block();
 
         verify(analyticsService)
                 .sendEvent(
@@ -122,7 +122,7 @@ class UserMcpTokenServiceImplTest {
         when(userMcpTokenRepository.countByUserIdAndDeletedAtIsNull(user.getId()))
                 .thenReturn(Mono.just(10L));
 
-        StepVerifier.create(service.create(user)).expectError().verify();
+        StepVerifier.create(service.create(user, null)).expectError().verify();
     }
 
     @Test
@@ -224,7 +224,93 @@ class UserMcpTokenServiceImplTest {
     // token; MCP-auth is rejected). A service-level unit test of rotate/authenticate is intentionally omitted here:
     // it over-specifies Mockito interactions across two flows and is redundant with the controller coverage.
 
+    @Test
+    void create_storesAndReturnsProvidedName() {
+        McpTokenResponseDTO response = createToken("Claude Desktop");
+
+        assertThat(response.name()).isEqualTo("Claude Desktop");
+        assertThat(persistedToken.getName()).isEqualTo("Claude Desktop");
+    }
+
+    @Test
+    void create_trimsProvidedName() {
+        createToken("  CI pipeline  ");
+
+        assertThat(persistedToken.getName()).isEqualTo("CI pipeline");
+    }
+
+    @Test
+    void create_defaultsBlankNameToTokenCreatedDate() {
+        // A null/blank name is defaulted server-side so every token is identifiable in the list.
+        McpTokenResponseDTO fromNull = createToken(null);
+        assertThat(fromNull.name()).startsWith("Token created ");
+
+        McpTokenResponseDTO fromBlank = createToken("   ");
+        assertThat(fromBlank.name()).startsWith("Token created ");
+    }
+
+    @Test
+    void create_acceptsNameAtMaxLength() {
+        String maxName = "x".repeat(50);
+
+        assertThat(createToken(maxName).name()).isEqualTo(maxName);
+    }
+
+    @Test
+    void create_rejectsOverLongName() {
+        // Name validation rejects before the token-count check, so no repository stub is needed here.
+        String tooLong = "x".repeat(51);
+
+        StepVerifier.create(service.create(user, tooLong)).expectError().verify();
+    }
+
+    @Test
+    void create_stripsControlAndInvisibleCharsThenDefaultsIfEmpty() {
+        // A newline in the middle is stripped; an all-invisible name collapses to the date default.
+        assertThat(createToken("Claude\nDesktop").name()).isEqualTo("ClaudeDesktop");
+        assertThat(createToken("​​").name()).startsWith("Token created ");
+    }
+
+    @Test
+    void rotate_preservesTokenName() {
+        UserMcpToken existing = new UserMcpToken();
+        existing.setId("mongo-id");
+        existing.setTokenId("token-id");
+        existing.setUserId(user.getId());
+        existing.setName("CI pipeline");
+        when(userMcpTokenRepository.findByTokenIdAndUserIdAndDeletedAtIsNull("token-id", user.getId()))
+                .thenReturn(Mono.just(existing));
+        when(userMcpTokenRepository.save(any(UserMcpToken.class)))
+                .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
+
+        StepVerifier.create(service.rotate(user, "token-id"))
+                .assertNext(response -> assertThat(response.name()).isEqualTo("CI pipeline"))
+                .verifyComplete();
+    }
+
+    @Test
+    void list_returnsTokenName() {
+        UserMcpToken named = new UserMcpToken();
+        named.setTokenId("t1");
+        named.setUserId(user.getId());
+        named.setName("Claude Desktop");
+        UserMcpToken legacy = new UserMcpToken();
+        legacy.setTokenId("t2");
+        legacy.setUserId(user.getId());
+        when(userMcpTokenRepository.findAllByUserIdAndDeletedAtIsNull(user.getId()))
+                .thenReturn(reactor.core.publisher.Flux.just(named, legacy));
+
+        StepVerifier.create(service.list(user))
+                .assertNext(dto -> assertThat(dto.name()).isEqualTo("Claude Desktop"))
+                .assertNext(dto -> assertThat(dto.name()).isNull())
+                .verifyComplete();
+    }
+
     private McpTokenResponseDTO createToken() {
+        return createToken(null);
+    }
+
+    private McpTokenResponseDTO createToken(String name) {
         when(userMcpTokenRepository.countByUserIdAndDeletedAtIsNull(user.getId()))
                 .thenReturn(Mono.just(0L));
         when(userMcpTokenRepository.save(any(UserMcpToken.class))).thenAnswer(invocation -> {
@@ -232,7 +318,7 @@ class UserMcpTokenServiceImplTest {
             return Mono.just(persistedToken);
         });
 
-        return service.create(user).block();
+        return service.create(user, name).block();
     }
 
     private static String sha256Base64Url(String value) {

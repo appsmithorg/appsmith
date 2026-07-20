@@ -19,6 +19,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.Map;
 import java.util.UUID;
@@ -28,6 +30,8 @@ public class UserMcpTokenServiceCEImpl implements UserMcpTokenServiceCE {
     private static final String TOKEN_HASH_ALGORITHM = "SHA-256";
     private static final int MAX_ACTIVE_TOKENS_PER_USER = 10;
     private static final String TOKEN_PREFIX = "mcp_";
+    // Upper bound on the user-facing token name; keeps the label list-friendly and bounds stored size.
+    private static final int MAX_TOKEN_NAME_LENGTH = 50;
     // Admin-configurable via APPSMITH_MCP_TOKEN_TTL_DAYS. Bounded to a sane range so a misconfiguration can't mint
     // effectively-immortal or already-expired credentials.
     private static final long DEFAULT_TOKEN_TTL_DAYS = 90;
@@ -59,8 +63,8 @@ public class UserMcpTokenServiceCEImpl implements UserMcpTokenServiceCE {
     }
 
     @Override
-    public Mono<McpTokenResponseDTO> create(User user) {
-        return userMcpTokenRepository
+    public Mono<McpTokenResponseDTO> create(User user, String name) {
+        return resolveTokenName(name).flatMap(resolvedName -> userMcpTokenRepository
                 .countByUserIdAndDeletedAtIsNull(user.getId())
                 .flatMap(activeTokenCount -> {
                     if (activeTokenCount >= MAX_ACTIVE_TOKENS_PER_USER) {
@@ -74,12 +78,17 @@ public class UserMcpTokenServiceCEImpl implements UserMcpTokenServiceCE {
                     UserMcpToken userMcpToken = new UserMcpToken();
                     userMcpToken.setTokenId(tokenId);
                     userMcpToken.setUserId(user.getId());
+                    userMcpToken.setName(resolvedName);
                     userMcpToken.setTokenHash(hashToken(token));
                     userMcpToken.setExpiresAt(Instant.now().plus(tokenTtl));
 
                     return userMcpTokenRepository.save(userMcpToken).flatMap(savedToken -> {
                         McpTokenResponseDTO response = new McpTokenResponseDTO(
-                                savedToken.getTokenId(), token, savedToken.getCreatedAt(), savedToken.getExpiresAt());
+                                savedToken.getTokenId(),
+                                token,
+                                savedToken.getName(),
+                                savedToken.getCreatedAt(),
+                                savedToken.getExpiresAt());
                         // Adoption telemetry: emit only non-sensitive identifiers. The token secret/hash is never
                         // included so the raw credential can't leak through analytics. sendEvent is best-effort and
                         // must not fail token creation, mirroring how sibling services chain the analytics Mono.
@@ -94,15 +103,36 @@ public class UserMcpTokenServiceCEImpl implements UserMcpTokenServiceCE {
                                         analyticsProps)
                                 .thenReturn(response);
                     });
-                });
+                }));
+    }
+
+    // Trims the requested name, defaults a blank/absent one to "Token created <date>", and rejects an over-long
+    // one so the label stays list-friendly. Reactive so the rejection surfaces as a normal error signal.
+    private Mono<String> resolveTokenName(String name) {
+        // Strip control and invisible/format characters so a name is never a blank-looking label or a newline that
+        // could break a future log/CSV line, then trim. An all-invisible name collapses to empty and gets defaulted.
+        String trimmed =
+                (name == null ? "" : name).replaceAll("[\\p{Cc}\\p{Cf}]", "").trim();
+
+        if (trimmed.isEmpty()) {
+            return Mono.just("Token created " + LocalDate.now(ZoneOffset.UTC));
+        }
+
+        if (trimmed.length() > MAX_TOKEN_NAME_LENGTH) {
+            return Mono.error(new AppsmithException(
+                    AppsmithError.INVALID_PARAMETER,
+                    "MCP token name (must be at most " + MAX_TOKEN_NAME_LENGTH + " characters)"));
+        }
+
+        return Mono.just(trimmed);
     }
 
     @Override
     public Flux<McpTokenResponseDTO> list(User user) {
         return userMcpTokenRepository
                 .findAllByUserIdAndDeletedAtIsNull(user.getId())
-                .map(token ->
-                        new McpTokenResponseDTO(token.getTokenId(), null, token.getCreatedAt(), token.getExpiresAt()));
+                .map(token -> new McpTokenResponseDTO(
+                        token.getTokenId(), null, token.getName(), token.getCreatedAt(), token.getExpiresAt()));
     }
 
     @Override
@@ -121,6 +151,7 @@ public class UserMcpTokenServiceCEImpl implements UserMcpTokenServiceCE {
                             .map(savedToken -> new McpTokenResponseDTO(
                                     savedToken.getTokenId(),
                                     token,
+                                    savedToken.getName(),
                                     savedToken.getCreatedAt(),
                                     savedToken.getExpiresAt()));
                 });

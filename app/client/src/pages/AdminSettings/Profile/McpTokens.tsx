@@ -49,6 +49,8 @@ import {
   ROTATE_MCP_TOKEN,
   ROTATE_MCP_TOKEN_CONFIRM,
   ROTATE_MCP_TOKEN_CONFIRMATION,
+  MCP_TOKEN_NAME_LABEL,
+  MCP_TOKEN_NAME_PLACEHOLDER,
   createMessage,
 } from "ee/constants/messages";
 import McpTokenApi, {
@@ -177,6 +179,7 @@ function McpTokens() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  const [tokenName, setTokenName] = useState("");
   const [rotateTokenId, setRotateTokenId] = useState<string | null>(null);
   const [isRotating, setIsRotating] = useState(false);
   const [revokeTokenId, setRevokeTokenId] = useState<string | null>(null);
@@ -206,18 +209,20 @@ function McpTokens() {
     setError(null);
 
     try {
-      const response = await McpTokenApi.create();
+      const response = await McpTokenApi.create(tokenName);
       const token = ensureSuccess(response);
 
       setCreatedToken(token);
       setTokens((tokens) => [
         {
           id: token.id,
+          name: token.name,
           createdAt: token.createdAt,
           expiresAt: token.expiresAt,
         },
         ...tokens,
       ]);
+      setTokenName("");
     } catch (error) {
       setError(getErrorMessage(error, createMessage(MCP_TOKEN_CREATE_FAILED)));
     } finally {
@@ -304,6 +309,7 @@ function McpTokens() {
           existing.id === token.id
             ? {
                 id: token.id,
+                name: token.name,
                 createdAt: token.createdAt,
                 expiresAt: token.expiresAt,
               }
@@ -323,8 +329,23 @@ function McpTokens() {
   return (
     <>
       <TokensWrapper>
-        <Flex alignItems="center" gap="spaces-4" justifyContent="space-between">
+        <div>
           <Text kind="body-m">{createMessage(MCP_TOKENS_DESCRIPTION)}</Text>
+        </div>
+        <Flex alignItems="flex-end" gap="spaces-4">
+          <Input
+            className="t--mcp-token-name-input"
+            label={createMessage(MCP_TOKEN_NAME_LABEL)}
+            onChange={setTokenName}
+            onKeyDown={(event: React.KeyboardEvent) => {
+              if (event.key === "Enter" && !isCreating) createToken();
+            }}
+            placeholder={createMessage(MCP_TOKEN_NAME_PLACEHOLDER)}
+            renderAs="input"
+            size="md"
+            type="text"
+            value={tokenName}
+          />
           <Button
             className="t--create-mcp-token"
             isLoading={isCreating}
@@ -361,8 +382,11 @@ function McpTokens() {
             {tokens.map((token) => (
               <TokenRow key={token.id} role="listitem">
                 <TokenMeta>
-                  <Text kind="body-m">{token.id}</Text>
+                  <Text kind="body-m">{token.name || token.id}</Text>
                   <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                    {/* Keep the id visible when a name is set so rotate/revoke (labelled by id, and names
+                        aren't unique) can be correlated. */}
+                    {token.name ? `${token.id} · ` : ""}
                     {createMessage(MCP_TOKEN_CREATED_AT)}:{" "}
                     {formatTimestamp(token.createdAt)} ·{" "}
                     {createMessage(MCP_TOKEN_EXPIRES_AT)}:{" "}
@@ -370,7 +394,7 @@ function McpTokens() {
                   </Text>
                 </TokenMeta>
                 <Button
-                  aria-label={`${createMessage(ROTATE_MCP_TOKEN)} ${token.id}`}
+                  aria-label={`${createMessage(ROTATE_MCP_TOKEN)} ${token.name || token.id}`}
                   isDisabled={isRevoking || isRotating}
                   kind="secondary"
                   onClick={() => setRotateTokenId(token.id)}
@@ -379,7 +403,7 @@ function McpTokens() {
                   {createMessage(ROTATE_MCP_TOKEN)}
                 </Button>
                 <Button
-                  aria-label={`${createMessage(REVOKE_MCP_TOKEN)} ${token.id}`}
+                  aria-label={`${createMessage(REVOKE_MCP_TOKEN)} ${token.name || token.id}`}
                   isDisabled={isRevoking || isRotating}
                   kind="error"
                   onClick={() => setRevokeTokenId(token.id)}

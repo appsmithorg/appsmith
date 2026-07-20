@@ -5,4 +5,4 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record McpTokenResponseDTO(String id, String token, Instant createdAt, Instant expiresAt) {}
+public record McpTokenResponseDTO(String id, String token, String name, Instant createdAt, Instant expiresAt) {}

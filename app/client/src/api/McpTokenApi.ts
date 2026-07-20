@@ -6,6 +6,8 @@ export interface McpTokenMetadata {
   createdAt: string | number;
   expiresAt: string | number;
   id: string;
+  // User-facing label. Absent on tokens created before naming existed; the UI falls back to the id then.
+  name?: string;
 }
 
 export interface CreatedMcpToken extends McpTokenMetadata {
@@ -15,8 +17,13 @@ export interface CreatedMcpToken extends McpTokenMetadata {
 class McpTokenApi extends Api {
   static url = "v1/users/mcp-tokens";
 
-  static async create(): Promise<ApiResponse<CreatedMcpToken>> {
-    const response = await Api.post(McpTokenApi.url);
+  // name is optional; a blank/absent name is defaulted server-side to "Token created <date>".
+  static async create(name?: string): Promise<ApiResponse<CreatedMcpToken>> {
+    const trimmed = name?.trim();
+    const response = await Api.post(
+      McpTokenApi.url,
+      trimmed ? { name: trimmed } : undefined,
+    );
 
     return response as unknown as ApiResponse<CreatedMcpToken>;
   }

@@ -2,6 +2,7 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.server.authentication.tokens.McpTokenAuthentication;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.McpTokenCreateRequestDTO;
 import com.appsmith.server.dtos.McpTokenResponseDTO;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.UserMcpTokenService;
@@ -24,6 +25,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -58,15 +62,19 @@ class McpTokenControllerCETest {
 
     private static McpTokenResponseDTO token(String id) {
         return new McpTokenResponseDTO(
-                id, "mcp_" + id + ".secret", Instant.now(), Instant.now().plusSeconds(60));
+                id,
+                "mcp_" + id + ".secret",
+                "My token",
+                Instant.now(),
+                Instant.now().plusSeconds(60));
     }
 
     @Test
     void create_underSessionAuth_delegatesAndReturnsCreated() {
-        when(userMcpTokenService.create(user)).thenReturn(Mono.just(token("t1")));
+        when(userMcpTokenService.create(eq(user), any())).thenReturn(Mono.just(token("t1")));
 
         StepVerifier.create(controller
-                        .create(user)
+                        .create(user, null)
                         .contextWrite(ReactiveSecurityContextHolder.withAuthentication(sessionAuthentication())))
                 .assertNext(response -> {
                     assertThat(response.getResponseMeta().getStatus()).isEqualTo(HttpStatus.CREATED.value());
@@ -76,16 +84,42 @@ class McpTokenControllerCETest {
     }
 
     @Test
+    void create_forwardsRequestNameToService() {
+        when(userMcpTokenService.create(eq(user), eq("Claude Desktop"))).thenReturn(Mono.just(token("t1")));
+
+        StepVerifier.create(controller
+                        .create(user, new McpTokenCreateRequestDTO("Claude Desktop"))
+                        .contextWrite(ReactiveSecurityContextHolder.withAuthentication(sessionAuthentication())))
+                .expectNextCount(1)
+                .verifyComplete();
+
+        verify(userMcpTokenService).create(eq(user), eq("Claude Desktop"));
+    }
+
+    @Test
+    void create_withNoBody_forwardsNullName() {
+        when(userMcpTokenService.create(eq(user), eq(null))).thenReturn(Mono.just(token("t1")));
+
+        StepVerifier.create(controller
+                        .create(user, null)
+                        .contextWrite(ReactiveSecurityContextHolder.withAuthentication(sessionAuthentication())))
+                .expectNextCount(1)
+                .verifyComplete();
+
+        verify(userMcpTokenService).create(eq(user), eq(null));
+    }
+
+    @Test
     void create_underMcpAuth_isRejectedAndNeverMints() {
         // The session guard rejects before the mint Mono is subscribed; the flag proves no minting happened.
         AtomicBoolean minted = new AtomicBoolean(false);
-        when(userMcpTokenService.create(user)).thenReturn(Mono.fromCallable(() -> {
+        when(userMcpTokenService.create(eq(user), any())).thenReturn(Mono.fromCallable(() -> {
             minted.set(true);
             return token("t1");
         }));
 
         StepVerifier.create(controller
-                        .create(user)
+                        .create(user, null)
                         .contextWrite(ReactiveSecurityContextHolder.withAuthentication(mcpAuthentication())))
                 .verifyError(AppsmithException.class);
 

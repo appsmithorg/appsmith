@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 
 public interface UserMcpTokenService extends UserMcpTokenServiceCE {
 
-    Mono<McpTokenResponseDTO> create(User user);
+    Mono<McpTokenResponseDTO> create(User user, String name);
 
     Flux<McpTokenResponseDTO> list(User user);
 
