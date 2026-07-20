@@ -756,6 +756,91 @@ describe("compileApp — import artifact contract", () => {
     }
   });
 
+  it("compiles the W5 tree-select widgets (single, multi) with nested options", () => {
+    const options = [
+      {
+        label: "Fruit",
+        value: "FRUIT",
+        children: [
+          { label: "Apple", value: "APPLE" },
+          { label: "Pear", value: "PEAR" },
+        ],
+      },
+      { label: "Veg", value: "VEG" },
+    ];
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "singleselecttree",
+                name: "One",
+                options,
+                // A nested value must resolve through the whole tree.
+                defaultValue: "APPLE",
+                expandAll: true,
+              },
+              {
+                type: "multiselecttree",
+                name: "Many",
+                options,
+                defaultSelected: ["PEAR", "notreal"],
+              },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const children = rootOf(artifact).children as WidgetNode[];
+    const by = (name: string) => children.find((w) => w.widgetName === name)!;
+
+    const one = by("One");
+
+    expect(one.type).toBe("SINGLE_SELECT_TREE_WIDGET");
+    expect(one.defaultOptionValue).toBe("APPLE");
+    expect(one.expandAll).toBe(true);
+    expect((one.options as unknown[]).length).toBe(2);
+
+    const many = by("Many");
+
+    expect(many.type).toBe("MULTI_SELECT_TREE_WIDGET");
+    // The orphan default is filtered; the valid nested one survives.
+    expect(many.defaultOptionValue).toEqual(["PEAR"]);
+  });
+
+  it("rejects unsafe W5 tree-select props (binding label/value, empty options)", () => {
+    const bad = [
+      {
+        type: "singleselecttree",
+        options: [{ label: "X {{evil}}", value: "X" }],
+      },
+      {
+        type: "multiselecttree",
+        options: [
+          {
+            label: "X",
+            value: "X",
+            children: [{ label: "Y", value: "`bad`" }],
+          },
+        ],
+      },
+      { type: "singleselecttree", options: [] },
+    ];
+
+    for (const widget of bad) {
+      expect(
+        appSpecSchema.safeParse({
+          name: "App",
+          pages: [{ name: "Home", widgets: [widget] }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("compiles selected-row display bindings for text and input", () => {
     const artifact = compileApp(
       {

@@ -304,6 +304,28 @@ export const WIDGET_CATALOG = [
     purpose: "A choropleth map colouring regions by value.",
   },
   {
+    type: "singleselecttree",
+    fields: {
+      label: "string caption",
+      options:
+        "{ label, value, children? }[] — a nested option tree (children recurse)",
+      defaultValue: "string — option value selected on load (must match)",
+      expandAll: "boolean — expand every branch on load (default false)",
+    },
+    purpose: "A dropdown that picks one node from a hierarchy.",
+  },
+  {
+    type: "multiselecttree",
+    fields: {
+      label: "string caption",
+      options:
+        "{ label, value, children? }[] — a nested option tree (children recurse)",
+      defaultSelected: "string[] — option values selected on load",
+      expandAll: "boolean — expand every branch on load (default false)",
+    },
+    purpose: "A dropdown that picks several nodes from a hierarchy.",
+  },
+  {
     type: "chart",
     fields: {
       title: "string",

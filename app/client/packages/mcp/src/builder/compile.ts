@@ -81,6 +81,8 @@ const DEFAULT_BASE_NAME: Record<WidgetType, string> = {
   codescanner: "CodeScanner",
   map: "Map",
   mapchart: "MapChart",
+  singleselecttree: "SingleSelectTree",
+  multiselecttree: "MultiSelectTree",
 };
 
 interface CompileContext {

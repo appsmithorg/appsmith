@@ -41,6 +41,8 @@ export const WIDGET_TYPES = [
   "codescanner",
   "map",
   "mapchart",
+  "singleselecttree",
+  "multiselecttree",
 ] as const;
 
 export type WidgetType = (typeof WIDGET_TYPES)[number];
@@ -739,6 +741,24 @@ const selectOption = z.object({
   value: z.union([safeText(200), z.number()]),
 });
 
+// A recursive {label, value, children?} node for the tree-select widgets. Same safe label/value gate as
+// selectOption; children nest the same shape. Depth is bounded implicitly by JSON payload limits.
+export interface TreeOption {
+  label: string;
+  value: string | number;
+  children?: TreeOption[];
+}
+
+const treeOption: z.ZodType<TreeOption> = z.lazy(() =>
+  z
+    .object({
+      label: safeText(200).pipe(z.string().min(1)),
+      value: z.union([safeText(200), z.number()]),
+      children: z.array(treeOption).max(200).optional(),
+    })
+    .strict(),
+);
+
 // M4 select query source: bind a select's dropdown to a named query. SELECT_WIDGET derives its options from
 // `sourceData` (a JS-evaluated array) keyed by `optionLabel`/`optionValue`. For a query source the compiler emits
 // `sourceData: {{ <query>.data ?? [] }}` (reusing the table-data emitter) registered as a dynamic binding, plus
@@ -1270,6 +1290,32 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         placement: placementSchema.optional(),
       })
       .strict(),
+    z
+      .object({
+        type: z.literal("singleselecttree"),
+        name: nameField,
+        label: safeText(200).optional(),
+        // A nested {label,value,children?} tree; emitted as a literal array, never a binding.
+        options: z.array(treeOption).min(1).max(200).optional(),
+        // The value pre-selected on load; must match one option value.
+        defaultValue: safeText(200).optional(),
+        // Expand every branch on load.
+        expandAll: z.boolean().optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("multiselecttree"),
+        name: nameField,
+        label: safeText(200).optional(),
+        options: z.array(treeOption).min(1).max(200).optional(),
+        // Values pre-selected on load; each must match an option value.
+        defaultSelected: z.array(safeText(200)).max(200).optional(),
+        expandAll: z.boolean().optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
   ]),
 );
 
@@ -1573,6 +1619,24 @@ export type WidgetSpec =
       title?: string;
       region?: string;
       data?: { id: string; value: number; label?: string }[];
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "singleselecttree";
+      name?: string;
+      label?: string;
+      options?: TreeOption[];
+      defaultValue?: string;
+      expandAll?: boolean;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "multiselecttree";
+      name?: string;
+      label?: string;
+      options?: TreeOption[];
+      defaultSelected?: string[];
+      expandAll?: boolean;
       placement?: PlacementSpec;
     };
 

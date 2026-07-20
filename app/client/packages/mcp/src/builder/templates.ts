@@ -5,9 +5,43 @@ import {
   compileQueryFieldBinding,
   compileSelectedRowBinding,
   compileTableDataBinding,
+  type TreeOption,
   type WidgetSpec,
   type WidgetType,
 } from "./schema.js";
+
+// Default nested options for the tree-select widgets when the caller supplies none — mirrors the client
+// getDefaults() sample tree.
+const DEFAULT_TREE_OPTIONS: TreeOption[] = [
+  {
+    label: "Blue",
+    value: "BLUE",
+    children: [
+      { label: "Dark Blue", value: "DARK BLUE" },
+      { label: "Light Blue", value: "LIGHT BLUE" },
+    ],
+  },
+  { label: "Green", value: "GREEN" },
+  { label: "Red", value: "RED" },
+];
+
+// Collect every option value in a tree (all depths) as strings, so a caller-supplied default can be checked
+// against real options before it is emitted.
+function flattenTreeValues(options: TreeOption[]): Set<string> {
+  const values = new Set<string>();
+
+  const walk = (nodes: TreeOption[]) => {
+    for (const node of nodes) {
+      values.add(String(node.value));
+
+      if (node.children) walk(node.children);
+    }
+  };
+
+  walk(options);
+
+  return values;
+}
 
 // Curated widget templates. Each maps a high-level spec widget to a valid Appsmith DSL node: the Appsmith widget
 // `type`, its DSL `version`, a default grid footprint (in 64-column grid units), the base default props, and a
@@ -1250,6 +1284,69 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
             { minValue: 1.0, maxValue: 2.0, code: "#FB8C00" },
             { minValue: 2.0, maxValue: 3.0, code: "#E65100" },
           ],
+        },
+      };
+    },
+  },
+  singleselecttree: {
+    appsmithType: "SINGLE_SELECT_TREE_WIDGET",
+    version: 1,
+    footprint: { columns: 20, rows: 7 },
+    build: (spec) => {
+      const s = spec.type === "singleselecttree" ? spec : undefined;
+      const options = s?.options ?? DEFAULT_TREE_OPTIONS;
+      const values = flattenTreeValues(options);
+      // Keep a supplied default only when it names a real (possibly nested) option value.
+      const defaultOptionValue =
+        s?.defaultValue !== undefined && values.has(s.defaultValue)
+          ? s.defaultValue
+          : "";
+
+      return {
+        footprint: { columns: 20, rows: 7 },
+        props: {
+          labelText: s?.label ?? "Label",
+          options,
+          defaultOptionValue,
+          expandAll: s?.expandAll ?? false,
+          placeholderText: "Select option",
+          allowClear: false,
+          isVisible: true,
+          isRequired: false,
+          isDisabled: false,
+          labelPosition: "Top",
+          labelAlignment: "left",
+        },
+      };
+    },
+  },
+  multiselecttree: {
+    appsmithType: "MULTI_SELECT_TREE_WIDGET",
+    version: 1,
+    footprint: { columns: 20, rows: 7 },
+    build: (spec) => {
+      const s = spec.type === "multiselecttree" ? spec : undefined;
+      const options = s?.options ?? DEFAULT_TREE_OPTIONS;
+      const values = flattenTreeValues(options);
+      const defaultOptionValue = (s?.defaultSelected ?? []).filter((v) =>
+        values.has(v),
+      );
+
+      return {
+        footprint: { columns: 20, rows: 7 },
+        props: {
+          labelText: s?.label ?? "Label",
+          mode: "SHOW_ALL",
+          options,
+          defaultOptionValue,
+          expandAll: s?.expandAll ?? false,
+          placeholderText: "Select option(s)",
+          allowClear: false,
+          isVisible: true,
+          isRequired: false,
+          isDisabled: false,
+          labelPosition: "Top",
+          labelAlignment: "left",
         },
       };
     },
