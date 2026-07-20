@@ -360,6 +360,34 @@ export const WIDGET_CATALOG = [
     purpose: "Render a document (PDF, DOCX, ...) from a URL.",
   },
   {
+    type: "richtext",
+    fields: {
+      label: "string caption",
+      defaultValue:
+        "plain-text seed content (no HTML tags — users author rich text at runtime)",
+    },
+    purpose: "A rich-text (WYSIWYG) editor.",
+  },
+  {
+    type: "jsonform",
+    fields: {
+      title: "string form title",
+      data: "{ [field]: string|number|boolean|null } — a flat object; the form auto-generates one field per key",
+      submitLabel: "string submit-button text",
+    },
+    purpose: "A form whose fields are auto-generated from a data object.",
+  },
+  {
+    type: "statbox",
+    fields: {
+      title: "string — the metric caption (e.g. 'Page Views')",
+      value: "string — the headline value (e.g. '2.6 M')",
+      subtext: "string — a trend/subtitle line",
+      icon: "kebab-case Blueprint icon name for the corner button",
+    },
+    purpose: "A KPI stat card (caption + value + optional trend/icon).",
+  },
+  {
     type: "chart",
     fields: {
       title: "string",

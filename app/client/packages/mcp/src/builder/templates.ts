@@ -1426,4 +1426,97 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
       };
     },
   },
+  richtext: {
+    appsmithType: "RICH_TEXT_EDITOR_WIDGET",
+    version: 1,
+    footprint: { columns: 24, rows: 20 },
+    build: (spec) => {
+      const s = spec.type === "richtext" ? spec : undefined;
+
+      return {
+        footprint: { columns: 24, rows: 20 },
+        props: {
+          // A plain-text seed (schema rejects HTML tags), rendered by the RTE. Users author rich content at runtime.
+          defaultText: s?.defaultValue ?? "",
+          labelText: s?.label ?? "Label",
+          labelPosition: "Top",
+          labelAlignment: "left",
+          labelWidth: 5,
+          inputType: "html",
+          isDisabled: false,
+          isVisible: true,
+          isRequired: false,
+          isDefaultClickDisabled: true,
+        },
+      };
+    },
+  },
+  jsonform: {
+    appsmithType: "JSON_FORM_WIDGET",
+    version: 1,
+    footprint: { columns: 24, rows: 41 },
+    build: (spec) => {
+      const s = spec.type === "jsonform" ? spec : undefined;
+      // The client auto-generates a field per key from sourceData (autoGenerateForm). sourceData is stored as a
+      // literal JSON string (never a binding); an empty default yields an empty form the user can extend.
+      const sourceData = s?.data ?? { name: "", email: "" };
+
+      return {
+        footprint: { columns: 24, rows: 41 },
+        props: {
+          sourceData: JSON.stringify(sourceData),
+          // Force schema derivation from sourceData at load — the compiler never authors the derived schema.
+          autoGenerateForm: true,
+          schema: {},
+          useSourceData: false,
+          title: s?.title ?? "Form",
+          submitButtonLabel: s?.submitLabel ?? "Submit",
+          resetButtonLabel: "Reset",
+          showReset: true,
+          fixedFooter: true,
+          scrollContents: true,
+          disabledWhenInvalid: true,
+          fieldLimitExceeded: false,
+          backgroundColor: "#fff",
+          borderWidth: "1",
+          borderColor: "#E7E7E7",
+        },
+      };
+    },
+  },
+  statbox: {
+    appsmithType: "STATBOX_WIDGET",
+    version: 1,
+    footprint: { columns: 22, rows: 14 },
+    // Composite: STATBOX_WIDGET is a container whose inner canvas holds the KPI parts. The compiler stacks these
+    // child specs into the inner canvas (the fixed-position blueprint is an editor convenience; a stacked card
+    // renders the same caption/value/subtext, plus an optional corner icon).
+    build: (spec) => {
+      const s = spec.type === "statbox" ? spec : undefined;
+      const children: WidgetSpec[] = [
+        { type: "text", name: undefined, text: s?.title ?? "Statistic" },
+        { type: "text", name: undefined, text: s?.value ?? "0" },
+      ];
+
+      if (s?.subtext !== undefined) {
+        children.push({ type: "text", text: s.subtext });
+      }
+
+      if (s?.icon !== undefined) {
+        children.push({ type: "iconbutton", icon: s.icon });
+      }
+
+      return {
+        footprint: { columns: 22, rows: 14 },
+        props: {
+          backgroundColor: "white",
+          borderWidth: "1",
+          borderColor: "#E7E7E7",
+          animateLoading: true,
+          responsiveBehavior: "fill",
+        },
+        children,
+      };
+    },
+  },
 };

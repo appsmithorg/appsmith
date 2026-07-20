@@ -88,6 +88,9 @@ const DEFAULT_BASE_NAME: Record<WidgetType, string> = {
   video: "Video",
   audio: "Audio",
   documentviewer: "DocumentViewer",
+  richtext: "RichText",
+  jsonform: "JSONForm",
+  statbox: "Statbox",
 };
 
 interface CompileContext {

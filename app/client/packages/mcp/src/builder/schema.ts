@@ -47,6 +47,9 @@ export const WIDGET_TYPES = [
   "video",
   "audio",
   "documentviewer",
+  "richtext",
+  "jsonform",
+  "statbox",
 ] as const;
 
 export type WidgetType = (typeof WIDGET_TYPES)[number];
@@ -1632,6 +1635,47 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         placement: placementSchema.optional(),
       })
       .strict(),
+    z
+      .object({
+        type: z.literal("richtext"),
+        name: nameField,
+        label: safeText(200).optional(),
+        // Plain-text initial content. The RTE renders defaultText as HTML, so agent-authored markup is NOT
+        // accepted — the value is gated to reject `<`/`>` (no tags) plus binding syntax. Users author rich content
+        // at runtime; the agent only seeds plain text.
+        defaultValue: safeText(5000)
+          .refine((v) => !/[<>]/.test(v), {
+            message: "richtext default must be plain text (no HTML tags)",
+          })
+          .optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("jsonform"),
+        name: nameField,
+        title: safeText(200).optional(),
+        // The form's source data shape: a flat object of field → scalar. The client auto-generates a field per key
+        // (autoGenerateForm). Emitted as a literal JSON sourceData string — never a binding.
+        data: z.record(columnKey, scalarCell).optional(),
+        submitLabel: safeText(120).optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
+    z
+      .object({
+        type: z.literal("statbox"),
+        name: nameField,
+        // The KPI card's caption, headline value, and optional trend/subtext + corner icon. Composite blueprint —
+        // the compiler emits the inner TEXT/TEXT/ICON_BUTTON/TEXT children.
+        title: safeText(200).optional(),
+        value: safeText(200).optional(),
+        subtext: safeText(200).optional(),
+        icon: iconName.optional(),
+        placement: placementSchema.optional(),
+      })
+      .strict(),
   ]),
 );
 
@@ -1986,6 +2030,30 @@ export type WidgetSpec =
       type: "documentviewer";
       name?: string;
       url: string;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "richtext";
+      name?: string;
+      label?: string;
+      defaultValue?: string;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "jsonform";
+      name?: string;
+      title?: string;
+      data?: Record<string, TableCell>;
+      submitLabel?: string;
+      placement?: PlacementSpec;
+    }
+  | {
+      type: "statbox";
+      name?: string;
+      title?: string;
+      value?: string;
+      subtext?: string;
+      icon?: string;
       placement?: PlacementSpec;
     };
 

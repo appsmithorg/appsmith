@@ -924,6 +924,101 @@ describe("compileApp — import artifact contract", () => {
     }
   });
 
+  it("compiles richtext (plain-text seed) and jsonform (auto-generated from data)", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "richtext",
+                name: "Notes",
+                label: "Notes",
+                defaultValue: "Type here",
+              },
+              {
+                type: "jsonform",
+                name: "Signup",
+                title: "Sign up",
+                data: { name: "", age: 0 },
+                submitLabel: "Register",
+              },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const children = rootOf(artifact).children as WidgetNode[];
+    const by = (name: string) => children.find((w) => w.widgetName === name)!;
+
+    expect(by("Notes").type).toBe("RICH_TEXT_EDITOR_WIDGET");
+    expect(by("Notes").defaultText).toBe("Type here");
+    expect(by("Notes").inputType).toBe("html");
+
+    const form = by("Signup");
+
+    expect(form.type).toBe("JSON_FORM_WIDGET");
+    expect(form.autoGenerateForm).toBe(true);
+    // sourceData is a literal JSON string the client derives fields from.
+    expect(form.sourceData).toBe(JSON.stringify({ name: "", age: 0 }));
+    expect(form.submitButtonLabel).toBe("Register");
+  });
+
+  it("compiles statbox as a STATBOX_WIDGET container with caption/value children", () => {
+    const artifact = compileApp(
+      {
+        name: "App",
+        pages: [
+          {
+            name: "Home",
+            widgets: [
+              {
+                type: "statbox",
+                name: "Kpi",
+                title: "Page Views",
+                value: "2.6 M",
+                subtext: "21% up",
+                icon: "arrow-top-right",
+              },
+            ],
+          },
+        ],
+      },
+      ids(),
+    );
+    const statbox = (rootOf(artifact).children as WidgetNode[])[0];
+
+    expect(statbox.type).toBe("STATBOX_WIDGET");
+    // The composite's parts live in its inner canvas.
+    const canvas = (statbox.children as WidgetNode[])[0];
+    const parts = canvas.children as WidgetNode[];
+    const texts = parts.filter((w) => w.type === "TEXT_WIDGET");
+
+    expect(texts.map((t) => t.text)).toEqual(["Page Views", "2.6 M", "21% up"]);
+    expect(parts.some((w) => w.type === "ICON_BUTTON_WIDGET")).toBe(true);
+  });
+
+  it("rejects richtext HTML tags and binding syntax", () => {
+    const bad = [
+      { type: "richtext", defaultValue: "<script>alert(1)</script>" },
+      { type: "richtext", defaultValue: "<b>bold</b>" },
+      { type: "richtext", defaultValue: "{{Query1.data}}" },
+      { type: "statbox", title: "KPI {{evil}}" },
+    ];
+
+    for (const widget of bad) {
+      expect(
+        appSpecSchema.safeParse({
+          name: "App",
+          pages: [{ name: "Home", widgets: [widget] }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("T1: compiles explicit table columns (type/label/hidden + computed) into primaryColumns", () => {
     const artifact = compileApp(
       {
