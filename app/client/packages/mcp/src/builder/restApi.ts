@@ -328,6 +328,9 @@ export function buildRestActionDto(
     name: spec.name,
     pageId: spec.pageId,
     datasource: { id: spec.datasourceId },
+    // A GET is a data fetch: run it on page load so a bound widget populates without a manual trigger. Mutating
+    // methods (POST/PUT/PATCH/DELETE) are user-triggered, so they stay manual.
+    executeOnLoad: spec.method === "GET",
     actionConfiguration: {
       path: compiled.path,
       httpMethod: spec.method,

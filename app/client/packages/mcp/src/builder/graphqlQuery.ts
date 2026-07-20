@@ -151,10 +151,17 @@ export function buildGraphqlActionDto(
     ? [{ key: "pluginSpecifiedTemplates[1].value" }]
     : [];
 
+  // A GraphQL query (read) is safe to run on page load so a bound widget populates without a manual trigger; a
+  // mutation/subscription stays manual. The operation string's leading keyword is the signal ('{' is shorthand for
+  // a query).
+  const trimmed = compiled.body.trimStart();
+  const isQuery = trimmed.startsWith("query") || trimmed.startsWith("{");
+
   return {
     name: spec.name,
     pageId: spec.pageId,
     datasource: { id: spec.datasourceId },
+    executeOnLoad: isQuery,
     actionConfiguration: {
       httpMethod: "POST",
       headers: [{ key: "Content-Type", value: "application/json" }],

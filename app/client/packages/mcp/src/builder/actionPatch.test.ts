@@ -49,6 +49,8 @@ describe("action lifecycle builders", () => {
         name: "ListUsers",
         pageId: "page1",
         datasource: { id: "storedSqlDatasource" },
+        // A SELECT runs on page load so a bound widget populates without a manual trigger.
+        executeOnLoad: true,
         actionConfiguration: {
           body: "SELECT * FROM users;",
           pluginSpecifiedTemplates: [{ value: true }],

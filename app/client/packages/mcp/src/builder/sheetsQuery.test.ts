@@ -124,6 +124,25 @@ describe("buildSheetsActionDto — exact Sheets formData shape", () => {
     expect(fd.tableHeaderIndex.data).toBe("2");
   });
 
+  it("runs a read on page load but not an append (executeOnLoad)", () => {
+    const read = buildSheetsActionDto(
+      parse({ ...base, operation: "read" }),
+      compileSheetsQuery(parse({ ...base, operation: "read" })),
+    ) as { executeOnLoad: boolean };
+    const appendSpec = parse({
+      ...base,
+      operation: "append",
+      row: [{ column: "name", value: { literal: "Ada" } }],
+    });
+    const append = buildSheetsActionDto(
+      appendSpec,
+      compileSheetsQuery(appendSpec),
+    ) as { executeOnLoad: boolean };
+
+    expect(read.executeOnLoad).toBe(true);
+    expect(append.executeOnLoad).toBe(false);
+  });
+
   it("emits the INSERT_ONE append shape with the smart-substituted rowObjects field", () => {
     const spec = parse({
       ...base,

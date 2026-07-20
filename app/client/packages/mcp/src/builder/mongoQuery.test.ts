@@ -231,6 +231,8 @@ describe("buildMongoActionDto — the exact Mongo formData action shape", () => 
       name: "getUsers",
       pageId: "p1",
       datasource: { id: "ds1" },
+      // A FIND runs on page load so a bound widget populates without a manual trigger.
+      executeOnLoad: true,
       actionConfiguration: {
         formData: {
           command: { data: "FIND" },
@@ -252,9 +254,12 @@ describe("buildMongoActionDto — the exact Mongo formData action shape", () => 
       document: [{ field: "name", value: { literal: "Ada" } }],
     });
     const dto = buildMongoActionDto(spec, compileMongoQuery(spec)) as {
+      executeOnLoad: boolean;
       actionConfiguration: { formData: Record<string, unknown> };
     };
 
+    // An INSERT is user-triggered — it must NOT run on page load.
+    expect(dto.executeOnLoad).toBe(false);
     expect(dto.actionConfiguration.formData).toEqual({
       command: { data: "INSERT" },
       collection: { data: "users" },

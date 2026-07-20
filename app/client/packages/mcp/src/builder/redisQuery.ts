@@ -126,6 +126,24 @@ const KEY_VALUE: ReadonlySet<RedisCommand> = new Set([
 ]);
 const KEY_FIELD: ReadonlySet<RedisCommand> = new Set(["HGET", "HDEL"]);
 
+// The side-effect-free read commands — safe to run on page load so a bound widget populates without a manual
+// trigger. Everything else mutates and stays manual (user-triggered).
+const READ_COMMANDS: ReadonlySet<RedisCommand> = new Set([
+  "GET",
+  "EXISTS",
+  "TTL",
+  "TYPE",
+  "STRLEN",
+  "LLEN",
+  "SMEMBERS",
+  "SCARD",
+  "HGETALL",
+  "HKEYS",
+  "HVALS",
+  "HGET",
+  "LRANGE",
+]);
+
 export const redisQuerySpecSchema = z
   .object({
     name: bindingIdentifier,
@@ -270,6 +288,9 @@ export function buildRedisActionDto(
     name: spec.name,
     pageId: spec.pageId,
     datasource: { id: spec.datasourceId },
+    // A read command is safe to run on page load so a bound widget populates without a manual trigger; a mutating
+    // command stays manual (user-triggered).
+    executeOnLoad: READ_COMMANDS.has(spec.command),
     actionConfiguration: {
       body: compiled.body,
       ...(compiled.hasBinding

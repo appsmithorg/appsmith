@@ -251,6 +251,10 @@ export function buildSheetsActionDto(
     name: spec.name,
     pageId: spec.pageId,
     datasource: { id: spec.datasourceId },
+    // A read is a data fetch: run it on page load so a widget bound to its result populates without a manual
+    // trigger (the query is created AFTER the layout, so the server's on-load binding analysis doesn't pick it up —
+    // this makes the intent explicit). An append is user-triggered (a button), so it stays manual.
+    executeOnLoad: spec.operation === "read",
     actionConfiguration: { formData },
   };
 }

@@ -324,6 +324,9 @@ export function buildActionDto(
     name: spec.name,
     pageId: spec.pageId,
     datasource: { id: spec.datasourceId },
+    // A SELECT is a data fetch: run it on page load so a bound widget populates without a manual trigger (the query
+    // is created after the layout, so the server's on-load analysis doesn't pick it up). Writes stay manual.
+    executeOnLoad: spec.operation === "SELECT",
     actionConfiguration: {
       body,
       // SQL plugins read the prepared-statement flag from pluginSpecifiedTemplates[0].value.

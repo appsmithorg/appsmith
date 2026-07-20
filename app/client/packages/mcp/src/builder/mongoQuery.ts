@@ -270,6 +270,9 @@ export function buildMongoActionDto(
     name: spec.name,
     pageId: spec.pageId,
     datasource: { id: spec.datasourceId },
+    // A FIND is a data fetch: run it on page load so a bound widget populates without a manual trigger. INSERT is
+    // user-triggered, so it stays manual.
+    executeOnLoad: compiled.command === "FIND",
     actionConfiguration: { formData },
   };
 }
