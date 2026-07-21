@@ -139,6 +139,7 @@ export const SettingCategories = {
   OIDC_AUTH: "oidc-auth",
   INSTANCE_SETTINGS: "instance-settings",
   CONFIGURATION: "configuration",
+  MCP_SERVER: "mcp-server",
   VERSION: "version",
   USER_SETTINGS: "user-settings",
   PROFILE: "profile",
