@@ -213,12 +213,11 @@ public class NewActionServiceUnitTest {
 
         // Sentinel exception: if the unchecked overload is called, surface this distinct error.
         // In pre-fix code this overload is called; in post-fix code it must never be called.
-        RuntimeException securityViolation = new RuntimeException(
-                "SECURITY_VIOLATION: unchecked datasourceService.findById(String) was called "
+        RuntimeException securityViolation =
+                new RuntimeException("SECURITY_VIOLATION: unchecked datasourceService.findById(String) was called "
                         + "during action create/update — cross-workspace datasource bypass possible "
                         + "(GHSA-fhgw-q2jf-8fq7)");
-        Mockito.when(datasourceService.findById(eq(foreignDatasourceId)))
-                .thenReturn(Mono.error(securityViolation));
+        Mockito.when(datasourceService.findById(eq(foreignDatasourceId))).thenReturn(Mono.error(securityViolation));
 
         // The ACL-scoped overload returns empty — datasource not accessible to this user/workspace.
         // After the fix, the switchIfEmpty must raise an AppsmithException (not continue with a stub).
@@ -241,9 +240,7 @@ public class NewActionServiceUnitTest {
         // After the fix the pipeline must terminate with AppsmithException (datasource not found /
         // not accessible), NOT with RuntimeException (which signals the wrong overload was called).
         Mono<NewAction> result = newActionService.validateAction(action, false);
-        StepVerifier.create(result)
-                .expectError(AppsmithException.class)
-                .verify();
+        StepVerifier.create(result).expectError(AppsmithException.class).verify();
 
         // Post-fix assertions: the ACL-scoped overload was called; the unchecked overload was not.
         Mockito.verify(datasourceService).findById(eq(foreignDatasourceId), eq(editPermission));
