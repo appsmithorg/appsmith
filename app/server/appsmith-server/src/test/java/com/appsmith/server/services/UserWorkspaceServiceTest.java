@@ -380,6 +380,79 @@ public class UserWorkspaceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void updatePermissionGroupForMember_crossWorkspaceInjection_GHSA_h5qf_shouldReject() {
+        // GHSA-h5qf-426x-5mv5 — Missing Authorization on updatePermissionGroupForMember
+        // Verify that supplying a newPermissionGroupId from a DIFFERENT workspace is rejected.
+
+        // Create workspace V (attacker's own — api_user is admin)
+        Workspace workspaceV = new Workspace();
+        workspaceV.setName("GHSA-h5qf WsV attacker");
+        Workspace createdWorkspaceV = workspaceService.create(workspaceV).block();
+
+        // Create workspace W (victim's)
+        Workspace workspaceW = new Workspace();
+        workspaceW.setName("GHSA-h5qf WsW victim");
+        Workspace createdWorkspaceW = workspaceService.create(workspaceW).block();
+
+        List<PermissionGroup> pgV = permissionGroupRepository
+                .findAllById(createdWorkspaceV.getDefaultPermissionGroups())
+                .collectList()
+                .block();
+
+        List<PermissionGroup> pgW = permissionGroupRepository
+                .findAllById(createdWorkspaceW.getDefaultPermissionGroups())
+                .collectList()
+                .block();
+
+        PermissionGroup viewerGroupW = pgW.stream()
+                .filter(pg -> pg.getName().startsWith(FieldName.VIEWER))
+                .findFirst()
+                .get();
+
+        PermissionGroup viewerGroupV = pgV.stream()
+                .filter(pg -> pg.getName().startsWith(FieldName.VIEWER))
+                .findFirst()
+                .get();
+
+        // Add sybil to workspace V as a Viewer (so username resolves in updatePermissionGroupForMember)
+        User sybil = userRepository.findByEmail("usertest@usertest.com").block();
+        if (viewerGroupV.getAssignedToUserIds() == null) {
+            viewerGroupV.setAssignedToUserIds(new HashSet<>());
+        }
+        viewerGroupV.getAssignedToUserIds().add(sybil.getId());
+        permissionGroupRepository.save(viewerGroupV).block();
+        permissionGroupService
+                .cleanPermissionGroupCacheForUsers(List.of(sybil.getId()))
+                .block();
+
+        // EXPLOIT: call updatePermissionGroupForMember on workspace V but with W's viewer group id.
+        // Without the fix this succeeds (cross-workspace injection).
+        // With the fix it must throw ACTION_IS_NOT_AUTHORIZED.
+        UpdatePermissionGroupDTO exploitDTO = new UpdatePermissionGroupDTO();
+        exploitDTO.setUsername("usertest@usertest.com");
+        exploitDTO.setNewPermissionGroupId(viewerGroupW.getId());
+
+        Mono<MemberInfoDTO> exploitMono = userWorkspaceService.updatePermissionGroupForMember(
+                createdWorkspaceV.getId(), exploitDTO, "http://test-origin.test");
+
+        StepVerifier.create(exploitMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage(
+                                        "Change permissionGroup of a member")))
+                .verify();
+
+        // Cleanup
+        viewerGroupV.getAssignedToUserIds().remove(sybil.getId());
+        permissionGroupRepository.save(viewerGroupV).block();
+        permissionGroupService
+                .cleanPermissionGroupCacheForUsers(List.of(sybil.getId()))
+                .block();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void getUserWorkspacesInAlphabeticalOrder_WhenUserHasWorkspaces_ReturnsWorkspacesSortedAlphabetically() {
 
         List<String> existingWorkspaceNames =
