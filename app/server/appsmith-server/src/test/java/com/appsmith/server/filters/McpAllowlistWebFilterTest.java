@@ -46,6 +46,14 @@ class McpAllowlistWebFilterTest {
     }
 
     @Test
+    void mcpPrincipal_datasourceTrigger_passesThrough() {
+        // Sheets discovery (get_datasource_structure) posts to the datasource trigger endpoint.
+        MockServerWebExchange exchange =
+                MockServerWebExchange.from(MockServerHttpRequest.post("/api/v1/datasources/abc123/trigger"));
+        assertPassesThrough(exchange, mcpPrincipal());
+    }
+
+    @Test
     void mcpPrincipal_nonAllowlistedPath_isForbidden() {
         // The token-mint endpoint is not on the allowlist -> 403 for an MCP principal (double-covered by the
         // controller-level block).

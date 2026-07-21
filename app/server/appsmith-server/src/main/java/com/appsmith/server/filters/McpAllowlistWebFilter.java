@@ -71,6 +71,10 @@ public class McpAllowlistWebFilter implements WebFilter {
             rule(HttpMethod.GET, "/api/v1/datasources"),
             rule(HttpMethod.POST, "/api/v1/datasources"),
             rule(HttpMethod.GET, "/api/v1/datasources/{id}/structure"),
+            // Sheets discovery in get_datasource_structure: the MCP sends only server-chosen selector requestTypes
+            // (SPREADSHEET_SELECTOR / SHEET_SELECTOR / COLUMNS_SELECTOR); the endpoint itself enforces datasource
+            // EXECUTE permission per request.
+            rule(HttpMethod.POST, "/api/v1/datasources/{id}/trigger"),
             rule(HttpMethod.GET, "/api/v1/plugins"),
             rule(HttpMethod.GET, "/api/v1/themes/applications/{id}/current"),
             rule(HttpMethod.PUT, "/api/v1/themes/applications/{id}"));
