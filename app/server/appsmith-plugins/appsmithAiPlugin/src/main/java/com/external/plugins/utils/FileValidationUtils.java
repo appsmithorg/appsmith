@@ -47,12 +47,15 @@ import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_TYPE_N
  * surfaces the true type - e.g. {@code image/svg+xml} - which is then rejected by the allow-list. Verified
  * against UTF-8/UTF-16LE/UTF-16BE/UTF-32 and namespace-prefixed SVG.
  *
- * <p>Content-type detection reads only the head of the file, so validation is by detected type against the
- * allow-list alone. A file that Tika types as an allowed text type but that embeds markup - for example an
- * SVG/HTML/script payload padded past the detection window with non-whitespace bytes, or markup mentioned
- * inside otherwise-legitimate text - is accepted. This is an accepted low-severity content-sniffing residual:
- * uploaded files are stored in object storage (S3) and are never served as HTML from the application origin,
- * so embedded markup cannot execute as stored XSS.
+ * <p>This content-type validation is best-effort, not a hard security boundary. Detection reads only the head
+ * of the file, and the wide-charset heuristic ({@link #detectWideCharset}) can be spoofed, so a determined
+ * attacker can still get a file accepted under an allowed type - e.g. an SVG/HTML/script payload padded past
+ * the detection window with non-whitespace bytes, markup mentioned inside otherwise-legitimate text, or a
+ * binary crafted so the charset heuristic mis-classifies it as {@code text/plain}. These are accepted
+ * low-severity residuals: uploaded files are stored in object storage (S3) and are never served renderably
+ * (as HTML) from the application origin, so the content cannot execute as stored XSS. The control raises the
+ * bar against casual filename/Content-Type spoofing; it is not relied on to keep every malformed byte stream
+ * out.
  */
 public class FileValidationUtils {
 
@@ -82,12 +85,11 @@ public class FileValidationUtils {
                 .map(dataBuffer -> {
                     byte[] bytes = toByteArray(dataBuffer);
                     String detectedType = detectTrueType(bytes).getBaseType().toString();
-                    // Validation is by Tika-detected content type against the allow-list only. Accepted
-                    // residual (low severity): a file that types as an allowed text type but embeds markup
-                    // (e.g. an SVG/HTML/script payload padded past the detection window with non-whitespace
-                    // bytes, or markup mentioned inside legitimate text) is accepted. Uploaded files are stored
-                    // in object storage (S3) and are never served as HTML from the application origin, so
-                    // embedded markup cannot execute as stored XSS.
+                    // Best-effort content-type validation (not a hard security boundary). Accepted low-severity
+                    // residual: a file that types as an allowed type but embeds markup, or a binary crafted so
+                    // the charset heuristic mis-classifies it as text, can be accepted. Uploaded files are
+                    // S3-stored and never served renderably (as HTML) from the application origin, so the
+                    // content cannot execute as stored XSS. See the class docs for the full rationale.
                     if (!SUPPORTED_FILE_MIME_TYPES.contains(detectedType)) {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
