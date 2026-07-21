@@ -321,6 +321,7 @@ function createApi(
     listDatasources: jest.fn(),
     createDatasource: jest.fn(),
     getDatasourceStructure: jest.fn(),
+    triggerDatasource: jest.fn(),
     getApplicationPages: jest.fn(async () => ({ workspaceId: "ws1" })),
     // Default: no layouts, so F3 layoutId surfacing degrades to undefined unless a test overrides it.
     getPage: jest.fn(async () => ({})),
@@ -5291,6 +5292,455 @@ describe("governance-wrapped layout mutations", () => {
 
     expect(res.body.executed).toBe(true);
     expect(executeAction).toHaveBeenCalledWith("act1");
+  });
+
+  // The Sheets auto-run door: a FETCH_MANY/FETCH_DETAILS command whose action pluginId AND datasource both
+  // STRICTLY resolve (through the server-authoritative workspace plugin/datasource lists) to google-sheets-plugin
+  // is protocol-read-only AND host-restricted, so it may auto-run. The workspace comes from the application's
+  // pages DTO (createApi's getApplicationPages default: { workspaceId: "ws1" }), never the action document.
+  const SHEETS_READ_ACTION = {
+    id: "act1",
+    name: "ReadTasks",
+    pageId: "p1",
+    pluginType: "SAAS",
+    pluginId: "plug-sheets",
+    workspaceId: "ws-spoofable",
+    updatedAt: "2026-07-21T00:00:00.000Z",
+    actionConfiguration: {
+      formData: {
+        command: { data: "FETCH_MANY" },
+        entityType: { data: "ROWS" },
+      },
+    },
+    datasource: { id: "ds1", pluginId: "plug-sheets" },
+  };
+  const SHEETS_PLUGINS = [
+    { id: "plug-sheets", packageName: "google-sheets-plugin" },
+    { id: "plug-pg", packageName: "postgres-plugin" },
+  ];
+  const SHEETS_DATASOURCES = [{ id: "ds1", pluginId: "plug-sheets" }];
+
+  it("run_action auto-runs a Google Sheets read (plugin family proven via the workspace plugin list)", async () => {
+    const executeAction = jest.fn(async () => ({ isExecutionSuccess: true }));
+    const listPlugins = jest.fn(async () => SHEETS_PLUGINS);
+    const listDatasources = jest.fn(async () => SHEETS_DATASOURCES);
+    const server = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getAction: jest.fn(async () => SHEETS_READ_ACTION),
+        listPlugins,
+        listDatasources,
+        executeAction,
+      }),
+      { dataEnabled: true },
+    );
+    const res = await callTool(server, "run_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+
+    expect(res.body.executed).toBe(true);
+    expect(executeAction).toHaveBeenCalledWith("act1");
+    // Both lookups use the pages-DTO workspace ("ws1"), NOT the action document's ("ws-spoofable").
+    expect(listPlugins).toHaveBeenCalledWith("ws1");
+    expect(listDatasources).toHaveBeenCalledWith("ws1");
+  });
+
+  it("run_action fails CLOSED when the action's pluginId is the literal Sheets package name absent from the plugin list", async () => {
+    // F1 regression: pluginPackageName's not-found fallback returns the pluginId itself, so an action document
+    // persisted with pluginId "google-sheets-plugin" would pass a family check built on it. The auto-run gate
+    // must use strict list-membership resolution instead — and on the server, this exact document would execute
+    // the DATASOURCE's plugin, so letting it through would auto-run arbitrary plugins.
+    const executeAction = jest.fn();
+    const server = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getAction: jest.fn(async () => ({
+          ...SHEETS_READ_ACTION,
+          pluginId: "google-sheets-plugin",
+        })),
+        listPlugins: jest.fn(async () => SHEETS_PLUGINS),
+        listDatasources: jest.fn(async () => SHEETS_DATASOURCES),
+        executeAction,
+      }),
+      { dataEnabled: true },
+    );
+    const res = await callTool(server, "run_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+
+    expect(res.body.code).toBe("confirmation_required");
+    expect(executeAction).not.toHaveBeenCalled();
+  });
+
+  it("run_action fails CLOSED when a Sheets-labeled action points at a non-Sheets datasource", async () => {
+    // On a pluginId miss the server executes the DATASOURCE's plugin, so the datasource must independently
+    // resolve to Sheets. A Sheets-resolving action pluginId with a Postgres datasource must not auto-run.
+    const executeAction = jest.fn();
+    const server = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getAction: jest.fn(async () => ({
+          ...SHEETS_READ_ACTION,
+          datasource: { id: "ds-pg", pluginId: "plug-pg" },
+        })),
+        listPlugins: jest.fn(async () => SHEETS_PLUGINS),
+        listDatasources: jest.fn(async () => [
+          { id: "ds-pg", pluginId: "plug-pg" },
+        ]),
+        executeAction,
+      }),
+      { dataEnabled: true },
+    );
+    const res = await callTool(server, "run_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+
+    expect(res.body.code).toBe("confirmation_required");
+    expect(executeAction).not.toHaveBeenCalled();
+  });
+
+  it("run_action refuses a Sheets append (INSERT_ONE) — only the closed read commands auto-run", async () => {
+    const executeAction = jest.fn();
+    const server = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getAction: jest.fn(async () => ({
+          ...SHEETS_READ_ACTION,
+          actionConfiguration: {
+            formData: {
+              command: { data: "INSERT_ONE" },
+              entityType: { data: "ROWS" },
+            },
+          },
+        })),
+        listPlugins: jest.fn(async () => SHEETS_PLUGINS),
+        executeAction,
+      }),
+      { dataEnabled: true },
+    );
+    const res = await callTool(server, "run_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+
+    expect(res.body.code).toBe("confirmation_required");
+    expect(executeAction).not.toHaveBeenCalled();
+  });
+
+  it("run_action fails CLOSED when the action merely claims to be Sheets (plugin resolves elsewhere) or the plugin list is unavailable", async () => {
+    // Spoof: an action document with a Sheets-looking command whose pluginId resolves to a DIFFERENT package. The
+    // classifier must trust only the workspace plugin list, not the action's own strings.
+    const spoofExecute = jest.fn();
+    const spoofServer = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getAction: jest.fn(async () => SHEETS_READ_ACTION),
+        listPlugins: jest.fn(async () => [
+          { id: "plug-sheets", packageName: "saas-hubspot-plugin" },
+        ]),
+        executeAction: spoofExecute,
+      }),
+      { dataEnabled: true },
+    );
+    const spoofed = await callTool(spoofServer, "run_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+
+    expect(spoofed.body.code).toBe("confirmation_required");
+    expect(spoofExecute).not.toHaveBeenCalled();
+
+    // Plugin list unreachable -> the door stays shut (confirmation path still available).
+    const failExecute = jest.fn();
+    const failServer = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getAction: jest.fn(async () => SHEETS_READ_ACTION),
+        listPlugins: jest.fn(async () => {
+          throw new Error("boom");
+        }),
+        executeAction: failExecute,
+      }),
+      { dataEnabled: true },
+    );
+    const failed = await callTool(failServer, "run_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+
+    expect(failed.body.code).toBe("confirmation_required");
+    expect(failExecute).not.toHaveBeenCalled();
+  });
+
+  it("prepare_run_action reports readOnly true for a Sheets read and degrades to false when the plugin list is unavailable", async () => {
+    // The advisory readOnly flag runs through the same async classifier. A Sheets read prepares as readOnly: true
+    // ("you could have used run_action"); a classifier failure degrades the FLAG, never the prepare itself.
+    const roStore = new MemoryGovernanceStore();
+    const roServer = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getAction: jest.fn(async () => SHEETS_READ_ACTION),
+        listPlugins: jest.fn(async () => SHEETS_PLUGINS),
+        listDatasources: jest.fn(async () => SHEETS_DATASOURCES),
+      }),
+      { dataEnabled: true, governance: new McpGovernanceCoordinator(roStore) },
+    );
+    const roRead = await callTool(roServer, "get_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+    const roPrepared = await callTool(roServer, "prepare_run_action", {
+      applicationId: "app1",
+      actionId: "act1",
+      revision: roRead.body.revision,
+    });
+
+    expect(roPrepared.body.readOnly).toBe(true);
+    expect(roPrepared.body.confirmationId).toBeDefined();
+
+    const failStore = new MemoryGovernanceStore();
+    const failServer = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getAction: jest.fn(async () => SHEETS_READ_ACTION),
+        listPlugins: jest.fn(async () => {
+          throw new Error("boom");
+        }),
+        listDatasources: jest.fn(async () => SHEETS_DATASOURCES),
+      }),
+      {
+        dataEnabled: true,
+        governance: new McpGovernanceCoordinator(failStore),
+      },
+    );
+    const failRead = await callTool(failServer, "get_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+    const failPrepared = await callTool(failServer, "prepare_run_action", {
+      applicationId: "app1",
+      actionId: "act1",
+      revision: failRead.body.revision,
+    });
+
+    expect(failPrepared.body.readOnly).toBe(false);
+    expect(failPrepared.body.confirmationId).toBeDefined();
+  });
+
+  // get_datasource_structure: Sheets discovery (spreadsheets -> sheet names -> columns) over the datasource
+  // trigger endpoint, with the plain structure passthrough untouched for DB datasources.
+  const SHEET_URL = "https://docs.google.com/spreadsheets/d/abc123/edit";
+
+  it("get_datasource_structure walks a Sheets datasource: spreadsheets, then sheet names, then columns", async () => {
+    const triggerDatasource = jest.fn(
+      async (_id: string, body: Record<string, unknown>) => {
+        if (body.requestType === "SPREADSHEET_SELECTOR") {
+          return { trigger: [{ label: "TaskData", value: SHEET_URL }] };
+        }
+
+        if (body.requestType === "SHEET_SELECTOR") {
+          return { trigger: [{ label: "Sheet1", value: "Sheet1" }] };
+        }
+
+        return {
+          trigger: [
+            { label: "Name", value: "Name" },
+            { label: "DueDate", value: "DueDate" },
+            { label: "Status", value: "Status" },
+          ],
+        };
+      },
+    );
+    const server = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getDatasourceStructure: jest.fn(async () => ({})),
+        triggerDatasource,
+      }),
+      { dataEnabled: true },
+    );
+
+    // No params: empty structure -> the spreadsheet probe answers.
+    const spreadsheets = await callTool(server, "get_datasource_structure", {
+      datasourceId: "ds1",
+    });
+
+    expect(spreadsheets.body.spreadsheets).toEqual([
+      { label: "TaskData", value: SHEET_URL },
+    ]);
+
+    // + sheetUrl: sheet (tab) names.
+    const sheets = await callTool(server, "get_datasource_structure", {
+      datasourceId: "ds1",
+      sheetUrl: SHEET_URL,
+    });
+
+    expect(sheets.body.sheets).toEqual(["Sheet1"]);
+    expect(triggerDatasource).toHaveBeenCalledWith(
+      "ds1",
+      expect.objectContaining({
+        requestType: "SHEET_SELECTOR",
+        parameters: { sheetUrl: SHEET_URL },
+      }),
+    );
+
+    // + sheetName: column names (headerRow defaults to 1).
+    const columns = await callTool(server, "get_datasource_structure", {
+      datasourceId: "ds1",
+      sheetUrl: SHEET_URL,
+      sheetName: "Sheet1",
+    });
+
+    expect(columns.body.columns).toEqual(["Name", "DueDate", "Status"]);
+    expect(triggerDatasource).toHaveBeenCalledWith(
+      "ds1",
+      expect.objectContaining({
+        requestType: "COLUMNS_SELECTOR",
+        parameters: {
+          sheetUrl: SHEET_URL,
+          sheetName: "Sheet1",
+          tableHeaderIndex: "1",
+        },
+      }),
+    );
+  });
+
+  it("get_datasource_structure leaves non-Sheets datasources alone (tables passthrough; probe failure returns the raw structure)", async () => {
+    // A DB structure with tables: returned as-is, no trigger probe.
+    const dbStructure = { tables: [{ name: "users", columns: [] }] };
+    const dbTrigger = jest.fn();
+    const dbServer = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getDatasourceStructure: jest.fn(async () => dbStructure),
+        triggerDatasource: dbTrigger,
+      }),
+      { dataEnabled: true },
+    );
+    const db = await callTool(dbServer, "get_datasource_structure", {
+      datasourceId: "ds1",
+    });
+
+    expect(db.body).toEqual(dbStructure);
+    expect(dbTrigger).not.toHaveBeenCalled();
+
+    // Empty structure on a plugin WITHOUT the selector trigger (REST/AI/...): the probe fails and the raw
+    // structure is still the answer.
+    const emptyServer = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getDatasourceStructure: jest.fn(async () => ({})),
+        triggerDatasource: jest.fn(async () => {
+          throw new Error("Appsmith API request failed (500)");
+        }),
+      }),
+      { dataEnabled: true },
+    );
+    const empty = await callTool(emptyServer, "get_datasource_structure", {
+      datasourceId: "ds1",
+    });
+
+    expect(empty.body).toEqual({});
+
+    // sheetName without sheetUrl is ambiguous -> explicit error, no API calls.
+    const invalid = await callTool(emptyServer, "get_datasource_structure", {
+      datasourceId: "ds1",
+      sheetName: "Sheet1",
+    });
+
+    expect(invalid.body.error).toContain("sheetUrl");
+  });
+
+  it("get_datasource_structure bounds trigger output and errors on a metadata-less drill-down response", async () => {
+    // 250 entries with junk mixed in and over-length strings: the projection caps at 200 options, drops
+    // non-conforming entries, and truncates label/value.
+    const noisyTrigger = [
+      null,
+      "bare-string",
+      { label: 42, value: "dropped-non-string-label" },
+      { label: "L".repeat(400), value: "V".repeat(3000) },
+      ...Array.from({ length: 250 }, (_, i) => ({
+        label: `sheet-${i}`,
+        value: `sheet-${i}`,
+      })),
+    ];
+    const server = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        triggerDatasource: jest.fn(async () => ({ trigger: noisyTrigger })),
+      }),
+      { dataEnabled: true },
+    );
+    const sheets = await callTool(server, "get_datasource_structure", {
+      datasourceId: "ds1",
+      sheetUrl: SHEET_URL,
+    });
+
+    expect(sheets.body.sheets).toHaveLength(200);
+    expect(sheets.body.sheets[0]).toBe("V".repeat(2000));
+    expect(sheets.body.sheets).not.toContain("dropped-non-string-label");
+
+    // A drill-down (sheetUrl set) whose response has no trigger array is an explicit error, not a passthrough.
+    const noMetadataServer = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        triggerDatasource: jest.fn(async () => ({ notTrigger: true })),
+      }),
+      { dataEnabled: true },
+    );
+    const noMetadata = await callTool(
+      noMetadataServer,
+      "get_datasource_structure",
+      { datasourceId: "ds1", sheetUrl: SHEET_URL },
+    );
+
+    expect(noMetadata.body.error).toContain("sheet metadata");
+  });
+
+  it("get_datasource_structure propagates a non-default headerRow into the columns trigger", async () => {
+    const triggerDatasource = jest.fn(async () => ({
+      trigger: [{ label: "ColA", value: "ColA" }],
+    }));
+    const server = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({ ...createApi()(), triggerDatasource }),
+      { dataEnabled: true },
+    );
+    const columns = await callTool(server, "get_datasource_structure", {
+      datasourceId: "ds1",
+      sheetUrl: SHEET_URL,
+      sheetName: "Sheet1",
+      headerRow: 5,
+    });
+
+    expect(columns.body.columns).toEqual(["ColA"]);
+    expect(triggerDatasource).toHaveBeenCalledWith(
+      "ds1",
+      expect.objectContaining({
+        requestType: "COLUMNS_SELECTOR",
+        parameters: {
+          sheetUrl: SHEET_URL,
+          sheetName: "Sheet1",
+          tableHeaderIndex: "5",
+        },
+      }),
+    );
   });
 
   it("run_action refuses DB queries whose text looks read-only but can mutate (no confirmation bypass)", async () => {

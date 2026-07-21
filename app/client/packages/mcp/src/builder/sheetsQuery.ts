@@ -21,8 +21,9 @@ import { z } from "zod";
 
 // A Google Sheets spreadsheet URL. Not a secret — it names WHICH already-authorized spreadsheet to target. http(s)
 // docs.google.com only, restricted charset, no whitespace/template/quote/brace so it cannot carry injection into the
-// stored config.
-const sheetUrl = z
+// stored config. Exported for get_datasource_structure's sheet-discovery parameters, so the discovery path applies
+// the same gate as the query builder.
+export const sheetUrl = z
   .string()
   .trim()
   .min(1)
@@ -33,8 +34,9 @@ const sheetUrl = z
   );
 
 // A sheet (tab) name. Placed as a literal in the API request path (it is NOT smart-substituted), so a tight charset
-// keeps it from injecting into the A1 range Google Sheets builds (e.g. `Sheet1!A1`).
-const sheetName = z
+// keeps it from injecting into the A1 range Google Sheets builds (e.g. `Sheet1!A1`). Exported for
+// get_datasource_structure's sheet discovery, same reasoning as sheetUrl.
+export const sheetName = z
   .string()
   .trim()
   .min(1)

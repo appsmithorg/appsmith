@@ -103,6 +103,7 @@ function apiInvocations(
     listDatasources: async () => api.listDatasources(PARAM),
     createDatasource: async () => api.createDatasource(body),
     getDatasourceStructure: async () => api.getDatasourceStructure(PARAM),
+    triggerDatasource: async () => api.triggerDatasource(PARAM, body),
     getApplicationPages: async () => api.getApplicationPages(PARAM),
     getPage: async () => api.getPage(PARAM),
     getApplication: async () => api.getApplication(PARAM),

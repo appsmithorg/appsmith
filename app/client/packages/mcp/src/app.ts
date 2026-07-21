@@ -75,6 +75,8 @@ import {
 import {
   buildSheetsActionDto,
   compileSheetsQuery,
+  sheetName as sheetNameSchema,
+  sheetUrl as sheetUrlSchema,
   sheetsQuerySpecSchema,
 } from "./builder/sheetsQuery.js";
 import {
@@ -363,6 +365,13 @@ export interface AppsmithApi {
   listDatasources: (workspaceId: string) => Promise<unknown>;
   createDatasource: (datasource: Record<string, unknown>) => Promise<unknown>;
   getDatasourceStructure: (datasourceId: string) => Promise<unknown>;
+  // POST /api/v1/datasources/{id}/trigger — the metadata endpoint plugin form dropdowns use (TriggerRequestDTO ->
+  // TriggerResultDTO). The MCP sends only server-chosen requestTypes (Sheets discovery: SPREADSHEET_SELECTOR /
+  // SHEET_SELECTOR / COLUMNS_SELECTOR); agent input never picks the requestType.
+  triggerDatasource: (
+    datasourceId: string,
+    body: Record<string, unknown>,
+  ) => Promise<unknown>;
   getApplicationPages: (applicationId: string) => Promise<unknown>;
   // Returns a single page's DTO (GET /api/v1/pages/{pageId}), whose `layouts[0].id` is the layoutId REQUIRED by the
   // authoring tools (read_semantic_page/patch_widgets/edit_page/wire_event). The pages-LIST DTO does not carry it.
@@ -653,6 +662,14 @@ export function createAppsmithApi(
     getDatasourceStructure: async (datasourceId) =>
       request(
         `/api/v1/datasources/${encodeURIComponent(datasourceId)}/structure`,
+      ),
+    triggerDatasource: async (datasourceId, body) =>
+      request(
+        `/api/v1/datasources/${encodeURIComponent(datasourceId)}/trigger`,
+        {
+          method: "POST",
+          body: JSON.stringify(body),
+        },
       ),
     getApplicationPages: async (applicationId) =>
       request(
@@ -1115,6 +1132,41 @@ function datasourcePackageName(
   return pluginPackageName(plugins, (entry as { pluginId?: unknown }).pluginId);
 }
 
+// Project a datasource-trigger response (TriggerResultDTO: { trigger: [{ label, value }, ...] }) into a bounded,
+// string-only option list. Non-conforming entries are dropped and strings truncated — trigger metadata (spreadsheet
+// names/URLs, sheet names, column headers) feeds agent context, so it stays small and inert.
+function triggerOptions(
+  response: unknown,
+): { label: string; value: string }[] | undefined {
+  const trigger = (response as { trigger?: unknown } | null)?.trigger;
+
+  if (!Array.isArray(trigger)) return undefined;
+
+  const options: { label: string; value: string }[] = [];
+
+  for (const entry of trigger) {
+    if (options.length >= 200) break;
+
+    if (entry === null || typeof entry !== "object") continue;
+
+    const { label, value } = entry as { label?: unknown; value?: unknown };
+
+    if (typeof label !== "string" || typeof value !== "string") continue;
+
+    options.push({ label: label.slice(0, 300), value: value.slice(0, 2000) });
+  }
+
+  return options;
+}
+
+// True when a structure response actually describes tables — the signal that the plain structure endpoint answered
+// (DB datasources). Sheets/SAAS datasources return an empty/tableless body, which cues the spreadsheet probe.
+function hasDatasourceTables(structure: unknown): boolean {
+  const tables = (structure as { tables?: unknown } | null)?.tables;
+
+  return Array.isArray(tables) && tables.length > 0;
+}
+
 function workspaceIdFromApplicationPages(
   response: unknown,
 ): string | undefined {
@@ -1455,16 +1507,16 @@ function isExternalEgressAction(action: unknown): boolean {
 }
 
 // Classify a stored action as auto-runnable (executable via run_action WITHOUT the prepare/confirm human checkpoint).
-// TWO independent guarantees are required, and no current plugin family provides both — so nothing auto-runs today and
-// every stored action routes through prepare_run_action / confirm_run_action:
+// TWO independent guarantees are required:
 //   (1) PROTOCOL-level read-only: a REST GET/HEAD (safe by HTTP semantics). A DB/SQL body can NEVER be reliably
 //       classified read-only from its text — a leading SELECT/WITH/SHOW/EXPLAIN can still mutate (a CTE such as
 //       `WITH x AS (DELETE FROM t RETURNING *) SELECT * FROM x`, a mutating function like `SELECT drop_old()`, or
 //       `EXPLAIN ANALYZE <mutation>` which executes the plan). So DB actions fail (1).
 //   (2) HOST-RESTRICTED datasource: egress pinned server-side, so a run can't exfiltrate to an external host. REST/API
 //       actions (the only ones that satisfy (1)) can target any external URL, so they fail (2) (M1-T2).
-// The predicate keeps an explicit, auditable door for a future host-restricted, protocol-read-only plugin, rather than
-// widening auto-run today. Defaults to NON-auto-runnable (safe).
+// No plugin family carrying an httpMethod provides both, so this sync predicate alone admits nothing; Google Sheets
+// reads satisfy both through the plugin's closed command enum instead and go through the async door below
+// (isAutoRunnableAction). Defaults to NON-auto-runnable (safe).
 function isReadOnlyAction(action: unknown): boolean {
   const config = (
     actionSource(action) as {
@@ -1478,6 +1530,133 @@ function isReadOnlyAction(action: unknown): boolean {
     ["GET", "HEAD"].includes(method.toUpperCase());
 
   return protocolReadOnly && !isExternalEgressAction(action);
+}
+
+// Google Sheets commands that resolve to pure reads in the plugin (GoogleSheetsMethodStrategy): every
+// `<entityType>_FETCH_MANY` / `<entityType>_FETCH_DETAILS` execution method (RowsGetMethod, FileListMethod,
+// FileInfoMethod) issues GETs against the Sheets/Drive APIs; all insert/update/delete commands are distinct verbs
+// (INSERT_ONE, UPDATE_ONE, DELETE_ONE, ...). The command is a closed enum stored in formData — unlike SQL text it
+// CAN be classified reliably.
+const SHEETS_READ_COMMANDS = new Set(["FETCH_MANY", "FETCH_DETAILS"]);
+
+function sheetsReadCommand(action: unknown): string | undefined {
+  const config = (
+    actionSource(action) as {
+      actionConfiguration?: { formData?: { command?: { data?: unknown } } };
+    } | null
+  )?.actionConfiguration;
+  const command = config?.formData?.command?.data;
+
+  return typeof command === "string" && SHEETS_READ_COMMANDS.has(command)
+    ? command
+    : undefined;
+}
+
+// STRICT plugin resolution for the auto-run gate: the pluginId must match a plugin document present in the
+// workspace plugin list. This deliberately does NOT share pluginPackageName's not-found identity fallback — behind
+// creation-time family gates that fallback is a confirm-gated convenience, but here an action document persisted
+// with the literal string "google-sheets-plugin" as its pluginId would otherwise pass the family check without
+// resolving anything (and the server, on a pluginId miss, executes the action's DATASOURCE plugin instead).
+function strictPackageName(
+  plugins: unknown,
+  pluginId: unknown,
+): string | undefined {
+  if (typeof pluginId !== "string" || !Array.isArray(plugins)) {
+    return undefined;
+  }
+
+  const match = plugins.find(
+    (plugin) =>
+      plugin !== null &&
+      typeof plugin === "object" &&
+      (plugin as { id?: unknown }).id === pluginId,
+  );
+  const packageName = (match as { packageName?: unknown } | undefined)
+    ?.packageName;
+
+  return typeof packageName === "string" ? packageName : undefined;
+}
+
+// The full auto-run classification, including the Sheets door: a Sheets read is (1) protocol read-only (the closed
+// command enum above) and (2) host-restricted — the plugin egresses only to Google's APIs with the datasource's
+// server-held OAuth grant (a drive.file datasource is further pinned to its authorized spreadsheets). Verified
+// end-to-end against a live authorized datasource (read + append) on 2026-07-21.
+//
+// Every identity is proven against server-authoritative state, never the action document's own strings, and any
+// missing field or failed lookup fails CLOSED (confirmation required):
+//   - the workspace comes from the application's pages DTO (the action doc's workspaceId is ignored);
+//   - the action's pluginId must STRICTLY resolve, via the workspace plugin list, to the Sheets package (this is
+//     the plugin the server executes when the pluginId is a real plugin document);
+//   - the action's datasource must ALSO resolve, via the workspace datasource list, to the Sheets package —
+//     because on a pluginId miss the server falls back to executing the DATASOURCE's plugin
+//     (ActionExecutionSolutionCEImpl), so a Sheets-labeled action pointing at a SQL datasource must never
+//     auto-run.
+async function isAutoRunnableAction(
+  api: AppsmithApi,
+  applicationId: string,
+  action: unknown,
+): Promise<boolean> {
+  if (isReadOnlyAction(action)) return true;
+
+  if (sheetsReadCommand(action) === undefined) return false;
+
+  const source = actionSource(action);
+  const top = (action ?? {}) as { pluginId?: unknown };
+  const pluginId = source?.pluginId ?? top.pluginId;
+  const datasourceId = (
+    source?.datasource as { id?: unknown } | null | undefined
+  )?.id;
+
+  if (typeof pluginId !== "string" || typeof datasourceId !== "string") {
+    return false;
+  }
+
+  let workspaceId: unknown;
+  let plugins: unknown;
+  let datasources: unknown;
+
+  try {
+    workspaceId = workspaceIdFromApplicationPages(
+      await api.getApplicationPages(applicationId),
+    );
+
+    if (typeof workspaceId !== "string") return false;
+
+    [plugins, datasources] = await Promise.all([
+      api.listPlugins(workspaceId),
+      api.listDatasources(workspaceId),
+    ]);
+  } catch {
+    return false;
+  }
+
+  const packageName = strictPackageName(plugins, pluginId);
+
+  if (packageName === undefined || !SHEETS_PLUGIN_IDS.has(packageName)) {
+    return false;
+  }
+
+  // Strict here as well (no isSheetsDatasource — that path carries the identity fallback): the datasource must be
+  // present in the server's workspace list AND its pluginId must strictly resolve to the Sheets package.
+  const datasourceEntry = Array.isArray(datasources)
+    ? datasources.find(
+        (entry) =>
+          entry !== null &&
+          typeof entry === "object" &&
+          (entry as { id?: unknown }).id === datasourceId,
+      )
+    : undefined;
+
+  if (datasourceEntry === undefined) return false;
+
+  const datasourcePackage = strictPackageName(
+    plugins,
+    (datasourceEntry as { pluginId?: unknown }).pluginId,
+  );
+
+  return (
+    datasourcePackage !== undefined && SHEETS_PLUGIN_IDS.has(datasourcePackage)
+  );
 }
 
 // Best-effort human-facing facts about a stored action for destructive-approval prompts: the action's name plus a
@@ -1711,7 +1890,7 @@ function projectActions(list: unknown): unknown[] {
 }
 
 // ADVISORY write classifier — powers the close-the-loop hints (write-no-refresh lint, wire_event refresh hint),
-// never a security gate (that is isReadOnlyAction's fail-closed job). REST: non-GET/HEAD methods are writes.
+// never a security gate (that is isAutoRunnableAction's fail-closed job). REST: non-GET/HEAD methods are writes.
 // DB: a body whose leading keyword mutates (INSERT/UPDATE/DELETE/...) is a write — a disguised mutation
 // (SELECT drop_old()) is missed here, which only costs a missing hint, never a permission.
 const WRITE_SQL_KEYWORDS =
@@ -4820,10 +4999,95 @@ export function buildMcpServer(
 
     server.tool(
       "get_datasource_structure",
-      "Read a datasource's structure (tables/columns) so you can shape queries and bindings. Read-only.",
-      { datasourceId: idSchema },
-      async ({ datasourceId }) =>
-        result(await api.getDatasourceStructure(datasourceId)),
+      "Read a datasource's structure (tables/columns) so you can shape queries and bindings. Read-only. Google Sheets datasources have no table structure; this tool walks the sheet hierarchy instead: call with just datasourceId to list the datasource's accessible spreadsheets, add sheetUrl (a spreadsheet's value from that list) to list its sheet (tab) names, and add sheetName to get that sheet's column names — exactly the identifiers create_sheets_query needs. Column names are the cell values of the header row (headerRow, default 1, max 100).",
+      {
+        datasourceId: idSchema,
+        // Sheets discovery inputs, gated by the SAME schemas as create_sheets_query. Only meaningful for a Google
+        // Sheets datasource; the server refuses them for other plugins (the trigger endpoint has no such selector).
+        // headerRow is capped low: the COLUMNS_SELECTOR "column names" are the CELL VALUES of that row, so an
+        // uncapped index would let this metadata tool page through row data one row per call.
+        sheetUrl: sheetUrlSchema.optional(),
+        sheetName: sheetNameSchema.optional(),
+        headerRow: z.number().int().min(1).max(100).optional(),
+      },
+      async ({ datasourceId, headerRow, sheetName, sheetUrl }) => {
+        // Sheets drill-down: the requestType is chosen HERE from the closed selector set — agent input only ever
+        // supplies the (schema-gated) sheetUrl/sheetName parameters, never the trigger verb.
+        if (sheetUrl !== undefined) {
+          const drillToColumns = sheetName !== undefined;
+          const response = await api.triggerDatasource(
+            datasourceId,
+            drillToColumns
+              ? {
+                  requestType: "COLUMNS_SELECTOR",
+                  displayType: "DROP_DOWN",
+                  parameters: {
+                    sheetUrl,
+                    sheetName,
+                    tableHeaderIndex: String(headerRow ?? 1),
+                  },
+                }
+              : {
+                  requestType: "SHEET_SELECTOR",
+                  displayType: "DROP_DOWN",
+                  parameters: { sheetUrl },
+                },
+          );
+          const options = triggerOptions(response);
+
+          if (options === undefined) {
+            return result({
+              error:
+                "the datasource did not return sheet metadata (is it an authorized Google Sheets datasource?)",
+            });
+          }
+
+          return result(
+            drillToColumns
+              ? {
+                  columns: options.map((option) => option.value),
+                  note: "use these as create_sheets_query column names",
+                }
+              : {
+                  sheets: options.map((option) => option.value),
+                  note: "sheet (tab) names — pass one as create_sheets_query's sheetName; add sheetName here to get its columns",
+                },
+          );
+        }
+
+        if (sheetName !== undefined) {
+          return result({
+            error: "sheetName requires sheetUrl (which spreadsheet to read)",
+          });
+        }
+
+        const structure = await api.getDatasourceStructure(datasourceId);
+
+        if (hasDatasourceTables(structure)) return result(structure);
+
+        // Empty structure: a Google Sheets datasource has no table structure, so probe the spreadsheet selector.
+        // Fail-open to the raw structure — a plugin without that trigger (REST, AI, ...) just errors here and the
+        // agent sees exactly what the structure endpoint said.
+        try {
+          const spreadsheets = triggerOptions(
+            await api.triggerDatasource(datasourceId, {
+              requestType: "SPREADSHEET_SELECTOR",
+              displayType: "DROP_DOWN",
+            }),
+          );
+
+          if (spreadsheets !== undefined && spreadsheets.length > 0) {
+            return result({
+              spreadsheets,
+              note: "Google Sheets datasource — call again with sheetUrl (a value above) to list its sheet names, then add sheetName for its columns",
+            });
+          }
+        } catch {
+          // Not a Sheets datasource (or the trigger failed): the plain structure is the answer.
+        }
+
+        return result(structure);
+      },
     );
 
     server.tool(
@@ -5388,7 +5652,7 @@ export function buildMcpServer(
 
     server.tool(
       "create_sheets_query",
-      "Create a Google Sheets query (read or append) on an ALREADY-AUTHORIZED Google Sheets datasource from a STRUCTURED spec. MCP never creates or authorizes a Sheets datasource (OAuth is interactive and stays in the Appsmith UI) — create+authorize it there first, then reference it here by datasourceId (find it with list_datasources). read { sheetUrl, sheetName, range?, columns?, limit? } fetches rows (optional A1 range like 'A2:Z' and column projection); append { sheetUrl, sheetName, row: [{ column, value }] } adds one row. Row values are { literal } or { widget, property } bound as smart-substitution parameters; sheetUrl/sheetName/range/columns are validated static identifiers. No raw formulas or bindings; for a specific-sheets (drive.file) datasource the server restricts execution to its OAuth-authorized spreadsheets. Idempotent by page + name. NOTE: the emitted Sheets action config is PROVISIONAL — modeled from Appsmith's Sheets plugin forms but not yet verified end-to-end against a live authorized datasource; validate a read + append in your instance before relying on it.",
+      "Create a Google Sheets query (read or append) on an ALREADY-AUTHORIZED Google Sheets datasource from a STRUCTURED spec. MCP never creates or authorizes a Sheets datasource (OAuth is interactive and stays in the Appsmith UI) — create+authorize it there first, then reference it here by datasourceId (find it with list_datasources). Discover the exact sheetUrl, sheetName, and columns first with get_datasource_structure (spreadsheets -> sheet names -> columns) instead of guessing. read { sheetUrl, sheetName, range?, columns?, limit? } fetches rows (optional A1 range like 'A2:Z' and column projection) — a created read runs on page load and can be previewed with run_action; append { sheetUrl, sheetName, row: [{ column, value }] } adds one row (running it needs prepare_run_action/confirm_run_action, or wire it to a button). Row values are { literal } or { widget, property } bound as smart-substitution parameters; sheetUrl/sheetName/range/columns are validated static identifiers. No raw formulas or bindings; for a specific-sheets (drive.file) datasource the server restricts execution to its OAuth-authorized spreadsheets. Idempotent by page + name. Read + append are verified end-to-end against a live authorized datasource.",
       {
         query: z.record(z.unknown()),
         branch: gitBranchParamSchema.optional(),
@@ -5481,12 +5745,12 @@ export function buildMcpServer(
 
     server.tool(
       "run_action",
-      "Run a stored action by id WITHOUT a confirmation step — allowed only for an action that is both protocol-level read-only AND pinned to a server-side host-restricted datasource. REST/external actions (which can egress to any host) and DB/SQL queries (whose text cannot be proven read-only) are refused here; use prepare_run_action / confirm_run_action for those. No execute payload is accepted.",
+      "Run a stored action by id WITHOUT a confirmation step — allowed only for an action that is both protocol-level read-only AND pinned to a server-side host-restricted datasource. Today that means Google Sheets reads (a FETCH_MANY/FETCH_DETAILS query created by create_sheets_query or the editor): use this to preview sheet data while authoring. REST/external actions (which can egress to any host) and DB/SQL queries (whose text cannot be proven read-only) are refused here; use prepare_run_action / confirm_run_action for those. No execute payload is accepted.",
       { applicationId: idSchema, actionId: idSchema },
       async ({ actionId, applicationId }) => {
         const action = await api.getAction(applicationId, actionId);
 
-        if (!isReadOnlyAction(action)) {
+        if (!(await isAutoRunnableAction(api, applicationId, action))) {
           return result({
             error:
               "this action cannot be auto-run (external egress or non-provably-read-only); use prepare_run_action then confirm_run_action",
@@ -5805,7 +6069,9 @@ export function buildMcpServer(
             confirmationId: confirmation.id,
             expiresAt: confirmation.expiresAt,
             operation: "run_action",
-            readOnly: isReadOnlyAction(action),
+            // True here means "this could have used run_action directly" (e.g. a Sheets read) — the prepared
+            // confirmation still works either way.
+            readOnly: await isAutoRunnableAction(api, applicationId, action),
             // Relay text for clients WITHOUT elicitation support: shown to the human before confirming.
             relay: `Show the user this and get their approval BEFORE calling confirm_run_action: run the action "${promptSafe(label)}"${facts.datasource !== undefined ? ` against datasource "${promptSafe(truncateForPrompt(facts.datasource, 60))}"` : ""} — it executes with its current configuration and may modify data. Do not call confirm_run_action without the user's explicit approval.`,
           });
