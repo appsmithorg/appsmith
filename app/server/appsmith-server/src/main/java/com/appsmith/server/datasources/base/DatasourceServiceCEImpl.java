@@ -174,6 +174,28 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         new AppsmithException(AppsmithError.DEPRECATED_DATASOURCE_PLUGIN, plugin.getName())));
     }
 
+    @Override
+    public Mono<Void> validateNewQueryCreationAllowed(Datasource datasource) {
+        if (datasource == null) {
+            return Mono.empty();
+        }
+
+        // Saved datasources are resolved by id with a permission-scoped read so this guard can't be used to probe
+        // datasources the user can't see; embedded ones (blank id) are checked by the pluginId on the payload so a
+        // crafted embedded Appsmith AI datasource can't slip past the block. A datasource with neither falls
+        // through to the usual downstream validation.
+        Mono<Datasource> datasourceMono = hasText(datasource.getId())
+                ? findById(datasource.getId(), datasourcePermission.getReadPermission())
+                : Mono.just(datasource);
+
+        return datasourceMono
+                .filter(resolvedDatasource -> hasText(resolvedDatasource.getPluginId()))
+                .flatMap(resolvedDatasource -> pluginService.findById(resolvedDatasource.getPluginId()))
+                .filter(plugin -> getDeprecatedPluginPackageNames().contains(plugin.getPackageName()))
+                .flatMap(plugin -> Mono.<Void>error(
+                        new AppsmithException(AppsmithError.DEPRECATED_PLUGIN_QUERY_CREATION, plugin.getName())));
+    }
+
     // TODO: Check usage
     @Override
     public Mono<Datasource> createWithoutPermissions(

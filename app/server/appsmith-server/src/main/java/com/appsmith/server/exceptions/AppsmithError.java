@@ -525,6 +525,16 @@ public enum AppsmithError {
             "Plugin deprecated",
             ErrorType.BAD_REQUEST,
             null),
+    DEPRECATED_PLUGIN_QUERY_CREATION(
+            400,
+            AppsmithErrorCode.DEPRECATED_PLUGIN_QUERY_CREATION.getCode(),
+            "Creating new queries on {0} datasources is not supported because the plugin is deprecated."
+                    + " Please create an OpenAI, Anthropic, or Google AI datasource with your own API key"
+                    + " and query that instead.",
+            AppsmithErrorAction.DEFAULT,
+            "Plugin deprecated",
+            ErrorType.BAD_REQUEST,
+            null),
     WORKSPACE_ID_NOT_GIVEN(
             400,
             AppsmithErrorCode.WORKSPACE_ID_NOT_GIVEN.getCode(),

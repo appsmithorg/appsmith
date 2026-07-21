@@ -402,7 +402,14 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     createActionMetaDTO.setIsJsAction(isJsAction);
                     createActionMetaDTO.setNewPage(newPage);
                     createActionMetaDTO.setEventContext(eventContext);
-                    return createAction(actionDTO, createActionMetaDTO);
+
+                    // Block user-driven query creation on deprecated-plugin datasources. Internal flows (clone,
+                    // fork, import) call createAction(actionDTO, meta) directly and are intentionally not guarded.
+                    Mono<Void> deprecationCheckMono = Boolean.TRUE.equals(isJsAction)
+                            ? Mono.empty()
+                            : datasourceService.validateNewQueryCreationAllowed(actionDTO.getDatasource());
+
+                    return deprecationCheckMono.then(Mono.defer(() -> createAction(actionDTO, createActionMetaDTO)));
                 });
     }
 
