@@ -216,6 +216,51 @@ Cleanup: agents never delete branches. At most 5 \`mcp/\` branches exist per app
 cap, reuse a branch you created earlier in the session, or ask the user to delete stale \`mcp/\`
 branches via Appsmith's branch UI.`;
 
+const GUIDE_SCREENSHOT = `# Screenshot / mockup decode guide
+
+You (the agent) see the image; the MCP server never does. Fidelity therefore depends entirely on
+how you translate pixels into the spec vocabulary. Do it in three passes — layout first, data last.
+Skipping pass 1 is the classic failure: you inventory the data, build "title + table + form", and
+lose the screen's actual structure.
+
+## Pass 1 — layout skeleton (before thinking about data)
+Describe the image as horizontal regions, top to bottom, ignoring content:
+- What is in the top bar? (title left? view-switcher tabs center? action buttons right?)
+- What are the major content regions and their relative sizes?
+- What is grouped inside a card/panel vs. sitting on the page?
+Write this skeleton down before choosing any widget. Every region in the skeleton must appear in
+your spec or be explicitly called out to the user as dropped.
+
+## Pass 2 — map regions to widgets, approximating honestly
+Map each region to the closest widget (see appsmith://reference/widgets). When there is no exact
+widget, use the standard approximation and TELL THE USER what you substituted:
+
+| You see | Build |
+| --- | --- |
+| View switcher (List / Board / Gantt...) | \`tabs\` — one tab per view, each holding that view's approximation (preset \`view-switcher\`) |
+| Kanban board (status columns) | \`tabs\` with one tab per status, each holding a status-filtered table (preset \`status-board\`) |
+| Gantt / timeline | \`chart\` (BAR_CHART, task on one axis) above a status table (preset \`timeline\`) |
+| Calendar | \`datepicker\` + a table filtered to the selected date |
+| KPI / stat tiles | consecutive \`text\` widgets with \`value: { count: ... }\` — the design pass tiles 2–4 per row |
+| Toolbar action buttons ("+ Task") | \`button\`s — listed after the page's fields they act on so they right-align |
+| Status pills / colored labels | table columns (the design pass styles headers; per-cell colors are limited — say so) |
+
+Order matters: the compiler's design pass reads spec order (first static text = page title, text
+before a section = its header, consecutive buttons = an action row). Emit widgets in the same
+top-to-bottom, left-to-right order as the screenshot.
+
+## Pass 3 — visual identity
+- Extract the dominant accent color (buttons, active tab, links) and pass it as the app spec's
+  \`theme.primaryColor\` (hex). Border radius if obviously rounded: \`theme.borderRadius\`.
+- Put the screenshot's real title text in the first text widget — never a placeholder.
+- Use the screenshot's own labels for tabs, buttons, and table columns.
+
+## Then verify like any build
+\`validate_app_spec\` -> \`build_application\` -> \`inspect_page\`, and read back with
+\`read_semantic_page\` to confirm the structure matches your pass-1 skeleton. Finish by telling the
+user (a) which regions were approximated and how, (b) which were dropped, and (c) what a closer
+match would need (e.g. a native board/timeline widget).`;
+
 export const GUIDES: InstructionDoc[] = [
   {
     slug: "placement",
@@ -242,6 +287,13 @@ export const GUIDES: InstructionDoc[] = [
     description:
       "Status-first workflow, the branch gate, agent mcp/ branches, and cleanup for git-connected apps.",
     render: () => GUIDE_GIT,
+  },
+  {
+    slug: "screenshot",
+    title: "Screenshot / mockup decode guide",
+    description:
+      "Three-pass method for recreating a screenshot: layout skeleton, widget mapping with honest approximations, theme extraction.",
+    render: () => GUIDE_SCREENSHOT,
   },
 ];
 
@@ -273,6 +325,13 @@ To make it live (when the data layer is enabled):
     { table, column }).
 11. \`wire_event\` — wire the save button: { run: '<updateQuery>', onSuccess: [{ run: '<selectQuery>' },
     { showAlert: 'Saved', style: 'success' }] } so the table refreshes after the write.
+
+Close the loop (not optional): every write wiring chains a re-run of the read query feeding the
+table (skipping it means stale data until the user reloads — \`wire_event\` returns a refreshHint
+and \`inspect_page\` flags 'write-no-refresh' when you forget); the table's selected row must feed
+the detail inputs (step 10) — a table whose selection nothing consumes is flagged as
+'selection-unused'; and Submit/Add wirings should reset their inputs and showAlert so users see
+the write landed.
 12. Publish LAST: \`build_application\` auto-deployed the app at creation, but that viewer copy is a
     scaffold — it does not include the wiring above until re-published. Once everything works, re-publish
     (\`prepare_publish\` -> \`confirm_publish\`, governed) and only then hand the user the \`viewerUrl\`.
@@ -462,6 +521,29 @@ ${fieldLines}
 4. Call build_application, then inspect_page and fix any diagnostics with edit_page.`;
 }
 
+// Guided workflow for recreating a screenshot/mockup the USER has shown the AGENT (the server never sees images).
+// Walks the agent through the same three passes as appsmith://guide/screenshot with the app name substituted.
+export function recreateFromScreenshotPlan(appName: string): string {
+  const cleanName = appName.replace(/[^A-Za-z0-9_ ]/g, "").trim() || "App";
+
+  return `Recreate the screenshot the user shared as an Appsmith app named "${cleanName}". The server cannot see the image — YOU are the eyes, so decode it methodically. Use the tools by name:
+
+1. Call get_guide with { "slug": "screenshot" } and follow its three-pass method exactly.
+2. Pass 1 — write down the layout skeleton: top bar contents, content regions top-to-bottom,
+   what is grouped in cards/panels. Do this BEFORE choosing widgets.
+3. Pass 2 — map every region to a widget, using the guide's approximation table for anything
+   without an exact widget (view switcher -> tabs; kanban -> status-board preset; gantt/timeline
+   -> timeline preset). Call get_preset for a matching preset and adapt it rather than composing
+   from scratch. Emit widgets in the screenshot's visual order.
+4. Pass 3 — extract the accent color into the spec's theme.primaryColor, and use the
+   screenshot's real title/labels/columns, never placeholders.
+5. Call validate_app_spec; fix errors. Call build_application with the target workspaceId.
+6. Call inspect_page and read_semantic_page; compare against your pass-1 skeleton and fix gaps
+   with edit_page / patch_widgets.
+7. Report to the user: which regions were approximated (and how), which were dropped, and what
+   a closer match would need.`;
+}
+
 // Presets referenced by the recipes above, surfaced for tests/consistency.
 export function recipePresetNames(): string[] {
   return listPresets().map((preset) => preset.name);
@@ -489,5 +571,9 @@ Recommended workflow for a production-quality app:
 7. Ship it LAST: finish wiring queries and events first — the copy auto-deployed at creation is a scaffold that goes stale as you edit. Then re-publish with prepare_publish -> confirm_publish (governed) and hand the user the viewerUrl as the final step. On deployments without governance, re-publishing is unavailable: relay the editorUrl from build_application plus the governance group's 'requires' instruction from get_capabilities instead of promising an up-to-date viewer link. GIT-APP CARVE-OUT: for a git-connected app the final deliverable is the mcp/ branch plus its branch-scoped review URL from confirm_commit, NOT a viewerUrl — publish refuses git apps.
 
 Git-connected applications: call read_git_status BEFORE mutating one — every mutation on a git-connected app requires a 'branch' parameter equal to the target app's current branch (a missing or stale value fails with the current branch in the error, so retry once with it). Prefer creating your own agent branch with create_branch (governed; the name must start with the reserved 'mcp/' prefix): it PUSHES the new ref to the customer's git remote and returns a NEW applicationId — do ALL further edits against that new id with 'branch' set to the new branch name (Appsmith has no checkout; each branch is its own applicationId, and the human's editor view is unaffected). If read_git_status shows uncommitted changes you did not make, tell the user before branching or editing; if a remote compare shows the branch behind, suggest the user pulls in Appsmith first (MCP cannot pull). Commit your work with prepare_commit -> confirm_commit (governed): the commit API always PUSHES to the remote, so it is allowed ONLY on mcp/ branches, and the human must approve — confirm_commit prompts them directly on elicitation-capable clients (only an explicit accept proceeds), otherwise show the user prepare_commit's relay text and get approval before confirming. Publishing from MCP stays disabled for git apps — the deliverable is the mcp/ branch plus the branch-scoped review URL from confirm_commit (never a viewerUrl); the user merges via Appsmith's branch UI or a PR on the remote, then deletes the branch. At most 5 mcp/ branches per app: reuse yours; humans delete stale ones in Appsmith's branch UI. Full workflow: the appsmith://guide/git resource.
+
+If the user shows you a screenshot or mockup to recreate: read the appsmith://guide/screenshot resource (or get_guide with slug "screenshot") BEFORE building — decode the layout skeleton first, map regions to widgets with the guide's approximation table (view-switcher / status-board / timeline presets), extract the accent color into theme.primaryColor, and tell the user what was approximated.
+
+CLOSE THE LOOP before you call an app done — an app that shows stale data or dead-end selections is broken, not minimal: (1) EVERY wiring that runs a write query (INSERT/UPDATE/DELETE, non-GET REST) must chain onSuccess: [{ run: '<read query>' }] to re-run the reads it invalidates — otherwise tables/charts show stale data until the user reloads the page. (2) EVERY table whose rows users act on must feed something: a detail/edit panel bound to the selected row (source/defaultValue { table, column }), a visibleWhen { rowSelected } panel, or an onRowSelected event — a bare table whose selection does nothing is a dead end (display-only dashboards are the exception; say so if that's the intent). (3) After a Submit/Add wiring, reset the inputs (reset) and confirm with showAlert so the user sees it worked. inspect_page flags (1) as 'write-no-refresh' and (2) as 'selection-unused', and wire_event returns a refreshHint when you wire a write with no follow-up read — treat these as defects to fix, not noise.
 
 Read the appsmith://reference/widgets resource and appsmith://recipe/* walkthroughs for details. Prefer editing an existing app iteratively (read -> patch -> re-read) over rebuilding.`;

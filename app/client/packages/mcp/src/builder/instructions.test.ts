@@ -9,11 +9,13 @@ import {
   INSTRUCTION_DOCS,
   parseFields,
   RECIPES,
+  recreateFromScreenshotPlan,
   scaffoldCrudPlan,
   scaffoldFormPlan,
   SERVER_INSTRUCTIONS,
   WIDGET_REFERENCE,
 } from "./instructions.js";
+import { PRESETS } from "./presets.js";
 import { WIDGET_TYPES } from "./schema.js";
 
 // Tools an agent could be told to call. Recipes/prompts must reference ONLY these — never a tool that doesn't exist
@@ -76,6 +78,79 @@ describe("guides and recipes", () => {
         expect(body).not.toContain(tool);
       }
     }
+  });
+});
+
+describe("screenshot decode guide + prompt", () => {
+  it("ships the screenshot guide with the three passes and the approximation table", () => {
+    const doc = getInstructionDoc("screenshot")!;
+    const body = doc.render();
+
+    expect(body).toContain("Pass 1");
+    expect(body).toContain("Pass 2");
+    expect(body).toContain("Pass 3");
+
+    // The approximation table must point at presets that actually exist.
+    for (const preset of ["view-switcher", "status-board", "timeline"]) {
+      expect(body).toContain(preset);
+      expect(PRESETS[preset]).toBeDefined();
+    }
+
+    // Theme extraction teaches only real spec fields.
+    expect(body).toContain("theme.primaryColor");
+    expect(body).not.toMatch(/\{\{|\}\}|\$\{/);
+  });
+
+  it("the recreate_from_screenshot plan references only real tools and sanitizes the name", () => {
+    const plan = recreateFromScreenshotPlan('Tasks "Q3" <script>');
+
+    expect(plan).toContain('named "Tasks Q3 script"');
+
+    for (const tool of [
+      "get_guide",
+      "get_preset",
+      "validate_app_spec",
+      "build_application",
+      "inspect_page",
+      "read_semantic_page",
+      "edit_page",
+      "patch_widgets",
+    ]) {
+      expect(plan).toContain(tool);
+    }
+
+    expect(recreateFromScreenshotPlan("???")).toContain('"App"');
+  });
+
+  it("SERVER_INSTRUCTIONS and the crud recipe teach the close-the-loop checklist", () => {
+    expect(SERVER_INSTRUCTIONS).toContain("CLOSE THE LOOP");
+    expect(SERVER_INSTRUCTIONS).toContain("write-no-refresh");
+    expect(SERVER_INSTRUCTIONS).toContain("selection-unused");
+    expect(SERVER_INSTRUCTIONS).toContain("refreshHint");
+
+    const crud = RECIPES.find((recipe) => recipe.slug === "crud")!.render();
+
+    expect(crud).toContain("Close the loop");
+    expect(crud).toContain("write-no-refresh");
+    expect(crud).toContain("selection-unused");
+  });
+
+  it("SERVER_INSTRUCTIONS and get_capabilities point agents at the screenshot guide", () => {
+    expect(SERVER_INSTRUCTIONS).toContain("appsmith://guide/screenshot");
+
+    const capabilities = getCapabilities({
+      data: true,
+      js: true,
+      governance: true,
+    });
+    const resources = capabilities.resources;
+
+    expect(resources.some((line) => line.includes("screenshot"))).toBe(true);
+    expect(
+      capabilities.prompts.some((line) =>
+        line.includes("recreate_from_screenshot"),
+      ),
+    ).toBe(true);
   });
 });
 

@@ -9,7 +9,9 @@ import {
   createAppsmithApi,
   createMcpHttpServer,
   hostHeaderName,
+  looksLikeWriteAction,
   sessionOriginFromHeaders,
+  writeActionNames,
   type AppsmithApi,
 } from "./app.js";
 import { INSTRUCTION_DOCS } from "./builder/instructions.js";
@@ -1557,6 +1559,7 @@ describe("MCP instruction surface (M2)", () => {
         "appsmith://guide/git",
         "appsmith://guide/naming",
         "appsmith://guide/placement",
+        "appsmith://guide/screenshot",
         "appsmith://recipe/crud",
         "appsmith://recipe/form",
         "appsmith://recipe/table-detail",
@@ -1582,6 +1585,24 @@ describe("MCP instruction surface (M2)", () => {
 
     expect(names).toContain("scaffold_crud");
     expect(names).toContain("scaffold_form");
+    expect(names).toContain("recreate_from_screenshot");
+  });
+
+  it("renders the screenshot prompt with the three-pass method and the app name", async () => {
+    const result = await rpc("prompts/get", {
+      name: "recreate_from_screenshot",
+      arguments: { appName: "Task Tracker" },
+    });
+    const [message] = result.messages as {
+      role: string;
+      content: { type: string; text: string };
+    }[];
+
+    expect(message.role).toBe("user");
+    expect(message.content.text).toContain("Task Tracker");
+    expect(message.content.text).toContain("get_guide");
+    expect(message.content.text).toContain("layout skeleton");
+    expect(message.content.text).toContain("build_application");
   });
 
   it("renders a scaffold prompt as a user message referencing real tools", async () => {
@@ -6048,5 +6069,53 @@ describe("M5 — build_application URLs + auto-publish", () => {
     expect(String(lookup?.onClick)).toContain("zipResults");
     expect(String(clear?.onClick)).toContain("storeValue(");
     expect(String(clear?.onClick)).toContain("resetWidget('ZipInput'");
+  });
+});
+
+describe("close-the-loop — advisory write classifier", () => {
+  const restAction = (method: string) => ({
+    unpublishedAction: {
+      name: "callApi",
+      actionConfiguration: { httpMethod: method },
+    },
+  });
+  const sqlAction = (name: string, body: string) => ({
+    unpublishedAction: { name, actionConfiguration: { body } },
+  });
+
+  it("classifies non-GET REST and mutating SQL as writes", () => {
+    expect(looksLikeWriteAction(restAction("POST"))).toBe(true);
+    expect(looksLikeWriteAction(restAction("DELETE"))).toBe(true);
+    expect(looksLikeWriteAction(restAction("GET"))).toBe(false);
+    expect(
+      looksLikeWriteAction(sqlAction("ins", "INSERT INTO tasks VALUES (1)")),
+    ).toBe(true);
+    expect(
+      looksLikeWriteAction(sqlAction("upd", "  update tasks set done=1")),
+    ).toBe(true);
+    expect(looksLikeWriteAction(sqlAction("sel", "SELECT * FROM tasks"))).toBe(
+      false,
+    );
+  });
+
+  it("is advisory-only: a disguised mutation is missed here, never auto-run", () => {
+    // SELECT calling a mutating function — the fail-closed isReadOnlyAction gate (not this classifier)
+    // is what protects run_action; this classifier only powers hints.
+    expect(looksLikeWriteAction(sqlAction("sneaky", "SELECT drop_old()"))).toBe(
+      false,
+    );
+  });
+
+  it("writeActionNames extracts only the write subset", () => {
+    const list = [
+      sqlAction("insertTask", "INSERT INTO tasks (name) VALUES ({{a}})"),
+      sqlAction("getTasks", "SELECT * FROM tasks"),
+      restAction("POST"),
+      null,
+      "garbage",
+    ];
+
+    expect(writeActionNames(list)).toEqual(["insertTask", "callApi"]);
+    expect(writeActionNames("not a list")).toEqual([]);
   });
 });

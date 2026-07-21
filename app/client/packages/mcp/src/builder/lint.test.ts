@@ -457,6 +457,128 @@ describe("lintDsl — M5 store accumulation (store-never-written)", () => {
   });
 });
 
+describe("lintDsl — close the loop (write-no-refresh, selection-unused)", () => {
+  const OPTIONS = {
+    knownDataNames: ["getTasks", "insertTask"],
+    writeDataNames: ["insertTask"],
+  };
+
+  function queryTable(overrides: Partial<WidgetNode> = {}): WidgetNode {
+    return widget({
+      widgetId: "t1",
+      widgetName: "TasksTable",
+      type: "TABLE_WIDGET_V2",
+      tableData: "{{ getTasks.data ?? [] }}",
+      bottomRow: 28,
+      ...overrides,
+    });
+  }
+
+  it("flags a write run with no follow-up read", () => {
+    const dsl = canvas([
+      widget({
+        widgetId: "b1",
+        widgetName: "AddButton",
+        type: "BUTTON_WIDGET",
+        onClick: "{{ insertTask.run() }}",
+      }),
+    ]);
+    const issues = lintDsl(dsl, OPTIONS).issues;
+
+    expect(issues.map((issue) => issue.rule)).toContain("write-no-refresh");
+    expect(
+      issues.find((issue) => issue.rule === "write-no-refresh")?.widget,
+    ).toBe("AddButton");
+  });
+
+  it("stays quiet when the write chains a read re-run", () => {
+    const dsl = canvas([
+      widget({
+        widgetId: "b1",
+        widgetName: "AddButton",
+        type: "BUTTON_WIDGET",
+        onClick:
+          "{{ insertTask.run().then(() => { getTasks.run(); showAlert('Added', 'success'); }) }}",
+      }),
+    ]);
+
+    expect(
+      lintDsl(dsl, OPTIONS).issues.map((issue) => issue.rule),
+    ).not.toContain("write-no-refresh");
+  });
+
+  it("stays quiet without a write classification (build-time lint)", () => {
+    const dsl = canvas([
+      widget({
+        widgetId: "b1",
+        widgetName: "AddButton",
+        type: "BUTTON_WIDGET",
+        onClick: "{{ insertTask.run() }}",
+      }),
+    ]);
+
+    expect(lintDsl(dsl).issues.map((issue) => issue.rule)).not.toContain(
+      "write-no-refresh",
+    );
+  });
+
+  it("flags a query-bound table whose selection nothing consumes", () => {
+    const dsl = canvas([queryTable()]);
+    const issues = lintDsl(dsl, OPTIONS).issues;
+
+    expect(issues.map((issue) => issue.rule)).toContain("selection-unused");
+    expect(
+      issues.find((issue) => issue.rule === "selection-unused")?.widget,
+    ).toBe("TasksTable");
+  });
+
+  it("counts a selectedRow binding on another widget as consumption", () => {
+    const dsl = canvas([
+      queryTable(),
+      widget({
+        widgetId: "d1",
+        widgetName: "Detail",
+        type: "TEXT_WIDGET",
+        topRow: 29,
+        bottomRow: 33,
+        text: '{{ TasksTable.selectedRow["name"] }}',
+      }),
+    ]);
+
+    expect(
+      lintDsl(dsl, OPTIONS).issues.map((issue) => issue.rule),
+    ).not.toContain("selection-unused");
+  });
+
+  it("counts onRowSelected wiring as consumption", () => {
+    const dsl = canvas([
+      queryTable({ onRowSelected: "{{ showModal('EditModal') }}" }),
+    ]);
+
+    expect(
+      lintDsl(dsl, OPTIONS).issues.map((issue) => issue.rule),
+    ).not.toContain("selection-unused");
+  });
+
+  it("skips static, store-bound, and build-time (no data names) tables", () => {
+    const staticTable = canvas([queryTable({ tableData: '[{"id":1}]' })]);
+    const storeTable = canvas([
+      queryTable({ tableData: "{{ appsmith.store.zipResults ?? [] }}" }),
+    ]);
+    const buildTime = canvas([queryTable()]);
+
+    expect(
+      lintDsl(staticTable, OPTIONS).issues.map((issue) => issue.rule),
+    ).not.toContain("selection-unused");
+    expect(
+      lintDsl(storeTable, OPTIONS).issues.map((issue) => issue.rule),
+    ).not.toContain("selection-unused");
+    expect(lintDsl(buildTime).issues.map((issue) => issue.rule)).not.toContain(
+      "selection-unused",
+    );
+  });
+});
+
 describe("lintArtifact — compiler output is lint-clean", () => {
   it("produces zero errors and warnings for a compiled app", () => {
     const artifact = compileApp(

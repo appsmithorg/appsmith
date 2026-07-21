@@ -888,13 +888,14 @@ export function getCapabilities(
     },
     resources: [
       "appsmith://reference/widgets — the widget catalog as a resource",
-      "appsmith://guide/{placement,naming,bindings,git} — technique guides",
+      "appsmith://guide/{placement,naming,bindings,git,screenshot} — technique guides (read the screenshot guide BEFORE recreating any screenshot/mockup the user shows you)",
       "appsmith://recipe/{crud,form,table-detail,zip-lookup} — end-to-end build walkthroughs",
       "Every doc above is also readable through the get_guide tool by slug (for clients that cannot read MCP resources).",
     ],
     prompts: [
       "scaffold_crud — guided workflow to build a CRUD page from an entity + fields",
       "scaffold_form — guided workflow to build a form page",
+      "recreate_from_screenshot — guided workflow to rebuild a screenshot/mockup the user shared",
     ],
   };
 }

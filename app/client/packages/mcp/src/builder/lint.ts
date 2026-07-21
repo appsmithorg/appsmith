@@ -39,6 +39,10 @@ export interface LintOptions {
   // Names the agent has declared (queries/JS objects). When provided, `{{ name.* }}` bindings that reference an
   // unknown name are flagged. Dormant until the data layer (M4) supplies query names.
   knownDataNames?: Iterable<string>;
+  // Subset of knownDataNames that look like WRITES (INSERT/UPDATE/DELETE bodies, non-GET REST). When provided, an
+  // event that runs one with no chained follow-up run is flagged: the page's read-bound widgets go stale until
+  // reload ("close the loop": every write chains a re-run of the reads it invalidates).
+  writeDataNames?: Iterable<string>;
 }
 
 const CANVAS_TYPE = "CANVAS_WIDGET";
@@ -51,6 +55,11 @@ const BINDING_HEAD = /^\s*([A-Za-z_$][A-Za-z0-9_$]*)/;
 const STORE_TABLE_BINDING =
   /^\{\{ appsmith\.store\.([A-Za-z_][A-Za-z0-9_]*) \?\? \[\] \}\}$/;
 const STORE_WRITE = /storeValue\('([A-Za-z_][A-Za-z0-9_]*)'/g;
+// Every `<name>.run(` call inside an event binding — the shape the event compiler emits for both the primary run
+// and chained follow-ups, so "a write runs with no follow-up run" is detectable per binding string.
+const RUN_CALL = /([A-Za-z_$][A-Za-z0-9_$]*)\.run\(/g;
+// `<Name>.` property reads inside a binding body — used to find which widgets' state other widgets consume.
+const MEMBER_READ = /([A-Za-z_$][A-Za-z0-9_$]*)\./g;
 
 // The intersect predicate, canvas column model, and numeric guards live in occupancy.ts (M6) — one shared
 // implementation for the lint, the patch repair, the container-fit cascade, and the commitLayout delta gate.
@@ -82,12 +91,18 @@ class Linter {
   private readonly seenNames = new Map<string, number>();
   private readonly seenIds = new Set<string>();
   private readonly knownDataNames: Set<string>;
+  private readonly writeDataNames: Set<string>;
   // M5 store accumulation: key -> first store-bound table's name, and the set of keys some event writes.
   private readonly storeReads = new Map<string, string>();
   private readonly storeWrites = new Set<string>();
+  // Close-the-loop bookkeeping: every table on the page, and every `<Name>.` member read seen in OTHER widgets'
+  // binding bodies (self-references excluded), so an unconsumed table selection is detectable after the walk.
+  private readonly tables: string[] = [];
+  private readonly memberReads = new Map<string, Set<string>>();
 
   constructor(options: LintOptions) {
     this.knownDataNames = new Set(options.knownDataNames ?? []);
+    this.writeDataNames = new Set(options.writeDataNames ?? []);
   }
 
   lint(root: WidgetNode): Diagnostics {
@@ -103,6 +118,7 @@ class Linter {
     this.walkBindings(root);
     this.checkDuplicateNames();
     this.checkStoreWriters();
+    this.checkUnconsumedSelections();
     this.checkModalGraph(root);
 
     return this.result();
@@ -295,6 +311,8 @@ class Linter {
       while ((match = BINDING_PATTERN.exec(value)) !== null) {
         const head = BINDING_HEAD.exec(match[1]);
 
+        this.collectMemberReads(nameOf(node), match[1]);
+
         if (!head) continue;
 
         const reference = head[1];
@@ -314,17 +332,103 @@ class Linter {
           );
         }
       }
+
+      this.checkWriteWithoutRefresh(nameOf(node), value);
+    }
+  }
+
+  // Record every `<Name>.` member read inside a binding body, attributed to the widget whose prop holds the
+  // binding, so checkUnconsumedSelections can tell "this table's state is read by someone else" from "nothing
+  // consumes it".
+  private collectMemberReads(widget: string, bindingBody: string): void {
+    MEMBER_READ.lastIndex = 0;
+
+    let match: RegExpExecArray | null;
+
+    while ((match = MEMBER_READ.exec(bindingBody)) !== null) {
+      const readers = this.memberReads.get(match[1]) ?? new Set<string>();
+
+      readers.add(widget);
+      this.memberReads.set(match[1], readers);
+    }
+  }
+
+  // Close the loop, half 1: an event binding that runs a WRITE query with no other run chained after it leaves
+  // every read-bound widget on the page stale until reload. Advisory (warn): classification of "write" is a
+  // heuristic supplied by the caller, and the refresh may legitimately live in a JS object.
+  private checkWriteWithoutRefresh(widget: string, value: string): void {
+    if (this.writeDataNames.size === 0) return;
+
+    RUN_CALL.lastIndex = 0;
+
+    const runs: string[] = [];
+    let match: RegExpExecArray | null;
+
+    while ((match = RUN_CALL.exec(value)) !== null) runs.push(match[1]);
+
+    const hasReadRun = runs.some((name) => !this.writeDataNames.has(name));
+
+    for (const run of new Set(runs)) {
+      if (this.writeDataNames.has(run) && !hasReadRun) {
+        this.warn(
+          "write-no-refresh",
+          `"${widget}" runs write query "${run}" with no follow-up read — tables/charts bound to read queries stay stale until reload. Re-wire with onSuccess: [{ run: '<read query>' }].`,
+          widget,
+        );
+      }
+    }
+  }
+
+  // Close the loop, half 2: a table whose selected row feeds nothing — no other widget reads `<Table>.`
+  // (selectedRow bindings, visibility predicates) and the table has no onRowSelected wiring. Fine for
+  // display-only tables, which is why this is a warning with that caveat spelled out.
+  private checkUnconsumedSelections(): void {
+    // Live-inspection only (knownDataNames supplied): at build time the agent hasn't wired data yet, so flagging
+    // every fresh table would be noise against the build -> bind -> wire workflow.
+    if (this.knownDataNames.size === 0) return;
+
+    for (const table of this.tables) {
+      const readers = this.memberReads.get(table);
+      const consumed =
+        readers !== undefined &&
+        [...readers].some((reader) => reader !== table);
+
+      if (!consumed) {
+        this.warn(
+          "selection-unused",
+          `nothing consumes "${table}"'s selected row (no selectedRow bindings, visibility predicates, or onRowSelected wiring). Fine for a display-only table; if users should act on rows, add a detail/edit panel bound to the selection.`,
+          table,
+        );
+      }
     }
   }
 
   // Record the node's store reads (a table's store-form tableData binding) and writes (any storeValue('<key>', ...)
   // in its own string props — event bindings, wherever the compiler put them).
   private collectStoreUsage(node: WidgetNode): void {
-    if (node.type === "TABLE_WIDGET_V2" && typeof node.tableData === "string") {
-      const read = STORE_TABLE_BINDING.exec(node.tableData);
+    if (node.type === "TABLE_WIDGET_V2") {
+      const tableData =
+        typeof node.tableData === "string" ? node.tableData : "";
+      const storeBound = STORE_TABLE_BINDING.test(tableData);
+      // onRowSelected wiring on the table itself counts as consumption (the trigger binding lives on the table's
+      // own prop, so member reads there are self-attributed and would otherwise be discounted).
+      const wired =
+        typeof node.onRowSelected === "string" &&
+        node.onRowSelected.trim().length > 0;
 
-      if (read && !this.storeReads.has(read[1])) {
-        this.storeReads.set(read[1], nameOf(node));
+      // Selection-consumption candidates: QUERY-bound tables only. Static tables are usually display/demo data,
+      // and store-bound results tables (append-only lookups) legitimately have nothing consuming their rows —
+      // both would be noise.
+      if (!wired && !storeBound && tableData.includes("{{")) {
+        this.tables.push(nameOf(node));
+      }
+
+      if (storeBound) {
+        const read = STORE_TABLE_BINDING.exec(tableData)!;
+
+        if (!this.storeReads.has(read[1])) {
+          this.storeReads.set(read[1], nameOf(node));
+        }
       }
     }
 

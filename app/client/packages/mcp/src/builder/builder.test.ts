@@ -2068,6 +2068,17 @@ describe("compileApp — import artifact contract", () => {
       ).toBeGreaterThan(0);
     }
   });
+
+  it("every preset spec passes appSpecSchema — get_preset output feeds validate_app_spec verbatim", () => {
+    for (const preset of Object.values(PRESETS)) {
+      const parsed = appSpecSchema.safeParse({
+        name: "P",
+        pages: [preset.spec],
+      });
+
+      expect(parsed.success).toBe(true);
+    }
+  });
 });
 
 describe("applyEdit — append to an existing page", () => {

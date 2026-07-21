@@ -39,6 +39,7 @@ import {
   RECIPES,
   scaffoldCrudPlan,
   scaffoldFormPlan,
+  recreateFromScreenshotPlan,
   SERVER_INSTRUCTIONS,
   WIDGET_REFERENCE,
 } from "./builder/instructions.js";
@@ -1709,6 +1710,41 @@ function projectActions(list: unknown): unknown[] {
   });
 }
 
+// ADVISORY write classifier — powers the close-the-loop hints (write-no-refresh lint, wire_event refresh hint),
+// never a security gate (that is isReadOnlyAction's fail-closed job). REST: non-GET/HEAD methods are writes.
+// DB: a body whose leading keyword mutates (INSERT/UPDATE/DELETE/...) is a write — a disguised mutation
+// (SELECT drop_old()) is missed here, which only costs a missing hint, never a permission.
+const WRITE_SQL_KEYWORDS =
+  /^\s*(insert|update|delete|replace|merge|upsert|truncate|alter|drop|create)\b/i;
+
+export function looksLikeWriteAction(action: unknown): boolean {
+  const config = (
+    actionSource(action) as {
+      actionConfiguration?: { httpMethod?: unknown; body?: unknown };
+    } | null
+  )?.actionConfiguration;
+
+  if (typeof config?.httpMethod === "string") {
+    return !["GET", "HEAD"].includes(config.httpMethod.toUpperCase());
+  }
+
+  return (
+    typeof config?.body === "string" && WRITE_SQL_KEYWORDS.test(config.body)
+  );
+}
+
+export function writeActionNames(list: unknown): string[] {
+  if (!Array.isArray(list)) return [];
+
+  return list.flatMap((entry) => {
+    const name = actionSource(entry)?.name;
+
+    return typeof name === "string" && looksLikeWriteAction(entry)
+      ? [name]
+      : [];
+  });
+}
+
 async function lintLiveDsl(
   api: AppsmithApi,
   applicationId: string,
@@ -1721,8 +1757,11 @@ async function lintLiveDsl(
   // fails after a successful write, preserve the write result and return the
   // structural diagnostics that are still available locally.
   try {
+    const actions = await api.listActions(applicationId);
+
     return lintDsl(dsl, {
-      knownDataNames: actionNames(await api.listActions(applicationId)),
+      knownDataNames: actionNames(actions),
+      writeDataNames: writeActionNames(actions),
     });
   } catch {
     return lintDsl(dsl);
@@ -3081,9 +3120,11 @@ export function buildMcpServer(
       }
 
       const queryReferences = references.filter((ref) => ref.kind === "query");
+      let refreshHint: string | undefined;
 
       if (queryReferences.length > 0 && dataEnabled) {
-        const known = actionNames(await api.listActions(applicationId));
+        const actions = await api.listActions(applicationId);
+        const known = actionNames(actions);
 
         for (const reference of queryReferences) {
           if (!known.includes(reference.name)) {
@@ -3091,6 +3132,20 @@ export function buildMcpServer(
               error: `query "${reference.name}" was not found`,
             });
           }
+        }
+
+        // Close-the-loop hint (advisory, never blocks): this wiring runs only write-classified queries, so
+        // nothing re-reads the data it changes — read-bound tables/charts stay stale until reload. The exact
+        // failure behind "I add a task and the table doesn't update".
+        const writes = new Set(writeActionNames(actions));
+        const runNames = queryReferences.map((ref) => ref.name);
+        const staleWrites = runNames.filter((name) => writes.has(name));
+
+        if (
+          staleWrites.length > 0 &&
+          !runNames.some((name) => !writes.has(name))
+        ) {
+          refreshHint = `this wiring runs write query "${staleWrites[0]}" with no follow-up read — widgets bound to read queries will show stale data until the page reloads. Chain the refresh in the same wiring: onSuccess: [{ run: '<the read query feeding your table>' }].`;
         }
       }
 
@@ -3135,6 +3190,7 @@ export function buildMcpServer(
           ...(modalVerdict.warning !== undefined
             ? { modalWarning: modalVerdict.warning }
             : {}),
+          ...(refreshHint !== undefined ? { refreshHint } : {}),
           // M5 telemetry: the statement verb kinds this wiring uses, so appendToStore/clearStoreKey adoption is
           // measurable from the audit/changes payload.
           actionKinds: eventActionKinds(parsed.data.action),
@@ -6232,6 +6288,29 @@ function registerInstructions(server: McpServer): void {
           content: {
             type: "text",
             text: scaffoldCrudPlan(entity, fields ?? ""),
+          },
+        },
+      ],
+    }),
+  );
+
+  server.registerPrompt(
+    "recreate_from_screenshot",
+    {
+      title: "Recreate a screenshot as an app",
+      description:
+        "Guided workflow to rebuild a screenshot/mockup the user shared: layout-skeleton decode, widget mapping with honest approximations, theme extraction, then build and verify.",
+      argsSchema: {
+        appName: z.string().trim().min(1).max(64),
+      },
+    },
+    ({ appName }) => ({
+      messages: [
+        {
+          role: "user",
+          content: {
+            type: "text",
+            text: recreateFromScreenshotPlan(appName),
           },
         },
       ],
