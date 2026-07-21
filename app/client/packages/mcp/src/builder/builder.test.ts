@@ -133,6 +133,31 @@ describe("compileApp — import artifact contract", () => {
     expect((artifact.pageList as unknown[]).length).toBe(1);
   });
 
+  it("derives the card color and icon from the app name — pastel palette, deterministic, varied", () => {
+    const build = (name: string) =>
+      compileApp(
+        {
+          name,
+          pages: [{ name: "Home", widgets: [{ type: "text", text: "Hi" }] }],
+        },
+        ids(),
+      ).exportedApplication as { color: string; icon: string };
+
+    const first = build("Task Tracker");
+    const again = build("Task Tracker");
+    const other = build("Northwind Explorer");
+
+    // The UI's pastel card palette, not the old hardcoded #4F70FE.
+    expect(first.color).toMatch(/^#[0-9A-F]{6}$/);
+    expect(first.color).not.toBe("#4F70FE");
+    expect(first.icon).not.toBe("app");
+    // Same spec -> same artifact; different names -> different cards.
+    expect(again).toEqual(first);
+    expect(other.color === first.color && other.icon === first.icon).toBe(
+      false,
+    );
+  });
+
   it("JSON-serializes cleanly — no shared array reference between pageOrder and publishedPageOrder", () => {
     const artifact = compileApp(
       {

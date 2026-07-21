@@ -622,6 +622,136 @@ function compilePage(
   };
 }
 
+// The card palette and icon set the Applications UI draws from when creating an app (it picks randomly from
+// each). Copied because this package has no dependency on the client bundle; palette from `appColors` in
+// app/client/src/constants/DefaultTheme.tsx, icons from `AppIconCollection` in
+// packages/design-system/ads-old/src/AppIcon/index.tsx.
+const APP_CARD_COLORS = [
+  "#FFEFDB",
+  "#D9E7FF",
+  "#FFDEDE",
+  "#E3DEFF",
+  "#C7F3E3",
+  "#F1DEFF",
+  "#F4FFDE",
+  "#C7F3F0",
+  "#C2DAF0",
+  "#F5D1D1",
+  "#ECECEC",
+  "#CCCCCC",
+  "#F3F1C7",
+  "#E4D8CC",
+  "#EAEDFB",
+  "#D6D1F2",
+  "#FBF4ED",
+  "#FFEBFB",
+];
+
+const APP_CARD_ICONS = [
+  "bag",
+  "product",
+  "book",
+  "camera",
+  "file",
+  "chat",
+  "calender",
+  "flight",
+  "frame",
+  "globe",
+  "shopper",
+  "heart",
+  "alien",
+  "bar-graph",
+  "basketball",
+  "bicycle",
+  "bird",
+  "bitcoin",
+  "burger",
+  "bus",
+  "call",
+  "car",
+  "card",
+  "cat",
+  "chinese-remnibi",
+  "cloud",
+  "coding",
+  "couples",
+  "cricket",
+  "diamond",
+  "dog",
+  "dollar",
+  "earth",
+  "email",
+  "euros",
+  "family",
+  "flag",
+  "football",
+  "hat",
+  "headphones",
+  "hospital",
+  "joystick",
+  "laptop",
+  "line-chart",
+  "location",
+  "lotus",
+  "love",
+  "medal",
+  "medical",
+  "money",
+  "moon",
+  "mug",
+  "music",
+  "package",
+  "pants",
+  "pie-chart",
+  "pizza",
+  "plant",
+  "rainy-weather",
+  "restaurant",
+  "rocket",
+  "rose",
+  "rupee",
+  "saturn",
+  "server",
+  "server-line",
+  "shake-hands",
+  "shirt",
+  "shop",
+  "single-person",
+  "smartphone",
+  "snowy-weather",
+  "stars",
+  "steam-bowl",
+  "sunflower",
+  "system",
+  "team",
+  "tree",
+  "uk-pounds",
+  "website",
+  "yen",
+  "airplane",
+  "arrow-down",
+  "arrow-up",
+  "arrow-left",
+  "arrow-right",
+  "help",
+  "open-new-tab",
+  "workflows",
+];
+
+// FNV-1a over the app name: varied like the UI's random pick, but deterministic so compileApp stays a pure
+// function of its spec (same spec -> byte-identical artifact).
+function hashAppName(name: string): number {
+  let hash = 0x811c9dc5;
+
+  for (let i = 0; i < name.length; i++) {
+    hash ^= name.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+
+  return hash;
+}
+
 // Compile a full application spec into an Appsmith import artifact accepted by
 // POST /api/v1/applications/import/{workspaceId}.
 export function compileApp(
@@ -649,8 +779,9 @@ export function compileApp(
     exportedApplication: {
       name: appSpec.name,
       slug: appSpec.name.toLowerCase().replace(/\s+/g, "-"),
-      color: "#4F70FE",
-      icon: "app",
+      color:
+        APP_CARD_COLORS[hashAppName(appSpec.name) % APP_CARD_COLORS.length],
+      icon: APP_CARD_ICONS[hashAppName(appSpec.name) % APP_CARD_ICONS.length],
       isPublic: false,
       unpublishedCustomJSLibs: [],
       publishedCustomJSLibs: [],
