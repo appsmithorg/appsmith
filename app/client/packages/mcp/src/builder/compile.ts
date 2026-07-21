@@ -28,6 +28,12 @@ import {
 } from "./layout.js";
 import { cascadeFit } from "./occupancy.js";
 import { assertNoNewNestedModals } from "./modalGraph.js";
+import {
+  applyRoleStyling,
+  inferRoles,
+  planLayout,
+  type LayoutSlot,
+} from "./design.js";
 
 export const CLIENT_SCHEMA_VERSION = 2;
 export const SERVER_SCHEMA_VERSION = 12;
@@ -128,6 +134,7 @@ function compileWidgetAt(
   topRow: number,
   availableColumns: number,
   depth: number,
+  slot?: LayoutSlot,
 ): WidgetNode {
   if (depth > MAX_CONTAINER_DEPTH) {
     throw new Error(
@@ -144,9 +151,18 @@ function compileWidgetAt(
   const template = WIDGET_TEMPLATES[spec.type];
   const built = template.build(spec);
 
+  // Design pass: role typography first, then the app-spec theme so explicit theme tokens still win.
+  applyRoleStyling(built.props, template.appsmithType, slot?.role ?? "body");
   applyTheme(built.props, template.appsmithType, ctx.theme);
 
-  const columns = Math.min(built.footprint.columns, availableColumns);
+  // Slot geometry contract: planLayout computed slot.columns/leftColumn from the SAME availableColumns passed
+  // here, guaranteeing leftColumn + columns <= availableColumns for packed rows. The clamp below only guards the
+  // no-slot (template footprint) path.
+  const columns = Math.min(
+    slot?.columns ?? built.footprint.columns,
+    availableColumns,
+  );
+  const leftColumn = slot?.leftColumn ?? 0;
   const widgetId = ctx.idGen();
   const widgetName = ctx.names.allocate(
     spec.name ?? DEFAULT_BASE_NAME[spec.type],
@@ -224,7 +240,7 @@ function compileWidgetAt(
       version: template.version,
       parentId,
       topRow,
-      leftColumn: 0,
+      leftColumn,
       columns,
       rows: maxRows,
       props: { ...built.props, tabsObj, defaultTab: tabSpecs[0].label },
@@ -278,7 +294,7 @@ function compileWidgetAt(
       version: template.version,
       parentId,
       topRow,
-      leftColumn: 0,
+      leftColumn,
       columns,
       rows,
       props: built.props,
@@ -293,9 +309,9 @@ function compileWidgetAt(
     version: template.version,
     parentId,
     topRow,
-    leftColumn: 0,
+    leftColumn,
     columns,
-    rows: built.footprint.rows,
+    rows: slot?.rows ?? built.footprint.rows,
     props: built.props,
   });
 }
@@ -372,6 +388,9 @@ function compileCardWidget(
   const titleProps = {
     ...titleBuilt.props,
     text: compileCurrentItemBinding(spec.title),
+    // Explicit weight: the card title must stay bold even if the text template's default weight changes (the
+    // design pass styles page texts by role; card slots are outside that pass).
+    fontStyle: "BOLD",
     // Fixed-height slots: truncate long values with an ellipsis rather than overflowing into the next slot.
     shouldTruncate: true,
     dynamicBindingPathList: [{ key: "text" }],
@@ -552,25 +571,38 @@ function stackWidgets(
   availableColumns: number,
   startRow: number,
   depth: number,
+  pageRoot = false,
 ): { nodes: WidgetNode[]; endRow: number } {
+  const roles = inferRoles(specs, { pageRoot });
+  const rows = planLayout(specs, roles, availableColumns);
   const nodes: WidgetNode[] = [];
   let cursor = startRow;
 
-  for (const spec of specs) {
-    const node = compileWidgetAt(
-      spec,
-      ctx,
-      parentId,
-      cursor,
-      availableColumns,
-      depth,
-    );
+  for (const row of rows) {
+    cursor += row.gapBefore;
 
-    nodes.push(node);
-    cursor = node.bottomRow + ROW_GAP;
+    let rowBottom = cursor;
+
+    for (const slot of row.slots) {
+      const node = compileWidgetAt(
+        specs[slot.index],
+        ctx,
+        parentId,
+        cursor,
+        availableColumns,
+        depth,
+        slot,
+      );
+
+      nodes.push(node);
+      rowBottom = Math.max(rowBottom, node.bottomRow);
+    }
+
+    cursor = rowBottom;
   }
 
-  return { nodes, endRow: cursor };
+  // Empty canvas: no trailing gap (preserves pre-design-pass container heights).
+  return { nodes, endRow: rows.length === 0 ? startRow : cursor + ROW_GAP };
 }
 
 function compilePageDsl(pageSpec: PageSpec, ctx: CompileContext): WidgetNode {
@@ -582,6 +614,7 @@ function compilePageDsl(pageSpec: PageSpec, ctx: CompileContext): WidgetNode {
     GRID_COLUMNS,
     0,
     0,
+    true,
   );
 
   root.children = nodes;
@@ -843,6 +876,11 @@ export function applyEdit(
       placement.canvas.widgetId === ROOT_WIDGET_ID
         ? GRID_COLUMNS
         : placement.canvas.rightColumn;
+    // Single-spec design pass: the same role inference as build_application (so a KPI text appended via edit_page
+    // styles identically to one built with the app), but no cross-widget packing and never a pageTitle — each
+    // `add` entry places independently against its own placement target.
+    const [role] = inferRoles([spec], { pageRoot: false });
+    const slot = planLayout([spec], [role], availableColumns)[0]?.slots[0];
     const node = compileWidgetAt(
       spec,
       ctx,
@@ -850,6 +888,7 @@ export function applyEdit(
       placement.topRow,
       availableColumns,
       0,
+      slot,
     );
 
     placement.canvas.children = placement.canvas.children ?? [];
