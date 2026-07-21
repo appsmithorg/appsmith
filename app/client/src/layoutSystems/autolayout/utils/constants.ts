@@ -7,4 +7,5 @@ export const defaultAutoLayoutWidgets = [
   "MODAL_WIDGET",
   "STATBOX_WIDGET",
   "FORM_WIDGET",
+  "CARD_WIDGET",
 ];

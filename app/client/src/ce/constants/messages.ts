@@ -1916,6 +1916,11 @@ export const SKIP_START_WITH_USE_CASE_TEMPLATES = () =>
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
+export const CARD_WIDGET_MENU_BUTTON_ARIA_LABEL = () => "Card actions menu";
+
+export const CARD_WIDGET_EXPAND_BUTTON_ARIA_LABEL = () =>
+  "Toggle card expanded state";
+
 export const REDIRECT_URL_TOOLTIP = () =>
   "This URL will be used while configuring your Identity Provider's Callback/Redirect URL";
 export const ENTITY_ID_TOOLTIP = () =>
