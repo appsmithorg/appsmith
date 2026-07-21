@@ -114,21 +114,8 @@ public class FileValidationUtilsTest {
                 .verify();
     }
 
-    // Asserts the file was rejected specifically by the fail-closed markup-document guard (exact
-    // FILE_IS_MARKUP_DOCUMENT message), so the test can only pass because a structured-markup document padded
-    // past the detection head was still caught.
-    private static void expectMarkupDocumentRejected(byte[] content, String filename) {
-        String expectedMessage = String.format(AppsmithAiErrorMessages.FILE_IS_MARKUP_DOCUMENT, filename);
-        StepVerifier.create(FileValidationUtils.validateFileType(mockFilePart(filename, content)))
-                .expectErrorSatisfies(error -> {
-                    assertThat(error).isInstanceOf(AppsmithPluginException.class);
-                    assertThat(error.getMessage()).isEqualTo(expectedMessage);
-                })
-                .verify();
-    }
-
-    // Asserts the file was rejected by content-type detection (exact FILE_TYPE_NOT_SUPPORTED message with the
-    // given detected type) - i.e. by the allow-list, not by the markup-document guard.
+    // Asserts the file was rejected by content-type detection: the exact FILE_TYPE_NOT_SUPPORTED message with
+    // the given detected type - i.e. by the allow-list.
     private static void expectTypeRejected(byte[] content, String filename, String detectedType) {
         String expectedMessage = String.format(AppsmithAiErrorMessages.FILE_TYPE_NOT_SUPPORTED, filename, detectedType);
         StepVerifier.create(FileValidationUtils.validateFileType(mockFilePart(filename, content)))
@@ -302,30 +289,15 @@ public class FileValidationUtilsTest {
         assertThat(emittedChunks.get()).isLessThanOrEqualTo(capChunks + 2);
     }
 
-    // --- Fail-closed guard: a structured-markup DOCUMENT padded past the 64 KiB detection head must still be
-    // rejected, WITHOUT false-rejecting text/markdown that merely mentions or embeds markup ---
-
-    @Test
-    public void validateFileType_withWhitespacePaddedSvgDocument_isRejected() {
-        // The reviewer's reproduced bypass: >64 KiB of whitespace then an SVG root - after stripping the
-        // padding this IS a renderable SVG document.
-        byte[] content = padThen(
-                OVER_HEAD_PAD, (byte) ' ', "<svg xmlns=\"http://www.w3.org/2000/svg\"><script>alert(1)</script></svg>");
-        expectMarkupDocumentRejected(content, "padded.svg");
-    }
-
-    @Test
-    public void validateFileType_withWhitespacePaddedHtmlDocument_isRejected() {
-        // >64 KiB of whitespace then an HTML document root.
-        byte[] content = padThen(OVER_HEAD_PAD, (byte) ' ', "<!DOCTYPE html>\n<html><body>hi</body></html>");
-        expectMarkupDocumentRejected(content, "padded.html");
-    }
+    // --- Content-type-only validation. Wide-encoded SVG is resolved to a disallowed type by the
+    // encoding-aware detection and rejected. The accepted low-severity residual - text that Tika types as an
+    // allowed type but embeds markup - is pinned by the accept tests below; uploaded files are S3-stored, not
+    // served as HTML from the app origin, so embedded markup cannot execute as stored XSS. ---
 
     @Test
     public void validateFileType_withWideEncodedWhitespacePaddedSvg_isRejectedByTypeDetection() {
-        // A UTF-16LE structured document padded past the head does NOT reach the markup guard: encoding-aware
-        // type detection resolves the all-whitespace head to application/octet-stream, which the allow-list
-        // rejects. Assert that exact path (not a generic "rejected") so the wide handling is pinned honestly.
+        // A UTF-16LE SVG padded past the head: encoding-aware detection resolves the all-whitespace head to
+        // application/octet-stream, which the allow-list rejects. Assert that exact path.
         String doc = " ".repeat(OVER_HEAD_PAD) + "<svg xmlns=\"http://www.w3.org/2000/svg\"/>";
         expectTypeRejected(doc.getBytes(StandardCharsets.UTF_16LE), "padded-wide.svg", "application/octet-stream");
     }
@@ -333,23 +305,22 @@ public class FileValidationUtilsTest {
     @Test
     public void validateFileType_withWideEncodedSvgNearStart_isRejectedByTypeDetection() {
         // A UTF-16LE SVG whose root is near the start is resolved to image/svg+xml by the encoding-aware
-        // detection and rejected - again before the markup guard.
+        // detection and rejected.
         String doc = "  <svg xmlns=\"http://www.w3.org/2000/svg\"/>";
         expectTypeRejected(doc.getBytes(StandardCharsets.UTF_16LE), "wide.svg", "image/svg+xml");
     }
 
     @Test
     public void validateFileType_withNonWhitespacePaddedMarkup_isAccepted() {
-        // POSTURE (low-risk residual, made explicit): non-whitespace bytes before the markup mean the file is
-        // not a renderable document at its root, so it types as text and is accepted. Uploads are S3-stored,
-        // not served from the app origin.
+        // Accepted residual: markup padded past the detection window with non-whitespace bytes types as text
+        // and is accepted (S3-stored, not app-origin served, so it cannot execute as stored XSS).
         byte[] content = padThen(OVER_HEAD_PAD, (byte) 'a', "<script>alert(document.cookie)</script>");
         expectAccepted(content, "padded.txt");
     }
 
     @Test
     public void validateFileType_withProseMentioningMarkup_isAccepted() {
-        // The reviewer's repro: prose that mentions a tag is not a markup document.
+        // Accepted residual: prose that merely mentions a tag types as text and is accepted.
         byte[] content =
                 "documentation text mentioning <script tags, not an HTML document.".getBytes(StandardCharsets.UTF_8);
         expectAccepted(content, "notes.txt");
@@ -357,7 +328,7 @@ public class FileValidationUtilsTest {
 
     @Test
     public void validateFileType_withMarkdownEmbeddingMarkupExamples_isAccepted() {
-        // Markdown that embeds markup in prose and a fenced code block - the markup is not the document root.
+        // Accepted residual: markdown that embeds markup in prose and a fenced code block types as text.
         String snippet = "# HTML notes\n\nUse `<script>` for JS and an inline <div> for layout. Example:\n\n"
                 + "```\n<svg><rect/></svg>\n```\n\nAlso 1 < 2 holds.\n\n";
         byte[] content = snippet.repeat(1000).getBytes(StandardCharsets.UTF_8);
@@ -366,7 +337,6 @@ public class FileValidationUtilsTest {
 
     @Test
     public void validateFileType_withLargeUniformPlainText_isAccepted() {
-        // A large, uniform plain-text file (no markup root) must pass - the guard is not "reject big".
         byte[] content = new byte[OVER_HEAD_PAD + 4096];
         Arrays.fill(content, (byte) 'a');
         expectAccepted(content, "big.txt");

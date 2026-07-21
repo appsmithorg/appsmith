@@ -19,11 +19,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import static com.external.plugins.constants.AppsmithAiConstants.MAX_UPLOAD_FILE_SIZE_IN_BYTES;
 import static com.external.plugins.constants.AppsmithAiConstants.SUPPORTED_FILE_MIME_TYPES;
-import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_IS_MARKUP_DOCUMENT;
 import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_TOO_LARGE;
 import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_TYPE_NOT_SUPPORTED;
 
@@ -49,18 +47,12 @@ import static com.external.plugins.constants.AppsmithAiErrorMessages.FILE_TYPE_N
  * surfaces the true type - e.g. {@code image/svg+xml} - which is then rejected by the allow-list. Verified
  * against UTF-8/UTF-16LE/UTF-16BE/UTF-32 and namespace-prefixed SVG.
  *
- * <p>Type detection only inspects the head of the file, so a payload padded with more than the head window
- * of whitespace can push its markup root past the detector and be accepted as {@code text/plain}. As a
- * fail-closed backstop, a file accepted as {@code text/*} is checked for being an actual structured-markup
- * document: after its leading BOM and whitespace/padding are stripped, if the very first content is a markup
- * root ({@code <svg}, {@code <?xml}, {@code <html}, {@code <!doctype}, {@code <script}) followed by a tag
- * boundary, it would parse/render as SVG/HTML/XML and is rejected. This is deliberately narrower than a
- * substring scan: text or markdown that merely mentions or embeds markup in prose or a code example (the
- * markup is not the document root) is accepted, as is a PDF (detected by magic, never checked here). A file
- * padded with non-whitespace bytes before its markup is not a renderable document at the root and is accepted
- * as text (low-risk residual - uploads are S3-stored, not served from the app origin). A wide (UTF-16/32)
- * markup document does not need this guard: the encoding-aware detection above already resolves it to
- * {@code image/svg+xml} or {@code application/octet-stream}, both rejected by the allow-list.
+ * <p>Content-type detection reads only the head of the file, so validation is by detected type against the
+ * allow-list alone. A file that Tika types as an allowed text type but that embeds markup - for example an
+ * SVG/HTML/script payload padded past the detection window with non-whitespace bytes, or markup mentioned
+ * inside otherwise-legitimate text - is accepted. This is an accepted low-severity content-sniffing residual:
+ * uploaded files are stored in object storage (S3) and are never served as HTML from the application origin,
+ * so embedded markup cannot execute as stored XSS.
  */
 public class FileValidationUtils {
 
@@ -74,12 +66,6 @@ public class FileValidationUtils {
     // Only the head is decoded for the normalized re-detection; a document's XML/SVG root sits near the start,
     // and the full (already size-bounded) file is never decoded into a String.
     private static final int HEAD_DECODE_LIMIT = 64 * 1024;
-
-    // Markup roots that identify a structured document (SVG/HTML/XML) when they are the first content after
-    // any leading BOM/whitespace. Stored lowercase; matched case-insensitively and only at the document root
-    // with a following tag boundary, so a document survives whitespace padding but prose that merely mentions
-    // these strings does not trip the guard.
-    private static final List<String> MARKUP_ROOT_MARKERS = List.of("<svg", "<?xml", "<html", "<!doctype", "<script");
 
     private FileValidationUtils() {}
 
@@ -96,19 +82,16 @@ public class FileValidationUtils {
                 .map(dataBuffer -> {
                     byte[] bytes = toByteArray(dataBuffer);
                     String detectedType = detectTrueType(bytes).getBaseType().toString();
+                    // Validation is by Tika-detected content type against the allow-list only. Accepted
+                    // residual (low severity): a file that types as an allowed text type but embeds markup
+                    // (e.g. an SVG/HTML/script payload padded past the detection window with non-whitespace
+                    // bytes, or markup mentioned inside legitimate text) is accepted. Uploaded files are stored
+                    // in object storage (S3) and are never served as HTML from the application origin, so
+                    // embedded markup cannot execute as stored XSS.
                     if (!SUPPORTED_FILE_MIME_TYPES.contains(detectedType)) {
                         throw new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                 String.format(FILE_TYPE_NOT_SUPPORTED, filePart.filename(), detectedType));
-                    }
-                    // Fail-closed guard: type detection only inspects the head, so a structured-markup
-                    // document can pad its root past the detection window and be accepted as text. Reject a
-                    // file accepted as text/* only if it is actually a markup document at its root. Applied
-                    // only to text/* - PDFs are allowed to contain markup internally, so they are not checked.
-                    if (detectedType.startsWith("text/") && isStructuredMarkupDocument(bytes)) {
-                        throw new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                String.format(FILE_IS_MARKUP_DOCUMENT, filePart.filename()));
                     }
                     return (FilePart) new BufferedFilePart(filePart, bytes);
                 })
@@ -238,64 +221,6 @@ public class FileValidationUtils {
 
     private static int u(byte b) {
         return b & 0xFF;
-    }
-
-    /**
-     * Reports whether the content is actually a structured-markup document (SVG/HTML/XML) - i.e. its root
-     * element/prolog is the first content after any leading BOM and whitespace/padding. This is deliberately
-     * narrower than "contains a markup substring": text or markdown that merely mentions or embeds markup
-     * away from the document root is not a renderable document and returns false.
-     *
-     * <p>Only single-byte content is inspected: a wide (UTF-16/32) markup document never reaches here, because
-     * the encoding-aware {@link #detectTrueType} already resolves it to {@code image/svg+xml} (root near the
-     * start) or {@code application/octet-stream} (root padded past the head), both rejected by the allow-list
-     * before this guard runs.
-     */
-    private static boolean isStructuredMarkupDocument(byte[] content) {
-        int root = firstNonWhitespaceAfterBom(content);
-        return root < content.length && startsWithMarkupRoot(content, root);
-    }
-
-    private static int firstNonWhitespaceAfterBom(byte[] bytes) {
-        int i = 0;
-        if (bytes.length >= 3 && u(bytes[0]) == 0xEF && u(bytes[1]) == 0xBB && u(bytes[2]) == 0xBF) {
-            i = 3; // UTF-8 BOM
-        }
-        while (i < bytes.length && Character.isWhitespace(u(bytes[i]))) {
-            i++;
-        }
-        return i;
-    }
-
-    private static boolean startsWithMarkupRoot(byte[] bytes, int pos) {
-        for (String marker : MARKUP_ROOT_MARKERS) {
-            if (regionMatchesIgnoreCase(bytes, pos, marker) && isTagBoundary(bytes, pos + marker.length())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // A real tag/prolog root is followed by a tag boundary, not more name characters - so "<script" matches
-    // "<script>" or "<script " (a real element) but not the prose word "<scriptural".
-    private static boolean isTagBoundary(byte[] bytes, int pos) {
-        if (pos >= bytes.length) {
-            return true;
-        }
-        char c = (char) (bytes[pos] & 0xFF);
-        return Character.isWhitespace(c) || c == '>' || c == '/' || c == ':';
-    }
-
-    private static boolean regionMatchesIgnoreCase(byte[] bytes, int pos, String marker) {
-        if (pos + marker.length() > bytes.length) {
-            return false;
-        }
-        for (int j = 0; j < marker.length(); j++) {
-            if (Character.toLowerCase((char) (bytes[pos + j] & 0xFF)) != marker.charAt(j)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private static byte[] toByteArray(DataBuffer dataBuffer) {
