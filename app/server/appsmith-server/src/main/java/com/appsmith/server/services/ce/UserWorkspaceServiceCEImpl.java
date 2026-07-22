@@ -202,20 +202,16 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     .build());
         }
 
-        // Get the new permission group — must belong to the URL's workspaceId.
+        // Get the new permission group — must belong to this workspace's default groups.
         // Without this check, an attacker who holds ASSIGN_PERMISSION_GROUPS on a group
         // from any workspace (e.g. their own workspace V) can supply that group ID here
         // and bypass the workspace boundary entirely (GHSA-h5qf-426x-5mv5 / CWE-862).
-        //
-        // Pattern follows doInviteUsers() in UserAndAccessManagementServiceCEImpl, which
-        // already validates defaultDomainType and non-empty defaultDomainId.
-        Mono<PermissionGroup> newDefaultPermissionGroupMono = permissionGroupService
+        Mono<PermissionGroup> newDefaultPermissionGroupMono = workspaceMono.flatMap(workspace -> permissionGroupService
                 .getById(changeUserGroupDTO.getNewPermissionGroupId(), permissionGroupPermission.getAssignPermission())
                 .filter(permissionGroup ->
-                        Workspace.class.getSimpleName().equals(permissionGroup.getDefaultDomainType())
-                                && workspaceId.equals(permissionGroup.getDefaultDomainId()))
+                        workspace.getDefaultPermissionGroups().contains(permissionGroup.getId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change permissionGroup of a member")));
+                        AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change permissionGroup of a member"))));
 
         // Unassign old permission group, assign new permission group
         Mono<PermissionGroup> changePermissionGroupsMono = newDefaultPermissionGroupMono.flatMap(newPermissionGroup -> {

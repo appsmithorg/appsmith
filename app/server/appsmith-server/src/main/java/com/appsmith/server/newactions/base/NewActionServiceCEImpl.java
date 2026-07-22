@@ -615,19 +615,25 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     datasourceMono =
                             Mono.just(editActionDTO.getDatasource()).flatMap(datasourceService::validateDatasource);
                 } else {
-                    // Data source already exists. Fetch it with edit permission to enforce ACL.
+                    // Data source already exists. Fetch it with execute permission to enforce ACL.
                     // Using the unchecked findById(String) overload here would bypass workspace
                     // scoping and allow any authenticated user to resolve a foreign datasource ID
                     // and trigger updateDatasourcePolicyForPublicAction against it, granting the
                     // public permission group EXECUTE_DATASOURCES rights on a foreign datasource.
                     // Fixed in: GHSA-fhgw-q2jf-8fq7
+                    //
+                    // Execute (not edit) is the minimum permission needed: users with app-level
+                    // create-action permission legitimately reference workspace datasources they
+                    // can execute but cannot reconfigure. Edit would break GAC setups where
+                    // developers create queries without datasource admin rights.
 
                     if (isDryOps) {
                         datasourceMono = Mono.just(editActionDTO.getDatasource());
                     } else {
                         datasourceMono = datasourceService
                                 .findById(
-                                        editActionDTO.getDatasource().getId(), datasourcePermission.getEditPermission())
+                                        editActionDTO.getDatasource().getId(),
+                                        datasourcePermission.getExecutePermission())
                                 .switchIfEmpty(Mono.error(new AppsmithException(
                                         AppsmithError.NO_RESOURCE_FOUND,
                                         FieldName.DATASOURCE,
