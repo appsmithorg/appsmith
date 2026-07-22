@@ -18,6 +18,7 @@ export const PositionedComponentLayer = (props: BaseWidgetProps) => {
       ref={props.wrapperRef}
       resizeDisabled={props.resizeDisabled}
       selected={props.selected}
+      tabOrder={props.tabOrder}
       topRow={props.topRow}
       widgetId={props.widgetId}
       widgetName={props.widgetName}
