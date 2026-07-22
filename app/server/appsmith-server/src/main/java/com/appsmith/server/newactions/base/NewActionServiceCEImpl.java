@@ -615,19 +615,24 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     datasourceMono =
                             Mono.just(editActionDTO.getDatasource()).flatMap(datasourceService::validateDatasource);
                 } else {
-                    // Data source already exists. Fetch it with edit permission to enforce ACL.
-                    // Using the unchecked findById(String) overload here would bypass workspace
-                    // scoping and allow any authenticated user to resolve a foreign datasource ID
-                    // and trigger updateDatasourcePolicyForPublicAction against it, granting the
-                    // public permission group EXECUTE_DATASOURCES rights on a foreign datasource.
-                    // Fixed in: GHSA-fhgw-q2jf-8fq7
+                    // Data source already exists. Fetch it with the datasource action-create
+                    // permission to enforce ACL. Using the unchecked findById(String) overload here
+                    // would bypass workspace scoping and allow any authenticated user to resolve a
+                    // foreign datasource ID and trigger updateDatasourcePolicyForPublicAction against
+                    // it, granting the public permission group EXECUTE_DATASOURCES rights on a foreign
+                    // datasource. The action-create permission (not edit) is the correct tier: it is
+                    // exactly what a user needs to build a query against a datasource, so it keeps the
+                    // ACL guard closed against foreign datasources while still letting users who can
+                    // create actions — but not manage the datasource — create queries.
+                    // Fixed in: GHSA-fhgw-q2jf-8fq7; permission tier corrected in APP-15717.
 
                     if (isDryOps) {
                         datasourceMono = Mono.just(editActionDTO.getDatasource());
                     } else {
-                        datasourceMono = datasourceService
-                                .findById(
-                                        editActionDTO.getDatasource().getId(), datasourcePermission.getEditPermission())
+                        datasourceMono = datasourcePermission
+                                .getActionCreatePermission()
+                                .flatMap(actionCreatePermission -> datasourceService.findById(
+                                        editActionDTO.getDatasource().getId(), actionCreatePermission))
                                 .switchIfEmpty(Mono.error(new AppsmithException(
                                         AppsmithError.NO_RESOURCE_FOUND,
                                         FieldName.DATASOURCE,
