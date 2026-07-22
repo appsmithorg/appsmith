@@ -74,6 +74,13 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
       tags: [WIDGET_TAGS.DISPLAY],
       needsMeta: true,
       isCanvas: true,
+      // The card's height is driven by its body content plus header/footer
+      // chrome (see getCanvasHeightOffset). Without this flag the auto-height
+      // saga updates the height in the editor's reducer but never persists it
+      // (shouldEval stays false in updateWidgetAutoHeightSaga), so a published
+      // app renders a stale, too-short card that clips the body. Table/List
+      // set this for the same content-driven-height reason.
+      needsHeightForContent: true,
       searchTags: ["card", "panel", "tile"],
     };
   }
