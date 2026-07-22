@@ -59,6 +59,8 @@ export const getIsDeletingApplication = (state: DefaultRootState) =>
   state.ui.applications.deletingApplication;
 export const getIsSavingAppName = (state: DefaultRootState) =>
   state.ui.applications.isSavingAppName;
+export const getIsSavingHtmlLang = (state: DefaultRootState) =>
+  state.ui.applications.isSavingHtmlLang;
 export const getIsErroredSavingAppName = (state: DefaultRootState) =>
   state.ui.applications.isErrorSavingAppName;
 export const getIsPersistingAppSlug = (state: DefaultRootState) =>

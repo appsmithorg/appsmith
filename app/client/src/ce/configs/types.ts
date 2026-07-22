@@ -58,6 +58,7 @@ export interface AppsmithUIConfigs {
   };
   appsmithSupportEmail: string;
   disableIframeWidgetSandbox: boolean;
+  defaultHtmlLang: string;
   pricingUrl: string;
   customerPortalUrl: string;
 }

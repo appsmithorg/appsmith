@@ -29,6 +29,7 @@ import type { ApplicationPayload } from "entities/Application";
 export const initialState: ApplicationsReduxState = {
   isSavingAppName: false,
   isErrorSavingAppName: false,
+  isSavingHtmlLang: false,
   isFetchingApplication: false,
   isChangingViewAccess: false,
   applicationList: [],
@@ -313,6 +314,7 @@ export const handlers = {
   ) => {
     let isSavingAppName = false;
     let isSavingNavigationSetting = false;
+    let isSavingHtmlLang = false;
 
     if (action.payload.name) {
       isSavingAppName = true;
@@ -322,17 +324,28 @@ export const handlers = {
       isSavingNavigationSetting = true;
     }
 
+    // Presence check, not truthiness: clearing the field sends htmlLang: "" (a
+    // real save that should still show the spinner), while unrelated updates omit
+    // htmlLang entirely (undefined).
+    if (action.payload.applicationDetail?.htmlLang !== undefined) {
+      isSavingHtmlLang = true;
+    }
+
     return {
       ...state,
       isSavingAppName,
       isErrorSavingAppName: false,
       isSavingNavigationSetting,
       isErrorSavingNavigationSetting: false,
-      ...(action.payload.applicationDetail
+      isSavingHtmlLang,
+      ...(action.payload.applicationDetail && state.currentApplication
         ? {
-            applicationDetail: {
-              ...state.currentApplication?.applicationDetail,
-              ...action.payload.applicationDetail,
+            currentApplication: {
+              ...state.currentApplication,
+              applicationDetail: {
+                ...state.currentApplication?.applicationDetail,
+                ...action.payload.applicationDetail,
+              },
             },
           }
         : {}),
@@ -351,6 +364,7 @@ export const handlers = {
       isErrorSavingAppName: false,
       isSavingNavigationSetting: false,
       isErrorSavingNavigationSetting: false,
+      isSavingHtmlLang: false,
     };
   },
   [ReduxActionErrorTypes.UPDATE_APPLICATION_ERROR]: (
@@ -362,6 +376,7 @@ export const handlers = {
       isErrorSavingAppName: true,
       isSavingNavigationSetting: false,
       isErrorSavingNavigationSetting: true,
+      isSavingHtmlLang: false,
     };
   },
   [ReduxActionTypes.RESET_CURRENT_APPLICATION]: (
@@ -936,6 +951,7 @@ export interface ApplicationsReduxState {
   searchKeyword?: string;
   isSavingAppName: boolean;
   isErrorSavingAppName: boolean;
+  isSavingHtmlLang: boolean;
   isFetchingApplication: boolean;
   isChangingViewAccess: boolean;
   creatingApplication: creatingApplicationMap;
