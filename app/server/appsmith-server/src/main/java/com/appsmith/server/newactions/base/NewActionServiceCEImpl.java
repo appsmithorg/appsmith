@@ -615,23 +615,23 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     datasourceMono =
                             Mono.just(editActionDTO.getDatasource()).flatMap(datasourceService::validateDatasource);
                 } else {
-                    // TODO: check if datasource should be fetched with edit during action create or update.
-                    // Data source already exists. Find the same.
+                    // Data source already exists. Fetch it with edit permission to enforce ACL.
+                    // Using the unchecked findById(String) overload here would bypass workspace
+                    // scoping and allow any authenticated user to resolve a foreign datasource ID
+                    // and trigger updateDatasourcePolicyForPublicAction against it, granting the
+                    // public permission group EXECUTE_DATASOURCES rights on a foreign datasource.
+                    // Fixed in: GHSA-fhgw-q2jf-8fq7
 
                     if (isDryOps) {
                         datasourceMono = Mono.just(editActionDTO.getDatasource());
                     } else {
                         datasourceMono = datasourceService
-                                .findById(editActionDTO.getDatasource().getId())
-                                .switchIfEmpty(Mono.defer(() -> {
-                                    if (!isDryOps) {
-                                        editActionDTO.setIsValid(false);
-                                        invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(
-                                                FieldName.DATASOURCE,
-                                                editActionDTO.getDatasource().getId()));
-                                    }
-                                    return Mono.just(editActionDTO.getDatasource());
-                                }));
+                                .findById(
+                                        editActionDTO.getDatasource().getId(), datasourcePermission.getEditPermission())
+                                .switchIfEmpty(Mono.error(new AppsmithException(
+                                        AppsmithError.NO_RESOURCE_FOUND,
+                                        FieldName.DATASOURCE,
+                                        editActionDTO.getDatasource().getId())));
                     }
                     datasourceMono = datasourceMono
                             .map(datasource -> {
