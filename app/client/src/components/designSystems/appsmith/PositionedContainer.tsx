@@ -22,6 +22,7 @@ import equal from "fast-deep-equal";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import { useHoverToFocusWidget } from "utils/hooks/useHoverToFocusWidget";
+import { sanitizeTabOrder } from "utils/widgetTabOrder";
 
 const PositionedWidget = styled.div<{
   zIndexOnHover: number;
@@ -50,6 +51,7 @@ export interface PositionedContainerProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   widgetName: string;
+  tabOrder?: number | string | null;
 }
 
 export function PositionedContainer(
@@ -165,11 +167,15 @@ export function PositionedContainer(
     props.resizeDisabled,
   );
 
+  // valid explicit values only; Auto/invalid values must not emit the attribute
+  const tabOrder = sanitizeTabOrder(props.tabOrder);
+
   // TODO: Experimental fix for sniping mode. This should be handled with a single event
   return (
     <PositionedWidget
       className={containerClassName}
       data-hidden={!props.isVisible || undefined}
+      data-tab-order={tabOrder}
       data-testid="test-widget"
       data-widgetname-cy={props.widgetName}
       disabled={props.isDisabled}

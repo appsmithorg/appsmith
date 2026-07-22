@@ -1,3 +1,5 @@
+import { sanitizeTabOrder, TAB_ORDER_ATTRIBUTE } from "utils/widgetTabOrder";
+
 export const CANVAS_WIDGET = '[type="CANVAS_WIDGET"]';
 // NOTE: This is a hack to exclude the current canvas from the query selector
 // because when we use.closest, it returns the current element too
@@ -13,8 +15,22 @@ export const MODAL_WIDGET = ".t--modal-widget";
 export const CHECKBOXGROUP_WIDGET = ".t--widget-checkboxgroupwidget";
 export const SWITCHGROUP_WIDGET = ".t--widget-switchgroupwidget";
 export const BUTTONGROUP_WIDGET = ".t--widget-buttongroupwidget";
-export const FOCUS_SELECTOR =
-  ":is(a, input, select, textarea, button, object, audio, video, [tabindex='-1']):not([data-tabbable='false'])";
+// NOTE: written as an expanded selector list (no :is) so it stays parseable
+// by jsdom/nwsapi in unit tests; equivalent to
+// :is(a, input, ...):not([data-tabbable='false'])
+export const FOCUS_SELECTOR = [
+  "a",
+  "input",
+  "select",
+  "textarea",
+  "button",
+  "object",
+  "audio",
+  "video",
+  "[tabindex='-1']",
+]
+  .map((selector) => `${selector}:not([data-tabbable='false'])`)
+  .join(", ");
 export const WIDGET_SELECTOR = `.positioned-widget:is(:not(${NON_FOCUSABLE_WIDGET_CLASS}))`;
 
 /**
@@ -41,7 +57,7 @@ export function getTabbableDescendants(
 
       const domRect = modal.getBoundingClientRect();
 
-      const sortedTabbableDescendants = sortWidgetsByPosition(
+      const sortedTabbableDescendants = sortTabbableWidgets(
         {
           top: shiftKey ? domRect.bottom : domRect.top,
           left: shiftKey ? domRect.right : domRect.left,
@@ -61,7 +77,7 @@ export function getTabbableDescendants(
 
       const domRect = currentNode.getBoundingClientRect();
 
-      const sortedTabbableDescendants = sortWidgetsByPosition(
+      const sortedTabbableDescendants = sortTabbableWidgets(
         {
           top: shiftKey ? domRect.bottom : domRect.top,
           left: shiftKey ? domRect.right : domRect.left,
@@ -77,19 +93,28 @@ export function getTabbableDescendants(
   const siblings = getWidgetSiblingsOfNode(activeWidget);
   const domRect = activeWidget.getBoundingClientRect();
 
-  const sortedSiblings = sortWidgetsByPosition(
+  const sortedSiblings = sortTabbableWidgets(
     {
       top: domRect.top,
       left: domRect.left,
     },
     siblings,
     shiftKey,
+    activeWidget,
   );
 
-  if (sortedSiblings.length) return sortedSiblings;
+  // Only stay in this scope if something in it can actually receive focus.
+  // A trailing display-only widget (image, chart, divider...) would otherwise
+  // dead-end the tab sequence: handleTab exhausts the list without focusing
+  // anything and never reaches the parent-scope wrap-around below.
+  const hasFocusableSibling = sortedSiblings.some((sibling) =>
+    getFocussableElementOfWidget(sibling),
+  );
 
-  // there are no siblings, which means we are at the end of the tabbable list
-  // we have to go to next sibling widget of current canvas
+  if (sortedSiblings.length && hasFocusableSibling) return sortedSiblings;
+
+  // there are no (focusable) siblings, which means we are at the end of the
+  // tabbable list. We have to go to next sibling widget of current canvas
   const currentCanvas = currentNode.closest(
     CANVAS_WIDGET_EXCLUDING_SCOPE,
   ) as HTMLElement;
@@ -127,7 +152,7 @@ export function getNextTabbableDescendant(
     const { bottom, left, right, top } =
       nextTabbableDescendant.getBoundingClientRect();
 
-    const sortedTabbableDescendants = sortWidgetsByPosition(
+    const sortedTabbableDescendants = sortTabbableWidgets(
       {
         top: shiftKey ? bottom : top,
         left: shiftKey ? right : left,
@@ -200,6 +225,113 @@ function getWidgetSiblingsOfNode(node: HTMLElement) {
   ) as HTMLElement[];
 
   return siblings.filter((sibling) => sibling !== widget);
+}
+
+/**
+ * reads the sanitized explicit tab order of a widget element from the
+ * data attribute rendered by the widget wrapper. Absent or invalid values
+ * mean automatic order.
+ *
+ * @param element
+ * @returns
+ */
+export function getExplicitTabOrder(element: HTMLElement): number | undefined {
+  const value = element.getAttribute(TAB_ORDER_ATTRIBUTE);
+
+  return value === null ? undefined : sanitizeTabOrder(value);
+}
+
+/**
+ * sorts the widgets of the current tab scope
+ *
+ * When no widget in the scope has a valid explicit tabOrder, this defers to
+ * sortWidgetsByPosition, preserving the automatic position-based behavior
+ * exactly. When at least one widget has a valid tabOrder, the scope sequence
+ * becomes: explicitly ordered widgets ascending (ties broken by position),
+ * followed by the remaining widgets in automatic position order. Shift+Tab
+ * walks the same sequence in reverse.
+ *
+ * @param boundingClientRect top/left of the element we are tabbing from
+ * @param tabbableDescendants candidate widgets of the current scope
+ * @param shiftKey
+ * @param currentWidget the widget we are tabbing from, when it is part of the scope
+ * @returns
+ */
+export function sortTabbableWidgets(
+  boundingClientRect: {
+    top: number;
+    left: number;
+  },
+  tabbableDescendants: HTMLElement[],
+  shiftKey = false,
+  currentWidget?: HTMLElement | null,
+): HTMLElement[] {
+  const scope = currentWidget
+    ? [...tabbableDescendants, currentWidget]
+    : tabbableDescendants;
+  const hasExplicitTabOrder = scope.some(
+    (widget) => getExplicitTabOrder(widget) !== undefined,
+  );
+
+  if (!hasExplicitTabOrder) {
+    return sortWidgetsByPosition(
+      boundingClientRect,
+      tabbableDescendants,
+      shiftKey,
+    );
+  }
+
+  const sequence = getTabOrderSequence(scope);
+
+  if (currentWidget) {
+    const currentIndex = sequence.indexOf(currentWidget);
+
+    return shiftKey
+      ? sequence.slice(0, currentIndex).reverse()
+      : sequence.slice(currentIndex + 1);
+  }
+
+  return shiftKey ? [...sequence].reverse() : sequence;
+}
+
+/**
+ * builds the full tab sequence of a scope: widgets with a valid explicit
+ * tabOrder first (ascending, duplicates tie-break by position), then the
+ * remaining widgets in automatic position order
+ *
+ * @param widgets
+ * @returns
+ */
+function getTabOrderSequence(widgets: HTMLElement[]): HTMLElement[] {
+  const byPosition = [...widgets].sort((a, b) => {
+    const rectA = a.getBoundingClientRect();
+    const rectB = b.getBoundingClientRect();
+
+    return rectA.top - rectB.top || rectA.left - rectB.left;
+  });
+
+  const explicit: {
+    element: HTMLElement;
+    order: number;
+    positionIndex: number;
+  }[] = [];
+  const auto: HTMLElement[] = [];
+
+  byPosition.forEach((element, positionIndex) => {
+    const order = getExplicitTabOrder(element);
+
+    if (order === undefined) {
+      auto.push(element);
+    } else {
+      explicit.push({ element, order, positionIndex });
+    }
+  });
+
+  explicit.sort(
+    (a, b) => a.order - b.order || a.positionIndex - b.positionIndex,
+  );
+
+  return [...explicit.map((entry) => entry.element), ...auto];
 }
 
 /**
