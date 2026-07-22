@@ -38,6 +38,7 @@ export interface ApplicationPayload {
     appPositioning?: LayoutSystemTypeConfig;
     navigationSetting?: NavigationSetting;
     themeSetting?: ThemeSetting;
+    htmlLang?: string;
   };
   collapseInvisibleWidgets?: boolean;
   evaluationVersion?: EvaluationVersion;

@@ -10,6 +10,9 @@ import {
 import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
 import {
   GENERAL_SETTINGS_APP_ICON_LABEL,
+  GENERAL_SETTINGS_APP_LANGUAGE_LABEL,
+  GENERAL_SETTINGS_APP_LANGUAGE_TOOLTIP,
+  GENERAL_SETTINGS_APP_LANGUAGE_INVALID,
   GENERAL_SETTINGS_APP_NAME_LABEL,
   GENERAL_SETTINGS_NAME_EMPTY_MESSAGE,
   GENERAL_SETTINGS_APP_URL_LABEL,
@@ -38,8 +41,7 @@ import {
   Tooltip,
 } from "@appsmith/ads";
 import { IconSelector } from "@appsmith/ads-old";
-import React, { useCallback, useMemo, useState } from "react";
-import { useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import StaticURLConfirmationModal from "./StaticURLConfirmationModal";
 import { debounce } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
@@ -52,6 +54,7 @@ const STATIC_URL_DOCS_URL =
 import {
   getCurrentApplication,
   getIsSavingAppName,
+  getIsSavingHtmlLang,
   getIsPersistingAppSlug,
   getIsValidatingAppSlug,
   getIsApplicationSlugValid,
@@ -96,6 +99,18 @@ const IconSelectorWrapper = styled.div`
   }
 `;
 
+// Loose BCP 47 shape check: primary subtag + optional subtags. Case-insensitive
+// because saveHtmlLang lowercases before persisting; empty is allowed (falls back
+// to the instance/default lang). Keep in sync with HTML_LANG_PATTERN in the server
+// ApplicationDetailCE.setHtmlLang.
+const BCP47_REGEX = /^[a-zA-Z]{2,3}(-[a-zA-Z0-9]+)*$/;
+
+export function isHtmlLangInputValid(value: string) {
+  const trimmed = value.trim();
+
+  return trimmed === "" || BCP47_REGEX.test(trimmed);
+}
+
 function GeneralSettings() {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
@@ -103,6 +118,7 @@ function GeneralSettings() {
   const pages = useSelector(getPageList);
   const currentBasePageId = useSelector(getCurrentBasePageId);
   const isSavingAppName = useSelector(getIsSavingAppName);
+  const isSavingHtmlLang = useSelector(getIsSavingHtmlLang);
   const isApplicationSlugValid = useSelector(getIsApplicationSlugValid);
   const isValidatingAppSlug = useSelector(getIsValidatingAppSlug);
   const isFetchingAppSlugSuggestion = useSelector(
@@ -116,6 +132,10 @@ function GeneralSettings() {
   const [applicationIcon, setApplicationIcon] = useState(
     application?.icon as AppIconName,
   );
+  const [htmlLang, setHtmlLang] = useState(
+    application?.applicationDetail?.htmlLang || "",
+  );
+  const [isHtmlLangValid, setIsHtmlLangValid] = useState(true);
   const [applicationSlug, setApplicationSlug] = useState(
     application?.staticUrlSettings?.uniqueSlug || "",
   );
@@ -136,6 +156,33 @@ function GeneralSettings() {
       !isSavingAppName && setApplicationName(application?.name);
     },
     [application, application?.name, isSavingAppName],
+  );
+
+  useEffect(
+    function syncHtmlLang() {
+      setHtmlLang(application?.applicationDetail?.htmlLang || "");
+      setIsHtmlLangValid(true);
+    },
+    [application?.applicationDetail?.htmlLang],
+  );
+
+  const saveHtmlLang = useCallback(
+    (value: string) => {
+      if (!isHtmlLangInputValid(value)) return;
+
+      const trimmed = value.trim().toLowerCase();
+      const current = application?.applicationDetail?.htmlLang || "";
+
+      if (trimmed === current) return;
+
+      dispatch(
+        updateApplication(applicationId, {
+          currentApp: true,
+          applicationDetail: { htmlLang: trimmed },
+        }),
+      );
+    },
+    [applicationId, application?.applicationDetail?.htmlLang, dispatch],
   );
 
   useEffect(
@@ -466,6 +513,37 @@ function GeneralSettings() {
           selectedIcon={applicationIcon}
         />
       </IconSelectorWrapper>
+
+      <div className="pt-2 pb-2 relative">
+        {isSavingHtmlLang && <TextLoaderIcon />}
+        <Input
+          errorMessage={
+            isHtmlLangValid
+              ? undefined
+              : createMessage(GENERAL_SETTINGS_APP_LANGUAGE_INVALID)
+          }
+          id="t--general-settings-app-language"
+          isValid={isHtmlLangValid}
+          label={createMessage(GENERAL_SETTINGS_APP_LANGUAGE_LABEL)}
+          onBlur={() => saveHtmlLang(htmlLang)}
+          onChange={(value: string) => {
+            setHtmlLang(value);
+            setIsHtmlLangValid(isHtmlLangInputValid(value));
+          }}
+          onKeyPress={(ev: React.KeyboardEvent) => {
+            if (ev.key === "Enter") {
+              saveHtmlLang(htmlLang);
+            }
+          }}
+          placeholder="en"
+          size="md"
+          type="text"
+          value={htmlLang}
+        />
+        <Text className="mt-1" kind="body-s">
+          {createMessage(GENERAL_SETTINGS_APP_LANGUAGE_TOOLTIP)}
+        </Text>
+      </div>
 
       {isStaticUrlFeatureEnabled && (
         <div className="flex content-center justify-between pt-2">
