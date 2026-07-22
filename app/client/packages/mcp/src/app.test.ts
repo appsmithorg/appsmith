@@ -5127,6 +5127,54 @@ describe("governance-wrapped layout mutations", () => {
     expect(patched.body.gitWarning).toContain("UNCOMMITTED");
   });
 
+  it("confirm_publish rejects QUERY-level drift between prepare and confirm (content fingerprint)", async () => {
+    // The page list is identical throughout — only an action's updatedAt changed between prepare and confirm
+    // (e.g. someone edited a query while the human deliberated). The old page-list revision was blind to this;
+    // the content revision must refuse the deploy.
+    const store = new MemoryGovernanceStore();
+    const publishApplication = jest.fn();
+    const pagesResponse = {
+      workspaceId: "ws1",
+      application: { id: "app1", name: "Orders", slug: "orders" },
+      pages: [{ id: "pg1", name: "Home", slug: "home", isDefault: true }],
+    };
+    const listActions = jest
+      .fn<Promise<unknown>, []>()
+      .mockResolvedValueOnce([{ id: "a1", updatedAt: "2026-07-21T00:00:00Z" }])
+      .mockResolvedValue([{ id: "a1", updatedAt: "2026-07-21T00:05:00Z" }]);
+    const server = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getApplication: jest.fn(async () => ({})),
+        getApplicationPages: jest.fn(async () => pagesResponse),
+        listActions,
+        publishApplication,
+      }),
+      { dataEnabled: true, governance: new McpGovernanceCoordinator(store) },
+    );
+
+    const read = await callTool(server, "read_pages", {
+      applicationId: "app1",
+    });
+    const prepared = await callTool(server, "prepare_publish", {
+      applicationId: "app1",
+      revision: read.body.revision,
+    });
+
+    // prepare returns the CONTENT revision the confirmation is bound to.
+    expect(String(prepared.body.revision)).toMatch(/^[a-f0-9]{64}$/);
+
+    const confirmed = await callTool(server, "confirm_publish", {
+      applicationId: "app1",
+      revision: prepared.body.revision,
+      confirmationId: prepared.body.confirmationId,
+    });
+
+    expect(confirmed.body.published).not.toBe(true);
+    expect(publishApplication).not.toHaveBeenCalled();
+  });
+
   it("confirm_publish refuses a git-connected app and never deploys", async () => {
     const publishApplication = jest.fn();
     const api: AppsmithApi = {

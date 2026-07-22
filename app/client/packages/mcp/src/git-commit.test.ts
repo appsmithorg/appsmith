@@ -811,6 +811,47 @@ describe("confirm_commit — fallback (non-elicitation) client posture", () => {
     expect(api.commitGitApplication).not.toHaveBeenCalled();
   });
 
+  it("rejects WIDGET-level drift between prepare and confirm (content fingerprint, not just the page list)", async () => {
+    // The page LIST is byte-identical on both reads — only a widget inside the layout DSL changed between
+    // prepare and confirm. The old page-list fingerprint was blind to exactly this drift; the content
+    // fingerprint must void the confirmation.
+    const store = new MemoryGovernanceStore();
+    const getPage = jest
+      .fn<Promise<unknown>, []>()
+      .mockResolvedValueOnce({
+        id: "pg1",
+        layouts: [
+          { id: "l1", dsl: { widgetName: "MainContainer", children: [] } },
+        ],
+      })
+      .mockResolvedValue({
+        id: "pg1",
+        layouts: [
+          {
+            id: "l1",
+            dsl: {
+              widgetName: "MainContainer",
+              children: [{ widgetName: "Injected", type: "TEXT_WIDGET" }],
+            },
+          },
+        ],
+      });
+    const api = commitApi({ getPage });
+    const server = governedServer(api, store);
+    const sessionId = await openSession(server);
+    const prepared = await callInSession(server, sessionId, "prepare_commit", {
+      applicationId: "app1",
+      message: "Fix orders",
+    });
+    const { body } = await callInSession(server, sessionId, "confirm_commit", {
+      applicationId: "app1",
+      confirmationId: prepared.body.confirmationId as string,
+    });
+
+    expect(body.code).toBe("revision_conflict");
+    expect(api.commitGitApplication).not.toHaveBeenCalled();
+  });
+
   it("refuses an unknown confirmation and a confirmation for a different application", async () => {
     const server = governedServer(commitApi());
     const sessionId = await openSession(server);

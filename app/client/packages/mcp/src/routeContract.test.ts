@@ -315,7 +315,51 @@ function collectServedRoutes(): Set<string> {
 // genuinely cannot be parsed, with a comment saying why.
 const ALLOWLIST = new Set<string>();
 
+// --- MCP-principal allowlist side: parse ALLOW_RULES out of the server filter -
+//
+// The served-routes check above proves the route EXISTS; this one proves an
+// MCP-token principal is ALLOWED to call it. McpAllowlistWebFilter 403s any
+// method+path outside its ALLOW_RULES, so a wrapper (or verb change) that is
+// not mirrored there is broken in production even though Spring serves it —
+// exactly how the git routes and the collections PUT->PATCH mismatch slipped
+// through while the Java-side test only sampled a few paths.
+function collectAllowlistedRoutes(): Set<string> {
+  const filterPath = join(
+    findRepoRoot(),
+    "app/server/appsmith-server/src/main/java/com/appsmith/server/filters/McpAllowlistWebFilter.java",
+  );
+  // Comment-insensitive: a rule disabled by commenting it out must NOT still count as allowed (false PASS). The
+  // opposite direction fails safe — a rule the regex misses makes a route look denied and the test FAILS loudly.
+  const source = readFileSync(filterPath, "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/\/\/[^\n]*/g, "");
+  const ruleRe =
+    /rule\(\s*HttpMethod\.(GET|POST|PUT|DELETE|PATCH),\s*"([^"]+)"\)/g;
+  const allowed = new Set<string>();
+  let match: RegExpExecArray | null;
+
+  while ((match = ruleRe.exec(source)) !== null) {
+    allowed.add(routeKey(match[1], match[2]));
+  }
+
+  return allowed;
+}
+
 describe("MCP <-> Spring route contract (F5)", () => {
+  it("every wrapper route is allowed for MCP-token principals (McpAllowlistWebFilter)", async () => {
+    const { routes: mcpRoutes } = await collectMcpRoutes();
+    const allowed = collectAllowlistedRoutes();
+
+    // Guard against a silently empty parse making the assertion vacuous.
+    expect(allowed.size).toBeGreaterThan(20);
+
+    const denied = [...mcpRoutes].filter((route) => !allowed.has(route));
+
+    expect({ mcpRoutesDeniedByAllowlist: denied }).toEqual({
+      mcpRoutesDeniedByAllowlist: [],
+    });
+  });
+
   it("every wrapper hits a route the Java controllers actually serve", async () => {
     const { coveredWrappers, routes: mcpRoutes } = await collectMcpRoutes();
     const servedRoutes = collectServedRoutes();

@@ -1217,6 +1217,93 @@ function fingerprintPages(response: unknown): string {
     .digest("hex");
 }
 
+// TRUE app-content fingerprint for the high-impact confirm flows (commit and publish). fingerprintPages alone is
+// page-LIST-granular (id/name/slug/isHidden) — blind to widget, query, JS-object, and theme edits, so content could
+// drift between prepare and confirm without tripping the revision check. This composes, via tight stable projections
+// (never raw DTOs, whose volatile fields would break prepare/confirm equality):
+//   - the projected page list,
+//   - every page's layout ids + DSL (widget edits),
+//   - the projected action list plus each action's updatedAt (query create/edit/delete),
+//   - every JS collection's id + updatedAt,
+//   - the current theme's stable fields (id, name, properties).
+// Reads are NOT error-tolerant: any failure throws and the caller refuses the operation (fail closed) rather than
+// falling back to the weaker page-list fingerprint. Page lifecycle tools (create/rename/delete page) intentionally
+// stay on fingerprintPages — page-list granularity IS their content.
+async function fingerprintAppContent(
+  api: AppsmithApi,
+  applicationId: string,
+  pagesResponse: unknown,
+): Promise<string> {
+  const pages = projectPages(pagesResponse);
+  const layouts: unknown[] = [];
+
+  for (const page of pages) {
+    const pageDto = (await api.getPage(page.id)) as {
+      layouts?: unknown;
+    } | null;
+    const pageLayouts = Array.isArray(pageDto?.layouts) ? pageDto.layouts : [];
+
+    layouts.push(
+      pageLayouts.map((layout) => {
+        const entry = layout as { id?: unknown; dsl?: unknown } | null;
+
+        return { id: entry?.id, dsl: entry?.dsl };
+      }),
+    );
+  }
+
+  // Sorted by id before hashing: canonicalStableSerialize correctly preserves array order, but the server's list
+  // order is unspecified — an order change between prepare and confirm must not read as a content change.
+  const actionsResponse = await api.listActions(applicationId);
+  const actions = (
+    Array.isArray(actionsResponse)
+      ? actionsResponse.map(
+          (action): Record<string, unknown> => ({
+            ...projectAction(action),
+            updatedAt: actionUpdatedAt(action),
+          }),
+        )
+      : []
+  ).sort((a, b) => String(a.id ?? "").localeCompare(String(b.id ?? "")));
+
+  const collectionsResponse = await api.listActionCollections(applicationId);
+  const collections = (
+    Array.isArray(collectionsResponse)
+      ? collectionsResponse.map((collection) => {
+          const entry = collection as {
+            id?: unknown;
+            updatedAt?: unknown;
+            unpublishedCollection?: { updatedAt?: unknown };
+          } | null;
+
+          return {
+            id: entry?.id,
+            updatedAt:
+              entry?.updatedAt ?? entry?.unpublishedCollection?.updatedAt,
+          };
+        })
+      : []
+  ).sort((a, b) => String(a.id ?? "").localeCompare(String(b.id ?? "")));
+
+  const themeResponse = (await api.getCurrentTheme(applicationId)) as {
+    id?: unknown;
+    name?: unknown;
+    properties?: unknown;
+  } | null;
+  const theme = {
+    id: themeResponse?.id,
+    name: themeResponse?.name,
+    properties: themeResponse?.properties,
+  };
+
+  return createHash("sha256")
+    .update(
+      canonicalStableSerialize({ pages, layouts, actions, collections, theme }),
+      "utf8",
+    )
+    .digest("hex");
+}
+
 // The application's display name off an ApplicationPagesDTO read (used in commit confirmation prompts).
 function applicationNameOf(pagesResponse: unknown): string | undefined {
   const name = (pagesResponse as { application?: { name?: unknown } } | null)
@@ -3842,17 +3929,47 @@ export function buildMcpServer(
     // Item H — publish is high-impact, so it is confirmation-gated.
     server.tool(
       "prepare_publish",
-      "Publishing (deploying) the application is high-impact. Returns a one-time confirmation token bound to the application and its current page-list revision, plus 'relay' text to show the user before confirming. Call confirm_publish with the token to deploy.",
+      "Publishing (deploying) the application is high-impact. Pass the page-list revision from read_pages / read_publish_status; the server verifies it is current, then binds the confirmation to a CONTENT revision (pages, widget layouts, queries, JS objects, theme) and returns it as 'revision' — pass THAT revision (not the page-list one) to confirm_publish along with the token. Also returns 'relay' text to show the user before confirming.",
       {
         applicationId: idSchema,
         revision: z.string().regex(/^[a-f0-9]{64}$/),
       },
       async ({ applicationId, revision }) => {
+        // The caller's revision is the page-LIST fingerprint from read_pages/read_publish_status — verify it is
+        // fresh (stale-read guard), then bind the confirmation to the stronger CONTENT fingerprint so widget/
+        // query/JS/theme edits between prepare and confirm void the confirmation (they are invisible to the
+        // page-list fingerprint).
+        let contentRevision: string;
+
+        try {
+          const pagesResponse = await api.getApplicationPages(applicationId);
+
+          if (fingerprintPages(pagesResponse) !== revision) {
+            return result({
+              error:
+                "the application's pages changed since your read; re-read with read_pages or read_publish_status and call prepare_publish again",
+              code: "revision_conflict",
+            });
+          }
+
+          contentRevision = await fingerprintAppContent(
+            api,
+            applicationId,
+            pagesResponse,
+          );
+        } catch {
+          return result({
+            error:
+              "could not read the application's current content revision; retry",
+            code: "content_revision_unavailable",
+          });
+        }
+
         const confirmation = await gov.prepareDestructiveConfirmation({
           actorId,
           entityKey: `application:${applicationId}`,
           operation: "publish",
-          revision,
+          revision: contentRevision,
           digest: operationDigest({ applicationId }),
         });
 
@@ -3860,6 +3977,8 @@ export function buildMcpServer(
           confirmationId: confirmation.id,
           expiresAt: confirmation.expiresAt,
           operation: "publish",
+          // The CONTENT revision this confirmation is bound to — confirm_publish requires exactly this value.
+          revision: contentRevision,
           // Relay text for clients WITHOUT elicitation support: shown to the human before confirming.
           relay: `Show the user this and get their approval BEFORE calling confirm_publish: publish (deploy) the application "${promptSafe(applicationId)}" — its CURRENT state becomes what everyone who has access to the app sees. Do not call confirm_publish without the user's explicit approval.`,
         });
@@ -3868,7 +3987,7 @@ export function buildMcpServer(
 
     server.tool(
       "confirm_publish",
-      "Publish (deploy) the application using a confirmation token from prepare_publish. Token, actor, application, and revision must match, and the page-list revision must be unchanged since preparation. When the MCP client supports elicitation, the user is prompted for approval and ONLY an explicit accept proceeds (at most 3 prompts per confirmation, then it is invalidated); otherwise show the user the prepare_publish relay text and get their approval first.",
+      "Publish (deploy) the application using a confirmation token from prepare_publish. Pass the CONTENT revision that prepare_publish returned (not the read_pages page-list revision). Token, actor, application, and revision must match, and the application's content (pages, widget layouts, queries, JS objects, theme) must be unchanged since preparation. When the MCP client supports elicitation, the user is prompted for approval and ONLY an explicit accept proceeds (at most 3 prompts per confirmation, then it is invalidated); otherwise show the user the prepare_publish relay text and get their approval first.",
       {
         applicationId: idSchema,
         revision: z.string().regex(/^[a-f0-9]{64}$/),
@@ -3957,7 +4076,11 @@ export function buildMcpServer(
           });
           markElicitationConsumed(confirmationId);
 
-          const currentRevision = fingerprintPages(
+          // Content-granular re-read: a widget/query/JS/theme edit since prepare fails the expected-vs-current
+          // comparison inside gov.execute (revision_conflict), not just a page add/remove/rename.
+          const currentRevision = await fingerprintAppContent(
+            api,
+            applicationId,
             await api.getApplicationPages(applicationId),
           );
           const { changeId } = await gov.execute({
@@ -4289,9 +4412,17 @@ export function buildMcpServer(
         if ("error" in read) return read.error;
 
         let pagesResponse: unknown;
+        let revision: string;
 
         try {
           pagesResponse = await api.getApplicationPages(applicationId);
+          // Content-granular (pages + layout DSL + actions + JS collections + theme): a widget or query edit
+          // between prepare and confirm changes this revision and voids the confirmation.
+          revision = await fingerprintAppContent(
+            api,
+            applicationId,
+            pagesResponse,
+          );
         } catch {
           return result({
             error:
@@ -4300,7 +4431,6 @@ export function buildMcpServer(
           });
         }
 
-        const revision = fingerprintPages(pagesResponse);
         const appName = applicationNameOf(pagesResponse);
         const entry: PendingCommit = {
           applicationId,
@@ -4378,8 +4508,15 @@ export function buildMcpServer(
         // unconsumed gov token simply expires.
         let pagesResponse: unknown;
 
+        let currentRevision: string;
+
         try {
           pagesResponse = await api.getApplicationPages(applicationId);
+          currentRevision = await fingerprintAppContent(
+            api,
+            applicationId,
+            pagesResponse,
+          );
         } catch {
           return result({
             error:
@@ -4387,8 +4524,6 @@ export function buildMcpServer(
             code: "content_revision_unavailable",
           });
         }
-
-        let currentRevision = fingerprintPages(pagesResponse);
 
         if (currentRevision !== entry.revision) {
           pendingCommits.delete(confirmationId);
@@ -4406,9 +4541,9 @@ export function buildMcpServer(
         const approval = await elicitDestructiveApproval(
           {
             confirmationId,
-            // The load-bearing facts (branch, app, PUSH) sit OUTSIDE the quoted agent text, and the wording is
-            // "ALL current changes" — the content fingerprint is page-list-granular, so the prompt never makes
-            // an itemized claim [SECURITY REV-2 CONDITION 4].
+            // The load-bearing facts (branch, app, PUSH) sit OUTSIDE the quoted agent text, and the wording stays
+            // "ALL current changes" — the fingerprint is content-granular (pages/layout DSL/actions/JS/theme) but
+            // the prompt still never makes an itemized claim [SECURITY REV-2 CONDITION 4].
             promptMessage: () =>
               `Commit ALL current changes on branch "${promptSafe(entry.branch)}" of "${promptSafe(truncateForPrompt(entry.appName ?? entry.applicationId, 40))}" and PUSH to the remote? Message: "${promptSafe(truncateForPrompt(entry.message, 80))}"`,
             schemaTitle: "Approve commit and push",
@@ -4441,6 +4576,11 @@ export function buildMcpServer(
           // what they approved before consuming anything.
           try {
             pagesResponse = await api.getApplicationPages(applicationId);
+            currentRevision = await fingerprintAppContent(
+              api,
+              applicationId,
+              pagesResponse,
+            );
           } catch {
             return result({
               error:
@@ -4448,8 +4588,6 @@ export function buildMcpServer(
               code: "content_revision_unavailable",
             });
           }
-
-          currentRevision = fingerprintPages(pagesResponse);
 
           if (currentRevision !== entry.revision) {
             pendingCommits.delete(confirmationId);

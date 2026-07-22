@@ -66,8 +66,17 @@ public class McpAllowlistWebFilter implements WebFilter {
             rule(HttpMethod.POST, "/api/v1/actions/execute"),
             rule(HttpMethod.GET, "/api/v1/collections/actions"),
             rule(HttpMethod.POST, "/api/v1/collections/actions"),
-            rule(HttpMethod.PUT, "/api/v1/collections/actions/{collectionId}"),
+            // ActionCollectionControllerCE maps the JS-object update as @PatchMapping("/{id}") — PUT is not served
+            // (405), and the Node client sends PATCH accordingly.
+            rule(HttpMethod.PATCH, "/api/v1/collections/actions/{collectionId}"),
             rule(HttpMethod.DELETE, "/api/v1/collections/actions/{collectionId}"),
+            // Git flow (read_git_status / create_branch / prepare_commit -> confirm_commit). The MCP layer confines
+            // mutations to mcp/ agent branches; these rules only let the git wrappers through the token cap.
+            rule(HttpMethod.GET, "/api/v1/git/applications/{id}/status"),
+            rule(HttpMethod.GET, "/api/v1/git/applications/{id}/protected-branches"),
+            rule(HttpMethod.GET, "/api/v1/git/applications/{id}/refs"),
+            rule(HttpMethod.POST, "/api/v1/git/applications/{id}/create-ref"),
+            rule(HttpMethod.POST, "/api/v1/git/applications/{id}/commit"),
             rule(HttpMethod.GET, "/api/v1/datasources"),
             rule(HttpMethod.POST, "/api/v1/datasources"),
             rule(HttpMethod.GET, "/api/v1/datasources/{id}/structure"),

@@ -645,8 +645,14 @@ describe("confirm_publish — shared elicitation layer", () => {
     // The relay line for non-elicitation clients names the honest scope.
     expect(String(prepared.relay)).toContain("everyone who has access");
     expect(String(prepared.relay)).toContain("confirm_publish");
+    // prepare_publish binds the confirmation to a CONTENT revision and returns it; confirm_publish requires
+    // that value, not the page-list revision read_pages returned.
+    expect(String(prepared.revision)).toMatch(/^[a-f0-9]{64}$/);
 
-    return { confirmationId: prepared.confirmationId as string, revision };
+    return {
+      confirmationId: prepared.confirmationId as string,
+      revision: prepared.revision as string,
+    };
   }
 
   it("accept executes and consumes: the prompt names the app and the deploy-to-everyone scope", async () => {

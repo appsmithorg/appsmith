@@ -54,6 +54,39 @@ class McpAllowlistWebFilterTest {
     }
 
     @Test
+    void mcpPrincipal_gitFlowRoutes_passThrough() {
+        // The git tool flow: status, protected branches, branch list, create-ref, commit.
+        assertPassesThrough(
+                MockServerWebExchange.from(MockServerHttpRequest.get("/api/v1/git/applications/abc123/status")),
+                mcpPrincipal());
+        assertPassesThrough(
+                MockServerWebExchange.from(
+                        MockServerHttpRequest.get("/api/v1/git/applications/abc123/protected-branches")),
+                mcpPrincipal());
+        assertPassesThrough(
+                MockServerWebExchange.from(MockServerHttpRequest.get("/api/v1/git/applications/abc123/refs")),
+                mcpPrincipal());
+        assertPassesThrough(
+                MockServerWebExchange.from(MockServerHttpRequest.post("/api/v1/git/applications/abc123/create-ref")),
+                mcpPrincipal());
+        assertPassesThrough(
+                MockServerWebExchange.from(MockServerHttpRequest.post("/api/v1/git/applications/abc123/commit")),
+                mcpPrincipal());
+    }
+
+    @Test
+    void mcpPrincipal_collectionUpdate_isPatchNotPut() {
+        // The JS-object update is served as PATCH (PUT is not mapped on the controller); the allowlist must match
+        // the Node client's verb, and the unserved PUT stays outside the cap.
+        assertPassesThrough(
+                MockServerWebExchange.from(MockServerHttpRequest.patch("/api/v1/collections/actions/abc123")),
+                mcpPrincipal());
+        assertForbidden(
+                MockServerWebExchange.from(MockServerHttpRequest.put("/api/v1/collections/actions/abc123")),
+                mcpPrincipal());
+    }
+
+    @Test
     void mcpPrincipal_nonAllowlistedPath_isForbidden() {
         // The token-mint endpoint is not on the allowlist -> 403 for an MCP principal (double-covered by the
         // controller-level block).
