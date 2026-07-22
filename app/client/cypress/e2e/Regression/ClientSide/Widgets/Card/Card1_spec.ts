@@ -14,7 +14,21 @@ const cardHeader = '[data-card-zone="header"]';
 const cardFooter = '[data-card-zone="footer"]';
 const cardBody = '[data-card-zone="body"]';
 const expandToggle = "[data-testid='t--card-expand-toggle']";
-const deployedCardArticle = `${locators._widgetInDeployed("card1")} article`;
+const deployedCardArticle = `${locators._widgetInDeployed(
+  "card1",
+)} [data-card-zone="card"]`;
+
+// Expected assertion values, named to avoid inline strings in assertions.
+const DEFAULT_TITLE = "Card title";
+const DEFAULT_SUBTITLE = "Card subtitle";
+const UPDATED_TITLE = "Customer profile";
+const UPDATED_SUBTITLE = "Acme Inc";
+const UPDATED_BADGE = "Active";
+const CLICK_TOAST = "Card clicked";
+const ARIA_PRESSED_UNSELECTED = "false";
+const ARIA_PRESSED_SELECTED = "true";
+const ARIA_EXPANDED_OPEN = "true";
+const ARIA_EXPANDED_COLLAPSED = "false";
 
 describe("Card widget spec", { tags: ["@tag.Widget", "@tag.Binding"] }, () => {
   before(() => {
@@ -28,22 +42,26 @@ describe("Card widget spec", { tags: ["@tag.Widget", "@tag.Binding"] }, () => {
     agHelper.AssertElementExist(cardHeader);
     agHelper.AssertElementExist(cardBody);
     agHelper.AssertElementExist(cardFooter);
-    agHelper.GetNAssertElementText(cardHeader, "Card title", "contain.text");
-    agHelper.GetNAssertElementText(cardHeader, "Card subtitle", "contain.text");
+    agHelper.GetNAssertElementText(cardHeader, DEFAULT_TITLE, "contain.text");
+    agHelper.GetNAssertElementText(
+      cardHeader,
+      DEFAULT_SUBTITLE,
+      "contain.text",
+    );
   });
 
   it("2. Update title, subtitle and badge from the property pane", () => {
     EditorNavigation.SelectEntityByName("Card1", EntityType.Widget);
-    propPane.UpdatePropertyFieldValue("Title", "Customer profile");
-    propPane.UpdatePropertyFieldValue("Subtitle", "Acme Inc");
-    propPane.UpdatePropertyFieldValue("Badge text", "Active");
+    propPane.UpdatePropertyFieldValue("Title", UPDATED_TITLE);
+    propPane.UpdatePropertyFieldValue("Subtitle", UPDATED_SUBTITLE);
+    propPane.UpdatePropertyFieldValue("Badge text", UPDATED_BADGE);
+    agHelper.GetNAssertElementText(cardHeader, UPDATED_TITLE, "contain.text");
     agHelper.GetNAssertElementText(
       cardHeader,
-      "Customer profile",
+      UPDATED_SUBTITLE,
       "contain.text",
     );
-    agHelper.GetNAssertElementText(cardHeader, "Acme Inc", "contain.text");
-    agHelper.GetNAssertElementText(cardHeader, "Active", "contain.text");
+    agHelper.GetNAssertElementText(cardHeader, UPDATED_BADGE, "contain.text");
   });
 
   it("3. Toggle header and footer visibility", () => {
@@ -71,7 +89,7 @@ describe("Card widget spec", { tags: ["@tag.Widget", "@tag.Binding"] }, () => {
     // Clicking the header (card chrome) fires the event; the body
     // canvas and footer are excluded by design.
     agHelper.GetNClick(cardHeader);
-    agHelper.ValidateToastMessage("Card clicked");
+    agHelper.ValidateToastMessage(CLICK_TOAST);
     deployMode.NavigateBacktoEditor();
   });
 
@@ -79,9 +97,17 @@ describe("Card widget spec", { tags: ["@tag.Widget", "@tag.Binding"] }, () => {
     EditorNavigation.SelectEntityByName("Card1", EntityType.Widget);
     propPane.TogglePropertyState("Enable selection", "On");
     deployMode.DeployApp(locators._widgetInDeployed("card1"));
-    agHelper.AssertAttribute(deployedCardArticle, "aria-pressed", "false");
+    agHelper.AssertAttribute(
+      deployedCardArticle,
+      "aria-pressed",
+      ARIA_PRESSED_UNSELECTED,
+    );
     agHelper.GetNClick(cardHeader);
-    agHelper.AssertAttribute(deployedCardArticle, "aria-pressed", "true");
+    agHelper.AssertAttribute(
+      deployedCardArticle,
+      "aria-pressed",
+      ARIA_PRESSED_SELECTED,
+    );
     deployMode.NavigateBacktoEditor();
   });
 
@@ -91,10 +117,14 @@ describe("Card widget spec", { tags: ["@tag.Widget", "@tag.Binding"] }, () => {
     propPane.TogglePropertyState("Enable expand and collapse", "On");
     agHelper.AssertElementExist(expandToggle);
     deployMode.DeployApp(locators._widgetInDeployed("card1"));
-    agHelper.AssertAttribute(expandToggle, "aria-expanded", "true");
+    agHelper.AssertAttribute(expandToggle, "aria-expanded", ARIA_EXPANDED_OPEN);
     agHelper.AssertElementExist(cardBody);
     agHelper.GetNClick(expandToggle);
-    agHelper.AssertAttribute(expandToggle, "aria-expanded", "false");
+    agHelper.AssertAttribute(
+      expandToggle,
+      "aria-expanded",
+      ARIA_EXPANDED_COLLAPSED,
+    );
     agHelper.AssertElementAbsence(cardBody);
     deployMode.NavigateBacktoEditor();
   });

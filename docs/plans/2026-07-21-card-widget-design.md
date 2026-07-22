@@ -24,7 +24,7 @@ A Card widget is a reusable container that groups related information and action
 
 ## Architecture
 
-```
+```text
 ┌──────────────────────────────┐
 │ media (cover img, optional)  │  ← rendered from props (Top/Left/None)
 ├──────────────────────────────┤
@@ -48,11 +48,13 @@ A Card widget is a reusable container that groups related information and action
 ## Property pane — Content
 
 ### Data
+
 | Property | Type | Notes |
 |---|---|---|
 | `cardData` | object (bindable) | Convenience binding target, e.g. `{{userQuery.data[0]}}` or `{{currentItem}}`. Individual props default to reading from it (seeded by one-click binding) but are independently overridable. |
 
 ### Media
+
 | Property | Type | Notes |
 |---|---|---|
 | `mediaImage` | URL (bindable) | e.g. `{{currentItem.thumbnail}}` |
@@ -60,6 +62,7 @@ A Card widget is a reusable container that groups related information and action
 | `mediaHeight`, object-fit | number, cover/contain | |
 
 ### Header
+
 | Property | Type | Notes |
 |---|---|---|
 | `title`, `subtitle` | text (bindable) | |

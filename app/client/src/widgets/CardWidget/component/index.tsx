@@ -249,27 +249,27 @@ const HeaderIconButton = styled.button`
  * background colors (MenuButtonWidget's BaseMenuItem pattern).
  */
 const BaseMenuItem = styled(BlueprintMenuItem)<{
-  backgroundColor?: string;
-  textColor?: string;
+  $backgroundColor?: string;
+  $textColor?: string;
 }>`
   font-family: var(--wds-font-family);
 
-  ${({ backgroundColor }) =>
-    backgroundColor
+  ${({ $backgroundColor }) =>
+    $backgroundColor
       ? `
-      background-color: ${backgroundColor} !important;
+      background-color: ${$backgroundColor} !important;
       &:hover {
-        background-color: ${darkenHover(backgroundColor)} !important;
+        background-color: ${darkenHover($backgroundColor)} !important;
       }
       &:active {
-        background-color: ${darkenActive(backgroundColor)} !important;
+        background-color: ${darkenActive($backgroundColor)} !important;
       }
   `
       : ""}
-  ${({ textColor }) =>
-    textColor
+  ${({ $textColor }) =>
+    $textColor
       ? `
-      color: ${textColor} !important;
+      color: ${$textColor} !important;
   `
       : ""}
 `;
@@ -418,13 +418,13 @@ function CardMenuListItem(props: {
 
   return (
     <BaseMenuItem
-      backgroundColor={item.backgroundColor}
+      $backgroundColor={item.backgroundColor}
+      $textColor={item.textColor}
       disabled={item.isDisabled}
       icon={leftIcon}
       labelElement={rightIcon}
       onClick={handleClick}
       text={item.label}
-      textColor={item.textColor}
     />
   );
 }
@@ -731,6 +731,7 @@ function CardComponent(props: CardComponentProps) {
       aria-disabled={isDisabled || undefined}
       aria-label={isInteractive ? props.title || undefined : undefined}
       aria-pressed={selectionEnabled ? !!props.isSelected : undefined}
+      data-card-zone="card"
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
       role={isInteractive ? "button" : undefined}

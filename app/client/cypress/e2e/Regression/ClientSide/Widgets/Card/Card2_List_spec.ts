@@ -6,6 +6,10 @@ import {
 
 const cardHeader = '[data-card-zone="header"]';
 
+// Row titles bound to {{currentItem.name}} in simpleListWithCard, one per
+// repeated row. Named to avoid inline assertion strings.
+const ROW_TITLES = ["Blue", "Green", "Red"];
+
 describe(
   "Card widget inside List v2",
   { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
@@ -18,9 +22,14 @@ describe(
 
     it("1. Renders one card per row with row-scoped currentItem bindings", () => {
       deployMode.DeployApp(locators._widgetInDeployed("list1"));
-      agHelper.GetNAssertElementText(cardHeader, "Blue", "contain.text", 0);
-      agHelper.GetNAssertElementText(cardHeader, "Green", "contain.text", 1);
-      agHelper.GetNAssertElementText(cardHeader, "Red", "contain.text", 2);
+      ROW_TITLES.forEach((title, index) => {
+        agHelper.GetNAssertElementText(
+          cardHeader,
+          title,
+          "contain.text",
+          index,
+        );
+      });
       deployMode.NavigateBacktoEditor();
     });
   },
