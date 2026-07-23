@@ -34,6 +34,7 @@ export const getType = (value: unknown) => {
 };
 
 export function isURL(str: string) {
+  if (typeof str !== "string") return false;
   const pattern = new RegExp(
     "^((blob:)?https?:\\/\\/)?" + //protocol
       "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name

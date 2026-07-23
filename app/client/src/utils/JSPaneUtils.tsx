@@ -100,9 +100,7 @@ export const getDifferenceInJSCollection = (
         );
 
         if (updateExisting) {
-          const indexOfArchived = toBearchivedActions.findIndex((js) => {
-            js.id === updateExisting.id;
-          });
+          const indexOfArchived = toBearchivedActions.findIndex((js) => js.id === updateExisting.id);
 
           //will be part of new nameChangedActions for now
           toBeUpdatedActions.push({

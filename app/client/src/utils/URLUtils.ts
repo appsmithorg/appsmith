@@ -47,5 +47,6 @@ export function matchesURLPattern(url: string) {
 }
 
 export const sanitizeString = (str: string): string => {
+  if (!str) return "";
   return str.toLowerCase().replace(/[^a-z0-9]/g, "_");
 };
