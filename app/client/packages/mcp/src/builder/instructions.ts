@@ -121,6 +121,21 @@ evaluated as code in a viewer's browser.
   \`source\`, or \`value\`. NOTE: \`read_semantic_page\` reports \`now\` and \`count\` values back
   but NOT \`concat\` or \`formula\` — those are still applied even though they do not appear in
   read-back; do not re-set them.
+- LIVE per-category counts (status badges, "N completed") — do NOT reach for spreadsheet
+  COUNTIF cells, a static snapshot, or JS. For a Google Sheet, create one FILTERED read per
+  category with \`create_sheets_query\` (read \`filter: [{ column, op, value }]\`, e.g. Status eq
+  'Completed'), then bind a text's \`value: { count: { query } }\` to it. Each badge counts its
+  own filtered read and updates live. (For SQL/Mongo, a per-category query does the same.) A
+  filter \`value\` is a \`{ literal }\` or a \`{ widget, property }\`; for a bound value prefer a
+  CONSTRAINED input (a select's option value or a number) over free text — a free-text value
+  containing a quote can malform the Sheets filter.
+- Colored badges/pills: a \`text\` takes \`textColor\` and \`backgroundColor\` (literal colors —
+  hex/rgb/hsl/named, validated; no CSS/url/binding). You do NOT need per-row table colors or the
+  global theme for this. ALWAYS set BOTH colors together for legible contrast — a saturated/dark
+  \`backgroundColor\` needs a light \`textColor\` (e.g. \`#ffffff\` on \`#16a34a\`), a light tint needs
+  a dark \`textColor\` — the compiler does not auto-pick a contrasting color. A bare \`text\` +
+  \`backgroundColor\` renders as a full-width LEFT-aligned colored bar; for a compact centered pill,
+  also \`patch_widgets\` a smaller size and \`textAlign: 'CENTER'\`.
 - Display bindings (selected row): show or prefill from the table's selected row through the
   same structured-reference rule:
   - Detail text: \`{ "type": "text", "source": { "table": "Users", "column": "email" } }\`.
@@ -135,7 +150,11 @@ evaluated as code in a viewer's browser.
   carries \`onSuccess\`/\`onError\`) — e.g. a Clear button that empties a store key AND resets an
   input in one click.
 - Modal discipline: a modal can never live INSIDE another modal (builds/edits/moves that nest
-  one are rejected) — modals are page-level overlays, opened via \`wire_event\` \`showModal\`.
+  one are rejected) — modals are page-level overlays. A built modal is CLOSED by default (never
+  shown on page load); open it with a \`wire_event\` \`showModal\` (e.g. an "Add Task" button).
+  A modal that submits data should give the user a way OUT: pair the primary action (Save/Add)
+  with a Cancel button whose onClick is \`{ "closeModal": "<ThatModal>" }\`, and keep the form
+  compact (a few fields) so the buttons aren't pushed to the bottom of the overlay.
   Stacking rules on wiring: opening a modal from inside another modal leaves both open — depth
   2 (e.g. a confirm dialog over an edit modal) is allowed with a warning; depth 3+ and cycles
   are rejected. To move between modals WITHOUT stacking (wizards, back buttons), close the

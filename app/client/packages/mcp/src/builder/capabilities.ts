@@ -16,9 +16,13 @@ export const WIDGET_CATALOG = [
         "{ table: '<tableWidget>', column: '<column>' } — show the selected row's column (detail views); or { query: '<query>', field?: '<path>' } — show one field of a query's response (scalar readout).",
       value:
         "computed value, no query needed: { now: { format: 'dayOfWeek'|'date'|'dateShort'|'time'|'dateTime'|'isoDate'|'monthYear' } } (current date/time), { count: { query, field? } } (row count), { concat: [ { literal }|{ table, column }|{ query, field? }, ... ] }, or { formula: <expr> } for arithmetic — expr is a number, { query, field? }, { table, column }, or { op: 'add'|'sub'|'mul'|'div'|'round'|'abs'|'min'|'max', args: [expr...] } (round takes an optional 0-6 decimals literal; renders blank if non-numeric). Set exactly ONE of text, source, value.",
+      textColor:
+        "literal color for the font (hex '#16a34a', rgb()/rgba()/hsl()/hsla(), or a named color) — no url()/binding. For colored badges/status labels.",
+      backgroundColor:
+        "literal color to fill the widget (same grammar) — a solid badge/pill background behind the text.",
     },
     purpose:
-      "Static text / headings, a bound detail field, or a computed readout (dates, counts, concatenation).",
+      "Static text / headings, a bound detail field, a computed readout (dates, counts, concatenation), or a colored badge/pill (textColor + backgroundColor).",
   },
   {
     type: "input",
@@ -70,7 +74,11 @@ export const WIDGET_CATALOG = [
   },
   {
     type: "container",
-    fields: { children: "widget spec[]" },
+    fields: {
+      children: "widget spec[]",
+      backgroundColor:
+        "literal color to fill the card (hex/rgb/hsl/named, no url()/binding) — a colored panel behind the group",
+    },
     purpose: "Group widgets into a card; nest other widgets inside.",
   },
   {
@@ -631,7 +639,8 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     {
       name: "create_sheets_query",
       gate: "data",
-      summary: "structured Google Sheets read/append query",
+      summary:
+        "structured Google Sheets read (server-side filter)/append/update query",
     },
     {
       name: "create_redis_query",

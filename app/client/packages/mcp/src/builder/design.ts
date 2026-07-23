@@ -39,6 +39,9 @@ const MIN_PACKED_WIDTH = 16;
 const MAX_KPIS_PER_ROW = 4;
 const MAX_ACTIONS_PER_ROW = 3;
 const BUTTON_COLUMNS = 16;
+// A right-aligned footer keeps this many columns of clearance from the canvas's right edge, so a form/modal action
+// button (e.g. Save) never renders flush against the container boundary.
+const EDGE_MARGIN = GUTTER;
 
 // Spacing rhythm, in grid rows.
 const GAP_WITHIN = 1;
@@ -231,11 +234,13 @@ export function planLayout(
       const end = takeRun(roles, index, "action", MAX_ACTIONS_PER_ROW);
       const count = end - index;
       const total = count * BUTTON_COLUMNS + (count - 1) * GUTTER;
-      // Actions right-align (form-footer look) when they follow fields; otherwise they pack from the left.
+      // Actions right-align (form-footer look) when they follow fields; otherwise they pack from the left. A
+      // right-aligned footer stops EDGE_MARGIN columns short of the edge so the button never sits flush against the
+      // container boundary (the "Save button jammed into the corner" look).
       const followsFields = index > 0 && roles[index - 1] === "field";
       const start =
-        followsFields && total <= availableColumns
-          ? availableColumns - total
+        followsFields && total + EDGE_MARGIN <= availableColumns
+          ? availableColumns - total - EDGE_MARGIN
           : 0;
 
       if (total <= availableColumns) {

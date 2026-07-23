@@ -122,7 +122,8 @@ describe("design pass — row planner", () => {
       64,
     );
 
-    expect(formRows[1].slots[0].leftColumn).toBe(48);
+    // Right-aligned to 64 - 16 (button) - 2 (edge margin) = 46, so it isn't flush against the canvas edge.
+    expect(formRows[1].slots[0].leftColumn).toBe(46);
 
     const soloRows = planLayout(
       standalone,
@@ -321,8 +322,9 @@ describe("design pass — nested canvases and overlap safety", () => {
 
     expect(first.topRow).toBe(last.topRow);
     expect(first.rightColumn).toBeLessThanOrEqual(last.leftColumn);
-    // Form inner canvas is 40 columns; the 16-col submit right-aligns to 40 - 16 = 24.
-    expect(submit.leftColumn).toBe(24);
+    // Form inner canvas is 40 columns; the 16-col submit right-aligns to 40 - 16 - 2 (edge margin) = 22, keeping
+    // it off the canvas edge.
+    expect(submit.leftColumn).toBe(22);
   });
 
   it("falls back to full-width stacking inside a 32-col modal", () => {

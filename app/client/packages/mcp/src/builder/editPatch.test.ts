@@ -99,6 +99,43 @@ describe("applyWidgetPatch", () => {
     expect(changes[0].changedProps).toEqual(["oddRowColor", "evenRowColor"]);
   });
 
+  it("sets a text widget's badge colors (textColor/backgroundColor) as literals", () => {
+    const { changes, dsl } = applyWidgetPatch(page(), {
+      operations: [
+        {
+          kind: "update",
+          name: "Greeting",
+          props: { textColor: "#ffffff", backgroundColor: "#16a34a" },
+        },
+      ],
+    });
+    const greeting = dsl.children![0];
+
+    expect(greeting).toMatchObject({
+      textColor: "#ffffff",
+      backgroundColor: "#16a34a",
+    });
+    // Literal style props are not dynamic bindings.
+    expect(greeting.dynamicBindingPathList).toBeUndefined();
+    expect(changes[0].changedProps).toEqual(["textColor", "backgroundColor"]);
+  });
+
+  it("rejects a badge color that is not a literal color grammar", () => {
+    for (const backgroundColor of [
+      "url(https://evil.example/x)",
+      "{{ Evil.value }}",
+      "red; background: url(x)",
+    ]) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [
+            { kind: "update", name: "Greeting", props: { backgroundColor } },
+          ],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("toggles table interactivity props (search/filter/sort/pagination)", () => {
     const withTable = page();
 

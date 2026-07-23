@@ -2518,6 +2518,119 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     );
   });
 
+  it("create_sheets_query updates a row in place (UPDATE_ONE with a rowIndex-addressed row)", async () => {
+    const createAction = jest.fn<
+      Promise<{ id: string }>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "act-u" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "Sheet", pluginId: "656f00000000000000000010" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000010", packageName: "google-sheets-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_sheets_query", {
+      query: {
+        ...sheetsAppend,
+        name: "editRow",
+        operation: "update",
+        rowIndex: { widget: "Table1", property: "selectedRow.rowIndex" },
+        row: [
+          {
+            column: "status",
+            value: { widget: "StatusInput", property: "text" },
+          },
+        ],
+      },
+    });
+
+    expect(body.created).toBe(true);
+    expect(body.command).toBe("UPDATE_ONE");
+
+    const dto = createAction.mock.calls[0][0] as {
+      executeOnLoad: boolean;
+      actionConfiguration: {
+        formData: { rowObjects: { data: string }; command: { data: string } };
+      };
+    };
+
+    expect(dto.actionConfiguration.formData.command.data).toBe("UPDATE_ONE");
+    expect(dto.actionConfiguration.formData.rowObjects.data).toBe(
+      '{ "rowIndex": {{ Table1.selectedRow.rowIndex }}, "status": {{ StatusInput.text }} }',
+    );
+    // A mutation is manual, never on page load.
+    expect(dto.executeOnLoad).toBe(false);
+  });
+
+  it("create_sheets_query threads a widget-bound filter into the where clause and eval path", async () => {
+    const createAction = jest.fn<
+      Promise<{ id: string }>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "act-f" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "Sheet", pluginId: "656f00000000000000000010" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000010", packageName: "google-sheets-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    // A read spec is strict and has no `row`; drop the append fixture's row before reusing its base fields.
+    const filterQuery: Record<string, unknown> = {
+      ...sheetsAppend,
+      name: "completedTasks",
+      operation: "read",
+      filter: [
+        {
+          column: "Status",
+          op: "eq",
+          value: { widget: "StatusSelect", property: "selectedOptionValue" },
+        },
+      ],
+    };
+
+    delete filterQuery.row;
+    const body = await callTool(api, "create_sheets_query", {
+      query: filterQuery,
+    });
+
+    expect(body.created).toBe(true);
+    expect(body.command).toBe("FETCH_MANY");
+
+    const dto = createAction.mock.calls[0][0] as {
+      executeOnLoad: boolean;
+      actionConfiguration: {
+        formData: { where: { data: string; viewType: string } };
+        dynamicBindingPathList: { key: string }[];
+      };
+    };
+
+    expect(JSON.parse(dto.actionConfiguration.formData.where.data)).toEqual({
+      condition: "AND",
+      children: [
+        {
+          condition: "EQ",
+          key: "Status",
+          value: "{{ StatusSelect.selectedOptionValue }}",
+        },
+      ],
+    });
+    // A widget-bound filter is resolved by client eval — the where field is registered for it.
+    expect(dto.actionConfiguration.dynamicBindingPathList).toEqual([
+      { key: "formData.where.data" },
+    ]);
+    // A read runs on page load.
+    expect(dto.executeOnLoad).toBe(true);
+  });
+
   it("create_sheets_query refuses a non-Sheets datasource", async () => {
     const createAction = jest.fn();
     const api: AppsmithApi = {
@@ -5464,6 +5577,35 @@ describe("governance-wrapped layout mutations", () => {
           actionConfiguration: {
             formData: {
               command: { data: "INSERT_ONE" },
+              entityType: { data: "ROWS" },
+            },
+          },
+        })),
+        listPlugins: jest.fn(async () => SHEETS_PLUGINS),
+        executeAction,
+      }),
+      { dataEnabled: true },
+    );
+    const res = await callTool(server, "run_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+
+    expect(res.body.code).toBe("confirmation_required");
+    expect(executeAction).not.toHaveBeenCalled();
+  });
+
+  it("run_action refuses a Sheets update (UPDATE_ONE) — a write is never in the closed read set", async () => {
+    const executeAction = jest.fn();
+    const server = createMcpHttpServer(
+      API_BASE_URL,
+      () => ({
+        ...createApi()(),
+        getAction: jest.fn(async () => ({
+          ...SHEETS_READ_ACTION,
+          actionConfiguration: {
+            formData: {
+              command: { data: "UPDATE_ONE" },
               entityType: { data: "ROWS" },
             },
           },

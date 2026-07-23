@@ -111,6 +111,133 @@ describe("M6 modal discipline — build/edit structural glue", () => {
   });
 });
 
+describe("modal build hygiene — closed by default, footer off the edge", () => {
+  function buildModal(): WidgetNode {
+    const root = rootOf(
+      compileApp(
+        {
+          name: "App",
+          pages: [
+            {
+              name: "Home",
+              widgets: [
+                {
+                  type: "modal",
+                  name: "AddTaskModal",
+                  title: "Add Task",
+                  children: [
+                    { type: "input", name: "TaskName", label: "Task Name" },
+                    { type: "input", name: "DueDate", label: "Due Date" },
+                    { type: "button", name: "SaveTask", text: "Save Task" },
+                  ],
+                },
+              ] as WidgetSpec[],
+            },
+          ],
+        },
+        ids(),
+      ),
+    );
+
+    return (root.children ?? []).find(
+      (child) => child.widgetName === "AddTaskModal",
+    ) as WidgetNode;
+  }
+
+  it("creates the modal CLOSED (isVisible false) so it never opens on page load", () => {
+    const modal = buildModal();
+
+    expect(modal.type).toBe("MODAL_WIDGET");
+    expect(modal.isVisible).toBe(false);
+    // The modal's inner canvas is still visible — isVisible false is the modal's open flag, not the canvas.
+    expect((modal.children ?? [])[0].isVisible).toBe(true);
+  });
+
+  it("keeps the right-aligned footer button off the container's right edge", () => {
+    const modal = buildModal();
+    const canvas = (modal.children ?? [])[0] as WidgetNode;
+    const button = (canvas.children ?? []).find(
+      (child) => child.widgetName === "SaveTask",
+    ) as WidgetNode;
+
+    // Right-aligned as a form footer, but not flush against the canvas edge.
+    expect(button.leftColumn).toBeGreaterThan(0);
+    expect(button.rightColumn).toBeLessThan(canvas.rightColumn as number);
+  });
+});
+
+describe("badge colors — validated per-widget text/background color", () => {
+  function firstChild(widgets: WidgetSpec[]): WidgetNode {
+    const root = rootOf(
+      compileApp({ name: "App", pages: [{ name: "Home", widgets }] }, ids()),
+    );
+
+    return (root.children ?? [])[0] as WidgetNode;
+  }
+
+  it("applies agent-chosen text color and background to a text widget (a colored pill)", () => {
+    const badge = firstChild([
+      {
+        type: "text",
+        name: "DoneBadge",
+        text: "Completed",
+        textColor: "#ffffff",
+        backgroundColor: "#16a34a",
+      },
+    ] as WidgetSpec[]);
+
+    expect(badge.type).toBe("TEXT_WIDGET");
+    expect(badge.textColor).toBe("#ffffff");
+    expect(badge.backgroundColor).toBe("#16a34a");
+  });
+
+  it("leaves the default text color and no background when colors are omitted", () => {
+    const text = firstChild([
+      { type: "text", name: "Plain", text: "Hi" },
+    ] as WidgetSpec[]);
+
+    expect(text.textColor).toBe("#231F20");
+    expect(text.backgroundColor).toBeUndefined();
+  });
+
+  it("fills a container with an agent-chosen background", () => {
+    const container = firstChild([
+      {
+        type: "container",
+        name: "Card",
+        backgroundColor: "rgb(240, 240, 255)",
+        children: [{ type: "text", name: "Inner", text: "x" }],
+      },
+    ] as WidgetSpec[]);
+
+    expect(container.type).toBe("CONTAINER_WIDGET");
+    expect(container.backgroundColor).toBe("rgb(240, 240, 255)");
+  });
+
+  it("rejects a color that is not a literal color (no url(), no binding, no expression)", () => {
+    for (const backgroundColor of [
+      "url(https://evil.example/x.png)",
+      "{{ Malicious.value }}",
+      "red; background: url(x)",
+      "expression(alert(1))",
+    ]) {
+      expect(
+        appSpecSchema.safeParse({
+          name: "App",
+          pages: [
+            {
+              name: "Home",
+              widgets: [
+                { type: "text", name: "T", text: "x", backgroundColor },
+              ],
+            },
+          ],
+        }).success,
+      ).toBe(false);
+    }
+  });
+});
+
 describe("compileApp — import artifact contract", () => {
   it("emits the required top-level fields the import API validates", () => {
     const artifact = compileApp(

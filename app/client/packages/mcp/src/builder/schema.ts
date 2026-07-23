@@ -109,6 +109,20 @@ function safeText(max: number) {
     });
 }
 
+// A literal CSS color for widget style props (text color, backgrounds), emitted raw into the widget config the viewer
+// renders. This is a COLOR-GRAMMAR allowlist, NOT a loose charset: hex, an rgb/rgba/hsl/hsla function with a
+// numeric-only argument list, or a bare named-color token. Crucially it cannot spell `url(...)` (letters are forbidden
+// inside the function parens) so it admits no CSS egress primitive, and it can carry no binding/expression. Shared with
+// editPatch's style-prop path so the build and patch surfaces validate colors identically.
+export const cssColor = z
+  .string()
+  .min(1)
+  .max(64)
+  .regex(
+    /^(?:#[0-9A-Fa-f]{3,8}|(?:rgb|rgba|hsl|hsla)\(\s*[0-9.,%/ ]+\s*\)|[A-Za-z]+)$/,
+    "color must be a literal color: hex (#rgb/#rrggbb), rgb()/rgba()/hsl()/hsla(), or a named color",
+  );
+
 // A validated external URL for the media/embed widgets (iframe/video/audio/documentviewer). The URL is emitted as a
 // literal widget prop that the viewer's browser loads directly (iframe src, <video>/<audio> src, PDF viewer). It is
 // NEVER fetched server-side, so there is no SSRF surface here — the risk is a non-http scheme becoming executable in
@@ -1068,6 +1082,10 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         // Computed display value (no query needed): current date/time, a row count, or a concat of safe parts.
         // Compiler-emitted; mutually exclusive with `text` and `source` (enforced in the template).
         value: computedValueSchema.optional(),
+        // Optional literal colors for badge/pill styling (validated grammar — hex/rgb/hsl/named only, no url()/binding).
+        // textColor sets the font color; backgroundColor fills the widget (a solid pill).
+        textColor: cssColor.optional(),
+        backgroundColor: cssColor.optional(),
         placement: placementSchema.optional(),
       })
       .strict(),
@@ -1141,6 +1159,9 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         type: z.literal("container"),
         name: nameField,
         children: z.array(widgetSpecSchema).max(50).optional(),
+        // Optional literal fill for the container (validated color grammar — no url()/binding). Lets a group of
+        // widgets sit on a colored card.
+        backgroundColor: cssColor.optional(),
         placement: placementSchema.optional(),
       })
       .strict(),
@@ -1695,6 +1716,8 @@ export type WidgetSpec =
       text?: string;
       source?: SelectedRowRef | QueryFieldRef;
       value?: ComputedValue;
+      textColor?: string;
+      backgroundColor?: string;
       placement?: PlacementSpec;
     }
   | {
@@ -1740,6 +1763,7 @@ export type WidgetSpec =
       type: "container";
       name?: string;
       children?: WidgetSpec[];
+      backgroundColor?: string;
       placement?: PlacementSpec;
     }
   | {

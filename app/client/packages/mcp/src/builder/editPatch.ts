@@ -30,6 +30,7 @@ import {
   compileNotEmptyBinding,
   compileRowSelectedBinding,
   compileVisibleWhenBinding,
+  cssColor,
   inputValidationSchema,
   queryFieldRefSchema,
   selectedRowRefSchema,
@@ -63,19 +64,8 @@ const safeText = (max: number) =>
       "must not contain bindings",
     );
 
-// A literal CSS color for style props (e.g. table row colors), emitted raw into a styled-component
-// `background: ${color}` declaration. This is a COLOR-GRAMMAR allowlist, not a loose charset: hex, an
-// rgb/rgba/hsl/hsla function with a numeric-only argument list, or a bare named-color token. Crucially it cannot
-// spell `url(...)` (letters are forbidden inside the function parens), so it admits no CSS egress primitive — a
-// value can neither fetch a URL (tracking beacon / internal-network probe) nor form a binding/expression.
-const cssColor = z
-  .string()
-  .min(1)
-  .max(64)
-  .regex(
-    /^(?:#[0-9A-Fa-f]{3,8}|(?:rgb|rgba|hsl|hsla)\(\s*[0-9.,%/ ]+\s*\)|[A-Za-z]+)$/,
-    "color must be a literal color: hex (#rgb/#rrggbb), rgb()/rgba()/hsl()/hsla(), or a named color",
-  );
+// cssColor (the literal color-grammar allowlist — hex/rgb/hsl/named only, no url()/binding) is shared from schema.ts
+// so the build and patch surfaces validate colors identically.
 
 const literalScalarSchema = z.union([
   safeText(10_000),
@@ -144,6 +134,10 @@ export const widgetPropsPatchSchema = z
     // ships as static style, not an evaluated expression.
     oddRowColor: cssColor.optional(),
     evenRowColor: cssColor.optional(),
+    // Per-widget badge/pill styling (text widget font + fill; container fill). Literal colors only — never bindings —
+    // so they ship as static style, validated by the same grammar as the table row colors above.
+    textColor: cssColor.optional(),
+    backgroundColor: cssColor.optional(),
     // Table interactivity toggles (TableWidgetV2). Literal booleans — turn on client-side search across all columns,
     // the column filter UI, sorting, download, and pagination for a directory-style browse experience.
     isVisibleSearch: z.boolean().optional(),

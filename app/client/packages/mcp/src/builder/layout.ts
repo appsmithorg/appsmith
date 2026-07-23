@@ -94,7 +94,10 @@ export function stampWidget(params: StampParams): WidgetNode {
     version: params.version,
     parentId: params.parentId,
     renderMode: "CANVAS",
-    isVisible: true,
+    // Widgets are visible by default, but a template may opt out — a modal ships CLOSED (isVisible: false) and is
+    // opened via a showModal event, so it must never render on page load. props is spread above, so honour an
+    // explicit value from it rather than clobbering it.
+    isVisible: (params.props as { isVisible?: boolean }).isVisible ?? true,
     isLoading: false,
     topRow: params.topRow,
     bottomRow,

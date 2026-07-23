@@ -78,6 +78,9 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
       const source = spec.type === "text" ? spec.source : undefined;
       const staticText = spec.type === "text" ? spec.text : undefined;
       const value = spec.type === "text" ? spec.value : undefined;
+      const textColor = spec.type === "text" ? spec.textColor : undefined;
+      const backgroundColor =
+        spec.type === "text" ? spec.backgroundColor : undefined;
 
       if (source !== undefined && staticText !== undefined) {
         throw new Error("text cannot set both 'text' and 'source'");
@@ -113,7 +116,9 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
           fontSize: "1rem",
           fontStyle: "BOLD",
           textAlign: "LEFT",
-          textColor: "#231F20",
+          // Agent-chosen badge colors (validated literals) override the defaults; a filled backgroundColor makes a pill.
+          textColor: textColor ?? "#231F20",
+          ...(backgroundColor !== undefined ? { backgroundColor } : {}),
           shouldTruncate: false,
           overflow: "NONE",
           animateLoading: true,
@@ -363,12 +368,15 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
     footprint: { columns: 40, rows: 30 },
     build: (spec) => {
       const children = spec.type === "container" ? spec.children ?? [] : [];
+      const backgroundColor =
+        spec.type === "container" ? spec.backgroundColor : undefined;
 
       return {
         footprint: { columns: 40, rows: 30 },
         children,
         props: {
-          backgroundColor: "#FFFFFF",
+          // Agent-chosen fill (validated literal) overrides the default white card.
+          backgroundColor: backgroundColor ?? "#FFFFFF",
           containerStyle: "card",
           borderColor: "#E0DEDE",
           borderWidth: "1",
@@ -423,6 +431,9 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
         footprint: { columns: 32, rows: 24 },
         children,
         props: {
+          // A modal ships CLOSED — it is a page-level overlay opened via a showModal event, never shown on page
+          // load. stampWidget honours this explicit false (see layout.ts).
+          isVisible: false,
           canOutsideClickClose: true,
           canEscapeKeyClose: true,
           shouldScrollContents: true,
