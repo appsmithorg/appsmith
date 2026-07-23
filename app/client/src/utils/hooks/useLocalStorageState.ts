@@ -10,7 +10,7 @@ export default function useLocalStorageState<Tvalue>(
   const [storedValue, setStoredValue] = useState(() => {
     const value = localStorage.getItem(key);
 
-    return value ? (JSON.parse(value) as Tvalue) : initialValue;
+    try { return JSON.parse(value) as Tvalue; } catch { return initialValue; }
   });
 
   const setValue = useCallback((newValue: Tvalue) => {
