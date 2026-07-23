@@ -467,7 +467,7 @@
     "js-cookie": "3.0.7",
     "simple-git": "3.36.0",
     "@protobufjs/utf8": "1.1.1",
-    "tar": "7.5.16",
+    "tar": "^7.5.19",
     "vite": "6.4.3",
     "js-yaml": "^3.15.0",
     "mdast-util-to-hast": "13.2.1",
