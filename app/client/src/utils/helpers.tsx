@@ -1317,10 +1317,11 @@ export function pushToArray(
   arr1?: unknown[],
   makeUnique = false,
 ) {
-  if (Array.isArray(arr1)) arr1.push(item);
-  else return [item];
-
-  if (makeUnique) return uniq(arr1);
+  if (Array.isArray(arr1)) {
+    const newArr = [...arr1, item];
+    if (makeUnique) return uniq(newArr);
+    return newArr;
+  } else return [item];
 
   return arr1;
 }

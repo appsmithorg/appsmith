@@ -40,10 +40,10 @@ export function getPathAndValueFromActionDiffObject(actionObjectDiff: any) {
           (acc: string, item: number | string) => {
             try {
               if (typeof item === "string" && acc) {
-                acc += `${path}.${item}`;
+                acc += `.${item}`;
               } else if (typeof item === "string" && !acc) {
                 acc += `${item}`;
-              } else acc += `${path}[${item}]`;
+              } else acc += `[${item}]`;
 
               return acc;
             } catch (error) {
@@ -60,9 +60,9 @@ export function getPathAndValueFromActionDiffObject(actionObjectDiff: any) {
         );
         // get value from diff object
         value = actionObjectDiff[i]?.rhs;
+        return { path, value };
       }
-
-      return { path, value };
     }
+    return { path, value };
   }
 }
