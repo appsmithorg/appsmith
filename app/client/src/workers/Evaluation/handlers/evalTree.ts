@@ -307,8 +307,9 @@ export async function evalTree(
           //for new tree send the whole thing, don't diff at all
           updates = serialiseToBigInt([{ kind: "newTree", rhs: dataTree }]);
           const parsedUpdates = JSON.parse(updates);
-
-          dataTreeEvaluator?.setPrevState(parsedUpdates[0].rhs);
+          if (parsedUpdates.length > 0) {
+            dataTreeEvaluator?.setPrevState(parsedUpdates[0].rhs);
+          }
         } catch (e) {
           updates = "[]";
 
