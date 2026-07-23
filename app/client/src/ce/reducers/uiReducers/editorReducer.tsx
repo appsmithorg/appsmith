@@ -38,6 +38,7 @@ export const initialState: EditorReduxState = {
   isSnipingMode: false,
   snipModeBindTo: undefined,
   isPreviewMode: false,
+  showTabOrderOverlay: false,
   isProtectedMode: true,
   zoomLevel: 1,
   onLoadActionExecution: false,
@@ -271,6 +272,15 @@ export const handlers = {
       isPreviewMode: action.payload,
     };
   },
+  [ReduxActionTypes.SET_SHOW_TAB_ORDER_OVERLAY]: (
+    state: EditorReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      showTabOrderOverlay: action.payload,
+    };
+  },
   [ReduxActionTypes.SET_PROTECTED_MODE]: (
     state: EditorReduxState,
     action: ReduxAction<boolean>,
@@ -351,6 +361,7 @@ export interface EditorReduxState {
   isSnipingMode: boolean;
   snipModeBindTo?: string;
   isPreviewMode: boolean;
+  showTabOrderOverlay: boolean;
   isProtectedMode: boolean;
   zoomLevel: number;
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
