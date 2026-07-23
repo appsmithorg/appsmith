@@ -304,6 +304,7 @@ function isElementVisibleInContainer(
 
   // Calculate the percentage of the element that is visible
   const elementArea = element.clientWidth * element.clientHeight;
+  if (elementArea === 0) return false;
   const visiblePercentage = (visibleArea / elementArea) * 100;
 
   // Return whether the visible percentage is greater than or equal to the desired percentage
@@ -327,6 +328,7 @@ function getWidgetElementToScroll(
   canvasWidgets: CanvasWidgetsReduxState,
 ): HTMLElement | null {
   const widget = canvasWidgets[widgetId];
+  if (!widget) return null;
   const parentId = widget.parentId;
 
   // If the widget doesn't have a parent, scroll to the widget itself
