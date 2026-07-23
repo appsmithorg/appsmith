@@ -54,7 +54,8 @@ export const getFormConfigConditionalOutput = (
 ): ConditionalOutput => {
   const baseActionId = getActionIdFromURL();
   const action = getActionByBaseId(state, baseActionId as string);
-  const actionId = action?.id ?? "";
+  const actionId = action?.id;
+  if (!actionId) return {} as ConditionalOutput;
   const conditionalOutput = extractConditionalOutput(
     config,
     state.evaluations.triggers[actionId],
@@ -73,7 +74,8 @@ export const getDynamicFetchedValues = (
 ): DynamicValues => {
   const baseActionId = getActionIdFromURL();
   const action = getActionByBaseId(state, baseActionId as string);
-  const actionId = action?.id ?? "";
+  const actionId = action?.id;
+  if (!actionId) return {} as DynamicValues;
   const conditionalOutput = extractConditionalOutput(
     config,
     state.evaluations.triggers[actionId],
