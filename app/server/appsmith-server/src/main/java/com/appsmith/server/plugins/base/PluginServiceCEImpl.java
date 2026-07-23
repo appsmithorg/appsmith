@@ -32,8 +32,6 @@ import org.pf4j.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
@@ -92,10 +90,6 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             AnalyticsService analyticsService,
             WorkspaceService workspaceService,
             PluginManager pluginManager,
-            // reactiveTemplate and topic are no longer used, now that the remote plugin download/hot-load
-            // path has been removed. They remain in the signature so subclass super(...) calls keep compiling.
-            ReactiveRedisTemplate<String, String> reactiveTemplate,
-            ChannelTopic topic,
             ObjectMapper objectMapper,
             CloudServicesConfig cloudServicesConfig,
             ConfigService configService,
