@@ -207,11 +207,10 @@ public class NewActionServiceUnitTest {
     public void testValidateAction_withForeignDatasourceId_shouldUseScopedFindById_GHSA_fhgw_q2jf_8fq7() {
         String foreignDatasourceId = "foreign-workspace-datasource-id";
 
-        // Mock the execute permission returned by datasourcePermission.
-        // Execute is the minimum ACL needed to resolve a datasource during action create —
-        // it proves the user has legitimate access without requiring full edit rights.
-        AclPermission executePermission = AclPermission.EXECUTE_DATASOURCES;
-        Mockito.when(datasourcePermission.getExecutePermission()).thenReturn(executePermission);
+        // Mock the action-create permission returned by datasourcePermission.
+        // In CE this resolves to MANAGE_DATASOURCES; in EE with GAC to CREATE_DATASOURCE_ACTIONS.
+        AclPermission actionCreatePermission = AclPermission.CREATE_DATASOURCE_ACTIONS;
+        Mockito.when(datasourcePermission.getActionCreatePermission()).thenReturn(Mono.just(actionCreatePermission));
 
         // Sentinel exception: if the unchecked overload is called, surface this distinct error.
         // In pre-fix code this overload is called; in post-fix code it must never be called.
@@ -223,7 +222,7 @@ public class NewActionServiceUnitTest {
 
         // The ACL-scoped overload returns empty — datasource not accessible to this user/workspace.
         // After the fix, the switchIfEmpty must raise an AppsmithException (not continue with a stub).
-        Mockito.when(datasourceService.findById(eq(foreignDatasourceId), eq(executePermission)))
+        Mockito.when(datasourceService.findById(eq(foreignDatasourceId), eq(actionCreatePermission)))
                 .thenReturn(Mono.empty());
 
         NewAction action = new NewAction();
@@ -245,7 +244,7 @@ public class NewActionServiceUnitTest {
         StepVerifier.create(result).expectError(AppsmithException.class).verify();
 
         // Post-fix assertions: the ACL-scoped overload was called; the unchecked overload was not.
-        Mockito.verify(datasourceService).findById(eq(foreignDatasourceId), eq(executePermission));
+        Mockito.verify(datasourceService).findById(eq(foreignDatasourceId), eq(actionCreatePermission));
         Mockito.verify(datasourceService, Mockito.never()).findById(eq(foreignDatasourceId));
     }
 }
