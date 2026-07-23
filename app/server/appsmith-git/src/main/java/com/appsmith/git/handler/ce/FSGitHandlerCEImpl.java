@@ -413,7 +413,18 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                         // SECURITY (GHSA-fqwc-g9wm-5895): disable symlink materialization and
                         // re-checkout any symlinks as regular files. A malicious repo can commit
                         // symlink entries (git mode 120000) pointing outside the Git root.
-                        removeSymlinksAfterClone(git);
+                        try {
+                            removeSymlinksAfterClone(git);
+                        } catch (Exception failure) {
+                            // Remediation failed — delete the unsafe clone so hostile symlinks
+                            // do not persist under the Git root (GHSA-fqwc-g9wm-5895).
+                            try {
+                                FileSystemUtils.deleteRecursively(file);
+                            } catch (Exception cleanupFailure) {
+                                failure.addSuppressed(cleanupFailure);
+                            }
+                            throw failure;
+                        }
 
                         repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
                     }
