@@ -403,6 +403,11 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                         FileSystemUtils.deleteRecursively(file);
                     }
                     String branchName;
+                    // Capture remediation failures so we can close the Git handle
+                    // before deleting the clone directory (GHSA-fqwc-g9wm-5895).
+                    // On Windows, JGit holds file handles until Git::close runs;
+                    // deleting inside the try-with-resources would fail silently.
+                    Exception remediationFailure = null;
                     try (Git git = Git.cloneRepository()
                             .setURI(remoteUrl)
                             .setTransportConfigCallback(transportConfigCallback)
@@ -416,17 +421,21 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                         try {
                             removeSymlinksAfterClone(git);
                         } catch (Exception failure) {
-                            // Remediation failed — delete the unsafe clone so hostile symlinks
-                            // do not persist under the Git root (GHSA-fqwc-g9wm-5895).
-                            try {
-                                FileSystemUtils.deleteRecursively(file);
-                            } catch (Exception cleanupFailure) {
-                                failure.addSuppressed(cleanupFailure);
-                            }
-                            throw failure;
+                            remediationFailure = failure;
                         }
 
-                        repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
+                        if (remediationFailure == null) {
+                            repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
+                        }
+                    }
+                    // Git handle is now closed — safe to delete the clone directory.
+                    if (remediationFailure != null) {
+                        try {
+                            FileSystemUtils.deleteRecursively(file);
+                        } catch (Exception cleanupFailure) {
+                            remediationFailure.addSuppressed(cleanupFailure);
+                        }
+                        throw remediationFailure;
                     }
                     processStopwatch.stopAndLogTimeInMillis();
                     jgitCloneRepoSpan.end();
