@@ -4,7 +4,6 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.InstallPluginRedisDTO;
 import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.services.CrudService;
 import reactor.core.publisher.Flux;
@@ -33,8 +32,6 @@ public interface PluginServiceCE extends CrudService<Plugin, String> {
     Mono<Plugin> findById(String id);
 
     Mono<String> getPluginName(Mono<Datasource> datasourceMono);
-
-    Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO);
 
     Mono<Map<?, ?>> getFormConfig(String pluginId);
 
