@@ -1876,7 +1876,7 @@ const updateListWidgetBindings = (
   Object.keys(widgets).forEach((widgetId) => {
     if (widgets[widgetId].parentId === listWidgetId) {
       mainCanvasId = widgetId;
-      mainContainerId = widgets[widgetId].children?.[0] ?? "";
+      mainContainerId = widgets[widgetId].children?.[0] ?? undefined;
     }
   });
 
