@@ -318,11 +318,12 @@ export const retryPromise = async (
         if (shouldRetry(e)) {
           setTimeout(async () => {
             if (retriesLeft === 1) {
-              return Promise.reject({
+              reject({
                 code: ERROR_CODES.SERVER_ERROR,
                 message: createMessage(ERROR_500),
                 show: false,
               });
+              return;
             }
 
             // Passing on "reject" is the important part
@@ -438,9 +439,7 @@ export function areArraysEqual(arr1: string[], arr2: string[]) {
   if (arr1.length !== arr2.length) return false;
 
   // Because the array is frozen in strict mode, you'll need to copy the array before sorting it
-  if ([...arr1].sort().join(",") === [...arr2].sort().join(",")) return true;
-
-  return false;
+  return [...arr1].sort().every((val, i) => val === [...arr2].sort()[i]);
 }
 
 export enum DataType {
