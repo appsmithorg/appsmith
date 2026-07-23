@@ -1056,6 +1056,16 @@ export const previewModeSelector = (state: DefaultRootState) => {
 };
 
 /**
+ * returns the `state.ui.editor.showTabOrderOverlay`
+ *
+ * @param state DefaultRootState
+ * @returns boolean
+ */
+export const showTabOrderOverlaySelector = (state: DefaultRootState) => {
+  return state.ui.editor.showTabOrderOverlay;
+};
+
+/**
  * This selector is used to identify if the application is in an edit-only state,
  * meaning it is in the canvas render mode but not in preview or protected mode.
  * This is useful for enabling or disabling certain UI elements or functionalities

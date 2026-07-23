@@ -1,5 +1,6 @@
-package com.appsmith.git.service.ce;
+package com.appsmith.git.handler.ce;
 
+import com.appsmith.external.configurations.git.GitConfig;
 import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.git.configurations.GitServiceConfig;
 import io.micrometer.observation.ObservationRegistry;
@@ -7,6 +8,7 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -22,18 +24,18 @@ import java.nio.file.Path;
  * The fix disables symlink support ({@code core.symlinks=false}) before checkout so the entry is
  * written as an inert regular file.
  */
-public class GitExecutorSymlinkCloneTest {
+public class FSGitHandlerSymlinkCloneTest {
 
-    private GitExecutorCEImpl newGitExecutor(Path gitRoot) {
+    private FSGitHandlerCEImpl newFSGitHandler() {
         GitServiceConfig gitServiceConfig = new GitServiceConfig();
-        gitServiceConfig.setGitRootPath(gitRoot.toString());
-        return new GitExecutorCEImpl(gitServiceConfig, null, ObservationRegistry.NOOP, ObservationHelper.NOOP, null);
+        GitConfig gitConfig = Mockito.mock(GitConfig.class);
+        return new FSGitHandlerCEImpl(
+                gitServiceConfig, gitConfig, ObservationRegistry.NOOP, ObservationHelper.NOOP);
     }
 
     private String buildSourceRepoWithSymlink(Path srcDir) throws Exception {
         try (Git srcGit = Git.init().setDirectory(srcDir.toFile()).call()) {
             Files.writeString(srcDir.resolve("normal.txt"), "hello");
-            // Symlink committed as git mode 120000; target need not exist for the entry to be stored.
             Files.createSymbolicLink(srcDir.resolve("evil.txt"), Path.of("/etc/passwd"));
             srcGit.add().addFilepattern(".").call();
             srcGit.commit()
@@ -69,7 +71,7 @@ public class GitExecutorSymlinkCloneTest {
             try (Git cloned =
                     Git.cloneRepository().setURI(uri).setDirectory(dest).call()) {
 
-                newGitExecutor(fixRoot).removeSymlinksAfterClone(cloned);
+                newFSGitHandler().removeSymlinksAfterClone(cloned);
 
                 Path evil = dest.toPath().resolve("evil.txt");
                 Assertions.assertTrue(Files.exists(evil, LinkOption.NOFOLLOW_LINKS), "The entry should be checked out");
@@ -81,7 +83,6 @@ public class GitExecutorSymlinkCloneTest {
                         "/etc/passwd",
                         Files.readString(evil).trim(),
                         "The symlink target text is stored as plain file content");
-                // Legitimate regular files are unaffected.
                 Assertions.assertEquals("hello", Files.readString(dest.toPath().resolve("normal.txt")));
             }
         } finally {

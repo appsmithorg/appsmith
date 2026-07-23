@@ -431,7 +431,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
      * Disables symlink support and re-materializes any symlinks as regular files
      * (GHSA-fqwc-g9wm-5895).
      */
-    private void removeSymlinksAfterClone(Git git) throws GitAPIException, IOException {
+    protected void removeSymlinksAfterClone(Git git) throws GitAPIException, IOException {
         StoredConfig config = git.getRepository().getConfig();
         config.setBoolean(ConfigConstants.CONFIG_CORE_SECTION, null, ConfigConstants.CONFIG_KEY_SYMLINKS, false);
         config.save();
