@@ -29,8 +29,7 @@ public class FSGitHandlerSymlinkCloneTest {
     private FSGitHandlerCEImpl newFSGitHandler() {
         GitServiceConfig gitServiceConfig = new GitServiceConfig();
         GitConfig gitConfig = Mockito.mock(GitConfig.class);
-        return new FSGitHandlerCEImpl(
-                gitServiceConfig, gitConfig, ObservationRegistry.NOOP, ObservationHelper.NOOP);
+        return new FSGitHandlerCEImpl(gitServiceConfig, gitConfig, ObservationRegistry.NOOP, ObservationHelper.NOOP);
     }
 
     private String buildSourceRepoWithSymlink(Path srcDir) throws Exception {

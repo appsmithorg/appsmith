@@ -484,8 +484,10 @@ public class FileUtilsCEImpl implements FileInterface {
                 writeStringToFile(body, bodyPath);
             }
 
-            // Write metadata for the jsObject
+            // Write metadata for the jsObject — validate the concrete file path so a symlink
+            // at metadata.json pointing outside the Git root is rejected (GHSA-fqwc-g9wm-5895).
             Path metadataPath = path.resolve(CommonConstants.METADATA + JSON_EXTENSION);
+            validatePathIsWithinGitRoot(metadataPath);
             return fileOperations.writeToFile(sourceEntity, metadataPath);
         } catch (IOException e) {
             log.debug(e.getMessage());
@@ -521,8 +523,10 @@ public class FileUtilsCEImpl implements FileInterface {
                 writeStringToFile(body, bodyPath);
             }
 
-            // Write metadata for the actions
+            // Write metadata for the actions — validate the concrete file path so a symlink
+            // at metadata.json pointing outside the Git root is rejected (GHSA-fqwc-g9wm-5895).
             Path metadataPath = path.resolve(CommonConstants.METADATA + JSON_EXTENSION);
+            validatePathIsWithinGitRoot(metadataPath);
             return fileOperations.writeToFile(sourceEntity, metadataPath);
         } catch (IOException e) {
             log.error("Error while reading file {} with message {} with cause", path, e.getMessage(), e.getCause());

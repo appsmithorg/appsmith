@@ -429,7 +429,8 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
 
     /**
      * Disables symlink support and re-materializes any symlinks as regular files
-     * (GHSA-fqwc-g9wm-5895).
+     * (GHSA-fqwc-g9wm-5895). Fails closed: if any symlink cannot be deleted, the
+     * method throws so the caller's cleanup path can remove the unsafe clone.
      */
     protected void removeSymlinksAfterClone(Git git) throws GitAPIException, IOException {
         StoredConfig config = git.getRepository().getConfig();
@@ -438,15 +439,12 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
 
         Path workTree = git.getRepository().getWorkTree().toPath();
         try (Stream<Path> paths = Files.walk(workTree)) {
-            paths.filter(Files::isSymbolicLink)
+            List<Path> symlinks = paths.filter(Files::isSymbolicLink)
                     .filter(p -> !p.startsWith(workTree.resolve(".git")))
-                    .forEach(p -> {
-                        try {
-                            Files.delete(p);
-                        } catch (IOException e) {
-                            log.warn("Failed to delete symlink: {}", p, e);
-                        }
-                    });
+                    .collect(Collectors.toList());
+            for (Path symlink : symlinks) {
+                Files.delete(symlink);
+            }
         }
         git.checkout().setAllPaths(true).call();
     }

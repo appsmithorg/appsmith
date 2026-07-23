@@ -1,5 +1,6 @@
 package com.appsmith.git.helpers;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.external.git.operations.FileOperations;
 import com.appsmith.external.helpers.ObservationHelper;
@@ -190,9 +191,12 @@ public class FileUtilsImplTest {
             // old lexical guard), but its real target is outside.
             Assertions.assertTrue(Files.isSymbolicLink(metadataPath));
 
-            Assertions.assertThrows(RuntimeException.class, () -> {
+            AppsmithPluginException thrown = Assertions.assertThrows(AppsmithPluginException.class, () -> {
                 fileUtils.reconstructMetadataFromGitRepository(repoSuffix).block();
             });
+            Assertions.assertTrue(
+                    thrown.getMessage().contains("Path traversal detected"),
+                    "Exception should mention path traversal, got: " + thrown.getMessage());
         } finally {
             FileUtils.deleteDirectory(externalDir.toFile());
         }
