@@ -388,7 +388,9 @@ function generateUniqueAccessor(
 
     name = urlPathParts.pop() as string;
     name = name?.includes("+esm") ? (urlPathParts.pop() as string) : name;
-  } catch (e) {}
+  } catch (e) {
+    /* not a valid URL — use raw name */
+  }
 
   // Replace all non-alphabetic characters with underscores and remove trailing underscores
   const validVar = name.replace(/[^a-zA-Z]/g, "_").replace(/_+$/, "");

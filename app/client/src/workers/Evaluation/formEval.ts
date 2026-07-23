@@ -329,7 +329,9 @@ function evaluateFormConfigElements(
         const evaluatedVal = eval(expression);
 
         config[path].output = evaluatedVal;
-      } catch (e) {}
+      } catch (e) {
+        // evaluation error — config keeps its default/current value
+      }
     });
   }
 

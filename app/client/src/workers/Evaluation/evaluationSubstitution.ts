@@ -120,8 +120,13 @@ export const templateSubstituteDynamicValues = (
     }
 
     try {
-      if (typeof value === "string" && JSON.parse(value)) {
-        value = value.replace(/\\([\s\S])|(")/g, "\\$1$2");
+      if (typeof value === "string") {
+        try {
+          JSON.parse(value);
+          value = value.replace(/\\([\s\S])|(")/g, "\\$1$2");
+        } catch (e) {
+          // not valid JSON — no escaping needed
+        }
       }
     } catch (e) {
       // do nothing
