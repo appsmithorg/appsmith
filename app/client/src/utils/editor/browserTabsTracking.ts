@@ -8,7 +8,7 @@ const LOCAL_STORAGE_KEY = "EDITOR_TABS_DATA";
 
 const getCurrentTabs = (): TabData => {
   const currentTabsJSON = localStorage.getItem(LOCAL_STORAGE_KEY) || "{}";
-  const currentTabs: TabData = JSON.parse(currentTabsJSON);
+  let currentTabs: TabData = {}; try { currentTabs = JSON.parse(currentTabsJSON); } catch { /* use empty default */ }
 
   return currentTabs;
 };
