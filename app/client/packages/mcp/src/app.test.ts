@@ -2034,6 +2034,61 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     expect(dto.actionConfiguration.formData.smartSubstitution.data).toBe(true);
   });
 
+  it("create_mongo_query creates a targeted UPDATE ($set, SINGLE, manual)", async () => {
+    const createAction = jest.fn<
+      Promise<{ id: string }>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "act-mu" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "Mongo", pluginId: "656f00000000000000000009" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000009", packageName: "mongo-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const body = await callTool(api, "create_mongo_query", {
+      query: {
+        ...mongoQuery,
+        name: "closeOrder",
+        operation: "UPDATE",
+        update: [{ field: "status", value: { literal: "closed" } }],
+      },
+    });
+
+    expect(body.created).toBe(true);
+    expect(body.command).toBe("UPDATE");
+
+    const dto = createAction.mock.calls[0][0] as {
+      executeOnLoad: boolean;
+      actionConfiguration: {
+        formData: {
+          command: { data: string };
+          updateMany: {
+            query: { data: string };
+            update: { data: string };
+            limit: { data: string };
+          };
+        };
+      };
+    };
+
+    expect(dto.actionConfiguration.formData.command.data).toBe("UPDATE");
+    expect(dto.actionConfiguration.formData.updateMany.query.data).toBe(
+      '{ "status": "open" }',
+    );
+    expect(dto.actionConfiguration.formData.updateMany.update.data).toBe(
+      '{ "$set": { "status": "closed" } }',
+    );
+    expect(dto.actionConfiguration.formData.updateMany.limit.data).toBe(
+      "SINGLE",
+    );
+    expect(dto.executeOnLoad).toBe(false);
+  });
+
   it("create_redis_query creates a single-command action against a Redis datasource", async () => {
     const createAction = jest.fn<
       Promise<{ id: string }>,
@@ -2629,6 +2684,55 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     ]);
     // A read runs on page load.
     expect(dto.executeOnLoad).toBe(true);
+  });
+
+  it("create_sheets_query deletes a row (DELETE_ONE, widget-bound rowIndex + eval path)", async () => {
+    const createAction = jest.fn<
+      Promise<{ id: string }>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "act-d" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "Sheet", pluginId: "656f00000000000000000010" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000010", packageName: "google-sheets-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const deleteQuery: Record<string, unknown> = {
+      ...sheetsAppend,
+      name: "deleteRow",
+      operation: "delete",
+      rowIndex: { widget: "Table1", property: "selectedRow.rowIndex" },
+    };
+
+    delete deleteQuery.row;
+    const body = await callTool(api, "create_sheets_query", {
+      query: deleteQuery,
+    });
+
+    expect(body.created).toBe(true);
+    expect(body.command).toBe("DELETE_ONE");
+
+    const dto = createAction.mock.calls[0][0] as {
+      executeOnLoad: boolean;
+      actionConfiguration: {
+        formData: { command: { data: string }; rowIndex: { data: string } };
+        dynamicBindingPathList: { key: string }[];
+      };
+    };
+
+    expect(dto.actionConfiguration.formData.command.data).toBe("DELETE_ONE");
+    expect(dto.actionConfiguration.formData.rowIndex.data).toBe(
+      "{{ Table1.selectedRow.rowIndex }}",
+    );
+    expect(dto.actionConfiguration.dynamicBindingPathList).toEqual([
+      { key: "formData.rowIndex.data" },
+    ]);
+    expect(dto.executeOnLoad).toBe(false);
   });
 
   it("create_sheets_query refuses a non-Sheets datasource", async () => {

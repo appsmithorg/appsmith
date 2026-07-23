@@ -239,6 +239,73 @@ describe("compileSheetsQuery — filtered read (server-side where clause)", () =
   });
 });
 
+describe("compileSheetsQuery / buildSheetsActionDto — delete (DELETE_ONE)", () => {
+  it("compiles a literal-rowIndex delete to DELETE_ONE, no binding", () => {
+    const compiled = compileSheetsQuery(
+      parse({ ...base, operation: "delete", rowIndex: { literal: 3 } }),
+    );
+
+    expect(compiled).toEqual({
+      command: "DELETE_ONE",
+      rowIndex: "3",
+      rowIndexHasBinding: false,
+    });
+  });
+
+  it("emits the DELETE_ONE formData shape (rowIndex field, manual, no on-load run)", () => {
+    const spec = parse({
+      ...base,
+      operation: "delete",
+      rowIndex: { literal: 3 },
+    });
+    const dto = buildSheetsActionDto(spec, compileSheetsQuery(spec));
+    const fd = formData(dto);
+
+    expect(fd.command.data).toBe("DELETE_ONE");
+    expect(fd.entityType.data).toBe("ROWS");
+    expect(fd.rowIndex.data).toBe("3");
+    expect((dto as { executeOnLoad: boolean }).executeOnLoad).toBe(false);
+    // A literal rowIndex needs no client eval.
+    expect(
+      (dto as { actionConfiguration: { dynamicBindingPathList?: unknown } })
+        .actionConfiguration.dynamicBindingPathList,
+    ).toBeUndefined();
+  });
+
+  it("registers formData.rowIndex.data for eval when the delete rowIndex is widget-bound", () => {
+    const spec = parse({
+      ...base,
+      operation: "delete",
+      rowIndex: { widget: "Table1", property: "selectedRow.rowIndex" },
+    });
+    const dto = buildSheetsActionDto(spec, compileSheetsQuery(spec)) as {
+      actionConfiguration: {
+        formData: { rowIndex: { data: string } };
+        dynamicBindingPathList: { key: string }[];
+      };
+    };
+
+    expect(dto.actionConfiguration.formData.rowIndex.data).toBe(
+      "{{ Table1.selectedRow.rowIndex }}",
+    );
+    expect(dto.actionConfiguration.dynamicBindingPathList).toEqual([
+      { key: "formData.rowIndex.data" },
+    ]);
+  });
+
+  it("rejects a delete with a negative or non-integer rowIndex", () => {
+    for (const rowIndex of [{ literal: -1 }, { literal: 2.5 }]) {
+      expect(
+        sheetsQuerySpecSchema.safeParse({
+          ...base,
+          operation: "delete",
+          rowIndex,
+        }).success,
+      ).toBe(false);
+    }
+  });
+});
+
 describe("buildSheetsActionDto — exact Sheets formData shape", () => {
   it("emits a RANGE read with projection, pagination, and the header index", () => {
     const spec = parse({

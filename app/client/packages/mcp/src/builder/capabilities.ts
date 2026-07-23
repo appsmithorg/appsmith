@@ -634,13 +634,13 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     {
       name: "create_mongo_query",
       gate: "data",
-      summary: "structured MongoDB find/insert query",
+      summary: "structured MongoDB find/insert/update/delete query",
     },
     {
       name: "create_sheets_query",
       gate: "data",
       summary:
-        "structured Google Sheets read (server-side filter)/append/update query",
+        "structured Google Sheets read (server-side filter)/append/update/delete query",
     },
     {
       name: "create_redis_query",

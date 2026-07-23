@@ -18,6 +18,9 @@ import { z } from "zod";
 //            supplied columns over it, and writes it back — so a partial column set only touches the named columns.
 //            Identical injection surface to APPEND: the row object is the only smart-substituted field and every
 //            `{{ }}` in it is a compiler-emitted widget binding.
+//   DELETE — DELETE_ONE a single existing row, addressed by a top-level `rowIndex` field (the same 0-based index, a
+//            literal or a widget binding). rowIndex is NOT a smart-substituted field, so a widget binding is resolved
+//            by client eval (registered via dynamicBindingPathList) — a literal is an integer string, never injectable.
 //
 // For the "specific sheets" (drive.file) OAuth modality the server pins execution to the datasource's authorized
 // spreadsheet ids (GoogleSheetsPlugin.validateAndGetUserAuthorizedSheetIds), so a referenced sheetUrl can only reach a
@@ -190,6 +193,15 @@ export const sheetsQuerySpecSchema = z.discriminatedUnion("operation", [
         .max(100),
     })
     .strict(),
+  z
+    .object({
+      ...base,
+      operation: z.literal("delete"),
+      // Which existing row to remove: the 0-based rowIndex a read returns per row (a literal or a binding to the
+      // selected table row). The plugin deletes exactly that one row (DELETE_ONE).
+      rowIndex: rowIndexRef,
+    })
+    .strict(),
 ]);
 
 export type SheetsQuerySpec = z.infer<typeof sheetsQuerySpecSchema>;
@@ -329,13 +341,36 @@ function jsonLeaf(json: string): Record<string, unknown> {
   return { data: json, viewType: "json", componentData: JSON.parse(json) };
 }
 
+// Emit the top-level `rowIndex` field for DELETE_ONE (NOT inside rowObjects — the plugin reads formData.rowIndex and
+// parses it as an int). A literal renders as its integer string; a widget value is a checked `{{ }}` binding the
+// client eval resolves before execution (registered via dynamicBindingPathList). Returns whether it is a binding.
+function emitRowIndex(rowIndex: RowIndexRef): {
+  value: string;
+  hasBinding: boolean;
+} {
+  if ("literal" in rowIndex) {
+    return { value: String(rowIndex.literal), hasBinding: false };
+  }
+
+  const binding = `{{ ${rowIndex.widget}.${rowIndex.property} }}`;
+
+  if (!SAFE_BINDING.test(binding)) {
+    throw new Error(`unsafe binding emitted: ${binding}`);
+  }
+
+  return { value: binding, hasBinding: true };
+}
+
 export interface CompiledSheetsQuery {
-  command: "FETCH_MANY" | "INSERT_ONE" | "UPDATE_ONE";
+  command: "FETCH_MANY" | "INSERT_ONE" | "UPDATE_ONE" | "DELETE_ONE";
   // The already-emitted row-object JSON (append and update only).
   rowObjects?: string;
   // The already-emitted where-clause JSON string (filtered read only), and whether it carries a widget binding.
   where?: string;
   whereHasBinding?: boolean;
+  // The already-emitted rowIndex field (delete only), and whether it carries a widget binding.
+  rowIndex?: string;
+  rowIndexHasBinding?: boolean;
 }
 
 // Compile-time exhaustiveness helper: `spec` is narrowed to `never` once every operation is handled, so an added
@@ -387,6 +422,20 @@ export function compileSheetsQuery(spec: SheetsQuerySpec): CompiledSheetsQuery {
     return { command: "UPDATE_ONE", rowObjects };
   }
 
+  if (spec.operation === "delete") {
+    const { hasBinding, value } = emitRowIndex(spec.rowIndex);
+
+    // The value is already a checked SAFE_BINDING token or an integer string; assert it for emitter symmetry with the
+    // other paths (defense in depth — no `${`/backtick, any `{{ }}` is a compiler-emitted binding).
+    assertBodySafe(value);
+
+    return {
+      command: "DELETE_ONE",
+      rowIndex: value,
+      rowIndexHasBinding: hasBinding,
+    };
+  }
+
   // Exhaustiveness guard: the discriminated union has no other operation, so this is unreachable — but an explicit
   // check means a newly added operation fails to compile here rather than silently falling through.
   return assertNever(spec);
@@ -432,11 +481,24 @@ export function buildSheetsActionDto(
     if (spec.limit !== undefined) {
       formData.pagination = leaf({ limit: String(spec.limit), offset: "0" });
     }
+  } else if (spec.operation === "delete") {
+    // DELETE_ONE reads a top-level rowIndex field (NOT rowObjects); a widget binding inside it is eval-resolved.
+    formData.rowIndex = leaf(compiled.rowIndex);
   } else {
     // append (INSERT_ONE) and update (UPDATE_ONE) share the smart-substituted rowObjects field; the command leaf
     // above already distinguishes them, and update's rowObjects carries the reserved rowIndex key.
     formData.rowObjects = leaf(compiled.rowObjects);
   }
+
+  // Client-eval binding paths: a widget-bound filter value (where.data) or a widget-bound delete rowIndex
+  // (rowIndex.data) is resolved by the eval engine before execution, so register the field(s) that carry a binding.
+  const bindingPaths: { key: string }[] = [];
+
+  if (compiled.whereHasBinding)
+    bindingPaths.push({ key: "formData.where.data" });
+
+  if (compiled.rowIndexHasBinding)
+    bindingPaths.push({ key: "formData.rowIndex.data" });
 
   return {
     name: spec.name,
@@ -444,15 +506,13 @@ export function buildSheetsActionDto(
     datasource: { id: spec.datasourceId },
     // A read is a data fetch: run it on page load so a widget bound to its result populates without a manual
     // trigger (the query is created AFTER the layout, so the server's on-load binding analysis doesn't pick it up —
-    // this makes the intent explicit). An append or update mutates the sheet and is user-triggered (a button), so it
-    // stays manual.
+    // this makes the intent explicit). An append/update/delete mutates the sheet and is user-triggered (a button),
+    // so it stays manual.
     executeOnLoad: spec.operation === "read",
     actionConfiguration: {
       formData,
-      // A widget-bound filter value is resolved by the client eval engine before execution; register the where
-      // field so eval knows to substitute the binding(s) inside its JSON string.
-      ...(compiled.whereHasBinding
-        ? { dynamicBindingPathList: [{ key: "formData.where.data" }] }
+      ...(bindingPaths.length > 0
+        ? { dynamicBindingPathList: bindingPaths }
         : {}),
     },
   };

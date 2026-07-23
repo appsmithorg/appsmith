@@ -124,6 +124,179 @@ describe("compileMongoQuery — structured Mongo FIND/INSERT, no raw injection",
   });
 });
 
+describe("compileMongoQuery — UPDATE and DELETE", () => {
+  it("compiles an UPDATE to a $set update with a match query, defaulting to SINGLE", () => {
+    const compiled = compileMongoQuery(
+      parse({
+        ...base,
+        operation: "UPDATE",
+        filter: [
+          {
+            field: "id",
+            value: { widget: "Table1", property: "selectedRow.id" },
+          },
+        ],
+        update: [
+          { field: "status", value: { literal: "done" } },
+          { field: "note", value: { widget: "NoteInput", property: "text" } },
+        ],
+      }),
+    );
+
+    expect(compiled.command).toBe("UPDATE");
+    expect(compiled.update).toEqual({
+      query: '{ "id": {{ Table1.selectedRow.id }} }',
+      update: '{ "$set": { "status": "done", "note": {{ NoteInput.text }} } }',
+      limit: "SINGLE",
+    });
+  });
+
+  it("compiles a DELETE with a match query and multi:true -> ALL", () => {
+    const compiled = compileMongoQuery(
+      parse({
+        ...base,
+        operation: "DELETE",
+        filter: [{ field: "archived", value: { literal: true } }],
+        multi: true,
+      }),
+    );
+
+    expect(compiled.command).toBe("DELETE");
+    expect(compiled.delete).toEqual({
+      query: '{ "archived": true }',
+      limit: "ALL",
+    });
+  });
+
+  it("an UPDATE with multi:true targets ALL matches", () => {
+    const compiled = compileMongoQuery(
+      parse({
+        ...base,
+        operation: "UPDATE",
+        filter: [{ field: "status", value: { literal: "open" } }],
+        update: [{ field: "status", value: { literal: "closed" } }],
+        multi: true,
+      }),
+    );
+
+    expect(compiled.update?.limit).toBe("ALL");
+  });
+
+  it("emits the exact updateMany / delete formData shape (manual, not on-load)", () => {
+    const updateSpec = parse({
+      ...base,
+      operation: "UPDATE",
+      filter: [{ field: "id", value: { literal: 7 } }],
+      update: [{ field: "status", value: { literal: "done" } }],
+    });
+    const updateDto = buildMongoActionDto(
+      updateSpec,
+      compileMongoQuery(updateSpec),
+    ) as {
+      executeOnLoad: boolean;
+      actionConfiguration: {
+        formData: {
+          command: { data: string };
+          updateMany: {
+            query: { data: string };
+            update: { data: string };
+            limit: { data: string };
+          };
+        };
+      };
+    };
+
+    expect(updateDto.actionConfiguration.formData.command.data).toBe("UPDATE");
+    expect(updateDto.actionConfiguration.formData.updateMany.limit.data).toBe(
+      "SINGLE",
+    );
+    expect(updateDto.actionConfiguration.formData.updateMany.update.data).toBe(
+      '{ "$set": { "status": "done" } }',
+    );
+    expect(updateDto.executeOnLoad).toBe(false);
+
+    const deleteSpec = parse({
+      ...base,
+      operation: "DELETE",
+      filter: [{ field: "id", value: { literal: 7 } }],
+    });
+    const deleteDto = buildMongoActionDto(
+      deleteSpec,
+      compileMongoQuery(deleteSpec),
+    ) as {
+      executeOnLoad: boolean;
+      actionConfiguration: {
+        formData: {
+          delete: { query: { data: string }; limit: { data: string } };
+        };
+      };
+    };
+
+    expect(deleteDto.actionConfiguration.formData.delete.query.data).toBe(
+      '{ "id": 7 }',
+    );
+    expect(deleteDto.actionConfiguration.formData.delete.limit.data).toBe(
+      "SINGLE",
+    );
+    expect(deleteDto.executeOnLoad).toBe(false);
+  });
+
+  it("requires a filter on UPDATE and DELETE (a mutation is always targeted)", () => {
+    // Schema permits the shape; compileMongoQuery is the guard (like the SQL builder / INSERT document).
+    expect(() =>
+      compileMongoQuery(
+        parse({
+          ...base,
+          operation: "UPDATE",
+          update: [{ field: "status", value: { literal: "done" } }],
+        }),
+      ),
+    ).toThrow(/UPDATE requires a filter/);
+    expect(() =>
+      compileMongoQuery(parse({ ...base, operation: "DELETE" })),
+    ).toThrow(/DELETE requires a filter/);
+  });
+
+  it("requires an update on UPDATE, and rejects an operator-injecting field name", () => {
+    expect(() =>
+      compileMongoQuery(
+        parse({
+          ...base,
+          operation: "UPDATE",
+          filter: [{ field: "id", value: { literal: 1 } }],
+        }),
+      ),
+    ).toThrow(/UPDATE requires an update/);
+    // A field named like a Mongo operator can't pass the identifier charset ($ excluded) — a schema-level reject.
+    expect(
+      mongoQuerySpecSchema.safeParse({
+        ...base,
+        operation: "UPDATE",
+        filter: [{ field: "id", value: { literal: 1 } }],
+        update: [{ field: "$where", value: { literal: "x" } }],
+      }).success,
+    ).toBe(false);
+  });
+
+  it("rejects fields that belong to another operation", () => {
+    expect(
+      mongoQuerySpecSchema.safeParse({
+        ...base,
+        operation: "DELETE",
+        filter: [{ field: "id", value: { literal: 1 } }],
+        update: [{ field: "status", value: { literal: "x" } }],
+      }).success,
+    ).toBe(false);
+    expect(
+      mongoQuerySpecSchema.safeParse({
+        ...base,
+        operation: "FIND",
+        multi: true,
+      }).success,
+    ).toBe(false);
+  });
+});
+
 describe("mongoQuerySpecSchema — rejects escape chars and operator injection", () => {
   it("rejects a collection name with escape/injection characters", () => {
     for (const collection of [
