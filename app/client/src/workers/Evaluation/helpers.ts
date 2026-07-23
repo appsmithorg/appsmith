@@ -111,6 +111,9 @@ export const stringifyFnsInObject = (
     fnStrings.push(fnValue.toString());
   }
 
+  // Note: JSON round-trip strips Dates, Sets, Maps, RegExps, and undefined values.
+  // Functions are preserved (collected before, re-injected after), but other
+  // non-JSON-safe types may be lost.
   const output = JSON.parse(JSON.stringify(userObject));
 
   for (const [index, parsedFnString] of fnStrings.entries()) {
