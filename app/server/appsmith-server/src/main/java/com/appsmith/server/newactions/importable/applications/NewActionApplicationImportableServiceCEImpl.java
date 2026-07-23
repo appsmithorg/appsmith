@@ -56,9 +56,24 @@ public class NewActionApplicationImportableServiceCEImpl
         return repository.findByApplicationId(artifact.getId(), Optional.empty(), Optional.empty());
     }
 
+    protected Flux<NewAction> getExistingResourcesInOtherBranchesFlux(
+            List<String> branchedArtifactIds, List<String> projectionForOtherBranches) {
+        return repository.findAllByApplicationIds(branchedArtifactIds, projectionForOtherBranches);
+    }
+
     @Override
     public Flux<NewAction> getExistingResourcesInOtherBranchesFlux(List<String> branchedArtifactIds) {
-        return repository.findAllByApplicationIds(branchedArtifactIds, null);
+        // Only project the fields consumed downstream during import (gitSyncId for the lookup map, and
+        // id/baseId for base-id resolution). Fetching full documents here loads the heavy
+        // unpublishedAction/publishedAction bodies across every branch, which for apps with many
+        // branches can exceed the Mongo transaction lifetime limit during branch creation.
+        final List<String> projectionForOtherBranches = List.of(
+                NewAction.Fields.id,
+                NewAction.Fields.baseId,
+                NewAction.Fields.applicationId,
+                NewAction.Fields.gitSyncId);
+
+        return getExistingResourcesInOtherBranchesFlux(branchedArtifactIds, projectionForOtherBranches);
     }
 
     @Override

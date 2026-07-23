@@ -34,7 +34,10 @@ import { toggleInstaller } from "actions/JSLibraryActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "@appsmith/ads";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { setPreviewModeInitAction as _setPreviewModeInitAction } from "actions/editorActions";
+import {
+  setPreviewModeInitAction as _setPreviewModeInitAction,
+  setShowTabOrderOverlay as _setShowTabOrderOverlay,
+} from "actions/editorActions";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import {
@@ -44,7 +47,10 @@ import {
 import { useHotkeys } from "@blueprintjs/core";
 import { useHotKeys as useGitHotKeys } from "git";
 import { getSelectedWidgets, getLastSelectedWidget } from "selectors/ui";
-import { previewModeSelector } from "selectors/editorSelectors";
+import {
+  previewModeSelector,
+  showTabOrderOverlaySelector,
+} from "selectors/editorSelectors";
 
 interface Props {
   children: React.ReactNode;
@@ -63,6 +69,7 @@ function GlobalHotKeys(props: Props) {
   const selectedWidget = useSelector(getLastSelectedWidget);
   const selectedWidgets = useSelector(getSelectedWidgets);
   const isPreviewMode = useSelector(previewModeSelector);
+  const showTabOrderOverlay = useSelector(showTabOrderOverlaySelector);
   const isProtectedMode = useSelector(selectGitApplicationProtectedMode);
 
   const copySelectedWidget = useCallback(
@@ -122,6 +129,11 @@ function GlobalHotKeys(props: Props) {
   );
   const setPreviewModeInitAction = useCallback(
     (shouldSet: boolean) => dispatch(_setPreviewModeInitAction(shouldSet)),
+    [dispatch],
+  );
+
+  const toggleTabOrderOverlay = useCallback(
+    (shouldShow: boolean) => dispatch(_setShowTabOrderOverlay(shouldShow)),
     [dispatch],
   );
 
@@ -385,6 +397,15 @@ function GlobalHotKeys(props: Props) {
             setPreviewModeInitAction(!isPreviewMode);
           },
         },
+        {
+          combo: "alt + t",
+          global: true,
+          group: "Canvas",
+          label: "Toggle tab order overlay",
+          onKeyDown: () => {
+            toggleTabOrderOverlay(!showTabOrderOverlay);
+          },
+        },
         ...(isGitModEnabled
           ? gitHotKeys
           : [
@@ -420,6 +441,8 @@ function GlobalHotKeys(props: Props) {
     redo,
     groupSelectedWidget,
     setPreviewModeInitAction,
+    toggleTabOrderOverlay,
+    showTabOrderOverlay,
     onOnmnibarHotKeyDown,
     stopPropagationIfWidgetSelected,
   ]);

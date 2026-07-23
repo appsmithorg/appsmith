@@ -63,7 +63,7 @@ public class RedirectHelper {
 
         } else if (queryParams.getFirst(FORK_APP_ID_QUERY_PARAM) != null) {
             final String forkAppId = queryParams.getFirst(FORK_APP_ID_QUERY_PARAM);
-            final String origin = httpHeaders.getOrigin();
+            final String origin = getTrustedOrigin(httpHeaders);
             if (origin == null) {
                 return Mono.just(DEFAULT_REDIRECT_URL);
             }
@@ -71,8 +71,6 @@ public class RedirectHelper {
             return applicationRepository
                     .findByClonedFromApplicationId(forkAppId, applicationPermission.getReadPermission())
                     .map(application -> {
-                        // Get the default page in the application, or if there's no default page, get the first page
-                        // in the application and redirect to edit that page.
                         String pageId = null;
                         for (final ApplicationPage page : application.getPages()) {
                             if (pageId == null || page.isDefault()) {
@@ -87,12 +85,7 @@ public class RedirectHelper {
                             return defaultRedirectUrl;
                         }
 
-                        return httpHeaders.getOrigin()
-                                + "/applications/"
-                                + application.getId()
-                                + "/pages/"
-                                + pageId
-                                + "/edit";
+                        return origin + "/applications/" + application.getId() + "/pages/" + pageId + "/edit";
                     })
                     .defaultIfEmpty(defaultRedirectUrl)
                     .last();
@@ -142,9 +135,10 @@ public class RedirectHelper {
             redirectUrl = DEFAULT_REDIRECT_URL;
         }
 
+        String trustedOrigin = getTrustedOrigin(httpHeaders);
         if (!(redirectUrl.startsWith("http://") || redirectUrl.startsWith("https://"))
-                && !StringUtils.isEmpty(httpHeaders.getOrigin())) {
-            redirectUrl = httpHeaders.getOrigin() + redirectUrl;
+                && StringUtils.hasText(trustedOrigin)) {
+            redirectUrl = trustedOrigin + redirectUrl;
         }
 
         // Validate that absolute redirect URLs point to the same origin as the request.
@@ -205,8 +199,8 @@ public class RedirectHelper {
             return false;
         }
 
-        String origin = httpHeaders.getOrigin();
-        if (!StringUtils.isEmpty(origin)) {
+        String origin = getTrustedOrigin(httpHeaders);
+        if (StringUtils.hasText(origin)) {
             // Origin-present path: full host + port + scheme-aware port normalization.
             final URI originUri;
             try {
@@ -294,6 +288,76 @@ public class RedirectHelper {
             return hostAddr.getHostString();
         }
         return null;
+    }
+
+    /**
+     * Returns the {@code Origin} header value only when it is trustworthy —
+     * i.e. its host <em>and</em> effective port match the request's
+     * {@code X-Forwarded-Host} / {@code Host} (and {@code X-Forwarded-Port}).
+     *
+     * <p>If Origin is absent, returns {@code null}. If no request host is
+     * available for cross-checking (neither {@code X-Forwarded-Host} nor
+     * {@code Host} is set), Origin is returned as-is to preserve existing
+     * behaviour for environments that do not set proxy headers.
+     *
+     * <p>This prevents open redirect attacks where an attacker forges the
+     * {@code Origin} header to an external domain or a different port on the
+     * same host (APP-15347).
+     */
+    static String getTrustedOrigin(HttpHeaders httpHeaders) {
+        String origin = httpHeaders.getOrigin();
+        if (!StringUtils.hasText(origin)) {
+            return null;
+        }
+
+        String requestHost = extractRequestHost(httpHeaders);
+        if (requestHost == null) {
+            return origin;
+        }
+
+        final URI originUri;
+        try {
+            originUri = new URI(origin);
+        } catch (URISyntaxException e) {
+            log.warn("Failed to parse Origin header: {}", sanitizeForLog(origin));
+            return null;
+        }
+
+        String originHost = originUri.getHost();
+        if (originHost == null) {
+            log.warn(
+                    "Origin header '{}' does not match request host '{}'; treating as untrusted",
+                    sanitizeForLog(origin),
+                    requestHost);
+            return null;
+        }
+
+        if (originHost.startsWith("[") && originHost.endsWith("]")) {
+            originHost = originHost.substring(1, originHost.length() - 1);
+        }
+        if (!originHost.equalsIgnoreCase(requestHost)) {
+            log.warn(
+                    "Origin header '{}' does not match request host '{}'; treating as untrusted",
+                    sanitizeForLog(origin),
+                    requestHost);
+            return null;
+        }
+
+        int originPort = originUri.getPort();
+        int requestPort = extractRequestPort(httpHeaders);
+        if (originPort != -1 || requestPort != -1) {
+            int normalizedOriginPort = normalizePort(originUri.getScheme(), originPort);
+            int normalizedRequestPort = normalizePort(originUri.getScheme(), requestPort);
+            if (normalizedOriginPort != normalizedRequestPort) {
+                log.warn(
+                        "Origin port {} does not match request port {}; treating as untrusted",
+                        normalizedOriginPort,
+                        normalizedRequestPort);
+                return null;
+            }
+        }
+
+        return origin;
     }
 
     private static String stripPort(String hostMaybeWithPort) {
@@ -400,8 +464,8 @@ public class RedirectHelper {
             return redirectUrl;
         }
         log.warn("Blocked open redirect attempt to: {}", sanitizeForLog(redirectUrl));
-        String origin = httpHeaders.getOrigin();
-        return (!StringUtils.isEmpty(origin) ? origin : "") + DEFAULT_REDIRECT_URL;
+        String trustedOrigin = getTrustedOrigin(httpHeaders);
+        return (StringUtils.hasText(trustedOrigin) ? trustedOrigin : "") + DEFAULT_REDIRECT_URL;
     }
 
     /**

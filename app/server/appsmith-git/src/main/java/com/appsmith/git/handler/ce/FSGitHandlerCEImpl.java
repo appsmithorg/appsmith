@@ -41,6 +41,7 @@ import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
+import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -62,6 +63,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -408,6 +410,11 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                             .call()) {
                         branchName = git.getRepository().getBranch();
 
+                        // SECURITY (GHSA-fqwc-g9wm-5895): disable symlink materialization and
+                        // re-checkout any symlinks as regular files. A malicious repo can commit
+                        // symlink entries (git mode 120000) pointing outside the Git root.
+                        removeSymlinksAfterClone(git);
+
                         repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
                     }
                     processStopwatch.stopAndLogTimeInMillis();
@@ -418,6 +425,30 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                 .name(GitSpan.FS_CLONE_REPO)
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler));
+    }
+
+    /**
+     * Disables symlink support and re-materializes any symlinks as regular files
+     * (GHSA-fqwc-g9wm-5895).
+     */
+    protected void removeSymlinksAfterClone(Git git) throws GitAPIException, IOException {
+        StoredConfig config = git.getRepository().getConfig();
+        config.setBoolean(ConfigConstants.CONFIG_CORE_SECTION, null, ConfigConstants.CONFIG_KEY_SYMLINKS, false);
+        config.save();
+
+        Path workTree = git.getRepository().getWorkTree().toPath();
+        try (Stream<Path> paths = Files.walk(workTree)) {
+            paths.filter(Files::isSymbolicLink)
+                    .filter(p -> !p.startsWith(workTree.resolve(".git")))
+                    .forEach(p -> {
+                        try {
+                            Files.delete(p);
+                        } catch (IOException e) {
+                            log.warn("Failed to delete symlink: {}", p, e);
+                        }
+                    });
+        }
+        git.checkout().setAllPaths(true).call();
     }
 
     @Override

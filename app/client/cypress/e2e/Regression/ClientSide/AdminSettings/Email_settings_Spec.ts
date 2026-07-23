@@ -202,6 +202,7 @@ describe(
             timeout: TIMEOUT,
             targetSubject: resetPassSubject,
             targetEmail: emailOne,
+            requireHtml: true,
           })
           .then((email) => {
             if (email) {
@@ -282,6 +283,7 @@ describe(
             timeout: TIMEOUT,
             targetSubject: inviteEmailSubject,
             targetEmail: emailTwo,
+            requireHtml: true,
           })
           .then((email) => {
             if (email) {
@@ -362,6 +364,7 @@ describe(
             timeout: TIMEOUT,
             targetSubject: inviteEmailSubject,
             targetEmail: emailThree,
+            requireHtml: true,
           })
           .then((email) => {
             if (email) {
@@ -464,6 +467,7 @@ describe(
             timeout: TIMEOUT,
             targetSubject: inviteEmailSubject,
             targetEmail: emailFour,
+            requireHtml: true,
           })
           .then((email) => {
             if (email) {

@@ -172,6 +172,7 @@ describe(
         agHelper.ValidateToastMessage(
           "REPLICA_SET connections should not be given a port. If you are trying to specify all the shards, please add more than one.",
         );
+        agHelper.WaitUntilAllToastsDisappear();
         agHelper.ClearNType(
           dataSources._host(),
           dataManager.dsValues[dataManager.defaultEnviorment].mongo_host,

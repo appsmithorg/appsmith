@@ -225,8 +225,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             .findByEmailAndOrganizationId(email, organizationId)
                             .switchIfEmpty(repository.findFirstByEmailIgnoreCaseAndOrganizationIdOrderByCreatedAtDesc(
                                     email, organizationId))
-                            .switchIfEmpty(Mono.error(
-                                    new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
+                            // Anti-enumeration (CWE-204, GHSA-fvrq-g89c-fgg6): do not surface a distinct
+                            // NO_RESOURCE_FOUND (HTTP 404) for an unknown email. When no user matches, this inner
+                            // Mono simply stays empty; the token save and email dispatch below are skipped and
+                            // thenReturn(true) still emits the same generic success (HTTP 200, {"data": true}) that
+                            // the valid path returns. This makes the response for an unknown email indistinguishable
+                            // from a known one, so an unauthenticated caller cannot enumerate registered accounts.
                             .flatMap(user -> {
                                 // an user found with the provided email address
                                 // Generate the password reset link for the user
@@ -240,11 +244,22 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                             passwordResetToken.setFirstRequestTime(Instant.now());
                                             return Mono.just(passwordResetToken);
                                         }))
-                                        .map(resetToken -> {
-                                            // check the validity of the token
-                                            validateResetLimit(resetToken);
+                                        .flatMap(resetToken -> {
+                                            // Track this request and check the per-account reset limit.
+                                            // Anti-enumeration (CWE-204, GHSA-fvrq-g89c-fgg6): when a known
+                                            // account is over its limit we must NOT surface a distinct 429 —
+                                            // that would tell an unauthenticated caller the account exists.
+                                            // Instead we complete the chain empty (skipping the token save and
+                                            // email dispatch below) so thenReturn(true) emits the same generic
+                                            // success returned for the unknown-user and under-limit cases.
+                                            // Anti-spam: over the limit we deliberately do not issue a fresh
+                                            // reset link or send another email; the request count is still
+                                            // tracked so the limit keeps functioning.
+                                            if (!isWithinResetLimit(resetToken)) {
+                                                return Mono.empty();
+                                            }
                                             resetToken.setTokenHash(passwordEncoder.encode(token));
-                                            return resetToken;
+                                            return Mono.just(resetToken);
                                         });
                             });
                 })
@@ -269,28 +284,40 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     /**
-     * This method checks whether the reset request limit has been exceeded.
-     * If the limit has been exceeded, it raises an Exception.
-     * Otherwise, it'll update the counter and date in the resetToken object
+     * Tracks a password-reset request against the per-account limit (max 3 per rolling 24h window)
+     * and reports whether the caller is still within that limit.
+     * <p>
+     * When under the limit the counter is incremented (and the window start stamped on the first
+     * request); when the 24h window has elapsed the counter is reset and the request is allowed.
+     * When the limit is exceeded within the window this returns {@code false} without mutating the
+     * counter, so the limit keeps functioning across subsequent requests.
+     * <p>
+     * This intentionally no longer throws {@link AppsmithError#TOO_MANY_REQUESTS}: on the
+     * unauthenticated forgot-password endpoint a distinct 429 would reveal that the account exists
+     * (CWE-204). Callers treat {@code false} as "complete with the generic success response and send
+     * no email" rather than surfacing a distinguishable error.
      *
      * @param resetToken {@link PasswordResetToken}
+     * @return {@code true} if the request is within the limit and a reset email may be sent;
+     *     {@code false} if the account is over its limit and no email should be sent
      */
-    private void validateResetLimit(PasswordResetToken resetToken) {
+    private boolean isWithinResetLimit(PasswordResetToken resetToken) {
         if (resetToken.getRequestCount() >= 3) {
             Duration duration = Duration.between(resetToken.getFirstRequestTime(), Instant.now());
             long l = duration.toHours();
-            if (l >= 24) { // ok, reset the counter
+            if (l >= 24) { // window elapsed: reset the counter and allow the request
                 resetToken.setRequestCount(1);
                 resetToken.setFirstRequestTime(Instant.now());
-            } else { // too many requests, raise an exception
-                throw new AppsmithException(AppsmithError.TOO_MANY_REQUESTS);
+                return true;
             }
-        } else {
-            resetToken.setRequestCount(resetToken.getRequestCount() + 1);
-            if (resetToken.getFirstRequestTime() == null) {
-                resetToken.setFirstRequestTime(Instant.now());
-            }
+            // too many requests within the window: over the limit
+            return false;
         }
+        resetToken.setRequestCount(resetToken.getRequestCount() + 1);
+        if (resetToken.getFirstRequestTime() == null) {
+            resetToken.setFirstRequestTime(Instant.now());
+        }
+        return true;
     }
 
     private Boolean isEmailVerificationTokenValid(EmailVerificationToken emailVerificationToken) {
@@ -878,16 +905,21 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                 email, organizationId)))
                 .cache();
 
-        return userMono.switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
-                .flatMap(user -> {
+        // Verification-email dispatch chain. Anti-enumeration (CWE-204): the unknown-email,
+        // already-verified and verification-not-enabled branches all complete empty instead of throwing a
+        // distinct error (previously 404 / 400), so the thenReturn(true) at the end emits the same generic
+        // success (HTTP 200, {"data": true}) for every case and no email is dispatched. An unauthenticated
+        // caller therefore cannot tell whether the address is registered, already verified, or whether
+        // verification is enabled at the instance level.
+        Mono<Boolean> dispatchMono = userMono.flatMap(user -> {
                     if (TRUE.equals(user.getEmailVerified())) {
-                        return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_VERIFIED));
+                        // Already verified: send no email, but keep the response indistinguishable.
+                        return Mono.<EmailVerificationToken>empty();
                     }
                     return instanceVariablesHelper.isEmailVerificationEnabled().flatMap(emailVerificationEnabled -> {
-                        // Email verification not enabled at instance level
+                        // Email verification not enabled at instance level: send no email, response unchanged.
                         if (!TRUE.equals(emailVerificationEnabled)) {
-                            return Mono.error(new AppsmithException(AppsmithError.EMAIL_VERIFICATION_NOT_ENABLED));
+                            return Mono.<EmailVerificationToken>empty();
                         }
                         return emailVerificationTokenRepository
                                 .findByEmail(user.getEmail())
@@ -936,6 +968,22 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             user, verificationUrl, resendEmailVerificationDTO.getBaseUrl());
                 })
                 .thenReturn(true);
+
+        // Per-email rate limit (anti-abuse). Applied uniformly on the submitted address so behaviour does
+        // not vary by account existence. Over the limit we skip dispatch and still return the same generic
+        // success — surfacing a distinct 429 here would re-introduce an enumeration oracle on this
+        // unauthenticated endpoint.
+        return rateLimitService
+                .tryIncreaseCounter(
+                        RateLimitConstants.BUCKET_KEY_FOR_RESEND_EMAIL_VERIFICATION_API, email.toLowerCase())
+                .flatMap(withinLimit -> TRUE.equals(withinLimit) ? dispatchMono : Mono.just(true))
+                // Fail open: if the limiter itself errors (e.g. Redis is unreachable), do not block a
+                // legitimate verification email. This runs the same dispatch path regardless of account
+                // state, so it does not reintroduce an enumeration oracle.
+                .onErrorResume(error -> {
+                    log.error("Resend email verification rate limiter errored; failing open.", error);
+                    return dispatchMono;
+                });
     }
 
     private String getEmailVerificationErrorRedirectUrl(AppsmithError appsmithError, String userEmail, Object... args) {

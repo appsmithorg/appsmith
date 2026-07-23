@@ -17,10 +17,12 @@ const applications = [
   { id: "other-app", name: "Other App", pages: [], userPermissions: [] },
 ];
 
+let mockEntityType = "ACTION";
+
 jest.mock("selectors/copyToAppSelectors", () => ({
   getIsCopyToAppModalOpen: () => true,
   getCopyToAppModalEntity: () => ({
-    entityType: "ACTION",
+    entityType: mockEntityType,
     entityId: "a1",
     entityName: "Query1",
     sourcePageId: "p1",
@@ -58,7 +60,10 @@ function openApplicationOptions() {
 }
 
 describe("CopyEntityToAppModal", () => {
-  beforeEach(() => mockDispatch.mockClear());
+  beforeEach(() => {
+    mockDispatch.mockClear();
+    mockEntityType = "ACTION";
+  });
 
   it("excludes the source application from the target application list", () => {
     render(<CopyEntityToAppModal />);
@@ -78,5 +83,20 @@ describe("CopyEntityToAppModal", () => {
     expect(mockDispatch).toHaveBeenCalledWith(
       fetchPagesForCopyTarget("other-app"),
     );
+  });
+
+  it("shows the datasource note when copying a query", () => {
+    render(<CopyEntityToAppModal />);
+
+    expect(
+      screen.getByText(/Datasource credentials and any referenced queries/),
+    ).toBeTruthy();
+  });
+
+  it("shows no note when copying a JS object", () => {
+    mockEntityType = "JS_OBJECT";
+    render(<CopyEntityToAppModal />);
+
+    expect(screen.queryByText(/Datasource credentials/)).toBeNull();
   });
 });
