@@ -13833,7 +13833,7 @@ __metadata:
     "@types/node": "*"
     "@types/nodemailer": ^8.0.0
     "@types/readline-sync": ^1.4.8
-    axios: ^1.15.0
+    axios: ^1.18.0
     dotenv: 10.0.0
     express: ^4.20.0
     express-validator: ^6.14.2
@@ -13979,7 +13979,7 @@ __metadata:
     assert-never: ^1.2.1
     astring: ^1.7.5
     async-mutex: ^0.5.0
-    axios: ^1.15.0
+    axios: ^1.18.0
     babel-jest: ^27.4.2
     babel-loader: ^8.2.3
     babel-plugin-lodash: ^3.3.4
@@ -14652,14 +14652,14 @@ __metadata:
   linkType: hard
 
 "axios@npm:^1.16.1":
-  version: 1.16.1
-  resolution: "axios@npm:1.16.1"
+  version: 1.18.1
+  resolution: "axios@npm:1.18.1"
   dependencies:
     follow-redirects: ^1.16.0
     form-data: ^4.0.5
     https-proxy-agent: ^5.0.1
     proxy-from-env: ^2.1.0
-  checksum: 4b5daf07ed09e67d1884a98291023bd80a52854d705f6577eaa92ccc0c10b27df533e8c63d50cb3a321ce0efe4251760cdfb5eaa79c9d940d301914b3df9ddb5
+  checksum: e7a0c1f73f3d17ef5c5b09259b6aae0c1d841fe3b4ef76964ac5aca97b1cf30724cdedb9a514ccc435682dc690f4486580c5babfe897fbcbd500627bd2e86f6d
   languageName: node
   linkType: hard
 
@@ -33721,16 +33721,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tar@npm:7.5.16":
-  version: 7.5.16
-  resolution: "tar@npm:7.5.16"
+"tar@npm:^7.5.19":
+  version: 7.5.21
+  resolution: "tar@npm:7.5.21"
   dependencies:
     "@isaacs/fs-minipass": ^4.0.0
     chownr: ^3.0.0
     minipass: ^7.1.2
     minizlib: ^3.1.0
     yallist: ^5.0.0
-  checksum: 9b7f886f5ce8681a7430f80b9b377bfa498e6feb957b9afe6507db08e59d309f8546b7f76a0c2e47bdb54da4602575a5c7519e287fe94de8302e635032fc94f1
+  checksum: 339cab1cd6a9ce7201866a8e96db7b95d2ecf5b5249eb69780c09ef14e9c466c898ffed286e9116a1fd7835c8150e4e65d0cf555ed2857a65c30ff989c32025f
   languageName: node
   linkType: hard
 

@@ -80,9 +80,11 @@ APPSMITH_JAVA_ARGS=
 
 # Set this to a space separated list of addresses that should be allowed to load Appsmith in a frame.
 # Example: "https://mydomain.com https://another-trusted-domain.com" will allow embedding on those two domains.
-# Default value, if commented or not set, is "'none'", which disables embedding completely.
+# Default value, if commented or not set, is "'self'", which allows framing only by the Appsmith
+# instance itself (same origin) and blocks all cross-origin framing. Use "'none'" to block framing
+# entirely, or "*" to allow any origin (not recommended: exposes published apps to clickjacking).
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
-APPSMITH_ALLOWED_FRAME_ANCESTORS="'self' *"
+#APPSMITH_ALLOWED_FRAME_ANCESTORS=
 
 APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX=false
 
