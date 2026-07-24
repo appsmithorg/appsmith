@@ -191,6 +191,11 @@ jobs:
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             cicontainer
 
+          # Record the resolved image digests for the mutable cloud-services / test-event-driver
+          # tags, so a failing run can be tied to an exact image build.
+          echo "cloud-services digest: $(docker inspect --format '{{index .RepoDigests 0}}' appsmith/cloud-services:release 2>/dev/null || echo unknown)"
+          echo "test-event-driver digest: $(docker inspect --format '{{index .RepoDigests 0}}' "appsmith/test-event-driver:${ted_tag:-latest}" 2>/dev/null || echo unknown)"
+
       - name: Use Node.js
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v4
@@ -475,13 +480,20 @@ jobs:
         if: always()
         run: |
           docker logs appsmith >& app/server/docker-logs.log
+          # Also capture the sidecar containers so a cloud-services / test-event-driver
+          # failure is diagnosable instead of only visible as a connection error server-side.
+          docker logs cloud-services > app/server/cloud-services-logs.log 2>&1 || true
+          docker logs test-event-driver > app/server/test-event-driver-logs.log 2>&1 || true
 
       - name: Upload server docker logs bundle on failure
         uses: actions/upload-artifact@v4
         if: always()
         with:
             name: docker-logs-${{ matrix.job }}
-            path: app/server/docker-logs.log
+            path: |
+              app/server/docker-logs.log
+              app/server/cloud-services-logs.log
+              app/server/test-event-driver-logs.log
             overwrite: true
 
       # Set status = success
