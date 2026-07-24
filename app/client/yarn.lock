@@ -14196,7 +14196,7 @@ __metadata:
     validate-color: ^2.2.4
     web-vitals: 3.5.2
     webpack: ^5.98.0
-    webpack-dev-server: 5.2.5
+    webpack-dev-server: 5.2.6
     webpack-manifest-plugin: ^4.0.2
     webpack-retry-chunk-load-plugin: ^3.1.1
     workbox-webpack-plugin: ^7.3.0
@@ -35608,9 +35608,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-dev-server@npm:5.2.5":
-  version: 5.2.5
-  resolution: "webpack-dev-server@npm:5.2.5"
+"webpack-dev-server@npm:5.2.6":
+  version: 5.2.6
+  resolution: "webpack-dev-server@npm:5.2.6"
   dependencies:
     "@types/bonjour": ^3.5.13
     "@types/connect-history-api-fallback": ^1.5.4
@@ -35630,7 +35630,7 @@ __metadata:
     graceful-fs: ^4.2.6
     http-proxy-middleware: ^2.0.9
     ipaddr.js: ^2.1.0
-    launch-editor: ^2.6.1
+    launch-editor: ^2.14.1
     open: ^10.0.3
     p-retry: ^6.2.0
     schema-utils: ^4.2.0
@@ -35649,7 +35649,7 @@ __metadata:
       optional: true
   bin:
     webpack-dev-server: bin/webpack-dev-server.js
-  checksum: 349719d0487a5672f65a7427d54afc9f8ddc6b695042641ed9f468cb5a3c90866e16a236ecdb2ac62d2a922712f9c1296b8805b7ec0880f6a3f5c4280785f200
+  checksum: 0953b27bf9a9cc591f0118cedea6463f4f2190b9f297be63a372b033f4abd261bf297ee92611a7c875e3b71458ba8f11aa8ce8a342528776d20029629e74ea1b
   languageName: node
   linkType: hard
 
