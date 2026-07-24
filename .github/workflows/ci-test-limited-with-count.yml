@@ -241,6 +241,7 @@ jobs:
             -e APPSMITH_CLOUD_SERVICES_MONGODB_AUTH_DATABASE=admin \
             -e APPSMITH_REDIS_URL=redis://host.docker.internal:6379/ \
             -e APPSMITH_APPS_API_KEY=dummy-api-key \
+            -e APPSMITH_REMOTE_API_KEY=dummy-api-key \
             -e APPSMITH_GITHUB_API_KEY=dummy-appsmith-gh-api-key \
             -e APPSMITH_JWT_SECRET=appsmith-cloud-services-jwt-secret-dummy-key \
             -e APPSMITH_ENCRYPTION_SALT=encryption-salt \
