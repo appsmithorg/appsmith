@@ -13803,7 +13803,7 @@ __metadata:
     fast-glob: ^3.3.2
     figmagic: ^4.5.13
     fs-extra: ^11.2.0
-    svgo: ^3.3.3
+    svgo: ^3.3.4
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   languageName: unknown
@@ -33562,23 +33562,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svgo@npm:3.3.4":
-  version: 3.3.4
-  resolution: "svgo@npm:3.3.4"
-  dependencies:
-    commander: ^7.2.0
-    css-select: ^5.1.0
-    css-tree: ^2.3.1
-    css-what: ^6.1.0
-    csso: ^5.0.5
-    picocolors: ^1.0.0
-    sax: ^1.5.0
-  bin:
-    svgo: ./bin/svgo
-  checksum: 7828e76b42bb58867703a21aa80f2cd1a8c1828df2500a5ac58a30cca483d9c7862d07c9060a4cdf24bbb8ac3d2148ed27e42dc2794738d097fae0ce05dabd81
-  languageName: node
-  linkType: hard
-
 "svgo@npm:^1.2.2":
   version: 1.3.2
   resolution: "svgo@npm:1.3.2"
@@ -33599,6 +33582,23 @@ __metadata:
   bin:
     svgo: ./bin/svgo
   checksum: 28a5680a61245eb4a1603bc03459095bb01ad5ebd23e95882d886c3c81752313c0a9a9fe48dd0bcbb9a27c52e11c603640df952971573b2b550d9e15a9ee6116
+  languageName: node
+  linkType: hard
+
+"svgo@npm:^3.3.4":
+  version: 3.3.4
+  resolution: "svgo@npm:3.3.4"
+  dependencies:
+    commander: ^7.2.0
+    css-select: ^5.1.0
+    css-tree: ^2.3.1
+    css-what: ^6.1.0
+    csso: ^5.0.5
+    picocolors: ^1.0.0
+    sax: ^1.5.0
+  bin:
+    svgo: ./bin/svgo
+  checksum: 7828e76b42bb58867703a21aa80f2cd1a8c1828df2500a5ac58a30cca483d9c7862d07c9060a4cdf24bbb8ac3d2148ed27e42dc2794738d097fae0ce05dabd81
   languageName: node
   linkType: hard
 
