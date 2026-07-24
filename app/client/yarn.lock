@@ -11107,13 +11107,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trysound/sax@npm:0.2.0":
-  version: 0.2.0
-  resolution: "@trysound/sax@npm:0.2.0"
-  checksum: 11226c39b52b391719a2a92e10183e4260d9651f86edced166da1d95f39a0a1eaa470e44d14ac685ccd6d3df7e2002433782872c0feeb260d61e80f21250e65c
-  languageName: node
-  linkType: hard
-
 "@tsconfig/node10@npm:^1.0.7":
   version: 1.0.9
   resolution: "@tsconfig/node10@npm:1.0.9"
@@ -14196,7 +14189,7 @@ __metadata:
     validate-color: ^2.2.4
     web-vitals: 3.5.2
     webpack: ^5.98.0
-    webpack-dev-server: 5.2.5
+    webpack-dev-server: 5.2.6
     webpack-manifest-plugin: ^4.0.2
     webpack-retry-chunk-load-plugin: ^3.1.1
     workbox-webpack-plugin: ^7.3.0
@@ -15200,13 +15193,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"brace-expansion@npm:1.1.13":
-  version: 1.1.13
-  resolution: "brace-expansion@npm:1.1.13"
+"brace-expansion@npm:1.1.16":
+  version: 1.1.16
+  resolution: "brace-expansion@npm:1.1.16"
   dependencies:
     balanced-match: ^1.0.0
     concat-map: 0.0.1
-  checksum: b5f4329fdbe9d2e25fa250c8f866ebd054ba946179426e99b86dcccddabdb1d481f0e40ee5430032e62a7d0a6c2837605ace6783d015aa1d65d85ca72154d936
+  checksum: 11ab2d5b39d61bc0d0de9240a5d08a5f210a5650885ca4876271ef5996b4c5d172d697b501d673fe099ab721aa8bf0348507ad23a6148e169856209d2f9cab94
   languageName: node
   linkType: hard
 
@@ -19915,10 +19908,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-uri@npm:^3.0.1":
-  version: 3.0.6
-  resolution: "fast-uri@npm:3.0.6"
-  checksum: 7161ba2a7944778d679ba8e5f00d6a2bb479a2142df0982f541d67be6c979b17808f7edbb0ce78161c85035974bde3fa52b5137df31da46c0828cb629ba67c4e
+"fast-uri@npm:3.1.4":
+  version: 3.1.4
+  resolution: "fast-uri@npm:3.1.4"
+  checksum: 6e1262dd5901f4f095eeb4c446111f5818320f05a8f11eaa46d9117eec3b5fd6114507a66338c564004eaa002b0eb865ca998b34780373fd205d53b5182c3bd2
   languageName: node
   linkType: hard
 
@@ -22037,10 +22030,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"immutable@npm:4.3.8":
-  version: 4.3.8
-  resolution: "immutable@npm:4.3.8"
-  checksum: cd527802c8c72636495f46fed60a0e930d210fb5ae9d5c8f66d8156eb532c673b7d9a151c71a4bdca9fb7e999a7d17eddec0dc177f3140a93298178356ddd79c
+"immutable@npm:4.3.9":
+  version: 4.3.9
+  resolution: "immutable@npm:4.3.9"
+  checksum: 08cdd3cc993add6ab804e5d4570072fc3139f827fe404277efaae86d5ef890aa1a545f43261ac2b443f422b7c09958c06b244fe39abf82ec1973df75bc81043b
   languageName: node
   linkType: hard
 
@@ -29291,9 +29284,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"protobufjs@npm:^7.6.3":
-  version: 7.6.4
-  resolution: "protobufjs@npm:7.6.4"
+"protobufjs@npm:^7.6.5":
+  version: 7.6.5
+  resolution: "protobufjs@npm:7.6.5"
   dependencies:
     "@protobufjs/aspromise": ^1.1.2
     "@protobufjs/base64": ^1.1.2
@@ -29306,7 +29299,7 @@ __metadata:
     "@protobufjs/utf8": ^1.1.1
     "@types/node": ">=13.7.0"
     long: ^5.3.2
-  checksum: 2cee14aa83c6688bf3c2d80ce9a6b904dfdaf10294fd131c388b94aed8028fc6ad74aea9b56aad4e2db3d278e36e40d5e15ba76925ba846bd654ffef218ee8fc
+  checksum: 6d3f18324942f8cabf003b68b81a445e8089a3f89cfae227feedbe4bfe8aea8629f6332cbe6176842cbe645704e4a25d4773b55c3b63d923034b3e6b4eacbb78
   languageName: node
   linkType: hard
 
@@ -32354,10 +32347,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"shell-quote@npm:1.8.4":
-  version: 1.8.4
-  resolution: "shell-quote@npm:1.8.4"
-  checksum: 082dc836baa8ade01144ee3068af487ea45ba570ea6ab13a5eddc11ab16a976b8857b51ef2caf7dc9a1e173ff0aea685b8f78b4f6f5a0a1ef24c7b17c51350e2
+"shell-quote@npm:1.9.0":
+  version: 1.9.0
+  resolution: "shell-quote@npm:1.9.0"
+  checksum: 2ec85fb903121c684c3536d051e377e98746cf88525e08c298baaa7b42c168de75c3201cef00db66556e89e340a8cf26bd4c18e7a3fd78799449a21cac43da2e
   languageName: node
   linkType: hard
 
@@ -33552,6 +33545,40 @@ __metadata:
   languageName: node
   linkType: hard
 
+"svgo@npm:2.8.3":
+  version: 2.8.3
+  resolution: "svgo@npm:2.8.3"
+  dependencies:
+    commander: ^7.2.0
+    css-select: ^4.1.3
+    css-tree: ^1.1.3
+    csso: ^4.2.0
+    picocolors: ^1.0.0
+    sax: ^1.5.0
+    stable: ^0.1.8
+  bin:
+    svgo: ./bin/svgo
+  checksum: e3636760dfb7fb898919fd8eade7ad4a69a10b8650e9b3062b3beff6045f39063da18d537b454ed5bca638a9db45bb0bfa8d9b920efac2157964ec20ff35d829
+  languageName: node
+  linkType: hard
+
+"svgo@npm:3.3.4":
+  version: 3.3.4
+  resolution: "svgo@npm:3.3.4"
+  dependencies:
+    commander: ^7.2.0
+    css-select: ^5.1.0
+    css-tree: ^2.3.1
+    css-what: ^6.1.0
+    csso: ^5.0.5
+    picocolors: ^1.0.0
+    sax: ^1.5.0
+  bin:
+    svgo: ./bin/svgo
+  checksum: 7828e76b42bb58867703a21aa80f2cd1a8c1828df2500a5ac58a30cca483d9c7862d07c9060a4cdf24bbb8ac3d2148ed27e42dc2794738d097fae0ce05dabd81
+  languageName: node
+  linkType: hard
+
 "svgo@npm:^1.2.2":
   version: 1.3.2
   resolution: "svgo@npm:1.3.2"
@@ -33572,40 +33599,6 @@ __metadata:
   bin:
     svgo: ./bin/svgo
   checksum: 28a5680a61245eb4a1603bc03459095bb01ad5ebd23e95882d886c3c81752313c0a9a9fe48dd0bcbb9a27c52e11c603640df952971573b2b550d9e15a9ee6116
-  languageName: node
-  linkType: hard
-
-"svgo@npm:^2.7.0":
-  version: 2.8.0
-  resolution: "svgo@npm:2.8.0"
-  dependencies:
-    "@trysound/sax": 0.2.0
-    commander: ^7.2.0
-    css-select: ^4.1.3
-    css-tree: ^1.1.3
-    csso: ^4.2.0
-    picocolors: ^1.0.0
-    stable: ^0.1.8
-  bin:
-    svgo: bin/svgo
-  checksum: b92f71a8541468ffd0b81b8cdb36b1e242eea320bf3c1a9b2c8809945853e9d8c80c19744267eb91cabf06ae9d5fff3592d677df85a31be4ed59ff78534fa420
-  languageName: node
-  linkType: hard
-
-"svgo@npm:^3.3.3":
-  version: 3.3.3
-  resolution: "svgo@npm:3.3.3"
-  dependencies:
-    commander: ^7.2.0
-    css-select: ^5.1.0
-    css-tree: ^2.3.1
-    css-what: ^6.1.0
-    csso: ^5.0.5
-    picocolors: ^1.0.0
-    sax: ^1.5.0
-  bin:
-    svgo: ./bin/svgo
-  checksum: ad9c27f19f1f8a6e45bae1b280eb68028da5449359c4daf2c539fc099ab6c76852335d96300a030af4e6866e500159fe80f43a732b8a2905ffa1bd4339da520c
   languageName: node
   linkType: hard
 
@@ -35608,9 +35601,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-dev-server@npm:5.2.5":
-  version: 5.2.5
-  resolution: "webpack-dev-server@npm:5.2.5"
+"webpack-dev-server@npm:5.2.6":
+  version: 5.2.6
+  resolution: "webpack-dev-server@npm:5.2.6"
   dependencies:
     "@types/bonjour": ^3.5.13
     "@types/connect-history-api-fallback": ^1.5.4
@@ -35630,7 +35623,7 @@ __metadata:
     graceful-fs: ^4.2.6
     http-proxy-middleware: ^2.0.9
     ipaddr.js: ^2.1.0
-    launch-editor: ^2.6.1
+    launch-editor: ^2.14.1
     open: ^10.0.3
     p-retry: ^6.2.0
     schema-utils: ^4.2.0
@@ -35649,7 +35642,7 @@ __metadata:
       optional: true
   bin:
     webpack-dev-server: bin/webpack-dev-server.js
-  checksum: 349719d0487a5672f65a7427d54afc9f8ddc6b695042641ed9f468cb5a3c90866e16a236ecdb2ac62d2a922712f9c1296b8805b7ec0880f6a3f5c4280785f200
+  checksum: 0953b27bf9a9cc591f0118cedea6463f4f2190b9f297be63a372b033f4abd261bf297ee92611a7c875e3b71458ba8f11aa8ce8a342528776d20029629e74ea1b
   languageName: node
   linkType: hard
 
