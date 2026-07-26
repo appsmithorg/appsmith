@@ -14092,7 +14092,7 @@ __metadata:
     plop: ^3.1.1
     pluralize: ^8.0.0
     popper.js: ^1.15.0
-    postcss: 8.4.31
+    postcss: 8.5.18
     postcss-at-rules-variables: ^0.3.0
     postcss-each: ^1.1.0
     postcss-flexbugs-fixes: ^5.0.2
@@ -28900,14 +28900,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:8.5.15":
-  version: 8.5.15
-  resolution: "postcss@npm:8.5.15"
+"postcss@npm:8.5.18":
+  version: 8.5.18
+  resolution: "postcss@npm:8.5.18"
   dependencies:
     nanoid: ^3.3.12
     picocolors: ^1.1.1
     source-map-js: ^1.2.1
-  checksum: 82e046d5bd0c537e7bcae1b97ec366968cac4ebdbd38773b69a2a4ad437f26641643a48f120317dd167199ac718ff8a0ab7dd102258430e4c919daaef0e57904
+  checksum: 924b71b066ada1909b741970b53529b95a6589106302a154cd14b2fae0c8186144be2bb1e0c45e0f3e530474cf92afa01d790afa8b71dcd60c98ca8ee42f66c1
   languageName: node
   linkType: hard
 
