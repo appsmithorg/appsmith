@@ -361,6 +361,15 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     if (user.isAnonymous()) {
                         return featureFlagService
                                 .check(FeatureFlagEnum.configure_block_event_tracking_for_anonymous_users)
+                                // Fail closed: if the flag state can't be resolved, drop the anonymous event rather
+                                // than erroring the business flow this analytics call is chained into.
+                                .onErrorResume(error -> {
+                                    log.warn(
+                                            "Could not resolve the block-anonymous-tracking flag; dropping anonymous event {}",
+                                            eventTag,
+                                            error);
+                                    return Mono.just(Boolean.TRUE);
+                                })
                                 .flatMap(isBlocked -> {
                                     if (isBlocked) {
                                         log.debug("Analytics event {} is not sent for anonymous user", eventTag);

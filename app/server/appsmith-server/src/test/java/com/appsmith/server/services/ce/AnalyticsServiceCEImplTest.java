@@ -1,7 +1,10 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.enums.FeatureFlagEnum;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.SessionUserService;
 import com.segment.analytics.Analytics;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
@@ -71,6 +74,32 @@ public class AnalyticsServiceCEImplTest {
                 new AnalyticsServiceCEImpl(analytics, null, null, null, null, null, null, null, featureFlagService);
 
         StepVerifier.create(analyticsService.sendEvent("execute_ACTION_TRIGGERED", "anonymousUser", Map.of("id", "x")))
+                .verifyComplete();
+
+        verify(analytics, never()).enqueue(any());
+    }
+
+    // Same fail-closed contract for sendObjectEvent: a flag-resolution error for an anonymous session must
+    // drop the event and still emit the original object, instead of erroring the business flow this
+    // analytics call is chained into.
+    @Test
+    void sendObjectEvent_anonymousSessionWhenFlagCheckErrors_returnsObjectWithoutEnqueueing() {
+        Analytics analytics = mock(Analytics.class);
+        FeatureFlagService featureFlagService = mock(FeatureFlagService.class);
+        SessionUserService sessionUserService = mock(SessionUserService.class);
+        // No session user -> sendObjectEvent falls back to its internal anonymous user.
+        when(sessionUserService.getCurrentUser()).thenReturn(Mono.empty());
+        when(featureFlagService.check(FeatureFlagEnum.configure_block_event_tracking_for_anonymous_users))
+                .thenReturn(Mono.error(new RuntimeException("flag service unavailable")));
+
+        AnalyticsServiceCEImpl analyticsService = new AnalyticsServiceCEImpl(
+                analytics, sessionUserService, null, null, null, null, null, null, featureFlagService);
+
+        Workspace workspace = new Workspace();
+        workspace.setId("test-workspace-id");
+
+        StepVerifier.create(analyticsService.sendObjectEvent(AnalyticsEvents.CREATE, workspace))
+                .expectNext(workspace)
                 .verifyComplete();
 
         verify(analytics, never()).enqueue(any());
