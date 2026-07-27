@@ -54,7 +54,7 @@
         <!-- We're forcing this version temporarily to fix CVE-2022-1471-->
         <snakeyaml.version>2.0</snakeyaml.version>
         <source.disabled>true</source.disabled>
-        <spotless.version>3.0.0</spotless.version>
+        <spotless.version>3.9.0</spotless.version>
         <testcontainers.version>1.20.1</testcontainers.version>
     </properties>
 
