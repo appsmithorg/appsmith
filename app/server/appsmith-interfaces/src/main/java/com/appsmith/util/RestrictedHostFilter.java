@@ -97,6 +97,47 @@ public final class RestrictedHostFilter {
     private static volatile Set<String> internalRedisHosts = computeInternalRedisHosts();
 
     /**
+     * Hostnames that identify the Appsmith instance itself — seeded at JVM start from the local
+     * hostname ({@link InetAddress#getLocalHost()}) and the {@code HOSTNAME} environment variable.
+     *
+     * <p>Defense-in-depth: an instance's own routable address is typically an RFC 1918 / site-local
+     * IP (Docker bridge {@code 172.17.x}, k8s pod {@code 10.x}, etc.), which the filter otherwise
+     * intentionally allows so that legitimate customer datasources on private networks keep
+     * working (see {@link #resolveIfAllowed(String)}). That carve-out means a user-defined
+     * datasource could point at the Appsmith instance itself. Registering the instance's own
+     * hostname(s) here lets the filter resolve and block just its own address(es) — via the
+     * container hostname or the raw own IP — without blocking the rest of the private network.
+     *
+     * <p><b>Scope:</b> this is <em>best-effort</em> coverage of the address(es) the registered own
+     * hostname(s) resolve to — deliberately not a full {@link java.net.NetworkInterface}
+     * enumeration. A multi-homed container's secondary-interface IPs, or a deployment where the
+     * hostname does not resolve to the address plugins actually connect over, are out of scope by
+     * design. The primary/hostname-mapped address is the target this closes.
+     *
+     * <p>Hostnames are stored here; their IPs are resolved off the request hot path (at static init
+     * and at {@link #registerOwnHost(String...)}, which the server runs at startup) and cached in
+     * {@link #ownResolvedIps}, so the enforcement checks stay DNS-free. The own IP is effectively
+     * static for the process lifetime, so a startup resolve suffices with no periodic refresh.
+     *
+     * <p>Volatile + public setter (for tests only) instead of {@code final} so unit tests can
+     * exercise the overlap-detection logic without relying on the JVM's launch environment.
+     * Production code mutates it only via {@link #registerOwnHost(String...)} at startup.
+     */
+    private static volatile Set<String> ownHosts = computeOwnHosts();
+
+    /**
+     * Cached IPs the registered own hostname(s) resolve to. Resolved off the request hot path —
+     * once at static init and again whenever {@link #registerOwnHost(String...)} runs (the server
+     * calls that at startup, before any datasource is served) — so the enforcement checks
+     * ({@link #matchesOwnHost(String)} on the resolver EventLoop, and
+     * {@link #isAnyResolvedAddressBlocked(InetAddress[])} on the datasource-save / Redis paths) are
+     * pure set-membership with no DNS. The own IP is effectively static for the process lifetime (a
+     * re-IP means a restart, which re-seeds this), so a startup resolve is sufficient and there is
+     * no periodic refresh. Tests seed it directly via {@link #setOwnResolvedIpsForTesting(String...)}.
+     */
+    private static volatile Set<String> ownResolvedIps = resolveHostsToIps(ownHosts);
+
+    /**
      * Test-only override that lets specific hosts bypass {@link #isHostBlocked(String)}. Used by
      * integration tests that spin up real services on loopback (e.g. Testcontainers-exposed
      * Redis on localhost) where the production block on loopback would otherwise prevent the
@@ -219,6 +260,94 @@ public final class RestrictedHostFilter {
         internalRedisHosts = merged.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(merged);
     }
 
+    private static Set<String> computeOwnHosts() {
+        final Set<String> hosts = new HashSet<>();
+        try {
+            addOwnHostname(hosts, InetAddress.getLocalHost().getHostName());
+        } catch (UnknownHostException e) {
+            log.debug("Could not determine local hostname for the SSRF own-host filter; skipping the seed.");
+        }
+        addOwnHostname(hosts, System.getenv("HOSTNAME"));
+        return hosts.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(hosts);
+    }
+
+    private static void addOwnHostname(Set<String> hosts, String hostname) {
+        if (StringUtils.hasText(hostname)) {
+            // Same canonicalization as the compare side — see addInternalRedisHostFromEnv.
+            hosts.add(normalizeHostForComparisonQuietly(hostname));
+        }
+    }
+
+    /**
+     * Registers additional hostnames that identify the Appsmith instance itself, unioning with the
+     * set seeded at static init from {@link InetAddress#getLocalHost()} and the {@code HOSTNAME}
+     * env var. The server calls this at startup (see {@code RedisConfig}) so the own-host block
+     * reflects the running container even if the static seed missed a name (e.g. local hostname
+     * resolution failed at class-load but succeeds later). Mirrors
+     * {@link #registerInternalRedisHosts(String...)}: unions with — does not replace — the seed,
+     * ignores null/blank entries, and is safe to call before or after the static seed.
+     *
+     * <p>Resolves the own hostname(s) to IPs once here — off the request hot path — and caches them
+     * in {@link #ownResolvedIps}. The server calls this at startup (@PostConstruct) before any
+     * datasource is served, so the resolver hooks never do DNS for the own-host check.
+     */
+    public static void registerOwnHost(String... hostnames) {
+        if (hostnames == null || hostnames.length == 0) {
+            return;
+        }
+        final Set<String> merged = new HashSet<>(ownHosts);
+        for (String hostname : hostnames) {
+            addOwnHostname(merged, hostname);
+        }
+        ownHosts = merged.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(merged);
+        refreshOwnResolvedIps();
+    }
+
+    /** Resolves the registered own hostnames to their current IPs and caches them. Off the hot path. */
+    private static void refreshOwnResolvedIps() {
+        ownResolvedIps = resolveHostsToIps(ownHosts);
+    }
+
+    /** Visible for testing only. Production code sets the own-host set via {@link #registerOwnHost}. */
+    public static void setOwnHostsForTesting(String... hosts) {
+        if (hosts == null || hosts.length == 0) {
+            ownHosts = Collections.emptySet();
+            return;
+        }
+        final Set<String> normalized = new HashSet<>(hosts.length);
+        for (String host : hosts) {
+            if (StringUtils.hasText(host)) {
+                // Same canonicalization as the compare side — see addInternalRedisHostFromEnv.
+                normalized.add(normalizeHostForComparisonQuietly(host));
+            }
+        }
+        ownHosts = normalized.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(normalized);
+    }
+
+    /**
+     * Visible for testing only. Seeds the cached own-IP set directly, so the own-IP overlap can be
+     * tested deterministically without DNS. Pairs with {@link #clearOwnResolvedIpsForTesting()}.
+     * Production seeds this cache via {@link #registerOwnHost(String...)} at startup instead.
+     */
+    public static void setOwnResolvedIpsForTesting(String... ips) {
+        if (ips == null || ips.length == 0) {
+            ownResolvedIps = Collections.emptySet();
+            return;
+        }
+        final Set<String> normalized = new HashSet<>(ips.length);
+        for (String ip : ips) {
+            if (StringUtils.hasText(ip)) {
+                normalized.add(normalizeHostForComparisonQuietly(ip));
+            }
+        }
+        ownResolvedIps = Collections.unmodifiableSet(normalized);
+    }
+
+    /** Visible for testing only. Empties the cached own-IP set. */
+    public static void clearOwnResolvedIpsForTesting() {
+        ownResolvedIps = Collections.emptySet();
+    }
+
     /** Visible for testing only. Production code never mutates the internal Redis hosts set. */
     public static void setInternalRedisHostsForTesting(String... hosts) {
         if (hosts == null || hosts.length == 0) {
@@ -317,9 +446,11 @@ public final class RestrictedHostFilter {
      * Returns {@code true} if {@code host} is definitively in the disallowed set: either the
      * literal/canonical host string is on the static denylist, the literal is a non-routable
      * address class (loopback, any-local, link-local, multicast, IPv6 ULA), the host matches
-     * any configured internal Redis hostname (session store + git Redis), or DNS resolves it
-     * to at least one address that intersects with the denylist, a blocked address class, or
-     * the IPs that any configured internal Redis hostname currently resolves to.
+     * any configured internal Redis hostname (session store + git Redis), the host is the
+     * Appsmith instance's own hostname, or DNS resolves it to at least one address that
+     * intersects with the denylist, a blocked address class, the IPs that any configured
+     * internal Redis hostname currently resolves to, or the IPs the instance's own hostname
+     * currently resolves to (defense-in-depth against a datasource targeting the instance itself).
      *
      * <p>Returns {@code false} for an unresolvable hostname so a transient DNS failure
      * doesn't reject a legitimate but temporarily unreachable host. The driver's own
@@ -358,49 +489,83 @@ public final class RestrictedHostFilter {
     /**
      * Shared deny-logic (1 of 2): is the canonical host string itself blocked, without any DNS?
      * Covers the static denylist (cloud-metadata literals, loopback), a non-routable IP-class
-     * literal, and a literal match against an internal Appsmith Redis hostname. Extracted so
-     * {@link #isHostBlocked(String)} and {@link #firstAllowedRedisAddress(String, InetAddress[])}
-     * evaluate the deny list identically and cannot drift into an SSRF gap.
+     * literal, a literal match against an internal Appsmith Redis hostname, and a literal match
+     * against the Appsmith instance's own hostname. Extracted so {@link #isHostBlocked(String)}
+     * and {@link #firstAllowedRedisAddress(String, InetAddress[])} evaluate the deny list
+     * identically and cannot drift into an SSRF gap.
      */
     private static boolean isCanonicalHostBlocked(String canonicalHost) {
         return DISALLOWED_HOSTS.contains(canonicalHost)
                 || isBlockedIpAddressClass(canonicalHost)
-                || internalRedisHosts.contains(canonicalHost);
+                || internalRedisHosts.contains(canonicalHost)
+                || ownHosts.contains(canonicalHost);
     }
 
     /**
      * Shared deny-logic (2 of 2): does any already-resolved address fall in the denylist, a
-     * blocked address class, or overlap with the IPs an internal Appsmith Redis hostname currently
-     * resolves to? Extracted alongside {@link #isCanonicalHostBlocked(String)} so both callers
-     * share one address-level deny evaluation.
+     * blocked address class, overlap with the IPs an internal Appsmith Redis hostname currently
+     * resolves to, or overlap with the cached IPs the Appsmith instance's own hostname resolves to?
+     * Extracted alongside {@link #isCanonicalHostBlocked(String)} so both callers share one
+     * address-level deny evaluation. The own-host overlap is what blocks a datasource pointed at
+     * the instance's own routable (RFC 1918) address by raw IP literal, since that address class
+     * is otherwise intentionally allowed. Internal-Redis IPs are resolved live here (this method
+     * only runs on the datasource-save / Redis paths, which tolerate blocking I/O); the own IPs
+     * come from the {@link #ownResolvedIps} cache, shared with the resolver-hook hot path.
      */
     private static boolean isAnyResolvedAddressBlocked(InetAddress[] resolvedAddresses) {
-        final Set<String> internalRedisIps = resolveInternalRedisIps(internalRedisHosts);
+        final Set<String> internalRedisIps = resolveHostsToIps(internalRedisHosts);
+        final Set<String> ownIps = ownResolvedIps;
         for (InetAddress addr : resolvedAddresses) {
             final String addrString = normalizeHostForComparisonQuietly(addr.getHostAddress());
             if (DISALLOWED_HOSTS.contains(addrString)
                     || matchesBlockedAddressClass(addr)
-                    || internalRedisIps.contains(addrString)) {
+                    || internalRedisIps.contains(addrString)
+                    || ownIps.contains(addrString)) {
                 return true;
             }
         }
         return false;
     }
 
-    private static Set<String> resolveInternalRedisIps(Set<String> redisHosts) {
-        if (redisHosts.isEmpty()) {
+    /**
+     * Address-level own-host policy shared by every enforcement entry point that works from an
+     * already-canonicalized host string rather than an {@link InetAddress} array — i.e. the
+     * WebClient (Netty) and Elasticsearch resolver hooks via {@link #isDisallowedAndFail(String,
+     * Promise)}. Returns {@code true} when {@code canonicalHost} is a registered own hostname, or
+     * equals one of the cached own IPs. Centralizing it here (alongside
+     * {@link #isAnyResolvedAddressBlocked(InetAddress[])}, which applies the same own-IP overlap to
+     * the datasource-save and Redis paths) keeps the resolver paths from drifting back into an
+     * own-IP gap.
+     *
+     * <p>Pure set-membership — no DNS. The own IPs are resolved off this path (at startup /
+     * {@link #registerOwnHost(String...)}) and cached in {@link #ownResolvedIps}, so this can run on
+     * the Netty / Elasticsearch resolver EventLoop without blocking it. It never resolves the
+     * caller's user host, so it cannot reintroduce the DNS-rebinding TOCTOU the resolver hooks exist
+     * to prevent — callers hand in the address (pre- or post-DNS) they are about to use.
+     */
+    private static boolean matchesOwnHost(String canonicalHost) {
+        return ownHosts.contains(canonicalHost) || ownResolvedIps.contains(canonicalHost);
+    }
+
+    /**
+     * Resolves a set of registered hostnames (internal Redis, or — off the hot path — the instance's
+     * own host) to their current IPs. Unresolvable names are skipped; a literal hostname match still
+     * applies via {@link #isCanonicalHostBlocked(String)}.
+     */
+    private static Set<String> resolveHostsToIps(Set<String> hostsToResolve) {
+        if (hostsToResolve.isEmpty()) {
             return Collections.emptySet();
         }
         final Set<String> ips = new HashSet<>();
-        for (String redisHost : redisHosts) {
+        for (String host : hostsToResolve) {
             try {
-                for (InetAddress addr : InetAddress.getAllByName(redisHost)) {
+                for (InetAddress addr : InetAddress.getAllByName(host)) {
                     ips.add(normalizeHostForComparisonQuietly(addr.getHostAddress()));
                 }
             } catch (UnknownHostException e) {
                 // Hostname doesn't currently resolve — skip it in the overlap check; literal
                 // match still applies for the same hostname string.
-                log.debug("Internal Redis hostname {} could not be resolved; skipping in IP overlap check.", redisHost);
+                log.debug("Registered host {} could not be resolved; skipping in IP overlap check.", host);
             }
         }
         return ips;
@@ -468,12 +633,14 @@ public final class RestrictedHostFilter {
     /**
      * Literal/canonical-only block check — no DNS, no network I/O. Catches the static denylist
      * (cloud-metadata IPs), literal non-routable IP-class addresses, and a literal match
-     * against any configured internal Redis hostname (session store + git Redis).
+     * against any configured internal Redis hostname (session store + git Redis) or the Appsmith
+     * instance's own hostname.
      *
      * <p>Returns {@code false} for unparseable input and for anything that requires DNS to
-     * decide. Callers that need the DNS-resolved check (IP overlap with the internal Redis,
-     * hostname-resolves-to-loopback, etc.) should use {@link #isHostBlocked(String)} from an
-     * async path that tolerates blocking I/O.
+     * decide. Callers that need the DNS-resolved check (IP overlap with the internal Redis or the
+     * instance's own IP, hostname-resolves-to-loopback, etc.) should use {@link
+     * #isHostBlocked(String)} from an async path that tolerates blocking I/O, or the resolver-hook
+     * path {@link #isDisallowedAndFail(String, Promise)} which applies the own-IP overlap post-DNS.
      *
      * <p>Used by {@link WebClientUtils} request filter as the pre-resolver fast path — the
      * Netty resolver runs the DNS-aware check separately via
@@ -492,7 +659,11 @@ public final class RestrictedHostFilter {
         if (DISALLOWED_HOSTS.contains(canonicalHost) || isBlockedIpAddressClass(canonicalHost)) {
             return true;
         }
-        return internalRedisHosts.contains(canonicalHost);
+        // Literal (no-DNS) block for a URL that literally names an internal Redis or the instance's
+        // own host. The own-IP overlap — a hostname or raw IP that resolves to the own address — is
+        // enforced by the DNS-aware resolver hook via isDisallowedAndFail, so it's intentionally not
+        // resolved on this fast path (which is contractually free of DNS / network I/O).
+        return internalRedisHosts.contains(canonicalHost) || ownHosts.contains(canonicalHost);
     }
 
     public static boolean isDisallowedAndFail(String host, Promise<?> promise) {
@@ -500,7 +671,15 @@ public final class RestrictedHostFilter {
             return false;
         }
         final String canonicalHost = normalizeHostForComparisonQuietly(host);
-        if (DISALLOWED_HOSTS.contains(canonicalHost) || isBlockedIpAddressClass(canonicalHost)) {
+        // matchesOwnHost adds the own-host literal + own-IP overlap so the WebClient (Netty) and
+        // Elasticsearch resolver hooks — which call this both pre-DNS (host) and post-DNS (resolved
+        // address string) — block a datasource pointed at the instance's own routable address by
+        // hostname or raw IP, the same address-level policy firstAllowedRedisAddress applies. It is
+        // pure set-membership against the cached own IPs (no DNS), safe to run on the resolver
+        // EventLoop; the own hostnames are resolved off this path at startup (see registerOwnHost).
+        if (DISALLOWED_HOSTS.contains(canonicalHost)
+                || isBlockedIpAddressClass(canonicalHost)
+                || matchesOwnHost(canonicalHost)) {
             log.warn("Host {} is disallowed. Failing the request.", host);
             if (promise != null) {
                 promise.setFailure(new UnknownHostException(HOST_NOT_ALLOWED));

@@ -12,4 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: docker.env.sh default frame-ancestors is safe
+        run: deploy/docker/tests/docker-env-defaults-test.sh
+
       - run: deploy/docker/route-tests/run.sh

@@ -18,6 +18,7 @@ import type {
 import {
   addPropertyConfigIds,
   addSearchConfigToPanelConfig,
+  addTabOrderToPropertyPaneConfig,
   convertFunctionsToString,
   enhancePropertyPaneConfig,
   generatePropertyPaneSearchConfig,
@@ -326,7 +327,10 @@ export class WidgetFactory {
         convertFunctionsToString,
         addPropertyConfigIds,
       ]);
-      const enhancedPropertyPaneConfig = enhance(propertyPaneConfig, features);
+      const enhancedPropertyPaneConfig = enhance(
+        addTabOrderToPropertyPaneConfig(type, propertyPaneConfig),
+        features,
+      );
 
       return enhancedPropertyPaneConfig;
     }
@@ -377,7 +381,7 @@ export class WidgetFactory {
       ]);
 
       const enhancedPropertyPaneContentConfig = enhance(
-        propertyPaneContentConfig,
+        addTabOrderToPropertyPaneConfig(type, propertyPaneContentConfig),
         features,
         PropertyPaneConfigTypes.CONTENT,
         type,

@@ -23,6 +23,10 @@ public class RestrictedHostFilterTest {
         // the kill-switch back. resetSsrfFilterDisabledForTesting() in @AfterAll restores
         // whatever the surefire-set default was.
         RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        // Neutralize the own-host set seeded from the test machine's real hostname so it can't
+        // interfere with the allow-list assertions. Own-host tests set it explicitly.
+        RestrictedHostFilter.setOwnHostsForTesting();
+        RestrictedHostFilter.clearOwnResolvedIpsForTesting();
     }
 
     @AfterAll
@@ -38,6 +42,8 @@ public class RestrictedHostFilterTest {
         // — individual tests that toggle it (e.g. the kill-switch tests) still need to flip it
         // back themselves between cases.
         RestrictedHostFilter.setInternalRedisHostsForTesting();
+        RestrictedHostFilter.setOwnHostsForTesting();
+        RestrictedHostFilter.clearOwnResolvedIpsForTesting();
         RestrictedHostFilter.clearAlwaysAllowedHostsForTesting();
         RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
     }
@@ -280,6 +286,152 @@ public class RestrictedHostFilterTest {
         RestrictedHostFilter.registerInternalRedisHosts("redis://property-redis.svc.cluster.local:6379");
         assertTrue(RestrictedHostFilter.isHostBlocked("env-seeded-redis.svc.cluster.local"));
         assertTrue(RestrictedHostFilter.isHostBlocked("property-redis.svc.cluster.local"));
+    }
+
+    // ---------- ownHosts: defense-in-depth block on the instance's own routable IP ----------
+    // The instance's own IP is typically RFC 1918 / site-local (Docker bridge 172.17.x, k8s pod
+    // 10.x, ...), which the filter intentionally allows for legitimate private-network
+    // datasources. Registered own hostnames are unresolvable *.invalid literals and the "resolved"
+    // own IPs are injected via setOwnResolvedIpsForTesting, so these tests are deterministic and
+    // never depend on live public DNS. 10.123.45.67 stands in for the instance's own RFC 1918 IP.
+
+    @Test
+    public void isHostBlocked_blocksOwnIpWhenReachedByRawIpv4Literal() {
+        // A datasource pointed at the raw IP the own host resolves to must be blocked via the
+        // resolved-address overlap — even though that IP class (RFC 1918) is otherwise allowed.
+        RestrictedHostFilter.setOwnHostsForTesting("own-host.invalid");
+        RestrictedHostFilter.setOwnResolvedIpsForTesting("10.123.45.67");
+        assertTrue(RestrictedHostFilter.isHostBlocked("10.123.45.67"));
+    }
+
+    @Test
+    public void isHostBlocked_blocksOwnIpViaIpv4MappedIpv6() {
+        // ::ffff:10.123.45.67 canonicalizes to 10.123.45.67 (see normalizeIpAddress) and resolves
+        // to the same address, so the IPv4-mapped IPv6 form is caught by the same overlap check.
+        RestrictedHostFilter.setOwnHostsForTesting("own-host.invalid");
+        RestrictedHostFilter.setOwnResolvedIpsForTesting("10.123.45.67");
+        assertTrue(RestrictedHostFilter.isHostBlocked("::ffff:10.123.45.67"));
+    }
+
+    @Test
+    public void isHostBlocked_blocksOwnHostByHostnameLiteral() {
+        // Typing the instance's own hostname is blocked via the literal (canonical) match, and
+        // case-insensitively — datasource configs are user-entered. No DNS needed.
+        RestrictedHostFilter.setOwnHostsForTesting("own-host.invalid");
+        assertTrue(RestrictedHostFilter.isHostBlocked("own-host.invalid"));
+        assertTrue(RestrictedHostFilter.isHostBlocked("OWN-Host.INVALID"));
+    }
+
+    @Test
+    public void isHostBlocked_doesNotBlockDifferentRfc1918AddressWhenOwnHostConfigured() {
+        // Guardrail: only the instance's OWN address is blocked, not the rest of the private
+        // network. These RFC 1918 hosts don't overlap with the injected own IP, so they stay
+        // allowed — proving we didn't over-block legitimate private-network datasources.
+        RestrictedHostFilter.setOwnHostsForTesting("own-host.invalid");
+        RestrictedHostFilter.setOwnResolvedIpsForTesting("10.123.45.67");
+        assertFalse(RestrictedHostFilter.isHostBlocked("192.168.1.1"));
+        assertFalse(RestrictedHostFilter.isHostBlocked("10.0.0.1"));
+        assertFalse(RestrictedHostFilter.isHostBlocked("172.16.0.1"));
+    }
+
+    @Test
+    public void registerOwnHost_blocksHostAndUnionsWithExistingSet() {
+        // Mirrors the server's startup path (RedisConfig#registerOwnHostWithSsrfFilter): the
+        // registration unions with — does not replace — the existing set, and null/blank entries
+        // are ignored.
+        RestrictedHostFilter.setOwnHostsForTesting("seeded-own.invalid");
+        RestrictedHostFilter.registerOwnHost("registered-own.invalid");
+        RestrictedHostFilter.registerOwnHost((String) null, "", "   ");
+        assertTrue(RestrictedHostFilter.isHostBlocked("seeded-own.invalid"));
+        assertTrue(RestrictedHostFilter.isHostBlocked("registered-own.invalid"));
+    }
+
+    // The own-IP block must be enforced on the actual security entry points, not just isHostBlocked:
+    // isDisallowedAndFail is the shared address-level policy for the WebClient (Netty) and
+    // Elasticsearch resolver hooks; isLiteralBlocked is the WebClient pre-resolver fast path;
+    // firstAllowedRedisAddress is the Redis connect-time path. Missing coverage here is exactly why
+    // an own-IP bypass could ship with isHostBlocked green.
+
+    @Test
+    public void isDisallowedAndFail_blocksOwnHostAndResolvedOwnIp() {
+        // This is the method the WebClient + Elasticsearch resolver hooks call, both pre-DNS (the
+        // host/URL literal) and post-DNS (the resolved address string). Both forms must be blocked.
+        RestrictedHostFilter.setOwnHostsForTesting("own-host.invalid");
+        RestrictedHostFilter.setOwnResolvedIpsForTesting("10.123.45.67");
+        // Own hostname literal (pre-DNS) and raw / resolved own IP (pre- or post-DNS).
+        assertTrue(RestrictedHostFilter.isDisallowedAndFail("own-host.invalid", null));
+        assertTrue(RestrictedHostFilter.isDisallowedAndFail("10.123.45.67", null));
+        assertTrue(RestrictedHostFilter.isDisallowedAndFail("::ffff:10.123.45.67", null));
+        // A different RFC 1918 address is not the own IP — still allowed (no over-block).
+        assertFalse(RestrictedHostFilter.isDisallowedAndFail("10.0.0.9", null));
+    }
+
+    @Test
+    public void isLiteralBlocked_blocksOwnHostnameLiterally() {
+        // The pre-resolver fast path blocks a URL that literally names the instance's own host,
+        // case-insensitively, without doing DNS. (The own-IP overlap is enforced post-DNS by the
+        // resolver hook via isDisallowedAndFail, covered above.)
+        RestrictedHostFilter.setOwnHostsForTesting("own-host.invalid");
+        assertTrue(RestrictedHostFilter.isLiteralBlocked("own-host.invalid"));
+        assertTrue(RestrictedHostFilter.isLiteralBlocked("OWN-Host.INVALID"));
+    }
+
+    @Test
+    public void isDisallowedAndFail_ownIpCheckReadsCacheNotLiveDns() {
+        // Proves the resolver-hook hot path does NO DNS: the own hostname is unresolvable, yet an
+        // injected cached own IP is still blocked. If isDisallowedAndFail live-resolved ownHosts,
+        // the unresolvable name would yield no IPs and 10.123.45.67 would pass — so blocking it can
+        // only come from the cache. The check is pure set-membership, safe on the Netty EventLoop.
+        RestrictedHostFilter.setOwnHostsForTesting("unresolvable-own.invalid");
+        RestrictedHostFilter.setOwnResolvedIpsForTesting("10.123.45.67");
+        assertTrue(RestrictedHostFilter.isDisallowedAndFail("10.123.45.67", null));
+        // Clearing the cache (without touching ownHosts) immediately stops blocking that IP — the
+        // decision is cache-driven, not re-derived from the hostname on each call.
+        RestrictedHostFilter.clearOwnResolvedIpsForTesting();
+        assertFalse(RestrictedHostFilter.isDisallowedAndFail("10.123.45.67", null));
+    }
+
+    @Test
+    public void registerOwnHost_recomputesOwnIpCacheOffHotPath() {
+        // registerOwnHost (the startup @PostConstruct path) recomputes the cached own-IP set from
+        // ownHosts. Seed a stale cached IP, then register an (unresolvable) own host: the refresh
+        // recomputes the cache from ownHosts — which resolves to nothing here — dropping the stale
+        // value. This is where own-hostname resolution happens, off the request hot path.
+        RestrictedHostFilter.setOwnResolvedIpsForTesting("10.1.1.1");
+        RestrictedHostFilter.registerOwnHost("registered-own.invalid");
+        assertFalse(RestrictedHostFilter.isDisallowedAndFail("10.1.1.1", null));
+        // The registered hostname is still blocked literally (no DNS needed).
+        assertTrue(RestrictedHostFilter.isDisallowedAndFail("registered-own.invalid", null));
+    }
+
+    @Test
+    public void firstAllowedRedisAddress_blocksResolvedOwnIp() throws Exception {
+        // The Redis connect-time path shares the same address-level policy; a resolved address that
+        // is the instance's own IP is rejected, while a different RFC 1918 address is returned.
+        RestrictedHostFilter.setOwnHostsForTesting("own-host.invalid");
+        RestrictedHostFilter.setOwnResolvedIpsForTesting("10.123.45.67");
+        InetAddress ownAddr = InetAddress.getByName("10.123.45.67");
+        assertTrue(RestrictedHostFilter.firstAllowedRedisAddress("redis-host", new InetAddress[] {ownAddr})
+                .isEmpty());
+        InetAddress otherAddr = InetAddress.getByName("10.0.0.9");
+        assertTrue(RestrictedHostFilter.firstAllowedRedisAddress("redis-host", new InetAddress[] {otherAddr})
+                .isPresent());
+    }
+
+    @Test
+    public void ssrfFilterDisabled_bypassesOwnHostBlockOnAllEntryPoints() {
+        RestrictedHostFilter.setOwnHostsForTesting("own-host.invalid");
+        RestrictedHostFilter.setOwnResolvedIpsForTesting("10.123.45.67");
+        // Sanity: blocked by default across every entry point.
+        assertTrue(RestrictedHostFilter.isHostBlocked("10.123.45.67"));
+        assertTrue(RestrictedHostFilter.isDisallowedAndFail("10.123.45.67", null));
+        assertTrue(RestrictedHostFilter.isLiteralBlocked("own-host.invalid"));
+        // Kill-switch on — the own-host block is bypassed like every other check.
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(true);
+        assertFalse(RestrictedHostFilter.isHostBlocked("10.123.45.67"));
+        assertFalse(RestrictedHostFilter.isHostBlocked("own-host.invalid"));
+        assertFalse(RestrictedHostFilter.isDisallowedAndFail("10.123.45.67", null));
+        assertFalse(RestrictedHostFilter.isLiteralBlocked("own-host.invalid"));
     }
 
     @Test

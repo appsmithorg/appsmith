@@ -9,6 +9,7 @@ import { AutoHeightOverlayLayer } from "../common/autoHeight/AutoHeightOverlayLa
 import { FixedLayoutWidgetComponent } from "../common/widgetComponent/FixedLayoutWidgetComponent";
 import { FixedResizableLayer } from "../common/resizer/FixedResizableLayer";
 import { PositionedComponentLayer } from "../common/PositionedComponentLayer";
+import { TabOrderBadge } from "layoutSystems/common/tabOrderOverlay/TabOrderBadge";
 import { generateDragStateForFixedLayout } from "../common/utils";
 
 /**
@@ -59,6 +60,7 @@ export const FixedLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
   return (
     <AutoHeightOverlayLayer {...props}>
       <PositionedComponentLayer {...props}>
+        <TabOrderBadge tabOrder={props.tabOrder} />
         <SnipeableComponent type={props.type} widgetId={props.widgetId}>
           <DraggableComponent
             dragDisabled={!!props.dragDisabled}
