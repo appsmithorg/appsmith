@@ -37,9 +37,17 @@ public class AutoCommitAsyncEventManagerImpl implements AutoCommitAsyncEventMana
                 .startApplicationAutoCommit(baseArtifactId, authorName, authorEmail, event)
                 .subscribeOn(Schedulers.boundedElastic())
                 .subscribe(
-                        result -> log.info(
-                                "Auto-commit completed successfully for application: {}", event.getApplicationId()),
+                        result -> log.debug(
+                                "Auto-commit finished for application: {}, branch: {}, isCommitMade: {}",
+                                event.getApplicationId(),
+                                event.getBranchName(),
+                                result),
                         error -> log.error(
-                                "Error during auto-commit for application: {}", event.getApplicationId(), error));
+                                "Error during auto-commit for application: {}, branch: {}, repo: {}, workspace: {}",
+                                event.getApplicationId(),
+                                event.getBranchName(),
+                                event.getRepoName(),
+                                event.getWorkspaceId(),
+                                error));
     }
 }

@@ -48,6 +48,13 @@ public class GitRedisUtils {
                 .addFileLock(key, commandName)
                 .retryWhen(Retry.fixedDelay(numberOfRetries, RETRY_DELAY)
                         .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                            log.warn(
+                                    "Git command {} could not acquire the lock for identity {} after {} retries",
+                                    commandName,
+                                    key,
+                                    retrySignal.totalRetries(),
+                                    retrySignal.failure());
+
                             if (retrySignal.failure() instanceof AppsmithException) {
                                 throw (AppsmithException) retrySignal.failure();
                             }
@@ -76,6 +83,8 @@ public class GitRedisUtils {
 
         return redisUtils
                 .releaseFileLock(key)
+                .doOnError(error -> log.warn(
+                        "Failed to release the lock for identity {}, it stays held till it expires", key, error))
                 .name(GitSpan.RELEASE_FILE_LOCK)
                 .tap(Micrometer.observation(observationRegistry));
     }
@@ -121,6 +130,10 @@ public class GitRedisUtils {
             return Mono.just(true);
         }
         if (!Boolean.TRUE.equals(isLockRequired)) {
+            log.debug(
+                    "Skipping the lock release for base artifact {} of type {}, the lock is not held by this operation",
+                    baseArtifactId,
+                    artifactType);
             return Mono.just(Boolean.TRUE);
         }
 
@@ -128,6 +141,8 @@ public class GitRedisUtils {
 
         return redisUtils
                 .releaseFileLock(key)
+                .doOnError(error -> log.warn(
+                        "Failed to release the lock for identity {}, it stays held till it expires", key, error))
                 .name(GitSpan.RELEASE_FILE_LOCK)
                 .tap(Micrometer.observation(observationRegistry));
     }

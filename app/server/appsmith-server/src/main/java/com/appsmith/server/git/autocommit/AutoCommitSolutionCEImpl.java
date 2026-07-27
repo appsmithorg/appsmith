@@ -166,6 +166,23 @@ public class AutoCommitSolutionCEImpl implements AutoCommitSolutionCE {
                 .finishAutoCommit(autoCommitEvent.getApplicationId())
                 .flatMap(r -> setProgress(r, autoCommitEvent.getApplicationId(), 100))
                 .flatMap(r -> gitRedisUtils.releaseFileLock(autoCommitEvent.getApplicationId()))
+                .doOnNext(isLockReleased -> {
+                    if (exceptionCaught) {
+                        log.warn(
+                                "auto commit clean up after a failure for application: {}, branch: {}, isCommitMade: {}, isLockReleased: {}",
+                                autoCommitEvent.getApplicationId(),
+                                autoCommitEvent.getBranchName(),
+                                isCommitMade,
+                                isLockReleased);
+                    } else {
+                        log.debug(
+                                "auto commit clean up for application: {}, branch: {}, isCommitMade: {}, isLockReleased: {}",
+                                autoCommitEvent.getApplicationId(),
+                                autoCommitEvent.getBranchName(),
+                                isCommitMade,
+                                isLockReleased);
+                    }
+                })
                 .thenReturn(isCommitMade);
     }
 
@@ -369,6 +386,12 @@ public class AutoCommitSolutionCEImpl implements AutoCommitSolutionCE {
                                     return triggerAnalyticsEvent(
                                             AnalyticsEvents.GIT_PUSH, autoCommitEvent, Map.of("isAutoCommit", TRUE));
                                 }
+
+                                log.error(
+                                        "auto commit push was rejected for application: {}, branch: {}, pushResponse: {}",
+                                        autoCommitEvent.getApplicationId(),
+                                        autoCommitEvent.getBranchName(),
+                                        pushResponse);
                                 return Mono.just(TRUE);
                             });
                 })

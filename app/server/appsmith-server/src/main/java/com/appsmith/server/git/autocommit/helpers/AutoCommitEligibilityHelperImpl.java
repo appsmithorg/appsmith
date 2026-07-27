@@ -41,7 +41,7 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
         Mono<Boolean> isServerMigrationRequiredMonoCached = commonGitFileUtils
                 .getMetadataServerSchemaMigrationVersion(workspaceId, gitMetadata, FALSE, APPLICATION)
                 .map(serverSchemaVersion -> {
-                    log.info(
+                    log.debug(
                             "server schema for application id : {}  and branch name : {} is : {}",
                             defaultApplicationId,
                             refName,
@@ -52,11 +52,11 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
                 .cache();
 
         return Mono.defer(() -> isServerMigrationRequiredMonoCached).onErrorResume(error -> {
-            log.debug(
-                    "error while retrieving the metadata for defaultApplicationId : {}, refName : {} error : {}",
+            log.warn(
+                    "skipping server auto commit because retrieving the metadata failed for defaultApplicationId : {}, refName : {}",
                     defaultApplicationId,
                     refName,
-                    error.getMessage());
+                    error);
             return Mono.just(FALSE);
         });
     }
@@ -84,7 +84,10 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
                 })
                 .defaultIfEmpty(FALSE)
                 .onErrorResume(error -> {
-                    log.debug("Error fetching latest DSL version");
+                    log.warn(
+                            "skipping client auto commit because fetching the latest DSL version failed for page : {}",
+                            pageDTO.getName(),
+                            error);
                     return Mono.just(Boolean.FALSE);
                 });
     }
@@ -103,19 +106,19 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
                 .map(tuple2 -> {
                     Integer latestDslVersion = tuple2.getT1();
                     org.json.JSONObject pageDSL = tuple2.getT2();
-                    log.info("page dsl retrieved from file system");
+                    log.debug("page dsl retrieved from file system for page : {}", pageDTO.getName());
                     return GitUtils.isMigrationRequired(pageDSL, latestDslVersion);
                 })
                 .defaultIfEmpty(FALSE)
                 .cache();
 
         return Mono.defer(() -> isClientMigrationRequired).onErrorResume(error -> {
-            log.debug(
-                    "error while fetching the dsl version for page : {}, defaultApplicationId : {}, refName : {} error : {}",
+            log.warn(
+                    "skipping client auto commit because fetching the dsl version failed for page : {}, defaultApplicationId : {}, refName : {}",
                     pageDTO.getName(),
                     defaultApplicationId,
                     refName,
-                    error.getMessage());
+                    error);
             return Mono.just(FALSE);
         });
     }
@@ -153,6 +156,11 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
                     autoCommitTriggerDTO.setIsAutoCommitRequired((TRUE.equals(serverFlag) || TRUE.equals(clientFlag)));
 
                     return gitRedisUtils.releaseFileLock(defaultApplicationId).then(Mono.just(autoCommitTriggerDTO));
-                });
+                })
+                .doOnError(error -> log.warn(
+                        "auto commit eligibility check failed for baseArtifactId : {}, the {} lock, if it was acquired, stays held till it expires",
+                        defaultApplicationId,
+                        AUTO_COMMIT_ELIGIBILITY,
+                        error));
     }
 }
