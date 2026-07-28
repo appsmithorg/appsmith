@@ -1595,28 +1595,31 @@ function isExternalEgressAction(action: unknown): boolean {
 
 // Classify a stored action as auto-runnable (executable via run_action WITHOUT the prepare/confirm human checkpoint).
 // TWO independent guarantees are required:
-//   (1) PROTOCOL-level read-only: a REST GET/HEAD (safe by HTTP semantics). A DB/SQL body can NEVER be reliably
-//       classified read-only from its text — a leading SELECT/WITH/SHOW/EXPLAIN can still mutate (a CTE such as
-//       `WITH x AS (DELETE FROM t RETURNING *) SELECT * FROM x`, a mutating function like `SELECT drop_old()`, or
-//       `EXPLAIN ANALYZE <mutation>` which executes the plan). So DB actions fail (1).
+//   (1) RELIABLY read-only: the action's read-only-ness must be provable from a TRUSTED signal. A DB/SQL body can
+//       NEVER be classified read-only from its text — a leading SELECT/WITH/SHOW/EXPLAIN can still mutate (a CTE such
+//       as `WITH x AS (DELETE FROM t RETURNING *) SELECT * FROM x`, a mutating function like `SELECT drop_old()`, or
+//       `EXPLAIN ANALYZE <mutation>` which executes the plan). And actionConfiguration.httpMethod is NOT a trusted
+//       signal for a host-restricted action: DB plugins do not use HTTP verbs, and the backend does not strip an
+//       injected httpMethod, so a mutating SQL action stamped with "httpMethod":"GET" would otherwise masquerade as
+//       read-only. So DB actions fail (1).
 //   (2) HOST-RESTRICTED datasource: egress pinned server-side, so a run can't exfiltrate to an external host. REST/API
-//       actions (the only ones that satisfy (1)) can target any external URL, so they fail (2) (M1-T2).
-// No plugin family carrying an httpMethod provides both, so this sync predicate alone admits nothing; Google Sheets
-// reads satisfy both through the plugin's closed command enum instead and go through the async door below
-// (isAutoRunnableAction). Defaults to NON-auto-runnable (safe).
+//       actions can target any external URL, so they fail (2) (M1-T2).
+// The two guarantees are mutually exclusive across every real plugin family (the only ones carrying an httpMethod are
+// external-egress, and they fail (2)), so this sync predicate admits nothing; Google Sheets reads satisfy both through
+// the plugin's closed command enum instead and go through the async door below (isAutoRunnableAction). Defaults to
+// NON-auto-runnable (safe).
 function isReadOnlyAction(action: unknown): boolean {
-  const config = (
-    actionSource(action) as {
-      actionConfiguration?: { httpMethod?: unknown };
-    } | null
-  )?.actionConfiguration;
-  const method = config?.httpMethod;
+  // Guarantee (2): an external-egress (REST/API) action can target any host, so even a protocol-read-only GET must NOT
+  // auto-run — it could exfiltrate query-bound data to an attacker-chosen URL with no human in the loop (M1-T2).
+  if (isExternalEgressAction(action)) {
+    return false;
+  }
 
-  const protocolReadOnly =
-    typeof method === "string" &&
-    ["GET", "HEAD"].includes(method.toUpperCase());
-
-  return protocolReadOnly && !isExternalEgressAction(action);
+  // Guarantee (1) for the remaining (host-restricted, e.g. DB) actions: there is no trusted read-only signal. We
+  // deliberately do NOT consult actionConfiguration.httpMethod here — honoring a spoofed "GET" injected onto a
+  // mutating SQL action would bypass the confirm gate and auto-run it. Google Sheets reads, which DO have a trusted
+  // signal (a closed command enum), auto-run through isAutoRunnableAction instead, never through this predicate.
+  return false;
 }
 
 // Google Sheets commands that resolve to pure reads in the plugin (GoogleSheetsMethodStrategy): every

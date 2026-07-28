@@ -10,7 +10,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.UserMcpTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -46,15 +45,9 @@ public class McpTokenControllerCE {
                 .map(token -> new ResponseDTO<>(HttpStatus.OK, token));
     }
 
-    private static boolean isMcpAuthenticated(Authentication authentication) {
-        return authentication != null
-                && authentication.getAuthorities().stream()
-                        .anyMatch(authority -> McpTokenAuthentication.MCP_AUTHORITY.equals(authority.getAuthority()));
-    }
-
     private Mono<Void> requireSessionAuthentication() {
         return ReactiveSecurityContextHolder.getContext()
-                .map(context -> isMcpAuthenticated(context.getAuthentication()))
+                .map(context -> McpTokenAuthentication.isMcpPrincipal(context.getAuthentication()))
                 .defaultIfEmpty(false)
                 .flatMap(mcpAuthenticated -> mcpAuthenticated
                         ? Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS))

@@ -62,10 +62,13 @@ public class RateLimitServiceCEImpl implements RateLimitServiceCE {
     @Override
     public Mono<Boolean> isRateLimitExceeded(String apiIdentifier, String userIdentifier) {
         return sanitizeInput(apiIdentifier, userIdentifier)
+                // Treat a bucket with no remaining tokens as exhausted using <= 0 rather than == 0: the check stays
+                // correct even if getAvailableTokens() ever reports a non-positive value, so we never mis-report an
+                // exhausted bucket as having capacity.
                 .map(isInputValid -> rateLimitConfig
                                 .getOrCreateAPIUserSpecificBucket(apiIdentifier, userIdentifier)
                                 .getAvailableTokens()
-                        == 0)
+                        <= 0)
                 // Since we are interacting with redis, we want to make sure that the operation is done on a separate
                 // thread pool
                 .subscribeOn(LoadShifter.elasticScheduler);

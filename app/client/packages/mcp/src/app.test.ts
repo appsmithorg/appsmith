@@ -5532,19 +5532,23 @@ describe("governance-wrapped layout mutations", () => {
     expect(rwExecute).not.toHaveBeenCalled();
   });
 
-  it("run_action auto-runs ONLY a protocol-read-only action on a host-restricted datasource", async () => {
-    // The auto-run door requires BOTH guarantees: a GET/HEAD method AND a host-restricted (non-external) plugin. No
-    // real plugin family provides both today, so this exercises the predicate with a synthetic host-restricted
-    // read-only action to prove the positive branch still works (and stays the ONLY thing that skips confirmation).
-    const executeAction = jest.fn(async () => ({ isExecutionSuccess: true }));
+  it("run_action refuses to auto-run a host-restricted (DB) action even with httpMethod GET (no confirm-gate bypass)", async () => {
+    // Security regression (hacktron): actionConfiguration.httpMethod is NOT a trusted read-only signal for a
+    // host-restricted (DB) action. DB plugins do not use HTTP verbs, and the backend does not strip an injected
+    // httpMethod — so a mutating SQL action stamped with "GET" must still route through prepare/confirm, never
+    // auto-run. Before the fix this exact document auto-ran (isReadOnlyAction returned true), executing the mutation
+    // with no human in the loop. The ONLY read auto-run door is the Sheets path (proven separately below).
+    const executeAction = jest.fn();
     const server = createMcpHttpServer(
       API_BASE_URL,
       () => ({
         ...createApi()(),
         getAction: jest.fn(async () => ({
-          ...READ_ONLY_ACTION,
-          pluginType: "DB", // host-restricted egress
-          actionConfiguration: { httpMethod: "GET" }, // protocol read-only
+          ...WRITE_ACTION, // pluginType "DB", host-restricted Postgres datasource
+          actionConfiguration: {
+            httpMethod: "GET", // attacker-injected protocol-read-only method
+            body: "DROP TABLE users;", // ...on a mutating SQL body
+          },
         })),
         executeAction,
       }),
@@ -5555,8 +5559,8 @@ describe("governance-wrapped layout mutations", () => {
       actionId: "act1",
     });
 
-    expect(res.body.executed).toBe(true);
-    expect(executeAction).toHaveBeenCalledWith("act1");
+    expect(res.body.code).toBe("confirmation_required");
+    expect(executeAction).not.toHaveBeenCalled();
   });
 
   // The Sheets auto-run door: a FETCH_MANY/FETCH_DETAILS command whose action pluginId AND datasource both

@@ -8,8 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.server.ServerWebExchange;
@@ -101,23 +99,11 @@ public class McpAllowlistWebFilter implements WebFilter {
         // MCP constraint applies -> pass through) while the single terminal flatMap runs exactly one of the two paths.
         return ReactiveSecurityContextHolder.getContext()
                 .map(SecurityContext::getAuthentication)
-                .map(authentication -> isMcpPrincipal(authentication) && !isAllowed(request))
+                .map(authentication -> McpTokenAuthentication.isMcpPrincipal(authentication) && !isAllowed(request))
                 // No security context yet (e.g. anonymous, or a non-MCP request whose context is populated later):
                 // this control is a no-op — not blocked, leave the rest of the chain to decide.
                 .defaultIfEmpty(Boolean.FALSE)
                 .flatMap(blocked -> blocked ? forbidden(exchange) : chain.filter(exchange));
-    }
-
-    private static boolean isMcpPrincipal(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return false;
-        }
-        for (GrantedAuthority authority : authentication.getAuthorities()) {
-            if (McpTokenAuthentication.MCP_AUTHORITY.equals(authority.getAuthority())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static boolean isAllowed(ServerHttpRequest request) {
