@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.configurations.connectionpool.ConnectionPoolConfig;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -8,6 +9,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.external.plugins.utils.OracleDatasourceUtils;
 import com.zaxxer.hikari.HikariDataSource;
 import org.testcontainers.containers.OracleContainer;
+import reactor.core.publisher.Mono;
 
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -23,7 +25,21 @@ public class OracleTestDBContainerManager {
     public static final String ORACLE_DOCKER_HUB_CONTAINER = "gvenzl/oracle-xe:21-slim-faststart";
 
     public static OracleDatasourceUtils oracleDatasourceUtils = new OracleDatasourceUtils();
-    static OraclePlugin.OraclePluginExecutor oraclePluginExecutor = new OraclePlugin.OraclePluginExecutor();
+
+    private static class MockConnectionPoolConfig implements ConnectionPoolConfig {
+        @Override
+        public Mono<Integer> getMaxConnectionPoolSize() {
+            return Mono.just(5);
+        }
+
+        @Override
+        public Mono<Integer> getSocketTimeoutSeconds() {
+            return Mono.just(600);
+        }
+    }
+
+    static OraclePlugin.OraclePluginExecutor oraclePluginExecutor =
+            new OraclePlugin.OraclePluginExecutor(new MockConnectionPoolConfig());
 
     public static OracleContainer getOracleDBForTest() {
         return new OracleContainer(ORACLE_DOCKER_HUB_CONTAINER)
