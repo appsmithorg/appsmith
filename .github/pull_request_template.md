@@ -11,16 +11,24 @@ Fixes `Issue URL`
 > [!WARNING]  
 > _If no issue exists, please create an issue first, and check with the maintainers if the issue is valid._
 
-## Automation
+## Testing
 
-/ok-to-test tags=""
+> [!NOTE]
+> Pull requests from forks run credential-free formatting, lint, type, and unit
+> checks after GitHub's workflow approval. A maintainer will start integration
+> tests or a deploy preview when needed. External contributors do not need to
+> add an `ok-to-test` label or run a slash command.
 
-### :mag: Cypress test results
-<!-- This is an auto-generated comment: Cypress test results  -->
-> [!CAUTION]  
-> If you modify the content in this section, you are likely to disrupt the CI result for your PR.
+Select the validation relevant to this change:
 
-<!-- end of auto-generated comment: Cypress test results  -->
+- [ ] Client unit tests
+- [ ] Server unit tests
+- [ ] Cypress
+- [ ] Playwright
+- [ ] Deploy preview
+- [ ] Not applicable
+
+Suggested Cypress tags or specs:
 
 
 ## Communication

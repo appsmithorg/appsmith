@@ -1,0 +1,195 @@
+name: External PR credential-free validation
+
+on:
+  pull_request:
+    branches: [release, master, pg]
+
+# Fork code in this workflow must never receive repository secrets or write
+# access. Keep publishing, commenting, cloud integration, and deploy steps out.
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: external-pr-validation-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    if: github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    outputs:
+      client: ${{ steps.filter.outputs.client }}
+      server: ${{ steps.filter.outputs.server }}
+      rts: ${{ steps.filter.outputs.rts }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            client:
+              - 'app/client/**'
+              - '!app/client/cypress/manual_TestSuite/**'
+            server:
+              - 'app/server/**'
+            rts:
+              - 'app/client/packages/rts/**'
+
+  client-static:
+    name: ci/static-client
+    needs: changes
+    if: needs.changes.outputs.client == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: app/client/package.json
+      - uses: actions/cache/restore@v4
+        with:
+          path: app/client/.yarn/cache
+          key: external-v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+          restore-keys: external-v1-yarn3-
+      - name: Install dependencies
+        run: |
+          corepack enable
+          yarn install --immutable
+      - name: Check formatting
+        run: yarn prettier:ci
+      - name: Lint
+        run: yarn lint:ci
+      - name: Check types
+        run: yarn check-types
+
+  client-unit:
+    name: ci/unit-client
+    needs: changes
+    if: needs.changes.outputs.client == 'true'
+    # Keep untrusted fork code on GitHub-hosted runners.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: app/client/package.json
+      - uses: actions/cache/restore@v4
+        with:
+          path: app/client/.yarn/cache
+          key: external-v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+          restore-keys: external-v1-yarn3-
+      - name: Install dependencies
+        run: |
+          corepack enable
+          yarn install --immutable
+      - name: Run unit tests
+        run: yarn test:unit:ci
+
+  server:
+    name: ci/unit-server
+    needs: changes
+    if: needs.changes.outputs.server == 'true'
+    # Keep untrusted fork code on GitHub-hosted runners.
+    runs-on: ubuntu-22.04
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+      mongo:
+        image: mongo
+        ports:
+          - 27017:27017
+    defaults:
+      run:
+        working-directory: app/server
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+      - uses: ./.github/actions/setup-server-java
+      - name: Check formatting
+        run: mvn spotless:check
+      - name: Build
+        run: ./build.sh -DskipTests
+      - name: Run unit tests with local services
+        env:
+          ACTIVE_PROFILE: test
+          APPSMITH_CLOUD_SERVICES_BASE_URL: http://127.0.0.1:8090
+          APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH: external-ci-dummy
+          APPSMITH_REDIS_URL: redis://127.0.0.1:6379
+          APPSMITH_DB_URL: mongodb://127.0.0.1:27017/appsmith_external_ci
+          APPSMITH_ENCRYPTION_PASSWORD: password
+          APPSMITH_ENCRYPTION_SALT: salt
+          APPSMITH_ENVFILE_PATH: /tmp/dummy.env
+          APPSMITH_VERBOSE_LOGGING_ENABLED: false
+        run: mvn test
+
+  rts:
+    name: ci/unit-rts
+    needs: changes
+    if: needs.changes.outputs.rts == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client/packages/rts
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: app/client/package.json
+      - uses: actions/cache/restore@v4
+        with:
+          path: app/client/.yarn/cache
+          key: external-v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+          restore-keys: external-v1-yarn3-
+      - name: Install dependencies
+        working-directory: app/client
+        run: |
+          corepack enable
+          yarn install --immutable
+      - name: Run unit tests
+        run: yarn test:unit
+      - name: Build
+        run: yarn build
+
+  result:
+    name: external-ci-result
+    needs: [changes, client-static, client-unit, server, rts]
+    if: always() && needs.changes.result != 'skipped'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summarize credential-free validation
+        env:
+          CHANGES: ${{ needs.changes.result }}
+          CLIENT_STATIC: ${{ needs.client-static.result }}
+          CLIENT_UNIT: ${{ needs.client-unit.result }}
+          SERVER: ${{ needs.server.result }}
+          RTS: ${{ needs.rts.result }}
+        run: |
+          for result in "$CHANGES" "$CLIENT_STATIC" "$CLIENT_UNIT" "$SERVER" "$RTS"; do
+            if [[ "$result" == "failure" || "$result" == "cancelled" ]]; then
+              echo "Credential-free validation failed."
+              exit 1
+            fi
+          done
+          echo "All applicable credential-free checks passed."
