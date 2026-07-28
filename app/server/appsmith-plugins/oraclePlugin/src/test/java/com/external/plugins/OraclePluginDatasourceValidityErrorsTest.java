@@ -1,8 +1,10 @@
 package com.external.plugins;
 
+import com.appsmith.external.configurations.connectionpool.ConnectionPoolConfig;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -16,7 +18,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OraclePluginDatasourceValidityErrorsTest {
 
-    OraclePlugin.OraclePluginExecutor oraclePluginExecutor = new OraclePlugin.OraclePluginExecutor();
+    private static class MockConnectionPoolConfig implements ConnectionPoolConfig {
+        @Override
+        public Mono<Integer> getMaxConnectionPoolSize() {
+            return Mono.just(5);
+        }
+
+        @Override
+        public Mono<Integer> getSocketTimeoutSeconds() {
+            return Mono.just(600);
+        }
+    }
+
+    OraclePlugin.OraclePluginExecutor oraclePluginExecutor =
+            new OraclePlugin.OraclePluginExecutor(new MockConnectionPoolConfig());
 
     @Test
     public void testErrorOnMissingUsername() {

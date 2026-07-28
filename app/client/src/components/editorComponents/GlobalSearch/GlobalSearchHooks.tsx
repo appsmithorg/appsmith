@@ -174,13 +174,23 @@ export const useFilteredAndSortedFileOperations = ({
     moduleOptions.map((moduleOp) => fileOperations.push(moduleOp));
   }
 
+  // Appsmith AI is deprecated: creating new queries on its datasources is blocked
+  const pluginsById = keyBy(plugins, "id");
+  const queryableDatasources = allDatasources.filter(
+    (ds) =>
+      pluginsById[ds.pluginId]?.packageName !== PluginPackageName.APPSMITH_AI,
+  );
+
   // Add app datasources
-  if (allDatasources.length > 0) {
+  if (queryableDatasources.length > 0) {
     fileOperations.push(createQueryOption);
   }
 
   // Sort datasources based on recency
-  const datasources = getSortedDatasources(allDatasources, recentlyUsedDSMap);
+  const datasources = getSortedDatasources(
+    queryableDatasources,
+    recentlyUsedDSMap,
+  );
 
   const createQueryAction =
     (dsId: string) =>
