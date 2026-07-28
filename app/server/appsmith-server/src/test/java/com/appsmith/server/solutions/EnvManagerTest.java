@@ -20,6 +20,7 @@ import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.solutions.ce.EnvManagerCEImpl;
 import com.appsmith.util.RestrictedHostFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -31,12 +32,19 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import javax.net.SocketFactory;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -440,6 +448,96 @@ public class EnvManagerTest {
                     assertThat(e.getMessage()).contains("Invalid SMTP configuration");
                 })
                 .verify();
+    }
+
+    @Test
+    public void buildMailSender_UsesHostnameForTls_NotResolvedIp() throws Exception {
+        TestEmailConfigRequestDTO dto = buildDto("smtp.example.com", 587);
+        dto.setStarttlsEnabled(true);
+        InetAddress resolved = InetAddress.getByAddress("smtp.example.com", new byte[] {(byte) 192, 0, 2, 10});
+
+        JavaMailSenderImpl sender = EnvManagerCEImpl.buildMailSender(dto, resolved);
+
+        // TLS SNI + certificate identity checks run against the sender host, so it must be the
+        // hostname the user entered — connecting by IP fails with
+        // "No subject alternative names matching IP address" (APP-15713).
+        assertThat(sender.getHost()).isEqualTo("smtp.example.com");
+        Properties props = sender.getJavaMailProperties();
+        assertThat(props.getProperty("mail.smtp.starttls.enable")).isEqualTo("true");
+        assertThat(props.get("mail.smtp.socketFactory")).isInstanceOf(SocketFactory.class);
+    }
+
+    @Test
+    public void buildMailSender_Port465_EnablesImplicitSslWithHostname() throws Exception {
+        TestEmailConfigRequestDTO dto = buildDto("smtp.example.com", 465);
+        InetAddress resolved = InetAddress.getByAddress("smtp.example.com", new byte[] {(byte) 192, 0, 2, 10});
+
+        JavaMailSenderImpl sender = EnvManagerCEImpl.buildMailSender(dto, resolved);
+
+        assertThat(sender.getHost()).isEqualTo("smtp.example.com");
+        Properties props = sender.getJavaMailProperties();
+        assertThat(props.getProperty("mail.smtp.ssl.enable")).isEqualTo("true");
+        assertThat(props.getProperty("mail.smtp.starttls.enable")).isEqualTo("false");
+    }
+
+    @Test
+    public void buildMailSender_StarttlsDisabled_KeepsPlaintextProps() throws Exception {
+        TestEmailConfigRequestDTO dto = buildDto("smtp.example.com", 587);
+        InetAddress resolved = InetAddress.getByAddress("smtp.example.com", new byte[] {(byte) 192, 0, 2, 10});
+
+        JavaMailSenderImpl sender = EnvManagerCEImpl.buildMailSender(dto, resolved);
+
+        Properties props = sender.getJavaMailProperties();
+        assertThat(props.getProperty("mail.smtp.starttls.enable")).isEqualTo("false");
+        assertThat(props.getProperty("mail.smtp.ssl.enable")).isNull();
+    }
+
+    @Test
+    public void buildMailSender_AuthProps_FollowUsernamePresence() throws Exception {
+        InetAddress resolved = InetAddress.getByAddress("smtp.example.com", new byte[] {(byte) 192, 0, 2, 10});
+
+        TestEmailConfigRequestDTO withAuth = buildDto("smtp.example.com", 587);
+        withAuth.setUsername("mailer");
+        withAuth.setPassword("secret");
+        JavaMailSenderImpl authSender = EnvManagerCEImpl.buildMailSender(withAuth, resolved);
+        assertThat(authSender.getJavaMailProperties().getProperty("mail.smtp.auth"))
+                .isEqualTo("true");
+        assertThat(authSender.getUsername()).isEqualTo("mailer");
+        assertThat(authSender.getPassword()).isEqualTo("secret");
+
+        TestEmailConfigRequestDTO noAuth = buildDto("smtp.example.com", 587);
+        JavaMailSenderImpl noAuthSender = EnvManagerCEImpl.buildMailSender(noAuth, resolved);
+        assertThat(noAuthSender.getJavaMailProperties().getProperty("mail.smtp.auth"))
+                .isEqualTo("false");
+        assertThat(noAuthSender.getUsername()).isNull();
+    }
+
+    @Test
+    public void buildMailSender_SocketFactory_ConnectsToValidatedAddressNotEndpoint() throws Exception {
+        // The SSRF fix must keep connecting to the address RestrictedHostFilter validated, even
+        // though the sender host is now the hostname. JavaMail asks the socket factory for an
+        // unconnected socket and then connects it to (host, port) itself — mimic that here, with
+        // an endpoint pointing at an unroutable TEST-NET address. The pinned socket must ignore
+        // it and reach the validated (loopback) listener instead.
+        try (ServerSocket server = new ServerSocket(0, 1, InetAddress.getLoopbackAddress())) {
+            TestEmailConfigRequestDTO dto = buildDto("smtp.example.com", 587);
+            dto.setStarttlsEnabled(true);
+
+            JavaMailSenderImpl sender = EnvManagerCEImpl.buildMailSender(dto, InetAddress.getLoopbackAddress());
+            SocketFactory factory =
+                    (SocketFactory) sender.getJavaMailProperties().get("mail.smtp.socketFactory");
+
+            try (Socket socket = factory.createSocket()) {
+                socket.connect(new InetSocketAddress("192.0.2.1", server.getLocalPort()), 2000);
+                assertThat(socket.getInetAddress().isLoopbackAddress()).isTrue();
+            }
+            server.accept().close(); // drain the backlog before the next connect
+
+            // The pre-connected overloads must pin the same way.
+            try (Socket socket = factory.createSocket("192.0.2.1", server.getLocalPort())) {
+                assertThat(socket.getInetAddress().isLoopbackAddress()).isTrue();
+            }
+        }
     }
 
     @Test
