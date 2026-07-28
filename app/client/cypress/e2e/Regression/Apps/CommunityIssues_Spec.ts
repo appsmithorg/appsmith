@@ -31,6 +31,16 @@ describe(
     });
 
     let selectedRow: number;
+
+    // Tests 8-10 create, update and delete a row in the AForce Postgres
+    // datasource, which is shared by every run of this spec. A fixed title
+    // makes those rows collide: a run that fails after test 8 leaves a row
+    // behind, and the next attempt's search matches both the leftover and the
+    // new row, so test 9 updates whichever sorts first. Giving each run its own
+    // title keeps the search filter down to the single row this run created.
+    const issueTitle = `Adding Title Suggestion via script ${Date.now()}`;
+    const updatedIssueTitle = `${issueTitle}-updating title`;
+
     it("1. Import application json and validate headers", () => {
       homePage.NavigateToHome();
       homePage.ImportApp("CommunityIssuesExport.json");
@@ -314,9 +324,7 @@ describe(
       agHelper.AssertElementVisibility(locators._modal);
       agHelper.SelectFromDropDown("Suggestion", "t--modal-widget");
 
-      cy.get(locators._inputWidgetv1InDeployed)
-        .eq(3)
-        .type("Adding Title Suggestion via script");
+      cy.get(locators._inputWidgetv1InDeployed).eq(3).type(issueTitle);
       cy.get(locators._textAreainputWidgetv1InDeployed)
         .eq(1)
         .type("Adding Description Suggestion via script");
@@ -339,7 +347,7 @@ describe(
 
       agHelper.ClickButton("Confirm");
       agHelper.AssertElementAbsence(locators._toastMsg); //Making sure internal api doesnt throw error
-      table.SearchTable("Suggestion");
+      table.SearchTable(issueTitle);
       table.WaitUntilTableLoad(0, 0, "v2");
 
       table.ReadTableRowColumnData(0, 0, "v2", 4000).then((cellData) => {
@@ -347,7 +355,7 @@ describe(
       });
 
       table.ReadTableRowColumnData(0, 1, "v2").then((cellData) => {
-        expect(cellData).to.be.equal("Adding Title Suggestion via script");
+        expect(cellData).to.be.equal(issueTitle);
       });
     });
 
@@ -407,9 +415,7 @@ describe(
       });
 
       table.ReadTableRowColumnData(0, 1, "v2").then((cellData) => {
-        expect(cellData).to.be.equal(
-          "Adding Title Suggestion via script-updating title",
-        );
+        expect(cellData).to.be.equal(updatedIssueTitle);
       });
     });
 
