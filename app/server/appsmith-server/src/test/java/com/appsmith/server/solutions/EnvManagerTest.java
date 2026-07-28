@@ -465,6 +465,9 @@ public class EnvManagerTest {
         Properties props = sender.getJavaMailProperties();
         assertThat(props.getProperty("mail.smtp.starttls.enable")).isEqualTo("true");
         assertThat(props.get("mail.smtp.socketFactory")).isInstanceOf(SocketFactory.class);
+        assertThat(props.getProperty("mail.smtp.socketFactory.fallback")).isEqualTo("false");
+        assertThat(props.getProperty("mail.smtp.ssl.checkserveridentity")).isEqualTo("true");
+        assertThat(props.get("mail.smtp.connectiontimeout")).isNotNull();
     }
 
     @Test

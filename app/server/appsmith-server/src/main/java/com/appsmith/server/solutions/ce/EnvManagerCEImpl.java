@@ -847,6 +847,9 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         // Never fall back to an unpinned plain socket if the factory fails — that would
         // silently reopen the DNS-rebinding hole. (Angus 2.x defaults to false; be explicit.)
         props.put("mail.smtp.socketFactory.fallback", "false");
+        // TLS server identity checking is the lynchpin of this configuration — don't rely on
+        // the library default (it differed between JavaMail and Angus Mail generations).
+        props.put("mail.smtp.ssl.checkserveridentity", "true");
 
         if (requestDTO.getSmtpPort() == 465) {
             props.put("mail.smtp.ssl.enable", "true");
@@ -856,7 +859,9 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     "mail.smtp.starttls.enable", requestDTO.getStarttlsEnabled().toString());
         }
 
-        props.put("mail.smtp.timeout", 7000); // 7 seconds
+        props.put("mail.smtp.timeout", 7000); // read timeout, 7 seconds
+        props.put("mail.smtp.connectiontimeout", 7000); // 7 seconds
+        props.put("mail.smtp.writetimeout", 7000); // 7 seconds
 
         if (StringUtils.hasLength(requestDTO.getUsername())) {
             props.put("mail.smtp.auth", "true");
@@ -865,7 +870,10 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         } else {
             props.put("mail.smtp.auth", "false");
         }
-        props.put("mail.debug", "true");
+        // The SMTP transcript (server banners, recipient, username) shouldn't hit stdout on
+        // every call. Angus suppresses the AUTH exchange itself by default (mail.debug.auth),
+        // so this gates noise, not the password.
+        props.put("mail.debug", String.valueOf(log.isDebugEnabled()));
 
         return mailSender;
     }
