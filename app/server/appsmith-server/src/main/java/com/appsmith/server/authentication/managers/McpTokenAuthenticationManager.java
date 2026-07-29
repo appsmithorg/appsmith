@@ -43,22 +43,34 @@ public class McpTokenAuthenticationManager implements ReactiveAuthenticationMana
         McpTokenAuthentication mcpTokenAuthentication = (McpTokenAuthentication) authentication;
         final String bucketKey = rateLimitKey(mcpTokenAuthentication);
 
+        // Spend a token BEFORE the credential check, not after. Reading the remaining count and then verifying the
+        // credential leaves a window in which every concurrent request sees the same non-zero count, so an attacker
+        // firing N requests at once gets N credential verifications regardless of the limit — the bucket only ever
+        // bounded sequential attempts. tryIncreaseCounter is a single atomic tryConsume, so exactly `capacity`
+        // requests can be in flight against a bucket no matter how they are interleaved.
+        //
+        // A proven-good credential must not pay for this: authentication runs on every MCP request (bearer tokens,
+        // no session), and this bucket allows 5/min, so charging every request would cap a legitimate client at 5
+        // requests per minute. Success therefore resets the bucket, which both returns the token just spent and
+        // clears earlier failures — a caller that just proved it holds a valid token is not the one being throttled.
         return rateLimitService
-                .isRateLimitExceeded(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, bucketKey)
-                .onErrorReturn(false)
-                .flatMap(rateLimitExceeded -> {
-                    if (rateLimitExceeded) {
+                .tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, bucketKey)
+                // Preserve the previous posture of failing open: a rate-limiter outage must not lock out MCP auth.
+                .onErrorReturn(true)
+                .flatMap(tokenAcquired -> {
+                    if (!tokenAcquired) {
                         return invalidMcpToken();
                     }
 
                     return userMcpTokenService
                             .authenticate((String) authentication.getCredentials())
-                            .map(user -> (Authentication)
-                                    UsernamePasswordAuthenticationToken.authenticated(user, null, mcpAuthorities(user)))
-                            .switchIfEmpty(Mono.defer(() -> rateLimitService
-                                    .tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, bucketKey)
+                            .flatMap(user -> rateLimitService
+                                    .resetCounter(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, bucketKey)
                                     .onErrorResume(error -> Mono.empty())
-                                    .then(invalidMcpToken())));
+                                    .thenReturn((Authentication) UsernamePasswordAuthenticationToken.authenticated(
+                                            user, null, mcpAuthorities(user))))
+                            // The token was already spent above, so a failed attempt needs no further accounting.
+                            .switchIfEmpty(invalidMcpToken());
                 });
     }
 

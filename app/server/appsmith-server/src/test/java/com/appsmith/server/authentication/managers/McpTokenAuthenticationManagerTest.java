@@ -8,6 +8,7 @@ import com.appsmith.server.services.UserMcpTokenService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,9 +25,11 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,6 +57,8 @@ class McpTokenAuthenticationManagerTest {
         when(user.getAuthorities()).thenReturn(List.of(new SimpleGrantedAuthority("test-authority")));
         McpTokenAuthenticationManager manager = manager();
         when(userMcpTokenService.authenticate("mcp_token")).thenReturn(Mono.just(user));
+        when(rateLimitService.resetCounter(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, "unknown:invalid"))
+                .thenReturn(Mono.empty());
 
         StepVerifier.create(manager.authenticate(new McpTokenAuthentication("mcp_token")))
                 .assertNext(authentication -> {
@@ -66,8 +71,8 @@ class McpTokenAuthenticationManagerTest {
                 })
                 .verifyComplete();
 
-        verify(rateLimitService, never())
-                .tryIncreaseCounter(eq(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION), any());
+        // The token spent by the gate is returned on success, so a valid credential is never throttled.
+        verify(rateLimitService).resetCounter(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, "unknown:invalid");
     }
 
     @Test
@@ -91,8 +96,8 @@ class McpTokenAuthenticationManagerTest {
     void authenticate_rejectsRateLimitedSourceWithoutTokenLookup() {
         McpTokenAuthenticationManager manager = manager();
         String bucketA = LOOPBACK + ":" + TOKEN_ID_A;
-        when(rateLimitService.isRateLimitExceeded(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, bucketA))
-                .thenReturn(Mono.just(true));
+        when(rateLimitService.tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, bucketA))
+                .thenReturn(Mono.just(false));
 
         StepVerifier.create(manager.authenticate(new McpTokenAuthentication(TOKEN_A, LOOPBACK)))
                 .expectError(BadCredentialsException.class)
@@ -108,7 +113,7 @@ class McpTokenAuthenticationManagerTest {
 
         StepVerifier.create(manager.authenticate(authentication)).verifyComplete();
 
-        verify(rateLimitService, never()).isRateLimitExceeded(any(), any());
+        verify(rateLimitService, never()).tryIncreaseCounter(any(), any());
     }
 
     // Core M2-T3 regression: two DIFFERENT tokens arriving from the SAME loopback client address must land in
@@ -122,9 +127,7 @@ class McpTokenAuthenticationManagerTest {
         String bucketB = LOOPBACK + ":" + TOKEN_ID_B;
 
         // Token A is rate-limited; token B is not. Independent buckets means A's lockout must not affect B.
-        when(rateLimitService.isRateLimitExceeded(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, bucketA))
-                .thenReturn(Mono.just(true));
-        when(rateLimitService.isRateLimitExceeded(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, bucketB))
+        when(rateLimitService.tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, bucketA))
                 .thenReturn(Mono.just(false));
         when(userMcpTokenService.authenticate(TOKEN_B)).thenReturn(Mono.empty());
         when(rateLimitService.tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, bucketB))
@@ -142,8 +145,8 @@ class McpTokenAuthenticationManagerTest {
                 .verify();
         verify(userMcpTokenService).authenticate(TOKEN_B);
         verify(rateLimitService).tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, bucketB);
-        // Token A's bucket was never incremented from token B's attempt.
-        verify(rateLimitService, never())
+        // Bucket A was charged exactly once — by token A's own attempt — so token B's attempt never touched it.
+        verify(rateLimitService, times(1))
                 .tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, bucketA);
     }
 
@@ -157,11 +160,7 @@ class McpTokenAuthenticationManagerTest {
         String token = "mcp_" + TOKEN_ID_A + "." + secret;
         when(userMcpTokenService.authenticate(token)).thenReturn(Mono.empty());
 
-        ArgumentCaptor<String> checkKey = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> incrementKey = ArgumentCaptor.forClass(String.class);
-        when(rateLimitService.isRateLimitExceeded(
-                        eq(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION), checkKey.capture()))
-                .thenReturn(Mono.just(false));
         when(rateLimitService.tryIncreaseCounter(
                         eq(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION), incrementKey.capture()))
                 .thenReturn(Mono.just(true));
@@ -170,19 +169,57 @@ class McpTokenAuthenticationManagerTest {
                 .expectError(BadCredentialsException.class)
                 .verify();
 
-        assertThat(checkKey.getValue()).isEqualTo(LOOPBACK + ":" + TOKEN_ID_A);
         assertThat(incrementKey.getValue()).isEqualTo(LOOPBACK + ":" + TOKEN_ID_A);
-        assertThat(checkKey.getValue()).doesNotContain(secret);
         assertThat(incrementKey.getValue()).doesNotContain(secret);
+    }
+
+    // Regression for the TOCTOU in the MCP auth gate. The manager used to read the remaining token count, verify the
+    // credential, and only then consume a token on the failure path. Because the read consumed nothing, every request
+    // in a concurrent burst observed the same non-zero count and every one of them reached the credential
+    // verification — the bucket bounded sequential attempts only, so N simultaneous attempts bought N verifications.
+    // The fix is to spend the token atomically before verifying; this asserts that ordering, which is the part of the
+    // race that can be pinned down deterministically (the interleaving itself cannot be forced in a unit test).
+    @Test
+    void authenticate_spendsRateLimitTokenBeforeVerifyingCredential() {
+        McpTokenAuthenticationManager manager = manager();
+        String bucket = LOOPBACK + ":" + TOKEN_ID_A;
+        when(rateLimitService.tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, bucket))
+                .thenReturn(Mono.just(true));
+        when(userMcpTokenService.authenticate(TOKEN_A)).thenReturn(Mono.empty());
+
+        StepVerifier.create(manager.authenticate(new McpTokenAuthentication(TOKEN_A, LOOPBACK)))
+                .expectError(BadCredentialsException.class)
+                .verify();
+
+        InOrder inOrder = inOrder(rateLimitService, userMcpTokenService);
+        inOrder.verify(rateLimitService)
+                .tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, bucket);
+        inOrder.verify(userMcpTokenService).authenticate(TOKEN_A);
+    }
+
+    // The other half of the same property: once the bucket is empty the credential check must not run at all, so a
+    // flood of attempts cannot keep buying verifications.
+    @Test
+    void authenticate_exhaustedBucketPerformsNoCredentialVerification() {
+        McpTokenAuthenticationManager manager = manager();
+        String bucket = LOOPBACK + ":" + TOKEN_ID_A;
+        when(rateLimitService.tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, bucket))
+                .thenReturn(Mono.just(false));
+
+        StepVerifier.create(manager.authenticate(new McpTokenAuthentication(TOKEN_A, LOOPBACK)))
+                .expectError(BadCredentialsException.class)
+                .verify();
+
+        verify(userMcpTokenService, never()).authenticate(TOKEN_A);
     }
 
     private McpTokenAuthenticationManager manager() {
         // Lenient: tests that reject non-MCP auth or a rate-limited source never reach this stub. The default
         // "mcp_token" credential with the default "unknown" client address keys the shared invalid bucket.
         lenient()
-                .when(rateLimitService.isRateLimitExceeded(
+                .when(rateLimitService.tryIncreaseCounter(
                         RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, "unknown:invalid"))
-                .thenReturn(Mono.just(false));
+                .thenReturn(Mono.just(true));
         return new McpTokenAuthenticationManager(userMcpTokenService, rateLimitService);
     }
 }
