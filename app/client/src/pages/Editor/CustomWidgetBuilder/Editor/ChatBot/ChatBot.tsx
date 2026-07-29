@@ -1,13 +1,7 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { isObject } from "lodash";
 import type { ContentProps } from "../CodeEditors/types";
-import { CustomWidgetBuilderContext } from "../..";
+import type { CustomWidgetBuilderContextType } from "../../types";
 import {
   CUSTOM_WIDGET_AI_BOT_MESSAGE_RESPONSE_DEBOUNCE_TIMEOUT,
   CUSTOM_WIDGET_AI_BOT_URL,
@@ -15,12 +9,18 @@ import {
   CUSTOM_WIDGET_AI_INITIALISED_MESSAGE,
 } from "../../constants";
 
-export const ChatBot = (props: ContentProps) => {
+type ChatBotProps = ContentProps &
+  Partial<
+    Pick<
+      CustomWidgetBuilderContextType,
+      "parentEntityId" | "uncompiledSrcDoc" | "update" | "widgetId"
+    >
+  >;
+
+export const ChatBot = (props: ChatBotProps) => {
   const ref = useRef<HTMLIFrameElement>(null);
   const lastUpdateFromBot = useRef<number>(0);
-  const { parentEntityId, uncompiledSrcDoc, update, widgetId } = useContext(
-    CustomWidgetBuilderContext,
-  );
+  const { parentEntityId, uncompiledSrcDoc, update, widgetId } = props;
 
   const handleSrcDocUpdates = useCallback(() => {
     // Don't send updates back to bot if the last update came from the bot within the last 100ms

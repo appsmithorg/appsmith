@@ -572,9 +572,20 @@ function NativeAIAssistant(props: ContentProps) {
  */
 export function AIAssistant(props: ContentProps) {
   const aiAssistantState = useSelector(getAIAssistantState);
+  const { parentEntityId, uncompiledSrcDoc, update, widgetId } = useContext(
+    CustomWidgetBuilderContext,
+  );
 
   if (!aiAssistantState) {
-    return <ChatBot {...props} />;
+    return (
+      <ChatBot
+        {...props}
+        parentEntityId={parentEntityId}
+        uncompiledSrcDoc={uncompiledSrcDoc}
+        update={update}
+        widgetId={widgetId}
+      />
+    );
   }
 
   return <NativeAIAssistant {...props} />;
