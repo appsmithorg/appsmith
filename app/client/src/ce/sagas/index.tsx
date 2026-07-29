@@ -55,6 +55,8 @@ import sendSideBySideWidgetHoverAnalyticsEventSaga from "sagas/AnalyticsSaga";
 import gitSagas from "git/sagas";
 import PostEvaluationSagas from "sagas/PostEvaluationSagas";
 import copyToAppSagas from "ee/sagas/CopyToAppSagas";
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports -- Ask AI is CE-owned; CE cannot add an ee/ shim (pre-push architecture guard).
+import aiAssistantSagas from "ce/sagas/AIAssistantSagas";
 
 /* Sagas that are registered by a module that is designed to be independent of the core platform */
 import ternSagas from "sagas/TernSaga";
@@ -119,4 +121,5 @@ export const sagas = [
   PostEvaluationSagas,
   favoritesSagasListener,
   copyToAppSagas,
+  aiAssistantSagas,
 ];
