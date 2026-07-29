@@ -136,40 +136,47 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
                 isServerAutoCommitRequired(workspaceId, gitArtifactMetadata).cache();
 
         return Mono.defer(() -> gitRedisUtils.addFileLock(defaultApplicationId, AUTO_COMMIT_ELIGIBILITY))
-                .then(isClientAutocommitRequiredMono.zipWhen(clientFlag -> {
-                    Mono<Boolean> serverFlagMono = isServerAutocommitRequiredMono;
-                    // if client is required to migrate then,
-                    // there is no requirement to fetch server flag as server is subset of client migration.
-                    if (Boolean.TRUE.equals(clientFlag)) {
-                        serverFlagMono = Mono.just(TRUE);
-                    }
+                .then(isClientAutocommitRequiredMono
+                        .zipWhen(clientFlag -> {
+                            Mono<Boolean> serverFlagMono = isServerAutocommitRequiredMono;
+                            // if client is required to migrate then,
+                            // there is no requirement to fetch server flag as server is subset of client migration.
+                            if (Boolean.TRUE.equals(clientFlag)) {
+                                serverFlagMono = Mono.just(TRUE);
+                            }
 
-                    return serverFlagMono;
-                }))
-                .flatMap(tuple2 -> {
-                    Boolean clientFlag = tuple2.getT1();
-                    Boolean serverFlag = tuple2.getT2();
+                            return serverFlagMono;
+                        })
+                        .flatMap(tuple2 -> {
+                            Boolean clientFlag = tuple2.getT1();
+                            Boolean serverFlag = tuple2.getT2();
 
-                    AutoCommitTriggerDTO autoCommitTriggerDTO = new AutoCommitTriggerDTO();
-                    autoCommitTriggerDTO.setIsClientAutoCommitRequired(TRUE.equals(clientFlag));
-                    autoCommitTriggerDTO.setIsServerAutoCommitRequired(TRUE.equals(serverFlag));
-                    autoCommitTriggerDTO.setIsAutoCommitRequired((TRUE.equals(serverFlag) || TRUE.equals(clientFlag)));
+                            AutoCommitTriggerDTO autoCommitTriggerDTO = new AutoCommitTriggerDTO();
+                            autoCommitTriggerDTO.setIsClientAutoCommitRequired(TRUE.equals(clientFlag));
+                            autoCommitTriggerDTO.setIsServerAutoCommitRequired(TRUE.equals(serverFlag));
+                            autoCommitTriggerDTO.setIsAutoCommitRequired(
+                                    (TRUE.equals(serverFlag) || TRUE.equals(clientFlag)));
 
-                    return gitRedisUtils.releaseFileLock(defaultApplicationId).then(Mono.just(autoCommitTriggerDTO));
-                })
-                // Only the success path released the lock, so a single transient failure left it held until its TTL
-                // expired and suppressed every later eligibility check for the artifact. A release failure is
-                // already logged by GitRedisUtils and must not mask the original error.
-                .onErrorResume(error -> {
-                    log.warn(
-                            "auto commit eligibility check failed for baseArtifactId : {}, releasing the {} lock",
-                            defaultApplicationId,
-                            AUTO_COMMIT_ELIGIBILITY,
-                            error);
-                    return gitRedisUtils
-                            .releaseFileLock(defaultApplicationId)
-                            .onErrorComplete()
-                            .then(Mono.error(error));
-                });
+                            return gitRedisUtils
+                                    .releaseFileLock(defaultApplicationId)
+                                    .then(Mono.just(autoCommitTriggerDTO));
+                        })
+                        // Only the success path released the lock, so a single transient failure left it held until
+                        // its TTL expired and suppressed every later eligibility check for the artifact. This is
+                        // deliberately scoped inside then(), so it cannot run when addFileLock itself lost on
+                        // contention: releaseFileLock deletes the key unconditionally, so releasing there would
+                        // drop the lock held by the request that actually won it. A release failure is already
+                        // logged by GitRedisUtils and must not mask the original error.
+                        .onErrorResume(error -> {
+                            log.warn(
+                                    "auto commit eligibility check failed for baseArtifactId : {}, releasing the {} lock",
+                                    defaultApplicationId,
+                                    AUTO_COMMIT_ELIGIBILITY,
+                                    error);
+                            return gitRedisUtils
+                                    .releaseFileLock(defaultApplicationId)
+                                    .onErrorComplete()
+                                    .then(Mono.error(error));
+                        }));
     }
 }
