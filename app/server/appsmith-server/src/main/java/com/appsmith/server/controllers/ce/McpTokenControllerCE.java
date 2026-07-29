@@ -45,6 +45,19 @@ public class McpTokenControllerCE {
                 .map(token -> new ResponseDTO<>(HttpStatus.OK, token));
     }
 
+    /**
+     * Rejects a caller that authenticated with an MCP token, so token management stays session-only.
+     *
+     * <p>This is the second of two independent layers, not the primary one. {@link
+     * com.appsmith.server.filters.McpAllowlistWebFilter} is what normally stops an MCP principal here: its allowlist
+     * omits this controller's paths entirely and fails closed, so such a request is refused before routing. That
+     * filter is the right place for the rule and already carries the test coverage.
+     *
+     * <p>The check is repeated here because the two layers fail differently. The filter enforces by omission — a path
+     * is protected only for as long as nobody adds it to the allowlist to unblock some future tool — whereas this
+     * states the constraint on the endpoints it actually protects, where it cannot be undone by an unrelated edit.
+     * Token minting and rotation hand out bearer secrets, so a silent regression there is worth a duplicated guard.
+     */
     private Mono<Void> requireSessionAuthentication() {
         return ReactiveSecurityContextHolder.getContext()
                 .map(context -> McpTokenAuthentication.isMcpPrincipal(context.getAuthentication()))
