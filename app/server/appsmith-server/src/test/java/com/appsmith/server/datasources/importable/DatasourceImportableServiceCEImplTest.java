@@ -12,6 +12,10 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
+import com.appsmith.server.dtos.ImportingMetaDTO;
+import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,9 +25,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -32,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -262,5 +270,51 @@ class DatasourceImportableServiceCEImplTest { // Renamed class to match conventi
         StepVerifier.create(result).expectNextCount(1).verifyComplete();
         verify(datasourceService).getAllByWorkspaceIdWithStorages(workspaceId, AclPermission.READ_DATASOURCES);
         verify(datasourceService, never()).getAllByWorkspaceIdWithStorages(eq(workspaceId), isNull());
+    }
+
+    @Test
+    @DisplayName("GHSA-p37g-mfwx-3r9f: import must enumerate workspace datasources with READ_DATASOURCES, "
+            + "never with a null (unpermissioned) AclPermission")
+    void should_enforceReadPermission_when_importEntities_collectsWorkspaceDatasources() {
+        // Given: an import into a workspace, where the artifact JSON carries no new datasources
+        // (isolates the vulnerable collision-matching call from the rest of importDatasources).
+        String workspaceId = "workspace1";
+        Workspace workspace = new Workspace();
+        workspace.setId(workspaceId);
+
+        lenient().when(datasourcePermission.getReadPermission()).thenReturn(AclPermission.READ_DATASOURCES);
+        // Only the correctly-permissioned call is stubbed to return data; the vulnerable
+        // permission=null call is separately stubbed to empty so the test fails via the
+        // explicit verify() below (a clean assertion failure) rather than a Mockito strict-
+        // stubbing exception or NPE.
+        lenient()
+                .when(datasourceService.getAllByWorkspaceIdWithStorages(
+                        eq(workspaceId), eq(AclPermission.READ_DATASOURCES)))
+                .thenReturn(Flux.empty());
+        lenient()
+                .when(datasourceService.getAllByWorkspaceIdWithStorages(eq(workspaceId), isNull()))
+                .thenReturn(Flux.empty());
+        lenient()
+                .when(workspaceService.getDefaultEnvironmentId(eq(workspaceId), isNull()))
+                .thenReturn(Mono.just("env1"));
+
+        ImportingMetaDTO importingMetaDTO = org.mockito.Mockito.mock(ImportingMetaDTO.class);
+        MappedImportableResourcesDTO mappedImportableResourcesDTO = new MappedImportableResourcesDTO();
+        mappedImportableResourcesDTO.setPluginMap(new HashMap<>());
+        ArtifactExchangeJson artifactExchangeJson = org.mockito.Mockito.mock(ArtifactExchangeJson.class);
+        // No datasources in the imported JSON: importDatasources() short-circuits with Mono.empty()
+        // as soon as it observes this, so the test isolates the workspace-datasource-collection call.
+        lenient().when(artifactExchangeJson.getDatasourceList()).thenReturn(List.of());
+
+        Mono<Workspace> workspaceMono = Mono.just(workspace);
+
+        // When
+        Mono<Void> result = importService.importEntities(
+                importingMetaDTO, mappedImportableResourcesDTO, workspaceMono, Mono.empty(), artifactExchangeJson);
+
+        // Then: the vulnerable call must never pass permission=null.
+        StepVerifier.create(result).verifyComplete();
+        verify(datasourceService, never()).getAllByWorkspaceIdWithStorages(eq(workspaceId), isNull());
+        verify(datasourceService).getAllByWorkspaceIdWithStorages(eq(workspaceId), eq(AclPermission.READ_DATASOURCES));
     }
 }
