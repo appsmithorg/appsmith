@@ -1,84 +1,55 @@
-The following list describes all the workflows that are configured to run in this repository:
+# CI workflows
 
-## Release process related Actions
+The workflow files in this directory are the source of truth for what runs and when.
+Each one is named for what it does, and its `on:` block states its triggers.
 
-1. [Build RTS Workflow](#build-rts-workflow)
-2. [Appsmith Client Build Workflow](#appsmith-client-build-workflow)
-3. [Appsmith External Integration Test Workflow](#appsmith-external-integration-test-workflow)
-4. [Appsmith Github Release Workflow](#appsmith-github-release-workflow)
-5. [Ok To Test](#ok-to-test)
-6. [Appsmith Server Workflow](#appsmith-server-workflow)
-7. [Test, build and push Docker Image](#test-build-and-push-docker-image)
+This README covers only what you cannot infer from the YAML: how to trigger CI by hand.
 
-## Utility Actions
+## Running Cypress on a PR
 
-1. [Mark stale issues and pull requests](#mark-stale-issues-and-pull-requests)
-2. [Label PRs based on title](#label-prs-based-on-title)
-3. [Release Drafter](#release-drafter)
-4. [Remove old artifacts](#remove-old-artifacts)
-5. [Sync Community workflow](#sync-community-workflow)
-6. [Potential Duplicate Issues](#potential-duplicate-issues)
-7. [Mastermind Labeler Workflow](#mastermind-labeler-workflow)
+1. Keep the `## Automation` section from the PR template in your PR description, and
+   fill in the tags:
 
-#### Build RTS Workflow
+   ```
+   /ok-to-test tags="@tag.All"
+   ```
 
-_Workflow file: [build-rts.yml](build-rts.yml)_
-Triggered on every commit to the rts folder. This workflow is responsible for building the RTS Node server. There are dummy steps for ui-tests and packaging. **(Comment: Useless right now because it does not have ui-test-result)**
+2. Add the `ok-to-test` label to the PR.
 
-#### Appsmith Client Build Workflow
+Results are written back into the PR description under "Cypress test results", and
+reported as the `PR Automation test suite / perform-test / ci-test-result` check.
 
-_Workflow file: [client-build.yml](client-build.yml)_
-Triggered on every commit to the client folder. This workflow is responsible for building & unit-testing the client side.
+Notes:
 
-#### Appsmith Server Workflow
+- Pushing new commits cancels the in-flight run and retests the new HEAD.
+- Remove the `ok-to-test` label to stop tests running on each push.
+- Remove and re-add the label to re-run against the same commit.
+- Do not edit the auto-generated "Cypress test results" block. The workflow rewrites
+  it, and corrupting it disrupts the CI result for the PR.
+- Add any other labels *before* `ok-to-test`. Adding a label afterwards resets results.
 
-_Workflow file: [server.yml](server.yml)_
-Triggered on every commit to the server folder. This workflow is responsible for building & unit-testing the Java server codebase.
+### Commenting `/ok-to-test` does nothing
 
-#### Appsmith External Integration Test Workflow
+The comment-triggered version of this command was retired in March 2024. Commenting it
+gets you a bot reply saying the method is defunct. Use the PR body and the label, as
+above.
 
-_Workflow file: [external-client-test.yml](external-client-test.yml)_
-Triggered only by the ok to test command dispatch. This workflow is responsible for building, unit-testing, integration testing and packaging both server and client code base. **(Comment: Notably not RTS)**
+### Fork PRs cannot run Cypress this way
 
-#### Appsmith Github Release Workflow
+GitHub gives workflows on pull requests from forks a read-only token and no access to
+secrets, regardless of the `permissions:` block. The `ok-to-test` label path therefore
+cannot work for external contributions, and the run fails when it tries to write test
+status back to the PR.
 
-_Workflow file: [github-release.yml](github-release.yml)_
-Triggered on `release` event on Github. This workflow is responsible for building client, server and RTS binaries and packaging them to the latest as well as the relevant release tag on Docker.
+## Slash commands
 
-#### Ok To Test
+These are still comment-triggered. They dispatch through a GitHub App and require write
+access on the repository, so they work on fork PRs.
 
-_Workflow file: [ok-to-test.yml](ok-to-test.yml)_
-Triggered by PR comments. This workflow triggers a repository dispatch for the [Appsmith External Integration Test Workflow](#appsmith-external-integration-test-workflow).
+| Command | What it does |
+| --- | --- |
+| `/build-deploy-preview` | Builds an image and deploys a preview environment |
+| `/test-pw` | Runs the Playwright suite |
+| `/ci-test-limit` | Runs a limited Cypress set |
 
-#### Test, build and push Docker Image
-
-_Workflow file: [test-build-docker-image.yml](test-build-docker-image.yml)_
-Triggered by PR reviews and push to release or master. This workflow is responsible for building client, server and RTS binaries and packaging them to fata container as well as the older separate containers.
-
-#### Mark stale issues and pull requests
-
-_Workflow file: [stale.yml](stale.yml)_
-
-#### Label PRs based on title
-
-_Workflow file: [pr-labeler.yml](pr-labeler.yml)_
-
-#### Release Drafter
-
-_Workflow file: [release-drafter.yml](release-drafter.yml)_
-
-#### Remove old artifacts
-
-_Workflow file: [remove-old-artifacts.yml](remove-old-artifacts.yml)_
-
-#### Sync Community workflow
-
-_Workflow file: [sync-community-repo.yml](sync-community-repo.yml)_
-
-#### Potential Duplicate Issues
-
-_Workflow file: [duplicate-issue-detector.yml](duplicate-issue-detector.yml)_
-
-#### Mastermind Labeler Workflow
-
-_Workflow file: [mastermind-labeler.yml](mastermind-labeler.yml)_
+Configured in [ok-to-test.yml](ok-to-test.yml).

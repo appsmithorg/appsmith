@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.constants.PluginConstants;
 import com.appsmith.external.helpers.EncryptionHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -12,6 +13,7 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
@@ -34,6 +36,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -108,6 +111,9 @@ public class DatasourceServiceTest {
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    PluginRepository pluginRepository;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -292,6 +298,95 @@ public class DatasourceServiceTest {
                                 .getMessage()
                                 .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.DATASOURCE)))
                 .verify();
+    }
+
+    private Plugin getOrCreateAppsmithAiPlugin() {
+        Plugin aiPlugin = pluginService
+                .findByPackageName(PluginConstants.PackageName.APPSMITH_AI_PLUGIN)
+                .block();
+
+        if (aiPlugin == null) {
+            aiPlugin = new Plugin();
+            aiPlugin.setName(PluginConstants.PluginName.APPSMITH_AI_PLUGIN_NAME);
+            aiPlugin.setType(PluginType.AI);
+            aiPlugin.setPackageName(PluginConstants.PackageName.APPSMITH_AI_PLUGIN);
+            aiPlugin = pluginRepository.save(aiPlugin).block();
+        }
+
+        return aiPlugin;
+    }
+
+    private Datasource buildAppsmithAiDatasource(Plugin aiPlugin, String name) {
+        Datasource datasource = new Datasource();
+        datasource.setName(name);
+        datasource.setWorkspaceId(workspaceId);
+        datasource.setPluginId(aiPlugin.getId());
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, null));
+        datasource.setDatasourceStorages(storages);
+        return datasource;
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createDatasource_withDeprecatedAppsmithAiPlugin_throwsException() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Plugin aiPlugin = getOrCreateAppsmithAiPlugin();
+        Datasource datasource = buildAppsmithAiDatasource(aiPlugin, "Deprecated Appsmith AI DS");
+
+        StepVerifier.create(datasourceService.create(datasource))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.DEPRECATED_DATASOURCE_PLUGIN.getMessage(aiPlugin.getName())))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createWithoutDeprecationCheck_withDeprecatedAppsmithAiPlugin_succeeds() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Plugin aiPlugin = getOrCreateAppsmithAiPlugin();
+        Datasource datasource = buildAppsmithAiDatasource(aiPlugin, "Existing Appsmith AI DS");
+
+        // This is the path fork uses; it must keep working for already-existing datasources.
+        StepVerifier.create(datasourceService.createWithoutDeprecationCheck(datasource))
+                .assertNext(createdDatasource -> {
+                    assertThat(createdDatasource.getId()).isNotEmpty();
+                    assertThat(createdDatasource.getPluginId()).isEqualTo(aiPlugin.getId());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createDatasource_existingAppsmithAiDatasource_storageSaveAllowed() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Plugin aiPlugin = getOrCreateAppsmithAiPlugin();
+        Datasource datasource = buildAppsmithAiDatasource(aiPlugin, "Existing Appsmith AI DS for storage save");
+
+        Datasource savedDatasource =
+                datasourceService.createWithoutDeprecationCheck(datasource).block();
+        assertThat(savedDatasource).isNotNull();
+        assertThat(savedDatasource.getId()).isNotEmpty();
+
+        // Calls that carry an id are storage-saves for existing datasources and must bypass the deprecation guard.
+        Datasource existingDatasource = new Datasource();
+        existingDatasource.setId(savedDatasource.getId());
+        existingDatasource.setWorkspaceId(workspaceId);
+        existingDatasource.setPluginId(aiPlugin.getId());
+        existingDatasource.setDatasourceStorages(new HashMap<>(savedDatasource.getDatasourceStorages()));
+
+        StepVerifier.create(datasourceService.create(existingDatasource))
+                .assertNext(
+                        resultDatasource -> assertThat(resultDatasource.getId()).isEqualTo(savedDatasource.getId()))
+                .verifyComplete();
     }
 
     @Test
