@@ -31,7 +31,7 @@ tools.
 
 Components:
 - React/TypeScript browser client (`app/client/`)
-- Java 17 Spring WebFlux server (`app/server/`)
+- Java 25 Spring WebFlux server (`app/server/`)
 - Node.js RTS real-time server (`app/client/packages/rts/`)
 - Docker, Helm, Caddy reverse proxy, shell scripts (`deploy/`)
 
