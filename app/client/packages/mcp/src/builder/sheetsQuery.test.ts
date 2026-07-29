@@ -205,8 +205,10 @@ describe("compileSheetsQuery — filtered read (server-side where clause)", () =
     );
 
     expect(compiled.whereHasBinding).toBe(true);
+    // Self-escaping form: eval resolves this to an already-escaped value, so the value cannot close its own JSON
+    // string and restructure the where clause.
     expect(JSON.parse(compiled.where!).children[0].value).toBe(
-      "{{ StatusSelect.selectedOptionValue }}",
+      "{{ JSON.stringify(String(StatusSelect.selectedOptionValue ?? '')).slice(1, -1) }}",
     );
   });
 

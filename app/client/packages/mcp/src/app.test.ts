@@ -2674,7 +2674,8 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
         {
           condition: "EQ",
           key: "Status",
-          value: "{{ StatusSelect.selectedOptionValue }}",
+          value:
+            "{{ JSON.stringify(String(StatusSelect.selectedOptionValue ?? '')).slice(1, -1) }}",
         },
       ],
     });
@@ -2684,6 +2685,69 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     ]);
     // A read runs on page load.
     expect(dto.executeOnLoad).toBe(true);
+  });
+
+  // Regression: a widget-bound filter value must not be able to restructure the where clause. The where field is not
+  // one of the plugin's smart-substituted jsonFields, so eval splices the RESOLVED value into the JSON document
+  // textually. Compile-time escaping only covers the `{{ }}` placeholder, so the binding has to escape its own value.
+  it("create_sheets_query filter binding cannot inject into the where JSON", async () => {
+    const createAction = jest.fn<
+      Promise<{ id: string }>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "act-f" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "Sheet", pluginId: "656f00000000000000000010" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000010", packageName: "google-sheets-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const filterQuery: Record<string, unknown> = {
+      ...sheetsAppend,
+      name: "FilterInject",
+      operation: "read",
+      filter: [
+        {
+          column: "Status",
+          op: "eq",
+          value: { widget: "StatusSelect", property: "selectedOptionValue" },
+        },
+      ],
+    };
+
+    delete filterQuery.row;
+    await callTool(api, "create_sheets_query", { query: filterQuery });
+
+    const dto = createAction.mock.calls[0][0] as {
+      actionConfiguration: { formData: { where: { data: string } } };
+    };
+    const emitted = dto.actionConfiguration.formData.where.data;
+
+    // The value must carry its own escaping, not sit in the document as a bare binding.
+    expect(emitted).toContain("JSON.stringify");
+    expect(emitted).not.toContain('"{{ StatusSelect.selectedOptionValue }}"');
+
+    // Reproduce what eval does: evaluate the binding against a hostile widget value and splice the result in.
+    const hostile = 'x","key":"Salary","value":"';
+    const binding = emitted.match(/\{\{(.+?)\}\}/);
+
+    expect(binding).not.toBeNull();
+
+    const resolved = new Function("StatusSelect", `return (${binding![1]});`)({
+      selectedOptionValue: hostile,
+    });
+    const afterEval = emitted.replace(/\{\{.+?\}\}/, String(resolved));
+
+    // Still one condition, still on the intended column, and the hostile text stayed inside the value.
+    const parsed = JSON.parse(afterEval);
+
+    expect(parsed.children).toHaveLength(1);
+    expect(parsed.children[0].key).toBe("Status");
+    expect(parsed.children[0].value).toBe(hostile);
   });
 
   it("create_sheets_query deletes a row (DELETE_ONE, widget-bound rowIndex + eval path)", async () => {

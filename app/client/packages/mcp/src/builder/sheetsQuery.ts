@@ -215,6 +215,12 @@ const MAX_BODY_BYTES = 8 * 1024;
 const SAFE_BINDING =
   /^\{\{ [A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_.]* \}\}$/;
 
+// The self-escaping form emitted for a where-clause value (see emitWhere). Matched literally — everything except the
+// widget and property identifiers is fixed text — so this stays as fail-closed as SAFE_BINDING and cannot be
+// satisfied by anything the compiler did not emit.
+const SAFE_ESCAPED_BINDING =
+  /^\{\{ JSON\.stringify\(String\([A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_.]* \?\? ''\)\)\.slice\(1, -1\) \}\}$/;
+
 function emitValue(value: ValueRef): string {
   if ("literal" in value) {
     return JSON.stringify(value.literal);
@@ -279,7 +285,10 @@ function assertBodySafe(body: string): void {
   if (
     openings !== closings ||
     openings !== bindings.length ||
-    !bindings.every((binding) => SAFE_BINDING.test(binding))
+    !bindings.every(
+      (binding) =>
+        SAFE_BINDING.test(binding) || SAFE_ESCAPED_BINDING.test(binding),
+    )
   ) {
     throw new Error("compiled Sheets row contains an unsafe binding");
   }
@@ -292,12 +301,19 @@ function assertBodySafe(body: string): void {
 // checked `{{ Widget.prop }}` binding that the client eval resolves before execution (see buildSheetsActionDto's
 // dynamicBindingPathList). Returns whether any value is a binding so the caller can register the eval path.
 //
-// CORRECTNESS CAVEAT [same class as aiQuery.emitContent]: the where field is NOT one of the plugin's smart-substituted
-// jsonFields (only rowObject/rowObjects are), so a widget-bound value is interpolated RAW by eval into this JSON
-// string — a resolved value containing a `"` can malform the where the plugin then parses. This is NOT a security
-// issue (same-tenant single-pass eval; the value is compared in memory, never run as a query), only a robustness note:
-// widget-bound filters are safest against controlled inputs (a select's option value, a number), and free-text-bound
-// values are the case to verify on a live datasource. Static literal filters have no such caveat.
+// The where field is NOT one of the plugin's smart-substituted jsonFields (only rowObject/rowObjects are), so eval
+// interpolates a widget-bound value textually into this JSON string. Escaping the emitted template is therefore not
+// enough: JSON.stringify runs at COMPILE time and only escapes the `{{ ... }}` placeholder, while the RESOLVED value
+// is spliced in afterwards, raw. A value such as `x","key":"salary` would close the value string and add fields, so a
+// user who controls the bound widget could rewrite which column is filtered or drop the condition entirely — a filter
+// bypass that returns rows the filter existed to withhold.
+//
+// The fix is to make the binding escape its own resolved value: it emits `JSON.stringify(...).slice(1, -1)`, which
+// yields the value with quotes and backslashes already escaped but WITHOUT the surrounding quotes, so it slots into
+// the quoted position the template already provides. A `"` in the value arrives as `\"` and can no longer close the
+// string. The emitted document therefore stays valid JSON both before eval (the binding is an ordinary string) and
+// after it. Note the expression uses single quotes for the nullish fallback — the document is JSON-encoded, and a
+// double quote inside the binding would be escaped to `\"` and stop being valid JS by the time eval sees it.
 function emitWhere(filter: FilterCondition[]): {
   json: string;
   hasBinding: boolean;
@@ -319,7 +335,7 @@ function emitWhere(filter: FilterCondition[]): {
       }
 
       hasBinding = true;
-      value = binding;
+      value = `{{ JSON.stringify(String(${entry.value.widget}.${entry.value.property} ?? '')).slice(1, -1) }}`;
     }
 
     return { condition: FILTER_OPERATORS[entry.op], key: entry.column, value };
