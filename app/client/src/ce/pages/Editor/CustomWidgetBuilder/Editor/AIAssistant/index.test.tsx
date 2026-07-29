@@ -74,7 +74,9 @@ function renderAssistant(options: RenderOptions = {}) {
   // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop -- test render helper, re-renders are irrelevant
   const contextValue = {
     bulkUpdate,
+    parentEntityId: "page1",
     uncompiledSrcDoc: SRC_DOC,
+    update: jest.fn(),
     widgetId: "widget1",
   };
 
@@ -92,13 +94,19 @@ function renderAssistant(options: RenderOptions = {}) {
 }
 
 describe("CustomWidgetBuilder AIAssistant", () => {
-  it("shows the CE fallback when the Ask AI state is unavailable", () => {
-    renderAssistant({ includeAIState: false });
+  it("shows the legacy copilot when the Ask AI runtime is unavailable", () => {
+    const { store } = renderAssistant({ includeAIState: false });
+    const iframe = screen.getByTestId("t--custom-widget-ai-legacy");
 
-    expect(
-      screen.getByTestId("t--custom-widget-ai-not-configured"),
-    ).toBeInTheDocument();
-    expect(screen.queryByText("Open AI settings")).not.toBeInTheDocument();
+    expect(iframe).toHaveAttribute(
+      "src",
+      expect.stringContaining("https://internal.appsmith.com/app/ai-co-pilot/"),
+    );
+    expect(iframe).toHaveAttribute(
+      "src",
+      expect.stringContaining("chatInstance=widget1-page1"),
+    );
+    expect(store.getActions()).toHaveLength(0);
   });
 
   it("shows a loading state until the AI config is loaded", () => {
@@ -109,6 +117,9 @@ describe("CustomWidgetBuilder AIAssistant", () => {
     expect(
       screen.getByTestId("t--custom-widget-ai-loading-config"),
     ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("t--custom-widget-ai-legacy"),
+    ).not.toBeInTheDocument();
 
     const types = store.getActions().map((a) => a.type);
 
@@ -124,6 +135,9 @@ describe("CustomWidgetBuilder AIAssistant", () => {
     expect(
       screen.getByTestId("t--custom-widget-ai-not-configured"),
     ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("t--custom-widget-ai-legacy"),
+    ).not.toBeInTheDocument();
     // Superusers get a shortcut to the settings page
     expect(screen.getByText("Open AI settings")).toBeInTheDocument();
   });

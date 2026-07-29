@@ -32,6 +32,7 @@ import {
   CUSTOM_WIDGET_AI_ASSISTANT,
 } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { ChatBot } from "pages/Editor/CustomWidgetBuilder/Editor/ChatBot/ChatBot";
 import NotConfigured from "./NotConfigured";
 import {
   buildWidgetAIContext,
@@ -274,14 +275,13 @@ function SuggestedPromptButton(props: SuggestedPromptButtonProps) {
   );
 }
 
-export function AIAssistant(props: ContentProps) {
+function NativeAIAssistant(props: ContentProps) {
   const dispatch = useDispatch();
   const { bulkUpdate, uncompiledSrcDoc, widgetId } = useContext(
     CustomWidgetBuilderContext,
   );
 
   const isEnabled = useSelector(getIsAIEnabled);
-  const aiAssistantState = useSelector(getAIAssistantState);
   const hasApiKey = useSelector(getHasAIApiKey);
   const isConfigLoaded = useSelector(getIsAIConfigLoaded);
   // CE's selector stub intentionally exposes an empty `never[]`; EE replaces
@@ -434,18 +434,6 @@ export function AIAssistant(props: ContentProps) {
     [messages],
   );
 
-  // CE exposes the Ask AI selector contract as a safe stub without registering
-  // the EE reducer or sagas. Render the CE fallback immediately in that case;
-  // after community sync, EE's selector resolves the configured runtime state
-  // and activates this same component without an EE-specific shadow copy.
-  if (!aiAssistantState) {
-    return (
-      <Container height={props.height}>
-        <NotConfigured />
-      </Container>
-    );
-  }
-
   if (!isConfigLoaded) {
     return (
       <Container height={props.height}>
@@ -576,4 +564,18 @@ export function AIAssistant(props: ContentProps) {
       </InputArea>
     </Container>
   );
+}
+
+/**
+ * Routes standalone CE to the legacy hosted copilot while EE uses the native
+ * assistant supplied by its Ask AI runtime after community sync.
+ */
+export function AIAssistant(props: ContentProps) {
+  const aiAssistantState = useSelector(getAIAssistantState);
+
+  if (!aiAssistantState) {
+    return <ChatBot {...props} />;
+  }
+
+  return <NativeAIAssistant {...props} />;
 }
