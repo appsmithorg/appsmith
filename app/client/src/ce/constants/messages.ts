@@ -2735,6 +2735,27 @@ export const CUSTOM_WIDGET_BUILDER_TAB_TITLE = {
   JS: () => "Javascript",
 };
 
+export const CUSTOM_WIDGET_AI_ASSISTANT = {
+  CHECKING_CONFIG: () => "Checking AI assistant configuration...",
+  NOT_CONFIGURED_TITLE: () => "AI assistant isn't set up",
+  NOT_CONFIGURED_BODY: () =>
+    "Generate and edit widget code with AI once the AI assistant is configured for this instance.",
+  NOT_CONFIGURED_ADMIN_HINT: () =>
+    "Configure a provider and enable the AI assistant in Admin settings.",
+  NOT_CONFIGURED_NON_ADMIN_HINT: () =>
+    "Ask your administrator to configure and enable the AI assistant in Admin settings.",
+  OPEN_AI_SETTINGS_CTA: () => "Open AI settings",
+  EMPTY_STATE_MESSAGE: () =>
+    "Describe the widget you want to build, or the change you want to make. Generated code replaces the HTML, Style and Javascript editors.",
+  INPUT_PLACEHOLDER: () => "Describe your widget (⌘/Ctrl + Enter to send)",
+  APPLIED_UPDATES_LABEL: () => "Updated editors:",
+  USER_LABEL: () => "You",
+  ASSISTANT_LABEL: () => "AI Assistant",
+  THINKING: () => "Generating...",
+  SEND: () => "Send",
+  CLEAR_CHAT: () => "Clear chat",
+};
+
 export const REQUEST_NEW_INTEGRATIONS = {
   UNABLE_TO_FIND: () => "Can’t find what you are looking for?",
   REQUEST_NEW_BUTTON: () => "Request a new integration",

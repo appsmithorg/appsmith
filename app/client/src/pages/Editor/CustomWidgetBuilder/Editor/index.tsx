@@ -8,7 +8,8 @@ import StyleEditor, { TitleControls } from "./CodeEditors/StyleEditor";
 import JSEditor from "./CodeEditors/JSEditor";
 import type { ContentProps } from "./CodeEditors/types";
 import References from "./References";
-import { ChatBot } from "./ChatBot/ChatBot";
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports -- The native Copilot is a CE-owned feature synced unchanged into EE.
+import { AIAssistant } from "ce/pages/Editor/CustomWidgetBuilder/Editor/AIAssistant";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { CUSTOM_WIDGET_BUILDER_TABS } from "../constants";
@@ -39,7 +40,7 @@ export default function Editor() {
     if (isAIEnabled) {
       defaultTabs.push({
         title: CUSTOM_WIDGET_BUILDER_TABS.AI,
-        children: (props: ContentProps) => <ChatBot {...props} />,
+        children: (props: ContentProps) => <AIAssistant {...props} />,
       });
     }
 
