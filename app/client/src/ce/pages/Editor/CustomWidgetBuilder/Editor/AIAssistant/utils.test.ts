@@ -142,5 +142,18 @@ describe("AIAssistant utils", () => {
       // break the prompt structure.
       expect(context).not.toContain("```");
     });
+
+    it("breaks markdown fences embedded in the widget source", () => {
+      const context = buildWidgetAIContext({
+        html: "<pre>```html</pre>",
+        css: "/* ``` */",
+        js: "const markdown = '```js';",
+      });
+
+      expect(context).not.toContain("```");
+      expect(context).toContain("<pre>`\u200b``html</pre>");
+      expect(context).toContain("/* `\u200b`` */");
+      expect(context).toContain("const markdown = '`\u200b``js';");
+    });
   });
 });

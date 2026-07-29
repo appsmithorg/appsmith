@@ -25,6 +25,8 @@ const LANGUAGE_TO_FILE: Record<string, SrcDocFile> = {
 const FENCED_CODE_BLOCK_REGEX =
   /^[ \t]*```[ \t]*(\w+)?[^\n]*\n([\s\S]*?)^[ \t]*```[ \t]*$/gm;
 
+const breakMarkdownFence = (code: string) => code.replace(/```/g, "`\u200b``");
+
 /**
  * Builds the context string sent alongside every prompt. It carries the
  * custom widget programming model, the response contract the assistant must
@@ -51,11 +53,11 @@ export function buildWidgetAIContext(srcDoc?: SrcDoc): string {
     "",
     "CURRENT WIDGET CODE",
     "----- HTML -----",
-    srcDoc?.html || "(empty)",
+    srcDoc?.html ? breakMarkdownFence(srcDoc.html) : "(empty)",
     "----- CSS -----",
-    srcDoc?.css || "(empty)",
+    srcDoc?.css ? breakMarkdownFence(srcDoc.css) : "(empty)",
     "----- JAVASCRIPT -----",
-    srcDoc?.js || "(empty)",
+    srcDoc?.js ? breakMarkdownFence(srcDoc.js) : "(empty)",
   ].join("\n");
 }
 

@@ -49,12 +49,21 @@ export const Container = styled.div<{ height: number }>`
 
 const SUGGESTED_PROMPTS = [
   {
-    label: "Editable data grid",
-    prompt: "Create an editable data grid widget",
+    label: CUSTOM_WIDGET_AI_ASSISTANT.EDITABLE_DATA_GRID_LABEL,
+    prompt: CUSTOM_WIDGET_AI_ASSISTANT.EDITABLE_DATA_GRID_PROMPT,
   },
-  { label: "Kanban board", prompt: "Create a kanban board widget" },
-  { label: "Image labeler", prompt: "Create an image labeler widget" },
-  { label: "Calendar", prompt: "Create a calendar widget" },
+  {
+    label: CUSTOM_WIDGET_AI_ASSISTANT.KANBAN_BOARD_LABEL,
+    prompt: CUSTOM_WIDGET_AI_ASSISTANT.KANBAN_BOARD_PROMPT,
+  },
+  {
+    label: CUSTOM_WIDGET_AI_ASSISTANT.IMAGE_LABELER_LABEL,
+    prompt: CUSTOM_WIDGET_AI_ASSISTANT.IMAGE_LABELER_PROMPT,
+  },
+  {
+    label: CUSTOM_WIDGET_AI_ASSISTANT.CALENDAR_LABEL,
+    prompt: CUSTOM_WIDGET_AI_ASSISTANT.CALENDAR_PROMPT,
+  },
 ];
 
 const APPLIED_FILE_LABELS: Record<string, string> = {
@@ -473,10 +482,10 @@ export function AIAssistant(props: ContentProps) {
             <SuggestedPrompts>
               {SUGGESTED_PROMPTS.map((suggestion) => (
                 <SuggestedPromptButton
-                  key={suggestion.label}
-                  label={suggestion.label}
+                  key={createMessage(suggestion.label)}
+                  label={createMessage(suggestion.label)}
                   onSelect={sendPrompt}
-                  prompt={suggestion.prompt}
+                  prompt={createMessage(suggestion.prompt)}
                 />
               ))}
             </SuggestedPrompts>
@@ -497,11 +506,7 @@ export function AIAssistant(props: ContentProps) {
                 ? createMessage(CUSTOM_WIDGET_AI_ASSISTANT.USER_LABEL)
                 : createMessage(CUSTOM_WIDGET_AI_ASSISTANT.ASSISTANT_LABEL)}
             </MessageHeader>
-            {message.role === "user" ? (
-              <UserMessageContent>{message.content}</UserMessageContent>
-            ) : (
-              <UserMessageContent>{message.content}</UserMessageContent>
-            )}
+            <UserMessageContent>{message.content}</UserMessageContent>
             {message.appliedFiles.length > 0 && (
               <AppliedUpdates>
                 <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
