@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.configurations.connectionpool.ConnectionPoolConfig;
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -92,6 +93,12 @@ public class OraclePlugin extends BasePlugin {
     public static class OraclePluginExecutor implements SmartSubstitutionInterface, PluginExecutor<HikariDataSource> {
         public static final Scheduler scheduler = Schedulers.boundedElastic();
 
+        private final ConnectionPoolConfig connectionPoolConfig;
+
+        public OraclePluginExecutor(ConnectionPoolConfig connectionPoolConfig) {
+            this.connectionPoolConfig = connectionPoolConfig;
+        }
+
         @Override
         public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Oracle plugin.");
@@ -104,11 +111,12 @@ public class OraclePlugin extends BasePlugin {
                         e.getMessage()));
             }
 
-            return Mono.fromCallable(() -> {
-                        log.debug(Thread.currentThread().getName() + ": Connecting to Oracle db");
-                        return createConnectionPool(datasourceConfiguration);
-                    })
-                    .subscribeOn(scheduler);
+            return connectionPoolConfig.getSocketTimeoutSeconds().flatMap(socketTimeoutSeconds -> Mono.fromCallable(
+                            () -> {
+                                log.debug(Thread.currentThread().getName() + ": Connecting to Oracle db");
+                                return createConnectionPool(datasourceConfiguration, socketTimeoutSeconds);
+                            })
+                    .subscribeOn(scheduler));
         }
 
         @Override

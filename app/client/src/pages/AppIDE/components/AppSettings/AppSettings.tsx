@@ -206,7 +206,7 @@ function AppSettings() {
     DIVIDER_AND_SPACING_HEIGHT;
 
   return (
-    <Wrapper className="flex flex-row">
+    <Wrapper className="flex flex-row" translate="no">
       <div className="w-1/2">
         {SectionHeadersConfig.map((config) => (
           <SectionHeader key={config.name} {...config} />

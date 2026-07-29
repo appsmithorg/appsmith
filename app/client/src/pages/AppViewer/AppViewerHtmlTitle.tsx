@@ -1,19 +1,21 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import { getAppsmithConfigs } from "ee/configs";
 
 interface Props {
   name?: string;
   description?: string;
+  lang?: string;
 }
 
 function AppViewerHtmlTitle(props: Props) {
-  const { description, name } = props;
+  const { description, lang, name } = props;
+  const { defaultHtmlLang } = getAppsmithConfigs();
 
-  // if no name is passed, just return null
   if (!name) return null;
 
   return (
-    <Helmet>
+    <Helmet htmlAttributes={{ lang: lang || defaultHtmlLang || "en" }}>
       <title>{name}</title>
       {description && <meta content={description} name="description" />}
     </Helmet>

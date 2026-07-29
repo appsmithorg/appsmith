@@ -34,14 +34,33 @@ import type {
   MenuItems,
   MenuItemsSource,
 } from "widgets/MenuButtonWidget/constants";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import AutoToolTipComponent from "./AutoToolTipComponent";
 
 const MenuButtonContainer = styled.div`
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   height: 100%;
   text-align: center;
 
   & > .${Classes.POPOVER2_TARGET} {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     height: 100%;
+  }
+`;
+
+const MenuButtonTargetWrapper = styled.div`
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: 100%;
+
+  & > button {
+    width: 100%;
+    min-width: 0;
   }
 `;
 
@@ -88,6 +107,9 @@ interface BaseStyleProps {
 }
 
 const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   height: 100%;
   background-image: none !important;
   font-weight: 400;
@@ -140,15 +162,23 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
           : "none"
     } !important;
 
-    & > span {
-      max-height: 100%;
-      max-width: 99%;
+    & > span.${BlueprintClasses.BUTTON_TEXT} {
+      flex: 1;
+      min-width: 0;
+      display: inline-block;
+      max-width: 100%;
       text-overflow: ellipsis;
       overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
+      white-space: nowrap;
+      line-height: normal;
+      color: ${
+        buttonVariant === ButtonVariantTypes.PRIMARY
+          ? getComplementaryGrayscaleColor(buttonColor)
+          : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
+      } !important;
+    }
 
+    & > span.${BlueprintClasses.ICON} {
       color: ${
         buttonVariant === ButtonVariantTypes.PRIMARY
           ? getComplementaryGrayscaleColor(buttonColor)
@@ -398,18 +428,25 @@ function MenuButtonTableComponent(props: MenuButtonComponentProps) {
         placement="bottom-end"
         popoverClassName="table-menu-button-popover"
       >
-        <PopoverTargetButton
-          borderRadius={borderRadius}
-          boxShadow={boxShadow}
-          boxShadowColor={boxShadowColor}
-          buttonColor={menuColor}
-          buttonVariant={menuVariant}
-          compactMode={compactMode}
-          iconAlign={iconAlign}
-          iconName={iconName}
-          isDisabled={isDisabled}
-          label={label}
-        />
+        <AutoToolTipComponent
+          columnType={ColumnTypes.MENU_BUTTON}
+          title={label ?? ""}
+        >
+          <MenuButtonTargetWrapper>
+            <PopoverTargetButton
+              borderRadius={borderRadius}
+              boxShadow={boxShadow}
+              boxShadowColor={boxShadowColor}
+              buttonColor={menuColor}
+              buttonVariant={menuVariant}
+              compactMode={compactMode}
+              iconAlign={iconAlign}
+              iconName={iconName}
+              isDisabled={isDisabled}
+              label={label}
+            />
+          </MenuButtonTargetWrapper>
+        </AutoToolTipComponent>
       </Popover2>
     </MenuButtonContainer>
   );

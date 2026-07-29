@@ -415,6 +415,11 @@ export const CREATE_NEW_DATASOURCE_GRAPHQL_API = () => "GraphQL API";
 export const CREATE_NEW_API_SECTION_HEADER = () => "APIs";
 export const CREATE_NEW_SAAS_SECTION_HEADER = () => "SaaS Integrations";
 export const CREATE_NEW_AI_SECTION_HEADER = () => "AI Integrations";
+// Appsmith AI deprecation (release 2.3): update this date if the shutdown date moves
+export const APPSMITH_AI_KILL_DATE = "September 30, 2026";
+export const APPSMITH_AI_DEPRECATION_MESSAGE = () =>
+  `Appsmith AI is deprecated and will stop working on ${APPSMITH_AI_KILL_DATE}. Migrate to OpenAI, Anthropic, or Google AI with your own API key. Uploaded files (file context) will not be available after this date.`;
+export const APPSMITH_AI_DEPRECATION_LEARN_MORE = () => "Learn how to migrate";
 export const CONNECT_A_DATASOURCE_HEADING = () => "Connect a datasource";
 export const CONNECT_A_DATASOURCE_SUBHEADING = () =>
   "Select a sample datasource or connect your own";
@@ -1999,6 +2004,11 @@ export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
 export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
   "Only alphanumeric or '-()' are allowed";
 export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App icon";
+export const GENERAL_SETTINGS_APP_LANGUAGE_LABEL = () => "HTML language";
+export const GENERAL_SETTINGS_APP_LANGUAGE_TOOLTIP = () =>
+  "Sets the lang attribute on the published app. This tells browsers what language your content is in and prevents unwanted auto-translation. Use a BCP 47 code (e.g. en, de, fr, ja).";
+export const GENERAL_SETTINGS_APP_LANGUAGE_INVALID = () =>
+  "Enter a valid language code (e.g. en, de, fr-CA)";
 export const GENERAL_SETTINGS_APP_URL_LABEL = () => "App slug";
 export const GENERAL_SETTINGS_APP_URL_PLACEHOLDER = () => "app-url";
 export const GENERAL_SETTINGS_APP_URL_PLACEHOLDER_FETCHING = () =>
