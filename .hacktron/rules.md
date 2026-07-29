@@ -184,8 +184,10 @@ application, workspace, tenant, or privileged Appsmith service.
 
 ## Sessions, CSRF, redirects, and trusted origins
 
-- State-changing GET requests are vulnerabilities because GET/HEAD requests may
-  bypass CSRF protection.
+- State-changing GET requests combined with browser-managed credentials (cookies,
+  basic auth) and missing or insufficient CSRF protection are vulnerabilities.
+  Routes protected by non-cookie authentication (API keys, bearer tokens) or
+  equivalent controls are not CSRF-vulnerable merely because they accept GET.
 - Review changes to CSRF exemptions, cookie attributes, anonymous endpoints,
   permit-all matchers, login/logout, OAuth state, and session rotation.
 - Origin, Referer, Host, and X-Forwarded-* headers are attacker-controlled unless
@@ -214,8 +216,10 @@ Report:
   workspace, organization, application, branch, user, and permission context.
 - Do not reuse authorization-sensitive results across tenants or users.
 - Do not swallow authorization or validation failures with `onErrorResume`,
-  `defaultIfEmpty`, retries, or fallback data that permits the mutation to
-  proceed.
+  `defaultIfEmpty`, or fallback data that permits a failed mutation to proceed.
+- Retries that preserve the original authorization context and propagate the
+  error unchanged are acceptable; restrict findings to retries that change
+  authorization context or allow a rejected operation to succeed.
 
 ## Secrets and sensitive data
 
