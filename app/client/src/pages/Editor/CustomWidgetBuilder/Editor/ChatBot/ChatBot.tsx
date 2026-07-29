@@ -10,11 +10,10 @@ import {
 } from "../../constants";
 
 type ChatBotProps = ContentProps &
-  Partial<
-    Pick<
-      CustomWidgetBuilderContextType,
-      "parentEntityId" | "uncompiledSrcDoc" | "update" | "widgetId"
-    >
+  Partial<Pick<CustomWidgetBuilderContextType, "uncompiledSrcDoc">> &
+  Pick<
+    CustomWidgetBuilderContextType,
+    "parentEntityId" | "update" | "widgetId"
   >;
 
 export const ChatBot = (props: ChatBotProps) => {

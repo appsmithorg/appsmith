@@ -577,6 +577,10 @@ export function AIAssistant(props: ContentProps) {
   );
 
   if (!aiAssistantState) {
+    if (!parentEntityId || !update || !widgetId) {
+      return null;
+    }
+
     return (
       <ChatBot
         {...props}

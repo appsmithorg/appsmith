@@ -42,6 +42,7 @@ const SRC_DOC = {
 interface RenderOptions {
   aiAssistant?: Record<string, unknown>;
   bulkUpdate?: jest.Mock;
+  context?: Record<string, unknown>;
   includeAIState?: boolean;
 }
 
@@ -78,6 +79,7 @@ function renderAssistant(options: RenderOptions = {}) {
     uncompiledSrcDoc: SRC_DOC,
     update: jest.fn(),
     widgetId: "widget1",
+    ...options.context,
   };
 
   render(
@@ -106,6 +108,18 @@ describe("CustomWidgetBuilder AIAssistant", () => {
       "src",
       expect.stringContaining("chatInstance=widget1-page1"),
     );
+    expect(store.getActions()).toHaveLength(0);
+  });
+
+  it("does not create a legacy copilot session without its identity", () => {
+    const { store } = renderAssistant({
+      context: { parentEntityId: undefined },
+      includeAIState: false,
+    });
+
+    expect(
+      screen.queryByTestId("t--custom-widget-ai-legacy"),
+    ).not.toBeInTheDocument();
     expect(store.getActions()).toHaveLength(0);
   });
 
