@@ -355,7 +355,8 @@ public class GitRouteAspectCE {
                                     "Git operation {} gave up waiting for the lock on key {} after {} attempts",
                                     gitCommand,
                                     key,
-                                    retrySignal.totalRetries(),
+                                    // totalRetries() counts retries, so it excludes the first attempt
+                                    retrySignal.totalRetries() + 1,
                                     retrySignal.failure());
 
                             if (retrySignal.failure() instanceof AppsmithException) {

@@ -114,7 +114,7 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
 
         return Mono.defer(() -> isClientMigrationRequired).onErrorResume(error -> {
             log.warn(
-                    "skipping client auto commit because fetching the dsl version failed for page : {}, defaultApplicationId : {}, refName : {}",
+                    "skipping client auto commit because either the latest dsl version or the page dsl on the file system could not be read for page : {}, defaultApplicationId : {}, refName : {}",
                     pageDTO.getName(),
                     defaultApplicationId,
                     refName,
@@ -157,10 +157,19 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
 
                     return gitRedisUtils.releaseFileLock(defaultApplicationId).then(Mono.just(autoCommitTriggerDTO));
                 })
-                .doOnError(error -> log.warn(
-                        "auto commit eligibility check failed for baseArtifactId : {}, the {} lock, if it was acquired, stays held till it expires",
-                        defaultApplicationId,
-                        AUTO_COMMIT_ELIGIBILITY,
-                        error));
+                // Only the success path released the lock, so a single transient failure left it held until its TTL
+                // expired and suppressed every later eligibility check for the artifact. A release failure is
+                // already logged by GitRedisUtils and must not mask the original error.
+                .onErrorResume(error -> {
+                    log.warn(
+                            "auto commit eligibility check failed for baseArtifactId : {}, releasing the {} lock",
+                            defaultApplicationId,
+                            AUTO_COMMIT_ELIGIBILITY,
+                            error);
+                    return gitRedisUtils
+                            .releaseFileLock(defaultApplicationId)
+                            .onErrorComplete()
+                            .then(Mono.error(error));
+                });
     }
 }

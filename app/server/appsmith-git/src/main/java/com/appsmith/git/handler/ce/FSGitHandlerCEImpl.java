@@ -81,6 +81,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -119,6 +120,11 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
 
     private static final Set<RemoteRefUpdate.Status> ACCEPTED_PUSH_STATUSES =
             EnumSet.of(RemoteRefUpdate.Status.OK, RemoteRefUpdate.Status.UP_TO_DATE);
+
+    private static final Pattern CONTROL_CHARACTERS = Pattern.compile("\\p{Cntrl}+");
+    private static final int MAX_REMOTE_RESPONSE_LENGTH = 1000;
+    private static final String TRUNCATION_SUFFIX = "... (truncated)";
+    private static final String NO_REMOTE_RESPONSE = "<remote sent no message>";
 
     private final ObservationHelper observationHelper;
 
@@ -401,14 +407,16 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
             for (RemoteRefUpdate remoteRefUpdate : pushResult.getRemoteUpdates()) {
                 status.append(remoteRefUpdate.getStatus()).append(",");
                 if (!StringUtils.isEmptyOrNull(remoteRefUpdate.getMessage())) {
-                    status.append(remoteRefUpdate.getMessage()).append(",");
+                    // The per-ref reason is remote-controlled too, not just the sideband response.
+                    status.append(sanitiseRemoteResponse(remoteRefUpdate.getMessage()))
+                            .append(",");
                 }
                 if (!ACCEPTED_PUSH_STATUSES.contains(remoteRefUpdate.getStatus())) {
                     rejections.add(remoteRefUpdate.getStatus());
                 }
             }
             if (!StringUtils.isEmptyOrNull(pushResult.getMessages())) {
-                remoteResponse.append(pushResult.getMessages().trim());
+                remoteResponse.append(pushResult.getMessages());
             }
         }
 
@@ -420,28 +428,47 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
             return pushStatus;
         }
 
-        // This is the single log for a rejected push; callers add context only for what happens next, such as a
-        // failed rollback. repoSuffix is workspaceId/artifactId/repoName, so it carries the correlation ids.
-        String logMessage = "Git push rejected by the remote. repo={}, ref={}, remote={}, status={}, remoteResponse={}";
-        Object[] logArgs = new Object[] {
-            repoSuffix,
-            refName,
-            remoteUrl,
-            pushStatus,
-            remoteResponse.isEmpty() ? "<remote sent no message>" : remoteResponse
-        };
+        String safeRemoteResponse = sanitiseRemoteResponse(remoteResponse.toString());
 
         // A non-fast-forward rejection just means the remote moved on and the user needs to pull, so it is not an
         // Appsmith fault. Every other rejection is a policy or permission decision worth an error.
+        // This is the single log for a rejected push; callers add context only for what happens next, such as a
+        // failed rollback. repoSuffix is workspaceId/artifactId/repoName, so it carries the correlation ids.
         if (rejections.equals(EnumSet.of(RemoteRefUpdate.Status.REJECTED_NONFASTFORWARD))) {
-            log.warn(logMessage, logArgs);
+            log.warn(
+                    "Git push rejected by the remote. repo={}, ref={}, remote={}, status={}, remoteResponse={}",
+                    repoSuffix,
+                    refName,
+                    remoteUrl,
+                    pushStatus,
+                    safeRemoteResponse.isEmpty() ? NO_REMOTE_RESPONSE : safeRemoteResponse);
         } else {
-            log.error(logMessage, logArgs);
+            log.error(
+                    "Git push rejected by the remote. repo={}, ref={}, remote={}, status={}, remoteResponse={}",
+                    repoSuffix,
+                    refName,
+                    remoteUrl,
+                    pushStatus,
+                    safeRemoteResponse.isEmpty() ? NO_REMOTE_RESPONSE : safeRemoteResponse);
         }
 
-        return remoteResponse.isEmpty()
+        return safeRemoteResponse.isEmpty()
                 ? pushStatus
-                : pushStatus + CommonConstants.REMOTE_RESPONSE_DELIMITER + remoteResponse;
+                : pushStatus + CommonConstants.REMOTE_RESPONSE_DELIMITER + safeRemoteResponse;
+    }
+
+    /**
+     * Neutralises text the remote git server controls before it reaches a log line or a user-facing error.
+     * Carriage returns and other control characters would let a remote forge additional log entries, and an
+     * unbounded response would flood them (CWE-117). Sanitising here rather than at each consumer keeps every
+     * downstream use of the push status safe.
+     */
+    private String sanitiseRemoteResponse(String remoteResponse) {
+        String collapsed =
+                CONTROL_CHARACTERS.matcher(remoteResponse).replaceAll(" ").trim();
+        return collapsed.length() > MAX_REMOTE_RESPONSE_LENGTH
+                ? collapsed.substring(0, MAX_REMOTE_RESPONSE_LENGTH) + TRUNCATION_SUFFIX
+                : collapsed;
     }
 
     /** Clone the repo to the file path : container-volume/workspaceId/defaultAppId/repo/<Data>
