@@ -10,6 +10,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.AIConfigDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ce.AIConfigSecretsCE;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
@@ -282,11 +283,21 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
         return props;
     }
 
+    /**
+     * Every authenticated user needs to know whether the assistant is usable, because the editor
+     * loads this on session start. Only organization managers get the full configuration: the
+     * endpoints, deployment names and model identifiers describe internal infrastructure and are
+     * not the client's business. Non-managers get enablement plus credential-presence booleans.
+     */
     @Override
     public Mono<Map<String, Object>> getAIConfig() {
-        return organizationService.getCurrentUserOrganization().map(organization -> {
-            return buildAIConfigResponseForGet(organization.getOrganizationConfiguration());
-        });
+        return organizationService.getCurrentUserOrganizationId().flatMap(organizationId -> organizationService
+                .findById(organizationId, MANAGE_ORGANIZATION)
+                .map(organization -> buildAIConfigResponseForGet(organization.getOrganizationConfiguration()))
+                .switchIfEmpty(organizationService
+                        .getCurrentUserOrganization()
+                        .map(organization ->
+                                buildAIConfigStatusResponse(organization.getOrganizationConfiguration()))));
     }
 
     @Override
@@ -805,6 +816,8 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
                         storedKey = aiAssistantConfig.getCopilotApiKey();
                     }
                 }
+
+                storedKey = AIConfigSecretsCE.decrypt(storedKey);
 
                 if (storedKey == null || storedKey.isEmpty()) {
                     Map<String, Object> response = new HashMap<>();
@@ -1366,10 +1379,48 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
                         aiAssistantConfig.getAzureOpenaiMaxCompletionTokens(), DEFAULT_AZURE_MAX_COMPLETION_TOKENS));
 
         response.put("localLlmUrl", defaultString(aiAssistantConfig.getLocalLlmUrl()));
+        response.put("hasLocalLlmUrl", hasValue(aiAssistantConfig.getLocalLlmUrl()));
         response.put("localLlmContextSize", ObjectUtils.defaultIfNull(aiAssistantConfig.getLocalLlmContextSize(), -1));
         response.put("localLlmModel", defaultString(aiAssistantConfig.getLocalLlmModel()));
 
         addProviderDefaults(response, config);
+
+        return response;
+    }
+
+    /**
+     * The subset safe to hand to a user who cannot manage the organization: enablement, the
+     * selected provider, and whether a credential exists — never the URL, endpoint, deployment
+     * name or model. Mirrors the fields {@code loadAISettingsSaga} actually reads.
+     */
+    private Map<String, Object> buildAIConfigStatusResponse(OrganizationConfiguration config) {
+        Map<String, Object> response = new HashMap<>();
+        AIAssistantConfig aiAssistantConfig = config == null ? null : config.getAiAssistantConfig();
+
+        if (aiAssistantConfig == null) {
+            response.put("isAIAssistantEnabled", false);
+            response.put("provider", "");
+            response.put("hasClaudeApiKey", false);
+            response.put("hasOpenaiApiKey", false);
+            response.put("hasAzureOpenaiApiKey", false);
+            response.put("hasLocalLlmUrl", false);
+            return response;
+        }
+
+        response.put("isAIAssistantEnabled", Boolean.TRUE.equals(aiAssistantConfig.getIsAIAssistantEnabled()));
+
+        AIProvider storedProvider = aiAssistantConfig.getAiProvider();
+        if (storedProvider == AIProvider.COPILOT) {
+            storedProvider = AIProvider.AZURE_OPENAI;
+        }
+        response.put("provider", storedProvider != null ? storedProvider.name() : "");
+
+        response.put("hasClaudeApiKey", hasValue(aiAssistantConfig.getClaudeApiKey()));
+        response.put("hasOpenaiApiKey", hasValue(aiAssistantConfig.getOpenaiApiKey()));
+        response.put(
+                "hasAzureOpenaiApiKey",
+                hasValue(aiAssistantConfig.getAzureOpenaiApiKey()) || hasValue(aiAssistantConfig.getCopilotApiKey()));
+        response.put("hasLocalLlmUrl", hasValue(aiAssistantConfig.getLocalLlmUrl()));
 
         return response;
     }
@@ -1388,6 +1439,7 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
         response.put("azureOpenaiApiVersion", DEFAULT_AZURE_API_VERSION);
         response.put("azureOpenaiMaxCompletionTokens", DEFAULT_AZURE_MAX_COMPLETION_TOKENS);
         response.put("localLlmUrl", "");
+        response.put("hasLocalLlmUrl", false);
         response.put("localLlmContextSize", -1);
         response.put("localLlmModel", "");
         addProviderDefaults(response, null);
@@ -1450,7 +1502,9 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
         if (trimmed.length() > maxLength) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, fieldName + " is too long");
         }
-        setter.accept(trimmed);
+        // Every provider credential reaches storage through here, so this is the one place that
+        // needs to encrypt. Read sites decrypt via AIConfigSecretsCE.decrypt.
+        setter.accept(AIConfigSecretsCE.encrypt(trimmed));
     }
 
     private void validateTrimmedString(

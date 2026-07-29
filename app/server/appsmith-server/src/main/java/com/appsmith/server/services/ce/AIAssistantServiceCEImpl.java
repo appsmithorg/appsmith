@@ -10,6 +10,7 @@ import com.appsmith.server.dtos.AIEditorContextDTO;
 import com.appsmith.server.dtos.AIMessageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ce.AIConfigSecretsCE;
 import com.appsmith.server.helpers.ce.AiDatasourceSchemaSerializerCE;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -24,19 +25,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
-import java.net.InetAddress;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -173,9 +170,9 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
 
     private Mono<String> resolveAndCallAzureOpenAI(
             AIAssistantConfig aiConfig, String prompt, AIEditorContextDTO ctx, List<AIMessageDTO> conversationHistory) {
-        String apiKey = aiConfig.getAzureOpenaiApiKey();
+        String apiKey = AIConfigSecretsCE.decrypt(aiConfig.getAzureOpenaiApiKey());
         if (apiKey == null || apiKey.trim().isEmpty()) {
-            apiKey = aiConfig.getCopilotApiKey();
+            apiKey = AIConfigSecretsCE.decrypt(aiConfig.getCopilotApiKey());
         }
         String endpoint = aiConfig.getAzureOpenaiEndpoint();
         if (endpoint == null || endpoint.trim().isEmpty()) {
@@ -212,7 +209,7 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
 
     private Mono<String> resolveAndCallClaude(
             AIAssistantConfig aiConfig, String prompt, AIEditorContextDTO ctx, List<AIMessageDTO> conversationHistory) {
-        String apiKey = aiConfig.getClaudeApiKey();
+        String apiKey = AIConfigSecretsCE.decrypt(aiConfig.getClaudeApiKey());
         if (apiKey == null || apiKey.trim().isEmpty()) {
             return Mono.error(
                     new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "API key not configured for this provider"));
@@ -223,7 +220,7 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
 
     private Mono<String> resolveAndCallOpenAI(
             AIAssistantConfig aiConfig, String prompt, AIEditorContextDTO ctx, List<AIMessageDTO> conversationHistory) {
-        String apiKey = aiConfig.getOpenaiApiKey();
+        String apiKey = AIConfigSecretsCE.decrypt(aiConfig.getOpenaiApiKey());
         if (apiKey == null || apiKey.trim().isEmpty()) {
             return Mono.error(
                     new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "API key not configured for this provider"));
@@ -489,19 +486,6 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid Local LLM URL"));
         }
 
-        String host = parsedUri.getHost();
-        if (host != null) {
-            try {
-                InetAddress resolved = InetAddress.getByName(host);
-                if (resolved.isLinkLocalAddress()) {
-                    return Mono.error(new AppsmithException(
-                            AppsmithError.INVALID_PARAMETER, "Local LLM URL resolves to a link-local address"));
-                }
-            } catch (UnknownHostException e) {
-                // Let it proceed - will fail at connection time
-            }
-        }
-
         String chatUrl;
         if (url.contains("/api/generate")) {
             chatUrl = url.replace("/api/generate", "/api/chat");
@@ -527,13 +511,13 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
         requestBody.put("messages", messages);
         requestBody.put("stream", false);
 
+        // Must go through WebClientUtils like every other provider: it installs both the literal
+        // host filter and the DNS-aware resolver, so a hostname that resolves to loopback or to a
+        // cloud metadata endpoint is refused. An admin-supplied URL is still attacker-influenced
+        // input, and inside the single-container CE deployment 127.0.0.1 reaches Mongo, Redis and
+        // RTS. WebClientUtils already caps the in-memory buffer at 16 MB, so no override is needed.
         HttpClient httpClient = HttpClient.create().responseTimeout(Duration.ofSeconds(120));
-        WebClient webClient = WebClient.builder()
-                .exchangeStrategies(ExchangeStrategies.builder()
-                        .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(16 * 1024 * 1024))
-                        .build())
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
-                .build();
+        WebClient webClient = WebClientUtils.builder(httpClient).build();
 
         return webClient
                 .post()
@@ -706,9 +690,11 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
         requestBody.put("messages", messages);
         requestBody.put("max_completion_tokens", effectiveMaxTokens);
 
-        WebClient webClient = WebClientUtils.builder()
-                .clientConnector(
-                        new ReactorClientHttpConnector(HttpClient.create().responseTimeout(Duration.ofSeconds(60))))
+        // Pass the tuned HttpClient INTO the builder. Chaining .clientConnector(...) afterwards
+        // replaces the connector WebClientUtils installs, which is what carries the DNS-aware
+        // resolver — leaving only the literal host check and letting a hostname that resolves to
+        // loopback or a metadata endpoint through.
+        WebClient webClient = WebClientUtils.builder(HttpClient.create().responseTimeout(Duration.ofSeconds(60)))
                 .build();
 
         return webClient

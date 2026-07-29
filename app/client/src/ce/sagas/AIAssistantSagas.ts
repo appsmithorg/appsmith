@@ -194,6 +194,8 @@ interface AIConfigResponse {
   hasClaudeApiKey?: boolean;
   hasOpenaiApiKey?: boolean;
   hasAzureOpenaiApiKey?: boolean;
+  hasLocalLlmUrl?: boolean;
+  // Only returned to organization managers; non-managers get hasLocalLlmUrl instead.
   localLlmUrl?: string;
   isAIAssistantEnabled?: boolean;
 }
@@ -237,6 +239,7 @@ function* loadAISettingsSaga(
           config.hasClaudeApiKey ||
             config.hasOpenaiApiKey ||
             config.hasAzureOpenaiApiKey ||
+            config.hasLocalLlmUrl ||
             config.localLlmUrl,
         ),
         isEnabled: Boolean(config.isAIAssistantEnabled),

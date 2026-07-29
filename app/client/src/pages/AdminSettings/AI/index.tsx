@@ -463,9 +463,18 @@ function ApiKeyTestResult({ result }: { result: TestResult }): JSX.Element {
 function AISettings() {
   const dispatch = useDispatch();
   const [provider, setProvider] = useState<string>("CLAUDE");
+  // The key inputs hold ONLY a newly typed key, never a mask. Whether a key is already
+  // stored is tracked separately, so that typing into a populated-looking field can never
+  // concatenate onto placeholder text and persist a corrupted credential.
   const [claudeApiKey, setClaudeApiKey] = useState<string>("");
   const [openaiApiKey, setOpenaiApiKey] = useState<string>("");
   const [azureOpenaiApiKey, setAzureOpenaiApiKey] = useState<string>("");
+  const [hasStoredClaudeApiKey, setHasStoredClaudeApiKey] =
+    useState<boolean>(false);
+  const [hasStoredOpenaiApiKey, setHasStoredOpenaiApiKey] =
+    useState<boolean>(false);
+  const [hasStoredAzureOpenaiApiKey, setHasStoredAzureOpenaiApiKey] =
+    useState<boolean>(false);
   const [azureOpenaiEndpoint, setAzureOpenaiEndpoint] = useState<string>("");
   const [azureOpenaiDeploymentName, setAzureOpenaiDeploymentName] =
     useState<string>("");
@@ -528,9 +537,12 @@ function AISettings() {
           }
 
           setProvider(loadedProvider);
-          setClaudeApiKey(config.hasClaudeApiKey ? "••••••••" : "");
-          setOpenaiApiKey(config.hasOpenaiApiKey ? "••••••••" : "");
-          setAzureOpenaiApiKey(config.hasAzureOpenaiApiKey ? "••••••••" : "");
+          setClaudeApiKey("");
+          setOpenaiApiKey("");
+          setAzureOpenaiApiKey("");
+          setHasStoredClaudeApiKey(Boolean(config.hasClaudeApiKey));
+          setHasStoredOpenaiApiKey(Boolean(config.hasOpenaiApiKey));
+          setHasStoredAzureOpenaiApiKey(Boolean(config.hasAzureOpenaiApiKey));
           setAzureOpenaiEndpoint(config.azureOpenaiEndpoint || "");
           setAzureOpenaiDeploymentName(config.azureOpenaiDeploymentName || "");
           setAzureOpenaiApiVersion(
@@ -620,7 +632,7 @@ function AISettings() {
       };
 
       if (provider === "CLAUDE") {
-        if (claudeApiKey && claudeApiKey !== "••••••••") {
+        if (claudeApiKey) {
           request.claudeApiKey = claudeApiKey;
         }
 
@@ -629,7 +641,7 @@ function AISettings() {
       }
 
       if (provider === "OPENAI") {
-        if (openaiApiKey && openaiApiKey !== "••••••••") {
+        if (openaiApiKey) {
           request.openaiApiKey = openaiApiKey;
         }
 
@@ -638,7 +650,7 @@ function AISettings() {
       }
 
       if (provider === "AZURE_OPENAI") {
-        if (azureOpenaiApiKey && azureOpenaiApiKey !== "••••••••") {
+        if (azureOpenaiApiKey) {
           request.azureOpenaiApiKey = azureOpenaiApiKey;
         }
 
@@ -685,16 +697,19 @@ function AISettings() {
         toast.show("AI configuration saved successfully", { kind: "success" });
         dispatch(loadAISettings());
 
-        if (claudeApiKey && claudeApiKey !== "••••••••") {
-          setClaudeApiKey("••••••••");
+        if (claudeApiKey) {
+          setClaudeApiKey("");
+          setHasStoredClaudeApiKey(true);
         }
 
-        if (openaiApiKey && openaiApiKey !== "••••••••") {
-          setOpenaiApiKey("••••••••");
+        if (openaiApiKey) {
+          setOpenaiApiKey("");
+          setHasStoredOpenaiApiKey(true);
         }
 
-        if (azureOpenaiApiKey && azureOpenaiApiKey !== "••••••••") {
-          setAzureOpenaiApiKey("••••••••");
+        if (azureOpenaiApiKey) {
+          setAzureOpenaiApiKey("");
+          setHasStoredAzureOpenaiApiKey(true);
         }
       } else {
         toast.show("Failed to save AI configuration", { kind: "error" });
@@ -749,16 +764,15 @@ function AISettings() {
     setApiKeyTestResult(null);
 
     try {
-      // Pass the current key if it's been modified (not the masked placeholder)
+      // Send a newly typed key if there is one; otherwise the server tests the stored key
       let keyToTest: string | undefined;
 
       if (provider === "CLAUDE") {
-        keyToTest = claudeApiKey !== "••••••••" ? claudeApiKey : undefined;
+        keyToTest = claudeApiKey || undefined;
       } else if (provider === "OPENAI") {
-        keyToTest = openaiApiKey !== "••••••••" ? openaiApiKey : undefined;
+        keyToTest = openaiApiKey || undefined;
       } else if (provider === "AZURE_OPENAI") {
-        keyToTest =
-          azureOpenaiApiKey !== "••••••••" ? azureOpenaiApiKey : undefined;
+        keyToTest = azureOpenaiApiKey || undefined;
       }
 
       const response = (await OrganizationApi.testApiKey(
@@ -887,7 +901,11 @@ function AISettings() {
                   setClaudeApiKey(value);
                   setApiKeyTestResult(null);
                 }}
-                placeholder="Enter Claude API key (leave blank to keep existing)"
+                placeholder={
+                  hasStoredClaudeApiKey
+                    ? "A key is saved — enter a new one to replace it"
+                    : "Enter Claude API key"
+                }
                 type="password"
                 value={claudeApiKey}
               />
@@ -970,7 +988,11 @@ function AISettings() {
                   setOpenaiApiKey(value);
                   setApiKeyTestResult(null);
                 }}
-                placeholder="Enter OpenAI API key (leave blank to keep existing)"
+                placeholder={
+                  hasStoredOpenaiApiKey
+                    ? "A key is saved — enter a new one to replace it"
+                    : "Enter OpenAI API key"
+                }
                 type="password"
                 value={openaiApiKey}
               />
@@ -1127,7 +1149,11 @@ function AISettings() {
                   setAzureOpenaiApiKey(value);
                   setApiKeyTestResult(null);
                 }}
-                placeholder="Enter API key (leave blank to keep existing)"
+                placeholder={
+                  hasStoredAzureOpenaiApiKey
+                    ? "A key is saved — enter a new one to replace it"
+                    : "Enter API key"
+                }
                 type="password"
                 value={azureOpenaiApiKey}
               />
