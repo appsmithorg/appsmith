@@ -108,6 +108,13 @@ RUN <<END
   tar -xzf "$filename" -C /opt/node --strip-components 1
 
   rm "$filename" SHASUMS256.txt
+
+  # Node 24.x bundles npm 11.16/11.17, whose bundled tar (<=7.5.16) is vulnerable
+  # to CVE-2026-59873 (node-tar gzip-bomb DoS). npm 11.18.0 is the first release
+  # bundling the patched tar 7.5.19; pin it since no Node 24.x ships a fixed npm yet.
+  export PATH="/opt/node/bin:$PATH"
+  npm install -g npm@11.18.0
+  npm cache clean --force
 END
 
 # Install Caddy (built with rate-limit module via xcaddy; the module is inert unless configured)
