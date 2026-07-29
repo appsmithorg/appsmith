@@ -26,6 +26,8 @@ const FENCED_CODE_BLOCK_REGEX =
   /^[ \t]*```[ \t]*(\w+)?[^\n]*\n([\s\S]*?)^[ \t]*```[ \t]*$/gm;
 
 const breakMarkdownFence = (code: string) => code.replace(/```/g, "`\u200b``");
+const restoreMarkdownFence = (code: string) =>
+  code.replace(/`\u200b``/g, "```");
 
 /**
  * Builds the context string sent alongside every prompt. It carries the
@@ -76,7 +78,7 @@ export function extractCodeUpdates(content: string): WidgetCodeUpdates {
     const file = LANGUAGE_TO_FILE[(match[1] || "").toLowerCase()];
 
     if (file && match[2].trim()) {
-      updates[file] = match[2].replace(/\n$/, "");
+      updates[file] = restoreMarkdownFence(match[2].replace(/\n$/, ""));
     }
   }
 

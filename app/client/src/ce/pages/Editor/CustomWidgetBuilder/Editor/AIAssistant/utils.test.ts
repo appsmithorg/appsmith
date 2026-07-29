@@ -87,6 +87,19 @@ describe("AIAssistant utils", () => {
       });
     });
 
+    it("restores markdown fences escaped in the AI context", () => {
+      const escapedFence = "`\u200b``";
+      const content = [
+        "```js",
+        `const markdown = '${escapedFence}js';`,
+        "```",
+      ].join("\n");
+
+      expect(extractCodeUpdates(content)).toEqual({
+        js: "const markdown = '```js';",
+      });
+    });
+
     it("returns an empty object for empty content", () => {
       expect(extractCodeUpdates("")).toEqual({});
     });
