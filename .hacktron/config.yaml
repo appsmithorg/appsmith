@@ -1,0 +1,16 @@
+# .hacktron/config.yaml
+#
+# Controls which PRs Hacktron scans and when the check fails.
+# Read from the default branch only — a PR cannot change its own scanning rules.
+#
+# After the first calibration week, escalate fail_on.severity to "high".
+
+exclude:
+  labels:
+    - hacktron-exclude
+
+  paths:
+    - "**/*.md"
+
+fail_on:
+  severity: critical
