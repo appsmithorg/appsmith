@@ -72,7 +72,12 @@ export const getConsolidatedDataApi = (
             : { ...flags };
           return res.send(updatedResponse);
         } catch (e) {
-          cy.log(`Featureflags.ts error `, e);
+          // This runs inside a cy.intercept response handler, which is outside
+          // the Cypress command queue. Enqueuing a cy.* command here makes
+          // Cypress throw "returned a promise from a command while also invoking
+          // one or more cy commands", failing whichever hook or test the
+          // intercept fired under. Log outside the queue instead.
+          console.log("FeatureFlags.ts: consolidated-api rewrite failed", e);
         }
       }
     });
