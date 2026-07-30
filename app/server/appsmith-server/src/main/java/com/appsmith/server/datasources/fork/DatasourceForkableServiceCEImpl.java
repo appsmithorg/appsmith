@@ -11,6 +11,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ForkingMetaDTO;
 import com.appsmith.server.fork.forkable.ForkableService;
 import com.appsmith.server.fork.forkable.ForkableServiceCE;
+import com.appsmith.server.solutions.DatasourcePermission;
 import org.springframework.dao.DuplicateKeyException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -26,19 +27,23 @@ public class DatasourceForkableServiceCEImpl implements ForkableServiceCE<Dataso
     private final DatasourceService datasourceService;
     private final DatasourceStorageService datasourceStorageService;
     private final ForkableService<DatasourceStorage> datasourceStorageForkableService;
+    private final DatasourcePermission datasourcePermission;
 
     public DatasourceForkableServiceCEImpl(
             DatasourceService datasourceService,
             DatasourceStorageService datasourceStorageService,
-            ForkableService<DatasourceStorage> datasourceStorageForkableService) {
+            ForkableService<DatasourceStorage> datasourceStorageForkableService,
+            DatasourcePermission datasourcePermission) {
         this.datasourceService = datasourceService;
         this.datasourceStorageService = datasourceStorageService;
         this.datasourceStorageForkableService = datasourceStorageForkableService;
+        this.datasourcePermission = datasourcePermission;
     }
 
     @Override
     public Flux<Datasource> getExistingEntitiesInTarget(String targetWorkspaceId) {
-        return datasourceService.getAllByWorkspaceIdWithStorages(targetWorkspaceId, null);
+        return datasourceService.getAllByWorkspaceIdWithStorages(
+                targetWorkspaceId, datasourcePermission.getReadPermission());
     }
 
     @Override
