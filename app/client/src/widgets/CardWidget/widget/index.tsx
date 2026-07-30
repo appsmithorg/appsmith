@@ -6,7 +6,11 @@ import {
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  WIDGET_TAGS,
+  WidgetHeightLimits,
+} from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "ee/reducers/entityReducers/canvasWidgetsReducer";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
@@ -44,6 +48,11 @@ import {
   isAutoHeightEnabledForWidget,
 } from "widgets/WidgetUtils";
 
+import type { CardChromeProps } from "../chromeHeight";
+import {
+  getCardChromeHeightInPx,
+  getCardChromeHeightInRows,
+} from "../chromeHeight";
 import CardComponent from "../component";
 import type {
   CardFooterAction,
@@ -51,8 +60,6 @@ import type {
   CardWidgetProps,
 } from "../constants";
 import {
-  CARD_FOOTER_HEIGHT,
-  CARD_HEADER_HEIGHT,
   DEFAULT_MEDIA_HEIGHT,
   MEDIA_LEFT_WIDTH,
   MediaObjectFitTypes,
@@ -118,50 +125,14 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
         ];
       },
       /**
-       * CONSTRAINT: keep this in sync with the instance method
-       * CardWidget.getChromeHeight. This static method is called by the
-       * auto-height sagas with (mostly unevaluated) DSL props from the
-       * canvas widgets reducer:
-       * - isExpanded is a meta property and is generally absent here; when
-       *   it is present and false, the footer is collapsed away.
-       * - footerActions[*].isVisible and mediaImage may be unevaluated
-       *   binding strings, so "not explicitly false"/truthy is the closest
-       *   safe approximation of the evaluated values.
+       * Chrome reserved for this widget, in grid rows. Shares
+       * getCardChromeHeightInRows with the render path (getChromeHeight) so the
+       * space the saga reserves always matches the space the component paints.
        */
-      getCanvasHeightOffset: (props: WidgetProps): number => {
-        let offsetPx = 0;
-
-        if (props.showHeader !== false) {
-          offsetPx += CARD_HEADER_HEIGHT;
-        }
-
-        const isExpanded = props.expandCollapseEnabled
-          ? props.isExpanded !== false
-          : true;
-        const hasVisibleFooterActions = Object.values(
-          props.footerActions || {},
-        ).some((action) => (action as CardFooterAction).isVisible !== false);
-
-        if (
-          props.showFooter !== false &&
-          isExpanded &&
-          hasVisibleFooterActions
-        ) {
-          offsetPx += CARD_FOOTER_HEIGHT;
-        }
-
-        // Only TOP media adds vertical chrome; LEFT media occupies width.
-        if (
-          props.mediaPosition === MediaPositionTypes.TOP &&
-          props.mediaImage
-        ) {
-          offsetPx += props.mediaHeight || DEFAULT_MEDIA_HEIGHT;
-        }
-
-        offsetPx += 2 * (parseInt(props.borderWidth, 10) || 0);
-
-        return Math.ceil(offsetPx / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
-      },
+      getCanvasHeightOffset: (props: WidgetProps): number =>
+        // The sagas hand us raw DSL props, so the bindable/meta fields this
+        // reads are all `unknown` as far as WidgetProps is concerned.
+        getCardChromeHeightInRows(props as CardChromeProps),
     };
   }
 
@@ -229,7 +200,14 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
       showHeaderDivider: true,
       showFooterDivider: true,
       hoverElevation: false,
-      shouldScrollContents: false,
+      // The card's chrome is 100px (header + footer + borders) before any media,
+      // so the generic MIN_CANVAS_HEIGHT_IN_ROWS floor would leave zero room for
+      // the body. Reserve chrome plus a body row band, as TabsWidget does for
+      // its own tab-bar chrome.
+      minDynamicHeight: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS + 5,
+      // NOTE: shouldScrollContents is intentionally not declared here. For
+      // isCanvas widgets WidgetFeaturePropertyEnhancements forces it to true and
+      // is spread after getDefaults(), so any value set here would be dead code.
       children: [],
       positioning: Positioning.Fixed,
       responsiveBehavior: ResponsiveBehavior.Fill,
@@ -518,34 +496,14 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
     return props.expandCollapseEnabled ? props.isExpanded !== false : true;
   };
 
-  getChromeHeight = (): number => {
-    let chromeHeight = 0;
-
-    if (this.props.showHeader) {
-      chromeHeight += CARD_HEADER_HEIGHT;
-    }
-
-    if (
-      this.props.showFooter &&
-      this.getVisibleFooterActions().length > 0 &&
-      this.isCardExpanded()
-    ) {
-      chromeHeight += CARD_FOOTER_HEIGHT;
-    }
-
-    if (
-      this.hasMedia() &&
-      this.props.mediaPosition === MediaPositionTypes.TOP
-    ) {
-      chromeHeight += this.props.mediaHeight || DEFAULT_MEDIA_HEIGHT;
-    }
-
-    chromeHeight += 2 * (parseInt(this.props.borderWidth || "0", 10) || 0);
-
-    return chromeHeight;
-  };
+  getChromeHeight = (): number => getCardChromeHeightInPx(this.props);
 
   handleCardClick = () => {
+    // The component already blocks these paths when disabled; guarding at the
+    // executeAction boundary too so a disabled card can never fire an action
+    // even if a future refactor drops a `disabled` prop.
+    if (this.props.isDisabled) return;
+
     if (this.props.onCardClick) {
       super.executeAction({
         triggerPropertyName: "onCardClick",
@@ -558,6 +516,8 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
   };
 
   handleFooterActionClick = (onClick?: string) => {
+    if (this.props.isDisabled) return;
+
     if (onClick) {
       super.executeAction({
         triggerPropertyName: "onClick",
@@ -570,6 +530,8 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
   };
 
   handleMenuItemClick = (onClick?: string) => {
+    if (this.props.isDisabled) return;
+
     if (onClick) {
       super.executeAction({
         triggerPropertyName: "onClick",
@@ -630,11 +592,22 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
         // Recompute the height from the body canvas children.
         store.dispatch(checkContainersForAutoHeightAction());
       } else {
-        // Shrink to the chrome height. The auto height saga adds this
-        // widget's getCanvasHeightOffset (media + header + borders) on
-        // top of the requested canvas height, and clamps to the
-        // configured minimum height.
-        store.dispatch(updateWidgetAutoHeightAction(this.props.widgetId, 0));
+        // Shrink to the chrome height, in pixels.
+        //
+        // Do NOT request 0 here. updateWidgetAutoHeightAction goes through the
+        // batched (payload-less) saga path, where a requested height of 0 is the
+        // platform's "widget went invisible" signal: in the editor
+        // shouldCollapseThisWidget is false so the update is dropped entirely,
+        // and in preview/published it forces the minimum to 0 and collapses the
+        // card to zero rows — taking the header and the expand chevron with it,
+        // leaving no way to re-expand. Requesting the real chrome height keeps
+        // the card visible and is clamped up to minDynamicHeight as usual.
+        store.dispatch(
+          updateWidgetAutoHeightAction(
+            this.props.widgetId,
+            this.getChromeHeight(),
+          ),
+        );
       }
     }
   }
@@ -654,9 +627,16 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
 
     const { componentHeight, componentWidth } = this.props;
 
+    // Match the component's scroll gate (getWidgetView) — an extendable body
+    // canvas in auto-layout has no scroll container, so content would be
+    // silently unreachable.
+    const canScrollContents =
+      Boolean(this.props.shouldScrollContents) &&
+      this.props.layoutSystemType === LayoutSystemTypes.FIXED;
+
     childWidgetData.parentId = this.props.widgetId;
     childWidgetData.shouldScrollContents = false;
-    childWidgetData.canExtend = this.props.shouldScrollContents;
+    childWidgetData.canExtend = canScrollContents;
     childWidgetData.isVisible = this.props.isVisible;
 
     const bodyWidth =
@@ -664,10 +644,13 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
       (this.hasMedia() && this.props.mediaPosition === MediaPositionTypes.LEFT
         ? MEDIA_LEFT_WIDTH
         : 0);
-    const bodyHeight = componentHeight - this.getChromeHeight();
+    // Clamped: the card can be sized below its own chrome (chrome reaches ~240px
+    // with TOP media), and a negative height would be handed to the canvas as
+    // bottomRow/minHeight.
+    const bodyHeight = Math.max(0, componentHeight - this.getChromeHeight());
 
     childWidgetData.rightColumn = bodyWidth;
-    childWidgetData.bottomRow = this.props.shouldScrollContents
+    childWidgetData.bottomRow = canScrollContents
       ? childWidgetData.bottomRow
       : bodyHeight;
     childWidgetData.minHeight = bodyHeight;
@@ -733,6 +716,7 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
         subtitle={this.props.subtitle}
         title={this.props.title}
         widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
       >
         {this.renderBodyCanvas()}
       </CardComponent>

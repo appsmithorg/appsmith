@@ -141,7 +141,7 @@ const MediaFallback = styled.div`
   width: 100%;
   gap: 8px;
   background-color: ${Colors.GREY_1};
-  color: ${Colors.GREY_7};
+  color: ${Colors.GREY_8};
   font-size: 12px;
   text-align: center;
   padding: 8px;
@@ -197,7 +197,7 @@ const Title = styled.span`
 
 const Subtitle = styled.span`
   font-size: 12px;
-  color: ${Colors.GREY_7};
+  color: ${Colors.GREY_8};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -300,6 +300,8 @@ const FooterWrapper = styled.div<{ $showDivider: boolean }>`
 
 export interface CardComponentProps {
   widgetId: string;
+  /** Last-resort accessible name when the card has no title or subtitle. */
+  widgetName?: string;
   children?: ReactNode;
 
   // Media
@@ -595,6 +597,15 @@ function CardComponent(props: CardComponentProps) {
   // chevron's aria-controls.
   const bodyElementId = `card-body-${props.widgetId}`;
 
+  // A clickable/selectable card must never be an unnamed control: the title can
+  // be empty, or the whole header hidden, while the card stays interactive. Fall
+  // back to the subtitle and then to the widget name so screen readers always
+  // announce something.
+  const accessibleName =
+    [props.title, props.subtitle].find(
+      (value) => typeof value === "string" && value.trim().length > 0,
+    ) || props.widgetName;
+
   const activateCard = useCallback(() => {
     if (isDisabled) return;
 
@@ -729,7 +740,7 @@ function CardComponent(props: CardComponentProps) {
       $isSelected={selectionEnabled && props.isSelected}
       $selectedAccentColor={props.selectedAccentColor}
       aria-disabled={isDisabled || undefined}
-      aria-label={isInteractive ? props.title || undefined : undefined}
+      aria-label={isInteractive ? accessibleName : undefined}
       aria-pressed={selectionEnabled ? !!props.isSelected : undefined}
       data-card-zone="card"
       onClick={handleCardClick}

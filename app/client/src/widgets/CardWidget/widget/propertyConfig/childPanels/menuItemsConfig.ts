@@ -103,6 +103,7 @@ export default {
           controlType: "COLOR_PICKER",
           isBindProperty: false,
           isTriggerProperty: false,
+          validation: { type: ValidationTypes.TEXT },
         },
         {
           propertyName: "textColor",
@@ -111,6 +112,7 @@ export default {
           controlType: "COLOR_PICKER",
           isBindProperty: false,
           isTriggerProperty: false,
+          validation: { type: ValidationTypes.TEXT },
         },
       ],
     },

@@ -83,7 +83,16 @@ export function* updateWidgetAutoHeightSaga(
   // silently returns 0 for unregistered widget types, which shrinks container
   // widgets (Card, Tabs, etc.) to their bare canvas height. Ensure the used
   // widget types are registered before computing; no-op once registered.
-  yield call(loadAndRegisterOnlyCanvasWidgets);
+  //
+  // loadAndRegisterOnlyCanvasWidgets rethrows (an unknown widget type in the
+  // DSL, or a chunk fetch that fails during a rolling upgrade). Swallow it:
+  // this saga is bound to takeEvery/debounce on hot auto-height actions, so an
+  // uncaught error would restart-loop the watcher and drop all height updates.
+  try {
+    yield call(loadAndRegisterOnlyCanvasWidgets);
+  } catch (error) {
+    log.error("Auto Height: widget registration failed, continuing", error);
+  }
 
   const start = performance.now();
   let shouldRecomputeContainers = false;

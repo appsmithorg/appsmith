@@ -1,5 +1,6 @@
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 import type { CardWidgetProps } from "../../constants";
 import { MediaObjectFitTypes, MediaPositionTypes } from "../../constants";
@@ -65,6 +66,7 @@ export default [
             default: MediaPositionTypes.NONE,
           },
         },
+        postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
       },
       {
         propertyName: "mediaImage",
@@ -76,6 +78,7 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
       },
       {
         propertyName: "mediaAltText",
@@ -106,6 +109,7 @@ export default [
           type: ValidationTypes.NUMBER,
           params: { min: 40, default: 140 },
         },
+        postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
       },
       {
         propertyName: "mediaObjectFit",
@@ -154,6 +158,7 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
+        postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
       },
       {
         propertyName: "title",
@@ -254,6 +259,7 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
+        postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
       },
       {
         helpText: "Action buttons rendered in the card footer",
@@ -418,7 +424,11 @@ export default [
   },
   {
     sectionName: "Events",
-    hidden: (props: CardWidgetProps) => !props.isClickable,
+    // Selection takes precedence over the clickable behavior, so onCardClick
+    // can never fire while selection is enabled — don't offer an action
+    // selector that is silently dead.
+    hidden: (props: CardWidgetProps) =>
+      !props.isClickable || Boolean(props.selectionEnabled),
     children: [
       {
         helpText: "when the card background is clicked",
@@ -428,7 +438,7 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
-        dependencies: ["isClickable"],
+        dependencies: ["isClickable", "selectionEnabled"],
       },
     ],
   },

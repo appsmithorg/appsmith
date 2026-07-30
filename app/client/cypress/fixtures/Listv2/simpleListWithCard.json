@@ -13,7 +13,7 @@
     "parentRowSpace": 1,
     "type": "CANVAS_WIDGET",
     "canExtend": true,
-    "version": 64,
+    "version": 87,
     "minHeight": 960,
     "parentColumnSpace": 1,
     "dynamicBindingPathList": [],

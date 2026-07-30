@@ -1,5 +1,6 @@
 import { ButtonVariantTypes } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 import { getFooterActionStylesheetValue } from "../propertyUtils";
 
@@ -45,6 +46,9 @@ export default {
           isBindProperty: true,
           isTriggerProperty: false,
           validation: { type: ValidationTypes.BOOLEAN },
+          // Hiding the last visible action removes the whole footer, which
+          // changes the card's chrome height.
+          postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
         },
         {
           propertyName: "isDisabled",
