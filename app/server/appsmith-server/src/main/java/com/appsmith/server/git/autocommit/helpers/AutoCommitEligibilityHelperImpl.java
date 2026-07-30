@@ -41,7 +41,7 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
         Mono<Boolean> isServerMigrationRequiredMonoCached = commonGitFileUtils
                 .getMetadataServerSchemaMigrationVersion(workspaceId, gitMetadata, FALSE, APPLICATION)
                 .map(serverSchemaVersion -> {
-                    log.info(
+                    log.debug(
                             "server schema for application id : {}  and branch name : {} is : {}",
                             defaultApplicationId,
                             refName,
@@ -52,11 +52,11 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
                 .cache();
 
         return Mono.defer(() -> isServerMigrationRequiredMonoCached).onErrorResume(error -> {
-            log.debug(
-                    "error while retrieving the metadata for defaultApplicationId : {}, refName : {} error : {}",
+            log.warn(
+                    "skipping server auto commit because retrieving the metadata failed for defaultApplicationId : {}, refName : {}",
                     defaultApplicationId,
                     refName,
-                    error.getMessage());
+                    error);
             return Mono.just(FALSE);
         });
     }
@@ -84,7 +84,10 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
                 })
                 .defaultIfEmpty(FALSE)
                 .onErrorResume(error -> {
-                    log.debug("Error fetching latest DSL version");
+                    log.warn(
+                            "skipping client auto commit because fetching the latest DSL version failed for page : {}",
+                            pageDTO.getName(),
+                            error);
                     return Mono.just(Boolean.FALSE);
                 });
     }
@@ -103,19 +106,19 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
                 .map(tuple2 -> {
                     Integer latestDslVersion = tuple2.getT1();
                     org.json.JSONObject pageDSL = tuple2.getT2();
-                    log.info("page dsl retrieved from file system");
+                    log.debug("page dsl retrieved from file system for page : {}", pageDTO.getName());
                     return GitUtils.isMigrationRequired(pageDSL, latestDslVersion);
                 })
                 .defaultIfEmpty(FALSE)
                 .cache();
 
         return Mono.defer(() -> isClientMigrationRequired).onErrorResume(error -> {
-            log.debug(
-                    "error while fetching the dsl version for page : {}, defaultApplicationId : {}, refName : {} error : {}",
+            log.warn(
+                    "skipping client auto commit because either the latest dsl version or the page dsl on the file system could not be read for page : {}, defaultApplicationId : {}, refName : {}",
                     pageDTO.getName(),
                     defaultApplicationId,
                     refName,
-                    error.getMessage());
+                    error);
             return Mono.just(FALSE);
         });
     }
@@ -133,26 +136,47 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
                 isServerAutoCommitRequired(workspaceId, gitArtifactMetadata).cache();
 
         return Mono.defer(() -> gitRedisUtils.addFileLock(defaultApplicationId, AUTO_COMMIT_ELIGIBILITY))
-                .then(isClientAutocommitRequiredMono.zipWhen(clientFlag -> {
-                    Mono<Boolean> serverFlagMono = isServerAutocommitRequiredMono;
-                    // if client is required to migrate then,
-                    // there is no requirement to fetch server flag as server is subset of client migration.
-                    if (Boolean.TRUE.equals(clientFlag)) {
-                        serverFlagMono = Mono.just(TRUE);
-                    }
+                .then(isClientAutocommitRequiredMono
+                        .zipWhen(clientFlag -> {
+                            Mono<Boolean> serverFlagMono = isServerAutocommitRequiredMono;
+                            // if client is required to migrate then,
+                            // there is no requirement to fetch server flag as server is subset of client migration.
+                            if (Boolean.TRUE.equals(clientFlag)) {
+                                serverFlagMono = Mono.just(TRUE);
+                            }
 
-                    return serverFlagMono;
-                }))
-                .flatMap(tuple2 -> {
-                    Boolean clientFlag = tuple2.getT1();
-                    Boolean serverFlag = tuple2.getT2();
+                            return serverFlagMono;
+                        })
+                        .flatMap(tuple2 -> {
+                            Boolean clientFlag = tuple2.getT1();
+                            Boolean serverFlag = tuple2.getT2();
 
-                    AutoCommitTriggerDTO autoCommitTriggerDTO = new AutoCommitTriggerDTO();
-                    autoCommitTriggerDTO.setIsClientAutoCommitRequired(TRUE.equals(clientFlag));
-                    autoCommitTriggerDTO.setIsServerAutoCommitRequired(TRUE.equals(serverFlag));
-                    autoCommitTriggerDTO.setIsAutoCommitRequired((TRUE.equals(serverFlag) || TRUE.equals(clientFlag)));
+                            AutoCommitTriggerDTO autoCommitTriggerDTO = new AutoCommitTriggerDTO();
+                            autoCommitTriggerDTO.setIsClientAutoCommitRequired(TRUE.equals(clientFlag));
+                            autoCommitTriggerDTO.setIsServerAutoCommitRequired(TRUE.equals(serverFlag));
+                            autoCommitTriggerDTO.setIsAutoCommitRequired(
+                                    (TRUE.equals(serverFlag) || TRUE.equals(clientFlag)));
 
-                    return gitRedisUtils.releaseFileLock(defaultApplicationId).then(Mono.just(autoCommitTriggerDTO));
-                });
+                            return gitRedisUtils
+                                    .releaseFileLock(defaultApplicationId)
+                                    .then(Mono.just(autoCommitTriggerDTO));
+                        })
+                        // Only the success path released the lock, so a single transient failure left it held until
+                        // its TTL expired and suppressed every later eligibility check for the artifact. This is
+                        // deliberately scoped inside then(), so it cannot run when addFileLock itself lost on
+                        // contention: releaseFileLock deletes the key unconditionally, so releasing there would
+                        // drop the lock held by the request that actually won it. A release failure is already
+                        // logged by GitRedisUtils and must not mask the original error.
+                        .onErrorResume(error -> {
+                            log.warn(
+                                    "auto commit eligibility check failed for baseArtifactId : {}, releasing the {} lock",
+                                    defaultApplicationId,
+                                    AUTO_COMMIT_ELIGIBILITY,
+                                    error);
+                            return gitRedisUtils
+                                    .releaseFileLock(defaultApplicationId)
+                                    .onErrorComplete()
+                                    .then(Mono.error(error));
+                        }));
     }
 }
