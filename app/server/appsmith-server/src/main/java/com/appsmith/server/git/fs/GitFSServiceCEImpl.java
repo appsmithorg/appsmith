@@ -11,6 +11,7 @@ import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.external.git.dtos.FetchRemoteDTO;
 import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.git.configurations.GitServiceConfig;
+import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.dto.CommitDTO;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.Artifact;
@@ -44,6 +45,7 @@ import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
@@ -598,8 +600,13 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                                             error.getMessage(),
                                             gitData.getIsRepoPrivate())
                                     .flatMap(artifact -> {
-                                        log.error("Error during git push: {}", error.getMessage());
+                                        // The failure is already logged with the repo, remote and stack trace by the
+                                        // git handler, so only the mapping decision is recorded here.
                                         if (error instanceof TransportException) {
+                                            log.warn(
+                                                    "Reporting git push transport failure as an SSH configuration error. artifactId={}, ref={}",
+                                                    branchedArtifact.getId(),
+                                                    gitData.getRefName());
                                             return Mono.error(
                                                     new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                                         }
@@ -611,7 +618,8 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                                     }));
                 })
                 .flatMap(pushResult -> {
-                    log.info(
+                    // A rejected push is already reported, with the remote's own response, by the git handler.
+                    log.debug(
                             "Push result for artifact {} with id {} : {}",
                             branchedArtifact.getName(),
                             branchedArtifact.getId(),
@@ -652,7 +660,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         GitArtifactHelper<?> gitArtifactHelper =
                 gitArtifactHelperResolver.getArtifactHelper(artifact.getArtifactType());
 
-        if (pushResult.contains("REJECTED_NONFASTFORWARD")) {
+        if (pushResult.contains(RemoteRefUpdate.Status.REJECTED_NONFASTFORWARD.name())) {
             return gitAnalyticsUtils
                     .addAnalyticsForGitOperation(
                             AnalyticsEvents.GIT_PUSH,
@@ -662,20 +670,53 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                             gitMetadata.getIsRepoPrivate())
                     .then(Mono.error(new AppsmithException(AppsmithError.GIT_UPSTREAM_CHANGES)));
 
-        } else if (pushResult.contains("REJECTED_OTHERREASON") || pushResult.contains("pre-receive hook declined")) {
+        } else if (pushResult.contains(RemoteRefUpdate.Status.REJECTED_OTHER_REASON.name())
+                || pushResult.contains(RemoteRefUpdate.Status.REJECTED_NODELETE.name())
+                || pushResult.contains(RemoteRefUpdate.Status.REJECTED_REMOTE_CHANGED.name())) {
 
+            // The rejection itself is already logged with the remote's response by the git handler.
             Path path = gitArtifactHelper.getRepoSuffixPath(
                     artifact.getWorkspaceId(), gitMetadata.getDefaultArtifactId(), gitMetadata.getRepoName());
 
             return fsGitHandler
                     .resetHard(path, gitMetadata.getRefName())
+                    .doOnNext(isReset -> {
+                        if (!Boolean.TRUE.equals(isReset)) {
+                            log.error(
+                                    "Rollback of the local commit failed after a rejected push. The commit exists locally but not on the remote. artifactId={}, ref={}, repo={}",
+                                    artifact.getId(),
+                                    gitMetadata.getRefName(),
+                                    gitMetadata.getRepoName());
+                        }
+                    })
                     .then(Mono.error(new AppsmithException(
                             AppsmithError.GIT_ACTION_FAILED,
                             GitCommandConstants.PUSH,
-                            "Unable to push changes as pre-receive hook declined. Please make sure that you don't have any rules enabled on the branch "
-                                    + gitMetadata.getRefName())));
+                            buildPushRejectionMessage(gitMetadata.getRefName(), pushResult))));
         }
         return Mono.just(pushResult);
+    }
+
+    /**
+     * Explains a rejected push using the remote's own words where possible. The remote's sideband response is the
+     * only place that says whether the push was blocked by a branch rule, a push rule, secret scanning or the
+     * deploy key's permissions, so it is preferred over any guess Appsmith could make. When the remote sent nothing
+     * back, the message names the things worth checking instead of asserting a cause.
+     */
+    private String buildPushRejectionMessage(String refName, String pushResult) {
+        int delimiterIndex = pushResult.indexOf(CommonConstants.REMOTE_RESPONSE_DELIMITER);
+        if (delimiterIndex >= 0) {
+            String remoteResponse = pushResult
+                    .substring(delimiterIndex + CommonConstants.REMOTE_RESPONSE_DELIMITER.length())
+                    .trim();
+            if (StringUtils.hasText(remoteResponse)) {
+                return "The remote repository rejected the push to " + refName + ". Remote response: " + remoteResponse;
+            }
+        }
+
+        return "The remote repository rejected the push to " + refName
+                + ", without returning a reason. Check the branch protection and push rules on the remote, and that the"
+                + " deploy key Appsmith uses has write access to this repository.";
     }
 
     /**
