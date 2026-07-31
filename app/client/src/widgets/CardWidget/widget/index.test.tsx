@@ -127,6 +127,69 @@ describe("CardWidget expand/collapse reflow", () => {
   });
 });
 
+describe("CardWidget sniping mode (Connect to widget)", () => {
+  const snipe = (data: string) => {
+    const updates = CardWidget.getMethods().getSnipingModeUpdates({
+      data,
+      run: "{{Query1.run()}}",
+      isDynamicPropertyPath: true,
+    });
+
+    return Object.fromEntries(
+      updates.map((u) => [u.propertyPath, u.propertyValue as string]),
+    );
+  };
+
+  it("seeds cardData with the first record of the bound query", () => {
+    expect(snipe("{{Query1.data}}").cardData).toBe("{{Query1.data?.[0]}}");
+  });
+
+  // Seeding only cardData made "bind a query to a card" a visible no-op:
+  // nothing renders cardData, so the card looked untouched.
+  it("also seeds the visible title and subtitle", () => {
+    const updates = snipe("{{Query1.data}}");
+
+    expect(Object.keys(updates).sort()).toEqual([
+      "cardData",
+      "subtitle",
+      "title",
+    ]);
+    expect(updates.title).toContain("Query1.data?.[0]?.title");
+    expect(updates.title).toContain("Query1.data?.[0]?.name");
+    expect(updates.subtitle).toContain("Query1.data?.[0]?.subtitle");
+  });
+
+  it("falls back to the first string field so any record shape shows something", () => {
+    expect(snipe("{{Query1.data}}").title).toContain(
+      'Object.values(Query1.data?.[0] ?? {}).find((value) => typeof value === "string")',
+    );
+  });
+
+  it("handles a nested binding path", () => {
+    expect(snipe("{{Query1.data.users}}").cardData).toBe(
+      "{{Query1.data.users?.[0]}}",
+    );
+  });
+
+  it("leaves a non-binding value alone rather than corrupting it", () => {
+    const updates = CardWidget.getMethods().getSnipingModeUpdates({
+      data: "not-a-binding",
+      run: "",
+      isDynamicPropertyPath: true,
+    });
+
+    expect(updates).toHaveLength(1);
+    expect(updates[0].propertyValue).toBe("not-a-binding");
+  });
+
+  it("produces bindings with balanced braces", () => {
+    for (const value of Object.values(snipe("{{Query1.data}}"))) {
+      expect(value.startsWith("{{")).toBe(true);
+      expect(value.endsWith("}}")).toBe(true);
+    }
+  });
+});
+
 describe("CardWidget overflow menu visibility", () => {
   const withMenu = (overrides: Partial<CardWidgetProps> = {}) =>
     makeWidget(

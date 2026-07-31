@@ -104,23 +104,60 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
 
   static getMethods() {
     return {
+      /**
+       * "Connect to widget" from the query editor. The saga hands us only a
+       * binding string ("{{ActionName.data}}", or "{{ActionName.<path>}}") —
+       * there is no schema and no field names available here.
+       *
+       * Seeding cardData alone left the card looking completely unchanged,
+       * because nothing renders cardData: the headline "bind a query to a
+       * card" journey produced a silent no-op. So also seed the two properties
+       * that are actually visible. The generated bindings are a readable
+       * starting point the user is expected to edit — the same approach Table
+       * and List take when they generate bindings over a bound dataset.
+       */
       getSnipingModeUpdates: (
         propValueMap: SnipingModeProperty,
       ): PropertyUpdates[] => {
         const binding = propValueMap.data;
-        // The sniping saga always provides "{{ActionName.data}}" (or
-        // "{{ActionName.<path>}}"). Seed cardData with the first record
-        // of the bound query data.
-        const cardDataBinding =
-          typeof binding === "string" && binding.endsWith("}}")
-            ? binding.replace(/}}$/, "[0]}}")
-            : binding;
+        const trimmed = typeof binding === "string" ? binding.trim() : "";
+
+        if (!trimmed.startsWith("{{") || !trimmed.endsWith("}}")) {
+          return [
+            {
+              propertyPath: "cardData",
+              propertyValue: binding,
+              isDynamicPropertyPath: true,
+            },
+          ];
+        }
+
+        // A card shows one entity, so index into the bound collection.
+        //
+        // Every access is optional-chained on purpose. Binding happens BEFORE
+        // the query has run, so `data` is undefined at that moment; it can also
+        // come back as an empty array or a bare object. Without `?.` the
+        // seeded bindings throw and the card shows an error the instant it is
+        // bound — worse than the empty card this is meant to fix.
+        const record = `${trimmed.slice(2, -2).trim()}?.[0]`;
 
         return [
           {
             propertyPath: "cardData",
-            propertyValue: cardDataBinding,
+            propertyValue: `{{${record}}}`,
             isDynamicPropertyPath: true,
+          },
+          {
+            // Falls back to the first string field so that binding any shape of
+            // record still shows something, rather than an empty card.
+            propertyPath: "title",
+            propertyValue:
+              `{{${record}?.title ?? ${record}?.name ?? ` +
+              `Object.values(${record} ?? {}).find((value) => typeof value === "string") ?? ""}}`,
+          },
+          {
+            propertyPath: "subtitle",
+            propertyValue: `{{${record}?.subtitle ?? ${record}?.description ?? ""}}`,
           },
         ];
       },
