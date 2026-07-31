@@ -38,6 +38,12 @@ public class UserProfileCE_DTO {
     @JsonProperty("isConfigurable")
     boolean isConfigurable = false;
 
+    // Whether the MCP server is enabled on this instance (APPSMITH_MCP_ENABLED). Surfaced so the Profile page can
+    // hide the MCP tokens section rather than inviting a user to mint a credential that cannot authenticate — the
+    // server refuses minting either way, this just avoids offering a dead end.
+    @JsonProperty("isMcpEnabled")
+    boolean isMcpEnabled = false;
+
     @JsonProperty("adminSettingsVisible")
     boolean adminSettingsVisible = false;
 

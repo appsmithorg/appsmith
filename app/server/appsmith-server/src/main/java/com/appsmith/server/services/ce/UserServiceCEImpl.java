@@ -48,6 +48,7 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.WWWFormCodec;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -113,6 +114,19 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final InstanceVariablesHelper instanceVariablesHelper;
     private final SecureBaseUrlResolver secureBaseUrlResolver;
     private final CacheablePylonHelper cacheablePylonHelper;
+
+    // Same allow-list gate and default (OFF) as SecurityConfig, the token controller, and the deploy scripts.
+    // Setter-injected so the existing constructor wiring (and every subclass/test that calls it) stays unchanged.
+    private String mcpEnabledFlag;
+
+    @Value("${APPSMITH_MCP_ENABLED:false}")
+    public void setMcpEnabledFlag(String mcpEnabledFlag) {
+        this.mcpEnabledFlag = mcpEnabledFlag;
+    }
+
+    private boolean isMcpEnabled() {
+        return mcpEnabledFlag != null && mcpEnabledFlag.trim().matches("(?i)^(true|1|yes|on)$");
+    }
 
     protected static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
@@ -838,6 +852,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             commonConfig.getIsCloudHosting() ? true : userData.getIsIntercomConsentGiven());
                     profile.setIsSuperUser(isSuperUser);
                     profile.setIsConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
+                    profile.setIsMcpEnabled(isMcpEnabled());
                     // The Pylon chat identity-verification hash is computed by Cloud Services (which holds the
                     // secret) and cached per user. If it is unavailable the profile is still returned, just without
                     // a verified chat session.

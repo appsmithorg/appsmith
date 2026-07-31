@@ -1,15 +1,11 @@
 // Env-gate parsing shared by the MCP entrypoint. The Admin Settings UI writes "true"/"false"; operators may also
 // use "1"/"0".
 
-// Explicit-truthy check: enabled only for a recognized truthy value. Used where a value is always present.
+// The ONE gate helper: a capability is enabled only for a recognized truthy value. Absent, blank, and unrecognized
+// all mean disabled, so no capability can be acquired by an upgrade or a typo. There is deliberately no default-ON
+// counterpart — every MCP gate is opt-in.
 export function gateEnabled(value: string | undefined): boolean {
   return value !== undefined && /^(1|true|yes|on)$/i.test(value.trim());
-}
-
-// Default-ON gate: enabled unless explicitly disabled (false/0/no/off). The MCP data layer and restricted JS objects
-// are ON by default, matching the master APPSMITH_MCP_ENABLED gate — a missing/unrecognized value stays enabled.
-export function gateEnabledByDefault(value: string | undefined): boolean {
-  return value === undefined || !/^(false|0|no|off)$/i.test(value.trim());
 }
 
 // Positive-integer env override (session caps, TTLs). Unset, non-numeric, fractional, zero, or negative values fall

@@ -22,11 +22,11 @@ below). Disabling `APPSMITH_MCP_ENABLED` is enforced server-side: the auth filte
 setting change is applied, already-issued `mcp_…` tokens are rejected (401) rather than merely losing the `/mcp` route.
 (Applying the change restarts the backend process, which re-reads the configuration.)
 
-| Variable                    | Default | Effect when disabled                                                            |
-| --------------------------- | ------- | ------------------------------------------------------------------------------- |
-| `APPSMITH_MCP_ENABLED`      | on      | The `/mcp` route is dropped and `mcp_…` bearer tokens are rejected server-side. |
-| `APPSMITH_MCP_DATA_ENABLED` | on      | Datasource/query tools are unregistered; spec authoring + reads remain.         |
-| `APPSMITH_MCP_JS_ENABLED`   | on      | Restricted JS-object tools are unregistered.                                    |
+| Variable                    | Default | Effect when disabled                                                                                                                                         |
+| --------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `APPSMITH_MCP_ENABLED`      | **off** | Opt-in. While off, `/mcp` returns a 404 `mcp_disabled` JSON, `mcp_…` bearer tokens are rejected server-side (401), and users cannot create or rotate tokens. |
+| `APPSMITH_MCP_DATA_ENABLED` | **off** | Opt-in. While off, datasource/query tools are unregistered; spec authoring + reads remain.                                                                   |
+| `APPSMITH_MCP_JS_ENABLED`   | **off** | Opt-in. While off, restricted JS-object tools are unregistered.                                                                                              |
 
 Governed and destructive tools additionally require a MongoDB + Redis backend (`APPSMITH_MONGODB_URI` /
 `APPSMITH_DB_URL` and `APPSMITH_REDIS_URL`); without them the server starts with read + spec-authoring tools only.

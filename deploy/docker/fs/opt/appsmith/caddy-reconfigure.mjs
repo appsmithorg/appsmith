@@ -14,9 +14,10 @@ const AppsmithCaddy = process.env._APPSMITH_CADDY
 const isRateLimitingEnabled = process.env.APPSMITH_RATE_LIMIT !== "disabled"
 const RATE_LIMIT = parseInt(process.env.APPSMITH_RATE_LIMIT || 100, 10)
 
-// The MCP server is enabled by default; the /mcp route is dropped only when explicitly disabled. This script re-runs
+// The MCP server is OFF unless explicitly enabled. When disabled the proxy is not wired and /mcp answers a clear
+// 404 JSON instead of falling through to the SPA catch-all (which returned 200 HTML and read as success). This script re-runs
 // on every editor (caddy) program restart, so the Admin Settings toggle takes effect on Save & Restart.
-const isMcpEnabled = !/^(false|0|no|off)$/i.test(process.env.APPSMITH_MCP_ENABLED ?? "")
+const isMcpEnabled = /^(true|1|yes|on)$/i.test((process.env.APPSMITH_MCP_ENABLED ?? "").trim())
 
 let certLocation = null
 if (CUSTOM_DOMAIN !== "") {
@@ -167,7 +168,13 @@ parts.push(`
   handle /mcp/health {
     rewrite * /health
     import reverse_proxy ${process.env.APPSMITH_MCP_PORT || 8092}
-  }` : ""}
+  }` : `handle /mcp* {
+    # MCP is disabled on this instance. Answer explicitly rather than letting these paths fall through to the SPA
+    # catch-all, which returned 200 with the app's HTML — an MCP client saw a "success" it could not parse, and an
+    # operator health check pointed at /mcp/health reported green for a service that is switched off.
+    header Content-Type application/json
+    respond \`{"error":"MCP is not enabled on this Appsmith instance","code":"mcp_disabled"}\` 404
+  }`}
 
   ${isRateLimitingEnabled ? `rate_limit {
     zone dynamic_zone {

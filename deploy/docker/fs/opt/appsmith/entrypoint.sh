@@ -129,16 +129,17 @@ init_env_file() {
     fi
 
     # Backfill the MCP gates for installs whose docker.env predates them, so the Admin Settings UI
-    # (which reads/writes these variables) mirrors the actual defaults. Default-on is intentional: the MCP server,
-    # its data layer, and restricted JS objects are all enabled by default (each stays an Admin off-switch).
+    # (which reads/writes these variables) mirrors the actual defaults. Default-OFF is intentional and is the whole
+    # point of the backfill: an existing instance must NOT acquire an agent-facing endpoint, a data layer, or
+    # JS authoring simply by taking an image upgrade. An admin opts in from Admin Settings -> MCP Server.
     if ! grep -q "^APPSMITH_MCP_ENABLED=" "$ENV_PATH"; then
-      echo $'\nAPPSMITH_MCP_ENABLED=true' >> "$ENV_PATH"
+      echo $'\nAPPSMITH_MCP_ENABLED=false' >> "$ENV_PATH"
     fi
     if ! grep -q "^APPSMITH_MCP_DATA_ENABLED=" "$ENV_PATH"; then
-      echo 'APPSMITH_MCP_DATA_ENABLED=true' >> "$ENV_PATH"
+      echo 'APPSMITH_MCP_DATA_ENABLED=false' >> "$ENV_PATH"
     fi
     if ! grep -q "^APPSMITH_MCP_JS_ENABLED=" "$ENV_PATH"; then
-      echo 'APPSMITH_MCP_JS_ENABLED=true' >> "$ENV_PATH"
+      echo 'APPSMITH_MCP_JS_ENABLED=false' >> "$ENV_PATH"
     fi
     if ! grep -q "^APPSMITH_MCP_TOKEN_TTL_DAYS=" "$ENV_PATH"; then
       echo 'APPSMITH_MCP_TOKEN_TTL_DAYS=90' >> "$ENV_PATH"
@@ -532,7 +533,7 @@ configure_supervisord() {
 
   cp -f "$supervisord_conf_source"/application_process/*.conf "$SUPERVISORD_CONF_TARGET"
 
-  # The MCP program is always installed (enabled by default); run-mcp.sh itself parks when APPSMITH_MCP_ENABLED is
+  # The MCP program is always installed (but disabled by default); run-mcp.sh itself parks unless APPSMITH_MCP_ENABLED is
   # explicitly disabled. This keeps the toggle switchable from Admin Settings -> Configuration without a container
   # restart: a supervisord program restart re-reads docker.env via run-with-env.sh.
 

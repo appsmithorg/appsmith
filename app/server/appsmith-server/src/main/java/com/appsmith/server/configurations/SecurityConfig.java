@@ -133,10 +133,11 @@ public class SecurityConfig {
     @Value("${appsmith.internal.password}")
     private String INTERNAL_PASSWORD;
 
-    // MCP server enablement, read from the APPSMITH_MCP_ENABLED env variable (default on). When disabled from Admin
-    // Settings, the MCP bearer-auth filter must not engage — otherwise "disabling MCP" would leave already-issued
-    // mcp_ tokens working as full API credentials until they expire. Same deny-list spelling as the deploy scripts.
-    @Value("${APPSMITH_MCP_ENABLED:true}")
+    // MCP server enablement, read from the APPSMITH_MCP_ENABLED env variable (default OFF — an admin opts in). When
+    // disabled from Admin Settings, the MCP bearer-auth filter must not engage — otherwise "disabling MCP" would
+    // leave already-issued mcp_ tokens working as full API credentials until they expire. Same allow-list spelling
+    // as the deploy scripts (true|1|yes|on), so all layers agree on what "enabled" means.
+    @Value("${APPSMITH_MCP_ENABLED:false}")
     private String mcpEnabledFlag;
 
     private static final String INTERNAL = "INTERNAL";
@@ -187,8 +188,11 @@ public class SecurityConfig {
         return new McpSecurityFilters(mcpTokenAuthenticationWebFilter, mcpAllowlistWebFilter);
     }
 
+    // Allow-list, not deny-list: MCP is OFF unless an operator explicitly opted in with a recognized truthy value.
+    // An absent, blank, or unrecognized value therefore means disabled, so no instance can acquire an agent-facing
+    // endpoint by upgrading into it.
     private boolean isMcpEnabled() {
-        return mcpEnabledFlag == null || !mcpEnabledFlag.trim().matches("(?i)^(false|0|no|off)$");
+        return mcpEnabledFlag != null && mcpEnabledFlag.trim().matches("(?i)^(true|1|yes|on)$");
     }
 
     // Whether the MCP bearer-auth filter should engage for this request. Evaluated PER REQUEST (not captured at bean

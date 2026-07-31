@@ -27,6 +27,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,8 +49,83 @@ class McpTokenControllerCETest {
     @BeforeEach
     void setUp() {
         controller = new McpTokenControllerCE(userMcpTokenService);
+        // These tests exercise the session-vs-MCP principal guard, so MCP is enabled here; the separate
+        // instance-disabled behaviour is covered by its own tests below.
+        controller.setMcpEnabledFlag("true");
         user = new User();
         user.setId("user-id");
+    }
+
+    /** A controller with MCP switched off at the instance level (the shipped default). */
+    private McpTokenControllerCE disabledController(String flagValue) {
+        McpTokenControllerCE disabled = new McpTokenControllerCE(userMcpTokenService);
+        disabled.setMcpEnabledFlag(flagValue);
+        return disabled;
+    }
+
+    @Test
+    void create_isRefusedWhenMcpIsDisabledOnTheInstance() {
+        // A token minted while MCP is off could not authenticate (SecurityConfig evaluates the same gate per
+        // request), so issuing one would only leave a live secret lying around to become usable if MCP is ever
+        // enabled. The service must never be reached.
+        AtomicBoolean minted = new AtomicBoolean(false);
+
+        StepVerifier.create(disabledController("false")
+                        .create(user, new McpTokenCreateRequestDTO("Claude"))
+                        .doOnNext(ignored -> minted.set(true))
+                        .contextWrite(ReactiveSecurityContextHolder.withAuthentication(sessionAuthentication())))
+                .expectErrorSatisfies(error -> assertThat(error)
+                        .isInstanceOf(AppsmithException.class)
+                        .hasMessageContaining("MCP server is not enabled"))
+                .verify();
+
+        assertThat(minted).isFalse();
+        verify(userMcpTokenService, never()).create(any(), any());
+    }
+
+    @Test
+    void rotate_isRefusedWhenMcpIsDisabledOnTheInstance() {
+        StepVerifier.create(disabledController("false")
+                        .rotate(user, "token-id")
+                        .contextWrite(ReactiveSecurityContextHolder.withAuthentication(sessionAuthentication())))
+                .expectErrorSatisfies(error -> assertThat(error).isInstanceOf(AppsmithException.class))
+                .verify();
+
+        verify(userMcpTokenService, never()).rotate(any(), any());
+    }
+
+    @Test
+    void create_isRefusedWhenTheGateIsAbsentOrUnrecognized() {
+        // Allow-list semantics: absent, blank, and unrecognized values all mean disabled, so a typo in docker.env
+        // fails safe rather than quietly enabling token minting.
+        for (String flag : new String[] {null, "", "   ", "banana", "yes-please", "0", "off"}) {
+            StepVerifier.create(disabledController(flag)
+                            .create(user, null)
+                            .contextWrite(ReactiveSecurityContextHolder.withAuthentication(sessionAuthentication())))
+                    .expectError(AppsmithException.class)
+                    .verify();
+        }
+
+        verify(userMcpTokenService, never()).create(any(), any());
+    }
+
+    @Test
+    void listAndRevoke_remainAvailableWhenMcpIsDisabled() {
+        // Deliberately NOT gated: a user must still be able to see and clean up tokens that were issued before an
+        // admin switched MCP off. Neither hands out a secret.
+        McpTokenControllerCE disabled = disabledController("false");
+
+        when(userMcpTokenService.list(user)).thenReturn(Flux.empty());
+        when(userMcpTokenService.revoke(user, "token-id")).thenReturn(Mono.just(true));
+
+        StepVerifier.create(disabled.list(user)
+                        .contextWrite(ReactiveSecurityContextHolder.withAuthentication(sessionAuthentication())))
+                .verifyComplete();
+
+        StepVerifier.create(disabled.revoke(user, "token-id")
+                        .contextWrite(ReactiveSecurityContextHolder.withAuthentication(sessionAuthentication())))
+                .assertNext(response -> assertThat(response.getData()).isTrue())
+                .verifyComplete();
     }
 
     private static Authentication sessionAuthentication() {
@@ -113,7 +190,7 @@ class McpTokenControllerCETest {
     void create_underMcpAuth_isRejectedAndNeverMints() {
         // The session guard rejects before the mint Mono is subscribed; the flag proves no minting happened.
         AtomicBoolean minted = new AtomicBoolean(false);
-        when(userMcpTokenService.create(eq(user), any())).thenReturn(Mono.fromCallable(() -> {
+        lenient().when(userMcpTokenService.create(eq(user), any())).thenReturn(Mono.fromCallable(() -> {
             minted.set(true);
             return token("t1");
         }));
@@ -129,7 +206,7 @@ class McpTokenControllerCETest {
     @Test
     void rotate_underMcpAuth_isRejectedAndNeverRotates() {
         AtomicBoolean rotated = new AtomicBoolean(false);
-        when(userMcpTokenService.rotate(user, "t1")).thenReturn(Mono.fromCallable(() -> {
+        lenient().when(userMcpTokenService.rotate(user, "t1")).thenReturn(Mono.fromCallable(() -> {
             rotated.set(true);
             return token("t1");
         }));
@@ -169,7 +246,7 @@ class McpTokenControllerCETest {
     void list_underMcpAuth_isRejectedAndNeverEnumerates() {
         // The session guard rejects before the list Flux is subscribed; the flag proves no enumeration happened.
         AtomicBoolean listed = new AtomicBoolean(false);
-        when(userMcpTokenService.list(user)).thenReturn(Flux.defer(() -> {
+        lenient().when(userMcpTokenService.list(user)).thenReturn(Flux.defer(() -> {
             listed.set(true);
             return Flux.just(token("t1"));
         }));
@@ -207,7 +284,7 @@ class McpTokenControllerCETest {
     @Test
     void revoke_underMcpAuth_isRejectedAndNeverRevokes() {
         AtomicBoolean revoked = new AtomicBoolean(false);
-        when(userMcpTokenService.revoke(user, "t1")).thenReturn(Mono.fromCallable(() -> {
+        lenient().when(userMcpTokenService.revoke(user, "t1")).thenReturn(Mono.fromCallable(() -> {
             revoked.set(true);
             return true;
         }));

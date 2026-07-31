@@ -17,8 +17,8 @@ export const APPSMITH_MCP_ENABLED_SETTING: Setting = {
   label: "MCP server",
   text: "Allow AI agents to connect to this instance over MCP (Model Context Protocol)",
   subText:
-    "* Agents authenticate with per-user MCP tokens (Profile → MCP tokens) and act with that user's permissions. Enabled by default; disabling removes the /mcp endpoint and rejects MCP tokens on restart.",
-  defaultValue: true,
+    "* Agents authenticate with per-user MCP tokens (Profile → MCP tokens) and act with that user's permissions. Disabled by default — turning this on exposes the /mcp endpoint and lets users create MCP tokens. Turning it off removes the endpoint, blocks new tokens, and rejects existing ones.",
+  defaultValue: false,
 };
 
 export const APPSMITH_MCP_DATA_ENABLED_SETTING: Setting = {
@@ -29,8 +29,8 @@ export const APPSMITH_MCP_DATA_ENABLED_SETTING: Setting = {
   label: "MCP data tools",
   text: "Let agents work with datasources and queries (create datasources/queries, run read-only actions)",
   subText:
-    "* Enabled by default. All operations run under the connecting user's existing permissions; credentials are never exposed to agents.",
-  defaultValue: true,
+    "* Disabled by default. Requires the MCP server above. All operations run under the connecting user's existing permissions; credentials are never exposed to agents.",
+  defaultValue: false,
 };
 
 export const APPSMITH_MCP_JS_ENABLED_SETTING: Setting = {
@@ -40,8 +40,9 @@ export const APPSMITH_MCP_JS_ENABLED_SETTING: Setting = {
   controlType: SettingTypes.CHECKBOX,
   label: "MCP JS objects",
   text: "Let agents author restricted JS objects (declarative grammar only — no arbitrary JavaScript)",
-  subText: "* Enabled by default. Requires MCP data tools.",
-  defaultValue: true,
+  subText:
+    "* Disabled by default. Requires the MCP server and MCP data tools above.",
+  defaultValue: false,
 };
 
 export const APPSMITH_MCP_TOKEN_TTL_DAYS_SETTING: Setting = {

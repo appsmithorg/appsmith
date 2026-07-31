@@ -2,7 +2,6 @@ import {
   ELICITATION_TIMEOUT_CEILING_MS,
   elicitationTimeoutFromEnv,
   gateEnabled,
-  gateEnabledByDefault,
   parsePositiveInt,
   publicOriginFromEnv,
   sessionLimitsFromEnv,
@@ -64,23 +63,6 @@ describe("gateEnabled — opt-in gate parsing (data/JS layers)", () => {
   it("stays off when the variable is unset", () => {
     expect(gateEnabled(undefined)).toBe(false);
   });
-});
-
-describe("gateEnabledByDefault — default-ON gate parsing (data/JS layers)", () => {
-  // Data tools and restricted JS objects are ON by default; only an explicit false/0/no/off disables them.
-  it.each([undefined, "", "  ", "true", "1", "yes", "on", "anything"])(
-    "stays enabled for %j",
-    (value) => {
-      expect(gateEnabledByDefault(value)).toBe(true);
-    },
-  );
-
-  it.each(["false", "FALSE", "False", "0", "no", "off", " off "])(
-    "disables only for explicit %j",
-    (value) => {
-      expect(gateEnabledByDefault(value)).toBe(false);
-    },
-  );
 });
 
 describe("parsePositiveInt — session cap/TTL env overrides", () => {

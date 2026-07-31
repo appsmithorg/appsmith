@@ -1,23 +1,17 @@
 #!/usr/bin/env bash
 healthy=true
-# MCP is enabled by default (APPSMITH_MCP_ENABLED). When explicitly disabled, its supervisord program is parked
-# (sleep) rather than absent — so probe its health endpoint only when enabled, reading the gate from docker.env
-# because the Docker HEALTHCHECK environment does not source it.
+# MCP is OFF unless explicitly enabled (APPSMITH_MCP_ENABLED). Its supervisord program is always installed and parks
+# (sleep) when disabled rather than being absent, so probe its health endpoint only when the gate is on — read from
+# docker.env because the Docker HEALTHCHECK environment does not source it. Allow-list spelling, matching every other
+# layer: absent, blank, or unrecognized means disabled. Because enablement is opt-in, an instance is only marked
+# unhealthy for MCP when an operator deliberately turned it on and therefore depends on it.
 mcp_enabled_value="${APPSMITH_MCP_ENABLED:-$(grep -m1 '^APPSMITH_MCP_ENABLED=' /appsmith-stacks/configuration/docker.env 2>/dev/null | cut -d= -f2- | tr -d '"'"'")}"
-if [[ "${mcp_enabled_value:-true}" =~ ^([Ff][Aa][Ll][Ss][Ee]|0|[Nn][Oo]|[Oo][Ff][Ff])$ ]]; then
-  mcp_enabled=false
-else
-  mcp_enabled=true
-fi
-# MCP contributes to container health ONLY when the operator explicitly opted in with a truthy value. MCP is
-# on by default, so an instance that merely upgraded into it never asked for it: an MCP-only fault there must
-# not report the whole container unhealthy and have an orchestrator restart a working Appsmith. When MCP is
-# explicitly enabled the operator depends on it, so it is fatal as usual.
 if [[ "$mcp_enabled_value" =~ ^([Tt][Rr][Uu][Ee]|1|[Yy][Ee][Ss]|[Oo][Nn])$ ]]; then
-  mcp_required=true
+  mcp_enabled=true
 else
-  mcp_required=false
+  mcp_enabled=false
 fi
+mcp_required="$mcp_enabled"
 processes="editor rts backend"
 if supervisorctl status | grep -q '^mcp'; then
   processes="$processes mcp"

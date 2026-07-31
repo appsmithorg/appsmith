@@ -9,6 +9,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.UserMcpTokenService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -25,13 +26,42 @@ public class McpTokenControllerCE {
 
     private final UserMcpTokenService userMcpTokenService;
 
+    // Same allow-list gate and default (OFF) as SecurityConfig and the deploy scripts. Setter-injected rather than
+    // constructor-injected so the existing @RequiredArgsConstructor wiring and its unit tests stay unchanged.
+    private String mcpEnabledFlag;
+
+    @Value("${APPSMITH_MCP_ENABLED:false}")
+    public void setMcpEnabledFlag(String mcpEnabledFlag) {
+        this.mcpEnabledFlag = mcpEnabledFlag;
+    }
+
+    private boolean isMcpEnabled() {
+        return mcpEnabledFlag != null && mcpEnabledFlag.trim().matches("(?i)^(true|1|yes|on)$");
+    }
+
+    /**
+     * Refuses to hand out a bearer secret while MCP is switched off.
+     *
+     * <p>An issued token cannot authenticate when MCP is disabled (SecurityConfig evaluates the same gate per
+     * request), so minting one would only produce a credential that silently fails — and would leave live secrets
+     * lying around to become usable the moment an admin ever enables MCP. Creating and rotating are therefore
+     * blocked, while {@code list} and {@code revoke} stay available so a user can still see and clean up tokens
+     * issued before the instance was switched off.
+     */
+    private Mono<Void> requireMcpEnabled() {
+        return isMcpEnabled() ? Mono.empty() : Mono.error(new AppsmithException(AppsmithError.MCP_NOT_ENABLED));
+    }
+
     @PostMapping
     public Mono<ResponseDTO<McpTokenResponseDTO>> create(
             @AuthenticationPrincipal User user, @RequestBody(required = false) McpTokenCreateRequestDTO request) {
         // The body (and the name within it) is optional; a blank name is defaulted server-side.
         String name = request == null ? null : request.name();
-        return requireSessionAuthentication()
-                .then(userMcpTokenService.create(user, name))
+        return requireMcpEnabled()
+                .then(requireSessionAuthentication())
+                // Deferred so a rejected guard never even invokes the service (an eager argument is
+                // evaluated while assembling the chain, which made the guard cosmetic rather than real).
+                .then(Mono.defer(() -> userMcpTokenService.create(user, name)))
                 .map(token -> new ResponseDTO<>(HttpStatus.CREATED, token));
     }
 
@@ -40,8 +70,9 @@ public class McpTokenControllerCE {
             @AuthenticationPrincipal User user, @PathVariable String tokenId) {
         // Rotation returns a replacement bearer secret, so MCP-authenticated calls must not be able to use a leaked
         // token to perpetuate access beyond its intended revocation window.
-        return requireSessionAuthentication()
-                .then(userMcpTokenService.rotate(user, tokenId))
+        return requireMcpEnabled()
+                .then(requireSessionAuthentication())
+                .then(Mono.defer(() -> userMcpTokenService.rotate(user, tokenId)))
                 .map(token -> new ResponseDTO<>(HttpStatus.OK, token));
     }
 
@@ -71,14 +102,15 @@ public class McpTokenControllerCE {
     public Flux<ResponseDTO<McpTokenResponseDTO>> list(@AuthenticationPrincipal User user) {
         // Token management is session-only: an MCP-authenticated caller must not be able to enumerate a user's tokens.
         return requireSessionAuthentication()
-                .thenMany(userMcpTokenService.list(user).map(token -> new ResponseDTO<>(HttpStatus.OK, token)));
+                .thenMany(Flux.defer(
+                        () -> userMcpTokenService.list(user).map(token -> new ResponseDTO<>(HttpStatus.OK, token))));
     }
 
     @DeleteMapping("/{tokenId}")
     public Mono<ResponseDTO<Boolean>> revoke(@AuthenticationPrincipal User user, @PathVariable String tokenId) {
         // Revocation changes access state, so — like create/rotate — it must not be reachable with an MCP token.
         return requireSessionAuthentication()
-                .then(userMcpTokenService.revoke(user, tokenId))
+                .then(Mono.defer(() -> userMcpTokenService.revoke(user, tokenId)))
                 .map(revoked -> new ResponseDTO<>(revoked ? HttpStatus.OK : HttpStatus.NOT_FOUND, revoked));
     }
 }
