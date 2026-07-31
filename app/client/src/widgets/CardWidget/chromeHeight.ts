@@ -115,11 +115,18 @@ export function getCardChromeHeightInPx(props: CardChromeProps): number {
     chromeHeightPx += CARD_FOOTER_HEIGHT;
   }
 
+  // Clamp each term, not just the total: both values are bindable, and a
+  // negative one would silently cancel out the header/footer chrome above,
+  // under-reserving space and clipping the body — the exact failure this
+  // module exists to prevent. Clamping the total alone would not catch it.
   if (hasTopMedia(props)) {
-    chromeHeightPx += Number(props.mediaHeight) || DEFAULT_MEDIA_HEIGHT;
+    chromeHeightPx += Math.max(
+      0,
+      Number(props.mediaHeight) || DEFAULT_MEDIA_HEIGHT,
+    );
   }
 
-  chromeHeightPx += 2 * (Number(props.borderWidth) || 0);
+  chromeHeightPx += 2 * Math.max(0, Number(props.borderWidth) || 0);
 
   return Math.max(0, chromeHeightPx);
 }

@@ -196,6 +196,41 @@ describe("getCardChromeHeightInPx", () => {
     });
   });
 
+  // A negative bindable value must contribute nothing, not subtract from the
+  // header/footer chrome above it. Clamping only the total would let this
+  // under-reserve and clip the body.
+  describe("negative values cannot cancel out real chrome", () => {
+    it("ignores a negative mediaHeight instead of shrinking the chrome", () => {
+      expect(
+        getCardChromeHeightInPx({
+          ...DEFAULTS,
+          mediaPosition: MediaPositionTypes.TOP,
+          mediaImage: "https://example.com/a.png",
+          mediaHeight: -60,
+        }),
+      ).toBe(DEFAULT_CHROME);
+    });
+
+    it("ignores a negative borderWidth instead of shrinking the chrome", () => {
+      expect(getCardChromeHeightInPx({ ...DEFAULTS, borderWidth: "-40" })).toBe(
+        DEFAULT_CHROME - 2,
+      );
+    });
+
+    it("still reserves the header when both are negative", () => {
+      expect(
+        getCardChromeHeightInPx({
+          ...DEFAULTS,
+          showFooter: false,
+          mediaPosition: MediaPositionTypes.TOP,
+          mediaImage: "https://example.com/a.png",
+          mediaHeight: -500,
+          borderWidth: "-500",
+        }),
+      ).toBe(CARD_HEADER_HEIGHT);
+    });
+  });
+
   it("never returns a negative height", () => {
     expect(
       getCardChromeHeightInPx({
