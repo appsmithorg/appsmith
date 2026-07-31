@@ -65,13 +65,27 @@ export interface ConsumeDestructiveConfirmation
 export interface McpGovernanceCoordinatorOptions {
   lockTtlMs?: number;
   confirmationTtlMs?: number;
+  changeRetentionMs?: number;
   now?: () => Date;
   createId?: () => string;
 }
 
+// Retention for governance change records, stamped onto every saved change as `expiresAt` so the TTL index the
+// store declares actually reclaims them. Without a stamped field Mongo's TTL skips the document entirely and the
+// collection — which carries a full rollback blob per governed mutation — grows forever inside the product's own
+// database. A change older than this window is no longer rollbackable and drops out of the audit trail; 90 days
+// matches the default MCP token lifetime, so a record cannot outlive the credential that created it by much.
+export const DEFAULT_CHANGE_RETENTION_MS = 90 * 24 * 60 * 60 * 1000;
+
+// The lock is held across the caller's mutate(), so it MUST outlive the slowest governed mutation or a second
+// agent can acquire it mid-flight and lose an update. The slowest is a git commit (GIT_COMMIT_TIMEOUT_MS, 120s
+// in app.ts), so this sits above that with headroom rather than the 30s that used to expire underneath it.
+export const DEFAULT_LOCK_TTL_MS = 150_000;
+
 export class McpGovernanceCoordinator {
   private readonly lockTtlMs: number;
   private readonly confirmationTtlMs: number;
+  private readonly changeRetentionMs: number;
   private readonly now: () => Date;
   private readonly createId: () => string;
 
@@ -79,8 +93,10 @@ export class McpGovernanceCoordinator {
     private readonly store: McpGovernanceStore,
     options: McpGovernanceCoordinatorOptions = {},
   ) {
-    this.lockTtlMs = options.lockTtlMs ?? 30_000;
+    this.lockTtlMs = options.lockTtlMs ?? DEFAULT_LOCK_TTL_MS;
     this.confirmationTtlMs = options.confirmationTtlMs ?? 5 * 60_000;
+    this.changeRetentionMs =
+      options.changeRetentionMs ?? DEFAULT_CHANGE_RETENTION_MS;
     this.now = options.now ?? (() => new Date());
     this.createId = options.createId ?? randomUUID;
   }
@@ -107,6 +123,7 @@ export class McpGovernanceCoordinator {
 
       const result = await request.mutate();
       const changeId = this.createId();
+      const createdAt = this.now();
 
       await this.store.saveChange({
         id: changeId,
@@ -116,7 +133,10 @@ export class McpGovernanceCoordinator {
         operation: request.operation,
         revisionBefore: request.currentRevision,
         revisionAfter: result.revisionAfter,
-        createdAt: this.now(),
+        createdAt,
+        // Stamped so the store's `{expiresAt: 1}, {expireAfterSeconds: 0}` TTL index actually reclaims this
+        // record. Mongo's TTL silently skips documents missing the field, so an unstamped record lives forever.
+        expiresAt: new Date(createdAt.getTime() + this.changeRetentionMs),
         rollback: result.rollback ?? {},
         summary: result.summary ?? {},
       });

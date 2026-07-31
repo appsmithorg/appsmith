@@ -19,6 +19,8 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 /**
  * Confines what an MCP-token-authenticated principal may call on /api/v1. Any request that authenticated via an
@@ -106,15 +108,38 @@ public class McpAllowlistWebFilter implements WebFilter {
                 .flatMap(blocked -> blocked ? forbidden(exchange) : chain.filter(exchange));
     }
 
+    /**
+     * Path segments that are real sibling ROUTES, not entity ids. A single-segment wildcard like
+     * {@code /api/v1/actions/{actionId}} matches these literals too, so {@code PUT /api/v1/actions/move} and
+     * {@code /refactor} would slip through on a rule meant only to update one action by id — quietly widening the
+     * allowlist past "the complete set of endpoints the MCP client calls". No entity id can collide with these,
+     * since ids are generated identifiers, so denying them costs nothing and keeps the allowlist honest.
+     */
+    private static final Set<String> RESERVED_ROUTE_SEGMENTS = Set.of("move", "refactor");
+
     private static boolean isAllowed(ServerHttpRequest request) {
         HttpMethod method = request.getMethod();
         var path = request.getPath().pathWithinApplication();
+        if (hasReservedFinalSegment(path.value())) {
+            return false;
+        }
         for (AllowRule allowRule : ALLOW_RULES) {
             if (allowRule.method().equals(method) && allowRule.pattern().matches(path)) {
                 return true;
             }
         }
         return false;
+    }
+
+    private static boolean hasReservedFinalSegment(String path) {
+        String trimmed = path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
+        int lastSlash = trimmed.lastIndexOf('/');
+        if (lastSlash < 0 || lastSlash == trimmed.length() - 1) {
+            return false;
+        }
+        // Case-insensitive: the allowlist must not be evadable by casing, even though WebFlux routing is
+        // case-sensitive and a mis-cased literal would 404 rather than reach the sibling handler.
+        return RESERVED_ROUTE_SEGMENTS.contains(trimmed.substring(lastSlash + 1).toLowerCase(Locale.ROOT));
     }
 
     private static Mono<Void> forbidden(ServerWebExchange exchange) {

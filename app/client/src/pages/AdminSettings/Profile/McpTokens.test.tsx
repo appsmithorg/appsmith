@@ -193,6 +193,58 @@ describe("McpTokens", () => {
     );
   });
 
+  it("keeps the one-time token on screen when Escape is pressed", async () => {
+    // The secret is unrecoverable once dismissed, so an accidental Escape must NOT destroy it. Recovery would
+    // otherwise mean rotating — a second destructive action — and on plain-HTTP instances navigator.clipboard is
+    // undefined, so the user may still be copying by hand when they hit a stray key.
+    (McpTokenApi.create as jest.Mock).mockResolvedValue(
+      successResponse({
+        id: "token-2",
+        token: "secret-token",
+        createdAt: "2026-07-10T12:00:00.000Z",
+        expiresAt: "2026-10-08T12:00:00.000Z",
+      }),
+    );
+    renderComponent();
+
+    await screen.findByText("token-1");
+    fireEvent.click(screen.getByRole("button", { name: "Create token" }));
+
+    const tokenField = await screen.findByLabelText("MCP token");
+
+    expect(tokenField).toHaveValue("secret-token");
+
+    fireEvent.keyDown(document.activeElement ?? document.body, {
+      key: "Escape",
+      code: "Escape",
+    });
+
+    // Still there.
+    expect(screen.getByLabelText("MCP token")).toHaveValue("secret-token");
+
+    // Only the explicit acknowledgement dismisses it.
+    fireEvent.click(screen.getByRole("button", { name: "I've copied it" }));
+
+    await waitFor(() =>
+      expect(screen.queryByLabelText("MCP token")).not.toBeInTheDocument(),
+    );
+  });
+
+  it("does not claim the user has no tokens when the list failed to load", async () => {
+    // On a failed load `tokens` is empty for a reason that is NOT "you have none". Rendering the empty-state copy
+    // alongside the error reads as "your credentials were deleted".
+    (McpTokenApi.list as jest.Mock).mockRejectedValue(
+      new Error("Request failed"),
+    );
+    renderComponent();
+
+    await screen.findByRole("alert");
+
+    expect(
+      screen.queryByText("No MCP tokens have been created."),
+    ).not.toBeInTheDocument();
+  });
+
   it("renders an accessible error when the token list fails", async () => {
     (McpTokenApi.list as jest.Mock).mockRejectedValue(
       new Error("Request failed"),

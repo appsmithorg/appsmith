@@ -1,4 +1,6 @@
 import {
+  DEFAULT_CHANGE_RETENTION_MS,
+  DEFAULT_LOCK_TTL_MS,
   DestructiveConfirmationError,
   GovernanceLockError,
   GovernanceRevisionConflictError,
@@ -90,6 +92,7 @@ function coordinator(store: MemoryGovernanceStore): McpGovernanceCoordinator {
   return new McpGovernanceCoordinator(store, {
     lockTtlMs: 1_000,
     confirmationTtlMs: 2_000,
+    changeRetentionMs: 60_000,
     now: () => new Date("2026-07-12T00:00:00.000Z"),
     createId: jest
       .fn()
@@ -131,6 +134,7 @@ describe("McpGovernanceCoordinator.execute", () => {
         revisionBefore: "revision-1",
         revisionAfter: "revision-2",
         createdAt: new Date("2026-07-12T00:00:00.000Z"),
+        expiresAt: new Date("2026-07-12T00:01:00.000Z"),
         rollback: { previousName: "Old" },
         summary: { name: "New" },
       },
@@ -140,6 +144,47 @@ describe("McpGovernanceCoordinator.execute", () => {
       "save-change:change-1",
       "release:application:app-1:lock-1",
     ]);
+  });
+
+  it("stamps expiresAt on every change so the store's TTL index can reclaim it", async () => {
+    const store = new MemoryGovernanceStore();
+    const createdAt = new Date("2026-07-12T00:00:00.000Z");
+    // Deliberately constructed WITHOUT changeRetentionMs, so this pins the shipped default rather than a
+    // test-only value. Mongo's TTL silently skips documents missing expiresAt, so an unstamped record would
+    // live forever — and each one carries a full rollback blob.
+    const subject = new McpGovernanceCoordinator(store, {
+      lockTtlMs: 1_000,
+      now: () => createdAt,
+      createId: () => "change-ttl",
+    });
+
+    await subject.execute({
+      actorId: "user-1",
+      organizationId: "org-1",
+      entityKey: "application:app-1",
+      operation: "update",
+      expectedRevision: "revision-1",
+      currentRevision: "revision-1",
+      mutate: async () => ({ value: {}, revisionAfter: "revision-2" }),
+    });
+
+    expect(store.changes).toHaveLength(1);
+
+    const saved = store.changes[0];
+
+    expect(saved.expiresAt).toBeInstanceOf(Date);
+    expect(saved.expiresAt!.getTime()).toBe(
+      createdAt.getTime() + DEFAULT_CHANGE_RETENTION_MS,
+    );
+    expect(saved.expiresAt!.getTime()).toBeGreaterThan(
+      saved.createdAt.getTime(),
+    );
+  });
+
+  it("holds the lock longer than the slowest governed mutation", () => {
+    // The lock is held across mutate(); a git commit is the slowest governed path (GIT_COMMIT_TIMEOUT_MS =
+    // 120s in app.ts). A shorter lock expires underneath a running mutation and lets a second agent in.
+    expect(DEFAULT_LOCK_TTL_MS).toBeGreaterThan(120 * 1000);
   });
 
   it("rejects a missing lock without invoking the mutation", async () => {

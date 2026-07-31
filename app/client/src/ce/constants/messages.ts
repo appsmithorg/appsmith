@@ -254,6 +254,9 @@ export const MCP_TOKEN_NAME_PLACEHOLDER = () =>
 export const MCP_TOKEN_CREATED = () => "MCP token created";
 export const MCP_TOKEN_CREATED_DESCRIPTION = () =>
   "Copy this token now. You will not be able to view it again.";
+export const MCP_TOKEN_CREATED_DONE = () => "I've copied it";
+export const MCP_TOKEN_CREATED_DISMISS_WARNING = () =>
+  "This is the only time this token is shown. If you close without copying it, you'll need to rotate the token to get a new one.";
 export const MCP_TOKEN_VALUE_LABEL = () => "MCP token";
 export const COPY_MCP_TOKEN = () => "Copy token";
 export const MCP_TOKEN_COPIED = () => "MCP token copied";
@@ -274,6 +277,8 @@ export const ROTATE_MCP_TOKEN_CONFIRM = () => "Rotate token";
 export const ROTATE_MCP_TOKEN_CONFIRMATION = () =>
   "Rotate this MCP token? The current secret will stop working immediately.";
 export const MCP_TOKEN_ROTATED = () => "MCP token rotated";
+// The post-rotation modal reuses the created-token layout, but calling it "created" misdescribes what happened.
+export const MCP_TOKEN_ROTATED_TITLE = () => "MCP token rotated";
 export const REVOKE_MCP_TOKEN = () => "Revoke";
 export const REVOKE_MCP_TOKEN_CONFIRM = () => "Revoke token";
 export const REVOKE_MCP_TOKEN_CONFIRMATION = () =>

@@ -38,7 +38,9 @@ const propertyPath = z
   .regex(/^[A-Za-z_][A-Za-z0-9_.]*$/, "must be a dotted identifier path");
 
 // A scalar literal that cannot contain expression/template syntax (mirrors the schema's scalarCell).
-const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`/;
+// U+2028/U+2029 are included for the same reason schema.ts documents: JSON.stringify does NOT escape them,
+// so a value carrying one can break out of the emitted string literal on an older JS engine.
+const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`|\u2028|\u2029/;
 const literalScalar = z.union([
   z
     .string()

@@ -2240,6 +2240,11 @@ export function buildMcpServer(
   // this many refunded errors, strict sessions refuse further prompt attempts outright.
   const MCP_STRICT_MAX_CLIENT_ERRORS = 3;
   let strictClientErrorCount = 0;
+  // The same cap applied to the NON-strict relay degrade. Dropping to the no-prompt relay posture on the very
+  // first client_error meant one malformed response from an otherwise elicitation-capable client silently
+  // disabled in-band approval for every destructive confirm for the rest of the session. Require the client to
+  // fail repeatedly — a genuinely broken client still reaches the relay posture, a transient glitch does not.
+  let relayClientErrorCount = 0;
 
   // Operator telemetry: one line per elicitation outcome, with the client identity from the initialize
   // handshake — so a client fleet that declares elicitation but cannot render it is identifiable from server
@@ -2599,10 +2604,18 @@ export function buildMcpServer(
         };
       }
 
-      elicitationFallback = true;
-      logSink(
-        `Appsmith MCP elicitation falling back to relay posture for this session (client_error on ${spec.confirmTool})\n`,
-      );
+      relayClientErrorCount += 1;
+
+      if (relayClientErrorCount >= MCP_STRICT_MAX_CLIENT_ERRORS) {
+        elicitationFallback = true;
+        logSink(
+          `Appsmith MCP elicitation falling back to relay posture for this session after ${relayClientErrorCount} client errors (latest on ${spec.confirmTool})\n`,
+        );
+      } else {
+        logSink(
+          `Appsmith MCP elicitation client_error ${relayClientErrorCount}/${MCP_STRICT_MAX_CLIENT_ERRORS} on ${spec.confirmTool}; still prompting in-band\n`,
+        );
+      }
 
       return {
         approved: false,

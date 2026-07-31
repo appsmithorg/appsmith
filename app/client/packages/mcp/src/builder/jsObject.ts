@@ -1,6 +1,8 @@
 import { z } from "zod";
 
-const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`/;
+// U+2028/U+2029 are included for the same reason schema.ts documents: JSON.stringify does NOT escape them,
+// so a value carrying one can break out of the emitted string literal on an older JS engine.
+const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`|\u2028|\u2029/;
 const IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const REVISION = /^[a-f0-9]{64}$/;
 

@@ -111,6 +111,64 @@ class McpAllowlistWebFilterTest {
     }
 
     @Test
+    void mcpPrincipal_siblingRouteLiteralUnderAnIdWildcard_isDenied() {
+        // PUT /api/v1/actions/{actionId} is meant to update ONE action by id, but a single-segment wildcard also
+        // matches the sibling routes PUT /api/v1/actions/move and /refactor (both real ActionController mappings).
+        // Those are not endpoints the MCP client calls, so leaving them reachable would silently widen the
+        // allowlist past what its own comment claims.
+        assertForbidden(
+                MockServerWebExchange.from(
+                        MockServerHttpRequest.put("/api/v1/actions/move").build()),
+                mcpPrincipal());
+        assertForbidden(
+                MockServerWebExchange.from(
+                        MockServerHttpRequest.put("/api/v1/actions/refactor").build()),
+                mcpPrincipal());
+    }
+
+    @Test
+    void mcpPrincipal_reservedSegmentIsDeniedRegardlessOfCasing() {
+        // The deny must not be evadable by casing. WebFlux routing is case-sensitive so a mis-cased literal would
+        // 404 anyway, but the control should not depend on that second-order fact.
+        assertForbidden(
+                MockServerWebExchange.from(
+                        MockServerHttpRequest.put("/api/v1/actions/MOVE").build()),
+                mcpPrincipal());
+        assertForbidden(
+                MockServerWebExchange.from(
+                        MockServerHttpRequest.put("/api/v1/actions/Refactor").build()),
+                mcpPrincipal());
+    }
+
+    @Test
+    void mcpPrincipal_ordinaryActionIdStillPassesThrough() {
+        // The reserved-segment guard must not break the legitimate case it sits next to.
+        assertPassesThrough(
+                MockServerWebExchange.from(MockServerHttpRequest.put("/api/v1/actions/65f0a1b2c3d4e5f6a7b8c9d0")
+                        .build()),
+                mcpPrincipal());
+    }
+
+    @Test
+    void mcpPrincipal_percentEncodedNonAllowlistedPath_isDenied() {
+        // Encoding must not smuggle a denied path past the allowlist. The filter and WebFlux routing consume the
+        // same decoded RequestPath, so an encoded separator cannot make the two disagree — pinned here so a future
+        // change to path handling cannot open a divergence silently.
+        assertForbidden(
+                MockServerWebExchange.from(
+                        MockServerHttpRequest.post("/api/v1/users/mcp%2Dtokens").build()),
+                mcpPrincipal());
+    }
+
+    @Test
+    void mcpPrincipal_trailingSlashOnANonAllowlistedPath_isDenied() {
+        assertForbidden(
+                MockServerWebExchange.from(
+                        MockServerHttpRequest.post("/api/v1/users/mcp-tokens/").build()),
+                mcpPrincipal());
+    }
+
+    @Test
     void emptySecurityContext_passesThrough() {
         // No security context (anonymous, or context populated later in the chain): the control is a no-op. This
         // exercises the defaultIfEmpty(FALSE) branch, so it must invoke the chain exactly once and set no status.

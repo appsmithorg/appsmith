@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
   Button,
+  Callout,
   Flex,
   Input,
   Modal,
@@ -32,11 +33,14 @@ import {
   MCP_TOKEN_CREATED_AT,
   MCP_TOKEN_EXPIRES_AT,
   MCP_TOKEN_CREATED_DESCRIPTION,
+  MCP_TOKEN_CREATED_DISMISS_WARNING,
+  MCP_TOKEN_CREATED_DONE,
   MCP_TOKEN_VALUE_LABEL,
   MCP_TOKEN_REVOKE_FAILED,
   MCP_TOKEN_REVOKED,
   MCP_TOKEN_ROTATE_FAILED,
   MCP_TOKEN_ROTATED,
+  MCP_TOKEN_ROTATED_TITLE,
   MCP_TOKENS,
   MCP_TOKENS_DESCRIPTION,
   MCP_TOKENS_EMPTY,
@@ -87,6 +91,10 @@ const TokenMeta = styled.div`
 // The MCP server endpoint for this deployment. The /mcp route is served from the app origin (via Caddy), so the URL
 // a user pastes into their MCP client is simply the current origin + /mcp.
 const MCP_SERVER_URL = `${window.location.origin}/mcp`;
+
+// Mirrors MAX_TOKEN_NAME_LENGTH in UserMcpTokenServiceCEImpl. Enforced here too so an over-long name is
+// prevented at the keyboard rather than rejected by the server after a round trip.
+const MAX_MCP_TOKEN_NAME_LENGTH = 50;
 
 // A ready-to-paste MCP client configuration (the common `mcpServers` shape used by Claude Desktop and compatible
 // clients): the server URL plus this token as a bearer credential. Rendered once, in the token-created modal.
@@ -176,6 +184,8 @@ function McpTokens() {
   const [createdToken, setCreatedToken] = useState<CreatedMcpToken | null>(
     null,
   );
+  // The reveal modal is shared by create and rotate; only the header copy differs.
+  const [createdViaRotation, setCreatedViaRotation] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
@@ -212,6 +222,7 @@ function McpTokens() {
       const response = await McpTokenApi.create(tokenName);
       const token = ensureSuccess(response);
 
+      setCreatedViaRotation(false);
       setCreatedToken(token);
       setTokens((tokens) => [
         {
@@ -303,6 +314,7 @@ function McpTokens() {
     try {
       const token = ensureSuccess(await McpTokenApi.rotate(rotateTokenId));
 
+      setCreatedViaRotation(true);
       setCreatedToken(token);
       setTokens((tokens) =>
         tokens.map((existing) =>
@@ -336,7 +348,9 @@ function McpTokens() {
           <Input
             className="t--mcp-token-name-input"
             label={createMessage(MCP_TOKEN_NAME_LABEL)}
-            onChange={setTokenName}
+            onChange={(value: string) =>
+              setTokenName(value.slice(0, MAX_MCP_TOKEN_NAME_LENGTH))
+            }
             onKeyDown={(event: React.KeyboardEvent) => {
               if (event.key === "Enter" && !isCreating) createToken();
             }}
@@ -367,16 +381,20 @@ function McpTokens() {
           />
         </div>
         {error && (
-          <Text aria-atomic="true" kind="body-m" role="alert">
+          <Callout aria-atomic="true" kind="error" role="alert">
             {error}
-          </Text>
+          </Callout>
         )}
         {isLoading ? (
           <Text aria-live="polite" kind="body-m" role="status">
             {createMessage(MCP_TOKENS_LOADING)}
           </Text>
         ) : tokens.length === 0 ? (
-          <Text kind="body-m">{createMessage(MCP_TOKENS_EMPTY)}</Text>
+          // Only claim "no tokens exist" when the list actually loaded. On a failed load `tokens` is also empty,
+          // and showing both the error and the empty state reads as "your credentials were deleted".
+          error ? null : (
+            <Text kind="body-m">{createMessage(MCP_TOKENS_EMPTY)}</Text>
+          )
         ) : (
           <div aria-label={createMessage(MCP_TOKENS)} role="list">
             {tokens.map((token) => (
@@ -425,8 +443,24 @@ function McpTokens() {
         }}
         open={Boolean(createdToken)}
       >
-        <ModalContent style={{ width: "640px" }}>
-          <ModalHeader>{createMessage(MCP_TOKEN_CREATED)}</ModalHeader>
+        {/*
+          The secret is shown exactly once and is unrecoverable afterwards, so this modal must not be dismissable
+          by accident. Radix closes on Escape and on an outside click by default, and onOpenChange nulls the token
+          unconditionally — one stray keystroke destroyed the credential with no warning and no undo, leaving a
+          rotate (a second destructive action) as the only recovery. Both paths are suppressed; the explicit
+          footer action below is the only way out. This also covers the plain-HTTP case where navigator.clipboard
+          is undefined and every copy button fails: the user keeps the token on screen to copy by hand.
+        */}
+        <ModalContent
+          onEscapeKeyDown={(event) => event.preventDefault()}
+          onInteractOutside={(event) => event.preventDefault()}
+          style={{ width: "640px" }}
+        >
+          <ModalHeader>
+            {createdViaRotation
+              ? createMessage(MCP_TOKEN_ROTATED_TITLE)
+              : createMessage(MCP_TOKEN_CREATED)}
+          </ModalHeader>
           <ModalBody>
             <Text kind="body-m">
               {createMessage(MCP_TOKEN_CREATED_DESCRIPTION)}
@@ -468,7 +502,11 @@ function McpTokens() {
                 >
                   {buildClientConfig(createdToken?.token ?? "")}
                 </pre>
-                <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
+                <Text
+                  color="var(--ads-v2-color-fg-muted)"
+                  id="mcp-client-config-help"
+                  kind="body-s"
+                >
                   {createMessage(MCP_CLIENT_CONFIG_HELP)}
                 </Text>
               </Flex>
@@ -488,7 +526,20 @@ function McpTokens() {
               {createMessage(MCP_TOKEN_EXPIRES_AT)}:{" "}
               {formatTimestamp(createdToken?.expiresAt ?? "")}
             </Text>
+            <Callout kind="warning">
+              {createMessage(MCP_TOKEN_CREATED_DISMISS_WARNING)}
+            </Callout>
           </ModalBody>
+          <ModalFooter>
+            <Button
+              className="t--mcp-token-created-done"
+              kind="primary"
+              onClick={() => setCreatedToken(null)}
+              size="md"
+            >
+              {createMessage(MCP_TOKEN_CREATED_DONE)}
+            </Button>
+          </ModalFooter>
         </ModalContent>
       </Modal>
 

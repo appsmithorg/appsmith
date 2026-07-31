@@ -28,7 +28,9 @@ const redisKey = z
 // A literal value token: any printable single token EXCEPT whitespace, quotes, backtick, and binding/template
 // syntax. This admits numbers, ids, and compact JSON-without-spaces while guaranteeing a single `\S+` token that
 // cannot open a `{{ }}` binding or a quoted-string tokenization branch.
-const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`/;
+// U+2028/U+2029 are included for the same reason schema.ts documents: JSON.stringify does NOT escape them,
+// so a value carrying one can break out of the emitted string literal on an older JS engine.
+const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`|\u2028|\u2029/;
 const redisLiteral = z
   .string()
   .min(1)

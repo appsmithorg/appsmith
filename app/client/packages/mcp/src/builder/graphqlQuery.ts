@@ -50,7 +50,9 @@ const propertyPath = z
   .max(128)
   .regex(/^[A-Za-z_][A-Za-z0-9_.]*$/, "must be a dotted identifier path");
 
-const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`/;
+// U+2028/U+2029 are included for the same reason schema.ts documents: JSON.stringify does NOT escape them,
+// so a value carrying one can break out of the emitted string literal on an older JS engine.
+const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`|\u2028|\u2029/;
 // Belt-and-suspenders [council R2]: every compiler-emitted widget binding must match this exact shape (identity dot
 // property-path), mirroring restApi.ts's SAFE_BINDING. The bindingIdentifier/propertyPath charsets already guarantee
 // it; this is a final assertion so a future charset change can't silently loosen the emitted binding.

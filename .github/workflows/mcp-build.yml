@@ -1,5 +1,9 @@
 name: Build MCP Workflow
 
+# Least privilege: this workflow only reads the repo and uploads/downloads artifacts.
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
   workflow_call:

@@ -9,6 +9,15 @@ if [[ "${mcp_enabled_value:-true}" =~ ^([Ff][Aa][Ll][Ss][Ee]|0|[Nn][Oo]|[Oo][Ff]
 else
   mcp_enabled=true
 fi
+# MCP contributes to container health ONLY when the operator explicitly opted in with a truthy value. MCP is
+# on by default, so an instance that merely upgraded into it never asked for it: an MCP-only fault there must
+# not report the whole container unhealthy and have an orchestrator restart a working Appsmith. When MCP is
+# explicitly enabled the operator depends on it, so it is fatal as usual.
+if [[ "$mcp_enabled_value" =~ ^([Tt][Rr][Uu][Ee]|1|[Yy][Ee][Ss]|[Oo][Nn])$ ]]; then
+  mcp_required=true
+else
+  mcp_required=false
+fi
 processes="editor rts backend"
 if supervisorctl status | grep -q '^mcp'; then
   processes="$processes mcp"
@@ -19,8 +28,12 @@ while read -r line
     process=${line_arr[0]}
     status=${line_arr[1]}
     if [ $status != "RUNNING" ]; then
-      healthy=false
-      echo "ERROR:- PROCESS: $process - STATUS: $status"
+      if [[ "$process" == "mcp" && "$mcp_required" != "true" ]]; then
+        echo "WARN:- PROCESS: $process - STATUS: $status (MCP not explicitly enabled; not failing container health)"
+      else
+        healthy=false
+        echo "ERROR:- PROCESS: $process - STATUS: $status"
+      fi
     else
       echo "PROCESS: $process - STATUS: $status"
       if [[ "$process" == 'editor' ]]; then
@@ -34,9 +47,13 @@ while read -r line
            healthy=false
         fi
       elif [[ "$process" == "mcp" && "$mcp_enabled" == "true" ]]; then
-        if [[ $(curl -s -w "%{http_code}\n" http://localhost:${APPSMITH_MCP_PORT:-8092}/health -o /dev/null) -ne 200 ]]; then
-           echo 'ERROR: MCP is down';
-           healthy=false
+        if [[ $(curl -s --max-time 5 -w "%{http_code}\n" http://localhost:${APPSMITH_MCP_PORT:-8092}/health -o /dev/null) -ne 200 ]]; then
+           if [[ "$mcp_required" == "true" ]]; then
+             echo 'ERROR: MCP is down';
+             healthy=false
+           else
+             echo 'WARN: MCP is down (not explicitly enabled; not failing container health)'
+           fi
         fi
       elif [[ "$process" == "mongo" ]]; then
         if [[ $(mongo --eval  'db.runCommand("ping").ok') -ne 1 ]]; then

@@ -18,5 +18,9 @@ module.exports = {
     "@typescript-eslint/no-explicit-any": "off",
     "testing-library/no-debugging-utils": "off",
     "testing-library/render-result-naming-convention": "off",
+    // This package is a standalone Node bundle and deliberately does NOT depend on the client workspace packages,
+    // so the rule's suggested `objectKeys` from "@appsmith/utils" is unavailable here. Left on, it emitted 22
+    // permanent warnings and would tempt a contributor to add exactly the dependency the package avoids.
+    "@appsmith/object-keys": "off",
   },
 };

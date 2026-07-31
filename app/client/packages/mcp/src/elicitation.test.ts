@@ -1675,15 +1675,20 @@ describe("non-accept outcome disambiguation (reason field)", () => {
     }
   });
 
-  it("a client_error refunds the attempt and falls back to the relay posture for the session", async () => {
+  it("a client_error refunds the attempt but does NOT degrade the session on the first failure", async () => {
     const store = new MemoryGovernanceStore();
     // A broken client (declares elicitation, cannot deliver the prompt) must NOT march the user into
-    // confirmation_exhausted: the failed prompt is refunded, the refusal teaches the relay flow, and the
-    // session degrades to the documented relay posture — the retry executes WITHOUT another prompt.
+    // confirmation_exhausted: the failed prompt is refunded and the refusal teaches the relay flow.
+    // Crucially, ONE failure must not disable in-band approval for the rest of the session — dropping to the
+    // no-prompt relay posture on a single transient error silently removed the approval gate for every later
+    // destructive confirm. The degrade is bounded; see the test below.
     const clientFailure = async (): Promise<ElicitResult> =>
       Promise.reject(new Error("renderer crashed"));
     const api = pagesApi();
-    const session = await connectClient(api, store, [clientFailure]);
+    const session = await connectClient(api, store, [
+      clientFailure,
+      clientFailure,
+    ]);
 
     try {
       const { confirmationId, revision } = await prepareDelete(session.client);
@@ -1702,16 +1707,60 @@ describe("non-accept outcome disambiguation (reason field)", () => {
       expect(api.deletePage).not.toHaveBeenCalled();
       expect(store.confirmations.has(confirmationId)).toBe(true);
 
-      // The retry proceeds under the relay posture: no further elicitation prompt is attempted.
+      // The retry still PROMPTS rather than self-approving — the session has not degraded.
       const second = await confirmDelete(
         session.client,
         confirmationId,
         revision,
       );
 
-      expect(second.deleted).toBe(true);
+      expect(second.reason).toBe("client_error");
+      expect(api.deletePage).not.toHaveBeenCalled();
+      expect(session.prompts).toHaveLength(2);
+    } finally {
+      await session.close();
+    }
+  });
+
+  it("degrades to the relay posture only after repeated client errors", async () => {
+    const store = new MemoryGovernanceStore();
+    // A genuinely broken client still reaches the documented relay posture, so a user is never stuck in a
+    // dead-end retry loop — it just takes sustained failure rather than one bad response.
+    const clientFailure = async (): Promise<ElicitResult> =>
+      Promise.reject(new Error("renderer crashed"));
+    const api = pagesApi();
+    const session = await connectClient(api, store, [
+      clientFailure,
+      clientFailure,
+      clientFailure,
+    ]);
+
+    try {
+      const { confirmationId, revision } = await prepareDelete(session.client);
+
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const result = await confirmDelete(
+          session.client,
+          confirmationId,
+          revision,
+        );
+
+        expect(result.reason).toBe("client_error");
+      }
+
+      expect(api.deletePage).not.toHaveBeenCalled();
+      expect(session.prompts).toHaveLength(3);
+
+      // Now the session is in the relay posture: the next confirm proceeds without a fourth prompt.
+      const afterDegrade = await confirmDelete(
+        session.client,
+        confirmationId,
+        revision,
+      );
+
+      expect(afterDegrade.deleted).toBe(true);
       expect(api.deletePage).toHaveBeenCalledTimes(1);
-      expect(session.prompts).toHaveLength(1);
+      expect(session.prompts).toHaveLength(3);
     } finally {
       await session.close();
     }
@@ -1839,15 +1888,17 @@ describe("non-accept outcome disambiguation (reason field)", () => {
       expect(third.attemptsRemaining).toBe(1);
       expect(store.confirmations.has(confirmationId)).toBe(true);
 
-      // The retry proceeds under the relay posture without a fourth prompt.
+      // One client_error does not flip the session: the next confirm still prompts in-band rather than
+      // self-approving. (The bounded degrade is covered by "degrades to the relay posture only after
+      // repeated client errors".)
       const fourth = await confirmDelete(
         session.client,
         confirmationId,
         revision,
       );
 
-      expect(fourth.deleted).toBe(true);
-      expect(session.prompts).toHaveLength(3);
+      expect(fourth.deleted).toBeUndefined();
+      expect(session.prompts).toHaveLength(4);
     } finally {
       await session.close();
     }

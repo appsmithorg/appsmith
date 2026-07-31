@@ -83,7 +83,10 @@ export class MongoRedisGovernanceStore implements McpGovernanceStore {
   constructor(
     private readonly mongo: MongoClient,
     private readonly redis: RedisClientType,
-    databaseName = "appsmith",
+    // Defaults to undefined so mongo.db() honours the database named in the connection URI. Hardcoding
+    // "appsmith" matches the bundled container but silently diverges on an external/Atlas deployment whose URI
+    // names a different database — governance records would land in a stray db outside the operator's backups.
+    databaseName?: string,
   ) {
     this.changes = mongo
       .db(databaseName)
@@ -101,6 +104,11 @@ export class MongoRedisGovernanceStore implements McpGovernanceStore {
       createdAt: -1,
     });
     await this.changes.createIndex({ organizationId: 1, createdAt: -1 });
+    // Point lookup for getChange/getAnyChange. Without it those reads can only use the organizationId prefix
+    // and then filter, scanning the org's entire change history to find one id.
+    await this.changes.createIndex({ organizationId: 1, id: 1 });
+    // Reclaims records whose stamped expiresAt has passed (see DEFAULT_CHANGE_RETENTION_MS in coordinator.ts).
+    // The coordinator MUST stamp expiresAt — Mongo's TTL silently skips documents that lack the field.
     await this.changes.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
   }
 

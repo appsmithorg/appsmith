@@ -150,7 +150,7 @@ jobs:
   mcp-build:
     name: mcp-build
     needs: [file-check]
-    if: success() && needs.file-check.outputs.runId == 0
+    if: success() && needs.file-check.outputs.runId == '0'
     uses: ./.github/workflows/mcp-build.yml
     secrets: inherit
     with:

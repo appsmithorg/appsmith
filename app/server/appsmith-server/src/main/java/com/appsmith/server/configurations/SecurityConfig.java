@@ -50,6 +50,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
+import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
@@ -140,6 +141,52 @@ public class SecurityConfig {
 
     private static final String INTERNAL = "INTERNAL";
 
+    /**
+     * The two halves of the MCP security control, deliberately returned together.
+     *
+     * <p>The authenticator turns an {@code mcp_} bearer into a full user principal; the allowlist is the ONLY thing
+     * capping which endpoints that principal may then reach. Wiring the authenticator without the allowlist silently
+     * turns every issued MCP token into an unrestricted, long-lived API credential for its owner across all of
+     * {@code /api/v1}. They are one control, so they are produced by one factory — a caller cannot obtain one without
+     * the other. This matters most on the CE→EE sync, where {@code SecurityConfig} is a fully diverged file and a
+     * hand-merge could otherwise keep one filter and drop the other with no compile error and no test failure.
+     */
+    record McpSecurityFilters(AuthenticationWebFilter authentication, McpAllowlistWebFilter allowlist) {}
+
+    /**
+     * Builds both MCP security filters. Package-private so {@code SecurityConfigTest} can assert the pairing without
+     * standing up a Spring context, and so an EE chain can wire the identical control with a single call.
+     */
+    McpSecurityFilters buildMcpSecurityFilters(
+            UserMcpTokenService userMcpTokenService,
+            McpTokenAuthenticationConverter mcpTokenAuthenticationConverter,
+            ServerAuthenticationFailureHandler failureHandler) {
+        // Construct the MCP auth manager here rather than injecting a bean: as the only ReactiveAuthenticationManager
+        // bean it would be auto-wired as the global default and break form-login.
+        McpTokenAuthenticationManager mcpTokenAuthenticationManager =
+                new McpTokenAuthenticationManager(userMcpTokenService, rateLimitService);
+        // Construct here (not a @Component) so it is added ONLY to the security chain: a @Component WebFilter is also
+        // auto-registered globally by WebHttpHandlerBuilder, running it a second time outside the chain. Matches the
+        // peer-filter convention (LoginMetricsFilter / LoginRateLimitFilter).
+        McpAllowlistWebFilter mcpAllowlistWebFilter = new McpAllowlistWebFilter();
+        AuthenticationWebFilter mcpTokenAuthenticationWebFilter =
+                new AuthenticationWebFilter(mcpTokenAuthenticationManager);
+        mcpTokenAuthenticationWebFilter.setServerAuthenticationConverter(mcpTokenAuthenticationConverter);
+        mcpTokenAuthenticationWebFilter.setAuthenticationFailureHandler(failureHandler);
+        // Only engage for requests that actually carry an MCP token. Without this, the filter's default "any
+        // exchange" matcher sits at AUTHENTICATION order alongside the form-login filter and breaks the login flow
+        // (No provider found for UsernamePasswordAuthenticationToken -> 500).
+        // The enabled-state is evaluated PER REQUEST (see isMcpAuthenticationRequest), not captured once here, so
+        // disabling APPSMITH_MCP_ENABLED takes effect immediately for already-issued mcp_ tokens without waiting on a
+        // bean/JVM rebuild — a real kill switch, not just a route removal.
+        mcpTokenAuthenticationWebFilter.setRequiresAuthenticationMatcher(
+                exchange -> isMcpAuthenticationRequest(exchange)
+                        ? ServerWebExchangeMatcher.MatchResult.match()
+                        : ServerWebExchangeMatcher.MatchResult.notMatch());
+
+        return new McpSecurityFilters(mcpTokenAuthenticationWebFilter, mcpAllowlistWebFilter);
+    }
+
     private boolean isMcpEnabled() {
         return mcpEnabledFlag == null || !mcpEnabledFlag.trim().matches("(?i)^(false|0|no|off)$");
     }
@@ -220,28 +267,8 @@ public class SecurityConfig {
             McpTokenAuthenticationConverter mcpTokenAuthenticationConverter) {
         ServerAuthenticationEntryPointFailureHandler failureHandler =
                 new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint);
-        // Construct the MCP auth manager here rather than injecting a bean: as the only ReactiveAuthenticationManager
-        // bean it would be auto-wired as the global default and break form-login.
-        McpTokenAuthenticationManager mcpTokenAuthenticationManager =
-                new McpTokenAuthenticationManager(userMcpTokenService, rateLimitService);
-        // Construct here (not a @Component) so it is added ONLY to this security chain: a @Component WebFilter is also
-        // auto-registered globally by WebHttpHandlerBuilder, running it a second time outside the chain. Matches the
-        // peer-filter convention (LoginMetricsFilter / LoginRateLimitFilter).
-        McpAllowlistWebFilter mcpAllowlistWebFilter = new McpAllowlistWebFilter();
-        AuthenticationWebFilter mcpTokenAuthenticationWebFilter =
-                new AuthenticationWebFilter(mcpTokenAuthenticationManager);
-        mcpTokenAuthenticationWebFilter.setServerAuthenticationConverter(mcpTokenAuthenticationConverter);
-        mcpTokenAuthenticationWebFilter.setAuthenticationFailureHandler(failureHandler);
-        // Only engage for requests that actually carry an MCP token. Without this, the filter's default "any
-        // exchange" matcher sits at AUTHENTICATION order alongside the form-login filter and breaks the login flow
-        // (No provider found for UsernamePasswordAuthenticationToken -> 500).
-        // The enabled-state is evaluated PER REQUEST (see isMcpAuthenticationRequest), not captured once here, so
-        // disabling APPSMITH_MCP_ENABLED takes effect immediately for already-issued mcp_ tokens without waiting on a
-        // bean/JVM rebuild — a real kill switch, not just a route removal.
-        mcpTokenAuthenticationWebFilter.setRequiresAuthenticationMatcher(
-                exchange -> isMcpAuthenticationRequest(exchange)
-                        ? ServerWebExchangeMatcher.MatchResult.match()
-                        : ServerWebExchangeMatcher.MatchResult.notMatch());
+        McpSecurityFilters mcpSecurityFilters =
+                buildMcpSecurityFilters(userMcpTokenService, mcpTokenAuthenticationConverter, failureHandler);
 
         csrfConfig.applyTo(http);
 
@@ -249,13 +276,13 @@ public class SecurityConfig {
                 // Add BEFORE the AUTHENTICATION slot (not AT it): placing a second AuthenticationWebFilter at the
                 // same order as form-login breaks its manager wiring (login -> 500). This runs the MCP bearer check
                 // just ahead of form-login and is inert for non-MCP requests (see the matcher above).
-                .addFilterBefore(mcpTokenAuthenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+                .addFilterBefore(mcpSecurityFilters.authentication(), SecurityWebFiltersOrder.AUTHENTICATION)
                 // Confine what an MCP-token-authenticated principal may reach on /api/v1 to the allowlist. Runs
                 // just before authorization, after the MCP auth filter has populated the reactive security context,
                 // so a valid mcp_ token hitting a non-allowlisted path/verb gets 403. Kept as a shared filter (not
                 // an authorizeExchange rule) so EE — whose authorizeExchange chain diverges — wires the identical
                 // control.
-                .addFilterBefore(mcpAllowlistWebFilter, SecurityWebFiltersOrder.AUTHORIZATION)
+                .addFilterBefore(mcpSecurityFilters.allowlist(), SecurityWebFiltersOrder.AUTHORIZATION)
                 // Default security headers configuration from
                 // https://docs.spring.io/spring-security/site/docs/5.0.x/reference/html/headers.html
                 .headers(headerSpec -> headerSpec

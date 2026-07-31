@@ -4,6 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserMcpToken;
 import com.appsmith.server.dtos.McpTokenResponseDTO;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserMcpTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +31,7 @@ import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -122,7 +124,10 @@ class UserMcpTokenServiceImplTest {
         when(userMcpTokenRepository.countByUserIdAndDeletedAtIsNull(user.getId()))
                 .thenReturn(Mono.just(10L));
 
-        StepVerifier.create(service.create(user, null)).expectError().verify();
+        StepVerifier.create(service.create(user, null))
+                .expectErrorSatisfies(error ->
+                        assertThat(error).isInstanceOf(AppsmithException.class).hasMessageContaining("maximum of"))
+                .verify();
     }
 
     @Test
@@ -204,6 +209,73 @@ class UserMcpTokenServiceImplTest {
         StepVerifier.create(service.authenticate(generated.token())).verifyComplete();
     }
 
+    /**
+     * Covers the {@code .filter(user -> Boolean.TRUE.equals(user.getIsEnabled()))} guard, which was previously
+     * unexercised: every other test leaves isEnabled true from setUp, so deleting that line kept the whole suite
+     * green. Without it a deactivated user's outstanding MCP tokens keep authenticating for their full 90-day
+     * lifetime — a deprovisioned employee retaining API access.
+     */
+    @Test
+    void authenticate_rejectsTokenOfDisabledUser() {
+        McpTokenResponseDTO generated = createToken();
+        user.setIsEnabled(false);
+        when(userMcpTokenRepository.findByTokenIdAndDeletedAtIsNull(persistedToken.getTokenId()))
+                .thenReturn(Mono.just(persistedToken));
+        when(userRepository.findById(user.getId())).thenReturn(Mono.just(user));
+
+        StepVerifier.create(service.authenticate(generated.token())).verifyComplete();
+    }
+
+    /**
+     * Revocation must bite immediately. There is no token cache — authenticate() hits Mongo per request — so an
+     * archived token disappears from findByTokenIdAndDeletedAtIsNull and can never authenticate again.
+     */
+    @Test
+    void authenticate_rejectsRevokedToken() {
+        McpTokenResponseDTO generated = createToken();
+        // Archived: the deletedAt-filtered finder no longer returns it.
+        when(userMcpTokenRepository.findByTokenIdAndDeletedAtIsNull(persistedToken.getTokenId()))
+                .thenReturn(Mono.empty());
+
+        StepVerifier.create(service.authenticate(generated.token())).verifyComplete();
+        verify(userRepository, never()).findById(anyString());
+    }
+
+    /**
+     * Rotation's whole purpose is to kill the previous secret. The old token must stop authenticating the instant
+     * the record carries the new hash, and the replacement must work — the property a leaked-token response
+     * depends on.
+     */
+    @Test
+    void rotate_invalidatesPreviousSecret() {
+        McpTokenResponseDTO original = createToken();
+        String originalToken = original.token();
+
+        when(userMcpTokenRepository.findByTokenIdAndUserIdAndDeletedAtIsNull(persistedToken.getTokenId(), user.getId()))
+                .thenReturn(Mono.just(persistedToken));
+        when(userMcpTokenRepository.save(any(UserMcpToken.class))).thenAnswer(invocation -> {
+            persistedToken = invocation.getArgument(0);
+            return Mono.just(persistedToken);
+        });
+
+        McpTokenResponseDTO rotated =
+                service.rotate(user, persistedToken.getTokenId()).block();
+
+        assertThat(rotated).isNotNull();
+        assertThat(rotated.token()).isNotEqualTo(originalToken);
+
+        when(userMcpTokenRepository.findByTokenIdAndDeletedAtIsNull(persistedToken.getTokenId()))
+                .thenReturn(Mono.just(persistedToken));
+        when(userRepository.findById(user.getId())).thenReturn(Mono.just(user));
+
+        // The pre-rotation secret is dead...
+        StepVerifier.create(service.authenticate(originalToken)).verifyComplete();
+        // ...and only the replacement authenticates.
+        StepVerifier.create(service.authenticate(rotated.token()))
+                .expectNext(user)
+                .verifyComplete();
+    }
+
     @Test
     void revoke_onlyArchivesTokenOwnedByCurrentUser() {
         UserMcpToken storedToken = new UserMcpToken();
@@ -219,10 +291,6 @@ class UserMcpTokenServiceImplTest {
         verify(userMcpTokenRepository).findByTokenIdAndUserIdAndDeletedAtIsNull(eq("token-id"), eq(user.getId()));
         verify(userMcpTokenRepository).archiveById("mongo-id");
     }
-
-    // Rotation is covered end to end by McpTokenControllerCETest (session-auth delegates + returns the rotated
-    // token; MCP-auth is rejected). A service-level unit test of rotate/authenticate is intentionally omitted here:
-    // it over-specifies Mockito interactions across two flows and is redundant with the controller coverage.
 
     @Test
     void create_storesAndReturnsProvidedName() {
@@ -261,7 +329,10 @@ class UserMcpTokenServiceImplTest {
         // Name validation rejects before the token-count check, so no repository stub is needed here.
         String tooLong = "x".repeat(51);
 
-        StepVerifier.create(service.create(user, tooLong)).expectError().verify();
+        StepVerifier.create(service.create(user, tooLong))
+                .expectErrorSatisfies(error ->
+                        assertThat(error).isInstanceOf(AppsmithException.class).hasMessageContaining("at most"))
+                .verify();
     }
 
     @Test

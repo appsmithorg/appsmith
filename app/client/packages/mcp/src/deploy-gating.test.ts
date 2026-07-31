@@ -106,6 +106,26 @@ describe("supervisord, run script, and healthcheck keep MCP default-on and toggl
     );
   });
 
+  it("MCP can only fail container health when the operator explicitly enabled it", () => {
+    const healthcheck = readDeployFile(
+      "deploy/docker/fs/opt/appsmith/healthcheck.sh",
+    );
+
+    // MCP is default-ON, so an instance that merely upgraded into it never opted in. An MCP-only fault there
+    // must not mark the whole container unhealthy and have an orchestrator restart a working Appsmith.
+    // mcp_required is set ONLY from an explicitly truthy gate value — never from the default.
+    expect(healthcheck).toMatch(
+      /mcp_required=true[\s\S]*?else[\s\S]*?mcp_required=false/,
+    );
+    // Both fatal paths (the not-RUNNING branch and the /health probe) are guarded by it.
+    expect(healthcheck).toMatch(
+      /"\$process"\s*==\s*"mcp"\s*&&\s*"\$mcp_required"\s*!=\s*"true"/,
+    );
+    expect(healthcheck).toMatch(
+      /"\$mcp_required"\s*==\s*"true"[\s\S]*?healthy=false/,
+    );
+  });
+
   it("the admin restart command includes the mcp program so toggles apply", () => {
     const envManager = readDeployFile(
       "app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/ce/EnvManagerCEImpl.java",
