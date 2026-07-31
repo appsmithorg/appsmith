@@ -217,8 +217,34 @@ describe("CardWidget one-click binding (Connect data)", () => {
 
     expect(modify).toEqual({
       cardData: "{{Query1.data?.[0]}}",
-      title: "{{Query1.data?.[0]?.full_name}}",
-      subtitle: "{{Query1.data?.[0]?.email}}",
+      title: '{{Query1.data?.[0]?.["full_name"]}}',
+      subtitle: '{{Query1.data?.[0]?.["email"]}}',
+    });
+  });
+
+  it("escapes column names that dot notation cannot express", () => {
+    const { modify } = bind([
+      { name: "title", alias: "First Name" },
+      { name: "subtitle", alias: "e-mail" },
+    ]);
+
+    expect(modify).toEqual({
+      cardData: "{{Query1.data?.[0]}}",
+      title: '{{Query1.data?.[0]?.["First Name"]}}',
+      subtitle: '{{Query1.data?.[0]?.["e-mail"]}}',
+    });
+  });
+
+  // A name containing the closing delimiter cannot be bound safely at all.
+  it("skips a column whose name would break out of the binding", () => {
+    const { modify } = bind([
+      { name: "title", alias: "bad}}name" },
+      { name: "subtitle", alias: "email" },
+    ]);
+
+    expect(modify).toEqual({
+      cardData: "{{Query1.data?.[0]}}",
+      subtitle: '{{Query1.data?.[0]?.["email"]}}',
     });
   });
 
@@ -227,7 +253,7 @@ describe("CardWidget one-click binding (Connect data)", () => {
 
     expect(modify).toEqual({
       cardData: "{{Query1.data?.[0]}}",
-      title: "{{Query1.data?.[0]?.full_name}}",
+      title: '{{Query1.data?.[0]?.["full_name"]}}',
     });
   });
 

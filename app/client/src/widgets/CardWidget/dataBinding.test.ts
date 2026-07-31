@@ -3,6 +3,7 @@ import {
   buildGuessedSubtitleBinding,
   buildGuessedTitleBinding,
   getRecordExpression,
+  isBindableColumnName,
 } from "./dataBinding";
 
 describe("getRecordExpression", () => {
@@ -38,10 +39,32 @@ describe("generated bindings", () => {
 
   it("binds a known column exactly", () => {
     expect(buildFieldBinding(record, "email")).toBe(
-      "{{Query1.data?.[0]?.email}}",
+      '{{Query1.data?.[0]?.["email"]}}',
     );
   });
 
+  // Column names come from the datasource. Google Sheets headers routinely
+  // contain spaces, and quoted SQL identifiers can too — dot notation cannot
+  // express those, so the binding must use escaped bracket notation.
+  it.each([
+    ["a space", "First Name", '{{Query1.data?.[0]?.["First Name"]}}'],
+    ["a hyphen", "first-name", '{{Query1.data?.[0]?.["first-name"]}}'],
+    ["a dot", "user.name", '{{Query1.data?.[0]?.["user.name"]}}'],
+    ["a quote", 'say"hi', '{{Query1.data?.[0]?.["say\\"hi"]}}'],
+    ["a backslash", "back\\slash", '{{Query1.data?.[0]?.["back\\\\slash"]}}'],
+    ["a leading digit", "1st", '{{Query1.data?.[0]?.["1st"]}}'],
+  ])("escapes a column name containing %s", (_label, column, expected) => {
+    expect(buildFieldBinding(record, column)).toBe(expected);
+  });
+
+  it("evaluates a column name containing a space", () => {
+    const binding = buildFieldBinding(record, "First Name");
+    const data = [{ "First Name": "Ada" }];
+
+    expect(
+      new Function("Query1", `return (${binding.slice(2, -2)});`)({ data }),
+    ).toBe("Ada");
+  });
   it("optional-chains every access", () => {
     // Binding happens before the query runs, so `data` is undefined then.
     for (const binding of [
@@ -103,5 +126,26 @@ describe("generated bindings", () => {
 
       expect(evaluate(buildGuessedTitleBinding(record), data)).toBe("Oslo");
     });
+  });
+});
+
+describe("isBindableColumnName", () => {
+  it.each(["name", "First Name", "first-name", 'say"hi', "1st"])(
+    "accepts %p",
+    (column) => {
+      expect(isBindableColumnName(column)).toBe(true);
+    },
+  );
+
+  // No amount of quoting survives the closing delimiter: it terminates the
+  // {{ }} expression early and leaves a broken binding behind.
+  it.each([
+    ["the closing delimiter", "a}}b"],
+    ["a trailing delimiter", "name}}"],
+    ["an empty string", ""],
+    ["a non-string", 42],
+    ["undefined", undefined],
+  ])("rejects %s", (_label, column) => {
+    expect(isBindableColumnName(column)).toBe(false);
   });
 });

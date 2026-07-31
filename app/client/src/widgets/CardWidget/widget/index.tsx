@@ -62,6 +62,7 @@ import {
   buildGuessedSubtitleBinding,
   buildGuessedTitleBinding,
   getRecordExpression,
+  isBindableColumnName,
 } from "../dataBinding";
 import CardComponent from "../component";
 import type {
@@ -179,8 +180,14 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
 
         if (!record) return {};
 
-        const columnFor = (alias: string) =>
-          formConfig.aliases?.find((entry) => entry.name === alias)?.alias;
+        const columnFor = (alias: string) => {
+          const column = formConfig.aliases?.find(
+            (entry) => entry.name === alias,
+          )?.alias;
+
+          // Skip rather than emit a binding that cannot parse.
+          return isBindableColumnName(column) ? column : undefined;
+        };
 
         const titleColumn = columnFor("title");
         const subtitleColumn = columnFor("subtitle");

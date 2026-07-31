@@ -27,9 +27,27 @@ export function getRecordExpression(binding: unknown): string | null {
   return inner ? `${inner}?.[0]` : null;
 }
 
-/** Binds a known column off the record, e.g. `{{Query1.data?.[0]?.name}}`. */
+/**
+ * True when a column name can be safely embedded in a binding. A name
+ * containing the closing delimiter would terminate the `{{ }}` expression
+ * early no matter how it is quoted, producing a broken binding.
+ */
+export function isBindableColumnName(column: unknown): column is string {
+  return (
+    typeof column === "string" && column.length > 0 && !column.includes("}}")
+  );
+}
+
+/**
+ * Binds a known column off the record, e.g. `{{Query1.data?.[0]?.["name"]}}`.
+ *
+ * Bracket notation rather than dot: column names come from the datasource and
+ * routinely contain spaces or hyphens — Google Sheets headers ("First Name")
+ * especially, and quoted SQL identifiers too — which dot notation cannot
+ * express. JSON.stringify quotes and escapes the name correctly.
+ */
 export function buildFieldBinding(record: string, column: string): string {
-  return `{{${record}?.${column}}}`;
+  return `{{${record}?.[${JSON.stringify(column)}]}}`;
 }
 
 /**
