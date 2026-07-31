@@ -12,20 +12,25 @@ FROM caddy:builder-alpine AS caddybuilder
 # coordinated Go security disclosure. None are reachable in Caddy's HTTP
 # path (the x/crypto CVEs are all in the SSH subsystem), but scanners
 # flag the embedded library version regardless.
+#
+# Note: a --replace only binds for a module Caddy actually requires. x/text is
+# reached indirectly, so replacing it is a no-op — a pin here silently does
+# nothing. It currently resolves to 0.38.0 via x/net; 0.39.0 would need an
+# explicit require, which xcaddy does not expose.
 RUN XCADDY_SETCAP=0 xcaddy build \
   --with github.com/mholt/caddy-ratelimit \
   --replace golang.org/x/crypto=golang.org/x/crypto@v0.52.0 \
-  --replace golang.org/x/net=golang.org/x/net@v0.55.0
+  --replace golang.org/x/net=golang.org/x/net@v0.56.0
 
 # Build MongoDB database tools from source with pinned x/crypto and x/net
 # Apt-installed mongodb-database-tools ships x/crypto@0.45.0 with no upstream fix available.
-FROM golang:1.26.4-alpine AS mongotoolsbuilder
+FROM golang:1.26.5-alpine AS mongotoolsbuilder
 
 RUN apk add --no-cache git make bash
 WORKDIR /tmp/mongo-tools
 RUN git clone --depth 1 --branch 100.17.0 https://github.com/mongodb/mongo-tools.git .
 RUN go mod edit -require=golang.org/x/crypto@v0.52.0 \
-               -require=golang.org/x/net@v0.55.0 && \
+               -require=golang.org/x/net@v0.56.0 && \
     go mod tidy && \
     go mod vendor
 ENV GOROOT=/usr/local/go
@@ -67,6 +72,12 @@ RUN set -o xtrace \
     mongodb-org-server mongodb-org-mongos mongodb-mongosh \
     postgresql-14 \
     git tar zstd openssh-client \
+  # software-properties-common is only needed for the add-apt-repository call above, but it
+  # pulls in python3-launchpadlib, which drags python3-cryptography, python3-jwt and
+  # python3-httplib2 into the runtime image and accounts for 12 scanner findings. Purge it
+  # once the PPA is registered — the sources.list entry and its signing key persist
+  # independently of the tool that wrote them.
+  && DEBIAN_FRONTEND=noninteractive apt-get purge --yes --auto-remove software-properties-common \
   && apt-get clean \
   && rm -rf \
     /root/.cache \
