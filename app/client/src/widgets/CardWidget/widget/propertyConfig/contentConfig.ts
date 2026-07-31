@@ -14,9 +14,29 @@ export default [
       {
         propertyName: "cardData",
         helpText:
-          "Convenience binding target for the entity displayed by this card, e.g. {{userQuery.data[0]}}",
+          "Sets the entity displayed by this card. Connect a datasource, or bind one record, e.g. {{userQuery.data[0]}}",
         label: "Card data",
-        controlType: "INPUT_TEXT",
+        // Opts the Card into the one-click "Connect data" flow. The aliases are
+        // the fields the user maps to actual columns; getPropertyUpdatesForQuery
+        // Binding turns them into title/subtitle bindings.
+        controlType: "ONE_CLICK_BINDING_CONTROL",
+        controlConfig: {
+          aliases: [
+            {
+              name: "title",
+              isSearcheable: true,
+              isRequired: true,
+            },
+            {
+              name: "subtitle",
+            },
+          ],
+          sampleData: JSON.stringify(
+            { name: "John Doe", email: "john.doe@example.com" },
+            null,
+            2,
+          ),
+        },
         placeholderText: '{{Query1.data[0]}} or { "name": "John" }',
         inputType: "OBJECT",
         isBindProperty: true,

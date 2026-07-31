@@ -54,3 +54,4 @@ TASKS.md
 # writes snapshots/console logs here, and screenshots land in the repo root).
 .playwright-mcp/
 card-widget-height-verified.png
+card-bind-flow-dp.png

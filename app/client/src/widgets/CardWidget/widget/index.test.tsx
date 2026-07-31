@@ -190,6 +190,62 @@ describe("CardWidget sniping mode (Connect to widget)", () => {
   });
 });
 
+describe("CardWidget one-click binding (Connect data)", () => {
+  const bind = (
+    aliases: { name: string; alias: string }[],
+    data = "{{Query1.data}}",
+  ) =>
+    CardWidget.getMethods().getPropertyUpdatesForQueryBinding(
+      { select: { data, run: "{{Query1.run()}}" } },
+      makeProps(),
+      { aliases } as never,
+    );
+
+  it("requests a plain select — the card indexes the first row itself", () => {
+    expect(CardWidget.getMethods().getQueryGenerationConfig()).toEqual({
+      select: {},
+    });
+  });
+
+  // Unlike sniping mode, this flow knows the real column names, so it binds
+  // the exact fields rather than resolving them at runtime.
+  it("binds the mapped columns exactly", () => {
+    const { modify } = bind([
+      { name: "title", alias: "full_name" },
+      { name: "subtitle", alias: "email" },
+    ]);
+
+    expect(modify).toEqual({
+      cardData: "{{Query1.data?.[0]}}",
+      title: "{{Query1.data?.[0]?.full_name}}",
+      subtitle: "{{Query1.data?.[0]?.email}}",
+    });
+  });
+
+  it("omits subtitle when the user did not map one", () => {
+    const { modify } = bind([{ name: "title", alias: "full_name" }]);
+
+    expect(modify).toEqual({
+      cardData: "{{Query1.data?.[0]}}",
+      title: "{{Query1.data?.[0]?.full_name}}",
+    });
+  });
+
+  it("still binds cardData when no aliases are mapped", () => {
+    expect(bind([]).modify).toEqual({ cardData: "{{Query1.data?.[0]}}" });
+  });
+
+  it("returns nothing for a non-select query config", () => {
+    expect(
+      CardWidget.getMethods().getPropertyUpdatesForQueryBinding(
+        {},
+        makeProps(),
+        { aliases: [] } as never,
+      ),
+    ).toEqual({});
+  });
+});
+
 describe("CardWidget overflow menu visibility", () => {
   const withMenu = (overrides: Partial<CardWidgetProps> = {}) =>
     makeWidget(

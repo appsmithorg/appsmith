@@ -30,6 +30,10 @@ import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import { klonaFullWithTelemetry } from "utils/helpers";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import type {
   AnvilConfig,
@@ -53,6 +57,12 @@ import {
   getCardChromeHeightInPx,
   getCardChromeHeightInRows,
 } from "../chromeHeight";
+import {
+  buildFieldBinding,
+  buildGuessedSubtitleBinding,
+  buildGuessedTitleBinding,
+  getRecordExpression,
+} from "../dataBinding";
 import CardComponent from "../component";
 import type {
   CardFooterAction,
@@ -120,9 +130,9 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
         propValueMap: SnipingModeProperty,
       ): PropertyUpdates[] => {
         const binding = propValueMap.data;
-        const trimmed = typeof binding === "string" ? binding.trim() : "";
+        const record = getRecordExpression(binding);
 
-        if (!trimmed.startsWith("{{") || !trimmed.endsWith("}}")) {
+        if (!record) {
           return [
             {
               propertyPath: "cardData",
@@ -132,15 +142,6 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
           ];
         }
 
-        // A card shows one entity, so index into the bound collection.
-        //
-        // Every access is optional-chained on purpose. Binding happens BEFORE
-        // the query has run, so `data` is undefined at that moment; it can also
-        // come back as an empty array or a bare object. Without `?.` the
-        // seeded bindings throw and the card shows an error the instant it is
-        // bound — worse than the empty card this is meant to fix.
-        const record = `${trimmed.slice(2, -2).trim()}?.[0]`;
-
         return [
           {
             propertyPath: "cardData",
@@ -148,18 +149,53 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
             isDynamicPropertyPath: true,
           },
           {
-            // Falls back to the first string field so that binding any shape of
-            // record still shows something, rather than an empty card.
             propertyPath: "title",
-            propertyValue:
-              `{{${record}?.title ?? ${record}?.name ?? ` +
-              `Object.values(${record} ?? {}).find((value) => typeof value === "string") ?? ""}}`,
+            propertyValue: buildGuessedTitleBinding(record),
           },
           {
             propertyPath: "subtitle",
-            propertyValue: `{{${record}?.subtitle ?? ${record}?.description ?? ""}}`,
+            propertyValue: buildGuessedSubtitleBinding(record),
           },
         ];
+      },
+      /**
+       * One-click binding ("Connect data"). A Card displays a single entity, so
+       * a plain SELECT is enough — the widget indexes the first row itself.
+       */
+      getQueryGenerationConfig: () => ({ select: {} }),
+      /**
+       * Unlike sniping mode, this flow knows the real column names the user
+       * mapped to title/subtitle, so bind those fields exactly instead of
+       * resolving them at runtime.
+       */
+      getPropertyUpdatesForQueryBinding: (
+        queryConfig: WidgetQueryConfig,
+        widget: WidgetProps,
+        formConfig: WidgetQueryGenerationFormConfig,
+      ) => {
+        if (!queryConfig.select) return {};
+
+        const record = getRecordExpression(queryConfig.select.data);
+
+        if (!record) return {};
+
+        const columnFor = (alias: string) =>
+          formConfig.aliases?.find((entry) => entry.name === alias)?.alias;
+
+        const titleColumn = columnFor("title");
+        const subtitleColumn = columnFor("subtitle");
+
+        return {
+          modify: {
+            cardData: `{{${record}}}`,
+            ...(titleColumn
+              ? { title: buildFieldBinding(record, titleColumn) }
+              : {}),
+            ...(subtitleColumn
+              ? { subtitle: buildFieldBinding(record, subtitleColumn) }
+              : {}),
+          },
+        };
       },
       /**
        * Chrome reserved for this widget, in grid rows. Shares
