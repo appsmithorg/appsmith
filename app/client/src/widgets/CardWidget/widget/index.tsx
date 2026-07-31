@@ -150,6 +150,7 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
       mediaHeight: DEFAULT_MEDIA_HEIGHT,
       mediaObjectFit: MediaObjectFitTypes.COVER,
       showHeader: true,
+      showMenu: true,
       title: "Card title",
       subtitle: "Card subtitle",
       menuItems: {
@@ -470,6 +471,11 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
   }
 
   getVisibleMenuItems = (): CardMenuItem[] => {
+    // Turning the menu off removes it wholesale. The shared MENU_ITEMS control
+    // will not delete the last remaining item, so without this the only way to
+    // get rid of the ⋮ menu was to hide every item one by one.
+    if (this.props.showMenu === false) return [];
+
     const menuItems = Object.values(this.props.menuItems || {}).filter(
       (item) => item.isVisible === true,
     );

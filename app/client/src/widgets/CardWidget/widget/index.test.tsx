@@ -127,6 +127,63 @@ describe("CardWidget expand/collapse reflow", () => {
   });
 });
 
+describe("CardWidget overflow menu visibility", () => {
+  const withMenu = (overrides: Partial<CardWidgetProps> = {}) =>
+    makeWidget(
+      makeProps({
+        menuItems: {
+          menuItem1: {
+            id: "menuItem1",
+            index: 0,
+            widgetId: "",
+            isVisible: true,
+            label: "First",
+          },
+          menuItem2: {
+            id: "menuItem2",
+            index: 1,
+            widgetId: "",
+            isVisible: true,
+            label: "Second",
+          },
+        },
+        ...overrides,
+      } as Partial<CardWidgetProps>),
+    );
+
+  it("shows visible menu items by default", () => {
+    expect(withMenu().getVisibleMenuItems()).toHaveLength(2);
+  });
+
+  it("filters out items that are not explicitly visible", () => {
+    const widget = withMenu({
+      menuItems: {
+        menuItem1: {
+          id: "menuItem1",
+          index: 0,
+          widgetId: "",
+          isVisible: false,
+          label: "First",
+        },
+      },
+    } as Partial<CardWidgetProps>);
+
+    expect(widget.getVisibleMenuItems()).toHaveLength(0);
+  });
+
+  // The shared MENU_ITEMS control will not delete the last remaining item, so
+  // "Show menu" is the supported way to remove the ⋮ menu entirely.
+  it("hides the whole menu when showMenu is off, regardless of item visibility", () => {
+    expect(withMenu({ showMenu: false }).getVisibleMenuItems()).toHaveLength(0);
+  });
+
+  it("treats an absent showMenu as on, so existing cards are unchanged", () => {
+    expect(
+      withMenu({ showMenu: undefined }).getVisibleMenuItems(),
+    ).toHaveLength(2);
+  });
+});
+
 describe("CardWidget disabled state", () => {
   let executeAction: jest.SpyInstance;
 

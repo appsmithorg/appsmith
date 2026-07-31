@@ -235,14 +235,30 @@ export default [
         validation: { type: ValidationTypes.TEXT },
       },
       {
+        propertyName: "showMenu",
+        helpText:
+          "Controls the visibility of the overflow (⋮) menu in the card header",
+        label: "Show menu",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        hidden: (props: CardWidgetProps) => !props.showHeader,
+        dependencies: ["showHeader"],
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
         helpText: "Menu items of the overflow (⋮) menu",
         propertyName: "menuItems",
         controlType: "MENU_ITEMS",
         label: "Menu items",
         isBindProperty: false,
         isTriggerProperty: false,
-        hidden: (props: CardWidgetProps) => !props.showHeader,
-        dependencies: ["showHeader"],
+        // The shared MENU_ITEMS control refuses to delete the last remaining
+        // item, so "Show menu" is the supported way to remove the menu entirely.
+        hidden: (props: CardWidgetProps) =>
+          !props.showHeader || props.showMenu === false,
+        dependencies: ["showHeader", "showMenu"],
         panelConfig: menuItemsConfig,
       },
     ],

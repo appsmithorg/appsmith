@@ -73,6 +73,7 @@ export interface CardWidgetProps extends WidgetProps {
   subtitle?: string;
   badgeText?: string;
   badgeColor?: string;
+  showMenu?: boolean;
   menuItems: Record<string, CardMenuItem>;
 
   // Footer zone
