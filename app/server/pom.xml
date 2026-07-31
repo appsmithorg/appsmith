@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.14</version>
+        <version>3.5.16</version>
         <relativePath/>
         <!-- lookup parent from repository -->
     </parent>
@@ -26,20 +26,27 @@
     </modules>
 
     <properties>
+        <!-- Pinned above the Spring Boot BOM default (3.17.0) for CVE-2025-48924. appsmith-interfaces
+             already asks for 3.18.0 directly, but the BOM-managed version is what lands in server.jar. -->
+        <commons-lang3.version>3.18.0</commons-lang3.version>
         <deploy.disabled>true</deploy.disabled>
-        <!-- Pinned to 2.18.8 for CVE-2026-54512 / CVE-2026-54513 -->
-        <jackson-bom.version>2.18.8</jackson-bom.version>
-        <jackson.version>2.18.8</jackson.version>
+        <!-- Held on the 2.18.x line for CVE-2026-54512 / CVE-2026-54513; 2.18.9 adds
+             CVE-2026-59889 / CVE-2026-54515 / GHSA-mhm7-754m-9p8w -->
+        <jackson-bom.version>2.18.9</jackson-bom.version>
+        <jackson.version>2.18.9</jackson.version>
         <java.version>25</java.version>
         <javadoc.disabled>true</javadoc.disabled>
+        <!-- Pinned above the Spring Boot BOM default (1.5.34) for CVE-2026-10532 / CVE-2026-9828 -->
+        <logback.version>1.5.35</logback.version>
         <!-- Pin Lombok to 1.18.42 to avoid breaking @FieldNameConstants inner class constructor change in 1.18.44 -->
         <lombok.version>1.18.42</lombok.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <mockito.version>4.4.0</mockito.version>
         <mockwebserver.version>5.0.0-alpha.2</mockwebserver.version>
-        <!-- Pinned above the Spring Boot BOM default for CVE-2026-42583/42579/42584/42587/33870/33871/44249/45416/50010/45674/47691 -->
-        <netty.version>4.1.135.Final</netty.version>
+        <!-- Pinned above the Spring Boot BOM default for CVE-2026-42583/42579/42584/42587/33870/33871/44249/45416/50010/45674/47691
+             and CVE-2026-55831/55833/55851/56745/56746/59898/59899/59900/59901/59919/59921 -->
+        <netty.version>4.1.136.Final</netty.version>
         <okhttp3.version>4.12.0</okhttp3.version>
         <org.pf4j.version>3.15.0</org.pf4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -72,6 +79,12 @@
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-utils</artifactId>
                 <version>3.6.1</version>
+            </dependency>
+            <dependency>
+                <!-- CVE-2020-13956: awssdk apache-client 2.15.3 pulls 4.5.9 into the AWS plugin jars -->
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.14</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
