@@ -22,8 +22,12 @@ data:
 
   {{- range $key, $value := .Values.applicationConfig }}
   {{- if and (eq "APPSMITH_KEYCLOAK_DB_DRIVER" $key) ( not $value) }}
-  {{- /* A user-supplied Keycloak DB URL implies PostgreSQL even when the bundled subchart is disabled (external database). */}}
-  {{ $key }}: {{ or $.Values.postgresql.enabled (not (empty $.Values.applicationConfig.APPSMITH_KEYCLOAK_DB_URL)) | ternary "postgresql" "h2" | quote }}
+  {{- /* A user-supplied Keycloak DB URL implies PostgreSQL even when the bundled subchart is disabled (external database).
+        With no PostgreSQL signal at all, omit the key entirely so the container entrypoint can infer the driver at
+        runtime — the URL may arrive through a Secret (secretName/secrets/externalSecrets) this template cannot see. */}}
+  {{- if or $.Values.postgresql.enabled (not (empty $.Values.applicationConfig.APPSMITH_KEYCLOAK_DB_URL)) }}
+  {{ $key }}: "postgresql"
+  {{- end }}
   {{- end }}
 
   {{- if and (eq "APPSMITH_KEYCLOAK_DB_URL" $key) ( not $value) }}

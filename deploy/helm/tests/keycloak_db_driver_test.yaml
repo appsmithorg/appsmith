@@ -1,9 +1,10 @@
 # Tests for the APPSMITH_KEYCLOAK_DB_DRIVER default in configMap.yaml.
 #
 # The driver defaults to "postgresql" when the bundled subchart is enabled OR
-# when the user supplies an external APPSMITH_KEYCLOAK_DB_URL; it falls back to
-# "h2" only when there is no PostgreSQL at all. An explicitly set driver is
-# always honored.
+# when the user supplies an external APPSMITH_KEYCLOAK_DB_URL. With no
+# PostgreSQL signal at all the key is omitted so the container entrypoint can
+# infer the driver at runtime (the URL may arrive through a Secret this
+# template cannot see). An explicitly set driver is always honored.
 
 suite: Keycloak DB driver default
 templates:
@@ -26,14 +27,13 @@ tests:
           path: data.APPSMITH_KEYCLOAK_DB_DRIVER
           value: postgresql
 
-  - name: no URL and subchart disabled falls back to h2
+  - name: no URL and subchart disabled omits the key (runtime decides)
     set:
       postgresql:
         enabled: false
     asserts:
-      - equal:
+      - notExists:
           path: data.APPSMITH_KEYCLOAK_DB_DRIVER
-          value: h2
 
   - name: explicitly set driver is honored unchanged
     set:
