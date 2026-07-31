@@ -150,6 +150,27 @@ class McpAllowlistWebFilterTest {
     }
 
     @Test
+    void mcpPrincipal_reservedSegmentWithMatrixParameters_isDenied() {
+        // Matrix parameters are the bypass: Spring's PathContainer splits ";..." off a segment, so PathPattern
+        // matches "move;bypass=true" as {actionId} -> "move" and the router dispatches to the /move handler —
+        // while a naive string scan of the raw path sees "move;bypass=true", fails to recognize the reserved
+        // literal, and waves the request through.
+        assertForbidden(
+                MockServerWebExchange.from(MockServerHttpRequest.put("/api/v1/actions/move;bypass=true")
+                        .build()),
+                mcpPrincipal());
+        assertForbidden(
+                MockServerWebExchange.from(MockServerHttpRequest.put("/api/v1/actions/refactor;a=1;b=2")
+                        .build()),
+                mcpPrincipal());
+        // Combined with the casing evasion, since the two are independent knobs.
+        assertForbidden(
+                MockServerWebExchange.from(
+                        MockServerHttpRequest.put("/api/v1/actions/MoVe;x=1").build()),
+                mcpPrincipal());
+    }
+
+    @Test
     void mcpPrincipal_percentEncodedNonAllowlistedPath_isDenied() {
         // Encoding must not smuggle a denied path past the allowlist. The filter and WebFlux routing consume the
         // same decoded RequestPath, so an encoded separator cannot make the two disagree — pinned here so a future

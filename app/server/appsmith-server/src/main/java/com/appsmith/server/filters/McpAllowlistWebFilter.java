@@ -6,6 +6,7 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.PathContainer;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -119,8 +120,8 @@ public class McpAllowlistWebFilter implements WebFilter {
 
     private static boolean isAllowed(ServerHttpRequest request) {
         HttpMethod method = request.getMethod();
-        var path = request.getPath().pathWithinApplication();
-        if (hasReservedFinalSegment(path.value())) {
+        PathContainer path = request.getPath().pathWithinApplication();
+        if (hasReservedFinalSegment(path)) {
             return false;
         }
         for (AllowRule allowRule : ALLOW_RULES) {
@@ -131,15 +132,28 @@ public class McpAllowlistWebFilter implements WebFilter {
         return false;
     }
 
-    private static boolean hasReservedFinalSegment(String path) {
-        String trimmed = path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
-        int lastSlash = trimmed.lastIndexOf('/');
-        if (lastSlash < 0 || lastSlash == trimmed.length() - 1) {
-            return false;
+    /**
+     * Whether the request's last path segment is a reserved sibling route.
+     *
+     * <p>This deliberately reads the PARSED {@link PathContainer} rather than scanning the raw path string, and uses
+     * {@link PathContainer.PathSegment#valueToMatch()} — the very value {@link PathPattern} matches against. Anything
+     * else lets the guard and the matcher disagree, which is exactly the bypass a string scan produced: WebFlux
+     * splits matrix parameters off a segment, so {@code /api/v1/actions/move;bypass=true} matched the
+     * {@code /api/v1/actions/{actionId}} rule as {@code move} and Spring's router dispatched it to the {@code /move}
+     * handler, while a raw-string scan saw {@code move;bypass=true}, failed to recognize the reserved literal, and
+     * allowed the request. Reading the same parsed value makes that class of divergence impossible by construction.
+     */
+    private static boolean hasReservedFinalSegment(PathContainer path) {
+        String lastSegment = null;
+        for (PathContainer.Element element : path.elements()) {
+            if (element instanceof PathContainer.PathSegment pathSegment) {
+                lastSegment = pathSegment.valueToMatch();
+            }
         }
+
         // Case-insensitive: the allowlist must not be evadable by casing, even though WebFlux routing is
         // case-sensitive and a mis-cased literal would 404 rather than reach the sibling handler.
-        return RESERVED_ROUTE_SEGMENTS.contains(trimmed.substring(lastSlash + 1).toLowerCase(Locale.ROOT));
+        return lastSegment != null && RESERVED_ROUTE_SEGMENTS.contains(lastSegment.toLowerCase(Locale.ROOT));
     }
 
     private static Mono<Void> forbidden(ServerWebExchange exchange) {
