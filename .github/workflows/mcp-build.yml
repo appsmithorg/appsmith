@@ -42,7 +42,7 @@ jobs:
     # service containers store.integration.test.ts stays describe.skip and that safety net never runs in CI.
     services:
       mongodb:
-        image: mongo:6.0
+        image: mongo:7.0
         ports:
           - 27017:27017
         options: >-

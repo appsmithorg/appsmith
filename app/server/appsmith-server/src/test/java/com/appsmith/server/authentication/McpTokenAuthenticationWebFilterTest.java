@@ -79,7 +79,6 @@ class McpTokenAuthenticationWebFilterTest {
 
     private WebTestClient authenticationClient(UserMcpTokenService service) {
         RateLimitService rateLimitService = mock(RateLimitService.class);
-        when(rateLimitService.isRateLimitExceeded(anyString(), anyString())).thenReturn(Mono.just(false));
         when(rateLimitService.tryIncreaseCounter(anyString(), anyString())).thenReturn(Mono.just(true));
         AuthenticationWebFilter filter =
                 new AuthenticationWebFilter(new McpTokenAuthenticationManager(service, rateLimitService));

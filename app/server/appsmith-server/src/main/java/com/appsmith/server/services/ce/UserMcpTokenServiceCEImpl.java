@@ -175,7 +175,7 @@ public class UserMcpTokenServiceCEImpl implements UserMcpTokenServiceCE {
         return userMcpTokenRepository
                 .findByTokenIdAndDeletedAtIsNull(tokenId)
                 .filter(storedToken -> matchesStoredHash(token, storedToken.getTokenHash()))
-                .filter(UserMcpTokenServiceCEImpl::isNotExpired)
+                .filter(this::isNotExpired)
                 .flatMap(storedToken -> userRepository.findById(storedToken.getUserId()))
                 .filter(user -> Boolean.TRUE.equals(user.getIsEnabled()));
     }
@@ -210,7 +210,9 @@ public class UserMcpTokenServiceCEImpl implements UserMcpTokenServiceCE {
                 hashToken(token).getBytes(StandardCharsets.UTF_8), storedHash.getBytes(StandardCharsets.UTF_8));
     }
 
-    private static boolean isNotExpired(UserMcpToken storedToken) {
+    // CE extension point: protected (and invoked as this::isNotExpired) so an EE subclass can refine expiry
+    // semantics. Any override MUST stay fail-closed, i.e. it must still reject a token with a null expiry.
+    protected boolean isNotExpired(UserMcpToken storedToken) {
         // Fail closed: a token with no expiry is rejected. Every token minted here carries one, so a missing
         // expiry means a malformed/foreign record that must not authenticate.
         return storedToken.getExpiresAt() != null && storedToken.getExpiresAt().isAfter(Instant.now());
