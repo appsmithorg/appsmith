@@ -83,16 +83,16 @@ export function PageWrapper(props: PageWrapperProps) {
   const organizationConfig = useSelector(getOrganizationConfig);
   const { instanceName } = organizationConfig;
   const isMobile = useIsMobileDevice();
-  // Admin Settings uses isFixed and does not apply its own banner offset (unlike
-  // /applications). Match PageHeader so the fixed shell sits below the banner.
-  // Non-fixed pages that already compensate for license banners are left alone.
+  // Match PageHeader: when the base-url-missing banner is visible, push content
+  // below it for both fixed (Admin Settings) and non-fixed wrappers so consumers
+  // do not need to compensate. License-banner pages (e.g. /applications) still
+  // apply their own license offset separately.
   const showBaseUrlBanner = useSelector(getShouldShowBaseUrlMissingBanner);
-  const bannerOffset =
-    isFixed && showBaseUrlBanner
-      ? isMobile
-        ? MOBILE_BANNER_OFFSET
-        : DESKTOP_BANNER_OFFSET
-      : 0;
+  const bannerOffset = showBaseUrlBanner
+    ? isMobile
+      ? MOBILE_BANNER_OFFSET
+      : DESKTOP_BANNER_OFFSET
+    : 0;
 
   const titleSuffix = useMemo(
     () => getHTMLPageTitle(isBrandingEnabled, instanceName),
