@@ -22,7 +22,8 @@ data:
 
   {{- range $key, $value := .Values.applicationConfig }}
   {{- if and (eq "APPSMITH_KEYCLOAK_DB_DRIVER" $key) ( not $value) }}
-  {{ $key }}: {{ $.Values.postgresql.enabled | ternary "postgresql" "h2" | quote }}
+  {{- /* A user-supplied Keycloak DB URL implies PostgreSQL even when the bundled subchart is disabled (external database). */}}
+  {{ $key }}: {{ or $.Values.postgresql.enabled (not (empty $.Values.applicationConfig.APPSMITH_KEYCLOAK_DB_URL)) | ternary "postgresql" "h2" | quote }}
   {{- end }}
 
   {{- if and (eq "APPSMITH_KEYCLOAK_DB_URL" $key) ( not $value) }}
