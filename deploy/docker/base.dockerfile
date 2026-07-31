@@ -8,19 +8,19 @@ FROM caddy:builder-alpine AS caddybuilder
 # restricted profile with cap-drop ALL). The image binds low ports via
 # net.ipv4.ip_unprivileged_port_start, so the setcap is unnecessary.
 #
-# --replace pins mitigate x/crypto and x/net CVEs from the May 22, 2026
+# --replace pins mitigate x/crypto, x/net and x/text CVEs from the May 22, 2026
 # coordinated Go security disclosure. None are reachable in Caddy's HTTP
 # path (the x/crypto CVEs are all in the SSH subsystem), but scanners
 # flag the embedded library version regardless.
 #
-# Note: a --replace only binds for a module Caddy actually requires. x/text is
-# reached indirectly, so replacing it is a no-op — a pin here silently does
-# nothing. It currently resolves to 0.38.0 via x/net; 0.39.0 would need an
-# explicit require, which xcaddy does not expose.
+# Verify these with `go version -m /opt/caddy/caddy`, which prints the effective
+# "dep X => Y" pairs. Grepping the binary for module@version strings reports the
+# pre-replace version and will make a working pin look inert.
 RUN XCADDY_SETCAP=0 xcaddy build \
   --with github.com/mholt/caddy-ratelimit \
   --replace golang.org/x/crypto=golang.org/x/crypto@v0.52.0 \
-  --replace golang.org/x/net=golang.org/x/net@v0.56.0
+  --replace golang.org/x/net=golang.org/x/net@v0.56.0 \
+  --replace golang.org/x/text=golang.org/x/text@v0.39.0
 
 # Build MongoDB database tools from source with pinned x/crypto and x/net
 # Apt-installed mongodb-database-tools ships x/crypto@0.45.0 with no upstream fix available.
@@ -30,7 +30,8 @@ RUN apk add --no-cache git make bash
 WORKDIR /tmp/mongo-tools
 RUN git clone --depth 1 --branch 100.17.0 https://github.com/mongodb/mongo-tools.git .
 RUN go mod edit -require=golang.org/x/crypto@v0.52.0 \
-               -require=golang.org/x/net@v0.56.0 && \
+               -require=golang.org/x/net@v0.56.0 \
+               -require=golang.org/x/text@v0.39.0 && \
     go mod tidy && \
     go mod vendor
 ENV GOROOT=/usr/local/go
