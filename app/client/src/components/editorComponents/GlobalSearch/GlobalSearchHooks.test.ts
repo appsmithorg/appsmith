@@ -1,5 +1,6 @@
 import { useFilteredAndSortedFileOperations } from "./GlobalSearchHooks";
 import type { Datasource } from "entities/Datasource";
+import { type Plugin, PluginPackageName } from "entities/Plugin";
 import { SEARCH_ITEM_TYPES } from "./utils";
 
 describe("getFilteredAndSortedFileOperations", () => {
@@ -124,6 +125,53 @@ describe("getFilteredAndSortedFileOperations", () => {
       expect.objectContaining({
         title: "New Other datasource query",
       }),
+    );
+  });
+
+  it("does not offer query creation on deprecated Appsmith AI datasources", () => {
+    const appsmithAiPlugin = {
+      id: "appsmith-ai-plugin-id",
+      packageName: PluginPackageName.APPSMITH_AI,
+    } as Plugin;
+
+    const makeDatasource = (name: string, pluginId: string): Datasource => ({
+      datasourceStorages: {},
+      id: `${name}-id`,
+      pluginId,
+      workspaceId: "",
+      name,
+    });
+
+    const fileOptions = useFilteredAndSortedFileOperations({
+      query: "",
+      allDatasources: [
+        makeDatasource("Appsmith AI datasource", appsmithAiPlugin.id),
+        makeDatasource("Postgres datasource", "postgres-plugin-id"),
+      ],
+      plugins: [appsmithAiPlugin],
+      recentlyUsedDSMap: {},
+      canCreateActions: true,
+      canCreateDatasource: true,
+    });
+
+    const titles = fileOptions.map((option) => option.title);
+
+    expect(titles).toContain("New Postgres datasource query");
+    expect(titles).not.toContain("New Appsmith AI datasource query");
+
+    const aiOnlyFileOptions = useFilteredAndSortedFileOperations({
+      query: "",
+      allDatasources: [
+        makeDatasource("Appsmith AI datasource", appsmithAiPlugin.id),
+      ],
+      plugins: [appsmithAiPlugin],
+      recentlyUsedDSMap: {},
+      canCreateActions: true,
+      canCreateDatasource: true,
+    });
+
+    expect(aiOnlyFileOptions.map((option) => option.title)).not.toContain(
+      "Create a query",
     );
   });
 

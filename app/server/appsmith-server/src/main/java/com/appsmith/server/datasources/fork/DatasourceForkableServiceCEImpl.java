@@ -11,6 +11,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ForkingMetaDTO;
 import com.appsmith.server.fork.forkable.ForkableService;
 import com.appsmith.server.fork.forkable.ForkableServiceCE;
+import com.appsmith.server.solutions.DatasourcePermission;
 import org.springframework.dao.DuplicateKeyException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -26,19 +27,23 @@ public class DatasourceForkableServiceCEImpl implements ForkableServiceCE<Dataso
     private final DatasourceService datasourceService;
     private final DatasourceStorageService datasourceStorageService;
     private final ForkableService<DatasourceStorage> datasourceStorageForkableService;
+    private final DatasourcePermission datasourcePermission;
 
     public DatasourceForkableServiceCEImpl(
             DatasourceService datasourceService,
             DatasourceStorageService datasourceStorageService,
-            ForkableService<DatasourceStorage> datasourceStorageForkableService) {
+            ForkableService<DatasourceStorage> datasourceStorageForkableService,
+            DatasourcePermission datasourcePermission) {
         this.datasourceService = datasourceService;
         this.datasourceStorageService = datasourceStorageService;
         this.datasourceStorageForkableService = datasourceStorageForkableService;
+        this.datasourcePermission = datasourcePermission;
     }
 
     @Override
     public Flux<Datasource> getExistingEntitiesInTarget(String targetWorkspaceId) {
-        return datasourceService.getAllByWorkspaceIdWithStorages(targetWorkspaceId, null);
+        return datasourceService.getAllByWorkspaceIdWithStorages(
+                targetWorkspaceId, datasourcePermission.getReadPermission());
     }
 
     @Override
@@ -157,13 +162,17 @@ public class DatasourceForkableServiceCEImpl implements ForkableServiceCE<Dataso
     private Mono<Datasource> createSuffixedDatasource(Datasource datasource, String name, int suffix) {
         final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
         datasource.setName(actualName);
-        return datasourceService.create(datasource).onErrorResume(DuplicateKeyException.class, error -> {
-            if (error.getMessage() != null
-                    && error.getMessage().contains("workspace_datasource_deleted_compound_index")) {
-                // The duplicate key error is because of the `name` field.
-                return createSuffixedDatasource(datasource, name, 1 + suffix);
-            }
-            throw error;
-        });
+        // Forking must keep working for apps that already contain datasources of deprecated plugins,
+        // so skip the deprecated-plugin creation guard here.
+        return datasourceService
+                .createWithoutDeprecationCheck(datasource)
+                .onErrorResume(DuplicateKeyException.class, error -> {
+                    if (error.getMessage() != null
+                            && error.getMessage().contains("workspace_datasource_deleted_compound_index")) {
+                        // The duplicate key error is because of the `name` field.
+                        return createSuffixedDatasource(datasource, name, 1 + suffix);
+                    }
+                    throw error;
+                });
     }
 }

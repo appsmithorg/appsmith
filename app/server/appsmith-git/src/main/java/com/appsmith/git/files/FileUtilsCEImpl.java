@@ -139,6 +139,11 @@ public class FileUtilsCEImpl implements FileInterface {
                                 return Mono.just(baseRepo);
                             })
                             .onErrorResume(error -> {
+                                log.warn(
+                                        "Failed to update entities in the git repo, falling back to serialization driven by modified resources. repo={}, branch={}",
+                                        baseRepo,
+                                        branchName,
+                                        error);
                                 return Mono.defer(() -> {
                                     return Mono.just(baseRepo).flatMap(baseRepo1 -> {
                                         try {
@@ -197,8 +202,11 @@ public class FileUtilsCEImpl implements FileInterface {
                                             whiteListedPaths,
                                             baseRepo.relativize(path).toString());
                         } catch (IOException e) {
-                            log.error("Unable to find file details. Please check the file at file path: {}", path);
-                            log.error("Assuming that it does not exist for now ...");
+                            log.error(
+                                    "Unable to read file details, assuming it does not exist. path={}, repo={}",
+                                    path,
+                                    baseRepo,
+                                    e);
                             return false;
                         }
                     })
@@ -235,8 +243,7 @@ public class FileUtilsCEImpl implements FileInterface {
                 Files.deleteIfExists(baseRepo.resolve(filePath));
             } catch (IOException e) {
                 // We ignore files that could not be deleted and expect to come back to this at a later point
-                // Just log the path for now
-                log.error("Unable to delete file at path: {}", filePath);
+                log.error("Unable to delete file. path={}, repo={}", filePath, baseRepo, e);
             }
         });
 
@@ -250,11 +257,15 @@ public class FileUtilsCEImpl implements FileInterface {
                         resourceUpdated = fileOperations.hasFileChanged(
                                 entry.getValue(), filePathToObjectsFromFS.get(key.getFilePath()));
                     } catch (IOException e) {
-                        log.error("Error while checking if file has changed", e);
+                        log.error(
+                                "Error while checking if file has changed, treating it as updated. path={}, repo={}",
+                                key.getFilePath(),
+                                baseRepo,
+                                e);
                     }
 
                     if (resourceUpdated) {
-                        log.info("Resource updated: {}", key.getFilePath());
+                        log.debug("Resource updated: {}", key.getFilePath());
                         String filePath = key.getFilePath();
                         saveResourceCommon(entry.getValue(), baseRepo.resolve(filePath));
 
@@ -296,8 +307,7 @@ public class FileUtilsCEImpl implements FileInterface {
                 Files.deleteIfExists(baseRepo.resolve(filePath));
             } catch (IOException e) {
                 // We ignore files that could not be deleted and expect to come back to this at a later point
-                // Just log the path for now
-                log.error("Unable to delete file at path: {}", filePath);
+                log.error("Unable to delete file. path={}, repo={}", filePath, baseRepo, e);
             }
         });
 
@@ -435,8 +445,7 @@ public class FileUtilsCEImpl implements FileInterface {
             Files.createDirectories(path.getParent());
             return fileOperations.writeToFile(sourceEntity, path);
         } catch (IOException e) {
-            log.error("Error while writing resource to file {} with {}", path, e.getMessage());
-            log.debug(e.getMessage());
+            log.error("Error while writing resource to file. path={}", path, e);
         }
         return false;
     }
@@ -454,8 +463,7 @@ public class FileUtilsCEImpl implements FileInterface {
             }
             fileOperations.writeToFile(sourceEntity, path);
         } catch (IOException e) {
-            log.error("Error while writing resource to file {} with {}", path, e.getMessage());
-            log.debug(e.getMessage());
+            log.error("Error while writing resource to file. path={}", path, e);
         }
     }
 
@@ -490,7 +498,7 @@ public class FileUtilsCEImpl implements FileInterface {
             validatePathIsWithinGitRoot(metadataPath);
             return fileOperations.writeToFile(sourceEntity, metadataPath);
         } catch (IOException e) {
-            log.debug(e.getMessage());
+            log.error("Error while writing action collection to file. path={}, resource={}", path, resourceName, e);
         } finally {
             observationHelper.endSpan(span);
         }
@@ -529,7 +537,7 @@ public class FileUtilsCEImpl implements FileInterface {
             validatePathIsWithinGitRoot(metadataPath);
             return fileOperations.writeToFile(sourceEntity, metadataPath);
         } catch (IOException e) {
-            log.error("Error while reading file {} with message {} with cause", path, e.getMessage(), e.getCause());
+            log.error("Error while writing action to file. path={}, resource={}", path, resourceName, e);
         } finally {
             observationHelper.endSpan(span);
         }

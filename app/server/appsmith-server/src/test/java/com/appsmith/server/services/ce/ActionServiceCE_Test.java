@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.PluginConstants;
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
@@ -9,6 +10,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.PaginationType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RunBehaviourEnum;
@@ -1188,6 +1190,117 @@ public class ActionServiceCE_Test {
                 .assertNext(createdAction -> {
                     // executeOnLoad is expected to be set to false in case of default context
                     assertThat(createdAction.getRunBehaviour()).isEqualTo(RunBehaviourEnum.ON_PAGE_LOAD);
+                })
+                .verifyComplete();
+    }
+
+    private Plugin getOrCreateAppsmithAiPlugin() {
+        Plugin aiPlugin = pluginRepository
+                .findByPackageName(PluginConstants.PackageName.APPSMITH_AI_PLUGIN)
+                .block();
+
+        if (aiPlugin == null) {
+            aiPlugin = new Plugin();
+            aiPlugin.setName(PluginConstants.PluginName.APPSMITH_AI_PLUGIN_NAME);
+            aiPlugin.setType(PluginType.AI);
+            aiPlugin.setPackageName(PluginConstants.PackageName.APPSMITH_AI_PLUGIN);
+            aiPlugin = pluginRepository.save(aiPlugin).block();
+        }
+
+        return aiPlugin;
+    }
+
+    private Datasource createSavedAppsmithAiDatasource(Plugin aiPlugin, String name) {
+        Datasource aiDatasource = new Datasource();
+        aiDatasource.setName(name);
+        aiDatasource.setWorkspaceId(workspaceId);
+        aiDatasource.setPluginId(aiPlugin.getId());
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(
+                defaultEnvironmentId,
+                new DatasourceStorageDTO(null, defaultEnvironmentId, new DatasourceConfiguration()));
+        aiDatasource.setDatasourceStorages(storages);
+        // Existing Appsmith AI datasources are created via the fork path, which bypasses the creation guard.
+        return datasourceService.createWithoutDeprecationCheck(aiDatasource).block();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createSingleAction_onDeprecatedAppsmithAiDatasource_throwsException() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Plugin aiPlugin = getOrCreateAppsmithAiPlugin();
+        Datasource savedAiDatasource = createSavedAppsmithAiDatasource(aiPlugin, "Deprecated AI DS for new query");
+
+        ActionDTO action = new ActionDTO();
+        action.setName("newQueryOnDeprecatedAiDatasource");
+        action.setPageId(testPage.getId());
+        action.setActionConfiguration(new ActionConfiguration());
+        action.setDatasource(savedAiDatasource);
+
+        StepVerifier.create(layoutActionService.createSingleAction(action, Boolean.FALSE))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.DEPRECATED_PLUGIN_QUERY_CREATION.getMessage(aiPlugin.getName())))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createSingleAction_onEmbeddedDeprecatedAppsmithAiDatasource_throwsException() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Plugin aiPlugin = getOrCreateAppsmithAiPlugin();
+
+        // A crafted payload with an id-less (embedded) Appsmith AI datasource must not slip past the guard.
+        Datasource embeddedAiDatasource = new Datasource();
+        embeddedAiDatasource.setName("Embedded Appsmith AI DS");
+        embeddedAiDatasource.setWorkspaceId(workspaceId);
+        embeddedAiDatasource.setPluginId(aiPlugin.getId());
+
+        ActionDTO action = new ActionDTO();
+        action.setName("newQueryOnEmbeddedDeprecatedAiDatasource");
+        action.setPageId(testPage.getId());
+        action.setActionConfiguration(new ActionConfiguration());
+        action.setDatasource(embeddedAiDatasource);
+
+        StepVerifier.create(layoutActionService.createSingleAction(action, Boolean.FALSE))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.DEPRECATED_PLUGIN_QUERY_CREATION.getMessage(aiPlugin.getName())))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createAction_clonePageContext_onDeprecatedAppsmithAiDatasource_succeeds() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Plugin aiPlugin = getOrCreateAppsmithAiPlugin();
+        Datasource savedAiDatasource = createSavedAppsmithAiDatasource(aiPlugin, "Deprecated AI DS for clone");
+
+        ActionDTO action = new ActionDTO();
+        action.setName("clonedQueryOnDeprecatedAiDatasource");
+        action.setPageId(testPage.getId());
+        action.setActionConfiguration(new ActionConfiguration());
+        action.setDatasource(savedAiDatasource);
+
+        // Internal flows (clone, fork, import) use the meta overload and must keep working for existing
+        // Appsmith AI queries.
+        AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE);
+        CreateActionMetaDTO createActionMetaDTO = new CreateActionMetaDTO();
+        createActionMetaDTO.setEventContext(eventContext);
+        createActionMetaDTO.setIsJsAction(Boolean.FALSE);
+
+        StepVerifier.create(layoutActionService.createAction(action, createActionMetaDTO))
+                .assertNext(createdAction -> {
+                    assertThat(createdAction.getId()).isNotEmpty();
+                    assertThat(createdAction.getDatasource().getId()).isEqualTo(savedAiDatasource.getId());
                 })
                 .verifyComplete();
     }

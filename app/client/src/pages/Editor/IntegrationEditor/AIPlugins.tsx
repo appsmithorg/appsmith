@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { createTempDatasourceFromForm } from "actions/datasourceActions";
 import type { DefaultRootState } from "react-redux";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { type Plugin, PluginType } from "entities/Plugin";
+import { type Plugin, PluginPackageName, PluginType } from "entities/Plugin";
 import { getAssetUrl, isAirgapped } from "ee/utils/airgapHelpers";
 import {
   DatasourceContainer,
@@ -93,7 +93,12 @@ const mapStateToProps = (state: DefaultRootState) => {
         // Sort the AI plugins alphabetically
         return a.name.localeCompare(b.name);
       })
-      .filter((plugin) => plugin.type === PluginType.AI),
+      .filter(
+        (plugin) =>
+          plugin.type === PluginType.AI &&
+          // Appsmith AI is deprecated — creating new datasources for it is blocked
+          plugin.packageName !== PluginPackageName.APPSMITH_AI,
+      ),
     searchedPlugin,
   ) as Plugin[];
 
