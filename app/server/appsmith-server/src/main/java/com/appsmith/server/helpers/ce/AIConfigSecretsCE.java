@@ -1,6 +1,7 @@
 package com.appsmith.server.helpers.ce;
 
 import com.appsmith.external.helpers.EncryptionHelper;
+import com.appsmith.server.domains.AIAssistantConfig;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -61,5 +62,32 @@ public final class AIConfigSecretsCE {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    /**
+     * Encrypts every provider credential on the given config in place, unless it is already encrypted.
+     *
+     * <p>{@code /ai-config} is the supported way to set these, and it encrypts on the way in. But the generic
+     * {@code PUT /organizations} endpoint binds the whole {@code OrganizationConfiguration}, and {@code @JsonView}
+     * does not filter a request body unless a view is active — so the credential fields deserialize there too and
+     * {@code copyNestedNonNullProperties} + {@code updateById} would persist them in cleartext, silently defeating
+     * the at-rest guarantee. {@code decrypt}'s legacy-cleartext fallback means nothing would ever look broken.
+     * Normalising here makes encryption a property of the data reaching storage rather than of one code path.
+     */
+    public static void encryptCredentialsInPlace(AIAssistantConfig config) {
+        if (config == null) {
+            return;
+        }
+        config.setClaudeApiKey(encryptIfNeeded(config.getClaudeApiKey()));
+        config.setOpenaiApiKey(encryptIfNeeded(config.getOpenaiApiKey()));
+        config.setCopilotApiKey(encryptIfNeeded(config.getCopilotApiKey()));
+        config.setAzureOpenaiApiKey(encryptIfNeeded(config.getAzureOpenaiApiKey()));
+    }
+
+    private static String encryptIfNeeded(String value) {
+        if (value == null || value.isEmpty() || isEncrypted(value)) {
+            return value;
+        }
+        return encrypt(value);
     }
 }

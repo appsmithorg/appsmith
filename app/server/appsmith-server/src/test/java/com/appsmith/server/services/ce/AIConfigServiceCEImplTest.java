@@ -52,6 +52,79 @@ class AIConfigServiceCEImplTest {
                 organizationService, new ObjectMapper(), analyticsService, sessionUserService);
     }
 
+    /**
+     * The authorization fix on getAIConfig had no test, and the mock in this class taught the wrong model of the
+     * collaborator: OrganizationServiceCEImpl.findById ends in switchIfEmpty(Mono.error(...)), so it SIGNALS an
+     * error for a caller without MANAGE_ORGANIZATION — it never completes empty. Both editions share that
+     * implementation. A switchIfEmpty-based fallback was therefore dead code, and every non-manager received an
+     * error instead of the enablement flags the editor reads on session start. These two tests pin both halves
+     * against the real behaviour.
+     */
+    @Test
+    void getAIConfig_managerReceivesTheFullConfiguration() {
+        Organization organization = new Organization();
+        OrganizationConfiguration configuration = new OrganizationConfiguration();
+        AIAssistantConfig aiConfig = new AIAssistantConfig();
+        aiConfig.setIsAIAssistantEnabled(true);
+        aiConfig.setAiProvider(AIProvider.AZURE_OPENAI);
+        aiConfig.setAzureOpenaiEndpoint("https://contoso.openai.azure.com");
+        aiConfig.setAzureOpenaiDeploymentName("gpt4o-prod");
+        aiConfig.setLocalLlmUrl("http://ollama.internal:11434/api/generate");
+        configuration.setAiAssistantConfig(aiConfig);
+        organization.setOrganizationConfiguration(configuration);
+
+        when(organizationService.getCurrentUserOrganizationId()).thenReturn(Mono.just("org-1"));
+        when(organizationService.findById("org-1", MANAGE_ORGANIZATION)).thenReturn(Mono.just(organization));
+
+        StepVerifier.create(aiConfigService.getAIConfig())
+                .assertNext(response -> assertThat(response)
+                        .containsEntry("azureOpenaiEndpoint", "https://contoso.openai.azure.com")
+                        .containsEntry("azureOpenaiDeploymentName", "gpt4o-prod")
+                        .containsEntry("localLlmUrl", "http://ollama.internal:11434/api/generate"))
+                .verifyComplete();
+    }
+
+    @Test
+    void getAIConfig_nonManagerReceivesStatusOnly_andNoInfrastructureDetail() {
+        Organization organization = new Organization();
+        OrganizationConfiguration configuration = new OrganizationConfiguration();
+        AIAssistantConfig aiConfig = new AIAssistantConfig();
+        aiConfig.setIsAIAssistantEnabled(true);
+        aiConfig.setAiProvider(AIProvider.AZURE_OPENAI);
+        aiConfig.setAzureOpenaiEndpoint("https://contoso.openai.azure.com");
+        aiConfig.setAzureOpenaiDeploymentName("gpt4o-prod");
+        aiConfig.setLocalLlmUrl("http://ollama.internal:11434/api/generate");
+        aiConfig.setAzureOpenaiApiKey("super-secret");
+        configuration.setAiAssistantConfig(aiConfig);
+        organization.setOrganizationConfiguration(configuration);
+
+        when(organizationService.getCurrentUserOrganizationId()).thenReturn(Mono.just("org-1"));
+        // The real collaborator ERRORS rather than completing empty when the permission is absent.
+        when(organizationService.findById("org-1", MANAGE_ORGANIZATION))
+                .thenReturn(Mono.error(new AppsmithException(
+                        com.appsmith.server.exceptions.AppsmithError.NO_RESOURCE_FOUND,
+                        FieldNameCE.ORGANIZATION_ID,
+                        "org-1")));
+        when(organizationService.getCurrentUserOrganization()).thenReturn(Mono.just(organization));
+
+        StepVerifier.create(aiConfigService.getAIConfig())
+                .assertNext(response -> {
+                    // What the editor legitimately needs.
+                    assertThat(response).containsEntry("isAIAssistantEnabled", true);
+                    // What describes internal infrastructure and must never reach a non-manager.
+                    assertThat(response)
+                            .doesNotContainKeys(
+                                    "azureOpenaiEndpoint",
+                                    "azureOpenaiDeploymentName",
+                                    "localLlmUrl",
+                                    "azureOpenaiApiKey",
+                                    "claudeApiKey",
+                                    "openaiApiKey");
+                    assertThat(response.values()).doesNotContain("super-secret");
+                })
+                .verifyComplete();
+    }
+
     @Test
     void updateAIConfig_emitsAnalytics_whenAnalyticsActive_andEnabled() {
         when(analyticsService.isActive()).thenReturn(true);

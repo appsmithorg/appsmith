@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.AIAssistantConfig;
 import com.appsmith.server.domains.AIProvider;
 import com.appsmith.server.domains.Plugin;
@@ -14,14 +15,17 @@ import com.appsmith.server.helpers.ce.AIConfigSecretsCE;
 import com.appsmith.server.helpers.ce.AiDatasourceSchemaSerializerCE;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.AIReferenceService;
 import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
 import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -63,6 +67,23 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
     private final DatasourceStructureSolution datasourceStructureSolution;
     private final PluginService pluginService;
     private final ActionPermission actionPermission;
+
+    // Setter-injected rather than constructor-injected on purpose. EE's AIAssistantServiceImpl extends this class
+    // and calls super(...) with the existing six arguments; adding a seventh would break EE's compile the moment
+    // this file syncs. EE instantiates the subclass as a Spring bean, so setter injection resolves in both editions
+    // and the throttle is never silently absent.
+    private RateLimitService rateLimitService;
+    private SessionUserService sessionUserService;
+
+    @Autowired
+    public void setRateLimitService(RateLimitService rateLimitService) {
+        this.rateLimitService = rateLimitService;
+    }
+
+    @Autowired
+    public void setSessionUserService(SessionUserService sessionUserService) {
+        this.sessionUserService = sessionUserService;
+    }
 
     private static final WebClient claudeWebClient = WebClientUtils.builder(
                     HttpClient.create().responseTimeout(Duration.ofSeconds(60)))
@@ -106,22 +127,40 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid provider"));
         }
 
-        return organizationService.getCurrentUserOrganization().flatMap(organization -> {
-            if (organization == null || organization.getOrganizationConfiguration() == null) {
-                return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Organization not found"));
-            }
+        // Spend the throttle token before any provider work. Every request here costs the ORGANIZATION real money at
+        // a third-party LLM, and the endpoint is reachable by any authenticated member — including a view-only user —
+        // so an unthrottled loop is a denial-of-wallet against the operator. Keyed per user so one caller cannot
+        // exhaust the allowance of the whole organization.
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(user -> rateLimitService
+                        .tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_AI_ASSISTANT_API, user.getUsername())
+                        // Preserve availability if the limiter itself is unreachable, matching the posture used
+                        // elsewhere: a Redis outage must not take the assistant down.
+                        .onErrorReturn(true))
+                .flatMap(allowed -> Boolean.TRUE.equals(allowed)
+                        ? Mono.empty()
+                        : Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_PARAMETER, RateLimitConstants.RATE_LIMIT_REACHED_AI_ASSISTANT)))
+                .then(organizationService.getCurrentUserOrganization())
+                .flatMap(organization -> {
+                    if (organization == null || organization.getOrganizationConfiguration() == null) {
+                        return Mono.error(
+                                new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Organization not found"));
+                    }
 
-            AIAssistantConfig aiConfig =
-                    organization.getOrganizationConfiguration().getAiAssistantConfig();
-            if (aiConfig == null || !Boolean.TRUE.equals(aiConfig.getIsAIAssistantEnabled())) {
-                return Mono.error(new AppsmithException(
-                        AppsmithError.INVALID_PARAMETER,
-                        "AI Assistant is disabled. Please contact your administrator."));
-            }
+                    AIAssistantConfig aiConfig =
+                            organization.getOrganizationConfiguration().getAiAssistantConfig();
+                    if (aiConfig == null || !Boolean.TRUE.equals(aiConfig.getIsAIAssistantEnabled())) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_PARAMETER,
+                                "AI Assistant is disabled. Please contact your administrator."));
+                    }
 
-            return enrichContextWithDatasourceSchema(prompt, context)
-                    .flatMap(ctx -> dispatchToProvider(providerEnum, aiConfig, prompt, ctx, conversationHistory));
-        });
+                    return enrichContextWithDatasourceSchema(prompt, context)
+                            .flatMap(ctx ->
+                                    dispatchToProvider(providerEnum, aiConfig, prompt, ctx, conversationHistory));
+                });
     }
 
     @Override

@@ -9,6 +9,7 @@ import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.AIConfigDTO;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.AIConfigSecretsCE;
 import com.appsmith.server.services.AnalyticsService;
@@ -294,10 +295,23 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
         return organizationService.getCurrentUserOrganizationId().flatMap(organizationId -> organizationService
                 .findById(organizationId, MANAGE_ORGANIZATION)
                 .map(organization -> buildAIConfigResponseForGet(organization.getOrganizationConfiguration()))
-                .switchIfEmpty(organizationService
-                        .getCurrentUserOrganization()
-                        .map(organization ->
-                                buildAIConfigStatusResponse(organization.getOrganizationConfiguration()))));
+                // findById SIGNALS an error rather than completing empty when the caller lacks
+                // MANAGE_ORGANIZATION — it ends in switchIfEmpty(Mono.error(NO_RESOURCE_FOUND)), and both editions
+                // share that implementation. A switchIfEmpty here would therefore never be reached, which left every
+                // non-manager receiving an error instead of the enablement flags the editor reads on session start.
+                // Narrow to the not-found/denied signal specifically so a genuine failure still surfaces.
+                .onErrorResume(
+                        error -> error instanceof AppsmithException appsmithException
+                                && (AppsmithErrorCode.NO_RESOURCE_FOUND
+                                                .getCode()
+                                                .equals(appsmithException.getAppErrorCode())
+                                        || AppsmithErrorCode.ACL_NO_RESOURCE_FOUND
+                                                .getCode()
+                                                .equals(appsmithException.getAppErrorCode())),
+                        error -> organizationService
+                                .getCurrentUserOrganization()
+                                .map(organization ->
+                                        buildAIConfigStatusResponse(organization.getOrganizationConfiguration()))));
     }
 
     @Override
@@ -358,6 +372,14 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
             if (uri.getHost() == null) {
                 throw new IllegalArgumentException("No host specified");
             }
+            // A scheme-relative input like "//host/api/generate" parses with a host but a NULL scheme, so it clears
+            // the host check above and then NPEs on getScheme().equals(...) below — outside this try, before any Mono
+            // exists, so it escapes the structured error response entirely. Validate the scheme while we can still
+            // report it properly.
+            if (uri.getScheme() == null
+                    || !("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme()))) {
+                throw new IllegalArgumentException("URL must start with http:// or https://");
+            }
             steps.add(createStep("URL Parsing", "success", "Valid URL format"));
         } catch (Exception e) {
             steps.add(createStep("URL Parsing", "error", e.getMessage()));
@@ -375,7 +397,8 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
         }
 
         final String host = uri.getHost();
-        final int port = uri.getPort() != -1 ? uri.getPort() : (uri.getScheme().equals("https") ? 443 : 80);
+        // equalsIgnoreCase to match the scheme validation above, so "HTTPS://…" still resolves to 443 rather than 80.
+        final int port = uri.getPort() != -1 ? uri.getPort() : ("https".equalsIgnoreCase(uri.getScheme()) ? 443 : 80);
         final String scheme = uri.getScheme();
 
         return Mono.fromCallable(() -> java.net.InetAddress.getByName(host))
