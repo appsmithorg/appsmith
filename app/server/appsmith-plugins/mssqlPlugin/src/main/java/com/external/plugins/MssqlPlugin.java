@@ -372,14 +372,14 @@ public class MssqlPlugin extends BasePlugin {
         @Override
         public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for MSSQL plugin.");
-            return Mono.defer(
-                    () -> connectionPoolConfig.getMaxConnectionPoolSize().flatMap(maxPoolSize -> {
-                        return Mono.fromCallable(() -> {
-                                    log.debug(Thread.currentThread().getName() + ": Connecting to SQL Server db");
-                                    return createConnectionPool(datasourceConfiguration, maxPoolSize);
-                                })
-                                .subscribeOn(scheduler);
-                    }));
+            return Mono.defer(() -> Mono.zip(
+                            connectionPoolConfig.getMaxConnectionPoolSize(),
+                            connectionPoolConfig.getSocketTimeoutSeconds())
+                    .flatMap(tuple -> Mono.fromCallable(() -> {
+                                log.debug(Thread.currentThread().getName() + ": Connecting to SQL Server db");
+                                return createConnectionPool(datasourceConfiguration, tuple.getT1(), tuple.getT2());
+                            })
+                            .subscribeOn(scheduler)));
         }
 
         @Override
@@ -414,6 +414,14 @@ public class MssqlPlugin extends BasePlugin {
 
                 if (StringUtils.isEmpty(auth.getPassword())) {
                     invalids.add(MssqlErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG);
+                }
+
+                // The database name is concatenated verbatim into the JDBC connection string
+                // (database=<value>;). Reject any value that could smuggle additional
+                // connection properties, so a database name cannot inject e.g. an NTLM auth
+                // scheme pointing at an attacker-controlled host.
+                if (containsConnectionStringInjection(auth.getDatabaseName())) {
+                    invalids.add(MssqlErrorMessages.DS_INVALID_DATABASE_NAME_ERROR_MSG);
                 }
             }
 
@@ -580,8 +588,23 @@ public class MssqlPlugin extends BasePlugin {
      * @param datasourceConfiguration
      * @return connection pool
      */
+    /**
+     * Returns true if the given database name could inject additional JDBC connection
+     * properties. The value is concatenated verbatim into the connection string as
+     * {@code database=<value>;}, so a {@code ;} (the JDBC property separator) or any ISO
+     * control character must be rejected. A null/blank value is safe (it is simply not
+     * appended).
+     */
+    private static boolean containsConnectionStringInjection(String databaseName) {
+        if (!StringUtils.hasLength(databaseName)) {
+            return false;
+        }
+        return databaseName.chars().anyMatch(c -> c == ';' || Character.isISOControl(c));
+    }
+
     private static HikariDataSource createConnectionPool(
-            DatasourceConfiguration datasourceConfiguration, Integer maxPoolSize) throws AppsmithPluginException {
+            DatasourceConfiguration datasourceConfiguration, Integer maxPoolSize, Integer socketTimeoutSeconds)
+            throws AppsmithPluginException {
 
         DBAuth authentication = null;
         StringBuilder urlBuilder = null;
@@ -599,6 +622,14 @@ public class MssqlPlugin extends BasePlugin {
         // Configuring leak detection threshold for 60 seconds. Any connection which hasn't been released in 60 seconds
         // should get tracked (may be falsely for long running queries) as leaked connection
         hikariConfig.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
+
+        // Send a TCP keepalive probe on idle connections every 150s. Prevents half-open
+        // sockets caused by NAT idle-eviction (AWS NAT Gateway default is 350s).
+        hikariConfig.setKeepaliveTime(150_000);
+
+        // Bound any single socket read so a half-open connection cannot wedge the pool's
+        // single-threaded connection-adder. mssql-jdbc takes socketTimeout in milliseconds.
+        hikariConfig.addDataSourceProperty("socketTimeout", String.valueOf(socketTimeoutSeconds * 1000));
 
         authentication = (DBAuth) datasourceConfiguration.getAuthentication();
         if (authentication.getUsername() != null) {
@@ -618,6 +649,13 @@ public class MssqlPlugin extends BasePlugin {
         }
 
         if (StringUtils.hasLength(authentication.getDatabaseName())) {
+            // Defence in depth: validateDatasource() already rejects this, but never build a
+            // JDBC URL from a database name that could inject extra connection properties.
+            if (containsConnectionStringInjection(authentication.getDatabaseName())) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        MssqlErrorMessages.DS_INVALID_DATABASE_NAME_ERROR_MSG);
+            }
             urlBuilder
                     .append("database=")
                     .append(authentication.getDatabaseName())

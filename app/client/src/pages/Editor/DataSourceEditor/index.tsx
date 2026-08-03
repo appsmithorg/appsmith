@@ -85,6 +85,7 @@ import { formValuesToDatasource } from "PluginActionEditor/transformers/RestAPID
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Plugin";
 import { DatasourceComponentTypes, PluginPackageName } from "entities/Plugin";
+import AppsmithAIDeprecationCallout from "components/editorComponents/AppsmithAIDeprecationCallout";
 import DSDataFilter from "ee/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "ee/api/ApiUtils";
 import { isStorageEnvironmentCreated } from "ee/utils/Environments";
@@ -1031,6 +1032,11 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
               showingTabsOnViewMode && "db-form-resizer-content-show-tabs"
             }`}
           >
+            {/* Mounted above DSEditorWrapper: the wrapper is a row flex, so a
+                child callout would render as a side column instead of a banner */}
+            {pluginPackageName === PluginPackageName.APPSMITH_AI && (
+              <AppsmithAIDeprecationCallout />
+            )}
             <DSEditorWrapper
               className={!!isOnboardingFlow ? "onboarding-flow" : ""}
               isCreatingAiAgent={

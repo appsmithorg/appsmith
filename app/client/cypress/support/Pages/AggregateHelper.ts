@@ -2025,6 +2025,7 @@ export class AggregateHelper {
 
   public waitForEmail({
     pollInterval,
+    requireHtml = false,
     targetEmail,
     targetSubject,
     timeout,
@@ -2033,6 +2034,7 @@ export class AggregateHelper {
     timeout: number;
     targetSubject: string;
     targetEmail?: string;
+    requireHtml?: boolean;
   }): Cypress.Chainable<any> {
     const endTime = Date.now() + timeout;
     let latestEmail: any = null;
@@ -2058,6 +2060,7 @@ export class AggregateHelper {
               from: string;
             };
             text: string;
+            html?: string;
           }> = res.body;
 
           const matchingEmails = emails.filter((email) => {
@@ -2066,14 +2069,21 @@ export class AggregateHelper {
               .toLowerCase()
               .includes(targetSubject.trim().toLowerCase());
 
-            if (targetEmail) {
-              const emailTo = email.headers.to.trim().toLowerCase();
-              return (
-                subjectMatch && emailTo === targetEmail.trim().toLowerCase()
-              );
-            }
+            const recipientMatch = targetEmail
+              ? email.headers.to.trim().toLowerCase() ===
+                targetEmail.trim().toLowerCase()
+              : true;
 
-            return subjectMatch;
+            // When the caller needs the HTML body, treat a matched email whose
+            // body has not been populated yet as "not yet delivered" and keep
+            // polling, rather than returning it and letting the caller throw on
+            // email.html. Maildev can surface an email's metadata before its
+            // HTML part is parsed, especially under load.
+            const htmlReady =
+              !requireHtml ||
+              (typeof email.html === "string" && email.html.length > 0);
+
+            return subjectMatch && recipientMatch && htmlReady;
           });
 
           if (matchingEmails.length > 0) {

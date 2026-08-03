@@ -43,6 +43,7 @@ import java.security.PrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -297,12 +298,15 @@ public class GitRouteAspectCE {
 
                     long duration = System.currentTimeMillis() - startTime;
                     log.error(
-                            "Operation : {}, State {} : {}, Error : {}, Time: {}ms",
+                            "Operation : {}, State {} : {}, ArtifactType : {}, {} : {}, Time: {}ms",
                             ctx.getGitRoute().operation(),
                             current,
                             Outcome.FAIL.name(),
-                            e.getMessage(),
-                            duration);
+                            ctx.getGitRoute().artifactType(),
+                            ctx.getGitRoute().fieldName(),
+                            ctx.getFieldValue(),
+                            duration,
+                            e);
                     return run(ctx, config.next(Outcome.FAIL));
                 });
     }
@@ -324,6 +328,13 @@ public class GitRouteAspectCE {
 
             return redis.opsForValue()
                     .get(key)
+                    // This is resubscribed on every lock retry, so per-attempt logging stays at debug and the
+                    // single warn is raised once the retries are exhausted.
+                    .doOnNext(commandName -> log.debug(
+                            "Git operation {} is blocked, the lock for key {} is held by {}",
+                            command,
+                            key,
+                            commandName))
                     .flatMap(commandName ->
                             Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE, command, commandName)));
         });
@@ -340,6 +351,14 @@ public class GitRouteAspectCE {
         return this.setLock(key, gitCommand)
                 .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY)
                         .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                            log.warn(
+                                    "Git operation {} gave up waiting for the lock on key {} after {} attempts",
+                                    gitCommand,
+                                    key,
+                                    // totalRetries() counts retries, so it excludes the first attempt
+                                    retrySignal.totalRetries() + 1,
+                                    retrySignal.failure());
+
                             if (retrySignal.failure() instanceof AppsmithException) {
                                 throw (AppsmithException) retrySignal.failure();
                             }
@@ -681,7 +700,18 @@ public class GitRouteAspectCE {
      * @return Mono emitting true if the lock was released
      */
     protected Mono<?> unlock(Context ctx) {
-        return redis.delete(ctx.getLockKey()).map(count -> count > 0);
+        String key = ctx.getLockKey();
+        return redis.delete(key)
+                .doOnNext(count -> {
+                    if (count > 0) {
+                        log.debug("Released the lock for key {}, deleted keys : {}", key, count);
+                    } else {
+                        log.warn(
+                                "Releasing the lock for key {} deleted no key, the lock had either expired or was never held",
+                                key);
+                    }
+                })
+                .map(count -> count > 0);
     }
 
     /**
@@ -734,6 +764,11 @@ public class GitRouteAspectCE {
                     .orElse(null);
 
             if (paramValue == null) {
+                log.warn(
+                        "Failed to extract target {} because the parameter {} is absent or null, available parameters : {}",
+                        target,
+                        paramName,
+                        Arrays.toString(names));
                 return null;
             }
 
@@ -744,7 +779,13 @@ public class GitRouteAspectCE {
                 Object fieldValue = field.get(paramValue);
                 return fieldValue != null ? String.valueOf(fieldValue) : null;
             } catch (NoSuchFieldException | IllegalAccessException e) {
-                log.warn("Failed to extract nested field {} from parameter {}", fieldName, paramName, e);
+                log.warn(
+                        "Failed to extract nested field {} of target {} from parameter {}, available parameters : {}",
+                        fieldName,
+                        target,
+                        paramName,
+                        Arrays.toString(names),
+                        e);
                 return null;
             }
         }

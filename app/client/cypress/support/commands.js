@@ -770,6 +770,17 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     });
   });
 
+  // Stub the BetterBugs recording-link scripts that index.html injects on every
+  // page load. They play no role in tests, and when the fetch from the external
+  // CDN flakes the browser evaluates the error response as JS and throws a
+  // "SyntaxError: Unexpected token" that fails unrelated specs across shards.
+  // Serve an empty body so the fetch never leaves the CI network.
+  cy.intercept("GET", "https://pkg.betterbugs.io/**", {
+    statusCode: 200,
+    body: "",
+    headers: { "content-type": "application/javascript" },
+  });
+
   cy.intercept("PUT", "/api/v1/admin/env", (req) => {
     // GHSA-j9gf-vw2f-9hrw: server-side strict-mode now requires Origin to match
     // APPSMITH_BASE_URL. Use the live Cypress baseUrl instead of the legacy
