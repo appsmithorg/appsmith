@@ -93,7 +93,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ARTIFACT_CONTEXT));
         }
 
-        log.info("Export started: artifactId={}, branchName={}, artifactType={}", artifactId, branchName, artifactType);
+        log.info("Export started: artifactId={}, artifactType={}", artifactId, artifactType);
 
         ArtifactBasedExportService<?, ?> artifactBasedExportService = getContextBasedExportService(artifactType);
         Map<String, String> artifactContextConstantMap = artifactBasedExportService.getConstantsMap();

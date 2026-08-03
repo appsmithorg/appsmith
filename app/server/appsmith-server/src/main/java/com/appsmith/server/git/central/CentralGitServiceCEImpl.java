@@ -2026,11 +2026,11 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                         branchName,
                         System.currentTimeMillis() - pullStartTime))
                 .doOnError(error -> log.warn(
-                        "Git pull failed: artifactId={}, branch={}, durationMs={}, error={}",
+                        "Git pull failed: artifactId={}, branch={}, durationMs={}",
                         baseArtifactId,
                         branchName,
                         System.currentTimeMillis() - pullStartTime,
-                        error.getMessage()))
+                        error))
                 .subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 

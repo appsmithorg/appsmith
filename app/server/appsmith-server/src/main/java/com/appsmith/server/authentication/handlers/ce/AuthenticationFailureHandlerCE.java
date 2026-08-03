@@ -29,7 +29,10 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
 
         String errorMessage = exception.getMessage();
 
-        log.warn("Authentication failed: source={}, message={}", source, errorMessage);
+        log.warn(
+                "Authentication failed: source={}, errorCode={}",
+                source,
+                exception.getClass().getSimpleName());
 
         meterRegistry
                 .counter(LOGIN_FAILURE, "source", source, "message", errorMessage)

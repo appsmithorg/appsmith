@@ -13,7 +13,7 @@ public class AccessDeniedHandlerCE implements ServerAccessDeniedHandler {
     @Override
     public Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException denied) {
         return Mono.fromRunnable(() -> {
-            log.warn("Access denied: path={}, reason={}", exchange.getRequest().getPath(), denied.getMessage());
+            log.warn("Access denied: path={}", exchange.getRequest().getPath());
             ServerHttpResponse response = exchange.getResponse();
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
         });

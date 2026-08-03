@@ -1333,6 +1333,13 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                         return Mono.error(error);
                                     }
 
+                                    log.warn(
+                                            "Git merge failed, resetting to last commit: repo={}, source={}, dest={}",
+                                            repoSuffix,
+                                            sourceBranch,
+                                            destinationBranch,
+                                            error);
+
                                     try {
                                         return resetToLastCommit(repoSuffix, destinationBranch, keepWorkingDirChanges)
                                                 .thenReturn(error.getMessage());
@@ -1387,10 +1394,15 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                     return fetchMessages;
                                 })
                                 .onErrorResume(error -> {
-                                    log.error("Git fetch failed: repo={}", repoSuffix, error);
                                     return Mono.error(error);
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .doOnError(error -> log.error(
+                                        "Git fetch failed: repo={}, branch={}, fetchAll={}",
+                                        repoSuffix,
+                                        branchName,
+                                        isFetchAll,
+                                        error))
                                 .name(GitSpan.FS_FETCH_REMOTE)
                                 .tap(Micrometer.observation(observationRegistry)),
                         Git::close)
@@ -1461,10 +1473,15 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                     return fetchMessages;
                                 })
                                 .onErrorResume(error -> {
-                                    log.error("Git fetch failed: repo={}", repoSuffix, error);
                                     return Mono.error(error);
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .doOnError(error -> log.error(
+                                        "Git fetch failed: repo={}, refType={}, fetchAll={}",
+                                        repoSuffix,
+                                        fetchRemoteDTO.getRefType(),
+                                        fetchRemoteDTO.getIsFetchAll(),
+                                        error))
                                 .name(GitSpan.FS_FETCH_REMOTE)
                                 .tap(Micrometer.observation(observationRegistry)),
                         Git::close)
