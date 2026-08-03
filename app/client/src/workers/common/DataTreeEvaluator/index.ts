@@ -2069,12 +2069,11 @@ export default class DataTreeEvaluator {
     let overrideContext: Record<string, unknown>;
 
     if (executionParams && isObject(executionParams)) {
-      evaluatedExecutionParams = this.getDynamicValue(
-        `{{${JSON.stringify(executionParams)}}}`,
-        this.evalTree,
-        this.oldConfigTree,
-        EvaluationSubstitutionType.TEMPLATE,
-      );
+      // Execution params are already fully-evaluated JS values here, so a JSON-safe
+      // deep clone is sufficient. Do NOT route them back through the {{ }} template
+      // parser: Filepicker Binary data can contain '{'/'}' bytes that unbalance the
+      // brace counter in getDynamicStringSegments and null out sibling params. (#8639)
+      evaluatedExecutionParams = klonaJSON(executionParams);
 
       overrideContext = generateOverrideContext({
         bindings,

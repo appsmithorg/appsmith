@@ -646,6 +646,7 @@ public class CommonGitFileUtilsCE {
     public Mono<Path> initializeReadme(Path baseRepoSuffix, String viewModeUrl, String editModeUrl) throws IOException {
         return fileUtils
                 .initializeReadme(baseRepoSuffix, viewModeUrl, editModeUrl)
+                // Callers log this failure with their artifact context; the cause is carried on the exception.
                 .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
     }
 
@@ -660,9 +661,10 @@ public class CommonGitFileUtilsCE {
     }
 
     public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException {
-        return fileUtils
-                .checkIfDirectoryIsEmpty(baseRepoSuffix)
-                .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
+        return fileUtils.checkIfDirectoryIsEmpty(baseRepoSuffix).onErrorResume(e -> {
+            log.error("Error while checking if the cloned repo is empty. repo={}", baseRepoSuffix, e);
+            return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e));
+        });
     }
 
     /**
@@ -714,8 +716,16 @@ public class CommonGitFileUtilsCE {
         return fileUtils
                 .reconstructMetadataFromGitRepo(
                         workspaceId, applicationId, repoName, branchName, baseRepoSuffix, isResetToLastCommitRequired)
-                .onErrorResume(error -> Mono.error(
-                        new AppsmithException(AppsmithError.GIT_ACTION_FAILED, CHECKOUT_BRANCH, error.getMessage())))
+                .onErrorResume(error -> {
+                    log.error(
+                            "Error while reconstructing the metadata from the git repo. repo={}, artifactId={}, branch={}",
+                            baseRepoSuffix,
+                            applicationId,
+                            branchName,
+                            error);
+                    return Mono.error(new AppsmithException(
+                            AppsmithError.GIT_ACTION_FAILED, CHECKOUT_BRANCH, error.getMessage()));
+                })
                 .map(metadata -> {
                     Gson gson = new Gson();
                     JsonObject metadataJsonObject =
@@ -746,7 +756,11 @@ public class CommonGitFileUtilsCE {
                         return Files.move(currentGitPath, targetPath, REPLACE_EXISTING);
 
                     } catch (IOException exception) {
-                        log.error("File IO exception while moving repository. {}", exception.getMessage());
+                        log.error(
+                                "File IO exception while moving repository. source={}, target={}",
+                                currentGitPath,
+                                targetPath,
+                                exception);
                         throw new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, exception.getMessage());
                     }
                 })
@@ -889,8 +903,17 @@ public class CommonGitFileUtilsCE {
         Mono<JSONObject> jsonObjectMono = keepWorkingDirChangesMono
                 .flatMap(keepWorkingDirChanges -> fileUtils.reconstructPageFromGitRepo(
                         pageDTO.getName(), refName, baseRepoSuffix, isResetToLastCommitRequired, keepWorkingDirChanges))
-                .onErrorResume(error -> Mono.error(
-                        new AppsmithException(AppsmithError.GIT_ACTION_FAILED, RECONSTRUCT_PAGE, error.getMessage())))
+                .onErrorResume(error -> {
+                    log.error(
+                            "Error while reconstructing the page from the git repo. repo={}, pageId={}, page={}, branch={}",
+                            baseRepoSuffix,
+                            pageDTO.getId(),
+                            pageDTO.getName(),
+                            refName,
+                            error);
+                    return Mono.error(new AppsmithException(
+                            AppsmithError.GIT_ACTION_FAILED, RECONSTRUCT_PAGE, error.getMessage()));
+                })
                 .map(pageJson -> {
                     return fileOperations.getMainContainer(pageJson);
                 });
@@ -956,13 +979,14 @@ public class CommonGitFileUtilsCE {
                     try {
                         Files.deleteIfExists(lockFile);
                     } catch (IOException ioException) {
-                        log.warn("Error deleting git lock file {}: {}", lockFile, ioException.getMessage());
+                        // A lock left behind here keeps blocking every subsequent git operation on this repo
+                        log.warn("Error deleting git lock file. path={}", lockFile, ioException);
                     }
 
                     try {
                         Files.deleteIfExists(indexFile);
                     } catch (IOException ioException) {
-                        log.warn("Error deleting git index file {}: {}", indexFile, ioException.getMessage());
+                        log.warn("Error deleting git index file. path={}", indexFile, ioException);
                     }
 
                     return TRUE;
