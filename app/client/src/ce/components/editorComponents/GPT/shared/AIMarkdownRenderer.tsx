@@ -245,17 +245,32 @@ const MARKDOWN_COMPONENTS: Partial<Components> = {
       </a>
     );
   },
-  img({ src, ...props }) {
-    // Model output is untrusted. Without this override react-markdown renders any image URL it produces, which
-    // makes the viewer's browser issue an outbound request to a server the model chose — a tracking pixel or a
-    // request-timing side channel. Same scheme allowlist the anchor override uses, and no referrer.
-    const safeSrc = src && SAFE_URL_PATTERN.test(String(src)) ? src : undefined;
+  img({ alt, src }) {
+    // Model output is untrusted, and an image is the one markdown element that makes the browser fetch from a
+    // server the MODEL chose, with no interaction. A scheme allowlist is not enough: an attacker-controlled
+    // https:// tracking pixel passes it and still collects the viewer's IP, user agent and request timing, and
+    // referrerPolicy only suppresses the Referer header, not the request. So remote images are not loaded at all.
+    //
+    // Same-origin and relative sources are still rendered, which covers anything Appsmith itself serves. A remote
+    // source degrades to its alt text rather than vanishing, so the user can see that something was referenced.
+    const rawSrc = src ? String(src) : "";
+    let isSameOrigin = false;
 
-    if (!safeSrc) {
-      return null;
+    if (rawSrc) {
+      try {
+        isSameOrigin =
+          new URL(rawSrc, window.location.origin).origin ===
+          window.location.origin;
+      } catch {
+        isSameOrigin = false;
+      }
     }
 
-    return <img {...props} referrerPolicy="no-referrer" src={safeSrc} />;
+    if (!isSameOrigin) {
+      return alt ? <span>{alt}</span> : null;
+    }
+
+    return <img alt={alt} referrerPolicy="no-referrer" src={rawSrc} />;
   },
   code({ children, className, ...props }) {
     const match = /language-(\w+)/.exec(className || "");
