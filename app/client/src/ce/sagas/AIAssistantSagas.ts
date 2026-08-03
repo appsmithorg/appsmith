@@ -49,6 +49,39 @@ function extractErrorMessage(responseBody: AIResponseBody): string {
   );
 }
 
+// Only a failure that might succeed on a second attempt is worth retrying. Retrying everything meant an invalid
+// API key, a malformed request or a quota rejection each cost a SECOND completion call to the provider — double
+// latency and double spend for an outcome that was never going to change.
+function isRetriableFailure(message: string | undefined): boolean {
+  if (!message) {
+    // No message to classify (e.g. a network-level throw): treat as transient.
+    return true;
+  }
+
+  const text = message.toLowerCase();
+  const permanent = [
+    "invalid api key",
+    "unauthorized",
+    "forbidden",
+    "access denied",
+    "invalid credentials",
+    "quota",
+    "billing",
+    "not enabled",
+    "disabled",
+    "invalid provider",
+    "too long",
+    "invalid parameter",
+  ];
+
+  if (permanent.some((needle) => text.includes(needle))) {
+    return false;
+  }
+
+  // Rate limiting is transient by definition, and so are timeouts and upstream 5xx.
+  return true;
+}
+
 function isTimeoutError(error: unknown): boolean {
   if (error instanceof Error) {
     if (
@@ -154,17 +187,23 @@ function* fetchAIResponseSaga(
           return;
         }
 
-        if (attempt < MAX_ATTEMPTS) {
+        const errorMsg = extractErrorMessage(responseBody);
+
+        if (attempt < MAX_ATTEMPTS && isRetriableFailure(errorMsg)) {
           yield delay(RETRY_DELAY_MS);
           continue;
         }
 
-        const errorMsg = extractErrorMessage(responseBody);
-
         yield put(fetchAIResponseError({ error: errorMsg }));
         toast.show(errorMsg, { kind: "error" });
       } catch (error: unknown) {
-        if (attempt < MAX_ATTEMPTS) {
+        const thrownMessage =
+          error instanceof Error ? error.message : undefined;
+
+        if (
+          attempt < MAX_ATTEMPTS &&
+          (isTimeoutError(error) || isRetriableFailure(thrownMessage))
+        ) {
           yield delay(RETRY_DELAY_MS);
           continue;
         }

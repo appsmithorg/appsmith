@@ -12,6 +12,8 @@ import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.AIAssistantService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -223,11 +225,13 @@ public class UserControllerCE {
                         request.getConversationHistory())
                 .map(response -> Map.of("response", response, "provider", request.getProvider()))
                 .map(result -> new ResponseDTO<>(HttpStatus.OK, result))
-                .onErrorResume(error -> {
-                    String errorMessage = aiAssistantService.getAIErrorMessage(error);
-                    return Mono.just(new ResponseDTO<Map<String, String>>(
-                            HttpStatus.BAD_REQUEST.value(), null, errorMessage, false));
-                });
+                // Signal the error instead of completing normally with a 400 inside the body. Returning a Mono.just
+                // here made the WIRE status 200 for every AI failure: clients that branch on HTTP status saw success,
+                // and server error metrics stayed clean while requests were failing. Propagating lets the global
+                // handler set a real status, and the friendly message still reaches responseMeta.error.message,
+                // which is what the client actually reads.
+                .onErrorMap(error -> new AppsmithException(
+                        AppsmithError.INVALID_PARAMETER, aiAssistantService.getAIErrorMessage(error)));
     }
 
     /**

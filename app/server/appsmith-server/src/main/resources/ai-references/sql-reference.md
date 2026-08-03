@@ -13,20 +13,52 @@ SELECT * FROM users WHERE id = {{Input1.text}}
 SELECT * FROM orders WHERE status = {{Select_Status.selectedOptionValue}}
 ```
 
-### Conditional Binding
-```sql
--- Use conditional logic within bindings
-SELECT * FROM users WHERE {{ Input1.text ? "name = '" + Input1.text + "'" : "1=1" }}
+### Binding values safely
 
--- Dynamic table name binding
-SELECT * FROM {{ TableNamePicker.selectedOptionValue }}
+A binding that stands alone as a value is sent as a query **parameter**, so the database never parses it as SQL.
+That protection is lost the moment the binding is wrapped in quotes or concatenated into a SQL string — the value
+is then pasted into the statement text before the database sees it, which is SQL injection.
+
+```sql
+-- CORRECT: the binding is the whole value, so it is parameterized
+SELECT * FROM users WHERE city = {{ CitySelect.selectedOptionValue }}
+
+-- WRONG: quoting the binding turns it back into raw SQL text
+-- SELECT * FROM users WHERE city = '{{ CitySelect.selectedOptionValue }}'
+
+-- WRONG: string concatenation builds SQL from user input
+-- SELECT * FROM users WHERE {{ Input1.text ? "name = '" + Input1.text + "'" : "1=1" }}
 ```
 
-### Complex Expressions
+### Optional filters
+
+To make a filter apply only when the user supplied a value, keep the value bound and do the conditional in SQL:
+
 ```sql
--- Use complex expressions in bindings
-SELECT * FROM users WHERE age > {{AgeInput.text}} AND city = '{{CitySelect.selectedOptionValue}}'
+SELECT * FROM users
+WHERE ({{ !Input1.text }} OR name = {{ Input1.text }})
 ```
+
+The binding stays a parameter in both places, so an empty input disables the clause without any string building.
+
+### Complex expressions
+```sql
+-- Each binding is a standalone value, so each is parameterized
+SELECT * FROM users WHERE age > {{ AgeInput.text }} AND city = {{ CitySelect.selectedOptionValue }}
+```
+
+### Dynamic identifiers (table and column names)
+
+Identifiers cannot be parameterized — only values can. Never interpolate free text into a table or column position:
+
+```sql
+-- WRONG: whatever the widget holds becomes SQL
+-- SELECT * FROM {{ TableNamePicker.selectedOptionValue }}
+```
+
+If a table must be selectable, constrain the widget to a fixed option list you control and validate the value
+server-side, or branch between separate hard-coded queries. Treat a dynamic identifier as a last resort that needs
+its own review.
 
 ## SELECT Patterns
 

@@ -81,7 +81,10 @@ export function serializeTable(table: DatasourceTable): string {
   }
 
   const columns = (table.columns ?? []).map((col: DatasourceColumns) => {
-    let entry = `${col.name} ${col.type}`;
+    // A NoSQL/Mongo-style schema can omit the column type. The Java parity implementation
+    // (AiDatasourceSchemaSerializerCE.serializeTable) emits "" for a null type; without this the client emitted
+    // the literal "undefined" into the schema handed to the model.
+    let entry = col.type ? `${col.name} ${col.type}` : `${col.name}`;
 
     if (pkColumns.has(col.name)) entry += " PK";
 

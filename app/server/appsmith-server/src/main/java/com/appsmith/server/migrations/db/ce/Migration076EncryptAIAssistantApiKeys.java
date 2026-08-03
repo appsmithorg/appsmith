@@ -48,7 +48,17 @@ public class Migration076EncryptAIAssistantApiKeys {
 
     @Execution
     public void executeMigration() {
-        Query hasAiConfig = Query.query(Criteria.where(CONFIG_PATH).ne(null));
+        // Match only organizations that actually hold a credential worth encrypting. Migration075 gives EVERY
+        // organization an aiAssistantConfig, so a bare `CONFIG_PATH ne null` matches the whole collection — and this
+        // loads full Organization documents into memory. Harmless for a single-org self-hosted instance, an
+        // unbounded in-memory scan on a multi-tenant deployment, which is exactly where this also has to run.
+        Criteria hasAnyKey = new Criteria()
+                .orOperator(KEY_FIELDS.stream()
+                        .map(field -> Criteria.where(CONFIG_PATH + "." + field)
+                                .exists(true)
+                                .ne(""))
+                        .toArray(Criteria[]::new));
+        Query hasAiConfig = Query.query(hasAnyKey);
 
         long encryptedCount = 0;
         long organizationCount = 0;

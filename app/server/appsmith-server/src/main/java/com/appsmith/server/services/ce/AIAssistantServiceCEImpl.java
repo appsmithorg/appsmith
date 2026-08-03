@@ -577,8 +577,11 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                                 return Mono.error(
                                         new AppsmithException(AppsmithError.INVALID_CREDENTIALS, "Access denied"));
                             }
+                            log.warn("Local LLM request failed with status {}: {}", statusCode, errorBody);
                             return Mono.error(new AppsmithException(
-                                    AppsmithError.INTERNAL_SERVER_ERROR, "Local LLM request failed: " + errorBody));
+                                    AppsmithError.INTERNAL_SERVER_ERROR,
+                                    "The local LLM server returned an error (HTTP " + statusCode
+                                            + "). Check the server logs for the provider response."));
                         }))
                 .bodyToMono(JsonNode.class)
                 .map(this::extractLocalLLMResponse)
@@ -760,8 +763,11 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                                         AppsmithError.INTERNAL_SERVER_ERROR,
                                         "Rate limit exceeded. Please try again later."));
                             }
+                            log.warn("Azure OpenAI request failed with status {}: {}", statusCode, errorBody);
                             return Mono.error(new AppsmithException(
-                                    AppsmithError.INTERNAL_SERVER_ERROR, "Azure OpenAI request failed: " + errorBody));
+                                    AppsmithError.INTERNAL_SERVER_ERROR,
+                                    "Azure OpenAI returned an error (HTTP " + statusCode
+                                            + "). Check the server logs for the provider response."));
                         }))
                 .bodyToMono(JsonNode.class)
                 .map(this::extractOpenAICompatibleResponse)

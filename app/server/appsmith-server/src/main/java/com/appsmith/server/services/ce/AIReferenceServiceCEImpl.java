@@ -7,8 +7,9 @@ import org.springframework.core.io.ClassPathResource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -30,11 +31,23 @@ public class AIReferenceServiceCEImpl implements AIReferenceServiceCE {
     private static final String COMMON_ISSUES_KEY = "common-issues";
     private static final String BUNDLED_RESOURCE_PREFIX = "ai-references/";
 
+    /**
+     * The only modes that may be looked up or cached.
+     *
+     * <p>{@code mode} reaches this service straight from the client via {@code AIEditorContextDTO.getMode()}, and it
+     * used to be both the cache key and part of a classpath resource path. The cache is an unbounded
+     * {@code ConcurrentHashMap} with no eviction, so an authenticated caller looping over random modes grew the heap
+     * without bound; and building a resource path out of caller-supplied text is unvalidated path construction even
+     * though {@code cleanPath} plus the {@code -reference.md} suffix made traversal impractical. An allowlist closes
+     * both at once, and it costs nothing: these are exactly the modes that have a bundled reference.
+     */
+    private static final Set<String> SUPPORTED_MODES = Set.of("javascript", "sql", "graphql");
+
     public AIReferenceServiceCEImpl() {}
 
     @PostConstruct
     void warmCache() {
-        for (String mode : List.of("javascript", "sql", "graphql")) {
+        for (String mode : SUPPORTED_MODES) {
             getReferenceContent(mode);
         }
         getCommonIssuesContent();
@@ -47,7 +60,13 @@ public class AIReferenceServiceCEImpl implements AIReferenceServiceCE {
             return "";
         }
 
-        String normalizedMode = mode.toLowerCase().trim();
+        // Locale.ROOT so a Turkish-locale server does not fold "I" to a dotless i and miss the allowlist.
+        String normalizedMode = mode.trim().toLowerCase(Locale.ROOT);
+        if (!SUPPORTED_MODES.contains(normalizedMode)) {
+            // Unknown mode: no cache entry, no resource lookup. The system prompt simply carries no
+            // language-specific reference, which is the same outcome as a mode with no bundled file.
+            return "";
+        }
         String cacheKey = "mode:" + normalizedMode;
 
         String cached = contentCache.get(cacheKey);

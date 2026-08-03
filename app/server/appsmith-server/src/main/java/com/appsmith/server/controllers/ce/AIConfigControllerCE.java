@@ -34,17 +34,21 @@ public class AIConfigControllerCE {
         return aiConfigService
                 .updateAIConfig(aiConfig)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK, result))
-                .onErrorResume(error -> {
-                    String errorMessage = "Failed to update AI configuration";
-                    if (error instanceof AppsmithException appsmithError) {
-                        if (appsmithError.getError() == AppsmithError.ACL_NO_RESOURCE_FOUND) {
-                            errorMessage = "You do not have permission to update this configuration";
-                        } else {
-                            errorMessage = appsmithError.getError().getMessage();
-                        }
+                // Signal the error rather than completing normally with a 400 in the body: returning a Mono.just made
+                // the WIRE status 200 for every failure, so a client branching on HTTP status could not tell an
+                // authorization refusal from a successful save. Preserve the authorization distinction too — mapping
+                // a denial onto the same status as bad input leaves callers unable to tell them apart.
+                .onErrorMap(error -> {
+                    if (error instanceof AppsmithException appsmithError
+                            && appsmithError.getError() == AppsmithError.ACL_NO_RESOURCE_FOUND) {
+                        return new AppsmithException(
+                                AppsmithError.UNAUTHORIZED_ACCESS,
+                                "You do not have permission to update this configuration");
                     }
-                    return Mono.just(new ResponseDTO<Map<String, Object>>(
-                            HttpStatus.BAD_REQUEST.value(), null, errorMessage, false));
+                    return error instanceof AppsmithException
+                            ? error
+                            : new AppsmithException(
+                                    AppsmithError.INVALID_PARAMETER, "Failed to update AI configuration");
                 });
     }
 

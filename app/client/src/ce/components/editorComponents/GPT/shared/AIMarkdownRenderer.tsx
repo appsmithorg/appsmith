@@ -245,9 +245,23 @@ const MARKDOWN_COMPONENTS: Partial<Components> = {
       </a>
     );
   },
+  img({ src, ...props }) {
+    // Model output is untrusted. Without this override react-markdown renders any image URL it produces, which
+    // makes the viewer's browser issue an outbound request to a server the model chose — a tracking pixel or a
+    // request-timing side channel. Same scheme allowlist the anchor override uses, and no referrer.
+    const safeSrc = src && SAFE_URL_PATTERN.test(String(src)) ? src : undefined;
+
+    if (!safeSrc) {
+      return null;
+    }
+
+    return <img {...props} referrerPolicy="no-referrer" src={safeSrc} />;
+  },
   code({ children, className, ...props }) {
     const match = /language-(\w+)/.exec(className || "");
-    const isInline = !match && !className;
+    // In react-markdown v9 a fenced block with no language carries no className, so a className-only test
+    // misclassified it as inline and skipped the copyable code block. A real inline span never contains a newline.
+    const isInline = !match && !className && !String(children).includes("\n");
 
     if (isInline) {
       return <code {...props}>{children as React.ReactNode}</code>;

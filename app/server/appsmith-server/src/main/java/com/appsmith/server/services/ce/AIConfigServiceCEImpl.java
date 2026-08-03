@@ -392,7 +392,9 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
                     List.of(
                             "Ensure URL starts with http:// or https://",
                             "Check for typos in the hostname",
-                            "Example: http://localhost:11434/api/generate"));
+                            "Use a hostname or private IP, not a loopback address: inside the Appsmith "
+                                    + "container localhost/127.0.0.1 is Appsmith's own MongoDB, Redis and RTS",
+                            "Example: http://host.docker.internal:11434/api/generate"));
             return Mono.just(response);
         }
 
@@ -404,8 +406,10 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
         return Mono.fromCallable(() -> java.net.InetAddress.getByName(host))
                 .subscribeOn(Schedulers.boundedElastic())
                 .flatMap(resolvedAddress -> {
-                    steps.add(createStep("DNS Resolution", "success", host + " → " + resolvedAddress.getHostAddress()));
-                    final String resolvedIp = resolvedAddress.getHostAddress();
+                    // Report THAT the hostname resolved, not what it resolved to. Echoing the address (like the
+                    // dropped resolvedIp/responsePreview fields) let a manager use this diagnostic to map the
+                    // instance's private network, since matchesBlockedAddressClass deliberately permits RFC1918.
+                    steps.add(createStep("DNS Resolution", "success", "Resolved " + host));
 
                     HttpClient httpClient = HttpClient.create()
                             .responseTimeout(Duration.ofSeconds(10))
@@ -454,7 +458,6 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
                                             response.put("httpStatus", statusCode);
                                             response.put("host", host);
                                             response.put("port", port);
-                                            response.put("resolvedIp", resolvedIp);
 
                                             boolean looksLikeLlm = false;
                                             String contentType = clientResponse
@@ -475,7 +478,6 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
                                                         "error",
                                                         "Endpoint not found - the path '" + uri.getPath()
                                                                 + "' does not exist on this server");
-                                                response.put("responsePreview", truncatedResponse);
                                                 response.put(
                                                         "suggestions",
                                                         List.of(
@@ -490,7 +492,6 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
                                                 response.put(
                                                         "error",
                                                         "This doesn't appear to be an LLM API endpoint - received HTML response");
-                                                response.put("responsePreview", truncatedResponse);
                                                 response.put(
                                                         "suggestions",
                                                         List.of(
@@ -531,7 +532,6 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
                                                             "warning",
                                                             "Received JSON but couldn't confirm this is an LLM endpoint - please verify manually");
                                                 }
-                                                response.put("responsePreview", truncatedResponse);
                                             } else {
                                                 finalSteps.add(createStep(
                                                         "Endpoint Check",
@@ -539,7 +539,6 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
                                                         "Unexpected content type: " + contentType));
                                                 response.put(
                                                         "warning", "Received unexpected content type: " + contentType);
-                                                response.put("responsePreview", truncatedResponse);
                                             }
 
                                             if (statusCode >= 200 && statusCode < 300 && looksLikeLlm) {
@@ -575,7 +574,6 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
                                 response.put("responseTimeMs", responseTime);
                                 response.put("host", host);
                                 response.put("port", port);
-                                response.put("resolvedIp", resolvedIp);
 
                                 if (error instanceof WebClientRequestException) {
                                     Throwable cause = error.getCause();
@@ -1008,9 +1006,7 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
                                     steps.add(createStep("API Request", "error", "HTTP " + statusCode));
                                     response.put("success", false);
                                     response.put("error", "OpenAI API returned HTTP " + statusCode);
-                                    if (responseBody.length() < 500) {
-                                        response.put("responsePreview", responseBody);
-                                    }
+                                    if (responseBody.length() < 500) {}
                                 }
 
                                 response.put("steps", steps);
@@ -1135,16 +1131,12 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
                                         response.put("success", false);
                                         response.put("error", "API request error (key may still be valid)");
                                     }
-                                    if (responseBody.length() < 500) {
-                                        response.put("responsePreview", responseBody);
-                                    }
+                                    if (responseBody.length() < 500) {}
                                 } else {
                                     steps.add(createStep("API Request", "error", "HTTP " + statusCode));
                                     response.put("success", false);
                                     response.put("error", "Anthropic API returned HTTP " + statusCode);
-                                    if (responseBody.length() < 500) {
-                                        response.put("responsePreview", responseBody);
-                                    }
+                                    if (responseBody.length() < 500) {}
                                 }
 
                                 response.put("steps", steps);
@@ -1305,9 +1297,7 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
                                     steps.add(createStep("API Request", "error", "HTTP " + statusCode));
                                     response.put("success", false);
                                     response.put("error", "Azure OpenAI API returned HTTP " + statusCode);
-                                    if (responseBody.length() < 500) {
-                                        response.put("responsePreview", responseBody);
-                                    }
+                                    if (responseBody.length() < 500) {}
                                 }
 
                                 response.put("steps", steps);

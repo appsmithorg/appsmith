@@ -256,6 +256,12 @@ export function GlobalAISidePanel() {
 
   const handleQuickAction = useCallback(
     (actionPrompt: string) => {
+      // A quick-action chip is a plain button, so without this a user can fire a second request while the first is
+      // still running — two provider calls, two charges, and two responses racing into the same panel.
+      if (isLoading) {
+        return;
+      }
+
       dispatch(
         fetchAIResponse({
           prompt: actionPrompt,
@@ -263,7 +269,7 @@ export function GlobalAISidePanel() {
         }),
       );
     },
-    [editorContext, dispatch],
+    [editorContext, dispatch, isLoading],
   );
 
   const handleClearChat = useCallback(() => {
@@ -380,6 +386,7 @@ export function GlobalAISidePanel() {
           <QuickActionsGrid>
             {QUICK_ACTIONS.map((action) => (
               <QuickActionChip
+                disabled={isLoading}
                 key={action.label}
                 onClick={() => handleQuickAction(action.prompt)}
                 title={action.prompt}

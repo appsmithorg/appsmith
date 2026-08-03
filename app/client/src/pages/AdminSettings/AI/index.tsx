@@ -1201,13 +1201,17 @@ function AISettings() {
                   setLocalLlmModel("");
                   setTestResult(null);
                 }}
-                placeholder="http://localhost:11434/api/generate"
+                placeholder="http://host.docker.internal:11434/api/generate"
                 type="text"
                 value={localLlmUrl}
               />
               <HintText color="var(--ads-v2-color-fg-muted)" kind="body-s">
                 Enter your Ollama endpoint URL (e.g.,
-                http://localhost:11434/api/generate)
+                http://host.docker.internal:11434/api/generate). Loopback
+                addresses such as localhost and 127.0.0.1 are refused: inside
+                the Appsmith container those point at Appsmith&apos;s own
+                MongoDB, Redis and RTS rather than your model server. Reach a
+                local model by hostname or private IP instead.
               </HintText>
             </FieldWrapper>
 
