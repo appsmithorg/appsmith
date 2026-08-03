@@ -284,9 +284,12 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
         String safePrompt = prompt == null ? "" : prompt;
         String safeCurrentValue = context.getCurrentValue() == null ? "" : context.getCurrentValue();
 
+        // EDIT, not EXECUTE. The assistant is an authoring tool — it writes and rewrites the query or JS behind an
+        // entity — so the bar is the one for changing that entity, not the one for running it. Execute is a
+        // viewer-level permission, so gating on it let a read-only member drive the assistant against an entity
+        // they cannot modify, and spend the organization's provider credits doing it.
         return newActionService
-                .findActionDTObyIdAndViewMode(
-                        context.getEntityId().trim(), false, actionPermission.getExecutePermission())
+                .findActionDTObyIdAndViewMode(context.getEntityId().trim(), false, actionPermission.getEditPermission())
                 .flatMap(action -> {
                     if (action.getPluginType() != PluginType.DB) {
                         return Mono.just(context);
