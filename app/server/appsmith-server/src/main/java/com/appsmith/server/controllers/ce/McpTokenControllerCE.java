@@ -1,6 +1,7 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.server.authentication.tokens.McpTokenAuthentication;
+import com.appsmith.server.constants.ce.McpEnvGate;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.McpTokenCreateRequestDTO;
 import com.appsmith.server.dtos.McpTokenResponseDTO;
@@ -18,8 +19,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 public class McpTokenControllerCE {
@@ -35,8 +37,10 @@ public class McpTokenControllerCE {
         this.mcpEnabledFlag = mcpEnabledFlag;
     }
 
+    // Delegates to the one shared definition of the gate (see McpEnvGate) so this minting guard and the bearer-auth
+    // filter in SecurityConfig cannot drift apart about what "enabled" means.
     private boolean isMcpEnabled() {
-        return mcpEnabledFlag != null && mcpEnabledFlag.trim().matches("(?i)^(true|1|yes|on)$");
+        return McpEnvGate.isEnabled(mcpEnabledFlag);
     }
 
     /**
@@ -98,12 +102,22 @@ public class McpTokenControllerCE {
                         : Mono.empty());
     }
 
+    /**
+     * Returns the caller's tokens in the single-envelope shape every other list endpoint uses:
+     * {@code Mono<ResponseDTO<List<T>>>}, i.e. one {@code responseMeta} wrapping the whole list.
+     *
+     * <p>This previously returned {@code Flux<ResponseDTO<McpTokenResponseDTO>>}, which serializes to a bare JSON
+     * array of N envelopes and was the only such signature in the server. The client's global response interceptor
+     * looks for a top-level {@code responseMeta} and reports "Api responded without response meta" to telemetry
+     * when it is missing, so every token-list load raised a spurious error; an empty list also degenerated to
+     * {@code []} with no envelope at all, leaving nothing to check for success.
+     */
     @GetMapping
-    public Flux<ResponseDTO<McpTokenResponseDTO>> list(@AuthenticationPrincipal User user) {
+    public Mono<ResponseDTO<List<McpTokenResponseDTO>>> list(@AuthenticationPrincipal User user) {
         // Token management is session-only: an MCP-authenticated caller must not be able to enumerate a user's tokens.
         return requireSessionAuthentication()
-                .thenMany(Flux.defer(
-                        () -> userMcpTokenService.list(user).map(token -> new ResponseDTO<>(HttpStatus.OK, token))));
+                .then(Mono.defer(() -> userMcpTokenService.list(user).collectList()))
+                .map(tokens -> new ResponseDTO<>(HttpStatus.OK, tokens));
     }
 
     @DeleteMapping("/{tokenId}")

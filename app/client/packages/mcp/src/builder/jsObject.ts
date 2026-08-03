@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { storedId } from "./schema.js";
 
 // U+2028/U+2029 are included for the same reason schema.ts documents: JSON.stringify does NOT escape them,
 // so a value carrying one can break out of the emitted string literal on an older JS engine.
@@ -11,14 +12,8 @@ const identifier = z
   .min(1)
   .max(128)
   .regex(IDENTIFIER, "must be a plain identifier");
-const entityId = z
-  .string()
-  .min(1)
-  .max(128)
-  .refine(
-    (value) => !RAW_EXPRESSION.test(value),
-    "must not contain template syntax",
-  );
+// Stored IDs use the shared `storedId` schema — see schema.ts for why the charset is the security property here.
+const entityId = storedId;
 const revision = z.string().regex(REVISION, "must be a SHA-256 revision token");
 const collectionName = z
   .string()

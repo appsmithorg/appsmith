@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { storedId } from "./schema.js";
 
 // D4 create_graphql_query — a STRUCTURED GraphQL builder. A GraphQL operation is itself a query language, so unlike
 // SQL/Mongo the compiler cannot synthesize the whole operation; instead it accepts the operation STRING plus a
@@ -14,8 +15,10 @@ import { z } from "zod";
 // are literals (JSON-encoded) or widget references (`{{ Widget.prop }}`, parameterized by smart substitution).
 
 // A GraphQL query/mutation string. Blocks the binding-open `{{`, template `${`, and backtick so it can never become
-// an Appsmith binding; `}}`, `{`, and `$name` (GraphQL variable syntax) are allowed.
-const GRAPHQL_BINDING_OPEN = /\{\{|\$\{|`/;
+// an Appsmith binding; `}}`, `{`, and `$name` (GraphQL variable syntax) are allowed. U+2028/U+2029 are blocked for
+// the same reason the sibling builders block them: JSON.stringify does not escape them, and this operation string is
+// written verbatim into the persisted actionConfiguration.body — up to 8000 characters of agent-authored text.
+const GRAPHQL_BINDING_OPEN = /\{\{|\$\{|`|\u2028|\u2029/;
 const graphqlOperation = z
   .string()
   .trim()
@@ -81,9 +84,9 @@ const valueRef = z.union([
 export const graphqlQuerySpecSchema = z
   .object({
     name: bindingIdentifier,
-    applicationId: z.string().min(1).max(128),
-    pageId: z.string().min(1).max(128),
-    datasourceId: z.string().min(1).max(128),
+    applicationId: storedId,
+    pageId: storedId,
+    datasourceId: storedId,
     query: graphqlOperation,
     // The operation's variables ($name in the query). Each value is a literal or a widget reference.
     variables: z

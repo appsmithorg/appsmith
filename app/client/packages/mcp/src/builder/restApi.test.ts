@@ -217,6 +217,30 @@ describe("restApiSpecSchema — rejects injection and unbounded input", () => {
       "inline datasource config",
       { datasourceId: { url: "https://attacker.example" } },
     ],
+    // JSON.stringify does not escape U+2028/U+2029, so before RAW_EXPRESSION covered them a literal carrying one
+    // landed raw inside the persisted actionConfiguration.body — and assertBodySafe does not catch them either
+    // (it only inspects `${`, backticks, and `{{`/`}}` balance).
+    [
+      "U+2028 line separator in a body literal",
+      {
+        method: "POST",
+        body: {
+          type: "json",
+          values: { note: { literal: `a${String.fromCharCode(0x2028)}b` } },
+        },
+      },
+    ],
+    [
+      "U+2029 paragraph separator in a query literal",
+      {
+        queryParameters: [
+          {
+            key: "note",
+            value: { literal: `a${String.fromCharCode(0x2029)}b` },
+          },
+        ],
+      },
+    ],
   ];
 
   it.each(bad)("rejects %s", (_label, override) => {

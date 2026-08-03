@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { storedId } from "./schema.js";
 
 // M4-T2 create_mongo_query — a STRUCTURED MongoDB query builder, the NoSQL analog of create_query. The agent never
 // authors a raw Mongo command string or raw `{{ }}` bindings. The compiler emits the Mongo plugin's `formData`
@@ -71,9 +72,9 @@ export const mongoQuerySpecSchema = z
     name: bindingIdentifier,
     // No workspaceId: the tool resolves the workspace server-authoritatively from applicationId (cross-tenant guard),
     // exactly like create_query.
-    applicationId: z.string().min(1).max(128),
-    pageId: z.string().min(1).max(128),
-    datasourceId: z.string().min(1).max(128),
+    applicationId: storedId,
+    pageId: storedId,
+    datasourceId: storedId,
     collection: mongoCollection,
     operation: z.enum(["FIND", "INSERT", "UPDATE", "DELETE"]),
     // FIND/UPDATE/DELETE: an equality filter over allow-listed fields; each value is a bind param (literal or widget).

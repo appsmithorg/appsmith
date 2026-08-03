@@ -28,12 +28,13 @@ class McpTokenApi extends Api {
     return response as unknown as ApiResponse<CreatedMcpToken>;
   }
 
-  static async list(): Promise<ApiResponse<McpTokenMetadata>[]> {
+  // One envelope whose `data` holds the whole list, matching every other list endpoint. (The server used to return
+  // Flux<ResponseDTO<T>> — a bare array of N envelopes — which had no top-level responseMeta for the shared
+  // response interceptor to validate.)
+  static async list(): Promise<ApiResponse<McpTokenMetadata[]>> {
     const response = await Api.get(McpTokenApi.url);
 
-    return (
-      Array.isArray(response) ? response : [response]
-    ) as ApiResponse<McpTokenMetadata>[];
+    return response as unknown as ApiResponse<McpTokenMetadata[]>;
   }
 
   static async rotate(tokenId: string): Promise<ApiResponse<CreatedMcpToken>> {

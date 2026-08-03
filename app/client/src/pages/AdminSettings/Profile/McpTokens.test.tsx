@@ -30,13 +30,16 @@ const renderComponent = () =>
 
 describe("McpTokens", () => {
   beforeEach(() => {
-    (McpTokenApi.list as jest.Mock).mockResolvedValue([
-      successResponse({
-        id: "token-1",
-        createdAt: "2026-07-10T12:00:00.000Z",
-        expiresAt: "2026-10-08T12:00:00.000Z",
-      }),
-    ]);
+    // One envelope whose data is the whole list, matching the server's Mono<ResponseDTO<List<T>>>.
+    (McpTokenApi.list as jest.Mock).mockResolvedValue(
+      successResponse([
+        {
+          id: "token-1",
+          createdAt: "2026-07-10T12:00:00.000Z",
+          expiresAt: "2026-10-08T12:00:00.000Z",
+        },
+      ]),
+    );
   });
 
   afterEach(() => {

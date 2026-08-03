@@ -109,6 +109,29 @@ function safeText(max: number) {
     });
 }
 
+// A stored Appsmith identifier (applicationId, pageId, datasourceId, actionId, collectionId, workspaceId,
+// pluginId). The canonical schema — reach for this in any new builder, rather than writing another local regex.
+//
+// It is not yet the package's ONLY id schema, and the difference is deliberate rather than drift:
+//   - `pages.ts`'s APP_OR_PAGE_ID adds a 24-50 length bound on top of this charset. Stricter, kept as-is.
+//   - `app.ts`'s idSchema also allows `_` and `-` and trims, because it guards the tool boundary where ids arrive
+//     from server responses, not from an agent-authored spec.
+// The three guard disjoint entry paths and never chain, so the looser one cannot be used to bypass this one.
+// Converging them is tracked as follow-up; until then, prefer this schema and do not add a fourth.
+//
+// These values are interpolated into URL path segments by the API wrappers. encodeURIComponent does not touch "."
+// (it is unreserved), so a bare ".." arrived at the wrapper intact and the WHATWG URL parser then normalized
+// /api/v1/actions/.. down to /api/v1/ — an agent-chosen id silently retargeting the request at a different
+// endpoint. Real Appsmith ids are alphanumeric (Mongo ObjectId hex), so pinning the charset rejects dot segments,
+// "/", "\", and "%" outright. It also subsumes the RAW_EXPRESSION check these fields used to carry, since `{`, `}`,
+// `$`, and backtick all fall outside it. The length bound stays loose (matching the charset of pages.ts's
+// APP_OR_PAGE_ID without its 24-50 length rule) so existing callers are unaffected.
+export const storedId = z
+  .string()
+  .min(1)
+  .max(128)
+  .regex(/^[A-Za-z0-9]+$/, "must be an alphanumeric Appsmith identifier");
+
 // A literal CSS color for widget style props (text color, backgrounds), emitted raw into the widget config the viewer
 // renders. This is a COLOR-GRAMMAR allowlist, NOT a loose charset: hex, an rgb/rgba/hsl/hsla function with a
 // numeric-only argument list, or a bare named-color token. Crucially it cannot spell `url(...)` (letters are forbidden

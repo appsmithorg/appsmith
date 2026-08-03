@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { storedId } from "./schema.js";
 
 // D5 create_ai_query — a STRUCTURED chat-completion builder for the OpenAI / Anthropic / Google AI plugins. The
 // agent never authors a raw request body or raw `{{ }}` bindings: it supplies a model id and a list of role/content
@@ -70,7 +71,7 @@ const propertyPath = z
   .regex(/^[A-Za-z_][A-Za-z0-9_.]*$/, "must be a dotted identifier path");
 
 // Message content — a literal (no binding/template syntax) or a widget reference resolved at runtime.
-const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`/;
+const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`|\u2028|\u2029/;
 const contentRef = z.union([
   z
     .object({
@@ -92,9 +93,9 @@ export const aiQuerySpecSchema = z
   .object({
     name: bindingIdentifier,
     // No workspaceId: the tool resolves the workspace server-authoritatively from applicationId (cross-tenant guard).
-    applicationId: z.string().min(1).max(128),
-    pageId: z.string().min(1).max(128),
-    datasourceId: z.string().min(1).max(128),
+    applicationId: storedId,
+    pageId: storedId,
+    datasourceId: storedId,
     model: modelId,
     messages: z
       .array(
@@ -170,9 +171,17 @@ export function compileAiQuery(
   };
 
   if (provider.supportsTuning) {
-    if (spec.maxTokens !== undefined) formData.maxTokens = spec.maxTokens;
+    // maxTokens/temperature are the one pair the plugins read with
+    // RequestUtils.extractValueFromFormData -> `(String) formData.get(key)`, i.e. the TOP-LEVEL value cast straight
+    // to String — unlike command/model/messages, which go through extractDataFromFormData and therefore need the
+    // `{ data: ... }` wrapper. Emitting a JSON number here deserializes to Integer/Double server-side and the cast
+    // throws ClassCastException, so serialize as a top-level string. Verified against openAiPlugin ChatCommand /
+    // VisionCommand and anthropicPlugin CommandUtils, which both parse the string back with parseFloat/parseInt.
+    if (spec.maxTokens !== undefined)
+      formData.maxTokens = String(spec.maxTokens);
 
-    if (spec.temperature !== undefined) formData.temperature = spec.temperature;
+    if (spec.temperature !== undefined)
+      formData.temperature = String(spec.temperature);
   }
 
   // De-duplicate the messages binding path (one entry covers the whole field).

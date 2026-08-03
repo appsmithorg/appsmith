@@ -10,6 +10,7 @@ import com.appsmith.server.authentication.managers.McpTokenAuthenticationManager
 import com.appsmith.server.authentication.oauth2clientrepositories.CustomOauth2ClientRepositoryManager;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.constants.ce.McpEnvGate;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
@@ -188,11 +189,10 @@ public class SecurityConfig {
         return new McpSecurityFilters(mcpTokenAuthenticationWebFilter, mcpAllowlistWebFilter);
     }
 
-    // Allow-list, not deny-list: MCP is OFF unless an operator explicitly opted in with a recognized truthy value.
-    // An absent, blank, or unrecognized value therefore means disabled, so no instance can acquire an agent-facing
-    // endpoint by upgrading into it.
+    // Delegates to the one shared definition of the gate (see McpEnvGate) so this filter and the token-minting
+    // guard in McpTokenControllerCE cannot drift apart about what "enabled" means.
     private boolean isMcpEnabled() {
-        return mcpEnabledFlag != null && mcpEnabledFlag.trim().matches("(?i)^(true|1|yes|on)$");
+        return McpEnvGate.isEnabled(mcpEnabledFlag);
     }
 
     // Whether the MCP bearer-auth filter should engage for this request. Evaluated PER REQUEST (not captured at bean

@@ -534,7 +534,7 @@ configure_supervisord() {
   cp -f "$supervisord_conf_source"/application_process/*.conf "$SUPERVISORD_CONF_TARGET"
 
   # The MCP program is always installed (but disabled by default); run-mcp.sh itself parks unless APPSMITH_MCP_ENABLED is
-  # explicitly disabled. This keeps the toggle switchable from Admin Settings -> Configuration without a container
+  # explicitly enabled. This keeps the toggle switchable from Admin Settings -> MCP Server (BETA) without a container
   # restart: a supervisord program restart re-reads docker.env via run-with-env.sh.
 
   # Disable services based on configuration

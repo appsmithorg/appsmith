@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { storedId } from "./schema.js";
 
 // M4 create_query — a STRUCTURED query builder (Security ruling "Option B"). The agent never authors raw SQL or raw
 // `{{ }}`. The compiler emits the SQL text AND every binding from validated identifiers, and every value is emitted
@@ -82,9 +83,9 @@ export const querySpecSchema = z
     name: bindingIdentifier,
     // NOTE: no workspaceId — the tool resolves the workspace server-authoritatively from applicationId so a
     // prompt-injected agent cannot bind a datasource from another workspace onto this page (cross-tenant guard).
-    applicationId: z.string().min(1).max(128),
-    pageId: z.string().min(1).max(128),
-    datasourceId: z.string().min(1).max(128),
+    applicationId: storedId,
+    pageId: storedId,
+    datasourceId: storedId,
     operation: z.enum(["SELECT", "INSERT", "UPDATE", "DELETE"]),
     table: qualifiedName,
     columns: z.array(sqlIdentifier).max(100).optional(),

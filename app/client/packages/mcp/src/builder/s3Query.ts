@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { storedId } from "./schema.js";
 
 // D4 create_s3_query — a STRUCTURED Amazon S3 file-action builder. The agent never authors a raw request body or raw
 // `{{ }}` bindings: it picks an operation (list / read / upload / delete) and supplies a bucket, key, and (for
@@ -71,9 +72,9 @@ type KeyRef = z.infer<typeof keyRef>;
 export const s3QuerySpecSchema = z
   .object({
     name: bindingIdentifier,
-    applicationId: z.string().min(1).max(128),
-    pageId: z.string().min(1).max(128),
-    datasourceId: z.string().min(1).max(128),
+    applicationId: storedId,
+    pageId: storedId,
+    datasourceId: storedId,
     operation: z.enum(["list", "read", "upload", "delete"]),
     bucket: s3Bucket,
     // read/upload/delete: the object key. list: optional prefix filter.

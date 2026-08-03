@@ -255,6 +255,16 @@ try {
 
   const passed = results.filter((r) => r.ok).length;
   console.log(`\n==== ${passed}/${results.length} passed ====`);
+
+  // A failed check has to fail the process, not just the console output — otherwise anything running this harness
+  // (a human, or CI if it is ever wired up) reads a clean exit as a green run.
+  if (passed !== results.length) {
+    for (const failure of results.filter((r) => !r.ok)) {
+      console.error(`FAILED: ${failure.name}`);
+    }
+
+    process.exitCode = 1;
+  }
 } finally {
   await client.close();
 }

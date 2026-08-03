@@ -467,6 +467,26 @@ describe("sheetsQuerySpecSchema — rejects unsafe references and values", () =>
     }
   });
 
+  // JSON.stringify leaves U+2028/U+2029 raw, and a literal row value is embedded via JSON.stringify into the
+  // emitted binding that lands in the persisted action — the same sink the restApi builder guards.
+  it.each([
+    ["U+2028 line separator", 0x2028],
+    ["U+2029 paragraph separator", 0x2029],
+  ])("rejects %s in an appended row value", (_label, codePoint) => {
+    expect(
+      sheetsQuerySpecSchema.safeParse({
+        ...base,
+        operation: "append",
+        row: [
+          {
+            column: "name",
+            value: { literal: `a${String.fromCharCode(codePoint)}b` },
+          },
+        ],
+      }).success,
+    ).toBe(false);
+  });
+
   it("rejects a sheet name / column / range with unsafe characters", () => {
     expect(
       sheetsQuerySpecSchema.safeParse({

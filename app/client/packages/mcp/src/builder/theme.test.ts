@@ -95,15 +95,121 @@ describe("theme update payload builder", () => {
     expect(themePatchSchema.safeParse(patch).success).toBe(false);
   });
 
-  it("rejects an unsafe stored token instead of projecting it", () => {
-    expect(() =>
-      projectTheme({
-        ...storedTheme,
-        properties: {
-          ...storedTheme.properties,
-          colors: { primaryColor: "url(https://attacker.example)" },
-        },
-      }),
-    ).toThrow();
+  // An unsafe stored token is omitted from the projection rather than thrown on. Throwing made the whole read fail,
+  // which took read_theme/update_theme down for any app whose theme held a value the strict allowlist cannot model
+  // — reachable through ordinary product use, since the theme color control accepts any CSS color via
+  // isValidColor(). The exclusion itself is the security property and is preserved.
+  it("omits an unsafe stored token from the projection instead of returning it", () => {
+    const projected = projectTheme({
+      ...storedTheme,
+      properties: {
+        ...storedTheme.properties,
+        colors: { primaryColor: "url(https://attacker.example)" },
+      },
+    });
+
+    expect(projected.primaryColor).toBeUndefined();
+    expect(JSON.stringify(projected)).not.toContain("attacker.example");
+    // Named, so the caller can tell "unset" from "present but not showable" — but the VALUE never crosses.
+    expect(projected.unsupportedTokens).toEqual(["primaryColor"]);
+    // The rest of the theme still reads.
+    expect(projected.borderRadius).toBe(
+      storedTheme.properties.borderRadius.appBorderRadius,
+    );
+    expect(projected.revision).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it("reports nothing as unsupported when every stored token projects", () => {
+    expect(projectTheme(storedTheme).unsupportedTokens).toBeUndefined();
+  });
+
+  it("does not report an absent token as unsupported", () => {
+    // Absent means unset, which is not the same as present-but-unshowable.
+    const projected = projectTheme({
+      ...storedTheme,
+      properties: {
+        ...storedTheme.properties,
+        colors: {},
+      },
+    });
+
+    expect(projected.primaryColor).toBeUndefined();
+    expect(projected.unsupportedTokens).toBeUndefined();
+  });
+
+  it("changes the revision when a token crosses the projectable boundary", () => {
+    // Guards the concurrency blind spot: with only projected tokens fingerprinted, a hex -> rgb() edit would have
+    // left the revision identical, so update_theme could not detect the concurrent change.
+    const withHex = projectTheme(storedTheme);
+    const withRgb = projectTheme({
+      ...storedTheme,
+      properties: {
+        ...storedTheme.properties,
+        colors: { primaryColor: "rgb(85, 61, 233)" },
+      },
+    });
+
+    expect(withRgb.revision).not.toBe(withHex.revision);
+  });
+
+  it("reads a theme whose stored color is a valid CSS color the allowlist cannot model", () => {
+    const projected = projectTheme({
+      ...storedTheme,
+      properties: {
+        ...storedTheme.properties,
+        colors: { primaryColor: "rgb(85, 61, 233)" },
+      },
+    });
+
+    // Not projected (not a hex color), but the call succeeds instead of throwing — and says so.
+    expect(projected.primaryColor).toBeUndefined();
+    expect(projected.unsupportedTokens).toEqual(["primaryColor"]);
+    expect(projected.fontFamily).toBe(
+      storedTheme.properties.fontFamily.appFont,
+    );
+  });
+
+  // The harm case: an agent must be able to see that primaryColor exists before it overwrites it. Writing is still
+  // permitted — the point is that the read no longer looks like "unstyled app".
+  it("warns before an agent can overwrite an unprojectable token it never saw", () => {
+    const current = {
+      ...storedTheme,
+      properties: {
+        ...storedTheme.properties,
+        colors: { primaryColor: "rgb(85, 61, 233)" },
+      },
+    };
+
+    expect(projectTheme(current).unsupportedTokens).toContain("primaryColor");
+
+    const payload = buildThemeUpdatePayload(current, {
+      primaryColor: "#ff0000",
+    });
+    const properties = payload.properties as Record<
+      string,
+      Record<string, unknown>
+    >;
+
+    expect(properties.colors.primaryColor).toBe("#ff0000");
+  });
+
+  it("preserves an unprojectable stored token when writing an unrelated one", () => {
+    const current = {
+      ...storedTheme,
+      properties: {
+        ...storedTheme.properties,
+        colors: { primaryColor: "rgb(85, 61, 233)" },
+      },
+    };
+    const payload = buildThemeUpdatePayload(current, {
+      borderRadius: "1.5rem",
+    });
+    const properties = payload.properties as Record<
+      string,
+      Record<string, unknown>
+    >;
+
+    expect(properties.colors.primaryColor).toBe("rgb(85, 61, 233)");
+    expect(properties.borderRadius.appBorderRadius).toBe("1.5rem");
   });
 });

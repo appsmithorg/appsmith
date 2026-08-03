@@ -11,18 +11,13 @@ import {
   restApiSpecSchema,
   type RestApiSpec,
 } from "./restApi.js";
+import { storedId } from "./schema.js";
 
 // Lifecycle operations identify an already stored action. They deliberately have no escape hatch for inline
 // datasource settings, raw SQL, or arbitrary action configuration.
-const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`/;
-const identifier = z
-  .string()
-  .min(1)
-  .max(128)
-  .refine(
-    (value) => !RAW_EXPRESSION.test(value),
-    "must not contain template syntax",
-  );
+//
+// Stored IDs use the shared `storedId` schema — see schema.ts for why the charset is the security property here.
+const identifier = storedId;
 const actionName = z
   .string()
   .min(1)

@@ -202,7 +202,7 @@ function McpTokens() {
     try {
       const response = await McpTokenApi.list();
 
-      setTokens(response.map(ensureSuccess));
+      setTokens(ensureSuccess(response));
     } catch (error) {
       setError(getErrorMessage(error, createMessage(MCP_TOKENS_LOAD_FAILED)));
     } finally {

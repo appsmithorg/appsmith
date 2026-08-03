@@ -1,7 +1,12 @@
 import { z } from "zod";
+import { storedId } from "./schema.js";
 
 const MAX_BODY_BYTES = 8 * 1024;
-const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`/;
+// U+2028/U+2029 are included for the same reason schema.ts documents: JSON.stringify does NOT escape them, so a
+// literal carrying one rides through emitValue() into the persisted actionConfiguration.body and can terminate the
+// emitted string literal on a pre-ES2019 engine. assertBodySafe does not catch them either — it only looks for
+// `${`, backticks, and unbalanced `{{`/`}}`.
+const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`|\u2028|\u2029/;
 const BINDING_IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const PROPERTY_PATH = /^[A-Za-z_][A-Za-z0-9_.]*$/;
 const FIELD_KEY = /^[A-Za-z][A-Za-z0-9_.-]*$/;
@@ -15,7 +20,8 @@ const actionName = z
   .max(64)
   .regex(BINDING_IDENTIFIER, "must be alphanumeric/underscore");
 
-const identifier = z.string().min(1).max(128);
+// Stored IDs use the shared `storedId` schema — see schema.ts for why the charset is the security property here.
+const identifier = storedId;
 
 const literalScalar = z.union([
   z

@@ -41,15 +41,35 @@ export const themePatchSchema = z
 
 export type ThemePatch = z.infer<typeof themePatchSchema>;
 
+// The READ side is deliberately permissive about the shape of what is already stored: it accepts any string and
+// leaves the strict allowlists above to guard the WRITE side (themePatchSchema) and the projection below.
+//
+// Reusing the strict token schemas here made a stored value the MCP cannot model a hard failure for the whole
+// tool: `storedThemeSchema.parse` threw, so read_theme and update_theme died outright on such an app. That is
+// reachable through ordinary product use — the theme color control validates free text with isValidColor(), which
+// accepts any CSS color (`rgb(85, 61, 233)`, `hsl(...)`, named colors) and even `url(...)`, none of which match
+// HEX_COLOR. Reading a theme must not require that every stored token conform to the write-side allowlist.
 const themePropertiesSchema = z
   .object({
-    colors: z.object({ primaryColor: primaryColor.optional() }).passthrough(),
+    colors: z.object({ primaryColor: z.string().optional() }).passthrough(),
     borderRadius: z
-      .object({ appBorderRadius: borderRadius.optional() })
+      .object({ appBorderRadius: z.string().optional() })
       .passthrough(),
-    fontFamily: z.object({ appFont: fontFamily.optional() }).passthrough(),
+    fontFamily: z.object({ appFont: z.string().optional() }).passthrough(),
   })
   .passthrough();
+
+// A stored token reaches the projection only if the strict schema still accepts it; anything else is omitted.
+// This keeps the security property intact — unsafe CSS (`url(...)`) and binding expressions are never returned to
+// an MCP caller — while degrading to a partial read instead of failing the whole call.
+function projectToken(
+  schema: z.ZodType<string>,
+  value: string | undefined,
+): string | undefined {
+  if (value === undefined) return undefined;
+
+  return schema.safeParse(value).success ? value : undefined;
+}
 
 // This intentionally models only the safe read surface. Config and stylesheet data remain opaque implementation
 // details of Appsmith's existing PUT payload and are never returned to an MCP caller.
@@ -65,6 +85,12 @@ export interface ThemeProjection {
   primaryColor?: string;
   borderRadius?: string;
   fontFamily?: string;
+  // Names ONLY — never the values — of tokens that are set in storage but fall outside the strict allowlist, so a
+  // caller can tell "this token is unset" apart from "this token exists and we will not show it to you". Without
+  // this the two are indistinguishable, and an agent that reads a theme whose primaryColor is `rgb(85, 61, 233)`
+  // sees no primaryColor, concludes the app is unstyled, and overwrites the author's brand colour believing it
+  // filled a blank. Emitting the name leaks nothing: `url(...)` and binding syntax still never cross this boundary.
+  unsupportedTokens?: string[];
   revision: string;
 }
 
@@ -77,16 +103,57 @@ function fingerprintTokens(tokens: Omit<ThemeProjection, "revision">): string {
 function projectTokens(theme: unknown): Omit<ThemeProjection, "revision"> {
   const parsed = storedThemeSchema.parse(theme);
 
+  const projectedPrimaryColor = projectToken(
+    primaryColor,
+    parsed.properties.colors.primaryColor,
+  );
+  const projectedBorderRadius = projectToken(
+    borderRadius,
+    parsed.properties.borderRadius.appBorderRadius,
+  );
+  const projectedFontFamily = projectToken(
+    fontFamily,
+    parsed.properties.fontFamily.appFont,
+  );
+
+  // A token is "unsupported" only when storage HAS a value and the strict schema refused it — an absent token is
+  // simply unset and is not reported. Sorted so the fingerprint below is order-stable.
+  const unsupportedTokens = (
+    [
+      [
+        "primaryColor",
+        parsed.properties.colors.primaryColor,
+        projectedPrimaryColor,
+      ],
+      [
+        "borderRadius",
+        parsed.properties.borderRadius.appBorderRadius,
+        projectedBorderRadius,
+      ],
+      ["fontFamily", parsed.properties.fontFamily.appFont, projectedFontFamily],
+    ] as const
+  )
+    .filter(
+      ([, stored, projected]) =>
+        stored !== undefined && projected === undefined,
+    )
+    .map(([name]) => name)
+    .sort();
+
   return {
-    ...(parsed.properties.colors.primaryColor !== undefined
-      ? { primaryColor: parsed.properties.colors.primaryColor }
+    ...(projectedPrimaryColor !== undefined
+      ? { primaryColor: projectedPrimaryColor }
       : {}),
-    ...(parsed.properties.borderRadius.appBorderRadius !== undefined
-      ? { borderRadius: parsed.properties.borderRadius.appBorderRadius }
+    ...(projectedBorderRadius !== undefined
+      ? { borderRadius: projectedBorderRadius }
       : {}),
-    ...(parsed.properties.fontFamily.appFont !== undefined
-      ? { fontFamily: parsed.properties.fontFamily.appFont }
+    ...(projectedFontFamily !== undefined
+      ? { fontFamily: projectedFontFamily }
       : {}),
+    // Included in the projection — and therefore in the revision fingerprint — so that a token crossing the
+    // projectable/unprojectable boundary changes the revision instead of being invisible to the concurrency check.
+    // Residual, accepted: two different unprojectable values still hash alike, since only the name is recorded.
+    ...(unsupportedTokens.length > 0 ? { unsupportedTokens } : {}),
   };
 }
 

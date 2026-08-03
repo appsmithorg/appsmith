@@ -120,6 +120,9 @@ class McpTokenControllerCETest {
 
         StepVerifier.create(disabled.list(user)
                         .contextWrite(ReactiveSecurityContextHolder.withAuthentication(sessionAuthentication())))
+                // One envelope carrying an empty list — not zero envelopes. An empty result must still give the
+                // client a responseMeta to check.
+                .assertNext(response -> assertThat(response.getData()).isEmpty())
                 .verifyComplete();
 
         StepVerifier.create(disabled.revoke(user, "token-id")
@@ -238,7 +241,12 @@ class McpTokenControllerCETest {
         StepVerifier.create(controller
                         .list(user)
                         .contextWrite(ReactiveSecurityContextHolder.withAuthentication(sessionAuthentication())))
-                .expectNextCount(2)
+                // A single ResponseDTO whose data is the whole list — the shape every other list endpoint uses, and
+                // the one the client's response interceptor can find a top-level responseMeta on.
+                .assertNext(response -> {
+                    assertThat(response.getResponseMeta().getStatus()).isEqualTo(HttpStatus.OK.value());
+                    assertThat(response.getData()).hasSize(2);
+                })
                 .verifyComplete();
     }
 

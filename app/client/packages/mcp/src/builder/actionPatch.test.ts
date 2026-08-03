@@ -189,4 +189,26 @@ describe("action lifecycle schemas reject unsafe action mutation", () => {
       }).success,
     ).toBe(false);
   });
+
+  // Stored IDs are interpolated into URL path segments. encodeURIComponent leaves "." untouched, so before the
+  // charset was pinned a bare ".." reached the wrapper intact and the WHATWG URL parser collapsed
+  // /api/v1/actions/.. to /api/v1/ — letting an agent-chosen id retarget the request at a different endpoint.
+  it.each([
+    ["parent dot segment", ".."],
+    ["current dot segment", "."],
+    ["embedded traversal", "a/../.."],
+    ["backslash separator", "a\\..\\.."],
+    ["percent-encoded dot segment", "%2e%2e"],
+    ["forward slash", "actions/1"],
+  ])("rejects %s in a stored identifier", (_label, actionId) => {
+    expect(
+      deleteActionSpecSchema.safeParse({ ...reference, actionId }).success,
+    ).toBe(false);
+    expect(
+      deleteActionSpecSchema.safeParse({
+        ...reference,
+        applicationId: actionId,
+      }).success,
+    ).toBe(false);
+  });
 });

@@ -34,8 +34,10 @@ describe("create_ai_query builder", () => {
     expect(compiled.provider).toBe("OpenAI");
     expect(compiled.formData.command).toEqual({ data: "CHAT" });
     expect(compiled.formData.chatModel).toEqual({ data: "gpt-4o" });
-    expect(compiled.formData.maxTokens).toBe(512);
-    expect(compiled.formData.temperature).toBe(0.7);
+    // Top-level strings, NOT `{ data: ... }` and NOT numbers: the plugins read this pair with
+    // extractValueFromFormData, which casts the top-level value straight to String.
+    expect(compiled.formData.maxTokens).toBe("512");
+    expect(compiled.formData.temperature).toBe("0.7");
 
     const messages = JSON.parse(
       (compiled.formData.messages as { data: string }).data,
@@ -100,7 +102,31 @@ describe("create_ai_query builder", () => {
     expect(compiled.formData.chatModel).toEqual({
       data: "claude-3-5-sonnet-20241022",
     });
-    expect(compiled.formData.temperature).toBe(1);
+    expect(compiled.formData.temperature).toBe("1");
+  });
+
+  // Regression guard for the ClassCastException class: openAiPlugin (ChatCommand/VisionCommand) and
+  // anthropicPlugin (CommandUtils) both read maxTokens/temperature via
+  // RequestUtils.extractValueFromFormData -> `(String) formData.get(key)`. A JSON number deserializes to
+  // Integer/Double server-side and blows up on that cast, and a `{ data: ... }` wrapper blows up the same way.
+  it("serializes tuning values as top-level strings, never numbers or data-wrapped", () => {
+    const parsed = parse({
+      ...base,
+      model: "gpt-4o",
+      messages: [{ role: "user", content: { literal: "hi" } }],
+      maxTokens: 512,
+      temperature: 0.7,
+    });
+
+    expect(parsed.success).toBe(true);
+    const compiled = compileAiQuery(parsed.data!, "openai-plugin");
+
+    for (const key of ["maxTokens", "temperature"]) {
+      const value = compiled.formData[key];
+
+      expect(typeof value).toBe("string");
+      expect(value).not.toBeInstanceOf(Object);
+    }
   });
 
   it("omits the binding path when all message content is literal", () => {
@@ -131,6 +157,26 @@ describe("create_ai_query builder", () => {
     expect(() => compileAiQuery(parsed.data!, "appsmithai-plugin")).toThrow(
       /not a supported AI provider/,
     );
+  });
+
+  // JSON.stringify does not escape U+2028/U+2029, and message content is embedded inside the JSON string stored at
+  // formData.messages.data — so before RAW_EXPRESSION covered them a literal carrying one rode through verbatim.
+  it.each([
+    ["U+2028 line separator", 0x2028],
+    ["U+2029 paragraph separator", 0x2029],
+  ])("rejects %s in message content", (_label, codePoint) => {
+    const parsed = parse({
+      ...base,
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "user",
+          content: { literal: `a${String.fromCharCode(codePoint)}b` },
+        },
+      ],
+    });
+
+    expect(parsed.success).toBe(false);
   });
 
   it("rejects unsafe specs (binding in literal, bad model/role, empty messages)", () => {

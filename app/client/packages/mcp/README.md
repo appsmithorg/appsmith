@@ -10,17 +10,18 @@ mutating/destructive operations go through a prepare/confirm handshake.
 
 ## Release notes
 
-### Authenticated MCP surface — on by default
+### Authenticated MCP surface — off by default
 
 The MCP server, its **data layer** (datasource discovery + structured SQL/REST query creation + action reads), and
-**restricted JS objects** are all **enabled by default** on new and upgraded deployments. The data-layer security
-review these were previously gated behind is complete. The authenticated surface is reachable only with a valid,
-user-scoped `mcp_…` token that the user explicitly creates.
+**restricted JS objects** are all **disabled by default**, on new deployments and on upgrades alike. An existing
+instance must never acquire an agent-facing endpoint, a data layer, or JS authoring simply by taking an image
+upgrade — an administrator opts each layer in explicitly. Once enabled, the authenticated surface is still reachable
+only with a valid, user-scoped `mcp_…` token that the user creates for themselves.
 
-**How to disable.** Each layer stays an Admin off-switch (Admin Settings → Configuration, or the environment variables
-below). Disabling `APPSMITH_MCP_ENABLED` is enforced server-side: the auth filter is evaluated per request, so once the
-setting change is applied, already-issued `mcp_…` tokens are rejected (401) rather than merely losing the `/mcp` route.
-(Applying the change restarts the backend process, which re-reads the configuration.)
+**How to enable.** Each layer is an Admin switch (Admin Settings → MCP Server (BETA), or the environment variables
+below). The `APPSMITH_MCP_ENABLED` gate is enforced server-side: the auth filter is evaluated per request, so while
+it is off `mcp_…` tokens are rejected (401) and cannot be created or rotated at all — not merely deprived of the
+`/mcp` route. (Applying the change restarts the backend process, which re-reads the configuration.)
 
 | Variable                    | Default | Effect when disabled                                                                                                                                         |
 | --------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |

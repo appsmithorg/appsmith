@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { storedId } from "./schema.js";
 
 // M4-T2 create_sheets_query — a STRUCTURED Google Sheets query builder for an ALREADY-AUTHORIZED Sheets datasource
 // (created and OAuth-authorized by a human in the Appsmith UI; MCP never carries OAuth tokens or creates the
@@ -84,7 +85,7 @@ const propertyPath = z
   .max(128)
   .regex(/^[A-Za-z_][A-Za-z0-9_.]*$/, "must be a dotted identifier path");
 
-const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`/;
+const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`|\u2028|\u2029/;
 const literalScalar = z.union([
   z
     .string()
@@ -142,9 +143,9 @@ const ROW_INDEX_KEY = "rowIndex";
 const base = {
   name: bindingIdentifier,
   // No workspaceId: resolved server-authoritatively from applicationId (cross-tenant guard), like create_query.
-  applicationId: z.string().min(1).max(128),
-  pageId: z.string().min(1).max(128),
-  datasourceId: z.string().min(1).max(128),
+  applicationId: storedId,
+  pageId: storedId,
+  datasourceId: storedId,
   sheetUrl,
   sheetName,
   // The 1-based header row index. A small bounded integer, never agent free-text.

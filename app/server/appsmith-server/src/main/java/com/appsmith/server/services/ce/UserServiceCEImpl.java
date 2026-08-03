@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
+import com.appsmith.server.constants.ce.McpEnvGate;
 import com.appsmith.server.domains.EmailVerificationToken;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
@@ -124,8 +125,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.mcpEnabledFlag = mcpEnabledFlag;
     }
 
+    // Delegates to the one shared definition of the gate (see McpEnvGate). This copy decides whether the Profile
+    // page offers the MCP-token UI at all, so drift here would show token minting on an instance where
+    // McpTokenControllerCE refuses it (or hide it where minting works).
     private boolean isMcpEnabled() {
-        return mcpEnabledFlag != null && mcpEnabledFlag.trim().matches("(?i)^(true|1|yes|on)$");
+        return McpEnvGate.isEnabled(mcpEnabledFlag);
     }
 
     protected static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();

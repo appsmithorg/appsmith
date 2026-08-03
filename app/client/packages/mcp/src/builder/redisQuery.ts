@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { storedId } from "./schema.js";
 
 // D3 create_redis_query — a STRUCTURED Redis command builder, the KV analog of create_query / create_mongo_query.
 // The agent never authors a raw Redis command string or raw `{{ }}` bindings. The compiler emits the Redis plugin's
@@ -150,9 +151,9 @@ export const redisQuerySpecSchema = z
   .object({
     name: bindingIdentifier,
     // No workspaceId: the tool resolves the workspace server-authoritatively from applicationId (cross-tenant guard).
-    applicationId: z.string().min(1).max(128),
-    pageId: z.string().min(1).max(128),
-    datasourceId: z.string().min(1).max(128),
+    applicationId: storedId,
+    pageId: storedId,
+    datasourceId: storedId,
     command: z.enum(REDIS_COMMANDS),
     key: redisKey,
     // Present per command shape: value (SET/APPEND/list/set writes, HSET), field (HGET/HDEL/HSET), seconds (EXPIRE),
