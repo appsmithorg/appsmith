@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.configurations.connectionpool.ConnectionPoolConfig;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -54,7 +55,21 @@ import static org.mockito.Mockito.when;
  */
 @Slf4j
 public class RedshiftPluginTest {
-    RedshiftPlugin.RedshiftPluginExecutor pluginExecutor = new RedshiftPlugin.RedshiftPluginExecutor();
+
+    private static class MockConnectionPoolConfig implements ConnectionPoolConfig {
+        @Override
+        public Mono<Integer> getMaxConnectionPoolSize() {
+            return Mono.just(5);
+        }
+
+        @Override
+        public Mono<Integer> getSocketTimeoutSeconds() {
+            return Mono.just(600);
+        }
+    }
+
+    RedshiftPlugin.RedshiftPluginExecutor pluginExecutor =
+            new RedshiftPlugin.RedshiftPluginExecutor(new MockConnectionPoolConfig());
 
     private static String address;
     private static Integer port;
@@ -266,7 +281,8 @@ public class RedshiftPluginTest {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<HikariDataSource> dsConnectionMono = Mono.just(mockConnectionPool);
 
-        RedshiftPlugin.RedshiftPluginExecutor spyPluginExecutor = spy(new RedshiftPlugin.RedshiftPluginExecutor());
+        RedshiftPlugin.RedshiftPluginExecutor spyPluginExecutor =
+                spy(new RedshiftPlugin.RedshiftPluginExecutor(new MockConnectionPoolConfig()));
         doNothing().when(spyPluginExecutor).printConnectionPoolStatus(mockConnectionPool, false);
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(
@@ -432,7 +448,8 @@ public class RedshiftPluginTest {
         when(mockResultSet.getString("foreign_column")).thenReturn("id"); // KEYS_QUERY_FOREIGN_KEY
         doNothing().when(mockResultSet).close();
 
-        RedshiftPlugin.RedshiftPluginExecutor spyPluginExecutor = spy(new RedshiftPlugin.RedshiftPluginExecutor());
+        RedshiftPlugin.RedshiftPluginExecutor spyPluginExecutor =
+                spy(new RedshiftPlugin.RedshiftPluginExecutor(new MockConnectionPoolConfig()));
         doNothing().when(spyPluginExecutor).printConnectionPoolStatus(mockConnectionPool, true);
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
@@ -600,7 +617,8 @@ public class RedshiftPluginTest {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<HikariDataSource> dsConnectionMono = Mono.just(mockConnectionPool);
 
-        RedshiftPlugin.RedshiftPluginExecutor spyPluginExecutor = spy(new RedshiftPlugin.RedshiftPluginExecutor());
+        RedshiftPlugin.RedshiftPluginExecutor spyPluginExecutor =
+                spy(new RedshiftPlugin.RedshiftPluginExecutor(new MockConnectionPoolConfig()));
         doNothing().when(spyPluginExecutor).printConnectionPoolStatus(mockConnectionPool, false);
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(

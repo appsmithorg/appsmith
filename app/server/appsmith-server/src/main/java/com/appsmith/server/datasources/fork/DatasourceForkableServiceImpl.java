@@ -5,6 +5,7 @@ import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.fork.forkable.ForkableService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,7 +15,8 @@ public class DatasourceForkableServiceImpl extends DatasourceForkableServiceCEIm
     public DatasourceForkableServiceImpl(
             DatasourceService datasourceService,
             DatasourceStorageService datasourceStorageService,
-            ForkableService<DatasourceStorage> datasourceStorageForkableService) {
-        super(datasourceService, datasourceStorageService, datasourceStorageForkableService);
+            ForkableService<DatasourceStorage> datasourceStorageForkableService,
+            DatasourcePermission datasourcePermission) {
+        super(datasourceService, datasourceStorageService, datasourceStorageForkableService, datasourcePermission);
     }
 }

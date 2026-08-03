@@ -690,11 +690,14 @@ public class PostgresPlugin extends BasePlugin {
                         e.getMessage()));
             }
 
-            return connectionPoolConfig.getMaxConnectionPoolSize().flatMap(maxPoolSize -> Mono.fromCallable(() -> {
-                        log.debug(Thread.currentThread().getName() + ": Connecting to Postgres db");
-                        return createConnectionPool(datasourceConfiguration, maxPoolSize);
-                    })
-                    .subscribeOn(scheduler));
+            return Mono.zip(
+                            connectionPoolConfig.getMaxConnectionPoolSize(),
+                            connectionPoolConfig.getSocketTimeoutSeconds())
+                    .flatMap(tuple -> Mono.fromCallable(() -> {
+                                log.debug(Thread.currentThread().getName() + ": Connecting to Postgres db");
+                                return createConnectionPool(datasourceConfiguration, tuple.getT1(), tuple.getT2());
+                            })
+                            .subscribeOn(scheduler));
         }
 
         @Override
@@ -1188,7 +1191,9 @@ public class PostgresPlugin extends BasePlugin {
      * @return connection pool
      */
     private static ConnectionContext<HikariDataSource> createConnectionPool(
-            DatasourceConfiguration datasourceConfiguration, Integer maximumConfigurablePoolSize)
+            DatasourceConfiguration datasourceConfiguration,
+            Integer maximumConfigurablePoolSize,
+            Integer socketTimeoutSeconds)
             throws AppsmithPluginException {
         HikariConfig config = new HikariConfig();
 
@@ -1345,6 +1350,14 @@ public class PostgresPlugin extends BasePlugin {
             // should get tracked (maybe falsely for long-running queries) as leaked
             // connection
             config.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
+
+            // Send a TCP keepalive probe on idle connections every 150s. Prevents half-open
+            // sockets caused by NAT idle-eviction (AWS NAT Gateway default is 350s).
+            config.setKeepaliveTime(150_000);
+
+            // Bound any single socket read so a half-open connection cannot wedge the pool's
+            // single-threaded connection-adder. pgjdbc takes socketTimeout in seconds.
+            config.addDataSourceProperty("socketTimeout", String.valueOf(socketTimeoutSeconds));
 
             // Set read only mode if applicable
             switch (configurationConnection.getMode()) {

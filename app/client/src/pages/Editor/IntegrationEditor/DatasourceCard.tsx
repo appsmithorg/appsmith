@@ -19,6 +19,7 @@ import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
 import {
   type GenerateCRUDEnabledPluginMap,
   type Plugin,
+  PluginPackageName,
   PluginType,
 } from "entities/Plugin";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -298,9 +299,10 @@ function DatasourceCard(props: DatasourceCardProps) {
     (envSupportedDs ? isEnvironmentConfigured(datasource, currentEnv) : true)
   );
 
-  const showCreateNewActionButton = envSupportedDs
-    ? doesAnyDsConfigExist(datasource)
-    : true;
+  // Appsmith AI is deprecated: creating new queries on its datasources is blocked
+  const showCreateNewActionButton =
+    plugin.packageName !== PluginPackageName.APPSMITH_AI &&
+    (envSupportedDs ? doesAnyDsConfigExist(datasource) : true);
 
   return (
     <Wrapper

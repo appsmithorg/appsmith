@@ -35,4 +35,13 @@ public class CommonConstantsCE {
 
     public static final String WIDGET_ID = "widgetId";
     public static final String PARENT_ID = "parentId";
+
+    public static final String PUSH_STATUS_PREFIX = "Pushed successfully with status : ";
+
+    /**
+     * Separates the per-ref push status from the remote's own sideband response within the push status string.
+     * JGit exposes the two through different APIs, and only the sideband response explains why a remote rejected
+     * a push, so both are carried back to the service layer.
+     */
+    public static final String REMOTE_RESPONSE_DELIMITER = " | remote response: ";
 }
