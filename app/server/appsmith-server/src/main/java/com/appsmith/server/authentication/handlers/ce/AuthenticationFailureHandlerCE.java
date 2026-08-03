@@ -24,7 +24,8 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
     @Override
     public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception) {
         String source = exception instanceof OAuth2AuthenticationException
-                ? ((OAuth2AuthenticationException) exception).getError().getErrorCode()
+                ? sanitizeLogInput(
+                        ((OAuth2AuthenticationException) exception).getError().getErrorCode())
                 : SOURCE_FORM;
 
         String errorMessage = exception.getMessage();
@@ -38,6 +39,13 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
                 .counter(LOGIN_FAILURE, "source", source, "message", errorMessage)
                 .increment();
         return authenticationFailureRetryHandler.retryAndRedirectOnAuthenticationFailure(webFilterExchange, exception);
+    }
+
+    private static String sanitizeLogInput(String input) {
+        if (input == null) {
+            return null;
+        }
+        return input.replaceAll("[\\r\\n]", "_");
     }
 
     public Mono<Void> handleErrorRedirect(WebFilterExchange webFilterExchange) {
