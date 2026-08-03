@@ -1304,8 +1304,21 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                                 .setStrategy(MergeStrategy.RECURSIVE)
                                                 .call();
                                         processStopwatch.stopAndLogTimeInMillis();
+                                        log.info(
+                                                "Git merge completed: repo={}, source={}, dest={}, status={}, durationMs={}",
+                                                repoSuffix,
+                                                sourceBranch,
+                                                destinationBranch,
+                                                mergeResult.getMergeStatus().name(),
+                                                processStopwatch.getExecutionTime());
                                         return mergeResult.getMergeStatus().name();
                                     } catch (GitAPIException e) {
+                                        log.warn(
+                                                "Git merge failed: repo={}, source={}, dest={}",
+                                                repoSuffix,
+                                                sourceBranch,
+                                                destinationBranch,
+                                                e);
                                         // On merge conflicts abort the merge => git merge --abort
                                         git.getRepository().writeMergeCommitMsg(null);
                                         git.getRepository().writeMergeHeads(null);
@@ -1374,7 +1387,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                     return fetchMessages;
                                 })
                                 .onErrorResume(error -> {
-                                    log.error(error.getMessage());
+                                    log.error("Git fetch failed: repo={}", repoSuffix, error);
                                     return Mono.error(error);
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
@@ -1448,7 +1461,7 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                     return fetchMessages;
                                 })
                                 .onErrorResume(error -> {
-                                    log.error(error.getMessage());
+                                    log.error("Git fetch failed: repo={}", repoSuffix, error);
                                     return Mono.error(error);
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))

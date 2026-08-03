@@ -235,6 +235,11 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                                 datasourceStorage.getDatasourceConfiguration());
                                     }
                                 })
+                                .doOnError(e -> log.error(
+                                        "Datasource connection creation failed: datasourceId={}, pluginId={}, error={}",
+                                        datasourceStorage.getDatasourceId(),
+                                        datasourceStorage.getPluginId(),
+                                        e.getMessage()))
                                 .cache();
 
                         Mono<DatasourceContext<Object>> datasourceContextMonoCache = connectionMonoCache

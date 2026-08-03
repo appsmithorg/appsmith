@@ -412,6 +412,13 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             ImportArtifactPermissionProvider permissionProvider,
             Set<String> permissionGroups) {
 
+        log.info(
+                "Import started: workspaceId={}, artifactId={}, appendToArtifact={}, artifactType={}",
+                workspaceId,
+                branchedArtifactId,
+                appendToArtifact,
+                artifactExchangeJson.getArtifactJsonType());
+
         ArtifactBasedImportService<?, ?, ?> artifactBasedImportService =
                 getArtifactBasedImportService(artifactExchangeJson);
 

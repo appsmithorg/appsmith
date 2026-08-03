@@ -25,6 +25,13 @@ public class Stopwatch {
         log.debug("Execute time: {}, Time elapsed: {}ms", this.flow, this.watch.getTime(TimeUnit.MILLISECONDS));
     }
 
+    public void stopAndLogTimeAtInfoLevel() {
+        if (!this.watch.isStopped()) {
+            this.watch.stop();
+        }
+        log.info("{}: durationMs={}", this.flow, this.watch.getTime(TimeUnit.MILLISECONDS));
+    }
+
     public void stopTimer() {
         if (!this.watch.isStopped()) {
             this.watch.stop();

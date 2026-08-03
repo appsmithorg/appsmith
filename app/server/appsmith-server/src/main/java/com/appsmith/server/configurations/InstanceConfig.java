@@ -48,7 +48,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 .filter(config -> TRUE.equals(config.getConfig().get("value")))
                 .switchIfEmpty(Mono.defer(instanceConfigHelper::registerInstance))
                 .onErrorResume(errorSignal -> {
-                    log.debug("Instance registration failed with error: \n{}", errorSignal.getMessage());
+                    log.warn("Instance registration failed: error={}", errorSignal.getMessage());
                     return Mono.empty();
                 })
                 .then(instanceConfigHelper.performRtsHealthCheck());
@@ -69,7 +69,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
         try {
             startupProcess.block();
         } catch (Exception e) {
-            log.debug("Application start up encountered an error: {}", e.getMessage());
+            log.error("Application startup failed: error={}", e.getMessage(), e);
         }
     }
 
