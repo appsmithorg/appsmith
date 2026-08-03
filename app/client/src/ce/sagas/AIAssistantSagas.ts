@@ -28,6 +28,7 @@ import type {
   AIAssistantReduxState,
   AIEditorContext,
 } from "ce/reducers/aiAssistantReducer";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { toast } from "@appsmith/ads";
@@ -147,9 +148,18 @@ function* fetchAIResponseSaga(
       getAIEditorContext,
     )) as AIEditorContext | null;
 
+    // The server authorizes every request against the entity when there is one, and against the application
+    // otherwise — Ask AI only exists in the editor, so a caller who cannot edit either has no legitimate route
+    // here. Send the application id so a request with no entity (a widget property binding, say) still carries
+    // something to authorize.
+    const applicationId = (yield select(getCurrentApplicationId)) as
+      | string
+      | undefined;
+
     const enrichedContext = {
       ...(context || {}),
       ...(editorContext?.entityId ? { entityId: editorContext.entityId } : {}),
+      ...(applicationId ? { applicationId } : {}),
     };
 
     // Build conversation history from state, excluding the just-added user message

@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.AIAssistantConfig;
@@ -21,6 +22,7 @@ import com.appsmith.server.services.AIReferenceService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
 import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -75,6 +77,8 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
     // and the throttle is never silently absent.
     private RateLimitService rateLimitService;
     private SessionUserService sessionUserService;
+    private ApplicationService applicationService;
+    private ApplicationPermission applicationPermission;
 
     @Autowired
     public void setRateLimitService(RateLimitService rateLimitService) {
@@ -84,6 +88,16 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
     @Autowired
     public void setSessionUserService(SessionUserService sessionUserService) {
         this.sessionUserService = sessionUserService;
+    }
+
+    @Autowired
+    public void setApplicationService(ApplicationService applicationService) {
+        this.applicationService = applicationService;
+    }
+
+    @Autowired
+    public void setApplicationPermission(ApplicationPermission applicationPermission) {
+        this.applicationPermission = applicationPermission;
     }
 
     private static final WebClient claudeWebClient = WebClientUtils.builder(
@@ -335,17 +349,39 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
      * limit; that residual gap is a deliberate product decision, recorded on the PR.
      */
     private Mono<Void> authorizeEntityContext(AIEditorContextDTO context) {
-        if (context == null || !StringUtils.hasText(context.getEntityId())) {
-            return Mono.empty();
+        if (context == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Editor context is required"));
         }
 
-        String entityId = context.getEntityId().trim();
+        // Prefer the entity when there is one: it is the most specific thing the caller is asking the assistant to
+        // work on, and edit rights on it are the exact permission the request implies.
+        if (StringUtils.hasText(context.getEntityId())) {
+            String entityId = context.getEntityId().trim();
 
-        return newActionService
-                .findActionDTObyIdAndViewMode(entityId, false, actionPermission.getEditPermission())
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION, entityId)))
-                .then();
+            return newActionService
+                    .findActionDTObyIdAndViewMode(entityId, false, actionPermission.getEditPermission())
+                    .switchIfEmpty(Mono.error(
+                            new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION, entityId)))
+                    .then();
+        }
+
+        // No entity — a widget property binding, for instance — so fall back to the application whose editor this
+        // came from. Ask AI has no surface outside the editor, so a caller who cannot edit the application has no
+        // legitimate way to reach this and is refused rather than merely rate-limited.
+        if (StringUtils.hasText(context.getApplicationId())) {
+            String applicationId = context.getApplicationId().trim();
+
+            return applicationService
+                    .findById(applicationId, applicationPermission.getEditPermission())
+                    .switchIfEmpty(Mono.error(new AppsmithException(
+                            AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
+                    .then();
+        }
+
+        // Nothing to authorize against. Refuse rather than fall through: an unscoped request cannot be shown to come
+        // from a developer, and this endpoint spends the organization's provider credits.
+        return Mono.error(new AppsmithException(
+                AppsmithError.INVALID_PARAMETER, "Editor context must identify an entity or an application"));
     }
 
     private AIEditorContextDTO applyDatasourceSchemaToContext(
