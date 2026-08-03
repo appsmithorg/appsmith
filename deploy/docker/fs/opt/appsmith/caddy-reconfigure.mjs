@@ -14,6 +14,14 @@ const AppsmithCaddy = process.env._APPSMITH_CADDY
 const isRateLimitingEnabled = process.env.APPSMITH_RATE_LIMIT !== "disabled"
 const RATE_LIMIT = parseInt(process.env.APPSMITH_RATE_LIMIT || 100, 10)
 
+// Which upstream proxy IPs Caddy may trust for X-Forwarded-* / Forwarded headers.
+// Default: private ranges only (covers same-VPC / in-cluster load balancers).
+// Operators behind a public edge proxy (Cloudflare, ALB, etc.) set
+// APPSMITH_TRUSTED_PROXIES to that proxy's egress CIDR(s). Never default to
+// 0.0.0.0/0: trusting every source IP lets any direct client spoof its apparent
+// address via X-Forwarded-For and bypass IP-based rate limiting (GHSA-qrgm-h8c4-jjf7).
+const trustedProxies = (process.env.APPSMITH_TRUSTED_PROXIES || "private_ranges").trim()
+
 let certLocation = null
 if (CUSTOM_DOMAIN !== "") {
   try {
@@ -49,7 +57,7 @@ parts.push(`
   acme_ca_root /etc/ssl/certs/ca-certificates.crt
   servers {
     protocols h1 h2 h3
-    trusted_proxies static 0.0.0.0/0
+    trusted_proxies static ${trustedProxies}
   }
   ${isRateLimitingEnabled ? "order rate_limit before basicauth" : ""}
 }
@@ -153,10 +161,14 @@ parts.push(`
 
   ${isRateLimitingEnabled ? `rate_limit {
     zone dynamic_zone {
-      # This key is designed to work irrespective of any load balancers running on the Appsmith container.
-      # We use "+" as the separator here since we don't expect it in any of the placeholder values here, and has no
-      # significance in header value syntax.
-      key {header.Forwarded}+{header.X-Forwarded-For}+{remote_host}
+      # Key the rate limit on Caddy's trusted-resolved client IP. The client_ip
+      # placeholder honors trusted_proxies: behind a trusted (private) load
+      # balancer it is the real per-client address, and from an untrusted direct
+      # client it is the TCP peer, which cannot be spoofed. It must NOT be derived
+      # from raw client-controlled headers (X-Forwarded-For / Forwarded) — doing so
+      # lets an attacker mint a fresh bucket per request and bypass the limit
+      # entirely (GHSA-qrgm-h8c4-jjf7).
+      key {client_ip}
       events ${RATE_LIMIT}
       window 1s
     }

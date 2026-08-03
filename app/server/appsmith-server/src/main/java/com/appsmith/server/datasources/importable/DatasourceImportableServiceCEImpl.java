@@ -118,7 +118,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
         return workspaceMono.flatMap(workspace -> {
             // Collect all workspace datasources once
             Mono<List<Datasource>> workspaceDatasourcesMono = datasourceService
-                    .getAllByWorkspaceIdWithStorages(workspace.getId(), null)
+                    .getAllByWorkspaceIdWithStorages(workspace.getId(), datasourcePermission.getReadPermission())
                     .collectList();
 
             return workspaceDatasourcesMono

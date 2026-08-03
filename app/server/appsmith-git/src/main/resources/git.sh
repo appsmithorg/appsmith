@@ -243,6 +243,7 @@ git_clone_and_checkout() {
         mkdir -p "$target_folder"
 
         git_clone "$private_key" "$remote_url" "$target_folder" "$git_root"
+        git -C "$target_folder" config core.symlinks false
         git -C "$target_folder" config user.name "$author_name"
         git -C "$target_folder" config user.email "$author_email"
         git -C "$target_folder" config fetch.parallel 4
