@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.AIAssistantConfig;
 import com.appsmith.server.domains.AIProvider;
@@ -157,7 +158,8 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                                 "AI Assistant is disabled. Please contact your administrator."));
                     }
 
-                    return enrichContextWithDatasourceSchema(prompt, context)
+                    return authorizeEntityContext(context)
+                            .then(enrichContextWithDatasourceSchema(prompt, context))
                             .flatMap(ctx ->
                                     dispatchToProvider(providerEnum, aiConfig, prompt, ctx, conversationHistory));
                 });
@@ -316,6 +318,34 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                     log.debug("Skipping AI datasource schema enrichment: {}", e.getMessage());
                     return Mono.just(context);
                 });
+    }
+
+    /**
+     * Refuses the request when the caller may not edit the entity it targets.
+     *
+     * <p>This is separate from {@link #enrichContextWithDatasourceSchema} on purpose. That method degrades
+     * gracefully — it ends in {@code switchIfEmpty(Mono.just(context))} and {@code onErrorResume}, so a missing
+     * datasource or an unreadable structure costs the prompt its schema rather than failing the request, which is
+     * the behaviour you want there. But it means a permission-filtered lookup that comes back EMPTY is swallowed by
+     * the same fallback: tightening the permission on that lookup gated only whether schema was attached, never
+     * whether the request ran. A caller without edit rights still got an answer and still spent provider credits.
+     *
+     * <p>So the authorization decision lives here, where an empty result is an error rather than a fallback.
+     * A request carrying no entity id has nothing to scope a check against and stays bounded by the per-user rate
+     * limit; that residual gap is a deliberate product decision, recorded on the PR.
+     */
+    private Mono<Void> authorizeEntityContext(AIEditorContextDTO context) {
+        if (context == null || !StringUtils.hasText(context.getEntityId())) {
+            return Mono.empty();
+        }
+
+        String entityId = context.getEntityId().trim();
+
+        return newActionService
+                .findActionDTObyIdAndViewMode(entityId, false, actionPermission.getEditPermission())
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION, entityId)))
+                .then();
     }
 
     private AIEditorContextDTO applyDatasourceSchemaToContext(
