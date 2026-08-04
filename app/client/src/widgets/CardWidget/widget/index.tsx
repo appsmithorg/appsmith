@@ -254,7 +254,7 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
       showFooter: true,
       footerActions: {
         footerAction1: {
-          label: "Edit",
+          label: "Action 1",
           id: "footerAction1",
           widgetId: "",
           buttonVariant: "SECONDARY",
@@ -263,7 +263,7 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
           index: 0,
         },
         footerAction2: {
-          label: "View",
+          label: "Action 2",
           id: "footerAction2",
           widgetId: "",
           buttonVariant: "PRIMARY",
