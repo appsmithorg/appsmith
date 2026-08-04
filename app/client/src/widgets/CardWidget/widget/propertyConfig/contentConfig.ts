@@ -1,5 +1,6 @@
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 import type { CardWidgetProps } from "../../constants";
@@ -14,7 +15,7 @@ export default [
       {
         propertyName: "cardData",
         helpText:
-          "Sets the entity displayed by this card. Connect a datasource, or bind one record, e.g. {{userQuery.data[0]}}",
+          "Sets the entity displayed by this card. Connect a datasource, or bind one record — an object with one or more keys, e.g. {{userQuery.data[0]}}",
         label: "Card data",
         // Opts the Card into the one-click "Connect data" flow. The aliases are
         // the fields the user maps to actual columns; getPropertyUpdatesForQuery
@@ -43,7 +44,17 @@ export default [
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.OBJECT,
-          params: { default: {} },
+          params: {
+            default: {},
+            // Surfaced in the code editor's "Expected structure" hint. The
+            // two-key example shows that the record can carry any number of
+            // keys, which a bare { "key": "value" } sample did not convey.
+            expected: {
+              type: "Object — one or more key/value pairs",
+              example: { name: "John Doe", email: "john.doe@example.com" },
+              autocompleteDataType: AutocompleteDataType.OBJECT,
+            },
+          },
         },
       },
     ],
