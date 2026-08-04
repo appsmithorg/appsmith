@@ -40,6 +40,7 @@ import selectWidgetIconSvg from "widgets/SelectWidget/icon.svg";
 import textWidgetIconSvg from "widgets/TextWidget/icon.svg";
 import inputWidgetIconSvg from "widgets/InputWidgetV2/icon.svg";
 import cardWidgetIconSvg from "widgets/CardWidget/icon.svg";
+import { CARD_DATA_PROPERTY } from "widgets/CardWidget/constants";
 import { generateReactKey } from "utils/generators";
 import type { WidgetType } from "constants/WidgetConstants";
 import { bindDataOnCanvas } from "actions/pluginActionActions";
@@ -110,8 +111,8 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     icon: tableWidgetIconSvg,
   },
   CARD_WIDGET: {
-    label: "carddata",
-    propertyName: "cardData",
+    label: CARD_DATA_PROPERTY.toLowerCase(),
+    propertyName: CARD_DATA_PROPERTY,
     widgetName: "Card",
     icon: cardWidgetIconSvg,
   },

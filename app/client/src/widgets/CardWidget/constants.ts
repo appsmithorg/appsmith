@@ -19,6 +19,11 @@ export const MediaObjectFitTypes = {
 export type MediaObjectFit =
   (typeof MediaObjectFitTypes)[keyof typeof MediaObjectFitTypes];
 
+// Property path of the Card's bound record. Shared by the property pane
+// config, the query-editor widget-suggestion flow (BindDataButton), and the
+// sniping-mode/one-click binding updates so they can never drift apart.
+export const CARD_DATA_PROPERTY = "cardData";
+
 // Fixed chrome sizes (px) used both for rendering and for sizing the body canvas.
 export const CARD_HEADER_HEIGHT = 50;
 export const CARD_FOOTER_HEIGHT = 48;

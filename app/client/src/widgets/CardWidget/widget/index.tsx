@@ -71,6 +71,7 @@ import type {
   CardWidgetProps,
 } from "../constants";
 import {
+  CARD_DATA_PROPERTY,
   DEFAULT_MEDIA_HEIGHT,
   MEDIA_LEFT_WIDTH,
   MediaObjectFitTypes,
@@ -136,7 +137,7 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
         if (!record) {
           return [
             {
-              propertyPath: "cardData",
+              propertyPath: CARD_DATA_PROPERTY,
               propertyValue: binding,
               isDynamicPropertyPath: true,
             },
@@ -145,7 +146,7 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
 
         return [
           {
-            propertyPath: "cardData",
+            propertyPath: CARD_DATA_PROPERTY,
             propertyValue: `{{${record}}}`,
             isDynamicPropertyPath: true,
           },
@@ -194,7 +195,7 @@ class CardWidget extends BaseWidget<CardWidgetProps, WidgetState> {
 
         return {
           modify: {
-            cardData: `{{${record}}}`,
+            [CARD_DATA_PROPERTY]: `{{${record}}}`,
             ...(titleColumn
               ? { title: buildFieldBinding(record, titleColumn) }
               : {}),

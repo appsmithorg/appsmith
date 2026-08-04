@@ -4,7 +4,11 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 import type { CardWidgetProps } from "../../constants";
-import { MediaObjectFitTypes, MediaPositionTypes } from "../../constants";
+import {
+  CARD_DATA_PROPERTY,
+  MediaObjectFitTypes,
+  MediaPositionTypes,
+} from "../../constants";
 import footerActionsConfig from "./childPanels/footerActionsConfig";
 import menuItemsConfig from "./childPanels/menuItemsConfig";
 
@@ -13,7 +17,7 @@ export default [
     sectionName: "Data",
     children: [
       {
-        propertyName: "cardData",
+        propertyName: CARD_DATA_PROPERTY,
         helpText:
           "Sets the entity displayed by this card. Connect a datasource, or bind one record — an object with one or more keys, e.g. {{userQuery.data[0]}}",
         label: "Card data",
