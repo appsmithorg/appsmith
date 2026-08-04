@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       client: ${{ steps.filter.outputs.client }}
+      client-src: ${{ steps.filter.outputs.client-src }}
       server: ${{ steps.filter.outputs.server }}
       rts: ${{ steps.filter.outputs.rts }}
     steps:
@@ -34,6 +35,8 @@ jobs:
             client:
               - 'app/client/**'
               - '!app/client/cypress/manual_TestSuite/**'
+            client-src:
+              - 'app/client/src/**'
             server:
               - 'app/server/**'
             rts:
@@ -172,9 +175,127 @@ jobs:
       - name: Build
         run: yarn build
 
+  client-cyclic-deps:
+    name: ci/cyclic-deps-client
+    needs: changes
+    if: needs.changes.outputs.client-src == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: app/client/package.json
+      - uses: actions/cache/restore@v4
+        with:
+          path: app/client/.yarn/cache
+          key: external-v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+          restore-keys: external-v1-yarn3-
+      - name: Install dpdm globally
+        run: npm install -g dpdm@3.14
+      - name: Install dependencies
+        run: |
+          corepack enable
+          yarn install --immutable
+      - name: Count circular dependencies on PR branch
+        id: pr-count
+        run: |
+          dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false \
+            | sed '1d; s/^[[:space:]]*[0-9]\{4\})[[:space:]]*/• /; /^[[:space:]]*$/d' \
+            | sort | sed '/^[[:space:]]*$/d' > /tmp/pr_circular_deps.txt
+          echo "count=$(awk 'NF' /tmp/pr_circular_deps.txt | wc -l)" >> "$GITHUB_OUTPUT"
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          clean: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: app/client/package.json
+      - name: Install dependencies (base branch)
+        run: |
+          corepack enable
+          yarn install --immutable
+      - name: Count circular dependencies on base branch
+        id: base-count
+        run: |
+          dpdm "./src/**/*.{js,jsx,ts,tsx}" --circular --warning=false --tree=false \
+            | sed '1d; s/^[[:space:]]*[0-9]\{4\})[[:space:]]*/• /; /^[[:space:]]*$/d' \
+            | sort | sed '/^[[:space:]]*$/d' > /tmp/base_circular_deps.txt
+          echo "count=$(awk 'NF' /tmp/base_circular_deps.txt | wc -l)" >> "$GITHUB_OUTPUT"
+      # No PR comment here: fork tokens are read-only, so the result is
+      # reported through the job summary and exit code instead.
+      - name: Compare circular dependencies
+        env:
+          PR_COUNT: ${{ steps.pr-count.outputs.count }}
+          BASE_COUNT: ${{ steps.base-count.outputs.count }}
+        run: |
+          diff_count="$((PR_COUNT - BASE_COUNT))"
+          if [[ "$diff_count" -gt 0 ]]; then
+            {
+              echo "## Cyclic dependency check failed"
+              echo "This PR adds $diff_count circular import(s) compared to the base branch."
+              echo '```diff'
+              diff -u /tmp/base_circular_deps.txt /tmp/pr_circular_deps.txt || true
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::This PR increases circular dependencies by $diff_count. See the job summary for the diff."
+            exit 1
+          fi
+          echo "No new circular dependencies ($PR_COUNT on PR, $BASE_COUNT on base)." >> "$GITHUB_STEP_SUMMARY"
+
+  client-compile:
+    name: ci/compile-client
+    needs: changes
+    if: needs.changes.outputs.client == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: app/client
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: app/client/package.json
+      - uses: actions/cache/restore@v4
+        with:
+          path: app/client/.yarn/cache
+          key: external-v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+          restore-keys: external-v1-yarn3-
+      - name: Install dependencies
+        run: |
+          corepack enable
+          yarn install --immutable
+      # Compile-only build: telemetry/analytics keys are intentionally absent.
+      # They only matter for published bundles, not for proving the code builds.
+      - name: Build client bundle with placeholder env
+        env:
+          REACT_APP_ENVIRONMENT: DEVELOPMENT
+          REACT_APP_VERSION_EDITION: Community
+          NODE_OPTIONS: --max-old-space-size=8192
+        run: yarn build
+
   result:
     name: external-ci-result
-    needs: [changes, client-static, client-unit, server, rts]
+    needs:
+      [
+        changes,
+        client-static,
+        client-unit,
+        client-cyclic-deps,
+        client-compile,
+        server,
+        rts,
+      ]
     if: always() && needs.changes.result != 'skipped'
     runs-on: ubuntu-latest
     steps:
@@ -183,10 +304,12 @@ jobs:
           CHANGES: ${{ needs.changes.result }}
           CLIENT_STATIC: ${{ needs.client-static.result }}
           CLIENT_UNIT: ${{ needs.client-unit.result }}
+          CLIENT_CYCLIC: ${{ needs.client-cyclic-deps.result }}
+          CLIENT_COMPILE: ${{ needs.client-compile.result }}
           SERVER: ${{ needs.server.result }}
           RTS: ${{ needs.rts.result }}
         run: |
-          for result in "$CHANGES" "$CLIENT_STATIC" "$CLIENT_UNIT" "$SERVER" "$RTS"; do
+          for result in "$CHANGES" "$CLIENT_STATIC" "$CLIENT_UNIT" "$CLIENT_CYCLIC" "$CLIENT_COMPILE" "$SERVER" "$RTS"; do
             if [[ "$result" == "failure" || "$result" == "cancelled" ]]; then
               echo "Credential-free validation failed."
               exit 1
