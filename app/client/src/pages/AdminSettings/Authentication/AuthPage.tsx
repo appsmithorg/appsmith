@@ -21,7 +21,7 @@ import EnterpriseTag from "components/EnterpriseTag";
 export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
   padding: var(--ads-v2-spaces-7);
-  height: calc(100vh - ${(props) => props.theme.homePage.header}px);
+  height: 100%;
   overflow: auto;
 `;
 

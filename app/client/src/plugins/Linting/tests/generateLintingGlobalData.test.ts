@@ -44,6 +44,7 @@ describe("generateLintingGlobalData", () => {
       moment: "readonly",
       _: "readonly",
       fetch: "readonly",
+      Intl: "readonly",
     });
 
     expect(result.asyncFunctions).toEqual([
@@ -65,6 +66,7 @@ describe("generateLintingGlobalData", () => {
       moment: "readonly",
       _: "readonly",
       fetch: "readonly",
+      Intl: "readonly",
     });
 
     expect(result.asyncFunctions).toEqual([]);
@@ -89,6 +91,7 @@ describe("generateLintingGlobalData", () => {
       moment: "readonly",
       _: "readonly",
       fetch: "readonly",
+      Intl: "readonly",
     });
 
     expect(result.asyncFunctions).toEqual([]);
