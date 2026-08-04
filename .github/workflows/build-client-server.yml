@@ -217,6 +217,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
+      checkout-ref: ${{ needs.file-check.outputs.merge_sha }}
       previous-workflow-run-id: ${{ fromJson(needs.file-check.outputs.runId) }}
 
   ci-test-limited-result:
