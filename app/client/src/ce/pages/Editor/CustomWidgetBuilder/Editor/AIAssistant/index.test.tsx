@@ -10,7 +10,6 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { AIAssistant } from ".";
 
 jest.mock("ee/selectors/aiAssistantSelectors", () => ({
-  getAIAssistantState: (state: { aiAssistant?: unknown }) => state.aiAssistant,
   getAIError: (state: { aiAssistant?: { error?: string } }) =>
     state.aiAssistant?.error,
   getAIMessages: (state: { aiAssistant?: { messages?: unknown[] } }) =>
@@ -42,8 +41,6 @@ const SRC_DOC = {
 interface RenderOptions {
   aiAssistant?: Record<string, unknown>;
   bulkUpdate?: jest.Mock;
-  context?: Record<string, unknown>;
-  includeAIState?: boolean;
 }
 
 function renderAssistant(options: RenderOptions = {}) {
@@ -55,19 +52,17 @@ function renderAssistant(options: RenderOptions = {}) {
     },
   };
 
-  if (options.includeAIState !== false) {
-    state.aiAssistant = {
-      provider: "OPENAI",
-      hasApiKey: true,
-      isEnabled: true,
-      isConfigLoaded: true,
-      isLoading: false,
-      messages: [],
-      isPanelOpen: false,
-      editorContext: null,
-      ...options.aiAssistant,
-    };
-  }
+  state.aiAssistant = {
+    provider: "OPENAI",
+    hasApiKey: true,
+    isEnabled: true,
+    isConfigLoaded: true,
+    isLoading: false,
+    messages: [],
+    isPanelOpen: false,
+    editorContext: null,
+    ...options.aiAssistant,
+  };
 
   const store = mockStore(state);
 
@@ -79,7 +74,6 @@ function renderAssistant(options: RenderOptions = {}) {
     uncompiledSrcDoc: SRC_DOC,
     update: jest.fn(),
     widgetId: "widget1",
-    ...options.context,
   };
 
   render(
@@ -96,33 +90,6 @@ function renderAssistant(options: RenderOptions = {}) {
 }
 
 describe("CustomWidgetBuilder AIAssistant", () => {
-  it("shows the legacy copilot when the Ask AI runtime is unavailable", () => {
-    const { store } = renderAssistant({ includeAIState: false });
-    const iframe = screen.getByTestId("t--custom-widget-ai-legacy");
-
-    expect(iframe).toHaveAttribute(
-      "src",
-      expect.stringContaining("https://internal.appsmith.com/app/ai-co-pilot/"),
-    );
-    expect(iframe).toHaveAttribute(
-      "src",
-      expect.stringContaining("chatInstance=widget1-page1"),
-    );
-    expect(store.getActions()).toHaveLength(0);
-  });
-
-  it("does not create a legacy copilot session without its identity", () => {
-    const { store } = renderAssistant({
-      context: { parentEntityId: undefined },
-      includeAIState: false,
-    });
-
-    expect(
-      screen.queryByTestId("t--custom-widget-ai-legacy"),
-    ).not.toBeInTheDocument();
-    expect(store.getActions()).toHaveLength(0);
-  });
-
   it("shows a loading state until the AI config is loaded", () => {
     const { store } = renderAssistant({
       aiAssistant: { isConfigLoaded: false, isEnabled: false },
@@ -131,10 +98,6 @@ describe("CustomWidgetBuilder AIAssistant", () => {
     expect(
       screen.getByTestId("t--custom-widget-ai-loading-config"),
     ).toBeInTheDocument();
-    expect(
-      screen.queryByTestId("t--custom-widget-ai-legacy"),
-    ).not.toBeInTheDocument();
-
     const types = store.getActions().map((a) => a.type);
 
     expect(types).toContain(ReduxActionTypes.LOAD_AI_SETTINGS);
@@ -149,9 +112,6 @@ describe("CustomWidgetBuilder AIAssistant", () => {
     expect(
       screen.getByTestId("t--custom-widget-ai-not-configured"),
     ).toBeInTheDocument();
-    expect(
-      screen.queryByTestId("t--custom-widget-ai-legacy"),
-    ).not.toBeInTheDocument();
     // Superusers get a shortcut to the settings page
     expect(screen.getByText("Open AI settings")).toBeInTheDocument();
   });

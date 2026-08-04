@@ -19,7 +19,6 @@ import {
 } from "ee/actions/aiAssistantActions";
 import type { AIMessage } from "ee/actions/aiAssistantActions";
 import {
-  getAIAssistantState,
   getAIError,
   getAIMessages,
   getHasAIApiKey,
@@ -32,7 +31,6 @@ import {
   CUSTOM_WIDGET_AI_ASSISTANT,
 } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { ChatBot } from "pages/Editor/CustomWidgetBuilder/Editor/ChatBot/ChatBot";
 import NotConfigured from "./NotConfigured";
 import {
   buildWidgetAIContext,
@@ -275,7 +273,7 @@ function SuggestedPromptButton(props: SuggestedPromptButtonProps) {
   );
 }
 
-function NativeAIAssistant(props: ContentProps) {
+export function AIAssistant(props: ContentProps) {
   const dispatch = useDispatch();
   const { bulkUpdate, uncompiledSrcDoc, widgetId } = useContext(
     CustomWidgetBuilderContext,
@@ -564,33 +562,4 @@ function NativeAIAssistant(props: ContentProps) {
       </InputArea>
     </Container>
   );
-}
-
-/**
- * Routes standalone CE to the legacy hosted copilot while EE uses the native
- * assistant supplied by its Ask AI runtime after community sync.
- */
-export function AIAssistant(props: ContentProps) {
-  const aiAssistantState = useSelector(getAIAssistantState);
-  const { parentEntityId, uncompiledSrcDoc, update, widgetId } = useContext(
-    CustomWidgetBuilderContext,
-  );
-
-  if (!aiAssistantState) {
-    if (!parentEntityId || !update || !widgetId) {
-      return null;
-    }
-
-    return (
-      <ChatBot
-        {...props}
-        parentEntityId={parentEntityId}
-        uncompiledSrcDoc={uncompiledSrcDoc}
-        update={update}
-        widgetId={widgetId}
-      />
-    );
-  }
-
-  return <NativeAIAssistant {...props} />;
 }
