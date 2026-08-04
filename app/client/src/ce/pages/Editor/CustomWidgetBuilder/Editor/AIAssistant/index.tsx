@@ -29,6 +29,7 @@ import {
 import {
   createMessage,
   CUSTOM_WIDGET_AI_ASSISTANT,
+  CUSTOM_WIDGET_BUILDER_TAB_TITLE,
 } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import NotConfigured from "./NotConfigured";
@@ -65,10 +66,10 @@ const SUGGESTED_PROMPTS = [
   },
 ];
 
-const APPLIED_FILE_LABELS: Record<string, string> = {
-  html: "HTML",
-  css: "Style",
-  js: "Javascript",
+const APPLIED_FILE_LABELS: Record<string, () => string> = {
+  html: CUSTOM_WIDGET_BUILDER_TAB_TITLE.HTML,
+  css: CUSTOM_WIDGET_BUILDER_TAB_TITLE.STYLE,
+  js: CUSTOM_WIDGET_BUILDER_TAB_TITLE.JS,
 };
 
 const fadeIn = keyframes`
@@ -199,21 +200,6 @@ const SuggestedPrompts = styled.div`
   margin-top: 12px;
 `;
 
-const SuggestedPromptChip = styled.button`
-  padding: 6px 12px;
-  border: 1px solid var(--ads-v2-color-border);
-  border-radius: var(--ads-v2-border-radius);
-  background: var(--ads-v2-color-bg);
-  color: var(--ads-v2-color-fg);
-  font-size: 12px;
-  cursor: pointer;
-  transition: background 0.15s ease;
-
-  &:hover {
-    background: var(--ads-v2-color-bg-subtle);
-  }
-`;
-
 const InputArea = styled.div`
   display: flex;
   flex-direction: column;
@@ -267,9 +253,15 @@ function SuggestedPromptButton(props: SuggestedPromptButtonProps) {
   }, [onSelect, prompt]);
 
   return (
-    <SuggestedPromptChip onClick={handleClick} title={prompt} type="button">
+    <Button
+      kind="secondary"
+      onClick={handleClick}
+      size="sm"
+      title={prompt}
+      type="button"
+    >
       {label}
-    </SuggestedPromptChip>
+    </Button>
   );
 }
 
@@ -503,7 +495,9 @@ export function AIAssistant(props: ContentProps) {
                 {message.appliedFiles.map((file) => (
                   <AppliedChip key={file}>
                     <Icon name="check-line" size="sm" />
-                    {APPLIED_FILE_LABELS[file] ?? file}
+                    {APPLIED_FILE_LABELS[file]
+                      ? createMessage(APPLIED_FILE_LABELS[file])
+                      : file}
                   </AppliedChip>
                 ))}
               </AppliedUpdates>
@@ -525,6 +519,9 @@ export function AIAssistant(props: ContentProps) {
 
       <InputArea>
         <PromptTextArea
+          aria-label={createMessage(
+            CUSTOM_WIDGET_AI_ASSISTANT.INPUT_PLACEHOLDER,
+          )}
           data-testid="t--custom-widget-ai-prompt-input"
           onChange={handlePromptChange}
           onKeyDown={handleKeyDown}
