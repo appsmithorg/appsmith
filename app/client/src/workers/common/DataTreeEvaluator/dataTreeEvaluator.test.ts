@@ -160,6 +160,41 @@ describe("DataTreeEvaluator", () => {
       ]);
     });
 
+    // Regression for #8639: Filepicker Binary data (a raw byte string containing
+    // '{'/'}' chars) in one param must not corrupt sibling params. Previously the
+    // whole params object was round-tripped through the {{ }} brace-counting parser,
+    // so unbalanced braces in the binary value nulled out every other param.
+    it("preserves sibling params when a param value contains unbalanced braces", () => {
+      // Mimics a Filepicker "Binary" readAsBinaryString payload: raw bytes incl.
+      // unbalanced braces, a null byte and a high byte (kept as \u escapes so the
+      // source file stays ASCII and is not treated as binary).
+      const binaryLike = ' {"junk": "}}{{" } \u0000\u00ff';
+      const result = dataTreeEvaluator.evaluateActionBindings(
+        ["this.params.name", "this.params.sources", "executionParams.name"],
+        {
+          name: "Test",
+          sources: binaryLike,
+        },
+      );
+
+      expect(result).toStrictEqual(["Test", binaryLike, "Test"]);
+    });
+
+    // Locks the intended behavior change from the #8639 fix: params are cloned, not
+    // re-evaluated/JSON-normalized. A value that looks like a binding is preserved
+    // verbatim, and NaN survives (the old JSON.stringify round-trip coerced it to null).
+    it("passes already-evaluated params through verbatim", () => {
+      const result = dataTreeEvaluator.evaluateActionBindings(
+        ["this.params.binding", "this.params.notANumber"],
+        {
+          binding: "{{Api1.data}}",
+          notANumber: NaN,
+        },
+      );
+
+      expect(result).toStrictEqual(["{{Api1.data}}", NaN]);
+    });
+
     // The test should verify that generateOverrideContext is called and passed as context to getDynamicValue
     it("should call generateOverrideContext and pass as context to getDynamicValue", () => {
       const overrideContextValue = { "ModuleInstance1.inputs.input1": "200" };
@@ -242,36 +277,30 @@ describe("DataTreeEvaluator", () => {
         "200",
       ]);
 
-      // Verify getDynamicValue receives the correct parameters
-      // The first call is always with executionParams
-      [`${JSON.stringify(executionParams)}`, ...bindings].forEach(
-        (binding, index) => {
-          const replacedBinding = binding.replace(
-            EXECUTION_PARAM_REFERENCE_REGEX,
-            EXECUTION_PARAM_KEY,
-          );
+      // Verify getDynamicValue receives the correct parameters.
+      // Execution params are now cloned directly (no {{ }} round-trip), so there is
+      // no leading getDynamicValue call for them — only one call per binding, each
+      // carrying the overrideContext.
+      bindings.forEach((binding, index) => {
+        const replacedBinding = binding.replace(
+          EXECUTION_PARAM_REFERENCE_REGEX,
+          EXECUTION_PARAM_KEY,
+        );
 
-          let defaultExpectedValue = [
-            `{{${replacedBinding}}}`,
-            klona(dataTree),
-            dataTreeEvaluator.oldConfigTree,
-            EvaluationSubstitutionType.TEMPLATE,
-          ];
+        const defaultExpectedValue = [
+          `{{${replacedBinding}}}`,
+          klona(dataTree),
+          dataTreeEvaluator.oldConfigTree,
+          EvaluationSubstitutionType.TEMPLATE,
+          expect.objectContaining({
+            overrideContext: overrideContextValue,
+          }),
+        ];
 
-          if (index !== 0) {
-            defaultExpectedValue = [
-              ...defaultExpectedValue,
-              expect.objectContaining({
-                overrideContext: overrideContextValue,
-              }),
-            ];
-          }
-
-          expect(getDynamicValueCapturedParams[index]).toEqual(
-            defaultExpectedValue,
-          );
-        },
-      );
+        expect(getDynamicValueCapturedParams[index]).toEqual(
+          defaultExpectedValue,
+        );
+      });
 
       // Restore the original function after the test
       (generateOverrideContext as jest.Mock).mockImplementation(
