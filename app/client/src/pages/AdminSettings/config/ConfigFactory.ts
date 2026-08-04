@@ -58,9 +58,34 @@ export class ConfigFactory {
     ConfigFactory.categories.push(ConfigFactory.getCategory(config));
   }
 
+  /**
+   * Registers an admin settings category, once.
+   *
+   * <p>Registration is idempotent because the same category can legitimately be registered from more than one
+   * place. A CE-owned feature registers itself in `ce/pages/AdminSettings/config`, and an edition that also
+   * registers it in its own `ee/` index ends up calling this twice for one category — which nothing here used to
+   * notice. All three collections below accumulate on a raw second call: `categories` (a duplicated entry in the
+   * admin sidebar), `settings` (a duplicated row), and `savableCategories` (a duplicated save target). Only
+   * `settingsMap` was safe, because it is keyed rather than appended.
+   *
+   * <p>Guarding at this single entry point rather than inside each collection keeps the three consistent — a
+   * category is either fully registered or not at all — and means a duplicate registration is harmless instead of
+   * being something each caller has to remember to avoid.
+   */
   static register(config: AdminConfigType) {
+    if (ConfigFactory.isRegistered(config)) {
+      return;
+    }
+
     ConfigFactory.registerSettings(config);
     ConfigFactory.registerCategory(config);
+  }
+
+  /** True when a category with this slug has already been registered. */
+  static isRegistered(config: AdminConfigType): boolean {
+    return ConfigFactory.categories.some(
+      (category) => category.slug === config.type,
+    );
   }
 
   static validate(name: string, value: string) {
