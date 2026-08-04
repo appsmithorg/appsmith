@@ -1,56 +1,57 @@
 import type { DefaultRootState } from "react-redux";
+import type { AIMessage } from "ee/actions/aiAssistantActions";
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports -- Ask AI is CE-owned; CE cannot add an ee/ shim (pre-push architecture guard).
+import type { AIEditorContext } from "ce/reducers/aiAssistantReducer";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function getAIAssistantState(state: DefaultRootState) {
-  return undefined;
+  return state.aiAssistant;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function getHasAIApiKey(state: DefaultRootState): boolean {
-  return false;
+  return state.aiAssistant.hasApiKey;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function getAIProvider(state: DefaultRootState): string | undefined {
-  return undefined;
+  return state.aiAssistant.provider;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function getIsAILoading(state: DefaultRootState): boolean {
-  return false;
+  return state.aiAssistant.isLoading;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function getAIMessages(state: DefaultRootState): never[] {
-  return [];
+export function getAIMessages(state: DefaultRootState): AIMessage[] {
+  return state.aiAssistant.messages || [];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+/** @deprecated Use getAIMessages instead */
 export function getAILastResponse(state: DefaultRootState): string | undefined {
+  const messages = state.aiAssistant.messages || [];
+
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].role === "assistant") return messages[i].content;
+  }
+
   return undefined;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function getAIError(state: DefaultRootState): string | undefined {
-  return undefined;
+  return state.aiAssistant.error;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function getIsAIEnabled(state: DefaultRootState): boolean {
-  return false;
+  return state.aiAssistant.isEnabled;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function getIsAIConfigLoaded(state: DefaultRootState): boolean {
-  return false;
+  return state.aiAssistant.isConfigLoaded;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function getIsAIPanelOpen(state: DefaultRootState): boolean {
-  return false;
+  return state.aiAssistant.isPanelOpen;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function getAIEditorContext(state: DefaultRootState): null {
-  return null;
+export function getAIEditorContext(
+  state: DefaultRootState,
+): AIEditorContext | null {
+  return state.aiAssistant.editorContext;
 }
