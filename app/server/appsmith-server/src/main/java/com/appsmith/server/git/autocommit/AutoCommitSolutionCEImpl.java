@@ -115,22 +115,6 @@ public class AutoCommitSolutionCEImpl implements AutoCommitSolutionCE {
         return commonGitFileUtils.saveArtifactToLocalRepoNew(artifactRepoSuffixPath, artifactExchangeJson, refName);
     }
 
-    private Mono<Path> saveApplicationJsonToFileSystem(
-            ApplicationJson applicationJson, AutoCommitEvent autoCommitEvent) {
-        // all the migrations are done, write to file system
-        try {
-            return commonGitFileUtils.saveArtifactToLocalRepo(
-                    autoCommitEvent.getWorkspaceId(),
-                    autoCommitEvent.getApplicationId(),
-                    autoCommitEvent.getRepoName(),
-                    applicationJson,
-                    autoCommitEvent.getBranchName());
-        } catch (Exception e) {
-            log.error("failed to save application to file system using", e);
-            return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
-        }
-    }
-
     public Mono<Boolean> autoCommitDSLMigration(AutoCommitEvent autoCommitEvent) {
         String defaultApplicationId = autoCommitEvent.getApplicationId();
         String branchName = autoCommitEvent.getBranchName();
@@ -182,6 +166,23 @@ public class AutoCommitSolutionCEImpl implements AutoCommitSolutionCE {
                 .finishAutoCommit(autoCommitEvent.getApplicationId())
                 .flatMap(r -> setProgress(r, autoCommitEvent.getApplicationId(), 100))
                 .flatMap(r -> gitRedisUtils.releaseFileLock(autoCommitEvent.getApplicationId()))
+                .doOnNext(isLockReleased -> {
+                    if (exceptionCaught) {
+                        log.warn(
+                                "auto commit clean up after a failure for application: {}, branch: {}, isCommitMade: {}, isLockReleased: {}",
+                                autoCommitEvent.getApplicationId(),
+                                autoCommitEvent.getBranchName(),
+                                isCommitMade,
+                                isLockReleased);
+                    } else {
+                        log.debug(
+                                "auto commit clean up for application: {}, branch: {}, isCommitMade: {}, isLockReleased: {}",
+                                autoCommitEvent.getApplicationId(),
+                                autoCommitEvent.getBranchName(),
+                                isCommitMade,
+                                isLockReleased);
+                    }
+                })
                 .thenReturn(isCommitMade);
     }
 
@@ -385,6 +386,12 @@ public class AutoCommitSolutionCEImpl implements AutoCommitSolutionCE {
                                     return triggerAnalyticsEvent(
                                             AnalyticsEvents.GIT_PUSH, autoCommitEvent, Map.of("isAutoCommit", TRUE));
                                 }
+
+                                log.error(
+                                        "auto commit push was rejected for application: {}, branch: {}, pushResponse: {}",
+                                        autoCommitEvent.getApplicationId(),
+                                        autoCommitEvent.getBranchName(),
+                                        pushResponse);
                                 return Mono.just(TRUE);
                             });
                 })

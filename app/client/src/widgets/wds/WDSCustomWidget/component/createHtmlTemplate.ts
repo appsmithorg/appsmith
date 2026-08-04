@@ -16,7 +16,7 @@ interface CreateHtmlTemplateProps {
 export const createHtmlTemplate = (props: CreateHtmlTemplateProps) => {
   const { cssTokens, onConsole, srcDoc } = props;
 
-  return `<html>
+  return `<html translate="no">
     <head>
       <style>${css}</style>
       <style data-appsmith-theme>${cssTokens}</style>

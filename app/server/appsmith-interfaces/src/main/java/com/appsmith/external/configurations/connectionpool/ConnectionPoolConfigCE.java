@@ -4,4 +4,6 @@ import reactor.core.publisher.Mono;
 
 public interface ConnectionPoolConfigCE {
     Mono<Integer> getMaxConnectionPoolSize();
+
+    Mono<Integer> getSocketTimeoutSeconds();
 }

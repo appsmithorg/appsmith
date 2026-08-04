@@ -26,6 +26,17 @@ export const setPreviewModeAction = (payload: boolean) => ({
 });
 
 /**
+ * action that toggles the tab order overlay on the editor canvas
+ *
+ * @param payload
+ * @returns
+ */
+export const setShowTabOrderOverlay = (payload: boolean) => ({
+  type: ReduxActionTypes.SET_SHOW_TAB_ORDER_OVERLAY,
+  payload,
+});
+
+/**
  * action that sets visibility state of the canvas top section
  *
  * @param payload

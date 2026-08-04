@@ -10,7 +10,6 @@ import com.appsmith.external.git.operations.FileOperations;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.ArtifactGitReference;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DatasourceStorage;
@@ -52,14 +51,12 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -146,36 +143,6 @@ public class CommonGitFileUtilsCE {
         return applicationGitFileUtils;
     }
 
-    /**
-     * This method will save the complete application in the local repo directory.
-     * Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
-     *
-     * @param baseRepoSuffix       path suffix used to create a local repo path
-     * @param artifactExchangeJson application reference object from which entire application can be rehydrated
-     * @param branchName           name of the branch for the current application
-     * @return repo path where the application is stored
-     */
-    public Mono<Path> saveArtifactToLocalRepo(
-            Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName)
-            throws IOException, GitAPIException {
-
-        // this should come from the specific files
-        ArtifactGitReference artifactGitReference = createArtifactReference(artifactExchangeJson);
-        Mono<Boolean> isRtsResetEnabledMono = featureFlagService.check(FeatureFlagEnum.ab_rts_git_reset_enabled);
-
-        // Save application to git repo
-        return isRtsResetEnabledMono
-                .flatMap(isRtsEnabled -> {
-                    try {
-                        return fileUtils.saveApplicationToGitRepo(
-                                baseRepoSuffix, artifactGitReference, branchName, isRtsEnabled);
-                    } catch (IOException | GitAPIException e) {
-                        throw Exceptions.propagate(e);
-                    }
-                })
-                .subscribeOn(Schedulers.boundedElastic());
-    }
-
     public Mono<Path> saveArtifactToLocalRepoNew(
             Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName) {
 
@@ -194,80 +161,6 @@ public class CommonGitFileUtilsCE {
                 return Mono.error(exception);
             }
         });
-    }
-
-    public Mono<Path> saveArtifactToLocalRepoWithAnalytics(
-            Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName) {
-
-        /*
-           1. Checkout to branch
-           2. Create artifact reference for appsmith-git module
-           3. Save artifact to git repo
-        */
-        // TODO: see if event needs to be generalised or kept specific
-        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.GIT_SERIALIZE_APP_RESOURCES_TO_LOCAL_FILE.getEventName());
-        ArtifactGitFileUtils<?> artifactGitFileUtils =
-                getArtifactBasedFileHelper(artifactExchangeJson.getArtifactJsonType());
-        String artifactConstant = artifactGitFileUtils.getConstantsMap().get(FieldName.ARTIFACT_CONTEXT);
-
-        try {
-            Mono<Path> repoPathMono = saveArtifactToLocalRepo(baseRepoSuffix, artifactExchangeJson, branchName);
-            return Mono.zip(repoPathMono, sessionUserService.getCurrentUser()).flatMap(tuple -> {
-                stopwatch.stopTimer();
-                Path repoPath = tuple.getT1();
-                // Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/
-                final Map<String, Object> data = Map.of(
-                        artifactConstant,
-                        repoPath.getParent().getFileName().toString(),
-                        "workspaceId",
-                        repoPath.getParent().getParent().getFileName().toString(),
-                        FieldName.FLOW_NAME,
-                        stopwatch.getFlow(),
-                        "executionTime",
-                        stopwatch.getExecutionTime());
-                return analyticsService
-                        .sendEvent(
-                                AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(),
-                                tuple.getT2().getUsername(),
-                                data)
-                        .thenReturn(repoPath);
-            });
-        } catch (IOException | GitAPIException e) {
-            log.error("Error occurred while saving files to local git repo: ", e);
-            throw Exceptions.propagate(e);
-        }
-    }
-
-    public Mono<Path> saveArtifactToLocalRepo(
-            String workspaceId,
-            String baseArtifactId,
-            String repoName,
-            ApplicationJson applicationJson,
-            String branchName)
-            throws GitAPIException, IOException {
-
-        // TODO: Paths are to populated by artifact specific services
-        Path baseRepoSuffix = Paths.get(workspaceId, baseArtifactId, repoName);
-        return saveArtifactToLocalRepo(baseRepoSuffix, applicationJson, branchName);
-    }
-
-    /**
-     * Method to convert artifact resources to the structure which can be serialised by appsmith-git module for
-     * serialisation
-     *
-     * @param artifactExchangeJson artifact resource including datasource, jsobjects, actions
-     * @return resource which can be saved to file system
-     */
-    public ArtifactGitReference createArtifactReference(ArtifactExchangeJson artifactExchangeJson) {
-
-        ArtifactGitFileUtils<?> artifactGitFileUtils =
-                getArtifactBasedFileHelper(artifactExchangeJson.getArtifactJsonType());
-        ArtifactGitReference artifactGitReference = artifactGitFileUtils.createArtifactReferenceObject();
-        artifactGitReference.setModifiedResources(artifactExchangeJson.getModifiedResources());
-
-        setDatasourcesInArtifactReference(artifactExchangeJson, artifactGitReference);
-        artifactGitFileUtils.addArtifactReferenceFromExportedJson(artifactExchangeJson, artifactGitReference);
-        return artifactGitReference;
     }
 
     public GitResourceMap createGitResourceMap(ArtifactExchangeJson artifactExchangeJson) {
@@ -600,19 +493,6 @@ public class CommonGitFileUtilsCE {
                 });
     }
 
-    private void setDatasourcesInArtifactReference(
-            ArtifactExchangeJson artifactExchangeJson, ArtifactGitReference artifactGitReference) {
-        Map<String, Object> resourceMap = new HashMap<>();
-        // Send datasources
-
-        artifactExchangeJson.getDatasourceList().forEach(datasource -> {
-            removeUnwantedFieldsFromDatasource(datasource);
-            resourceMap.put(datasource.getName(), datasource);
-        });
-
-        artifactGitReference.setDatasources(resourceMap);
-    }
-
     public Mono<? extends ArtifactExchangeJson> constructArtifactExchangeJsonFromGitRepositoryWithAnalytics(
             ArtifactJsonTransformationDTO jsonTransformationDTO) {
         if (!isJsonTransformationDTOValid(jsonTransformationDTO)) {
@@ -766,6 +646,7 @@ public class CommonGitFileUtilsCE {
     public Mono<Path> initializeReadme(Path baseRepoSuffix, String viewModeUrl, String editModeUrl) throws IOException {
         return fileUtils
                 .initializeReadme(baseRepoSuffix, viewModeUrl, editModeUrl)
+                // Callers log this failure with their artifact context; the cause is carried on the exception.
                 .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
     }
 
@@ -780,9 +661,10 @@ public class CommonGitFileUtilsCE {
     }
 
     public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException {
-        return fileUtils
-                .checkIfDirectoryIsEmpty(baseRepoSuffix)
-                .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
+        return fileUtils.checkIfDirectoryIsEmpty(baseRepoSuffix).onErrorResume(e -> {
+            log.error("Error while checking if the cloned repo is empty. repo={}", baseRepoSuffix, e);
+            return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e));
+        });
     }
 
     /**
@@ -834,8 +716,16 @@ public class CommonGitFileUtilsCE {
         return fileUtils
                 .reconstructMetadataFromGitRepo(
                         workspaceId, applicationId, repoName, branchName, baseRepoSuffix, isResetToLastCommitRequired)
-                .onErrorResume(error -> Mono.error(
-                        new AppsmithException(AppsmithError.GIT_ACTION_FAILED, CHECKOUT_BRANCH, error.getMessage())))
+                .onErrorResume(error -> {
+                    log.error(
+                            "Error while reconstructing the metadata from the git repo. repo={}, artifactId={}, branch={}",
+                            baseRepoSuffix,
+                            applicationId,
+                            branchName,
+                            error);
+                    return Mono.error(new AppsmithException(
+                            AppsmithError.GIT_ACTION_FAILED, CHECKOUT_BRANCH, error.getMessage()));
+                })
                 .map(metadata -> {
                     Gson gson = new Gson();
                     JsonObject metadataJsonObject =
@@ -866,7 +756,11 @@ public class CommonGitFileUtilsCE {
                         return Files.move(currentGitPath, targetPath, REPLACE_EXISTING);
 
                     } catch (IOException exception) {
-                        log.error("File IO exception while moving repository. {}", exception.getMessage());
+                        log.error(
+                                "File IO exception while moving repository. source={}, target={}",
+                                currentGitPath,
+                                targetPath,
+                                exception);
                         throw new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, exception.getMessage());
                     }
                 })
@@ -1009,8 +903,17 @@ public class CommonGitFileUtilsCE {
         Mono<JSONObject> jsonObjectMono = keepWorkingDirChangesMono
                 .flatMap(keepWorkingDirChanges -> fileUtils.reconstructPageFromGitRepo(
                         pageDTO.getName(), refName, baseRepoSuffix, isResetToLastCommitRequired, keepWorkingDirChanges))
-                .onErrorResume(error -> Mono.error(
-                        new AppsmithException(AppsmithError.GIT_ACTION_FAILED, RECONSTRUCT_PAGE, error.getMessage())))
+                .onErrorResume(error -> {
+                    log.error(
+                            "Error while reconstructing the page from the git repo. repo={}, pageId={}, page={}, branch={}",
+                            baseRepoSuffix,
+                            pageDTO.getId(),
+                            pageDTO.getName(),
+                            refName,
+                            error);
+                    return Mono.error(new AppsmithException(
+                            AppsmithError.GIT_ACTION_FAILED, RECONSTRUCT_PAGE, error.getMessage()));
+                })
                 .map(pageJson -> {
                     return fileOperations.getMainContainer(pageJson);
                 });
@@ -1076,13 +979,14 @@ public class CommonGitFileUtilsCE {
                     try {
                         Files.deleteIfExists(lockFile);
                     } catch (IOException ioException) {
-                        log.warn("Error deleting git lock file {}: {}", lockFile, ioException.getMessage());
+                        // A lock left behind here keeps blocking every subsequent git operation on this repo
+                        log.warn("Error deleting git lock file. path={}", lockFile, ioException);
                     }
 
                     try {
                         Files.deleteIfExists(indexFile);
                     } catch (IOException ioException) {
-                        log.warn("Error deleting git index file {}: {}", indexFile, ioException.getMessage());
+                        log.warn("Error deleting git index file. path={}", indexFile, ioException);
                     }
 
                     return TRUE;

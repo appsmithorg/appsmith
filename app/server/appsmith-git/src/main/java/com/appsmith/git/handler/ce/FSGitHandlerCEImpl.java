@@ -41,6 +41,7 @@ import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
+import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -50,7 +51,9 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.TagOpt;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.stereotype.Component;
@@ -62,6 +65,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -71,11 +75,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -111,6 +117,15 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
     private static final String TAG_REF = "refs/tags/";
 
     private static final String SUCCESS_MERGE_STATUS = "This branch has no conflicts with the base branch.";
+
+    private static final Set<RemoteRefUpdate.Status> ACCEPTED_PUSH_STATUSES =
+            EnumSet.of(RemoteRefUpdate.Status.OK, RemoteRefUpdate.Status.UP_TO_DATE);
+
+    private static final Pattern CONTROL_CHARACTERS = Pattern.compile("\\p{Cntrl}+");
+    private static final int MAX_REMOTE_RESPONSE_LENGTH = 1000;
+    private static final String TRUNCATION_SUFFIX = "... (truncated)";
+    private static final String NO_REMOTE_RESPONSE = "<remote sent no message>";
+
     private final ObservationHelper observationHelper;
 
     private final BashService bashService = new BashService();
@@ -278,36 +293,33 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                                         SshTransportConfigCallback.create(
                                                                 privateKey, publicKey, isSshProxyDisabled);
 
-                                                StringBuilder result =
-                                                        new StringBuilder("Pushed successfully with status : ");
-                                                git.push()
+                                                Iterable<PushResult> pushResults = git.push()
                                                         .setAtomic(isAtomicPushAllowed)
                                                         .setTransportConfigCallback(transportConfigCallback)
                                                         .setRemote(remoteUrl)
-                                                        .call()
-                                                        .forEach(pushResult -> pushResult
-                                                                .getRemoteUpdates()
-                                                                .forEach(remoteRefUpdate -> {
-                                                                    result.append(remoteRefUpdate.getStatus())
-                                                                            .append(",");
-                                                                    if (!StringUtils.isEmptyOrNull(
-                                                                            remoteRefUpdate.getMessage())) {
-                                                                        result.append(remoteRefUpdate.getMessage())
-                                                                                .append(",");
-                                                                    }
-                                                                }));
+                                                        .call();
                                                 // We can support username and password in future if needed
                                                 // pushCommand.setCredentialsProvider(new
                                                 // UsernamePasswordCredentialsProvider("username",
                                                 // "password"));
+                                                String pushStatus = summarisePushResult(
+                                                        pushResults, repoSuffix, branchName, remoteUrl);
                                                 processStopwatch.stopAndLogTimeInMillis();
                                                 jgitPushSpan.end();
-                                                return result.substring(0, result.length() - 1);
+                                                return pushStatus;
                                             })
                                             .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                             .name(GitSpan.FS_PUSH)
                                             .tap(Micrometer.observation(observationRegistry)),
                                     Git::close)
+                            // Placed outside Mono.using and the timeout so that a failure to open the repository or
+                            // a timeout is logged too, not just a failure raised by the push itself.
+                            .doOnError(error -> log.error(
+                                    "Git push failed before the remote reported a status. repo={}, branch={}, remote={}",
+                                    repoSuffix,
+                                    branchName,
+                                    remoteUrl,
+                                    error))
                             // this subscribeOn on is required because Mono.using
                             // is not deferring the execution of push and for that reason it runs on the
                             // lettuce-nioEventLoop thread instead of boundedElastic
@@ -343,36 +355,120 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                                         SshTransportConfigCallback.create(
                                                                 privateKey, publicKey, isSshProxyDisabled);
 
-                                                StringBuilder result =
-                                                        new StringBuilder("Pushed successfully with status : ");
-                                                git.push()
+                                                Iterable<PushResult> pushResults = git.push()
                                                         .setAtomic(isAtomicPushAllowed)
                                                         .setTransportConfigCallback(transportConfigCallback)
                                                         .setRemote(remoteUrl)
                                                         .setRefSpecs(new RefSpec("refs/tags/*:refs/tags/*"))
-                                                        .call()
-                                                        .forEach(pushResult -> pushResult
-                                                                .getRemoteUpdates()
-                                                                .forEach(remoteRefUpdate -> {
-                                                                    result.append(remoteRefUpdate.getStatus())
-                                                                            .append(",");
-                                                                    if (!StringUtils.isEmptyOrNull(
-                                                                            remoteRefUpdate.getMessage())) {
-                                                                        result.append(remoteRefUpdate.getMessage())
-                                                                                .append(",");
-                                                                    }
-                                                                }));
-                                                return result.substring(0, result.length() - 1);
+                                                        .call();
+                                                return summarisePushResult(pushResults, repoSuffix, refName, remoteUrl);
                                             })
                                             .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                             .name(GitSpan.FS_PUSH)
                                             .tap(Micrometer.observation(observationRegistry)),
                                     Git::close)
+                            .doOnError(error -> log.error(
+                                    "Git tag push failed before the remote reported a status. repo={}, tag={}, remote={}",
+                                    repoSuffix,
+                                    refName,
+                                    remoteUrl,
+                                    error))
                             // this subscribeOn on is required because Mono.using
                             // is not deferring the execution of push and for that reason it runs on the
                             // lettuce-nioEventLoop thread instead of boundedElastic
                             .subscribeOn(scheduler);
                 });
+    }
+
+    /**
+     * Builds the push status string and, when the remote refused the push, records why.
+     * <p>
+     * A rejection is reported by JGit in two separate places. {@link RemoteRefUpdate#getMessage()} carries only the
+     * terse report-status reason, which for every server-side hook is the same literal "pre-receive hook declined".
+     * The explanation an operator actually needs — "GitLab: You are not allowed to push code to protected branches
+     * on this project", a push-rule violation, a secret-scanning block — travels on the sideband channel and is
+     * reachable only through {@link PushResult#getMessages()}. Dropping it leaves a rejected push undiagnosable, so
+     * it is logged and appended to the returned status for the service layer to surface.
+     *
+     * @param pushResults results returned by JGit for the push
+     * @param repoSuffix  repository this push belongs to, for correlation
+     * @param refName     branch or tag that was pushed
+     * @param remoteUrl   remote the push was addressed to
+     * @return per-ref push status, followed by the remote's own response when the push was rejected
+     */
+    private String summarisePushResult(
+            Iterable<PushResult> pushResults, Path repoSuffix, String refName, String remoteUrl) {
+
+        StringBuilder status = new StringBuilder(CommonConstants.PUSH_STATUS_PREFIX);
+        StringBuilder remoteResponse = new StringBuilder();
+        Set<RemoteRefUpdate.Status> rejections = EnumSet.noneOf(RemoteRefUpdate.Status.class);
+
+        for (PushResult pushResult : pushResults) {
+            for (RemoteRefUpdate remoteRefUpdate : pushResult.getRemoteUpdates()) {
+                status.append(remoteRefUpdate.getStatus()).append(",");
+                if (!StringUtils.isEmptyOrNull(remoteRefUpdate.getMessage())) {
+                    // The per-ref reason is remote-controlled too, not just the sideband response.
+                    status.append(sanitiseRemoteResponse(remoteRefUpdate.getMessage()))
+                            .append(",");
+                }
+                if (!ACCEPTED_PUSH_STATUSES.contains(remoteRefUpdate.getStatus())) {
+                    rejections.add(remoteRefUpdate.getStatus());
+                }
+            }
+            if (!StringUtils.isEmptyOrNull(pushResult.getMessages())) {
+                remoteResponse.append(pushResult.getMessages());
+            }
+        }
+
+        String pushStatus = status.charAt(status.length() - 1) == ','
+                ? status.substring(0, status.length() - 1)
+                : status.toString();
+
+        if (rejections.isEmpty()) {
+            return pushStatus;
+        }
+
+        String safeRemoteResponse = sanitiseRemoteResponse(remoteResponse.toString());
+
+        // A non-fast-forward rejection just means the remote moved on and the user needs to pull, so it is not an
+        // Appsmith fault. Every other rejection is a policy or permission decision worth an error.
+        // This is the single log for a rejected push; callers add context only for what happens next, such as a
+        // failed rollback. repoSuffix is workspaceId/artifactId/repoName, so it carries the correlation ids.
+        if (rejections.equals(EnumSet.of(RemoteRefUpdate.Status.REJECTED_NONFASTFORWARD))) {
+            log.warn(
+                    "Git push rejected by the remote. repo={}, ref={}, remote={}, status={}, remoteResponse={}",
+                    repoSuffix,
+                    refName,
+                    remoteUrl,
+                    pushStatus,
+                    safeRemoteResponse.isEmpty() ? NO_REMOTE_RESPONSE : safeRemoteResponse);
+        } else {
+            log.error(
+                    "Git push rejected by the remote. repo={}, ref={}, remote={}, status={}, remoteResponse={}",
+                    repoSuffix,
+                    refName,
+                    remoteUrl,
+                    pushStatus,
+                    safeRemoteResponse.isEmpty() ? NO_REMOTE_RESPONSE : safeRemoteResponse);
+        }
+
+        return safeRemoteResponse.isEmpty()
+                ? pushStatus
+                : pushStatus + CommonConstants.REMOTE_RESPONSE_DELIMITER + safeRemoteResponse;
+    }
+
+    /**
+     * Neutralises text the remote git server controls before it reaches a log line or a user-facing error.
+     * Carriage returns and other control characters would let a remote forge additional log entries, and an
+     * unbounded response would flood them (CWE-117). Sanitising here rather than at each consumer keeps every
+     * downstream use of the push status safe.
+     */
+    private String sanitiseRemoteResponse(String remoteResponse) {
+        String collapsed =
+                CONTROL_CHARACTERS.matcher(remoteResponse).replaceAll(" ").trim();
+        return collapsed.length() > MAX_REMOTE_RESPONSE_LENGTH
+                ? collapsed.substring(0, MAX_REMOTE_RESPONSE_LENGTH) + TRUNCATION_SUFFIX
+                : collapsed;
     }
 
     /** Clone the repo to the file path : container-volume/workspaceId/defaultAppId/repo/<Data>
@@ -401,6 +497,11 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                         FileSystemUtils.deleteRecursively(file);
                     }
                     String branchName;
+                    // Capture remediation failures so we can close the Git handle
+                    // before deleting the clone directory (GHSA-fqwc-g9wm-5895).
+                    // On Windows, JGit holds file handles until Git::close runs;
+                    // deleting inside the try-with-resources would fail silently.
+                    Exception remediationFailure = null;
                     try (Git git = Git.cloneRepository()
                             .setURI(remoteUrl)
                             .setTransportConfigCallback(transportConfigCallback)
@@ -408,7 +509,27 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                             .call()) {
                         branchName = git.getRepository().getBranch();
 
-                        repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
+                        // SECURITY (GHSA-fqwc-g9wm-5895): disable symlink materialization and
+                        // re-checkout any symlinks as regular files. A malicious repo can commit
+                        // symlink entries (git mode 120000) pointing outside the Git root.
+                        try {
+                            removeSymlinksAfterClone(git);
+                        } catch (Exception failure) {
+                            remediationFailure = failure;
+                        }
+
+                        if (remediationFailure == null) {
+                            repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
+                        }
+                    }
+                    // Git handle is now closed — safe to delete the clone directory.
+                    if (remediationFailure != null) {
+                        try {
+                            FileSystemUtils.deleteRecursively(file);
+                        } catch (Exception cleanupFailure) {
+                            remediationFailure.addSuppressed(cleanupFailure);
+                        }
+                        throw remediationFailure;
                     }
                     processStopwatch.stopAndLogTimeInMillis();
                     jgitCloneRepoSpan.end();
@@ -418,6 +539,28 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                 .name(GitSpan.FS_CLONE_REPO)
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler));
+    }
+
+    /**
+     * Disables symlink support and re-materializes any symlinks as regular files
+     * (GHSA-fqwc-g9wm-5895). Fails closed: if any symlink cannot be deleted, the
+     * method throws so the caller's cleanup path can remove the unsafe clone.
+     */
+    protected void removeSymlinksAfterClone(Git git) throws GitAPIException, IOException {
+        StoredConfig config = git.getRepository().getConfig();
+        config.setBoolean(ConfigConstants.CONFIG_CORE_SECTION, null, ConfigConstants.CONFIG_KEY_SYMLINKS, false);
+        config.save();
+
+        Path workTree = git.getRepository().getWorkTree().toPath();
+        try (Stream<Path> paths = Files.walk(workTree)) {
+            List<Path> symlinks = paths.filter(Files::isSymbolicLink)
+                    .filter(p -> !p.startsWith(workTree.resolve(".git")))
+                    .collect(Collectors.toList());
+            for (Path symlink : symlinks) {
+                Files.delete(symlink);
+            }
+        }
+        git.checkout().setAllPaths(true).call();
     }
 
     @Override
@@ -1514,7 +1657,11 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
     public Mono<Boolean> resetToLastCommit(Path repoSuffix) {
         return Mono.using(
                 () -> Git.open(createRepoPath(repoSuffix).toFile()),
-                git -> this.resetToLastCommit(git).thenReturn(true).onErrorReturn(false),
+                git -> this.resetToLastCommit(git).thenReturn(true).onErrorResume(e -> {
+                    log.error(
+                            "Reset to last commit failed, the working tree may still be dirty. repo={}", repoSuffix, e);
+                    return Mono.just(false);
+                }),
                 Git::close);
     }
 
@@ -1546,7 +1693,11 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                     return true;
                                 })
                                 .onErrorResume(e -> {
-                                    log.error("Error while resetting the commit, {}", e.getMessage());
+                                    log.error(
+                                            "Hard reset to HEAD~1 failed, the local commit could not be rolled back. repo={}, branch={}",
+                                            repoSuffix,
+                                            branchName,
+                                            e);
                                     return Mono.just(false);
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))

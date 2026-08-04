@@ -32,7 +32,11 @@ import {
   getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
 import { DragContainer } from "./DragContainer";
-import { buttonHoverActiveStyles } from "./utils";
+import {
+  buttonHoverActiveStyles,
+  getSafeCssColor,
+  getSafeFontSize,
+} from "./utils";
 import type { ThemeProp } from "WidgetProvider/types";
 import { toast } from "@appsmith/ads";
 
@@ -79,7 +83,18 @@ const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
     ${buttonHoverActiveStyles}
   }
 
-  ${({ buttonColor, buttonVariant, theme }) => `
+  ${({
+    buttonColor,
+    buttonVariant,
+    labelStyle,
+    labelTextColor,
+    labelTextSize,
+    theme,
+  }) => {
+    const safeLabelTextColor = getSafeCssColor(labelTextColor);
+    const safeLabelTextSize = getSafeFontSize(labelTextSize);
+
+    return `
     background: ${
       getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
         ? getCustomBackgroundColor(buttonVariant, buttonColor)
@@ -101,6 +116,10 @@ const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
     border-color: var(--wds-color-border-disabled) !important;
 
     > span {
+      color: var(--wds-color-text-disabled) !important;
+    }
+
+    .bp3-icon {
       color: var(--wds-color-text-disabled) !important;
     }
   }
@@ -125,12 +144,29 @@ const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
     line-height: normal;
 
     color: ${
-      buttonVariant === ButtonVariantTypes.PRIMARY
+      safeLabelTextColor ||
+      (buttonVariant === ButtonVariantTypes.PRIMARY
         ? getComplementaryGrayscaleColor(buttonColor)
-        : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor)
+        : getCustomBackgroundColor(ButtonVariantTypes.PRIMARY, buttonColor))
     } !important;
+    font-size: ${safeLabelTextSize || "inherit"};
+    font-weight: ${labelStyle?.includes("BOLD") ? "bold" : "inherit"};
+    font-style: ${labelStyle?.includes("ITALIC") ? "italic" : "normal"};
+    /* Prevent italic glyph overhang from being clipped by overflow:hidden */
+    padding-inline-end: ${labelStyle?.includes("ITALIC") ? "0.25em" : "0"};
   }
-`}
+
+  ${
+    safeLabelTextColor
+      ? `
+    .bp3-icon {
+      color: ${safeLabelTextColor} !important;
+    }
+  `
+      : ""
+  }
+`;
+  }}
 
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => `${boxShadow ?? "none"}`} !important;
@@ -154,6 +190,9 @@ export const StyledButton = styled((props) => (
       "boxShadowColor",
       "buttonColor",
       "buttonVariant",
+      "labelStyle",
+      "labelTextColor",
+      "labelTextSize",
       "primaryColor",
       "navColorStyle",
       "variant",
@@ -175,6 +214,9 @@ export interface ButtonStyleProps {
   iconAlign?: Alignment;
   shouldFitContent?: boolean;
   placement?: ButtonPlacement;
+  labelStyle?: string;
+  labelTextColor?: string;
+  labelTextSize?: string;
   maxWidth?: number;
   minWidth?: number;
   minHeight?: number;
@@ -193,6 +235,9 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
     icon,
     iconAlign,
     iconName,
+    labelStyle,
+    labelTextColor,
+    labelTextSize,
     loading,
     maxWidth,
     minHeight,
@@ -230,6 +275,9 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
         disabled={disabled}
         fill
         icon={isRightAlign ? icon : iconName || icon}
+        labelStyle={labelStyle}
+        labelTextColor={labelTextColor}
+        labelTextSize={labelTextSize}
         loading={loading}
         onClick={onClick}
         placement={placement}
@@ -261,7 +309,9 @@ interface RecaptchaProps {
   recaptchaType?: RecaptchaType;
 }
 
-interface ButtonComponentProps extends ComponentProps {
+interface ButtonComponentProps
+  extends ComponentProps,
+    Pick<ButtonStyleProps, "labelStyle" | "labelTextColor" | "labelTextSize"> {
   text?: string;
   icon?: IconName | MaybeElement;
   tooltip?: string;
@@ -492,6 +542,9 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
         icon={props.icon}
         iconAlign={props.iconAlign}
         iconName={props.iconName}
+        labelStyle={props.labelStyle}
+        labelTextColor={props.labelTextColor}
+        labelTextSize={props.labelTextSize}
         loading={props.isLoading}
         maxWidth={props.maxWidth}
         minHeight={props.minHeight}
