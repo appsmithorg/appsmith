@@ -86,6 +86,10 @@ import type {
   GitGlobalReduxState,
 } from "git/store/types";
 import { gitReducer } from "git/store";
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports -- Ask AI is CE-owned; CE cannot add an ee/ shim (pre-push architecture guard).
+import { aiAssistantReducer } from "ce/reducers/aiAssistantReducer";
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports -- Ask AI is CE-owned; CE cannot add an ee/ shim (pre-push architecture guard).
+import type { AIAssistantReduxState } from "ce/reducers/aiAssistantReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -96,6 +100,7 @@ export const reducerObject = {
   organization: organizationReducer,
   linting: lintErrorReducer,
   git: gitReducer,
+  aiAssistant: aiAssistantReducer,
 };
 
 export interface AppState {
@@ -194,4 +199,5 @@ export interface AppState {
     global: GitGlobalReduxState;
     artifacts: GitArtifactRootReduxState;
   };
+  aiAssistant: AIAssistantReduxState;
 }

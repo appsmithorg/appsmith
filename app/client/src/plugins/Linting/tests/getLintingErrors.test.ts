@@ -79,6 +79,25 @@ describe.each(linterTypes)(
 
         expect(lintErrors.length).toEqual(0);
       });
+      it("4. For Intl", () => {
+        const originalBinding =
+          "{{new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format(10)}}";
+        const script =
+          "new Intl.NumberFormat('pt-BR', { currency: 'BRL', style: 'currency' }).format(10)";
+
+        const scriptType = getScriptType(false, true);
+
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          webworkerTelemetry,
+          data,
+          originalBinding,
+          script,
+          scriptType,
+        });
+
+        expect(lintErrors.length).toEqual(0);
+      });
     });
 
     describe("2. Verify lint errors are shown for unsupported window APIs", () => {
