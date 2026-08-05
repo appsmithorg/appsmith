@@ -63,10 +63,13 @@ public final class AIConfigSecretsCE {
             return EncryptionHelper.decrypt(stored.substring(ENCRYPTED_PREFIX.length()));
         } catch (Exception e) {
             // Do not log the value or the exception detail — both can echo key material.
-            log.error("An AI provider credential could not be decrypted. Check the instance encryption password.");
-            throw new AppsmithException(
-                    AppsmithError.INVALID_PARAMETER,
-                    "The stored AI provider credential could not be read. Re-enter the API key.");
+            log.error("An AI provider credential could not be decrypted. The instance encryption password has"
+                    + " most likely changed, which affects every secret encrypted with the previous one.");
+            // A changed encryption password is a server fault rather than bad input, so this has to leave as
+            // 5xx. No message is attached: INTERNAL_SERVER_ERROR has no placeholder, so one would be dropped,
+            // and telling an administrator to re-enter the key would imply a fix that still leaves every other
+            // secret on the instance unreadable. The log line above carries the real cause.
+            throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR);
         }
     }
 

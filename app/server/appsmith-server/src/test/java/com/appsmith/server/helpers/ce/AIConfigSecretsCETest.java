@@ -2,6 +2,7 @@ package com.appsmith.server.helpers.ce;
 
 import com.appsmith.external.helpers.EncryptionHelper;
 import com.appsmith.server.domains.AIAssistantConfig;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import org.junit.jupiter.api.Test;
 
@@ -54,8 +55,13 @@ class AIConfigSecretsCETest {
         // What a changed APPSMITH_ENCRYPTION_PASSWORD looks like: the marker says encrypted, the
         // bytes do not decrypt. Returning them would hand ciphertext to the provider as the API key
         // and leave the administrator staring at "invalid API key" with no idea why.
+        //
+        // The error class is asserted, not just the type: this is a server-side fault, and reporting
+        // it as caller input would give a non-retryable 4xx and keep it out of server-error metrics.
         assertThatThrownBy(() -> AIConfigSecretsCE.decrypt("enc:v1:not-actually-ciphertext"))
-                .isInstanceOf(AppsmithException.class);
+                .isInstanceOf(AppsmithException.class)
+                .extracting(error -> ((AppsmithException) error).getError())
+                .isEqualTo(AppsmithError.INTERNAL_SERVER_ERROR);
     }
 
     @Test
