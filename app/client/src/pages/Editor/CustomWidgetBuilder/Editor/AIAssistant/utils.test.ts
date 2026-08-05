@@ -27,10 +27,10 @@ describe("AIAssistant utils", () => {
       });
     });
 
-    it("maps the javascript tag to the js file", () => {
+    it("leaves illustrative javascript snippets out of file updates", () => {
       const content = "```javascript\nconst a = 1;\n```";
 
-      expect(extractCodeUpdates(content)).toEqual({ js: "const a = 1;" });
+      expect(extractCodeUpdates(content)).toEqual({});
     });
 
     it("returns partial updates when only some files are present", () => {

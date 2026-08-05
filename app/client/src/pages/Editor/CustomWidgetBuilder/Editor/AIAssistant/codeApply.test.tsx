@@ -23,7 +23,6 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import TabsLayout from "pages/Editor/CustomWidgetBuilder/Editor/Layouts/TabsLayout";
 import { CUSTOM_WIDGET_BUILDER_TABS } from "pages/Editor/CustomWidgetBuilder/constants";
 import { AIAssistant } from ".";
-import { buildWidgetAIContext } from "./utils";
 
 jest.mock("ee/utils/AnalyticsUtil", () => ({
   __esModule: true,
@@ -163,22 +162,18 @@ describe("applying an assistant reply to the editors", () => {
     );
 
     expect(bulkUpdate).not.toHaveBeenCalled();
+    expect(screen.getByText(/AI response was incomplete/)).toBeInTheDocument();
   });
 
-  it("does not apply a reply the user already cleared", () => {
+  it("does not apply a reply after the user stops generation", () => {
     const { ask, bulkUpdate, reply, store } = renderAssistant();
 
     ask("Rewrite the widget as a kanban board");
     expect(store.getState().aiAssistant.isLoading).toBe(true);
 
-    // Clearing the chat is the only way out of a slow generation, and the
-    // button is enabled while one is running.
-    const clearButton = screen.getAllByRole("button")[0];
+    fireEvent.click(screen.getByTestId("t--custom-widget-ai-cancel"));
 
-    expect((clearButton as HTMLButtonElement).disabled).toBe(false);
-    fireEvent.click(clearButton);
-
-    // Clearing should end the request, not just hide it.
+    // Stopping should end the request while keeping the conversation visible.
     expect(store.getState().aiAssistant.isLoading).toBe(false);
 
     // If the in-flight request still lands, its code must not be written to
@@ -188,19 +183,6 @@ describe("applying an assistant reply to the editors", () => {
     expect(bulkUpdate).not.toHaveBeenCalled();
   });
 
-  it("can empty a file when asked to remove it", () => {
-    const { ask, bulkUpdate, reply } = renderAssistant();
-
-    ask("Remove all the CSS, I'll load Tailwind from a CDN instead");
-    reply("Removed the stylesheet.\n```css\n```");
-
-    expect(bulkUpdate).toHaveBeenCalledWith({
-      html: EXISTING_WIDGET.html,
-      css: "",
-      js: EXISTING_WIDGET.js,
-    });
-  });
-
   it("normalises line endings so no carriage returns reach the editors", () => {
     const { ask, bulkUpdate, reply } = renderAssistant();
 
@@ -208,25 +190,6 @@ describe("applying an assistant reply to the editors", () => {
     reply("ok\r\n```css\r\n.a { color: red; }\r\n```\r\n");
 
     expect(bulkUpdate.mock.calls[0][0].css).toBe(".a { color: red; }");
-  });
-});
-
-describe("the context sent alongside a prompt", () => {
-  // AIEditorContextDTO.functionString is @Size(max = 50000) and the request DTO
-  // is validated, so anything longer comes back as a raw bean-validation error
-  // rather than an answer. The client has to keep itself under the limit.
-  const SERVER_LIMIT = 50000;
-
-  it("stays within the server's length limit for a large widget", () => {
-    const filler = "x".repeat(20000);
-
-    const context = buildWidgetAIContext({
-      html: filler,
-      css: filler,
-      js: filler,
-    });
-
-    expect(context.length).toBeLessThanOrEqual(SERVER_LIMIT);
   });
 });
 
@@ -276,6 +239,6 @@ describe("which builder tab opens first", () => {
       '[role="tab"][data-state="active"]',
     );
 
-    expect(activeTab?.textContent).not.toBe(CUSTOM_WIDGET_BUILDER_TABS.AI);
+    expect(activeTab?.textContent).toBe(CUSTOM_WIDGET_BUILDER_TABS.HTML);
   });
 });

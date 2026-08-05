@@ -84,23 +84,34 @@ export const aiAssistantReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_AI_RESPONSE_SUCCESS]: (
     state: AIAssistantReduxState,
     action: ReduxAction<{ response: string }>,
-  ) => ({
-    ...state,
-    isLoading: false,
-    error: undefined,
-    messages: appendMessage(state.messages, {
-      role: "assistant",
-      content: action.payload.response,
-      timestamp: Date.now(),
-    }),
-  }),
+  ) =>
+    state.isLoading
+      ? {
+          ...state,
+          isLoading: false,
+          error: undefined,
+          messages: appendMessage(state.messages, {
+            role: "assistant",
+            content: action.payload.response,
+            timestamp: Date.now(),
+          }),
+        }
+      : state,
   [ReduxActionTypes.FETCH_AI_RESPONSE_ERROR]: (
     state: AIAssistantReduxState,
     action: ReduxAction<{ error: string }>,
-  ) => ({
+  ) =>
+    state.isLoading
+      ? {
+          ...state,
+          isLoading: false,
+          error: action.payload.error,
+        }
+      : state,
+  [ReduxActionTypes.CANCEL_AI_RESPONSE]: (state: AIAssistantReduxState) => ({
     ...state,
     isLoading: false,
-    error: action.payload.error,
+    error: undefined,
   }),
   [ReduxActionTypes.CLEAR_AI_RESPONSE]: (state: AIAssistantReduxState) => ({
     ...state,

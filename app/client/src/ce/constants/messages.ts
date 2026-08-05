@@ -2761,7 +2761,11 @@ export const CUSTOM_WIDGET_AI_ASSISTANT = {
   ASSISTANT_LABEL: () => "AI Assistant",
   THINKING: () => "Generating...",
   SEND: () => "Send",
+  STOP_GENERATING: () => "Stop generating",
+  CHAT_OPTIONS: () => "Chat options",
   CLEAR_CHAT: () => "Clear chat",
+  INCOMPLETE_RESPONSE_ERROR: () =>
+    "The AI response was incomplete, so no editor changes were applied. Please try again.",
 };
 
 export const REQUEST_NEW_INTEGRATIONS = {

@@ -19,7 +19,6 @@ const LANGUAGE_TO_FILE: Record<string, SrcDocFile> = {
   html: "html",
   css: "css",
   js: "js",
-  javascript: "js",
 };
 
 const FENCED_CODE_BLOCK_REGEX =
@@ -51,7 +50,7 @@ export function buildWidgetAIContext(srcDoc?: SrcDoc): string {
     "RESPONSE FORMAT — follow strictly:",
     "1. When asked to create or change the widget, reply with a short explanation followed by the COMPLETE updated contents of every file you changed. Put each file in its own fenced markdown code block (three backticks) tagged exactly html, css or js. Each block replaces that whole file, so never return fragments or diffs, and use each tag at most once per reply.",
     "2. Only include a code block for a file you changed.",
-    "3. When answering questions without changing the widget, never tag illustrative snippets with html, css or js — use untagged fenced blocks instead.",
+    "3. When answering questions without changing the widget, never tag illustrative snippets with html, css, js or javascript — use untagged fenced blocks instead.",
     "",
     "CURRENT WIDGET CODE",
     "----- HTML -----",
@@ -65,7 +64,7 @@ export function buildWidgetAIContext(srcDoc?: SrcDoc): string {
 
 /**
  * Extracts full-file updates from an assistant reply. Only fenced blocks
- * tagged html/css/js (or javascript) count as file updates, per the response
+ * tagged html/css/js count as file updates, per the response
  * contract in {@link buildWidgetAIContext}. If a tag appears more than once,
  * the last block wins.
  */
@@ -73,6 +72,8 @@ export function extractCodeUpdates(content: string): WidgetCodeUpdates {
   const updates: WidgetCodeUpdates = {};
 
   if (!content) return updates;
+
+  content = normalizeLineEndings(content);
 
   for (const match of content.matchAll(FENCED_CODE_BLOCK_REGEX)) {
     const file = LANGUAGE_TO_FILE[(match[1] || "").toLowerCase()];
@@ -92,10 +93,24 @@ export function extractCodeUpdates(content: string): WidgetCodeUpdates {
 export function stripCodeUpdates(content: string): string {
   if (!content) return "";
 
+  content = normalizeLineEndings(content);
+
   return content
     .replace(FENCED_CODE_BLOCK_REGEX, (block, language) =>
       LANGUAGE_TO_FILE[(language || "").toLowerCase()] ? "" : block,
     )
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+}
+
+/** Returns true when a provider response ended inside a markdown code block. */
+export function hasUnclosedCodeFence(content: string): boolean {
+  const fenceCount =
+    normalizeLineEndings(content).match(/^[ \t]*```/gm)?.length;
+
+  return Boolean(fenceCount && fenceCount % 2 !== 0);
+}
+
+function normalizeLineEndings(content: string): string {
+  return content.replace(/\r\n?/g, "\n");
 }

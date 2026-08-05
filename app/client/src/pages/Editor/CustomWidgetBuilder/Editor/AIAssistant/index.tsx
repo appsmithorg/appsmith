@@ -9,10 +9,21 @@ import React, {
 import { useDispatch, useSelector } from "react-redux";
 import styled, { keyframes } from "styled-components";
 import { objectKeys } from "@appsmith/utils";
-import { Button, Icon, Spinner, Text, Tooltip } from "@appsmith/ads";
+import {
+  Button,
+  Icon,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+  Spinner,
+  Text,
+  Tooltip,
+} from "@appsmith/ads";
 import type { ContentProps } from "pages/Editor/CustomWidgetBuilder/Editor/CodeEditors/types";
 import { CustomWidgetBuilderContext } from "pages/Editor/CustomWidgetBuilder";
 import {
+  cancelAIResponse,
   clearAIResponse,
   fetchAIResponse,
   loadAISettings,
@@ -36,6 +47,7 @@ import {
   buildWidgetAIContext,
   CUSTOM_WIDGET_AI_MODE,
   extractCodeUpdates,
+  hasUnclosedCodeFence,
   stripCodeUpdates,
 } from "./utils";
 
@@ -141,6 +153,8 @@ const MessageArea = styled.div`
 `;
 
 const MessageBubble = styled.div<{ isUser: boolean }>`
+  align-self: ${(props) => (props.isUser ? "flex-end" : "flex-start")};
+  width: calc(100% - 24px);
   padding: 12px 16px;
   border-radius: var(--ads-v2-border-radius);
   background: ${(props) =>
@@ -264,6 +278,41 @@ function SuggestedPromptButton(props: SuggestedPromptButtonProps) {
   );
 }
 
+/** Controls rendered at the right edge of the Custom Widget Builder tab bar. */
+export function AIAssistantTitleControls() {
+  const dispatch = useDispatch();
+  const isLoading = useSelector(getIsAILoading);
+  const messages = useSelector(getAIMessages);
+
+  const handleClearChat = useCallback(() => {
+    dispatch(clearAIResponse());
+  }, [dispatch]);
+
+  return (
+    <Menu>
+      <MenuTrigger>
+        <Button
+          aria-label={createMessage(CUSTOM_WIDGET_AI_ASSISTANT.CHAT_OPTIONS)}
+          data-testid="t--custom-widget-ai-chat-options"
+          isIconButton
+          kind="tertiary"
+          size="sm"
+          startIcon="more-2-fill"
+        />
+      </MenuTrigger>
+      <MenuContent align="end">
+        <MenuItem
+          disabled={isLoading || messages.length === 0}
+          onSelect={handleClearChat}
+          startIcon="delete-bin-line"
+        >
+          {createMessage(CUSTOM_WIDGET_AI_ASSISTANT.CLEAR_CHAT)}
+        </MenuItem>
+      </MenuContent>
+    </Menu>
+  );
+}
+
 export function AIAssistant(props: ContentProps) {
   const dispatch = useDispatch();
   const { bulkUpdate, uncompiledSrcDoc, widgetId } = useContext(
@@ -278,6 +327,9 @@ export function AIAssistant(props: ContentProps) {
   const error = useSelector(getAIError);
 
   const [prompt, setPrompt] = useState("");
+  const [responseValidationError, setResponseValidationError] = useState<
+    string | undefined
+  >();
   const messageAreaRef = useRef<HTMLDivElement>(null);
   const lastAppliedTimestampRef = useRef(0);
 
@@ -311,6 +363,15 @@ export function AIAssistant(props: ContentProps) {
         lastMessage.role !== "assistant" ||
         lastMessage.timestamp <= lastAppliedTimestampRef.current
       ) {
+        return;
+      }
+
+      if (hasUnclosedCodeFence(lastMessage.content)) {
+        lastAppliedTimestampRef.current = lastMessage.timestamp;
+        setResponseValidationError(
+          createMessage(CUSTOM_WIDGET_AI_ASSISTANT.INCOMPLETE_RESPONSE_ERROR),
+        );
+
         return;
       }
 
@@ -350,6 +411,15 @@ export function AIAssistant(props: ContentProps) {
   );
 
   useEffect(
+    function clearResponseValidationErrorWithChat() {
+      if (messages.length === 0) {
+        setResponseValidationError(undefined);
+      }
+    },
+    [messages.length],
+  );
+
+  useEffect(
     function scrollToLatestMessage() {
       if (messageAreaRef.current && (messages.length > 0 || isLoading)) {
         messageAreaRef.current.scrollTop = messageAreaRef.current.scrollHeight;
@@ -363,6 +433,8 @@ export function AIAssistant(props: ContentProps) {
       const trimmed = text.trim();
 
       if (!trimmed || isLoading) return;
+
+      setResponseValidationError(undefined);
 
       dispatch(
         fetchAIResponse({
@@ -392,9 +464,8 @@ export function AIAssistant(props: ContentProps) {
     [handleSend],
   );
 
-  const handleClearChat = useCallback(() => {
-    dispatch(clearAIResponse());
-    lastAppliedTimestampRef.current = 0;
+  const handleCancel = useCallback(() => {
+    dispatch(cancelAIResponse());
   }, [dispatch]);
 
   const handlePromptChange = useCallback(
@@ -447,24 +518,27 @@ export function AIAssistant(props: ContentProps) {
       height={props.height}
     >
       <MessageArea ref={messageAreaRef}>
-        {messages.length === 0 && !isLoading && !error && (
-          <EmptyState>
-            <Icon className="empty-icon" name="sparkling-filled" size="lg" />
-            <EmptyStateText>
-              {createMessage(CUSTOM_WIDGET_AI_ASSISTANT.EMPTY_STATE_MESSAGE)}
-            </EmptyStateText>
-            <SuggestedPrompts>
-              {SUGGESTED_PROMPTS.map((suggestion) => (
-                <SuggestedPromptButton
-                  key={createMessage(suggestion.label)}
-                  label={createMessage(suggestion.label)}
-                  onSelect={sendPrompt}
-                  prompt={createMessage(suggestion.prompt)}
-                />
-              ))}
-            </SuggestedPrompts>
-          </EmptyState>
-        )}
+        {messages.length === 0 &&
+          !isLoading &&
+          !error &&
+          !responseValidationError && (
+            <EmptyState>
+              <Icon className="empty-icon" name="sparkling-filled" size="lg" />
+              <EmptyStateText>
+                {createMessage(CUSTOM_WIDGET_AI_ASSISTANT.EMPTY_STATE_MESSAGE)}
+              </EmptyStateText>
+              <SuggestedPrompts>
+                {SUGGESTED_PROMPTS.map((suggestion) => (
+                  <SuggestedPromptButton
+                    key={createMessage(suggestion.label)}
+                    label={createMessage(suggestion.label)}
+                    onSelect={sendPrompt}
+                    prompt={createMessage(suggestion.prompt)}
+                  />
+                ))}
+              </SuggestedPrompts>
+            </EmptyState>
+          )}
 
         {renderedMessages.map((message, index) => (
           <MessageBubble
@@ -510,7 +584,9 @@ export function AIAssistant(props: ContentProps) {
           </LoadingState>
         )}
 
-        {error && !isLoading && <ErrorState>{error}</ErrorState>}
+        {(error || responseValidationError) && !isLoading && (
+          <ErrorState>{error || responseValidationError}</ErrorState>
+        )}
       </MessageArea>
 
       <InputArea>
@@ -527,30 +603,42 @@ export function AIAssistant(props: ContentProps) {
           value={prompt}
         />
         <InputActions>
-          {messages.length > 0 && (
+          {isLoading ? (
             <Tooltip
-              content={createMessage(CUSTOM_WIDGET_AI_ASSISTANT.CLEAR_CHAT)}
+              content={createMessage(
+                CUSTOM_WIDGET_AI_ASSISTANT.STOP_GENERATING,
+              )}
               placement="top"
             >
               <Button
+                aria-label={createMessage(
+                  CUSTOM_WIDGET_AI_ASSISTANT.STOP_GENERATING,
+                )}
+                data-testid="t--custom-widget-ai-cancel"
                 isIconButton
-                kind="tertiary"
-                onClick={handleClearChat}
+                kind="error"
+                onClick={handleCancel}
                 size="sm"
-                startIcon="delete-bin-line"
+                startIcon="close-circle-line"
+              />
+            </Tooltip>
+          ) : (
+            <Tooltip
+              content={createMessage(CUSTOM_WIDGET_AI_ASSISTANT.SEND)}
+              placement="top"
+            >
+              <Button
+                aria-label={createMessage(CUSTOM_WIDGET_AI_ASSISTANT.SEND)}
+                data-testid="t--custom-widget-ai-send"
+                isDisabled={!prompt.trim()}
+                isIconButton
+                kind="primary"
+                onClick={handleSend}
+                size="sm"
+                startIcon="arrow-up-line"
               />
             </Tooltip>
           )}
-          <Button
-            data-testid="t--custom-widget-ai-send"
-            isDisabled={!prompt.trim()}
-            isLoading={isLoading}
-            kind="primary"
-            onClick={handleSend}
-            size="sm"
-          >
-            {createMessage(CUSTOM_WIDGET_AI_ASSISTANT.SEND)}
-          </Button>
         </InputActions>
       </InputArea>
     </Container>
