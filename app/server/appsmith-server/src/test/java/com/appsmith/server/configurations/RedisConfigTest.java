@@ -41,17 +41,13 @@ class RedisConfigTest {
     @Test
     void redisScheme_factoryUsesProvidedClientResources() {
         LettuceClientConfiguration clientConfiguration = clientConfigurationFor("redis://localhost:6379");
-        assertSame(
-                clientResources,
-                clientConfiguration.getClientResources().orElseThrow());
+        assertSame(clientResources, clientConfiguration.getClientResources().orElseThrow());
     }
 
     @Test
     void redissScheme_factoryUsesProvidedClientResourcesAndKeepsSslAndPooling() {
         LettuceClientConfiguration clientConfiguration = clientConfigurationFor("rediss://localhost:6379");
-        assertSame(
-                clientResources,
-                clientConfiguration.getClientResources().orElseThrow());
+        assertSame(clientResources, clientConfiguration.getClientResources().orElseThrow());
         assertTrue(clientConfiguration.isUseSsl());
         assertInstanceOf(LettucePoolingClientConfiguration.class, clientConfiguration);
     }
@@ -59,9 +55,7 @@ class RedisConfigTest {
     @Test
     void redisClusterScheme_factoryUsesProvidedClientResourcesAndKeepsPooling() {
         LettuceClientConfiguration clientConfiguration = clientConfigurationFor("redis-cluster://localhost:6379");
-        assertSame(
-                clientResources,
-                clientConfiguration.getClientResources().orElseThrow());
+        assertSame(clientResources, clientConfiguration.getClientResources().orElseThrow());
         assertInstanceOf(LettucePoolingClientConfiguration.class, clientConfiguration);
     }
 }
