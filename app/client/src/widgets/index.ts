@@ -270,6 +270,7 @@ const WidgetLoaders = new Map<string, () => Promise<typeof BaseWidget>>([
     "STATBOX_WIDGET",
     async () => import("./StatboxWidget").then((m) => m.default),
   ],
+  ["CARD_WIDGET", async () => import("./CardWidget").then((m) => m.default)],
   [
     "AUDIO_RECORDER_WIDGET",
     async () => import("./AudioRecorderWidget").then((m) => m.default),

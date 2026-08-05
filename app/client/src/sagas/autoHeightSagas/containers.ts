@@ -18,10 +18,28 @@ import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { getLayoutTree } from "./layoutTree";
 import { getWidgetsForBreakpoint } from "selectors/editorSelectors";
+import { loadAndRegisterOnlyCanvasWidgets } from "sagas/EvaluationsSaga";
 
 export function* dynamicallyUpdateContainersSaga(
   action?: ReduxAction<{ resettingTabs: boolean }>,
 ) {
+  // In the published app, widgets are registered lazily (see AppViewer), so a
+  // page-load container check can race registration. getCanvasHeightOffset
+  // silently returns 0 for unregistered widget types, which shrinks container
+  // widgets (Card, Tabs, etc.) to their bare canvas height. Ensure the used
+  // widget types are registered before computing; no-op once registered.
+  //
+  // loadAndRegisterOnlyCanvasWidgets rethrows (an unknown widget type in the
+  // DSL, or a chunk fetch that fails during a rolling upgrade). Swallow it:
+  // degrading to the previous offset-0 behaviour for one widget is far better
+  // than aborting height computation for every widget on the page and having
+  // the root saga restart this watcher.
+  try {
+    yield call(loadAndRegisterOnlyCanvasWidgets);
+  } catch (error) {
+    log.error("Auto Height: widget registration failed, continuing", error);
+  }
+
   const start = performance.now();
 
   const stateWidgets: CanvasWidgetsReduxState = yield select(

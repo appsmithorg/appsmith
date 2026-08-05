@@ -45,6 +45,7 @@ describe(
       Buttons: ["Button", "Button Group", "Icon button", "Menu button"],
       Select: ["Multi TreeSelect", "MultiSelect", "Select", "TreeSelect"],
       Display: [
+        "Card",
         "Chart",
         "Custom",
         "Iframe",
