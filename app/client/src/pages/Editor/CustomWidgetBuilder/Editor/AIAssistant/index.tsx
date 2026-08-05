@@ -48,6 +48,7 @@ import {
   CUSTOM_WIDGET_AI_MODE,
   extractCodeUpdates,
   hasUnclosedCodeFence,
+  MAX_WIDGET_AI_CONTEXT_LENGTH,
   stripCodeUpdates,
 } from "./utils";
 
@@ -436,12 +437,22 @@ export function AIAssistant(props: ContentProps) {
 
       setResponseValidationError(undefined);
 
+      const functionString = buildWidgetAIContext(srcDocRef.current);
+
+      if (functionString.length > MAX_WIDGET_AI_CONTEXT_LENGTH) {
+        setResponseValidationError(
+          createMessage(CUSTOM_WIDGET_AI_ASSISTANT.CONTEXT_TOO_LARGE_ERROR),
+        );
+
+        return;
+      }
+
       dispatch(
         fetchAIResponse({
           prompt: trimmed,
           context: {
             mode: CUSTOM_WIDGET_AI_MODE,
-            functionString: buildWidgetAIContext(srcDocRef.current),
+            functionString,
           },
         }),
       );

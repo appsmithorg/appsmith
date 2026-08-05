@@ -7,6 +7,9 @@ import type { SrcDoc } from "pages/Editor/CustomWidgetBuilder/types";
  */
 export const CUSTOM_WIDGET_AI_MODE = "custom_widget";
 
+// Matches AIEditorContextDTO.functionString's server-side @Size limit.
+export const MAX_WIDGET_AI_CONTEXT_LENGTH = 50000;
+
 export interface WidgetCodeUpdates {
   html?: string;
   css?: string;
@@ -78,7 +81,7 @@ export function extractCodeUpdates(content: string): WidgetCodeUpdates {
   for (const match of content.matchAll(FENCED_CODE_BLOCK_REGEX)) {
     const file = LANGUAGE_TO_FILE[(match[1] || "").toLowerCase()];
 
-    if (file && match[2].trim()) {
+    if (file) {
       updates[file] = restoreMarkdownFence(match[2].replace(/\n$/, ""));
     }
   }

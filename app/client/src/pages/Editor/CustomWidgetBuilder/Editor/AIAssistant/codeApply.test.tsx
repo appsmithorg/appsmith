@@ -66,7 +66,7 @@ function makeStore(aiSettings: {
   return store;
 }
 
-function renderAssistant() {
+function renderAssistant(srcDoc = EXISTING_WIDGET) {
   const store = makeStore({
     provider: "OPENAI",
     hasApiKey: true,
@@ -77,7 +77,7 @@ function renderAssistant() {
   const contextValue = {
     bulkUpdate,
     parentEntityId: "page1",
-    uncompiledSrcDoc: EXISTING_WIDGET,
+    uncompiledSrcDoc: srcDoc,
     update: jest.fn(),
     widgetId: "widget1",
   };
@@ -183,6 +183,19 @@ describe("applying an assistant reply to the editors", () => {
     expect(bulkUpdate).not.toHaveBeenCalled();
   });
 
+  it("can empty a file when asked to remove it", () => {
+    const { ask, bulkUpdate, reply } = renderAssistant();
+
+    ask("Remove all the CSS, I'll load Tailwind from a CDN instead");
+    reply("Removed the stylesheet.\n```css\n```");
+
+    expect(bulkUpdate).toHaveBeenCalledWith({
+      html: EXISTING_WIDGET.html,
+      css: "",
+      js: EXISTING_WIDGET.js,
+    });
+  });
+
   it("normalises line endings so no carriage returns reach the editors", () => {
     const { ask, bulkUpdate, reply } = renderAssistant();
 
@@ -190,6 +203,34 @@ describe("applying an assistant reply to the editors", () => {
     reply("ok\r\n```css\r\n.a { color: red; }\r\n```\r\n");
 
     expect(bulkUpdate.mock.calls[0][0].css).toBe(".a { color: red; }");
+  });
+});
+
+describe("the context sent alongside a prompt", () => {
+  it("does not send a widget that exceeds the server's context limit", () => {
+    const filler = "x".repeat(20000);
+    const { bulkUpdate, store } = renderAssistant({
+      html: filler,
+      css: filler,
+      js: filler,
+    });
+
+    fireEvent.change(screen.getByTestId("t--custom-widget-ai-prompt-input"), {
+      target: { value: "Make the widget responsive" },
+    });
+    fireEvent.click(screen.getByTestId("t--custom-widget-ai-send"));
+
+    expect(
+      store
+        .getState()
+        .aiAssistant.messages.some(
+          (message: { content: string }) =>
+            message.content === "Make the widget responsive",
+        ),
+    ).toBe(false);
+    expect(store.getState().aiAssistant.isLoading).toBe(false);
+    expect(bulkUpdate).not.toHaveBeenCalled();
+    expect(screen.getByText(/widget is too large/i)).toBeInTheDocument();
   });
 });
 

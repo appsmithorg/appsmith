@@ -67,10 +67,10 @@ describe("AIAssistant utils", () => {
       expect(extractCodeUpdates(content)).toEqual({ css: ".new {}" });
     });
 
-    it("ignores empty blocks", () => {
+    it("treats an explicitly empty block as a file clear", () => {
       const content = "```html\n\n```";
 
-      expect(extractCodeUpdates(content)).toEqual({});
+      expect(extractCodeUpdates(content)).toEqual({ html: "" });
     });
 
     it("handles indented fences inside the block body", () => {

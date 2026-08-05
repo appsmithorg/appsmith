@@ -2766,6 +2766,8 @@ export const CUSTOM_WIDGET_AI_ASSISTANT = {
   CLEAR_CHAT: () => "Clear chat",
   INCOMPLETE_RESPONSE_ERROR: () =>
     "The AI response was incomplete, so no editor changes were applied. Please try again.",
+  CONTEXT_TOO_LARGE_ERROR: () =>
+    "This widget is too large to send to the AI assistant in one request. No code was changed.",
 };
 
 export const REQUEST_NEW_INTEGRATIONS = {
