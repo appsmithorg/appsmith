@@ -121,15 +121,22 @@ class AIConfigSecretsCETest {
         assertThat(AIConfigSecretsCE.normalizeForStorage(unreadable)).isNull();
     }
 
+    /**
+     * The write path only ever sees keys the caller just supplied, so it must not borrow the
+     * migration's caution about unreadable ciphertext. A 64-character hexadecimal key is a
+     * perfectly valid credential and would otherwise be persisted in cleartext.
+     */
     @Test
-    void encryptCredentialsInPlace_leavesCiphertextItCannotDecryptUntouched() {
-        String unreadable = corruptOneHexDigit(EncryptionHelper.encrypt("sk-original-key"));
+    void encryptCredentialsInPlace_encryptsAKeyThatMerelyLooksLikeCiphertext() {
+        String hexShapedKey = "a".repeat(64);
         AIAssistantConfig config = new AIAssistantConfig();
-        config.setClaudeApiKey(unreadable);
+        config.setClaudeApiKey(hexShapedKey);
 
         AIConfigSecretsCE.encryptCredentialsInPlace(config);
 
-        assertThat(config.getClaudeApiKey()).isEqualTo(unreadable);
+        assertThat(config.getClaudeApiKey()).isNotEqualTo(hexShapedKey);
+        assertThat(AIConfigSecretsCE.isEncrypted(config.getClaudeApiKey())).isTrue();
+        assertThat(AIConfigSecretsCE.decrypt(config.getClaudeApiKey())).isEqualTo(hexShapedKey);
     }
 
     /**

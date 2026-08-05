@@ -143,11 +143,10 @@ public final class AIConfigSecretsCE {
      * Whether a value has the shape of {@link EncryptionHelper} output, which is hex-encoded
      * AES-GCM carrying at least a 16-byte IV and a 16-byte tag — so 64 hex characters at minimum.
      *
-     * <p>Only consulted once a decrypt has already failed, to tell a credential stored in cleartext
-     * apart from ciphertext this instance can no longer read. A cleartext key both long enough and
-     * hex enough to be mistaken for ciphertext would be left unencrypted rather than destroyed,
-     * which is the direction this check has to fail in. Provider keys are not hex at that length:
-     * OpenAI and Anthropic keys carry an {@code sk-} prefix, and Azure keys are 32 characters.
+     * <p>Used only by {@link #normalizeForStorage}, once a decrypt has already failed, to tell a
+     * legacy value stored in cleartext apart from ciphertext this instance can no longer read. It
+     * is deliberately kept off the write path, where an unmarked value is always a freshly supplied
+     * key and guessing at its shape could leave a real credential unencrypted.
      */
     private static boolean looksLikeCiphertext(String value) {
         if (value.length() < 64 || value.length() % 2 != 0) {
@@ -181,13 +180,17 @@ public final class AIConfigSecretsCE {
         config.setAzureOpenaiApiKey(encryptIfNeeded(config.getAzureOpenaiApiKey()));
     }
 
+    /**
+     * Everything reaching here came from a request body, so an unmarked value is a key the caller
+     * just supplied in cleartext — never a legacy value read back from storage. It is therefore
+     * always encrypted, with none of the migration's caution about unreadable ciphertext: applying
+     * that here would let a credential that merely looks like ciphertext, such as a 64-character
+     * hexadecimal key, be written to the database in cleartext.
+     */
     private static String encryptIfNeeded(String value) {
         if (value == null || value.isEmpty() || isEncrypted(value)) {
             return value;
         }
-        // Same decision as the migration, so this path cannot wrap unreadable ciphertext in a
-        // second layer either. A null answer means "nothing safe to write" — keep what is there.
-        String normalized = normalizeForStorage(value);
-        return normalized != null ? normalized : value;
+        return encrypt(value);
     }
 }
