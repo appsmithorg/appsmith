@@ -8,7 +8,7 @@ import StyleEditor, { TitleControls } from "./CodeEditors/StyleEditor";
 import JSEditor from "./CodeEditors/JSEditor";
 import type { ContentProps } from "./CodeEditors/types";
 import References from "./References";
-import { ChatBot } from "./ChatBot/ChatBot";
+import { AIAssistant, AIAssistantTitleControls } from "./AIAssistant";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { CUSTOM_WIDGET_BUILDER_TABS } from "../constants";
@@ -39,7 +39,8 @@ export default function Editor() {
     if (isAIEnabled) {
       defaultTabs.push({
         title: CUSTOM_WIDGET_BUILDER_TABS.AI,
-        children: (props: ContentProps) => <ChatBot {...props} />,
+        titleControls: <AIAssistantTitleControls />,
+        children: (props: ContentProps) => <AIAssistant {...props} />,
       });
     }
 

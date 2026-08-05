@@ -66,6 +66,11 @@ export const clearAIResponse = (): ReduxAction<undefined> => ({
   payload: undefined,
 });
 
+export const cancelAIResponse = (): ReduxAction<undefined> => ({
+  type: ReduxActionTypes.CANCEL_AI_RESPONSE,
+  payload: undefined,
+});
+
 export const openAIPanel = (): ReduxAction<undefined> => ({
   type: ReduxActionTypes.OPEN_AI_PANEL,
   payload: undefined,
