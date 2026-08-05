@@ -847,37 +847,43 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
                     return Mono.just(response);
                 }
 
+                // The destination for a stored credential comes from the saved configuration, never from the
+                // request. The UI masks these keys, so honouring a request-supplied host would let anyone who
+                // can reach this endpoint read one back by pointing the test at a collector they control.
+                // Only the fields that cannot change the host — deployment name, API version, model — stay
+                // overridable, so an administrator can still try a different deployment against their own
+                // resource.
                 if ("AZURE_OPENAI".equalsIgnoreCase(provider)) {
-                    String resolvedEndpoint = endpoint;
-                    String resolvedDeployment = deploymentName;
-                    if (resolvedEndpoint == null || resolvedEndpoint.trim().isEmpty()) {
-                        resolvedEndpoint = aiAssistantConfig.getAzureOpenaiEndpoint();
-                        if (resolvedEndpoint == null || resolvedEndpoint.isEmpty()) {
-                            resolvedEndpoint = aiAssistantConfig.getCopilotEndpoint();
-                        }
+                    String resolvedEndpoint = aiAssistantConfig.getAzureOpenaiEndpoint();
+                    if (!hasValue(resolvedEndpoint)) {
+                        resolvedEndpoint = aiAssistantConfig.getCopilotEndpoint();
                     }
-                    if (resolvedDeployment == null || resolvedDeployment.trim().isEmpty()) {
-                        resolvedDeployment = aiAssistantConfig.getAzureOpenaiDeploymentName();
+                    if (!allowsStoredCredential(resolvedEndpoint)) {
+                        return Mono.just(insecureDestinationResponse(provider));
                     }
+
+                    String resolvedDeployment = hasValue(deploymentName)
+                            ? deploymentName
+                            : aiAssistantConfig.getAzureOpenaiDeploymentName();
                     return testAzureOpenaiKey(storedKey, resolvedEndpoint, resolvedDeployment, apiVersion);
                 }
 
-                String resolvedBaseUrl = baseUrl;
+                String resolvedBaseUrl = null;
                 String resolvedModel = model;
                 if ("CLAUDE".equalsIgnoreCase(provider)) {
-                    if (!hasValue(resolvedBaseUrl)) {
-                        resolvedBaseUrl = aiAssistantConfig.getClaudeBaseUrl();
-                    }
+                    resolvedBaseUrl = aiAssistantConfig.getClaudeBaseUrl();
                     if (!hasValue(resolvedModel)) {
                         resolvedModel = aiAssistantConfig.getClaudeModel();
                     }
                 } else if ("OPENAI".equalsIgnoreCase(provider)) {
-                    if (!hasValue(resolvedBaseUrl)) {
-                        resolvedBaseUrl = aiAssistantConfig.getOpenaiBaseUrl();
-                    }
+                    resolvedBaseUrl = aiAssistantConfig.getOpenaiBaseUrl();
                     if (!hasValue(resolvedModel)) {
                         resolvedModel = aiAssistantConfig.getOpenaiModel();
                     }
+                }
+
+                if (!allowsStoredCredential(resolvedBaseUrl)) {
+                    return Mono.just(insecureDestinationResponse(provider));
                 }
 
                 return testApiKeyWithProvider(provider, storedKey, resolvedBaseUrl, resolvedModel);
@@ -1542,5 +1548,49 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
 
     private String stripTrailingSlash(String url) {
         return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
+    }
+
+    /**
+     * Whether a stored provider credential may be sent to this destination.
+     *
+     * <p>A blank value means no override is configured, so the caller falls back to the provider's own
+     * HTTPS endpoint. An explicit destination has to keep the key off the wire in cleartext. Loopback is
+     * exempt because a proxy on the Appsmith host never puts the key on a network.
+     *
+     * <p>This applies only when the key comes from storage. An administrator who types a key into the
+     * form is knowingly sending that value to the URL beside it, and that path is left alone.
+     */
+    private boolean allowsStoredCredential(String url) {
+        if (!hasValue(url)) {
+            return true;
+        }
+
+        try {
+            URI uri = URI.create(url.trim());
+            if ("https".equalsIgnoreCase(uri.getScheme())) {
+                return true;
+            }
+
+            String host = uri.getHost();
+            return "localhost".equalsIgnoreCase(host) || "127.0.0.1".equals(host) || "[::1]".equals(host);
+        } catch (IllegalArgumentException e) {
+            // Unparseable destination — refuse rather than guess.
+            return false;
+        }
+    }
+
+    private Map<String, Object> insecureDestinationResponse(String provider) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        response.put(
+                "error",
+                "The configured " + provider
+                        + " endpoint does not use HTTPS. Testing the saved API key would send it over an unencrypted connection.");
+        response.put(
+                "suggestions",
+                List.of(
+                        "Change the endpoint to an https:// URL",
+                        "Or type the API key into the field above to test this endpoint explicitly"));
+        return response;
     }
 }

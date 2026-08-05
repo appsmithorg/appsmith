@@ -339,6 +339,104 @@ class AIConfigServiceCEImplTest {
         assertThat(String.valueOf(props.get("errorSummary"))).contains("URL");
     }
 
+    /**
+     * A saved credential must only ever travel to the destination the administrator saved. Honouring a
+     * request-supplied host would let anyone who can reach this endpoint read back a key that the UI
+     * deliberately masks, by pointing the test at a collector they control.
+     *
+     * <p>Each of these gives the request an HTTPS destination and the saved configuration a plain HTTP
+     * one. The refusal is what proves the saved value won: had the request value been used, it would
+     * have passed the transport check and gone on to a real provider call.
+     */
+    @Test
+    void testApiKey_withStoredKey_ignoresRequestSuppliedBaseUrl() {
+        Organization org = new Organization();
+        org.setId("org-p1");
+        OrganizationConfiguration configuration = new OrganizationConfiguration();
+        AIAssistantConfig aiConfig = new AIAssistantConfig();
+        aiConfig.setOpenaiApiKey("sk-stored-openai-key");
+        aiConfig.setOpenaiBaseUrl("http://attacker.example.com");
+        configuration.setAiAssistantConfig(aiConfig);
+        org.setOrganizationConfiguration(configuration);
+
+        when(analyticsService.isActive()).thenReturn(false);
+        when(organizationService.getCurrentUserOrganizationId()).thenReturn(Mono.just("org-p1"));
+        when(organizationService.findById("org-p1", MANAGE_ORGANIZATION)).thenReturn(Mono.just(org));
+        when(organizationService.getCurrentUserOrganization()).thenReturn(Mono.just(org));
+
+        Map<String, String> request = new HashMap<>();
+        request.put("provider", "OPENAI");
+        request.put("baseUrl", "https://api.openai.com");
+
+        StepVerifier.create(aiConfigService.testApiKey(request))
+                .assertNext(response -> {
+                    assertThat(response).containsEntry("success", false);
+                    assertThat(String.valueOf(response.get("error"))).contains("HTTPS");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void testApiKey_withStoredKey_ignoresRequestSuppliedAzureEndpoint() {
+        Organization org = new Organization();
+        org.setId("org-p2");
+        OrganizationConfiguration configuration = new OrganizationConfiguration();
+        AIAssistantConfig aiConfig = new AIAssistantConfig();
+        aiConfig.setAzureOpenaiApiKey("sk-stored-azure-key-1234567890");
+        aiConfig.setAzureOpenaiEndpoint("http://attacker.example.com");
+        configuration.setAiAssistantConfig(aiConfig);
+        org.setOrganizationConfiguration(configuration);
+
+        when(analyticsService.isActive()).thenReturn(false);
+        when(organizationService.getCurrentUserOrganizationId()).thenReturn(Mono.just("org-p2"));
+        when(organizationService.findById("org-p2", MANAGE_ORGANIZATION)).thenReturn(Mono.just(org));
+        when(organizationService.getCurrentUserOrganization()).thenReturn(Mono.just(org));
+
+        Map<String, String> request = new HashMap<>();
+        request.put("provider", "AZURE_OPENAI");
+        request.put("endpoint", "https://contoso.openai.azure.com");
+        request.put("deploymentName", "gpt4o-prod");
+
+        StepVerifier.create(aiConfigService.testApiKey(request))
+                .assertNext(response -> {
+                    assertThat(response).containsEntry("success", false);
+                    assertThat(String.valueOf(response.get("error"))).contains("HTTPS");
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * The counterpart: an HTTPS destination taken from the saved configuration is accepted, and it is
+     * that saved endpoint the test proceeds with. Stopping at the missing deployment name keeps this
+     * off the network while still proving the request got past the transport check.
+     */
+    @Test
+    void testApiKey_withStoredKey_usesTheConfiguredHttpsEndpoint() {
+        Organization org = new Organization();
+        org.setId("org-p3");
+        OrganizationConfiguration configuration = new OrganizationConfiguration();
+        AIAssistantConfig aiConfig = new AIAssistantConfig();
+        aiConfig.setAzureOpenaiApiKey("sk-stored-azure-key-1234567890");
+        aiConfig.setAzureOpenaiEndpoint("https://contoso.openai.azure.com");
+        configuration.setAiAssistantConfig(aiConfig);
+        org.setOrganizationConfiguration(configuration);
+
+        when(analyticsService.isActive()).thenReturn(false);
+        when(organizationService.getCurrentUserOrganizationId()).thenReturn(Mono.just("org-p3"));
+        when(organizationService.findById("org-p3", MANAGE_ORGANIZATION)).thenReturn(Mono.just(org));
+        when(organizationService.getCurrentUserOrganization()).thenReturn(Mono.just(org));
+
+        Map<String, String> request = new HashMap<>();
+        request.put("provider", "AZURE_OPENAI");
+
+        StepVerifier.create(aiConfigService.testApiKey(request))
+                .assertNext(response -> {
+                    assertThat(response).containsEntry("success", false);
+                    assertThat(String.valueOf(response.get("error"))).contains("Deployment name");
+                })
+                .verifyComplete();
+    }
+
     @Test
     void testApiKey_skipsTestAnalytics_whenInactive() {
         when(analyticsService.isActive()).thenReturn(false);
