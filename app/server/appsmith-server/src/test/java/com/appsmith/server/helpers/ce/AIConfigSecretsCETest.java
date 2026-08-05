@@ -97,6 +97,78 @@ class AIConfigSecretsCETest {
         assertThat(AIConfigSecretsCE.decrypt(normalized)).isEqualTo("sk-already-encrypted");
     }
 
+    /**
+     * The unreadable-value check keys off the shape of {@link EncryptionHelper} output, so pin that
+     * shape here rather than assume it: hex, and long enough to carry a 16-byte IV and 16-byte tag.
+     */
+    @Test
+    void encryptedValuesAreHexAndAtLeastSixtyFourCharacters() {
+        String ciphertext = EncryptionHelper.encrypt("sk-secret-key");
+
+        assertThat(ciphertext).matches("[0-9a-fA-F]+");
+        assertThat(ciphertext.length()).isGreaterThanOrEqualTo(64);
+    }
+
+    @Test
+    void normalizeForStorage_leavesCiphertextItCannotDecryptUntouched() {
+        // What a changed APPSMITH_ENCRYPTION_PASSWORD looks like at migration time: the value is
+        // real ciphertext by shape, but this instance can no longer read it. Encrypting it again
+        // would wrap the old ciphertext in the new password — after which neither the old password
+        // nor the new one recovers the credential.
+        String unreadable = corruptOneHexDigit(EncryptionHelper.encrypt("sk-original-key"));
+
+        assertThatThrownBy(() -> EncryptionHelper.decrypt(unreadable)).isInstanceOf(Exception.class);
+        assertThat(AIConfigSecretsCE.normalizeForStorage(unreadable)).isNull();
+    }
+
+    @Test
+    void encryptCredentialsInPlace_leavesCiphertextItCannotDecryptUntouched() {
+        String unreadable = corruptOneHexDigit(EncryptionHelper.encrypt("sk-original-key"));
+        AIAssistantConfig config = new AIAssistantConfig();
+        config.setClaudeApiKey(unreadable);
+
+        AIConfigSecretsCE.encryptCredentialsInPlace(config);
+
+        assertThat(config.getClaudeApiKey()).isEqualTo(unreadable);
+    }
+
+    /**
+     * One destination policy guards every request that attaches a stored key — the Ask AI request
+     * path and the settings "test key" path both call this.
+     */
+    @Test
+    void allowsStoredCredential_permitsHttpsAndLoopbackOnly() {
+        // No override configured: the caller falls back to the provider's own HTTPS endpoint.
+        assertThat(AIConfigSecretsCE.allowsStoredCredential(null)).isTrue();
+        assertThat(AIConfigSecretsCE.allowsStoredCredential("")).isTrue();
+        assertThat(AIConfigSecretsCE.allowsStoredCredential("   ")).isTrue();
+
+        assertThat(AIConfigSecretsCE.allowsStoredCredential("https://api.openai.com"))
+                .isTrue();
+        assertThat(AIConfigSecretsCE.allowsStoredCredential("HTTPS://api.anthropic.com"))
+                .isTrue();
+
+        // Loopback never puts the credential on a network.
+        assertThat(AIConfigSecretsCE.allowsStoredCredential("http://localhost:11434"))
+                .isTrue();
+        assertThat(AIConfigSecretsCE.allowsStoredCredential("http://127.0.0.1:8000"))
+                .isTrue();
+
+        // Cleartext to anything else, and anything unparseable, is refused.
+        assertThat(AIConfigSecretsCE.allowsStoredCredential("http://attacker.example.com"))
+                .isFalse();
+        assertThat(AIConfigSecretsCE.allowsStoredCredential("http://internal-llm.corp:8000"))
+                .isFalse();
+        assertThat(AIConfigSecretsCE.allowsStoredCredential("not a url")).isFalse();
+    }
+
+    /** Keeps the value hex and the same length, so only decryption fails. */
+    private static String corruptOneHexDigit(String ciphertext) {
+        char last = ciphertext.charAt(ciphertext.length() - 1);
+        char replacement = last == 'a' ? 'b' : 'a';
+        return ciphertext.substring(0, ciphertext.length() - 1) + replacement;
+    }
+
     @Test
     void normalizeForStorage_returnsNullWhenThereIsNothingToWrite() {
         assertThat(AIConfigSecretsCE.normalizeForStorage(null)).isNull();

@@ -253,6 +253,10 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                             AppsmithError.NO_RESOURCE_FOUND,
                             "Azure OpenAI deployment name not configured. Add the name of your model deployment from Azure OpenAI Studio."));
         }
+        if (!AIConfigSecretsCE.allowsStoredCredential(endpoint)) {
+            return Mono.error(new AppsmithException(
+                    AppsmithError.NO_RESOURCE_FOUND, insecureProviderDestinationMessage("Azure OpenAI")));
+        }
         return callAzureOpenAIAPI(
                 endpoint.trim(),
                 deploymentName.trim(),
@@ -271,6 +275,10 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
             return Mono.error(
                     new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "API key not configured for this provider"));
         }
+        if (!AIConfigSecretsCE.allowsStoredCredential(aiConfig.getClaudeBaseUrl())) {
+            return Mono.error(new AppsmithException(
+                    AppsmithError.NO_RESOURCE_FOUND, insecureProviderDestinationMessage("Claude")));
+        }
         return callClaudeAPI(
                 apiKey, prompt, ctx, conversationHistory, aiConfig.getClaudeModel(), aiConfig.getClaudeBaseUrl());
     }
@@ -282,8 +290,23 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
             return Mono.error(
                     new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "API key not configured for this provider"));
         }
+        if (!AIConfigSecretsCE.allowsStoredCredential(aiConfig.getOpenaiBaseUrl())) {
+            return Mono.error(new AppsmithException(
+                    AppsmithError.NO_RESOURCE_FOUND, insecureProviderDestinationMessage("OpenAI")));
+        }
         return callOpenAIAPI(
                 apiKey, prompt, ctx, conversationHistory, aiConfig.getOpenaiModel(), aiConfig.getOpenaiBaseUrl());
+    }
+
+    /**
+     * The stored key is about to be attached to an outbound request, so the destination has to be one
+     * that keeps it off the wire in cleartext. {@link AIConfigSecretsCE#allowsStoredCredential} is the
+     * single policy for that, shared with the settings "test key" path.
+     */
+    private String insecureProviderDestinationMessage(String provider) {
+        return "a secure " + provider
+                + " endpoint. The configured URL does not use HTTPS, so the stored API key was not sent."
+                + " Ask an administrator to change it to an https:// URL";
     }
 
     /**

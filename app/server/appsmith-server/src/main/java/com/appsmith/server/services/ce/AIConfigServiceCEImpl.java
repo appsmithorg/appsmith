@@ -1551,32 +1551,11 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
     }
 
     /**
-     * Whether a stored provider credential may be sent to this destination.
-     *
-     * <p>A blank value means no override is configured, so the caller falls back to the provider's own
-     * HTTPS endpoint. An explicit destination has to keep the key off the wire in cleartext. Loopback is
-     * exempt because a proxy on the Appsmith host never puts the key on a network.
-     *
-     * <p>This applies only when the key comes from storage. An administrator who types a key into the
-     * form is knowingly sending that value to the URL beside it, and that path is left alone.
+     * Applies only when the key comes from storage. An administrator who types a key into the form is
+     * knowingly sending that value to the URL beside it, and that path is left alone.
      */
     private boolean allowsStoredCredential(String url) {
-        if (!hasValue(url)) {
-            return true;
-        }
-
-        try {
-            URI uri = URI.create(url.trim());
-            if ("https".equalsIgnoreCase(uri.getScheme())) {
-                return true;
-            }
-
-            String host = uri.getHost();
-            return "localhost".equalsIgnoreCase(host) || "127.0.0.1".equals(host) || "[::1]".equals(host);
-        } catch (IllegalArgumentException e) {
-            // Unparseable destination — refuse rather than guess.
-            return false;
-        }
+        return AIConfigSecretsCE.allowsStoredCredential(url);
     }
 
     private Map<String, Object> insecureDestinationResponse(String provider) {

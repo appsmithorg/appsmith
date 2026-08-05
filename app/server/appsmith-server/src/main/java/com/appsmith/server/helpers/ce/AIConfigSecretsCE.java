@@ -6,6 +6,8 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.URI;
+
 /**
  * Encryption for the AI Assistant provider credentials stored on the organization document.
  *
@@ -79,9 +81,40 @@ public final class AIConfigSecretsCE {
     }
 
     /**
-     * Returns the marked-ciphertext form of a stored value, or null when it is already marked and
-     * needs no write. Used by {@code Migration076} to normalise everything written before the
-     * marker existed, so that no unmarked value survives to be misread later.
+     * The single destination policy for every request that carries a stored provider credential —
+     * the Ask AI request path and the settings "test key" path alike.
+     *
+     * <p>A blank value means no override is configured and the caller falls back to the provider's
+     * own HTTPS endpoint. An explicit destination has to keep the key off the wire in cleartext.
+     *
+     * <p>Loopback is the one exception, because traffic to it never reaches a network: a proxy on
+     * the Appsmith host cannot expose the credential to anyone who is not already on that host.
+     * This is the same reasoning that makes {@code localhost} a trustworthy origin for browsers,
+     * and without it a local LLM proxy could not be used at all.
+     */
+    public static boolean allowsStoredCredential(String url) {
+        if (url == null || url.trim().isEmpty()) {
+            return true;
+        }
+
+        try {
+            URI uri = URI.create(url.trim());
+            if ("https".equalsIgnoreCase(uri.getScheme())) {
+                return true;
+            }
+
+            String host = uri.getHost();
+            return "localhost".equalsIgnoreCase(host) || "127.0.0.1".equals(host) || "[::1]".equals(host);
+        } catch (IllegalArgumentException e) {
+            // Unparseable destination — refuse rather than guess.
+            return false;
+        }
+    }
+
+    /**
+     * Returns the marked-ciphertext form of a stored value, or null when there is nothing safe to
+     * write. Used by {@code Migration076} to normalise everything written before the marker
+     * existed, so that no unmarked value survives to be misread later.
      */
     public static String normalizeForStorage(String stored) {
         if (stored == null || stored.isEmpty() || isEncrypted(stored)) {
@@ -93,8 +126,39 @@ public final class AIConfigSecretsCE {
             EncryptionHelper.decrypt(stored);
             return ENCRYPTED_PREFIX + stored;
         } catch (Exception e) {
+            if (looksLikeCiphertext(stored)) {
+                // Shaped like ciphertext but unreadable: the instance encryption password changed.
+                // Encrypting it again would wrap the old ciphertext in the new password, and then
+                // restoring the old password would no longer decrypt the outer layer — the
+                // credential would be unrecoverable either way. Leave it for an operator instead.
+                log.error("An AI provider credential could not be decrypted and was left unchanged. Restore the"
+                        + " previous instance encryption password, or clear and re-enter the affected API keys.");
+                return null;
+            }
             return encrypt(stored);
         }
+    }
+
+    /**
+     * Whether a value has the shape of {@link EncryptionHelper} output, which is hex-encoded
+     * AES-GCM carrying at least a 16-byte IV and a 16-byte tag — so 64 hex characters at minimum.
+     *
+     * <p>Only consulted once a decrypt has already failed, to tell a credential stored in cleartext
+     * apart from ciphertext this instance can no longer read. A cleartext key both long enough and
+     * hex enough to be mistaken for ciphertext would be left unencrypted rather than destroyed,
+     * which is the direction this check has to fail in. Provider keys are not hex at that length:
+     * OpenAI and Anthropic keys carry an {@code sk-} prefix, and Azure keys are 32 characters.
+     */
+    private static boolean looksLikeCiphertext(String value) {
+        if (value.length() < 64 || value.length() % 2 != 0) {
+            return false;
+        }
+        for (int i = 0; i < value.length(); i++) {
+            if (Character.digit(value.charAt(i), 16) < 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -121,6 +185,9 @@ public final class AIConfigSecretsCE {
         if (value == null || value.isEmpty() || isEncrypted(value)) {
             return value;
         }
-        return encrypt(value);
+        // Same decision as the migration, so this path cannot wrap unreadable ciphertext in a
+        // second layer either. A null answer means "nothing safe to write" — keep what is there.
+        String normalized = normalizeForStorage(value);
+        return normalized != null ? normalized : value;
     }
 }

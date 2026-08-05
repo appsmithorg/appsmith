@@ -301,9 +301,13 @@ export function GlobalAISidePanel() {
     [editorContext, dispatch, isLoading],
   );
 
+  // Guarded as well as disabled: clearing mid-request would empty the list that the saga is about
+  // to append the in-flight response to, leaving an answer with no question above it.
   const handleClearChat = useCallback(() => {
+    if (isLoading) return;
+
     dispatch(clearAIResponse());
-  }, [dispatch]);
+  }, [dispatch, isLoading]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -343,6 +347,7 @@ export function GlobalAISidePanel() {
           {messages.length > 0 && (
             <Tooltip content="Clear chat" placement="bottom">
               <ClearButton
+                isDisabled={isLoading}
                 isIconButton
                 kind="tertiary"
                 onClick={handleClearChat}

@@ -252,10 +252,14 @@ export function AISidePanel(props: AISidePanelProps) {
 
   // ── Panel actions ──────────────────────────────────────────────────────────
 
+  // Guarded as well as disabled: clearing mid-request would empty the list that the saga is about
+  // to append the in-flight response to, leaving an answer with no question above it.
   const handleClearChat = useCallback(() => {
+    if (isLoading) return;
+
     dispatch(clearAIResponse());
     setPrompt("");
-  }, [dispatch]);
+  }, [dispatch, isLoading]);
 
   // Every submission path funnels through here. Previously the send button and each quick-action
   // chip dispatched independently, and the chips stayed active while a request was running, so two
@@ -327,6 +331,7 @@ export function AISidePanel(props: AISidePanelProps) {
           {messages.length > 0 && (
             <Tooltip content="Clear chat" placement="bottom">
               <ClearChatButton
+                isDisabled={isLoading}
                 isIconButton
                 kind="tertiary"
                 onClick={handleClearChat}
