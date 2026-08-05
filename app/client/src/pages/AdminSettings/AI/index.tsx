@@ -954,7 +954,7 @@ function AISettings() {
             <FieldWrapper>
               <ButtonRow style={{ marginTop: "8px" }}>
                 <Button
-                  isDisabled={!claudeApiKey}
+                  isDisabled={!claudeApiKey && !hasStoredClaudeApiKey}
                   isLoading={isTestingApiKey}
                   kind="secondary"
                   onClick={handleTestApiKey}
@@ -1040,7 +1040,7 @@ function AISettings() {
             <FieldWrapper>
               <ButtonRow style={{ marginTop: "8px" }}>
                 <Button
-                  isDisabled={!openaiApiKey}
+                  isDisabled={!openaiApiKey && !hasStoredOpenaiApiKey}
                   isLoading={isTestingApiKey}
                   kind="secondary"
                   onClick={handleTestApiKey}
@@ -1164,7 +1164,7 @@ function AISettings() {
 
               <ButtonRow style={{ marginTop: "8px" }}>
                 <Button
-                  isDisabled={!azureOpenaiApiKey}
+                  isDisabled={!azureOpenaiApiKey && !hasStoredAzureOpenaiApiKey}
                   isLoading={isTestingApiKey}
                   kind="secondary"
                   onClick={handleTestApiKey}

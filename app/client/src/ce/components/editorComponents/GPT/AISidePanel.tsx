@@ -161,11 +161,49 @@ export function AISidePanel(props: AISidePanelProps) {
   const editorContext = useSelector(getAIEditorContext);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
+  const detachDragRef = useRef<(() => void) | null>(null);
+  const inFlightRef = useRef(false);
+  const [cursorLine, setCursorLine] = useState(0);
 
   useEffect(() => {
     dispatch(clearAIResponse());
     setPrompt("");
   }, [mode, editorContext?.entityName, editorContext?.entityId, dispatch]);
+
+  // The context label reports the line the request will be built from, so it has to follow the
+  // caret. Without this it only refreshed when the editor or mode changed, and the label kept
+  // showing the line the panel happened to open on while submission sent the real position.
+  // Tracking the line rather than the full position keeps this off the per-keystroke path.
+  useEffect(
+    function trackCursorLine() {
+      if (!editor) return;
+
+      const syncCursorLine = () => setCursorLine(editor.getCursor().line);
+
+      syncCursorLine();
+      editor.on("cursorActivity", syncCursorLine);
+
+      return () => {
+        editor.off("cursorActivity", syncCursorLine);
+      };
+    },
+    [editor],
+  );
+
+  // A drag that is still active when the panel unmounts would otherwise leave both document
+  // listeners attached for the rest of the session, calling setPanelWidth on a dead component.
+  useEffect(() => () => detachDragRef.current?.(), []);
+
+  // The saga owns the request lifecycle; mirror it into a ref so a second click landing in the
+  // same tick — before React has re-rendered with isLoading — still sees one in progress.
+  useEffect(
+    function releaseInFlightGuard() {
+      if (!isLoading) {
+        inFlightRef.current = false;
+      }
+    },
+    [isLoading],
+  );
 
   // Scroll to bottom on new messages or while loading
   useEffect(() => {
@@ -177,18 +215,11 @@ export function AISidePanel(props: AISidePanelProps) {
   const contextInfo = useMemo(() => {
     if (!editor) return null;
 
-    const cursorPosition = editor.getCursor();
-    const context = getAIContext({
-      cursorPosition,
-      editor,
-    });
-
     return {
-      functionName: context.functionName,
-      lineNumber: cursorPosition.line + 1,
+      lineNumber: cursorLine + 1,
       mode: getModeLabel(mode),
     };
-  }, [editor, mode]);
+  }, [editor, mode, cursorLine]);
 
   // ── Resize handle ──────────────────────────────────────────────────────────
 
@@ -211,10 +242,12 @@ export function AISidePanel(props: AISidePanelProps) {
       isDraggingRef.current = false;
       document.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("mouseup", onMouseUp);
+      detachDragRef.current = null;
     };
 
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseup", onMouseUp);
+    detachDragRef.current = onMouseUp;
   }, []);
 
   // ── Panel actions ──────────────────────────────────────────────────────────
@@ -224,54 +257,49 @@ export function AISidePanel(props: AISidePanelProps) {
     setPrompt("");
   }, [dispatch]);
 
-  const handleSend = useCallback(() => {
-    if (!prompt.trim() || !editor) return;
+  // Every submission path funnels through here. Previously the send button and each quick-action
+  // chip dispatched independently, and the chips stayed active while a request was running, so two
+  // clicks queued two prompts against a single loading flag — duplicate chat entries and a second
+  // billable provider call.
+  const submitPrompt = useCallback(
+    (rawPrompt: string) => {
+      const trimmedPrompt = rawPrompt.trim();
 
-    const cursorPosition = editor.getCursor();
-    const context = getAIContext({
-      cursorPosition,
-      editor,
-    });
+      if (!trimmedPrompt || !editor || inFlightRef.current || isLoading) {
+        return;
+      }
 
-    dispatch(
-      fetchAIResponse({
-        prompt: prompt.trim(),
-        context: {
-          ...context,
-          currentValue,
-          mode,
-        },
-      }),
-    );
-    setPrompt("");
-  }, [prompt, editor, mode, currentValue, dispatch]);
+      inFlightRef.current = true;
+
+      const cursorPosition = editor.getCursor();
+      const context = getAIContext({
+        cursorPosition,
+        editor,
+      });
+
+      dispatch(
+        fetchAIResponse({
+          prompt: trimmedPrompt,
+          context: {
+            ...context,
+            currentValue,
+            mode,
+          },
+        }),
+      );
+      setPrompt("");
+    },
+    [editor, isLoading, mode, currentValue, dispatch],
+  );
+
+  const handleSend = useCallback(
+    () => submitPrompt(prompt),
+    [submitPrompt, prompt],
+  );
 
   const handleQuickAction = useCallback(
-    (actionPrompt: string) => {
-      setPrompt(actionPrompt);
-
-      setTimeout(() => {
-        if (!editor) return;
-
-        const cursorPosition = editor.getCursor();
-        const context = getAIContext({
-          cursorPosition,
-          editor,
-        });
-
-        dispatch(
-          fetchAIResponse({
-            prompt: actionPrompt,
-            context: {
-              ...context,
-              currentValue,
-              mode,
-            },
-          }),
-        );
-      }, 100);
-    },
-    [editor, mode, currentValue, dispatch],
+    (actionPrompt: string) => submitPrompt(actionPrompt),
+    [submitPrompt],
   );
 
   const handleKeyDown = useCallback(
@@ -372,6 +400,7 @@ export function AISidePanel(props: AISidePanelProps) {
           <QuickActionsGrid>
             {QUICK_ACTIONS.map((action) => (
               <QuickActionChip
+                disabled={isLoading}
                 key={action.label}
                 onClick={() => handleQuickAction(action.prompt)}
                 title={action.prompt}
@@ -383,6 +412,7 @@ export function AISidePanel(props: AISidePanelProps) {
             ))}
             {messages.length > 0 && (
               <QuickActionChip
+                disabled={isLoading}
                 key="clear-chat"
                 onClick={handleClearChat}
                 title="Clear all chat messages"
@@ -401,12 +431,6 @@ export function AISidePanel(props: AISidePanelProps) {
             <ContextLabel>
               <Icon className="context-icon" name="eye-on" size="sm" />
               Context: <code>{contextInfo.mode}</code>
-              {contextInfo.functionName && (
-                <>
-                  {" · "}
-                  <code>{contextInfo.functionName}</code>
-                </>
-              )}
               {" · "}Line {contextInfo.lineNumber}
             </ContextLabel>
           </ContextSection>
@@ -425,7 +449,7 @@ export function AISidePanel(props: AISidePanelProps) {
               {prompt.length > 0 && `${prompt.length} chars`}
             </Text>
             <SendButton
-              isDisabled={!prompt.trim()}
+              isDisabled={!prompt.trim() || isLoading}
               isLoading={isLoading}
               kind="primary"
               onClick={handleSend}
