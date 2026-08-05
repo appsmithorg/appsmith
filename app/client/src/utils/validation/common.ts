@@ -126,8 +126,8 @@ export function getExpectedValue(
       }
 
       return {
-        type: objectType,
-        example: { key: "value" },
+        type: config.params?.expected?.type || objectType,
+        example: config.params?.expected?.example || { key: "value" },
         autocompleteDataType: AutocompleteDataType.OBJECT,
       };
     case ValidationTypes.ARRAY:

@@ -237,6 +237,32 @@ class ButtonListControl extends BaseControl<
       };
     }
 
+    if (this.props.widgetProperties.type === "CARD_WIDGET") {
+      /**
+       * Card footer actions declare `buttonVariant`/`buttonColor` (see
+       * CardFooterAction) and have no separator support, so strip the
+       * base extras (`itemType`, `isSeparator`, `variant`) to keep the
+       * persisted DSL aligned with the declared interface. This control
+       * only reads `itemType` for separator handling, which the Card
+       * panel does not enable. New actions pick up the themed button
+       * color from the widget's childStylesheet (same idea as the
+       * BUTTON_GROUP_WIDGET branch above).
+       */
+      const cardFooterAction = { ...groupButtons[newGroupButtonId] };
+
+      delete cardFooterAction.itemType;
+      delete cardFooterAction.isSeparator;
+      delete cardFooterAction.variant;
+
+      groupButtons[newGroupButtonId] = {
+        ...cardFooterAction,
+        buttonVariant: "SECONDARY",
+        buttonColor:
+          this.props.widgetProperties.childStylesheet?.footerAction
+            ?.buttonColor,
+      };
+    }
+
     if (this.props.widgetProperties.type === "WDS_INLINE_BUTTONS_WIDGET") {
       // if buttonVariant and buttonColor values ar present in session storage, then we should use those values
       const buttonVariantSessionValue = sessionStorage.getItem(
