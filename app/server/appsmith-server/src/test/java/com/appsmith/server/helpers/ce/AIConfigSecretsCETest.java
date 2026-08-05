@@ -144,7 +144,7 @@ class AIConfigSecretsCETest {
      * path and the settings "test key" path both call this.
      */
     @Test
-    void allowsStoredCredential_permitsHttpsAndLoopbackOnly() {
+    void allowsStoredCredential_permitsHttpsOnly() {
         // No override configured: the caller falls back to the provider's own HTTPS endpoint.
         assertThat(AIConfigSecretsCE.allowsStoredCredential(null)).isTrue();
         assertThat(AIConfigSecretsCE.allowsStoredCredential("")).isTrue();
@@ -155,16 +155,14 @@ class AIConfigSecretsCETest {
         assertThat(AIConfigSecretsCE.allowsStoredCredential("HTTPS://api.anthropic.com"))
                 .isTrue();
 
-        // Loopback never puts the credential on a network.
+        // Cleartext is refused everywhere, loopback included. WebClientUtils denies loopback both
+        // as a literal host and after DNS resolution, so allowing it here would only advertise a
+        // capability the HTTP layer rejects.
         assertThat(AIConfigSecretsCE.allowsStoredCredential("http://localhost:11434"))
-                .isTrue();
-        assertThat(AIConfigSecretsCE.allowsStoredCredential("http://127.0.0.1:8000"))
-                .isTrue();
-
-        // Cleartext to anything else, and anything unparseable, is refused.
-        assertThat(AIConfigSecretsCE.allowsStoredCredential("http://attacker.example.com"))
                 .isFalse();
-        assertThat(AIConfigSecretsCE.allowsStoredCredential("http://internal-llm.corp:8000"))
+        assertThat(AIConfigSecretsCE.allowsStoredCredential("http://127.0.0.1:8000"))
+                .isFalse();
+        assertThat(AIConfigSecretsCE.allowsStoredCredential("http://attacker.example.com"))
                 .isFalse();
         assertThat(AIConfigSecretsCE.allowsStoredCredential("not a url")).isFalse();
     }

@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ORGANIZATION;
 import static com.appsmith.server.constants.AIConstants.DEFAULT_AZURE_API_VERSION;
@@ -52,6 +53,9 @@ import static com.appsmith.server.constants.AIConstants.DEFAULT_OPENAI_MODEL;
 @Slf4j
 @RequiredArgsConstructor
 public class AIConfigServiceCEImpl implements AIConfigServiceCE {
+
+    /** What the settings page renders in place of a stored key, and may echo back. */
+    private static final String MASKED_API_KEY = "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";
 
     private final OrganizationService organizationService;
     private final ObjectMapper objectMapper;
@@ -75,6 +79,13 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
                         assistantConfig = new AIAssistantConfig();
                         config.setAiAssistantConfig(assistantConfig);
                     }
+
+                    // Captured before the setters below overwrite them. A stored credential is bound
+                    // to the destination it was entered for: see clearKeyIfDestinationChanged.
+                    String previousClaudeBaseUrl = assistantConfig.getClaudeBaseUrl();
+                    String previousOpenaiBaseUrl = assistantConfig.getOpenaiBaseUrl();
+                    String previousAzureOpenaiEndpoint = assistantConfig.getAzureOpenaiEndpoint();
+                    String previousCopilotEndpoint = assistantConfig.getCopilotEndpoint();
 
                     try {
                         validateApiKey(
@@ -128,6 +139,27 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
                     } catch (AppsmithException e) {
                         return Mono.error(e);
                     }
+
+                    clearKeyIfDestinationChanged(
+                            previousClaudeBaseUrl,
+                            assistantConfig.getClaudeBaseUrl(),
+                            aiConfig.getClaudeApiKey(),
+                            assistantConfig::setClaudeApiKey);
+                    clearKeyIfDestinationChanged(
+                            previousOpenaiBaseUrl,
+                            assistantConfig.getOpenaiBaseUrl(),
+                            aiConfig.getOpenaiApiKey(),
+                            assistantConfig::setOpenaiApiKey);
+                    clearKeyIfDestinationChanged(
+                            previousAzureOpenaiEndpoint,
+                            assistantConfig.getAzureOpenaiEndpoint(),
+                            aiConfig.getAzureOpenaiApiKey(),
+                            assistantConfig::setAzureOpenaiApiKey);
+                    clearKeyIfDestinationChanged(
+                            previousCopilotEndpoint,
+                            assistantConfig.getCopilotEndpoint(),
+                            aiConfig.getCopilotApiKey(),
+                            assistantConfig::setCopilotApiKey);
 
                     if (aiConfig.getProvider() != null) {
                         assistantConfig.setAiProvider(aiConfig.getProvider());
@@ -806,7 +838,7 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
             return Mono.just(response);
         }
 
-        if (apiKey == null || apiKey.trim().isEmpty() || apiKey.equals("••••••••")) {
+        if (apiKey == null || apiKey.trim().isEmpty() || MASKED_API_KEY.equals(apiKey)) {
             return organizationService.getCurrentUserOrganization().flatMap(organization -> {
                 OrganizationConfiguration config = organization.getOrganizationConfiguration();
                 if (config == null) {
@@ -1524,6 +1556,32 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
         // Every provider credential reaches storage through here, so this is the one place that
         // needs to encrypt. Read sites decrypt via AIConfigSecretsCE.decrypt.
         setter.accept(AIConfigSecretsCE.encrypt(trimmed));
+    }
+
+    /**
+     * Drops a stored provider credential when its destination changes and the request supplies no
+     * replacement.
+     *
+     * <p>Pinning the test request to the saved destination stopped a caller naming the host inline,
+     * but not the same attack in two steps: save a new base URL with the key field left blank — the
+     * key is preserved, since a blank value means "unchanged" — and the saved credential now points
+     * at a host of the caller's choosing. Testing the key, or simply using the assistant, then sends
+     * it there. The UI masks these keys precisely so an administrator cannot read them back.
+     *
+     * <p>Binding the credential to its destination removes the step: change where it goes and it has
+     * to be entered again.
+     */
+    private void clearKeyIfDestinationChanged(
+            String previousDestination,
+            String currentDestination,
+            String suppliedApiKey,
+            java.util.function.Consumer<String> keySetter) {
+        String supplied = suppliedApiKey == null ? "" : suppliedApiKey.trim();
+        boolean hasReplacement = !supplied.isEmpty() && !MASKED_API_KEY.equals(supplied);
+        if (hasReplacement || Objects.equals(previousDestination, currentDestination)) {
+            return;
+        }
+        keySetter.accept(null);
     }
 
     private void validateTrimmedString(

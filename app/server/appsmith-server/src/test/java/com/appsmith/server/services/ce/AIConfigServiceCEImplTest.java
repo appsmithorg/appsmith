@@ -9,6 +9,7 @@ import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.AIConfigDTO;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ce.AIConfigSecretsCE;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
@@ -435,6 +436,117 @@ class AIConfigServiceCEImplTest {
                     assertThat(String.valueOf(response.get("error"))).contains("Deployment name");
                 })
                 .verifyComplete();
+    }
+
+    /**
+     * Pinning the test request to the saved destination stopped a caller naming the host inline, but
+     * not the same attack in two steps: save a new base URL with the key field blank — which means
+     * "unchanged", so the key survives — and the stored credential now points wherever the caller
+     * likes. Testing it, or just using the assistant, then sends it there. Binding the credential to
+     * its destination removes that step.
+     */
+    @Test
+    void updateAIConfig_clearsTheStoredKey_whenTheDestinationChangesWithoutANewKey() {
+        Organization org = organizationWithStoredClaudeKey("https://api.anthropic.com");
+
+        when(analyticsService.isActive()).thenReturn(false);
+        when(organizationService.getCurrentUserOrganizationId()).thenReturn(Mono.just("org-r1"));
+        when(organizationService.findById("org-r1", MANAGE_ORGANIZATION)).thenReturn(Mono.just(org));
+        when(organizationService.updateOrganizationConfiguration(eq("org-r1"), any(OrganizationConfiguration.class)))
+                .thenAnswer(invocation -> {
+                    Organization out = new Organization();
+                    out.setId("org-r1");
+                    out.setOrganizationConfiguration(invocation.getArgument(1));
+                    return Mono.just(out);
+                });
+
+        AIConfigDTO dto = new AIConfigDTO();
+        dto.setClaudeBaseUrl("https://attacker.example.com");
+
+        StepVerifier.create(aiConfigService.updateAIConfig(dto))
+                .expectNextCount(1)
+                .verifyComplete();
+
+        ArgumentCaptor<OrganizationConfiguration> captor = ArgumentCaptor.forClass(OrganizationConfiguration.class);
+        verify(organizationService).updateOrganizationConfiguration(eq("org-r1"), captor.capture());
+        AIAssistantConfig saved = captor.getValue().getAiAssistantConfig();
+
+        assertThat(saved.getClaudeBaseUrl()).isEqualTo("https://attacker.example.com");
+        assertThat(saved.getClaudeApiKey()).isNull();
+    }
+
+    @Test
+    void updateAIConfig_keepsTheStoredKey_whenTheDestinationIsUnchanged() {
+        Organization org = organizationWithStoredClaudeKey("https://api.anthropic.com");
+        String storedKey =
+                org.getOrganizationConfiguration().getAiAssistantConfig().getClaudeApiKey();
+
+        when(analyticsService.isActive()).thenReturn(false);
+        when(organizationService.getCurrentUserOrganizationId()).thenReturn(Mono.just("org-r2"));
+        when(organizationService.findById("org-r2", MANAGE_ORGANIZATION)).thenReturn(Mono.just(org));
+        when(organizationService.updateOrganizationConfiguration(eq("org-r2"), any(OrganizationConfiguration.class)))
+                .thenAnswer(invocation -> {
+                    Organization out = new Organization();
+                    out.setId("org-r2");
+                    out.setOrganizationConfiguration(invocation.getArgument(1));
+                    return Mono.just(out);
+                });
+
+        AIConfigDTO dto = new AIConfigDTO();
+        dto.setClaudeBaseUrl("https://api.anthropic.com");
+        dto.setClaudeModel("claude-sonnet-4");
+
+        StepVerifier.create(aiConfigService.updateAIConfig(dto))
+                .expectNextCount(1)
+                .verifyComplete();
+
+        ArgumentCaptor<OrganizationConfiguration> captor = ArgumentCaptor.forClass(OrganizationConfiguration.class);
+        verify(organizationService).updateOrganizationConfiguration(eq("org-r2"), captor.capture());
+
+        assertThat(captor.getValue().getAiAssistantConfig().getClaudeApiKey()).isEqualTo(storedKey);
+    }
+
+    @Test
+    void updateAIConfig_keepsTheNewKey_whenTheDestinationChangesAndAKeyIsSupplied() {
+        Organization org = organizationWithStoredClaudeKey("https://api.anthropic.com");
+
+        when(analyticsService.isActive()).thenReturn(false);
+        when(organizationService.getCurrentUserOrganizationId()).thenReturn(Mono.just("org-r3"));
+        when(organizationService.findById("org-r3", MANAGE_ORGANIZATION)).thenReturn(Mono.just(org));
+        when(organizationService.updateOrganizationConfiguration(eq("org-r3"), any(OrganizationConfiguration.class)))
+                .thenAnswer(invocation -> {
+                    Organization out = new Organization();
+                    out.setId("org-r3");
+                    out.setOrganizationConfiguration(invocation.getArgument(1));
+                    return Mono.just(out);
+                });
+
+        AIConfigDTO dto = new AIConfigDTO();
+        dto.setClaudeBaseUrl("https://proxy.example.com");
+        dto.setClaudeApiKey("sk-brand-new-key");
+
+        StepVerifier.create(aiConfigService.updateAIConfig(dto))
+                .expectNextCount(1)
+                .verifyComplete();
+
+        ArgumentCaptor<OrganizationConfiguration> captor = ArgumentCaptor.forClass(OrganizationConfiguration.class);
+        verify(organizationService).updateOrganizationConfiguration(eq("org-r3"), captor.capture());
+        AIAssistantConfig saved = captor.getValue().getAiAssistantConfig();
+
+        assertThat(saved.getClaudeApiKey()).isNotNull();
+        assertThat(AIConfigSecretsCE.decrypt(saved.getClaudeApiKey())).isEqualTo("sk-brand-new-key");
+    }
+
+    private Organization organizationWithStoredClaudeKey(String baseUrl) {
+        Organization org = new Organization();
+        org.setId("org");
+        OrganizationConfiguration configuration = new OrganizationConfiguration();
+        AIAssistantConfig aiConfig = new AIAssistantConfig();
+        aiConfig.setClaudeApiKey(AIConfigSecretsCE.encrypt("sk-stored-claude-key"));
+        aiConfig.setClaudeBaseUrl(baseUrl);
+        configuration.setAiAssistantConfig(aiConfig);
+        org.setOrganizationConfiguration(configuration);
+        return org;
     }
 
     @Test

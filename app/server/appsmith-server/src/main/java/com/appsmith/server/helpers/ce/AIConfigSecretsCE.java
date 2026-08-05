@@ -87,10 +87,10 @@ public final class AIConfigSecretsCE {
      * <p>A blank value means no override is configured and the caller falls back to the provider's
      * own HTTPS endpoint. An explicit destination has to keep the key off the wire in cleartext.
      *
-     * <p>Loopback is the one exception, because traffic to it never reaches a network: a proxy on
-     * the Appsmith host cannot expose the credential to anyone who is not already on that host.
-     * This is the same reasoning that makes {@code localhost} a trustworthy origin for browsers,
-     * and without it a local LLM proxy could not be used at all.
+     * <p>There is deliberately no loopback exception. It would be unreachable: every one of these
+     * requests goes out through {@code WebClientUtils}, whose {@code RestrictedHostFilter} denies
+     * loopback both as a literal host and after DNS resolution. Allowing {@code http://localhost}
+     * here would only describe a capability the HTTP layer refuses anyway.
      */
     public static boolean allowsStoredCredential(String url) {
         if (url == null || url.trim().isEmpty()) {
@@ -98,13 +98,7 @@ public final class AIConfigSecretsCE {
         }
 
         try {
-            URI uri = URI.create(url.trim());
-            if ("https".equalsIgnoreCase(uri.getScheme())) {
-                return true;
-            }
-
-            String host = uri.getHost();
-            return "localhost".equalsIgnoreCase(host) || "127.0.0.1".equals(host) || "[::1]".equals(host);
+            return "https".equalsIgnoreCase(URI.create(url.trim()).getScheme());
         } catch (IllegalArgumentException e) {
             // Unparseable destination — refuse rather than guess.
             return false;

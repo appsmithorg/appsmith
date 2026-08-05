@@ -83,6 +83,14 @@ const HintText = styled(Text)`
   font-style: italic;
 `;
 
+const DestinationChangeWarning = styled.div`
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--ads-v2-color-border-warning);
+  border-radius: var(--ads-v2-border-radius);
+  background: var(--ads-v2-color-bg-warning);
+`;
+
 const EnabledSwitch = styled.div`
   /* Override switch track color when checked to use green for better visibility */
   input:checked {
@@ -475,6 +483,12 @@ function AISettings() {
     useState<boolean>(false);
   const [hasStoredAzureOpenaiApiKey, setHasStoredAzureOpenaiApiKey] =
     useState<boolean>(false);
+  // The destinations as last saved. A stored key is bound to the destination it was entered for,
+  // so the server drops it when that changes — these let the form say so before Save is pressed.
+  const [savedClaudeBaseUrl, setSavedClaudeBaseUrl] = useState<string>("");
+  const [savedOpenaiBaseUrl, setSavedOpenaiBaseUrl] = useState<string>("");
+  const [savedAzureOpenaiEndpoint, setSavedAzureOpenaiEndpoint] =
+    useState<string>("");
   const [azureOpenaiEndpoint, setAzureOpenaiEndpoint] = useState<string>("");
   const [azureOpenaiDeploymentName, setAzureOpenaiDeploymentName] =
     useState<string>("");
@@ -565,6 +579,13 @@ function AISettings() {
           setClaudeBaseUrl(config.claudeBaseUrl || DEFAULT_CLAUDE_BASE_URL);
           setOpenaiModel(config.openaiModel || DEFAULT_OPENAI_MODEL);
           setOpenaiBaseUrl(config.openaiBaseUrl || DEFAULT_OPENAI_BASE_URL);
+          setSavedClaudeBaseUrl(
+            config.claudeBaseUrl || DEFAULT_CLAUDE_BASE_URL,
+          );
+          setSavedOpenaiBaseUrl(
+            config.openaiBaseUrl || DEFAULT_OPENAI_BASE_URL,
+          );
+          setSavedAzureOpenaiEndpoint(config.azureOpenaiEndpoint || "");
 
           // Determine context size preset from saved value
           if (contextSize && contextSize > 0) {
@@ -622,6 +643,37 @@ function AISettings() {
       setIsFetchingModels(false);
     }
   };
+
+  // The server drops a stored key when its destination changes without a replacement, so that
+  // changing where the key is sent cannot be used to read back a value this form deliberately
+  // masks. Say so before Save is pressed rather than letting the key disappear silently.
+  const storedKeyWillBeCleared = (() => {
+    if (provider === "CLAUDE") {
+      return (
+        hasStoredClaudeApiKey &&
+        !claudeApiKey &&
+        claudeBaseUrl !== savedClaudeBaseUrl
+      );
+    }
+
+    if (provider === "OPENAI") {
+      return (
+        hasStoredOpenaiApiKey &&
+        !openaiApiKey &&
+        openaiBaseUrl !== savedOpenaiBaseUrl
+      );
+    }
+
+    if (provider === "AZURE_OPENAI") {
+      return (
+        hasStoredAzureOpenaiApiKey &&
+        !azureOpenaiApiKey &&
+        azureOpenaiEndpoint !== savedAzureOpenaiEndpoint
+      );
+    }
+
+    return false;
+  })();
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -711,6 +763,20 @@ function AISettings() {
           setAzureOpenaiApiKey("");
           setHasStoredAzureOpenaiApiKey(true);
         }
+
+        // Mirror what the server just did: a destination that moved without a replacement key
+        // leaves no stored key behind, so the form must stop claiming there is one.
+        if (storedKeyWillBeCleared) {
+          if (provider === "CLAUDE") setHasStoredClaudeApiKey(false);
+
+          if (provider === "OPENAI") setHasStoredOpenaiApiKey(false);
+
+          if (provider === "AZURE_OPENAI") setHasStoredAzureOpenaiApiKey(false);
+        }
+
+        setSavedClaudeBaseUrl(claudeBaseUrl);
+        setSavedOpenaiBaseUrl(openaiBaseUrl);
+        setSavedAzureOpenaiEndpoint(azureOpenaiEndpoint);
       } else {
         toast.show("Failed to save AI configuration", { kind: "error" });
       }
@@ -1348,6 +1414,15 @@ function AISettings() {
         )}
 
         <FieldWrapper>
+          {storedKeyWillBeCleared && (
+            <DestinationChangeWarning>
+              <Text kind="body-s">
+                The saved API key is tied to the URL it was entered for. Saving
+                this change will remove it, and you will need to enter the key
+                again for the new URL.
+              </Text>
+            </DestinationChangeWarning>
+          )}
           <Button
             isLoading={isSaving}
             kind="primary"
