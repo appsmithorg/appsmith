@@ -791,6 +791,7 @@ public class MssqlPluginTest {
         assertTrue(
                 jdbcUrl.contains("ApplicationIntent=ReadOnly"),
                 "JDBC URL should contain ApplicationIntent=ReadOnly parameter");
+        assertTrue(connectionPool.isReadOnly(), "Hikari datasource should be read-only for READ_ONLY mode");
 
         connectionPool.close();
     }
@@ -809,6 +810,7 @@ public class MssqlPluginTest {
         assertFalse(
                 jdbcUrl.contains("ApplicationIntent"),
                 "JDBC URL should not contain ApplicationIntent parameter for READ_WRITE mode");
+        assertFalse(connectionPool.isReadOnly(), "Hikari datasource should remain writable for READ_WRITE mode");
 
         connectionPool.close();
     }
