@@ -2,6 +2,8 @@ package com.appsmith.server.helpers.ce;
 
 import com.appsmith.external.helpers.EncryptionHelper;
 import com.appsmith.server.domains.AIAssistantConfig;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -19,6 +21,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class AIConfigSecretsCE {
 
+    /**
+     * Marks a value produced by {@link #encrypt}. Storage is otherwise ambiguous: ciphertext and
+     * cleartext are both just strings, and "does it decrypt?" answers the wrong question in both
+     * directions. It reports false for real ciphertext once the instance encryption password
+     * changes, which would let the next write encrypt that value a second time and destroy the
+     * credential beyond recovery; and it reports true for any cleartext that happens to decrypt
+     * without throwing, which would leave that value in cleartext forever.
+     */
+    private static final String ENCRYPTED_PREFIX = "enc:v1:";
+
     private AIConfigSecretsCE() {}
 
     /** Encrypts a provider credential for storage. Null and blank values are passed through. */
@@ -26,41 +38,59 @@ public final class AIConfigSecretsCE {
         if (plaintext == null || plaintext.isEmpty()) {
             return plaintext;
         }
-        return EncryptionHelper.encrypt(plaintext);
+        return ENCRYPTED_PREFIX + EncryptionHelper.encrypt(plaintext);
     }
 
     /**
      * Decrypts a stored provider credential.
      *
-     * <p>Values written before this encryption existed are stored in cleartext, and the ciphertext
-     * carries no marker that would distinguish the two. A value that does not decrypt is therefore
-     * treated as legacy cleartext and returned unchanged, so an instance keeps working between the
-     * upgrade and the migration that encrypts those values in place. That fallback is also what
-     * makes the migration itself idempotent.
+     * <p>A marked value has to decrypt. Returning the ciphertext when it does not — the previous
+     * behaviour — sent that ciphertext to the provider as the API key, so the administrator saw
+     * "invalid API key" with no hint that the instance encryption password had changed. Failing
+     * here surfaces the real cause instead.
+     *
+     * <p>An unmarked value predates this encryption and is cleartext. {@code Migration076} marks
+     * and encrypts those, so this branch only covers the window before it runs.
      */
     public static String decrypt(String stored) {
         if (stored == null || stored.isEmpty()) {
             return stored;
         }
+        if (!stored.startsWith(ENCRYPTED_PREFIX)) {
+            return stored;
+        }
         try {
-            return EncryptionHelper.decrypt(stored);
+            return EncryptionHelper.decrypt(stored.substring(ENCRYPTED_PREFIX.length()));
         } catch (Exception e) {
             // Do not log the value or the exception detail — both can echo key material.
-            log.debug("AI provider credential is not encrypted yet; treating it as legacy cleartext.");
-            return stored;
+            log.error("An AI provider credential could not be decrypted. Check the instance encryption password.");
+            throw new AppsmithException(
+                    AppsmithError.INVALID_PARAMETER,
+                    "The stored AI provider credential could not be read. Re-enter the API key.");
         }
     }
 
-    /** True when the value is already encrypted, i.e. it round-trips through the decryptor. */
+    /** True when the value carries the marker written by {@link #encrypt}. */
     public static boolean isEncrypted(String stored) {
-        if (stored == null || stored.isEmpty()) {
-            return true;
+        return stored == null || stored.isEmpty() || stored.startsWith(ENCRYPTED_PREFIX);
+    }
+
+    /**
+     * Returns the marked-ciphertext form of a stored value, or null when it is already marked and
+     * needs no write. Used by {@code Migration076} to normalise everything written before the
+     * marker existed, so that no unmarked value survives to be misread later.
+     */
+    public static String normalizeForStorage(String stored) {
+        if (stored == null || stored.isEmpty() || isEncrypted(stored)) {
+            return null;
         }
         try {
+            // Ciphertext from a build that encrypted but did not yet mark. Keep the bytes as they
+            // are — re-encrypting would nest one ciphertext inside another — and add the marker.
             EncryptionHelper.decrypt(stored);
-            return true;
+            return ENCRYPTED_PREFIX + stored;
         } catch (Exception e) {
-            return false;
+            return encrypt(stored);
         }
     }
 
@@ -71,7 +101,7 @@ public final class AIConfigSecretsCE {
      * {@code PUT /organizations} endpoint binds the whole {@code OrganizationConfiguration}, and {@code @JsonView}
      * does not filter a request body unless a view is active — so the credential fields deserialize there too and
      * {@code copyNestedNonNullProperties} + {@code updateById} would persist them in cleartext, silently defeating
-     * the at-rest guarantee. {@code decrypt}'s legacy-cleartext fallback means nothing would ever look broken.
+     * the at-rest guarantee. Nothing would look broken either, since an unmarked value reads back as cleartext.
      * Normalising here makes encryption a property of the data reaching storage rather than of one code path.
      */
     public static void encryptCredentialsInPlace(AIAssistantConfig config) {
