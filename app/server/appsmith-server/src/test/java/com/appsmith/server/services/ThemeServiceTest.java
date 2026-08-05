@@ -9,6 +9,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -27,6 +28,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -876,5 +882,63 @@ public class ThemeServiceTest {
                     assertThat(theme.getConfig()).isNotNull();
                 })
                 .verifyComplete();
+    }
+
+    /**
+     * An anonymous viewer of a public application must not be able to read the edit-mode (unpublished)
+     * theme. The current-theme endpoint defaults to EDIT mode, and the two-arg service overload used by
+     * that endpoint must therefore require edit authorization for EDIT mode while still allowing any
+     * viewer of a public app to read the PUBLISHED theme. See APP-15750.
+     */
+    @WithUserDetails("api_user")
+    @Test
+    public void getApplicationTheme_asAnonymousViewerOfPublicApp_editModeThemeIsDenied() {
+        Theme sharpTheme = themeService.getSystemTheme("Sharp").block();
+        Theme classicTheme = themeService.getSystemTheme("Classic").block();
+
+        Application savedApplication = createApplication();
+
+        // Published theme = Sharp; edit-mode theme = Classic (they must differ so a leak is observable).
+        themeService
+                .changeCurrentTheme(sharpTheme.getId(), savedApplication.getId())
+                .block();
+        applicationPageService.publish(savedApplication.getId(), TRUE).block();
+        themeService
+                .changeCurrentTheme(classicTheme.getId(), savedApplication.getId())
+                .block();
+
+        // Make the application public — this grants the anonymous role READ (but not EDIT) on the app.
+        ApplicationAccessDTO accessDTO = new ApplicationAccessDTO();
+        accessDTO.setPublicAccess(true);
+        applicationService
+                .changeViewAccessForSingleBranchByBranchedApplicationId(savedApplication.getId(), accessDTO)
+                .block();
+
+        // Build an anonymous security context and run the theme reads as the anonymous user.
+        User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
+        Authentication anonymousAuth =
+                new UsernamePasswordAuthenticationToken(anonymousUser, null, anonymousUser.getAuthorities());
+        SecurityContext anonymousSecurityContext = new SecurityContextImpl(anonymousAuth);
+
+        // PUBLISHED mode: an anonymous viewer of a public app is allowed and must get the Sharp theme.
+        Mono<Theme> publishedThemeMono = themeService
+                .getApplicationTheme(savedApplication.getId(), ApplicationMode.PUBLISHED)
+                .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(anonymousSecurityContext)));
+
+        StepVerifier.create(publishedThemeMono)
+                .assertNext(theme -> assertThat(theme.getName()).isEqualTo("Sharp"))
+                .verifyComplete();
+
+        // EDIT mode (the endpoint default): an anonymous viewer must be denied — the unpublished Classic
+        // theme must not leak. Before the fix this returns Classic; after the fix it errors.
+        Mono<Theme> editThemeMono = themeService
+                .getApplicationTheme(savedApplication.getId(), ApplicationMode.EDIT)
+                .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(anonymousSecurityContext)));
+
+        StepVerifier.create(editThemeMono)
+                .expectErrorMatches(error -> error instanceof AppsmithException
+                        && (((AppsmithException) error).getError() == AppsmithError.ACL_NO_RESOURCE_FOUND
+                                || ((AppsmithException) error).getError() == AppsmithError.NO_RESOURCE_FOUND))
+                .verify();
     }
 }
