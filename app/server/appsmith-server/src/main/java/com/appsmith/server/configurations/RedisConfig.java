@@ -12,7 +12,10 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.TimeoutOptions;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
+import io.lettuce.core.metrics.MicrometerCommandLatencyRecorder;
+import io.lettuce.core.metrics.MicrometerOptions;
 import io.lettuce.core.resource.ClientResources;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -105,7 +108,7 @@ public class RedisConfig {
 
     @Bean
     @Primary
-    public ReactiveRedisConnectionFactory reactiveRedisConnectionFactory() {
+    public ReactiveRedisConnectionFactory reactiveRedisConnectionFactory(ClientResources clientResources) {
         final URI redisUri = URI.create(redisURL);
         final String scheme = redisUri.getScheme();
 
@@ -114,15 +117,20 @@ public class RedisConfig {
                 final RedisStandaloneConfiguration config =
                         new RedisStandaloneConfiguration(redisUri.getHost(), redisUri.getPort());
                 fillAuthentication(redisUri, config);
-                return new LettuceConnectionFactory(config);
+                final LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
+                        .clientResources(clientResources)
+                        .build();
+                return new LettuceConnectionFactory(config, clientConfig);
             }
 
             case "rediss" -> {
                 final RedisStandaloneConfiguration config =
                         new RedisStandaloneConfiguration(redisUri.getHost(), redisUri.getPort());
                 fillAuthentication(redisUri, config);
-                final LettuceClientConfiguration clientConfig =
-                        LettucePoolingClientConfiguration.builder().useSsl().build();
+                final LettuceClientConfiguration clientConfig = LettucePoolingClientConfiguration.builder()
+                        .clientResources(clientResources)
+                        .useSsl()
+                        .build();
                 return new LettuceConnectionFactory(config, clientConfig);
             }
 
@@ -133,7 +141,9 @@ public class RedisConfig {
                 clusterConfig.addClusterNode(new RedisNode(redisUri.getHost(), redisUri.getPort()));
                 return new LettuceConnectionFactory(
                         clusterConfig,
-                        LettucePoolingClientConfiguration.builder().build());
+                        LettucePoolingClientConfiguration.builder()
+                                .clientResources(clientResources)
+                                .build());
             }
 
             default -> throw new InvalidRedisURIException("Invalid redis scheme: " + scheme);
@@ -191,9 +201,10 @@ public class RedisConfig {
     }
 
     @Bean
-    public ClientResources clientResources(ObservationRegistry observationRegistry) {
+    public ClientResources clientResources(ObservationRegistry observationRegistry, MeterRegistry meterRegistry) {
         return ClientResources.builder()
                 .tracing(new MicrometerTracingAdapter(observationRegistry, "appsmith-redis"))
+                .commandLatencyRecorder(new MicrometerCommandLatencyRecorder(meterRegistry, MicrometerOptions.create()))
                 .build();
     }
 
