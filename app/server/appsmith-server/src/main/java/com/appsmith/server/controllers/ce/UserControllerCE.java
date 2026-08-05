@@ -230,8 +230,23 @@ public class UserControllerCE {
                 // and server error metrics stayed clean while requests were failing. Propagating lets the global
                 // handler set a real status, and the friendly message still reaches responseMeta.error.message,
                 // which is what the client actually reads.
-                .onErrorMap(error -> new AppsmithException(
-                        AppsmithError.INVALID_PARAMETER, aiAssistantService.getAIErrorMessage(error)));
+                .onErrorMap(error -> {
+                    if (!(error instanceof AppsmithException appsmithException)) {
+                        // A database, serialization or connector failure. Keep it as the cause so the stack trace
+                        // survives, and report 5xx rather than telling the caller they sent a bad request.
+                        return new AppsmithException(error, AppsmithError.INTERNAL_SERVER_ERROR);
+                    }
+                    if (appsmithException.getError() == AppsmithError.INVALID_CREDENTIALS) {
+                        // INVALID_CREDENTIALS carries HTTP 200, which would report a failed request as a success.
+                        return new AppsmithException(
+                                error, AppsmithError.INVALID_PARAMETER, aiAssistantService.getAIErrorMessage(error));
+                    }
+                    // Everything else already carries a usable status: throttling is 429, a missing configuration
+                    // is 404, a provider outage is 5xx. Rewriting all of them to INVALID_PARAMETER reported 400 for
+                    // each, which kept provider outages out of server-error metrics and left a client unable to
+                    // tell "back off and retry" from "you sent something invalid".
+                    return appsmithException;
+                });
     }
 
     /**

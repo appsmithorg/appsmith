@@ -155,8 +155,10 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                         .onErrorReturn(true))
                 .flatMap(allowed -> Boolean.TRUE.equals(allowed)
                         ? Mono.empty()
+                        // TOO_MANY_REQUESTS, not INVALID_PARAMETER: a throttled caller has to be able to tell
+                        // "back off and retry" from "the request was malformed", and only a 429 says that.
                         : Mono.error(new AppsmithException(
-                                AppsmithError.INVALID_PARAMETER, RateLimitConstants.RATE_LIMIT_REACHED_AI_ASSISTANT)))
+                                AppsmithError.TOO_MANY_REQUESTS, RateLimitConstants.RATE_LIMIT_REACHED_AI_ASSISTANT)))
                 .then(organizationService.getCurrentUserOrganization())
                 .flatMap(organization -> {
                     if (organization == null || organization.getOrganizationConfiguration() == null) {
@@ -482,9 +484,9 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                                 return Mono.error(
                                         new AppsmithException(AppsmithError.INVALID_CREDENTIALS, "Invalid API key"));
                             } else if (statusCode == 429) {
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.INTERNAL_SERVER_ERROR,
-                                        "Rate limit exceeded. Please try again later."));
+                                // The provider throttled us. Surface that as 429 rather than 500 so the caller
+                                // can retry rather than treat it as a server fault.
+                                return Mono.error(new AppsmithException(AppsmithError.TOO_MANY_REQUESTS));
                             }
                             return Mono.error(new AppsmithException(
                                     AppsmithError.INTERNAL_SERVER_ERROR, "AI API request failed"));
@@ -542,9 +544,9 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                                 return Mono.error(
                                         new AppsmithException(AppsmithError.INVALID_CREDENTIALS, "Invalid API key"));
                             } else if (statusCode == 429) {
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.INTERNAL_SERVER_ERROR,
-                                        "Rate limit exceeded. Please try again later."));
+                                // The provider throttled us. Surface that as 429 rather than 500 so the caller
+                                // can retry rather than treat it as a server fault.
+                                return Mono.error(new AppsmithException(AppsmithError.TOO_MANY_REQUESTS));
                             }
                             return Mono.error(new AppsmithException(
                                     AppsmithError.INTERNAL_SERVER_ERROR, "AI API request failed"));
@@ -828,11 +830,10 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                                 return Mono.error(
                                         new AppsmithException(AppsmithError.INVALID_CREDENTIALS, "Invalid API key"));
                             } else if (statusCode == 429) {
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.INTERNAL_SERVER_ERROR,
-                                        "Rate limit exceeded. Please try again later."));
+                                // The provider throttled us. Surface that as 429 rather than 500 so the caller
+                                // can retry rather than treat it as a server fault.
+                                return Mono.error(new AppsmithException(AppsmithError.TOO_MANY_REQUESTS));
                             }
-                            log.warn("Azure OpenAI request failed with status {}: {}", statusCode, errorBody);
                             return Mono.error(new AppsmithException(
                                     AppsmithError.INTERNAL_SERVER_ERROR,
                                     "Azure OpenAI returned an error (HTTP " + statusCode
