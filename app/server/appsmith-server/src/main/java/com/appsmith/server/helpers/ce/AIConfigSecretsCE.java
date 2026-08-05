@@ -7,19 +7,11 @@ import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
+import java.util.List;
 
-/**
- * Encryption for the AI Assistant provider credentials stored on the organization document.
- *
- * <p>These fields carry {@code @Encrypted}, but that annotation never applies to them: the
- * encryption traversal in {@code EncryptionHandler} only descends into fields whose declared type
- * is an {@code AppsmithDomain}, and both {@code OrganizationConfigurationCE} and
- * {@code AIAssistantConfig} are plain {@code Serializable}. Independently, the write path is a
- * sparse {@code updateById} rather than an entity {@code save}, so the Mongo lifecycle listener
- * that would perform the encryption never fires. Rather than change encryption traversal for the
- * whole organization document — and the write path for all organization configuration — the AI
- * config encrypts and decrypts its own secrets here, at the few points they are written and read.
- */
+import static com.appsmith.server.constants.AIConstants.DEFAULT_CLAUDE_BASE_URL;
+import static com.appsmith.server.constants.AIConstants.DEFAULT_OPENAI_BASE_URL;
+
 @Slf4j
 public final class AIConfigSecretsCE {
 
@@ -98,7 +90,13 @@ public final class AIConfigSecretsCE {
         }
 
         try {
-            return "https".equalsIgnoreCase(URI.create(url.trim()).getScheme());
+            URI uri = URI.create(url.trim());
+            // A host is required as well as the scheme: "https:///path" and "https://" parse but name
+            // no destination, and accepting them would hand the decision to whatever the HTTP client
+            // makes of them.
+            return "https".equalsIgnoreCase(uri.getScheme())
+                    && uri.getHost() != null
+                    && !uri.getHost().isEmpty();
         } catch (IllegalArgumentException e) {
             // Unparseable destination — refuse rather than guess.
             return false;
@@ -172,6 +170,136 @@ public final class AIConfigSecretsCE {
         config.setOpenaiApiKey(encryptIfNeeded(config.getOpenaiApiKey()));
         config.setCopilotApiKey(encryptIfNeeded(config.getCopilotApiKey()));
         config.setAzureOpenaiApiKey(encryptIfNeeded(config.getAzureOpenaiApiKey()));
+    }
+
+    /**
+     * The credential groups, each pairing every key the read paths can select with every field
+     * those paths can take the destination from. Both {@code AIConfigServiceCEImpl.testApiKeyInternal}
+     * and {@code AIAssistantServiceCEImpl} resolve Azure this way — {@code azureOpenaiApiKey} falling
+     * back to {@code copilotApiKey}, {@code azureOpenaiEndpoint} to {@code copilotEndpoint} — and the
+     * COPILOT provider reaches the same code, so the four fields are one group rather than two pairs.
+     * Comparing them independently is what let a changed Azure endpoint keep a stored Copilot key.
+     */
+    private enum CredentialGroup {
+        CLAUDE(DEFAULT_CLAUDE_BASE_URL),
+        OPENAI(DEFAULT_OPENAI_BASE_URL),
+        AZURE(null);
+
+        private final String defaultDestination;
+
+        CredentialGroup(String defaultDestination) {
+            this.defaultDestination = defaultDestination;
+        }
+
+        private List<String> destinations(AIAssistantConfig config) {
+            return switch (this) {
+                case CLAUDE -> List.of(orEmpty(config.getClaudeBaseUrl()));
+                case OPENAI -> List.of(orEmpty(config.getOpenaiBaseUrl()));
+                // Order matters: it mirrors the fallback the read paths apply.
+                case AZURE -> List.of(orEmpty(config.getAzureOpenaiEndpoint()), orEmpty(config.getCopilotEndpoint()));
+            };
+        }
+
+        private List<String> keys(AIAssistantConfig config) {
+            return switch (this) {
+                case CLAUDE -> List.of(orEmpty(config.getClaudeApiKey()));
+                case OPENAI -> List.of(orEmpty(config.getOpenaiApiKey()));
+                case AZURE -> List.of(orEmpty(config.getAzureOpenaiApiKey()), orEmpty(config.getCopilotApiKey()));
+            };
+        }
+
+        private void clearCarriedOverKeys(AIAssistantConfig before, AIAssistantConfig after) {
+            switch (this) {
+                case CLAUDE -> {
+                    if (isCarriedOver(before.getClaudeApiKey(), after.getClaudeApiKey())) {
+                        after.setClaudeApiKey(null);
+                    }
+                }
+                case OPENAI -> {
+                    if (isCarriedOver(before.getOpenaiApiKey(), after.getOpenaiApiKey())) {
+                        after.setOpenaiApiKey(null);
+                    }
+                }
+                case AZURE -> {
+                    if (isCarriedOver(before.getAzureOpenaiApiKey(), after.getAzureOpenaiApiKey())) {
+                        after.setAzureOpenaiApiKey(null);
+                    }
+                    if (isCarriedOver(before.getCopilotApiKey(), after.getCopilotApiKey())) {
+                        after.setCopilotApiKey(null);
+                    }
+                }
+            }
+        }
+
+        /** The destination the read paths would actually use: first non-blank, else the default. */
+        private String effectiveDestination(AIAssistantConfig config) {
+            return destinations(config).stream()
+                    .filter(destination -> !destination.isEmpty())
+                    .findFirst()
+                    .orElseGet(() -> orEmpty(defaultDestination));
+        }
+
+        private boolean holdsAnyKey(AIAssistantConfig config) {
+            return keys(config).stream().anyMatch(key -> !key.isEmpty());
+        }
+    }
+
+    /**
+     * Invalidates every stored credential whose destination changed, unless the same write supplied a
+     * replacement for it.
+     *
+     * <p>A key is bound to the URL it was entered for. Without that, an administrator — who can manage
+     * the configuration but is not meant to be able to read a key back, since the UI masks it — could
+     * point a saved key at a destination of their choosing and have the server send it there, either
+     * through the settings "test key" action or by simply using the assistant.
+     *
+     * <p>Takes the whole configuration before and after the write rather than the request fields, so
+     * that {@code /ai-config} and the generic organization update are held to the same rule: the
+     * latter merges sparse request fields into the saved document, and a URL arriving that way would
+     * otherwise move underneath a key that stays put.
+     *
+     * <p>A key counts as replaced when its stored value differs from the one already there. Comparing
+     * effective destinations rather than raw fields also means a save that only changes a model name
+     * no longer looks like a destination change, which would have deleted a working key.
+     */
+    public static void unbindCredentialsWithChangedDestination(AIAssistantConfig before, AIAssistantConfig after) {
+        if (before == null || after == null) {
+            return;
+        }
+
+        for (CredentialGroup group : CredentialGroup.values()) {
+            if (!group.holdsAnyKey(before)) {
+                continue;
+            }
+            if (!group.effectiveDestination(before).equals(group.effectiveDestination(after))) {
+                group.clearCarriedOverKeys(before, after);
+            }
+        }
+    }
+
+    /** A snapshot of the credential-bearing fields, taken before a write mutates them in place. */
+    public static AIAssistantConfig snapshotCredentials(AIAssistantConfig config) {
+        AIAssistantConfig snapshot = new AIAssistantConfig();
+        if (config == null) {
+            return snapshot;
+        }
+        snapshot.setClaudeApiKey(config.getClaudeApiKey());
+        snapshot.setOpenaiApiKey(config.getOpenaiApiKey());
+        snapshot.setCopilotApiKey(config.getCopilotApiKey());
+        snapshot.setAzureOpenaiApiKey(config.getAzureOpenaiApiKey());
+        snapshot.setClaudeBaseUrl(config.getClaudeBaseUrl());
+        snapshot.setOpenaiBaseUrl(config.getOpenaiBaseUrl());
+        snapshot.setAzureOpenaiEndpoint(config.getAzureOpenaiEndpoint());
+        snapshot.setCopilotEndpoint(config.getCopilotEndpoint());
+        return snapshot;
+    }
+
+    private static boolean isCarriedOver(String before, String after) {
+        return !orEmpty(after).isEmpty() && orEmpty(before).equals(orEmpty(after));
+    }
+
+    private static String orEmpty(String value) {
+        return value == null ? "" : value.trim();
     }
 
     /**

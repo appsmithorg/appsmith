@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers.ce;
 
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.EncryptionHelper;
 import com.appsmith.server.domains.AIAssistantConfig;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -180,5 +181,159 @@ class AIConfigSecretsCETest {
         assertThat(AIConfigSecretsCE.normalizeForStorage("")).isNull();
         assertThat(AIConfigSecretsCE.normalizeForStorage(AIConfigSecretsCE.encrypt("sk-secret-key")))
                 .isNull();
+    }
+
+    // ---- destination binding ----------------------------------------------------------------
+
+    private static AIAssistantConfig config(
+            String claudeKey,
+            String claudeUrl,
+            String azureKey,
+            String azureEndpoint,
+            String copilotKey,
+            String copilotEndpoint) {
+        AIAssistantConfig c = new AIAssistantConfig();
+        c.setClaudeApiKey(claudeKey);
+        c.setClaudeBaseUrl(claudeUrl);
+        c.setAzureOpenaiApiKey(azureKey);
+        c.setAzureOpenaiEndpoint(azureEndpoint);
+        c.setCopilotApiKey(copilotKey);
+        c.setCopilotEndpoint(copilotEndpoint);
+        return c;
+    }
+
+    /**
+     * Azure resolves its key as azureOpenaiApiKey then copilotApiKey, and its destination as
+     * azureOpenaiEndpoint then copilotEndpoint. Treating those as two independent pairs let a changed
+     * Azure endpoint keep a stored Copilot key, which the read paths would then pair together.
+     */
+    @Test
+    void unbind_clearsTheCopilotKey_whenTheAzureEndpointTakesOverAsTheDestination() {
+        AIAssistantConfig before = config(null, null, null, null, "enc-copilot", "https://copilot.example.com");
+        AIAssistantConfig after =
+                config(null, null, null, "https://attacker.example.com", "enc-copilot", "https://copilot.example.com");
+
+        AIConfigSecretsCE.unbindCredentialsWithChangedDestination(before, after);
+
+        assertThat(after.getCopilotApiKey()).isNull();
+    }
+
+    @Test
+    void unbind_clearsTheAzureKey_whenTheCopilotEndpointBecomesTheDestination() {
+        AIAssistantConfig before = config(null, null, "enc-azure", "https://azure.example.com", null, null);
+        AIAssistantConfig after = config(null, null, "enc-azure", null, null, "https://attacker.example.com");
+
+        AIConfigSecretsCE.unbindCredentialsWithChangedDestination(before, after);
+
+        assertThat(after.getAzureOpenaiApiKey()).isNull();
+    }
+
+    /** The client submits the provider default where storage holds null; that is not a change. */
+    @Test
+    void unbind_keepsTheKey_whenNullIsReplacedByTheProviderDefault() {
+        AIAssistantConfig before = config("enc-claude", null, null, null, null, null);
+        AIAssistantConfig after = config("enc-claude", "https://api.anthropic.com", null, null, null, null);
+
+        AIConfigSecretsCE.unbindCredentialsWithChangedDestination(before, after);
+
+        assertThat(after.getClaudeApiKey()).isEqualTo("enc-claude");
+    }
+
+    @Test
+    void unbind_keepsTheKey_whenTheDestinationIsUnchanged() {
+        AIAssistantConfig before = config("enc-claude", "https://api.anthropic.com", null, null, null, null);
+        AIAssistantConfig after = config("enc-claude", "https://api.anthropic.com", null, null, null, null);
+
+        AIConfigSecretsCE.unbindCredentialsWithChangedDestination(before, after);
+
+        assertThat(after.getClaudeApiKey()).isEqualTo("enc-claude");
+    }
+
+    @Test
+    void unbind_keepsAReplacementKeySuppliedAlongsideTheNewDestination() {
+        AIAssistantConfig before = config("enc-old", "https://api.anthropic.com", null, null, null, null);
+        AIAssistantConfig after = config("enc-new", "https://proxy.example.com", null, null, null, null);
+
+        AIConfigSecretsCE.unbindCredentialsWithChangedDestination(before, after);
+
+        assertThat(after.getClaudeApiKey()).isEqualTo("enc-new");
+    }
+
+    @Test
+    void unbind_clearsOnlyTheGroupWhoseDestinationMoved() {
+        AIAssistantConfig before =
+                config("enc-claude", "https://api.anthropic.com", "enc-azure", "https://a.example.com", null, null);
+        AIAssistantConfig after =
+                config("enc-claude", "https://api.anthropic.com", "enc-azure", "https://b.example.com", null, null);
+
+        AIConfigSecretsCE.unbindCredentialsWithChangedDestination(before, after);
+
+        assertThat(after.getClaudeApiKey()).isEqualTo("enc-claude");
+        assertThat(after.getAzureOpenaiApiKey()).isNull();
+    }
+
+    @Test
+    void allowsStoredCredential_rejectsAnHttpsUrlWithNoHost() {
+        assertThat(AIConfigSecretsCE.allowsStoredCredential("https:///v1/messages"))
+                .isFalse();
+        assertThat(AIConfigSecretsCE.allowsStoredCredential("https://")).isFalse();
+    }
+
+    /**
+     * The generic PUT /organizations endpoint merges sparse request fields into the saved document,
+     * so a provider URL can arrive there and move underneath a key that stays put — the same
+     * redirection /ai-config refuses. This runs the real merge utility in the order
+     * OrganizationServiceCEImpl uses it, because the ordering is what makes the rule work: snapshot
+     * the saved state, merge, then invalidate against the merged result.
+     */
+    @Test
+    void sparseOrganizationMerge_clearsACarriedKeyWhoseDestinationTheMergeMoved() {
+        AIAssistantConfig saved = new AIAssistantConfig();
+        saved.setCopilotApiKey("enc-copilot");
+        saved.setCopilotEndpoint("https://copilot.example.com");
+
+        // Only the Azure endpoint is supplied, which takes over as the effective destination.
+        AIAssistantConfig sparseRequest = new AIAssistantConfig();
+        sparseRequest.setAzureOpenaiEndpoint("https://attacker.example.com");
+
+        AIAssistantConfig before = AIConfigSecretsCE.snapshotCredentials(saved);
+        AppsmithBeanUtils.copyNestedNonNullProperties(sparseRequest, saved);
+        AIConfigSecretsCE.unbindCredentialsWithChangedDestination(before, saved);
+
+        assertThat(saved.getAzureOpenaiEndpoint()).isEqualTo("https://attacker.example.com");
+        assertThat(saved.getCopilotApiKey()).isNull();
+    }
+
+    @Test
+    void sparseOrganizationMerge_keepsAKeyWhenTheMergeDoesNotMoveItsDestination() {
+        AIAssistantConfig saved = new AIAssistantConfig();
+        saved.setClaudeApiKey("enc-claude");
+        saved.setClaudeBaseUrl("https://api.anthropic.com");
+
+        AIAssistantConfig sparseRequest = new AIAssistantConfig();
+        sparseRequest.setClaudeModel("claude-sonnet-4");
+
+        AIAssistantConfig before = AIConfigSecretsCE.snapshotCredentials(saved);
+        AppsmithBeanUtils.copyNestedNonNullProperties(sparseRequest, saved);
+        AIConfigSecretsCE.unbindCredentialsWithChangedDestination(before, saved);
+
+        assertThat(saved.getClaudeApiKey()).isEqualTo("enc-claude");
+    }
+
+    @Test
+    void sparseOrganizationMerge_keepsAReplacementSuppliedWithTheNewDestination() {
+        AIAssistantConfig saved = new AIAssistantConfig();
+        saved.setClaudeApiKey("enc-old");
+        saved.setClaudeBaseUrl("https://api.anthropic.com");
+
+        AIAssistantConfig sparseRequest = new AIAssistantConfig();
+        sparseRequest.setClaudeBaseUrl("https://proxy.example.com");
+        sparseRequest.setClaudeApiKey("enc-new");
+
+        AIAssistantConfig before = AIConfigSecretsCE.snapshotCredentials(saved);
+        AppsmithBeanUtils.copyNestedNonNullProperties(sparseRequest, saved);
+        AIConfigSecretsCE.unbindCredentialsWithChangedDestination(before, saved);
+
+        assertThat(saved.getClaudeApiKey()).isEqualTo("enc-new");
     }
 }
