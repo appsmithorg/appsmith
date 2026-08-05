@@ -17,7 +17,6 @@ import {
   fetchAIResponse,
   loadAISettings,
 } from "ee/actions/aiAssistantActions";
-import type { AIMessage } from "ee/actions/aiAssistantActions";
 import {
   getAIError,
   getAIMessages,
@@ -274,10 +273,7 @@ export function AIAssistant(props: ContentProps) {
   const isEnabled = useSelector(getIsAIEnabled);
   const hasApiKey = useSelector(getHasAIApiKey);
   const isConfigLoaded = useSelector(getIsAIConfigLoaded);
-  // CE's selector stub intentionally exposes an empty `never[]`; EE replaces
-  // the selector implementation after community sync while keeping this
-  // shared message contract.
-  const messages = useSelector(getAIMessages) as AIMessage[];
+  const messages = useSelector(getAIMessages);
   const isLoading = useSelector(getIsAILoading);
   const error = useSelector(getAIError);
 
