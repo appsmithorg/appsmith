@@ -30,6 +30,12 @@ jest.mock("ee/utils/AnalyticsUtil", () => ({
   default: { logEvent: jest.fn() },
 }));
 
+jest.mock("components/editorComponents/GPT/shared", () => ({
+  AIMarkdownRenderer: ({ content }: { content: string }) => (
+    <div data-testid="t--custom-widget-ai-markdown">{content}</div>
+  ),
+}));
+
 const mockStore = configureStore();
 
 const SRC_DOC = {
@@ -176,6 +182,26 @@ describe("CustomWidgetBuilder AIAssistant", () => {
     expect(screen.getByText("Style")).toBeInTheDocument();
     expect(screen.getByText("Here is a red button.")).toBeInTheDocument();
     expect(screen.queryByText(/color: red/)).not.toBeInTheDocument();
+  });
+
+  it("uses the markdown renderer for assistant responses and keeps user messages plain", () => {
+    renderAssistant({
+      aiAssistant: {
+        messages: [
+          { role: "user", content: "**Keep this literal**", timestamp: 1 },
+          {
+            role: "assistant",
+            content: "## Features\n\n**Inline editing**",
+            timestamp: 2,
+          },
+        ],
+      },
+    });
+
+    expect(
+      screen.getByTestId("t--custom-widget-ai-markdown"),
+    ).toHaveTextContent("## Features **Inline editing**");
+    expect(screen.getByText("**Keep this literal**")).toBeInTheDocument();
   });
 
   it("does not re-apply older assistant messages", () => {

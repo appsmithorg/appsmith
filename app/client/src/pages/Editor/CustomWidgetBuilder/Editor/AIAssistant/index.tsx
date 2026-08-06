@@ -20,6 +20,7 @@ import {
   Text,
   Tooltip,
 } from "@appsmith/ads";
+import { AIMarkdownRenderer } from "components/editorComponents/GPT/shared";
 import type { ContentProps } from "pages/Editor/CustomWidgetBuilder/Editor/CodeEditors/types";
 import { CustomWidgetBuilderContext } from "pages/Editor/CustomWidgetBuilder";
 import {
@@ -93,6 +94,19 @@ const fadeIn = keyframes`
     opacity: 1;
     transform: translateY(0);
   }
+`;
+
+const rotate = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const LoadingIcon = styled(Icon)`
+  animation: ${rotate} 1s linear infinite;
 `;
 
 const EmptyState = styled.div`
@@ -565,7 +579,11 @@ export function AIAssistant(props: ContentProps) {
                 ? createMessage(CUSTOM_WIDGET_AI_ASSISTANT.USER_LABEL)
                 : createMessage(CUSTOM_WIDGET_AI_ASSISTANT.ASSISTANT_LABEL)}
             </MessageHeader>
-            <UserMessageContent>{message.content}</UserMessageContent>
+            {message.role === "user" ? (
+              <UserMessageContent>{message.content}</UserMessageContent>
+            ) : (
+              <AIMarkdownRenderer content={message.content} />
+            )}
             {message.appliedFiles.length > 0 && (
               <AppliedUpdates>
                 <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
@@ -589,7 +607,7 @@ export function AIAssistant(props: ContentProps) {
         {isLoading && (
           <LoadingState>
             <LoadingText>
-              <Icon name="loader-line" size="sm" />
+              <LoadingIcon name="loader-line" size="sm" />
               {createMessage(CUSTOM_WIDGET_AI_ASSISTANT.THINKING)}
             </LoadingText>
           </LoadingState>
