@@ -93,6 +93,8 @@ public class ExportServiceCEImpl implements ExportServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ARTIFACT_CONTEXT));
         }
 
+        log.info("Export started: artifactId={}, artifactType={}", artifactId, artifactType);
+
         ArtifactBasedExportService<?, ?> artifactBasedExportService = getContextBasedExportService(artifactType);
         Map<String, String> artifactContextConstantMap = artifactBasedExportService.getConstantsMap();
         String idConstant = artifactContextConstantMap.get(FieldName.ID);
@@ -177,6 +179,10 @@ public class ExportServiceCEImpl implements ExportServiceCE {
                 .flatMap(user -> {
                     Map<String, String> contextConstants = artifactBasedExportService.getConstantsMap();
                     stopwatch.stopTimer();
+                    log.info(
+                            "Export completed: artifactId={}, durationMs={}",
+                            exportingMetaDTO.getArtifactId(),
+                            stopwatch.getExecutionTime());
                     final Map<String, Object> data = new HashMap<>();
                     data.put(FieldName.FLOW_NAME, stopwatch.getFlow());
                     data.put("executionTime", stopwatch.getExecutionTime());

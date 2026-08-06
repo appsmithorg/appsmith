@@ -1304,8 +1304,21 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                                 .setStrategy(MergeStrategy.RECURSIVE)
                                                 .call();
                                         processStopwatch.stopAndLogTimeInMillis();
+                                        log.info(
+                                                "Git merge completed: repo={}, source={}, dest={}, status={}, durationMs={}",
+                                                repoSuffix,
+                                                sourceBranch,
+                                                destinationBranch,
+                                                mergeResult.getMergeStatus().name(),
+                                                processStopwatch.getExecutionTime());
                                         return mergeResult.getMergeStatus().name();
                                     } catch (GitAPIException e) {
+                                        log.warn(
+                                                "Git merge failed: repo={}, source={}, dest={}",
+                                                repoSuffix,
+                                                sourceBranch,
+                                                destinationBranch,
+                                                e);
                                         // On merge conflicts abort the merge => git merge --abort
                                         git.getRepository().writeMergeCommitMsg(null);
                                         git.getRepository().writeMergeHeads(null);
@@ -1319,6 +1332,13 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                     if (keepWorkingDirChanges) {
                                         return Mono.error(error);
                                     }
+
+                                    log.warn(
+                                            "Git merge failed, resetting to last commit: repo={}, source={}, dest={}",
+                                            repoSuffix,
+                                            sourceBranch,
+                                            destinationBranch,
+                                            error);
 
                                     try {
                                         return resetToLastCommit(repoSuffix, destinationBranch, keepWorkingDirChanges)
@@ -1374,10 +1394,15 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                     return fetchMessages;
                                 })
                                 .onErrorResume(error -> {
-                                    log.error(error.getMessage());
                                     return Mono.error(error);
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .doOnError(error -> log.error(
+                                        "Git fetch failed: repo={}, branch={}, fetchAll={}",
+                                        repoSuffix,
+                                        branchName,
+                                        isFetchAll,
+                                        error))
                                 .name(GitSpan.FS_FETCH_REMOTE)
                                 .tap(Micrometer.observation(observationRegistry)),
                         Git::close)
@@ -1448,10 +1473,15 @@ public class FSGitHandlerCEImpl implements FSGitHandler {
                                     return fetchMessages;
                                 })
                                 .onErrorResume(error -> {
-                                    log.error(error.getMessage());
                                     return Mono.error(error);
                                 })
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .doOnError(error -> log.error(
+                                        "Git fetch failed: repo={}, refType={}, fetchAll={}",
+                                        repoSuffix,
+                                        fetchRemoteDTO.getRefType(),
+                                        fetchRemoteDTO.getIsFetchAll(),
+                                        error))
                                 .name(GitSpan.FS_FETCH_REMOTE)
                                 .tap(Micrometer.observation(observationRegistry)),
                         Git::close)

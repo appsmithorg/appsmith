@@ -109,6 +109,12 @@ public class RedisConfig {
         final URI redisUri = URI.create(redisURL);
         final String scheme = redisUri.getScheme();
 
+        log.info(
+                "Initializing Redis connection: scheme={}, host={}, port={}",
+                scheme,
+                redisUri.getHost(),
+                redisUri.getPort());
+
         switch (scheme) {
             case "redis" -> {
                 final RedisStandaloneConfiguration config =

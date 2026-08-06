@@ -1982,6 +1982,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         GitArtifactMetadata branchedGitMetadata = branchedArtifact.getGitArtifactMetadata();
         ArtifactType artifactType = baseArtifact.getArtifactType();
         String baseArtifactId = branchedGitMetadata.getDefaultArtifactId();
+        String branchName = branchedGitMetadata.getRefName();
+
+        log.info("Git pull started: artifactId={}, branch={}", baseArtifactId, branchName);
+        long pullStartTime = System.currentTimeMillis();
 
         Mono<GitPullDTO> lockHandledpullDTOMono = Mono.usingWhen(
                         gitRedisUtils.acquireGitLock(artifactType, baseArtifactId, GitCommandConstants.PULL, TRUE),
@@ -2015,8 +2019,19 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .name(GitSpan.OPS_PULL)
                 .tap(Micrometer.observation(observationRegistry));
 
-        return Mono.create(
-                sink -> lockHandledpullDTOMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+        return Mono.create(sink -> lockHandledpullDTOMono
+                .doOnSuccess(result -> log.info(
+                        "Git pull completed: artifactId={}, branch={}, durationMs={}",
+                        baseArtifactId,
+                        branchName,
+                        System.currentTimeMillis() - pullStartTime))
+                .doOnError(error -> log.warn(
+                        "Git pull failed: artifactId={}, branch={}, durationMs={}",
+                        baseArtifactId,
+                        branchName,
+                        System.currentTimeMillis() - pullStartTime,
+                        error))
+                .subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     /**
