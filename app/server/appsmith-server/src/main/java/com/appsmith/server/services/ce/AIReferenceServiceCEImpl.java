@@ -65,6 +65,8 @@ public class AIReferenceServiceCEImpl implements AIReferenceServiceCE {
         if (!SUPPORTED_MODES.contains(normalizedMode)) {
             // Unknown mode: no cache entry, no resource lookup. The system prompt simply carries no
             // language-specific reference, which is the same outcome as a mode with no bundled file.
+            // The custom widget builder's AI tab sends mode "custom_widget" and relies on this branch:
+            // its instructions travel in the request context, so no bundled reference is required.
             return "";
         }
         String cacheKey = "mode:" + normalizedMode;

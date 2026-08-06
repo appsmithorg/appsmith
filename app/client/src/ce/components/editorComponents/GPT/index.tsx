@@ -11,6 +11,7 @@ import { AISidePanel } from "./AISidePanel";
 
 // Re-export the new components
 export { AISidePanel } from "./AISidePanel";
+export { AIMarkdownRenderer } from "./shared";
 
 export type AIEditorContext = Partial<{
   functionName: string;

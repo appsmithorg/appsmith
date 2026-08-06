@@ -39,16 +39,25 @@ public class AIConfigControllerCE {
                 // authorization refusal from a successful save. Preserve the authorization distinction too — mapping
                 // a denial onto the same status as bad input leaves callers unable to tell them apart.
                 .onErrorMap(error -> {
+                    // Both codes mean the same thing here. The permission-aware lookup in
+                    // OrganizationServiceCEImpl.findById ends in NO_RESOURCE_FOUND, so matching only
+                    // ACL_NO_RESOURCE_FOUND left a caller without MANAGE_ORGANIZATION getting a 404
+                    // instead of the intended authorization refusal.
                     if (error instanceof AppsmithException appsmithError
-                            && appsmithError.getError() == AppsmithError.ACL_NO_RESOURCE_FOUND) {
+                            && (appsmithError.getError() == AppsmithError.ACL_NO_RESOURCE_FOUND
+                                    || appsmithError.getError() == AppsmithError.NO_RESOURCE_FOUND)) {
                         return new AppsmithException(
+                                error,
                                 AppsmithError.UNAUTHORIZED_ACCESS,
                                 "You do not have permission to update this configuration");
                     }
-                    return error instanceof AppsmithException
-                            ? error
-                            : new AppsmithException(
-                                    AppsmithError.INVALID_PARAMETER, "Failed to update AI configuration");
+                    if (error instanceof AppsmithException) {
+                        return error;
+                    }
+                    // A database, serialization or encryption failure is not the caller's bad input.
+                    // Reporting it as INVALID_PARAMETER gave them a non-retryable 4xx for a server fault
+                    // and kept it out of server-error metrics.
+                    return new AppsmithException(error, AppsmithError.INTERNAL_SERVER_ERROR);
                 });
     }
 
