@@ -1,0 +1,4 @@
+# Build output. Without this, `yarn prettier` (prettier --check .) fails on dist/bundle/server.js after any
+# local build, because app/client/.prettierignore lists build/ rather than dist/ and does not apply here anyway.
+# CI only passes today by accident of step ordering (format runs before build).
+dist/

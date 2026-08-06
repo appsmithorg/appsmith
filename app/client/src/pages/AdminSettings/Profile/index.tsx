@@ -38,6 +38,8 @@ import {
   SubCategory,
 } from "./StyledComponents";
 import UserProfileImagePicker from "./UserProfileImagePicker";
+import McpTokens from "./McpTokens";
+import { MCP_TOKENS } from "ee/constants/messages";
 import { emailValidator } from "@appsmith/ads-old";
 import {
   getGlobalGitConfig,
@@ -320,6 +322,12 @@ export const Profile = () => {
             </FieldWrapper>
           </Flex>
         )}
+        <SubCategory kind="heading-s" renderAs="p">
+          {createMessage(MCP_TOKENS)}
+        </SubCategory>
+        {/* Hidden when the instance has MCP switched off: minting is refused server-side anyway, and a token
+              issued now could not authenticate. Existing tokens remain manageable once an admin re-enables MCP. */}
+        {user?.isMcpEnabled ? <McpTokens /> : null}
         <SettingsButtonWrapper>
           <Button
             className="t--admin-settings-save-button"

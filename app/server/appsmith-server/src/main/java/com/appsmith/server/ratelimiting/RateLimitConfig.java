@@ -38,6 +38,9 @@ public class RateLimitConfig {
         apiConfigurationMap.put(
                 RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API,
                 createBucketConfiguration(Duration.ofSeconds(5), 3));
+        apiConfigurationMap.put(
+                RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION,
+                createBucketConfiguration(Duration.ofMinutes(1), 5));
         // Per-email cap for resend-email-verification: at most 5 requests per email per rolling 24h window.
         apiConfigurationMap.put(
                 RateLimitConstants.BUCKET_KEY_FOR_RESEND_EMAIL_VERIFICATION_API,

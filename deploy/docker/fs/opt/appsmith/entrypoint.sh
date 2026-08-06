@@ -102,8 +102,14 @@ init_env_file() {
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ''
     )
+    # Internal marker secret shared by the backend and the mcp process to gate mcp_ tokens on /api/v1 (decision D2).
+    # Longer than the passwords above because it is a bearer-grade marker, not a login credential.
+    local generated_appsmith_mcp_internal_secret=$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 48
+      echo ''
+    )
 
-    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_redis_password" > "$ENV_PATH"
+    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_redis_password" "$generated_appsmith_mcp_internal_secret" > "$ENV_PATH"
   else
     tlog "Configuration file already exists"
     # Backfill APPSMITH_REDIS_PASSWORD for existing installs that don't have it yet.
@@ -120,6 +126,32 @@ init_env_file() {
       if [[ "$current_redis_url" == *"localhost"* || "$current_redis_url" == *"127.0.0.1"* ]]; then
         sed -i "s|^APPSMITH_REDIS_URL=.*|APPSMITH_REDIS_URL=redis://:${generated_appsmith_redis_password}@127.0.0.1:6379|" "$ENV_PATH"
       fi
+    fi
+
+    # Backfill the MCP gates for installs whose docker.env predates them, so the Admin Settings UI
+    # (which reads/writes these variables) mirrors the actual defaults. Default-OFF is intentional and is the whole
+    # point of the backfill: an existing instance must NOT acquire an agent-facing endpoint, a data layer, or
+    # JS authoring simply by taking an image upgrade. An admin opts in from Admin Settings -> MCP Server.
+    if ! grep -q "^APPSMITH_MCP_ENABLED=" "$ENV_PATH"; then
+      echo $'\nAPPSMITH_MCP_ENABLED=false' >> "$ENV_PATH"
+    fi
+    if ! grep -q "^APPSMITH_MCP_DATA_ENABLED=" "$ENV_PATH"; then
+      echo 'APPSMITH_MCP_DATA_ENABLED=false' >> "$ENV_PATH"
+    fi
+    if ! grep -q "^APPSMITH_MCP_JS_ENABLED=" "$ENV_PATH"; then
+      echo 'APPSMITH_MCP_JS_ENABLED=false' >> "$ENV_PATH"
+    fi
+    if ! grep -q "^APPSMITH_MCP_TOKEN_TTL_DAYS=" "$ENV_PATH"; then
+      echo 'APPSMITH_MCP_TOKEN_TTL_DAYS=90' >> "$ENV_PATH"
+    fi
+    # Backfill the MCP internal marker secret for installs whose docker.env predates it, so upgraded instances get a
+    # working (and fail-closed-until-present) MCP trust boundary without a manual step. Generated once, then stable.
+    if ! grep -q "^APPSMITH_MCP_INTERNAL_SECRET=" "$ENV_PATH"; then
+      local generated_appsmith_mcp_internal_secret=$(
+        tr -dc A-Za-z0-9 </dev/urandom | head -c 48
+        echo ''
+      )
+      echo 'APPSMITH_MCP_INTERNAL_SECRET='"$generated_appsmith_mcp_internal_secret" >> "$ENV_PATH"
     fi
   fi
 
@@ -501,6 +533,10 @@ configure_supervisord() {
 
   cp -f "$supervisord_conf_source"/application_process/*.conf "$SUPERVISORD_CONF_TARGET"
 
+  # The MCP program is always installed (but disabled by default); run-mcp.sh itself parks unless APPSMITH_MCP_ENABLED is
+  # explicitly enabled. This keeps the toggle switchable from Admin Settings -> MCP Server (BETA) without a container
+  # restart: a supervisord program restart re-reads docker.env via run-with-env.sh.
+
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
     if [[ $isUriLocal -eq 0 && $isMongoUrl -eq 1 ]]; then
@@ -718,7 +754,7 @@ mkdir -p /appsmith-stacks/data/{backup,restore} /appsmith-stacks/ssl
 
 # Create sub-directory to store services log in the container mounting folder
 export APPSMITH_LOG_DIR="${APPSMITH_LOG_DIR:-/appsmith-stacks/logs}"
-mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
+mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,cron,editor,rts,mcp,mongodb,redis,postgres,appsmithctl}
 
 setup_auto_heal
 capture_infra_details
