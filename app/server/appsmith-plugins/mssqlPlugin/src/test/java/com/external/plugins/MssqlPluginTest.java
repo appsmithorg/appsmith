@@ -50,6 +50,7 @@ import static com.external.plugins.MssqlTestDBContainerManager.createDatasourceC
 import static com.external.plugins.MssqlTestDBContainerManager.mssqlPluginExecutor;
 import static com.external.plugins.MssqlTestDBContainerManager.runSQLQueryOnMssqlTestDB;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -813,5 +814,32 @@ public class MssqlPluginTest {
         assertFalse(connectionPool.isReadOnly(), "Hikari datasource should remain writable for READ_WRITE mode");
 
         connectionPool.close();
+    }
+
+    @Test
+    public void testReadOnlyModeDoesNotEnforceReadOnlyOnStandaloneInstance() throws SQLException {
+        // mssql-jdbc ignores Connection.setReadOnly() and a standalone SQL Server accepts
+        // ApplicationIntent=ReadOnly without enforcing it: writes are only rejected server-side,
+        // e.g. by a read-intent-only Always On secondary or a database in READ_ONLY state. This
+        // pins the behavior documented in the connection mode tooltip; if a future driver upgrade
+        // starts enforcing read-only connections, this test fails and the tooltip must be updated.
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        dsConfig.getConnection().setMode(READ_ONLY);
+
+        HikariDataSource readOnlyPool =
+                mssqlPluginExecutor.datasourceCreate(dsConfig).block();
+        assertNotNull(readOnlyPool);
+
+        try {
+            assertDoesNotThrow(
+                    () -> runSQLQueryOnMssqlTestDB(
+                            "INSERT INTO users (username, password, email, spouse_dob, dob, time1) VALUES "
+                                    + "('readonly_canary', 'canary', 'canary@exemplars.com', NULL, '2020-01-01', '00:00:00')",
+                            readOnlyPool),
+                    "A standalone SQL Server instance does not enforce read-only mode, so the write should succeed");
+        } finally {
+            runSQLQueryOnMssqlTestDB("DELETE FROM users WHERE username = 'readonly_canary'", sharedConnectionPool);
+            readOnlyPool.close();
+        }
     }
 }
