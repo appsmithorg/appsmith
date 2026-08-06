@@ -65,7 +65,8 @@ export const getNextEntityName = (
   existingNames: string[],
   startWithoutIndex?: boolean,
 ) => {
-  const regex = new RegExp(`^${prefix}(\\d+)$`);
+  const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const regex = new RegExp(`^${escapedPrefix}(\\d+)$`);
 
   const usedIndices: number[] = existingNames.map((name) => {
     if (name && regex.test(name)) {
@@ -96,7 +97,8 @@ export const getNextEntityName = (
 
 export const getDuplicateName = (prefix: string, existingNames: string[]) => {
   const trimmedPrefix = prefix.replace(/ /g, "");
-  const regex = new RegExp(`^${trimmedPrefix}(\\d+)$`);
+  const escapedPrefix = trimmedPrefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const regex = new RegExp(`^${escapedPrefix}(\\d+)$`);
   const usedIndices: number[] = existingNames.map((name) => {
     if (name && regex.test(name)) {
       const matches = name.match(regex);
