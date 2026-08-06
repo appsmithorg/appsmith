@@ -2,8 +2,24 @@ name: Caddy route tests
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 0 * * MON"
+  push:
+    branches:
+      - release
+    paths:
+      - .github/workflows/caddy-routes-test.yml
+      - deploy/docker/fs/opt/appsmith/caddy-reconfigure.mjs
+      - deploy/docker/fs/opt/appsmith/templates/docker.env.sh
+      - deploy/docker/route-tests/**
+      - deploy/docker/tests/**
+  pull_request:
+    branches:
+      - release
+    paths:
+      - .github/workflows/caddy-routes-test.yml
+      - deploy/docker/fs/opt/appsmith/caddy-reconfigure.mjs
+      - deploy/docker/fs/opt/appsmith/templates/docker.env.sh
+      - deploy/docker/route-tests/**
+      - deploy/docker/tests/**
 
 jobs:
   build:
