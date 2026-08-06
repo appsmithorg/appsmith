@@ -9,11 +9,14 @@ import {
   SettingSubtype,
   SettingTypes,
 } from "ee/pages/AdminSettings/config/types";
-import { TagInput } from "@appsmith/ads-old";
 import localStorage from "utils/localStorage";
 import isUndefined from "lodash/isUndefined";
 import { AppsmithFrameAncestorsSetting } from "pages/Applications/EmbedSnippet/Constants/constants";
-import { formatEmbedSettings } from "pages/Applications/EmbedSnippet/Utils/utils";
+import {
+  formatEmbedSettings,
+  sanitizeLimitedFrameAncestors,
+} from "pages/Applications/EmbedSnippet/Utils/utils";
+import FrameAncestorsTagInput from "pages/Applications/EmbedSnippet/FrameAncestorsTagInput";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 import { APPSMITH_BASE_URL_SETUP_DOC } from "constants/ThirdPartyConstants";
 
@@ -105,7 +108,7 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
         label: "Limit embedding to certain URLs",
         value: AppsmithFrameAncestorsSetting.LIMIT_EMBEDDING,
         nodeLabel: "You can add one or more URLs",
-        node: <TagInput input={{}} placeholder={""} type={"text"} />,
+        node: <FrameAncestorsTagInput placeholder={""} type={"text"} />,
         nodeInputPath: "input",
         nodeParentClass: "tag-input",
       },
@@ -124,10 +127,19 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
       ? localStorage.getItem("ALLOWED_FRAME_ANCESTORS") ?? ""
       : value.additionalData.replaceAll(",", " ");
 
-    // If they are one of the other options we don't store it in storage since it will
-    // set in the env variable on save
-    if (sources !== "*" && sources !== "'none'") {
-      localStorage.setItem("ALLOWED_FRAME_ANCESTORS", sources);
+    // Sanitize the limited list: drop any bare "*" and normalize the disable
+    // sentinel "'none'" to empty. A stale localStorage value from before allow-all
+    // detection existed could still hold a "*" (or "* 'none'"), which would
+    // otherwise round-trip into the stored value and silently reopen embedding or
+    // emit the disable sentinel from LIMIT mode. Host wildcards are preserved.
+    const limitedSources = sanitizeLimitedFrameAncestors(sources);
+
+    // Remember only real limited sources; never persist an allow-all/disabled
+    // value, and clear any stale entry left in storage.
+    if (limitedSources) {
+      localStorage.setItem("ALLOWED_FRAME_ANCESTORS", limitedSources);
+    } else {
+      localStorage.removeItem("ALLOWED_FRAME_ANCESTORS");
     }
 
     if (
@@ -139,7 +151,7 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
     ) {
       return "'none'";
     } else {
-      return sources;
+      return limitedSources;
     }
   },
   validate: (value: string) => {
