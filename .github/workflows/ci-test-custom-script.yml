@@ -130,8 +130,24 @@ jobs:
         env:
           GHCR_IMAGE: ghcr.io/${{ github.repository }}-citest:run-${{ github.run_id }}
         run: |
+          # A freshly pushed tag can briefly 404 on GHCR, and ~60 shards pulling
+          # it at once can get throttled; retry before failing the shard.
+          pull_with_retry() {
+            local image="$1" attempt
+            for attempt in 1 2 3 4 5; do
+              if timeout 600 docker pull "$image"; then
+                return 0
+              fi
+              if [[ "$attempt" -lt 5 ]]; then
+                echo "docker pull $image failed (attempt $attempt of 5); retrying in 20s" >&2
+                sleep 20
+              fi
+            done
+            echo "docker pull $image failed after 5 attempts; giving up" >&2
+            return 1
+          }
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
-          docker pull "$GHCR_IMAGE"
+          pull_with_retry "$GHCR_IMAGE"
           docker tag "$GHCR_IMAGE" cicontainer
 
       - name: Create folder
