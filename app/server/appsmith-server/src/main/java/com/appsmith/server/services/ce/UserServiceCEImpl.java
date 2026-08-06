@@ -5,7 +5,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
-import com.appsmith.server.constants.ce.McpEnvGate;
 import com.appsmith.server.domains.EmailVerificationToken;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
@@ -49,7 +48,6 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.WWWFormCodec;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -115,22 +113,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final InstanceVariablesHelper instanceVariablesHelper;
     private final SecureBaseUrlResolver secureBaseUrlResolver;
     private final CacheablePylonHelper cacheablePylonHelper;
-
-    // Same allow-list gate and default (OFF) as SecurityConfig, the token controller, and the deploy scripts.
-    // Setter-injected so the existing constructor wiring (and every subclass/test that calls it) stays unchanged.
-    private String mcpEnabledFlag;
-
-    @Value("${APPSMITH_MCP_ENABLED:false}")
-    public void setMcpEnabledFlag(String mcpEnabledFlag) {
-        this.mcpEnabledFlag = mcpEnabledFlag;
-    }
-
-    // Delegates to the one shared definition of the gate (see McpEnvGate). This copy decides whether the Profile
-    // page offers the MCP-token UI at all, so drift here would show token minting on an instance where
-    // McpTokenControllerCE refuses it (or hide it where minting works).
-    private boolean isMcpEnabled() {
-        return McpEnvGate.isEnabled(mcpEnabledFlag);
-    }
 
     protected static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
@@ -839,9 +821,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
                     profile.setEmail(userFromDb.getEmail());
                     profile.setWorkspaceIds(userFromDb.getWorkspaceIds());
-                    // The caller's tenant, so the MCP server can scope its governance audit reads to it (an org
-                    // admin must never see another tenant's change history).
-                    profile.setOrganizationId(userFromDb.getOrganizationId());
                     profile.setUsername(userFromDb.getUsername());
                     profile.setName(userFromDb.getName());
                     profile.setGender(userFromDb.getGender());
@@ -856,7 +835,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             commonConfig.getIsCloudHosting() ? true : userData.getIsIntercomConsentGiven());
                     profile.setIsSuperUser(isSuperUser);
                     profile.setIsConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
-                    profile.setIsMcpEnabled(isMcpEnabled());
                     // The Pylon chat identity-verification hash is computed by Cloud Services (which holds the
                     // secret) and cached per user. If it is unavailable the profile is still returned, just without
                     // a verified chat session.

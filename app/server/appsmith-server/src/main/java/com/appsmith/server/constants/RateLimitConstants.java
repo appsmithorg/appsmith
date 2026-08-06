@@ -5,7 +5,6 @@ public class RateLimitConstants {
             "Your account is suspended for 24 hours. Please reset your password to continue";
     public static final String BUCKET_KEY_FOR_LOGIN_API = "login";
     public static final String BUCKET_KEY_FOR_TEST_DATASOURCE_API = "test_datasource_or_execute_query";
-    public static final String BUCKET_KEY_FOR_MCP_AUTHENTICATION = "mcp_authentication";
 
     // Per-email throttle for the unauthenticated resend-email-verification endpoint (anti-abuse).
     public static final String BUCKET_KEY_FOR_RESEND_EMAIL_VERIFICATION_API = "resend_email_verification";

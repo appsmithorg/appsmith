@@ -15,9 +15,6 @@ export interface User {
   proficiency?: string;
   useCase?: string;
   isConfigurable: boolean;
-  // Whether the MCP server is enabled on this instance (APPSMITH_MCP_ENABLED). Defaults false so the MCP tokens
-  // section stays hidden until the server says otherwise — the fail-closed direction.
-  isMcpEnabled?: boolean;
   enableTelemetry: boolean;
   adminSettingsVisible?: boolean;
   isAnonymous?: boolean;
@@ -45,7 +42,6 @@ export const DefaultCurrentUserDetails: User = {
   gender: "MALE",
   isSuperUser: false,
   isConfigurable: false,
-  isMcpEnabled: false,
   enableTelemetry: false,
   adminSettingsVisible: false,
   isIntercomConsentGiven: false,

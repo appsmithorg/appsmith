@@ -37,9 +37,8 @@ describe("Update a user's name", { tags: ["@tag.Settings"] }, function () {
     // Waiting as the input onchange has a debounce
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    // Target the email field by its stable test id rather than the last input on the page — other sections on the
-    // profile page (e.g. MCP tokens) also render inputs, so a positional `.last()` selector is fragile.
-    cy.get("[data-testid=t--user-name]")
+    cy.get(".ads-v2-input__input-section-input")
+      .last()
       .invoke("val")
       .then((text) => {
         expect(text).to.equal(Cypress.env("USERNAME"));
