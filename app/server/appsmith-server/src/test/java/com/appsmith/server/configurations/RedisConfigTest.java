@@ -1,5 +1,6 @@
 package com.appsmith.server.configurations;
 
+import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.resource.ClientResources;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.micrometer.observation.ObservationRegistry;
@@ -57,5 +58,16 @@ class RedisConfigTest {
         LettuceClientConfiguration clientConfiguration = clientConfigurationFor("redis-cluster://localhost:6379");
         assertSame(clientResources, clientConfiguration.getClientResources().orElseThrow());
         assertInstanceOf(LettucePoolingClientConfiguration.class, clientConfiguration);
+    }
+
+    @Test
+    void rawRedisClient_usesProvidedClientResources() {
+        ReflectionTestUtils.setField(redisConfig, "redisURL", "redis://localhost:6379");
+        AbstractRedisClient client = redisConfig.redisClient(clientResources);
+        try {
+            assertSame(clientResources, client.getResources());
+        } finally {
+            client.shutdown();
+        }
     }
 }

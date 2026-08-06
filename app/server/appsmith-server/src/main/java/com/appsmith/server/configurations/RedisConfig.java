@@ -151,7 +151,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public AbstractRedisClient redisClient() {
+    public AbstractRedisClient redisClient(ClientResources clientResources) {
         String redisurl = redisURL;
         final URI redisUri = URI.create(redisURL);
         String scheme = redisUri.getScheme();
@@ -165,7 +165,7 @@ public class RedisConfig {
         }
 
         if (isCluster) {
-            RedisClusterClient redisClusterClient = RedisClusterClient.create(redisurl);
+            RedisClusterClient redisClusterClient = RedisClusterClient.create(clientResources, redisurl);
             redisClusterClient.setOptions(ClusterClientOptions.builder()
                     .timeoutOptions(TimeoutOptions.builder()
                             .timeoutCommands(true)
@@ -175,7 +175,7 @@ public class RedisConfig {
             return redisClusterClient;
         }
 
-        RedisClient redisClient = RedisClient.create(redisurl);
+        RedisClient redisClient = RedisClient.create(clientResources, redisurl);
         redisClient.setOptions(ClientOptions.builder()
                 .timeoutOptions(TimeoutOptions.builder()
                         .timeoutCommands(true)
