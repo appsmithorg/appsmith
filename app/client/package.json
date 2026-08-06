@@ -145,7 +145,7 @@
     "fusioncharts": "^3.18.0",
     "graphql": "^16.8.1",
     "history": "^4.10.1",
-    "interweave": "^12.7.2",
+    "interweave": "^13.1.1",
     "interweave-autolink": "^4.4.2",
     "js-regex-pl": "^1.0.1",
     "js-sha256": "^0.9.0",

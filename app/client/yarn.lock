@@ -14051,7 +14051,7 @@ __metadata:
     html-webpack-plugin: ^5.5.0
     husky: ^8.0.0
     identity-obj-proxy: ^3.0.0
-    interweave: ^12.7.2
+    interweave: ^13.1.1
     interweave-autolink: ^4.4.2
     jest: ^29.6.1
     jest-canvas-mock: ^2.3.1
@@ -22228,14 +22228,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"interweave@npm:^12.7.2":
-  version: 12.7.2
-  resolution: "interweave@npm:12.7.2"
+"interweave@npm:^13.1.1":
+  version: 13.1.1
+  resolution: "interweave@npm:13.1.1"
   dependencies:
     escape-html: ^1.0.3
   peerDependencies:
-    react: ^16.8.0 || ^17.0.0
-  checksum: 9c20ab82d8fdeb909082d2e9d0016cb3ff7b4108f2e4a85668cd56f6c516235e1990aadf7da4854b63c7d913849650313614cb03341ec1becf05bbefa3d72e03
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: eec1cbb7fa52cc2249661126914c9bf2c241188616c79cba7d03c04b4e1b626da088959fc4283ec4aa7236a8ef029196ee585251073df885767f1d309ddda9ce
   languageName: node
   linkType: hard
 
