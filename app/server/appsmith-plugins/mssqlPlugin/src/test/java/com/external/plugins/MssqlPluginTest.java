@@ -788,13 +788,15 @@ public class MssqlPluginTest {
                 mssqlPluginExecutor.datasourceCreate(dsConfig).block();
 
         assertNotNull(connectionPool);
-        String jdbcUrl = connectionPool.getJdbcUrl();
-        assertTrue(
-                jdbcUrl.contains("ApplicationIntent=ReadOnly"),
-                "JDBC URL should contain ApplicationIntent=ReadOnly parameter");
-        assertTrue(connectionPool.isReadOnly(), "Hikari datasource should be read-only for READ_ONLY mode");
-
-        connectionPool.close();
+        try {
+            String jdbcUrl = connectionPool.getJdbcUrl();
+            assertTrue(
+                    jdbcUrl.contains("ApplicationIntent=ReadOnly"),
+                    "JDBC URL should contain ApplicationIntent=ReadOnly parameter");
+            assertTrue(connectionPool.isReadOnly(), "Hikari datasource should be read-only for READ_ONLY mode");
+        } finally {
+            connectionPool.close();
+        }
     }
 
     @Test
@@ -807,13 +809,15 @@ public class MssqlPluginTest {
                 mssqlPluginExecutor.datasourceCreate(dsConfig).block();
 
         assertNotNull(connectionPool);
-        String jdbcUrl = connectionPool.getJdbcUrl();
-        assertFalse(
-                jdbcUrl.contains("ApplicationIntent"),
-                "JDBC URL should not contain ApplicationIntent parameter for READ_WRITE mode");
-        assertFalse(connectionPool.isReadOnly(), "Hikari datasource should remain writable for READ_WRITE mode");
-
-        connectionPool.close();
+        try {
+            String jdbcUrl = connectionPool.getJdbcUrl();
+            assertFalse(
+                    jdbcUrl.contains("ApplicationIntent"),
+                    "JDBC URL should not contain ApplicationIntent parameter for READ_WRITE mode");
+            assertFalse(connectionPool.isReadOnly(), "Hikari datasource should remain writable for READ_WRITE mode");
+        } finally {
+            connectionPool.close();
+        }
     }
 
     @Test
@@ -838,8 +842,11 @@ public class MssqlPluginTest {
                             readOnlyPool),
                     "A standalone SQL Server instance does not enforce read-only mode, so the write should succeed");
         } finally {
-            runSQLQueryOnMssqlTestDB("DELETE FROM users WHERE username = 'readonly_canary'", sharedConnectionPool);
-            readOnlyPool.close();
+            try {
+                runSQLQueryOnMssqlTestDB("DELETE FROM users WHERE username = 'readonly_canary'", sharedConnectionPool);
+            } finally {
+                readOnlyPool.close();
+            }
         }
     }
 }
