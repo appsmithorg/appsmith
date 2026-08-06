@@ -158,7 +158,7 @@ export default {
     const TABLE_SIZES = {
       DEFAULT: {
         COLUMN_HEADER_HEIGHT: 32,
-        TABLE_HEADER_HEIGHT: 38,
+        TABLE_HEADER_HEIGHT: 40,
         ROW_HEIGHT: 40,
         ROW_FONT_SIZE: 14,
         VERTICAL_PADDING: 6,
@@ -166,7 +166,7 @@ export default {
       },
       SHORT: {
         COLUMN_HEADER_HEIGHT: 32,
-        TABLE_HEADER_HEIGHT: 38,
+        TABLE_HEADER_HEIGHT: 40,
         ROW_HEIGHT: 30,
         ROW_FONT_SIZE: 12,
         VERTICAL_PADDING: 0,
@@ -174,7 +174,7 @@ export default {
       },
       TALL: {
         COLUMN_HEADER_HEIGHT: 32,
-        TABLE_HEADER_HEIGHT: 38,
+        TABLE_HEADER_HEIGHT: 40,
         ROW_HEIGHT: 60,
         ROW_FONT_SIZE: 18,
         VERTICAL_PADDING: 16,
@@ -185,15 +185,13 @@ export default {
     const componentHeight = props.componentHeight - 10;
     const tableSizes = TABLE_SIZES[compactMode];
 
-    let pageSize =
+    const pageSize =
       (componentHeight -
         tableSizes.TABLE_HEADER_HEIGHT -
         tableSizes.COLUMN_HEADER_HEIGHT) /
       tableSizes.ROW_HEIGHT;
 
-    return pageSize % 1 > 0.3 && props.tableData.length > pageSize
-      ? Math.ceil(pageSize)
-      : Math.floor(pageSize);
+    return Math.floor(pageSize);
   },
   //
   getProcessedTableData: (props, moment, _) => {
