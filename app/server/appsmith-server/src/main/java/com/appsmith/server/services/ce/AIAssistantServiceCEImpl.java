@@ -64,6 +64,12 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
 
     private static final int AI_SCHEMA_CONTEXT_MAX = 15000;
 
+    /**
+     * Full-file code generation (e.g. the custom widget copilot) routinely takes
+     * longer than a minute; the client waits up to 180s, so match that here.
+     */
+    private static final Duration AI_PROVIDER_RESPONSE_TIMEOUT = Duration.ofSeconds(180);
+
     private final OrganizationService organizationService;
     private final AIReferenceService aiReferenceService;
     private final NewActionService newActionService;
@@ -101,12 +107,12 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
     }
 
     private static final WebClient claudeWebClient = WebClientUtils.builder(
-                    HttpClient.create().responseTimeout(Duration.ofSeconds(60)))
+                    HttpClient.create().responseTimeout(AI_PROVIDER_RESPONSE_TIMEOUT))
             .baseUrl(DEFAULT_CLAUDE_BASE_URL)
             .build();
 
     private static final WebClient openaiWebClient = WebClientUtils.builder(
-                    HttpClient.create().responseTimeout(Duration.ofSeconds(60)))
+                    HttpClient.create().responseTimeout(AI_PROVIDER_RESPONSE_TIMEOUT))
             .baseUrl(DEFAULT_OPENAI_BASE_URL)
             .build();
 
@@ -114,7 +120,7 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
         if (baseUrl == null || baseUrl.isEmpty() || defaultBaseUrl.equals(baseUrl)) {
             return cachedClient;
         }
-        return WebClientUtils.builder(HttpClient.create().responseTimeout(Duration.ofSeconds(60)))
+        return WebClientUtils.builder(HttpClient.create().responseTimeout(AI_PROVIDER_RESPONSE_TIMEOUT))
                 .baseUrl(baseUrl)
                 .build();
     }
@@ -830,7 +836,7 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
         // replaces the connector WebClientUtils installs, which is what carries the DNS-aware
         // resolver — leaving only the literal host check and letting a hostname that resolves to
         // loopback or a metadata endpoint through.
-        WebClient webClient = WebClientUtils.builder(HttpClient.create().responseTimeout(Duration.ofSeconds(60)))
+        WebClient webClient = WebClientUtils.builder(HttpClient.create().responseTimeout(AI_PROVIDER_RESPONSE_TIMEOUT))
                 .build();
 
         return webClient
