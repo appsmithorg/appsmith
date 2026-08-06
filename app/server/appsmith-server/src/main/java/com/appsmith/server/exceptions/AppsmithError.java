@@ -957,15 +957,6 @@ public enum AppsmithError {
             ErrorType.INTERNAL_ERROR,
             null),
 
-    MCP_NOT_ENABLED(
-            400,
-            AppsmithErrorCode.MCP_NOT_ENABLED.getCode(),
-            "The MCP server is not enabled on this instance. Please contact your admin",
-            AppsmithErrorAction.DEFAULT,
-            "MCP server not enabled",
-            ErrorType.BAD_REQUEST,
-            null),
-
     EMAIL_VERIFICATION_NOT_ENABLED(
             400,
             AppsmithErrorCode.EMAIL_VERIFICATION_NOT_ENABLED.getCode(),

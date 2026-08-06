@@ -221,19 +221,6 @@ export function SettingsForm(
         }
       }
     });
-
-    // A toggle/checkbox backed by an env variable that is ABSENT from the fetched settings (an env file predating
-    // it) renders from its declared default, so the UI mirrors the runtime default instead of showing unchecked.
-    _.forEach(AdminConfig.settingsMap, (setting, settingName) => {
-      if (
-        (setting.controlType == SettingTypes.TOGGLE ||
-          setting.controlType == SettingTypes.CHECKBOX) &&
-        setting.defaultValue !== undefined &&
-        props.settingsConfig[settingName] === undefined
-      ) {
-        props.settingsConfig[settingName] = setting.defaultValue;
-      }
-    });
     props.initialize(props.settingsConfig);
   };
 

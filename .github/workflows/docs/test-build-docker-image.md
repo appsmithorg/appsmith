@@ -32,13 +32,9 @@ The `client-build` job builds the client-side codebase. It uses the configuratio
 
 The `rts-build` job builds the "rts" (real-time suggestions) package of the client-side codebase. It uses the configuration defined in `.github/workflows/rts-build.yml` and inherits secrets from the repository.
 
-### `mcp-build`
-
-This job builds and tests the MCP service, then supplies its bundled artifact to the Docker-image jobs.
-
 ### `build-docker-image`
 
-This job, named `build-docker-image`, creates and pushes the Docker image for the application. It is dependent on the success of the `client-build`, `server-build`, `rts-build`, and `mcp-build` jobs. The Docker image is built with two platforms: `linux/arm64` and `linux/amd64`.
+This job, named `build-docker-image`, creates and pushes the Docker image for the application. It is dependent on the success of the `client-build`, `server-build`, and `rts-build` jobs. The Docker image is built with two platforms: `linux/arm64` and `linux/amd64`.
 
 ### `ci-test`
 

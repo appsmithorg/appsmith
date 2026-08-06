@@ -141,17 +141,8 @@ jobs:
       pr: ${{ fromJSON(format('{0}', inputs.pr)) }}
       branch: ${{ inputs.branch }}
 
-  mcp-build:
-    needs: path-filter
-    if: success() && needs.path-filter.outputs.not-ci == 'true' && inputs.docker_image_name == ''
-    uses: ./.github/workflows/mcp-build.yml
-    secrets: inherit
-    with:
-      pr: ${{ fromJSON(format('{0}', inputs.pr)) }}
-      branch: ${{ inputs.branch }}
-
   build-docker-image:
-    needs: [client-build, server-build, rts-build, mcp-build, path-filter]
+    needs: [client-build, server-build, rts-build, path-filter]
     if: success() && needs.path-filter.outputs.not-ci == 'true' && inputs.docker_image_name == ''
     uses: ./.github/workflows/build-docker-image.yml
     secrets: inherit
@@ -160,7 +151,7 @@ jobs:
       branch: ${{ inputs.branch }}
 
   playwright-e2e:
-    needs: [path-filter, client-build, server-build, rts-build, mcp-build, build-docker-image]
+    needs: [path-filter, client-build, server-build, rts-build, build-docker-image]
     if: |
       always() &&
       needs.path-filter.result == 'success' &&

@@ -88,9 +88,6 @@ export type Setting = ControlType & {
   sortOrder?: number;
   subText?: string;
   subTextLink?: string;
-  // For TOGGLE/CHECKBOX settings backed by an env variable: the state to show when the variable is absent from the
-  // fetched admin settings (e.g. an env file that predates the setting). Mirrors the runtime default.
-  defaultValue?: boolean;
   toggleText?: (value: boolean) => string;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -139,7 +136,6 @@ export const SettingCategories = {
   OIDC_AUTH: "oidc-auth",
   INSTANCE_SETTINGS: "instance-settings",
   CONFIGURATION: "configuration",
-  MCP_SERVER: "mcp-server",
   VERSION: "version",
   USER_SETTINGS: "user-settings",
   PROFILE: "profile",

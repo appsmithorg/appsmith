@@ -33,9 +33,6 @@ COPY ./app/client/build editor/
 # Add RTS - Application Layer
 COPY ./app/client/packages/rts/dist rts/
 
-# Add MCP - Application Layer
-COPY ./app/client/packages/mcp/dist mcp/
-
 # Create the git-storage directory with group writeable permissions so non-root users can write to it.
 RUN mkdir --mode 775 "/dev/shm/git-storage"
 

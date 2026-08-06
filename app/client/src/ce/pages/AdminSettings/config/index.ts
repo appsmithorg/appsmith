@@ -5,7 +5,6 @@ import { config as GeneralConfig } from "ee/pages/AdminSettings/config/general";
 import { config as EmailConfig } from "pages/AdminSettings/config/email";
 import { config as InstanceSettings } from "ee/pages/AdminSettings/config/instanceSettings";
 import { config as Configuration } from "ee/pages/AdminSettings/config/configuration";
-import { config as McpServerConfig } from "ee/pages/AdminSettings/config/mcpServer";
 import { config as VersionConfig } from "pages/AdminSettings/config/version";
 import { config as UserSettings } from "ee/pages/AdminSettings/config/userSettings";
 import { config as Authentication } from "ee/pages/AdminSettings/config/authentication";
@@ -55,8 +54,6 @@ if (isSuperUser) ConfigFactory.register(UserListing);
 if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(InstanceSettings);
 
 if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(Configuration);
-
-if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(McpServerConfig);
 
 if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(VersionConfig);
 

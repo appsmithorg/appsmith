@@ -109,15 +109,7 @@ if ! ./build.sh > /dev/null; then
   echo RTS build failed >&2
   exit 1
 fi
-pretty_print "RTS build successful. Starting MCP build ..."
-
-popd
-pushd app/client/packages/mcp/ > /dev/null
-if ! ./build.sh > /dev/null; then
-  echo MCP build failed >&2
-  exit 1
-fi
-pretty_print "MCP build successful. Starting Docker build ..."
+pretty_print "RTS build successful. Starting Docker build ..."
 
 popd
 bash "$(dirname "$0")/generate_info_json.sh"
