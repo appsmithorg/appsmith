@@ -30,7 +30,7 @@ jest.mock("ee/utils/AnalyticsUtil", () => ({
   default: { logEvent: jest.fn() },
 }));
 
-jest.mock("components/editorComponents/GPT/shared", () => ({
+jest.mock("ee/components/editorComponents/GPT", () => ({
   AIMarkdownRenderer: ({ content }: { content: string }) => (
     <div data-testid="t--custom-widget-ai-markdown">{content}</div>
   ),

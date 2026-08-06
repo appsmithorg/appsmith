@@ -20,7 +20,7 @@ import {
   Text,
   Tooltip,
 } from "@appsmith/ads";
-import { AIMarkdownRenderer } from "components/editorComponents/GPT/shared";
+import { AIMarkdownRenderer } from "ee/components/editorComponents/GPT";
 import type { ContentProps } from "pages/Editor/CustomWidgetBuilder/Editor/CodeEditors/types";
 import { CustomWidgetBuilderContext } from "pages/Editor/CustomWidgetBuilder";
 import {
