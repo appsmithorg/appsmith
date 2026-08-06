@@ -2904,7 +2904,13 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     @Override
     public Mono<AutoCommitResponseDTO> getAutoCommitProgress(
             String artifactId, ArtifactType artifactType, String branchName) {
-        return gitAutoCommitHelper.getAutoCommitProgress(artifactId, branchName);
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        // Authorize the caller for the target artifact BEFORE reading auto-commit progress state,
+        // otherwise progress metadata (active branch name, progress value) leaks cross-artifact to
+        // any authenticated caller who supplies another artifact's id.
+        return gitArtifactHelper
+                .getArtifactById(artifactId, gitArtifactHelper.getArtifactReadPermission())
+                .flatMap(artifact -> gitAutoCommitHelper.getAutoCommitProgress(artifactId, branchName));
     }
 
     @Override

@@ -39,6 +39,8 @@ import chartWidgetIconSvg from "widgets/ChartWidget/icon.svg";
 import selectWidgetIconSvg from "widgets/SelectWidget/icon.svg";
 import textWidgetIconSvg from "widgets/TextWidget/icon.svg";
 import inputWidgetIconSvg from "widgets/InputWidgetV2/icon.svg";
+import cardWidgetIconSvg from "widgets/CardWidget/icon.svg";
+import { CARD_DATA_PROPERTY } from "widgets/CardWidget/constants";
 import { generateReactKey } from "utils/generators";
 import type { WidgetType } from "constants/WidgetConstants";
 import { bindDataOnCanvas } from "actions/pluginActionActions";
@@ -53,7 +55,11 @@ interface BindDataButtonProps {
   hasResponse: boolean;
 }
 
-const SUPPORTED_SUGGESTED_WIDGETS = ["TABLE_WIDGET_V2", "WDS_TABLE_WIDGET"];
+const SUPPORTED_SUGGESTED_WIDGETS = [
+  "TABLE_WIDGET_V2",
+  "WDS_TABLE_WIDGET",
+  "CARD_WIDGET",
+];
 
 const connectExistingWidgetLabel = createMessage(CONNECT_EXISTING_WIDGET_LABEL);
 const addNewWidgetLabel = createMessage(ADD_NEW_WIDGET);
@@ -103,6 +109,12 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     image: `${ASSETS_CDN_URL}/widgetSuggestion/table.svg`,
     existingImage: `${ASSETS_CDN_URL}/widgetSuggestion/existing_table.svg`,
     icon: tableWidgetIconSvg,
+  },
+  CARD_WIDGET: {
+    label: CARD_DATA_PROPERTY.toLowerCase(),
+    propertyName: CARD_DATA_PROPERTY,
+    widgetName: "Card",
+    icon: cardWidgetIconSvg,
   },
   CHART_WIDGET: {
     label: "chart-series-data-control",
@@ -300,7 +312,7 @@ function BindDataButton(props: BindDataButtonProps) {
     setIsWidgetSelectionOpen(true);
   }, []);
 
-  const isTableWidgetPresentOnCanvas = () => {
+  const isSupportedWidgetPresentOnCanvas = () => {
     const canvasWidgetLength = Object.keys(canvasWidgets).length;
 
     return (
@@ -394,7 +406,7 @@ function BindDataButton(props: BindDataButtonProps) {
         side={"top"}
         width="235px"
       >
-        {isTableWidgetPresentOnCanvas() && (
+        {isSupportedWidgetPresentOnCanvas() && (
           <div data-testid="t--suggested-widget-existing">
             {renderHeading(connectExistingWidgetLabel)}
             {Object.keys(canvasWidgets).map((widgetKey) => {

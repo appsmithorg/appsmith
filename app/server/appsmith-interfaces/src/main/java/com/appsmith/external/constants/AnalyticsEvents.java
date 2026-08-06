@@ -103,7 +103,14 @@ public enum AnalyticsEvents {
     STATIC_URL_ENABLED,
     STATIC_URL_DISABLED,
     STATIC_URL_APP_SLUG_UPDATED,
-    STATIC_URL_PAGE_SLUG_UPDATED;
+    STATIC_URL_PAGE_SLUG_UPDATED,
+
+    /** Fired when org AI Assistant settings are saved (Segment → Mixpanel). */
+    ASK_AI_ORG_CONFIG_UPDATED("ask_ai_ORG_CONFIG_UPDATED"),
+
+    /** API key test or local LLM connection test from AI Assistant admin. */
+    ASK_AI_ORG_TEST_RUN("ask_ai_ORG_TEST_RUN"),
+    ;
 
     private final String eventName;
 

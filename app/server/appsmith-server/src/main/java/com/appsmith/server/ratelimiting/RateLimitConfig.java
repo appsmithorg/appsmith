@@ -45,6 +45,12 @@ public class RateLimitConfig {
         apiConfigurationMap.put(
                 RateLimitConstants.BUCKET_KEY_FOR_RESEND_EMAIL_VERIFICATION_API,
                 createBucketConfiguration(Duration.ofDays(1), 5));
+        // Ask AI: 20 requests per user per minute. Generous for interactive editor use (a burst of prompts while
+        // iterating stays well under it) but it bounds an automated loop, which would otherwise spend the
+        // organization's LLM budget at whatever rate the client can issue requests.
+        apiConfigurationMap.put(
+                RateLimitConstants.BUCKET_KEY_FOR_AI_ASSISTANT_API,
+                createBucketConfiguration(Duration.ofMinutes(1), 20));
         // Add more API configurations as needed
     }
 

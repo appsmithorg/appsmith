@@ -14275,7 +14275,7 @@ __metadata:
     plop: ^3.1.1
     pluralize: ^8.0.0
     popper.js: ^1.15.0
-    postcss: 8.4.31
+    postcss: ^8.5.23
     postcss-at-rules-variables: ^0.3.0
     postcss-each: ^1.1.0
     postcss-flexbugs-fixes: ^5.0.2
@@ -14311,6 +14311,7 @@ __metadata:
     react-hook-form: ^7.28.0
     react-is: ^16.12.0
     react-json-view: ^1.21.3
+    react-markdown: ^9.0.1
     react-media-recorder: ^1.6.1
     react-modal: ^3.15.1
     react-page-visibility: ^7.0.0
@@ -14340,6 +14341,7 @@ __metadata:
     redux-mock-store: ^1.5.4
     redux-saga: ^1.1.3
     redux-saga-test-plan: ^4.0.6
+    remark-gfm: ^4.0.0
     remixicon-react: ^1.0.0
     reselect: ^4.0.0
     resize-observer-polyfill: ^1.5.1
@@ -15384,13 +15386,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"brace-expansion@npm:1.1.16":
-  version: 1.1.16
-  resolution: "brace-expansion@npm:1.1.16"
+"brace-expansion@npm:^1.1.18":
+  version: 1.1.18
+  resolution: "brace-expansion@npm:1.1.18"
   dependencies:
     balanced-match: ^1.0.0
     concat-map: 0.0.1
-  checksum: 11ab2d5b39d61bc0d0de9240a5d08a5f210a5650885ca4876271ef5996b4c5d172d697b501d673fe099ab721aa8bf0348507ad23a6148e169856209d2f9cab94
+  checksum: aa84023a4118f9185b6f8c71ca3467c945878b141ba340261de209676442f81b08db5b7c7c119707cdecb7322fcfcdb71d8ffea55db9d1aad673d7c65469211f
   languageName: node
   linkType: hard
 
@@ -20172,10 +20174,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-uri@npm:3.1.4":
-  version: 3.1.4
-  resolution: "fast-uri@npm:3.1.4"
-  checksum: 6e1262dd5901f4f095eeb4c446111f5818320f05a8f11eaa46d9117eec3b5fd6114507a66338c564004eaa002b0eb865ca998b34780373fd205d53b5182c3bd2
+"fast-uri@npm:^3.1.5":
+  version: 3.1.5
+  resolution: "fast-uri@npm:3.1.5"
+  checksum: 8a95af13e0730ac5c3abeb7f3939dee9fa95f2652e0ebac7a072b5597f836200084340c9bc2030f392318cdb49ec04e3fd6f558fa24c58d6d373557b9c01d7fb
   languageName: node
   linkType: hard
 
@@ -26864,12 +26866,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:^3.3.12":
-  version: 3.3.12
-  resolution: "nanoid@npm:3.3.12"
+"nanoid@npm:^3.3.16":
+  version: 3.3.17
+  resolution: "nanoid@npm:3.3.17"
   bin:
     nanoid: bin/nanoid.cjs
-  checksum: 38699257447dc59e21e73e0510d0dfb16b7a610d9ca80633d5c3a68f9b4298c990513d30404ca8f163c2d03225ee01695ff8898bea6179183f38f0477b7635ac
+  checksum: dbbfd5ccc15a9bce602797ee75b98ee5ad377bd217782b8d2e7438e6e0ba0c54529a9f60437910aa00e263224b3c074b51a1aa3e21084a3cb56347a6cbacc275
   languageName: node
   linkType: hard
 
@@ -29368,14 +29370,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:8.5.15":
-  version: 8.5.15
-  resolution: "postcss@npm:8.5.15"
+"postcss@npm:^8.5.23":
+  version: 8.5.25
+  resolution: "postcss@npm:8.5.25"
   dependencies:
-    nanoid: ^3.3.12
+    nanoid: ^3.3.16
     picocolors: ^1.1.1
     source-map-js: ^1.2.1
-  checksum: 82e046d5bd0c537e7bcae1b97ec366968cac4ebdbd38773b69a2a4ad437f26641643a48f120317dd167199ac718ff8a0ab7dd102258430e4c919daaef0e57904
+  checksum: 51e1fa610322a93220a461dc56a952b398d9bdb137e1f2530fed0ddebd37bf07f2729dfce31864b67b742636f30102833924ea600fa11a0f666130a66fae2a53
   languageName: node
   linkType: hard
 
@@ -35199,10 +35201,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici@npm:6.27.0":
-  version: 6.27.0
-  resolution: "undici@npm:6.27.0"
-  checksum: 3c3c591d9cc70b72ed20ec19fcbab04f184827bcb05241a215f92a081e6e73cab506cd2b334e3beb359304c2e53b6e8722c31327124d9db8122bb06fed7be372
+"undici@npm:^6.28.0":
+  version: 6.28.0
+  resolution: "undici@npm:6.28.0"
+  checksum: 71b82d533189750682078341b9f09f4db4d398d470f7b5032c546c60b1dfb331ff19a50ac02d4bce487c5e6c1d9b101c0afa29da302aab3b3edf94a35d4ed11f
   languageName: node
   linkType: hard
 

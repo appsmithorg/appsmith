@@ -7,7 +7,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
-import com.appsmith.server.dtos.InstallPluginRedisDTO;
 import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -20,7 +19,6 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.util.WebClientUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,26 +28,20 @@ import jakarta.validation.Validator;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.pf4j.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -67,8 +59,6 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     public static final String UQI_DB_EDITOR_FORM = "UQIDbEditorForm";
     protected final WorkspaceService workspaceService;
     private final PluginManager pluginManager;
-    private final ReactiveRedisTemplate<String, String> reactiveTemplate;
-    private final ChannelTopic topic;
     private final ObjectMapper objectMapper;
     private final CloudServicesConfig cloudServicesConfig;
 
@@ -77,9 +67,6 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     private final Map<String, Mono<Map<?, ?>>> formCache = new HashMap<>();
     private final Map<String, Mono<Map<String, String>>> templateCache = new HashMap<>();
     private final Map<String, Mono<Map>> labelCache = new HashMap<>();
-
-    private static final int CONNECTION_TIMEOUT = 10000;
-    private static final int READ_TIMEOUT = 10000;
 
     private static final String UQI_QUERY_EDITOR_BASE_FOLDER = "editor";
     private static final String UQI_QUERY_EDITOR_ROOT_FILE = "root.json";
@@ -103,8 +90,6 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             AnalyticsService analyticsService,
             WorkspaceService workspaceService,
             PluginManager pluginManager,
-            ReactiveRedisTemplate<String, String> reactiveTemplate,
-            ChannelTopic topic,
             ObjectMapper objectMapper,
             CloudServicesConfig cloudServicesConfig,
             ConfigService configService,
@@ -112,8 +97,6 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         super(validator, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.pluginManager = pluginManager;
-        this.reactiveTemplate = reactiveTemplate;
-        this.topic = topic;
         this.objectMapper = objectMapper;
         this.cloudServicesConfig = cloudServicesConfig;
         this.configService = configService;
@@ -196,45 +179,23 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         return pluginInWorkspaceMono.switchIfEmpty(Mono.defer(() -> {
             log.debug("Plugin {} not already installed. Installing now", pluginDTO.getPluginId());
             // If the plugin is not found in the workspace, its not installed already. Install now.
-            return repository
-                    .findById(pluginDTO.getPluginId())
-                    .map(plugin -> {
-                        log.debug("Before publishing to the redis queue");
-                        // Publish the event to the pub/sub queue
-                        InstallPluginRedisDTO installPluginRedisDTO = new InstallPluginRedisDTO();
-                        installPluginRedisDTO.setWorkspaceId(pluginDTO.getWorkspaceId());
-                        installPluginRedisDTO.setPluginWorkspaceDTO(pluginDTO);
-                        String jsonString;
-                        try {
-                            jsonString = objectMapper.writeValueAsString(installPluginRedisDTO);
-                        } catch (JsonProcessingException e) {
-                            log.error("", e);
-                            return Mono.error(e);
-                        }
-                        return reactiveTemplate
-                                .convertAndSend(topic.getTopic(), jsonString)
-                                .subscribe();
-                    })
-                    // Now that the plugin jar has been successfully downloaded, go on and add the plugin to the
-                    // workspace
-                    .then(workspaceService.getById(pluginDTO.getWorkspaceId()))
-                    .flatMap(workspace -> {
-                        Set<WorkspacePlugin> workspacePluginList = workspace.getPlugins();
-                        if (workspacePluginList == null) {
-                            workspacePluginList = new HashSet<>();
-                        }
+            return workspaceService.getById(pluginDTO.getWorkspaceId()).flatMap(workspace -> {
+                Set<WorkspacePlugin> workspacePluginList = workspace.getPlugins();
+                if (workspacePluginList == null) {
+                    workspacePluginList = new HashSet<>();
+                }
 
-                        WorkspacePlugin workspacePlugin = new WorkspacePlugin();
-                        workspacePlugin.setPluginId(pluginDTO.getPluginId());
-                        workspacePlugin.setStatus(status);
-                        workspacePluginList.add(workspacePlugin);
-                        workspace.setPlugins(workspacePluginList);
+                WorkspacePlugin workspacePlugin = new WorkspacePlugin();
+                workspacePlugin.setPluginId(pluginDTO.getPluginId());
+                workspacePlugin.setStatus(status);
+                workspacePluginList.add(workspacePlugin);
+                workspace.setPlugins(workspacePluginList);
 
-                        log.debug(
-                                "Going to save the workspace with install plugin. This means that installation has been successful");
+                log.debug(
+                        "Going to save the workspace with install plugin. This means that installation has been successful");
 
-                        return workspaceService.save(workspace);
-                    });
+                return workspaceService.save(workspace);
+            });
         }));
     }
 
@@ -255,51 +216,6 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     public Mono<String> getPluginName(Mono<Datasource> datasourceMono) {
         return datasourceMono.flatMap(datasource -> this.findById(datasource.getPluginId())
                 .map(plugin -> plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName()));
-    }
-
-    @Override
-    public Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO) {
-        Mono<Plugin> pluginMono = repository.findById(
-                installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
-        return pluginMono
-                .flatMap(plugin -> downloadAndStartPlugin(installPluginRedisDTO.getWorkspaceId(), plugin))
-                .switchIfEmpty(Mono.defer(() -> {
-                    log.debug(
-                            "During redisInstallPlugin, no plugin with plugin id {} found. Returning without download and install",
-                            installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
-                    return Mono.just(new Plugin());
-                }))
-                .block();
-    }
-
-    private Mono<Plugin> downloadAndStartPlugin(String workspaceId, Plugin plugin) {
-        if (plugin.getJarLocation() == null) {
-            // Plugin jar location not set. Must be local
-            /** TODO
-             * In future throw an error if jar location is not set
-             */
-            log.debug("plugin jarLocation is null. Not downloading and starting. Returning now");
-            return Mono.just(plugin);
-        }
-
-        String baseUrl = "../dist/plugins/";
-        String pluginJar = plugin.getName() + "-" + workspaceId + ".jar";
-        log.debug("Going to download plugin jar with name : {}", baseUrl + pluginJar);
-
-        try {
-            FileUtils.copyURLToFile(
-                    new URL(plugin.getJarLocation()), new File(baseUrl, pluginJar), CONNECTION_TIMEOUT, READ_TIMEOUT);
-        } catch (Exception e) {
-            log.error("", e);
-            return Mono.error(new AppsmithException(AppsmithError.PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR));
-        }
-
-        // Now that the plugin has been downloaded, load and restart the plugin
-        pluginManager.loadPlugin(Path.of(baseUrl + pluginJar));
-        // The following only starts plugins which have been loaded but hasn't been started yet.
-        pluginManager.startPlugins();
-
-        return Mono.just(plugin);
     }
 
     @Override

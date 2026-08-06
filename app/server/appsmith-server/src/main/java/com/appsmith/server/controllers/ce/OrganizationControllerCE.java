@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import reactor.core.publisher.Mono;
 
-import java.util.Map;
-
 @Slf4j
 @RequestMapping(Url.ORGANIZATION_URL)
 public class OrganizationControllerCE {
@@ -29,7 +27,7 @@ public class OrganizationControllerCE {
 
     /**
      * This API returns the organization configuration for any user (anonymous or logged in). The configurations are set
-     * in {@link com.appsmith.server.controllers.ce.InstanceAdminControllerCE#saveEnvChanges(Map<String,String>)}
+     * in {@link com.appsmith.server.controllers.ce.InstanceAdminControllerCE#saveEnvChanges(java.util.Map)}
      * <p>
      * The update and retrieval are in different controllers because it would have been weird to fetch the configurations
      * from the InstanceAdminController

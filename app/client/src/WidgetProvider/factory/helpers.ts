@@ -226,11 +226,29 @@ export function enhancePropertyPaneConfig(
           registeredFeature as RegisteredWidgetFeatures
         ]
       ) {
-        config[sectionIndex].children?.push(
-          ...PropertyPaneConfigTemplates[
-            registeredFeature as RegisteredWidgetFeatures
-          ](features[registeredFeature as RegisteredWidgetFeatures]),
+        const featureControls = PropertyPaneConfigTemplates[
+          registeredFeature as RegisteredWidgetFeatures
+        ](features[registeredFeature as RegisteredWidgetFeatures]);
+
+        // Replace the section instead of pushing into its children. Widgets
+        // whose getPropertyPaneContentConfig returns a module-level array hand
+        // us the same section object on every call, so pushing would append the
+        // feature controls again each time this runs — and it runs more than
+        // once per session because clearAllWidgetFactoryCache drops the
+        // memoized configs (called from sagas/InitSagas, sagas/EvaluationsSaga,
+        // and loadAndRegisterOnlyCanvasWidgets on every lazy registration).
+        config = config.map((sectionOrControlConfig, index) =>
+          index === sectionIndex
+            ? {
+                ...sectionOrControlConfig,
+                children: [
+                  ...(sectionOrControlConfig.children ?? []),
+                  ...featureControls,
+                ],
+              }
+            : sectionOrControlConfig,
         );
+
         config = WidgetFeaturePropertyPaneEnhancements[
           registeredFeature as RegisteredWidgetFeatures
         ](config, widgetType);

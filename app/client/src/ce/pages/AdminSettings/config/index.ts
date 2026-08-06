@@ -13,6 +13,8 @@ import { config as BrandingConfig } from "ee/pages/AdminSettings/config/branding
 import { config as ProvisioningConfig } from "ee/pages/AdminSettings/config/provisioning";
 import { config as UserListing } from "ee/pages/AdminSettings/config//userlisting";
 import { config as AuditLogsConfig } from "ee/pages/AdminSettings/config/auditlogs";
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports -- Ask AI is CE-owned; CE cannot add an ee/ shim (pre-push architecture guard).
+import { config as AIConfig } from "ce/pages/AdminSettings/config/ai";
 
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import store from "store";
@@ -37,6 +39,8 @@ if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(EmailConfig);
 if (isSuperUser) ConfigFactory.register(BrandingConfig);
 
 if (isSuperUser) ConfigFactory.register(AuditLogsConfig);
+
+if (isSuperUser) ConfigFactory.register(AIConfig);
 
 // User management categories
 if (isSuperUser) ConfigFactory.register(UserSettings);
