@@ -4,10 +4,19 @@ import type { EntityTypeValue } from "ee/entities/DataTree/types";
 
 export const APPSMITH_AI = "Ask AI";
 
+/**
+ * GraphQL editors run in `EditorModes.GRAPHQL_WITH_BINDING` ("graphql-js"), not plain "graphql".
+ * Both call sites below share this so the mode that enables Ask AI can never drift from the mode
+ * that builds its context.
+ */
+function isGraphQLMode(mode?: string) {
+  return Boolean(mode?.includes("graphql"));
+}
+
 export function isAISupportedMode(mode: TEditorModes) {
   const isJavaScriptMode = mode === "javascript";
   const isQueryMode =
-    mode === "sql" || mode === "graphql" || mode?.includes("sql");
+    mode === "sql" || isGraphQLMode(mode) || mode?.includes("sql");
   const isJSONMode = mode === "application/json" || mode?.includes("json");
 
   return isJavaScriptMode || isQueryMode || isJSONMode;
@@ -60,8 +69,7 @@ export const getAIContext = ({
     functionString = lines.slice(startLine, endLine).join("\n");
   } else if (
     mode?.includes("sql") ||
-    mode === "graphql" ||
-    mode?.includes("graphql") ||
+    isGraphQLMode(mode) ||
     mode === "application/json" ||
     mode?.includes("json")
   ) {

@@ -155,8 +155,10 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                         .onErrorReturn(true))
                 .flatMap(allowed -> Boolean.TRUE.equals(allowed)
                         ? Mono.empty()
+                        // TOO_MANY_REQUESTS, not INVALID_PARAMETER: a throttled caller has to be able to tell
+                        // "back off and retry" from "the request was malformed", and only a 429 says that.
                         : Mono.error(new AppsmithException(
-                                AppsmithError.INVALID_PARAMETER, RateLimitConstants.RATE_LIMIT_REACHED_AI_ASSISTANT)))
+                                AppsmithError.TOO_MANY_REQUESTS, RateLimitConstants.RATE_LIMIT_REACHED_AI_ASSISTANT)))
                 .then(organizationService.getCurrentUserOrganization())
                 .flatMap(organization -> {
                     if (organization == null || organization.getOrganizationConfiguration() == null) {
@@ -251,6 +253,10 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                             AppsmithError.NO_RESOURCE_FOUND,
                             "Azure OpenAI deployment name not configured. Add the name of your model deployment from Azure OpenAI Studio."));
         }
+        if (!AIConfigSecretsCE.allowsStoredCredential(endpoint)) {
+            return Mono.error(new AppsmithException(
+                    AppsmithError.NO_RESOURCE_FOUND, insecureProviderDestinationMessage("Azure OpenAI")));
+        }
         return callAzureOpenAIAPI(
                 endpoint.trim(),
                 deploymentName.trim(),
@@ -269,6 +275,10 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
             return Mono.error(
                     new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "API key not configured for this provider"));
         }
+        if (!AIConfigSecretsCE.allowsStoredCredential(aiConfig.getClaudeBaseUrl())) {
+            return Mono.error(new AppsmithException(
+                    AppsmithError.NO_RESOURCE_FOUND, insecureProviderDestinationMessage("Claude")));
+        }
         return callClaudeAPI(
                 apiKey, prompt, ctx, conversationHistory, aiConfig.getClaudeModel(), aiConfig.getClaudeBaseUrl());
     }
@@ -280,8 +290,23 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
             return Mono.error(
                     new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "API key not configured for this provider"));
         }
+        if (!AIConfigSecretsCE.allowsStoredCredential(aiConfig.getOpenaiBaseUrl())) {
+            return Mono.error(new AppsmithException(
+                    AppsmithError.NO_RESOURCE_FOUND, insecureProviderDestinationMessage("OpenAI")));
+        }
         return callOpenAIAPI(
                 apiKey, prompt, ctx, conversationHistory, aiConfig.getOpenaiModel(), aiConfig.getOpenaiBaseUrl());
+    }
+
+    /**
+     * The stored key is about to be attached to an outbound request, so the destination has to be one
+     * that keeps it off the wire in cleartext. {@link AIConfigSecretsCE#allowsStoredCredential} is the
+     * single policy for that, shared with the settings "test key" path.
+     */
+    private String insecureProviderDestinationMessage(String provider) {
+        return "a secure " + provider
+                + " endpoint. The configured URL does not use HTTPS, so the stored API key was not sent."
+                + " Ask an administrator to change it to an https:// URL";
     }
 
     /**
@@ -482,9 +507,9 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                                 return Mono.error(
                                         new AppsmithException(AppsmithError.INVALID_CREDENTIALS, "Invalid API key"));
                             } else if (statusCode == 429) {
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.INTERNAL_SERVER_ERROR,
-                                        "Rate limit exceeded. Please try again later."));
+                                // The provider throttled us. Surface that as 429 rather than 500 so the caller
+                                // can retry rather than treat it as a server fault.
+                                return Mono.error(new AppsmithException(AppsmithError.TOO_MANY_REQUESTS));
                             }
                             return Mono.error(new AppsmithException(
                                     AppsmithError.INTERNAL_SERVER_ERROR, "AI API request failed"));
@@ -542,9 +567,9 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                                 return Mono.error(
                                         new AppsmithException(AppsmithError.INVALID_CREDENTIALS, "Invalid API key"));
                             } else if (statusCode == 429) {
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.INTERNAL_SERVER_ERROR,
-                                        "Rate limit exceeded. Please try again later."));
+                                // The provider throttled us. Surface that as 429 rather than 500 so the caller
+                                // can retry rather than treat it as a server fault.
+                                return Mono.error(new AppsmithException(AppsmithError.TOO_MANY_REQUESTS));
                             }
                             return Mono.error(new AppsmithException(
                                     AppsmithError.INTERNAL_SERVER_ERROR, "AI API request failed"));
@@ -828,11 +853,10 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                                 return Mono.error(
                                         new AppsmithException(AppsmithError.INVALID_CREDENTIALS, "Invalid API key"));
                             } else if (statusCode == 429) {
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.INTERNAL_SERVER_ERROR,
-                                        "Rate limit exceeded. Please try again later."));
+                                // The provider throttled us. Surface that as 429 rather than 500 so the caller
+                                // can retry rather than treat it as a server fault.
+                                return Mono.error(new AppsmithException(AppsmithError.TOO_MANY_REQUESTS));
                             }
-                            log.warn("Azure OpenAI request failed with status {}: {}", statusCode, errorBody);
                             return Mono.error(new AppsmithException(
                                     AppsmithError.INTERNAL_SERVER_ERROR,
                                     "Azure OpenAI returned an error (HTTP " + statusCode

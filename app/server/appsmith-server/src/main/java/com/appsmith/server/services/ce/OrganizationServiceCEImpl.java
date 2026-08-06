@@ -8,6 +8,7 @@ import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.MigrationStatus;
 import com.appsmith.server.constants.ce.FieldNameCE;
+import com.appsmith.server.domains.AIAssistantConfig;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.domains.User;
@@ -132,7 +133,14 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                     // encryption that /ai-config applies. Normalise them so encryption holds no matter which endpoint
                     // wrote the value; already-encrypted values are left untouched.
                     AIConfigSecretsCE.encryptCredentialsInPlace(organizationConfiguration.getAiAssistantConfig());
+                    // A provider URL arriving here would otherwise move underneath a stored key that
+                    // stays put, which is the same credential redirection /ai-config already refuses.
+                    // Snapshot before the merge, since it rewrites oldConfig in place.
+                    AIAssistantConfig previousAiCredentials =
+                            AIConfigSecretsCE.snapshotCredentials(oldConfig.getAiAssistantConfig());
                     AppsmithBeanUtils.copyNestedNonNullProperties(organizationConfiguration, oldConfig);
+                    AIConfigSecretsCE.unbindCredentialsWithChangedDestination(
+                            previousAiCredentials, oldConfig.getAiAssistantConfig());
                     organization.setOrganizationConfiguration(oldConfig);
                     Mono<Organization> updatedOrganizationMono = repository
                             .updateById(organizationId, organization, MANAGE_ORGANIZATION)

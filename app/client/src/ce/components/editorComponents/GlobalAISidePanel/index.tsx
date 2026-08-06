@@ -147,6 +147,7 @@ export function GlobalAISidePanel() {
   const responseRef = useRef<HTMLDivElement>(null);
   const previousPathRef = useRef(location.pathname);
   const isDraggingRef = useRef(false);
+  const detachDragRef = useRef<(() => void) | null>(null);
 
   const isOpen = useSelector(getIsAIPanelOpen);
   const editorContext = useSelector(getAIEditorContext);
@@ -232,15 +233,43 @@ export function GlobalAISidePanel() {
       isDraggingRef.current = false;
       document.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("mouseup", onMouseUp);
+      detachDragRef.current = null;
     };
 
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseup", onMouseUp);
+    detachDragRef.current = onMouseUp;
   }, []);
+
+  // The route-change effect above dispatches closeAIPanel, which unmounts this tree. A drag still
+  // in progress at that moment would otherwise leave both document listeners attached for the rest
+  // of the session, calling setPanelWidth on a dead component.
+  useEffect(() => () => detachDragRef.current?.(), []);
 
   const handleClose = useCallback(() => {
     dispatch(closeAIPanel());
   }, [dispatch]);
+
+  // The close button advertises "Close (Esc)", but the only Escape handler was on the prompt
+  // textarea — so the shortcut did nothing once focus moved to a quick-action chip or the response
+  // area. Listening on the document honours it wherever focus sits, while still yielding to any
+  // inner handler that stops propagation first.
+  useEffect(
+    function closePanelOnEscape() {
+      if (!isOpen) return;
+
+      const handleEscape = (event: KeyboardEvent) => {
+        if (event.key === "Escape") {
+          handleClose();
+        }
+      };
+
+      document.addEventListener("keydown", handleEscape);
+
+      return () => document.removeEventListener("keydown", handleEscape);
+    },
+    [isOpen, handleClose],
+  );
 
   const handleSend = useCallback(() => {
     if (!prompt.trim()) return;
@@ -272,9 +301,13 @@ export function GlobalAISidePanel() {
     [editorContext, dispatch, isLoading],
   );
 
+  // Guarded as well as disabled: clearing mid-request would empty the list that the saga is about
+  // to append the in-flight response to, leaving an answer with no question above it.
   const handleClearChat = useCallback(() => {
+    if (isLoading) return;
+
     dispatch(clearAIResponse());
-  }, [dispatch]);
+  }, [dispatch, isLoading]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -284,12 +317,8 @@ export function GlobalAISidePanel() {
         e.nativeEvent.stopImmediatePropagation();
         handleSend();
       }
-
-      if (e.key === "Escape") {
-        handleClose();
-      }
     },
-    [handleSend, handleClose],
+    [handleSend],
   );
 
   const contextInfo = useMemo(() => {
@@ -318,6 +347,7 @@ export function GlobalAISidePanel() {
           {messages.length > 0 && (
             <Tooltip content="Clear chat" placement="bottom">
               <ClearButton
+                isDisabled={isLoading}
                 isIconButton
                 kind="tertiary"
                 onClick={handleClearChat}
@@ -398,6 +428,7 @@ export function GlobalAISidePanel() {
             ))}
             {messages.length > 0 && (
               <QuickActionChip
+                disabled={isLoading}
                 key="clear-chat"
                 onClick={handleClearChat}
                 title="Clear all chat messages"
