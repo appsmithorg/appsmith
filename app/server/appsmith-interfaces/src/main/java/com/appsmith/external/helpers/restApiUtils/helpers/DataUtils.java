@@ -515,11 +515,77 @@ public class DataUtils {
 
         if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
                 || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
-            requestBodyObj = actionConfiguration.getBodyFormData();
+            List<Property> bodyFormData = actionConfiguration.getBodyFormData();
+            if ((bodyFormData == null || bodyFormData.isEmpty())
+                    && requestBodyObj != null
+                    && !requestBodyObj.toString().isEmpty()) {
+                bodyFormData = parseFormUrlEncodedBodyString(requestBodyObj.toString());
+            }
+            requestBodyObj = bodyFormData;
         }
 
         requestBodyObj = this.buildBodyInserter(requestBodyObj, reqContentType, encodeParamsToggle);
 
         return requestBodyObj;
+    }
+
+    /**
+     * Parses a raw body string into a list of Property objects for form-urlencoded content type.
+     * Supports both URL-encoded strings (key=value&key2=value2) and JSON objects ({"key": "value"}).
+     * This enables dynamic body generation via mustache bindings in the body field.
+     */
+    private List<Property> parseFormUrlEncodedBodyString(String body) {
+        if (body == null || body.trim().isEmpty()) {
+            return null;
+        }
+
+        String trimmed = body.trim();
+
+        // If it looks like a JSON object, parse it as JSON and convert to Properties
+        if (trimmed.startsWith("{")) {
+            try {
+                Object parsed = objectFromJson(trimmed);
+                if (parsed instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> map = (Map<String, Object>) parsed;
+                    List<Property> properties = new ArrayList<>();
+                    for (Map.Entry<String, Object> entry : map.entrySet()) {
+                        Property property = new Property();
+                        property.setKey(entry.getKey());
+                        property.setValue(entry.getValue() != null ? entry.getValue().toString() : "");
+                        properties.add(property);
+                    }
+                    return properties;
+                }
+            } catch (Exception e) {
+                // Fall through to URL-encoded parsing
+            }
+        }
+
+        // Otherwise, parse as URL-encoded string (key=value&key2=value2)
+        String[] pairs = trimmed.split("&", -1);
+        List<Property> properties = new ArrayList<>();
+        for (String pair : pairs) {
+            int eqIndex = pair.indexOf('=');
+            String key;
+            String value;
+            if (eqIndex > 0) {
+                key = pair.substring(0, eqIndex);
+                value = pair.substring(eqIndex + 1);
+            } else if (eqIndex == 0) {
+                // key is empty, skip
+                continue;
+            } else {
+                key = pair;
+                value = "";
+            }
+            if (!key.isEmpty()) {
+                Property property = new Property();
+                property.setKey(key);
+                property.setValue(value);
+                properties.add(property);
+            }
+        }
+        return properties.isEmpty() ? null : properties;
     }
 }
