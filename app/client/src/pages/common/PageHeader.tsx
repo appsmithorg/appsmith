@@ -16,6 +16,10 @@ import { Banner } from "ee/utils/licenseHelpers";
 import BaseUrlMissingBanner from "components/editorComponents/BaseUrlMissingBanner";
 import bootPylon from "utils/bootPylon";
 import EntitySearchBar from "pages/common/SearchBar/EntitySearchBar";
+import {
+  DESKTOP_BANNER_OFFSET,
+  MOBILE_BANNER_OFFSET,
+} from "pages/common/bannerOffsets";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -38,7 +42,11 @@ const StyledPageHeader = styled(StyledHeader)<{
     padding-left: 10px;
     `};
   ${({ isBannerVisible, isMobile }) =>
-    isBannerVisible ? (isMobile ? `top: 70px;` : `top: 40px;`) : ""};
+    isBannerVisible
+      ? isMobile
+        ? `top: ${MOBILE_BANNER_OFFSET}px;`
+        : `top: ${DESKTOP_BANNER_OFFSET}px;`
+      : ""};
 `;
 
 interface PageHeaderProps {
@@ -67,8 +75,8 @@ export function PageHeader(props: PageHeaderProps) {
   const isLicensePage = useRouteMatch("/license")?.isExact;
   // GHSA-j9gf-vw2f-9hrw — fold the base-url-missing admin banner into the same
   // isBannerVisible signal that the existing license/trial banner uses, so the
-  // page header gets pushed down by the banner's height (40px desktop / 70px
-  // mobile) when either banner is visible. Without this, the page header — which
+  // page header gets pushed down by DESKTOP_BANNER_OFFSET / MOBILE_BANNER_OFFSET
+  // when either banner is visible. Without this, the page header — which
   // has a higher z-index — paints over the fixed-position banner at top: 0.
   const showBaseUrlBanner = useSelector(getShouldShowBaseUrlMissingBanner);
   const isAnyBannerVisible =

@@ -15,4 +15,7 @@ jobs:
       - name: docker.env.sh default frame-ancestors is safe
         run: deploy/docker/tests/docker-env-defaults-test.sh
 
+      - name: caddy rate-limit key is not spoofable (GHSA-qrgm-h8c4-jjf7)
+        run: deploy/docker/tests/caddy-rate-limit-key-test.sh
+
       - run: deploy/docker/route-tests/run.sh

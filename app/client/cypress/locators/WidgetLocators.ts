@@ -42,6 +42,7 @@ export const WIDGET = {
   ICONBUTTON: "iconbuttonwidget",
   IMAGE: "imagewidget",
   STATBOX: "statboxwidget",
+  CARD: "cardwidget",
   JSONFORM: "jsonformwidget",
   MENUBUTTON: "menubuttonwidget",
   DATEPICKER: "datepickerwidget2",

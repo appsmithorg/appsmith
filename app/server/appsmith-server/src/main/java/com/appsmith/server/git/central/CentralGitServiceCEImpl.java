@@ -549,7 +549,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     .then(gitHandlingService.listReferences(jsonTransformationDTO, FALSE))
                     .flatMap(gitRefs -> {
                         long branchMatchCount = gitRefs.stream()
-                                .filter(gitRef -> gitRef.equals(finalRefName))
+                                .filter(gitRef -> finalRefName.equals(gitRef.getRefName()))
                                 .count();
 
                         if (branchMatchCount == 0) {
@@ -1636,7 +1636,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     log.error(
                             "An error occurred while committing changes to artifact with base id: {} and branch: {}",
                             branchedGitMetadata.getDefaultArtifactId(),
-                            branchedGitMetadata.getRefName());
+                            branchedGitMetadata.getRefName(),
+                            error);
 
                     return gitRedisUtils
                             .releaseFileLock(artifactType, branchedGitMetadata.getDefaultArtifactId(), TRUE)
@@ -2903,7 +2904,13 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     @Override
     public Mono<AutoCommitResponseDTO> getAutoCommitProgress(
             String artifactId, ArtifactType artifactType, String branchName) {
-        return gitAutoCommitHelper.getAutoCommitProgress(artifactId, branchName);
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        // Authorize the caller for the target artifact BEFORE reading auto-commit progress state,
+        // otherwise progress metadata (active branch name, progress value) leaks cross-artifact to
+        // any authenticated caller who supplies another artifact's id.
+        return gitArtifactHelper
+                .getArtifactById(artifactId, gitArtifactHelper.getArtifactReadPermission())
+                .flatMap(artifact -> gitAutoCommitHelper.getAutoCommitProgress(artifactId, branchName));
     }
 
     @Override
@@ -3178,12 +3185,12 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                         })
                                         .onErrorResume(error -> {
                                             log.error(
-                                                    "Error in repo status check for artifact: {}, Details: {}",
+                                                    "Error in repo status check for artifact: {}",
                                                     branchedArtifactId,
-                                                    error.getMessage());
+                                                    error);
 
                                             if (error instanceof AppsmithException) {
-                                                Mono.error(error);
+                                                return Mono.error(error);
                                             }
 
                                             return Mono.error(new AppsmithException(
@@ -3426,7 +3433,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                                     baseArtifactId,
                                                     error);
                                             if (error instanceof AppsmithException) {
-                                                Mono.error(error);
+                                                return Mono.error(error);
                                             }
 
                                             return Mono.error(new AppsmithException(
