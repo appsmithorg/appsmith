@@ -822,11 +822,9 @@ public class MssqlPluginTest {
 
     @Test
     public void testReadOnlyModeDoesNotEnforceReadOnlyOnStandaloneInstance() throws SQLException {
-        // mssql-jdbc ignores Connection.setReadOnly() and a standalone SQL Server accepts
-        // ApplicationIntent=ReadOnly without enforcing it: writes are only rejected server-side,
-        // e.g. by a read-intent-only Always On secondary or a database in READ_ONLY state. This
-        // pins the behavior documented in the connection mode tooltip; if a future driver upgrade
-        // starts enforcing read-only connections, this test fails and the tooltip must be updated.
+        // Read-only enforcement is server-side (e.g. a read-intent-only Always On secondary):
+        // a standalone instance accepts ApplicationIntent=ReadOnly but still allows writes,
+        // as the connection mode tooltip documents.
         DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
         dsConfig.getConnection().setMode(READ_ONLY);
 
