@@ -44,11 +44,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
+import static com.appsmith.external.models.Connection.Mode.READ_WRITE;
 import static com.external.plugins.MssqlTestDBContainerManager.createDatasourceConfiguration;
 import static com.external.plugins.MssqlTestDBContainerManager.mssqlPluginExecutor;
 import static com.external.plugins.MssqlTestDBContainerManager.runSQLQueryOnMssqlTestDB;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -772,5 +776,75 @@ public class MssqlPluginTest {
                     assertEquals("localhost_1433", endpointIdentifier);
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testReadOnlyConnectionMode() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+
+        dsConfig.getConnection().setMode(READ_ONLY);
+
+        HikariDataSource connectionPool =
+                mssqlPluginExecutor.datasourceCreate(dsConfig).block();
+
+        assertNotNull(connectionPool);
+        try {
+            String jdbcUrl = connectionPool.getJdbcUrl();
+            assertTrue(
+                    jdbcUrl.contains("ApplicationIntent=ReadOnly"),
+                    "JDBC URL should contain ApplicationIntent=ReadOnly parameter");
+            assertTrue(connectionPool.isReadOnly(), "Hikari datasource should be read-only for READ_ONLY mode");
+        } finally {
+            connectionPool.close();
+        }
+    }
+
+    @Test
+    public void testReadWriteConnectionMode() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+
+        dsConfig.getConnection().setMode(READ_WRITE);
+
+        HikariDataSource connectionPool =
+                mssqlPluginExecutor.datasourceCreate(dsConfig).block();
+
+        assertNotNull(connectionPool);
+        try {
+            String jdbcUrl = connectionPool.getJdbcUrl();
+            assertFalse(
+                    jdbcUrl.contains("ApplicationIntent"),
+                    "JDBC URL should not contain ApplicationIntent parameter for READ_WRITE mode");
+            assertFalse(connectionPool.isReadOnly(), "Hikari datasource should remain writable for READ_WRITE mode");
+        } finally {
+            connectionPool.close();
+        }
+    }
+
+    @Test
+    public void testReadOnlyModeDoesNotEnforceReadOnlyOnStandaloneInstance() throws SQLException {
+        // Read-only enforcement is server-side (e.g. a read-intent-only Always On secondary):
+        // a standalone instance accepts ApplicationIntent=ReadOnly but still allows writes,
+        // as the connection mode tooltip documents.
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        dsConfig.getConnection().setMode(READ_ONLY);
+
+        HikariDataSource readOnlyPool =
+                mssqlPluginExecutor.datasourceCreate(dsConfig).block();
+        assertNotNull(readOnlyPool);
+
+        try {
+            assertDoesNotThrow(
+                    () -> runSQLQueryOnMssqlTestDB(
+                            "INSERT INTO users (username, password, email, spouse_dob, dob, time1) VALUES "
+                                    + "('readonly_canary', 'canary', 'canary@exemplars.com', NULL, '2020-01-01', '00:00:00')",
+                            readOnlyPool),
+                    "A standalone SQL Server instance does not enforce read-only mode, so the write should succeed");
+        } finally {
+            try {
+                runSQLQueryOnMssqlTestDB("DELETE FROM users WHERE username = 'readonly_canary'", sharedConnectionPool);
+            } finally {
+                readOnlyPool.close();
+            }
+        }
     }
 }
