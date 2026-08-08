@@ -40,12 +40,12 @@ export const getSafeMaxCount = (rawValue: unknown): number => {
   if (typeof rawValue === "number" && Number.isFinite(rawValue)) {
     parsed = rawValue;
   } else if (typeof rawValue === "string" && rawValue.trim() !== "") {
-    parsed = Number.parseInt(rawValue, 10);
+    parsed = Number(rawValue);
   } else {
     parsed = DEFAULT_MAX_RATE_COUNT;
   }
 
-  if (!Number.isFinite(parsed) || parsed < 1) {
+  if (!Number.isFinite(parsed) || !Number.isInteger(parsed) || parsed < 1) {
     return DEFAULT_MAX_RATE_COUNT;
   }
 

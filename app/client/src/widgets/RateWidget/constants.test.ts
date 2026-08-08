@@ -49,10 +49,10 @@ describe("getSafeMaxCount", () => {
     expect(getSafeMaxCount("1000000")).toBe(MAX_RATE_COUNT);
   });
 
-  it("uses DEFAULT_MAX_RATE_COUNT for fractional numbers below 1", () => {
-    // parseInt("0.5", 10) === 0, which is not a valid maxCount.
+  it("uses DEFAULT_MAX_RATE_COUNT for fractional numbers", () => {
     expect(getSafeMaxCount(0.5)).toBe(DEFAULT_MAX_RATE_COUNT);
-    // parseInt("0", 10) === 0
+    expect(getSafeMaxCount(1.5)).toBe(DEFAULT_MAX_RATE_COUNT);
+    expect(getSafeMaxCount("1.5")).toBe(DEFAULT_MAX_RATE_COUNT);
     expect(getSafeMaxCount("0")).toBe(DEFAULT_MAX_RATE_COUNT);
   });
 });
