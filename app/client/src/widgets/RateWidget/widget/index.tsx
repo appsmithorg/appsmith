@@ -2,7 +2,11 @@ import React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import RateComponent from "../component";
-import type { RateSize } from "../constants";
+import {
+  MAX_RATE_COUNT,
+  getSafeMaxCount,
+  type RateSize,
+} from "../constants";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -162,12 +166,11 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
         {
           viewportMinWidth: 0,
           configuration: (props: RateWidgetProps) => {
-            let maxCount = props.maxCount;
-
-            if (typeof maxCount !== "number")
-              // TODO: Fix this the next time the file is edited
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              maxCount = parseInt(props.maxCount as any, 10);
+            // Cap before the minWidth calculation so a binding-driven
+            // runaway value (e.g. `{{ Api1.data.count }}` returning
+            // 1_000_000) cannot inflate the layout box and crash the
+            // browser. See issue #14833.
+            const maxCount = getSafeMaxCount(props.maxCount);
 
             return {
               // 21 is the size of a star, 5 is the margin between stars
@@ -188,12 +191,11 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
     return {
       isLargeWidget: false,
       widgetSize: (props: RateWidgetProps) => {
-        let maxCount = props.maxCount;
-
-        if (typeof maxCount !== "number")
-          // TODO: Fix this the next time the file is edited
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          maxCount = parseInt(props.maxCount as any, 10);
+        // Cap before the minWidth calculation so a binding-driven
+        // runaway value (e.g. `{{ Api1.data.count }}` returning
+        // 1_000_000) cannot inflate the layout box and crash the
+        // browser. See issue #14833.
+        const maxCount = getSafeMaxCount(props.maxCount);
 
         return {
           maxHeight: {},
@@ -238,7 +240,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "maxCount",
-            helpText: "Sets the maximum allowed rating",
+            helpText: `Sets the maximum allowed rating (must be between 1 and ${MAX_RATE_COUNT})`,
             label: "Max rating",
             controlType: "INPUT_TEXT",
             placeholderText: "5",
@@ -246,7 +248,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.NUMBER,
-              params: { natural: true },
+              params: { natural: true, min: 1, max: MAX_RATE_COUNT },
             },
           },
           {
@@ -475,6 +477,13 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
   }
 
   getWidgetView() {
+    // Cap the render-time maxCount so a binding-driven runaway value
+    // cannot allocate millions of star DOM nodes (issue #14833). The
+    // property pane already rejects out-of-range values, but a binding
+    // can change `maxCount` after the validation pass, so the render
+    // path must defend itself independently.
+    const safeMaxCount = getSafeMaxCount(this.props.maxCount);
+
     return (
       (this.props.rate || this.props.rate === 0) && (
         <RateComponent
@@ -484,7 +493,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           isDisabled={this.props.isDisabled}
           isLoading={this.props.isLoading}
           key={this.props.widgetId}
-          maxCount={this.props.maxCount}
+          maxCount={safeMaxCount}
           minHeight={this.props.minHeight}
           onValueChanged={this.valueChangedHandler}
           readonly={this.props.isReadOnly}
