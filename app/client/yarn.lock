@@ -14083,7 +14083,7 @@ __metadata:
     moment-timezone: ^0.5.35
     msw: ^0.28.0
     mutative: ^1.1.0
-    nanoid: 3.3.11
+    nanoid: 3.3.17
     node-forge: ^1.4.0
     object-hash: ^3.0.0
     openai: 4.87.3
@@ -26410,16 +26410,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:3.3.11":
-  version: 3.3.11
-  resolution: "nanoid@npm:3.3.11"
-  bin:
-    nanoid: bin/nanoid.cjs
-  checksum: 3be20d8866a57a6b6d218e82549711c8352ed969f9ab3c45379da28f405363ad4c9aeb0b39e9abc101a529ca65a72ff9502b00bf74a912c4b64a9d62dfd26c29
-  languageName: node
-  linkType: hard
-
-"nanoid@npm:^3.3.16":
+"nanoid@npm:3.3.17, nanoid@npm:^3.3.16":
   version: 3.3.17
   resolution: "nanoid@npm:3.3.17"
   bin:

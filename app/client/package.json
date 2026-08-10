@@ -166,7 +166,7 @@
     "moment": "2.29.4",
     "moment-timezone": "^0.5.35",
     "mutative": "^1.1.0",
-    "nanoid": "3.3.11",
+    "nanoid": "3.3.17",
     "node-forge": "^1.4.0",
     "object-hash": "^3.0.0",
     "openai": "4.87.3",
