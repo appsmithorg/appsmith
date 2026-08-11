@@ -497,6 +497,7 @@
     "svgo@^2.7.0": "2.8.3",
     "svgo@^3.3.3": "3.3.4",
     "svgo": "^2.8.3",
-    "@opentelemetry/core": "^2.8.0"
+    "@opentelemetry/core": "^2.8.0",
+    "ip-address": "^10.3.1"
   }
 }
