@@ -59,7 +59,11 @@ Cypress.on("uncaught:exception", (error) => {
 });
 
 Cypress.on("fail", (error) => {
-  cy.log(error.message);
+  // This listener runs outside the Cypress command queue. Enqueuing a cy.*
+  // command here makes Cypress raise "returned a promise from a command while
+  // also invoking one or more cy commands", and that second error replaces the
+  // real failure in the log and the report. Log outside the queue instead.
+  console.log(error.message);
   throw error; // throw error to have test fail
 });
 
