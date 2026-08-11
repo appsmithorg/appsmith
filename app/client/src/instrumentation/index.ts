@@ -1,12 +1,17 @@
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
+import type {
+  Span,
+  SpanProcessor,
+  ReadableSpan,
+} from "@opentelemetry/sdk-trace-web";
+import type { Context } from "@opentelemetry/api";
 import { trace, context } from "@opentelemetry/api";
-import { Resource } from "@opentelemetry/resources";
+import { resourceFromAttributes } from "@opentelemetry/resources";
 import {
-  ATTR_DEPLOYMENT_NAME,
   ATTR_SERVICE_INSTANCE_ID,
-} from "@opentelemetry/semantic-conventions/incubating";
-import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
+  ATTR_SERVICE_NAME,
+} from "@opentelemetry/semantic-conventions";
 import { getAppsmithConfigs } from "ee/configs";
 import {
   initializeFaro,
@@ -16,15 +21,49 @@ import {
   InternalLoggerLevel,
   LogLevel,
 } from "@grafana/faro-react";
-import {
-  FaroTraceExporter,
-  FaroSessionSpanProcessor,
-} from "@grafana/faro-web-tracing";
+import { FaroTraceExporter } from "@grafana/faro-web-tracing";
 import log from "loglevel";
 import { isTracingEnabled } from "instrumentation/utils";
 import { v4 as uuidv4 } from "uuid";
 import { error as errorLogger } from "loglevel";
 import type { User } from "constants/userConstants";
+
+const ATTR_DEPLOYMENT_NAME = "deployment.name" as const;
+const ATTR_SESSION_ID = "session.id" as const;
+
+/**
+ * Attaches only the Faro session ID to each span.
+ * Unlike FaroMetaAttributesSpanProcessor, this deliberately omits user PII
+ * (email, username, id) to avoid exporting personal data on every span.
+ */
+class SessionOnlySpanProcessor implements SpanProcessor {
+  constructor(
+    private processor: SpanProcessor,
+    private metas: Faro["metas"],
+  ) {}
+
+  onStart(span: Span, parentContext: Context): void {
+    const session = this.metas.value.session;
+
+    if (session?.id) {
+      span.attributes[ATTR_SESSION_ID] = session.id;
+    }
+
+    this.processor.onStart(span, parentContext);
+  }
+
+  onEnd(span: ReadableSpan): void {
+    this.processor.onEnd(span);
+  }
+
+  async forceFlush(): Promise<void> {
+    return this.processor.forceFlush();
+  }
+
+  async shutdown(): Promise<void> {
+    return this.processor.shutdown();
+  }
+}
 
 class AppsmithTelemetry {
   private faro: Faro | null;
@@ -63,7 +102,6 @@ class AppsmithTelemetry {
           ],
         },
         trackResources: true,
-        trackWebVitalsAttribution: true,
         internalLoggerLevel: this.internalLoggerLevel,
         sessionTracking: {
           generateSessionId: () => {
@@ -75,20 +113,20 @@ class AppsmithTelemetry {
       });
 
       const tracerProvider = new WebTracerProvider({
-        resource: new Resource({
+        resource: resourceFromAttributes({
           [ATTR_DEPLOYMENT_NAME]: deploymentName,
           [ATTR_SERVICE_INSTANCE_ID]: serviceInstanceId,
           [ATTR_SERVICE_NAME]: serviceName,
         }),
+        spanProcessors: [
+          new SessionOnlySpanProcessor(
+            new BatchSpanProcessor(new FaroTraceExporter({ ...this.faro })),
+            this.faro.metas,
+          ),
+        ],
       });
 
-      tracerProvider.addSpanProcessor(
-        new FaroSessionSpanProcessor(
-          new BatchSpanProcessor(new FaroTraceExporter({ ...this.faro })),
-          this.faro.metas,
-        ),
-      );
-
+      tracerProvider.register();
       this.faro.api.initOTEL(trace, context);
     } else {
       this.faro = null;
