@@ -14,6 +14,7 @@ import { Button } from "@appsmith/ads";
 import type { Datasource } from "entities/Datasource";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import NewActionButton from "pages/Editor/DataSourceEditor/NewActionButton";
+import { PluginPackageName } from "entities/Plugin";
 import { useShowPageGenerationOnHeader } from "pages/Editor/DataSourceEditor/hooks";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -100,15 +101,17 @@ export const useHeaderActions = (
       );
     };
 
-    const newActionButton = (
-      <NewActionButton
-        datasource={datasource as Datasource}
-        disabled={!canCreateDatasourceActions || !isPluginAuthorized}
-        eventFrom="datasource-pane"
-        isNewQuerySecondaryButton={shouldShowSecondaryGenerateButton}
-        pluginType={pluginType}
-      />
-    );
+    // Appsmith AI is deprecated: creating new queries on its datasources is blocked
+    const newActionButton =
+      plugin?.packageName === PluginPackageName.APPSMITH_AI ? null : (
+        <NewActionButton
+          datasource={datasource as Datasource}
+          disabled={!canCreateDatasourceActions || !isPluginAuthorized}
+          eventFrom="datasource-pane"
+          isNewQuerySecondaryButton={shouldShowSecondaryGenerateButton}
+          pluginType={pluginType}
+        />
+      );
 
     const generatePageButton =
       showGenerateButton && !showReconnectButton && !isAnvilEnabled ? (

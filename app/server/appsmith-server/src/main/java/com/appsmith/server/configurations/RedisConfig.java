@@ -33,7 +33,6 @@ import org.springframework.data.redis.connection.lettuce.LettucePoolingClientCon
 import org.springframework.data.redis.connection.lettuce.observability.MicrometerTracingAdapter;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
@@ -102,17 +101,6 @@ public class RedisConfig {
             log.debug("Could not resolve local hostname for SSRF own-host registration; relying on static seed.");
         }
         RestrictedHostFilter.registerOwnHost(System.getenv("HOSTNAME"));
-    }
-
-    /**
-     * This is the topic to which we will publish & subscribe to. We can have multiple topics based on the messages
-     * that we wish to broadcast. Starting with a single one for now.
-     *
-     * @return
-     */
-    @Bean
-    ChannelTopic topic() {
-        return new ChannelTopic("appsmith:queue");
     }
 
     @Bean

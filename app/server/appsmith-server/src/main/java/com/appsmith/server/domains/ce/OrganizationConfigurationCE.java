@@ -3,6 +3,7 @@ package com.appsmith.server.domains.ce;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.MigrationStatus;
+import com.appsmith.server.domains.AIAssistantConfig;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.OrganizationConfiguration;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -75,6 +76,9 @@ public class OrganizationConfigurationCE implements Serializable {
     @Transient
     private Boolean instanceBaseUrlConfigurationHealthy;
 
+    @JsonInclude
+    private AIAssistantConfig aiAssistantConfig;
+
     public void addThirdPartyAuth(String auth) {
         if (thirdPartyAuths == null) {
             thirdPartyAuths = new ArrayList<>();
@@ -102,6 +106,14 @@ public class OrganizationConfigurationCE implements Serializable {
         migrationStatus = organizationConfiguration.getMigrationStatus();
         isStrongPasswordPolicyEnabled = organizationConfiguration.getIsStrongPasswordPolicyEnabled();
         isAtomicPushAllowed = organizationConfiguration.getIsAtomicPushAllowed();
+
+        AIAssistantConfig sourceAiConfig = organizationConfiguration.getAiAssistantConfig();
+        if (sourceAiConfig != null) {
+            if (aiAssistantConfig == null) {
+                aiAssistantConfig = new AIAssistantConfig();
+            }
+            aiAssistantConfig.copyNonSensitiveValues(sourceAiConfig);
+        }
     }
 
     /**
@@ -118,6 +130,7 @@ public class OrganizationConfigurationCE implements Serializable {
         this.isAtomicPushAllowed = null;
         this.featuresWithPendingMigration = null;
         this.migrationStatus = MigrationStatus.COMPLETED;
+        this.aiAssistantConfig = null;
 
         License minimalLicense = new License();
         minimalLicense.setPlan(LicensePlan.FREE);

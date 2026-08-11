@@ -80,6 +80,10 @@ describe("Authenticated API URL validations", () => {
 
     expect(inputFormControl.length).toBe(1);
 
+    // The INPUT_TEXT control renders its <input> asynchronously; wait for it
+    // before asserting rather than querying synchronously.
+    await screen.findByRole("textbox");
+
     const inputBox = inputFormControl[0].querySelectorAll("input");
 
     expect(inputBox.length).toBe(1);
@@ -101,6 +105,10 @@ describe("Authenticated API URL validations", () => {
     );
 
     expect(inputFormControl.length).toBe(1);
+
+    // The INPUT_TEXT control renders its <input> asynchronously; wait for it
+    // before asserting rather than querying synchronously.
+    await screen.findByRole("textbox");
 
     const inputBox = inputFormControl[0].querySelectorAll("input");
 

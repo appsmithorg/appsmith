@@ -51,9 +51,14 @@ import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
+import javax.net.SocketFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -808,6 +813,124 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     private static final String SMTP_GENERIC_ERROR =
             "Failed to connect to the SMTP server. Please verify the host, " + "port, and credentials are correct.";
 
+    /**
+     * Builds the JavaMail sender for the test email. The sender host is the user-entered
+     * hostname — not the resolved IP — because TLS (STARTTLS on 587/2525, implicit SSL on 465)
+     * performs SNI and certificate identity checks against the sender host, and server
+     * certificates carry hostnames; connecting by IP fails with
+     * "No subject alternative names matching IP address" (APP-15713).
+     *
+     * <p>The DNS-rebinding TOCTOU that {@link RestrictedHostFilter#resolveIfAllowed(String)}
+     * closes is instead prevented by pinning the TCP connection to the validated address via
+     * the {@code mail.smtp.socketFactory} property: JavaMail asks the factory for an
+     * unconnected socket and then connects it to (host, port) itself, and the pinned socket
+     * ignores the re-resolved endpoint address and connects to the validated one. The
+     * implicit-SSL path on port 465 is pinned too in Angus Mail 2.0.5: with no
+     * {@code mail.smtp.ssl.socketFactory} configured, {@code SocketFetcher} falls back to the
+     * plain {@code mail.smtp.socketFactory} for the TCP connect and layers TLS over the
+     * already-connected socket. Should that fallback ever stop applying (an Angus upgrade, or
+     * someone configuring an ssl.socketFactory), 465 still fails closed: it is
+     * handshake-first against the hostname with server identity checking on by default, so a
+     * rebound DNS answer fails certificate verification before any SMTP dialogue can occur.
+     *
+     * <p>Visible for testing.
+     */
+    public static JavaMailSenderImpl buildMailSender(
+            TestEmailConfigRequestDTO requestDTO, InetAddress resolvedAddress) {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost(requestDTO.getSmtpHost());
+        mailSender.setPort(requestDTO.getSmtpPort());
+
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.transport.protocol", "smtp");
+        props.put("mail.smtp.socketFactory", pinnedSocketFactory(resolvedAddress));
+        // Never fall back to an unpinned plain socket if the factory fails — that would
+        // silently reopen the DNS-rebinding hole. (Angus 2.x defaults to false; be explicit.)
+        props.put("mail.smtp.socketFactory.fallback", "false");
+        // TLS server identity checking is the lynchpin of this configuration — don't rely on
+        // the library default (it differed between JavaMail and Angus Mail generations).
+        props.put("mail.smtp.ssl.checkserveridentity", "true");
+
+        if (requestDTO.getSmtpPort() == 465) {
+            props.put("mail.smtp.ssl.enable", "true");
+            props.put("mail.smtp.starttls.enable", "false");
+        } else {
+            props.put(
+                    "mail.smtp.starttls.enable", requestDTO.getStarttlsEnabled().toString());
+        }
+
+        props.put("mail.smtp.timeout", 7000); // read timeout, 7 seconds
+        props.put("mail.smtp.connectiontimeout", 7000); // 7 seconds
+        props.put("mail.smtp.writetimeout", 7000); // 7 seconds
+
+        if (StringUtils.hasLength(requestDTO.getUsername())) {
+            props.put("mail.smtp.auth", "true");
+            mailSender.setUsername(requestDTO.getUsername());
+            mailSender.setPassword(requestDTO.getPassword());
+        } else {
+            props.put("mail.smtp.auth", "false");
+        }
+        // The SMTP transcript (server banners, recipient, username) shouldn't hit stdout on
+        // every call. Angus suppresses the AUTH exchange itself by default (mail.debug.auth),
+        // so this gates noise, not the password.
+        props.put("mail.debug", String.valueOf(log.isDebugEnabled()));
+
+        return mailSender;
+    }
+
+    /**
+     * A {@link SocketFactory} whose sockets always connect to {@code pinnedAddress} (keeping the
+     * endpoint's port), regardless of the host the caller passes. This is what keeps the SSRF
+     * validation and the actual connection on the same address — JavaMail never re-resolves the
+     * hostname into something the filter didn't check.
+     */
+    private static SocketFactory pinnedSocketFactory(InetAddress pinnedAddress) {
+        return new SocketFactory() {
+            @Override
+            public Socket createSocket() {
+                return new Socket() {
+                    @Override
+                    public void connect(SocketAddress endpoint, int timeout) throws IOException {
+                        if (endpoint instanceof InetSocketAddress inetEndpoint) {
+                            endpoint = new InetSocketAddress(pinnedAddress, inetEndpoint.getPort());
+                        }
+                        super.connect(endpoint, timeout);
+                    }
+                };
+            }
+
+            @Override
+            public Socket createSocket(String host, int port) throws IOException {
+                return connectPinned(port, null, 0);
+            }
+
+            @Override
+            public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException {
+                return connectPinned(port, localHost, localPort);
+            }
+
+            @Override
+            public Socket createSocket(InetAddress host, int port) throws IOException {
+                return connectPinned(port, null, 0);
+            }
+
+            @Override
+            public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort)
+                    throws IOException {
+                return connectPinned(port, localAddress, localPort);
+            }
+
+            private Socket connectPinned(int port, InetAddress localAddress, int localPort) throws IOException {
+                Socket socket = createSocket();
+                if (localAddress != null) {
+                    socket.bind(new InetSocketAddress(localAddress, localPort));
+                }
+                socket.connect(new InetSocketAddress(pinnedAddress, port));
+                return socket;
+            }
+        };
+    }
+
     @Override
     public Mono<Boolean> sendTestEmail(TestEmailConfigRequestDTO requestDTO) {
         return verifyCurrentUserIsSuper().flatMap(user -> {
@@ -822,32 +945,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP configuration."));
             }
 
-            JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-            mailSender.setHost(resolvedAddress.get().getHostAddress());
-            mailSender.setPort(requestDTO.getSmtpPort());
-
-            Properties props = mailSender.getJavaMailProperties();
-            props.put("mail.transport.protocol", "smtp");
-
-            if (requestDTO.getSmtpPort() == 465) {
-                props.put("mail.smtp.ssl.enable", "true");
-                props.put("mail.smtp.starttls.enable", "false");
-            } else {
-                props.put(
-                        "mail.smtp.starttls.enable",
-                        requestDTO.getStarttlsEnabled().toString());
-            }
-
-            props.put("mail.smtp.timeout", 7000); // 7 seconds
-
-            if (StringUtils.hasLength(requestDTO.getUsername())) {
-                props.put("mail.smtp.auth", "true");
-                mailSender.setUsername(requestDTO.getUsername());
-                mailSender.setPassword(requestDTO.getPassword());
-            } else {
-                props.put("mail.smtp.auth", "false");
-            }
-            props.put("mail.debug", "true");
+            JavaMailSenderImpl mailSender = buildMailSender(requestDTO, resolvedAddress.get());
 
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(requestDTO.getFromEmail());

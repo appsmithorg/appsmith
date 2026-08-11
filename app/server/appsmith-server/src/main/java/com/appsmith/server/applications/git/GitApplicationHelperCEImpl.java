@@ -234,7 +234,11 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
         return commonGitFileUtils
                 .initializeReadme(readMePath, originHeader + viewModeUrl, originHeader + editModeUrl)
                 .onErrorMap(throwable -> {
-                    log.error("Error while initialising git repo, {0}", throwable);
+                    log.error(
+                            "Error while initialising git repo, application={}, workspace={}",
+                            artifact.getId(),
+                            artifact.getWorkspaceId(),
+                            throwable);
                     return new AppsmithException(
                             AppsmithError.GIT_FILE_SYSTEM_ERROR,
                             Exceptions.unwrap(throwable).getMessage());
