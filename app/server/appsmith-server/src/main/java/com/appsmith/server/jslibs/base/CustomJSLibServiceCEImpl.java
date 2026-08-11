@@ -84,6 +84,11 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
             Boolean isForceInstall,
             Map<DBOpsType, List<CustomJSLib>> customJSLibsDryOps,
             boolean isDryOps) {
+        // uidString is the identity key of a shared, instance-global library record. Recompute it from the
+        // server-side accessor + url and ignore any client-supplied value, so a caller cannot forge it to
+        // target and overwrite a record it does not own (and thereby change the script URL other
+        // applications load). This also covers the import path, which funnels through this method.
+        jsLib.recomputeUidString();
         return repository
                 .findUniqueCustomJsLib(jsLib)
                 // Read more why Mono.defer is used here.
