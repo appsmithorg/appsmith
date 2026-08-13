@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -669,6 +670,12 @@ public class ActionCollectionServiceImplTest {
         NewAction newAction = new NewAction();
         newAction.setId("testActionId");
 
+        // archiveGivenActionCollection builds the reactive chain eagerly, so
+        // repository.archive() is invoked at chain-assembly time (not subscription time).
+        // We stub it with Mono.defer so the call returns a valid Mono (preventing NPE),
+        // then track subscription separately with an AtomicBoolean.
+        AtomicBoolean archiveSubscribed = new AtomicBoolean(false);
+
         Mockito.when(actionCollectionRepository.findById("testCollectionId"))
                 .thenReturn(Mono.just(actionCollection));
         Mockito.when(newActionService.findByCollectionIdAndViewMode(
@@ -679,6 +686,11 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(Flux.empty());
         Mockito.when(newActionService.archiveGivenNewAction(Mockito.eq(newAction)))
                 .thenReturn(Mono.error(new RuntimeException("Archive failed")));
+        Mockito.when(actionCollectionRepository.archive(Mockito.any()))
+                .thenReturn(Mono.defer(() -> {
+                    archiveSubscribed.set(true);
+                    return Mono.just(actionCollection);
+                }));
 
         StepVerifier.create(actionCollectionService.archiveById("testCollectionId"))
                 .expectErrorMatches(t -> t instanceof RuntimeException
@@ -686,7 +698,8 @@ public class ActionCollectionServiceImplTest {
                 .verify();
 
         Mockito.verify(newActionService).archiveGivenNewAction(newAction);
-        Mockito.verify(actionCollectionRepository, Mockito.never()).archive(Mockito.any());
+        // archive() was called during chain assembly but must never be subscribed to
+        assertThat(archiveSubscribed.get()).isFalse();
         Mockito.verify(analyticsService, Mockito.never()).sendDeleteEvent(Mockito.any(), Mockito.any());
     }
 }
