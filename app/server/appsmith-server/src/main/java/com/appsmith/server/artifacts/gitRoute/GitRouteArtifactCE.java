@@ -23,12 +23,19 @@ public abstract class GitRouteArtifactCE {
 
     public Mono<Artifact> getArtifact(ArtifactType artifactType, String artifactId) {
         return switch (artifactType) {
-            case APPLICATION ->
-                applicationRepository
-                        .findById(artifactId)
+            case APPLICATION -> {
+                // Resolve through the ACL-aware helper (read permission) rather than the raw,
+                // unfiltered repository lookup. This git-route resolution runs before the
+                // downstream, permission-checked business logic; using the checked path here makes
+                // it fail closed for callers with no access to the target application, before any
+                // stored Git credential is decrypted or used against the configured remote.
+                GitArtifactHelper<? extends Artifact> artifactHelper = getArtifactHelper(artifactType);
+                yield artifactHelper
+                        .getArtifactById(artifactId, artifactHelper.getArtifactReadPermission())
                         .switchIfEmpty(Mono.error(
                                 new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, artifactType, artifactId)))
                         .map(app -> (Artifact) app);
+            }
             default -> Mono.error(new AppsmithException(AppsmithError.GIT_ROUTE_HANDLER_NOT_FOUND, artifactType));
         };
     }
