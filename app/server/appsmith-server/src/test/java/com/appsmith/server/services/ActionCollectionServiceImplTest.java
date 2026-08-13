@@ -647,4 +647,34 @@ public class ActionCollectionServiceImplTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void testArchiveById_whenChildActionArchiveFails_propagatesError() {
+        ActionCollection actionCollection = new ActionCollection();
+        actionCollection.setId("testCollectionId");
+        ActionCollectionDTO collectionDTO = new ActionCollectionDTO();
+        actionCollection.setUnpublishedCollection(collectionDTO);
+        actionCollection.setPublishedCollection(collectionDTO);
+
+        NewAction newAction = new NewAction();
+        newAction.setId("testActionId");
+
+        Mockito.when(actionCollectionRepository.findById("testCollectionId"))
+                .thenReturn(Mono.just(actionCollection));
+        Mockito.when(newActionService.findByCollectionIdAndViewMode(
+                        Mockito.eq("testCollectionId"), Mockito.eq(false), Mockito.any()))
+                .thenReturn(Flux.just(newAction));
+        Mockito.when(newActionService.findByCollectionIdAndViewMode(
+                        Mockito.eq("testCollectionId"), Mockito.eq(true), Mockito.any()))
+                .thenReturn(Flux.empty());
+        Mockito.when(newActionService.archiveGivenNewAction(Mockito.any()))
+                .thenReturn(Mono.error(new RuntimeException("Archive failed")));
+
+        StepVerifier.create(actionCollectionService.archiveById("testCollectionId"))
+                .expectError(RuntimeException.class)
+                .verify();
+
+        Mockito.verify(actionCollectionRepository, Mockito.never()).archive(Mockito.any());
+        Mockito.verify(analyticsService, Mockito.never()).sendDeleteEvent(Mockito.any(), Mockito.any());
+    }
 }
