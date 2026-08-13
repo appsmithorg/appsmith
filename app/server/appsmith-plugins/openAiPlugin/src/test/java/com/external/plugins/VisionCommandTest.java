@@ -5,6 +5,7 @@ import com.external.plugins.commands.VisionCommand;
 import com.external.plugins.models.QueryType;
 import com.external.plugins.models.UserQuery;
 import com.external.plugins.models.VisionRequestDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +25,10 @@ import static com.external.plugins.constants.OpenAIConstants.TEMPERATURE;
 import static com.external.plugins.constants.OpenAIConstants.USER_MESSAGES;
 import static com.external.plugins.constants.OpenAIConstants.VISION_MODEL_SELECTOR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class VisionCommandTest {
     private static final Gson gson = new Gson();
@@ -75,7 +79,7 @@ public class VisionCommandTest {
 
         assertEquals("gpt-4-vision-preview", request.getModel());
         assertEquals(0.1f, request.getTemperature());
-        assertEquals(1000, request.getMaxTokens());
+        assertEquals(1000, request.getMaxCompletionTokens());
         assertNotNull(request.getMessages());
         assertEquals(3, request.getMessages().size());
     }
@@ -153,5 +157,63 @@ public class VisionCommandTest {
             }
         }
         assertEquals(counter, 2);
+    }
+
+    @Test
+    public void testMakeRequestBody_withoutTemperature_leavesTemperatureUnset() {
+        Map<String, Object> formData = new HashMap<>();
+        formData.put(VISION_MODEL_SELECTOR, Map.of(DATA, "o3"));
+
+        UserQuery userQuery = new UserQuery();
+        userQuery.setContent("What's in this image?");
+        userQuery.setType(QueryType.TEXT);
+        formData.put(USER_MESSAGES, Map.of("data", List.of(userQuery)));
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(formData);
+
+        VisionRequestDTO request = (VisionRequestDTO) visionCommand.makeRequestBody(actionConfiguration);
+
+        assertNull(request.getTemperature());
+    }
+
+    @Test
+    public void testSerialization_usesMaxCompletionTokensAndOmitsNulls() throws Exception {
+        VisionRequestDTO request = new VisionRequestDTO();
+        request.setModel("gpt-4o");
+        request.setMaxCompletionTokens(1000);
+
+        String body = new ObjectMapper().writeValueAsString(request);
+
+        assertTrue(body.contains("\"max_completion_tokens\":1000"), "output cap must be sent as max_completion_tokens");
+        assertFalse(body.contains("temperature"), "null temperature must be omitted from the request body");
+    }
+
+    @Test
+    public void testModelFilter_currentGenerationModels() {
+        List<String> compatibleModels = List.of(
+                "gpt-4-vision-preview",
+                "gpt-4-1106-vision-preview",
+                "gpt-4o",
+                "gpt-4o-mini",
+                "gpt-4.1",
+                "gpt-4.1-nano",
+                "gpt-5",
+                "gpt-5.4",
+                "o1",
+                "o3",
+                "o4-mini",
+                "chatgpt-4o-latest",
+                "ft:gpt-4o:acme::abc123");
+        List<String> incompatibleModels = List.of(
+                "o1-mini", "o3-mini", "o1-preview", "gpt-3.5-turbo", "whisper-1", "text-embedding-3-small", "dall-e-3");
+        for (String model : compatibleModels) {
+            JSONObject jsonObject = new JSONObject(String.format("{\"%s\": \"%s\" }", ID, model));
+            assertTrue(visionCommand.isModelCompatible(jsonObject), model + " should be listed");
+        }
+        for (String model : incompatibleModels) {
+            JSONObject jsonObject = new JSONObject(String.format("{\"%s\": \"%s\" }", ID, model));
+            assertFalse(visionCommand.isModelCompatible(jsonObject), model + " should not be listed");
+        }
     }
 }

@@ -23,10 +23,20 @@ public class GoogleAIConstants {
     public static final String MESSAGES = "messages";
     public static final String LABEL = "label";
     public static final String VALUE = "value";
+    public static final String NAME = "name";
+    public static final String MODELS_RESPONSE_KEY = "models";
+    public static final String MODELS_NAME_PREFIX = "models/";
+    public static final String SUPPORTED_GENERATION_METHODS = "supportedGenerationMethods";
+    public static final String GENERATE_CONTENT_METHOD = "generateContent";
+    // Fallback list used when the live GET /models call fails
     public static final List<String> GOOGLE_AI_MODELS = List.of(
+            "gemini-3.6-flash",
+            "gemini-3.5-flash",
+            "gemini-3.5-flash-lite",
+            "gemini-3.1-flash-lite",
             "gemini-2.5-pro",
             "gemini-2.5-flash",
-            "gemini-2.0-flash",
+            "gemini-2.5-flash-lite",
             "gemini-flash-latest",
             "gemini-flash-lite-latest");
     public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()

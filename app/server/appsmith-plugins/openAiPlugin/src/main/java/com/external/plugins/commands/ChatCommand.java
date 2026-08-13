@@ -44,7 +44,9 @@ public class ChatCommand implements OpenAICommand {
 
     private final Gson gson;
 
-    private final String regex = "^(?!.*vision)(ft:)?gpt.*";
+    // Chat-completions families: gpt-*, chatgpt-* and o-series reasoning models (o1, o3, o4-mini, ...).
+    // Vision-suffixed models are listed by the vision command instead.
+    private final String regex = "^(?!.*vision)(ft:)?(gpt|chatgpt|o\\d).*";
     private final Pattern pattern = Pattern.compile(regex);
 
     public ChatCommand(Gson gson) {
@@ -130,17 +132,18 @@ public class ChatCommand implements OpenAICommand {
     }
 
     private Float getTemperatureFromFormData(Map<String, Object> formData) {
-        float defaultFloatValue = 1.0f;
         String temperatureString = RequestUtils.extractValueFromFormData(formData, TEMPERATURE);
 
+        // Leave temperature unset unless the user provided one: reasoning models (o-series, gpt-5.*)
+        // reject any non-default temperature, and OpenAI applies its own default when it is omitted.
         if (!StringUtils.hasText(temperatureString)) {
-            return defaultFloatValue;
+            return null;
         }
 
         try {
             return Float.parseFloat(temperatureString);
         } catch (IllegalArgumentException illegalArgumentException) {
-            return defaultFloatValue;
+            return null;
         } catch (Exception exception) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,

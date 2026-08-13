@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.models.ActionConfiguration;
 import com.external.plugins.commands.ChatCommand;
 import com.external.plugins.models.ChatRequestDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,10 @@ import static com.external.plugins.constants.OpenAIConstants.CHAT_MODEL_SELECTOR
 import static com.external.plugins.constants.OpenAIConstants.DATA;
 import static com.external.plugins.constants.OpenAIConstants.ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ChatCommandTest {
 
@@ -131,5 +135,64 @@ public class ChatCommandTest {
             }
         }
         assertEquals(counter, 10);
+    }
+
+    @Test
+    public void testModelFilter_currentGenerationModels() {
+        ChatCommand chatCommand = new ChatCommand(gson);
+        List<String> compatibleModels = List.of(
+                "gpt-4o",
+                "gpt-4o-mini",
+                "gpt-4.1",
+                "gpt-5",
+                "gpt-5.4-mini",
+                "o1",
+                "o3",
+                "o3-mini",
+                "o4-mini",
+                "o3-pro",
+                "chatgpt-4o-latest",
+                "ft:gpt-4o:acme::abc123");
+        List<String> incompatibleModels = List.of(
+                "gpt-4-vision-preview",
+                "whisper-1",
+                "text-embedding-3-large",
+                "omni-moderation-latest",
+                "dall-e-3",
+                "tts-1");
+        for (String model : compatibleModels) {
+            JSONObject jsonObject = new JSONObject(String.format("{\"%s\": \"%s\" }", ID, model));
+            assertTrue(chatCommand.isModelCompatible(jsonObject), model + " should be listed");
+        }
+        for (String model : incompatibleModels) {
+            JSONObject jsonObject = new JSONObject(String.format("{\"%s\": \"%s\" }", ID, model));
+            assertFalse(chatCommand.isModelCompatible(jsonObject), model + " should not be listed");
+        }
+    }
+
+    @Test
+    public void testMakeRequestBody_withoutTemperature_leavesTemperatureUnset() {
+        ChatCommand command = new ChatCommand(gson);
+
+        Map<String, Object> formData = new HashMap<>();
+        formData.put(CHAT_MODEL_SELECTOR, Map.of(DATA, "o3"));
+        Object messages = List.of(Map.of("role", "user", "content", "Hello"));
+        formData.put("messages", Map.of("data", messages));
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(formData);
+
+        ChatRequestDTO request = (ChatRequestDTO) command.makeRequestBody(actionConfiguration);
+
+        assertNull(request.getTemperature());
+    }
+
+    @Test
+    public void testSerialization_omitsNullTemperature() throws Exception {
+        ChatRequestDTO request = new ChatRequestDTO();
+        request.setModel("o3");
+
+        String body = new ObjectMapper().writeValueAsString(request);
+
+        assertFalse(body.contains("temperature"), "null temperature must be omitted from the request body");
     }
 }

@@ -12,8 +12,6 @@ public class AnthropicConstants {
     public static final String CHAT_MODELS = "CHAT_MODELS";
     public static final String VISION_MODELS = "VISION_MODELS";
     public static final String CHAT = "CHAT";
-    // chat v2 includes claude-3 models
-    public static final String CHAT_V2 = "CHAT_V2";
     public static final String VISION = "VISION";
     public static final String COMMAND = "command";
     public static final String DATA = "data";
@@ -27,8 +25,8 @@ public class AnthropicConstants {
     public static final String ROLE = "role";
     public static final String TYPE = "type";
     public static final String CONTENT = "content";
-    public static final String CLAUDE3_PREFIX = "claude-3";
     public static final String MODEL = "model";
+    public static final String ID = "id";
     public static final String CHAT_MODEL_SELECTOR = "chatModel";
     public static final String VISION_MODEL_SELECTOR = "visionModel";
     public static final String MESSAGES = "messages";
@@ -41,21 +39,20 @@ public class AnthropicConstants {
     public static final String API_KEY_HEADER = "x-api-key";
     public static final String ANTHROPIC_VERSION_HEADER = "anthropic-version";
     public static final String ANTHROPIC_VERSION = "2023-06-01";
-    public static final Map<String, List<String>> ANTHROPIC_MODELS = Map.of(
-            CHAT,
-                    List.of(
-                            "claude-instant-1.2",
-                            "claude-2.1",
-                            "claude-3-opus-20240229",
-                            "claude-3-sonnet-20240229",
-                            "claude-3-haiku-20240307"),
-            VISION, List.of("claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307"));
-    public static final String CLOUD_SERVICES = "https://cs.appsmith.com";
-    public static final String MODELS_API = "/api/v1/ai/models";
-    public static final String PROVIDER = "provider";
-    public static final String ANTHROPIC = "anthropic";
-    public static final String TEST_MODEL = "claude-instant-1.2";
-    public static final String TEST_PROMPT = "Human:Hey Assistant:";
+    // Fallback lists used when the live GET /v1/models call fails, keyed by trigger request type.
+    // All current Claude models accept both text and image input, so chat and vision share one list.
+    private static final List<String> FALLBACK_MODELS = List.of(
+            "claude-fable-5",
+            "claude-opus-5",
+            "claude-sonnet-5",
+            "claude-haiku-4-5",
+            "claude-opus-4-8",
+            "claude-sonnet-4-6");
+    public static final Map<String, List<String>> ANTHROPIC_MODELS =
+            Map.of(CHAT_MODELS, FALLBACK_MODELS, VISION_MODELS, FALLBACK_MODELS);
+    public static final String MODELS_API = "/models";
+    // single page; Anthropic caps limit at 1000, no pagination follow-up on purpose
+    public static final int MODELS_PAGE_LIMIT = 100;
     public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
             .build();

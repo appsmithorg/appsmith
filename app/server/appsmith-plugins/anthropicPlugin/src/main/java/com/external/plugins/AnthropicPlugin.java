@@ -22,6 +22,7 @@ import com.external.plugins.models.AnthropicRequestDTO;
 import com.external.plugins.models.CompletionDTO;
 import com.external.plugins.models.MessageDTO;
 import com.external.plugins.utils.AnthropicMethodStrategy;
+import com.external.plugins.utils.CommandUtils;
 import com.external.plugins.utils.RequestUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.cache.Cache;
@@ -39,6 +40,8 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,10 +51,9 @@ import java.util.stream.Collectors;
 
 import static com.external.plugins.constants.AnthropicConstants.ANTHROPIC_MODELS;
 import static com.external.plugins.constants.AnthropicConstants.BODY;
-import static com.external.plugins.constants.AnthropicConstants.CLAUDE3_PREFIX;
+import static com.external.plugins.constants.AnthropicConstants.DATA;
+import static com.external.plugins.constants.AnthropicConstants.ID;
 import static com.external.plugins.constants.AnthropicConstants.LABEL;
-import static com.external.plugins.constants.AnthropicConstants.TEST_MODEL;
-import static com.external.plugins.constants.AnthropicConstants.TEST_PROMPT;
 import static com.external.plugins.constants.AnthropicConstants.VALUE;
 import static com.external.plugins.constants.AnthropicErrorMessages.EMPTY_API_KEY;
 import static com.external.plugins.constants.AnthropicErrorMessages.INVALID_API_KEY;
@@ -65,8 +67,10 @@ public class AnthropicPlugin extends BasePlugin {
 
     public static class AnthropicPluginExecutor extends BaseRestApiPluginExecutor {
         private static final Gson gson = new Gson();
-        private static final Cache<String, TriggerResultDTO> triggerResponseCache =
-                CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.DAYS).build();
+        private static final Cache<String, TriggerResultDTO> triggerResponseCache = CacheBuilder.newBuilder()
+                .expireAfterWrite(1, TimeUnit.DAYS)
+                .maximumSize(500)
+                .build();
 
         protected AnthropicPluginExecutor(SharedConfig sharedConfig) {
             super(sharedConfig);
@@ -81,17 +85,10 @@ public class AnthropicPlugin extends BasePlugin {
                         AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, EMPTY_API_KEY));
             }
 
-            AnthropicCommand anthropicCommand = AnthropicMethodStrategy.selectExecutionMethod(AnthropicConstants.CHAT);
-            URI uri = anthropicCommand.createExecutionUri();
-            HttpMethod httpMethod = anthropicCommand.getExecutionMethod();
+            // Listing models validates the API key without depending on any particular model being available
+            URI uri = URI.create(AnthropicConstants.ANTHROPIC_API_ENDPOINT + AnthropicConstants.MODELS_API);
 
-            AnthropicRequestDTO anthropicRequestDTO = new AnthropicRequestDTO();
-            anthropicRequestDTO.setPrompt(TEST_PROMPT);
-            anthropicRequestDTO.setModel(TEST_MODEL);
-            anthropicRequestDTO.setMaxTokensToSample(1);
-            anthropicRequestDTO.setTemperature(0f);
-
-            return RequestUtils.makeRequest(httpMethod, uri, apiKeyAuth, BodyInserters.fromValue(anthropicRequestDTO))
+            return RequestUtils.makeRequest(HttpMethod.GET, uri, apiKeyAuth, BodyInserters.empty())
                     .map(responseEntity -> {
                         HttpStatusCode statusCode = responseEntity.getStatusCode();
                         if (HttpStatusCode.valueOf(401).isSameCodeAs(statusCode)) {
@@ -192,11 +189,11 @@ public class AnthropicPlugin extends BasePlugin {
                         Object body;
                         try {
                             body = objectMapper.readValue(responseEntity.getBody(), Object.class);
-                            if (model.contains(CLAUDE3_PREFIX)) {
-                                actionExecutionResult.setBody(body);
-                            } else {
+                            if (CommandUtils.isLegacyCompletionModel(model)) {
                                 actionExecutionResult.setBody(
                                         formatResponseBodyAsCompletionAPI(model, responseEntity.getBody()));
+                            } else {
+                                actionExecutionResult.setBody(body);
                             }
                         } catch (IOException ex) {
                             actionExecutionResult.setIsExecutionSuccess(false);
@@ -267,7 +264,9 @@ public class AnthropicPlugin extends BasePlugin {
             HttpMethod httpMethod = anthropicCommand.getTriggerHTTPMethod();
             URI uri = anthropicCommand.createTriggerUri();
 
-            TriggerResultDTO triggerResultDTO = triggerResponseCache.getIfPresent(requestType);
+            // model availability can differ per API key, so scope the cache to the key as well
+            String cacheKey = requestType + ":" + sha256(apiKeyAuth.getValue());
+            TriggerResultDTO triggerResultDTO = triggerResponseCache.getIfPresent(cacheKey);
             if (triggerResultDTO != null) {
                 return Mono.just(triggerResultDTO);
             }
@@ -283,18 +282,10 @@ public class AnthropicPlugin extends BasePlugin {
                                     new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR));
                         }
 
-                        // link to get response data https://platform.openai.com/docs/api-reference/models/list
+                        // response format: https://docs.anthropic.com/en/api/models-list
                         return Mono.just(new JSONObject(new String(responseEntity.getBody())));
                     })
-                    .map(jsonObject -> {
-                        JSONArray jsonArray = jsonObject.getJSONArray("data");
-                        int len = jsonArray.length();
-                        List<String> models = new ArrayList<>();
-                        for (int i = 0; i < len; i++) {
-                            models.add(jsonArray.getString(i));
-                        }
-                        return getDataToMap(models);
-                    })
+                    .map(jsonObject -> getDataToMap(extractModelIds(jsonObject)))
                     .onErrorResume(error -> {
                         log.debug("Error while fetching Anthropic models list", error);
                         if (ANTHROPIC_MODELS.containsKey(requestType)) {
@@ -305,10 +296,40 @@ public class AnthropicPlugin extends BasePlugin {
                     })
                     .map(trigger -> {
                         TriggerResultDTO triggerResult = new TriggerResultDTO(trigger);
-                        // saving response on request type
-                        triggerResponseCache.put(requestType, triggerResult);
+                        triggerResponseCache.put(cacheKey, triggerResult);
                         return triggerResult;
                     });
+        }
+
+        /**
+         * Extracts model ids from the GET /v1/models response
+         * (https://docs.anthropic.com/en/api/models-list). Package-visible for tests.
+         */
+        static List<String> extractModelIds(JSONObject modelsResponse) {
+            JSONArray jsonArray = modelsResponse.getJSONArray(DATA);
+            List<String> models = new ArrayList<>();
+            for (int i = 0; i < jsonArray.length(); i++) {
+                models.add(jsonArray.getJSONObject(i).getString(ID));
+            }
+            return models;
+        }
+
+        private static String sha256(String base) {
+            try {
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                byte[] hash = digest.digest(base.getBytes(StandardCharsets.UTF_8));
+                StringBuilder hexString = new StringBuilder();
+                for (byte b : hash) {
+                    String hex = Integer.toHexString(0xff & b);
+                    if (hex.length() == 1) {
+                        hexString.append('0');
+                    }
+                    hexString.append(hex);
+                }
+                return hexString.toString();
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
         }
 
         @Override

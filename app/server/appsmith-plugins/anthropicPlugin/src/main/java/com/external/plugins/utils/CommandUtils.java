@@ -75,6 +75,18 @@ public class CommandUtils {
     }
 
     /**
+     * Responses for models that predate the messages API (claude-1, claude-2, claude-instant) are
+     * reshaped into the legacy completion-API format for backward compatibility. Every other model,
+     * current or future, returns the messages API response as-is.
+     */
+    public static boolean isLegacyCompletionModel(String model) {
+        if (!StringUtils.hasText(model)) {
+            return false;
+        }
+        return model.startsWith("claude-1") || model.startsWith("claude-2") || model.startsWith("claude-instant");
+    }
+
+    /**
      * Anthropic message API expect role to be one of user or assistant. This method converts Human to user and Assistant to assistant
      * @param role - Appsmith understood role
      * @return - Actual role value expected by Anthropic message API

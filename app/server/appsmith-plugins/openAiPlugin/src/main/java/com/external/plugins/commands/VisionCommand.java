@@ -60,8 +60,10 @@ public class VisionCommand implements OpenAICommand {
 
     private final Gson gson;
 
+    // Image-input capable families: legacy gpt-4 vision previews, gpt-4o, gpt-4.x, gpt-5.x, chatgpt-*
+    // and vision-capable o-series models. o1-mini, o3-mini and o1-preview are text-only.
     private final String regex =
-            "^(gpt-4-(vision-preview|\\d{4}-vision-preview)|gpt-4o(.*)?|ft:(gpt-4-(vision-preview|\\d{4}-vision-preview)|gpt-4o).*)$";
+            "^(ft:)?(?!o1-mini|o3-mini|o1-preview)(gpt-4-(vision-preview|\\d{4}-vision-preview)|gpt-4o|gpt-4\\.\\d|gpt-5|o\\d|chatgpt).*";
     private final Pattern pattern = Pattern.compile(regex);
 
     @Override
@@ -117,7 +119,7 @@ public class VisionCommand implements OpenAICommand {
         Float temperature = getTemperatureFromFormData(formData);
 
         visionRequestDTO.setMessages(visionMessages);
-        visionRequestDTO.setMaxTokens(getMaxTokenFromFormData(formData));
+        visionRequestDTO.setMaxCompletionTokens(getMaxTokenFromFormData(formData));
         visionRequestDTO.setTemperature(temperature);
         return visionRequestDTO;
     }
@@ -207,17 +209,18 @@ public class VisionCommand implements OpenAICommand {
     }
 
     private Float getTemperatureFromFormData(Map<String, Object> formData) {
-        float defaultFloatValue = 1.0f;
         String temperatureString = RequestUtils.extractValueFromFormData(formData, TEMPERATURE);
 
+        // Leave temperature unset unless the user provided one: reasoning models (o-series, gpt-5.*)
+        // reject any non-default temperature, and OpenAI applies its own default when it is omitted.
         if (!StringUtils.hasText(temperatureString)) {
-            return defaultFloatValue;
+            return null;
         }
 
         try {
             return Float.parseFloat(temperatureString);
         } catch (IllegalArgumentException illegalArgumentException) {
-            return defaultFloatValue;
+            return null;
         } catch (Exception exception) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
