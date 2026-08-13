@@ -648,6 +648,16 @@ public class ActionCollectionServiceImplTest {
                 .verifyComplete();
     }
 
+    /**
+     * Regression test for appsmithorg/appsmith#42116.
+     * <p>
+     * Before the fix, {@code archiveGivenActionCollection} swallowed errors from
+     * {@code archiveGivenNewAction} via {@code onErrorResume}, so a child-action failure
+     * would silently be ignored while the parent collection was still deleted.
+     * <p>
+     * After the fix the error must propagate: neither {@code repository.archive} nor
+     * {@code analyticsService.sendDeleteEvent} should be invoked.
+     */
     @Test
     public void testArchiveById_whenChildActionArchiveFails_propagatesError() {
         ActionCollection actionCollection = new ActionCollection();
