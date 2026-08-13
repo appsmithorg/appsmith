@@ -206,7 +206,19 @@ public class VisionCommandTest {
                 "chatgpt-4o-latest",
                 "ft:gpt-4o:acme::abc123");
         List<String> incompatibleModels = List.of(
-                "o1-mini", "o3-mini", "o1-preview", "gpt-3.5-turbo", "whisper-1", "text-embedding-3-small", "dall-e-3");
+                "o1-mini",
+                "o3-mini",
+                "o1-preview",
+                "gpt-3.5-turbo",
+                "whisper-1",
+                "text-embedding-3-small",
+                "dall-e-3",
+                // chat-capable but no image input, or Responses-API-only
+                "gpt-4o-audio-preview",
+                "gpt-4o-search-preview",
+                "gpt-4o-realtime-preview",
+                "o3-pro",
+                "gpt-5-codex");
         for (String model : compatibleModels) {
             JSONObject jsonObject = new JSONObject(String.format("{\"%s\": \"%s\" }", ID, model));
             assertTrue(visionCommand.isModelCompatible(jsonObject), model + " should be listed");

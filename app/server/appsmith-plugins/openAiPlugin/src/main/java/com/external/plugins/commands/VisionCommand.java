@@ -61,9 +61,12 @@ public class VisionCommand implements OpenAICommand {
     private final Gson gson;
 
     // Image-input capable families: legacy gpt-4 vision previews, gpt-4o, gpt-4.x, gpt-5.x, chatgpt-*
-    // and vision-capable o-series models. o1-mini, o3-mini and o1-preview are text-only.
-    private final String regex =
-            "^(ft:)?(?!o1-mini|o3-mini|o1-preview)(gpt-4-(vision-preview|\\d{4}-vision-preview)|gpt-4o|gpt-4\\.\\d|gpt-5|o\\d|chatgpt).*";
+    // and vision-capable o-series models. o1-mini, o3-mini and o1-preview are text-only, and the
+    // audio/search/realtime/tts/transcribe variants and Responses-API-only models (-pro, codex,
+    // deep-research) do not take image input on chat completions.
+    private final String regex = "^(?!.*(instruct|realtime|transcribe|tts|image|deep-research|codex|-pro|audio|search))"
+            + "(ft:)?(?!o1-mini|o3-mini|o1-preview)"
+            + "(gpt-4-(vision-preview|\\d{4}-vision-preview)|gpt-4o|gpt-4\\.\\d|gpt-5|o\\d|chatgpt).*";
     private final Pattern pattern = Pattern.compile(regex);
 
     @Override

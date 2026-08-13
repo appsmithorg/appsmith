@@ -134,7 +134,8 @@ public class ChatCommandTest {
                 counter += 1;
             }
         }
-        assertEquals(counter, 10);
+        // 8 chat-capable gpt models; the two gpt-3.5-turbo-instruct variants are legacy-completions-only
+        assertEquals(counter, 8);
     }
 
     @Test
@@ -150,8 +151,9 @@ public class ChatCommandTest {
                 "o3",
                 "o3-mini",
                 "o4-mini",
-                "o3-pro",
                 "chatgpt-4o-latest",
+                "gpt-4o-audio-preview",
+                "gpt-4o-search-preview",
                 "ft:gpt-4o:acme::abc123");
         List<String> incompatibleModels = List.of(
                 "gpt-4-vision-preview",
@@ -159,7 +161,16 @@ public class ChatCommandTest {
                 "text-embedding-3-large",
                 "omni-moderation-latest",
                 "dall-e-3",
-                "tts-1");
+                "tts-1",
+                // wrong endpoint or Responses-API-only: must not appear in the chat dropdown
+                "o3-pro",
+                "o3-deep-research",
+                "gpt-5-codex",
+                "gpt-image-1",
+                "gpt-4o-realtime-preview",
+                "gpt-4o-mini-tts",
+                "gpt-4o-transcribe",
+                "gpt-3.5-turbo-instruct");
         for (String model : compatibleModels) {
             JSONObject jsonObject = new JSONObject(String.format("{\"%s\": \"%s\" }", ID, model));
             assertTrue(chatCommand.isModelCompatible(jsonObject), model + " should be listed");

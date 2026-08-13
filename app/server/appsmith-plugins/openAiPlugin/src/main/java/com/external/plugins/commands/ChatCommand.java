@@ -45,8 +45,11 @@ public class ChatCommand implements OpenAICommand {
     private final Gson gson;
 
     // Chat-completions families: gpt-*, chatgpt-* and o-series reasoning models (o1, o3, o4-mini, ...).
-    // Vision-suffixed models are listed by the vision command instead.
-    private final String regex = "^(?!.*vision)(ft:)?(gpt|chatgpt|o\\d).*";
+    // Excluded: vision-suffixed models (listed by the vision command), variants served by other
+    // endpoints (image, realtime, tts, transcribe, legacy instruct completions) and models that
+    // are only available on the Responses API (-pro, deep-research, codex).
+    private final String regex =
+            "^(?!.*(vision|instruct|realtime|transcribe|tts|image|deep-research|codex|-pro))(ft:)?(gpt|chatgpt|o\\d).*";
     private final Pattern pattern = Pattern.compile(regex);
 
     public ChatCommand(Gson gson) {
