@@ -178,6 +178,27 @@ public class VisionCommandTest {
     }
 
     @Test
+    public void testMakeRequestBody_nonFiniteTemperature_leavesTemperatureUnset() {
+        for (String badValue : List.of("NaN", "Infinity", "-Infinity")) {
+            Map<String, Object> formData = new HashMap<>();
+            formData.put(VISION_MODEL_SELECTOR, Map.of(DATA, "gpt-4o"));
+            formData.put(TEMPERATURE, badValue);
+
+            UserQuery userQuery = new UserQuery();
+            userQuery.setContent("What's in this image?");
+            userQuery.setType(QueryType.TEXT);
+            formData.put(USER_MESSAGES, Map.of("data", List.of(userQuery)));
+
+            ActionConfiguration actionConfiguration = new ActionConfiguration();
+            actionConfiguration.setFormData(formData);
+
+            VisionRequestDTO request = (VisionRequestDTO) visionCommand.makeRequestBody(actionConfiguration);
+
+            assertNull(request.getTemperature(), badValue + " must not be sent as temperature");
+        }
+    }
+
+    @Test
     public void testSerialization_usesMaxCompletionTokensAndOmitsNulls() throws Exception {
         VisionRequestDTO request = new VisionRequestDTO();
         request.setModel("gpt-4o");
