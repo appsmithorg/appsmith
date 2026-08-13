@@ -433,6 +433,17 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         return actionCollectionMono.flatMap(this::archiveGivenActionCollection);
     }
 
+    /**
+     * Archives the given {@link ActionCollection} and all of its child {@link NewAction} documents.
+     *
+     * <p>Each child action is archived via {@link com.appsmith.server.newactions.base.NewActionService#archiveGivenNewAction}.
+     * If any child archive fails the error propagates and the parent collection is <em>not</em> archived,
+     * preventing orphaned {@link NewAction} documents in MongoDB.
+     *
+     * @param actionCollection the collection to archive; must not be {@code null}
+     * @return a {@link Mono} that emits the archived collection, or terminates with an error if any
+     *         child action could not be archived
+     */
     protected Mono<ActionCollection> archiveGivenActionCollection(ActionCollection actionCollection) {
         Mono<AclPermission> deleteActionPermissionMono =
                 actionPermission.getDeletePermission().cache();
