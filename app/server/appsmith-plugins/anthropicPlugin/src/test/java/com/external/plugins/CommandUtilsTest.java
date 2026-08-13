@@ -14,6 +14,8 @@ public class CommandUtilsTest {
         assertTrue(CommandUtils.isLegacyCompletionModel("claude-2.1"));
         assertTrue(CommandUtils.isLegacyCompletionModel("claude-2.0"));
 
+        assertFalse(CommandUtils.isLegacyCompletionModel("claude-10"));
+        assertFalse(CommandUtils.isLegacyCompletionModel("claude-20"));
         assertFalse(CommandUtils.isLegacyCompletionModel("claude-3-opus-20240229"));
         assertFalse(CommandUtils.isLegacyCompletionModel("claude-3-5-sonnet-20240620"));
         assertFalse(CommandUtils.isLegacyCompletionModel("claude-sonnet-4-6"));

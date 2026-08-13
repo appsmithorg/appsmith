@@ -144,7 +144,9 @@ public class ChatCommand implements OpenAICommand {
         }
 
         try {
-            return Float.parseFloat(temperatureString);
+            float temperature = Float.parseFloat(temperatureString);
+            // parseFloat accepts "NaN" and "Infinity", which serialize to invalid JSON — treat as unset
+            return Float.isFinite(temperature) ? temperature : null;
         } catch (IllegalArgumentException illegalArgumentException) {
             return null;
         } catch (Exception exception) {

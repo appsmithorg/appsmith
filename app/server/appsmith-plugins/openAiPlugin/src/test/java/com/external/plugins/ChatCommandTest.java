@@ -16,6 +16,7 @@ import java.util.Map;
 import static com.external.plugins.constants.OpenAIConstants.CHAT_MODEL_SELECTOR;
 import static com.external.plugins.constants.OpenAIConstants.DATA;
 import static com.external.plugins.constants.OpenAIConstants.ID;
+import static com.external.plugins.constants.OpenAIConstants.TEMPERATURE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -195,6 +196,36 @@ public class ChatCommandTest {
         ChatRequestDTO request = (ChatRequestDTO) command.makeRequestBody(actionConfiguration);
 
         assertNull(request.getTemperature());
+    }
+
+    @Test
+    public void testMakeRequestBody_nonFiniteTemperature_leavesTemperatureUnset() {
+        ChatCommand command = new ChatCommand(gson);
+
+        for (String badValue : List.of("NaN", "Infinity", "-Infinity")) {
+            Map<String, Object> formData = new HashMap<>();
+            formData.put(CHAT_MODEL_SELECTOR, Map.of(DATA, "gpt-4o"));
+            formData.put(TEMPERATURE, badValue);
+            formData.put("messages", Map.of("data", List.of(Map.of("role", "user", "content", "Hello"))));
+            ActionConfiguration actionConfiguration = new ActionConfiguration();
+            actionConfiguration.setFormData(formData);
+
+            ChatRequestDTO request = (ChatRequestDTO) command.makeRequestBody(actionConfiguration);
+
+            assertNull(request.getTemperature(), badValue + " must not be sent as temperature");
+        }
+
+        // out-of-range finite values pass through so OpenAI can report them explicitly
+        Map<String, Object> formData = new HashMap<>();
+        formData.put(CHAT_MODEL_SELECTOR, Map.of(DATA, "gpt-4o"));
+        formData.put(TEMPERATURE, "2.5");
+        formData.put("messages", Map.of("data", List.of(Map.of("role", "user", "content", "Hello"))));
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(formData);
+
+        ChatRequestDTO request = (ChatRequestDTO) command.makeRequestBody(actionConfiguration);
+
+        assertEquals(2.5f, request.getTemperature());
     }
 
     @Test

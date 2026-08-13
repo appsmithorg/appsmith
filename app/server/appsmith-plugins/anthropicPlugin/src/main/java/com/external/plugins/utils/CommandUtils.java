@@ -83,7 +83,8 @@ public class CommandUtils {
         if (!StringUtils.hasText(model)) {
             return false;
         }
-        return model.startsWith("claude-1") || model.startsWith("claude-2") || model.startsWith("claude-instant");
+        // family token must end at the prefix (claude-2, claude-2.1) — claude-10/claude-20 are not legacy
+        return model.matches("^claude-(1|2|instant)([.-].*)?$");
     }
 
     /**

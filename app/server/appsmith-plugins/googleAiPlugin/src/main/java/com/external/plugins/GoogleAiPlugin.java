@@ -249,20 +249,31 @@ public class GoogleAiPlugin extends BasePlugin {
                 return models;
             }
             for (JsonElement modelElement : response.getAsJsonArray(GoogleAIConstants.MODELS_RESPONSE_KEY)) {
-                JsonObject model = modelElement.getAsJsonObject();
-                if (!model.has(GoogleAIConstants.NAME) || !model.has(GoogleAIConstants.SUPPORTED_GENERATION_METHODS)) {
+                // a malformed entry must not discard the rest of the list
+                if (!modelElement.isJsonObject()) {
                     continue;
                 }
-                String name = model.get(GoogleAIConstants.NAME)
-                        .getAsString()
-                        .replaceFirst("^" + GoogleAIConstants.MODELS_NAME_PREFIX, "");
+                JsonObject model = modelElement.getAsJsonObject();
+                JsonElement nameElement = model.get(GoogleAIConstants.NAME);
+                JsonElement methodsElement = model.get(GoogleAIConstants.SUPPORTED_GENERATION_METHODS);
+                if (nameElement == null
+                        || !nameElement.isJsonPrimitive()
+                        || methodsElement == null
+                        || !methodsElement.isJsonArray()) {
+                    continue;
+                }
+                String name = nameElement.getAsString();
+                if (name.startsWith(GoogleAIConstants.MODELS_NAME_PREFIX)) {
+                    name = name.substring(GoogleAIConstants.MODELS_NAME_PREFIX.length());
+                }
                 if (!name.startsWith("gemini")
                         || NON_CHAT_MODEL_PATTERN.matcher(name).find()) {
                     continue;
                 }
                 boolean supportsGenerateContent = false;
-                for (JsonElement method : model.getAsJsonArray(GoogleAIConstants.SUPPORTED_GENERATION_METHODS)) {
-                    if (GoogleAIConstants.GENERATE_CONTENT_METHOD.equals(method.getAsString())) {
+                for (JsonElement method : methodsElement.getAsJsonArray()) {
+                    if (method.isJsonPrimitive()
+                            && GoogleAIConstants.GENERATE_CONTENT_METHOD.equals(method.getAsString())) {
                         supportsGenerateContent = true;
                         break;
                     }

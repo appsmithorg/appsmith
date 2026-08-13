@@ -157,6 +157,22 @@ public class GoogleAiPluginTest {
         assertEquals(List.of("gemini-3.6-flash", "gemini-3.1-pro-preview"), models);
     }
 
+    @Test
+    public void testExtractGenerateContentModels_skipsMalformedEntries() {
+        String responseBody = "{\"models\":["
+                + "\"not-an-object\","
+                + "{\"name\":123,\"supportedGenerationMethods\":[\"generateContent\"]},"
+                + "{\"name\":\"models/gemini-3.6-flash\",\"supportedGenerationMethods\":\"generateContent\"},"
+                + "{\"name\":\"models/gemini-3.6-flash\"},"
+                + model("models/gemini-3.5-flash", "generateContent")
+                + "]}";
+
+        // malformed entries are skipped without discarding the valid ones after them
+        assertEquals(
+                List.of("gemini-3.5-flash"),
+                GoogleAiPlugin.GoogleAiPluginExecutor.extractGenerateContentModels(responseBody));
+    }
+
     private static String model(String name, String... methods) {
         String methodList =
                 java.util.Arrays.stream(methods).map(m -> "\"" + m + "\"").collect(Collectors.joining(","));

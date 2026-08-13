@@ -91,12 +91,15 @@ public class AnthropicPlugin extends BasePlugin {
             return RequestUtils.makeRequest(HttpMethod.GET, uri, apiKeyAuth, BodyInserters.empty())
                     .map(responseEntity -> {
                         HttpStatusCode statusCode = responseEntity.getStatusCode();
+                        if (statusCode.is2xxSuccessful()) {
+                            return new DatasourceTestResult();
+                        }
                         if (HttpStatusCode.valueOf(401).isSameCodeAs(statusCode)) {
                             // invalid credentials
                             return new DatasourceTestResult(INVALID_API_KEY);
                         }
-
-                        return new DatasourceTestResult();
+                        return new DatasourceTestResult(
+                                "Anthropic API returned status " + statusCode.value() + " while listing models");
                     })
                     .onErrorResume(error -> Mono.just(new DatasourceTestResult(
                             "Error while trying to test the datasource configurations" + error.getMessage())));
