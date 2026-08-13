@@ -42,6 +42,15 @@ import static com.external.plugins.constants.OpenAIErrorMessages.EMPTY_BEARER_TO
 public class RequestUtils {
     private static final WebClient webClient = createWebClient();
 
+    // Reasoning models (o-series, gpt-5.* except the gpt-5-chat variants) accept only their default
+    // temperature; any explicit value — including the editor form's initialValue of "0" — is rejected
+    private static final java.util.regex.Pattern REASONING_MODEL_PATTERN =
+            java.util.regex.Pattern.compile("^(ft:)?(o\\d|gpt-5(?!.*chat)).*");
+
+    public static boolean isReasoningModel(String model) {
+        return model != null && REASONING_MODEL_PATTERN.matcher(model).matches();
+    }
+
     public static String extractDataFromFormData(Map<String, Object> formData, String key) {
         return (String) ((Map<String, Object>) formData.get(key)).get(DATA);
     }

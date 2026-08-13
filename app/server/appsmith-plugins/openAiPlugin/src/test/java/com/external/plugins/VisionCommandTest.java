@@ -199,6 +199,32 @@ public class VisionCommandTest {
     }
 
     @Test
+    public void testMakeRequestBody_reasoningModels_dropTemperatureEvenWhenFormSendsDefault() {
+        // the editor form's temperature field has initialValue "0", so every new query sends it
+        assertNull(makeRequestWithTemperature("o3", "0").getTemperature(), "o3 must not receive a temperature");
+        assertNull(
+                makeRequestWithTemperature("gpt-5.4", "0").getTemperature(), "gpt-5.4 must not receive a temperature");
+
+        // non-reasoning models keep the explicit value, including the form default 0
+        assertEquals(0.0f, makeRequestWithTemperature("gpt-4o", "0").getTemperature());
+    }
+
+    private VisionRequestDTO makeRequestWithTemperature(String model, String temperature) {
+        Map<String, Object> formData = new HashMap<>();
+        formData.put(VISION_MODEL_SELECTOR, Map.of(DATA, model));
+        formData.put(TEMPERATURE, temperature);
+
+        UserQuery userQuery = new UserQuery();
+        userQuery.setContent("What's in this image?");
+        userQuery.setType(QueryType.TEXT);
+        formData.put(USER_MESSAGES, Map.of("data", List.of(userQuery)));
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(formData);
+        return (VisionRequestDTO) visionCommand.makeRequestBody(actionConfiguration);
+    }
+
+    @Test
     public void testSerialization_usesMaxCompletionTokensAndOmitsNulls() throws Exception {
         VisionRequestDTO request = new VisionRequestDTO();
         request.setModel("gpt-4o");

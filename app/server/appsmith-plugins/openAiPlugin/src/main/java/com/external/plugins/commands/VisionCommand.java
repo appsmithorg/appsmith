@@ -119,11 +119,13 @@ public class VisionCommand implements OpenAICommand {
 
         visionMessages.addAll(
                 transformUserMessages(MessageUtils.extractMessages((Map<String, Object>) formData.get(USER_MESSAGES))));
-        Float temperature = getTemperatureFromFormData(formData);
 
         visionRequestDTO.setMessages(visionMessages);
         visionRequestDTO.setMaxCompletionTokens(getMaxTokenFromFormData(formData));
-        visionRequestDTO.setTemperature(temperature);
+        // reasoning models reject any explicit temperature, including the form's default "0"
+        if (!RequestUtils.isReasoningModel(model)) {
+            visionRequestDTO.setTemperature(getTemperatureFromFormData(formData));
+        }
         return visionRequestDTO;
     }
 

@@ -100,9 +100,11 @@ public class ChatCommand implements OpenAICommand {
                 transformToMessages(MessageUtils.extractMessages((Map<String, Object>) formData.get(MESSAGES)));
         verifyRoleForChatMessages(chatMessages);
 
-        Float temperature = getTemperatureFromFormData(formData);
         chatRequestDTO.setMessages(chatMessages);
-        chatRequestDTO.setTemperature(temperature);
+        // reasoning models reject any explicit temperature, including the form's default "0"
+        if (!RequestUtils.isReasoningModel(model)) {
+            chatRequestDTO.setTemperature(getTemperatureFromFormData(formData));
+        }
         return chatRequestDTO;
     }
 

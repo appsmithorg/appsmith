@@ -229,6 +229,33 @@ public class ChatCommandTest {
     }
 
     @Test
+    public void testMakeRequestBody_reasoningModels_dropTemperatureEvenWhenFormSendsDefault() {
+        ChatCommand command = new ChatCommand(gson);
+
+        // the editor form's temperature field has initialValue "0", so every new query sends it
+        for (String reasoningModel : List.of("o3", "o4-mini", "gpt-5", "gpt-5.4-mini", "ft:o4-mini:acme::x")) {
+            ChatRequestDTO request = makeRequestWithTemperature(command, reasoningModel, "0");
+            assertNull(request.getTemperature(), reasoningModel + " must not receive a temperature");
+        }
+
+        // non-reasoning models keep the explicit value, including the form default 0
+        assertEquals(0.0f, makeRequestWithTemperature(command, "gpt-4o", "0").getTemperature());
+        assertEquals(
+                0.3f,
+                makeRequestWithTemperature(command, "gpt-5-chat-latest", "0.3").getTemperature());
+    }
+
+    private ChatRequestDTO makeRequestWithTemperature(ChatCommand command, String model, String temperature) {
+        Map<String, Object> formData = new HashMap<>();
+        formData.put(CHAT_MODEL_SELECTOR, Map.of(DATA, model));
+        formData.put(TEMPERATURE, temperature);
+        formData.put("messages", Map.of("data", List.of(Map.of("role", "user", "content", "Hello"))));
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(formData);
+        return (ChatRequestDTO) command.makeRequestBody(actionConfiguration);
+    }
+
+    @Test
     public void testSerialization_omitsNullTemperature() throws Exception {
         ChatRequestDTO request = new ChatRequestDTO();
         request.setModel("o3");
