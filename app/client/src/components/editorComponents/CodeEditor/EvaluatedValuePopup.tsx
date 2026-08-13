@@ -29,6 +29,7 @@ import { Button, Icon, Link, toast, Tooltip } from "@appsmith/ads";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { DEBUGGER_TAB_KEYS } from "../Debugger/constants";
 import { appsmithTelemetry } from "instrumentation";
+import localStorage, { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -55,14 +56,19 @@ const THEME = {
   editorColor: "var(--ads-v2-color-fg)",
 };
 
-const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
-  width: ${(props) => props.theme.evaluatedValuePopup.width}px;
+const ContentWrapper = styled.div<{
+  colorTheme: EditorTheme;
+  $collapsed?: boolean;
+}>`
+  width: ${(props) =>
+    props.$collapsed ? "auto" : `${props.theme.evaluatedValuePopup.width}px`};
+  max-width: ${(props) => props.theme.evaluatedValuePopup.width}px;
   max-height: ${(props) => props.theme.evaluatedValuePopup.height}px;
   overflow-y: auto;
   -ms-overflow-style: none;
   background-color: ${THEME.backgroundColor};
   color: ${THEME.textColor};
-  padding: 10px;
+  padding: ${(props) => (props.$collapsed ? "0 10px" : "10px")};
   box-shadow: var(--ads-v2-shadow-popovers);
   border-radius: var(--ads-v2-border-radius);
   pointer-events: all;
@@ -192,6 +198,24 @@ const StyledTitleName = styled.p`
   font-weight: 600;
   line-height: 12px;
   cursor: pointer;
+`;
+
+/* Kept as a styled(StyledTitleName) <p> so it stays a direct child of the
+   popup wrapper: Cypress locators walk the wrapper's direct p/div children. */
+const PopupTitleRow = styled(StyledTitleName)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ads-v2-spaces-2);
+  cursor: default;
+`;
+
+const PopupTitleText = styled.span`
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const AsyncFunctionErrorView = styled.div`
@@ -501,6 +525,14 @@ function PopoverContent(props: PopoverContentProps) {
       ? popupContext.value
       : true,
   );
+  // Whole-window collapse is a single editor-wide preference: collapse it once
+  // and every binding field shows the slim pill until it is expanded again.
+  const [isPopupCollapsed, setIsPopupCollapsed] = useState(
+    () =>
+      localStorage.getItem(
+        LOCAL_STORAGE_KEYS.EVALUATED_VALUE_POPUP_COLLAPSED,
+      ) === "true",
+  );
   const { errors, expected, hasError, onMouseEnter, onMouseLeave, theme } =
     props;
   const { entityName } = getEntityNameAndPropertyPath(props.dataTreePath || "");
@@ -513,6 +545,15 @@ function PopoverContent(props: PopoverContentProps) {
     setOpenExpectedDataType(!openExpectedDataType);
   const toggleExpectedExample = () =>
     setOpenExpectedExample(!openExpectedExample);
+  const togglePopupCollapsed = () => {
+    const collapsed = !isPopupCollapsed;
+
+    setIsPopupCollapsed(collapsed);
+    localStorage.setItem(
+      LOCAL_STORAGE_KEYS.EVALUATED_VALUE_POPUP_COLLAPSED,
+      String(collapsed),
+    );
+  };
 
   let error: EvaluationError | undefined;
 
@@ -541,6 +582,51 @@ function PopoverContent(props: PopoverContentProps) {
       : `This value does not evaluate to type "${expected?.type}".`;
   };
 
+  const popupLabel =
+    props.evaluatedPopUpLabel || props.entity?.entityName || "Binding preview";
+
+  if (isPopupCollapsed) {
+    return (
+      <ContentWrapper
+        $collapsed
+        className="t--CodeEditor-evaluatedValue evaluated-value-popup"
+        colorTheme={theme}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
+        <PopupTitleRow>
+          <PopupTitleText>{popupLabel}</PopupTitleText>
+          {hasError && (
+            <Tooltip
+              content="Evaluation error — expand to view"
+              trigger="hover"
+            >
+              <Icon
+                aria-label="Evaluation error"
+                color="var(--ads-v2-color-fg-error)"
+                data-testid="t--evaluated-popup-error-indicator"
+                name="alert-line"
+                role="img"
+                size="md"
+              />
+            </Tooltip>
+          )}
+          <Tooltip content="Expand" trigger="hover">
+            <Button
+              aria-label="Expand helper window"
+              data-testid="t--evaluated-popup-collapse-toggle"
+              isIconButton
+              kind="tertiary"
+              onClick={togglePopupCollapsed}
+              size="sm"
+              startIcon="arrow-down-s-line"
+            />
+          </Tooltip>
+        </PopupTitleRow>
+      </ContentWrapper>
+    );
+  }
+
   return (
     <ContentWrapper
       className="t--CodeEditor-evaluatedValue evaluated-value-popup"
@@ -548,13 +634,20 @@ function PopoverContent(props: PopoverContentProps) {
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      {props?.entity && props.entity?.entityName && (
-        <StyledTitleName>
-          {props?.evaluatedPopUpLabel
-            ? props?.evaluatedPopUpLabel
-            : props?.entity?.entityName}
-        </StyledTitleName>
-      )}
+      <PopupTitleRow>
+        <PopupTitleText>{popupLabel}</PopupTitleText>
+        <Tooltip content="Collapse" trigger="hover">
+          <Button
+            aria-label="Collapse helper window"
+            data-testid="t--evaluated-popup-collapse-toggle"
+            isIconButton
+            kind="tertiary"
+            onClick={togglePopupCollapsed}
+            size="sm"
+            startIcon="arrow-up-s-line"
+          />
+        </Tooltip>
+      </PopupTitleRow>
       {hasError && error && (
         <ErrorText>
           <span className="t--evaluatedPopup-error">
@@ -630,6 +723,20 @@ function PopoverContent(props: PopoverContentProps) {
   );
 }
 
+export function getEvaluatedPopupPlacement(
+  targetLeft: number,
+  viewportWidth: number,
+): [Placement, string] {
+  // Fields on the right half of the screen (e.g. the property pane) show the
+  // popup on their left, floating over the canvas.
+  if (targetLeft >= viewportWidth / 2) return ["left-start", "0, 15"];
+
+  // Wide-form fields (query/API forms) show the popup below the field so it
+  // never covers the value being edited; popper flips it above when there is
+  // no room underneath.
+  return ["bottom-start", "0, 8"];
+}
+
 function EvaluatedValuePopup(props: Props) {
   const [contentHovered, setContentHovered] = useState(false);
   const [timeoutId, setTimeoutId] = useState(0);
@@ -638,36 +745,16 @@ function EvaluatedValuePopup(props: Props) {
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [placement, offset]: [Placement, string] = useMemo(() => {
-    const placement: Placement = "left-start";
-    let offset = "0, 15";
-
-    if (!wrapperRef.current) return [placement, "0, 0"];
-
     if (props.popperPlacement) return [props.popperPlacement, "0, 0"];
 
-    const { left, right } = wrapperRef.current.getBoundingClientRect();
-    const viewportWidth = window.innerWidth;
-    const halfViewportWidth = viewportWidth / 2;
+    if (!wrapperRef.current) return ["left-start", "0, 0"];
 
-    // TODO: Remove this temporary fix
-    if (left < halfViewportWidth) {
-      if (right < halfViewportWidth) {
-        offset = "0, 5";
-      } else {
-        // If the target spans from left half to the right half and more that 3 quarters of the view port, show the popper on the right without overlap
-        if (right < halfViewportWidth + halfViewportWidth / 2) {
-          offset = "0, 5";
-        } else {
-          offset = "0, -290";
-        }
-      }
-    } else {
-      // If the target is on the right half of the screen, show the popper on the left with offset eg. property pane
-      offset = "0, 15";
-    }
+    const { left } = wrapperRef.current.getBoundingClientRect();
 
-    return [placement, offset];
-  }, [wrapperRef.current, props.popperPlacement]);
+    return getEvaluatedPopupPlacement(left, window.innerWidth);
+    // props.isOpen keeps the placement fresh each time the popup opens: the
+    // ref is null on first render and ref mutation alone never re-renders.
+  }, [wrapperRef.current, props.popperPlacement, props.isOpen]);
 
   return (
     <Wrapper ref={wrapperRef}>
@@ -682,6 +769,12 @@ function EvaluatedValuePopup(props: Props) {
           offset: {
             enabled: true,
             offset,
+          },
+          flip: {
+            enabled: true,
+            behavior: placement.startsWith("bottom")
+              ? ["bottom", "top"]
+              : "flip",
           },
         }}
         placement={placement}

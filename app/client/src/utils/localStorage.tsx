@@ -10,6 +10,7 @@ import { toast } from "@appsmith/ads";
 export const LOCAL_STORAGE_KEYS = {
   CANVAS_CARDS_STATE: "CANVAS_CARDS_STATE",
   NUDGE_SHOWN_SPLIT_PANE: "NUDGE_SHOWN_SPLIT_PANE",
+  EVALUATED_VALUE_POPUP_COLLAPSED: "EVALUATED_VALUE_POPUP_COLLAPSED",
 };
 
 class LocalStorageNotSupportedError extends Error {
