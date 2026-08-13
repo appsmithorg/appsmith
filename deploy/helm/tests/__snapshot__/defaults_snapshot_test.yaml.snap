@@ -24,7 +24,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.9.0
+        appsmith.sh/chart: appsmith-3.9.1
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
   3: |
@@ -35,7 +35,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.9.0
+        appsmith.sh/chart: appsmith-3.9.1
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
     spec:
@@ -154,7 +154,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.9.0
+        appsmith.sh/chart: appsmith-3.9.1
       name: RELEASE-NAME-appsmith-headless
       namespace: NAMESPACE
     spec:
@@ -185,7 +185,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.9.0
+        appsmith.sh/chart: appsmith-3.9.1
       name: RELEASE-NAME-appsmith-redis-password-init
       namespace: NAMESPACE
   6: |
@@ -200,7 +200,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.9.0
+        appsmith.sh/chart: appsmith-3.9.1
       name: RELEASE-NAME-appsmith-redis-password-init
       namespace: NAMESPACE
     rules:
@@ -230,7 +230,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.9.0
+        appsmith.sh/chart: appsmith-3.9.1
       name: RELEASE-NAME-appsmith-redis-password-init
       namespace: NAMESPACE
     roleRef:
@@ -253,7 +253,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.9.0
+        appsmith.sh/chart: appsmith-3.9.1
       name: RELEASE-NAME-appsmith-redis-password-init
       namespace: NAMESPACE
     spec:
@@ -264,7 +264,7 @@
             app.kubernetes.io/instance: RELEASE-NAME
             app.kubernetes.io/managed-by: Helm
             app.kubernetes.io/name: appsmith
-            appsmith.sh/chart: appsmith-3.9.0
+            appsmith.sh/chart: appsmith-3.9.1
         spec:
           containers:
             - command:
@@ -317,7 +317,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.9.0
+        appsmith.sh/chart: appsmith-3.9.1
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
     spec:
@@ -338,7 +338,7 @@
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: appsmith
-        appsmith.sh/chart: appsmith-3.9.0
+        appsmith.sh/chart: appsmith-3.9.1
       name: RELEASE-NAME-appsmith
       namespace: NAMESPACE
     secrets:
