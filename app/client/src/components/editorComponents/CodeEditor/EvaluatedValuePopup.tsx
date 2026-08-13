@@ -753,6 +753,25 @@ function EvaluatedValuePopup(props: Props) {
   const [isDragging, setIsDragging] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
+  // CodeEditor fields auto-grow while the user types; track the wrapper's
+  // height so the placement decision below is re-evaluated on growth
+  // (a short field can become a tall multiline editor mid-edit).
+  const [wrapperHeight, setWrapperHeight] = useState(0);
+
+  useEffect(() => {
+    const node = wrapperRef.current;
+
+    if (!node || typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver((entries) => {
+      setWrapperHeight(entries[0]?.contentRect.height || 0);
+    });
+
+    observer.observe(node);
+
+    return () => observer.disconnect();
+  }, []);
+
   const [placement, offset]: [Placement, string] = useMemo(() => {
     if (props.popperPlacement) return [props.popperPlacement, "0, 0"];
 
@@ -761,9 +780,10 @@ function EvaluatedValuePopup(props: Props) {
     const { height, left } = wrapperRef.current.getBoundingClientRect();
 
     return getEvaluatedPopupPlacement(left, window.innerWidth, height);
-    // props.isOpen keeps the placement fresh each time the popup opens: the
-    // ref is null on first render and ref mutation alone never re-renders.
-  }, [wrapperRef.current, props.popperPlacement, props.isOpen]);
+    // props.isOpen keeps the placement fresh each time the popup opens (the
+    // ref is null on first render and ref mutation alone never re-renders);
+    // wrapperHeight keeps it fresh while the field grows.
+  }, [wrapperRef.current, props.popperPlacement, props.isOpen, wrapperHeight]);
 
   return (
     <Wrapper ref={wrapperRef}>

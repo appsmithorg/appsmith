@@ -89,6 +89,14 @@ export default (props: PopperProps) => {
   const popperIdRef = useRef(generateReactKey());
   const popperId = popperIdRef.current;
 
+  // popper.js v1 only repositions on scroll/resize, so a popper anchored to
+  // an auto-growing element (e.g. a CodeMirror field) goes stale as the
+  // anchor grows. Track the dragged position in a ref so the resize observer
+  // below can skip updates while the user has moved the popper by hand.
+  const positionRef = useRef(props.position);
+
+  positionRef.current = props.position;
+
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onPositionChangeFn = (e: any) => {
@@ -214,6 +222,15 @@ export default (props: PopperProps) => {
         },
       );
 
+      let resizeObserver: ResizeObserver | undefined;
+
+      if (typeof ResizeObserver !== "undefined") {
+        resizeObserver = new ResizeObserver(() => {
+          if (!positionRef.current) _popper.scheduleUpdate();
+        });
+        resizeObserver.observe(props.targetNode);
+      }
+
       if (isDraggable) {
         disablePopperEvents && _popper.disableEventListeners();
         draggableElement(
@@ -236,6 +253,7 @@ export default (props: PopperProps) => {
       }
 
       return () => {
+        resizeObserver?.disconnect();
         _popper.destroy();
       };
     }
