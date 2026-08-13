@@ -16,6 +16,7 @@ import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -33,6 +34,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
     private final ExportService exportService;
     private final ApplicationPermission applicationPermission;
     private final Gson gson;
+    private final TransactionalOperator transactionalOperator;
 
     private static final int MAX_SNAPSHOT_SIZE = 15 * 1024 * 1024; // 15 MB
 
@@ -47,7 +49,8 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                             .deleteAllByApplicationId(branchedApplicationId)
                             .thenMany(createSnapshots(branchedApplicationId, applicationJson));
                 })
-                .then(Mono.just(Boolean.TRUE));
+                .then(Mono.just(Boolean.TRUE))
+                .as(transactionalOperator::transactional);
     }
 
     private Flux<ApplicationSnapshot> createSnapshots(String applicationId, ApplicationJson applicationJson) {
