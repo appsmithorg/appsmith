@@ -161,8 +161,9 @@ public class VisionCommandTest {
 
     @Test
     public void testMakeRequestBody_withoutTemperature_leavesTemperatureUnset() {
+        // non-reasoning model, so the blank-value path itself is exercised
         Map<String, Object> formData = new HashMap<>();
-        formData.put(VISION_MODEL_SELECTOR, Map.of(DATA, "o3"));
+        formData.put(VISION_MODEL_SELECTOR, Map.of(DATA, "gpt-4o"));
 
         UserQuery userQuery = new UserQuery();
         userQuery.setContent("What's in this image?");
@@ -251,7 +252,10 @@ public class VisionCommandTest {
                 "o3",
                 "o4-mini",
                 "chatgpt-4o-latest",
-                "ft:gpt-4o:acme::abc123");
+                "chat-latest",
+                "ft:gpt-4o:acme::abc123",
+                // exclusions apply to the base model only, not customer-chosen ft: suffixes
+                "ft:gpt-4o:acme-instruct-team::abc123");
         List<String> incompatibleModels = List.of(
                 "o1-mini",
                 "o3-mini",

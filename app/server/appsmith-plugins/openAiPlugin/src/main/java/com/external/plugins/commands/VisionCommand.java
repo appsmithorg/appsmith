@@ -60,13 +60,15 @@ public class VisionCommand implements OpenAICommand {
 
     private final Gson gson;
 
-    // Image-input capable families: legacy gpt-4 vision previews, gpt-4o, gpt-4.x, gpt-5.x, chatgpt-*
-    // and vision-capable o-series models. o1-mini, o3-mini and o1-preview are text-only, and the
-    // audio/search/realtime/tts/transcribe variants and Responses-API-only models (-pro, codex,
-    // deep-research) do not take image input on chat completions.
+    // Image-input capable families: legacy gpt-4 vision previews, gpt-4o, gpt-4.x, gpt-5.x, the chat*
+    // aliases (chatgpt-4o-latest, chat-latest) and vision-capable o-series models. o1-mini, o3-mini
+    // and o1-preview are text-only, and the audio/search/realtime/tts/transcribe variants and
+    // Responses-API-only models (-pro, codex, deep-research) do not take image input on chat
+    // completions. Matched against the base model (fine-tune wrapper stripped) so customer-chosen
+    // ft: suffixes cannot trip the exclusions.
     private final String regex = "^(?!.*(instruct|realtime|transcribe|tts|image|deep-research|codex|-pro|audio|search))"
-            + "(ft:)?(?!o1-mini|o3-mini|o1-preview)"
-            + "(gpt-4-(vision-preview|\\d{4}-vision-preview)|gpt-4o|gpt-4\\.\\d|gpt-5|o\\d|chatgpt).*";
+            + "(?!o1-mini|o3-mini|o1-preview)"
+            + "(gpt-4-(vision-preview|\\d{4}-vision-preview)|gpt-4o|gpt-4\\.\\d|gpt-5|o\\d|chat).*";
     private final Pattern pattern = Pattern.compile(regex);
 
     @Override
@@ -241,7 +243,8 @@ public class VisionCommand implements OpenAICommand {
             return false;
         }
 
-        return pattern.matcher(modelJsonObject.getString(ID)).matches();
+        return pattern.matcher(RequestUtils.baseModel(modelJsonObject.getString(ID)))
+                .matches();
     }
 
     @Override

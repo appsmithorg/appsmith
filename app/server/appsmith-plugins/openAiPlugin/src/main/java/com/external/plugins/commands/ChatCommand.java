@@ -44,12 +44,14 @@ public class ChatCommand implements OpenAICommand {
 
     private final Gson gson;
 
-    // Chat-completions families: gpt-*, chatgpt-* and o-series reasoning models (o1, o3, o4-mini, ...).
-    // Excluded: vision-suffixed models (listed by the vision command), variants served by other
-    // endpoints (image, realtime, tts, transcribe, legacy instruct completions) and models that
-    // are only available on the Responses API (-pro, deep-research, codex).
+    // Chat-completions families: gpt-*, chat* aliases (chatgpt-4o-latest, chat-latest) and o-series
+    // reasoning models (o1, o3, o4-mini, ...). Excluded: vision-suffixed models (listed by the vision
+    // command), variants served by other endpoints (image, realtime, tts, transcribe, legacy instruct
+    // completions) and models only available on the Responses API (-pro, deep-research, codex).
+    // Matched against the base model (fine-tune wrapper stripped) so customer-chosen ft: suffixes
+    // cannot trip the exclusions.
     private final String regex =
-            "^(?!.*(vision|instruct|realtime|transcribe|tts|image|deep-research|codex|-pro))(ft:)?(gpt|chatgpt|o\\d).*";
+            "^(?!.*(vision|instruct|realtime|transcribe|tts|image|deep-research|codex|-pro))(gpt|chat|o\\d).*";
     private final Pattern pattern = Pattern.compile(regex);
 
     public ChatCommand(Gson gson) {
@@ -164,7 +166,8 @@ public class ChatCommand implements OpenAICommand {
             return false;
         }
 
-        return pattern.matcher(modelJsonObject.getString(ID)).matches();
+        return pattern.matcher(RequestUtils.baseModel(modelJsonObject.getString(ID)))
+                .matches();
     }
 
     @Override

@@ -155,7 +155,10 @@ public class ChatCommandTest {
                 "chatgpt-4o-latest",
                 "gpt-4o-audio-preview",
                 "gpt-4o-search-preview",
-                "ft:gpt-4o:acme::abc123");
+                "chat-latest",
+                "ft:gpt-4o:acme::abc123",
+                // exclusions apply to the base model only, not customer-chosen ft: suffixes
+                "ft:gpt-4o:acme-instruct-team::abc123");
         List<String> incompatibleModels = List.of(
                 "gpt-4-vision-preview",
                 "whisper-1",
@@ -186,8 +189,9 @@ public class ChatCommandTest {
     public void testMakeRequestBody_withoutTemperature_leavesTemperatureUnset() {
         ChatCommand command = new ChatCommand(gson);
 
+        // non-reasoning model, so the blank-value path itself is exercised
         Map<String, Object> formData = new HashMap<>();
-        formData.put(CHAT_MODEL_SELECTOR, Map.of(DATA, "o3"));
+        formData.put(CHAT_MODEL_SELECTOR, Map.of(DATA, "gpt-4o"));
         Object messages = List.of(Map.of("role", "user", "content", "Hello"));
         formData.put("messages", Map.of("data", messages));
         ActionConfiguration actionConfiguration = new ActionConfiguration();
