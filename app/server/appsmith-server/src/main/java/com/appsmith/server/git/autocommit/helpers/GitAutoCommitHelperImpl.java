@@ -142,7 +142,9 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
             return Mono.just(Boolean.FALSE);
         }
 
-        final String finalBranchName = branchName.replaceFirst("origin/", "");
+        final String finalBranchName = branchName.startsWith("origin/")
+                ? branchName.substring("origin/".length())
+                : branchName;
 
         Mono<Application> applicationMono = applicationService
                 .findById(defaultApplicationId, applicationPermission.getEditPermission())

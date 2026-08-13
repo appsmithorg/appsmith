@@ -210,6 +210,56 @@ public class GitAutoCommitHelperImplTest {
     }
 
     @Test
+    public void autoCommitApplication_WhenBranchContainsOriginSegment_PreservesBranchName() {
+        String branchNameWithOriginSegment = "feature/origin/main";
+        Application application = new Application();
+        application.setWorkspaceId("sample-workspace-id");
+        GitArtifactMetadata metaData = new GitArtifactMetadata();
+        metaData.setRepoName("test-repo-name");
+
+        GitAuth gitAuth = new GitAuth();
+        gitAuth.setPrivateKey("private-key");
+        gitAuth.setPublicKey("public-key");
+        metaData.setGitAuth(gitAuth);
+        application.setGitApplicationMetadata(metaData);
+
+        Mockito.doReturn(Mono.just(application))
+                .when(applicationService)
+                .findById(defaultApplicationId, applicationPermission.getEditPermission());
+        Mockito.doReturn(Mono.just(application))
+                .when(applicationService)
+                .findByBranchNameAndBaseApplicationId(
+                        eq(branchNameWithOriginSegment), eq(defaultApplicationId), any(AclPermission.class));
+        Mockito.when(gitPrivateRepoHelper.isBranchProtected(
+                        any(GitArtifactMetadata.class), eq(branchNameWithOriginSegment)))
+                .thenReturn(Mono.just(Boolean.FALSE));
+        Mockito.when(centralGitService.fetchRemoteChanges(
+                        any(Application.class),
+                        any(Application.class),
+                        anyBoolean(),
+                        any(GitType.class),
+                        any(RefType.class)))
+                .thenReturn(Mono.just(branchTrackingStatus));
+        Mockito.when(branchTrackingStatus.getBehindCount()).thenReturn(0);
+
+        GitProfile gitProfile = new GitProfile();
+        gitProfile.setAuthorEmail("user@example.com");
+        gitProfile.setAuthorName("test user name");
+        Mockito.when(userDataService.getGitProfileForCurrentUser(defaultApplicationId))
+                .thenReturn(Mono.just(gitProfile));
+
+        StepVerifier.create(
+                        gitAutoCommitHelper.autoCommitClientMigration(
+                                defaultApplicationId, branchNameWithOriginSegment))
+                .assertNext(aBoolean -> assertThat(aBoolean).isTrue())
+                .verifyComplete();
+
+        Mockito.verify(applicationService)
+                .findByBranchNameAndBaseApplicationId(
+                        eq(branchNameWithOriginSegment), eq(defaultApplicationId), any(AclPermission.class));
+    }
+
+    @Test
     public void getAutoCommitProgress_WhenNoAutoCommitFinished_ReturnsValidResponse() {
         Mono<AutoCommitResponseDTO> progressDTOMono = redisUtils
                 .startAutoCommit(defaultApplicationId, branchName)
