@@ -51,8 +51,8 @@ public class AnthropicConstants {
     public static final Map<String, List<String>> ANTHROPIC_MODELS =
             Map.of(CHAT_MODELS, FALLBACK_MODELS, VISION_MODELS, FALLBACK_MODELS);
     public static final String MODELS_API = "/models";
-    // single page; Anthropic caps limit at 1000, no pagination follow-up on purpose
-    public static final int MODELS_PAGE_LIMIT = 100;
+    // single page at the API's maximum page size; pagination deliberately skipped
+    public static final int MODELS_PAGE_LIMIT = 1000;
     public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
             .build();
