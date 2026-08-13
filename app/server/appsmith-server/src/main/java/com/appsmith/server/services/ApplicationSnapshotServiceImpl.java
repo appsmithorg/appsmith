@@ -9,6 +9,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Slf4j
 @Service
@@ -20,13 +21,15 @@ public class ApplicationSnapshotServiceImpl extends ApplicationSnapshotServiceCE
             ImportService importService,
             ExportService exportService,
             ApplicationPermission applicationPermission,
-            Gson gson) {
+            Gson gson,
+            TransactionalOperator transactionalOperator) {
         super(
                 applicationSnapshotRepository,
                 applicationService,
                 importService,
                 exportService,
                 applicationPermission,
-                gson);
+                gson,
+                transactionalOperator);
     }
 }
