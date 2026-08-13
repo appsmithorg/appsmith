@@ -677,13 +677,15 @@ public class ActionCollectionServiceImplTest {
         Mockito.when(newActionService.findByCollectionIdAndViewMode(
                         Mockito.eq("testCollectionId"), Mockito.eq(true), Mockito.any()))
                 .thenReturn(Flux.empty());
-        Mockito.when(newActionService.archiveGivenNewAction(Mockito.any()))
+        Mockito.when(newActionService.archiveGivenNewAction(Mockito.eq(newAction)))
                 .thenReturn(Mono.error(new RuntimeException("Archive failed")));
 
         StepVerifier.create(actionCollectionService.archiveById("testCollectionId"))
-                .expectError(RuntimeException.class)
+                .expectErrorMatches(t -> t instanceof RuntimeException
+                        && "Archive failed".equals(t.getMessage()))
                 .verify();
 
+        Mockito.verify(newActionService).archiveGivenNewAction(newAction);
         Mockito.verify(actionCollectionRepository, Mockito.never()).archive(Mockito.any());
         Mockito.verify(analyticsService, Mockito.never()).sendDeleteEvent(Mockito.any(), Mockito.any());
     }
