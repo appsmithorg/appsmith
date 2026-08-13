@@ -238,6 +238,20 @@ function* fetchAIResponseSaga(
   }
 }
 
+/**
+ * Cancels the active saga when a caller explicitly stops generation. The
+ * reducer also rejects late completions, which protects against providers that
+ * cannot abort an HTTP request already in flight.
+ */
+function* cancellableFetchAIResponseSaga(
+  action: ReduxAction<FetchAIResponsePayload>,
+): Generator<unknown, void, unknown> {
+  yield race({
+    request: call(fetchAIResponseSaga, action),
+    cancel: take(ReduxActionTypes.CANCEL_AI_RESPONSE),
+  });
+}
+
 interface AIConfigResponse {
   provider?: string;
   hasClaudeApiKey?: boolean;
@@ -306,7 +320,10 @@ function* loadAISettingsSaga(
 }
 
 export default function* aiAssistantSagasListener() {
-  yield takeLatest(ReduxActionTypes.FETCH_AI_RESPONSE, fetchAIResponseSaga);
+  yield takeLatest(
+    ReduxActionTypes.FETCH_AI_RESPONSE,
+    cancellableFetchAIResponseSaga,
+  );
   yield takeLatest(
     ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
     loadAISettingsSaga,

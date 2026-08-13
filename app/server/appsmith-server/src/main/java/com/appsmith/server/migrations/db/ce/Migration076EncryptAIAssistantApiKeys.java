@@ -23,10 +23,12 @@ import java.util.List;
  * class for why), so any key stored by an earlier build is sitting in cleartext in the organization
  * document. This encrypts those in place.
  *
- * <p>Idempotent: each value is encrypted only when it does not already decrypt, so a re-run — or a
- * run against an instance that never had a cleartext key — is a no-op. Community instances have no
- * such values at all, because the feature arrives with this release; the work exists for instances
- * that ran the enterprise build, which reach this change unit through the community sync.
+ * <p>Every value is left in the marked form {@link AIConfigSecretsCE} writes, which is what makes a
+ * re-run — or a run against an instance that never had a cleartext key — a no-op. Values that a
+ * pre-marker build had already encrypted keep their bytes and gain the marker; re-encrypting them
+ * would nest one ciphertext inside another. Community instances have no such values at all, because
+ * the feature arrives with this release; the work exists for instances that ran the enterprise
+ * build, which reach this change unit through the community sync.
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -76,11 +78,11 @@ public class Migration076EncryptAIAssistantApiKeys {
             boolean touched = false;
 
             for (String field : KEY_FIELDS) {
-                String stored = readKey(aiConfig, field);
-                if (stored == null || stored.isEmpty() || AIConfigSecretsCE.isEncrypted(stored)) {
+                String normalized = AIConfigSecretsCE.normalizeForStorage(readKey(aiConfig, field));
+                if (normalized == null) {
                     continue;
                 }
-                update.set(CONFIG_PATH + "." + field, AIConfigSecretsCE.encrypt(stored));
+                update.set(CONFIG_PATH + "." + field, normalized);
                 touched = true;
                 encryptedCount++;
             }

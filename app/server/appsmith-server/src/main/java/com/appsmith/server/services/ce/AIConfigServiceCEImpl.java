@@ -53,6 +53,9 @@ import static com.appsmith.server.constants.AIConstants.DEFAULT_OPENAI_MODEL;
 @RequiredArgsConstructor
 public class AIConfigServiceCEImpl implements AIConfigServiceCE {
 
+    /** What the settings page renders in place of a stored key, and may echo back. */
+    private static final String MASKED_API_KEY = "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";
+
     private final OrganizationService organizationService;
     private final ObjectMapper objectMapper;
     private final AnalyticsService analyticsService;
@@ -75,6 +78,11 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
                         assistantConfig = new AIAssistantConfig();
                         config.setAiAssistantConfig(assistantConfig);
                     }
+
+                    // Captured before the setters below overwrite the config in place; the binding
+                    // rule needs the state as it was saved. See
+                    // AIConfigSecretsCE.unbindCredentialsWithChangedDestination.
+                    AIAssistantConfig previousCredentials = AIConfigSecretsCE.snapshotCredentials(assistantConfig);
 
                     try {
                         validateApiKey(
@@ -128,6 +136,8 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
                     } catch (AppsmithException e) {
                         return Mono.error(e);
                     }
+
+                    AIConfigSecretsCE.unbindCredentialsWithChangedDestination(previousCredentials, assistantConfig);
 
                     if (aiConfig.getProvider() != null) {
                         assistantConfig.setAiProvider(aiConfig.getProvider());
@@ -806,7 +816,7 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
             return Mono.just(response);
         }
 
-        if (apiKey == null || apiKey.trim().isEmpty() || apiKey.equals("••••••••")) {
+        if (apiKey == null || apiKey.trim().isEmpty() || MASKED_API_KEY.equals(apiKey)) {
             return organizationService.getCurrentUserOrganization().flatMap(organization -> {
                 OrganizationConfiguration config = organization.getOrganizationConfiguration();
                 if (config == null) {
@@ -847,37 +857,43 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
                     return Mono.just(response);
                 }
 
+                // The destination for a stored credential comes from the saved configuration, never from the
+                // request. The UI masks these keys, so honouring a request-supplied host would let anyone who
+                // can reach this endpoint read one back by pointing the test at a collector they control.
+                // Only the fields that cannot change the host — deployment name, API version, model — stay
+                // overridable, so an administrator can still try a different deployment against their own
+                // resource.
                 if ("AZURE_OPENAI".equalsIgnoreCase(provider)) {
-                    String resolvedEndpoint = endpoint;
-                    String resolvedDeployment = deploymentName;
-                    if (resolvedEndpoint == null || resolvedEndpoint.trim().isEmpty()) {
-                        resolvedEndpoint = aiAssistantConfig.getAzureOpenaiEndpoint();
-                        if (resolvedEndpoint == null || resolvedEndpoint.isEmpty()) {
-                            resolvedEndpoint = aiAssistantConfig.getCopilotEndpoint();
-                        }
+                    String resolvedEndpoint = aiAssistantConfig.getAzureOpenaiEndpoint();
+                    if (!hasValue(resolvedEndpoint)) {
+                        resolvedEndpoint = aiAssistantConfig.getCopilotEndpoint();
                     }
-                    if (resolvedDeployment == null || resolvedDeployment.trim().isEmpty()) {
-                        resolvedDeployment = aiAssistantConfig.getAzureOpenaiDeploymentName();
+                    if (!allowsStoredCredential(resolvedEndpoint)) {
+                        return Mono.just(insecureDestinationResponse(provider));
                     }
+
+                    String resolvedDeployment = hasValue(deploymentName)
+                            ? deploymentName
+                            : aiAssistantConfig.getAzureOpenaiDeploymentName();
                     return testAzureOpenaiKey(storedKey, resolvedEndpoint, resolvedDeployment, apiVersion);
                 }
 
-                String resolvedBaseUrl = baseUrl;
+                String resolvedBaseUrl = null;
                 String resolvedModel = model;
                 if ("CLAUDE".equalsIgnoreCase(provider)) {
-                    if (!hasValue(resolvedBaseUrl)) {
-                        resolvedBaseUrl = aiAssistantConfig.getClaudeBaseUrl();
-                    }
+                    resolvedBaseUrl = aiAssistantConfig.getClaudeBaseUrl();
                     if (!hasValue(resolvedModel)) {
                         resolvedModel = aiAssistantConfig.getClaudeModel();
                     }
                 } else if ("OPENAI".equalsIgnoreCase(provider)) {
-                    if (!hasValue(resolvedBaseUrl)) {
-                        resolvedBaseUrl = aiAssistantConfig.getOpenaiBaseUrl();
-                    }
+                    resolvedBaseUrl = aiAssistantConfig.getOpenaiBaseUrl();
                     if (!hasValue(resolvedModel)) {
                         resolvedModel = aiAssistantConfig.getOpenaiModel();
                     }
+                }
+
+                if (!allowsStoredCredential(resolvedBaseUrl)) {
+                    return Mono.just(insecureDestinationResponse(provider));
                 }
 
                 return testApiKeyWithProvider(provider, storedKey, resolvedBaseUrl, resolvedModel);
@@ -1512,6 +1528,12 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
             return;
         }
         String trimmed = value.trim();
+        // The settings page renders a stored key as bullets. Echoing that back means "unchanged",
+        // never "set the key to this" — storing it would overwrite a working credential with the
+        // placeholder and lock the provider out.
+        if (MASKED_API_KEY.equals(trimmed)) {
+            return;
+        }
         if (trimmed.length() > maxLength) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, fieldName + " is too long");
         }
@@ -1542,5 +1564,28 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
 
     private String stripTrailingSlash(String url) {
         return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
+    }
+
+    /**
+     * Applies only when the key comes from storage. An administrator who types a key into the form is
+     * knowingly sending that value to the URL beside it, and that path is left alone.
+     */
+    private boolean allowsStoredCredential(String url) {
+        return AIConfigSecretsCE.allowsStoredCredential(url);
+    }
+
+    private Map<String, Object> insecureDestinationResponse(String provider) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        response.put(
+                "error",
+                "The configured " + provider
+                        + " endpoint does not use HTTPS. Testing the saved API key would send it over an unencrypted connection.");
+        response.put(
+                "suggestions",
+                List.of(
+                        "Change the endpoint to an https:// URL",
+                        "Or type the API key into the field above to test this endpoint explicitly"));
+        return response;
     }
 }

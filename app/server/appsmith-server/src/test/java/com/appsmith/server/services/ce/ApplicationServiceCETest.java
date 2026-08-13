@@ -806,6 +806,34 @@ public class ApplicationServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void updateApplication_ignoresClientSuppliedExportAndForkWithConfiguration() {
+        // These flags gate whether an application export decrypts and emits datasource
+        // secrets. They must be assignable only through server-internal fork/import
+        // paths, never from a client-supplied update body. Regression guard for
+        // APP-15781: a client PUT that sets them must not persist them.
+        Application application = new Application();
+        application.setName("updateApplication-configFlagGuard-Test");
+
+        Mono<Application> resultMono = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(created -> {
+                    Application update = new Application();
+                    update.setExportWithConfiguration(Boolean.TRUE);
+                    update.setForkWithConfiguration(Boolean.TRUE);
+                    return applicationService.update(created.getId(), update);
+                })
+                .flatMap(updated -> applicationService.getById(updated.getId()));
+
+        StepVerifier.create(resultMono)
+                .assertNext(app -> {
+                    assertThat(app.getExportWithConfiguration()).isNotEqualTo(Boolean.TRUE);
+                    assertThat(app.getForkWithConfiguration()).isNotEqualTo(Boolean.TRUE);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void updateApplicationWithPresets_persistsHtmlLang() {
         Application application = new Application();
         application.setName("updateApplicationHtmlLang-Test");
