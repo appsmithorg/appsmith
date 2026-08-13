@@ -723,18 +723,27 @@ function PopoverContent(props: PopoverContentProps) {
   );
 }
 
+// Roughly two CodeMirror lines: fields taller than this are multiline editors.
+export const SHORT_FIELD_MAX_HEIGHT = 60;
+
 export function getEvaluatedPopupPlacement(
   targetLeft: number,
   viewportWidth: number,
+  targetHeight: number,
 ): [Placement, string] {
   // Fields on the right half of the screen (e.g. the property pane) show the
   // popup on their left, floating over the canvas.
   if (targetLeft >= viewportWidth / 2) return ["left-start", "0, 15"];
 
-  // Wide-form fields (query/API forms) show the popup below the field so it
-  // never covers the value being edited; popper flips it above when there is
-  // no room underneath.
-  return ["bottom-start", "0, 8"];
+  // Short wide-form fields (query/API/settings forms) show the popup below the
+  // field so it never covers the value being edited; popper flips it above
+  // when there is no room underneath.
+  if (targetHeight <= SHORT_FIELD_MAX_HEIGHT) return ["bottom-start", "0, 8"];
+
+  // Tall multiline editors (JS editor, multiline API params): below-placement
+  // can run out of viewport and get pushed back over the code, so keep the
+  // popup on the left as before.
+  return ["left-start", "0, 5"];
 }
 
 function EvaluatedValuePopup(props: Props) {
@@ -749,9 +758,9 @@ function EvaluatedValuePopup(props: Props) {
 
     if (!wrapperRef.current) return ["left-start", "0, 0"];
 
-    const { left } = wrapperRef.current.getBoundingClientRect();
+    const { height, left } = wrapperRef.current.getBoundingClientRect();
 
-    return getEvaluatedPopupPlacement(left, window.innerWidth);
+    return getEvaluatedPopupPlacement(left, window.innerWidth, height);
     // props.isOpen keeps the placement fresh each time the popup opens: the
     // ref is null on first render and ref mutation alone never re-renders.
   }, [wrapperRef.current, props.popperPlacement, props.isOpen]);

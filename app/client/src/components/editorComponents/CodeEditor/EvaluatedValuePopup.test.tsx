@@ -81,24 +81,35 @@ describe("EvaluatedValuePopup", () => {
   });
 
   it("should place the popup left of fields on the right half of the viewport (property pane)", () => {
-    expect(getEvaluatedPopupPlacement(900, 1440)).toEqual([
+    expect(getEvaluatedPopupPlacement(900, 1440, 36)).toEqual([
       "left-start",
       "0, 15",
     ]);
-    expect(getEvaluatedPopupPlacement(720, 1440)).toEqual([
+    expect(getEvaluatedPopupPlacement(720, 1440, 300)).toEqual([
       "left-start",
       "0, 15",
     ]);
   });
 
-  it("should place the popup below wide-form fields on the left half of the viewport", () => {
-    expect(getEvaluatedPopupPlacement(100, 1440)).toEqual([
+  it("should place the popup below short wide-form fields on the left half of the viewport", () => {
+    expect(getEvaluatedPopupPlacement(100, 1440, 36)).toEqual([
       "bottom-start",
       "0, 8",
     ]);
-    expect(getEvaluatedPopupPlacement(719, 1440)).toEqual([
+    expect(getEvaluatedPopupPlacement(719, 1440, 60)).toEqual([
       "bottom-start",
       "0, 8",
+    ]);
+  });
+
+  it("should keep the popup on the left for tall multiline editors on the left half", () => {
+    expect(getEvaluatedPopupPlacement(300, 1440, 61)).toEqual([
+      "left-start",
+      "0, 5",
+    ]);
+    expect(getEvaluatedPopupPlacement(100, 1440, 500)).toEqual([
+      "left-start",
+      "0, 5",
     ]);
   });
 
