@@ -50,7 +50,11 @@ export const AnvilEditorCanvas = (props: BaseWidgetProps) => {
     return () => {
       canvasRef.current?.removeEventListener("click", handleOnClickCapture);
     };
-  }, []);
+    // Depend on handleOnClickCapture so the listener is re-bound when it
+    // changes. With an empty array the effect kept the handler captured at
+    // mount, which read stale drag/resize state and cleared selections during
+    // an active drag.
+  }, [handleOnClickCapture]);
   /* End of click event listener */
 
   useSelectWidgetListener();
