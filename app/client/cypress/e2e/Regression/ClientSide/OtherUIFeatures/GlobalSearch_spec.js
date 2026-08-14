@@ -161,7 +161,12 @@ describe("GlobalSearch", { tags: ["@tag.Sanity"] }, function () {
       .first()
       .click();
     cy.wait("@createNewApi");
-    _.agHelper.GetObjectName().then((title) => expect(title).includes("Api"));
+    // The "New Query" add-tab stays active for a beat after the action is created, so
+    // the active tab has to be re-read until it settles on the new API. A tab that is
+    // still in rename mode carries its name in data-value instead of a text node.
+    _.agHelper.GetElement(_.locators._activeEntityTab).should(($tab) => {
+      expect($tab.attr("data-value") ?? $tab.text()).to.include("Api");
+    });
   });
 
   // since now datasource will only be saved once user clicks on save button explicitly,
