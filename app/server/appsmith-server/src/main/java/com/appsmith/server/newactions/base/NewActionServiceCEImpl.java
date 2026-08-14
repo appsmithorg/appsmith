@@ -651,6 +651,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 }
             }
 
+            // datasourceMono is subscribed twice below (pluginMono and the zipWith), so cache it
+            // to avoid re-running the ACL-scoped findById, datasource validation, and the
+            // public-action policy update on the second subscription.
+            datasourceMono = datasourceMono.cache();
+
             Mono<Plugin> pluginMono = datasourceMono.flatMap(datasource -> {
                 if (datasource.getPluginId() == null) {
                     return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
