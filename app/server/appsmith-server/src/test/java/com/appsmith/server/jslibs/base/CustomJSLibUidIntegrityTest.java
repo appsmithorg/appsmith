@@ -43,9 +43,18 @@ class CustomJSLibUidIntegrityTest {
         AnalyticsService analyticsService = mock(AnalyticsService.class);
         ContextBasedJsLibService<Application> applicationContextBasedJsLibService =
                 mock(ContextBasedJsLibService.class);
+        com.appsmith.server.applications.base.ApplicationService applicationService =
+                mock(com.appsmith.server.applications.base.ApplicationService.class);
+        com.appsmith.server.solutions.ApplicationPermission applicationPermission =
+                mock(com.appsmith.server.solutions.ApplicationPermission.class);
 
         customJSLibService = new CustomJSLibServiceCEImpl(
-                validator, repository, analyticsService, applicationContextBasedJsLibService);
+                validator,
+                repository,
+                analyticsService,
+                applicationContextBasedJsLibService,
+                applicationService,
+                applicationPermission);
     }
 
     /**
