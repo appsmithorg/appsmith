@@ -229,7 +229,29 @@ export default (props: PopperProps) => {
           if (!positionRef.current) _popper.scheduleUpdate();
         });
         resizeObserver.observe(props.targetNode);
+
+        // Also track the popper's own size: collapsing/expanding its content
+        // changes the box and the position must be recomputed immediately.
+        if (contentRef.current) resizeObserver.observe(contentRef.current);
       }
+
+      // popper's own scroll listeners only cover the scroll parents it can
+      // detect; the editor's app-shell scrollers escape that walk, leaving the
+      // popup stranded at stale coordinates when the form scrolls. A capture-
+      // phase listener on window sees scroll events from every nested
+      // container. Skipped while the user has dragged the popup by hand.
+      let scrollRaf = 0;
+      const onAnyScroll = () => {
+        if (positionRef.current) return;
+
+        cancelAnimationFrame(scrollRaf);
+        scrollRaf = requestAnimationFrame(() => _popper.scheduleUpdate());
+      };
+
+      window.addEventListener("scroll", onAnyScroll, {
+        capture: true,
+        passive: true,
+      });
 
       if (isDraggable) {
         disablePopperEvents && _popper.disableEventListeners();
@@ -253,6 +275,8 @@ export default (props: PopperProps) => {
       }
 
       return () => {
+        cancelAnimationFrame(scrollRaf);
+        window.removeEventListener("scroll", onAnyScroll, { capture: true });
         resizeObserver?.disconnect();
         _popper.destroy();
       };
