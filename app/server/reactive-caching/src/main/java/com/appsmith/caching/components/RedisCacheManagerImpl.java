@@ -4,9 +4,8 @@ import com.appsmith.caching.model.CacheStats;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.core.script.RedisScript;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -22,8 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class RedisCacheManagerImpl implements CacheManager {
 
+    private static final int SCAN_BATCH_SIZE = 1000;
+
     private final ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
-    private final ReactiveRedisOperations<String, String> reactiveRedisOperations;
 
     Map<String, CacheStats> statsMap = new ConcurrentHashMap<>();
 
@@ -59,11 +59,8 @@ public class RedisCacheManagerImpl implements CacheManager {
     }
 
     @Autowired
-    public RedisCacheManagerImpl(
-            ReactiveRedisTemplate<String, Object> reactiveRedisTemplate,
-            ReactiveRedisOperations<String, String> reactiveRedisOperations) {
+    public RedisCacheManagerImpl(ReactiveRedisTemplate<String, Object> reactiveRedisTemplate) {
         this.reactiveRedisTemplate = reactiveRedisTemplate;
-        this.reactiveRedisOperations = reactiveRedisOperations;
     }
 
     @Override
@@ -107,10 +104,14 @@ public class RedisCacheManagerImpl implements CacheManager {
     public Mono<Void> evictAll(String cacheName) {
         ensureStats(cacheName);
         statsMap.get(cacheName).getCompleteEvictions().incrementAndGet();
-        String path = cacheName;
-        // Remove all matching keys with wildcard
-        final String script =
-                "for _,k in ipairs(redis.call('keys','" + path + ":*'))" + " do redis.call('del',k) " + "end";
-        return reactiveRedisOperations.execute(RedisScript.of(script)).then();
+        // SCAN + UNLINK instead of KEYS so Redis is never blocked on a full keyspace sweep
+        return reactiveRedisTemplate
+                .scan(ScanOptions.scanOptions()
+                        .match(cacheName + ":*")
+                        .count(SCAN_BATCH_SIZE)
+                        .build())
+                .buffer(SCAN_BATCH_SIZE)
+                .concatMap(keys -> reactiveRedisTemplate.unlink(keys.toArray(new String[0])))
+                .then();
     }
 }
