@@ -265,10 +265,13 @@ export const isEmptyTriggerValue = (value?: string): boolean => {
     return true;
   }
 
-  const code = value
-    .trim()
-    .replace(/^{{|}}$/g, "")
-    .trim();
+  let code = value.trim();
+
+  // Only strip a complete {{ ... }} pair. A lone "{{" or "}}" is malformed
+  // input and must not be treated as an empty leftover event.
+  if (code.startsWith("{{") && code.endsWith("}}")) {
+    code = code.slice(2, -2).trim();
+  }
 
   return code === "" || code === ";" || code === "undefined;";
 };

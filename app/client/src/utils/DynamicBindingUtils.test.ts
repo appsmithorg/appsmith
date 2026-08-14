@@ -303,6 +303,10 @@ describe("isEmptyTriggerValue", () => {
     ["undefined;", true],
     ["{{showAlert('hi');}}", false],
     ["showAlert('hi');", false],
+    // Incomplete mustache pairs must stay non-empty so they still lint.
+    ["{{;", false],
+    ["{{", false],
+    ["undefined;}}", false],
   ])("returns %s → %s", (value, expected) => {
     expect(isEmptyTriggerValue(value)).toBe(expected);
   });
