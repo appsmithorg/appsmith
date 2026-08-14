@@ -255,6 +255,24 @@ export const isPathDynamicTrigger = (
   return false;
 };
 
+/**
+ * True when a trigger property has no executable JS: empty string, empty
+ * mustache `{{}}`, a leftover semicolon, or `undefined;`.
+ * Used when dropping a path from dynamicTriggerPathList and when skipping lint.
+ */
+export const isEmptyTriggerValue = (value?: string): boolean => {
+  if (!value || !value.trim()) {
+    return true;
+  }
+
+  const code = value
+    .trim()
+    .replace(/^{{|}}$/g, "")
+    .trim();
+
+  return code === "" || code === ";" || code === "undefined;";
+};
+
 export const getWidgetDynamicPropertyPathList = (
   widget: WidgetProps,
 ): DynamicPath[] => {

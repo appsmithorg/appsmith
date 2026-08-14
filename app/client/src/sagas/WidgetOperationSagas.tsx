@@ -62,6 +62,7 @@ import {
   getWidgetDynamicTriggerPathList,
   isChildPropertyPath,
   isDynamicValue,
+  isEmptyTriggerValue,
   isPathADynamicBinding,
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
@@ -367,12 +368,15 @@ function getDynamicTriggerPathListUpdate(
   propertyPath: string,
   propertyValue: string,
 ): DynamicPathUpdate {
-  if (propertyValue && !isPathDynamicTrigger(widget, propertyPath)) {
+  const isEmpty = isEmptyTriggerValue(propertyValue);
+  const isTriggerPath = isPathDynamicTrigger(widget, propertyPath);
+
+  if (!isEmpty && !isTriggerPath) {
     return {
       propertyPath,
       effect: DynamicPathUpdateEffectEnum.ADD,
     };
-  } else if (!propertyValue && !isPathDynamicTrigger(widget, propertyPath)) {
+  } else if (isEmpty && isTriggerPath) {
     return {
       propertyPath,
       effect: DynamicPathUpdateEffectEnum.REMOVE,
