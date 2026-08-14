@@ -753,18 +753,26 @@ function EvaluatedValuePopup(props: Props) {
   const [isDragging, setIsDragging] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
-  // CodeEditor fields auto-grow while the user types; track the wrapper's
+
+  // The Wrapper div is height:100% of a fixed form row, so it does NOT grow
+  // when CodeMirror auto-grows — the editor (Wrapper's first child) overflows
+  // it. Anchor and measure the child so placement tracks the real field box.
+  const getAnchorNode = () =>
+    (wrapperRef.current?.firstElementChild as HTMLElement | null) ||
+    wrapperRef.current;
+
+  // CodeEditor fields auto-grow while the user types; track the anchor's
   // height so the placement decision below is re-evaluated on growth
   // (a short field can become a tall multiline editor mid-edit).
-  const [wrapperHeight, setWrapperHeight] = useState(0);
+  const [anchorHeight, setAnchorHeight] = useState(0);
 
   useEffect(() => {
-    const node = wrapperRef.current;
+    const node = getAnchorNode();
 
     if (!node || typeof ResizeObserver === "undefined") return;
 
     const observer = new ResizeObserver((entries) => {
-      setWrapperHeight(entries[0]?.contentRect.height || 0);
+      setAnchorHeight(entries[0]?.contentRect.height || 0);
     });
 
     observer.observe(node);
@@ -775,15 +783,17 @@ function EvaluatedValuePopup(props: Props) {
   const [placement, offset]: [Placement, string] = useMemo(() => {
     if (props.popperPlacement) return [props.popperPlacement, "0, 0"];
 
-    if (!wrapperRef.current) return ["left-start", "0, 0"];
+    const anchorNode = getAnchorNode();
 
-    const { height, left } = wrapperRef.current.getBoundingClientRect();
+    if (!anchorNode) return ["left-start", "0, 0"];
+
+    const { height, left } = anchorNode.getBoundingClientRect();
 
     return getEvaluatedPopupPlacement(left, window.innerWidth, height);
     // props.isOpen keeps the placement fresh each time the popup opens (the
     // ref is null on first render and ref mutation alone never re-renders);
-    // wrapperHeight keeps it fresh while the field grows.
-  }, [wrapperRef.current, props.popperPlacement, props.isOpen, wrapperHeight]);
+    // anchorHeight keeps it fresh while the field grows.
+  }, [wrapperRef.current, props.popperPlacement, props.isOpen, anchorHeight]);
 
   return (
     <Wrapper ref={wrapperRef}>
@@ -810,7 +820,7 @@ function EvaluatedValuePopup(props: Props) {
         position={position}
         setIsDragging={setIsDragging}
         setPosition={setPosition}
-        targetNode={wrapperRef.current || undefined}
+        targetNode={getAnchorNode() || undefined}
         zIndex={props.popperZIndex || Layers.evaluationPopper}
       >
         <PopoverContent
