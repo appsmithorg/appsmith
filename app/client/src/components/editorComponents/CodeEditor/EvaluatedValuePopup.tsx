@@ -754,12 +754,22 @@ function EvaluatedValuePopup(props: Props) {
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // The Wrapper div is height:100% of a fixed form row, so it does NOT grow
-  // when CodeMirror auto-grows — the editor (Wrapper's first child) overflows
-  // it. Anchor and measure the child so placement tracks the real field box.
-  const getAnchorNode = () =>
-    (wrapperRef.current?.firstElementChild as HTMLElement | null) ||
-    wrapperRef.current;
+  // Neither the Wrapper (height:100% of a fixed form row) nor the
+  // EditorWrapper (fixed height prop) grows when the user types multiline
+  // content: with codeEditorVisibleOverflow the inner .CodeMirror element
+  // (height: auto) grows and visibly overflows them. Anchor and measure the
+  // .CodeMirror box so placement tracks the code area the user actually sees.
+  const getAnchorNode = () => {
+    const wrapper = wrapperRef.current;
+
+    if (!wrapper) return null;
+
+    return (
+      (wrapper.querySelector(".CodeMirror") as HTMLElement | null) ||
+      (wrapper.firstElementChild as HTMLElement | null) ||
+      wrapper
+    );
+  };
 
   // CodeEditor fields auto-grow while the user types; track the anchor's
   // height so the placement decision below is re-evaluated on growth
@@ -767,6 +777,9 @@ function EvaluatedValuePopup(props: Props) {
   const [anchorHeight, setAnchorHeight] = useState(0);
 
   useEffect(() => {
+    // Re-acquire on every open: CodeMirror is instantiated by the parent
+    // CodeEditor after this component first mounts, so the mount-time anchor
+    // may be a stale fallback.
     const node = getAnchorNode();
 
     if (!node || typeof ResizeObserver === "undefined") return;
@@ -778,7 +791,8 @@ function EvaluatedValuePopup(props: Props) {
     observer.observe(node);
 
     return () => observer.disconnect();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.isOpen]);
 
   const [placement, offset]: [Placement, string] = useMemo(() => {
     if (props.popperPlacement) return [props.popperPlacement, "0, 0"];
