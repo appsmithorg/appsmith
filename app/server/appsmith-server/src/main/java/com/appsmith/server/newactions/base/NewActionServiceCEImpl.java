@@ -651,33 +651,28 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 }
             }
 
-            // datasourceMono is subscribed twice below (pluginMono and the zipWith), so cache it
-            // to avoid re-running the ACL-scoped findById, datasource validation, and the
-            // public-action policy update on the second subscription.
-            datasourceMono = datasourceMono.cache();
-
-            Mono<Plugin> pluginMono = datasourceMono.flatMap(datasource -> {
+            // Resolve the datasource once and keep it in scope for the final mapping, rather than
+            // subscribing the chain a second time (e.g. via zipWith), which would re-run the
+            // ACL-scoped findById, datasource validation, and the public-action policy update.
+            validatedActionMono = datasourceMono.flatMap(datasource -> {
                 if (datasource.getPluginId() == null) {
                     return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
                 }
-                return pluginService.findById(datasource.getPluginId()).switchIfEmpty(Mono.defer(() -> {
-                    editActionDTO.setIsValid(false);
-                    invalids.add(
-                            AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PLUGIN, datasource.getPluginId()));
-                    return Mono.just(new Plugin());
-                }));
+                return pluginService
+                        .findById(datasource.getPluginId())
+                        .switchIfEmpty(Mono.defer(() -> {
+                            editActionDTO.setIsValid(false);
+                            invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(
+                                    FieldName.PLUGIN, datasource.getPluginId()));
+                            return Mono.just(new Plugin());
+                        }))
+                        // Set plugin in the action before saving.
+                        .map(plugin -> {
+                            editActionDTO.setDatasource(datasource);
+                            editActionDTO.setPluginName(plugin.getName());
+                            return newAction;
+                        });
             });
-
-            validatedActionMono = pluginMono
-                    .zipWith(datasourceMono)
-                    // Set plugin in the action before saving.
-                    .map(tuple -> {
-                        Plugin plugin = tuple.getT1();
-                        Datasource datasource = tuple.getT2();
-                        editActionDTO.setDatasource(datasource);
-                        editActionDTO.setPluginName(plugin.getName());
-                        return newAction;
-                    });
         }
 
         return validatedActionMono
