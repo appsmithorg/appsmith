@@ -57,7 +57,7 @@ public class GitUtilsTest {
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@absolute.path.com:/test/newRepo.git"))
                 .isEqualTo("https://absolute.path.com/test/newRepo");
 
-        // Custom SSH port:
+        // Custom SSH port (ssh:// scheme — port must not become part of the HTTPS path):
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
                         "ssh://git@example.test.net:1234/user/test/tests/testRepo.git"))
                 .isEqualTo("https://example.test.net/user/test/tests/testRepo");
@@ -66,6 +66,16 @@ public class GitUtilsTest {
                 .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
                         "ssh://git@tim.tam.example.com:9876/v3/sladeping/pyhe/SpaceJunk"))
+                .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
+
+        // Custom SSH port (SCP-like form user@host:port/path — same HTTPS result as ssh://):
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
+                        "git@example.test.net:2222/user/test/tests/testRepo.git"))
+                .isEqualTo("https://example.test.net/user/test/tests/testRepo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@example.com:443/test/testRepo.git"))
+                .isEqualTo("https://example.com/test/testRepo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
+                        "git@tim.tam.example.com:5678/v3/sladeping/pyhe/SpaceJunk"))
                 .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
 
         // custom ssh username:

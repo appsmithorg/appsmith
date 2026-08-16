@@ -36,11 +36,14 @@ public class GitUtils {
     /**
      * Pattern for validating the ssh address if it strictly doesn't start with a scheme
      * username can start with any small alphabet or a _ underscore
-     * hostname can have all alphanumerics, -, and .  e.g. ssh://_ab-xy@ab-12.ab:/v3/newJet/ai/zilla.git
-     * the port number could be not present as well. e.g. ssh://_ab-xy@domain.com:/v3/newJet/ai/zilla
+     * hostname can have all alphanumerics, -, and .  e.g. _ab-xy@ab-12.ab:v3/newJet/ai/zilla.git
+     * Optional custom port is supported as user@host:port/path (e.g. git@host:2222/user/repo.git).
+     * A leading numeric path segment followed by '/' is treated as a port, matching common
+     * non-standard SCP-style URLs; such numeric namespaces are extremely rare in practice.
+     * The captured port is not included in the HTTPS conversion (same as URL_PATTERN_WITH_SCHEME).
      */
     public static final Pattern URL_PATTERN_WITHOUT_SCHEME =
-            Pattern.compile("^[a-z_][\\w-]+@(?<host>[\\w-.]+):/*(?<path>.+?)(\\.git)?$");
+            Pattern.compile("^[a-z_][\\w-]+@(?<host>[\\w-.]+):(?:(?<port>\\d+)/)?/*(?<path>.+?)(\\.git)?$");
 
     /**
      * Sample repo urls :
