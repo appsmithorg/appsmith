@@ -44,17 +44,29 @@ export const AnvilEditorCanvas = (props: BaseWidgetProps) => {
     [clickToClearSelections],
   );
 
+  // Keep the latest handler in a ref so the click listener is registered once
+  // with a stable identity while still reading current drag/resize state.
+  // useClickToClearSelections returns a new function each render, so depending
+  // the effect on handleOnClickCapture would re-bind the listener on every
+  // render (constant add/remove churn during a drag, with a brief window where
+  // no listener is attached). The ref keeps the fix for the stale closure an
+  // empty dependency array caused, without that re-registration.
+  const handleOnClickCaptureRef = useRef(handleOnClickCapture);
   useEffect(() => {
-    canvasRef.current?.addEventListener("click", handleOnClickCapture);
+    handleOnClickCaptureRef.current = handleOnClickCapture;
+  });
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const handleClick = (event: MouseEvent) =>
+      handleOnClickCaptureRef.current(event);
+
+    canvas?.addEventListener("click", handleClick);
 
     return () => {
-      canvasRef.current?.removeEventListener("click", handleOnClickCapture);
+      canvas?.removeEventListener("click", handleClick);
     };
-    // Depend on handleOnClickCapture so the listener is re-bound when it
-    // changes. With an empty array the effect kept the handler captured at
-    // mount, which read stale drag/resize state and cleared selections during
-    // an active drag.
-  }, [handleOnClickCapture]);
+  }, []);
   /* End of click event listener */
 
   useSelectWidgetListener();
