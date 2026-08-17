@@ -115,7 +115,7 @@ __metadata:
     "@capsizecss/core": ^3.1.1
     "@capsizecss/metrics": ^1.2.0
     "@emotion/css": ^11.13.0
-    colorjs.io: ^0.5.2
+    colorjs.io: ^0.7.1
     lodash: ">=4.17.21"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
@@ -13739,7 +13739,7 @@ __metadata:
     clsx: ^1.2.1
     codemirror: ^5.65.13
     codemirror-graphql: ^1.2.14
-    colorjs.io: ^0.5.2
+    colorjs.io: ^0.7.1
     compression-webpack-plugin: ^11.1.0
     copy-to-clipboard: ^3.3.1
     core-js: ^3.9.1
@@ -16093,10 +16093,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"colorjs.io@npm:^0.5.2":
-  version: 0.5.2
-  resolution: "colorjs.io@npm:0.5.2"
-  checksum: f4ad8a0ead4e7eb74612a5fed9ae999201116b215b2eac70660c1f643e21980922741641209bdbd010723923762e8e80bd499250acf7505605309f01b76f53fa
+"colorjs.io@npm:^0.7.1":
+  version: 0.7.1
+  resolution: "colorjs.io@npm:0.7.1"
+  checksum: 615ebe4812af1cb5709ec3dd7343013015383349b3c92322a5d109cef9673007d89f4c1a88c265f78623184701416d873e877752bfe23bc3d2eff7f3697bcc44
   languageName: node
   linkType: hard
 

@@ -126,7 +126,7 @@
     "clsx": "^1.2.1",
     "codemirror": "^5.65.13",
     "codemirror-graphql": "^1.2.14",
-    "colorjs.io": "^0.5.2",
+    "colorjs.io": "^0.7.1",
     "copy-to-clipboard": "^3.3.1",
     "core-js": "^3.9.1",
     "cypress-log-to-output": "^1.1.2",
