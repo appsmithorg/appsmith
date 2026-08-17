@@ -9,8 +9,10 @@ Before raising a pull request, ensure you have raised a corresponding issue and 
 
 Looking for issues to contribute to? Check out our [Inviting Contribution Issues](https://github.com/appsmithorg/appsmith/issues?q=is:open+is:issue+label:%22Inviting+Contribution%22+) – a great starting point for your contribution journey with Appsmith! Tag @contributor-support to have an issue assigned to you. If you choose to work on issues outside this list, please collaborate closely with us. Failure to inform and get the issue assigned beforehand may result in your contribution being rejected, leading to wasted effort for both parties.
 
+When you comment to express interest in an issue, briefly share how you plan to approach the fix — for example, where you expect the change to live and the high-level steps you would take. A short proposed approach helps maintainers confirm the direction (or steer you earlier), so the issue can be assigned with less back-and-forth and less wasted effort on either side.
+
 #### What not to do:
-1. Work on issues without informing the maintainer. Please get them assigned to yourself first. Comment on the issue if you are interested. 
+1. Work on issues without informing the maintainer. Please get them assigned to yourself first. Comment on the issue if you are interested, and include a brief proposed approach — not only that you want to take it.
 2. Naming lengthy branches. 
 3. Create PR(s) without proper description. 
 4. Requesting for review without latest release pull on PR. 
