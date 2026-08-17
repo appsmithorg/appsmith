@@ -13849,7 +13849,7 @@ __metadata:
     postcss-nesting: ^12.0.1
     postcss-normalize: ^10.0.1
     postcss-preset-env: ^7.0.1
-    postcss-url: ^10.1.3
+    postcss-url: ^10.1.4
     prettier: 3.2.5
     prismjs: ^1.30.0
     prompts: ^2.4.2
@@ -25677,7 +25677,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^3.0.2":
+"minimatch@npm:^3.0.2, minimatch@npm:^3.1.5":
   version: 3.1.5
   resolution: "minimatch@npm:3.1.5"
   dependencies:
@@ -28608,17 +28608,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-url@npm:^10.1.3":
-  version: 10.1.3
-  resolution: "postcss-url@npm:10.1.3"
+"postcss-url@npm:^10.1.4":
+  version: 10.1.4
+  resolution: "postcss-url@npm:10.1.4"
   dependencies:
     make-dir: ~3.1.0
     mime: ~2.5.2
-    minimatch: ~3.0.4
+    minimatch: ^3.1.5
     xxhashjs: ~0.2.2
   peerDependencies:
     postcss: ^8.0.0
-  checksum: 5983dbd20eabc0ba394a80aec14b6d6fdb986632ff6a4d3a6f0afc478d639f8a753a5c1e2bc7b9f6692befdb578372e7b288ab3d29bfa6b0d3ee06afca645f06
+  checksum: b35fb23c3f097337d0b9e1912232a42cafc161810b141f86a92b7d8770c69cedb4e1f5a67e76ae6e1878da18eae560e4393fd20979dc07c68ffbd177227b16e7
   languageName: node
   linkType: hard
 
