@@ -52,7 +52,7 @@ export const draggableElement = (
   },
   dragHandle?: () => JSX.Element,
   cypressSelectorDragHandle?: string,
-) => {
+): (() => void) => {
   let newXPos = 0,
     newYPos = 0,
     oldXPos = 0,
@@ -123,7 +123,10 @@ export const draggableElement = (
 
     element.style.top = calculatedTop + "px";
     element.style.left = calculatedLeft + "px";
-    const validFirstDrag = !isDragged && newXPos !== 0 && newYPos !== 0;
+    // A straight-up or straight-across drag has a zero delta on one axis;
+    // requiring both to be non-zero meant such a drag never registered, so
+    // the position was never persisted on mouseup and the popper snapped back.
+    const validFirstDrag = !isDragged && (newXPos !== 0 || newYPos !== 0);
 
     if (validFirstDrag) {
       resizeObserver.observe(element);
@@ -159,10 +162,17 @@ export const draggableElement = (
     }
   };
 
+  const releaseDocumentHandlers = () => {
+    // Only release handlers this instance installed: a later draggableElement
+    // may already own them.
+    if (document.onmouseup === closeDragElement) document.onmouseup = null;
+
+    if (document.onmousemove === elementDrag) document.onmousemove = null;
+  };
+
   const closeDragElement = () => {
     updateElementPosition();
-    document.onmouseup = null;
-    document.onmousemove = null;
+    releaseDocumentHandlers();
   };
   const debouncedUpdatePosition = debounce(updateElementPosition, 50);
 
@@ -191,12 +201,32 @@ export const draggableElement = (
 
     dragHandler.addEventListener("mousedown", dragMouseDown);
     // stop clicks from propogating to widget editor.
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    dragHandler.addEventListener("click", (e: any) => e.stopPropagation());
+    dragHandler.addEventListener("click", stopPropagation);
+  };
+
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const stopPropagation = (e: any) => e.stopPropagation();
+
+  // Without this, every call leaks a ResizeObserver holding a stale
+  // onPositionChange closure: they all keep writing the element's top/left
+  // long after their popper instance is gone, which stomps on live drags.
+  const teardown = () => {
+    debouncedUpdatePosition.cancel();
+    resizeObserver.disconnect();
+    dragHandler.removeEventListener("mousedown", dragMouseDown);
+    dragHandler.removeEventListener("click", stopPropagation);
+    releaseDocumentHandlers();
+
+    if (dragHandle && dragHandler !== element) {
+      ReactDOM.unmountComponentAtNode(dragHandler);
+      dragHandler.parentElement?.removeChild(dragHandler);
+    }
   };
 
   OnInit();
+
+  return teardown;
 };
 
 const createDragHandler = (

@@ -134,6 +134,14 @@ export default (props: PopperProps) => {
     themeMode = props.themeMode || ThemeMode.LIGHT,
   } = props;
 
+  // Once the user has dragged the popper, its position is owned by inline
+  // top/left. popper.js positions with a transform, so any update it runs on
+  // its own listeners stacks a translate on top of those coordinates: the
+  // popper jumps, and the drag maths (offsetTop/offsetLeft, which ignore
+  // transforms) is then anchored to a position the user cannot see.
+  const arePopperEventsDisabled =
+    disablePopperEvents || (isDraggable && !!position);
+
   // Memoizing to avoid rerender of draggable icon.
   // What is the cost of memoizing?
   const popperTheme = useMemo(
@@ -185,7 +193,7 @@ export default (props: PopperProps) => {
         props.targetNode,
         contentRef.current as unknown as Element,
         {
-          ...(isDraggable && disablePopperEvents
+          ...(isDraggable && arePopperEventsDisabled
             ? {}
             : { placement: props.placement }),
           onCreate: (popperData) => {
@@ -253,9 +261,11 @@ export default (props: PopperProps) => {
         passive: true,
       });
 
+      let disposeDraggable: (() => void) | undefined;
+
       if (isDraggable) {
-        disablePopperEvents && _popper.disableEventListeners();
-        draggableElement(
+        arePopperEventsDisabled && _popper.disableEventListeners();
+        disposeDraggable = draggableElement(
           `${popperId}-popper`,
           _popper.popper,
           onPositionChange,
@@ -278,6 +288,7 @@ export default (props: PopperProps) => {
         cancelAnimationFrame(scrollRaf);
         window.removeEventListener("scroll", onAnyScroll, { capture: true });
         resizeObserver?.disconnect();
+        disposeDraggable?.();
         _popper.destroy();
       };
     }
@@ -286,7 +297,7 @@ export default (props: PopperProps) => {
     props.isOpen,
     JSON.stringify(props.modifiers),
     props.placement,
-    disablePopperEvents,
+    arePopperEventsDisabled,
   ]);
 
   return createPortal(

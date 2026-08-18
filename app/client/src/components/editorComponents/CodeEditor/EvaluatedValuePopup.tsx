@@ -749,8 +749,19 @@ export function getEvaluatedPopupPlacement(
 function EvaluatedValuePopup(props: Props) {
   const [contentHovered, setContentHovered] = useState(false);
   const [timeoutId, setTimeoutId] = useState(0);
-  const [position, setPosition] = useState(undefined);
+  const [position, setPosition] = useState<
+    { top: number; left: number } | undefined
+  >(undefined);
   const [isDragging, setIsDragging] = useState(false);
+
+  const isPopupOpen = props.isOpen || contentHovered || isDragging;
+
+  // A hand-dragged position used to stick for the lifetime of the component,
+  // so the only way back to the anchored spot was to drag it there by hand.
+  // The popup already hides on blur, so reopening it re-anchors to the field.
+  useEffect(() => {
+    if (!isPopupOpen && position !== undefined) setPosition(undefined);
+  }, [isPopupOpen, position]);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -816,7 +827,7 @@ function EvaluatedValuePopup(props: Props) {
         editorRef={props?.editorRef}
         isDraggable
         isDragging={isDragging}
-        isOpen={props.isOpen || contentHovered || isDragging}
+        isOpen={isPopupOpen}
         modifiers={{
           ...modifiers,
           offset: {
