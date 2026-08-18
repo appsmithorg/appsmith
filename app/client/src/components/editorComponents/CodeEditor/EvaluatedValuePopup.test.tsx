@@ -11,30 +11,75 @@ import { theme } from "constants/DefaultTheme";
 import { EditorTheme } from "./EditorConfig";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 
-function renderPopup(props?: {
+function popupJsx(props?: {
   hasError?: boolean;
   hideEvaluatedValue?: boolean;
+  isOpen?: boolean;
 }) {
-  return render(
+  return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <EvaluatedValuePopup
           errors={[]}
           hasError={props?.hasError || false}
           hideEvaluatedValue={props?.hideEvaluatedValue || false}
-          isOpen
+          isOpen={props?.isOpen ?? true}
           theme={EditorTheme.LIGHT}
         >
           <div>children</div>
         </EvaluatedValuePopup>
       </ThemeProvider>
-    </Provider>,
+    </Provider>
   );
+}
+
+function renderPopup(props?: {
+  hasError?: boolean;
+  hideEvaluatedValue?: boolean;
+  isOpen?: boolean;
+}) {
+  return render(popupJsx(props));
+}
+
+// Drags the popup by its handle so its internal dragged-position state is
+// set, exactly as a user drag would. jsdom elements measure 0x0, and a
+// zero-size popup is treated as closed on mouseup, so give the popper
+// element a real box first.
+function dragPopupTo(clientX: number, clientY: number) {
+  const popperElement = document.querySelector(".t--CodeEditor-evaluatedValue")
+    ?.parentElement as HTMLElement;
+
+  popperElement.getBoundingClientRect = () =>
+    ({
+      left: 100,
+      top: 100,
+      width: 300,
+      height: 118,
+      right: 400,
+      bottom: 218,
+      x: 100,
+      y: 100,
+      toJSON: () => ({}),
+    }) as DOMRect;
+
+  const handle = document.querySelector(
+    "[id$='-popper-draghandler']",
+  ) as HTMLElement;
+
+  fireEvent.mouseDown(handle, { clientX: 10, clientY: 10 });
+  fireEvent.mouseMove(document, { clientX, clientY });
+  fireEvent.mouseUp(document, { clientX, clientY });
+
+  return popperElement;
 }
 
 describe("EvaluatedValuePopup", () => {
   beforeEach(() => {
     localStorage.removeItem(LOCAL_STORAGE_KEYS.EVALUATED_VALUE_POPUP_COLLAPSED);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it("should render evaluated popup when hideEvaluatedValue is false", () => {
@@ -124,5 +169,48 @@ describe("EvaluatedValuePopup", () => {
     expect(
       screen.getByTestId("t--evaluated-popup-error-indicator"),
     ).toBeTruthy();
+  });
+
+  it("should keep the dragged position across a window-level blur (minimize / app switch)", () => {
+    jest.spyOn(document, "hasFocus").mockReturnValue(false);
+
+    const { rerender } = renderPopup();
+
+    // the anchor ref is null on the very first render; a second render lets
+    // the popper attach and create its drag handle
+    rerender(popupJsx({ isOpen: true }));
+    dragPopupTo(60, 60);
+
+    // window loses focus -> editor blurs -> popup closes
+    rerender(popupJsx({ isOpen: false }));
+    // window restored, editor refocuses -> popup reopens
+    rerender(popupJsx({ isOpen: true }));
+
+    const popperElement = document.querySelector(
+      ".t--CodeEditor-evaluatedValue",
+    )?.parentElement as HTMLElement;
+
+    expect(popperElement.style.top).toBe("100px");
+    expect(popperElement.style.left).toBe("100px");
+  });
+
+  it("should re-anchor after an in-app blur discards the dragged position", () => {
+    jest.spyOn(document, "hasFocus").mockReturnValue(true);
+
+    const { rerender } = renderPopup();
+
+    rerender(popupJsx({ isOpen: true }));
+    dragPopupTo(60, 60);
+
+    // the user moves on inside the app: close and reopen
+    rerender(popupJsx({ isOpen: false }));
+    rerender(popupJsx({ isOpen: true }));
+
+    const popperElement = document.querySelector(
+      ".t--CodeEditor-evaluatedValue",
+    )?.parentElement as HTMLElement;
+
+    expect(popperElement.style.top).not.toBe("100px");
+    expect(popperElement.style.left).not.toBe("100px");
   });
 });

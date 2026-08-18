@@ -764,9 +764,15 @@ function EvaluatedValuePopup(props: Props) {
 
   // A hand-dragged position used to stick for the lifetime of the component,
   // so the only way back to the anchored spot was to drag it there by hand.
-  // The popup already hides on blur, so reopening it re-anchors to the field.
+  // The popup already hides on blur, so reopening it re-anchors to the field —
+  // but only for blurs inside the app. When the whole window loses focus
+  // (minimize, switching apps), the editor blurs too; discarding the dragged
+  // position then would teleport the popup back to its anchor the moment the
+  // user returns. document.hasFocus() separates the two cases.
   useEffect(() => {
-    if (!isPopupOpen && position !== undefined) setPosition(undefined);
+    if (!isPopupOpen && position !== undefined && document.hasFocus()) {
+      setPosition(undefined);
+    }
   }, [isPopupOpen, position]);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
