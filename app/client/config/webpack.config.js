@@ -369,6 +369,9 @@ module.exports = function (webpackEnv) {
         fs: false,
         os: false,
         path: false,
+        // Referenced by a Node-only code path in @betterbugs/web-sdk; never
+        // executed in the browser.
+        worker_threads: false,
         "react/jsx-runtime": require.resolve("react/jsx-runtime"),
       },
       plugins: [
@@ -609,6 +612,17 @@ module.exports = function (webpackEnv) {
           warning.module?.resource.includes("/node_modules/sass/sass.dart.js")
         );
       },
+      // The eval/lint/Tern workers lazily import() the same widget-config and
+      // vendor modules as the main graph, so webpack attaches those chunks to
+      // both runtimes (deliberate: the browser downloads each chunk once).
+      // Since main also references the worker entry chunks, webpack cannot
+      // compute independent per-runtime content hashes and warns "Circular
+      // dependency between chunks with runtime (evalWorker, main)". The only
+      // effect is a fallback hashing strategy for those chunks (a long-term
+      // caching micro-optimization); output correctness is unaffected.
+      // "Fixing" it would require isolating the worker bundles and duplicating
+      // several MB of shared vendors into each worker, which is strictly worse.
+      { message: /Circular dependency between chunks with runtime/ },
     ],
     plugins: [
       // Replace BlueprintJS’s icon component with our own implementation
