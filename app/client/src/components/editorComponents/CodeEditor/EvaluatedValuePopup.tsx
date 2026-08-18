@@ -851,8 +851,13 @@ function EvaluatedValuePopup(props: Props) {
         position={position}
         // Keep the drag grip centered over the popup: the default fixed
         // left offset strands it outside the box when the popup collapses
-        // to its slim pill.
-        renderDragBlockPositions={{ left: "calc(50% - 21px)" }}
+        // to its slim pill. The handler box must not intercept clicks — on
+        // the pill it overlaps the expand toggle — so it passes pointer
+        // events through; the visible grip re-enables its own.
+        renderDragBlockPositions={{
+          left: "calc(50% - 21px)",
+          pointerEvents: "none",
+        }}
         setIsDragging={setIsDragging}
         setPosition={setPosition}
         targetNode={getAnchorNode() || undefined}

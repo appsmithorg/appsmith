@@ -24,6 +24,7 @@ export interface PopperProps {
     top?: string;
     zIndex?: string;
     position?: string;
+    pointerEvents?: string;
   };
   style?: React.CSSProperties;
   placement: Placement;

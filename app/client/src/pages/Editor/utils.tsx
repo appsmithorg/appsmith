@@ -49,6 +49,7 @@ export const draggableElement = (
     top?: string;
     zIndex?: string;
     position?: string;
+    pointerEvents?: string;
   },
   dragHandle?: () => JSX.Element,
   cypressSelectorDragHandle?: string,
@@ -263,6 +264,7 @@ const createDragHandler = (
     top?: string;
     zIndex?: string;
     position?: string;
+    pointerEvents?: string;
   },
   cypressSelectorDragHandle?: string,
 ) => {
@@ -274,6 +276,11 @@ const createDragHandler = (
   dragElement.style.left = renderDragBlockPositions?.left ?? "135px";
   dragElement.style.top = renderDragBlockPositions?.top ?? "0px";
   dragElement.style.zIndex = renderDragBlockPositions?.zIndex ?? "3";
+  // "none" lets clicks pass through the handler box to the content beneath
+  // while a child handle that re-enables pointer events stays draggable —
+  // its events still bubble to this element's mousedown listener.
+  dragElement.style.pointerEvents =
+    renderDragBlockPositions?.pointerEvents ?? "";
 
   if (cypressSelectorDragHandle) {
     dragElement.setAttribute("data-testid", cypressSelectorDragHandle);
