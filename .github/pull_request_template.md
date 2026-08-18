@@ -14,10 +14,12 @@ Fixes `Issue URL`
 ## Testing
 
 > [!NOTE]
-> Pull requests from forks run credential-free formatting, lint, type, and unit
-> checks after GitHub's workflow approval. A maintainer will start integration
-> tests or a deploy preview when needed. External contributors do not need to
-> add an `ok-to-test` label or run a slash command.
+> **How CI runs on fork PRs — no action needed from you.**
+> 1. **Workflow approval.** GitHub holds the first run on fork PRs until a maintainer approves it, so a pause before any check appears is expected.
+> 2. **Credential-free checks.** Once approved, format, lint, typecheck, unit tests, cyclic-dependency and compile-only build checks run without repository secrets. Only the checks relevant to what you changed (client / server / RTS) will run, and their logs are safe to debug against.
+> 3. **Maintainer-triggered checks.** Cypress, Playwright, Docker builds and deploy previews need secrets, so a maintainer starts them with `/approve-ci`, and `/build-deploy-preview` when hands-on testing is needed. Approval is pinned to one commit — pushing again requires fresh approval.
+>
+> The `awaiting-maintainer` / `awaiting-contributor` labels show whose turn it is. You do **not** need `ok-to-test` or any slash command. Full detail: [Pull request check states](https://github.com/appsmithorg/appsmith/blob/release/contributions/CodeContributionsGuidelines.md#pull-request-check-states).
 
 Select the validation relevant to this change:
 
