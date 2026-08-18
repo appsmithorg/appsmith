@@ -15,7 +15,6 @@ import static com.external.plugins.constants.AnthropicConstants.CHAT_MODEL_SELEC
 import static com.external.plugins.constants.AnthropicConstants.DATA;
 import static com.external.plugins.constants.AnthropicConstants.DEFAULT_MAX_TOKEN;
 import static com.external.plugins.constants.AnthropicConstants.DEFAULT_TEMPERATURE;
-import static com.external.plugins.constants.AnthropicConstants.TEST_MODEL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -25,7 +24,8 @@ public class ChatCommandTest {
     public void testCreateTriggerUri() {
         ChatCommand command = new ChatCommand();
         URI uri = command.createTriggerUri();
-        assertEquals("/api/v1/ai/models", uri.getPath());
+        assertEquals("api.anthropic.com", uri.getHost());
+        assertEquals("/v1/models", uri.getPath());
     }
 
     @Test
@@ -44,7 +44,7 @@ public class ChatCommandTest {
         ChatCommand command = new ChatCommand();
 
         Map<String, Object> formData = new HashMap<>();
-        formData.put(CHAT_MODEL_SELECTOR, Map.of(DATA, TEST_MODEL));
+        formData.put(CHAT_MODEL_SELECTOR, Map.of(DATA, "claude-sonnet-5"));
 
         Object messages =
                 List.of(Map.of("role", "Human", "content", "Hey"), Map.of("role", "Assistant", "content", "Hi there!"));
@@ -54,7 +54,7 @@ public class ChatCommandTest {
 
         AnthropicRequestDTO request = command.makeRequestBody(actionConfiguration);
 
-        assertEquals(TEST_MODEL, request.getModel());
+        assertEquals("claude-sonnet-5", request.getModel());
         assertNotNull(request.getPrompt());
         assertEquals(DEFAULT_TEMPERATURE, request.getTemperature());
         assertEquals(DEFAULT_MAX_TOKEN, request.getMaxTokensToSample());
