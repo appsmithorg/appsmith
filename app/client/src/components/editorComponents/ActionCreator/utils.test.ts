@@ -16,6 +16,7 @@ import {
   stringToJS,
   textGetter,
   textSetter,
+  isEmptyBlock,
   isValueValidURL,
   objectSetter,
   sortSubMenuOptions,
@@ -1069,4 +1070,19 @@ describe("sortSubMenuOptions", () => {
       expect(result).toStrictEqual(expected);
     },
   );
+});
+
+describe("isEmptyBlock", () => {
+  it.each([
+    ["", true],
+    ["{{}}", true],
+    ["{{ }}", true],
+    ["{{;}}", true],
+    ["{{ ; }}", true],
+    [";", true],
+    ["undefined;", true],
+    ["{{showAlert('hi');}}", false],
+  ])("returns %s → %s", (value, expected) => {
+    expect(isEmptyBlock(value)).toBe(expected);
+  });
 });

@@ -1,5 +1,8 @@
 import { FUNC_ARGS_REGEX } from "./regex";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import {
+  getDynamicBindings,
+  isEmptyTriggerValue,
+} from "utils/DynamicBindingUtils";
 import { isValidURL, matchesURLPattern } from "utils/URLUtils";
 import {
   getTextArgumentAtPosition,
@@ -603,7 +606,7 @@ export function actionToCode(
 }
 
 export function isEmptyBlock(block: string) {
-  return [";", "undefined;", ""].includes(getCodeFromMoustache(block));
+  return isEmptyTriggerValue(block);
 }
 
 /** {{Hello {{Input.text}}}} -> Hello {{Input.text}} */
