@@ -10,8 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.PluginManager;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -24,8 +22,6 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
             AnalyticsService analyticsService,
             WorkspaceService workspaceService,
             PluginManager pluginManager,
-            ReactiveRedisTemplate<String, String> reactiveTemplate,
-            ChannelTopic topic,
             ObjectMapper objectMapper,
             CloudServicesConfig cloudServicesConfig,
             ConfigService configService,
@@ -37,8 +33,6 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
                 analyticsService,
                 workspaceService,
                 pluginManager,
-                reactiveTemplate,
-                topic,
                 objectMapper,
                 cloudServicesConfig,
                 configService,

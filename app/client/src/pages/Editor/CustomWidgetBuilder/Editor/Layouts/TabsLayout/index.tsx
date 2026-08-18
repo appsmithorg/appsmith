@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import styles from "./styles.module.css";
 import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
 import type { ContentProps } from "../../CodeEditors/types";
@@ -7,6 +8,11 @@ import classNames from "classnames";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { CUSTOM_WIDGET_BUILDER_TABS } from "../../../constants";
+import {
+  getHasAIApiKey,
+  getIsAIConfigLoaded,
+  getIsAIEnabled,
+} from "ee/selectors/aiAssistantSelectors";
 
 interface Props {
   tabs: Array<{
@@ -21,15 +27,37 @@ const LOCAL_STORAGE_KEYS = "custom-widget-layout-tabs-state";
 export default function TabLayout(props: Props) {
   const { tabs } = props;
 
-  const isDefaultAITab = useFeatureFlag(
+  const isAIBuilderEnabled = useFeatureFlag(
     FEATURE_FLAG.release_custom_widget_ai_builder,
+  );
+  const isAIEnabled = useSelector(getIsAIEnabled);
+  const hasAIApiKey = useSelector(getHasAIApiKey);
+  const isAIConfigLoaded = useSelector(getIsAIConfigLoaded);
+  const isAIConfigured = isAIEnabled && hasAIApiKey;
+  const isDefaultAITab = isAIBuilderEnabled && isAIConfigured;
+  const hadStoredTabRef = useRef(
+    window.localStorage.getItem(LOCAL_STORAGE_KEYS) !== null,
   );
 
   const [selectedTab, setSelectedTab] = useLocalStorageState<string>(
     LOCAL_STORAGE_KEYS,
     isDefaultAITab
       ? CUSTOM_WIDGET_BUILDER_TABS.AI
-      : CUSTOM_WIDGET_BUILDER_TABS.JS,
+      : CUSTOM_WIDGET_BUILDER_TABS.HTML,
+  );
+
+  useEffect(
+    function selectFirstTabAfterConfigLoads() {
+      if (!hadStoredTabRef.current && isAIConfigLoaded) {
+        setSelectedTab(
+          isDefaultAITab
+            ? CUSTOM_WIDGET_BUILDER_TABS.AI
+            : CUSTOM_WIDGET_BUILDER_TABS.HTML,
+        );
+        hadStoredTabRef.current = true;
+      }
+    },
+    [isAIConfigLoaded, isDefaultAITab, setSelectedTab],
   );
 
   useEffect(() => {
@@ -84,6 +112,7 @@ export default function TabLayout(props: Props) {
              *  to let the editor save the last cursor position
              */
             setTimeout(() => {
+              hadStoredTabRef.current = true;
               setSelectedTab(tab);
             });
           }}

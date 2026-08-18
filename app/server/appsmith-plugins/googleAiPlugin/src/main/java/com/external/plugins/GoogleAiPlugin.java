@@ -22,6 +22,9 @@ import com.external.plugins.models.GoogleAIRequestDTO;
 import com.external.plugins.utils.GoogleAIMethodStrategy;
 import com.external.plugins.utils.RequestUtils;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpMethod;
@@ -37,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.external.plugins.constants.GoogleAIConstants.BODY;
@@ -56,6 +60,11 @@ public class GoogleAiPlugin extends BasePlugin {
 
     public static class GoogleAiPluginExecutor extends BaseRestApiPluginExecutor {
         private static final Gson gson = new Gson();
+
+        // TTS, live/realtime, image/video generation and embedding variants also expose
+        // generateContent but are not usable as chat models
+        private static final Pattern NON_CHAT_MODEL_PATTERN =
+                Pattern.compile("tts|live|image|audio|embed|aqa|computer-use");
 
         protected GoogleAiPluginExecutor(SharedConfig sharedConfig) {
             super(sharedConfig);
@@ -197,7 +206,83 @@ public class GoogleAiPlugin extends BasePlugin {
         public Mono<TriggerResultDTO> trigger(
                 APIConnection connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
             log.debug(Thread.currentThread().getName() + ": trigger() called for GoogleAI plugin.");
-            return Mono.just(new TriggerResultDTO(getDataToMap(GoogleAIConstants.GOOGLE_AI_MODELS)));
+            final ApiKeyAuth apiKeyAuth = (ApiKeyAuth) datasourceConfiguration.getAuthentication();
+
+            // Without a usable key the live fetch cannot succeed; return the fallback list directly
+            if (apiKeyAuth == null || !StringUtils.hasText(apiKeyAuth.getValue())) {
+                return Mono.just(new TriggerResultDTO(getDataToMap(GoogleAIConstants.GOOGLE_AI_MODELS)));
+            }
+
+            URI uri = UriComponentsBuilder.fromUriString(GOOGLE_AI_API_ENDPOINT)
+                    .path(MODELS)
+                    // single page; Google caps pageSize at 1000, no pagination follow-up on purpose
+                    .queryParam("pageSize", 1000)
+                    .build()
+                    .toUri();
+
+            return Mono.defer(() -> RequestUtils.makeRequest(HttpMethod.GET, uri, apiKeyAuth, BodyInserters.empty()))
+                    .map(responseEntity -> {
+                        if (!responseEntity.getStatusCode().is2xxSuccessful() || responseEntity.getBody() == null) {
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR);
+                        }
+                        List<String> models = extractGenerateContentModels(new String(responseEntity.getBody()));
+                        if (models.isEmpty()) {
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR);
+                        }
+                        return models;
+                    })
+                    .onErrorResume(error -> {
+                        log.debug("Error while fetching Google AI models list, using the fallback list", error);
+                        return Mono.just(GoogleAIConstants.GOOGLE_AI_MODELS);
+                    })
+                    .map(models -> new TriggerResultDTO(getDataToMap(models)));
+        }
+
+        /**
+         * Parses the models.list response (https://ai.google.dev/api/models#method:-models.list) down to
+         * gemini chat models usable with the generateContent command. Package-visible for tests.
+         */
+        static List<String> extractGenerateContentModels(String responseBody) {
+            JsonObject response = JsonParser.parseString(responseBody).getAsJsonObject();
+            List<String> models = new ArrayList<>();
+            if (!response.has(GoogleAIConstants.MODELS_RESPONSE_KEY)) {
+                return models;
+            }
+            for (JsonElement modelElement : response.getAsJsonArray(GoogleAIConstants.MODELS_RESPONSE_KEY)) {
+                // a malformed entry must not discard the rest of the list
+                if (!modelElement.isJsonObject()) {
+                    continue;
+                }
+                JsonObject model = modelElement.getAsJsonObject();
+                JsonElement nameElement = model.get(GoogleAIConstants.NAME);
+                JsonElement methodsElement = model.get(GoogleAIConstants.SUPPORTED_GENERATION_METHODS);
+                if (nameElement == null
+                        || !nameElement.isJsonPrimitive()
+                        || methodsElement == null
+                        || !methodsElement.isJsonArray()) {
+                    continue;
+                }
+                String name = nameElement.getAsString();
+                if (name.startsWith(GoogleAIConstants.MODELS_NAME_PREFIX)) {
+                    name = name.substring(GoogleAIConstants.MODELS_NAME_PREFIX.length());
+                }
+                if (!name.startsWith("gemini")
+                        || NON_CHAT_MODEL_PATTERN.matcher(name).find()) {
+                    continue;
+                }
+                boolean supportsGenerateContent = false;
+                for (JsonElement method : methodsElement.getAsJsonArray()) {
+                    if (method.isJsonPrimitive()
+                            && GoogleAIConstants.GENERATE_CONTENT_METHOD.equals(method.getAsString())) {
+                        supportsGenerateContent = true;
+                        break;
+                    }
+                }
+                if (supportsGenerateContent) {
+                    models.add(name);
+                }
+            }
+            return models;
         }
 
         @Override

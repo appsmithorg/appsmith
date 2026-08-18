@@ -12,7 +12,10 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.TimeoutOptions;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
+import io.lettuce.core.metrics.MicrometerCommandLatencyRecorder;
+import io.lettuce.core.metrics.MicrometerOptions;
 import io.lettuce.core.resource.ClientResources;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +36,6 @@ import org.springframework.data.redis.connection.lettuce.LettucePoolingClientCon
 import org.springframework.data.redis.connection.lettuce.observability.MicrometerTracingAdapter;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
@@ -104,20 +106,9 @@ public class RedisConfig {
         RestrictedHostFilter.registerOwnHost(System.getenv("HOSTNAME"));
     }
 
-    /**
-     * This is the topic to which we will publish & subscribe to. We can have multiple topics based on the messages
-     * that we wish to broadcast. Starting with a single one for now.
-     *
-     * @return
-     */
-    @Bean
-    ChannelTopic topic() {
-        return new ChannelTopic("appsmith:queue");
-    }
-
     @Bean
     @Primary
-    public ReactiveRedisConnectionFactory reactiveRedisConnectionFactory() {
+    public ReactiveRedisConnectionFactory reactiveRedisConnectionFactory(ClientResources clientResources) {
         final URI redisUri = URI.create(redisURL);
         final String scheme = redisUri.getScheme();
 
@@ -126,15 +117,20 @@ public class RedisConfig {
                 final RedisStandaloneConfiguration config =
                         new RedisStandaloneConfiguration(redisUri.getHost(), redisUri.getPort());
                 fillAuthentication(redisUri, config);
-                return new LettuceConnectionFactory(config);
+                final LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
+                        .clientResources(clientResources)
+                        .build();
+                return new LettuceConnectionFactory(config, clientConfig);
             }
 
             case "rediss" -> {
                 final RedisStandaloneConfiguration config =
                         new RedisStandaloneConfiguration(redisUri.getHost(), redisUri.getPort());
                 fillAuthentication(redisUri, config);
-                final LettuceClientConfiguration clientConfig =
-                        LettucePoolingClientConfiguration.builder().useSsl().build();
+                final LettuceClientConfiguration clientConfig = LettucePoolingClientConfiguration.builder()
+                        .clientResources(clientResources)
+                        .useSsl()
+                        .build();
                 return new LettuceConnectionFactory(config, clientConfig);
             }
 
@@ -145,7 +141,9 @@ public class RedisConfig {
                 clusterConfig.addClusterNode(new RedisNode(redisUri.getHost(), redisUri.getPort()));
                 return new LettuceConnectionFactory(
                         clusterConfig,
-                        LettucePoolingClientConfiguration.builder().build());
+                        LettucePoolingClientConfiguration.builder()
+                                .clientResources(clientResources)
+                                .build());
             }
 
             default -> throw new InvalidRedisURIException("Invalid redis scheme: " + scheme);
@@ -153,7 +151,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public AbstractRedisClient redisClient() {
+    public AbstractRedisClient redisClient(ClientResources clientResources) {
         String redisurl = redisURL;
         final URI redisUri = URI.create(redisURL);
         String scheme = redisUri.getScheme();
@@ -167,7 +165,7 @@ public class RedisConfig {
         }
 
         if (isCluster) {
-            RedisClusterClient redisClusterClient = RedisClusterClient.create(redisurl);
+            RedisClusterClient redisClusterClient = RedisClusterClient.create(clientResources, redisurl);
             redisClusterClient.setOptions(ClusterClientOptions.builder()
                     .timeoutOptions(TimeoutOptions.builder()
                             .timeoutCommands(true)
@@ -177,7 +175,7 @@ public class RedisConfig {
             return redisClusterClient;
         }
 
-        RedisClient redisClient = RedisClient.create(redisurl);
+        RedisClient redisClient = RedisClient.create(clientResources, redisurl);
         redisClient.setOptions(ClientOptions.builder()
                 .timeoutOptions(TimeoutOptions.builder()
                         .timeoutCommands(true)
@@ -203,9 +201,10 @@ public class RedisConfig {
     }
 
     @Bean
-    public ClientResources clientResources(ObservationRegistry observationRegistry) {
+    public ClientResources clientResources(ObservationRegistry observationRegistry, MeterRegistry meterRegistry) {
         return ClientResources.builder()
                 .tracing(new MicrometerTracingAdapter(observationRegistry, "appsmith-redis"))
+                .commandLatencyRecorder(new MicrometerCommandLatencyRecorder(meterRegistry, MicrometerOptions.create()))
                 .build();
     }
 

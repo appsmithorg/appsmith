@@ -8,6 +8,7 @@ import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.MigrationStatus;
 import com.appsmith.server.constants.ce.FieldNameCE;
+import com.appsmith.server.domains.AIAssistantConfig;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.domains.User;
@@ -16,6 +17,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.UserOrganizationHelper;
+import com.appsmith.server.helpers.ce.AIConfigSecretsCE;
 import com.appsmith.server.instanceconfigs.helpers.InstanceVariablesHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -125,7 +127,20 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
 
                     Mono<List<Boolean>> allSideEffectsMono =
                             Flux.fromIterable(sideEffectsMonos).flatMap(x -> x).collectList();
+                    // This endpoint binds the whole OrganizationConfiguration, and @JsonView does not filter a
+                    // request body unless a view is active — so the AI provider credentials (Views.Internal) also
+                    // deserialize here and would be persisted in cleartext by the sparse update below, bypassing the
+                    // encryption that /ai-config applies. Normalise them so encryption holds no matter which endpoint
+                    // wrote the value; already-encrypted values are left untouched.
+                    AIConfigSecretsCE.encryptCredentialsInPlace(organizationConfiguration.getAiAssistantConfig());
+                    // A provider URL arriving here would otherwise move underneath a stored key that
+                    // stays put, which is the same credential redirection /ai-config already refuses.
+                    // Snapshot before the merge, since it rewrites oldConfig in place.
+                    AIAssistantConfig previousAiCredentials =
+                            AIConfigSecretsCE.snapshotCredentials(oldConfig.getAiAssistantConfig());
                     AppsmithBeanUtils.copyNestedNonNullProperties(organizationConfiguration, oldConfig);
+                    AIConfigSecretsCE.unbindCredentialsWithChangedDestination(
+                            previousAiCredentials, oldConfig.getAiAssistantConfig());
                     organization.setOrganizationConfiguration(oldConfig);
                     Mono<Organization> updatedOrganizationMono = repository
                             .updateById(organizationId, organization, MANAGE_ORGANIZATION)

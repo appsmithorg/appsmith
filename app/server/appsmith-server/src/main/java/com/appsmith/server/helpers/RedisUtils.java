@@ -44,6 +44,10 @@ public class RedisUtils {
             return redisOperations
                     .opsForValue()
                     .get(key)
+                    // Callers retry this for up to 20 attempts, so a per-attempt warn would emit 20 lines for a
+                    // single blocked operation. The warn that matters is raised once when the retries run out.
+                    .doOnNext(commandName -> log.debug(
+                            "Git command {} is blocked, the lock for key {} is held by {}", command, key, commandName))
                     .flatMap(commandName ->
                             Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE, command, commandName)));
         });
@@ -67,7 +71,17 @@ public class RedisUtils {
         if (gitServiceConfig.isGitInMemory()) {
             return Mono.just(true);
         }
-        return redisOperations.opsForValue().delete(key);
+        return redisOperations.opsForValue().delete(key).doOnNext(isDeleted -> {
+            if (Boolean.TRUE.equals(isDeleted)) {
+                log.debug("Released the file lock for key {}", key);
+            } else {
+                // Release is idempotent and several error paths release the same lock defensively, so an absent
+                // key is normal rather than a problem worth warning about.
+                log.debug(
+                        "Releasing the file lock for key {} deleted no key, the lock had either expired, was already released, or was never held",
+                        key);
+            }
+        });
     }
 
     public Mono<Boolean> hasKey(String key) {
@@ -136,8 +150,9 @@ public class RedisUtils {
                                 });
                             })
                             .then()
-                            .doOnSuccess(v -> log.info("Total Redis keys processed: {}", deletedKeysCount.get()))
-                            .doOnError(error -> log.error("Redis key deletion error: {}", error.getMessage()));
+                            .doOnSuccess(v -> log.debug("Total Redis keys processed: {}", deletedKeysCount.get()))
+                            .doOnError(error ->
+                                    log.error("Redis key deletion error after {} keys", deletedKeysCount.get(), error));
                 })
                 .then();
     }

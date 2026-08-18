@@ -157,15 +157,15 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                 .flatMap(defaultApplication -> {
                     return isAutoCommitAllowed(defaultApplication, finalBranchName)
                             .flatMap(isEligible -> {
-                                log.info(
-                                        "Auto commit for application {}, and branch name {} is not allowed.",
-                                        defaultApplication.getId(),
-                                        branchName);
                                 if (!Boolean.TRUE.equals(isEligible)) {
+                                    log.info(
+                                            "Auto commit for application {}, and branch name {} is not allowed.",
+                                            defaultApplication.getId(),
+                                            branchName);
                                     return Mono.empty();
                                 }
 
-                                log.info(
+                                log.debug(
                                         "Auto commit for application {}, and branch name {} is applicable",
                                         defaultApplication.getId(),
                                         branchName);

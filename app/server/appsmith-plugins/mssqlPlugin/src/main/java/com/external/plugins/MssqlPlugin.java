@@ -76,6 +76,7 @@ import static com.appsmith.external.constants.PluginConstants.PluginName.MSSQL_P
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
+import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 import static com.external.plugins.constants.MssqlPluginConstants.GENERATE_CRUD_PAGE_SELECT_QUERY;
 import static com.external.plugins.exceptions.MssqlErrorMessages.CONNECTION_CLOSED_ERROR_MSG;
 import static com.external.plugins.exceptions.MssqlErrorMessages.CONNECTION_INVALID_ERROR_MSG;
@@ -415,6 +416,14 @@ public class MssqlPlugin extends BasePlugin {
                 if (StringUtils.isEmpty(auth.getPassword())) {
                     invalids.add(MssqlErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG);
                 }
+
+                // The database name is concatenated verbatim into the JDBC connection string
+                // (database=<value>;). Reject any value that could smuggle additional
+                // connection properties, so a database name cannot inject e.g. an NTLM auth
+                // scheme pointing at an attacker-controlled host.
+                if (containsConnectionStringInjection(auth.getDatabaseName())) {
+                    invalids.add(MssqlErrorMessages.DS_INVALID_DATABASE_NAME_ERROR_MSG);
+                }
             }
 
             return invalids;
@@ -580,6 +589,20 @@ public class MssqlPlugin extends BasePlugin {
      * @param datasourceConfiguration
      * @return connection pool
      */
+    /**
+     * Returns true if the given database name could inject additional JDBC connection
+     * properties. The value is concatenated verbatim into the connection string as
+     * {@code database=<value>;}, so a {@code ;} (the JDBC property separator) or any ISO
+     * control character must be rejected. A null/blank value is safe (it is simply not
+     * appended).
+     */
+    private static boolean containsConnectionStringInjection(String databaseName) {
+        if (!StringUtils.hasLength(databaseName)) {
+            return false;
+        }
+        return databaseName.chars().anyMatch(c -> c == ';' || Character.isISOControl(c));
+    }
+
     private static HikariDataSource createConnectionPool(
             DatasourceConfiguration datasourceConfiguration, Integer maxPoolSize, Integer socketTimeoutSeconds)
             throws AppsmithPluginException {
@@ -627,6 +650,13 @@ public class MssqlPlugin extends BasePlugin {
         }
 
         if (StringUtils.hasLength(authentication.getDatabaseName())) {
+            // Defence in depth: validateDatasource() already rejects this, but never build a
+            // JDBC URL from a database name that could inject extra connection properties.
+            if (containsConnectionStringInjection(authentication.getDatabaseName())) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        MssqlErrorMessages.DS_INVALID_DATABASE_NAME_ERROR_MSG);
+            }
             urlBuilder
                     .append("database=")
                     .append(authentication.getDatabaseName())
@@ -634,6 +664,12 @@ public class MssqlPlugin extends BasePlugin {
         }
 
         addSslOptionsToUrlBuilder(datasourceConfiguration, urlBuilder);
+
+        com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
+        if (configurationConnection != null && configurationConnection.getMode() == READ_ONLY) {
+            urlBuilder.append("ApplicationIntent=ReadOnly;");
+            hikariConfig.setReadOnly(true);
+        }
 
         hikariConfig.setJdbcUrl(urlBuilder.toString());
 

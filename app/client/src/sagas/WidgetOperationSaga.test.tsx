@@ -5,7 +5,9 @@ import {
   removeDynamicBindingProperties,
   handleUpdateWidgetDynamicProperty,
   batchUpdateWidgetDynamicPropertySaga,
+  getPropertiesToUpdate,
 } from "./WidgetOperationSagas";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 const widget = {
   isVisible: "true",
@@ -329,5 +331,72 @@ describe("test removeDynamicBindingList", () => {
         }),
       ]),
     );
+  });
+});
+
+describe("getPropertiesToUpdate — dynamicTriggerPathList", () => {
+  const buttonWithOnClickTrigger = {
+    widgetId: "buttonId",
+    widgetName: "Button1",
+    type: "BUTTON_WIDGET",
+    onClick: "{{showAlert('hi');}}",
+    dynamicTriggerPathList: [{ key: "onClick" }],
+    dynamicBindingPathList: [],
+  } as unknown as WidgetProps;
+
+  const buttonWithoutOnClickTrigger = {
+    ...buttonWithOnClickTrigger,
+    onClick: undefined,
+    dynamicTriggerPathList: [],
+  } as unknown as WidgetProps;
+
+  it("removes onClick from dynamicTriggerPathList when the event is cleared", () => {
+    const result = getPropertiesToUpdate(
+      buttonWithOnClickTrigger,
+      { onClick: "" },
+      ["onClick"],
+    );
+
+    expect(result.dynamicTriggerPathList).toEqual([]);
+  });
+
+  it("removes onClick from dynamicTriggerPathList when the leftover value is an empty binding", () => {
+    const result = getPropertiesToUpdate(
+      buttonWithOnClickTrigger,
+      { onClick: "{{}}" },
+      ["onClick"],
+    );
+
+    expect(result.dynamicTriggerPathList).toEqual([]);
+  });
+
+  it("removes onClick from dynamicTriggerPathList when the leftover value is a stray semicolon", () => {
+    const result = getPropertiesToUpdate(
+      buttonWithOnClickTrigger,
+      { onClick: "{{;}}" },
+      ["onClick"],
+    );
+
+    expect(result.dynamicTriggerPathList).toEqual([]);
+  });
+
+  it("adds onClick to dynamicTriggerPathList when an action is set", () => {
+    const result = getPropertiesToUpdate(
+      buttonWithoutOnClickTrigger,
+      { onClick: "{{showAlert('hi');}}" },
+      ["onClick"],
+    );
+
+    expect(result.dynamicTriggerPathList).toEqual([{ key: "onClick" }]);
+  });
+
+  it("does not add an empty onClick to dynamicTriggerPathList", () => {
+    const result = getPropertiesToUpdate(
+      buttonWithoutOnClickTrigger,
+      { onClick: "" },
+      ["onClick"],
+    );
+
+    expect(result.dynamicTriggerPathList).toEqual([]);
   });
 });
