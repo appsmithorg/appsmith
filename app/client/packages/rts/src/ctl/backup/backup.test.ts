@@ -131,6 +131,7 @@ describe("Backup Tests", () => {
     );
 
     expect(cleaned).not.toContain("archive-pass");
+    expect(cleaned).not.toContain("APPSMITH_BACKUP_ARCHIVE_PASSWORD=");
     expect(cleaned).toContain("APPSMITH_BACKUP_ARCHIVE_LIMIT=4");
     expect(cleaned).toContain("APPSMITH_INSTANCE_NAME=Appsmith");
   });
