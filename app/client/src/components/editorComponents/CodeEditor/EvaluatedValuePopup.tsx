@@ -618,6 +618,9 @@ function PopoverContent(props: PopoverContentProps) {
               isIconButton
               kind="tertiary"
               onClick={togglePopupCollapsed}
+              // Keep focus on the editor this popup is anchored to; losing
+              // it closes the popup as a side effect of the toggle.
+              onMouseDown={(e) => e.preventDefault()}
               size="sm"
               startIcon="arrow-down-s-line"
             />
@@ -643,6 +646,9 @@ function PopoverContent(props: PopoverContentProps) {
             isIconButton
             kind="tertiary"
             onClick={togglePopupCollapsed}
+            // Keep focus on the editor this popup is anchored to; losing
+            // it closes the popup as a side effect of the toggle.
+            onMouseDown={(e) => e.preventDefault()}
             size="sm"
             startIcon="arrow-up-s-line"
           />
@@ -843,6 +849,10 @@ function EvaluatedValuePopup(props: Props) {
         }}
         placement={placement}
         position={position}
+        // Keep the drag grip centered over the popup: the default fixed
+        // left offset strands it outside the box when the popup collapses
+        // to its slim pill.
+        renderDragBlockPositions={{ left: "calc(50% - 21px)" }}
         setIsDragging={setIsDragging}
         setPosition={setPosition}
         targetNode={getAnchorNode() || undefined}

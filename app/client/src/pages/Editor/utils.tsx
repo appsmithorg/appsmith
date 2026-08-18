@@ -52,6 +52,7 @@ export const draggableElement = (
   },
   dragHandle?: () => JSX.Element,
   cypressSelectorDragHandle?: string,
+  onDragStateChange?: (dragging: boolean) => void,
 ): (() => void) => {
   let newXPos = 0,
     newYPos = 0,
@@ -59,6 +60,7 @@ export const draggableElement = (
     oldYPos = 0;
   let dragHandler = element;
   let isDragged = !!initPostion;
+  let isDragInFlight = false;
 
   const setElementPosition = () => {
     element.style.top = initPostion.top + "px";
@@ -67,8 +69,14 @@ export const draggableElement = (
 
   const dragMouseDown = (e: MouseEvent) => {
     e = e || window.event;
+    // The default mousedown action moves focus off the anchored editor; for a
+    // popup that only stays open while its editor is focused, that closes the
+    // popup and tears the drag down before it starts.
+    e.preventDefault();
     oldXPos = e.clientX;
     oldYPos = e.clientY;
+    isDragInFlight = true;
+    onDragStateChange?.(true);
     document.onmouseup = closeDragElement;
     document.onmousemove = elementDrag;
   };
@@ -123,13 +131,11 @@ export const draggableElement = (
 
     element.style.top = calculatedTop + "px";
     element.style.left = calculatedLeft + "px";
+
     // A straight-up or straight-across drag has a zero delta on one axis;
     // requiring both to be non-zero meant such a drag never registered, so
     // the position was never persisted on mouseup and the popper snapped back.
-    const validFirstDrag = !isDragged && (newXPos !== 0 || newYPos !== 0);
-
-    if (validFirstDrag) {
-      resizeObserver.observe(element);
+    if (!isDragged && (newXPos !== 0 || newYPos !== 0)) {
       isDragged = true;
     }
   };
@@ -173,6 +179,16 @@ export const draggableElement = (
   const closeDragElement = () => {
     updateElementPosition();
     releaseDocumentHandlers();
+
+    // Start watching for size changes only once the drag has settled:
+    // observing during the drag persists a position mid-gesture, which
+    // re-renders the owning popper and tears the live drag down.
+    if (isDragged) {
+      resizeObserver.observe(element);
+    }
+
+    isDragInFlight = false;
+    onDragStateChange?.(false);
   };
   const debouncedUpdatePosition = debounce(updateElementPosition, 50);
 
@@ -217,6 +233,13 @@ export const draggableElement = (
     dragHandler.removeEventListener("mousedown", dragMouseDown);
     dragHandler.removeEventListener("click", stopPropagation);
     releaseDocumentHandlers();
+
+    // If this instance dies while a drag is in flight, make sure the owner
+    // does not keep treating the popup as being dragged.
+    if (isDragInFlight) {
+      isDragInFlight = false;
+      onDragStateChange?.(false);
+    }
 
     if (dragHandle && dragHandler !== element) {
       ReactDOM.unmountComponentAtNode(dragHandler);

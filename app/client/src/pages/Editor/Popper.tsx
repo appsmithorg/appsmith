@@ -97,6 +97,12 @@ export default (props: PopperProps) => {
 
   positionRef.current = props.position;
 
+  // True from the drag handle's mousedown to the drag's mouseup. The hover
+  // handlers below must not clear the dragging flag while this is set: the
+  // cursor can briefly outrun the handle mid-drag, and treating that
+  // mouseleave as "drag over" closes the popup under the user's pointer.
+  const activeDragRef = useRef(false);
+
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onPositionChangeFn = (e: any) => {
@@ -163,7 +169,7 @@ export default (props: PopperProps) => {
         onMouseLeave={(e) => {
           e.stopPropagation();
 
-          if (props?.dragFn) {
+          if (props?.dragFn && !activeDragRef.current) {
             props.dragFn(false);
           }
         }}
@@ -281,6 +287,10 @@ export default (props: PopperProps) => {
               </ThemeProvider>
             ),
           cypressSelectorDragHandle,
+          (dragging: boolean) => {
+            activeDragRef.current = dragging;
+            props.setIsDragging?.(dragging);
+          },
         );
       }
 
