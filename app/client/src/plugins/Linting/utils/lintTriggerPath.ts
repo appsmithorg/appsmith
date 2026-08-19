@@ -1,4 +1,7 @@
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import {
+  getDynamicBindings,
+  isEmptyTriggerValue,
+} from "utils/DynamicBindingUtils";
 import {
   EvaluationScriptType,
   getScriptToEval,
@@ -13,12 +16,19 @@ export default function lintTriggerPath({
   webworkerTelemetry,
 }: lintTriggerPathProps) {
   const { jsSnippets } = getDynamicBindings(userScript, entity);
-  const script = getScriptToEval(jsSnippets[0], EvaluationScriptType.TRIGGERS);
+  const snippet = jsSnippets[0];
+
+  // Empty leftover events must not be wrapped as `const $$result = ;`.
+  if (isEmptyTriggerValue(snippet)) {
+    return [];
+  }
+
+  const script = getScriptToEval(snippet, EvaluationScriptType.TRIGGERS);
 
   return getLintingErrors({
     script,
     data: globalData,
-    originalBinding: jsSnippets[0],
+    originalBinding: snippet,
     scriptType: EvaluationScriptType.TRIGGERS,
     webworkerTelemetry,
   });
