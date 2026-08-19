@@ -1,14 +1,19 @@
 package com.appsmith.server.jslibs.base;
 
 import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.dtos.DBOpsType;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.jslibs.context.ContextBasedJsLibService;
 import com.appsmith.server.repositories.CustomJSLibRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -28,14 +33,20 @@ import static com.appsmith.server.dtos.CustomJSLibContextDTO.getDTOFromCustomJSL
 public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository, CustomJSLib, String>
         implements CustomJSLibServiceCE {
     protected final ContextBasedJsLibService<Application> applicationContextBasedJsLibService;
+    protected final ApplicationService applicationService;
+    protected final ApplicationPermission applicationPermission;
 
     public CustomJSLibServiceCEImpl(
             Validator validator,
             CustomJSLibRepository repository,
             AnalyticsService analyticsService,
-            ContextBasedJsLibService<Application> applicationContextBasedJsLibService) {
+            ContextBasedJsLibService<Application> applicationContextBasedJsLibService,
+            ApplicationService applicationService,
+            ApplicationPermission applicationPermission) {
         super(validator, repository, analyticsService);
         this.applicationContextBasedJsLibService = applicationContextBasedJsLibService;
+        this.applicationService = applicationService;
+        this.applicationPermission = applicationPermission;
     }
 
     protected ContextBasedJsLibService<?> getContextBasedService(@NotNull CreatorContextType contextType) {
@@ -149,14 +160,28 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     public Mono<List<CustomJSLib>> getAllJSLibsInContext(
             @NotNull String branchedContextId, CreatorContextType contextType, Boolean isViewMode) {
         ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
-        return contextBasedService
+        // Gate the manifest read on an application-level READ check. Both controller routes
+        // (GET /libraries/{id} and the anonymous-reachable GET /libraries/{id}/view) funnel through
+        // here, and the downstream visibility lookup reaches a projection read that carries no ACL
+        // criterion, so without this check any caller can enumerate the JS libraries of any
+        // application by id. A public application grants read:applications to the anonymous role, so
+        // legitimate anonymous reads of public apps keep working; private apps the caller cannot read
+        // now resolve empty and surface the existing NO_RESOURCE_FOUND that callers already handle.
+        Mono<Void> readAuthorizationMono = CreatorContextType.APPLICATION.equals(contextType)
+                ? applicationService
+                        .findById(branchedContextId, applicationPermission.getReadPermission())
+                        .switchIfEmpty(Mono.error(new AppsmithException(
+                                AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedContextId)))
+                        .then()
+                : Mono.empty();
+        return readAuthorizationMono.then(Mono.defer(() -> contextBasedService
                 .getAllVisibleJSLibContextDTOFromContext(branchedContextId, isViewMode)
                 .flatMapMany(repository::findCustomJsLibsInContext)
                 .collectList()
                 .map(jsLibList -> {
                     jsLibList.sort(Comparator.comparing(CustomJSLib::getUidString));
                     return jsLibList;
-                });
+                })));
     }
 
     @Override
