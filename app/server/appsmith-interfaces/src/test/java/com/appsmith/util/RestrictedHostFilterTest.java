@@ -215,9 +215,16 @@ public class RestrictedHostFilterTest {
                 "64:ff9b::7f00:1", // 127.0.0.1
                 "64:ff9b::a9fe:a9fe", // 169.254.169.254
                 "64:ff9b::e000:1", // 224.0.0.1
-                // NAT64 local-use prefix (RFC 8215)
-                "64:ff9b:1::7f00:1", // 127.0.0.1
-                "64:ff9b:1::a9fe:a9fe", // 169.254.169.254
+                // NAT64 local-use prefix (RFC 8215, 64:ff9b:1::/48). Per RFC 6052 the embedded
+                // IPv4 lives in bytes 6-7 and 9-10 (byte 8 is the reserved u-octet), NOT the low
+                // 32 bits. The first two have zero in those positions, so they embed 0.0.0.0
+                // (any-local) and block on that; the next two embed a non-routable address in the
+                // correct /48 position while carrying a *routable* suffix in the low 32 bits —
+                // reading the low bits (the old behavior) would let these through.
+                "64:ff9b:1::7f00:1", // /48 positions zero -> 0.0.0.0
+                "64:ff9b:1::a9fe:a9fe", // /48 positions zero -> 0.0.0.0
+                "64:ff9b:1:7f00:0:100:808:808", // /48 embeds 127.0.0.1; low bits 8.8.8.8
+                "64:ff9b:1:a9fe:a9:fe00:808:808", // /48 embeds 169.254.169.254; low bits 8.8.8.8
                 // 6to4 (RFC 3056) — embedded IPv4 sits in bytes 2-5
                 "2002:7f00:1::", // 127.0.0.1
                 "2002:a9fe:a9fe::", // 169.254.169.254
@@ -257,6 +264,10 @@ public class RestrictedHostFilterTest {
                 // IPv6-only network this is how legitimate IPv4 destinations are addressed.
                 "2002:0808:0808::",
                 "64:ff9b::808:808",
+                // NAT64 /48 local-use embedding a routable public IPv4 (8.8.8.8) in the correct
+                // RFC 6052 /48 position. Reading the low 32 bits (the old behavior) saw 0.0.0.0
+                // and over-blocked this legitimate destination.
+                "64:ff9b:1:808:8:800::",
             })
     public void isBlockedIpAddressClass_stillAllowsRoutableNonCanonicalLiterals(String host) {
         assertFalse(

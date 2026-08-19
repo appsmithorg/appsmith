@@ -803,15 +803,25 @@ public final class RestrictedHostFilter {
      * none. Covers the embeddings where the IPv6 address is purely an encoding of an IPv4 one, so
      * collapsing to that IPv4 is a faithful canonical form: IPv4-compatible ({@code ::d.d.d.d}),
      * IPv4-mapped ({@code ::ffff:d.d.d.d}), IPv4-translated ({@code ::ffff:0:d.d.d.d}, RFC 2765),
-     * NAT64 (RFC 6052 well-known {@code 64:ff9b::/96} and RFC 8215 local-use {@code 64:ff9b:1::/48}),
-     * and 6to4 (RFC 3056 {@code 2002::/16}).
+     * NAT64 — the RFC 6052 well-known {@code 64:ff9b::/96} (low 32 bits) and the RFC 8215 local-use
+     * {@code 64:ff9b:1::/48} (RFC 6052 /48 layout: bytes 6-7 and 9-10) — and 6to4 (RFC 3056
+     * {@code 2002::/16}).
      */
     private static byte[] extractEmbeddedIpv4(byte[] addressBytes) {
         if (addressBytes.length != 16) {
             return null;
         }
-        if (isIpv4CompatibleOrMapped(addressBytes) || isIpv4Translated(addressBytes) || isNat64(addressBytes)) {
+        if (isIpv4CompatibleOrMapped(addressBytes)
+                || isIpv4Translated(addressBytes)
+                || isNat64WellKnown(addressBytes)) {
             return Arrays.copyOfRange(addressBytes, 12, 16);
+        }
+        if (isNat64LocalUse(addressBytes)) {
+            // RFC 6052 /48 layout: the 32-bit IPv4 is split across bytes 6-7 and 9-10; byte 8 is
+            // the reserved u-octet and is skipped. Reading the low 32 bits here (bytes 12-15) would
+            // misread the address — letting a /48-embedded internal destination through when its
+            // suffix looks routable, and over-blocking a /48-embedded routable one whose suffix is 0.
+            return new byte[] {addressBytes[6], addressBytes[7], addressBytes[9], addressBytes[10]};
         }
         if (isSixToFour(addressBytes)) {
             return Arrays.copyOfRange(addressBytes, 2, 6);
@@ -851,12 +861,40 @@ public final class RestrictedHostFilter {
         return List.of();
     }
 
-    /** {@code 64:ff9b::/32} — spans the RFC 6052 well-known and RFC 8215 local-use NAT64 prefixes. */
-    private static boolean isNat64(byte[] addressBytes) {
+    /**
+     * {@code 64:ff9b::/96} — the RFC 6052 well-known NAT64 prefix. Mandated to use the /96 layout,
+     * so the embedded IPv4 is the low 32 bits (bytes 12-15). Requires bytes 4-11 to be zero;
+     * without that, a {@code 64:ff9b:1::/48} local-use address would also match and be misread.
+     */
+    private static boolean isNat64WellKnown(byte[] addressBytes) {
+        if (addressBytes[0] != 0x00
+                || addressBytes[1] != 0x64
+                || addressBytes[2] != (byte) 0xff
+                || addressBytes[3] != (byte) 0x9b) {
+            return false;
+        }
+        for (int i = 4; i < 12; i++) {
+            if (addressBytes[i] != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * {@code 64:ff9b:1::/48} — the RFC 8215 local-use NAT64 prefix. Per RFC 6052 the /48 layout
+     * embeds the IPv4 across bytes 6-7 and 9-10 (byte 8 is the reserved u-octet), which
+     * {@link #extractEmbeddedIpv4(byte[])} reassembles. Other RFC 6052 prefix lengths use a
+     * Network-Specific Prefix that cannot be recognized from the address alone, so — like 6rd —
+     * they are out of scope.
+     */
+    private static boolean isNat64LocalUse(byte[] addressBytes) {
         return addressBytes[0] == 0x00
                 && addressBytes[1] == 0x64
                 && addressBytes[2] == (byte) 0xff
-                && addressBytes[3] == (byte) 0x9b;
+                && addressBytes[3] == (byte) 0x9b
+                && addressBytes[4] == 0x00
+                && addressBytes[5] == 0x01;
     }
 
     /** {@code 2002::/16} — 6to4 carries its IPv4 in bytes 2-5 rather than the low 32 bits. */
