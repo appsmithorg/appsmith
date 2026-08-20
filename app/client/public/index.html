@@ -180,13 +180,9 @@
 
       const PYLON_APP_ID_RAW =
         parseConfig("%REACT_APP_PYLON_APP_ID%") ||
-        parseConfig("%REACT_APP_INTERCOM_APP_ID%") ||
-        parseConfig('{{env "APPSMITH_PYLON_APP_ID"}}') ||
-        parseConfig('{{env "APPSMITH_INTERCOM_APP_ID"}}');
-      const DISABLE_PYLON =
-        parseConfig('{{env "APPSMITH_DISABLE_PYLON"}}') ||
-        parseConfig('{{env "APPSMITH_DISABLE_INTERCOM"}}');
-      // No third-party chat widget on airgapped deployments (same as BetterBugs / legacy Intercom)
+        parseConfig('{{env "APPSMITH_PYLON_APP_ID"}}');
+      const DISABLE_PYLON = parseConfig('{{env "APPSMITH_DISABLE_PYLON"}}');
+      // No third-party chat widget on airgapped deployments (same as BetterBugs)
       const PYLON_APP_ID =
         AIRGAPPED || typeof PYLON_APP_ID_RAW !== "string"
           ? ""

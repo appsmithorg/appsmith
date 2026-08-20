@@ -118,10 +118,7 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       releaseDate: "",
       edition: process.env.REACT_APP_VERSION_EDITION || "",
     },
-    pylonAppID:
-      process.env.REACT_APP_PYLON_APP_ID ||
-      process.env.REACT_APP_INTERCOM_APP_ID ||
-      "",
+    pylonAppID: process.env.REACT_APP_PYLON_APP_ID || "",
     mailEnabled: process.env.REACT_APP_MAIL_ENABLED
       ? process.env.REACT_APP_MAIL_ENABLED.length > 0
       : false,
