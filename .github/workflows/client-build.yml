@@ -95,6 +95,7 @@ jobs:
             await require("client-build-compliance.js")({core, github, context})
 
       - name: Restore the release client build
+        if: steps.changed-files-specific.outputs.any_changed == 'false' && github.event_name != 'push' && github.event_name != 'workflow_dispatch' && github.event_name != 'schedule'
         id: restore-release-client-build
         uses: actions/cache/restore@v4
         with:

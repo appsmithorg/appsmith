@@ -119,6 +119,7 @@ jobs:
           cat "${{ github.workspace }}/.github/outputs/all_modified_files.txt"
 
       - name: Restore the release server build
+        if: steps.changed-files-specific.outputs.any_modified == 'false' && github.event_name != 'push' && github.event_name != 'workflow_dispatch' && github.event_name != 'schedule'
         id: restore-release-server-build
         uses: actions/cache/restore@v4
         with:
