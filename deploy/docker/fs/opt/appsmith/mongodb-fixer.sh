@@ -13,21 +13,21 @@ set -o nounset
 # current FCV. Use `mongosh` if you want the live value.
 MONGO_FCV_MIN_MARKER="/appsmith-stacks/data/mongodb/.appsmith-mongo-fcv-min"
 
-# Minimum FCV this Appsmith release commits to preserve. We raise this to 7.0
-# (up from 6.0) as groundwork for the upcoming MongoDB 8.x upgrade: MongoDB 8.x
-# refuses to start on data below FCV 7.0, so we bump the data to 7.0 now, while
-# this release still runs MongoDB 7.x. A later release can then ship MongoDB 8.x
-# and boot cleanly on data that is already at FCV 7.0.
+# Minimum FCV this Appsmith release commits to preserve. This release ships
+# MongoDB 8.x, whose binary requires FCV >= 7.0 to start — the same value as
+# this floor, so the pre-flight check in
+# entrypoint.sh::ensure_mongodb_fcv_compatible enforces it before supervisord
+# ever launches mongod.
 #
-# This release still ships MongoDB 7.x, whose binary only requires FCV >= 6.0 to
-# start (see entrypoint.sh::ensure_mongodb_fcv_compatible). The 7.0 floor here is
-# forward-prep applied by the block below, not a startup requirement yet — the
-# pre-flight check in entrypoint.sh is intentionally left at the 6.0 mongod floor.
+# The floor deliberately stays at 7.0 rather than 8.0: data left at FCV 7.0 can
+# still be loaded by MongoDB 7.x, so rolling back to an Appsmith release that
+# bundles MongoDB 7.x (2.0 through 2.3) keeps working. A later release will
+# raise this to 8.0 as groundwork for a future MongoDB 9.x upgrade, and only
+# then is that rollback line crossed.
 #
-# Tradeoff: raising FCV to 7.0 forfeits the ability to roll back to an Appsmith
-# release that bundles MongoDB 6.x (1.99 and earlier) without first deleting the
-# Mongo data files. Instances on this release are well past that line, so this is
-# an accepted one-way step.
+# Note: fresh installs of this release get FCV 8.0 (mongod 8.x's default for
+# new data), not this floor — the block below only ever raises FCV, it never
+# lowers it.
 FCV_MIN="7.0"
 
 write_fcv_marker() {
