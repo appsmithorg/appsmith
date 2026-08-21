@@ -66,6 +66,10 @@ jobs:
         with:
           fetch-tags: true
 
+      - name: Compute client source tree fingerprint
+        id: client-source-tree
+        run: echo "sha=$(git rev-parse HEAD:app/client)" >> "$GITHUB_OUTPUT"
+
       - name: Get changed files in the client folder
         id: changed-files-specific
         uses: tj-actions/changed-files@v46
@@ -100,24 +104,22 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: app/client/build.tar
-          key: release-client-v1-${{ github.run_id }}
-          restore-keys: release-client-v1-
+          key: release-client-v2-${{ steps.client-source-tree.outputs.sha }}
 
       - name: Determine whether the client build is needed
         id: client-build-decision
         env:
           CACHE_HIT: ${{ steps.restore-release-client-build.outputs.cache-hit }}
-          CACHE_MATCHED_KEY: ${{ steps.restore-release-client-build.outputs.cache-matched-key }}
           EVENT_NAME: ${{ github.event_name }}
           SIDE_CHANGED: ${{ steps.changed-files-specific.outputs.any_changed }}
         run: |
-          # cache-hit is false for restore-keys matches, so cache-matched-key
-          # distinguishes a warm prefix restore from an actual cache miss.
+          # Release caches use exact source-tree keys, so only cache-hit=true
+          # is safe to reuse. Skipped restores and misses both rebuild.
           if [[ "$SIDE_CHANGED" == "true" ||
                 "$EVENT_NAME" == "push" ||
                 "$EVENT_NAME" == "workflow_dispatch" ||
                 "$EVENT_NAME" == "schedule" ||
-                ( "$CACHE_HIT" != "true" && -z "$CACHE_MATCHED_KEY" ) ]]; then
+                "$CACHE_HIT" != "true" ]]; then
             echo "need_build=true" >> "$GITHUB_OUTPUT"
           else
             echo "need_build=false" >> "$GITHUB_OUTPUT"
@@ -138,7 +140,7 @@ jobs:
         id: run_result
         run: |
           if [[ -f "$HOME/run_result" ]]; then
-            cat "$HOME/run_result" >> "$GITHUB_OUTPUT"
+            echo "run_result=$(cat "$HOME/run_result")" >> "$GITHUB_OUTPUT"
           else
             echo "run_result=default" >> "$GITHUB_OUTPUT"
           fi
@@ -254,8 +256,8 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: app/client/build.tar
-          key: release-client-v1-${{ github.run_id }}
+          key: release-client-v2-${{ steps.client-source-tree.outputs.sha }}
 
       # Set status = success
       - name: Save the status of the run
-        run: echo "run_result=success" > "$HOME/run_result"
+        run: echo "success" > "$HOME/run_result"

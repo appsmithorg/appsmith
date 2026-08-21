@@ -91,6 +91,10 @@ jobs:
         with:
           fetch-tags: true
 
+      - name: Compute server source tree fingerprint
+        id: server-source-tree
+        run: echo "sha=$(git rev-parse HEAD:app/server)" >> "$GITHUB_OUTPUT"
+
       - name: Figure out the PR number
         run: echo ${{ inputs.pr }}
 
@@ -124,24 +128,22 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: app/server/server.jar
-          key: release-server-v1-${{ github.run_id }}
-          restore-keys: release-server-v1-
+          key: release-server-v2-${{ steps.server-source-tree.outputs.sha }}
 
       - name: Determine whether the server build is needed
         id: server-build-decision
         env:
           CACHE_HIT: ${{ steps.restore-release-server-build.outputs.cache-hit }}
-          CACHE_MATCHED_KEY: ${{ steps.restore-release-server-build.outputs.cache-matched-key }}
           EVENT_NAME: ${{ github.event_name }}
           SIDE_CHANGED: ${{ steps.changed-files-specific.outputs.any_modified }}
         run: |
-          # cache-hit is false for restore-keys matches, so cache-matched-key
-          # distinguishes a warm prefix restore from an actual cache miss.
+          # Release caches use exact source-tree keys, so only cache-hit=true
+          # is safe to reuse. Skipped restores and misses both rebuild.
           if [[ "$SIDE_CHANGED" == "true" ||
                 "$EVENT_NAME" == "push" ||
                 "$EVENT_NAME" == "workflow_dispatch" ||
                 "$EVENT_NAME" == "schedule" ||
-                ( "$CACHE_HIT" != "true" && -z "$CACHE_MATCHED_KEY" ) ]]; then
+                "$CACHE_HIT" != "true" ]]; then
             echo "need_build=true" >> "$GITHUB_OUTPUT"
           else
             echo "need_build=false" >> "$GITHUB_OUTPUT"
@@ -372,7 +374,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: app/server/server.jar
-          key: release-server-v1-${{ github.run_id }}
+          key: release-server-v2-${{ steps.server-source-tree.outputs.sha }}
 
       - name: Save the status of the run
-        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+        run: echo "success" > "$HOME/run_result"
