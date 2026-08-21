@@ -50,6 +50,29 @@ We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so
 - **Waiting for a deploy preview:** A maintainer may use
   `/build-deploy-preview` when the change needs hands-on product testing.
 
+#### Cypress on fork PRs (maintainer-triggered)
+
+On pull requests from forks, Cypress does **not** run when the contributor
+opens the PR or pushes new commits. The `ok-to-test` label alone also does
+nothing on a fork PR — `/approve-ci` is the trigger that starts privileged
+CI for the current commit. The label and optional `tags=` only set the
+**scope** of Cypress once that approval runs.
+
+| Maintainer action | `ok-to-test` label | What runs |
+| --- | --- | --- |
+| `/approve-ci` | absent | Build + Docker + `limited-tests.txt` |
+| `/approve-ci` | present | Sharded Cypress, default `@tag.All` (60 shards) |
+| `/approve-ci tags="@tag.Sanity"` | either | Sanity only (20 shards) |
+| `/approve-ci tags="@tag.Git, @tag.Table"` | either | Those tags (20 shards) |
+| `/approve-ci` | present, tags also in PR body | Body tags used when the command has no `tags=` |
+
+Tag resolution precedence: **command `tags=` → PR body → label default (`@tag.All`) → limited suite**.
+
+The `ok-to-test` label persists across contributor pushes (so maintainers do
+not have to re-add it). `/approve-ci` approval does **not** — after a new
+push, a maintainer must run `/approve-ci` again. If the label is still
+present on that re-approval, Cypress runs again for the new commit.
+
 When a PR is labelled `awaiting-maintainer`, the next action belongs to
 Appsmith. When it is labelled `awaiting-contributor`, the contributor should
 respond to the latest review or CI feedback.
