@@ -24,7 +24,7 @@ RUN XCADDY_SETCAP=0 xcaddy build \
 
 # Build MongoDB database tools from source with pinned x/crypto and x/net
 # Apt-installed mongodb-database-tools ships x/crypto@0.45.0 with no upstream fix available.
-FROM golang:1.26.6-alpine AS mongotoolsbuilder
+FROM golang:1.27.0-alpine AS mongotoolsbuilder
 
 RUN apk add --no-cache git make bash
 WORKDIR /tmp/mongo-tools
