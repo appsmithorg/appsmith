@@ -117,9 +117,11 @@ jobs:
       - name: Get the diff from base branch
         continue-on-error: true
         id: files
+        env:
+          BASE_REF: ${{ github.event.client_payload.pull_request.base.ref }}
         run: |
-          git fetch origin release
-          git diff --name-only --diff-filter=A remotes/origin/release...HEAD -- 'app/client/cypress/e2e' > diff
+          git fetch origin "$BASE_REF"
+          git diff --name-only --diff-filter=A "remotes/origin/${BASE_REF}...HEAD" -- 'app/client/cypress/e2e' > diff
           echo "files_added=$(cat diff)" >> $GITHUB_OUTPUT
           cat diff
 
