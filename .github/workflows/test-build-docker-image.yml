@@ -32,6 +32,10 @@ on:
       - "Dockerfile"
       - "deploy/docker/base.dockerfile"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -134,13 +138,13 @@ jobs:
 
   ci-test-result:
     needs: [ci-test, client-unit-tests, server-unit-tests]
-    if: always() &&
+    if: "!cancelled() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'schedule' ||
       ( github.event_name != 'push' || github.ref == 'refs/heads/master' ) ||
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
-      github.event.pull_request.head.repo.full_name == github.repository))
+      github.event.pull_request.head.repo.full_name == github.repository))"
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -301,7 +305,7 @@ jobs:
       id-token: write
 
     # Run this job as soon as the docker image is ready, if this is the release branch
-    if: ( always() && github.ref == 'refs/heads/release' )
+    if: ( !cancelled() && github.ref == 'refs/heads/release' )
 
     steps:
       - name: Checkout the head commit of the branch
