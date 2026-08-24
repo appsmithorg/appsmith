@@ -692,21 +692,47 @@ public class MySqlPlugin extends BasePlugin {
         public Mono<ConnectionContext<ConnectionPool>> datasourceCreate(
                 DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for MySQL plugin.");
-            return Mono.just(datasourceConfiguration).flatMap(ignore -> {
-                ConnectionContext<ConnectionPool> connectionContext;
-                try {
-                    connectionContext = getConnectionContext(
-                            datasourceConfiguration, CONNECTION_METHOD_INDEX, MYSQL_DEFAULT_PORT, ConnectionPool.class);
-                    return connectionPoolConfig.getMaxConnectionPoolSize().flatMap(maxPoolSize -> {
-                        ConnectionPool pool =
-                                getNewConnectionPool(datasourceConfiguration, connectionContext, maxPoolSize);
-                        connectionContext.setConnection(pool);
-                        return Mono.just(connectionContext);
-                    });
-                } catch (AppsmithPluginException e) {
-                    return Mono.error(e);
-                }
-            });
+            // The config lookup runs first so that getConnectionContext - which opens the SSH tunnel (TCP connect,
+            // key auth, local bind) when the connection method is SSH - is the last, blocking step, on the plugin
+            // scheduler. No reactive step sits between opening the tunnel and delivering it, so a config error can
+            // no longer strand an open tunnel; a cancellation that discards the emitted context closes it.
+            return connectionPoolConfig
+                    .getMaxConnectionPoolSize()
+                    .flatMap(maxPoolSize -> Mono.fromCallable(() -> {
+                                ConnectionContext<ConnectionPool> connectionContext = getConnectionContext(
+                                        datasourceConfiguration,
+                                        CONNECTION_METHOD_INDEX,
+                                        MYSQL_DEFAULT_PORT,
+                                        ConnectionPool.class);
+                                ConnectionPool pool =
+                                        getNewConnectionPool(datasourceConfiguration, connectionContext, maxPoolSize);
+                                connectionContext.setConnection(pool);
+                                return connectionContext;
+                            })
+                            .subscribeOn(scheduler))
+                    .doOnDiscard(ConnectionContext.class, context -> closeSshTunnel(context));
+        }
+
+        /**
+         * Closes the SSH tunnel held by the given context, if any: forwarder socket, SSH client, forwarder thread.
+         */
+        private static void closeSshTunnel(ConnectionContext<?> connectionContext) {
+            SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
+            if (sshTunnelContext == null) {
+                return;
+            }
+            try {
+                /**
+                 * IMO, order of these operations is important here (not sure), this particular order
+                 * seems safe. e.g. if the thread is stopped first then there may be some issues with
+                 * closing the server socket or disconnecting client.
+                 */
+                sshTunnelContext.getServerSocket().close();
+                sshTunnelContext.getSshClient().disconnect();
+                sshTunnelContext.getThread().interrupt(); // Gracefully interrupt the thread
+            } catch (IOException e) {
+                log.error("Failed to destroy SSH tunnel context: " + e.getMessage());
+            }
         }
 
         @Override
@@ -714,21 +740,7 @@ public class MySqlPlugin extends BasePlugin {
             log.debug(Thread.currentThread().getName() + ": datasourceDestroy() called for MySQL plugin.");
             Mono.just(connectionContext)
                     .flatMap(ignore -> {
-                        SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
-                        if (sshTunnelContext != null) {
-                            try {
-                                /**
-                                 * IMO, order of these operations is important here (not sure), this particular order
-                                 * seems safe. e.g. if the thread is stopped first then there may be some issues with
-                                 * closing the server socket or disconnecting client.
-                                 */
-                                sshTunnelContext.getServerSocket().close();
-                                sshTunnelContext.getSshClient().disconnect();
-                                sshTunnelContext.getThread().interrupt(); // Gracefully interrupt the thread
-                            } catch (IOException e) {
-                                log.error("Failed to destroy SSH tunnel context: " + e.getMessage());
-                            }
-                        }
+                        closeSshTunnel(connectionContext);
                         return Mono.empty();
                     })
                     .subscribeOn(scheduler)

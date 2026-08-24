@@ -45,6 +45,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
@@ -1787,5 +1789,30 @@ public class MySqlPluginTest {
                     assertEquals("_sshHost_22", endpointIdentifier);
                 })
                 .verifyComplete();
+    }
+
+    /**
+     * datasourceCreate() opens the SSH tunnel (TCP connect, key auth, local ServerSocket bind) when the connection
+     * method is SSH. The server calls it from the continuation of a Redis-backed feature-flag check, so none of that
+     * may run on the subscribing thread.
+     */
+    @Test
+    public void datasourceCreate_doesNotRunOnTheSubscribingThread() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Scheduler caller = Schedulers.newSingle("caller-event-loop");
+        try {
+            StepVerifier.create(pluginExecutor.datasourceCreate(dsConfig).subscribeOn(caller))
+                    .assertNext(connectionContext -> {
+                        instanceConnectionContext = connectionContext;
+                        assertNotNull(connectionContext.getConnection());
+                        String thread = Thread.currentThread().getName();
+                        assertFalse(
+                                thread.startsWith("caller-event-loop"),
+                                "datasourceCreate completed on the subscribing thread: " + thread);
+                    })
+                    .verifyComplete();
+        } finally {
+            caller.dispose();
+        }
     }
 }
