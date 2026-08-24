@@ -183,7 +183,8 @@ public class AuthenticationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_validDatasource() {
-        LinkedMultiValueMap<String, String> mockHeaders = new LinkedMultiValueMap<>(1);
+        LinkedMultiValueMap<String, String> mockHeaders = new LinkedMultiValueMap<>(2);
+        mockHeaders.add(HttpHeaders.HOST, "mock.origin.com");
         mockHeaders.add(HttpHeaders.REFERER, "https://mock.origin.com/source/uri");
 
         MockServerHttpRequest httpRequest =
@@ -274,7 +275,8 @@ public class AuthenticationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_validDatasourceAndBranchName() {
-        LinkedMultiValueMap<String, String> mockHeaders = new LinkedMultiValueMap<>(1);
+        LinkedMultiValueMap<String, String> mockHeaders = new LinkedMultiValueMap<>(2);
+        mockHeaders.add(HttpHeaders.HOST, "mock.origin.com");
         mockHeaders.add(HttpHeaders.REFERER, "https://mock.origin.com/source/uri");
 
         MockServerHttpRequest httpRequest =

@@ -24,7 +24,7 @@ RUN XCADDY_SETCAP=0 xcaddy build \
 
 # Build MongoDB database tools from source with pinned x/crypto and x/net
 # Apt-installed mongodb-database-tools ships x/crypto@0.45.0 with no upstream fix available.
-FROM golang:1.26.5-alpine AS mongotoolsbuilder
+FROM golang:1.26.6-alpine AS mongotoolsbuilder
 
 RUN apk add --no-cache git make bash
 WORKDIR /tmp/mongo-tools
@@ -126,6 +126,18 @@ RUN <<END
   # bundling the patched tar 7.5.19; pin it since no Node 24.x ships a fixed npm yet.
   export PATH="/opt/node/bin:$PATH"
   npm install -g npm@11.18.0
+  # npm 11.18.0 / 11.19.0 still vendor brace-expansion 5.0.7 (CVE-2026-69152 /
+  # CVE-2026-14257) and ip-address 10.2.0 (CVE-2026-69192). Unpack patched
+  # tarballs over the nested copies; `npm install --prefix` on npm's own
+  # package.json tries to resolve private @npmcli/* deps and 404s.
+  npm_nm="$(npm root -g)/npm/node_modules"
+  tmp="$(mktemp -d)"
+  (cd "$tmp" && npm pack --silent brace-expansion@5.0.9 ip-address@10.3.1)
+  rm -rf "$npm_nm/brace-expansion" "$npm_nm/ip-address"
+  mkdir -p "$npm_nm/brace-expansion" "$npm_nm/ip-address"
+  tar -xzf "$tmp"/brace-expansion-*.tgz -C "$npm_nm/brace-expansion" --strip-components 1
+  tar -xzf "$tmp"/ip-address-*.tgz -C "$npm_nm/ip-address" --strip-components 1
+  rm -rf "$tmp"
   npm cache clean --force
 END
 
