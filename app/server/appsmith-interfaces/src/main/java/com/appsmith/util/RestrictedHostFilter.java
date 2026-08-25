@@ -711,6 +711,14 @@ public final class RestrictedHostFilter {
         }
         if (address instanceof Inet6Address) {
             final byte[] addressBytes = address.getAddress();
+            // The RFC 8215 local-use NAT64 prefix (64:ff9b:1::/48) is registered Globally Reachable
+            // = False, and RFC 8215 §5 forbids assuming where the IPv4 is embedded within it (a
+            // §6 checksum-neutral encoding can place it in the low 32 bits while the /48-position
+            // bytes hold an unrelated routable-looking value). There is no legitimate external
+            // target under it, so block the whole prefix rather than trust any single position.
+            if (isNat64LocalUse(addressBytes)) {
+                return true;
+            }
             // Transition addresses tunnel an IPv4 destination inside an IPv6 wrapper. The wrapper
             // is itself neither loopback nor link-local, so classify what the address actually
             // reaches: 64:ff9b::7f00:1 and 2002:7f00:1:: both arrive at 127.0.0.1.
@@ -803,9 +811,10 @@ public final class RestrictedHostFilter {
      * none. Covers the embeddings where the IPv6 address is purely an encoding of an IPv4 one, so
      * collapsing to that IPv4 is a faithful canonical form: IPv4-compatible ({@code ::d.d.d.d}),
      * IPv4-mapped ({@code ::ffff:d.d.d.d}), IPv4-translated ({@code ::ffff:0:d.d.d.d}, RFC 2765),
-     * NAT64 — the RFC 6052 well-known {@code 64:ff9b::/96} (low 32 bits) and the RFC 8215 local-use
-     * {@code 64:ff9b:1::/48} (RFC 6052 /48 layout: bytes 6-7 and 9-10) — and 6to4 (RFC 3056
-     * {@code 2002::/16}).
+     * the RFC 6052 well-known NAT64 prefix {@code 64:ff9b::/96} (low 32 bits), and 6to4 (RFC 3056
+     * {@code 2002::/16}). The RFC 8215 local-use NAT64 prefix {@code 64:ff9b:1::/48} is not here:
+     * it has no fixed embedded-IPv4 position to canonicalize to and is blocked wholesale in
+     * {@link #matchesBlockedAddressClass(InetAddress)}.
      */
     private static byte[] extractEmbeddedIpv4(byte[] addressBytes) {
         if (addressBytes.length != 16) {
@@ -816,16 +825,12 @@ public final class RestrictedHostFilter {
                 || isNat64WellKnown(addressBytes)) {
             return Arrays.copyOfRange(addressBytes, 12, 16);
         }
-        if (isNat64LocalUse(addressBytes)) {
-            // RFC 6052 /48 layout: the 32-bit IPv4 is split across bytes 6-7 and 9-10; byte 8 is
-            // the reserved u-octet and is skipped. Reading the low 32 bits here (bytes 12-15) would
-            // misread the address — letting a /48-embedded internal destination through when its
-            // suffix looks routable, and over-blocking a /48-embedded routable one whose suffix is 0.
-            return new byte[] {addressBytes[6], addressBytes[7], addressBytes[9], addressBytes[10]};
-        }
         if (isSixToFour(addressBytes)) {
             return Arrays.copyOfRange(addressBytes, 2, 6);
         }
+        // The RFC 8215 local-use prefix (64:ff9b:1::/48) is deliberately absent: it has no fixed
+        // embedded-IPv4 position to canonicalize to (RFC 8215 §5), so it is not normalized here.
+        // matchesBlockedAddressClass blocks the whole prefix instead.
         return null;
     }
 
@@ -882,11 +887,11 @@ public final class RestrictedHostFilter {
     }
 
     /**
-     * {@code 64:ff9b:1::/48} — the RFC 8215 local-use NAT64 prefix. Per RFC 6052 the /48 layout
-     * embeds the IPv4 across bytes 6-7 and 9-10 (byte 8 is the reserved u-octet), which
-     * {@link #extractEmbeddedIpv4(byte[])} reassembles. Other RFC 6052 prefix lengths use a
-     * Network-Specific Prefix that cannot be recognized from the address alone, so — like 6rd —
-     * they are out of scope.
+     * {@code 64:ff9b:1::/48} — the RFC 8215 local-use NAT64 prefix (registered Globally Reachable
+     * = False). RFC 8215 §5 forbids assuming where the IPv4 is embedded within it, so the filter
+     * blocks the whole prefix in {@link #matchesBlockedAddressClass(InetAddress)} rather than
+     * extract a single position. Other NAT64 prefix lengths use a Network-Specific Prefix that
+     * cannot be recognized from the address alone, so — like 6rd — they are out of scope.
      */
     private static boolean isNat64LocalUse(byte[] addressBytes) {
         return addressBytes[0] == 0x00
