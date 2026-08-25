@@ -3,6 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -27,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
@@ -38,11 +40,15 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import javax.net.SocketFactory;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -399,6 +405,7 @@ public class EnvManagerTest {
     private void mockSuperUser() {
         User user = new User();
         user.setEmail("admin@appsmith.com");
+        user.setOrganizationId("org-id");
         Mockito.when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(true));
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
     }
@@ -553,12 +560,13 @@ public class EnvManagerTest {
         // Mock the getAll method on the spy to return our test environment variables
         Mockito.doReturn(Mono.just(envs)).when(envManager).getAll();
 
-        // Test the getAllNonEmpty method (which filters out empty values)
+        // Test the getAllNonEmpty method (which filters out empty values). APPSMITH_DB_URL is
+        // secret-classified, so its value must come back masked, never the stored URL.
         StepVerifier.create(envManager.getAllNonEmpty())
                 .assertNext(map -> {
                     assertThat(map).hasSize(1);
-                    assertThat(map).containsKey("APPSMITH_DB_URL");
-                    assertThat(map).containsValue("mongo-url");
+                    assertThat(map).containsEntry("APPSMITH_DB_URL", "********");
+                    assertThat(map).doesNotContainValue("mongo-url");
                     assertThat(map).doesNotContainKey("APPSMITH_DISABLE_TELEMETRY");
                 })
                 .verifyComplete();
@@ -577,16 +585,179 @@ public class EnvManagerTest {
         // Mock the getAll method on the spy to return our test environment variables
         Mockito.doReturn(Mono.just(envs)).when(envManager).getAll();
 
-        // Test the getAllNonEmpty method (which filters out empty values)
+        // Test the getAllNonEmpty method (which filters out empty values). Non-secret values stay
+        // raw; the secret-classified APPSMITH_DB_URL is masked.
         StepVerifier.create(envManager.getAllNonEmpty())
                 .assertNext(map -> {
                     assertThat(map).hasSize(3);
-                    assertThat(map).containsEntry("APPSMITH_DB_URL", "mongo-url");
+                    assertThat(map).containsEntry("APPSMITH_DB_URL", "********");
                     assertThat(map).containsEntry("APPSMITH_INSTANCE_NAME", "test-instance");
                     assertThat(map).containsEntry("APPSMITH_MAIL_HOST", "smtp.example.com");
                     assertThat(map).doesNotContainKey("APPSMITH_DISABLE_TELEMETRY");
                     assertThat(map).doesNotContainKey("APPSMITH_ADMIN_EMAILS");
                 })
                 .verifyComplete();
+    }
+
+    // === Secret masking in the admin env read-back (APP-15850) ===
+    //
+    // GET /api/v1/admin/env must never return credential material, even to a super-admin.
+    // Values of secret-classified variables are replaced with the fixed mask "********";
+    // writes carrying the mask are treated as "unchanged"; the test-email flow resolves
+    // masked credentials from the stored values server-side.
+
+    private static final String MASK = "********";
+
+    @Test
+    public void getAllNonEmpty_masksSecretClassifiedVariables() {
+        Map<String, String> envs = new HashMap<>();
+        envs.put("APPSMITH_DB_URL", "mongodb://appsmith:db-sekret@localhost:27017/appsmith");
+        envs.put("APPSMITH_REDIS_URL", "redis://:redis-sekret@127.0.0.1:6379");
+        envs.put("APPSMITH_MAIL_USERNAME", "smtp-user-sekret");
+        envs.put("APPSMITH_MAIL_PASSWORD", "smtp-sekret");
+        envs.put("APPSMITH_RECAPTCHA_SECRET_KEY", "recaptcha-sekret");
+        envs.put("APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET", "google-sekret");
+        envs.put("APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET", "github-sekret");
+        envs.put("APPSMITH_INSTANCE_NAME", "my-instance");
+        envs.put("APPSMITH_RECAPTCHA_SITE_KEY", "public-site-key");
+
+        Mockito.doReturn(Mono.just(envs)).when(envManager).getAll();
+
+        StepVerifier.create(envManager.getAllNonEmpty())
+                .assertNext(map -> {
+                    for (String secretKey : List.of(
+                            "APPSMITH_DB_URL",
+                            "APPSMITH_REDIS_URL",
+                            "APPSMITH_MAIL_USERNAME",
+                            "APPSMITH_MAIL_PASSWORD",
+                            "APPSMITH_RECAPTCHA_SECRET_KEY",
+                            "APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET",
+                            "APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET")) {
+                        assertThat(map).containsEntry(secretKey, MASK);
+                    }
+                    // Non-secrets stay readable — including the deliberately public site key.
+                    assertThat(map).containsEntry("APPSMITH_INSTANCE_NAME", "my-instance");
+                    assertThat(map).containsEntry("APPSMITH_RECAPTCHA_SITE_KEY", "public-site-key");
+                    assertThat(map.values()).noneMatch(value -> value.contains("sekret"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getAllNonEmpty_masksPatternMatchedNamesWithoutExplicitListing() {
+        // Fail-closed for future variables: names containing SECRET or ending in _PASSWORD or
+        // _TOKEN are masked even when nobody remembered to classify them explicitly.
+        Map<String, String> envs = new HashMap<>();
+        envs.put("APPSMITH_FUTURE_API_TOKEN", "future-sekret");
+        envs.put("APPSMITH_ANOTHER_CLIENT_SECRET", "another-sekret");
+        envs.put("APPSMITH_LDAP_BIND_PASSWORD", "ldap-sekret");
+        envs.put("APPSMITH_MAIL_HOST", "smtp.example.com");
+        envs.put("APPSMITH_RECAPTCHA_SITE_KEY", "public-site-key");
+
+        Mockito.doReturn(Mono.just(envs)).when(envManager).getAll();
+
+        StepVerifier.create(envManager.getAllNonEmpty())
+                .assertNext(map -> {
+                    assertThat(map).containsEntry("APPSMITH_FUTURE_API_TOKEN", MASK);
+                    assertThat(map).containsEntry("APPSMITH_ANOTHER_CLIENT_SECRET", MASK);
+                    assertThat(map).containsEntry("APPSMITH_LDAP_BIND_PASSWORD", MASK);
+                    assertThat(map).containsEntry("APPSMITH_MAIL_HOST", "smtp.example.com");
+                    assertThat(map).containsEntry("APPSMITH_RECAPTCHA_SITE_KEY", "public-site-key");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void applyChanges_valueCarryingMask_isTreatedAsUnchanged(@TempDir Path tempDir) throws IOException {
+        Path envFile = tempDir.resolve("docker.env");
+        Files.writeString(envFile, "APPSMITH_MAIL_HOST=old-host\nAPPSMITH_MAIL_PASSWORD='old-sekret'\n");
+        Mockito.when(commonConfig.getEnvFilePath()).thenReturn(envFile.toString());
+        mockSuperUser();
+        mockApplyChangesCollaborators();
+
+        Map<String, String> changes = Map.of("APPSMITH_MAIL_PASSWORD", MASK, "APPSMITH_MAIL_HOST", "new-host");
+
+        StepVerifier.create(envManager.applyChanges(changes, "http://localhost"))
+                .verifyComplete();
+
+        String written = Files.readString(envFile);
+        assertThat(written).contains("old-sekret");
+        assertThat(written).contains("new-host");
+        assertThat(written).doesNotContain(MASK);
+    }
+
+    @Test
+    public void applyChanges_genuinelyNewSecretValue_isWritten(@TempDir Path tempDir) throws IOException {
+        Path envFile = tempDir.resolve("docker.env");
+        Files.writeString(envFile, "APPSMITH_MAIL_PASSWORD='old-sekret'\n");
+        Mockito.when(commonConfig.getEnvFilePath()).thenReturn(envFile.toString());
+        mockSuperUser();
+        mockApplyChangesCollaborators();
+
+        StepVerifier.create(envManager.applyChanges(
+                        Map.of("APPSMITH_MAIL_PASSWORD", "brand-new-sekret"), "http://localhost"))
+                .verifyComplete();
+
+        String written = Files.readString(envFile);
+        assertThat(written).contains("brand-new-sekret");
+        assertThat(written).doesNotContain("old-sekret");
+    }
+
+    private void mockApplyChangesCollaborators() {
+        Mockito.when(organizationService.updateOrganizationConfiguration(Mockito.anyString(), Mockito.any()))
+                .thenReturn(Mono.just(new Organization()));
+        Mockito.when(analyticsService.sendObjectEvent(Mockito.any(), Mockito.<User>any(), Mockito.anyMap()))
+                .thenReturn(Mono.just(new User()));
+    }
+
+    @Test
+    public void sendTestEmail_maskedCredentials_areResolvedFromStoredValues() {
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            mockSuperUser();
+            Mockito.doReturn(Mono.just(Map.of(
+                            "APPSMITH_MAIL_USERNAME", "stored-user",
+                            "APPSMITH_MAIL_PASSWORD", "stored-sekret")))
+                    .when(envManager)
+                    .getAllWithoutAclCheck();
+
+            TestEmailConfigRequestDTO dto = buildDto("127.0.0.1");
+            dto.setUsername(MASK);
+            dto.setPassword(MASK);
+
+            // The blocked host still fails the request downstream — what this test pins is that
+            // the masked credentials were resolved to the stored values first, server-side.
+            StepVerifier.create(envManager.sendTestEmail(dto))
+                    .expectErrorSatisfies(e -> assertThat(e.getMessage()).contains("Invalid SMTP configuration"))
+                    .verify();
+
+            Mockito.verify(envManager).getAllWithoutAclCheck();
+            assertThat(dto.getUsername()).isEqualTo("stored-user");
+            assertThat(dto.getPassword()).isEqualTo("stored-sekret");
+        } finally {
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
+    }
+
+    @Test
+    public void sendTestEmail_typedCredentials_areNotReplaced() {
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            mockSuperUser();
+
+            TestEmailConfigRequestDTO dto = buildDto("127.0.0.1");
+            dto.setUsername("typed-user");
+            dto.setPassword("typed-pass");
+
+            StepVerifier.create(envManager.sendTestEmail(dto))
+                    .expectErrorSatisfies(e -> assertThat(e.getMessage()).contains("Invalid SMTP configuration"))
+                    .verify();
+
+            Mockito.verify(envManager, Mockito.never()).getAllWithoutAclCheck();
+            assertThat(dto.getUsername()).isEqualTo("typed-user");
+            assertThat(dto.getPassword()).isEqualTo("typed-pass");
+        } finally {
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
     }
 }
