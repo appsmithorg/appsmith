@@ -135,6 +135,13 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     private static final Set<String> VARIABLE_WHITELIST =
             Stream.of(EnvVariables.values()).map(Enum::name).collect(Collectors.toUnmodifiableSet());
 
+    /**
+     * Secret-bearing variables whose names don't self-describe as secrets. Everything matching
+     * the name pattern in {@link #isSecretEnvVar(String)} is masked without being listed here.
+     */
+    private static final Set<String> EXPLICIT_SECRET_ENV_VARS = Set.of(
+            EnvVariables.APPSMITH_DB_URL.name(), EnvVariables.APPSMITH_REDIS_URL.name(), APPSMITH_MAIL_USERNAME.name());
+
     public EnvManagerCEImpl(
             SessionUserService sessionUserService,
             UserService userService,
@@ -388,6 +395,10 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         // Create a copy of the changes map to avoid modifying the original map and avoiding unsupported ops exception
         // if the map is unmodifiable
         Map<String, String> envChanges = new HashMap<>(changes);
+        // The admin read-back API masks secret values, and clients echo untouched fields back on
+        // save — a value carrying the mask means "leave the stored value unchanged". Matching on
+        // contains (not equals) so a part-edited masked field can never corrupt the stored value.
+        envChanges.values().removeIf(value -> value != null && value.contains(MASKED_SECRET));
         return verifyCurrentUserIsSuper()
                 .flatMap(user -> validateChanges(user, envChanges).thenReturn(user))
                 .flatMap(user -> applyChangesToEnvFileWithoutAclCheck(envChanges)
@@ -732,7 +743,24 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     /**
-     * A filter function on getAll that returns env variables which are having non-empty values
+     * Whether an env variable's value is credential material that must never be returned to a
+     * client — not even a super-admin. Matches an explicit list plus a name pattern (contains
+     * SECRET, or ends with _PASSWORD / _TOKEN), so future secret-bearing variables are masked
+     * without anyone having to remember a list.
+     */
+    protected boolean isSecretEnvVar(String name) {
+        return EXPLICIT_SECRET_ENV_VARS.contains(name)
+                || name.contains("SECRET")
+                || name.endsWith("_PASSWORD")
+                || name.endsWith("_TOKEN");
+    }
+
+    /**
+     * A filter function on getAll that returns env variables which are having non-empty values.
+     * Values of secret-classified variables (see {@link #isSecretEnvVar(String)}) are replaced
+     * with {@link #MASKED_SECRET}: this is the read path behind the admin settings API, and
+     * credential material must never leave the server. Internal callers that need real values
+     * must use {@link #getAll()} or {@link #getAllWithoutAclCheck()}.
      */
     @Override
     public Mono<Map<String, String>> getAllNonEmpty() {
@@ -745,7 +773,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             blacklistedEnvVariableHelper.getBlacklistedEnvVariableForAppsmithCloud(organizationId);
                     for (Map.Entry<String, String> entry : map.entrySet()) {
                         if (StringUtils.hasText(entry.getValue()) && !blacklistedEnvVariable.contains(entry.getKey())) {
-                            nonEmptyValuesMap.put(entry.getKey(), entry.getValue());
+                            nonEmptyValuesMap.put(
+                                    entry.getKey(), isSecretEnvVar(entry.getKey()) ? MASKED_SECRET : entry.getValue());
                         }
                     }
                     return Mono.just(nonEmptyValuesMap);
@@ -931,43 +960,68 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         };
     }
 
+    /**
+     * The admin settings form is populated from the masked read-back API, so an untouched
+     * username/password field arrives here carrying {@link #MASKED_SECRET}. Resolve those to the
+     * stored values server-side; a freshly typed (unsaved) credential is passed through as-is.
+     */
+    private Mono<Void> resolveMaskedTestEmailCredentials(TestEmailConfigRequestDTO requestDTO) {
+        boolean usernameMasked = MASKED_SECRET.equals(requestDTO.getUsername());
+        boolean passwordMasked = MASKED_SECRET.equals(requestDTO.getPassword());
+        if (!usernameMasked && !passwordMasked) {
+            return Mono.empty();
+        }
+        return getAllWithoutAclCheck()
+                .doOnNext(storedEnv -> {
+                    if (usernameMasked) {
+                        requestDTO.setUsername(storedEnv.get(APPSMITH_MAIL_USERNAME.name()));
+                    }
+                    if (passwordMasked) {
+                        requestDTO.setPassword(storedEnv.get(APPSMITH_MAIL_PASSWORD.name()));
+                    }
+                })
+                .then();
+    }
+
     @Override
     public Mono<Boolean> sendTestEmail(TestEmailConfigRequestDTO requestDTO) {
-        return verifyCurrentUserIsSuper().flatMap(user -> {
-            if (!ALLOWED_SMTP_PORTS.contains(requestDTO.getSmtpPort())) {
-                return Mono.error(
-                        new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP configuration."));
-            }
+        return verifyCurrentUserIsSuper()
+                .flatMap(user -> resolveMaskedTestEmailCredentials(requestDTO).thenReturn(user))
+                .flatMap(user -> {
+                    if (!ALLOWED_SMTP_PORTS.contains(requestDTO.getSmtpPort())) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP configuration."));
+                    }
 
-            var resolvedAddress = RestrictedHostFilter.resolveIfAllowed(requestDTO.getSmtpHost());
-            if (resolvedAddress.isEmpty()) {
-                return Mono.error(
-                        new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP configuration."));
-            }
+                    var resolvedAddress = RestrictedHostFilter.resolveIfAllowed(requestDTO.getSmtpHost());
+                    if (resolvedAddress.isEmpty()) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP configuration."));
+                    }
 
-            JavaMailSenderImpl mailSender = buildMailSender(requestDTO, resolvedAddress.get());
+                    JavaMailSenderImpl mailSender = buildMailSender(requestDTO, resolvedAddress.get());
 
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(requestDTO.getFromEmail());
-            message.setTo(user.getEmail());
-            message.setSubject("Test email from Appsmith");
-            message.setText(
-                    "This is a test email from Appsmith, initiated from Admin Settings page. If you are seeing this, your email configuration is working!\n");
+                    SimpleMailMessage message = new SimpleMailMessage();
+                    message.setFrom(requestDTO.getFromEmail());
+                    message.setTo(user.getEmail());
+                    message.setSubject("Test email from Appsmith");
+                    message.setText(
+                            "This is a test email from Appsmith, initiated from Admin Settings page. If you are seeing this, your email configuration is working!\n");
 
-            try {
-                mailSender.testConnection();
-            } catch (MessagingException e) {
-                log.error("SMTP test-connection failed for host {}", requestDTO.getSmtpHost(), e);
-                return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, SMTP_GENERIC_ERROR));
-            }
+                    try {
+                        mailSender.testConnection();
+                    } catch (MessagingException e) {
+                        log.error("SMTP test-connection failed for host {}", requestDTO.getSmtpHost(), e);
+                        return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, SMTP_GENERIC_ERROR));
+                    }
 
-            try {
-                mailSender.send(message);
-            } catch (MailException mailException) {
-                log.error("failed to send test email", mailException);
-                return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, SMTP_GENERIC_ERROR));
-            }
-            return Mono.just(TRUE);
-        });
+                    try {
+                        mailSender.send(message);
+                    } catch (MailException mailException) {
+                        log.error("failed to send test email", mailException);
+                        return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, SMTP_GENERIC_ERROR));
+                    }
+                    return Mono.just(TRUE);
+                });
     }
 }
