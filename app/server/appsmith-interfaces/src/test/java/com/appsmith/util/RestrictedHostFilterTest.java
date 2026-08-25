@@ -275,6 +275,38 @@ public class RestrictedHostFilterTest {
                 "Did not expect routable literal " + host + " to be blocked");
     }
 
+    // Regression test for a residual SSRF bypass in the 64:ff9b:1::/48 (RFC 8215 local-use)
+    // handling. It fails against the current code and should pass once the fix lands.
+    //
+    // extractEmbeddedIpv4 reads the embedded IPv4 for this prefix from one fixed position
+    // (bytes 6-7 and 9-10), and embeddedIpv4Candidates then yields only that single candidate.
+    // RFC 8215 section 5 forbids assuming the location of the embedded IPv4 in this prefix, so an
+    // internal destination placed in another valid position is never classified.
+    //
+    // 64:ff9b:1:fffe::/96 is RFC 8215 section 6's own checksum-neutral example prefix; the low 32
+    // bits below encode 127.0.0.1 and 169.254.169.254, yet the filter reads the /48 position
+    // (0xff,0xfe,0x00,0x00 = 255.254.0.0, routable) and lets them through.
+    //
+    // Fix so this passes: have the /48 handling consider every candidate position — e.g. add both
+    // the /48 bytes and the low 32 bits in embeddedIpv4Candidates and block if any is non-routable,
+    // the way Teredo already contributes two candidates — or block 64:ff9b:1::/48 wholesale
+    // (RFC 8215 marks it Globally Reachable = False).
+    @Test
+    public void rfc8215LocalUsePrefix_blocksEmbeddedNonRoutableRegardlessOfPosition() {
+        final String[] mustBlock = {
+            "64:ff9b:1:fffe:0:0:7f00:1", // low 32 bits -> 127.0.0.1
+            "64:ff9b:1:fffe:0:0:a9fe:a9fe", // low 32 bits -> 169.254.169.254 (cloud metadata)
+        };
+        for (String host : mustBlock) {
+            assertTrue(
+                    RestrictedHostFilter.isBlockedIpAddressClass(host)
+                            && RestrictedHostFilter.isLiteralBlocked(host)
+                            && RestrictedHostFilter.isDisallowedAndFail(host, null),
+                    "Expected RFC 8215 local-use encoding " + host
+                            + " to be blocked at every entry point (address-class, literal fast path, resolver hook)");
+        }
+    }
+
     // The WebClient/HTTP path is the one the advisories exercise: isLiteralBlocked is the
     // pre-resolver fast path and isDisallowedAndFail is the resolver hook. Drive both, not just
     // the address-class helper they delegate to.
