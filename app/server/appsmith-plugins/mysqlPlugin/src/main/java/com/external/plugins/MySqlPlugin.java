@@ -704,9 +704,16 @@ public class MySqlPlugin extends BasePlugin {
                                         CONNECTION_METHOD_INDEX,
                                         MYSQL_DEFAULT_PORT,
                                         ConnectionPool.class);
-                                ConnectionPool pool =
-                                        getNewConnectionPool(datasourceConfiguration, connectionContext, maxPoolSize);
-                                connectionContext.setConnection(pool);
+                                try {
+                                    ConnectionPool pool = getNewConnectionPool(
+                                            datasourceConfiguration, connectionContext, maxPoolSize);
+                                    connectionContext.setConnection(pool);
+                                } catch (RuntimeException e) {
+                                    // The tunnel is already open but no context has been emitted yet, so the
+                                    // doOnDiscard below cannot see it - close it here before propagating.
+                                    closeSshTunnel(connectionContext);
+                                    throw e;
+                                }
                                 return connectionContext;
                             })
                             .subscribeOn(scheduler))

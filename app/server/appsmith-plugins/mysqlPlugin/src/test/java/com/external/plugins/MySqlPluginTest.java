@@ -1792,9 +1792,10 @@ public class MySqlPluginTest {
     }
 
     /**
-     * datasourceCreate() opens the SSH tunnel (TCP connect, key auth, local ServerSocket bind) when the connection
-     * method is SSH. The server calls it from the continuation of a Redis-backed feature-flag check, so none of that
-     * may run on the subscribing thread.
+     * The blocking work in datasourceCreate() (connection-context creation and pool construction) must not run on
+     * the subscribing thread; the server invokes it from the continuation of a Redis-backed feature-flag check.
+     * This test uses a Standard-connection configuration, so it verifies the scheduler hop for the callable as a
+     * whole; the SSH tunnel path inside getConnectionContext is covered by SSHUtilsTest.
      */
     @Test
     public void datasourceCreate_doesNotRunOnTheSubscribingThread() {
