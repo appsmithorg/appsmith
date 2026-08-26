@@ -57,7 +57,7 @@ public class GitUtilsTest {
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@absolute.path.com:/test/newRepo.git"))
                 .isEqualTo("https://absolute.path.com/test/newRepo");
 
-        // Custom SSH port (ssh:// scheme — port must not become part of the HTTPS path):
+        // Custom SSH port (ssh:// only — port must not become part of the HTTPS path):
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
                         "ssh://git@example.test.net:1234/user/test/tests/testRepo.git"))
                 .isEqualTo("https://example.test.net/user/test/tests/testRepo");
@@ -68,15 +68,16 @@ public class GitUtilsTest {
                         "ssh://git@tim.tam.example.com:9876/v3/sladeping/pyhe/SpaceJunk"))
                 .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
 
-        // Custom SSH port (SCP-like form user@host:port/path — same HTTPS result as ssh://):
+        // SCP-like syntax has no port: a leading numeric segment is a path namespace, not a port.
+        // Custom ports require ssh://user@host:port/path (covered above).
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
                         "git@example.test.net:2222/user/test/tests/testRepo.git"))
-                .isEqualTo("https://example.test.net/user/test/tests/testRepo");
+                .isEqualTo("https://example.test.net/2222/user/test/tests/testRepo");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@example.com:443/test/testRepo.git"))
-                .isEqualTo("https://example.com/test/testRepo");
+                .isEqualTo("https://example.com/443/test/testRepo");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
                         "git@tim.tam.example.com:5678/v3/sladeping/pyhe/SpaceJunk"))
-                .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
+                .isEqualTo("https://tim.tam.example.com/5678/v3/sladeping/pyhe/SpaceJunk");
 
         // custom ssh username:
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("abc-xy@vs-ssh.visualstudio.com:v3/newJet/ai/zilla"))
