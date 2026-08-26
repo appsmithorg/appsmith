@@ -142,6 +142,26 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     private static final Set<String> EXPLICIT_SECRET_ENV_VARS = Set.of(
             EnvVariables.APPSMITH_DB_URL.name(), EnvVariables.APPSMITH_REDIS_URL.name(), APPSMITH_MAIL_USERNAME.name());
 
+    /**
+     * Derived, read-only connection summaries added to the admin settings response in place of
+     * the (masked) DB/Redis URLs. Computed from the URLs the server process actually runs with
+     * ({@code appsmith.db.url} / {@code appsmith.redis.url}), not from docker.env — which can
+     * hold generated credentials that aren't in use when the deployment overrides these via
+     * real environment variables.
+     */
+    public static final String DB_CONNECTION_INFO_KEY = "APPSMITH_DB_CONNECTION_INFO";
+
+    public static final String REDIS_CONNECTION_INFO_KEY = "APPSMITH_REDIS_CONNECTION_INFO";
+
+    /**
+     * Value reported when the connection targets the services running inside the Appsmith
+     * container. Uses the same host heuristic as the container entrypoint's {@code isUriLocal}
+     * check, which decides whether the embedded MongoDB/Redis are started at all.
+     */
+    public static final String EMBEDDED_CONNECTION = "embedded";
+
+    private static final Set<String> EMBEDDED_HOSTS = Set.of("localhost", "127.0.0.1");
+
     public EnvManagerCEImpl(
             SessionUserService sessionUserService,
             UserService userService,
@@ -742,6 +762,61 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return Mono.just(parseToMap(originalContent));
     }
 
+    private static void putConnectionInfo(Map<String, String> map, String key, String url) {
+        List<String> hosts = extractHosts(url);
+        if (hosts.isEmpty()) {
+            return;
+        }
+        boolean embedded = hosts.stream().allMatch(host -> EMBEDDED_HOSTS.contains(host.toLowerCase()));
+        map.put(key, embedded ? EMBEDDED_CONNECTION : String.join(", ", hosts));
+    }
+
+    /**
+     * Extracts the hostname(s) from a connection URL, and nothing else — no credentials, port,
+     * database, or query parameters. Handles the multi-host authority MongoDB replica-set URLs
+     * use ({@code host1:27017,host2:27017}), which {@link java.net.URI} cannot parse, as well as
+     * {@code mongodb+srv} and bracketed IPv6 hosts.
+     */
+    static List<String> extractHosts(String url) {
+        if (!StringUtils.hasText(url)) {
+            return List.of();
+        }
+        String rest = url;
+        final int schemeIndex = rest.indexOf("://");
+        if (schemeIndex >= 0) {
+            rest = rest.substring(schemeIndex + 3);
+        }
+        int authorityEnd = rest.length();
+        for (final char delimiter : new char[] {'/', '?'}) {
+            final int index = rest.indexOf(delimiter);
+            if (index >= 0 && index < authorityEnd) {
+                authorityEnd = index;
+            }
+        }
+        String authority = rest.substring(0, authorityEnd);
+        final int atIndex = authority.lastIndexOf('@');
+        if (atIndex >= 0) {
+            authority = authority.substring(atIndex + 1);
+        }
+        final List<String> hosts = new ArrayList<>();
+        for (final String part : authority.split(",")) {
+            String host = part.trim();
+            if (host.startsWith("[")) {
+                final int closeIndex = host.indexOf(']');
+                host = closeIndex > 0 ? host.substring(1, closeIndex) : host.substring(1);
+            } else {
+                final int colonIndex = host.indexOf(':');
+                if (colonIndex >= 0) {
+                    host = host.substring(0, colonIndex);
+                }
+            }
+            if (!host.isEmpty()) {
+                hosts.add(host);
+            }
+        }
+        return hosts;
+    }
+
     /**
      * Whether an env variable's value is credential material that must never be returned to a
      * client — not even a super-admin. Matches an explicit list plus a name pattern (contains
@@ -777,6 +852,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                                     entry.getKey(), isSecretEnvVar(entry.getKey()) ? MASKED_SECRET : entry.getValue());
                         }
                     }
+                    putConnectionInfo(nonEmptyValuesMap, DB_CONNECTION_INFO_KEY, commonConfig.getDbUrl());
+                    putConnectionInfo(nonEmptyValuesMap, REDIS_CONNECTION_INFO_KEY, commonConfig.getRedisUrl());
                     return Mono.just(nonEmptyValuesMap);
                 });
     }
