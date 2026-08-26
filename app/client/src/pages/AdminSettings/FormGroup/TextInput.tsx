@@ -13,7 +13,7 @@ export default function TextInput({ setting }: SettingComponentProps) {
     >
       <FormTextField
         defaultValue={setting.value}
-        disabled={setting.isFeatureEnabled === false}
+        disabled={setting.isFeatureEnabled === false || setting.isReadOnly === true}
         format={setting.format}
         isRequired={setting.isRequired}
         name={setting.name || setting.id || ""}

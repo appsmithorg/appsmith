@@ -19,17 +19,17 @@ import { APPSMITH_BASE_URL_SETUP_DOC } from "constants/ThirdPartyConstants";
 
 const isAirgappedInstance = isAirgapped();
 
-const formatConnectionInfo = (serviceName: string) => (value: string) =>
-  value === "embedded"
-    ? `Embedded ${serviceName} (runs inside the Appsmith container)`
-    : value;
+const formatConnectionInfo = (value: string) =>
+  value === "embedded" ? "Embedded (runs inside the Appsmith container)" : value;
 
 export const APPSMITH_DB_CONNECTION_INFO: Setting = {
   id: "APPSMITH_DB_CONNECTION_INFO",
   category: SettingCategories.CONFIGURATION,
-  controlType: SettingTypes.TEXT,
+  controlType: SettingTypes.TEXTINPUT,
+  controlSubType: SettingSubtype.TEXT,
+  isReadOnly: true,
   label: "MongoDB",
-  format: formatConnectionInfo("MongoDB"),
+  format: formatConnectionInfo,
   subText:
     "* The MongoDB server Appsmith persists to, configured via the APPSMITH_DB_URL environment variable on the instance.",
 };
@@ -37,9 +37,11 @@ export const APPSMITH_DB_CONNECTION_INFO: Setting = {
 export const APPSMITH_REDIS_CONNECTION_INFO: Setting = {
   id: "APPSMITH_REDIS_CONNECTION_INFO",
   category: SettingCategories.CONFIGURATION,
-  controlType: SettingTypes.TEXT,
+  controlType: SettingTypes.TEXTINPUT,
+  controlSubType: SettingSubtype.TEXT,
+  isReadOnly: true,
   label: "Redis",
-  format: formatConnectionInfo("Redis"),
+  format: formatConnectionInfo,
   subText:
     "* The Redis server Appsmith uses for session storage, configured via the APPSMITH_REDIS_URL environment variable on the instance.",
 };
