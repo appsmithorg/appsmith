@@ -667,6 +667,84 @@ public class EnvManagerTest {
                 .verifyComplete();
     }
 
+    // === Derived connection info for the Configuration page (APP-15850, phase 2) ===
+    //
+    // Rather than showing (masked) DB/Redis URLs in editable fields, the admin settings
+    // response carries derived, read-only connection info computed from the URLs the server
+    // process actually runs with: "embedded" when the host is localhost/127.0.0.1 (the same
+    // heuristic the container entrypoint uses to decide whether to start the embedded
+    // services), otherwise the hostname(s) — never credentials.
+
+    @Test
+    public void getAllNonEmpty_embeddedDbAndRedis_reportsEmbeddedConnectionInfo() {
+        Mockito.when(commonConfig.getDbUrl()).thenReturn("mongodb://appsmith:sekret@localhost:27017/appsmith");
+        Mockito.when(commonConfig.getRedisUrl()).thenReturn("redis://:sekret@127.0.0.1:6379");
+        Mockito.doReturn(Mono.just(Map.of("APPSMITH_INSTANCE_NAME", "x")))
+                .when(envManager)
+                .getAll();
+
+        StepVerifier.create(envManager.getAllNonEmpty())
+                .assertNext(map -> {
+                    assertThat(map).containsEntry("APPSMITH_DB_CONNECTION_INFO", "embedded");
+                    assertThat(map).containsEntry("APPSMITH_REDIS_CONNECTION_INFO", "embedded");
+                    assertThat(map.values()).noneMatch(value -> value.contains("sekret"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getAllNonEmpty_externalDbAndRedis_reportsHostsWithoutCredentials() {
+        Mockito.when(commonConfig.getDbUrl())
+                .thenReturn("mongodb+srv://appsmith:sekret@cluster0.abc123.mongodb.net/appsmith?retryWrites=true");
+        Mockito.when(commonConfig.getRedisUrl()).thenReturn("redis://:sekret@redis.internal.example.com:6379");
+        Mockito.doReturn(Mono.just(Map.of("APPSMITH_INSTANCE_NAME", "x")))
+                .when(envManager)
+                .getAll();
+
+        StepVerifier.create(envManager.getAllNonEmpty())
+                .assertNext(map -> {
+                    assertThat(map).containsEntry("APPSMITH_DB_CONNECTION_INFO", "cluster0.abc123.mongodb.net");
+                    assertThat(map).containsEntry("APPSMITH_REDIS_CONNECTION_INFO", "redis.internal.example.com");
+                    assertThat(map.values()).noneMatch(value -> value.contains("sekret"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getAllNonEmpty_multiHostReplicaSet_listsAllHosts() {
+        Mockito.when(commonConfig.getDbUrl())
+                .thenReturn("mongodb://user:sekret@mongo-a.example.com:27017,mongo-b.example.com:27017/appsmith"
+                        + "?replicaSet=rs0");
+        Mockito.when(commonConfig.getRedisUrl()).thenReturn("");
+        Mockito.doReturn(Mono.just(Map.of("APPSMITH_INSTANCE_NAME", "x")))
+                .when(envManager)
+                .getAll();
+
+        StepVerifier.create(envManager.getAllNonEmpty())
+                .assertNext(map -> {
+                    assertThat(map)
+                            .containsEntry("APPSMITH_DB_CONNECTION_INFO", "mongo-a.example.com, mongo-b.example.com");
+                    assertThat(map).doesNotContainKey("APPSMITH_REDIS_CONNECTION_INFO");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getAllNonEmpty_blankConnectionUrls_omitConnectionInfo() {
+        Mockito.when(commonConfig.getDbUrl()).thenReturn("");
+        Mockito.when(commonConfig.getRedisUrl()).thenReturn(null);
+        Mockito.doReturn(Mono.just(Map.of("APPSMITH_INSTANCE_NAME", "x")))
+                .when(envManager)
+                .getAll();
+
+        StepVerifier.create(envManager.getAllNonEmpty())
+                .assertNext(map -> {
+                    assertThat(map).doesNotContainKey("APPSMITH_DB_CONNECTION_INFO");
+                    assertThat(map).doesNotContainKey("APPSMITH_REDIS_CONNECTION_INFO");
+                })
+                .verifyComplete();
+    }
+
     @Test
     public void applyChanges_valueCarryingMask_isTreatedAsUnchanged(@TempDir Path tempDir) throws IOException {
         Path envFile = tempDir.resolve("docker.env");
