@@ -13,17 +13,18 @@ const TextWrapper = styled.div`
 export default function TextComponent({ setting }: SettingComponentProps) {
   const settingsConfig = useSelector(getSettings);
   const value = setting.name && settingsConfig && settingsConfig[setting.name];
+  const displayValue = value && setting.format ? setting.format(value) : value;
 
   return (
     <FormGroup setting={setting}>
-      {value && (
+      {displayValue && (
         <TextWrapper>
           <Text
             color="var(--ads-v2-color-fg-muted)"
             data-testid="admin-settings-text"
             renderAs="p"
           >
-            {value}
+            {displayValue}
           </Text>
         </TextWrapper>
       )}
