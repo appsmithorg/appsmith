@@ -17,32 +17,44 @@ import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
-import org.mockito.stubbing.Answer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -429,21 +441,18 @@ public class SmtpPluginTest {
 
         SmtpPlugin.SmtpPluginExecutor spySmtp = spy(pluginExecutor);
 
-        try (MockedStatic<Transport> transportMock = Mockito.mockStatic(Transport.class)) {
-            Session session =
-                    pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        Session session =
+                pluginExecutor.datasourceCreate(datasourceConfiguration).block();
 
-            when(spySmtp.getMimeMessage(session)).thenReturn(mockMimeMessage);
-            when(spySmtp.getMimeBodyPart()).thenReturn(mockMimeBodyPart);
+        when(spySmtp.getMimeMessage(session)).thenReturn(mockMimeMessage);
+        when(spySmtp.getMimeBodyPart()).thenReturn(mockMimeBodyPart);
+        doNothing().when(spySmtp).sendMessage(any(MimeMessage.class));
 
-            transportMock.when(() -> Transport.send(mockMimeMessage)).thenAnswer((Answer<Void>) invocation -> null);
+        spySmtp.execute(session, datasourceConfiguration, actionConfiguration).block();
+        String ENCODING = "UTF-8";
 
-            spySmtp.execute(session, datasourceConfiguration, actionConfiguration); // test method call
-            String ENCODING = "UTF-8";
-
-            verify(mockMimeMessage).setSubject("This is a test subject", ENCODING);
-            verify(mockMimeBodyPart).setContent(actionConfiguration.getBody(), "text/html; charset=" + ENCODING);
-        }
+        verify(mockMimeMessage).setSubject("This is a test subject", ENCODING);
+        verify(mockMimeBodyPart).setContent(actionConfiguration.getBody(), "text/html; charset=" + ENCODING);
     }
 
     @Test
@@ -457,21 +466,18 @@ public class SmtpPluginTest {
 
         SmtpPlugin.SmtpPluginExecutor spySmtp = spy(pluginExecutor);
 
-        try (MockedStatic<Transport> transportMock = Mockito.mockStatic(Transport.class)) {
-            Session session =
-                    pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        Session session =
+                pluginExecutor.datasourceCreate(datasourceConfiguration).block();
 
-            when(spySmtp.getMimeMessage(session)).thenReturn(mockMimeMessage);
-            when(spySmtp.getMimeBodyPart()).thenReturn(mockMimeBodyPart);
+        when(spySmtp.getMimeMessage(session)).thenReturn(mockMimeMessage);
+        when(spySmtp.getMimeBodyPart()).thenReturn(mockMimeBodyPart);
+        doNothing().when(spySmtp).sendMessage(any(MimeMessage.class));
 
-            transportMock.when(() -> Transport.send(mockMimeMessage)).thenAnswer((Answer<Void>) invocation -> null);
+        spySmtp.execute(session, datasourceConfiguration, actionConfiguration).block();
+        String ENCODING = "UTF-8";
 
-            spySmtp.execute(session, datasourceConfiguration, actionConfiguration); // test method call
-            String ENCODING = "UTF-8";
-
-            verify(mockMimeMessage).setSubject("This is a test subject", ENCODING);
-            verify(mockMimeBodyPart).setContent(actionConfiguration.getBody(), "text/plain; charset=" + ENCODING);
-        }
+        verify(mockMimeMessage).setSubject("This is a test subject", ENCODING);
+        verify(mockMimeBodyPart).setContent(actionConfiguration.getBody(), "text/plain; charset=" + ENCODING);
     }
 
     @Test
@@ -554,5 +560,160 @@ public class SmtpPluginTest {
                     assertEquals("localhost_25", endpointIdentifier);
                 })
                 .verifyComplete();
+    }
+
+    /**
+     * Plugin execution is invoked from the continuation of Redis-backed lookups in the server, i.e. on a Lettuce
+     * event-loop thread. The blocking SMTP send must therefore never complete on the thread that subscribed.
+     */
+    @Test
+    public void testExecute_doesNotRunOnTheSubscribingThread() throws MessagingException {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        ActionConfiguration actionConfiguration = createActionConfiguration();
+        SmtpPlugin.SmtpPluginExecutor spySmtp = spy(pluginExecutor);
+        AtomicReference<String> sendThread = new AtomicReference<>();
+        doAnswer(invocation -> {
+                    sendThread.set(Thread.currentThread().getName());
+                    return invocation.callRealMethod();
+                })
+                .when(spySmtp)
+                .sendMessage(any(MimeMessage.class));
+        Scheduler caller = Schedulers.newSingle("caller-event-loop");
+        try {
+            Mono<ActionExecutionResult> resultMono = spySmtp.datasourceCreate(dsConfig)
+                    .flatMap(session -> spySmtp.execute(session, dsConfig, actionConfiguration))
+                    .subscribeOn(caller);
+
+            StepVerifier.create(resultMono)
+                    .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
+                    .verifyComplete();
+        } finally {
+            caller.dispose();
+        }
+        assertNotNull(sendThread.get(), "the email was never sent");
+        assertFalse(
+                sendThread.get().startsWith("caller-event-loop"),
+                "SMTP send ran on the subscribing thread: " + sendThread.get());
+    }
+
+    @Test
+    public void testTestDatasource_doesNotRunOnTheSubscribingThread() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Scheduler caller = Schedulers.newSingle("caller-event-loop");
+        try {
+            // Target the Session overload directly: the DatasourceConfiguration overload's default wrapper in
+            // PluginExecutor already subscribes on boundedElastic, which would mask a regression here.
+            Mono<DatasourceTestResult> testDatasourceMono = pluginExecutor
+                    .datasourceCreate(dsConfig)
+                    .flatMap(pluginExecutor::testDatasource)
+                    .subscribeOn(caller);
+
+            StepVerifier.create(testDatasourceMono)
+                    .assertNext(result -> {
+                        assertTrue(result.isSuccess());
+                        String thread = Thread.currentThread().getName();
+                        assertFalse(
+                                thread.startsWith("caller-event-loop"),
+                                "SMTP connect completed on the subscribing thread: " + thread);
+                    })
+                    .verifyComplete();
+        } finally {
+            caller.dispose();
+        }
+    }
+
+    @Test
+    public void testDatasourceCreate_setsBoundedSocketTimeouts() {
+        Session session =
+                pluginExecutor.datasourceCreate(createDatasourceConfiguration()).block();
+        assertNotNull(session);
+        Properties props = session.getProperties();
+
+        for (String key : List.of("mail.smtp.connectiontimeout", "mail.smtp.timeout", "mail.smtp.writetimeout")) {
+            String value = props.getProperty(key);
+            assertNotNull(value, key + " must be set so a stalled SMTP server cannot block forever");
+            assertTrue(Integer.parseInt(value) > 0, key + " must be a positive bound, was " + value);
+        }
+    }
+
+    /**
+     * An SMTP server that accepts the TCP connection but never sends a greeting. Without socket timeouts the
+     * send would block indefinitely; with them it must fail with a plugin error within the configured bound.
+     */
+    @Test
+    public void testExecute_againstUnresponsiveServer_failsWithinTimeout() throws IOException {
+        Queue<Socket> heldConnections = new ConcurrentLinkedQueue<>();
+        try (ServerSocket silentServer = new ServerSocket(0, 1, InetAddress.getLoopbackAddress())) {
+            Thread acceptor = new Thread(() -> {
+                try {
+                    while (!silentServer.isClosed()) {
+                        heldConnections.add(silentServer.accept());
+                    }
+                } catch (IOException ignored) {
+                    // server closed, stop accepting
+                }
+            });
+            acceptor.setDaemon(true);
+            acceptor.start();
+
+            DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+            dsConfig.setAuthentication(null);
+            dsConfig.setEndpoints(List.of(
+                    new Endpoint(silentServer.getInetAddress().getHostAddress(), (long) silentServer.getLocalPort())));
+            ActionConfiguration actionConfiguration = createActionConfiguration();
+
+            // Subscribe off the test thread so that a regression (blocking the subscriber forever) shows up as a
+            // StepVerifier timeout instead of hanging the whole test JVM.
+            Mono<ActionExecutionResult> resultMono = pluginExecutor
+                    .datasourceCreate(dsConfig)
+                    .map(session -> {
+                        // The production defaults are asserted separately; shrink them here so this test
+                        // exercises the same timeout path in ~2 s instead of 30.
+                        session.getProperties().setProperty("mail.smtp.connectiontimeout", "2000");
+                        session.getProperties().setProperty("mail.smtp.timeout", "2000");
+                        session.getProperties().setProperty("mail.smtp.writetimeout", "2000");
+                        return session;
+                    })
+                    .flatMap(session -> pluginExecutor.execute(session, dsConfig, actionConfiguration))
+                    .subscribeOn(Schedulers.boundedElastic());
+
+            StepVerifier.create(resultMono)
+                    .expectErrorMatches(e -> e instanceof AppsmithPluginException
+                            && SMTPErrorMessages.MAIL_SENDING_FAILED_ERROR_MSG.equals(e.getMessage()))
+                    .verify(Duration.ofSeconds(15));
+        } finally {
+            for (Socket socket : heldConnections) {
+                socket.close();
+            }
+        }
+    }
+
+    @Test
+    public void testDatasource_connection_closesTheTransportItConnects() throws MessagingException {
+        Session mockSession = mock(Session.class);
+        Transport mockTransport = mock(Transport.class);
+        when(mockSession.getTransport()).thenReturn(mockTransport);
+        AtomicReference<String> connectThread = new AtomicReference<>();
+        doAnswer(invocation -> {
+                    connectThread.set(Thread.currentThread().getName());
+                    return null;
+                })
+                .when(mockTransport)
+                .connect();
+
+        Scheduler caller = Schedulers.newSingle("caller-event-loop");
+        try {
+            StepVerifier.create(pluginExecutor.testDatasource(mockSession).subscribeOn(caller))
+                    .assertNext(result -> assertTrue(result.isSuccess()))
+                    .verifyComplete();
+        } finally {
+            caller.dispose();
+        }
+        verify(mockTransport, times(1)).connect();
+        verify(mockTransport, times(1)).close();
+        assertNotNull(connectThread.get(), "connect was never called");
+        assertFalse(
+                connectThread.get().startsWith("caller-event-loop"),
+                "connect ran on the subscribing thread: " + connectThread.get());
     }
 }
