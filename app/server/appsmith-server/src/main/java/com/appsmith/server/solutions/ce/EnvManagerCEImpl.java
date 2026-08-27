@@ -138,9 +138,11 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     /**
      * Secret-bearing variables whose names don't self-describe as secrets. Everything matching
      * the name pattern in {@link #isSecretEnvVar(String)} is masked without being listed here.
+     * The SMTP username is deliberately NOT here: admins need to see which account is
+     * configured, and a username is identifying, not authenticating.
      */
-    private static final Set<String> EXPLICIT_SECRET_ENV_VARS = Set.of(
-            EnvVariables.APPSMITH_DB_URL.name(), EnvVariables.APPSMITH_REDIS_URL.name(), APPSMITH_MAIL_USERNAME.name());
+    private static final Set<String> EXPLICIT_SECRET_ENV_VARS =
+            Set.of(EnvVariables.APPSMITH_DB_URL.name(), EnvVariables.APPSMITH_REDIS_URL.name());
 
     /**
      * Derived, read-only connection summaries added to the admin settings response in place of
@@ -1039,24 +1041,15 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     /**
      * The admin settings form is populated from the masked read-back API, so an untouched
-     * username/password field arrives here carrying {@link #MASKED_SECRET}. Resolve those to the
-     * stored values server-side; a freshly typed (unsaved) credential is passed through as-is.
+     * password field arrives here carrying {@link #MASKED_SECRET}. Resolve it to the stored
+     * value server-side; a freshly typed (unsaved) password is passed through as-is.
      */
     private Mono<Void> resolveMaskedTestEmailCredentials(TestEmailConfigRequestDTO requestDTO) {
-        boolean usernameMasked = MASKED_SECRET.equals(requestDTO.getUsername());
-        boolean passwordMasked = MASKED_SECRET.equals(requestDTO.getPassword());
-        if (!usernameMasked && !passwordMasked) {
+        if (!MASKED_SECRET.equals(requestDTO.getPassword())) {
             return Mono.empty();
         }
         return getAllWithoutAclCheck()
-                .doOnNext(storedEnv -> {
-                    if (usernameMasked) {
-                        requestDTO.setUsername(storedEnv.get(APPSMITH_MAIL_USERNAME.name()));
-                    }
-                    if (passwordMasked) {
-                        requestDTO.setPassword(storedEnv.get(APPSMITH_MAIL_PASSWORD.name()));
-                    }
-                })
+                .doOnNext(storedEnv -> requestDTO.setPassword(storedEnv.get(APPSMITH_MAIL_PASSWORD.name())))
                 .then();
     }
 
