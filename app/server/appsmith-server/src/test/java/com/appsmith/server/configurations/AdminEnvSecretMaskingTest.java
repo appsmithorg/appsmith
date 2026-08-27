@@ -63,6 +63,7 @@ public class AdminEnvSecretMaskingTest {
                         + "APPSMITH_DB_URL='mongodb://appsmith:db-sekret@localhost:27017/appsmith'\n"
                         + "APPSMITH_REDIS_URL='redis://:redis-sekret@127.0.0.1:6379'\n"
                         + "APPSMITH_MAIL_HOST=smtp.example.com\n"
+                        + "APPSMITH_MAIL_USERNAME=smtp-user\n"
                         + "APPSMITH_MAIL_PASSWORD='smtp-sekret'\n");
         previousEnvFilePath = commonConfig.envFilePath;
         commonConfig.envFilePath = envFile.toString();
@@ -96,6 +97,8 @@ public class AdminEnvSecretMaskingTest {
                 .isEqualTo("masking-test-instance")
                 .jsonPath("$.data.APPSMITH_MAIL_HOST")
                 .isEqualTo("smtp.example.com")
+                .jsonPath("$.data.APPSMITH_MAIL_USERNAME")
+                .isEqualTo("smtp-user")
                 .jsonPath("$.data.APPSMITH_DB_URL")
                 .isEqualTo(MASK)
                 .jsonPath("$.data.APPSMITH_REDIS_URL")

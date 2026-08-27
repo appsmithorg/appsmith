@@ -613,7 +613,7 @@ public class EnvManagerTest {
         Map<String, String> envs = new HashMap<>();
         envs.put("APPSMITH_DB_URL", "mongodb://appsmith:db-sekret@localhost:27017/appsmith");
         envs.put("APPSMITH_REDIS_URL", "redis://:redis-sekret@127.0.0.1:6379");
-        envs.put("APPSMITH_MAIL_USERNAME", "smtp-user-sekret");
+        envs.put("APPSMITH_MAIL_USERNAME", "smtp-user");
         envs.put("APPSMITH_MAIL_PASSWORD", "smtp-sekret");
         envs.put("APPSMITH_RECAPTCHA_SECRET_KEY", "recaptcha-sekret");
         envs.put("APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET", "google-sekret");
@@ -628,14 +628,15 @@ public class EnvManagerTest {
                     for (String secretKey : List.of(
                             "APPSMITH_DB_URL",
                             "APPSMITH_REDIS_URL",
-                            "APPSMITH_MAIL_USERNAME",
                             "APPSMITH_MAIL_PASSWORD",
                             "APPSMITH_RECAPTCHA_SECRET_KEY",
                             "APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET",
                             "APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET")) {
                         assertThat(map).containsEntry(secretKey, MASK);
                     }
-                    // Non-secrets stay readable — including the deliberately public site key.
+                    // Non-secrets stay readable — including the SMTP username (admins need to see
+                    // which account is configured) and the deliberately public site key.
+                    assertThat(map).containsEntry("APPSMITH_MAIL_USERNAME", "smtp-user");
                     assertThat(map).containsEntry("APPSMITH_INSTANCE_NAME", "my-instance");
                     assertThat(map).containsEntry("APPSMITH_RECAPTCHA_SITE_KEY", "public-site-key");
                     assertThat(map.values()).noneMatch(value -> value.contains("sekret"));
@@ -793,24 +794,23 @@ public class EnvManagerTest {
         RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
         try {
             mockSuperUser();
-            Mockito.doReturn(Mono.just(Map.of(
-                            "APPSMITH_MAIL_USERNAME", "stored-user",
-                            "APPSMITH_MAIL_PASSWORD", "stored-sekret")))
+            Mockito.doReturn(Mono.just(Map.of("APPSMITH_MAIL_PASSWORD", "stored-sekret")))
                     .when(envManager)
                     .getAllWithoutAclCheck();
 
             TestEmailConfigRequestDTO dto = buildDto("127.0.0.1");
-            dto.setUsername(MASK);
+            dto.setUsername("typed-user");
             dto.setPassword(MASK);
 
             // The blocked host still fails the request downstream — what this test pins is that
-            // the masked credentials were resolved to the stored values first, server-side.
+            // the masked password was resolved to the stored value first, server-side. The
+            // username is never masked, so it passes through untouched.
             StepVerifier.create(envManager.sendTestEmail(dto))
                     .expectErrorSatisfies(e -> assertThat(e.getMessage()).contains("Invalid SMTP configuration"))
                     .verify();
 
             Mockito.verify(envManager).getAllWithoutAclCheck();
-            assertThat(dto.getUsername()).isEqualTo("stored-user");
+            assertThat(dto.getUsername()).isEqualTo("typed-user");
             assertThat(dto.getPassword()).isEqualTo("stored-sekret");
         } finally {
             RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
