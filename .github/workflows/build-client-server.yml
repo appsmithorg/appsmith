@@ -104,15 +104,22 @@ jobs:
 
       - name: Set args
         id: args
+        env:
+          EVENT_ACTION: ${{ github.event.action }}
+          NAMED_ARGS: ${{ toJSON(github.event.client_payload.slash_command.args.named) }}
         run: |
           echo "pr=${{ github.event.client_payload.pull_request.number }}" >> $GITHUB_OUTPUT
           echo "is-pg-build=${{ github.event.client_payload.pull_request.base.ref == 'pg' }}" >> $GITHUB_OUTPUT
-          checkArg=`echo '${{toJSON(github.event.client_payload.slash_command.args.named)}}' | jq 'has("runId")'`
-          if [[ $checkArg == 'true' ]]; then
-            echo "runId=${{ github.event.client_payload.slash_command.args.named.runId }}" >> $GITHUB_OUTPUT
-          else
-            echo "runId=0" >> $GITHUB_OUTPUT
+          run_id="$(printf '%s' "$NAMED_ARGS" | jq -r 'if type == "object" and has("runId") then (.runId | tostring) else "0" end')"
+          # runId reuses the Docker image from an earlier run. /approve-ci exists to
+          # test the maintainer-approved merge commit, so an image built from some
+          # other commit would report that commit as validated without ever building
+          # it. Refuse the shortcut here instead of honouring it.
+          if [[ "$EVENT_ACTION" == 'approve-ci-command' && "$run_id" != '0' ]]; then
+            echo "::warning::Ignoring runId=${run_id}: /approve-ci always builds and tests the approved commit."
+            run_id='0'
           fi
+          echo "runId=$run_id" >> "$GITHUB_OUTPUT"
 
       - name: Get the diff from base branch
         continue-on-error: true

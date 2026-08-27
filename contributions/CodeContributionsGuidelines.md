@@ -30,10 +30,11 @@ We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so
 5. Once you are confident in your code changes, create a pull request in your fork to the release branch in the appsmithorg/appsmith base repository.
 6. If you've changed any APIs, please call this out in the pull request and ensure backward compatibility.
 7. Link the issue of the base repository in your Pull request description. [Guide](https://docs.github.com/en/free-pro-team@latest/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue)
-8. Pull requests from forks run credential-free formatting, lint, type, and unit
-   checks after GitHub's workflow approval. A maintainer will start integration
-   tests or a deploy preview when needed. External contributors do not need to
-   add an `ok-to-test` label or run a slash command.
+8. Pull requests from forks run credential-free checks after GitHub's workflow
+   approval, scoped to the parts of the codebase you touched. A maintainer will
+   start integration tests or a deploy preview when needed. External contributors
+   do not need to add an `ok-to-test` label or run a slash command. See
+   [Pull request check states](#pull-request-check-states) for the full list.
 9. If changes are requested, work on them, commit them back, and tag the reviewer again. 
 10. Once all changes have been approved by the reviewer and the CI has run successfully, your PR will be merged into the base branch. Congratulations! 
 
@@ -42,8 +43,19 @@ We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so
 - **Waiting for workflow approval:** An Appsmith maintainer must approve the
   initial GitHub Actions run. No contributor action is required.
 - **Credential-free checks:** These checks run fork code without repository
-  secrets or write access. Their logs are safe for contributors to use when
-  fixing formatting, lint, type, or unit-test failures.
+  secrets or write access, so their logs are safe for contributors to debug
+  against. Only the checks matching the paths you changed will run; the rest are
+  reported as skipped.
+
+  | Check | Runs when you change | Covers |
+  | --- | --- | --- |
+  | `ci/static-client` | `app/client/**` | Prettier formatting, lint, TypeScript types |
+  | `ci/unit-client` | `app/client/**` | Client unit tests |
+  | `ci/compile-client` | `app/client/**` | Client bundle compiles, using placeholder env values |
+  | `ci/cyclic-deps-client` | `app/client/src/**` | Circular-dependency count, compared against the base branch |
+  | `ci/unit-server` | `app/server/**` | Spotless formatting, server build, server unit tests |
+  | `ci/unit-rts` | `app/client/packages/rts/**` | RTS unit tests and build |
+  | `external-ci-result` | any of the above | Aggregate result of the checks above |
 - **Waiting for integration approval:** A maintainer must review the current
   commit and use `/approve-ci`. Approval applies only to that exact commit; a
   later push requires fresh approval.
