@@ -20,7 +20,9 @@ import { APPSMITH_BASE_URL_SETUP_DOC } from "constants/ThirdPartyConstants";
 const isAirgappedInstance = isAirgapped();
 
 const formatConnectionInfo = (value: string) =>
-  value === "embedded" ? "Embedded (runs inside the Appsmith container)" : value;
+  value === "embedded"
+    ? "Embedded (runs inside the Appsmith container)"
+    : value;
 
 export const APPSMITH_DB_CONNECTION_INFO: Setting = {
   id: "APPSMITH_DB_CONNECTION_INFO",
