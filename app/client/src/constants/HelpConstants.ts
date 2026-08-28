@@ -175,6 +175,10 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
     path: "/widget-reference/statbox",
     searchKey: "Stat Box",
   },
+  CARD_WIDGET: {
+    path: "/widget-reference/card",
+    searchKey: "Card",
+  },
   CHECKBOX_GROUP_WIDGET: {
     path: "/widget-reference/checkbox-group",
     searchKey: "Checkbox Group",

@@ -61,10 +61,7 @@ export const FormAuth: AdminConfigType = {
       category: SettingCategories.FORM_AUTH,
       controlType: SettingTypes.TOGGLE,
       label: "Form signup",
-      toggleText: (value: boolean) =>
-        value
-          ? "Allow only invited users to signup"
-          : "Allow all users to signup",
+      toggleText: () => "Allow all users to signup",
     },
     {
       id: "emailVerificationEnabled",

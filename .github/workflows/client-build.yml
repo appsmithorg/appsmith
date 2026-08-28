@@ -16,6 +16,11 @@ on:
         description: "This is the branch to be used for the build."
         required: false
         type: string
+      checkout-ref:
+        description: "Immutable commit SHA to checkout for an approved external PR"
+        required: false
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -45,7 +50,7 @@ jobs:
 
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Checkout the merged commit from PR and base branch
-        if: inputs.pr != 0
+        if: inputs.checkout-ref == '' && inputs.pr != 0
         uses: actions/checkout@v4
         with:
           fetch-tags: true
@@ -53,7 +58,7 @@ jobs:
 
       # Check out the specified branch in case this workflow is called by another workflow
       - name: Checkout the specified branch
-        if: inputs.pr == 0 && inputs.branch != ''
+        if: inputs.checkout-ref == '' && inputs.pr == 0 && inputs.branch != ''
         uses: actions/checkout@v4
         with:
           fetch-tags: true
@@ -61,10 +66,17 @@ jobs:
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
-        if: inputs.pr == 0 && inputs.branch == ''
+        if: inputs.checkout-ref == '' && inputs.pr == 0 && inputs.branch == ''
         uses: actions/checkout@v4
         with:
           fetch-tags: true
+
+      - name: Checkout the approved immutable commit
+        if: inputs.checkout-ref != ''
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          ref: ${{ inputs.checkout-ref }}
 
       - name: Get changed files in the client folder
         id: changed-files-specific

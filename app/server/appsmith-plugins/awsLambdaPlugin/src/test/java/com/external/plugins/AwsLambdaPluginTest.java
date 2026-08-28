@@ -23,6 +23,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
 import java.nio.ByteBuffer;
@@ -31,9 +33,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -501,5 +506,61 @@ public class AwsLambdaPluginTest {
         assertThrows(AppsmithPluginException.class, () -> {
             pluginExecutor.trigger(mockLambda, datasourceConfiguration, request).block();
         });
+    }
+
+    /**
+     * trigger() lists functions/versions/aliases with the blocking SDK client; the server calls it from the
+     * continuation of the datasource-context lookup, so the SDK call must never run on the subscribing thread.
+     */
+    @Test
+    public void trigger_doesNotRunOnTheSubscribingThread() {
+        AWSLambda mockLambda = mock(AWSLambda.class);
+        AtomicReference<String> sdkThread = new AtomicReference<>();
+        ListFunctionsResult functionsResult = new ListFunctionsResult();
+        functionsResult.setFunctions(List.of(new FunctionConfiguration().withFunctionName("function1")));
+        when(mockLambda.listFunctions()).thenAnswer(invocation -> {
+            sdkThread.set(Thread.currentThread().getName());
+            return functionsResult;
+        });
+        TriggerRequestDTO request = new TriggerRequestDTO();
+        request.setRequestType("FUNCTION_NAMES");
+
+        Scheduler caller = Schedulers.newSingle("caller-event-loop");
+        try {
+            StepVerifier.create(Mono.defer(
+                                    () -> pluginExecutor.trigger(mockLambda, createDatasourceConfiguration(), request))
+                            .subscribeOn(caller))
+                    .assertNext(result -> assertEquals(1, ((List<?>) result.getTrigger()).size()))
+                    .verifyComplete();
+        } finally {
+            caller.dispose();
+        }
+        assertNotNull(sdkThread.get(), "listFunctions was never called");
+        assertFalse(
+                sdkThread.get().startsWith("caller-event-loop"),
+                "listFunctions ran on the subscribing thread: " + sdkThread.get());
+    }
+
+    @Test
+    public void testDatasource_connection_doesNotRunOnTheSubscribingThread() {
+        AWSLambda mockLambda = mock(AWSLambda.class);
+        AtomicReference<String> sdkThread = new AtomicReference<>();
+        when(mockLambda.listFunctions()).thenAnswer(invocation -> {
+            sdkThread.set(Thread.currentThread().getName());
+            return new ListFunctionsResult();
+        });
+
+        Scheduler caller = Schedulers.newSingle("caller-event-loop");
+        try {
+            StepVerifier.create(pluginExecutor.testDatasource(mockLambda).subscribeOn(caller))
+                    .assertNext(result -> assertTrue(result.isSuccess()))
+                    .verifyComplete();
+        } finally {
+            caller.dispose();
+        }
+        assertNotNull(sdkThread.get(), "listFunctions was never called");
+        assertFalse(
+                sdkThread.get().startsWith("caller-event-loop"),
+                "listFunctions ran on the subscribing thread: " + sdkThread.get());
     }
 }

@@ -354,6 +354,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         return sessionUserService.getCurrentUser().flatMap(currentUser -> {
             application.setModifiedBy(currentUser.getUsername());
             application.setIsPublic(null);
+            // Mass-assignment guards: these credential-relevant flags gate whether an
+            // application export decrypts and emits datasource secrets. They must be set
+            // only through server-internal fork/import paths, never from a client-supplied
+            // update body, so strip them here alongside isPublic.
+            application.setExportWithConfiguration(null);
+            application.setForkWithConfiguration(null);
             application.setLastEditedAt(Instant.now());
             if (!StringUtils.isEmpty(application.getName())) {
                 application.setSlug(TextUtils.makeSlug(application.getName()));

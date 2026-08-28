@@ -30,6 +30,9 @@
              already asks for 3.18.0 directly, but the BOM-managed version is what lands in server.jar. -->
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <deploy.disabled>true</deploy.disabled>
+        <!-- Pinned above the Spring Boot BOM default (5.3.6) for CVE-2026-54399 / CVE-2026-54428.
+             httpclient5 5.5.2 (Boot-managed) is compatible with httpcore5 5.4.x (HTTPCORE-788). -->
+        <httpcore5.version>5.4.3</httpcore5.version>
         <!-- Held on the 2.18.x line for CVE-2026-54512 / CVE-2026-54513; 2.18.9 adds
              CVE-2026-59889 / CVE-2026-54515 / GHSA-mhm7-754m-9p8w -->
         <jackson-bom.version>2.18.9</jackson-bom.version>

@@ -8,24 +8,30 @@ FROM caddy:builder-alpine AS caddybuilder
 # restricted profile with cap-drop ALL). The image binds low ports via
 # net.ipv4.ip_unprivileged_port_start, so the setcap is unnecessary.
 #
-# --replace pins mitigate x/crypto and x/net CVEs from the May 22, 2026
+# --replace pins mitigate x/crypto, x/net and x/text CVEs from the May 22, 2026
 # coordinated Go security disclosure. None are reachable in Caddy's HTTP
 # path (the x/crypto CVEs are all in the SSH subsystem), but scanners
 # flag the embedded library version regardless.
+#
+# Verify these with `go version -m /opt/caddy/caddy`, which prints the effective
+# "dep X => Y" pairs. Grepping the binary for module@version strings reports the
+# pre-replace version and will make a working pin look inert.
 RUN XCADDY_SETCAP=0 xcaddy build \
   --with github.com/mholt/caddy-ratelimit \
   --replace golang.org/x/crypto=golang.org/x/crypto@v0.52.0 \
-  --replace golang.org/x/net=golang.org/x/net@v0.55.0
+  --replace golang.org/x/net=golang.org/x/net@v0.56.0 \
+  --replace golang.org/x/text=golang.org/x/text@v0.39.0
 
 # Build MongoDB database tools from source with pinned x/crypto and x/net
 # Apt-installed mongodb-database-tools ships x/crypto@0.45.0 with no upstream fix available.
-FROM golang:1.26.4-alpine AS mongotoolsbuilder
+FROM golang:1.26.6-alpine AS mongotoolsbuilder
 
 RUN apk add --no-cache git make bash
 WORKDIR /tmp/mongo-tools
 RUN git clone --depth 1 --branch 100.17.0 https://github.com/mongodb/mongo-tools.git .
 RUN go mod edit -require=golang.org/x/crypto@v0.52.0 \
-               -require=golang.org/x/net@v0.55.0 && \
+               -require=golang.org/x/net@v0.56.0 \
+               -require=golang.org/x/text@v0.39.0 && \
     go mod tidy && \
     go mod vendor
 ENV GOROOT=/usr/local/go
@@ -67,6 +73,12 @@ RUN set -o xtrace \
     mongodb-org-server mongodb-org-mongos mongodb-mongosh \
     postgresql-14 \
     git tar zstd openssh-client \
+  # software-properties-common is only needed for the add-apt-repository call above, but it
+  # pulls in python3-launchpadlib, which drags python3-cryptography, python3-jwt and
+  # python3-httplib2 into the runtime image and accounts for 12 scanner findings. Purge it
+  # once the PPA is registered — the sources.list entry and its signing key persist
+  # independently of the tool that wrote them.
+  && DEBIAN_FRONTEND=noninteractive apt-get purge --yes --auto-remove software-properties-common \
   && apt-get clean \
   && rm -rf \
     /root/.cache \
@@ -114,6 +126,18 @@ RUN <<END
   # bundling the patched tar 7.5.19; pin it since no Node 24.x ships a fixed npm yet.
   export PATH="/opt/node/bin:$PATH"
   npm install -g npm@11.18.0
+  # npm 11.18.0 / 11.19.0 still vendor brace-expansion 5.0.7 (CVE-2026-69152 /
+  # CVE-2026-14257) and ip-address 10.2.0 (CVE-2026-69192). Unpack patched
+  # tarballs over the nested copies; `npm install --prefix` on npm's own
+  # package.json tries to resolve private @npmcli/* deps and 404s.
+  npm_nm="$(npm root -g)/npm/node_modules"
+  tmp="$(mktemp -d)"
+  (cd "$tmp" && npm pack --silent brace-expansion@5.0.9 ip-address@10.3.1)
+  rm -rf "$npm_nm/brace-expansion" "$npm_nm/ip-address"
+  mkdir -p "$npm_nm/brace-expansion" "$npm_nm/ip-address"
+  tar -xzf "$tmp"/brace-expansion-*.tgz -C "$npm_nm/brace-expansion" --strip-components 1
+  tar -xzf "$tmp"/ip-address-*.tgz -C "$npm_nm/ip-address" --strip-components 1
+  rm -rf "$tmp"
   npm cache clean --force
 END
 

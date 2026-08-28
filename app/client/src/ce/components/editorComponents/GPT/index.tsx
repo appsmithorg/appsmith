@@ -6,8 +6,12 @@ import type {
 import type { EntityNavigationData } from "entities/DataTree/dataTreeTypes";
 import React from "react";
 import type CodeMirror from "codemirror";
+import styled from "styled-components";
+import { AISidePanel } from "./AISidePanel";
 
+// Re-export the new components
 export { AISidePanel } from "./AISidePanel";
+export { AIMarkdownRenderer } from "./shared";
 
 export type AIEditorContext = Partial<{
   functionName: string;
@@ -26,9 +30,7 @@ export interface TAIWrapperProps {
   children?: React.ReactNode;
   isOpen: boolean;
   currentValue: string;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  update?: (...args: any) => void;
+  update?: (value: string) => void;
   triggerContext?: CodeEditorExpected;
   enableAIAssistance: boolean;
   dataTreePath?: string;
@@ -39,8 +41,56 @@ export interface TAIWrapperProps {
   onOpenChanged: (isOpen: boolean) => void;
 }
 
+// ============================================================================
+// Styled Components - Side Panel Layout
+// ============================================================================
+
+const LayoutContainer = styled.div`
+  display: flex;
+  width: 100%;
+  height: 100%;
+  position: relative;
+`;
+
+const EditorSection = styled.div`
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  position: relative;
+`;
+
+// ============================================================================
+// AIWindow Component - Now uses side panel layout
+// ============================================================================
+
 export function AIWindow(props: TAIWrapperProps) {
-  const { children } = props;
-  //eslint-disable-next-line
-  return <>{children}</>;
+  const {
+    children,
+    currentValue,
+    editor,
+    enableAIAssistance,
+    isOpen,
+    mode,
+    onOpenChanged,
+  } = props;
+
+  if (!enableAIAssistance) {
+    return children as React.ReactElement;
+  }
+
+  return (
+    <LayoutContainer>
+      <EditorSection>{children}</EditorSection>
+
+      {editor && (
+        <AISidePanel
+          currentValue={currentValue}
+          editor={editor}
+          isOpen={isOpen}
+          mode={mode}
+          onClose={() => onOpenChanged(false)}
+        />
+      )}
+    </LayoutContainer>
+  );
 }

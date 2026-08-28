@@ -9,8 +9,10 @@ Before raising a pull request, ensure you have raised a corresponding issue and 
 
 Looking for issues to contribute to? Check out our [Inviting Contribution Issues](https://github.com/appsmithorg/appsmith/issues?q=is:open+is:issue+label:%22Inviting+Contribution%22+) – a great starting point for your contribution journey with Appsmith! Tag @contributor-support to have an issue assigned to you. If you choose to work on issues outside this list, please collaborate closely with us. Failure to inform and get the issue assigned beforehand may result in your contribution being rejected, leading to wasted effort for both parties.
 
+When you comment to express interest in an issue, briefly share how you plan to approach the fix — for example, where you expect the change to live and the high-level steps you would take. A short proposed approach helps maintainers confirm the direction (or steer you earlier), so the issue can be assigned with less back-and-forth and less wasted effort on either side.
+
 #### What not to do:
-1. Work on issues without informing the maintainer. Please get them assigned to yourself first. Comment on the issue if you are interested. 
+1. Work on issues without informing the maintainer. Please get them assigned to yourself first. Comment on the issue if you are interested, and include a brief proposed approach — not only that you want to take it.
 2. Naming lengthy branches. 
 3. Create PR(s) without proper description. 
 4. Requesting for review without latest release pull on PR. 
@@ -28,9 +30,64 @@ We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so
 5. Once you are confident in your code changes, create a pull request in your fork to the release branch in the appsmithorg/appsmith base repository.
 6. If you've changed any APIs, please call this out in the pull request and ensure backward compatibility.
 7. Link the issue of the base repository in your Pull request description. [Guide](https://docs.github.com/en/free-pro-team@latest/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue)
-8. When you raise a pull request, tag the maintainer you are collaborating with to start the build process.
+8. Pull requests from forks run credential-free checks after GitHub's workflow
+   approval, scoped to the parts of the codebase you touched. A maintainer will
+   start integration tests or a deploy preview when needed. External contributors
+   do not need to add an `ok-to-test` label or run a slash command. See
+   [Pull request check states](#pull-request-check-states) for the full list.
 9. If changes are requested, work on them, commit them back, and tag the reviewer again. 
 10. Once all changes have been approved by the reviewer and the CI has run successfully, your PR will be merged into the base branch. Congratulations! 
+
+### Pull request check states
+
+- **Waiting for workflow approval:** An Appsmith maintainer must approve the
+  initial GitHub Actions run. No contributor action is required.
+- **Credential-free checks:** These checks run fork code without repository
+  secrets or write access, so their logs are safe for contributors to debug
+  against. Only the checks matching the paths you changed will run; the rest are
+  reported as skipped.
+
+  | Check | Runs when you change | Covers |
+  | --- | --- | --- |
+  | `ci/static-client` | `app/client/**` | Prettier formatting, lint, TypeScript types |
+  | `ci/unit-client` | `app/client/**` | Client unit tests |
+  | `ci/compile-client` | `app/client/**` | Client bundle compiles, using placeholder env values |
+  | `ci/cyclic-deps-client` | `app/client/src/**` | Circular-dependency count, compared against the base branch |
+  | `ci/unit-server` | `app/server/**` | Spotless formatting, server build, server unit tests |
+  | `ci/unit-rts` | `app/client/packages/rts/**` | RTS unit tests and build |
+  | `external-ci-result` | any of the above | Aggregate result of the checks above |
+- **Waiting for integration approval:** A maintainer must review the current
+  commit and use `/approve-ci`. Approval applies only to that exact commit; a
+  later push requires fresh approval.
+- **Waiting for a deploy preview:** A maintainer may use
+  `/build-deploy-preview` when the change needs hands-on product testing.
+
+#### Cypress on fork PRs (maintainer-triggered)
+
+On pull requests from forks, Cypress does **not** run when the contributor
+opens the PR or pushes new commits. The `ok-to-test` label alone also does
+nothing on a fork PR — `/approve-ci` is the trigger that starts privileged
+CI for the current commit. The label and optional `tags=` only set the
+**scope** of Cypress once that approval runs.
+
+| Maintainer action | `ok-to-test` label | What runs |
+| --- | --- | --- |
+| `/approve-ci` | absent | Build + Docker + `limited-tests.txt` |
+| `/approve-ci` | present | Sharded Cypress, default `@tag.All` (60 shards) |
+| `/approve-ci tags="@tag.Sanity"` | either | Sanity only (20 shards) |
+| `/approve-ci tags="@tag.Git, @tag.Table"` | either | Those tags (20 shards) |
+| `/approve-ci` | present, tags also in PR body | Body tags used when the command has no `tags=` |
+
+Tag resolution precedence: **command `tags=` → PR body → label default (`@tag.All`) → limited suite**.
+
+The `ok-to-test` label persists across contributor pushes (so maintainers do
+not have to re-add it). `/approve-ci` approval does **not** — after a new
+push, a maintainer must run `/approve-ci` again. If the label is still
+present on that re-approval, Cypress runs again for the new commit.
+
+When a PR is labelled `awaiting-maintainer`, the next action belongs to
+Appsmith. When it is labelled `awaiting-contributor`, the contributor should
+respond to the latest review or CI feedback.
 
 ### 🏡 Setup for local development
 

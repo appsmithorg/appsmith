@@ -121,6 +121,7 @@ export const SUPPORTED_WEB_APIS = {
   console: true,
   crypto: true,
   fetch: true,
+  Intl: true,
 };
 export enum CustomLintErrorCode {
   INVALID_ENTITY_PROPERTY = "INVALID_ENTITY_PROPERTY",

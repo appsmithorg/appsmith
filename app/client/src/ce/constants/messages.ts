@@ -1921,6 +1921,11 @@ export const SKIP_START_WITH_USE_CASE_TEMPLATES = () =>
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
+export const CARD_WIDGET_MENU_BUTTON_ARIA_LABEL = () => "Card actions menu";
+
+export const CARD_WIDGET_EXPAND_BUTTON_ARIA_LABEL = () =>
+  "Toggle card expanded state";
+
 export const REDIRECT_URL_TOOLTIP = () =>
   "This URL will be used while configuring your Identity Provider's Callback/Redirect URL";
 export const ENTITY_ID_TOOLTIP = () =>
@@ -2733,6 +2738,41 @@ export const CUSTOM_WIDGET_BUILDER_TAB_TITLE = {
   HTML: () => "HTML",
   STYLE: () => "Style",
   JS: () => "Javascript",
+};
+
+export const CUSTOM_WIDGET_AI_ASSISTANT = {
+  CHECKING_CONFIG: () => "Checking AI assistant configuration...",
+  NOT_CONFIGURED_TITLE: () => "AI assistant isn't set up",
+  NOT_CONFIGURED_BODY: () =>
+    "Generate and edit widget code with AI once the AI assistant is configured for this instance.",
+  NOT_CONFIGURED_ADMIN_HINT: () =>
+    "Configure a provider and enable the AI assistant in Admin settings.",
+  NOT_CONFIGURED_NON_ADMIN_HINT: () =>
+    "Ask your administrator to configure and enable the AI assistant in Admin settings.",
+  OPEN_AI_SETTINGS_CTA: () => "Open AI settings",
+  EMPTY_STATE_MESSAGE: () =>
+    "Describe the widget you want to build, or the change you want to make. Generated code applies updates to the HTML, Style, and JavaScript editors.",
+  EDITABLE_DATA_GRID_LABEL: () => "Editable data grid",
+  EDITABLE_DATA_GRID_PROMPT: () => "Create an editable data grid widget",
+  KANBAN_BOARD_LABEL: () => "Kanban board",
+  KANBAN_BOARD_PROMPT: () => "Create a kanban board widget",
+  IMAGE_LABELER_LABEL: () => "Image labeler",
+  IMAGE_LABELER_PROMPT: () => "Create an image labeler widget",
+  CALENDAR_LABEL: () => "Calendar",
+  CALENDAR_PROMPT: () => "Create a calendar widget",
+  INPUT_PLACEHOLDER: () => "Describe your widget (⌘/Ctrl + Enter to send)",
+  APPLIED_UPDATES_LABEL: () => "Updated editors:",
+  USER_LABEL: () => "You",
+  ASSISTANT_LABEL: () => "AI Assistant",
+  THINKING: () => "Generating...",
+  SEND: () => "Send",
+  STOP_GENERATING: () => "Stop generating",
+  CHAT_OPTIONS: () => "Chat options",
+  CLEAR_CHAT: () => "Clear chat",
+  INCOMPLETE_RESPONSE_ERROR: () =>
+    "The AI response was incomplete, so no editor changes were applied. Please try again.",
+  CONTEXT_TOO_LARGE_ERROR: () =>
+    "This widget is too large to send to the AI assistant in one request. No code was changed.",
 };
 
 export const REQUEST_NEW_INTEGRATIONS = {

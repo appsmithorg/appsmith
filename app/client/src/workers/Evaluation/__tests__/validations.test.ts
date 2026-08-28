@@ -1761,6 +1761,35 @@ describe("Validate Validators", () => {
       expect(result).toStrictEqual(expected[i]);
     });
   });
+
+  it("correctly validates OBJECT_WITH_FUNCTION containing null values", () => {
+    const config = {
+      type: ValidationTypes.OBJECT_WITH_FUNCTION,
+      params: { default: {} },
+    };
+    // A query row with a null column reaches this validator through any chart
+    // config bound to query data.
+    const input = {
+      series: [{ data: [[1, null]], label: { formatter: () => "z" } }],
+      updated_by: null,
+    };
+
+    const response = validate(
+      config,
+      input,
+      DUMMY_WIDGET,
+      "customEChartConfig",
+    );
+
+    expect(response.isValid).toBe(true);
+    // Nulls are preserved, functions are stringified, and the config is not
+    // discarded in favour of the default.
+    expect(response.parsed).toMatchObject({
+      series: [{ data: [[1, null]], label: { formatter: '() => "z"' } }],
+      updated_by: null,
+      __fn_keys__: ["series.[0].label.formatter"],
+    });
+  });
 });
 
 // describe("Color Picker Text validator", () => {

@@ -19,8 +19,6 @@ import org.pf4j.PluginManager;
 import org.pf4j.PluginWrapper;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
@@ -51,12 +49,6 @@ public class PluginServiceCEImplTest {
     PluginManager pluginManager;
 
     @MockBean
-    ReactiveRedisTemplate<String, String> reactiveTemplate;
-
-    @MockBean
-    ChannelTopic topic;
-
-    @MockBean
     PluginTransformationSolution pluginTransformationSolution;
 
     ObjectMapper objectMapper;
@@ -74,8 +66,6 @@ public class PluginServiceCEImplTest {
                 analyticsService,
                 workspaceService,
                 pluginManager,
-                reactiveTemplate,
-                topic,
                 objectMapper,
                 cloudServicesConfig,
                 configService,

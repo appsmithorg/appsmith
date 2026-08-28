@@ -5,12 +5,16 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.AIRequestDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.services.AIAssistantService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
@@ -18,6 +22,7 @@ import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -52,6 +57,7 @@ public class UserControllerCE {
     private final UserSignup userSignup;
     private final UserDataService userDataService;
     private final UserAndAccessManagementService userAndAccessManagementService;
+    private final AIAssistantService aiAssistantService;
 
     @JsonView(Views.Public.class)
     @PostMapping(consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
@@ -206,6 +212,41 @@ public class UserControllerCE {
             consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
     public Mono<Void> verifyEmailVerificationToken(ServerWebExchange exchange) {
         return service.verifyEmailVerificationToken(exchange);
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/ai-assistant/request")
+    public Mono<ResponseDTO<Map<String, String>>> requestAIResponse(@RequestBody @Valid AIRequestDTO request) {
+        return aiAssistantService
+                .getAIResponse(
+                        request.getProvider(),
+                        request.getPrompt(),
+                        request.getContext(),
+                        request.getConversationHistory())
+                .map(response -> Map.of("response", response, "provider", request.getProvider()))
+                .map(result -> new ResponseDTO<>(HttpStatus.OK, result))
+                // Signal the error instead of completing normally with a 400 inside the body. Returning a Mono.just
+                // here made the WIRE status 200 for every AI failure: clients that branch on HTTP status saw success,
+                // and server error metrics stayed clean while requests were failing. Propagating lets the global
+                // handler set a real status, and the friendly message still reaches responseMeta.error.message,
+                // which is what the client actually reads.
+                .onErrorMap(error -> {
+                    if (!(error instanceof AppsmithException appsmithException)) {
+                        // A database, serialization or connector failure. Keep it as the cause so the stack trace
+                        // survives, and report 5xx rather than telling the caller they sent a bad request.
+                        return new AppsmithException(error, AppsmithError.INTERNAL_SERVER_ERROR);
+                    }
+                    if (appsmithException.getError() == AppsmithError.INVALID_CREDENTIALS) {
+                        // INVALID_CREDENTIALS carries HTTP 200, which would report a failed request as a success.
+                        return new AppsmithException(
+                                error, AppsmithError.INVALID_PARAMETER, aiAssistantService.getAIErrorMessage(error));
+                    }
+                    // Everything else already carries a usable status: throttling is 429, a missing configuration
+                    // is 404, a provider outage is 5xx. Rewriting all of them to INVALID_PARAMETER reported 400 for
+                    // each, which kept provider outages out of server-error metrics and left a client unable to
+                    // tell "back off and retry" from "you sent something invalid".
+                    return appsmithException;
+                });
     }
 
     /**
