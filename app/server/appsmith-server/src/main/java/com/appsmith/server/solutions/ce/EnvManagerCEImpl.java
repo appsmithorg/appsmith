@@ -788,6 +788,16 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         if (schemeIndex >= 0) {
             rest = rest.substring(schemeIndex + 3);
         }
+        // Drop the userinfo before locating the authority end: non-conforming URLs can carry
+        // unencoded '/', '?', or '@' inside the credentials, and truncating first would cut
+        // mid-credential and surface a credential fragment as a "host". Searching the full
+        // remainder can overshoot into a query value containing '@' — that worst case shows a
+        // bogus host, never credential material, which is the failure direction this helper
+        // must guarantee.
+        final int userInfoIndex = rest.lastIndexOf('@');
+        if (userInfoIndex >= 0) {
+            rest = rest.substring(userInfoIndex + 1);
+        }
         int authorityEnd = rest.length();
         for (final char delimiter : new char[] {'/', '?'}) {
             final int index = rest.indexOf(delimiter);
@@ -795,11 +805,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 authorityEnd = index;
             }
         }
-        String authority = rest.substring(0, authorityEnd);
-        final int atIndex = authority.lastIndexOf('@');
-        if (atIndex >= 0) {
-            authority = authority.substring(atIndex + 1);
-        }
+        final String authority = rest.substring(0, authorityEnd);
         final List<String> hosts = new ArrayList<>();
         for (final String part : authority.split(",")) {
             String host = part.trim();
