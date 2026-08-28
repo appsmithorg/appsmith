@@ -787,6 +787,27 @@ public class EnvManagerTest {
     }
 
     @Test
+    public void applyChanges_nonSecretValueContainingMaskText_isSavedNormally(@TempDir Path tempDir)
+            throws IOException {
+        // The mask-means-unchanged rule applies only to secret-classified variables. Non-secret
+        // values are returned raw, so the client never has a masked non-secret to echo back — a
+        // literal "********" in one is user input and must be persisted, not silently dropped.
+        Path envFile = tempDir.resolve("docker.env");
+        Files.writeString(envFile, "APPSMITH_INSTANCE_NAME=old-name\n");
+        Mockito.when(commonConfig.getEnvFilePath()).thenReturn(envFile.toString());
+        mockSuperUser();
+        mockApplyChangesCollaborators();
+
+        StepVerifier.create(envManager.applyChanges(
+                        Map.of("APPSMITH_INSTANCE_NAME", "my ******** name"), "http://localhost"))
+                .verifyComplete();
+
+        String written = Files.readString(envFile);
+        assertThat(written).contains("my ******** name");
+        assertThat(written).doesNotContain("old-name");
+    }
+
+    @Test
     public void applyChanges_genuinelyNewSecretValue_isWritten(@TempDir Path tempDir) throws IOException {
         Path envFile = tempDir.resolve("docker.env");
         Files.writeString(envFile, "APPSMITH_MAIL_PASSWORD='old-sekret'\n");
