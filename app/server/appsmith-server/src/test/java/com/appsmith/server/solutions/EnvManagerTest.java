@@ -731,6 +731,27 @@ public class EnvManagerTest {
     }
 
     @Test
+    public void getAllNonEmpty_credentialsContainingDelimiters_neverLeakCredentialFragments() {
+        // Non-conforming URLs (unencoded '/', '?', or '@' inside credentials) must never surface
+        // credential fragments as hosts — the userinfo is stripped before the authority is cut.
+        Mockito.when(commonConfig.getDbUrl())
+                .thenReturn("mongodb://leak-user:pa/ss-sekret@db.example.com:27017/appsmith");
+        Mockito.when(commonConfig.getRedisUrl()).thenReturn("redis://:qm?ss@sekret@redis.example.com:6379");
+        Mockito.doReturn(Mono.just(Map.of("APPSMITH_INSTANCE_NAME", "x")))
+                .when(envManager)
+                .getAll();
+
+        StepVerifier.create(envManager.getAllNonEmpty())
+                .assertNext(map -> {
+                    assertThat(map).containsEntry("APPSMITH_DB_CONNECTION_INFO", "db.example.com");
+                    assertThat(map).containsEntry("APPSMITH_REDIS_CONNECTION_INFO", "redis.example.com");
+                    assertThat(map.values()).noneMatch(value -> value.contains("sekret"));
+                    assertThat(map.values()).noneMatch(value -> value.contains("leak-user"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void getAllNonEmpty_blankConnectionUrls_omitConnectionInfo() {
         Mockito.when(commonConfig.getDbUrl()).thenReturn("");
         Mockito.when(commonConfig.getRedisUrl()).thenReturn(null);
