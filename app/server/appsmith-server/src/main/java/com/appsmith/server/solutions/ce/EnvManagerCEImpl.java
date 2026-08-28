@@ -418,9 +418,15 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         // if the map is unmodifiable
         Map<String, String> envChanges = new HashMap<>(changes);
         // The admin read-back API masks secret values, and clients echo untouched fields back on
-        // save — a value carrying the mask means "leave the stored value unchanged". Matching on
-        // contains (not equals) so a part-edited masked field can never corrupt the stored value.
-        envChanges.values().removeIf(value -> value != null && value.contains(MASKED_SECRET));
+        // save — a secret-classified value carrying the mask means "leave the stored value
+        // unchanged". Matching on contains (not equals) so a part-edited masked field can never
+        // corrupt the stored value. Scoped to secret keys: non-secret values are returned raw,
+        // so a mask string in one is genuine user input and must be persisted.
+        envChanges
+                .entrySet()
+                .removeIf(entry -> isSecretEnvVar(entry.getKey())
+                        && entry.getValue() != null
+                        && entry.getValue().contains(MASKED_SECRET));
         return verifyCurrentUserIsSuper()
                 .flatMap(user -> validateChanges(user, envChanges).thenReturn(user))
                 .flatMap(user -> applyChangesToEnvFileWithoutAclCheck(envChanges)
