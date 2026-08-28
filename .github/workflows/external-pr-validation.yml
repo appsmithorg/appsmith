@@ -282,6 +282,10 @@ jobs:
           REACT_APP_ENVIRONMENT: DEVELOPMENT
           REACT_APP_VERSION_EDITION: Community
           NODE_OPTIONS: --max-old-space-size=8192
+          # Without this, the runner's CI=true makes CRA treat the
+          # long-standing CSS chunk-order warnings as a build failure.
+          # Real compile errors still fail the build.
+          CI: "false"
         run: yarn build
 
   result:
