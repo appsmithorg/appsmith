@@ -77,7 +77,7 @@ public class MySqlDatasourceUtils {
         if (isEmpty(datasourceConfiguration.getEndpoints())) {
             urlBuilder.append(datasourceConfiguration.getUrl());
         } else {
-            urlBuilder.append("r2dbc:pool:mariadb://");
+            urlBuilder.append("r2dbc:mariadb://");
             final List<String> hosts = new ArrayList<>();
 
             if (!isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)) {

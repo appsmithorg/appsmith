@@ -10,8 +10,11 @@ import com.appsmith.external.models.SSHConnection;
 import com.appsmith.external.models.SSHPrivateKey;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
+import com.external.utils.MySqlDatasourceUtils;
 import io.micrometer.observation.ObservationRegistry;
+import io.r2dbc.spi.ConnectionFactoryOptions;
 import org.junit.jupiter.api.Test;
+import org.mariadb.r2dbc.MariadbConnectionConfiguration;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -24,6 +27,11 @@ import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorM
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_MISSING_SSH_KEY_ERROR_MSG;
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_MISSING_SSH_USERNAME_ERROR_MSG;
 import static com.appsmith.external.models.Connection.Mode.READ_WRITE;
+import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
+import static io.r2dbc.spi.ConnectionFactoryOptions.PROTOCOL;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MySQLDatasourceValidationTest {
@@ -186,6 +194,18 @@ public class MySQLDatasourceValidationTest {
         dsConfig.getEndpoints().get(0).setHost(hostname);
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
         assertTrue(output.contains("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."));
+    }
+
+    @Test
+    public void testStandardConnectionOptionsAreCompatibleWithMariaDbDriver() {
+        DatasourceConfiguration dsConfig = getDatasourceConfigurationWithStandardConnectionMethod();
+        ConnectionFactoryOptions options =
+                MySqlDatasourceUtils.getBuilder(dsConfig, null).build();
+
+        assertEquals("mariadb", options.getValue(DRIVER));
+        assertNull(options.getValue(PROTOCOL));
+        assertDoesNotThrow(
+                () -> MariadbConnectionConfiguration.fromOptions(options).build());
     }
 
     @Test
