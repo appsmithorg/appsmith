@@ -82,12 +82,24 @@ upload_branches_to_redis_hash() {
     local redis_url="$2"
     local key_value_pair_key="$3"
 
-    local branches=$(git -C "$directory_path" for-each-ref --format='"%(refname:short)" %(objectname:short)' refs/heads/)
+    # Branch names cannot contain whitespace, so each line splits cleanly into name and sha.
+    local branch_args=()
+    local branch_name branch_sha
+    while read -r branch_name branch_sha; do
+        if [[ -n "$branch_name" && -n "$branch_sha" ]]; then
+            branch_args+=("$branch_name" "$branch_sha")
+        fi
+    done < <(git -C "$directory_path" for-each-ref --format='%(refname:short) %(objectname:short)' refs/heads/)
 
-    log_info "Preparing to upload branch store. Current branches: $branches"
+    log_info "Preparing to upload branch store. Current branches: ${branch_args[*]:-}"
 
     redis-exec "$redis_url" DEL "$key_value_pair_key"
-    redis-exec "$redis_url" HSET "$key_value_pair_key" $branches
+
+    if [[ ${#branch_args[@]} -gt 0 ]]; then
+        redis-exec "$redis_url" HSET "$key_value_pair_key" "${branch_args[@]}"
+    else
+        log_warn "No local branches found in $directory_path; skipping branch store upload"
+    fi
 }
 
 # Removes cached repository artifact and branch store from Redis.
