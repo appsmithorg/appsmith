@@ -155,6 +155,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     public static final String REDIS_CONNECTION_INFO_KEY = "APPSMITH_REDIS_CONNECTION_INFO";
 
+    public static final String REDIS_GIT_CONNECTION_INFO_KEY = "APPSMITH_REDIS_GIT_CONNECTION_INFO";
+
     /**
      * Value reported when the connection targets the services running inside the Appsmith
      * container. Uses the same host heuristic as the container entrypoint's {@code isUriLocal}
@@ -868,6 +870,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     }
                     putConnectionInfo(nonEmptyValuesMap, DB_CONNECTION_INFO_KEY, commonConfig.getDbUrl());
                     putConnectionInfo(nonEmptyValuesMap, REDIS_CONNECTION_INFO_KEY, commonConfig.getRedisUrl());
+                    putConnectionInfo(nonEmptyValuesMap, REDIS_GIT_CONNECTION_INFO_KEY, commonConfig.getRedisGitUrl());
                     return Mono.just(nonEmptyValuesMap);
                 });
     }
