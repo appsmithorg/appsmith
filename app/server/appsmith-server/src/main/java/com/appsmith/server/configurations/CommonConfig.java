@@ -67,9 +67,6 @@ public class CommonConfig {
     @Value("${appsmith.redis.url:}")
     private String redisUrl;
 
-    @Value("${appsmith.redis.git.url:}")
-    private String redisGitUrl;
-
     @Value("${disable.telemetry:true}")
     private boolean isTelemetryDisabled;
 

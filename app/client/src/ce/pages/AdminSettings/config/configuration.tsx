@@ -48,18 +48,6 @@ export const APPSMITH_REDIS_CONNECTION_INFO: Setting = {
     "* The Redis server Appsmith uses for session storage, configured via the APPSMITH_REDIS_URL environment variable on the instance.",
 };
 
-export const APPSMITH_REDIS_GIT_CONNECTION_INFO: Setting = {
-  id: "APPSMITH_REDIS_GIT_CONNECTION_INFO",
-  category: SettingCategories.CONFIGURATION,
-  controlType: SettingTypes.TEXTINPUT,
-  controlSubType: SettingSubtype.TEXT,
-  isReadOnly: true,
-  label: "Redis (Git operations)",
-  format: formatConnectionInfo,
-  subText:
-    "* The Redis server Appsmith uses for Git operations, configured via the APPSMITH_REDIS_GIT_URL environment variable on the instance. When that variable is not set, Git operations use the same Redis as session storage.",
-};
-
 export const APPSMITH_BASE_URL: Setting = {
   id: "APPSMITH_BASE_URL",
   category: SettingCategories.CONFIGURATION,
@@ -180,7 +168,6 @@ export const config: AdminConfigType = {
   settings: [
     APPSMITH_DB_CONNECTION_INFO,
     APPSMITH_REDIS_CONNECTION_INFO,
-    APPSMITH_REDIS_GIT_CONNECTION_INFO,
     APPSMITH_BASE_URL,
     APPSMITH_POOL_SIZE_CONFIG,
     APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,
