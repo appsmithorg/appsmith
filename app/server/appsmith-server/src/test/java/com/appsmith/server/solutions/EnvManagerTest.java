@@ -731,6 +731,25 @@ public class EnvManagerTest {
     }
 
     @Test
+    public void getAllNonEmpty_gitRedis_reportsItsOwnConnectionInfo() {
+        // The Git-operations Redis is evaluated independently of the session Redis: an instance
+        // can run the embedded Redis for sessions while pointing Git operations elsewhere.
+        Mockito.when(commonConfig.getRedisUrl()).thenReturn("redis://127.0.0.1:6379");
+        Mockito.when(commonConfig.getRedisGitUrl()).thenReturn("redis://:git-sekret@git-redis.example.com:6379");
+        Mockito.doReturn(Mono.just(Map.of("APPSMITH_INSTANCE_NAME", "x")))
+                .when(envManager)
+                .getAll();
+
+        StepVerifier.create(envManager.getAllNonEmpty())
+                .assertNext(map -> {
+                    assertThat(map).containsEntry("APPSMITH_REDIS_CONNECTION_INFO", "embedded");
+                    assertThat(map).containsEntry("APPSMITH_REDIS_GIT_CONNECTION_INFO", "git-redis.example.com");
+                    assertThat(map.values()).noneMatch(value -> value.contains("sekret"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void getAllNonEmpty_credentialsContainingDelimiters_neverLeakCredentialFragments() {
         // Non-conforming URLs (unencoded '/', '?', or '@' inside credentials) must never surface
         // credential fragments as hosts — the userinfo is stripped before the authority is cut.
