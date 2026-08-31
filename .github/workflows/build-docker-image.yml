@@ -14,6 +14,11 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      checkout-ref:
+        description: "Immutable commit SHA to checkout for an approved external PR"
+        required: false
+        type: string
+        default: ""
 
 jobs:
   build-docker:
@@ -31,21 +36,27 @@ jobs:
     steps:
       # Check out merge commit
       - name: Fork based /ok-to-test checkout
-        if: inputs.pr != 0
+        if: inputs.checkout-ref == '' && inputs.pr != 0
         uses: actions/checkout@v4
         with:
           ref: "refs/pull/${{ inputs.pr }}/merge"
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
-        if: inputs.pr == 0 && inputs.branch == ''
+        if: inputs.checkout-ref == '' && inputs.pr == 0 && inputs.branch == ''
         uses: actions/checkout@v4
 
       - name: Checkout the specified branch
-        if: inputs.pr == 0 && inputs.branch != ''
+        if: inputs.checkout-ref == '' && inputs.pr == 0 && inputs.branch != ''
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.branch }}
+
+      - name: Checkout the approved immutable commit
+        if: inputs.checkout-ref != ''
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.checkout-ref }}
 
       - name: Download the client build artifact
         if: steps.run_result.outputs.run_result != 'success'

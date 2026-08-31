@@ -29,6 +29,11 @@ on:
         required: false
         type: string
         default: latest
+      checkout-ref:
+        description: "Immutable commit SHA to checkout for an approved external PR"
+        required: false
+        type: string
+        default: ""
 
 jobs:
   ci-test:
@@ -73,15 +78,21 @@ jobs:
 
       # Check out merge commit
       - name: Fork based /ok-to-test checkout
-        if: inputs.pr != 0
+        if: inputs.checkout-ref == '' && inputs.pr != 0
         uses: actions/checkout@v4
         with:
           ref: "refs/pull/${{ inputs.pr }}/merge"
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
-        if: inputs.pr == 0
+        if: inputs.checkout-ref == '' && inputs.pr == 0
         uses: actions/checkout@v4
+
+      - name: Checkout the approved immutable commit
+        if: inputs.checkout-ref != ''
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.checkout-ref }}
 
       # Timestamp will be used to create cache key
       - id: timestamp
@@ -233,18 +244,22 @@ jobs:
 
       - name: Set cypress tags to exclude
         if: steps.run_result.outputs.run_result != 'success'
+        env:
+          INPUT_TAGS: ${{ inputs.tags }}
         run: |
           echo 'tags_to_exclude=airgap' >> "$GITHUB_ENV"
-          if [[ "${{ inputs.tags }}" = "@tag.All" ]]; then
+          if [[ "$INPUT_TAGS" = "@tag.All" ]]; then
             echo "CYPRESS_grepTags=" >> "$GITHUB_ENV"
           else
-            echo "CYPRESS_grepTags=${{ inputs.tags }}" >> "$GITHUB_ENV"
+            # Strip CR/LF so an unexpected value cannot inject extra GITHUB_ENV entries.
+            grep_tags="${INPUT_TAGS//[$'\r\n']/}"
+            printf 'CYPRESS_grepTags=%s\n' "$grep_tags" >> "$GITHUB_ENV"
           fi
 
       - name: Print the tags
         run: |
-          echo "tags_to_exclude: ${{ env.tags_to_exclude }}"
-          echo "_grepTags: ${{ env.CYPRESS_grepTags }}"
+          echo "tags_to_exclude: $tags_to_exclude"
+          echo "_grepTags: $CYPRESS_grepTags"
 
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
@@ -302,6 +317,9 @@ jobs:
 
       - name: Run the cypress test
         env:
+          # Untrusted on approved fork PRs: keep as an env var and reference it
+          # quoted in the shell below — never interpolate ${{ inputs.spec }} into run:.
+          INPUT_SPEC: ${{ inputs.spec }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
@@ -375,9 +393,9 @@ jobs:
         run: |
             cd app/client
             ls -la
-            if [[ -n "${{ inputs.spec }}" ]]; then
+            if [[ -n "$INPUT_SPEC" ]]; then
               npx cypress-repeat-pro run -n 3 --rerun-failed-only \
-                --spec "${{ inputs.spec }}" \
+                --spec "$INPUT_SPEC" \
                 --config-file "cypress_ci_custom.config.ts" \
                 --browser "${{ env.BROWSER_PATH }}"
             else

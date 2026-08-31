@@ -627,4 +627,54 @@ class RedirectHelperOpenRedirectTest {
                 RedirectHelper.isSafeRedirectUrl("https://app.appsmith.com/applications", headers),
                 "Implicit default ports on both sides must match");
     }
+
+    // --- getRedirectDomain: OAuth datasource redirect origin must be validated against the
+    // request host so a forged Origin/Referer cannot become the OAuth redirect_uri (APP-15804) ---
+
+    private RedirectHelper redirectHelperForDomain() {
+        // getRedirectDomain / getTrustedOrigin do not touch the injected repositories.
+        return new RedirectHelper(null, null);
+    }
+
+    @Test
+    void getRedirectDomainRejectsForgedOriginFromUntrustedHost() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setHost(InetSocketAddress.createUnresolved("app.example.com", 0));
+        headers.setOrigin("https://attacker.com");
+
+        String domain = redirectHelperForDomain().getRedirectDomain(headers);
+
+        assertNotEquals(
+                "https://attacker.com",
+                domain,
+                "A forged Origin that does not match the request host must not become the OAuth redirect origin");
+        assertFalse(
+                domain.contains("attacker.com"),
+                "The resolved redirect origin must not contain the attacker-controlled host");
+    }
+
+    @Test
+    void getRedirectDomainRejectsForgedRefererFromUntrustedHost() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setHost(InetSocketAddress.createUnresolved("app.example.com", 0));
+        headers.set("Referer", "https://attacker.com/some/path");
+
+        String domain = redirectHelperForDomain().getRedirectDomain(headers);
+
+        assertFalse(
+                domain.contains("attacker.com"),
+                "A forged Referer that does not match the request host must not become the OAuth redirect origin");
+    }
+
+    @Test
+    void getRedirectDomainAcceptsOriginMatchingRequestHost() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setHost(InetSocketAddress.createUnresolved("app.example.com", 0));
+        headers.setOrigin("https://app.example.com");
+
+        String domain = redirectHelperForDomain().getRedirectDomain(headers);
+
+        assertEquals(
+                "https://app.example.com", domain, "An Origin that matches the request host must still be honored");
+    }
 }

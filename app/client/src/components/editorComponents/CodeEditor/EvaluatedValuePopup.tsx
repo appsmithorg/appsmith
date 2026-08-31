@@ -29,6 +29,7 @@ import { Button, Icon, Link, toast, Tooltip } from "@appsmith/ads";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { DEBUGGER_TAB_KEYS } from "../Debugger/constants";
 import { appsmithTelemetry } from "instrumentation";
+import localStorage, { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -55,14 +56,19 @@ const THEME = {
   editorColor: "var(--ads-v2-color-fg)",
 };
 
-const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
-  width: ${(props) => props.theme.evaluatedValuePopup.width}px;
+const ContentWrapper = styled.div<{
+  colorTheme: EditorTheme;
+  $collapsed?: boolean;
+}>`
+  width: ${(props) =>
+    props.$collapsed ? "auto" : `${props.theme.evaluatedValuePopup.width}px`};
+  max-width: ${(props) => props.theme.evaluatedValuePopup.width}px;
   max-height: ${(props) => props.theme.evaluatedValuePopup.height}px;
   overflow-y: auto;
   -ms-overflow-style: none;
   background-color: ${THEME.backgroundColor};
   color: ${THEME.textColor};
-  padding: 10px;
+  padding: ${(props) => (props.$collapsed ? "0 10px" : "10px")};
   box-shadow: var(--ads-v2-shadow-popovers);
   border-radius: var(--ads-v2-border-radius);
   pointer-events: all;
@@ -192,6 +198,24 @@ const StyledTitleName = styled.p`
   font-weight: 600;
   line-height: 12px;
   cursor: pointer;
+`;
+
+/* Kept as a styled(StyledTitleName) <p> so it stays a direct child of the
+   popup wrapper: Cypress locators walk the wrapper's direct p/div children. */
+const PopupTitleRow = styled(StyledTitleName)`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ads-v2-spaces-2);
+  cursor: default;
+`;
+
+const PopupTitleText = styled.span`
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const AsyncFunctionErrorView = styled.div`
@@ -501,6 +525,14 @@ function PopoverContent(props: PopoverContentProps) {
       ? popupContext.value
       : true,
   );
+  // Whole-window collapse is a single editor-wide preference: collapse it once
+  // and every binding field shows the slim pill until it is expanded again.
+  const [isPopupCollapsed, setIsPopupCollapsed] = useState(
+    () =>
+      localStorage.getItem(
+        LOCAL_STORAGE_KEYS.EVALUATED_VALUE_POPUP_COLLAPSED,
+      ) === "true",
+  );
   const { errors, expected, hasError, onMouseEnter, onMouseLeave, theme } =
     props;
   const { entityName } = getEntityNameAndPropertyPath(props.dataTreePath || "");
@@ -513,6 +545,15 @@ function PopoverContent(props: PopoverContentProps) {
     setOpenExpectedDataType(!openExpectedDataType);
   const toggleExpectedExample = () =>
     setOpenExpectedExample(!openExpectedExample);
+  const togglePopupCollapsed = () => {
+    const collapsed = !isPopupCollapsed;
+
+    setIsPopupCollapsed(collapsed);
+    localStorage.setItem(
+      LOCAL_STORAGE_KEYS.EVALUATED_VALUE_POPUP_COLLAPSED,
+      String(collapsed),
+    );
+  };
 
   let error: EvaluationError | undefined;
 
@@ -541,6 +582,54 @@ function PopoverContent(props: PopoverContentProps) {
       : `This value does not evaluate to type "${expected?.type}".`;
   };
 
+  const popupLabel =
+    props.evaluatedPopUpLabel || props.entity?.entityName || "Binding preview";
+
+  if (isPopupCollapsed) {
+    return (
+      <ContentWrapper
+        $collapsed
+        className="t--CodeEditor-evaluatedValue evaluated-value-popup"
+        colorTheme={theme}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
+        <PopupTitleRow>
+          <PopupTitleText>{popupLabel}</PopupTitleText>
+          {hasError && (
+            <Tooltip
+              content="Evaluation error — expand to view"
+              trigger="hover"
+            >
+              <Icon
+                aria-label="Evaluation error"
+                color="var(--ads-v2-color-fg-error)"
+                data-testid="t--evaluated-popup-error-indicator"
+                name="alert-line"
+                role="img"
+                size="md"
+              />
+            </Tooltip>
+          )}
+          <Tooltip content="Expand" trigger="hover">
+            <Button
+              aria-label="Expand helper window"
+              data-testid="t--evaluated-popup-collapse-toggle"
+              isIconButton
+              kind="tertiary"
+              onClick={togglePopupCollapsed}
+              // Keep focus on the editor this popup is anchored to; losing
+              // it closes the popup as a side effect of the toggle.
+              onMouseDown={(e) => e.preventDefault()}
+              size="sm"
+              startIcon="arrow-down-s-line"
+            />
+          </Tooltip>
+        </PopupTitleRow>
+      </ContentWrapper>
+    );
+  }
+
   return (
     <ContentWrapper
       className="t--CodeEditor-evaluatedValue evaluated-value-popup"
@@ -548,13 +637,23 @@ function PopoverContent(props: PopoverContentProps) {
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      {props?.entity && props.entity?.entityName && (
-        <StyledTitleName>
-          {props?.evaluatedPopUpLabel
-            ? props?.evaluatedPopUpLabel
-            : props?.entity?.entityName}
-        </StyledTitleName>
-      )}
+      <PopupTitleRow>
+        <PopupTitleText>{popupLabel}</PopupTitleText>
+        <Tooltip content="Collapse" trigger="hover">
+          <Button
+            aria-label="Collapse helper window"
+            data-testid="t--evaluated-popup-collapse-toggle"
+            isIconButton
+            kind="tertiary"
+            onClick={togglePopupCollapsed}
+            // Keep focus on the editor this popup is anchored to; losing
+            // it closes the popup as a side effect of the toggle.
+            onMouseDown={(e) => e.preventDefault()}
+            size="sm"
+            startIcon="arrow-up-s-line"
+          />
+        </Tooltip>
+      </PopupTitleRow>
       {hasError && error && (
         <ErrorText>
           <span className="t--evaluatedPopup-error">
@@ -630,44 +729,108 @@ function PopoverContent(props: PopoverContentProps) {
   );
 }
 
+// Roughly two CodeMirror lines: fields taller than this are multiline editors.
+export const SHORT_FIELD_MAX_HEIGHT = 60;
+
+export function getEvaluatedPopupPlacement(
+  targetLeft: number,
+  viewportWidth: number,
+  targetHeight: number,
+): [Placement, string] {
+  // Fields on the right half of the screen (e.g. the property pane) show the
+  // popup on their left, floating over the canvas.
+  if (targetLeft >= viewportWidth / 2) return ["left-start", "0, 15"];
+
+  // Short wide-form fields (query/API/settings forms) show the popup below the
+  // field so it never covers the value being edited; popper flips it above
+  // when there is no room underneath.
+  if (targetHeight <= SHORT_FIELD_MAX_HEIGHT) return ["bottom-start", "0, 8"];
+
+  // Tall multiline editors (JS editor, multiline API params): below-placement
+  // can run out of viewport and get pushed back over the code, so keep the
+  // popup on the left as before.
+  return ["left-start", "0, 5"];
+}
+
 function EvaluatedValuePopup(props: Props) {
   const [contentHovered, setContentHovered] = useState(false);
   const [timeoutId, setTimeoutId] = useState(0);
-  const [position, setPosition] = useState(undefined);
+  const [position, setPosition] = useState<
+    { top: number; left: number } | undefined
+  >(undefined);
   const [isDragging, setIsDragging] = useState(false);
 
+  const isPopupOpen = props.isOpen || contentHovered || isDragging;
+
+  // A hand-dragged position used to stick for the lifetime of the component,
+  // so the only way back to the anchored spot was to drag it there by hand.
+  // The popup already hides on blur, so reopening it re-anchors to the field —
+  // but only for blurs inside the app. When the whole window loses focus
+  // (minimize, switching apps), the editor blurs too; discarding the dragged
+  // position then would teleport the popup back to its anchor the moment the
+  // user returns. document.hasFocus() separates the two cases.
+  useEffect(() => {
+    if (!isPopupOpen && position !== undefined && document.hasFocus()) {
+      setPosition(undefined);
+    }
+  }, [isPopupOpen, position]);
+
   const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // Neither the Wrapper (height:100% of a fixed form row) nor the
+  // EditorWrapper (fixed height prop) grows when the user types multiline
+  // content: with codeEditorVisibleOverflow the inner .CodeMirror element
+  // (height: auto) grows and visibly overflows them. Anchor and measure the
+  // .CodeMirror box so placement tracks the code area the user actually sees.
+  const getAnchorNode = () => {
+    const wrapper = wrapperRef.current;
+
+    if (!wrapper) return null;
+
+    return (
+      (wrapper.querySelector(".CodeMirror") as HTMLElement | null) ||
+      (wrapper.firstElementChild as HTMLElement | null) ||
+      wrapper
+    );
+  };
+
+  // CodeEditor fields auto-grow while the user types; track the anchor's
+  // height so the placement decision below is re-evaluated on growth
+  // (a short field can become a tall multiline editor mid-edit).
+  const [anchorHeight, setAnchorHeight] = useState(0);
+
+  useEffect(() => {
+    // Re-acquire on every open: CodeMirror is instantiated by the parent
+    // CodeEditor after this component first mounts, so the mount-time anchor
+    // may be a stale fallback.
+    const node = getAnchorNode();
+
+    if (!node || typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver((entries) => {
+      setAnchorHeight(entries[0]?.contentRect.height || 0);
+    });
+
+    observer.observe(node);
+
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.isOpen]);
+
   const [placement, offset]: [Placement, string] = useMemo(() => {
-    const placement: Placement = "left-start";
-    let offset = "0, 15";
-
-    if (!wrapperRef.current) return [placement, "0, 0"];
-
     if (props.popperPlacement) return [props.popperPlacement, "0, 0"];
 
-    const { left, right } = wrapperRef.current.getBoundingClientRect();
-    const viewportWidth = window.innerWidth;
-    const halfViewportWidth = viewportWidth / 2;
+    const anchorNode = getAnchorNode();
 
-    // TODO: Remove this temporary fix
-    if (left < halfViewportWidth) {
-      if (right < halfViewportWidth) {
-        offset = "0, 5";
-      } else {
-        // If the target spans from left half to the right half and more that 3 quarters of the view port, show the popper on the right without overlap
-        if (right < halfViewportWidth + halfViewportWidth / 2) {
-          offset = "0, 5";
-        } else {
-          offset = "0, -290";
-        }
-      }
-    } else {
-      // If the target is on the right half of the screen, show the popper on the left with offset eg. property pane
-      offset = "0, 15";
-    }
+    if (!anchorNode) return ["left-start", "0, 0"];
 
-    return [placement, offset];
-  }, [wrapperRef.current, props.popperPlacement]);
+    const { height, left } = anchorNode.getBoundingClientRect();
+
+    return getEvaluatedPopupPlacement(left, window.innerWidth, height);
+    // props.isOpen keeps the placement fresh each time the popup opens (the
+    // ref is null on first render and ref mutation alone never re-renders);
+    // anchorHeight keeps it fresh while the field grows.
+  }, [wrapperRef.current, props.popperPlacement, props.isOpen, anchorHeight]);
 
   return (
     <Wrapper ref={wrapperRef}>
@@ -676,19 +839,34 @@ function EvaluatedValuePopup(props: Props) {
         editorRef={props?.editorRef}
         isDraggable
         isDragging={isDragging}
-        isOpen={props.isOpen || contentHovered || isDragging}
+        isOpen={isPopupOpen}
         modifiers={{
           ...modifiers,
           offset: {
             enabled: true,
             offset,
           },
+          flip: {
+            enabled: true,
+            behavior: placement.startsWith("bottom")
+              ? ["bottom", "top"]
+              : "flip",
+          },
         }}
         placement={placement}
         position={position}
+        // Keep the drag grip centered over the popup: the default fixed
+        // left offset strands it outside the box when the popup collapses
+        // to its slim pill. The handler box must not intercept clicks — on
+        // the pill it overlaps the expand toggle — so it passes pointer
+        // events through; the visible grip re-enables its own.
+        renderDragBlockPositions={{
+          left: "calc(50% - 21px)",
+          pointerEvents: "none",
+        }}
         setIsDragging={setIsDragging}
         setPosition={setPosition}
-        targetNode={wrapperRef.current || undefined}
+        targetNode={getAnchorNode() || undefined}
         zIndex={props.popperZIndex || Layers.evaluationPopper}
       >
         <PopoverContent
