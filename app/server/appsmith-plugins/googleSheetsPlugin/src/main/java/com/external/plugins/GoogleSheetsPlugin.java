@@ -350,13 +350,12 @@ public class GoogleSheetsPlugin extends BasePlugin {
             final TriggerMethod triggerMethod = GoogleSheetsMethodStrategy.getTriggerMethod(request, objectMapper);
             MethodConfig methodConfig = new MethodConfig(request);
 
-            // Initializing webClient to be used for http call
-            WebClient.Builder webClientBuilder = WebClient.builder();
-
             triggerMethod.validateTriggerMethodRequest(methodConfig);
 
-            WebClient client =
-                    webClientBuilder.exchangeStrategies(EXCHANGE_STRATEGIES).build();
+            // Initializing webClient to be used for http call
+            WebClient client = WebClientUtils.builder()
+                    .exchangeStrategies(EXCHANGE_STRATEGIES)
+                    .build();
 
             // Authentication will already be valid at this point
             final OAuth2 oauth2 = (OAuth2) datasourceConfiguration.getAuthentication();
