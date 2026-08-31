@@ -106,8 +106,9 @@ public class GitBranchStoreUploadTest {
                         + "upload_branches_to_redis_hash '%s' 'redis://stub:6379' '%s'",
                 gitShPath.toAbsolutePath(), callLog.toAbsolutePath(), repo.toAbsolutePath(), BRANCH_STORE_KEY);
 
-        Process process =
-                new ProcessBuilder("bash", "-c", script).redirectErrorStream(true).start();
+        Process process = new ProcessBuilder("bash", "-c", script)
+                .redirectErrorStream(true)
+                .start();
 
         if (!process.waitFor(30, TimeUnit.SECONDS)) {
             process.destroyForcibly();
