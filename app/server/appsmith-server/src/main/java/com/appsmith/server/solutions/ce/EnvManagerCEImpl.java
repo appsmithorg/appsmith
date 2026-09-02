@@ -84,6 +84,7 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_PASSWORD;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_PORT;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_SMTP_AUTH;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_USERNAME;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_MCP_INTERNAL_SECRET;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GITHUB_CLIENT_ID;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_GOOGLE_CLIENT_ID;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_RECAPTCHA_SECRET_KEY;
@@ -464,6 +465,10 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                                 "true".equals(changesCopy.remove(APPSMITH_DISABLE_TELEMETRY.name())));
                     }
 
+                    if (changesCopy.containsKey(APPSMITH_MCP_INTERNAL_SECRET.name())) {
+                        commonConfig.setMcpInternalSecret(changesCopy.remove(APPSMITH_MCP_INTERNAL_SECRET.name()));
+                    }
+
                     return dependentTasks.then();
                 });
     }
@@ -504,6 +509,19 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     }
                     return originalVariables;
                 });
+    }
+
+    @Override
+    public Mono<Void> persistMcpInternalSecret(String secret) {
+        if (!StringUtils.hasText(commonConfig.getEnvFilePath())) {
+            return Mono.empty();
+        }
+        Map<String, String> changes = new HashMap<>();
+        changes.put(APPSMITH_MCP_INTERNAL_SECRET.name(), secret == null ? "" : secret);
+        return applyChangesToEnvFileWithoutAclCheck(changes).then().onErrorResume(error -> {
+            log.error("Unable to persist APPSMITH_MCP_INTERNAL_SECRET to the env file", error);
+            return Mono.empty();
+        });
     }
 
     @Override
@@ -779,8 +797,11 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     public Mono<Void> restartWithoutAclCheck() {
         log.warn("Initiating restart via supervisor.");
         try {
+            // "mcp" is included so toggling the MCP env gates from Admin Settings takes effect on restart; its
+            // run script re-reads docker.env and parks itself when disabled. supervisorctl restarts the other
+            // programs even if one name is unknown (older images without the mcp program).
             Runtime.getRuntime().exec(new String[] {
-                "supervisorctl", "restart", "backend", "editor", "rts",
+                "supervisorctl", "restart", "backend", "editor", "rts", "mcp",
             });
         } catch (IOException e) {
             log.error("Error invoking supervisorctl to restart.", e);

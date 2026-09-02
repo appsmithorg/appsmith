@@ -58,6 +58,9 @@ public class CommonConfig {
     @Value("${appsmith.admin.envfile:}")
     public String envFilePath;
 
+    @Value("${appsmith.mcp.internal-secret:}")
+    private String mcpInternalSecret;
+
     @Value("${disable.telemetry:true}")
     private boolean isTelemetryDisabled;
 

@@ -96,6 +96,9 @@ public enum AnalyticsEvents {
 
     COMMUNITY_TEMPLATE_PUBLISHED,
 
+    // MCP (Model Context Protocol) events
+    CREATE_MCP_TOKEN("create_MCP_TOKEN"),
+
     // Static URL events
     STATIC_URL_ENABLED,
     STATIC_URL_DISABLED,

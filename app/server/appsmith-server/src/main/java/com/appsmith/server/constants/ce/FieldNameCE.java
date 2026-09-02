@@ -162,6 +162,13 @@ public class FieldNameCE {
     // this key will present in the analytics as a diff b/w server and user invoked flows
     public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY = "isDatasourceUpdateUserInvoked";
     public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
+    /**
+     * The internal marker the loopback MCP Node service stamps on every /api/v1 request it makes on behalf of an
+     * mcp_ token. Its value must constant-time-equal APPSMITH_MCP_INTERNAL_SECRET for the mcp_ bearer to
+     * authenticate. Caddy strips any inbound copy of this header on ingress, so an external client cannot forge it.
+     */
+    public static final String INTERNAL_MARKER = "X-Appsmith-Mcp-Internal";
+
     public static final String ACTION_EXECUTION_QUERY = "actionExecutionQuery";
     public static final String HEADER_ENVIRONMENT_ID = "X-Appsmith-EnvironmentId";
     public static final String ENVIRONMENT_ID = "environmentId";
