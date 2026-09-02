@@ -170,7 +170,6 @@ jobs:
       # We burn React environment & the Segment analytics key into the build itself.
       # Pylon: REACT_APP_* is required for CRA to embed values; secret name matches github-release.yml.
       # This is to ensure that we don't need to configure it in each installation.
-      # Client build fails only on errors (EXIT_CODE > 1); warnings (EXIT_CODE <= 1) don’t affect it.
       - name: Create the bundle
         if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
@@ -189,11 +188,7 @@ jobs:
           REACT_APP_PYLON_APP_ID=${{ secrets.APPSMITH_PYLON_APP_ID }} \
           SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
           REACT_APP_VERSION_EDITION="Community" \
-          yarn build || EXIT_CODE=$?
-
-          if [ -n "$EXIT_CODE" ] && [ "$EXIT_CODE" -gt 1 ]; then
-            exit $EXIT_CODE
-          fi
+          yarn build
 
       # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache
