@@ -20,9 +20,6 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.OrganizationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -37,8 +34,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static com.appsmith.server.constants.FieldName.ORGANIZATION_ID;
 
 @Slf4j
 public class McpTokenServiceCEImpl implements McpTokenServiceCE {
@@ -269,8 +264,12 @@ public class McpTokenServiceCEImpl implements McpTokenServiceCE {
             return Mono.empty();
         }
 
-        return authenticateFromCache(userKey, mcpKeyId)
-                .switchIfEmpty(Mono.defer(() -> authenticateFromStore(userKey, mcpKeyId)));
+        // Enforce the organization-level MCP feature flag once, before either authentication path runs, so both the
+        // cache-backed and store-backed paths honour it. validateMCPEnabled() emits an error when MCP is disabled,
+        // which propagates to the caller and prevents authentication.
+        return validateMCPEnabled()
+                .then(authenticateFromCache(userKey, mcpKeyId)
+                        .switchIfEmpty(Mono.defer(() -> authenticateFromStore(userKey, mcpKeyId))));
     }
 
     private Mono<User> authenticateFromCache(String userKey, String mcpKeyId) {
@@ -281,15 +280,7 @@ public class McpTokenServiceCEImpl implements McpTokenServiceCE {
                 .get(mcpKeyId)
                 .filter(entry -> McpTokenUtils.matches(userKey, entry.tokenHash()))
                 .filter(entry -> isNotExpired(entry.expiresAt()))
-                .flatMap(entry -> loadEnabledUser(entry.userId()))
-                .flatMap(user -> {
-                    return Mono.just(user)
-                            .contextWrite(ReactiveSecurityContextHolder.withAuthentication((Authentication)
-                                    UsernamePasswordAuthenticationToken.authenticated(user, null, null)))
-                            .contextWrite(context -> context.put(ORGANIZATION_ID, user.getOrganizationId()))
-                            .then(validateMCPEnabled())
-                            .thenReturn(user);
-                });
+                .flatMap(entry -> loadEnabledUser(entry.userId()));
     }
 
     private Mono<User> authenticateFromStore(String userKey, String mcpKeyId) {
