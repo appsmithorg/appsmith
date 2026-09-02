@@ -72,7 +72,7 @@ public class McpTokenServiceCEImpl implements McpTokenServiceCE {
     }
 
     // CE: 2 live keys. EE overrides to 10.
-    protected int getMaxActiveKeysPerUser() {
+    public int getMaxActiveKeysPerUser() {
         return 2;
     }
 
@@ -103,6 +103,7 @@ public class McpTokenServiceCEImpl implements McpTokenServiceCE {
 
                     return Mono.just(organization);
                 })
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)))
                 .then();
     }
 
