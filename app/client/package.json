@@ -319,7 +319,7 @@
     "babel-plugin-module-resolver": "^4.1.0",
     "babel-plugin-named-asset-import": "^0.3.8",
     "babel-preset-react-app": "^10.0.1",
-    "browserslist": "^4.24.4",
+    "browserslist": "^4.28.7",
     "case-sensitive-paths-webpack-plugin": "^2.4.0",
     "chalk": "^4.1.1",
     "compression-webpack-plugin": "^11.1.0",
@@ -412,7 +412,7 @@
   },
   "resolutions": {
     "cookie": "0.7.0",
-    "browserslist": "4.24.4",
+    "browserslist": "4.28.7",
     "chokidar": "3.5.3",
     "css-select": "4.1.3",
     "ejs": "3.1.10",

@@ -56,7 +56,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@types/react-transition-group": "^4.4.12",
-    "browserslist": "^4.24.4",
+    "browserslist": "^4.28.7",
     "eslint-plugin-storybook": "^0.11.3",
     "postcss-import": "^16.1.0",
     "rollup": "^4.34.8",
