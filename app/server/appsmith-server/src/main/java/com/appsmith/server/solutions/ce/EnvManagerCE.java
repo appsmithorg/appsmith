@@ -43,4 +43,11 @@ public interface EnvManagerCE {
     Mono<Void> restartWithoutAclCheck();
 
     Mono<Boolean> sendTestEmail(TestEmailConfigRequestDTO requestDTO);
+
+    /**
+     * Writes {@code APPSMITH_MCP_INTERNAL_SECRET} to the env file without ACL or organization-config fan-out.
+     * An empty value unsets the variable. Does not require a restart; callers must also update
+     * {@code CommonConfig#mcpInternalSecret} for the running process.
+     */
+    Mono<Void> persistMcpInternalSecret(String secret);
 }

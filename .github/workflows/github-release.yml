@@ -83,12 +83,7 @@ jobs:
           REACT_APP_PYLON_APP_ID: "${{ secrets.APPSMITH_PYLON_APP_ID }}"
           REACT_APP_VERSION_EDITION: "Community"
         run: |
-          yarn build || EXIT_CODE=$?
-
-          if [ -n "$EXIT_CODE" ] && [ "$EXIT_CODE" -gt 1 ]; then
-            exit $EXIT_CODE
-          fi
-
+          yarn build
           ls -l build
 
       - name: Pack the client build directory

@@ -880,4 +880,27 @@ public class EnvManagerTest {
             RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
         }
     }
+
+    @Test
+    public void persistMcpInternalSecret_isWhitelistedAndAppended() {
+        final String content = "APPSMITH_INSTANCE_NAME='third value'";
+
+        StepVerifier.create(envManager.transformEnvContent(
+                        content, Map.of("APPSMITH_MCP_INTERNAL_SECRET", "generated-secret")))
+                .assertNext(value -> {
+                    assertThat(value)
+                            .containsExactly(
+                                    "APPSMITH_INSTANCE_NAME='third value'",
+                                    "APPSMITH_MCP_INTERNAL_SECRET=generated-secret");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void persistMcpInternalSecret_emptyEnvFilePath_isNoOp() {
+        Mockito.when(commonConfig.getEnvFilePath()).thenReturn("");
+
+        StepVerifier.create(envManager.persistMcpInternalSecret("generated-secret"))
+                .verifyComplete();
+    }
 }

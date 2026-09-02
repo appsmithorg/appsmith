@@ -170,6 +170,254 @@ public class RestrictedHostFilterTest {
                 "Did not expect " + host + " to be recognized as a blocked address class");
     }
 
+    // ---------- Non-canonical IP literals (GHSA-x3j2-rfj9-cc32, GHSA-342c-q2qr-jxrj) ----------
+    //
+    // Two ways an internal destination hides from the filter while the HTTP client still
+    // connects to it:
+    //
+    //   1. Leading-zero octets ("127.0.0.01"). Apache Commons InetAddressValidator rejects
+    //      these, so the host was never canonicalized and was compared as an opaque string.
+    //      Netty's NetUtil parses them as decimal, and reactor-netty hands the client an
+    //      already-resolved address, so the resolver hook never runs either.
+    //   2. IPv6 transition addresses (NAT64 64:ff9b::/96 and 64:ff9b:1::/48, 6to4 2002::/16).
+    //      Every parser agrees these are valid IPv6; the filter simply never unwrapped the
+    //      embedded IPv4, so it classified the outer wrapper instead of the destination.
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                // Loopback
+                "127.0.0.01",
+                "127.000.000.001",
+                "127.0.0.001",
+                // Link-local
+                "169.254.001.001",
+                "169.254.0.01",
+                // Any-local
+                "0.0.0.00",
+                "00.0.0.0",
+                // Multicast
+                "224.0.0.01",
+                // IPv4-mapped IPv6 carrying a zero-padded embedded octet
+                "::ffff:127.0.0.01",
+                "::ffff:169.254.001.001",
+            })
+    public void isBlockedIpAddressClass_recognizesZeroPaddedNonRoutableLiterals(String host) {
+        assertTrue(
+                RestrictedHostFilter.isBlockedIpAddressClass(host),
+                "Expected zero-padded literal " + host + " to be recognized as a blocked address class");
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                // NAT64 well-known prefix (RFC 6052) embedding a non-routable IPv4
+                "64:ff9b::7f00:1", // 127.0.0.1
+                "64:ff9b::a9fe:a9fe", // 169.254.169.254
+                "64:ff9b::e000:1", // 224.0.0.1
+                // NAT64 local-use prefix (RFC 8215, 64:ff9b:1::/48). Per RFC 6052 the embedded
+                // IPv4 lives in bytes 6-7 and 9-10 (byte 8 is the reserved u-octet), NOT the low
+                // 32 bits. The first two have zero in those positions, so they embed 0.0.0.0
+                // (any-local) and block on that; the next two embed a non-routable address in the
+                // correct /48 position while carrying a *routable* suffix in the low 32 bits —
+                // reading the low bits (the old behavior) would let these through.
+                "64:ff9b:1::7f00:1", // /48 positions zero -> 0.0.0.0
+                "64:ff9b:1::a9fe:a9fe", // /48 positions zero -> 0.0.0.0
+                "64:ff9b:1:7f00:0:100:808:808", // /48 embeds 127.0.0.1; low bits 8.8.8.8
+                "64:ff9b:1:a9fe:a9:fe00:808:808", // /48 embeds 169.254.169.254; low bits 8.8.8.8
+                // The whole 64:ff9b:1::/48 prefix is blocked (Globally Reachable = False), so even a
+                // routable IPv4 in the /48 position does not make it reachable.
+                "64:ff9b:1:808:8:800::",
+                // 6to4 (RFC 3056) — embedded IPv4 sits in bytes 2-5
+                "2002:7f00:1::", // 127.0.0.1
+                "2002:a9fe:a9fe::", // 169.254.169.254
+                // IPv4-translated (RFC 2765) — 0xffff sits in bytes 8-9, not 10-11 as in mapped
+                "::ffff:0:127.0.0.1",
+                "::ffff:0:7f00:1",
+                "::ffff:0:a9fe:a9fe",
+                // ISATAP (RFC 5214) — IPv4 in the interface identifier after the 5efe marker
+                "::5efe:127.0.0.1",
+                "::0:5efe:7f00:1",
+                "2001:db8::5efe:7f00:1",
+                "2001:db8::200:5efe:a9fe:a9fe",
+                // Teredo (RFC 4380) — relay server IPv4 in bytes 4-7, client IPv4 in bytes 12-15
+                // stored as its ones-complement
+                "2001:0:7f00:1::", // server 127.0.0.1
+                "2001:0:a9fe:a9fe::", // server 169.254.169.254
+                "2001:0:0:0:0:0:80ff:fffe", // client ones-complement of 127.0.0.1
+            })
+    public void isBlockedIpAddressClass_recognizesIpv6TransitionEmbeddedNonRoutable(String host) {
+        assertTrue(
+                RestrictedHostFilter.isBlockedIpAddressClass(host),
+                "Expected transition address " + host + " to be classified by its embedded IPv4");
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                // RFC 1918 is intentionally ALLOWED (see resolveIfAllowed). Canonicalizing a
+                // zero-padded literal must not start blocking a range the filter permits — the
+                // fix normalizes these, it does not reject them.
+                "010.0.0.1",
+                "192.168.001.001",
+                "172.016.0.1",
+                // Ordinary public addresses in zero-padded form stay allowed too.
+                "008.008.008.008",
+                // A 6to4 address embedding a routable public IPv4 must remain reachable: on an
+                // IPv6-only network this is how legitimate IPv4 destinations are addressed.
+                "2002:0808:0808::",
+                "64:ff9b::808:808",
+                // NOTE: 64:ff9b:1::/48 (RFC 8215 local-use) is NOT in this allow list, even when its
+                // /48 position holds a routable IPv4 — that prefix is registered Globally Reachable =
+                // False and is blocked wholesale (see the block test below and
+                // rfc8215LocalUsePrefix_blocksEmbeddedNonRoutableRegardlessOfPosition).
+            })
+    public void isBlockedIpAddressClass_stillAllowsRoutableNonCanonicalLiterals(String host) {
+        assertFalse(
+                RestrictedHostFilter.isBlockedIpAddressClass(host),
+                "Did not expect routable literal " + host + " to be blocked");
+    }
+
+    // Regression test for a residual SSRF bypass in the 64:ff9b:1::/48 (RFC 8215 local-use)
+    // handling. It fails against the current code and should pass once the fix lands.
+    //
+    // extractEmbeddedIpv4 reads the embedded IPv4 for this prefix from one fixed position
+    // (bytes 6-7 and 9-10), and embeddedIpv4Candidates then yields only that single candidate.
+    // RFC 8215 section 5 forbids assuming the location of the embedded IPv4 in this prefix, so an
+    // internal destination placed in another valid position is never classified.
+    //
+    // 64:ff9b:1:fffe::/96 is RFC 8215 section 6's own checksum-neutral example prefix; the low 32
+    // bits below encode 127.0.0.1 and 169.254.169.254, yet the filter reads the /48 position
+    // (0xff,0xfe,0x00,0x00 = 255.254.0.0, routable) and lets them through.
+    //
+    // Fix so this passes: have the /48 handling consider every candidate position — e.g. add both
+    // the /48 bytes and the low 32 bits in embeddedIpv4Candidates and block if any is non-routable,
+    // the way Teredo already contributes two candidates — or block 64:ff9b:1::/48 wholesale
+    // (RFC 8215 marks it Globally Reachable = False).
+    @Test
+    public void rfc8215LocalUsePrefix_blocksEmbeddedNonRoutableRegardlessOfPosition() {
+        final String[] mustBlock = {
+            "64:ff9b:1:fffe:0:0:7f00:1", // low 32 bits -> 127.0.0.1
+            "64:ff9b:1:fffe:0:0:a9fe:a9fe", // low 32 bits -> 169.254.169.254 (cloud metadata)
+        };
+        for (String host : mustBlock) {
+            assertTrue(
+                    RestrictedHostFilter.isBlockedIpAddressClass(host)
+                            && RestrictedHostFilter.isLiteralBlocked(host)
+                            && RestrictedHostFilter.isDisallowedAndFail(host, null),
+                    "Expected RFC 8215 local-use encoding " + host
+                            + " to be blocked at every entry point (address-class, literal fast path, resolver hook)");
+        }
+    }
+
+    // The WebClient/HTTP path is the one the advisories exercise: isLiteralBlocked is the
+    // pre-resolver fast path and isDisallowedAndFail is the resolver hook. Drive both, not just
+    // the address-class helper they delegate to.
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "127.0.0.01",
+                "127.000.000.001",
+                "169.254.001.001",
+                "0.0.0.00",
+                // Denylist entry reachable by zero-padding its final octet
+                "168.63.129.016",
+                "::ffff:127.0.0.01",
+                "64:ff9b::7f00:1",
+                "64:ff9b::a9fe:a9fe",
+                "2002:7f00:1::",
+            })
+    public void isLiteralBlocked_blocksNonCanonicalAndTransitionLiterals(String host) {
+        assertTrue(
+                RestrictedHostFilter.isLiteralBlocked(host),
+                "Expected " + host + " to be blocked on the WebClient pre-resolver fast path");
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "127.0.0.01",
+                "127.000.000.001",
+                "169.254.001.001",
+                "0.0.0.00",
+                "168.63.129.016",
+                "::ffff:127.0.0.01",
+                "64:ff9b::7f00:1",
+                "64:ff9b::a9fe:a9fe",
+                "2002:7f00:1::",
+            })
+    public void isDisallowedAndFail_blocksNonCanonicalAndTransitionLiterals(String host) {
+        assertTrue(
+                RestrictedHostFilter.isDisallowedAndFail(host, null),
+                "Expected " + host + " to be blocked by the Netty resolver hook");
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "1.1.1.1",
+                "8.8.8.8",
+                "010.0.0.1",
+                "192.168.001.001",
+                "smtp.gmail.com",
+                // Octal-looking literals are read as decimal by both Netty and the JVM, so these dial
+                // 177.0.0.1 rather than 127.0.0.1 and are not loopback in disguise. Should any runtime
+                // ever read them as octal, the resolver hook catches the loopback address post-DNS.
+                "0177.0.0.1",
+                "0177.0.0.01",
+            })
+    public void isLiteralBlocked_stillAllowsPublicAndPrivateHosts(String host) {
+        assertFalse(RestrictedHostFilter.isLiteralBlocked(host), "Did not expect " + host + " to be blocked");
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "127.0.0.01",
+                "169.254.001.001",
+                "::ffff:127.0.0.01",
+                "64:ff9b::7f00:1",
+                "2002:7f00:1::",
+            })
+    public void isHostBlocked_blocksNonCanonicalAndTransitionLiterals(String host) {
+        assertTrue(RestrictedHostFilter.isHostBlocked(host), "Expected " + host + " to be blocked");
+    }
+
+    /**
+     * The invariant behind both advisories: whatever address the runtime would actually dial, if it
+     * is non-routable the request must not get through. Two different stages enforce that — literals
+     * Netty pre-parses are caught on the fast path, and the ones it declines (dotted-decimal
+     * shorthand, 32-bit integers) are caught after the resolver runs. Asserting the end-to-end
+     * verdict rather than the stage means dropping either half fails this test.
+     */
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                // Netty pre-parses these, so the resolver hook never sees them
+                "127.0.0.01",
+                "127.000.000.001",
+                "169.254.001.001",
+                "0.0.0.00",
+                "224.0.0.01",
+                // Netty declines these; the JVM resolver still lands on loopback
+                "2130706433",
+                "127.1",
+                "127.0.1",
+            })
+    public void blocksEveryLiteralSpellingThatResolvesToANonRoutableAddress(String literal) throws Exception {
+        final InetAddress effective = InetAddress.getByName(literal);
+        assertTrue(
+                RestrictedHostFilter.matchesBlockedAddressClass(effective),
+                "precondition: " + literal + " must resolve to a non-routable address, got "
+                        + effective.getHostAddress());
+        assertTrue(
+                RestrictedHostFilter.isLiteralBlocked(literal)
+                        || RestrictedHostFilter.isDisallowedAndFail(literal, null)
+                        || RestrictedHostFilter.isDisallowedAndFail(effective.getHostAddress(), null),
+                literal + " resolves to " + effective.getHostAddress() + " but the filter allows it");
+    }
+
     // ---------- isHostBlocked: used by the Redis plugin (GHSA-qhfj-g87x-m39w) ----------
 
     @Test

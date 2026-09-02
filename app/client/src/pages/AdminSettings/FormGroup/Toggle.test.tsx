@@ -49,6 +49,9 @@ describe("Toggle", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
+    setting.label = "test label";
+    delete setting.text;
+    delete setting.subText;
   });
 
   it("is rendered", () => {
@@ -66,5 +69,23 @@ describe("Toggle", () => {
 
     inputEl?.click();
     expect(inputEl?.checked).toEqual(false);
+  });
+
+  it("places setting text beside the switch and subtext below", () => {
+    delete setting.label;
+    setting.text = "Allow AI agents to connect";
+    setting.subText = "* Agents authenticate with per-user MCP tokens";
+
+    renderComponent();
+
+    expect(document.body.textContent).toContain("Allow AI agents to connect");
+    expect(
+      document.querySelector(
+        "[data-testid='admin-settings-form-group-subtext']",
+      )?.textContent,
+    ).toBe("* Agents authenticate with per-user MCP tokens");
+    expect(
+      document.querySelector("[data-testid='admin-settings-form-group-label']"),
+    ).toBeNull();
   });
 });
