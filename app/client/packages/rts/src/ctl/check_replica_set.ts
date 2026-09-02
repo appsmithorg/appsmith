@@ -2,12 +2,27 @@ import { MongoClient, MongoServerError } from "mongodb";
 
 import { preprocessMongoDBURI } from "./utils";
 
+/**
+ * Builds a MongoClient from a connection string, applying the same
+ * preprocessing the other ctl commands use. Does not connect.
+ */
 export function createClient(uri: string) {
   return new MongoClient(preprocessMongoDBURI(uri));
 }
 
+/**
+ * Entry point for `appsmithctl check-replica-set`. Exits 0 when the database
+ * behind APPSMITH_DB_URL is a replica set, 1 otherwise.
+ */
 export async function exec() {
-  const client = createClient(process.env.APPSMITH_DB_URL);
+  const uri = process.env.APPSMITH_DB_URL;
+
+  if (!uri) {
+    console.error("APPSMITH_DB_URL is not set");
+    process.exit(1);
+  }
+
+  const client = createClient(uri);
 
   let isReplicaSetEnabled = false;
 
