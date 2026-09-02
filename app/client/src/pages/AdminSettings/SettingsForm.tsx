@@ -31,6 +31,7 @@ import {
 } from "ee/constants/messages";
 import {
   isOrganizationConfig,
+  nestOrganizationConfigFromSettingsForm,
   saveAllowed,
 } from "ee/utils/adminSettingsHelpers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -49,7 +50,6 @@ import {
   getThirdPartyAuths,
 } from "ee/selectors/organizationSelectors";
 import { updateOrganizationConfig } from "ee/actions/organizationActions";
-import { organizationConfigConnection } from "ee/constants/organizationConstants";
 import { useIsCloudBillingEnabled } from "hooks";
 
 interface FormProps {
@@ -120,13 +120,9 @@ export function SettingsForm(
       // only organization settings
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const config: any = {};
-
-      for (const each in props.settings) {
-        if (organizationConfigConnection.includes(each)) {
-          config[each] = props.settings[each];
-        }
-      }
+      const config: any = nestOrganizationConfigFromSettingsForm(
+        props.settings,
+      );
 
       dispatch(
         updateOrganizationConfig({
@@ -219,6 +215,19 @@ export function SettingsForm(
         } else {
           props.settingsConfig[settingName] = settingsStr === "true";
         }
+      }
+    });
+
+    // A toggle/checkbox backed by an env variable that is ABSENT from the fetched settings (an env file predating
+    // it) renders from its declared default, so the UI mirrors the runtime default instead of showing unchecked.
+    _.forEach(AdminConfig.settingsMap, (setting, settingName) => {
+      if (
+        (setting.controlType == SettingTypes.TOGGLE ||
+          setting.controlType == SettingTypes.CHECKBOX) &&
+        setting.defaultValue !== undefined &&
+        props.settingsConfig[settingName] === undefined
+      ) {
+        props.settingsConfig[settingName] = setting.defaultValue;
       }
     });
     props.initialize(props.settingsConfig);
