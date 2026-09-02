@@ -463,13 +463,33 @@ class McpTokenServiceImplTest {
         mcpConfig.setEnabled(false);
         when(organizationService.getCurrentUserOrganization()).thenReturn(Mono.just(organization));
 
-        StepVerifier.create(service.authenticate(generated.token())).expectErrorSatisfies(error -> {
-            assertThat(error).isInstanceOf(AppsmithException.class);
-            assertThat(((AppsmithException) error).getError().getAppErrorCode())
-                    .isEqualTo(AppsmithError.INTERNAL_SERVER_ERROR.getAppErrorCode());
-        });
+        StepVerifier.create(service.authenticate(generated.token()))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) error).getError().getAppErrorCode())
+                            .isEqualTo(AppsmithError.INTERNAL_SERVER_ERROR.getAppErrorCode());
+                })
+                .verify();
 
         verify(mcpTokenRepository, never()).findByMcpKeyIdAndStatus(anyString(), any());
+    }
+
+    @Test
+    void should_throwError_whenMCPDisabledAndStoreHashMatchesAndUserIsEnabled() {
+        McpTokenResponseDTO generated = createToken("Claude Desktop", 30);
+        mcpConfig.setEnabled(false);
+        when(organizationService.getCurrentUserOrganization()).thenReturn(Mono.just(organization));
+
+        StepVerifier.create(service.authenticate(generated.token()))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) error).getError().getAppErrorCode())
+                            .isEqualTo(AppsmithError.INTERNAL_SERVER_ERROR.getAppErrorCode());
+                })
+                .verify();
+
+        verify(mcpTokenRepository, never()).findByMcpKeyIdAndStatus(anyString(), any());
+        verify(userRepository, never()).findById(anyString());
     }
 
     @Test
