@@ -2,14 +2,12 @@ import { MongoClient, MongoServerError } from "mongodb";
 
 import { preprocessMongoDBURI } from "./utils";
 
+export function createClient(uri: string) {
+  return new MongoClient(preprocessMongoDBURI(uri));
+}
+
 export async function exec() {
-  const client = new MongoClient(
-    preprocessMongoDBURI(process.env.APPSMITH_DB_URL),
-    {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    } as any,
-  );
+  const client = createClient(process.env.APPSMITH_DB_URL);
 
   let isReplicaSetEnabled = false;
 
