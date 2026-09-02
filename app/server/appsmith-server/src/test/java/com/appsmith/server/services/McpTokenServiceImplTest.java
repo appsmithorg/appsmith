@@ -198,12 +198,15 @@ class McpTokenServiceImplTest {
     }
 
     @Test
-    void should_rejectCreate_whenUserAlreadyHasTenLiveKeys() {
-        when(mcpKeyRepository.countByUserIdAndRevokedAtIsNull(user.getId())).thenReturn(Mono.just(10L));
+    void should_rejectCreate_whenUserAlreadyHasMaxActiveKeys() {
+        Long maxPossibleKeysPerUser = Long.valueOf(service.getMaxActiveKeysPerUser());
+        when(mcpKeyRepository.countByUserIdAndRevokedAtIsNull(user.getId()))
+                .thenReturn(Mono.just(maxPossibleKeysPerUser));
 
         StepVerifier.create(service.create(user, "Claude Desktop", 30))
-                .expectErrorSatisfies(error ->
-                        assertThat(error).isInstanceOf(AppsmithException.class).hasMessageContaining("maximum of 10"))
+                .expectErrorSatisfies(error -> assertThat(error)
+                        .isInstanceOf(AppsmithException.class)
+                        .hasMessageContaining("maximum of " + maxPossibleKeysPerUser))
                 .verify();
     }
 
