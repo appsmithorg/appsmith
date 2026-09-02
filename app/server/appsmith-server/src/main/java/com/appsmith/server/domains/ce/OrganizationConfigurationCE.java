@@ -5,6 +5,7 @@ import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.MigrationStatus;
 import com.appsmith.server.domains.AIAssistantConfig;
 import com.appsmith.server.domains.License;
+import com.appsmith.server.domains.McpConfig;
 import com.appsmith.server.domains.OrganizationConfiguration;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
@@ -28,6 +29,9 @@ public class OrganizationConfigurationCE implements Serializable {
     private Boolean isFormLoginEnabled;
 
     private Boolean isSignupDisabled;
+
+    @JsonInclude
+    private McpConfig mcpConfig;
 
     @Transient
     @Deprecated(forRemoval = true, since = "v1.65")
@@ -114,6 +118,14 @@ public class OrganizationConfigurationCE implements Serializable {
             }
             aiAssistantConfig.copyNonSensitiveValues(sourceAiConfig);
         }
+
+        McpConfig sourceMcpConfig = organizationConfiguration.getMcpConfig();
+        if (sourceMcpConfig != null) {
+            if (mcpConfig == null) {
+                mcpConfig = new McpConfig();
+            }
+            mcpConfig.copyNonSensitiveValues(sourceMcpConfig);
+        }
     }
 
     /**
@@ -126,6 +138,7 @@ public class OrganizationConfigurationCE implements Serializable {
         this.googleMapsKey = null;
         this.isSignupDisabled = null;
         this.emailVerificationEnabled = null;
+        this.mcpConfig = null;
         this.isStrongPasswordPolicyEnabled = null;
         this.isAtomicPushAllowed = null;
         this.featuresWithPendingMigration = null;

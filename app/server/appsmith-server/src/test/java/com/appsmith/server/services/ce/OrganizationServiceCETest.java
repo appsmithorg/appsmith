@@ -1,8 +1,10 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.caching.components.CacheManager;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.LicensePlan;
+import com.appsmith.server.domains.McpConfig;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -47,7 +49,10 @@ import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 class OrganizationServiceCETest {
@@ -85,7 +90,12 @@ class OrganizationServiceCETest {
     @Autowired
     ConfigService configService;
 
+    @Autowired
+    CommonConfig commonConfig;
+
     OrganizationConfiguration originalOrganizationConfiguration;
+
+    String originalMcpInternalSecret;
 
     @BeforeEach
     public void setup() throws IOException {
@@ -108,6 +118,8 @@ class OrganizationServiceCETest {
                 .findByEmail("api_user")
                 .flatMap(user -> userUtils.makeInstanceAdministrator(List.of(user)))
                 .block();
+        originalMcpInternalSecret = commonConfig.getMcpInternalSecret();
+        Mockito.when(envManager.persistMcpInternalSecret(anyString())).thenReturn(Mono.empty());
         doReturn(Mono.empty()).when(cacheManager).get(anyString(), anyString());
     }
 
@@ -122,6 +134,7 @@ class OrganizationServiceCETest {
                     System.err.println("Error during cleanup: " + error.getMessage());
                 })
                 .block();
+        commonConfig.setMcpInternalSecret(originalMcpInternalSecret);
     }
 
     @Test
@@ -276,6 +289,9 @@ class OrganizationServiceCETest {
                             .isNull();
                     assertThat(config.getIsSignupDisabled())
                             .as("isSignupDisabled must not be exposed")
+                            .isNull();
+                    assertThat(config.getMcpConfig())
+                            .as("mcpConfig must not be exposed")
                             .isNull();
                     assertThat(config.getEmailVerificationEnabled())
                             .as("emailVerificationEnabled must not be exposed")
@@ -572,6 +588,137 @@ class OrganizationServiceCETest {
                             .isFalse();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    void updateOrganizationConfiguration_enableMcp_setsInternalSecretWhenUnset() {
+        commonConfig.setMcpInternalSecret("");
+        McpConfig mcpConfig = new McpConfig();
+        mcpConfig.setEnabled(TRUE);
+        final OrganizationConfiguration changes = new OrganizationConfiguration();
+        changes.setMcpConfig(mcpConfig);
+
+        StepVerifier.create(organizationService
+                        .updateOrganizationConfiguration(changes)
+                        .map(Organization::getOrganizationConfiguration))
+                .assertNext(organizationConfiguration -> {
+                    assertThat(organizationConfiguration.getMcpConfig().getEnabled())
+                            .isTrue();
+                    assertThat(commonConfig.getMcpInternalSecret()).isNotBlank();
+                })
+                .verifyComplete();
+
+        verify(envManager).persistMcpInternalSecret(commonConfig.getMcpInternalSecret());
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    void updateOrganizationConfiguration_enableMcp_keepsExistingInternalSecret() {
+        commonConfig.setMcpInternalSecret("already-configured-secret");
+        McpConfig mcpConfig = new McpConfig();
+        mcpConfig.setEnabled(TRUE);
+        final OrganizationConfiguration changes = new OrganizationConfiguration();
+        changes.setMcpConfig(mcpConfig);
+
+        StepVerifier.create(organizationService.updateOrganizationConfiguration(changes))
+                .assertNext(organization -> {
+                    assertThat(commonConfig.getMcpInternalSecret()).isEqualTo("already-configured-secret");
+                })
+                .verifyComplete();
+
+        verify(envManager, never()).persistMcpInternalSecret(anyString());
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    void updateOrganizationConfiguration_disableMcp_unsetsInternalSecretOnSingleOrg() {
+        commonConfig.setMcpInternalSecret("secret-to-clear");
+        McpConfig mcpConfig = new McpConfig();
+        mcpConfig.setEnabled(FALSE);
+        final OrganizationConfiguration changes = new OrganizationConfiguration();
+        changes.setMcpConfig(mcpConfig);
+
+        StepVerifier.create(organizationService.updateOrganizationConfiguration(changes))
+                .assertNext(organization -> {
+                    assertThat(organization
+                                    .getOrganizationConfiguration()
+                                    .getMcpConfig()
+                                    .getEnabled())
+                            .isFalse();
+                    assertThat(commonConfig.getMcpInternalSecret()).isEmpty();
+                })
+                .verifyComplete();
+
+        verify(envManager).persistMcpInternalSecret("");
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    void updateOrganizationConfiguration_mcpFieldChangeWithoutExplicitEnabled_doesNotTouchInternalSecret() {
+        commonConfig.setMcpInternalSecret("");
+        McpConfig enable = new McpConfig();
+        enable.setEnabled(TRUE);
+        OrganizationConfiguration enableChanges = new OrganizationConfiguration();
+        enableChanges.setMcpConfig(enable);
+
+        organizationService.updateOrganizationConfiguration(enableChanges).block();
+        String secretAfterEnable = commonConfig.getMcpInternalSecret();
+        assertThat(secretAfterEnable).isNotBlank();
+        clearInvocations(envManager);
+
+        McpConfig dataOnly = new McpConfig();
+        dataOnly.setDataEnabled(TRUE);
+        OrganizationConfiguration dataChanges = new OrganizationConfiguration();
+        dataChanges.setMcpConfig(dataOnly);
+
+        StepVerifier.create(organizationService.updateOrganizationConfiguration(dataChanges))
+                .assertNext(organization -> {
+                    assertThat(organization
+                                    .getOrganizationConfiguration()
+                                    .getMcpConfig()
+                                    .getDataEnabled())
+                            .isTrue();
+                    assertThat(commonConfig.getMcpInternalSecret()).isEqualTo(secretAfterEnable);
+                })
+                .verifyComplete();
+
+        verify(envManager, never()).persistMcpInternalSecret(anyString());
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    void updateOrganizationConfiguration_invalidMcpServerUrl_returnsError() {
+        McpConfig mcpConfig = new McpConfig();
+        mcpConfig.setEnabled(TRUE);
+        mcpConfig.setServerUrl("not-a-url");
+        final OrganizationConfiguration changes = new OrganizationConfiguration();
+        changes.setMcpConfig(mcpConfig);
+
+        StepVerifier.create(organizationService.updateOrganizationConfiguration(changes))
+                .expectErrorMatches(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(error.getMessage()).contains("mcpConfig.serverUrl");
+                    return true;
+                })
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    void updateOrganizationConfiguration_dataEnabledWithoutMcp_returnsError() {
+        McpConfig mcpConfig = new McpConfig();
+        mcpConfig.setDataEnabled(TRUE);
+        final OrganizationConfiguration changes = new OrganizationConfiguration();
+        changes.setMcpConfig(mcpConfig);
+
+        StepVerifier.create(organizationService.updateOrganizationConfiguration(changes))
+                .expectErrorMatches(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(error.getMessage()).contains("mcpConfig.dataEnabled");
+                    return true;
+                })
+                .verify();
     }
 
     /**
