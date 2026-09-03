@@ -16,20 +16,36 @@ on:
         description: Base image tag to use (overrides branch-based default)
         required: false
         type: string
+      skip-tests:
+        description: Skip tests during the build (same as slash-command skip-tests)
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   resolve-params:
     runs-on: ubuntu-latest
     outputs:
       pr_number: ${{ steps.resolve.outputs.pr_number }}
+      skip_tests: ${{ steps.resolve.outputs.skip_tests }}
     steps:
-      - name: Resolve PR number
+      - name: Resolve PR number and skip-tests
         id: resolve
+        env:
+          SLASH_PR: ${{ github.event.client_payload.pull_request.number }}
+          INPUT_PR: ${{ inputs.issue_number }}
+          SLASH_SKIP_TESTS: ${{ github.event.client_payload.slash_command.args.named.skip-tests }}
+          INPUT_SKIP_TESTS: ${{ inputs.skip-tests }}
         run: |
-          if [[ -n "${{ github.event.client_payload.pull_request.number }}" ]]; then
-            echo "pr_number=${{ github.event.client_payload.pull_request.number }}" >> "$GITHUB_OUTPUT"
+          if [[ -n "$SLASH_PR" ]]; then
+            echo "pr_number=$SLASH_PR" >> "$GITHUB_OUTPUT"
           else
-            echo "pr_number=${{ inputs.issue_number }}" >> "$GITHUB_OUTPUT"
+            echo "pr_number=$INPUT_PR" >> "$GITHUB_OUTPUT"
+          fi
+          if [[ -n "$SLASH_SKIP_TESTS" ]]; then
+            echo "skip_tests=$SLASH_SKIP_TESTS" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip_tests=$INPUT_SKIP_TESTS" >> "$GITHUB_OUTPUT"
           fi
 
   notify-job-details:
@@ -44,7 +60,7 @@ jobs:
           body: |
             Deploying Your Preview: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
             Workflow: `${{ github.workflow }}`.
-            skip-tests: `${{ github.event.client_payload.slash_command.args.named.skip-tests }}`.
+            skip-tests: `${{ needs.resolve-params.outputs.skip_tests }}`.
             env: `${{ github.event.client_payload.slash_command.args.named.env }}`.
             PR: ${{ needs.resolve-params.outputs.pr_number }}.
             recreate: ${{ github.event.client_payload.slash_command.args.named.recreate }}.
@@ -58,7 +74,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ fromJSON(needs.resolve-params.outputs.pr_number) }}
-      skip-tests: ${{ github.event.client_payload.slash_command.args.named.skip-tests }}
+      skip-tests: ${{ needs.resolve-params.outputs.skip_tests }}
       is-pg-build: ${{ github.event.client_payload.pull_request.base.ref == 'pg' }}
 
   client-build:
@@ -69,7 +85,17 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ fromJSON(needs.resolve-params.outputs.pr_number) }}
-      skip-tests: ${{ github.event.client_payload.slash_command.args.named.skip-tests }}
+      skip-tests: ${{ needs.resolve-params.outputs.skip_tests }}
+
+  mcp-build:
+    needs: [resolve-params]
+    name: mcp-build
+    if: github.event.client_payload.slash_command.args.named.env != 'release'
+    uses: ./.github/workflows/mcp-build.yml
+    secrets: inherit
+    with:
+      pr: ${{ fromJSON(needs.resolve-params.outputs.pr_number) }}
+      skip-tests: ${{ needs.resolve-params.outputs.skip_tests }}
 
   rts-build:
     needs: [resolve-params]
@@ -79,7 +105,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ fromJSON(needs.resolve-params.outputs.pr_number) }}
-      skip-tests: ${{ github.event.client_payload.slash_command.args.named.skip-tests }}
+      skip-tests: ${{ needs.resolve-params.outputs.skip_tests }}
 
   vercel-build:
     needs: [resolve-params]
@@ -149,7 +175,7 @@ jobs:
             })
 
   push-image:
-    needs: [resolve-params, client-build, rts-build, server-build]
+    needs: [resolve-params, client-build, mcp-build, rts-build, server-build]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -188,6 +214,18 @@ jobs:
         with:
           name: server-build
           path: app/server/dist
+
+      - name: Download the MCP build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mcp-dist
+          path: app/client/packages/mcp/dist
+
+      - name: Untar the MCP folder
+        run: |
+          tar -xvf app/client/packages/mcp/dist/mcp-dist.tar -C app/client/packages/mcp/
+          echo "Cleaning up the MCP tar files"
+          rm app/client/packages/mcp/dist/mcp-dist.tar
 
       - name: Download the rts build artifact
         uses: actions/download-artifact@v4
