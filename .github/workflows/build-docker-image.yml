@@ -78,6 +78,19 @@ jobs:
           name: server-build
           path: app/server/dist/
 
+      - name: Download the MCP build artifact
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: mcp-dist
+          path: app/client/packages/mcp/dist
+
+      - name: Un-tar the MCP folder
+        run: |
+          tar -xvf app/client/packages/mcp/dist/mcp-dist.tar -C app/client/packages/mcp/
+          echo "Cleaning up the MCP tar files"
+          rm app/client/packages/mcp/dist/mcp-dist.tar
+
       - name: Download the rts build artifact
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/download-artifact@v4

@@ -197,8 +197,16 @@ jobs:
           path: app/client/packages/rts/rts-dist.tar
           overwrite: true
 
+  mcp-build:
+    needs:
+      - prelude
+    uses: ./.github/workflows/mcp-build.yml
+    secrets: inherit
+    with:
+      branch: ${{ github.ref }}
+
   package:
-    needs: [prelude, client-build, server-build, rts-build]
+    needs: [prelude, client-build, server-build, rts-build, mcp-build]
 
     runs-on: ubuntu-latest
     permissions:
@@ -230,6 +238,18 @@ jobs:
         with:
           name: server-build
           path: app/server/dist
+
+      - name: Download the MCP build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mcp-dist
+          path: app/client/packages/mcp/dist
+
+      - name: Untar the MCP folder
+        run: |
+          tar -xvf app/client/packages/mcp/dist/mcp-dist.tar -C app/client/packages/mcp/
+          echo "Cleaning up the MCP tar files"
+          rm app/client/packages/mcp/dist/mcp-dist.tar
 
       - name: Download the rts build artifact
         uses: actions/download-artifact@v4
