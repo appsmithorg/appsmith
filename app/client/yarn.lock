@@ -13928,7 +13928,7 @@ __metadata:
     core-js: ^3.9.1
     css-loader: ^6.5.1
     css-minimizer-webpack-plugin: ^3.2.0
-    cy-verify-downloads: ^0.0.5
+    cy-verify-downloads: ^0.3.0
     cypress: 13.13.0
     cypress-file-upload: ^4.1.1
     cypress-log-to-output: ^1.1.2
@@ -17250,10 +17250,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cy-verify-downloads@npm:^0.0.5":
-  version: 0.0.5
-  resolution: "cy-verify-downloads@npm:0.0.5"
-  checksum: 5f5ad9f3a3b03fb3bfaabd337d6d27cf5c5aad8ce33da9216b5e6d56ea4a37a38a7b725473c39d74776e45e52bb13f0575cd61c537bc5e01d1c56a584792fcbb
+"cy-verify-downloads@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "cy-verify-downloads@npm:0.3.0"
+  checksum: f898e6f5d8fb0a5a110d78c89a09910eb89a7720172694912126b4bff6ddeeaacc9dad8f6d864503898c335705c88b50e3b484ed53b33adf73c9084a5542a8f7
   languageName: node
   linkType: hard
 
