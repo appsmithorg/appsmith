@@ -17,7 +17,7 @@
     "@capsizecss/core": "^3.1.1",
     "@capsizecss/metrics": "^1.2.0",
     "@emotion/css": "^11.13.0",
-    "colorjs.io": "^0.5.2",
+    "colorjs.io": "^0.7.1",
     "lodash": ">=4.17.21"
   }
 }
