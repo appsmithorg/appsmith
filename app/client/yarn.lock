@@ -14053,7 +14053,7 @@ __metadata:
     react-documents: ^1.0.4
     react-dom: ^17.0.2
     react-full-screen: ^1.1.0
-    react-google-recaptcha: ^2.1.0
+    react-google-recaptcha: ^3.1.0
     react-helmet: ^5.2.1
     react-hook-form: ^7.28.0
     react-is: ^16.12.0
@@ -30007,7 +30007,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-async-script@npm:^1.1.1":
+"react-async-script@npm:^1.2.0":
   version: 1.2.0
   resolution: "react-async-script@npm:1.2.0"
   dependencies:
@@ -30291,15 +30291,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-google-recaptcha@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "react-google-recaptcha@npm:2.1.0"
+"react-google-recaptcha@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "react-google-recaptcha@npm:3.1.0"
   dependencies:
     prop-types: ^15.5.0
-    react-async-script: ^1.1.1
+    react-async-script: ^1.2.0
   peerDependencies:
     react: ">=16.4.1"
-  checksum: f4f4d248eb95ebfab8db73199e3ca402acf7abec873c616c12fd113c635657df6d844890ef7e7dfe4cb2563302e910dbce54d44404af93863336786dd29e8efa
+  checksum: 9dc64daf9684d979b1f66d97e00a42c9ceaa9b9fe8b29c4d02d77edf86781e2008f2ae1bef14509351ff3b2ffbcc26463f0d88dd612d7280b455b8c07101e663
   languageName: node
   linkType: hard
 
