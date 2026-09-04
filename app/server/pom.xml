@@ -43,7 +43,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <mockito.version>4.4.0</mockito.version>
-        <mockwebserver.version>5.0.0-alpha.2</mockwebserver.version>
+        <mockwebserver.version>5.5.0</mockwebserver.version>
         <!-- Pinned above the Spring Boot BOM default for CVE-2026-42583/42579/42584/42587/33870/33871/44249/45416/50010/45674/47691
              and CVE-2026-55831/55833/55851/56745/56746/59898/59899/59900/59901/59919/59921 -->
         <netty.version>4.1.136.Final</netty.version>
