@@ -3444,10 +3444,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@faker-js/faker@npm:^7.4.0":
-  version: 7.4.0
-  resolution: "@faker-js/faker@npm:7.4.0"
-  checksum: 1acebb84bfb142c08e6ba2942910d16bd92ea147fa585fa2fa9ce9983f7a8c7c016002beb7fc20ef6f7aef6c4ae9cb3fa680b275823402e34802b8489d2b980d
+"@faker-js/faker@npm:^10.5.0":
+  version: 10.5.0
+  resolution: "@faker-js/faker@npm:10.5.0"
+  checksum: 8f9beff2475ee57e83abd0a0e450c9587638c49d012e56fbf86e6a56bbcaef340eabd83d868b339c37163cea90e3aca33f585f3078f7126f90d7417ce903b5e7
   languageName: node
   linkType: hard
 
@@ -13802,7 +13802,7 @@ __metadata:
     "@blueprintjs/select": ^3.10.0
     "@cypress/grep": ^4.0.1
     "@design-system/widgets-old": "workspace:^"
-    "@faker-js/faker": ^7.4.0
+    "@faker-js/faker": ^10.5.0
     "@floating-ui/dom": ^1.6.4
     "@floating-ui/react": ^0.26.24
     "@github/g-emoji-element": ^1.1.5
