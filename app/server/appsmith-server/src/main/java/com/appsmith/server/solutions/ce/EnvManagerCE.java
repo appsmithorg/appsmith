@@ -11,6 +11,12 @@ import java.util.Map;
 
 public interface EnvManagerCE {
 
+    /**
+     * Placeholder returned in place of secret-classified env values by the admin read-back API.
+     * A submitted value carrying this placeholder means "leave the stored value unchanged".
+     */
+    String MASKED_SECRET = "********";
+
     Mono<List<String>> transformEnvContent(String envContent, Map<String, String> changes);
 
     Mono<Void> applyChanges(Map<String, String> changes, String originHeader);

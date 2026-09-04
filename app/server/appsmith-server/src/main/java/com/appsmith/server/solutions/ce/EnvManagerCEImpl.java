@@ -136,6 +136,35 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     private static final Set<String> VARIABLE_WHITELIST =
             Stream.of(EnvVariables.values()).map(Enum::name).collect(Collectors.toUnmodifiableSet());
 
+    /**
+     * Secret-bearing variables whose names don't self-describe as secrets. Everything matching
+     * the name pattern in {@link #isSecretEnvVar(String)} is masked without being listed here.
+     * The SMTP username is deliberately NOT here: admins need to see which account is
+     * configured, and a username is identifying, not authenticating.
+     */
+    private static final Set<String> EXPLICIT_SECRET_ENV_VARS =
+            Set.of(EnvVariables.APPSMITH_DB_URL.name(), EnvVariables.APPSMITH_REDIS_URL.name());
+
+    /**
+     * Derived, read-only connection summaries added to the admin settings response in place of
+     * the (masked) DB/Redis URLs. Computed from the URLs the server process actually runs with
+     * ({@code appsmith.db.url} / {@code appsmith.redis.url}), not from docker.env — which can
+     * hold generated credentials that aren't in use when the deployment overrides these via
+     * real environment variables.
+     */
+    public static final String DB_CONNECTION_INFO_KEY = "APPSMITH_DB_CONNECTION_INFO";
+
+    public static final String REDIS_CONNECTION_INFO_KEY = "APPSMITH_REDIS_CONNECTION_INFO";
+
+    /**
+     * Value reported when the connection targets the services running inside the Appsmith
+     * container. Uses the same host heuristic as the container entrypoint's {@code isUriLocal}
+     * check, which decides whether the embedded MongoDB/Redis are started at all.
+     */
+    public static final String EMBEDDED_CONNECTION = "embedded";
+
+    private static final Set<String> EMBEDDED_HOSTS = Set.of("localhost", "127.0.0.1");
+
     public EnvManagerCEImpl(
             SessionUserService sessionUserService,
             UserService userService,
@@ -389,6 +418,16 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         // Create a copy of the changes map to avoid modifying the original map and avoiding unsupported ops exception
         // if the map is unmodifiable
         Map<String, String> envChanges = new HashMap<>(changes);
+        // The admin read-back API masks secret values, and clients echo untouched fields back on
+        // save — a secret-classified value carrying the mask means "leave the stored value
+        // unchanged". Matching on contains (not equals) so a part-edited masked field can never
+        // corrupt the stored value. Scoped to secret keys: non-secret values are returned raw,
+        // so a mask string in one is genuine user input and must be persisted.
+        envChanges
+                .entrySet()
+                .removeIf(entry -> isSecretEnvVar(entry.getKey())
+                        && entry.getValue() != null
+                        && entry.getValue().contains(MASKED_SECRET));
         return verifyCurrentUserIsSuper()
                 .flatMap(user -> validateChanges(user, envChanges).thenReturn(user))
                 .flatMap(user -> applyChangesToEnvFileWithoutAclCheck(envChanges)
@@ -749,8 +788,86 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return Mono.just(parseToMap(originalContent));
     }
 
+    private static void putConnectionInfo(Map<String, String> map, String key, String url) {
+        List<String> hosts = extractHosts(url);
+        if (hosts.isEmpty()) {
+            return;
+        }
+        boolean embedded = hosts.stream().allMatch(host -> EMBEDDED_HOSTS.contains(host.toLowerCase()));
+        map.put(key, embedded ? EMBEDDED_CONNECTION : String.join(", ", hosts));
+    }
+
     /**
-     * A filter function on getAll that returns env variables which are having non-empty values
+     * Extracts the hostname(s) from a connection URL, and nothing else — no credentials, port,
+     * database, or query parameters. Handles the multi-host authority MongoDB replica-set URLs
+     * use ({@code host1:27017,host2:27017}), which {@link java.net.URI} cannot parse, as well as
+     * {@code mongodb+srv} and bracketed IPv6 hosts.
+     */
+    static List<String> extractHosts(String url) {
+        if (!StringUtils.hasText(url)) {
+            return List.of();
+        }
+        String rest = url;
+        final int schemeIndex = rest.indexOf("://");
+        if (schemeIndex >= 0) {
+            rest = rest.substring(schemeIndex + 3);
+        }
+        // Drop the userinfo before locating the authority end: non-conforming URLs can carry
+        // unencoded '/', '?', or '@' inside the credentials, and truncating first would cut
+        // mid-credential and surface a credential fragment as a "host". Searching the full
+        // remainder can overshoot into a query value containing '@' — that worst case shows a
+        // bogus host, never credential material, which is the failure direction this helper
+        // must guarantee.
+        final int userInfoIndex = rest.lastIndexOf('@');
+        if (userInfoIndex >= 0) {
+            rest = rest.substring(userInfoIndex + 1);
+        }
+        int authorityEnd = rest.length();
+        for (final char delimiter : new char[] {'/', '?'}) {
+            final int index = rest.indexOf(delimiter);
+            if (index >= 0 && index < authorityEnd) {
+                authorityEnd = index;
+            }
+        }
+        final String authority = rest.substring(0, authorityEnd);
+        final List<String> hosts = new ArrayList<>();
+        for (final String part : authority.split(",")) {
+            String host = part.trim();
+            if (host.startsWith("[")) {
+                final int closeIndex = host.indexOf(']');
+                host = closeIndex > 0 ? host.substring(1, closeIndex) : host.substring(1);
+            } else {
+                final int colonIndex = host.indexOf(':');
+                if (colonIndex >= 0) {
+                    host = host.substring(0, colonIndex);
+                }
+            }
+            if (!host.isEmpty()) {
+                hosts.add(host);
+            }
+        }
+        return hosts;
+    }
+
+    /**
+     * Whether an env variable's value is credential material that must never be returned to a
+     * client — not even a super-admin. Matches an explicit list plus a name pattern (contains
+     * SECRET, or ends with _PASSWORD / _TOKEN), so future secret-bearing variables are masked
+     * without anyone having to remember a list.
+     */
+    protected boolean isSecretEnvVar(String name) {
+        return EXPLICIT_SECRET_ENV_VARS.contains(name)
+                || name.contains("SECRET")
+                || name.endsWith("_PASSWORD")
+                || name.endsWith("_TOKEN");
+    }
+
+    /**
+     * A filter function on getAll that returns env variables which are having non-empty values.
+     * Values of secret-classified variables (see {@link #isSecretEnvVar(String)}) are replaced
+     * with {@link #MASKED_SECRET}: this is the read path behind the admin settings API, and
+     * credential material must never leave the server. Internal callers that need real values
+     * must use {@link #getAll()} or {@link #getAllWithoutAclCheck()}.
      */
     @Override
     public Mono<Map<String, String>> getAllNonEmpty() {
@@ -763,9 +880,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             blacklistedEnvVariableHelper.getBlacklistedEnvVariableForAppsmithCloud(organizationId);
                     for (Map.Entry<String, String> entry : map.entrySet()) {
                         if (StringUtils.hasText(entry.getValue()) && !blacklistedEnvVariable.contains(entry.getKey())) {
-                            nonEmptyValuesMap.put(entry.getKey(), entry.getValue());
+                            nonEmptyValuesMap.put(
+                                    entry.getKey(), isSecretEnvVar(entry.getKey()) ? MASKED_SECRET : entry.getValue());
                         }
                     }
+                    putConnectionInfo(nonEmptyValuesMap, DB_CONNECTION_INFO_KEY, commonConfig.getDbUrl());
+                    putConnectionInfo(nonEmptyValuesMap, REDIS_CONNECTION_INFO_KEY, commonConfig.getRedisUrl());
                     return Mono.just(nonEmptyValuesMap);
                 });
     }
@@ -952,43 +1072,59 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         };
     }
 
+    /**
+     * The admin settings form is populated from the masked read-back API, so an untouched
+     * password field arrives here carrying {@link #MASKED_SECRET}. Resolve it to the stored
+     * value server-side; a freshly typed (unsaved) password is passed through as-is.
+     */
+    private Mono<Void> resolveMaskedTestEmailCredentials(TestEmailConfigRequestDTO requestDTO) {
+        if (!MASKED_SECRET.equals(requestDTO.getPassword())) {
+            return Mono.empty();
+        }
+        return getAllWithoutAclCheck()
+                .doOnNext(storedEnv -> requestDTO.setPassword(storedEnv.get(APPSMITH_MAIL_PASSWORD.name())))
+                .then();
+    }
+
     @Override
     public Mono<Boolean> sendTestEmail(TestEmailConfigRequestDTO requestDTO) {
-        return verifyCurrentUserIsSuper().flatMap(user -> {
-            if (!ALLOWED_SMTP_PORTS.contains(requestDTO.getSmtpPort())) {
-                return Mono.error(
-                        new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP configuration."));
-            }
+        return verifyCurrentUserIsSuper()
+                .flatMap(user -> resolveMaskedTestEmailCredentials(requestDTO).thenReturn(user))
+                .flatMap(user -> {
+                    if (!ALLOWED_SMTP_PORTS.contains(requestDTO.getSmtpPort())) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP configuration."));
+                    }
 
-            var resolvedAddress = RestrictedHostFilter.resolveIfAllowed(requestDTO.getSmtpHost());
-            if (resolvedAddress.isEmpty()) {
-                return Mono.error(
-                        new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP configuration."));
-            }
+                    var resolvedAddress = RestrictedHostFilter.resolveIfAllowed(requestDTO.getSmtpHost());
+                    if (resolvedAddress.isEmpty()) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.GENERIC_BAD_REQUEST, "Invalid SMTP configuration."));
+                    }
 
-            JavaMailSenderImpl mailSender = buildMailSender(requestDTO, resolvedAddress.get());
+                    JavaMailSenderImpl mailSender = buildMailSender(requestDTO, resolvedAddress.get());
 
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(requestDTO.getFromEmail());
-            message.setTo(user.getEmail());
-            message.setSubject("Test email from Appsmith");
-            message.setText(
-                    "This is a test email from Appsmith, initiated from Admin Settings page. If you are seeing this, your email configuration is working!\n");
+                    SimpleMailMessage message = new SimpleMailMessage();
+                    message.setFrom(requestDTO.getFromEmail());
+                    message.setTo(user.getEmail());
+                    message.setSubject("Test email from Appsmith");
+                    message.setText(
+                            "This is a test email from Appsmith, initiated from Admin Settings page. If you are seeing this, your email configuration is working!\n");
 
-            try {
-                mailSender.testConnection();
-            } catch (MessagingException e) {
-                log.error("SMTP test-connection failed for host {}", requestDTO.getSmtpHost(), e);
-                return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, SMTP_GENERIC_ERROR));
-            }
+                    try {
+                        mailSender.testConnection();
+                    } catch (MessagingException e) {
+                        log.error("SMTP test-connection failed for host {}", requestDTO.getSmtpHost(), e);
+                        return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, SMTP_GENERIC_ERROR));
+                    }
 
-            try {
-                mailSender.send(message);
-            } catch (MailException mailException) {
-                log.error("failed to send test email", mailException);
-                return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, SMTP_GENERIC_ERROR));
-            }
-            return Mono.just(TRUE);
-        });
+                    try {
+                        mailSender.send(message);
+                    } catch (MailException mailException) {
+                        log.error("failed to send test email", mailException);
+                        return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, SMTP_GENERIC_ERROR));
+                    }
+                    return Mono.just(TRUE);
+                });
     }
 }
