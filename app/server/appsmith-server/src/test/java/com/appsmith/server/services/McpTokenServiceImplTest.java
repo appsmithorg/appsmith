@@ -476,6 +476,23 @@ class McpTokenServiceImplTest {
     }
 
     @Test
+    void should_throwError_whenMCPDisabledAndStoreHashMatches() {
+        McpTokenResponseDTO generated = createToken("Claude Desktop", 30);
+        when(mcpTokenCache.get(generated.id())).thenReturn(Mono.empty());
+        when(mcpTokenRepository.findByMcpKeyIdAndStatus(generated.id(), McpTokenStatus.ACTIVE))
+                .thenReturn(Flux.just(persistedToken));
+        when(userRepository.findById(user.getId())).thenReturn(Mono.just(user));
+        mcpConfig.setEnabled(false);
+        when(organizationService.getCurrentUserOrganization()).thenReturn(Mono.just(organization));
+
+        StepVerifier.create(service.authenticate(generated.token())).expectErrorSatisfies(error -> {
+            assertThat(error).isInstanceOf(AppsmithException.class);
+            assertThat(((AppsmithException) error).getError().getAppErrorCode())
+                    .isEqualTo(AppsmithError.INTERNAL_SERVER_ERROR.getAppErrorCode());
+        });
+    }
+
+    @Test
     void should_fallBackToStoreAndRefillCache_whenCacheMisses() {
         McpTokenResponseDTO generated = createToken("Claude Desktop", 30);
         when(mcpTokenCache.get(generated.id())).thenReturn(Mono.empty());
