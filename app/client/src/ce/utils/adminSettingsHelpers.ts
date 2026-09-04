@@ -8,6 +8,7 @@ import {
   ADMIN_SETTINGS_CATEGORY_PROFILE_PATH,
 } from "constants/routes";
 import type { User } from "constants/userConstants";
+import set from "lodash/set";
 
 /* settings is the updated & unsaved settings on Admin settings page */
 export const saveAllowed = (
@@ -63,10 +64,78 @@ export const getLoginUrl = (method: string): string => {
   return urls[method];
 };
 
+const MCP_CONFIG_FORM_PREFIX = "mcpConfig.";
+
 export const isOrganizationConfig = (name: string): boolean => {
   const fields: string[] = organizationConfigConnection;
 
-  return fields.includes(name);
+  return fields.includes(name) || name.startsWith(MCP_CONFIG_FORM_PREFIX);
+};
+
+export const flattenOrganizationConfigForSettingsForm = (
+  organizationConfiguration?: Record<string, unknown> | null,
+): Record<string, unknown> => {
+  const configs: Record<string, unknown> = {};
+
+  if (!organizationConfiguration) {
+    return configs;
+  }
+
+  organizationConfigConnection.forEach((key: string) => {
+    if (key === "mcpConfig") {
+      const mcpConfig = organizationConfiguration.mcpConfig;
+
+      if (mcpConfig && typeof mcpConfig === "object") {
+        const mcp = mcpConfig as Record<string, unknown>;
+        const enabled = mcp.enabled === true;
+        const dataEnabled = mcp.dataEnabled === true;
+
+        // Nested paths first: redux-form Field names like "mcpConfig.enabled" use lodash path get.
+        // Dotted keys second: settingsMap / settingsConfig[id] lookups. lodash.set skips nesting
+        // when the dotted own-property already exists.
+        set(configs, "mcpConfig.enabled", enabled);
+        set(configs, "mcpConfig.dataEnabled", dataEnabled);
+        configs["mcpConfig.enabled"] = enabled;
+        configs["mcpConfig.dataEnabled"] = dataEnabled;
+
+        if (typeof mcp.serverUrl === "string") {
+          set(configs, "mcpConfig.serverUrl", mcp.serverUrl);
+          configs["mcpConfig.serverUrl"] = mcp.serverUrl;
+        }
+      }
+
+      return;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(organizationConfiguration, key)) {
+      configs[key] = organizationConfiguration[key];
+    }
+  });
+
+  return configs;
+};
+
+export const nestOrganizationConfigFromSettingsForm = (
+  settings: Record<string, unknown>,
+): Record<string, unknown> => {
+  const config: Record<string, unknown> = {};
+  const mcpConfig: Record<string, unknown> = {};
+  let hasMcpConfig = false;
+
+  for (const each in settings) {
+    if (each.startsWith(MCP_CONFIG_FORM_PREFIX)) {
+      hasMcpConfig = true;
+      mcpConfig[each.slice(MCP_CONFIG_FORM_PREFIX.length)] = settings[each];
+    } else if (organizationConfigConnection.includes(each)) {
+      config[each] = settings[each];
+    }
+  }
+
+  if (hasMcpConfig) {
+    config.mcpConfig = mcpConfig;
+  }
+
+  return config;
 };
 
 export const getWrapperCategory = (
