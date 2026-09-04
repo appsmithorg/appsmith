@@ -15,6 +15,7 @@ import io.micrometer.observation.ObservationRegistry;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import org.junit.jupiter.api.Test;
 import org.mariadb.r2dbc.MariadbConnectionConfiguration;
+import org.mariadb.r2dbc.util.HostAddress;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -206,6 +207,37 @@ public class MySQLDatasourceValidationTest {
         assertNull(options.getValue(PROTOCOL));
         assertDoesNotThrow(
                 () -> MariadbConnectionConfiguration.fromOptions(options).build());
+    }
+
+    @Test
+    public void testStoredPoolUrlIsCompatibleWithMariaDbDriver() {
+        DatasourceConfiguration dsConfig = getDatasourceConfigurationWithStandardConnectionMethod();
+        dsConfig.setEndpoints(List.of());
+        dsConfig.setUrl("r2dbc:pool:mariadb://mysqlHost:3306/dbname");
+        ConnectionFactoryOptions options =
+                MySqlDatasourceUtils.getBuilder(dsConfig, null).build();
+
+        MariadbConnectionConfiguration configuration = assertDoesNotThrow(
+                () -> MariadbConnectionConfiguration.fromOptions(options).build());
+        assertEquals("mariadb", options.getValue(DRIVER));
+        assertNull(options.getValue(PROTOCOL));
+        assertEquals(List.of(new HostAddress("mysqlHost", 3306)), configuration.getHostAddresses());
+    }
+
+    @Test
+    public void testMultipleEndpointsAreCompatibleWithMariaDbDriver() {
+        DatasourceConfiguration dsConfig = getDatasourceConfigurationWithStandardConnectionMethod();
+        dsConfig.setEndpoints(List.of(new Endpoint("primaryHost", 3306L), new Endpoint("replicaHost", 3307L)));
+        ConnectionFactoryOptions options =
+                MySqlDatasourceUtils.getBuilder(dsConfig, null).build();
+
+        MariadbConnectionConfiguration configuration = assertDoesNotThrow(
+                () -> MariadbConnectionConfiguration.fromOptions(options).build());
+        assertEquals("mariadb", options.getValue(DRIVER));
+        assertNull(options.getValue(PROTOCOL));
+        assertEquals(
+                List.of(new HostAddress("primaryHost", 3306), new HostAddress("replicaHost", 3307)),
+                configuration.getHostAddresses());
     }
 
     @Test

@@ -87,11 +87,6 @@
         <dependency>
             <groupId>io.r2dbc</groupId>
             <artifactId>r2dbc-pool</artifactId>
-            <!--
-                Please be careful when upgrading package version from 0.8.x to 0.9.x or higher since 0.9.x version
-                seems incompatible with r2dbc-mysql version 0.8.2.RELEASE because 0.9.x version contains a higher
-                version of one of the dependent packages (not able to remember the name of the package at the moment)
-            -->
             <version>0.8.8.RELEASE</version>
             <exclusions>
                 <exclusion>
