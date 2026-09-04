@@ -1,0 +1,141 @@
+name: Merge gate
+
+# Single required status context (`ci/merge-gate`) that both internal and fork
+# PRs to `release` can satisfy. Branch protection on `release` requires
+# `ci/merge-gate`; the per-flow checks it aggregates (qc-result,
+# `perform-test / ci-test-result`, external-ci-result, approved Cypress) are no
+# longer individually required — each PR type only ever produces one of the two
+# sets, and a raw required context that is skipped/absent on the other type
+# stays "Expected" forever and blocks the merge (this is exactly the bug that
+# left fork PRs unmergeable after the external-contributor flow shipped).
+#
+# Ownership of the write is split by which flow knows the PR head SHA:
+#   - Internal PRs: THIS workflow, triggered by the internal PR workflows'
+#     completion (their head_sha is the PR head).
+#   - Fork PRs: build-client-server.yml sets `ci/merge-gate` on `/approve-ci`,
+#     where the approved head SHA is known. This workflow skips forks.
+# A PR is exactly one of the two, so the context is written by exactly one path
+# and the two setters never race.
+#
+# Security: this workflow never checks out or runs PR code — it only calls the
+# GitHub API — and runs from the default branch in the base-repo context, so
+# holding `statuses: write` is safe even when the associated PR is from a fork.
+
+on:
+  workflow_run:
+    workflows:
+      - "Quality checks"
+      - "PR Automation test suite"
+    types: [completed]
+
+permissions:
+  contents: read
+  checks: read
+  pull-requests: read
+  statuses: write
+
+concurrency:
+  # Serialize evaluations per head SHA so concurrent triggers don't race on the
+  # commit-status write; queue rather than cancel so the latest state wins.
+  group: merge-gate-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Evaluate internal merge gate
+        uses: actions/github-script@v7
+        env:
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        with:
+          script: |
+            const GATE = "ci/merge-gate";
+            const { owner, repo } = context.repo;
+            const sha = process.env.HEAD_SHA;
+            if (!sha) {
+              core.info("No head SHA on the triggering run; skipping.");
+              return;
+            }
+
+            // Resolve the open PR whose head is this SHA.
+            const assoc = await github.paginate(
+              github.rest.repos.listPullRequestsAssociatedWithCommit,
+              { owner, repo, commit_sha: sha, per_page: 100 },
+            );
+            const pr =
+              assoc.find((p) => p.state === "open" && p.head.sha === sha) ??
+              assoc.find((p) => p.state === "open");
+            if (!pr) {
+              core.info(`No open PR found for ${sha}; skipping.`);
+              return;
+            }
+
+            // Only gate PRs targeting release — the branch whose protection
+            // requires ci/merge-gate.
+            if (pr.base.ref !== "release") {
+              core.info(`PR #${pr.number} targets ${pr.base.ref}, not release; skipping.`);
+              return;
+            }
+
+            // Fork PRs get ci/merge-gate from build-client-server.yml on
+            // /approve-ci; this workflow owns internal PRs only.
+            if (pr.head.repo.full_name !== `${owner}/${repo}`) {
+              core.info(`PR #${pr.number} is a fork; build-client-server.yml owns its status. Skipping.`);
+              return;
+            }
+
+            // Read the latest run of each required internal check on the head SHA.
+            const checks = await github.paginate(github.rest.checks.listForRef, {
+              owner,
+              repo,
+              ref: sha,
+              per_page: 100,
+            });
+            const latest = new Map();
+            for (const c of checks) {
+              const prev = latest.get(c.name);
+              if (!prev || new Date(c.started_at ?? 0) >= new Date(prev.started_at ?? 0)) {
+                latest.set(c.name, c);
+              }
+            }
+            // A skipped/neutral required check means "not satisfied yet" (e.g. an
+            // internal PR without ok-to-test never ran Cypress) — treat as
+            // pending so the gate blocks, matching pre-existing behavior.
+            const outcome = (name) => {
+              const c = latest.get(name);
+              if (!c || c.status !== "completed") return "pending";
+              if (c.conclusion === "success") return "success";
+              if (c.conclusion === "skipped" || c.conclusion === "neutral") return "pending";
+              return "failure";
+            };
+
+            const parts = {
+              "qc-result": outcome("qc-result"),
+              "perform-test / ci-test-result": outcome("perform-test / ci-test-result"),
+            };
+            const failed = Object.entries(parts).filter(([, v]) => v === "failure").map(([k]) => k);
+            const pending = Object.entries(parts).filter(([, v]) => v === "pending").map(([k]) => k);
+
+            let state, description;
+            if (failed.length) {
+              state = "failure";
+              description = `Failed: ${failed.join(", ")}`.slice(0, 140);
+            } else if (pending.length) {
+              state = "pending";
+              description = `Waiting: ${pending.join(", ")}`.slice(0, 140);
+            } else {
+              state = "success";
+              description = "Quality checks + Cypress passed";
+            }
+
+            core.info(`Setting ${GATE}=${state} on ${sha} for internal PR #${pr.number} (${description})`);
+            await github.rest.repos.createCommitStatus({
+              owner,
+              repo,
+              sha,
+              state,
+              context: GATE,
+              description,
+              target_url: `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`,
+            });
