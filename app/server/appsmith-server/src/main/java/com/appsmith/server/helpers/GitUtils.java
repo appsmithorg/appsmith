@@ -34,10 +34,12 @@ public class GitUtils {
             Pattern.compile("^ssh://([a-z_][\\w-]+@)?(?<host>[\\w-.]+)(:(?<port>\\d*))?/+(?<path>.+?)(\\.git)?$");
 
     /**
-     * Pattern for validating the ssh address if it strictly doesn't start with a scheme
+     * Pattern for validating the ssh address if it strictly doesn't start with a scheme (SCP-like).
      * username can start with any small alphabet or a _ underscore
-     * hostname can have all alphanumerics, -, and .  e.g. ssh://_ab-xy@ab-12.ab:/v3/newJet/ai/zilla.git
-     * the port number could be not present as well. e.g. ssh://_ab-xy@domain.com:/v3/newJet/ai/zilla
+     * hostname can have all alphanumerics, -, and .  e.g. _ab-xy@ab-12.ab:v3/newJet/ai/zilla.git
+     * Per Git, SCP-like syntax is user@host:path and does not support a custom port; a leading
+     * numeric segment (e.g. git@host:2222/user/repo.git) is part of the path. Custom SSH ports
+     * require the ssh:// form matched by {@link #URL_PATTERN_WITH_SCHEME}.
      */
     public static final Pattern URL_PATTERN_WITHOUT_SCHEME =
             Pattern.compile("^[a-z_][\\w-]+@(?<host>[\\w-.]+):/*(?<path>.+?)(\\.git)?$");
