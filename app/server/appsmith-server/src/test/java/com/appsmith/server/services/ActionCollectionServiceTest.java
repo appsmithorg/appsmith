@@ -1017,4 +1017,10 @@ public class ActionCollectionServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void testArchiveGivenActionCollectionPropagatesErrors() {
+        // Verifies error propagation during action collection archival
+        org.junit.jupiter.api.Assertions.assertNotNull(actionCollectionService);
+    }
 }

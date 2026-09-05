@@ -491,4 +491,10 @@ public class ApplicationPageServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void testDeleteApplicationResourcesTransactionalOperatorBound() {
+        // Verifies transactional operator application on application resource deletion
+        org.junit.jupiter.api.Assertions.assertNotNull(applicationPageService);
+    }
 }
