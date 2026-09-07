@@ -2,6 +2,7 @@ import { Severity } from "entities/AppsmithConsole";
 import type { LintError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { isUndefined } from "lodash";
+import { LINT_BINDING_LITERAL_MATCH_ERROR_CODE } from "plugins/Linting/constants";
 import type { DebuggerLog, DebuggerLogItem } from "../../types";
 import { DebuggerLogType } from "../../types";
 
@@ -22,18 +23,27 @@ import { DebuggerLogType } from "../../types";
  */
 export const LINT_BINDING_PREFIX_LENGTH = 128;
 
-export function getLintBindingPrefix(js: string): string {
+export type LintBindingPrefix = {
+  value: string;
+  /** When true, getLintAnnotations uses indexOf instead of \b-anchored regex. */
+  useLiteralMatch: boolean;
+};
+
+export function getLintBindingPrefix(js: string): LintBindingPrefix {
   if (!js) {
-    return " ";
+    return { value: " ", useLiteralMatch: false };
   }
 
   let prefix = js.slice(0, LINT_BINDING_PREFIX_LENGTH);
+  let useLiteralMatch = false;
 
   /*
    * buildBoundaryRegex wraps each word in \b...\b. If we truncate mid-word, the
    * trailing \b no longer matches at index 0 (the next character is still a word
    * char), getKeyPositionInString returns no positions, and underlines disappear.
    * Trim back to a non-word boundary when the source continues with a word char.
+   * If the whole prefix is one word (nothing to trim), keep the bounded slice and
+   * opt into literal (indexOf) matching instead of restoring a mid-word \b prefix.
    */
   if (
     js.length > LINT_BINDING_PREFIX_LENGTH &&
@@ -42,10 +52,14 @@ export function getLintBindingPrefix(js: string): string {
   ) {
     const trimmed = prefix.replace(/\w+$/, "");
 
-    prefix = trimmed.length > 0 ? trimmed : prefix;
+    if (trimmed.length > 0) {
+      prefix = trimmed;
+    } else {
+      useLiteralMatch = true;
+    }
   }
 
-  return prefix;
+  return { value: prefix, useLiteralMatch };
 }
 
 export function mapCompileErrorsToLintErrors(
@@ -56,7 +70,7 @@ export function mapCompileErrorsToLintErrors(
     return [];
   }
 
-  const bindingPrefix = getLintBindingPrefix(js);
+  const { useLiteralMatch, value: bindingPrefix } = getLintBindingPrefix(js);
 
   return debuggerLogs
     .filter((d) => d.type === DebuggerLogType.ERROR)
@@ -76,7 +90,7 @@ export function mapCompileErrorsToLintErrors(
       errorSegment: bindingPrefix,
       originalBinding: bindingPrefix,
       variables: [],
-      code: "",
+      code: useLiteralMatch ? LINT_BINDING_LITERAL_MATCH_ERROR_CODE : "",
       line: d.line ? d.line - 1 : 1,
       ch: d.column ? d.column + 2 : 1,
     }));
