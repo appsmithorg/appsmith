@@ -21,6 +21,11 @@ on:
         description: "Branch to build when pr is 0"
         required: false
         type: string
+      checkout-ref:
+        description: "Immutable commit SHA to checkout for an approved external PR"
+        required: false
+        type: string
+        default: ""
 
   pull_request:
     branches: [release, master]
@@ -44,7 +49,7 @@ jobs:
       github.event_name == 'release'
     steps:
       - name: Checkout the merged pull-request commit
-        if: inputs.pr != 0
+        if: inputs.checkout-ref == '' && inputs.pr != 0
         uses: actions/checkout@v4
         with:
           fetch-tags: true
@@ -52,7 +57,7 @@ jobs:
           ref: refs/pull/${{ inputs.pr }}/merge
 
       - name: Checkout the specified branch
-        if: inputs.pr == 0 && inputs.branch != ''
+        if: inputs.checkout-ref == '' && inputs.pr == 0 && inputs.branch != ''
         uses: actions/checkout@v4
         with:
           fetch-tags: true
@@ -60,11 +65,19 @@ jobs:
           ref: ${{ inputs.branch }}
 
       - name: Checkout the head commit
-        if: inputs.pr == 0 && inputs.branch == ''
+        if: inputs.checkout-ref == '' && inputs.pr == 0 && inputs.branch == ''
         uses: actions/checkout@v4
         with:
           fetch-tags: true
           persist-credentials: false
+
+      - name: Checkout the approved immutable commit
+        if: inputs.checkout-ref != ''
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          persist-credentials: false
+          ref: ${{ inputs.checkout-ref }}
 
       - name: Use Node.js
         uses: actions/setup-node@v4
