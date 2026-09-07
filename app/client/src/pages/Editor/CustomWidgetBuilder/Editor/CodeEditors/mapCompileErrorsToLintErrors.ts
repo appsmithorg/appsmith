@@ -23,11 +23,11 @@ import { DebuggerLogType } from "../../types";
  */
 export const LINT_BINDING_PREFIX_LENGTH = 128;
 
-export type LintBindingPrefix = {
+export interface LintBindingPrefix {
   value: string;
   /** When true, getLintAnnotations uses indexOf instead of \b-anchored regex. */
   useLiteralMatch: boolean;
-};
+}
 
 export function getLintBindingPrefix(js: string): LintBindingPrefix {
   if (!js) {
