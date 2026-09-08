@@ -1,4 +1,71 @@
-import { createGovernanceStoreFromEnv } from "./store.js";
+import {
+  createGovernanceStoreFromEnv,
+  createRedisClientFromUrl,
+} from "./store.js";
+
+interface RedisClusterTestOptions {
+  rootNodes: Array<{ url?: string }>;
+  defaults?: {
+    username?: string;
+    password?: string;
+    socket?: { tls?: boolean };
+  };
+}
+
+function clusterOptions(redisUrl: string): RedisClusterTestOptions {
+  const client = createRedisClientFromUrl(redisUrl) as unknown as {
+    _options: RedisClusterTestOptions;
+  };
+
+  return client._options;
+}
+
+describe("createRedisClientFromUrl", () => {
+  it("propagates ACL credentials and TLS to every cluster node", () => {
+    expect(
+      clusterOptions(
+        "redis-cluster://appsmith:p%40ssword@clustercfg.example.cache.amazonaws.com:6379",
+      ),
+    ).toMatchObject({
+      rootNodes: [
+        {
+          url: "rediss://clustercfg.example.cache.amazonaws.com:6379",
+        },
+      ],
+      defaults: {
+        username: "appsmith",
+        password: "p@ssword",
+        socket: { tls: true },
+      },
+    });
+  });
+
+  it("secures password-only cluster URLs without forcing an empty ACL username", () => {
+    expect(
+      clusterOptions(
+        "redis-cluster://:secret@clustercfg.example.cache.amazonaws.com:6379",
+      ),
+    ).toMatchObject({
+      rootNodes: [
+        {
+          url: "rediss://clustercfg.example.cache.amazonaws.com:6379",
+        },
+      ],
+      defaults: {
+        password: "secret",
+        socket: { tls: true },
+      },
+    });
+  });
+
+  it("rejects cluster credentials that cannot be safely parsed", () => {
+    expect(
+      createRedisClientFromUrl(
+        "redis-cluster://appsmith:%ZZ@clustercfg.example.cache.amazonaws.com:6379",
+      ),
+    ).toBeUndefined();
+  });
+});
 
 // Unit coverage for the env-driven governance-store factory. MongoClient/redis clients do not open a connection at
 // construction time, so these assertions never touch the network — they only exercise the URL-scheme fail-safe.

@@ -262,7 +262,8 @@ function redisScheme(url: string): string | undefined {
 
 // Java RedisConfig accepts redis / rediss / redis-cluster. node-redis createClient only accepts redis:// and
 // rediss:// and throws TypeError("Invalid protocol") on redis-cluster://, which used to crash MCP at startup
-// (Caddy then 502s /mcp). Mirror the Java rewrite for cluster, and skip governance for any other scheme.
+// (Caddy then 502s /mcp). Adapt the cluster scheme for node-redis, securing credentialed URLs below, and skip
+// governance for any other scheme.
 export function createRedisClientFromUrl(
   redisUrl: string,
 ): GovernanceRedis | undefined {
@@ -274,10 +275,42 @@ export function createRedisClientFromUrl(
   }
 
   if (scheme === "redis-cluster") {
-    const standaloneUrl = trimmed.replace(/^redis-cluster:\/\//i, "redis://");
+    let clusterUrl: URL;
+    let username: string;
+    let password: string;
+
+    try {
+      clusterUrl = new URL(trimmed);
+      username = decodeURIComponent(clusterUrl.username);
+      password = decodeURIComponent(clusterUrl.password);
+    } catch {
+      return undefined;
+    }
+
+    const hasCredentials = username.length > 0 || password.length > 0;
+
+    if (!hasCredentials) {
+      return createCluster({
+        rootNodes: [
+          { url: trimmed.replace(/^redis-cluster:\/\//i, "redis://") },
+        ],
+      }) as GovernanceRedis;
+    }
+
+    // Credentials in a root-node URL apply only to topology discovery. Put them in defaults so every discovered
+    // node authenticates, and require TLS for both the root and discovered nodes so credentials are never sent in
+    // cleartext.
+    clusterUrl.protocol = "rediss:";
+    clusterUrl.username = "";
+    clusterUrl.password = "";
 
     return createCluster({
-      rootNodes: [{ url: standaloneUrl }],
+      rootNodes: [{ url: clusterUrl.toString() }],
+      defaults: {
+        ...(username ? { username } : {}),
+        ...(password ? { password } : {}),
+        socket: { tls: true },
+      },
     }) as GovernanceRedis;
   }
 
