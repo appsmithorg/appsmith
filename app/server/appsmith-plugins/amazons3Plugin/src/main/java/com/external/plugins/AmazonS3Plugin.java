@@ -1179,17 +1179,22 @@ public class AmazonS3Plugin extends BasePlugin {
             }
 
             // Calculate and set Content-MD5 header for Object Lock compliance
-            try {
-                MessageDigest md5Digest = MessageDigest.getInstance("MD5");
-                byte[] md5Hash = md5Digest.digest(payload);
-                String md5Base64 = Base64.getEncoder().encodeToString(md5Hash);
-                objectMetadata.setContentMD5(md5Base64);
-                log.debug("Set Content-MD5 header for S3 upload: {}", md5Base64);
-            } catch (NoSuchAlgorithmException e) {
-                log.warn(
-                        "Failed to calculate MD5 checksum for S3 upload. Object Lock enabled buckets may reject this upload.",
-                        e);
-                // Continue with upload without MD5 header - let AWS handle the error if Object Lock is enabled
+            // Only set Content-MD5 for payloads smaller than the multipart upload threshold
+            // TransferManager automatically uses multipart uploads for larger files, which fails if an overall MD5 is set
+            long multipartUploadThreshold = transferManager.getConfiguration().getMultipartUploadThreshold();
+            if (payload.length < multipartUploadThreshold) {
+                try {
+                    MessageDigest md5Digest = MessageDigest.getInstance("MD5");
+                    byte[] md5Hash = md5Digest.digest(payload);
+                    String md5Base64 = Base64.getEncoder().encodeToString(md5Hash);
+                    objectMetadata.setContentMD5(md5Base64);
+                    log.debug("Set Content-MD5 header for S3 upload: {}", md5Base64);
+                } catch (NoSuchAlgorithmException e) {
+                    log.warn(
+                            "Failed to calculate MD5 checksum for S3 upload. Object Lock enabled buckets may reject this upload.",
+                            e);
+                    // Continue with upload without MD5 header - let AWS handle the error if Object Lock is enabled
+                }
             }
 
             transferManager
