@@ -903,4 +903,29 @@ public class EnvManagerTest {
         StepVerifier.create(envManager.persistMcpInternalSecret("generated-secret"))
                 .verifyComplete();
     }
+
+    @Test
+    public void persistMcpInternalSecret_writesWithoutRestart(@TempDir Path tempDir) throws IOException {
+        Path envFile = tempDir.resolve("docker.env");
+        Files.writeString(envFile, "APPSMITH_INSTANCE_NAME='third value'\n");
+        Mockito.when(commonConfig.getEnvFilePath()).thenReturn(envFile.toString());
+
+        StepVerifier.create(envManager.persistMcpInternalSecret("generated-secret"))
+                .verifyComplete();
+
+        assertThat(Files.readString(envFile)).contains("APPSMITH_MCP_INTERNAL_SECRET=generated-secret");
+        Mockito.verify(envManager, Mockito.never()).restartWithoutAclCheck();
+    }
+
+    @Test
+    public void persistMcpInternalSecret_emptySecret_unsetsWithoutRestart(@TempDir Path tempDir) throws IOException {
+        Path envFile = tempDir.resolve("docker.env");
+        Files.writeString(envFile, "APPSMITH_MCP_INTERNAL_SECRET=existing-secret\n");
+        Mockito.when(commonConfig.getEnvFilePath()).thenReturn(envFile.toString());
+
+        StepVerifier.create(envManager.persistMcpInternalSecret("")).verifyComplete();
+
+        assertThat(Files.readString(envFile)).doesNotContain("existing-secret");
+        Mockito.verify(envManager, Mockito.never()).restartWithoutAclCheck();
+    }
 }
