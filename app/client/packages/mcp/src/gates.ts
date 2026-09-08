@@ -21,6 +21,16 @@ export function parsePositiveInt(
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+// APPSMITH_API_BASE_URL is concatenated with paths that already start with /api/v1. Operators often paste the
+// Appsmith origin including that prefix (and a trailing slash). Strip both so we do not request /api/v1/api/v1/...
+export function apiBaseUrlFromEnv(value: string): string {
+  return value
+    .trim()
+    .replace(/\/+$/, "")
+    .replace(/\/api\/v1$/i, "")
+    .replace(/\/+$/, "");
+}
+
 // Public origin override for the URLs build_application returns (APPSMITH_MCP_PUBLIC_ORIGIN). Accepts ONLY an
 // absolute http(s) origin — scheme + host + optional port, with no path, query, fragment, or credentials (a bare
 // trailing slash is normalized away). Anything else fails CLOSED to undefined, so URLs degrade to root-relative

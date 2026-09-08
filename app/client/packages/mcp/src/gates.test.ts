@@ -1,5 +1,6 @@
 import {
   ELICITATION_TIMEOUT_CEILING_MS,
+  apiBaseUrlFromEnv,
   elicitationTimeoutFromEnv,
   gateEnabled,
   parsePositiveInt,
@@ -82,6 +83,31 @@ describe("parsePositiveInt — session cap/TTL env overrides", () => {
       expect(parsePositiveInt(value, 10)).toBe(10);
     },
   );
+});
+
+describe("apiBaseUrlFromEnv — APPSMITH_API_BASE_URL origin for /api/v1 paths", () => {
+  it.each([
+    ["http://127.0.0.1:8080", "http://127.0.0.1:8080"],
+    ["http://127.0.0.1:8080/", "http://127.0.0.1:8080"],
+    ["http://127.0.0.1:8080///", "http://127.0.0.1:8080"],
+    [" http://127.0.0.1:8080/ ", "http://127.0.0.1:8080"],
+    ["http://127.0.0.1:8080/api/v1", "http://127.0.0.1:8080"],
+    ["http://127.0.0.1:8080/api/v1/", "http://127.0.0.1:8080"],
+    ["https://apps.example.com/api/v1/", "https://apps.example.com"],
+    [
+      "https://apps.example.com/appsmith/api/v1/",
+      "https://apps.example.com/appsmith",
+    ],
+    ["HTTPS://apps.example.com/API/V1", "HTTPS://apps.example.com"],
+  ])("normalizes %j to %j", (value, expected) => {
+    expect(apiBaseUrlFromEnv(value)).toBe(expected);
+  });
+
+  it("leaves a non-api/v1 path prefix intact", () => {
+    expect(apiBaseUrlFromEnv("http://127.0.0.1:8080/appsmith")).toBe(
+      "http://127.0.0.1:8080/appsmith",
+    );
+  });
 });
 
 describe("publicOriginFromEnv — APPSMITH_MCP_PUBLIC_ORIGIN parsing (fail-closed)", () => {
