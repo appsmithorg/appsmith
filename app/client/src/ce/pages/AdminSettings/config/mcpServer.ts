@@ -49,5 +49,6 @@ export const getMcpServerConfig = (
     : {
         ...config,
         categoryType: CategoryType.INSTANCE,
+        needsRestart: true,
       };
 };
