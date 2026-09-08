@@ -8,6 +8,12 @@ export function gateEnabled(value: string | undefined): boolean {
   return value !== undefined && /^(1|true|yes|on)$/i.test(value.trim());
 }
 
+// Default-ON counterpart for capabilities whose server-side opt-in flags were removed. Enabled unless the env
+// value is "false" (trim + case-insensitive); "0", "off", blank, and unset all stay enabled.
+export function gateEnabledUnlessFalse(value: string | undefined): boolean {
+  return value === undefined || value.trim().toLowerCase() !== "false";
+}
+
 // Positive-integer env override (session caps, TTLs). Unset, non-numeric, fractional, zero, or negative values fall
 // back to the built-in default rather than failing startup or silently disabling a limit.
 export function parsePositiveInt(

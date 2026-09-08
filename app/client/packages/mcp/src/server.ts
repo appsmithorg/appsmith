@@ -9,6 +9,7 @@ import {
   apiBaseUrlFromEnv,
   elicitationTimeoutFromEnv,
   gateEnabled,
+  gateEnabledUnlessFalse,
   publicOriginFromEnv,
   sessionLimitsFromEnv,
 } from "./gates.js";
@@ -23,10 +24,12 @@ const apiBaseUrl = apiBaseUrlFromEnv(
   process.env.APPSMITH_API_BASE_URL ?? "http://127.0.0.1:8080",
 );
 
-// Temporarily keep these capabilities enabled while their server-side configuration flags are unavailable.
-// Governed/destructive tools still require Mongo+Redis and register only when that infrastructure is present.
-const dataEnabled = true;
-const jsEnabled = true;
+// Data and JS stay on unless an operator explicitly sets the env var to "false". Governed/destructive tools
+// still require Mongo+Redis and register only when that infrastructure is present.
+const dataEnabled = gateEnabledUnlessFalse(
+  process.env.APPSMITH_MCP_DATA_ENABLED,
+);
+const jsEnabled = gateEnabledUnlessFalse(process.env.APPSMITH_MCP_JS_ENABLED);
 
 // Optional Host-header allowlist (comma-separated hostnames) enforced on /mcp. Unset by default: this service is
 // fronted by Caddy which preserves the original Host, so a default loopback list would reject the proxied public

@@ -3,6 +3,7 @@ import {
   apiBaseUrlFromEnv,
   elicitationTimeoutFromEnv,
   gateEnabled,
+  gateEnabledUnlessFalse,
   parsePositiveInt,
   publicOriginFromEnv,
   sessionLimitsFromEnv,
@@ -63,6 +64,26 @@ describe("gateEnabled — opt-in gate parsing (data/JS layers)", () => {
 
   it("stays off when the variable is unset", () => {
     expect(gateEnabled(undefined)).toBe(false);
+  });
+});
+
+describe("gateEnabledUnlessFalse — default-on until false", () => {
+  it.each(["false", "FALSE", "False", " false "])(
+    "disables for %j",
+    (value) => {
+      expect(gateEnabledUnlessFalse(value)).toBe(false);
+    },
+  );
+
+  it.each(["0", "off", "no", "disabled", "true", "1", "", "  "])(
+    "stays on for %j",
+    (value) => {
+      expect(gateEnabledUnlessFalse(value)).toBe(true);
+    },
+  );
+
+  it("stays on when the variable is unset", () => {
+    expect(gateEnabledUnlessFalse(undefined)).toBe(true);
   });
 });
 
