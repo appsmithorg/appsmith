@@ -41,6 +41,14 @@ jobs:
     with:
       pr: ${{ github.event.number }}
 
+  mcp-build:
+    if: success()
+    name: mcp-build
+    uses: ./.github/workflows/mcp-build.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.number }}
+
   rts-build:
     if: success()
     name: rts-build
@@ -59,7 +67,7 @@ jobs:
       is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}
 
   build-docker-image:
-    needs: [client-build, server-build, rts-build]
+    needs: [client-build, server-build, mcp-build, rts-build]
     # Only run if the build step is successful
     if: success()
     name: build-docker-image

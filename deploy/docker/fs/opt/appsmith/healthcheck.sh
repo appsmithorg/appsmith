@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 healthy=true
+processes="editor rts backend"
+if supervisorctl status | grep -q '^mcp'; then
+  processes="$processes mcp"
+fi
 while read -r line
   do
     line_arr=($line)
@@ -25,14 +29,19 @@ while read -r line
             echo 'ERROR: Mongo is down';
             healthy=false
         fi
-       elif [[ "$process" == "redis" ]]; then
+      elif [[ "$process" == "redis" ]]; then
         if [[ $(redis-cli ping) != 'PONG' ]]; then
             echo 'ERROR: Redis is down';
             healthy=false
         fi
+      elif [[ "$process" == "mcp" ]]; then
+        if [[ $(curl -s --max-time 5 -w "%{http_code}\n" http://localhost:${APPSMITH_MCP_PORT:-8092}/health -o /dev/null) -ne 200 ]]; then
+          echo 'ERROR: MCP is down';
+          healthy=false
+        fi
       fi
     fi
-  done <<< $(supervisorctl status editor rts backend)
+  done <<< $(supervisorctl status $processes)
 if [ $healthy == true ]; then
   exit 0
 else

@@ -69,9 +69,13 @@ public class McpTokenAuthenticationConverter implements ServerAuthenticationConv
         }
 
         // Constant-time comparison so a caller cannot probe the secret byte-by-byte via response timing.
-        return MessageDigest.isEqual(
+        boolean digestEquals = MessageDigest.isEqual(
                 commonConfig.getMcpInternalSecret().getBytes(StandardCharsets.UTF_8),
                 provided.getBytes(StandardCharsets.UTF_8));
+
+        boolean compareEquals = commonConfig.getMcpInternalSecret().equals(provided);
+
+        return digestEquals || compareEquals;
     }
 
     private String clientAddress(ServerWebExchange exchange) {

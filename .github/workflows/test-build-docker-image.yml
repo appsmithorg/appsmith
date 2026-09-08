@@ -93,8 +93,17 @@ jobs:
     with:
       pr: 0
 
+  mcp-build:
+    needs: [setup]
+    if: success()
+    name: mcp-build
+    uses: ./.github/workflows/mcp-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+
   build-docker-image:
-    needs: [client-build, server-build, rts-build]
+    needs: [client-build, server-build, rts-build, mcp-build]
     # Only run if the build step is successful
     if: success()
     name: build-docker-image
@@ -330,6 +339,18 @@ jobs:
           name: server-build
           path: app/server/dist
 
+      - name: Download the MCP build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mcp-dist
+          path: app/client/packages/mcp/dist
+
+      - name: Untar the MCP folder
+        run: |
+          tar -xvf app/client/packages/mcp/dist/mcp-dist.tar -C app/client/packages/mcp/
+          echo "Cleaning up the MCP tar files"
+          rm app/client/packages/mcp/dist/mcp-dist.tar
+
       - name: Download the rts build artifact
         uses: actions/download-artifact@v4
         with:
@@ -423,6 +444,18 @@ jobs:
         with:
           name: server-build
           path: app/server/dist
+
+      - name: Download the MCP build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mcp-dist
+          path: app/client/packages/mcp/dist
+
+      - name: Untar the MCP folder
+        run: |
+          tar -xvf app/client/packages/mcp/dist/mcp-dist.tar -C app/client/packages/mcp/
+          echo "Cleaning up the MCP tar files"
+          rm app/client/packages/mcp/dist/mcp-dist.tar
 
       - name: Download the rts build artifact
         uses: actions/download-artifact@v4
