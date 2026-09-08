@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { MongoClient, type Collection } from "mongodb";
-import { createClient, type RedisClientType } from "redis";
+import { createClient, createCluster } from "redis";
 
 export interface McpChangeRecord {
   id: string;
@@ -75,6 +75,23 @@ const RELEASE_LOCK_SCRIPT =
 const CONSUME_CONFIRMATION_SCRIPT =
   "local value = redis.call('get', KEYS[1]); if value then redis.call('del', KEYS[1]); end; return value";
 
+// node-redis standalone vs cluster clients share this surface (connect/close/set/get/eval). Keep the store
+// typed to the methods it actually calls so a redis-cluster:// URL can use createCluster without widening to any.
+interface GovernanceRedis {
+  connect(): Promise<unknown>;
+  close(): Promise<unknown>;
+  set(
+    key: string,
+    value: string,
+    options: { NX: true; PX: number },
+  ): Promise<unknown>;
+  get(key: string): Promise<string | null>;
+  eval(
+    script: string,
+    options: { keys: string[]; arguments: string[] },
+  ): Promise<unknown>;
+}
+
 // MCP owns these collections and keys. It never writes Appsmith product documents directly; it only records
 // governance metadata around authorized REST mutations made by the MCP service.
 export class MongoRedisGovernanceStore implements McpGovernanceStore {
@@ -82,7 +99,7 @@ export class MongoRedisGovernanceStore implements McpGovernanceStore {
 
   constructor(
     private readonly mongo: MongoClient,
-    private readonly redis: RedisClientType,
+    private readonly redis: GovernanceRedis,
     // Defaults to undefined so mongo.db() honours the database named in the connection URI. Hardcoding
     // "appsmith" matches the bundled container but silently diverges on an external/Atlas deployment whose URI
     // names a different database — governance records would land in a stray db outside the operator's backups.
@@ -236,6 +253,70 @@ function isMongoUrl(url: string): boolean {
   return /^mongodb(\+srv)?:\/\//i.test(url.trim());
 }
 
+function redisScheme(url: string): string | undefined {
+  return url
+    .trim()
+    .match(/^([a-z][a-z0-9+.-]*):\/\//i)?.[1]
+    ?.toLowerCase();
+}
+
+// Java RedisConfig accepts redis / rediss / redis-cluster. node-redis createClient only accepts redis:// and
+// rediss:// and throws TypeError("Invalid protocol") on redis-cluster://, which used to crash MCP at startup
+// (Caddy then 502s /mcp). Adapt the cluster scheme for node-redis, securing credentialed URLs below, and skip
+// governance for any other scheme.
+export function createRedisClientFromUrl(
+  redisUrl: string,
+): GovernanceRedis | undefined {
+  const trimmed = redisUrl.trim();
+  const scheme = redisScheme(trimmed);
+
+  if (scheme === "redis" || scheme === "rediss") {
+    return createClient({ url: trimmed }) as GovernanceRedis;
+  }
+
+  if (scheme === "redis-cluster") {
+    let clusterUrl: URL;
+    let username: string;
+    let password: string;
+
+    try {
+      clusterUrl = new URL(trimmed);
+      username = decodeURIComponent(clusterUrl.username);
+      password = decodeURIComponent(clusterUrl.password);
+    } catch {
+      return undefined;
+    }
+
+    const hasCredentials = username.length > 0 || password.length > 0;
+
+    if (!hasCredentials) {
+      return createCluster({
+        rootNodes: [
+          { url: trimmed.replace(/^redis-cluster:\/\//i, "redis://") },
+        ],
+      }) as GovernanceRedis;
+    }
+
+    // Credentials in a root-node URL apply only to topology discovery. Put them in defaults so every discovered
+    // node authenticates, and require TLS for both the root and discovered nodes so credentials are never sent in
+    // cleartext.
+    clusterUrl.protocol = "rediss:";
+    clusterUrl.username = "";
+    clusterUrl.password = "";
+
+    return createCluster({
+      rootNodes: [{ url: clusterUrl.toString() }],
+      defaults: {
+        ...(username ? { username } : {}),
+        ...(password ? { password } : {}),
+        socket: { tls: true },
+      },
+    }) as GovernanceRedis;
+  }
+
+  return undefined;
+}
+
 export function createGovernanceStoreFromEnv():
   | MongoRedisGovernanceStore
   | undefined {
@@ -254,8 +335,16 @@ export function createGovernanceStoreFromEnv():
     return undefined;
   }
 
-  return new MongoRedisGovernanceStore(
-    new MongoClient(mongoUrl),
-    createClient({ url: redisUrl }),
-  );
+  const redis = createRedisClientFromUrl(redisUrl);
+
+  if (!redis) {
+    process.stderr.write(
+      "Appsmith MCP governance disabled: the configured Redis URL is not a redis://, rediss://, or redis-cluster:// URL. " +
+        "Governed tools will be unavailable.\n",
+    );
+
+    return undefined;
+  }
+
+  return new MongoRedisGovernanceStore(new MongoClient(mongoUrl), redis);
 }

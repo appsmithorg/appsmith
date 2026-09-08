@@ -14,6 +14,7 @@ import {
   IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE,
   INVALID_JSOBJECT_START_STATEMENT,
   INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE,
+  LINT_BINDING_LITERAL_MATCH_ERROR_CODE,
 } from "plugins/Linting/constants";
 export const getIndexOfRegex = (
   str: string,
@@ -74,11 +75,33 @@ export const getAllWordOccurrences = (str: string, key: string) => {
   return indices;
 };
 
+/** indexOf-based search — no word-boundary regex (safe for mid-word prefixes). */
+export const getAllLiteralOccurrences = (str: string, key: string) => {
+  if (!key) {
+    return [];
+  }
+
+  const indices = [];
+  let startIndex = 0;
+  let index = str.indexOf(key, startIndex);
+
+  while (index > -1) {
+    indices.push(index);
+    startIndex = index + key.length;
+    index = str.indexOf(key, startIndex);
+  }
+
+  return indices;
+};
+
 export const getKeyPositionInString = (
   str: string,
   key: string,
+  options?: { literal?: boolean },
 ): Position[] => {
-  const indices = getAllWordOccurrences(str, key);
+  const indices = options?.literal
+    ? getAllLiteralOccurrences(str, key)
+    : getAllWordOccurrences(str, key);
   let positions: Position[] = [];
 
   if (str.includes("\n")) {
@@ -178,7 +201,9 @@ export const getLintAnnotations = (
 
     const bindingPositions = isJSObject
       ? [VALID_JS_OBJECT_BINDING_POSITION]
-      : getKeyPositionInString(value, originalBinding);
+      : getKeyPositionInString(value, originalBinding, {
+          literal: code === LINT_BINDING_LITERAL_MATCH_ERROR_CODE,
+        });
 
     if (isNumber(line) && isNumber(ch)) {
       for (const bindingLocation of bindingPositions) {

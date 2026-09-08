@@ -6,8 +6,10 @@ import {
   MCP_SESSION_TTL_MS,
 } from "./app.js";
 import {
+  apiBaseUrlFromEnv,
   elicitationTimeoutFromEnv,
   gateEnabled,
+  gateEnabledUnlessFalse,
   publicOriginFromEnv,
   sessionLimitsFromEnv,
 } from "./gates.js";
@@ -18,13 +20,16 @@ import {
 } from "./governance/store.js";
 
 const port = Number(process.env.APPSMITH_MCP_PORT ?? 8092);
-const apiBaseUrl = process.env.APPSMITH_API_BASE_URL ?? "http://127.0.0.1:8080";
+const apiBaseUrl = apiBaseUrlFromEnv(
+  process.env.APPSMITH_API_BASE_URL ?? "http://127.0.0.1:8080",
+);
 
-// The data layer and restricted JS objects are OFF unless explicitly enabled, matching the parent
-// APPSMITH_MCP_ENABLED gate: an admin opts into each capability. Governed/destructive tools additionally require
-// Mongo+Redis, so they only register when that infra is present.
-const dataEnabled = gateEnabled(process.env.APPSMITH_MCP_DATA_ENABLED);
-const jsEnabled = gateEnabled(process.env.APPSMITH_MCP_JS_ENABLED);
+// Data and JS stay on unless an operator explicitly sets the env var to "false". Governed/destructive tools
+// still require Mongo+Redis and register only when that infrastructure is present.
+const dataEnabled = gateEnabledUnlessFalse(
+  process.env.APPSMITH_MCP_DATA_ENABLED,
+);
+const jsEnabled = gateEnabledUnlessFalse(process.env.APPSMITH_MCP_JS_ENABLED);
 
 // Optional Host-header allowlist (comma-separated hostnames) enforced on /mcp. Unset by default: this service is
 // fronted by Caddy which preserves the original Host, so a default loopback list would reject the proxied public
