@@ -77,7 +77,7 @@ const CONSUME_CONFIRMATION_SCRIPT =
 
 // node-redis standalone vs cluster clients share this surface (connect/close/set/get/eval). Keep the store
 // typed to the methods it actually calls so a redis-cluster:// URL can use createCluster without widening to any.
-type GovernanceRedis = {
+interface GovernanceRedis {
   connect(): Promise<unknown>;
   close(): Promise<unknown>;
   set(
@@ -90,7 +90,7 @@ type GovernanceRedis = {
     script: string,
     options: { keys: string[]; arguments: string[] },
   ): Promise<unknown>;
-};
+}
 
 // MCP owns these collections and keys. It never writes Appsmith product documents directly; it only records
 // governance metadata around authorized REST mutations made by the MCP service.
