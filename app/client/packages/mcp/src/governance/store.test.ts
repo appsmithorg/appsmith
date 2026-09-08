@@ -52,4 +52,30 @@ describe("createGovernanceStoreFromEnv", () => {
 
     expect(createGovernanceStoreFromEnv()).toBeDefined();
   });
+
+  it("builds a store for a redis-cluster URL instead of throwing Invalid protocol", () => {
+    // Cloud / ElastiCache cluster mode uses redis-cluster://, which Java RedisConfig rewrites. node-redis
+    // createClient rejects that scheme with TypeError("Invalid protocol") and used to crash MCP startup.
+    process.env.APPSMITH_MONGODB_URI = "mongodb://127.0.0.1:27017/appsmith";
+    process.env.APPSMITH_REDIS_URL =
+      "redis-cluster://:secret@clustercfg.example.cache.amazonaws.com:6379";
+
+    expect(() => createGovernanceStoreFromEnv()).not.toThrow();
+    expect(createGovernanceStoreFromEnv()).toBeDefined();
+  });
+
+  it("builds a store for a rediss URL", () => {
+    process.env.APPSMITH_MONGODB_URI = "mongodb://127.0.0.1:27017/appsmith";
+    process.env.APPSMITH_REDIS_URL = "rediss://:secret@127.0.0.1:6379";
+
+    expect(createGovernanceStoreFromEnv()).toBeDefined();
+  });
+
+  it("skips governance (does not throw) when the Redis URL scheme is unsupported", () => {
+    process.env.APPSMITH_MONGODB_URI = "mongodb://127.0.0.1:27017/appsmith";
+    process.env.APPSMITH_REDIS_URL = "http://127.0.0.1:6379";
+
+    expect(() => createGovernanceStoreFromEnv()).not.toThrow();
+    expect(createGovernanceStoreFromEnv()).toBeUndefined();
+  });
 });
