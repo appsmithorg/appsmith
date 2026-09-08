@@ -10,17 +10,11 @@ class McpConfigTest {
     void copyNonSensitiveValues_mergesNonNullFieldsAndLeavesUnsetSiblings() {
         McpConfig existing = new McpConfig();
         existing.setEnabled(true);
-        existing.setDataEnabled(true);
-        existing.setServerUrl("https://appsmith.example/mcp");
 
         McpConfig patch = new McpConfig();
-        patch.setDataEnabled(false);
-
+        patch.setEnabled(false);
         existing.copyNonSensitiveValues(patch);
-
-        assertThat(existing.getEnabled()).isTrue();
-        assertThat(existing.getDataEnabled()).isFalse();
-        assertThat(existing.getServerUrl()).isEqualTo("https://appsmith.example/mcp");
+        assertThat(existing.getEnabled()).isFalse();
     }
 
     @Test

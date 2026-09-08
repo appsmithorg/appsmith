@@ -902,5 +902,44 @@ public class EnvManagerTest {
 
         StepVerifier.create(envManager.persistMcpInternalSecret("generated-secret"))
                 .verifyComplete();
+
+        Mockito.verify(envManager, Mockito.never()).restartWithoutAclCheck();
+    }
+
+    @Test
+    public void persistMcpInternalSecret_writesThenRestarts(@TempDir Path tempDir) throws IOException {
+        Path envFile = tempDir.resolve("docker.env");
+        Files.writeString(envFile, "APPSMITH_INSTANCE_NAME='third value'\n");
+        Mockito.when(commonConfig.getEnvFilePath()).thenReturn(envFile.toString());
+        Mockito.doReturn(Mono.empty()).when(envManager).restartWithoutAclCheck();
+
+        StepVerifier.create(envManager.persistMcpInternalSecret("generated-secret"))
+                .verifyComplete();
+
+        assertThat(Files.readString(envFile)).contains("APPSMITH_MCP_INTERNAL_SECRET=generated-secret");
+        Mockito.verify(envManager).restartWithoutAclCheck();
+    }
+
+    @Test
+    public void persistMcpInternalSecret_emptySecret_unsetsAndRestarts(@TempDir Path tempDir) throws IOException {
+        Path envFile = tempDir.resolve("docker.env");
+        Files.writeString(envFile, "APPSMITH_MCP_INTERNAL_SECRET=existing-secret\n");
+        Mockito.when(commonConfig.getEnvFilePath()).thenReturn(envFile.toString());
+        Mockito.doReturn(Mono.empty()).when(envManager).restartWithoutAclCheck();
+
+        StepVerifier.create(envManager.persistMcpInternalSecret("")).verifyComplete();
+
+        assertThat(Files.readString(envFile)).doesNotContain("existing-secret");
+        Mockito.verify(envManager).restartWithoutAclCheck();
+    }
+
+    @Test
+    public void persistMcpInternalSecret_missingEnvFile_doesNotRestart() {
+        Mockito.when(commonConfig.getEnvFilePath()).thenReturn("/no/such/appsmith/docker.env");
+
+        StepVerifier.create(envManager.persistMcpInternalSecret("generated-secret"))
+                .verifyComplete();
+
+        Mockito.verify(envManager, Mockito.never()).restartWithoutAclCheck();
     }
 }

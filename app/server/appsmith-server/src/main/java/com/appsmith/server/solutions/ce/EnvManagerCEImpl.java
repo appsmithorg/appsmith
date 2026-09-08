@@ -557,10 +557,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         }
         Map<String, String> changes = new HashMap<>();
         changes.put(APPSMITH_MCP_INTERNAL_SECRET.name(), secret == null ? "" : secret);
-        return applyChangesToEnvFileWithoutAclCheck(changes).then().onErrorResume(error -> {
-            log.error("Unable to persist APPSMITH_MCP_INTERNAL_SECRET to the env file", error);
-            return Mono.empty();
-        });
+        return applyChangesToEnvFileWithoutAclCheck(changes)
+                .flatMap(ignored -> restartWithoutAclCheck())
+                .onErrorResume(error -> {
+                    log.error("Unable to persist APPSMITH_MCP_INTERNAL_SECRET to the env file or restart", error);
+                    return Mono.empty();
+                });
     }
 
     @Override
