@@ -49,6 +49,7 @@ export interface TreeSelectProps
   labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: TextSize;
+  isRequired?: boolean;
   onDropdownOpen?: () => void;
   onDropdownClose?: () => void;
   labelStyle?: string;
@@ -72,6 +73,7 @@ export const NoDataFoundContainer = styled.div`
   text-align: center;
 `;
 
+/** Returns the expand/collapse chevron for a tree node switcher. */
 const getSvg = (expanded: boolean) => (
   <i
     style={{
@@ -91,6 +93,7 @@ const getSvg = (expanded: boolean) => (
   </i>
 );
 
+/** Renders the tree switcher icon while keeping leaf rows aligned. */
 const switcherIcon = (treeNode: TreeNodeProps) => {
   if (treeNode.isLeaf) {
     return (
@@ -108,6 +111,7 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
   return getSvg(treeNode.expanded);
 };
 
+/** Tree-based single-select widget view with optional filtering and required-label support. */
 function SingleSelectTreeComponent({
   accentColor,
   allowClear,
@@ -121,6 +125,7 @@ function SingleSelectTreeComponent({
   filterText,
   isDynamicHeightEnabled,
   isFilterable,
+  isRequired,
   isValid,
   labelAlignment,
   labelPosition,
@@ -273,6 +278,7 @@ function SingleSelectTreeComponent({
           fontStyle={labelStyle}
           helpText={labelTooltip}
           isDynamicHeightEnabled={isDynamicHeightEnabled}
+          isRequired={isRequired}
           loading={loading}
           position={labelPosition}
           ref={labelRef}

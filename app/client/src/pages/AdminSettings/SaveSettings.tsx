@@ -34,6 +34,7 @@ interface SaveAdminSettingsProps {
   isOnlyOrganizationConfig?: boolean;
   isSaving?: boolean;
   needsRefresh?: boolean;
+  needsRestart?: boolean;
   onSave?: () => void;
   onClear?: () => void;
   settings: Record<string, string>;
@@ -46,6 +47,7 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
     isOnlyOrganizationConfig = false,
     isSaving,
     needsRefresh = false,
+    needsRestart = false,
     onClear,
     onSave,
     settings,
@@ -58,9 +60,10 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
   if (needsRefresh) {
     saveButtonText = SAVE_AND_REFRESH_BUTTON;
   } else if (
-    isOnlyOrganizationConfig ||
-    (updatedOrganizationSettings?.length === Object.keys(settings).length &&
-      updatedOrganizationSettings?.length !== 0)
+    !needsRestart &&
+    (isOnlyOrganizationConfig ||
+      (updatedOrganizationSettings?.length === Object.keys(settings).length &&
+        updatedOrganizationSettings?.length !== 0))
   ) {
     saveButtonText = SAVE_BUTTON;
   }
