@@ -32,7 +32,7 @@
     "loglevel": "^1.8.1",
     "mongodb": "^6.7.0",
     "mongodb-connection-string-url": "^3.0.2",
-    "nodemailer": "9.0.1",
+    "nodemailer": "^9.1.1",
     "readline-sync": "1.4.10",
     "simple-git": "^3.32.3"
   },
