@@ -238,6 +238,79 @@ export const USER_DISPLAY_NAME_PLACEHOLDER = () => "Display name";
 export const USER_DISPLAY_PICTURE_PLACEHOLDER = () => "Display picture";
 export const USER_EMAIL_PLACEHOLDER = () => "Email";
 export const USER_RESET_PASSWORD = () => "Reset password";
+export const MCP_KEYS = () => "MCP keys";
+export const MCP_TOKENS = () => "MCP tokens";
+export const MCP_TOKENS_DESCRIPTION = () =>
+  "A key authenticates an MCP client as you. It is shown only once after you create or rotate it.";
+export const MCP_SERVER_URL_LABEL = () => "MCP server URL";
+export const MCP_SERVER_URL_HELP = () =>
+  "Point your MCP client (e.g. ChatGPT or Claude) at this URL and authenticate with a key from this page.";
+export const COPY_MCP_SERVER_URL = () => "Copy server URL";
+export const MCP_SERVER_URL_COPIED = () => "Server URL copied";
+export const MCP_SERVER_URL_COPY_FAILED = () => "Unable to copy server URL.";
+export const MCP_KEYS_HOW_TO_CONNECT = () => "How to connect";
+export const MCP_KEYS_CONNECT_TITLE = () => "Connect an MCP client";
+export const MCP_KEYS_CONNECT_DESCRIPTION = () =>
+  "Use this server URL in your MCP client and authenticate with a key from this page as a bearer token.";
+export const MCP_KEYS_CONNECT_CONFIG_HELP = () =>
+  "Replace the placeholder with a key from this page. A key is shown only once when you create or rotate it.";
+export const CREATE_MCP_TOKEN = () => "Create Key";
+export const CREATE_MCP_KEY_CONFIRM = () => "Create";
+export const CREATE_MCP_KEY_TITLE = () => "Create Key";
+export const MCP_TOKEN_NAME_LABEL = () => "Name";
+export const MCP_TOKEN_NAME_PLACEHOLDER = () => "Optional, e.g. Claude Desktop";
+export const MCP_KEY_VALIDITY_LABEL = () => "Key validity in days";
+export const MCP_TOKEN_CREATED = () => "MCP token created";
+export const MCP_TOKEN_CREATED_DESCRIPTION = () =>
+  "Copy this token now. You will not be able to view it again.";
+export const MCP_TOKEN_CREATED_DONE = () => "I've copied it";
+export const MCP_TOKEN_CREATED_DISMISS_WARNING = () =>
+  "This is the only time this token is shown. If you close without copying it, you'll need to rotate the token to get a new one.";
+export const MCP_TOKEN_VALUE_LABEL = () => "MCP token";
+export const COPY_MCP_TOKEN = () => "Copy token";
+export const MCP_TOKEN_COPIED = () => "MCP token copied";
+export const MCP_TOKEN_COPY_FAILED = () => "Unable to copy MCP token.";
+export const MCP_CLIENT_CONFIG_LABEL = () => "Client configuration";
+export const MCP_CLIENT_CONFIG_HELP = () =>
+  "Paste this into your MCP client's config to connect (server URL + this token). Store it securely — it grants access as you.";
+export const COPY_MCP_CLIENT_CONFIG = () => "Copy client configuration";
+export const MCP_CLIENT_CONFIG_COPIED = () => "Client configuration copied";
+export const MCP_CLIENT_CONFIG_COPY_FAILED = () =>
+  "Unable to copy client configuration.";
+export const MCP_TOKENS_LOADING = () => "Loading MCP tokens…";
+export const MCP_TOKENS_EMPTY = () => "No MCP tokens have been created.";
+export const MCP_TOKEN_CREATED_AT = () => "Created";
+export const MCP_TOKEN_EXPIRES_AT = () => "Expires";
+export const MCP_KEY_COLUMN_NAME = () => "Key name";
+export const MCP_KEY_COLUMN_STATUS = () => "Status";
+export const MCP_KEY_STATUS_ACTIVE = () => "Active";
+export const MCP_KEY_STATUS_REVOKED = () => "Revoked";
+export const MCP_KEY_STATUS_EXPIRED = () => "Expired";
+export const MCP_KEY_MORE_ACTIONS = (name: string) =>
+  `More actions for ${name}`;
+export const MCP_KEYS_SEARCH_PLACEHOLDER = () => "Search keys";
+export const MCP_KEY_STATUS_FILTER_ALL = () => "All";
+export const MCP_KEYS_NO_MATCH = () => "No keys match this search.";
+export const MCP_KEYS_PREVIOUS_PAGE = () => "Previous";
+export const MCP_KEYS_NEXT_PAGE = () => "Next";
+export const MCP_KEYS_PAGE_STATUS = (page: number, total: number) =>
+  `Page ${page} of ${total}`;
+export const ROTATE_MCP_TOKEN = () => "Rotate";
+export const ROTATE_MCP_TOKEN_CONFIRM = () => "Rotate token";
+export const ROTATE_MCP_TOKEN_CONFIRMATION = () =>
+  "Rotate this MCP token? The current secret will stop working immediately.";
+export const MCP_TOKEN_ROTATED = () => "MCP token rotated";
+// The post-rotation modal reuses the created-token layout, but calling it "created" misdescribes what happened.
+export const MCP_TOKEN_ROTATED_TITLE = () => "MCP token rotated";
+export const REVOKE_MCP_TOKEN = () => "Revoke";
+export const REVOKE_MCP_TOKEN_CONFIRM = () => "Revoke token";
+export const REVOKE_MCP_TOKEN_CONFIRMATION = () =>
+  "Revoke this MCP token? Connected MCP clients will no longer be able to use it.";
+export const MCP_TOKEN_REVOKED = () => "MCP token revoked";
+export const MCP_TOKENS_LOAD_FAILED = () => "Unable to load MCP tokens.";
+export const MCP_TOKEN_CREATE_FAILED = () => "Unable to create MCP token.";
+export const MCP_TOKEN_ROTATE_FAILED = () => "Unable to rotate MCP token.";
+export const MCP_TOKEN_REVOKE_FAILED = () => "Unable to revoke MCP token.";
 
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;

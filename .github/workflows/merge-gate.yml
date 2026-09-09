@@ -1,0 +1,77 @@
+name: Merge gate
+
+# Single required status context (`ci/merge-gate`) that both internal and fork
+# PRs to `release` can satisfy. Branch protection on `release` requires
+# `ci/merge-gate`; the per-flow checks it aggregates (`qc-result`,
+# `perform-test / ci-test-result`, `external-ci-result`, approved Cypress) are
+# no longer individually required — each PR type only ever produces one of the
+# two sets, and a raw required context that is skipped/absent on the other type
+# stays "Expected" forever and blocks the merge (the bug this fixes).
+#
+# This workflow recomputes the gate for the PR associated with a feeding
+# workflow's run, on both rerun start (`in_progress`) and `completed`:
+#   - `in_progress` forces the feeding workflow's own input to `pending`, so an
+#     earlier success cannot linger while that workflow re-runs on the same SHA.
+#   - `completed` reads the head SHA's checks/statuses and writes success /
+#     failure / pending (fail-closed: skipped/neutral/absent => pending).
+# It owns internal PRs outright and recomputes the fork credential-free side;
+# the fork Cypress side is written by build-client-server.yml on `/approve-ci`.
+#
+# Security: it never checks out or runs PR code — it only checks out the base
+# repo for the shared script and calls the GitHub API — and runs from the
+# default branch in the base-repo context, so holding `statuses: write` is safe
+# even when the associated PR is from a fork.
+
+on:
+  workflow_run:
+    workflows:
+      - "Quality checks"
+      - "PR Automation test suite"
+      - "External PR credential-free validation"
+    types: [in_progress, completed]
+
+permissions:
+  contents: read
+  checks: read
+  pull-requests: read
+  statuses: write
+
+concurrency:
+  # Serialize evaluations per head SHA so concurrent triggers don't race on the
+  # status write; queue rather than cancel so the latest state always wins.
+  group: merge-gate-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout base repo (trusted — for the shared gate script only)
+        uses: actions/checkout@v4
+
+      - name: Evaluate merge gate
+        uses: actions/github-script@v7
+        env:
+          NODE_PATH: ${{ github.workspace }}/.github/workflows/scripts
+        with:
+          script: |
+            const gate = require("merge-gate.js");
+            const { owner, repo } = context.repo;
+            const run = context.payload.workflow_run;
+            const sha = run.head_sha;
+            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
+
+            const pr = await gate.resolvePr({ github, owner, repo, sha, workflowRun: run });
+            if (!pr) {
+              core.info(`No unique open PR found for ${sha}; skipping.`);
+              return;
+            }
+
+            // A rerun that just started means its result is in flight — force
+            // that input to `pending` so an existing success can't linger.
+            const pendingChecks = new Set();
+            if (run.status === "in_progress" && gate.WORKFLOW_TO_CHECK[run.name]) {
+              pendingChecks.add(gate.WORKFLOW_TO_CHECK[run.name]);
+            }
+
+            await gate.evaluate({ github, core, owner, repo, sha, pr, pendingChecks, runUrl });

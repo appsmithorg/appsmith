@@ -88,6 +88,9 @@ export type Setting = ControlType & {
   sortOrder?: number;
   subText?: string;
   subTextLink?: string;
+  // For TOGGLE/CHECKBOX settings backed by an env variable: the state to show when the variable is absent from the
+  // fetched admin settings (e.g. an env file that predates the setting). Mirrors the runtime default.
+  defaultValue?: boolean;
   toggleText?: (value: boolean) => string;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -106,6 +109,9 @@ export type Setting = ControlType & {
   tooltip?: string;
   isEnterprise?: boolean;
   postfix?: string;
+  // Renders the field disabled without the upgrade tag that isFeatureEnabled: false brings.
+  // For values that are display-only in the admin UI (e.g. derived connection status).
+  isReadOnly?: boolean;
 };
 
 export interface Category {
@@ -114,6 +120,7 @@ export interface Category {
   subText?: string;
   isConnected?: boolean;
   needsRefresh?: boolean;
+  needsRestart?: boolean;
   children?: Category[];
   icon?: string;
   categoryType: string;
@@ -136,6 +143,8 @@ export const SettingCategories = {
   OIDC_AUTH: "oidc-auth",
   INSTANCE_SETTINGS: "instance-settings",
   CONFIGURATION: "configuration",
+  MCP_KEYS: "mcp-keys",
+  MCP_SERVER: "mcp-server",
   VERSION: "version",
   USER_SETTINGS: "user-settings",
   PROFILE: "profile",
@@ -160,6 +169,7 @@ export interface AdminConfigType {
   canSave: boolean;
   isConnected?: boolean;
   needsRefresh?: boolean;
+  needsRestart?: boolean;
   icon?: string;
   categoryType: CategoryType;
   isEnterprise?: boolean;

@@ -62,4 +62,12 @@ describe("Text Input", () => {
     expect(inputEl?.value).toBeDefined();
     expect(inputEl?.value).toEqual("test value");
   });
+
+  it("is disabled when isDisabled returns true", () => {
+    setting.isDisabled = () => true;
+    renderComponent();
+
+    expect(document.querySelector("input")?.disabled).toBe(true);
+    delete setting.isDisabled;
+  });
 });

@@ -1,4 +1,5 @@
 import type { DefaultRootState } from "react-redux";
+import { getDefaultMcpServerUrl } from "ee/constants/mcp";
 
 /**
  * selects the organization permissions
@@ -49,6 +50,20 @@ export const getThirdPartyAuths = (state: DefaultRootState): string[] =>
 
 export const getIsFormLoginEnabled = (state: DefaultRootState): boolean =>
   state.organization?.organizationConfiguration?.isFormLoginEnabled ?? true;
+
+export const getIsMcpEnabled = (state: DefaultRootState): boolean =>
+  state.organization?.organizationConfiguration?.mcpConfig?.enabled === true;
+
+export const getMcpServerUrl = (state: DefaultRootState): string => {
+  const configured =
+    state.organization?.organizationConfiguration?.mcpConfig?.serverUrl;
+
+  if (typeof configured === "string" && configured.trim() !== "") {
+    return configured.trim();
+  }
+
+  return getDefaultMcpServerUrl();
+};
 
 export const getIsSignupDisabled = (state: DefaultRootState): boolean =>
   state.organization?.organizationConfiguration?.isSignupDisabled ?? false;

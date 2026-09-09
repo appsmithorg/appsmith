@@ -20,15 +20,23 @@ import store from "store";
 import { isMultiOrgFFEnabled } from "ee/utils/planHelpers";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { getShowAdminSettings } from "ee/utils/BusinessFeatures/adminSettingsHelpers";
+import {
+  getMcpServerConfig,
+  mcpKeys,
+} from "ee/pages/AdminSettings/config/mcpServer";
+import { getIsMcpEnabled } from "ee/selectors/organizationSelectors";
 
 const featureFlags = selectFeatureFlags(store.getState());
 const isMultiOrgEnabled = isMultiOrgFFEnabled(featureFlags);
+const isMCPEnabled = getIsMcpEnabled(store.getState());
 const user = getCurrentUser(store.getState());
 const isFeatureEnabled = featureFlags.license_gac_enabled;
 const isSuperUser = getShowAdminSettings(isFeatureEnabled, user);
 
 // Profile categories
 ConfigFactory.register(ProfileConfig);
+
+if (isMCPEnabled) ConfigFactory.register(mcpKeys);
 
 // Organisation categories
 if (isSuperUser) ConfigFactory.register(GeneralConfig);
@@ -40,6 +48,9 @@ if (isSuperUser) ConfigFactory.register(BrandingConfig);
 if (isSuperUser) ConfigFactory.register(AuditLogsConfig);
 
 if (isSuperUser) ConfigFactory.register(AIConfig);
+
+if (isSuperUser && isMultiOrgEnabled)
+  ConfigFactory.register(getMcpServerConfig(isMultiOrgEnabled));
 
 // User management categories
 if (isSuperUser) ConfigFactory.register(UserSettings);
@@ -54,6 +65,9 @@ if (isSuperUser) ConfigFactory.register(UserListing);
 if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(InstanceSettings);
 
 if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(Configuration);
+
+if (isSuperUser && !isMultiOrgEnabled)
+  ConfigFactory.register(getMcpServerConfig(isMultiOrgEnabled));
 
 if (isSuperUser && !isMultiOrgEnabled) ConfigFactory.register(VersionConfig);
 

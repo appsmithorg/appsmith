@@ -5,7 +5,7 @@ import {
 } from "ee/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
 import type { OrganizationReduxState } from "ee/reducers/organizationReducer";
-import { organizationConfigConnection } from "ee/constants/organizationConstants";
+import { flattenOrganizationConfigForSettingsForm } from "ee/utils/adminSettingsHelpers";
 
 export const initialState: SettingsReduxState = {
   isLoading: true,
@@ -51,15 +51,9 @@ export const handlers = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<OrganizationReduxState<any>>,
   ) => {
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const configs: any = {};
-
-    organizationConfigConnection.forEach((key: string) => {
-      if (action.payload?.organizationConfiguration?.hasOwnProperty(key)) {
-        configs[key] = action.payload?.organizationConfiguration?.[key];
-      }
-    });
+    const configs = flattenOrganizationConfigForSettingsForm(
+      action.payload?.organizationConfiguration,
+    );
 
     return {
       ...state,
@@ -78,15 +72,9 @@ export const handlers = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<OrganizationReduxState<any>>,
   ) => {
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const configs: any = {};
-
-    organizationConfigConnection.forEach((key: string) => {
-      if (action.payload?.organizationConfiguration?.hasOwnProperty(key)) {
-        configs[key] = action.payload?.organizationConfiguration?.[key];
-      }
-    });
+    const configs = flattenOrganizationConfigForSettingsForm(
+      action.payload?.organizationConfiguration,
+    );
 
     return {
       ...state,
