@@ -331,8 +331,39 @@ export interface RichtextEditorComponentProps {
   onValueChange: (valueAsString: string) => void;
 }
 
-function titleForFontFamilyFormat(formats: string, format: string): string {
-  for (const entry of formats.split(";")) {
+const FONT_CARET_NAVIGATION_KEYS = new Set([
+  "ArrowLeft",
+  "ArrowRight",
+  "ArrowUp",
+  "ArrowDown",
+  "Home",
+  "End",
+  "PageUp",
+  "PageDown",
+]);
+
+// TinyMCE 7.9.3 default minus Symbol/Webdings/Wingdings, plus Default
+// mapped to the iframe UA serif (Times) so existing apps keep the same
+// look and the dropdown has a real selected option.
+const fontFamilyFormats =
+  "Default=times,times new roman,serif;" +
+  "Andale Mono=andale mono,monospace;" +
+  "Arial=arial,helvetica,sans-serif;" +
+  "Arial Black=arial black,sans-serif;" +
+  "Book Antiqua=book antiqua,palatino,serif;" +
+  "Comic Sans MS=comic sans ms,sans-serif;" +
+  "Courier New=courier new,courier,monospace;" +
+  "Georgia=georgia,palatino,serif;" +
+  "Helvetica=helvetica,arial,sans-serif;" +
+  "Impact=impact,sans-serif;" +
+  "Tahoma=tahoma,arial,helvetica,sans-serif;" +
+  "Terminal=terminal,monaco,monospace;" +
+  "Times New Roman=times new roman,times,serif;" +
+  "Trebuchet MS=trebuchet ms,geneva,sans-serif;" +
+  "Verdana=verdana,geneva,sans-serif";
+
+function titleForFontFamilyFormat(format: string): string {
+  for (const entry of fontFamilyFormats.split(";")) {
     const separator = entry.indexOf("=");
 
     if (separator === -1) {
@@ -346,17 +377,6 @@ function titleForFontFamilyFormat(formats: string, format: string): string {
 
   return format.split(",")[0]?.trim() ?? format;
 }
-
-const FONT_CARET_NAVIGATION_KEYS = new Set([
-  "ArrowLeft",
-  "ArrowRight",
-  "ArrowUp",
-  "ArrowDown",
-  "Home",
-  "End",
-  "PageUp",
-  "PageDown",
-]);
 
 function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const {
@@ -378,26 +398,6 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
 
   const toolbarConfig =
     "insertfile undo redo | blocks | fontfamily | bold italic underline backcolor forecolor | lineheight | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | preview media | emoticons | code | help";
-
-  // TinyMCE 7.9.3 default minus Symbol/Webdings/Wingdings, plus Default
-  // mapped to the iframe UA serif (Times) so existing apps keep the same
-  // look and the dropdown has a real selected option.
-  const fontFamilyFormats =
-    "Default=times,times new roman,serif;" +
-    "Andale Mono=andale mono,monospace;" +
-    "Arial=arial,helvetica,sans-serif;" +
-    "Arial Black=arial black,sans-serif;" +
-    "Book Antiqua=book antiqua,palatino,serif;" +
-    "Comic Sans MS=comic sans ms,sans-serif;" +
-    "Courier New=courier new,courier,monospace;" +
-    "Georgia=georgia,palatino,serif;" +
-    "Helvetica=helvetica,arial,sans-serif;" +
-    "Impact=impact,sans-serif;" +
-    "Tahoma=tahoma,arial,helvetica,sans-serif;" +
-    "Terminal=terminal,monaco,monospace;" +
-    "Times New Roman=times new roman,times,serif;" +
-    "Trebuchet MS=trebuchet ms,geneva,sans-serif;" +
-    "Verdana=verdana,geneva,sans-serif";
 
   const handleEditorChange = useCallback(
     // TODO: Fix this the next time the file is edited
@@ -651,10 +651,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
                 }
 
                 pendingFontFamily = String(event.value);
-                pendingFontTitle = titleForFontFamilyFormat(
-                  fontFamilyFormats,
-                  pendingFontFamily,
-                );
+                pendingFontTitle = titleForFontFamilyFormat(pendingFontFamily);
                 pendingCaretOffset = collapsedTextOffset();
               });
               editor.on("NodeChange", () => {

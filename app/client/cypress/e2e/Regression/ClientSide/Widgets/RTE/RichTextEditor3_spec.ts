@@ -1,3 +1,4 @@
+import type { TinyMCE } from "tinymce";
 import {
   agHelper,
   locators,
@@ -7,6 +8,22 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+
+declare global {
+  interface Window {
+    tinymce: TinyMCE;
+  }
+}
+
+function getActiveEditor(win: Window) {
+  const editor = win.tinymce.activeEditor;
+
+  if (!editor) {
+    throw new Error("TinyMCE active editor is missing");
+  }
+
+  return editor;
+}
 
 describe(
   "Rich Text Editor widget Tests",
@@ -89,7 +106,7 @@ describe(
       let htmlBefore = "";
 
       cy.window().then((win) => {
-        htmlBefore = win.tinymce.activeEditor.getContent().toLowerCase();
+        htmlBefore = getActiveEditor(win).getContent().toLowerCase();
         expect(htmlBefore).to.not.contain("font-family");
       });
       agHelper.GetNClick(locators._richText_FontFamily);
@@ -104,7 +121,7 @@ describe(
           return agHelper.TypeText($body, "ArialText");
         });
       cy.window().then((win) => {
-        const htmlAfter = win.tinymce.activeEditor.getContent().toLowerCase();
+        const htmlAfter = getActiveEditor(win).getContent().toLowerCase();
 
         expect(htmlAfter).to.not.equal(htmlBefore);
         expect(htmlAfter).to.contain("font-family");
@@ -114,7 +131,7 @@ describe(
 
     it("5. Verify choosing a font with a collapsed caret applies to the next typed text", function () {
       cy.window().then((win) => {
-        const editor = win.tinymce.activeEditor;
+        const editor = getActiveEditor(win);
 
         editor.focus();
         editor.selection.select(editor.getBody(), true);
@@ -129,9 +146,9 @@ describe(
         "Font Georgia",
       );
       cy.window().then((win) => {
-        expect(
-          win.tinymce.activeEditor.getContent().toLowerCase(),
-        ).to.not.contain("georgia");
+        expect(getActiveEditor(win).getContent().toLowerCase()).to.not.contain(
+          "georgia",
+        );
       });
       agHelper
         .GetElement(
@@ -143,7 +160,7 @@ describe(
           return agHelper.TypeText($body, "GeorgiaText");
         });
       cy.window().then((win) => {
-        expect(win.tinymce.activeEditor.getContent().toLowerCase()).to.contain(
+        expect(getActiveEditor(win).getContent().toLowerCase()).to.contain(
           "georgia",
         );
       });
@@ -151,7 +168,7 @@ describe(
 
     it("6. Verify moving the caret after picking a font does not apply it at the new location", function () {
       cy.window().then((win) => {
-        const editor = win.tinymce.activeEditor;
+        const editor = getActiveEditor(win);
 
         editor.focus();
         editor.selection.select(editor.getBody(), true);
@@ -166,7 +183,7 @@ describe(
         "Font Courier New",
       );
       cy.window().then((win) => {
-        const editor = win.tinymce.activeEditor;
+        const editor = getActiveEditor(win);
         const body = editor.getBody();
 
         expect(editor.getContent().toLowerCase()).to.not.contain("courier");
@@ -174,9 +191,17 @@ describe(
         editor.selection.setCursorLocation(body.firstChild || body, 0);
       });
       cy.window().then((win) => {
-        expect(
-          win.tinymce.activeEditor.getContent().toLowerCase(),
-        ).to.not.contain("courier");
+        const editor = getActiveEditor(win);
+
+        // Insert at TinyMCE's caret so a body click cannot clear pending
+        // via mousedown. Caret formats only show up in getContent after
+        // this insert.
+        editor.insertContent("NoCourier");
+
+        const html = editor.getContent().toLowerCase();
+
+        expect(html).to.contain("nocourier");
+        expect(html).to.not.match(/font-family:[^>]*courier[^>]*>nocourier/);
       });
     });
   },
