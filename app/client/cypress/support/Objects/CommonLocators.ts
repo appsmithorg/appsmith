@@ -318,6 +318,10 @@ export class CommonLocators {
   _richText_TitleBlock = "[aria-label='Block Paragraph']";
   _richText_Heading = "[aria-label='Heading 1']";
   _richText_Label_Text = ".tox-tbtn__select-label";
+  // TinyMCE 7.9.3: data-mce-name is stable; aria-label is "Font {current}" (default "Font System Font")
+  _richText_FontFamily = "[data-mce-name='fontfamily']";
+  _richText_FontFamilyOption = (font: string) =>
+    `.tox-collection__item[aria-label="${font}"]`;
   _richText_Text_Color = (color: string) =>
     `[aria-label="Text color ${color}"] .tox-split-button__chevron`;
   _richText_color = (value: string) =>

@@ -118,7 +118,7 @@ describe(
       // Set the content inside RTE widget by typing
       setRTEContent(`${testString} {enter} ${testString} 1`);
 
-      cy.get(".tox-tbtn--bespoke").click({ force: true });
+      cy.get(locators._richText_TitleBlock).click({ force: true });
       cy.contains("Heading 1").click({ force: true });
 
       cy.window().then((win) => {

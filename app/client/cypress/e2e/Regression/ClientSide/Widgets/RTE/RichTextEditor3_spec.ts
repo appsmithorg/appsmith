@@ -84,5 +84,100 @@ describe(
           );
         });
     });
+
+    it("4. Verify applying a font family from the toolbar writes font-family into the editor HTML", function () {
+      let htmlBefore = "";
+
+      cy.window().then((win) => {
+        htmlBefore = win.tinymce.activeEditor.getContent().toLowerCase();
+        expect(htmlBefore).to.not.contain("font-family");
+      });
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Arial"));
+      agHelper
+        .GetElement(
+          locators._widgetInDeployed("richtexteditorwidget") + " iframe",
+        )
+        .then(($iframe) => {
+          const $body = $iframe.contents().find("body");
+
+          return agHelper.TypeText($body, "ArialText");
+        });
+      cy.window().then((win) => {
+        const htmlAfter = win.tinymce.activeEditor.getContent().toLowerCase();
+
+        expect(htmlAfter).to.not.equal(htmlBefore);
+        expect(htmlAfter).to.contain("font-family");
+        expect(htmlAfter).to.contain("arial");
+      });
+    });
+
+    it("5. Verify choosing a font with a collapsed caret applies to the next typed text", function () {
+      cy.window().then((win) => {
+        const editor = win.tinymce.activeEditor;
+
+        editor.focus();
+        editor.selection.select(editor.getBody(), true);
+        editor.selection.collapse(false);
+        expect(editor.getContent().toLowerCase()).to.not.contain("georgia");
+      });
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Georgia"));
+      cy.get(locators._richText_FontFamily).should(
+        "have.attr",
+        "aria-label",
+        "Font Georgia",
+      );
+      cy.window().then((win) => {
+        expect(
+          win.tinymce.activeEditor.getContent().toLowerCase(),
+        ).to.not.contain("georgia");
+      });
+      agHelper
+        .GetElement(
+          locators._widgetInDeployed("richtexteditorwidget") + " iframe",
+        )
+        .then(($iframe) => {
+          const $body = $iframe.contents().find("body");
+
+          return agHelper.TypeText($body, "GeorgiaText");
+        });
+      cy.window().then((win) => {
+        expect(win.tinymce.activeEditor.getContent().toLowerCase()).to.contain(
+          "georgia",
+        );
+      });
+    });
+
+    it("6. Verify moving the caret after picking a font does not apply it at the new location", function () {
+      cy.window().then((win) => {
+        const editor = win.tinymce.activeEditor;
+
+        editor.focus();
+        editor.selection.select(editor.getBody(), true);
+        editor.selection.collapse(false);
+        expect(editor.getContent().toLowerCase()).to.not.contain("courier");
+      });
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Courier New"));
+      cy.get(locators._richText_FontFamily).should(
+        "have.attr",
+        "aria-label",
+        "Font Courier New",
+      );
+      cy.window().then((win) => {
+        const editor = win.tinymce.activeEditor;
+        const body = editor.getBody();
+
+        expect(editor.getContent().toLowerCase()).to.not.contain("courier");
+        // Stay collapsed: select-all would clear pending for a different reason.
+        editor.selection.setCursorLocation(body.firstChild || body, 0);
+      });
+      cy.window().then((win) => {
+        expect(
+          win.tinymce.activeEditor.getContent().toLowerCase(),
+        ).to.not.contain("courier");
+      });
+    });
   },
 );
