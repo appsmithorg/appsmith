@@ -358,11 +358,13 @@ ensure_mongodb_fcv_compatible() {
     local marker_value marker_major
     marker_value="$(head -n 1 "$marker" 2>/dev/null | tr -d '[:space:]' || true)"
     marker_major="${marker_value%%.*}"
-    if [[ "$marker_major" =~ ^[0-9]+$ ]] && (( marker_major >= mongod_fcv_floor )); then
+    # The full value must be a well-formed major.minor FCV before the major is
+    # trusted — anything malformed falls through to the probe.
+    if [[ "$marker_value" =~ ^[0-9]+\.[0-9]+$ ]] && (( marker_major >= mongod_fcv_floor )); then
       tlog "MongoDB FCV marker ($marker_value) meets the $mongod_fcv_floor.0 floor; skipping pre-flight check"
       return
     fi
-    tlog "MongoDB FCV marker ($marker_value) is below the $mongod_fcv_floor.0 floor required by MongoDB 8.x; running one-time compatibility probe"
+    tlog "MongoDB FCV marker ($marker_value) does not meet the $mongod_fcv_floor.0 floor required by MongoDB 8.x; running one-time compatibility probe"
   else
     tlog "No MongoDB FCV marker found on existing data; running one-time compatibility probe"
   fi
