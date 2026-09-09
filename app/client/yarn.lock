@@ -13774,7 +13774,7 @@ __metadata:
     loglevel: ^1.8.1
     mongodb: ^6.7.0
     mongodb-connection-string-url: ^3.0.2
-    nodemailer: 9.0.1
+    nodemailer: ^9.1.1
     readline-sync: 1.4.10
     simple-git: ^3.32.3
     supertest: ^6.3.3
@@ -17234,10 +17234,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"csv-parse@npm:^5.5.6":
-  version: 5.6.0
-  resolution: "csv-parse@npm:5.6.0"
-  checksum: 173e176bdaf212bab37d0f6d39a06d039d24a1c0ee40b9f1023ebf8b36095934807deeb493c0fb58592b39b0682ccd0be5c9e8d2b137c08807e7031595ea7a51
+"csv-parse@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "csv-parse@npm:7.0.2"
+  checksum: 654d5bcec8e690891746bb7cbd4a2451797bb8fa0bf09823cf209955d0fd878c4015f530bb2e8aef61743ec13b7a7943921053784afc5414648cd2f1ee597c5a
   languageName: node
   linkType: hard
 
@@ -24036,9 +24036,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"joi@npm:^18.2.1":
-  version: 18.2.1
-  resolution: "joi@npm:18.2.1"
+"joi@npm:^18.2.5":
+  version: 18.2.8
+  resolution: "joi@npm:18.2.8"
   dependencies:
     "@hapi/address": ^5.1.1
     "@hapi/formula": ^3.0.2
@@ -24047,7 +24047,7 @@ __metadata:
     "@hapi/tlds": ^1.1.1
     "@hapi/topo": ^6.0.2
     "@standard-schema/spec": ^1.1.0
-  checksum: 4b4e28bf80438b6d3ab96484817e590f2ed1d589b511796d10c9dc8fc2bf02ff6cf833514e4a7436ba9cae9f49b65f9c871ab48647975f36bf02ea0ee2a51b7a
+  checksum: 304090fb4209ef709bfcbb7fdf9694971cc1e639525d7b94befaccedda67b1374cbab2612357a522d584ae5c8c1dcd67ec32c1214d819f4618a5a86c30badfce
   languageName: node
   linkType: hard
 
@@ -24093,15 +24093,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:^3.15.1":
-  version: 3.15.1
-  resolution: "js-yaml@npm:3.15.1"
+"js-yaml@npm:3.15.2":
+  version: 3.15.2
+  resolution: "js-yaml@npm:3.15.2"
   dependencies:
     argparse: ^1.0.7
     esprima: ^4.0.0
   bin:
     js-yaml: bin/js-yaml.js
-  checksum: 536cfb984b61d1544dbdbe394254dd13481a94171cb3a61608572d9112a63cbace9dd900cb83a4e530ac36427fff77d9e1cb6734917c6fea951d00b4f7bbb163
+  checksum: 774d62285fa9aad3883603a7186c58619b582f0257ccf4d7b518dc2dc5c7f88f14b649c1149112b4494da832ba824c35a3e2fda776a12dbe02e99f7adc3a8a47
   languageName: node
   linkType: hard
 
@@ -26811,10 +26811,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nodemailer@npm:9.0.1":
-  version: 9.0.1
-  resolution: "nodemailer@npm:9.0.1"
-  checksum: 7b8544b855b37e868f0cd596eb2afe5a9d0a54411c3c6db248c42d3f1a493cbe7e27d44ce10ad1720883175a4ad07339faffa596eab24b7ced7ef01fd63e7315
+"nodemailer@npm:^9.1.1":
+  version: 9.1.1
+  resolution: "nodemailer@npm:9.1.1"
+  checksum: 2a3822f44079ba26bbfa146095a4818532a0ce5bde6f686db662c6c8f97a50b372f1d65bda15ef63df10e49b8d462b2b135c412b373d8a3e2f32aae188e5629b
   languageName: node
   linkType: hard
 
@@ -33671,9 +33671,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svgo@npm:2.8.3, svgo@npm:^2.8.3":
-  version: 2.8.3
-  resolution: "svgo@npm:2.8.3"
+"svgo@npm:2.8.4, svgo@npm:^2.8.4":
+  version: 2.8.4
+  resolution: "svgo@npm:2.8.4"
   dependencies:
     commander: ^7.2.0
     css-select: ^4.1.3
@@ -33683,14 +33683,14 @@ __metadata:
     sax: ^1.5.0
     stable: ^0.1.8
   bin:
-    svgo: ./bin/svgo
-  checksum: e3636760dfb7fb898919fd8eade7ad4a69a10b8650e9b3062b3beff6045f39063da18d537b454ed5bca638a9db45bb0bfa8d9b920efac2157964ec20ff35d829
+    svgo: bin/svgo
+  checksum: 1775cd386e9f4fddeaac4f88ba9e3f046eb0cf521561362cfcb844b9c07c44ad775b7e62908fa7a2062529f391f0d5a6549af7ac5c18b2096830cb4513465dfc
   languageName: node
   linkType: hard
 
-"svgo@npm:3.3.4":
-  version: 3.3.4
-  resolution: "svgo@npm:3.3.4"
+"svgo@npm:3.3.5":
+  version: 3.3.5
+  resolution: "svgo@npm:3.3.5"
   dependencies:
     commander: ^7.2.0
     css-select: ^5.1.0
@@ -33700,8 +33700,8 @@ __metadata:
     picocolors: ^1.0.0
     sax: ^1.5.0
   bin:
-    svgo: ./bin/svgo
-  checksum: 7828e76b42bb58867703a21aa80f2cd1a8c1828df2500a5ac58a30cca483d9c7862d07c9060a4cdf24bbb8ac3d2148ed27e42dc2794738d097fae0ce05dabd81
+    svgo: bin/svgo
+  checksum: ea18071747812aed65439e1e3bdfcfd527f8c51c459c94f6aeb539653bb3f6ea4f2a75451427d2fde2fb1da578b704df8406b7de30382cca878594ec1d45be84
   languageName: node
   linkType: hard
 
