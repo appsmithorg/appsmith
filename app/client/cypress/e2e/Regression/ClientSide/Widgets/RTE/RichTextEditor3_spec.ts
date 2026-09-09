@@ -204,5 +204,43 @@ describe(
         expect(html).to.not.match(/font-family:[^>]*courier[^>]*>nocourier/);
       });
     });
+
+    it("7. Verify picking Arial inside Arial Black text applies Arial to the next insert", function () {
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.focus();
+        editor.selection.select(editor.getBody(), true);
+      });
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Arial Black"));
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        expect(editor.getContent().toLowerCase()).to.contain("arial black");
+        editor.selection.select(editor.getBody(), true);
+        editor.selection.collapse(true);
+      });
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Arial"));
+      cy.get(locators._richText_FontFamily).should(
+        "have.attr",
+        "aria-label",
+        "Font Arial",
+      );
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.insertContent("ArialNotBlack");
+
+        const html = editor.getContent().toLowerCase();
+
+        expect(html).to.contain("arialnotblack");
+        expect(html).to.not.match(/arial\s*black[^>]*>arialnotblack/);
+        expect(html).to.match(
+          /font-family:\s*['"]?arial['"]?(?!\s*black)[^>]*>arialnotblack/,
+        );
+      });
+    });
   },
 );

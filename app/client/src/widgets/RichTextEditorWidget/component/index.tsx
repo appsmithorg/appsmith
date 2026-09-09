@@ -586,11 +586,10 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
                   return true;
                 }
 
-                const current = (
-                  editor.queryCommandValue("FontName") || ""
-                ).toLowerCase();
-
-                return current.includes(firstFamily(pendingFontFamily));
+                return (
+                  firstFamily(editor.queryCommandValue("FontName") || "") ===
+                  firstFamily(pendingFontFamily)
+                );
               };
 
               const paintPendingFontLabel = () => {
