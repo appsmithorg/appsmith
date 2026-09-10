@@ -331,17 +331,6 @@ export interface RichtextEditorComponentProps {
   onValueChange: (valueAsString: string) => void;
 }
 
-const FONT_CARET_NAVIGATION_KEYS = new Set([
-  "ArrowLeft",
-  "ArrowRight",
-  "ArrowUp",
-  "ArrowDown",
-  "Home",
-  "End",
-  "PageUp",
-  "PageDown",
-]);
-
 // TinyMCE 7.9.3 default minus Symbol/Webdings/Wingdings, plus Default
 // mapped to the iframe UA serif (Times) so existing apps keep the same
 // look and the dropdown has a real selected option.
@@ -405,15 +394,13 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     (newValue: string, editor: any) => {
       // avoid updating value, when there is no actual change.
       if (newValue !== editorValue) {
-        const isFocused = editor.hasFocus();
+        setEditorValue(newValue);
 
         /**
-         * only change call the props.onValueChange when the editor is in focus.
+         * only call props.onValueChange when the editor is in focus.
          * This prevents props.onValueChange from getting called whenever the defaultText is changed.
          */
-        //
-        if (isFocused) {
-          setEditorValue(newValue);
+        if (editor.hasFocus()) {
           props.onValueChange(newValue);
         }
       }
@@ -544,9 +531,9 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
               // Collapsed FontName is a caret format. Closing the toolbar menu
               // restores the pre-menu bookmark (Times) and NodeChange then
               // overwrites the dropdown. Keep the pick as pending only while
-              // the caret stays at that same text offset — a click, arrow
-              // key, or programmatic move must drop it so we do not restyle
-              // an unrelated location.
+              // the caret stays at that same text offset — a click or
+              // programmatic move must drop it so we do not restyle an
+              // unrelated location.
               let pendingFontFamily: string | null = null;
               let pendingFontTitle: string | null = null;
               let pendingCaretOffset: number | null = null;
@@ -555,12 +542,12 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
               const firstFamily = (font: string) =>
                 font.split(",")[0].trim().replace(/['"]/g, "").toLowerCase();
 
-              const collapsedTextOffset = () => {
+              const collapsedTextOffset = (): number | null => {
                 const rng = editor.selection.getRng();
                 const body = editor.getBody();
 
                 if (!body) {
-                  return 0;
+                  return null;
                 }
 
                 try {
@@ -571,7 +558,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
 
                   return probe.toString().replace(/[\uFEFF\u200B]/g, "").length;
                 } catch {
-                  return pendingCaretOffset ?? 0;
+                  return null;
                 }
               };
 
@@ -624,9 +611,12 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
                   return;
                 }
 
+                const caretOffset = collapsedTextOffset();
+
                 if (
-                  pendingCaretOffset !== null &&
-                  collapsedTextOffset() !== pendingCaretOffset
+                  caretOffset === null ||
+                  (pendingCaretOffset !== null &&
+                    caretOffset !== pendingCaretOffset)
                 ) {
                   clearPendingFont();
 
@@ -652,25 +642,20 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
                 pendingFontFamily = String(event.value);
                 pendingFontTitle = titleForFontFamilyFormat(pendingFontFamily);
                 pendingCaretOffset = collapsedTextOffset();
+
+                if (pendingCaretOffset === null) {
+                  clearPendingFont();
+                }
               });
               editor.on("NodeChange", () => {
                 setTimeout(ensurePendingFont, 0);
               });
               editor.on("mousedown", clearPendingFont);
-              editor.on("keydown", (event) => {
-                if (FONT_CARET_NAVIGATION_KEYS.has(event.key)) {
-                  clearPendingFont();
-                }
-              });
             },
           }}
           key={`editor_${props.isToolbarHidden}_${props.isDisabled}`}
           licenseKey="gpl"
           onEditorChange={handleEditorChange}
-          // Local `value` is not a veto. tinymce-react's rollback would
-          // setContent() 200ms later and wipe caret formats; WDS RTE
-          // disables it for the same contract.
-          rollback={false}
           toolbar={props.isToolbarHidden ? false : toolbarConfig}
           value={editorValue}
         />

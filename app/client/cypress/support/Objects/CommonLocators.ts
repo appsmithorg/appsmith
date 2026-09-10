@@ -49,8 +49,11 @@ export class CommonLocators {
     )}`;
   _textWidget = ".t--draggable-textwidget .t--text-widget-container span";
   _tableWidget = ".t--widget-tablewidgetv2";
+  _tabWidget = (tabNumber: string) => `.t--tabid-tab${tabNumber}`;
   _inputWidget = ".t--draggable-inputwidgetv2 input";
   _publishButton = ".t--application-publish-btn";
+  _deployPopup = ".t--deploy-popup-option-trigger";
+  _currentDeployPreview = ".t--current-deployed-preview-btn";
   _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`;
   _widgetInDeployed = (widgetType: string) => `.t--widget-${widgetType}`;
   _widgetInputSelector = (widgetType: string) =>
@@ -64,6 +67,7 @@ export class CommonLocators {
   _textAreainputWidgetv2InDeployed =
     this._widgetInDeployed("inputwidgetv2") + " textarea";
   _imageWidget = ".t--draggable-imagewidget";
+  _imageWidgetInDeployed = ".t--widget-imagewidget";
   _backToEditor = ".t--back-to-editor";
   _toastMsg = "div.Toastify__toast";
   _toastContainer = "div.Toastify__toast-container";
@@ -201,6 +205,7 @@ export class CommonLocators {
   _jsonToggle = (fieldName: string) =>
     `//p[text()='${fieldName}']/parent::div//following-sibling::div//input[@type='checkbox']`;
   _deployedPage = `.t--page-switch-tab`;
+  _navigationMenuItem = "[data-testid='t--pages-switcher']";
   _hints = "ul.CodeMirror-hints li";
   _hints_apis = "ul.CodeMirror-hints li.Codemirror-commands-apis";
   _tern_doc = ".t--tern-doc";
@@ -322,6 +327,8 @@ export class CommonLocators {
   _richText_FontFamily = "[data-mce-name='fontfamily']";
   _richText_FontFamilyOption = (font: string) =>
     `.tox-collection__item[aria-label="${font}"]`;
+  _richText_ToolbarOverflow =
+    '[aria-label="Reveal or hide additional toolbar items"]';
   _richText_Text_Color = (color: string) =>
     `[aria-label="Text color ${color}"] .tox-split-button__chevron`;
   _richText_color = (value: string) =>
@@ -356,6 +363,7 @@ export class CommonLocators {
   _entityItem = "[data-testid='t--entity-item-Api1']";
   _rowData = "[data-colindex='0'][data-rowindex='0']";
   _visualNonIdeaState = ".bp3-non-ideal-state";
+  _mongoDBConnectionInfo = "input[name='APPSMITH_DB_CONNECTION_INFO']";
   _editorTab = ".editor-tab";
   _entityTestId = (entity: string) =>
     `[data-testid="t--entity-item-${entity}"]`;
@@ -364,5 +372,8 @@ export class CommonLocators {
   _dropdownActiveOption = ".rc-select-dropdown .rc-select-item-option-active";
   _rcVirtualListHolder = ".rc-virtual-list-holder";
   _homeIcon = "[data-testid='t--default-home-icon']";
+  _appsmithLogo = ".t--appsmith-logo";
   _widget = (widgetName: string) => `.t--widget-${widgetName}`;
+  _settingPaneWrapper = "[role='table']";
+  _tableOverlayConnectData = ".t--cypress-table-overlay-connectdata";
 }

@@ -144,7 +144,7 @@ describe(
     });
 
     it("6. Check if able to add an emoji through toolbar", () => {
-      cy.get('[aria-label="Reveal or hide additional toolbar items"]').click({
+      cy.get(locators._richText_ToolbarOverflow).click({
         force: true,
       });
       cy.get('[aria-label="Emojis"]').click({ force: true });
