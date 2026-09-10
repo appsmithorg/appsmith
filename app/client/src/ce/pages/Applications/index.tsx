@@ -8,8 +8,6 @@ import {
 } from "ee/actions/workspaceActions";
 import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
 import {
-  AI_AGENTS_APPLICATIONS,
-  AI_APPLICATION_CARD_LIST_ZERO_STATE,
   ANVIL_APPLICATIONS,
   ANVIL_APPLICATION_CARD_LIST_ZERO_STATE,
   APPLICATIONS,
@@ -1088,11 +1086,9 @@ export function ApplicationsSection(props: any) {
                   applications={anvilApplications}
                   canInviteToWorkspace={canInviteToWorkspace}
                   deleteApplication={deleteApplication}
-                  emptyStateMessage={
-                    isAiAgentFlowEnabled
-                      ? createMessage(AI_APPLICATION_CARD_LIST_ZERO_STATE)
-                      : createMessage(ANVIL_APPLICATION_CARD_LIST_ZERO_STATE)
-                  }
+                  emptyStateMessage={createMessage(
+                    ANVIL_APPLICATION_CARD_LIST_ZERO_STATE,
+                  )}
                   enableImportExport={enableImportExport}
                   hasCreateNewApplicationPermission={
                     hasCreateNewApplicationPermission
@@ -1100,11 +1096,20 @@ export function ApplicationsSection(props: any) {
                   hasManageWorkspacePermissions={hasManageWorkspacePermissions}
                   isMobile={isMobile}
                   onClickAddNewButton={onClickAddNewAppButton}
-                  title={createMessage(
-                    isAiAgentFlowEnabled
-                      ? AI_AGENTS_APPLICATIONS
-                      : ANVIL_APPLICATIONS,
-                  )}
+                  // This list holds ANVIL-layout applications, so it is titled
+                  // for them regardless of the AI-agent flag — they were never
+                  // AI agents, they were only filed under that heading because
+                  // the flag was on (APP-15954).
+                  //
+                  // NOTE: the render gate on this block is NOT correct and is
+                  // not fixed here. `isAnvilEnabled` resolves via
+                  // getIsAnvilLayoutEnabled, which reads the RETIRED
+                  // release_anvil_enabled flag — never served, so always false in
+                  // production. The gate therefore collapses to
+                  // isAiAgentFlowEnabled alone, and an org licensed for Anvil but
+                  // without the AI-agent flag never sees this section at all.
+                  // Tracked separately; see APP-15950.
+                  title={createMessage(ANVIL_APPLICATIONS)}
                   titleTag={PreviewTag}
                   updateApplicationDispatch={updateApplicationDispatch}
                   workspaceId={activeWorkspace.id}
