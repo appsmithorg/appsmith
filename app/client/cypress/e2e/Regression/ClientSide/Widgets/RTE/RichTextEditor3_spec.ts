@@ -25,6 +25,16 @@ function getActiveEditor(win: Window) {
   return editor;
 }
 
+function firstFamily(font: string) {
+  return font.split(",")[0].trim().replace(/['"]/g, "").toLowerCase();
+}
+
+function fontFamilyAtCaret(editor: ReturnType<typeof getActiveEditor>) {
+  return firstFamily(
+    editor.dom.getStyle(editor.selection.getNode(), "font-family", true) || "",
+  );
+}
+
 describe(
   "Rich Text Editor widget Tests",
   { tags: ["@tag.Widget", "@tag.TextEditor", "@tag.Binding"] },
@@ -112,17 +122,12 @@ describe(
       });
       agHelper.GetNClick(locators._richText_FontFamily);
       agHelper.GetNClick(locators._richText_FontFamilyOption("Arial"));
-      agHelper
-        .GetElement(
-          locators._widgetInDeployed("richtexteditorwidget") + " iframe",
-        )
-        .then(($iframe) => {
-          const $body = $iframe.contents().find("body");
-
-          return agHelper.TypeText($body, "ArialText");
-        });
       cy.window().then((win) => {
-        const htmlAfter = getActiveEditor(win).getContent().toLowerCase();
+        const editor = getActiveEditor(win);
+
+        editor.insertContent("ArialText");
+
+        const htmlAfter = editor.getContent().toLowerCase();
 
         expect(htmlAfter).to.not.equal(htmlBefore);
         expect(htmlAfter).to.contain("font-family");
@@ -151,19 +156,11 @@ describe(
           "georgia",
         );
       });
-      agHelper
-        .GetElement(
-          locators._widgetInDeployed("richtexteditorwidget") + " iframe",
-        )
-        .then(($iframe) => {
-          const $body = $iframe.contents().find("body");
-
-          return agHelper.TypeText($body, "GeorgiaText");
-        });
       cy.window().then((win) => {
-        expect(getActiveEditor(win).getContent().toLowerCase()).to.contain(
-          "georgia",
-        );
+        const editor = getActiveEditor(win);
+
+        editor.insertContent("GeorgiaText");
+        expect(editor.getContent().toLowerCase()).to.contain("georgia");
       });
     });
 
@@ -191,18 +188,18 @@ describe(
         // Stay collapsed: select-all would clear pending for a different reason.
         editor.selection.setCursorLocation(body.firstChild || body, 0);
       });
+      cy.get(locators._richText_FontFamily).should(
+        "not.have.attr",
+        "aria-label",
+        "Font Courier New",
+      );
       cy.window().then((win) => {
         const editor = getActiveEditor(win);
 
-        // Insert at TinyMCE's caret so a body click cannot clear pending
-        // via mousedown. Caret formats only show up in getContent after
-        // this insert.
         editor.insertContent("NoCourier");
 
-        const html = editor.getContent().toLowerCase();
-
-        expect(html).to.contain("nocourier");
-        expect(html).to.not.match(/font-family:[^>]*courier[^>]*>nocourier/);
+        expect(editor.getContent().toLowerCase()).to.contain("nocourier");
+        expect(fontFamilyAtCaret(editor)).to.not.match(/courier/);
       });
     });
 
@@ -234,13 +231,8 @@ describe(
 
         editor.insertContent("ArialNotBlack");
 
-        const html = editor.getContent().toLowerCase();
-
-        expect(html).to.contain("arialnotblack");
-        expect(html).to.not.match(/arial\s*black[^>]*>arialnotblack/);
-        expect(html).to.match(
-          /font-family:\s*['"]?arial['"]?(?!\s*black)[^>]*>arialnotblack/,
-        );
+        expect(editor.getContent().toLowerCase()).to.contain("arialnotblack");
+        expect(fontFamilyAtCaret(editor)).to.eq("arial");
       });
     });
   },

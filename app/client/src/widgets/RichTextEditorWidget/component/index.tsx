@@ -394,13 +394,15 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     (newValue: string, editor: any) => {
       // avoid updating value, when there is no actual change.
       if (newValue !== editorValue) {
-        setEditorValue(newValue);
+        const isFocused = editor.hasFocus();
 
         /**
-         * only call props.onValueChange when the editor is in focus.
+         * only change call the props.onValueChange when the editor is in focus.
          * This prevents props.onValueChange from getting called whenever the defaultText is changed.
          */
-        if (editor.hasFocus()) {
+        //
+        if (isFocused) {
+          setEditorValue(newValue);
           props.onValueChange(newValue);
         }
       }
@@ -531,19 +533,22 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
               // Collapsed FontName is a caret format. Closing the toolbar menu
               // restores the pre-menu bookmark (Times) and NodeChange then
               // overwrites the dropdown. Keep the pick as pending only while
-              // the caret stays at that same text offset — a click or
-              // programmatic move must drop it so we do not restyle an
-              // unrelated location.
+              // the caret stays in the same block at the same text offset —
+              // a click outside this editor, or a move, must drop it so we
+              // do not restyle an unrelated location.
               let pendingFontFamily: string | null = null;
               let pendingFontTitle: string | null = null;
-              let pendingCaretOffset: number | null = null;
+              let pendingCaret: { block: Node; offset: number } | null = null;
               let applyingPendingFont = false;
+              let pendingFontTimer: ReturnType<typeof setTimeout> | undefined;
 
               const firstFamily = (font: string) =>
                 font.split(",")[0].trim().replace(/['"]/g, "").toLowerCase();
 
-              const collapsedTextOffset = (): number | null => {
-                const rng = editor.selection.getRng();
+              const collapsedCaretInBlock = (): {
+                block: Node;
+                offset: number;
+              } | null => {
                 const body = editor.getBody();
 
                 if (!body) {
@@ -551,12 +556,22 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
                 }
 
                 try {
+                  const rng = editor.selection.getRng();
+                  const block =
+                    editor.dom.getParent(rng.startContainer, (node) =>
+                      editor.dom.isBlock(node),
+                    ) || body;
                   const probe = rng.cloneRange();
 
-                  probe.selectNodeContents(body);
+                  probe.selectNodeContents(block);
                   probe.setEnd(rng.startContainer, rng.startOffset);
 
-                  return probe.toString().replace(/[\uFEFF\u200B]/g, "").length;
+                  return {
+                    block,
+                    offset: probe
+                      .toString()
+                      .replace(/[\uFEFF\u200B]/g, "").length,
+                  };
                 } catch {
                   return null;
                 }
@@ -565,7 +580,36 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
               const clearPendingFont = () => {
                 pendingFontFamily = null;
                 pendingFontTitle = null;
-                pendingCaretOffset = null;
+                pendingCaret = null;
+              };
+
+              const isThisEditorChrome = (target: EventTarget | null) => {
+                if (!(target instanceof Node)) {
+                  return false;
+                }
+
+                const container = editor.getContainer();
+
+                if (container?.contains(target)) {
+                  return true;
+                }
+
+                const element =
+                  target instanceof Element ? target : target.parentElement;
+
+                return Boolean(
+                  element?.closest(
+                    ".tox-silver-sink, .tox-menu, .tox-dialog, .tox-selected-menu",
+                  ),
+                );
+              };
+
+              const onPageMouseDown = (event: MouseEvent) => {
+                if (!pendingFontFamily || isThisEditorChrome(event.target)) {
+                  return;
+                }
+
+                clearPendingFont();
               };
 
               const pendingFontIsActive = () => {
@@ -611,12 +655,13 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
                   return;
                 }
 
-                const caretOffset = collapsedTextOffset();
+                const caret = collapsedCaretInBlock();
 
                 if (
-                  caretOffset === null ||
-                  (pendingCaretOffset !== null &&
-                    caretOffset !== pendingCaretOffset)
+                  caret === null ||
+                  (pendingCaret !== null &&
+                    (caret.block !== pendingCaret.block ||
+                      caret.offset !== pendingCaret.offset))
                 ) {
                   clearPendingFont();
 
@@ -641,16 +686,36 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
 
                 pendingFontFamily = String(event.value);
                 pendingFontTitle = titleForFontFamilyFormat(pendingFontFamily);
-                pendingCaretOffset = collapsedTextOffset();
+                pendingCaret = collapsedCaretInBlock();
 
-                if (pendingCaretOffset === null) {
+                if (pendingCaret === null) {
                   clearPendingFont();
                 }
               });
               editor.on("NodeChange", () => {
-                setTimeout(ensurePendingFont, 0);
+                if (pendingFontTimer !== undefined) {
+                  clearTimeout(pendingFontTimer);
+                }
+
+                pendingFontTimer = setTimeout(() => {
+                  pendingFontTimer = undefined;
+                  ensurePendingFont();
+                }, 0);
               });
               editor.on("mousedown", clearPendingFont);
+              editor.on("deactivate", clearPendingFont);
+              document.addEventListener("mousedown", onPageMouseDown, true);
+              editor.on("remove", () => {
+                if (pendingFontTimer !== undefined) {
+                  clearTimeout(pendingFontTimer);
+                }
+
+                document.removeEventListener(
+                  "mousedown",
+                  onPageMouseDown,
+                  true,
+                );
+              });
             },
           }}
           key={`editor_${props.isToolbarHidden}_${props.isDisabled}`}
