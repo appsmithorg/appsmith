@@ -568,9 +568,8 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
 
                   return {
                     block,
-                    offset: probe
-                      .toString()
-                      .replace(/[\uFEFF\u200B]/g, "").length,
+                    offset: probe.toString().replace(/[\uFEFF\u200B]/g, "")
+                      .length,
                   };
                 } catch {
                   return null;
