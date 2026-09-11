@@ -433,6 +433,59 @@ public class ActionCollectionServiceImplTest {
     }
 
     @Test
+    public void testArchiveActionCollection_propagatesChildActionError() throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
+        ActionCollection actionCollection = objectMapper
+                .readerWithView(Views.Public.class)
+                .readValue(jsonNode.get("actionCollectionWithAction"), ActionCollection.class);
+        actionCollection.setPublishedCollection(null);
+
+        NewAction childAction = new NewAction();
+        childAction.setUnpublishedAction(actionCollection.getUnpublishedCollection().getActions().get(0));
+
+        Mockito.when(actionCollectionRepository.findById(Mockito.anyString()))
+                .thenReturn(Mono.just(actionCollection));
+        Mockito.when(newActionService.findByCollectionIdAndViewMode(
+                        Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
+                .thenReturn(Flux.just(childAction));
+        Mockito.when(newActionService.archiveGivenNewAction(Mockito.any()))
+                .thenReturn(Mono.error(new IllegalStateException("child archive failed")));
+
+        StepVerifier.create(actionCollectionService.archiveById("testCollectionId"))
+                .expectErrorMessage("child archive failed")
+                .verify();
+
+        Mockito.verify(actionCollectionRepository, Mockito.never()).archive(Mockito.any());
+    }
+
+    @Test
+    public void testDeleteUnpublishedActionCollection_propagatesChildActionError() throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
+        ActionCollection actionCollection = objectMapper
+                .readerWithView(Views.Public.class)
+                .readValue(jsonNode.get("actionCollectionWithAction"), ActionCollection.class);
+
+        NewAction childAction = new NewAction();
+        childAction.setUnpublishedAction(actionCollection.getUnpublishedCollection().getActions().get(0));
+
+        Mockito.when(actionCollectionRepository.findById(Mockito.any(), Mockito.<AclPermission>any()))
+                .thenReturn(Mono.just(actionCollection));
+        Mockito.when(newActionService.findByCollectionIdAndViewMode(
+                        Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
+                .thenReturn(Flux.just(childAction));
+        Mockito.when(newActionService.deleteGivenNewAction(Mockito.any()))
+                .thenReturn(Mono.error(new IllegalStateException("child delete failed")));
+
+        StepVerifier.create(actionCollectionService.deleteUnpublishedActionCollection("testCollectionId"))
+                .expectErrorMessage("child delete failed")
+                .verify();
+
+        Mockito.verify(actionCollectionRepository, Mockito.never()).save(Mockito.any());
+    }
+
+    @Test
     public void testDeleteUnpublishedActionCollection_withPublishedCollectionAndNoActions_returnsActionCollectionDTO()
             throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
