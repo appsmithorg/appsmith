@@ -264,5 +264,47 @@ describe(
         expect(fontFamilyAtCaret(editor)).to.eq("verdana");
       });
     });
+
+    it("9. Verify picking a font with the caret inside a word does not restyle that word", function () {
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.focus();
+        editor.setContent("<p>Hello World</p>");
+
+        const textNode = editor.getBody().querySelector("p")?.firstChild;
+
+        if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
+          throw new Error("Expected a text node in the RTE");
+        }
+
+        editor.selection.setCursorLocation(textNode, 2);
+        expect(editor.selection.isCollapsed()).to.eq(true);
+      });
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Impact"));
+      cy.get(locators._richText_FontFamily).should(
+        "have.attr",
+        "aria-label",
+        "Font Impact",
+      );
+      cy.window().then((win) => {
+        const html = getActiveEditor(win).getContent().toLowerCase();
+
+        expect(html).to.contain("hello");
+        expect(html).to.not.contain("impact");
+      });
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.insertContent("NEW");
+
+        const html = editor.getContent().toLowerCase();
+
+        expect(html).to.match(/<span[^>]*impact[^>]*>new<\/span>/);
+        expect(html).to.contain("llo world");
+        expect(fontFamilyAtCaret(editor)).to.match(/impact/);
+      });
+    });
   },
 );

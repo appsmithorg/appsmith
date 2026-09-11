@@ -368,6 +368,50 @@ function titleForFontFamilyFormat(format: string): string {
   return format.split(",")[0]?.trim() ?? format;
 }
 
+const WORD_CHAR = /[^\s\u00a0\u00ad\u200b\ufeff]/;
+
+/**
+ * TinyMCE's formatter expands a collapsed caret in the middle of a word
+ * to that word before applying an inline format. Collapsed FontName is a
+ * caret format for the next typed characters, so split the text node at
+ * the caret first — TinyMCE then takes its caret-container path instead
+ * of wrapping the existing word.
+ */
+function splitCollapsedCaretIfInsideWord(editor: TinyMCEEditor) {
+  if (!editor.selection.isCollapsed()) {
+    return;
+  }
+
+  try {
+    const rng = editor.selection.getRng();
+    const node = rng.startContainer;
+
+    if (node.nodeType !== Node.TEXT_NODE) {
+      return;
+    }
+
+    const offset = rng.startOffset;
+    const text = node.nodeValue ?? "";
+
+    if (offset <= 0 || offset >= text.length) {
+      return;
+    }
+
+    if (
+      !WORD_CHAR.test(text.charAt(offset - 1)) ||
+      !WORD_CHAR.test(text.charAt(offset))
+    ) {
+      return;
+    }
+
+    const after = (node as Text).splitText(offset);
+
+    editor.selection.setCursorLocation(after, 0);
+  } catch {
+    // Leave the range as-is so FontName still runs.
+  }
+}
+
 function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const {
     compactMode,
@@ -719,6 +763,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
 
                 if (!pendingFontIsActive()) {
                   applyingPendingFont = true;
+                  splitCollapsedCaretIfInsideWord(editor);
                   editor.formatter.apply("fontname", {
                     value: pendingFontFamily,
                   });
@@ -733,6 +778,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
                   return;
                 }
 
+                splitCollapsedCaretIfInsideWord(editor);
                 pendingFontFamily = String(event.value);
                 pendingFontTitle = titleForFontFamilyFormat(pendingFontFamily);
                 pendingCaret = collapsedCaretInBlock();
