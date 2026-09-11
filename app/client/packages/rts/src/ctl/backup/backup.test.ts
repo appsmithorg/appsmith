@@ -125,6 +125,17 @@ describe("Backup Tests", () => {
     expect(cleaned).not.toContain("APPSMITH_REDIS_PASSWORD");
   });
 
+  test("removeSensitiveEnvData strips the backup archive password but keeps the archive limit", () => {
+    const cleaned = removeSensitiveEnvData(
+      `APPSMITH_BACKUP_ARCHIVE_PASSWORD=archive-pass\nAPPSMITH_BACKUP_ARCHIVE_LIMIT=4\nAPPSMITH_INSTANCE_NAME=Appsmith\n`,
+    );
+
+    expect(cleaned).not.toContain("archive-pass");
+    expect(cleaned).not.toContain("APPSMITH_BACKUP_ARCHIVE_PASSWORD=");
+    expect(cleaned).toContain("APPSMITH_BACKUP_ARCHIVE_LIMIT=4");
+    expect(cleaned).toContain("APPSMITH_INSTANCE_NAME=Appsmith");
+  });
+
   test("Backup Archive Limit when env APPSMITH_BACKUP_ARCHIVE_LIMIT is null", () => {
     expect(backup.getBackupArchiveLimit()).toBe(4);
   });

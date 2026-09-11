@@ -18,7 +18,7 @@
         <dependency>
             <groupId>org.mariadb</groupId>
             <artifactId>r2dbc-mariadb</artifactId>
-            <version>1.1.4</version>
+            <version>1.4.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.netty</groupId>
@@ -33,6 +33,10 @@
                     <artifactId>reactor-core</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>io.projectreactor.netty</groupId>
+                    <artifactId>reactor-netty-core</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.reactivestreams</groupId>
                     <artifactId>reactive-streams</artifactId>
                 </exclusion>
@@ -42,27 +46,47 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-resolver-dns-native-macos</artifactId>
-            <version>4.1.75.Final</version>
+            <version>${netty.version}</version>
             <classifier>osx-x86_64</classifier>
             <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-resolver-dns-native-macos</artifactId>
-            <version>4.1.75.Final</version>
+            <version>${netty.version}</version>
             <classifier>osx-aarch_64</classifier>
             <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-resolver-dns-classes-macos</artifactId>
+            <version>${netty.version}</version>
+            <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>io.r2dbc</groupId>
             <artifactId>r2dbc-pool</artifactId>
-            <!--
-                Please be careful when upgrading package version from 0.8.x to 0.9.x or higher since 0.9.x version
-                seems incompatible with r2dbc-mysql version 0.8.2.RELEASE because 0.9.x version contains a higher
-                version of one of the dependent packages (not able to remember the name of the package at the moment)
-            -->
             <version>0.8.8.RELEASE</version>
             <exclusions>
                 <exclusion>
