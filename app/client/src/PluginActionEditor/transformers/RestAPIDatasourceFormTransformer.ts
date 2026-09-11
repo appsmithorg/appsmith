@@ -153,89 +153,89 @@ const formToDatasourceAuthentication = (
   authType: AuthType,
   authentication: Authentication | undefined,
 ): Authentication | null => {
-  if (authType === AuthType.NONE || !authentication) return null;
+  if (authType === AuthType.NONE) return null;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const auth: any = authentication || {};
 
   if (
-    isClientCredentials(authType, authentication) ||
-    isAuthorizationCode(authType, authentication)
+    isClientCredentials(authType, auth) ||
+    isAuthorizationCode(authType, auth) ||
+    authType === AuthType.OAuth2
   ) {
+    const grantType = auth.grantType || GrantType.ClientCredentials;
+
     const oAuth2Common: Oauth2Common = {
       authenticationType: AuthType.OAuth2,
-      accessTokenUrl: authentication.accessTokenUrl,
-      clientId: authentication.clientId,
-      headerPrefix: authentication.headerPrefix,
-      scopeString: authentication.scopeString,
-      clientSecret: authentication.clientSecret,
-      isAuthorizationHeader: authentication.isAuthorizationHeader,
-      isTokenHeader: authentication.isTokenHeader,
-      audience: authentication.audience,
-      resource: authentication.resource,
-      sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken,
+      accessTokenUrl: auth.accessTokenUrl,
+      clientId: auth.clientId,
+      headerPrefix: auth.headerPrefix,
+      scopeString: auth.scopeString,
+      clientSecret: auth.clientSecret,
+      isAuthorizationHeader: auth.isAuthorizationHeader,
+      isTokenHeader: auth.isTokenHeader,
+      audience: auth.audience,
+      resource: auth.resource,
+      sendScopeWithRefreshToken: auth.sendScopeWithRefreshToken,
       refreshTokenClientCredentialsLocation:
-        authentication.refreshTokenClientCredentialsLocation,
-      useSelfSignedCert: authentication.useSelfSignedCert,
+        auth.refreshTokenClientCredentialsLocation,
+      useSelfSignedCert: auth.useSelfSignedCert,
     };
 
-    if (isClientCredentials(authType, authentication)) {
+    if (grantType === GrantType.ClientCredentials) {
       return {
         ...oAuth2Common,
         grantType: GrantType.ClientCredentials,
         customTokenParameters: cleanupProperties(
-          authentication.customTokenParameters,
+          auth.customTokenParameters,
         ),
       };
     }
 
-    if (isAuthorizationCode(authType, authentication)) {
+    if (grantType === GrantType.AuthorizationCode) {
       return {
         ...oAuth2Common,
         grantType: GrantType.AuthorizationCode,
-        authorizationUrl: authentication.authorizationUrl,
-        isAuthorized: !!authentication.isAuthorized,
+        authorizationUrl: auth.authorizationUrl,
+        isAuthorized: !!auth.isAuthorized,
         customAuthenticationParameters: cleanupProperties(
-          authentication.customAuthenticationParameters,
+          auth.customAuthenticationParameters,
         ),
-        expiresIn: authentication.expiresIn,
+        expiresIn: auth.expiresIn,
       };
     }
   }
 
   if (authType === AuthType.basic) {
-    if ("username" in authentication) {
-      const basic: Basic = {
-        authenticationType: AuthType.basic,
-        username: authentication.username,
-        password: authentication.password,
-        secretExists: authentication.secretExists,
-      };
+    const basic: Basic = {
+      authenticationType: AuthType.basic,
+      username: auth.username || "",
+      password: auth.password || "",
+      secretExists: auth.secretExists,
+    };
 
-      return basic;
-    }
+    return basic;
   }
 
   if (authType === AuthType.apiKey) {
-    if ("label" in authentication) {
-      const apiKey: ApiKey = {
-        authenticationType: AuthType.apiKey,
-        label: authentication.label,
-        value: authentication.value,
-        headerPrefix: authentication.headerPrefix,
-        addTo: authentication.addTo,
-      };
+    const apiKey: ApiKey = {
+      authenticationType: AuthType.apiKey,
+      label: auth.label || "",
+      value: auth.value || "",
+      headerPrefix: auth.headerPrefix || "",
+      addTo: auth.addTo || "",
+    };
 
-      return apiKey;
-    }
+    return apiKey;
   }
 
   if (authType === AuthType.bearerToken) {
-    if ("bearerToken" in authentication) {
-      const bearerToken: BearerToken = {
-        authenticationType: AuthType.bearerToken,
-        bearerToken: authentication.bearerToken,
-      };
+    const bearerToken: BearerToken = {
+      authenticationType: AuthType.bearerToken,
+      bearerToken: auth.bearerToken || "",
+    };
 
-      return bearerToken;
-    }
+    return bearerToken;
   }
 
   return null;
