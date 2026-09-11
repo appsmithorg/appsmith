@@ -52,6 +52,12 @@ ENV LC_ALL=C.UTF-8
 
 # Install dependency packages
 RUN set -o xtrace \
+  # Make apt resilient to transient Ubuntu-mirror connection failures on the build
+  # host. ubuntu:24.04 ships no retry config (apt default is 0 retries), so a single
+  # dropped connection fails the whole build. This drop-in is build-scoped: it is
+  # removed in the cleanup step below, so the shipped image's apt behavior is
+  # unchanged. Does not rescue a sustained egress outage, only transient blips. APP-15960.
+  && printf 'Acquire::Retries "3";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' > /etc/apt/apt.conf.d/80-appsmith-retries \
   && apt-get update \
   && apt-get upgrade --yes \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
@@ -64,10 +70,10 @@ RUN set -o xtrace \
   && add-apt-repository -y ppa:git-core/ppa \
   # Install MongoDB v7, PostgreSQL v14
   # Note: MongoDB 7.0 does not publish apt packages for Ubuntu 24.04 (noble) yet, so we use the jammy (22.04) packages — same pattern used for the previous 6.0 install.
-  && curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg \
+  && curl --retry 3 --retry-connrefused --connect-timeout 15 --retry-max-time 60 -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg \
   && echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list \
   && echo "deb http://apt.postgresql.org/pub/repos/apt $(grep CODENAME /etc/lsb-release | cut -d= -f2)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
-  && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
+  && curl --fail --retry 3 --retry-connrefused --connect-timeout 15 --retry-max-time 60 --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && apt update \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
     mongodb-org-server mongodb-org-mongos mongodb-mongosh \
@@ -87,6 +93,7 @@ RUN set -o xtrace \
     /usr/share/doc \
     /usr/share/man \
     /var/lib/apt/lists/* \
+    /etc/apt/apt.conf.d/80-appsmith-retries \
     /tmp/*
 
 # Install Redis from official image to avoid false positive CVE reports from dpkg-based scanners.
