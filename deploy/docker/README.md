@@ -102,6 +102,70 @@ In our container, we support to generate a free SSL certificate If you have your
 The container will check the certificate files in the folder `<mounting-directory>/ssl` and use them if they are existed.
 
 *Note: In case of the certificate files have different name from `fullchain.pem` and `privkey.pem`, it will be considered as missing custom certificate and auto-provisioning the certificate by Let's Encrypt*
+## Environment configuration format
+
+`/appsmith-stacks/configuration/docker.env` contains data, not a shell script.
+Use one `NAME=value` assignment per line. Empty values, single and double quotes,
+and concatenated quoted segments are supported. Single quotes preserve their
+contents literally. Outside single quotes, backslashes escape the next character
+(inside double quotes, only backslash, double quote, dollar sign, and backtick).
+Blank lines and full-line comments are ignored. Unquoted, unescaped trailing
+spaces and tabs are ignored and may be followed by an inline `#` comment.
+Quoted or escaped spaces remain part of the value, and `NAME=#abc` preserves
+`#abc`. Quote values containing spaces. Duplicate
+assignments use the last value. LF and CRLF line endings are accepted.
+
+Supported names start with `APPSMITH_`, `MONGO_`, or `KEYCLOAK_` and contain only
+letters, digits, and underscores. The prefixes remain case-sensitive.
+`HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY` and their lowercase equivalents are supported,
+as are `NEW_RELIC_LICENSE_KEY`, `NEW_RELIC_APP_NAME`, `JAVA_OPTS_APPEND`,
+`JGROUPS_DISCOVERY_PROTOCOL`, `FILESTORE_IP_ADDRESS`, `FILE_SHARE_NAME`, and `PORT`.
+Other names are rejected rather than silently ignored. Shell control variables such
+as `PATH`, `BASH_ENV`, and `LD_PRELOAD` cannot be set through this file.
+
+Variable references such as `${PASSWORD}`, commands such as `$(command)`, backticks,
+and semicolons are never evaluated. Unescaped expressions that would require shell
+expansion (including inside double quotes) stop startup with a migration error.
+Supply fully resolved configuration values. Single-quote intentional literal
+expressions, for example `APPSMITH_ENCRYPTION_PASSWORD='literal$(text)'`.
+Malformed assignments, unsupported names, control characters, and unterminated
+quotes stop startup with the line number and, when recognizable, the variable
+name, without printing its value. Quoted multiline values in
+`docker.env` are not supported.
+
+External `APPSMITH_*` and `MONGO_*` environment variables override this file,
+including explicitly empty values. Their values are saved verbatim in a private
+JSON snapshot for service restarts; quotes, newlines, and non-UTF-8 bytes are preserved. Kubernetes
+Secrets and Vault values that are already resolved before container startup do
+not require shell evaluation.
+
+### Impact on existing instances
+
+Fresh installs and upgrades using generated defaults or Admin Settings values
+require no configuration changes. Before upgrading a customized installation,
+replace shell expressions in `docker.env` with their intended literal values and
+remove shell commands or unsupported variable names. Do not source a potentially
+compromised file to perform this conversion.
+
+Preserve the effective encryption password and salt exactly. Changing either can
+make existing encrypted credentials unreadable. Obtain their resolved values from
+a trusted secret store or the running instance before upgrade; do not replace
+an expression with its literal text unless that was already the intended value.
+
+Backup and restore use the same parser to validate configuration and quote literal
+values. Restore validates before stopping services or restoring the database, and
+replaces the environment file atomically. Incompatible legacy backups must be
+corrected before restore. Persisted configuration uses UTF-8 and cannot contain
+multiline values. Backup/restore reject multiline replacement values rather than
+changing them. Tabs are supported; other control characters are not. The external
+snapshot's byte preservation does not guarantee that individual application
+runtimes support non-UTF-8 credentials; use UTF-8 for portable configuration.
+
+The loader does not sanitize or rewrite the persistent file. Rolling back to an
+older image restores that image's shell evaluation behavior, so inspect the file
+before rollback. Removing configuration evaluation prevents stored commands from
+running through this path; it does not recover an already compromised instance.
+
 ## Instance Management Utilities
 
 The image includes an `appsmithctl` command to help with the management and maintenance of your instance. The following subsections describe what's available.
