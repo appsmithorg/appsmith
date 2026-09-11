@@ -25,6 +25,7 @@ import "tinymce/plugins/help/js/i18n/keynav/en.js";
 import React, { useRef, useCallback, useEffect, useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { Editor } from "@tinymce/tinymce-react";
+import type { Editor as TinyMCEEditor } from "tinymce";
 import type { LabelPosition } from "components/constants";
 import type { Alignment } from "@blueprintjs/core";
 import type { TextSize } from "constants/WidgetConstants";
@@ -331,6 +332,86 @@ export interface RichtextEditorComponentProps {
   onValueChange: (valueAsString: string) => void;
 }
 
+// TinyMCE 7.9.3 default minus Symbol/Webdings/Wingdings, plus Default
+// mapped to the iframe UA serif (Times) so existing apps keep the same
+// look and the dropdown has a real selected option.
+const fontFamilyFormats =
+  "Default=times,times new roman,serif;" +
+  "Andale Mono=andale mono,monospace;" +
+  "Arial=arial,helvetica,sans-serif;" +
+  "Arial Black=arial black,sans-serif;" +
+  "Book Antiqua=book antiqua,palatino,serif;" +
+  "Comic Sans MS=comic sans ms,sans-serif;" +
+  "Courier New=courier new,courier,monospace;" +
+  "Georgia=georgia,palatino,serif;" +
+  "Helvetica=helvetica,arial,sans-serif;" +
+  "Impact=impact,sans-serif;" +
+  "Tahoma=tahoma,arial,helvetica,sans-serif;" +
+  "Terminal=terminal,monaco,monospace;" +
+  "Times New Roman=times new roman,times,serif;" +
+  "Trebuchet MS=trebuchet ms,geneva,sans-serif;" +
+  "Verdana=verdana,geneva,sans-serif";
+
+function titleForFontFamilyFormat(format: string): string {
+  for (const entry of fontFamilyFormats.split(";")) {
+    const separator = entry.indexOf("=");
+
+    if (separator === -1) {
+      continue;
+    }
+
+    if (entry.slice(separator + 1).trim() === format) {
+      return entry.slice(0, separator).trim();
+    }
+  }
+
+  return format.split(",")[0]?.trim() ?? format;
+}
+
+const WORD_CHAR = /[^\s\u00a0\u00ad\u200b\ufeff]/;
+
+/**
+ * TinyMCE's formatter expands a collapsed caret in the middle of a word
+ * to that word before applying an inline format. Collapsed FontName is a
+ * caret format for the next typed characters, so split the text node at
+ * the caret first — TinyMCE then takes its caret-container path instead
+ * of wrapping the existing word.
+ */
+function splitCollapsedCaretIfInsideWord(editor: TinyMCEEditor) {
+  if (!editor.selection.isCollapsed()) {
+    return;
+  }
+
+  try {
+    const rng = editor.selection.getRng();
+    const node = rng.startContainer;
+
+    if (node.nodeType !== Node.TEXT_NODE) {
+      return;
+    }
+
+    const offset = rng.startOffset;
+    const text = node.nodeValue ?? "";
+
+    if (offset <= 0 || offset >= text.length) {
+      return;
+    }
+
+    if (
+      !WORD_CHAR.test(text.charAt(offset - 1)) ||
+      !WORD_CHAR.test(text.charAt(offset))
+    ) {
+      return;
+    }
+
+    const after = (node as Text).splitText(offset);
+
+    editor.selection.setCursorLocation(after, 0);
+  } catch {
+    // Leave the range as-is so FontName still runs.
+  }
+}
+
 function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const {
     compactMode,
@@ -348,9 +429,11 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
 
   const [editorValue, setEditorValue] = useState<string>(props.value as string);
   const initialRender = useRef(true);
+  const editorRef = useRef<TinyMCEEditor | null>(null);
+  const pushedValueToEditor = useRef(false);
 
   const toolbarConfig =
-    "insertfile undo redo | blocks | bold italic underline backcolor forecolor | lineheight | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | preview media | emoticons | code | help";
+    "insertfile undo redo | blocks | fontfamily | bold italic underline backcolor forecolor | lineheight | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | preview media | emoticons | code | help";
 
   const handleEditorChange = useCallback(
     // TODO: Fix this the next time the file is edited
@@ -374,10 +457,57 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     [props.onValueChange, editorValue],
   );
 
+  /**
+   * TinyMCE re-serializes whatever it is handed — `forced_root_block` alone
+   * wraps a bare `defaultText` in a `<p>` — so the string we hold and the
+   * editor's own content do not match until a focused edit syncs them. The
+   * react wrapper reads that mismatch as "the consumer rejected this
+   * content" and keeps pushing our value back through `setContent`, on the
+   * 200ms rollback timer and again on every render, which wipes any
+   * caret-only format the user set before typing — a font picked from the
+   * toolbar, for example. Adopting the editor's serialization of the value
+   * we already gave it keeps the two in step. Nothing is committed to the
+   * widget, so `defaultText` stays the source of truth for `text` and for
+   * `resetWidget`, and content set by anyone else is still rolled back.
+   */
+  const adoptEditorSerialization = useCallback(() => {
+    const editor = editorRef.current;
+
+    if (!editor || editor.removed) {
+      return;
+    }
+
+    const serialized = editor.getContent();
+
+    setEditorValue((current) =>
+      current === serialized ? current : serialized,
+    );
+  }, []);
+
+  const handleInit = useCallback(
+    (_event: unknown, editor: TinyMCEEditor) => {
+      editorRef.current = editor;
+      adoptEditorSerialization();
+    },
+    [adoptEditorSerialization],
+  );
+
+  // Runs in the commit that pushed a new value into the editor, after the
+  // wrapper's own componentDidUpdate has called setContent with it.
+  useEffect(() => {
+    if (!pushedValueToEditor.current) {
+      return;
+    }
+
+    pushedValueToEditor.current = false;
+    adoptEditorSerialization();
+  }, [editorValue, adoptEditorSerialization]);
+
   // As this useEffect sets the initialRender.current value as false and order of hooks matter,
   // we should always keep this useEffect logic at last part of component before return to make sure, initialRender.current value is consumed as expected in the component.
   useEffect(() => {
     if (!initialRender.current && editorValue !== props.value) {
+      pushedValueToEditor.current = true;
       setEditorValue(props.value as string);
     } else {
       initialRender.current = false;
@@ -429,6 +559,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             forced_root_block: "p",
             branding: false,
             resize: false,
+            font_family_formats: fontFamilyFormats,
             browser_spellcheck: true,
             convert_unsafe_embeds: true,
             sandbox_iframes: true,
@@ -493,11 +624,199 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
                     : [];
                 },
               });
+              // Collapsed FontName is a caret format. Closing the toolbar menu
+              // restores the pre-menu bookmark (Times) and NodeChange then
+              // overwrites the dropdown. Keep the pick as pending only while
+              // the caret stays in the same block at the same text offset —
+              // a click outside this editor, or a move, must drop it so we
+              // do not restyle an unrelated location.
+              let pendingFontFamily: string | null = null;
+              let pendingFontTitle: string | null = null;
+              let pendingCaret: { block: Node; offset: number } | null = null;
+              let applyingPendingFont = false;
+              let pendingFontTimer: ReturnType<typeof setTimeout> | undefined;
+
+              const firstFamily = (font: string) =>
+                font.split(",")[0].trim().replace(/['"]/g, "").toLowerCase();
+
+              const collapsedCaretInBlock = (): {
+                block: Node;
+                offset: number;
+              } | null => {
+                const body = editor.getBody();
+
+                if (!body) {
+                  return null;
+                }
+
+                try {
+                  const rng = editor.selection.getRng();
+                  const block =
+                    editor.dom.getParent(rng.startContainer, (node) =>
+                      editor.dom.isBlock(node),
+                    ) || body;
+                  const probe = rng.cloneRange();
+
+                  probe.selectNodeContents(block);
+                  probe.setEnd(rng.startContainer, rng.startOffset);
+
+                  return {
+                    block,
+                    offset: probe.toString().replace(/[\uFEFF\u200B]/g, "")
+                      .length,
+                  };
+                } catch {
+                  return null;
+                }
+              };
+
+              const clearPendingFont = () => {
+                pendingFontFamily = null;
+                pendingFontTitle = null;
+                pendingCaret = null;
+              };
+
+              const isThisEditorChrome = (target: EventTarget | null) => {
+                if (!(target instanceof Node)) {
+                  return false;
+                }
+
+                const container = editor.getContainer();
+
+                if (container?.contains(target)) {
+                  return true;
+                }
+
+                const element =
+                  target instanceof Element ? target : target.parentElement;
+
+                return Boolean(
+                  element?.closest(
+                    ".tox-silver-sink, .tox-menu, .tox-dialog, .tox-selected-menu",
+                  ),
+                );
+              };
+
+              const onPageMouseDown = (event: MouseEvent) => {
+                if (!pendingFontFamily || isThisEditorChrome(event.target)) {
+                  return;
+                }
+
+                clearPendingFont();
+              };
+
+              const pendingFontIsActive = () => {
+                if (!pendingFontFamily) {
+                  return true;
+                }
+
+                return (
+                  firstFamily(editor.queryCommandValue("FontName") || "") ===
+                  firstFamily(pendingFontFamily)
+                );
+              };
+
+              const paintPendingFontLabel = () => {
+                if (!pendingFontTitle) {
+                  return;
+                }
+
+                const button = editor
+                  .getContainer()
+                  ?.querySelector("[data-mce-name='fontfamily']");
+                const label = button?.querySelector(".tox-tbtn__select-label");
+
+                if (label) {
+                  label.textContent = pendingFontTitle;
+                }
+
+                button?.setAttribute("aria-label", `Font ${pendingFontTitle}`);
+              };
+
+              const ensurePendingFont = () => {
+                if (
+                  applyingPendingFont ||
+                  editor.removed ||
+                  !pendingFontFamily
+                ) {
+                  return;
+                }
+
+                if (!editor.selection.isCollapsed()) {
+                  clearPendingFont();
+
+                  return;
+                }
+
+                const caret = collapsedCaretInBlock();
+
+                if (
+                  caret === null ||
+                  (pendingCaret !== null &&
+                    (caret.block !== pendingCaret.block ||
+                      caret.offset !== pendingCaret.offset))
+                ) {
+                  clearPendingFont();
+
+                  return;
+                }
+
+                if (!pendingFontIsActive()) {
+                  applyingPendingFont = true;
+                  splitCollapsedCaretIfInsideWord(editor);
+                  editor.formatter.apply("fontname", {
+                    value: pendingFontFamily,
+                  });
+                  applyingPendingFont = false;
+                }
+
+                paintPendingFontLabel();
+              };
+
+              editor.on("BeforeExecCommand", (event) => {
+                if (event.command !== "FontName" || !event.value) {
+                  return;
+                }
+
+                splitCollapsedCaretIfInsideWord(editor);
+                pendingFontFamily = String(event.value);
+                pendingFontTitle = titleForFontFamilyFormat(pendingFontFamily);
+                pendingCaret = collapsedCaretInBlock();
+
+                if (pendingCaret === null) {
+                  clearPendingFont();
+                }
+              });
+              editor.on("NodeChange", () => {
+                if (pendingFontTimer !== undefined) {
+                  clearTimeout(pendingFontTimer);
+                }
+
+                pendingFontTimer = setTimeout(() => {
+                  pendingFontTimer = undefined;
+                  ensurePendingFont();
+                }, 0);
+              });
+              editor.on("mousedown", clearPendingFont);
+              editor.on("deactivate", clearPendingFont);
+              document.addEventListener("mousedown", onPageMouseDown, true);
+              editor.on("remove", () => {
+                if (pendingFontTimer !== undefined) {
+                  clearTimeout(pendingFontTimer);
+                }
+
+                document.removeEventListener(
+                  "mousedown",
+                  onPageMouseDown,
+                  true,
+                );
+              });
             },
           }}
           key={`editor_${props.isToolbarHidden}_${props.isDisabled}`}
           licenseKey="gpl"
           onEditorChange={handleEditorChange}
+          onInit={handleInit}
           toolbar={props.isToolbarHidden ? false : toolbarConfig}
           value={editorValue}
         />
