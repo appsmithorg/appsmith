@@ -651,35 +651,6 @@ function* deleteDebuggerErrorLogsSaga(
       } as LogDebuggerErrorAnalyticsPayload,
       currentDebuggerErrors,
     );
-
-    if (errorMessages) {
-      const currentEnvDetails: { id: string; name: string } = yield select(
-        getCurrentEnvironmentDetails,
-      );
-
-      //errorID has timestamp for 1:1 mapping with new and resolved errors
-      yield all(
-        errorMessages.map((errorMessage) => {
-          return fork(
-            logDebuggerErrorAnalyticsSaga,
-            {
-              ...analyticsPayload,
-              environmentId: currentEnvDetails.id,
-              environmentName: currentEnvDetails.name,
-              eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
-              errorId: generateErrorId(error),
-              errorMessage: errorMessage.message,
-              errorType: errorMessage.type,
-              errorSubType: errorMessage.subType,
-              appMode,
-              source: error.source,
-              logId: error.id,
-            } as LogDebuggerErrorAnalyticsPayload,
-            currentDebuggerErrors,
-          );
-        }),
-      );
-    }
   }
 
   const validErrorIds = validErrorPayloadsToDelete.map((payload) => payload.id);
@@ -811,22 +782,6 @@ function* activeFieldDebuggerErrorHandler(
         errorId: generateErrorId(initialSourceDebuggerError),
       } as LogDebuggerErrorAnalyticsPayload,
       latestDebuggerErrors,
-    );
-
-    yield all(
-      initialSourceDebuggerError.messages?.map((errorMessage) => {
-        return fork(
-          logDebuggerErrorAnalyticsSaga,
-          {
-            ...sourceMetaData,
-            ...envMetaData,
-            eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
-            errorMessage: errorMessage.message,
-            errorId: generateErrorId(initialSourceDebuggerError),
-          } as LogDebuggerErrorAnalyticsPayload,
-          latestDebuggerErrors,
-        );
-      }) || [],
     );
   }
 

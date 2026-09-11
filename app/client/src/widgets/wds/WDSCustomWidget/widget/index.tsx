@@ -36,6 +36,10 @@ export class WDSCustomWidget extends BaseWidget<
 > {
   static type = "WDS_CUSTOM_WIDGET";
 
+  private modelUpdateCount = 0;
+  private modelUpdateLastEmitTime = 0;
+  private static MODEL_UPDATE_THROTTLE_MS = 60000;
+
   static getConfig() {
     return config.metaConfig;
   }
@@ -102,9 +106,20 @@ export class WDSCustomWidget extends BaseWidget<
       ...data,
     });
 
-    AnalyticsUtil.logEvent("CUSTOM_WIDGET_API_UPDATE_MODEL", {
-      widgetId: this.props.widgetId,
-    });
+    this.modelUpdateCount++;
+    const now = Date.now();
+
+    if (
+      now - this.modelUpdateLastEmitTime >=
+      WDSCustomWidget.MODEL_UPDATE_THROTTLE_MS
+    ) {
+      AnalyticsUtil.logEvent("CUSTOM_WIDGET_API_UPDATE_MODEL", {
+        widgetId: this.props.widgetId,
+        updateCount: this.modelUpdateCount,
+      });
+      this.modelUpdateCount = 0;
+      this.modelUpdateLastEmitTime = now;
+    }
   };
 
   getRenderMode = () => {
