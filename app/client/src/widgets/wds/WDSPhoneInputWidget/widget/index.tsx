@@ -295,8 +295,11 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
   };
 
   resetWidgetText = () => {
-    super.resetWidgetText();
-    this.props.updateWidgetMetaProperty("rawText", undefined);
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
+    pushBatchMetaUpdates("rawText", undefined);
+    pushBatchMetaUpdates("text", "");
+    commitBatchMetaUpdates();
   };
 
   getWidgetView() {
