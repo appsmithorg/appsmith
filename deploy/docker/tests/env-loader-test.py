@@ -103,13 +103,13 @@ tlog() { :; }
             startup = startup.replace("/opt/appsmith/templates", str(APP / "templates"))
             startup = startup.replace("/opt/appsmith/env-file.py", str(APP / "env-file.py"))
             command = 'set -e; tlog() { :; }; source "$1";\n' + startup + '\ninit_env_file\n'
-            command += '/usr/bin/python3 -c \'import os; print(os.environ["APPSMITH_BACKUP_CRON_EXPRESSION"])\''
+            command += '/usr/bin/python3 -c \'import os; print(os.environ["APPSMITH_MONGODB_USER"])\''
             environment = {"PATH": os.environ["PATH"], "TMP": str(root)}
             for _ in range(2):
                 result = subprocess.run(["bash", "-c", command, "test", str(APP / "load-env.sh")],
                                         env=environment, capture_output=True, text=True)
                 self.assertEqual(result.returncode, 0, result.stderr)
-                self.assertEqual(result.stdout.strip(), "0 0 * * *")
+                self.assertEqual(result.stdout.strip(), "appsmith")
             config = root / "configuration/docker.env"
             before = config.read_bytes()
             marker = root / "should-not-execute"
