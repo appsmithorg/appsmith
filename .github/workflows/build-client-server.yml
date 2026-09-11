@@ -355,6 +355,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
+      checkout-ref: ${{ needs.file-check.outputs.merge_sha }}
 
   rts-build:
     name: rts-build
@@ -427,7 +428,8 @@ jobs:
         if: needs.ci-test-limited.result != 'success'
         uses: actions/setup-node@v4
         with:
-          node-version-file: app/client/package.json
+          # Reporting runs without a repository checkout.
+          node-version: "24"
 
       - name: install pg
         if: needs.ci-test-limited.result != 'success'
@@ -545,7 +547,8 @@ jobs:
         if: needs.ci-test-full.result != 'success'
         uses: actions/setup-node@v4
         with:
-          node-version-file: app/client/package.json
+          # Reporting runs without a repository checkout.
+          node-version: "24"
 
       - name: install pg
         if: needs.ci-test-full.result != 'success'
@@ -663,7 +666,8 @@ jobs:
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
         uses: actions/setup-node@v4
         with:
-          node-version-file: app/client/package.json
+          # Reporting runs without a repository checkout.
+          node-version: "24"
 
       - name: install pg
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
