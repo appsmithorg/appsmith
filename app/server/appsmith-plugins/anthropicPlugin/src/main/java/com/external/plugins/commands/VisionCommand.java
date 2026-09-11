@@ -111,6 +111,9 @@ public class VisionCommand implements AnthropicCommand {
             if (messageMap != null && messageMap.containsKey(ROLE) && messageMap.containsKey(CONTENT)) {
                 Message message = new Message();
                 String type = messageMap.get(TYPE);
+                if (!StringUtils.hasText(type)) {
+                    type = TEXT;
+                }
                 message.setRole(CommandUtils.getActualRoleValue(messageMap.get(ROLE)));
                 if (TEXT.equals(type)) {
                     Message.TextContent textContent = new Message.TextContent();
