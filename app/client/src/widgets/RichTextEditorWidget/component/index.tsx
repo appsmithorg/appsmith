@@ -25,6 +25,7 @@ import "tinymce/plugins/help/js/i18n/keynav/en.js";
 import React, { useRef, useCallback, useEffect, useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { Editor } from "@tinymce/tinymce-react";
+import type { Editor as TinyMCEEditor } from "tinymce";
 import type { LabelPosition } from "components/constants";
 import type { Alignment } from "@blueprintjs/core";
 import type { TextSize } from "constants/WidgetConstants";
@@ -384,6 +385,8 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
 
   const [editorValue, setEditorValue] = useState<string>(props.value as string);
   const initialRender = useRef(true);
+  const editorRef = useRef<TinyMCEEditor | null>(null);
+  const pushedValueToEditor = useRef(false);
 
   const toolbarConfig =
     "insertfile undo redo | blocks | fontfamily | bold italic underline backcolor forecolor | lineheight | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | preview media | emoticons | code | help";
@@ -410,10 +413,57 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     [props.onValueChange, editorValue],
   );
 
+  /**
+   * TinyMCE re-serializes whatever it is handed — `forced_root_block` alone
+   * wraps a bare `defaultText` in a `<p>` — so the string we hold and the
+   * editor's own content do not match until a focused edit syncs them. The
+   * react wrapper reads that mismatch as "the consumer rejected this
+   * content" and keeps pushing our value back through `setContent`, on the
+   * 200ms rollback timer and again on every render, which wipes any
+   * caret-only format the user set before typing — a font picked from the
+   * toolbar, for example. Adopting the editor's serialization of the value
+   * we already gave it keeps the two in step. Nothing is committed to the
+   * widget, so `defaultText` stays the source of truth for `text` and for
+   * `resetWidget`, and content set by anyone else is still rolled back.
+   */
+  const adoptEditorSerialization = useCallback(() => {
+    const editor = editorRef.current;
+
+    if (!editor || editor.removed) {
+      return;
+    }
+
+    const serialized = editor.getContent();
+
+    setEditorValue((current) =>
+      current === serialized ? current : serialized,
+    );
+  }, []);
+
+  const handleInit = useCallback(
+    (_event: unknown, editor: TinyMCEEditor) => {
+      editorRef.current = editor;
+      adoptEditorSerialization();
+    },
+    [adoptEditorSerialization],
+  );
+
+  // Runs in the commit that pushed a new value into the editor, after the
+  // wrapper's own componentDidUpdate has called setContent with it.
+  useEffect(() => {
+    if (!pushedValueToEditor.current) {
+      return;
+    }
+
+    pushedValueToEditor.current = false;
+    adoptEditorSerialization();
+  }, [editorValue, adoptEditorSerialization]);
+
   // As this useEffect sets the initialRender.current value as false and order of hooks matter,
   // we should always keep this useEffect logic at last part of component before return to make sure, initialRender.current value is consumed as expected in the component.
   useEffect(() => {
     if (!initialRender.current && editorValue !== props.value) {
+      pushedValueToEditor.current = true;
       setEditorValue(props.value as string);
     } else {
       initialRender.current = false;
@@ -720,6 +770,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           key={`editor_${props.isToolbarHidden}_${props.isDisabled}`}
           licenseKey="gpl"
           onEditorChange={handleEditorChange}
+          onInit={handleInit}
           toolbar={props.isToolbarHidden ? false : toolbarConfig}
           value={editorValue}
         />

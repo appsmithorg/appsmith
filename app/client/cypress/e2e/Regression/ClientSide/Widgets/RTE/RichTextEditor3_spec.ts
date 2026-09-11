@@ -235,5 +235,34 @@ describe(
         expect(fontFamilyAtCaret(editor)).to.eq("arial");
       });
     });
+
+    it("8. Verify a font picked before typing survives a freshly pushed default text", function () {
+      // A default text the editor has to re-serialize (forced_root_block adds
+      // the <p>), which is what used to leave the react wrapper pushing the
+      // stale value back and wiping the caret format.
+      propPane.UpdatePropertyFieldValue(
+        "Default value",
+        "Default text with no font",
+      );
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Verdana"));
+      // Outlast the wrapper's 200ms rollback timer without typing.
+      agHelper.Sleep(600);
+      cy.get(locators._richText_FontFamily).should(
+        "have.attr",
+        "aria-label",
+        "Font Verdana",
+      );
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.insertContent("VerdanaAfterPush");
+
+        expect(editor.getContent().toLowerCase()).to.contain(
+          "verdanaafterpush",
+        );
+        expect(fontFamilyAtCaret(editor)).to.eq("verdana");
+      });
+    });
   },
 );
