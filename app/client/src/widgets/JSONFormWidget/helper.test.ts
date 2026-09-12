@@ -136,6 +136,88 @@ describe(".schemaItemDefaultValue", () => {
     expect(result).toEqual(expectedDefaultValue);
   });
 
+  it("returns empty array when array field default value is an empty array", () => {
+    const schemaItem = {
+      accessor: "profileIds",
+      identifier: "profileIds",
+      originalIdentifier: "profileIds",
+      dataType: DataType.ARRAY,
+      fieldType: FieldType.ARRAY,
+      isVisible: true,
+      defaultValue: [],
+      children: {
+        __array_item__: {
+          identifier: ARRAY_ITEM_KEY,
+          originalIdentifier: ARRAY_ITEM_KEY,
+          dataType: DataType.OBJECT,
+          fieldType: FieldType.OBJECT,
+          defaultValue: undefined,
+          isVisible: true,
+          children: {
+            id: {
+              label: "Id",
+              children: {},
+              dataType: DataType.STRING,
+              defaultValue: undefined,
+              fieldType: FieldType.TEXT_INPUT,
+              accessor: "id",
+              identifier: "id",
+              originalIdentifier: "id",
+              isVisible: true,
+            },
+          },
+        },
+      },
+    } as unknown as SchemaItem;
+
+    const expectedDefaultValue: unknown[] = [];
+
+    const result = schemaItemDefaultValue(schemaItem, "identifier");
+
+    expect(result).toEqual(expectedDefaultValue);
+  });
+
+  it("returns empty array when array field default value is an empty array with accessor keys", () => {
+    const schemaItem = {
+      accessor: "profileIds",
+      identifier: "profileIds",
+      originalIdentifier: "profileIds",
+      dataType: DataType.ARRAY,
+      fieldType: FieldType.ARRAY,
+      isVisible: true,
+      defaultValue: [],
+      children: {
+        __array_item__: {
+          identifier: ARRAY_ITEM_KEY,
+          originalIdentifier: ARRAY_ITEM_KEY,
+          dataType: DataType.OBJECT,
+          fieldType: FieldType.OBJECT,
+          defaultValue: undefined,
+          isVisible: true,
+          children: {
+            id: {
+              label: "Id",
+              children: {},
+              dataType: DataType.STRING,
+              defaultValue: undefined,
+              fieldType: FieldType.TEXT_INPUT,
+              accessor: "profileId",
+              identifier: "id",
+              originalIdentifier: "id",
+              isVisible: true,
+            },
+          },
+        },
+      },
+    } as unknown as SchemaItem;
+
+    const expectedDefaultValue: unknown[] = [];
+
+    const result = schemaItemDefaultValue(schemaItem, "accessor");
+
+    expect(result).toEqual(expectedDefaultValue);
+  });
+
   it("returns merged default value when sub array fields have default value", () => {
     const schemaItem = {
       name: "education",
