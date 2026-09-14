@@ -632,9 +632,11 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
               // do not restyle an unrelated location.
               let pendingFontFamily: string | null = null;
               let pendingFontTitle: string | null = null;
+              let pendingRestoreTitle: string | null = null;
               let pendingCaret: { block: Node; offset: number } | null = null;
               let applyingPendingFont = false;
               let pendingFontTimer: ReturnType<typeof setTimeout> | undefined;
+              let restoreLabelTimer: ReturnType<typeof setTimeout> | undefined;
 
               const firstFamily = (font: string) =>
                 font.split(",")[0].trim().replace(/['"]/g, "").toLowerCase();
@@ -670,10 +672,126 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
                 }
               };
 
-              const clearPendingFont = () => {
+              const fontFamilyButton = () =>
+                editor
+                  .getContainer()
+                  ?.querySelector("[data-mce-name='fontfamily']");
+
+              const readFontLabel = () =>
+                fontFamilyButton()
+                  ?.querySelector(".tox-tbtn__select-label")
+                  ?.textContent?.trim() || "Default";
+
+              const paintFontLabel = (title: string) => {
+                const button = fontFamilyButton();
+                const label = button?.querySelector(".tox-tbtn__select-label");
+
+                if (label) {
+                  label.textContent = title;
+                }
+
+                button?.setAttribute("aria-label", `Font ${title}`);
+              };
+
+              // Empty paragraphs stay as lines only because TinyMCE pads them
+              // with a bogus <br>. Collapsed FontName replaces that br with a
+              // #_mce_caret span. We re-apply that span after the menu closes
+              // (pending font). If the user then moves to another block,
+              // TinyMCE's next keydown deletes leftover empty caret containers
+              // via DeleteElement — which removes the whole first paragraph.
+              // On abandon, drop the unused caret format and reset the empty
+              // block to a padding <br> so a later click-and-type is Default,
+              // not a leftover Arial caret.
+              const blockHasVisibleText = (element: Element) =>
+                (element.textContent ?? "")
+                  .replace(/[\uFEFF\u200B]/g, "")
+                  .trim().length > 0;
+
+              const padEmptyBlock = (block: Node | null) => {
+                if (
+                  !block ||
+                  block.nodeType !== Node.ELEMENT_NODE ||
+                  !editor.dom.isBlock(block)
+                ) {
+                  return;
+                }
+
+                const element = block as Element;
+
+                if (
+                  element.querySelector("br") ||
+                  blockHasVisibleText(element)
+                ) {
+                  return;
+                }
+
+                editor.dom.add(element, "br", { "data-mce-bogus": "1" });
+              };
+
+              const resetEmptyBlockToDefault = (element: Element) => {
+                while (element.firstChild) {
+                  element.removeChild(element.firstChild);
+                }
+
+                editor.dom.add(element, "br", { "data-mce-bogus": "1" });
+              };
+
+              const abandonCaretFormat = (block: Node | null) => {
+                if (!block || block.nodeType !== Node.ELEMENT_NODE) {
+                  return;
+                }
+
+                const element = block as Element;
+                const carets = element.querySelectorAll(
+                  "[data-mce-type='format-caret'], #_mce_caret",
+                );
+
+                for (const caret of carets) {
+                  editor.dom.remove(caret, true);
+                }
+
+                if (!blockHasVisibleText(element)) {
+                  resetEmptyBlockToDefault(element);
+                } else {
+                  padEmptyBlock(element);
+                }
+              };
+
+              const clearPendingFont = (restoreToolbar = false) => {
+                if (restoreLabelTimer !== undefined) {
+                  clearTimeout(restoreLabelTimer);
+                  restoreLabelTimer = undefined;
+                }
+
+                const title = pendingRestoreTitle;
+                const shouldRestore =
+                  restoreToolbar &&
+                  pendingFontFamily !== null &&
+                  Boolean(title);
+                const abandonedBlock = pendingCaret?.block ?? null;
+
                 pendingFontFamily = null;
                 pendingFontTitle = null;
+                pendingRestoreTitle = null;
                 pendingCaret = null;
+
+                if (abandonedBlock) {
+                  abandonCaretFormat(abandonedBlock);
+                }
+
+                if (shouldRestore && title) {
+                  paintFontLabel(title);
+                  // Blur can let TinyMCE refresh the control from the unused
+                  // caret format; paint again after that so the label matches
+                  // the cancelled pick, not Georgia-on-an-unfocused-widget.
+                  restoreLabelTimer = setTimeout(() => {
+                    restoreLabelTimer = undefined;
+
+                    if (!pendingFontFamily) {
+                      paintFontLabel(title);
+                    }
+                  }, 0);
+                }
               };
 
               const isThisEditorChrome = (target: EventTarget | null) => {
@@ -702,7 +820,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
                   return;
                 }
 
-                clearPendingFont();
+                clearPendingFont(true);
               };
 
               const pendingFontIsActive = () => {
@@ -721,16 +839,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
                   return;
                 }
 
-                const button = editor
-                  .getContainer()
-                  ?.querySelector("[data-mce-name='fontfamily']");
-                const label = button?.querySelector(".tox-tbtn__select-label");
-
-                if (label) {
-                  label.textContent = pendingFontTitle;
-                }
-
-                button?.setAttribute("aria-label", `Font ${pendingFontTitle}`);
+                paintFontLabel(pendingFontTitle);
               };
 
               const ensurePendingFont = () => {
@@ -771,11 +880,16 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
                 }
 
                 paintPendingFontLabel();
+                padEmptyBlock(pendingCaret?.block ?? null);
               };
 
               editor.on("BeforeExecCommand", (event) => {
                 if (event.command !== "FontName" || !event.value) {
                   return;
+                }
+
+                if (!pendingFontFamily && editor.selection.isCollapsed()) {
+                  pendingRestoreTitle = readFontLabel();
                 }
 
                 splitCollapsedCaretIfInsideWord(editor);
@@ -797,12 +911,16 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
                   ensurePendingFont();
                 }, 0);
               });
-              editor.on("mousedown", clearPendingFont);
-              editor.on("deactivate", clearPendingFont);
+              editor.on("mousedown", () => clearPendingFont());
+              editor.on("deactivate", () => clearPendingFont(true));
               document.addEventListener("mousedown", onPageMouseDown, true);
               editor.on("remove", () => {
                 if (pendingFontTimer !== undefined) {
                   clearTimeout(pendingFontTimer);
+                }
+
+                if (restoreLabelTimer !== undefined) {
+                  clearTimeout(restoreLabelTimer);
                 }
 
                 document.removeEventListener(

@@ -306,5 +306,84 @@ describe(
         expect(fontFamilyAtCaret(editor)).to.match(/impact/);
       });
     });
+
+    it("10. Verify leaving the editor after a collapsed font pick restores the Font label", function () {
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.focus();
+        editor.selection.select(editor.getBody(), true);
+        editor.selection.collapse(false);
+      });
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Georgia"));
+      cy.get(locators._richText_FontFamily).should(
+        "have.attr",
+        "aria-label",
+        "Font Georgia",
+      );
+      agHelper.ClickOutside();
+      cy.get(locators._richText_FontFamily).should(
+        "have.attr",
+        "aria-label",
+        "Font Default",
+      );
+    });
+
+    it("11. Verify moving off an empty paragraph after a collapsed font pick keeps that paragraph", function () {
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.focus();
+        editor.setContent("<p><br></p><p><br></p>");
+
+        const first = editor.getBody().querySelector("p");
+
+        if (!first) {
+          throw new Error("Expected two empty paragraphs");
+        }
+
+        editor.selection.setCursorLocation(first, 0);
+      });
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Arial"));
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+        const paragraphs = editor.getBody().querySelectorAll("p");
+
+        expect(paragraphs.length).to.eq(2);
+        editor.selection.setCursorLocation(paragraphs[1], 0);
+      });
+      // NodeChange clears pending on a 0ms timeout; TinyMCE deletes leftover
+      // empty #_mce_caret blocks on the next keydown.
+      agHelper.Sleep(50);
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.fire("keydown", { keyCode: 83 });
+        editor.insertContent("SecondLine");
+
+        expect(editor.getBody().querySelectorAll("p").length).to.eq(2);
+        expect(editor.getContent().toLowerCase()).to.contain("secondline");
+        expect(editor.getContent().toLowerCase()).to.not.contain("arial");
+
+        const first = editor.getBody().querySelector("p");
+
+        if (!first) {
+          throw new Error("Expected the first empty paragraph to remain");
+        }
+
+        editor.selection.setCursorLocation(first, 0);
+        editor.insertContent("FirstLine");
+
+        const html = editor.getContent().toLowerCase();
+
+        expect(editor.getBody().querySelectorAll("p").length).to.eq(2);
+        expect(html).to.contain("firstline");
+        expect(html).to.contain("secondline");
+        expect(html).to.not.contain("arial");
+        expect(fontFamilyAtCaret(editor)).to.not.match(/arial/);
+      });
+    });
   },
 );
