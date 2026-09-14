@@ -323,11 +323,55 @@ describe(
         "Font Georgia",
       );
       agHelper.ClickOutside();
+      // Unstyled Times is rematched to Times New Roman (same stack as
+      // Default). The regression is Georgia sticking after leave.
+      cy.get(locators._richText_FontFamily)
+        .invoke("attr", "aria-label")
+        .should("be.oneOf", ["Font Default", "Font Times New Roman"]);
+    });
+
+    it("12. Verify returning to the start after cancelling a collapsed font pick does not keep that font", function () {
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.focus();
+        editor.setContent("<p>Hello World</p>");
+
+        const text = editor.getBody().querySelector("p")?.firstChild;
+
+        if (!text || text.nodeType !== Node.TEXT_NODE) {
+          throw new Error("Expected a text node at the start of the paragraph");
+        }
+
+        editor.selection.setCursorLocation(text, 0);
+      });
+      agHelper.GetNClick(locators._richText_FontFamily);
+      agHelper.GetNClick(locators._richText_FontFamilyOption("Courier New"));
       cy.get(locators._richText_FontFamily).should(
         "have.attr",
         "aria-label",
-        "Font Default",
+        "Font Courier New",
       );
+      agHelper.ClickOutside();
+      cy.window().then((win) => {
+        const editor = getActiveEditor(win);
+
+        editor.focus();
+
+        const text = editor.getBody().querySelector("p")?.firstChild;
+
+        if (!text) {
+          throw new Error("Expected paragraph content after leave");
+        }
+
+        editor.selection.setCursorLocation(text, 0);
+      });
+      cy.window().should((win) => {
+        expect(fontFamilyAtCaret(getActiveEditor(win))).to.not.match(/courier/);
+      });
+      cy.get(locators._richText_FontFamily)
+        .invoke("attr", "aria-label")
+        .should("not.eq", "Font Courier New");
     });
 
     it("11. Verify moving off an empty paragraph after a collapsed font pick keeps that paragraph", function () {

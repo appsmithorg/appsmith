@@ -369,6 +369,12 @@ function titleForFontFamilyFormat(format: string): string {
 }
 
 const WORD_CHAR = /[^\s\u00a0\u00ad\u200b\ufeff]/;
+const ZWSP_RE = /[\uFEFF\u200B]/g;
+const FORMAT_CARET_SELECTOR = "[data-mce-type='format-caret']";
+
+function stripZwsp(text: string) {
+  return text.replace(ZWSP_RE, "");
+}
 
 /**
  * TinyMCE's formatter expands a collapsed caret in the middle of a word
@@ -664,8 +670,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
 
                   return {
                     block,
-                    offset: probe.toString().replace(/[\uFEFF\u200B]/g, "")
-                      .length,
+                    offset: stripZwsp(probe.toString()).length,
                   };
                 } catch {
                   return null;
@@ -703,9 +708,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
               // block to a padding <br> so a later click-and-type is Default,
               // not a leftover Arial caret.
               const blockHasVisibleText = (element: Element) =>
-                (element.textContent ?? "")
-                  .replace(/[\uFEFF\u200B]/g, "")
-                  .trim().length > 0;
+                stripZwsp(element.textContent ?? "").trim().length > 0;
 
               const padEmptyBlock = (block: Node | null) => {
                 if (
@@ -736,28 +739,71 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
                 editor.dom.add(element, "br", { "data-mce-bogus": "1" });
               };
 
+              const isUnusedFontFamilySpan = (element: Element) => {
+                const style = element.getAttribute("style") ?? "";
+                const family =
+                  element instanceof HTMLElement
+                    ? element.style.fontFamily
+                    : "";
+
+                if (!/font-family/i.test(style) && !family) {
+                  return false;
+                }
+
+                if (element.querySelector("img, video, iframe, table")) {
+                  return false;
+                }
+
+                return !blockHasVisibleText(element);
+              };
+
               const abandonCaretFormat = (block: Node | null) => {
                 if (!block || block.nodeType !== Node.ELEMENT_NODE) {
                   return;
                 }
 
                 const element = block as Element;
-                const carets = element.querySelectorAll(
-                  "[data-mce-type='format-caret'], #_mce_caret",
-                );
-
-                for (const caret of carets) {
-                  editor.dom.remove(caret, true);
-                }
 
                 if (!blockHasVisibleText(element)) {
                   resetEmptyBlockToDefault(element);
-                } else {
-                  padEmptyBlock(element);
+
+                  return;
                 }
+
+                // Unused collapsed FontName sits in a format-caret at the
+                // caret (often before the first character). Unwrap keeps
+                // the inner font-family span, so a later click at that
+                // spot still reads as Courier New. Delete ZWSP-only carets;
+                // unwrap if the user already typed into them.
+                for (const caret of Array.from(
+                  element.querySelectorAll(FORMAT_CARET_SELECTOR),
+                )) {
+                  if (!caret.parentNode) {
+                    continue;
+                  }
+
+                  const keepTypedText = blockHasVisibleText(caret);
+
+                  editor.dom.remove(caret, keepTypedText);
+                }
+
+                for (const span of Array.from(
+                  element.querySelectorAll("span[style]"),
+                )) {
+                  if (span.parentNode && isUnusedFontFamilySpan(span)) {
+                    editor.dom.remove(span, false);
+                  }
+                }
+
+                padEmptyBlock(element);
               };
 
               const clearPendingFont = (restoreToolbar = false) => {
+                if (pendingFontTimer !== undefined) {
+                  clearTimeout(pendingFontTimer);
+                  pendingFontTimer = undefined;
+                }
+
                 if (restoreLabelTimer !== undefined) {
                   clearTimeout(restoreLabelTimer);
                   restoreLabelTimer = undefined;
