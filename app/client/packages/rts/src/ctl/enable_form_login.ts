@@ -2,7 +2,7 @@ import * as utils from "./utils";
 
 export async function run() {
   const dbUrl = utils.getDburl();
-  const redisUrl = utils.getRedisUrl();
+  const redisUrl = utils.getRedisCliUrl();
 
   // Validate required configuration
   if (!dbUrl) {
@@ -61,11 +61,9 @@ export async function run() {
   try {
     await utils.execCommand([
       "redis-cli",
-      "--quoted-input",
-      "-h",
+      "--no-auth-warning",
+      "-u",
       redisUrl,
-      "-p",
-      "6379",
       "DEL",
       `organization:${organizationId}`,
     ]);

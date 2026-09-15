@@ -53,19 +53,17 @@ export function parseRedisUrl(redisUrlObject) {
   return null;
 }
 
-export function getRedisUrl() {
-  const redisUrlObject = process.env.APPSMITH_REDIS_URL;
+/**
+ * Reads the raw APPSMITH_REDIS_URL value, from the environment first and the
+ * env file second. Returns null when it is not set.
+ */
+export function readRedisUrlSetting(): string | null {
+  const fromEnv = process.env.APPSMITH_REDIS_URL;
 
-  // Make sure redisUrl takes precedence over process.env.APPSMITH_REDIS_URL
-  if (redisUrlObject && redisUrlObject !== "undefined") {
-    try {
-      return parseRedisUrl(redisUrlObject);
-    } catch (err) {
-      console.error("Error parsing redis URL from environment variable:", err);
-    }
+  if (fromEnv && fromEnv !== "undefined") {
+    return fromEnv;
   }
 
-  // If environment variable APPSMITH_REDIS_URL is not set, read from the environment file
   try {
     const env_array = fs
       .readFileSync(Constants.ENV_PATH, "utf8")
@@ -74,11 +72,7 @@ export function getRedisUrl() {
 
     for (const i in env_array) {
       if (env_array[i].startsWith("APPSMITH_REDIS_URL")) {
-        const redisUrl = parseRedisUrl(
-          env_array[i].toString().split("=")[1].trim(),
-        );
-
-        return redisUrl;
+        return env_array[i].toString().split("=")[1].trim();
       }
     }
   } catch (err) {
@@ -86,6 +80,52 @@ export function getRedisUrl() {
   }
 
   return null;
+}
+
+/**
+ * Hostname of the configured Redis. Use getRedisCliUrl() when the value is
+ * passed to redis-cli, so credentials, port and TLS are preserved.
+ */
+export function getRedisUrl() {
+  const redisUrlObject = readRedisUrlSetting();
+
+  if (redisUrlObject) {
+    try {
+      return parseRedisUrl(redisUrlObject);
+    } catch (err) {
+      console.error("Error parsing redis URL:", err);
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Converts a configured Redis URL into one that `redis-cli -u` accepts, keeping
+ * username, password, port and the rediss (TLS) scheme. The server-only
+ * redis-cluster scheme is mapped to redis, and a bare host or host:port gets a
+ * redis scheme. Returns null when the value is empty.
+ */
+export function toRedisCliUrl(redisUrl: string | undefined): string | null {
+  const value = (redisUrl ?? "").trim();
+
+  if (!value || value === "undefined") {
+    return null;
+  }
+
+  if (!value.includes("://")) {
+    return `redis://${value}`;
+  }
+
+  if (value.startsWith("redis-cluster://")) {
+    return "redis://" + value.substring("redis-cluster://".length);
+  }
+
+  return value;
+}
+
+export function getRedisCliUrl(): string | null {
+  return toRedisCliUrl(readRedisUrlSetting());
 }
 
 export function getDburl() {
