@@ -72,7 +72,7 @@ export function readRedisUrlSetting(): string | null {
 
     for (const i in env_array) {
       if (env_array[i].startsWith("APPSMITH_REDIS_URL")) {
-        return env_array[i].toString().split("=")[1].trim();
+        return env_array[i].substring(env_array[i].indexOf("=") + 1).trim();
       }
     }
   } catch (err) {
@@ -83,7 +83,7 @@ export function readRedisUrlSetting(): string | null {
 }
 
 /**
- * Hostname of the configured Redis. Use getRedisCliUrl() when the value is
+ * Hostname of the configured Redis. Use getRedisCliConnection() when the value is
  * passed to redis-cli, so credentials, port and TLS are preserved.
  */
 export function getRedisUrl() {
@@ -100,32 +100,56 @@ export function getRedisUrl() {
   return null;
 }
 
+export interface RedisCliConnection {
+  /** redis-cli flags: host, port, and when present --tls and --user. */
+  args: string[];
+  /** Password for REDISCLI_AUTH, or null when the URL carries none. */
+  password: string | null;
+}
+
 /**
- * Converts a configured Redis URL into one that `redis-cli -u` accepts, keeping
- * username, password, port and the rediss (TLS) scheme. The server-only
- * redis-cluster scheme is mapped to redis, and a bare host or host:port gets a
- * redis scheme. Returns null when the value is empty.
+ * Splits a configured Redis URL into redis-cli flags plus the password. The
+ * password is returned separately so callers can hand it to redis-cli through
+ * the REDISCLI_AUTH environment variable instead of the command line, where it
+ * would be visible in the process table. Accepts redis, rediss (TLS) and the
+ * server-only redis-cluster scheme, or a bare host / host:port. Returns null
+ * when the value is empty.
  */
-export function toRedisCliUrl(redisUrl: string | undefined): string | null {
+export function toRedisCliConnection(
+  redisUrl: string | undefined,
+): RedisCliConnection | null {
   const value = (redisUrl ?? "").trim();
 
   if (!value || value === "undefined") {
     return null;
   }
 
-  if (!value.includes("://")) {
-    return `redis://${value}`;
+  const url = new URL(value.includes("://") ? value : `redis://${value}`);
+  const args = ["-h", url.hostname, "-p", url.port || "6379"];
+
+  if (url.protocol === "rediss:") {
+    args.push("--tls");
   }
 
-  if (value.startsWith("redis-cluster://")) {
-    return "redis://" + value.substring("redis-cluster://".length);
+  if (url.username) {
+    args.push("--user", decodeURIComponent(url.username));
   }
 
-  return value;
+  return {
+    args,
+    password: url.password ? decodeURIComponent(url.password) : null,
+  };
 }
 
-export function getRedisCliUrl(): string | null {
-  return toRedisCliUrl(readRedisUrlSetting());
+export function getRedisCliConnection(): RedisCliConnection | null {
+  return toRedisCliConnection(readRedisUrlSetting());
+}
+
+/** Environment for a redis-cli child process, with the password in REDISCLI_AUTH. */
+export function redisCliEnv(redis: RedisCliConnection): NodeJS.ProcessEnv {
+  return redis.password
+    ? { ...process.env, REDISCLI_AUTH: redis.password }
+    : { ...process.env };
 }
 
 export function getDburl() {
@@ -142,7 +166,7 @@ export function getDburl() {
         env_array[i].startsWith("APPSMITH_MONGODB_URI") ||
         env_array[i].startsWith("APPSMITH_DB_URL")
       ) {
-        dbUrl = env_array[i].toString().split("=")[1].trim();
+        dbUrl = env_array[i].substring(env_array[i].indexOf("=") + 1).trim();
         break; // Break early when the desired line is found
       }
     }

@@ -29,23 +29,33 @@ describe("enable_form_login", () => {
     jest.restoreAllMocks();
   });
 
-  test("clears the organization cache with the full Redis URL", async () => {
+  test("clears the organization cache without the password in argv", async () => {
     await enable_form_login.run();
 
-    const redisCalls = (utils.execCommand as jest.Mock).mock.calls
-      .map((call) => call[0] as string[])
-      .filter((cmd) => cmd[0] === "redis-cli");
+    const redisCalls = (utils.execCommand as jest.Mock).mock.calls.filter(
+      (call) => (call[0] as string[])[0] === "redis-cli",
+    );
 
     expect(redisCalls).toHaveLength(1);
 
-    const cmd = redisCalls[0];
+    const [cmd, options] = redisCalls[0] as [
+      string[],
+      { env?: Record<string, string> },
+    ];
 
-    // Credentials, port and TLS scheme must reach redis-cli, so the URL is
-    // passed whole instead of being reduced to a hostname.
-    expect(cmd).toContain("-u");
-    expect(cmd[cmd.indexOf("-u") + 1]).toBe(REDIS_URL);
-    expect(cmd).not.toContain("-h");
-    expect(cmd).not.toContain("-p");
+    // Host, port, TLS and user go on the command line; the password goes to
+    // redis-cli through REDISCLI_AUTH so it never appears in the process table.
+    expect(cmd.slice(1, 7)).toEqual([
+      "-h",
+      "redis.example",
+      "-p",
+      "6380",
+      "--tls",
+      "--user",
+    ]);
+    expect(cmd).toContain("appuser");
+    expect(cmd.join(" ")).not.toContain("s3cret");
     expect(cmd.slice(-2)).toEqual(["DEL", `organization:${ORG_ID}`]);
+    expect(options.env.REDISCLI_AUTH).toBe("s3cret");
   });
 });
