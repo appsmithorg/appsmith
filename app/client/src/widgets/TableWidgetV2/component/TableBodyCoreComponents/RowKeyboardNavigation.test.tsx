@@ -248,7 +248,7 @@ describe("Row Keyboard Navigation - Real DOM Focus", () => {
 
     const event = fireTabKey(input);
 
-    expect(onSave).toHaveBeenCalled();
+    expect(onSave).toHaveBeenCalledTimes(1);
     expect(event.defaultPrevented).toBe(true);
 
     act(() => {
@@ -256,6 +256,7 @@ describe("Row Keyboard Navigation - Real DOM Focus", () => {
     });
 
     expect(document.activeElement).toBe(cell2);
+    expect(onSave).toHaveBeenCalledTimes(1);
     jest.useRealTimers();
   });
 
@@ -272,7 +273,7 @@ describe("Row Keyboard Navigation - Real DOM Focus", () => {
 
     const event = fireTabKey(input, true);
 
-    expect(onSave).toHaveBeenCalled();
+    expect(onSave).toHaveBeenCalledTimes(1);
     expect(event.defaultPrevented).toBe(true);
 
     act(() => {
@@ -280,6 +281,7 @@ describe("Row Keyboard Navigation - Real DOM Focus", () => {
     });
 
     expect(document.activeElement).toBe(cell0);
+    expect(onSave).toHaveBeenCalledTimes(1);
     jest.useRealTimers();
   });
 
@@ -294,7 +296,7 @@ describe("Row Keyboard Navigation - Real DOM Focus", () => {
 
     const event = fireTabKey(input);
 
-    expect(onSave).toHaveBeenCalled();
+    expect(onSave).toHaveBeenCalledTimes(1);
     expect(event.defaultPrevented).toBe(false);
   });
 });

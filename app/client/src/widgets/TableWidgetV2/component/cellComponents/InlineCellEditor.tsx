@@ -187,13 +187,28 @@ export function InlineCellEditor({
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
   const [hasFocus, setHasFocus] = useState(false);
   const [cursorPos, setCursorPos] = useState(value.length);
+  const hasHandledActionRef = useRef(false);
+
+  const handleSave = useCallback(() => {
+    if (!hasHandledActionRef.current) {
+      hasHandledActionRef.current = true;
+      onSave();
+    }
+  }, [onSave]);
+
+  const handleDiscard = useCallback(() => {
+    if (!hasHandledActionRef.current) {
+      hasHandledActionRef.current = true;
+      onDiscard();
+    }
+  }, [onDiscard]);
 
   const onFocusChange = useCallback(
     (focus: boolean) => {
-      !focus && onSave();
+      !focus && handleSave();
       setHasFocus(focus);
     },
-    [onSave],
+    [handleSave],
   );
 
   const onKeyDown = useCallback(
@@ -202,11 +217,11 @@ export function InlineCellEditor({
 
       switch (key) {
         case "Escape":
-          onDiscard();
+          handleDiscard();
           break;
         case "Enter":
           if (!event.shiftKey) {
-            onSave();
+            handleSave();
             event.preventDefault();
           }
 
@@ -242,7 +257,7 @@ export function InlineCellEditor({
             }
 
             if (targetCell) {
-              onSave();
+              handleSave();
               event.preventDefault();
               event.stopPropagation();
               requestAnimationFrame(() => {
@@ -252,12 +267,12 @@ export function InlineCellEditor({
             }
           }
 
-          onSave();
+          handleSave();
           break;
         }
       }
     },
-    [onDiscard, onSave],
+    [handleDiscard, handleSave],
   );
 
   const onTextChange = useCallback(
