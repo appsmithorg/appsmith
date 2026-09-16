@@ -151,7 +151,7 @@ async function main(): Promise<void> {
     process.stderr.write("Appsmith MCP governance store connected\n");
   } else {
     process.stderr.write(
-      "Appsmith MCP governance disabled (APPSMITH_MONGODB_URI/APPSMITH_DB_URL + APPSMITH_REDIS_URL not set); " +
+      "Appsmith MCP governance disabled (APPSMITH_DB_URL/APPSMITH_MONGODB_URI + APPSMITH_REDIS_URL not set); " +
         "governed and destructive tools will not be registered\n",
     );
   }
