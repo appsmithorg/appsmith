@@ -211,6 +211,50 @@ export function InlineCellEditor({
           }
 
           break;
+        case "Tab": {
+          const cellEl =
+            inputRef.current?.closest<HTMLElement>("[data-colindex]");
+          const rowEl = inputRef.current?.closest<HTMLElement>(".tr");
+          const currentColIndex = parseInt(
+            cellEl?.dataset.colindex || "-1",
+            10,
+          );
+
+          if (rowEl && currentColIndex !== -1) {
+            const allCells = Array.from(
+              rowEl.querySelectorAll<HTMLElement>("[data-colindex]"),
+            ).filter((el) => !el.classList.contains("hidden-cell"));
+
+            let targetCell: HTMLElement | undefined;
+
+            if (event.shiftKey) {
+              targetCell = allCells
+                .filter(
+                  (el) =>
+                    parseInt(el.dataset.colindex || "-1", 10) < currentColIndex,
+                )
+                .pop();
+            } else {
+              targetCell = allCells.find(
+                (el) =>
+                  parseInt(el.dataset.colindex || "-1", 10) > currentColIndex,
+              );
+            }
+
+            if (targetCell) {
+              onSave();
+              event.preventDefault();
+              event.stopPropagation();
+              requestAnimationFrame(() => {
+                targetCell?.focus();
+              });
+              break;
+            }
+          }
+
+          onSave();
+          break;
+        }
       }
     },
     [onDiscard, onSave],
