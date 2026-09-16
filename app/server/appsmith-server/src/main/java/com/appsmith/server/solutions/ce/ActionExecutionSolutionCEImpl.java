@@ -1,6 +1,5 @@
 package com.appsmith.server.solutions.ce;
 
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.dtos.ParamProperty;
@@ -8,7 +7,6 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.MustacheHelper;
-import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -21,23 +19,17 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
-import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ExecuteActionMetaDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.helpers.ActionExecutionSolutionHelper;
-import com.appsmith.server.helpers.DatasourceAnalyticsUtils;
-import com.appsmith.server.helpers.DateUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -52,9 +44,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -92,7 +82,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.CommonFieldName.REDACTED_DATA;
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_CACHED_DATASOURCE;
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_DATASOURCE_CONTEXT;
 import static com.appsmith.external.constants.spans.ActionSpan.ACTION_EXECUTION_EDITOR_CONFIG;
@@ -121,7 +110,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final SessionUserService sessionUserService;
     private final AuthenticationValidator authenticationValidator;
     private final DatasourcePermission datasourcePermission;
-    private final AnalyticsService analyticsService;
     private final DatasourceStorageService datasourceStorageService;
     private final EnvironmentPermission environmentPermission;
     private final ConfigService configService;
@@ -172,7 +160,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.sessionUserService = sessionUserService;
         this.authenticationValidator = authenticationValidator;
         this.datasourcePermission = datasourcePermission;
-        this.analyticsService = analyticsService;
         this.datasourceStorageService = datasourceStorageService;
         this.environmentPermission = environmentPermission;
         this.configService = configService;
@@ -900,25 +887,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     }
 
     /**
-     * This function deep copies the actionConfiguration object to send the original object to mixpanel which contains
-     * the actual user query with bindings
-     * @param actionConfiguration
-     * @return
-     */
-    private ActionConfiguration deepCopyActionConfiguration(ActionConfiguration actionConfiguration) {
-        try {
-            // Convert the ActionConfiguration object to JSON string
-            String json = objectMapper.writeValueAsString(actionConfiguration);
-
-            // Convert the JSON string back to an ActionConfiguration object
-            return objectMapper.readValue(json, ActionConfiguration.class);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
      * Handles the execution logic, call to pluginExecutor with the payload post retrieval and validation of action, datasource, and plugin
      *
      * @param executeActionDTO
@@ -942,12 +910,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     final DatasourceStorage datasourceStorage = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
                     final Plugin plugin = tuple.getT4();
-                    // This is to return the raw user query including bindings
-                    ActionConfiguration rawActionConfiguration = null;
-                    if (actionDTO != null && actionDTO.getActionConfiguration() != null) {
-                        // deep copying the actionConfiguration to avoid any changes in the original object
-                        rawActionConfiguration = this.deepCopyActionConfiguration(actionDTO.getActionConfiguration());
-                    }
 
                     log.debug(
                             "[{}]Execute Action called in Page {}, for action id : {}  action name : {}",
@@ -968,7 +930,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             .name(VERIFY_DATASOURCE_AND_MAKE_REQUEST)
                             .tap(Micrometer.observation(observationRegistry));
 
-                    ActionConfiguration finalRawActionConfiguration = rawActionConfiguration;
                     return actionExecutionResultMono
                             .onErrorMap(executionExceptionMapper(actionDTO, timeoutDuration))
                             .onErrorResume(executionExceptionHandler(actionDTO))
@@ -984,14 +945,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                         actionDTO.getId(),
                                         timeElapsed);
 
-                                return sendExecuteAnalyticsEvent(
-                                                actionDTO,
-                                                datasourceStorage,
-                                                executeActionDTO,
-                                                result,
-                                                timeElapsed,
-                                                finalRawActionConfiguration)
-                                        .thenReturn(result);
+                                return Mono.just(result);
                             });
                 });
     }
@@ -1118,216 +1072,10 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     }
 
     /**
-     * Since we're loading the application and other details from DB *only* for analytics, we check if analytics is
-     * active before making the call to DB.
-     *
-     * @return
+     * Retained for the EE override, which enables action-execution audit logging.
      */
     public Boolean isSendExecuteAnalyticsEvent() {
-        return analyticsService.isActive();
-    }
-
-    private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
-            ActionDTO actionDTO,
-            DatasourceStorage datasourceStorage,
-            ExecuteActionDTO executeActionDto,
-            ActionExecutionResult actionExecutionResult,
-            Long timeElapsed,
-            ActionConfiguration rawActionConfiguration) {
-
-        if (!isSendExecuteAnalyticsEvent()) {
-            return Mono.empty();
-        }
-        ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
-        ActionExecutionRequest request;
-        if (actionExecutionRequest != null) {
-            // Do a deep copy of request to not edit
-            request = new ActionExecutionRequest(
-                    actionExecutionRequest.getActionId(),
-                    actionExecutionRequest.getRequestedAt(),
-                    actionExecutionRequest.getQuery(),
-                    actionExecutionRequest.getBody(),
-                    actionExecutionRequest.getHeaders(),
-                    actionExecutionRequest.getHttpMethod(),
-                    actionExecutionRequest.getUrl(),
-                    actionExecutionRequest.getProperties(),
-                    actionExecutionRequest.getExecutionParameters(),
-                    null);
-        } else {
-            request = new ActionExecutionRequest();
-        }
-
-        if (request.getHeaders() != null) {
-            JsonNode headers = objectMapper.convertValue(request.getHeaders(), JsonNode.class);
-            try {
-                final String headersAsString = objectMapper.writeValueAsString(headers);
-                request.setHeaders(headersAsString);
-            } catch (JsonProcessingException e) {
-                log.error(e.getMessage());
-            }
-        }
-
-        if (request.getBody() != null) {
-            try {
-                final String bodyAsString = objectMapper.writeValueAsString(request.getBody());
-                request.setBody(bodyAsString);
-            } catch (JsonProcessingException e) {
-                log.error(e.getMessage());
-                request.setBody("\"Error serializing value to JSON.\"");
-            }
-        }
-
-        if (!CollectionUtils.isEmpty(request.getProperties())) {
-            final Map<String, String> stringProperties = new HashMap<>();
-            for (final Map.Entry<String, ?> entry : request.getProperties().entrySet()) {
-                String jsonValue;
-                try {
-                    jsonValue = objectMapper.writeValueAsString(entry.getValue());
-                } catch (JsonProcessingException e) {
-                    jsonValue = "\"Error serializing value to JSON.\"";
-                }
-                stringProperties.put(entry.getKey(), jsonValue);
-            }
-            request.setProperties(stringProperties);
-        }
-
-        return Mono.justOrEmpty(actionDTO.getApplicationId())
-                .flatMap(applicationService::findById)
-                .defaultIfEmpty(new Application())
-                .flatMap(application -> Mono.zip(
-                        Mono.just(application),
-                        sessionUserService.getCurrentUser(),
-                        newPageService.getNameByPageId(actionDTO.getPageId(), executeActionDto.getViewMode()),
-                        pluginService.getByIdWithoutPermissionCheck(actionDTO.getPluginId()),
-                        datasourceStorageService.getEnvironmentNameFromEnvironmentIdForAnalytics(
-                                datasourceStorage.getEnvironmentId())))
-                .flatMap(tuple -> {
-                    final Application application = tuple.getT1();
-                    final User user = tuple.getT2();
-                    final String pageName = tuple.getT3();
-                    final Plugin plugin = tuple.getT4();
-                    final String environmentName = tuple.getT5();
-
-                    final PluginType pluginType = actionDTO.getPluginType();
-                    final String appMode = TRUE.equals(executeActionDto.getViewMode())
-                            ? ApplicationMode.PUBLISHED.toString()
-                            : ApplicationMode.EDIT.toString();
-
-                    final Map<String, Object> data = new HashMap<>();
-                    data.put("username", user.getUsername());
-                    data.put("type", pluginType);
-                    data.put("pluginName", plugin.getName());
-                    data.put("name", actionDTO.getName());
-
-                    Map<String, Object> datasourceInfo = new HashMap<>();
-                    datasourceInfo.put("name", datasourceStorage.getName());
-                    data.put("datasource", datasourceInfo);
-
-                    data.put("workspaceId", application.getWorkspaceId());
-                    data.put("appId", actionDTO.getApplicationId());
-                    data.put(FieldName.APP_MODE, appMode);
-                    data.put("appName", application.getName());
-                    data.put("isExampleApp", application.getAppIsExample());
-
-                    String dsCreatedAt = "";
-                    if (datasourceStorage.getCreatedAt() != null) {
-                        dsCreatedAt = DateUtils.ISO_FORMATTER.format(datasourceStorage.getCreatedAt());
-                    }
-                    List<Param> paramsList = executeActionDto.getParams();
-                    if (paramsList == null) {
-                        paramsList = new ArrayList<>();
-                    }
-                    List<String> executionParams =
-                            paramsList.stream().map(param -> param.getValue()).collect(Collectors.toList());
-
-                    data.put("request", request);
-                    data.put(
-                            "isSuccessfulExecution",
-                            ObjectUtils.defaultIfNull(actionExecutionResult.getIsExecutionSuccess(), false));
-                    data.put("statusCode", ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""));
-                    data.put("timeElapsed", timeElapsed);
-                    data.put("actionCreated", DateUtils.ISO_FORMATTER.format(actionDTO.getCreatedAt()));
-                    data.put("actionId", ObjectUtils.defaultIfNull(actionDTO.getId(), ""));
-                    data.put(
-                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS_SIZE,
-                            executeActionDto.getTotalReadableByteCount());
-                    data.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS_COUNT, executionParams.size());
-
-                    setContextSpecificProperties(data, actionDTO, pageName);
-
-                    ActionExecutionResult.PluginErrorDetails pluginErrorDetails =
-                            actionExecutionResult.getPluginErrorDetails();
-                    data.put("pluginErrorDetails", ObjectUtils.defaultIfNull(pluginErrorDetails, ""));
-                    if (pluginErrorDetails != null) {
-                        data.put("appsmithErrorCode", pluginErrorDetails.getAppsmithErrorCode());
-                        data.put("appsmithErrorMessage", pluginErrorDetails.getAppsmithErrorMessage());
-                        data.put("errorType", pluginErrorDetails.getErrorType());
-                    }
-
-                    data.putAll(DatasourceAnalyticsUtils.getAnalyticsPropertiesWithStorageOnActionExecution(
-                            datasourceStorage, dsCreatedAt, environmentName));
-
-                    // Add the error message in case of erroneous execution
-                    if (FALSE.equals(actionExecutionResult.getIsExecutionSuccess())) {
-                        String errorJson;
-                        try {
-                            errorJson = objectMapper.writeValueAsString(actionExecutionResult.getBody());
-                        } catch (JsonProcessingException e) {
-                            log.warn("Unable to serialize action execution error result to JSON.", e);
-                            errorJson = "\"Failed to serialize error data to JSON.\"";
-                        }
-                        data.put("error", errorJson);
-                    }
-
-                    if (actionExecutionResult.getStatusCode() != null) {
-                        data.put("statusCode", actionExecutionResult.getStatusCode());
-                    }
-
-                    String executionRequestQuery = "";
-                    if (actionExecutionResult.getRequest() != null
-                            && actionExecutionResult.getRequest().getQuery() != null) {
-                        executionRequestQuery =
-                                actionExecutionResult.getRequest().getQuery();
-                    }
-
-                    final Map<String, Object> eventData = new HashMap<>();
-                    eventData.put(FieldName.ACTION, actionDTO);
-                    eventData.put(FieldName.DATASOURCE, datasourceStorage);
-                    eventData.put(FieldName.APP_MODE, appMode);
-                    eventData.put(FieldName.ACTION_EXECUTION_RESULT, actionExecutionResult);
-                    eventData.put(FieldName.ACTION_EXECUTION_TIME, timeElapsed);
-                    eventData.put(FieldName.ACTION_EXECUTION_QUERY, executionRequestQuery);
-                    eventData.put(FieldName.APPLICATION, application);
-                    eventData.put(FieldName.PLUGIN, plugin);
-
-                    if (executeActionDto.getTotalReadableByteCount() <= Constraint.MAX_ANALYTICS_SIZE_BYTES) {
-                        // Only send params info if total size is less than 5 MB
-                        eventData.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS, executionParams);
-                    } else {
-                        eventData.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS, REDACTED_DATA);
-                    }
-                    if (executeActionDto != null) {
-                        // Remove the value from the executeActionDto.params before sending to mixpanel as it contains
-                        // user submitted data
-                        if (executeActionDto.getParams() != null) {
-                            executeActionDto.getParams().forEach(param -> param.setValue(REDACTED_DATA));
-                        }
-                        data.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS_VALUE_MAP, executeActionDto.getParams());
-                        data.put(
-                                FieldName.ACTION_EXECUTION_INVERT_PARAMETER_MAP,
-                                executeActionDto.getInvertParameterMap());
-                    }
-                    data.put(FieldName.ACTION_CONFIGURATION, rawActionConfiguration);
-                    data.put(FieldName.EVENT_DATA, eventData);
-                    data.put(FieldName.ACTION_CONFIGURATION_RUN_BEHAVIOUR, actionDTO.getRunBehaviour());
-                    return analyticsService
-                            .sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, actionDTO, data)
-                            .thenReturn(request);
-                })
-                .onErrorResume(error -> {
-                    log.warn("Error sending action execution data point", error);
-                    return Mono.just(request);
-                });
+        return false;
     }
 
     protected void setContextSpecificProperties(Map<String, Object> data, ActionDTO actionDTO, String contextName) {
