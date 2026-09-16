@@ -48,6 +48,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
 
   private modelUpdateCount = 0;
   private modelUpdateLastEmitTime = 0;
+  private modelUpdateFlushTimer: ReturnType<typeof setTimeout> | null = null;
   private static MODEL_UPDATE_THROTTLE_MS = 60000;
 
   static getConfig() {
@@ -428,6 +429,10 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
     this.modelUpdateCount++;
     const now = Date.now();
 
+    if (this.modelUpdateFlushTimer) {
+      clearTimeout(this.modelUpdateFlushTimer);
+    }
+
     if (
       now - this.modelUpdateLastEmitTime >=
       CustomWidget.MODEL_UPDATE_THROTTLE_MS
@@ -438,8 +443,32 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
       });
       this.modelUpdateCount = 0;
       this.modelUpdateLastEmitTime = now;
+    } else {
+      this.modelUpdateFlushTimer = setTimeout(() => {
+        if (this.modelUpdateCount > 0) {
+          AnalyticsUtil.logEvent("CUSTOM_WIDGET_API_UPDATE_MODEL", {
+            widgetId: this.props.widgetId,
+            updateCount: this.modelUpdateCount,
+          });
+          this.modelUpdateCount = 0;
+          this.modelUpdateLastEmitTime = Date.now();
+        }
+      }, CustomWidget.MODEL_UPDATE_THROTTLE_MS);
     }
   };
+
+  componentWillUnmount() {
+    if (this.modelUpdateFlushTimer) {
+      clearTimeout(this.modelUpdateFlushTimer);
+    }
+
+    if (this.modelUpdateCount > 0) {
+      AnalyticsUtil.logEvent("CUSTOM_WIDGET_API_UPDATE_MODEL", {
+        widgetId: this.props.widgetId,
+        updateCount: this.modelUpdateCount,
+      });
+    }
+  }
 
   getRenderMode = () => {
     switch (this.props.renderMode) {

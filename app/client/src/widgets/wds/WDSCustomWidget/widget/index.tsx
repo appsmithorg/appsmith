@@ -38,6 +38,7 @@ export class WDSCustomWidget extends BaseWidget<
 
   private modelUpdateCount = 0;
   private modelUpdateLastEmitTime = 0;
+  private modelUpdateFlushTimer: ReturnType<typeof setTimeout> | null = null;
   private static MODEL_UPDATE_THROTTLE_MS = 60000;
 
   static getConfig() {
@@ -109,6 +110,10 @@ export class WDSCustomWidget extends BaseWidget<
     this.modelUpdateCount++;
     const now = Date.now();
 
+    if (this.modelUpdateFlushTimer) {
+      clearTimeout(this.modelUpdateFlushTimer);
+    }
+
     if (
       now - this.modelUpdateLastEmitTime >=
       WDSCustomWidget.MODEL_UPDATE_THROTTLE_MS
@@ -119,8 +124,32 @@ export class WDSCustomWidget extends BaseWidget<
       });
       this.modelUpdateCount = 0;
       this.modelUpdateLastEmitTime = now;
+    } else {
+      this.modelUpdateFlushTimer = setTimeout(() => {
+        if (this.modelUpdateCount > 0) {
+          AnalyticsUtil.logEvent("CUSTOM_WIDGET_API_UPDATE_MODEL", {
+            widgetId: this.props.widgetId,
+            updateCount: this.modelUpdateCount,
+          });
+          this.modelUpdateCount = 0;
+          this.modelUpdateLastEmitTime = Date.now();
+        }
+      }, WDSCustomWidget.MODEL_UPDATE_THROTTLE_MS);
     }
   };
+
+  componentWillUnmount() {
+    if (this.modelUpdateFlushTimer) {
+      clearTimeout(this.modelUpdateFlushTimer);
+    }
+
+    if (this.modelUpdateCount > 0) {
+      AnalyticsUtil.logEvent("CUSTOM_WIDGET_API_UPDATE_MODEL", {
+        widgetId: this.props.widgetId,
+        updateCount: this.modelUpdateCount,
+      });
+    }
+  }
 
   getRenderMode = () => {
     switch (this.props.renderMode) {

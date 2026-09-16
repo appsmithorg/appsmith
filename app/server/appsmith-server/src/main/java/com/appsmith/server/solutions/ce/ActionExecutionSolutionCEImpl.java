@@ -976,14 +976,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                         actionDTO.getId(),
                                         timeElapsed);
 
-                                return sendExecuteAnalyticsEvent(
-                                                actionDTO,
-                                                datasourceStorage,
-                                                executeActionDTO,
-                                                result,
-                                                timeElapsed,
-                                                finalRawActionConfiguration)
-                                        .thenReturn(result);
+                                return Mono.just(result);
                             });
                 });
     }
