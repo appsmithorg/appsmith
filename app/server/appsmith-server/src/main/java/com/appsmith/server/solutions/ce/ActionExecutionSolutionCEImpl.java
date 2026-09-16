@@ -7,7 +7,6 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.MustacheHelper;
-import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -45,9 +44,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -113,7 +110,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final SessionUserService sessionUserService;
     private final AuthenticationValidator authenticationValidator;
     private final DatasourcePermission datasourcePermission;
-    private final AnalyticsService analyticsService;
     private final DatasourceStorageService datasourceStorageService;
     private final EnvironmentPermission environmentPermission;
     private final ConfigService configService;
@@ -164,7 +160,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.sessionUserService = sessionUserService;
         this.authenticationValidator = authenticationValidator;
         this.datasourcePermission = datasourcePermission;
-        this.analyticsService = analyticsService;
         this.datasourceStorageService = datasourceStorageService;
         this.environmentPermission = environmentPermission;
         this.configService = configService;
@@ -892,25 +887,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     }
 
     /**
-     * This function deep copies the actionConfiguration object to send the original object to mixpanel which contains
-     * the actual user query with bindings
-     * @param actionConfiguration
-     * @return
-     */
-    private ActionConfiguration deepCopyActionConfiguration(ActionConfiguration actionConfiguration) {
-        try {
-            // Convert the ActionConfiguration object to JSON string
-            String json = objectMapper.writeValueAsString(actionConfiguration);
-
-            // Convert the JSON string back to an ActionConfiguration object
-            return objectMapper.readValue(json, ActionConfiguration.class);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
      * Handles the execution logic, call to pluginExecutor with the payload post retrieval and validation of action, datasource, and plugin
      *
      * @param executeActionDTO
@@ -934,12 +910,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     final DatasourceStorage datasourceStorage = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
                     final Plugin plugin = tuple.getT4();
-                    // This is to return the raw user query including bindings
-                    ActionConfiguration rawActionConfiguration = null;
-                    if (actionDTO != null && actionDTO.getActionConfiguration() != null) {
-                        // deep copying the actionConfiguration to avoid any changes in the original object
-                        rawActionConfiguration = this.deepCopyActionConfiguration(actionDTO.getActionConfiguration());
-                    }
 
                     log.debug(
                             "[{}]Execute Action called in Page {}, for action id : {}  action name : {}",
@@ -960,7 +930,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             .name(VERIFY_DATASOURCE_AND_MAKE_REQUEST)
                             .tap(Micrometer.observation(observationRegistry));
 
-                    ActionConfiguration finalRawActionConfiguration = rawActionConfiguration;
                     return actionExecutionResultMono
                             .onErrorMap(executionExceptionMapper(actionDTO, timeoutDuration))
                             .onErrorResume(executionExceptionHandler(actionDTO))
@@ -1103,80 +1072,10 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     }
 
     /**
-     * Since we're loading the application and other details from DB *only* for analytics, we check if analytics is
-     * active before making the call to DB.
-     *
-     * @return
+     * Retained for the EE override, which enables action-execution audit logging.
      */
     public Boolean isSendExecuteAnalyticsEvent() {
-        return analyticsService.isActive();
-    }
-
-    private Mono<ActionExecutionRequest> sendExecuteAnalyticsEvent(
-            ActionDTO actionDTO,
-            DatasourceStorage datasourceStorage,
-            ExecuteActionDTO executeActionDto,
-            ActionExecutionResult actionExecutionResult,
-            Long timeElapsed,
-            ActionConfiguration rawActionConfiguration) {
-
-        if (!isSendExecuteAnalyticsEvent()) {
-            return Mono.empty();
-        }
-        ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
-        ActionExecutionRequest request;
-        if (actionExecutionRequest != null) {
-            // Do a deep copy of request to not edit
-            request = new ActionExecutionRequest(
-                    actionExecutionRequest.getActionId(),
-                    actionExecutionRequest.getRequestedAt(),
-                    actionExecutionRequest.getQuery(),
-                    actionExecutionRequest.getBody(),
-                    actionExecutionRequest.getHeaders(),
-                    actionExecutionRequest.getHttpMethod(),
-                    actionExecutionRequest.getUrl(),
-                    actionExecutionRequest.getProperties(),
-                    actionExecutionRequest.getExecutionParameters(),
-                    null);
-        } else {
-            request = new ActionExecutionRequest();
-        }
-
-        if (request.getHeaders() != null) {
-            JsonNode headers = objectMapper.convertValue(request.getHeaders(), JsonNode.class);
-            try {
-                final String headersAsString = objectMapper.writeValueAsString(headers);
-                request.setHeaders(headersAsString);
-            } catch (JsonProcessingException e) {
-                log.error(e.getMessage());
-            }
-        }
-
-        if (request.getBody() != null) {
-            try {
-                final String bodyAsString = objectMapper.writeValueAsString(request.getBody());
-                request.setBody(bodyAsString);
-            } catch (JsonProcessingException e) {
-                log.error(e.getMessage());
-                request.setBody("\"Error serializing value to JSON.\"");
-            }
-        }
-
-        if (!CollectionUtils.isEmpty(request.getProperties())) {
-            final Map<String, String> stringProperties = new HashMap<>();
-            for (final Map.Entry<String, ?> entry : request.getProperties().entrySet()) {
-                String jsonValue;
-                try {
-                    jsonValue = objectMapper.writeValueAsString(entry.getValue());
-                } catch (JsonProcessingException e) {
-                    jsonValue = "\"Error serializing value to JSON.\"";
-                }
-                stringProperties.put(entry.getKey(), jsonValue);
-            }
-            request.setProperties(stringProperties);
-        }
-
-        return Mono.just(request);
+        return false;
     }
 
     protected void setContextSpecificProperties(Map<String, Object> data, ActionDTO actionDTO, String contextName) {
