@@ -70,10 +70,12 @@ RUN set -o xtrace \
   && add-apt-repository -y ppa:git-core/ppa \
   # Install MongoDB v7, PostgreSQL v14
   # Note: MongoDB 7.0 does not publish apt packages for Ubuntu 24.04 (noble) yet, so we use the jammy (22.04) packages — same pattern used for the previous 6.0 install.
-  && curl --retry 3 --retry-connrefused --connect-timeout 15 --retry-max-time 60 -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg \
+  && curl --retry 3 --retry-connrefused --connect-timeout 15 --retry-max-time 60 -fsSL -o /tmp/mongodb-server-7.0.asc https://www.mongodb.org/static/pgp/server-7.0.asc \
+  && gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg /tmp/mongodb-server-7.0.asc \
   && echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list \
   && echo "deb http://apt.postgresql.org/pub/repos/apt $(grep CODENAME /etc/lsb-release | cut -d= -f2)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
-  && curl --fail --retry 3 --retry-connrefused --connect-timeout 15 --retry-max-time 60 --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
+  && curl --fail --retry 3 --retry-connrefused --connect-timeout 15 --retry-max-time 60 --silent --show-error --location -o /tmp/pgdg-ACCC4CF8.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+  && apt-key add /tmp/pgdg-ACCC4CF8.asc \
   && apt update \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
     mongodb-org-server mongodb-org-mongos mongodb-mongosh \
@@ -109,8 +111,9 @@ ENV PATH="/usr/lib/postgresql/14/bin:${PATH}"
 RUN set -o xtrace \
   && mkdir -p /opt/java \
   && arch="$(uname -m | sed 's/x86_64/x64/; s/aarch64/aarch64/')" \
-  && curl --location "https://api.adoptium.net/v3/binary/latest/25/ga/linux/${arch}/jdk/hotspot/normal/eclipse" \
-  | tar -xz -C /opt/java --strip-components 1
+  && curl --fail --retry 3 --retry-connrefused --connect-timeout 15 --retry-max-time 60 --location -o /tmp/adoptium-jdk.tar.gz "https://api.adoptium.net/v3/binary/latest/25/ga/linux/${arch}/jdk/hotspot/normal/eclipse" \
+  && tar -xzf /tmp/adoptium-jdk.tar.gz -C /opt/java --strip-components 1 \
+  && rm -f /tmp/adoptium-jdk.tar.gz
 
 # Install NodeJS
 RUN <<END
