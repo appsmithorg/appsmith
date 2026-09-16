@@ -128,7 +128,7 @@ const renderRowWithTheme = () =>
 const emptyObj = {};
 const dummyFn = jest.fn();
 
-const renderEditorCell = (onSave: jest.Mock) => (
+const renderEditorCell = (onSave: jest.Mock, isEditableCellValid = true) => (
   <InlineCellEditor
     accentColor="#000"
     additionalProps={emptyObj}
@@ -136,7 +136,7 @@ const renderEditorCell = (onSave: jest.Mock) => (
     compactMode="DEFAULT"
     inputHTMLType="text"
     inputType={InputTypes.TEXT}
-    isEditableCellValid
+    isEditableCellValid={isEditableCellValid}
     multiline={false}
     onChange={dummyFn}
     onDiscard={dummyFn}
@@ -150,18 +150,23 @@ const renderEditorCell = (onSave: jest.Mock) => (
 const renderInlineEditorWithTheme = (
   editorCellIdx: number,
   onSave: jest.Mock,
+  isEditableCellValid = true,
 ) =>
   render(
     <ThemeProvider theme={lightTheme}>
       <div className="tr">
         <div className="td" data-colindex="0" tabIndex={-1}>
-          {editorCellIdx === 0 ? renderEditorCell(onSave) : "First Cell"}
+          {editorCellIdx === 0
+            ? renderEditorCell(onSave, isEditableCellValid)
+            : "First Cell"}
         </div>
         <div className="td hidden-cell" data-colindex="1">
           Hidden
         </div>
         <div className="td" data-colindex="2" tabIndex={-1}>
-          {editorCellIdx === 2 ? renderEditorCell(onSave) : "Target Cell"}
+          {editorCellIdx === 2
+            ? renderEditorCell(onSave, isEditableCellValid)
+            : "Target Cell"}
         </div>
       </div>
     </ThemeProvider>,
@@ -298,5 +303,48 @@ describe("Row Keyboard Navigation - Real DOM Focus", () => {
 
     expect(onSave).toHaveBeenCalledTimes(1);
     expect(event.defaultPrevented).toBe(false);
+  });
+
+  it("I: Invalid save attempt does NOT lock editor, allowing retry save after correcting value", () => {
+    const onSave = jest.fn();
+
+    const { container, rerender } = renderInlineEditorWithTheme(
+      0,
+      onSave,
+      false,
+    );
+
+    const input = container.querySelector("input");
+
+    expect(input).toBeInTheDocument();
+
+    // Attempt save while cell is invalid
+    fireTabKey(input);
+    expect(onSave).toHaveBeenCalledTimes(1);
+
+    // Rerender editor with corrected valid value
+    rerender(
+      <ThemeProvider theme={lightTheme}>
+        <div className="tr">
+          <div className="td" data-colindex="0" tabIndex={-1}>
+            {renderEditorCell(onSave, true)}
+          </div>
+          <div className="td hidden-cell" data-colindex="1">
+            Hidden
+          </div>
+          <div className="td" data-colindex="2" tabIndex={-1}>
+            Target Cell
+          </div>
+        </div>
+      </ThemeProvider>,
+    );
+
+    const updatedInput = container.querySelector("input");
+
+    expect(updatedInput).toBeInTheDocument();
+
+    // Subsequent save attempt after correcting value
+    fireTabKey(updatedInput);
+    expect(onSave).toHaveBeenCalledTimes(2);
   });
 });

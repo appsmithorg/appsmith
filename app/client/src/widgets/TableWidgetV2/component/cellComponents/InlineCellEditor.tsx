@@ -190,11 +190,18 @@ export function InlineCellEditor({
   const hasHandledActionRef = useRef(false);
 
   const handleSave = useCallback(() => {
+    if (!isEditableCellValid) {
+      hasHandledActionRef.current = false;
+      onSave();
+
+      return;
+    }
+
     if (!hasHandledActionRef.current) {
       hasHandledActionRef.current = true;
       onSave();
     }
-  }, [onSave]);
+  }, [isEditableCellValid, onSave]);
 
   const handleDiscard = useCallback(() => {
     if (!hasHandledActionRef.current) {
