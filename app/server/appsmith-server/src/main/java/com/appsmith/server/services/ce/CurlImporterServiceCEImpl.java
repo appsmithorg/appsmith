@@ -40,15 +40,36 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlImporterServiceCE {
 
     private static final String RESTAPI_PLUGIN = "restapi-plugin";
+    private static final String COMMAND_CURL = "curl";
 
     private static final String ARG_DATA = "--data";
+    private static final String ARG_DATA_ASCII = "--data-ascii";
+    private static final String ARG_DATA_RAW = "--data-raw";
+    private static final String ARG_DATA_URLENCODE = "--data-urlencode";
     private static final String ARG_FORM = "--form";
     private static final String ARG_HEADER = "--header";
     private static final String ARG_REQUEST = "--request";
     private static final String ARG_COOKIE = "--cookie";
     private static final String ARG_USER = "--user";
     private static final String ARG_USER_AGENT = "--user-agent";
+    private static final String ARG_URL = "--url";
+
+    private static final String ARG_SHORT_DATA = "-d";
+    private static final String ARG_SHORT_FORM = "-F";
+    private static final String ARG_SHORT_HEADER = "-H";
+    private static final String ARG_SHORT_REQUEST = "-X";
+    private static final String ARG_SHORT_COOKIE = "-b";
+    private static final String ARG_SHORT_USER = "-u";
+    private static final String ARG_SHORT_USER_AGENT = "-A";
+
     private static final String API_CONTENT_TYPE_KEY = "apiContentType";
+    private static final String BASIC_AUTH_PREFIX = "Basic ";
+    private static final String EQUALS = "=";
+    private static final String AMPERSAND = "&";
+    private static final String COLON = ":";
+    private static final String HEADER_KEY_VALUE_DELIMITER_REGEX = ":\\s*";
+    private static final String HTTP_PROTOCOL = "http://";
+    private static final String PROTOCOL_SEPARATOR = "://";
 
     private final PluginService pluginService;
     private final LayoutActionService layoutActionService;
@@ -244,49 +265,49 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         final List<String> normalizedTokens = new ArrayList<>();
 
         for (String token : tokens) {
-            if ("-d".equals(token) || "--data-ascii".equals(token) || "--data-raw".equals(token)) {
+            if (ARG_SHORT_DATA.equals(token) || ARG_DATA_ASCII.equals(token) || ARG_DATA_RAW.equals(token)) {
                 normalizedTokens.add(ARG_DATA);
 
-            } else if (token.startsWith("-d")) {
+            } else if (token.startsWith(ARG_SHORT_DATA)) {
                 // `-dstuff` -> `--data stuff`
                 normalizedTokens.add(ARG_DATA);
                 if (token.length() > 2) {
                     normalizedTokens.add(token.substring(2));
                 }
 
-            } else if ("-F".equals(token)) {
+            } else if (ARG_SHORT_FORM.equals(token)) {
                 normalizedTokens.add(ARG_FORM);
 
-            } else if ("-H".equals(token)) {
+            } else if (ARG_SHORT_HEADER.equals(token)) {
                 normalizedTokens.add(ARG_HEADER);
 
-            } else if (token.startsWith("-H")) {
+            } else if (token.startsWith(ARG_SHORT_HEADER)) {
                 // `-HContent-Type:application/json` -> `--header Content-Type:application/json`
                 normalizedTokens.add(ARG_HEADER);
                 if (token.length() > 2) {
                     normalizedTokens.add(token.substring(2));
                 }
 
-            } else if ("-X".equals(token)) {
+            } else if (ARG_SHORT_REQUEST.equals(token)) {
                 normalizedTokens.add(ARG_REQUEST);
 
-            } else if (token.startsWith("-X")) {
+            } else if (token.startsWith(ARG_SHORT_REQUEST)) {
                 // `-XGET` -> `--request GET`
                 normalizedTokens.add(ARG_REQUEST);
                 if (token.length() > 2) {
                     normalizedTokens.add(token.substring(2).toUpperCase());
                 }
 
-            } else if ("-b".equals(token)) {
+            } else if (ARG_SHORT_COOKIE.equals(token)) {
                 normalizedTokens.add(ARG_COOKIE);
 
-            } else if ("-u".equals(token)) {
+            } else if (ARG_SHORT_USER.equals(token)) {
                 normalizedTokens.add(ARG_USER);
 
-            } else if ("-A".equals(token)) {
+            } else if (ARG_SHORT_USER_AGENT.equals(token)) {
                 normalizedTokens.add(ARG_USER_AGENT);
 
-            } else if (!"--url".equals(token)) {
+            } else if (!ARG_URL.equals(token)) {
                 // We skip the `--url` argument since it's superfluous and URLs are directly sniffed out of the argument
                 // list. The `--url` argument holds no special significance in cURL.
                 normalizedTokens.add(token);
@@ -299,7 +320,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
     public ActionDTO parse(List<String> tokens) throws AppsmithException {
         // Curl argument parsing as per <https://linux.die.net/man/1/curl>.
 
-        if (tokens.isEmpty() || !"curl".equals(tokens.get(0))) {
+        if (tokens.isEmpty() || !COMMAND_CURL.equals(tokens.get(0))) {
             // Doesn't look like a curl command.
             return null;
         }
@@ -337,11 +358,11 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
             } else if (ARG_HEADER.equals(state)) {
                 // The `token` is next to `--header`.
-                final String[] parts = token.split(":\\s*", 2);
+                final String[] parts = token.split(HEADER_KEY_VALUE_DELIMITER_REGEX, 2);
                 if (parts.length != 2) {
                     throw new AppsmithException(AppsmithError.INVALID_CURL_HEADER, token);
                 }
-                if ("content-type".equalsIgnoreCase(parts[0])) {
+                if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(parts[0])) {
                     contentType = parts[1];
                     // part[0] is already set to content-type, however, it might not have consistent casing. hence
                     // resetting it to a HTTP standard.
@@ -357,11 +378,11 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                 // The `token` is next to `--data`.
                 dataParts.add(token);
 
-            } else if ("--data-urlencode".equals(state)) {
+            } else if (ARG_DATA_URLENCODE.equals(state)) {
                 // The `token` is next to `--data-urlencode`.
                 // ignore the '=' at the start as the curl document says
                 // https://curl.se/docs/manpage.html#--data-urlencode
-                if (token.startsWith("=")) {
+                if (token.startsWith(EQUALS)) {
                     dataParts.add(token.substring(1));
                 } else {
                     dataParts.add(token);
@@ -373,16 +394,16 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
             } else if (ARG_COOKIE.equals(state)) {
                 // The `token` is next to `--data-cookie`.
-                headers.add(new Property("Set-Cookie", token));
+                headers.add(new Property(HttpHeaders.SET_COOKIE, token));
 
             } else if (ARG_USER.equals(state)) {
                 // The `token` is next to `--user`.
                 headers.add(new Property(
-                        "Authorization", "Basic " + Base64.getEncoder().encodeToString(token.getBytes())));
+                        HttpHeaders.AUTHORIZATION, BASIC_AUTH_PREFIX + Base64.getEncoder().encodeToString(token.getBytes())));
 
             } else if (ARG_USER_AGENT.equals(state)) {
                 // The `token` is next to `--user-agent`.
-                headers.add(new Property("User-Agent", token));
+                headers.add(new Property(HttpHeaders.USER_AGENT, token));
 
             } else if (token.startsWith("-")) {
                 // This is an option, in cURL's terminology. The next token would be the value of this option.
@@ -421,12 +442,12 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                 final ArrayList<Property> formPairs = new ArrayList<>();
                 actionConfiguration.setBodyFormData(formPairs);
                 for (String part : dataParts) {
-                    final String[] parts = part.split("=", 2);
+                    final String[] parts = part.split(EQUALS, 2);
                     formPairs.add(new Property(parts[0], parts.length > 1 ? parts[1] : ""));
                 }
 
             } else {
-                actionConfiguration.setBody(StringUtils.join(dataParts, '&'));
+                actionConfiguration.setBody(StringUtils.join(dataParts, AMPERSAND));
             }
         }
         if (!formParts.isEmpty()) {
@@ -434,7 +455,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                 final ArrayList<Property> formPairs = new ArrayList<>();
                 actionConfiguration.setBodyFormData(formPairs);
                 for (String part : formParts) {
-                    final String[] parts = part.split("=", 2);
+                    final String[] parts = part.split(EQUALS, 2);
                     // Multipart form values are double quoted. Eg: "value"
                     // We trim the quotes from the beginning & end of the string
                     String formValue = (parts.length > 1) ? parts[1].replaceAll("^\"|\"$", "") : "";
@@ -442,7 +463,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                 }
 
             } else {
-                actionConfiguration.setBody(StringUtils.join(formParts, '&'));
+                actionConfiguration.setBody(StringUtils.join(formParts, AMPERSAND));
             }
         }
 
@@ -479,14 +500,14 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
     private void trySaveURL(ActionDTO action, String token) throws MalformedURLException, URISyntaxException {
         // If the URL appears to not have a protocol set, prepend the `https` protocol.
         if (!token.matches("\\w+://.*")) {
-            token = "http://" + token;
+            token = HTTP_PROTOCOL + token;
         }
 
         // If the string doesn't throw an exception when being converted to a URI, its a valid URL.
         URL url = new URL(token);
 
         String path = url.getPath();
-        String base = url.getProtocol() + "://" + url.getHost() + getPort(url);
+        String base = url.getProtocol() + PROTOCOL_SEPARATOR + url.getHost() + getPort(url);
 
         log.debug("cURL import URL: '{}', path: '{}' baseUrl: '{}'", url, path, base);
 
@@ -513,9 +534,9 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
          * Attempt to extract query params only if the query params string is non-empty, and it has at least one key
          * value pair.
          */
-        if (!isBlank(queryParamsString) && queryParamsString.contains("=")) {
-            Arrays.stream(queryParamsString.split("&")).forEach(queryParam -> {
-                String[] paramMap = queryParam.split("=", 2);
+        if (!isBlank(queryParamsString) && queryParamsString.contains(EQUALS)) {
+            Arrays.stream(queryParamsString.split(AMPERSAND)).forEach(queryParam -> {
+                String[] paramMap = queryParam.split(EQUALS, 2);
                 if (paramMap.length > 1) {
                     queryParamsList.add(new Property(paramMap[0], paramMap[1]));
                 }
@@ -527,7 +548,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
     private String getPort(URL url) {
         if (url.getPort() != -1) {
-            return ":" + url.getPort();
+            return COLON + url.getPort();
         }
         return "";
     }
