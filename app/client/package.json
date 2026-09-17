@@ -262,7 +262,7 @@
     "@babel/core": "^7.26.10",
     "@babel/standalone": "^7.26.10",
     "@cypress/grep": "^4.0.1",
-    "@faker-js/faker": "^7.4.0",
+    "@faker-js/faker": "^10.5.0",
     "@grafana/faro-webpack-plugin": "^0.2.1",
     "@octokit/rest": "^20.0.1",
     "@peculiar/webcrypto": "^1.4.3",
