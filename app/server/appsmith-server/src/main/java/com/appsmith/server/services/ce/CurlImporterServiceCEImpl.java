@@ -401,7 +401,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
             } else if (ARG_COOKIE.equals(state)) {
                 // The `token` is next to `--data-cookie`.
-                headers.add(new Property(HttpHeaders.SET_COOKIE, token));
+                headers.add(new Property(HttpHeaders.COOKIE, token));
 
             } else if (ARG_USER.equals(state)) {
                 // The `token` is next to `--user`.
