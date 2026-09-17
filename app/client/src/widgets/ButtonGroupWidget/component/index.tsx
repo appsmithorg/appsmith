@@ -95,13 +95,16 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
         ? `${borderRadius} 0px 0px ${borderRadius}`
         : `${borderRadius} ${borderRadius} 0px 0px`};
   }
-
   & > *:last-child,
   & > *:last-child button {
     border-radius: ${({ borderRadius, isHorizontal }) =>
       isHorizontal
         ? `0px ${borderRadius} ${borderRadius} 0`
         : `0px 0px ${borderRadius} ${borderRadius}`};
+  }
+  & > *:only-child,
+  & > *:only-child button {
+    border-radius: ${({ borderRadius }) => borderRadius};
   }
 `;
 
