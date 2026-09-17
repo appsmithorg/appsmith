@@ -24,20 +24,25 @@ fi
 # request every Cypress signup intercepts. Anything else, including a connection
 # refusal, means the first spec would start against a backend that is still booting.
 readiness_url="http://localhost/api/v1/tenants/current"
-max_attempts=30
-attempt=1
+timeout_seconds=300
+poll_interval=10
+deadline=$(( $(date +%s) + timeout_seconds ))
+attempt=0
 status_code=000
 
-echo "Waiting for the server to be ready at $readiness_url"
-while [ "$attempt" -le "$max_attempts" ]; do
+echo "Waiting up to ${timeout_seconds}s for the server to be ready at $readiness_url"
+while :; do
+  attempt=$((attempt + 1))
   status_code=$(curl -o /dev/null -s -m 10 -w "%{http_code}" "$readiness_url") || status_code=000
   if [ "$status_code" -eq 200 ]; then
     echo "Server is ready after $attempt attempt(s)"
     break
   fi
-  echo "Server not ready (attempt $attempt/$max_attempts, status $status_code). Retrying in 10s..."
-  attempt=$((attempt + 1))
-  sleep 10
+  if [ "$(date +%s)" -ge "$deadline" ]; then
+    break
+  fi
+  echo "Server not ready (attempt $attempt, status $status_code). Retrying in ${poll_interval}s..."
+  sleep "$poll_interval"
 done
 
 echo "Checking if client and server have started"
@@ -45,7 +50,7 @@ ps -ef | grep java 2>&1
 ps -ef | grep serve 2>&1
 
 if [ "$status_code" -ne 200 ]; then
-  echo "Server did not become ready within $((max_attempts * 10))s (last status: $status_code)" >&2
+  echo "Server did not become ready within ${timeout_seconds}s (last status: $status_code)" >&2
   docker logs appsmith
   exit 1
 fi
