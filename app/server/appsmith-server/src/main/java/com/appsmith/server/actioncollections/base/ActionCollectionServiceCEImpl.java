@@ -310,17 +310,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                         modifiedActionCollectionMono = newActionService
                                 .findByCollectionIdAndViewMode(id, false, deleteActionPermission)
                                 .flatMap(newAction -> newActionService
-                                        .deleteGivenNewAction(newAction)
-                                        // return an empty action so that the filter can remove it from the list
-                                        .onErrorResume(throwable -> {
-                                            log.debug(
-                                                    "Failed to delete action with id {} for collection: {}",
-                                                    newAction.getId(),
-                                                    toDelete.getUnpublishedCollection()
-                                                            .getName());
-                                            log.error(throwable.getMessage());
-                                            return Mono.empty();
-                                        }))
+                                        .deleteGivenNewAction(newAction))
                                 .collectList()
                                 .then(repository.save(toDelete))
                                 .flatMap(modifiedActionCollection -> {
@@ -443,16 +433,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         return unpublishedJsActionsFlux
                 .mergeWith(publishedJsActionsFlux)
                 .flatMap(toArchive -> newActionService
-                        .archiveGivenNewAction(toArchive)
-                        // return an empty action so that the filter can remove it from the list
-                        .onErrorResume(throwable -> {
-                            log.debug(
-                                    "Failed to delete action with id {} for collection with id: {}",
-                                    toArchive.getId(),
-                                    actionCollection.getId());
-                            log.error(throwable.getMessage());
-                            return Mono.empty();
-                        }))
+                        .archiveGivenNewAction(toArchive))
                 .collectList()
                 .flatMap(newActions -> {
                     List<ActionDTO> actionDTOs = newActions.stream()

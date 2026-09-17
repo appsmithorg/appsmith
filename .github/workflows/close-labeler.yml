@@ -10,6 +10,7 @@ on:
 jobs:
   apply:
     if: github.event.pull_request.merged == true
+    permissions: {}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v7
@@ -18,24 +19,71 @@ jobs:
           script: |
             console.log("PR Details", context.issue)
 
-            const result = await github.graphql(
-              `
-                query($owner: String!, $name: String!, $prNum: Int!) {
-                  repository(owner: $owner, name: $name) {
-                    pullRequest(number: $prNum) {
-                      closingIssuesReferences(first: 10) {
-                        nodes {
-                          number
-                          repository {
-                            name
-                            owner {
-                              login
+            let hasNextPage = true;
+            let afterCursor = null;
+
+            async function getIssueLabels(owner, repo, issueNumber) {
+              const labels = [];
+              let labelsHasNextPage = true;
+              let labelsAfterCursor = null;
+
+              while (labelsHasNextPage) {
+                const result = await github.graphql(
+                  `
+                    query($owner: String!, $name: String!, $issueNumber: Int!, $afterCursor: String) {
+                      repository(owner: $owner, name: $name) {
+                        issue(number: $issueNumber) {
+                          labels(first: 50, after: $afterCursor) {
+                            pageInfo {
+                              hasNextPage
+                              endCursor
+                            }
+                            nodes {
+                              name
                             }
                           }
-                          labels(first: 50) {
-                            edges {
-                              node {
-                                name
+                        }
+                      }
+                    }
+                  `,
+                  {
+                    owner,
+                    name: repo,
+                    issueNumber,
+                    afterCursor: labelsAfterCursor,
+                  },
+                )
+
+                const issueLabels = result?.repository?.issue?.labels
+                if (!issueLabels?.nodes) {
+                  break
+                }
+
+                labels.push(...issueLabels.nodes)
+                labelsHasNextPage = issueLabels.pageInfo?.hasNextPage ?? false
+                labelsAfterCursor = issueLabels.pageInfo?.endCursor ?? null
+              }
+
+              return labels
+            }
+
+            while (hasNextPage) {
+              const result = await github.graphql(
+                `
+                  query($owner: String!, $name: String!, $prNum: Int!, $afterCursor: String) {
+                    repository(owner: $owner, name: $name) {
+                      pullRequest(number: $prNum) {
+                        closingIssuesReferences(first: 50, after: $afterCursor) {
+                          pageInfo {
+                            hasNextPage
+                            endCursor
+                          }
+                          nodes {
+                            number
+                            repository {
+                              name
+                              owner {
+                                login
                               }
                             }
                           }
@@ -43,28 +91,52 @@ jobs:
                       }
                     }
                   }
-                }
-              `,
-              {
-                owner: context.issue.owner,
-                name: context.issue.repo,
-                prNum: context.issue.number,
-              },
-            )
-            console.log("GraphQL result", JSON.stringify(result, null, 2));
+                `,
+                {
+                  owner: context.issue.owner,
+                  name: context.issue.repo,
+                  prNum: context.issue.number,
+                  afterCursor,
+                },
+              )
 
-            for (const node of result.repository.pullRequest.closingIssuesReferences.nodes) {
-              const shouldQA = node.labels.edges.find(edge => edge.node.name === "Enhancement" || edge.node.name === "Bug") != null
-              if (!shouldQA) {
+              const closingIssues = result?.repository?.pullRequest?.closingIssuesReferences
+              if (!closingIssues?.nodes) {
                 break
               }
-              console.log("Adding QA to", node.repository.owner.login, node.repository.name, node.number)
-              github.rest.issues.addLabels({
-                issue_number: node.number,
-                owner: node.repository.owner.login,
-                repo: node.repository.name,
-                labels: ["QA"],
-              })
+
+              for (const node of closingIssues.nodes) {
+                let labels
+                try {
+                  labels = await getIssueLabels(
+                    node.repository.owner.login,
+                    node.repository.name,
+                    node.number,
+                  )
+                } catch (error) {
+                  console.error("Failed to retrieve labels for", node.repository.owner.login, node.repository.name, node.number, error)
+                  continue
+                }
+
+                const shouldQA = labels.some(label => label.name === "Enhancement" || label.name === "Bug")
+                if (!shouldQA) {
+                  continue
+                }
+                console.log("Adding QA to", node.repository.owner.login, node.repository.name, node.number)
+                try {
+                  await github.rest.issues.addLabels({
+                    issue_number: node.number,
+                    owner: node.repository.owner.login,
+                    repo: node.repository.name,
+                    labels: ["QA"],
+                  })
+                } catch (error) {
+                  console.error("Failed to add QA label to", node.repository.owner.login, node.repository.name, node.number, error)
+                }
+              }
+
+              hasNextPage = closingIssues.pageInfo?.hasNextPage ?? false
+              afterCursor = closingIssues.pageInfo?.endCursor ?? null
             }
 
             console.log("Fin")
