@@ -2,12 +2,13 @@
 
 # Source the helper script
 source pg-utils.sh
+# shellcheck source=deploy/docker/fs/opt/appsmith/load-env.sh
+source "$(dirname "$0")/load-env.sh" || exit 1
 
 set -e
 
 stacks_path=/appsmith-stacks
 
-export APPSMITH_PG_DATABASE="appsmith"
 export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
 export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
 
@@ -76,8 +77,8 @@ init_env_file() {
     unset APPSMITH_MONGODB_URI
   fi
 
-  # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
-  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\\\''/g; s/=/='/; s/$/'/" > "$TMP/pre-define.env"
+  # Preserve externally supplied values verbatim, including embedded newlines.
+  (umask 077; /usr/bin/python3 /opt/appsmith/env-file.py snapshot "$TMP/pre-define.json")
 
   tlog "Initialize .env file"
   if ! [[ -e "$ENV_PATH" ]]; then
@@ -106,6 +107,8 @@ init_env_file() {
     bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_redis_password" > "$ENV_PATH"
   else
     tlog "Configuration file already exists"
+    # Validate before backfills mutate the persistent configuration.
+    /usr/bin/python3 /opt/appsmith/env-file.py validate "$ENV_PATH" || exit 1
     # Backfill APPSMITH_REDIS_PASSWORD for existing installs that don't have it yet.
     # Only inject auth into the Redis URL when it points to the embedded (localhost) Redis.
     if ! grep -q "APPSMITH_REDIS_PASSWORD" "$ENV_PATH"; then
@@ -126,9 +129,7 @@ init_env_file() {
   tlog "Load environment configuration"
 
   # Load the ones in `docker.env` in the stacks folder.
-  set -o allexport
-  . "$ENV_PATH"
-  set +o allexport
+  load_env_file env "$ENV_PATH" || exit 1
 
   if [[ -n "$APPSMITH_MONGODB_URI" ]]; then
     export APPSMITH_DB_URL="$APPSMITH_MONGODB_URI"
@@ -136,9 +137,7 @@ init_env_file() {
   fi
 
   # Load the ones set from outside, should take precedence, and so will overwrite anything from `docker.env` above.
-  set -o allexport
-  . "$TMP/pre-define.env"
-  set +o allexport
+  load_env_file json "$TMP/pre-define.json" || exit 1
 }
 
 init_env_file
@@ -614,14 +613,17 @@ safe_init_postgres() {
 # Example:
 #     create_appsmith_pg_db "/appsmith-stacks/data/postgres/main"
 create_appsmith_pg_db() {
-  POSTGRES_DB_PATH=$1
+  local -r pg_database=appsmith
+  local POSTGRES_DB_PATH=$1
+  local db_exists database_status=0
   # Start the postgres , wait for it to be ready and create a appsmith db
   su postgres -c "env PATH='$PATH' pg_ctl -D $POSTGRES_DB_PATH -l $POSTGRES_DB_PATH/logfile start"
   echo "Waiting for Postgres to start"
   local max_attempts=300
   local attempt=0
 
-  local unix_socket_directory=$(get_unix_socket_directory "$POSTGRES_DB_PATH")
+  local unix_socket_directory
+  unix_socket_directory=$(get_unix_socket_directory "$POSTGRES_DB_PATH")
   echo "Unix socket directory is $unix_socket_directory"
   until su postgres -c "env PATH='$PATH' pg_isready -h $unix_socket_directory"; do
     if (( attempt >= max_attempts )); then
@@ -632,14 +634,24 @@ create_appsmith_pg_db() {
     sleep 1
   done
   # Check if the appsmith DB is present
-  DB_EXISTS=$(su postgres -c "env PATH='$PATH' psql -tAc \"SELECT 1 FROM pg_database WHERE datname='${APPSMITH_PG_DATABASE}'\"")
+  # Forward arguments through a fixed shell command; psql quotes the SQL literal.
+  db_exists=$(su postgres -s /bin/sh -c 'exec "$@"' -- postgres \
+    env "PATH=$PATH" psql -X -v ON_ERROR_STOP=1 -v "pg_database=$pg_database" -tA <<'SQL'
+SELECT 1 FROM pg_database WHERE datname=:'pg_database';
+SQL
+  ) || database_status=$?
 
-  if [[ "$DB_EXISTS" != "1" ]]; then
-    su postgres -c "env PATH='$PATH' psql -c \"CREATE DATABASE ${APPSMITH_PG_DATABASE}\""
-  else
-    echo "Database ${APPSMITH_PG_DATABASE} already exists."
+  if [[ $database_status == 0 ]]; then
+    if [[ "$db_exists" != "1" ]]; then
+      # createdb quotes database identifiers, including embedded punctuation.
+      su postgres -s /bin/sh -c 'exec "$@"' -- postgres \
+        env "PATH=$PATH" createdb -- "$pg_database" || database_status=$?
+    else
+      echo "Database $pg_database already exists."
+    fi
   fi
-  su postgres -c "env PATH='$PATH' pg_ctl -D $POSTGRES_DB_PATH stop"
+  su postgres -c "env PATH='$PATH' pg_ctl -D $POSTGRES_DB_PATH stop" || return
+  return "$database_status"
 }
 
 setup_caddy() {

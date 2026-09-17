@@ -4,6 +4,7 @@ import os from "os";
 import readlineSync from "readline-sync";
 import * as utils from "./utils";
 import * as Constants from "./constants";
+import { serializeEnvFile, writeEnvFile } from "./env-file";
 
 const command_args = process.argv.slice(3);
 
@@ -230,28 +231,24 @@ async function restoreDatabase(restoreContentsPath: string, dbUrl: string) {
   console.log("Restoring database completed");
 }
 
-async function restoreDockerEnvFile(
+async function prepareDockerEnvFile(
   restoreContentsPath: string,
-  backupName: string,
   overwriteEncryptionKeys: boolean,
   args: readonly string[],
 ) {
-  console.log("Restoring docker environment file");
-  const dockerEnvFile = "/appsmith-stacks/configuration/docker.env";
-  const updatedbUrl = utils.getDburl();
+  console.log("Validating docker environment file");
   let encryptionPwd = process.env.APPSMITH_ENCRYPTION_PASSWORD;
   let encryptionSalt = process.env.APPSMITH_ENCRYPTION_SALT;
 
-  await utils.execCommand([
-    "cp",
-    dockerEnvFile,
-    dockerEnvFile + "." + backupName,
-  ]);
-
-  let dockerEnvContent = await fsPromises.readFile(
+  const dockerEnvContent = await fsPromises.readFile(
     restoreContentsPath + "/docker.env",
     "utf8",
   );
+  const values: Record<string, string> = {
+    APPSMITH_DB_URL: utils.getDburl(),
+    APPSMITH_MONGODB_USER: process.env.APPSMITH_MONGODB_USER,
+    APPSMITH_MONGODB_PASSWORD: process.env.APPSMITH_MONGODB_PASSWORD,
+  };
 
   if (overwriteEncryptionKeys) {
     if (isNonInteractive(args)) {
@@ -300,43 +297,26 @@ async function restoreDockerEnvFile(
       );
     }
 
-    dockerEnvContent +=
-      "\nAPPSMITH_ENCRYPTION_PASSWORD=" +
-      encryptionPwd +
-      "\nAPPSMITH_ENCRYPTION_SALT=" +
-      encryptionSalt +
-      "\nAPPSMITH_DB_URL=" +
-      utils.getDburl() +
-      "\nAPPSMITH_MONGODB_USER=" +
-      process.env.APPSMITH_MONGODB_USER +
-      "\nAPPSMITH_MONGODB_PASSWORD=" +
-      process.env.APPSMITH_MONGODB_PASSWORD;
-  } else {
-    dockerEnvContent +=
-      "\nAPPSMITH_DB_URL=" +
-      updatedbUrl +
-      "\nAPPSMITH_MONGODB_USER=" +
-      process.env.APPSMITH_MONGODB_USER +
-      "\nAPPSMITH_MONGODB_PASSWORD=" +
-      process.env.APPSMITH_MONGODB_PASSWORD;
+    if (!encryptionPwd || !encryptionSalt) {
+      throw new Error("Encryption password and salt are required for restore.");
+    }
+
+    values.APPSMITH_ENCRYPTION_PASSWORD = encryptionPwd;
+    values.APPSMITH_ENCRYPTION_SALT = encryptionSalt;
   }
 
   // Preserve the restoring instance's Redis configuration. The backup strips
   // these (see `removeSensitiveEnvData`) because the source instance's Redis
   // password does not match the target's embedded Redis `requirepass`.
   if (process.env.APPSMITH_REDIS_URL) {
-    dockerEnvContent +=
-      "\nAPPSMITH_REDIS_URL=" + process.env.APPSMITH_REDIS_URL;
+    values.APPSMITH_REDIS_URL = process.env.APPSMITH_REDIS_URL;
   }
 
   if (process.env.APPSMITH_REDIS_PASSWORD) {
-    dockerEnvContent +=
-      "\nAPPSMITH_REDIS_PASSWORD=" + process.env.APPSMITH_REDIS_PASSWORD;
+    values.APPSMITH_REDIS_PASSWORD = process.env.APPSMITH_REDIS_PASSWORD;
   }
 
-  await fsPromises.writeFile(dockerEnvFile, dockerEnvContent, "utf8");
-
-  console.log("Restoring docker environment file completed");
+  return serializeEnvFile(dockerEnvContent, values);
 }
 
 async function restoreGitStorageArchive(
@@ -492,6 +472,14 @@ export async function run() {
 
       await checkRestoreVersionCompatability(restoreContentsPath, command_args);
 
+      // Validate before stopping services or restoring any data. An incompatible
+      // legacy file must not leave a restored database with unusable credentials.
+      const dockerEnvContent = await prepareDockerEnvFile(
+        restoreContentsPath,
+        overwriteEncryptionKeys,
+        command_args,
+      );
+
       console.log(
         "****************************************************************",
       );
@@ -500,12 +488,12 @@ export async function run() {
       );
       await utils.stop(["backend", "rts"]);
       await restoreDatabase(restoreContentsPath, utils.getDburl());
-      await restoreDockerEnvFile(
-        restoreContentsPath,
-        backupName,
-        overwriteEncryptionKeys,
-        command_args,
-      );
+      await utils.execCommand([
+        "cp",
+        Constants.ENV_PATH,
+        Constants.ENV_PATH + "." + backupName,
+      ]);
+      await writeEnvFile(Constants.ENV_PATH, dockerEnvContent);
       await restoreGitStorageArchive(restoreContentsPath, backupName);
       console.log("Appsmith instance successfully restored.");
       await fsPromises.rm(restoreRootPath, { recursive: true, force: true });
