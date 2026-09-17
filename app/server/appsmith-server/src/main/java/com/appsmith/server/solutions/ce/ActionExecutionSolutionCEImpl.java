@@ -117,6 +117,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final ActionExecutionSolutionHelper actionExecutionSolutionHelper;
     private final CommonConfig commonConfig;
     private final FeatureFlagService featureFlagService;
+    protected final AnalyticsService analyticsService;
 
     static final String PARAM_KEY_REGEX = "^k\\d+$";
     static final String BLOB_KEY_REGEX =
@@ -167,6 +168,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.commonConfig = commonConfig;
         this.actionExecutionSolutionHelper = actionExecutionSolutionHelper;
         this.featureFlagService = featureFlagService;
+        this.analyticsService = analyticsService;
 
         this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
         this.patternList.add(Pattern.compile(BLOB_KEY_REGEX));
@@ -945,7 +947,9 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                         actionDTO.getId(),
                                         timeElapsed);
 
-                                return Mono.just(result);
+                                return onActionExecutionComplete(
+                                                actionDTO, datasourceStorage, executeActionDTO, result, timeElapsed)
+                                        .thenReturn(result);
                             });
                 });
     }
@@ -1072,10 +1076,16 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     }
 
     /**
-     * Retained for the EE override, which enables action-execution audit logging.
+     * Hook called after every action execution completes (success or failure).
+     * CE no-ops; EE overrides this to dispatch the analytics event that drives audit logging.
      */
-    public Boolean isSendExecuteAnalyticsEvent() {
-        return false;
+    protected Mono<Void> onActionExecutionComplete(
+            ActionDTO actionDTO,
+            DatasourceStorage datasourceStorage,
+            ExecuteActionDTO executeActionDTO,
+            ActionExecutionResult actionExecutionResult,
+            Long timeElapsed) {
+        return Mono.empty();
     }
 
     protected void setContextSpecificProperties(Map<String, Object> data, ActionDTO actionDTO, String contextName) {
