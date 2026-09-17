@@ -22,7 +22,7 @@ describe(
       agHelper.ValidateToastMessage("Interval started.", 0, 2);
       agHelper.ClickButton("Submit1_1", { waitAfterClick: false });
       agHelper.Sleep(6000); // This is mandatory sleep as we need to check interval is cleared.
-      agHelper.AssertElementAbsence(locators._toastMsg);
+      agHelper.AssertElementAbsence(locators._toastMsg, 3000); // retry through the toast exit animation
 
       //JSObject mode verification
       agHelper.ClickButton("clearAllInterval");
@@ -30,7 +30,7 @@ describe(
       agHelper.ValidateToastMessage("Interval started.", 0, 2);
       agHelper.ClickButton("Submit1_2", { waitAfterClick: false });
       agHelper.Sleep(6000); // This is mandatory sleep as we need to check interval is cleared.
-      agHelper.AssertElementAbsence(locators._toastMsg);
+      agHelper.AssertElementAbsence(locators._toastMsg, 3000); // retry through the toast exit animation
 
       //Deploy mode verification - button and JSObject in the same deployed page
       deployMode.DeployApp();
@@ -39,13 +39,13 @@ describe(
       agHelper.ValidateToastMessage("Interval started.", 0, 2);
       agHelper.ClickButton("Submit1_1", { waitAfterClick: false });
       agHelper.Sleep(6000); // This is mandatory sleep as we need to check interval is cleared.
-      agHelper.AssertElementAbsence(locators._toastMsg);
+      agHelper.AssertElementAbsence(locators._toastMsg, 3000); // retry through the toast exit animation
 
       agHelper.ClickButton("setIntvl");
       agHelper.ValidateToastMessage("Interval started.", 0, 2);
       agHelper.ClickButton("Submit1_2", { waitAfterClick: false });
       agHelper.Sleep(6000); // This is mandatory sleep as we need to check interval is cleared.
-      agHelper.AssertElementAbsence(locators._toastMsg);
+      agHelper.AssertElementAbsence(locators._toastMsg, 3000); // retry through the toast exit animation
       deployMode.NavigateBacktoEditor();
     });
 
@@ -73,7 +73,7 @@ describe(
       agHelper.ValidateToastMessage("Interval 2", 0, 2);
       agHelper.ClickButton("Submit4_1", { waitAfterClick: false });
       agHelper.Sleep(6000); // This is mandatory sleep as we need to check interval is cleared.
-      agHelper.AssertElementAbsence(locators._toastMsg);
+      agHelper.AssertElementAbsence(locators._toastMsg, 3000); // retry through the toast exit animation
 
       //JSObject mode verification
       agHelper.ClickButton("clearAllInterval");
@@ -82,7 +82,7 @@ describe(
       agHelper.ValidateToastMessage("Interval 2", 0, 2);
       agHelper.ClickButton("Submit4_2", { waitAfterClick: false });
       agHelper.Sleep(6000); // This is mandatory sleep as we need to check interval is cleared.
-      agHelper.AssertElementAbsence(locators._toastMsg);
+      agHelper.AssertElementAbsence(locators._toastMsg, 3000); // retry through the toast exit animation
     });
 
     it("4. Verify behavior when calling clearInterval() multiple times on the same interval.The interval should be cleared the first time, and no errors should occur upon subsequent calls.", () => {
