@@ -317,6 +317,13 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         return normalizedTokens;
     }
 
+    /**
+     * Parses normalized cURL tokens into an {@link ActionDTO} representing the API action configuration.
+     *
+     * @param tokens List of normalized cURL arguments and options.
+     * @return An {@link ActionDTO} containing the parsed headers, body, HTTP method, and datasource configuration.
+     * @throws AppsmithException If an invalid cURL method or header is encountered.
+     */
     public ActionDTO parse(List<String> tokens) throws AppsmithException {
         // Curl argument parsing as per <https://linux.die.net/man/1/curl>.
 
@@ -475,6 +482,13 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         return action;
     }
 
+    /**
+     * Attempts to deduce the content type from the provided data or form parts.
+     *
+     * @param dataParts List of data arguments from the cURL command.
+     * @param formParts List of form arguments from the cURL command.
+     * @return The guessed content type string, or null if it cannot be determined.
+     */
     private String guessTheContentType(List<String> dataParts, List<String> formParts) {
         if (!dataParts.isEmpty()) {
             final String data = dataParts.get(0);
@@ -497,6 +511,14 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         return null;
     }
 
+    /**
+     * Parses and assigns the target URL, path, and extracted query parameters to the action and datasource configurations.
+     *
+     * @param action The {@link ActionDTO} to update with URL and query parameter details.
+     * @param token  The URL token extracted from the cURL command.
+     * @throws MalformedURLException If the token cannot be parsed into a valid URL.
+     * @throws URISyntaxException    If the URL string violates RFC 2396.
+     */
     private void trySaveURL(ActionDTO action, String token) throws MalformedURLException, URISyntaxException {
         // If the URL appears to not have a protocol set, prepend the `https` protocol.
         if (!token.matches("\\w+://.*")) {
@@ -526,6 +548,12 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         actionConfiguration.setPath(path);
     }
 
+    /**
+     * Extracts query parameters from a URL into a list of key-value {@link Property} objects.
+     *
+     * @param url The URL containing query parameters.
+     * @return A list of {@link Property} entries representing query parameters.
+     */
     private List<Property> getQueryParams(URL url) {
         List<Property> queryParamsList = new ArrayList<>();
         String queryParamsString = url.getQuery();
@@ -546,6 +574,12 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         return queryParamsList;
     }
 
+    /**
+     * Formats the port number for the URL if a non-default port is specified.
+     *
+     * @param url The URL to inspect.
+     * @return A string formatted as ":port", or an empty string if no explicit port is defined.
+     */
     private String getPort(URL url) {
         if (url.getPort() != -1) {
             return COLON + url.getPort();
