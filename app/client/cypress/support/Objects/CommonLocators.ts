@@ -276,6 +276,8 @@ export class CommonLocators {
   _svg = "svg";
   _imgWidgetInsideList = `//div[@data-testid='styledImage']//img`;
   _containerWidget = "[type='CONTAINER_WIDGET']";
+  _listV2ItemContainer = (widgetName: string) =>
+    `${this._widgetByName(widgetName)} ${this._containerWidget}`;
   _statboxWidget = "[type='STATBOX_WIDGET']";
   _evaluatedValue = ".t-property-evaluated-value";
   public ds_editor_env_filter = (envName: string) =>

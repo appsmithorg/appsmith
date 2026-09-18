@@ -413,6 +413,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   containerStyle?: ContainerStyle;
   onClick?: MouseEventHandler<HTMLDivElement>;
   onClickCapture?: MouseEventHandler<HTMLDivElement>;
+  showHoverPointer?: boolean;
   shouldScrollContents?: boolean;
   noPad?: boolean;
   positioning?: Positioning;
