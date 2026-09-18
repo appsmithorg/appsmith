@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -85,7 +86,7 @@ public class MongoPluginWriteErrorsTest {
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeCommon(
-                mockClient, datasourceConfiguration, actionConfiguration, null);
+                mockClient, datasourceConfiguration, actionConfiguration, new ArrayList<>());
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -148,7 +149,7 @@ public class MongoPluginWriteErrorsTest {
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeCommon(
-                mockClient, datasourceConfiguration, actionConfiguration, null);
+                mockClient, datasourceConfiguration, actionConfiguration, new ArrayList<>());
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -190,7 +191,7 @@ public class MongoPluginWriteErrorsTest {
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeCommon(
-                mockClient, datasourceConfiguration, actionConfiguration, null);
+                mockClient, datasourceConfiguration, actionConfiguration, new ArrayList<>());
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -229,7 +230,7 @@ public class MongoPluginWriteErrorsTest {
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeCommon(
-                mockClient, datasourceConfiguration, actionConfiguration, null);
+                mockClient, datasourceConfiguration, actionConfiguration, new ArrayList<>());
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -266,7 +267,7 @@ public class MongoPluginWriteErrorsTest {
         actionConfiguration.setFormData(configMap);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeCommon(
-                mockClient, datasourceConfiguration, actionConfiguration, null);
+                mockClient, datasourceConfiguration, actionConfiguration, new ArrayList<>());
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
