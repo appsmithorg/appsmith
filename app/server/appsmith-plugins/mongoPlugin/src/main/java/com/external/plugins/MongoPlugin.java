@@ -565,7 +565,7 @@ public class MongoPlugin extends BasePlugin {
                                 + ": building actionExecutionResult from Mongo plugin.");
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
-                        if (!parameters.isEmpty()) {
+                        if (!CollectionUtils.isEmpty(parameters)) {
                             final Map<String, Object> requestData = new HashMap<>();
                             requestData.put("smart-substitution-parameters", parameters);
                             request.setProperties(requestData);
