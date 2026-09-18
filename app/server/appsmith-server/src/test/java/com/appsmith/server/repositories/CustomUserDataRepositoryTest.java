@@ -189,6 +189,10 @@ public class CustomUserDataRepositoryTest {
                 .verifyComplete();
     }
 
+    /**
+     * Verifies that when an application is removed from recently used list, it is pulled from both
+     * recentlyUsedEntityIds applicationIds lists and legacy recentlyUsedAppIds.
+     */
     @Test
     public void removeApplicationFromRecentlyUsedList_WhenApplicationIdExists_ApplicationIdRemoved() {
         String randomId = UUID.randomUUID().toString();
@@ -218,6 +222,10 @@ public class CustomUserDataRepositoryTest {
                 .verifyComplete();
     }
 
+    /**
+     * Verifies that when a workspace is removed from recently used list, its entry is pulled from both
+     * recentlyUsedEntityIds and legacy recentlyUsedWorkspaceIds.
+     */
     @Test
     public void removeWorkspaceFromRecentlyUsedList_WhenWorkspaceIdExists_WorkspaceIdRemoved() {
         String randomId = UUID.randomUUID().toString();

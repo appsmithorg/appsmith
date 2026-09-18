@@ -56,6 +56,12 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
         return queryBuilder().updateAll(update).then();
     }
 
+    /**
+     * Removes the specified application ID from all users' recently used entity lists and legacy appId lists.
+     *
+     * @param applicationId ID of the application to remove
+     * @return Mono completing when the updateAll operation finishes
+     */
     @Override
     public Mono<Void> removeApplicationFromRecentlyUsedList(String applicationId) {
         BridgeUpdate update = new BridgeUpdate();
@@ -64,6 +70,12 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
         return queryBuilder().updateAll(update).then();
     }
 
+    /**
+     * Removes the specified workspace entry from all users' recently used entity lists and legacy workspaceId lists.
+     *
+     * @param workspaceId ID of the workspace to remove
+     * @return Mono completing when the updateAll operation finishes
+     */
     @Override
     public Mono<Void> removeWorkspaceFromRecentlyUsedList(String workspaceId) {
         BridgeUpdate update = new BridgeUpdate();
