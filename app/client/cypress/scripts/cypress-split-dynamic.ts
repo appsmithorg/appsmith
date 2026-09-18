@@ -147,7 +147,22 @@ export class dynamicSplit {
           attemptId,
         ],
       );
-      return matrixResponse.rows[0].id;
+
+      if (matrixResponse.rows.length > 0) {
+        return { id: matrixResponse.rows[0].id, isNew: true };
+      }
+
+      // A cypress-repeat-pro retry re-runs the splitter with the same
+      // matrixId/attemptId, so the insert above is a no-op and the existing row
+      // already holds the specs queued by the first run.
+      const existingMatrix = await client.query(
+        `SELECT id FROM public."matrix" WHERE "matrixId" = $1 AND "attemptId" = $2`,
+        [this.util.getVars().thisRunner, attemptId],
+      );
+
+      return existingMatrix.rows.length > 0
+        ? { id: existingMatrix.rows[0].id, isNew: false }
+        : undefined;
     } catch (err) {
       console.log(err);
     } finally {
@@ -247,8 +262,13 @@ export class dynamicSplit {
     const client = await this.dbClient.connect();
     try {
       if (specs.length > 0) {
-        const matrixRes = await this.createMatrix(attemptId);
-        await this.addSpecsToMatrix(matrixRes, specs);
+        const matrix = await this.createMatrix(attemptId);
+
+        if (matrix === undefined) {
+          console.log("Could not resolve the matrix row for this runner.");
+        } else if (matrix.isNew) {
+          await this.addSpecsToMatrix(matrix.id, specs);
+        }
       }
       await client.query(
         `UPDATE public."attempt" SET is_locked = false WHERE id = $1 AND is_locked = true RETURNING id`,
