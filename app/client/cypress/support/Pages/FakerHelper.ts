@@ -4,25 +4,30 @@ type imageTypes = "abstract" | "animals";
 
 export class FakerHelper {
   public GetCatImage() {
-    return faker.image.cats();
+    return faker.image.url();
   }
 
   public GetRandomImage() {
-    return faker.image.imageUrl();
+    return faker.image.url();
   }
 
   public GetRandomText(
     textLength = 10,
     casing: "upper" | "lower" | "mixed" = "mixed",
   ) {
-    return faker.random.alphaNumeric(textLength, { casing: casing });
+    return faker.string.alphanumeric({ length: textLength, casing });
   }
 
   public GetUSPhoneNumber() {
-    return faker.phone.number("(###) ###-####");
+    const digits = faker.string.numeric({
+      allowLeadingZeros: true,
+      length: 10,
+    });
+
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
   }
 
   public GetRandomNumber(length = 6) {
-    return faker.random.numeric(length, { allowLeadingZeros: true });
+    return faker.string.numeric({ allowLeadingZeros: true, length });
   }
 }
