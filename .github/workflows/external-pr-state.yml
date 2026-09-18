@@ -1,0 +1,116 @@
+name: External PR state
+
+on:
+  pull_request_target:
+    types: [opened, reopened, ready_for_review, synchronize]
+
+# This workflow deliberately does not check out or execute pull-request code.
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  mark-waiting:
+    if: github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure contributor-state labels exist
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = [
+              {
+                name: "external-contribution",
+                color: "0E8A16",
+                description: "Pull request submitted from outside the Appsmith repository",
+              },
+              {
+                name: "awaiting-maintainer",
+                color: "FBCA04",
+                description: "The next action on this pull request belongs to an Appsmith maintainer",
+              },
+              {
+                name: "awaiting-contributor",
+                color: "1D76DB",
+                description: "The contributor needs to respond to review or CI feedback",
+              },
+              {
+                name: "ci-approved",
+                color: "0E8A16",
+                description: "A maintainer approved privileged CI for the current revision",
+              },
+              {
+                name: "preview-ready",
+                color: "5319E7",
+                description: "A deploy preview is available for review",
+              },
+            ];
+
+            const existing = await github.paginate(
+              github.rest.issues.listLabelsForRepo,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: 100,
+              },
+            );
+            const existingNames = new Set(existing.map((label) => label.name));
+
+            for (const label of labels) {
+              if (!existingNames.has(label.name)) {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ...label,
+                });
+              }
+            }
+
+      - name: Mark the PR as waiting for a maintainer
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = context.issue.number;
+
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number,
+              labels: ["external-contribution", "awaiting-maintainer"],
+            });
+
+            if (context.payload.action === "synchronize") {
+              for (const name of ["awaiting-contributor", "ci-approved", "preview-ready"]) {
+                try {
+                  await github.rest.issues.removeLabel({
+                    owner,
+                    repo,
+                    issue_number,
+                    name,
+                  });
+                } catch (error) {
+                  if (error.status !== 404) throw error;
+                }
+              }
+            }
+
+      - name: Explain the next action on a newly opened PR
+        if: github.event.action == 'opened'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: [
+                "Thanks for contributing to Appsmith!",
+                "",
+                "Credential-free formatting, lint, type, and unit checks will run after GitHub's workflow approval. An Appsmith maintainer will start privileged integration tests or a deploy preview when needed.",
+                "",
+                "No action is required from you while this PR has the `awaiting-maintainer` label.",
+              ].join("\n"),
+            });

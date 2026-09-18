@@ -14,6 +14,9 @@ on:
 
 jobs:
   chromatic-deployment:
+    # Internal PRs only: the Storybook/Chromatic project token is not available
+    # to fork PRs, so this job would always fail for external contributors.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
 
     steps:

@@ -22,6 +22,11 @@ on:
         required: false
         type: string
         default: "false"
+      checkout-ref:
+        description: "Immutable commit SHA to checkout for an approved external PR"
+        required: false
+        type: string
+        default: ""
 
   workflow_dispatch:
     inputs:
@@ -71,14 +76,14 @@ jobs:
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Check out merged commit from PR and base branch
         uses: actions/checkout@v4
-        if: inputs.pr != 0
+        if: inputs.checkout-ref == '' && inputs.pr != 0
         with:
           fetch-tags: true
           ref: refs/pull/${{ inputs.pr }}/merge
 
       # Check out the specified branch in case this workflow is called by another workflow
       - name: Checkout the specified branch
-        if: inputs.pr == 0 && inputs.branch != ''
+        if: inputs.checkout-ref == '' && inputs.pr == 0 && inputs.branch != ''
         uses: actions/checkout@v4
         with:
           fetch-tags: true
@@ -87,9 +92,16 @@ jobs:
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Check out the head commit of the branch
         uses: actions/checkout@v4
-        if: inputs.pr == 0 && inputs.branch == ''
+        if: inputs.checkout-ref == '' && inputs.pr == 0 && inputs.branch == ''
         with:
           fetch-tags: true
+
+      - name: Check out the approved immutable commit
+        if: inputs.checkout-ref != ''
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          ref: ${{ inputs.checkout-ref }}
 
       - name: Figure out the PR number
         run: echo ${{ inputs.pr }}

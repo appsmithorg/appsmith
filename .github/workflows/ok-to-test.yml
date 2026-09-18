@@ -1,4 +1,5 @@
-# If someone with write access comments "/ok-to-test" on a pull request, emit a repository_dispatch event
+# If someone with write access uses an approved slash command on a pull request,
+# emit a repository_dispatch event from the trusted GitHub App.
 name: Ok To Test
 
 on:
@@ -28,6 +29,7 @@ jobs:
           reaction-token: ${{ secrets.GITHUB_TOKEN }}
           issue-type: pull-request
           commands: |
+            approve-ci
             ok-to-test
             ci-test-limit
             build-deploy-preview

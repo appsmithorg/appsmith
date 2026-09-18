@@ -147,14 +147,14 @@ setup_proxy_variables
 # ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
 # https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
-if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
+if [[ -n "${APPSMITH_SEGMENT_CE_KEY-}" ]] && [[ "${APPSMITH_DISABLE_TELEMETRY-}" != "true" ]]; then
   ip="$(set -o pipefail; curl --connect-timeout 5 -sS https://cs.appsmith.com/api/v1/ip | grep -Eo '\d+(\.\d+){3}' || echo "unknown")"
   curl \
     --connect-timeout 5 \
     --user "$APPSMITH_SEGMENT_CE_KEY:" \
     --header 'Content-Type: application/json' \
     --data '{
-      "userId":"'"$ip"'",
+      "userId":"instance-start",
       "event":"Instance Start",
       "properties": {
         "ip": "'"$ip"'",
@@ -534,14 +534,16 @@ check_redis_compatible_page_size() {
   local page_size
   page_size="$(getconf PAGE_SIZE)"
   if [[ $page_size -gt 4096 ]]; then
-    curl \
-    --connect-timeout 5 \
-      --silent \
-      --user "$APPSMITH_SEGMENT_CE_KEY:" \
-      --header 'Content-Type: application/json' \
-      --data '{ "userId": "'"$HOSTNAME"'", "event":"RedisCompile" }' \
-      https://api.segment.io/v1/track \
-      || true
+    if [[ -n "${APPSMITH_SEGMENT_CE_KEY-}" ]] && [[ "${APPSMITH_DISABLE_TELEMETRY-}" != "true" ]]; then
+      curl \
+      --connect-timeout 5 \
+        --silent \
+        --user "$APPSMITH_SEGMENT_CE_KEY:" \
+        --header 'Content-Type: application/json' \
+        --data '{ "userId": "redis-compile", "event":"RedisCompile", "properties": { "hostname": "'"$HOSTNAME"'" } }' \
+        https://api.segment.io/v1/track \
+        || true
+    fi
     tlog "Compile Redis stable with page size of $page_size"
     apt-get update
     apt-get install --yes build-essential
@@ -718,7 +720,7 @@ mkdir -p /appsmith-stacks/data/{backup,restore} /appsmith-stacks/ssl
 
 # Create sub-directory to store services log in the container mounting folder
 export APPSMITH_LOG_DIR="${APPSMITH_LOG_DIR:-/appsmith-stacks/logs}"
-mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
+mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,mcp,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
 
 setup_auto_heal
 capture_infra_details

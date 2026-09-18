@@ -14,6 +14,10 @@ on:
 
 jobs:
   checkTestLabel:
+    # Fork PRs get a read-only token, so the PR-body writes downstream would
+    # fail with 403. External PRs are handled by external-pr-validation.yml
+    # and the /approve-ci trusted dispatch instead.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     outputs:
       ok_to_test: ${{ steps.checkLabel.outputs.ok_to_test }}

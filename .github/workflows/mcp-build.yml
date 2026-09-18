@@ -1,0 +1,112 @@
+name: Build MCP Workflow
+
+# Least privilege: this workflow only reads the repo and uploads/downloads artifacts.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      pr:
+        description: "PR number when building a pull-request merge commit"
+        required: false
+        type: number
+      skip-tests:
+        description: "Skip unit tests for image-only builds"
+        required: false
+        type: string
+        default: "false"
+      branch:
+        description: "Branch to build when pr is 0"
+        required: false
+        type: string
+
+  pull_request:
+    branches: [release, master]
+    paths:
+      - "app/client/packages/mcp/**"
+
+defaults:
+  run:
+    working-directory: app/client/packages/mcp
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository ||
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'repository_dispatch' ||
+      github.event_name == 'schedule' ||
+      github.event_name == 'release'
+    steps:
+      - name: Checkout the merged pull-request commit
+        if: inputs.pr != 0
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          persist-credentials: false
+          ref: refs/pull/${{ inputs.pr }}/merge
+
+      - name: Checkout the specified branch
+        if: inputs.pr == 0 && inputs.branch != ''
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          persist-credentials: false
+          ref: ${{ inputs.branch }}
+
+      - name: Checkout the head commit
+        if: inputs.pr == 0 && inputs.branch == ''
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: app/client/package.json
+
+      # actions/setup-node@v4 does not restore Yarn 3 caches from a subdirectory.
+      - name: Restore Yarn cache
+        uses: actions/cache@v4
+        with:
+          path: app/client/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+          restore-keys: |
+            v1-yarn3-
+
+      - name: Install dependencies
+        run: |
+          corepack enable
+          yarn install --immutable
+
+      - name: Check types
+        run: yarn check-types
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Check formatting
+        run: yarn prettier
+
+      - name: Run unit tests
+        if: inputs.skip-tests != 'true'
+        run: yarn test:unit
+
+      - name: Build
+        run: yarn build
+
+      - name: Tar the MCP bundle
+        run: tar -cvf mcp-dist.tar dist
+
+      - name: Upload MCP build bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-dist
+          path: app/client/packages/mcp/mcp-dist.tar
+          overwrite: true
