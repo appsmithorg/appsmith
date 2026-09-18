@@ -559,4 +559,15 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     public Mono<Void> removeApplicationFromAllFavorites(String applicationId) {
         return repository.removeApplicationFromFavorites(applicationId);
     }
+
+    @Override
+    public Mono<Void> removeApplicationFromRecentlyUsedList(String applicationId) {
+        return repository.removeApplicationFromRecentlyUsedList(applicationId);
+    }
+
+    @Override
+    public Mono<Void> removeWorkspaceFromRecentlyUsedList(String workspaceId) {
+        return repository.removeWorkspaceFromRecentlyUsedList(workspaceId);
+    }
 }
+

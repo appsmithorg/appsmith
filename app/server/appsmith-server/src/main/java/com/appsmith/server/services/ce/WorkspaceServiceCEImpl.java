@@ -27,6 +27,7 @@ import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -80,6 +81,13 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final WorkspacePermission workspacePermission;
     private final PermissionGroupPermission permissionGroupPermission;
     private final WorkspaceServiceHelper workspaceServiceHelper;
+
+    @Autowired(required = false)
+    private UserDataService userDataService;
+
+    public void setUserDataService(UserDataService userDataService) {
+        this.userDataService = userDataService;
+    }
 
     @Autowired
     public WorkspaceServiceCEImpl(
@@ -596,7 +604,15 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                         })
                         .flatMap(this::archiveWorkspaceDependents)
                         .flatMap(repository::archive)
-                        .flatMap(analyticsService::sendDeleteEvent);
+                        .flatMap(analyticsService::sendDeleteEvent)
+                        .flatMap(archivedWorkspace -> {
+                            if (userDataService != null) {
+                                return userDataService
+                                        .removeWorkspaceFromRecentlyUsedList(workspaceId)
+                                        .thenReturn(archivedWorkspace);
+                            }
+                            return Mono.just(archivedWorkspace);
+                        });
             } else {
                 return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
             }
