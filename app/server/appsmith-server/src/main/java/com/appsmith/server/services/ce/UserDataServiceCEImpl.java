@@ -559,4 +559,27 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     public Mono<Void> removeApplicationFromAllFavorites(String applicationId) {
         return repository.removeApplicationFromFavorites(applicationId);
     }
+
+    /**
+     * Removes the specified application ID from all users' recently used lists.
+     *
+     * @param applicationId ID of the deleted application
+     * @return Mono completing when the removal finishes
+     */
+    @Override
+    public Mono<Void> removeApplicationFromRecentlyUsedList(String applicationId) {
+        return repository.removeApplicationFromRecentlyUsedList(applicationId);
+    }
+
+    /**
+     * Removes the specified workspace ID from all users' recently used lists.
+     *
+     * @param workspaceId ID of the archived workspace
+     * @return Mono completing when the removal finishes
+     */
+    @Override
+    public Mono<Void> removeWorkspaceFromRecentlyUsedList(String workspaceId) {
+        return repository.removeWorkspaceFromRecentlyUsedList(workspaceId);
+    }
 }
+
