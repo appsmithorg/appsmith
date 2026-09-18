@@ -16,6 +16,11 @@ on:
         description: "This is the branch to be used for the build."
         required: false
         type: string
+      checkout-ref:
+        description: "Immutable commit SHA to checkout for an approved external PR"
+        required: false
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -45,7 +50,7 @@ jobs:
 
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Checkout the merged commit from PR and base branch
-        if: inputs.pr != 0
+        if: inputs.checkout-ref == '' && inputs.pr != 0
         uses: actions/checkout@v4
         with:
           fetch-tags: true
@@ -53,7 +58,7 @@ jobs:
 
       # Check out the specified branch in case this workflow is called by another workflow
       - name: Checkout the specified branch
-        if: inputs.pr == 0 && inputs.branch != ''
+        if: inputs.checkout-ref == '' && inputs.pr == 0 && inputs.branch != ''
         uses: actions/checkout@v4
         with:
           fetch-tags: true
@@ -61,10 +66,17 @@ jobs:
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
-        if: inputs.pr == 0 && inputs.branch == ''
+        if: inputs.checkout-ref == '' && inputs.pr == 0 && inputs.branch == ''
         uses: actions/checkout@v4
         with:
           fetch-tags: true
+
+      - name: Checkout the approved immutable commit
+        if: inputs.checkout-ref != ''
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          ref: ${{ inputs.checkout-ref }}
 
       - name: Get changed files in the client folder
         id: changed-files-specific
@@ -158,7 +170,6 @@ jobs:
       # We burn React environment & the Segment analytics key into the build itself.
       # Pylon: REACT_APP_* is required for CRA to embed values; secret name matches github-release.yml.
       # This is to ensure that we don't need to configure it in each installation.
-      # Client build fails only on errors (EXIT_CODE > 1); warnings (EXIT_CODE <= 1) don’t affect it.
       - name: Create the bundle
         if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
@@ -177,11 +188,7 @@ jobs:
           REACT_APP_PYLON_APP_ID=${{ secrets.APPSMITH_PYLON_APP_ID }} \
           SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
           REACT_APP_VERSION_EDITION="Community" \
-          yarn build || EXIT_CODE=$?
-
-          if [ -n "$EXIT_CODE" ] && [ "$EXIT_CODE" -gt 1 ]; then
-            exit $EXIT_CODE
-          fi
+          yarn build
 
       # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache

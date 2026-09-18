@@ -6,6 +6,10 @@ on:
 
 jobs:
   path-filter:
+    # Internal PRs only: several downstream jobs need larger runners and
+    # secrets that GitHub does not provide to fork PRs, so they would queue
+    # forever or fail. Fork PRs run external-pr-validation.yml instead.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     outputs:
       server: ${{ steps.filter.outputs.server }}
@@ -104,7 +108,10 @@ jobs:
         client-lint,
         client-check-cyclic-deps,
       ]
-    if: always()
+    # Skip (rather than pass) on fork PRs so the required check reflects that
+    # these jobs did not run; external PRs are validated by
+    # external-pr-validation.yml until a maintainer runs /approve-ci.
+    if: always() && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     defaults:
       run:

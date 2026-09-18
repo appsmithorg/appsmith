@@ -722,6 +722,14 @@ module.exports = function (webpackEnv) {
           // both options are optional
           filename: "static/css/[name].[contenthash:8].css",
           chunkFilename: "static/css/[name].[contenthash:8].chunk.css",
+          // Lazy chunks import WDS/anvil CSS modules and the widgets-old/ads
+          // tooltip+dropdown stylesheets in inconsistent relative orders, so
+          // no total CSS order exists and webpack warns "Conflicting order".
+          // The conflicting families share no selectors (WDS modules are
+          // hash-scoped; the legacy files only target .rc-tooltip*,
+          // .bp3-popover*, .ads-v2-tooltip, .ds--dropdown-popover), so the
+          // order is irrelevant and the warning is a false positive.
+          ignoreOrder: true,
         }),
       // Generate an asset manifest file with the following content:
       // - "files" key: Mapping of all asset filenames to their corresponding
