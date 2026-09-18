@@ -126,6 +126,10 @@ public class GitUtilsTest {
         }
     }
 
+    /**
+     * Verifies that when an HTTPS check fails due to an SSL error (e.g. self-signed certificate or custom domain without cert),
+     * the private repo check falls back to HTTP and correctly recognizes a public repo returning 200 OK.
+     */
     @Test
     public void isRepoPrivate_WhenHttpsFailsWithSslError_FallsBackToHttpAndSucceeds() throws Exception {
         MockWebServer mockServer = new MockWebServer();
@@ -153,6 +157,10 @@ public class GitUtilsTest {
         }
     }
 
+    /**
+     * Verifies that when both HTTPS and HTTP fallback checks fail (e.g. connection refused or host unreachable),
+     * the method defaults to treating the repository as private.
+     */
     @Test
     public void isRepoPrivate_WhenBothHttpsAndHttpFail_ReturnsPrivate() {
         try (MockedStatic<WebClientUtils> webClientUtilsMock = Mockito.mockStatic(WebClientUtils.class)) {
@@ -168,6 +176,9 @@ public class GitUtilsTest {
         }
     }
 
+    /**
+     * Verifies that empty or null repository URLs are safely handled and default to private without throwing exceptions.
+     */
     @Test
     public void isRepoPrivate_WhenUrlIsEmptyOrNull_ReturnsPrivate() {
         StepVerifier.create(GitUtils.isRepoPrivate(""))
@@ -179,6 +190,9 @@ public class GitUtilsTest {
                 .verifyComplete();
     }
 
+    /**
+     * Verifies that getRepoName correctly extracts the repository name from a valid Git SSH URL.
+     */
     @Test
     public void getRepoName_WhenUrlIsValid_RepoNameReturned() {
         assertThat(GitUtils.getRepoName("git@example.test.net:user/test/tests/lakechope.git"))

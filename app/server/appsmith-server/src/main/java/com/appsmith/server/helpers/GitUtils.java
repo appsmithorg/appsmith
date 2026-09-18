@@ -97,6 +97,9 @@ public class GitUtils {
         return null;
     }
 
+    /**
+     * Throws an AppsmithException indicating that the provided Git remote URL is invalid.
+     */
     private static void throwInvalidGitConfigurationException() {
         throw new AppsmithException(
                 AppsmithError.INVALID_GIT_CONFIGURATION,
@@ -146,6 +149,12 @@ public class GitUtils {
         });
     }
 
+    /**
+     * Probes the given URL with an HTTP/HTTPS GET request to determine if the repository endpoint is publicly accessible.
+     *
+     * @param url the HTTP or HTTPS URL to probe
+     * @return Mono of Boolean.FALSE if the endpoint returns a 2xx response, Boolean.TRUE otherwise
+     */
     private static Mono<Boolean> checkRepoAccessibility(String url) {
         return WebClientUtils.create(url)
                 .get()
