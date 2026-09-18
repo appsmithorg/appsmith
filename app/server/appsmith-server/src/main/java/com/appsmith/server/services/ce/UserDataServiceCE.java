@@ -59,4 +59,8 @@ public interface UserDataServiceCE {
     Mono<List<Application>> getFavoriteApplications();
 
     Mono<Void> removeApplicationFromAllFavorites(String applicationId);
+
+    Mono<Void> removeApplicationFromRecentlyUsedList(String applicationId);
+
+    Mono<Void> removeWorkspaceFromRecentlyUsedList(String workspaceId);
 }
