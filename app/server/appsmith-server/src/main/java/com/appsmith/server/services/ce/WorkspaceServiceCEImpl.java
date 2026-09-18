@@ -85,6 +85,11 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     @Autowired(required = false)
     private UserDataService userDataService;
 
+    /**
+     * Sets the UserDataService instance for managing user data updates on workspace operations.
+     *
+     * @param userDataService the UserDataService instance
+     */
     public void setUserDataService(UserDataService userDataService) {
         this.userDataService = userDataService;
     }
@@ -609,6 +614,13 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                             if (userDataService != null) {
                                 return userDataService
                                         .removeWorkspaceFromRecentlyUsedList(workspaceId)
+                                        .onErrorResume(error -> {
+                                            log.error(
+                                                    "Error removing workspace {} from recently used list",
+                                                    workspaceId,
+                                                    error);
+                                            return Mono.empty();
+                                        })
                                         .thenReturn(archivedWorkspace);
                             }
                             return Mono.just(archivedWorkspace);

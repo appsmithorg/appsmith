@@ -590,13 +590,24 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         newPageService.archivePagesByApplicationId(application.getId(), pageDeletePermission)))
                 .then(themeService.archiveApplicationThemes(application))
                 .then(userDataService.removeApplicationFromAllFavorites(favoriteId))
-                .then(userDataService.removeApplicationFromRecentlyUsedList(application.getId()))
-                .then(
-                        application.getBaseId() != null
-                                        && !application.getBaseId().equals(application.getId())
-                                ? userDataService.removeApplicationFromRecentlyUsedList(application.getBaseId())
-                                : Mono.empty())
-                .then(applicationService.archive(application));
+                .then(applicationService.archive(application))
+                .flatMap(archivedApplication -> {
+                    Mono<Void> cleanupMono = userDataService.removeApplicationFromRecentlyUsedList(application.getId());
+                    if (application.getBaseId() != null
+                            && !application.getBaseId().equals(application.getId())) {
+                        cleanupMono = cleanupMono.then(
+                                userDataService.removeApplicationFromRecentlyUsedList(application.getBaseId()));
+                    }
+                    return cleanupMono
+                            .onErrorResume(error -> {
+                                log.error(
+                                        "Error removing application {} from recently used list",
+                                        application.getId(),
+                                        error);
+                                return Mono.empty();
+                            })
+                            .thenReturn(archivedApplication);
+                });
     }
 
     protected Mono<Application> sendAppDeleteAnalytics(Application deletedApplication) {
