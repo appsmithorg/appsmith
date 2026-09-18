@@ -13,8 +13,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import javax.net.ssl.SSLException;
+import java.net.ConnectException;
 import java.util.UUID;
 
 import static com.appsmith.server.helpers.GitUtils.isArtifactConnectedToGit;
@@ -121,6 +124,59 @@ public class GitUtilsTest {
         } finally {
             mockServer.shutdown();
         }
+    }
+
+    @Test
+    public void isRepoPrivate_WhenHttpsFailsWithSslError_FallsBackToHttpAndSucceeds() throws Exception {
+        MockWebServer mockServer = new MockWebServer();
+        mockServer.start();
+        try (MockedStatic<WebClientUtils> webClientUtilsMock = Mockito.mockStatic(WebClientUtils.class)) {
+            // HTTPS fails with SSL handshake exception (e.g., self-signed cert or no SSL on host)
+            webClientUtilsMock
+                    .when(() -> WebClientUtils.create(Mockito.startsWith("https://")))
+                    .thenReturn(WebClient.builder()
+                            .filter((request, next) ->
+                                    Mono.error(new SSLException("SSL handshake failed: self-signed certificate")))
+                            .build());
+
+            // HTTP fallback succeeds with 200 OK
+            webClientUtilsMock
+                    .when(() -> WebClientUtils.create(Mockito.startsWith("http://")))
+                    .thenReturn(WebClient.create(mockServer.url("/").toString()));
+
+            mockServer.enqueue(new MockResponse().setResponseCode(200));
+            StepVerifier.create(GitUtils.isRepoPrivate("https://git.example.com/org/custom-domain-repo.git"))
+                    .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.FALSE))
+                    .verifyComplete();
+        } finally {
+            mockServer.shutdown();
+        }
+    }
+
+    @Test
+    public void isRepoPrivate_WhenBothHttpsAndHttpFail_ReturnsPrivate() {
+        try (MockedStatic<WebClientUtils> webClientUtilsMock = Mockito.mockStatic(WebClientUtils.class)) {
+            webClientUtilsMock
+                    .when(() -> WebClientUtils.create(Mockito.anyString()))
+                    .thenReturn(WebClient.builder()
+                            .filter((request, next) -> Mono.error(new ConnectException("Connection refused")))
+                            .build());
+
+            StepVerifier.create(GitUtils.isRepoPrivate("https://git.example.com/org/unreachable-repo.git"))
+                    .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.TRUE))
+                    .verifyComplete();
+        }
+    }
+
+    @Test
+    public void isRepoPrivate_WhenUrlIsEmptyOrNull_ReturnsPrivate() {
+        StepVerifier.create(GitUtils.isRepoPrivate(""))
+                .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.TRUE))
+                .verifyComplete();
+
+        StepVerifier.create(GitUtils.isRepoPrivate(null))
+                .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.TRUE))
+                .verifyComplete();
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.util.WebClientUtils;
+import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.eclipse.jgit.util.StringUtils;
 import reactor.core.publisher.Mono;
@@ -15,6 +16,7 @@ import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class GitUtils {
 
     public static final Duration RETRY_DELAY = Duration.ofSeconds(1);
@@ -104,14 +106,48 @@ public class GitUtils {
 
     /**
      * This method checks if the provided git-repo is public or private by checking the response from the get request
-     * if we get 200 or 202 then repo is public otherwise it's private
+     * if we get 200 or 202 then repo is public otherwise it's private.
+     * If the initial HTTPS check fails (e.g. host without SSL certificate, connection refused, or handshake failure),
+     * it falls back to checking over HTTP before concluding that the repository is private.
      *
      * @param remoteHttpsUrl remote url in https format
      * @return if the repo is public
-     * @throws IOException exception thrown during openConnection
      */
     public static Mono<Boolean> isRepoPrivate(String remoteHttpsUrl) {
-        return WebClientUtils.create(remoteHttpsUrl)
+        if (StringUtils.isEmptyOrNull(remoteHttpsUrl)) {
+            log.warn("Remote URL is empty or null when checking if repo is private. Defaulting to private repo.");
+            return Mono.just(Boolean.TRUE);
+        }
+
+        return checkRepoAccessibility(remoteHttpsUrl).onErrorResume(error -> {
+            if (remoteHttpsUrl.startsWith("https://")) {
+                String httpUrl = "http://" + remoteHttpsUrl.substring("https://".length());
+                log.debug(
+                        "HTTPS check failed for repo URL {}, attempting HTTP fallback. Error: {}",
+                        remoteHttpsUrl,
+                        error.getMessage());
+                return checkRepoAccessibility(httpUrl).onErrorResume(httpError -> {
+                    log.warn(
+                            "Failed to check if repo is public at URL {}. HTTPS check failed: [{}]. HTTP fallback failed: [{}]. Defaulting to private repo.",
+                            remoteHttpsUrl,
+                            error.getMessage(),
+                            httpError.getMessage());
+                    log.debug("Stack trace for HTTP fallback failure at {}: ", httpUrl, httpError);
+                    return Mono.just(Boolean.TRUE);
+                });
+            }
+
+            log.warn(
+                    "Failed to check if repo is public at URL {}: {}. Defaulting to private repo.",
+                    remoteHttpsUrl,
+                    error.getMessage());
+            log.debug("Stack trace for repo accessibility check failure at {}: ", remoteHttpsUrl, error);
+            return Mono.just(Boolean.TRUE);
+        });
+    }
+
+    private static Mono<Boolean> checkRepoAccessibility(String url) {
+        return WebClientUtils.create(url)
                 .get()
                 .httpRequest(httpRequest -> {
                     HttpClientRequest reactorRequest = httpRequest.getNativeRequest();
@@ -124,8 +160,7 @@ public class GitUtils {
                     } else {
                         return Mono.just(Boolean.TRUE);
                     }
-                })
-                .onErrorResume(throwable -> Mono.just(Boolean.TRUE));
+                });
     }
 
     /**
