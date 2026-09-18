@@ -44,7 +44,8 @@ describe(
     it("2. Disable selection on: hides onItemClick, drops pointer, and does not change selectedItem", () => {
       EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
       propPane.TogglePropertyState("Disable selection", "On");
-      propPane.AssertIfPropertyIsNotVisible("onitemclick");
+      // hidden property-config controls are unmounted, not CSS-hidden
+      agHelper.AssertElementAbsence(propPane._propertyControl("onitemclick"));
 
       agHelper.GetElement(listItemContainer()).first().realHover();
       agHelper
