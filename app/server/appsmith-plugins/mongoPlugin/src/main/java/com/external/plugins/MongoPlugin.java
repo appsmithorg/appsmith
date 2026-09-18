@@ -154,7 +154,20 @@ public class MongoPlugin extends BasePlugin {
     private static final String VALID_AUTH_TYPES_STR =
             VALID_AUTH_TYPES.stream().map(String::valueOf).collect(Collectors.joining(", "));
 
+    /**
+     * Key for the number of modified documents in an update command response.
+     */
     public static final String N_MODIFIED = "nModified";
+
+    /**
+     * Key for write errors returned by MongoDB when a write operation fails.
+     */
+    public static final String WRITE_ERRORS = "writeErrors";
+
+    /**
+     * Key for write concern errors returned by MongoDB when a write concern fails.
+     */
+    public static final String WRITE_CONCERN_ERROR = "writeConcernError";
 
     private static final String VALUE = "value";
 
@@ -432,6 +445,12 @@ public class MongoPlugin extends BasePlugin {
                                             + ": objectMapper.readTree.N from Mongo plugin.");
                                     Stopwatch processStopwatch = new Stopwatch("Mongo Plugin objectMapper readTree.N");
                                     JSONObject body = new JSONObject().put("n", outputJson.getBigInteger("n"));
+                                    if (outputJson.has(WRITE_ERRORS)) {
+                                        body.put(WRITE_ERRORS, cleanUp(outputJson.get(WRITE_ERRORS)));
+                                    }
+                                    if (outputJson.has(WRITE_CONCERN_ERROR)) {
+                                        body.put(WRITE_CONCERN_ERROR, cleanUp(outputJson.get(WRITE_CONCERN_ERROR)));
+                                    }
                                     result.setBody(objectMapper.readTree(body.toString()));
                                     processStopwatch.stopAndLogTimeInMillis();
                                     headerArray.put(body);
@@ -448,8 +467,32 @@ public class MongoPlugin extends BasePlugin {
                                             new Stopwatch("Mongo Plugin objectMapper readTree.N_MODIFIED");
                                     JSONObject body =
                                             new JSONObject().put(N_MODIFIED, outputJson.getBigInteger(N_MODIFIED));
+                                    if (outputJson.has(WRITE_ERRORS)) {
+                                        body.put(WRITE_ERRORS, cleanUp(outputJson.get(WRITE_ERRORS)));
+                                    }
+                                    if (outputJson.has(WRITE_CONCERN_ERROR)) {
+                                        body.put(WRITE_CONCERN_ERROR, cleanUp(outputJson.get(WRITE_CONCERN_ERROR)));
+                                    }
                                     result.setBody(objectMapper.readTree(body.toString()));
                                     processStopwatch.stopAndLogTimeInMillis();
+                                    headerArray.put(body);
+                                }
+
+                                /*
+                                 When writeErrors or writeConcernError exists in the output JSON for commands where
+                                 neither "n" nor "nModified" is present, include them in the result body.
+                                */
+                                if ((outputJson.has(WRITE_ERRORS) || outputJson.has(WRITE_CONCERN_ERROR))
+                                        && !outputJson.has("n")
+                                        && !outputJson.has(N_MODIFIED)) {
+                                    JSONObject body = new JSONObject();
+                                    if (outputJson.has(WRITE_ERRORS)) {
+                                        body.put(WRITE_ERRORS, cleanUp(outputJson.get(WRITE_ERRORS)));
+                                    }
+                                    if (outputJson.has(WRITE_CONCERN_ERROR)) {
+                                        body.put(WRITE_CONCERN_ERROR, cleanUp(outputJson.get(WRITE_CONCERN_ERROR)));
+                                    }
+                                    result.setBody(objectMapper.readTree(body.toString()));
                                     headerArray.put(body);
                                 }
 
