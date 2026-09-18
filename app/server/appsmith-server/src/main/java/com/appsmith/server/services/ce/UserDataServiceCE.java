@@ -60,7 +60,19 @@ public interface UserDataServiceCE {
 
     Mono<Void> removeApplicationFromAllFavorites(String applicationId);
 
+    /**
+     * Removes the given application ID from all users' recently used lists.
+     *
+     * @param applicationId ID of the application to remove
+     * @return Mono completing when the operation finishes
+     */
     Mono<Void> removeApplicationFromRecentlyUsedList(String applicationId);
 
+    /**
+     * Removes the given workspace ID from all users' recently used lists.
+     *
+     * @param workspaceId ID of the workspace to remove
+     * @return Mono completing when the operation finishes
+     */
     Mono<Void> removeWorkspaceFromRecentlyUsedList(String workspaceId);
 }
