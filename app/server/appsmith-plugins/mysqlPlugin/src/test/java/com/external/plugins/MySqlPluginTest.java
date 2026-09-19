@@ -1817,6 +1817,9 @@ public class MySqlPluginTest {
         }
     }
 
+    /**
+     * Tests that Common Table Expressions (simple and recursive) executing SELECT statements return true.
+     */
     @Test
     public void testGetIsSelectOrShowOrDescQuery_cteQuery_returnsTrue() {
         String cteQuery = "WITH cte_name AS (\n"
@@ -1834,6 +1837,9 @@ public class MySqlPluginTest {
         assertTrue(pluginExecutor.getIsSelectOrShowOrDescQuery(recursiveCte));
     }
 
+    /**
+     * Tests that Common Table Expressions executing UPDATE or DELETE statements return false.
+     */
     @Test
     public void testGetIsSelectOrShowOrDescQuery_cteWithUpdateOrDelete_returnsFalse() {
         String cteUpdate = "WITH cte AS (\n"
@@ -1849,6 +1855,10 @@ public class MySqlPluginTest {
         assertFalse(pluginExecutor.getIsSelectOrShowOrDescQuery(cteDelete));
     }
 
+    /**
+     * Tests that standard row-returning queries (SELECT, SHOW, DESC, EXPLAIN) return true
+     * and mutation queries (INSERT, UPDATE, DELETE) return false.
+     */
     @Test
     public void testGetIsSelectOrShowOrDescQuery_otherQueryTypes() {
         assertTrue(pluginExecutor.getIsSelectOrShowOrDescQuery("SELECT * FROM users;"));
