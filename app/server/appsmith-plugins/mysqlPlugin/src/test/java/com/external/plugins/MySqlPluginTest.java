@@ -1816,4 +1816,59 @@ public class MySqlPluginTest {
             caller.dispose();
         }
     }
+
+    /**
+     * Tests that Common Table Expressions (simple and recursive) executing SELECT statements return true.
+     */
+    @Test
+    public void testGetIsSelectOrShowOrDescQuery_cteQuery_returnsTrue() {
+        String cteQuery = "WITH cte_name AS (\n"
+                + "    SELECT * FROM employees WHERE id = 1\n"
+                + ")\n"
+                + "SELECT * FROM cte_name;";
+        assertTrue(pluginExecutor.getIsSelectOrShowOrDescQuery(cteQuery));
+
+        String recursiveCte = "WITH RECURSIVE my_cte AS (\n"
+                + "    SELECT 1 AS n\n"
+                + "    UNION ALL\n"
+                + "    SELECT n + 1 FROM my_cte WHERE n < 5\n"
+                + ")\n"
+                + "SELECT * FROM my_cte;";
+        assertTrue(pluginExecutor.getIsSelectOrShowOrDescQuery(recursiveCte));
+    }
+
+    /**
+     * Tests that Common Table Expressions executing UPDATE or DELETE statements return false.
+     */
+    @Test
+    public void testGetIsSelectOrShowOrDescQuery_cteWithUpdateOrDelete_returnsFalse() {
+        String cteUpdate = "WITH cte AS (\n"
+                + "    SELECT id FROM users\n"
+                + ")\n"
+                + "UPDATE users SET active = 0 WHERE id IN (SELECT id FROM cte);";
+        assertFalse(pluginExecutor.getIsSelectOrShowOrDescQuery(cteUpdate));
+
+        String cteDelete = "WITH cte AS (\n"
+                + "    SELECT id FROM users\n"
+                + ")\n"
+                + "DELETE FROM users WHERE id IN (SELECT id FROM cte);";
+        assertFalse(pluginExecutor.getIsSelectOrShowOrDescQuery(cteDelete));
+    }
+
+    /**
+     * Tests that standard row-returning queries (SELECT, SHOW, DESC, EXPLAIN) return true
+     * and mutation queries (INSERT, UPDATE, DELETE) return false.
+     */
+    @Test
+    public void testGetIsSelectOrShowOrDescQuery_otherQueryTypes() {
+        assertTrue(pluginExecutor.getIsSelectOrShowOrDescQuery("SELECT * FROM users;"));
+        assertTrue(pluginExecutor.getIsSelectOrShowOrDescQuery("SHOW TABLES;"));
+        assertTrue(pluginExecutor.getIsSelectOrShowOrDescQuery("DESCRIBE users;"));
+        assertTrue(pluginExecutor.getIsSelectOrShowOrDescQuery("DESC users;"));
+        assertTrue(pluginExecutor.getIsSelectOrShowOrDescQuery("EXPLAIN SELECT * FROM users;"));
+        assertFalse(pluginExecutor.getIsSelectOrShowOrDescQuery("INSERT INTO users VALUES (1);"));
+        assertFalse(pluginExecutor.getIsSelectOrShowOrDescQuery("UPDATE users SET name = 'a';"));
+        assertFalse(pluginExecutor.getIsSelectOrShowOrDescQuery("DELETE FROM users;"));
+    }
 }
+
