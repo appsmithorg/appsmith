@@ -23,6 +23,7 @@ import java.util.concurrent.TimeoutException;
 
 import static com.external.plugins.exceptions.MySQLErrorMessages.CONNECTION_VALIDITY_CHECK_FAILED_ERROR_MSG;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -141,4 +142,34 @@ public class MySqlStaleConnectionErrorMessageTest {
                 })
                 .verify();
     }
+
+    @Test
+    public void testGetIsSelectOrShowOrDescQuery_cteQueries() {
+        String cteSelect = "WITH cte_name AS (\n"
+                + "    SELECT * FROM employees WHERE id = 1\n"
+                + ")\n"
+                + "SELECT * FROM cte_name;";
+        assertTrue(pluginExecutor.getIsSelectOrShowOrDescQuery(cteSelect));
+
+        String recursiveCte = "WITH RECURSIVE my_cte AS (\n"
+                + "    SELECT 1 AS n\n"
+                + "    UNION ALL\n"
+                + "    SELECT n + 1 FROM my_cte WHERE n < 5\n"
+                + ")\n"
+                + "SELECT * FROM my_cte;";
+        assertTrue(pluginExecutor.getIsSelectOrShowOrDescQuery(recursiveCte));
+
+        String cteUpdate = "WITH cte AS (\n"
+                + "    SELECT id FROM users\n"
+                + ")\n"
+                + "UPDATE users SET active = 0 WHERE id IN (SELECT id FROM cte);";
+        assertFalse(pluginExecutor.getIsSelectOrShowOrDescQuery(cteUpdate));
+
+        String cteDelete = "WITH cte AS (\n"
+                + "    SELECT id FROM users\n"
+                + ")\n"
+                + "DELETE FROM users WHERE id IN (SELECT id FROM cte);";
+        assertFalse(pluginExecutor.getIsSelectOrShowOrDescQuery(cteDelete));
+    }
 }
+
