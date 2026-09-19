@@ -2,7 +2,11 @@ package com.external.utils;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class QueryUtilsTest {
 
@@ -49,5 +53,202 @@ public class QueryUtilsTest {
         final String expected = "SELECT * \n FROM table; SELECT * \n FROM table2;";
         final String s = QueryUtils.removeQueryComments(query);
         assertEquals(expected, s);
+    }
+
+    @Test
+    public void testIsRowReturningQuery_standardSelect_returnsTrue() {
+        assertTrue(QueryUtils.isRowReturningQuery("SELECT * FROM employees;"));
+        assertTrue(QueryUtils.isRowReturningQuery("select id from users where id = 1"));
+        assertTrue(QueryUtils.isRowReturningQuery("  SELECT 1  "));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_showDescribeDescExplain_returnsTrue() {
+        assertTrue(QueryUtils.isRowReturningQuery("SHOW DATABASES;"));
+        assertTrue(QueryUtils.isRowReturningQuery("SHOW TABLES;"));
+        assertTrue(QueryUtils.isRowReturningQuery("DESCRIBE users;"));
+        assertTrue(QueryUtils.isRowReturningQuery("DESC users;"));
+        assertTrue(QueryUtils.isRowReturningQuery("EXPLAIN SELECT * FROM users;"));
+        assertTrue(QueryUtils.isRowReturningQuery("explain users;"));
+        assertTrue(QueryUtils.isRowReturningQuery("TABLE employees;"));
+        assertTrue(QueryUtils.isRowReturningQuery("VALUES ROW(1, 'a');"));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_parenthesizedSelect_returnsTrue() {
+        assertTrue(QueryUtils.isRowReturningQuery("(SELECT * FROM employees);"));
+        assertTrue(QueryUtils.isRowReturningQuery("((SELECT 1));"));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_mutationQueries_returnsFalse() {
+        assertFalse(QueryUtils.isRowReturningQuery("INSERT INTO users (id) VALUES (1);"));
+        assertFalse(QueryUtils.isRowReturningQuery("UPDATE users SET name = 'test' WHERE id = 1;"));
+        assertFalse(QueryUtils.isRowReturningQuery("DELETE FROM users WHERE id = 1;"));
+        assertFalse(QueryUtils.isRowReturningQuery("CREATE TABLE test (id INT);"));
+        assertFalse(QueryUtils.isRowReturningQuery("DROP TABLE test;"));
+        assertFalse(QueryUtils.isRowReturningQuery("ALTER TABLE test ADD COLUMN name VARCHAR(255);"));
+        assertFalse(QueryUtils.isRowReturningQuery("SET @var = 1;"));
+        assertFalse(QueryUtils.isRowReturningQuery("CALL my_procedure();"));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_simpleCteSelect_returnsTrue() {
+        String query = "WITH cte_name AS (\n"
+                + "    SELECT * FROM employees WHERE id = 1\n"
+                + ")\n"
+                + "SELECT * FROM cte_name;";
+        assertTrue(QueryUtils.isRowReturningQuery(query));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_cteWithColumnList_returnsTrue() {
+        String query = "WITH cte (id, full_name) AS (\n"
+                + "    SELECT id, name FROM employees\n"
+                + ")\n"
+                + "SELECT * FROM cte;";
+        assertTrue(QueryUtils.isRowReturningQuery(query));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_recursiveCte_returnsTrue() {
+        String query = "WITH RECURSIVE my_cte AS (\n"
+                + "    SELECT 1 AS n\n"
+                + "    UNION ALL\n"
+                + "    SELECT n + 1 FROM my_cte WHERE n < 5\n"
+                + ")\n"
+                + "SELECT * FROM my_cte;";
+        assertTrue(QueryUtils.isRowReturningQuery(query));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_multipleCtes_returnsTrue() {
+        String query = "WITH\n"
+                + "    cte1 AS (SELECT 1 AS a),\n"
+                + "    cte2 AS (SELECT 2 AS b)\n"
+                + "SELECT * FROM cte1 JOIN cte2;";
+        assertTrue(QueryUtils.isRowReturningQuery(query));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_cteWithStringsAndParens_returnsTrue() {
+        String query = "WITH cte AS (\n"
+                + "    SELECT id, 'nested (parens) and ; keywords' AS note\n"
+                + "    FROM (SELECT 1 AS id) sub\n"
+                + ")\n"
+                + "SELECT * FROM cte;";
+        assertTrue(QueryUtils.isRowReturningQuery(query));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_cteWithNestedCte_returnsTrue() {
+        String query = "WITH cte AS (\n"
+                + "    WITH inner_cte AS (SELECT 1 AS x) SELECT * FROM inner_cte\n"
+                + ")\n"
+                + "SELECT * FROM cte;";
+        assertTrue(QueryUtils.isRowReturningQuery(query));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_cteWithBackticks_returnsTrue() {
+        String query = "WITH `my_cte` AS (\n"
+                + "    SELECT 1 AS a\n"
+                + ")\n"
+                + "SELECT * FROM `my_cte`;";
+        assertTrue(QueryUtils.isRowReturningQuery(query));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_cteWithComments_returnsTrue() {
+        String query = "-- Pre-CTE comment\n"
+                + "WITH cte AS (\n"
+                + "    /* comment with parens ) and keywords SELECT */\n"
+                + "    SELECT 1\n"
+                + ")\n"
+                + "-- Main query comment\n"
+                + "SELECT * FROM cte;";
+        assertTrue(QueryUtils.isRowReturningQuery(query));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_cteFollowedByUpdate_returnsFalse() {
+        String query = "WITH cte AS (\n"
+                + "    SELECT id FROM inactive_users\n"
+                + ")\n"
+                + "UPDATE users SET status = 0 WHERE id IN (SELECT id FROM cte);";
+        assertFalse(QueryUtils.isRowReturningQuery(query));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_cteFollowedByDelete_returnsFalse() {
+        String query = "WITH cte AS (\n"
+                + "    SELECT id FROM inactive_users\n"
+                + ")\n"
+                + "DELETE FROM users WHERE id IN (SELECT id FROM cte);";
+        assertFalse(QueryUtils.isRowReturningQuery(query));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_explainWithCte_returnsTrue() {
+        String query = "EXPLAIN WITH cte AS (SELECT 1) SELECT * FROM cte;";
+        assertTrue(QueryUtils.isRowReturningQuery(query));
+
+        String query2 = "WITH cte AS (SELECT 1) EXPLAIN SELECT * FROM cte;";
+        assertTrue(QueryUtils.isRowReturningQuery(query2));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_cteWithParenthesizedSelect_returnsTrue() {
+        String query = "WITH cte AS (SELECT 1) (SELECT * FROM cte);";
+        assertTrue(QueryUtils.isRowReturningQuery(query));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_multiStatementEndingInCteSelect_returnsTrue() {
+        String query = "SET @var = 1;\n"
+                + "WITH cte AS (SELECT @var AS v) SELECT * FROM cte;";
+        assertTrue(QueryUtils.isRowReturningQuery(query));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_multiStatementEndingInUpdate_returnsFalse() {
+        String query = "WITH cte AS (SELECT 1) SELECT * FROM cte;\n"
+                + "UPDATE users SET active = 1;";
+        assertFalse(QueryUtils.isRowReturningQuery(query));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_semicolonsInsideStringLiteral_returnsTrue() {
+        String query = "SELECT * FROM users WHERE notes = 'first;second;third';";
+        assertTrue(QueryUtils.isRowReturningQuery(query));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_trailingSemicolonsAndWhitespace_returnsTrue() {
+        assertTrue(QueryUtils.isRowReturningQuery("SELECT * FROM users; ; \n\t"));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_blockCommentBeforeSelect_returnsTrue() {
+        assertTrue(QueryUtils.isRowReturningQuery("/* block comment */ SELECT * FROM users;"));
+        assertTrue(QueryUtils.isRowReturningQuery("/*+ BKA(t1) */ SELECT * FROM users;"));
+        assertTrue(QueryUtils.isRowReturningQuery("# hash comment\nSELECT * FROM users;"));
+    }
+
+    @Test
+    public void testIsRowReturningQuery_nullOrEmpty_returnsFalse() {
+        assertFalse(QueryUtils.isRowReturningQuery(null));
+        assertFalse(QueryUtils.isRowReturningQuery(""));
+        assertFalse(QueryUtils.isRowReturningQuery("   \n\t "));
+        assertFalse(QueryUtils.isRowReturningQuery("; ; ;"));
+    }
+
+    @Test
+    public void testSplitMultiQueries_splitsProperly() {
+        List<String> stmts = QueryUtils.splitMultiQueries("SELECT 1; UPDATE t SET a = 'foo;bar'; SELECT 2;");
+        assertEquals(3, stmts.size());
+        assertEquals("SELECT 1", stmts.get(0));
+        assertEquals("UPDATE t SET a = 'foo;bar'", stmts.get(1));
+        assertEquals("SELECT 2", stmts.get(2));
     }
 }
