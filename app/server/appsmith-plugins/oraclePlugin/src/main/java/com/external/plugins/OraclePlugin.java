@@ -170,6 +170,11 @@ public class OraclePlugin extends BasePlugin {
             // In case of non-prepared statement, simply do binding-replacement and execute
             if (FALSE.equals(isPreparedStatement)) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+                String rawQuery = getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE, null);
+                if (rawQuery != null && !isPLSQL(rawQuery)) {
+                    rawQuery = removeSemicolonFromQuery(rawQuery);
+                    setDataValueSafelyInFormData(formData, BODY, rawQuery);
+                }
                 return executeCommon(connectionPool, datasourceConfiguration, actionConfiguration, FALSE, null, null);
             }
 
