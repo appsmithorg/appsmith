@@ -29,8 +29,8 @@ it is off `mcp_…` tokens are rejected (401) and cannot be created or rotated a
 | `APPSMITH_MCP_DATA_ENABLED` | **off** | Opt-in. While off, datasource/query tools are unregistered; spec authoring + reads remain.                                                                   |
 | `APPSMITH_MCP_JS_ENABLED`   | **off** | Opt-in. While off, restricted JS-object tools are unregistered.                                                                                              |
 
-Governed and destructive tools additionally require a MongoDB + Redis backend (`APPSMITH_MONGODB_URI` /
-`APPSMITH_DB_URL` and `APPSMITH_REDIS_URL`); without them the server starts with read + spec-authoring tools only.
+Governed and destructive tools additionally require a MongoDB + Redis backend (`APPSMITH_DB_URL` /
+`APPSMITH_MONGODB_URI` and `APPSMITH_REDIS_URL`); without them the server starts with read + spec-authoring tools only.
 
 ### Session limits
 

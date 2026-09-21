@@ -105,6 +105,16 @@ describe("createGovernanceStoreFromEnv", () => {
     expect(createGovernanceStoreFromEnv()).toBeUndefined();
   });
 
+  it("prefers APPSMITH_DB_URL over APPSMITH_MONGODB_URI when both are set", () => {
+    // A leftover docker.env Mongo URI must not override the product DB URL (Java/RTS order).
+    process.env.APPSMITH_DB_URL =
+      "postgresql://user:pass@localhost:5432/appsmith";
+    process.env.APPSMITH_MONGODB_URI = "mongodb://127.0.0.1:27017/appsmith";
+    process.env.APPSMITH_REDIS_URL = "redis://127.0.0.1:6379";
+
+    expect(createGovernanceStoreFromEnv()).toBeUndefined();
+  });
+
   it("builds a store when the DB URL is a MongoDB URL", () => {
     process.env.APPSMITH_MONGODB_URI = "mongodb://127.0.0.1:27017/appsmith";
     process.env.APPSMITH_REDIS_URL = "redis://127.0.0.1:6379";
