@@ -58,18 +58,16 @@ describe(
       agHelper.GetNAssertContains(locators._widgetByName("Text3"), "Green");
     });
 
-    it("3. Disable selection on: child Button still runs onClick and updates triggeredItem", () => {
-      entityExplorer.DragDropWidgetNVerify(
-        draggableWidgets.BUTTON,
-        150,
-        50,
-        draggableWidgets.CONTAINER,
-      );
-      propPane.EnterJSContext("onClick", "{{showAlert('btn-click')}}");
-
-      agHelper.ClickButton("Submit", 0);
-      agHelper.WaitUntilToastDisappear("btn-click");
+    it("3. Disable selection on: child widget click still updates triggeredItem", () => {
+      // After test 2, selectedItem is Green and a row-0 click set triggeredItem to Blue.
+      agHelper.GetNAssertContains(locators._widgetByName("Text3"), "Green");
       agHelper.GetNAssertContains(locators._widgetByName("Text4"), "Blue");
+
+      // Click the Image in the second row — capture still updates triggeredItem
+      agHelper.GetNClick(locators._imgWidgetInsideList, 1, true);
+      agHelper.GetNAssertContains(locators._widgetByName("Text4"), "Green");
+      // selectedItem must not change while Disable selection is on
+      agHelper.GetNAssertContains(locators._widgetByName("Text3"), "Green");
     });
 
     it("4. Disable selection on: Default selected item still sets selectedItem", () => {
