@@ -23,42 +23,43 @@ public class ActionCollectionClonePageServiceCEImpl implements ClonePageServiceC
     @Override
     public Mono<Void> cloneEntities(ClonePageMetaDTO clonePageMetaDTO) {
         return getCloneableActionCollections(clonePageMetaDTO.getBranchedSourcePageId())
-                .flatMap(sourceActionCollection -> {
-                    ActionCollection toBeClonedActionCollection = new ActionCollection();
-                    copyNestedNonNullProperties(sourceActionCollection, toBeClonedActionCollection);
+                .flatMap(
+                        sourceActionCollection -> {
+                            ActionCollection toBeClonedActionCollection = new ActionCollection();
+                            copyNestedNonNullProperties(sourceActionCollection, toBeClonedActionCollection);
 
-                    final ActionCollectionDTO unpublishedCollection =
-                            toBeClonedActionCollection.getUnpublishedCollection();
-                    unpublishedCollection.setPageId(
-                            clonePageMetaDTO.getClonedPageDTO().getId());
-                    toBeClonedActionCollection.setApplicationId(
-                            clonePageMetaDTO.getClonedPageDTO().getApplicationId());
+                            final ActionCollectionDTO unpublishedCollection =
+                                    toBeClonedActionCollection.getUnpublishedCollection();
+                            unpublishedCollection.setPageId(
+                                    clonePageMetaDTO.getClonedPageDTO().getId());
+                            toBeClonedActionCollection.setApplicationId(
+                                    clonePageMetaDTO.getClonedPageDTO().getApplicationId());
 
-                    // Set id as null, otherwise create (which is using under the hood save)
-                    // will try to overwrite same resource instead of creating a new resource
-                    toBeClonedActionCollection.setId(null);
-                    toBeClonedActionCollection.setBaseId(null);
-                    // Set published version to null as the published version of the page does
-                    // not exist when we clone the page.
-                    toBeClonedActionCollection.setPublishedCollection(null);
-                    // Assign new gitSyncId for cloned actionCollection
-                    toBeClonedActionCollection.setGitSyncId(
-                            toBeClonedActionCollection.getApplicationId() + "_" + UUID.randomUUID());
-                    return actionCollectionService
-                            .create(toBeClonedActionCollection)
-                            .flatMap(clonedActionCollection -> {
-                                clonePageMetaDTO
-                                        .getOldToNewCollectionIds()
-                                        .put(sourceActionCollection.getId(), clonedActionCollection.getId());
-                                if (!StringUtils.hasLength(clonedActionCollection.getBaseId())) {
-                                    clonedActionCollection.setBaseId(clonedActionCollection.getId());
-                                    return actionCollectionService.update(
-                                            clonedActionCollection.getId(), clonedActionCollection);
-                                }
-                                return Mono.just(clonedActionCollection);
-                            });
-                })
-                .collectList()
+                            // Set id as null, otherwise create (which is using under the hood save)
+                            // will try to overwrite same resource instead of creating a new resource
+                            toBeClonedActionCollection.setId(null);
+                            toBeClonedActionCollection.setBaseId(null);
+                            // Set published version to null as the published version of the page does
+                            // not exist when we clone the page.
+                            toBeClonedActionCollection.setPublishedCollection(null);
+                            // Assign new gitSyncId for cloned actionCollection
+                            toBeClonedActionCollection.setGitSyncId(
+                                    toBeClonedActionCollection.getApplicationId() + "_" + UUID.randomUUID());
+                            return actionCollectionService
+                                    .create(toBeClonedActionCollection)
+                                    .flatMap(clonedActionCollection -> {
+                                        clonePageMetaDTO
+                                                .getOldToNewCollectionIds()
+                                                .put(sourceActionCollection.getId(), clonedActionCollection.getId());
+                                        if (!StringUtils.hasLength(clonedActionCollection.getBaseId())) {
+                                            clonedActionCollection.setBaseId(clonedActionCollection.getId());
+                                            return actionCollectionService.update(
+                                                    clonedActionCollection.getId(), clonedActionCollection);
+                                        }
+                                        return Mono.just(clonedActionCollection);
+                                    });
+                        },
+                        CLONE_CONCURRENCY)
                 .then();
     }
 
