@@ -737,7 +737,18 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 })
                 .flatMap(clonedPage -> {
                     clonePageMetaDTO.setClonedPageDTO(clonedPage);
-                    return clonePageDependentEntities(clonePageMetaDTO).then(updateClonedPageLayout(clonedPage));
+                    // Load the persisted page once so the cloners can hand it to createAction. Otherwise every
+                    // cloned action reads the page, DSL included, on its own.
+                    return pagePermission
+                            .getActionCreatePermission()
+                            .flatMap(permission -> newPageService.findById(clonedPage.getId(), permission))
+                            .switchIfEmpty(Mono.error(new AppsmithException(
+                                    AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, clonedPage.getId())))
+                            .flatMap(clonedNewPage -> {
+                                clonePageMetaDTO.setClonedNewPage(clonedNewPage);
+                                return clonePageDependentEntities(clonePageMetaDTO);
+                            })
+                            .then(updateClonedPageLayout(clonedPage));
                 });
     }
 
