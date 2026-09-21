@@ -54,19 +54,17 @@ export function parseRedisUrl(redisUrlObject) {
   return null;
 }
 
-export function getRedisUrl() {
-  const redisUrlObject = process.env.APPSMITH_REDIS_URL;
+/**
+ * Reads the raw APPSMITH_REDIS_URL value, from the environment first and the
+ * env file second. Returns null when it is not set.
+ */
+export function readRedisUrlSetting(): string | null {
+  const fromEnv = process.env.APPSMITH_REDIS_URL;
 
-  // Make sure redisUrl takes precedence over process.env.APPSMITH_REDIS_URL
-  if (redisUrlObject && redisUrlObject !== "undefined") {
-    try {
-      return parseRedisUrl(redisUrlObject);
-    } catch (err) {
-      console.error("Error parsing redis URL from environment variable:", err);
-    }
+  if (fromEnv && fromEnv !== "undefined") {
+    return fromEnv;
   }
 
-  // If environment variable APPSMITH_REDIS_URL is not set, read from the environment file
   try {
     const env_array = fs
       .readFileSync(Constants.ENV_PATH, "utf8")
@@ -75,11 +73,7 @@ export function getRedisUrl() {
 
     for (const i in env_array) {
       if (env_array[i].startsWith("APPSMITH_REDIS_URL")) {
-        const redisUrl = parseRedisUrl(
-          env_array[i].toString().split("=")[1].trim(),
-        );
-
-        return redisUrl;
+        return env_array[i].substring(env_array[i].indexOf("=") + 1).trim();
       }
     }
   } catch (err) {
@@ -87,6 +81,76 @@ export function getRedisUrl() {
   }
 
   return null;
+}
+
+/**
+ * Hostname of the configured Redis. Use getRedisCliConnection() when the value is
+ * passed to redis-cli, so credentials, port and TLS are preserved.
+ */
+export function getRedisUrl() {
+  const redisUrlObject = readRedisUrlSetting();
+
+  if (redisUrlObject) {
+    try {
+      return parseRedisUrl(redisUrlObject);
+    } catch (err) {
+      console.error("Error parsing redis URL:", err);
+    }
+  }
+
+  return null;
+}
+
+export interface RedisCliConnection {
+  /** redis-cli flags: host, port, and when present --tls and --user. */
+  args: string[];
+  /** Password for REDISCLI_AUTH, or null when the URL carries none. */
+  password: string | null;
+}
+
+/**
+ * Splits a configured Redis URL into redis-cli flags plus the password. The
+ * password is returned separately so callers can hand it to redis-cli through
+ * the REDISCLI_AUTH environment variable instead of the command line, where it
+ * would be visible in the process table. Accepts redis, rediss (TLS) and the
+ * server-only redis-cluster scheme, or a bare host / host:port. Returns null
+ * when the value is empty.
+ */
+export function toRedisCliConnection(
+  redisUrl: string | undefined,
+): RedisCliConnection | null {
+  const value = (redisUrl ?? "").trim();
+
+  if (!value || value === "undefined") {
+    return null;
+  }
+
+  const url = new URL(value.includes("://") ? value : `redis://${value}`);
+  const args = ["-h", url.hostname, "-p", url.port || "6379"];
+
+  if (url.protocol === "rediss:") {
+    args.push("--tls");
+  }
+
+  if (url.username) {
+    args.push("--user", decodeURIComponent(url.username));
+  }
+
+  return {
+    args,
+    password: url.password ? decodeURIComponent(url.password) : null,
+  };
+}
+
+export function getRedisCliConnection(): RedisCliConnection | null {
+  return toRedisCliConnection(readRedisUrlSetting());
+}
+
+/** Environment for a redis-cli child process, with the password in REDISCLI_AUTH. */
+export function redisCliEnv(redis: RedisCliConnection): NodeJS.ProcessEnv {
+  return redis.password
+    ? { ...process.env, REDISCLI_AUTH: redis.password }
+    : { ...process.env };
 }
 
 export function getDburl() {

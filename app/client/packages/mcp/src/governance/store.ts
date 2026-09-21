@@ -320,8 +320,11 @@ export function createRedisClientFromUrl(
 export function createGovernanceStoreFromEnv():
   | MongoRedisGovernanceStore
   | undefined {
+  // Same precedence as Java (`appsmith.db.url=${APPSMITH_DB_URL:${APPSMITH_MONGODB_URI}}`) and RTS:
+  // product DB URL first, legacy Mongo URI only as fallback. Preferring MONGODB_URI used to ignore a
+  // real APPSMITH_DB_URL and still connect to a leftover localhost Mongo URI from docker.env.
   const mongoUrl =
-    process.env.APPSMITH_MONGODB_URI ?? process.env.APPSMITH_DB_URL;
+    process.env.APPSMITH_DB_URL || process.env.APPSMITH_MONGODB_URI;
   const redisUrl = process.env.APPSMITH_REDIS_URL;
 
   if (!mongoUrl || !redisUrl) return undefined;

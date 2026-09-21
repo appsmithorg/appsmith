@@ -2,7 +2,7 @@ import * as utils from "./utils";
 
 export async function run() {
   const dbUrl = utils.getDburl();
-  const redisUrl = utils.getRedisUrl();
+  const redis = utils.getRedisCliConnection();
 
   // Validate required configuration
   if (!dbUrl) {
@@ -11,7 +11,7 @@ export async function run() {
     );
   }
 
-  if (!redisUrl) {
+  if (!redis) {
     throw new Error(
       "Redis URL not found. Please check APPSMITH_REDIS_URL configuration.",
     );
@@ -59,16 +59,10 @@ export async function run() {
 
   // Clear Redis cache for the organization
   try {
-    await utils.execCommand([
-      "redis-cli",
-      "--quoted-input",
-      "-h",
-      redisUrl,
-      "-p",
-      "6379",
-      "DEL",
-      `organization:${organizationId}`,
-    ]);
+    await utils.execCommand(
+      ["redis-cli", ...redis.args, "DEL", `organization:${organizationId}`],
+      { env: utils.redisCliEnv(redis) },
+    );
     console.log("Successfully cleared organization cache from Redis");
   } catch (error) {
     console.error("Failed to execute redis command:", error);

@@ -90,6 +90,14 @@ afterEach(() => {
 });
 
 describe("complete database configuration — GHSA-h6hh-wqxc-5hw9", () => {
+  test("getDburl keeps '=' characters and encoded credentials in the value", () => {
+    const url =
+      "mongodb://user:a%3Db@mongo.example:27017/appsmith?authSource=admin&tls=true";
+
+    fs.writeFileSync(mockConfigPath, `APPSMITH_DB_URL=${url}\n`);
+    expect(utils.getDburl()).toBe(url);
+  });
+
   test.each([dbUrl, `'${dbUrl}'`, `"${dbUrl}"`])(
     "file fallback preserves URL and decodes quotes: %s",
     (value) => {
