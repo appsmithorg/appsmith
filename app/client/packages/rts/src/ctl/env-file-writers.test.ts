@@ -132,6 +132,26 @@ test("GHSA-h6hh restore round-trips literal secrets", async () => {
   );
 });
 
+test("restore uses one complete URL for the database and persisted configuration", async () => {
+  const dbUrl =
+    "mongodb://user:password@db.example/appsmith?authSource=admin&replicaSet=rs0";
+  const getDburl = utils.getDburl as jest.Mock;
+
+  getDburl.mockReturnValueOnce(dbUrl);
+  await restore.run();
+  expect(getDburl).toHaveBeenCalledTimes(1);
+  expect(utils.execCommand).toHaveBeenCalledWith(
+    expect.arrayContaining(["mongorestore", `--uri=${dbUrl}`]),
+  );
+  const parsed = spawnSync("/usr/bin/python3", [parser, "merge", "-"], {
+    input: JSON.stringify({ content: written, values: {} }),
+    encoding: "utf8",
+  });
+
+  expect(parsed.status).toBe(0);
+  expect(parsed.stdout).toContain(`APPSMITH_DB_URL='${dbUrl}'\n`);
+});
+
 test.each(["APPSMITH_NAME=${SECRET}", "PATH=bad", "APPSMITH_NAME='unfinished"])(
   "restore refuses incompatible config before stopping services: %s",
   async (legacy) => {
