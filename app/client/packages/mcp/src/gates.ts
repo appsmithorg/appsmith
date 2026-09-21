@@ -8,6 +8,12 @@ export function gateEnabled(value: string | undefined): boolean {
   return value !== undefined && /^(1|true|yes|on)$/i.test(value.trim());
 }
 
+// Default-ON counterpart for capabilities whose server-side opt-in flags were removed. Enabled unless the env
+// value is "false" (trim + case-insensitive); "0", "off", blank, and unset all stay enabled.
+export function gateEnabledUnlessFalse(value: string | undefined): boolean {
+  return value === undefined || value.trim().toLowerCase() !== "false";
+}
+
 // Positive-integer env override (session caps, TTLs). Unset, non-numeric, fractional, zero, or negative values fall
 // back to the built-in default rather than failing startup or silently disabling a limit.
 export function parsePositiveInt(
@@ -19,6 +25,16 @@ export function parsePositiveInt(
   const parsed = Number(value);
 
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+// APPSMITH_API_BASE_URL is concatenated with paths that already start with /api/v1. Operators often paste the
+// Appsmith origin including that prefix (and a trailing slash). Strip both so we do not request /api/v1/api/v1/...
+export function apiBaseUrlFromEnv(value: string): string {
+  return value
+    .trim()
+    .replace(/\/+$/, "")
+    .replace(/\/api\/v1$/i, "")
+    .replace(/\/+$/, "");
 }
 
 // Public origin override for the URLs build_application returns (APPSMITH_MCP_PUBLIC_ORIGIN). Accepts ONLY an

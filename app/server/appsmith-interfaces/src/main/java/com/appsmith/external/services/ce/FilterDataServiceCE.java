@@ -144,6 +144,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
         validateProjectionColumns(uqiDataFilterParams.getProjectionColumns(), schema);
         validateSortByColumns(uqiDataFilterParams.getSortBy(), schema);
+        validateConditionColumns(uqiDataFilterParams.getCondition(), schema);
 
         String tableName = generateTable(schema);
         try {
@@ -867,6 +868,30 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         return true;
     }
 
+    public void validateConditionColumns(Condition condition, Map<String, DataType> schema) {
+        if (condition == null) {
+            return;
+        }
+
+        ConditionalOperator operator = condition.getOperator();
+        if (operator == ConditionalOperator.AND || operator == ConditionalOperator.OR) {
+            Object value = condition.getValue();
+            if (value instanceof List) {
+                List<Condition> childConditions = (List<Condition>) value;
+                for (Condition child : childConditions) {
+                    validateConditionColumns(child, schema);
+                }
+            }
+        } else {
+            String path = condition.getPath();
+            if (StringUtils.isNotEmpty(path) && !schema.containsKey(path)) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        path + " not found in the known column names :" + schema.keySet());
+            }
+        }
+    }
+
     public String generateLogicalExpression(
             List<Condition> conditions,
             List<PreparedStatementValueDTO> values,
@@ -898,9 +923,10 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                     sb.append(" " + logicOp);
                 }
                 if (StringUtils.isNotEmpty(path)) {
+                    String escapedPath = path.replace("\"", "\"\"");
                     if (value == null || value.equals(StringUtils.EMPTY)) {
                         sb.append(" ( ");
-                        sb.append("\"" + path + "\"");
+                        sb.append("\"" + escapedPath + "\"");
                         sb.append(" ");
                         if (Set.of(
                                         ConditionalOperator.EQ,
@@ -926,7 +952,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                                     operator + " is not supported currently for filtering.");
                         }
                         sb.append(" ( ");
-                        sb.append("\"" + path + "\"");
+                        sb.append("\"" + escapedPath + "\"");
                         sb.append(" ");
                         sb.append(sqlOp);
                         sb.append(" ");

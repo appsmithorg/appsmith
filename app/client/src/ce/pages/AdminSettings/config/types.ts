@@ -109,6 +109,9 @@ export type Setting = ControlType & {
   tooltip?: string;
   isEnterprise?: boolean;
   postfix?: string;
+  // Renders the field disabled without the upgrade tag that isFeatureEnabled: false brings.
+  // For values that are display-only in the admin UI (e.g. derived connection status).
+  isReadOnly?: boolean;
 };
 
 export interface Category {
@@ -117,6 +120,7 @@ export interface Category {
   subText?: string;
   isConnected?: boolean;
   needsRefresh?: boolean;
+  needsRestart?: boolean;
   children?: Category[];
   icon?: string;
   categoryType: string;
@@ -165,6 +169,7 @@ export interface AdminConfigType {
   canSave: boolean;
   isConnected?: boolean;
   needsRefresh?: boolean;
+  needsRestart?: boolean;
   icon?: string;
   categoryType: CategoryType;
   isEnterprise?: boolean;

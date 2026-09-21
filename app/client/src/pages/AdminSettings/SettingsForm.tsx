@@ -129,6 +129,7 @@ export function SettingsForm(
           organizationConfiguration: config,
           isOnlyOrganizationSettings: !isEnvAndOrganizationSettings,
           needsRefresh: details?.needsRefresh,
+          needsRestart: details?.needsRestart,
         }),
       );
 
@@ -313,6 +314,7 @@ export function SettingsForm(
             isOnlyOrganizationConfig={isOnlyOrganizationConfig}
             isSaving={props.isSaving}
             needsRefresh={details?.needsRefresh}
+            needsRestart={details?.needsRestart}
             onClear={onClear}
             onSave={onSave}
             settings={props.settings}

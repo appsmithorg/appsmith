@@ -31,6 +31,7 @@ import { Icon } from "@design-system/widgets-old";
 import useDropdown from "widgets/useDropdown";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 
+/** Renders the selected-state icon used for multi-select menu rows. */
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <MenuItemCheckBox checked={props.isSelected} />;
 };
@@ -58,6 +59,7 @@ export interface MultiSelectProps
   labelStyle?: string;
   compactMode: boolean;
   labelTooltip?: string;
+  isRequired?: boolean;
   isValid: boolean;
   allowSelectAll?: boolean;
   filterText?: string;
@@ -77,6 +79,7 @@ export interface MultiSelectProps
 
 const DEBOUNCE_TIMEOUT = 1000;
 
+/** Multi-select widget view with filtering, select-all, and required-label support. */
 function MultiSelectComponent({
   accentColor,
   allowSelectAll,
@@ -89,6 +92,7 @@ function MultiSelectComponent({
   filterText,
   isDynamicHeightEnabled,
   isFilterable,
+  isRequired,
   isValid,
   labelAlignment,
   labelPosition,
@@ -335,6 +339,7 @@ function MultiSelectComponent({
           fontStyle={labelStyle}
           helpText={labelTooltip}
           isDynamicHeightEnabled={isDynamicHeightEnabled}
+          isRequired={isRequired}
           loading={loading}
           position={labelPosition}
           ref={labelRef}

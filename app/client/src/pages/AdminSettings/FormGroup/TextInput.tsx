@@ -12,6 +12,7 @@ export default function TextInput({ setting }: SettingComponentProps) {
   const settings = useSelector(formValuesSelector);
   const isDisabled =
     setting.isFeatureEnabled === false ||
+    setting.isReadOnly === true ||
     Boolean(setting.isDisabled && setting.isDisabled(settings));
 
   return (

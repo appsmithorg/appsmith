@@ -11,6 +11,12 @@ import java.util.Map;
 
 public interface EnvManagerCE {
 
+    /**
+     * Placeholder returned in place of secret-classified env values by the admin read-back API.
+     * A submitted value carrying this placeholder means "leave the stored value unchanged".
+     */
+    String MASKED_SECRET = "********";
+
     Mono<List<String>> transformEnvContent(String envContent, Map<String, String> changes);
 
     Mono<Void> applyChanges(Map<String, String> changes, String originHeader);
@@ -40,8 +46,8 @@ public interface EnvManagerCE {
 
     /**
      * Writes {@code APPSMITH_MCP_INTERNAL_SECRET} to the env file without ACL or organization-config fan-out.
-     * An empty value unsets the variable. Does not require a restart; callers must also update
-     * {@code CommonConfig#mcpInternalSecret} for the running process.
+     * An empty value unsets the variable. Does not restart; the client Save and Restart flow applies the secret.
+     * Callers must also update {@code CommonConfig#mcpInternalSecret} for the running process.
      */
     Mono<Void> persistMcpInternalSecret(String secret);
 }
