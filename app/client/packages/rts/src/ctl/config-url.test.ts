@@ -24,6 +24,7 @@ jest.mock("child_process", () => {
                 "../../../../../../deploy/docker/fs/opt/appsmith/env-file.py",
               );
           }
+
           if (arg === "/appsmith-stacks/configuration/docker.env") {
             return mockConfigPath;
           }
@@ -54,6 +55,7 @@ beforeEach(() => {
   directory = fs.mkdtempSync(path.join(os.tmpdir(), "appsmith-url-test-"));
   mockConfigPath = path.join(directory, "docker.env");
   fs.writeFileSync(mockConfigPath, "");
+
   for (const name of [
     "APPSMITH_DB_URL",
     "APPSMITH_MONGODB_URI",
@@ -61,6 +63,7 @@ beforeEach(() => {
   ]) {
     delete process.env[name];
   }
+
   process.argv = ["node", "appsmithctl", "restore"];
   const readFile = fs.readFileSync.bind(fs);
 
@@ -76,9 +79,11 @@ beforeEach(() => {
 
 afterEach(() => {
   jest.restoreAllMocks();
-  for (const name of Object.keys(process.env)) {
+
+  for (const name in process.env) {
     if (!(name in originalEnv)) delete process.env[name];
   }
+
   Object.assign(process.env, originalEnv);
   process.argv = originalArgv;
   fs.rmSync(directory, { recursive: true, force: true });
@@ -152,6 +157,32 @@ describe("complete database configuration — GHSA-h6hh-wqxc-5hw9", () => {
       jest.requireActual("./index");
     });
     expect(process.env.APPSMITH_DB_URL).toBeUndefined();
+  });
+
+  test("CLI preserves external values, including explicitly empty non-URL settings", () => {
+    process.env.APPSMITH_DB_URL = dbUrl;
+    process.env.APPSMITH_INSTANCE_NAME = "";
+    fs.writeFileSync(
+      mockConfigPath,
+      "APPSMITH_DB_URL=stored\nAPPSMITH_INSTANCE_NAME=stored\n",
+    );
+    jest.isolateModules(() => {
+      jest.requireActual("./index");
+    });
+    expect(process.env.APPSMITH_DB_URL).toBe(dbUrl);
+    expect(process.env.APPSMITH_INSTANCE_NAME).toBe("");
+  });
+
+  test("CLI rejects malformed configuration before dispatching restore", () => {
+    fs.writeFileSync(mockConfigPath, "APPSMITH_DB_URL='private-value\n");
+    expect(() =>
+      jest.isolateModules(() => {
+        jest.requireActual("./index");
+      }),
+    ).toThrow(
+      "Environment configuration cannot be loaded. Check docker.env syntax and permissions.",
+    );
+    expect(restore.run).not.toHaveBeenCalled();
   });
 
   test("file fallback rejects malformed configuration without exposing values", () => {
