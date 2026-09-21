@@ -233,6 +233,7 @@ async function restoreDatabase(restoreContentsPath: string, dbUrl: string) {
 
 async function prepareDockerEnvFile(
   restoreContentsPath: string,
+  dbUrl: string,
   overwriteEncryptionKeys: boolean,
   args: readonly string[],
 ) {
@@ -245,7 +246,7 @@ async function prepareDockerEnvFile(
     "utf8",
   );
   const values: Record<string, string> = {
-    APPSMITH_DB_URL: utils.getDburl(),
+    APPSMITH_DB_URL: dbUrl,
     APPSMITH_MONGODB_USER: process.env.APPSMITH_MONGODB_USER,
     APPSMITH_MONGODB_PASSWORD: process.env.APPSMITH_MONGODB_PASSWORD,
   };
@@ -474,8 +475,10 @@ export async function run() {
 
       // Validate before stopping services or restoring any data. An incompatible
       // legacy file must not leave a restored database with unusable credentials.
+      const dbUrl = utils.getDburl();
       const dockerEnvContent = await prepareDockerEnvFile(
         restoreContentsPath,
+        dbUrl,
         overwriteEncryptionKeys,
         command_args,
       );
@@ -487,7 +490,7 @@ export async function run() {
         "Restoring Appsmith instance from the backup at " + backupFilePath,
       );
       await utils.stop(["backend", "rts"]);
-      await restoreDatabase(restoreContentsPath, utils.getDburl());
+      await restoreDatabase(restoreContentsPath, dbUrl);
       await utils.execCommand([
         "cp",
         Constants.ENV_PATH,

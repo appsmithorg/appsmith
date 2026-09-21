@@ -1,6 +1,43 @@
-import { execFile } from "child_process";
+import { execFile, execFileSync } from "child_process";
 import { randomUUID } from "crypto";
 import fs from "fs/promises";
+
+/** Read literals using the same parser as container startup, without shell evaluation. */
+export function readEnvFile(file: string): Record<string, string> {
+  let output: string;
+
+  try {
+    output = execFileSync(
+      "/usr/bin/python3",
+      ["/opt/appsmith/env-file.py", "env", file],
+      {
+        timeout: 10000,
+        maxBuffer: 4 * 1024 * 1024,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+      },
+    );
+  } catch {
+    // Do not expose child-process diagnostics, which may contain configuration data.
+    throw new Error(
+      "Environment configuration cannot be loaded. Check docker.env syntax and permissions.",
+    );
+  }
+
+  return Object.fromEntries(
+    output
+      .split("\0")
+      .filter(Boolean)
+      .map((assignment) => {
+        const separator = assignment.indexOf("=");
+
+        return [
+          assignment.slice(0, separator),
+          assignment.slice(separator + 1),
+        ];
+      }),
+  );
+}
 
 /** Validate persisted configuration and quote literal overrides using the startup parser. */
 export async function serializeEnvFile(
