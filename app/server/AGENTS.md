@@ -27,26 +27,26 @@ Most of the existing suite predates these conventions and is not being migrated.
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
+		@Mock
+		private UserRepository userRepository;
 
-    @InjectMocks
-    private UserServiceImpl userService;
+		@InjectMocks
+		private UserServiceImpl userService;
 
-    @Test
-    void should_returnUser_when_idExists() {
-        // Given
-        User expected = new User("abc123", "Jane");
-        when(userRepository.findById("abc123")).thenReturn(Mono.just(expected));
+		@Test
+		void should_returnUser_when_idExists() {
+				// Given
+				User expected = new User("abc123", "Jane");
+				when(userRepository.findById("abc123")).thenReturn(Mono.just(expected));
 
-        // When
-        Mono<User> result = userService.findById("abc123");
+				// When
+				Mono<User> result = userService.findById("abc123");
 
-        // Then
-        StepVerifier.create(result)
-                .assertNext(user -> assertThat(user.getName()).isEqualTo("Jane"))
-                .verifyComplete();
-    }
+				// Then
+				StepVerifier.create(result)
+								.assertNext(user -> assertThat(user.getName()).isEqualTo("Jane"))
+								.verifyComplete();
+		}
 }
 ```
 
