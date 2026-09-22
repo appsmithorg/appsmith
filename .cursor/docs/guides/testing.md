@@ -345,7 +345,8 @@ class ApplicationServiceTest {
 Backend integration tests verify interactions between components through the Spring context.
 
 ```java
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
+@AutoConfigureWebTestClient
 class ApplicationControllerIntegrationTest {
 
     @Autowired
