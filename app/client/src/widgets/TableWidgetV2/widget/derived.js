@@ -289,11 +289,36 @@ export default {
       return [];
     }
 
+    /*
+     * Used only for search/filter/sort — never for rendering (XSS).
+     * Under linkedom (evaluation worker), DOMParser often returns empty
+     * textContent for tagged HTML and throws for plain text; the strip-tags
+     * fallback is the real production path for tagged cells.
+     */
+    const stripHtmlTags = (value) => {
+      if (typeof value !== "string") {
+        return "";
+      }
+
+      return value
+        .replace(/<[^>]*>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    };
+
     const getTextFromHTML = (html) => {
       if (!html) return "";
 
       if (typeof html === "object") {
         html = JSON.stringify(html);
+      }
+
+      /*
+       * Plain-text fast path: linkedom's DOMParser throws on non-HTML strings
+       * when accessing doc.body. Skip parsing when there are no tags.
+       */
+      if (typeof html === "string" && !/<[^>]*>/.test(html)) {
+        return html;
       }
 
       try {
@@ -307,19 +332,10 @@ export default {
 
         /*
          * Fallback when DOMParser returns empty (e.g. parsing quirk in some envs).
-         * Used only for search/filter/sort - never for rendering. Strip tags to get
-         * plain text so table search still works. Output must not be rendered (XSS).
          */
-        if (typeof html === "string") {
-          return html
-            .replace(/<[^>]*>/g, " ")
-            .replace(/\s+/g, " ")
-            .trim();
-        }
-
-        return "";
+        return stripHtmlTags(html);
       } catch (e) {
-        return "";
+        return stripHtmlTags(html);
       }
     };
 
