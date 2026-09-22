@@ -1,4 +1,8 @@
 import util from "./util";
+import {
+  DEFAULT_SPEC_DURATION_MS,
+  divideSpecsIntoBalancedGroups,
+} from "./specPacking";
 
 export class staticSplit {
   util = new util();
@@ -6,7 +10,6 @@ export class staticSplit {
 
   private async getSpecsWithTime(specs: string[], attemptId: number) {
     const client = await this.dbClient.connect();
-    const defaultDuration = 180000;
     const specsMap = new Map();
     try {
       const queryRes = await client.query(
@@ -19,10 +22,12 @@ export class staticSplit {
 
       const allSpecsWithDuration = specs.map((spec) => {
         const match = specsMap.get(spec);
-        return match ? match : { name: spec, duration: defaultDuration };
+        return match
+          ? match
+          : { name: spec, duration: DEFAULT_SPEC_DURATION_MS };
       });
 
-      return await this.util.divideSpecsIntoBalancedGroups(
+      return divideSpecsIntoBalancedGroups(
         allSpecsWithDuration,
         Number(this.util.getVars().totalRunners),
       );
