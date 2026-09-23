@@ -27,6 +27,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
@@ -40,6 +41,7 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -51,6 +53,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.LinkedMultiValueMap;
@@ -112,6 +119,9 @@ public class DatasourceServiceTest {
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    UserAndAccessManagementService userAndAccessManagementService;
 
     @Autowired
     PluginRepository pluginRepository;
@@ -993,6 +1003,71 @@ public class DatasourceServiceTest {
                             .isEqualTo(AppsmithErrorCode.DATASOURCE_CREDENTIALS_REQUIRED.getCode());
                 })
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testSavedDatasourceRequiresReadPermission() {
+        PermissionGroup viewerPermissionGroup = permissionGroupRepository
+                .findAllById(workspaceService
+                        .findById(workspaceId, READ_WORKSPACES)
+                        .block()
+                        .getDefaultPermissionGroups())
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .blockFirst();
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setPermissionGroupId(viewerPermissionGroup.getId());
+        inviteUsersDTO.setUsernames(List.of("usertest@usertest.com"));
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "test").block();
+
+        AtomicReference<DatasourceConfiguration> testedConfiguration = new AtomicReference<>();
+        MockPluginExecutor pluginExecutor = new MockPluginExecutor() {
+            @Override
+            public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+                testedConfiguration.set(datasourceConfiguration);
+                return Mono.just(new DatasourceTestResult());
+            }
+        };
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+
+        Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
+        DatasourceConfiguration savedConfiguration = new DatasourceConfiguration();
+        savedConfiguration.setEndpoints(List.of(new Endpoint("trusted.example.com", 5432L)));
+        DBAuth savedAuthentication = new DBAuth();
+        savedAuthentication.setUsername("database-user");
+        savedAuthentication.setPassword("stored-password");
+        savedAuthentication.setDatabaseName("appsmith");
+        savedConfiguration.setAuthentication(savedAuthentication);
+
+        Datasource datasource = new Datasource();
+        datasource.setName("read-protected datasource");
+        datasource.setWorkspaceId(workspaceId);
+        datasource.setPluginId(plugin.getId());
+        datasource.setDatasourceStorages(new HashMap<>(java.util.Map.of(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, savedConfiguration))));
+        Datasource savedDatasource = datasourceService.create(datasource).block();
+
+        DatasourceStorageDTO testStorage =
+                savedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+        ((DBAuth) testStorage.getDatasourceConfiguration().getAuthentication()).setPassword(null);
+        testStorage.setPluginId(plugin.getId());
+
+        User viewerUser = userService.findByEmail("usertest@usertest.com").block();
+        Authentication viewerAuthentication =
+                new UsernamePasswordAuthenticationToken(viewerUser, null, viewerUser.getAuthorities());
+        SecurityContext viewerSecurityContext = new SecurityContextImpl(viewerAuthentication);
+
+        StepVerifier.create(datasourceService
+                        .testDatasource(testStorage, defaultEnvironmentId)
+                        .contextWrite(
+                                ReactiveSecurityContextHolder.withSecurityContext(Mono.just(viewerSecurityContext))))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) error).getError()).isEqualTo(AppsmithError.UNAUTHORIZED_ACCESS);
+                })
+                .verify();
+
+        assertThat(testedConfiguration).hasNullValue();
     }
 
     @Test
