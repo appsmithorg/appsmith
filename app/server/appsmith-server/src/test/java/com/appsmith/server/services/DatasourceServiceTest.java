@@ -959,6 +959,44 @@ public class DatasourceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void updateDatasourceWithChangedConnectionDoesNotReuseStoredCredentials() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
+
+        DatasourceConfiguration savedConfiguration = new DatasourceConfiguration();
+        savedConfiguration.setEndpoints(List.of(new Endpoint("trusted.example.com", 5432L)));
+        DBAuth savedAuthentication = new DBAuth();
+        savedAuthentication.setUsername("database-user");
+        savedAuthentication.setPassword("stored-password");
+        savedAuthentication.setDatabaseName("appsmith");
+        savedConfiguration.setAuthentication(savedAuthentication);
+
+        Datasource datasource = new Datasource();
+        datasource.setName("credential-bound update datasource");
+        datasource.setWorkspaceId(workspaceId);
+        datasource.setPluginId(plugin.getId());
+        datasource.setDatasourceStorages(new HashMap<>(java.util.Map.of(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, savedConfiguration))));
+
+        Datasource savedDatasource = datasourceService.create(datasource).block();
+        DatasourceStorageDTO updateStorage =
+                savedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+        updateStorage.getDatasourceConfiguration().setEndpoints(List.of(new Endpoint("changed.example.com", 5432L)));
+        ((DBAuth) updateStorage.getDatasourceConfiguration().getAuthentication()).setPassword(null);
+
+        StepVerifier.create(
+                        datasourceService.updateDatasourceStorage(updateStorage, defaultEnvironmentId, Boolean.TRUE))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) error).getAppErrorCode())
+                            .isEqualTo(AppsmithErrorCode.DATASOURCE_CREDENTIALS_REQUIRED.getCode());
+                })
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void deleteDatasourceWithoutActions() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
