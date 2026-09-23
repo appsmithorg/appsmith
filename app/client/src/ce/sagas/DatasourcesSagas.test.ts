@@ -57,10 +57,6 @@ describe("testDatasourceSaga", () => {
       datasourceConfiguration: { url: "https://changed.example.com" },
       isValid: true,
     };
-    const initialStorage: DatasourceStorage = {
-      ...currentStorage,
-      datasourceConfiguration: { url: "https://trusted.example.com" },
-    };
     const datasource = {
       id: "saved-datasource-id",
       pluginId: "plugin-id",
@@ -78,11 +74,6 @@ describe("testDatasourceSaga", () => {
     const generator = testDatasourceSaga(action);
     generator.next();
     generator.next("workspace-id");
-    generator.next({
-      initialValues: {
-        datasourceStorages: { "environment-id": initialStorage },
-      },
-    });
     generator.next(datasource);
     generator.next("environment-id");
     generator.next(plugin);
