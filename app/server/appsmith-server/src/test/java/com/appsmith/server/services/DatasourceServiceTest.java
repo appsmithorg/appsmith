@@ -969,6 +969,52 @@ public class DatasourceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void testDatasourceWithChangedConnectionUsesOnlyFreshRequestCredentials() {
+        Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
+        AtomicReference<DatasourceConfiguration> testedConfiguration = new AtomicReference<>();
+        MockPluginExecutor pluginExecutor = new MockPluginExecutor() {
+            @Override
+            public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+                testedConfiguration.set(datasourceConfiguration);
+                return Mono.just(new DatasourceTestResult());
+            }
+        };
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+
+        DatasourceConfiguration savedConfiguration = new DatasourceConfiguration();
+        savedConfiguration.setEndpoints(List.of(new Endpoint("trusted.example.com", 5432L)));
+        DBAuth savedAuthentication = new DBAuth();
+        savedAuthentication.setUsername("database-user");
+        savedAuthentication.setPassword("stored-password");
+        savedAuthentication.setDatabaseName("appsmith");
+        savedConfiguration.setAuthentication(savedAuthentication);
+
+        Datasource datasource = new Datasource();
+        datasource.setName("fresh credential datasource");
+        datasource.setWorkspaceId(workspaceId);
+        datasource.setPluginId(plugin.getId());
+        datasource.setDatasourceStorages(new HashMap<>(java.util.Map.of(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, savedConfiguration))));
+
+        Datasource savedDatasource = datasourceService.create(datasource).block();
+        DatasourceStorageDTO testStorage =
+                savedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+        testStorage.getDatasourceConfiguration().setEndpoints(List.of(new Endpoint("changed.example.com", 5432L)));
+        ((DBAuth) testStorage.getDatasourceConfiguration().getAuthentication()).setPassword("fresh-password");
+        testStorage.setPluginId(plugin.getId());
+
+        StepVerifier.create(datasourceService.testDatasource(testStorage, defaultEnvironmentId))
+                .assertNext(testResult -> assertThat(testResult.getInvalids()).isEmpty())
+                .verifyComplete();
+
+        assertThat(testedConfiguration.get().getEndpoints().get(0).getHost()).isEqualTo("changed.example.com");
+        assertThat(((DBAuth) testedConfiguration.get().getAuthentication()).getPassword())
+                .isEqualTo("fresh-password")
+                .isNotEqualTo("stored-password");
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void updateDatasourceWithChangedConnectionDoesNotReuseStoredCredentials() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));

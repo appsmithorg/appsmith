@@ -171,6 +171,12 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     @Override
     public DatasourceStorage mergeStoredCredentialsIfConnectionUnchanged(
             DatasourceStorage datasourceStorage, DatasourceStorage storedDatasourceStorage) {
+        return bindStoredCredentials(datasourceStorage, storedDatasourceStorage).datasourceStorage();
+    }
+
+    @Override
+    public DatasourceCredentialBindingResult bindStoredCredentials(
+            DatasourceStorage datasourceStorage, DatasourceStorage storedDatasourceStorage) {
         if (!Objects.equals(datasourceStorage.getDatasourceId(), storedDatasourceStorage.getDatasourceId())
                 || !Objects.equals(datasourceStorage.getEnvironmentId(), storedDatasourceStorage.getEnvironmentId())
                 || (StringUtils.hasText(datasourceStorage.getId())
@@ -180,36 +186,99 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
         DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
         DatasourceConfiguration storedDatasourceConfiguration = storedDatasourceStorage.getDatasourceConfiguration();
+        Set<String> changedConnectionSettingGroups =
+                getChangedConnectionSettingGroups(datasourceConfiguration, storedDatasourceConfiguration);
+        boolean connectionConfigurationChanged = !changedConnectionSettingGroups.isEmpty()
+                || !hasSamePublicConfiguration(datasourceConfiguration, storedDatasourceConfiguration);
+        boolean requestContainsCredentials = containsEncryptedValue(datasourceConfiguration);
+        boolean storedConfigurationContainsCredentials = containsEncryptedValue(storedDatasourceConfiguration);
 
-        if (hasSamePublicConfiguration(datasourceConfiguration, storedDatasourceConfiguration)) {
+        if (!connectionConfigurationChanged) {
             copyNestedNonNullProperties(datasourceStorage, storedDatasourceStorage);
-            return storedDatasourceStorage;
+            DatasourceCredentialBindingResult.CredentialSource credentialSource =
+                    storedConfigurationContainsCredentials && !requestContainsCredentials
+                            ? DatasourceCredentialBindingResult.CredentialSource.STORED
+                            : DatasourceCredentialBindingResult.CredentialSource.REQUEST;
+            return new DatasourceCredentialBindingResult(
+                    storedDatasourceStorage, false, credentialSource, changedConnectionSettingGroups);
         }
 
         if (datasourceConfiguration != null
                 && datasourceConfiguration.getAuthentication() == null
                 && storedDatasourceConfiguration != null
                 && storedDatasourceConfiguration.getAuthentication() != null) {
-            return datasourceStorage;
+            return new DatasourceCredentialBindingResult(
+                    datasourceStorage,
+                    true,
+                    DatasourceCredentialBindingResult.CredentialSource.CLEARED,
+                    changedConnectionSettingGroups);
         }
 
-        if (containsEncryptedValue(storedDatasourceConfiguration) && !containsEncryptedValue(datasourceConfiguration)) {
-            throw new AppsmithException(AppsmithError.DATASOURCE_CREDENTIALS_REQUIRED);
+        if (storedConfigurationContainsCredentials && !requestContainsCredentials) {
+            throw new DatasourceCredentialsRequiredException(changedConnectionSettingGroups);
         }
 
-        return datasourceStorage;
+        return new DatasourceCredentialBindingResult(
+                datasourceStorage,
+                true,
+                DatasourceCredentialBindingResult.CredentialSource.REQUEST,
+                changedConnectionSettingGroups);
     }
 
     private boolean hasSamePublicConfiguration(
             DatasourceConfiguration datasourceConfiguration, DatasourceConfiguration storedDatasourceConfiguration) {
+        return Objects.equals(
+                getPublicConfiguration(datasourceConfiguration), getPublicConfiguration(storedDatasourceConfiguration));
+    }
+
+    private JsonNode getPublicConfiguration(DatasourceConfiguration datasourceConfiguration) {
         try {
-            JsonNode publicConfiguration = objectMapper.readTree(
+            return objectMapper.readTree(
                     objectMapper.writerWithView(Views.Public.class).writeValueAsString(datasourceConfiguration));
-            JsonNode storedPublicConfiguration = objectMapper.readTree(
-                    objectMapper.writerWithView(Views.Public.class).writeValueAsString(storedDatasourceConfiguration));
-            return Objects.equals(publicConfiguration, storedPublicConfiguration);
         } catch (JsonProcessingException exception) {
             throw new AppsmithException(exception, AppsmithError.DATASOURCE_CREDENTIALS_REQUIRED);
+        }
+    }
+
+    private Set<String> getChangedConnectionSettingGroups(
+            DatasourceConfiguration datasourceConfiguration, DatasourceConfiguration storedDatasourceConfiguration) {
+        JsonNode requestConfiguration = getPublicConfiguration(datasourceConfiguration);
+        JsonNode storedConfiguration = getPublicConfiguration(storedDatasourceConfiguration);
+        Set<String> changedGroups = new HashSet<>();
+
+        addChangedGroup(changedGroups, "endpoint", requestConfiguration, storedConfiguration, "endpoints", "url");
+        addChangedGroup(
+                changedGroups,
+                "transport",
+                requestConfiguration,
+                storedConfiguration,
+                "connection",
+                "sshProxy",
+                "sshProxyEnabled");
+        addChangedGroup(changedGroups, "authentication", requestConfiguration, storedConfiguration, "authentication");
+        addChangedGroup(
+                changedGroups,
+                "properties",
+                requestConfiguration,
+                storedConfiguration,
+                "properties",
+                "headers",
+                "queryParameters");
+
+        return changedGroups;
+    }
+
+    private void addChangedGroup(
+            Set<String> changedGroups,
+            String group,
+            JsonNode requestConfiguration,
+            JsonNode storedConfiguration,
+            String... fields) {
+        for (String field : fields) {
+            if (!Objects.equals(requestConfiguration.get(field), storedConfiguration.get(field))) {
+                changedGroups.add(group);
+                return;
+            }
         }
     }
 
@@ -281,31 +350,52 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
         return this.findStrictlyByDatasourceIdAndEnvironmentId(datasourceId, environmentId)
                 .flatMap(this::checkEnvironment)
-                .map(dbStorage -> {
+                .flatMap(dbStorage -> {
+                    Map<String, Object> credentialBindingProperties = new HashMap<>();
+                    DatasourceStorage storageToSave;
                     if (TRUE.equals(isUserRefreshedUpdate)) {
-                        return mergeStoredCredentialsIfConnectionUnchanged(datasourceStorage, dbStorage);
-                    }
+                        DatasourceCredentialBindingResult bindingResult =
+                                bindStoredCredentials(datasourceStorage, dbStorage);
+                        storageToSave = bindingResult.datasourceStorage();
+                        addCredentialBindingProperties(credentialBindingProperties, bindingResult);
+                    } else {
+                        copyNestedNonNullProperties(datasourceStorage, dbStorage);
 
-                    copyNestedNonNullProperties(datasourceStorage, dbStorage);
-
-                    if (datasourceStorage.getDatasourceConfiguration() != null
-                            && datasourceStorage.getDatasourceConfiguration().getAuthentication() == null) {
-                        if (dbStorage.getDatasourceConfiguration() != null) {
-                            dbStorage.getDatasourceConfiguration().setAuthentication(null);
+                        if (datasourceStorage.getDatasourceConfiguration() != null
+                                && datasourceStorage
+                                                .getDatasourceConfiguration()
+                                                .getAuthentication()
+                                        == null) {
+                            if (dbStorage.getDatasourceConfiguration() != null) {
+                                dbStorage.getDatasourceConfiguration().setAuthentication(null);
+                            }
                         }
+                        storageToSave = dbStorage;
                     }
-                    return dbStorage;
-                })
-                .flatMap(datasourceStorage1 ->
-                        validateAndSaveDatasourceStorageToRepository(datasourceStorage1, isDryOps))
-                .flatMap(savedDatasourceStorage -> {
-                    Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasourceStorage);
-                    Boolean isUserInvokedUpdate = TRUE.equals(isUserRefreshedUpdate) ? TRUE : FALSE;
 
-                    analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, isUserInvokedUpdate);
-                    return analyticsService.sendUpdateEvent(savedDatasourceStorage, analyticsProperties);
+                    return validateAndSaveDatasourceStorageToRepository(storageToSave, isDryOps)
+                            .flatMap(savedDatasourceStorage -> {
+                                Map<String, Object> analyticsProperties =
+                                        getAnalyticsProperties(savedDatasourceStorage);
+                                Boolean isUserInvokedUpdate = TRUE.equals(isUserRefreshedUpdate) ? TRUE : FALSE;
+
+                                analyticsProperties.put(
+                                        FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, isUserInvokedUpdate);
+                                analyticsProperties.putAll(credentialBindingProperties);
+                                return analyticsService.sendUpdateEvent(savedDatasourceStorage, analyticsProperties);
+                            });
                 })
                 .flatMap(this::populateHintMessages);
+    }
+
+    private void addCredentialBindingProperties(
+            Map<String, Object> analyticsProperties, DatasourceCredentialBindingResult bindingResult) {
+        analyticsProperties.put(
+                FieldName.CONNECTION_CONFIGURATION_CHANGED, bindingResult.connectionConfigurationChanged());
+        analyticsProperties.put(
+                FieldName.CREDENTIAL_SOURCE, bindingResult.credentialSource().getAnalyticsValue());
+        analyticsProperties.put(
+                FieldName.CHANGED_CONNECTION_SETTING_GROUPS, bindingResult.changedConnectionSettingGroups());
     }
 
     public Mono<DatasourceStorage> executePreSaveActions(DatasourceStorage datasourceStorage) {
