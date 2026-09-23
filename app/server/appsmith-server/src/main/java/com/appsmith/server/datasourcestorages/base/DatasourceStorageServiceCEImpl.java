@@ -186,6 +186,13 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
             return storedDatasourceStorage;
         }
 
+        if (datasourceConfiguration != null
+                && datasourceConfiguration.getAuthentication() == null
+                && storedDatasourceConfiguration != null
+                && storedDatasourceConfiguration.getAuthentication() != null) {
+            return datasourceStorage;
+        }
+
         if (containsEncryptedValue(storedDatasourceConfiguration) && !containsEncryptedValue(datasourceConfiguration)) {
             throw new AppsmithException(AppsmithError.DATASOURCE_CREDENTIALS_REQUIRED);
         }
@@ -275,6 +282,10 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         return this.findStrictlyByDatasourceIdAndEnvironmentId(datasourceId, environmentId)
                 .flatMap(this::checkEnvironment)
                 .map(dbStorage -> {
+                    if (TRUE.equals(isUserRefreshedUpdate)) {
+                        return mergeStoredCredentialsIfConnectionUnchanged(datasourceStorage, dbStorage);
+                    }
+
                     copyNestedNonNullProperties(datasourceStorage, dbStorage);
 
                     if (datasourceStorage.getDatasourceConfiguration() != null
