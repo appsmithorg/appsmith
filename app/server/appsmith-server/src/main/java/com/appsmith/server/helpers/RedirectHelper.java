@@ -491,9 +491,21 @@ public class RedirectHelper {
         // This is the failsafe for when nothing could be identified
         String redirectOrigin = Appsmith.DEFAULT_ORIGIN_HEADER;
 
+        // The value derived here becomes the OAuth redirect_uri for the datasource OAuth flow.
+        // It MUST be validated against the request host: an attacker who forges the Origin or
+        // Referer header could otherwise make the provider redirect the authorization code to
+        // an attacker-controlled domain (open redirect / auth-code interception).
+        final String requestHost = extractRequestHost(httpHeaders);
+
         if (!StringUtils.isEmpty(httpHeaders.getOrigin())) {
-            // For PUT/POST requests or CORS?
-            redirectOrigin = httpHeaders.getOrigin();
+            // For PUT/POST requests or CORS? Only trust the Origin when it matches the request
+            // host; getTrustedOrigin returns null for a forged/cross-host Origin.
+            String trustedOrigin = getTrustedOrigin(httpHeaders);
+            if (trustedOrigin != null) {
+                redirectOrigin = trustedOrigin;
+            } else if (!StringUtils.isEmpty(httpHeaders.getHost())) {
+                redirectOrigin = redirectOriginFromHost(httpHeaders);
+            }
         } else if (!StringUtils.isEmpty(httpHeaders.getFirst(Security.REFERER_HEADER))) {
             // For generic web application requests
             URI uri;
@@ -501,18 +513,33 @@ public class RedirectHelper {
                 uri = new URI(httpHeaders.getFirst(Security.REFERER_HEADER));
                 String authority = uri.getAuthority();
                 String scheme = uri.getScheme();
-                redirectOrigin = scheme + "://" + authority;
+                // Only trust the Referer-derived origin when its host matches the request host.
+                if (authority != null && scheme != null && requestHost != null && uri.getHost() != null) {
+                    String refererHost = uri.getHost();
+                    if (refererHost.startsWith("[") && refererHost.endsWith("]")) {
+                        refererHost = refererHost.substring(1, refererHost.length() - 1);
+                    }
+                    if (refererHost.equalsIgnoreCase(requestHost)) {
+                        redirectOrigin = scheme + "://" + authority;
+                    } else if (!StringUtils.isEmpty(httpHeaders.getHost())) {
+                        redirectOrigin = redirectOriginFromHost(httpHeaders);
+                    }
+                }
             } catch (URISyntaxException ignored) {
             }
         } else if (!StringUtils.isEmpty(httpHeaders.getHost())) {
             // For HTTP v1 requests
-            String port = httpHeaders.getHost().getPort() != 80
-                    ? ":" + httpHeaders.getHost().getPort()
-                    : "";
-            redirectOrigin = httpHeaders.getHost().getHostName() + port;
+            redirectOrigin = redirectOriginFromHost(httpHeaders);
         }
 
         return redirectOrigin;
+    }
+
+    private static String redirectOriginFromHost(HttpHeaders httpHeaders) {
+        String port = httpHeaders.getHost().getPort() != 80
+                ? ":" + httpHeaders.getHost().getPort()
+                : "";
+        return httpHeaders.getHost().getHostName() + port;
     }
 
     public String buildApplicationUrl(Application application, HttpHeaders httpHeaders) {

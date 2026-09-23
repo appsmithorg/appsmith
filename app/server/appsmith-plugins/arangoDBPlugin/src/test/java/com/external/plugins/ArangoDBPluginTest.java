@@ -17,6 +17,7 @@ import com.arangodb.entity.CollectionType;
 import com.arangodb.entity.Permissions;
 import com.arangodb.model.CollectionCreateOptions;
 import com.arangodb.model.CollectionSchema;
+import com.arangodb.model.CollectionsReadOptions;
 import com.external.plugins.exceptions.ArangoDBPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -29,19 +30,24 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.external.plugins.exceptions.ArangoDBErrorMessages.DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -416,5 +422,56 @@ public class ArangoDBPluginTest {
                     assertEquals("localhost_8529", endpointIdentifier);
                 })
                 .verifyComplete();
+    }
+
+    /**
+     * getStructure() lists collections over HTTP; the server calls it from the continuation of the
+     * datasource-context lookup, so the driver call must never run on the subscribing thread.
+     */
+    @Test
+    public void getStructure_doesNotRunOnTheSubscribingThread() {
+        ArangoDatabase mockDb = mock(ArangoDatabase.class);
+        AtomicReference<String> driverThread = new AtomicReference<>();
+        when(mockDb.getCollections(any(CollectionsReadOptions.class))).thenAnswer(invocation -> {
+            driverThread.set(Thread.currentThread().getName());
+            return List.of();
+        });
+
+        Scheduler caller = Schedulers.newSingle("caller-event-loop");
+        try {
+            StepVerifier.create(Mono.defer(() -> pluginExecutor.getStructure(mockDb, createDatasourceConfiguration()))
+                            .subscribeOn(caller))
+                    .assertNext(structure -> assertTrue(structure.getTables().isEmpty()))
+                    .verifyComplete();
+        } finally {
+            caller.dispose();
+        }
+        assertNotNull(driverThread.get(), "getCollections was never called");
+        assertFalse(
+                driverThread.get().startsWith("caller-event-loop"),
+                "getCollections ran on the subscribing thread: " + driverThread.get());
+    }
+
+    @Test
+    public void testDatasource_connection_doesNotRunOnTheSubscribingThread() {
+        ArangoDatabase mockDb = mock(ArangoDatabase.class);
+        AtomicReference<String> driverThread = new AtomicReference<>();
+        when(mockDb.getVersion()).thenAnswer(invocation -> {
+            driverThread.set(Thread.currentThread().getName());
+            return null;
+        });
+
+        Scheduler caller = Schedulers.newSingle("caller-event-loop");
+        try {
+            StepVerifier.create(pluginExecutor.testDatasource(mockDb).subscribeOn(caller))
+                    .assertNext(result -> assertTrue(result.isSuccess()))
+                    .verifyComplete();
+        } finally {
+            caller.dispose();
+        }
+        assertNotNull(driverThread.get(), "getVersion was never called");
+        assertFalse(
+                driverThread.get().startsWith("caller-event-loop"),
+                "getVersion ran on the subscribing thread: " + driverThread.get());
     }
 }

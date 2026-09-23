@@ -93,6 +93,17 @@ public class CustomJSLibCE extends BaseDomain {
     }
 
     /**
+     * Recomputes {@code uidString} from the current server-side {@code accessor} + {@code url}, discarding
+     * any value a caller may have placed in the {@code uidString} field. {@code uidString} is the identity
+     * key of a shared, instance-global library record, so it must never be taken from client input: doing
+     * so would let a caller target and overwrite a record it does not own. Call this at the persist
+     * boundary before any lookup/save so both the lookup key and the stored value are server-derived.
+     */
+    public void recomputeUidString() {
+        recomputeUid();
+    }
+
+    /**
      * The equality operator has been overridden here so that when two custom JS library objects are compared, they
      * are compared based on their name and version as opposed to Java object reference. At the moment this check
      * helps us to identify which JS library needs to be removed from the list of installed libraries when a user

@@ -43,6 +43,16 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 @NoArgsConstructor
 public class SSHUtils {
     public static final Long DEFAULT_SSH_PORT = 22L;
+
+    /**
+     * Socket bounds for the SSH tunnel; sshj's defaults are infinite. SSH_SOCKET_TIMEOUT_MS is the socket
+     * SO_TIMEOUT for the life of the tunnel: it bounds the initial banner/kex/auth reads, and on an idle tunnel
+     * sshj's transport Reader catches the resulting SocketTimeoutException and keeps reading (sshj >= 0.35).
+     * Do not lower the sshj version below that without revisiting this value.
+     */
+    public static final int SSH_CONNECT_TIMEOUT_MS = 10_000;
+
+    public static final int SSH_SOCKET_TIMEOUT_MS = 30_000;
     static Object monitor = new Object(); // monitor object to be used for synchronization lock
     public static final int RANDOM_FREE_PORT_NUM = 0; // using port 0 indicates `bind` method to acquire random free
     // port
@@ -65,6 +75,21 @@ public class SSHUtils {
     public static SSHTunnelContext createSSHTunnel(
             String sshHost, int sshPort, String sshUsername, UploadedFile key, String dbHost, int dbPort)
             throws IOException {
+        return createSSHTunnel(
+                sshHost, sshPort, sshUsername, key, dbHost, dbPort, SSH_CONNECT_TIMEOUT_MS, SSH_SOCKET_TIMEOUT_MS);
+    }
+
+    /** Visible for tests, which shrink the timeouts so the unresponsive-server case costs seconds, not minutes. */
+    static SSHTunnelContext createSSHTunnel(
+            String sshHost,
+            int sshPort,
+            String sshUsername,
+            UploadedFile key,
+            String dbHost,
+            int dbPort,
+            int connectTimeoutMs,
+            int socketTimeoutMs)
+            throws IOException {
 
         final SSHClient client = new SSHClient();
 
@@ -74,6 +99,8 @@ public class SSHUtils {
          * folder for cloud hosted instances I am turning this check off.
          */
         client.addHostKeyVerifier(new PromiscuousVerifier());
+        client.setConnectTimeout(connectTimeoutMs);
+        client.setTimeout(socketTimeoutMs);
 
         client.connect(sshHost, sshPort);
         Reader targetReader = new InputStreamReader(new ByteArrayInputStream(key.getDecodedContent()));

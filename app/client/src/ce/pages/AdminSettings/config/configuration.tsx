@@ -19,24 +19,33 @@ import { APPSMITH_BASE_URL_SETUP_DOC } from "constants/ThirdPartyConstants";
 
 const isAirgappedInstance = isAirgapped();
 
-export const APPSMITH_DB_URL: Setting = {
-  id: "APPSMITH_DB_URL",
+const formatConnectionInfo = (value: string) =>
+  value === "embedded"
+    ? "Embedded (runs inside the Appsmith container)"
+    : value;
+
+export const APPSMITH_DB_CONNECTION_INFO: Setting = {
+  id: "APPSMITH_DB_CONNECTION_INFO",
   category: SettingCategories.CONFIGURATION,
   controlType: SettingTypes.TEXTINPUT,
   controlSubType: SettingSubtype.TEXT,
-  label: "Appsmith DB URL",
+  isReadOnly: true,
+  label: "MongoDB",
+  format: formatConnectionInfo,
   subText:
-    "* Persistence database URL for Appsmith instance. Change this to an external database for clustering",
+    "* The MongoDB server Appsmith persists to, configured via the APPSMITH_DB_URL environment variable on the instance.",
 };
 
-export const APPSMITH_REDIS_URL: Setting = {
-  id: "APPSMITH_REDIS_URL",
+export const APPSMITH_REDIS_CONNECTION_INFO: Setting = {
+  id: "APPSMITH_REDIS_CONNECTION_INFO",
   category: SettingCategories.CONFIGURATION,
   controlType: SettingTypes.TEXTINPUT,
   controlSubType: SettingSubtype.TEXT,
-  label: "Redis URL",
+  isReadOnly: true,
+  label: "Redis",
+  format: formatConnectionInfo,
   subText:
-    "* Appsmith internally uses Redis for session storage. Change this to an external redis for clustering",
+    "* The Redis server Appsmith uses for session storage, configured via the APPSMITH_REDIS_URL environment variable on the instance.",
 };
 
 export const APPSMITH_BASE_URL: Setting = {
@@ -157,8 +166,8 @@ export const config: AdminConfigType = {
   title: "Configuration",
   canSave: true,
   settings: [
-    APPSMITH_DB_URL,
-    APPSMITH_REDIS_URL,
+    APPSMITH_DB_CONNECTION_INFO,
+    APPSMITH_REDIS_CONNECTION_INFO,
     APPSMITH_BASE_URL,
     APPSMITH_POOL_SIZE_CONFIG,
     APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,

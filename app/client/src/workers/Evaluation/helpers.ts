@@ -135,13 +135,20 @@ const parseFunctionsInObject = (
   paths: string[] = [],
   path: string = "",
 ): string[] => {
+  // typeof null is "object", and primitives cannot hold functions. Both must be
+  // rejected here, otherwise Object.keys below throws on them.
+  if (userObject === null || typeof userObject !== "object") {
+    return paths;
+  }
+
   if (Array.isArray(userObject)) {
     for (let i = 0; i < userObject.length; i++) {
       const arrayValue = userObject[i];
 
+      // typeof null is "object", so null is excluded from the recursion below
       if (typeof arrayValue == "function") {
         paths.push(constructPath(path, `[${i}]`));
-      } else if (typeof arrayValue == "object") {
+      } else if (arrayValue !== null && typeof arrayValue == "object") {
         parseFunctionsInObject(
           arrayValue,
           paths,
@@ -155,9 +162,10 @@ const parseFunctionsInObject = (
     for (const key of keys) {
       const value = userObject[key];
 
+      // typeof null is "object", so null is excluded from the recursion below
       if (typeof value == "function") {
         paths.push(constructPath(path, key));
-      } else if (typeof value == "object") {
+      } else if (value !== null && typeof value == "object") {
         parseFunctionsInObject(
           value as Record<string, unknown>,
           paths,

@@ -103,16 +103,13 @@ public class GoogleAiPluginTest {
                 .verifyComplete();
     }
 
+    // hits the real Google AI API; the fake key makes the live fetch fail, exercising the fallback path
     @Test
     public void verifyDatasourceTriggerResultsForChatModels() {
         ApiKeyAuth apiKeyAuth = new ApiKeyAuth();
         apiKeyAuth.setValue("apiKey");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setAuthentication(apiKeyAuth);
-        String responseBody = "[\"gemini-2.5-pro\"]";
-        MockResponse mockResponse = new MockResponse().setBody(responseBody);
-        mockResponse.setResponseCode(200);
-        mockEndpoint.enqueue(mockResponse);
 
         TriggerRequestDTO request = new TriggerRequestDTO();
         request.setRequestType(GoogleAIConstants.GENERATE_CONTENT_MODEL);
@@ -122,17 +119,64 @@ public class GoogleAiPluginTest {
         StepVerifier.create(datasourceTriggerResultMono)
                 .assertNext(result -> {
                     assertTrue(result.getTrigger() instanceof List<?>);
-                    assertEquals(((List) result.getTrigger()).size(), 5);
-                    assertEquals(
-                            result.getTrigger(),
-                            getDataToMap(List.of(
-                                    "gemini-2.5-pro",
-                                    "gemini-2.5-flash",
-                                    "gemini-2.0-flash",
-                                    "gemini-flash-latest",
-                                    "gemini-flash-lite-latest")));
+                    assertEquals(((List) result.getTrigger()).size(), GoogleAIConstants.GOOGLE_AI_MODELS.size());
+                    assertEquals(result.getTrigger(), getDataToMap(GoogleAIConstants.GOOGLE_AI_MODELS));
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void verifyDatasourceTriggerReturnsFallbackWhenApiKeyIsMissing() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(new ApiKeyAuth());
+
+        TriggerRequestDTO request = new TriggerRequestDTO();
+        request.setRequestType(GoogleAIConstants.GENERATE_CONTENT_MODEL);
+
+        StepVerifier.create(pluginExecutor.trigger(null, datasourceConfiguration, request))
+                .assertNext(
+                        result -> assertEquals(result.getTrigger(), getDataToMap(GoogleAIConstants.GOOGLE_AI_MODELS)))
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExtractGenerateContentModels() {
+        String responseBody = "{\"models\":["
+                + model("models/gemini-3.6-flash", "generateContent", "countTokens")
+                + "," + model("models/gemini-2.5-flash-preview-tts", "generateContent")
+                + "," + model("models/gemini-3.1-flash-live-preview", "generateContent")
+                + "," + model("models/embedding-001", "embedContent")
+                + "," + model("models/imagen-3.0-generate-002", "predict")
+                + "," + model("models/gemini-3.1-pro-preview", "generateContent")
+                + "," + model("models/gemini-embedding-001", "generateContent")
+                + "]}";
+
+        List<String> models = GoogleAiPlugin.GoogleAiPluginExecutor.extractGenerateContentModels(responseBody);
+
+        // tts/live/embedding variants and non-gemini/non-generateContent models are filtered out
+        assertEquals(List.of("gemini-3.6-flash", "gemini-3.1-pro-preview"), models);
+    }
+
+    @Test
+    public void testExtractGenerateContentModels_skipsMalformedEntries() {
+        String responseBody = "{\"models\":["
+                + "\"not-an-object\","
+                + "{\"name\":123,\"supportedGenerationMethods\":[\"generateContent\"]},"
+                + "{\"name\":\"models/gemini-3.6-flash\",\"supportedGenerationMethods\":\"generateContent\"},"
+                + "{\"name\":\"models/gemini-3.6-flash\"},"
+                + model("models/gemini-3.5-flash", "generateContent")
+                + "]}";
+
+        // malformed entries are skipped without discarding the valid ones after them
+        assertEquals(
+                List.of("gemini-3.5-flash"),
+                GoogleAiPlugin.GoogleAiPluginExecutor.extractGenerateContentModels(responseBody));
+    }
+
+    private static String model(String name, String... methods) {
+        String methodList =
+                java.util.Arrays.stream(methods).map(m -> "\"" + m + "\"").collect(Collectors.joining(","));
+        return "{\"name\":\"" + name + "\",\"supportedGenerationMethods\":[" + methodList + "]}";
     }
 
     private List<Map<String, String>> getDataToMap(List<String> data) {

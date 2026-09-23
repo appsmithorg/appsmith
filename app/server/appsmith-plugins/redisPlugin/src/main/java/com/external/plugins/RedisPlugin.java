@@ -80,27 +80,39 @@ public class RedisPlugin extends BasePlugin {
             List<RequestParamDTO> requestParams =
                     List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, query, null, null, null));
 
-            Jedis jedis;
-            try {
-                jedis = jedisPool.getResource();
-            } catch (Exception e) {
-                return Mono.error(new AppsmithPluginException(
-                        RedisPluginError.QUERY_EXECUTION_FAILED,
-                        RedisErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
-                        e.getMessage()));
-            }
+            // Borrowing from the pool is network I/O (connect, AUTH/SELECT, and a PING because testOnBorrow is on)
+            // and blocks when the pool is exhausted, so it has to run on the plugin scheduler like the command.
+            // Mono.using returns the Jedis to the pool on complete, error AND cancel, including a cancel that lands
+            // while the borrow itself is still in flight; a plain fromCallable would discard that Jedis unreturned.
+            // eager=false: the result is delivered before the Jedis is returned, so a failed return-to-pool cannot
+            // fail a command that already executed.
+            return Mono.using(
+                            jedisPool::getResource,
+                            jedis -> runCommand(jedis, query, requestParams),
+                            Jedis::close,
+                            false)
+                    .onErrorMap(
+                            e -> !(e instanceof AppsmithPluginException),
+                            e -> new AppsmithPluginException(
+                                    RedisPluginError.QUERY_EXECUTION_FAILED,
+                                    RedisErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
+                                    e.getMessage()))
+                    .subscribeOn(scheduler);
+        }
+
+        private Mono<ActionExecutionResult> runCommand(Jedis jedis, String query, List<RequestParamDTO> requestParams) {
             return Mono.fromCallable(() -> {
                         if (StringUtils.isNullOrEmpty(query)) {
-                            return Mono.error(new AppsmithPluginException(
+                            throw new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    String.format(RedisErrorMessages.BODY_IS_NULL_OR_EMPTY_ERROR_MSG, query)));
+                                    String.format(RedisErrorMessages.BODY_IS_NULL_OR_EMPTY_ERROR_MSG, query));
                         }
 
                         Map cmdAndArgs = getCommandAndArgs(query.trim());
                         if (!cmdAndArgs.containsKey(CMD_KEY)) {
-                            return Mono.error(new AppsmithPluginException(
+                            throw new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    RedisErrorMessages.QUERY_PARSING_FAILED_ERROR_MSG));
+                                    RedisErrorMessages.QUERY_PARSING_FAILED_ERROR_MSG);
                         }
 
                         Protocol.Command command;
@@ -108,11 +120,11 @@ public class RedisPlugin extends BasePlugin {
                             // Commands are in upper case
                             command = Protocol.Command.valueOf((String) cmdAndArgs.get(CMD_KEY));
                         } catch (IllegalArgumentException exc) {
-                            return Mono.error(new AppsmithPluginException(
+                            throw new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     String.format(
                                             RedisErrorMessages.INVALID_REDIS_COMMAND_ERROR_MSG,
-                                            cmdAndArgs.get(CMD_KEY))));
+                                            cmdAndArgs.get(CMD_KEY)));
                         }
 
                         Object commandOutput;
@@ -130,10 +142,8 @@ public class RedisPlugin extends BasePlugin {
                         log.debug(
                                 Thread.currentThread().getName() + ": In the RedisPlugin, got action execution result");
 
-                        return Mono.just(actionExecutionResult);
+                        return actionExecutionResult;
                     })
-                    .flatMap(obj -> obj)
-                    .map(obj -> (ActionExecutionResult) obj)
                     .onErrorResume(error -> {
                         error.printStackTrace();
                         ActionExecutionResult result = new ActionExecutionResult();
@@ -155,18 +165,7 @@ public class RedisPlugin extends BasePlugin {
                         ActionExecutionResult result = actionExecutionResult;
                         result.setRequest(request);
                         return result;
-                    })
-                    .doFinally(signalType -> {
-                        /**
-                         * - Return resource back to the pool.
-                         * - https://stackoverflow.com/questions/54902337/is-it-necessary-to-use-jedis-close
-                         * - https://www.baeldung.com/jedis-java-redis-client-library:
-                         */
-                        if (jedis != null) {
-                            jedis.close();
-                        }
-                    })
-                    .subscribeOn(scheduler);
+                    });
         }
 
         /**
@@ -445,20 +444,19 @@ public class RedisPlugin extends BasePlugin {
         }
 
         private Mono<Void> verifyPing(JedisPool connectionPool) {
-            String pingResponse;
-            try {
-                Jedis jedis = connectionPool.getResource();
-                pingResponse = jedis.ping();
-            } catch (Exception exc) {
-                return Mono.error(exc);
-            }
-
-            if (!"PONG".equals(pingResponse)) {
-                return Mono.error(new RuntimeException(
-                        String.format(RedisErrorMessages.NO_PONG_RESPONSE_ERROR_MSG, pingResponse)));
-            }
-
-            return Mono.empty();
+            return Mono.fromCallable(() -> {
+                        try (Jedis jedis = connectionPool.getResource()) {
+                            return jedis.ping();
+                        }
+                    })
+                    .flatMap(pingResponse -> {
+                        if (!"PONG".equals(pingResponse)) {
+                            return Mono.<Void>error(new RuntimeException(
+                                    String.format(RedisErrorMessages.NO_PONG_RESPONSE_ERROR_MSG, pingResponse)));
+                        }
+                        return Mono.<Void>empty();
+                    })
+                    .subscribeOn(scheduler);
         }
 
         @Override

@@ -24,6 +24,7 @@ export interface PopperProps {
     top?: string;
     zIndex?: string;
     position?: string;
+    pointerEvents?: string;
   };
   style?: React.CSSProperties;
   placement: Placement;
@@ -89,6 +90,20 @@ export default (props: PopperProps) => {
   const popperIdRef = useRef(generateReactKey());
   const popperId = popperIdRef.current;
 
+  // popper.js v1 only repositions on scroll/resize, so a popper anchored to
+  // an auto-growing element (e.g. a CodeMirror field) goes stale as the
+  // anchor grows. Track the dragged position in a ref so the resize observer
+  // below can skip updates while the user has moved the popper by hand.
+  const positionRef = useRef(props.position);
+
+  positionRef.current = props.position;
+
+  // True from the drag handle's mousedown to the drag's mouseup. The hover
+  // handlers below must not clear the dragging flag while this is set: the
+  // cursor can briefly outrun the handle mid-drag, and treating that
+  // mouseleave as "drag over" closes the popup under the user's pointer.
+  const activeDragRef = useRef(false);
+
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onPositionChangeFn = (e: any) => {
@@ -126,6 +141,14 @@ export default (props: PopperProps) => {
     themeMode = props.themeMode || ThemeMode.LIGHT,
   } = props;
 
+  // Once the user has dragged the popper, its position is owned by inline
+  // top/left. popper.js positions with a transform, so any update it runs on
+  // its own listeners stacks a translate on top of those coordinates: the
+  // popper jumps, and the drag maths (offsetTop/offsetLeft, which ignore
+  // transforms) is then anchored to a position the user cannot see.
+  const arePopperEventsDisabled =
+    disablePopperEvents || (isDraggable && !!position);
+
   // Memoizing to avoid rerender of draggable icon.
   // What is the cost of memoizing?
   const popperTheme = useMemo(
@@ -147,7 +170,7 @@ export default (props: PopperProps) => {
         onMouseLeave={(e) => {
           e.stopPropagation();
 
-          if (props?.dragFn) {
+          if (props?.dragFn && !activeDragRef.current) {
             props.dragFn(false);
           }
         }}
@@ -177,7 +200,7 @@ export default (props: PopperProps) => {
         props.targetNode,
         contentRef.current as unknown as Element,
         {
-          ...(isDraggable && disablePopperEvents
+          ...(isDraggable && arePopperEventsDisabled
             ? {}
             : { placement: props.placement }),
           onCreate: (popperData) => {
@@ -214,9 +237,42 @@ export default (props: PopperProps) => {
         },
       );
 
+      let resizeObserver: ResizeObserver | undefined;
+
+      if (typeof ResizeObserver !== "undefined") {
+        resizeObserver = new ResizeObserver(() => {
+          if (!positionRef.current) _popper.scheduleUpdate();
+        });
+        resizeObserver.observe(props.targetNode);
+
+        // Also track the popper's own size: collapsing/expanding its content
+        // changes the box and the position must be recomputed immediately.
+        if (contentRef.current) resizeObserver.observe(contentRef.current);
+      }
+
+      // popper's own scroll listeners only cover the scroll parents it can
+      // detect; the editor's app-shell scrollers escape that walk, leaving the
+      // popup stranded at stale coordinates when the form scrolls. A capture-
+      // phase listener on window sees scroll events from every nested
+      // container. Skipped while the user has dragged the popup by hand.
+      let scrollRaf = 0;
+      const onAnyScroll = () => {
+        if (positionRef.current) return;
+
+        cancelAnimationFrame(scrollRaf);
+        scrollRaf = requestAnimationFrame(() => _popper.scheduleUpdate());
+      };
+
+      window.addEventListener("scroll", onAnyScroll, {
+        capture: true,
+        passive: true,
+      });
+
+      let disposeDraggable: (() => void) | undefined;
+
       if (isDraggable) {
-        disablePopperEvents && _popper.disableEventListeners();
-        draggableElement(
+        arePopperEventsDisabled && _popper.disableEventListeners();
+        disposeDraggable = draggableElement(
           `${popperId}-popper`,
           _popper.popper,
           onPositionChange,
@@ -232,10 +288,18 @@ export default (props: PopperProps) => {
               </ThemeProvider>
             ),
           cypressSelectorDragHandle,
+          (dragging: boolean) => {
+            activeDragRef.current = dragging;
+            props.setIsDragging?.(dragging);
+          },
         );
       }
 
       return () => {
+        cancelAnimationFrame(scrollRaf);
+        window.removeEventListener("scroll", onAnyScroll, { capture: true });
+        resizeObserver?.disconnect();
+        disposeDraggable?.();
         _popper.destroy();
       };
     }
@@ -244,7 +308,7 @@ export default (props: PopperProps) => {
     props.isOpen,
     JSON.stringify(props.modifiers),
     props.placement,
-    disablePopperEvents,
+    arePopperEventsDisabled,
   ]);
 
   return createPortal(

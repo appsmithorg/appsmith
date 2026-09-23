@@ -369,6 +369,9 @@ module.exports = function (webpackEnv) {
         fs: false,
         os: false,
         path: false,
+        // Referenced by a Node-only code path in @betterbugs/web-sdk; never
+        // executed in the browser.
+        worker_threads: false,
         "react/jsx-runtime": require.resolve("react/jsx-runtime"),
       },
       plugins: [
@@ -609,6 +612,17 @@ module.exports = function (webpackEnv) {
           warning.module?.resource.includes("/node_modules/sass/sass.dart.js")
         );
       },
+      // The eval/lint/Tern workers lazily import() the same widget-config and
+      // vendor modules as the main graph, so webpack attaches those chunks to
+      // both runtimes (deliberate: the browser downloads each chunk once).
+      // Since main also references the worker entry chunks, webpack cannot
+      // compute independent per-runtime content hashes and warns "Circular
+      // dependency between chunks with runtime (evalWorker, main)". The only
+      // effect is a fallback hashing strategy for those chunks (a long-term
+      // caching micro-optimization); output correctness is unaffected.
+      // "Fixing" it would require isolating the worker bundles and duplicating
+      // several MB of shared vendors into each worker, which is strictly worse.
+      { message: /Circular dependency between chunks with runtime/ },
     ],
     plugins: [
       // Replace BlueprintJS’s icon component with our own implementation
@@ -708,6 +722,14 @@ module.exports = function (webpackEnv) {
           // both options are optional
           filename: "static/css/[name].[contenthash:8].css",
           chunkFilename: "static/css/[name].[contenthash:8].chunk.css",
+          // Lazy chunks import WDS/anvil CSS modules and the widgets-old/ads
+          // tooltip+dropdown stylesheets in inconsistent relative orders, so
+          // no total CSS order exists and webpack warns "Conflicting order".
+          // The conflicting families share no selectors (WDS modules are
+          // hash-scoped; the legacy files only target .rc-tooltip*,
+          // .bp3-popover*, .ads-v2-tooltip, .ds--dropdown-popover), so the
+          // order is irrelevant and the warning is a false positive.
+          ignoreOrder: true,
         }),
       // Generate an asset manifest file with the following content:
       // - "files" key: Mapping of all asset filenames to their corresponding

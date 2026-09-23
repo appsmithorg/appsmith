@@ -94,6 +94,43 @@ describe("stringifyFnsInObject", () => {
       },
     });
   });
+
+  it("skips null values instead of recursing into them", () => {
+    expect(stringifyFnsInObject({ updated_by: null })).toEqual({
+      __fn_keys__: [],
+      updated_by: null,
+    });
+  });
+
+  it("skips nulls nested inside an array of rows", () => {
+    const rows = [
+      { id: 22, updated_by: null, qdis_score1: 42 },
+      { id: 23, updated_by: null, qdis_score1: null },
+    ];
+
+    expect(stringifyFnsInObject({ series: rows })).toEqual({
+      __fn_keys__: [],
+      series: rows,
+    });
+  });
+
+  it("collects nested function paths when null siblings are present", () => {
+    const result = stringifyFnsInObject({
+      tooltip: { formatter: () => "y", nothing: null },
+      series: [{ data: [[1, null]], label: { formatter: () => "z" } }],
+    });
+
+    expect(result[fn_keys]).toEqual([
+      "tooltip.formatter",
+      "series.[0].label.formatter",
+    ]);
+  });
+
+  it("keeps array indices correct when a null precedes a function", () => {
+    const result = stringifyFnsInObject({ arr: [null, () => "q"] });
+
+    expect(result[fn_keys]).toEqual(["arr.[1]"]);
+  });
 });
 
 describe("updatePrevState", () => {

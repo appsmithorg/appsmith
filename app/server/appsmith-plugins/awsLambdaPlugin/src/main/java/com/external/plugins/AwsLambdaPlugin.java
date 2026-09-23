@@ -33,6 +33,7 @@ import org.pf4j.PluginWrapper;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.nio.ByteBuffer;
@@ -57,6 +58,8 @@ public class AwsLambdaPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class AwsLambdaPluginExecutor implements PluginExecutor<AWSLambda> {
+
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(
@@ -95,13 +98,19 @@ public class AwsLambdaPlugin extends BasePlugin {
                             Exception.class,
                             e -> new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()))
                     .map(obj -> obj)
-                    .subscribeOn(Schedulers.boundedElastic());
+                    .subscribeOn(scheduler);
         }
 
         @Override
         public Mono<TriggerResultDTO> trigger(
                 AWSLambda connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
             log.debug(Thread.currentThread().getName() + ": trigger() called for AWS Lambda plugin.");
+            // The list* calls below are blocking SDK calls; keep them off the subscribing thread.
+            return Mono.fromCallable(() -> listTriggerOptions(connection, request))
+                    .subscribeOn(scheduler);
+        }
+
+        private TriggerResultDTO listTriggerOptions(AWSLambda connection, TriggerRequestDTO request) {
             if (!StringUtils.hasText(request.getRequestType())) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "request type is missing");
@@ -177,7 +186,7 @@ public class AwsLambdaPlugin extends BasePlugin {
             TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
             triggerResultDTO.setTrigger(options);
 
-            return Mono.just(triggerResultDTO);
+            return triggerResultDTO;
         }
 
         ActionExecutionResult invokeFunction(ActionConfiguration actionConfiguration, AWSLambda connection) {
@@ -342,6 +351,7 @@ public class AwsLambdaPlugin extends BasePlugin {
                         connection.listFunctions();
                         return new DatasourceTestResult();
                     })
+                    .subscribeOn(scheduler)
                     .onErrorResume(error -> {
                         if (error instanceof AWSLambdaException
                                 && "AccessDenied".equals(((AWSLambdaException) error).getErrorCode())) {

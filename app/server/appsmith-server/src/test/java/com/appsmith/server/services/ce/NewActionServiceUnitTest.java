@@ -244,7 +244,13 @@ public class NewActionServiceUnitTest {
         StepVerifier.create(result).expectError(AppsmithException.class).verify();
 
         // Post-fix assertions: the ACL-scoped overload was called; the unchecked overload was not.
-        Mockito.verify(datasourceService).findById(eq(foreignDatasourceId), eq(actionCreatePermission));
+        // atLeastOnce() because the cold datasourceMono is subscribed more than once in the
+        // pluginMono.zipWith(datasourceMono) pipeline inside validateAction; each subscription
+        // triggers a separate findById call.  The security invariant is that every call uses
+        // the ACL-scoped overload (asserted here) and the unchecked overload is never used
+        // (asserted below).
+        Mockito.verify(datasourceService, Mockito.atLeastOnce())
+                .findById(eq(foreignDatasourceId), eq(actionCreatePermission));
         Mockito.verify(datasourceService, Mockito.never()).findById(eq(foreignDatasourceId));
     }
 }

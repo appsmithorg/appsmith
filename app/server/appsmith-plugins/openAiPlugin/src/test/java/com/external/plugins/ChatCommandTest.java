@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.models.ActionConfiguration;
 import com.external.plugins.commands.ChatCommand;
 import com.external.plugins.models.ChatRequestDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -15,8 +16,12 @@ import java.util.Map;
 import static com.external.plugins.constants.OpenAIConstants.CHAT_MODEL_SELECTOR;
 import static com.external.plugins.constants.OpenAIConstants.DATA;
 import static com.external.plugins.constants.OpenAIConstants.ID;
+import static com.external.plugins.constants.OpenAIConstants.TEMPERATURE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ChatCommandTest {
 
@@ -130,6 +135,137 @@ public class ChatCommandTest {
                 counter += 1;
             }
         }
-        assertEquals(counter, 10);
+        // 8 chat-capable gpt models; the two gpt-3.5-turbo-instruct variants are legacy-completions-only
+        assertEquals(counter, 8);
+    }
+
+    @Test
+    public void testModelFilter_currentGenerationModels() {
+        ChatCommand chatCommand = new ChatCommand(gson);
+        List<String> compatibleModels = List.of(
+                "gpt-4o",
+                "gpt-4o-mini",
+                "gpt-4.1",
+                "gpt-5",
+                "gpt-5.4-mini",
+                "o1",
+                "o3",
+                "o3-mini",
+                "o4-mini",
+                "chatgpt-4o-latest",
+                "gpt-4o-audio-preview",
+                "gpt-4o-search-preview",
+                "chat-latest",
+                "ft:gpt-4o:acme::abc123",
+                // exclusions apply to the base model only, not customer-chosen ft: suffixes
+                "ft:gpt-4o:acme-instruct-team::abc123");
+        List<String> incompatibleModels = List.of(
+                "gpt-4-vision-preview",
+                "whisper-1",
+                "text-embedding-3-large",
+                "omni-moderation-latest",
+                "dall-e-3",
+                "tts-1",
+                // wrong endpoint or Responses-API-only: must not appear in the chat dropdown
+                "o3-pro",
+                "o3-deep-research",
+                "gpt-5-codex",
+                "gpt-image-1",
+                "gpt-4o-realtime-preview",
+                "gpt-4o-mini-tts",
+                "gpt-4o-transcribe",
+                "gpt-3.5-turbo-instruct");
+        for (String model : compatibleModels) {
+            JSONObject jsonObject = new JSONObject(String.format("{\"%s\": \"%s\" }", ID, model));
+            assertTrue(chatCommand.isModelCompatible(jsonObject), model + " should be listed");
+        }
+        for (String model : incompatibleModels) {
+            JSONObject jsonObject = new JSONObject(String.format("{\"%s\": \"%s\" }", ID, model));
+            assertFalse(chatCommand.isModelCompatible(jsonObject), model + " should not be listed");
+        }
+    }
+
+    @Test
+    public void testMakeRequestBody_withoutTemperature_leavesTemperatureUnset() {
+        ChatCommand command = new ChatCommand(gson);
+
+        // non-reasoning model, so the blank-value path itself is exercised
+        Map<String, Object> formData = new HashMap<>();
+        formData.put(CHAT_MODEL_SELECTOR, Map.of(DATA, "gpt-4o"));
+        Object messages = List.of(Map.of("role", "user", "content", "Hello"));
+        formData.put("messages", Map.of("data", messages));
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(formData);
+
+        ChatRequestDTO request = (ChatRequestDTO) command.makeRequestBody(actionConfiguration);
+
+        assertNull(request.getTemperature());
+    }
+
+    @Test
+    public void testMakeRequestBody_nonFiniteTemperature_leavesTemperatureUnset() {
+        ChatCommand command = new ChatCommand(gson);
+
+        for (String badValue : List.of("NaN", "Infinity", "-Infinity")) {
+            Map<String, Object> formData = new HashMap<>();
+            formData.put(CHAT_MODEL_SELECTOR, Map.of(DATA, "gpt-4o"));
+            formData.put(TEMPERATURE, badValue);
+            formData.put("messages", Map.of("data", List.of(Map.of("role", "user", "content", "Hello"))));
+            ActionConfiguration actionConfiguration = new ActionConfiguration();
+            actionConfiguration.setFormData(formData);
+
+            ChatRequestDTO request = (ChatRequestDTO) command.makeRequestBody(actionConfiguration);
+
+            assertNull(request.getTemperature(), badValue + " must not be sent as temperature");
+        }
+
+        // out-of-range finite values pass through so OpenAI can report them explicitly
+        Map<String, Object> formData = new HashMap<>();
+        formData.put(CHAT_MODEL_SELECTOR, Map.of(DATA, "gpt-4o"));
+        formData.put(TEMPERATURE, "2.5");
+        formData.put("messages", Map.of("data", List.of(Map.of("role", "user", "content", "Hello"))));
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(formData);
+
+        ChatRequestDTO request = (ChatRequestDTO) command.makeRequestBody(actionConfiguration);
+
+        assertEquals(2.5f, request.getTemperature());
+    }
+
+    @Test
+    public void testMakeRequestBody_reasoningModels_dropTemperatureEvenWhenFormSendsDefault() {
+        ChatCommand command = new ChatCommand(gson);
+
+        // the editor form's temperature field has initialValue "0", so every new query sends it
+        for (String reasoningModel : List.of("o3", "o4-mini", "gpt-5", "gpt-5.4-mini", "ft:o4-mini:acme::x")) {
+            ChatRequestDTO request = makeRequestWithTemperature(command, reasoningModel, "0");
+            assertNull(request.getTemperature(), reasoningModel + " must not receive a temperature");
+        }
+
+        // non-reasoning models keep the explicit value, including the form default 0
+        assertEquals(0.0f, makeRequestWithTemperature(command, "gpt-4o", "0").getTemperature());
+        assertEquals(
+                0.3f,
+                makeRequestWithTemperature(command, "gpt-5-chat-latest", "0.3").getTemperature());
+    }
+
+    private ChatRequestDTO makeRequestWithTemperature(ChatCommand command, String model, String temperature) {
+        Map<String, Object> formData = new HashMap<>();
+        formData.put(CHAT_MODEL_SELECTOR, Map.of(DATA, model));
+        formData.put(TEMPERATURE, temperature);
+        formData.put("messages", Map.of("data", List.of(Map.of("role", "user", "content", "Hello"))));
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(formData);
+        return (ChatRequestDTO) command.makeRequestBody(actionConfiguration);
+    }
+
+    @Test
+    public void testSerialization_omitsNullTemperature() throws Exception {
+        ChatRequestDTO request = new ChatRequestDTO();
+        request.setModel("o3");
+
+        String body = new ObjectMapper().writeValueAsString(request);
+
+        assertFalse(body.contains("temperature"), "null temperature must be omitted from the request body");
     }
 }

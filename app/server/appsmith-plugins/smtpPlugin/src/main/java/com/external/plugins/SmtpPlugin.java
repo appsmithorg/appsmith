@@ -39,6 +39,8 @@ import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -56,6 +58,15 @@ public class SmtpPlugin extends BasePlugin {
     private static final String BASE64_DELIMITER = ";base64,";
     public static final Long SMTP_DEFAULT_PORT = 25L;
 
+    /**
+     * Socket-level bounds for every SMTP connection. JavaMail's defaults are infinite, which lets a stalled SMTP
+     * server hold the sending thread indefinitely.
+     */
+    public static final int SMTP_CONNECTION_TIMEOUT_MS = 10_000;
+
+    public static final int SMTP_READ_TIMEOUT_MS = 30_000;
+    public static final int SMTP_WRITE_TIMEOUT_MS = 30_000;
+
     public SmtpPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -65,6 +76,8 @@ public class SmtpPlugin extends BasePlugin {
 
         private static final String ENCODING = "UTF-8";
 
+        private final Scheduler scheduler = Schedulers.boundedElastic();
+
         @Override
         public Mono<ActionExecutionResult> execute(
                 Session connection,
@@ -72,6 +85,13 @@ public class SmtpPlugin extends BasePlugin {
                 ActionConfiguration actionConfiguration) {
 
             log.debug(Thread.currentThread().getName() + ": execute() called for SMTP plugin.");
+            // Building and sending the message is blocking JavaMail I/O. The server invokes plugins from the
+            // continuation of reactive Redis lookups, so this must never run on the subscribing thread.
+            return Mono.fromCallable(() -> sendEmail(connection, actionConfiguration))
+                    .subscribeOn(scheduler);
+        }
+
+        private ActionExecutionResult sendEmail(Session connection, ActionConfiguration actionConfiguration) {
             MimeMessage message = getMimeMessage(connection);
             ActionExecutionResult result = new ActionExecutionResult();
             try {
@@ -95,14 +115,14 @@ public class SmtpPlugin extends BasePlugin {
                         : null;
 
                 if (!StringUtils.hasText(toAddress)) {
-                    return Mono.error(new AppsmithPluginException(
+                    throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            SMTPErrorMessages.RECIPIENT_ADDRESS_NOT_FOUND_ERROR_MSG));
+                            SMTPErrorMessages.RECIPIENT_ADDRESS_NOT_FOUND_ERROR_MSG);
                 }
                 if (!StringUtils.hasText(fromAddress)) {
-                    return Mono.error(new AppsmithPluginException(
+                    throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            SMTPErrorMessages.SENDER_ADDRESS_NOT_FOUND_ERROR_MSG));
+                            SMTPErrorMessages.SENDER_ADDRESS_NOT_FOUND_ERROR_MSG);
                 }
                 message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toAddress, false));
                 message.setFrom(new InternetAddress(fromAddress));
@@ -148,10 +168,10 @@ public class SmtpPlugin extends BasePlugin {
                         Base64.Decoder decoder = Base64.getDecoder();
                         String attachmentStr = String.valueOf(attachment.getData());
                         if (!attachmentStr.contains(BASE64_DELIMITER)) {
-                            return Mono.error(new AppsmithPluginException(
+                            throw new AppsmithPluginException(
                                     SMTPPluginError.MAIL_SENDING_FAILED,
                                     String.format(
-                                            SMTPErrorMessages.INVALID_ATTACHMENT_ERROR_MSG, attachment.getName())));
+                                            SMTPErrorMessages.INVALID_ATTACHMENT_ERROR_MSG, attachment.getName()));
                         }
                         byte[] bytes = decoder.decode(attachmentStr.split(BASE64_DELIMITER)[1]);
                         DataSource emailDatasource = new ByteArrayDataSource(bytes, attachment.getType());
@@ -166,7 +186,7 @@ public class SmtpPlugin extends BasePlugin {
 
                 // Send the email now
                 log.debug("Going to send the email");
-                Transport.send(message);
+                sendMessage(message);
 
                 result.setIsExecutionSuccess(true);
                 Map<String, String> responseBody = new HashMap<>();
@@ -175,18 +195,27 @@ public class SmtpPlugin extends BasePlugin {
 
                 log.debug("Sent the email successfully");
             } catch (MessagingException e) {
-                return Mono.error(new AppsmithPluginException(
+                log.warn("Failed to send email over SMTP", e);
+                throw new AppsmithPluginException(
                         SMTPPluginError.MAIL_SENDING_FAILED,
                         SMTPErrorMessages.MAIL_SENDING_FAILED_ERROR_MSG,
-                        e.getMessage()));
+                        e.getMessage());
             } catch (IOException e) {
-                return Mono.error(new AppsmithPluginException(
+                throw new AppsmithPluginException(
                         SMTPPluginError.MAIL_SENDING_FAILED,
                         SMTPErrorMessages.UNPARSABLE_EMAIL_BODY_OR_ATTACHMENT_ERROR_MSG,
-                        e.getMessage()));
+                        e.getMessage());
             }
 
-            return Mono.just(result);
+            return result;
+        }
+
+        /**
+         * Seam for tests: {@link Transport#send(Message)} is static and Mockito static mocks are thread-local, which
+         * does not compose with the send running on a bounded-elastic thread.
+         */
+        void sendMessage(MimeMessage message) throws MessagingException {
+            Transport.send(message);
         }
 
         @NotNull MimeBodyPart getMimeBodyPart() {
@@ -209,6 +238,9 @@ public class SmtpPlugin extends BasePlugin {
             Long port = (endpoint.getPort() == null || endpoint.getPort() < 0) ? 25 : endpoint.getPort();
             prop.put("mail.smtp.port", String.valueOf(port));
             prop.put("mail.smtp.ssl.trust", endpoint.getHost());
+            prop.put("mail.smtp.connectiontimeout", String.valueOf(SMTP_CONNECTION_TIMEOUT_MS));
+            prop.put("mail.smtp.timeout", String.valueOf(SMTP_READ_TIMEOUT_MS));
+            prop.put("mail.smtp.writetimeout", String.valueOf(SMTP_WRITE_TIMEOUT_MS));
 
             Session session;
 
@@ -240,13 +272,8 @@ public class SmtpPlugin extends BasePlugin {
         @Override
         public void datasourceDestroy(Session session) {
             log.debug(Thread.currentThread().getName() + ": datasourceDestroy() called for SMTP plugin.");
-            try {
-                if (session != null && session.getTransport() != null) {
-                    session.getTransport().close();
-                }
-            } catch (MessagingException e) {
-                e.printStackTrace();
-            }
+            // A Session holds only configuration. Transports are opened and closed per send/test (getTransport()
+            // returns a new, unconnected instance every call), so there is nothing to release here.
         }
 
         @Override
@@ -273,7 +300,15 @@ public class SmtpPlugin extends BasePlugin {
                         try {
                             Transport transport = connection.getTransport();
                             if (transport != null) {
-                                transport.connect();
+                                try {
+                                    transport.connect();
+                                } finally {
+                                    try {
+                                        transport.close();
+                                    } catch (MessagingException ignored) {
+                                        // the connection is being discarded either way
+                                    }
+                                }
                             }
                             return invalids;
                         } catch (NoSuchProviderException e) {
@@ -286,6 +321,7 @@ public class SmtpPlugin extends BasePlugin {
                         }
                         return invalids;
                     })
+                    .subscribeOn(scheduler)
                     .map(DatasourceTestResult::new);
         }
 

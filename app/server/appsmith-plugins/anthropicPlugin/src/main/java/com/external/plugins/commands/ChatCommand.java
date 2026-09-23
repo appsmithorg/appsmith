@@ -19,15 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.external.plugins.constants.AnthropicConstants.ANTHROPIC;
+import static com.external.plugins.constants.AnthropicConstants.ANTHROPIC_API_ENDPOINT;
 import static com.external.plugins.constants.AnthropicConstants.CHAT_MODEL_SELECTOR;
-import static com.external.plugins.constants.AnthropicConstants.CHAT_V2;
-import static com.external.plugins.constants.AnthropicConstants.CLOUD_SERVICES;
-import static com.external.plugins.constants.AnthropicConstants.COMMAND;
 import static com.external.plugins.constants.AnthropicConstants.CONTENT;
 import static com.external.plugins.constants.AnthropicConstants.MESSAGES;
 import static com.external.plugins.constants.AnthropicConstants.MODELS_API;
-import static com.external.plugins.constants.AnthropicConstants.PROVIDER;
+import static com.external.plugins.constants.AnthropicConstants.MODELS_PAGE_LIMIT;
 import static com.external.plugins.constants.AnthropicConstants.ROLE;
 import static com.external.plugins.constants.AnthropicConstants.SYSTEM_PROMPT;
 import static com.external.plugins.constants.AnthropicErrorMessages.EXECUTION_FAILURE;
@@ -53,9 +50,8 @@ public class ChatCommand implements AnthropicCommand {
 
     @Override
     public URI createTriggerUri() {
-        return UriComponentsBuilder.fromUriString(CLOUD_SERVICES + MODELS_API)
-                .queryParam(PROVIDER, ANTHROPIC)
-                .queryParam(COMMAND, CHAT_V2)
+        return UriComponentsBuilder.fromUriString(ANTHROPIC_API_ENDPOINT + MODELS_API)
+                .queryParam("limit", MODELS_PAGE_LIMIT)
                 .build()
                 .toUri();
     }

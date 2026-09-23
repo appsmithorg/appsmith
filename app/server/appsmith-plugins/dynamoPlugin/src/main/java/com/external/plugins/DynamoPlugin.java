@@ -331,9 +331,13 @@ public class DynamoPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(DynamoDbClient client) {
-            if (client != null) {
-                client.close();
+            if (client == null) {
+                return;
             }
+            // Closing the SDK client is socket I/O; keep it off the caller thread like the other plugins.
+            Mono.fromRunnable(client::close)
+                    .subscribeOn(scheduler)
+                    .subscribe(ignored -> {}, error -> log.error("Error closing DynamoDB client.", error));
         }
 
         @Override
@@ -365,13 +369,14 @@ public class DynamoPlugin extends BasePlugin {
         public Mono<DatasourceTestResult> testDatasource(DynamoDbClient connection) {
             log.debug(Thread.currentThread().getName() + ": testDatasource() called for Dynamo plugin.");
             return Mono.fromCallable(() -> {
-                /*
-                 * - Creating a connection with false credentials does not throw an error. Hence,
-                 *   calling listTables() method to check validity.
-                 */
-                connection.listTables();
-                return new DatasourceTestResult();
-            });
+                        /*
+                         * - Creating a connection with false credentials does not throw an error. Hence,
+                         *   calling listTables() method to check validity.
+                         */
+                        connection.listTables();
+                        return new DatasourceTestResult();
+                    })
+                    .subscribeOn(scheduler);
         }
 
         @Override

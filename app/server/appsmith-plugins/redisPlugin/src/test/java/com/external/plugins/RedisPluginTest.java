@@ -25,19 +25,28 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 import redis.clients.jedis.DefaultJedisClientConfig;
 import redis.clients.jedis.HostAndPort;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisClientConfig;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.exceptions.JedisConnectionException;
+import redis.clients.jedis.exceptions.JedisException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.LockSupport;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
@@ -45,6 +54,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.spy;
 
 @Slf4j
 @Testcontainers
@@ -555,5 +566,168 @@ public class RedisPluginTest {
                     assertEquals("localhost_6379", endpointIdentifier);
                 })
                 .verifyComplete();
+    }
+
+    /**
+     * Borrowing from the pool is network I/O (connect, and a PING on every borrow because testOnBorrow is on) and can
+     * block when the pool is exhausted. The server calls execute() from the continuation of a Redis-cached lookup,
+     * i.e. on a Lettuce event-loop thread, so the borrow must never happen on the subscribing thread.
+     */
+    @Test
+    public void execute_borrowsPoolConnectionOffTheSubscribingThread() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        JedisPool realPool =
+                pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        assertNotNull(realPool);
+        JedisPool spyPool = spy(realPool);
+        AtomicReference<String> borrowThread = new AtomicReference<>();
+        doAnswer(invocation -> {
+                    borrowThread.set(Thread.currentThread().getName());
+                    return invocation.callRealMethod();
+                })
+                .when(spyPool)
+                .getResource();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("PING");
+        Scheduler caller = Schedulers.newSingle("caller-event-loop");
+        try {
+            StepVerifier.create(Mono.defer(
+                                    () -> pluginExecutor.execute(spyPool, datasourceConfiguration, actionConfiguration))
+                            .subscribeOn(caller))
+                    .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
+                    .verifyComplete();
+        } finally {
+            caller.dispose();
+        }
+        assertNotNull(borrowThread.get(), "pool borrow never happened");
+        assertFalse(
+                borrowThread.get().startsWith("caller-event-loop"),
+                "Jedis pool borrow ran on the subscribing thread: " + borrowThread.get());
+        realPool.close();
+    }
+
+    @Test
+    public void testDatasource_connection_doesNotRunOnTheSubscribingThread() {
+        JedisPool realPool =
+                pluginExecutor.datasourceCreate(createDatasourceConfiguration()).block();
+        assertNotNull(realPool);
+        JedisPool spyPool = spy(realPool);
+        AtomicReference<String> borrowThread = new AtomicReference<>();
+        doAnswer(invocation -> {
+                    borrowThread.set(Thread.currentThread().getName());
+                    return invocation.callRealMethod();
+                })
+                .when(spyPool)
+                .getResource();
+        Scheduler caller = Schedulers.newSingle("caller-event-loop");
+        try {
+            StepVerifier.create(pluginExecutor.testDatasource(spyPool).subscribeOn(caller))
+                    .assertNext(result -> assertTrue(result.isSuccess()))
+                    .verifyComplete();
+            assertNotNull(borrowThread.get(), "PING never borrowed from the pool");
+            assertFalse(
+                    borrowThread.get().startsWith("caller-event-loop"),
+                    "PING borrow ran on the subscribing thread: " + borrowThread.get());
+            assertEquals(0, realPool.getNumActive(), "PING must return its Jedis to the pool");
+        } finally {
+            caller.dispose();
+            realPool.close();
+        }
+    }
+
+    /**
+     * The server's action timeout cancels the execution while the pool borrow is still running on the plugin
+     * scheduler. The borrowed Jedis must still be returned to the pool, or five such cancellations wedge the
+     * datasource (maxTotal 5, blockWhenExhausted).
+     */
+    @Test
+    public void execute_cancelledDuringBorrow_returnsJedisToPool() throws Exception {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        JedisPool realPool =
+                pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        assertNotNull(realPool);
+        JedisPool spyPool = spy(realPool);
+        CountDownLatch borrowStarted = new CountDownLatch(1);
+        CountDownLatch releaseBorrow = new CountDownLatch(1);
+        CountDownLatch borrowCompleted = new CountDownLatch(1);
+        doAnswer(invocation -> {
+                    borrowStarted.countDown();
+                    // Disposing the execution interrupts the bounded-elastic worker, but a borrow blocked in socket
+                    // I/O (connect, AUTH, the testOnBorrow PING) is not interruptible: it completes later and hands
+                    // back a real Jedis. Model that by ignoring the interrupt until the test releases the borrow.
+                    long giveUpAt = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+                    while (releaseBorrow.getCount() > 0 && System.nanoTime() < giveUpAt) {
+                        LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(20));
+                    }
+                    assertEquals(0, releaseBorrow.getCount(), "test did not release the borrow");
+                    Thread.interrupted(); // a completed socket read leaves no pending interrupt for the pool to see
+                    try {
+                        return invocation.callRealMethod();
+                    } finally {
+                        borrowCompleted.countDown();
+                    }
+                })
+                .when(spyPool)
+                .getResource();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("PING");
+
+        Disposable execution = pluginExecutor
+                .execute(spyPool, datasourceConfiguration, actionConfiguration)
+                .subscribe(result -> {}, error -> {});
+        assertTrue(borrowStarted.await(10, TimeUnit.SECONDS), "borrow never started");
+        execution.dispose(); // the action timeout fires while the borrow is in flight
+        releaseBorrow.countDown(); // the borrow now completes into a cancelled pipeline
+        assertTrue(borrowCompleted.await(10, TimeUnit.SECONDS), "borrow never completed");
+
+        // Returning the Jedis happens asynchronously on the plugin scheduler; give it a moment.
+        long deadline = System.currentTimeMillis() + 5_000;
+        while (realPool.getNumActive() != 0 && System.currentTimeMillis() < deadline) {
+            Thread.sleep(50);
+        }
+        assertEquals(0, realPool.getNumActive(), "Jedis borrowed into a cancelled execution was never returned");
+        realPool.close();
+    }
+
+    /**
+     * The Jedis is returned to the pool after the command ran; if the pool was destroyed concurrently the return
+     * throws. A command that already executed (and may have had side effects like SET/INCR) must still report
+     * success - the close failure is a cleanup problem, not a command failure.
+     */
+    @Test
+    public void execute_poolReturnFailure_doesNotFailACommandThatExecuted() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        JedisPool realPool =
+                pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        assertNotNull(realPool);
+        try {
+            JedisPool spyPool = spy(realPool);
+            doAnswer(invocation -> {
+                        Jedis realJedis = (Jedis) invocation.callRealMethod();
+                        Jedis spyJedis = spy(realJedis);
+                        doAnswer(closeInvocation -> {
+                                    realJedis.close(); // actually return it, then fail like a destroyed pool would
+                                    throw new JedisException("pool destroyed concurrently");
+                                })
+                                .when(spyJedis)
+                                .close();
+                        return spyJedis;
+                    })
+                    .when(spyPool)
+                    .getResource();
+
+            ActionConfiguration actionConfiguration = new ActionConfiguration();
+            actionConfiguration.setBody("PING");
+
+            StepVerifier.create(pluginExecutor.execute(spyPool, datasourceConfiguration, actionConfiguration))
+                    .assertNext(result -> assertTrue(
+                            result.getIsExecutionSuccess(),
+                            "a close/return failure must not fail a command that already executed"))
+                    .verifyComplete();
+        } finally {
+            realPool.close();
+        }
     }
 }

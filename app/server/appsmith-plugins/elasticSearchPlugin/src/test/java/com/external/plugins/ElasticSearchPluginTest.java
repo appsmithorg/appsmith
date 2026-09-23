@@ -13,12 +13,14 @@ import lombok.extern.slf4j.Slf4j;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import org.apache.http.HttpHost;
+import org.apache.http.StatusLine;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.elasticsearch.client.Request;
+import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,6 +30,8 @@ import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
@@ -37,6 +41,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
@@ -45,6 +52,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Slf4j
 @Testcontainers
@@ -728,5 +739,54 @@ public class ElasticSearchPluginTest {
                     assertEquals("localhost_9200", endpointIdentifier);
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testDatasource_connection_doesNotRunOnTheSubscribingThread() throws Exception {
+        RestClient mockClient = mock(RestClient.class);
+        StatusLine okStatus = mock(StatusLine.class);
+        when(okStatus.getStatusCode()).thenReturn(200);
+        Response okResponse = mock(Response.class);
+        when(okResponse.getStatusLine()).thenReturn(okStatus);
+        AtomicReference<String> clientThread = new AtomicReference<>();
+        when(mockClient.performRequest(any(Request.class))).thenAnswer(invocation -> {
+            clientThread.set(Thread.currentThread().getName());
+            return okResponse;
+        });
+
+        Scheduler caller = Schedulers.newSingle("caller-event-loop");
+        try {
+            StepVerifier.create(pluginExecutor.testDatasource(mockClient).subscribeOn(caller))
+                    .assertNext(result -> assertTrue(result.isSuccess()))
+                    .verifyComplete();
+        } finally {
+            caller.dispose();
+        }
+        assertNotNull(clientThread.get(), "performRequest was never called");
+        assertFalse(
+                clientThread.get().startsWith("caller-event-loop"),
+                "performRequest ran on the subscribing thread: " + clientThread.get());
+    }
+
+    @Test
+    public void datasourceDestroy_doesNotRunOnTheCallerThread() throws Exception {
+        RestClient mockClient = mock(RestClient.class);
+        AtomicReference<String> closeThread = new AtomicReference<>();
+        CountDownLatch closed = new CountDownLatch(1);
+        doAnswer(invocation -> {
+                    closeThread.set(Thread.currentThread().getName());
+                    closed.countDown();
+                    return null;
+                })
+                .when(mockClient)
+                .close();
+
+        Thread caller = new Thread(() -> pluginExecutor.datasourceDestroy(mockClient), "caller-event-loop-destroy");
+        caller.start();
+        caller.join(5_000);
+        assertTrue(closed.await(5, TimeUnit.SECONDS), "close was never called");
+        assertFalse(
+                closeThread.get().startsWith("caller-event-loop-destroy"),
+                "client close ran on the caller thread: " + closeThread.get());
     }
 }

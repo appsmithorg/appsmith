@@ -243,11 +243,16 @@ public class ElasticSearchPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(RestClient client) {
-            try {
-                client.close();
-            } catch (IOException e) {
-                log.warn("Error closing connection to ElasticSearch.", e);
-            }
+            // Closing the low-level REST client is socket I/O; keep it off the caller thread like the other plugins.
+            Mono.fromRunnable(() -> {
+                        try {
+                            client.close();
+                        } catch (IOException e) {
+                            log.warn("Error closing connection to ElasticSearch.", e);
+                        }
+                    })
+                    .subscribeOn(scheduler)
+                    .subscribe(ignored -> {}, error -> log.error("Error closing connection to ElasticSearch.", error));
         }
 
         @Override
@@ -279,50 +284,50 @@ public class ElasticSearchPlugin extends BasePlugin {
         public Mono<DatasourceTestResult> testDatasource(RestClient connection) {
             log.debug(Thread.currentThread().getName() + ": testDatasource() called for ElasticSearch plugin.");
             return Mono.fromCallable(() -> {
-                if (connection == null) {
-                    return new DatasourceTestResult("Null client object to ElasticSearch.");
-                }
-                // This HEAD request is to check if the base of datasource exists. It responds with 200 if the index
-                // exists,
-                // 404 if it doesn't. We just check for either of these two.
-                // Ref: https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-exists.html
-                Request request = new Request("HEAD", "/");
+                        if (connection == null) {
+                            return new DatasourceTestResult("Null client object to ElasticSearch.");
+                        }
+                        // This HEAD request is to check if the base of datasource exists. It responds with 200 if the
+                        // index exists, 404 if it doesn't. We just check for either of these two.
+                        // Ref: https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-exists.html
+                        Request request = new Request("HEAD", "/");
 
-                final Response response;
-                try {
-                    response = connection.performRequest(request);
-                } catch (IOException e) {
-                    final String message = e.getMessage();
+                        final Response response;
+                        try {
+                            response = connection.performRequest(request);
+                        } catch (IOException e) {
+                            final String message = e.getMessage();
 
-                    /* since the 401, and 403 are registered as IOException, but for the given connection it
-                     * in the current rest-client. We will figure out with matching patterns with regexes.
-                     */
+                            /* since the 401, and 403 are registered as IOException, but for the given connection it
+                             * in the current rest-client. We will figure out with matching patterns with regexes.
+                             */
 
-                    if (patternForUnauthorized.matcher(message).find()) {
-                        return new DatasourceTestResult(ElasticSearchErrorMessages.UNAUTHORIZED_ERROR_MSG);
-                    }
+                            if (patternForUnauthorized.matcher(message).find()) {
+                                return new DatasourceTestResult(ElasticSearchErrorMessages.UNAUTHORIZED_ERROR_MSG);
+                            }
 
-                    if (patternForNotFound.matcher(message).find()) {
-                        return new DatasourceTestResult(ElasticSearchErrorMessages.NOT_FOUND_ERROR_MSG);
-                    }
+                            if (patternForNotFound.matcher(message).find()) {
+                                return new DatasourceTestResult(ElasticSearchErrorMessages.NOT_FOUND_ERROR_MSG);
+                            }
 
-                    return new DatasourceTestResult("Error running HEAD request: " + message);
-                }
+                            return new DatasourceTestResult("Error running HEAD request: " + message);
+                        }
 
-                final StatusLine statusLine = response.getStatusLine();
+                        final StatusLine statusLine = response.getStatusLine();
 
-                // earlier it was 404 and 200, now it has been changed to just expect 200 status code
-                // here it checks if it is anything else than 200, even 404 is not allowed!
-                if (statusLine.getStatusCode() == 404) {
-                    return new DatasourceTestResult(ElasticSearchErrorMessages.NOT_FOUND_ERROR_MSG);
-                }
+                        // earlier it was 404 and 200, now it has been changed to just expect 200 status code
+                        // here it checks if it is anything else than 200, even 404 is not allowed!
+                        if (statusLine.getStatusCode() == 404) {
+                            return new DatasourceTestResult(ElasticSearchErrorMessages.NOT_FOUND_ERROR_MSG);
+                        }
 
-                if (statusLine.getStatusCode() != 200) {
-                    return new DatasourceTestResult("Unexpected response from ElasticSearch: " + statusLine);
-                }
+                        if (statusLine.getStatusCode() != 200) {
+                            return new DatasourceTestResult("Unexpected response from ElasticSearch: " + statusLine);
+                        }
 
-                return new DatasourceTestResult();
-            });
+                        return new DatasourceTestResult();
+                    })
+                    .subscribeOn(scheduler);
         }
 
         @Override

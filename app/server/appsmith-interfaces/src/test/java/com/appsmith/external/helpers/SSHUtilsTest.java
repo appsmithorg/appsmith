@@ -5,6 +5,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSHConnection;
+import com.appsmith.external.models.UploadedFile;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.userauth.keyprovider.OpenSSHKeyFile;
 import net.schmizz.sshj.userauth.keyprovider.PKCS8KeyFile;
@@ -12,11 +13,21 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.appsmith.external.helpers.SSHUtils.getConnectionContext;
 import static com.appsmith.external.helpers.SSHUtils.getDBPortFromConfigOrDefault;
@@ -167,5 +178,74 @@ public class SSHUtilsTest {
         datasourceConfiguration.setEndpoints(List.of(new Endpoint()));
 
         assertEquals(getDBPortFromConfigOrDefault(datasourceConfiguration, 1234L), 1234L);
+    }
+
+    /**
+     * An SSH endpoint that accepts the TCP connection but never sends its identification banner. Without socket
+     * timeouts sshj blocks the calling thread indefinitely; with them createSSHTunnel must fail within the bound.
+     * The call runs on a daemon thread so a regression shows up as a failed assertion, not a hung JVM.
+     */
+    @Test
+    public void createSSHTunnel_againstUnresponsiveServer_failsWithinTimeout() throws Exception {
+        Queue<Socket> heldConnections = new ConcurrentLinkedQueue<>();
+        try (ServerSocket silentServer = new ServerSocket(0, 1, InetAddress.getLoopbackAddress())) {
+            Thread acceptor = new Thread(() -> {
+                try {
+                    while (!silentServer.isClosed()) {
+                        heldConnections.add(silentServer.accept());
+                    }
+                } catch (IOException ignored) {
+                    // server closed
+                }
+            });
+            acceptor.setDaemon(true);
+            acceptor.start();
+
+            UploadedFile key = new UploadedFile();
+            key.setName("unused.pem");
+            key.setBase64Content("");
+            AtomicReference<Throwable> failure = new AtomicReference<>();
+            CountDownLatch finished = new CountDownLatch(1);
+            Thread caller = new Thread(() -> {
+                try {
+                    SSHUtils.createSSHTunnel(
+                            silentServer.getInetAddress().getHostAddress(),
+                            silentServer.getLocalPort(),
+                            "user",
+                            key,
+                            "db.internal",
+                            3306,
+                            2_000,
+                            2_000);
+                } catch (Throwable t) {
+                    failure.set(t);
+                } finally {
+                    finished.countDown();
+                }
+            });
+            caller.setDaemon(true);
+            caller.start();
+
+            long bound = 2_000 + 2_000 + 8_000;
+            assertTrue(
+                    finished.await(bound, TimeUnit.MILLISECONDS),
+                    "createSSHTunnel did not return within " + bound + " ms against an unresponsive SSH server");
+            assertNotNull(failure.get(), "createSSHTunnel must fail, not succeed, against an unresponsive server");
+            assertTrue(
+                    failure.get() instanceof IOException,
+                    "expected the connection-level IOException from sshj, got: " + failure.get());
+            boolean timedOut = false;
+            for (Throwable cause = failure.get(); cause != null; cause = cause.getCause()) {
+                if (cause instanceof SocketTimeoutException) {
+                    timedOut = true;
+                    break;
+                }
+            }
+            assertTrue(timedOut, "expected a SocketTimeoutException in the cause chain, got: " + failure.get());
+        } finally {
+            for (Socket socket : heldConnections) {
+                socket.close();
+            }
+        }
     }
 }

@@ -4,9 +4,9 @@ run-name: >
   ${{ github.workflow }} with TED:${{ inputs.ted_tag || 'latest' }}
 
 on:
-  # This workflow will run everyday at 7:00AM, 11:00AM and 3:00PM IST on weekdays
+  # This workflow will run at 7:00AM IST on weekdays
   schedule:
-    - cron: "30 1-11/4 * * 1-5"
+    - cron: "30 1 * * 1-5"
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
     inputs:
@@ -31,6 +31,10 @@ on:
       - "!app/client/cypress/manual_TestSuite/**"
       - "Dockerfile"
       - "deploy/docker/base.dockerfile"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   setup:
@@ -89,8 +93,17 @@ jobs:
     with:
       pr: 0
 
+  mcp-build:
+    needs: [setup]
+    if: success()
+    name: mcp-build
+    uses: ./.github/workflows/mcp-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+
   build-docker-image:
-    needs: [client-build, server-build, rts-build]
+    needs: [client-build, server-build, rts-build, mcp-build]
     # Only run if the build step is successful
     if: success()
     name: build-docker-image
@@ -134,13 +147,13 @@ jobs:
 
   ci-test-result:
     needs: [ci-test, client-unit-tests, server-unit-tests]
-    if: always() &&
+    if: "!cancelled() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'schedule' ||
       ( github.event_name != 'push' || github.ref == 'refs/heads/master' ) ||
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
-      github.event.pull_request.head.repo.full_name == github.repository))
+      github.event.pull_request.head.repo.full_name == github.repository))"
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -301,7 +314,7 @@ jobs:
       id-token: write
 
     # Run this job as soon as the docker image is ready, if this is the release branch
-    if: ( always() && github.ref == 'refs/heads/release' )
+    if: ( !cancelled() && github.ref == 'refs/heads/release' )
 
     steps:
       - name: Checkout the head commit of the branch
@@ -325,6 +338,18 @@ jobs:
         with:
           name: server-build
           path: app/server/dist
+
+      - name: Download the MCP build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mcp-dist
+          path: app/client/packages/mcp/dist
+
+      - name: Untar the MCP folder
+        run: |
+          tar -xvf app/client/packages/mcp/dist/mcp-dist.tar -C app/client/packages/mcp/
+          echo "Cleaning up the MCP tar files"
+          rm app/client/packages/mcp/dist/mcp-dist.tar
 
       - name: Download the rts build artifact
         uses: actions/download-artifact@v4
@@ -419,6 +444,18 @@ jobs:
         with:
           name: server-build
           path: app/server/dist
+
+      - name: Download the MCP build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mcp-dist
+          path: app/client/packages/mcp/dist
+
+      - name: Untar the MCP folder
+        run: |
+          tar -xvf app/client/packages/mcp/dist/mcp-dist.tar -C app/client/packages/mcp/
+          echo "Cleaning up the MCP tar files"
+          rm app/client/packages/mcp/dist/mcp-dist.tar
 
       - name: Download the rts build artifact
         uses: actions/download-artifact@v4

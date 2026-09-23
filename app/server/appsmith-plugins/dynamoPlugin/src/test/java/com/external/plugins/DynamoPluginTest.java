@@ -16,6 +16,8 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -27,6 +29,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.CreateTableRequest;
 import software.amazon.awssdk.services.dynamodb.model.KeySchemaElement;
 import software.amazon.awssdk.services.dynamodb.model.KeyType;
+import software.amazon.awssdk.services.dynamodb.model.ListTablesResponse;
 import software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
@@ -39,14 +42,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Slf4j
 @Testcontainers
@@ -530,5 +540,50 @@ public class DynamoPluginTest {
                         .collect(Collectors.toList())
                         .size()
                 == 0);
+    }
+
+    @Test
+    public void testDatasource_connection_doesNotRunOnTheSubscribingThread() {
+        DynamoDbClient mockClient = mock(DynamoDbClient.class);
+        AtomicReference<String> sdkThread = new AtomicReference<>();
+        when(mockClient.listTables()).thenAnswer(invocation -> {
+            sdkThread.set(Thread.currentThread().getName());
+            return ListTablesResponse.builder().build();
+        });
+
+        Scheduler caller = Schedulers.newSingle("caller-event-loop");
+        try {
+            StepVerifier.create(pluginExecutor.testDatasource(mockClient).subscribeOn(caller))
+                    .assertNext(result -> assertTrue(result.isSuccess()))
+                    .verifyComplete();
+        } finally {
+            caller.dispose();
+        }
+        assertNotNull(sdkThread.get(), "listTables was never called");
+        assertFalse(
+                sdkThread.get().startsWith("caller-event-loop"),
+                "listTables ran on the subscribing thread: " + sdkThread.get());
+    }
+
+    @Test
+    public void datasourceDestroy_doesNotRunOnTheCallerThread() throws Exception {
+        DynamoDbClient mockClient = mock(DynamoDbClient.class);
+        AtomicReference<String> closeThread = new AtomicReference<>();
+        CountDownLatch closed = new CountDownLatch(1);
+        doAnswer(invocation -> {
+                    closeThread.set(Thread.currentThread().getName());
+                    closed.countDown();
+                    return null;
+                })
+                .when(mockClient)
+                .close();
+
+        Thread caller = new Thread(() -> pluginExecutor.datasourceDestroy(mockClient), "caller-event-loop-destroy");
+        caller.start();
+        caller.join(5_000);
+        assertTrue(closed.await(5, TimeUnit.SECONDS), "close was never called");
+        assertFalse(
+                closeThread.get().startsWith("caller-event-loop-destroy"),
+                "client close ran on the caller thread: " + closeThread.get());
     }
 }

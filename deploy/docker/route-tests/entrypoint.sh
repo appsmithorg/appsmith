@@ -23,7 +23,10 @@ reload-caddy() {
 }
 
 run-hurl() {
+  # Default value for the frame_ancestors variable; specs override it by
+  # passing their own --variable frame_ancestors=... (the last definition wins).
   hurl --test \
+    --variable "frame_ancestors=$default_frame_ancestors" \
     --resolve local.com:80:127.0.0.1 \
     --resolve custom-domain.com:80:127.0.0.1 \
     --resolve custom-domain.com:443:127.0.0.1 \
@@ -43,15 +46,17 @@ echo
 
 export TMP=/tmp/appsmith
 export WWW_PATH="$TMP/www"
+export _APPSMITH_CADDY=caddy
 
 # Fake files needed by the caddy-reconfigure script
 mkdir -p "$WWW_PATH" /opt/appsmith/editor
 echo -n 'index.html body, this will be replaced' > "$WWW_PATH/index.html"
 echo '{}' > /opt/appsmith/info.json
 echo -n 'actual index.html body' > /opt/appsmith/editor/index.html
-# A file large enough (>256 bytes) for Caddy's encode directive to compress.
+echo -n 'actual 404.html body' > /opt/appsmith/editor/404.html
+# A file large enough to exceed the encode directive's minimum length, so Caddy compresses it.
 mkdir -p /opt/appsmith/editor/static
-printf 'a%.0s' {1..512} > /opt/appsmith/editor/static/test-encoding.txt
+printf 'a%.0s' {1..4096} > /opt/appsmith/editor/static/test-encoding.txt
 mkcert -install
 
 # Start echo server
@@ -60,13 +65,16 @@ XDG_DATA_HOME="$TMP/echo-data" \
   caddy start --config echo.caddyfile --adapter caddyfile \
   >> "$TMP/echo-caddy.log" 2>&1
 
-# Start Caddy for use with our config to test
-caddy start >> "$TMP/caddy.log" 2>&1
+# Start Caddy for use with our config to test. The admin endpoint must be the
+# same unix socket that the generated Caddyfile declares, so that reloads can
+# reach this instance.
+printf '{\n\tadmin unix/%s/caddy.sock\n}\n' "$TMP" > "$TMP/bootstrap.caddyfile"
+caddy start --config "$TMP/bootstrap.caddyfile" --adapter caddyfile >> "$TMP/caddy.log" 2>&1
 
 sleep 1
 
 # Default values for Hurl variables
-export HURL_frame_ancestors="'self'"
+default_frame_ancestors="'self'"
 
 
 # Run tests, scenario by scenario
@@ -126,7 +134,7 @@ reload-caddy
 run-hurl common/*.hurl
 
 
-new-spec "Spec 7: Frame ancestors value with extra CSP directives"
+new-spec "Spec 8: Frame ancestors value with extra CSP directives"
 export APPSMITH_ALLOWED_FRAME_ANCESTORS="something.com; script-src something more not allowed"
 node /caddy-reconfigure.mjs
 reload-caddy

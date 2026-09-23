@@ -22,7 +22,6 @@ import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.ContentType;
 import com.arangodb.Protocol;
-import com.arangodb.entity.CollectionEntity;
 import com.arangodb.model.CollectionsReadOptions;
 import com.arangodb.serde.jackson.JacksonSerde;
 import com.external.plugins.exceptions.ArangoDBErrorMessages;
@@ -43,7 +42,6 @@ import reactor.core.scheduler.Schedulers;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -313,7 +311,10 @@ public class ArangoDBPlugin extends BasePlugin {
         @Override
         public void datasourceDestroy(ArangoDatabase db) {
             log.debug(Thread.currentThread().getName() + ": datasourceDestroy() called for ArangoDB plugin.");
-            db.arango().shutdown();
+            // Closing the HTTP client is I/O; keep it off the caller thread like the other plugins do.
+            Mono.fromRunnable(() -> db.arango().shutdown())
+                    .subscribeOn(scheduler)
+                    .subscribe(ignored -> {}, error -> log.error("Error shutting down ArangoDB client", error));
         }
 
         @Override
@@ -368,6 +369,7 @@ public class ArangoDBPlugin extends BasePlugin {
                         connection.getVersion();
                         return new DatasourceTestResult();
                     })
+                    .subscribeOn(scheduler)
                     .onErrorResume(error -> {
                         log.error("Error when testing ArangoDB datasource.");
                         error.printStackTrace();
@@ -388,17 +390,17 @@ public class ArangoDBPlugin extends BasePlugin {
 
             CollectionsReadOptions options = new CollectionsReadOptions();
             options.excludeSystem(true);
-            Collection<CollectionEntity> collections;
-            try {
-                collections = db.getCollections(options);
-            } catch (ArangoDBException e) {
-                return Mono.error(new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
-                        ArangoDBErrorMessages.GET_STRUCTURE_ERROR_MSG,
-                        e.getErrorMessage()));
-            }
 
-            return Flux.fromIterable(collections)
+            // Listing collections is an HTTP round trip; keep it inside the chain so the trailing subscribeOn covers
+            // it.
+            return Mono.fromCallable(() -> db.getCollections(options))
+                    .onErrorMap(
+                            ArangoDBException.class,
+                            e -> new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
+                                    ArangoDBErrorMessages.GET_STRUCTURE_ERROR_MSG,
+                                    e.getErrorMessage()))
+                    .flatMapMany(Flux::fromIterable)
                     .filter(collectionEntity -> !collectionEntity.getIsSystem())
                     .flatMap(collectionEntity -> {
                         log.debug(Thread.currentThread().getName()

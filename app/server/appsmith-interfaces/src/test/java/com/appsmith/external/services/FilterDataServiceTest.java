@@ -2,6 +2,7 @@ package com.appsmith.external.services;
 
 import com.appsmith.external.constants.ConditionalOperator;
 import com.appsmith.external.constants.DataType;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.UQIDataFilterParams;
@@ -1503,5 +1504,69 @@ public class FilterDataServiceTest {
         ArrayNode result =
                 filterDataService.filterDataNew(items, new UQIDataFilterParams(null, List.of("id"), null, null));
         assertEquals(2, result.size());
+    }
+
+    private Condition whereClause(Map<String, Object>... children) {
+        return parseWhereClause(Map.of("condition", "AND", "children", List.of(children)));
+    }
+
+    private void assertUnknownColumnRejected(Condition condition, String columnName) throws IOException {
+        ArrayNode items = (ArrayNode) objectMapper.readTree(SIMPLE_DATA);
+
+        AppsmithPluginException exception = assertThrows(
+                AppsmithPluginException.class,
+                () -> filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, null, null)));
+
+        assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, exception.getError());
+        assertThat(exception.getMessage()).startsWith(columnName + " not found in the known column names");
+    }
+
+    @Test
+    public void testWhereWithUnknownColumn_throwsException() throws IOException {
+        Condition condition = whereClause(Map.of("condition", "EQ", "key", "unknownColumn", "value", "1"));
+
+        assertUnknownColumnRejected(condition, "unknownColumn");
+    }
+
+    @Test
+    public void testWhereWithUnknownColumnInNestedGroup_throwsException() throws IOException {
+        Condition condition = whereClause(
+                Map.of("condition", "EQ", "key", "id", "value", "1"),
+                Map.of(
+                        "condition",
+                        "OR",
+                        "children",
+                        List.of(Map.of("condition", "EQ", "key", "unknownColumn", "value", ""))));
+
+        assertUnknownColumnRejected(condition, "unknownColumn");
+    }
+
+    @Test
+    public void testWhereWithColumnNameContainingQuote_throwsException() throws IOException {
+        Condition condition = whereClause(Map.of("condition", "EQ", "key", "na\"me", "value", ""));
+
+        assertUnknownColumnRejected(condition, "na\"me");
+    }
+
+    @Test
+    public void testWhereWithKnownColumn_filtersRows() throws IOException {
+        ArrayNode items = (ArrayNode) objectMapper.readTree(SIMPLE_DATA);
+        Condition condition = whereClause(Map.of("condition", "EQ", "key", "id", "value", "1"));
+
+        ArrayNode result = filterDataService.filterDataNew(items, new UQIDataFilterParams(condition, null, null, null));
+
+        assertEquals(1, result.size());
+        assertEquals(1, result.get(0).get("id").asInt());
+    }
+
+    @Test
+    public void testGenerateLogicalExpression_quotesColumnNameContainingQuote() {
+        Map<String, DataType> schema = Map.of("na\"me", DataType.STRING);
+        Condition condition = whereClause(Map.of("condition", "EQ", "key", "na\"me", "value", "Alice"));
+
+        String expression = filterDataService.generateLogicalExpression(
+                (List<Condition>) condition.getValue(), new ArrayList<>(), schema, condition.getOperator());
+
+        assertThat(expression).isEqualTo(" ( \"na\"\"me\" = ? ) ");
     }
 }

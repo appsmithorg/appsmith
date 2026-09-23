@@ -7,6 +7,7 @@ import { getShowAdminSettings } from "ee/utils/BusinessFeatures/adminSettingsHel
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { APPLICATIONS_URL } from "constants/routes";
+import { SettingCategories } from "ee/pages/AdminSettings/config/types";
 
 export default function WithSuperUserHOC(
   Component: React.ComponentType<RouteComponentProps>,
@@ -22,7 +23,9 @@ export default function WithSuperUserHOC(
     if (!user) return null;
 
     if (
-      ["profile"].indexOf(category) === -1 &&
+      [SettingCategories.PROFILE, SettingCategories.MCP_KEYS].indexOf(
+        category,
+      ) === -1 &&
       !getShowAdminSettings(isFeatureEnabled, user)
     ) {
       return <Redirect to={APPLICATIONS_URL} />;

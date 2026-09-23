@@ -44,7 +44,14 @@ public class ChatCommand implements OpenAICommand {
 
     private final Gson gson;
 
-    private final String regex = "^(?!.*vision)(ft:)?gpt.*";
+    // Chat-completions families: gpt-*, chat* aliases (chatgpt-4o-latest, chat-latest) and o-series
+    // reasoning models (o1, o3, o4-mini, ...). Excluded: vision-suffixed models (listed by the vision
+    // command), variants served by other endpoints (image, realtime, tts, transcribe, legacy instruct
+    // completions) and models only available on the Responses API (-pro, deep-research, codex).
+    // Matched against the base model (fine-tune wrapper stripped) so customer-chosen ft: suffixes
+    // cannot trip the exclusions.
+    private final String regex =
+            "^(?!.*(vision|instruct|realtime|transcribe|tts|image|deep-research|codex|-pro))(gpt|chat|o\\d).*";
     private final Pattern pattern = Pattern.compile(regex);
 
     public ChatCommand(Gson gson) {
@@ -95,9 +102,11 @@ public class ChatCommand implements OpenAICommand {
                 transformToMessages(MessageUtils.extractMessages((Map<String, Object>) formData.get(MESSAGES)));
         verifyRoleForChatMessages(chatMessages);
 
-        Float temperature = getTemperatureFromFormData(formData);
         chatRequestDTO.setMessages(chatMessages);
-        chatRequestDTO.setTemperature(temperature);
+        // reasoning models reject any explicit temperature, including the form's default "0"
+        if (!RequestUtils.isReasoningModel(model)) {
+            chatRequestDTO.setTemperature(getTemperatureFromFormData(formData));
+        }
         return chatRequestDTO;
     }
 
@@ -130,17 +139,20 @@ public class ChatCommand implements OpenAICommand {
     }
 
     private Float getTemperatureFromFormData(Map<String, Object> formData) {
-        float defaultFloatValue = 1.0f;
         String temperatureString = RequestUtils.extractValueFromFormData(formData, TEMPERATURE);
 
+        // Leave temperature unset unless the user provided one: reasoning models (o-series, gpt-5.*)
+        // reject any non-default temperature, and OpenAI applies its own default when it is omitted.
         if (!StringUtils.hasText(temperatureString)) {
-            return defaultFloatValue;
+            return null;
         }
 
         try {
-            return Float.parseFloat(temperatureString);
+            float temperature = Float.parseFloat(temperatureString);
+            // parseFloat accepts "NaN" and "Infinity", which serialize to invalid JSON — treat as unset
+            return Float.isFinite(temperature) ? temperature : null;
         } catch (IllegalArgumentException illegalArgumentException) {
-            return defaultFloatValue;
+            return null;
         } catch (Exception exception) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -154,7 +166,8 @@ public class ChatCommand implements OpenAICommand {
             return false;
         }
 
-        return pattern.matcher(modelJsonObject.getString(ID)).matches();
+        return pattern.matcher(RequestUtils.baseModel(modelJsonObject.getString(ID)))
+                .matches();
     }
 
     @Override

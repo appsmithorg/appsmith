@@ -60,8 +60,15 @@ public class VisionCommand implements OpenAICommand {
 
     private final Gson gson;
 
-    private final String regex =
-            "^(gpt-4-(vision-preview|\\d{4}-vision-preview)|gpt-4o(.*)?|ft:(gpt-4-(vision-preview|\\d{4}-vision-preview)|gpt-4o).*)$";
+    // Image-input capable families: legacy gpt-4 vision previews, gpt-4o, gpt-4.x, gpt-5.x, the chat*
+    // aliases (chatgpt-4o-latest, chat-latest) and vision-capable o-series models. o1-mini, o3-mini
+    // and o1-preview are text-only, and the audio/search/realtime/tts/transcribe variants and
+    // Responses-API-only models (-pro, codex, deep-research) do not take image input on chat
+    // completions. Matched against the base model (fine-tune wrapper stripped) so customer-chosen
+    // ft: suffixes cannot trip the exclusions.
+    private final String regex = "^(?!.*(instruct|realtime|transcribe|tts|image|deep-research|codex|-pro|audio|search))"
+            + "(?!o1-mini|o3-mini|o1-preview)"
+            + "(gpt-4-(vision-preview|\\d{4}-vision-preview)|gpt-4o|gpt-4\\.\\d|gpt-5|o\\d|chat).*";
     private final Pattern pattern = Pattern.compile(regex);
 
     @Override
@@ -114,11 +121,13 @@ public class VisionCommand implements OpenAICommand {
 
         visionMessages.addAll(
                 transformUserMessages(MessageUtils.extractMessages((Map<String, Object>) formData.get(USER_MESSAGES))));
-        Float temperature = getTemperatureFromFormData(formData);
 
         visionRequestDTO.setMessages(visionMessages);
-        visionRequestDTO.setMaxTokens(getMaxTokenFromFormData(formData));
-        visionRequestDTO.setTemperature(temperature);
+        visionRequestDTO.setMaxCompletionTokens(getMaxTokenFromFormData(formData));
+        // reasoning models reject any explicit temperature, including the form's default "0"
+        if (!RequestUtils.isReasoningModel(model)) {
+            visionRequestDTO.setTemperature(getTemperatureFromFormData(formData));
+        }
         return visionRequestDTO;
     }
 
@@ -207,17 +216,20 @@ public class VisionCommand implements OpenAICommand {
     }
 
     private Float getTemperatureFromFormData(Map<String, Object> formData) {
-        float defaultFloatValue = 1.0f;
         String temperatureString = RequestUtils.extractValueFromFormData(formData, TEMPERATURE);
 
+        // Leave temperature unset unless the user provided one: reasoning models (o-series, gpt-5.*)
+        // reject any non-default temperature, and OpenAI applies its own default when it is omitted.
         if (!StringUtils.hasText(temperatureString)) {
-            return defaultFloatValue;
+            return null;
         }
 
         try {
-            return Float.parseFloat(temperatureString);
+            float temperature = Float.parseFloat(temperatureString);
+            // parseFloat accepts "NaN" and "Infinity", which serialize to invalid JSON — treat as unset
+            return Float.isFinite(temperature) ? temperature : null;
         } catch (IllegalArgumentException illegalArgumentException) {
-            return defaultFloatValue;
+            return null;
         } catch (Exception exception) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -231,7 +243,8 @@ public class VisionCommand implements OpenAICommand {
             return false;
         }
 
-        return pattern.matcher(modelJsonObject.getString(ID)).matches();
+        return pattern.matcher(RequestUtils.baseModel(modelJsonObject.getString(ID)))
+                .matches();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.appsmith.util;
 
+import io.netty.util.NetUtil;
 import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.validator.routines.InetAddressValidator;
@@ -12,6 +13,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
@@ -694,7 +696,7 @@ public final class RestrictedHostFilter {
             return false;
         }
         try {
-            return matchesBlockedAddressClass(InetAddress.getByName(canonicalHost));
+            return matchesBlockedAddressClass(parseIpLiteral(stripHostDecorators(canonicalHost)));
         } catch (UnknownHostException e) {
             return false;
         }
@@ -708,9 +710,31 @@ public final class RestrictedHostFilter {
             return true;
         }
         if (address instanceof Inet6Address) {
+            final byte[] addressBytes = address.getAddress();
+            // The RFC 8215 local-use NAT64 prefix (64:ff9b:1::/48) is registered Globally Reachable
+            // = False, and RFC 8215 §5 forbids assuming where the IPv4 is embedded within it (a
+            // §6 checksum-neutral encoding can place it in the low 32 bits while the /48-position
+            // bytes hold an unrelated routable-looking value). There is no legitimate external
+            // target under it, so block the whole prefix rather than trust any single position.
+            if (isNat64LocalUse(addressBytes)) {
+                return true;
+            }
+            // Transition addresses tunnel an IPv4 destination inside an IPv6 wrapper. The wrapper
+            // is itself neither loopback nor link-local, so classify what the address actually
+            // reaches: 64:ff9b::7f00:1 and 2002:7f00:1:: both arrive at 127.0.0.1.
+            for (byte[] embeddedIpv4 : embeddedIpv4Candidates(addressBytes)) {
+                try {
+                    if (matchesBlockedAddressClass(InetAddress.getByAddress(embeddedIpv4))) {
+                        return true;
+                    }
+                } catch (UnknownHostException e) {
+                    // Every candidate is 4 bytes, so this cannot happen; block rather than fall
+                    // through if it ever does.
+                    return true;
+                }
+            }
             // fc00::/7 — IPv6 Unique Local Addresses
-            byte firstByte = address.getAddress()[0];
-            return (firstByte & (byte) 0xFE) == (byte) 0xFC;
+            return (addressBytes[0] & (byte) 0xFE) == (byte) 0xFC;
         }
         return false;
     }
@@ -719,8 +743,13 @@ public final class RestrictedHostFilter {
         if (!StringUtils.hasText(host)) {
             return false;
         }
-        host = stripHostDecorators(host);
-        return inetAddressValidator.isValid(host);
+        final String sanitizedHost = stripHostDecorators(host);
+        // Apache Commons rejects non-canonical octet forms such as leading zeros, while Netty's
+        // parser — the one reactor-netty uses to build the remote address — accepts them and dials
+        // the canonical address. Recognizing the union of both keeps the set of literals this
+        // filter classifies a superset of the ones the HTTP client is willing to connect to.
+        return inetAddressValidator.isValid(sanitizedHost)
+                || NetUtil.createByteArrayFromIpAddressString(sanitizedHost) != null;
     }
 
     static String normalizeHostForComparison(String host) throws UnknownHostException {
@@ -752,20 +781,156 @@ public final class RestrictedHostFilter {
     }
 
     private static String normalizeIpAddress(String host) throws UnknownHostException {
-        final InetAddress address = InetAddress.getByName(host);
+        final InetAddress address = parseIpLiteral(host);
 
         if (address instanceof Inet6Address) {
-            final byte[] addressBytes = address.getAddress();
-            // Normalize IPv4-compatible and IPv4-mapped IPv6 literals back to the embedded IPv4 address so a single
-            // denylist entry blocks equivalent literal representations such as `100.100.100.200` and
-            // `[::100.100.100.200]`.
-            if (isIpv4CompatibleOrMapped(addressBytes)) {
-                return InetAddress.getByAddress(Arrays.copyOfRange(addressBytes, 12, 16))
-                        .getHostAddress();
+            // Collapse every IPv4-in-IPv6 embedding to the address it actually reaches, so one
+            // denylist entry covers all of its literal spellings — `100.100.100.200`,
+            // `[::100.100.100.200]`, and the NAT64 / 6to4 encodings alike.
+            final byte[] embeddedIpv4 = extractEmbeddedIpv4(address.getAddress());
+            if (embeddedIpv4 != null) {
+                return InetAddress.getByAddress(embeddedIpv4).getHostAddress();
             }
         }
 
         return address.getHostAddress();
+    }
+
+    /**
+     * Parses an IP literal with Netty's parser first, so the canonical form this filter compares
+     * against is the one reactor-netty would hand the HTTP client. Falls back to the JDK for
+     * literals Netty declines but {@link #isValidIpAddress(String)} accepted.
+     */
+    private static InetAddress parseIpLiteral(String host) throws UnknownHostException {
+        final byte[] addressBytes = NetUtil.createByteArrayFromIpAddressString(host);
+        return addressBytes != null ? InetAddress.getByAddress(addressBytes) : InetAddress.getByName(host);
+    }
+
+    /**
+     * The IPv4 address an IPv6 literal canonically represents, or {@code null} if it represents
+     * none. Covers the embeddings where the IPv6 address is purely an encoding of an IPv4 one, so
+     * collapsing to that IPv4 is a faithful canonical form: IPv4-compatible ({@code ::d.d.d.d}),
+     * IPv4-mapped ({@code ::ffff:d.d.d.d}), IPv4-translated ({@code ::ffff:0:d.d.d.d}, RFC 2765),
+     * the RFC 6052 well-known NAT64 prefix {@code 64:ff9b::/96} (low 32 bits), and 6to4 (RFC 3056
+     * {@code 2002::/16}). The RFC 8215 local-use NAT64 prefix {@code 64:ff9b:1::/48} is not here:
+     * it has no fixed embedded-IPv4 position to canonicalize to and is blocked wholesale in
+     * {@link #matchesBlockedAddressClass(InetAddress)}.
+     */
+    private static byte[] extractEmbeddedIpv4(byte[] addressBytes) {
+        if (addressBytes.length != 16) {
+            return null;
+        }
+        if (isIpv4CompatibleOrMapped(addressBytes)
+                || isIpv4Translated(addressBytes)
+                || isNat64WellKnown(addressBytes)) {
+            return Arrays.copyOfRange(addressBytes, 12, 16);
+        }
+        if (isSixToFour(addressBytes)) {
+            return Arrays.copyOfRange(addressBytes, 2, 6);
+        }
+        // The RFC 8215 local-use prefix (64:ff9b:1::/48) is deliberately absent: it has no fixed
+        // embedded-IPv4 position to canonicalize to (RFC 8215 §5), so it is not normalized here.
+        // matchesBlockedAddressClass blocks the whole prefix instead.
+        return null;
+    }
+
+    /**
+     * Every IPv4 destination an IPv6 literal could deliver to, for classification only. Wider than
+     * {@link #extractEmbeddedIpv4(byte[])}: Teredo carries two addresses (its relay server, and a
+     * client address obfuscated by ones-complement) and ISATAP's is an interface identifier, so
+     * none of them is a canonical form of the address and none may be used to normalize it — but
+     * each is somewhere the packet can end up, so each is classified.
+     *
+     * <p>Together with {@link #extractEmbeddedIpv4(byte[])} this covers the standardized set of
+     * IPv4-in-IPv6 embeddings. 6rd (RFC 5969) is deliberately absent: it uses an operator-chosen
+     * prefix that cannot be recognized from the address alone.
+     */
+    private static List<byte[]> embeddedIpv4Candidates(byte[] addressBytes) {
+        if (addressBytes.length != 16) {
+            return List.of();
+        }
+        final byte[] canonical = extractEmbeddedIpv4(addressBytes);
+        if (canonical != null) {
+            return List.of(canonical);
+        }
+        if (isIsatap(addressBytes)) {
+            return List.of(Arrays.copyOfRange(addressBytes, 12, 16));
+        }
+        if (isTeredo(addressBytes)) {
+            final byte[] client = Arrays.copyOfRange(addressBytes, 12, 16);
+            for (int i = 0; i < client.length; i++) {
+                client[i] ^= (byte) 0xff;
+            }
+            return List.of(Arrays.copyOfRange(addressBytes, 4, 8), client);
+        }
+        return List.of();
+    }
+
+    /**
+     * {@code 64:ff9b::/96} — the RFC 6052 well-known NAT64 prefix. Mandated to use the /96 layout,
+     * so the embedded IPv4 is the low 32 bits (bytes 12-15). Requires bytes 4-11 to be zero;
+     * without that, a {@code 64:ff9b:1::/48} local-use address would also match and be misread.
+     */
+    private static boolean isNat64WellKnown(byte[] addressBytes) {
+        if (addressBytes[0] != 0x00
+                || addressBytes[1] != 0x64
+                || addressBytes[2] != (byte) 0xff
+                || addressBytes[3] != (byte) 0x9b) {
+            return false;
+        }
+        for (int i = 4; i < 12; i++) {
+            if (addressBytes[i] != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * {@code 64:ff9b:1::/48} — the RFC 8215 local-use NAT64 prefix (registered Globally Reachable
+     * = False). RFC 8215 §5 forbids assuming where the IPv4 is embedded within it, so the filter
+     * blocks the whole prefix in {@link #matchesBlockedAddressClass(InetAddress)} rather than
+     * extract a single position. Other NAT64 prefix lengths use a Network-Specific Prefix that
+     * cannot be recognized from the address alone, so — like 6rd — they are out of scope.
+     */
+    private static boolean isNat64LocalUse(byte[] addressBytes) {
+        return addressBytes[0] == 0x00
+                && addressBytes[1] == 0x64
+                && addressBytes[2] == (byte) 0xff
+                && addressBytes[3] == (byte) 0x9b
+                && addressBytes[4] == 0x00
+                && addressBytes[5] == 0x01;
+    }
+
+    /** {@code 2002::/16} — 6to4 carries its IPv4 in bytes 2-5 rather than the low 32 bits. */
+    private static boolean isSixToFour(byte[] addressBytes) {
+        return addressBytes[0] == 0x20 && addressBytes[1] == 0x02;
+    }
+
+    /** {@code ::ffff:0:0:0/96} — the RFC 2765 IPv4-translated form, distinct from IPv4-mapped. */
+    private static boolean isIpv4Translated(byte[] addressBytes) {
+        for (int i = 0; i < 8; i++) {
+            if (addressBytes[i] != 0) {
+                return false;
+            }
+        }
+        return addressBytes[8] == (byte) 0xff
+                && addressBytes[9] == (byte) 0xff
+                && addressBytes[10] == 0
+                && addressBytes[11] == 0;
+    }
+
+    /** {@code 2001:0::/32} — Teredo (RFC 4380). */
+    private static boolean isTeredo(byte[] addressBytes) {
+        return addressBytes[0] == 0x20 && addressBytes[1] == 0x01 && addressBytes[2] == 0 && addressBytes[3] == 0;
+    }
+
+    /** ISATAP (RFC 5214) — the {@code 0000:5efe} / {@code 0200:5efe} interface identifier. */
+    private static boolean isIsatap(byte[] addressBytes) {
+        return (addressBytes[8] == 0x00 || addressBytes[8] == 0x02)
+                && addressBytes[9] == 0x00
+                && addressBytes[10] == 0x5e
+                && addressBytes[11] == (byte) 0xfe;
     }
 
     private static boolean isIpv4CompatibleOrMapped(byte[] addressBytes) {

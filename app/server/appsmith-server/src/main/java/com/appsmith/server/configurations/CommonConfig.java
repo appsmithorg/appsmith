@@ -58,6 +58,18 @@ public class CommonConfig {
     @Value("${appsmith.admin.envfile:}")
     public String envFilePath;
 
+    // The connection URLs the server process actually runs with — as opposed to whatever
+    // docker.env holds, which can be stale or unused when the deployment overrides these
+    // via real environment variables (external DB/Redis, Helm, clustering).
+    @Value("${appsmith.db.url:}")
+    private String dbUrl;
+
+    @Value("${appsmith.redis.url:}")
+    private String redisUrl;
+
+    @Value("${appsmith.mcp.internal-secret:}")
+    private String mcpInternalSecret;
+
     @Value("${disable.telemetry:true}")
     private boolean isTelemetryDisabled;
 

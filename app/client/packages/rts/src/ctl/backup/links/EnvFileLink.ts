@@ -60,7 +60,8 @@ export function removeSensitiveEnvData(content: string): string {
       !line.startsWith("APPSMITH_MONGODB") &&
       !line.startsWith("APPSMITH_DB_URL=") &&
       !line.startsWith("APPSMITH_REDIS_URL=") &&
-      !line.startsWith("APPSMITH_REDIS_PASSWORD=")
+      !line.startsWith("APPSMITH_REDIS_PASSWORD=") &&
+      !line.startsWith("APPSMITH_BACKUP_ARCHIVE_PASSWORD=")
     ) {
       output_lines.push(line);
     }
