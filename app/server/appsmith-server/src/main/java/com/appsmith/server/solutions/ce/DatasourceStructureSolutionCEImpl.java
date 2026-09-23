@@ -55,7 +55,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
     @Override
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache, String environmentId) {
         return datasourceService
-                .findById(datasourceId, datasourcePermission.getExecutePermission())
+                .findById(datasourceId, datasourcePermission.getReadPermission())
                 .zipWhen(datasource -> datasourceService.getTrueEnvironmentId(
                         datasource.getWorkspaceId(),
                         environmentId,

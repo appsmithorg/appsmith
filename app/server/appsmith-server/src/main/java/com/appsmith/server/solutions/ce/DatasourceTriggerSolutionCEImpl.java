@@ -61,7 +61,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
             String datasourceId, String environmentId, TriggerRequestDTO triggerRequestDTO) {
 
         Mono<Datasource> datasourceMonoCached = datasourceService
-                .findById(datasourceId, datasourcePermission.getExecutePermission())
+                .findById(datasourceId, datasourcePermission.getReadPermission())
                 .cache();
 
         Mono<DatasourceStorage> datasourceStorageMonoCached = datasourceMonoCached

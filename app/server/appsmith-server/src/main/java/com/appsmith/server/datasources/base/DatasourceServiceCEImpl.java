@@ -555,7 +555,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 } else {
 
                     datasourceStorageMono = findById(
-                                    datasourceStorage.getDatasourceId(), datasourcePermission.getExecutePermission())
+                                    datasourceStorage.getDatasourceId(), datasourcePermission.getReadPermission())
                             .zipWhen(dbDatasource -> getTrueEnvironmentId(
                                     dbDatasource.getWorkspaceId(),
                                     datasourceStorage.getEnvironmentId(),
