@@ -592,10 +592,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
                                 return datasourceStorageService
                                         .findByDatasourceAndEnvironmentIdForExecution(datasource, trueEnvironmentId)
-                                        .map(dbDatasourceStorage -> {
-                                            copyNestedNonNullProperties(datasourceStorage, dbDatasourceStorage);
-                                            return dbDatasourceStorage;
-                                        })
+                                        .map(dbDatasourceStorage ->
+                                                datasourceStorageService.mergeStoredCredentialsIfConnectionUnchanged(
+                                                        datasourceStorage1, dbDatasourceStorage))
                                         .switchIfEmpty(Mono.just(datasourceStorage));
                             })
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));

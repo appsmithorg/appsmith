@@ -1,6 +1,8 @@
 package com.appsmith.server.datasourcestorages.base;
 
+import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
@@ -9,6 +11,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -20,16 +23,25 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
@@ -48,6 +60,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     private final AnalyticsService analyticsService;
     private final ConfigService configService;
     private final OrganizationService organizationService;
+    private final ObjectMapper objectMapper;
 
     public DatasourceStorageServiceCEImpl(
             DatasourceStorageRepository repository,
@@ -56,7 +69,8 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
             PluginExecutorHelper pluginExecutorHelper,
             AnalyticsService analyticsService,
             ConfigService configService,
-            OrganizationService organizationService) {
+            OrganizationService organizationService,
+            ObjectMapper objectMapper) {
         this.repository = repository;
         this.datasourcePermission = datasourcePermission;
         this.pluginService = pluginService;
@@ -64,6 +78,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         this.analyticsService = analyticsService;
         this.configService = configService;
         this.organizationService = organizationService;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -151,6 +166,95 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     public Mono<DatasourceStorage> findStrictlyByDatasourceIdAndEnvironmentId(
             String datasourceId, String environmentId) {
         return repository.findByDatasourceIdAndEnvironmentId(datasourceId, environmentId);
+    }
+
+    @Override
+    public DatasourceStorage mergeStoredCredentialsIfConnectionUnchanged(
+            DatasourceStorage datasourceStorage, DatasourceStorage storedDatasourceStorage) {
+        if (!Objects.equals(datasourceStorage.getDatasourceId(), storedDatasourceStorage.getDatasourceId())
+                || !Objects.equals(datasourceStorage.getEnvironmentId(), storedDatasourceStorage.getEnvironmentId())
+                || (StringUtils.hasText(datasourceStorage.getId())
+                        && !Objects.equals(datasourceStorage.getId(), storedDatasourceStorage.getId()))) {
+            throw new AppsmithException(AppsmithError.DATASOURCE_CREDENTIALS_REQUIRED);
+        }
+
+        DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
+        DatasourceConfiguration storedDatasourceConfiguration = storedDatasourceStorage.getDatasourceConfiguration();
+
+        if (hasSamePublicConfiguration(datasourceConfiguration, storedDatasourceConfiguration)) {
+            copyNestedNonNullProperties(datasourceStorage, storedDatasourceStorage);
+            return storedDatasourceStorage;
+        }
+
+        if (containsEncryptedValue(storedDatasourceConfiguration) && !containsEncryptedValue(datasourceConfiguration)) {
+            throw new AppsmithException(AppsmithError.DATASOURCE_CREDENTIALS_REQUIRED);
+        }
+
+        return datasourceStorage;
+    }
+
+    private boolean hasSamePublicConfiguration(
+            DatasourceConfiguration datasourceConfiguration, DatasourceConfiguration storedDatasourceConfiguration) {
+        try {
+            JsonNode publicConfiguration = objectMapper.readTree(
+                    objectMapper.writerWithView(Views.Public.class).writeValueAsString(datasourceConfiguration));
+            JsonNode storedPublicConfiguration = objectMapper.readTree(
+                    objectMapper.writerWithView(Views.Public.class).writeValueAsString(storedDatasourceConfiguration));
+            return Objects.equals(publicConfiguration, storedPublicConfiguration);
+        } catch (JsonProcessingException exception) {
+            throw new AppsmithException(exception, AppsmithError.DATASOURCE_CREDENTIALS_REQUIRED);
+        }
+    }
+
+    private boolean containsEncryptedValue(Object source) {
+        Set<Object> visited = Collections.newSetFromMap(new IdentityHashMap<>());
+        return containsEncryptedValue(source, visited);
+    }
+
+    private boolean containsEncryptedValue(Object source, Set<Object> visited) {
+        if (source == null || !visited.add(source)) {
+            return false;
+        }
+
+        if (source instanceof Collection<?> collection) {
+            return collection.stream().anyMatch(value -> containsEncryptedValue(value, visited));
+        }
+
+        if (source instanceof Map<?, ?> map) {
+            return map.values().stream().anyMatch(value -> containsEncryptedValue(value, visited));
+        }
+
+        for (Class<?> type = source.getClass(); type != null && type != Object.class; type = type.getSuperclass()) {
+            for (Field field : type.getDeclaredFields()) {
+                if (Modifier.isStatic(field.getModifiers()) || field.isSynthetic()) {
+                    continue;
+                }
+
+                try {
+                    field.setAccessible(true);
+                    Object value = field.get(source);
+                    if (field.getAnnotation(Encrypted.class) != null) {
+                        if (!(value instanceof CharSequence text) || StringUtils.hasText(text)) {
+                            if (value != null) {
+                                return true;
+                            }
+                        }
+                    } else if (value instanceof AppsmithDomain
+                            || value instanceof Collection<?>
+                            || value instanceof Map<?, ?>) {
+                        if (containsEncryptedValue(value, visited)) {
+                            return true;
+                        }
+                    }
+                } catch (IllegalAccessException exception) {
+                    throw new AppsmithException(exception, AppsmithError.DATASOURCE_CREDENTIALS_REQUIRED);
+                } finally {
+                    field.setAccessible(false);
+                }
+            }
+        }
+
+        return false;
     }
 
     @Override

@@ -34,6 +34,9 @@ public interface DatasourceStorageServiceCE {
 
     Mono<DatasourceStorage> findStrictlyByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
 
+    DatasourceStorage mergeStoredCredentialsIfConnectionUnchanged(
+            DatasourceStorage datasourceStorage, DatasourceStorage storedDatasourceStorage);
+
     Mono<DatasourceStorage> updateDatasourceStorage(
             DatasourceStorage datasourceStorage, String activeEnvironmentId, Boolean IsUserRefreshedUpdate);
 
