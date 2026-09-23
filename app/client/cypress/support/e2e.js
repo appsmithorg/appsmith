@@ -59,9 +59,9 @@ Cypress.on("uncaught:exception", (error) => {
 });
 
 Cypress.on("fail", (error) => {
-  // Event listeners run outside the Cypress command queue, so a cy.* call here
-  // is reported as a second error that replaces the real failure in the log
-  // and the report. Log outside the queue instead.
+  // This fail listener runs outside the Cypress command queue. Calling cy.log
+  // here can raise a secondary error that masks the original failure.
+  // Log synchronously and rethrow the original error.
   console.log(error.message);
   throw error; // throw error to have test fail
 });
