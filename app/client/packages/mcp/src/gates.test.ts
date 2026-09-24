@@ -293,18 +293,30 @@ describe("sessionLimitsFromEnv — session cap/TTL resolution", () => {
 });
 
 describe("sessionStoreModeFromEnv", () => {
-  it("treats unset and blank as memory, and accepts memory/redis case-insensitively", () => {
-    expect(sessionStoreModeFromEnv(undefined)).toBe("memory");
-    expect(sessionStoreModeFromEnv("")).toBe("memory");
-    expect(sessionStoreModeFromEnv("   ")).toBe("memory");
-    expect(sessionStoreModeFromEnv("memory")).toBe("memory");
-    expect(sessionStoreModeFromEnv("redis")).toBe("redis");
-    expect(sessionStoreModeFromEnv(" Redis ")).toBe("redis");
+  const REDIS = "redis://127.0.0.1:6379";
+
+  it("defaults to redis whenever APPSMITH_REDIS_URL is set (unset/blank mode)", () => {
+    expect(sessionStoreModeFromEnv(undefined, REDIS)).toBe("redis");
+    expect(sessionStoreModeFromEnv("", REDIS)).toBe("redis");
+    expect(sessionStoreModeFromEnv("   ", REDIS)).toBe("redis");
+  });
+
+  it("defaults to memory only when no Redis URL is configured at all", () => {
+    expect(sessionStoreModeFromEnv(undefined, undefined)).toBe("memory");
+    expect(sessionStoreModeFromEnv("", "")).toBe("memory");
+    expect(sessionStoreModeFromEnv("", "   ")).toBe("memory");
+  });
+
+  it("honours an explicit memory opt-out or redis opt-in, case-insensitively", () => {
+    expect(sessionStoreModeFromEnv("memory", REDIS)).toBe("memory");
+    expect(sessionStoreModeFromEnv(" Memory ", REDIS)).toBe("memory");
+    expect(sessionStoreModeFromEnv("redis", undefined)).toBe("redis");
+    expect(sessionStoreModeFromEnv(" Redis ", REDIS)).toBe("redis");
   });
 
   it("refuses anything else instead of silently running per-pod memory on a multi-replica deployment", () => {
     for (const value of ["reddis", "true", "1", "memory,redis"]) {
-      expect(() => sessionStoreModeFromEnv(value)).toThrow(
+      expect(() => sessionStoreModeFromEnv(value, REDIS)).toThrow(
         'APPSMITH_MCP_SESSION_STORE must be "memory" or "redis"',
       );
     }

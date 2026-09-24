@@ -7010,6 +7010,12 @@ class RelayAwareTransport extends WebStandardStreamableHTTPServerTransport {
   }
 }
 
+// The bearer's authorisation facts as the upstream reports them for THIS request (see hydrateSession).
+interface LiveIdentity {
+  isAdmin: boolean;
+  organizationId: string;
+}
+
 // The replayed initialize's JSON-RPC id (see hydrateSession). Namespaced so it can never collide with a client's
 // own request ids, which the SDK client numbers from 0.
 const HYDRATE_REQUEST_ID = "appsmith-mcp-hydrate";
@@ -7393,6 +7399,7 @@ export function createMcpHttpServer(
   // replica serves the session identically.
   async function hydrateSession(
     record: McpSessionRecord,
+    identity: LiveIdentity,
     token: string,
     upstreamHeaders: Record<string, string>,
   ): Promise<LocalSession> {
@@ -7413,8 +7420,10 @@ export function createMcpHttpServer(
     const mcpServer = buildMcpServer(api, {
       ...sessionServerContext(),
       actorId: record.username,
-      isAdmin: record.isAdmin,
-      organizationId: record.organizationId,
+      // Authorisation facts come from the LIVE upstream profile of the bearer making this request, never from the
+      // stored record: a Redis writer must not be able to hand a session admin rights or another tenant.
+      isAdmin: identity.isAdmin,
+      organizationId: identity.organizationId,
       requestOrigin: record.requestOrigin,
     });
 
@@ -7465,6 +7474,7 @@ export function createMcpHttpServer(
 
   async function hydrateOnce(
     record: McpSessionRecord,
+    identity: LiveIdentity,
     token: string,
     upstreamHeaders: Record<string, string>,
   ): Promise<LocalSession> {
@@ -7472,7 +7482,12 @@ export function createMcpHttpServer(
 
     if (inFlight !== undefined) return inFlight;
 
-    const run = hydrateSession(record, token, upstreamHeaders).finally(() => {
+    const run = hydrateSession(
+      record,
+      identity,
+      token,
+      upstreamHeaders,
+    ).finally(() => {
       hydrating.delete(record.id);
     });
 
@@ -7660,7 +7675,15 @@ export function createMcpHttpServer(
         // its GET stream and its first tool call together) may have hydrated it here meanwhile.
         local =
           sessions.get(record.id) ??
-          (await hydrateOnce(record, token, upstreamHeaders));
+          (await hydrateOnce(
+            record,
+            {
+              isAdmin: authenticated.isAdmin,
+              organizationId: authenticated.organizationId,
+            },
+            token,
+            upstreamHeaders,
+          ));
 
         const expiresAt = now() + sessionTtlMs;
 

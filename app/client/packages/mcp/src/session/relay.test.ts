@@ -202,6 +202,55 @@ describe("RedisSessionRelay hardening", () => {
     expect(server.subscribers.size).toBe(0);
   });
 
+  it("connect() probes SUBSCRIBE: an ACL that forbids it fails startup and leaks no connection", async () => {
+    const server = new FakeRedisServer();
+    const client = server.client();
+    const subscriber = client.duplicate();
+
+    subscriber.subscribeError = new Error(
+      "NOPERM this user has no permissions",
+    );
+    jest.spyOn(client, "duplicate").mockReturnValue(subscriber);
+
+    const relay = new RedisSessionRelay(client, "pod-a", () => {});
+
+    await expect(relay.connect()).rejects.toThrow("NOPERM");
+    expect(subscriber.closed).toBe(true);
+    expect(server.subscribers.size).toBe(0);
+  });
+
+  it("subscribes at connect() time and only starts delivering once start() installs the handler", async () => {
+    const server = new FakeRedisServer();
+    const relay = new RedisSessionRelay(server.client(), "pod-a", () => {});
+    const received: RelayedPayload[] = [];
+
+    await relay.connect();
+    expect(server.subscribers.get(relayChannel("pod-a"))?.size).toBe(1);
+
+    // Before start(): subscribed but nothing can be pending, so the message is dropped, not queued.
+    server.publish(
+      relayChannel("pod-a"),
+      JSON.stringify({
+        sessionId: "s1",
+        message: { jsonrpc: "2.0", id: 1, result: {} },
+      }),
+    );
+    await flush();
+    expect(received).toEqual([]);
+
+    await relay.start((payload) => received.push(payload));
+    server.publish(
+      relayChannel("pod-a"),
+      JSON.stringify({
+        sessionId: "s1",
+        message: { jsonrpc: "2.0", id: 2, result: {} },
+      }),
+    );
+    await flush();
+    expect(received.map((p) => p.message.id)).toEqual([2]);
+    await relay.close();
+  });
+
   it("logs subscriber socket errors instead of letting them escape as unhandled events", async () => {
     const server = new FakeRedisServer();
     const client = server.client();
@@ -224,8 +273,18 @@ describe("RedisSessionRelay hardening", () => {
 
 describe("request-id tagging", () => {
   it("tags outgoing ids per pod and restores exactly its own", () => {
-    const podA = new RedisSessionRelay(new FakeRedisServer().client(), "pod-a");
-    const podB = new RedisSessionRelay(new FakeRedisServer().client(), "pod-b");
+    const podA = new RedisSessionRelay(
+      new FakeRedisServer().client(),
+      "pod-a",
+      undefined,
+      "pod-a",
+    );
+    const podB = new RedisSessionRelay(
+      new FakeRedisServer().client(),
+      "pod-b",
+      undefined,
+      "pod-b",
+    );
 
     expect(podA.tagRequestId(0)).toBe("pod-a#0");
     expect(podA.tagRequestId("x")).toBe("pod-a#x");
@@ -240,8 +299,18 @@ describe("request-id tagging", () => {
 
   it("two pods prompting on one session never share a pending key", async () => {
     const server = new FakeRedisServer();
-    const podA = new RedisSessionRelay(server.client(), "pod-a");
-    const podB = new RedisSessionRelay(server.client(), "pod-b");
+    const podA = new RedisSessionRelay(
+      server.client(),
+      "pod-a",
+      undefined,
+      "pod-a",
+    );
+    const podB = new RedisSessionRelay(
+      server.client(),
+      "pod-b",
+      undefined,
+      "pod-b",
+    );
 
     await podA.registerPending("s1", podA.tagRequestId(0), 1_000);
     await podB.registerPending("s1", podB.tagRequestId(0), 1_000);

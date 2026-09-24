@@ -210,6 +210,9 @@ export class FakeRedisClient
   readonly errorListeners: Array<(error: Error) => void> = [];
   // Set by a test to make connect() reject (an unreachable Redis at startup).
   connectError: Error | undefined;
+  // Set by a test to make subscribe() reject (a Redis ACL that forbids SUBSCRIBE).
+  subscribeError: Error | undefined;
+  closed = false;
 
   constructor(private readonly server: FakeRedisServer) {}
 
@@ -232,6 +235,8 @@ export class FakeRedisClient
   }
 
   async close(): Promise<void> {
+    this.closed = true;
+
     for (const listener of this.listeners) this.server.unsubscribeAll(listener);
   }
 
@@ -294,6 +299,8 @@ export class FakeRedisClient
     channel: string,
     listener: (message: string, channel: string) => void,
   ): Promise<void> {
+    if (this.subscribeError) throw this.subscribeError;
+
     this.listeners.push(listener);
     this.server.subscribe(channel, listener);
   }

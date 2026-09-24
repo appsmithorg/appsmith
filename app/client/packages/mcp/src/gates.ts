@@ -131,18 +131,23 @@ export const SESSION_TTL_CEILING_MS = 24 * 60 * 60 * 1000;
 
 export type SessionStoreMode = "memory" | "redis";
 
-// APPSMITH_MCP_SESSION_STORE: where session records live. `memory` (the default; unset and blank count as unset,
-// since docker.env-style files commonly carry empty keys) is correct for exactly one MCP process; `redis` shares
-// sessions across replicas. Any other value THROWS: silently falling back to memory on a typo would reproduce the
-// exact multi-replica 404s the redis mode exists to fix, on the exact deployments that set it.
+// APPSMITH_MCP_SESSION_STORE: where session records live. Unset or blank (docker.env-style files commonly carry
+// empty keys) means "use Redis whenever APPSMITH_REDIS_URL is set" — every Appsmith deployment already requires
+// that Redis for the server's own web sessions, so sharing MCP sessions through it needs no extra configuration
+// and is what makes a multi-replica deployment work. `memory` is the explicit opt-out (one process, no Redis
+// round-trips); `redis` is the explicit opt-in (fails loudly at startup without a usable URL). Any other value
+// THROWS: a typo must never silently land a multi-replica deployment in per-pod memory.
 export function sessionStoreModeFromEnv(
   value: string | undefined,
+  redisUrl: string | undefined,
 ): SessionStoreMode {
   const normalized = (value ?? "").trim().toLowerCase();
 
-  if (normalized === "" || normalized === "memory") return "memory";
+  if (normalized === "") {
+    return (redisUrl ?? "").trim().length > 0 ? "redis" : "memory";
+  }
 
-  if (normalized === "redis") return "redis";
+  if (normalized === "memory" || normalized === "redis") return normalized;
 
   throw new Error(
     `APPSMITH_MCP_SESSION_STORE must be "memory" or "redis" (got "${value}")`,

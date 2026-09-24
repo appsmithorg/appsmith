@@ -100,13 +100,15 @@ const sessionLimits = sessionLimitsFromEnv(
   (message) => process.stderr.write(`Appsmith MCP ${message}\n`),
 );
 
-// Multi-replica session sharing (APPSMITH_MCP_SESSION_STORE=redis). Opt-in: the in-process default is correct
-// for exactly one MCP process, which is every single-container deployment. With more than one replica behind a
-// load balancer, sessions and elicitation answers must be shared through Redis or requests that land on the
+// Session sharing across replicas. Sessions live in the Redis that APPSMITH_REDIS_URL names — the one every
+// Appsmith deployment already requires for the server's own web sessions — unless APPSMITH_MCP_SESSION_STORE=memory
+// opts out (one process, no Redis round-trips) or no Redis URL is configured at all. Behind a load balancer with
+// more than one replica, sessions and elicitation answers MUST be shared this way or requests that land on the
 // "other" pod fail with 404 (see README "Running more than one replica"). An unrecognised value throws here, at
 // module load, so the process exits before listening (fail-loud, like the redis-mode checks in main()).
 const sessionStoreMode = sessionStoreModeFromEnv(
   process.env.APPSMITH_MCP_SESSION_STORE,
+  process.env.APPSMITH_REDIS_URL,
 );
 
 let httpServer: Server | undefined;
@@ -158,6 +160,27 @@ function shutdown(signal: string) {
   });
 }
 
+// How long a startup connection to Redis may take before the process gives up and exits (see main()).
+const STARTUP_CONNECT_TIMEOUT_MS = 30_000;
+
+async function withStartupTimeout<T>(
+  work: Promise<T>,
+  label: string,
+): Promise<T> {
+  let timer: NodeJS.Timeout | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      reject(
+        new Error(
+          `${label} did not connect within ${STARTUP_CONNECT_TIMEOUT_MS} ms (APPSMITH_REDIS_URL unreachable?)`,
+        ),
+      );
+    }, STARTUP_CONNECT_TIMEOUT_MS);
+  });
+
+  return Promise.race([work, timeout]).finally(() => clearTimeout(timer));
+}
+
 async function main(): Promise<void> {
   // Governance is available only when Mongo AND Redis are configured. If configured but unreachable we fail loudly
   // (supervisord restarts) rather than silently degrade — governed/destructive safety must not vanish unnoticed.
@@ -176,8 +199,8 @@ async function main(): Promise<void> {
     );
   }
 
-  // Shared sessions are configured explicitly, so a misconfiguration fails loudly at startup (supervisord
-  // restarts) rather than silently falling back to per-pod memory and reproducing the multi-replica 404s.
+  // Redis mode fails loudly at startup on a missing or unusable URL (supervisord restarts) rather than silently
+  // falling back to per-pod memory and reproducing the multi-replica 404s.
   let sessionStore: McpSessionStore | undefined;
 
   if (sessionStoreMode === "redis") {
@@ -204,15 +227,29 @@ async function main(): Promise<void> {
         `Appsmith MCP session Redis error: ${error.message}\n`,
       );
     });
-    await redis.connect();
+    // node-redis retries an unreachable server forever, so a bare connect() would leave the process alive but
+    // never listening. Bound the startup connects: on timeout main() rejects, the process exits 1, and supervisord
+    // restarts it (visible in logs) instead of a silent hang.
+    await withStartupTimeout(redis.connect(), "session Redis");
     sessionRedis = redis;
     sessionStore = new RedisSessionStore(redis);
     sessionRelay = new RedisSessionRelay(redis);
-    // Open the relay's subscriber connection NOW so an unreachable Redis (or one whose ACL forbids SUBSCRIBE)
-    // fails startup loudly instead of leaving a live pod that answers 503 forever.
-    await sessionRelay.connect();
+    // Open the relay's subscriber connection AND subscribe the pod channel NOW (RedisSessionRelay.connect), so an
+    // unreachable Redis or an ACL that forbids SUBSCRIBE fails startup loudly instead of leaving a live pod that
+    // answers 503 forever while Kubernetes — whose probes watch the backend — keeps it in rotation.
+    await withStartupTimeout(
+      sessionRelay.connect(),
+      "session relay subscriber",
+    );
     process.stderr.write(
       `Appsmith MCP sessions shared through Redis (pod id ${sessionRelay.podId})\n`,
+    );
+  } else {
+    // Say WHY, so a multi-replica operator reading the logs of a 404-ing pod sees the cause immediately.
+    process.stderr.write(
+      (process.env.APPSMITH_REDIS_URL ?? "").trim().length > 0
+        ? "Appsmith MCP sessions kept in process memory (APPSMITH_MCP_SESSION_STORE=memory); only valid for a single replica\n"
+        : "Appsmith MCP sessions kept in process memory (APPSMITH_REDIS_URL not set); only valid for a single replica\n",
     );
   }
 

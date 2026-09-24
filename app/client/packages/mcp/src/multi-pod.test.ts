@@ -930,3 +930,63 @@ describe("MCP multi-pod prompt identity", () => {
     }
   });
 });
+
+describe("MCP multi-pod hydration identity", () => {
+  it("takes admin rights and tenant from the live profile, never from the stored record", async () => {
+    // A Redis writer flips the record's isAdmin; the hydrating pod must still authorise from the upstream profile
+    // of the bearer making the request (not an admin), so the admin-only audit read is refused.
+    const cluster = await startCluster(stubApi());
+    const [podA, podB] = cluster.pods;
+    const session = await connectClient(() => podA, []);
+    const sessionId = session.transport.sessionId as string;
+
+    try {
+      const key = `appsmith:mcp:session:${sessionId}`;
+      const stored = JSON.parse(cluster.redis.get(key) as string) as Record<
+        string,
+        unknown
+      >;
+
+      cluster.redis.set(
+        key,
+        JSON.stringify({
+          ...stored,
+          isAdmin: true,
+          organizationId: "org-evil",
+        }),
+        { PX: SESSION_TTL_MS },
+      );
+
+      const response = await rawPost(
+        podB,
+        {
+          jsonrpc: "2.0",
+          id: 5,
+          method: "tools/call",
+          params: { name: "list_all_changes", arguments: {} },
+        },
+        {
+          authorization: `Bearer ${TOKEN}`,
+          "mcp-session-id": sessionId,
+        },
+      );
+
+      expect(response.status).toBe(200);
+      expect(eventNames()).toContain("appsmith_mcp_session_hydrated");
+
+      const text = await response.text();
+      const dataLine = text
+        .split("\n")
+        .find((line) => line.startsWith("data:")) as string;
+      const rpc = JSON.parse(dataLine.slice("data:".length)) as {
+        result: { content: Array<{ text: string }> };
+      };
+      const body = JSON.parse(rpc.result.content[0].text) as { code?: string };
+
+      expect(body.code).toBe("admin_required");
+    } finally {
+      await session.client.close();
+      await cluster.close();
+    }
+  });
+});

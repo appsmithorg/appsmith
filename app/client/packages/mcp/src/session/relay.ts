@@ -119,13 +119,18 @@ export function relayChannel(podId: string): string {
 
 export class RedisSessionRelay implements McpSessionRelay {
   private subscriber: RelaySubscriber | undefined;
-  private subscribed = false;
+  private onForwarded: ((payload: RelayedPayload) => void) | undefined;
 
   constructor(
     private readonly redis: RelayRedis,
     readonly podId: string = generatePodId(),
     private readonly logSink: (line: string) => void = (line) =>
       process.stderr.write(line),
+    // The tag woven into JSON-RPC ids the CLIENT sees. Random rather than the pod id so a container hostname /
+    // pod name is never disclosed to authenticated MCP clients; the pod id stays in server logs only.
+    private readonly requestIdTag: string = randomUUID()
+      .replace(/-/g, "")
+      .slice(0, 12),
   ) {}
 
   async registerPending(
@@ -162,8 +167,11 @@ export class RedisSessionRelay implements McpSessionRelay {
     await this.redis.publish(relayChannel(podId), JSON.stringify(payload));
   }
 
-  // Opens the subscriber connection WITHOUT subscribing yet, so startup code can fail loudly on an unreachable
-  // Redis before the HTTP server exists. start() reuses the connection.
+  // Opens the subscriber connection AND subscribes this pod's channel, so startup code can fail loudly — before
+  // the HTTP server exists — on an unreachable Redis or on an ACL that forbids SUBSCRIBE. A pod that silently
+  // could not subscribe would otherwise stay in the load balancer answering 503 (Kubernetes probes watch the
+  // backend, not MCP). Messages that arrive before start() installs the handler are dropped; nothing can be
+  // pending for this pod that early.
   async connect(): Promise<void> {
     if (this.subscriber) return;
 
@@ -175,39 +183,44 @@ export class RedisSessionRelay implements McpSessionRelay {
       );
     });
     await subscriber.connect();
+
+    try {
+      await subscriber.subscribe(relayChannel(this.podId), (raw) => {
+        const payload = parseRelayedPayload(raw);
+
+        if (payload) this.onForwarded?.(payload);
+      });
+    } catch (error) {
+      // Don't leak the connection behind a failed probe; the caller exits the process anyway.
+      await subscriber.close().catch(() => {});
+      throw error;
+    }
+
     this.subscriber = subscriber;
   }
 
   async start(onForwarded: (payload: RelayedPayload) => void): Promise<void> {
-    if (this.subscribed) return;
+    if (this.onForwarded) return;
 
     await this.connect();
-
-    const subscriber = this.subscriber as RelaySubscriber;
-
-    await subscriber.subscribe(relayChannel(this.podId), (raw) => {
-      const payload = parseRelayedPayload(raw);
-
-      if (payload) onForwarded(payload);
-    });
-    this.subscribed = true;
+    this.onForwarded = onForwarded;
   }
 
   async close(): Promise<void> {
     const subscriber = this.subscriber;
 
     this.subscriber = undefined;
-    this.subscribed = false;
+    this.onForwarded = undefined;
     await subscriber?.close().catch(() => {});
   }
 
-  // "<podId>#<id>". The separator never occurs in a hostname-derived pod id, and JSON-RPC ids may be strings.
+  // "<tag>#<id>". The separator never occurs in the hex tag, and JSON-RPC ids may be strings.
   tagRequestId(id: string | number): string | number {
-    return `${this.podId}#${String(id)}`;
+    return `${this.requestIdTag}#${String(id)}`;
   }
 
   untagRequestId(id: string | number): string | number {
-    const prefix = `${this.podId}#`;
+    const prefix = `${this.requestIdTag}#`;
 
     if (typeof id !== "string" || !id.startsWith(prefix)) return id;
 
