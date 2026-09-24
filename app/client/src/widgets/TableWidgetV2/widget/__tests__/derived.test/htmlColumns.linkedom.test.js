@@ -212,6 +212,16 @@ describe("HTML columns under linkedom (evaluation worker DOM)", () => {
     ]);
   });
 
+  it("does not search tagged HTML by tag names or attributes", () => {
+    const input = buildTaggedHtmlInput();
+
+    input.searchText = "span";
+    expect(getFilteredTableData(input, moment, _)).toStrictEqual([]);
+
+    input.searchText = "color";
+    expect(getFilteredTableData(input, moment, _)).toStrictEqual([]);
+  });
+
   it("filters tagged HTML values by displayed text with contains", () => {
     const input = buildTaggedHtmlInput();
 
@@ -241,17 +251,54 @@ describe("HTML columns under linkedom (evaluation worker DOM)", () => {
     ]);
   });
 
-  it("sorts tagged HTML values by displayed text descending", () => {
+  it("does not filter tagged HTML by tag names or attributes", () => {
     const input = buildTaggedHtmlInput();
 
+    input.filters = [
+      {
+        condition: "contains",
+        column: "status",
+        value: "span",
+      },
+    ];
+    expect(getFilteredTableData(input, moment, _)).toStrictEqual([]);
+
+    input.filters = [
+      {
+        condition: "contains",
+        column: "status",
+        value: "color",
+      },
+    ];
+    expect(getFilteredTableData(input, moment, _)).toStrictEqual([]);
+  });
+
+  it("sorts tagged HTML values by displayed text descending", () => {
+    const input = buildTaggedHtmlInput();
+    /*
+     * Use tag names whose lexicographic order is the opposite of display text:
+     * raw HTML desc would put <span>Active before <div>Pending (s > d),
+     * while display-text desc puts Pending before Active.
+     */
+    const sortRows = [
+      { id: 1, name: "Jim Doe", status: "<span>Active</span>" },
+      { id: 2, name: "Usain Bolt", status: "<div>Pending</div>" },
+      { id: 3, name: "Elon Musk", status: "<span>Active</span>" },
+    ];
+
+    input.tableData = sortRows;
+    input.processedTableData = sortRows.map((row, index) => ({
+      ...row,
+      __originalIndex__: index,
+    }));
     input.sortOrder = { column: "status", order: "desc" };
 
     const result = getFilteredTableData(input, moment, _);
 
     expect(result.map((row) => row.status)).toStrictEqual([
-      "<span style='color: yellow;'>Pending</span>",
-      "<span style='color: green;'>Active</span>",
-      "<span style='color: green;'>Active</span>",
+      "<div>Pending</div>",
+      "<span>Active</span>",
+      "<span>Active</span>",
     ]);
   });
 
