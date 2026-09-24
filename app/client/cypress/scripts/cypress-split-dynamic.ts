@@ -33,7 +33,10 @@ export class dynamicSplit {
         Number(activeRunners) - Number(activeRunnersFromDb),
       );
     } catch (err) {
-      console.log(err);
+      // Without weights this shard would fall back to no_spec.ts, and a shard
+      // that runs nothing still prints the pass marker. Fail loudly instead.
+      console.log("Could not read spec durations for this runner.", err);
+      throw err;
     } finally {
       client.release();
     }
@@ -137,44 +140,6 @@ export class dynamicSplit {
     }
   }
 
-  private async createMatrix(attemptId: number) {
-    const client = await this.dbClient.connect();
-    try {
-      const matrixResponse = await client.query(
-        `INSERT INTO public."matrix" ("workflowId", "matrixId", "status", "attemptId")
-          VALUES ($1, $2, $3, $4)
-          ON CONFLICT ("matrixId", "attemptId") DO NOTHING
-          RETURNING id;`,
-        [
-          this.util.getVars().runId,
-          this.util.getVars().thisRunner,
-          "started",
-          attemptId,
-        ],
-      );
-
-      if (matrixResponse.rows.length > 0) {
-        return { id: matrixResponse.rows[0].id, isNew: true };
-      }
-
-      // A cypress-repeat-pro retry re-runs the splitter with the same
-      // matrixId/attemptId, so the insert above is a no-op and the existing row
-      // already holds the specs queued by the first run.
-      const existingMatrix = await client.query(
-        `SELECT id FROM public."matrix" WHERE "matrixId" = $1 AND "attemptId" = $2`,
-        [this.util.getVars().thisRunner, attemptId],
-      );
-
-      return existingMatrix.rows.length > 0
-        ? { id: existingMatrix.rows[0].id, isNew: false }
-        : undefined;
-    } catch (err) {
-      console.log(err);
-    } finally {
-      client.release();
-    }
-  }
-
   private async getFailedSpecsFromPreviousRun(
     workflowId = Number(this.util.getVars().runId),
     attempt_number = Number(this.util.getVars().attempt_number) - 1,
@@ -195,23 +160,59 @@ export class dynamicSplit {
         dbRes.rows.length > 0 ? dbRes.rows.map((row) => row.name) : [];
       return specs;
     } catch (err) {
-      console.log(err);
+      // On a re-run this list is the whole spec set for the shard. Running
+      // no_spec.ts instead would report a pass without retrying anything.
+      console.log("Could not read the failed specs of the previous run.", err);
+      throw err;
     } finally {
       client.release();
     }
   }
 
-  private async addSpecsToMatrix(matrixId: number, specs: string[]) {
+  // Records this runner's matrix row and its queued specs in one transaction,
+  // so a failure part-way leaves nothing behind instead of a matrix row with
+  // some of its specs missing. A cypress-repeat-pro retry re-runs the splitter
+  // with the same matrixId/attemptId; the insert is then a no-op and the rows
+  // queued by the first run stand. Bookkeeping stays best-effort: a failure
+  // here is logged, not raised.
+  private async registerSpecsForMatrix(attemptId: number, specs: string[]) {
+    if (specs.length === 0) {
+      return;
+    }
     const client = await this.dbClient.connect();
     try {
-      for (const spec of specs) {
-        const res = await client.query(
-          `INSERT INTO public."specs" ("name", "matrixId", "status") VALUES ($1, $2, $3) RETURNING id`,
-          [spec, matrixId, "queued"],
+      await client.query("BEGIN");
+      const matrixResponse = await client.query(
+        `INSERT INTO public."matrix" ("workflowId", "matrixId", "status", "attemptId")
+          VALUES ($1, $2, $3, $4)
+          ON CONFLICT ("matrixId", "attemptId") DO NOTHING
+          RETURNING id;`,
+        [
+          this.util.getVars().runId,
+          this.util.getVars().thisRunner,
+          "started",
+          attemptId,
+        ],
+      );
+
+      if (matrixResponse.rows.length > 0) {
+        await client.query(
+          `INSERT INTO public."specs" ("name", "matrixId", "status")
+            SELECT name, $2::integer, $3::varchar FROM unnest($1::text[]) AS name`,
+          [specs, matrixResponse.rows[0].id, "queued"],
+        );
+      } else {
+        console.log(
+          "Matrix row already exists for this runner; keeping the specs queued by the first run.",
         );
       }
+      await client.query("COMMIT");
     } catch (err) {
-      console.log(err);
+      await client.query("ROLLBACK").catch(() => undefined);
+      console.log(
+        "Could not record the specs for this runner; its results will not be tracked.",
+        err,
+      );
     } finally {
       client.release();
     }
@@ -253,8 +254,11 @@ export class dynamicSplit {
           counter++;
         }
       }
+      // Giving up silently would run no_spec.ts and report a pass.
+      throw new Error("Could not acquire the attempt lock for this runner.");
     } catch (err) {
-      console.log(err);
+      console.log("Spec allocation failed for this runner.", err);
+      throw err;
     } finally {
       client.release();
     }
@@ -264,23 +268,15 @@ export class dynamicSplit {
     attemptId: number,
     specs: string[],
   ) {
+    await this.registerSpecsForMatrix(attemptId, specs);
     const client = await this.dbClient.connect();
     try {
-      if (specs.length > 0) {
-        const matrix = await this.createMatrix(attemptId);
-
-        if (matrix === undefined) {
-          console.log("Could not resolve the matrix row for this runner.");
-        } else if (matrix.isNew) {
-          await this.addSpecsToMatrix(matrix.id, specs);
-        }
-      }
       await client.query(
         `UPDATE public."attempt" SET is_locked = false WHERE id = $1 AND is_locked = true RETURNING id`,
         [attemptId],
       );
     } catch (err) {
-      console.log(err);
+      console.log("Could not release the attempt lock for this runner.", err);
     } finally {
       client.release();
     }
@@ -338,7 +334,10 @@ export class dynamicSplit {
 
       return config;
     } catch (err) {
-      console.log(err);
+      // Returning without a config would let Cypress start with no specs and
+      // report a pass. Let the plugin load fail and the shard go red.
+      console.log("Spec allocation failed for this runner.", err);
+      throw err;
     } finally {
       this.dbClient.end();
     }
