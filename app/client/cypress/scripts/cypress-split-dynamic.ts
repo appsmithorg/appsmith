@@ -4,6 +4,11 @@ import {
   divideSpecsIntoBalancedGroups,
 } from "./specPacking";
 
+interface DbClient {
+  query: (text: string, values?: unknown[]) => Promise<any>;
+  release: () => void;
+}
+
 export class dynamicSplit {
   util = new util();
   dbClient = this.util.configureDbClient();
@@ -60,8 +65,9 @@ export class dynamicSplit {
         ? []
         : specsToRun[0].map((spec) => spec.name);
     } catch (err) {
-      console.error(err);
-      process.exit(1);
+      // Let the caller release the attempt lock and rethrow; exiting here
+      // would leave the lock set for every other runner.
+      throw err;
     }
   }
 
@@ -74,7 +80,9 @@ export class dynamicSplit {
       );
       return matrixRes.rowCount;
     } catch (err) {
-      console.log(err);
+      // An unknown runner count would produce an empty split and no_spec.ts.
+      console.log("Could not count the active runners.", err);
+      throw err;
     } finally {
       client.release();
     }
@@ -97,7 +105,13 @@ export class dynamicSplit {
         dbRes.rows.length > 0 ? dbRes.rows.map((row) => row.name) : [];
       return specs;
     } catch (err) {
-      console.log(err);
+      // Allocating without this list would hand out specs other runners
+      // already hold.
+      console.log(
+        "Could not read the specs already assigned to other runners.",
+        err,
+      );
+      throw err;
     } finally {
       client.release();
     }
@@ -179,8 +193,9 @@ export class dynamicSplit {
     if (specs.length === 0) {
       return;
     }
-    const client = await this.dbClient.connect();
+    let client: DbClient | undefined;
     try {
+      client = await this.dbClient.connect();
       await client.query("BEGIN");
       const matrixResponse = await client.query(
         `INSERT INTO public."matrix" ("workflowId", "matrixId", "status", "attemptId")
@@ -208,7 +223,9 @@ export class dynamicSplit {
       }
       await client.query("COMMIT");
     } catch (err) {
-      await client.query("ROLLBACK").catch(() => undefined);
+      if (client) {
+        await client.query("ROLLBACK").catch(() => undefined);
+      }
       // A workflow command, so the failure shows on the run summary instead
       // of only in this shard's log.
       console.log(
@@ -216,7 +233,7 @@ export class dynamicSplit {
       );
       console.log(err);
     } finally {
-      client.release();
+      client?.release();
     }
   }
 
@@ -259,10 +276,27 @@ export class dynamicSplit {
       // Giving up silently would run no_spec.ts and report a pass.
       throw new Error("Could not acquire the attempt lock for this runner.");
     } catch (err) {
+      if (locked) {
+        await this.releaseAttemptLock(client, attemptId);
+      }
       console.log("Spec allocation failed for this runner.", err);
       throw err;
     } finally {
       client.release();
+    }
+  }
+
+  private async releaseAttemptLock(client: DbClient, attemptId: number) {
+    try {
+      await client.query(
+        `UPDATE public."attempt" SET is_locked = false WHERE id = $1 AND is_locked = true RETURNING id`,
+        [attemptId],
+      );
+    } catch (err) {
+      console.log(
+        "::warning::Could not release the attempt lock for this runner; other runners may wait on it.",
+      );
+      console.log(err);
     }
   }
 
@@ -271,16 +305,17 @@ export class dynamicSplit {
     specs: string[],
   ) {
     await this.registerSpecsForMatrix(attemptId, specs);
-    const client = await this.dbClient.connect();
+    let client: DbClient | undefined;
     try {
-      await client.query(
-        `UPDATE public."attempt" SET is_locked = false WHERE id = $1 AND is_locked = true RETURNING id`,
-        [attemptId],
-      );
+      client = await this.dbClient.connect();
+      await this.releaseAttemptLock(client, attemptId);
     } catch (err) {
-      console.log("Could not release the attempt lock for this runner.", err);
+      console.log(
+        "::warning::Could not release the attempt lock for this runner; other runners may wait on it.",
+      );
+      console.log(err);
     } finally {
-      client.release();
+      client?.release();
     }
   }
 

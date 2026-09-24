@@ -4,6 +4,11 @@ import {
   divideSpecsIntoBalancedGroups,
 } from "./specPacking";
 
+interface DbClient {
+  query: (text: string, values?: unknown[]) => Promise<any>;
+  release: () => void;
+}
+
 export class staticSplit {
   util = new util();
   dbClient = this.util.configureDbClient();
@@ -67,8 +72,8 @@ export class staticSplit {
             );
       }
     } catch (err) {
-      console.error(err);
-      process.exit(1);
+      // Let splitSpecs log and rethrow; exiting here would skip its cleanup.
+      throw err;
     }
   }
 
@@ -149,8 +154,9 @@ export class staticSplit {
     if (specs.length === 0) {
       return;
     }
-    const client = await this.dbClient.connect();
+    let client: DbClient | undefined;
     try {
+      client = await this.dbClient.connect();
       await client.query("BEGIN");
       const matrixResponse = await client.query(
         `INSERT INTO public."matrix" ("workflowId", "matrixId", "status", "attemptId")
@@ -178,7 +184,9 @@ export class staticSplit {
       }
       await client.query("COMMIT");
     } catch (err) {
-      await client.query("ROLLBACK").catch(() => undefined);
+      if (client) {
+        await client.query("ROLLBACK").catch(() => undefined);
+      }
       // A workflow command, so the failure shows on the run summary instead
       // of only in this shard's log.
       console.log(
@@ -186,7 +194,7 @@ export class staticSplit {
       );
       console.log(err);
     } finally {
-      client.release();
+      client?.release();
     }
   }
 
