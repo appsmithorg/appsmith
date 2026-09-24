@@ -188,7 +188,9 @@ async function main(): Promise<void> {
   let governance: McpGovernanceCoordinator | undefined;
 
   if (store) {
-    await store.connect();
+    // Bounded like the session connects below: node-redis retries an unreachable server forever, and this await
+    // runs first, so without a timeout a pod could sit here indefinitely without ever listening.
+    await withStartupTimeout(store.connect(), "governance store");
     governanceStore = store;
     governance = new McpGovernanceCoordinator(store);
     process.stderr.write("Appsmith MCP governance store connected\n");
