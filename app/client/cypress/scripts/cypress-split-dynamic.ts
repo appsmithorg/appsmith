@@ -209,10 +209,12 @@ export class dynamicSplit {
       await client.query("COMMIT");
     } catch (err) {
       await client.query("ROLLBACK").catch(() => undefined);
+      // A workflow command, so the failure shows on the run summary instead
+      // of only in this shard's log.
       console.log(
-        "Could not record the specs for this runner; its results will not be tracked.",
-        err,
+        "::warning::Could not record the specs for this runner; its results will not be tracked and a re-run of only this job will fail.",
       );
+      console.log(err);
     } finally {
       client.release();
     }
@@ -312,8 +314,16 @@ export class dynamicSplit {
       if (cypressSpecs != "")
         specPattern = cypressSpecs?.split(",").filter((val) => val !== "");
       if (this.util.getVars().cypressRerun === "true") {
-        specPattern =
-          (await this.getFailedSpecsFromPreviousRun()) ?? defaultSpec;
+        const failedSpecs = await this.getFailedSpecsFromPreviousRun();
+        if (failedSpecs.length === 0) {
+          // The previous attempt failed but recorded no failed, queued or
+          // in-progress specs, so its results were never tracked. Running
+          // no_spec.ts here would report a pass without retrying anything.
+          throw new Error(
+            "The previous attempt recorded no results for this runner; re-run the whole workflow instead of only the failed jobs.",
+          );
+        }
+        specPattern = failedSpecs;
       }
 
       if (this.util.getVars().cypressSkipFlaky === "true") {
