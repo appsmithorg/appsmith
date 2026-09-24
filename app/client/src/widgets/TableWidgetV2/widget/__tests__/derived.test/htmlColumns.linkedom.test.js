@@ -104,6 +104,35 @@ describe("HTML columns under linkedom (evaluation worker DOM)", () => {
     return input;
   };
 
+  const buildTaggedHtmlInput = () => {
+    const input = buildPlainTextInput();
+    const taggedRows = [
+      {
+        id: 1,
+        name: "Jim Doe",
+        status: "<span style='color: green;'>Active</span>",
+      },
+      {
+        id: 2,
+        name: "Usain Bolt",
+        status: "<span style='color: yellow;'>Pending</span>",
+      },
+      {
+        id: 3,
+        name: "Elon Musk",
+        status: "<span style='color: green;'>Active</span>",
+      },
+    ];
+
+    input.tableData = taggedRows;
+    input.processedTableData = taggedRows.map((row, index) => ({
+      ...row,
+      __originalIndex__: index,
+    }));
+
+    return input;
+  };
+
   const { getFilteredTableData } = derivedProperty;
 
   it("searches plain-text values in HTML columns", () => {
@@ -167,45 +196,8 @@ describe("HTML columns under linkedom (evaluation worker DOM)", () => {
   });
 
   it("searches tagged HTML values via strip-tags fallback under linkedom", () => {
-    const input = buildPlainTextInput();
+    const input = buildTaggedHtmlInput();
 
-    input.tableData = [
-      {
-        id: 1,
-        name: "Jim Doe",
-        status: "<span style='color: green;'>Active</span>",
-      },
-      {
-        id: 2,
-        name: "Usain Bolt",
-        status: "<span style='color: yellow;'>Pending</span>",
-      },
-      {
-        id: 3,
-        name: "Elon Musk",
-        status: "<span style='color: green;'>Active</span>",
-      },
-    ];
-    input.processedTableData = [
-      {
-        id: 1,
-        name: "Jim Doe",
-        status: "<span style='color: green;'>Active</span>",
-        __originalIndex__: 0,
-      },
-      {
-        id: 2,
-        name: "Usain Bolt",
-        status: "<span style='color: yellow;'>Pending</span>",
-        __originalIndex__: 1,
-      },
-      {
-        id: 3,
-        name: "Elon Musk",
-        status: "<span style='color: green;'>Active</span>",
-        __originalIndex__: 2,
-      },
-    ];
     input.searchText = "Pending";
 
     const result = getFilteredTableData(input, moment, _);
@@ -217,6 +209,49 @@ describe("HTML columns under linkedom (evaluation worker DOM)", () => {
         status: "<span style='color: yellow;'>Pending</span>",
         __originalIndex__: 1,
       },
+    ]);
+  });
+
+  it("filters tagged HTML values by displayed text with contains", () => {
+    const input = buildTaggedHtmlInput();
+
+    input.filters = [
+      {
+        condition: "contains",
+        column: "status",
+        value: "Active",
+      },
+    ];
+
+    const result = getFilteredTableData(input, moment, _);
+
+    expect(result).toStrictEqual([
+      {
+        id: 1,
+        name: "Jim Doe",
+        status: "<span style='color: green;'>Active</span>",
+        __originalIndex__: 0,
+      },
+      {
+        id: 3,
+        name: "Elon Musk",
+        status: "<span style='color: green;'>Active</span>",
+        __originalIndex__: 2,
+      },
+    ]);
+  });
+
+  it("sorts tagged HTML values by displayed text descending", () => {
+    const input = buildTaggedHtmlInput();
+
+    input.sortOrder = { column: "status", order: "desc" };
+
+    const result = getFilteredTableData(input, moment, _);
+
+    expect(result.map((row) => row.status)).toStrictEqual([
+      "<span style='color: yellow;'>Pending</span>",
+      "<span style='color: green;'>Active</span>",
+      "<span style='color: green;'>Active</span>",
     ]);
   });
 });
