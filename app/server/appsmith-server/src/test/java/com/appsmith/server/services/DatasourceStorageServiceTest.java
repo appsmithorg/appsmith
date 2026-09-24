@@ -13,12 +13,14 @@ import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.KeyPairAuth;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSHConnection;
 import com.appsmith.external.models.SSHPrivateKey;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.datasourcestorages.base.DatasourceCredentialBindingResult;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Plugin;
@@ -45,8 +47,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.net.URI;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -175,23 +179,13 @@ public class DatasourceStorageServiceTest {
         requestKeyPair.setUsername("key-user");
         requestKeyPair.setPrivateKey(new UploadedFile("private-key.pem", null));
 
-        OAuth2 storedOAuthToken = new OAuth2();
-        storedOAuthToken.setClientId("token-client-id");
-        AuthenticationResponse authenticationResponse = new AuthenticationResponse();
-        authenticationResponse.setToken("access-token");
-        authenticationResponse.setRefreshToken("refresh-token");
-        storedOAuthToken.setAuthenticationResponse(authenticationResponse);
-        OAuth2 requestOAuthToken = new OAuth2();
-        requestOAuthToken.setClientId("token-client-id");
-
         List<CredentialPair> authenticationCases = List.of(
                 new CredentialPair(storedDbAuth, requestDbAuth),
                 new CredentialPair(storedBasicAuth, requestBasicAuth),
                 new CredentialPair(storedBearerAuth, requestBearerAuth),
                 new CredentialPair(storedApiKeyAuth, requestApiKeyAuth),
                 new CredentialPair(storedOAuth, requestOAuth),
-                new CredentialPair(storedKeyPair, requestKeyPair),
-                new CredentialPair(storedOAuthToken, requestOAuthToken));
+                new CredentialPair(storedKeyPair, requestKeyPair));
 
         authenticationCases.forEach(credentialPair -> assertChangedConnectionRequiresCredentials(
                 configurationWithAuthentication("trusted.example.com", credentialPair.stored()),
@@ -234,6 +228,160 @@ public class DatasourceStorageServiceTest {
         requestSsh.setPrivateKey(new SSHPrivateKey(null, null));
         requestSshConfiguration.setSshProxy(requestSsh);
         assertChangedConnectionRequiresCredentials(storedSshConfiguration, requestSshConfiguration);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void changedOAuthScopeWithOnlyStoredTokensClearsAuthorizationForReauthorization() {
+        OAuth2 storedOAuth = new OAuth2();
+        storedOAuth.setClientId("managed-client-id");
+        storedOAuth.setScopeString("https://www.googleapis.com/auth/drive.file");
+        storedOAuth.setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
+        storedOAuth.setIsAuthorized(true);
+        AuthenticationResponse authenticationResponse = new AuthenticationResponse();
+        authenticationResponse.setToken("access-token");
+        authenticationResponse.setRefreshToken("refresh-token");
+        storedOAuth.setAuthenticationResponse(authenticationResponse);
+
+        OAuth2 requestOAuth = new OAuth2();
+        requestOAuth.setClientId("managed-client-id");
+        requestOAuth.setScopeString("https://www.googleapis.com/auth/spreadsheets.readonly");
+        requestOAuth.setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
+
+        DatasourceStorage storedStorage =
+                storageWithConfiguration(configurationWithAuthentication("sheets.googleapis.com", storedOAuth));
+        DatasourceStorage requestStorage =
+                storageWithConfiguration(configurationWithAuthentication("sheets.googleapis.com", requestOAuth));
+
+        DatasourceCredentialBindingResult result =
+                datasourceStorageService.bindStoredCredentials(requestStorage, storedStorage);
+        OAuth2 boundOAuth =
+                (OAuth2) result.datasourceStorage().getDatasourceConfiguration().getAuthentication();
+
+        assertThat(result.connectionConfigurationChanged()).isTrue();
+        assertThat(result.credentialSource()).isEqualTo(DatasourceCredentialBindingResult.CredentialSource.CLEARED);
+        assertThat(boundOAuth.getAuthenticationResponse()).isNull();
+        assertThat(boundOAuth.getAuthenticationStatus()).isEqualTo(AuthenticationDTO.AuthenticationStatus.NONE);
+        assertThat(boundOAuth.getIsAuthorized()).isFalse();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void unchangedOAuthScopeReusesStoredTokensDespiteOmittedAuthorizationState() {
+        OAuth2 storedOAuth = new OAuth2();
+        storedOAuth.setClientId("managed-client-id");
+        storedOAuth.setScopeString("https://www.googleapis.com/auth/drive.file");
+        storedOAuth.setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
+        storedOAuth.setIsAuthorized(true);
+        AuthenticationResponse authenticationResponse = new AuthenticationResponse();
+        authenticationResponse.setToken("access-token");
+        authenticationResponse.setRefreshToken("refresh-token");
+        storedOAuth.setAuthenticationResponse(authenticationResponse);
+
+        OAuth2 requestOAuth = new OAuth2();
+        requestOAuth.setClientId("managed-client-id");
+        requestOAuth.setScopeString("https://www.googleapis.com/auth/drive.file");
+        requestOAuth.setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
+
+        DatasourceStorage storedStorage =
+                storageWithConfiguration(configurationWithAuthentication("sheets.googleapis.com", storedOAuth));
+        DatasourceStorage requestStorage =
+                storageWithConfiguration(configurationWithAuthentication("sheets.googleapis.com", requestOAuth));
+
+        DatasourceCredentialBindingResult result =
+                datasourceStorageService.bindStoredCredentials(requestStorage, storedStorage);
+        OAuth2 boundOAuth =
+                (OAuth2) result.datasourceStorage().getDatasourceConfiguration().getAuthentication();
+
+        assertThat(result.connectionConfigurationChanged()).isFalse();
+        assertThat(result.credentialSource()).isEqualTo(DatasourceCredentialBindingResult.CredentialSource.STORED);
+        assertThat(boundOAuth.getAuthenticationResponse()).isSameAs(authenticationResponse);
+        assertThat(boundOAuth.getIsAuthorized()).isTrue();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void changedOAuthScopeWithAnotherStoredSecretRequiresFreshCredentials() {
+        OAuth2 storedOAuth = new OAuth2();
+        storedOAuth.setClientId("custom-client-id");
+        storedOAuth.setClientSecret("client-secret");
+        storedOAuth.setScopeString("scope-one");
+        AuthenticationResponse authenticationResponse = new AuthenticationResponse();
+        authenticationResponse.setToken("access-token");
+        storedOAuth.setAuthenticationResponse(authenticationResponse);
+
+        OAuth2 requestOAuth = new OAuth2();
+        requestOAuth.setClientId("custom-client-id");
+        requestOAuth.setScopeString("scope-two");
+
+        assertChangedConnectionRequiresCredentials(
+                configurationWithAuthentication("api.example.com", storedOAuth),
+                configurationWithAuthentication("api.example.com", requestOAuth));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void publicConfigurationChangesRequireFreshCredentials() {
+        List<String> changedSettings = List.of("url", "headers", "queryParameters", "properties");
+
+        changedSettings.forEach(changedSetting -> {
+            DBAuth storedAuth = new DBAuth();
+            storedAuth.setUsername("db-user");
+            storedAuth.setPassword("db-password");
+            DBAuth requestAuth = new DBAuth();
+            requestAuth.setUsername("db-user");
+
+            DatasourceConfiguration storedConfiguration =
+                    configurationWithAuthentication("trusted.example.com", storedAuth);
+            DatasourceConfiguration requestConfiguration =
+                    configurationWithAuthentication("trusted.example.com", requestAuth);
+            storedConfiguration.setUrl("https://trusted.example.com/api");
+            requestConfiguration.setUrl("https://trusted.example.com/api");
+            storedConfiguration.setHeaders(List.of(new Property("X-Tenant", "trusted")));
+            requestConfiguration.setHeaders(List.of(new Property("X-Tenant", "trusted")));
+            storedConfiguration.setQueryParameters(List.of(new Property("region", "us-east")));
+            requestConfiguration.setQueryParameters(List.of(new Property("region", "us-east")));
+            storedConfiguration.setProperties(List.of(new Property("account", "trusted")));
+            requestConfiguration.setProperties(List.of(new Property("account", "trusted")));
+
+            switch (changedSetting) {
+                case "url" -> requestConfiguration.setUrl("https://changed.example.com/api");
+                case "headers" -> requestConfiguration.setHeaders(List.of(new Property("X-Tenant", "changed")));
+                case "queryParameters" ->
+                    requestConfiguration.setQueryParameters(List.of(new Property("region", "eu-west")));
+                case "properties" -> requestConfiguration.setProperties(List.of(new Property("account", "changed")));
+                default -> throw new IllegalArgumentException("Unexpected setting: " + changedSetting);
+            }
+
+            assertThatThrownBy(() -> datasourceStorageService.bindStoredCredentials(
+                            storageWithConfiguration(requestConfiguration),
+                            storageWithConfiguration(storedConfiguration)))
+                    .as("changed datasource setting: %s", changedSetting)
+                    .isInstanceOf(AppsmithException.class)
+                    .extracting(error -> ((AppsmithException) error).getError())
+                    .isEqualTo(AppsmithError.DATASOURCE_CREDENTIALS_REQUIRED);
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void nonDomainPropertyValuesAreLeavesDuringCredentialInspection() {
+        DBAuth storedAuth = new DBAuth();
+        storedAuth.setUsername("db-user");
+        storedAuth.setPassword("db-password");
+        DBAuth requestAuth = new DBAuth();
+        requestAuth.setUsername("db-user");
+
+        DatasourceConfiguration storedConfiguration =
+                configurationWithAuthentication("trusted.example.com", storedAuth);
+        DatasourceConfiguration requestConfiguration =
+                configurationWithAuthentication("changed.example.com", requestAuth);
+        storedConfiguration.setProperties(
+                List.of(new Property("callbacks", Set.of(URI.create("https://example.com")))));
+        requestConfiguration.setProperties(
+                List.of(new Property("callbacks", Set.of(URI.create("https://example.com")))));
+
+        assertChangedConnectionRequiresCredentials(storedConfiguration, requestConfiguration);
     }
 
     @Test
@@ -297,14 +445,17 @@ public class DatasourceStorageServiceTest {
         return configuration;
     }
 
+    private DatasourceStorage storageWithConfiguration(DatasourceConfiguration configuration) {
+        DatasourceStorage storage =
+                new DatasourceStorage("datasource-id", "environment-id", configuration, null, null, null);
+        storage.setId("storage-id");
+        return storage;
+    }
+
     private void assertChangedConnectionRequiresCredentials(
             DatasourceConfiguration storedConfiguration, DatasourceConfiguration requestConfiguration) {
-        DatasourceStorage storedStorage =
-                new DatasourceStorage("datasource-id", "environment-id", storedConfiguration, null, null, null);
-        storedStorage.setId("storage-id");
-        DatasourceStorage requestStorage =
-                new DatasourceStorage("datasource-id", "environment-id", requestConfiguration, null, null, null);
-        requestStorage.setId("storage-id");
+        DatasourceStorage storedStorage = storageWithConfiguration(storedConfiguration);
+        DatasourceStorage requestStorage = storageWithConfiguration(requestConfiguration);
 
         assertThatThrownBy(() -> datasourceStorageService.bindStoredCredentials(requestStorage, storedStorage))
                 .isInstanceOf(AppsmithException.class)

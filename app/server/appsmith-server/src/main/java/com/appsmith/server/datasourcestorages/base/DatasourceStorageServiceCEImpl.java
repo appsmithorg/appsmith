@@ -3,6 +3,8 @@ package com.appsmith.server.datasourcestorages.base;
 import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.AppsmithDomain;
+import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
@@ -217,6 +219,20 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                     changedConnectionSettingGroups);
         }
 
+        if (storedConfigurationContainsCredentials
+                && !requestContainsCredentials
+                && canClearStoredOAuthTokens(datasourceConfiguration, storedDatasourceConfiguration)) {
+            OAuth2 requestOAuth = (OAuth2) datasourceConfiguration.getAuthentication();
+            requestOAuth.setAuthenticationResponse(null);
+            requestOAuth.setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.NONE);
+            requestOAuth.setIsAuthorized(false);
+            return new DatasourceCredentialBindingResult(
+                    replaceStoredConfiguration(datasourceStorage, storedDatasourceStorage),
+                    true,
+                    DatasourceCredentialBindingResult.CredentialSource.CLEARED,
+                    changedConnectionSettingGroups);
+        }
+
         if (storedConfigurationContainsCredentials && !requestContainsCredentials) {
             throw new DatasourceCredentialsRequiredException(changedConnectionSettingGroups);
         }
@@ -226,6 +242,21 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 true,
                 DatasourceCredentialBindingResult.CredentialSource.REQUEST,
                 changedConnectionSettingGroups);
+    }
+
+    private boolean canClearStoredOAuthTokens(
+            DatasourceConfiguration datasourceConfiguration, DatasourceConfiguration storedDatasourceConfiguration) {
+        if (datasourceConfiguration == null
+                || storedDatasourceConfiguration == null
+                || !(datasourceConfiguration.getAuthentication() instanceof OAuth2)
+                || !(storedDatasourceConfiguration.getAuthentication() instanceof OAuth2 storedOAuth)) {
+            return false;
+        }
+
+        AuthenticationResponse storedAuthenticationResponse = storedOAuth.getAuthenticationResponse();
+        return storedAuthenticationResponse != null
+                && containsEncryptedValue(storedAuthenticationResponse)
+                && !containsEncryptedValue(storedDatasourceConfiguration, storedAuthenticationResponse);
     }
 
     private DatasourceStorage replaceStoredConfiguration(
@@ -254,8 +285,14 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
     private JsonNode getPublicConfiguration(DatasourceConfiguration datasourceConfiguration) {
         try {
-            return objectMapper.readTree(
+            JsonNode publicConfiguration = objectMapper.readTree(
                     objectMapper.writerWithView(Views.Public.class).writeValueAsString(datasourceConfiguration));
+            if (publicConfiguration instanceof ObjectNode publicConfigurationObject
+                    && publicConfigurationObject.get("authentication") instanceof ObjectNode authenticationObject) {
+                authenticationObject.remove("authenticationStatus");
+                authenticationObject.remove("isAuthorized");
+            }
+            return publicConfiguration;
         } catch (JsonProcessingException exception) {
             throw new AppsmithException(exception, AppsmithError.DATASOURCE_CREDENTIALS_REQUIRED);
         }
@@ -319,20 +356,29 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
     private boolean containsEncryptedValue(Object source) {
         Set<Object> visited = Collections.newSetFromMap(new IdentityHashMap<>());
-        return containsEncryptedValue(source, visited);
+        return containsEncryptedValue(source, visited, null);
     }
 
-    private boolean containsEncryptedValue(Object source, Set<Object> visited) {
-        if (source == null || !visited.add(source)) {
+    private boolean containsEncryptedValue(Object source, Object excluded) {
+        Set<Object> visited = Collections.newSetFromMap(new IdentityHashMap<>());
+        return containsEncryptedValue(source, visited, excluded);
+    }
+
+    private boolean containsEncryptedValue(Object source, Set<Object> visited, Object excluded) {
+        if (source == null || source == excluded || !visited.add(source)) {
             return false;
         }
 
         if (source instanceof Collection<?> collection) {
-            return collection.stream().anyMatch(value -> containsEncryptedValue(value, visited));
+            return collection.stream().anyMatch(value -> containsEncryptedValue(value, visited, excluded));
         }
 
         if (source instanceof Map<?, ?> map) {
-            return map.values().stream().anyMatch(value -> containsEncryptedValue(value, visited));
+            return map.values().stream().anyMatch(value -> containsEncryptedValue(value, visited, excluded));
+        }
+
+        if (!(source instanceof AppsmithDomain)) {
+            return false;
         }
 
         for (Class<?> type = source.getClass(); type != null && type != Object.class; type = type.getSuperclass()) {
@@ -353,7 +399,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                     } else if (value instanceof AppsmithDomain
                             || value instanceof Collection<?>
                             || value instanceof Map<?, ?>) {
-                        if (containsEncryptedValue(value, visited)) {
+                        if (containsEncryptedValue(value, visited, excluded)) {
                             return true;
                         }
                     }

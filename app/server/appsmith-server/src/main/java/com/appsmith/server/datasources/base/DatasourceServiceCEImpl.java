@@ -564,7 +564,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                     dbDatasource.getWorkspaceId(),
                                     datasourceStorage.getEnvironmentId(),
                                     dbDatasource.getPluginId(),
-                                    null))
+                                    environmentPermission.getExecutePermission()))
                             .flatMap(tuple2 -> {
                                 Datasource datasource = tuple2.getT1();
                                 String trueEnvironmentId = tuple2.getT2();

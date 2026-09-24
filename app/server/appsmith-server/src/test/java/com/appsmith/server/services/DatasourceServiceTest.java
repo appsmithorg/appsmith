@@ -1118,6 +1118,46 @@ public class DatasourceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void testSavedDatasourceRequiresEnvironmentExecutePermission() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
+
+        DatasourceConfiguration savedConfiguration = new DatasourceConfiguration();
+        savedConfiguration.setEndpoints(List.of(new Endpoint("trusted.example.com", 5432L)));
+        DBAuth savedAuthentication = new DBAuth();
+        savedAuthentication.setUsername("database-user");
+        savedAuthentication.setPassword("stored-password");
+        savedConfiguration.setAuthentication(savedAuthentication);
+
+        Datasource datasource = new Datasource();
+        datasource.setName("environment-protected datasource");
+        datasource.setWorkspaceId(workspaceId);
+        datasource.setPluginId(plugin.getId());
+        datasource.setDatasourceStorages(new HashMap<>(java.util.Map.of(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, savedConfiguration))));
+        Datasource savedDatasource = datasourceService.create(datasource).block();
+
+        DatasourceStorageDTO testStorage =
+                savedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+        ((DBAuth) testStorage.getDatasourceConfiguration().getAuthentication()).setPassword(null);
+        testStorage.setPluginId(plugin.getId());
+        Mockito.clearInvocations(spyDatasourceService);
+
+        StepVerifier.create(spyDatasourceService.testDatasource(testStorage, defaultEnvironmentId))
+                .assertNext(testResult -> assertThat(testResult.getInvalids()).isEmpty())
+                .verifyComplete();
+
+        Mockito.verify(spyDatasourceService)
+                .getTrueEnvironmentId(
+                        workspaceId,
+                        defaultEnvironmentId,
+                        plugin.getId(),
+                        environmentPermission.getExecutePermission());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void deleteDatasourceWithoutActions() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
