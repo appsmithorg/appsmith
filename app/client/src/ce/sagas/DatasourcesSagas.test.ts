@@ -57,11 +57,13 @@ describe("testDatasourceSaga", () => {
       datasourceConfiguration: { url: "https://changed.example.com" },
       isValid: true,
     };
-    const datasource = {
+    const datasource: Datasource = {
       id: "saved-datasource-id",
+      name: "Saved datasource",
       pluginId: "plugin-id",
+      workspaceId: "workspace-id",
       datasourceStorages: { "environment-id": currentStorage },
-    } as Datasource;
+    };
     const action: ReduxAction<Datasource> = {
       type: ReduxActionTypes.TEST_DATASOURCE_INIT,
       payload: datasource,
@@ -71,7 +73,11 @@ describe("testDatasourceSaga", () => {
       .spyOn(DatasourcesApi, "testDatasource")
       .mockReturnValue(Promise.resolve({}) as never);
 
-    const generator = testDatasourceSaga(action);
+    const generator = testDatasourceSaga(action) as unknown as Generator<
+      unknown,
+      void,
+      unknown
+    >;
     generator.next();
     generator.next("workspace-id");
     generator.next(datasource);
