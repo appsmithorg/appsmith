@@ -236,6 +236,60 @@ public class DatasourceStorageServiceTest {
         assertChangedConnectionRequiresCredentials(storedSshConfiguration, requestSshConfiguration);
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void changedConnectionWithFreshCredentialsRetainsStoredIdentity() {
+        DBAuth storedAuth = new DBAuth();
+        storedAuth.setUsername("stored-user");
+        storedAuth.setPassword("stored-password");
+        DatasourceConfiguration storedConfiguration =
+                configurationWithAuthentication("trusted.example.com", storedAuth);
+        DatasourceStorage storedStorage =
+                new DatasourceStorage("datasource-id", "environment-id", storedConfiguration, null, null, null);
+        storedStorage.setId("storage-id");
+
+        DBAuth requestAuth = new DBAuth();
+        requestAuth.setUsername("request-user");
+        requestAuth.setPassword("request-password");
+        DatasourceConfiguration requestConfiguration =
+                configurationWithAuthentication("changed.example.com", requestAuth);
+        DatasourceStorage requestStorage =
+                new DatasourceStorage("datasource-id", "environment-id", requestConfiguration, null, null, null);
+
+        DatasourceStorage boundStorage =
+                datasourceStorageService.bindStoredCredentials(requestStorage, storedStorage).datasourceStorage();
+
+        assertThat(boundStorage.getId()).isEqualTo("storage-id");
+        assertThat(boundStorage.getDatasourceConfiguration()).isSameAs(requestConfiguration);
+        assertThat(((DBAuth) boundStorage.getDatasourceConfiguration().getAuthentication()).getPassword())
+                .isEqualTo("request-password");
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void changedTransportAndClearedAuthenticationRequiresFreshCredentials() {
+        DBAuth storedAuth = new DBAuth();
+        storedAuth.setUsername("stored-user");
+        storedAuth.setPassword("stored-password");
+        DatasourceConfiguration storedConfiguration =
+                configurationWithAuthentication("trusted.example.com", storedAuth);
+        Connection storedConnection = new Connection();
+        SSLDetails storedSsl = new SSLDetails();
+        storedSsl.setAuthType(SSLDetails.AuthType.VERIFY_FULL);
+        storedConnection.setSsl(storedSsl);
+        storedConfiguration.setConnection(storedConnection);
+
+        DatasourceConfiguration requestConfiguration = new DatasourceConfiguration();
+        requestConfiguration.setEndpoints(List.of(new Endpoint("trusted.example.com", 5432L)));
+        Connection requestConnection = new Connection();
+        SSLDetails requestSsl = new SSLDetails();
+        requestSsl.setAuthType(SSLDetails.AuthType.NO_SSL);
+        requestConnection.setSsl(requestSsl);
+        requestConfiguration.setConnection(requestConnection);
+
+        assertChangedConnectionRequiresCredentials(storedConfiguration, requestConfiguration);
+    }
+
     private DatasourceConfiguration configurationWithAuthentication(String host, AuthenticationDTO authentication) {
         DatasourceConfiguration configuration = new DatasourceConfiguration();
         configuration.setEndpoints(List.of(new Endpoint(host, 5432L)));
