@@ -327,4 +327,57 @@ describe("destructive confirmations", () => {
       }),
     ).resolves.toEqual(confirmation);
   });
+
+  it("readDestructiveConfirmation: returns the stored context to the owner only, without consuming", async () => {
+    const store = new MemoryGovernanceStore();
+    const service = coordinator(store);
+    const context = { branch: "mcp/fix-1", message: "Fix orders" };
+    const confirmation = await service.prepareDestructiveConfirmation({
+      ...binding,
+      context,
+    });
+
+    expect(confirmation.context).toEqual(context);
+    expect(
+      await service.readDestructiveConfirmation("forged-id", binding.actorId),
+    ).toBeUndefined();
+    expect(
+      await service.readDestructiveConfirmation(
+        confirmation.id,
+        "someone-else",
+      ),
+    ).toBeUndefined();
+
+    const read = await service.readDestructiveConfirmation(
+      confirmation.id,
+      binding.actorId,
+    );
+
+    expect(read?.context).toEqual(context);
+    expect(read?.expiresAt).toBeInstanceOf(Date);
+    // Non-consuming: the token is still there for the confirm step.
+    expect(store.confirmations.has(confirmation.id)).toBe(true);
+  });
+
+  it("discardDestructiveConfirmation: only the owner can drop a token, and it is then gone", async () => {
+    const store = new MemoryGovernanceStore();
+    const service = coordinator(store);
+    const confirmation = await service.prepareDestructiveConfirmation(binding);
+
+    await service.discardDestructiveConfirmation(
+      confirmation.id,
+      "someone-else",
+    );
+    expect(store.confirmations.has(confirmation.id)).toBe(true);
+
+    await service.discardDestructiveConfirmation(
+      confirmation.id,
+      binding.actorId,
+    );
+    expect(store.confirmations.has(confirmation.id)).toBe(false);
+    // Unknown ids are a no-op.
+    await expect(
+      service.discardDestructiveConfirmation("forged-id", binding.actorId),
+    ).resolves.toBeUndefined();
+  });
 });

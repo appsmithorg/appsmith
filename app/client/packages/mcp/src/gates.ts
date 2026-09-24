@@ -129,6 +129,26 @@ export interface SessionLimits {
 export const MAX_SESSION_CAP_CEILING = 10_000;
 export const SESSION_TTL_CEILING_MS = 24 * 60 * 60 * 1000;
 
+export type SessionStoreMode = "memory" | "redis";
+
+// APPSMITH_MCP_SESSION_STORE: where session records live. `memory` (the default; unset and blank count as unset,
+// since docker.env-style files commonly carry empty keys) is correct for exactly one MCP process; `redis` shares
+// sessions across replicas. Any other value THROWS: silently falling back to memory on a typo would reproduce the
+// exact multi-replica 404s the redis mode exists to fix, on the exact deployments that set it.
+export function sessionStoreModeFromEnv(
+  value: string | undefined,
+): SessionStoreMode {
+  const normalized = (value ?? "").trim().toLowerCase();
+
+  if (normalized === "" || normalized === "memory") return "memory";
+
+  if (normalized === "redis") return "redis";
+
+  throw new Error(
+    `APPSMITH_MCP_SESSION_STORE must be "memory" or "redis" (got "${value}")`,
+  );
+}
+
 // Session-limit env overrides resolved against their built-in defaults. Lives here (not in the entrypoint) so the
 // env-var names and fallback behavior are unit-testable. A present-but-invalid value falls back AND is reported via
 // `warn`, so an operator who mistypes a *tightening* override finds out at startup instead of silently running with

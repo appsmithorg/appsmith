@@ -12,12 +12,17 @@ import {
   gateEnabledUnlessFalse,
   publicOriginFromEnv,
   sessionLimitsFromEnv,
+  sessionStoreModeFromEnv,
 } from "./gates.js";
 import { McpGovernanceCoordinator } from "./governance/coordinator.js";
 import {
   createGovernanceStoreFromEnv,
+  createRedisClientFromUrl,
   type MongoRedisGovernanceStore,
+  type RedisConnection,
 } from "./governance/store.js";
+import { RedisSessionRelay } from "./session/relay.js";
+import { RedisSessionStore, type McpSessionStore } from "./session/store.js";
 
 const port = Number(process.env.APPSMITH_MCP_PORT ?? 8092);
 const apiBaseUrl = apiBaseUrlFromEnv(
@@ -95,8 +100,19 @@ const sessionLimits = sessionLimitsFromEnv(
   (message) => process.stderr.write(`Appsmith MCP ${message}\n`),
 );
 
+// Multi-replica session sharing (APPSMITH_MCP_SESSION_STORE=redis). Opt-in: the in-process default is correct
+// for exactly one MCP process, which is every single-container deployment. With more than one replica behind a
+// load balancer, sessions and elicitation answers must be shared through Redis or requests that land on the
+// "other" pod fail with 404 (see README "Running more than one replica"). An unrecognised value throws here, at
+// module load, so the process exits before listening (fail-loud, like the redis-mode checks in main()).
+const sessionStoreMode = sessionStoreModeFromEnv(
+  process.env.APPSMITH_MCP_SESSION_STORE,
+);
+
 let httpServer: Server | undefined;
 let governanceStore: MongoRedisGovernanceStore | undefined;
+let sessionRedis: RedisConnection | undefined;
+let sessionRelay: RedisSessionRelay | undefined;
 let shuttingDown = false;
 
 function shutdown(signal: string) {
@@ -112,7 +128,11 @@ function shutdown(signal: string) {
   forceExit.unref();
 
   const finish = (code: number) => {
-    void Promise.resolve(governanceStore?.close())
+    void Promise.allSettled([
+      Promise.resolve(governanceStore?.close()),
+      Promise.resolve(sessionRelay?.close()),
+      Promise.resolve(sessionRedis?.close()),
+    ])
       .catch(() => {})
       .finally(() => {
         clearTimeout(forceExit);
@@ -156,6 +176,46 @@ async function main(): Promise<void> {
     );
   }
 
+  // Shared sessions are configured explicitly, so a misconfiguration fails loudly at startup (supervisord
+  // restarts) rather than silently falling back to per-pod memory and reproducing the multi-replica 404s.
+  let sessionStore: McpSessionStore | undefined;
+
+  if (sessionStoreMode === "redis") {
+    const redisUrl = process.env.APPSMITH_REDIS_URL;
+
+    if (!redisUrl) {
+      throw new Error(
+        "APPSMITH_MCP_SESSION_STORE=redis requires APPSMITH_REDIS_URL",
+      );
+    }
+
+    const redis = createRedisClientFromUrl(redisUrl);
+
+    if (!redis) {
+      throw new Error(
+        "APPSMITH_MCP_SESSION_STORE=redis requires a redis://, rediss://, or redis-cluster:// APPSMITH_REDIS_URL",
+      );
+    }
+
+    // A runtime socket error with no listener would throw out of the event loop and exit the process; node-redis
+    // reconnects on its own, so log and keep serving (requests fail individually while it is down).
+    redis.on("error", (error) => {
+      process.stderr.write(
+        `Appsmith MCP session Redis error: ${error.message}\n`,
+      );
+    });
+    await redis.connect();
+    sessionRedis = redis;
+    sessionStore = new RedisSessionStore(redis);
+    sessionRelay = new RedisSessionRelay(redis);
+    // Open the relay's subscriber connection NOW so an unreachable Redis (or one whose ACL forbids SUBSCRIBE)
+    // fails startup loudly instead of leaving a live pod that answers 503 forever.
+    await sessionRelay.connect();
+    process.stderr.write(
+      `Appsmith MCP sessions shared through Redis (pod id ${sessionRelay.podId})\n`,
+    );
+  }
+
   httpServer = createMcpHttpServer(apiBaseUrl, undefined, {
     dataEnabled,
     jsEnabled,
@@ -166,6 +226,7 @@ async function main(): Promise<void> {
     elicitationStrict,
     elicitationTimeoutMs,
     ...sessionLimits,
+    ...(sessionStore !== undefined ? { sessionStore, sessionRelay } : {}),
   });
 
   httpServer.listen(port, "127.0.0.1", () => {

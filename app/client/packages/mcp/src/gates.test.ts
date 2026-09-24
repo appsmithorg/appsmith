@@ -7,6 +7,7 @@ import {
   parsePositiveInt,
   publicOriginFromEnv,
   sessionLimitsFromEnv,
+  sessionStoreModeFromEnv,
 } from "./gates.js";
 
 describe("elicitationTimeoutFromEnv — APPSMITH_MCP_ELICITATION_TIMEOUT_MS", () => {
@@ -288,5 +289,24 @@ describe("sessionLimitsFromEnv — session cap/TTL resolution", () => {
     });
     expect(warn).toHaveBeenCalledTimes(1);
     expect(warn.mock.calls[0][0]).toContain("the global cap applies first");
+  });
+});
+
+describe("sessionStoreModeFromEnv", () => {
+  it("treats unset and blank as memory, and accepts memory/redis case-insensitively", () => {
+    expect(sessionStoreModeFromEnv(undefined)).toBe("memory");
+    expect(sessionStoreModeFromEnv("")).toBe("memory");
+    expect(sessionStoreModeFromEnv("   ")).toBe("memory");
+    expect(sessionStoreModeFromEnv("memory")).toBe("memory");
+    expect(sessionStoreModeFromEnv("redis")).toBe("redis");
+    expect(sessionStoreModeFromEnv(" Redis ")).toBe("redis");
+  });
+
+  it("refuses anything else instead of silently running per-pod memory on a multi-replica deployment", () => {
+    for (const value of ["reddis", "true", "1", "memory,redis"]) {
+      expect(() => sessionStoreModeFromEnv(value)).toThrow(
+        'APPSMITH_MCP_SESSION_STORE must be "memory" or "redis"',
+      );
+    }
   });
 });

@@ -1,18 +1,41 @@
-import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import {
   createServer,
   type IncomingMessage,
   type Server,
   type ServerResponse,
 } from "node:http";
+import { getRequestListener } from "@hono/node-server";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import {
+  WebStandardStreamableHTTPServerTransport,
+  type WebStandardStreamableHTTPServerTransportOptions,
+} from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import {
   ErrorCode,
   isInitializeRequest,
+  isJSONRPCRequest,
   McpError,
+  type JSONRPCMessage,
+  type RequestId,
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
+import { ELICITATION_TIMEOUT_CEILING_MS } from "./gates.js";
+import {
+  isRelayableResponse,
+  NoopSessionRelay,
+  type McpSessionRelay,
+  type RelayedPayload,
+} from "./session/relay.js";
+import {
+  hashToken,
+  InMemorySessionStore,
+  tokenHashesMatch,
+  type McpSessionInitializeParams,
+  type McpSessionRecord,
+  type McpSessionStore,
+  type McpSessionSummary,
+} from "./session/store.js";
 import {
   buildDuplicateActionDto,
   buildUpdateActionDto,
@@ -2299,6 +2322,10 @@ export function buildMcpServer(
   }
 
   interface ElicitationExtra {
+    // The tool call's own JSON-RPC id. The prompt is sent with it as relatedRequestId so it rides the tool call's
+    // response stream rather than the standalone GET stream — which the SDK silently drops into when absent, and
+    // which on a multi-replica deployment may be open on a different pod entirely.
+    requestId: RequestId;
     _meta?: { progressToken?: string | number };
     sendNotification: (notification: {
       method: "notifications/progress";
@@ -2390,7 +2417,7 @@ export function buildMcpServer(
             // buttons (no form) answer accept without content, and that explicit accept must count.
           },
         },
-        { timeout: elicitationTimeout },
+        { timeout: elicitationTimeout, relatedRequestId: extra.requestId },
       );
 
       if (answer.action === "accept") {
@@ -4331,15 +4358,38 @@ export function buildMcpServer(
       message: string;
       revision: string;
       appName?: string;
-      expiresAt: number;
     }
 
-    // Session-scoped side-table keyed by confirmationId: carries what the one-time gov confirmation cannot (the
-    // exact message/branch the digest binds and the app name for prompts). The elicitation attempt counter lives
-    // in the shared elicitationAttempts map (one mechanism for every destructive confirm tool). The gov token
-    // stays the authoritative one-time credential — losing this map (a new session) just means a fresh
-    // prepare_commit; a confirmation can never execute without its matching entry AND the matching gov token.
-    const pendingCommits = new Map<string, PendingCommit>();
+    // Carried INSIDE the one-time gov confirmation (DestructiveConfirmationBinding.context): the exact
+    // message/branch the digest binds and the app name for prompts. It used to be a per-session map, which
+    // meant a confirm served by a different replica than the prepare could never find it. The gov token stays
+    // the authoritative one-time credential — a confirmation can never execute without its matching context AND
+    // the matching digest. The elicitation attempt counter lives in the shared elicitationAttempts map (one
+    // mechanism for every destructive confirm tool).
+    function pendingCommitOf(
+      context: Record<string, unknown> | undefined,
+    ): PendingCommit | undefined {
+      if (context === undefined) return undefined;
+
+      const { applicationId, appName, branch, message, revision } = context;
+
+      if (
+        typeof applicationId !== "string" ||
+        typeof branch !== "string" ||
+        typeof message !== "string" ||
+        typeof revision !== "string"
+      ) {
+        return undefined;
+      }
+
+      return {
+        applicationId,
+        branch,
+        message,
+        revision,
+        ...(typeof appName === "string" ? { appName } : {}),
+      };
+    }
 
     function commitDigest(entry: {
       applicationId: string;
@@ -4454,7 +4504,6 @@ export function buildMcpServer(
           message,
           revision,
           ...(appName !== undefined ? { appName } : {}),
-          expiresAt: 0,
         };
         const confirmation = await gov.prepareDestructiveConfirmation({
           actorId,
@@ -4462,10 +4511,8 @@ export function buildMcpServer(
           operation: "commit",
           revision,
           digest: commitDigest(entry),
+          context: { ...entry },
         });
-
-        entry.expiresAt = confirmation.expiresAt.getTime();
-        pendingCommits.set(confirmation.id, entry);
 
         const appLabel = truncateForPrompt(appName ?? applicationId, 40);
 
@@ -4488,15 +4535,16 @@ export function buildMcpServer(
       'Commit AND PUSH using a one-time confirmationId from prepare_commit. Re-verifies AT CONFIRM TIME (fresh, fail-closed read) that the application\'s branch is an "mcp/" agent branch and that its content is unchanged since prepare. When the MCP client supports elicitation, the user is prompted directly and ONLY an explicit accept proceeds (at most 3 prompts per confirmation, then it is invalidated); otherwise you must have shown the user the prepare_commit relay text and obtained their approval first. The pushed commit cannot be rolled back via MCP. Governed.',
       { applicationId: idSchema, confirmationId: idSchema },
       async ({ applicationId, confirmationId }, extra) => {
-        const entry = pendingCommits.get(confirmationId);
-
-        if (entry !== undefined && entry.expiresAt <= Date.now()) {
-          pendingCommits.delete(confirmationId);
-        }
+        const confirmation = await gov.readDestructiveConfirmation(
+          confirmationId,
+          actorId,
+        );
+        const entry = pendingCommitOf(confirmation?.context);
 
         if (
+          confirmation === undefined ||
           entry === undefined ||
-          entry.expiresAt <= Date.now() ||
+          confirmation.expiresAt.getTime() <= Date.now() ||
           entry.applicationId !== applicationId
         ) {
           return result({
@@ -4542,7 +4590,7 @@ export function buildMcpServer(
         }
 
         if (currentRevision !== entry.revision) {
-          pendingCommits.delete(confirmationId);
+          await gov.discardDestructiveConfirmation(confirmationId, actorId);
 
           return result({
             error:
@@ -4571,7 +4619,6 @@ export function buildMcpServer(
             prepareTool: "prepare_commit",
             notConfirmedCode: "commit_not_confirmed",
             invalidate: async () => {
-              pendingCommits.delete(confirmationId);
               await gov.consumeDestructiveConfirmation({
                 confirmationId,
                 actorId,
@@ -4606,7 +4653,7 @@ export function buildMcpServer(
           }
 
           if (currentRevision !== entry.revision) {
-            pendingCommits.delete(confirmationId);
+            await gov.discardDestructiveConfirmation(confirmationId, actorId);
 
             return result({
               error:
@@ -4627,7 +4674,6 @@ export function buildMcpServer(
             revision: entry.revision,
             digest: commitDigest(entry),
           });
-          pendingCommits.delete(confirmationId);
 
           const fullMessage = `${MCP_COMMIT_MARKER}${entry.message}`;
           const { changeId } = await gov.execute({
@@ -6898,11 +6944,122 @@ async function readBody(req: IncomingMessage): Promise<unknown> {
   }
 }
 
-interface McpSession {
+// A session's LIVE half on this pod: the SDK transport that owns its open streams and pending server->client
+// requests. The shareable half (owner, tenant, initialize params, expiry) is the McpSessionRecord in the session
+// store; see hydrateSession for how a pod that never served the initialize rebuilds this from the record.
+interface LocalSession {
   expiresAt: number;
-  token: string;
+  tokenHash: string;
   username: string;
-  transport: StreamableHTTPServerTransport;
+  transport: RelayAwareTransport;
+}
+
+// The SDK transport, plus one hook: every outgoing server->client REQUEST (an elicitation prompt) is registered
+// with the relay so whichever pod receives the client's answer can route it back here.
+class RelayAwareTransport extends WebStandardStreamableHTTPServerTransport {
+  constructor(
+    private readonly relay: McpSessionRelay,
+    private readonly pendingTtlMs: number,
+    options: WebStandardStreamableHTTPServerTransportOptions,
+  ) {
+    super(options);
+  }
+
+  override async send(
+    message: JSONRPCMessage,
+    options?: Parameters<WebStandardStreamableHTTPServerTransport["send"]>[1],
+  ): Promise<void> {
+    if (isJSONRPCRequest(message) && this.sessionId !== undefined) {
+      await this.relay.registerPending(
+        this.sessionId,
+        message.id,
+        this.pendingTtlMs,
+      );
+    }
+
+    return super.send(message, options);
+  }
+}
+
+// The replayed initialize's JSON-RPC id (see hydrateSession). Namespaced so it can never collide with a client's
+// own request ids, which the SDK client numbers from 0.
+const HYDRATE_REQUEST_ID = "appsmith-mcp-hydrate";
+// Upper bound on draining the replayed initialize's response stream; the SDK closes it as soon as the initialize
+// result is written, so this only fires if the rebuilt server never answered.
+const HYDRATE_DRAIN_TIMEOUT_MS = 5_000;
+
+// Protocol version assumed for a stored record whose initialize carried none (cannot happen for a body the SDK
+// accepted; kept so the record type is always complete).
+const FALLBACK_PROTOCOL_VERSION = "2025-03-26";
+// Cap on the client's initialize params kept on the session record. The request body itself is bounded by
+// MAX_REQUEST_BODY_BYTES (2 MiB); storing that verbatim would let one authenticated client push megabytes into the
+// shared Redis per session. Beyond the cap only the facts the server actually consults survive: the protocol
+// version, whether the client declared elicitation, and the client name/version for logs.
+const MAX_STORED_INITIALIZE_BYTES = 16 * 1024;
+
+// The client's initialize params, extracted from the INCOMING initialize body for storage on the session record
+// (isInitializeRequest already validated the shape; the fallbacks cover optional fields the SDK accepts unset).
+function initializeParamsOf(body: unknown): McpSessionInitializeParams {
+  const params =
+    (body as { params?: Record<string, unknown> } | undefined)?.params ?? {};
+  const asObject = (value: unknown): Record<string, unknown> | undefined =>
+    typeof value === "object" && value !== null && !Array.isArray(value)
+      ? (value as Record<string, unknown>)
+      : undefined;
+  const capabilities = asObject(params.capabilities) ?? {};
+  const clientInfo = asObject(params.clientInfo) ?? {
+    name: "unknown",
+    version: "0",
+  };
+  const full: McpSessionInitializeParams = {
+    protocolVersion:
+      typeof params.protocolVersion === "string"
+        ? params.protocolVersion
+        : FALLBACK_PROTOCOL_VERSION,
+    capabilities,
+    clientInfo,
+  };
+
+  if (
+    Buffer.byteLength(JSON.stringify(full), "utf8") <=
+    MAX_STORED_INITIALIZE_BYTES
+  ) {
+    return full;
+  }
+
+  return {
+    protocolVersion: full.protocolVersion,
+    capabilities:
+      "elicitation" in capabilities
+        ? { elicitation: asObject(capabilities.elicitation) ?? {} }
+        : {},
+    clientInfo: {
+      name: typeof clientInfo.name === "string" ? clientInfo.name : "unknown",
+      version:
+        typeof clientInfo.version === "string" ? clientInfo.version : "0",
+    },
+  };
+}
+
+async function drainResponse(response: Response): Promise<void> {
+  if (!response.body) return;
+
+  const reader = response.body.getReader();
+  const deadline = setTimeout(() => {
+    void reader.cancel().catch(() => {});
+  }, HYDRATE_DRAIN_TIMEOUT_MS);
+
+  try {
+    let done = false;
+
+    while (!done) {
+      done = (await reader.read()).done;
+    }
+  } catch {
+    // A cancelled or errored stream has nothing more to drain.
+  } finally {
+    clearTimeout(deadline);
+  }
 }
 
 export interface McpHttpServerOptions {
@@ -6942,6 +7099,13 @@ export interface McpHttpServerOptions {
   elicitationStrict?: boolean;
   // Operator-facing log line sink (default: process.stderr) — see ServerContext.logSink.
   logSink?: (line: string) => void;
+  // Session RECORD store shared by every replica (default: in-process, which is correct for exactly one pod). On a
+  // multi-replica deployment a request may reach a pod that never saw the session's initialize; with a shared
+  // store that pod rebuilds the session from its record instead of answering 404. See src/session/store.ts.
+  sessionStore?: McpSessionStore;
+  // Cross-pod delivery of the client's answers to server->client requests (elicitation prompts). Default: none,
+  // which is correct for exactly one pod. See src/session/relay.ts.
+  sessionRelay?: McpSessionRelay;
 }
 
 // The hostname portion of a Host header, lowercased and without the port. Handles `host`, `host:port`, and
@@ -6989,16 +7153,6 @@ export function sessionOriginFromHeaders(
   return `${proto}://${host}`;
 }
 
-function tokensMatch(left: string, right: string): boolean {
-  const leftBuffer = Buffer.from(left);
-  const rightBuffer = Buffer.from(right);
-
-  return (
-    leftBuffer.byteLength === rightBuffer.byteLength &&
-    timingSafeEqual(leftBuffer, rightBuffer)
-  );
-}
-
 export function createMcpHttpServer(
   apiBaseUrl: string,
   createApi: (
@@ -7008,16 +7162,29 @@ export function createMcpHttpServer(
     createAppsmithApi(token, apiBaseUrl, fetch, requestHeaders),
   options: McpHttpServerOptions = {},
 ): Server {
-  const sessions = new Map<string, McpSession>();
+  const now = options.now ?? Date.now;
+  const sessionTtlMs = options.sessionTtlMs ?? MCP_SESSION_TTL_MS;
+  // How long a pending server->client request stays routable across pods. Floored at the elicitation wait
+  // ceiling: an operator who tunes the session TTL below the prompt timeout must not silently strand cross-pod
+  // answers (the prompt would time out as if the human never replied).
+  const pendingTtlMs = Math.max(sessionTtlMs, ELICITATION_TIMEOUT_CEILING_MS);
+  const logSink =
+    options.logSink ?? ((line: string) => process.stderr.write(line));
+  const sessionStore = options.sessionStore ?? new InMemorySessionStore(now);
+  const relay = options.sessionRelay ?? new NoopSessionRelay();
+  // Live transports on THIS pod, keyed by session id. Every entry has a record in sessionStore; the reverse is not
+  // true on a multi-replica deployment — a session initialized elsewhere is hydrated here on first sight.
+  const sessions = new Map<string, LocalSession>();
   // Reservations bridge the async gap between admitting an initialize and the session registering in
   // onsessioninitialized, so concurrent initializes cannot all pass the caps before any of them registers.
   let pendingTotal = 0;
   const pendingByUser = new Map<string, number>();
+  // Serializes cap admission on this pod (see the initialize path): the store reads, eviction, and reservation
+  // run without interleaving, which the in-memory sync check used to guarantee for free.
+  let admissionChain: Promise<unknown> = Promise.resolve();
   const maxSessions = options.maxSessions ?? MAX_MCP_SESSIONS;
   const maxSessionsPerUser =
     options.maxSessionsPerUser ?? MAX_MCP_SESSIONS_PER_USER;
-  const now = options.now ?? Date.now;
-  const sessionTtlMs = options.sessionTtlMs ?? MCP_SESSION_TTL_MS;
   const dataEnabled = options.dataEnabled ?? false;
   const jsEnabled = options.jsEnabled ?? false;
   const governance = options.governance;
@@ -7088,6 +7255,218 @@ export function createMcpHttpServer(
     };
   }
 
+  async function withAdmission<T>(work: () => Promise<T>): Promise<T> {
+    // `work` runs after the previous admission settles either way: a failed admission must not poison the chain
+    // for every later initialize.
+    const run = admissionChain.then(work, work);
+
+    admissionChain = run.catch(() => {});
+
+    return run;
+  }
+
+  // Relayed responses are fed straight into the local transport that owns the pending server->client request,
+  // exactly as if the client's POST had landed on this pod. Unknown sessions are dropped: nothing is pending here.
+  async function deliverForwarded(payload: RelayedPayload): Promise<void> {
+    const local = sessions.get(payload.sessionId);
+    // Single use, and only for a request THIS pod registered: anything else on the channel (a replay, a stale
+    // registration from a previous incarnation, or an outright injection) is dropped and logged, never delivered.
+    const owner = await relay.claimPending(
+      payload.sessionId,
+      payload.message.id,
+    );
+
+    if (local === undefined || owner !== relay.podId) {
+      logMcpEvent("appsmith_mcp_relay_dropped", {
+        reason: local === undefined ? "no_local_session" : "not_pending_here",
+      });
+
+      return;
+    }
+
+    logMcpEvent("appsmith_mcp_relay_delivered", {
+      usernameHash: hashUsername(local.username),
+    });
+    local.transport.onmessage?.(payload.message as JSONRPCMessage);
+  }
+
+  let relayFailure: Error | undefined;
+  const relayReady = relay
+    .start((payload) => {
+      void deliverForwarded(payload).catch((error: unknown) => {
+        logSink(
+          `Appsmith MCP session relay delivery failed: ${error instanceof Error ? error.message : String(error)}\n`,
+        );
+      });
+    })
+    .catch((error: unknown) => {
+      relayFailure = error instanceof Error ? error : new Error(String(error));
+      logSink(
+        `Appsmith MCP session relay failed to start: ${relayFailure.message}\n`,
+      );
+    });
+
+  // A pod whose relay never came up would silently strand every cross-pod prompt answer (the prompt times out
+  // as if the human never replied), so refuse to serve instead of degrading invisibly.
+  async function ensureRelayStarted(): Promise<void> {
+    await relayReady;
+
+    if (relayFailure !== undefined) {
+      throw new HttpError(503, "MCP session relay unavailable");
+    }
+  }
+
+  // The per-session ServerContext fields that are instance configuration rather than session facts.
+  function sessionServerContext() {
+    return {
+      dataEnabled,
+      jsEnabled,
+      governance,
+      elicitationTimeoutMs: options.elicitationTimeoutMs,
+      commitElicitationTimeoutMs: options.commitElicitationTimeoutMs,
+      elicitationProgressIntervalMs: options.elicitationProgressIntervalMs,
+      elicitationDisabled: options.elicitationDisabled,
+      elicitationStrict: options.elicitationStrict,
+      logSink,
+    };
+  }
+
+  function createSessionTransport(
+    sessionIdGenerator: () => string,
+    onInitialized: (id: string) => Promise<void>,
+  ): RelayAwareTransport {
+    const transport = new RelayAwareTransport(relay, pendingTtlMs, {
+      sessionIdGenerator,
+      onsessioninitialized: onInitialized,
+      onsessionclosed: async (id) => {
+        // Client-initiated DELETE: drop the record so EVERY replica forgets the session, not just this one.
+        sessions.delete(id);
+        await sessionStore.delete(id);
+      },
+    });
+
+    transport.onclose = () => {
+      if (transport.sessionId !== undefined) {
+        sessions.delete(transport.sessionId);
+      }
+    };
+
+    return transport;
+  }
+
+  // Rebuilds a session that was initialized on another pod: a fresh server + transport, then the client's OWN
+  // initialize replayed through the SDK's public request path. That replay is what assigns the transport its
+  // stored session id and teaches the rebuilt server the client's capabilities, so elicitation detection behaves
+  // exactly as on the pod that first served the session. The record's tenant/admin facts are used as-is so every
+  // replica serves the session identically.
+  async function hydrateSession(
+    record: McpSessionRecord,
+    token: string,
+    upstreamHeaders: Record<string, string>,
+  ): Promise<LocalSession> {
+    const api = createApi(token, upstreamHeaders);
+    let local: LocalSession | undefined;
+    const transport = createSessionTransport(
+      () => record.id,
+      async () => {
+        local = {
+          expiresAt: record.expiresAt,
+          tokenHash: record.tokenHash,
+          username: record.username,
+          transport,
+        };
+        sessions.set(record.id, local);
+      },
+    );
+    const mcpServer = buildMcpServer(api, {
+      ...sessionServerContext(),
+      actorId: record.username,
+      isAdmin: record.isAdmin,
+      organizationId: record.organizationId,
+      requestOrigin: record.requestOrigin,
+    });
+
+    await mcpServer.connect(transport);
+
+    const replay = {
+      jsonrpc: "2.0",
+      id: HYDRATE_REQUEST_ID,
+      method: "initialize",
+      params: record.initialize,
+    };
+    const response = await transport.handleRequest(
+      new Request("http://127.0.0.1/mcp", {
+        method: "POST",
+        headers: {
+          accept: "application/json, text/event-stream",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(replay),
+      }),
+      { parsedBody: replay },
+    );
+
+    await drainResponse(response);
+
+    if (response.status !== 200 || local === undefined) {
+      void transport.close().catch(() => {});
+      logSink(
+        `Appsmith MCP could not restore a session on this replica: the initialize replay answered ${response.status}\n`,
+      );
+      throw new HttpError(
+        500,
+        "could not restore the MCP session on this replica",
+      );
+    }
+
+    logMcpEvent("appsmith_mcp_session_hydrated", {
+      usernameHash: hashUsername(record.username),
+    });
+
+    return local;
+  }
+
+  // Single-flight per session id: concurrent first-sight requests (measured: every one of them, under realistic
+  // upstream-auth latency) must share ONE hydration, or each builds its own server + transport, the last one wins
+  // the cache slot, and a prompt raised on an orphan can never receive its relayed answer.
+  const hydrating = new Map<string, Promise<LocalSession>>();
+
+  async function hydrateOnce(
+    record: McpSessionRecord,
+    token: string,
+    upstreamHeaders: Record<string, string>,
+  ): Promise<LocalSession> {
+    const inFlight = hydrating.get(record.id);
+
+    if (inFlight !== undefined) return inFlight;
+
+    const run = hydrateSession(record, token, upstreamHeaders).finally(() => {
+      hydrating.delete(record.id);
+    });
+
+    hydrating.set(record.id, run);
+
+    return run;
+  }
+
+  // Node request/response -> the web-standard transport, through the same @hono/node-server bridge the SDK's own
+  // Node transport wrapper uses (it handles the SSE streaming semantics). The body has already been read for
+  // routing, so it is handed over pre-parsed.
+  async function dispatch(
+    transport: RelayAwareTransport,
+    req: IncomingMessage,
+    res: ServerResponse,
+    body: unknown,
+  ): Promise<void> {
+    const listener = getRequestListener(
+      async (webRequest) =>
+        transport.handleRequest(webRequest, { parsedBody: body }),
+      { overrideGlobalObjects: false },
+    );
+
+    await listener(req, res);
+  }
+
   const server = createServer(async (req, res) => {
     // Released in `finally`; holds a session reservation across the admission → registration gap.
     let releasePending = () => {};
@@ -7121,6 +7500,18 @@ export function createMcpHttpServer(
       const path = (req.url ?? "").split("?")[0];
 
       if (path === "/health") {
+        // A pod whose session relay never came up answers 503 on every /mcp request (see ensureRelayStarted), so
+        // it must not report healthy either — the container healthcheck would otherwise keep a dead replica.
+        if (relayFailure !== undefined) {
+          writeJson(res, 503, {
+            status: "degraded",
+            error: "MCP session relay unavailable",
+            ...MCP_BUILD_INFO,
+          });
+
+          return;
+        }
+
         // Carries the build identity (version + optional deploy-stamped buildTime) so operators can answer
         // "which build is this instance running" without an authenticated MCP session.
         writeJson(res, 200, { status: "ok", ...MCP_BUILD_INFO });
@@ -7163,17 +7554,32 @@ export function createMcpHttpServer(
         return;
       }
 
+      await ensureRelayStarted();
       removeExpiredSessions();
 
       const sessionId = req.headers["mcp-session-id"] as string | undefined;
-      const session = sessionId ? sessions.get(sessionId) : undefined;
       const body = req.method === "POST" ? await readBody(req) : undefined;
 
       operation = requestOperation(body);
-      let transport = session?.transport;
 
-      if (session) {
-        if (!tokensMatch(session.token, token)) {
+      const tokenHash = hashToken(token);
+      let local = sessionId !== undefined ? sessions.get(sessionId) : undefined;
+      let record: McpSessionRecord | undefined;
+
+      if (sessionId !== undefined) {
+        // The record store is the source of truth for existence and expiry across every replica. A local copy
+        // whose record is gone (expired, evicted from another pod, DELETEd elsewhere) must never keep answering.
+        record = await sessionStore.get(sessionId);
+
+        if (record === undefined && local !== undefined) {
+          sessions.delete(sessionId);
+          void local.transport.close().catch(() => {});
+          local = undefined;
+        }
+      }
+
+      if (record !== undefined) {
+        if (!tokenHashesMatch(record.tokenHash, tokenHash)) {
           // Do NOT evict the session here: a mismatched token must not let someone who guessed/leaked a session id
           // tear down the real owner's session (targeted DoS). The owner's own token still binds it.
           writeJson(res, 401, { error: "invalid MCP session" });
@@ -7181,11 +7587,64 @@ export function createMcpHttpServer(
           return;
         }
 
-        username = (
-          await authenticateProfile(createApi(token, upstreamHeaders))
-        ).username;
-        session.expiresAt = now() + sessionTtlMs;
+        const authenticated = await authenticateProfile(
+          createApi(token, upstreamHeaders),
+        );
+
+        username = authenticated.username;
+
+        // The bearer's LIVE identity must still be the record's owner. A matching hash under a different principal
+        // can only mean a tampered record (or a future token reassignment); refuse it, again without evicting.
+        if (authenticated.username !== record.username) {
+          writeJson(res, 401, { error: "invalid MCP session" });
+
+          return;
+        }
+
+        // Cross-pod relay: the client's answer to a server->client request (an elicitation prompt) whose pending
+        // promise lives on ANOTHER pod. Authenticated above, so only the session's owner can feed it a response;
+        // the relay itself accepts nothing but JSON-RPC responses (see parseRelayedPayload).
+        if (isRelayableResponse(body)) {
+          const owner = await relay.ownerOf(record.id, body.id);
+
+          if (owner !== undefined && owner !== relay.podId) {
+            await relay.forward(owner, { sessionId: record.id, message: body });
+            logMcpEvent("appsmith_mcp_relay_forwarded", {
+              requestId,
+              usernameHash: hashUsername(username),
+            });
+            // The SDK answers an accepted response/notification with an empty 202; mirror it.
+            res.writeHead(202);
+            res.end();
+
+            return;
+          }
+        }
+
+        // Re-read after the upstream auth await: a concurrent request for the same session (the SDK client fires
+        // its GET stream and its first tool call together) may have hydrated it here meanwhile.
+        local =
+          sessions.get(record.id) ??
+          (await hydrateOnce(record, token, upstreamHeaders));
+
+        const expiresAt = now() + sessionTtlMs;
+
+        if (!(await sessionStore.touch(record, expiresAt))) {
+          // Gone between the read above and now (DELETE, eviction, or expiry on any pod): a touch must never
+          // resurrect it, so answer the same 404 the client would have got a moment later.
+          sessions.delete(record.id);
+          void local.transport.close().catch(() => {});
+          writeJson(res, 404, {
+            error: "session not found; initialize a new MCP session",
+          });
+
+          return;
+        }
+
+        local.expiresAt = expiresAt;
       }
+
+      let transport = local?.transport;
 
       if (!transport && isInitializeRequest(body)) {
         const api = createApi(token, upstreamHeaders);
@@ -7197,49 +7656,96 @@ export function createMcpHttpServer(
 
         username = authenticatedUser;
 
-        // Check-and-reserve synchronously (no await between reading the counts and incrementing the reservation)
-        // so a burst of concurrent initializes can't all slip past the caps. `sessions.size + pendingTotal` counts
-        // both registered and in-flight sessions.
-        let userSessionCount = pendingByUser.get(authenticatedUser) ?? 0;
+        // Admission is serialized per pod (one initialize at a time reads the counts, evicts, and reserves), so a
+        // burst of concurrent initializes can't all slip past the caps. `pendingTotal` counts in-flight sessions
+        // that reserved but have not registered yet. Across pods the store is read without a global lock, so N
+        // replicas can overshoot the caps by at most N-1 in the same instant — an accepted bound.
+        const admitted = await withAdmission(async () => {
+          const own = await sessionStore.listByUser(
+            authenticatedUser,
+            organizationId,
+          );
+          const userSessionCount =
+            (pendingByUser.get(authenticatedUser) ?? 0) + own.length;
 
-        for (const existing of sessions.values()) {
-          if (existing.username === authenticatedUser) userSessionCount += 1;
-        }
+          // At the per-user cap, evict this user's own least-recently-active registered session(s) instead of
+          // rejecting: sessions from unclean disconnects (dropped SSE streams, proxy timeouts) never fire
+          // transport.onclose and would otherwise lock the user out until the TTL sweep. Eviction is safe here
+          // because the request is already authenticated as this same user, so a caller can only ever displace
+          // their own sessions — never another user's (the global cap below stays a hard reject for that reason).
+          // Pending reservations are not evictable, so a cap consumed entirely by in-flight initializes still 429s.
+          //
+          // Victims are only selected here; they are closed after BOTH caps admit the request, so a request that
+          // is rejected anyway never destroys a session. Smallest expiresAt == least recently active: every touch
+          // sets expiresAt to now + sessionTtlMs and the TTL is constant for the life of the process.
+          const evictable: McpSessionSummary[] = [];
 
-        // At the per-user cap, evict this user's own least-recently-active registered session(s) instead of
-        // rejecting: sessions from unclean disconnects (dropped SSE streams, proxy timeouts) never fire
-        // transport.onclose and would otherwise lock the user out until the TTL sweep. Eviction is safe here
-        // because the request is already authenticated as this same user, so a caller can only ever displace
-        // their own sessions — never another user's (the global cap below stays a hard reject for that reason).
-        // Pending reservations are not evictable, so a cap consumed entirely by in-flight initializes still 429s.
-        //
-        // Victims are only selected here; they are closed after BOTH caps admit the request, so a request that
-        // is rejected anyway never destroys a session. Smallest expiresAt == least recently active: every touch
-        // sets expiresAt to now + sessionTtlMs and the TTL is constant for the life of the process. (If TTLs
-        // ever become per-session, switch to an explicit lastActiveAt field.)
-        const evictable: string[] = [];
+          if (userSessionCount >= maxSessionsPerUser) {
+            const sorted = [...own].sort((a, b) => a.expiresAt - b.expiresAt);
 
-        if (userSessionCount >= maxSessionsPerUser) {
-          const own = [...sessions.entries()]
-            .filter(([, existing]) => existing.username === authenticatedUser)
-            .sort(([, a], [, b]) => a.expiresAt - b.expiresAt);
+            for (const candidate of sorted) {
+              if (userSessionCount - evictable.length < maxSessionsPerUser) {
+                break;
+              }
 
-          for (const [id] of own) {
-            if (userSessionCount - evictable.length < maxSessionsPerUser) {
-              break;
+              evictable.push(candidate);
+            }
+          }
+
+          const total = await sessionStore.countAll();
+
+          if (total - evictable.length + pendingTotal >= maxSessions) {
+            return { status: 503 as const };
+          }
+
+          if (userSessionCount - evictable.length >= maxSessionsPerUser) {
+            return { status: 429 as const };
+          }
+
+          for (const victim of evictable) {
+            await sessionStore.delete(victim.id);
+
+            const evictedLocal = sessions.get(victim.id);
+
+            if (evictedLocal !== undefined) {
+              sessions.delete(victim.id);
+              void evictedLocal.transport.close().catch(() => {});
             }
 
-            evictable.push(id);
+            // Evictions displace what may be a live session, so leave a trace: without this, a victim's "my
+            // session died" (or an attacker churning a stolen token to kill sessions) is indistinguishable from
+            // ordinary reconnects in the logs. PII-free, same shape as the request telemetry.
+            logMcpEvent("appsmith_mcp_session_evicted", {
+              requestId,
+              usernameHash: hashUsername(authenticatedUser),
+              idleMs: Math.max(0, sessionTtlMs - (victim.expiresAt - now())),
+            });
           }
-        }
 
-        if (sessions.size - evictable.length + pendingTotal >= maxSessions) {
+          pendingTotal += 1;
+          pendingByUser.set(
+            authenticatedUser,
+            (pendingByUser.get(authenticatedUser) ?? 0) + 1,
+          );
+          releasePending = () => {
+            releasePending = () => {};
+            pendingTotal -= 1;
+            const remaining = (pendingByUser.get(authenticatedUser) ?? 1) - 1;
+
+            if (remaining <= 0) pendingByUser.delete(authenticatedUser);
+            else pendingByUser.set(authenticatedUser, remaining);
+          };
+
+          return { status: 200 as const };
+        });
+
+        if (admitted.status === 503) {
           writeJson(res, 503, { error: "MCP session limit reached" });
 
           return;
         }
 
-        if (userSessionCount - evictable.length >= maxSessionsPerUser) {
+        if (admitted.status === 429) {
           writeJson(res, 429, {
             error: "MCP session limit reached for this user",
           });
@@ -7247,75 +7753,52 @@ export function createMcpHttpServer(
           return;
         }
 
-        for (const id of evictable) {
-          const evicted = sessions.get(id);
+        // Session-scoped origin for the URLs build_application returns, captured once here at initialize so
+        // tool handlers never touch raw requests (same seam as actorId/isAdmin). The configured public origin
+        // wins; header derivation is the validated fallback; undefined means root-relative URLs.
+        const requestOrigin =
+          options.publicOrigin ??
+          sessionOriginFromHeaders(req.headers, allowedHosts);
+        const initialize = initializeParamsOf(body);
+        const registerSession = async (id: string) => {
+          const expiresAt = now() + sessionTtlMs;
+          const newRecord: McpSessionRecord = {
+            id,
+            tokenHash,
+            username: authenticatedUser,
+            organizationId,
+            isAdmin,
+            ...(requestOrigin !== undefined ? { requestOrigin } : {}),
+            initialize,
+            expiresAt,
+          };
 
-          if (!evicted) continue;
-
-          sessions.delete(id);
-          void evicted.transport.close().catch(() => {});
-          // Evictions displace what may be a live session, so leave a trace: without this, a victim's "my
-          // session died" (or an attacker churning a stolen token to kill sessions) is indistinguishable from
-          // ordinary reconnects in the logs. PII-free, same shape as the request telemetry.
-          logMcpEvent("appsmith_mcp_session_evicted", {
-            requestId,
-            usernameHash: hashUsername(authenticatedUser),
-            idleMs: Math.max(0, sessionTtlMs - (evicted.expiresAt - now())),
+          await sessionStore.put(newRecord);
+          sessions.set(id, {
+            expiresAt,
+            tokenHash,
+            username: authenticatedUser,
+            transport: newTransport,
           });
-        }
-
-        pendingTotal += 1;
-        pendingByUser.set(
-          authenticatedUser,
-          (pendingByUser.get(authenticatedUser) ?? 0) + 1,
+          // Release the reservation the moment the session is registered — the initialize response is a
+          // long-lived SSE stream, so waiting for `finally` (end of handleRequest) would let a client that
+          // never drains the stream pin the reservation until the session TTL and saturate the caps.
+          releasePending();
+        };
+        const newTransport = createSessionTransport(
+          randomUUID,
+          registerSession,
         );
-        releasePending = () => {
-          releasePending = () => {};
-          pendingTotal -= 1;
-          const remaining = (pendingByUser.get(authenticatedUser) ?? 1) - 1;
-
-          if (remaining <= 0) pendingByUser.delete(authenticatedUser);
-          else pendingByUser.set(authenticatedUser, remaining);
-        };
-
-        transport = new StreamableHTTPServerTransport({
-          sessionIdGenerator: randomUUID,
-          onsessioninitialized: (id) => {
-            sessions.set(id, {
-              expiresAt: now() + sessionTtlMs,
-              token,
-              username: authenticatedUser,
-              transport: transport!,
-            });
-            // Release the reservation the moment the session is registered — the initialize response is a
-            // long-lived SSE stream, so waiting for `finally` (end of handleRequest) would let a client that
-            // never drains the stream pin the reservation until the session TTL and saturate the caps.
-            releasePending();
-          },
-        });
-        transport.onclose = () => {
-          if (transport?.sessionId) sessions.delete(transport.sessionId);
-        };
-        await buildMcpServer(api, {
-          dataEnabled,
-          jsEnabled,
-          governance,
+        const mcpServer = buildMcpServer(api, {
+          ...sessionServerContext(),
           actorId: authenticatedUser,
           isAdmin,
           organizationId,
-          elicitationTimeoutMs: options.elicitationTimeoutMs,
-          commitElicitationTimeoutMs: options.commitElicitationTimeoutMs,
-          elicitationProgressIntervalMs: options.elicitationProgressIntervalMs,
-          elicitationDisabled: options.elicitationDisabled,
-          elicitationStrict: options.elicitationStrict,
-          logSink: options.logSink,
-          // Session-scoped origin for the URLs build_application returns, captured once here at initialize so
-          // tool handlers never touch raw requests (same seam as actorId/isAdmin). The configured public origin
-          // wins; header derivation is the validated fallback; undefined means root-relative URLs.
-          requestOrigin:
-            options.publicOrigin ??
-            sessionOriginFromHeaders(req.headers, allowedHosts),
-        }).connect(transport);
+          requestOrigin,
+        });
+
+        await mcpServer.connect(newTransport);
+        transport = newTransport;
       }
 
       if (!transport) {
@@ -7337,7 +7820,7 @@ export function createMcpHttpServer(
         return;
       }
 
-      await transport.handleRequest(req, res, body);
+      await dispatch(transport, req, res, body);
     } catch (error) {
       const status = error instanceof HttpError ? error.status : 500;
       const message =

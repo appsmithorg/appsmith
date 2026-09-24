@@ -1,7 +1,61 @@
+import type { MongoClient } from "mongodb";
 import {
   createGovernanceStoreFromEnv,
   createRedisClientFromUrl,
+  MongoRedisGovernanceStore,
+  type PreparedConfirmation,
 } from "./store.js";
+
+describe("MongoRedisGovernanceStore confirmation reads", () => {
+  // The Mongo side is never touched by the confirmation reads; the constructor only resolves the collection.
+  const mongo = {
+    db: () => ({ collection: () => ({}) }),
+  } as unknown as MongoClient;
+  const stored: PreparedConfirmation = {
+    id: "conf-1",
+    actorId: "user-1",
+    entityKey: "application:app1",
+    operation: "commit",
+    revision: "rev-1",
+    digest: "digest-1",
+    expiresAt: new Date("2026-09-24T12:00:00.000Z"),
+    context: { branch: "mcp/fix-1", message: "Fix orders" },
+  };
+
+  function storeWith(value: string | null) {
+    const redis = {
+      connect: async () => undefined,
+      close: async () => undefined,
+      set: async () => "OK",
+      get: async () => value,
+      eval: async () => value,
+    };
+
+    return new MongoRedisGovernanceStore(mongo, redis as never);
+  }
+
+  it("revives expiresAt as a Date and carries the context through the JSON round trip", async () => {
+    const store = storeWith(JSON.stringify(stored));
+
+    for (const read of [
+      await store.peekConfirmation("conf-1"),
+      await store.consumeConfirmation("conf-1"),
+    ]) {
+      expect(read?.expiresAt).toBeInstanceOf(Date);
+      expect(read?.expiresAt.getTime()).toBe(stored.expiresAt.getTime());
+      expect(read?.context).toEqual(stored.context);
+      expect(read?.actorId).toBe("user-1");
+    }
+  });
+
+  it("reads a missing or malformed confirmation as absent", async () => {
+    expect(await storeWith(null).peekConfirmation("conf-1")).toBeUndefined();
+    expect(await storeWith("{oops").peekConfirmation("conf-1")).toBeUndefined();
+    expect(
+      await storeWith(JSON.stringify({ id: 1 })).peekConfirmation("conf-1"),
+    ).toBeUndefined();
+  });
+});
 
 interface RedisClusterTestOptions {
   rootNodes: Array<{ url?: string }>;

@@ -47,6 +47,51 @@ values above the sanity ceilings (10000 sessions, 24 h TTL) are clamped — both
 | `APPSMITH_MCP_MAX_SESSIONS_PER_USER` | 25              | Per-user cap; at the cap the user's oldest session is evicted.       |
 | `APPSMITH_MCP_SESSION_TTL_MS`        | 900000 (15 min) | Idle session lifetime; every request on a session refreshes its TTL. |
 
+### Running more than one replica
+
+By default a session lives in the memory of the MCP process that served its `initialize`. That is correct for a
+single container, but behind a load balancer with two or more Appsmith pods (each running its own MCP process)
+every later request that lands on the _other_ pod answers 404 — MCP clients send no cookies, so ordinary sticky
+sessions do not help. Set `APPSMITH_MCP_SESSION_STORE=redis` on every replica to share sessions through the
+Redis already configured for governance:
+
+| Variable                     | Default  | Effect                                                                                                                                                                                                                                    |
+| ---------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `APPSMITH_MCP_SESSION_STORE` | `memory` | `redis` stores the session record (owner token hash, tenant, the client's initialize params) in `APPSMITH_REDIS_URL` so any replica can serve any session, and relays the human's answers to approval prompts back to the pod that asked. |
+
+How it works, and what it costs:
+
+- The **record** is shared; the live transport is not. A pod that receives a request for a session it has never
+  seen rebuilds a server for it and replays the client's own `initialize` (so elicitation detection matches the
+  original pod), then serves the request. The record's idle TTL and the session caps above are enforced from Redis,
+  so an eviction or a client `DELETE` on one pod takes effect everywhere.
+- **Approval prompts** ride the tool call's own response stream (never the standalone GET stream, which may be
+  open on another pod). The client's answer may land on any pod; that pod forwards it over Redis pub/sub to the pod
+  holding the prompt. Each pod subscribes its own channel at startup and refuses to serve (503) if it cannot.
+- Prompt budgets (per confirmation and per session) and the git-state read cache are still counted per pod, so
+  with N replicas they are bounded by N× the documented limits.
+- The raw bearer is never stored; the record carries its SHA-256 and every request is re-authenticated upstream.
+- `redis` is fail-loud: a missing or unusable `APPSMITH_REDIS_URL`, an unreachable Redis, or any value of
+  `APPSMITH_MCP_SESSION_STORE` other than `memory`/`redis` stops the server at startup instead of silently falling
+  back to per-pod memory. If a pod later loses its relay subscription, `/health` and every `/mcp` request answer 503.
+
+Operating it:
+
+- `APPSMITH_REDIS_URL` must resolve to **one Redis shared by every replica** (the Helm chart's bundled Redis, or an
+  external one). A per-pod Redis on `127.0.0.1` would share nothing. In Helm, set
+  `applicationConfig.APPSMITH_MCP_SESSION_STORE: "redis"`; the ConfigMap applies it to every replica.
+- Each MCP process opens two extra Redis connections (a client and a pub/sub subscriber) on top of governance's.
+- Roll the setting out to all replicas in one rollout. Pods still on the old build, or still on `memory`, keep
+  private sessions, so during a mixed rollout a session opened on one kind of pod answers 404 on the other until the
+  rollout completes; clients re-initialize per the MCP spec. In `redis` mode sessions also survive an MCP process
+  restart (they are rebuilt on the next request).
+- Redis keys, all TTL-bound (≤ the idle session TTL): `appsmith:mcp:session:*` (records),
+  `appsmith:mcp:sessions:*` (cap indexes), `appsmith:mcp:pending:*` (prompt routing); channel
+  `appsmith:mcp:relay:<pod>`. A Redis flush drops every session (clients re-initialize); a rollback leaves nothing
+  behind once the TTLs pass.
+- Batched JSON-RPC responses are not relayed (the SDK clients never batch); a batched prompt answer that lands on
+  the wrong pod times out.
+
 ### Auto-publish on creation, and application URLs
 
 `build_application` **automatically publishes (deploys) the app it just created** and returns an `editorUrl` and
