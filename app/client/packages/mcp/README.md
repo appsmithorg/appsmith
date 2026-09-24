@@ -73,7 +73,8 @@ How it works, and what it costs:
 - The raw bearer is never stored; the record carries its SHA-256 and every request is re-authenticated upstream.
 - `redis` is fail-loud: a missing or unusable `APPSMITH_REDIS_URL`, an unreachable Redis, or any value of
   `APPSMITH_MCP_SESSION_STORE` other than `memory`/`redis` stops the server at startup instead of silently falling
-  back to per-pod memory. If a pod later loses its relay subscription, `/health` and every `/mcp` request answer 503.
+  back to per-pod memory. If the relay subscription cannot be opened at startup, `/health` and every authenticated
+  `/mcp` request answer 503 (a later socket blip is logged and node-redis reconnects on its own).
 
 Operating it:
 
@@ -85,10 +86,10 @@ Operating it:
   private sessions, so during a mixed rollout a session opened on one kind of pod answers 404 on the other until the
   rollout completes; clients re-initialize per the MCP spec. In `redis` mode sessions also survive an MCP process
   restart (they are rebuilt on the next request).
-- Redis keys, all TTL-bound (≤ the idle session TTL): `appsmith:mcp:session:*` (records),
-  `appsmith:mcp:sessions:*` (cap indexes), `appsmith:mcp:pending:*` (prompt routing); channel
-  `appsmith:mcp:relay:<pod>`. A Redis flush drops every session (clients re-initialize); a rollback leaves nothing
-  behind once the TTLs pass.
+- Redis keys, all TTL-bound: `appsmith:mcp:session:*` (records, the idle session TTL),
+  `appsmith:mcp:sessions:*` (cap indexes, 24 h after their last write), `appsmith:mcp:pending:*` (prompt routing,
+  the idle session TTL floored at the 10-minute prompt-timeout ceiling); channel `appsmith:mcp:relay:<pod>`. A Redis
+  flush drops every session (clients re-initialize); a rollback leaves nothing behind once the TTLs pass.
 - Batched JSON-RPC responses are not relayed (the SDK clients never batch); a batched prompt answer that lands on
   the wrong pod times out.
 

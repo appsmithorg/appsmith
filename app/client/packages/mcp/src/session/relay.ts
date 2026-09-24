@@ -41,6 +41,12 @@ export interface McpSessionRelay {
   // Subscribes this pod's own channel. Called once at startup.
   start(onForwarded: (payload: RelayedPayload) => void): Promise<void>;
   close(): Promise<void>;
+  // The SDK numbers server->client requests from 0 PER server instance, so two pods prompting on the same session
+  // would register the same (session, id) and an answer could resolve the wrong prompt. Outgoing ids are therefore
+  // tagged with the pod before they leave, and a tagged id is restored to what the SDK issued before a response is
+  // handed back to it. Both are identity for a single-pod relay.
+  tagRequestId(id: string | number): string | number;
+  untagRequestId(id: string | number): string | number;
 }
 
 // Unique per PROCESS, not per host: a restarted pod must never receive relays registered by its previous
@@ -68,6 +74,14 @@ export class NoopSessionRelay implements McpSessionRelay {
   async start(): Promise<void> {}
 
   async close(): Promise<void> {}
+
+  tagRequestId(id: string | number): string | number {
+    return id;
+  }
+
+  untagRequestId(id: string | number): string | number {
+    return id;
+  }
 }
 
 export interface RelaySubscriber {
@@ -185,6 +199,22 @@ export class RedisSessionRelay implements McpSessionRelay {
     this.subscriber = undefined;
     this.subscribed = false;
     await subscriber?.close().catch(() => {});
+  }
+
+  // "<podId>#<id>". The separator never occurs in a hostname-derived pod id, and JSON-RPC ids may be strings.
+  tagRequestId(id: string | number): string | number {
+    return `${this.podId}#${String(id)}`;
+  }
+
+  untagRequestId(id: string | number): string | number {
+    const prefix = `${this.podId}#`;
+
+    if (typeof id !== "string" || !id.startsWith(prefix)) return id;
+
+    const original = id.slice(prefix.length);
+
+    // The SDK issued a number, compares responses by Number(id), and keys its handlers by that number.
+    return /^\d+$/.test(original) ? Number(original) : original;
   }
 }
 

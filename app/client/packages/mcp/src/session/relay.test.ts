@@ -221,3 +221,38 @@ describe("RedisSessionRelay hardening", () => {
     await relay.close();
   });
 });
+
+describe("request-id tagging", () => {
+  it("tags outgoing ids per pod and restores exactly its own", () => {
+    const podA = new RedisSessionRelay(new FakeRedisServer().client(), "pod-a");
+    const podB = new RedisSessionRelay(new FakeRedisServer().client(), "pod-b");
+
+    expect(podA.tagRequestId(0)).toBe("pod-a#0");
+    expect(podA.tagRequestId("x")).toBe("pod-a#x");
+    expect(podA.untagRequestId("pod-a#0")).toBe(0);
+    expect(podA.untagRequestId("pod-a#x")).toBe("x");
+    // Another pod's tag, an untagged id, and a look-alike are passed through untouched.
+    expect(podA.untagRequestId("pod-b#0")).toBe("pod-b#0");
+    expect(podA.untagRequestId(7)).toBe(7);
+    expect(podA.untagRequestId("pod-a")).toBe("pod-a");
+    expect(podB.untagRequestId(podA.tagRequestId(3))).toBe("pod-a#3");
+  });
+
+  it("two pods prompting on one session never share a pending key", async () => {
+    const server = new FakeRedisServer();
+    const podA = new RedisSessionRelay(server.client(), "pod-a");
+    const podB = new RedisSessionRelay(server.client(), "pod-b");
+
+    await podA.registerPending("s1", podA.tagRequestId(0), 1_000);
+    await podB.registerPending("s1", podB.tagRequestId(0), 1_000);
+    expect(await podA.ownerOf("s1", "pod-a#0")).toBe("pod-a");
+    expect(await podA.ownerOf("s1", "pod-b#0")).toBe("pod-b");
+  });
+
+  it("NoopSessionRelay leaves ids alone", () => {
+    const relay: McpSessionRelay = new NoopSessionRelay();
+
+    expect(relay.tagRequestId(5)).toBe(5);
+    expect(relay.untagRequestId(5)).toBe(5);
+  });
+});

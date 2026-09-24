@@ -14,6 +14,7 @@ import {
 import {
   ErrorCode,
   isInitializeRequest,
+  isJSONRPCNotification,
   isJSONRPCRequest,
   McpError,
   type JSONRPCMessage,
@@ -6970,11 +6971,39 @@ class RelayAwareTransport extends WebStandardStreamableHTTPServerTransport {
     options?: Parameters<WebStandardStreamableHTTPServerTransport["send"]>[1],
   ): Promise<void> {
     if (isJSONRPCRequest(message) && this.sessionId !== undefined) {
+      // Tagged per pod so the pending key is globally unique (see McpSessionRelay.tagRequestId); the SDK keeps
+      // its own handler under the untagged id, which the inbound path restores.
+      const tagged = this.relay.tagRequestId(message.id);
+
       await this.relay.registerPending(
         this.sessionId,
-        message.id,
+        tagged,
         this.pendingTtlMs,
       );
+
+      return super.send({ ...message, id: tagged }, options);
+    }
+
+    // A timed-out prompt is withdrawn with notifications/cancelled naming the request id; the client only knows
+    // the tagged form.
+    if (
+      isJSONRPCNotification(message) &&
+      message.method === "notifications/cancelled"
+    ) {
+      const params = (message.params ?? {}) as { requestId?: RequestId };
+
+      if (params.requestId !== undefined) {
+        return super.send(
+          {
+            ...message,
+            params: {
+              ...params,
+              requestId: this.relay.tagRequestId(params.requestId),
+            },
+          },
+          options,
+        );
+      }
     }
 
     return super.send(message, options);
@@ -7287,7 +7316,10 @@ export function createMcpHttpServer(
     logMcpEvent("appsmith_mcp_relay_delivered", {
       usernameHash: hashUsername(local.username),
     });
-    local.transport.onmessage?.(payload.message as JSONRPCMessage);
+    local.transport.onmessage?.({
+      ...payload.message,
+      id: relay.untagRequestId(payload.message.id),
+    } as JSONRPCMessage);
   }
 
   let relayFailure: Error | undefined;
@@ -7558,7 +7590,7 @@ export function createMcpHttpServer(
       removeExpiredSessions();
 
       const sessionId = req.headers["mcp-session-id"] as string | undefined;
-      const body = req.method === "POST" ? await readBody(req) : undefined;
+      let body = req.method === "POST" ? await readBody(req) : undefined;
 
       operation = requestOperation(body);
 
@@ -7619,6 +7651,9 @@ export function createMcpHttpServer(
 
             return;
           }
+
+          // Answered on the pod that asked: hand the SDK back the id it issued (see tagRequestId).
+          body = { ...body, id: relay.untagRequestId(body.id) };
         }
 
         // Re-read after the upstream auth await: a concurrent request for the same session (the SDK client fires

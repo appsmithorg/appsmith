@@ -216,6 +216,9 @@ interface RoutedRequest {
   // JSON-RPC method of a POSTed request/notification; undefined for a GET, or for a POSTed RESPONSE.
   rpcMethod?: string;
   isResponse: boolean;
+  // For tools/call: the page a page-scoped tool targets (spec.pageId), so a route can pin one page's confirm to
+  // one pod and another page's to the other.
+  pageId?: string;
 }
 
 type Route = (request: RoutedRequest) => Pod;
@@ -225,6 +228,7 @@ function routedFetch(route: Route, hits: string[]): typeof fetch {
   return async (input, init) => {
     let rpcMethod: string | undefined;
     let isResponse = false;
+    let pageId: string | undefined;
 
     if (typeof init?.body === "string") {
       try {
@@ -232,18 +236,20 @@ function routedFetch(route: Route, hits: string[]): typeof fetch {
           method?: string;
           result?: unknown;
           error?: unknown;
+          params?: { arguments?: { spec?: { pageId?: string } } };
         };
 
         rpcMethod = body.method;
         isResponse =
           body.method === undefined && ("result" in body || "error" in body);
+        pageId = body.params?.arguments?.spec?.pageId;
       } catch {
         // not JSON
       }
     }
 
     const httpMethod = init?.method ?? "GET";
-    const pod = route({ httpMethod, rpcMethod, isResponse });
+    const pod = route({ httpMethod, rpcMethod, isResponse, pageId });
     const target = new URL(String(input));
     const podUrl = new URL(pod.origin);
 
@@ -818,6 +824,106 @@ describe("MCP multi-pod hardening", () => {
       current = podB;
       expect((await client.listTools()).tools.length).toBeGreaterThan(0);
       expect(eventNames()).toContain("appsmith_mcp_session_hydrated");
+    } finally {
+      await client.close();
+      await cluster.close();
+    }
+  });
+});
+
+describe("MCP multi-pod prompt identity", () => {
+  it("two pods prompting on one session each get their own answer: a decline on pod A never approves pod B", async () => {
+    // Each pod's SDK server numbers its prompts from 0. Without per-pod tagging both prompts would register the
+    // pending key (session, 0), the later registration would win, and the human's DECLINE of one delete could
+    // resolve (approve) the other. Both prompts are held open until both have arrived, so the collision is
+    // deterministic rather than a race.
+    const THIRD_PAGE_ID = "d".repeat(24);
+    const api = stubApi({
+      getApplicationPages: jest.fn(async () => ({
+        ...PAGES_RESPONSE,
+        pages: [
+          ...PAGES_RESPONSE.pages,
+          { id: THIRD_PAGE_ID, name: "Archive", slug: "archive" },
+        ],
+      })),
+    });
+    const cluster = await startCluster(api);
+    const [podA, podB] = cluster.pods;
+    const hits: string[] = [];
+    const route: Route = (request) => {
+      if (request.rpcMethod === "tools/call" && request.pageId === PAGE_ID) {
+        return podA;
+      }
+
+      return podB;
+    };
+    const client = new Client(
+      { name: "multi-pod", version: "1.0.0" },
+      { capabilities: { elicitation: {} } },
+    );
+    const prompts: string[] = [];
+    let releasePrompts = () => {};
+    const bothPrompted = new Promise<void>((resolve) => {
+      releasePrompts = resolve;
+    });
+
+    client.setRequestHandler(ElicitRequestSchema, async (request) => {
+      const message = String(request.params.message);
+
+      prompts.push(message);
+
+      if (prompts.length === 2) releasePrompts();
+
+      await bothPrompted;
+
+      // Decline the Checkout delete (served by pod A); accept the Archive delete (served by pod B).
+      return message.includes("Checkout") ? { action: "decline" } : ACCEPT;
+    });
+
+    const transport = new StreamableHTTPClientTransport(
+      new URL("http://router.invalid/mcp"),
+      {
+        fetch: routedFetch(route, hits),
+        requestInit: { headers: { Authorization: `Bearer ${TOKEN}` } },
+      },
+    );
+
+    await client.connect(transport);
+
+    try {
+      const read = await callTool(client, "read_pages", {
+        applicationId: APP_ID,
+      });
+      const revision = read.revision as string;
+      const [preparedA, preparedB] = await Promise.all([
+        callTool(client, "prepare_delete_page", {
+          spec: { applicationId: APP_ID, pageId: PAGE_ID, revision },
+        }),
+        callTool(client, "prepare_delete_page", {
+          spec: { applicationId: APP_ID, pageId: THIRD_PAGE_ID, revision },
+        }),
+      ]);
+      const [confirmedA, confirmedB] = await Promise.all([
+        callTool(client, "confirm_delete_page", {
+          spec: { applicationId: APP_ID, pageId: PAGE_ID, revision },
+          confirmationId: preparedA.confirmationId,
+        }),
+        callTool(client, "confirm_delete_page", {
+          spec: { applicationId: APP_ID, pageId: THIRD_PAGE_ID, revision },
+          confirmationId: preparedB.confirmationId,
+        }),
+      ]);
+
+      expect(prompts).toHaveLength(2);
+      expect(hits).toContain("pod-a POST tools/call");
+      expect(confirmedA.code).toBe("delete_page_not_confirmed");
+      expect(confirmedB.error).toBeUndefined();
+
+      const deleted = (api.deletePage as jest.Mock).mock.calls.map(
+        (args) => args[0],
+      );
+
+      expect(deleted).toEqual([THIRD_PAGE_ID]);
     } finally {
       await client.close();
       await cluster.close();
