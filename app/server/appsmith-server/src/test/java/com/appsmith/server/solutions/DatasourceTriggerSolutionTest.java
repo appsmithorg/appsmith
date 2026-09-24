@@ -241,7 +241,8 @@ public class DatasourceTriggerSolutionTest {
                 })
                 .verify();
 
-        verify(datasourceStructureSolution, never()).getStructure(Mockito.anyString(), Mockito.anyBoolean(), Mockito.any());
+        verify(datasourceStructureSolution, never())
+                .getStructure(Mockito.anyString(), Mockito.anyBoolean(), Mockito.any());
     }
 
     private SecurityContext inviteViewerAndGetSecurityContext() {
