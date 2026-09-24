@@ -254,4 +254,83 @@ describe("HTML columns under linkedom (evaluation worker DOM)", () => {
       "<span style='color: green;'>Active</span>",
     ]);
   });
+
+  it("does not match search against hidden HTML column extracted text", () => {
+    const input = buildPlainTextInput();
+
+    // Production columns usually have computedValue arrays; that is what
+    // populates __htmlExtractedText_*__ on the row (the leak path).
+    input.primaryColumns.status.computedValue = ["Active", "Pending", "Active"];
+    input.primaryColumns.status.isVisible = false;
+    input.searchText = "Pending";
+
+    // Hidden HTML "Pending" must not match; only visible columns are searchable.
+    expect(getFilteredTableData(input, moment, _)).toStrictEqual([]);
+
+    input.searchText = "Usain";
+    expect(getFilteredTableData(input, moment, _)).toStrictEqual([
+      {
+        id: 2,
+        name: "Usain Bolt",
+        status: "Pending",
+        __originalIndex__: 1,
+        __htmlExtractedText_status__: "Pending",
+      },
+    ]);
+  });
+
+  it("still matches search on visible HTML columns after hiding another", () => {
+    const input = buildTaggedHtmlInput();
+
+    input.primaryColumns.status.computedValue = [
+      "<span style='color: green;'>Active</span>",
+      "<span style='color: yellow;'>Pending</span>",
+      "<span style='color: green;'>Active</span>",
+    ];
+
+    // Unique text only in a second HTML column that we hide.
+    input.primaryColumns.notes = {
+      index: 3,
+      width: 150,
+      id: "notes",
+      alias: "notes",
+      originalId: "notes",
+      columnType: "html",
+      enableFilter: true,
+      enableSort: true,
+      isVisible: false,
+      isDerived: false,
+      label: "Notes",
+      computedValue: [
+        "<b>UniqueHiddenNote</b>",
+        "<b>UniqueHiddenNote</b>",
+        "<b>UniqueHiddenNote</b>",
+      ],
+    };
+    input.tableData = input.tableData.map((row) => ({
+      ...row,
+      notes: "<b>UniqueHiddenNote</b>",
+    }));
+    input.processedTableData = input.processedTableData.map((row) => ({
+      ...row,
+      notes: "<b>UniqueHiddenNote</b>",
+    }));
+    input.orderedTableColumns = Object.values(input.primaryColumns);
+
+    input.searchText = "UniqueHiddenNote";
+    expect(getFilteredTableData(input, moment, _)).toStrictEqual([]);
+
+    input.searchText = "Pending";
+    expect(getFilteredTableData(input, moment, _)).toStrictEqual([
+      {
+        id: 2,
+        name: "Usain Bolt",
+        status: "<span style='color: yellow;'>Pending</span>",
+        notes: "<b>UniqueHiddenNote</b>",
+        __originalIndex__: 1,
+        __htmlExtractedText_status__: "Pending",
+        __htmlExtractedText_notes__: "UniqueHiddenNote",
+      },
+    ]);
+  });
 });

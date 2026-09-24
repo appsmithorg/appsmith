@@ -798,6 +798,14 @@ export default {
     const hiddenColumns = Object.values(props.primaryColumns)
       .filter((column) => !column.isVisible)
       .map((column) => column.alias);
+    /*
+     * HTML columns also stash plain text on __htmlExtractedText_*__ keys.
+     * Omitting only the alias is not enough — those keys must be omitted too
+     * or hidden HTML columns would still match search.
+     */
+    const hiddenHtmlExtractedTextKeys = Object.values(props.primaryColumns)
+      .filter((column) => !column.isVisible && column.columnType === "html")
+      .map((column) => getKeyForExtractedTextFromHTML(column.alias));
     const systemColumns = ["__originalIndex__"];
 
     const finalTableData = sortedTableData.filter((row) => {
@@ -931,7 +939,14 @@ export default {
 
       if (searchKey) {
         const combinedRowContent = [
-          ...Object.values(_.omit(displayedRow, hiddenColumns, systemColumns)),
+          ...Object.values(
+            _.omit(
+              displayedRow,
+              hiddenColumns,
+              hiddenHtmlExtractedTextKeys,
+              systemColumns,
+            ),
+          ),
           ...Object.values(
             _.omit(originalRow, [
               ...hiddenColumns,
