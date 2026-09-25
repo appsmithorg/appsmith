@@ -6,8 +6,8 @@ import {
   gateEnabledUnlessFalse,
   parsePositiveInt,
   publicOriginFromEnv,
+  requiredRedisUrlFromEnv,
   sessionLimitsFromEnv,
-  sessionStoreModeFromEnv,
 } from "./gates.js";
 
 describe("elicitationTimeoutFromEnv — APPSMITH_MCP_ELICITATION_TIMEOUT_MS", () => {
@@ -187,6 +187,25 @@ describe("publicOriginFromEnv — APPSMITH_MCP_PUBLIC_ORIGIN parsing (fail-close
   });
 });
 
+describe("requiredRedisUrlFromEnv — APPSMITH_REDIS_URL is mandatory for MCP sessions", () => {
+  it("returns the trimmed URL when set", () => {
+    expect(requiredRedisUrlFromEnv("redis://127.0.0.1:6379")).toBe(
+      "redis://127.0.0.1:6379",
+    );
+    expect(requiredRedisUrlFromEnv("  rediss://redis.internal:6380  ")).toBe(
+      "rediss://redis.internal:6380",
+    );
+  });
+
+  // There is no in-process fallback: Appsmith itself does not run without Redis, so a missing URL must stop the
+  // MCP process loudly instead of silently serving per-pod sessions behind a load balancer.
+  it.each([undefined, "", "   "])("throws for %j", (value) => {
+    expect(() => requiredRedisUrlFromEnv(value)).toThrow(
+      "APPSMITH_REDIS_URL is required",
+    );
+  });
+});
+
 describe("sessionLimitsFromEnv — session cap/TTL resolution", () => {
   const defaults = {
     maxSessions: 100,
@@ -289,36 +308,5 @@ describe("sessionLimitsFromEnv — session cap/TTL resolution", () => {
     });
     expect(warn).toHaveBeenCalledTimes(1);
     expect(warn.mock.calls[0][0]).toContain("the global cap applies first");
-  });
-});
-
-describe("sessionStoreModeFromEnv", () => {
-  const REDIS = "redis://127.0.0.1:6379";
-
-  it("defaults to redis whenever APPSMITH_REDIS_URL is set (unset/blank mode)", () => {
-    expect(sessionStoreModeFromEnv(undefined, REDIS)).toBe("redis");
-    expect(sessionStoreModeFromEnv("", REDIS)).toBe("redis");
-    expect(sessionStoreModeFromEnv("   ", REDIS)).toBe("redis");
-  });
-
-  it("defaults to memory only when no Redis URL is configured at all", () => {
-    expect(sessionStoreModeFromEnv(undefined, undefined)).toBe("memory");
-    expect(sessionStoreModeFromEnv("", "")).toBe("memory");
-    expect(sessionStoreModeFromEnv("", "   ")).toBe("memory");
-  });
-
-  it("honours an explicit memory opt-out or redis opt-in, case-insensitively", () => {
-    expect(sessionStoreModeFromEnv("memory", REDIS)).toBe("memory");
-    expect(sessionStoreModeFromEnv(" Memory ", REDIS)).toBe("memory");
-    expect(sessionStoreModeFromEnv("redis", undefined)).toBe("redis");
-    expect(sessionStoreModeFromEnv(" Redis ", REDIS)).toBe("redis");
-  });
-
-  it("refuses anything else instead of silently running per-pod memory on a multi-replica deployment", () => {
-    for (const value of ["reddis", "true", "1", "memory,redis"]) {
-      expect(() => sessionStoreModeFromEnv(value, REDIS)).toThrow(
-        'APPSMITH_MCP_SESSION_STORE must be "memory" or "redis"',
-      );
-    }
   });
 });

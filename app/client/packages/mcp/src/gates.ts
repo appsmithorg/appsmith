@@ -129,29 +129,20 @@ export interface SessionLimits {
 export const MAX_SESSION_CAP_CEILING = 10_000;
 export const SESSION_TTL_CEILING_MS = 24 * 60 * 60 * 1000;
 
-export type SessionStoreMode = "memory" | "redis";
+// APPSMITH_REDIS_URL is REQUIRED: MCP sessions always live in the Redis that Appsmith itself already needs for its
+// own web sessions, so there is deliberately no in-process mode and no MCP-specific knob. Blank counts as missing
+// (docker.env-style files commonly carry empty keys). Throws, so main() exits before listening — loud, never a
+// silent fallback to per-pod memory that would reproduce the multi-replica 404s.
+export function requiredRedisUrlFromEnv(value: string | undefined): string {
+  const url = (value ?? "").trim();
 
-// APPSMITH_MCP_SESSION_STORE: where session records live. Unset or blank (docker.env-style files commonly carry
-// empty keys) means "use Redis whenever APPSMITH_REDIS_URL is set" — every Appsmith deployment already requires
-// that Redis for the server's own web sessions, so sharing MCP sessions through it needs no extra configuration
-// and is what makes a multi-replica deployment work. `memory` is the explicit opt-out (one process, no Redis
-// round-trips); `redis` is the explicit opt-in (fails loudly at startup without a usable URL). Any other value
-// THROWS: a typo must never silently land a multi-replica deployment in per-pod memory.
-export function sessionStoreModeFromEnv(
-  value: string | undefined,
-  redisUrl: string | undefined,
-): SessionStoreMode {
-  const normalized = (value ?? "").trim().toLowerCase();
-
-  if (normalized === "") {
-    return (redisUrl ?? "").trim().length > 0 ? "redis" : "memory";
+  if (url.length === 0) {
+    throw new Error(
+      "APPSMITH_REDIS_URL is required: Appsmith MCP sessions are shared through the same Redis the Appsmith server uses",
+    );
   }
 
-  if (normalized === "memory" || normalized === "redis") return normalized;
-
-  throw new Error(
-    `APPSMITH_MCP_SESSION_STORE must be "memory" or "redis" (got "${value}")`,
-  );
+  return url;
 }
 
 // Session-limit env overrides resolved against their built-in defaults. Lives here (not in the entrypoint) so the

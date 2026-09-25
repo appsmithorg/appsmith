@@ -11,8 +11,8 @@ import {
   gateEnabled,
   gateEnabledUnlessFalse,
   publicOriginFromEnv,
+  requiredRedisUrlFromEnv,
   sessionLimitsFromEnv,
-  sessionStoreModeFromEnv,
 } from "./gates.js";
 import { McpGovernanceCoordinator } from "./governance/coordinator.js";
 import {
@@ -98,17 +98,6 @@ const sessionLimits = sessionLimitsFromEnv(
     sessionTtlMs: MCP_SESSION_TTL_MS,
   },
   (message) => process.stderr.write(`Appsmith MCP ${message}\n`),
-);
-
-// Session sharing across replicas. Sessions live in the Redis that APPSMITH_REDIS_URL names — the one every
-// Appsmith deployment already requires for the server's own web sessions — unless APPSMITH_MCP_SESSION_STORE=memory
-// opts out (one process, no Redis round-trips) or no Redis URL is configured at all. Behind a load balancer with
-// more than one replica, sessions and elicitation answers MUST be shared this way or requests that land on the
-// "other" pod fail with 404 (see README "Running more than one replica"). An unrecognised value throws here, at
-// module load, so the process exits before listening (fail-loud, like the redis-mode checks in main()).
-const sessionStoreMode = sessionStoreModeFromEnv(
-  process.env.APPSMITH_MCP_SESSION_STORE,
-  process.env.APPSMITH_REDIS_URL,
 );
 
 let httpServer: Server | undefined;
@@ -201,59 +190,42 @@ async function main(): Promise<void> {
     );
   }
 
-  // Redis mode fails loudly at startup on a missing or unusable URL (supervisord restarts) rather than silently
-  // falling back to per-pod memory and reproducing the multi-replica 404s.
-  let sessionStore: McpSessionStore | undefined;
+  // Sessions ALWAYS live in the Redis that APPSMITH_REDIS_URL names — the one every Appsmith deployment already
+  // requires for the server's own web sessions — so any replica can serve any session and elicitation answers
+  // reach the pod that asked (see README "Running more than one replica"). There is no in-process mode: Appsmith
+  // itself does not run without Redis, so a missing or unusable URL fails startup loudly (supervisord restarts)
+  // rather than silently reproducing the multi-replica 404s.
+  const redisUrl = requiredRedisUrlFromEnv(process.env.APPSMITH_REDIS_URL);
+  const redis = createRedisClientFromUrl(redisUrl);
 
-  if (sessionStoreMode === "redis") {
-    const redisUrl = process.env.APPSMITH_REDIS_URL;
-
-    if (!redisUrl) {
-      throw new Error(
-        "APPSMITH_MCP_SESSION_STORE=redis requires APPSMITH_REDIS_URL",
-      );
-    }
-
-    const redis = createRedisClientFromUrl(redisUrl);
-
-    if (!redis) {
-      throw new Error(
-        "APPSMITH_MCP_SESSION_STORE=redis requires a redis://, rediss://, or redis-cluster:// APPSMITH_REDIS_URL",
-      );
-    }
-
-    // A runtime socket error with no listener would throw out of the event loop and exit the process; node-redis
-    // reconnects on its own, so log and keep serving (requests fail individually while it is down).
-    redis.on("error", (error) => {
-      process.stderr.write(
-        `Appsmith MCP session Redis error: ${error.message}\n`,
-      );
-    });
-    // node-redis retries an unreachable server forever, so a bare connect() would leave the process alive but
-    // never listening. Bound the startup connects: on timeout main() rejects, the process exits 1, and supervisord
-    // restarts it (visible in logs) instead of a silent hang.
-    await withStartupTimeout(redis.connect(), "session Redis");
-    sessionRedis = redis;
-    sessionStore = new RedisSessionStore(redis);
-    sessionRelay = new RedisSessionRelay(redis);
-    // Open the relay's subscriber connection AND subscribe the pod channel NOW (RedisSessionRelay.connect), so an
-    // unreachable Redis or an ACL that forbids SUBSCRIBE fails startup loudly instead of leaving a live pod that
-    // answers 503 forever while Kubernetes — whose probes watch the backend — keeps it in rotation.
-    await withStartupTimeout(
-      sessionRelay.connect(),
-      "session relay subscriber",
-    );
-    process.stderr.write(
-      `Appsmith MCP sessions shared through Redis (pod id ${sessionRelay.podId})\n`,
-    );
-  } else {
-    // Say WHY, so a multi-replica operator reading the logs of a 404-ing pod sees the cause immediately.
-    process.stderr.write(
-      (process.env.APPSMITH_REDIS_URL ?? "").trim().length > 0
-        ? "Appsmith MCP sessions kept in process memory (APPSMITH_MCP_SESSION_STORE=memory); only valid for a single replica\n"
-        : "Appsmith MCP sessions kept in process memory (APPSMITH_REDIS_URL not set); only valid for a single replica\n",
+  if (!redis) {
+    throw new Error(
+      "APPSMITH_REDIS_URL must be a redis://, rediss://, or redis-cluster:// URL for Appsmith MCP sessions",
     );
   }
+
+  // A runtime socket error with no listener would throw out of the event loop and exit the process; node-redis
+  // reconnects on its own, so log and keep serving (requests fail individually while it is down).
+  redis.on("error", (error) => {
+    process.stderr.write(
+      `Appsmith MCP session Redis error: ${error.message}\n`,
+    );
+  });
+  // node-redis retries an unreachable server forever, so a bare connect() would leave the process alive but
+  // never listening. Bound the startup connects: on timeout main() rejects, the process exits 1, and supervisord
+  // restarts it (visible in logs) instead of a silent hang.
+  await withStartupTimeout(redis.connect(), "session Redis");
+  sessionRedis = redis;
+  const sessionStore: McpSessionStore = new RedisSessionStore(redis);
+
+  sessionRelay = new RedisSessionRelay(redis);
+  // Open the relay's subscriber connection AND subscribe the pod channel NOW (RedisSessionRelay.connect), so an
+  // unreachable Redis or an ACL that forbids SUBSCRIBE fails startup loudly instead of leaving a live pod that
+  // answers 503 forever while Kubernetes — whose probes watch the backend — keeps it in rotation.
+  await withStartupTimeout(sessionRelay.connect(), "session relay subscriber");
+  process.stderr.write(
+    `Appsmith MCP sessions shared through Redis (pod id ${sessionRelay.podId})\n`,
+  );
 
   httpServer = createMcpHttpServer(apiBaseUrl, undefined, {
     dataEnabled,
@@ -265,7 +237,8 @@ async function main(): Promise<void> {
     elicitationStrict,
     elicitationTimeoutMs,
     ...sessionLimits,
-    ...(sessionStore !== undefined ? { sessionStore, sessionRelay } : {}),
+    sessionStore,
+    sessionRelay,
   });
 
   httpServer.listen(port, "127.0.0.1", () => {
