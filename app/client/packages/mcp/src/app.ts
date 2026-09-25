@@ -6,7 +6,10 @@ import {
   type ServerResponse,
 } from "node:http";
 import { getRequestListener } from "@hono/node-server";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import {
+  McpServer,
+  type RegisteredTool,
+} from "@modelcontextprotocol/sdk/server/mcp.js";
 import {
   WebStandardStreamableHTTPServerTransport,
   type WebStandardStreamableHTTPServerTransportOptions,
@@ -22,6 +25,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { ELICITATION_TIMEOUT_CEILING_MS } from "./gates.js";
+import { TOOL_ANNOTATIONS } from "./toolAnnotations.js";
 import {
   isRelayableResponse,
   NoopSessionRelay,
@@ -2155,6 +2159,32 @@ export function buildMcpServer(
     { instructions: SERVER_INSTRUCTIONS },
   );
 
+  // Every tool registration goes through here so each tool carries its MCP annotations (see toolAnnotations.ts):
+  // the annotations object is spliced in before the callback, using the SDK's own `(name, [description,] [schema,]
+  // annotations, cb)` overloads. A tool missing from the table is a build-time bug, so registration refuses it
+  // rather than shipping a tool that every Codex/ChatGPT call would then need a human approval for.
+  const registerTool: McpServer["tool"] = (...args: unknown[]) => {
+    const name = String(args[0]);
+    const annotations = Object.hasOwn(TOOL_ANNOTATIONS, name)
+      ? TOOL_ANNOTATIONS[name]
+      : undefined;
+
+    if (annotations === undefined) {
+      throw new Error(`MCP tool "${name}" has no entry in TOOL_ANNOTATIONS`);
+    }
+
+    const withAnnotations = [
+      ...args.slice(0, -1),
+      annotations,
+      args[args.length - 1],
+    ];
+
+    return (server.tool as (...rest: unknown[]) => RegisteredTool).apply(
+      server,
+      withAnnotations,
+    );
+  };
+
   // Session-scoped cache for the branch gate's git-state reads (see GitGateCache for the binding caching rules).
   const gitGateCache = new GitGateCache();
 
@@ -2840,7 +2870,7 @@ export function buildMcpServer(
     }
   }
 
-  server.tool(
+  registerTool(
     "list_workspaces",
     "List workspaces accessible to the authenticated Appsmith user, as { id, name } pairs. Tools take a workspaceId, not a name — use this (or resolve_workspace) to turn a workspace NAME the user gives you into its id rather than asking the user for a raw id.",
     {},
@@ -2848,7 +2878,7 @@ export function buildMcpServer(
       result({ workspaces: projectWorkspaces(await api.listWorkspaces()) }),
   );
 
-  server.tool(
+  registerTool(
     "resolve_workspace",
     "Resolve a workspace NAME to its workspaceId. Returns matching { id, name } workspaces (an exact case-insensitive name match if one exists, otherwise partial matches). Use the returned id as the workspaceId for build_application and other workspace-scoped tools. If there are zero or multiple matches, show the user the candidates instead of guessing.",
     { name: z.string().trim().min(1).max(200) },
@@ -2869,14 +2899,14 @@ export function buildMcpServer(
     },
   );
 
-  server.tool(
+  registerTool(
     "list_applications",
     "List applications in a workspace accessible to the authenticated Appsmith user. Pass a workspaceId (resolve a workspace name to its id with resolve_workspace / list_workspaces first).",
     { workspaceId: idSchema },
     async ({ workspaceId }) => result(await api.listApplications(workspaceId)),
   );
 
-  server.tool(
+  registerTool(
     "get_application_context",
     "Read the requested application page and layout, plus the app's git-connection state. Appsmith authorizes every API request using the caller's bearer token.",
     { applicationId: idSchema, pageId: idSchema, layoutId: idSchema },
@@ -2893,7 +2923,7 @@ export function buildMcpServer(
 
   // M7-T1 — always-on git status read. A whitelist projection only: connection, branches, clean/dirty with
   // modified-entity counts, protected branches, remote HOST. gitAuth/keys/the full remote URL are never forwarded.
-  server.tool(
+  registerTool(
     "read_git_status",
     "Read a SAFE projection of an application's git state: connected, current branch, default branch, protected branches, clean/dirty with modified-entity counts, and the remote HOST only (never keys, credentials, or the full remote URL). Mutations on a git-connected app require a `branch` parameter equal to the app's current branch — call this first to learn it. Set compareRemote: true (default false) to also fetch aheadCount/behindCount from the remote (slower; contacts the remote). If the status shows uncommitted changes you did not make, tell the user before editing further; prefer working on your own mcp/ branch via create_branch.",
     {
@@ -2979,7 +3009,7 @@ export function buildMcpServer(
   // objects, datasources) — a large content-injection surface. Authoring goes through the validated
   // build_application / edit_page spec compiler instead.
 
-  server.tool(
+  registerTool(
     "get_capabilities",
     "Discover what this MCP server supports: widget types, spec shapes, presets, the layout grid, and the exact set of tools available under the current gates (data layer, restricted JS, governance). Call this first.",
     {},
@@ -2999,7 +3029,7 @@ export function buildMcpServer(
   // Always-on tool mirror of the instruction resources: tools-only MCP clients (e.g. ChatGPT) cannot read MCP
   // resources, so the guides/recipes/reference would otherwise be invisible to them. Same InstructionDoc registry
   // as registerInstructions — no forked content; the slug list in the description is generated, so it cannot drift.
-  server.tool(
+  registerTool(
     "get_guide",
     `Read a built-in guide, recipe, or reference document as rendered markdown by slug — the same content exposed as the appsmith:// MCP resources, for clients that cannot read resources. Valid slugs: ${INSTRUCTION_DOCS.map(
       (doc) => doc.slug,
@@ -3023,14 +3053,14 @@ export function buildMcpServer(
     },
   );
 
-  server.tool(
+  registerTool(
     "list_presets",
     "List ready-made page-spec presets (form, table-detail, card-grid, crud) that can be adapted into an app spec.",
     {},
     async () => result(listPresets()),
   );
 
-  server.tool(
+  registerTool(
     "get_preset",
     "Get a preset page spec by name to use or adapt.",
     { name: z.string().trim().min(1) },
@@ -3048,7 +3078,7 @@ export function buildMcpServer(
     },
   );
 
-  server.tool(
+  registerTool(
     "validate_app_spec",
     "Dry-run: validate and compile an app spec WITHOUT creating anything. Returns structured errors, or a summary of what would be built. Use this to iterate before build_application.",
     { app: z.record(z.unknown()) },
@@ -3076,7 +3106,7 @@ export function buildMcpServer(
     },
   );
 
-  server.tool(
+  registerTool(
     "build_application",
     "Create an Appsmith application from a high-level app spec. Widgets are auto-placed on the grid, compiled to an artifact, and imported via the caller's ACL-enforced permissions. The new app is automatically deployed (published) on creation, and the response includes an editorUrl plus a viewerUrl for the default page when available — treat that first deployed copy as a scaffold and re-publish after wiring data and events. The default page in the returned pages[] carries its layoutId; pass that pageId + layoutId to read_semantic_page / patch_widgets / edit_page / wire_event to author it (for other pages, get layoutId from read_pages). workspaceId is required — if the user names a workspace, resolve it to its id with resolve_workspace (or list_workspaces) rather than asking for a raw id.",
     { workspaceId: idSchema, app: z.record(z.unknown()) },
@@ -3223,7 +3253,7 @@ export function buildMcpServer(
     },
   );
 
-  server.tool(
+  registerTool(
     "edit_page",
     "Append widgets to an existing page from a high-level edit spec. Read the page with read_semantic_page first and pass its revision token to detect stale writes. Existing widgets are never modified.",
     {
@@ -3284,7 +3314,7 @@ export function buildMcpServer(
     },
   );
 
-  server.tool(
+  registerTool(
     "inspect_page",
     "Lint a live page and return structural diagnostics (overlaps, off-grid widgets, clipped containers, duplicate names, dangling bindings). Use this to verify a build/edit and drive fixes. Read-only.",
     { applicationId: idSchema, pageId: idSchema, layoutId: idSchema },
@@ -3306,7 +3336,7 @@ export function buildMcpServer(
     },
   );
 
-  server.tool(
+  registerTool(
     "patch_widgets",
     "Directly update, move, resize, reparent, or remove widgets using a strict typed patch. Read the page with read_semantic_page first and pass its revision. Only allowlisted literal properties can change; removing a widget with children is rejected. Moves are occupancy-aware: a position that lands on another widget is repaired to the nearest free spot below (reported as requestedPosition vs position plus a note) unless the operation sets strict: true, which rejects with the colliding names and the nearest free position; reparenting always lands at the nearest free spot in the new canvas. Resize ({ kind: 'resize', name, rows?, columns?, strict? }, grid units) grows/shrinks a widget: growth pushes overlapping siblings down, width cannot exceed the canvas, containers cannot shrink below their children, and modal rows translate to the modal's pixel height. Table styling: set literal 'oddRowColor'/'evenRowColor' for alternating (zebra) row backgrounds. Re-bind a table with structured 'tableData' { query, field?, clearWhenEmpty? } — clearWhenEmpty names an input whose emptiness clears the table (so a Clear button that resets that input also empties the table; resetWidget alone cannot clear a query-bound table). Input validation: set 'validation' { format: 'zipcode'|'email'|'number'|'integer'|'usPhone', message? } on an input to add a vetted regex + error message (never author a raw regex). Set 'disableWhenInvalid': '<input>' on a button to grey it out until that input passes validation (compiles to {{ !<input>.isValid }}) — use with validation so a bad value can't run the query. Conditional visibility / view switching: set 'visibleWhen' { control: '<select|tabs widget>', equals: '<value>' } to show a widget only when the control has that value — e.g. show a table when a ViewToggle equals 'Table' and a detail panel when it equals 'Details', switching views with one control. Two more predicate forms: { rowSelected: '<table>' } shows the widget only while that table has a selected row (detail panels, edit buttons), and { notEmpty: '<input>' } only while that input holds text.",
     {
@@ -3367,7 +3397,7 @@ export function buildMcpServer(
     },
   );
 
-  server.tool(
+  registerTool(
     "wire_event",
     "Wire a widget event to a safe action from a CLOSED vocabulary: run a query, navigate to a page, show/close a modal, show an alert, reset one or more widgets ({ reset: 'Widget' } or { reset: ['A','B'] } — e.g. a Clear button that empties an input and resets a table), append a query's rows to a store key ({ appendToStore: { key, query, field?, fields? } } — an accumulating results table; bind the table with a { store: '<key>' } source/tableData; session-only), or empty one store key ({ clearStoreKey: { key } }). A run action may chain onSuccess/onError follow-ups from the same vocabulary (e.g. submit -> run insert -> re-run the table's query -> close the modal -> alert). The action may also be an ordered LIST of 2-5 statements with at most one run (e.g. clearStoreKey + reset in one click). Supported events: button onClick, table onRowSelected, modal onClose, tabs onTabSelected, select onOptionChange, input onSubmit, checkbox onCheckChange, switch onChange, datepicker onDateSelected. Queries bound to widgets already run on page load automatically (the server derives on-page-load execution from bindings) — no event needed for that. Modal stacking is policed: opening a modal from inside another modal warns at depth 2 and is rejected at depth 3+ or on a cycle; close the host modal in the same action (closeModal + showModal) for a wizard-style transition that never stacks. Read the page first and pass its revision. The compiler emits the binding; no raw JS or bindings are accepted.",
     {
@@ -3509,7 +3539,7 @@ export function buildMcpServer(
     },
   );
 
-  server.tool(
+  registerTool(
     "read_semantic_page",
     "Read a compact, safe semantic view of a page for targeted authoring. Returns widget hierarchy, geometry, and allowlisted static properties, plus a revision token for a later write. It never returns arbitrary DSL properties, events, or raw bindings.",
     { applicationId: idSchema, pageId: idSchema, layoutId: idSchema },
@@ -3533,7 +3563,7 @@ export function buildMcpServer(
     },
   );
 
-  server.tool(
+  registerTool(
     "read_pages",
     "List an application's pages (safe metadata: id, name, slug, visibility, layoutId) plus a revision token for create_page / rename_page / delete_page. The per-page layoutId is what read_semantic_page / patch_widgets / edit_page / wire_event require as input. Never returns DSL, actions, or bindings.",
     { applicationId: idSchema },
@@ -3564,7 +3594,7 @@ export function buildMcpServer(
     },
   );
 
-  server.tool(
+  registerTool(
     "read_publish_status",
     "Read the application's publish state (last deployed time, public flag, name) plus the current page-list revision to pass to prepare_publish.",
     { applicationId: idSchema },
@@ -3585,7 +3615,7 @@ export function buildMcpServer(
     },
   );
 
-  server.tool(
+  registerTool(
     "read_theme",
     "Read the application's safe theme tokens (primaryColor, borderRadius, fontFamily) plus a revision token for a later update_theme. Stylesheet and config internals are never returned.",
     { applicationId: idSchema },
@@ -3619,7 +3649,7 @@ export function buildMcpServer(
             code: "organization_scope_unavailable",
           });
 
-    server.tool(
+    registerTool(
       "update_theme",
       "Update the application's theme tokens (primaryColor, borderRadius, fontFamily only) using a revision from read_theme. Stylesheets, CSS, URLs, and bindings are never accepted. Returns the new tokens, revision, and change id.",
       {
@@ -3678,7 +3708,7 @@ export function buildMcpServer(
     );
 
     // Item I — audit history + bounded rollback over the MCP-owned change records.
-    server.tool(
+    registerTool(
       "list_changes",
       "List recent MCP governance change records for the authenticated user (audit trail). Returns safe change headers and semantic summaries — never rollback snapshots.",
       { limit: z.number().int().min(1).max(100).optional() },
@@ -3695,7 +3725,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "get_change",
       "Get a single MCP change record by id (audit metadata + semantic summary; the rollback snapshot is never exposed).",
       { changeId: idSchema },
@@ -3712,7 +3742,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "list_all_changes",
       "ADMIN ONLY: list recent MCP governance change records across ALL actors in this instance (audit oversight), each attributed to its actor. Requires the caller to be an Appsmith instance administrator; a non-admin caller is refused. Returns safe change headers + semantic summaries — never rollback snapshots.",
       { limit: z.number().int().min(1).max(200).optional() },
@@ -3739,7 +3769,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "get_any_change",
       "ADMIN ONLY: get a single MCP change record by id regardless of which actor made it (audit oversight), attributed to its actor. Requires an Appsmith instance administrator; a non-admin caller is refused. The rollback snapshot is never exposed.",
       { changeId: idSchema },
@@ -3766,7 +3796,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "get_change_diff",
       "Get the semantic before/after summary for a change (operation, revisions, summary).",
       { changeId: idSchema },
@@ -3788,7 +3818,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "prepare_rollback",
       "Prepare to roll back a layout change (edit_page/patch_widgets). Returns a one-time confirmation token plus 'relay' text to show the user before confirming. Only offered when a safe layout snapshot exists.",
       { changeId: idSchema },
@@ -3826,7 +3856,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "confirm_rollback",
       "Roll back a layout change using a confirmation token from prepare_rollback. Re-applies the prior layout snapshot only if the page is unchanged since the change. On a git-connected app, pass the app's current branch (from read_git_status). When the MCP client supports elicitation, the user is prompted for approval and ONLY an explicit accept proceeds (at most 3 prompts per confirmation, then it is invalidated); otherwise show the user the prepare_rollback relay text and get their approval first.",
       {
@@ -3971,7 +4001,7 @@ export function buildMcpServer(
     );
 
     // Item H — publish is high-impact, so it is confirmation-gated.
-    server.tool(
+    registerTool(
       "prepare_publish",
       "Publishing (deploying) the application is high-impact. Pass the page-list revision from read_pages / read_publish_status; the server verifies it is current, then binds the confirmation to a CONTENT revision (pages, widget layouts, queries, JS objects, theme) and returns it as 'revision' — pass THAT revision (not the page-list one) to confirm_publish along with the token. Also returns 'relay' text to show the user before confirming.",
       {
@@ -4029,7 +4059,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "confirm_publish",
       "Publish (deploy) the application using a confirmation token from prepare_publish. Pass the CONTENT revision that prepare_publish returned (not the read_pages page-list revision). Token, actor, application, and revision must match, and the application's content (pages, widget layouts, queries, JS objects, theme) must be unchanged since preparation. When the MCP client supports elicitation, the user is prompted for approval and ONLY an explicit accept proceeds (at most 3 prompts per confirmation, then it is invalidated); otherwise show the user the prepare_publish relay text and get their approval first.",
       {
@@ -4168,7 +4198,7 @@ export function buildMcpServer(
       }
     }
 
-    server.tool(
+    registerTool(
       "create_branch",
       "Create a NEW agent git branch on a git-connected application from its CURRENT (possibly uncommitted) state. The name MUST start with the reserved prefix 'mcp/' (remainder: 1-60 characters of A-Za-z0-9_-). IMPORTANT: this PUSHES the new ref to the customer's git remote immediately (deploy-key egress; remote CI/webhooks watching branch pushes will run). Appsmith models each branch as its OWN application and has no checkout: the result returns the NEW branched applicationId — ALL subsequent reads, edits, and events for this branch must target that id, passing branch: '<name>' (the human's editor view is untouched). At most 5 mcp/ branches per application; at the cap, reuse a branch you created earlier or ask the user to delete stale mcp/ branches in Appsmith's branch UI. If read_git_status shows uncommitted changes you did not make, surface that to the user BEFORE branching — they ride along onto the new branch. Governed.",
       {
@@ -4460,7 +4490,7 @@ export function buildMcpServer(
       return { branch: state.branchName };
     }
 
-    server.tool(
+    registerTool(
       "prepare_commit",
       `Prepare to COMMIT AND PUSH all current changes of a git-connected application. The commit API always pushes to the customer's git remote — there is no commit-without-push — so this is only allowed when the application's branch starts with the reserved agent prefix "mcp/" (create_branch first and use the NEW applicationId it returns). The message must be a single printable line (max ${MCP_COMMIT_MESSAGE_MAX} characters, no control/bidi characters, no binding syntax, must not start with "["); the server prepends a non-strippable "[mcp] " marker. Returns a one-time confirmationId (5-minute TTL, bound to the app, branch, message, and current content revision) plus 'relay' text you MUST show the user before calling confirm_commit. Governed.`,
       {
@@ -4531,7 +4561,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "confirm_commit",
       'Commit AND PUSH using a one-time confirmationId from prepare_commit. Re-verifies AT CONFIRM TIME (fresh, fail-closed read) that the application\'s branch is an "mcp/" agent branch and that its content is unchanged since prepare. When the MCP client supports elicitation, the user is prompted directly and ONLY an explicit accept proceeds (at most 3 prompts per confirmation, then it is invalidated); otherwise you must have shown the user the prepare_commit relay text and obtained their approval first. The pushed commit cannot be rolled back via MCP. Governed.',
       { applicationId: idSchema, confirmationId: idSchema },
@@ -4735,7 +4765,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "create_page",
       "Create a new blank page in an application. The caller cannot supply DSL, actions, or bindings — only a safe page name. Pass a page-list revision from the application's pages for optimistic concurrency. Returns the safe page list, new revision, and change id.",
       {
@@ -4791,7 +4821,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "rename_page",
       "Rename a page. Pass the application's page-list revision for optimistic concurrency. Returns the safe page list, new revision, and change id.",
       {
@@ -4842,7 +4872,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "prepare_delete_page",
       "Prepare to delete a page. Deleting a page is destructive, so this returns a one-time confirmation token bound to this exact page and revision, plus 'relay' text to show the user before confirming. Call confirm_delete_page with the token to perform the deletion.",
       { spec: z.record(z.unknown()) },
@@ -4873,7 +4903,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "confirm_delete_page",
       "Delete a page using a confirmation token from prepare_delete_page. The token, actor, page, and revision must all match, and the page-list revision must be unchanged since preparation. When the MCP client supports elicitation, the user is prompted for approval and ONLY an explicit accept proceeds (at most 3 prompts per confirmation, then it is invalidated); otherwise show the user the prepare_delete_page relay text and get their approval first.",
       {
@@ -4998,7 +5028,7 @@ export function buildMcpServer(
   // and structure it can bind widgets to (via the closed binding vocabulary: table.source / button.onClick). They
   // wrap the existing ACL-enforced Appsmith REST endpoints under the caller's bearer token; no new server surface.
   if (dataEnabled) {
-    server.tool(
+    registerTool(
       "list_datasources",
       "List datasources in a workspace that the authenticated user can access. Bind a table to one of these via a query name (table.source = { query }).",
       { workspaceId: idSchema },
@@ -5006,7 +5036,7 @@ export function buildMcpServer(
         result(projectDatasources(await api.listDatasources(workspaceId))),
     );
 
-    server.tool(
+    registerTool(
       "create_datasource",
       "Create a datasource in a workspace. Supported: PostgreSQL/MySQL/Microsoft SQL Server/Oracle/Amazon Redshift/MongoDB databases (pass `connection` with non-secret host/port/database/username; the password is completed later in the Appsmith UI), and REST APIs (pass `url` with the base URL — created ready to use when the API needs no auth). Google Sheets is NOT creatable here: it needs interactive OAuth that must be authorized in the Appsmith UI; create+authorize it there, then query it with create_sheets_query. Credentials are NEVER accepted or transmitted by this tool. Idempotent by workspace + name.",
       {
@@ -5198,7 +5228,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "get_datasource_structure",
       "Read a datasource's structure (tables/columns) so you can shape queries and bindings. Read-only. Google Sheets datasources have no table structure; this tool walks the sheet hierarchy instead: call with just datasourceId to list the datasource's accessible spreadsheets, add sheetUrl (a spreadsheet's value from that list) to list its sheet (tab) names, and add sheetName to get that sheet's column names — exactly the identifiers create_sheets_query needs. Column names are the cell values of the header row (headerRow, default 1, max 100).",
       {
@@ -5291,7 +5321,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "list_actions",
       "List safe metadata for the authenticated user's actions in an application. Query bodies, headers, credentials, and raw action configuration are intentionally excluded.",
       { applicationId: idSchema },
@@ -5299,7 +5329,7 @@ export function buildMcpServer(
         result(projectActions(await api.listActions(applicationId))),
     );
 
-    server.tool(
+    registerTool(
       "create_query",
       "Create a SQL query (SELECT/INSERT/UPDATE/DELETE) on a datasource from a STRUCTURED spec — no raw SQL, no raw bindings. Values become prepared-statement parameters. SELECT supports columns/filters/limit plus orderBy [{column,direction}], aggregation {fn:count|sum|avg,column?}, and groupBy. Widgets then reference it by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
       {
@@ -5376,7 +5406,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "create_rest_api",
       "Create a REST API action from a structured specification using an existing REST datasource. The datasource retains its server-side base URL and credentials. Supports safe path segments, dynamic path segments from widgets (pathParams, e.g. path '/us' + a zip from an input -> /us/{value}), query parameters, fixed headers, literals, and validated widget-property bindings. Idempotent by page + name.",
       {
@@ -5455,7 +5485,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "create_mongo_query",
       "Create a MongoDB query (find, insert, update, or delete) on an existing Mongo datasource from a STRUCTURED spec — no raw Mongo command, no raw bindings. FIND { collection, filter?: [{ field, value }], sort?: [{ field, direction: 'ASC'|'DESC' }], limit? } returns matching documents (filter clauses are AND-ed equality); INSERT { collection, document: [{ field, value }] } adds one document; UPDATE { collection, filter: [{ field, value }], update: [{ field, value }], multi? } sets the named fields (emitted as a $set — a partial update, only those fields change) on matched documents; DELETE { collection, filter: [{ field, value }], multi? } removes matched documents. UPDATE/DELETE REQUIRE a filter (a mutation is always targeted); multi:false (default) hits ONE matched document, multi:true hits ALL. Each value is { literal } or { widget, property } and binds as a smart-substitution parameter (never string-concatenated); field/collection names are validated identifiers. Insert/update/delete mutate the collection, so running them needs prepare_run_action/confirm_run_action (or wire to a button). Widgets reference the result by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
       {
@@ -5536,7 +5566,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "create_redis_query",
       "Create a Redis command on an existing Redis datasource from a STRUCTURED spec — no raw Redis command string, no raw bindings. Pass { applicationId, pageId, datasourceId, name, command, key, ... }. command is an allow-listed verb: reads GET/EXISTS/TTL/TYPE/STRLEN/LLEN/SMEMBERS/SCARD/HGETALL/HKEYS/HVALS, writes SET/APPEND/LPUSH/RPUSH/SADD/SREM/DEL/INCR/DECR/HSET/HDEL/EXPIRE/LRANGE. Provide value (SET/APPEND/list/set writes, HSET), field (HGET/HDEL/HSET), seconds (EXPIRE), or start+stop (LRANGE). Each value is { literal } (a single token — no whitespace/quotes) or { widget, property } (resolved to the widget's value at runtime); keys/fields are single-token identifiers. The compiler emits exactly one Redis command line. MCP never creates a Redis datasource (create it in the Appsmith UI with host/port, then find it with list_datasources). Idempotent by page + name. NOTE: the emitted Redis action config is PROVISIONAL — modeled from Appsmith's Redis plugin editor form but not yet verified end-to-end against a live datasource; validate in your instance before relying on it.",
       {
@@ -5614,7 +5644,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "create_ai_query",
       "Create an AI chat-completion query on an existing OpenAI, Anthropic, or Google AI datasource from a STRUCTURED spec — no raw request body, no raw bindings. Pass { applicationId, pageId, datasourceId, name, model, messages, maxTokens?, temperature? }. model is the provider's model id (e.g. 'gpt-4o', 'claude-3-5-sonnet-20241022', 'gemini-1.5-pro'). messages is a list of { role: 'system'|'user'|'assistant', content } where content is { literal: '<text>' } or { widget, property } — bind an input's text to drive the prompt (the AI-app case). The compiler emits the provider's chat formData (command/model/messages resolved from the datasource's plugin). maxTokens/temperature apply to OpenAI/Anthropic. MCP never creates an AI datasource (create it and enter the API key in the Appsmith UI, then find it with list_datasources). Idempotent by page + name. NOTE: the emitted AI action config is PROVISIONAL — modeled from Appsmith's OpenAI/Anthropic/Google AI plugin editor forms but not yet verified end-to-end against a live datasource; validate in your instance before relying on it.",
       {
@@ -5698,7 +5728,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "create_s3_query",
       "Create an Amazon S3 file action on an existing S3 datasource from a STRUCTURED spec — no raw request body, no raw bindings. Pass { applicationId, pageId, datasourceId, name, operation, bucket, ... }. operation is list | read | upload | delete. list { bucket, prefix? } returns object keys; read { bucket, path } fetches an object; upload { bucket, path, body } writes an object (body is { literal } or { widget, property }); delete { bucket, path } removes one object. path is { literal } or { widget, property }. bucket/keys are charset-gated; widget references are parameterized at runtime via smartSubstitution (never string-concatenated). MCP never creates an S3 datasource (create it and enter the access key in the Appsmith UI, then find it with list_datasources). Idempotent by page + name. NOTE: the emitted S3 action config is PROVISIONAL — modeled from Appsmith's S3 plugin editor forms but not yet verified end-to-end against a live datasource; validate in your instance before relying on it.",
       {
@@ -5776,7 +5806,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "create_graphql_query",
       "Create a GraphQL query/mutation on an existing GraphQL datasource from a STRUCTURED spec. Pass { applicationId, pageId, datasourceId, name, query, variables? }. query is the GraphQL operation string (must start with '{', 'query', 'mutation', or 'subscription'); it is gated so it can never carry an Appsmith {{ }} binding. Runtime data enters ONLY through variables: [{ name, value }] where value is { literal } or { widget, property } — the query references $name and each value binds as a smart-substitution parameter (never string-concatenated into the query). MCP never creates a GraphQL datasource (create + authorize it in the Appsmith UI, then find it with list_datasources). Idempotent by page + name. NOTE: the emitted GraphQL action config is PROVISIONAL — modeled from Appsmith's GraphQL plugin form but not yet verified end-to-end against a live datasource; validate in your instance before relying on it.",
       {
@@ -5851,7 +5881,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "create_sheets_query",
       "Create a Google Sheets query (read, append, update, or delete) on an ALREADY-AUTHORIZED Google Sheets datasource from a STRUCTURED spec. MCP never creates or authorizes a Sheets datasource (OAuth is interactive and stays in the Appsmith UI) — create+authorize it there first, then reference it here by datasourceId (find it with list_datasources). Discover the exact sheetUrl, sheetName, and columns first with get_datasource_structure (spreadsheets -> sheet names -> columns) instead of guessing. read { sheetUrl, sheetName, range?, columns?, limit?, filter? } fetches rows (optional A1 range like 'A2:Z' and column projection) — a created read runs on page load and can be previewed with run_action. filter is a server-side row filter: an array of { column, op, value } combined with AND (op ∈ eq/neq/lt/lte/gt/gte/contains; value is { literal } or { widget, property }); it applies only to a plain fetch (no range). A filtered read that returns just the matching rows is the way to show LIVE counts WITHOUT spreadsheet formulas or JS — create one filtered read per category (e.g. Status eq 'Completed') and bind a text's value { count: { query } } to it; append { sheetUrl, sheetName, row: [{ column, value }] } adds one row; update { sheetUrl, sheetName, rowIndex, row: [{ column, value }] } overwrites the named columns of ONE existing row in place — rowIndex is the 0-based index a read returns per row ({ literal: <int> }) or a binding to the selected row ({ widget: 'Table1', property: 'selectedRow.rowIndex' }); a partial row touches only the columns you pass. delete { sheetUrl, sheetName, rowIndex } removes ONE existing row (same rowIndex addressing). append, update, and delete mutate the sheet, so running them needs prepare_run_action/confirm_run_action, or wire them to a button. Row values are { literal } or { widget, property } bound as smart-substitution parameters; sheetUrl/sheetName/range/columns are validated static identifiers. No raw formulas or bindings; for a specific-sheets (drive.file) datasource the server restricts execution to its OAuth-authorized spreadsheets. Idempotent by page + name. Read and append are verified end-to-end against a live authorized datasource; update uses the same plugin write path (UPDATE_ONE).",
       {
@@ -5930,7 +5960,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "get_action",
       "Read safe metadata for a single action (id, name, page, plugin, datasource) plus a revision token for update/duplicate/delete. Never returns the query body, headers, or credentials.",
       { applicationId: idSchema, actionId: idSchema },
@@ -5944,7 +5974,7 @@ export function buildMcpServer(
       },
     );
 
-    server.tool(
+    registerTool(
       "run_action",
       "Run a stored action by id WITHOUT a confirmation step — allowed only for an action that is both protocol-level read-only AND pinned to a server-side host-restricted datasource. Today that means Google Sheets reads (a FETCH_MANY/FETCH_DETAILS query created by create_sheets_query or the editor): use this to preview sheet data while authoring. REST/external actions (which can egress to any host) and DB/SQL queries (whose text cannot be proven read-only) are refused here; use prepare_run_action / confirm_run_action for those. No execute payload is accepted.",
       { applicationId: idSchema, actionId: idSchema },
@@ -5972,7 +6002,7 @@ export function buildMcpServer(
     if (governance) {
       const govData = governance;
 
-      server.tool(
+      registerTool(
         "update_action",
         "Update a stored SQL or REST action from a STRUCTURED spec (no raw SQL, bindings, credentials, base URLs, or headers). Pass a revision from get_action. Returns safe metadata, new revision, and change id.",
         {
@@ -6033,7 +6063,7 @@ export function buildMcpServer(
         },
       );
 
-      server.tool(
+      registerTool(
         "duplicate_action",
         "Duplicate a stored action under a new name, preserving its datasource server-side. No action configuration is accepted from the caller. Pass a revision from get_action. Governed.",
         {
@@ -6095,7 +6125,7 @@ export function buildMcpServer(
         },
       );
 
-      server.tool(
+      registerTool(
         "prepare_delete_action",
         "Prepare to delete an action. Returns a one-time confirmation token bound to this exact action and revision, plus 'relay' text to show the user before confirming. Call confirm_delete_action with the token to delete it.",
         { spec: z.record(z.unknown()) },
@@ -6126,7 +6156,7 @@ export function buildMcpServer(
         },
       );
 
-      server.tool(
+      registerTool(
         "confirm_delete_action",
         "Delete an action using a confirmation token from prepare_delete_action. Token, actor, action, and revision must all match, and the action's revision must be unchanged since preparation. When the MCP client supports elicitation, the user is prompted for approval and ONLY an explicit accept proceeds (at most 3 prompts per confirmation, then it is invalidated); otherwise show the user the prepare_delete_action relay text and get their approval first.",
         {
@@ -6246,7 +6276,7 @@ export function buildMcpServer(
         },
       );
 
-      server.tool(
+      registerTool(
         "prepare_run_action",
         "Prepare to run an action. Non-read-only executions require this confirmation step. Returns a one-time token bound to this action and revision, whether the action is read-only, and 'relay' text to show the user before confirming. Pass a revision from get_action.",
         {
@@ -6279,7 +6309,7 @@ export function buildMcpServer(
         },
       );
 
-      server.tool(
+      registerTool(
         "confirm_run_action",
         "Run an action using a confirmation token from prepare_run_action. Token, actor, action, and revision must match, and the action must be unchanged since preparation. When the MCP client supports elicitation, the user is prompted for approval and ONLY an explicit accept proceeds (at most 3 prompts per confirmation, then it is invalidated); otherwise show the user the prepare_run_action relay text and get their approval first. Returns the execution result and an audit change id.",
         {
@@ -6377,7 +6407,7 @@ export function buildMcpServer(
   // restricted definition (constants + async functions that run named queries and return literal objects); the
   // jsObject compiler emits the JS. Raw JS source is never accepted.
   if (jsEnabled) {
-    server.tool(
+    registerTool(
       "read_js_object",
       "List the application's JS objects with safe metadata (id, name, page, function names) and revision tokens for update/delete, plus a list revision for create. Never returns JS source.",
       { applicationId: idSchema },
@@ -6399,7 +6429,7 @@ export function buildMcpServer(
     if (governance) {
       const govJs = governance;
 
-      server.tool(
+      registerTool(
         "create_js_object",
         "Create a restricted JS object from a declarative spec (constants + async functions that run named queries and return literal objects). No raw JS, imports, globals, network calls, or loops. Pass a JS-list revision from read_js_object. Governed.",
         {
@@ -6482,7 +6512,7 @@ export function buildMcpServer(
         },
       );
 
-      server.tool(
+      registerTool(
         "update_js_object",
         "Update a restricted JS object from a declarative spec. Pass a revision from read_js_object. No raw JS. Governed.",
         {
@@ -6543,7 +6573,7 @@ export function buildMcpServer(
         },
       );
 
-      server.tool(
+      registerTool(
         "prepare_delete_js_object",
         "Prepare to delete a JS object. Returns a one-time confirmation token bound to this object and revision, plus 'relay' text to show the user before confirming.",
         { spec: z.record(z.unknown()) },
@@ -6574,7 +6604,7 @@ export function buildMcpServer(
         },
       );
 
-      server.tool(
+      registerTool(
         "confirm_delete_js_object",
         "Delete a JS object using a confirmation token from prepare_delete_js_object. Token, actor, object, and revision must all match. When the MCP client supports elicitation, the user is prompted for approval and ONLY an explicit accept proceeds (at most 3 prompts per confirmation, then it is invalidated); otherwise show the user the prepare_delete_js_object relay text and get their approval first.",
         {

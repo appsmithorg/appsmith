@@ -99,6 +99,30 @@ Operating it:
 - Batched JSON-RPC responses are not relayed (the SDK clients never batch); a batched prompt answer that lands on
   the wrong pod times out.
 
+### Tool annotations for hosted clients
+
+Every tool carries MCP tool annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`) so
+hosted clients can decide what needs a human's approval without asking on every call. The classification lives in
+one table, `src/toolAnnotations.ts`; the server refuses to register a tool that is missing from it, and a unit test
+pins the table against the live tool list, so a new tool cannot ship un-annotated.
+
+- **Reads and lists** (`list_*`, `get_*`, `read_*`, `inspect_page`, `validate_app_spec`, `resolve_workspace`) are
+  read-only and idempotent. `run_action` is read-only too (the server only executes provably read-only actions) but
+  is marked open-world because it reaches the datasource.
+- **Authoring writes** (`build_application`, `edit_page`, `patch_widgets`, `create_*`, `update_*`, ...) are
+  non-destructive: revision-checked and recorded as changes (layout edits also keep a rollback snapshot). `create_*`
+  tools that look the entity up by name first (datasources and queries) are also marked idempotent.
+- **`prepare_*`** mints a one-time confirmation and changes nothing else, so it is a non-destructive write; the
+  matching **`confirm_*`** is the destructive half. `confirm_commit` and `create_branch` are also open-world (they
+  push to the customer's git remote), as is `confirm_run_action`.
+
+Why it matters: the ChatGPT app (and the Codex runtime it uses for MCP) treats a tool with **no** annotations as
+destructive and open-world, which means an approval per call. Under its non-interactive policy that approval is
+denied, and the model reports the whole server as having no usable tools. With the annotations, reads and
+non-destructive writes run without a prompt; only the `confirm_*` tools ask. claude.ai and Claude Code ignore the
+hints and keep their own approval flow. Governance on the server is unchanged: the annotations describe the
+handshake, they do not replace it.
+
 ### Auto-publish on creation, and application URLs
 
 `build_application` **automatically publishes (deploys) the app it just created** and returns an `editorUrl` and
