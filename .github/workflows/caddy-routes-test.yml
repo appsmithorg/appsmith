@@ -20,8 +20,6 @@ on:
       - .github/workflows/caddy-routes-test.yml
       - deploy/docker/fs/opt/appsmith/caddy-reconfigure.mjs
       - deploy/docker/fs/opt/appsmith/templates/docker.env.sh
-      - deploy/docker/fs/opt/appsmith/entrypoint.sh
-      - deploy/docker/fs/opt/appsmith/ensure-mcp-internal-secret.sh
       - deploy/docker/route-tests/**
       - deploy/docker/tests/**
 
