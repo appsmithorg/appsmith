@@ -142,7 +142,12 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
             return Mono.just(Boolean.FALSE);
         }
 
-        final String finalBranchName = branchName.replaceFirst("origin/", "");
+        // Strip only a leading "origin/" prefix; replaceFirst would corrupt ref names
+        // that legitimately contain "origin/" mid-string (see CentralGitServiceCEImpl#stripOriginPrefix).
+        final String ORIGIN_PREFIX = "origin/";
+        final String finalBranchName = branchName.startsWith(ORIGIN_PREFIX)
+                ? branchName.substring(ORIGIN_PREFIX.length())
+                : branchName;
 
         Mono<Application> applicationMono = applicationService
                 .findById(defaultApplicationId, applicationPermission.getEditPermission())
