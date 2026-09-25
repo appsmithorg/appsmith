@@ -917,9 +917,10 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     public Mono<Void> restartWithoutAclCheck() {
         log.warn("Initiating restart via supervisor.");
         try {
-            // "mcp" is included so toggling the MCP env gates from Admin Settings takes effect on restart; its
-            // run script re-reads docker.env and parks itself when disabled. supervisorctl restarts the other
-            // programs even if one name is unknown (older images without the mcp program).
+            // "mcp" is included so env-file changes that the MCP service reads at start (its optional overrides) take
+            // effect on restart. Enabling MCP itself no longer needs this: the internal secret is generated at
+            // container boot and the toggle is enforced per request. supervisorctl restarts the other programs even
+            // if one name is unknown (older images without the mcp program).
             Runtime.getRuntime().exec(new String[] {
                 "supervisorctl", "restart", "backend", "editor", "rts", "mcp",
             });

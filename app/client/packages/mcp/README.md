@@ -21,7 +21,11 @@ only with a valid, user-scoped `mcp_…` token that the user creates for themsel
 **How to enable.** Each layer is an Admin switch (Admin Settings → MCP Server (BETA), or the environment variables
 below). The `APPSMITH_MCP_ENABLED` gate is enforced server-side: the auth filter is evaluated per request, so while
 it is off `mcp_…` tokens are rejected (401) and cannot be created or rotated at all — not merely deprived of the
-`/mcp` route. (Applying the change restarts the backend process, which re-reads the configuration.)
+`/mcp` route. On the Appsmith container image, enabling takes effect immediately, without a restart: the shared
+internal secret that the MCP service stamps on its backend calls is generated into `docker.env` by the container
+entrypoint at first boot, so both processes already hold it. A deployment that runs the processes some other way
+must provide `APPSMITH_MCP_INTERNAL_SECRET` to both before enabling; if the backend has to generate it on enable
+(its fallback), the MCP service needs a restart to pick it up, and the backend logs a warning saying so.
 
 | Variable                    | Default | Effect when disabled                                                                                                                                         |
 | --------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |

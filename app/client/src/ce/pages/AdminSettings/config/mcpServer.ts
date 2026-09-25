@@ -44,11 +44,12 @@ export const config: AdminConfigType = {
 export const getMcpServerConfig = (
   isMultiOrgEnabled: boolean,
 ): AdminConfigType => {
+  // No restart on either path: the MCP internal secret is generated at container boot (so the MCP service already
+  // holds it) and the enable toggle is enforced per request by the backend.
   return isMultiOrgEnabled
     ? config
     : {
         ...config,
         categoryType: CategoryType.INSTANCE,
-        needsRestart: true,
       };
 };
