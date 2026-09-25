@@ -34,4 +34,7 @@ jobs:
       - name: caddy rate-limit key is not spoofable (GHSA-qrgm-h8c4-jjf7)
         run: deploy/docker/tests/caddy-rate-limit-key-test.sh
 
+      - name: caddy rate-limit config unit tests
+        run: npx --yes vitest@3 run deploy/docker/tests/
+
       - run: deploy/docker/route-tests/run.sh
