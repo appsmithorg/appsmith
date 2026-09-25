@@ -38,6 +38,10 @@ export const config: AdminConfigType = {
   controlType: SettingTypes.GROUP,
   title: "MCP Server (BETA)",
   canSave: true,
+  // The settings registry decides once, at page load, whether to show the Profile → MCP keys entry (see
+  // config/index.ts), so the page reloads after a successful save to pick up the new value. Previously the
+  // Save & Restart flow ended in the same reload.
+  needsRefresh: true,
   settings: [MCP_ENABLED_SETTING],
 };
 
