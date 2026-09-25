@@ -4629,7 +4629,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@modelcontextprotocol/sdk@npm:^1.12.0":
+"@modelcontextprotocol/sdk@npm:^1.30.0":
   version: 1.30.0
   resolution: "@modelcontextprotocol/sdk@npm:1.30.0"
   dependencies:
@@ -13725,7 +13725,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "appsmith-mcp@workspace:packages/mcp"
   dependencies:
-    "@modelcontextprotocol/sdk": ^1.12.0
+    "@hono/node-server": ^1.19.9 || ^2.0.5
+    "@modelcontextprotocol/sdk": ^1.30.0
     "@types/jest": ^29.5.3
     "@types/node": "*"
     "@types/supertest": ^6.0.2
@@ -15689,14 +15690,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30001426":
-  version: 1.0.30001700
-  resolution: "caniuse-lite@npm:1.0.30001700"
-  checksum: 0e5e1c8648efeae1a2bcf371c872a4e41d9508d58b47133558f78b99c3d58c4b6ce7688068ea872deffbfc7c3c2a117e756fc48e1de7ae6c5540f3c3a4441c7a
-  languageName: node
-  linkType: hard
-
-"caniuse-lite@npm:^1.0.30001810":
+"caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30001426, caniuse-lite@npm:^1.0.30001810":
   version: 1.0.30001810
   resolution: "caniuse-lite@npm:1.0.30001810"
   checksum: 4ff2dae8df59eb5f5ae71c4803666cf581459a9432c7cf016afd85f4f110774fb9c6469a62ff69a73ed7be5a7eae27988656c3acf56bceed7b0f24358426a5a8

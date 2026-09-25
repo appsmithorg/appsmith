@@ -47,6 +47,77 @@ values above the sanity ceilings (10000 sessions, 24 h TTL) are clamped — both
 | `APPSMITH_MCP_MAX_SESSIONS_PER_USER` | 25              | Per-user cap; at the cap the user's oldest session is evicted.       |
 | `APPSMITH_MCP_SESSION_TTL_MS`        | 900000 (15 min) | Idle session lifetime; every request on a session refreshes its TTL. |
 
+### Running more than one replica
+
+Session records live in the Redis that `APPSMITH_REDIS_URL` names — the same Redis every Appsmith deployment already
+requires for the server's own web sessions — so any replica can serve any session, and the human's answers to
+approval prompts are relayed back to the pod that asked. That is what makes MCP work behind a load balancer with two
+or more Appsmith pods (each running its own MCP process): MCP clients send no cookies, so without a shared store
+every request that landed on the _other_ pod answered 404, and ordinary sticky sessions cannot help. There is no
+setting: Redis is a hard dependency of Appsmith itself, so the MCP process requires `APPSMITH_REDIS_URL` and refuses
+to start without it. (An in-memory session store exists only as the unit-test default of `createMcpHttpServer`.)
+
+How it works, and what it costs:
+
+- The **record** is shared; the live transport is not. A pod that receives a request for a session it has never
+  seen rebuilds a server for it and replays the client's own `initialize` (so elicitation detection matches the
+  original pod), then serves the request. The record's idle TTL and the session caps above are enforced from Redis,
+  so an eviction or a client `DELETE` on one pod takes effect everywhere.
+- **Approval prompts** ride the tool call's own response stream (never the standalone GET stream, which may be
+  open on another pod). The client's answer may land on any pod; that pod forwards it over Redis pub/sub to the pod
+  holding the prompt. Each pod subscribes its own channel at startup and refuses to serve (503) if it cannot.
+- Prompt budgets (per confirmation and per session) and the git-state read cache are still counted per pod, so
+  with N replicas they are bounded by N× the documented limits.
+- The raw bearer is never stored; the record carries its SHA-256 and every request is re-authenticated upstream.
+- Fail-loud: a missing or unusable `APPSMITH_REDIS_URL`, a Redis that does not answer within 30 s, or a Redis ACL
+  that forbids `SUBSCRIBE` stops the MCP process at startup (supervisord restarts it; the container healthcheck
+  reports MCP down) instead of silently falling back to per-pod memory. Should the relay subscription still be lost before serving starts, `/health` and every
+  authenticated `/mcp` request answer 503. A later socket blip is logged and node-redis reconnects on its own.
+- An external Redis with a restricted ACL user needs read/write on `appsmith:mcp:*` keys, `EVAL` (`@scripting`;
+  governance releases locks and consumes one-time confirmations through two short Lua scripts), and
+  `PUBLISH`/`SUBSCRIBE` on the `appsmith:mcp:relay:*` channels.
+- Upgrading: an existing instance switches to the shared store on its first start with this build, with no action
+  required. Sessions then survive an MCP process restart.
+
+Operating it:
+
+- `APPSMITH_REDIS_URL` must resolve to **one Redis shared by every replica** (the Helm chart's bundled Redis, or an
+  external one), which is already the case wherever the Appsmith server itself works across replicas. A per-pod
+  Redis on `127.0.0.1` would share nothing.
+- Each MCP process opens two extra Redis connections (a client and a pub/sub subscriber) on top of governance's.
+- During a rolling upgrade, pods still on the old build keep private sessions, so a session opened on one kind of
+  pod answers 404 on the other until the rollout completes; clients re-initialize per the MCP spec.
+- Redis keys, all TTL-bound: `appsmith:mcp:session:*` (records, the idle session TTL),
+  `appsmith:mcp:sessions:*` (cap indexes, 24 h after their last write), `appsmith:mcp:pending:*` (prompt routing,
+  the idle session TTL floored at the 10-minute prompt-timeout ceiling); channel `appsmith:mcp:relay:<pod>`. A Redis
+  flush drops every session (clients re-initialize); a rollback leaves nothing behind once the TTLs pass.
+- Batched JSON-RPC responses are not relayed (the SDK clients never batch); a batched prompt answer that lands on
+  the wrong pod times out.
+
+### Tool annotations for hosted clients
+
+Every tool carries MCP tool annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`) so
+hosted clients can decide what needs a human's approval without asking on every call. The classification lives in
+one table, `src/toolAnnotations.ts`; the server refuses to register a tool that is missing from it, and a unit test
+pins the table against the live tool list, so a new tool cannot ship un-annotated.
+
+- **Reads and lists** (`list_*`, `get_*`, `read_*`, `inspect_page`, `validate_app_spec`, `resolve_workspace`) are
+  read-only and idempotent. `run_action` is read-only too (the server only executes provably read-only actions) but
+  is marked open-world because it reaches the datasource.
+- **Authoring writes** (`build_application`, `edit_page`, `patch_widgets`, `create_*`, `update_*`, ...) are
+  non-destructive: revision-checked and recorded as changes (layout edits also keep a rollback snapshot). `create_*`
+  tools that look the entity up by name first (datasources and queries) are also marked idempotent.
+- **`prepare_*`** mints a one-time confirmation and changes nothing else, so it is a non-destructive write; the
+  matching **`confirm_*`** is the destructive half. `confirm_commit` and `create_branch` are also open-world (they
+  push to the customer's git remote), as is `confirm_run_action`.
+
+Why it matters: the ChatGPT app (and the Codex runtime it uses for MCP) treats a tool with **no** annotations as
+destructive and open-world, which means an approval per call. Under its non-interactive policy that approval is
+denied, and the model reports the whole server as having no usable tools. With the annotations, reads and
+non-destructive writes run without a prompt; only the `confirm_*` tools ask. claude.ai and Claude Code ignore the
+hints and keep their own approval flow. Governance on the server is unchanged: the annotations describe the
+handshake, they do not replace it.
+
 ### Auto-publish on creation, and application URLs
 
 `build_application` **automatically publishes (deploys) the app it just created** and returns an `editorUrl` and
@@ -171,4 +242,6 @@ unaffected — the parameter is optional and ignored.
 
 ## Local development
 
-Copy `.env.example` to `.env` and run the package standalone. See that file for the full set of variables.
+Copy `.env.example` to `.env` and run the package standalone. See that file for the full set of variables. A
+reachable Redis is required (`APPSMITH_REDIS_URL`; the example points at the local Appsmith server's Redis on
+`127.0.0.1:6379`), because sessions always live there; the process refuses to start without it.
