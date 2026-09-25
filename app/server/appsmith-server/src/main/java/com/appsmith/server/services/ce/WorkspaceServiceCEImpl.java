@@ -27,6 +27,7 @@ import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -80,6 +81,18 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final WorkspacePermission workspacePermission;
     private final PermissionGroupPermission permissionGroupPermission;
     private final WorkspaceServiceHelper workspaceServiceHelper;
+
+    @Autowired(required = false)
+    private UserDataService userDataService;
+
+    /**
+     * Sets the UserDataService instance for managing user data updates on workspace operations.
+     *
+     * @param userDataService the UserDataService instance
+     */
+    public void setUserDataService(UserDataService userDataService) {
+        this.userDataService = userDataService;
+    }
 
     @Autowired
     public WorkspaceServiceCEImpl(
@@ -596,7 +609,22 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                         })
                         .flatMap(this::archiveWorkspaceDependents)
                         .flatMap(repository::archive)
-                        .flatMap(analyticsService::sendDeleteEvent);
+                        .flatMap(analyticsService::sendDeleteEvent)
+                        .flatMap(archivedWorkspace -> {
+                            if (userDataService != null) {
+                                return userDataService
+                                        .removeWorkspaceFromRecentlyUsedList(workspaceId)
+                                        .onErrorResume(error -> {
+                                            log.error(
+                                                    "Error removing workspace {} from recently used list",
+                                                    workspaceId,
+                                                    error);
+                                            return Mono.empty();
+                                        })
+                                        .thenReturn(archivedWorkspace);
+                            }
+                            return Mono.just(archivedWorkspace);
+                        });
             } else {
                 return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
             }
