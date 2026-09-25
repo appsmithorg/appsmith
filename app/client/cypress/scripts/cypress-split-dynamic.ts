@@ -4,6 +4,11 @@ import {
   divideSpecsIntoBalancedGroups,
 } from "./specPacking";
 
+interface DbClient {
+  query: (text: string, values?: unknown[]) => Promise<any>;
+  release: () => void;
+}
+
 export class dynamicSplit {
   util = new util();
   dbClient = this.util.configureDbClient();
@@ -33,7 +38,10 @@ export class dynamicSplit {
         Number(activeRunners) - Number(activeRunnersFromDb),
       );
     } catch (err) {
-      console.log(err);
+      // Without weights this shard would fall back to no_spec.ts, and a shard
+      // that runs nothing still prints the pass marker. Fail loudly instead.
+      console.log("Could not read spec durations for this runner.", err);
+      throw err;
     } finally {
       client.release();
     }
@@ -57,8 +65,9 @@ export class dynamicSplit {
         ? []
         : specsToRun[0].map((spec) => spec.name);
     } catch (err) {
-      console.error(err);
-      process.exit(1);
+      // Let the caller release the attempt lock and rethrow; exiting here
+      // would leave the lock set for every other runner.
+      throw err;
     }
   }
 
@@ -71,7 +80,9 @@ export class dynamicSplit {
       );
       return matrixRes.rowCount;
     } catch (err) {
-      console.log(err);
+      // An unknown runner count would produce an empty split and no_spec.ts.
+      console.log("Could not count the active runners.", err);
+      throw err;
     } finally {
       client.release();
     }
@@ -94,7 +105,13 @@ export class dynamicSplit {
         dbRes.rows.length > 0 ? dbRes.rows.map((row) => row.name) : [];
       return specs;
     } catch (err) {
-      console.log(err);
+      // Allocating without this list would hand out specs other runners
+      // already hold.
+      console.log(
+        "Could not read the specs already assigned to other runners.",
+        err,
+      );
+      throw err;
     } finally {
       client.release();
     }
@@ -137,29 +154,6 @@ export class dynamicSplit {
     }
   }
 
-  private async createMatrix(attemptId: number) {
-    const client = await this.dbClient.connect();
-    try {
-      const matrixResponse = await client.query(
-        `INSERT INTO public."matrix" ("workflowId", "matrixId", "status", "attemptId")
-          VALUES ($1, $2, $3, $4)
-          ON CONFLICT ("matrixId", "attemptId") DO NOTHING
-          RETURNING id;`,
-        [
-          this.util.getVars().runId,
-          this.util.getVars().thisRunner,
-          "started",
-          attemptId,
-        ],
-      );
-      return matrixResponse.rows[0].id;
-    } catch (err) {
-      console.log(err);
-    } finally {
-      client.release();
-    }
-  }
-
   private async getFailedSpecsFromPreviousRun(
     workflowId = Number(this.util.getVars().runId),
     attempt_number = Number(this.util.getVars().attempt_number) - 1,
@@ -180,25 +174,66 @@ export class dynamicSplit {
         dbRes.rows.length > 0 ? dbRes.rows.map((row) => row.name) : [];
       return specs;
     } catch (err) {
-      console.log(err);
+      // On a re-run this list is the whole spec set for the shard. Running
+      // no_spec.ts instead would report a pass without retrying anything.
+      console.log("Could not read the failed specs of the previous run.", err);
+      throw err;
     } finally {
       client.release();
     }
   }
 
-  private async addSpecsToMatrix(matrixId: number, specs: string[]) {
-    const client = await this.dbClient.connect();
+  // Records this runner's matrix row and its queued specs in one transaction,
+  // so a failure part-way leaves nothing behind instead of a matrix row with
+  // some of its specs missing. A cypress-repeat-pro retry re-runs the splitter
+  // with the same matrixId/attemptId; the insert is then a no-op and the rows
+  // queued by the first run stand. Bookkeeping stays best-effort: a failure
+  // here is logged, not raised.
+  private async registerSpecsForMatrix(attemptId: number, specs: string[]) {
+    if (specs.length === 0) {
+      return;
+    }
+    let client: DbClient | undefined;
     try {
-      for (const spec of specs) {
-        const res = await client.query(
-          `INSERT INTO public."specs" ("name", "matrixId", "status") VALUES ($1, $2, $3) RETURNING id`,
-          [spec, matrixId, "queued"],
+      client = await this.dbClient.connect();
+      await client.query("BEGIN");
+      const matrixResponse = await client.query(
+        `INSERT INTO public."matrix" ("workflowId", "matrixId", "status", "attemptId")
+          VALUES ($1, $2, $3, $4)
+          ON CONFLICT ("matrixId", "attemptId") DO NOTHING
+          RETURNING id;`,
+        [
+          this.util.getVars().runId,
+          this.util.getVars().thisRunner,
+          "started",
+          attemptId,
+        ],
+      );
+
+      if (matrixResponse.rows.length > 0) {
+        await client.query(
+          `INSERT INTO public."specs" ("name", "matrixId", "status")
+            SELECT name, $2::integer, $3::varchar FROM unnest($1::text[]) AS name`,
+          [specs, matrixResponse.rows[0].id, "queued"],
+        );
+      } else {
+        console.log(
+          "Matrix row already exists for this runner; keeping the specs queued by the first run.",
         );
       }
+      await client.query("COMMIT");
     } catch (err) {
+      if (client) {
+        await client.query("ROLLBACK").catch(() => undefined);
+      }
+      // A workflow command, so the failure shows on the run summary instead
+      // of only in this shard's log.
+      console.log(
+        "::warning::Could not record the specs for this runner; its results will not be tracked and a re-run of only this job will fail.",
+      );
       console.log(err);
     } finally {
-      client.release();
+      client?.release();
     }
   }
 
@@ -238,10 +273,30 @@ export class dynamicSplit {
           counter++;
         }
       }
+      // Giving up silently would run no_spec.ts and report a pass.
+      throw new Error("Could not acquire the attempt lock for this runner.");
     } catch (err) {
-      console.log(err);
+      if (locked) {
+        await this.releaseAttemptLock(client, attemptId);
+      }
+      console.log("Spec allocation failed for this runner.", err);
+      throw err;
     } finally {
       client.release();
+    }
+  }
+
+  private async releaseAttemptLock(client: DbClient, attemptId: number) {
+    try {
+      await client.query(
+        `UPDATE public."attempt" SET is_locked = false WHERE id = $1 AND is_locked = true RETURNING id`,
+        [attemptId],
+      );
+    } catch (err) {
+      console.log(
+        "::warning::Could not release the attempt lock for this runner; other runners may wait on it.",
+      );
+      console.log(err);
     }
   }
 
@@ -249,20 +304,18 @@ export class dynamicSplit {
     attemptId: number,
     specs: string[],
   ) {
-    const client = await this.dbClient.connect();
+    await this.registerSpecsForMatrix(attemptId, specs);
+    let client: DbClient | undefined;
     try {
-      if (specs.length > 0) {
-        const matrixRes = await this.createMatrix(attemptId);
-        await this.addSpecsToMatrix(matrixRes, specs);
-      }
-      await client.query(
-        `UPDATE public."attempt" SET is_locked = false WHERE id = $1 AND is_locked = true RETURNING id`,
-        [attemptId],
-      );
+      client = await this.dbClient.connect();
+      await this.releaseAttemptLock(client, attemptId);
     } catch (err) {
+      console.log(
+        "::warning::Could not release the attempt lock for this runner; other runners may wait on it.",
+      );
       console.log(err);
     } finally {
-      client.release();
+      client?.release();
     }
   }
 
@@ -296,8 +349,16 @@ export class dynamicSplit {
       if (cypressSpecs != "")
         specPattern = cypressSpecs?.split(",").filter((val) => val !== "");
       if (this.util.getVars().cypressRerun === "true") {
-        specPattern =
-          (await this.getFailedSpecsFromPreviousRun()) ?? defaultSpec;
+        const failedSpecs = await this.getFailedSpecsFromPreviousRun();
+        if (failedSpecs.length === 0) {
+          // The previous attempt failed but recorded no failed, queued or
+          // in-progress specs, so its results were never tracked. Running
+          // no_spec.ts here would report a pass without retrying anything.
+          throw new Error(
+            "The previous attempt recorded no results for this runner; re-run the whole workflow instead of only the failed jobs.",
+          );
+        }
+        specPattern = failedSpecs;
       }
 
       if (this.util.getVars().cypressSkipFlaky === "true") {
@@ -318,7 +379,10 @@ export class dynamicSplit {
 
       return config;
     } catch (err) {
-      console.log(err);
+      // Returning without a config would let Cypress start with no specs and
+      // report a pass. Let the plugin load fail and the shard go red.
+      console.log("Spec allocation failed for this runner.", err);
+      throw err;
     } finally {
       this.dbClient.end();
     }
