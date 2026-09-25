@@ -176,6 +176,13 @@ parts.push(`
 
   ${isRateLimitingEnabled ? `rate_limit {
     zone dynamic_zone {
+      # Hashed, immutable bundle assets under /static/ are served from disk by
+      # file_server and never reach the Java or RTS backends. They are not
+      # counted: a cold editor load fetches well over a hundred of them within
+      # one second, and counting them rejects part of the bundle for one user.
+      match {
+        not path /static/*
+      }
       # Key the rate limit on Caddy's trusted-resolved client IP. The client_ip
       # placeholder honors trusted_proxies: behind a trusted (private) load
       # balancer it is the real per-client address, and from an untrusted direct
