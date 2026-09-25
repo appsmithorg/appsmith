@@ -92,10 +92,138 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
 
     /**
      * Oracle SQL queries throw error when any delimiter like semicolon is used. Hence, removing it.
+     * Semicolons inside string literals ('...', q'[...]'), delimited identifiers ("..."),
+     * line comments (-- ...), and block comments (/* ... * /) are preserved.
      * Ref: https://forums.oracle.com/ords/apexds/post/why-semicolon-not-allowed-in-jdbc-oracle-0099
+     *
+     * @param query The raw SQL query string.
+     * @return The SQL query string with all semicolons outside string literals, identifiers, and comments removed.
      */
     public static String removeSemicolonFromQuery(String query) {
-        return query.replaceAll(";", "");
+        if (query == null) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder(query.length());
+        int len = query.length();
+        int i = 0;
+
+        while (i < len) {
+            char c = query.charAt(i);
+
+            // Check for line comment: -- ...
+            if (c == '-' && i + 1 < len && query.charAt(i + 1) == '-') {
+                sb.append("--");
+                i += 2;
+                while (i < len && query.charAt(i) != '\n' && query.charAt(i) != '\r') {
+                    sb.append(query.charAt(i));
+                    i++;
+                }
+                continue;
+            }
+
+            // Check for block comment: /* ... */
+            if (c == '/' && i + 1 < len && query.charAt(i + 1) == '*') {
+                sb.append("/*");
+                i += 2;
+                while (i < len) {
+                    if (query.charAt(i) == '*' && i + 1 < len && query.charAt(i + 1) == '/') {
+                        sb.append("*/");
+                        i += 2;
+                        break;
+                    }
+                    sb.append(query.charAt(i));
+                    i++;
+                }
+                continue;
+            }
+
+            // Check for Oracle Q-quote literal: q'<char>...<matching_char>' or Q'<char>...<matching_char>'
+            // e.g. q'[...]', q'(...)', q'{...}', q'<...>', q'#...#'
+            if ((c == 'q' || c == 'Q') && i + 1 < len && query.charAt(i + 1) == '\'' && i + 2 < len) {
+                boolean isQQuote = (i == 0) || !Character.isJavaIdentifierPart(query.charAt(i - 1));
+                if (isQQuote) {
+                    sb.append(c);
+                    sb.append('\'');
+                    char openDelim = query.charAt(i + 2);
+                    char closeDelim;
+                    switch (openDelim) {
+                        case '[': closeDelim = ']'; break;
+                        case '(': closeDelim = ')'; break;
+                        case '{': closeDelim = '}'; break;
+                        case '<': closeDelim = '>'; break;
+                        default: closeDelim = openDelim; break;
+                    }
+                    sb.append(openDelim);
+                    i += 3;
+                    while (i < len) {
+                        char cur = query.charAt(i);
+                        sb.append(cur);
+                        if (cur == closeDelim && i + 1 < len && query.charAt(i + 1) == '\'') {
+                            sb.append('\'');
+                            i += 2;
+                            break;
+                        }
+                        i++;
+                    }
+                    continue;
+                }
+            }
+
+            // Check for standard single-quoted string literal: '...'
+            if (c == '\'') {
+                sb.append('\'');
+                i++;
+                while (i < len) {
+                    char cur = query.charAt(i);
+                    sb.append(cur);
+                    i++;
+                    if (cur == '\'') {
+                        // Check for escaped single quote: ''
+                        if (i < len && query.charAt(i) == '\'') {
+                            sb.append('\'');
+                            i++;
+                        } else {
+                            // End of string literal
+                            break;
+                        }
+                    }
+                }
+                continue;
+            }
+
+            // Check for double-quoted identifier: "..."
+            if (c == '"') {
+                sb.append('"');
+                i++;
+                while (i < len) {
+                    char cur = query.charAt(i);
+                    sb.append(cur);
+                    i++;
+                    if (cur == '"') {
+                        // Check for escaped double quote: ""
+                        if (i < len && query.charAt(i) == '"') {
+                            sb.append('"');
+                            i++;
+                        } else {
+                            // End of delimited identifier
+                            break;
+                        }
+                    }
+                }
+                continue;
+            }
+
+            // Semicolon outside strings, identifiers, and comments -> skip it
+            if (c == ';') {
+                i++;
+                continue;
+            }
+
+            sb.append(c);
+            i++;
+        }
+
+        return sb.toString();
     }
 
     /**
@@ -104,8 +232,14 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
      *
      * Oracle supports semicolon as a delimiter with PL/SQL syntax but not with normal SQL.
      * Ref: https://forums.oracle.com/ords/apexds/post/why-semicolon-not-allowed-in-jdbc-oracle-0099
+     *
+     * @param query The SQL/PL-SQL query string to check.
+     * @return true if the query is a PL/SQL block, false otherwise.
      */
     public static boolean isPLSQL(String query) {
+        if (query == null) {
+            return false;
+        }
         /**
          * Please don't use Java's String.matches(...) function here because it doesn't behave like normal regex
          * match. It returns true only if the entire string matches the regex as opposed to finding a substring
