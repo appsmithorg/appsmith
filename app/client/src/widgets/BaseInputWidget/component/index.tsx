@@ -550,6 +550,7 @@ class BaseInputComponent extends React.Component<
           (this.props.rtl ? " rtl" : "")
         }
         disabled={this.props.disabled}
+        inputMode="decimal"
         inputRef={(el) => {
           if (this.props.inputRef && el) {
             this.props.inputRef.current = el;
