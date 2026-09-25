@@ -142,7 +142,7 @@ run-hurl --variable frame_ancestors="something.com" \
   common/*.hurl
 
 
-new-spec "Spec 9: Rate limit exempts hashed static assets and still limits backend paths"
+new-spec "Spec 9: Rate limit counts backend paths at 1x and hashed static assets at 10x"
 export APPSMITH_RATE_LIMIT=5
 node /caddy-reconfigure.mjs
 reload-caddy

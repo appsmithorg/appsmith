@@ -13,6 +13,8 @@ const AppsmithCaddy = process.env._APPSMITH_CADDY
 // Rate limit environment.
 const isRateLimitingEnabled = process.env.APPSMITH_RATE_LIMIT !== "disabled"
 const RATE_LIMIT = parseInt(process.env.APPSMITH_RATE_LIMIT || 100, 10)
+// Hashed bundle assets under /static/ get their own zone at ten times the base limit.
+const STATIC_RATE_LIMIT = RATE_LIMIT * 10
 
 // Which upstream proxy IPs Caddy may trust for X-Forwarded-* / Forwarded headers.
 // Default: private ranges only (covers same-VPC / in-cluster load balancers).
@@ -176,10 +178,8 @@ parts.push(`
 
   ${isRateLimitingEnabled ? `rate_limit {
     zone dynamic_zone {
-      # Hashed, immutable bundle assets under /static/ are served from disk by
-      # file_server and never reach the Java or RTS backends. They are not
-      # counted: a cold editor load fetches well over a hundred of them within
-      # one second, and counting them rejects part of the bundle for one user.
+      # Everything except hashed bundle assets: /api/*, /oauth2/*, /login/*,
+      # /rts/*, and the SPA shell.
       match {
         not path /static/*
       }
@@ -192,6 +192,18 @@ parts.push(`
       # entirely (GHSA-qrgm-h8c4-jjf7).
       key {client_ip}
       events ${RATE_LIMIT}
+      window 1s
+    }
+    zone static_zone {
+      # Hashed, immutable bundle assets under /static/ are served from disk by
+      # file_server and never reach the Java or RTS backends. A cold editor
+      # load fetches well over a hundred of them within one second, so they
+      # are counted separately at ten times the base limit.
+      match {
+        path /static/*
+      }
+      key {client_ip}
+      events ${STATIC_RATE_LIMIT}
       window 1s
     }
   }`: ""}
