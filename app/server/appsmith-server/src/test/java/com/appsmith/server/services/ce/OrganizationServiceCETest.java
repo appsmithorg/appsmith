@@ -632,8 +632,11 @@ class OrganizationServiceCETest {
 
     @Test
     @WithUserDetails("api_user")
-    void updateOrganizationConfiguration_disableMcp_unsetsInternalSecretOnSingleOrg() {
-        commonConfig.setMcpInternalSecret("secret-to-clear");
+    void updateOrganizationConfiguration_disableMcp_keepsInternalSecret() {
+        // The secret is generated at container boot and shared by every process on the instance; disabling MCP must
+        // not clear it, otherwise re-enabling (on this or another replica) would need a restart to work again. The
+        // toggle itself is enforced per request, so the retained secret grants nothing while MCP is off.
+        commonConfig.setMcpInternalSecret("boot-generated-secret");
         McpConfig mcpConfig = new McpConfig();
         mcpConfig.setEnabled(FALSE);
         final OrganizationConfiguration changes = new OrganizationConfiguration();
@@ -646,11 +649,11 @@ class OrganizationServiceCETest {
                                     .getMcpConfig()
                                     .getEnabled())
                             .isFalse();
-                    assertThat(commonConfig.getMcpInternalSecret()).isEmpty();
+                    assertThat(commonConfig.getMcpInternalSecret()).isEqualTo("boot-generated-secret");
                 })
                 .verifyComplete();
 
-        verify(envManager).persistMcpInternalSecret("");
+        verify(envManager, never()).persistMcpInternalSecret(anyString());
     }
 
     @Test
