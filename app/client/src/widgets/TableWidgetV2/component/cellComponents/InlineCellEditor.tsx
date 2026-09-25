@@ -187,13 +187,35 @@ export function InlineCellEditor({
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
   const [hasFocus, setHasFocus] = useState(false);
   const [cursorPos, setCursorPos] = useState(value.length);
+  const hasHandledActionRef = useRef(false);
+
+  const handleSave = useCallback(() => {
+    if (!isEditableCellValid) {
+      hasHandledActionRef.current = false;
+      onSave();
+
+      return;
+    }
+
+    if (!hasHandledActionRef.current) {
+      hasHandledActionRef.current = true;
+      onSave();
+    }
+  }, [isEditableCellValid, onSave]);
+
+  const handleDiscard = useCallback(() => {
+    if (!hasHandledActionRef.current) {
+      hasHandledActionRef.current = true;
+      onDiscard();
+    }
+  }, [onDiscard]);
 
   const onFocusChange = useCallback(
     (focus: boolean) => {
-      !focus && onSave();
+      !focus && handleSave();
       setHasFocus(focus);
     },
-    [onSave],
+    [handleSave],
   );
 
   const onKeyDown = useCallback(
@@ -202,18 +224,62 @@ export function InlineCellEditor({
 
       switch (key) {
         case "Escape":
-          onDiscard();
+          handleDiscard();
           break;
         case "Enter":
           if (!event.shiftKey) {
-            onSave();
+            handleSave();
             event.preventDefault();
           }
 
           break;
+        case "Tab": {
+          const cellEl =
+            inputRef.current?.closest<HTMLElement>("[data-colindex]");
+          const rowEl = inputRef.current?.closest<HTMLElement>(".tr");
+          const currentColIndex = parseInt(
+            cellEl?.dataset.colindex || "-1",
+            10,
+          );
+
+          if (rowEl && currentColIndex !== -1) {
+            const allCells = Array.from(
+              rowEl.querySelectorAll<HTMLElement>("[data-colindex]"),
+            ).filter((el) => !el.classList.contains("hidden-cell"));
+
+            let targetCell: HTMLElement | undefined;
+
+            if (event.shiftKey) {
+              targetCell = allCells
+                .filter(
+                  (el) =>
+                    parseInt(el.dataset.colindex || "-1", 10) < currentColIndex,
+                )
+                .pop();
+            } else {
+              targetCell = allCells.find(
+                (el) =>
+                  parseInt(el.dataset.colindex || "-1", 10) > currentColIndex,
+              );
+            }
+
+            if (targetCell) {
+              handleSave();
+              event.preventDefault();
+              event.stopPropagation();
+              requestAnimationFrame(() => {
+                targetCell?.focus();
+              });
+              break;
+            }
+          }
+
+          handleSave();
+          break;
+        }
       }
     },
-    [onDiscard, onSave],
+    [handleDiscard, handleSave],
   );
 
   const onTextChange = useCallback(
