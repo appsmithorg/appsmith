@@ -35,18 +35,25 @@ const StyledContainerComponent = styled.div<
   background: ${(props) => props.backgroundColor};
   &:hover {
     background-color: ${(props) => {
-      return props.onClickCapture && props.backgroundColor
+      return props.onClickCapture &&
+        props.showHoverPointer !== false &&
+        props.backgroundColor
         ? tinycolor(props.backgroundColor).darken(5).toString()
         : props.backgroundColor;
     }};
-    z-index: ${(props) => (props.onClickCapture ? "2" : "1")};
-    cursor: ${(props) => (props.onClickCapture ? "pointer" : "inherit")};
+    z-index: ${(props) =>
+      props.onClickCapture && props.showHoverPointer !== false ? "2" : "1"};
+    cursor: ${(props) =>
+      props.onClickCapture && props.showHoverPointer !== false
+        ? "pointer"
+        : "inherit"};
   }
 `;
 
 interface ContainerWrapperProps {
   onClick?: MouseEventHandler<HTMLDivElement>;
   onClickCapture?: MouseEventHandler<HTMLDivElement>;
+  showHoverPointer?: boolean;
   resizeDisabled?: boolean;
   shouldScrollContents?: boolean;
   backgroundColor?: string;
@@ -99,7 +106,9 @@ function ContainerComponentWrapper(
       const isMainContainer = widgetId === "0";
 
       if (
-        (widgetType === "CONTAINER_WIDGET" && props.onClickCapture) ||
+        (widgetType === "CONTAINER_WIDGET" &&
+          props.onClickCapture &&
+          props.showHoverPointer !== false) ||
         isMainContainer
       ) {
         const elementsHovered = document.getElementsByClassName(
@@ -117,7 +126,7 @@ function ContainerComponentWrapper(
         });
       }
     },
-    [props.onClickCapture],
+    [props.onClickCapture, props.showHoverPointer],
   );
 
   return (
@@ -142,6 +151,7 @@ function ContainerComponentWrapper(
       ref={containerRef}
       resizeDisabled={props.resizeDisabled}
       shouldScrollContents={!!props.shouldScrollContents}
+      showHoverPointer={props.showHoverPointer}
       tabIndex={props.shouldScrollContents ? undefined : 0}
       type={props.type}
     >
@@ -164,6 +174,7 @@ function ContainerComponent(props: ContainerComponentProps) {
           props.shouldScrollContents &&
           props.layoutSystemType === LayoutSystemTypes.FIXED
         }
+        showHoverPointer={props.showHoverPointer}
         type={props.type}
         widgetId={props.widgetId}
       >
@@ -199,6 +210,7 @@ function ContainerComponent(props: ContainerComponentProps) {
             // We need to allow scrollbars for list items as they don't have auto-height
             props.isListItemContainer)
         }
+        showHoverPointer={props.showHoverPointer}
         type={props.type}
         widgetId={props.widgetId}
       >
@@ -219,6 +231,7 @@ export interface ContainerComponentProps extends WidgetStyleContainerProps {
   detachFromLayout?: boolean;
   onClick?: MouseEventHandler<HTMLDivElement>;
   onClickCapture?: MouseEventHandler<HTMLDivElement>;
+  showHoverPointer?: boolean;
   backgroundColor?: string;
   type: WidgetType;
   noScroll?: boolean;
