@@ -71,7 +71,11 @@ class BoxShadowOptionsControl extends BaseControl<BoxShadowOptionsControlProps> 
         }}
         options={options}
         ref={this.componentRef}
-        value={this.props.evaluatedValue || ""}
+        value={
+          this.props.evaluatedValue !== undefined
+            ? this.props.evaluatedValue
+            : this.props.propertyValue || ""
+        }
       />
     );
   }
