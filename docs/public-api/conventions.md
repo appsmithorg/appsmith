@@ -69,7 +69,8 @@ Every non-2xx response has this body and nothing else:
 | 403 | `forbidden` | Caller may see the resource but not perform this operation |
 | 403 | `requires_license` | The operation exists but this edition or license does not include it |
 | 404 | `resource_not_found` | Resource missing, or caller has no permission to know it exists |
-| 409 | `conflict` | State conflict such as a duplicate name, or an idempotent request still in flight |
+| 409 | `conflict` | State conflict such as a duplicate name; not retryable without a change |
+| 409 | `idempotency_key_in_flight` | The same `Idempotency-Key` is still being processed; `Retry-After` is set (section 6) |
 | 412 | `precondition_failed` | `expectedRevision` or branch selector does not match (section 9) |
 | 422 | `idempotency_key_reuse` | Same `Idempotency-Key` with a different request fingerprint (section 6) |
 | 429 | `rate_limited` | Limit exceeded; `Retry-After` is set |
@@ -124,14 +125,16 @@ the UI never substitutes for the check.
   and a hash of the body. A repeat with the same key and the same fingerprint within 24 hours returns
   the original response without repeating the side effect. The same key with a different fingerprint
   is a `422 idempotency_key_reuse`, whether the difference is in the body, the path or a query
-  selector. The same key while the original request is still in flight is a `409 conflict`; the
-  client retries after the original completes.
+  selector. The same key while the original request is still in flight is a
+  `409 idempotency_key_in_flight` with `Retry-After` in seconds; the client waits at least that long
+  and resends the identical request, which then receives the stored response.
 - Stored responses are sensitive: bounded TTL (24 hours), bounded size, and a per-credential quota so
   the store cannot be exhausted.
 - `PUT` and `DELETE` are idempotent by definition; a repeated `DELETE` of a missing resource is
   `404`.
-- Clients retry only on `429`, `502`, `503` and `504`, with exponential backoff, and always resend
-  the same `Idempotency-Key`.
+- Clients retry only on `429`, `409 idempotency_key_in_flight`, `502`, `503` and `504`, honouring
+  `Retry-After` when present and exponential backoff otherwise, and always resend the same
+  `Idempotency-Key`. A plain `409 conflict` is never retried unchanged.
 
 ## 7. Side-effect disclosure
 
