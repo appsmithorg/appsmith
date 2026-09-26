@@ -15,7 +15,7 @@ const buildingBlockReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      isDraggingBuildingBlockToCanvas: true,
+      isDraggingBuildingBlocksToCanvas: true,
     };
   },
   [ReduxActionTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_SUCCESS]: (
@@ -23,7 +23,7 @@ const buildingBlockReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      isDraggingBuildingBlockToCanvas: false,
+      isDraggingBuildingBlocksToCanvas: false,
     };
   },
   [ReduxActionErrorTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_ERROR]: (
@@ -31,7 +31,7 @@ const buildingBlockReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      isDraggingBuildingBlockToCanvas: false,
+      isDraggingBuildingBlocksToCanvas: false,
     };
   },
   [ReduxActionTypes.SET_BUILDING_BLOCK_DRAG_START_TIME]: (
