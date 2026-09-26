@@ -16,6 +16,7 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ce.EnvManagerCEImpl;
+import com.appsmith.server.solutions.ce.InstanceRestartPublisher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -36,6 +37,7 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
             JavaMailSender javaMailSender,
             GoogleRecaptchaConfig googleRecaptchaConfig,
             FileUtils fileUtils,
+            InstanceRestartPublisher instanceRestartPublisher,
             PermissionGroupService permissionGroupService,
             ConfigService configService,
             UserUtils userUtils,
@@ -55,6 +57,7 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
                 javaMailSender,
                 googleRecaptchaConfig,
                 fileUtils,
+                instanceRestartPublisher,
                 permissionGroupService,
                 configService,
                 userUtils,
