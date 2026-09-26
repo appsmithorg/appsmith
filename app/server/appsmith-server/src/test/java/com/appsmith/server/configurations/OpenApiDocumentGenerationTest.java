@@ -37,7 +37,7 @@ import static org.springframework.security.test.web.reactive.server.SecurityMock
  */
 @SpringBootTest
 @TestPropertySource(properties = {"springdoc.api-docs.enabled=true", "springdoc.swagger-ui.enabled=true"})
-public class OpenApiDocumentGenerationTest {
+class OpenApiDocumentGenerationTest {
 
     /** Relative to the surefire working directory, which is the module directory ({@code appsmith-server}). */
     private static final Path OUTPUT_DIR = Path.of("target", "openapi");
@@ -60,7 +60,11 @@ public class OpenApiDocumentGenerationTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    void openApiDocument_isGeneratedAndWrittenToBuildOutput() throws IOException {
+    void should_generateOpenApiDocumentAndWriteItToBuildOutput_when_authenticatedAndSpringdocEnabled()
+            throws IOException {
+        // Given: springdoc enabled for this context and an authenticated caller (class annotations)
+
+        // When
         byte[] body = webTestClient
                 .get()
                 .uri("/v3/docs")
@@ -72,6 +76,7 @@ public class OpenApiDocumentGenerationTest {
                 .returnResult()
                 .getResponseBody();
 
+        // Then
         assertThat(body).isNotNull().isNotEmpty();
 
         JsonNode document = OBJECT_MAPPER.readTree(body);
@@ -97,5 +102,19 @@ public class OpenApiDocumentGenerationTest {
                 StandardCharsets.UTF_8);
 
         assertThat(outputFile).exists();
+    }
+
+    /**
+     * Companion to {@link OpenApiDocsAuthTest#swaggerUiEndpoint_unauthenticated_returns401()}: the configured
+     * Swagger UI path really is a springdoc route (it redirects to the UI index), not just a URL the catch-all
+     * authentication rule rejects.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    void should_redirectToSwaggerUi_when_authenticatedAndSwaggerUiEnabled() {
+        // Given: swagger-ui enabled for this context and an authenticated caller (class annotations)
+
+        // When / Then
+        webTestClient.get().uri("/v3/swagger").exchange().expectStatus().is3xxRedirection();
     }
 }

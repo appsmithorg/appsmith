@@ -21,7 +21,7 @@ import static org.springframework.security.test.web.reactive.server.SecurityMock
  * No {@code @TestPropertySource} on purpose: this shares the default cached test context.
  */
 @SpringBootTest
-public class OpenApiDocsDisabledByDefaultTest {
+class OpenApiDocsDisabledByDefaultTest {
 
     private WebTestClient webTestClient;
 
@@ -34,13 +34,19 @@ public class OpenApiDocsDisabledByDefaultTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    void openApiDocsEndpoint_disabledByDefault_returns404ForAuthenticatedUser() {
+    void should_return404ForOpenApiDocs_when_springdocDisabledByDefaultAndAuthenticated() {
+        // Given: default configuration, authenticated caller (class and method annotations)
+
+        // When / Then
         webTestClient.get().uri("/v3/docs").exchange().expectStatus().isNotFound();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    void swaggerUiEndpoint_disabledByDefault_returns404ForAuthenticatedUser() {
+    void should_return404ForSwaggerUi_when_springdocDisabledByDefaultAndAuthenticated() {
+        // Given: default configuration, authenticated caller (class and method annotations)
+
+        // When / Then
         webTestClient.get().uri("/v3/swagger").exchange().expectStatus().isNotFound();
     }
 }

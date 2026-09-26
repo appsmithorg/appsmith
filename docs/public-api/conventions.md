@@ -71,7 +71,7 @@ Every non-2xx response has this body and nothing else:
 | 404 | `resource_not_found` | Resource missing, or caller has no permission to know it exists |
 | 409 | `conflict` | State conflict such as a duplicate name, or an idempotent request still in flight |
 | 412 | `precondition_failed` | `expectedRevision` or branch selector does not match (section 9) |
-| 422 | `idempotency_key_reuse` | Same `Idempotency-Key` with a different request body (section 6) |
+| 422 | `idempotency_key_reuse` | Same `Idempotency-Key` with a different request fingerprint (section 6) |
 | 429 | `rate_limited` | Limit exceeded; `Retry-After` is set |
 | 500 | `internal_error` | Unexpected failure; `requestId` identifies it in server logs |
 
@@ -79,9 +79,14 @@ Anti-enumeration: a resource the caller is not allowed to see and a resource tha
 produce responses with identical status, `code`, `message` and header set (only `requestId` differs).
 Return `403 forbidden` only when the caller already has read access to the resource. Checks run in
 this order so that no later check becomes an existence oracle: `401`, `429`, `400` (syntactic),
-`403 requires_license`, `404` (visibility), `403 forbidden`, `412`, `409`.
+`404` (visibility), `403 requires_license`, `403 forbidden`, `412`, `409`. Visibility comes before
+entitlement because entitlement belongs to an organization and, for a globally addressed resource,
+the organization is only known after lookup; answering `requires_license` for a resource the caller
+may not see would reveal that it exists. For a collection route under `/organizations/{id}`, the
+visibility check is the caller's membership in that organization. Phase 1 tests this order for a
+globally addressed resource, a collection route and a cross-organization request.
 
-`requires_license` is enforced server-side on every request from the organization's validated
+`requires_license` is enforced server-side on every request from the resolved organization's validated
 entitlement, re-evaluated on downgrade or expiry; omitting a licensed operation from the document or
 the UI never substitutes for the check.
 
@@ -112,12 +117,15 @@ the UI never substitutes for the check.
 ## 6. Idempotency and retries
 
 - Every `POST` that creates a resource or starts work accepts an `Idempotency-Key` header (a
-  client-generated UUID). The key is scoped to the calling credential, the method and the route: a
-  stored response is replayed only to the credential that produced it, and the same key from another
-  credential is a fresh request. A repeat with the same key and the same body within 24 hours returns
-  the original response without repeating the side effect. The same key with a different body is a
-  `422 idempotency_key_reuse`. The same key while the original request is still in flight is a
-  `409 conflict`; the client retries after the original completes.
+  client-generated UUID). The key is scoped to the calling credential: a stored response is replayed
+  only to the credential that produced it, and the same key from another credential is a fresh request.
+- Each request has a canonical fingerprint: method, the concrete path (IDs substituted), the query
+  string with parameters sorted by name (so `ref`, `refType`, `mode` and every other selector count),
+  and a hash of the body. A repeat with the same key and the same fingerprint within 24 hours returns
+  the original response without repeating the side effect. The same key with a different fingerprint
+  is a `422 idempotency_key_reuse`, whether the difference is in the body, the path or a query
+  selector. The same key while the original request is still in flight is a `409 conflict`; the
+  client retries after the original completes.
 - Stored responses are sensitive: bounded TTL (24 hours), bounded size, and a per-credential quota so
   the store cannot be exhausted.
 - `PUT` and `DELETE` are idempotent by definition; a repeated `DELETE` of a missing resource is
