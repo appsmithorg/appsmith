@@ -325,6 +325,17 @@ jobs:
           if-no-files-found: ignore
           overwrite: true
 
+      # The OpenAPI document is written by OpenApiDocumentGenerationTest during the test run.
+      # Runtime instances keep springdoc disabled; this artifact is the build's copy of the contract.
+      - name: Upload the generated OpenAPI document
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-document
+          path: app/server/appsmith-server/target/openapi/
+          if-no-files-found: ignore
+          overwrite: true
+
       - name: Fetch server build from cache
         if: steps.changed-files-specific.outputs.any_modified == 'false' && success()  && github.event_name != 'push' && github.event_name != 'workflow_dispatch'  && github.event_name != 'schedule'
         env:
