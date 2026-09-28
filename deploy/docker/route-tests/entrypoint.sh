@@ -8,7 +8,7 @@ new-spec() {
   echo "-----------" "$@" "-----------"
 
   # Unset influencing state
-  unset APPSMITH_CUSTOM_DOMAIN APPSMITH_ALLOWED_FRAME_ANCESTORS
+  unset APPSMITH_CUSTOM_DOMAIN APPSMITH_ALLOWED_FRAME_ANCESTORS APPSMITH_RATE_LIMIT
 
   # Clean custom certificates
   mkdir -p /appsmith-stacks/ssl
@@ -140,3 +140,12 @@ node /caddy-reconfigure.mjs
 reload-caddy
 run-hurl --variable frame_ancestors="something.com" \
   common/*.hurl
+
+
+new-spec "Spec 9: Rate limit counts backend paths at 1x and hashed static assets at 10x"
+export APPSMITH_RATE_LIMIT=5
+node /caddy-reconfigure.mjs
+reload-caddy
+# Let the window from earlier specs' requests expire before counting.
+sleep 2
+run-hurl rate-limit/*.hurl
