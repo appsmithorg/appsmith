@@ -56,10 +56,7 @@ export default function* navigateActionSaga(
       yield call(pushToHistory, path);
 
       if (currentPageId === page.pageId) {
-        yield call(setDataUrl);
-        yield put({
-          type: ReduxActionTypes.TRIGGER_EVAL,
-        });
+        yield call(syncUrlDataWithLocation);
       }
     } else if (target === NavigationTargetType.NEW_WINDOW) {
       window.open(path, "_blank");
@@ -106,6 +103,18 @@ export default function* navigateActionSaga(
       navUrl: pageNameOrUrl,
     });
   }
+}
+
+/**
+ * Refreshes `appsmith.URL` from `window.location` and re-evaluates the data tree.
+ * Needed whenever the URL changes without a page fetch (same-page `navigateTo`,
+ * browser Back/Forward), since `SET_URL_DATA` alone does not trigger evaluation.
+ */
+export function* syncUrlDataWithLocation() {
+  yield call(setDataUrl);
+  yield put({
+    type: ReduxActionTypes.TRIGGER_EVAL,
+  });
 }
 
 export function* navigateToAnyPageInApplication(
