@@ -48,7 +48,7 @@
              and CVE-2026-55831/55833/55851/56745/56746/59898/59899/59900/59901/59919/59921
              and CVE-2026-75595 (SNI routing bypass via fragmented TLS ClientHello) -->
         <netty.version>4.1.137.Final</netty.version>
-        <okhttp3.version>4.12.0</okhttp3.version>
+        <okhttp3.version>5.5.0</okhttp3.version>
         <org.pf4j.version>3.15.0</org.pf4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.groupId>com.appsmith</project.groupId>
