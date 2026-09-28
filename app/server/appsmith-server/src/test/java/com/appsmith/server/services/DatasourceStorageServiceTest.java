@@ -415,6 +415,106 @@ public class DatasourceStorageServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void changedConnectionRequiresFreshCredentialsForEveryRetainedCredentialSlot() {
+        DBAuth storedAuth = new DBAuth();
+        storedAuth.setUsername("stored-user");
+        storedAuth.setPassword("stored-password");
+        DatasourceConfiguration storedConfiguration =
+                configurationWithAuthentication("trusted.example.com", storedAuth);
+
+        Connection storedConnection = new Connection();
+        SSLDetails storedSsl = new SSLDetails();
+        storedSsl.setAuthType(SSLDetails.AuthType.VERIFY_FULL);
+        storedSsl.setKeyFile(new UploadedFile("client-key.pem", "Y2xpZW50LWtleQ=="));
+        storedConnection.setSsl(storedSsl);
+        storedConfiguration.setConnection(storedConnection);
+
+        SSHConnection storedSsh = new SSHConnection();
+        storedSsh.setHost("bastion.example.com");
+        storedSsh.setPort(22L);
+        storedSsh.setUsername("ssh-user");
+        storedSsh.setPrivateKey(new SSHPrivateKey(null, "ssh-password"));
+        storedConfiguration.setSshProxy(storedSsh);
+
+        DBAuth requestAuth = new DBAuth();
+        requestAuth.setUsername("request-user");
+        requestAuth.setPassword("request-password");
+        DatasourceConfiguration requestConfiguration =
+                configurationWithAuthentication("changed.example.com", requestAuth);
+
+        Connection requestConnection = new Connection();
+        SSLDetails requestSsl = new SSLDetails();
+        requestSsl.setAuthType(SSLDetails.AuthType.VERIFY_FULL);
+        requestSsl.setKeyFile(new UploadedFile("client-key.pem", null));
+        requestConnection.setSsl(requestSsl);
+        requestConfiguration.setConnection(requestConnection);
+
+        SSHConnection requestSsh = new SSHConnection();
+        requestSsh.setHost("bastion.example.com");
+        requestSsh.setPort(22L);
+        requestSsh.setUsername("ssh-user");
+        requestSsh.setPrivateKey(new SSHPrivateKey(null, "fresh-ssh-password"));
+        requestConfiguration.setSshProxy(requestSsh);
+
+        assertChangedConnectionRequiresCredentials(storedConfiguration, requestConfiguration);
+
+        requestSsl.setKeyFile(new UploadedFile("client-key.pem", "ZnJlc2gtY2xpZW50LWtleQ=="));
+        requestSsh.setPrivateKey(new SSHPrivateKey(null, null));
+        assertChangedConnectionRequiresCredentials(storedConfiguration, requestConfiguration);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void explicitAuthenticationRemovalPreservesUnchangedTransportCredentials() {
+        DBAuth storedAuth = new DBAuth();
+        storedAuth.setUsername("stored-user");
+        storedAuth.setPassword("stored-password");
+        DatasourceConfiguration storedConfiguration =
+                configurationWithAuthentication("trusted.example.com", storedAuth);
+
+        Connection storedConnection = new Connection();
+        SSLDetails storedSsl = new SSLDetails();
+        storedSsl.setAuthType(SSLDetails.AuthType.VERIFY_FULL);
+        UploadedFile storedClientKey = new UploadedFile("client-key.pem", "Y2xpZW50LWtleQ==");
+        storedSsl.setKeyFile(storedClientKey);
+        storedConnection.setSsl(storedSsl);
+        storedConfiguration.setConnection(storedConnection);
+
+        SSHConnection storedSsh = new SSHConnection();
+        storedSsh.setHost("bastion.example.com");
+        storedSsh.setPort(22L);
+        storedSsh.setUsername("ssh-user");
+        SSHPrivateKey storedSshPrivateKey = new SSHPrivateKey(null, "ssh-password");
+        storedSsh.setPrivateKey(storedSshPrivateKey);
+        storedConfiguration.setSshProxy(storedSsh);
+
+        DatasourceConfiguration requestConfiguration = new DatasourceConfiguration();
+        requestConfiguration.setEndpoints(List.of(new Endpoint("trusted.example.com", 5432L)));
+        Connection requestConnection = new Connection();
+        SSLDetails requestSsl = new SSLDetails();
+        requestSsl.setAuthType(SSLDetails.AuthType.VERIFY_FULL);
+        requestSsl.setKeyFile(new UploadedFile("client-key.pem", null));
+        requestConnection.setSsl(requestSsl);
+        requestConfiguration.setConnection(requestConnection);
+        SSHConnection requestSsh = new SSHConnection();
+        requestSsh.setHost("bastion.example.com");
+        requestSsh.setPort(22L);
+        requestSsh.setUsername("ssh-user");
+        requestSsh.setPrivateKey(new SSHPrivateKey(null, null));
+        requestConfiguration.setSshProxy(requestSsh);
+
+        DatasourceCredentialBindingResult result = datasourceStorageService.bindStoredCredentials(
+                storageWithConfiguration(requestConfiguration), storageWithConfiguration(storedConfiguration));
+
+        DatasourceConfiguration boundConfiguration = result.datasourceStorage().getDatasourceConfiguration();
+        assertThat(result.credentialSource()).isEqualTo(DatasourceCredentialBindingResult.CredentialSource.CLEARED);
+        assertThat(boundConfiguration.getAuthentication()).isNull();
+        assertThat(boundConfiguration.getConnection().getSsl().getKeyFile()).isSameAs(storedClientKey);
+        assertThat(boundConfiguration.getSshProxy().getPrivateKey()).isSameAs(storedSshPrivateKey);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void changedTransportAndClearedAuthenticationRequiresFreshCredentials() {
         DBAuth storedAuth = new DBAuth();
         storedAuth.setUsername("stored-user");
