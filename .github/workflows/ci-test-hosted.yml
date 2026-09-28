@@ -253,8 +253,16 @@ jobs:
             cd app/client
             npx cypress-repeat-pro run -n 3 --rerun-failed-only \
                 --config-file "cypress_ci_hosted.config.ts" \
-                --browser "${{ env.BROWSER_PATH }}"
+                --browser "$BROWSER_PATH" | tee cy-repeat-output.txt
             cat cy-repeat-summary.txt
+
+            # cypress-repeat-pro exits 0 when a repeat aborts before it collects
+            # results, which turns a shard with failing specs green. It prints
+            # this marker only after a repeat in which every spec passed.
+            if ! grep -q "All specs passed on run" cy-repeat-output.txt; then
+              echo "::error::Cypress produced no passing run for this shard."
+              exit 1
+            fi
 
       - name: Rename reports
         if: failure()
