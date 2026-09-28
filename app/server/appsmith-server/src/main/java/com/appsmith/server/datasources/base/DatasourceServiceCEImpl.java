@@ -532,7 +532,22 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId) {
         DatasourceStorage datasourceStorage =
                 datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
-        return this.isEndpointBlockedForConnectionRequest(datasourceStorage).flatMap(isBlocked -> {
+        Mono<Void> datasourceTestAuthorization = Mono.empty();
+        if (!hasText(datasourceStorage.getDatasourceId())) {
+            if (!hasText(datasourceStorage.getWorkspaceId())) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+            }
+
+            datasourceTestAuthorization = workspacePermission
+                    .getDatasourceCreatePermission()
+                    .flatMap(permission -> workspaceService.findById(datasourceStorage.getWorkspaceId(), permission))
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
+                    .then();
+        }
+
+        Mono<Boolean> isEndpointBlockedMono = datasourceTestAuthorization.then(
+                Mono.defer(() -> this.isEndpointBlockedForConnectionRequest(datasourceStorage)));
+        return isEndpointBlockedMono.flatMap(isBlocked -> {
             if (!isBlocked) {
                 final Mono<DatasourceTestContext> datasourceStorageMono;
 
@@ -541,12 +556,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
                 // Cases where the datasource hasn't been saved yet
                 if (!hasText(datasourceStorage.getDatasourceId())) {
-
-                    if (!hasText(datasourceStorage.getWorkspaceId())) {
-                        return Mono.error(
-                                new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
-                    }
-
                     datasourceStorageMono = getTrueEnvironmentId(
                                     datasourceStorage.getWorkspaceId(),
                                     datasourceStorage.getEnvironmentId(),
@@ -577,10 +586,13 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                 Datasource datasource = tuple2.getT1();
                                 DatasourceStorage datasourceStorage1 = tuple2.getT2();
                                 String trueEnvironmentId = datasourceStorage1.getEnvironmentId();
-                                // Fetch any fields that maybe encrypted from the db if the datasource being tested does
+                                // Fetch any fields that maybe encrypted from the db if the datasource being
+                                // tested does
                                 // not have those fields set.
-                                // This scenario would happen whenever an existing datasource is being tested and no
-                                // changes are present in the encrypted field, because encrypted fields are not sent
+                                // This scenario would happen whenever an existing datasource is being tested
+                                // and no
+                                // changes are present in the encrypted field, because encrypted fields are not
+                                // sent
                                 // over the network after encryption back to the client
 
                                 if (!hasText(datasourceStorage.getId())) {
