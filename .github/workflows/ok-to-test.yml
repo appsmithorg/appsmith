@@ -9,19 +9,29 @@ on:
 jobs:
   ok-to-test:
     runs-on: ubuntu-latest
-    # Only run for PRs, not issue comments
+    # GITHUB_TOKEN is only used to add reactions to the command comment
+    permissions:
+      issues: write
+      pull-requests: write
+    # Only run for slash commands on PRs, not for every issue or PR comment
     if: |
-      github.event.issue.pull_request
+      github.event.issue.pull_request &&
+      startsWith(github.event.comment.body, '/')
     steps:
       - name: Generate token
         id: generate_token
-        uses: tibdex/github-app-token@v1
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
-          app_id: ${{ secrets.APPSMITH_INTEGRATION_TESTING_ID }}
-          private_key: ${{ secrets.APPSMITH_INTEGRATION_TESTING_KEY }}
+          app-id: ${{ secrets.APPSMITH_INTEGRATION_TESTING_ID }}
+          private-key: ${{ secrets.APPSMITH_INTEGRATION_TESTING_KEY }}
+          # Scope the installation token to what dispatching needs:
+          # reading the PR, checking the commenter's permission, and creating repository_dispatch events
+          permission-contents: write
+          permission-metadata: read
+          permission-pull-requests: read
 
       - name: Slash Command Dispatch
-        uses: peter-evans/slash-command-dispatch@v3
+        uses: peter-evans/slash-command-dispatch@f996d7b7aae9059759ac55e978cff76d91853301 # v3.0.2
         env:
           TOKEN: ${{ steps.generate_token.outputs.token }}
         with:
