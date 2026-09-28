@@ -111,18 +111,13 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     private final FileUtils fileUtils;
 
     private final PermissionGroupService permissionGroupService;
-
     private final ConfigService configService;
-
     private final UserUtils userUtils;
-
     private final OrganizationService organizationService;
-
     private final ObjectMapper objectMapper;
-
     private final EmailService emailService;
-
     private final BlacklistedEnvVariableHelper blacklistedEnvVariableHelper;
+    private final InstanceRestartPublisher instanceRestartPublisher;
 
     /**
      * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
@@ -176,6 +171,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
             JavaMailSender javaMailSender,
             GoogleRecaptchaConfig googleRecaptchaConfig,
             FileUtils fileUtils,
+            InstanceRestartPublisher instanceRestartPublisher,
             PermissionGroupService permissionGroupService,
             ConfigService configService,
             UserUtils userUtils,
@@ -201,6 +197,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         this.objectMapper = objectMapper;
         this.emailService = emailService;
         this.blacklistedEnvVariableHelper = blacklistedEnvVariableHelper;
+        this.instanceRestartPublisher = instanceRestartPublisher;
     }
 
     /**
@@ -902,14 +899,26 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         });
     }
 
+    /**
+     * Super-user entry point for {@code POST /restart}. Publishes a restart to every pod of this instance and
+     * completes once Redis accepts the message. Each pod that receives it restarts itself. When no subscriber
+     * receives the message, this pod restarts directly.
+     */
     @Override
     public Mono<Void> restart() {
-        return verifyCurrentUserIsSuper().flatMap(user -> restartWithoutAclCheck());
+        return verifyCurrentUserIsSuper()
+                .flatMap(user -> Mono.defer(instanceRestartPublisher::publish).flatMap(receiverCount -> {
+                    if (receiverCount > 0) {
+                        return Mono.empty();
+                    }
+                    log.warn("Instance restart reached {} subscriber(s); restarting this pod directly", receiverCount);
+                    return restartWithoutAclCheck();
+                }));
     }
 
     /**
-     * This function is used to restart the server using supervisorctl command and should be called internally within
-     * the server as the ACL checks are skipped. For client side calls we should use {@link EnvManagerCEImpl#restart()}
+     * Restarts the processes on this pod via supervisorctl. Skips ACL checks. Invoked on each pod when a restart
+     * broadcast arrives. For client side calls use {@link EnvManagerCEImpl#restart()}.
      *
      * @return  Returns a Mono<Void>
      */
