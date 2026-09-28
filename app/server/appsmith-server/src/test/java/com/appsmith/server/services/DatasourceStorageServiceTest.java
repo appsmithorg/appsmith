@@ -220,9 +220,9 @@ public class DatasourceStorageServiceTest {
         storedSshConfiguration.setSshProxy(storedSsh);
 
         DatasourceConfiguration requestSshConfiguration = new DatasourceConfiguration();
-        requestSshConfiguration.setEndpoints(List.of(new Endpoint("changed.example.com", 5432L)));
+        requestSshConfiguration.setEndpoints(List.of(new Endpoint("trusted.example.com", 5432L)));
         SSHConnection requestSsh = new SSHConnection();
-        requestSsh.setHost("bastion.example.com");
+        requestSsh.setHost("changed-bastion.example.com");
         requestSsh.setPort(22L);
         requestSsh.setUsername("ssh-user");
         requestSsh.setPrivateKey(new SSHPrivateKey(null, null));
