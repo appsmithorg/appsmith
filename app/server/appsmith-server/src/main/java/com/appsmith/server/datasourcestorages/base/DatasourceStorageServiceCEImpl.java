@@ -213,7 +213,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 && hasSamePublicConfigurationExcludingAuthentication(
                         datasourceConfiguration, storedDatasourceConfiguration)) {
             return new DatasourceCredentialBindingResult(
-                    replaceStoredConfiguration(datasourceStorage, storedDatasourceStorage),
+                    replaceStoredConfigurationClearingAuthentication(datasourceStorage, storedDatasourceStorage),
                     true,
                     DatasourceCredentialBindingResult.CredentialSource.CLEARED,
                     changedConnectionSettingGroups);
@@ -233,6 +233,11 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                     changedConnectionSettingGroups);
         }
 
+        if (requestOmitsEncryptedValueFromRetainedCredentialSlot(
+                datasourceConfiguration, storedDatasourceConfiguration)) {
+            throw new DatasourceCredentialsRequiredException(changedConnectionSettingGroups);
+        }
+
         if (storedConfigurationContainsCredentials && !requestContainsCredentials) {
             throw new DatasourceCredentialsRequiredException(changedConnectionSettingGroups);
         }
@@ -242,6 +247,71 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 true,
                 DatasourceCredentialBindingResult.CredentialSource.REQUEST,
                 changedConnectionSettingGroups);
+    }
+
+    private boolean requestOmitsEncryptedValueFromRetainedCredentialSlot(
+            DatasourceConfiguration datasourceConfiguration, DatasourceConfiguration storedDatasourceConfiguration) {
+        if (datasourceConfiguration == null || storedDatasourceConfiguration == null) {
+            return false;
+        }
+
+        Object requestSsl = datasourceConfiguration.getConnection() == null
+                ? null
+                : datasourceConfiguration.getConnection().getSsl();
+        Object storedSsl = storedDatasourceConfiguration.getConnection() == null
+                ? null
+                : storedDatasourceConfiguration.getConnection().getSsl();
+
+        return requestOmitsEncryptedValueFromRetainedStructure(
+                        datasourceConfiguration.getAuthentication(), storedDatasourceConfiguration.getAuthentication())
+                || requestOmitsEncryptedValueFromRetainedStructure(requestSsl, storedSsl)
+                || requestOmitsEncryptedValueFromRetainedStructure(
+                        datasourceConfiguration.getSshProxy(), storedDatasourceConfiguration.getSshProxy());
+    }
+
+    private boolean requestOmitsEncryptedValueFromRetainedStructure(Object request, Object stored) {
+        Set<Object> visited = Collections.newSetFromMap(new IdentityHashMap<>());
+        return requestOmitsEncryptedValueFromRetainedStructure(request, stored, visited);
+    }
+
+    private boolean requestOmitsEncryptedValueFromRetainedStructure(
+            Object request, Object stored, Set<Object> visited) {
+        if (request == null
+                || stored == null
+                || !request.getClass().equals(stored.getClass())
+                || !(stored instanceof AppsmithDomain)
+                || !visited.add(stored)) {
+            return false;
+        }
+
+        for (Class<?> type = stored.getClass(); type != null && type != Object.class; type = type.getSuperclass()) {
+            for (Field field : type.getDeclaredFields()) {
+                if (Modifier.isStatic(field.getModifiers()) || field.isSynthetic()) {
+                    continue;
+                }
+
+                try {
+                    field.setAccessible(true);
+                    Object storedValue = field.get(stored);
+                    Object requestValue = field.get(request);
+                    if (field.getAnnotation(Encrypted.class) != null) {
+                        if (hasEncryptedFieldValue(storedValue) && !hasEncryptedFieldValue(requestValue)) {
+                            return true;
+                        }
+                    } else if (storedValue instanceof AppsmithDomain
+                            && requestValue instanceof AppsmithDomain
+                            && requestOmitsEncryptedValueFromRetainedStructure(requestValue, storedValue, visited)) {
+                        return true;
+                    }
+                } catch (IllegalAccessException exception) {
+                    throw new AppsmithException(exception, AppsmithError.DATASOURCE_CREDENTIALS_REQUIRED);
+                } finally {
+                    field.setAccessible(false);
+                }
+            }
+        }
+
+        return false;
     }
 
     private boolean canClearStoredOAuthTokens(
@@ -275,6 +345,16 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         storedDatasourceStorage.setIsTemplate(datasourceStorage.getIsTemplate());
         storedDatasourceStorage.setIsMock(datasourceStorage.getIsMock());
         return storedDatasourceStorage;
+    }
+
+    private DatasourceStorage replaceStoredConfigurationClearingAuthentication(
+            DatasourceStorage datasourceStorage, DatasourceStorage storedDatasourceStorage) {
+        DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
+        DatasourceConfiguration storedDatasourceConfiguration = storedDatasourceStorage.getDatasourceConfiguration();
+        copyNestedNonNullProperties(datasourceConfiguration, storedDatasourceConfiguration);
+        storedDatasourceConfiguration.setAuthentication(null);
+        datasourceStorage.setDatasourceConfiguration(storedDatasourceConfiguration);
+        return replaceStoredConfiguration(datasourceStorage, storedDatasourceStorage);
     }
 
     private boolean hasSamePublicConfiguration(
@@ -391,10 +471,8 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                     field.setAccessible(true);
                     Object value = field.get(source);
                     if (field.getAnnotation(Encrypted.class) != null) {
-                        if (!(value instanceof CharSequence text) || StringUtils.hasText(text)) {
-                            if (value != null) {
-                                return true;
-                            }
+                        if (hasEncryptedFieldValue(value)) {
+                            return true;
                         }
                     } else if (value instanceof AppsmithDomain
                             || value instanceof Collection<?>
@@ -412,6 +490,10 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         }
 
         return false;
+    }
+
+    private boolean hasEncryptedFieldValue(Object value) {
+        return value != null && (!(value instanceof CharSequence text) || StringUtils.hasText(text));
     }
 
     @Override
