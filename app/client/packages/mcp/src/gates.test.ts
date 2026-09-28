@@ -6,6 +6,7 @@ import {
   gateEnabledUnlessFalse,
   parsePositiveInt,
   publicOriginFromEnv,
+  requiredRedisUrlFromEnv,
   sessionLimitsFromEnv,
 } from "./gates.js";
 
@@ -183,6 +184,25 @@ describe("publicOriginFromEnv — APPSMITH_MCP_PUBLIC_ORIGIN parsing (fail-close
     expect(warn).toHaveBeenCalledTimes(1);
     expect(warn.mock.calls[0][0]).toContain("APPSMITH_MCP_PUBLIC_ORIGIN");
     expect(warn.mock.calls[0][0]).toContain("root-relative");
+  });
+});
+
+describe("requiredRedisUrlFromEnv — APPSMITH_REDIS_URL is mandatory for MCP sessions", () => {
+  it("returns the trimmed URL when set", () => {
+    expect(requiredRedisUrlFromEnv("redis://127.0.0.1:6379")).toBe(
+      "redis://127.0.0.1:6379",
+    );
+    expect(requiredRedisUrlFromEnv("  rediss://redis.internal:6380  ")).toBe(
+      "rediss://redis.internal:6380",
+    );
+  });
+
+  // There is no in-process fallback: Appsmith itself does not run without Redis, so a missing URL must stop the
+  // MCP process loudly instead of silently serving per-pod sessions behind a load balancer.
+  it.each([undefined, "", "   "])("throws for %j", (value) => {
+    expect(() => requiredRedisUrlFromEnv(value)).toThrow(
+      "APPSMITH_REDIS_URL is required",
+    );
   });
 });
 

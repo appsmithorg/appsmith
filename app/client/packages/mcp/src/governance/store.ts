@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { MongoClient, type Collection } from "mongodb";
 import { createClient, createCluster } from "redis";
+import type { RelayRedis } from "../session/relay.js";
+import type { SessionRedis } from "../session/store.js";
 
 export interface McpChangeRecord {
   id: string;
@@ -29,6 +31,10 @@ export interface PreparedConfirmation {
   revision: string;
   digest: string;
   expiresAt: Date;
+  // Facts the confirm step needs that the digest alone cannot carry back (e.g. the exact commit message and
+  // branch the digest binds, and a display name for the prompt). Persisted WITH the one-time confirmation so
+  // any replica can serve the confirm — never process memory. See DestructiveConfirmationBinding.context.
+  context?: Record<string, unknown>;
 }
 
 export interface McpGovernanceStore {
@@ -90,6 +96,42 @@ interface GovernanceRedis {
     script: string,
     options: { keys: string[]; arguments: string[] },
   ): Promise<unknown>;
+}
+
+// node-redis emits `error` for runtime socket failures (and reconnects on its own); with no listener the event
+// throws and takes the process down, which under supervisord's retry budget can leave MCP in FATAL.
+interface RedisEvents {
+  on(event: "error", listener: (error: Error) => void): unknown;
+}
+
+// Everything this package ever calls on a node-redis client (standalone or cluster): the governance subset above
+// plus the session-store and relay subsets. One honest cast in createRedisClientFromUrl instead of one per consumer.
+export type RedisConnection = GovernanceRedis &
+  SessionRedis &
+  RelayRedis &
+  RedisEvents;
+
+// JSON turns expiresAt into an ISO string; the confirm step compares it as a Date (readDestructiveConfirmation),
+// so every read out of Redis revives it. A malformed stored value reads as missing (fail-closed).
+function reviveConfirmation(value: string): PreparedConfirmation | undefined {
+  let parsed: PreparedConfirmation;
+
+  try {
+    parsed = JSON.parse(value) as PreparedConfirmation;
+  } catch {
+    return undefined;
+  }
+
+  if (typeof parsed?.id !== "string" || typeof parsed.actorId !== "string") {
+    return undefined;
+  }
+
+  const expiresAt = new Date(parsed.expiresAt);
+
+  // An unparsable expiry would compare as "never expired" (NaN <= now is false); read it as missing instead.
+  if (Number.isNaN(expiresAt.getTime())) return undefined;
+
+  return { ...parsed, expiresAt };
 }
 
 // MCP owns these collections and keys. It never writes Appsmith product documents directly; it only records
@@ -182,7 +224,7 @@ export class MongoRedisGovernanceStore implements McpGovernanceStore {
 
     if (typeof value !== "string") return undefined;
 
-    return JSON.parse(value) as PreparedConfirmation;
+    return reviveConfirmation(value);
   }
 
   async peekConfirmation(
@@ -193,7 +235,7 @@ export class MongoRedisGovernanceStore implements McpGovernanceStore {
 
     if (typeof value !== "string") return undefined;
 
-    return JSON.parse(value) as PreparedConfirmation;
+    return reviveConfirmation(value);
   }
 
   async saveChange(change: McpChangeRecord): Promise<void> {
@@ -266,12 +308,12 @@ function redisScheme(url: string): string | undefined {
 // governance for any other scheme.
 export function createRedisClientFromUrl(
   redisUrl: string,
-): GovernanceRedis | undefined {
+): RedisConnection | undefined {
   const trimmed = redisUrl.trim();
   const scheme = redisScheme(trimmed);
 
   if (scheme === "redis" || scheme === "rediss") {
-    return createClient({ url: trimmed }) as GovernanceRedis;
+    return createClient({ url: trimmed }) as RedisConnection;
   }
 
   if (scheme === "redis-cluster") {
@@ -294,7 +336,7 @@ export function createRedisClientFromUrl(
         rootNodes: [
           { url: trimmed.replace(/^redis-cluster:\/\//i, "redis://") },
         ],
-      }) as GovernanceRedis;
+      }) as RedisConnection;
     }
 
     // Credentials in a root-node URL apply only to topology discovery. Put them in defaults so every discovered
@@ -311,7 +353,7 @@ export function createRedisClientFromUrl(
         ...(password ? { password } : {}),
         socket: { tls: true },
       },
-    }) as GovernanceRedis;
+    }) as RedisConnection;
   }
 
   return undefined;

@@ -1327,7 +1327,7 @@ interface ExecutePluginActionResponse {
  * In case of the execution was not completed, it will throw errors of type
  * PluginActionExecutionError which needs to be handled by any saga that calls this.
  * */
-function* executePluginActionSaga(
+export function* executePluginActionSaga(
   pluginAction: Action,
   paginationField?: PaginationField,
   params?: Record<string, unknown>,
@@ -1418,9 +1418,13 @@ function* executePluginActionSaga(
   try {
     response = yield ActionAPI.executeAction(formData, timeout);
 
+    // Validate before reading response.data: an error envelope
+    // (responseMeta.success is false) has no data, and validateResponse throws
+    // the envelope's error message. Callers report the failure, so no toast here.
+    yield validateResponse(response, false);
+
     const isError = isErrorResponse(response);
 
-    yield validateResponse(response);
     payload = createActionExecutionResponse(response);
 
     yield put(

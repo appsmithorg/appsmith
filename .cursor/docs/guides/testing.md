@@ -290,11 +290,13 @@ describe("Application Canvas", () => {
 
 ### Unit Tests with JUnit
 
-Backend unit tests should validate individual components and services.
+Backend unit tests validate individual components and services. Conventions for new
+tests (naming, structure, assertions, scope) are in `app/server/AGENTS.md`; the
+examples below follow them.
 
 #### Test File Structure
 
-```
+```text
 src/test/java/com/appsmith/server/
   services/
     ApplicationServiceTest.java
@@ -306,35 +308,30 @@ src/test/java/com/appsmith/server/
 #### Writing Java Unit Tests
 
 ```java
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public class ApplicationServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationServiceTest {
 
-    @Autowired
-    private ApplicationService applicationService;
-
-    @MockBean
+    @Mock
     private WorkspaceService workspaceService;
 
+    @InjectMocks
+    private ApplicationServiceImpl applicationService;
+
     @Test
-    public void testCreateApplication() {
-        // Arrange
-        Application application = new Application();
-        application.setName("Test Application");
-        
+    void should_createApplication_when_workspaceExists() {
+        // Given
         Workspace workspace = new Workspace();
         workspace.setId("workspace-id");
-        
-        Mono<Workspace> workspaceMono = Mono.just(workspace);
-        when(workspaceService.findById(any())).thenReturn(workspaceMono);
-        
-        // Act
+        when(workspaceService.findById("workspace-id")).thenReturn(Mono.just(workspace));
+        Application application = new Application();
+        application.setName("Test Application");
+
+        // When
         Mono<Application> result = applicationService.createApplication(application, "workspace-id");
-        
-        // Assert
+
+        // Then
         StepVerifier.create(result)
             .assertNext(app -> {
-                assertThat(app.getId()).isNotNull();
                 assertThat(app.getName()).isEqualTo("Test Application");
                 assertThat(app.getWorkspaceId()).isEqualTo("workspace-id");
             })
@@ -345,12 +342,12 @@ public class ApplicationServiceTest {
 
 ### Integration Tests
 
-Backend integration tests should verify interactions between different components of the system.
+Backend integration tests verify interactions between components through the Spring context.
 
 ```java
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class ApplicationControllerIntegrationTest {
+@SpringBootTest
+@AutoConfigureWebTestClient
+class ApplicationControllerIntegrationTest {
 
     @Autowired
     private WebTestClient webTestClient;
@@ -358,14 +355,21 @@ public class ApplicationControllerIntegrationTest {
     @Autowired
     private ApplicationRepository applicationRepository;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         applicationRepository.deleteAll().block();
     }
 
     @Test
-    public void testGetAllApplications() {
-        // Test implementation
+    void should_returnEmptyList_when_noApplicationsExist() {
+        // Given: the repository was cleared in setUp
+
+        // When
+        WebTestClient.ResponseSpec response = webTestClient.get().uri("/api/v1/applications").exchange();
+
+        // Then
+        response.expectStatus().isOk()
+            .expectBody().jsonPath("$.data").isEmpty();
     }
 }
 ```
