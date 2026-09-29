@@ -13768,7 +13768,7 @@ __metadata:
     loglevel: ^1.8.1
     mongodb: ^6.7.0
     mongodb-connection-string-url: ^3.0.2
-    nodemailer: ^9.1.1
+    nodemailer: ^10.0.2
     readline-sync: 1.4.10
     simple-git: ^3.32.3
     supertest: ^6.3.3
@@ -26797,10 +26797,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nodemailer@npm:^9.1.1":
-  version: 9.1.1
-  resolution: "nodemailer@npm:9.1.1"
-  checksum: 2a3822f44079ba26bbfa146095a4818532a0ce5bde6f686db662c6c8f97a50b372f1d65bda15ef63df10e49b8d462b2b135c412b373d8a3e2f32aae188e5629b
+"nodemailer@npm:^10.0.2":
+  version: 10.0.12
+  resolution: "nodemailer@npm:10.0.12"
+  checksum: 9c3790e11c7ca3561a0ef744a031a3a0b0dfcce1a56a291c5df4a19cdbec1f7a3ecb8c3f1f627a72e2fd877aa97bb246740a53b737958656067e92428ba20957
   languageName: node
   linkType: hard
 
