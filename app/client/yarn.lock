@@ -4959,14 +4959,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/core@npm:^2.8.0":
-  version: 2.10.0
-  resolution: "@opentelemetry/core@npm:2.10.0"
+"@opentelemetry/core@npm:^2.11.0":
+  version: 2.11.0
+  resolution: "@opentelemetry/core@npm:2.11.0"
   dependencies:
     "@opentelemetry/semantic-conventions": ^1.29.0
   peerDependencies:
     "@opentelemetry/api": ">=1.0.0 <1.10.0"
-  checksum: ea01075b1746d2eee82d180bd7a002195bd761766e63653383345f9112db912146bda9525861054d8cd295f80eb721e4aed69ae957cb1da056606ede4bab098f
+  checksum: 98d96d780855f45301175fcb5b56cf5c27eb4a7b03007868e13e4994e82f7b299bcc44a13b5bedbdf5b822f49c5ef8676890c19330938c9c34e224e8ad1118d9
   languageName: node
   linkType: hard
 
@@ -13814,7 +13814,7 @@ __metadata:
     "@octokit/rest": ^20.0.1
     "@opentelemetry/api": ^1.9.0
     "@opentelemetry/context-zone": ^2.8.0
-    "@opentelemetry/core": ^2.8.0
+    "@opentelemetry/core": ^2.11.0
     "@opentelemetry/exporter-trace-otlp-http": ^0.220.0
     "@opentelemetry/instrumentation": ^0.220.0
     "@opentelemetry/resources": ^2.8.0
