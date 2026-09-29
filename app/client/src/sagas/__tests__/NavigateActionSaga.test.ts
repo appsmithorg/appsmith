@@ -11,6 +11,7 @@ import { call, put, select, take } from "redux-saga/effects";
 import navigateActionSaga, {
   navigateToAnyPageInApplication,
   pushToHistory,
+  syncUrlDataWithLocation,
 } from "sagas/ActionExecution/NavigateActionSaga";
 import type { NavigateToAnotherPagePayload } from "sagas/ActionExecution/NavigateActionSaga/types";
 import { TriggerFailureError } from "sagas/ActionExecution/errorUtils";
@@ -427,6 +428,16 @@ describe("NavigateActionSaga", () => {
       return expectSaga(navigateToAnyPageInApplication, action)
         .provide([[call(pushToHistory, payload), undefined]])
         .call(pushToHistory, payload)
+        .run();
+    });
+  });
+
+  describe("syncUrlDataWithLocation", () => {
+    it("should refresh appsmith.URL from window.location and trigger re-evaluation", async () => {
+      return expectSaga(syncUrlDataWithLocation)
+        .provide([[call(setDataUrl), undefined]])
+        .call(setDataUrl)
+        .put({ type: ReduxActionTypes.TRIGGER_EVAL })
         .run();
     });
   });
