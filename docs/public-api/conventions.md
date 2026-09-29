@@ -64,7 +64,7 @@ Every non-2xx response has this body and nothing else:
 
 | Status | `code` | When |
 |---|---|---|
-| 400 | `validation_failed` | Malformed body, unknown query parameter, invalid field value |
+| 400 | `validation_failed` | Malformed body, unknown query parameter, invalid field value, or a header the operation does not accept |
 | 401 | `unauthenticated` | Missing, expired or revoked credential, or a credential type this path does not accept |
 | 403 | `forbidden` | Caller may see the resource but not perform this operation |
 | 403 | `requires_license` | The operation exists but this edition or license does not include it |
@@ -75,6 +75,7 @@ Every non-2xx response has this body and nothing else:
 | 422 | `idempotency_key_reuse` | Same `Idempotency-Key` with a different request fingerprint (section 6) |
 | 429 | `rate_limited` | Limit exceeded; `Retry-After` is set |
 | 500 | `internal_error` | Unexpected failure; `requestId` identifies it in server logs |
+| 503 | `service_unavailable` | A dependency the operation needs (credential cache eviction, rate limiter) failed before any state changed; `Retry-After` is set and the retry is safe |
 
 Anti-enumeration: a resource the caller is not allowed to see and a resource that does not exist
 produce responses with identical status, `code`, `message` and header set (only `requestId` differs).
@@ -85,7 +86,10 @@ entitlement because entitlement belongs to an organization and, for a globally a
 the organization is only known after lookup; answering `requires_license` for a resource the caller
 may not see would reveal that it exists. For a collection route under `/organizations/{id}`, the
 visibility check is the caller's membership in that organization. Phase 1 tests this order for a
-globally addressed resource, a collection route and a cross-organization request.
+globally addressed resource, a collection route and a cross-organization request. One carve-out:
+the OIDC exchange route (`identity.md` §10) addresses no resource, so on an edition without workload
+federation it answers `403 requires_license` before parsing the credential, after `429`; that reveals
+the edition and nothing else.
 
 `requires_license` is enforced server-side on every request from the resolved organization's validated
 entitlement, re-evaluated on downgrade or expiry; omitting a licensed operation from the document or
@@ -118,7 +122,10 @@ the UI never substitutes for the check.
 ## 6. Idempotency and retries
 
 - Every `POST` that creates a resource or starts work accepts an `Idempotency-Key` header (a
-  client-generated UUID). The key is scoped to the calling credential: a stored response is replayed
+  client-generated UUID), with one carve-out: an operation whose response carries a credential
+  secret (token create and rotate, the OIDC exchange; `identity.md` §3) does not accept the header
+  and answers `400 validation_failed` if it is sent, because a replay would re-serve the secret. The
+  key is scoped to the calling credential: a stored response is replayed
   only to the credential that produced it, and the same key from another credential is a fresh request.
 - Each request has a canonical fingerprint: method, the concrete path (IDs substituted), the query
   string with parameters sorted by name (so `ref`, `refType`, `mode` and every other selector count),
