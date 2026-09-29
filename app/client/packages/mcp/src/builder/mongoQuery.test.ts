@@ -117,6 +117,51 @@ describe("compileMongoQuery — structured Mongo FIND/INSERT, no raw injection",
     );
   });
 
+  it("binds run-time params from a JS function as this.params bindings, including as: 'date'", () => {
+    const compiled = compileMongoQuery(
+      parse({
+        ...base,
+        operation: "UPDATE",
+        filter: [{ field: "_id", value: { param: "id" } }],
+        update: [
+          { field: "title", value: { param: "title" } },
+          { field: "startsAt", value: { param: "startsAt", as: "date" } },
+          { field: "instanceIds", value: { param: "instanceIds" } },
+        ],
+      }),
+    );
+
+    expect(compiled.update).toEqual({
+      query: '{ "_id": {{ this.params.id }} }',
+      update:
+        '{ "$set": { "title": {{ this.params.title }}, "startsAt": { "$date": {{ this.params.startsAt }} }, "instanceIds": {{ this.params.instanceIds }} } }',
+      limit: "SINGLE",
+    });
+
+    // in/nin accept a param (an array the function built).
+    expect(
+      compileMongoQuery(
+        parse({
+          ...base,
+          operation: "FIND",
+          filter: [
+            { field: "edition", op: "in", value: { param: "editions" } },
+          ],
+        }),
+      ).find?.query,
+    ).toBe('{ "edition": { "$in": {{ this.params.editions }} } }');
+
+    for (const param of ["a.b", "a b", "{{x}}", "params['x']"]) {
+      expect(
+        mongoQuerySpecSchema.safeParse({
+          ...base,
+          operation: "FIND",
+          filter: [{ field: "a", value: { param } }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("normalises every admitted date literal to a full date-time with an offset", () => {
     expect(normalizeIsoDateTime("2026-09-29")).toBe("2026-09-29T00:00:00Z");
     expect(normalizeIsoDateTime("2026-09-29T10:30")).toBe(

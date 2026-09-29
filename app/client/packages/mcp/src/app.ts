@@ -82,8 +82,10 @@ import {
   createJsObjectSpecSchema,
   deleteJsObjectSpecSchema,
   type ExistingJsObject,
+  hasSpecMarker,
   isCompilerAuthoredJsBody,
   JS_IDENTIFIER_SOURCE,
+  jsObjectDefinitionFromBody,
   updateJsObjectSpecSchema,
 } from "./builder/jsObject.js";
 import {
@@ -1940,17 +1942,33 @@ function jsObjectView(collection: unknown): Record<string, unknown> {
   const compilerAuthored =
     source !== undefined && isCompilerAuthoredJsBody(source);
 
+  // `definition` is the declarative spec the body carries (objects written since the jsExpr grammar); an agent
+  // edits it structurally and sends it back through update_js_object, so unrelated functions survive an update.
+  const definition =
+    source !== undefined ? jsObjectDefinitionFromBody(source) : undefined;
+  // `definitionState` tells an agent WHY an object is editor-authored: "drifted" means the compiler wrote it but
+  // the code was edited afterwards (an editor rename, a hand edit), so the fix is to recreate it from a definition,
+  // not to assume it was always hand-written. "none" is a body the compiler never marked.
+  const definitionState =
+    definition !== undefined
+      ? "current"
+      : source !== undefined && hasSpecMarker(source)
+        ? "drifted"
+        : "none";
+
   return {
     ...projectJsObject(collection),
     authoredBy: compilerAuthored ? "mcp" : "editor",
+    definitionState,
     ...(compilerAuthored ? { source } : {}),
+    ...(definition !== undefined ? { definition } : {}),
   };
 }
 
-// Function names an event may `call`: the JSAction names, plus (for collections written before per-function
-// JSActions existed) the members the compiler's own `name: async () =>` shape declares in the body. Read-only
-// heuristic for the dangling-reference check; it never widens what the compiler emits.
-const COMPILED_FUNCTION_MEMBER = new RegExp(
+// Function names an event may `call`: the JSAction names, plus the members the compiler's own body declares (the
+// embedded definition for marked bodies; the legacy `name: async () =>` shape for collections written before the
+// marker existed). Read-only heuristic for the dangling-reference check; it never widens what the compiler emits.
+const LEGACY_COMPILED_FUNCTION_MEMBER = new RegExp(
   String.raw`(?:^|[{,]\s*)(${JS_IDENTIFIER_SOURCE})\s*:\s*async\s*\(\)\s*=>`,
   "g",
 );
@@ -1961,11 +1979,17 @@ function jsObjectFunctionNames(collection: unknown): string[] {
   );
   const source = jsObjectSource(collection);
 
-  // Only a compiler-authored body is scanned: in editor-authored JavaScript the same `name: async () =>` text
-  // can sit at any nesting depth (a nested object, an inner arrow) and would resolve a member the object does
-  // not expose. Editor-authored objects always carry their JSActions, which projectJsObject already listed.
-  if (source !== undefined && isCompilerAuthoredJsBody(source)) {
-    for (const match of source.matchAll(COMPILED_FUNCTION_MEMBER)) {
+  if (source === undefined) return [...names];
+
+  const definition = jsObjectDefinitionFromBody(source);
+
+  if (definition !== undefined) {
+    for (const fn of definition.functions) names.add(fn.name);
+  } else if (isCompilerAuthoredJsBody(source)) {
+    // Only a compiler-authored body is scanned: in editor-authored JavaScript the same `name: async () =>` text
+    // can sit at any nesting depth (a nested object, an inner arrow) and would resolve a member the object does
+    // not expose. Editor-authored objects always carry their JSActions, which projectJsObject already listed.
+    for (const match of source.matchAll(LEGACY_COMPILED_FUNCTION_MEMBER)) {
       names.add(match[1]);
     }
   }
@@ -3479,7 +3503,7 @@ export function buildMcpServer(
 
   registerTool(
     "wire_event",
-    "Wire a widget event to a safe action from a CLOSED vocabulary: run a query, navigate to a page, show/close a modal, show an alert, reset one or more widgets ({ reset: 'Widget' } or { reset: ['A','B'] } — e.g. a Clear button that empties an input and resets a table), append a query's rows to a store key ({ appendToStore: { key, query, field?, fields? } } — an accumulating results table; bind the table with a { store: '<key>' } source/tableData; session-only), or empty one store key ({ clearStoreKey: { key } }), or call one function of a JS object ({ call: { object: 'BannerAdmin', function: 'save' } } — emits BannerAdmin.save(); the object and function must exist in this application; arguments are never accepted). A run action may chain onSuccess/onError follow-ups from the same vocabulary (e.g. submit -> run insert -> re-run the table's query -> close the modal -> alert). The action may also be an ordered LIST of 2-5 statements with at most one run (e.g. clearStoreKey + reset in one click). Supported events: button onClick, table onRowSelected, modal onClose, tabs onTabSelected, select onOptionChange, input onSubmit, checkbox onCheckChange, switch onChange, datepicker onDateSelected. Queries bound to widgets already run on page load automatically (the server derives on-page-load execution from bindings) — no event needed for that. Modal stacking is policed: opening a modal from inside another modal warns at depth 2 and is rejected at depth 3+ or on a cycle; close the host modal in the same action (closeModal + showModal) for a wizard-style transition that never stacks. Read the page first and pass its revision. The compiler emits the binding; no raw JS or bindings are accepted.",
+    "Wire a widget event to a safe action from a CLOSED vocabulary: run a query, navigate to a page, show/close a modal, show an alert, reset one or more widgets ({ reset: 'Widget' } or { reset: ['A','B'] } — e.g. a Clear button that empties an input and resets a table), append a query's rows to a store key ({ appendToStore: { key, query, field?, fields? } } — an accumulating results table; bind the table with a { store: '<key>' } source/tableData; session-only), or empty one store key ({ clearStoreKey: { key } }), or call one function of a JS object ({ call: { object: 'BannerAdmin', function: 'save', args?: [..] } } — emits BannerAdmin.save(...); the object and function must exist in this application; args are scalar literals or { widget, property } refs, up to 5, never expressions). A run action may chain onSuccess/onError follow-ups from the same vocabulary (e.g. submit -> run insert -> re-run the table's query -> close the modal -> alert). The action may also be an ordered LIST of 2-5 statements with at most one run (e.g. clearStoreKey + reset in one click). Supported events: button onClick, table onRowSelected, modal onClose, tabs onTabSelected, select onOptionChange, input onSubmit, checkbox onCheckChange, switch onChange, datepicker onDateSelected. Queries bound to widgets already run on page load automatically (the server derives on-page-load execution from bindings) — no event needed for that. Modal stacking is policed: opening a modal from inside another modal warns at depth 2 and is rejected at depth 3+ or on a cycle; close the host modal in the same action (closeModal + showModal) for a wizard-style transition that never stacks. Read the page first and pass its revision. The compiler emits the binding; no raw JS or bindings are accepted.",
     {
       applicationId: idSchema,
       pageId: idSchema,
@@ -5600,7 +5624,7 @@ export function buildMcpServer(
 
     registerTool(
       "create_mongo_query",
-      "Create a MongoDB query (find, insert, update, or delete) on an existing Mongo datasource from a STRUCTURED spec — no raw Mongo command, no raw bindings. FIND { collection, filter?: [clause], sort?: [{ field, direction: 'ASC'|'DESC' }], limit? } returns matching documents (for every operation, filter clauses are AND-ed and each clause is { field, op?, value } with op from eq (default) | ne | gt | gte | lt | lte | in | nin | exists — e.g. { field: 'deleted', op: 'ne', value: { literal: true } } keeps documents where the field is absent too; in/nin take { literal: [..] } or an array-valued widget ref; exists takes { literal: true|false }); INSERT { collection, document: [{ field, value }] } adds one document; UPDATE { collection, filter: [clause], update: [{ field, value }], multi? } sets the named fields (emitted as a $set — a partial update, only those fields change) on matched documents; DELETE { collection, filter: [clause], multi? } removes matched documents. UPDATE/DELETE REQUIRE a filter (a mutation is always targeted); multi:false (default) hits ONE matched document, multi:true hits ALL. Each value is { literal }, { date: '<ISO 8601>' } (a calendar date or date-time; normalised to a full UTC date-time and stored as a BSON date), or { widget, property, as?: 'date' } (as: 'date' is only valid on a DatePicker's selectedDate and stores it as a BSON date) and binds as a smart-substitution parameter (never string-concatenated); field/collection names are validated identifiers. Insert/update/delete mutate the collection, so running them needs prepare_run_action/confirm_run_action (or wire to a button). Widgets reference the result by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
+      "Create a MongoDB query (find, insert, update, or delete) on an existing Mongo datasource from a STRUCTURED spec — no raw Mongo command, no raw bindings. FIND { collection, filter?: [clause], sort?: [{ field, direction: 'ASC'|'DESC' }], limit? } returns matching documents (for every operation, filter clauses are AND-ed and each clause is { field, op?, value } with op from eq (default) | ne | gt | gte | lt | lte | in | nin | exists — e.g. { field: 'deleted', op: 'ne', value: { literal: true } } keeps documents where the field is absent too; in/nin take { literal: [..] } or an array-valued widget ref; exists takes { literal: true|false }); INSERT { collection, document: [{ field, value }] } adds one document; UPDATE { collection, filter: [clause], update: [{ field, value }], multi? } sets the named fields (emitted as a $set — a partial update, only those fields change) on matched documents; DELETE { collection, filter: [clause], multi? } removes matched documents. UPDATE/DELETE REQUIRE a filter (a mutation is always targeted); multi:false (default) hits ONE matched document, multi:true hits ALL. Each value is { literal }, { date: '<ISO 8601>' } (a calendar date or date-time; normalised to a full UTC date-time and stored as a BSON date), { widget, property, as?: 'date' } (as: 'date' is only valid on a DatePicker's selectedDate and stores it as a BSON date), or { param: '<name>', as?: 'date' } — a value a JS-object function passes at run time via { run: '<thisQuery>', with: { name: expr } } (bound as this.params.name; this is how a normalised list, a converted number or a built document reaches the write) and binds as a smart-substitution parameter (never string-concatenated); field/collection names are validated identifiers. Insert/update/delete mutate the collection, so running them needs prepare_run_action/confirm_run_action (or wire to a button). Widgets reference the result by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
       {
         query: z.record(z.unknown()),
         branch: gitBranchParamSchema.optional(),
@@ -6522,7 +6546,7 @@ export function buildMcpServer(
   if (jsEnabled) {
     registerTool(
       "read_js_object",
-      "List the application's JS objects with their metadata (id, name, page, function names), authoredBy ('mcp' for objects this server compiled, 'editor' for hand-written ones), the compiled source of MCP-authored objects (editor-authored source is never returned), and revision tokens for update/delete, plus a list revision for create.",
+      "List the application's JS objects with their metadata (id, name, page, function names), authoredBy ('mcp' for objects this server compiled, 'editor' for hand-written ones), and for MCP-authored objects the compiled source plus the declarative `definition` (constants + functions) to edit and send back through update_js_object (editor-authored source is never returned), and revision tokens for update/delete, plus a list revision for create.",
       { applicationId: idSchema },
       async ({ applicationId }) => {
         const collections = await api.listActionCollections(applicationId);
@@ -6544,7 +6568,7 @@ export function buildMcpServer(
 
       registerTool(
         "create_js_object",
-        "Create a restricted JS object from a declarative spec (constants + async functions that run named queries and return literal objects). No raw JS, imports, globals, network calls, or loops. Pass a JS-list revision from read_js_object. Governed.",
+        "Create a restricted JS object from a declarative definition: constants (JSON literals, read as { constant }) and functions { name, params?, steps?, returns? }. steps is a CLOSED statement vocabulary: { let, value } / { set, value } locals; { run: '<query>', with?: { key: expr }, into?: local } (with becomes this.params.key inside the query; use { param } values in create_mongo_query); { if, then, else? }; { forEach, as, do }; { throw: 'message' }; { return: expr }; { showAlert, style? }; { storeValue, value }; { resetWidget }. Every value is a bounded expression tree, never text: literals, { param }, { var }, { widget, property }, { query, field? }, { constant }, { store }, { op: add|sub|mul|div|mod|neg|eq|ne|gt|gte|lt|lte|and|or|not, args }, { fn, args } with fn in trim|lower|upper|length|concat|startsWith|endsWith|includes|split (second arg { sep: comma|newline|commaOrNewline|whitespace|semicolon|pipe } or a short literal)|stripPrefix|stripSuffix|replaceAll|number|string|boolean|isEmpty|round|abs|min|max|date|now|isoString|isValidDate|unique|join|first|last|map|filter|some|every|find (per-item arg uses { item: true })|get|coalesce, { if, then, else }, { object: {..} }, { array: [..] }. Example (the exact JSON shape): { name: 'splitLines', params: ['value'], returns: { fn: 'unique', args: [{ fn: 'filter', args: [{ fn: 'map', args: [{ fn: 'split', args: [{ param: 'value' }, { sep: 'commaOrNewline' }] }, { fn: 'trim', args: [{ item: true }] }] }, { op: 'not', args: [{ fn: 'isEmpty', args: [{ item: true }] }] }] }] } } — note not is an op, item is { item: true }, and a param must be listed in params. Widget/query names may not be host globals (globalThis, eval, navigateTo, …) and property paths may not contain prototype segments. No raw JS, imports, globals, network calls, or regex text. Pass a JS-list revision from read_js_object. Governed.",
         {
           spec: z.record(z.unknown()),
           branch: gitBranchParamSchema.optional(),
@@ -6627,7 +6651,7 @@ export function buildMcpServer(
 
       registerTool(
         "update_js_object",
-        "Update a restricted JS object from a declarative spec. `functions` REPLACES the object's whole function set: functions absent from the spec are deleted. Only MCP-authored objects (authoredBy 'mcp' in read_js_object) accept a code update; an editor-authored object can only be renamed here — its JavaScript is never overwritten. Pass a revision from read_js_object. No raw JS. Governed.",
+        "Update a restricted JS object from a declarative definition (same grammar as create_js_object). `functions` REPLACES the object's whole function set: start from the `definition` read_js_object returns, change what you need, and send all functions back so unrelated ones survive. Only MCP-authored objects (authoredBy 'mcp') accept a code update; an editor-authored object can only be renamed here — its JavaScript is never overwritten. Pass a revision from read_js_object. No raw JS. Governed.",
         {
           spec: z.record(z.unknown()),
           branch: gitBranchParamSchema.optional(),

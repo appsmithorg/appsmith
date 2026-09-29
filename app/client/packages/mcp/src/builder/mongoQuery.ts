@@ -156,16 +156,33 @@ const widgetRef = z
       path: ["as"],
     },
   );
+// A run-time parameter passed by a JS-object function: `Query.run({ title: … })` makes `this.params.title` available
+// inside the query. Emitted as the checked binding `{{ this.params.<name> }}` (SAFE_BINDING admits it: `this` is a
+// plain identifier and `params.<name>` a dotted path), parameterised by smart substitution like a widget ref. This
+// is how a computed value (a normalised list, a converted number, a built document) reaches a Mongo write without
+// any expression appearing in the query.
+const paramRef = z
+  .object({
+    param: z
+      .string()
+      .min(1)
+      .max(64)
+      .regex(/^[A-Za-z_][A-Za-z0-9_]*$/, "must be a plain identifier"),
+    as: z.enum(["date"]).optional(),
+  })
+  .strict();
 const valueRef = z.union([
   z.object({ literal: literalScalar }).strict(),
   z.object({ date: dateLiteral }).strict(),
   widgetRef,
+  paramRef,
 ]);
 // `in` / `nin` take a literal LIST (each element a scalar literal) or a widget reference to an array-valued property
 // (a multiselect's selectedOptionValues) that smart substitution serializes as a JSON array.
 const listValueRef = z.union([
   z.object({ literal: z.array(literalScalar).min(1).max(100) }).strict(),
   widgetRef,
+  paramRef,
 ]);
 
 const fieldValue = z.object({ field: mongoField, value: valueRef }).strict();
@@ -208,7 +225,7 @@ const filterClause = z
     const op = clause.op ?? "eq";
     const isList =
       "literal" in clause.value && Array.isArray(clause.value.literal);
-    const isWidget = "widget" in clause.value;
+    const isWidget = "widget" in clause.value || "param" in clause.value;
 
     if (op === "in" || op === "nin") {
       if (!isList && !isWidget) {
@@ -220,7 +237,10 @@ const filterClause = z
       }
 
       // `$in: { "$date": … }` is not a list; refuse at spec time rather than as a plugin error.
-      if ("widget" in clause.value && clause.value.as === "date") {
+      if (
+        ("widget" in clause.value || "param" in clause.value) &&
+        clause.value.as === "date"
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["value", "as"],
@@ -347,7 +367,10 @@ function emitValue(value: ValueRef | ListValueRef): string {
     return `{ ${JSON.stringify("$date")}: ${JSON.stringify(normalizeIsoDateTime(value.date))} }`;
   }
 
-  const binding = `{{ ${value.widget}.${value.property} }}`;
+  const binding =
+    "param" in value
+      ? `{{ this.params.${value.param} }}`
+      : `{{ ${value.widget}.${value.property} }}`;
 
   if (!SAFE_BINDING.test(binding)) {
     throw new Error(`unsafe binding emitted: ${binding}`);

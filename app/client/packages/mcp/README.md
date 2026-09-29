@@ -32,8 +32,27 @@ Findings from building an internal admin app through MCP, all fixed without wide
 - `patch_widgets` accepts `inputType: MULTI_LINE_TEXT` and the literal `labelText`, `defaultCheckedState`,
   `defaultSwitchState`, `defaultOptionValue` props that `read_semantic_page` already reported, type-checked per widget
   family.
-- `wire_event` gains `{ call: { object, function } }` → `Object.function()`, identifier-only and checked against the
-  application's JS objects before writing.
+- `wire_event` gains `{ call: { object, function, args? } }` → `Object.function(...)`, identifier-only (arguments are
+  scalar literals or widget-property refs) and checked against the application's JS objects before writing.
+- JS-object functions gain a closed expression/statement grammar (`builder/jsExpr.ts`): `params`, ordered `steps` (`let`/`set`
+  locals, `run` a query with `with` parameters and an `into` result, `if`/`else`, `forEach`, `throw`, `return`,
+  `showAlert`, `storeValue`, `resetWidget`) and expression trees (literals, `param`/`var`/`widget`/`query`/
+  `constant`/`store` refs, arithmetic and comparison operators, and string/array/number/date/boolean functions such as
+  `split` with a named separator, `trim`, `map`/`filter` with `{ item }`, `unique`, `number`, `date`, `isoString`).
+  The Banner editor's `splitLines`, `splitDomains`, related-field validation and Save orchestration all compile from
+  structure; the agent never writes JavaScript, regular expressions or member access, and node count, depth,
+  statement count and parameter count are capped. The compiled body embeds its definition as a base64 block comment,
+  so `read_js_object` returns a `definition` to edit and send back, and a compiler-authored object is recognised
+  exactly (the decoded definition must recompile to the code byte for byte). An object whose code is edited in the
+  editor after the compiler wrote it (a rename, a hand edit) reads back as `authoredBy: 'editor'` with
+  `definitionState: 'drifted'`; its source is withheld and agents recreate it from a definition rather than
+  update it. Security posture of the grammar: no agent expression is ever the receiver of a method call (array
+  functions run on a coerced real array, string functions on a primitive), widget/query names may not be host
+  globals or platform functions, property paths are dot-separated identifiers with prototype segments refused,
+  locals may not shadow any identifier the compiler emits, and the definition marker is parsed in linear time.
+- `create_mongo_query` values accept `{ param: '<name>' }` (bound as `this.params.<name>`) so a function's computed
+  values reach a write through `run … with`; `patch_widgets` accepts `defaultFrom` (a widget-property or query-field
+  ref) on input/select/multiselect/radio/checkbox/switch/datepicker defaults.
 - `inspect_page` container-clipping and the auto-grow cascade measure content from children rows; the Appsmith
   client stores an inner canvas's `bottomRow` in pixels, which produced ×10 false "45 vs 450" warnings and ×10
   resize suggestions.

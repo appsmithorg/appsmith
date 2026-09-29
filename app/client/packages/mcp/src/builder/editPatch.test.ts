@@ -1639,6 +1639,144 @@ describe("applyWidgetPatch", () => {
     }
   });
 
+  it("binds a widget's default to another widget's property or a query field via defaultFrom", () => {
+    const select = node({
+      widgetId: "sel",
+      widgetName: "Tone",
+      type: "SELECT_WIDGET",
+    });
+    const source = node({
+      widgetId: "tbl",
+      widgetName: "Banners",
+      type: "TABLE_WIDGET_V2",
+    });
+    const toggle = node({
+      widgetId: "sw",
+      widgetName: "Enabled",
+      type: "SWITCH_WIDGET",
+    });
+    const picker = node({
+      widgetId: "dt",
+      widgetName: "StartsAt",
+      type: "DATE_PICKER_WIDGET2",
+    });
+    const text = node({
+      widgetId: "t",
+      widgetName: "Title",
+      type: "TEXT_WIDGET",
+    });
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [select, source, toggle, picker, text],
+    });
+    const { dsl: patched } = applyWidgetPatch(dsl, {
+      operations: [
+        {
+          kind: "update",
+          name: "Tone",
+          props: {
+            defaultFrom: { widget: "Banners", property: "selectedRow.tone" },
+          },
+        },
+        {
+          kind: "update",
+          name: "Enabled",
+          props: { defaultFrom: { query: "GetSettings", field: "enabled" } },
+        },
+        {
+          kind: "update",
+          name: "StartsAt",
+          props: {
+            defaultFrom: {
+              widget: "Banners",
+              property: "selectedRow.startsAt",
+            },
+          },
+        },
+      ],
+    });
+    const byName = (name: string) =>
+      patched.children!.find((w) => w.widgetName === name)!;
+
+    expect(byName("Tone").defaultOptionValue).toBe(
+      "{{ Banners.selectedRow.tone }}",
+    );
+    expect(byName("Tone").dynamicBindingPathList).toEqual([
+      { key: "defaultOptionValue" },
+    ]);
+    expect(byName("Enabled").defaultSwitchState).toBe(
+      '{{ GetSettings.data?.enabled ?? "" }}',
+    );
+    expect(byName("StartsAt").defaultDate).toBe(
+      "{{ Banners.selectedRow.startsAt }}",
+    );
+
+    // Wrong family, dangling source, self-reference, and a racing literal are all refused.
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [
+          {
+            kind: "update",
+            name: "Title",
+            props: { defaultFrom: { widget: "Banners", property: "x" } },
+          },
+        ],
+      }),
+    ).toThrow("'defaultFrom' can only be set on");
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [
+          {
+            kind: "update",
+            name: "Tone",
+            props: { defaultFrom: { widget: "Nope", property: "x" } },
+          },
+        ],
+      }),
+    ).toThrow('widget "Nope" was not found');
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [
+          {
+            kind: "update",
+            name: "Tone",
+            props: { defaultFrom: { widget: "Tone", property: "x" } },
+          },
+        ],
+      }),
+    ).toThrow("cannot reference the widget itself");
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [
+          {
+            kind: "update",
+            name: "Tone",
+            props: {
+              defaultFrom: { widget: "Banners", property: "x" },
+              defaultOptionValue: "INFO",
+            },
+          },
+        ],
+      }),
+    ).toThrow("cannot set both 'defaultOptionValue' and 'defaultFrom'");
+
+    for (const defaultFrom of [
+      { widget: "Banners", property: "a[0]" },
+      { widget: "B", property: "{{x}}" },
+      { widget: "B" },
+    ]) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [
+            { kind: "update", name: "Tone", props: { defaultFrom } },
+          ],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("rejects raw bindings, templates, and non-allowlisted properties", () => {
     for (const text of ["{{ Query.data }}", "${dangerous}", "`dangerous`"]) {
       expect(

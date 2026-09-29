@@ -15,6 +15,7 @@ import {
   type AppsmithApi,
 } from "./app.js";
 import { INSTRUCTION_DOCS } from "./builder/instructions.js";
+import { compileJsObject } from "./builder/jsObject.js";
 import { fingerprintDsl } from "./builder/semantic.js";
 import { McpGovernanceCoordinator } from "./governance/coordinator.js";
 import type {
@@ -5146,7 +5147,7 @@ describe("governance-wrapped layout mutations", () => {
         name: "loadUsers",
         clientSideExecution: true,
         actionConfiguration: expect.objectContaining({
-          body: "async () => { await getUsers.run(); }",
+          body: "async function () { await getUsers.run(); }",
         }),
       }),
     ]);
@@ -5187,6 +5188,7 @@ describe("governance-wrapped layout mutations", () => {
       pageId: "b".repeat(24),
       functions: ["save"],
       authoredBy: "mcp",
+      definitionState: "none",
       source: collection.body,
       revision: expect.stringMatching(/^[a-f0-9]{64}$/),
     });
@@ -5196,6 +5198,7 @@ describe("governance-wrapped layout mutations", () => {
       pageId: "b".repeat(24),
       functions: ["call"],
       authoredBy: "editor",
+      definitionState: "none",
       revision: expect.stringMatching(/^[a-f0-9]{64}$/),
     });
     expect(JSON.stringify(read.body)).not.toContain("sk-live-secret");
@@ -5345,8 +5348,11 @@ describe("governance-wrapped layout mutations", () => {
     expect(updated.body.updated).toBe(true);
     // Body first (the only route that changes code), then the function diff.
     expect(calls).toEqual(["body", "patch"]);
+    // The written body is the compiled code followed by the embedded definition marker.
     expect(updateActionCollectionBody).toHaveBeenCalledWith("coll1", {
-      body: after.body,
+      body: expect.stringMatching(
+        /^export default \{ refresh: async function \(\) \{ await GetBanners\.run\(\); \}, save: async function \(\) \{ await SaveBanner\.run\(\); await GetBanners\.run\(\); return \{ saved: true \}; \} \}; \/\* mcp-spec:[A-Za-z0-9+/=]+ \*\/$/,
+      ),
     });
     const patch = updateActionCollection.mock.calls[0][1] as {
       actions: {
@@ -5366,6 +5372,208 @@ describe("governance-wrapped layout mutations", () => {
     // The result reflects the re-read collection (the PATCH response carries a nulled body).
     expect(updated.body.jsObject.functions).toEqual(["refresh", "save"]);
     expect(updated.body.jsObject.source).toBe(after.body);
+  });
+
+  it("create → read → update round-trips a definition with params and steps (council M2 QA)", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const definition = {
+      constants: { maxIds: 50 },
+      functions: [
+        {
+          name: "splitLines",
+          params: ["value"],
+          returns: {
+            fn: "unique",
+            args: [
+              {
+                fn: "map",
+                args: [
+                  {
+                    fn: "split",
+                    args: [{ param: "value" }, { sep: "commaOrNewline" }],
+                  },
+                  { fn: "trim", args: [{ item: true }] },
+                ],
+              },
+            ],
+          },
+        },
+        {
+          name: "save",
+          steps: [
+            {
+              run: "UpsertBanner",
+              with: { ids: { widget: "inpIds", property: "text" } },
+              into: "result",
+            },
+            { return: { var: "result" } },
+          ],
+        },
+      ],
+    };
+    const compiledBody = compileJsObject(definition as never);
+    const createActionCollection = jest.fn<
+      Promise<unknown>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "coll1", name: "BannerAdmin" }));
+    const stored = {
+      id: "coll1",
+      name: "BannerAdmin",
+      pageId: "b".repeat(24),
+      body: compiledBody,
+      actions: [
+        { id: "act-split", name: "splitLines" },
+        { id: "act-save", name: "save" },
+      ],
+    };
+    // Empty until the create lands (the create's own revision check re-lists), then the stored object.
+    let collections: unknown[] = [];
+    const listActionCollections = jest.fn<Promise<unknown>, [string]>(
+      async () => collections,
+    );
+    const updateActionCollectionBody = jest.fn(async () => ({}));
+    const updateActionCollection = jest.fn(async () => ({
+      ...stored,
+      body: null,
+    }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listPlugins: jest.fn(async () => [
+        { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
+      ]),
+      listActionCollections,
+      createActionCollection,
+      updateActionCollectionBody,
+      updateActionCollection,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    const empty = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const created = await callTool(server, "create_js_object", {
+      spec: {
+        applicationId: APP,
+        pageId: "b".repeat(24),
+        name: "BannerAdmin",
+        revision: empty.body.revision,
+        ...definition,
+      },
+    });
+
+    expect(created.body).toEqual(expect.objectContaining({ created: true }));
+    collections = [stored];
+    const dto = createActionCollection.mock.calls[0][0] as {
+      body: string;
+      actions: {
+        name: string;
+        actionConfiguration: { jsArguments: unknown };
+      }[];
+    };
+
+    // The written body is exactly the compiler's image of the definition, and params become jsArguments.
+    expect(dto.body).toBe(compiledBody);
+    expect(dto.actions.map((a) => a.name)).toEqual(["splitLines", "save"]);
+    expect(dto.actions[0].actionConfiguration.jsArguments).toEqual([
+      { name: "value", value: "" },
+    ]);
+
+    // Reading it back yields the same definition, structurally, plus its state.
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+
+    expect(read.body.jsObjects[0]).toEqual(
+      expect.objectContaining({
+        authoredBy: "mcp",
+        definitionState: "current",
+        definition,
+        source: compiledBody,
+      }),
+    );
+
+    // Editing the definition and sending it back recompiles the whole body from the new definition.
+    const edited = {
+      ...definition,
+      functions: [
+        definition.functions[0],
+        {
+          ...definition.functions[1],
+          steps: [
+            ...(definition.functions[1].steps ?? []),
+            { showAlert: "Saved" },
+          ],
+        },
+      ],
+    };
+    const updated = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "coll1",
+        revision: read.body.jsObjects[0].revision,
+        ...edited,
+      },
+    });
+
+    expect(updated.body.updated).toBe(true);
+    expect(updateActionCollectionBody).toHaveBeenCalledWith("coll1", {
+      body: compileJsObject(edited as never),
+    });
+    expect((updateActionCollection.mock.calls[0] as unknown[])[1]).toEqual(
+      expect.objectContaining({
+        actions: expect.objectContaining({
+          updated: expect.arrayContaining([
+            expect.objectContaining({ id: "act-save", name: "save" }),
+          ]),
+        }),
+      }),
+    );
+  });
+
+  it("read_js_object reports a compiler-written body whose code was edited afterwards as drifted", async () => {
+    const APP = "a".repeat(24);
+    const body = compileJsObject({
+      functions: [{ name: "refresh", run: [{ query: "GetBanners" }] }],
+    } as never);
+    // An editor rename rewrote the code part; the marker still carries the old definition.
+    const drifted = {
+      id: "coll1",
+      name: "BannerAdmin",
+      pageId: "b".repeat(24),
+      body: body.replace("GetBanners.run()", "GetBanners2.run()"),
+      actions: [{ id: "act1", name: "refresh" }],
+    };
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listActionCollections: jest.fn(async () => [drifted]),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+    });
+
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+
+    expect(read.body.jsObjects[0]).toEqual({
+      id: "coll1",
+      name: "BannerAdmin",
+      pageId: "b".repeat(24),
+      functions: ["refresh"],
+      authoredBy: "editor",
+      definitionState: "drifted",
+      revision: expect.stringMatching(/^[a-f0-9]{64}$/),
+    });
+    // Neither the (now hand-edited) source nor the stale definition is returned.
+    expect(read.body.jsObjects[0].source).toBeUndefined();
+    expect(read.body.jsObjects[0].definition).toBeUndefined();
   });
 
   it("wire_event { call } emits Object.function() only for a function that exists on a JS object of the app", async () => {

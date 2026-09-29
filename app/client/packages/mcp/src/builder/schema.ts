@@ -295,6 +295,114 @@ export const storeKeySchema = z
     message: "store key collides with an Object.prototype property name",
   });
 
+// The same denylist, exported for every other place an agent-supplied name becomes an object key or a member
+// segment in emitted code (jsExpr object/with/get keys, JS-object member names, widget property paths).
+export const PROTOTYPE_PROPERTY_NAMES: ReadonlySet<string> = STORE_KEY_DENYLIST;
+
+// Names that must never be accepted where the compiler emits a bare entity reference (`<name>.<path>`,
+// `<name>.run()`): the worker's own globals, JS builtins whose members are callable, and Appsmith's platform
+// action functions. A widget or query can never legitimately carry one of these names, so refusing them costs
+// nothing and closes the `{ widget: "globalThis", property: "eval" }` route [COUNCIL: APP-16052 M2 security].
+export const HOST_NAMES: ReadonlySet<string> = new Set([
+  "this",
+  "arguments",
+  "globalThis",
+  "window",
+  "self",
+  "top",
+  "parent",
+  "frames",
+  "document",
+  "location",
+  "navigator",
+  "eval",
+  "Function",
+  "AsyncFunction",
+  "GeneratorFunction",
+  "Reflect",
+  "Proxy",
+  "Symbol",
+  "Object",
+  "Array",
+  "String",
+  "Number",
+  "Boolean",
+  "BigInt",
+  "Date",
+  "Math",
+  "JSON",
+  "Promise",
+  "Error",
+  "Set",
+  "Map",
+  "WeakMap",
+  "WeakSet",
+  "WeakRef",
+  "RegExp",
+  "Intl",
+  "Atomics",
+  "SharedArrayBuffer",
+  "ArrayBuffer",
+  "DataView",
+  "fetch",
+  "XMLHttpRequest",
+  "WebSocket",
+  "Worker",
+  "importScripts",
+  "postMessage",
+  "setTimeout",
+  "setInterval",
+  "clearTimeout",
+  "clearInterval",
+  "queueMicrotask",
+  "structuredClone",
+  "require",
+  "module",
+  "exports",
+  "process",
+  "console",
+  "navigateTo",
+  "showAlert",
+  "storeValue",
+  "removeValue",
+  "clearStore",
+  "resetWidget",
+  "download",
+  "copyToClipboard",
+  "showModal",
+  "closeModal",
+  "postWindowMessage",
+  "geolocation",
+  "logoutUser",
+  "unlistenWindowMessage",
+  "windowMessageListener",
+  "item",
+]);
+
+// A dotted property path into a widget or entity, as it is emitted verbatim in a member position: segments are
+// DOT-SEPARATED identifiers (a doubled or trailing dot is a JS syntax error that breaks the whole binding), and
+// no segment may be an Object.prototype property or `prototype` — `text.constructor.constructor` would otherwise
+// walk from a string value to `Function` [COUNCIL: APP-16052 M2 security]. `run` and `clear` are refused too so a
+// path can never name a query's or store's action method.
+const PATH_SEGMENT_DENYLIST: ReadonlySet<string> = new Set([
+  ...STORE_KEY_DENYLIST,
+  "run",
+  "clear",
+]);
+
+export const entityPropertyPath = z
+  .string()
+  .min(1)
+  .max(128)
+  .regex(
+    /^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/,
+    "must be a dotted identifier path (e.g. 'text' or 'selectedRow.id')",
+  )
+  .refine(
+    (path) => path.split(".").every((seg) => !PATH_SEGMENT_DENYLIST.has(seg)),
+    "property path must not contain a prototype or method segment",
+  );
+
 // M5 store binding form: bind a table's rows to a store key that wire_event's appendToStore accumulates into.
 // TABLE-ONLY by design — the list/card widget keeps the query-only tableDataRefSchema (store-bound card grids are
 // out of scope in v1), which is why this union is a SEPARATE schema instead of widening tableDataRefSchema.

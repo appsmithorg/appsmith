@@ -1,7 +1,11 @@
 import { z } from "zod";
 import { jsCollectionName, jsFunctionName } from "./jsObject.js";
 import type { WidgetNode } from "./layout.js";
-import { responseFieldPath, storeKeySchema } from "./schema.js";
+import {
+  entityPropertyPath,
+  responseFieldPath,
+  storeKeySchema,
+} from "./schema.js";
 
 // M-F event wiring. A CLOSED event vocabulary: the agent supplies a structured action reference (run a query,
 // navigate to a page, show/close a modal), and the compiler emits the trigger binding. The agent never authors raw
@@ -43,10 +47,29 @@ const alertStyle = z.enum(["info", "success", "warning", "error"]);
 // object and function exist among the application's JS collections before writing (dangling guard). The object may
 // be MCP-compiled or editor-authored: like `run` on an existing query, the verb only wires an event to code that
 // already exists in the application, executing in the end user's browser under the end user's permissions.
+// Optional arguments: scalar literals (JSON-encoded at emission) or widget-property references (identifier +
+// dotted path, emitted bare). No expression position exists: `Obj.fn("x", Input1.text)` is the whole shape.
+const callArg = z.union([
+  z
+    .string()
+    .max(200)
+    .refine(
+      (value) => !RAW_EXPRESSION.test(value),
+      "must not contain bindings",
+    ),
+  z.number().finite(),
+  z.boolean(),
+  z.null(),
+  z.object({ widget: widgetName, property: entityPropertyPath }).strict(),
+]);
 const callAction = z
   .object({
     call: z
-      .object({ object: jsCollectionName, function: jsFunctionName })
+      .object({
+        object: jsCollectionName,
+        function: jsFunctionName,
+        args: z.array(callArg).max(5).optional(),
+      })
       .strict(),
   })
   .strict();
@@ -283,9 +306,16 @@ function compileStatement(action: FollowUpAction): string {
     return `storeValue('${action.clearStoreKey.key}', [], false)`;
   }
 
-  // JS-object function call: `Obj.fn()` from two validated identifiers, no arguments.
+  // JS-object function call: `Obj.fn(...)` from two validated identifiers; each argument is a JSON-encoded scalar
+  // literal or a validated `Widget.path` reference.
   if ("call" in action) {
-    return `${action.call.object}.${action.call.function}()`;
+    const args = (action.call.args ?? []).map((arg) =>
+      typeof arg === "object" && arg !== null
+        ? `${arg.widget}.${arg.property}`
+        : JSON.stringify(arg),
+    );
+
+    return `${action.call.object}.${action.call.function}(${args.join(", ")})`;
   }
 
   return `showAlert('${action.showAlert}', '${action.style ?? "info"}')`;
@@ -340,6 +370,12 @@ export function eventReferences(action: EventActionInput): EventReference[] {
           name: step.call.object,
           member: step.call.function,
         },
+        // Widget-property arguments are widget references too (dangling guard).
+        ...(step.call.args ?? []).flatMap((arg) =>
+          typeof arg === "object" && arg !== null
+            ? [{ kind: "widget" as const, name: arg.widget }]
+            : [],
+        ),
       ];
     }
 

@@ -3,11 +3,18 @@ import {
   buildDeleteJsObjectRequest,
   buildUpdateJsObjectRequest,
   compileJsObject,
+  compileJsObjectCode,
   createJsObjectSpecSchema,
   deleteJsObjectSpecSchema,
+  hasSpecMarker,
   isCompilerAuthoredJsBody,
+  jsObjectDefinitionFromBody,
   updateJsObjectSpecSchema,
 } from "./jsObject.js";
+
+const RUN_ONLY_CODE =
+  "export default { limit: 25, enabled: true, loadUsers: async function () { await GetUsers.run(); return { loaded: true, count: 25 }; } };";
+const MARKER = / \/\* mcp-spec:[A-Za-z0-9+/=]+ \*\/$/;
 
 const revision = "d".repeat(64);
 const createSpec = {
@@ -31,9 +38,13 @@ describe("JS object builder", () => {
   it("compiles only the declarative JS-object grammar", () => {
     const spec = createJsObjectSpecSchema.parse(createSpec);
 
-    expect(compileJsObject(spec)).toBe(
-      "export default { limit: 25, enabled: true, loadUsers: async () => { await GetUsers.run(); return { loaded: true, count: 25 }; } };",
-    );
+    // The code part is unchanged from the original grammar; the definition rides along as a trailing base64
+    // block comment so the object can be read back structurally and recognised exactly.
+    expect(compileJsObjectCode(spec)).toBe(RUN_ONLY_CODE);
+    expect(compileJsObject(spec)).toMatch(MARKER);
+    expect(
+      compileJsObject(spec).startsWith(`${RUN_ONLY_CODE} /* mcp-spec:`),
+    ).toBe(true);
     // The server REQUIRES applicationId (400 INVALID_PARAMETER without it) and one JSAction per function so the
     // editor lists/runs them — the same shape the web client sends.
     expect(buildCreateJsObjectRequest(spec)).toEqual({
@@ -48,7 +59,9 @@ describe("JS object builder", () => {
         workspaceId: "workspace1",
         pluginId: "jsPlugin1",
         pluginType: "JS",
-        body: "export default { limit: 25, enabled: true, loadUsers: async () => { await GetUsers.run(); return { loaded: true, count: 25 }; } };",
+        body: expect.stringMatching(
+          /^export default \{ limit: 25, enabled: true, loadUsers: async function \(\) \{ await GetUsers\.run\(\); return \{ loaded: true, count: 25 \}; \} \}; \/\* mcp-spec:/,
+        ),
         variables: [],
         actions: [
           {
@@ -57,7 +70,7 @@ describe("JS object builder", () => {
             runBehaviour: "MANUAL",
             clientSideExecution: true,
             actionConfiguration: {
-              body: "async () => { await GetUsers.run(); return { loaded: true, count: 25 }; }",
+              body: "async function () { await GetUsers.run(); return { loaded: true, count: 25 }; }",
               timeoutInMillisecond: 0,
               jsArguments: [],
             },
@@ -92,8 +105,9 @@ describe("JS object builder", () => {
       method: "PATCH",
       path: "v1/collections/actions/collection1",
       // The compiled body goes through PUT /{id}/body (PATCH nulls it server-side).
-      jsBody:
-        "export default { refresh: async () => { await GetUsers.run(); }, reset: async () => { return { done: true }; } };",
+      jsBody: expect.stringMatching(
+        /^export default \{ refresh: async function \(\) \{ await GetUsers\.run\(\); \}, reset: async function \(\) \{ return \{ done: true \}; \} \}; \/\* mcp-spec:/,
+      ),
       body: {
         actionCollection: {
           id: "collection1",
@@ -107,7 +121,7 @@ describe("JS object builder", () => {
               runBehaviour: "MANUAL",
               clientSideExecution: true,
               actionConfiguration: {
-                body: "async () => { return { done: true }; }",
+                body: "async function () { return { done: true }; }",
                 timeoutInMillisecond: 0,
                 jsArguments: [],
               },
@@ -120,7 +134,7 @@ describe("JS object builder", () => {
               runBehaviour: "MANUAL",
               clientSideExecution: true,
               actionConfiguration: {
-                body: "async () => { await GetUsers.run(); }",
+                body: "async function () { await GetUsers.run(); }",
                 timeoutInMillisecond: 0,
                 jsArguments: [],
               },
@@ -171,6 +185,168 @@ describe("JS object builder", () => {
         entityKey: "js_object:collection1",
       },
     });
+  });
+});
+
+describe("jsExpr grammar in a JS object — params, steps and expression returns", () => {
+  const definition = {
+    constants: { maxIds: 50 },
+    functions: [
+      {
+        name: "splitLines",
+        params: ["value"],
+        returns: {
+          fn: "unique",
+          args: [
+            {
+              fn: "filter",
+              args: [
+                {
+                  fn: "map",
+                  args: [
+                    {
+                      fn: "split",
+                      args: [{ param: "value" }, { sep: "commaOrNewline" }],
+                    },
+                    { fn: "trim", args: [{ item: true }] },
+                  ],
+                },
+                {
+                  op: "not",
+                  args: [{ fn: "isEmpty", args: [{ item: true }] }],
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        name: "save",
+        steps: [
+          {
+            let: "ids",
+            value: {
+              fn: "unique",
+              args: [
+                {
+                  fn: "split",
+                  args: [
+                    { widget: "inpInstanceAllow", property: "text" },
+                    { sep: "commaOrNewline" },
+                  ],
+                },
+              ],
+            },
+          },
+          {
+            if: {
+              op: "gt",
+              args: [
+                { fn: "length", args: [{ var: "ids" }] },
+                { constant: "maxIds" },
+              ],
+            },
+            then: [{ throw: "Too many instance IDs." }],
+          },
+          {
+            run: "UpsertBanner",
+            with: { ids: { var: "ids" } },
+            into: "result",
+          },
+          { run: "GetBanners" },
+          { return: { object: { saved: true, ids: { var: "ids" } } } },
+        ],
+      },
+    ],
+  };
+
+  it("compiles the richer grammar, embeds the definition, and reads it back exactly", () => {
+    const spec = createJsObjectSpecSchema.parse({
+      ...createSpec,
+      ...definition,
+    });
+    const body = compileJsObject(spec);
+    const code = compileJsObjectCode(spec);
+
+    expect(
+      code.startsWith(
+        "export default { maxIds: 50, splitLines: async function (value) { return [...new Set(",
+      ),
+    ).toBe(true);
+    expect(code).toContain(
+      'save: async function () { let ids = [...new Set(((v) => Array.isArray(v) ? v : [])(String(inpInstanceAllow.text ?? "").split(/[\\r\\n,]+/)))]; if ((((ids) == null ? 0 : (ids).length) > this.maxIds)) { throw new Error("Too many instance IDs."); } let result = await UpsertBanner.run({ ids: ids }); await GetBanners.run(); return { saved: true, ids: ids }; } };',
+    );
+    expect(code).not.toMatch(/\{\{|\}\}|\$\{|`/);
+    expect(body.startsWith(`${code} /* mcp-spec:`)).toBe(true);
+    expect(jsObjectDefinitionFromBody(body)).toEqual(definition);
+    expect(isCompilerAuthoredJsBody(body)).toBe(true);
+
+    // Per-function JSActions carry the params as jsArguments.
+    const request = buildCreateJsObjectRequest(spec);
+    const actions = (
+      request.body as {
+        actions: {
+          name: string;
+          actionConfiguration: { jsArguments: unknown };
+        }[];
+      }
+    ).actions;
+
+    expect(actions.map((a) => a.name)).toEqual(["splitLines", "save"]);
+    expect(actions[0].actionConfiguration.jsArguments).toEqual([
+      { name: "value", value: "" },
+    ]);
+  });
+
+  it("treats a hand-edited body as editor-authored even if the marker survives", () => {
+    const body = compileJsObject(
+      createJsObjectSpecSchema.parse({ ...createSpec, ...definition }),
+    );
+    const tampered = body.replace(
+      "await GetBanners.run();",
+      "await fetch('https://evil.example');",
+    );
+
+    expect(jsObjectDefinitionFromBody(tampered)).toBeUndefined();
+    expect(isCompilerAuthoredJsBody(tampered)).toBe(false);
+
+    // A forged marker whose definition does not recompile to the code is not trusted either.
+    const forged = `export default { leak: async () => { return appsmith.user; } }; /* mcp-spec:${Buffer.from(JSON.stringify(definition)).toString("base64")} */`;
+
+    expect(isCompilerAuthoredJsBody(forged)).toBe(false);
+  });
+
+  it("rejects scoping and grammar errors with the function's name in the message", () => {
+    const bad = createJsObjectSpecSchema.safeParse({
+      ...createSpec,
+      functions: [{ name: "f", steps: [{ return: { var: "missing" } }] }],
+    });
+
+    expect(bad.success).toBe(false);
+    expect(
+      bad.error?.issues.map((issue) => issue.message).join("\n"),
+    ).toContain('f: steps[0]: "missing" is used before');
+
+    for (const fn of [
+      { name: "f", params: ["this"] },
+      // JS keywords in a param compile to `async function (class) {}`: a SyntaxError that breaks the whole
+      // collection (council M2 DX finding); the shared jsExpr reserved list refuses them.
+      { name: "f", params: ["class"] },
+      { name: "f", params: ["eval"] },
+      { name: "f", params: ["showAlert"] },
+      { name: "__proto__", steps: [{ return: 1 }] },
+      { name: "constructor", steps: [{ return: 1 }] },
+      { name: "f", params: ["a", "a"] },
+      { name: "f", steps: [{ run: "Q; evil()" }] },
+      { name: "f", steps: [{ let: "x", value: { fn: "eval", args: ["1"] } }] },
+      { name: "f", returns: { constant: "nope" } },
+      { name: "f", body: "return 1" },
+    ]) {
+      expect(
+        createJsObjectSpecSchema.safeParse({ ...createSpec, functions: [fn] })
+          .success,
+      ).toBe(false);
+    }
   });
 });
 
@@ -274,5 +450,42 @@ describe("JS object grammar rejects source and dynamic syntax", () => {
         collectionId: "collection1",
       }).success,
     ).toBe(false);
+  });
+});
+
+describe("definition marker — availability and versioning (council M2 security)", () => {
+  const definition = {
+    functions: [{ name: "f", steps: [{ return: 1 }] }],
+  };
+
+  it("classifies a 256 KB whitespace body in linear time (no regex over the code part)", () => {
+    const hostile = " ".repeat(256 * 1024 - 8) + "x */";
+    const started = Date.now();
+
+    expect(jsObjectDefinitionFromBody(hostile)).toBeUndefined();
+    expect(isCompilerAuthoredJsBody(hostile)).toBe(false);
+    // Generous bound for saturated CI runners; the quadratic regex this guards against took ~37 s.
+    expect(Date.now() - started).toBeLessThan(5000);
+  });
+
+  it("embeds a version and refuses a marker from another version", () => {
+    const body = compileJsObject(definition);
+    const encoded = body.slice(body.lastIndexOf(" /* mcp-spec:") + 13, -3);
+    const payload = JSON.parse(Buffer.from(encoded, "base64").toString("utf8"));
+
+    expect(payload.v).toBe(1);
+    expect(jsObjectDefinitionFromBody(body)).toEqual(definition);
+
+    const other = Buffer.from(
+      JSON.stringify({ ...payload, v: 2 }),
+      "utf8",
+    ).toString("base64");
+    const code = body.slice(0, body.lastIndexOf(" /* mcp-spec:"));
+
+    expect(
+      jsObjectDefinitionFromBody(`${code} /* mcp-spec:${other} */`),
+    ).toBeUndefined();
+    expect(hasSpecMarker(`${code} /* mcp-spec:${other} */`)).toBe(true);
+    expect(hasSpecMarker(code)).toBe(false);
   });
 });

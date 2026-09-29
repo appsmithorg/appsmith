@@ -503,7 +503,7 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
       name: "wire_event",
       gate: "always",
       summary:
-        "wire a widget event to a safe action or a 2-5 statement list (chainable onSuccess/onError; appendToStore/clearStoreKey accumulate query rows in the store; { call: { object, function } } invokes an existing JS-object function)",
+        "wire a widget event to a safe action or a 2-5 statement list (chainable onSuccess/onError; appendToStore/clearStoreKey accumulate query rows in the store; { call: { object, function, args? } } invokes an existing JS-object function with literal or widget-property arguments)",
     },
     { name: "inspect_page", gate: "always", summary: "lint a live page" },
     {
@@ -721,12 +721,14 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     {
       name: "create_js_object",
       gate: "js_governance",
-      summary: "create a restricted JS object (governed)",
+      summary:
+        "create a restricted JS object from a declarative definition: constants + functions with params, a closed statement vocabulary (let/set, run with params, if/else, forEach, throw, return, showAlert, storeValue, resetWidget) and a bounded expression tree (string/array/number/date/boolean functions, comparisons, widget/query/store refs) — no raw JS (governed)",
     },
     {
       name: "update_js_object",
       gate: "js_governance",
-      summary: "update a restricted JS object (governed)",
+      summary:
+        "update a restricted JS object from a definition: start from the `definition` read_js_object returns and send all functions back (governed)",
     },
     {
       name: "prepare_delete_js_object",
@@ -859,6 +861,8 @@ export function getCapabilities(
           "{ table: '<Table>', column: '<col>' } — selected-row display binding on a text widget. NOT the table data binding (use tableData for that).",
         defaultValue:
           "{ table: '<Table>', column: '<col>' } — selected-row prefill on an input widget",
+        defaultFrom:
+          "{ widget: '<Widget>', property: '<path>' } OR { query: '<queryName>', field?: '<responsePath>' } — dynamic default for an input/select/multiselect/radio/checkbox/switch/datepicker, compiled onto its own default prop (defaultText / defaultOptionValue / defaultCheckedState / defaultSwitchState / defaultDate)",
         visibleWhen:
           "{ control: '<widget>', equals: <literal> } | { rowSelected: '<table>' } | { notEmpty: '<input>' }",
         validation: "input validation spec",

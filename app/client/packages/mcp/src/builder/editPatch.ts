@@ -31,6 +31,7 @@ import {
   compileRowSelectedBinding,
   compileVisibleWhenBinding,
   cssColor,
+  entityPropertyPath,
   inputValidationSchema,
   queryFieldRefSchema,
   selectedRowRefSchema,
@@ -93,6 +94,17 @@ export const widgetPropsPatchSchema = z
     // Computed text value (dates, counts, concat) — compiled onto the text prop. Text-only.
     value: computedValueSchema.optional(),
     defaultValue: selectedRowRefSchema.optional(),
+    // Dynamic default from ANOTHER widget's property or a query field, compiled onto the widget's own default prop
+    // (defaultText / defaultOptionValue / defaultCheckedState / defaultSwitchState / defaultDate by type). The
+    // reference is identifier + dotted path; the compiler emits `{{ Widget.path }}` or `{{ Q.data?.field ?? "" }}`.
+    defaultFrom: z
+      .union([
+        z
+          .object({ widget: widgetNameSchema, property: entityPropertyPath })
+          .strict(),
+        queryFieldRefSchema,
+      ])
+      .optional(),
     // Bind an image's src to a column of a table's selected row (e.g. an employee photo in a detail panel) OR
     // to a field of a query's response.
     imageSource: z
@@ -392,6 +404,68 @@ function applySelectedRowBinding(
   registerDynamicBinding(node, expected.property);
 }
 
+// The default prop each widget family reads on load. A `defaultFrom` binding lands on exactly this prop, so the
+// vocabulary stays "one structured ref per widget type" and never a free property name.
+const DEFAULT_PROP_BY_TYPE: Record<string, string> = {
+  INPUT_WIDGET_V2: "defaultText",
+  SELECT_WIDGET: "defaultOptionValue",
+  MULTI_SELECT_WIDGET_V2: "defaultOptionValue",
+  RADIO_GROUP_WIDGET: "defaultOptionValue",
+  CHECKBOX_WIDGET: "defaultCheckedState",
+  SWITCH_WIDGET: "defaultSwitchState",
+  DATE_PICKER_WIDGET2: "defaultDate",
+};
+
+// Compile a `defaultFrom` reference onto the widget's default prop: a widget-property ref emits `{{ W.path }}`
+// (identifier + dotted path, nothing else), a query-field ref the shared query binding. The source widget must
+// exist on the page (dangling guard). A literal for the same default prop, or a selected-row `defaultValue`, in the
+// same update would race the binding, so the ambiguity is rejected.
+function applyDefaultFromBinding(
+  widgets: Map<string, LocatedWidget>,
+  node: WidgetNode,
+  ref: { widget: string; property: string } | QueryFieldRef,
+  conflicts: {
+    defaultValue: SelectedRowRef | undefined;
+    literals: Record<string, unknown>;
+  },
+): void {
+  const property = DEFAULT_PROP_BY_TYPE[node.type];
+
+  if (property === undefined) {
+    throw new Error(
+      `'defaultFrom' can only be set on ${Object.keys(DEFAULT_PROP_BY_TYPE).join(" / ")} ("${node.widgetName}" is ${node.type})`,
+    );
+  }
+
+  if (conflicts.defaultValue !== undefined) {
+    throw new Error(
+      "cannot set both 'defaultValue' and 'defaultFrom' in one update",
+    );
+  }
+
+  if (conflicts.literals[property] !== undefined) {
+    throw new Error(
+      `cannot set both '${property}' and 'defaultFrom' in one update`,
+    );
+  }
+
+  if ("widget" in ref) {
+    const sourceWidget = widgets.get(ref.widget);
+
+    if (!sourceWidget) throw new Error(`widget "${ref.widget}" was not found`);
+
+    if (sourceWidget.node === node) {
+      throw new Error("'defaultFrom' cannot reference the widget itself");
+    }
+
+    node[property] = `{{ ${ref.widget}.${ref.property} }}`;
+  } else {
+    node[property] = compileQueryFieldBinding(ref);
+  }
+
+  registerDynamicBinding(node, property);
+}
+
 // A scalar display slot (text's content, image's src) accepts EITHER a selected-row ref or a query-field ref;
 // the strict object shapes discriminate by key. Selected-row refs get the dangling-table guard; query refs
 // compile directly (queries live outside the widget map, matching applyTableDataBinding's posture).
@@ -622,6 +696,7 @@ export function applyWidgetPatch(
     if (operation.kind === "update") {
       // Structured binding refs are compiled (never literal-assigned); everything else is a plain literal.
       const {
+        defaultFrom,
         defaultValue,
         disableWhenInvalid,
         imageSource,
@@ -761,6 +836,13 @@ export function applyWidgetPatch(
           widgetType: "INPUT_WIDGET_V2",
           property: "defaultText",
           field: "defaultValue",
+        });
+      }
+
+      if (defaultFrom !== undefined) {
+        applyDefaultFromBinding(widgets, located.node, defaultFrom, {
+          defaultValue,
+          literals,
         });
       }
 
