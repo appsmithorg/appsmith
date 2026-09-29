@@ -80,6 +80,10 @@ import styled from "styled-components";
 import TextLoaderIcon from "./TextLoaderIcon";
 import UrlPreview from "./UrlPreview";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import {
+  APP_DESCRIPTION_MAX_LENGTH,
+  isAppDescriptionInputValid,
+} from "utils/appDescription";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const IconSelectorWrapper = styled.div`
@@ -119,13 +123,6 @@ export function isHtmlLangInputValid(value: string) {
   const trimmed = value.trim();
 
   return trimmed === "" || BCP47_REGEX.test(trimmed);
-}
-
-// Keep in sync with DESCRIPTION_MAX_LENGTH in the server ApplicationCE.
-export const APP_DESCRIPTION_MAX_LENGTH = 250;
-
-export function isAppDescriptionInputValid(value: string) {
-  return value.trim().length <= APP_DESCRIPTION_MAX_LENGTH;
 }
 
 // A save response must not clobber text the user typed while that save was

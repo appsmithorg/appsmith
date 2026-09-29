@@ -1,4 +1,5 @@
 import React from "react";
+import { fireEvent } from "@testing-library/react";
 import { render } from "test/testUtils";
 import { ApplicationCard } from "./ApplicationCard";
 import type { ApplicationPayload } from "entities/Application";
@@ -70,6 +71,62 @@ describe("ApplicationCard — description subtitle", () => {
     );
 
     expect(queryByTestId("t--app-card-description")).toBeNull();
+  });
+
+  it("lets an editor change the description from the card menu", () => {
+    const update = jest.fn();
+    const app = buildApplication({ description: "Old blurb" });
+
+    const { getByTestId } = render(
+      <ApplicationCard {...baseProps} application={app} update={update} />,
+    );
+
+    const trigger = getByTestId("t--application-card-context-menu");
+
+    // Radix opens the menu on keyboard activation in jsdom.
+    fireEvent.keyDown(trigger, { key: "Enter" });
+
+    const field = document.querySelector(
+      ".t--application-description",
+    ) as HTMLElement;
+
+    expect(field).toBeTruthy();
+    expect(field.textContent).toContain("Old blurb");
+
+    fireEvent.click(field);
+    const input = document.querySelector(
+      ".t--application-description input",
+    ) as HTMLInputElement;
+
+    expect(input).toBeTruthy();
+    fireEvent.change(input, { target: { value: "  New blurb  " } });
+    fireEvent.blur(input);
+
+    expect(update).toHaveBeenCalledWith("app-1", { description: "New blurb" });
+  });
+
+  it("hides the description editor from the card menu without edit permission", () => {
+    // Export permission keeps the menu itself visible; manage permission is what
+    // gates the editable name/description/colour/icon controls.
+    const app = buildApplication({
+      userPermissions: ["read:applications", "export:applications"],
+      description: "Read only",
+    });
+
+    const { getByTestId } = render(
+      <ApplicationCard
+        {...baseProps}
+        application={app}
+        enableImportExport
+        update={jest.fn()}
+      />,
+    );
+
+    const trigger = getByTestId("t--application-card-context-menu");
+
+    fireEvent.keyDown(trigger, { key: "Enter" });
+
+    expect(document.querySelector(".t--application-description")).toBeNull();
   });
 
   it("renders no description element when the description is whitespace", () => {

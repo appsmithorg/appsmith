@@ -2090,6 +2090,7 @@ export const GENERAL_SETTINGS_APP_DESCRIPTION_PLACEHOLDER = () =>
   "Shown under the app name";
 export const GENERAL_SETTINGS_APP_DESCRIPTION_TOO_LONG = (max: number) =>
   `Description cannot exceed ${max} characters`;
+export const APP_CARD_DESCRIPTION_PLACEHOLDER = () => "Add a description";
 export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "App name cannot be empty";
 export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>

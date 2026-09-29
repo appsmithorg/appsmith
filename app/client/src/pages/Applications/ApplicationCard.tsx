@@ -42,7 +42,17 @@ import type {
 import {
   getIsSavingAppName,
   getIsErroredSavingAppName,
+  getIsSavingAppDescription,
 } from "ee/selectors/applicationSelectors";
+import {
+  APP_DESCRIPTION_MAX_LENGTH,
+  isAppDescriptionInputValid,
+} from "utils/appDescription";
+import {
+  APP_CARD_DESCRIPTION_PLACEHOLDER,
+  GENERAL_SETTINGS_APP_DESCRIPTION_TOO_LONG,
+  createMessage,
+} from "ee/constants/messages";
 import ForkApplicationModal from "./ForkApplicationModal";
 import { getExportAppAPIRoute } from "ee/constants/ApiConstants";
 import { builderURL, viewerURL } from "ee/RouteBuilder";
@@ -106,6 +116,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const theme = useContext(ThemeContext);
   const isSavingName = useSelector(getIsSavingAppName);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
+  const isSavingDescription = useSelector(getIsSavingAppDescription);
   const currentUser = useSelector(getCurrentUserSelector);
   const initialsAndColorCode = getInitialsAndColorCode(
     application.name,
@@ -122,6 +133,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const [isForkApplicationModalopen, setForkApplicationModalOpen] =
     useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
+  // null until the user types in the menu's description field.
+  const [lastUpdatedDescription, setLastUpdatedDescription] = useState<
+    string | null
+  >(null);
   const dispatch = useDispatch();
 
   const applicationId = application.id;
@@ -241,6 +256,22 @@ export function ApplicationCard(props: ApplicationCardProps) {
         icon: icon,
       });
   };
+  // Shared by the field's blur and the menu-close flush; both are no-ops when
+  // nothing changed or the value is over the limit.
+  const saveDescription = (value: string | null) => {
+    if (value === null || !isAppDescriptionInputValid(value)) return;
+
+    const trimmed = value.trim();
+
+    if (trimmed === (application.description || "")) return;
+
+    props.update &&
+      props.update(applicationId, {
+        description: trimmed,
+      });
+    // Consumed: the menu-close flush must not send the same value again.
+    setLastUpdatedDescription(null);
+  };
   const shareApp = () => {
     props.share && props.share(applicationId);
   };
@@ -329,6 +360,8 @@ export function ApplicationCard(props: ApplicationCardProps) {
             name: lastUpdatedValue,
           });
       }
+
+      saveDescription(lastUpdatedDescription);
     } else {
       setIsMenuOpen(true);
       setIsDeleting(false);
@@ -383,6 +416,32 @@ export function ApplicationCard(props: ApplicationCardProps) {
                 placeholder={"Edit text input"}
                 savingState={
                   isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+                }
+                underline
+              />
+              <EditableText
+                className="px-3 pb-2 t--application-description"
+                defaultValue={application.description || ""}
+                editInteractionKind={EditInteractionKind.SINGLE}
+                fill
+                hideEditIcon={false}
+                isInvalid={(value: string) =>
+                  isAppDescriptionInputValid(value)
+                    ? false
+                    : createMessage(
+                        GENERAL_SETTINGS_APP_DESCRIPTION_TOO_LONG,
+                        APP_DESCRIPTION_MAX_LENGTH,
+                      )
+                }
+                onBlur={saveDescription}
+                onTextChanged={(value: string) => {
+                  setLastUpdatedDescription(value);
+                }}
+                placeholder={createMessage(APP_CARD_DESCRIPTION_PLACEHOLDER)}
+                savingState={
+                  isSavingDescription
+                    ? SavingState.STARTED
+                    : SavingState.NOT_STARTED
                 }
                 underline
               />

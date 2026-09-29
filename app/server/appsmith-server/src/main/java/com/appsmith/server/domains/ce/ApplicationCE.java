@@ -92,7 +92,7 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
     String icon;
 
     // Short, optional blurb shown under the application name on workspace cards.
-    // Keep in sync with APP_DESCRIPTION_MAX_LENGTH in the client GeneralSettings.tsx.
+    // Keep in sync with APP_DESCRIPTION_MAX_LENGTH in the client utils/appDescription.ts.
     public static final int DESCRIPTION_MAX_LENGTH = 250;
 
     @JsonView({Views.Public.class, Git.class})
