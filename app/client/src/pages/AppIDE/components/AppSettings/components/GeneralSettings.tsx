@@ -44,7 +44,13 @@ import {
   Tooltip,
 } from "@appsmith/ads";
 import { IconSelector } from "@appsmith/ads-old";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import StaticURLConfirmationModal from "./StaticURLConfirmationModal";
 import { debounce } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
@@ -122,6 +128,16 @@ export function isAppDescriptionInputValid(value: string) {
   return value.trim().length <= APP_DESCRIPTION_MAX_LENGTH;
 }
 
+// A save response must not clobber text the user typed while that save was
+// in flight. Adopt the store value only when no save is pending or the draft
+// still equals what was submitted.
+export function shouldAdoptSavedDescription(
+  draft: string,
+  submitted: string | null,
+) {
+  return submitted === null || draft === submitted;
+}
+
 function GeneralSettings() {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
@@ -174,13 +190,37 @@ function GeneralSettings() {
     [application, application?.name, isSavingAppName],
   );
 
+  // Refs, not state, so the sync effect can read the latest draft and the
+  // value submitted by the in-flight save without re-running on every keystroke.
+  const appDescriptionDraftRef = useRef(appDescription);
+  const submittedAppDescriptionRef = useRef<string | null>(null);
+
   useEffect(
     function syncAppDescription() {
-      setAppDescription(application?.description || "");
+      if (
+        !shouldAdoptSavedDescription(
+          appDescriptionDraftRef.current,
+          submittedAppDescriptionRef.current,
+        )
+      ) {
+        return;
+      }
+
+      submittedAppDescriptionRef.current = null;
+      const saved = application?.description || "";
+
+      appDescriptionDraftRef.current = saved;
+      setAppDescription(saved);
       setIsAppDescriptionValid(true);
     },
     [application?.description],
   );
+
+  const onAppDescriptionChange = useCallback((value: string) => {
+    appDescriptionDraftRef.current = value;
+    setAppDescription(value);
+    setIsAppDescriptionValid(isAppDescriptionInputValid(value));
+  }, []);
 
   const saveAppDescription = useCallback(
     (value: string) => {
@@ -191,6 +231,7 @@ function GeneralSettings() {
 
       if (trimmed === current) return;
 
+      submittedAppDescriptionRef.current = value;
       dispatch(
         updateApplication(applicationId, {
           currentApp: true,
@@ -554,10 +595,7 @@ function GeneralSettings() {
           isValid={isAppDescriptionValid}
           label={createMessage(GENERAL_SETTINGS_APP_DESCRIPTION_LABEL)}
           onBlur={() => saveAppDescription(appDescription)}
-          onChange={(value: string) => {
-            setAppDescription(value);
-            setIsAppDescriptionValid(isAppDescriptionInputValid(value));
-          }}
+          onChange={onAppDescriptionChange}
           onKeyPress={(ev: React.KeyboardEvent) => {
             if (ev.key === "Enter") {
               saveAppDescription(appDescription);

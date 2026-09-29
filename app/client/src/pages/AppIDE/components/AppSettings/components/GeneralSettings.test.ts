@@ -2,7 +2,22 @@ import {
   APP_DESCRIPTION_MAX_LENGTH,
   isAppDescriptionInputValid,
   isHtmlLangInputValid,
+  shouldAdoptSavedDescription,
 } from "./GeneralSettings";
+
+describe("shouldAdoptSavedDescription", () => {
+  it("adopts the store value when no save is in flight", () => {
+    expect(shouldAdoptSavedDescription("anything", null)).toBe(true);
+  });
+
+  it("adopts the store value when the draft still matches what was saved", () => {
+    expect(shouldAdoptSavedDescription("Locker", "Locker")).toBe(true);
+  });
+
+  it("keeps the draft when the user edited it after the save started", () => {
+    expect(shouldAdoptSavedDescription("Locker system", "Locker")).toBe(false);
+  });
+});
 
 describe("isAppDescriptionInputValid", () => {
   it("accepts empty/blank values (description is optional)", () => {
