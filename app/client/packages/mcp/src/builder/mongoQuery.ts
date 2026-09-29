@@ -69,7 +69,7 @@ const literalScalar = z.union([
 // range-checked explicitly (V8's Date.parse silently rolls 2026-02-30 forward to March), so an impossible date is
 // rejected up front rather than stored as a different day.
 const ISO_DATE =
-  /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,3})?)?(?:Z|[+-](\d{2}):(\d{2})))?$/;
+  /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,3})?)?(?:Z|[+-](\d{2}):(\d{2}))?)?$/;
 
 function isRealIsoDate(value: string): boolean {
   const match = ISO_DATE.exec(value);
@@ -101,6 +101,35 @@ const dateLiteral = z
   .regex(ISO_DATE, "must be an ISO 8601 date or date-time")
   .refine(isRealIsoDate, "must be a real calendar date");
 
+// Relaxed Extended JSON (`Document.parse` in the Mongo plugin) accepts `{ "$date": … }` only as a full RFC 3339
+// date-time with an offset; a calendar date or a time without seconds/offset fails the whole command. Normalise
+// what the ISO_DATE grammar admits: date-only → midnight UTC, missing seconds → `:00`, missing offset → `Z`.
+export function normalizeIsoDateTime(value: string): string {
+  const match = ISO_DATE.exec(value);
+
+  if (!match) throw new Error(`not an ISO 8601 date: ${value}`);
+
+  const [, y, mo, d, h, , s] = match;
+
+  if (h === undefined) return `${y}-${mo}-${d}T00:00:00Z`;
+
+  const seconds = s === undefined ? ":00" : "";
+  const timePart = value.slice(value.indexOf("T"));
+  const hasOffset = /(?:Z|[+-]\d{2}:\d{2})$/.test(timePart);
+
+  if (hasOffset) {
+    if (s !== undefined) return value;
+
+    // Insert the seconds before the offset.
+    const offset = timePart.slice(-1) === "Z" ? "Z" : timePart.slice(-6);
+    const head = value.slice(0, value.length - offset.length);
+
+    return `${head}${seconds}${offset}`;
+  }
+
+  return `${value}${seconds}Z`;
+}
+
 // The ONLY place dynamic data enters a Mongo command: a literal (embedded as a compile-time JSON token), a date
 // literal (embedded inside a compiler-owned `{ "$date": "<iso>" }` so the plugin stores a BSON date, not a string),
 // or a widget reference (emitted as a checked `{{ }}` binding, parameterized at runtime by smart substitution;
@@ -111,7 +140,22 @@ const widgetRef = z
     property: propertyPath,
     as: z.enum(["date"]).optional(),
   })
-  .strict();
+  .strict()
+  // `as: 'date'` wraps the runtime value in `$date`, which the plugin only accepts as a full date-time with an
+  // offset. A DatePicker's `selectedDate` is exactly that (ISO 8601 with offset, whatever its display format);
+  // other properties (a text input, the legacy picker's formatted text) are not, and there is no expression
+  // position in which to normalise them, so the tag is limited to that property.
+  .refine(
+    (ref) =>
+      ref.as !== "date" ||
+      ref.property === "selectedDate" ||
+      ref.property.endsWith(".selectedDate"),
+    {
+      message:
+        "as: 'date' is only valid on a DatePicker's selectedDate (an ISO 8601 date-time with offset)",
+      path: ["as"],
+    },
+  );
 const valueRef = z.union([
   z.object({ literal: literalScalar }).strict(),
   z.object({ date: dateLiteral }).strict(),
@@ -296,10 +340,11 @@ function emitValue(value: ValueRef | ListValueRef): string {
     return JSON.stringify(value.literal);
   }
 
-  // A date literal: the ISO string is regex-validated (digits and date punctuation only) and still JSON-encoded, then
-  // placed inside the compiler-owned `$date` wrapper. Nothing agent-authored can reach the key position.
+  // A date literal: the ISO string is regex-validated (digits and date punctuation only), normalised to the full
+  // date-time-with-offset form Extended JSON requires, JSON-encoded, then placed inside the compiler-owned `$date`
+  // wrapper. Nothing agent-authored can reach the key position.
   if ("date" in value) {
-    return `{ ${JSON.stringify("$date")}: ${JSON.stringify(value.date)} }`;
+    return `{ ${JSON.stringify("$date")}: ${JSON.stringify(normalizeIsoDateTime(value.date))} }`;
   }
 
   const binding = `{{ ${value.widget}.${value.property} }}`;

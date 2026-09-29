@@ -2,6 +2,7 @@ import {
   buildMongoActionDto,
   compileMongoQuery,
   mongoQuerySpecSchema,
+  normalizeIsoDateTime,
 } from "./mongoQuery.js";
 
 function parse(spec: unknown) {
@@ -110,9 +111,48 @@ describe("compileMongoQuery — structured Mongo FIND/INSERT, no raw injection",
       }),
     );
 
+    // A calendar date normalises to midnight UTC: Extended JSON `$date` needs a full date-time with offset.
     expect(inserted.insert?.documents).toBe(
-      '[{ "createdAt": { "$date": "2026-09-29" }, "startsAt": { "$date": {{ dtStart.selectedDate }} } }]',
+      '[{ "createdAt": { "$date": "2026-09-29T00:00:00Z" }, "startsAt": { "$date": {{ dtStart.selectedDate }} } }]',
     );
+  });
+
+  it("normalises every admitted date literal to a full date-time with an offset", () => {
+    expect(normalizeIsoDateTime("2026-09-29")).toBe("2026-09-29T00:00:00Z");
+    expect(normalizeIsoDateTime("2026-09-29T10:30")).toBe(
+      "2026-09-29T10:30:00Z",
+    );
+    expect(normalizeIsoDateTime("2026-09-29T10:30Z")).toBe(
+      "2026-09-29T10:30:00Z",
+    );
+    expect(normalizeIsoDateTime("2026-09-29T10:30+05:30")).toBe(
+      "2026-09-29T10:30:00+05:30",
+    );
+    expect(normalizeIsoDateTime("2026-09-29T10:30:15")).toBe(
+      "2026-09-29T10:30:15Z",
+    );
+    expect(normalizeIsoDateTime("2026-09-29T10:30:15.250Z")).toBe(
+      "2026-09-29T10:30:15.250Z",
+    );
+    expect(normalizeIsoDateTime("2026-09-29T10:30:15-04:00")).toBe(
+      "2026-09-29T10:30:15-04:00",
+    );
+
+    // as: 'date' is limited to a DatePicker's selectedDate (already ISO 8601 with offset at runtime).
+    for (const property of ["text", "formattedDate", "selectedDates"]) {
+      expect(
+        mongoQuerySpecSchema.safeParse({
+          ...base,
+          operation: "FIND",
+          filter: [
+            {
+              field: "a",
+              value: { widget: "W", property, as: "date" },
+            },
+          ],
+        }).success,
+      ).toBe(false);
+    }
   });
 
   it("rejects operator/value mismatches, unknown operators, and malformed dates", () => {

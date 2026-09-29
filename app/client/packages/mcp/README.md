@@ -26,8 +26,9 @@ Findings from building an internal admin app through MCP, all fixed without wide
   hardcoded secrets live. A code-only change moves the object's revision.
 - `create_mongo_query` filters take `op` from a closed enum (`eq` default, `ne`, `gt`, `gte`, `lt`, `lte`, `in`,
   `nin`, `exists`) — the soft-delete predicate `{ deleted: { $ne: true } }` is now expressible. Values may be
-  `{ date: '<ISO 8601>' }` or a widget ref tagged `as: 'date'`; both compile into a compiler-owned `$date` wrapper
-  so the plugin stores a BSON date (compile-verified; a live smoke test is tracked on the issue).
+  `{ date: '<ISO 8601>' }` (normalised to a full UTC date-time, which Extended JSON requires) or a DatePicker's
+  `selectedDate` tagged `as: 'date'`; both compile into a compiler-owned `$date` wrapper so the plugin stores a
+  BSON date (compile-verified; a live smoke test is tracked on the issue).
 - `patch_widgets` accepts `inputType: MULTI_LINE_TEXT` and the literal `labelText`, `defaultCheckedState`,
   `defaultSwitchState`, `defaultOptionValue` props that `read_semantic_page` already reported, type-checked per widget
   family.
