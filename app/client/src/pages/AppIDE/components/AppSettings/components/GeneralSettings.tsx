@@ -9,6 +9,9 @@ import {
 } from "ee/actions/applicationActions";
 import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
 import {
+  GENERAL_SETTINGS_APP_DESCRIPTION_LABEL,
+  GENERAL_SETTINGS_APP_DESCRIPTION_PLACEHOLDER,
+  GENERAL_SETTINGS_APP_DESCRIPTION_TOO_LONG,
   GENERAL_SETTINGS_APP_ICON_LABEL,
   GENERAL_SETTINGS_APP_LANGUAGE_LABEL,
   GENERAL_SETTINGS_APP_LANGUAGE_TOOLTIP,
@@ -54,6 +57,7 @@ const STATIC_URL_DOCS_URL =
 import {
   getCurrentApplication,
   getIsSavingAppName,
+  getIsSavingAppDescription,
   getIsSavingHtmlLang,
   getIsPersistingAppSlug,
   getIsValidatingAppSlug,
@@ -111,6 +115,13 @@ export function isHtmlLangInputValid(value: string) {
   return trimmed === "" || BCP47_REGEX.test(trimmed);
 }
 
+// Keep in sync with DESCRIPTION_MAX_LENGTH in the server ApplicationCE.
+export const APP_DESCRIPTION_MAX_LENGTH = 250;
+
+export function isAppDescriptionInputValid(value: string) {
+  return value.trim().length <= APP_DESCRIPTION_MAX_LENGTH;
+}
+
 function GeneralSettings() {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
@@ -118,6 +129,7 @@ function GeneralSettings() {
   const pages = useSelector(getPageList);
   const currentBasePageId = useSelector(getCurrentBasePageId);
   const isSavingAppName = useSelector(getIsSavingAppName);
+  const isSavingAppDescription = useSelector(getIsSavingAppDescription);
   const isSavingHtmlLang = useSelector(getIsSavingHtmlLang);
   const isApplicationSlugValid = useSelector(getIsApplicationSlugValid);
   const isValidatingAppSlug = useSelector(getIsValidatingAppSlug);
@@ -132,6 +144,10 @@ function GeneralSettings() {
   const [applicationIcon, setApplicationIcon] = useState(
     application?.icon as AppIconName,
   );
+  const [appDescription, setAppDescription] = useState(
+    application?.description || "",
+  );
+  const [isAppDescriptionValid, setIsAppDescriptionValid] = useState(true);
   const [htmlLang, setHtmlLang] = useState(
     application?.applicationDetail?.htmlLang || "",
   );
@@ -156,6 +172,33 @@ function GeneralSettings() {
       !isSavingAppName && setApplicationName(application?.name);
     },
     [application, application?.name, isSavingAppName],
+  );
+
+  useEffect(
+    function syncAppDescription() {
+      setAppDescription(application?.description || "");
+      setIsAppDescriptionValid(true);
+    },
+    [application?.description],
+  );
+
+  const saveAppDescription = useCallback(
+    (value: string) => {
+      if (!isAppDescriptionInputValid(value)) return;
+
+      const trimmed = value.trim();
+      const current = application?.description || "";
+
+      if (trimmed === current) return;
+
+      dispatch(
+        updateApplication(applicationId, {
+          currentApp: true,
+          description: trimmed,
+        }),
+      );
+    },
+    [applicationId, application?.description, dispatch],
   );
 
   useEffect(
@@ -493,6 +536,39 @@ function GeneralSettings() {
           size="md"
           type="text"
           value={applicationName}
+        />
+      </div>
+
+      <div className="pt-2 pb-2 relative">
+        {isSavingAppDescription && <TextLoaderIcon />}
+        <Input
+          errorMessage={
+            isAppDescriptionValid
+              ? undefined
+              : createMessage(
+                  GENERAL_SETTINGS_APP_DESCRIPTION_TOO_LONG,
+                  APP_DESCRIPTION_MAX_LENGTH,
+                )
+          }
+          id="t--general-settings-app-description"
+          isValid={isAppDescriptionValid}
+          label={createMessage(GENERAL_SETTINGS_APP_DESCRIPTION_LABEL)}
+          onBlur={() => saveAppDescription(appDescription)}
+          onChange={(value: string) => {
+            setAppDescription(value);
+            setIsAppDescriptionValid(isAppDescriptionInputValid(value));
+          }}
+          onKeyPress={(ev: React.KeyboardEvent) => {
+            if (ev.key === "Enter") {
+              saveAppDescription(appDescription);
+            }
+          }}
+          placeholder={createMessage(
+            GENERAL_SETTINGS_APP_DESCRIPTION_PLACEHOLDER,
+          )}
+          size="md"
+          type="text"
+          value={appDescription}
         />
       </div>
 
