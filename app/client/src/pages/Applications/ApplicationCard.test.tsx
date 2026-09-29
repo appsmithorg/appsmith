@@ -105,6 +105,41 @@ describe("ApplicationCard — description subtitle", () => {
     expect(update).toHaveBeenCalledWith("app-1", { description: "New blurb" });
   });
 
+  it("clears the description from the card menu with a single empty save", () => {
+    const update = jest.fn();
+    const app = buildApplication({ description: "Old blurb" });
+
+    const { getByTestId } = render(
+      <ApplicationCard {...baseProps} application={app} update={update} />,
+    );
+
+    const trigger = getByTestId("t--application-card-context-menu");
+
+    fireEvent.keyDown(trigger, { key: "Enter" });
+
+    const field = document.querySelector(
+      ".t--application-description",
+    ) as HTMLElement;
+
+    fireEvent.click(field);
+    const input = document.querySelector(
+      ".t--application-description input",
+    ) as HTMLInputElement;
+
+    fireEvent.change(input, { target: { value: "" } });
+    fireEvent.blur(input);
+
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(update).toHaveBeenCalledWith("app-1", { description: "" });
+
+    // Closing the menu must not re-send the same value.
+    fireEvent.keyDown(document.activeElement || document.body, {
+      key: "Escape",
+    });
+
+    expect(update).toHaveBeenCalledTimes(1);
+  });
+
   it("hides the description editor from the card menu without edit permission", () => {
     // Export permission keeps the menu itself visible; manage permission is what
     // gates the editable name/description/colour/icon controls.

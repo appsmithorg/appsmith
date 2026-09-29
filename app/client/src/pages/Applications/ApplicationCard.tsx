@@ -4,6 +4,7 @@ import React, {
   useContext,
   useCallback,
   useMemo,
+  useRef,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
 import type { ApplicationPayload } from "entities/Application";
@@ -85,6 +86,13 @@ interface ApplicationCardProps {
   workspaceId: string;
 }
 
+const DescriptionEditorWrapper = styled.div`
+  /* The empty state must read as a placeholder, not as a value. */
+  &&&& .bp3-editable-text-placeholder .bp3-editable-text-content {
+    color: var(--ads-v2-color-fg-muted);
+  }
+`;
+
 const IconScrollWrapper = styled.div`
   position: relative;
 
@@ -137,6 +145,8 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const [lastUpdatedDescription, setLastUpdatedDescription] = useState<
     string | null
   >(null);
+  // Last value handed to `update`; blur and menu-close can both fire for one edit.
+  const lastSubmittedDescriptionRef = useRef<string | null>(null);
   const dispatch = useDispatch();
 
   const applicationId = application.id;
@@ -263,13 +273,18 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
     const trimmed = value.trim();
 
-    if (trimmed === (application.description || "")) return;
+    if (
+      trimmed === (application.description || "") ||
+      trimmed === lastSubmittedDescriptionRef.current
+    ) {
+      return;
+    }
 
+    lastSubmittedDescriptionRef.current = trimmed;
     props.update &&
       props.update(applicationId, {
         description: trimmed,
       });
-    // Consumed: the menu-close flush must not send the same value again.
     setLastUpdatedDescription(null);
   };
   const shareApp = () => {
@@ -419,32 +434,34 @@ export function ApplicationCard(props: ApplicationCardProps) {
                 }
                 underline
               />
-              <EditableText
-                className="px-3 pb-2 t--application-description"
-                defaultValue={application.description || ""}
-                editInteractionKind={EditInteractionKind.SINGLE}
-                fill
-                hideEditIcon={false}
-                isInvalid={(value: string) =>
-                  isAppDescriptionInputValid(value)
-                    ? false
-                    : createMessage(
-                        GENERAL_SETTINGS_APP_DESCRIPTION_TOO_LONG,
-                        APP_DESCRIPTION_MAX_LENGTH,
-                      )
-                }
-                onBlur={saveDescription}
-                onTextChanged={(value: string) => {
-                  setLastUpdatedDescription(value);
-                }}
-                placeholder={createMessage(APP_CARD_DESCRIPTION_PLACEHOLDER)}
-                savingState={
-                  isSavingDescription
-                    ? SavingState.STARTED
-                    : SavingState.NOT_STARTED
-                }
-                underline
-              />
+              <DescriptionEditorWrapper>
+                <EditableText
+                  className="px-3 pb-2 t--application-description"
+                  defaultValue={application.description || ""}
+                  editInteractionKind={EditInteractionKind.SINGLE}
+                  fill
+                  hideEditIcon={false}
+                  isInvalid={(value: string) =>
+                    isAppDescriptionInputValid(value)
+                      ? false
+                      : createMessage(
+                          GENERAL_SETTINGS_APP_DESCRIPTION_TOO_LONG,
+                          APP_DESCRIPTION_MAX_LENGTH,
+                        )
+                  }
+                  onBlurEverytime={saveDescription}
+                  onTextChanged={(value: string) => {
+                    setLastUpdatedDescription(value);
+                  }}
+                  placeholder={createMessage(APP_CARD_DESCRIPTION_PLACEHOLDER)}
+                  savingState={
+                    isSavingDescription
+                      ? SavingState.STARTED
+                      : SavingState.NOT_STARTED
+                  }
+                  underline
+                />
+              </DescriptionEditorWrapper>
             </div>
           )}
           {hasEditPermission && (
