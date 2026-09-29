@@ -28,7 +28,7 @@ export const WIDGET_CATALOG = [
     type: "input",
     fields: {
       label: "string",
-      inputType: "TEXT | NUMBER | EMAIL | PASSWORD",
+      inputType: "TEXT | NUMBER | EMAIL | PASSWORD | MULTI_LINE_TEXT",
       defaultValue:
         "{ table: '<tableWidget>', column: '<column>' } — prefill from the selected row (edit forms)",
       validation:
@@ -503,7 +503,7 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
       name: "wire_event",
       gate: "always",
       summary:
-        "wire a widget event to a safe action or a 2-5 statement list (chainable onSuccess/onError; appendToStore/clearStoreKey accumulate query rows in the store)",
+        "wire a widget event to a safe action or a 2-5 statement list (chainable onSuccess/onError; appendToStore/clearStoreKey accumulate query rows in the store; { call: { object, function } } invokes an existing JS-object function)",
     },
     { name: "inspect_page", gate: "always", summary: "lint a live page" },
     {
@@ -634,7 +634,8 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     {
       name: "create_mongo_query",
       gate: "data",
-      summary: "structured MongoDB find/insert/update/delete query",
+      summary:
+        "structured MongoDB find/insert/update/delete query (filters: eq/ne/gt/gte/lt/lte/in/nin/exists; BSON date values)",
     },
     {
       name: "create_sheets_query",
@@ -714,7 +715,8 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     {
       name: "read_js_object",
       gate: "js",
-      summary: "safe JS-object metadata + revisions",
+      summary:
+        "JS-object metadata + revisions (compiled source for MCP-authored objects)",
     },
     {
       name: "create_js_object",
@@ -850,7 +852,7 @@ export function getCapabilities(
         "Any layout mutation whose result would INTRODUCE overlapping widgets is rejected with code 'overlap_introduced', the offending name pairs, and a ready-to-apply suggestedFix ({ tool: 'patch_widgets', operations: [...] }). Pre-existing overlaps on a page never block edits. Containers/forms/tabs auto-grow to fit new content and push widgets below them down; every automatic adjustment is reported in changes/notes.",
       updateProps: {
         literals:
-          "text, label, inputType, options, title, image, chartType, chartName, defaultText, placeholderText, dateFormat, isRequired, isDisabled, isVisible, oddRowColor, evenRowColor, isVisibleSearch, enableClientSideSearch, isVisibleFilters, isSortable, isVisibleDownload, isVisiblePagination",
+          "text, label, inputType (TEXT|NUMBER|EMAIL|PASSWORD|MULTI_LINE_TEXT), options, title, image, chartType, chartName, defaultText, placeholderText, dateFormat, isRequired, isDisabled, isVisible, labelText (checkbox/switch/radio/multiselect), defaultCheckedState (checkbox), defaultSwitchState (switch), defaultOptionValue (select/radio), oddRowColor, evenRowColor, isVisibleSearch, enableClientSideSearch, isVisibleFilters, isSortable, isVisibleDownload, isVisiblePagination",
         tableData:
           "{ query: '<queryName>', field?: '<responsePath>', clearWhenEmpty?: '<inputWidget>' } OR { store: '<storeKey>' } — bind an EXISTING table's rows to a query, or to a store key accumulated by wire_event's appendToStore (session-only). This is the patch-path name for the build spec's `source`; read_semantic_page also reports it as tableData.",
         source:

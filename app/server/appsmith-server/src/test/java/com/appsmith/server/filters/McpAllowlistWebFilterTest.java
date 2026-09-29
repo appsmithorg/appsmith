@@ -87,6 +87,18 @@ class McpAllowlistWebFilterTest {
     }
 
     @Test
+    void mcpPrincipal_collectionBodyUpdate_isAllowed() {
+        // update_js_object writes the compiled body through PUT /{id}/body (PATCH nulls the body); the rule covers
+        // exactly that sub-path and nothing else under /collections/actions/{id}.
+        assertPassesThrough(
+                MockServerWebExchange.from(MockServerHttpRequest.put("/api/v1/collections/actions/abc123/body")),
+                mcpPrincipal());
+        assertForbidden(
+                MockServerWebExchange.from(MockServerHttpRequest.put("/api/v1/collections/actions/abc123/refactor")),
+                mcpPrincipal());
+    }
+
+    @Test
     void mcpPrincipal_nonAllowlistedPath_isForbidden() {
         // The token-mint endpoint is not on the allowlist -> 403 for an MCP principal (double-covered by the
         // controller-level block).

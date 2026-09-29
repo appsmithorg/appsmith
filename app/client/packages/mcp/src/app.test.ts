@@ -349,6 +349,7 @@ function createApi(
     listActionCollections: jest.fn(),
     createActionCollection: jest.fn(),
     updateActionCollection: jest.fn(),
+    updateActionCollectionBody: jest.fn(),
     deleteActionCollection: jest.fn(),
     validateToken,
   });
@@ -5128,11 +5129,339 @@ describe("governance-wrapped layout mutations", () => {
     expect(created.body.created).toBe(true);
     expect(createActionCollection).toHaveBeenCalledTimes(1);
     // The compiled JS body is emitted by the compiler (async fn running a named query), not raw agent input.
-    const body = createActionCollection.mock.calls[0][0] as { body?: string };
+    const body = createActionCollection.mock.calls[0][0] as {
+      body?: string;
+      applicationId?: string;
+      actions?: unknown[];
+    };
 
     expect(body.body).toContain("await getUsers.run();");
     expect(body.body).not.toMatch(/\$\{|`/);
     expect(typeof created.body.changeId).toBe("string");
+    // The server rejects a create without applicationId (400 INVALID_PARAMETER) and needs one JSAction per
+    // function for the editor to list it — both were missing before, so every create failed.
+    expect(body.applicationId).toBe(APP);
+    expect(body.actions).toEqual([
+      expect.objectContaining({
+        name: "loadUsers",
+        clientSideExecution: true,
+        actionConfiguration: expect.objectContaining({
+          body: "async () => { await getUsers.run(); }",
+        }),
+      }),
+    ]);
+  });
+
+  it("read_js_object returns each object's compiled source and a body-sensitive revision", async () => {
+    const APP = "a".repeat(24);
+    const collection = {
+      id: "coll1",
+      name: "BannerAdmin",
+      pageId: "b".repeat(24),
+      body: "export default { save: async () => { await SaveBanner.run(); } };",
+      actions: [{ id: "act1", name: "save" }],
+    };
+    // Hand-written in the editor: arbitrary JS that may hold secrets. Its source must never reach the agent.
+    const editorAuthored = {
+      id: "coll2",
+      name: "Legacy",
+      pageId: "b".repeat(24),
+      body: "export default {\n\tapiKey: 'sk-live-secret',\n\tasync call () {\n\t\treturn fetch(this.apiKey);\n\t}\n}",
+      actions: [{ id: "act2", name: "call" }],
+    };
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listActionCollections: jest.fn(async () => [collection, editorAuthored]),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+    });
+
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+
+    expect(read.body.jsObjects[0]).toEqual({
+      id: "coll1",
+      name: "BannerAdmin",
+      pageId: "b".repeat(24),
+      functions: ["save"],
+      authoredBy: "mcp",
+      source: collection.body,
+      revision: expect.stringMatching(/^[a-f0-9]{64}$/),
+    });
+    expect(read.body.jsObjects[1]).toEqual({
+      id: "coll2",
+      name: "Legacy",
+      pageId: "b".repeat(24),
+      functions: ["call"],
+      authoredBy: "editor",
+      revision: expect.stringMatching(/^[a-f0-9]{64}$/),
+    });
+    expect(JSON.stringify(read.body)).not.toContain("sk-live-secret");
+
+    // A code-only change (same metadata, different body) moves the per-object revision.
+    (api.listActionCollections as jest.Mock).mockResolvedValueOnce([
+      { ...collection, body: "export default { save: async () => { } };" },
+    ]);
+    const reread = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+
+    expect(reread.body.jsObjects[0].revision).not.toBe(
+      read.body.jsObjects[0].revision,
+    );
+  });
+
+  it("update_js_object refuses a code update on an editor-authored object and never writes", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const editorAuthored = {
+      id: "coll2",
+      name: "Legacy",
+      pageId: "b".repeat(24),
+      body: "export default {\n\tasync call () {\n\t\treturn 1;\n\t}\n}",
+      actions: [{ id: "act2", name: "call" }],
+    };
+    const updateActionCollectionBody = jest.fn(async () => ({}));
+    const updateActionCollection = jest.fn(async () => ({}));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listActionCollections: jest.fn(async () => [editorAuthored]),
+      updateActionCollectionBody,
+      updateActionCollection,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const refused = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "coll2",
+        revision: read.body.jsObjects[0].revision,
+        functions: [{ name: "call", returns: { done: true } }],
+      },
+    });
+
+    expect(refused.body.code).toBe("editor_authored_js_object");
+    expect(updateActionCollectionBody).not.toHaveBeenCalled();
+    expect(updateActionCollection).not.toHaveBeenCalled();
+
+    // A rename does not touch the code and stays allowed.
+    const renamed = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "coll2",
+        revision: read.body.jsObjects[0].revision,
+        name: "LegacyRenamed",
+      },
+    });
+
+    expect(renamed.body.updated).toBe(true);
+    expect(updateActionCollectionBody).not.toHaveBeenCalled();
+    expect(updateActionCollection).toHaveBeenCalledTimes(1);
+  });
+
+  it("update_js_object writes the code through the body route, then diffs the functions on the PATCH", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const before = {
+      id: "coll1",
+      name: "BannerAdmin",
+      pageId: "b".repeat(24),
+      body: "export default { refresh: async () => { await GetBanners.run(); } };",
+      actions: [
+        { id: "act-refresh", name: "refresh" },
+        { id: "act-old", name: "legacyFn" },
+      ],
+    };
+    const after = {
+      ...before,
+      body: "export default { refresh: async () => { await GetBanners.run(); }, save: async () => { await SaveBanner.run(); await GetBanners.run(); return { saved: true }; } };",
+      actions: [
+        { id: "act-refresh", name: "refresh" },
+        { id: "act-save", name: "save" },
+      ],
+    };
+    const calls: string[] = [];
+    const listActionCollections = jest
+      .fn<Promise<unknown>, [string]>()
+      .mockResolvedValueOnce([before]) // read_js_object
+      .mockResolvedValueOnce([before]) // update: locate current
+      .mockResolvedValue([after]); // update: re-read after the writes
+    const updateActionCollectionBody = jest.fn<
+      Promise<unknown>,
+      [string, { body: string }]
+    >(async () => {
+      calls.push("body");
+
+      return {};
+    });
+    const updateActionCollection = jest.fn<
+      Promise<unknown>,
+      [string, Record<string, unknown>]
+    >(async () => {
+      calls.push("patch");
+
+      return { ...before, body: null };
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listActionCollections,
+      updateActionCollectionBody,
+      updateActionCollection,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const updated = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "coll1",
+        revision: read.body.jsObjects[0].revision,
+        functions: [
+          { name: "refresh", run: [{ query: "GetBanners" }] },
+          {
+            name: "save",
+            run: [{ query: "SaveBanner" }, { query: "GetBanners" }],
+            returns: { saved: true },
+          },
+        ],
+      },
+    });
+
+    expect(updated.body.updated).toBe(true);
+    // Body first (the only route that changes code), then the function diff.
+    expect(calls).toEqual(["body", "patch"]);
+    expect(updateActionCollectionBody).toHaveBeenCalledWith("coll1", {
+      body: after.body,
+    });
+    const patch = updateActionCollection.mock.calls[0][1] as {
+      actions: {
+        added: { name: string }[];
+        updated: { id: string; name: string }[];
+        deleted: { id: string; name: string }[];
+      };
+    };
+
+    expect(patch.actions.added.map((a) => a.name)).toEqual(["save"]);
+    expect(patch.actions.updated).toEqual([
+      expect.objectContaining({ id: "act-refresh", name: "refresh" }),
+    ]);
+    expect(patch.actions.deleted).toEqual([
+      { id: "act-old", name: "legacyFn" },
+    ]);
+    // The result reflects the re-read collection (the PATCH response carries a nulled body).
+    expect(updated.body.jsObject.functions).toEqual(["refresh", "save"]);
+    expect(updated.body.jsObject.source).toBe(after.body);
+  });
+
+  it("wire_event { call } emits Object.function() only for a function that exists on a JS object of the app", async () => {
+    const store = new MemoryGovernanceStore();
+    const DSL = {
+      ...ROOT_DSL,
+      children: [
+        {
+          widgetId: "b",
+          widgetName: "SaveBtn",
+          type: "BUTTON_WIDGET",
+          topRow: 0,
+          bottomRow: 4,
+          leftColumn: 0,
+          rightColumn: 16,
+        },
+      ],
+    };
+    let current: Record<string, unknown> = DSL;
+    const updateLayout = jest.fn<
+      Promise<{ ok: boolean }>,
+      [string, string, string, Record<string, unknown>]
+    >(async (_app, _page, _layout, dsl) => {
+      current = dsl;
+
+      return { ok: true };
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: current },
+      })),
+      listActionCollections: jest.fn(async () => [
+        {
+          id: "coll1",
+          name: "BannerAdmin",
+          // No JSActions (a collection written before per-function actions existed): the compiled body shape
+          // still declares the member.
+          body: "export default { save: async () => { await SaveBanner.run(); } };",
+          actions: [],
+        },
+        {
+          id: "coll2",
+          name: "Legacy",
+          // Editor-authored: recognised by its JSAction names, never by scanning its body.
+          body: "export default {\n\tasync archive () {\n\t\treturn 1;\n\t}\n}",
+          actions: [{ id: "act2", name: "archive" }],
+        },
+      ]),
+      updateLayout: updateLayout as never,
+    };
+    // `call` is deliberately available without the JS-authoring gate: it only wires an event to code that already
+    // exists in the application (like `run` on an existing query).
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: false,
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const wire = async (call: { object: string; function: string }) =>
+      callTool(server, "wire_event", {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+        revision: fingerprintDsl(current as never),
+        spec: { widget: "SaveBtn", event: "onClick", action: { call } },
+      });
+
+    // Dangling references are refused before anything is written.
+    expect(
+      (await wire({ object: "Nope", function: "save" })).body.error,
+    ).toMatch(/JS object "Nope" was not found/);
+    expect(
+      (await wire({ object: "BannerAdmin", function: "drop" })).body.error,
+    ).toMatch(/function "drop" was not found on JS object "BannerAdmin"/);
+    expect(updateLayout).not.toHaveBeenCalled();
+
+    const wired = await wire({ object: "BannerAdmin", function: "save" });
+
+    expect(wired.body.changeId).toBeDefined();
+    const written = updateLayout.mock.calls[0][3] as {
+      children: { widgetName: string; onClick?: string }[];
+    };
+
+    expect(
+      written.children.find((w) => w.widgetName === "SaveBtn")?.onClick,
+    ).toBe("{{ BannerAdmin.save() }}");
+
+    // Editor-authored objects are callable too, resolved by JSAction name.
+    const legacy = await wire({ object: "Legacy", function: "archive" });
+
+    expect(legacy.body.changeId).toBeDefined();
+    expect(
+      (updateLayout.mock.calls[1][3] as { children: { onClick?: string }[] })
+        .children[0].onClick,
+    ).toBe("{{ Legacy.archive() }}");
   });
 
   it("JS-object tools are unavailable without the JS gate", async () => {

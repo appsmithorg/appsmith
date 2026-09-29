@@ -70,6 +70,9 @@ public class McpAllowlistWebFilter implements WebFilter {
             // ActionCollectionControllerCE maps the JS-object update as @PatchMapping("/{id}") — PUT is not served
             // (405), and the Node client sends PATCH accordingly.
             rule(HttpMethod.PATCH, "/api/v1/collections/actions/{collectionId}"),
+            // The PATCH route nulls `body` server-side; a JS object's code is written only through this body route
+            // (the same one the web editor uses). Without it update_js_object could rename but never change code.
+            rule(HttpMethod.PUT, "/api/v1/collections/actions/{collectionId}/body"),
             rule(HttpMethod.DELETE, "/api/v1/collections/actions/{collectionId}"),
             // Git flow (read_git_status / create_branch / prepare_commit -> confirm_commit). The MCP layer confines
             // mutations to mcp/ agent branches; these rules only let the git wrappers through the token cap.

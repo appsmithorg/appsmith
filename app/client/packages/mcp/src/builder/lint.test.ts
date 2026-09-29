@@ -93,10 +93,11 @@ describe("lintDsl — geometry", () => {
       widgetName: "Canvas1",
       type: "CANVAS_WIDGET",
       topRow: 0,
-      bottomRow: 40, // inner extent 40 rows
+      bottomRow: 40,
       leftColumn: 0,
       rightColumn: 40,
-      children: [],
+      // The extent comes from the children's rows (40), not the canvas bottomRow.
+      children: [widget({ widgetId: "inside", topRow: 0, bottomRow: 40 })],
     };
     const container: WidgetNode = {
       widgetId: "c1",
@@ -110,6 +111,71 @@ describe("lintDsl — geometry", () => {
     };
 
     expect(rules(canvas([container]))).toContain("container-clips");
+  });
+
+  it("measures the inner extent from the children's rows, not the canvas bottomRow the client stores in pixels", () => {
+    // The Appsmith client rewrites an inner canvas's bottomRow in PIXELS (rows × 10) when it saves a page. A
+    // 45-row container whose canvas reads 450 is NOT clipping its 30-row content — the old row-vs-row comparison
+    // reported "45 < 450" and suggested a ×10 resize.
+    const child = widget({ widgetId: "w1", topRow: 0, bottomRow: 30 });
+    const inner: WidgetNode = {
+      widgetId: "canvas1",
+      widgetName: "Canvas1",
+      type: "CANVAS_WIDGET",
+      topRow: 0,
+      bottomRow: 450, // pixels, as saved by the editor
+      leftColumn: 0,
+      rightColumn: 40,
+      children: [child],
+    };
+    const container: WidgetNode = {
+      widgetId: "c1",
+      widgetName: "Container1",
+      type: "CONTAINER_WIDGET",
+      topRow: 0,
+      bottomRow: 45,
+      leftColumn: 0,
+      rightColumn: 40,
+      children: [inner],
+    };
+
+    expect(rules(canvas([container]))).not.toContain("container-clips");
+
+    // A genuinely clipped container is still caught, from the same children rows, with a row-unit fix.
+    const clipped: WidgetNode = { ...container, bottomRow: 20 };
+    const issue = lintDsl(canvas([clipped])).issues.find(
+      (candidate) => candidate.rule === "container-clips",
+    );
+
+    expect(issue?.msg).toContain("height 20 < inner extent 30 rows");
+    expect(issue?.suggestedFix?.operations).toEqual([
+      { kind: "resize", name: "Container1", rows: 30 },
+    ]);
+  });
+
+  it("does not flag an empty inner canvas whatever its bottomRow says", () => {
+    const inner: WidgetNode = {
+      widgetId: "canvas1",
+      widgetName: "Canvas1",
+      type: "CANVAS_WIDGET",
+      topRow: 0,
+      bottomRow: 400,
+      leftColumn: 0,
+      rightColumn: 40,
+      children: [],
+    };
+    const container: WidgetNode = {
+      widgetId: "c1",
+      widgetName: "Container1",
+      type: "CONTAINER_WIDGET",
+      topRow: 0,
+      bottomRow: 40,
+      leftColumn: 0,
+      rightColumn: 40,
+      children: [inner],
+    };
+
+    expect(rules(canvas([container]))).not.toContain("container-clips");
   });
 });
 
@@ -201,7 +267,7 @@ describe("lintDsl — suggestedFix payloads", () => {
       bottomRow: 40,
       leftColumn: 0,
       rightColumn: 40,
-      children: [],
+      children: [widget({ widgetId: "inside", topRow: 0, bottomRow: 40 })],
     };
     const container: WidgetNode = {
       widgetId: "c1",

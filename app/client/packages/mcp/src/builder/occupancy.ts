@@ -597,10 +597,10 @@ function growToFitOwnContent(
 
   for (const canvas of innerCanvases) {
     growCanvasToExtent(canvas);
-    needed = Math.max(
-      needed,
-      isNumber(canvas.bottomRow) ? canvas.bottomRow : 0,
-    );
+    // Rows come from the CHILDREN, not from canvas.bottomRow: the Appsmith client stores an inner canvas's
+    // bottomRow in pixels (rows × 10), so reading it back as rows would grow the container ×10 on any page the
+    // editor has saved. contentExtent is unit-stable (children are always in rows).
+    needed = Math.max(needed, clampRow(contentExtent(canvas)));
   }
 
   if (needed <= 0 || !isNumber(node.bottomRow)) return;

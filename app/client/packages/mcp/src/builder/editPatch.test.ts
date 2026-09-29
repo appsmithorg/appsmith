@@ -1532,6 +1532,113 @@ describe("applyWidgetPatch", () => {
     ).toThrow("has children");
   });
 
+  it("accepts the caption/default literals of the checkbox/switch/radio/select family and MULTI_LINE_TEXT, type-checked", () => {
+    const checkbox = node({
+      widgetId: "cb",
+      widgetName: "Agree",
+      type: "CHECKBOX_WIDGET",
+    });
+    const select = node({
+      widgetId: "sel",
+      widgetName: "Tone",
+      type: "SELECT_WIDGET",
+    });
+    const toggle = node({
+      widgetId: "sw",
+      widgetName: "Enabled",
+      type: "SWITCH_WIDGET",
+    });
+    const input = node({
+      widgetId: "in",
+      widgetName: "Message",
+      type: "INPUT_WIDGET_V2",
+      inputType: "TEXT",
+    });
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [checkbox, select, input, toggle],
+    });
+    const { dsl: patched } = applyWidgetPatch(dsl, {
+      operations: [
+        {
+          kind: "update",
+          name: "Agree",
+          props: { labelText: "I agree", defaultCheckedState: true },
+        },
+        {
+          kind: "update",
+          name: "Enabled",
+          props: { labelText: "Enabled", defaultSwitchState: false },
+        },
+        {
+          kind: "update",
+          name: "Tone",
+          props: { defaultOptionValue: "INFO" },
+        },
+        {
+          kind: "update",
+          name: "Message",
+          props: { inputType: "MULTI_LINE_TEXT" },
+        },
+      ],
+    });
+    const byName = (name: string) =>
+      patched.children!.find((w) => w.widgetName === name)!;
+
+    expect(byName("Agree").labelText).toBe("I agree");
+    expect(byName("Agree").defaultCheckedState).toBe(true);
+    expect(byName("Enabled").labelText).toBe("Enabled");
+    expect(byName("Enabled").defaultSwitchState).toBe(false);
+    expect(byName("Tone").defaultOptionValue).toBe("INFO");
+    expect(byName("Message").inputType).toBe("MULTI_LINE_TEXT");
+
+    // The same literals on the wrong widget family are rejected, never silently written as dead props.
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [
+          {
+            kind: "update",
+            name: "Tone",
+            props: { defaultCheckedState: true },
+          },
+        ],
+      }),
+    ).toThrow("'defaultCheckedState' can only be set on CHECKBOX_WIDGET");
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [
+          {
+            kind: "update",
+            name: "Agree",
+            props: { inputType: "MULTI_LINE_TEXT" },
+          },
+        ],
+      }),
+    ).toThrow("'inputType' can only be set on INPUT_WIDGET_V2");
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [
+          { kind: "update", name: "Message", props: { labelText: "x" } },
+        ],
+      }),
+    ).toThrow("'labelText' can only be set on");
+
+    // Still literal-only: a binding in labelText / defaultOptionValue is rejected by the schema.
+    for (const props of [
+      { labelText: "{{ Query.data }}" },
+      { defaultOptionValue: "${x}" },
+      { inputType: "{{ x }}" },
+    ]) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [{ kind: "update", name: "Agree", props }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("rejects raw bindings, templates, and non-allowlisted properties", () => {
     for (const text of ["{{ Query.data }}", "${dangerous}", "`dangerous`"]) {
       expect(

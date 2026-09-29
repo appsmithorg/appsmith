@@ -10,6 +10,37 @@ mutating/destructive operations go through a prepare/confirm handshake.
 
 ## Release notes
 
+### Authoring gaps closed from the Banner-editor exercise (APP-16052)
+
+Findings from building an internal admin app through MCP, all fixed without widening the closed vocabulary
+(agents still never author raw JS, Mongo commands, or `{{ }}` bindings):
+
+- `create_js_object` now sends `applicationId` (the server answered 400 `INVALID_PARAMETER` without it, so every
+  create failed) and one JSAction per function, as the web editor does, so functions are listed and runnable.
+- `update_js_object` now writes the compiled body through `PUT /collections/actions/{id}/body` (the PATCH route
+  nulls `body`, so updates never changed code before) and diffs functions into `actions.added/updated/deleted`
+  (`functions` replaces the whole set; absent functions are deleted). The server allowlist gains exactly that body
+  route. `read_js_object` reports `authoredBy` (`mcp` or `editor`) and returns the compiled `source` only for
+  MCP-authored objects; editor-authored JavaScript is never returned to the agent and is never overwritten by
+  `update_js_object` (rename only), because the closed grammar cannot re-express it and hand-written code is where
+  hardcoded secrets live. A code-only change moves the object's revision.
+- `create_mongo_query` filters take `op` from a closed enum (`eq` default, `ne`, `gt`, `gte`, `lt`, `lte`, `in`,
+  `nin`, `exists`) — the soft-delete predicate `{ deleted: { $ne: true } }` is now expressible. Values may be
+  `{ date: '<ISO 8601>' }` or a widget ref tagged `as: 'date'`; both compile into a compiler-owned `$date` wrapper
+  so the plugin stores a BSON date (compile-verified; a live smoke test is tracked on the issue).
+- `patch_widgets` accepts `inputType: MULTI_LINE_TEXT` and the literal `labelText`, `defaultCheckedState`,
+  `defaultSwitchState`, `defaultOptionValue` props that `read_semantic_page` already reported, type-checked per widget
+  family.
+- `wire_event` gains `{ call: { object, function } }` → `Object.function()`, identifier-only and checked against the
+  application's JS objects before writing.
+- `inspect_page` container-clipping and the auto-grow cascade measure content from children rows; the Appsmith
+  client stores an inner canvas's `bottomRow` in pixels, which produced ×10 false "45 vs 450" warnings and ×10
+  resize suggestions.
+- Collection mutations surface the Appsmith error code on failure (`… (400) [AE-…]`) instead of a bare status.
+
+Not changed, by design: `run_action` still refuses to auto-run any DB query, including a Mongo FIND — that gate is a
+prior security decision, not a mis-classification.
+
 ### Authenticated MCP surface — off by default
 
 The MCP server, its **data layer** (datasource discovery + structured SQL/REST query creation + action reads), and

@@ -41,6 +41,147 @@ describe("compileMongoQuery — structured Mongo FIND/INSERT, no raw injection",
     });
   });
 
+  it("compiles operator clauses from the closed op enum, merging range clauses on one field", () => {
+    const compiled = compileMongoQuery(
+      parse({
+        ...base,
+        operation: "FIND",
+        filter: [
+          // The soft-delete predicate the equality-only grammar could not express.
+          { field: "deleted", op: "ne", value: { literal: true } },
+          { field: "priority", op: "gte", value: { literal: 1 } },
+          { field: "priority", op: "lte", value: { literal: 5 } },
+          {
+            field: "edition",
+            op: "in",
+            value: { literal: ["BUSINESS", "ENTERPRISE"] },
+          },
+          { field: "archivedAt", op: "exists", value: { literal: false } },
+          {
+            field: "ownerId",
+            op: "nin",
+            value: { widget: "msOwners", property: "selectedOptionValues" },
+          },
+        ],
+      }),
+    );
+
+    expect(compiled.find?.query).toBe(
+      '{ "deleted": { "$ne": true }, "priority": { "$gte": 1, "$lte": 5 }, "edition": { "$in": ["BUSINESS","ENTERPRISE"] }, "archivedAt": { "$exists": false }, "ownerId": { "$nin": {{ msOwners.selectedOptionValues }} } }',
+    );
+  });
+
+  it("emits date literals and date-tagged widget refs inside a compiler-owned $date wrapper", () => {
+    const compiled = compileMongoQuery(
+      parse({
+        ...base,
+        operation: "FIND",
+        filter: [
+          {
+            field: "startsAt",
+            op: "lte",
+            value: { date: "2026-10-01T00:00:00Z" },
+          },
+          {
+            field: "endsAt",
+            op: "gte",
+            value: { widget: "dtNow", property: "selectedDate", as: "date" },
+          },
+        ],
+      }),
+    );
+
+    expect(compiled.find?.query).toBe(
+      '{ "startsAt": { "$lte": { "$date": "2026-10-01T00:00:00Z" } }, "endsAt": { "$gte": { "$date": {{ dtNow.selectedDate }} } } }',
+    );
+
+    // INSERT documents take the same date value kinds.
+    const inserted = compileMongoQuery(
+      parse({
+        ...base,
+        operation: "INSERT",
+        document: [
+          { field: "createdAt", value: { date: "2026-09-29" } },
+          {
+            field: "startsAt",
+            value: { widget: "dtStart", property: "selectedDate", as: "date" },
+          },
+        ],
+      }),
+    );
+
+    expect(inserted.insert?.documents).toBe(
+      '[{ "createdAt": { "$date": "2026-09-29" }, "startsAt": { "$date": {{ dtStart.selectedDate }} } }]',
+    );
+  });
+
+  it("rejects operator/value mismatches, unknown operators, and malformed dates", () => {
+    const cases: unknown[] = [
+      // op outside the enum — no way to smuggle a raw Mongo operator
+      { field: "a", op: "$where", value: { literal: 1 } },
+      { field: "a", op: "regex", value: { literal: "x" } },
+      // a list is only valid with in/nin
+      { field: "a", op: "eq", value: { literal: [1, 2] } },
+      { field: "a", op: "gt", value: { literal: [1, 2] } },
+      // in needs a list or a widget ref, not a scalar
+      { field: "a", op: "in", value: { literal: 1 } },
+      { field: "a", op: "in", value: { literal: [] } },
+      // exists takes a boolean literal only
+      { field: "a", op: "exists", value: { literal: "yes" } },
+      { field: "a", op: "exists", value: { widget: "W", property: "p" } },
+      // dates: ISO only, real calendar dates only, no expression charset
+      { field: "a", value: { date: "next tuesday" } },
+      { field: "a", value: { date: "2026-02-30" } },
+      { field: "a", value: { date: '2026-01-01"}' } },
+      { field: "a", value: { date: "{{ x }}" } },
+      // as: only 'date', and never on a list operator ($in: { $date } is not a list)
+      { field: "a", value: { widget: "W", property: "p", as: "raw" } },
+      {
+        field: "a",
+        op: "in",
+        value: { widget: "W", property: "p", as: "date" },
+      },
+    ];
+
+    for (const clause of cases) {
+      expect(
+        mongoQuerySpecSchema.safeParse({
+          ...base,
+          operation: "FIND",
+          filter: [clause],
+        }).success,
+      ).toBe(false);
+    }
+
+    // The compiler refuses an equality clause mixed with operator clauses on one field (last-key-wins hazard).
+    expect(() =>
+      compileMongoQuery(
+        parse({
+          ...base,
+          operation: "FIND",
+          filter: [
+            { field: "a", value: { literal: 1 } },
+            { field: "a", op: "gt", value: { literal: 0 } },
+          ],
+        }),
+      ),
+    ).toThrow(/mixes an equality clause/);
+
+    // A repeated operator on one field would emit a duplicate JSON key (last one silently wins) — refused.
+    expect(() =>
+      compileMongoQuery(
+        parse({
+          ...base,
+          operation: "FIND",
+          filter: [
+            { field: "a", op: "gt", value: { literal: 1 } },
+            { field: "a", op: "gt", value: { literal: 2 } },
+          ],
+        }),
+      ),
+    ).toThrow(/repeats the operator "gt"/);
+  });
+
   it("defaults an empty filter to {} and omits sort/limit when absent", () => {
     const compiled = compileMongoQuery(parse({ ...base, operation: "FIND" }));
 

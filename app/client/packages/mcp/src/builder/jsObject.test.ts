@@ -5,6 +5,7 @@ import {
   compileJsObject,
   createJsObjectSpecSchema,
   deleteJsObjectSpecSchema,
+  isCompilerAuthoredJsBody,
   updateJsObjectSpecSchema,
 } from "./jsObject.js";
 
@@ -33,6 +34,8 @@ describe("JS object builder", () => {
     expect(compileJsObject(spec)).toBe(
       "export default { limit: 25, enabled: true, loadUsers: async () => { await GetUsers.run(); return { loaded: true, count: 25 }; } };",
     );
+    // The server REQUIRES applicationId (400 INVALID_PARAMETER without it) and one JSAction per function so the
+    // editor lists/runs them — the same shape the web client sends.
     expect(buildCreateJsObjectRequest(spec)).toEqual({
       applicationId: "app1",
       revision,
@@ -41,43 +44,111 @@ describe("JS object builder", () => {
       body: {
         name: "UserHelpers",
         pageId: "page1",
+        applicationId: "app1",
         workspaceId: "workspace1",
         pluginId: "jsPlugin1",
         pluginType: "JS",
         body: "export default { limit: 25, enabled: true, loadUsers: async () => { await GetUsers.run(); return { loaded: true, count: 25 }; } };",
         variables: [],
-        actions: [],
+        actions: [
+          {
+            name: "loadUsers",
+            workspaceId: "workspace1",
+            runBehaviour: "MANUAL",
+            clientSideExecution: true,
+            actionConfiguration: {
+              body: "async () => { await GetUsers.run(); return { loaded: true, count: 25 }; }",
+              timeoutInMillisecond: 0,
+              jsArguments: [],
+            },
+          },
+        ],
       },
       destructive: false,
     });
   });
 
-  it("builds revision-bound updates and destructive deletes", () => {
+  it("builds revision-bound updates (body via the body route + a per-function diff) and destructive deletes", () => {
     const update = updateJsObjectSpecSchema.parse({
       applicationId: "app1",
       collectionId: "collection1",
       revision,
       name: "RenamedHelpers",
-      functions: [{ name: "refresh", run: [{ query: "GetUsers" }] }],
+      functions: [
+        { name: "refresh", run: [{ query: "GetUsers" }] },
+        { name: "reset", returns: { done: true } },
+      ],
     });
+    const current = {
+      actions: [
+        { id: "act-refresh", name: "refresh" },
+        { id: "act-old", name: "legacyFn" },
+      ],
+    };
 
-    expect(buildUpdateJsObjectRequest(update)).toEqual({
+    expect(buildUpdateJsObjectRequest(update, current)).toEqual({
       applicationId: "app1",
       revision,
       method: "PATCH",
       path: "v1/collections/actions/collection1",
+      // The compiled body goes through PUT /{id}/body (PATCH nulls it server-side).
+      jsBody:
+        "export default { refresh: async () => { await GetUsers.run(); }, reset: async () => { return { done: true }; } };",
       body: {
         actionCollection: {
           id: "collection1",
           name: "RenamedHelpers",
           pluginType: "JS",
-          body: "export default { refresh: async () => { await GetUsers.run(); } };",
-          variables: [],
-          actions: [],
         },
-        actions: { added: [], updated: [], deleted: [] },
+        actions: {
+          added: [
+            {
+              name: "reset",
+              runBehaviour: "MANUAL",
+              clientSideExecution: true,
+              actionConfiguration: {
+                body: "async () => { return { done: true }; }",
+                timeoutInMillisecond: 0,
+                jsArguments: [],
+              },
+            },
+          ],
+          updated: [
+            {
+              id: "act-refresh",
+              name: "refresh",
+              runBehaviour: "MANUAL",
+              clientSideExecution: true,
+              actionConfiguration: {
+                body: "async () => { await GetUsers.run(); }",
+                timeoutInMillisecond: 0,
+                jsArguments: [],
+              },
+            },
+          ],
+          deleted: [{ id: "act-old", name: "legacyFn" }],
+        },
       },
       destructive: false,
+    });
+
+    // A rename-only update touches neither the body nor the functions.
+    const rename = updateJsObjectSpecSchema.parse({
+      applicationId: "app1",
+      collectionId: "collection1",
+      revision,
+      name: "Renamed",
+    });
+    const renameRequest = buildUpdateJsObjectRequest(rename, current);
+
+    expect(renameRequest.jsBody).toBeUndefined();
+    expect(renameRequest.body).toEqual({
+      actionCollection: {
+        id: "collection1",
+        name: "Renamed",
+        pluginType: "JS",
+      },
+      actions: { added: [], updated: [], deleted: [] },
     });
 
     expect(
@@ -100,6 +171,46 @@ describe("JS object builder", () => {
         entityKey: "js_object:collection1",
       },
     });
+  });
+});
+
+describe("isCompilerAuthoredJsBody — recognises exactly what compileJsObject emits", () => {
+  it("accepts every shape the compiler produces", () => {
+    const shapes = [
+      createJsObjectSpecSchema.parse(createSpec),
+      createJsObjectSpecSchema.parse({
+        ...createSpec,
+        constants: undefined,
+        functions: [{ name: "noop" }],
+      }),
+      createJsObjectSpecSchema.parse({
+        ...createSpec,
+        constants: { s: 'quote " and \\ backslash', n: -1.5e21, z: null },
+        functions: [
+          { name: "a", run: [{ query: "Q1" }, { query: "Q2" }] },
+          { name: "b", returns: {} },
+          { name: "c", run: [{ query: "Q3" }], returns: { ok: true, k: "v" } },
+        ],
+      }),
+    ];
+
+    for (const spec of shapes) {
+      expect(isCompilerAuthoredJsBody(compileJsObject(spec))).toBe(true);
+    }
+  });
+
+  it("classes editor-authored JavaScript as not compiler-authored", () => {
+    for (const body of [
+      "export default {\n\tmyVar1: [],\n\tmyFun1 () {\n\t\t// write code here\n\t}\n}",
+      "export default { save: async () => { const k = 'sk-secret'; await fetch(k); } };",
+      "export default { refresh: async () => { await GetBanners.run(); return GetBanners.data; } };",
+      "export default { refresh: async (x) => { await GetBanners.run(); } };",
+      "export default { limit: 25 }; evil();",
+      "",
+      "x".repeat(70_000),
+    ]) {
+      expect(isCompilerAuthoredJsBody(body)).toBe(false);
+    }
   });
 });
 

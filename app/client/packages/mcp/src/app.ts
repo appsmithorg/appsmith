@@ -53,6 +53,7 @@ import { applyEdit, compileApp } from "./builder/compile.js";
 import {
   applyEvent,
   eventActionKinds,
+  type EventReference,
   eventReferences,
   widgetExists,
   wireEventSpecSchema,
@@ -80,6 +81,9 @@ import {
   buildUpdateJsObjectRequest,
   createJsObjectSpecSchema,
   deleteJsObjectSpecSchema,
+  type ExistingJsObject,
+  isCompilerAuthoredJsBody,
+  JS_IDENTIFIER_SOURCE,
   updateJsObjectSpecSchema,
 } from "./builder/jsObject.js";
 import {
@@ -466,6 +470,11 @@ export interface AppsmithApi {
     collectionId: string,
     body: Record<string, unknown>,
   ) => Promise<unknown>;
+  // PUT /collections/actions/{id}/body — the ONLY route that changes a JS object's code (PATCH nulls `body`).
+  updateActionCollectionBody: (
+    collectionId: string,
+    body: { body: string },
+  ) => Promise<unknown>;
   deleteActionCollection: (collectionId: string) => Promise<unknown>;
   validateToken: () => Promise<unknown>;
 }
@@ -835,11 +844,15 @@ export function createAppsmithApi(
       request(
         `/api/v1/collections/actions?applicationId=${encodeURIComponent(applicationId)}`,
       ),
+    // The collection mutations opt into the Appsmith error code so a 400 surfaces as e.g.
+    // "Appsmith API request failed (400) [AE-APP-4000]" instead of a bare status — the diagnosis gap behind
+    // "valid: false / 400 with no cause".
     createActionCollection: async (body) =>
-      request("/api/v1/collections/actions", {
-        method: "POST",
-        body: JSON.stringify(body),
-      }),
+      request(
+        "/api/v1/collections/actions",
+        { method: "POST", body: JSON.stringify(body) },
+        { extractErrorCode: true },
+      ),
     updateActionCollection: async (collectionId, body) =>
       request(
         `/api/v1/collections/actions/${encodeURIComponent(collectionId)}`,
@@ -852,6 +865,13 @@ export function createAppsmithApi(
           method: "PATCH",
           body: JSON.stringify(body),
         },
+        { extractErrorCode: true },
+      ),
+    updateActionCollectionBody: async (collectionId, body) =>
+      request(
+        `/api/v1/collections/actions/${encodeURIComponent(collectionId)}/body`,
+        { method: "PUT", body: JSON.stringify(body) },
+        { extractErrorCode: true },
       ),
     deleteActionCollection: async (collectionId) =>
       request(
@@ -1901,11 +1921,62 @@ function projectJsObject(collection: unknown): Record<string, unknown> {
   };
 }
 
+// The raw body of a JS object as the API returned it. Used internally (revision fingerprints, the function-name
+// scan, the authored-by classification); it is NOT what the tools return — see jsObjectView.
+function jsObjectSource(collection: unknown): string | undefined {
+  const body = (collection as { body?: unknown } | null)?.body;
+
+  return typeof body === "string" ? body : undefined;
+}
+
+// What the JS-object tools return for one collection. `authoredBy` is "mcp" when the body matches the compiler's
+// exact output grammar and "editor" otherwise. Source is returned ONLY for MCP-authored objects: an editor-authored
+// body is arbitrary JavaScript that the closed grammar cannot re-express (so nothing could be "preserved" through an
+// update) and is the classic place hardcoded API keys live — it must not flow into an LLM client's context, even
+// though the caller's own token could fetch it through the internal API. Security Reviewer ruling on APP-16052;
+// this narrows the earlier "never returns JS source" rule rather than reversing it.
+function jsObjectView(collection: unknown): Record<string, unknown> {
+  const source = jsObjectSource(collection);
+  const compilerAuthored =
+    source !== undefined && isCompilerAuthoredJsBody(source);
+
+  return {
+    ...projectJsObject(collection),
+    authoredBy: compilerAuthored ? "mcp" : "editor",
+    ...(compilerAuthored ? { source } : {}),
+  };
+}
+
+// Function names an event may `call`: the JSAction names, plus (for collections written before per-function
+// JSActions existed) the members the compiler's own `name: async () =>` shape declares in the body. Read-only
+// heuristic for the dangling-reference check; it never widens what the compiler emits.
+const COMPILED_FUNCTION_MEMBER = new RegExp(
+  String.raw`(?:^|[{,]\s*)(${JS_IDENTIFIER_SOURCE})\s*:\s*async\s*\(\)\s*=>`,
+  "g",
+);
+
+function jsObjectFunctionNames(collection: unknown): string[] {
+  const names = new Set<string>(
+    projectJsObject(collection).functions as string[],
+  );
+  const source = jsObjectSource(collection);
+
+  if (source !== undefined) {
+    for (const match of source.matchAll(COMPILED_FUNCTION_MEMBER)) {
+      names.add(match[1]);
+    }
+  }
+
+  return [...names];
+}
+
 function fingerprintJsObject(collection: unknown): string {
   return createHash("sha256")
     .update(
       canonicalStableSerialize({
         ...projectJsObject(collection),
+        // The DTO has no updatedAt, so the body itself is what makes a code-only change move the revision.
+        body: jsObjectSource(collection),
         updatedAt: (collection as { updatedAt?: unknown } | null)?.updatedAt,
       }),
       "utf8",
@@ -1913,13 +1984,19 @@ function fingerprintJsObject(collection: unknown): string {
     .digest("hex");
 }
 
-function projectJsList(collections: unknown): Record<string, unknown>[] {
-  return Array.isArray(collections) ? collections.map(projectJsObject) : [];
-}
-
 function fingerprintJsList(collections: unknown): string {
+  const entries = Array.isArray(collections) ? collections : [];
+
   return createHash("sha256")
-    .update(canonicalStableSerialize(projectJsList(collections)), "utf8")
+    .update(
+      canonicalStableSerialize(
+        entries.map((collection) => ({
+          ...projectJsObject(collection),
+          body: jsObjectSource(collection),
+        })),
+      ),
+      "utf8",
+    )
     .digest("hex");
 }
 
@@ -3399,7 +3476,7 @@ export function buildMcpServer(
 
   registerTool(
     "wire_event",
-    "Wire a widget event to a safe action from a CLOSED vocabulary: run a query, navigate to a page, show/close a modal, show an alert, reset one or more widgets ({ reset: 'Widget' } or { reset: ['A','B'] } — e.g. a Clear button that empties an input and resets a table), append a query's rows to a store key ({ appendToStore: { key, query, field?, fields? } } — an accumulating results table; bind the table with a { store: '<key>' } source/tableData; session-only), or empty one store key ({ clearStoreKey: { key } }). A run action may chain onSuccess/onError follow-ups from the same vocabulary (e.g. submit -> run insert -> re-run the table's query -> close the modal -> alert). The action may also be an ordered LIST of 2-5 statements with at most one run (e.g. clearStoreKey + reset in one click). Supported events: button onClick, table onRowSelected, modal onClose, tabs onTabSelected, select onOptionChange, input onSubmit, checkbox onCheckChange, switch onChange, datepicker onDateSelected. Queries bound to widgets already run on page load automatically (the server derives on-page-load execution from bindings) — no event needed for that. Modal stacking is policed: opening a modal from inside another modal warns at depth 2 and is rejected at depth 3+ or on a cycle; close the host modal in the same action (closeModal + showModal) for a wizard-style transition that never stacks. Read the page first and pass its revision. The compiler emits the binding; no raw JS or bindings are accepted.",
+    "Wire a widget event to a safe action from a CLOSED vocabulary: run a query, navigate to a page, show/close a modal, show an alert, reset one or more widgets ({ reset: 'Widget' } or { reset: ['A','B'] } — e.g. a Clear button that empties an input and resets a table), append a query's rows to a store key ({ appendToStore: { key, query, field?, fields? } } — an accumulating results table; bind the table with a { store: '<key>' } source/tableData; session-only), or empty one store key ({ clearStoreKey: { key } }), or call one function of a JS object ({ call: { object: 'BannerAdmin', function: 'save' } } — emits BannerAdmin.save(); the object and function must exist in this application; arguments are never accepted). A run action may chain onSuccess/onError follow-ups from the same vocabulary (e.g. submit -> run insert -> re-run the table's query -> close the modal -> alert). The action may also be an ordered LIST of 2-5 statements with at most one run (e.g. clearStoreKey + reset in one click). Supported events: button onClick, table onRowSelected, modal onClose, tabs onTabSelected, select onOptionChange, input onSubmit, checkbox onCheckChange, switch onChange, datepicker onDateSelected. Queries bound to widgets already run on page load automatically (the server derives on-page-load execution from bindings) — no event needed for that. Modal stacking is policed: opening a modal from inside another modal warns at depth 2 and is rejected at depth 3+ or on a cycle; close the host modal in the same action (closeModal + showModal) for a wizard-style transition that never stacks. Read the page first and pass its revision. The compiler emits the binding; no raw JS or bindings are accepted.",
     {
       applicationId: idSchema,
       pageId: idSchema,
@@ -3455,6 +3532,39 @@ export function buildMcpServer(
         for (const reference of pageReferences) {
           if (!pages.some((page) => page.name === reference.name)) {
             return result({ error: `page "${reference.name}" was not found` });
+          }
+        }
+      }
+
+      // `call` references: the JS object must exist in this application and declare the function (by JSAction name
+      // or by the compiler's own body shape). Checked regardless of the JS-authoring gate — objects authored in the
+      // editor are callable too; the verb only emits `Obj.fn()` from two validated identifiers.
+      const jsReferences = references.filter(
+        (ref): ref is Extract<EventReference, { kind: "jsFunction" }> =>
+          ref.kind === "jsFunction",
+      );
+
+      if (jsReferences.length > 0) {
+        const collections = await api.listActionCollections(applicationId);
+        const objects = Array.isArray(collections) ? collections : [];
+
+        for (const reference of jsReferences) {
+          const object = objects.find(
+            (collection) =>
+              (collection as { name?: unknown } | null)?.name ===
+              reference.name,
+          );
+
+          if (object === undefined) {
+            return result({
+              error: `JS object "${reference.name}" was not found in this application`,
+            });
+          }
+
+          if (!jsObjectFunctionNames(object).includes(reference.member)) {
+            return result({
+              error: `function "${reference.member}" was not found on JS object "${reference.name}"`,
+            });
           }
         }
       }
@@ -5487,7 +5597,7 @@ export function buildMcpServer(
 
     registerTool(
       "create_mongo_query",
-      "Create a MongoDB query (find, insert, update, or delete) on an existing Mongo datasource from a STRUCTURED spec — no raw Mongo command, no raw bindings. FIND { collection, filter?: [{ field, value }], sort?: [{ field, direction: 'ASC'|'DESC' }], limit? } returns matching documents (filter clauses are AND-ed equality); INSERT { collection, document: [{ field, value }] } adds one document; UPDATE { collection, filter: [{ field, value }], update: [{ field, value }], multi? } sets the named fields (emitted as a $set — a partial update, only those fields change) on matched documents; DELETE { collection, filter: [{ field, value }], multi? } removes matched documents. UPDATE/DELETE REQUIRE a filter (a mutation is always targeted); multi:false (default) hits ONE matched document, multi:true hits ALL. Each value is { literal } or { widget, property } and binds as a smart-substitution parameter (never string-concatenated); field/collection names are validated identifiers. Insert/update/delete mutate the collection, so running them needs prepare_run_action/confirm_run_action (or wire to a button). Widgets reference the result by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
+      "Create a MongoDB query (find, insert, update, or delete) on an existing Mongo datasource from a STRUCTURED spec — no raw Mongo command, no raw bindings. FIND { collection, filter?: [clause], sort?: [{ field, direction: 'ASC'|'DESC' }], limit? } returns matching documents (for every operation, filter clauses are AND-ed and each clause is { field, op?, value } with op from eq (default) | ne | gt | gte | lt | lte | in | nin | exists — e.g. { field: 'deleted', op: 'ne', value: { literal: true } } keeps documents where the field is absent too; in/nin take { literal: [..] } or an array-valued widget ref; exists takes { literal: true|false }); INSERT { collection, document: [{ field, value }] } adds one document; UPDATE { collection, filter: [clause], update: [{ field, value }], multi? } sets the named fields (emitted as a $set — a partial update, only those fields change) on matched documents; DELETE { collection, filter: [clause], multi? } removes matched documents. UPDATE/DELETE REQUIRE a filter (a mutation is always targeted); multi:false (default) hits ONE matched document, multi:true hits ALL. Each value is { literal }, { date: '<ISO 8601>' } (stored as a BSON date), or { widget, property, as?: 'date' } (as: 'date' stores a datepicker's ISO string as a BSON date) and binds as a smart-substitution parameter (never string-concatenated); field/collection names are validated identifiers. Insert/update/delete mutate the collection, so running them needs prepare_run_action/confirm_run_action (or wire to a button). Widgets reference the result by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
       {
         query: z.record(z.unknown()),
         branch: gitBranchParamSchema.optional(),
@@ -6409,7 +6519,7 @@ export function buildMcpServer(
   if (jsEnabled) {
     registerTool(
       "read_js_object",
-      "List the application's JS objects with safe metadata (id, name, page, function names) and revision tokens for update/delete, plus a list revision for create. Never returns JS source.",
+      "List the application's JS objects with their metadata (id, name, page, function names), authoredBy ('mcp' for objects this server compiled, 'editor' for hand-written ones), the compiled source of MCP-authored objects (editor-authored source is never returned), and revision tokens for update/delete, plus a list revision for create.",
       { applicationId: idSchema },
       async ({ applicationId }) => {
         const collections = await api.listActionCollections(applicationId);
@@ -6417,7 +6527,7 @@ export function buildMcpServer(
         return result({
           jsObjects: (Array.isArray(collections) ? collections : []).map(
             (collection) => ({
-              ...projectJsObject(collection),
+              ...jsObjectView(collection),
               revision: fingerprintJsObject(collection),
             }),
           ),
@@ -6492,7 +6602,7 @@ export function buildMcpServer(
                 const created = await api.createActionCollection(request.body);
 
                 return {
-                  value: { jsObject: projectJsObject(created) },
+                  value: { jsObject: jsObjectView(created) },
                   revisionAfter: fingerprintJsList(
                     await api.listActionCollections(applicationId),
                   ),
@@ -6514,7 +6624,7 @@ export function buildMcpServer(
 
       registerTool(
         "update_js_object",
-        "Update a restricted JS object from a declarative spec. Pass a revision from read_js_object. No raw JS. Governed.",
+        "Update a restricted JS object from a declarative spec. `functions` REPLACES the object's whole function set: functions absent from the spec are deleted. Only MCP-authored objects (authoredBy 'mcp' in read_js_object) accept a code update; an editor-authored object can only be renamed here — its JavaScript is never overwritten. Pass a revision from read_js_object. No raw JS. Governed.",
         {
           spec: z.record(z.unknown()),
           branch: gitBranchParamSchema.optional(),
@@ -6541,7 +6651,28 @@ export function buildMcpServer(
             return result({ error: "js object not found" });
           }
 
-          const request = buildUpdateJsObjectRequest(parsed.data);
+          // Code updates are refused on editor-authored objects: the closed grammar cannot re-express their
+          // JavaScript, so a body write would replace a human's code and the name diff would delete their functions,
+          // with no rollback path. Rename-only updates stay allowed.
+          const currentSource = jsObjectSource(current);
+
+          if (
+            parsed.data.functions !== undefined &&
+            (currentSource === undefined ||
+              !isCompilerAuthoredJsBody(currentSource))
+          ) {
+            return result({
+              error:
+                "this JS object was authored in the editor; its code cannot be re-expressed by the restricted grammar and is never overwritten. Rename it, or create a new MCP-authored object.",
+              code: "editor_authored_js_object",
+              authoredBy: "editor",
+            });
+          }
+
+          const request = buildUpdateJsObjectRequest(
+            parsed.data,
+            current as ExistingJsObject,
+          );
 
           try {
             const { changeId, value } = await govJs.execute({
@@ -6552,15 +6683,53 @@ export function buildMcpServer(
               expectedRevision: parsed.data.revision,
               currentRevision: fingerprintJsObject(current),
               mutate: async () => {
-                const updated = await api.updateActionCollection(
-                  parsed.data.collectionId,
-                  request.body,
-                );
+                // Two server routes, in this order: the body route is the only one that writes the code (PATCH
+                // nulls `body`), and the PATCH then creates/updates/deletes the per-function JSActions so the
+                // editor's function list matches the new body. A PATCH failure after the body write leaves the
+                // code updated and the function list stale; the error says so, and because the revision now
+                // hashes the body the agent must read_js_object again before re-running the update.
+                if (request.jsBody !== undefined) {
+                  await api.updateActionCollectionBody(
+                    parsed.data.collectionId,
+                    { body: request.jsBody },
+                  );
+                }
+
+                try {
+                  await api.updateActionCollection(
+                    parsed.data.collectionId,
+                    request.body,
+                  );
+                } catch (error) {
+                  if (request.jsBody === undefined) throw error;
+
+                  throw new Error(
+                    `the JS object's code was written but its function list could not be updated (${error instanceof Error ? error.message : "unknown error"}); read_js_object for the new revision, then re-run the update`,
+                  );
+                }
+
+                // Re-read rather than trust the PATCH response: that route answers with `body` nulled.
+                const after = (await api.listActionCollections(
+                  parsed.data.applicationId,
+                )) as unknown;
+                const updated =
+                  (Array.isArray(after) ? after : []).find(
+                    (collection) =>
+                      (collection as { id?: unknown } | null)?.id ===
+                      parsed.data.collectionId,
+                  ) ?? current;
 
                 return {
-                  value: { jsObject: projectJsObject(updated) },
+                  value: { jsObject: jsObjectView(updated) },
                   revisionAfter: fingerprintJsObject(updated),
-                  rollback: { collectionId: parsed.data.collectionId },
+                  // The previous compiled body and JSAction list are recorded so the audit trail holds enough to
+                  // restore the object by hand (the rollback tools re-apply layout records only, today).
+                  rollback: {
+                    kind: "jsObject",
+                    collectionId: parsed.data.collectionId,
+                    body: currentSource,
+                    actions: (current as ExistingJsObject).actions,
+                  },
                   summary: { collectionId: parsed.data.collectionId },
                 };
               },

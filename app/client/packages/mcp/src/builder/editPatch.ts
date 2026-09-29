@@ -110,8 +110,19 @@ export const widgetPropsPatchSchema = z
     // Disable this widget while the named input is invalid — compiled to `{{ !<input>.isValid }}`.
     disableWhenInvalid: widgetNameSchema.optional(),
     label: safeText(200).optional(),
-    inputType: z.enum(["TEXT", "NUMBER", "EMAIL", "PASSWORD"]).optional(),
+    // MULTI_LINE_TEXT is the Input widget's textarea mode (DSL migration 075 renamed it from a separate widget);
+    // it is a plain enum literal like the other modes and carries no expression.
+    inputType: z
+      .enum(["TEXT", "NUMBER", "EMAIL", "PASSWORD", "MULTI_LINE_TEXT"])
+      .optional(),
     options: z.array(optionSchema).max(200).optional(),
+    // Caption + inert default-state literals for the checkbox / switch / radio / select family. These are the same
+    // keys read_semantic_page already reports (SAFE_PROP_KEYS), so an agent can round-trip what it read. Each is a
+    // literal (safeText / boolean / scalar) — never a binding — and is type-checked against the widget at apply time.
+    labelText: safeText(200).optional(),
+    defaultCheckedState: z.boolean().optional(),
+    defaultSwitchState: z.boolean().optional(),
+    defaultOptionValue: literalScalarSchema.optional(),
     title: safeText(200).optional(),
     image: safeText(2_000).optional(),
     chartType: z
@@ -671,6 +682,45 @@ export function applyWidgetPatch(
         throw new Error(
           "cannot set both 'isRequired' and 'validation' in one update",
         );
+      }
+
+      // The M4-T5 caption/default literals are per-widget-family props: writing them onto another widget type would
+      // be a silently dead property (Object.assign is unchecked), so reject the mismatch with the widget's real type.
+      const literalTypeGuards: [
+        key: string,
+        allowed: readonly string[],
+        value: unknown,
+      ][] = [
+        [
+          "labelText",
+          [
+            "CHECKBOX_WIDGET",
+            "SWITCH_WIDGET",
+            "RADIO_GROUP_WIDGET",
+            "MULTI_SELECT_WIDGET_V2",
+          ],
+          literals.labelText,
+        ],
+        [
+          "defaultCheckedState",
+          ["CHECKBOX_WIDGET"],
+          literals.defaultCheckedState,
+        ],
+        ["defaultSwitchState", ["SWITCH_WIDGET"], literals.defaultSwitchState],
+        [
+          "defaultOptionValue",
+          ["SELECT_WIDGET", "RADIO_GROUP_WIDGET"],
+          literals.defaultOptionValue,
+        ],
+        ["inputType", ["INPUT_WIDGET_V2"], literals.inputType],
+      ];
+
+      for (const [key, allowed, value] of literalTypeGuards) {
+        if (value !== undefined && !allowed.includes(located.node.type)) {
+          throw new Error(
+            `'${key}' can only be set on ${allowed.join(" / ")} ("${located.node.widgetName}" is ${located.node.type})`,
+          );
+        }
       }
 
       if (source !== undefined) {

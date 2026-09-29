@@ -144,6 +144,55 @@ describe("compileEventBinding — closed vocabulary", () => {
   });
 });
 
+describe("call — invoke a restricted JS-object function", () => {
+  it("emits Object.function() from two validated identifiers, as a primary and as a follow-up", () => {
+    expect(
+      compileEventBinding({
+        call: { object: "BannerAdmin", function: "save" },
+      }),
+    ).toBe("{{ BannerAdmin.save() }}");
+    expect(
+      compileEventBinding({
+        run: "SaveBanner",
+        onSuccess: [
+          { call: { object: "BannerAdmin", function: "refresh" } },
+          { closeModal: "EditModal" },
+        ],
+      }),
+    ).toBe(
+      "{{ SaveBanner.run().then(() => { BannerAdmin.refresh(); closeModal('EditModal'); }) }}",
+    );
+    expect(
+      eventReferences({ call: { object: "BannerAdmin", function: "save" } }),
+    ).toEqual([{ kind: "jsFunction", name: "BannerAdmin", member: "save" }]);
+    expect(
+      eventActionKinds({ call: { object: "BannerAdmin", function: "save" } }),
+    ).toEqual(["call"]);
+  });
+
+  it("rejects anything that is not a plain identifier pair — no arguments, chains, or expressions", () => {
+    for (const call of [
+      { object: "BannerAdmin.save", function: "x" },
+      { object: "BannerAdmin", function: "save()" },
+      { object: "BannerAdmin", function: "save('a')" },
+      { object: "window", function: "location.href" },
+      { object: "{{evil}}", function: "save" },
+      { object: "Banner Admin", function: "save" },
+      { object: "1Banner", function: "save" },
+      { object: "BannerAdmin" },
+      { object: "BannerAdmin", function: "save", args: [] },
+    ]) {
+      expect(
+        wireEventSpecSchema.safeParse({
+          widget: "Btn",
+          event: "onClick",
+          action: { call },
+        }).success,
+      ).toBe(false);
+    }
+  });
+});
+
 describe("wireEventSpecSchema — rejects anything unsafe", () => {
   const bad: unknown[] = [
     { widget: "Btn", event: "onClick", action: { run: "a; DROP" } },

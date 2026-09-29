@@ -3,13 +3,19 @@ import { storedId } from "./schema.js";
 
 // M4-T2 create_mongo_query — a STRUCTURED MongoDB query builder, the NoSQL analog of create_query. The agent never
 // authors a raw Mongo command string or raw `{{ }}` bindings. The compiler emits the Mongo plugin's `formData`
-// command (FIND / INSERT) from validated identifiers, embeds every LITERAL value as a compile-time JSON.stringify
-// token (which cannot break out of its JSON position), and emits every WIDGET reference as a checked
+// command (FIND / INSERT / UPDATE / DELETE) from validated identifiers, embeds every LITERAL value as a compile-time
+// JSON.stringify token (which cannot break out of its JSON position), and emits every WIDGET reference as a checked
 // `{{ Widget.path }}` binding. `smartSubstitution` is forced ON, so at runtime the Mongo plugin parameterizes each
 // binding — string values are JSON-encoded (DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue) BEFORE
 // substitution, the Mongo equivalent of a SQL prepared statement. This bounds injection (identifiers are
 // allow-listed and quoted; values are parameterized) and preserves the "agents never author raw expressions"
 // invariant.
+//
+// Filter OPERATORS are a closed enum (`op`) that the compiler maps to the Mongo operator token (`$ne`, `$gt`, …) —
+// the same pattern the SQL builder uses for its `op` enum. Agent-supplied field names still cannot contain `$`, so the
+// only `$`-prefixed keys in an emitted body are compiler-owned. DATE values are a `{ date: '<ISO 8601>' }` literal
+// (regex-validated, JSON-encoded) or a widget reference tagged `as: 'date'`; both are emitted inside a compiler-owned
+// `{ "$date": … }` wrapper, which the Mongo plugin's Document.parse reads as extended JSON and stores as a BSON date.
 
 // A Mongo collection name: a plain identifier. No quote/backslash/brace/`$`/dot, so it is safe to embed as a bare
 // JSON string value and cannot carry structure.
@@ -58,14 +64,150 @@ const literalScalar = z.union([
   z.null(),
 ]);
 
-// The ONLY place dynamic data enters a Mongo command: a literal (embedded as a compile-time JSON token) or a widget
-// reference (emitted as a checked `{{ }}` binding, parameterized at runtime by smart substitution).
+// An ISO 8601 date or date-time (calendar date, optional time with Z or a numeric offset). The charset is digits,
+// `-` `:` `.` `T` `Z` `+` only, so a date literal can never carry quotes, braces, or `$`. The calendar fields are
+// range-checked explicitly (V8's Date.parse silently rolls 2026-02-30 forward to March), so an impossible date is
+// rejected up front rather than stored as a different day.
+const ISO_DATE =
+  /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,3})?)?(?:Z|[+-](\d{2}):(\d{2})))?$/;
+
+function isRealIsoDate(value: string): boolean {
+  const match = ISO_DATE.exec(value);
+
+  if (!match) return false;
+
+  const [, y, mo, d, h, mi, s, oh, om] = match;
+  const year = Number(y);
+  const month = Number(mo);
+  const day = Number(d);
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+
+  return (
+    month >= 1 &&
+    month <= 12 &&
+    day >= 1 &&
+    day <= daysInMonth &&
+    (h === undefined || Number(h) <= 23) &&
+    (mi === undefined || Number(mi) <= 59) &&
+    (s === undefined || Number(s) <= 59) &&
+    (oh === undefined || Number(oh) <= 14) &&
+    (om === undefined || Number(om) <= 59)
+  );
+}
+
+const dateLiteral = z
+  .string()
+  .max(40)
+  .regex(ISO_DATE, "must be an ISO 8601 date or date-time")
+  .refine(isRealIsoDate, "must be a real calendar date");
+
+// The ONLY place dynamic data enters a Mongo command: a literal (embedded as a compile-time JSON token), a date
+// literal (embedded inside a compiler-owned `{ "$date": "<iso>" }` so the plugin stores a BSON date, not a string),
+// or a widget reference (emitted as a checked `{{ }}` binding, parameterized at runtime by smart substitution;
+// `as: 'date'` wraps the binding in the same `$date` wrapper for datepicker values).
+const widgetRef = z
+  .object({
+    widget: bindingIdentifier,
+    property: propertyPath,
+    as: z.enum(["date"]).optional(),
+  })
+  .strict();
 const valueRef = z.union([
   z.object({ literal: literalScalar }).strict(),
-  z.object({ widget: bindingIdentifier, property: propertyPath }).strict(),
+  z.object({ date: dateLiteral }).strict(),
+  widgetRef,
+]);
+// `in` / `nin` take a literal LIST (each element a scalar literal) or a widget reference to an array-valued property
+// (a multiselect's selectedOptionValues) that smart substitution serializes as a JSON array.
+const listValueRef = z.union([
+  z.object({ literal: z.array(literalScalar).min(1).max(100) }).strict(),
+  widgetRef,
 ]);
 
 const fieldValue = z.object({ field: mongoField, value: valueRef }).strict();
+
+// Filter operators: a CLOSED enum mapped by the compiler to the Mongo token. `eq` (the default) emits the plain
+// `"field": <value>` form the builder always produced; every other op emits `"field": { "$op": <value> }`.
+const filterOp = z.enum([
+  "eq",
+  "ne",
+  "gt",
+  "gte",
+  "lt",
+  "lte",
+  "in",
+  "nin",
+  "exists",
+]);
+const MONGO_OPERATORS: Record<
+  Exclude<z.infer<typeof filterOp>, "eq">,
+  string
+> = {
+  ne: "$ne",
+  gt: "$gt",
+  gte: "$gte",
+  lt: "$lt",
+  lte: "$lte",
+  in: "$in",
+  nin: "$nin",
+  exists: "$exists",
+};
+
+const filterClause = z
+  .object({
+    field: mongoField,
+    op: filterOp.optional(),
+    value: z.union([valueRef, listValueRef]),
+  })
+  .strict()
+  .superRefine((clause, ctx) => {
+    const op = clause.op ?? "eq";
+    const isList =
+      "literal" in clause.value && Array.isArray(clause.value.literal);
+    const isWidget = "widget" in clause.value;
+
+    if (op === "in" || op === "nin") {
+      if (!isList && !isWidget) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["value"],
+          message: `${op} needs a literal list or an array-valued widget reference`,
+        });
+      }
+
+      // `$in: { "$date": … }` is not a list; refuse at spec time rather than as a plugin error.
+      if ("widget" in clause.value && clause.value.as === "date") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["value", "as"],
+          message: `as: 'date' is not valid with ${op}`,
+        });
+      }
+
+      return;
+    }
+
+    if (isList) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["value"],
+        message: `a literal list is only valid with in / nin`,
+      });
+    }
+
+    if (op === "exists") {
+      const isBoolean =
+        "literal" in clause.value && typeof clause.value.literal === "boolean";
+
+      if (!isBoolean) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["value"],
+          message: "exists takes { literal: true | false }",
+        });
+      }
+    }
+  });
 
 export const mongoQuerySpecSchema = z
   .object({
@@ -77,11 +219,11 @@ export const mongoQuerySpecSchema = z
     datasourceId: storedId,
     collection: mongoCollection,
     operation: z.enum(["FIND", "INSERT", "UPDATE", "DELETE"]),
-    // FIND/UPDATE/DELETE: an equality filter over allow-listed fields; each value is a bind param (literal or widget).
-    // All clauses are AND-ed. (Range/operator filters are a deliberate future extension — equality keeps the shape
-    // provably safe.) On FIND it is optional (empty = all rows); on UPDATE/DELETE it is REQUIRED (min 1) so a mutation
-    // is always targeted — never an accidental whole-collection write.
-    filter: z.array(fieldValue).max(20).optional(),
+    // FIND/UPDATE/DELETE: a filter over allow-listed fields; each clause is `{ field, op?, value }` with `op` from the
+    // closed enum above (default eq) and each value a bind param (literal, date, or widget). All clauses are AND-ed.
+    // On FIND it is optional (empty = all rows); on UPDATE/DELETE it is REQUIRED (min 1) so a mutation is always
+    // targeted — never an accidental whole-collection write.
+    filter: z.array(filterClause).max(20).optional(),
     sort: z
       .array(
         z
@@ -135,7 +277,9 @@ export const mongoQuerySpecSchema = z
 
 export type MongoQuerySpec = z.infer<typeof mongoQuerySpecSchema>;
 type ValueRef = z.infer<typeof valueRef>;
+type ListValueRef = z.infer<typeof listValueRef>;
 type FieldValue = z.infer<typeof fieldValue>;
+type FilterClause = z.infer<typeof filterClause>;
 
 const MAX_BODY_BYTES = 8 * 1024;
 
@@ -147,15 +291,27 @@ const SAFE_BINDING =
 // Emit a single value into a JSON value position. A literal is JSON-encoded at compile time (quotes/backslashes
 // escaped, so it cannot break out); a widget reference is a bare, checked `{{ }}` binding — placed WITHOUT surrounding
 // quotes because smart substitution supplies the correct JSON typing/quoting at runtime.
-function emitValue(value: ValueRef): string {
+function emitValue(value: ValueRef | ListValueRef): string {
   if ("literal" in value) {
     return JSON.stringify(value.literal);
+  }
+
+  // A date literal: the ISO string is regex-validated (digits and date punctuation only) and still JSON-encoded, then
+  // placed inside the compiler-owned `$date` wrapper. Nothing agent-authored can reach the key position.
+  if ("date" in value) {
+    return `{ ${JSON.stringify("$date")}: ${JSON.stringify(value.date)} }`;
   }
 
   const binding = `{{ ${value.widget}.${value.property} }}`;
 
   if (!SAFE_BINDING.test(binding)) {
     throw new Error(`unsafe binding emitted: ${binding}`);
+  }
+
+  // `as: 'date'` — the datepicker's ISO string is smart-substituted (JSON-quoted) into the `$date` wrapper, which
+  // Document.parse reads as an extended-JSON date; the binding itself is unchanged and still checked above.
+  if (value.as === "date") {
+    return `{ ${JSON.stringify("$date")}: ${binding} }`;
   }
 
   return binding;
@@ -167,6 +323,61 @@ function emitObject(entries: FieldValue[]): string {
   const parts = entries.map(
     (entry) => `${JSON.stringify(entry.field)}: ${emitValue(entry.value)}`,
   );
+
+  return `{ ${parts.join(", ")} }`;
+}
+
+// Emit a filter document. An `eq` clause (the default) is the plain `"field": <value>` form; any other operator wraps
+// the value as `"field": { "$op": <value> }`, where the `$op` token comes from the MONGO_OPERATORS table (compiler-
+// owned), never from agent text. Two clauses on one field would otherwise emit duplicate JSON keys (Document.parse
+// keeps the last one, silently dropping a clause), so operator clauses on the same field are merged into a single
+// operator object (`{ "$gte": …, "$lte": … }`); a repeated operator, or an equality clause next to operator clauses,
+// cannot be merged and is rejected so no clause is ever silently lost.
+function emitFilter(clauses: FilterClause[]): string {
+  const byField = new Map<
+    string,
+    { equality?: string; operators: string[]; seen: Set<string> }
+  >();
+
+  for (const clause of clauses) {
+    const op = clause.op ?? "eq";
+    const value = emitValue(clause.value);
+    const bucket = byField.get(clause.field) ?? {
+      operators: [],
+      seen: new Set<string>(),
+    };
+
+    if (bucket.seen.has(op)) {
+      throw new Error(
+        `filter field "${clause.field}" repeats the operator "${op}"; combine the values into one clause`,
+      );
+    }
+
+    bucket.seen.add(op);
+
+    if (op === "eq") {
+      bucket.equality = value;
+    } else {
+      bucket.operators.push(`${JSON.stringify(MONGO_OPERATORS[op])}: ${value}`);
+    }
+
+    byField.set(clause.field, bucket);
+  }
+
+  const parts = [...byField.entries()].map(([field, bucket]) => {
+    if (bucket.equality !== undefined && bucket.operators.length > 0) {
+      throw new Error(
+        `filter field "${field}" mixes an equality clause with operator clauses; drop the plain clause or express it as its own op: 'eq' clause on another field`,
+      );
+    }
+
+    const rendered =
+      bucket.equality !== undefined
+        ? bucket.equality
+        : `{ ${bucket.operators.join(", ")} }`;
+
+    return `${JSON.stringify(field)}: ${rendered}`;
+  });
 
   return `{ ${parts.join(", ")} }`;
 }
@@ -228,7 +439,7 @@ export interface CompiledMongoQuery {
 export function compileMongoQuery(spec: MongoQuerySpec): CompiledMongoQuery {
   if (spec.operation === "FIND") {
     const query =
-      spec.filter && spec.filter.length > 0 ? emitObject(spec.filter) : "{}";
+      spec.filter && spec.filter.length > 0 ? emitFilter(spec.filter) : "{}";
 
     assertBodySafe(query);
 
@@ -257,7 +468,7 @@ export function compileMongoQuery(spec: MongoQuerySpec): CompiledMongoQuery {
       throw new Error("UPDATE requires an update");
     }
 
-    const query = emitObject(spec.filter);
+    const query = emitFilter(spec.filter);
     const update = emitSetUpdate(spec.update);
 
     assertBodySafe(query);
@@ -275,7 +486,7 @@ export function compileMongoQuery(spec: MongoQuerySpec): CompiledMongoQuery {
       throw new Error("DELETE requires a filter");
     }
 
-    const query = emitObject(spec.filter);
+    const query = emitFilter(spec.filter);
 
     assertBodySafe(query);
 

@@ -248,14 +248,18 @@ class Linter {
     }
 
     const containerHeight = container.bottomRow - container.topRow;
+    // The inner extent is measured from the CHILDREN's row coordinates, never from the inner canvas's own
+    // bottomRow: the MCP compiler writes that value in rows, but the Appsmith client rewrites it in PIXELS
+    // (WidgetSizeUtils / ContainerWidget set the canvas bottomRow to componentHeight), so on any page the editor
+    // has saved a 45-row container carries a 450 inner bottomRow and a row-vs-row comparison reports a ×10 false
+    // clip with a ×10 resize suggestion. Children rows are unit-stable across both writers. A canvas with no
+    // children has nothing to clip.
+    const extent = Math.round(contentExtent(inner));
 
-    if (containerHeight < inner.bottomRow) {
+    if (extent > 0 && containerHeight < extent) {
       // Executable repair: resize the container to the rows that fit its content (B2 gives the vocabulary a
       // resize op, so this diagnostic is no longer a dead end).
-      const rows = Math.max(
-        Math.round(inner.bottomRow),
-        Math.round(contentExtent(inner)),
-      );
+      const rows = extent;
       const name = nameOf(container);
       // rows clamped to the resize schema's ceiling so the emitted suggestion always validates, even on a
       // corrupt DSL with absurd extents.
@@ -268,7 +272,7 @@ class Linter {
 
       this.warn(
         "container-clips",
-        `"${name}" is shorter than its content (height ${containerHeight} < inner extent ${inner.bottomRow}); inner widgets will be clipped`,
+        `"${name}" is shorter than its content (height ${containerHeight} < inner extent ${extent} rows); inner widgets will be clipped`,
         name,
         fix,
       );

@@ -77,6 +77,7 @@ function stubApi(overrides: Partial<AppsmithApi> = {}): AppsmithApi {
     listActionCollections: jest.fn(),
     createActionCollection: jest.fn(),
     updateActionCollection: jest.fn(),
+    updateActionCollectionBody: jest.fn(),
     deleteActionCollection: jest.fn(),
     validateToken: jest.fn(async () => ({
       username: USER,
