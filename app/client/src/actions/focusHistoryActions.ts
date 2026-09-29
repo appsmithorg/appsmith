@@ -19,6 +19,16 @@ export const routeChanged = (
   };
 };
 
+/**
+ * Dispatched when the browser navigates through its history (Back/Forward),
+ * i.e. a history `POP` as opposed to an in-app `PUSH`/`REPLACE`.
+ */
+export const browserHistoryPopped = () => {
+  return {
+    type: ReduxActionTypes.BROWSER_HISTORY_POPPED,
+  };
+};
+
 export const storeFocusHistory = (key: string, focusState: FocusState) => {
   return {
     type: ReduxActionTypes.SET_FOCUS_HISTORY,
