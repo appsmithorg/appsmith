@@ -504,7 +504,7 @@
     "fflate": "^0.4.9",
     "decode-uri-component": "^0.5.0",
     "@svgr/plugin-svgo/svgo": "2.8.4",
-    "nodemailer": "^9.1.1",
+    "nodemailer": "^10.0.2",
     "postcss-svgo/svgo": "2.8.4",
     "csv-parse": "^7.0.2",
     "smol-toml": "^1.7.1"
