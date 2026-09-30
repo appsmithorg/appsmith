@@ -467,6 +467,134 @@ export function crossObjectCalls(
   return [...found.values()];
 }
 
+// Call cycles (a sibling pair a → b → a, or a chain closed through another object) are refused by the create /
+// update handlers (app.ts callCycleProblem) rather than by this schema: the marker decoder parses stored bodies
+// through the same schema, and a stored object that already carries a cycle must keep decoding so it can be
+// repaired through update_js_object and so its edges stay visible to the cross-object check.
+// The call graph a definition contributes: one edge per `call` from the function that contains it to its target,
+// with nodes written as `Object.function` (`selfName` names this object; sibling calls resolve against it). Walks
+// each function separately so an edge is attributed to the right caller. Record positions (`object` literals and
+// `with` parameters) are walked by value only, so a record key that happens to be named `call` is never mistaken
+// for a call node.
+export function callEdges(
+  definition: { functions: readonly { name: string }[] },
+  selfName: string,
+): { from: string; to: string }[] {
+  const edges: { from: string; to: string }[] = [];
+
+  for (const fn of definition.functions) {
+    const from = `${selfName}.${fn.name}`;
+    const stack: unknown[] = [fn];
+
+    while (stack.length > 0) {
+      const node = stack.pop();
+
+      if (node === null || typeof node !== "object") continue;
+
+      if (!Array.isArray(node) && "call" in node) {
+        const call = (node as { call: unknown }).call;
+
+        if (typeof call === "string") {
+          edges.push({ from, to: `${selfName}.${call}` });
+        } else if (call !== null && typeof call === "object") {
+          const ref = call as { object: unknown; function: unknown };
+
+          if (
+            typeof ref.object === "string" &&
+            typeof ref.function === "string"
+          ) {
+            edges.push({ from, to: `${ref.object}.${ref.function}` });
+          }
+        }
+      }
+
+      if (Array.isArray(node)) {
+        stack.push(...node);
+        continue;
+      }
+
+      // `object: { … }` (an object-literal expression) and `with: { … }` (run parameters) are RECORDS whose keys
+      // are agent-chosen names: a key that happens to be `call` is data, not a call node, so only their values
+      // are walked. Every other child is a grammar node and is inspected as one.
+      for (const [key, child] of Object.entries(node)) {
+        if (
+          (key === "object" || key === "with") &&
+          child !== null &&
+          typeof child === "object" &&
+          !Array.isArray(child)
+        ) {
+          stack.push(...Object.values(child as Record<string, unknown>));
+        } else {
+          stack.push(child);
+        }
+      }
+    }
+  }
+
+  return edges;
+}
+
+// Depth-first search from each start node; returns the first cycle found as the closed path of node names
+// (`a → b → a`), or undefined. Nodes with no outgoing edges (functions of editor-authored or drifted objects, whose
+// code the compiler cannot see) are leaves: a cycle through such code cannot be detected here, which is why the
+// handlers also refuse a call into an object that is not on the same page.
+export function findCallCycle(
+  edges: readonly { from: string; to: string }[],
+  startNodes: readonly string[],
+): string[] | undefined {
+  const adjacency = new Map<string, string[]>();
+
+  for (const { from, to } of edges) {
+    const targets = adjacency.get(from);
+
+    if (targets) targets.push(to);
+    else adjacency.set(from, [to]);
+  }
+
+  // Iterative DFS with an explicit stack (a 10,000-function chain overflowed the recursive form, which turned the
+  // check into a stack-overflow refusal of every write on the page).
+  const done = new Set<string>();
+  const path: string[] = [];
+  const onPath = new Set<string>();
+
+  for (const start of startNodes) {
+    if (done.has(start)) continue;
+
+    const frames: { node: string; next: number }[] = [{ node: start, next: 0 }];
+
+    onPath.add(start);
+    path.push(start);
+
+    while (frames.length > 0) {
+      const frame = frames[frames.length - 1];
+      const targets = adjacency.get(frame.node) ?? [];
+
+      if (frame.next < targets.length) {
+        const target = targets[frame.next];
+
+        frame.next += 1;
+
+        if (onPath.has(target)) {
+          return [...path.slice(path.indexOf(target)), target];
+        }
+
+        if (!done.has(target)) {
+          onPath.add(target);
+          path.push(target);
+          frames.push({ node: target, next: 0 });
+        }
+      } else {
+        frames.pop();
+        path.pop();
+        onPath.delete(frame.node);
+        done.add(frame.node);
+      }
+    }
+  }
+
+  return undefined;
+}
+
 export function compileJsObject(definition: JsObjectDefinition): string {
   // Embed ONLY the definition fields: a caller may pass a whole create/update spec (ids, revision, name), and the
   // strict definition schema must accept the decoded marker for the object to be recognised as compiler-authored.

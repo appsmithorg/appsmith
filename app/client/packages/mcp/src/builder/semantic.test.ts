@@ -564,3 +564,119 @@ describe("DSL fingerprints", () => {
     expect(fingerprintDsl(first)).not.toBe(fingerprintDsl(changed));
   });
 });
+
+describe("projectSemanticPage — widget-property audit read-back", () => {
+  it("reads back the audit literals, including scalar lists and flat records, and hides bound or nested values", () => {
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t",
+          widgetName: "Banners",
+          type: "TABLE_WIDGET_V2",
+          multiRowSelection: true,
+          defaultSelectedRowIndices: [0, 2],
+          defaultSelectedRowIndex: "{{ Q.data.index }}",
+          defaultNewRow: { tone: "INFO", priority: 1 },
+          compactMode: "SHORT",
+          borderRadius: "0.375rem",
+          boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+          headerRowColor: "#f5f5f5",
+          primaryColumnId: "id",
+        }),
+        node({
+          widgetId: "f",
+          widgetName: "Upload",
+          type: "FILE_PICKER_WIDGET_V2",
+          allowedFileTypes: ["image/*", ".png"],
+          maxFileSize: 10,
+          fileDataType: "Base64",
+        }),
+        node({
+          widgetId: "ms",
+          widgetName: "Tags",
+          type: "MULTI_SELECT_WIDGET_V2",
+          labelText: "Tags",
+          defaultOptionValue: ["a", "b"],
+          labelStyle: "BOLD",
+        }),
+        node({
+          widgetId: "x",
+          widgetName: "Odd",
+          type: "TABLE_WIDGET_V2",
+          defaultSelectedRowIndices: [0, "{{ Q.data }}"],
+          defaultNewRow: { tone: { nested: true } },
+          allowedFileTypes: [{ label: "x" }],
+        }),
+        node({
+          widgetId: "y",
+          widgetName: "Keyed",
+          type: "TABLE_WIDGET_V2",
+          defaultNewRow: { "{{ Q.data }}": 1 },
+        }),
+      ],
+    });
+
+    const byName = (name: string) =>
+      projectSemanticPage(dsl).widgets.find((w) => w.name === name)!;
+
+    expect(byName("Banners").props).toMatchObject({
+      multiRowSelection: true,
+      defaultSelectedRowIndices: [0, 2],
+      defaultNewRow: { tone: "INFO", priority: 1 },
+      compactMode: "SHORT",
+      borderRadius: "0.375rem",
+      headerRowColor: "#f5f5f5",
+      primaryColumnId: "id",
+    });
+    // Bound values never surface as props (the binding reflection is separate and structured).
+    expect(byName("Banners").props).not.toHaveProperty(
+      "defaultSelectedRowIndex",
+    );
+    expect(byName("Banners").props).not.toHaveProperty("boxShadow");
+
+    expect(byName("Upload").props).toMatchObject({
+      allowedFileTypes: ["image/*", ".png"],
+      maxFileSize: 10,
+      fileDataType: "Base64",
+    });
+    expect(byName("Tags").props).toMatchObject({
+      labelText: "Tags",
+      defaultOptionValue: ["a", "b"],
+      labelStyle: "BOLD",
+    });
+
+    // A list with a bound element, a nested record, or a list of objects is hidden whole rather than partially shown.
+    expect(byName("Odd").props).toEqual({});
+    expect(JSON.stringify(byName("Odd"))).not.toContain("Q.data");
+    // A record whose KEY carries binding syntax is hidden whole.
+    expect(byName("Keyed").props).not.toHaveProperty("defaultNewRow");
+    expect(JSON.stringify(byName("Keyed"))).not.toContain("Q.data");
+  });
+});
+
+describe("projectSemanticPage — a null literal still reads back as null", () => {
+  it("reports null for a null-valued safe prop", () => {
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "s",
+          widgetName: "Tone",
+          type: "SELECT_WIDGET",
+          defaultOptionValue: null,
+          labelText: "Tone",
+        }),
+      ],
+    });
+
+    expect(projectSemanticPage(dsl).widgets[1].props).toEqual({
+      defaultOptionValue: null,
+      labelText: "Tone",
+    });
+  });
+});

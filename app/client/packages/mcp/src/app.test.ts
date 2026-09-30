@@ -5661,6 +5661,347 @@ describe("governance-wrapped layout mutations", () => {
     expect(read.body.jsObjects[0].definition).toBeUndefined();
   });
 
+  it("refuses a call cycle closed through another compiler-authored object on the page (create and update)", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const PAGE = "b".repeat(24);
+    // Existing MCP-authored object whose function calls Flow.go.
+    const utils = {
+      id: "coll-utils",
+      name: "Utils",
+      pageId: PAGE,
+      body: compileJsObject({
+        functions: [
+          {
+            name: "count",
+            returns: { call: { object: "Flow", function: "go" } },
+          },
+        ],
+      } as never),
+      actions: [{ id: "a1", name: "count" }],
+    };
+    const current = {
+      id: "coll1",
+      name: "Flow",
+      pageId: PAGE,
+      body: compileJsObject({
+        functions: [{ name: "go", steps: [{ return: 1 }] }],
+      } as never),
+      actions: [{ id: "act-go", name: "go" }],
+    };
+    const createActionCollection = jest.fn(async (body: unknown) => ({
+      ...(body as object),
+      id: "coll-new",
+    }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listPlugins: jest.fn(async () => [
+        { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
+      ]),
+      listActionCollections: jest.fn(async () => [current, utils]),
+      createActionCollection,
+      updateActionCollectionBody: jest.fn(async () => ({})),
+      updateActionCollection: jest.fn(async () => ({ ...current, body: null })),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    // Create: Flow2.start → Utils.count → Flow.go is a chain, fine; Report.tick → Utils.count → Flow.go → (Flow does
+    // not call back) is fine too. A NEW object whose function is called by Utils and calls Utils closes a cycle.
+    const listRead = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const created = await callTool(server, "create_js_object", {
+      spec: {
+        applicationId: APP,
+        pageId: PAGE,
+        name: "Report",
+        revision: listRead.body.revision,
+        functions: [
+          {
+            name: "tick",
+            returns: { call: { object: "Utils", function: "count" } },
+          },
+        ],
+      },
+    });
+
+    expect(created.body.created).toBe(true);
+
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const flow = read.body.jsObjects.find(
+      (o: { name: string }) => o.name === "Flow",
+    );
+    // Update: Flow.go → Utils.count, and Utils.count → Flow.go already exists on the page: a cycle.
+    const cyclic = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "coll1",
+        revision: flow.revision,
+        functions: [
+          {
+            name: "go",
+            returns: { call: { object: "Utils", function: "count" } },
+          },
+        ],
+      },
+    });
+
+    expect(cyclic.body.code).toBe("call_cycle");
+    expect(String(cyclic.body.error)).toContain(
+      "Flow.go → Utils.count → Flow.go",
+    );
+    expect(api.updateActionCollectionBody).not.toHaveBeenCalled();
+
+    // Create: a new object that Utils does not call cannot close a cycle even if it calls Utils.
+    const chain = await callTool(server, "create_js_object", {
+      spec: {
+        applicationId: APP,
+        pageId: PAGE,
+        name: "Report2",
+        revision: read.body.revision,
+        functions: [
+          {
+            name: "a",
+            returns: { call: { object: "Utils", function: "count" } },
+          },
+        ],
+      },
+    });
+
+    expect(chain.body.created).toBe(true);
+
+    // Create: a sibling cycle inside the new object is refused by the same handler check (code call_cycle).
+    const sibling = await callTool(server, "create_js_object", {
+      spec: {
+        applicationId: APP,
+        pageId: PAGE,
+        name: "Loop",
+        revision: read.body.revision,
+        functions: [
+          { name: "a", returns: { call: "b" } },
+          { name: "b", returns: { call: "a" } },
+        ],
+      },
+    });
+
+    expect(sibling.body.code).toBe("call_cycle");
+    expect(String(sibling.body.error)).toContain("Loop.a → Loop.b → Loop.a");
+  });
+
+  it("refuses a rename that would leave compiled calls dangling, and a rename that closes a cycle (security re-check B/C/D)", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const PAGE = "b".repeat(24);
+    const utils = {
+      id: "collUtils",
+      name: "Utils",
+      pageId: PAGE,
+      body: compileJsObject({
+        functions: [
+          {
+            name: "count",
+            returns: { call: { object: "Report", function: "go" } },
+          },
+        ],
+      } as never),
+      actions: [{ id: "a1", name: "count" }],
+    };
+    const report = {
+      id: "collReport",
+      name: "Report",
+      pageId: PAGE,
+      body: compileJsObject({
+        functions: [{ name: "go", steps: [{ return: 1 }] }],
+      } as never),
+      actions: [{ id: "a2", name: "go" }],
+    };
+    // An object nobody calls, whose function calls Utils.count.
+    const old = {
+      id: "collOld",
+      name: "Old",
+      pageId: PAGE,
+      body: compileJsObject({
+        functions: [
+          {
+            name: "go",
+            returns: { call: { object: "Utils", function: "count" } },
+          },
+        ],
+      } as never),
+      actions: [{ id: "a3", name: "go" }],
+    };
+    const updateActionCollection = jest.fn(async (body: unknown) => body);
+    const updateActionCollectionBody = jest.fn(async () => ({}));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listActionCollections: jest.fn(async () => [utils, report, old]),
+      updateActionCollection,
+      updateActionCollectionBody,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const revisionOf = (name: string) =>
+      read.body.jsObjects.find((o: { name: string }) => o.name === name)
+        .revision;
+    const update = async (collectionId: string, name: string, spec: object) =>
+      callTool(server, "update_js_object", {
+        spec: {
+          applicationId: APP,
+          collectionId,
+          revision: revisionOf(name),
+          ...spec,
+        },
+      });
+
+    // B: rename-only of an object another object calls → refused (its compiled call would dangle / re-bind).
+    const renamedAway = await update("collReport", "Report", {
+      name: "Other",
+    });
+
+    expect(renamedAway.body.code).toBe("rename_breaks_calls");
+    expect(String(renamedAway.body.error)).toContain("Utils.count");
+
+    // D: rename-only INTO a name another object calls, where this object calls back → cycle under the new name.
+    // (Old.go → Utils.count, Utils.count → Report.go; renaming Old to Report closes Report.go → Utils.count → Report.go.)
+    const listWithoutReport = [utils, old];
+
+    (api.listActionCollections as jest.Mock).mockResolvedValue(
+      listWithoutReport,
+    );
+    const renamedInto = await update("collOld", "Old", { name: "Report" });
+
+    expect(renamedInto.body.code).toBe("call_cycle");
+    expect(String(renamedInto.body.error)).toContain(
+      "Report.go → Utils.count → Report.go",
+    );
+
+    // C: rename + functions in one update, closing the same cycle → refused.
+    const renamedWithCode = await update("collOld", "Old", {
+      name: "Report",
+      functions: [
+        {
+          name: "go",
+          returns: { call: { object: "Utils", function: "count" } },
+        },
+      ],
+    });
+
+    expect(renamedWithCode.body.code).toBe("call_cycle");
+
+    // A rename that neither dangles nor cycles still works.
+    const harmless = await update("collOld", "Old", { name: "Helper" });
+
+    expect(harmless.body.updated).toBe(true);
+    expect(updateActionCollectionBody).not.toHaveBeenCalled();
+  });
+
+  it("refuses a three-object call cycle closed by an update and by a create", async () => {
+    const APP = "a".repeat(24);
+    const PAGE = "b".repeat(24);
+    const mk = (
+      id: string,
+      name: string,
+      fn: string,
+      target?: { object: string; function: string },
+    ) => ({
+      id,
+      name,
+      pageId: PAGE,
+      body: compileJsObject({
+        functions: [{ name: fn, returns: target ? { call: target } : 1 }],
+      } as never),
+      actions: [{ id: `${id}Act`, name: fn }],
+    });
+    const a = mk("collA", "A", "f", { object: "B", function: "g" });
+    const b = mk("collB", "B", "g", { object: "C", function: "h" });
+    const c = mk("collC", "C", "h");
+    const makeApi = (collections: unknown[]): AppsmithApi => ({
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listPlugins: jest.fn(async () => [
+        { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
+      ]),
+      listActionCollections: jest.fn(async () => collections),
+      createActionCollection: jest.fn(async (body: unknown) => ({
+        ...(body as object),
+        id: "collNew",
+      })),
+      updateActionCollectionBody: jest.fn(async () => ({})),
+      updateActionCollection: jest.fn(async () => ({ ...c, body: null })),
+    });
+
+    // Update: C.h -> A.f while A.f -> B.g -> C.h already exist on the page.
+    const api = makeApi([a, b, c]);
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const cObj = read.body.jsObjects.find(
+      (o: { name: string }) => o.name === "C",
+    );
+    const cyclic = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "collC",
+        revision: cObj.revision,
+        functions: [
+          { name: "h", returns: { call: { object: "A", function: "f" } } },
+        ],
+      },
+    });
+
+    expect(cyclic.body.code).toBe("call_cycle");
+    expect(String(cyclic.body.error)).toContain("C.h → A.f → B.g → C.h");
+    expect(api.updateActionCollectionBody).not.toHaveBeenCalled();
+
+    // Create: B.g -> D.k already exists (D not yet created); creating D with k -> A.f closes D.k -> A.f -> B.g -> D.k.
+    const b2 = mk("collB", "B", "g", { object: "D", function: "k" });
+    const api2 = makeApi([a, b2]);
+    const server2 = createMcpHttpServer(API_BASE_URL, () => api2, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+    const read2 = await callTool(server2, "read_js_object", {
+      applicationId: APP,
+    });
+    const created = await callTool(server2, "create_js_object", {
+      spec: {
+        applicationId: APP,
+        pageId: PAGE,
+        name: "D",
+        revision: read2.body.revision,
+        functions: [
+          { name: "k", returns: { call: { object: "A", function: "f" } } },
+        ],
+      },
+    });
+
+    expect(created.body.code).toBe("call_cycle");
+    expect(String(created.body.error)).toContain("D.k → A.f → B.g → D.k");
+    expect(api2.createActionCollection).not.toHaveBeenCalled();
+  });
+
   it("update_js_object checks cross-object calls on this page before writing", async () => {
     const store = new MemoryGovernanceStore();
     const APP = "a".repeat(24);

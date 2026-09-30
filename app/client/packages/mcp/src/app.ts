@@ -80,7 +80,10 @@ import {
   buildCreateJsObjectRequest,
   buildUpdateJsObjectRequest,
   createJsObjectSpecSchema,
+  callEdges,
   crossObjectCalls,
+  findCallCycle,
+  type JsObjectDefinition,
   deleteJsObjectSpecSchema,
   type ExistingJsObject,
   hasSpecMarker,
@@ -1973,7 +1976,7 @@ const LEGACY_COMPILED_FUNCTION_MEMBER = new RegExp(
 function missingCrossObjectCall(
   definition: Parameters<typeof crossObjectCalls>[0],
   collections: unknown,
-  selfName: string | undefined,
+  selfNames: readonly (string | undefined)[],
   pageId: string | undefined,
 ): string | undefined {
   const objects = (Array.isArray(collections) ? collections : []).filter(
@@ -1983,7 +1986,7 @@ function missingCrossObjectCall(
   );
 
   for (const ref of crossObjectCalls(definition)) {
-    if (ref.object === selfName) {
+    if (selfNames.includes(ref.object)) {
       return `"${ref.object}.${ref.function}": call this object's own function by its name alone ({ call: "${ref.function}" }), not through the object name`;
     }
 
@@ -2002,6 +2005,118 @@ function missingCrossObjectCall(
   }
 
   return undefined;
+}
+
+// A definition's calls, joined with the calls of every other compiler-authored JS object on the same page, may not
+// form a cycle: each compiled `call` is awaited, so `A.f → B.g → A.f` recurses until the client's evaluation
+// worker dies, and a wired event can start it. Sibling cycles inside the definition are edges too, so a → b → a is
+// refused here as well; this check also sees the other objects (their embedded definitions), so a cycle closed
+// through another object is refused. A cycle already stored in another object is reported against this object's
+// calls (the DFS starts from this object's functions). The check runs under the object's POST-update name (a
+// compiled `Report.go()` in another object re-binds at runtime to whatever object holds that name, and the server
+// does not rewrite calls on rename), and the object itself is excluded by id, not by name. Editor-authored and
+// drifted objects (compiler-written, then hand-edited) contribute no edges: their code is opaque to the compiler,
+// so a cycle that passes through them is not detectable statically; a runtime depth guard is the tracked follow-up.
+// [Hacktron finding on PR #42311: mutual JS-object calls bypass recursion validation.]
+function callCycleProblem(
+  definition: Parameters<typeof callEdges>[0],
+  collections: unknown,
+  selfName: string,
+  pageId: string | undefined,
+  selfId?: string,
+): string | undefined {
+  const edges = callEdges(definition, selfName);
+
+  for (const other of compilerAuthoredObjectsOnPage(
+    collections,
+    pageId,
+    selfId,
+    selfId === undefined ? selfName : undefined,
+  )) {
+    edges.push(...callEdges(other.definition, other.name));
+  }
+
+  const cycle = findCallCycle(
+    edges,
+    definition.functions.map((fn) => `${selfName}.${fn.name}`),
+  );
+
+  return cycle === undefined
+    ? undefined
+    : `calls form a cycle (${cycle.join(" → ")}); a cycle of awaited calls would recurse until the evaluation worker dies`;
+}
+
+// The other compiler-authored JS objects on a page, with their embedded definitions. `excludeId` drops the object
+// being updated (by id, so a rename cannot dodge it); `excludeName` is the create path's stand-in (no id yet).
+function compilerAuthoredObjectsOnPage(
+  collections: unknown,
+  pageId: string | undefined,
+  excludeId: string | undefined,
+  excludeName: string | undefined,
+): { id: string | undefined; name: string; definition: JsObjectDefinition }[] {
+  const found: {
+    id: string | undefined;
+    name: string;
+    definition: JsObjectDefinition;
+  }[] = [];
+
+  for (const collection of Array.isArray(collections) ? collections : []) {
+    const other = collection as {
+      id?: unknown;
+      name?: unknown;
+      pageId?: unknown;
+      body?: unknown;
+    } | null;
+
+    if (
+      other === null ||
+      typeof other.name !== "string" ||
+      (excludeId !== undefined && other.id === excludeId) ||
+      (excludeName !== undefined && other.name === excludeName) ||
+      (pageId !== undefined && other.pageId !== pageId)
+    ) {
+      continue;
+    }
+
+    const source = jsObjectSource(other);
+    const definition =
+      source === undefined ? undefined : jsObjectDefinitionFromBody(source);
+
+    if (definition !== undefined) {
+      found.push({
+        id: typeof other.id === "string" ? other.id : undefined,
+        name: other.name,
+        definition,
+      });
+    }
+  }
+
+  return found;
+}
+
+// `Object.function` callers, on this page, of any function of the named object (compiler-authored callers only:
+// those are the calls the compiler wrote and can see). Used to refuse a rename that would leave them dangling or
+// re-bind them to another object.
+function compilerAuthoredCallersOf(
+  collections: unknown,
+  objectName: string,
+  pageId: string | undefined,
+  excludeId: string | undefined,
+): string[] {
+  const callers = new Set<string>();
+
+  for (const other of compilerAuthoredObjectsOnPage(
+    collections,
+    pageId,
+    excludeId,
+    undefined,
+  )) {
+    for (const edge of callEdges(other.definition, other.name)) {
+      if (edge.to.startsWith(`${objectName}.`)) callers.add(edge.from);
+    }
+  }
+
+  return [...callers].sort();
 }
 
 function jsObjectFunctionNames(collection: unknown): string[] {
@@ -6708,11 +6823,22 @@ export function buildMcpServer(
           const dangling = missingCrossObjectCall(
             parsed.data,
             existing,
-            parsed.data.name,
+            [parsed.data.name],
             parsed.data.pageId,
           );
 
           if (dangling !== undefined) return result({ error: dangling });
+
+          const cycle = callCycleProblem(
+            parsed.data,
+            existing,
+            parsed.data.name,
+            parsed.data.pageId,
+          );
+
+          if (cycle !== undefined) {
+            return result({ error: cycle, code: "call_cycle" });
+          }
 
           const currentRevision = fingerprintJsList(existing);
 
@@ -6801,6 +6927,30 @@ export function buildMcpServer(
             });
           }
 
+          const currentName = String((current as { name?: string }).name);
+          const currentPageId = (current as { pageId?: string }).pageId;
+          const nextName = parsed.data.name ?? currentName;
+          const renaming = nextName !== currentName;
+
+          // A rename does not rewrite the compiled `Old.fn()` calls other objects hold (the server PATCH copies the
+          // new name and nothing else), so those calls would dangle, or re-bind to whatever object takes the old
+          // name next. Refuse while any compiler-authored object on the page still calls the old name.
+          if (renaming) {
+            const callers = compilerAuthoredCallersOf(
+              collections,
+              currentName,
+              currentPageId,
+              parsed.data.collectionId,
+            );
+
+            if (callers.length > 0) {
+              return result({
+                error: `cannot rename "${currentName}" while ${callers.join(", ")} still call${callers.length === 1 ? "s" : ""} it; the server does not rewrite compiled calls, so update ${callers.length === 1 ? "that caller" : "those callers"} first`,
+                code: "rename_breaks_calls",
+              });
+            }
+          }
+
           if (parsed.data.functions !== undefined) {
             const dangling = missingCrossObjectCall(
               {
@@ -6808,11 +6958,36 @@ export function buildMcpServer(
                 functions: parsed.data.functions,
               },
               collections,
-              (current as { name?: string }).name,
-              (current as { pageId?: string }).pageId,
+              [currentName, nextName],
+              currentPageId,
             );
 
             if (dangling !== undefined) return result({ error: dangling });
+          }
+
+          // The cycle check runs whenever the code OR the name changes, under the post-update name: a rename into a
+          // name other objects already call closes a cycle without any code change [security re-check, M5].
+          if (parsed.data.functions !== undefined || renaming) {
+            const definition =
+              parsed.data.functions !== undefined
+                ? { functions: parsed.data.functions }
+                : currentSource === undefined
+                  ? undefined
+                  : jsObjectDefinitionFromBody(currentSource);
+
+            if (definition !== undefined) {
+              const cycle = callCycleProblem(
+                definition,
+                collections,
+                nextName,
+                currentPageId,
+                parsed.data.collectionId,
+              );
+
+              if (cycle !== undefined) {
+                return result({ error: cycle, code: "call_cycle" });
+              }
+            }
           }
 
           const request = buildUpdateJsObjectRequest(

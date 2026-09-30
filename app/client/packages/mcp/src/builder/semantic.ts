@@ -42,16 +42,130 @@ const SAFE_PROP_KEYS = [
   // no reverse structured ref). safeScalar still hides any value carrying binding syntax.
   "regex",
   "errorMessage",
-  // M4-T5 widgets: the caption + inert default-state literals so checkbox/switch/radio/multiselect round-trip their
-  // label and default on read (all safe scalars; safeScalar still hides anything carrying binding syntax).
+  // Caption + inert default-state literals (labelText is the select/multiselect caption; the other form controls
+  // use label above). safeValue still hides anything carrying binding syntax.
   "labelText",
   "defaultCheckedState",
   "defaultSwitchState",
   "defaultOptionValue",
+  // Widget-property audit (APP-16052): every remaining property-pane literal patch_widgets can write, so the read
+  // and patch vocabularies agree. Lists (defaultSelectedRowIndices, allowedFileTypes, a multiselect default) and
+  // flat records (defaultNewRow) project only when every element is a safe scalar.
+  "defaultSelectedRowIndex",
+  "defaultSelectedRowIndices",
+  "multiRowSelection",
+  "primaryColumnId",
+  "serverSidePaginationEnabled",
+  "infiniteScrollEnabled",
+  "enableServerSideFiltering",
+  "defaultSearchText",
+  "allowAddNewRow",
+  "defaultNewRow",
+  "canFreezeColumn",
+  "delimiter",
+  "inlineEditingSaveOption",
+  "compactMode",
+  "textSize",
+  "horizontalAlignment",
+  "verticalAlignment",
+  "cellBackground",
+  "headerRowColor",
+  "headerTextColor",
+  "oddRowColor",
+  "evenRowColor",
+  "variant",
+  "isVisibleSearch",
+  "enableClientSideSearch",
+  "isVisibleFilters",
+  "isSortable",
+  "isVisibleDownload",
+  "isVisiblePagination",
+  "overflow",
+  "fontFamily",
+  "fontSize",
+  "textAlign",
+  "fontStyle",
+  "disableLink",
+  "textColor",
+  "backgroundColor",
+  "truncateButtonColor",
+  "borderColor",
+  "borderWidth",
+  "borderRadius",
+  "boxShadow",
+  "accentColor",
+  "buttonColor",
+  "animateLoading",
+  "labelPosition",
+  "labelAlignment",
+  "alignWidget",
+  "alignment",
+  "labelWidth",
+  "labelTooltip",
+  "tooltip",
+  "labelTextColor",
+  "labelTextSize",
+  "labelStyle",
+  "maxChars",
+  "minNum",
+  "maxNum",
+  "rtl",
+  "iconName",
+  "iconAlign",
+  "isSpellCheck",
+  "showStepArrows",
+  "autoFocus",
+  "shouldAllowAutofill",
+  "allowFormatting",
+  "resetOnSubmit",
+  "isFilterable",
+  "serverSideFiltering",
+  "allowSelectAll",
+  "buttonVariant",
+  "placement",
+  "disabledWhenInvalid",
+  "resetFormOnClick",
+  "defaultImage",
+  "objectFit",
+  "maxZoomLevel",
+  "enableRotation",
+  "enableDownload",
+  "shouldScrollContents",
+  "canOutsideClickClose",
+  "shouldShowTabs",
+  "defaultTab",
+  "itemSpacing",
+  "serverSidePagination",
+  "defaultSelectedItem",
+  "defaultDate",
+  "minDate",
+  "maxDate",
+  "firstDayOfWeek",
+  "timePrecision",
+  "shortcuts",
+  "closeOnSelection",
+  "seriesName",
+  "xAxisName",
+  "yAxisName",
+  "allowScroll",
+  "showDataPointLabel",
+  "setAdaptiveYMin",
+  "labelOrientation",
+  "isInline",
+  "allowedFileTypes",
+  "fileDataType",
+  "dynamicTyping",
+  "maxNumFiles",
+  "maxFileSize",
 ] as const;
 
 type SafeCommonProp = (typeof SAFE_PROP_KEYS)[number];
-type SafePropValue = string | number | boolean | null | SafeOption[];
+type SafeScalar = string | number | boolean | null;
+type SafePropValue =
+  | SafeScalar
+  | SafeOption[]
+  | SafeScalar[]
+  | Record<string, SafeScalar>;
 
 export interface SafeOption {
   label: string;
@@ -142,15 +256,64 @@ function safeOptions(value: unknown): SafeOption[] | undefined {
   return options;
 }
 
+// A list of safe scalars (a table's default row indices, a file picker's allowed types, a multiselect default).
+function safeList(value: unknown): SafeScalar[] | undefined {
+  if (!Array.isArray(value) || value.length > 1_000) return undefined;
+
+  const list: SafeScalar[] = [];
+
+  for (const item of value) {
+    const safeItem = safeScalar(item);
+
+    if (safeItem === undefined) return undefined;
+
+    list.push(safeItem);
+  }
+
+  return list;
+}
+
+// A flat record of safe scalars (a table's defaultNewRow). Keys carrying binding syntax hide the whole record.
+function safeRecord(value: unknown): Record<string, SafeScalar> | undefined {
+  if (!isRecord(value)) return undefined;
+
+  const entries = Object.entries(value);
+
+  if (entries.length > 100) return undefined;
+
+  const record: Record<string, SafeScalar> = {};
+
+  for (const [key, item] of entries) {
+    const safeItem = safeScalar(item);
+
+    if (containsBindingSyntax(key) || safeItem === undefined) return undefined;
+
+    record[key] = safeItem;
+  }
+
+  return record;
+}
+
+function safeValue(
+  key: SafeCommonProp,
+  value: unknown,
+): SafePropValue | undefined {
+  if (key === "options") return safeOptions(value);
+
+  if (Array.isArray(value)) return safeList(value);
+
+  if (isRecord(value)) return safeRecord(value);
+
+  return safeScalar(value);
+}
+
 function safeProps(node: WidgetNode): SemanticWidget["props"] {
   const props: SemanticWidget["props"] = {};
 
   for (const key of SAFE_PROP_KEYS) {
-    const value = node[key];
-    const safeValue =
-      key === "options" ? safeOptions(value) : safeScalar(value);
+    const value = safeValue(key, node[key]);
 
-    if (safeValue !== undefined) props[key] = safeValue;
+    if (value !== undefined) props[key] = value;
   }
 
   return props;

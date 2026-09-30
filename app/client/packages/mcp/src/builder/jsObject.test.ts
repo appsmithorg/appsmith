@@ -4,7 +4,9 @@ import {
   buildUpdateJsObjectRequest,
   compileJsObject,
   compileJsObjectCode,
+  callEdges,
   crossObjectCalls,
+  findCallCycle,
   createJsObjectSpecSchema,
   deleteJsObjectSpecSchema,
   hasSpecMarker,
@@ -545,6 +547,99 @@ describe("crossObjectCalls ignores an object key that is merely named call", () 
   });
 });
 
+describe("sibling call cycles (Hacktron: mutual calls exhaust the evaluation worker)", () => {
+  // The schema still ACCEPTS a cyclic definition (the marker decoder shares it: a stored cyclic object must keep
+  // decoding so it can be repaired and stays in the cross-object graph); the handlers refuse the cycle through
+  // callEdges + findCallCycle (app.test.ts covers the create/update refusal with code call_cycle).
+  const cycleOf = (functions: unknown[]) => {
+    const parsed = jsObjectDefinitionSchema.parse({ functions });
+
+    return findCallCycle(
+      callEdges(parsed, "Self"),
+      parsed.functions.map((fn) => `Self.${fn.name}`),
+    );
+  };
+
+  it("detects a → b → a and a → b → c → a, and accepts a chain and a diamond", () => {
+    expect(
+      cycleOf([
+        {
+          name: "a",
+          steps: [{ call: "b", into: "x" }, { return: { var: "x" } }],
+        },
+        {
+          name: "b",
+          steps: [{ call: "a", into: "y" }, { return: { var: "y" } }],
+        },
+      ]),
+    ).toEqual(["Self.a", "Self.b", "Self.a"]);
+    expect(
+      cycleOf([
+        { name: "a", returns: { call: "b" } },
+        { name: "b", returns: { call: "c" } },
+        { name: "c", returns: { call: "a" } },
+      ]),
+    ).toEqual(["Self.a", "Self.b", "Self.c", "Self.a"]);
+    expect(
+      cycleOf([
+        { name: "a", returns: { call: "b" } },
+        { name: "b", returns: { call: "c" } },
+        { name: "c", returns: 1 },
+      ]),
+    ).toBeUndefined();
+    // A diamond (a → b, a → c, b → d, c → d) shares a target without cycling.
+    expect(
+      cycleOf([
+        { name: "a", returns: { array: [{ call: "b" }, { call: "c" }] } },
+        { name: "b", returns: { call: "d" } },
+        { name: "c", returns: { call: "d" } },
+        { name: "d", returns: 1 },
+      ]),
+    ).toBeUndefined();
+    // A cyclic definition still parses (decoder contract); the refusal is the handlers' job.
+    expect(
+      jsObjectDefinitionSchema.safeParse({
+        functions: [
+          { name: "a", returns: { call: "b" } },
+          { name: "b", returns: { call: "a" } },
+        ],
+      }).success,
+    ).toBe(true);
+  });
+
+  it("callEdges attributes each call to its containing function and findCallCycle reports the closed path", () => {
+    const definition = jsObjectDefinitionSchema.parse({
+      functions: [
+        {
+          name: "a",
+          steps: [
+            { call: { object: "Other", function: "go" }, into: "x" },
+            { return: { call: "b" } },
+          ],
+        },
+        { name: "b", returns: 1 },
+      ],
+    });
+
+    expect(callEdges(definition, "Self")).toEqual([
+      { from: "Self.a", to: "Self.b" },
+      { from: "Self.a", to: "Other.go" },
+    ]);
+    expect(
+      findCallCycle(
+        [
+          { from: "A.f", to: "B.g" },
+          { from: "B.g", to: "A.f" },
+        ],
+        ["A.f"],
+      ),
+    ).toEqual(["A.f", "B.g", "A.f"]);
+    expect(
+      findCallCycle([{ from: "A.f", to: "B.g" }], ["A.f", "B.g"]),
+    ).toBeUndefined();
+  });
+});
+
 describe("a function may not call itself through the definition schema", () => {
   it("refuses a direct self-call and accepts a call to a sibling", () => {
     expect(
@@ -560,5 +655,122 @@ describe("a function may not call itself through the definition schema", () => {
         ],
       }).success,
     ).toBe(true);
+  });
+});
+
+describe("findCallCycle is iterative", () => {
+  it("handles a 20,000-function chain without recursion and still finds a cycle at the end", () => {
+    const edges: { from: string; to: string }[] = [];
+
+    for (let i = 0; i < 20_000; i += 1) {
+      edges.push({ from: `O.f${i}`, to: `O.f${i + 1}` });
+    }
+
+    expect(findCallCycle(edges, ["O.f0"])).toBeUndefined();
+
+    edges.push({ from: "O.f20000", to: "O.f19990" });
+
+    const cycle = findCallCycle(edges, ["O.f0"]);
+
+    expect(cycle?.[0]).toBe("O.f19990");
+    expect(cycle?.[cycle.length - 1]).toBe("O.f19990");
+    expect(cycle).toHaveLength(12);
+  });
+});
+
+describe("callEdges sees a call nested in forEach / onError / if-else bodies and in call args", () => {
+  const cycleOf = (functions: unknown[]) => {
+    const parsed = jsObjectDefinitionSchema.parse({ functions });
+
+    return findCallCycle(
+      callEdges(parsed, "S"),
+      parsed.functions.map((fn) => `S.${fn.name}`),
+    );
+  };
+
+  it("detects a sibling cycle closed only through nested step bodies", () => {
+    expect(
+      cycleOf([
+        {
+          name: "a",
+          steps: [{ forEach: { array: [1] }, as: "i", do: [{ call: "b" }] }],
+        },
+        { name: "b", steps: [{ run: "Q1", onError: [{ call: "c" }] }] },
+        {
+          name: "c",
+          steps: [{ if: true, then: [{ return: 1 }], else: [{ call: "a" }] }],
+        },
+      ]),
+    ).toEqual(["S.a", "S.b", "S.c", "S.a"]);
+  });
+
+  it("attributes nested cross-object calls (forEach body, onError, if-then, call args) to the containing function", () => {
+    const definition = jsObjectDefinitionSchema.parse({
+      functions: [
+        {
+          name: "a",
+          steps: [
+            {
+              forEach: { array: [1] },
+              as: "i",
+              do: [{ call: { object: "O", function: "f" } }],
+            },
+          ],
+        },
+        {
+          name: "b",
+          steps: [
+            {
+              run: "Q1",
+              onError: [{ call: { object: "O", function: "g" }, into: "x" }],
+            },
+          ],
+        },
+        {
+          name: "c",
+          steps: [
+            { if: true, then: [{ call: { object: "O", function: "h" } }] },
+          ],
+        },
+        {
+          name: "d",
+          steps: [
+            {
+              call: { object: "O", function: "i" },
+              args: [{ call: { object: "O", function: "j" } }],
+              into: "y",
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(
+      callEdges(definition, "S")
+        .map((edge) => `${edge.from}>${edge.to}`)
+        .sort(),
+    ).toEqual(["S.a>O.f", "S.b>O.g", "S.c>O.h", "S.d>O.i", "S.d>O.j"]);
+  });
+
+  it("a record key named call carrying a string is data, not a call", () => {
+    expect(
+      cycleOf([
+        { name: "a", returns: { object: { call: "b" } } },
+        { name: "b", returns: { object: { call: "a" } } },
+      ]),
+    ).toBeUndefined();
+    expect(
+      cycleOf([
+        { name: "a", steps: [{ run: "Q1", with: { call: "b" } }] },
+        { name: "b", steps: [{ run: "Q1", with: { call: "a" } }] },
+      ]),
+    ).toBeUndefined();
+    // …while a real call INSIDE a record value is still an edge.
+    expect(
+      cycleOf([
+        { name: "a", returns: { object: { next: { call: "b" } } } },
+        { name: "b", returns: { object: { next: { call: "a" } } } },
+      ]),
+    ).toEqual(["S.a", "S.b", "S.a"]);
   });
 });

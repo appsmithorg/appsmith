@@ -201,6 +201,25 @@ function safeUrl(max = 2000) {
     });
 }
 
+// An Image widget's src (`image`, `defaultImage`). The client interpolates it raw into a styled-components rule
+// (`background-image: url("<value>")`), and the eval worker's IMAGE_URL validator only checks that the string
+// CONTAINS an image URL, so free text here would be a CSS breakout (`"` closes the url(), `}` closes the rule, and
+// the rest is stylesheet text in the viewer: url() egress, overlays). So: the safeUrl gate (absolute http(s), no
+// credentials, no bindings), then the WHATWG-normalised href (percent-encodes `"`, space, `<`, `>`), then a refusal
+// of every character that could still end a CSS string or function: quotes, backslash, parentheses, whitespace.
+// Base64 `data:` images are deliberately not admitted (safeUrl is http(s)-only). [Security review, APP-16052 M5]
+export const imageUrl = safeUrl(2000)
+  .transform((value) => new URL(value).href)
+  .refine(
+    (href) => !/["'\\()\s]/.test(href),
+    "image URL must not contain quotes, backslashes, parentheses or whitespace",
+  )
+  // Percent-encoding can grow the href far past the 2000-character input bound (2000 CJK characters → ~18,000).
+  .refine(
+    (href) => href.length <= 2000,
+    "image URL is too long once normalised",
+  );
+
 const scalarCell = z.union([safeText(1000), z.number(), z.boolean(), z.null()]);
 
 // Column keys are agent-supplied strings that the TableWidgetV2 client embeds into a generated `{{ }}` column
@@ -299,6 +318,44 @@ export const storeKeySchema = z
 // The same denylist, exported for every other place an agent-supplied name becomes an object key or a member
 // segment in emitted code (jsExpr object/with/get keys, JS-object member names, widget property paths).
 export const PROTOTYPE_PROPERTY_NAMES: ReadonlySet<string> = STORE_KEY_DENYLIST;
+
+// An ISO 8601 date or date-time (calendar date, optional time with Z or a numeric offset). The charset is digits,
+// `-` `:` `.` `T` `Z` `+` only, so a date literal can never carry quotes, braces, or `$`. The calendar fields are
+// range-checked explicitly (V8's Date.parse silently rolls 2026-02-30 forward to March), so an impossible date is
+// rejected up front rather than stored as a different day. Shared by the Mongo builder (`{ date }` values) and the
+// widget patch (a date picker's defaultDate / minDate / maxDate).
+export const ISO_DATE =
+  /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,3})?)?(?:Z|[+-](\d{2}):(\d{2}))?)?$/;
+
+export function isRealIsoDate(value: string): boolean {
+  const match = ISO_DATE.exec(value);
+
+  if (!match) return false;
+
+  const [, y, mo, d, h, mi, s, oh, om] = match;
+  const year = Number(y);
+  const month = Number(mo);
+  const day = Number(d);
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+
+  return (
+    month >= 1 &&
+    month <= 12 &&
+    day >= 1 &&
+    day <= daysInMonth &&
+    (h === undefined || Number(h) <= 23) &&
+    (mi === undefined || Number(mi) <= 59) &&
+    (s === undefined || Number(s) <= 59) &&
+    (oh === undefined || Number(oh) <= 14) &&
+    (om === undefined || Number(om) <= 59)
+  );
+}
+
+export const isoDateLiteral = z
+  .string()
+  .max(40)
+  .regex(ISO_DATE, "must be an ISO 8601 date or date-time")
+  .refine(isRealIsoDate, "must be a real calendar date");
 
 // Names that must never be accepted where the compiler emits a bare entity reference (`<name>.<path>`,
 // `<name>.run()`): the worker's own globals, JS builtins whose members are callable, and Appsmith's platform
@@ -1280,7 +1337,7 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
       .object({
         type: z.literal("image"),
         name: nameField,
-        image: safeText(2000).optional(),
+        image: imageUrl.optional(),
         // Display binding: the image src from one field of a query's response. Compiler-emitted; mutually
         // exclusive with the static `image` (enforced in the template, like text's text/source).
         source: queryFieldRefSchema.optional(),

@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { RAW_EXPRESSION, storedId } from "./schema.js";
+import {
+  ISO_DATE,
+  isoDateLiteral,
+  RAW_EXPRESSION,
+  storedId,
+} from "./schema.js";
 
 // M4-T2 create_mongo_query — a STRUCTURED MongoDB query builder, the NoSQL analog of create_query. The agent never
 // authors a raw Mongo command string or raw `{{ }}` bindings. The compiler emits the Mongo plugin's `formData`
@@ -63,42 +68,7 @@ const literalScalar = z.union([
   z.null(),
 ]);
 
-// An ISO 8601 date or date-time (calendar date, optional time with Z or a numeric offset). The charset is digits,
-// `-` `:` `.` `T` `Z` `+` only, so a date literal can never carry quotes, braces, or `$`. The calendar fields are
-// range-checked explicitly (V8's Date.parse silently rolls 2026-02-30 forward to March), so an impossible date is
-// rejected up front rather than stored as a different day.
-const ISO_DATE =
-  /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,3})?)?(?:Z|[+-](\d{2}):(\d{2}))?)?$/;
-
-function isRealIsoDate(value: string): boolean {
-  const match = ISO_DATE.exec(value);
-
-  if (!match) return false;
-
-  const [, y, mo, d, h, mi, s, oh, om] = match;
-  const year = Number(y);
-  const month = Number(mo);
-  const day = Number(d);
-  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
-
-  return (
-    month >= 1 &&
-    month <= 12 &&
-    day >= 1 &&
-    day <= daysInMonth &&
-    (h === undefined || Number(h) <= 23) &&
-    (mi === undefined || Number(mi) <= 59) &&
-    (s === undefined || Number(s) <= 59) &&
-    (oh === undefined || Number(oh) <= 14) &&
-    (om === undefined || Number(om) <= 59)
-  );
-}
-
-const dateLiteral = z
-  .string()
-  .max(40)
-  .regex(ISO_DATE, "must be an ISO 8601 date or date-time")
-  .refine(isRealIsoDate, "must be a real calendar date");
+const dateLiteral = isoDateLiteral;
 
 // Relaxed Extended JSON (`Document.parse` in the Mongo plugin) accepts `{ "$date": … }` only as a full RFC 3339
 // date-time with an offset; a calendar date or a time without seconds/offset fails the whole command. Normalise

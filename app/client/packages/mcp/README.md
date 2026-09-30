@@ -32,6 +32,31 @@ Findings from building an internal admin app through MCP, all fixed without wide
 - `patch_widgets` accepts `inputType: MULTI_LINE_TEXT` and the literal `labelText`, `defaultCheckedState`,
   `defaultSwitchState`, `defaultOptionValue` props that `read_semantic_page` already reported, type-checked per widget
   family.
+- Widget-property audit: `patch_widgets` now covers every literal property-pane setting of the 18 supported widget
+  types (about 110 keys), and `read_semantic_page` reads the same keys back. Each is a closed literal copied from the
+  widget's own pane — enums (label position, font sizes and families, alignment, button variant, compact mode, time
+  precision, file types …), bounded numbers, colors under the shared color grammar, ISO dates, or binding-free text —
+  and every family-specific key is checked against the widget's real type, so a mismatch is refused instead of
+  written as a dead property. Theme presets are accepted by name (`borderRadius: 'M'`, `boxShadow: 'L'`) and stored
+  as the pane's CSS value; a literal on a style prop replaces its theme binding. A table's default row is now
+  settable: `defaultSelectedRowIndex` while multi-row selection is off (`-1` = none), `defaultSelectedRowIndices`
+  while it is on, with `multiRowSelection` switchable in the same update, and `defaultFrom` binds it to another
+  widget or a query field. Correction from the earlier round: checkbox, switch and radio keep their caption in
+  `label` (`labelText` belongs to select/multiselect); `labelText` on those widgets was a dead property and is now
+  refused with the right key named. The ownership table covers all 46 buildable widget types and is pinned by a
+  test that re-derives it from the client widgets' property-pane sources.
+- Security review of the audit: `image` / `defaultImage` (patch and build) are validated as absolute http(s) URLs,
+  normalised and refused if they carry quotes, backslashes, parentheses or whitespace, because the image widget
+  interpolates the value raw into a CSS `url("…")` rule; `tooltip` / `labelTooltip` refuse markup (the button renders
+  its tooltip as HTML); the CSV `delimiter` is one of `,` `;` `|` tab.
+- JS-object `call` cycles are refused (`call_cycle`): at create and update, the definition's call graph is joined
+  with the embedded definitions of the other compiler-authored objects on the page and any cycle, sibling or
+  cross-object, is rejected instead of compiling into awaited calls that would recurse until the evaluation worker
+  dies (Hacktron finding on PR #42311). The check runs under the object's post-update name, and a rename is refused
+  (`rename_breaks_calls`) while another compiler-authored object on the page still calls the old name, because the
+  server does not rewrite compiled calls. Residual risk, accepted for now: editor-authored and drifted objects are
+  opaque to the compiler, so a cycle through hand-written code is not detectable statically; a runtime depth guard
+  in the compiled function prologue is the tracked follow-up.
 - `wire_event` gains `{ call: { object, function, args? } }` → `Object.function(...)`, identifier-only (arguments are
   scalar literals or widget-property refs) and checked against the application's JS objects before writing.
 - JS-object functions gain a closed expression/statement grammar (`builder/jsExpr.ts`): `params`, ordered `steps` (`let`/`set`
