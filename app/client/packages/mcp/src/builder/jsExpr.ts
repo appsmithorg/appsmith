@@ -281,7 +281,20 @@ export type Expr =
   | { fn: Fn; args: (Expr | { sep: SeparatorName })[] }
   | { if: Expr; then: Expr; else: Expr }
   | { object: Record<string, Expr> }
-  | { array: Expr[] };
+  | { array: Expr[] }
+  // Call a sibling function of this object (`await this.name(args)`) or a function of another JS object of the
+  // application (`await Object.fn(args)`). The corpus analysis put "calls another function" ahead of every other
+  // missing construct combined (18% of distinct functions call a sibling; most non-run awaits are cross-object).
+  // The callee is never an expression: a validated member name, or a validated object + member pair whose
+  // existence the tool checks against the application before writing. Not allowed inside a per-item callback
+  // (those are synchronous arrows).
+  | { call: string | { object: string; function: string }; args?: Expr[] };
+
+export const CALL_MAX_ARGS = 8;
+const callTarget = z.union([
+  memberName,
+  z.object({ object: bindingIdentifier, function: memberName }).strict(),
+]);
 
 const sepArg = z.object({ sep: separatorSchema }).strict();
 
@@ -316,6 +329,12 @@ export const exprSchema: z.ZodType<Expr> = z.lazy(() =>
       })
       .strict(),
     z.object({ array: z.array(exprSchema).max(50) }).strict(),
+    z
+      .object({
+        call: callTarget,
+        args: z.array(exprSchema).max(CALL_MAX_ARGS).optional(),
+      })
+      .strict(),
   ]),
 );
 
@@ -339,12 +358,18 @@ export type Step =
   | { forEach: Expr; as: string; do: Step[] }
   | { throw: string }
   | { return: Expr }
-  | { showAlert: string; style?: "info" | "success" | "warning" | "error" }
+  | { showAlert: Expr; style?: "info" | "success" | "warning" | "error" }
   | { storeValue: string; value: Expr }
   | { resetWidget: string }
   | { showModal: string }
   | { closeModal: string }
-  | { navigate: string };
+  | { navigate: string }
+  // Call a sibling or another object's function for its effect, optionally keeping the result in a local.
+  | {
+      call: string | { object: string; function: string };
+      args?: Expr[];
+      into?: string;
+    };
 
 const safeMessage = z
   .string()
@@ -385,7 +410,13 @@ export const stepSchema: z.ZodType<Step> = z.lazy(() =>
     z.object({ return: exprSchema }).strict(),
     z
       .object({
-        showAlert: safeMessage,
+        // A literal message, or an expression rendered through String(...) at run time (the corpus shows a
+        // computed message in 4% of distinct functions; the text is displayed, never evaluated).
+        // A string is a message literal (safeMessage's 300-char cap applies); anything else is an expression.
+        showAlert: z.union([
+          safeMessage,
+          exprSchema.refine((e) => typeof e !== "string", "message too long"),
+        ]),
         style: z.enum(["info", "success", "warning", "error"]).optional(),
       })
       .strict(),
@@ -394,6 +425,13 @@ export const stepSchema: z.ZodType<Step> = z.lazy(() =>
     z.object({ showModal: bindingIdentifier }).strict(),
     z.object({ closeModal: bindingIdentifier }).strict(),
     z.object({ navigate: pageNameSchema }).strict(),
+    z
+      .object({
+        call: callTarget,
+        args: z.array(exprSchema).max(CALL_MAX_ARGS).optional(),
+        into: localName.optional(),
+      })
+      .strict(),
   ]),
 );
 
@@ -403,6 +441,11 @@ export interface ExprContext {
   params: Set<string>;
   vars: Set<string>;
   constants: Set<string>;
+  // Names of this object's functions: a sibling `call` must target one of them.
+  functions: Set<string>;
+  // The function being validated: a direct self-call is refused (the grammar has no other unbounded construct;
+  // mutual recursion across siblings or objects is not detected).
+  self?: string;
   allowItem: boolean;
 }
 
@@ -412,6 +455,12 @@ function isLiteral(expr: Expr): expr is Literal {
 
 function countNodes(expr: Expr): number {
   if (isLiteral(expr)) return 1;
+
+  if ("call" in expr) {
+    return (
+      1 + (expr.args ?? []).reduce((sum: number, a) => sum + countNodes(a), 0)
+    );
+  }
 
   if ("op" in expr || "fn" in expr) {
     return (
@@ -460,6 +509,37 @@ export function exprProblem(
     return `expression nests deeper than ${EXPR_MAX_DEPTH}`;
 
   if (isLiteral(expr)) return undefined;
+
+  if ("call" in expr) {
+    // The emitted call is awaited, and per-item callbacks are synchronous arrows.
+    if (ctx.allowItem) {
+      return "call is not allowed inside map / filter / some / every / find";
+    }
+
+    if (typeof expr.call === "string" && !ctx.functions.has(expr.call)) {
+      return `unknown function "${expr.call}" on this object`;
+    }
+
+    if (typeof expr.call === "string" && expr.call === ctx.self) {
+      return `"${expr.call}" may not call itself`;
+    }
+
+    if (typeof expr.call !== "string") {
+      const { object } = expr.call;
+
+      if (ctx.vars.has(object) || ctx.params.has(object)) {
+        return `"${object}" is both a local name and a JS object to call`;
+      }
+    }
+
+    for (const arg of expr.args ?? []) {
+      const problem = exprProblem(arg, ctx, depth + 1);
+
+      if (problem) return problem;
+    }
+
+    return undefined;
+  }
 
   if ("param" in expr) {
     return ctx.params.has(expr.param)
@@ -792,6 +872,22 @@ function stepProblem(
 
   if ("return" in step) return prefixed(validateExpr(step.return, local));
 
+  if ("call" in step) {
+    const problem = prefixed(
+      validateExpr({ call: step.call, args: step.args }, local),
+    );
+
+    if (problem) return problem;
+
+    return step.into === undefined
+      ? undefined
+      : prefixed(declareLocal(step.into, vars, local));
+  }
+
+  if ("showAlert" in step && typeof step.showAlert !== "string") {
+    return prefixed(validateExpr(step.showAlert, local));
+  }
+
   if ("storeValue" in step) return prefixed(validateExpr(step.value, local));
 
   // throw / showAlert / resetWidget carry validated literals only.
@@ -822,6 +918,15 @@ const PARAMS_GUARD =
 
 export function compileExpr(expr: Expr): string {
   if (isLiteral(expr)) return q(expr);
+
+  if ("call" in expr) {
+    const callee =
+      typeof expr.call === "string"
+        ? `this.${expr.call}`
+        : `${expr.call.object}.${expr.call.function}`;
+
+    return `(await ${callee}(${(expr.args ?? []).map(compileExpr).join(", ")}))`;
+  }
 
   if ("param" in expr) return expr.param;
 
@@ -1032,11 +1137,15 @@ export function compileSteps(steps: Step[]): string[] {
       );
     } else if ("throw" in step) {
       lines.push(`throw new Error(${q(step.throw)});`);
+    } else if ("call" in step) {
+      const call = compileExpr({ call: step.call, args: step.args });
+
+      lines.push(step.into ? `let ${step.into} = ${call};` : `${call};`);
     } else if ("return" in step) {
       lines.push(`return ${compileExpr(step.return)};`);
     } else if ("showAlert" in step) {
       lines.push(
-        `showAlert(${q(step.showAlert)}, ${q(step.style ?? "info")});`,
+        `showAlert(${typeof step.showAlert === "string" ? q(step.showAlert) : `String(${compileExpr(step.showAlert)} ?? "")`}, ${q(step.style ?? "info")});`,
       );
     } else if ("storeValue" in step) {
       lines.push(

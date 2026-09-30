@@ -59,6 +59,15 @@ Findings from building an internal admin app through MCP, all fixed without wide
 - `create_mongo_query` values accept `{ param: '<name>' }` (bound as `this.params.<name>`) so a function's computed
   values reach a write through `run … with`; `patch_widgets` accepts `defaultFrom` (a widget-property or query-field
   ref) on input/select/multiselect/radio/checkbox/switch/datepicker defaults.
+- Corpus-driven extension (an analysis of 21,121 JS objects / 7,043 distinct functions from the internal cluster put
+  "calls another function" ahead of every other missing construct combined): `{ call: "name", args? }` awaits a
+  sibling function of the object (`this.name(...)`) and `{ call: { object, function }, args? }` awaits a function of
+  another JS object of the application, as a value or as a statement with `into`. The callee is never an expression:
+  a sibling must be a function of the same definition, a cross-object pair must exist in the application (checked
+  before writing, exactly as `wire_event { call }` does), and neither is allowed inside the synchronous per-item
+  callbacks; a function may not call itself directly. The check is page-scoped (entity names are unique per page). Measured
+  on the same corpus, expressible distinct functions rise from 20% to 34%. A `showAlert` message may now be an expression,
+  rendered through `String(...)`.
 - Grammar extensions from the milestone-2 review: a `{ table, column }` leaf reads a selected-row column whose name
   is not an identifier (`tblOrders.selectedRow["instance ids"]`, JSON-encoded); `run` takes an `onError` failure
   branch (a compiler-owned try/catch whose error is never exposed); `showModal`, `closeModal` and `navigate` are

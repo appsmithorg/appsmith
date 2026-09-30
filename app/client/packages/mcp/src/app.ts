@@ -80,6 +80,7 @@ import {
   buildCreateJsObjectRequest,
   buildUpdateJsObjectRequest,
   createJsObjectSpecSchema,
+  crossObjectCalls,
   deleteJsObjectSpecSchema,
   type ExistingJsObject,
   hasSpecMarker,
@@ -1962,6 +1963,46 @@ const LEGACY_COMPILED_FUNCTION_MEMBER = new RegExp(
   String.raw`(?:^|[{,]\s*)(${JS_IDENTIFIER_SOURCE})\s*:\s*async\s*\(\)\s*=>`,
   "g",
 );
+
+// A definition's `{ call: { object, function } }` references must resolve in the application before the object is
+// written — the same dangling-reference rule as wire_event's `call`. A call into the object being created or
+// updated is refused too: that is a sibling call (`{ call: "name" }`), which the grammar validates itself.
+// The check is PAGE-scoped: JS objects live in a page's data tree and entity names are unique per page, not per
+// application, so a same-named query on this page and a JS object on another page must not resolve the call
+// (that would compile `Query.run(...)` around the params guard) [COUNCIL: APP-16052 M4 security].
+function missingCrossObjectCall(
+  definition: Parameters<typeof crossObjectCalls>[0],
+  collections: unknown,
+  selfName: string | undefined,
+  pageId: string | undefined,
+): string | undefined {
+  const objects = (Array.isArray(collections) ? collections : []).filter(
+    (collection) =>
+      pageId === undefined ||
+      (collection as { pageId?: unknown } | null)?.pageId === pageId,
+  );
+
+  for (const ref of crossObjectCalls(definition)) {
+    if (ref.object === selfName) {
+      return `"${ref.object}.${ref.function}": call this object's own function by its name alone ({ call: "${ref.function}" }), not through the object name`;
+    }
+
+    const object = objects.find(
+      (collection) =>
+        (collection as { name?: unknown } | null)?.name === ref.object,
+    );
+
+    if (object === undefined) {
+      return `JS object "${ref.object}" was not found on this page (called as ${ref.object}.${ref.function})`;
+    }
+
+    if (!jsObjectFunctionNames(object).includes(ref.function)) {
+      return `function "${ref.function}" was not found on JS object "${ref.object}"`;
+    }
+  }
+
+  return undefined;
+}
 
 function jsObjectFunctionNames(collection: unknown): string[] {
   const names = new Set<string>(
@@ -6583,7 +6624,7 @@ export function buildMcpServer(
 
       registerTool(
         "create_js_object",
-        "Create a restricted JS object from a declarative definition: constants (JSON literals, read as { constant }) and functions { name, params?, steps?, returns? }. steps is a CLOSED statement vocabulary: { let, value } / { set, value } locals; { run: '<query>', with?: { key: expr }, into?: local } (with becomes this.params.key inside the query; use { param } values in create_mongo_query); { if, then, else? }; { forEach, as, do }; { throw: 'message' }; { return: expr }; { showAlert, style? }; { storeValue, value }; { resetWidget }; { showModal } / { closeModal }; { navigate: '<page>' }; and run takes an optional onError: [steps] failure branch. Every value is a bounded expression tree, never text: literals, { param }, { var }, { widget, property }, { table, column } (a selected-row column whose name is not an identifier), { query, field? }, { constant }, { store }, { op: add|sub|mul|div|mod|neg|eq|ne|gt|gte|lt|lte|and|or|not, args }, { fn, args } (string, number, date, boolean and array helpers such as trim, split with a named { sep }, number, date, isoString, unique, map/filter with { item: true }, get, coalesce — the full list with arities is in get_guide('js-objects')), { if, then, else }, { object: {..} }, { array: [..] }. Example (the exact JSON shape): { name: 'splitLines', params: ['value'], returns: { fn: 'unique', args: [{ fn: 'filter', args: [{ fn: 'map', args: [{ fn: 'split', args: [{ param: 'value' }, { sep: 'commaOrNewline' }] }, { fn: 'trim', args: [{ item: true }] }] }, { op: 'not', args: [{ fn: 'isEmpty', args: [{ item: true }] }] }] }] } } — note not is an op, item is { item: true }, and a param must be listed in params. Widget/query names may not be host globals (globalThis, eval, navigateTo, …) and property paths may not contain prototype segments. No raw JS, imports, globals, network calls, or regex text. Read get_guide('js-objects') first: it lists every statement, function, operator and separator with complete worked examples (split-and-dedupe, related-field validation, a full Save flow). Pass a JS-list revision from read_js_object. Governed.",
+        "Create a restricted JS object from a declarative definition: constants (JSON literals, read as { constant }) and functions { name, params?, steps?, returns? }. steps is a CLOSED statement vocabulary: { let, value } / { set, value } locals; { run: '<query>', with?: { key: expr }, into?: local } (with becomes this.params.key inside the query; use { param } values in create_mongo_query); { if, then, else? }; { forEach, as, do }; { throw: 'message' }; { return: expr }; { showAlert, style? }; { storeValue, value }; { resetWidget }; { showModal } / { closeModal }; { navigate: '<page>' }; run takes an optional onError: [steps] failure branch; { call: '<siblingFn>' | { object, function }, args?, into? } awaits a function of this object or of another JS object on the same page, checked to exist before writing (both are also usable as a value); a showAlert message may be an expression. Every value is a bounded expression tree, never text: literals, { param }, { var }, { widget, property }, { table, column } (a selected-row column whose name is not an identifier), { query, field? }, { constant }, { store }, { op: add|sub|mul|div|mod|neg|eq|ne|gt|gte|lt|lte|and|or|not, args }, { fn, args } (string, number, date, boolean and array helpers such as trim, split with a named { sep }, number, date, isoString, unique, map/filter with { item: true }, get, coalesce — the full list with arities is in get_guide('js-objects')), { if, then, else }, { object: {..} }, { array: [..] }. Example (the exact JSON shape): { name: 'splitLines', params: ['value'], returns: { fn: 'unique', args: [{ fn: 'filter', args: [{ fn: 'map', args: [{ fn: 'split', args: [{ param: 'value' }, { sep: 'commaOrNewline' }] }, { fn: 'trim', args: [{ item: true }] }] }, { op: 'not', args: [{ fn: 'isEmpty', args: [{ item: true }] }] }] }] } } — note not is an op, item is { item: true }, and a param must be listed in params. Widget/query names may not be host globals (globalThis, eval, navigateTo, …) and property paths may not contain prototype segments. No raw JS, imports, globals, network calls, or regex text. Read get_guide('js-objects') first: it lists every statement, function, operator and separator with complete worked examples (split-and-dedupe, related-field validation, a full Save flow). Pass a JS-list revision from read_js_object. Governed.",
         {
           spec: z.record(z.unknown()),
           branch: gitBranchParamSchema.optional(),
@@ -6634,9 +6675,17 @@ export function buildMcpServer(
           if (!parsed.success) return validationError(parsed.error.issues);
 
           const request = buildCreateJsObjectRequest(parsed.data);
-          const currentRevision = fingerprintJsList(
-            await api.listActionCollections(applicationId),
+          const existing = await api.listActionCollections(applicationId);
+          const dangling = missingCrossObjectCall(
+            parsed.data,
+            existing,
+            parsed.data.name,
+            parsed.data.pageId,
           );
+
+          if (dangling !== undefined) return result({ error: dangling });
+
+          const currentRevision = fingerprintJsList(existing);
 
           try {
             const { changeId, value } = await govJs.execute({
@@ -6721,6 +6770,20 @@ export function buildMcpServer(
               code: "editor_authored_js_object",
               authoredBy: "editor",
             });
+          }
+
+          if (parsed.data.functions !== undefined) {
+            const dangling = missingCrossObjectCall(
+              {
+                constants: parsed.data.constants,
+                functions: parsed.data.functions,
+              },
+              collections,
+              (current as { name?: string }).name,
+              (current as { pageId?: string }).pageId,
+            );
+
+            if (dangling !== undefined) return result({ error: dangling });
           }
 
           const request = buildUpdateJsObjectRequest(

@@ -109,9 +109,10 @@ export const jsObjectDefinitionSchema = z
     }
 
     const constantNames = new Set(Object.keys(definition.constants ?? {}));
+    const functionNames = new Set(definition.functions.map(({ name }) => name));
 
     definition.functions.forEach((fn, index) => {
-      const problem = functionProblem(fn, constantNames);
+      const problem = functionProblem(fn, constantNames, functionNames);
 
       if (problem) {
         ctx.addIssue({
@@ -165,12 +166,15 @@ function isLegacyReturns(
 function functionProblem(
   fn: FunctionSpec,
   constantNames: Set<string>,
+  functionNames: Set<string>,
 ): string | undefined {
   const params = new Set(fn.params ?? []);
   const ctx: ExprContext = {
     params,
     vars: new Set(),
     constants: constantNames,
+    functions: functionNames,
+    self: fn.name,
     allowItem: false,
   };
   const declared = new Set<string>();
@@ -425,6 +429,43 @@ const SPEC_VERSION = 1;
 const MARKER_PREFIX = " /* mcp-spec:";
 const MARKER_SUFFIX = " */";
 const BASE64 = /^[A-Za-z0-9+/=]+$/;
+
+// Every `{ call: { object, function } }` a definition makes into ANOTHER JS object. The schema validates the
+// shape; the tool handlers check each pair exists in the application (the same check wire_event's `call` does)
+// before writing, so a definition can never emit a call to something that is not there.
+export function crossObjectCalls(
+  definition: JsObjectDefinition,
+): { object: string; function: string }[] {
+  const found = new Map<string, { object: string; function: string }>();
+  const stack: unknown[] = [definition.functions];
+
+  while (stack.length > 0) {
+    const node = stack.pop();
+
+    if (node === null || typeof node !== "object") continue;
+
+    if (!Array.isArray(node) && "call" in node) {
+      const call = (node as { call: unknown }).call;
+
+      if (call !== null && typeof call === "object") {
+        const ref = call as { object: string; function: string };
+
+        // An object/with key that merely happens to be named `call` (its value is then an Expr, not a target)
+        // is skipped; a real cross-object target always carries two strings.
+        if (
+          typeof ref.object === "string" &&
+          typeof ref.function === "string"
+        ) {
+          found.set(`${ref.object}.${ref.function}`, ref);
+        }
+      }
+    }
+
+    stack.push(...(Array.isArray(node) ? node : Object.values(node)));
+  }
+
+  return [...found.values()];
+}
 
 export function compileJsObject(definition: JsObjectDefinition): string {
   // Embed ONLY the definition fields: a caller may pass a whole create/update spec (ids, revision, name), and the

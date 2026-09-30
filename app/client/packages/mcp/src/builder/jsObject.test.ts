@@ -4,11 +4,13 @@ import {
   buildUpdateJsObjectRequest,
   compileJsObject,
   compileJsObjectCode,
+  crossObjectCalls,
   createJsObjectSpecSchema,
   deleteJsObjectSpecSchema,
   hasSpecMarker,
   isCompilerAuthoredJsBody,
   jsObjectDefinitionFromBody,
+  jsObjectDefinitionSchema,
   updateJsObjectSpecSchema,
 } from "./jsObject.js";
 
@@ -487,5 +489,76 @@ describe("definition marker — availability and versioning (council M2 security
     ).toBeUndefined();
     expect(hasSpecMarker(`${code} /* mcp-spec:${other} */`)).toBe(true);
     expect(hasSpecMarker(code)).toBe(false);
+  });
+});
+
+describe("cross-object calls are collected for the tool-level existence check", () => {
+  it("lists each distinct { object, function } pair once and ignores sibling calls", () => {
+    const definition = jsObjectDefinitionSchema.parse({
+      functions: [
+        {
+          name: "a",
+          steps: [
+            { call: { object: "Utils", function: "count" }, into: "n" },
+            { call: "b" },
+          ],
+        },
+        {
+          name: "b",
+          returns: {
+            op: "add",
+            args: [
+              { call: { object: "Utils", function: "count" } },
+              { call: { object: "Other", function: "go" } },
+            ],
+          },
+        },
+      ],
+    });
+
+    expect(
+      crossObjectCalls(definition).sort((a, b) =>
+        a.object.localeCompare(b.object),
+      ),
+    ).toEqual([
+      { object: "Other", function: "go" },
+      { object: "Utils", function: "count" },
+    ]);
+    expect(
+      jsObjectDefinitionSchema.safeParse({
+        functions: [{ name: "a", steps: [{ call: "missing" }] }],
+      }).success,
+    ).toBe(false);
+  });
+});
+
+describe("crossObjectCalls ignores an object key that is merely named call", () => {
+  it("does not report a { call: <Expr> } object member as a cross-object target", () => {
+    const definition = jsObjectDefinitionSchema.parse({
+      functions: [
+        { name: "helper", returns: 1 },
+        { name: "a", returns: { object: { call: { call: "helper" } } } },
+      ],
+    });
+
+    expect(crossObjectCalls(definition)).toEqual([]);
+  });
+});
+
+describe("a function may not call itself through the definition schema", () => {
+  it("refuses a direct self-call and accepts a call to a sibling", () => {
+    expect(
+      jsObjectDefinitionSchema.safeParse({
+        functions: [{ name: "a", steps: [{ call: "a" }] }],
+      }).success,
+    ).toBe(false);
+    expect(
+      jsObjectDefinitionSchema.safeParse({
+        functions: [
+          { name: "a", steps: [{ call: "b" }] },
+          { name: "b", returns: 1 },
+        ],
+      }).success,
+    ).toBe(true);
   });
 });

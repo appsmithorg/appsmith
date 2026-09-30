@@ -20,6 +20,7 @@ const ctx = (over: Partial<ExprContext> = {}): ExprContext => ({
   params: new Set(),
   vars: new Set(),
   constants: new Set(),
+  functions: new Set(),
   allowItem: false,
   ...over,
 });
@@ -910,5 +911,168 @@ describe("jsExpr — run … onError executes the recovery branch (council M3 QA
       run({ run: async () => ({ ok: 1 }) }, storeValue, showAlert, undefined),
     ).rejects.toThrow("missing query parameter: id");
     expect(alerts).toHaveLength(1);
+  });
+});
+
+describe("jsExpr — milestone 4 (corpus-driven): call a sibling or another object's function", () => {
+  const fns = new Set(["helper", "save"]);
+
+  it("compiles sibling and cross-object calls as awaited, validated callees", () => {
+    expect(
+      compileExpr(expr({ call: "helper", args: [{ param: "v" }, 1] })),
+    ).toBe("(await this.helper(v, 1))");
+    expect(
+      compileExpr(expr({ call: { object: "Utils", function: "count" } })),
+    ).toBe("(await Utils.count())");
+    expect(
+      compileSteps(
+        steps([
+          { call: "helper", args: [{ var: "x" }], into: "r" },
+          { call: { object: "Utils", function: "count" } },
+        ]),
+      ),
+    ).toEqual(["let r = (await this.helper(x));", "(await Utils.count());"]);
+  });
+
+  it("refuses an unknown sibling, a host object, a shadowing local, and a call inside a per-item callback", () => {
+    expect(
+      validateExpr(expr({ call: "nope" }), ctx({ functions: fns })),
+    ).toMatch(/unknown function "nope"/);
+    expect(
+      validateExpr(expr({ call: "helper" }), ctx({ functions: fns })),
+    ).toBeUndefined();
+    expect(
+      validateExpr(
+        expr({ call: "helper" }),
+        ctx({ functions: fns, self: "helper" }),
+      ),
+    ).toMatch(/may not call itself/);
+    expect(
+      exprSchema.safeParse({ call: { object: "globalThis", function: "eval" } })
+        .success,
+    ).toBe(false);
+    expect(
+      exprSchema.safeParse({
+        call: { object: "Utils", function: "constructor" },
+      }).success,
+    ).toBe(false);
+    expect(exprSchema.safeParse({ call: "__proto__" }).success).toBe(false);
+    expect(
+      exprSchema.safeParse({ call: "helper", args: new Array(9).fill(1) })
+        .success,
+    ).toBe(false);
+    expect(
+      stepsProblem(
+        steps([
+          { let: "Utils", value: 1 },
+          { call: { object: "Utils", function: "count" } },
+        ]),
+        ctx({ functions: fns }),
+      ),
+    ).toMatch(/both a local name and a JS object to call/);
+    expect(
+      validateExpr(
+        expr({
+          fn: "map",
+          args: [{ param: "rows" }, { call: "helper", args: [{ item: true }] }],
+        }),
+        ctx({ params: new Set(["rows"]), functions: fns }),
+      ),
+    ).toMatch(/call is not allowed inside map/);
+  });
+
+  it("executes a sibling call with this bound and renders an expression showAlert message", async () => {
+    const lines = compileSteps(
+      steps([
+        { call: "helper", args: [{ param: "v" }], into: "r" },
+        {
+          showAlert: { fn: "concat", args: ["Got ", { var: "r" }] },
+          style: "success",
+        },
+        { return: { var: "r" } },
+      ]),
+    );
+    const alerts: unknown[] = [];
+    const run = new Function(
+      "showAlert",
+      "v",
+      `return (async function () { ${lines.join(" ")} }).call(this);`,
+    ) as (this: unknown, showAlert: unknown, v: unknown) => Promise<unknown>;
+    const self = { helper: async (x: string) => x.toUpperCase() };
+
+    await expect(
+      run.call(self, (m: string, s: string) => alerts.push([m, s]), "abc"),
+    ).resolves.toBe("ABC");
+    expect(alerts).toEqual([["Got ABC", "success"]]);
+  });
+});
+
+describe("jsExpr — milestone 4 security notes", () => {
+  it("keeps the 300-character cap on a literal showAlert message and refuses template syntax in an expression one", () => {
+    expect(stepSchema.safeParse({ showAlert: "x".repeat(300) }).success).toBe(
+      true,
+    );
+    expect(stepSchema.safeParse({ showAlert: "x".repeat(301) }).success).toBe(
+      false,
+    );
+    expect(
+      stepSchema.safeParse({
+        showAlert: { fn: "concat", args: ["a", "{{ x }}"] },
+      }).success,
+    ).toBe(false);
+    expect(
+      stepSchema.safeParse({
+        showAlert: { fn: "concat", args: ["Saved ", { var: "n" }] },
+      }).success,
+    ).toBe(true);
+  });
+});
+
+describe("jsExpr — milestone 4 QA additions", () => {
+  it("renders a non-string showAlert message through String()", async () => {
+    const lines = compileSteps(steps([{ showAlert: { var: "n" } }]));
+    const alerts: unknown[] = [];
+    const run = new Function(
+      "showAlert",
+      "n",
+      `return (async () => { ${lines.join(" ")} })();`,
+    ) as (s: unknown, n: unknown) => Promise<void>;
+
+    await run((m: string, s: string) => alerts.push([m, s]), 3);
+    await run((m: string, s: string) => alerts.push([m, s]), null);
+    expect(lines[0]).toBe('showAlert(String(n ?? ""), "info");');
+    expect(alerts).toEqual([
+      ["3", "info"],
+      ["", "info"],
+    ]);
+  });
+
+  it("allows a call inside a forEach body and inside an onError branch", () => {
+    const body = steps([
+      {
+        forEach: { param: "rows" },
+        as: "row",
+        do: [{ call: "helper", args: [{ var: "row" }] }],
+      },
+      {
+        run: "Q",
+        into: "r",
+        onError: [
+          { call: { object: "Utils", function: "count" }, into: "n" },
+          { return: { var: "n" } },
+        ],
+      },
+    ]);
+
+    expect(
+      stepsProblem(
+        body,
+        ctx({ params: new Set(["rows"]), functions: new Set(["helper"]) }),
+      ),
+    ).toBeUndefined();
+    expect(compileSteps(body).join(" ")).toContain("(await this.helper(row));");
+    expect(compileSteps(body).join(" ")).toContain(
+      "let n = (await Utils.count());",
+    );
   });
 });

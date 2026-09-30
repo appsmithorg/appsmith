@@ -474,6 +474,54 @@ export const JS_OBJECT_GUIDE_EXAMPLES: {
     },
   },
   {
+    title: "Compose functions: a sibling helper and another object's function",
+    what: "`{ call }` invokes a sibling function of this object by name (`await this.normalise(...)`) or a function of another JS object (`await Utils.count()`); both are awaited, so a call cannot appear inside map / filter. The other object and function must already exist on the same page. A `showAlert` message can be an expression.",
+    definition: {
+      functions: [
+        {
+          name: "normalise",
+          params: ["value"],
+          returns: {
+            fn: "lower",
+            args: [{ fn: "trim", args: [{ param: "value" }] }],
+          },
+        },
+        {
+          name: "saveTag",
+          steps: [
+            {
+              let: "tag",
+              value: {
+                call: "normalise",
+                args: [{ widget: "inpTag", property: "text" }],
+              },
+            },
+            {
+              call: { object: "Utils", function: "count" },
+              args: [{ var: "tag" }],
+              into: "existing",
+            },
+            {
+              if: { op: "gt", args: [{ var: "existing" }, 0] },
+              then: [
+                {
+                  showAlert: {
+                    fn: "concat",
+                    args: ["Tag ", { var: "tag" }, " already exists"],
+                  },
+                  style: "warning",
+                },
+                { return: false },
+              ],
+            },
+            { run: "InsertTag", with: { tag: { var: "tag" } } },
+            { return: true },
+          ],
+        },
+      ],
+    },
+  },
+  {
     title: "Loop over selected rows and keep a running total",
     what: "`forEach` binds a name per element; `set` reassigns a `let`; `storeValue` writes `appsmith.store`; `resetWidget` clears a widget by name.",
     definition: {
@@ -580,12 +628,13 @@ export function renderJsObjectsGuide(): string {
     '| forEach | `{ "forEach": expr, "as": "item", "do": [steps] }` | loop over an array, one local per element |',
     '| throw | `{ "throw": "message" }` | stop with `Error(message)`; the message is a literal |',
     '| return | `{ "return": expr }` | return a value |',
-    '| showAlert | `{ "showAlert": "message", "style": "info" }` | toast; style info (default), success, warning, or error |',
+    '| showAlert | `{ "showAlert": "message", "style": "info" }` | toast; style info (default), success, warning, or error; the message may also be an expression, rendered as text |',
     '| storeValue | `{ "storeValue": "key", "value": expr }` | write `appsmith.store.key` (session only) |',
     '| resetWidget | `{ "resetWidget": "WidgetName" }` | reset a widget to its default |',
     '| showModal / closeModal | `{ "showModal": "mdlEdit" }`, `{ "closeModal": "mdlEdit" }` | open or close a modal by name |',
     '| navigate | `{ "navigate": "Order Details" }` | go to a page of this app (same window) |',
     '| run … onError | `{ "run": "Q", "with": { … }, "into": "r", "onError": [steps] }` | the failure branch runs when the query rejects; the error itself is never exposed, and `r` is not readable inside it |',
+    '| call | `{ "call": "helper", "args": [expr], "into": "r" }` or `{ "call": { "object": "Utils", "function": "count" }, "args": [expr] }` | `await this.helper(...)` on a sibling function of this object, or `await Utils.count(...)` on a function of another JS object on the same page (checked to exist before writing; a function may not call itself directly); `into` keeps the result |',
     "",
     "A local declared inside a `then`, `else` or `do` block is not visible after that block.",
     "Locals are declared before use, in order; a name cannot be declared twice, cannot be a query or widget you",
@@ -660,6 +709,9 @@ export function renderJsObjectsGuide(): string {
     '| `appsmith.store.userName` | `{ "store": "userName" }` |',
     '| `showAlert("Saved", "success")` | `{ "showAlert": "Saved", "style": "success" }` |',
     '| `resetWidget(\'Input1\')` | `{ "resetWidget": "Input1" }` |',
+    '| `await this.helper(x)` | `{ "call": "helper", "args": [x] }` (as a value) or `{ "call": "helper", "args": [x], "into": "r" }` (as a statement) |',
+    '| `await Utils.count(x)` (another JS object) | `{ "call": { "object": "Utils", "function": "count" }, "args": [x] }` |',
+    '| `showAlert(`Saved ${n} rows`)` | `{ "showAlert": { "fn": "concat", "args": ["Saved ", n, " rows"] }, "style": "success" }` |',
     '| `showModal(\'mdlEdit\')`, `closeModal(\'mdlEdit\')` | `{ "showModal": "mdlEdit" }`, `{ "closeModal": "mdlEdit" }` |',
     '| `navigateTo(\'Orders\')` | `{ "navigate": "Orders" }` |',
     '| `try { await Q.run() } catch (e) { … }` | `{ "run": "Q", "onError": [...] }` (no `e`) |',

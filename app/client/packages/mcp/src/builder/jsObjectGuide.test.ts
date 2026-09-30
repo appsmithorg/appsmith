@@ -83,6 +83,7 @@ describe("js-objects guide — rendered from the grammar, examples that really c
       '"showAlert"',
       '"storeValue"',
       '"resetWidget"',
+      '"call"',
       '"showModal"',
       '"closeModal"',
       '"navigate"',

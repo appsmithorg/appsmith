@@ -5632,6 +5632,89 @@ describe("governance-wrapped layout mutations", () => {
     expect(read.body.jsObjects[0].definition).toBeUndefined();
   });
 
+  it("update_js_object checks cross-object calls on this page before writing", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const current = {
+      id: "coll1",
+      name: "Flow",
+      pageId: "b".repeat(24),
+      body: compileJsObject({
+        functions: [{ name: "go", steps: [{ return: 1 }] }],
+      } as never),
+      actions: [{ id: "act-go", name: "go" }],
+    };
+    const utils = {
+      id: "coll-utils",
+      name: "Utils",
+      pageId: "b".repeat(24),
+      body: "export default {}",
+      actions: [{ id: "a1", name: "count" }],
+    };
+    const otherPageUtils = {
+      ...utils,
+      id: "coll-other",
+      name: "Helpers",
+      pageId: "z".repeat(24),
+    };
+    const updateActionCollectionBody = jest.fn(async () => ({}));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listActionCollections: jest.fn(async () => [
+        current,
+        utils,
+        otherPageUtils,
+      ]),
+      updateActionCollectionBody,
+      updateActionCollection: jest.fn(async () => ({ ...current, body: null })),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const update = async (call: unknown) =>
+      callTool(server, "update_js_object", {
+        spec: {
+          applicationId: APP,
+          collectionId: "coll1",
+          revision: read.body.jsObjects[0].revision,
+          functions: [
+            {
+              name: "go",
+              steps: [{ call, into: "n" }, { return: { var: "n" } }],
+            },
+          ],
+        },
+      });
+
+    expect(
+      String((await update({ object: "Nope", function: "count" })).body.error),
+    ).toMatch(/not found on this page/);
+    expect(
+      String((await update({ object: "Utils", function: "drop" })).body.error),
+    ).toMatch(/function "drop" was not found/);
+    expect(
+      String((await update({ object: "Flow", function: "go" })).body.error),
+    ).toMatch(/by its name alone/);
+    expect(
+      String(
+        (await update({ object: "Helpers", function: "count" })).body.error,
+      ),
+    ).toMatch(/not found on this page/);
+    expect(updateActionCollectionBody).not.toHaveBeenCalled();
+
+    const ok = await update({ object: "Utils", function: "count" });
+
+    expect(ok.body.updated).toBe(true);
+    expect(updateActionCollectionBody).toHaveBeenCalledTimes(1);
+  });
+
   it("update_js_object reports a PATCH failure after the body write as a partial failure that needs a re-read", async () => {
     const store = new MemoryGovernanceStore();
     const APP = "a".repeat(24);
@@ -5753,6 +5836,92 @@ describe("governance-wrapped layout mutations", () => {
     expect(
       (await wire({ object: "Helpers", function: "save" })).body.changeId,
     ).toBeDefined();
+  });
+
+  it("create_js_object checks cross-object calls against the application before writing", async () => {
+    const createActionCollection = jest.fn<
+      Promise<unknown>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "coll-new", name: "Flow" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listPlugins: jest.fn(async () => [
+        { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
+      ]),
+      listActionCollections: jest.fn(async () => [
+        {
+          id: "coll-utils",
+          name: "Utils",
+          pageId: "b".repeat(24),
+          body: "export default {}",
+          actions: [{ id: "a1", name: "count" }],
+        },
+      ]),
+      createActionCollection,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: "a".repeat(24),
+    });
+    const create = async (call: unknown) =>
+      callTool(server, "create_js_object", {
+        spec: {
+          applicationId: "a".repeat(24),
+          pageId: "b".repeat(24),
+          name: "Flow",
+          revision: read.body.revision,
+          functions: [
+            {
+              name: "go",
+              steps: [{ call, into: "n" }, { return: { var: "n" } }],
+            },
+          ],
+        },
+      });
+
+    expect(
+      String((await create({ object: "Nope", function: "count" })).body.error),
+    ).toMatch(/JS object "Nope" was not found/);
+    // A query is not a JS object: Query1.run is not a callable target here (use the run statement instead).
+    expect(
+      String((await create({ object: "Query1", function: "run" })).body.error),
+    ).toMatch(/JS object "Query1" was not found on this page/);
+    expect(
+      String((await create({ object: "Utils", function: "drop" })).body.error),
+    ).toMatch(/function "drop" was not found on JS object "Utils"/);
+    expect(
+      String((await create({ object: "Flow", function: "go" })).body.error),
+    ).toMatch(/by its name alone/);
+    expect(createActionCollection).not.toHaveBeenCalled();
+
+    // Page-scoped: a JS object of the same name on ANOTHER page does not resolve the call (entity names are
+    // unique per page, so a same-named query on this page would otherwise be what the call reaches at run time).
+    (api.listActionCollections as jest.Mock).mockResolvedValueOnce([
+      {
+        id: "coll-other",
+        name: "Utils",
+        pageId: "z".repeat(24),
+        body: "export default {}",
+        actions: [{ id: "a2", name: "count" }],
+      },
+    ]);
+    expect(
+      String((await create({ object: "Utils", function: "count" })).body.error),
+    ).toMatch(/not found on this page/);
+    expect(createActionCollection).not.toHaveBeenCalled();
+
+    const ok = await create({ object: "Utils", function: "count" });
+
+    expect(ok.body.created).toBe(true);
+    const dto = createActionCollection.mock.calls[0][0] as { body: string };
+
+    expect(dto.body).toContain("let n = (await Utils.count());");
   });
 
   it("create_js_object refuses a definition nested past the JSON depth cap before parsing it", async () => {
