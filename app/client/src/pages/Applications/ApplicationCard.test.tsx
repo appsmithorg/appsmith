@@ -1,5 +1,10 @@
 import React from "react";
-import { fireEvent } from "@testing-library/react";
+import { act, fireEvent } from "@testing-library/react";
+import store from "store";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
 import { render } from "test/testUtils";
 import { ApplicationCard } from "./ApplicationCard";
 import type { ApplicationPayload } from "entities/Application";
@@ -138,6 +143,53 @@ describe("ApplicationCard — description subtitle", () => {
     });
 
     expect(update).toHaveBeenCalledTimes(1);
+  });
+
+  it("allows retrying the same description after a failed save", () => {
+    const update = jest.fn();
+    const app = buildApplication({ description: "Old blurb" });
+
+    const { getByTestId } = render(
+      <ApplicationCard {...baseProps} application={app} update={update} />,
+    );
+
+    const trigger = getByTestId("t--application-card-context-menu");
+
+    fireEvent.keyDown(trigger, { key: "Enter" });
+
+    const editAndBlur = (value: string) => {
+      const field = document.querySelector(
+        ".t--application-description",
+      ) as HTMLElement;
+
+      fireEvent.click(field);
+      const input = document.querySelector(
+        ".t--application-description input",
+      ) as HTMLInputElement;
+
+      fireEvent.change(input, { target: { value } });
+      fireEvent.blur(input);
+    };
+
+    editAndBlur("Retry me");
+    expect(update).toHaveBeenCalledTimes(1);
+
+    // The request goes out and fails; the store never learns the new value.
+    act(() => {
+      store.dispatch({
+        type: ReduxActionTypes.UPDATE_APPLICATION,
+        payload: { id: "app-1", description: "Retry me" },
+      });
+    });
+    act(() => {
+      store.dispatch({
+        type: ReduxActionErrorTypes.UPDATE_APPLICATION_ERROR,
+        payload: {},
+      });
+    });
+
+    editAndBlur("Retry me");
+    expect(update).toHaveBeenCalledTimes(2);
   });
 
   it("hides the description editor from the card menu without edit permission", () => {

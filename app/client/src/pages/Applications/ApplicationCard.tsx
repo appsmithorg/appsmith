@@ -147,7 +147,21 @@ export function ApplicationCard(props: ApplicationCardProps) {
   >(null);
   // Last value handed to `update`; blur and menu-close can both fire for one edit.
   const lastSubmittedDescriptionRef = useRef<string | null>(null);
+  const wasSavingDescriptionRef = useRef(false);
   const dispatch = useDispatch();
+
+  useEffect(
+    function forgetSubmittedDescriptionWhenSaveSettles() {
+      // Once the request has succeeded or failed, the store comparison alone
+      // decides whether a value is new, so the same value can be retried.
+      if (wasSavingDescriptionRef.current && !isSavingDescription) {
+        lastSubmittedDescriptionRef.current = null;
+      }
+
+      wasSavingDescriptionRef.current = isSavingDescription;
+    },
+    [isSavingDescription],
+  );
 
   const applicationId = application.id;
   const baseApplicationId = application.baseId;
