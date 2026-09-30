@@ -674,3 +674,139 @@ describe("lintArtifact — compiler output is lint-clean", () => {
     expect(Object.keys(diagnostics.pages)).toContain("Home");
   });
 });
+
+describe("lint — narrow-canvas (nested content laid out by an earlier MCP version)", () => {
+  const page = (innerRightColumn: number, childRight: number) =>
+    ({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      topRow: 0,
+      bottomRow: 100,
+      leftColumn: 0,
+      rightColumn: 1242,
+      children: [
+        {
+          widgetId: "m",
+          widgetName: "EditModal",
+          type: "MODAL_WIDGET",
+          detachFromLayout: true,
+          topRow: 0,
+          bottomRow: 40,
+          leftColumn: 16,
+          rightColumn: 48,
+          children: [
+            {
+              widgetId: "mc",
+              widgetName: "ModalCanvas",
+              type: "CANVAS_WIDGET",
+              detachFromLayout: true,
+              topRow: 0,
+              bottomRow: 40,
+              leftColumn: 0,
+              rightColumn: innerRightColumn,
+              children: [
+                {
+                  widgetId: "a",
+                  widgetName: "Title",
+                  type: "INPUT_WIDGET_V2",
+                  topRow: 1,
+                  bottomRow: 5,
+                  leftColumn: 0,
+                  rightColumn: 15,
+                },
+                {
+                  widgetId: "b",
+                  widgetName: "Body",
+                  type: "INPUT_WIDGET_V2",
+                  topRow: 1,
+                  bottomRow: 5,
+                  leftColumn: 16,
+                  rightColumn: childRight,
+                },
+                {
+                  widgetId: "s",
+                  widgetName: "Save",
+                  type: "BUTTON_WIDGET",
+                  topRow: 6,
+                  bottomRow: 10,
+                  leftColumn: 16,
+                  rightColumn: 32,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }) as WidgetNode;
+
+  it("flags a canvas whose stored width equals the parent's span with all children inside it, and offers the scaled relayout", () => {
+    const { issues } = lintDsl(page(32, 32));
+    const issue = issues.find((i) => i.rule === "narrow-canvas")!;
+
+    expect(issue).toBeDefined();
+    expect(issue.msg).toContain("32-column canvas");
+    expect(issue.suggestedFix?.tool).toBe("patch_widgets");
+    // Rightmost first: Body and Save (leftColumn 16) before Title (0); each child gets a move then a resize.
+    expect(issue.suggestedFix?.operations).toEqual([
+      { kind: "move", name: "Body", position: { topRow: 1, leftColumn: 32 } },
+      { kind: "resize", name: "Body", columns: 32 },
+      { kind: "move", name: "Save", position: { topRow: 6, leftColumn: 32 } },
+      { kind: "resize", name: "Save", columns: 32 },
+      { kind: "move", name: "Title", position: { topRow: 1, leftColumn: 0 } },
+      { kind: "resize", name: "Title", columns: 30 },
+    ]);
+  });
+
+  it("stays quiet for an editor-saved canvas (pixel width), a current build (64), and content already widened", () => {
+    for (const [inner, right] of [
+      [456, 32],
+      [64, 32],
+      [32, 60],
+    ] as const) {
+      expect(
+        lintDsl(page(inner, right)).issues.some(
+          (i) => i.rule === "narrow-canvas",
+        ),
+      ).toBe(false);
+    }
+  });
+
+  it("does not flag a lone small widget whose scaled width still fits the span, and is silent after its own fix", () => {
+    const small = page(32, 32) as WidgetNode;
+    const canvas = small.children![0].children![0];
+
+    // One 12-column button in a 32-span canvas: scaled to 24 it still fits, so this is not the narrow fingerprint.
+    canvas.children = [
+      {
+        widgetId: "s",
+        widgetName: "Close",
+        type: "BUTTON_WIDGET",
+        topRow: 1,
+        bottomRow: 5,
+        leftColumn: 0,
+        rightColumn: 12,
+      },
+    ];
+    expect(lintDsl(small).issues.some((i) => i.rule === "narrow-canvas")).toBe(
+      false,
+    );
+
+    // Applying the suggested fix to the flagged fixture widens the children past the span: the rule goes quiet.
+    const flagged = page(32, 32) as WidgetNode;
+    const fix = lintDsl(flagged).issues.find(
+      (i) => i.rule === "narrow-canvas",
+    )!.suggestedFix!;
+    const { dsl: fixed, notes } = applyWidgetPatch(flagged, {
+      operations: fix.operations as never,
+    });
+    const after = lintDsl(fixed).issues;
+
+    // Rightmost-first ordering means no widening ever lands on a sibling: no cascade adjustment is reported.
+    expect(notes).toEqual([]);
+    expect(after.some((i) => i.rule === "narrow-canvas")).toBe(false);
+    expect(
+      after.some((i) => i.rule === "overlap" || i.rule === "off-grid"),
+    ).toBe(false);
+  });
+});

@@ -3772,3 +3772,30 @@ describe("applyWidgetPatch — keyboard tabOrder (the platform Accessibility pro
     }
   });
 });
+
+describe("applyWidgetPatch — one update's props are bounded as a whole", () => {
+  it("refuses an update whose props serialise past the cap", () => {
+    const big: Record<string, string> = {};
+
+    for (let i = 0; i < 100; i += 1) big[`c${i}`] = "x".repeat(1_000);
+
+    expect(
+      widgetPatchSchema.safeParse({
+        operations: [
+          { kind: "update", name: "Banners", props: { defaultNewRow: big } },
+        ],
+      }).success,
+    ).toBe(false);
+    expect(
+      widgetPatchSchema.safeParse({
+        operations: [
+          {
+            kind: "update",
+            name: "Banners",
+            props: { defaultNewRow: { c0: "x".repeat(1_000) } },
+          },
+        ],
+      }).success,
+    ).toBe(true);
+  });
+});

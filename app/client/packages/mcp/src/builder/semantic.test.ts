@@ -735,3 +735,71 @@ describe("projectSemanticPage — tabs in display order and the keyboard tabOrde
     expect(byName("Title").props).not.toHaveProperty("tabs");
   });
 });
+
+describe("projectSemanticPage — inner canvases are 64 columns, hidden tabs, numeric tabOrder", () => {
+  it("reports every inner canvas as the 64-column grid, keeps the root's geometry, and lists hidden tabs", () => {
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      rightColumn: 1242,
+      children: [
+        node({
+          widgetId: "c",
+          widgetName: "Card",
+          type: "CONTAINER_WIDGET",
+          rightColumn: 32,
+          children: [
+            node({
+              widgetId: "cc",
+              widgetName: "CardCanvas",
+              type: "CANVAS_WIDGET",
+              rightColumn: 456,
+              children: [],
+            }),
+          ],
+        }),
+        node({
+          widgetId: "t",
+          widgetName: "Views",
+          type: "TABS_WIDGET",
+          tabsObj: {
+            a: {
+              id: "a",
+              label: "Content",
+              widgetId: "c1",
+              index: 0,
+              isVisible: true,
+            },
+            b: {
+              id: "b",
+              label: "Secret",
+              widgetId: "c2",
+              index: 1,
+              isVisible: false,
+            },
+          },
+        }),
+        node({
+          widgetId: "i",
+          widgetName: "Email",
+          type: "INPUT_WIDGET_V2",
+          tabOrder: "3",
+        }),
+      ],
+    });
+    const byName = (name: string) =>
+      projectSemanticPage(dsl).widgets.find((w) => w.name === name)!;
+
+    expect(byName("MainContainer").geometry.rightColumn).toBe(1242);
+    expect(byName("CardCanvas").geometry).toMatchObject({
+      leftColumn: 0,
+      rightColumn: 64,
+    });
+    expect(byName("Views").props).toEqual({
+      tabs: ["Content", "Secret"],
+      tabsHidden: ["Secret"],
+    });
+    expect(byName("Email").props).toMatchObject({ tabOrder: 3 });
+  });
+});

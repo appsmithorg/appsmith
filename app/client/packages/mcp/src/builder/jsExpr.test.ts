@@ -1,4 +1,5 @@
 import {
+  CALL_DEPTH_LIMIT,
   compileExpr,
   compileSteps,
   type Expr,
@@ -920,10 +921,12 @@ describe("jsExpr — milestone 4 (corpus-driven): call a sibling or another obje
   it("compiles sibling and cross-object calls as awaited, validated callees", () => {
     expect(
       compileExpr(expr({ call: "helper", args: [{ param: "v" }, 1] })),
-    ).toBe("(await this.helper(v, 1))");
+    ).toMatch(
+      /^\(await \(async \(\) => \{ if \(\(this\.mcpCallDepth \?\? 0\) >= 32\) .*this\.mcpCallDepth = \(this\.mcpCallDepth \?\? 0\) \+ 1; try \{ return await this\.helper\(v, 1\); \} finally \{ this\.mcpCallDepth -= 1; \} \}\)\(\)\)$/,
+    );
     expect(
       compileExpr(expr({ call: { object: "Utils", function: "count" } })),
-    ).toBe("(await Utils.count())");
+    ).toMatch(/return await Utils\.count\(\); \} finally/);
     expect(
       compileSteps(
         steps([
@@ -931,7 +934,14 @@ describe("jsExpr — milestone 4 (corpus-driven): call a sibling or another obje
           { call: { object: "Utils", function: "count" } },
         ]),
       ),
-    ).toEqual(["let r = (await this.helper(x));", "(await Utils.count());"]);
+    ).toEqual([
+      expect.stringMatching(
+        /^let r = \(await \(async \(\) => \{ .*return await this\.helper\(x\);.* \}\)\(\)\);$/,
+      ),
+      expect.stringMatching(
+        /^\(await \(async \(\) => \{ .*return await Utils\.count\(\);.* \}\)\(\)\);$/,
+      ),
+    ]);
   });
 
   it("refuses an unknown sibling, a host object, a shadowing local, and a call inside a per-item callback", () => {
@@ -1070,9 +1080,11 @@ describe("jsExpr — milestone 4 QA additions", () => {
         ctx({ params: new Set(["rows"]), functions: new Set(["helper"]) }),
       ),
     ).toBeUndefined();
-    expect(compileSteps(body).join(" ")).toContain("(await this.helper(row));");
     expect(compileSteps(body).join(" ")).toContain(
-      "let n = (await Utils.count());",
+      "return await this.helper(row); } finally",
+    );
+    expect(compileSteps(body).join(" ")).toContain(
+      "return await Utils.count(); } finally",
     );
   });
 });
@@ -1135,5 +1147,67 @@ describe("jsExpr — CodeRabbit round: templates that were not valid or not line
       { id: "a", name: "A" },
       { id: "b", name: "B" },
     ]);
+  });
+});
+
+describe("jsExpr — runtime call-depth guard at every call site", () => {
+  const run = async (source: string, self: Record<string, unknown>) =>
+    new Function(
+      "Utils",
+      `return (async function () { return ${source}; }).call(this);`,
+    ).call(self, self.Utils);
+
+  it("increments and restores this.mcpCallDepth around a call, and stops a cycle at the limit", async () => {
+    const source = compileExpr(expr({ call: "helper" }));
+    let calls = 0;
+    // The counter is an undeclared own property: a fresh object starts at undefined (?? 0).
+    const self: Record<string, unknown> = {
+      helper: async function (this: Record<string, unknown>) {
+        calls += 1;
+
+        // A cycle closed through hand-written code: helper calls back into the compiled call site.
+        return run(source, this);
+      },
+    };
+
+    await expect(run(source, self)).rejects.toThrow(
+      `JS-object call depth exceeded ${CALL_DEPTH_LIMIT}`,
+    );
+    expect(calls).toBe(CALL_DEPTH_LIMIT);
+    // Self-balancing: every frame that incremented also decremented, so the counter is exactly 0 after a trip and
+    // a second run trips at the same depth (a reset-then-throw would have left it negative and weakened the limit).
+    expect(self.mcpCallDepth).toBe(0);
+    calls = 0;
+    await expect(run(source, self)).rejects.toThrow("call depth exceeded");
+    expect(calls).toBe(CALL_DEPTH_LIMIT);
+    expect(self.mcpCallDepth).toBe(0);
+
+    // A non-cyclic call returns its value and leaves the counter at zero.
+    const plain: Record<string, unknown> = { helper: async () => 42 };
+
+    await expect(run(source, plain)).resolves.toBe(42);
+    expect(plain.mcpCallDepth).toBe(0);
+  });
+
+  it("decrements rather than resets: a nested non-cyclic call leaves the outer frame's count intact", async () => {
+    const source = compileExpr(expr({ call: "helper" }));
+    const seen: number[] = [];
+    const self: Record<string, unknown> = {
+      helper: async function (this: Record<string, unknown>) {
+        seen.push(this.mcpCallDepth as number);
+
+        // One nested call through the compiled site, then return: the outer frame must still see its own depth
+        // afterwards (a `finally` that reset the counter to 0 would satisfy the trip test but not this one).
+        if (seen.length === 1) await run(source, this);
+
+        seen.push(this.mcpCallDepth as number);
+
+        return 1;
+      },
+    };
+
+    await expect(run(source, self)).resolves.toBe(1);
+    expect(seen).toEqual([1, 2, 2, 1]);
+    expect(self.mcpCallDepth).toBe(0);
   });
 });

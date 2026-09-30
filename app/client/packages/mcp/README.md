@@ -49,6 +49,17 @@ Findings from building an internal admin app through MCP, all fixed without wide
   normalised and refused if they carry quotes, backslashes, parentheses or whitespace, because the image widget
   interpolates the value raw into a CSS `url("…")` rule; `tooltip` / `labelTooltip` refuse markup (the button renders
   its tooltip as HTML); the CSV `delimiter` is one of `,` `;` `|` tab.
+- Follow-ups from the reviews above, all landed: every compiled JS-object `call` site carries a runtime call-depth
+  guard (a per-object `mcpCallDepth` counter, limit 32) so a cycle closed through editor-authored or drifted code
+  is stopped at run time too, not only the statically detectable ones; `update_js_object` refuses a rename onto a
+  name another JS object or query on the page already uses (`name_taken`); stored definitions are decoded once per
+  body (bounded cache) so the cycle check stays cheap on large pages; one `patch_widgets` update's props are capped
+  at 64 KB; `inspect_page` reports `narrow-canvas` for nested content laid out by an earlier MCP version at the
+  parent's column span, with an executable full-width relayout as its suggested fix; `read_semantic_page` reports
+  every inner canvas as the 64-column grid it is, lists a Tabs widget's hidden tabs in `tabsHidden`, and reads a
+  numeric-string tab order back as a number; and the MCP build workflow now also runs on widget-pane and widget-factory
+  changes, giving those PRs the fast standalone MCP check (the workspace-wide client unit-test job, which feeds the
+  merge gate, already runs the ownership drift test on every client PR).
 - Keyboard tab order and tab ordering. `patch_widgets` accepts the platform-level `tabOrder` (Accessibility > Tab
   order: a positive integer on every focusable widget, `null` back to automatic top-to-bottom, left-to-right order)
   and `read_semantic_page` reports it; the build path leaves it automatic, which already follows the compiler's

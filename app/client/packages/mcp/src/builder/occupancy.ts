@@ -51,7 +51,7 @@ export interface Size {
 // linter can attach fixes without a module cycle; every emitted operation must validate against widgetPatchSchema.
 export type SuggestedOperation =
   | { kind: "move"; name: string; position: Position }
-  | { kind: "resize"; name: string; rows: number };
+  | { kind: "resize"; name: string; rows?: number; columns?: number };
 
 export interface SuggestedFix {
   tool: "patch_widgets";

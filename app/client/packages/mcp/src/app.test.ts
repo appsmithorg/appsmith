@@ -6002,6 +6002,265 @@ describe("governance-wrapped layout mutations", () => {
     expect(api2.createActionCollection).not.toHaveBeenCalled();
   });
 
+  it("refuses a rename onto a name another JS object or a query on the page already uses", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const PAGE = "b".repeat(24);
+    const mk = (id: string, name: string) => ({
+      id,
+      name,
+      pageId: PAGE,
+      body: compileJsObject({
+        functions: [{ name: "go", returns: 1 }],
+      } as never),
+      actions: [{ id: `${id}Act`, name: "go" }],
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listActionCollections: jest.fn(async () => [
+        mk("collA", "Alpha"),
+        mk("collB", "Beta"),
+      ]),
+      listActions: jest.fn(async () => [
+        { id: "q1", name: "GetUsers", pageId: PAGE },
+      ]),
+      updateActionCollection: jest.fn(async (body: unknown) => body),
+      updateActionCollectionBody: jest.fn(async () => ({})),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const revision = read.body.jsObjects.find(
+      (o: { name: string }) => o.name === "Alpha",
+    ).revision;
+    const rename = async (name: string) =>
+      callTool(server, "update_js_object", {
+        spec: { applicationId: APP, collectionId: "collA", revision, name },
+      });
+
+    const ontoObject = await rename("Beta");
+
+    expect(ontoObject.body.code).toBe("name_taken");
+    expect(String(ontoObject.body.error)).toContain('JS object "Beta"');
+
+    const ontoQuery = await rename("GetUsers");
+
+    expect(ontoQuery.body.code).toBe("name_taken");
+    expect(String(ontoQuery.body.error)).toContain('query "GetUsers"');
+    expect(api.updateActionCollection).not.toHaveBeenCalled();
+
+    const free = await rename("Gamma");
+
+    expect(free.body.updated).toBe(true);
+  });
+
+  it("allows a rename onto a name that only another page's JS object or query uses", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const PAGE = "b".repeat(24);
+    const OTHER_PAGE = "c".repeat(24);
+    const mk = (id: string, name: string, pageId: string) => ({
+      id,
+      name,
+      pageId,
+      body: compileJsObject({
+        functions: [{ name: "go", returns: 1 }],
+      } as never),
+      actions: [{ id: `${id}Act`, name: "go" }],
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listActionCollections: jest.fn(async () => [
+        mk("collA", "Alpha", PAGE),
+        mk("collB", "Beta", OTHER_PAGE),
+      ]),
+      listActions: jest.fn(async () => [
+        { id: "q1", name: "GetUsers", pageId: OTHER_PAGE },
+      ]),
+      updateActionCollection: jest.fn(async (body: unknown) => body),
+      updateActionCollectionBody: jest.fn(async () => ({})),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const revision = read.body.jsObjects.find(
+      (o: { name: string }) => o.name === "Alpha",
+    ).revision;
+    const rename = async (name: string) =>
+      callTool(server, "update_js_object", {
+        spec: { applicationId: APP, collectionId: "collA", revision, name },
+      });
+
+    // Names are page-scoped in the data tree: the same name on another page is a legal Appsmith state.
+    expect((await rename("Beta")).body.updated).toBe(true);
+    expect((await rename("GetUsers")).body.updated).toBe(true);
+  });
+
+  it("re-checks the rename target under the lock, so a create that lands between the early check and the lock is caught", async () => {
+    const APP = "a".repeat(24);
+    const PAGE = "b".repeat(24);
+    const mk = (id: string, name: string) => ({
+      id,
+      name,
+      pageId: PAGE,
+      body: compileJsObject({
+        functions: [{ name: "go", returns: 1 }],
+      } as never),
+      actions: [{ id: `${id}Act`, name: "go" }],
+    });
+    // The "concurrent create" lands the moment the update's lock is acquired: from then on the listing carries
+    // the object the rename wants to become.
+    let gammaExists = false;
+    const store = new (class extends MemoryGovernanceStore {
+      override async acquireLock(
+        entityKey: string,
+      ): Promise<string | undefined> {
+        const lock = await super.acquireLock(entityKey);
+
+        if (lock !== undefined) gammaExists = true;
+
+        return lock;
+      }
+    })();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listActionCollections: jest.fn(async () =>
+        gammaExists
+          ? [mk("collA", "Alpha"), mk("collG", "Gamma")]
+          : [mk("collA", "Alpha")],
+      ),
+      listActions: jest.fn(async () => []),
+      updateActionCollection: jest.fn(async (body: unknown) => body),
+      updateActionCollectionBody: jest.fn(async () => ({})),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const revision = read.body.jsObjects.find(
+      (o: { name: string }) => o.name === "Alpha",
+    ).revision;
+
+    const raced = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "collA",
+        revision,
+        name: "Gamma",
+      },
+    });
+
+    expect(raced.body.code).toBe("name_taken");
+    expect(String(raced.body.error)).toContain('JS object "Gamma"');
+    expect(api.updateActionCollection).not.toHaveBeenCalled();
+    expect(api.updateActionCollectionBody).not.toHaveBeenCalled();
+    // The lock was released on the way out.
+    expect(store.locked.size).toBe(0);
+  });
+
+  it("serialises every JS-object write in an application on one governance key", async () => {
+    const APP = "a".repeat(24);
+    const PAGE = "b".repeat(24);
+    const current = {
+      id: "collA",
+      name: "Alpha",
+      pageId: PAGE,
+      body: compileJsObject({
+        functions: [{ name: "go", returns: 1 }],
+      } as never),
+      actions: [{ id: "collAAct", name: "go" }],
+    };
+    const keys: string[] = [];
+    const store = new (class extends MemoryGovernanceStore {
+      override async acquireLock(
+        entityKey: string,
+      ): Promise<string | undefined> {
+        keys.push(entityKey);
+
+        return super.acquireLock(entityKey);
+      }
+    })();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listActionCollections: jest.fn(async () => [current]),
+      listActions: jest.fn(async () => []),
+      updateActionCollection: jest.fn(async (body: unknown) => body),
+      updateActionCollectionBody: jest.fn(async () => ({})),
+      deleteActionCollection: jest.fn(async () => ({})),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const revision = read.body.jsObjects[0].revision;
+
+    const codeUpdate = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "collA",
+        revision,
+        functions: [{ name: "go", returns: 2 }],
+      },
+    });
+
+    expect(codeUpdate.body.updated).toBe(true);
+    expect(keys).toEqual([`application:${APP}:jsobjects`]);
+
+    // The delete executes on the same key (its one-time confirmation stays bound to the object itself).
+    const reread = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const spec = {
+      applicationId: APP,
+      collectionId: "collA",
+      revision: reread.body.jsObjects[0].revision,
+    };
+    const prepared = await callTool(server, "prepare_delete_js_object", {
+      spec,
+    });
+
+    expect(typeof prepared.body.confirmationId).toBe("string");
+
+    const confirmed = await callTool(server, "confirm_delete_js_object", {
+      spec,
+      confirmationId: prepared.body.confirmationId,
+    });
+
+    expect(confirmed.body.deleted).toBe(true);
+    expect(api.deleteActionCollection).toHaveBeenCalledWith("collA");
+    expect(keys).toEqual([
+      `application:${APP}:jsobjects`,
+      `application:${APP}:jsobjects`,
+    ]);
+    expect(store.locked.size).toBe(0);
+  });
+
   it("update_js_object checks cross-object calls on this page before writing", async () => {
     const store = new MemoryGovernanceStore();
     const APP = "a".repeat(24);
@@ -6291,7 +6550,7 @@ describe("governance-wrapped layout mutations", () => {
     expect(ok.body.created).toBe(true);
     const dto = createActionCollection.mock.calls[0][0] as { body: string };
 
-    expect(dto.body).toContain("let n = (await Utils.count());");
+    expect(dto.body).toContain("return await Utils.count(); } finally");
   });
 
   it("create_js_object refuses a definition nested past the JSON depth cap before parsing it", async () => {

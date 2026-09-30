@@ -279,10 +279,11 @@ export function resolvePlacement(
 }
 
 // A Tabs widget's tabs, in display order (the client sorts `tabsObj` entries by `index`).
-interface TabEntry {
+export interface TabEntry {
   id: string;
   label: string;
   index: number;
+  isVisible: boolean;
 }
 
 export function tabEntriesOf(node: WidgetNode): TabEntry[] {
@@ -301,7 +302,11 @@ export function tabEntriesOf(node: WidgetNode): TabEntry[] {
   const entries: TabEntry[] = [];
 
   for (const [id, raw] of Object.entries(tabsObj as Record<string, unknown>)) {
-    const tab = raw as { label?: unknown; index?: unknown } | null;
+    const tab = raw as {
+      label?: unknown;
+      index?: unknown;
+      isVisible?: unknown;
+    } | null;
 
     if (tab !== null && typeof tab.label === "string") {
       entries.push({
@@ -309,6 +314,7 @@ export function tabEntriesOf(node: WidgetNode): TabEntry[] {
         label: tab.label,
         index:
           typeof tab.index === "number" ? tab.index : Number.MAX_SAFE_INTEGER,
+        isVisible: tab.isVisible !== false,
       });
     }
   }

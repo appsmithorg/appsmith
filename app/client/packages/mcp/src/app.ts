@@ -292,7 +292,25 @@ interface ToolResult {
 
 // Map governance failures to a stable, safe MCP error payload so agents get a consistent stale/busy/confirmation
 // signal instead of an opaque 500. Returns undefined for non-governance errors (let the caller handle those).
+// Thrown from inside a governed mutate() when the rename target was taken between the handler's early check and
+// the lock; the update handler maps it to `name_taken` like the early refusal.
+class NameTakenError extends Error {
+  constructor(
+    readonly currentName: string,
+    readonly nextName: string,
+    readonly taken: string,
+  ) {
+    super(
+      `cannot rename "${currentName}" to "${nextName}": ${taken} on this page already has that name`,
+    );
+  }
+}
+
 function governanceError(error: unknown): ToolResult | undefined {
+  if (error instanceof NameTakenError) {
+    return result({ error: error.message, code: "name_taken" });
+  }
+
   if (error instanceof GovernanceRevisionConflictError) {
     return result({
       error:
@@ -2117,6 +2135,52 @@ function compilerAuthoredCallersOf(
   }
 
   return [...callers].sort();
+}
+
+// Whether a JS object (other than `excludeCollectionId`) or a query on the page already uses `name`; returns a
+// short description of the holder, or undefined. Widgets are not checked here (the page DSL is not loaded on this
+// path); the editor refuses such a collision on its next save.
+// One governance key for every JS-object write (create, update, rename, delete) in an application.
+function jsObjectsEntityKey(applicationId: string): string {
+  return `application:${applicationId}:jsobjects`;
+}
+
+async function nameTakenOnPage(
+  api: AppsmithApi,
+  applicationId: string,
+  collections: unknown,
+  name: string,
+  pageId: string | undefined,
+  excludeCollectionId: string,
+): Promise<string | undefined> {
+  for (const collection of Array.isArray(collections) ? collections : []) {
+    const other = collection as {
+      id?: unknown;
+      name?: unknown;
+      pageId?: unknown;
+    } | null;
+
+    if (
+      other !== null &&
+      other.id !== excludeCollectionId &&
+      other.name === name &&
+      (pageId === undefined || other.pageId === pageId)
+    ) {
+      return `JS object "${name}"`;
+    }
+  }
+
+  const actions = await api.listActions(applicationId);
+  const queryTaken =
+    pageId !== undefined
+      ? findExistingAction(actions, name, pageId) !== undefined
+      : (Array.isArray(actions) ? actions : []).some(
+          (action) => (action as { name?: unknown } | null)?.name === name,
+        );
+
+  if (queryTaken) return `query "${name}"`;
+
+  return undefined;
 }
 
 function jsObjectFunctionNames(collection: unknown): string[] {
@@ -6846,7 +6910,7 @@ export function buildMcpServer(
             const { changeId, value } = await govJs.execute({
               actorId,
               organizationId,
-              entityKey: `application:${applicationId}:jsobjects`,
+              entityKey: jsObjectsEntityKey(applicationId),
               operation: "create_js_object",
               expectedRevision: parsed.data.revision,
               currentRevision,
@@ -6936,6 +7000,25 @@ export function buildMcpServer(
           // new name and nothing else), so those calls would dangle, or re-bind to whatever object takes the old
           // name next. Refuse while any compiler-authored object on the page still calls the old name.
           if (renaming) {
+            // The server PATCH validates names only on create (the editor's own rename goes through /refactor), so
+            // an MCP rename onto a name another JS object or query on this page already uses would leave two
+            // entities with one name in the data tree. Refuse it here.
+            const taken = await nameTakenOnPage(
+              api,
+              parsed.data.applicationId,
+              collections,
+              nextName,
+              currentPageId,
+              parsed.data.collectionId,
+            );
+
+            if (taken !== undefined) {
+              return result({
+                error: `cannot rename "${currentName}" to "${nextName}": ${taken} on this page already has that name`,
+                code: "name_taken",
+              });
+            }
+
             const callers = compilerAuthoredCallersOf(
               collections,
               currentName,
@@ -6999,11 +7082,32 @@ export function buildMcpServer(
             const { changeId, value } = await govJs.execute({
               actorId,
               organizationId,
-              entityKey: `jsobject:${parsed.data.collectionId}`,
+              // Every JS-object write in an application takes the same key as create_js_object, so a rename, a
+              // code update and a create of the same name are serialised against each other (a per-object key
+              // let a rename and a code update of one object both pass their revision checks) [security, architect
+              // re-checks, M8]. Throughput is irrelevant for an agent tool.
+              entityKey: jsObjectsEntityKey(parsed.data.applicationId),
               operation: "update_js_object",
               expectedRevision: parsed.data.revision,
               currentRevision: fingerprintJsObject(current),
               mutate: async () => {
+                // The early name_taken check ran before the lock, so a create that completed in between could have
+                // taken the name; re-check under the lock, from a fresh listing, before anything is written.
+                if (renaming) {
+                  const taken = await nameTakenOnPage(
+                    api,
+                    parsed.data.applicationId,
+                    await api.listActionCollections(parsed.data.applicationId),
+                    nextName,
+                    currentPageId,
+                    parsed.data.collectionId,
+                  );
+
+                  if (taken !== undefined) {
+                    throw new NameTakenError(currentName, nextName, taken);
+                  }
+                }
+
                 // Two server routes, in this order: the body route is the only one that writes the code (PATCH
                 // nulls `body`), and the PATCH then creates/updates/deletes the per-function JSActions so the
                 // editor's function list matches the new body. A PATCH failure after the body write leaves the
@@ -7198,7 +7302,9 @@ export function buildMcpServer(
             const { changeId } = await govJs.execute({
               actorId,
               organizationId,
-              entityKey: `jsobject:${parsed.data.collectionId}`,
+              // The confirmation above is bound to the object; the write itself is serialised with every other
+              // JS-object write in the application (see update_js_object).
+              entityKey: jsObjectsEntityKey(parsed.data.applicationId),
               operation: "delete_js_object",
               expectedRevision: parsed.data.revision,
               currentRevision: fingerprintJsObject(current),

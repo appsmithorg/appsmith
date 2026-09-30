@@ -944,13 +944,23 @@ const positionSchema = z
   })
   .strict();
 
+// One update's props are bounded as a whole: the per-field caps (a 200-option list, a 100-column defaultNewRow of
+// 10 KB strings) still multiply to megabytes, and every byte lands in the page DSL.
+export const UPDATE_PROPS_MAX_BYTES = 64 * 1024;
+
 const updateOperationSchema = z
   .object({
     kind: z.literal("update"),
     name: widgetNameSchema,
     props: widgetPropsPatchSchema,
   })
-  .strict();
+  .strict()
+  .refine(
+    (operation) =>
+      Buffer.byteLength(JSON.stringify(operation.props), "utf8") <=
+      UPDATE_PROPS_MAX_BYTES,
+    `an update's props must serialise to at most ${UPDATE_PROPS_MAX_BYTES} bytes`,
+  );
 
 const moveOperationSchema = z
   .object({

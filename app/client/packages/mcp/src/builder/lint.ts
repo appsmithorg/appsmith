@@ -1,4 +1,4 @@
-import { ROW_HEIGHT, type WidgetNode } from "./layout.js";
+import { ROOT_WIDGET_ID, ROW_HEIGHT, type WidgetNode } from "./layout.js";
 import {
   canvasColumns,
   computeCanvasOverlapFixes,
@@ -9,6 +9,8 @@ import {
   suggestedFix,
   VALID_PATCH_NAME,
   type SuggestedFix,
+  type SuggestedOperation,
+  isDetached,
 } from "./occupancy.js";
 import { modalStackFindings } from "./modalGraph.js";
 
@@ -144,6 +146,14 @@ class Linter {
     // Geometry checks apply to the direct children laid out on a canvas.
     if (node.type === CANVAS_TYPE) this.checkCanvasChildren(node);
 
+    // Nested content laid out by an earlier MCP version at the parent's column span fills only a fraction of the
+    // canvas the client renders (always 64 columns); offer the full-width relayout.
+    for (const child of node.children ?? []) {
+      if (child.type === CANVAS_TYPE && node.widgetId !== ROOT_WIDGET_ID) {
+        this.checkNarrowCanvas(node, child);
+      }
+    }
+
     // A container's own box must be tall enough to hold its inner canvas's extent.
     if (CONTAINER_TYPES.has(node.type)) this.checkContainerHeight(node);
 
@@ -233,6 +243,77 @@ class Linter {
         );
       }
     }
+  }
+
+  // Fingerprint of a canvas the MCP built before it laid nested content out on the full 64-column grid: the stored
+  // canvas rightColumn equals the parent widget's column span (the editor writes a pixel width there, never the
+  // span, and current builds write 64) and every in-flow child fits inside that span. The fix scales each child's
+  // column position and width from the span to 64 (floor/ceil so neighbours stay apart), rightmost child first so
+  // no intermediate step lands one child on another.
+  private checkNarrowCanvas(parent: WidgetNode, canvas: WidgetNode): void {
+    if (
+      !isNumber(parent.leftColumn) ||
+      !isNumber(parent.rightColumn) ||
+      !isNumber(canvas.rightColumn)
+    ) {
+      return;
+    }
+
+    const span = parent.rightColumn - parent.leftColumn;
+    const columns = canvasColumns(canvas);
+
+    if (span <= 0 || span >= columns || canvas.rightColumn !== span) return;
+
+    const children = (canvas.children ?? []).filter(
+      (child) =>
+        !isDetached(child) &&
+        isNumber(child.leftColumn) &&
+        isNumber(child.rightColumn) &&
+        isNumber(child.topRow),
+    );
+
+    if (children.length === 0) return;
+
+    const widest = Math.max(
+      ...children.map((child) => child.rightColumn as number),
+    );
+
+    if (widest > span) return;
+
+    const scale = columns / span;
+
+    // Convergence: only flag when the scaled content would extend past the span, so applying the fix (children
+    // then exceed the span) silences the rule, and a lone small widget in a big container is not a finding.
+    if (widest * scale <= span) return;
+
+    const ordered = [...children].sort(
+      (a, b) => (b.leftColumn as number) - (a.leftColumn as number),
+    );
+    const operations: SuggestedOperation[] = [];
+
+    for (const child of ordered) {
+      const name = nameOf(child);
+
+      if (!VALID_PATCH_NAME.test(name)) continue;
+
+      const left = Math.ceil((child.leftColumn as number) * scale);
+      const right = Math.floor((child.rightColumn as number) * scale);
+      const width = Math.max(1, Math.min(columns - left, right - left));
+
+      operations.push({
+        kind: "move",
+        name,
+        position: { topRow: child.topRow as number, leftColumn: left },
+      });
+      operations.push({ kind: "resize", name, columns: width });
+    }
+
+    this.warn(
+      "narrow-canvas",
+      `"${nameOf(parent)}" holds content laid out for a ${span}-column canvas by an earlier MCP version; it fills only ${span}/${columns} of the width (the client renders every canvas as ${columns} columns)`,
+      nameOf(parent),
+      suggestedFix(operations),
+    );
   }
 
   private checkContainerHeight(container: WidgetNode): void {

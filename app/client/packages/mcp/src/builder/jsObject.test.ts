@@ -4,6 +4,7 @@ import {
   buildUpdateJsObjectRequest,
   compileJsObject,
   compileJsObjectCode,
+  definitionCacheSize,
   callEdges,
   crossObjectCalls,
   findCallCycle,
@@ -772,5 +773,118 @@ describe("callEdges sees a call nested in forEach / onError / if-else bodies and
         { name: "b", returns: { object: { next: { call: "a" } } } },
       ]),
     ).toEqual(["S.a", "S.b", "S.a"]);
+  });
+});
+
+describe("call-depth guard member and the decoder cache", () => {
+  it("never declares mcpCallDepth as a member (it is an undeclared run-time property), and reserves the name", () => {
+    expect(
+      compileJsObjectCode(
+        jsObjectDefinitionSchema.parse({
+          functions: [{ name: "a", returns: 1 }],
+        }),
+      ),
+    ).not.toContain("mcpCallDepth");
+    const calling = compileJsObjectCode(
+      jsObjectDefinitionSchema.parse({
+        functions: [
+          { name: "a", returns: { call: "b" } },
+          { name: "b", returns: 1 },
+        ],
+      }),
+    );
+
+    expect(calling).not.toMatch(/mcpCallDepth: 0/);
+    expect(calling).toContain("this.mcpCallDepth ?? 0) >= 32");
+
+    for (const definition of [
+      {
+        constants: { mcpCallDepth: 5 },
+        functions: [{ name: "a", returns: 1 }],
+      },
+      { functions: [{ name: "mcpCallDepth", returns: 1 }] },
+    ]) {
+      const parsed = jsObjectDefinitionSchema.safeParse(definition);
+
+      expect(parsed.success).toBe(false);
+      expect(JSON.stringify(parsed.error?.issues)).toContain(
+        "reserved for the compiler's call-depth guard",
+      );
+    }
+  });
+
+  it("memoises decoded definitions per body in a bounded cache", () => {
+    const definition = jsObjectDefinitionSchema.parse({
+      functions: [{ name: "a", returns: 1 }],
+    });
+    const body = compileJsObject(definition);
+    const first = jsObjectDefinitionFromBody(body);
+    const second = jsObjectDefinitionFromBody(body);
+
+    expect(first).toEqual(definition);
+    expect(second).toBe(first);
+
+    // Oversized bodies are neither decoded nor cached. Checked while the cache is below its cap, where an
+    // insert would be visible (at the cap an insert plus an eviction leaves the size unchanged).
+    const beforeOversized = definitionCacheSize();
+
+    expect(beforeOversized).toBeLessThan(128);
+    expect(jsObjectDefinitionFromBody("x".repeat(300 * 1024))).toBeUndefined();
+    expect(definitionCacheSize()).toBe(beforeOversized);
+
+    // Bounded: many distinct bodies never grow the cache past its cap.
+    for (let i = 0; i < 300; i += 1) {
+      jsObjectDefinitionFromBody(
+        compileJsObject(
+          jsObjectDefinitionSchema.parse({
+            functions: [{ name: "a", returns: i }],
+          }),
+        ),
+      );
+    }
+
+    expect(definitionCacheSize()).toBeLessThanOrEqual(128);
+  });
+
+  it("evicts least-recently used, not first-inserted: a touched entry survives", () => {
+    const bodyFor = (i: number) =>
+      compileJsObject(
+        jsObjectDefinitionSchema.parse({
+          functions: [{ name: "a", returns: 5000 + i }],
+        }),
+      );
+    const oldest = bodyFor(0);
+    const decoded = jsObjectDefinitionFromBody(oldest);
+
+    // Fill to one below the cap, touch the oldest entry, then insert past the cap: FIFO would evict `oldest`,
+    // LRU evicts the untouched entry inserted right after it.
+    for (let i = 1; i < 127; i += 1) jsObjectDefinitionFromBody(bodyFor(i));
+
+    expect(jsObjectDefinitionFromBody(oldest)).toBe(decoded);
+
+    for (let i = 127; i < 140; i += 1) jsObjectDefinitionFromBody(bodyFor(i));
+
+    expect(definitionCacheSize()).toBeLessThanOrEqual(128);
+    expect(jsObjectDefinitionFromBody(oldest)).toBe(decoded);
+  });
+});
+
+describe("returns: an Expr leaf is never mistaken for a legacy literal record", () => {
+  it("compiles a call and a table-column read in returns position as expressions", () => {
+    const source = compileJsObjectCode(
+      jsObjectDefinitionSchema.parse({
+        functions: [
+          { name: "a", returns: { call: "b" } },
+          { name: "b", returns: { table: "Orders", column: "id" } },
+          { name: "c", returns: { done: true, count: 2 } },
+        ],
+      }),
+    );
+
+    expect(source).toContain("return await this.b();");
+    expect(source).not.toContain('return { call: "b" }');
+    expect(source).toContain('Orders.selectedRow["id"]');
+    // A genuine legacy record (only literal values, no grammar key) still compiles as a record.
+    expect(source).toContain("return { done: true, count: 2 };");
   });
 });

@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { z } from "zod";
 import {
   compileExpr,
@@ -19,6 +20,7 @@ import {
   STEPS_MAX,
   stepsProblem,
   validateExpr,
+  CALL_DEPTH_MEMBER,
 } from "./jsExpr.js";
 import { HOST_NAMES, storedId } from "./schema.js";
 
@@ -111,6 +113,18 @@ export const jsObjectDefinitionSchema = z
     const constantNames = new Set(Object.keys(definition.constants ?? {}));
     const functionNames = new Set(definition.functions.map(({ name }) => name));
 
+    // The compiler's own call-depth counter member may not be shadowed by a constant or a function.
+    if (
+      constantNames.has(CALL_DEPTH_MEMBER) ||
+      functionNames.has(CALL_DEPTH_MEMBER)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["functions"],
+        message: `"${CALL_DEPTH_MEMBER}" is reserved for the compiler's call-depth guard`,
+      });
+    }
+
     definition.functions.forEach((fn, index) => {
       const problem = functionProblem(fn, constantNames, functionNames);
 
@@ -152,6 +166,10 @@ function isLegacyReturns(
     "if",
     "object",
     "array",
+    // Leaves added after the legacy record shape: a `{ table, column }` read (M3) and a `{ call }` (M4). Without
+    // them here a `returns: { call: "helper" }` compiled to the literal record `{ call: "helper" }`.
+    "table",
+    "call",
   ];
 
   if (keys.some((key) => exprKeys.includes(key))) return false;
@@ -673,7 +691,52 @@ const MAX_LEGACY_CLASSIFIED_BODY_BYTES = 64 * 1024;
 // The definition a compiler-authored body carries, or undefined when the body is editor-authored (no marker, an
 // undecodable/invalid marker, or a marker whose definition does not recompile to the code part — i.e. someone
 // edited the code by hand after the compiler wrote it, which makes it hand-written code again).
+// Decoding a stored body (marker parse, schema parse, recompile-and-compare) is pure in the body text, and the
+// cross-object call-cycle check decodes every compiler-authored object on a page for every JS write, so the result
+// is memoised in a small LRU keyed by the body's hash. Entries are treated as immutable by every caller.
+const DEFINITION_CACHE_MAX = 128;
+const definitionCache = new Map<string, JsObjectDefinition | undefined>();
+
 export function jsObjectDefinitionFromBody(
+  body: string,
+): JsObjectDefinition | undefined {
+  // Oversized bodies are never compiler-authored and are not cached (they would pin megabytes per entry).
+  if (Buffer.byteLength(body, "utf8") > MAX_CLASSIFIED_BODY_BYTES) {
+    return undefined;
+  }
+
+  // Keyed by content hash so the cache holds 128 digests, not 128 bodies.
+  const key = createHash("sha256").update(body).digest("hex");
+
+  if (definitionCache.has(key)) {
+    const cached = definitionCache.get(key);
+
+    // Refresh recency.
+    definitionCache.delete(key);
+    definitionCache.set(key, cached);
+
+    return cached;
+  }
+
+  const decoded = decodeDefinitionFromBody(body);
+
+  definitionCache.set(key, decoded);
+
+  if (definitionCache.size > DEFINITION_CACHE_MAX) {
+    const oldest = definitionCache.keys().next().value;
+
+    if (oldest !== undefined) definitionCache.delete(oldest);
+  }
+
+  return decoded;
+}
+
+// Test seam: the cache's current size.
+export function definitionCacheSize(): number {
+  return definitionCache.size;
+}
+
+function decodeDefinitionFromBody(
   body: string,
 ): JsObjectDefinition | undefined {
   if (Buffer.byteLength(body, "utf8") > MAX_CLASSIFIED_BODY_BYTES) {

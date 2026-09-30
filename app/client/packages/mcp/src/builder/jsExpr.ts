@@ -291,6 +291,13 @@ export type Expr =
   | { call: string | { object: string; function: string }; args?: Expr[] };
 
 export const CALL_MAX_ARGS = 8;
+// Runtime guard at every compiled `call` site: a per-object counter (`this.mcpCallDepth`, an undeclared own property
+// of the JS object at run time) is incremented before the call and decremented after. The static cycle check
+// cannot see editor-authored or drifted objects, so a cycle closed through hand-written code (A.f → Editor.g → A.f)
+// would still recurse; the counter stops it at this depth. Parallel invocations share the counter, so the bound is
+// generous. [Security follow-up on APP-16052 M5.]
+export const CALL_DEPTH_LIMIT = 32;
+export const CALL_DEPTH_MEMBER = "mcpCallDepth";
 const callTarget = z.union([
   memberName,
   z.object({ object: bindingIdentifier, function: memberName }).strict(),
@@ -925,7 +932,15 @@ export function compileExpr(expr: Expr): string {
         ? `this.${expr.call}`
         : `${expr.call.object}.${expr.call.function}`;
 
-    return `(await ${callee}(${(expr.args ?? []).map(compileExpr).join(", ")}))`;
+    const args = (expr.args ?? []).map(compileExpr).join(", ");
+
+    // An arrow IIFE keeps `this` (the JS object) and lets the guard wrap the awaited call as one expression. The
+    // counter is checked BEFORE it is incremented and is never reset: every frame that incremented also decrements
+    // in its finally, so the counter returns to exactly 0 after a trip (a reset-then-throw would leave it at -LIMIT
+    // and weaken every later trip). It is an undeclared own property of `this`, not a declared JS-object variable:
+    // a declared member is tracked, persisted and snapshotted per evaluation context, which drifts under overlapping
+    // invocations and dispatches an eval cycle per write.
+    return `(await (async () => { if ((this.${CALL_DEPTH_MEMBER} ?? 0) >= ${CALL_DEPTH_LIMIT}) { throw new Error("JS-object call depth exceeded ${CALL_DEPTH_LIMIT}: a cycle of calls was stopped"); } this.${CALL_DEPTH_MEMBER} = (this.${CALL_DEPTH_MEMBER} ?? 0) + 1; try { return await ${callee}(${args}); } finally { this.${CALL_DEPTH_MEMBER} -= 1; } })())`;
   }
 
   if ("param" in expr) return expr.param;

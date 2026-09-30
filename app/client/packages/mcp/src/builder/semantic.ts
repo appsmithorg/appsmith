@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { tabLabelsOf, type WidgetNode } from "./layout.js";
+import { GRID_COLUMNS, tabEntriesOf, type WidgetNode } from "./layout.js";
 import { COMPUTED_NOW_FORMATS, type WidgetType } from "./schema.js";
 
 const CATALOG_TYPE_BY_APPSMITH_TYPE: Record<string, WidgetType> = {
@@ -164,7 +164,7 @@ const SAFE_PROP_KEYS = [
 type SafeCommonProp = (typeof SAFE_PROP_KEYS)[number];
 // Computed on read, never a node prop: a Tabs widget's tab labels in display order (from tabsObj indices, hidden
 // tabs included), so an agent can `reorderTabs` or pick a `defaultTab` that exists.
-type ComputedProp = "tabs";
+type ComputedProp = "tabs" | "tabsHidden";
 type SafeScalar = string | number | boolean | null;
 type SafePropValue =
   | SafeScalar
@@ -322,9 +322,28 @@ function safeProps(node: WidgetNode): SemanticWidget["props"] {
   }
 
   if (node.type === "TABS_WIDGET") {
-    const tabs = safeList(tabLabelsOf(node));
+    const entries = tabEntriesOf(node);
+    const tabs = safeList(entries.map((tab) => tab.label));
 
-    if (tabs !== undefined && tabs.length > 0) props.tabs = tabs;
+    if (tabs !== undefined && tabs.length > 0) {
+      props.tabs = tabs;
+
+      // Hidden tabs are still part of the order (reorderTabs must list them) but the viewer never shows them.
+      const hidden = entries
+        .filter((tab) => tab.isVisible === false)
+        .map((tab) => tab.label);
+
+      if (hidden.length > 0) props.tabsHidden = hidden;
+    }
+  }
+
+  // The editor stores tabOrder as a number; a numeric string in a saved DSL is accepted by the client at runtime
+  // but would not round-trip through the patch schema, so it reads back as the number it means.
+  if (
+    typeof props.tabOrder === "string" &&
+    /^[1-9][0-9]*$/.test(props.tabOrder)
+  ) {
+    props.tabOrder = Number(props.tabOrder);
   }
 
   return props;
@@ -459,7 +478,19 @@ function safeBindings(
   return Object.keys(bindings).length > 0 ? bindings : undefined;
 }
 
-function semanticGeometry(node: WidgetNode): SemanticGeometry {
+function semanticGeometry(node: WidgetNode, isRoot: boolean): SemanticGeometry {
+  // An inner canvas's stored rightColumn is the pixel width the client last rendered (or a stale span from an
+  // earlier MCP build), never the grid its children use: every canvas is 64 columns wide to its children, so that
+  // is what an agent should see and lay out against. The page root keeps its stored geometry.
+  if (node.type === "CANVAS_WIDGET" && !isRoot) {
+    return {
+      topRow: node.topRow,
+      bottomRow: node.bottomRow,
+      leftColumn: 0,
+      rightColumn: GRID_COLUMNS,
+    };
+  }
+
   return {
     topRow: node.topRow,
     bottomRow: node.bottomRow,
@@ -483,7 +514,7 @@ export function projectSemanticPage(dsl: WidgetNode): SemanticPage {
       appsmithType: node.type,
       ...(catalogType !== undefined ? { catalogType } : {}),
       ...(parentWidgetName !== undefined ? { parentWidgetName } : {}),
-      geometry: semanticGeometry(node),
+      geometry: semanticGeometry(node, parentWidgetName === undefined),
       props: safeProps(node),
       ...(bindings !== undefined ? { bindings } : {}),
     });
