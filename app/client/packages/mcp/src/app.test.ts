@@ -1560,6 +1560,7 @@ describe("MCP instruction surface (M2)", () => {
       [
         "appsmith://guide/bindings",
         "appsmith://guide/git",
+        "appsmith://guide/js-objects",
         "appsmith://guide/naming",
         "appsmith://guide/placement",
         "appsmith://guide/screenshot",

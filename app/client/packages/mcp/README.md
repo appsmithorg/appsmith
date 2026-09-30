@@ -50,6 +50,12 @@ Findings from building an internal admin app through MCP, all fixed without wide
   functions run on a coerced real array, string functions on a primitive), widget/query names may not be host
   globals or platform functions, property paths are dot-separated identifiers with prototype segments refused,
   locals may not shadow any identifier the compiler emits, and the definition marker is parsed in linear time.
+- A `js-objects` guide (`get_guide` slug `js-objects`, resource `appsmith://guide/js-objects`) documents the
+  definition grammar. Its operator, function and separator tables are rendered from the compiler's own exports and
+  its worked examples are compiled in the test suite, so it cannot drift from what the compiler accepts. It also
+  maps the everyday Appsmith JavaScript idioms the Ask AI assistant teaches (`Query.run({ id })`, `storeValue`,
+  `showAlert`, `new Date`, optional chaining, `.map`) onto definition shapes, and names what is not available inside
+  a function (`try`/`catch`, `navigateTo`, timers, regular expressions) with the workaround for each.
 - `create_mongo_query` values accept `{ param: '<name>' }` (bound as `this.params.<name>`) so a function's computed
   values reach a write through `run … with`; `patch_widgets` accepts `defaultFrom` (a widget-property or query-field
   ref) on input/select/multiselect/radio/checkbox/switch/datepicker defaults.

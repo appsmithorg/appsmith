@@ -1,4 +1,5 @@
 import { WIDGET_CATALOG } from "./capabilities.js";
+import { renderJsObjectsGuide } from "./jsObjectGuide.js";
 import { listPresets } from "./presets.js";
 
 // M2 — instruction sets delivered through the MCP protocol as `resources` (reference/guides/recipes) and `prompts`
@@ -299,6 +300,13 @@ export const GUIDES: InstructionDoc[] = [
     title: "Data & bindings guide",
     description: "Why raw expressions are rejected and how data binding works.",
     render: () => GUIDE_BINDINGS,
+  },
+  {
+    slug: "js-objects",
+    title: "JS objects guide",
+    description:
+      "The definition grammar for create_js_object / update_js_object: statements, expression leaves, every operator, function and separator (rendered from the compiler's tables), everyday Appsmith JavaScript mapped to definition shapes, and complete worked examples.",
+    render: renderJsObjectsGuide,
   },
   {
     slug: "git",

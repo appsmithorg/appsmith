@@ -714,7 +714,7 @@ describe("jsExpr — every fn and op compiles to valid JS that computes the expe
     expect(stepsProblem(body, ctx())).toBeUndefined();
     expect(compileSteps(body)).toEqual([
       "let total = 0;",
-      'for (const row of ((v) => Array.isArray(v) ? v : [])(Table1.selectedRows)) { total = (total + (row)?.["amount"]); }',
+      'for (let row of ((v) => Array.isArray(v) ? v : [])(Table1.selectedRows)) { total = (total + (row)?.["amount"]); }',
       'await storeValue("lastTotal", total, false);',
       'await resetWidget("inpAmount", true);',
     ]);

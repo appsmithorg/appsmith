@@ -155,9 +155,10 @@ const SEPARATORS = {
 } as const;
 
 export type SeparatorName = keyof typeof SEPARATORS;
-const separatorSchema = z.enum(
+export const SEPARATOR_NAMES = Object.freeze(
   Object.keys(SEPARATORS) as [SeparatorName, ...SeparatorName[]],
 );
+const separatorSchema = z.enum(SEPARATOR_NAMES);
 
 export const EXPR_MAX_NODES = 120;
 export const EXPR_MAX_DEPTH = 12;
@@ -181,10 +182,29 @@ export const OPS = [
 ] as const;
 
 export type Op = (typeof OPS)[number];
+// name -> [min arity, max arity]; the validator and the js-objects guide both read this table.
+export const OP_ARITY: Readonly<Record<Op, readonly [number, number]>> =
+  Object.freeze({
+    add: [2, 8],
+    sub: [2, 2],
+    mul: [2, 8],
+    div: [2, 2],
+    mod: [2, 2],
+    neg: [1, 1],
+    eq: [2, 2],
+    ne: [2, 2],
+    gt: [2, 2],
+    gte: [2, 2],
+    lt: [2, 2],
+    lte: [2, 2],
+    and: [2, 8],
+    or: [2, 8],
+    not: [1, 1],
+  });
 
 // name -> [min arity, max arity]. Every function is a fixed template in compileExpr; the arity table is the only
 // place a count is allowed to vary.
-const FNS = {
+const FNS = Object.freeze({
   trim: [1, 1],
   lower: [1, 1],
   upper: [1, 1],
@@ -220,20 +240,29 @@ const FNS = {
   find: [2, 2],
   get: [2, 2],
   coalesce: [2, 4],
-} as const;
+} as const);
 
 export type Fn = keyof typeof FNS;
 export const FN_NAMES = Object.keys(FNS) as [Fn, ...Fn[]];
+// Read-only views of the tables above, so the js-objects guide is rendered from the grammar and cannot drift.
+export const FN_ARITY: Readonly<Record<Fn, readonly [number, number]>> = FNS;
 // Functions whose second argument is evaluated per element with `{ item }` in scope.
-const ITEM_FNS = new Set<Fn>(["map", "filter", "some", "every", "find"]);
+export const ITEM_FNS: ReadonlySet<Fn> = new Set<Fn>([
+  "map",
+  "filter",
+  "some",
+  "every",
+  "find",
+]);
 // Functions whose trailing argument(s) must be string literals (they land in a position the compiler quotes).
-const LITERAL_TAIL: Partial<Record<Fn, number>> = {
-  stripPrefix: 1,
-  stripSuffix: 1,
-  replaceAll: 2,
-  join: 1,
-  get: 1,
-};
+export const LITERAL_TAIL: Readonly<Partial<Record<Fn, number>>> =
+  Object.freeze({
+    stripPrefix: 1,
+    stripSuffix: 1,
+    replaceAll: 2,
+    join: 1,
+    get: 1,
+  });
 
 export type Expr =
   | Literal
@@ -452,18 +481,10 @@ export function exprProblem(
   if ("store" in expr) return undefined;
 
   if ("op" in expr) {
-    const unary = expr.op === "neg" || expr.op === "not";
-    const binary = ["sub", "div", "mod", "eq", "ne", "gt", "gte", "lt", "lte"];
+    const [min, max] = OP_ARITY[expr.op];
 
-    if (unary && expr.args.length !== 1)
-      return `op ${expr.op} takes 1 argument`;
-
-    if (binary.includes(expr.op) && expr.args.length !== 2) {
-      return `op ${expr.op} takes 2 arguments`;
-    }
-
-    if (!unary && !binary.includes(expr.op) && expr.args.length < 2) {
-      return `op ${expr.op} takes at least 2 arguments`;
+    if (expr.args.length < min || expr.args.length > max) {
+      return `op ${expr.op} takes ${min === max ? min : `${min}-${max}`} argument(s)`;
     }
 
     for (const arg of expr.args) {
@@ -945,7 +966,7 @@ export function compileSteps(steps: Step[]): string[] {
       );
     } else if ("forEach" in step) {
       lines.push(
-        `for (const ${step.as} of ${ARRAY_OF}(${compileExpr(step.forEach)})) { ${compileSteps(step.do).join(" ")} }`,
+        `for (let ${step.as} of ${ARRAY_OF}(${compileExpr(step.forEach)})) { ${compileSteps(step.do).join(" ")} }`,
       );
     } else if ("throw" in step) {
       lines.push(`throw new Error(${q(step.throw)});`);
