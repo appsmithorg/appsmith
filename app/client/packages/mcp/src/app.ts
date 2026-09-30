@@ -89,6 +89,10 @@ import {
   updateJsObjectSpecSchema,
 } from "./builder/jsObject.js";
 import {
+  exceedsJsonDepth,
+  MAX_DEFINITION_JSON_DEPTH,
+} from "./builder/jsExpr.js";
+import {
   buildCreatePageRequest,
   buildRenamePageRequest,
   createPageSpecSchema,
@@ -105,6 +109,7 @@ import {
   buildMongoActionDto,
   compileMongoQuery,
   mongoQuerySpecSchema,
+  specUsesParams,
 } from "./builder/mongoQuery.js";
 import {
   buildSheetsActionDto,
@@ -445,6 +450,12 @@ export interface AppsmithApi {
   ) => Promise<unknown>;
   listActions: (applicationId: string) => Promise<unknown>;
   createAction: (action: Record<string, unknown>) => Promise<unknown>;
+  // PUT /api/v1/actions/runBehaviour/{id}: the only route that sets userSetOnLoad, so the server never auto-switches
+  // the query onto page load. Used for queries that read this.params.
+  setActionRunBehaviour: (
+    actionId: string,
+    behaviour: "MANUAL" | "ON_PAGE_LOAD" | "AUTOMATIC",
+  ) => Promise<unknown>;
   getAction: (applicationId: string, actionId: string) => Promise<unknown>;
   updateAction: (
     actionId: string,
@@ -762,6 +773,12 @@ export function createAppsmithApi(
     listActions: async (applicationId) =>
       request(
         `/api/v1/actions?applicationId=${encodeURIComponent(applicationId)}`,
+      ),
+    setActionRunBehaviour: async (actionId, behaviour) =>
+      request(
+        `/api/v1/actions/runBehaviour/${encodeURIComponent(actionId)}?behaviour=${behaviour}`,
+        { method: "PUT" },
+        { extractErrorCode: true },
       ),
     createAction: async (action) =>
       request("/api/v1/actions", {
@@ -1618,29 +1635,12 @@ function fingerprintAction(action: unknown): string {
     .digest("hex");
 }
 
-// Plugin families whose egress is pinned server-side to a configured datasource host, so executing an action cannot
-// exfiltrate query-bound data to an attacker-chosen endpoint. REST/API-family plugins (API, SAAS, REMOTE, GraphQL)
-// can target an arbitrary external URL and are therefore NOT host-restricted.
-const HOST_RESTRICTED_PLUGIN_TYPES = new Set(["DB"]);
-
 function actionSource(action: unknown): Record<string, unknown> | null {
   const source =
     (action as { unpublishedAction?: unknown } | null)?.unpublishedAction ??
     action;
 
   return (source as Record<string, unknown> | null) ?? null;
-}
-
-// True when the action can egress to an arbitrary external host (its datasource is not server-side host-restricted).
-// Such an action must never auto-run: even a GET could carry query-bound data out to an attacker-chosen URL with no
-// human in the loop (M1-T2). Absence of a pluginType is treated as external (safe default).
-function isExternalEgressAction(action: unknown): boolean {
-  const pluginType = actionSource(action)?.pluginType;
-
-  return (
-    typeof pluginType !== "string" ||
-    !HOST_RESTRICTED_PLUGIN_TYPES.has(pluginType)
-  );
 }
 
 // Classify a stored action as auto-runnable (executable via run_action WITHOUT the prepare/confirm human checkpoint).
@@ -1658,19 +1658,11 @@ function isExternalEgressAction(action: unknown): boolean {
 // external-egress, and they fail (2)), so this sync predicate admits nothing; Google Sheets reads satisfy both through
 // the plugin's closed command enum instead and go through the async door below (isAutoRunnableAction). Defaults to
 // NON-auto-runnable (safe).
-function isReadOnlyAction(action: unknown): boolean {
-  // Guarantee (2): an external-egress (REST/API) action can target any host, so even a protocol-read-only GET must NOT
-  // auto-run — it could exfiltrate query-bound data to an attacker-chosen URL with no human in the loop (M1-T2).
-  if (isExternalEgressAction(action)) {
-    return false;
-  }
-
-  // Guarantee (1) for the remaining (host-restricted, e.g. DB) actions: there is no trusted read-only signal. We
-  // deliberately do NOT consult actionConfiguration.httpMethod here — honoring a spoofed "GET" injected onto a
-  // mutating SQL action would bypass the confirm gate and auto-run it. Google Sheets reads, which DO have a trusted
-  // signal (a closed command enum), auto-run through isAutoRunnableAction instead, never through this predicate.
-  return false;
-}
+// There is therefore NO synchronous read-only predicate any more (isReadOnlyAction, which lived here, returned false for every
+// input and was kept only for its comment): an external-egress (REST/API) action can target any host, so even a
+// protocol-read-only GET must not auto-run — it could exfiltrate query-bound data to an attacker-chosen URL with no
+// human in the loop (M1-T2); and a host-restricted (DB) action has no trusted read-only signal — honoring a spoofed
+// "GET" injected onto a mutating SQL action's actionConfiguration.httpMethod would bypass the confirm gate.
 
 // Google Sheets commands that resolve to pure reads in the plugin (GoogleSheetsMethodStrategy): every
 // `<entityType>_FETCH_MANY` / `<entityType>_FETCH_DETAILS` execution method (RowsGetMethod, FileListMethod,
@@ -1736,8 +1728,6 @@ async function isAutoRunnableAction(
   applicationId: string,
   action: unknown,
 ): Promise<boolean> {
-  if (isReadOnlyAction(action)) return true;
-
   if (sheetsReadCommand(action) === undefined) return false;
 
   const source = actionSource(action);
@@ -5624,7 +5614,7 @@ export function buildMcpServer(
 
     registerTool(
       "create_mongo_query",
-      "Create a MongoDB query (find, insert, update, or delete) on an existing Mongo datasource from a STRUCTURED spec — no raw Mongo command, no raw bindings. FIND { collection, filter?: [clause], sort?: [{ field, direction: 'ASC'|'DESC' }], limit? } returns matching documents (for every operation, filter clauses are AND-ed and each clause is { field, op?, value } with op from eq (default) | ne | gt | gte | lt | lte | in | nin | exists — e.g. { field: 'deleted', op: 'ne', value: { literal: true } } keeps documents where the field is absent too; in/nin take { literal: [..] } or an array-valued widget ref; exists takes { literal: true|false }); INSERT { collection, document: [{ field, value }] } adds one document; UPDATE { collection, filter: [clause], update: [{ field, value }], multi? } sets the named fields (emitted as a $set — a partial update, only those fields change) on matched documents; DELETE { collection, filter: [clause], multi? } removes matched documents. UPDATE/DELETE REQUIRE a filter (a mutation is always targeted); multi:false (default) hits ONE matched document, multi:true hits ALL. Each value is { literal }, { date: '<ISO 8601>' } (a calendar date or date-time; normalised to a full UTC date-time and stored as a BSON date), { widget, property, as?: 'date' } (as: 'date' is only valid on a DatePicker's selectedDate and stores it as a BSON date), or { param: '<name>', as?: 'date' } — a value a JS-object function passes at run time via { run: '<thisQuery>', with: { name: expr } } (bound as this.params.name; this is how a normalised list, a converted number or a built document reaches the write) and binds as a smart-substitution parameter (never string-concatenated); field/collection names are validated identifiers. Insert/update/delete mutate the collection, so running them needs prepare_run_action/confirm_run_action (or wire to a button). Widgets reference the result by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
+      "Create a MongoDB query (find, insert, update, or delete) on an existing Mongo datasource from a STRUCTURED spec — no raw Mongo command, no raw bindings. FIND { collection, filter?: [clause], sort?: [{ field, direction: 'ASC'|'DESC' }], limit? } returns matching documents (for every operation, filter clauses are AND-ed and each clause is { field, op?, value } with op from eq (default) | ne | gt | gte | lt | lte | in | nin | exists — e.g. { field: 'deleted', op: 'ne', value: { literal: true } } keeps documents where the field is absent too; in/nin take { literal: [..] } or an array-valued widget ref; exists takes { literal: true|false }); INSERT { collection, document: [{ field, value }] } adds one document; UPDATE { collection, filter: [clause], update: [{ field, value }], multi? } sets the named fields (emitted as a $set — a partial update, only those fields change) on matched documents; DELETE { collection, filter: [clause], multi? } removes matched documents. UPDATE/DELETE REQUIRE a filter (a mutation is always targeted); multi:false (default) hits ONE matched document, multi:true hits ALL. Each value is { literal }, { date: '<ISO 8601>' } (a calendar date or date-time; normalised to a full UTC date-time and stored as a BSON date), { widget, property, as?: 'date' } (as: 'date' is only valid on a DatePicker's selectedDate and stores it as a BSON date), or { param: '<name>', as?: 'date' } — a value a JS-object function passes at run time via { run: '<thisQuery>', with: { name: expr } } (bound as this.params.name; this is how a normalised list, a converted number or a built document reaches the write) and binds as a smart-substitution parameter (never string-concatenated); a widget or param binding in an equality clause is emitted as { '$eq': … } so a viewer-supplied value can never become an operator; a query that reads params is created MANUAL and never runs on page load (a missing param would reach Mongo as null), so call it from a JS-object function with run … with; field/collection names are validated identifiers. Insert/update/delete mutate the collection, so running them needs prepare_run_action/confirm_run_action (or wire to a button). Widgets reference the result by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
       {
         query: z.record(z.unknown()),
         branch: gitBranchParamSchema.optional(),
@@ -5695,10 +5685,35 @@ export function buildMcpServer(
           buildMongoActionDto(spec, compiled),
         );
 
+        // A query that reads this.params must never run on page load (a missing param reaches Mongo as null and
+        // broadens a filter). The create request cannot carry userSetOnLoad, so pin MANUAL through the
+        // run-behaviour route now; a failure here leaves a created query that the server may later switch onto
+        // page load, so it is reported as a partial failure, never hidden.
+        if (specUsesParams(spec)) {
+          const actionId = (created as { id?: unknown } | null)?.id;
+
+          try {
+            if (typeof actionId !== "string") {
+              throw new Error("the create response carried no action id");
+            }
+
+            await api.setActionRunBehaviour(actionId, "MANUAL");
+          } catch (error) {
+            return result({
+              created: true,
+              command: compiled.command,
+              action: created,
+              code: "run_behaviour_not_pinned",
+              error: `the query was created but could not be pinned to manual run behaviour (${error instanceof Error ? error.message : "unknown error"}); it reads this.params, so set it to "Manual" in the editor's run-behaviour dropdown or delete it and create it again before binding it to a widget`,
+            });
+          }
+        }
+
         return result({
           created: true,
           command: compiled.command,
           action: created,
+          ...(specUsesParams(spec) ? { runBehaviour: "MANUAL" } : {}),
         });
       },
     );
@@ -6568,12 +6583,18 @@ export function buildMcpServer(
 
       registerTool(
         "create_js_object",
-        "Create a restricted JS object from a declarative definition: constants (JSON literals, read as { constant }) and functions { name, params?, steps?, returns? }. steps is a CLOSED statement vocabulary: { let, value } / { set, value } locals; { run: '<query>', with?: { key: expr }, into?: local } (with becomes this.params.key inside the query; use { param } values in create_mongo_query); { if, then, else? }; { forEach, as, do }; { throw: 'message' }; { return: expr }; { showAlert, style? }; { storeValue, value }; { resetWidget }. Every value is a bounded expression tree, never text: literals, { param }, { var }, { widget, property }, { query, field? }, { constant }, { store }, { op: add|sub|mul|div|mod|neg|eq|ne|gt|gte|lt|lte|and|or|not, args }, { fn, args } (string, number, date, boolean and array helpers such as trim, split with a named { sep }, number, date, isoString, unique, map/filter with { item: true }, get, coalesce — the full list with arities is in get_guide('js-objects')), { if, then, else }, { object: {..} }, { array: [..] }. Example (the exact JSON shape): { name: 'splitLines', params: ['value'], returns: { fn: 'unique', args: [{ fn: 'filter', args: [{ fn: 'map', args: [{ fn: 'split', args: [{ param: 'value' }, { sep: 'commaOrNewline' }] }, { fn: 'trim', args: [{ item: true }] }] }, { op: 'not', args: [{ fn: 'isEmpty', args: [{ item: true }] }] }] }] } } — note not is an op, item is { item: true }, and a param must be listed in params. Widget/query names may not be host globals (globalThis, eval, navigateTo, …) and property paths may not contain prototype segments. No raw JS, imports, globals, network calls, or regex text. Read get_guide('js-objects') first: it lists every statement, function, operator and separator with complete worked examples (split-and-dedupe, related-field validation, a full Save flow). Pass a JS-list revision from read_js_object. Governed.",
+        "Create a restricted JS object from a declarative definition: constants (JSON literals, read as { constant }) and functions { name, params?, steps?, returns? }. steps is a CLOSED statement vocabulary: { let, value } / { set, value } locals; { run: '<query>', with?: { key: expr }, into?: local } (with becomes this.params.key inside the query; use { param } values in create_mongo_query); { if, then, else? }; { forEach, as, do }; { throw: 'message' }; { return: expr }; { showAlert, style? }; { storeValue, value }; { resetWidget }; { showModal } / { closeModal }; { navigate: '<page>' }; and run takes an optional onError: [steps] failure branch. Every value is a bounded expression tree, never text: literals, { param }, { var }, { widget, property }, { table, column } (a selected-row column whose name is not an identifier), { query, field? }, { constant }, { store }, { op: add|sub|mul|div|mod|neg|eq|ne|gt|gte|lt|lte|and|or|not, args }, { fn, args } (string, number, date, boolean and array helpers such as trim, split with a named { sep }, number, date, isoString, unique, map/filter with { item: true }, get, coalesce — the full list with arities is in get_guide('js-objects')), { if, then, else }, { object: {..} }, { array: [..] }. Example (the exact JSON shape): { name: 'splitLines', params: ['value'], returns: { fn: 'unique', args: [{ fn: 'filter', args: [{ fn: 'map', args: [{ fn: 'split', args: [{ param: 'value' }, { sep: 'commaOrNewline' }] }, { fn: 'trim', args: [{ item: true }] }] }, { op: 'not', args: [{ fn: 'isEmpty', args: [{ item: true }] }] }] }] } } — note not is an op, item is { item: true }, and a param must be listed in params. Widget/query names may not be host globals (globalThis, eval, navigateTo, …) and property paths may not contain prototype segments. No raw JS, imports, globals, network calls, or regex text. Read get_guide('js-objects') first: it lists every statement, function, operator and separator with complete worked examples (split-and-dedupe, related-field validation, a full Save flow). Pass a JS-list revision from read_js_object. Governed.",
         {
           spec: z.record(z.unknown()),
           branch: gitBranchParamSchema.optional(),
         },
         async ({ branch, spec }) => {
+          if (exceedsJsonDepth(spec, MAX_DEFINITION_JSON_DEPTH)) {
+            return result({
+              error: `the definition nests deeper than ${MAX_DEFINITION_JSON_DEPTH} levels`,
+            });
+          }
+
           const raw = spec as Record<string, unknown>;
           const applicationId = raw.applicationId;
 
@@ -6657,6 +6678,12 @@ export function buildMcpServer(
           branch: gitBranchParamSchema.optional(),
         },
         async ({ branch, spec }) => {
+          if (exceedsJsonDepth(spec, MAX_DEFINITION_JSON_DEPTH)) {
+            return result({
+              error: `the definition nests deeper than ${MAX_DEFINITION_JSON_DEPTH} levels`,
+            });
+          }
+
           const parsed = updateJsObjectSpecSchema.safeParse(spec);
 
           if (!parsed.success) return validationError(parsed.error.issues);

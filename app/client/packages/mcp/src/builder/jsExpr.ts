@@ -2,8 +2,11 @@ import { z } from "zod";
 import {
   HOST_NAMES,
   PROTOTYPE_PROPERTY_NAMES,
+  RAW_EXPRESSION,
   entityPropertyPath,
+  pageNameSchema,
   storeKeySchema,
+  tableColumnName,
 } from "./schema.js";
 
 // A CLOSED, bounded expression and statement grammar for restricted JS-object functions (APP-16052). It exists so
@@ -25,10 +28,8 @@ import {
 export const JS_IDENTIFIER_SOURCE = "[A-Za-z_][A-Za-z0-9_]*";
 const IDENTIFIER = new RegExp(`^${JS_IDENTIFIER_SOURCE}$`);
 
-// U+2028/U+2029: JSON.stringify leaves them unescaped and they terminate a JS string literal on older engines.
-export const RAW_EXPRESSION = new RegExp(
-  "\\{\\{|\\}\\}|\\$\\{|`|\\u2028|\\u2029",
-);
+// The binding-syntax gate is the one schema.ts defines (re-exported for jsObject.ts).
+export { RAW_EXPRESSION } from "./schema.js";
 
 // Reserved words can never be a local (param / let / into / forEach) name. Three groups, one list:
 //   1. JS keywords and literals — `async function (class) {}` or `let await = …` is a SyntaxError in the worker,
@@ -270,6 +271,8 @@ export type Expr =
   | { var: string }
   | { item: true }
   | { widget: string; property: string }
+  // A column of a table's selected row, for column names that are not identifiers ("instance ids").
+  | { table: string; column: string }
   | { query: string; field?: string }
   | { constant: string }
   | { store: string }
@@ -289,6 +292,7 @@ export const exprSchema: z.ZodType<Expr> = z.lazy(() =>
     z.object({ var: localName }).strict(),
     z.object({ item: z.literal(true) }).strict(),
     z.object({ widget: bindingIdentifier, property: propertyPath }).strict(),
+    z.object({ table: bindingIdentifier, column: tableColumnName }).strict(),
     z
       .object({ query: bindingIdentifier, field: propertyPath.optional() })
       .strict(),
@@ -324,14 +328,23 @@ export const PARAMS_MAX = 8;
 export type Step =
   | { let: string; value: Expr }
   | { set: string; value: Expr }
-  | { run: string; with?: Record<string, Expr>; into?: string }
+  // `onError` runs when the query rejects (a compiler-owned try/catch); the error itself is never exposed.
+  | {
+      run: string;
+      with?: Record<string, Expr>;
+      into?: string;
+      onError?: Step[];
+    }
   | { if: Expr; then: Step[]; else?: Step[] }
   | { forEach: Expr; as: string; do: Step[] }
   | { throw: string }
   | { return: Expr }
   | { showAlert: string; style?: "info" | "success" | "warning" | "error" }
   | { storeValue: string; value: Expr }
-  | { resetWidget: string };
+  | { resetWidget: string }
+  | { showModal: string }
+  | { closeModal: string }
+  | { navigate: string };
 
 const safeMessage = z
   .string()
@@ -351,6 +364,7 @@ export const stepSchema: z.ZodType<Step> = z.lazy(() =>
           .refine((o) => Object.keys(o).length <= 40, "at most 40 params")
           .optional(),
         into: localName.optional(),
+        onError: z.array(stepSchema).min(1).max(STEPS_MAX).optional(),
       })
       .strict(),
     z
@@ -377,6 +391,9 @@ export const stepSchema: z.ZodType<Step> = z.lazy(() =>
       .strict(),
     z.object({ storeValue: storeKeySchema, value: exprSchema }).strict(),
     z.object({ resetWidget: bindingIdentifier }).strict(),
+    z.object({ showModal: bindingIdentifier }).strict(),
+    z.object({ closeModal: bindingIdentifier }).strict(),
+    z.object({ navigate: pageNameSchema }).strict(),
   ]),
 );
 
@@ -468,10 +485,15 @@ export function exprProblem(
       : `unknown constant "${expr.constant}"`;
   }
 
-  if ("widget" in expr || "query" in expr) {
+  if ("widget" in expr || "query" in expr || "table" in expr) {
     // A local declared with the same name as a widget or query would be read instead of the entity, so the
     // emitted `Name.path` / `Name.run()` would resolve to agent-shaped data. Refuse the collision outright.
-    const name = "widget" in expr ? expr.widget : expr.query;
+    const name =
+      "widget" in expr
+        ? expr.widget
+        : "table" in expr
+          ? expr.table
+          : expr.query;
 
     return ctx.vars.has(name) || ctx.params.has(name)
       ? `"${name}" is both a local name and a widget/query reference`
@@ -703,6 +725,20 @@ function stepProblem(
       if (problem) return problem;
     }
 
+    // The failure branch sees the scope as it was before the run: `into` is declared but never assigned there.
+    if (step.onError) {
+      const problem = stepsProblem(
+        step.onError,
+        local,
+        depth + 1,
+        counter,
+        undefined,
+        `${at}.onError`,
+      );
+
+      if (problem) return problem;
+    }
+
     return step.into === undefined
       ? undefined
       : prefixed(declareLocal(step.into, vars, local));
@@ -780,6 +816,9 @@ function stepProblem(
 const q = (value: unknown): string => JSON.stringify(value);
 // Coerces an arbitrary value to a real array so array methods are always invoked on a genuine Array.
 const ARRAY_OF = "((v) => Array.isArray(v) ? v : [])";
+// Refuses to call a query with an undefined parameter (see the run step in compileSteps).
+const PARAMS_GUARD =
+  '(($p) => { for (const $k of Object.keys($p)) { if ($p[$k] === undefined) { throw new Error("missing query parameter: " + $k); } } return $p; })';
 
 export function compileExpr(expr: Expr): string {
   if (isLiteral(expr)) return q(expr);
@@ -791,6 +830,8 @@ export function compileExpr(expr: Expr): string {
   if ("item" in expr) return "item";
 
   if ("widget" in expr) return `${expr.widget}.${expr.property}`;
+
+  if ("table" in expr) return `${expr.table}.selectedRow[${q(expr.column)}]`;
 
   if ("query" in expr) {
     return expr.field
@@ -948,14 +989,35 @@ export function compileSteps(steps: Step[]): string[] {
     } else if ("set" in step) {
       lines.push(`${step.set} = ${compileExpr(step.value)};`);
     } else if ("run" in step) {
+      // `with` values pass through a compiler-owned guard that throws on `undefined` (a missing query field, a
+      // `get` on an absent key, …) instead of letting the eval worker turn it into a bare `null` that would reach
+      // the query — on a non-_id filter that matches every document lacking the field, and in a `$set` it writes
+      // null. An explicit `null` literal is the agent's stated intent and passes. `$p` / `$k` cannot collide with
+      // agent-supplied names (identifiers admit no `$`).
       const params = step.with
-        ? `{ ${Object.entries(step.with)
+        ? `${PARAMS_GUARD}({ ${Object.entries(step.with)
             .map(([key, value]) => `${key}: ${compileExpr(value)}`)
-            .join(", ")} }`
+            .join(", ")} })`
         : "";
       const call = `await ${step.run}.run(${params})`;
 
-      lines.push(step.into ? `let ${step.into} = ${call};` : `${call};`);
+      if (step.onError) {
+        // The guard runs BEFORE the try so a missing parameter (an authoring bug) is never masked as a query
+        // failure; the guarded params live in a block-scoped $a so several runs in one function do not clash.
+        // $e / $a cannot collide with any agent-supplied name (identifiers admit no dollar sign); $e is never read.
+        const args = step.with ? "$a" : "";
+        const attempt = step.into
+          ? `${step.into} = await ${step.run}.run(${args});`
+          : `await ${step.run}.run(${args});`;
+        const recover = compileSteps(step.onError).join(" ");
+        const prelude = step.with ? `const $a = ${params}; ` : "";
+
+        lines.push(
+          `${step.into ? `let ${step.into}; ` : ""}{ ${prelude}try { ${attempt} } catch ($e) { ${recover} } }`,
+        );
+      } else {
+        lines.push(step.into ? `let ${step.into} = ${call};` : `${call};`);
+      }
     } else if ("if" in step) {
       const elsePart = step.else
         ? ` else { ${compileSteps(step.else).join(" ")} }`
@@ -980,10 +1042,38 @@ export function compileSteps(steps: Step[]): string[] {
       lines.push(
         `await storeValue(${q(step.storeValue)}, ${compileExpr(step.value)}, false);`,
       );
-    } else {
+    } else if ("resetWidget" in step) {
       lines.push(`await resetWidget(${q(step.resetWidget)}, true);`);
+    } else if ("showModal" in step) {
+      lines.push(`showModal(${q(step.showModal)});`);
+    } else if ("closeModal" in step) {
+      lines.push(`closeModal(${q(step.closeModal)});`);
+    } else {
+      lines.push(`await navigateTo(${q(step.navigate)}, {}, "SAME_WINDOW");`);
     }
   }
 
   return lines;
+}
+
+// A cheap structural guard run BEFORE the zod schemas: `exprSchema` / `stepSchema` are `z.lazy` unions that recurse
+// on every nested node, so a hostile ~1,000-deep tree would overflow the stack before EXPR_MAX_DEPTH is consulted.
+export const MAX_DEFINITION_JSON_DEPTH = 64;
+
+export function exceedsJsonDepth(value: unknown, limit: number): boolean {
+  const stack: { node: unknown; depth: number }[] = [{ node: value, depth: 0 }];
+
+  while (stack.length > 0) {
+    const { depth, node } = stack.pop()!;
+
+    if (node === null || typeof node !== "object") continue;
+
+    if (depth >= limit) return true;
+
+    for (const child of Array.isArray(node) ? node : Object.values(node)) {
+      stack.push({ node: child, depth: depth + 1 });
+    }
+  }
+
+  return false;
 }

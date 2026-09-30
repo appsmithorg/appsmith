@@ -42,11 +42,11 @@ import {
   type SelectedRowRef,
   type TableDataBinding,
   type VisibleWhenRef,
+  RAW_EXPRESSION,
 } from "./schema.js";
 
 // Mirrors schema.ts RAW_EXPRESSION, including U+2028/U+2029 line/paragraph separators that JSON.stringify leaves
 // unescaped and that terminate a JS string literal on pre-ES2019 engines.
-const RAW_EXPRESSION = /\u007b\u007b|\u007d\u007d|\$\u007b|`|\u2028|\u2029/;
 const MAX_WIDGET_NAME_LENGTH = 64;
 
 const widgetNameSchema = z

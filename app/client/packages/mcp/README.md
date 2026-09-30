@@ -59,6 +59,28 @@ Findings from building an internal admin app through MCP, all fixed without wide
 - `create_mongo_query` values accept `{ param: '<name>' }` (bound as `this.params.<name>`) so a function's computed
   values reach a write through `run … with`; `patch_widgets` accepts `defaultFrom` (a widget-property or query-field
   ref) on input/select/multiselect/radio/checkbox/switch/datepicker defaults.
+- Grammar extensions from the milestone-2 review: a `{ table, column }` leaf reads a selected-row column whose name
+  is not an identifier (`tblOrders.selectedRow["instance ids"]`, JSON-encoded); `run` takes an `onError` failure
+  branch (a compiler-owned try/catch whose error is never exposed); `showModal`, `closeModal` and `navigate` are
+  statements. The `create_js_object` / `update_js_object` handlers refuse a definition nested deeper than 64 JSON
+  levels before the recursive schemas run.
+- Two MongoDB hardening changes found while tracing `this.params` and object-typed bindings end to end:
+  - A run-time binding in a filter's equality position is emitted as `{ "$eq": {{ … }} }`, never bare. The browser
+    chooses each execute parameter's data type and the server trusts it, so a viewer who crafts the request can send
+    `{ "$ne": null }` typed as an object for ANY binding (an Input's text included); MongoDB compares the operand of
+    `$eq` as a literal, so the clause can no longer become an operator. Still open, server-side: `$in` lists and
+    range operators (an Extended-JSON regex or `$minKey` element) need a strict-values flag in the Mongo plugin.
+  - A missing `this.params.<name>` reaches Mongo as a bare `null`, which on a non-`_id` field matches every document
+    lacking the field and in a `$set` writes null. So after creating a query that reads params, the handler pins
+    it to `MANUAL` through `PUT /api/v1/actions/runBehaviour/{id}` (the only route that sets `userSetOnLoad`; the
+    server otherwise auto-switches a widget-bound query to run on page load, and drops the field from a create
+    request), reporting a failed pin as a partial failure; that route joins the server allowlist. A function's
+    `run … with` passes its values through a compiler-owned guard that throws `missing query parameter: <name>` on
+    `undefined` instead of sending it.
+- Every builder now uses the one `RAW_EXPRESSION` gate exported from `schema.ts` (the `pages` and `theme` copies
+  lacked the U+2028/9 line separators), and the page-name schema is shared by `wire_event` and the grammar.
+  The always-false `isReadOnlyAction` predicate is gone; its reasoning lives in the comment above
+  `isAutoRunnableAction`.
 - `inspect_page` container-clipping and the auto-grow cascade measure content from children rows; the Appsmith
   client stores an inner canvas's `bottomRow` in pixels, which produced ×10 false "45 vs 450" warnings and ×10
   resize suggestions.

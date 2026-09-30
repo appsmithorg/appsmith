@@ -97,7 +97,8 @@ const iconName = z
 // Also reject U+2028/U+2029 (line/paragraph separators): JSON.stringify does not escape them, and on a pre-ES2019
 // JS engine they terminate a string literal — closing a defense-in-depth gap across every safeText sink (e.g. the
 // select's JS-evaluated sourceData), not just the ones that emit into a binding.
-const RAW_EXPRESSION = /\u007b\u007b|\u007d\u007d|\$\u007b|`|\u2028|\u2029/;
+export const RAW_EXPRESSION =
+  /\u007b\u007b|\u007d\u007d|\$\u007b|`|\u2028|\u2029/;
 
 function safeText(max: number) {
   return z
@@ -389,6 +390,25 @@ const PATH_SEGMENT_DENYLIST: ReadonlySet<string> = new Set([
   "run",
   "clear",
 ]);
+
+// A page name as emitted inside a quoted navigateTo(...) argument (events.ts and the JS-object grammar share it).
+export const pageNameSchema = z
+  .string()
+  .min(1)
+  .max(64)
+  .regex(/^[A-Za-z0-9_ -]+$/, "must be a safe page name");
+
+// A table column name as emitted inside `Table.selectedRow[<JSON string>]`: JSON encoding makes any text safe in
+// the member position, so the charset only keeps names readable (letters, digits, space, _ - . # / ( )).
+export const tableColumnName = z
+  .string()
+  .min(1)
+  .max(64)
+  .regex(/^[A-Za-z0-9_ .\-#/()]+$/, "must be a plain column name")
+  .refine(
+    (column) => !PROTOTYPE_PROPERTY_NAMES.has(column) && column !== "prototype",
+    "collides with an Object.prototype property name",
+  );
 
 export const entityPropertyPath = z
   .string()

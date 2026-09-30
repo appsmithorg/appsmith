@@ -3,6 +3,7 @@ import {
   compileMongoQuery,
   mongoQuerySpecSchema,
   normalizeIsoDateTime,
+  specUsesParams,
 } from "./mongoQuery.js";
 
 function parse(spec: unknown) {
@@ -132,7 +133,7 @@ describe("compileMongoQuery — structured Mongo FIND/INSERT, no raw injection",
     );
 
     expect(compiled.update).toEqual({
-      query: '{ "_id": {{ this.params.id }} }',
+      query: '{ "_id": { "$eq": {{ this.params.id }} } }',
       update:
         '{ "$set": { "title": {{ this.params.title }}, "startsAt": { "$date": {{ this.params.startsAt }} }, "instanceIds": {{ this.params.instanceIds }} } }',
       limit: "SINGLE",
@@ -287,9 +288,11 @@ describe("compileMongoQuery — structured Mongo FIND/INSERT, no raw injection",
       }),
     );
 
-    // Bare `{{ }}` (no surrounding quotes): smart substitution supplies JSON typing/quoting at runtime.
+    // A run-time binding in the equality position is wrapped in a compiler-owned `$eq`: MongoDB compares the
+    // operand of `$eq` as a literal, so a viewer who sends `{ "$ne": null }` typed as an object cannot turn the
+    // clause into an operator (the browser chooses the parameter's data type and the server trusts it).
     expect(compiled.find?.query).toBe(
-      '{ "ownerId": {{ Table1.selectedRow.id }} }',
+      '{ "ownerId": { "$eq": {{ Table1.selectedRow.id }} } }',
     );
   });
 
@@ -371,7 +374,7 @@ describe("compileMongoQuery — UPDATE and DELETE", () => {
 
     expect(compiled.command).toBe("UPDATE");
     expect(compiled.update).toEqual({
-      query: '{ "id": {{ Table1.selectedRow.id }} }',
+      query: '{ "id": { "$eq": {{ Table1.selectedRow.id }} } }',
       update: '{ "$set": { "status": "done", "note": {{ NoteInput.text }} } }',
       limit: "SINGLE",
     });
@@ -667,5 +670,89 @@ describe("buildMongoActionDto — the exact Mongo formData action shape", () => 
     });
     // The credential/secret invariant: nothing password-like is ever in the DTO.
     expect(JSON.stringify(dto)).not.toMatch(/password/i);
+  });
+});
+
+describe("run-time bindings in filters (council M3 security)", () => {
+  it("wraps widget and param equality clauses in $eq but leaves literals plain", () => {
+    const compiled = compileMongoQuery(
+      mongoQuerySpecSchema.parse({
+        name: "FindOne",
+        applicationId: "a".repeat(24),
+        pageId: "p".repeat(24),
+        datasourceId: "d".repeat(24),
+        operation: "FIND",
+        collection: "orders",
+        filter: [
+          { field: "status", value: { literal: "open" } },
+          {
+            field: "owner",
+            value: { widget: "Table1", property: "selectedRow.id" },
+          },
+          { field: "batch", value: { param: "batch" } },
+          { field: "since", value: { date: "2026-01-01" } },
+        ],
+      }),
+    );
+
+    expect(compiled.find?.query).toBe(
+      '{ "status": "open", "owner": { "$eq": {{ Table1.selectedRow.id }} }, "batch": { "$eq": {{ this.params.batch }} }, "since": { "$date": "2026-01-01T00:00:00Z" } }',
+    );
+  });
+
+  it("marks a query that reads this.params as MANUAL and never on page load in the DTO", () => {
+    const spec = mongoQuerySpecSchema.parse({
+      name: "FindByParam",
+      applicationId: "a".repeat(24),
+      pageId: "p".repeat(24),
+      datasourceId: "d".repeat(24),
+      operation: "FIND",
+      collection: "orders",
+      filter: [{ field: "owner", value: { param: "owner" } }],
+    });
+    const dto = buildMongoActionDto(spec, compileMongoQuery(spec));
+
+    expect(specUsesParams(spec)).toBe(true);
+    expect(dto.executeOnLoad).toBe(false);
+    expect(dto.runBehaviour).toBe("MANUAL");
+    // The DTO cannot pin the behaviour (the server drops userSetOnLoad on create); the tool handler does that
+    // through the run-behaviour route — see app.test.ts.
+    expect(dto.userSetOnLoad).toBeUndefined();
+
+    const plain = mongoQuerySpecSchema.parse({
+      ...spec,
+      name: "FindAll",
+      filter: [],
+    });
+    const plainDto = buildMongoActionDto(plain, compileMongoQuery(plain));
+
+    expect(specUsesParams(plain)).toBe(false);
+    expect(plainDto.executeOnLoad).toBe(true);
+    expect(plainDto.userSetOnLoad).toBeUndefined();
+  });
+});
+
+describe("as: 'date' in the equality position", () => {
+  it("nests the $date wrapper inside the $eq wrapper", () => {
+    const compiled = compileMongoQuery(
+      mongoQuerySpecSchema.parse({
+        name: "FindOnDay",
+        applicationId: "a".repeat(24),
+        pageId: "p".repeat(24),
+        datasourceId: "d".repeat(24),
+        operation: "FIND",
+        collection: "orders",
+        filter: [
+          {
+            field: "day",
+            value: { widget: "dtDay", property: "selectedDate", as: "date" },
+          },
+        ],
+      }),
+    );
+
+    expect(compiled.find?.query).toBe(
+      '{ "day": { "$eq": { "$date": {{ dtDay.selectedDate }} } } }',
+    );
   });
 });

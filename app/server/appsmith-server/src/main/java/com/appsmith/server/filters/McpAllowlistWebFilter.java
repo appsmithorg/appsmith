@@ -63,6 +63,10 @@ public class McpAllowlistWebFilter implements WebFilter {
             rule(HttpMethod.GET, "/api/v1/actions"),
             rule(HttpMethod.POST, "/api/v1/actions"),
             rule(HttpMethod.PUT, "/api/v1/actions/{actionId}"),
+            // A query that reads `this.params` must never run on page load (a missing param reaches Mongo as null).
+            // `userSetOnLoad` is not deserialised from a create request (Views.Internal only), so the only way to pin
+            // MANUAL run behaviour is this route — the same one the editor's run-behaviour dropdown calls.
+            rule(HttpMethod.PUT, "/api/v1/actions/runBehaviour/{actionId}"),
             rule(HttpMethod.DELETE, "/api/v1/actions/{actionId}"),
             rule(HttpMethod.POST, "/api/v1/actions/execute"),
             rule(HttpMethod.GET, "/api/v1/collections/actions"),

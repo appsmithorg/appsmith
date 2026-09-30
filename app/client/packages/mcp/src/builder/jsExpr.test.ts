@@ -3,8 +3,10 @@ import {
   compileSteps,
   type Expr,
   type ExprContext,
+  exceedsJsonDepth,
   exprSchema,
   type Fn,
+  MAX_DEFINITION_JSON_DEPTH,
   FN_NAMES,
   type Op,
   OPS,
@@ -29,6 +31,10 @@ function expr(input: unknown): Expr {
 
   return parsed.data;
 }
+
+// The compiler-owned guard every `run … with` passes its parameters through (see compileSteps).
+const GUARD =
+  '(($p) => { for (const $k of Object.keys($p)) { if ($p[$k] === undefined) { throw new Error("missing query parameter: " + $k); } } return $p; })';
 
 function steps(input: unknown): Step[] {
   const parsed = stepSchema.array().safeParse(input);
@@ -252,7 +258,7 @@ describe("jsExpr — the Banner editor examples compile from structure alone", (
       "let doc = { title: title, priority: Number(inpPriority.text), edition: msEdition.selectedOptionValues, startsAt: new Date(dtStartsAt.selectedDate).toISOString(), updatedBy: appsmith.store.currentUser, updatedAt: new Date(new Date()).toISOString() };",
     );
     expect(source).toContain(
-      "{ await InsertBanner.run({ doc: doc }); } else { let updated = await UpdateBanner.run({ id: selectedId, doc: doc }); }",
+      `{ await InsertBanner.run(${GUARD}({ doc: doc })); } else { let updated = await UpdateBanner.run(${GUARD}({ id: selectedId, doc: doc })); }`,
     );
     expect(source).toContain("await GetBanners.run();");
     expect(source).toContain('showAlert("Saved", "success");');
@@ -718,5 +724,191 @@ describe("jsExpr — every fn and op compiles to valid JS that computes the expe
       'await storeValue("lastTotal", total, false);',
       'await resetWidget("inpAmount", true);',
     ]);
+  });
+});
+
+describe("jsExpr — milestone 3: table columns, failure branches, modal and navigation steps, params guard", () => {
+  it("reads a selected-row column whose name is not an identifier through a JSON-encoded member", () => {
+    const tree = expr({ table: "tblOrders", column: "instance ids" });
+
+    expect(compileExpr(tree)).toBe('tblOrders.selectedRow["instance ids"]');
+    expect(
+      exprSchema.safeParse({ table: "tblOrders", column: 'x"]; evil(); ["' })
+        .success,
+    ).toBe(false);
+    expect(
+      exprSchema.safeParse({ table: "globalThis", column: "eval" }).success,
+    ).toBe(false);
+    expect(
+      exprSchema.safeParse({ table: "tblOrders", column: "constructor" })
+        .success,
+    ).toBe(false);
+    expect(
+      exprSchema.safeParse({ table: "tblOrders", column: "__proto__" }).success,
+    ).toBe(false);
+    expect(
+      stepsProblem(
+        steps([
+          { let: "tblOrders", value: 1 },
+          { return: { table: "tblOrders", column: "id" } },
+        ]),
+        ctx(),
+      ),
+    ).toMatch(/both a local name and a widget\/query reference/);
+  });
+
+  it("compiles run … onError as a compiler-owned try/catch whose error is never exposed", () => {
+    const body = steps([
+      {
+        run: "SaveOrder",
+        with: { id: { param: "id" } },
+        into: "saved",
+        onError: [
+          { showAlert: "Could not save", style: "error" },
+          { return: false },
+        ],
+      },
+      { return: { var: "saved" } },
+    ]);
+
+    expect(
+      stepsProblem(body, ctx({ params: new Set(["id"]) })),
+    ).toBeUndefined();
+    expect(compileSteps(body)).toEqual([
+      `let saved; { const $a = ${GUARD}({ id: id }); try { saved = await SaveOrder.run($a); } catch ($e) { showAlert("Could not save", "error"); return false; } }`,
+      "return saved;",
+    ]);
+    // The failure branch cannot read the result local (the run did not complete) nor declare it twice.
+    expect(
+      stepsProblem(
+        steps([{ run: "Q", into: "r", onError: [{ return: { var: "r" } }] }]),
+        ctx(),
+      ),
+    ).toMatch(/steps\[0\]\.onError\[0\]: "r" is used before/);
+    expect(stepSchema.safeParse({ run: "Q", onError: [] }).success).toBe(false);
+  });
+
+  it("compiles showModal / closeModal / navigate steps from validated names", () => {
+    expect(
+      compileSteps(
+        steps([
+          { showModal: "mdlEdit" },
+          { closeModal: "mdlEdit" },
+          { navigate: "Order Details" },
+        ]),
+      ),
+    ).toEqual([
+      'showModal("mdlEdit");',
+      'closeModal("mdlEdit");',
+      'await navigateTo("Order Details", {}, "SAME_WINDOW");',
+    ]);
+    expect(
+      stepSchema.safeParse({ navigate: "Page'); evil(); ('" }).success,
+    ).toBe(false);
+    // Pages created by create_page may carry hyphens; navigate must accept them.
+    expect(stepSchema.safeParse({ navigate: "Order-Details" }).success).toBe(
+      true,
+    );
+    expect(stepSchema.safeParse({ showModal: "eval" }).success).toBe(false);
+  });
+
+  it("guards run … with against undefined parameters at run time", async () => {
+    const [line] = compileSteps(
+      steps([{ run: "Q", with: { id: { param: "id" } } }]),
+    );
+    const calls: unknown[] = [];
+    const fn = new Function(
+      "Q",
+      "id",
+      `return (async () => { ${line} })();`,
+    ) as (q: unknown, id: unknown) => Promise<void>;
+    const Q = { run: async (p: unknown) => calls.push(p) };
+
+    return fn(Q, "abc")
+      .then(() => expect(calls).toEqual([{ id: "abc" }]))
+      .then(async () => fn(Q, undefined))
+      .then(
+        () => {
+          throw new Error("expected the guard to throw");
+        },
+        (error: Error) =>
+          expect(error.message).toBe("missing query parameter: id"),
+      );
+  });
+
+  it("refuses a definition that nests deeper than the JSON depth cap before the schema runs", () => {
+    let deep: unknown = 1;
+
+    for (let i = 0; i < MAX_DEFINITION_JSON_DEPTH + 5; i += 1)
+      deep = { op: "neg", args: [deep] };
+
+    expect(exceedsJsonDepth(deep, MAX_DEFINITION_JSON_DEPTH)).toBe(true);
+    expect(
+      exceedsJsonDepth(
+        { functions: [{ name: "f", steps: [{ return: 1 }] }] },
+        MAX_DEFINITION_JSON_DEPTH,
+      ),
+    ).toBe(false);
+  });
+});
+
+describe("jsExpr — run … onError executes the recovery branch (council M3 QA)", () => {
+  it("runs the recovery steps when the query rejects, with the result local still undefined", async () => {
+    const [line, tail] = compileSteps(
+      steps([
+        {
+          run: "SaveOrder",
+          with: { id: { param: "id" } },
+          into: "saved",
+          onError: [
+            { storeValue: "failed", value: true },
+            { showAlert: "Could not save", style: "error" },
+          ],
+        },
+        { return: { var: "saved" } },
+      ]),
+    );
+    const store: Record<string, unknown> = {};
+    const alerts: unknown[] = [];
+    const run = new Function(
+      "SaveOrder",
+      "storeValue",
+      "showAlert",
+      "id",
+      `return (async () => { ${line} ${tail} })();`,
+    ) as (...args: unknown[]) => Promise<unknown>;
+    const storeValue = async (key: string, value: unknown) => {
+      store[key] = value;
+    };
+    const showAlert = (message: string, style: string) =>
+      alerts.push([message, style]);
+
+    // Rejecting query: recovery runs, the result local is still undefined, the function does not throw.
+    await expect(
+      run(
+        {
+          run: async () => {
+            throw new Error("boom");
+          },
+        },
+        storeValue,
+        showAlert,
+        "abc",
+      ),
+    ).resolves.toBeUndefined();
+    expect(store).toEqual({ failed: true });
+    expect(alerts).toEqual([["Could not save", "error"]]);
+
+    // Resolving query: no recovery, the result is returned.
+    await expect(
+      run({ run: async () => ({ ok: 1 }) }, storeValue, showAlert, "abc"),
+    ).resolves.toEqual({ ok: 1 });
+    expect(alerts).toHaveLength(1);
+
+    // A missing parameter is an authoring bug: it throws BEFORE the try, so onError does not mask it.
+    await expect(
+      run({ run: async () => ({ ok: 1 }) }, storeValue, showAlert, undefined),
+    ).rejects.toThrow("missing query parameter: id");
+    expect(alerts).toHaveLength(1);
   });
 });

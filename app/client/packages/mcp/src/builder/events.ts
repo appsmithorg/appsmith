@@ -3,8 +3,10 @@ import { jsCollectionName, jsFunctionName } from "./jsObject.js";
 import type { WidgetNode } from "./layout.js";
 import {
   entityPropertyPath,
+  pageNameSchema,
   responseFieldPath,
   storeKeySchema,
+  RAW_EXPRESSION,
 } from "./schema.js";
 
 // M-F event wiring. A CLOSED event vocabulary: the agent supplies a structured action reference (run a query,
@@ -22,11 +24,8 @@ const widgetName = z
   .min(1)
   .max(64)
   .regex(/^[A-Za-z0-9_]+$/, "must be a widget name (alphanumeric/underscore)");
-const pageName = z
-  .string()
-  .min(1)
-  .max(64)
-  .regex(/^[A-Za-z0-9_ ]+$/, "must be a safe page name");
+// Shared with the JS-object grammar's `navigate` step (schema.ts).
+const pageName = pageNameSchema;
 
 // Alert text is emitted inside a single-quoted argument, so the charset excludes quotes, backslashes, braces, and
 // backticks — nothing in it can terminate the string or open an expression.
@@ -88,7 +87,6 @@ const resetAction = z
 // binding-syntax charsets are still rejected, because Appsmith's `{{ }}` extraction is text-level (not JS-aware) —
 // a `}}` inside a JSON-escaped string would still terminate the outer binding and let a following `{{ ... }}` in the
 // same key become a second, evaluated expression. Same rejection set as schema.ts safeText (incl. U+2028/U+2029).
-const RAW_EXPRESSION = /\u007b\u007b|\u007d\u007d|\$\u007b|`|\u2028|\u2029/;
 const storePathElement = z.union([
   z
     .string()

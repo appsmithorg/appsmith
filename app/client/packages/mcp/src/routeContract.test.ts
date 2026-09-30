@@ -131,6 +131,8 @@ function apiInvocations(
     updateActionCollection: async () => api.updateActionCollection(PARAM, body),
     updateActionCollectionBody: async () =>
       api.updateActionCollectionBody(PARAM, { body: "export default {};" }),
+    setActionRunBehaviour: async () =>
+      api.setActionRunBehaviour(PARAM, "MANUAL"),
     deleteActionCollection: async () => api.deleteActionCollection(PARAM),
     validateToken: async () => api.validateToken(),
   };

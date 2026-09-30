@@ -99,6 +99,19 @@ class McpAllowlistWebFilterTest {
     }
 
     @Test
+    void mcpPrincipal_actionRunBehaviour_isAllowed() {
+        // create_mongo_query pins a `this.params` query to MANUAL through the run-behaviour route (the create
+        // request cannot carry userSetOnLoad); the rule covers exactly that sub-path.
+        assertPassesThrough(
+                MockServerWebExchange.from(
+                        MockServerHttpRequest.put("/api/v1/actions/runBehaviour/abc123?behaviour=MANUAL")),
+                mcpPrincipal());
+        assertForbidden(
+                MockServerWebExchange.from(MockServerHttpRequest.put("/api/v1/actions/executeOnLoad/abc123")),
+                mcpPrincipal());
+    }
+
+    @Test
     void mcpPrincipal_nonAllowlistedPath_isForbidden() {
         // The token-mint endpoint is not on the allowlist -> 403 for an MCP principal (double-covered by the
         // controller-level block).

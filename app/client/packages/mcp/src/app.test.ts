@@ -351,6 +351,7 @@ function createApi(
     createActionCollection: jest.fn(),
     updateActionCollection: jest.fn(),
     updateActionCollectionBody: jest.fn(),
+    setActionRunBehaviour: jest.fn(),
     deleteActionCollection: jest.fn(),
     validateToken,
   });
@@ -2035,6 +2036,60 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
       '{ "status": "open" }',
     );
     expect(dto.actionConfiguration.formData.smartSubstitution.data).toBe(true);
+  });
+
+  it("create_mongo_query pins a query that reads this.params to MANUAL through the run-behaviour route", async () => {
+    const createAction = jest.fn<
+      Promise<{ id: string }>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "act-p" }));
+    const setActionRunBehaviour = jest.fn<Promise<unknown>, [string, string]>(
+      async () => ({}),
+    );
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "Mongo", pluginId: "656f00000000000000000009" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000009", packageName: "mongo-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+      setActionRunBehaviour,
+    };
+    const withParam = {
+      ...mongoQuery,
+      name: "findByOwner",
+      filter: [{ field: "owner", value: { param: "owner" } }],
+    };
+
+    const body = await callTool(api, "create_mongo_query", {
+      query: withParam,
+    });
+
+    expect(body.created).toBe(true);
+    expect(body.runBehaviour).toBe("MANUAL");
+    expect(setActionRunBehaviour).toHaveBeenCalledWith("act-p", "MANUAL");
+
+    // A plain query is left alone.
+    setActionRunBehaviour.mockClear();
+    await callTool(api, "create_mongo_query", { query: mongoQuery });
+    expect(setActionRunBehaviour).not.toHaveBeenCalled();
+
+    // A failed pin is a partial failure the agent is told about, never hidden.
+    setActionRunBehaviour.mockRejectedValueOnce(
+      new Error("Appsmith API request failed (403)"),
+    );
+    const partial = await callTool(api, "create_mongo_query", {
+      query: { ...withParam, name: "findByOwner2" },
+    });
+
+    expect(partial.created).toBe(true);
+    expect(partial.code).toBe("run_behaviour_not_pinned");
+    expect(String(partial.error)).toContain(
+      "could not be pinned to manual run behaviour",
+    );
   });
 
   it("create_mongo_query creates a targeted UPDATE ($set, SINGLE, manual)", async () => {
@@ -5577,6 +5632,165 @@ describe("governance-wrapped layout mutations", () => {
     expect(read.body.jsObjects[0].definition).toBeUndefined();
   });
 
+  it("update_js_object reports a PATCH failure after the body write as a partial failure that needs a re-read", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const before = {
+      id: "coll1",
+      name: "Helpers",
+      pageId: "b".repeat(24),
+      body: compileJsObject({
+        functions: [{ name: "refresh", run: [{ query: "GetOrders" }] }],
+      } as never),
+      actions: [{ id: "act-refresh", name: "refresh" }],
+    };
+    const updateActionCollectionBody = jest.fn(async () => ({}));
+    const updateActionCollection = jest.fn(async () => {
+      throw new Error("Appsmith API request failed (500)");
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listActionCollections: jest.fn(async () => [before]),
+      updateActionCollectionBody,
+      updateActionCollection,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const updated = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "coll1",
+        revision: read.body.jsObjects[0].revision,
+        functions: [
+          { name: "refresh", run: [{ query: "GetOrders" }] },
+          { name: "reset", steps: [{ resetWidget: "inpTitle" }] },
+        ],
+      },
+    });
+
+    // The body route was written, the PATCH failed, and the error says exactly that plus what to do next.
+    expect(updateActionCollectionBody).toHaveBeenCalledTimes(1);
+    expect(updated.body.updated).toBeUndefined();
+    // A thrown mutation error surfaces as { valid: false, errors: [{ message }] }.
+    const message = String(updated.body.errors?.[0]?.message);
+
+    expect(message).toContain(
+      "the JS object's code was written but its function list could not be updated",
+    );
+    expect(message).toContain("read_js_object for the new revision");
+  });
+
+  it("wire_event { call } resolves a function from the compiler's embedded definition when the JSAction list is empty", async () => {
+    const store = new MemoryGovernanceStore();
+    const DSL = {
+      ...ROOT_DSL,
+      children: [
+        {
+          widgetId: "b",
+          widgetName: "SaveBtn",
+          type: "BUTTON_WIDGET",
+          topRow: 0,
+          bottomRow: 4,
+          leftColumn: 0,
+          rightColumn: 16,
+        },
+      ],
+    };
+    let current: Record<string, unknown> = DSL;
+    const updateLayout = jest.fn<
+      Promise<{ ok: boolean }>,
+      [string, string, string, Record<string, unknown>]
+    >(async (_app, _page, _layout, dsl) => {
+      current = dsl;
+
+      return { ok: true };
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: current },
+      })),
+      listActionCollections: jest.fn(async () => [
+        {
+          id: "coll1",
+          name: "Helpers",
+          // Marker present, JSActions absent: the embedded definition is the function-name oracle.
+          body: compileJsObject({
+            functions: [{ name: "save", steps: [{ return: true }] }],
+          } as never),
+          actions: [],
+        },
+      ]),
+      updateLayout: updateLayout as never,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: false,
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const wire = async (call: { object: string; function: string }) =>
+      callTool(server, "wire_event", {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+        revision: fingerprintDsl(current as never),
+        spec: { widget: "SaveBtn", event: "onClick", action: { call } },
+      });
+
+    expect(
+      (await wire({ object: "Helpers", function: "nope" })).body.error,
+    ).toMatch(/function "nope" was not found on JS object "Helpers"/);
+    expect(
+      (await wire({ object: "Helpers", function: "save" })).body.changeId,
+    ).toBeDefined();
+  });
+
+  it("create_js_object refuses a definition nested past the JSON depth cap before parsing it", async () => {
+    const api: AppsmithApi = { ...createApi()() };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+    let deep: unknown = 1;
+
+    for (let i = 0; i < 200; i += 1) deep = { op: "neg", args: [deep] };
+
+    const refused = await callTool(server, "create_js_object", {
+      spec: {
+        applicationId: "a".repeat(24),
+        pageId: "b".repeat(24),
+        name: "Deep",
+        revision: "d".repeat(64),
+        functions: [{ name: "f", returns: deep }],
+      },
+    });
+
+    expect(String(refused.body.error)).toContain("nests deeper than");
+
+    // The update handler guards the same way, before any read.
+    const refusedUpdate = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: "a".repeat(24),
+        collectionId: "c".repeat(24),
+        revision: "d".repeat(64),
+        functions: [{ name: "f", returns: deep }],
+      },
+    });
+
+    expect(String(refusedUpdate.body.error)).toContain("nests deeper than");
+    expect(api.listActionCollections).not.toHaveBeenCalled();
+  });
+
   it("wire_event { call } emits Object.function() only for a function that exists on a JS object of the app", async () => {
     const store = new MemoryGovernanceStore();
     const DSL = {
@@ -6138,7 +6352,7 @@ describe("governance-wrapped layout mutations", () => {
     // Security regression (hacktron): actionConfiguration.httpMethod is NOT a trusted read-only signal for a
     // host-restricted (DB) action. DB plugins do not use HTTP verbs, and the backend does not strip an injected
     // httpMethod — so a mutating SQL action stamped with "GET" must still route through prepare/confirm, never
-    // auto-run. Before the fix this exact document auto-ran (isReadOnlyAction returned true), executing the mutation
+    // auto-run. Before the fix this exact document auto-ran (the since-removed isReadOnlyAction predicate returned true), executing the mutation
     // with no human in the loop. The ONLY read auto-run door is the Sheets path (proven separately below).
     const executeAction = jest.fn();
     const server = createMcpHttpServer(
@@ -7449,7 +7663,7 @@ describe("close-the-loop — advisory write classifier", () => {
   });
 
   it("is advisory-only: a disguised mutation is missed here, never auto-run", () => {
-    // SELECT calling a mutating function — the fail-closed isReadOnlyAction gate (not this classifier)
+    // SELECT calling a mutating function — the fail-closed isAutoRunnableAction gate (not this classifier)
     // is what protects run_action; this classifier only powers hints.
     expect(looksLikeWriteAction(sqlAction("sneaky", "SELECT drop_old()"))).toBe(
       false,

@@ -7,8 +7,10 @@ import {
   exprSchema,
   identifier,
   JS_IDENTIFIER_SOURCE,
+  exceedsJsonDepth,
   literalSchema,
   localName,
+  MAX_DEFINITION_JSON_DEPTH,
   memberName,
   PARAMS_MAX,
   RAW_EXPRESSION,
@@ -523,10 +525,13 @@ export function jsObjectDefinitionFromBody(
     return undefined;
   }
 
+  // A stored marker is untrusted too (an editor can paste any body): guard the recursive schema exactly as the
+  // create/update handlers do, or a deeply nested marker would make read_js_object throw for the whole app.
   if (
     decoded === null ||
     typeof decoded !== "object" ||
-    (decoded as { v?: unknown }).v !== SPEC_VERSION
+    (decoded as { v?: unknown }).v !== SPEC_VERSION ||
+    exceedsJsonDepth(decoded, MAX_DEFINITION_JSON_DEPTH)
   ) {
     return undefined;
   }

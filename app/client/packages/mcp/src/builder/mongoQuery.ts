@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { storedId } from "./schema.js";
+import { RAW_EXPRESSION, storedId } from "./schema.js";
 
 // M4-T2 create_mongo_query — a STRUCTURED MongoDB query builder, the NoSQL analog of create_query. The agent never
 // authors a raw Mongo command string or raw `{{ }}` bindings. The compiler emits the Mongo plugin's `formData`
@@ -53,7 +53,6 @@ const propertyPath = z
 // A scalar literal that cannot contain expression/template syntax (mirrors the SQL builder's literalScalar).
 // U+2028/U+2029 are included for the same reason schema.ts documents: JSON.stringify does NOT escape them,
 // so a value carrying one can break out of the emitted string literal on an older JS engine.
-const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`|\u2028|\u2029/;
 const literalScalar = z.union([
   z
     .string()
@@ -424,7 +423,16 @@ function emitFilter(clauses: FilterClause[]): string {
     bucket.seen.add(op);
 
     if (op === "eq") {
-      bucket.equality = value;
+      // A run-time binding in the equality position is emitted as `{ "$eq": <binding> }`, never bare. The browser
+      // chooses each parameter's data type and the server trusts it, so a viewer who crafts the execute request
+      // can send `{ "$ne": null }` typed as an object for ANY binding — bare `"field": {{ … }}` would then be an
+      // operator injection that broadens the filter, while MongoDB compares the operand of `$eq` as a literal
+      // value (objects with `$` keys, regexes and MinKey included) [COUNCIL: APP-16052 M3 security]. Literals and
+      // `$date` literals stay plain: nothing agent-authored can become an operator there.
+      bucket.equality =
+        "literal" in clause.value || "date" in clause.value
+          ? value
+          : `{ ${JSON.stringify("$eq")}: ${value} }`;
     } else {
       bucket.operators.push(`${JSON.stringify(MONGO_OPERATORS[op])}: ${value}`);
     }
@@ -625,13 +633,43 @@ export function buildMongoActionDto(
     };
   }
 
+  // A query that reads `this.params` only makes sense when a JS function calls it `with` values. Run any other way
+  // (page load, the editor's Run button, a bare `Q.run()`) every missing param reaches Mongo as a bare `null`,
+  // which on a non-_id field matches every document that lacks the field (a `multi: true` update or delete would
+  // then hit all of them) and in a `$set` silently writes null. So such a query must stay MANUAL. The create
+  // request cannot carry that guarantee: the server forces MANUAL on every create anyway and drops
+  // `userSetOnLoad` (it is not in the request JSON view), then auto-switches the query to run on page load the
+  // moment a widget binds its data unless `userSetOnLoad` is true. The create_mongo_query handler therefore pins
+  // the behaviour AFTER creation through `PUT /api/v1/actions/runBehaviour/{id}?behaviour=MANUAL` (the route the
+  // editor's own dropdown uses, which sets `userSetOnLoad`); the fields below only keep the DTO honest about the
+  // intent [COUNCIL: APP-16052 M3 architecture].
+  const usesParams = specUsesParams(spec);
+
   return {
     name: spec.name,
     pageId: spec.pageId,
     datasource: { id: spec.datasourceId },
     // A FIND is a data fetch: run it on page load so a bound widget populates without a manual trigger. INSERT,
     // UPDATE, and DELETE mutate the collection and are user-triggered, so they stay manual.
-    executeOnLoad: compiled.command === "FIND",
+    executeOnLoad: compiled.command === "FIND" && !usesParams,
+    ...(usesParams ? { runBehaviour: "MANUAL" } : {}),
     actionConfiguration: { formData },
   };
+}
+
+// True when any value in the spec is a `{ param }` reference (filter, $set entries, insert documents, in/nin lists).
+export function specUsesParams(spec: MongoQuerySpec): boolean {
+  const stack: unknown[] = [spec];
+
+  while (stack.length > 0) {
+    const node = stack.pop();
+
+    if (node === null || typeof node !== "object") continue;
+
+    if (!Array.isArray(node) && "param" in node) return true;
+
+    stack.push(...(Array.isArray(node) ? node : Object.values(node)));
+  }
+
+  return false;
 }
