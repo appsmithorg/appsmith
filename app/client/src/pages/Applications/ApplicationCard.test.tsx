@@ -305,6 +305,34 @@ describe("ApplicationCard — description subtitle", () => {
     expect(update).toHaveBeenCalledWith("app-1", { description: "" });
   });
 
+  it("keeps the multiline sizing span measurable while editing the description", () => {
+    const app = buildApplication({ description: "Old blurb" });
+
+    const { getByTestId } = render(
+      <ApplicationCard {...baseProps} application={app} update={jest.fn()} />,
+    );
+
+    fireEvent.keyDown(getByTestId("t--application-card-context-menu"), {
+      key: "Enter",
+    });
+    const root = document.querySelector(
+      ".t--application-description",
+    ) as HTMLElement;
+
+    fireEvent.click(root);
+
+    // Blueprint sizes a multiline textarea from this span, so it must stay in
+    // the layout (hidden, not removed) while editing.
+    const contentSelector = "&&& .bp3-editable-text-content";
+
+    expect(root.parentElement).toHaveStyleRule("visibility", "hidden", {
+      modifier: contentSelector,
+    });
+    expect(root.parentElement).not.toHaveStyleRule("display", "none", {
+      modifier: contentSelector,
+    });
+  });
+
   it("hides the description editor from the card menu without edit permission", () => {
     // Export permission keeps the menu itself visible; manage permission is what
     // gates the editable name/description/colour/icon controls.

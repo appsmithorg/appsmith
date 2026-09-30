@@ -70,6 +70,7 @@ const TextContainer = styled.div<{
   isEditing: boolean;
   bgColor: string;
   underline?: boolean;
+  multiline?: boolean;
 }>`
   display: flex;
   align-items: center;
@@ -83,7 +84,14 @@ const TextContainer = styled.div<{
     color: var(--ads-editable-text-subcomponent-default-text-color);
     overflow: hidden;
     text-overflow: ellipsis;
-    ${(props) => (props.isEditing ? "display: none" : "display: block")};
+    /* Blueprint sizes a multiline textarea from this span, so it must stay in
+       the layout (hidden, not removed) while editing. */
+    ${(props) =>
+      props.isEditing && props.multiline
+        ? "visibility: hidden"
+        : props.isEditing
+          ? "display: none"
+          : "display: block"};
     width: fit-content !important;
     min-width: auto !important;
     line-height: inherit !important;
@@ -251,6 +259,7 @@ export const EditableTextSubComponent = React.forwardRef(
           data-cy={props.cypressSelector}
           isEditing={isEditing}
           isInvalid={!!isInvalid}
+          multiline={props.multiline}
           underline={props.underline}
         >
           <BlueprintEditableText
