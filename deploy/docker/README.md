@@ -118,10 +118,24 @@ assignments use the last value. LF and CRLF line endings are accepted.
 Supported names start with `APPSMITH_`, `MONGO_`, or `KEYCLOAK_` and contain only
 letters, digits, and underscores. The prefixes remain case-sensitive.
 `HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY` and their lowercase equivalents are supported,
-as are `NEW_RELIC_LICENSE_KEY`, `NEW_RELIC_APP_NAME`, `JAVA_OPTS_APPEND`,
+as are `NEW_RELIC_LICENSE_KEY`, `NEW_RELIC_APP_NAME`,
 `JGROUPS_DISCOVERY_PROTOCOL`, `FILESTORE_IP_ADDRESS`, `FILE_SHARE_NAME`, and `PORT`.
 Other names are rejected rather than silently ignored. Shell control variables such
 as `PATH`, `BASH_ENV`, and `LD_PRELOAD` cannot be set through this file.
+
+JVM-control variables are deployment-only: `APPSMITH_JAVA_ARGS`,
+`APPSMITH_JAVA_HEAP_ARG`, `JAVA_OPTS`, `JAVA_OPTS_APPEND`, `JAVA_TOOL_OPTIONS`,
+`JDK_JAVA_OPTIONS`, and `_JAVA_OPTIONS`. Assignments to these names in `docker.env`
+are ignored without evaluating their contents. Nonempty assignments produce a
+warning naming the variable, never its value:
+
+```text
+Ignoring APPSMITH_JAVA_ARGS in docker.env: JVM options must be configured through the container environment (Docker Compose or Helm).
+```
+
+Set JVM options through the container environment in Docker Compose or Helm.
+Deployment-supplied values, including explicitly empty values, are preserved in
+the private restart snapshot. Generated internal JVM options remain supported.
 
 Variable references such as `${PASSWORD}`, commands such as `$(command)`, backticks,
 and semicolons are never evaluated. Unescaped expressions that would require shell
@@ -146,6 +160,9 @@ require no configuration changes. Before upgrading a customized installation,
 replace shell expressions in `docker.env` with their intended literal values and
 remove shell commands or unsupported variable names. Do not source a potentially
 compromised file to perform this conversion.
+Move any JVM-control assignments from `docker.env` to the container environment
+before upgrading, then recreate the container or roll out the pod. A service-only
+restart does not refresh deployment configuration.
 
 Preserve the effective encryption password and salt exactly. Changing either can
 make existing encrypted credentials unreadable. Obtain their resolved values from
@@ -155,7 +172,9 @@ an expression with its literal text unless that was already the intended value.
 Backup and restore use the same parser to validate configuration and quote literal
 values. Restore validates before stopping services or restoring the database, and
 replaces the environment file atomically. Incompatible legacy backups must be
-corrected before restore. Persisted configuration uses UTF-8 and cannot contain
+corrected before restore. Serialized backups and restored configuration omit
+JVM-control assignments; configure those separately on the target deployment.
+Persisted configuration uses UTF-8 and cannot contain
 multiline values. Backup/restore reject multiline replacement values rather than
 changing them. Tabs are supported; other control characters are not. The external
 snapshot's byte preservation does not guarantee that individual application

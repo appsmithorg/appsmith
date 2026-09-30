@@ -13,12 +13,32 @@ class ConfigError(ValueError):
     """Value-free configuration diagnostic."""
 
 
+# JVM options belong to the deployment environment, not persisted configuration.
+# Include Java's implicit inputs and the options consumed by the EE Keycloak launcher.
+DEPLOYMENT_JVM_NAMES = frozenset({
+    "APPSMITH_JAVA_ARGS", "APPSMITH_JAVA_HEAP_ARG", "JAVA_OPTS", "JAVA_OPTS_APPEND",
+    "JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS",
+})
+
+
+def skip_persisted_jvm_option(name, value):
+    if name not in DEPLOYMENT_JVM_NAMES:
+        return False
+    # Old generated templates contain an empty APPSMITH_JAVA_ARGS assignment.
+    if value not in {"", "''", '""'}:
+        print(f"Ignoring {name} in docker.env: JVM options must be configured through "
+              "the container environment (Docker Compose or Helm).", file=sys.stderr)
+    return True
+
+
 def valid_name(name):
     # Do not let a configuration file replace PATH, BASH_ENV, LD_PRELOAD,
     # or the shell loader's own variables.
-    return bool(re.fullmatch(r"(?:APPSMITH_|MONGO_|KEYCLOAK_)[A-Za-z0-9_]+", name)) or name in {
+    return name in DEPLOYMENT_JVM_NAMES or bool(
+        re.fullmatch(r"(?:APPSMITH_|MONGO_|KEYCLOAK_)[A-Za-z0-9_]+", name)
+    ) or name in {
         "HTTP_PROXY", "HTTPS_PROXY", "NO_PROXY", "http_proxy", "https_proxy", "no_proxy",
-        "NEW_RELIC_LICENSE_KEY", "NEW_RELIC_APP_NAME", "JAVA_OPTS_APPEND",
+        "NEW_RELIC_LICENSE_KEY", "NEW_RELIC_APP_NAME",
         "JGROUPS_DISCOVERY_PROTOCOL", "FILESTORE_IP_ADDRESS", "FILE_SHARE_NAME", "PORT",
     }
 
@@ -81,6 +101,8 @@ def parse_env(source):
             continue
         try:
             name, separator, raw = line.partition("=")
+            if separator and skip_persisted_jvm_option(name, raw.strip()):
+                continue
             if not separator or not valid_name(name):
                 raise ValueError("unsupported variable name or missing assignment")
             if any(ord(char) < 32 and char != "\t" for char in line) or "\x7f" in line:
@@ -106,6 +128,8 @@ def merge_env():
         raise ValueError("invalid merge request")
     values = parse_env(io.StringIO(request["content"]))
     for name, value in request["values"].items():
+        if isinstance(value, str) and skip_persisted_jvm_option(name, value):
+            continue
         if not valid_name(name) or not isinstance(value, str) or any(
             (ord(char) < 32 and char != "\t") or ord(char) == 127 for char in value
         ):
@@ -128,7 +152,7 @@ def main():
         return
     if mode == "snapshot":
         values = {key: value for key, value in os.environ.items()
-                  if key.startswith(("APPSMITH_", "MONGO_"))}
+                  if key.startswith(("APPSMITH_", "MONGO_")) or key in DEPLOYMENT_JVM_NAMES}
         if any(not valid_name(key) for key in values):
             raise ConfigError("externally supplied environment has an unsupported variable name")
         with open(path, "w", encoding="utf-8") as target:
