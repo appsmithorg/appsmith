@@ -165,7 +165,8 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const [isForkApplicationModalopen, setForkApplicationModalOpen] =
     useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
-  // null until the user types in the menu's description field.
+  // Raw draft of the menu's description field (null until the user types),
+  // flushed when the menu closes without the field blurring first.
   const [lastUpdatedDescription, setLastUpdatedDescription] = useState<
     string | null
   >(null);
@@ -492,9 +493,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                   maxLines={3}
                   multiline
                   onBlurEverytime={saveDescription}
-                  onTextChanged={(value: string) => {
-                    setLastUpdatedDescription(value);
-                  }}
+                  onDraftChange={setLastUpdatedDescription}
                   placeholder={createMessage(APP_CARD_DESCRIPTION_PLACEHOLDER)}
                   savingState={
                     isSavingDescription

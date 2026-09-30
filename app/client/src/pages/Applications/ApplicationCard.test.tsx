@@ -271,6 +271,40 @@ describe("ApplicationCard — description subtitle", () => {
     });
   });
 
+  it("flushes a cleared description when the menu closes without a blur", async () => {
+    const update = jest.fn();
+    const app = buildApplication({ description: "Old blurb" });
+
+    const { getByTestId } = render(
+      <ApplicationCard {...baseProps} application={app} update={update} />,
+    );
+
+    fireEvent.keyDown(getByTestId("t--application-card-context-menu"), {
+      key: "Enter",
+    });
+    fireEvent.click(
+      document.querySelector(".t--application-description") as HTMLElement,
+    );
+    const field = document.querySelector(
+      ".t--application-description textarea",
+    ) as HTMLTextAreaElement;
+
+    fireEvent.change(field, { target: { value: "abc" } });
+    fireEvent.change(field, { target: { value: "" } });
+
+    // Radix arms its outside-click listener on the next tick after opening.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    // Clicking outside closes the menu; the content unmounts before the field
+    // blurs, so the close flush is the only save that can happen.
+    fireEvent.pointerDown(document.body);
+
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(update).toHaveBeenCalledWith("app-1", { description: "" });
+  });
+
   it("hides the description editor from the card menu without edit permission", () => {
     // Export permission keeps the menu itself visible; manage permission is what
     // gates the editable name/description/colour/icon controls.

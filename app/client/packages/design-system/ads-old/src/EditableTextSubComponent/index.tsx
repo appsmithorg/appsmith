@@ -31,6 +31,7 @@ export type EditableTextSubComponentProps = CommonComponentProps & {
   onBlur?: (value: string) => void; // This `Blur` will be called only when there is a change in the value after we unfocus from the input field
   onBlurEverytime?: (value: string) => void; // This `Blur` will be called everytime we unfocus from the input field
   onTextChanged?: (value: string) => void;
+  onDraftChange?: (value: string) => void;
   valueTransform?: (value: string) => string;
   isEditingDefault?: boolean;
   isEditing: boolean;
@@ -130,6 +131,7 @@ export const EditableTextSubComponent = React.forwardRef(
       isInvalid,
       onBlur,
       onBlurEverytime,
+      onDraftChange,
       onTextChanged,
       savingState,
       setIsEditing,
@@ -216,6 +218,8 @@ export const EditableTextSubComponent = React.forwardRef(
         const errorMessage = inputValidation && inputValidation(finalVal);
         const error = errorMessage ? errorMessage : false;
 
+        onDraftChange && onDraftChange(finalVal);
+
         if (!error && finalVal !== "") {
           setLastValidValue(finalVal);
           onTextChanged && onTextChanged(finalVal);
@@ -225,7 +229,7 @@ export const EditableTextSubComponent = React.forwardRef(
         setIsInvalid(error);
         setChangeStarted(true);
       },
-      [inputValidation, onTextChanged],
+      [inputValidation, onDraftChange, onTextChanged],
     );
 
     const iconName =
