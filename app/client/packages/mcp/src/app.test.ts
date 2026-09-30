@@ -2077,19 +2077,48 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     await callTool(api, "create_mongo_query", { query: mongoQuery });
     expect(setActionRunBehaviour).not.toHaveBeenCalled();
 
-    // A failed pin is a partial failure the agent is told about, never hidden.
+    // A failed pin fails CLOSED: the query is removed again (an unpinned params query would be auto-switched onto
+    // page load), and the agent is told so.
+    const deleteAction = api.deleteAction as jest.Mock;
+
     setActionRunBehaviour.mockRejectedValueOnce(
       new Error("Appsmith API request failed (403)"),
     );
-    const partial = await callTool(api, "create_mongo_query", {
+    const removed = await callTool(api, "create_mongo_query", {
       query: { ...withParam, name: "findByOwner2" },
+    });
+
+    expect(removed.created).toBe(false);
+    expect(removed.code).toBe("run_behaviour_not_pinned");
+    expect(String(removed.error)).toContain("so it was removed again");
+    expect(deleteAction).toHaveBeenCalledWith("act-p");
+
+    // Only when the removal itself fails is the query reported as still present, with the manual remediation.
+    setActionRunBehaviour.mockRejectedValueOnce(
+      new Error("Appsmith API request failed (403)"),
+    );
+    deleteAction.mockRejectedValueOnce(
+      new Error("Appsmith API request failed (500)"),
+    );
+    const partial = await callTool(api, "create_mongo_query", {
+      query: { ...withParam, name: "findByOwner3" },
     });
 
     expect(partial.created).toBe(true);
     expect(partial.code).toBe("run_behaviour_not_pinned");
-    expect(String(partial.error)).toContain(
-      "could not be pinned to manual run behaviour",
-    );
+    expect(String(partial.error)).toContain("could not be removed either");
+
+    // A create response without an id cannot be cleaned up: the query is reported as present, never as removed.
+    createAction.mockResolvedValueOnce({} as never);
+    deleteAction.mockClear();
+    const noId = await callTool(api, "create_mongo_query", {
+      query: { ...withParam, name: "findByOwner4" },
+    });
+
+    expect(noId.created).toBe(true);
+    expect(noId.code).toBe("run_behaviour_not_pinned");
+    expect(String(noId.error)).toContain("carried no action id");
+    expect(deleteAction).not.toHaveBeenCalled();
   });
 
   it("create_mongo_query creates a targeted UPDATE ($set, SINGLE, manual)", async () => {

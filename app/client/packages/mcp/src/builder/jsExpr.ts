@@ -963,7 +963,8 @@ export function compileExpr(expr: Expr): string {
       case "mod":
         return `(${a[0]} % ${a[1]})`;
       case "neg":
-        return `(-${a[0]})`;
+        // Parenthesised operand: a negative literal would otherwise emit `--1`, a SyntaxError.
+        return `(-(${a[0]}))`;
       case "eq":
         return `(${a[0]} === ${a[1]})`;
       case "ne":
@@ -1001,7 +1002,8 @@ export function compileExpr(expr: Expr): string {
       case "upper":
         return `String(${a[0]} ?? "").toUpperCase()`;
       case "length":
-        return `((${a[0]}) == null ? 0 : (${a[0]}).length)`;
+        // Operand evaluated once (an IIFE, like isEmpty/last): repeating it doubled the emitted text per nesting level.
+        return `((v) => v == null ? 0 : v.length)(${a[0]})`;
       case "concat":
         return `(${a.map((x) => `String(${x} ?? "")`).join(" + ")})`;
       case "startsWith":
@@ -1053,16 +1055,17 @@ export function compileExpr(expr: Expr): string {
         return `${ARRAY_OF}(${a[0]})[0]`;
       case "last":
         return `((v) => v[v.length - 1])(${ARRAY_OF}(${a[0]}))`;
+      // Per-item bodies are parenthesised: a bare `{ k: v }` after `=>` parses as a block, not an object literal.
       case "map":
-        return `${ARRAY_OF}(${a[0]}).map((item) => ${a[1]})`;
+        return `${ARRAY_OF}(${a[0]}).map((item) => (${a[1]}))`;
       case "filter":
-        return `${ARRAY_OF}(${a[0]}).filter((item) => ${a[1]})`;
+        return `${ARRAY_OF}(${a[0]}).filter((item) => (${a[1]}))`;
       case "some":
-        return `${ARRAY_OF}(${a[0]}).some((item) => ${a[1]})`;
+        return `${ARRAY_OF}(${a[0]}).some((item) => (${a[1]}))`;
       case "every":
-        return `${ARRAY_OF}(${a[0]}).every((item) => ${a[1]})`;
+        return `${ARRAY_OF}(${a[0]}).every((item) => (${a[1]}))`;
       case "find":
-        return `${ARRAY_OF}(${a[0]}).find((item) => ${a[1]})`;
+        return `${ARRAY_OF}(${a[0]}).find((item) => (${a[1]}))`;
       case "get":
         return `(${a[0]})?.[${a[1]}]`;
       case "coalesce":

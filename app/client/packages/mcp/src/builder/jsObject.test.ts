@@ -276,7 +276,7 @@ describe("jsExpr grammar in a JS object — params, steps and expression returns
       ),
     ).toBe(true);
     expect(code).toContain(
-      'save: async function () { let ids = [...new Set(((v) => Array.isArray(v) ? v : [])(String(inpInstanceAllow.text ?? "").split(/[\\r\\n,]+/)))]; if ((((ids) == null ? 0 : (ids).length) > this.maxIds)) { throw new Error("Too many instance IDs."); } let result = await UpsertBanner.run((($p) => { for (const $k of Object.keys($p)) { if ($p[$k] === undefined) { throw new Error("missing query parameter: " + $k); } } return $p; })({ ids: ids })); await GetBanners.run(); return { saved: true, ids: ids }; } };',
+      'save: async function () { let ids = [...new Set(((v) => Array.isArray(v) ? v : [])(String(inpInstanceAllow.text ?? "").split(/[\\r\\n,]+/)))]; if ((((v) => v == null ? 0 : v.length)(ids) > this.maxIds)) { throw new Error("Too many instance IDs."); } let result = await UpsertBanner.run((($p) => { for (const $k of Object.keys($p)) { if ($p[$k] === undefined) { throw new Error("missing query parameter: " + $k); } } return $p; })({ ids: ids })); await GetBanners.run(); return { saved: true, ids: ids }; } };',
     );
     expect(code).not.toMatch(/\{\{|\}\}|\$\{|`/);
     expect(body.startsWith(`${code} /* mcp-spec:`)).toBe(true);

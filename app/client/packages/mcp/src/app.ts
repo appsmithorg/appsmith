@@ -5729,7 +5729,7 @@ export function buildMcpServer(
         // A query that reads this.params must never run on page load (a missing param reaches Mongo as null and
         // broadens a filter). The create request cannot carry userSetOnLoad, so pin MANUAL through the
         // run-behaviour route now; a failure here leaves a created query that the server may later switch onto
-        // page load, so it is reported as a partial failure, never hidden.
+        // page load, so the query is removed again on failure (fail closed) and the agent is told.
         if (specUsesParams(spec)) {
           const actionId = (created as { id?: unknown } | null)?.id;
 
@@ -5740,12 +5740,41 @@ export function buildMcpServer(
 
             await api.setActionRunBehaviour(actionId, "MANUAL");
           } catch (error) {
+            // Fail CLOSED: an unpinned query that reads this.params would be auto-switched onto page load by
+            // the server the moment a widget binds it (a missing param reaches Mongo as null), so the query is
+            // removed again rather than left behind. Only if the removal itself fails is the query reported as
+            // still present, with the manual remediation.
+            const reason =
+              error instanceof Error ? error.message : "unknown error";
+
+            if (typeof actionId !== "string") {
+              // Nothing to remove by id: report the query as present, never as removed.
+              return result({
+                created: true,
+                command: compiled.command,
+                action: created,
+                code: "run_behaviour_not_pinned",
+                error: `the query was created but could not be pinned to manual run behaviour (${reason}) and could not be removed because the create response carried no action id; it reads this.params, so set it to "Manual" in the editor's run-behaviour dropdown or delete it before binding it to a widget`,
+              });
+            }
+
+            try {
+              await api.deleteAction(actionId);
+            } catch (cleanupError) {
+              return result({
+                created: true,
+                command: compiled.command,
+                action: created,
+                code: "run_behaviour_not_pinned",
+                error: `the query was created but could not be pinned to manual run behaviour (${reason}) and could not be removed either (${cleanupError instanceof Error ? cleanupError.message : "unknown error"}); it reads this.params, so set it to "Manual" in the editor's run-behaviour dropdown or delete it before binding it to a widget`,
+              });
+            }
+
             return result({
-              created: true,
+              created: false,
               command: compiled.command,
-              action: created,
               code: "run_behaviour_not_pinned",
-              error: `the query was created but could not be pinned to manual run behaviour (${error instanceof Error ? error.message : "unknown error"}); it reads this.params, so set it to "Manual" in the editor's run-behaviour dropdown or delete it and create it again before binding it to a widget`,
+              error: `the query could not be pinned to manual run behaviour (${reason}), so it was removed again; a query that reads this.params must never run on page load. Retry, or create it without { param } values`,
             });
           }
         }

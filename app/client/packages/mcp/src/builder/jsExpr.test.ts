@@ -77,8 +77,8 @@ describe("jsExpr — the Banner editor examples compile from structure alone", (
     const source = compileExpr(tree);
 
     expect(source).toContain('String(value ?? "").split(/[\\r\\n,]+/)');
-    expect(source).toContain('.map((item) => String(item ?? "").trim())');
-    expect(source).toContain(".filter((item) => (!((v) =>");
+    expect(source).toContain('.map((item) => (String(item ?? "").trim()))');
+    expect(source).toContain(".filter((item) => ((!((v) =>");
     expect(source.startsWith("[...new Set(")).toBe(true);
     // The compiled expression really produces the page's expected unique array.
     const fn = new Function("value", `return ${source};`) as (
@@ -1074,5 +1074,66 @@ describe("jsExpr — milestone 4 QA additions", () => {
     expect(compileSteps(body).join(" ")).toContain(
       "let n = (await Utils.count());",
     );
+  });
+});
+
+describe("jsExpr — CodeRabbit round: templates that were not valid or not linear", () => {
+  const run = (source: string): unknown => new Function(`return ${source};`)();
+
+  it("negates a negative literal without emitting a decrement operator", () => {
+    const source = compileExpr(expr({ op: "neg", args: [-1] }));
+
+    expect(source).toBe("(-(-1))");
+    expect(run(source)).toBe(1);
+    expect(
+      run(compileExpr(expr({ op: "neg", args: [{ op: "neg", args: [2] }] }))),
+    ).toBe(2);
+  });
+
+  it("evaluates the length operand once, so nested length calls grow linearly", () => {
+    let tree: unknown = { param: "value" };
+
+    for (let i = 0; i < 10; i += 1) tree = { fn: "length", args: [tree] };
+
+    const source = compileExpr(expr(tree));
+
+    expect(source.length).toBeLessThan(1000);
+    // The operand appears exactly once: the IIFE parameter carries it through each level.
+    expect((source.match(/\bvalue\b/g) ?? []).length).toBe(1);
+    expect(
+      new Function(
+        "v",
+        `return ${compileExpr(expr({ fn: "length", args: [{ param: "v" }] }))};`,
+      )("abc"),
+    ).toBe(3);
+    expect(
+      new Function(
+        "v",
+        `return ${compileExpr(expr({ fn: "length", args: [{ param: "v" }] }))};`,
+      )(null),
+    ).toBe(0);
+  });
+
+  it("returns an object literal from a per-item body instead of parsing it as a block", () => {
+    const source = compileExpr(
+      expr({
+        fn: "map",
+        args: [
+          { param: "rows" },
+          {
+            object: {
+              id: { item: true },
+              name: { fn: "upper", args: [{ item: true }] },
+            },
+          },
+        ],
+      }),
+    );
+
+    expect(source).toContain(".map((item) => ({ id: item, name:");
+    expect(new Function("rows", `return ${source};`)(["a", "b"])).toEqual([
+      { id: "a", name: "A" },
+      { id: "b", name: "B" },
+    ]);
   });
 });

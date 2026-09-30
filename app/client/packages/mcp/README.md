@@ -83,7 +83,9 @@ Findings from building an internal admin app through MCP, all fixed without wide
     lacking the field and in a `$set` writes null. So after creating a query that reads params, the handler pins
     it to `MANUAL` through `PUT /api/v1/actions/runBehaviour/{id}` (the only route that sets `userSetOnLoad`; the
     server otherwise auto-switches a widget-bound query to run on page load, and drops the field from a create
-    request), reporting a failed pin as a partial failure; that route joins the server allowlist. A function's
+    request); if the pin fails the query is removed again (fail closed) and the agent is told, and only if that removal
+    also fails is the query reported as still present with the manual remediation. That route joins the server
+    allowlist. A function's
     `run … with` passes its values through a compiler-owned guard that throws `missing query parameter: <name>` on
     `undefined` instead of sending it.
 - Every builder now uses the one `RAW_EXPRESSION` gate exported from `schema.ts` (the `pages` and `theme` copies
