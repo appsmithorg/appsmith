@@ -11,9 +11,84 @@ import unittest
 
 
 APP = Path(__file__).resolve().parents[1] / "fs/opt/appsmith"
+JVM_NAMES = (
+    "APPSMITH_JAVA_ARGS", "APPSMITH_JAVA_HEAP_ARG", "JAVA_OPTS", "JAVA_OPTS_APPEND",
+    "JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS",
+)
 
 
 class EnvLoaderTest(unittest.TestCase):
+    def test_ghsa_h6hh_jvm_options_are_deployment_only_on_startup_and_restart(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "configuration").mkdir()
+            config = root / "configuration/docker.env"
+            persisted_names = ("APPSMITH_JAVA_ARGS", "APPSMITH_JAVA_HEAP_ARG", "JAVA_OPTS_APPEND")
+            config.write_text("APPSMITH_INSTANCE_NAME=stored\nAPPSMITH_REDIS_PASSWORD=test\n" +
+                              "".join(f"{name}='-Dfixture.file=private'\n" for name in persisted_names))
+            original = config.read_bytes()
+            source = (APP / "entrypoint.sh").read_text()
+            startup = source[source.index("init_env_file() {"):source.index("\ninit_env_file\n")]
+            startup = startup.replace("/appsmith-stacks/configuration", str(root / "configuration"))
+            startup = startup.replace("/opt/appsmith/env-file.py", str(APP / "env-file.py"))
+            wrapper = (APP / "run-with-env.sh").read_text().replace(
+                "/appsmith-stacks/configuration/docker.env", str(config)
+            ).replace('"$(dirname "$0")/load-env.sh"', f'"{APP}/load-env.sh"')
+            # Observe the environment handed to a service without launching a JVM.
+            inspect = ('import json, os; print(json.dumps({k: os.environ.get(k) for k in ' +
+                       repr(JVM_NAMES + ("APPSMITH_INSTANCE_NAME",)) + '}))')
+            for external in [None, "", "-Dfixture.external=kept", "'literal'\n${REFERENCE}"]:
+                with self.subTest(external=external):
+                    environment = {"PATH": os.environ["PATH"], "TMP": str(root),
+                                   "APPSMITH_GIT_ROOT": str(root / "git")}
+                    if external is not None:
+                        environment.update(dict.fromkeys(JVM_NAMES, external))
+                    command = ('set -e; tlog() { :; }; source "$1";\n' + startup +
+                               '\ninit_env_file\n/usr/bin/python3 -c "$2"')
+                    started = subprocess.run(
+                        ["bash", "-c", command, "test", str(APP / "load-env.sh"), inspect],
+                        env=environment, capture_output=True, text=True,
+                    )
+                    restarted = subprocess.run(
+                        ["bash", "-c", 'tlog() { :; };\n' + wrapper,
+                         "test", "/usr/bin/python3", "-c", inspect],
+                        env={k: v for k, v in environment.items() if k not in JVM_NAMES},
+                        capture_output=True, text=True,
+                    )
+                    for result in [started, restarted]:
+                        self.assertEqual(result.returncode, 0, result.stderr)
+                        actual = json.loads(result.stdout.splitlines()[-1])
+                        self.assertEqual(actual["APPSMITH_INSTANCE_NAME"], "stored")
+                        for name in JVM_NAMES:
+                            self.assertEqual(actual[name], external, name)
+                        for name in persisted_names:
+                            self.assertIn(f"Ignoring {name} in docker.env", result.stderr)
+                        self.assertNotIn("private", result.stderr)
+                    self.assertEqual(config.read_bytes(), original)
+
+    def test_ghsa_h6hh_persisted_jvm_options_are_ignored_by_reader_and_writer(self):
+        for name in JVM_NAMES:
+            with self.subTest(name=name):
+                content = f"APPSMITH_INSTANCE_NAME=kept\n{name}=$(private)\n"
+                result = self.parse(content)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout, b"APPSMITH_INSTANCE_NAME=kept\0")
+                self.assertIn(f"Ignoring {name} in docker.env".encode(), result.stderr)
+                self.assertNotIn(b"private", result.stderr)
+                merged = subprocess.run(
+                    ["/usr/bin/python3", str(APP / "env-file.py"), "merge", "-"],
+                    input=json.dumps({"content": content, "values": {name: "-Dprivate=value"}}).encode(),
+                    capture_output=True,
+                )
+                self.assertEqual(merged.returncode, 0, merged.stderr)
+                self.assertEqual(merged.stdout, b"APPSMITH_INSTANCE_NAME=kept\n")
+                self.assertNotIn(b"private", merged.stderr)
+        # The empty setting in older generated templates needs no migration warning.
+        result = self.parse("APPSMITH_JAVA_ARGS=\n")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, b"")
+        self.assertEqual(result.stderr, b"")
+
     def test_ghsa_h6hh_embedded_pg_helper_does_not_evaluate_environment(self):
         # Exercise the helper independently of startup's environment snapshot.
         # This is a hardening regression, not evidence of a reachable boot exploit.
@@ -164,7 +239,7 @@ tlog() { :; }
                 self.assertEqual(result.stdout, f"APPSMITH_TEST={expected}\0".encode())
 
     def test_known_runtime_names(self):
-        for name in ["NEW_RELIC_LICENSE_KEY", "NEW_RELIC_APP_NAME", "JAVA_OPTS_APPEND",
+        for name in ["NEW_RELIC_LICENSE_KEY", "NEW_RELIC_APP_NAME",
                      "JGROUPS_DISCOVERY_PROTOCOL", "FILESTORE_IP_ADDRESS", "FILE_SHARE_NAME", "PORT"]:
             with self.subTest(name=name):
                 result = self.parse(f"{name}='literal value'")

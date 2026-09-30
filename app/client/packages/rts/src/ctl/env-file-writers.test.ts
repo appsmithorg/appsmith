@@ -132,6 +132,35 @@ test("GHSA-h6hh restore round-trips literal secrets", async () => {
   );
 });
 
+test.each(["backup", "restore"])(
+  "GHSA-h6hh %s omits persisted JVM options and preserves deployment options",
+  async (operation) => {
+    content += "APPSMITH_JAVA_ARGS='-Dfixture.file=ignored'\n";
+    content += "JAVA_OPTS_APPEND='-Dfixture.file=ignored'\n";
+    process.env.APPSMITH_JAVA_ARGS = "-Dfixture.external=kept";
+    process.env.JAVA_OPTS_APPEND = "";
+
+    if (operation === "backup") {
+      const state = new BackupState([]);
+
+      state.isEncryptionEnabled = true;
+      state.backupRootPath = "/backup";
+      await new EnvFileLink(state).doBackup();
+    } else {
+      await restore.run();
+      expect(utils.execCommand).toHaveBeenCalledWith(
+        expect.arrayContaining(["mongorestore"]),
+      );
+    }
+
+    expectLiteralPassword();
+    expect(written).not.toContain("APPSMITH_JAVA_ARGS=");
+    expect(written).not.toContain("JAVA_OPTS_APPEND=");
+    expect(process.env.APPSMITH_JAVA_ARGS).toBe("-Dfixture.external=kept");
+    expect(process.env.JAVA_OPTS_APPEND).toBe("");
+  },
+);
+
 test("restore uses one complete URL for the database and persisted configuration", async () => {
   const dbUrl =
     "mongodb://user:password@db.example/appsmith?authSource=admin&replicaSet=rs0";
