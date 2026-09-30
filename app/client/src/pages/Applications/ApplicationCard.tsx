@@ -91,6 +91,30 @@ const DescriptionEditorWrapper = styled.div`
   &&&& .bp3-editable-text-placeholder .bp3-editable-text-content {
     color: var(--ads-v2-color-fg-muted);
   }
+
+  /* Read mode wraps to three lines so a description is legible without opening
+     it; edit mode keeps the single-line input. Blueprint sets the content's
+     height, line-height and min-width inline, hence the !important overrides. */
+  &&&& .bp3-editable-text:not(.bp3-editable-text-editing) {
+    height: auto !important;
+    white-space: normal !important;
+  }
+
+  &&&&
+    .bp3-editable-text:not(.bp3-editable-text-editing)
+    .bp3-editable-text-content {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+    white-space: normal !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    line-height: var(--ads-v2-line-height-4) !important;
+  }
 `;
 
 const IconScrollWrapper = styled.div`
@@ -280,12 +304,18 @@ export function ApplicationCard(props: ApplicationCardProps) {
         icon: icon,
       });
   };
+  // The card shows the description as one flowing paragraph, so line breaks
+  // typed in the multi-line editor collapse to single spaces.
+  const normalizeDescription = (value: string) =>
+    value.replace(/\s+/g, " ").trim();
   // Shared by the field's blur and the menu-close flush; both are no-ops when
   // nothing changed or the value is over the limit.
   const saveDescription = (value: string | null) => {
-    if (value === null || !isAppDescriptionInputValid(value)) return;
+    if (value === null) return;
 
-    const trimmed = value.trim();
+    const trimmed = normalizeDescription(value);
+
+    if (!isAppDescriptionInputValid(trimmed)) return;
 
     if (
       trimmed === (application.description || "") ||
@@ -448,7 +478,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                 }
                 underline
               />
-              <DescriptionEditorWrapper>
+              <DescriptionEditorWrapper data-testid="t--application-description-editor">
                 <EditableText
                   className="px-3 pb-2 t--application-description"
                   defaultValue={application.description || ""}
@@ -456,13 +486,15 @@ export function ApplicationCard(props: ApplicationCardProps) {
                   fill
                   hideEditIcon={false}
                   isInvalid={(value: string) =>
-                    isAppDescriptionInputValid(value)
+                    isAppDescriptionInputValid(normalizeDescription(value))
                       ? false
                       : createMessage(
                           GENERAL_SETTINGS_APP_DESCRIPTION_TOO_LONG,
                           APP_DESCRIPTION_MAX_LENGTH,
                         )
                   }
+                  maxLines={3}
+                  multiline
                   onBlurEverytime={saveDescription}
                   onTextChanged={(value: string) => {
                     setLastUpdatedDescription(value);

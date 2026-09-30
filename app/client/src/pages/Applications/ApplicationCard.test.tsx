@@ -1,4 +1,5 @@
 import React from "react";
+import "jest-styled-components";
 import { act, fireEvent } from "@testing-library/react";
 import store from "store";
 import {
@@ -100,8 +101,8 @@ describe("ApplicationCard — description subtitle", () => {
 
     fireEvent.click(field);
     const input = document.querySelector(
-      ".t--application-description input",
-    ) as HTMLInputElement;
+      ".t--application-description textarea",
+    ) as HTMLTextAreaElement;
 
     expect(input).toBeTruthy();
     fireEvent.change(input, { target: { value: "  New blurb  " } });
@@ -128,8 +129,8 @@ describe("ApplicationCard — description subtitle", () => {
 
     fireEvent.click(field);
     const input = document.querySelector(
-      ".t--application-description input",
-    ) as HTMLInputElement;
+      ".t--application-description textarea",
+    ) as HTMLTextAreaElement;
 
     fireEvent.change(input, { target: { value: "" } });
     fireEvent.blur(input);
@@ -164,8 +165,8 @@ describe("ApplicationCard — description subtitle", () => {
 
       fireEvent.click(field);
       const input = document.querySelector(
-        ".t--application-description input",
-      ) as HTMLInputElement;
+        ".t--application-description textarea",
+      ) as HTMLTextAreaElement;
 
       fireEvent.change(input, { target: { value } });
       fireEvent.blur(input);
@@ -190,6 +191,84 @@ describe("ApplicationCard — description subtitle", () => {
 
     editAndBlur("Retry me");
     expect(update).toHaveBeenCalledTimes(2);
+  });
+
+  it("wraps the description to three lines in the card menu when not editing", () => {
+    const app = buildApplication({
+      description: "A long enough description to wrap",
+    });
+
+    const { getByTestId } = render(
+      <ApplicationCard {...baseProps} application={app} update={jest.fn()} />,
+    );
+
+    fireEvent.keyDown(getByTestId("t--application-card-context-menu"), {
+      key: "Enter",
+    });
+
+    const wrapper = getByTestId("t--application-description-editor");
+
+    const readModeContent =
+      "&&&& .bp3-editable-text:not(.bp3-editable-text-editing) .bp3-editable-text-content";
+
+    expect(wrapper).toHaveStyleRule("-webkit-line-clamp", "3", {
+      modifier: readModeContent,
+    });
+    expect(wrapper).toHaveStyleRule("white-space", "normal !important", {
+      modifier: readModeContent,
+    });
+  });
+
+  it("edits the description in a multi-line field and the name in a single-line one", () => {
+    const app = buildApplication({ description: "Old blurb" });
+
+    const { getByTestId } = render(
+      <ApplicationCard {...baseProps} application={app} update={jest.fn()} />,
+    );
+
+    fireEvent.keyDown(getByTestId("t--application-card-context-menu"), {
+      key: "Enter",
+    });
+
+    fireEvent.click(
+      document.querySelector(".t--application-description") as HTMLElement,
+    );
+    expect(
+      document.querySelector(".t--application-description textarea"),
+    ).toBeTruthy();
+
+    fireEvent.click(
+      document.querySelector(".t--application-name") as HTMLElement,
+    );
+    expect(document.querySelector(".t--application-name input")).toBeTruthy();
+  });
+
+  it("collapses line breaks in the description on save", () => {
+    const update = jest.fn();
+    const app = buildApplication({ description: "Old blurb" });
+
+    const { getByTestId } = render(
+      <ApplicationCard {...baseProps} application={app} update={update} />,
+    );
+
+    fireEvent.keyDown(getByTestId("t--application-card-context-menu"), {
+      key: "Enter",
+    });
+    fireEvent.click(
+      document.querySelector(".t--application-description") as HTMLElement,
+    );
+    const field = document.querySelector(
+      ".t--application-description textarea",
+    ) as HTMLTextAreaElement;
+
+    fireEvent.change(field, {
+      target: { value: "First line\nsecond   line\n" },
+    });
+    fireEvent.blur(field);
+
+    expect(update).toHaveBeenCalledWith("app-1", {
+      description: "First line second line",
+    });
   });
 
   it("hides the description editor from the card menu without edit permission", () => {

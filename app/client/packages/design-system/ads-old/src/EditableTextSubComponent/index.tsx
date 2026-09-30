@@ -44,6 +44,8 @@ export type EditableTextSubComponentProps = CommonComponentProps & {
   fill?: boolean;
   underline?: boolean;
   isError?: boolean;
+  multiline?: boolean;
+  maxLines?: number;
 };
 
 const editModeBgcolor = (
@@ -249,8 +251,11 @@ export const EditableTextSubComponent = React.forwardRef(
         >
           <BlueprintEditableText
             className={props.className}
+            confirmOnEnterKey={props.multiline}
             disabled={!isEditing}
             isEditing={isEditing}
+            maxLines={props.maxLines}
+            multiline={props.multiline}
             onCancel={onConfirm}
             onChange={onInputchange}
             onConfirm={onConfirm}

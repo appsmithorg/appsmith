@@ -26,6 +26,10 @@ export type EditableTextProps = CommonComponentProps & {
   underline?: boolean;
   isError?: boolean;
   wrapperRef?: React.RefObject<HTMLDivElement>;
+  // Edit in a wrapping textarea instead of a single-line input. Enter still
+  // confirms; mod+Enter inserts a line break.
+  multiline?: boolean;
+  maxLines?: number;
 };
 
 // Width of the component when the `filled` prop is false
