@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { WidgetNode } from "./layout.js";
+import { tabLabelsOf, type WidgetNode } from "./layout.js";
 import { COMPUTED_NOW_FORMATS, type WidgetType } from "./schema.js";
 
 const CATALOG_TYPE_BY_APPSMITH_TYPE: Record<string, WidgetType> = {
@@ -134,6 +134,8 @@ const SAFE_PROP_KEYS = [
   "canOutsideClickClose",
   "shouldShowTabs",
   "defaultTab",
+  // Keyboard focus order (platform-level Accessibility > Tab order); absent means automatic order.
+  "tabOrder",
   "itemSpacing",
   "serverSidePagination",
   "defaultSelectedItem",
@@ -160,6 +162,9 @@ const SAFE_PROP_KEYS = [
 ] as const;
 
 type SafeCommonProp = (typeof SAFE_PROP_KEYS)[number];
+// Computed on read, never a node prop: a Tabs widget's tab labels in display order (from tabsObj indices, hidden
+// tabs included), so an agent can `reorderTabs` or pick a `defaultTab` that exists.
+type ComputedProp = "tabs";
 type SafeScalar = string | number | boolean | null;
 type SafePropValue =
   | SafeScalar
@@ -208,7 +213,7 @@ export interface SemanticWidget {
   catalogType?: WidgetType;
   parentWidgetName?: string;
   geometry: SemanticGeometry;
-  props: Partial<Record<SafeCommonProp, SafePropValue>>;
+  props: Partial<Record<SafeCommonProp | ComputedProp, SafePropValue>>;
   bindings?: Record<string, SemanticBindingRef>;
 }
 
@@ -314,6 +319,12 @@ function safeProps(node: WidgetNode): SemanticWidget["props"] {
     const value = safeValue(key, node[key]);
 
     if (value !== undefined) props[key] = value;
+  }
+
+  if (node.type === "TABS_WIDGET") {
+    const tabs = safeList(tabLabelsOf(node));
+
+    if (tabs !== undefined && tabs.length > 0) props.tabs = tabs;
   }
 
   return props;

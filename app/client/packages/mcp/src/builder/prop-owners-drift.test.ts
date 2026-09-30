@@ -24,6 +24,7 @@ const STRUCTURED_REFS = new Set([
   "tableData",
   "validation",
   "disableWhenInvalid",
+  "reorderTabs",
 ]);
 // The rich text editor's inputType is a different enum (html | markdown), so the Input enum stays Input-only.
 const EXCLUDED_OWNERS: Record<string, readonly string[]> = {
@@ -142,6 +143,41 @@ function paneSource(type: string): string {
   return stripPanelConfigs(stripComments(source));
 }
 
+// Platform-level properties the widget FACTORY adds (not declared in any pane): their owners are every buildable
+// type the factory does not exclude. `tabOrder` (Accessibility > Tab order) is excluded for internal wrappers and
+// display-only widgets, listed in WidgetProvider/factory/helpers.ts.
+const FACTORY_HELPERS = resolve(
+  __dirname,
+  "../../../../src/WidgetProvider/factory/helpers.ts",
+);
+
+function factoryExcludedTypes(arrayName: string): string[] {
+  const source = readFileSync(FACTORY_HELPERS, "utf8");
+  const start = source.indexOf(`const ${arrayName}`);
+
+  if (start < 0) throw new Error(`${arrayName} not found in helpers.ts`);
+
+  const body = source.slice(start, source.indexOf("];", start));
+
+  // One quoted identifier per line: a name mentioned in a comment inside the array is not an entry.
+  return [...body.matchAll(/^\s*"([A-Z0-9_]+)",?\s*$/gm)].map(
+    (match) => match[1],
+  );
+}
+
+const PLATFORM_OWNERS: Record<string, (types: string[]) => string[]> = {
+  tabOrder: (types) => {
+    const excluded = new Set([
+      ...factoryExcludedTypes("TAB_ORDER_EXCLUDED_WIDGET_TYPES"),
+      ...factoryExcludedTypes("TAB_ORDER_NON_FOCUSABLE_WIDGET_TYPES"),
+    ]);
+
+    return types.filter(
+      (type) => !type.startsWith("WDS_") && !excluded.has(type),
+    );
+  },
+};
+
 const buildableTypes = [
   ...new Set(Object.values(WIDGET_TEMPLATES).map((t) => t.appsmithType)),
 ].sort();
@@ -197,11 +233,14 @@ describe("LITERAL_PROP_OWNERS matches the client widgets' property panes", () =>
 
     for (const [key, owners] of Object.entries(LITERAL_PROP_OWNERS)) {
       const pattern = new RegExp(`propertyName:\\s*"${key}"`);
-      const expected = buildableTypes.filter(
-        (type) =>
-          pattern.test(paneByType.get(type) ?? "") &&
-          !(EXCLUDED_OWNERS[key] ?? []).includes(type),
-      );
+      const expected =
+        key in PLATFORM_OWNERS
+          ? PLATFORM_OWNERS[key](buildableTypes)
+          : buildableTypes.filter(
+              (type) =>
+                pattern.test(paneByType.get(type) ?? "") &&
+                !(EXCLUDED_OWNERS[key] ?? []).includes(type),
+            );
       const actual = [...owners].sort();
 
       if (JSON.stringify(expected) !== JSON.stringify(actual)) {

@@ -277,3 +277,45 @@ export function resolvePlacement(
 
   return { canvas: root, topRow: nextFreeRow(root.children ?? []) };
 }
+
+// A Tabs widget's tabs, in display order (the client sorts `tabsObj` entries by `index`).
+interface TabEntry {
+  id: string;
+  label: string;
+  index: number;
+}
+
+export function tabEntriesOf(node: WidgetNode): TabEntry[] {
+  if (node.type !== "TABS_WIDGET") return [];
+
+  const tabsObj = node.tabsObj;
+
+  if (
+    tabsObj === null ||
+    typeof tabsObj !== "object" ||
+    Array.isArray(tabsObj)
+  ) {
+    return [];
+  }
+
+  const entries: TabEntry[] = [];
+
+  for (const [id, raw] of Object.entries(tabsObj as Record<string, unknown>)) {
+    const tab = raw as { label?: unknown; index?: unknown } | null;
+
+    if (tab !== null && typeof tab.label === "string") {
+      entries.push({
+        id,
+        label: tab.label,
+        index:
+          typeof tab.index === "number" ? tab.index : Number.MAX_SAFE_INTEGER,
+      });
+    }
+  }
+
+  return entries.sort((a, b) => a.index - b.index);
+}
+
+export function tabLabelsOf(node: WidgetNode): string[] {
+  return tabEntriesOf(node).map((tab) => tab.label);
+}

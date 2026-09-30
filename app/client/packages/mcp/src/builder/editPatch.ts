@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { ROOT_WIDGET_ID, ROW_HEIGHT, type WidgetNode } from "./layout.js";
+import {
+  ROOT_WIDGET_ID,
+  ROW_HEIGHT,
+  tabEntriesOf,
+  tabLabelsOf,
+  type WidgetNode,
+} from "./layout.js";
 import {
   applyPosition,
   canvasColumns,
@@ -648,6 +654,47 @@ export const LITERAL_PROP_OWNERS: Readonly<Record<string, readonly string[]>> =
       "RADIO_GROUP_WIDGET",
       "SWITCH_GROUP_WIDGET",
     ],
+    // Keyboard focus order: the widget factory adds it to every non-Anvil widget that is not display-only
+    // (client WidgetProvider/factory/helpers.ts TAB_ORDER_NON_FOCUSABLE_WIDGET_TYPES); the drift test derives this
+    // list from that file.
+    tabOrder: [
+      "AUDIO_RECORDER_WIDGET",
+      "AUDIO_WIDGET",
+      "BUTTON_GROUP_WIDGET",
+      "BUTTON_WIDGET",
+      "CAMERA_WIDGET",
+      "CATEGORY_SLIDER_WIDGET",
+      "CHECKBOX_GROUP_WIDGET",
+      "CHECKBOX_WIDGET",
+      "CODE_SCANNER_WIDGET",
+      "CONTAINER_WIDGET",
+      "CURRENCY_INPUT_WIDGET",
+      "DATE_PICKER_WIDGET2",
+      "FILE_PICKER_WIDGET_V2",
+      "FORM_WIDGET",
+      "ICON_BUTTON_WIDGET",
+      "IFRAME_WIDGET",
+      "INPUT_WIDGET_V2",
+      "JSON_FORM_WIDGET",
+      "LIST_WIDGET_V2",
+      "MAP_WIDGET",
+      "MENU_BUTTON_WIDGET",
+      "MODAL_WIDGET",
+      "MULTI_SELECT_TREE_WIDGET",
+      "MULTI_SELECT_WIDGET_V2",
+      "NUMBER_SLIDER_WIDGET",
+      "PHONE_INPUT_WIDGET",
+      "RADIO_GROUP_WIDGET",
+      "RANGE_SLIDER_WIDGET",
+      "RICH_TEXT_EDITOR_WIDGET",
+      "SELECT_WIDGET",
+      "SINGLE_SELECT_TREE_WIDGET",
+      "SWITCH_GROUP_WIDGET",
+      "SWITCH_WIDGET",
+      "TABLE_WIDGET_V2",
+      "TABS_WIDGET",
+      "VIDEO_WIDGET",
+    ],
     allowedFileTypes: ["FILE_PICKER_WIDGET_V2"],
     fileDataType: ["FILE_PICKER_WIDGET_V2"],
     dynamicTyping: ["FILE_PICKER_WIDGET_V2"],
@@ -844,6 +891,18 @@ export const widgetPropsPatchSchema = z
     canOutsideClickClose: z.boolean().optional(),
     shouldShowTabs: z.boolean().optional(),
     defaultTab: safeText(200).optional(),
+    // Tab order on a Tabs widget: the widget's existing tab labels in the wanted order (a permutation; every tab
+    // named exactly once). The compiler rewrites each tab's `index` in `tabsObj`; the structure itself is never
+    // agent-authored. A label the widget does not have, a missing tab, or a duplicate is refused.
+    reorderTabs: z
+      .array(safeText(200).pipe(z.string().min(1)))
+      .min(1)
+      .max(20)
+      .optional(),
+    // Keyboard focus order (the platform-level Accessibility > Tab order property the widget factory adds to every
+    // focusable widget): a positive integer; numbered widgets are focused first (lowest first), the rest follow in
+    // the automatic top-to-bottom, left-to-right order. null clears it back to Auto.
+    tabOrder: z.union([boundedInt(1, 1_000), z.null()]).optional(),
     itemSpacing: boundedInt(0, 16).optional(),
     serverSidePagination: z.boolean().optional(),
     defaultSelectedItem: literalScalarSchema.optional(),
@@ -1231,6 +1290,51 @@ function checkLiteralShapes(
   }
 }
 
+// Labels echoed in an error message: a label that carries binding syntax (editor-authored) is shown as a
+// placeholder, matching read_semantic_page, which hides such labels instead of exposing binding source.
+function quoteLabel(label: string): string {
+  return RAW_EXPRESSION.test(label) ? "<bound label>" : `"${label}"`;
+}
+
+// Reorder a Tabs widget's tabs: `order` must name every existing tab exactly once. Only each tab's `index` is
+// rewritten; ids, canvases and labels are untouched, so the operation cannot create, drop or rename a tab.
+function applyReorderTabs(node: WidgetNode, order: string[]): void {
+  if (node.type !== "TABS_WIDGET") {
+    throw new Error(
+      `'reorderTabs' can only be set on TABS_WIDGET ("${node.widgetName}" is ${node.type})`,
+    );
+  }
+
+  const entries = tabEntriesOf(node);
+  const labels = entries.map((tab) => tab.label);
+
+  if (new Set(labels).size !== labels.length) {
+    throw new Error(
+      `"${node.widgetName}" has two tabs with the same label; rename one in the editor before reordering`,
+    );
+  }
+
+  const quote = (names: string[]) => names.map(quoteLabel).join(", ");
+  const unknown = order.filter((label) => !labels.includes(label));
+  const duplicated = order.filter((label, i) => order.indexOf(label) !== i);
+  const missing = labels.filter((label) => !order.includes(label));
+
+  if (unknown.length > 0 || duplicated.length > 0 || missing.length > 0) {
+    throw new Error(
+      `'reorderTabs' must list every tab of "${node.widgetName}" exactly once (tabs: ${quote(labels)})` +
+        (unknown.length > 0 ? `; not a tab: ${quote(unknown)}` : "") +
+        (duplicated.length > 0 ? `; repeated: ${quote(duplicated)}` : "") +
+        (missing.length > 0 ? `; missing: ${quote(missing)}` : ""),
+    );
+  }
+
+  const tabsObj = node.tabsObj as Record<string, { index?: number }>;
+
+  for (const tab of entries) {
+    tabsObj[tab.id].index = order.indexOf(tab.label);
+  }
+}
+
 // Compile a `defaultFrom` reference onto the widget's default prop: a widget-property ref emits `{{ W.path }}`
 // (identifier + dotted path, nothing else), a query-field ref the shared query binding. The source widget must
 // exist on the page (dangling guard). A literal for the same default prop, or a selected-row `defaultValue`, in the
@@ -1515,6 +1619,7 @@ export function applyWidgetPatch(
         defaultValue,
         disableWhenInvalid,
         imageSource,
+        reorderTabs,
         source,
         tableData,
         validation,
@@ -1662,6 +1767,28 @@ export function applyWidgetPatch(
 
       if (visibleWhen !== undefined) {
         applyVisibleWhenBinding(widgets, located.node, visibleWhen);
+      }
+
+      if (reorderTabs !== undefined)
+        applyReorderTabs(located.node, reorderTabs);
+
+      // `defaultTab` names one of the widget's tabs (by label); the client shows the first tab for an unknown name.
+      // An empty string is the editor's own "no default → first tab" and is allowed through.
+      if (literals.defaultTab !== undefined && literals.defaultTab !== "") {
+        const labels = tabLabelsOf(located.node);
+
+        if (!labels.includes(literals.defaultTab)) {
+          throw new Error(
+            `'defaultTab' "${literals.defaultTab}" is not a tab of "${located.node.widgetName}" (tabs: ${labels.map(quoteLabel).join(", ")})`,
+          );
+        }
+      }
+
+      // The editor clears Tab order by deleting the key (ClearableNumericInputControl); persist the same shape so
+      // read_semantic_page shows "absent = automatic" after an MCP clear too.
+      if (literals.tabOrder === null) {
+        delete located.node.tabOrder;
+        delete literals.tabOrder;
       }
 
       Object.assign(located.node, literals);

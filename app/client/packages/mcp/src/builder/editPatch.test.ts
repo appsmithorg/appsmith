@@ -3156,6 +3156,7 @@ describe("applyWidgetPatch — every owner-guarded literal is refused outside it
   // A sample value per non-trivial key; booleans, enums and numbers are derived from the schema.
   const SAMPLE: Record<string, unknown> = {
     delimiter: ";",
+    tabOrder: 1,
     primaryColumnId: "id",
     defaultNewRow: { a: 1 },
     defaultSelectedRowIndices: [0],
@@ -3428,5 +3429,346 @@ describe("applyWidgetPatch — resize and move inside 64-column inner canvases",
         ],
       }),
     ).toThrow("past the canvas edge");
+  });
+});
+
+describe("applyWidgetPatch — reorderTabs and defaultTab on a Tabs widget", () => {
+  const tabsNode = () =>
+    node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t",
+          widgetName: "Views",
+          type: "TABS_WIDGET",
+          defaultTab: "Content",
+          tabsObj: {
+            tab1: {
+              id: "tab1",
+              label: "Content",
+              widgetId: "c1",
+              index: 0,
+              isVisible: true,
+            },
+            tab2: {
+              id: "tab2",
+              label: "Schedule",
+              widgetId: "c2",
+              index: 1,
+              isVisible: true,
+            },
+            tab3: {
+              id: "tab3",
+              label: "Audit",
+              widgetId: "c3",
+              index: 2,
+              isVisible: true,
+            },
+          },
+          children: [],
+        }),
+        node({ widgetId: "x", widgetName: "Title", type: "TEXT_WIDGET" }),
+      ],
+    });
+
+  it("reorders the tabs by rewriting their indices and nothing else", () => {
+    const { changes, dsl } = applyWidgetPatch(tabsNode(), {
+      operations: [
+        {
+          kind: "update",
+          name: "Views",
+          props: {
+            reorderTabs: ["Audit", "Content", "Schedule"],
+            defaultTab: "Audit",
+          },
+        },
+      ],
+    });
+    const tabsObj = dsl.children![0].tabsObj as Record<
+      string,
+      { label: string; index: number; widgetId: string; id: string }
+    >;
+
+    expect(tabsObj.tab3).toMatchObject({
+      id: "tab3",
+      label: "Audit",
+      widgetId: "c3",
+      index: 0,
+    });
+    expect(tabsObj.tab1).toMatchObject({
+      id: "tab1",
+      label: "Content",
+      widgetId: "c1",
+      index: 1,
+    });
+    expect(tabsObj.tab2).toMatchObject({
+      id: "tab2",
+      label: "Schedule",
+      widgetId: "c2",
+      index: 2,
+    });
+    expect(dsl.children![0].defaultTab).toBe("Audit");
+    expect([...(changes[0].changedProps ?? [])].sort()).toEqual([
+      "defaultTab",
+      "reorderTabs",
+    ]);
+  });
+
+  it("refuses an order that is not a permutation of the existing tabs, and a defaultTab that is not a tab", () => {
+    for (const [reorderTabs, message] of [
+      [["Audit", "Content"], 'missing: "Schedule"'],
+      [["Audit", "Content", "Schedule", "Extra"], 'not a tab: "Extra"'],
+      [["Audit", "Audit", "Content"], 'repeated: "Audit"'],
+    ] as const) {
+      expect(() =>
+        applyWidgetPatch(tabsNode(), {
+          operations: [
+            {
+              kind: "update",
+              name: "Views",
+              props: { reorderTabs: [...reorderTabs] },
+            },
+          ],
+        }),
+      ).toThrow(message);
+    }
+
+    expect(() =>
+      applyWidgetPatch(tabsNode(), {
+        operations: [
+          { kind: "update", name: "Title", props: { reorderTabs: ["A"] } },
+        ],
+      }),
+    ).toThrow("'reorderTabs' can only be set on TABS_WIDGET");
+    expect(() =>
+      applyWidgetPatch(tabsNode(), {
+        operations: [
+          { kind: "update", name: "Views", props: { defaultTab: "Nope" } },
+        ],
+      }),
+    ).toThrow('\'defaultTab\' "Nope" is not a tab of "Views"');
+
+    // Labels are literal text: a binding is refused by the schema.
+    expect(
+      widgetPatchSchema.safeParse({
+        operations: [
+          {
+            kind: "update",
+            name: "Views",
+            props: { reorderTabs: ["{{ x }}"] },
+          },
+        ],
+      }).success,
+    ).toBe(false);
+  });
+
+  it("refuses to reorder a widget whose tabs share a label, even when the order names each label once", () => {
+    const twins = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t",
+          widgetName: "Views",
+          type: "TABS_WIDGET",
+          tabsObj: {
+            a: {
+              id: "a",
+              label: "Same",
+              widgetId: "c1",
+              index: 0,
+              isVisible: true,
+            },
+            b: {
+              id: "b",
+              label: "Same",
+              widgetId: "c2",
+              index: 1,
+              isVisible: true,
+            },
+            c: {
+              id: "c",
+              label: "Other",
+              widgetId: "c3",
+              index: 2,
+              isVisible: true,
+            },
+          },
+          children: [],
+        }),
+      ],
+    });
+
+    // ["Other", "Same"] passes the exact-permutation check (nothing unknown, repeated or missing), so without the
+    // duplicate guard both "Same" tabs would be written index 1.
+    expect(() =>
+      applyWidgetPatch(twins, {
+        operations: [
+          {
+            kind: "update",
+            name: "Views",
+            props: { reorderTabs: ["Other", "Same"] },
+          },
+        ],
+      }),
+    ).toThrow('"Views" has two tabs with the same label');
+    // defaultTab may still name the shared label (the client selects the first match).
+    expect(
+      applyWidgetPatch(twins, {
+        operations: [
+          { kind: "update", name: "Views", props: { defaultTab: "Same" } },
+        ],
+      }).dsl.children![0].defaultTab,
+    ).toBe("Same");
+  });
+
+  it("allows an empty defaultTab (the editor's own 'no default, first tab' value)", () => {
+    expect(
+      applyWidgetPatch(tabsNode(), {
+        operations: [
+          { kind: "update", name: "Views", props: { defaultTab: "" } },
+        ],
+      }).dsl.children![0].defaultTab,
+    ).toBe("");
+  });
+
+  it("never echoes a binding-carrying tab label in an error, and a saved __proto__ tab id cannot pollute", () => {
+    const saved = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t",
+          widgetName: "Views",
+          type: "TABS_WIDGET",
+          // An editor-saved tabsObj: a label carrying binding source, and a tab keyed "__proto__" (an own key after
+          // JSON parsing, as the DSL clone produces).
+          tabsObj: JSON.parse(
+            '{"tab1":{"id":"tab1","label":"{{ Q.data.name }}","widgetId":"c1","index":0},' +
+              '"__proto__":{"id":"__proto__","label":"Evil","widgetId":"c2","index":1}}',
+          ),
+          children: [],
+        }),
+      ],
+    });
+
+    let message = "";
+
+    try {
+      applyWidgetPatch(saved, {
+        operations: [
+          { kind: "update", name: "Views", props: { reorderTabs: ["Nope"] } },
+        ],
+      });
+    } catch (error) {
+      message = String(error);
+    }
+
+    expect(message).toContain("<bound label>");
+    expect(message).not.toContain("Q.data");
+
+    // A bound label can never be named by the agent (the schema refuses binding syntax), so such a widget is not
+    // reorderable through MCP. With plain labels, reordering writes the saved entries only, including one keyed
+    // "__proto__"; Object.prototype is untouched.
+    const plain = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t",
+          widgetName: "Views",
+          type: "TABS_WIDGET",
+          tabsObj: JSON.parse(
+            '{"tab1":{"id":"tab1","label":"Plain","widgetId":"c1","index":0},' +
+              '"__proto__":{"id":"__proto__","label":"Evil","widgetId":"c2","index":1}}',
+          ),
+          children: [],
+        }),
+      ],
+    });
+    const { dsl } = applyWidgetPatch(plain, {
+      operations: [
+        {
+          kind: "update",
+          name: "Views",
+          props: { reorderTabs: ["Evil", "Plain"] },
+        },
+      ],
+    });
+    const tabsObj = dsl.children![0].tabsObj as Record<
+      string,
+      { index: number }
+    >;
+
+    expect(
+      Object.getOwnPropertyDescriptor(tabsObj, "__proto__")?.value.index,
+    ).toBe(0);
+    expect(tabsObj.tab1.index).toBe(1);
+    expect((Object.prototype as { index?: unknown }).index).toBeUndefined();
+  });
+});
+
+describe("applyWidgetPatch — keyboard tabOrder (the platform Accessibility property)", () => {
+  const dsl = () =>
+    node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "i",
+          widgetName: "Email",
+          type: "INPUT_WIDGET_V2",
+          tabOrder: 3,
+        }),
+        node({ widgetId: "b", widgetName: "Save", type: "BUTTON_WIDGET" }),
+        node({
+          widgetId: "c",
+          widgetName: "Filters",
+          type: "CONTAINER_WIDGET",
+        }),
+        node({ widgetId: "t", widgetName: "Title", type: "TEXT_WIDGET" }),
+        node({ widgetId: "s", widgetName: "Kpi", type: "STATBOX_WIDGET" }),
+      ],
+    });
+
+  it("sets a positive integer on focusable widgets and clears it with null", () => {
+    const { dsl: patched } = applyWidgetPatch(dsl(), {
+      operations: [
+        { kind: "update", name: "Save", props: { tabOrder: 2 } },
+        { kind: "update", name: "Filters", props: { tabOrder: 1 } },
+        { kind: "update", name: "Email", props: { tabOrder: null } },
+      ],
+    });
+    const byName = (name: string) =>
+      patched.children!.find((w) => w.widgetName === name)!;
+
+    expect(byName("Save").tabOrder).toBe(2);
+    expect(byName("Filters").tabOrder).toBe(1);
+    // null clears by deleting the key, as the editor does; absent means automatic order.
+    expect("tabOrder" in byName("Email")).toBe(false);
+
+    for (const tabOrder of [0, -1, 1.5, 1001, "2", "{{ x }}"]) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [{ kind: "update", name: "Save", props: { tabOrder } }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it("refuses it on display-only widgets the factory hides it from", () => {
+    for (const name of ["Title", "Kpi"]) {
+      expect(() =>
+        applyWidgetPatch(dsl(), {
+          operations: [{ kind: "update", name, props: { tabOrder: 1 } }],
+        }),
+      ).toThrow("'tabOrder' can only be set on");
+    }
   });
 });

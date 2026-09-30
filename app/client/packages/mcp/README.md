@@ -49,6 +49,12 @@ Findings from building an internal admin app through MCP, all fixed without wide
   normalised and refused if they carry quotes, backslashes, parentheses or whitespace, because the image widget
   interpolates the value raw into a CSS `url("…")` rule; `tooltip` / `labelTooltip` refuse markup (the button renders
   its tooltip as HTML); the CSV `delimiter` is one of `,` `;` `|` tab.
+- Keyboard tab order and tab ordering. `patch_widgets` accepts the platform-level `tabOrder` (Accessibility > Tab
+  order: a positive integer on every focusable widget, `null` back to automatic top-to-bottom, left-to-right order)
+  and `read_semantic_page` reports it; the build path leaves it automatic, which already follows the compiler's
+  reading-order layout. On a Tabs widget, `reorderTabs` takes the existing tab labels in the wanted order (a
+  permutation, checked exactly) and rewrites each tab's index; `defaultTab` must name one of the widget's tabs;
+  `read_semantic_page` reports a Tabs widget's `tabs` in display order.
 - Nested canvases are laid out on the full 64-column grid. The compiler budgeted a container's, modal's, tab's or
   list card's content at the parent widget's own column span and wrote that span as the inner canvas width, while the
   client snaps every canvas to 64 columns whatever its pixel width, so a modal's fields rendered in the left half of

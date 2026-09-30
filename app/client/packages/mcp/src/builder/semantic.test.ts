@@ -680,3 +680,58 @@ describe("projectSemanticPage — a null literal still reads back as null", () =
     });
   });
 });
+
+describe("projectSemanticPage — tabs in display order and the keyboard tabOrder", () => {
+  it("lists a Tabs widget's tab labels sorted by index, reports tabOrder, and omits tabs elsewhere", () => {
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t",
+          widgetName: "Views",
+          type: "TABS_WIDGET",
+          defaultTab: "Schedule",
+          tabsObj: {
+            a: {
+              id: "a",
+              label: "Schedule",
+              widgetId: "c1",
+              index: 1,
+              isVisible: true,
+            },
+            b: {
+              id: "b",
+              label: "Content",
+              widgetId: "c2",
+              index: 0,
+              isVisible: true,
+            },
+          },
+        }),
+        node({
+          widgetId: "i",
+          widgetName: "Email",
+          type: "INPUT_WIDGET_V2",
+          tabOrder: 2,
+        }),
+        node({
+          widgetId: "x",
+          widgetName: "Title",
+          type: "TEXT_WIDGET",
+          text: "Hi",
+        }),
+      ],
+    });
+    const byName = (name: string) =>
+      projectSemanticPage(dsl).widgets.find((w) => w.name === name)!;
+
+    expect(byName("Views").props).toEqual({
+      defaultTab: "Schedule",
+      tabs: ["Content", "Schedule"],
+    });
+    expect(byName("Email").props).toMatchObject({ tabOrder: 2 });
+    expect(byName("Title").props).not.toHaveProperty("tabs");
+  });
+});
