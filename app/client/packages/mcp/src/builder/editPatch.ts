@@ -1827,6 +1827,26 @@ function applyMove(
   let requestedPosition: Position | undefined;
 
   if (operation.position !== undefined) {
+    // An explicit position past the right edge would place the widget off-canvas (only the off-grid lint would
+    // notice); clamp it so the widget's right edge stays within the 64-column canvas, and record the repair.
+    const maxLeft = Math.max(0, columns - width);
+    const original: Position = { ...requested };
+
+    if (requested.leftColumn > maxLeft) {
+      if (strict) {
+        throw new Error(
+          `moving "${operation.name}" to ${formatPosition(requested)} puts it past the canvas edge; the largest leftColumn that fits its ${width} columns is ${maxLeft}`,
+        );
+      }
+
+      notes.push(
+        `"${operation.name}" was requested at leftColumn ${requested.leftColumn}, past the canvas edge; placed at ${maxLeft} so its ${width} columns fit`,
+      );
+      requested.leftColumn = maxLeft;
+      // The change record reports what the agent asked for, as the tool description promises.
+      requestedPosition = original;
+    }
+
     const targetRect: Rect = {
       topRow: requested.topRow,
       bottomRow: requested.topRow + rows,
@@ -1855,7 +1875,7 @@ function applyMove(
         requested,
         columns,
       );
-      requestedPosition = requested;
+      requestedPosition = original;
       notes.push(
         `"${operation.name}": requested position ${formatPosition(requested)} overlaps ${formatNames(colliders)}; placed at ${formatPosition(landing)} instead`,
       );
@@ -1967,34 +1987,21 @@ function applyResize(
     );
   }
 
-  // A container/form/tabs may not shrink below its children's occupied extent — reject with the executable minimum.
+  // A container/form/tabs may not shrink below its children's occupied ROW extent — reject with the executable
+  // minimum. Columns are not constrained by the children: they live in the inner canvas's own 64-column grid, which
+  // the client scales to whatever pixel width the container has, so a 24-column container holds full-width fields.
   const innerCanvases = innerCanvasesOf(node);
 
   if (innerCanvases.length > 0) {
     let minRows = 0;
-    let minColumns = 0;
 
     for (const inner of innerCanvases) {
       minRows = Math.max(minRows, contentExtent(inner));
-
-      for (const child of inner.children ?? []) {
-        const childRect = rectOf(child);
-
-        if (childRect && !isDetached(child)) {
-          minColumns = Math.max(minColumns, childRect.rightColumn);
-        }
-      }
     }
 
     if (operation.rows !== undefined && targetRows < minRows) {
       throw new Error(
         `cannot shrink "${operation.name}" to ${targetRows} rows; smallest rows that fit the children: ${minRows}`,
-      );
-    }
-
-    if (operation.columns !== undefined && targetColumns < minColumns) {
-      throw new Error(
-        `cannot shrink "${operation.name}" to ${targetColumns} columns; smallest columns that fit the children: ${minColumns}`,
       );
     }
   }
@@ -2024,13 +2031,13 @@ function applyResize(
   node.rightColumn = Math.max(0, Math.round(rect.leftColumn)) + targetColumns;
   syncMobileRows(node);
 
-  // Keep the inner canvas rect in step with the container's body (build invariant: the canvas spans the container).
+  // Keep the inner canvas's row extent in step with the container's body (build invariant: the canvas spans the
+  // container). Its rightColumn is NOT the container's span: the client rewrites it with the pixel width at render
+  // and the build invariant is the 64-column grid, so it is left alone.
   for (const inner of innerCanvasesOf(node)) {
     if (isNumber(inner.bottomRow)) {
       inner.bottomRow = Math.max(targetRows, contentExtent(inner));
     }
-
-    if (isNumber(inner.rightColumn)) inner.rightColumn = targetColumns;
   }
 
   changes.push({

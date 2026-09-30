@@ -138,6 +138,9 @@ export function createRootCanvas(): WidgetNode {
   };
 }
 
+// An inner canvas's `rightColumn` is NOMINAL and never read as a width: the client rewrites it with the container's
+// pixel width at render and snaps every canvas to the 64-column grid (occupancy.canvasColumns ignores it). Three
+// values exist in the wild (editor: pixels; MCP before M6: the parent span; now: 64); none may be read as columns.
 export function createInnerCanvas(
   widgetId: string,
   widgetName: string,

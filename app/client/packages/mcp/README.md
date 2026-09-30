@@ -49,6 +49,13 @@ Findings from building an internal admin app through MCP, all fixed without wide
   normalised and refused if they carry quotes, backslashes, parentheses or whitespace, because the image widget
   interpolates the value raw into a CSS `url("…")` rule; `tooltip` / `labelTooltip` refuse markup (the button renders
   its tooltip as HTML); the CSV `delimiter` is one of `,` `;` `|` tab.
+- Nested canvases are laid out on the full 64-column grid. The compiler budgeted a container's, modal's, tab's or
+  list card's content at the parent widget's own column span and wrote that span as the inner canvas width, while the
+  client snaps every canvas to 64 columns whatever its pixel width, so a modal's fields rendered in the left half of
+  the modal and shrank again at each nesting level; the patch and lint paths read the same wrong width and refused
+  full-width fields ("the canvas is only 32 columns wide"). Build, edit, move, resize and lint now use 64 columns
+  inside every canvas. Apps built by earlier MCP versions keep their narrow layout until their nested widgets are
+  resized (a `patch_widgets` resize to the full width fixes them).
 - JS-object `call` cycles are refused (`call_cycle`): at create and update, the definition's call graph is joined
   with the embedded definitions of the other compiler-authored objects on the page and any cycle, sibling or
   cross-object, is rejected instead of compiling into awaited calls that would recurse until the evaluation worker

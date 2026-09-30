@@ -2204,11 +2204,19 @@ describe("applyWidgetPatch — resize", () => {
       }),
     ).toThrow(/smallest rows that fit the children: 30/);
 
-    expect(() =>
-      applyWidgetPatch(dsl, {
-        operations: [{ kind: "resize", name: "Card", columns: 10 }],
-      }),
-    ).toThrow(/smallest columns that fit the children: 24/);
+    // Columns are NOT constrained by the children: they live in the inner canvas's own 64-column grid, which the
+    // client scales to the container's pixel width, so a narrow container still holds full-width fields.
+    const { dsl: narrowed } = applyWidgetPatch(dsl, {
+      operations: [{ kind: "resize", name: "Card", columns: 10 }],
+    });
+    const narrowedCard = narrowed.children!.find(
+      (w) => w.widgetName === "Card",
+    )!;
+
+    expect(
+      (narrowedCard.rightColumn as number) -
+        (narrowedCard.leftColumn as number),
+    ).toBe(10);
   });
 
   it("shrinks a container down to (but not past) its children, keeping the inner canvas in step", () => {
@@ -3316,5 +3324,109 @@ describe("applyWidgetPatch — slider label position is Left | Top", () => {
         ],
       }).dsl.children![0].labelPosition,
     ).toBe("Top");
+  });
+});
+
+describe("applyWidgetPatch — resize and move inside 64-column inner canvases", () => {
+  const dsl = () =>
+    node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "f",
+          widgetName: "Filters",
+          type: "CONTAINER_WIDGET",
+          topRow: 0,
+          bottomRow: 20,
+          leftColumn: 0,
+          rightColumn: 32,
+          children: [
+            node({
+              widgetId: "fc",
+              widgetName: "FiltersCanvas",
+              type: "CANVAS_WIDGET",
+              topRow: 0,
+              bottomRow: 20,
+              leftColumn: 0,
+              rightColumn: 64,
+              detachFromLayout: true,
+              children: [
+                node({
+                  widgetId: "i",
+                  widgetName: "Search",
+                  type: "INPUT_WIDGET_V2",
+                  topRow: 1,
+                  bottomRow: 5,
+                  leftColumn: 0,
+                  rightColumn: 64,
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    });
+
+  it("lets a 32-column container shrink although its child spans the full 64-column inner grid", () => {
+    const { dsl: patched } = applyWidgetPatch(dsl(), {
+      operations: [{ kind: "resize", name: "Filters", columns: 24 }],
+    });
+    const filters = patched.children![0];
+    const canvas = filters.children![0];
+
+    expect(filters.rightColumn).toBe(24);
+    // The inner canvas's rightColumn is not the container's span; it is left alone.
+    expect(canvas.rightColumn).toBe(64);
+    expect(canvas.children![0].rightColumn).toBe(64);
+
+    // Rows are still constrained by the children.
+    expect(() =>
+      applyWidgetPatch(dsl(), {
+        operations: [{ kind: "resize", name: "Filters", rows: 3 }],
+      }),
+    ).toThrow("cannot shrink");
+  });
+
+  it("clamps an explicit move position past the canvas edge and records the repair", () => {
+    const {
+      changes,
+      dsl: patched,
+      notes,
+    } = applyWidgetPatch(dsl(), {
+      operations: [
+        {
+          kind: "move",
+          name: "Search",
+          position: { topRow: 1, leftColumn: 100000 },
+        },
+      ],
+    });
+    const search = patched.children![0].children![0].children![0];
+
+    expect(search.leftColumn).toBe(0);
+    expect(search.rightColumn).toBe(64);
+    expect(notes.join(" ")).toContain("past the canvas edge");
+    // The change record reports what the agent asked for, not the clamped value.
+    expect(changes[0]).toMatchObject({
+      kind: "move",
+      requestedPosition: { topRow: 1, leftColumn: 100000 },
+      position: { topRow: 1, leftColumn: 0 },
+    });
+
+    // strict: a past-edge position is refused instead of repaired.
+    expect(() =>
+      applyWidgetPatch(dsl(), {
+        operations: [
+          {
+            kind: "move",
+            name: "Search",
+            position: { topRow: 1, leftColumn: 100000 },
+            strict: true,
+          },
+        ],
+      }),
+    ).toThrow("past the canvas edge");
   });
 });

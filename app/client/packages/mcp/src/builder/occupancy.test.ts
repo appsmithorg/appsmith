@@ -206,13 +206,20 @@ describe("occupancy — nearestFreePosition", () => {
 });
 
 describe("occupancy — canvasColumns", () => {
-  it("uses the 64-column grid for the root canvas and rightColumn for inner canvases", () => {
+  it("is the 64-column grid for the root canvas AND for inner canvases, whatever rightColumn they carry", () => {
     expect(canvasColumns(rootCanvas([]))).toBe(64);
+    // An inner canvas's rightColumn is a pixel width (client render) or a stale column span (older MCP builds);
+    // neither is the width available to its children, which is always 64.
     expect(
       canvasColumns(
         widget({ widgetId: "c1", type: "CANVAS_WIDGET", rightColumn: 32 }),
       ),
-    ).toBe(32);
+    ).toBe(64);
+    expect(
+      canvasColumns(
+        widget({ widgetId: "c2", type: "CANVAS_WIDGET", rightColumn: 456 }),
+      ),
+    ).toBe(64);
   });
 });
 
