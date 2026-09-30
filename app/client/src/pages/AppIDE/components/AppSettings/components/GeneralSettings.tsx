@@ -83,6 +83,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import {
   APP_DESCRIPTION_MAX_LENGTH,
   isAppDescriptionInputValid,
+  normalizeAppDescription,
 } from "utils/appDescription";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
@@ -223,7 +224,7 @@ function GeneralSettings() {
     (value: string) => {
       if (!isAppDescriptionInputValid(value)) return;
 
-      const trimmed = value.trim();
+      const trimmed = normalizeAppDescription(value);
       const current = application?.description || "";
 
       if (trimmed === current) return;

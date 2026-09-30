@@ -1,7 +1,20 @@
 import {
   APP_DESCRIPTION_MAX_LENGTH,
   isAppDescriptionInputValid,
+  normalizeAppDescription,
 } from "./appDescription";
+
+describe("normalizeAppDescription", () => {
+  it("trims and collapses runs of whitespace, including line breaks, to one space", () => {
+    expect(normalizeAppDescription("  First line\nsecond   line\t\n")).toBe(
+      "First line second line",
+    );
+  });
+
+  it("returns an empty string for blank input", () => {
+    expect(normalizeAppDescription("   \n ")).toBe("");
+  });
+});
 
 describe("isAppDescriptionInputValid", () => {
   it("accepts empty/blank values (description is optional)", () => {

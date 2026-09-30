@@ -48,6 +48,7 @@ import {
 import {
   APP_DESCRIPTION_MAX_LENGTH,
   isAppDescriptionInputValid,
+  normalizeAppDescription,
 } from "utils/appDescription";
 import {
   APP_CARD_DESCRIPTION_PLACEHOLDER,
@@ -93,8 +94,8 @@ const DescriptionEditorWrapper = styled.div`
   }
 
   /* Read mode wraps to three lines so a description is legible without opening
-     it; edit mode keeps the single-line input. Blueprint sets the content's
-     height, line-height and min-width inline, hence the !important overrides. */
+     it. Blueprint sets the content height inline and ads-old's TextContainer pins
+     width, min-width and line-height with !important, hence the overrides. */
   &&&& .bp3-editable-text:not(.bp3-editable-text-editing) {
     height: auto !important;
     white-space: normal !important;
@@ -112,7 +113,6 @@ const DescriptionEditorWrapper = styled.div`
     width: 100% !important;
     min-width: 0 !important;
     height: auto !important;
-    max-height: none !important;
     line-height: var(--ads-v2-line-height-4) !important;
   }
 `;
@@ -304,16 +304,12 @@ export function ApplicationCard(props: ApplicationCardProps) {
         icon: icon,
       });
   };
-  // The card shows the description as one flowing paragraph, so line breaks
-  // typed in the multi-line editor collapse to single spaces.
-  const normalizeDescription = (value: string) =>
-    value.replace(/\s+/g, " ").trim();
   // Shared by the field's blur and the menu-close flush; both are no-ops when
   // nothing changed or the value is over the limit.
   const saveDescription = (value: string | null) => {
     if (value === null) return;
 
-    const trimmed = normalizeDescription(value);
+    const trimmed = normalizeAppDescription(value);
 
     if (!isAppDescriptionInputValid(trimmed)) return;
 
@@ -486,7 +482,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                   fill
                   hideEditIcon={false}
                   isInvalid={(value: string) =>
-                    isAppDescriptionInputValid(normalizeDescription(value))
+                    isAppDescriptionInputValid(normalizeAppDescription(value))
                       ? false
                       : createMessage(
                           GENERAL_SETTINGS_APP_DESCRIPTION_TOO_LONG,
