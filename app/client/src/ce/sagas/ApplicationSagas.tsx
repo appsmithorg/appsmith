@@ -50,6 +50,7 @@ import {
   updateApplicationNavigationLogoSuccessAction,
   updateApplicationNavigationSettingAction,
   updateCurrentApplicationEmbedSetting,
+  updateCurrentApplicationDescription,
   updateCurrentApplicationIcon,
   updateCurrentApplicationForkingEnabled,
   updateApplicationThemeSettingAction,
@@ -535,6 +536,14 @@ export function* updateApplicationSaga(
 
         if (request.icon) {
           yield put(updateCurrentApplicationIcon(response.data.icon));
+        }
+
+        if (request.description !== undefined) {
+          yield put(
+            updateCurrentApplicationDescription(
+              response.data.description ?? "",
+            ),
+          );
         }
 
         if (request.embedSetting) {
