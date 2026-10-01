@@ -4,6 +4,17 @@ import {
   resolveHeaderFontWeight,
 } from "./headerFontWeight";
 
+// Jest coverage rewrites the function with counters such as cov_xxx().s[0]++.
+// The eval worker receives the original source, so the copy under test drops those counters.
+function sourceForWorker(fn: { toString(): string }): string {
+  return fn
+    .toString()
+    .replace(
+      /\bcov_[A-Za-z0-9_$]+(?:\(\))?(?:\.[A-Za-z0-9_$]+|\[\d+\])+\+\+/g,
+      "0",
+    );
+}
+
 describe("headerFontWeightValidation", () => {
   it("resolves an unset value to 700 without an error", () => {
     for (const value of [undefined, null, "", "   "]) {
@@ -79,9 +90,10 @@ describe("headerFontWeightValidation", () => {
   });
 
   it("keeps the worker copy of the validator self-contained", () => {
+    const source = sourceForWorker(headerFontWeightValidation);
     const validate = new Function(
       "value",
-      `const fn = ${headerFontWeightValidation.toString()}; return fn(value);`,
+      `const fn = ${source}; return fn(value);`,
     ) as (value: unknown) => ReturnType<typeof headerFontWeightValidation>;
 
     expect(validate("bold")).toEqual({
