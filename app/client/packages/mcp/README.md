@@ -379,6 +379,65 @@ unaffected — the parameter is optional and ignored.
   review URL — the user reviews on the branch, merges via Appsmith's branch UI or a pull request on the remote,
   then deletes the `mcp/` branch.
 
+## Adding an edition (EE) MCP tool
+
+Edition tools (EE: workflows) plug into a seam so the hourly CE→EE sync never conflicts. CE ships every
+`src/ee/extensions/*.ts` as an `export *` of the matching `src/ce/extensions/*.ts`; an edition replaces only those
+files. Checklist:
+
+1. **Replace only these files**: `src/ee/extensions/{catalog,api,tools,capabilities,routeContract}.ts`, and on the
+   server `filters/McpAllowlistExtensions.java`. Never edit `src/ce/extensions/*` or any core file (`app.ts`,
+   `builder/*`, `toolAnnotations.ts`, `McpAllowlistWebFilter.java`, ...); the contract comments in
+   `src/ce/extensions/*.ts` are the spec.
+2. **Catalog and annotate every tool** in `catalog.ts`: an `EXTENSION_TOOL_CATALOG` entry (name, gate, summary) and an
+   `EXTENSION_TOOL_ANNOTATIONS` entry. `catalog.ts` is data only, with `import type` and nothing else, because core
+   modules read it at load. Optional: `EXTENSION_GUIDES` (served by `get_guide` and `appsmith://guide/<slug>`) and
+   `EXTENSION_SERVER_INSTRUCTIONS` (appended to the initialize instructions).
+3. **Register in `tools.ts`** through `host.registerTool` only. It throws for a name that is not catalogued, and for
+   a caller-supplied annotations object. It skips a tool whose gate is off, so register every tool unconditionally.
+   Any runtime import from `app.ts` there may only be used inside functions (`app.ts` imports `tools.ts`).
+4. **Gates**: use a core gate (`always`, `data`, `governance`, ...) or an edition gate `extension:<name>`. Every
+   `extension:<name>` needs an `EXTENSION_GATE_REQUIREMENTS[<name>]` (`requires` / `provides`, shown in
+   `get_capabilities`' `disabledCapabilities` while off) and is decided per session by `resolveExtensionGates(api)`
+   in `tools.ts`. The resolver runs live at every session build (initialize, and rehydration on another replica)
+   and is never stored. Missing, non-`true`, a throw, or no answer within `EXTENSION_GATES_TIMEOUT_MS` (5 s) all
+   mean off. Because it is re-resolved per build, an entitlement change mid-session can make replicas disagree about
+   one session until the client reconnects — the same posture as `isAdmin`. `host.gates` is frozen.
+5. **No destructive tools yet.** The host refuses `destructiveHint: true`, and a non-read-only tool that leaves
+   `destructiveHint` unset, until it offers governed approval (prepare/confirm, elicitation) to extensions.
+   **Labelling rule for reviewers:** any tool that triggers, runs or publishes a workflow, or has any other external
+   side effect, must be annotated `destructiveHint: true` — and is therefore refused until CE adds that approval
+   layer. Annotations are not access control: server-side licence and ACL enforcement on `/api/v1/workflows` stays
+   mandatory.
+6. **Capabilities**: `capabilities.ts` returns extra top-level `get_capabilities` sections; a key that collides with
+   a core section is refused. An edition's override must keep a `workflows` section with an `available` key
+   (`extensions.test.ts` asserts it).
+7. **API and routes**: add methods in `api.ts` through the `request` it is handed (never `fetch`), describe them in
+   `routeContract.ts`, and allow each endpoint in `McpAllowlistExtensions.java`:
+
+   - `extensionPathPrefixes` declares the edition's own route families (EE must declare `/api/v1/workflows`).
+   - `extensionRules` must be written as literal `McpAllowRule.rule(HttpMethod.X, "...")` calls — the route-contract
+     test parses that form and counts every `rule(` / `new McpAllowRule(` / `HttpMethod.`, so a constant,
+     concatenated, `HEAD` or helper-built rule fails it. Paths use literals and `{var}` segments only.
+   - `extensionReservedSegments` applies only under the edition's prefixes; list every literal sibling route there so
+     a `{var}` rule cannot match it (EE workflows: `token`, `trigger`, `publish`, `import`, `export`,
+     `createResolutionPage`, as applicable).
+
+   The route-contract test checks that every wrapper route is allowed and that every extension rule is called by
+   some wrapper.
+
+**Where each check fails.** Catalog, annotation and guide-slug collisions, and an edition gate with no
+`EXTENSION_GATE_REQUIREMENTS` entry, throw at **module load** (the server will not start, and every test that
+imports the module fails). A bad registration (uncatalogued, destructive, or with caller-supplied annotations)
+throws inside `buildMcpServer`, so **every initialize fails** while the process stays up — keep a server-building
+test like those in `extensions.test.ts`. An API method that shadows a core one throws in **every
+`createAppsmithApi` call**. A capability section that overwrites a core one throws on **every `get_capabilities`
+call**. On the server, an extension rule outside `extensionPathPrefixes()`, a prefix in a core route family or with a
+segment outside `[a-z0-9-]`, a catch-all or regex variable, or anything touching `mcp-tokens` makes
+`McpAllowlistWebFilter` throw at construction, so **the server will not start**;
+`McpAllowlistWebFilterTest.defaultFilter_validatesAndAppendsTheEditionExtensions` catches it in CI.
+`src/extensions.test.ts` is edition-neutral, so keep it green after overriding.
+
 ## Local development
 
 Copy `.env.example` to `.env` and run the package standalone. See that file for the full set of variables. A

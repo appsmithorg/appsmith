@@ -1,6 +1,7 @@
 package com.appsmith.server.filters;
 
 import com.appsmith.server.authentication.tokens.McpTokenAuthentication;
+import com.appsmith.server.filters.ce.McpAllowlistExtensionsCE;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpMethod;
@@ -15,13 +16,19 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.util.pattern.PathPattern;
-import org.springframework.web.util.pattern.PathPatternParser;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.appsmith.server.filters.McpAllowRule.rule;
 
 /**
  * Confines what an MCP-token-authenticated principal may call on /api/v1. Any request that authenticated via an
@@ -38,14 +45,13 @@ import java.util.Set;
 @Slf4j
 public class McpAllowlistWebFilter implements WebFilter {
 
-    private static final PathPatternParser PARSER = new PathPatternParser();
-
     // The COMPLETE set of method+path families the loopback MCP Node client calls on /api/v1. Anything else for an
     // MCP principal -> 403. This list is the server-side mirror of the endpoints in the Node API client
     // (app/client/packages/mcp/src/app.ts, `createAppsmithApi`): a new MCP tool that calls a new endpoint must add a
     // rule here or it will 403 (fails closed). Note POST /api/v1/users/mcp-tokens (token minting) is intentionally
     // absent, so an MCP token can never mint another (double-covered: McpTokenControllerCE also blocks it).
-    private static final List<AllowRule> ALLOW_RULES = List.of(
+    // Edition-specific tools add their endpoints through McpAllowlistExtensions, never by editing this list.
+    private static final List<McpAllowRule> CORE_RULES = List.of(
             rule(HttpMethod.GET, "/api/v1/users/me"),
             rule(HttpMethod.GET, "/api/v1/workspaces/home"),
             rule(HttpMethod.GET, "/api/v1/applications/home"),
@@ -96,6 +102,128 @@ public class McpAllowlistWebFilter implements WebFilter {
             rule(HttpMethod.GET, "/api/v1/themes/applications/{id}/current"),
             rule(HttpMethod.PUT, "/api/v1/themes/applications/{id}"));
 
+    // The MCP token-management routes (mint, rotate, list, revoke). No rule — core or extension — may match them: an
+    // MCP token must never manage tokens. Sample paths stand in for the {keyId} variable.
+    private static final List<PathContainer> TOKEN_MANAGEMENT_PATHS = Stream.of(
+                    "/api/v1/users/mcp-tokens", "/api/v1/users/mcp-tokens/key", "/api/v1/users/mcp-tokens/key/rotate")
+            .map(PathContainer::parsePath)
+            .toList();
+
+    // The route families (the segment right after /api/v1) the core rules curate. An extension prefix may not live in
+    // one: the core list is the reviewed, complete set for those families, and an edition rule there would widen it
+    // without touching this file. Derived from CORE_RULES so a new core family is covered without a second edit.
+    private static final Set<String> CORE_ROUTE_FAMILIES = CORE_RULES.stream()
+            .map(allowRule -> familySegment(allowRule.pattern().getPatternString()))
+            .collect(Collectors.toUnmodifiableSet());
+
+    // Matches a "{name:regex}" path variable. A constraint regex hides which literals the variable can take, so the
+    // sample-path token check cannot reason about it (e.g. {keyId:[a-f0-9]+} slipped past it); refused outright.
+    private static final Pattern REGEX_CONSTRAINED_VARIABLE = Pattern.compile("\\{[^}]*:");
+
+    // A valid extension prefix: /api/v1 followed by one or more lowercase literal segments.
+    private static final Pattern EXTENSION_PREFIX_SHAPE = Pattern.compile("/api/v1(/[a-z0-9-]+)+");
+
+    private final List<McpAllowRule> allowRules;
+
+    // Reserved segments the edition declares. Scoped to request paths under an extension prefix, so an edition's
+    // sibling literal (which may coincide with a core route's literal) can never deny a core route.
+    private final Set<String> extensionReservedSegments;
+
+    // Each extension prefix as its path segments (e.g. ["api", "v1", "workflows"]), for segment-boundary matching.
+    private final List<List<String>> extensionPrefixSegments;
+
+    public McpAllowlistWebFilter() {
+        this(new McpAllowlistExtensions());
+    }
+
+    /**
+     * Core rules plus the edition's extensions. Prefixes, rules and reserved segments are validated here, at startup,
+     * so a declaration that would widen the cap past "the endpoints the MCP client calls" fails loudly instead of
+     * shipping.
+     */
+    McpAllowlistWebFilter(McpAllowlistExtensionsCE extensions) {
+        List<String> prefixes = List.copyOf(extensions.extensionPathPrefixes());
+        prefixes.forEach(McpAllowlistWebFilter::validateExtensionPrefix);
+
+        List<McpAllowRule> extensionRules = List.copyOf(extensions.extensionRules());
+        extensionRules.forEach(allowRule -> validateExtensionRule(allowRule, prefixes));
+
+        Set<String> extensionReserved = new HashSet<>();
+        for (String segment : extensions.extensionReservedSegments()) {
+            extensionReserved.add(normaliseReservedSegment(segment));
+        }
+
+        this.extensionReservedSegments = Set.copyOf(extensionReserved);
+        // Validated prefixes are lowercase literal segments, so splitting on "/" is exact.
+        this.extensionPrefixSegments = prefixes.stream()
+                .map(prefix -> List.of(prefix.substring(1).split("/")))
+                .toList();
+        this.allowRules =
+                Stream.concat(CORE_RULES.stream(), extensionRules.stream()).toList();
+    }
+
+    /** Core rules followed by the edition's extension rules, in match order. */
+    List<McpAllowRule> allowRules() {
+        return allowRules;
+    }
+
+    private static void validateExtensionPrefix(String prefix) {
+        // Every segment after /api/v1 must be [a-z0-9-]+: this refuses pattern syntax, empty segments (trailing or
+        // doubled slashes), dot segments ("." / ".."), percent-encoding, matrix parameters, uppercase and "_", so the
+        // prefix is exactly the literal the request-path segment comparison sees.
+        if (prefix == null || !EXTENSION_PREFIX_SHAPE.matcher(prefix).matches()) {
+            throw new IllegalArgumentException("MCP allowlist has an invalid extension prefix (must be a literal "
+                    + "/api/v1/<family>[/...] path whose segments match [a-z0-9-]+): " + prefix);
+        }
+        if (prefix.toLowerCase(Locale.ROOT).contains("mcp-tokens")) {
+            throw new IllegalArgumentException(
+                    "MCP allowlist has an invalid extension prefix touching the token-management routes: " + prefix);
+        }
+        if (CORE_ROUTE_FAMILIES.contains(familySegment(prefix))) {
+            throw new IllegalArgumentException(
+                    "MCP allowlist extension prefix must not live in a core route family: " + prefix);
+        }
+    }
+
+    private static void validateExtensionRule(McpAllowRule allowRule, List<String> prefixes) {
+        String pattern = allowRule.pattern().getPatternString();
+        // A catch-all ("**" or "{*var}") matches an open-ended set of routes, including ones added later.
+        if (pattern.contains("**") || pattern.contains("{*")) {
+            throw new IllegalArgumentException("MCP allowlist extension rule must not be a catch-all: " + pattern);
+        }
+        if (REGEX_CONSTRAINED_VARIABLE.matcher(pattern).find()) {
+            throw new IllegalArgumentException(
+                    "MCP allowlist extension rule must not use a regex-constrained variable: " + pattern);
+        }
+        // Both the literal check and the sample-path match below: the literal catches any spelling of the token family
+        // the samples do not enumerate, the match catches variables that would capture it.
+        if (pattern.toLowerCase(Locale.ROOT).contains("mcp-tokens")
+                || TOKEN_MANAGEMENT_PATHS.stream()
+                        .anyMatch(path -> allowRule.pattern().matches(path))) {
+            throw new IllegalArgumentException(
+                    "MCP allowlist extension rule must not match the MCP token-management routes: " + pattern);
+        }
+        if (prefixes.stream().noneMatch(prefix -> pattern.equals(prefix) || pattern.startsWith(prefix + "/"))) {
+            throw new IllegalArgumentException(
+                    "MCP allowlist extension rule is outside the declared extension prefixes " + prefixes + ": "
+                            + pattern);
+        }
+    }
+
+    private static String normaliseReservedSegment(String segment) {
+        if (segment == null || segment.isBlank() || segment.contains("/") || segment.contains(";")) {
+            throw new IllegalArgumentException(
+                    "MCP allowlist has an invalid reserved segment (must be one non-blank path segment): " + segment);
+        }
+        return segment.toLowerCase(Locale.ROOT);
+    }
+
+    /** The route family of an /api/v1 path or pattern: the segment right after /api/v1, or "" if there is none. */
+    private static String familySegment(String path) {
+        String[] parts = path.split("/");
+        return parts.length > 3 ? parts[3].toLowerCase(Locale.ROOT) : "";
+    }
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
@@ -121,18 +249,20 @@ public class McpAllowlistWebFilter implements WebFilter {
      * {@code /api/v1/actions/{actionId}} matches these literals too, so {@code PUT /api/v1/actions/move} and
      * {@code /refactor} would slip through on a rule meant only to update one action by id — quietly widening the
      * allowlist past "the complete set of endpoints the MCP client calls". No entity id can collide with these,
-     * since ids are generated identifiers, so denying them costs nothing and keeps the allowlist honest.
+     * since ids are generated identifiers, so denying them costs nothing and keeps the allowlist honest. Applies to every
+     * request path; an edition adds the sibling literals of its own routes via {@code extensionReservedSegments()},
+     * which apply only to request paths under the edition's {@code extensionPathPrefixes()}.
      */
     private static final Set<String> RESERVED_ROUTE_SEGMENTS = Set.of("move", "refactor");
 
-    private static boolean isAllowed(ServerHttpRequest request) {
+    private boolean isAllowed(ServerHttpRequest request) {
         HttpMethod method = request.getMethod();
         PathContainer path = request.getPath().pathWithinApplication();
         if (hasReservedFinalSegment(path)) {
             return false;
         }
-        for (AllowRule allowRule : ALLOW_RULES) {
-            if (allowRule.method().equals(method) && allowRule.pattern().matches(path)) {
+        for (McpAllowRule allowRule : allowRules) {
+            if (allowRule.matches(method, path)) {
                 return true;
             }
         }
@@ -150,17 +280,37 @@ public class McpAllowlistWebFilter implements WebFilter {
      * handler, while a raw-string scan saw {@code move;bypass=true}, failed to recognize the reserved literal, and
      * allowed the request. Reading the same parsed value makes that class of divergence impossible by construction.
      */
-    private static boolean hasReservedFinalSegment(PathContainer path) {
-        String lastSegment = null;
+    private boolean hasReservedFinalSegment(PathContainer path) {
+        // Case-insensitive throughout: the allowlist must not be evadable by casing, even though WebFlux routing is
+        // case-sensitive and a mis-cased literal would 404 rather than reach the sibling handler.
+        List<String> segments = new ArrayList<>();
         for (PathContainer.Element element : path.elements()) {
             if (element instanceof PathContainer.PathSegment pathSegment) {
-                lastSegment = pathSegment.valueToMatch();
+                segments.add(pathSegment.valueToMatch().toLowerCase(Locale.ROOT));
             }
         }
+        if (segments.isEmpty()) {
+            return false;
+        }
 
-        // Case-insensitive: the allowlist must not be evadable by casing, even though WebFlux routing is
-        // case-sensitive and a mis-cased literal would 404 rather than reach the sibling handler.
-        return lastSegment != null && RESERVED_ROUTE_SEGMENTS.contains(lastSegment.toLowerCase(Locale.ROOT));
+        String lastSegment = segments.get(segments.size() - 1);
+        if (RESERVED_ROUTE_SEGMENTS.contains(lastSegment)) {
+            return true;
+        }
+        // Extension reserved segments apply only under an extension prefix, so an edition reserving a literal that a
+        // core route also uses (e.g. "trigger") cannot deny that core route.
+        return extensionReservedSegments.contains(lastSegment) && isUnderExtensionPrefix(segments);
+    }
+
+    /** Whether the (lowercased, parsed) request segments start with one of the extension prefixes' segments. */
+    private boolean isUnderExtensionPrefix(List<String> segments) {
+        for (List<String> prefix : extensionPrefixSegments) {
+            if (segments.size() > prefix.size()
+                    && segments.subList(0, prefix.size()).equals(prefix)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static Mono<Void> forbidden(ServerWebExchange exchange) {
@@ -178,10 +328,4 @@ public class McpAllowlistWebFilter implements WebFilter {
         DataBuffer buffer = response.bufferFactory().wrap(body);
         return response.writeWith(Mono.just(buffer));
     }
-
-    private static AllowRule rule(HttpMethod method, String pattern) {
-        return new AllowRule(method, PARSER.parse(pattern));
-    }
-
-    private record AllowRule(HttpMethod method, PathPattern pattern) {}
 }

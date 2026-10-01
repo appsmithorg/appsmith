@@ -1,3 +1,8 @@
+import { extensionCapabilities } from "../ee/extensions/capabilities.js";
+import {
+  EXTENSION_GATE_REQUIREMENTS,
+  EXTENSION_TOOL_CATALOG,
+} from "../ee/extensions/catalog.js";
 import { GRID_COLUMNS, ROW_HEIGHT } from "./layout.js";
 import { listPresets } from "./presets.js";
 
@@ -436,7 +441,7 @@ export const WIDGET_CATALOG = [
 
 // Gate under which a tool is registered. Kept as the SINGLE source of truth so get_capabilities can never drift from
 // what buildMcpServer actually registers (item J). When a tool is added/removed, update this list.
-type ToolGate =
+type CoreToolGate =
   | "always"
   | "governance"
   | "data"
@@ -444,13 +449,28 @@ type ToolGate =
   | "js"
   | "js_governance";
 
+// An edition gate (ee/extensions/catalog.ts; extension tools only): on only when the session's resolved extension
+// gates say <name> is exactly true (see resolveExtensionGates in ce/extensions/tools.ts).
+type ExtensionToolGate = `extension:${string}`;
+
+export type ToolGate = CoreToolGate | ExtensionToolGate;
+
 export interface CapabilityGates {
   data: boolean;
   js: boolean;
   governance: boolean;
+  // The session's edition gates, keyed by <name> of "extension:<name>". Absent or not exactly true means off.
+  extensions?: Readonly<Record<string, boolean>>;
 }
 
-export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
+export interface ToolCatalogEntry {
+  name: string;
+  gate: ToolGate;
+  summary: string;
+}
+
+// Core tools take only core gates; "extension:<name>" gates are for EXTENSION_TOOL_CATALOG entries.
+const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
   [
     // Always-on: discovery, spec authoring, and safe reads.
     {
@@ -743,7 +763,47 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     },
   ];
 
-function gateActive(gate: ToolGate, gates: CapabilityGates): boolean {
+// Core tools plus the edition's (ee/extensions/catalog.ts; none in CE). An extension tool may never shadow a core one,
+// and every edition gate it uses must say what enables it, or disabledCapabilities could not tell the user.
+for (const tool of EXTENSION_TOOL_CATALOG) {
+  if (CORE_TOOL_LIST.some((core) => core.name === tool.name)) {
+    throw new Error(`MCP extension tool "${tool.name}" collides with core`);
+  }
+
+  if (
+    isExtensionGate(tool.gate) &&
+    !Object.hasOwn(EXTENSION_GATE_REQUIREMENTS, extensionGateName(tool.gate))
+  ) {
+    throw new Error(
+      `MCP extension tool "${tool.name}" uses gate "${tool.gate}", which has no EXTENSION_GATE_REQUIREMENTS entry`,
+    );
+  }
+}
+
+export const TOOL_CATALOG: ToolCatalogEntry[] = [
+  ...CORE_TOOL_LIST,
+  ...EXTENSION_TOOL_CATALOG,
+];
+
+function isExtensionGate(gate: ToolGate): gate is ExtensionToolGate {
+  return gate.startsWith("extension:");
+}
+
+function extensionGateName(gate: ExtensionToolGate): string {
+  return gate.slice("extension:".length);
+}
+
+// Exported for the extension host in buildMcpServer, which registers an extension tool only when its gate is active.
+export function gateActive(gate: ToolGate, gates: CapabilityGates): boolean {
+  // Fail closed: an edition gate is on only when the session's resolved gates hold exactly true for it (an own key,
+  // so a name like "constructor" can never read through to Object.prototype).
+  if (isExtensionGate(gate)) {
+    const extensions = gates.extensions ?? {};
+    const name = extensionGateName(gate);
+
+    return Object.hasOwn(extensions, name) && extensions[name] === true;
+  }
+
   switch (gate) {
     case "always":
       return true;
@@ -766,7 +826,7 @@ function gateActive(gate: ToolGate, gates: CapabilityGates): boolean {
 // act on), with the exact self-hosted env var / backend in parentheses. On Appsmith Cloud the end user cannot set
 // these — the ask still correctly points at "your Appsmith administrator".
 const GATE_REQUIREMENTS: Record<
-  Exclude<ToolGate, "always">,
+  Exclude<CoreToolGate, "always">,
   { requires: string; provides: string }
 > = {
   governance: {
@@ -811,7 +871,10 @@ function disabledCapabilities(gates: CapabilityGates) {
   for (const tool of TOOL_CATALOG) {
     if (tool.gate === "always" || gateActive(tool.gate, gates)) continue;
 
-    const requirement = GATE_REQUIREMENTS[tool.gate];
+    // Edition gates carry their own requirement text (presence checked at load, above).
+    const requirement = isExtensionGate(tool.gate)
+      ? EXTENSION_GATE_REQUIREMENTS[extensionGateName(tool.gate)]
+      : GATE_REQUIREMENTS[tool.gate];
     const group = groups.get(tool.gate) ?? { ...requirement, tools: [] };
 
     group.tools.push(tool.name);
@@ -825,8 +888,7 @@ export function getCapabilities(
   gates: CapabilityGates = { data: false, js: false, governance: false },
 ) {
   const disabledGroups = disabledCapabilities(gates);
-
-  return {
+  const core = {
     description:
       "Build and safely modify Appsmith apps. The MCP layer auto-places widgets on a 64-column grid and compiles to " +
       "real Appsmith artifacts via the ACL-enforced API. You never author raw widget DSL, SQL, or bindings.",
@@ -889,6 +951,8 @@ export function getCapabilities(
       dataLayer: gates.data,
       restrictedJsObjects: gates.js,
       governance: gates.governance,
+      // The session's edition gates (ee/extensions/catalog.ts); always {} in CE.
+      extensions: gates.extensions ?? {},
     },
     // Capabilities that EXIST in this server but are not registered under the current configuration. If the user asks
     // for something here (datasources, queries, JS objects, publish, ...), don't say it's impossible — relay each
@@ -903,10 +967,6 @@ export function getCapabilities(
     governanceNote: gates.governance
       ? "Mutations are locked, revision-checked, and audited; destructive/high-impact operations require a one-time confirmation token, and every confirm_* tool prompts the user for approval via elicitation when the client supports it (otherwise show the user the prepare_* relay text and get their approval first — a declined prompt never consumes the token). Publish-on-create is automatic (build_application deploys the app it just created, recorded in the audit trail); governance gates RE-publishing existing apps via prepare_publish/confirm_publish."
       : "Governance (Mongo+Redis) is not configured, so governed and destructive tools are not registered. build_application still auto-deploys the app it just created; RE-publishing an existing app after edits requires governance.",
-    workflows: {
-      available: false,
-      note: "CE workflow tools are not available via MCP.",
-    },
     gitSync: {
       available: true,
       note: "read_git_status (always on) reads a safe git status projection. Every mutation on a git-connected app REQUIRES a 'branch' parameter equal to the target app's current branch (fail-closed; the error carries the current branch). create_branch (governed) creates an agent branch under the reserved mcp/ namespace — it PUSHES the new ref to the remote and returns the NEW branched applicationId to edit (branch-per-application; no checkout). prepare_commit/confirm_commit (governed) commit AND PUSH — allowed ONLY on mcp/ agent branches (verified by a fresh read at confirm time), with the user's approval (an elicitation prompt when the client supports it; otherwise you must relay the prepare_commit text and get approval first). Publishing from MCP stays disabled for git apps: the deliverable is the mcp/ branch + its review URL, which the user merges via Appsmith's branch UI or a PR on the remote. See appsmith://guide/git.",
@@ -923,4 +983,15 @@ export function getCapabilities(
       "recreate_from_screenshot — guided workflow to rebuild a screenshot/mockup the user shared",
     ],
   };
+  // Edition sections (ee/extensions/capabilities.ts): CE reports workflows as unavailable. A section may never
+  // overwrite a core one.
+  const extension = extensionCapabilities(gates);
+
+  for (const key of Object.keys(extension)) {
+    if (Object.hasOwn(core, key)) {
+      throw new Error(`MCP extension capability "${key}" collides with core`);
+    }
+  }
+
+  return { ...extension, ...core };
 }

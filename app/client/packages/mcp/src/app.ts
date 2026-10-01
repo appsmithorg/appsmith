@@ -24,6 +24,13 @@ import {
   type RequestId,
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
+import { createExtensionApi, type ExtensionApi } from "./ee/extensions/api.js";
+import { EXTENSION_TOOL_CATALOG } from "./ee/extensions/catalog.js";
+import {
+  type ExtensionToolRegistrar,
+  registerExtensionTools,
+  resolveExtensionGates,
+} from "./ee/extensions/tools.js";
 import { ELICITATION_TIMEOUT_CEILING_MS } from "./gates.js";
 import { TOOL_ANNOTATIONS } from "./toolAnnotations.js";
 import {
@@ -48,7 +55,11 @@ import {
   duplicateActionSpecSchema,
   updateActionSpecSchema,
 } from "./builder/actionPatch.js";
-import { getCapabilities } from "./builder/capabilities.js";
+import {
+  type CapabilityGates,
+  gateActive,
+  getCapabilities,
+} from "./builder/capabilities.js";
 import { applyEdit, compileApp } from "./builder/compile.js";
 import {
   applyEvent,
@@ -238,6 +249,10 @@ export interface ServerContext {
   // record at write time. Empty when the server does not report it, which fails closed: org-scoped reads then match
   // no records rather than falling back to an unscoped (cross-tenant) query.
   organizationId?: string;
+  // The session's edition gates ("extension:<name>" in ee/extensions/catalog.ts), from resolveExtensionGates. Like
+  // isAdmin/organizationId they are resolved LIVE each time createMcpHttpServer builds the session's server and are
+  // never read from the stored session record. Absent (CE, or a resolver that failed) means every extension gate is off.
+  extensionGates?: Readonly<Record<string, boolean>>;
   // Absolute http(s) origin used to build the editor/viewer URLs build_application returns, resolved ONCE per
   // session at initialize (handlers never see raw requests): options.publicOrigin, else strictly validated
   // X-Forwarded-Proto + Host headers, else undefined — which degrades every constructed URL to a root-relative path.
@@ -283,7 +298,7 @@ function operationDigest(payload: unknown): string {
     .digest("hex");
 }
 
-interface ToolResult {
+export interface ToolResult {
   content: { type: "text"; text: string }[];
   // Matches the SDK's CallToolResult, which carries an index signature. Without this an `interface` (unlike a type
   // alias) is not assignable to it, so governed tool handlers returning ToolResult fail to typecheck.
@@ -341,6 +356,10 @@ export const MAX_MCP_SESSIONS = 100;
 export const MAX_MCP_SESSIONS_PER_USER = 25;
 export const MCP_SESSION_TTL_MS = 15 * 60 * 1000;
 export const REQUEST_TIMEOUT_MS = 30 * 1000;
+// Overall cap on resolving a session's edition gates (resolveExtensionGates), which runs on every initialize and
+// rehydration. Each upstream call already has REQUEST_TIMEOUT_MS, but a resolver may chain several or hang outside
+// fetch; past this cap the session is built with every edition gate OFF (fail closed) rather than stalling.
+export const EXTENSION_GATES_TIMEOUT_MS = 5 * 1000;
 // The git commit API exports the whole application, commits, AND pushes — on large apps that comfortably exceeds
 // the default 30s outbound abort, so the commit call alone gets a longer budget [COUNCIL: architect].
 export const GIT_COMMIT_TIMEOUT_MS = 120 * 1000;
@@ -399,7 +418,8 @@ export class AppsmithApiError extends Error {
 // profile configured (and for other broken git configs). Verified against AppsmithErrorCode.java.
 const INVALID_GIT_CONFIGURATION_CODE = "AE-GIT-4031";
 
-export interface AppsmithApi {
+// The core API client surface. AppsmithApi adds the edition's extension methods (ee/extensions/api.ts; none in CE).
+export interface CoreAppsmithApi {
   getApplicationContext: (
     applicationId: string,
     pageId: string,
@@ -513,6 +533,8 @@ export interface AppsmithApi {
   deleteActionCollection: (collectionId: string) => Promise<unknown>;
   validateToken: () => Promise<unknown>;
 }
+
+export type AppsmithApi = CoreAppsmithApi & ExtensionApi;
 
 function serializeArtifact(artifact: Record<string, unknown>): string {
   if (Object.keys(artifact).length === 0) {
@@ -672,7 +694,7 @@ export function createAppsmithApi(
     }
   }
 
-  return {
+  const core: CoreAppsmithApi = {
     // The user's accessible workspaces come from /workspaces/home; a plain GET /workspaces collides with the
     // create (POST) mapping and returns 405.
     listWorkspaces: async () => request("/api/v1/workspaces/home"),
@@ -921,6 +943,17 @@ export function createAppsmithApi(
       ),
     validateToken: async () => request("/api/v1/users/me"),
   };
+  // Edition-only endpoints (EE: workflows) go through the same request(), so they carry the same token, internal
+  // marker and timeout. An extension method may never replace a core one.
+  const extension = createExtensionApi(request);
+
+  for (const name of Object.keys(extension)) {
+    if (Object.hasOwn(core, name)) {
+      throw new Error(`MCP extension API method "${name}" collides with core`);
+    }
+  }
+
+  return { ...core, ...extension };
 }
 
 // Least-privilege projection for list_datasources: the agent only needs enough to identify a datasource and author a
@@ -2462,6 +2495,15 @@ export function buildMcpServer(
   // nothing (fail-closed), never an unscoped cross-tenant read.
   const organizationId = ctx.organizationId ?? "";
   const logSink = ctx.logSink ?? ((line: string) => process.stderr.write(line));
+  // This session's gates: what get_capabilities reports and what the extension host registers against, so the two
+  // cannot drift. The object and its extensions record are copied and frozen (host.gates hands this very object to
+  // edition code), so an edition's tools cannot flip a gate — or swap the extensions record — mid-session.
+  const capabilityGates: CapabilityGates = Object.freeze({
+    data: dataEnabled,
+    js: jsEnabled,
+    governance: governance !== undefined,
+    extensions: Object.freeze({ ...ctx.extensionGates }),
+  });
   const elicitationTimeout =
     elicitationTimeoutMs ??
     commitElicitationTimeoutMs ??
@@ -2477,14 +2519,43 @@ export function buildMcpServer(
   // the annotations object is spliced in before the callback, using the SDK's own `(name, [description,] [schema,]
   // annotations, cb)` overloads. A tool missing from the table is a build-time bug, so registration refuses it
   // rather than shipping a tool that every Codex/ChatGPT call would then need a human approval for.
+  // The splice assumes the caller passed NO annotations of its own: a caller-supplied annotations-like object right
+  // before the callback would land in the SDK's schema slot (or shift the overload), so anything there that is not a
+  // plain zod shape is refused, as is a call whose last argument is not the callback. Extension tools come through
+  // here too (via the host registrar below), so this holds for every edition.
   const registerTool: McpServer["tool"] = (...args: unknown[]) => {
     const name = String(args[0]);
+
+    if (typeof args[args.length - 1] !== "function") {
+      throw new Error(
+        `MCP tool "${name}" must be registered with its callback last`,
+      );
+    }
+
+    const beforeCallback = args.length >= 3 ? args[args.length - 2] : undefined;
+
+    if (
+      typeof beforeCallback === "object" &&
+      beforeCallback !== null &&
+      !Object.values(beforeCallback).every(
+        (value) => value instanceof z.ZodType,
+      )
+    ) {
+      throw new Error(
+        `MCP tool "${name}" passes a non-schema object before its callback; annotations come from TOOL_ANNOTATIONS`,
+      );
+    }
+
     const annotations = Object.hasOwn(TOOL_ANNOTATIONS, name)
       ? TOOL_ANNOTATIONS[name]
       : undefined;
 
     if (annotations === undefined) {
-      throw new Error(`MCP tool "${name}" has no entry in TOOL_ANNOTATIONS`);
+      throw new Error(
+        EXTENSION_TOOL_CATALOG.some((tool) => tool.name === name)
+          ? `MCP tool "${name}" has no entry in TOOL_ANNOTATIONS (add it to EXTENSION_TOOL_ANNOTATIONS in ee/extensions/catalog.ts)`
+          : `MCP tool "${name}" has no entry in TOOL_ANNOTATIONS`,
+      );
     }
 
     const withAnnotations = [
@@ -3329,11 +3400,7 @@ export function buildMcpServer(
     {},
     async () =>
       result({
-        ...getCapabilities({
-          data: dataEnabled,
-          js: jsEnabled,
-          governance: governance !== undefined,
-        }),
+        ...getCapabilities(capabilityGates),
         // Build identity (also on /health) so "which build is this instance running" is answerable from either side.
         build: MCP_BUILD_INFO,
         gitPolicy: GIT_POLICY_NOTE,
@@ -7333,6 +7400,51 @@ export function buildMcpServer(
     }
   }
 
+  // Edition tools (EE: workflows; none in CE). The host's registrar is the only way in, and it enforces the catalog
+  // rather than trusting the edition: an uncatalogued name or a destructive tool is refused (throws), a tool whose
+  // catalog gate is off under this session's gates is skipped (so get_capabilities and the registered set agree), and
+  // everything else goes through the same annotation-enforcing registerTool as the core tools.
+  const registerExtensionTool = ((...args: unknown[]) => {
+    const name = String(args[0]);
+    const entry = EXTENSION_TOOL_CATALOG.find((tool) => tool.name === name);
+
+    if (entry === undefined) {
+      throw new Error(
+        `MCP extension tool "${name}" is not in EXTENSION_TOOL_CATALOG`,
+      );
+    }
+
+    // Both checks run before the gate so a bad tool fails in every configuration, not only where its gate is on.
+    if (!Object.hasOwn(TOOL_ANNOTATIONS, name)) {
+      throw new Error(
+        `MCP tool "${name}" has no entry in TOOL_ANNOTATIONS (add it to EXTENSION_TOOL_ANNOTATIONS in ee/extensions/catalog.ts)`,
+      );
+    }
+
+    const { destructiveHint, readOnlyHint } = TOOL_ANNOTATIONS[name];
+
+    // Extension tools get no governed prepare/confirm or elicitation layer, so nothing destructive may register —
+    // including a non-read-only tool that leaves destructiveHint unset, which MCP defines (and clients treat) as
+    // destructive.
+    if (destructiveHint ?? readOnlyHint !== true) {
+      throw new Error(
+        `MCP extension tool "${name}" is destructive; extension tools cannot be destructive until the extension host offers governed approval`,
+      );
+    }
+
+    if (!gateActive(entry.gate, capabilityGates)) return undefined;
+
+    return (registerTool as (...rest: unknown[]) => RegisteredTool)(...args);
+  }) as ExtensionToolRegistrar;
+
+  registerExtensionTools({
+    registerTool: registerExtensionTool,
+    api,
+    ctx,
+    gates: capabilityGates,
+    result,
+  });
+
   registerInstructions(server);
 
   return server;
@@ -7758,6 +7870,8 @@ export interface McpHttpServerOptions {
   // Operator strict mode (APPSMITH_MCP_STRICT_ELICITATION): requires in-band prompts, refuses relay — see
   // ServerContext.elicitationStrict. Wins over elicitationDisabled.
   elicitationStrict?: boolean;
+  // Override for the edition-gate resolution cap (default EXTENSION_GATES_TIMEOUT_MS); injectable for tests.
+  extensionGatesTimeoutMs?: number;
   // Operator-facing log line sink (default: process.stderr) — see ServerContext.logSink.
   logSink?: (line: string) => void;
   // Session RECORD store shared by every replica (default: in-process, which is correct for exactly one pod). On a
@@ -7980,6 +8094,54 @@ export function createMcpHttpServer(
     }
   }
 
+  // The session's edition gates (resolveExtensionGates; CE resolves none without a network call), resolved LIVE with
+  // the caller's own API client each time a session's server is built — at initialize and on rehydration — and never
+  // stored in or read from the shared session record, so (like isAdmin/organizationId) a Redis writer cannot switch
+  // a gate on. A resolver failure fails closed: every extension gate stays off and the operator sees one log line
+  // carrying only the error's class, never its message (which may echo an upstream body) or the token. So does a
+  // resolver that has not settled within extensionGatesTimeoutMs (logged as "timeout"); its late answer is ignored.
+  const extensionGatesTimeoutMs =
+    options.extensionGatesTimeoutMs ?? EXTENSION_GATES_TIMEOUT_MS;
+
+  async function liveExtensionGates(
+    api: AppsmithApi,
+  ): Promise<Readonly<Record<string, boolean>>> {
+    const timedOut = Symbol("timeout");
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    try {
+      // Only gates that are exactly true survive, whatever shape the resolver returned.
+      const resolved: unknown = await Promise.race([
+        resolveExtensionGates(api),
+        new Promise<typeof timedOut>((resolve) => {
+          timer = setTimeout(() => resolve(timedOut), extensionGatesTimeoutMs);
+        }),
+      ]);
+
+      if (resolved === timedOut) {
+        logSink(
+          "Appsmith MCP could not resolve edition tool gates for a session (timeout); its edition tools stay disabled\n",
+        );
+
+        return {};
+      }
+
+      return Object.fromEntries(
+        Object.entries(
+          typeof resolved === "object" && resolved !== null ? resolved : {},
+        ).filter(([, on]) => on === true),
+      );
+    } catch (error) {
+      logSink(
+        `Appsmith MCP could not resolve edition tool gates for a session (${error instanceof Error ? error.name : typeof error}); its edition tools stay disabled\n`,
+      );
+
+      return {};
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   // The per-session ServerContext fields that are instance configuration rather than session facts.
   function sessionServerContext() {
     return {
@@ -8043,6 +8205,7 @@ export function createMcpHttpServer(
         sessions.set(record.id, local);
       },
     );
+    const extensionGates = await liveExtensionGates(api);
     const mcpServer = buildMcpServer(api, {
       ...sessionServerContext(),
       actorId: record.username,
@@ -8050,6 +8213,7 @@ export function createMcpHttpServer(
       // stored record: a Redis writer must not be able to hand a session admin rights or another tenant.
       isAdmin: identity.isAdmin,
       organizationId: identity.organizationId,
+      extensionGates,
       requestOrigin: record.requestOrigin,
     });
 
@@ -8473,11 +8637,13 @@ export function createMcpHttpServer(
           randomUUID,
           registerSession,
         );
+        const extensionGates = await liveExtensionGates(api);
         const mcpServer = buildMcpServer(api, {
           ...sessionServerContext(),
           actorId: authenticatedUser,
           isAdmin,
           organizationId,
+          extensionGates,
           requestOrigin,
         });
 
