@@ -107,7 +107,7 @@ function Title(props: TitleProps) {
   }, [ref.current, props.width, props.children]);
 
   return (
-    <TitleWrapper ref={ref}>
+    <TitleWrapper className="header-title" ref={ref}>
       {useToolTip && props.children ? (
         <Tooltip
           autoFocus={false}

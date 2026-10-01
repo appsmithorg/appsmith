@@ -326,6 +326,8 @@ export function Table(props: TableProps) {
         borderWidth={props.borderWidth}
         boxShadow={props.boxShadow}
         evenRowColor={props.evenRowColor}
+        headerFontStyle={props.headerFontStyle}
+        headerFontWeight={props.headerFontWeight}
         headerRowColor={props.headerRowColor}
         headerTextColor={props.headerTextColor}
         height={props.height}
