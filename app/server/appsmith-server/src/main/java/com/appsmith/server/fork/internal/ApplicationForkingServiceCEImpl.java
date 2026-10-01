@@ -63,6 +63,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.UnaryOperator;
 
 import static com.appsmith.server.helpers.ce.PolicyUtil.policyMapToSet;
 
@@ -122,8 +123,12 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 .collectList()
                 .cache();
 
-        final Mono<String> updateTargetEnvironmentIdMono = workspaceService
-                .getDefaultEnvironmentId(toWorkspaceId, null)
+        // Resolved once, before anything is written to the destination, so a failure here leaves nothing behind.
+        final Mono<UnaryOperator<ActionDTO>> forkedActionTransformerMono =
+                getForkedActionTransformer(sourceMeta, toWorkspaceId).cache();
+
+        final Mono<String> updateTargetEnvironmentIdMono = forkedActionTransformerMono
+                .then(workspaceService.getDefaultEnvironmentId(toWorkspaceId, null))
                 .doOnNext(targetEnvironmentId -> {
                     targetMeta.setEnvironmentId(targetEnvironmentId);
                 });
@@ -304,6 +309,11 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                                 }
                                                 return Mono.zip(
                                                         actionMono
+                                                                .zipWith(
+                                                                        forkedActionTransformerMono,
+                                                                        (sourceActionDTO, forkedActionTransformer) ->
+                                                                                forkedActionTransformer.apply(
+                                                                                        sourceActionDTO))
                                                                 .flatMap(actionDTO -> {
                                                                     actionDTO.setId(null);
                                                                     // Indicates that source of action creation is fork
@@ -354,6 +364,19 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(appId -> applicationPageService.publish(appId, false).thenReturn(appId))
                 .collectList();
+    }
+
+    /**
+     * Resolves the transform applied to every action as it is forked into {@code toWorkspaceId}. It is resolved once,
+     * before anything is written to the destination, so an implementation can fail the fork when the source holds
+     * references that cannot be carried into the destination workspace. CE actions hold none, so this is identity.
+     *
+     * @param sourceMeta    source workspace and application of the fork
+     * @param toWorkspaceId destination workspace
+     */
+    protected Mono<UnaryOperator<ActionDTO>> getForkedActionTransformer(
+            ForkingMetaDTO sourceMeta, String toWorkspaceId) {
+        return Mono.just(UnaryOperator.identity());
     }
 
     /**
