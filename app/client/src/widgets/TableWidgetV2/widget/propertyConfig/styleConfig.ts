@@ -1,4 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { headerFontWeightValidation } from "../../component/headerFontWeight";
 import { updateColumnStyles } from "../propertyUtils";
 
@@ -229,6 +230,8 @@ export default [
             fnString: headerFontWeightValidation.toString(),
             expected: {
               type: "number (1 to 1000) | light | normal | regular | medium | semibold | semi-bold | bold",
+              example: "700",
+              autocompleteDataType: AutocompleteDataType.NUMBER,
             },
           },
         },
