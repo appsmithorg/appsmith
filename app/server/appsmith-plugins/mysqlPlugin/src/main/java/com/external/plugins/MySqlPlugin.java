@@ -508,7 +508,13 @@ public class MySqlPlugin extends BasePlugin {
                 Map<String, Object> requestData,
                 Map psParams) {
 
-            Statement connectionStatement = connection.createStatement(query);
+            // The MariaDB R2DBC driver uses server-side preparation for CALL even when
+            // useServerPrepStmts is false. The server cannot prepare a CALL followed by
+            // another statement, so use the driver's parameterized text protocol.
+            String statementQuery = TRUE.equals(preparedStatement) && query.regionMatches(true, 0, "CALL", 0, 4)
+                    ? "/*text*/ " + query
+                    : query;
+            Statement connectionStatement = connection.createStatement(statementQuery);
             if (FALSE.equals(preparedStatement) || mustacheValuesInOrder == null || mustacheValuesInOrder.isEmpty()) {
                 return Flux.from(connectionStatement.execute());
             }
