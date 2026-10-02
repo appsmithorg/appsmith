@@ -91,6 +91,13 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
     @JsonView({Views.Public.class, Git.class})
     String icon;
 
+    // Short, optional blurb shown under the application name on workspace cards.
+    // Keep in sync with APP_DESCRIPTION_MAX_LENGTH in the client utils/appDescription.ts.
+    public static final int DESCRIPTION_MAX_LENGTH = 250;
+
+    @JsonView({Views.Public.class, Git.class})
+    String description;
+
     @JsonView(Views.Public.class)
     private String slug;
 
@@ -221,6 +228,7 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
         this.clonedFromApplicationId = application.getId();
         this.color = application.getColor();
         this.icon = application.getIcon();
+        this.description = application.getDescription();
         this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null
                 ? null
                 : new Application.AppLayout(application.getUnpublishedAppLayout().type);
@@ -327,6 +335,34 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
     @Override
     public void setPublishedThemeId(String themeId) {
         this.setPublishedModeThemeId(themeId);
+    }
+
+    // null  -> absent (the sparse update leaves the persisted value untouched)
+    // ""    -> explicitly cleared
+    // text  -> trimmed value
+    public void setDescription(String description) {
+        this.description = description == null ? null : description.trim();
+    }
+
+    /**
+     * Trims and truncates the description to {@link #DESCRIPTION_MAX_LENGTH}. Used on write paths that must not
+     * fail on an oversized value (import, Git checkout, create, fork, clone). Routing through the setter also trims
+     * values written reflectively by Gson. The cut never splits a surrogate pair, so the stored value stays valid
+     * UTF-16 for any downstream UTF-8 encoding.
+     */
+    public void clampDescriptionToMaxLength() {
+        if (this.description == null) {
+            return;
+        }
+        setDescription(this.description);
+        if (this.description.length() <= DESCRIPTION_MAX_LENGTH) {
+            return;
+        }
+        int cut = DESCRIPTION_MAX_LENGTH;
+        if (Character.isHighSurrogate(this.description.charAt(cut - 1))) {
+            cut--;
+        }
+        this.description = this.description.substring(0, cut);
     }
 
     @Override

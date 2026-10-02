@@ -15,6 +15,7 @@ export interface ApplicationPayload {
   name: string;
   color?: string;
   icon?: string;
+  description?: string;
   workspaceId: string;
   defaultPageId: string;
   defaultBasePageId: string;
