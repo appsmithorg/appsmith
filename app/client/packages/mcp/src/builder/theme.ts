@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
+import { RAW_EXPRESSION } from "./schema.js";
 import { canonicalStableSerialize } from "./semantic.js";
 
-const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`/;
 const HEX_COLOR = /^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/;
 const BORDER_RADIUS = /^\d+(?:\.\d+)?(?:px|rem|em)$/;
 const FONT_FAMILY = /^[A-Za-z0-9 ,'-]+$/;

@@ -26,6 +26,13 @@ on:
     branches: [release, master]
     paths:
       - "app/client/packages/mcp/**"
+      # The MCP's widget-property ownership table is pinned against the client widgets' property panes and the
+      # widget factory (prop-owners-drift.test.ts). The authoritative gate for that test is client-unit-tests
+      # (yarn workspaces foreach, feeding ci/merge-gate); this filter only gives a pane change the fast standalone
+      # MCP check (~2 min) without waiting for the full quality-checks run. Not a required check: keep the path
+      # filter and the non-required status together, or a non-matching PR would wait on it forever.
+      - "app/client/src/widgets/**"
+      - "app/client/src/WidgetProvider/factory/helpers.ts"
 
 defaults:
   run:
