@@ -2082,8 +2082,15 @@ export const APP_SETTINGS_CLOSE_TOOLTIP = () => "Close settings panel";
 
 export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
 export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General settings";
-export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () => "App name and icon";
+export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
+  "App name, description and icon";
 export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App name";
+export const GENERAL_SETTINGS_APP_DESCRIPTION_LABEL = () => "App description";
+export const GENERAL_SETTINGS_APP_DESCRIPTION_PLACEHOLDER = () =>
+  "Shown under the app name";
+export const GENERAL_SETTINGS_APP_DESCRIPTION_TOO_LONG = (max: number) =>
+  `Description cannot exceed ${max} characters`;
+export const APP_CARD_DESCRIPTION_PLACEHOLDER = () => "Add a description";
 export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "App name cannot be empty";
 export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
