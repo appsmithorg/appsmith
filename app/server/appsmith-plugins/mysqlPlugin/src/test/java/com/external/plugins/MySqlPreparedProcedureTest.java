@@ -18,7 +18,8 @@ import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.spi.Result;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -96,12 +97,13 @@ class MySqlPreparedProcedureTest {
         }
     }
 
-    @Test
-    void should_returnProcedureRowsAndBindValue_when_preparedCallHasFollowingSelect() {
+    @ParameterizedTest
+    @ValueSource(strings = {"", "/* note */ ", "/* note */ /* another */ ", "# note\n"})
+    void should_returnProcedureRowsAndBindValue_when_preparedCallHasFollowingSelect(String prefix) {
         // Given
         String value = "x'); DROP TABLE users; --";
         ActionConfiguration action = new ActionConfiguration();
-        action.setBody("CALL echo_value({{ value }}); SELECT 1+1;");
+        action.setBody(prefix + "CALL echo_value({{ value }}); SELECT 1+1;");
         action.setPluginSpecifiedTemplates(List.of(new Property("preparedStatement", true)));
 
         Param param = new Param();
