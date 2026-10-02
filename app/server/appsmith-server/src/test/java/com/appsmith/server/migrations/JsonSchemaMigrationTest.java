@@ -86,9 +86,8 @@ public class JsonSchemaMigrationTest {
 
         StepVerifier.create(jsonSchemaMigration.migrateApplicationJsonToLatestSchema(
                         applicationJson, BASE_APPLICATION_ID, "main", RefType.branch))
-                .assertNext(migrated -> assertThat(migrated.getServerSchemaVersion())
-                        .isEqualTo(13)
-                        .isEqualTo(jsonSchemaVersions.getServerVersion()))
+                .assertNext(migrated ->
+                        assertThat(migrated.getServerSchemaVersion()).isEqualTo(jsonSchemaVersions.getServerVersion()))
                 .verifyComplete();
 
         verify(jsonSchemaMigrationHelper).migrateActionReferencesToPortableForm(BASE_APPLICATION_ID, applicationJson);

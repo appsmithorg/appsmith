@@ -128,7 +128,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 getForkedActionTransformer(sourceMeta, toWorkspaceId).cache();
 
         final Mono<String> updateTargetEnvironmentIdMono = forkedActionTransformerMono
-                .then(workspaceService.getDefaultEnvironmentId(toWorkspaceId, null))
+                .then(Mono.defer(() -> workspaceService.getDefaultEnvironmentId(toWorkspaceId, null)))
                 .doOnNext(targetEnvironmentId -> {
                     targetMeta.setEnvironmentId(targetEnvironmentId);
                 });
