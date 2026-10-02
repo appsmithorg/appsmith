@@ -127,6 +127,28 @@ class ForkedActionTransformerTest {
                 .isEmpty();
     }
 
+    @Test
+    @WithUserDetails("api_user")
+    void fork_whenTransformerIsEmpty_writesNothingToDestination() {
+        Workspace source = createWorkspace("transformer-empty-source");
+        Workspace destination = createWorkspace("transformer-empty-destination");
+        Application application = createApplicationWithActions(source, "onlyAction");
+        doReturn(Mono.empty()).when(applicationForkingService).getForkedActionTransformer(any(), anyString());
+
+        StepVerifier.create(fork(application, destination))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) error).getError()).isEqualTo(AppsmithError.INTERNAL_SERVER_ERROR);
+                })
+                .verify();
+
+        assertThat(applicationRepository
+                        .findByWorkspaceId(destination.getId())
+                        .collectList()
+                        .block())
+                .isEmpty();
+    }
+
     private Mono<Application> fork(Application application, Workspace destination) {
         String sourceEnvironmentId = workspaceService
                 .getDefaultEnvironmentId(application.getWorkspaceId(), environmentPermission.getExecutePermission())

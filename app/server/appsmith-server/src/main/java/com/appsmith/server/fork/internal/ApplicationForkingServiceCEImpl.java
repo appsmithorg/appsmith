@@ -124,8 +124,12 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 .cache();
 
         // Resolved once, before anything is written to the destination, so a failure here leaves nothing behind.
-        final Mono<UnaryOperator<ActionDTO>> forkedActionTransformerMono =
-                getForkedActionTransformer(sourceMeta, toWorkspaceId).cache();
+        // The override must yield exactly one transformer: an empty result would let destination creation proceed
+        // while every action's zipWith completes empty and drops the action, forking an application with no actions.
+        final Mono<UnaryOperator<ActionDTO>> forkedActionTransformerMono = getForkedActionTransformer(
+                        sourceMeta, toWorkspaceId)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)))
+                .cache();
 
         final Mono<String> updateTargetEnvironmentIdMono = forkedActionTransformerMono
                 .then(Mono.defer(() -> workspaceService.getDefaultEnvironmentId(toWorkspaceId, null)))
