@@ -93,10 +93,11 @@ describe("lintDsl — geometry", () => {
       widgetName: "Canvas1",
       type: "CANVAS_WIDGET",
       topRow: 0,
-      bottomRow: 40, // inner extent 40 rows
+      bottomRow: 40,
       leftColumn: 0,
       rightColumn: 40,
-      children: [],
+      // The extent comes from the children's rows (40), not the canvas bottomRow.
+      children: [widget({ widgetId: "inside", topRow: 0, bottomRow: 40 })],
     };
     const container: WidgetNode = {
       widgetId: "c1",
@@ -110,6 +111,71 @@ describe("lintDsl — geometry", () => {
     };
 
     expect(rules(canvas([container]))).toContain("container-clips");
+  });
+
+  it("measures the inner extent from the children's rows, not the canvas bottomRow the client stores in pixels", () => {
+    // The Appsmith client rewrites an inner canvas's bottomRow in PIXELS (rows × 10) when it saves a page. A
+    // 45-row container whose canvas reads 450 is NOT clipping its 30-row content — the old row-vs-row comparison
+    // reported "45 < 450" and suggested a ×10 resize.
+    const child = widget({ widgetId: "w1", topRow: 0, bottomRow: 30 });
+    const inner: WidgetNode = {
+      widgetId: "canvas1",
+      widgetName: "Canvas1",
+      type: "CANVAS_WIDGET",
+      topRow: 0,
+      bottomRow: 450, // pixels, as saved by the editor
+      leftColumn: 0,
+      rightColumn: 40,
+      children: [child],
+    };
+    const container: WidgetNode = {
+      widgetId: "c1",
+      widgetName: "Container1",
+      type: "CONTAINER_WIDGET",
+      topRow: 0,
+      bottomRow: 45,
+      leftColumn: 0,
+      rightColumn: 40,
+      children: [inner],
+    };
+
+    expect(rules(canvas([container]))).not.toContain("container-clips");
+
+    // A genuinely clipped container is still caught, from the same children rows, with a row-unit fix.
+    const clipped: WidgetNode = { ...container, bottomRow: 20 };
+    const issue = lintDsl(canvas([clipped])).issues.find(
+      (candidate) => candidate.rule === "container-clips",
+    );
+
+    expect(issue?.msg).toContain("height 20 < inner extent 30 rows");
+    expect(issue?.suggestedFix?.operations).toEqual([
+      { kind: "resize", name: "Container1", rows: 30 },
+    ]);
+  });
+
+  it("does not flag an empty inner canvas whatever its bottomRow says", () => {
+    const inner: WidgetNode = {
+      widgetId: "canvas1",
+      widgetName: "Canvas1",
+      type: "CANVAS_WIDGET",
+      topRow: 0,
+      bottomRow: 400,
+      leftColumn: 0,
+      rightColumn: 40,
+      children: [],
+    };
+    const container: WidgetNode = {
+      widgetId: "c1",
+      widgetName: "Container1",
+      type: "CONTAINER_WIDGET",
+      topRow: 0,
+      bottomRow: 40,
+      leftColumn: 0,
+      rightColumn: 40,
+      children: [inner],
+    };
+
+    expect(rules(canvas([container]))).not.toContain("container-clips");
   });
 });
 
@@ -201,7 +267,7 @@ describe("lintDsl — suggestedFix payloads", () => {
       bottomRow: 40,
       leftColumn: 0,
       rightColumn: 40,
-      children: [],
+      children: [widget({ widgetId: "inside", topRow: 0, bottomRow: 40 })],
     };
     const container: WidgetNode = {
       widgetId: "c1",
@@ -606,5 +672,141 @@ describe("lintArtifact — compiler output is lint-clean", () => {
     expect(diagnostics.errors).toBe(0);
     expect(diagnostics.warnings).toBe(0);
     expect(Object.keys(diagnostics.pages)).toContain("Home");
+  });
+});
+
+describe("lint — narrow-canvas (nested content laid out by an earlier MCP version)", () => {
+  const page = (innerRightColumn: number, childRight: number) =>
+    ({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      topRow: 0,
+      bottomRow: 100,
+      leftColumn: 0,
+      rightColumn: 1242,
+      children: [
+        {
+          widgetId: "m",
+          widgetName: "EditModal",
+          type: "MODAL_WIDGET",
+          detachFromLayout: true,
+          topRow: 0,
+          bottomRow: 40,
+          leftColumn: 16,
+          rightColumn: 48,
+          children: [
+            {
+              widgetId: "mc",
+              widgetName: "ModalCanvas",
+              type: "CANVAS_WIDGET",
+              detachFromLayout: true,
+              topRow: 0,
+              bottomRow: 40,
+              leftColumn: 0,
+              rightColumn: innerRightColumn,
+              children: [
+                {
+                  widgetId: "a",
+                  widgetName: "Title",
+                  type: "INPUT_WIDGET_V2",
+                  topRow: 1,
+                  bottomRow: 5,
+                  leftColumn: 0,
+                  rightColumn: 15,
+                },
+                {
+                  widgetId: "b",
+                  widgetName: "Body",
+                  type: "INPUT_WIDGET_V2",
+                  topRow: 1,
+                  bottomRow: 5,
+                  leftColumn: 16,
+                  rightColumn: childRight,
+                },
+                {
+                  widgetId: "s",
+                  widgetName: "Save",
+                  type: "BUTTON_WIDGET",
+                  topRow: 6,
+                  bottomRow: 10,
+                  leftColumn: 16,
+                  rightColumn: 32,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }) as WidgetNode;
+
+  it("flags a canvas whose stored width equals the parent's span with all children inside it, and offers the scaled relayout", () => {
+    const { issues } = lintDsl(page(32, 32));
+    const issue = issues.find((i) => i.rule === "narrow-canvas")!;
+
+    expect(issue).toBeDefined();
+    expect(issue.msg).toContain("32-column canvas");
+    expect(issue.suggestedFix?.tool).toBe("patch_widgets");
+    // Rightmost first: Body and Save (leftColumn 16) before Title (0); each child gets a move then a resize.
+    expect(issue.suggestedFix?.operations).toEqual([
+      { kind: "move", name: "Body", position: { topRow: 1, leftColumn: 32 } },
+      { kind: "resize", name: "Body", columns: 32 },
+      { kind: "move", name: "Save", position: { topRow: 6, leftColumn: 32 } },
+      { kind: "resize", name: "Save", columns: 32 },
+      { kind: "move", name: "Title", position: { topRow: 1, leftColumn: 0 } },
+      { kind: "resize", name: "Title", columns: 30 },
+    ]);
+  });
+
+  it("stays quiet for an editor-saved canvas (pixel width), a current build (64), and content already widened", () => {
+    for (const [inner, right] of [
+      [456, 32],
+      [64, 32],
+      [32, 60],
+    ] as const) {
+      expect(
+        lintDsl(page(inner, right)).issues.some(
+          (i) => i.rule === "narrow-canvas",
+        ),
+      ).toBe(false);
+    }
+  });
+
+  it("does not flag a lone small widget whose scaled width still fits the span, and is silent after its own fix", () => {
+    const small = page(32, 32) as WidgetNode;
+    const canvas = small.children![0].children![0];
+
+    // One 12-column button in a 32-span canvas: scaled to 24 it still fits, so this is not the narrow fingerprint.
+    canvas.children = [
+      {
+        widgetId: "s",
+        widgetName: "Close",
+        type: "BUTTON_WIDGET",
+        topRow: 1,
+        bottomRow: 5,
+        leftColumn: 0,
+        rightColumn: 12,
+      },
+    ];
+    expect(lintDsl(small).issues.some((i) => i.rule === "narrow-canvas")).toBe(
+      false,
+    );
+
+    // Applying the suggested fix to the flagged fixture widens the children past the span: the rule goes quiet.
+    const flagged = page(32, 32) as WidgetNode;
+    const fix = lintDsl(flagged).issues.find(
+      (i) => i.rule === "narrow-canvas",
+    )!.suggestedFix!;
+    const { dsl: fixed, notes } = applyWidgetPatch(flagged, {
+      operations: fix.operations as never,
+    });
+    const after = lintDsl(fixed).issues;
+
+    // Rightmost-first ordering means no widening ever lands on a sibling: no cascade adjustment is reported.
+    expect(notes).toEqual([]);
+    expect(after.some((i) => i.rule === "narrow-canvas")).toBe(false);
+    expect(
+      after.some((i) => i.rule === "overlap" || i.rule === "off-grid"),
+    ).toBe(false);
   });
 });

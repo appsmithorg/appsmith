@@ -2,6 +2,8 @@ import {
   buildMongoActionDto,
   compileMongoQuery,
   mongoQuerySpecSchema,
+  normalizeIsoDateTime,
+  specUsesParams,
 } from "./mongoQuery.js";
 
 function parse(spec: unknown) {
@@ -41,6 +43,231 @@ describe("compileMongoQuery — structured Mongo FIND/INSERT, no raw injection",
     });
   });
 
+  it("compiles operator clauses from the closed op enum, merging range clauses on one field", () => {
+    const compiled = compileMongoQuery(
+      parse({
+        ...base,
+        operation: "FIND",
+        filter: [
+          // The soft-delete predicate the equality-only grammar could not express.
+          { field: "deleted", op: "ne", value: { literal: true } },
+          { field: "priority", op: "gte", value: { literal: 1 } },
+          { field: "priority", op: "lte", value: { literal: 5 } },
+          {
+            field: "edition",
+            op: "in",
+            value: { literal: ["BUSINESS", "ENTERPRISE"] },
+          },
+          { field: "archivedAt", op: "exists", value: { literal: false } },
+          {
+            field: "ownerId",
+            op: "nin",
+            value: { widget: "msOwners", property: "selectedOptionValues" },
+          },
+        ],
+      }),
+    );
+
+    expect(compiled.find?.query).toBe(
+      '{ "deleted": { "$ne": true }, "priority": { "$gte": 1, "$lte": 5 }, "edition": { "$in": ["BUSINESS","ENTERPRISE"] }, "archivedAt": { "$exists": false }, "ownerId": { "$nin": {{ msOwners.selectedOptionValues }} } }',
+    );
+  });
+
+  it("emits date literals and date-tagged widget refs inside a compiler-owned $date wrapper", () => {
+    const compiled = compileMongoQuery(
+      parse({
+        ...base,
+        operation: "FIND",
+        filter: [
+          {
+            field: "startsAt",
+            op: "lte",
+            value: { date: "2026-10-01T00:00:00Z" },
+          },
+          {
+            field: "endsAt",
+            op: "gte",
+            value: { widget: "dtNow", property: "selectedDate", as: "date" },
+          },
+        ],
+      }),
+    );
+
+    expect(compiled.find?.query).toBe(
+      '{ "startsAt": { "$lte": { "$date": "2026-10-01T00:00:00Z" } }, "endsAt": { "$gte": { "$date": {{ dtNow.selectedDate }} } } }',
+    );
+
+    // INSERT documents take the same date value kinds.
+    const inserted = compileMongoQuery(
+      parse({
+        ...base,
+        operation: "INSERT",
+        document: [
+          { field: "createdAt", value: { date: "2026-09-29" } },
+          {
+            field: "startsAt",
+            value: { widget: "dtStart", property: "selectedDate", as: "date" },
+          },
+        ],
+      }),
+    );
+
+    // A calendar date normalises to midnight UTC: Extended JSON `$date` needs a full date-time with offset.
+    expect(inserted.insert?.documents).toBe(
+      '[{ "createdAt": { "$date": "2026-09-29T00:00:00Z" }, "startsAt": { "$date": {{ dtStart.selectedDate }} } }]',
+    );
+  });
+
+  it("binds run-time params from a JS function as this.params bindings, including as: 'date'", () => {
+    const compiled = compileMongoQuery(
+      parse({
+        ...base,
+        operation: "UPDATE",
+        filter: [{ field: "_id", value: { param: "id" } }],
+        update: [
+          { field: "title", value: { param: "title" } },
+          { field: "startsAt", value: { param: "startsAt", as: "date" } },
+          { field: "instanceIds", value: { param: "instanceIds" } },
+        ],
+      }),
+    );
+
+    expect(compiled.update).toEqual({
+      query: '{ "_id": { "$eq": {{ this.params.id }} } }',
+      update:
+        '{ "$set": { "title": {{ this.params.title }}, "startsAt": { "$date": {{ this.params.startsAt }} }, "instanceIds": {{ this.params.instanceIds }} } }',
+      limit: "SINGLE",
+    });
+
+    // in/nin accept a param (an array the function built).
+    expect(
+      compileMongoQuery(
+        parse({
+          ...base,
+          operation: "FIND",
+          filter: [
+            { field: "edition", op: "in", value: { param: "editions" } },
+          ],
+        }),
+      ).find?.query,
+    ).toBe('{ "edition": { "$in": {{ this.params.editions }} } }');
+
+    for (const param of ["a.b", "a b", "{{x}}", "params['x']"]) {
+      expect(
+        mongoQuerySpecSchema.safeParse({
+          ...base,
+          operation: "FIND",
+          filter: [{ field: "a", value: { param } }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it("normalises every admitted date literal to a full date-time with an offset", () => {
+    expect(normalizeIsoDateTime("2026-09-29")).toBe("2026-09-29T00:00:00Z");
+    expect(normalizeIsoDateTime("2026-09-29T10:30")).toBe(
+      "2026-09-29T10:30:00Z",
+    );
+    expect(normalizeIsoDateTime("2026-09-29T10:30Z")).toBe(
+      "2026-09-29T10:30:00Z",
+    );
+    expect(normalizeIsoDateTime("2026-09-29T10:30+05:30")).toBe(
+      "2026-09-29T10:30:00+05:30",
+    );
+    expect(normalizeIsoDateTime("2026-09-29T10:30:15")).toBe(
+      "2026-09-29T10:30:15Z",
+    );
+    expect(normalizeIsoDateTime("2026-09-29T10:30:15.250Z")).toBe(
+      "2026-09-29T10:30:15.250Z",
+    );
+    expect(normalizeIsoDateTime("2026-09-29T10:30:15-04:00")).toBe(
+      "2026-09-29T10:30:15-04:00",
+    );
+
+    // as: 'date' is limited to a DatePicker's selectedDate (already ISO 8601 with offset at runtime).
+    for (const property of ["text", "formattedDate", "selectedDates"]) {
+      expect(
+        mongoQuerySpecSchema.safeParse({
+          ...base,
+          operation: "FIND",
+          filter: [
+            {
+              field: "a",
+              value: { widget: "W", property, as: "date" },
+            },
+          ],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it("rejects operator/value mismatches, unknown operators, and malformed dates", () => {
+    const cases: unknown[] = [
+      // op outside the enum — no way to smuggle a raw Mongo operator
+      { field: "a", op: "$where", value: { literal: 1 } },
+      { field: "a", op: "regex", value: { literal: "x" } },
+      // a list is only valid with in/nin
+      { field: "a", op: "eq", value: { literal: [1, 2] } },
+      { field: "a", op: "gt", value: { literal: [1, 2] } },
+      // in needs a list or a widget ref, not a scalar
+      { field: "a", op: "in", value: { literal: 1 } },
+      { field: "a", op: "in", value: { literal: [] } },
+      // exists takes a boolean literal only
+      { field: "a", op: "exists", value: { literal: "yes" } },
+      { field: "a", op: "exists", value: { widget: "W", property: "p" } },
+      // dates: ISO only, real calendar dates only, no expression charset
+      { field: "a", value: { date: "next tuesday" } },
+      { field: "a", value: { date: "2026-02-30" } },
+      { field: "a", value: { date: '2026-01-01"}' } },
+      { field: "a", value: { date: "{{ x }}" } },
+      // as: only 'date', and never on a list operator ($in: { $date } is not a list)
+      { field: "a", value: { widget: "W", property: "p", as: "raw" } },
+      {
+        field: "a",
+        op: "in",
+        value: { widget: "W", property: "p", as: "date" },
+      },
+    ];
+
+    for (const clause of cases) {
+      expect(
+        mongoQuerySpecSchema.safeParse({
+          ...base,
+          operation: "FIND",
+          filter: [clause],
+        }).success,
+      ).toBe(false);
+    }
+
+    // The compiler refuses an equality clause mixed with operator clauses on one field (last-key-wins hazard).
+    expect(() =>
+      compileMongoQuery(
+        parse({
+          ...base,
+          operation: "FIND",
+          filter: [
+            { field: "a", value: { literal: 1 } },
+            { field: "a", op: "gt", value: { literal: 0 } },
+          ],
+        }),
+      ),
+    ).toThrow(/mixes an equality clause/);
+
+    // A repeated operator on one field would emit a duplicate JSON key (last one silently wins) — refused.
+    expect(() =>
+      compileMongoQuery(
+        parse({
+          ...base,
+          operation: "FIND",
+          filter: [
+            { field: "a", op: "gt", value: { literal: 1 } },
+            { field: "a", op: "gt", value: { literal: 2 } },
+          ],
+        }),
+      ),
+    ).toThrow(/repeats the operator "gt"/);
+  });
+
   it("defaults an empty filter to {} and omits sort/limit when absent", () => {
     const compiled = compileMongoQuery(parse({ ...base, operation: "FIND" }));
 
@@ -61,9 +288,11 @@ describe("compileMongoQuery — structured Mongo FIND/INSERT, no raw injection",
       }),
     );
 
-    // Bare `{{ }}` (no surrounding quotes): smart substitution supplies JSON typing/quoting at runtime.
+    // A run-time binding in the equality position is wrapped in a compiler-owned `$eq`: MongoDB compares the
+    // operand of `$eq` as a literal, so a viewer who sends `{ "$ne": null }` typed as an object cannot turn the
+    // clause into an operator (the browser chooses the parameter's data type and the server trusts it).
     expect(compiled.find?.query).toBe(
-      '{ "ownerId": {{ Table1.selectedRow.id }} }',
+      '{ "ownerId": { "$eq": {{ Table1.selectedRow.id }} } }',
     );
   });
 
@@ -145,7 +374,7 @@ describe("compileMongoQuery — UPDATE and DELETE", () => {
 
     expect(compiled.command).toBe("UPDATE");
     expect(compiled.update).toEqual({
-      query: '{ "id": {{ Table1.selectedRow.id }} }',
+      query: '{ "id": { "$eq": {{ Table1.selectedRow.id }} } }',
       update: '{ "$set": { "status": "done", "note": {{ NoteInput.text }} } }',
       limit: "SINGLE",
     });
@@ -441,5 +670,89 @@ describe("buildMongoActionDto — the exact Mongo formData action shape", () => 
     });
     // The credential/secret invariant: nothing password-like is ever in the DTO.
     expect(JSON.stringify(dto)).not.toMatch(/password/i);
+  });
+});
+
+describe("run-time bindings in filters (council M3 security)", () => {
+  it("wraps widget and param equality clauses in $eq but leaves literals plain", () => {
+    const compiled = compileMongoQuery(
+      mongoQuerySpecSchema.parse({
+        name: "FindOne",
+        applicationId: "a".repeat(24),
+        pageId: "p".repeat(24),
+        datasourceId: "d".repeat(24),
+        operation: "FIND",
+        collection: "orders",
+        filter: [
+          { field: "status", value: { literal: "open" } },
+          {
+            field: "owner",
+            value: { widget: "Table1", property: "selectedRow.id" },
+          },
+          { field: "batch", value: { param: "batch" } },
+          { field: "since", value: { date: "2026-01-01" } },
+        ],
+      }),
+    );
+
+    expect(compiled.find?.query).toBe(
+      '{ "status": "open", "owner": { "$eq": {{ Table1.selectedRow.id }} }, "batch": { "$eq": {{ this.params.batch }} }, "since": { "$date": "2026-01-01T00:00:00Z" } }',
+    );
+  });
+
+  it("marks a query that reads this.params as MANUAL and never on page load in the DTO", () => {
+    const spec = mongoQuerySpecSchema.parse({
+      name: "FindByParam",
+      applicationId: "a".repeat(24),
+      pageId: "p".repeat(24),
+      datasourceId: "d".repeat(24),
+      operation: "FIND",
+      collection: "orders",
+      filter: [{ field: "owner", value: { param: "owner" } }],
+    });
+    const dto = buildMongoActionDto(spec, compileMongoQuery(spec));
+
+    expect(specUsesParams(spec)).toBe(true);
+    expect(dto.executeOnLoad).toBe(false);
+    expect(dto.runBehaviour).toBe("MANUAL");
+    // The DTO cannot pin the behaviour (the server drops userSetOnLoad on create); the tool handler does that
+    // through the run-behaviour route — see app.test.ts.
+    expect(dto.userSetOnLoad).toBeUndefined();
+
+    const plain = mongoQuerySpecSchema.parse({
+      ...spec,
+      name: "FindAll",
+      filter: [],
+    });
+    const plainDto = buildMongoActionDto(plain, compileMongoQuery(plain));
+
+    expect(specUsesParams(plain)).toBe(false);
+    expect(plainDto.executeOnLoad).toBe(true);
+    expect(plainDto.userSetOnLoad).toBeUndefined();
+  });
+});
+
+describe("as: 'date' in the equality position", () => {
+  it("nests the $date wrapper inside the $eq wrapper", () => {
+    const compiled = compileMongoQuery(
+      mongoQuerySpecSchema.parse({
+        name: "FindOnDay",
+        applicationId: "a".repeat(24),
+        pageId: "p".repeat(24),
+        datasourceId: "d".repeat(24),
+        operation: "FIND",
+        collection: "orders",
+        filter: [
+          {
+            field: "day",
+            value: { widget: "dtDay", property: "selectedDate", as: "date" },
+          },
+        ],
+      }),
+    );
+
+    expect(compiled.find?.query).toBe(
+      '{ "day": { "$eq": { "$date": {{ dtDay.selectedDate }} } } }',
+    );
   });
 });

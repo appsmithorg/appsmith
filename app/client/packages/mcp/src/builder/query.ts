@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { storedId } from "./schema.js";
+import { RAW_EXPRESSION, storedId } from "./schema.js";
 
 // M4 create_query — a STRUCTURED query builder (Security ruling "Option B"). The agent never authors raw SQL or raw
 // `{{ }}`. The compiler emits the SQL text AND every binding from validated identifiers, and every value is emitted
@@ -41,7 +41,6 @@ const propertyPath = z
 // A scalar literal that cannot contain expression/template syntax (mirrors the schema's scalarCell).
 // U+2028/U+2029 are included for the same reason schema.ts documents: JSON.stringify does NOT escape them,
 // so a value carrying one can break out of the emitted string literal on an older JS engine.
-const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`|\u2028|\u2029/;
 const literalScalar = z.union([
   z
     .string()

@@ -301,7 +301,7 @@ describe("design pass — nested canvases and overlap safety", () => {
     assertNoOverlapsDeep(rootDsl(artifact));
   });
 
-  it("pairs fields and right-aligns the synthetic submit inside a form's 40-col canvas", () => {
+  it("pairs fields and right-aligns the synthetic submit inside a form's 64-col inner canvas", () => {
     const artifact = compileApp(
       page([
         {
@@ -322,12 +322,14 @@ describe("design pass — nested canvases and overlap safety", () => {
 
     expect(first.topRow).toBe(last.topRow);
     expect(first.rightColumn).toBeLessThanOrEqual(last.leftColumn);
-    // Form inner canvas is 40 columns; the 16-col submit right-aligns to 40 - 16 - 2 (edge margin) = 22, keeping
-    // it off the canvas edge.
-    expect(submit.leftColumn).toBe(22);
+    // Every inner canvas is a 64-column grid (the client snaps each canvas to 64 whatever its pixel width), so the
+    // 16-col submit right-aligns to 64 - 16 - 2 (edge margin) = 46, off the canvas edge; the pair fills the width.
+    expect(submit.leftColumn).toBe(46);
+    expect(submit.rightColumn).toBe(62);
+    expect(last.rightColumn as number).toBeGreaterThan(40);
   });
 
-  it("falls back to full-width stacking inside a 32-col modal", () => {
+  it("pairs fields inside a 32-col modal too: its inner canvas is 64 columns, not the modal's span", () => {
     const artifact = compileApp(
       page([
         {
@@ -344,10 +346,101 @@ describe("design pass — nested canvases and overlap safety", () => {
     const dsl = rootDsl(artifact);
     const a = widgetNamed(dsl, "AInput")!;
     const b = widgetNamed(dsl, "BInput")!;
+    const modal = widgetNamed(dsl, "EditModal")!;
+    const canvas = (modal.children ?? [])[0]!;
 
+    // Before the fix the modal's content was budgeted at the modal's 32-column span and rendered in the left half
+    // of the modal (deploy-preview finding); the canvas is 64 wide and the two inputs share a row across it.
+    expect(canvas.rightColumn).toBe(64);
+    expect(a.topRow).toBe(b.topRow);
     expect(a.leftColumn).toBe(0);
-    expect(b.leftColumn).toBe(0);
-    expect(b.topRow).toBeGreaterThanOrEqual(a.bottomRow);
+    expect(a.rightColumn).toBeLessThanOrEqual(b.leftColumn);
+    expect(b.rightColumn as number).toBeGreaterThan(32);
+    expect(b.rightColumn as number).toBeLessThanOrEqual(64);
+  });
+
+  it("lays out each tab panel on a 64-column canvas, not the tabs widget's own 40-column span", () => {
+    const artifact = compileApp(
+      page([
+        {
+          type: "tabs",
+          name: "Views",
+          tabs: [
+            {
+              label: "One",
+              children: [
+                { type: "input", name: "AInput", label: "A" },
+                { type: "input", name: "BInput", label: "B" },
+              ],
+            },
+            {
+              label: "Two",
+              children: [{ type: "table", name: "Orders", data: [{ id: 1 }] }],
+            },
+          ],
+        },
+      ]),
+      ids(),
+    );
+    const dsl = rootDsl(artifact);
+    const tabs = widgetNamed(dsl, "Views")!;
+
+    // The tabs widget keeps its template span in the page grid...
+    expect((tabs.rightColumn as number) - (tabs.leftColumn as number)).toBe(40);
+
+    // ...but every tab canvas is a full 64-column grid and its content uses it.
+    for (const canvas of tabs.children ?? []) {
+      expect(canvas.type).toBe("CANVAS_WIDGET");
+      expect(canvas.rightColumn).toBe(64);
+    }
+
+    const a = widgetNamed(dsl, "AInput")!;
+    const b = widgetNamed(dsl, "BInput")!;
+    const orders = widgetNamed(dsl, "Orders")!;
+
+    expect(a.topRow).toBe(b.topRow);
+    expect(b.rightColumn as number).toBeGreaterThan(40);
+    expect(b.rightColumn as number).toBeLessThanOrEqual(64);
+    // A table keeps its 40-column template footprint; it is not clamped below it.
+    expect(orders.rightColumn).toBe(40);
+  });
+
+  it("builds every canvas of a list card on 64 columns, not the list widget's own 40-column span", () => {
+    const artifact = compileApp(
+      page([
+        {
+          type: "list",
+          name: "Cards",
+          source: { query: "getUsers" },
+          image: "avatar",
+          title: "name",
+          subtitle: "email",
+        },
+      ]),
+      ids(),
+    );
+    const dsl = rootDsl(artifact);
+    const list = widgetNamed(dsl, "Cards")!;
+
+    expect((list.rightColumn as number) - (list.leftColumn as number)).toBe(40);
+
+    const mainCanvas = (list.children ?? [])[0]!;
+    const itemContainer = (mainCanvas.children ?? [])[0]!;
+    const innerCanvas = (itemContainer.children ?? [])[0]!;
+
+    expect(mainCanvas.type).toBe("CANVAS_WIDGET");
+    expect(mainCanvas.rightColumn).toBe(64);
+    expect(itemContainer.type).toBe("CONTAINER_WIDGET");
+    expect(itemContainer.rightColumn).toBe(64);
+    expect(innerCanvas.type).toBe("CANVAS_WIDGET");
+    expect(innerCanvas.rightColumn).toBe(64);
+
+    // Template widgets (image, title, subtitle) span the inner canvas.
+    const template = innerCanvas.children ?? [];
+
+    expect(template.length).toBe(3);
+
+    for (const child of template) expect(child.rightColumn).toBe(64);
   });
 
   it("keeps an empty container at its template height", () => {

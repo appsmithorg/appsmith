@@ -73,6 +73,8 @@ function stubApi(): AppsmithApi {
     listActionCollections: jest.fn(),
     createActionCollection: jest.fn(),
     updateActionCollection: jest.fn(),
+    updateActionCollectionBody: jest.fn(),
+    setActionRunBehaviour: jest.fn(),
     deleteActionCollection: jest.fn(),
     validateToken: jest.fn(async () => ({
       username: "user@appsmith.com",
