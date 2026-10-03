@@ -1,20 +1,5 @@
 package com.external.plugins;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.lambda.AWSLambda;
-import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
-import com.amazonaws.services.lambda.model.AWSLambdaException;
-import com.amazonaws.services.lambda.model.FunctionConfiguration;
-import com.amazonaws.services.lambda.model.InvokeRequest;
-import com.amazonaws.services.lambda.model.InvokeResult;
-import com.amazonaws.services.lambda.model.ListAliasesRequest;
-import com.amazonaws.services.lambda.model.ListAliasesResult;
-import com.amazonaws.services.lambda.model.ListFunctionsResult;
-import com.amazonaws.services.lambda.model.ListVersionsByFunctionRequest;
-import com.amazonaws.services.lambda.model.ListVersionsByFunctionResult;
-import com.amazonaws.services.lambda.model.ResourceNotFoundException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -22,6 +7,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.BasePlugin;
@@ -30,19 +16,36 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.lambda.LambdaClient;
+import software.amazon.awssdk.services.lambda.LambdaClientBuilder;
+import software.amazon.awssdk.services.lambda.model.InvokeRequest;
+import software.amazon.awssdk.services.lambda.model.InvokeResponse;
+import software.amazon.awssdk.services.lambda.model.LambdaException;
+import software.amazon.awssdk.services.lambda.model.ListAliasesRequest;
+import software.amazon.awssdk.services.lambda.model.ListAliasesResponse;
+import software.amazon.awssdk.services.lambda.model.ListFunctionsResponse;
+import software.amazon.awssdk.services.lambda.model.ListVersionsByFunctionRequest;
+import software.amazon.awssdk.services.lambda.model.ListVersionsByFunctionResponse;
+import software.amazon.awssdk.services.lambda.model.ResourceNotFoundException;
 
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -57,13 +60,33 @@ public class AwsLambdaPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class AwsLambdaPluginExecutor implements PluginExecutor<AWSLambda> {
+    public static class AwsLambdaPluginExecutor implements PluginExecutor<LambdaClient> {
+
+        /**
+         * A synchronous invoke receives no response bytes until the function returns, so the socket timeout has to
+         * cover the run time of the function being invoked.
+         */
+        static final Duration HTTP_SOCKET_TIMEOUT = Duration.ofSeconds(50);
+
+        static final Duration HTTP_CONNECTION_TIMEOUT = Duration.ofSeconds(10);
+
+        static final String DEFAULT_REGION = "us-east-1";
+
+        static final String INVALID_REGION_MESSAGE =
+                "Invalid AWS region. Please enter a region code such as us-east-1.";
+
+        /** An AWS region code: lowercase letters, digits and single hyphens, ending in a number (e.g. us-gov-west-1). */
+        private static final Pattern REGION_PATTERN = Pattern.compile("[a-z]{2,}(?:-[a-z0-9]+)*-[0-9]{1,2}");
+
+        private static final int MAX_REGION_LENGTH = 32;
+
+        private static final int HTTP_NO_CONTENT = 204;
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
         @Override
         public Mono<ActionExecutionResult> execute(
-                AWSLambda connection,
+                LambdaClient connection,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
@@ -93,7 +116,7 @@ public class AwsLambdaPlugin extends BasePlugin {
                                     AppsmithPluginError.PLUGIN_ERROR, "Unsupported command: " + command))
                     .onErrorMap(
                             ResourceNotFoundException.class,
-                            e -> new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getErrorMessage()))
+                            e -> new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, serviceErrorMessage(e)))
                     .onErrorMap(
                             Exception.class,
                             e -> new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()))
@@ -101,16 +124,25 @@ public class AwsLambdaPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
+        /** The message returned by the Lambda service, without the SDK's request metadata suffix. */
+        private static String serviceErrorMessage(AwsServiceException e) {
+            return e.awsErrorDetails() != null ? e.awsErrorDetails().errorMessage() : e.getMessage();
+        }
+
+        private static String serviceErrorCode(AwsServiceException e) {
+            return e.awsErrorDetails() != null ? e.awsErrorDetails().errorCode() : null;
+        }
+
         @Override
         public Mono<TriggerResultDTO> trigger(
-                AWSLambda connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+                LambdaClient connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
             log.debug(Thread.currentThread().getName() + ": trigger() called for AWS Lambda plugin.");
             // The list* calls below are blocking SDK calls; keep them off the subscribing thread.
             return Mono.fromCallable(() -> listTriggerOptions(connection, request))
                     .subscribeOn(scheduler);
         }
 
-        private TriggerResultDTO listTriggerOptions(AWSLambda connection, TriggerRequestDTO request) {
+        private TriggerResultDTO listTriggerOptions(LambdaClient connection, TriggerRequestDTO request) {
             if (!StringUtils.hasText(request.getRequestType())) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "request type is missing");
@@ -189,8 +221,8 @@ public class AwsLambdaPlugin extends BasePlugin {
             return triggerResultDTO;
         }
 
-        ActionExecutionResult invokeFunction(ActionConfiguration actionConfiguration, AWSLambda connection) {
-            InvokeRequest invokeRequest = new InvokeRequest();
+        ActionExecutionResult invokeFunction(ActionConfiguration actionConfiguration, LambdaClient connection) {
+            InvokeRequest.Builder invokeRequest = InvokeRequest.builder();
 
             // Validate and set function name (required parameter)
             String functionName =
@@ -208,48 +240,61 @@ public class AwsLambdaPlugin extends BasePlugin {
                     getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionAlias", STRING_TYPE);
 
             // Set function name (without qualifier)
-            invokeRequest.setFunctionName(functionName);
+            invokeRequest.functionName(functionName);
 
-            // Use setQualifier for version/alias instead of embedding in function name
+            // Use the qualifier for version/alias instead of embedding in function name
             if (StringUtils.hasText(functionAlias)) {
                 // If alias is specified, use it (alias takes precedence over version)
-                invokeRequest.setQualifier(functionAlias);
+                invokeRequest.qualifier(functionAlias);
             } else if (StringUtils.hasText(functionVersion)) {
                 // If version is specified and no alias, use version
-                invokeRequest.setQualifier(functionVersion);
+                invokeRequest.qualifier(functionVersion);
             }
             // If neither version nor alias is specified, defaults to $LATEST
-            invokeRequest.setPayload(
-                    getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "body", STRING_TYPE));
-            invokeRequest.setInvocationType(
+            String body = getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "body", STRING_TYPE);
+            if (body != null) {
+                invokeRequest.payload(SdkBytes.fromUtf8String(body));
+            }
+            invokeRequest.invocationType(
                     getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "invocationType", STRING_TYPE));
-            InvokeResult invokeResult = connection.invoke(invokeRequest);
+            InvokeResponse invokeResponse = connection.invoke(invokeRequest.build());
 
             ActionExecutionResult result = new ActionExecutionResult();
-            result.setStatusCode(String.valueOf(invokeResult.getStatusCode()));
-            Boolean isExecutionSuccess = (invokeResult.getFunctionError() == null);
+            result.setStatusCode(String.valueOf(invokeResponse.statusCode()));
+            Boolean isExecutionSuccess = (invokeResponse.functionError() == null);
             result.setIsExecutionSuccess(isExecutionSuccess);
-            ByteBuffer responseBuffer = invokeResult.getPayload();
-            String responsePayload = ObjectUtils.isEmpty(responseBuffer)
-                    ? null
-                    : new String(responseBuffer.array(), StandardCharsets.UTF_8);
-            result.setBody(responsePayload);
+            result.setBody(responseBody(invokeResponse.statusCode(), invokeResponse.payload()));
 
             return result;
         }
 
-        ActionExecutionResult listFunctions(ActionConfiguration actionConfiguration, AWSLambda connection) {
-            ListFunctionsResult listFunctionsResult = connection.listFunctions();
-            List<FunctionConfiguration> functions = listFunctionsResult.getFunctions();
+        /**
+         * The invocation result as text: null when the response has no content (HTTP 204, as for a dry run), and
+         * otherwise decoded as UTF-8 with malformed byte sequences replaced by U+FFFD rather than rejected.
+         */
+        private static String responseBody(Integer statusCode, SdkBytes payload) {
+            if (payload == null) {
+                return null;
+            }
+            byte[] bytes = payload.asByteArrayUnsafe();
+            if (bytes.length == 0 && Objects.equals(statusCode, HTTP_NO_CONTENT)) {
+                return null;
+            }
+            return new String(bytes, StandardCharsets.UTF_8);
+        }
+
+        ActionExecutionResult listFunctions(ActionConfiguration actionConfiguration, LambdaClient connection) {
+            // Only the first page of functions is returned.
+            ListFunctionsResponse listFunctionsResponse = connection.listFunctions();
 
             ActionExecutionResult result = new ActionExecutionResult();
-            result.setBody(objectMapper.valueToTree(functions));
+            result.setBody(AwsLambdaResponseMapper.functionConfigurations(listFunctionsResponse.functions()));
             result.setIsExecutionSuccess(true);
             return result;
         }
 
         ActionExecutionResult listFunctionVersions(
-                ActionConfiguration actionConfiguration, AWSLambda connection, String functionName) {
+                ActionConfiguration actionConfiguration, LambdaClient connection, String functionName) {
             if (actionConfiguration != null) {
                 functionName =
                         getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionName", STRING_TYPE);
@@ -260,87 +305,121 @@ public class AwsLambdaPlugin extends BasePlugin {
                         "function name is required for listing versions");
             }
 
-            ListVersionsByFunctionRequest request = new ListVersionsByFunctionRequest();
-            request.setFunctionName(functionName);
+            ListVersionsByFunctionRequest request = ListVersionsByFunctionRequest.builder()
+                    .functionName(functionName)
+                    .build();
 
-            ListVersionsByFunctionResult listVersionsResult = connection.listVersionsByFunction(request);
-            List<FunctionConfiguration> versions = listVersionsResult.getVersions();
+            ListVersionsByFunctionResponse listVersionsResponse = connection.listVersionsByFunction(request);
 
             ActionExecutionResult result = new ActionExecutionResult();
-            result.setBody(objectMapper.valueToTree(versions));
+            result.setBody(AwsLambdaResponseMapper.functionConfigurations(listVersionsResponse.versions()));
             result.setIsExecutionSuccess(true);
             return result;
         }
 
-        ActionExecutionResult listFunctionVersions(ActionConfiguration actionConfiguration, AWSLambda connection) {
+        ActionExecutionResult listFunctionVersions(ActionConfiguration actionConfiguration, LambdaClient connection) {
             String functionName =
                     getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionName", STRING_TYPE);
             return listFunctionVersions(null, connection, functionName);
         }
 
         ActionExecutionResult listFunctionAliases(
-                ActionConfiguration actionConfiguration, AWSLambda connection, String functionName) {
+                ActionConfiguration actionConfiguration, LambdaClient connection, String functionName) {
             if (actionConfiguration != null) {
                 functionName =
                         getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionName", STRING_TYPE);
             }
 
-            ListAliasesRequest request = new ListAliasesRequest();
-            request.setFunctionName(functionName);
+            ListAliasesRequest request =
+                    ListAliasesRequest.builder().functionName(functionName).build();
 
-            ListAliasesResult listAliasesResult = connection.listAliases(request);
-            List<com.amazonaws.services.lambda.model.AliasConfiguration> aliases = listAliasesResult.getAliases();
+            ListAliasesResponse listAliasesResponse = connection.listAliases(request);
 
             ActionExecutionResult result = new ActionExecutionResult();
-            result.setBody(objectMapper.valueToTree(aliases));
+            result.setBody(AwsLambdaResponseMapper.aliasConfigurations(listAliasesResponse.aliases()));
             result.setIsExecutionSuccess(true);
             return result;
         }
 
-        ActionExecutionResult listFunctionAliases(ActionConfiguration actionConfiguration, AWSLambda connection) {
+        ActionExecutionResult listFunctionAliases(ActionConfiguration actionConfiguration, LambdaClient connection) {
             String functionName =
                     getDataValueSafelyFromFormData(actionConfiguration.getFormData(), "functionName", STRING_TYPE);
             return listFunctionAliases(null, connection, functionName);
         }
 
         @Override
-        public Mono<AWSLambda> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<LambdaClient> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for AWS Lambda plugin.");
+            // Building the client can read the AWS profile files, so keep it off the caller thread.
+            return Mono.fromCallable(() -> createLambdaClient(datasourceConfiguration))
+                    .subscribeOn(scheduler);
+        }
+
+        private LambdaClient createLambdaClient(DatasourceConfiguration datasourceConfiguration) {
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             String accessKey = authentication.getUsername();
             String secretKey = authentication.getPassword();
             String authenticationType = authentication.getAuthenticationType();
-            String region =
-                    (String) datasourceConfiguration.getProperties().get(1).getValue();
+            String region = configuredRegion(datasourceConfiguration);
 
             if (!StringUtils.hasText(region)) {
-                region = "us-east-1"; // Default region
+                region = DEFAULT_REGION;
+            }
+            if (!isValidRegion(region)) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, INVALID_REGION_MESSAGE);
             }
 
-            AWSLambdaClientBuilder awsLambdaClientBuilder =
-                    AWSLambdaClientBuilder.standard().withRegion(Regions.fromName(region));
+            // The HTTP client is chosen explicitly so the transport and its timeouts are deterministic. It is passed
+            // as a builder so that the Lambda client owns its connection pool and releases it in close().
+            LambdaClientBuilder lambdaClientBuilder = LambdaClient.builder()
+                    .region(Region.of(region))
+                    .httpClientBuilder(httpClientBuilder(HTTP_SOCKET_TIMEOUT, HTTP_CONNECTION_TIMEOUT));
 
             // If access key and secret key are not provided, use the default credentials provider chain. That will
             // pick up the instance role if running on an EC2 instance.
             if ("accessKey".equals(authenticationType)) {
-                BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
+                AwsBasicCredentials awsCreds = AwsBasicCredentials.create(accessKey, secretKey);
 
-                AWSStaticCredentialsProvider staticCredentials = new AWSStaticCredentialsProvider(awsCreds);
-
-                awsLambdaClientBuilder = awsLambdaClientBuilder.withCredentials(staticCredentials);
+                lambdaClientBuilder =
+                        lambdaClientBuilder.credentialsProvider(StaticCredentialsProvider.create(awsCreds));
             }
 
-            AWSLambda awsLambda = awsLambdaClientBuilder.build();
-            return Mono.just(awsLambda);
+            return lambdaClientBuilder.build();
+        }
+
+        static ApacheHttpClient.Builder httpClientBuilder(Duration socketTimeout, Duration connectionTimeout) {
+            return ApacheHttpClient.builder().socketTimeout(socketTimeout).connectionTimeout(connectionTimeout);
+        }
+
+        /** The region entered for the datasource, or null when none is set. */
+        private static String configuredRegion(DatasourceConfiguration datasourceConfiguration) {
+            List<Property> properties = datasourceConfiguration.getProperties();
+            if (properties == null || properties.size() < 2 || properties.get(1) == null) {
+                return null;
+            }
+            Object value = properties.get(1).getValue();
+            return value == null ? null : String.valueOf(value);
+        }
+
+        private static boolean isValidRegion(String region) {
+            return region.length() <= MAX_REGION_LENGTH
+                    && REGION_PATTERN.matcher(region).matches();
         }
 
         @Override
-        public void datasourceDestroy(AWSLambda connection) {
-            // No need to do anything here.
+        public void datasourceDestroy(LambdaClient connection) {
+            if (connection == null) {
+                return;
+            }
+            // Closing the SDK client releases its HTTP connection pool; keep it off the caller thread.
+            Mono.fromRunnable(connection::close)
+                    .subscribeOn(scheduler)
+                    .subscribe(ignored -> {}, error -> log.error("Error closing AWS Lambda client.", error));
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(AWSLambda connection) {
+        public Mono<DatasourceTestResult> testDatasource(LambdaClient connection) {
             log.debug(Thread.currentThread().getName() + ": testDatasource() called for AWS Lambda plugin.");
             return Mono.fromCallable(() -> {
                         /*
@@ -353,8 +432,8 @@ public class AwsLambdaPlugin extends BasePlugin {
                     })
                     .subscribeOn(scheduler)
                     .onErrorResume(error -> {
-                        if (error instanceof AWSLambdaException
-                                && "AccessDenied".equals(((AWSLambdaException) error).getErrorCode())) {
+                        if (error instanceof LambdaException lambdaException
+                                && "AccessDenied".equals(serviceErrorCode(lambdaException))) {
                             /*
                              * Sometimes a valid account credential may not have permission to run listFunctions action
                              * . In this case `AccessDenied` error is returned.
@@ -400,6 +479,12 @@ public class AwsLambdaPlugin extends BasePlugin {
                 if (!StringUtils.hasText(authentication.getPassword())) {
                     invalids.add("Unable to find an AWS secret key. Please add a valid secret key.");
                 }
+            }
+
+            // A blank region means the default region.
+            String region = configuredRegion(datasourceConfiguration);
+            if (StringUtils.hasText(region) && !isValidRegion(region)) {
+                invalids.add(INVALID_REGION_MESSAGE);
             }
 
             return invalids;
