@@ -666,14 +666,13 @@ public class MySqlPlugin extends BasePlugin {
          * 3. This is used because the output returned to client is based on the type of the query. In case of a
          * select query rows are returned, whereas, in case of any other query the number of updated rows is
          * returned.
+         * 4. Supports Common Table Expressions (CTEs), SHOW, DESCRIBE, EXPLAIN, TABLE, and VALUES queries.
+         *
+         * @param query the SQL query string
+         * @return true if the query returns tabular rows, false if it is a mutation query returning affected rows
          */
         boolean getIsSelectOrShowOrDescQuery(String query) {
-            String[] queries = query.split(";");
-
-            String lastQuery = queries[queries.length - 1].trim();
-
-            return Arrays.asList("select", "show", "describe", "desc")
-                    .contains(lastQuery.trim().split("\\s+")[0].toLowerCase());
+            return QueryUtils.isRowReturningQuery(query);
         }
 
         @Override
