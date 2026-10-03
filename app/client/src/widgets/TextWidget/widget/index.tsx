@@ -63,10 +63,10 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     return {
       text: "Hello {{appsmith.user.name || appsmith.user.email}}",
       fontSize: DEFAULT_FONT_SIZE,
-      fontStyle: "BOLD",
+      fontStyle: "REGULAR",
       textAlign: "LEFT",
       textColor: "#231F20",
-      rows: 4,
+      rows: 1,
       columns: 16,
       widgetName: "Text",
       shouldTruncate: false,
