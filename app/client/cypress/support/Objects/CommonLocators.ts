@@ -377,3 +377,4 @@ export class CommonLocators {
   _settingPaneWrapper = "[role='table']";
   _tableOverlayConnectData = ".t--cypress-table-overlay-connectdata";
 }
+
