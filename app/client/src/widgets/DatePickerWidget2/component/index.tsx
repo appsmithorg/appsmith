@@ -403,6 +403,7 @@ class DatePickerComponent extends React.Component<
                 */
                 ...this.getConditionalPopoverProps(this.props),
               }}
+              canClearSelection={!this.props.isRequired}
               shortcuts={this.props.shortcuts}
               showActionsBar
               timePrecision={
@@ -417,6 +418,7 @@ class DatePickerComponent extends React.Component<
         <PopoverStyles
           accentColor={this.props.accentColor}
           borderRadius={this.props.borderRadius}
+          hideClearButton={this.props.isRequired}
           portalClassName={`${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`}
         />
       </StyledControlGroup>
