@@ -508,16 +508,20 @@ describe(
           "//span[text()='Are you sure you want to delete the file?']",
         ); //verify Delete File dialog appears
 
+        // The shared alias still queues the page-load ListFiles runs nobody
+        // waited on, so scope the two waits below to what Confirm fires:
+        // DeleteFile, then the ListFiles refresh from its success callback.
+        cy.intercept("POST", "/api/v1/actions/execute").as("crudDeleteExecute");
         agHelper.ClickButton("Confirm"); //wait for Delete operation to be successfull, //Verifies 8684
 
         agHelper.AssertElementAbsence(
           ".t--modal-widget",
           Cypress.config().pageLoadTimeout,
         );
-        cy.wait("@postExecute").then(({ response }) => {
+        cy.wait("@crudDeleteExecute").then(({ response }) => {
           expect(response.body.data.isExecutionSuccess).to.eq(true);
         });
-        cy.wait("@postExecute").then(({ response }) => {
+        cy.wait("@crudDeleteExecute").then(({ response }) => {
           expect(response.body.data.isExecutionSuccess).to.eq(true);
         });
 
