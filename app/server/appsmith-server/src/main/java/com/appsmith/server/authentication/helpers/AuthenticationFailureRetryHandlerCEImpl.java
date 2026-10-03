@@ -48,8 +48,10 @@ public class AuthenticationFailureRetryHandlerCEImpl implements AuthenticationFa
 
         // Sanitize the URL to prevent open redirect via a crafted state parameter, then keep only its
         // scheme and authority so the login error path is appended to an origin, never to a path.
-        String originPrefix = getOriginPrefix(RedirectHelper.sanitizeRedirectUrl(
-                candidateUrl, exchange.getRequest().getHeaders()));
+        String originPrefix = getOriginPrefix(
+                RedirectHelper.sanitizeRedirectUrl(
+                        candidateUrl, exchange.getRequest().getHeaders()),
+                exchange.getRequest().getURI().getScheme());
 
         // Construct the redirect URL based on the exception type
         String url = constructRedirectUrl(exception, originPrefix, redirectUrl);
@@ -70,8 +72,12 @@ public class AuthenticationFailureRetryHandlerCEImpl implements AuthenticationFa
 
     // Returns "<scheme>://<authority>" for an absolute http(s) URL, and an empty prefix otherwise, so that the
     // redirect falls back to a relative path on the current host instead of a protocol-relative "//..." URL.
-    private String getOriginPrefix(String url) {
+    // An http URL on an https request also yields an empty prefix, so the redirect never downgrades the scheme.
+    private String getOriginPrefix(String url, String requestScheme) {
         if (url == null || !(url.startsWith("http://") || url.startsWith("https://"))) {
+            return "";
+        }
+        if (url.startsWith("http://") && "https".equalsIgnoreCase(requestScheme)) {
             return "";
         }
         try {

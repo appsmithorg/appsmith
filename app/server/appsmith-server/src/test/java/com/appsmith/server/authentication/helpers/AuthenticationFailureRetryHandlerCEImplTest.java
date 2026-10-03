@@ -105,6 +105,36 @@ class AuthenticationFailureRetryHandlerCEImplTest {
     }
 
     @Test
+    void should_redirectToRelativeLoginPage_when_stateOriginDowngradesHttpsRequestToHttp() {
+        // Given
+        MockServerHttpRequest request = MockServerHttpRequest.get("https://app.example.com" + CALLBACK_PATH)
+                .queryParam("state", "a1b2c3@origin-http://app.example.com/app/my-app/page-1")
+                .header("Host", HOST)
+                .build();
+
+        // When
+        URI location = redirectLocation(request, invalidClientException());
+
+        // Then
+        assertThat(location).hasToString("/user/login?error=true");
+    }
+
+    @Test
+    void should_keepHttpOriginLoginPage_when_requestIsPlainHttp() {
+        // Given
+        MockServerHttpRequest request = MockServerHttpRequest.get("http://app.example.com" + CALLBACK_PATH)
+                .queryParam("state", "a1b2c3@origin-http://app.example.com/app/my-app/page-1")
+                .header("Host", HOST)
+                .build();
+
+        // When
+        URI location = redirectLocation(request, invalidClientException());
+
+        // Then
+        assertThat(location).hasToString("http://app.example.com/user/login?error=true");
+    }
+
+    @Test
     void should_redirectToTrustedOriginLoginPage_when_stateOriginIsCrossHost() {
         // Given
         MockServerHttpRequest request = MockServerHttpRequest.get(CALLBACK_PATH)
