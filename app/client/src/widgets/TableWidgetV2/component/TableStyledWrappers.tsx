@@ -26,6 +26,8 @@ import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
 import type { RowColorStyles, TableVariant } from "../constants";
 import { TableVariantTypes } from "../constants";
+import { resolveHeaderFontWeight } from "./headerFontWeight";
+import { getHeaderEmphasis } from "./headerFontStyle";
 import { Layers } from "constants/Layers";
 
 const BORDER_RADIUS = "border-radius: 4px;";
@@ -205,7 +207,8 @@ export const TableWrapper = styled.div<
       line-height: ${(props) =>
         props.isHeaderVisible ? props.tableSizes.COLUMN_HEADER_HEIGHT : 40}px;
       background: ${(props) => props.headerRowColor || "var(--wds-color-bg)"};
-      font-weight: bold;
+      font-weight: ${(props) =>
+        resolveHeaderFontWeight(props.headerFontWeight)};
     }
     .td {
       min-height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
@@ -289,6 +292,22 @@ export const TableWrapper = styled.div<
     text-overflow: ellipsis;
     overflow: hidden;
     color: ${(props) => props.headerTextColor || Colors.OXFORD_BLUE};
+    font-style: ${(props) =>
+      getHeaderEmphasis(props.headerFontStyle).italic ? "italic" : "normal"};
+    text-decoration: ${(props) =>
+      getHeaderEmphasis(props.headerFontStyle).underline
+        ? "underline"
+        : "none"};
+    /* Italic glyphs lean past the overflow box and clip the last letter. */
+    ${(props) =>
+      getHeaderEmphasis(props.headerFontStyle).italic
+        ? css`
+            .header-title,
+            .header-title span {
+              padding-inline-end: 0.2em;
+            }
+          `
+        : ""}
     padding-left: 10px;
     &.sorted {
       padding-left: 5px;
