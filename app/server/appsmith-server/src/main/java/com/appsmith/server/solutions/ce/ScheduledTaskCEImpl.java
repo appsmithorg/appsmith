@@ -90,7 +90,9 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
             shouldReleaseLock = false)
     @Observed(name = "pingSchedule")
     public void pingSchedule() {
-        if (commonConfig.getIsTelemetryDisabled()) {
+        // The ping is one call per organization. Appsmith Cloud is a single installation with one organization
+        // per customer, so running it there reports the same instance tens of thousands of times every run.
+        if (commonConfig.getIsTelemetryDisabled() || commonConfig.getIsCloudHosting()) {
             return;
         }
 
