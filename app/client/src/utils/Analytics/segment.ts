@@ -147,10 +147,29 @@ class SegmentSingleton {
     this.analytics.track(eventName, eventData);
   }
 
+  /**
+   * Sends an identify call unless this browser session already identified the same user with the same traits.
+   * analytics.js persists the user id across page loads itself, so repeating an unchanged identify on every
+   * load only re-sends the same traits (and fans them out to every downstream tool) for nothing.
+   */
   public async identify(userId: string, traits: UserTraits) {
-    if (this.analytics) {
-      await this.analytics.identify(userId, traits);
+    if (!this.analytics) {
+      return;
     }
+
+    const identity = JSON.stringify({ userId, traits });
+
+    if (
+      this.analytics.user()?.id?.() === userId &&
+      readSessionValue(LAST_IDENTIFY_STORAGE_KEY) === identity
+    ) {
+      log.debug("Identify skipped, unchanged in this session", userId);
+
+      return;
+    }
+
+    await this.analytics.identify(userId, traits);
+    writeSessionValue(LAST_IDENTIFY_STORAGE_KEY, identity);
   }
 
   public async addMiddleware(middleware: MiddlewareFunction) {
@@ -168,6 +187,31 @@ class SegmentSingleton {
     if (this.analytics) {
       this.analytics.reset();
     }
+
+    writeSessionValue(LAST_IDENTIFY_STORAGE_KEY, null);
+  }
+}
+
+const LAST_IDENTIFY_STORAGE_KEY = "appsmith:segment:lastIdentify";
+
+// sessionStorage can be unavailable or throw (privacy modes, quota); identifying again is the safe fallback.
+function readSessionValue(key: string): string | null {
+  try {
+    return window.sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeSessionValue(key: string, value: string | null) {
+  try {
+    if (value === null) {
+      window.sessionStorage.removeItem(key);
+    } else {
+      window.sessionStorage.setItem(key, value);
+    }
+  } catch {
+    // Nothing to do: the next identify simply goes out again.
   }
 }
 

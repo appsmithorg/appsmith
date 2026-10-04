@@ -267,32 +267,42 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     @Override
     public Mono<UserData> updateLastUsedResourceAndWorkspaceList(
             String resourceId, String workspaceId, WorkspaceResourceContext context) {
-        return sessionUserService
-                .getCurrentUser()
-                .zipWhen(this::getForUser)
-                .flatMap(tuple -> {
-                    final User user = tuple.getT1();
-                    final UserData userData = tuple.getT2();
-                    // Update recently used workspace and corresponding application ids
-                    List<RecentlyUsedEntityDTO> recentlyUsedEntities = reorderWorkspacesInRecentlyUsedOrderForUser(
-                            userData.getRecentlyUsedEntityIds(), workspaceId, MAX_RECENT_WORKSPACES_LIMIT);
+        return sessionUserService.getCurrentUser().zipWhen(this::getForUser).flatMap(tuple -> {
+            final User user = tuple.getT1();
+            final UserData userData = tuple.getT2();
+            // Captured before the reorder below mutates the list in place.
+            final String previousWorkspaceId = getMostRecentlyUsedWorkspaceId(userData.getRecentlyUsedEntityIds());
+            // Update recently used workspace and corresponding application ids
+            List<RecentlyUsedEntityDTO> recentlyUsedEntities = reorderWorkspacesInRecentlyUsedOrderForUser(
+                    userData.getRecentlyUsedEntityIds(), workspaceId, MAX_RECENT_WORKSPACES_LIMIT);
 
-                    if (!CollectionUtils.isNullOrEmpty(recentlyUsedEntities)) {
-                        RecentlyUsedEntityDTO latest = recentlyUsedEntities.get(0);
-                        // Get the correct resource id based on the context
-                        List<String> existingResourceIds = getResourceIds(latest, context);
-                        // Add the current applicationId to the list
-                        setResourceIds(
-                                latest,
-                                context,
-                                addIdToRecentList(
-                                        existingResourceIds, resourceId, MAX_RECENT_WORKSPACE_RESOURCE_LIMIT));
-                    }
-                    userData.setRecentlyUsedEntityIds(recentlyUsedEntities);
-                    return Mono.zip(
-                            analyticsService.identifyUser(user, userData, workspaceId), repository.save(userData));
-                })
-                .map(Tuple2::getT2);
+            if (!CollectionUtils.isNullOrEmpty(recentlyUsedEntities)) {
+                RecentlyUsedEntityDTO latest = recentlyUsedEntities.get(0);
+                // Get the correct resource id based on the context
+                List<String> existingResourceIds = getResourceIds(latest, context);
+                // Add the current applicationId to the list
+                setResourceIds(
+                        latest,
+                        context,
+                        addIdToRecentList(existingResourceIds, resourceId, MAX_RECENT_WORKSPACE_RESOURCE_LIMIT));
+            }
+            userData.setRecentlyUsedEntityIds(recentlyUsedEntities);
+            final Mono<UserData> savedUserDataMono = repository.save(userData);
+            // `mostRecentlyUsedWorkspaceId` is the only identify trait this path can change. Repeating the
+            // identify while it is unchanged only re-sends the previous one on every page load.
+            if (workspaceId.equals(previousWorkspaceId)) {
+                return savedUserDataMono;
+            }
+            return Mono.zip(analyticsService.identifyUser(user, userData, workspaceId), savedUserDataMono)
+                    .map(Tuple2::getT2);
+        });
+    }
+
+    private static String getMostRecentlyUsedWorkspaceId(List<RecentlyUsedEntityDTO> recentlyUsedEntities) {
+        if (CollectionUtils.isNullOrEmpty(recentlyUsedEntities)) {
+            return null;
+        }
+        return recentlyUsedEntities.get(0).getWorkspaceId();
     }
 
     protected void setResourceIds(
