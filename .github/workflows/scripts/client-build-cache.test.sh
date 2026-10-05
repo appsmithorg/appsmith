@@ -127,6 +127,15 @@ assert_exit_code "a default bundle without info does not stand in for a build" 3
 assert_output_contains "a default bundle without info is reported" "::notice::" \
   cache_script verify "$WORK_DIR/missing.txt" default "$source_checkout"
 
+grep -v -E '^client_tree=' "$WORK_DIR/default-info.txt" > "$WORK_DIR/no-tree-info.txt"
+assert_exit_code "a bundle whose info has no client tree does not stand in for a build" 3 \
+  cache_script verify "$WORK_DIR/no-tree-info.txt" default "$source_checkout"
+grep -v -E '^variant=' "$WORK_DIR/default-info.txt" > "$WORK_DIR/no-variant-info.txt"
+assert_exit_code "a bundle whose info has no variant is rejected" 1 \
+  cache_script verify "$WORK_DIR/no-variant-info.txt" default "$source_checkout"
+assert_output_contains "a bundle whose info has no variant is reported" "::error::" \
+  cache_script verify "$WORK_DIR/no-variant-info.txt" default "$source_checkout"
+
 echo "outside the client" > "$source_checkout/README.md"
 git -C "$source_checkout" add .
 git -C "$source_checkout" commit --quiet --no-verify -m "outside the client"

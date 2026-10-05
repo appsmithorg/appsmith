@@ -67,7 +67,8 @@ build_info() {
 
 info_value() {
   local info_file="$1" key="$2"
-  grep -E "^${key}=" "$info_file" | head -n 1 | cut -d= -f2-
+  # A key that is absent yields an empty value.
+  { grep -E "^${key}=" "$info_file" || true; } | head -n 1 | cut -d= -f2-
 }
 
 verify() {
