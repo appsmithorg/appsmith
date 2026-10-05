@@ -383,6 +383,14 @@ satisfies.
 
 ## 7. Enforcement
 
+- **Versioning.** Every public route is under a major version, `/api/public/v1` today (conventions
+  §1): changes within `v1` are additive only, and a breaking change ships as `/api/public/v2`
+  alongside `v1` until `v1`'s `Sunset` date. `/api/public/**` in this section is the security
+  matcher, not a route: it deliberately spans every major version, so the credentials, filters and
+  rate limits below apply unchanged to `v1`, a future `v2`, and both during a deprecation window. A
+  token is never tied to a major version. Spanning versions never widens access: every operation in
+  every major version declares the scope it requires (section 4), and an operation without a scope
+  mapping is denied, so a new `v2` route cannot ship unguarded.
 - `/api/public/**` is served by its own stateless `SecurityWebFilterChain` in a new CE-owned
   configuration class, laid out like `CsrfConfigCE` and `CsrfConfig` (an unannotated CE base plus a
   CE subclass that EE overrides; `CsrfConfig` carries `@Component`): an unannotated

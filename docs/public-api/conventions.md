@@ -141,7 +141,12 @@ the UI never substitutes for the check.
   `404`.
 - Clients retry only on `429`, `409 idempotency_key_in_flight`, `502`, `503` and `504`, honouring
   `Retry-After` when present and exponential backoff otherwise, and always resend the same
-  `Idempotency-Key`. A plain `409 conflict` is never retried unchanged.
+  `Idempotency-Key`, except on the credential-issuing operations in the carve-out above: those are
+  retried without the header. A `429` is rejected before the operation runs (section 3) and a
+  `503` changes no state (`identity.md` §6), so either retry is safe. On a `502` or `504` the token
+  may already have been issued: the client lists its tokens and revokes any it did not receive
+  before retrying. An unreceived token's secret is never exposed, but it stays valid until revoked
+  or expired and counts against the caps (`identity.md` §3 and §4). A plain `409 conflict` is never retried unchanged.
 
 ## 7. Side-effect disclosure
 
