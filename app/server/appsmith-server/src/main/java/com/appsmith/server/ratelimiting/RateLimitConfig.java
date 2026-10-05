@@ -17,7 +17,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.time.Duration;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -97,9 +96,17 @@ public class RateLimitConfig {
 
     private static String getBucketIdentifier(String apiIdentifier, String userId) {
         String canonicalUserId = RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API.equals(apiIdentifier)
-                ? userId.toUpperCase(Locale.ROOT).toLowerCase(Locale.ROOT)
+                ? canonicalizeLoginIdentity(userId)
                 : userId;
         return apiIdentifier + canonicalUserId;
+    }
+
+    private static String canonicalizeLoginIdentity(String userId) {
+        StringBuilder canonicalUserId = new StringBuilder(userId.length());
+        userId.codePoints()
+                .map(codePoint -> Character.toLowerCase(Character.toUpperCase(codePoint)))
+                .forEachOrdered(canonicalUserId::appendCodePoint);
+        return canonicalUserId.toString();
     }
 
     private static BucketConfiguration createBucketConfiguration(Duration refillDuration, int limit) {

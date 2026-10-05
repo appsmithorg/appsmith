@@ -157,6 +157,24 @@ public class LoginRateLimitAuthGuardTest {
     }
 
     @Test
+    @DisplayName("login buckets preserve identities that authentication distinguishes")
+    void loginBuckets_preserveDistinctUnicodeIdentities() {
+        String suffix = "-" + UUID.randomUUID() + "@example.com";
+        String unicodeIdentity = "stra\u00DFe" + suffix;
+        String asciiIdentity = "strasse" + suffix;
+
+        for (int i = 0; i < LOGIN_ATTEMPT_LIMIT; i++) {
+            StepVerifier.create(rateLimitService.tryIncreaseCounter(BUCKET_KEY_FOR_LOGIN_API, unicodeIdentity))
+                    .expectNext(true)
+                    .verifyComplete();
+        }
+
+        StepVerifier.create(rateLimitService.tryIncreaseCounter(BUCKET_KEY_FOR_LOGIN_API, asciiIdentity))
+                .expectNext(true)
+                .verifyComplete();
+    }
+
+    @Test
     @DisplayName("non-login buckets preserve identity case")
     void nonLoginBucket_preservesIdentityCase() {
         String identity = "case-sensitive-" + UUID.randomUUID();
