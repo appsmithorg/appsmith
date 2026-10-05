@@ -36,8 +36,6 @@ public class S3ErrorMessages extends BasePluginErrorMessages {
             "Appsmith has encountered an unexpected error while fetching url from AmazonS3 after file "
                     + "creation. Please reach out to Appsmith customer support to resolve this.";
 
-    public static final String FILE_UPLOAD_INTERRUPTED_ERROR_MSG = "File upload interrupted.";
-
     public static final String MANDATORY_FIELD_MISSING_ERROR_MSG =
             "At least one of the mandatory fields in S3 query creation form is empty - 'Action'/"
                     + "'Bucket name'/'File path'/'Content'. Please fill all the mandatory fields and try "
@@ -88,6 +86,11 @@ public class S3ErrorMessages extends BasePluginErrorMessages {
     public static final String INCORRECT_S3_ENDPOINT_URL_ERROR_MSG = "Your S3 endpoint"
             + " URL seems to be incorrect for the selected S3 service provider. Please check your endpoint URL "
             + "and the selected S3 service provider.";
+
+    public static final String INVALID_REGION_ERROR_MSG = "The region must contain only letters, digits and hyphens,"
+            + " at most 63 characters, for example 'us-east-1'. If your MinIO server is configured with a region name"
+            + " in another form, configure it with a region name in this form and enter that name in the 'Region'"
+            + " field.";
 
     public static final String FILE_CANNOT_BE_DELETED_ERROR_MSG = "One or more files could not be deleted.";
 
