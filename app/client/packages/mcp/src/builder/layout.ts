@@ -138,6 +138,9 @@ export function createRootCanvas(): WidgetNode {
   };
 }
 
+// An inner canvas's `rightColumn` is NOMINAL and never read as a width: the client rewrites it with the container's
+// pixel width at render and snaps every canvas to the 64-column grid (occupancy.canvasColumns ignores it). Three
+// values exist in the wild (editor: pixels; MCP before M6: the parent span; now: 64); none may be read as columns.
 export function createInnerCanvas(
   widgetId: string,
   widgetName: string,
@@ -273,4 +276,52 @@ export function resolvePlacement(
   }
 
   return { canvas: root, topRow: nextFreeRow(root.children ?? []) };
+}
+
+// A Tabs widget's tabs, in display order (the client sorts `tabsObj` entries by `index`).
+export interface TabEntry {
+  id: string;
+  label: string;
+  index: number;
+  isVisible: boolean;
+}
+
+export function tabEntriesOf(node: WidgetNode): TabEntry[] {
+  if (node.type !== "TABS_WIDGET") return [];
+
+  const tabsObj = node.tabsObj;
+
+  if (
+    tabsObj === null ||
+    typeof tabsObj !== "object" ||
+    Array.isArray(tabsObj)
+  ) {
+    return [];
+  }
+
+  const entries: TabEntry[] = [];
+
+  for (const [id, raw] of Object.entries(tabsObj as Record<string, unknown>)) {
+    const tab = raw as {
+      label?: unknown;
+      index?: unknown;
+      isVisible?: unknown;
+    } | null;
+
+    if (tab !== null && typeof tab.label === "string") {
+      entries.push({
+        id,
+        label: tab.label,
+        index:
+          typeof tab.index === "number" ? tab.index : Number.MAX_SAFE_INTEGER,
+        isVisible: tab.isVisible !== false,
+      });
+    }
+  }
+
+  return entries.sort((a, b) => a.index - b.index);
+}
+
+export function tabLabelsOf(node: WidgetNode): string[] {
+  return tabEntriesOf(node).map((tab) => tab.label);
 }

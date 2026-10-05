@@ -1,6 +1,6 @@
 import { z } from "zod";
+import { RAW_EXPRESSION } from "./schema.js";
 
-const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`/;
 const APP_OR_PAGE_ID = /^[A-Za-z0-9]{24,50}$/;
 const PAGE_NAME = /^[A-Za-z0-9][A-Za-z0-9 _-]*$/;
 const REVISION = /^[a-f0-9]{64}$/;

@@ -1,3 +1,8 @@
+import { extensionCapabilities } from "../ee/extensions/capabilities.js";
+import {
+  EXTENSION_GATE_REQUIREMENTS,
+  EXTENSION_TOOL_CATALOG,
+} from "../ee/extensions/catalog.js";
 import { GRID_COLUMNS, ROW_HEIGHT } from "./layout.js";
 import { listPresets } from "./presets.js";
 
@@ -28,7 +33,7 @@ export const WIDGET_CATALOG = [
     type: "input",
     fields: {
       label: "string",
-      inputType: "TEXT | NUMBER | EMAIL | PASSWORD",
+      inputType: "TEXT | NUMBER | EMAIL | PASSWORD | MULTI_LINE_TEXT",
       defaultValue:
         "{ table: '<tableWidget>', column: '<column>' } — prefill from the selected row (edit forms)",
       validation:
@@ -436,7 +441,7 @@ export const WIDGET_CATALOG = [
 
 // Gate under which a tool is registered. Kept as the SINGLE source of truth so get_capabilities can never drift from
 // what buildMcpServer actually registers (item J). When a tool is added/removed, update this list.
-type ToolGate =
+type CoreToolGate =
   | "always"
   | "governance"
   | "data"
@@ -444,13 +449,28 @@ type ToolGate =
   | "js"
   | "js_governance";
 
+// An edition gate (ee/extensions/catalog.ts; extension tools only): on only when the session's resolved extension
+// gates say <name> is exactly true (see resolveExtensionGates in ce/extensions/tools.ts).
+type ExtensionToolGate = `extension:${string}`;
+
+export type ToolGate = CoreToolGate | ExtensionToolGate;
+
 export interface CapabilityGates {
   data: boolean;
   js: boolean;
   governance: boolean;
+  // The session's edition gates, keyed by <name> of "extension:<name>". Absent or not exactly true means off.
+  extensions?: Readonly<Record<string, boolean>>;
 }
 
-export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
+export interface ToolCatalogEntry {
+  name: string;
+  gate: ToolGate;
+  summary: string;
+}
+
+// Core tools take only core gates; "extension:<name>" gates are for EXTENSION_TOOL_CATALOG entries.
+const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
   [
     // Always-on: discovery, spec authoring, and safe reads.
     {
@@ -503,7 +523,7 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
       name: "wire_event",
       gate: "always",
       summary:
-        "wire a widget event to a safe action or a 2-5 statement list (chainable onSuccess/onError; appendToStore/clearStoreKey accumulate query rows in the store)",
+        "wire a widget event to a safe action or a 2-5 statement list (chainable onSuccess/onError; appendToStore/clearStoreKey accumulate query rows in the store; { call: { object, function, args? } } invokes an existing JS-object function with literal or widget-property arguments)",
     },
     { name: "inspect_page", gate: "always", summary: "lint a live page" },
     {
@@ -634,7 +654,8 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     {
       name: "create_mongo_query",
       gate: "data",
-      summary: "structured MongoDB find/insert/update/delete query",
+      summary:
+        "structured MongoDB find/insert/update/delete query (filters: eq/ne/gt/gte/lt/lte/in/nin/exists; BSON date values)",
     },
     {
       name: "create_sheets_query",
@@ -714,17 +735,20 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     {
       name: "read_js_object",
       gate: "js",
-      summary: "safe JS-object metadata + revisions",
+      summary:
+        "JS-object metadata + revisions (compiled source for MCP-authored objects)",
     },
     {
       name: "create_js_object",
       gate: "js_governance",
-      summary: "create a restricted JS object (governed)",
+      summary:
+        "create a restricted JS object from a declarative definition: constants + functions with params, a closed statement vocabulary (let/set, run with params, if/else, forEach, throw, return, showAlert, storeValue, resetWidget) and a bounded expression tree (string/array/number/date/boolean functions, comparisons, widget/query/store refs) — no raw JS (governed)",
     },
     {
       name: "update_js_object",
       gate: "js_governance",
-      summary: "update a restricted JS object (governed)",
+      summary:
+        "update a restricted JS object from a definition: start from the `definition` read_js_object returns and send all functions back (governed)",
     },
     {
       name: "prepare_delete_js_object",
@@ -739,7 +763,47 @@ export const TOOL_CATALOG: { name: string; gate: ToolGate; summary: string }[] =
     },
   ];
 
-function gateActive(gate: ToolGate, gates: CapabilityGates): boolean {
+// Core tools plus the edition's (ee/extensions/catalog.ts; none in CE). An extension tool may never shadow a core one,
+// and every edition gate it uses must say what enables it, or disabledCapabilities could not tell the user.
+for (const tool of EXTENSION_TOOL_CATALOG) {
+  if (CORE_TOOL_LIST.some((core) => core.name === tool.name)) {
+    throw new Error(`MCP extension tool "${tool.name}" collides with core`);
+  }
+
+  if (
+    isExtensionGate(tool.gate) &&
+    !Object.hasOwn(EXTENSION_GATE_REQUIREMENTS, extensionGateName(tool.gate))
+  ) {
+    throw new Error(
+      `MCP extension tool "${tool.name}" uses gate "${tool.gate}", which has no EXTENSION_GATE_REQUIREMENTS entry`,
+    );
+  }
+}
+
+export const TOOL_CATALOG: ToolCatalogEntry[] = [
+  ...CORE_TOOL_LIST,
+  ...EXTENSION_TOOL_CATALOG,
+];
+
+function isExtensionGate(gate: ToolGate): gate is ExtensionToolGate {
+  return gate.startsWith("extension:");
+}
+
+function extensionGateName(gate: ExtensionToolGate): string {
+  return gate.slice("extension:".length);
+}
+
+// Exported for the extension host in buildMcpServer, which registers an extension tool only when its gate is active.
+export function gateActive(gate: ToolGate, gates: CapabilityGates): boolean {
+  // Fail closed: an edition gate is on only when the session's resolved gates hold exactly true for it (an own key,
+  // so a name like "constructor" can never read through to Object.prototype).
+  if (isExtensionGate(gate)) {
+    const extensions = gates.extensions ?? {};
+    const name = extensionGateName(gate);
+
+    return Object.hasOwn(extensions, name) && extensions[name] === true;
+  }
+
   switch (gate) {
     case "always":
       return true;
@@ -762,7 +826,7 @@ function gateActive(gate: ToolGate, gates: CapabilityGates): boolean {
 // act on), with the exact self-hosted env var / backend in parentheses. On Appsmith Cloud the end user cannot set
 // these — the ask still correctly points at "your Appsmith administrator".
 const GATE_REQUIREMENTS: Record<
-  Exclude<ToolGate, "always">,
+  Exclude<CoreToolGate, "always">,
   { requires: string; provides: string }
 > = {
   governance: {
@@ -807,7 +871,10 @@ function disabledCapabilities(gates: CapabilityGates) {
   for (const tool of TOOL_CATALOG) {
     if (tool.gate === "always" || gateActive(tool.gate, gates)) continue;
 
-    const requirement = GATE_REQUIREMENTS[tool.gate];
+    // Edition gates carry their own requirement text (presence checked at load, above).
+    const requirement = isExtensionGate(tool.gate)
+      ? EXTENSION_GATE_REQUIREMENTS[extensionGateName(tool.gate)]
+      : GATE_REQUIREMENTS[tool.gate];
     const group = groups.get(tool.gate) ?? { ...requirement, tools: [] };
 
     group.tools.push(tool.name);
@@ -821,8 +888,7 @@ export function getCapabilities(
   gates: CapabilityGates = { data: false, js: false, governance: false },
 ) {
   const disabledGroups = disabledCapabilities(gates);
-
-  return {
+  const core = {
     description:
       "Build and safely modify Appsmith apps. The MCP layer auto-places widgets on a 64-column grid and compiles to " +
       "real Appsmith artifacts via the ACL-enforced API. You never author raw widget DSL, SQL, or bindings.",
@@ -845,20 +911,32 @@ export function getCapabilities(
         "{ operations: [{ kind: 'update', name: '<widget>', props: {...} } | { kind: 'move', name, parent?, position?, strict? } | { kind: 'resize', name, rows?, columns?, strict? } | { kind: 'remove', name }] }",
       move: "parent: '<containerWidget>' reparents; position: { topRow, leftColumn } places on the page grid (rows/columns, see `grid`) — set the same topRow as a sibling to sit widgets side by side. At least one of parent/position is required. NOT the build spec's placement { after/inside } — read the page first to learn current positions. Occupancy-aware: a position that lands on another widget is REPAIRED to the nearest free spot below (the change records requestedPosition vs the applied position, and the result carries a note) unless strict: true, which rejects with the colliding widget names and the nearest free position so one retry can succeed. Reparenting always lands at the nearest free spot in the destination canvas and the landing position is recorded in changes (it is no longer carried over blindly). A modal (or a subtree containing one) can never be moved under another modal's canvas — modals are page-level overlays.",
       resize:
-        "{ kind: 'resize', name, rows?, columns?, strict? } — set a widget's span in grid units (integers >= 1; at least one of rows/columns). Growing into occupied cells pushes the colliding below-siblings down (strict: true rejects with their names instead); width growth past the canvas is rejected with the available columns; shrinking a container/form/tabs below its children is rejected with the smallest size that fits them. Modals translate rows into their pixel height (rows × grid.rowHeightPx) — modal columns are not resizable.",
+        "{ kind: 'resize', name, rows?, columns?, strict? } — set a widget's span in grid units (integers >= 1; at least one of rows/columns). Growing into occupied cells pushes the colliding below-siblings down (strict: true rejects with their names instead); width growth past the canvas is rejected with the available columns; shrinking a container/form/tabs below its children's ROWS is rejected with the smallest height that fits them (columns are free: nested content lives on the inner canvas's own 64-column grid, which scales to the container's width). Modals translate rows into their pixel height (rows × grid.rowHeightPx) — modal columns are not resizable.",
       overlapPolicy:
         "Any layout mutation whose result would INTRODUCE overlapping widgets is rejected with code 'overlap_introduced', the offending name pairs, and a ready-to-apply suggestedFix ({ tool: 'patch_widgets', operations: [...] }). Pre-existing overlaps on a page never block edits. Containers/forms/tabs auto-grow to fit new content and push widgets below them down; every automatic adjustment is reported in changes/notes.",
       updateProps: {
         literals:
-          "text, label, inputType, options, title, image, chartType, chartName, defaultText, placeholderText, dateFormat, isRequired, isDisabled, isVisible, oddRowColor, evenRowColor, isVisibleSearch, enableClientSideSearch, isVisibleFilters, isSortable, isVisibleDownload, isVisiblePagination",
+          "text, label (caption of input/checkbox/switch/radio/datepicker/filepicker), labelText (caption of select/multiselect), inputType (TEXT|NUMBER|EMAIL|PASSWORD|MULTI_LINE_TEXT), options, title, image, chartType, chartName, defaultText, placeholderText, dateFormat, isRequired, isDisabled, isVisible, animateLoading, tabOrder (focusable widgets), defaultCheckedState (checkbox), defaultSwitchState (switch), defaultOptionValue (select/radio: one value; multiselect: an array). Every family-specific literal is checked against the widget's real type (all 46 buildable widget types: the shared style and label keys also apply to currency/phone inputs, tree selects, sliders, checkbox/switch groups, icon/menu buttons, code scanner, statbox, video, iframe, JSON form, map, camera and audio recorder wherever their panes carry them) and refused on a mismatch, never written as a dead property. Setting a literal on a style prop replaces its theme binding.",
+        literalStyles:
+          "borderColor, borderWidth (0-50), borderRadius (none|M|L or 0px|0.375rem|1.5rem), boxShadow (none|S|M|L or the theme's CSS value), accentColor, buttonColor (button/filepicker), textColor (text/table), backgroundColor (text/container/form/modal/tabs/list), labelTextColor, labelTextSize (0.875rem|1rem|1.25rem|1.875rem|3rem|3.75rem), labelStyle (BOLD | ITALIC | 'BOLD,ITALIC' | '' to clear), labelPosition (Auto|Top|Left; checkbox/switch: Left|Right), labelAlignment (left|right), labelWidth (0-64 grid columns), alignWidget (checkbox/switch: LEFT|RIGHT), alignment (radio: left|right), labelTooltip, tooltip (input/button; plain text, no markup). Colors are literal hex / rgb() / hsl() / named — never url() or a binding. image / defaultImage are absolute http(s) URLs (normalised; no quotes, parentheses or whitespace), never data: or free text.",
+        literalTable:
+          "defaultSelectedRowIndex (while multiRowSelection is off; -1 = no default row), defaultSelectedRowIndices (while multiRowSelection is on), multiRowSelection (set it in the same update to switch modes), primaryColumnId, defaultSearchText, serverSidePaginationEnabled, infiniteScrollEnabled, enableServerSideFiltering, allowAddNewRow, defaultNewRow ({ column: literal }), canFreezeColumn, delimiter (, ; | or tab), inlineEditingSaveOption (ROW_LEVEL|CUSTOM), compactMode (SHORT|DEFAULT|TALL), textSize (0.875rem|1rem|1.25rem|1.875rem), fontStyle (BOLD | ITALIC | 'BOLD,ITALIC' | ''), horizontalAlignment (LEFT|CENTER|RIGHT), verticalAlignment (TOP|CENTER|BOTTOM), cellBackground, headerRowColor, headerTextColor, oddRowColor, evenRowColor, variant (DEFAULT|VARIANT2|VARIANT3), isVisibleSearch, enableClientSideSearch, isVisibleFilters, isSortable, isVisibleDownload, isVisiblePagination",
+        literalByWidget:
+          "text: overflow (NONE|SCROLL|TRUNCATE), fontFamily (System Default|Nunito Sans|Poppins|Inter|Montserrat|Noto Sans|Open Sans|Roboto|Rubik|Ubuntu), fontSize (0.875rem…3.75rem), textAlign (LEFT|CENTER|RIGHT), fontStyle, disableLink, truncateButtonColor · input: maxChars, minNum, maxNum, rtl, iconName (kebab-case Blueprint icon), iconAlign (left|right), isSpellCheck, showStepArrows, autoFocus, shouldAllowAutofill, allowFormatting, resetOnSubmit · select/multiselect: isFilterable, serverSideFiltering, rtl, allowSelectAll (multiselect) · button: buttonVariant (PRIMARY|SECONDARY|TERTIARY), placement (START|BETWEEN|CENTER), iconName, iconAlign, disabledWhenInvalid, resetFormOnClick · image: defaultImage, objectFit (contain|cover|auto), maxZoomLevel (1|2|4|8|16), enableRotation, enableDownload · container/form/modal/tabs: shouldScrollContents; modal: canOutsideClickClose; tabs: shouldShowTabs, defaultTab · list: itemSpacing (0-16), serverSidePagination, defaultSelectedItem · datepicker: defaultDate, minDate, maxDate (ISO 8601), firstDayOfWeek (0-6), timePrecision (None|minute|second), shortcuts, closeOnSelection · chart: seriesName, xAxisName, yAxisName, allowScroll, showDataPointLabel, setAdaptiveYMin, labelOrientation (auto|slant|rotate|stagger) · radio: isInline · filepicker: allowedFileTypes (array of *|image/*|video/*|audio/*|text/*|.doc|image/jpeg|.png), fileDataType (Base64|Text|Binary|Array), dynamicTyping, maxNumFiles, maxFileSize (MB, 1-200)",
         tableData:
           "{ query: '<queryName>', field?: '<responsePath>', clearWhenEmpty?: '<inputWidget>' } OR { store: '<storeKey>' } — bind an EXISTING table's rows to a query, or to a store key accumulated by wire_event's appendToStore (session-only). This is the patch-path name for the build spec's `source`; read_semantic_page also reports it as tableData.",
         source:
           "{ table: '<Table>', column: '<col>' } — selected-row display binding on a text widget. NOT the table data binding (use tableData for that).",
         defaultValue:
           "{ table: '<Table>', column: '<col>' } — selected-row prefill on an input widget",
+        defaultFrom:
+          "{ widget: '<Widget>', property: '<path>' } OR { query: '<queryName>', field?: '<responsePath>' } — dynamic default for an input/select/multiselect/radio/checkbox/switch/datepicker/table, compiled onto its own default prop (defaultText / defaultOptionValue / defaultCheckedState / defaultSwitchState / defaultDate; a table's defaultSelectedRowIndex, or defaultSelectedRowIndices while multiRowSelection is on)",
         visibleWhen:
           "{ control: '<widget>', equals: <literal> } | { rowSelected: '<table>' } | { notEmpty: '<input>' }",
+        reorderTabs:
+          "['<tab label>', …] on a TABS_WIDGET (up to 20 tabs) — the widget's existing tabs in the wanted order (every tab exactly once; read them from read_semantic_page's `tabs`, which is absent when a tab label carries a binding — such a widget cannot be reordered here). Only each tab's index changes; tabs are never created, dropped or renamed here. Hidden tabs are included in `tabs` (and listed separately in `tabsHidden`) and must be listed too. `defaultTab` must name one of those tabs.",
+        tabOrder:
+          "keyboard focus order (Accessibility > Tab order): an integer 1–1000 on any focusable widget, or null to return to automatic order. Automatic order is top-to-bottom then left-to-right; numbered widgets are focused first (lowest number first), the rest follow automatically. Set it only to override the automatic order, e.g. a sidebar form whose Save button should come straight after the last field. Absent means automatic (null clears the key). A modal itself is never inside a tab scope, so tabOrder on the modal widget has no effect; set it on the widgets inside the modal.",
         validation: "input validation spec",
         disableWhenInvalid: "boolean (button)",
       },
@@ -873,6 +951,8 @@ export function getCapabilities(
       dataLayer: gates.data,
       restrictedJsObjects: gates.js,
       governance: gates.governance,
+      // The session's edition gates (ee/extensions/catalog.ts); always {} in CE.
+      extensions: gates.extensions ?? {},
     },
     // Capabilities that EXIST in this server but are not registered under the current configuration. If the user asks
     // for something here (datasources, queries, JS objects, publish, ...), don't say it's impossible — relay each
@@ -887,10 +967,6 @@ export function getCapabilities(
     governanceNote: gates.governance
       ? "Mutations are locked, revision-checked, and audited; destructive/high-impact operations require a one-time confirmation token, and every confirm_* tool prompts the user for approval via elicitation when the client supports it (otherwise show the user the prepare_* relay text and get their approval first — a declined prompt never consumes the token). Publish-on-create is automatic (build_application deploys the app it just created, recorded in the audit trail); governance gates RE-publishing existing apps via prepare_publish/confirm_publish."
       : "Governance (Mongo+Redis) is not configured, so governed and destructive tools are not registered. build_application still auto-deploys the app it just created; RE-publishing an existing app after edits requires governance.",
-    workflows: {
-      available: false,
-      note: "CE workflow tools are not available via MCP.",
-    },
     gitSync: {
       available: true,
       note: "read_git_status (always on) reads a safe git status projection. Every mutation on a git-connected app REQUIRES a 'branch' parameter equal to the target app's current branch (fail-closed; the error carries the current branch). create_branch (governed) creates an agent branch under the reserved mcp/ namespace — it PUSHES the new ref to the remote and returns the NEW branched applicationId to edit (branch-per-application; no checkout). prepare_commit/confirm_commit (governed) commit AND PUSH — allowed ONLY on mcp/ agent branches (verified by a fresh read at confirm time), with the user's approval (an elicitation prompt when the client supports it; otherwise you must relay the prepare_commit text and get approval first). Publishing from MCP stays disabled for git apps: the deliverable is the mcp/ branch + its review URL, which the user merges via Appsmith's branch UI or a PR on the remote. See appsmith://guide/git.",
@@ -907,4 +983,15 @@ export function getCapabilities(
       "recreate_from_screenshot — guided workflow to rebuild a screenshot/mockup the user shared",
     ],
   };
+  // Edition sections (ee/extensions/capabilities.ts): CE reports workflows as unavailable. A section may never
+  // overwrite a core one.
+  const extension = extensionCapabilities(gates);
+
+  for (const key of Object.keys(extension)) {
+    if (Object.hasOwn(core, key)) {
+      throw new Error(`MCP extension capability "${key}" collides with core`);
+    }
+  }
+
+  return { ...extension, ...core };
 }
