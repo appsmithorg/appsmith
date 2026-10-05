@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { storedId } from "./schema.js";
+import { RAW_EXPRESSION, storedId } from "./schema.js";
 
 // M4-T2 create_sheets_query — a STRUCTURED Google Sheets query builder for an ALREADY-AUTHORIZED Sheets datasource
 // (created and OAuth-authorized by a human in the Appsmith UI; MCP never carries OAuth tokens or creates the
@@ -85,7 +85,6 @@ const propertyPath = z
   .max(128)
   .regex(/^[A-Za-z_][A-Za-z0-9_.]*$/, "must be a dotted identifier path");
 
-const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`|\u2028|\u2029/;
 const literalScalar = z.union([
   z
     .string()

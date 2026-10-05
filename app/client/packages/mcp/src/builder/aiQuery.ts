@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { storedId } from "./schema.js";
+import { RAW_EXPRESSION, storedId } from "./schema.js";
 
 // D5 create_ai_query — a STRUCTURED chat-completion builder for the OpenAI / Anthropic / Google AI plugins. The
 // agent never authors a raw request body or raw `{{ }}` bindings: it supplies a model id and a list of role/content
@@ -71,7 +71,6 @@ const propertyPath = z
   .regex(/^[A-Za-z_][A-Za-z0-9_.]*$/, "must be a dotted identifier path");
 
 // Message content — a literal (no binding/template syntax) or a widget reference resolved at runtime.
-const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`|\u2028|\u2029/;
 const contentRef = z.union([
   z
     .object({

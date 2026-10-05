@@ -7,7 +7,7 @@ import { querySpecSchema } from "./query.js";
 import { redisQuerySpecSchema } from "./redisQuery.js";
 import { restApiSpecSchema } from "./restApi.js";
 import { s3QuerySpecSchema } from "./s3Query.js";
-import { storedId } from "./schema.js";
+import { imageUrl, storedId } from "./schema.js";
 import { sheetsQuerySpecSchema } from "./sheetsQuery.js";
 
 // The charset is the security property: these ids are interpolated into URL path segments, encodeURIComponent
@@ -233,6 +233,29 @@ describe("every builder spec schema routes its stored IDs through storedId", () 
           functions: [{ name: "run" }],
         }).success,
       ).toBe(false);
+    }
+  });
+});
+
+describe("imageUrl — the build spec's image src cannot break out of the widget's CSS url() rule", () => {
+  it("normalises an http(s) URL and refuses breakouts, data:, credentials and bindings", () => {
+    expect(imageUrl.parse("HTTPS://A.Example/x y.png")).toBe(
+      "https://a.example/x%20y.png",
+    );
+
+    for (const value of [
+      'https://evil.example/x.png?q=") } .x { a: url("',
+      "https://a.example/x.png'",
+      "https://a.example/(x).png",
+      "data:image/png;base64,iVBORw0KGgo=",
+      "javascript:alert(1)",
+      "https://u:p@a.example/x.png",
+      "{{ Q.data }}",
+      "not a url",
+      // 1,500 CJK characters fit the input bound but percent-encode to ~13,500; the normalised href is bounded too.
+      `https://a.example/${"漢".repeat(1_500)}`,
+    ]) {
+      expect(imageUrl.safeParse(value).success).toBe(false);
     }
   });
 });

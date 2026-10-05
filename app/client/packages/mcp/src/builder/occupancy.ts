@@ -51,7 +51,7 @@ export interface Size {
 // linter can attach fixes without a module cycle; every emitted operation must validate against widgetPatchSchema.
 export type SuggestedOperation =
   | { kind: "move"; name: string; position: Position }
-  | { kind: "resize"; name: string; rows: number };
+  | { kind: "resize"; name: string; rows?: number; columns?: number };
 
 export interface SuggestedFix {
   tool: "patch_widgets";
@@ -106,14 +106,15 @@ export function nameOf(node: WidgetNode): string {
   return typeof node.widgetName === "string" ? node.widgetName : node.widgetId;
 }
 
-// The grid width available to a canvas's direct children: the root canvas is measured in the 64-column page grid,
-// while an inner canvas is measured in its OWN column count (mirrors compile.ts's availableColumns).
+// The grid width available to a canvas's direct children: ALWAYS the 64-column grid. The client snaps every canvas,
+// root or inner, to DEFAULT_GRID_COLUMNS (getSnappedGrid: pixel width / 64), and an inner canvas's stored
+// `rightColumn` is the pixel width the client last rendered (ContainerWidget.renderChildWidget), not a column
+// count. Reading it here made the patch and lint paths believe a 32-column modal's canvas was 32 columns wide and
+// refuse full-width fields. The parameter stays so call sites keep one entry point per canvas.
 export function canvasColumns(canvas: WidgetNode): number {
-  return canvas.widgetId === ROOT_WIDGET_ID
-    ? GRID_COLUMNS
-    : isNumber(canvas.rightColumn)
-      ? canvas.rightColumn
-      : GRID_COLUMNS;
+  void canvas;
+
+  return GRID_COLUMNS;
 }
 
 // Write-side hygiene: rounded, safe-integer, clamped to [0, MAX_ROW].
@@ -597,10 +598,10 @@ function growToFitOwnContent(
 
   for (const canvas of innerCanvases) {
     growCanvasToExtent(canvas);
-    needed = Math.max(
-      needed,
-      isNumber(canvas.bottomRow) ? canvas.bottomRow : 0,
-    );
+    // Rows come from the CHILDREN, not from canvas.bottomRow: the Appsmith client stores an inner canvas's
+    // bottomRow in pixels (rows × 10), so reading it back as rows would grow the container ×10 on any page the
+    // editor has saved. contentExtent is unit-stable (children are always in rows).
+    needed = Math.max(needed, clampRow(contentExtent(canvas)));
   }
 
   if (needed <= 0 || !isNumber(node.bottomRow)) return;
