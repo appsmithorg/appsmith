@@ -220,6 +220,28 @@ describe("SegmentSingleton", () => {
       expect(mockAnalytics.identify).toHaveBeenCalledTimes(2);
     });
 
+    it("should share one in-flight call between concurrent identifies", async () => {
+      const segment = SegmentSingleton.getInstance();
+
+      await segment.init(true);
+
+      let resolveIdentify: () => void = () => undefined;
+
+      mockAnalytics.identify.mockReturnValueOnce(
+        new Promise<void>((resolve) => {
+          resolveIdentify = resolve;
+        }),
+      );
+
+      const first = segment.identify(userId, traits);
+      const second = segment.identify(userId, traits);
+
+      resolveIdentify();
+      await Promise.all([first, second]);
+
+      expect(mockAnalytics.identify).toHaveBeenCalledTimes(1);
+    });
+
     it("should identify again after reset", async () => {
       const segment = SegmentSingleton.getInstance();
 

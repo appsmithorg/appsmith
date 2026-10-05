@@ -20,6 +20,7 @@ class SegmentSingleton {
   private analytics: Analytics | null = null;
   private eventQueue: Array<{ name: string; data: EventProperties }> = [];
   private initState: InitializationStatus = InitializationStatus.WAITING;
+  private pendingIdentifies = new Map<string, Promise<void>>();
 
   public static getInstance(): SegmentSingleton {
     if (!SegmentSingleton.instance) {
@@ -168,8 +169,26 @@ class SegmentSingleton {
       return;
     }
 
-    await this.analytics.identify(userId, traits);
-    writeSessionValue(LAST_IDENTIFY_STORAGE_KEY, identity);
+    // Concurrent callers (e.g. initialize() and a Help button click) share one in-flight call.
+    const inFlight = this.pendingIdentifies.get(identity);
+
+    if (inFlight) {
+      return inFlight;
+    }
+
+    const analytics = this.analytics;
+    const pending = (async () => {
+      try {
+        await analytics.identify(userId, traits);
+        writeSessionValue(LAST_IDENTIFY_STORAGE_KEY, identity);
+      } finally {
+        this.pendingIdentifies.delete(identity);
+      }
+    })();
+
+    this.pendingIdentifies.set(identity, pending);
+
+    return pending;
   }
 
   public async addMiddleware(middleware: MiddlewareFunction) {
