@@ -1002,8 +1002,11 @@ const GRAPHQL_PLUGIN_IDS = new Set(["graphql-plugin"]);
 // queried here by datasourceId. The supported providers (and their per-provider formData quirks) live in
 // AI_PROVIDERS in builder/aiQuery.ts; the tool resolves the provider from the datasource's plugin packageName.
 
-// CE keys every datasource storage under this fixed environment id (FieldNameCE.UNUSED_ENVIRONMENT_ID).
-const DEFAULT_ENVIRONMENT_ID = "unused_env";
+// The key of the single datasource storage create_datasource sends. The server ignores the map key and resolves the
+// storage's environment itself, because the storage names no environmentId: CE always uses its fixed environment
+// (FieldNameCE.UNUSED_ENVIRONMENT_ID, the same value as this key), and EE uses the workspace's default environment.
+// Naming an environment here would break EE, whose workspaces have real environment ids.
+const DATASOURCE_STORAGE_KEY = "unused_env";
 
 // The closed set of DATABASE plugin families create_datasource can provision. All share the endpoints + dbAuth
 // configuration shape (verified against each plugin's form.json — Mongo's form.json exposes the same
@@ -5591,7 +5594,6 @@ export function buildMcpServer(
 
         // REST base URL is not a secret, so a no-auth REST datasource is created CONFIGURED. Database datasources
         // are created UNCONFIGURED (no credentials) — the same state as importing an app without configuring them.
-        // CE keys every storage under the fixed "unused_env" environment.
         const datasourceConfiguration = isRest
           ? {
               url,
@@ -5626,8 +5628,8 @@ export function buildMcpServer(
           workspaceId,
           pluginId,
           datasourceStorages: {
-            [DEFAULT_ENVIRONMENT_ID]: {
-              environmentId: DEFAULT_ENVIRONMENT_ID,
+            // No environmentId: the server picks the edition's environment (see DATASOURCE_STORAGE_KEY).
+            [DATASOURCE_STORAGE_KEY]: {
               isConfigured: isRest,
               datasourceConfiguration,
             },
