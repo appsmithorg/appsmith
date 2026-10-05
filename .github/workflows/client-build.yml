@@ -106,9 +106,57 @@ jobs:
           script: |
             await require("client-build-compliance.js")({core, github, context})
 
+      # Every build variant reads and writes its own directory in the build cache
+      - name: Check that client build variants have separate cache locations
+        run: bash "$GITHUB_WORKSPACE/.github/workflows/scripts/client-build-cache.test.sh"
+
+      # A pull request that leaves app/client untouched takes the bundle the release branch last
+      # built, when that bundle was built from the app/client tree checked out here. Without
+      # such a bundle the steps below build the client from source.
+      - name: Fetch client build from cache
+        id: cached-build
+        if: steps.changed-files-specific.outputs.any_changed == 'false' && github.event_name != 'push' && github.event_name != 'workflow_dispatch' && github.event_name != 'schedule'
+        env:
+          cachetoken: ${{ secrets.CACHETOKEN }}
+          reponame: ${{ github.event.repository.name }}
+          gituser: ${{ secrets.CACHE_GIT_USER }}
+          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
+          client_build_variant: default
+        run: |
+          mkdir cacherepo
+          cd ./cacherepo
+          git lfs install
+          git config --global user.email "$gituseremail"
+          git config --global user.name "$gituser"
+          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
+          cache_script="$GITHUB_WORKSPACE/.github/workflows/scripts/client-build-cache.sh"
+          cache_dir="$(bash "$cache_script" dir "$reponame" "$client_build_variant")"
+          if [ ! -f "cibuildcache/$cache_dir/build.tar" ]; then
+            echo "::error::The build cache has no $client_build_variant client bundle at $cache_dir. A release build of this variant creates it."
+            exit 1
+          fi
+          cd "cibuildcache/$cache_dir"
+          verify_status=0
+          bash "$cache_script" verify ./build-info.txt "$client_build_variant" "$GITHUB_WORKSPACE" || verify_status=$?
+          if [ "$verify_status" -eq 3 ]; then
+            # The clone would otherwise sit inside the source tree that is about to be built.
+            cd "$GITHUB_WORKSPACE/app/client"
+            rm -rf ./cacherepo
+            echo "usable=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "$verify_status" -ne 0 ]; then
+            exit "$verify_status"
+          fi
+          git lfs install
+          git lfs migrate import --everything --yes
+          git lfs pull ./build.tar
+          mv ./build.tar ../../../../../build.tar
+          echo "usable=true" >> "$GITHUB_OUTPUT"
+
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        if: steps.cached-build.outputs.usable != 'true'
         uses: actions/cache@v4
         with:
           path: |
@@ -117,16 +165,16 @@ jobs:
 
       # Fetch prior run result
       - name: Get the previous run result
-        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        if: steps.cached-build.outputs.usable != 'true'
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
 
       # In case of prior failure run the job
-      - if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+      - if: steps.run_result.outputs.run_result != 'success' && steps.cached-build.outputs.usable != 'true'
         run: echo "I'm alive!" && exit 0
 
       - name: Use Node.js
-        if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: steps.run_result.outputs.run_result != 'success' && steps.cached-build.outputs.usable != 'true'
         uses: actions/setup-node@v4
         with:
           node-version-file: app/client/package.json
@@ -135,7 +183,7 @@ jobs:
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
       # Restoring the cache manually instead
       - name: Restore Yarn cache
-        if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: steps.run_result.outputs.run_result != 'success' && steps.cached-build.outputs.usable != 'true'
         uses: actions/cache@v4
         id: cache-dependencies
         with:
@@ -146,16 +194,16 @@ jobs:
 
       # Install all the dependencies
       - name: Install dependencies
-        if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: steps.run_result.outputs.run_result != 'success' && steps.cached-build.outputs.usable != 'true'
         run: yarn install --immutable
 
       # Type checking before starting the build
       - name: Run type check
-        if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: steps.run_result.outputs.run_result != 'success' && steps.cached-build.outputs.usable != 'true'
         run: yarn run check-types
 
       - name: Set the build environment based on the branch
-        if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: steps.run_result.outputs.run_result != 'success' && steps.cached-build.outputs.usable != 'true'
         id: vars
         run: |
           set +o pipefail
@@ -171,7 +219,7 @@ jobs:
       # Pylon: REACT_APP_* is required for CRA to embed values; secret name matches github-release.yml.
       # This is to ensure that we don't need to configure it in each installation.
       - name: Create the bundle
-        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        if: steps.cached-build.outputs.usable != 'true'
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
             export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
@@ -193,7 +241,7 @@ jobs:
       # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache
         uses: actions/cache/save@v4
-        if: steps.cache-dependencies.outputs.cache-hit != 'true' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: steps.cache-dependencies.outputs.cache-hit != 'true' && steps.cached-build.outputs.usable != 'true'
         with:
           path: |
             app/client/.yarn/cache
@@ -202,7 +250,7 @@ jobs:
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        if: steps.cached-build.outputs.usable != 'true'
         uses: actions/cache@v4
         with:
           path: |
@@ -210,31 +258,9 @@ jobs:
           key: ${{ github.run_id }}-${{ github.job }}-client
 
       - name: Pack the client build directory
-        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        if: steps.cached-build.outputs.usable != 'true'
         run: |
           tar -cvf ./build.tar -C build .
-
-      - name: Fetch client build from cache
-        if: steps.changed-files-specific.outputs.any_changed == 'false' && success()  && github.event_name != 'push' && github.event_name != 'workflow_dispatch'  && github.event_name != 'schedule'
-        env:
-          cachetoken: ${{ secrets.CACHETOKEN }}
-          reponame: ${{ github.event.repository.name }}
-          gituser: ${{ secrets.CACHE_GIT_USER }}
-          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
-        run: |
-          mkdir cacherepo
-          cd ./cacherepo
-          git lfs install
-          git config --global user.email "$gituseremail"
-          git config --global user.name "$gituser"
-          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
-          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
-          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
-          cd cibuildcache/$repodir/release/client
-          git lfs install
-          git lfs migrate import --everything --yes
-          git lfs pull ./build.tar
-          mv ./build.tar ../../../../../build.tar
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
@@ -251,6 +277,7 @@ jobs:
           reponame: ${{ github.event.repository.name }}
           gituser: ${{ secrets.CACHE_GIT_USER }}
           gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
+          client_build_variant: default
         # git lfs update --force in the script below overrides appsmith git hooks with git lfs hooks since appsmith hooks are not required during workflow runs
         run: |
           pwd
@@ -262,14 +289,27 @@ jobs:
           git lfs update --force
           git lfs install
           cd cibuildcache/
-          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
-          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
-          cd $repodir/release/client
-          cp ../../../../../build.tar ./
-          git lfs track "build.tar"
-          git add  build.tar
-          git commit --allow-empty -m "Update Latest build.tar"
-          git push
+          cache_script="$GITHUB_WORKSPACE/.github/workflows/scripts/client-build-cache.sh"
+          cache_dir="$(bash "$cache_script" dir "$reponame" "$client_build_variant")"
+          mkdir -p "$cache_dir"
+          cd "$cache_dir"
+          # Another build may push to the cache after the clone. Each attempt starts from the
+          # latest remote state, so this bundle replaces the one in its own directory only.
+          for attempt in 1 2 3; do
+            git fetch origin
+            git reset --hard "@{upstream}"
+            cp ../../../../../build.tar ./
+            bash "$cache_script" info "$client_build_variant" "$GITHUB_WORKSPACE" > ./build-info.txt
+            git lfs track "build.tar"
+            git add build.tar build-info.txt
+            git commit --allow-empty -m "Update Latest $client_build_variant build.tar"
+            if git push; then
+              exit 0
+            fi
+            echo "Push attempt $attempt failed"
+          done
+          echo "::error::Could not push the $client_build_variant client bundle to the build cache"
+          exit 1
 
       # Set status = success
       - name: Save the status of the run
