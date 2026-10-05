@@ -151,3 +151,19 @@ describe("page CRUD schemas reject unsafe mutation input", () => {
     ).toBe(false);
   });
 });
+
+describe("page names reject binding syntax and line separators", () => {
+  it("refuses {{ }}, }}, and U+2028/U+2029 in a page name", () => {
+    for (const name of [
+      "Home {{ x }}",
+      "Home }}",
+      "Ho\u2028me",
+      "Ho\u2029me",
+    ]) {
+      expect(
+        createPageSpecSchema.safeParse({ applicationId, revision, name })
+          .success,
+      ).toBe(false);
+    }
+  });
+});

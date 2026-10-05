@@ -333,6 +333,13 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
             return Mono.just(object);
         }
 
+        // User events are keyed by the *object* user (see `username` below), so a delete event would create a
+        // tracked identity for the very user being removed, one that never acts again. Deletions are kept in the
+        // audit log; analytics does not need them.
+        if (object instanceof User && event == AnalyticsEvents.DELETE) {
+            return Mono.just(object);
+        }
+
         // Get the event name tag based on the event and object
         // Event tag is of the form `eventName_objectClassName` or just `eventName` if the event is not associated with
         // any object.

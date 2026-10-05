@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { createAppsmithApi, type AppsmithApi } from "./app.js";
+import { EXTENSION_ROUTE_CONTRACT } from "./ee/extensions/routeContract.js";
 
 // ---------------------------------------------------------------------------
 // F5 — Route-contract test (M9 bug-class guard).
@@ -129,8 +130,14 @@ function apiInvocations(
     listActionCollections: async () => api.listActionCollections(PARAM),
     createActionCollection: async () => api.createActionCollection(body),
     updateActionCollection: async () => api.updateActionCollection(PARAM, body),
+    updateActionCollectionBody: async () =>
+      api.updateActionCollectionBody(PARAM, { body: "export default {};" }),
+    setActionRunBehaviour: async () =>
+      api.setActionRunBehaviour(PARAM, "MANUAL"),
     deleteActionCollection: async () => api.deleteActionCollection(PARAM),
     validateToken: async () => api.validateToken(),
+    // The edition's extension API methods (ee/extensions/routeContract.ts; none in CE).
+    ...EXTENSION_ROUTE_CONTRACT.invocations(api, PARAM),
   };
 }
 
@@ -190,6 +197,7 @@ const URL_BASE: Record<string, string> = {
   USER_URL: "/api/v1/users",
   PLUGIN_URL: "/api/v1/plugins",
   GIT_APPLICATION_URL: "/api/v1/git/applications",
+  ...EXTENSION_ROUTE_CONTRACT.urlBases,
 };
 
 // The controllers the MCP actually calls into (CE layer + the git controller).
@@ -206,6 +214,7 @@ const CONTROLLER_FILES = [
   "controllers/ce/UserControllerCE.java",
   "controllers/ce/PluginControllerCE.java",
   "git/controllers/GitApplicationControllerCE.java",
+  ...EXTENSION_ROUTE_CONTRACT.controllerFiles,
 ];
 
 const HTTP_VERB_BY_ANNOTATION: Record<string, string> = {
@@ -315,34 +324,84 @@ function collectServedRoutes(): Set<string> {
 // genuinely cannot be parsed, with a comment saying why.
 const ALLOWLIST = new Set<string>();
 
-// --- MCP-principal allowlist side: parse ALLOW_RULES out of the server filter -
+// --- MCP-principal allowlist side: parse the allow rules out of the server --
 //
 // The served-routes check above proves the route EXISTS; this one proves an
 // MCP-token principal is ALLOWED to call it. McpAllowlistWebFilter 403s any
-// method+path outside its ALLOW_RULES, so a wrapper (or verb change) that is
+// method+path outside its allow rules, so a wrapper (or verb change) that is
 // not mirrored there is broken in production even though Spring serves it —
 // exactly how the git routes and the collections PUT->PATCH mismatch slipped
 // through while the Java-side test only sampled a few paths.
-function collectAllowlistedRoutes(): Set<string> {
-  const filterPath = join(
+//
+// The core rules (McpAllowlistWebFilter) plus the edition's extension rules (McpAllowlistExtensions — an empty
+// subclass in CE; EE overrides it with the rules its extension tools need).
+const EXTENSION_ALLOWLIST_FILE = "filters/McpAllowlistExtensions.java";
+const ALLOWLIST_FILES = [
+  "filters/McpAllowlistWebFilter.java",
+  EXTENSION_ALLOWLIST_FILE,
+];
+
+// Comment-insensitive: a rule disabled by commenting it out must NOT still count as allowed (false PASS).
+function readAllowlistSource(files: readonly string[]): string {
+  const serverRoot = join(
     findRepoRoot(),
-    "app/server/appsmith-server/src/main/java/com/appsmith/server/filters/McpAllowlistWebFilter.java",
+    "app/server/appsmith-server/src/main/java/com/appsmith/server",
   );
-  // Comment-insensitive: a rule disabled by commenting it out must NOT still count as allowed (false PASS). The
-  // opposite direction fails safe — a rule the regex misses makes a route look denied and the test FAILS loudly.
-  const source = readFileSync(filterPath, "utf8")
+
+  return files
+    .map((relative) => readFileSync(join(serverRoot, relative), "utf8"))
+    .join("\n")
     .replace(/\/\*[\s\S]*?\*\//g, "")
     .replace(/\/\/[^\n]*/g, "");
+}
+
+// The rules written in the one form this test understands, `rule(HttpMethod.X, "literal")`, plus a count of every
+// place a rule could be built at all. A rule the literal regex misses is fail-safe for the forward check (its route
+// looks denied) but would be SKIPPED by the reverse check — a constant, a concatenation, HEAD, a static import or a
+// helper could widen what an MCP token reaches unseen. So any call site the regex did not parse fails the guard.
+function parseAllowRules(source: string): {
+  routes: string[];
+  callSites: { rule: number; newMcpAllowRule: number; httpMethod: number };
+} {
   const ruleRe =
     /rule\(\s*HttpMethod\.(GET|POST|PUT|DELETE|PATCH),\s*"([^"]+)"\)/g;
-  const allowed = new Set<string>();
+  const routes: string[] = [];
   let match: RegExpExecArray | null;
 
   while ((match = ruleRe.exec(source)) !== null) {
-    allowed.add(routeKey(match[1], match[2]));
+    routes.push(routeKey(match[1], match[2]));
   }
 
-  return allowed;
+  const count = (re: RegExp) => (source.match(re) ?? []).length;
+
+  return {
+    routes,
+    callSites: {
+      rule: count(/\brule\s*\(/g),
+      newMcpAllowRule: count(/\bnew\s+McpAllowRule\s*\(/g),
+      httpMethod: count(/\bHttpMethod\s*\./g),
+    },
+  };
+}
+
+function collectAllowlistedRoutes(
+  files: readonly string[] = ALLOWLIST_FILES,
+): Set<string> {
+  // The opposite direction fails safe — a rule the regex misses makes a route look denied and the test FAILS loudly.
+  return new Set(parseAllowRules(readAllowlistSource(files)).routes);
+}
+
+// Every rule-building call site in an extension allowlist source must be a parsed literal rule: `rule(` and
+// `HttpMethod.` appear exactly once per parsed rule, and the record constructor never appears directly.
+function unparsedExtensionRuleSites(source: string) {
+  const { callSites, routes } = parseAllowRules(source);
+
+  return {
+    parsed: routes.length,
+    rule: callSites.rule,
+    httpMethod: callSites.httpMethod,
+    newMcpAllowRule: callSites.newMcpAllowRule,
+  };
 }
 
 describe("MCP <-> Spring route contract (F5)", () => {
@@ -358,6 +417,83 @@ describe("MCP <-> Spring route contract (F5)", () => {
     expect({ mcpRoutesDeniedByAllowlist: denied }).toEqual({
       mcpRoutesDeniedByAllowlist: [],
     });
+  });
+
+  // The reverse direction, for the EDITION rules only: every rule McpAllowlistExtensions adds must be one some wrapper
+  // actually calls, so an edition cannot widen what an MCP token reaches beyond what its tools need. Vacuous in CE
+  // (no extension rules); it bites once EE overrides the file. The core rules keep only the forward check above.
+  it("every extension allow rule is called by some wrapper (McpAllowlistExtensions)", async () => {
+    const { routes: mcpRoutes } = await collectMcpRoutes();
+    const extensionAllowed = collectAllowlistedRoutes([
+      EXTENSION_ALLOWLIST_FILE,
+    ]);
+    const uncalled = [...extensionAllowed].filter(
+      (route) => !mcpRoutes.has(route),
+    );
+
+    expect({ extensionRulesNoWrapperCalls: uncalled }).toEqual({
+      extensionRulesNoWrapperCalls: [],
+    });
+  });
+
+  // The reverse check above only sees literal rules, so an extension rule built any other way must fail here instead
+  // of being silently skipped.
+  it('parses every rule McpAllowlistExtensions builds (only literal rule(HttpMethod.X, "...") is allowed)', () => {
+    const sites = unparsedExtensionRuleSites(
+      readAllowlistSource([EXTENSION_ALLOWLIST_FILE]),
+    );
+
+    expect(sites).toEqual({
+      parsed: sites.parsed,
+      rule: sites.parsed,
+      httpMethod: sites.parsed,
+      newMcpAllowRule: 0,
+    });
+  });
+
+  // The core file references HttpMethod outside its rules, so only the rule( / new McpAllowRule( counts apply there.
+  it("parses every rule McpAllowlistWebFilter builds", () => {
+    const { callSites, routes } = parseAllowRules(
+      readAllowlistSource(["filters/McpAllowlistWebFilter.java"]),
+    );
+
+    expect(routes.length).toBeGreaterThan(20);
+    expect({
+      rule: callSites.rule,
+      newMcpAllowRule: callSites.newMcpAllowRule,
+    }).toEqual({ rule: routes.length, newMcpAllowRule: 0 });
+  });
+
+  it("has teeth: the extension rule-count guard flags every non-literal rule form", () => {
+    const literal = 'rule(HttpMethod.GET, "/api/v1/workflows")';
+    const wrap = (...rules: string[]) =>
+      `class X { List<McpAllowRule> extensionRules() { return List.of(${rules.join(", ")}); } }`;
+    const guardHolds = (source: string) => {
+      const sites = unparsedExtensionRuleSites(source);
+
+      return (
+        sites.rule === sites.parsed &&
+        sites.httpMethod === sites.parsed &&
+        sites.newMcpAllowRule === 0
+      );
+    };
+
+    // The accepted forms (bare and class-qualified) hold; each other form is one the literal regex would skip.
+    expect(guardHolds(wrap(literal, `McpAllowRule.${literal}`))).toBe(true);
+
+    for (const unparsed of [
+      'rule(HttpMethod.GET, WORKFLOWS + "/{id}")',
+      "rule(HttpMethod.GET, WORKFLOWS_PATH)",
+      'rule(HttpMethod.HEAD, "/api/v1/workflows")',
+      'rule(GET, "/api/v1/workflows")',
+      'new McpAllowRule(HttpMethod.GET, PARSER.parse("/api/v1/workflows"))',
+      'workflowRule(HttpMethod.POST, "/api/v1/workflows/{id}/run")',
+    ]) {
+      expect({ unparsed, holds: guardHolds(wrap(literal, unparsed)) }).toEqual({
+        unparsed,
+        holds: false,
+      });
+    }
   });
 
   it("every wrapper hits a route the Java controllers actually serve", async () => {

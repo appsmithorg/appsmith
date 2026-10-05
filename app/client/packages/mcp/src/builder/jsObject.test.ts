@@ -3,10 +3,23 @@ import {
   buildDeleteJsObjectRequest,
   buildUpdateJsObjectRequest,
   compileJsObject,
+  compileJsObjectCode,
+  definitionCacheSize,
+  callEdges,
+  crossObjectCalls,
+  findCallCycle,
   createJsObjectSpecSchema,
   deleteJsObjectSpecSchema,
+  hasSpecMarker,
+  isCompilerAuthoredJsBody,
+  jsObjectDefinitionFromBody,
+  jsObjectDefinitionSchema,
   updateJsObjectSpecSchema,
 } from "./jsObject.js";
+
+const RUN_ONLY_CODE =
+  "export default { limit: 25, enabled: true, loadUsers: async function () { await GetUsers.run(); return { loaded: true, count: 25 }; } };";
+const MARKER = / \/\* mcp-spec:[A-Za-z0-9+/=]+ \*\/$/;
 
 const revision = "d".repeat(64);
 const createSpec = {
@@ -30,9 +43,15 @@ describe("JS object builder", () => {
   it("compiles only the declarative JS-object grammar", () => {
     const spec = createJsObjectSpecSchema.parse(createSpec);
 
-    expect(compileJsObject(spec)).toBe(
-      "export default { limit: 25, enabled: true, loadUsers: async () => { await GetUsers.run(); return { loaded: true, count: 25 }; } };",
-    );
+    // The code part is unchanged from the original grammar; the definition rides along as a trailing base64
+    // block comment so the object can be read back structurally and recognised exactly.
+    expect(compileJsObjectCode(spec)).toBe(RUN_ONLY_CODE);
+    expect(compileJsObject(spec)).toMatch(MARKER);
+    expect(
+      compileJsObject(spec).startsWith(`${RUN_ONLY_CODE} /* mcp-spec:`),
+    ).toBe(true);
+    // The server REQUIRES applicationId (400 INVALID_PARAMETER without it) and one JSAction per function so the
+    // editor lists/runs them — the same shape the web client sends.
     expect(buildCreateJsObjectRequest(spec)).toEqual({
       applicationId: "app1",
       revision,
@@ -41,43 +60,114 @@ describe("JS object builder", () => {
       body: {
         name: "UserHelpers",
         pageId: "page1",
+        applicationId: "app1",
         workspaceId: "workspace1",
         pluginId: "jsPlugin1",
         pluginType: "JS",
-        body: "export default { limit: 25, enabled: true, loadUsers: async () => { await GetUsers.run(); return { loaded: true, count: 25 }; } };",
+        body: expect.stringMatching(
+          /^export default \{ limit: 25, enabled: true, loadUsers: async function \(\) \{ await GetUsers\.run\(\); return \{ loaded: true, count: 25 \}; \} \}; \/\* mcp-spec:/,
+        ),
         variables: [],
-        actions: [],
+        actions: [
+          {
+            name: "loadUsers",
+            workspaceId: "workspace1",
+            runBehaviour: "MANUAL",
+            clientSideExecution: true,
+            actionConfiguration: {
+              body: "async function () { await GetUsers.run(); return { loaded: true, count: 25 }; }",
+              timeoutInMillisecond: 0,
+              jsArguments: [],
+            },
+          },
+        ],
       },
       destructive: false,
     });
   });
 
-  it("builds revision-bound updates and destructive deletes", () => {
+  it("builds revision-bound updates (body via the body route + a per-function diff) and destructive deletes", () => {
     const update = updateJsObjectSpecSchema.parse({
       applicationId: "app1",
       collectionId: "collection1",
       revision,
       name: "RenamedHelpers",
-      functions: [{ name: "refresh", run: [{ query: "GetUsers" }] }],
+      functions: [
+        { name: "refresh", run: [{ query: "GetUsers" }] },
+        { name: "reset", returns: { done: true } },
+      ],
     });
+    const current = {
+      actions: [
+        { id: "act-refresh", name: "refresh" },
+        { id: "act-old", name: "legacyFn" },
+      ],
+    };
 
-    expect(buildUpdateJsObjectRequest(update)).toEqual({
+    expect(buildUpdateJsObjectRequest(update, current)).toEqual({
       applicationId: "app1",
       revision,
       method: "PATCH",
       path: "v1/collections/actions/collection1",
+      // The compiled body goes through PUT /{id}/body (PATCH nulls it server-side).
+      jsBody: expect.stringMatching(
+        /^export default \{ refresh: async function \(\) \{ await GetUsers\.run\(\); \}, reset: async function \(\) \{ return \{ done: true \}; \} \}; \/\* mcp-spec:/,
+      ),
       body: {
         actionCollection: {
           id: "collection1",
           name: "RenamedHelpers",
           pluginType: "JS",
-          body: "export default { refresh: async () => { await GetUsers.run(); } };",
-          variables: [],
-          actions: [],
         },
-        actions: { added: [], updated: [], deleted: [] },
+        actions: {
+          added: [
+            {
+              name: "reset",
+              runBehaviour: "MANUAL",
+              clientSideExecution: true,
+              actionConfiguration: {
+                body: "async function () { return { done: true }; }",
+                timeoutInMillisecond: 0,
+                jsArguments: [],
+              },
+            },
+          ],
+          updated: [
+            {
+              id: "act-refresh",
+              name: "refresh",
+              runBehaviour: "MANUAL",
+              clientSideExecution: true,
+              actionConfiguration: {
+                body: "async function () { await GetUsers.run(); }",
+                timeoutInMillisecond: 0,
+                jsArguments: [],
+              },
+            },
+          ],
+          deleted: [{ id: "act-old", name: "legacyFn" }],
+        },
       },
       destructive: false,
+    });
+
+    // A rename-only update touches neither the body nor the functions.
+    const rename = updateJsObjectSpecSchema.parse({
+      applicationId: "app1",
+      collectionId: "collection1",
+      revision,
+      name: "Renamed",
+    });
+    const renameRequest = buildUpdateJsObjectRequest(rename, current);
+
+    expect(renameRequest.jsBody).toBeUndefined();
+    expect(renameRequest.body).toEqual({
+      actionCollection: {
+        id: "collection1",
+        name: "Renamed",
+        pluginType: "JS",
+      },
+      actions: { added: [], updated: [], deleted: [] },
     });
 
     expect(
@@ -100,6 +190,208 @@ describe("JS object builder", () => {
         entityKey: "js_object:collection1",
       },
     });
+  });
+});
+
+describe("jsExpr grammar in a JS object — params, steps and expression returns", () => {
+  const definition = {
+    constants: { maxIds: 50 },
+    functions: [
+      {
+        name: "splitLines",
+        params: ["value"],
+        returns: {
+          fn: "unique",
+          args: [
+            {
+              fn: "filter",
+              args: [
+                {
+                  fn: "map",
+                  args: [
+                    {
+                      fn: "split",
+                      args: [{ param: "value" }, { sep: "commaOrNewline" }],
+                    },
+                    { fn: "trim", args: [{ item: true }] },
+                  ],
+                },
+                {
+                  op: "not",
+                  args: [{ fn: "isEmpty", args: [{ item: true }] }],
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        name: "save",
+        steps: [
+          {
+            let: "ids",
+            value: {
+              fn: "unique",
+              args: [
+                {
+                  fn: "split",
+                  args: [
+                    { widget: "inpInstanceAllow", property: "text" },
+                    { sep: "commaOrNewline" },
+                  ],
+                },
+              ],
+            },
+          },
+          {
+            if: {
+              op: "gt",
+              args: [
+                { fn: "length", args: [{ var: "ids" }] },
+                { constant: "maxIds" },
+              ],
+            },
+            then: [{ throw: "Too many instance IDs." }],
+          },
+          {
+            run: "UpsertBanner",
+            with: { ids: { var: "ids" } },
+            into: "result",
+          },
+          { run: "GetBanners" },
+          { return: { object: { saved: true, ids: { var: "ids" } } } },
+        ],
+      },
+    ],
+  };
+
+  it("compiles the richer grammar, embeds the definition, and reads it back exactly", () => {
+    const spec = createJsObjectSpecSchema.parse({
+      ...createSpec,
+      ...definition,
+    });
+    const body = compileJsObject(spec);
+    const code = compileJsObjectCode(spec);
+
+    expect(
+      code.startsWith(
+        "export default { maxIds: 50, splitLines: async function (value) { return [...new Set(",
+      ),
+    ).toBe(true);
+    expect(code).toContain(
+      'save: async function () { let ids = [...new Set(((v) => Array.isArray(v) ? v : [])(String(inpInstanceAllow.text ?? "").split(/[\\r\\n,]+/)))]; if ((((v) => v == null ? 0 : v.length)(ids) > this.maxIds)) { throw new Error("Too many instance IDs."); } let result = await UpsertBanner.run((($p) => { for (const $k of Object.keys($p)) { if ($p[$k] === undefined) { throw new Error("missing query parameter: " + $k); } } return $p; })({ ids: ids })); await GetBanners.run(); return { saved: true, ids: ids }; } };',
+    );
+    expect(code).not.toMatch(/\{\{|\}\}|\$\{|`/);
+    expect(body.startsWith(`${code} /* mcp-spec:`)).toBe(true);
+    expect(jsObjectDefinitionFromBody(body)).toEqual(definition);
+    expect(isCompilerAuthoredJsBody(body)).toBe(true);
+
+    // Per-function JSActions carry the params as jsArguments.
+    const request = buildCreateJsObjectRequest(spec);
+    const actions = (
+      request.body as {
+        actions: {
+          name: string;
+          actionConfiguration: { jsArguments: unknown };
+        }[];
+      }
+    ).actions;
+
+    expect(actions.map((a) => a.name)).toEqual(["splitLines", "save"]);
+    expect(actions[0].actionConfiguration.jsArguments).toEqual([
+      { name: "value", value: "" },
+    ]);
+  });
+
+  it("treats a hand-edited body as editor-authored even if the marker survives", () => {
+    const body = compileJsObject(
+      createJsObjectSpecSchema.parse({ ...createSpec, ...definition }),
+    );
+    const tampered = body.replace(
+      "await GetBanners.run();",
+      "await fetch('https://evil.example');",
+    );
+
+    expect(jsObjectDefinitionFromBody(tampered)).toBeUndefined();
+    expect(isCompilerAuthoredJsBody(tampered)).toBe(false);
+
+    // A forged marker whose definition does not recompile to the code is not trusted either.
+    const forged = `export default { leak: async () => { return appsmith.user; } }; /* mcp-spec:${Buffer.from(JSON.stringify(definition)).toString("base64")} */`;
+
+    expect(isCompilerAuthoredJsBody(forged)).toBe(false);
+  });
+
+  it("rejects scoping and grammar errors with the function's name in the message", () => {
+    const bad = createJsObjectSpecSchema.safeParse({
+      ...createSpec,
+      functions: [{ name: "f", steps: [{ return: { var: "missing" } }] }],
+    });
+
+    expect(bad.success).toBe(false);
+    expect(
+      bad.error?.issues.map((issue) => issue.message).join("\n"),
+    ).toContain('f: steps[0]: "missing" is used before');
+
+    for (const fn of [
+      { name: "f", params: ["this"] },
+      // JS keywords in a param compile to `async function (class) {}`: a SyntaxError that breaks the whole
+      // collection (council M2 DX finding); the shared jsExpr reserved list refuses them.
+      { name: "f", params: ["class"] },
+      { name: "f", params: ["eval"] },
+      { name: "f", params: ["showAlert"] },
+      { name: "__proto__", steps: [{ return: 1 }] },
+      { name: "constructor", steps: [{ return: 1 }] },
+      { name: "f", params: ["a", "a"] },
+      { name: "f", steps: [{ run: "Q; evil()" }] },
+      { name: "f", steps: [{ let: "x", value: { fn: "eval", args: ["1"] } }] },
+      { name: "f", returns: { constant: "nope" } },
+      { name: "f", body: "return 1" },
+    ]) {
+      expect(
+        createJsObjectSpecSchema.safeParse({ ...createSpec, functions: [fn] })
+          .success,
+      ).toBe(false);
+    }
+  });
+});
+
+describe("isCompilerAuthoredJsBody — recognises exactly what compileJsObject emits", () => {
+  it("accepts every shape the compiler produces", () => {
+    const shapes = [
+      createJsObjectSpecSchema.parse(createSpec),
+      createJsObjectSpecSchema.parse({
+        ...createSpec,
+        constants: undefined,
+        functions: [{ name: "noop" }],
+      }),
+      createJsObjectSpecSchema.parse({
+        ...createSpec,
+        constants: { s: 'quote " and \\ backslash', n: -1.5e21, z: null },
+        functions: [
+          { name: "a", run: [{ query: "Q1" }, { query: "Q2" }] },
+          { name: "b", returns: {} },
+          { name: "c", run: [{ query: "Q3" }], returns: { ok: true, k: "v" } },
+        ],
+      }),
+    ];
+
+    for (const spec of shapes) {
+      expect(isCompilerAuthoredJsBody(compileJsObject(spec))).toBe(true);
+    }
+  });
+
+  it("classes editor-authored JavaScript as not compiler-authored", () => {
+    for (const body of [
+      "export default {\n\tmyVar1: [],\n\tmyFun1 () {\n\t\t// write code here\n\t}\n}",
+      "export default { save: async () => { const k = 'sk-secret'; await fetch(k); } };",
+      "export default { refresh: async () => { await GetBanners.run(); return GetBanners.data; } };",
+      "export default { refresh: async (x) => { await GetBanners.run(); } };",
+      "export default { limit: 25 }; evil();",
+      "",
+      "x".repeat(70_000),
+    ]) {
+      expect(isCompilerAuthoredJsBody(body)).toBe(false);
+    }
   });
 });
 
@@ -163,5 +455,436 @@ describe("JS object grammar rejects source and dynamic syntax", () => {
         collectionId: "collection1",
       }).success,
     ).toBe(false);
+  });
+});
+
+describe("definition marker — availability and versioning (council M2 security)", () => {
+  const definition = {
+    functions: [{ name: "f", steps: [{ return: 1 }] }],
+  };
+
+  it("classifies a 256 KB whitespace body in linear time (no regex over the code part)", () => {
+    const hostile = " ".repeat(256 * 1024 - 8) + "x */";
+    const started = Date.now();
+
+    expect(jsObjectDefinitionFromBody(hostile)).toBeUndefined();
+    expect(isCompilerAuthoredJsBody(hostile)).toBe(false);
+    // Generous bound for saturated CI runners; the quadratic regex this guards against took ~37 s.
+    expect(Date.now() - started).toBeLessThan(5000);
+  });
+
+  it("embeds a version and refuses a marker from another version", () => {
+    const body = compileJsObject(definition);
+    const encoded = body.slice(body.lastIndexOf(" /* mcp-spec:") + 13, -3);
+    const payload = JSON.parse(Buffer.from(encoded, "base64").toString("utf8"));
+
+    expect(payload.v).toBe(1);
+    expect(jsObjectDefinitionFromBody(body)).toEqual(definition);
+
+    const other = Buffer.from(
+      JSON.stringify({ ...payload, v: 2 }),
+      "utf8",
+    ).toString("base64");
+    const code = body.slice(0, body.lastIndexOf(" /* mcp-spec:"));
+
+    expect(
+      jsObjectDefinitionFromBody(`${code} /* mcp-spec:${other} */`),
+    ).toBeUndefined();
+    expect(hasSpecMarker(`${code} /* mcp-spec:${other} */`)).toBe(true);
+    expect(hasSpecMarker(code)).toBe(false);
+  });
+});
+
+describe("cross-object calls are collected for the tool-level existence check", () => {
+  it("lists each distinct { object, function } pair once and ignores sibling calls", () => {
+    const definition = jsObjectDefinitionSchema.parse({
+      functions: [
+        {
+          name: "a",
+          steps: [
+            { call: { object: "Utils", function: "count" }, into: "n" },
+            { call: "b" },
+          ],
+        },
+        {
+          name: "b",
+          returns: {
+            op: "add",
+            args: [
+              { call: { object: "Utils", function: "count" } },
+              { call: { object: "Other", function: "go" } },
+            ],
+          },
+        },
+      ],
+    });
+
+    expect(
+      crossObjectCalls(definition).sort((a, b) =>
+        a.object.localeCompare(b.object),
+      ),
+    ).toEqual([
+      { object: "Other", function: "go" },
+      { object: "Utils", function: "count" },
+    ]);
+    expect(
+      jsObjectDefinitionSchema.safeParse({
+        functions: [{ name: "a", steps: [{ call: "missing" }] }],
+      }).success,
+    ).toBe(false);
+  });
+});
+
+describe("crossObjectCalls ignores an object key that is merely named call", () => {
+  it("does not report a { call: <Expr> } object member as a cross-object target", () => {
+    const definition = jsObjectDefinitionSchema.parse({
+      functions: [
+        { name: "helper", returns: 1 },
+        { name: "a", returns: { object: { call: { call: "helper" } } } },
+      ],
+    });
+
+    expect(crossObjectCalls(definition)).toEqual([]);
+  });
+});
+
+describe("sibling call cycles (Hacktron: mutual calls exhaust the evaluation worker)", () => {
+  // The schema still ACCEPTS a cyclic definition (the marker decoder shares it: a stored cyclic object must keep
+  // decoding so it can be repaired and stays in the cross-object graph); the handlers refuse the cycle through
+  // callEdges + findCallCycle (app.test.ts covers the create/update refusal with code call_cycle).
+  const cycleOf = (functions: unknown[]) => {
+    const parsed = jsObjectDefinitionSchema.parse({ functions });
+
+    return findCallCycle(
+      callEdges(parsed, "Self"),
+      parsed.functions.map((fn) => `Self.${fn.name}`),
+    );
+  };
+
+  it("detects a → b → a and a → b → c → a, and accepts a chain and a diamond", () => {
+    expect(
+      cycleOf([
+        {
+          name: "a",
+          steps: [{ call: "b", into: "x" }, { return: { var: "x" } }],
+        },
+        {
+          name: "b",
+          steps: [{ call: "a", into: "y" }, { return: { var: "y" } }],
+        },
+      ]),
+    ).toEqual(["Self.a", "Self.b", "Self.a"]);
+    expect(
+      cycleOf([
+        { name: "a", returns: { call: "b" } },
+        { name: "b", returns: { call: "c" } },
+        { name: "c", returns: { call: "a" } },
+      ]),
+    ).toEqual(["Self.a", "Self.b", "Self.c", "Self.a"]);
+    expect(
+      cycleOf([
+        { name: "a", returns: { call: "b" } },
+        { name: "b", returns: { call: "c" } },
+        { name: "c", returns: 1 },
+      ]),
+    ).toBeUndefined();
+    // A diamond (a → b, a → c, b → d, c → d) shares a target without cycling.
+    expect(
+      cycleOf([
+        { name: "a", returns: { array: [{ call: "b" }, { call: "c" }] } },
+        { name: "b", returns: { call: "d" } },
+        { name: "c", returns: { call: "d" } },
+        { name: "d", returns: 1 },
+      ]),
+    ).toBeUndefined();
+    // A cyclic definition still parses (decoder contract); the refusal is the handlers' job.
+    expect(
+      jsObjectDefinitionSchema.safeParse({
+        functions: [
+          { name: "a", returns: { call: "b" } },
+          { name: "b", returns: { call: "a" } },
+        ],
+      }).success,
+    ).toBe(true);
+  });
+
+  it("callEdges attributes each call to its containing function and findCallCycle reports the closed path", () => {
+    const definition = jsObjectDefinitionSchema.parse({
+      functions: [
+        {
+          name: "a",
+          steps: [
+            { call: { object: "Other", function: "go" }, into: "x" },
+            { return: { call: "b" } },
+          ],
+        },
+        { name: "b", returns: 1 },
+      ],
+    });
+
+    expect(callEdges(definition, "Self")).toEqual([
+      { from: "Self.a", to: "Self.b" },
+      { from: "Self.a", to: "Other.go" },
+    ]);
+    expect(
+      findCallCycle(
+        [
+          { from: "A.f", to: "B.g" },
+          { from: "B.g", to: "A.f" },
+        ],
+        ["A.f"],
+      ),
+    ).toEqual(["A.f", "B.g", "A.f"]);
+    expect(
+      findCallCycle([{ from: "A.f", to: "B.g" }], ["A.f", "B.g"]),
+    ).toBeUndefined();
+  });
+});
+
+describe("a function may not call itself through the definition schema", () => {
+  it("refuses a direct self-call and accepts a call to a sibling", () => {
+    expect(
+      jsObjectDefinitionSchema.safeParse({
+        functions: [{ name: "a", steps: [{ call: "a" }] }],
+      }).success,
+    ).toBe(false);
+    expect(
+      jsObjectDefinitionSchema.safeParse({
+        functions: [
+          { name: "a", steps: [{ call: "b" }] },
+          { name: "b", returns: 1 },
+        ],
+      }).success,
+    ).toBe(true);
+  });
+});
+
+describe("findCallCycle is iterative", () => {
+  it("handles a 20,000-function chain without recursion and still finds a cycle at the end", () => {
+    const edges: { from: string; to: string }[] = [];
+
+    for (let i = 0; i < 20_000; i += 1) {
+      edges.push({ from: `O.f${i}`, to: `O.f${i + 1}` });
+    }
+
+    expect(findCallCycle(edges, ["O.f0"])).toBeUndefined();
+
+    edges.push({ from: "O.f20000", to: "O.f19990" });
+
+    const cycle = findCallCycle(edges, ["O.f0"]);
+
+    expect(cycle?.[0]).toBe("O.f19990");
+    expect(cycle?.[cycle.length - 1]).toBe("O.f19990");
+    expect(cycle).toHaveLength(12);
+  });
+});
+
+describe("callEdges sees a call nested in forEach / onError / if-else bodies and in call args", () => {
+  const cycleOf = (functions: unknown[]) => {
+    const parsed = jsObjectDefinitionSchema.parse({ functions });
+
+    return findCallCycle(
+      callEdges(parsed, "S"),
+      parsed.functions.map((fn) => `S.${fn.name}`),
+    );
+  };
+
+  it("detects a sibling cycle closed only through nested step bodies", () => {
+    expect(
+      cycleOf([
+        {
+          name: "a",
+          steps: [{ forEach: { array: [1] }, as: "i", do: [{ call: "b" }] }],
+        },
+        { name: "b", steps: [{ run: "Q1", onError: [{ call: "c" }] }] },
+        {
+          name: "c",
+          steps: [{ if: true, then: [{ return: 1 }], else: [{ call: "a" }] }],
+        },
+      ]),
+    ).toEqual(["S.a", "S.b", "S.c", "S.a"]);
+  });
+
+  it("attributes nested cross-object calls (forEach body, onError, if-then, call args) to the containing function", () => {
+    const definition = jsObjectDefinitionSchema.parse({
+      functions: [
+        {
+          name: "a",
+          steps: [
+            {
+              forEach: { array: [1] },
+              as: "i",
+              do: [{ call: { object: "O", function: "f" } }],
+            },
+          ],
+        },
+        {
+          name: "b",
+          steps: [
+            {
+              run: "Q1",
+              onError: [{ call: { object: "O", function: "g" }, into: "x" }],
+            },
+          ],
+        },
+        {
+          name: "c",
+          steps: [
+            { if: true, then: [{ call: { object: "O", function: "h" } }] },
+          ],
+        },
+        {
+          name: "d",
+          steps: [
+            {
+              call: { object: "O", function: "i" },
+              args: [{ call: { object: "O", function: "j" } }],
+              into: "y",
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(
+      callEdges(definition, "S")
+        .map((edge) => `${edge.from}>${edge.to}`)
+        .sort(),
+    ).toEqual(["S.a>O.f", "S.b>O.g", "S.c>O.h", "S.d>O.i", "S.d>O.j"]);
+  });
+
+  it("a record key named call carrying a string is data, not a call", () => {
+    expect(
+      cycleOf([
+        { name: "a", returns: { object: { call: "b" } } },
+        { name: "b", returns: { object: { call: "a" } } },
+      ]),
+    ).toBeUndefined();
+    expect(
+      cycleOf([
+        { name: "a", steps: [{ run: "Q1", with: { call: "b" } }] },
+        { name: "b", steps: [{ run: "Q1", with: { call: "a" } }] },
+      ]),
+    ).toBeUndefined();
+    // …while a real call INSIDE a record value is still an edge.
+    expect(
+      cycleOf([
+        { name: "a", returns: { object: { next: { call: "b" } } } },
+        { name: "b", returns: { object: { next: { call: "a" } } } },
+      ]),
+    ).toEqual(["S.a", "S.b", "S.a"]);
+  });
+});
+
+describe("call-depth guard member and the decoder cache", () => {
+  it("never declares mcpCallDepth as a member (it is an undeclared run-time property), and reserves the name", () => {
+    expect(
+      compileJsObjectCode(
+        jsObjectDefinitionSchema.parse({
+          functions: [{ name: "a", returns: 1 }],
+        }),
+      ),
+    ).not.toContain("mcpCallDepth");
+    const calling = compileJsObjectCode(
+      jsObjectDefinitionSchema.parse({
+        functions: [
+          { name: "a", returns: { call: "b" } },
+          { name: "b", returns: 1 },
+        ],
+      }),
+    );
+
+    expect(calling).not.toMatch(/mcpCallDepth: 0/);
+    expect(calling).toContain("this.mcpCallDepth ?? 0) >= 32");
+
+    for (const definition of [
+      {
+        constants: { mcpCallDepth: 5 },
+        functions: [{ name: "a", returns: 1 }],
+      },
+      { functions: [{ name: "mcpCallDepth", returns: 1 }] },
+    ]) {
+      const parsed = jsObjectDefinitionSchema.safeParse(definition);
+
+      expect(parsed.success).toBe(false);
+      expect(JSON.stringify(parsed.error?.issues)).toContain(
+        "reserved for the compiler's call-depth guard",
+      );
+    }
+  });
+
+  it("memoises decoded definitions per body in a bounded cache", () => {
+    const definition = jsObjectDefinitionSchema.parse({
+      functions: [{ name: "a", returns: 1 }],
+    });
+    const body = compileJsObject(definition);
+    const first = jsObjectDefinitionFromBody(body);
+    const second = jsObjectDefinitionFromBody(body);
+
+    expect(first).toEqual(definition);
+    expect(second).toBe(first);
+
+    // Oversized bodies are neither decoded nor cached. Checked while the cache is below its cap, where an
+    // insert would be visible (at the cap an insert plus an eviction leaves the size unchanged).
+    const beforeOversized = definitionCacheSize();
+
+    expect(beforeOversized).toBeLessThan(128);
+    expect(jsObjectDefinitionFromBody("x".repeat(300 * 1024))).toBeUndefined();
+    expect(definitionCacheSize()).toBe(beforeOversized);
+
+    // Bounded: many distinct bodies never grow the cache past its cap.
+    for (let i = 0; i < 300; i += 1) {
+      jsObjectDefinitionFromBody(
+        compileJsObject(
+          jsObjectDefinitionSchema.parse({
+            functions: [{ name: "a", returns: i }],
+          }),
+        ),
+      );
+    }
+
+    expect(definitionCacheSize()).toBeLessThanOrEqual(128);
+  });
+
+  it("evicts least-recently used, not first-inserted: a touched entry survives", () => {
+    const bodyFor = (i: number) =>
+      compileJsObject(
+        jsObjectDefinitionSchema.parse({
+          functions: [{ name: "a", returns: 5000 + i }],
+        }),
+      );
+    const oldest = bodyFor(0);
+    const decoded = jsObjectDefinitionFromBody(oldest);
+
+    // Fill to one below the cap, touch the oldest entry, then insert past the cap: FIFO would evict `oldest`,
+    // LRU evicts the untouched entry inserted right after it.
+    for (let i = 1; i < 127; i += 1) jsObjectDefinitionFromBody(bodyFor(i));
+
+    expect(jsObjectDefinitionFromBody(oldest)).toBe(decoded);
+
+    for (let i = 127; i < 140; i += 1) jsObjectDefinitionFromBody(bodyFor(i));
+
+    expect(definitionCacheSize()).toBeLessThanOrEqual(128);
+    expect(jsObjectDefinitionFromBody(oldest)).toBe(decoded);
+  });
+});
+
+describe("returns: an Expr leaf is never mistaken for a legacy literal record", () => {
+  it("compiles a call and a table-column read in returns position as expressions", () => {
+    const source = compileJsObjectCode(
+      jsObjectDefinitionSchema.parse({
+        functions: [
+          { name: "a", returns: { call: "b" } },
+          { name: "b", returns: { table: "Orders", column: "id" } },
+          { name: "c", returns: { done: true, count: 2 } },
+        ],
+      }),
+    );
+
+    expect(source).toContain("return await this.b();");
+    expect(source).not.toContain('return { call: "b" }');
+    expect(source).toContain('Orders.selectedRow["id"]');
+    // A genuine legacy record (only literal values, no grammar key) still compiles as a record.
+    expect(source).toContain("return { done: true, count: 2 };");
   });
 });

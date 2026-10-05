@@ -24,6 +24,13 @@ import {
   type RequestId,
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
+import { createExtensionApi, type ExtensionApi } from "./ee/extensions/api.js";
+import { EXTENSION_TOOL_CATALOG } from "./ee/extensions/catalog.js";
+import {
+  type ExtensionToolRegistrar,
+  registerExtensionTools,
+  resolveExtensionGates,
+} from "./ee/extensions/tools.js";
 import { ELICITATION_TIMEOUT_CEILING_MS } from "./gates.js";
 import { TOOL_ANNOTATIONS } from "./toolAnnotations.js";
 import {
@@ -48,11 +55,16 @@ import {
   duplicateActionSpecSchema,
   updateActionSpecSchema,
 } from "./builder/actionPatch.js";
-import { getCapabilities } from "./builder/capabilities.js";
+import {
+  type CapabilityGates,
+  gateActive,
+  getCapabilities,
+} from "./builder/capabilities.js";
 import { applyEdit, compileApp } from "./builder/compile.js";
 import {
   applyEvent,
   eventActionKinds,
+  type EventReference,
   eventReferences,
   widgetExists,
   wireEventSpecSchema,
@@ -79,9 +91,22 @@ import {
   buildCreateJsObjectRequest,
   buildUpdateJsObjectRequest,
   createJsObjectSpecSchema,
+  callEdges,
+  crossObjectCalls,
+  findCallCycle,
+  type JsObjectDefinition,
   deleteJsObjectSpecSchema,
+  type ExistingJsObject,
+  hasSpecMarker,
+  isCompilerAuthoredJsBody,
+  JS_IDENTIFIER_SOURCE,
+  jsObjectDefinitionFromBody,
   updateJsObjectSpecSchema,
 } from "./builder/jsObject.js";
+import {
+  exceedsJsonDepth,
+  MAX_DEFINITION_JSON_DEPTH,
+} from "./builder/jsExpr.js";
 import {
   buildCreatePageRequest,
   buildRenamePageRequest,
@@ -99,6 +124,7 @@ import {
   buildMongoActionDto,
   compileMongoQuery,
   mongoQuerySpecSchema,
+  specUsesParams,
 } from "./builder/mongoQuery.js";
 import {
   buildSheetsActionDto,
@@ -223,6 +249,10 @@ export interface ServerContext {
   // record at write time. Empty when the server does not report it, which fails closed: org-scoped reads then match
   // no records rather than falling back to an unscoped (cross-tenant) query.
   organizationId?: string;
+  // The session's edition gates ("extension:<name>" in ee/extensions/catalog.ts), from resolveExtensionGates. Like
+  // isAdmin/organizationId they are resolved LIVE each time createMcpHttpServer builds the session's server and are
+  // never read from the stored session record. Absent (CE, or a resolver that failed) means every extension gate is off.
+  extensionGates?: Readonly<Record<string, boolean>>;
   // Absolute http(s) origin used to build the editor/viewer URLs build_application returns, resolved ONCE per
   // session at initialize (handlers never see raw requests): options.publicOrigin, else strictly validated
   // X-Forwarded-Proto + Host headers, else undefined — which degrades every constructed URL to a root-relative path.
@@ -268,7 +298,7 @@ function operationDigest(payload: unknown): string {
     .digest("hex");
 }
 
-interface ToolResult {
+export interface ToolResult {
   content: { type: "text"; text: string }[];
   // Matches the SDK's CallToolResult, which carries an index signature. Without this an `interface` (unlike a type
   // alias) is not assignable to it, so governed tool handlers returning ToolResult fail to typecheck.
@@ -277,7 +307,25 @@ interface ToolResult {
 
 // Map governance failures to a stable, safe MCP error payload so agents get a consistent stale/busy/confirmation
 // signal instead of an opaque 500. Returns undefined for non-governance errors (let the caller handle those).
+// Thrown from inside a governed mutate() when the rename target was taken between the handler's early check and
+// the lock; the update handler maps it to `name_taken` like the early refusal.
+class NameTakenError extends Error {
+  constructor(
+    readonly currentName: string,
+    readonly nextName: string,
+    readonly taken: string,
+  ) {
+    super(
+      `cannot rename "${currentName}" to "${nextName}": ${taken} on this page already has that name`,
+    );
+  }
+}
+
 function governanceError(error: unknown): ToolResult | undefined {
+  if (error instanceof NameTakenError) {
+    return result({ error: error.message, code: "name_taken" });
+  }
+
   if (error instanceof GovernanceRevisionConflictError) {
     return result({
       error:
@@ -308,6 +356,10 @@ export const MAX_MCP_SESSIONS = 100;
 export const MAX_MCP_SESSIONS_PER_USER = 25;
 export const MCP_SESSION_TTL_MS = 15 * 60 * 1000;
 export const REQUEST_TIMEOUT_MS = 30 * 1000;
+// Overall cap on resolving a session's edition gates (resolveExtensionGates), which runs on every initialize and
+// rehydration. Each upstream call already has REQUEST_TIMEOUT_MS, but a resolver may chain several or hang outside
+// fetch; past this cap the session is built with every edition gate OFF (fail closed) rather than stalling.
+export const EXTENSION_GATES_TIMEOUT_MS = 5 * 1000;
 // The git commit API exports the whole application, commits, AND pushes — on large apps that comfortably exceeds
 // the default 30s outbound abort, so the commit call alone gets a longer budget [COUNCIL: architect].
 export const GIT_COMMIT_TIMEOUT_MS = 120 * 1000;
@@ -366,7 +418,8 @@ export class AppsmithApiError extends Error {
 // profile configured (and for other broken git configs). Verified against AppsmithErrorCode.java.
 const INVALID_GIT_CONFIGURATION_CODE = "AE-GIT-4031";
 
-export interface AppsmithApi {
+// The core API client surface. AppsmithApi adds the edition's extension methods (ee/extensions/api.ts; none in CE).
+export interface CoreAppsmithApi {
   getApplicationContext: (
     applicationId: string,
     pageId: string,
@@ -439,6 +492,12 @@ export interface AppsmithApi {
   ) => Promise<unknown>;
   listActions: (applicationId: string) => Promise<unknown>;
   createAction: (action: Record<string, unknown>) => Promise<unknown>;
+  // PUT /api/v1/actions/runBehaviour/{id}: the only route that sets userSetOnLoad, so the server never auto-switches
+  // the query onto page load. Used for queries that read this.params.
+  setActionRunBehaviour: (
+    actionId: string,
+    behaviour: "MANUAL" | "ON_PAGE_LOAD" | "AUTOMATIC",
+  ) => Promise<unknown>;
   getAction: (applicationId: string, actionId: string) => Promise<unknown>;
   updateAction: (
     actionId: string,
@@ -466,9 +525,16 @@ export interface AppsmithApi {
     collectionId: string,
     body: Record<string, unknown>,
   ) => Promise<unknown>;
+  // PUT /collections/actions/{id}/body — the ONLY route that changes a JS object's code (PATCH nulls `body`).
+  updateActionCollectionBody: (
+    collectionId: string,
+    body: { body: string },
+  ) => Promise<unknown>;
   deleteActionCollection: (collectionId: string) => Promise<unknown>;
   validateToken: () => Promise<unknown>;
 }
+
+export type AppsmithApi = CoreAppsmithApi & ExtensionApi;
 
 function serializeArtifact(artifact: Record<string, unknown>): string {
   if (Object.keys(artifact).length === 0) {
@@ -628,7 +694,7 @@ export function createAppsmithApi(
     }
   }
 
-  return {
+  const core: CoreAppsmithApi = {
     // The user's accessible workspaces come from /workspaces/home; a plain GET /workspaces collides with the
     // create (POST) mapping and returns 405.
     listWorkspaces: async () => request("/api/v1/workspaces/home"),
@@ -752,6 +818,12 @@ export function createAppsmithApi(
       request(
         `/api/v1/actions?applicationId=${encodeURIComponent(applicationId)}`,
       ),
+    setActionRunBehaviour: async (actionId, behaviour) =>
+      request(
+        `/api/v1/actions/runBehaviour/${encodeURIComponent(actionId)}?behaviour=${behaviour}`,
+        { method: "PUT" },
+        { extractErrorCode: true },
+      ),
     createAction: async (action) =>
       request("/api/v1/actions", {
         method: "POST",
@@ -835,11 +907,15 @@ export function createAppsmithApi(
       request(
         `/api/v1/collections/actions?applicationId=${encodeURIComponent(applicationId)}`,
       ),
+    // The collection mutations opt into the Appsmith error code so a 400 surfaces as e.g.
+    // "Appsmith API request failed (400) [AE-APP-4000]" instead of a bare status — the diagnosis gap behind
+    // "valid: false / 400 with no cause".
     createActionCollection: async (body) =>
-      request("/api/v1/collections/actions", {
-        method: "POST",
-        body: JSON.stringify(body),
-      }),
+      request(
+        "/api/v1/collections/actions",
+        { method: "POST", body: JSON.stringify(body) },
+        { extractErrorCode: true },
+      ),
     updateActionCollection: async (collectionId, body) =>
       request(
         `/api/v1/collections/actions/${encodeURIComponent(collectionId)}`,
@@ -852,6 +928,13 @@ export function createAppsmithApi(
           method: "PATCH",
           body: JSON.stringify(body),
         },
+        { extractErrorCode: true },
+      ),
+    updateActionCollectionBody: async (collectionId, body) =>
+      request(
+        `/api/v1/collections/actions/${encodeURIComponent(collectionId)}/body`,
+        { method: "PUT", body: JSON.stringify(body) },
+        { extractErrorCode: true },
       ),
     deleteActionCollection: async (collectionId) =>
       request(
@@ -860,6 +943,17 @@ export function createAppsmithApi(
       ),
     validateToken: async () => request("/api/v1/users/me"),
   };
+  // Edition-only endpoints (EE: workflows) go through the same request(), so they carry the same token, internal
+  // marker and timeout. An extension method may never replace a core one.
+  const extension = createExtensionApi(request);
+
+  for (const name of Object.keys(extension)) {
+    if (Object.hasOwn(core, name)) {
+      throw new Error(`MCP extension API method "${name}" collides with core`);
+    }
+  }
+
+  return { ...core, ...extension };
 }
 
 // Least-privilege projection for list_datasources: the agent only needs enough to identify a datasource and author a
@@ -1596,29 +1690,12 @@ function fingerprintAction(action: unknown): string {
     .digest("hex");
 }
 
-// Plugin families whose egress is pinned server-side to a configured datasource host, so executing an action cannot
-// exfiltrate query-bound data to an attacker-chosen endpoint. REST/API-family plugins (API, SAAS, REMOTE, GraphQL)
-// can target an arbitrary external URL and are therefore NOT host-restricted.
-const HOST_RESTRICTED_PLUGIN_TYPES = new Set(["DB"]);
-
 function actionSource(action: unknown): Record<string, unknown> | null {
   const source =
     (action as { unpublishedAction?: unknown } | null)?.unpublishedAction ??
     action;
 
   return (source as Record<string, unknown> | null) ?? null;
-}
-
-// True when the action can egress to an arbitrary external host (its datasource is not server-side host-restricted).
-// Such an action must never auto-run: even a GET could carry query-bound data out to an attacker-chosen URL with no
-// human in the loop (M1-T2). Absence of a pluginType is treated as external (safe default).
-function isExternalEgressAction(action: unknown): boolean {
-  const pluginType = actionSource(action)?.pluginType;
-
-  return (
-    typeof pluginType !== "string" ||
-    !HOST_RESTRICTED_PLUGIN_TYPES.has(pluginType)
-  );
 }
 
 // Classify a stored action as auto-runnable (executable via run_action WITHOUT the prepare/confirm human checkpoint).
@@ -1636,19 +1713,11 @@ function isExternalEgressAction(action: unknown): boolean {
 // external-egress, and they fail (2)), so this sync predicate admits nothing; Google Sheets reads satisfy both through
 // the plugin's closed command enum instead and go through the async door below (isAutoRunnableAction). Defaults to
 // NON-auto-runnable (safe).
-function isReadOnlyAction(action: unknown): boolean {
-  // Guarantee (2): an external-egress (REST/API) action can target any host, so even a protocol-read-only GET must NOT
-  // auto-run — it could exfiltrate query-bound data to an attacker-chosen URL with no human in the loop (M1-T2).
-  if (isExternalEgressAction(action)) {
-    return false;
-  }
-
-  // Guarantee (1) for the remaining (host-restricted, e.g. DB) actions: there is no trusted read-only signal. We
-  // deliberately do NOT consult actionConfiguration.httpMethod here — honoring a spoofed "GET" injected onto a
-  // mutating SQL action would bypass the confirm gate and auto-run it. Google Sheets reads, which DO have a trusted
-  // signal (a closed command enum), auto-run through isAutoRunnableAction instead, never through this predicate.
-  return false;
-}
+// There is therefore NO synchronous read-only predicate any more (isReadOnlyAction, which lived here, returned false for every
+// input and was kept only for its comment): an external-egress (REST/API) action can target any host, so even a
+// protocol-read-only GET must not auto-run — it could exfiltrate query-bound data to an attacker-chosen URL with no
+// human in the loop (M1-T2); and a host-restricted (DB) action has no trusted read-only signal — honoring a spoofed
+// "GET" injected onto a mutating SQL action's actionConfiguration.httpMethod would bypass the confirm gate.
 
 // Google Sheets commands that resolve to pure reads in the plugin (GoogleSheetsMethodStrategy): every
 // `<entityType>_FETCH_MANY` / `<entityType>_FETCH_DETAILS` execution method (RowsGetMethod, FileListMethod,
@@ -1714,8 +1783,6 @@ async function isAutoRunnableAction(
   applicationId: string,
   action: unknown,
 ): Promise<boolean> {
-  if (isReadOnlyAction(action)) return true;
-
   if (sheetsReadCommand(action) === undefined) return false;
 
   const source = actionSource(action);
@@ -1901,11 +1968,285 @@ function projectJsObject(collection: unknown): Record<string, unknown> {
   };
 }
 
+// The raw body of a JS object as the API returned it. Used internally (revision fingerprints, the function-name
+// scan, the authored-by classification); it is NOT what the tools return — see jsObjectView.
+function jsObjectSource(collection: unknown): string | undefined {
+  const body = (collection as { body?: unknown } | null)?.body;
+
+  return typeof body === "string" ? body : undefined;
+}
+
+// What the JS-object tools return for one collection. `authoredBy` is "mcp" when the body matches the compiler's
+// exact output grammar and "editor" otherwise. Source is returned ONLY for MCP-authored objects: an editor-authored
+// body is arbitrary JavaScript that the closed grammar cannot re-express (so nothing could be "preserved" through an
+// update) and is the classic place hardcoded API keys live — it must not flow into an LLM client's context, even
+// though the caller's own token could fetch it through the internal API. Security Reviewer ruling on APP-16052;
+// this narrows the earlier "never returns JS source" rule rather than reversing it.
+function jsObjectView(collection: unknown): Record<string, unknown> {
+  const source = jsObjectSource(collection);
+  const compilerAuthored =
+    source !== undefined && isCompilerAuthoredJsBody(source);
+
+  // `definition` is the declarative spec the body carries (objects written since the jsExpr grammar); an agent
+  // edits it structurally and sends it back through update_js_object, so unrelated functions survive an update.
+  const definition =
+    source !== undefined ? jsObjectDefinitionFromBody(source) : undefined;
+  // `definitionState` tells an agent WHY an object is editor-authored: "drifted" means the compiler wrote it but
+  // the code was edited afterwards (an editor rename, a hand edit), so the fix is to recreate it from a definition,
+  // not to assume it was always hand-written. "none" is a body the compiler never marked.
+  const definitionState =
+    definition !== undefined
+      ? "current"
+      : source !== undefined && hasSpecMarker(source)
+        ? "drifted"
+        : "none";
+
+  return {
+    ...projectJsObject(collection),
+    authoredBy: compilerAuthored ? "mcp" : "editor",
+    definitionState,
+    ...(compilerAuthored ? { source } : {}),
+    ...(definition !== undefined ? { definition } : {}),
+  };
+}
+
+// Function names an event may `call`: the JSAction names, plus the members the compiler's own body declares (the
+// embedded definition for marked bodies; the legacy `name: async () =>` shape for collections written before the
+// marker existed). Read-only heuristic for the dangling-reference check; it never widens what the compiler emits.
+const LEGACY_COMPILED_FUNCTION_MEMBER = new RegExp(
+  String.raw`(?:^|[{,]\s*)(${JS_IDENTIFIER_SOURCE})\s*:\s*async\s*\(\)\s*=>`,
+  "g",
+);
+
+// A definition's `{ call: { object, function } }` references must resolve in the application before the object is
+// written — the same dangling-reference rule as wire_event's `call`. A call into the object being created or
+// updated is refused too: that is a sibling call (`{ call: "name" }`), which the grammar validates itself.
+// The check is PAGE-scoped: JS objects live in a page's data tree and entity names are unique per page, not per
+// application, so a same-named query on this page and a JS object on another page must not resolve the call
+// (that would compile `Query.run(...)` around the params guard) [COUNCIL: APP-16052 M4 security].
+function missingCrossObjectCall(
+  definition: Parameters<typeof crossObjectCalls>[0],
+  collections: unknown,
+  selfNames: readonly (string | undefined)[],
+  pageId: string | undefined,
+): string | undefined {
+  const objects = (Array.isArray(collections) ? collections : []).filter(
+    (collection) =>
+      pageId === undefined ||
+      (collection as { pageId?: unknown } | null)?.pageId === pageId,
+  );
+
+  for (const ref of crossObjectCalls(definition)) {
+    if (selfNames.includes(ref.object)) {
+      return `"${ref.object}.${ref.function}": call this object's own function by its name alone ({ call: "${ref.function}" }), not through the object name`;
+    }
+
+    const object = objects.find(
+      (collection) =>
+        (collection as { name?: unknown } | null)?.name === ref.object,
+    );
+
+    if (object === undefined) {
+      return `JS object "${ref.object}" was not found on this page (called as ${ref.object}.${ref.function})`;
+    }
+
+    if (!jsObjectFunctionNames(object).includes(ref.function)) {
+      return `function "${ref.function}" was not found on JS object "${ref.object}"`;
+    }
+  }
+
+  return undefined;
+}
+
+// A definition's calls, joined with the calls of every other compiler-authored JS object on the same page, may not
+// form a cycle: each compiled `call` is awaited, so `A.f → B.g → A.f` recurses until the client's evaluation
+// worker dies, and a wired event can start it. Sibling cycles inside the definition are edges too, so a → b → a is
+// refused here as well; this check also sees the other objects (their embedded definitions), so a cycle closed
+// through another object is refused. A cycle already stored in another object is reported against this object's
+// calls (the DFS starts from this object's functions). The check runs under the object's POST-update name (a
+// compiled `Report.go()` in another object re-binds at runtime to whatever object holds that name, and the server
+// does not rewrite calls on rename), and the object itself is excluded by id, not by name. Editor-authored and
+// drifted objects (compiler-written, then hand-edited) contribute no edges: their code is opaque to the compiler,
+// so a cycle that passes through them is not detectable statically; a runtime depth guard is the tracked follow-up.
+// [Hacktron finding on PR #42311: mutual JS-object calls bypass recursion validation.]
+function callCycleProblem(
+  definition: Parameters<typeof callEdges>[0],
+  collections: unknown,
+  selfName: string,
+  pageId: string | undefined,
+  selfId?: string,
+): string | undefined {
+  const edges = callEdges(definition, selfName);
+
+  for (const other of compilerAuthoredObjectsOnPage(
+    collections,
+    pageId,
+    selfId,
+    selfId === undefined ? selfName : undefined,
+  )) {
+    edges.push(...callEdges(other.definition, other.name));
+  }
+
+  const cycle = findCallCycle(
+    edges,
+    definition.functions.map((fn) => `${selfName}.${fn.name}`),
+  );
+
+  return cycle === undefined
+    ? undefined
+    : `calls form a cycle (${cycle.join(" → ")}); a cycle of awaited calls would recurse until the evaluation worker dies`;
+}
+
+// The other compiler-authored JS objects on a page, with their embedded definitions. `excludeId` drops the object
+// being updated (by id, so a rename cannot dodge it); `excludeName` is the create path's stand-in (no id yet).
+function compilerAuthoredObjectsOnPage(
+  collections: unknown,
+  pageId: string | undefined,
+  excludeId: string | undefined,
+  excludeName: string | undefined,
+): { id: string | undefined; name: string; definition: JsObjectDefinition }[] {
+  const found: {
+    id: string | undefined;
+    name: string;
+    definition: JsObjectDefinition;
+  }[] = [];
+
+  for (const collection of Array.isArray(collections) ? collections : []) {
+    const other = collection as {
+      id?: unknown;
+      name?: unknown;
+      pageId?: unknown;
+      body?: unknown;
+    } | null;
+
+    if (
+      other === null ||
+      typeof other.name !== "string" ||
+      (excludeId !== undefined && other.id === excludeId) ||
+      (excludeName !== undefined && other.name === excludeName) ||
+      (pageId !== undefined && other.pageId !== pageId)
+    ) {
+      continue;
+    }
+
+    const source = jsObjectSource(other);
+    const definition =
+      source === undefined ? undefined : jsObjectDefinitionFromBody(source);
+
+    if (definition !== undefined) {
+      found.push({
+        id: typeof other.id === "string" ? other.id : undefined,
+        name: other.name,
+        definition,
+      });
+    }
+  }
+
+  return found;
+}
+
+// `Object.function` callers, on this page, of any function of the named object (compiler-authored callers only:
+// those are the calls the compiler wrote and can see). Used to refuse a rename that would leave them dangling or
+// re-bind them to another object.
+function compilerAuthoredCallersOf(
+  collections: unknown,
+  objectName: string,
+  pageId: string | undefined,
+  excludeId: string | undefined,
+): string[] {
+  const callers = new Set<string>();
+
+  for (const other of compilerAuthoredObjectsOnPage(
+    collections,
+    pageId,
+    excludeId,
+    undefined,
+  )) {
+    for (const edge of callEdges(other.definition, other.name)) {
+      if (edge.to.startsWith(`${objectName}.`)) callers.add(edge.from);
+    }
+  }
+
+  return [...callers].sort();
+}
+
+// Whether a JS object (other than `excludeCollectionId`) or a query on the page already uses `name`; returns a
+// short description of the holder, or undefined. Widgets are not checked here (the page DSL is not loaded on this
+// path); the editor refuses such a collision on its next save.
+// One governance key for every JS-object write (create, update, rename, delete) in an application.
+function jsObjectsEntityKey(applicationId: string): string {
+  return `application:${applicationId}:jsobjects`;
+}
+
+async function nameTakenOnPage(
+  api: AppsmithApi,
+  applicationId: string,
+  collections: unknown,
+  name: string,
+  pageId: string | undefined,
+  excludeCollectionId: string,
+): Promise<string | undefined> {
+  for (const collection of Array.isArray(collections) ? collections : []) {
+    const other = collection as {
+      id?: unknown;
+      name?: unknown;
+      pageId?: unknown;
+    } | null;
+
+    if (
+      other !== null &&
+      other.id !== excludeCollectionId &&
+      other.name === name &&
+      (pageId === undefined || other.pageId === pageId)
+    ) {
+      return `JS object "${name}"`;
+    }
+  }
+
+  const actions = await api.listActions(applicationId);
+  const queryTaken =
+    pageId !== undefined
+      ? findExistingAction(actions, name, pageId) !== undefined
+      : (Array.isArray(actions) ? actions : []).some(
+          (action) => (action as { name?: unknown } | null)?.name === name,
+        );
+
+  if (queryTaken) return `query "${name}"`;
+
+  return undefined;
+}
+
+function jsObjectFunctionNames(collection: unknown): string[] {
+  const names = new Set<string>(
+    projectJsObject(collection).functions as string[],
+  );
+  const source = jsObjectSource(collection);
+
+  if (source === undefined) return [...names];
+
+  const definition = jsObjectDefinitionFromBody(source);
+
+  if (definition !== undefined) {
+    for (const fn of definition.functions) names.add(fn.name);
+  } else if (isCompilerAuthoredJsBody(source)) {
+    // Only a compiler-authored body is scanned: in editor-authored JavaScript the same `name: async () =>` text
+    // can sit at any nesting depth (a nested object, an inner arrow) and would resolve a member the object does
+    // not expose. Editor-authored objects always carry their JSActions, which projectJsObject already listed.
+    for (const match of source.matchAll(LEGACY_COMPILED_FUNCTION_MEMBER)) {
+      names.add(match[1]);
+    }
+  }
+
+  return [...names];
+}
+
 function fingerprintJsObject(collection: unknown): string {
   return createHash("sha256")
     .update(
       canonicalStableSerialize({
         ...projectJsObject(collection),
+        // The DTO has no updatedAt, so the body itself is what makes a code-only change move the revision.
+        body: jsObjectSource(collection),
         updatedAt: (collection as { updatedAt?: unknown } | null)?.updatedAt,
       }),
       "utf8",
@@ -1913,13 +2254,19 @@ function fingerprintJsObject(collection: unknown): string {
     .digest("hex");
 }
 
-function projectJsList(collections: unknown): Record<string, unknown>[] {
-  return Array.isArray(collections) ? collections.map(projectJsObject) : [];
-}
-
 function fingerprintJsList(collections: unknown): string {
+  const entries = Array.isArray(collections) ? collections : [];
+
   return createHash("sha256")
-    .update(canonicalStableSerialize(projectJsList(collections)), "utf8")
+    .update(
+      canonicalStableSerialize(
+        entries.map((collection) => ({
+          ...projectJsObject(collection),
+          body: jsObjectSource(collection),
+        })),
+      ),
+      "utf8",
+    )
     .digest("hex");
 }
 
@@ -2148,6 +2495,15 @@ export function buildMcpServer(
   // nothing (fail-closed), never an unscoped cross-tenant read.
   const organizationId = ctx.organizationId ?? "";
   const logSink = ctx.logSink ?? ((line: string) => process.stderr.write(line));
+  // This session's gates: what get_capabilities reports and what the extension host registers against, so the two
+  // cannot drift. The object and its extensions record are copied and frozen (host.gates hands this very object to
+  // edition code), so an edition's tools cannot flip a gate — or swap the extensions record — mid-session.
+  const capabilityGates: CapabilityGates = Object.freeze({
+    data: dataEnabled,
+    js: jsEnabled,
+    governance: governance !== undefined,
+    extensions: Object.freeze({ ...ctx.extensionGates }),
+  });
   const elicitationTimeout =
     elicitationTimeoutMs ??
     commitElicitationTimeoutMs ??
@@ -2163,14 +2519,43 @@ export function buildMcpServer(
   // the annotations object is spliced in before the callback, using the SDK's own `(name, [description,] [schema,]
   // annotations, cb)` overloads. A tool missing from the table is a build-time bug, so registration refuses it
   // rather than shipping a tool that every Codex/ChatGPT call would then need a human approval for.
+  // The splice assumes the caller passed NO annotations of its own: a caller-supplied annotations-like object right
+  // before the callback would land in the SDK's schema slot (or shift the overload), so anything there that is not a
+  // plain zod shape is refused, as is a call whose last argument is not the callback. Extension tools come through
+  // here too (via the host registrar below), so this holds for every edition.
   const registerTool: McpServer["tool"] = (...args: unknown[]) => {
     const name = String(args[0]);
+
+    if (typeof args[args.length - 1] !== "function") {
+      throw new Error(
+        `MCP tool "${name}" must be registered with its callback last`,
+      );
+    }
+
+    const beforeCallback = args.length >= 3 ? args[args.length - 2] : undefined;
+
+    if (
+      typeof beforeCallback === "object" &&
+      beforeCallback !== null &&
+      !Object.values(beforeCallback).every(
+        (value) => value instanceof z.ZodType,
+      )
+    ) {
+      throw new Error(
+        `MCP tool "${name}" passes a non-schema object before its callback; annotations come from TOOL_ANNOTATIONS`,
+      );
+    }
+
     const annotations = Object.hasOwn(TOOL_ANNOTATIONS, name)
       ? TOOL_ANNOTATIONS[name]
       : undefined;
 
     if (annotations === undefined) {
-      throw new Error(`MCP tool "${name}" has no entry in TOOL_ANNOTATIONS`);
+      throw new Error(
+        EXTENSION_TOOL_CATALOG.some((tool) => tool.name === name)
+          ? `MCP tool "${name}" has no entry in TOOL_ANNOTATIONS (add it to EXTENSION_TOOL_ANNOTATIONS in ee/extensions/catalog.ts)`
+          : `MCP tool "${name}" has no entry in TOOL_ANNOTATIONS`,
+      );
     }
 
     const withAnnotations = [
@@ -3015,11 +3400,7 @@ export function buildMcpServer(
     {},
     async () =>
       result({
-        ...getCapabilities({
-          data: dataEnabled,
-          js: jsEnabled,
-          governance: governance !== undefined,
-        }),
+        ...getCapabilities(capabilityGates),
         // Build identity (also on /health) so "which build is this instance running" is answerable from either side.
         build: MCP_BUILD_INFO,
         gitPolicy: GIT_POLICY_NOTE,
@@ -3338,7 +3719,7 @@ export function buildMcpServer(
 
   registerTool(
     "patch_widgets",
-    "Directly update, move, resize, reparent, or remove widgets using a strict typed patch. Read the page with read_semantic_page first and pass its revision. Only allowlisted literal properties can change; removing a widget with children is rejected. Moves are occupancy-aware: a position that lands on another widget is repaired to the nearest free spot below (reported as requestedPosition vs position plus a note) unless the operation sets strict: true, which rejects with the colliding names and the nearest free position; reparenting always lands at the nearest free spot in the new canvas. Resize ({ kind: 'resize', name, rows?, columns?, strict? }, grid units) grows/shrinks a widget: growth pushes overlapping siblings down, width cannot exceed the canvas, containers cannot shrink below their children, and modal rows translate to the modal's pixel height. Table styling: set literal 'oddRowColor'/'evenRowColor' for alternating (zebra) row backgrounds. Re-bind a table with structured 'tableData' { query, field?, clearWhenEmpty? } — clearWhenEmpty names an input whose emptiness clears the table (so a Clear button that resets that input also empties the table; resetWidget alone cannot clear a query-bound table). Input validation: set 'validation' { format: 'zipcode'|'email'|'number'|'integer'|'usPhone', message? } on an input to add a vetted regex + error message (never author a raw regex). Set 'disableWhenInvalid': '<input>' on a button to grey it out until that input passes validation (compiles to {{ !<input>.isValid }}) — use with validation so a bad value can't run the query. Conditional visibility / view switching: set 'visibleWhen' { control: '<select|tabs widget>', equals: '<value>' } to show a widget only when the control has that value — e.g. show a table when a ViewToggle equals 'Table' and a detail panel when it equals 'Details', switching views with one control. Two more predicate forms: { rowSelected: '<table>' } shows the widget only while that table has a selected row (detail panels, edit buttons), and { notEmpty: '<input>' } only while that input holds text.",
+    "Directly update, move, resize, reparent, or remove widgets using a strict typed patch. Read the page with read_semantic_page first and pass its revision. Only allowlisted literal properties can change; removing a widget with children is rejected. Moves are occupancy-aware: a position that lands on another widget is repaired to the nearest free spot below (reported as requestedPosition vs position plus a note) unless the operation sets strict: true, which rejects with the colliding names and the nearest free position; reparenting always lands at the nearest free spot in the new canvas. Resize ({ kind: 'resize', name, rows?, columns?, strict? }, grid units) grows/shrinks a widget: growth pushes overlapping siblings down, width cannot exceed the canvas, containers cannot shrink below their children's rows (columns are free: nested content lives on the inner canvas's own 64-column grid), and modal rows translate to the modal's pixel height. Table styling: set literal 'oddRowColor'/'evenRowColor' for alternating (zebra) row backgrounds. Re-bind a table with structured 'tableData' { query, field?, clearWhenEmpty? } — clearWhenEmpty names an input whose emptiness clears the table (so a Clear button that resets that input also empties the table; resetWidget alone cannot clear a query-bound table). Input validation: set 'validation' { format: 'zipcode'|'email'|'number'|'integer'|'usPhone', message? } on an input to add a vetted regex + error message (never author a raw regex). Set 'disableWhenInvalid': '<input>' on a button to grey it out until that input passes validation (compiles to {{ !<input>.isValid }}) — use with validation so a bad value can't run the query. Conditional visibility / view switching: set 'visibleWhen' { control: '<select|tabs widget>', equals: '<value>' } to show a widget only when the control has that value — e.g. show a table when a ViewToggle equals 'Table' and a detail panel when it equals 'Details', switching views with one control. Two more predicate forms: { rowSelected: '<table>' } shows the widget only while that table has a selected row (detail panels, edit buttons), and { notEmpty: '<input>' } only while that input holds text.",
     {
       applicationId: idSchema,
       pageId: idSchema,
@@ -3399,7 +3780,7 @@ export function buildMcpServer(
 
   registerTool(
     "wire_event",
-    "Wire a widget event to a safe action from a CLOSED vocabulary: run a query, navigate to a page, show/close a modal, show an alert, reset one or more widgets ({ reset: 'Widget' } or { reset: ['A','B'] } — e.g. a Clear button that empties an input and resets a table), append a query's rows to a store key ({ appendToStore: { key, query, field?, fields? } } — an accumulating results table; bind the table with a { store: '<key>' } source/tableData; session-only), or empty one store key ({ clearStoreKey: { key } }). A run action may chain onSuccess/onError follow-ups from the same vocabulary (e.g. submit -> run insert -> re-run the table's query -> close the modal -> alert). The action may also be an ordered LIST of 2-5 statements with at most one run (e.g. clearStoreKey + reset in one click). Supported events: button onClick, table onRowSelected, modal onClose, tabs onTabSelected, select onOptionChange, input onSubmit, checkbox onCheckChange, switch onChange, datepicker onDateSelected. Queries bound to widgets already run on page load automatically (the server derives on-page-load execution from bindings) — no event needed for that. Modal stacking is policed: opening a modal from inside another modal warns at depth 2 and is rejected at depth 3+ or on a cycle; close the host modal in the same action (closeModal + showModal) for a wizard-style transition that never stacks. Read the page first and pass its revision. The compiler emits the binding; no raw JS or bindings are accepted.",
+    "Wire a widget event to a safe action from a CLOSED vocabulary: run a query, navigate to a page, show/close a modal, show an alert, reset one or more widgets ({ reset: 'Widget' } or { reset: ['A','B'] } — e.g. a Clear button that empties an input and resets a table), append a query's rows to a store key ({ appendToStore: { key, query, field?, fields? } } — an accumulating results table; bind the table with a { store: '<key>' } source/tableData; session-only), or empty one store key ({ clearStoreKey: { key } }), or call one function of a JS object ({ call: { object: 'BannerAdmin', function: 'save', args?: [..] } } — emits BannerAdmin.save(...); the object and function must exist in this application; args are scalar literals or { widget, property } refs, up to 5, never expressions). A run action may chain onSuccess/onError follow-ups from the same vocabulary (e.g. submit -> run insert -> re-run the table's query -> close the modal -> alert). The action may also be an ordered LIST of 2-5 statements with at most one run (e.g. clearStoreKey + reset in one click). Supported events: button onClick, table onRowSelected, modal onClose, tabs onTabSelected, select onOptionChange, input onSubmit, checkbox onCheckChange, switch onChange, datepicker onDateSelected. Queries bound to widgets already run on page load automatically (the server derives on-page-load execution from bindings) — no event needed for that. Modal stacking is policed: opening a modal from inside another modal warns at depth 2 and is rejected at depth 3+ or on a cycle; close the host modal in the same action (closeModal + showModal) for a wizard-style transition that never stacks. Read the page first and pass its revision. The compiler emits the binding; no raw JS or bindings are accepted.",
     {
       applicationId: idSchema,
       pageId: idSchema,
@@ -3455,6 +3836,39 @@ export function buildMcpServer(
         for (const reference of pageReferences) {
           if (!pages.some((page) => page.name === reference.name)) {
             return result({ error: `page "${reference.name}" was not found` });
+          }
+        }
+      }
+
+      // `call` references: the JS object must exist in this application and declare the function (by JSAction name
+      // or by the compiler's own body shape). Checked regardless of the JS-authoring gate — objects authored in the
+      // editor are callable too; the verb only emits `Obj.fn()` from two validated identifiers.
+      const jsReferences = references.filter(
+        (ref): ref is Extract<EventReference, { kind: "jsFunction" }> =>
+          ref.kind === "jsFunction",
+      );
+
+      if (jsReferences.length > 0) {
+        const collections = await api.listActionCollections(applicationId);
+        const objects = Array.isArray(collections) ? collections : [];
+
+        for (const reference of jsReferences) {
+          const object = objects.find(
+            (collection) =>
+              (collection as { name?: unknown } | null)?.name ===
+              reference.name,
+          );
+
+          if (object === undefined) {
+            return result({
+              error: `JS object "${reference.name}" was not found in this application`,
+            });
+          }
+
+          if (!jsObjectFunctionNames(object).includes(reference.member)) {
+            return result({
+              error: `function "${reference.member}" was not found on JS object "${reference.name}"`,
+            });
           }
         }
       }
@@ -5487,7 +5901,7 @@ export function buildMcpServer(
 
     registerTool(
       "create_mongo_query",
-      "Create a MongoDB query (find, insert, update, or delete) on an existing Mongo datasource from a STRUCTURED spec — no raw Mongo command, no raw bindings. FIND { collection, filter?: [{ field, value }], sort?: [{ field, direction: 'ASC'|'DESC' }], limit? } returns matching documents (filter clauses are AND-ed equality); INSERT { collection, document: [{ field, value }] } adds one document; UPDATE { collection, filter: [{ field, value }], update: [{ field, value }], multi? } sets the named fields (emitted as a $set — a partial update, only those fields change) on matched documents; DELETE { collection, filter: [{ field, value }], multi? } removes matched documents. UPDATE/DELETE REQUIRE a filter (a mutation is always targeted); multi:false (default) hits ONE matched document, multi:true hits ALL. Each value is { literal } or { widget, property } and binds as a smart-substitution parameter (never string-concatenated); field/collection names are validated identifiers. Insert/update/delete mutate the collection, so running them needs prepare_run_action/confirm_run_action (or wire to a button). Widgets reference the result by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
+      "Create a MongoDB query (find, insert, update, or delete) on an existing Mongo datasource from a STRUCTURED spec — no raw Mongo command, no raw bindings. FIND { collection, filter?: [clause], sort?: [{ field, direction: 'ASC'|'DESC' }], limit? } returns matching documents (for every operation, filter clauses are AND-ed and each clause is { field, op?, value } with op from eq (default) | ne | gt | gte | lt | lte | in | nin | exists — e.g. { field: 'deleted', op: 'ne', value: { literal: true } } keeps documents where the field is absent too; in/nin take { literal: [..] } or an array-valued widget ref; exists takes { literal: true|false }); INSERT { collection, document: [{ field, value }] } adds one document; UPDATE { collection, filter: [clause], update: [{ field, value }], multi? } sets the named fields (emitted as a $set — a partial update, only those fields change) on matched documents; DELETE { collection, filter: [clause], multi? } removes matched documents. UPDATE/DELETE REQUIRE a filter (a mutation is always targeted); multi:false (default) hits ONE matched document, multi:true hits ALL. Each value is { literal }, { date: '<ISO 8601>' } (a calendar date or date-time; normalised to a full UTC date-time and stored as a BSON date), { widget, property, as?: 'date' } (as: 'date' is only valid on a DatePicker's selectedDate and stores it as a BSON date), or { param: '<name>', as?: 'date' } — a value a JS-object function passes at run time via { run: '<thisQuery>', with: { name: expr } } (bound as this.params.name; this is how a normalised list, a converted number or a built document reaches the write) and binds as a smart-substitution parameter (never string-concatenated); a widget or param binding in an equality clause is emitted as { '$eq': … } so a viewer-supplied value can never become an operator; a query that reads params is created MANUAL and never runs on page load (a missing param would reach Mongo as null), so call it from a JS-object function with run … with; field/collection names are validated identifiers. Insert/update/delete mutate the collection, so running them needs prepare_run_action/confirm_run_action (or wire to a button). Widgets reference the result by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
       {
         query: z.record(z.unknown()),
         branch: gitBranchParamSchema.optional(),
@@ -5558,10 +5972,64 @@ export function buildMcpServer(
           buildMongoActionDto(spec, compiled),
         );
 
+        // A query that reads this.params must never run on page load (a missing param reaches Mongo as null and
+        // broadens a filter). The create request cannot carry userSetOnLoad, so pin MANUAL through the
+        // run-behaviour route now; a failure here leaves a created query that the server may later switch onto
+        // page load, so the query is removed again on failure (fail closed) and the agent is told.
+        if (specUsesParams(spec)) {
+          const actionId = (created as { id?: unknown } | null)?.id;
+
+          try {
+            if (typeof actionId !== "string") {
+              throw new Error("the create response carried no action id");
+            }
+
+            await api.setActionRunBehaviour(actionId, "MANUAL");
+          } catch (error) {
+            // Fail CLOSED: an unpinned query that reads this.params would be auto-switched onto page load by
+            // the server the moment a widget binds it (a missing param reaches Mongo as null), so the query is
+            // removed again rather than left behind. Only if the removal itself fails is the query reported as
+            // still present, with the manual remediation.
+            const reason =
+              error instanceof Error ? error.message : "unknown error";
+
+            if (typeof actionId !== "string") {
+              // Nothing to remove by id: report the query as present, never as removed.
+              return result({
+                created: true,
+                command: compiled.command,
+                action: created,
+                code: "run_behaviour_not_pinned",
+                error: `the query was created but could not be pinned to manual run behaviour (${reason}) and could not be removed because the create response carried no action id; it reads this.params, so set it to "Manual" in the editor's run-behaviour dropdown or delete it before binding it to a widget`,
+              });
+            }
+
+            try {
+              await api.deleteAction(actionId);
+            } catch (cleanupError) {
+              return result({
+                created: true,
+                command: compiled.command,
+                action: created,
+                code: "run_behaviour_not_pinned",
+                error: `the query was created but could not be pinned to manual run behaviour (${reason}) and could not be removed either (${cleanupError instanceof Error ? cleanupError.message : "unknown error"}); it reads this.params, so set it to "Manual" in the editor's run-behaviour dropdown or delete it before binding it to a widget`,
+              });
+            }
+
+            return result({
+              created: false,
+              command: compiled.command,
+              code: "run_behaviour_not_pinned",
+              error: `the query could not be pinned to manual run behaviour (${reason}), so it was removed again; a query that reads this.params must never run on page load. Retry, or create it without { param } values`,
+            });
+          }
+        }
+
         return result({
           created: true,
           command: compiled.command,
           action: created,
+          ...(specUsesParams(spec) ? { runBehaviour: "MANUAL" } : {}),
         });
       },
     );
@@ -6409,7 +6877,7 @@ export function buildMcpServer(
   if (jsEnabled) {
     registerTool(
       "read_js_object",
-      "List the application's JS objects with safe metadata (id, name, page, function names) and revision tokens for update/delete, plus a list revision for create. Never returns JS source.",
+      "List the application's JS objects with their metadata (id, name, page, function names), authoredBy ('mcp' for objects this server compiled, 'editor' for hand-written ones), and for MCP-authored objects the compiled source plus the declarative `definition` (constants + functions) to edit and send back through update_js_object (editor-authored source is never returned), and revision tokens for update/delete, plus a list revision for create.",
       { applicationId: idSchema },
       async ({ applicationId }) => {
         const collections = await api.listActionCollections(applicationId);
@@ -6417,7 +6885,7 @@ export function buildMcpServer(
         return result({
           jsObjects: (Array.isArray(collections) ? collections : []).map(
             (collection) => ({
-              ...projectJsObject(collection),
+              ...jsObjectView(collection),
               revision: fingerprintJsObject(collection),
             }),
           ),
@@ -6431,12 +6899,18 @@ export function buildMcpServer(
 
       registerTool(
         "create_js_object",
-        "Create a restricted JS object from a declarative spec (constants + async functions that run named queries and return literal objects). No raw JS, imports, globals, network calls, or loops. Pass a JS-list revision from read_js_object. Governed.",
+        "Create a restricted JS object from a declarative definition: constants (JSON literals, read as { constant }) and functions { name, params?, steps?, returns? }. steps is a CLOSED statement vocabulary: { let, value } / { set, value } locals; { run: '<query>', with?: { key: expr }, into?: local } (with becomes this.params.key inside the query; use { param } values in create_mongo_query); { if, then, else? }; { forEach, as, do }; { throw: 'message' }; { return: expr }; { showAlert, style? }; { storeValue, value }; { resetWidget }; { showModal } / { closeModal }; { navigate: '<page>' }; run takes an optional onError: [steps] failure branch; { call: '<siblingFn>' | { object, function }, args?, into? } awaits a function of this object or of another JS object on the same page, checked to exist before writing (both are also usable as a value); a showAlert message may be an expression. Every value is a bounded expression tree, never text: literals, { param }, { var }, { widget, property }, { table, column } (a selected-row column whose name is not an identifier), { query, field? }, { constant }, { store }, { op: add|sub|mul|div|mod|neg|eq|ne|gt|gte|lt|lte|and|or|not, args }, { fn, args } (string, number, date, boolean and array helpers such as trim, split with a named { sep }, number, date, isoString, unique, map/filter with { item: true }, get, coalesce — the full list with arities is in get_guide('js-objects')), { if, then, else }, { object: {..} }, { array: [..] }. Example (the exact JSON shape): { name: 'splitLines', params: ['value'], returns: { fn: 'unique', args: [{ fn: 'filter', args: [{ fn: 'map', args: [{ fn: 'split', args: [{ param: 'value' }, { sep: 'commaOrNewline' }] }, { fn: 'trim', args: [{ item: true }] }] }, { op: 'not', args: [{ fn: 'isEmpty', args: [{ item: true }] }] }] }] } } — note not is an op, item is { item: true }, and a param must be listed in params. Widget/query names may not be host globals (globalThis, eval, navigateTo, …) and property paths may not contain prototype segments. No raw JS, imports, globals, network calls, or regex text. Read get_guide('js-objects') first: it lists every statement, function, operator and separator with complete worked examples (split-and-dedupe, related-field validation, a full Save flow). Pass a JS-list revision from read_js_object. Governed.",
         {
           spec: z.record(z.unknown()),
           branch: gitBranchParamSchema.optional(),
         },
         async ({ branch, spec }) => {
+          if (exceedsJsonDepth(spec, MAX_DEFINITION_JSON_DEPTH)) {
+            return result({
+              error: `the definition nests deeper than ${MAX_DEFINITION_JSON_DEPTH} levels`,
+            });
+          }
+
           const raw = spec as Record<string, unknown>;
           const applicationId = raw.applicationId;
 
@@ -6476,15 +6950,34 @@ export function buildMcpServer(
           if (!parsed.success) return validationError(parsed.error.issues);
 
           const request = buildCreateJsObjectRequest(parsed.data);
-          const currentRevision = fingerprintJsList(
-            await api.listActionCollections(applicationId),
+          const existing = await api.listActionCollections(applicationId);
+          const dangling = missingCrossObjectCall(
+            parsed.data,
+            existing,
+            [parsed.data.name],
+            parsed.data.pageId,
           );
+
+          if (dangling !== undefined) return result({ error: dangling });
+
+          const cycle = callCycleProblem(
+            parsed.data,
+            existing,
+            parsed.data.name,
+            parsed.data.pageId,
+          );
+
+          if (cycle !== undefined) {
+            return result({ error: cycle, code: "call_cycle" });
+          }
+
+          const currentRevision = fingerprintJsList(existing);
 
           try {
             const { changeId, value } = await govJs.execute({
               actorId,
               organizationId,
-              entityKey: `application:${applicationId}:jsobjects`,
+              entityKey: jsObjectsEntityKey(applicationId),
               operation: "create_js_object",
               expectedRevision: parsed.data.revision,
               currentRevision,
@@ -6492,7 +6985,7 @@ export function buildMcpServer(
                 const created = await api.createActionCollection(request.body);
 
                 return {
-                  value: { jsObject: projectJsObject(created) },
+                  value: { jsObject: jsObjectView(created) },
                   revisionAfter: fingerprintJsList(
                     await api.listActionCollections(applicationId),
                   ),
@@ -6514,12 +7007,18 @@ export function buildMcpServer(
 
       registerTool(
         "update_js_object",
-        "Update a restricted JS object from a declarative spec. Pass a revision from read_js_object. No raw JS. Governed.",
+        "Update a restricted JS object from a declarative definition (same grammar as create_js_object). `functions` REPLACES the object's whole function set: start from the `definition` read_js_object returns, change what you need, and send all functions back so unrelated ones survive. Only MCP-authored objects (authoredBy 'mcp') accept a code update; an editor-authored object can only be renamed here — its JavaScript is never overwritten. Pass a revision from read_js_object. No raw JS. Governed.",
         {
           spec: z.record(z.unknown()),
           branch: gitBranchParamSchema.optional(),
         },
         async ({ branch, spec }) => {
+          if (exceedsJsonDepth(spec, MAX_DEFINITION_JSON_DEPTH)) {
+            return result({
+              error: `the definition nests deeper than ${MAX_DEFINITION_JSON_DEPTH} levels`,
+            });
+          }
+
           const parsed = updateJsObjectSpecSchema.safeParse(spec);
 
           if (!parsed.success) return validationError(parsed.error.issues);
@@ -6541,26 +7040,188 @@ export function buildMcpServer(
             return result({ error: "js object not found" });
           }
 
-          const request = buildUpdateJsObjectRequest(parsed.data);
+          // Code updates are refused on editor-authored objects: the closed grammar cannot re-express their
+          // JavaScript, so a body write would replace a human's code and the name diff would delete their functions,
+          // with no rollback path. Rename-only updates stay allowed.
+          const currentSource = jsObjectSource(current);
+
+          if (
+            parsed.data.functions !== undefined &&
+            (currentSource === undefined ||
+              !isCompilerAuthoredJsBody(currentSource))
+          ) {
+            return result({
+              error:
+                "this JS object was authored in the editor; its code cannot be re-expressed by the restricted grammar and is never overwritten. Rename it, or create a new MCP-authored object.",
+              code: "editor_authored_js_object",
+              authoredBy: "editor",
+            });
+          }
+
+          const currentName = String((current as { name?: string }).name);
+          const currentPageId = (current as { pageId?: string }).pageId;
+          const nextName = parsed.data.name ?? currentName;
+          const renaming = nextName !== currentName;
+
+          // A rename does not rewrite the compiled `Old.fn()` calls other objects hold (the server PATCH copies the
+          // new name and nothing else), so those calls would dangle, or re-bind to whatever object takes the old
+          // name next. Refuse while any compiler-authored object on the page still calls the old name.
+          if (renaming) {
+            // The server PATCH validates names only on create (the editor's own rename goes through /refactor), so
+            // an MCP rename onto a name another JS object or query on this page already uses would leave two
+            // entities with one name in the data tree. Refuse it here.
+            const taken = await nameTakenOnPage(
+              api,
+              parsed.data.applicationId,
+              collections,
+              nextName,
+              currentPageId,
+              parsed.data.collectionId,
+            );
+
+            if (taken !== undefined) {
+              return result({
+                error: `cannot rename "${currentName}" to "${nextName}": ${taken} on this page already has that name`,
+                code: "name_taken",
+              });
+            }
+
+            const callers = compilerAuthoredCallersOf(
+              collections,
+              currentName,
+              currentPageId,
+              parsed.data.collectionId,
+            );
+
+            if (callers.length > 0) {
+              return result({
+                error: `cannot rename "${currentName}" while ${callers.join(", ")} still call${callers.length === 1 ? "s" : ""} it; the server does not rewrite compiled calls, so update ${callers.length === 1 ? "that caller" : "those callers"} first`,
+                code: "rename_breaks_calls",
+              });
+            }
+          }
+
+          if (parsed.data.functions !== undefined) {
+            const dangling = missingCrossObjectCall(
+              {
+                constants: parsed.data.constants,
+                functions: parsed.data.functions,
+              },
+              collections,
+              [currentName, nextName],
+              currentPageId,
+            );
+
+            if (dangling !== undefined) return result({ error: dangling });
+          }
+
+          // The cycle check runs whenever the code OR the name changes, under the post-update name: a rename into a
+          // name other objects already call closes a cycle without any code change [security re-check, M5].
+          if (parsed.data.functions !== undefined || renaming) {
+            const definition =
+              parsed.data.functions !== undefined
+                ? { functions: parsed.data.functions }
+                : currentSource === undefined
+                  ? undefined
+                  : jsObjectDefinitionFromBody(currentSource);
+
+            if (definition !== undefined) {
+              const cycle = callCycleProblem(
+                definition,
+                collections,
+                nextName,
+                currentPageId,
+                parsed.data.collectionId,
+              );
+
+              if (cycle !== undefined) {
+                return result({ error: cycle, code: "call_cycle" });
+              }
+            }
+          }
+
+          const request = buildUpdateJsObjectRequest(
+            parsed.data,
+            current as ExistingJsObject,
+          );
 
           try {
             const { changeId, value } = await govJs.execute({
               actorId,
               organizationId,
-              entityKey: `jsobject:${parsed.data.collectionId}`,
+              // Every JS-object write in an application takes the same key as create_js_object, so a rename, a
+              // code update and a create of the same name are serialised against each other (a per-object key
+              // let a rename and a code update of one object both pass their revision checks) [security, architect
+              // re-checks, M8]. Throughput is irrelevant for an agent tool.
+              entityKey: jsObjectsEntityKey(parsed.data.applicationId),
               operation: "update_js_object",
               expectedRevision: parsed.data.revision,
               currentRevision: fingerprintJsObject(current),
               mutate: async () => {
-                const updated = await api.updateActionCollection(
-                  parsed.data.collectionId,
-                  request.body,
-                );
+                // The early name_taken check ran before the lock, so a create that completed in between could have
+                // taken the name; re-check under the lock, from a fresh listing, before anything is written.
+                if (renaming) {
+                  const taken = await nameTakenOnPage(
+                    api,
+                    parsed.data.applicationId,
+                    await api.listActionCollections(parsed.data.applicationId),
+                    nextName,
+                    currentPageId,
+                    parsed.data.collectionId,
+                  );
+
+                  if (taken !== undefined) {
+                    throw new NameTakenError(currentName, nextName, taken);
+                  }
+                }
+
+                // Two server routes, in this order: the body route is the only one that writes the code (PATCH
+                // nulls `body`), and the PATCH then creates/updates/deletes the per-function JSActions so the
+                // editor's function list matches the new body. A PATCH failure after the body write leaves the
+                // code updated and the function list stale; the error says so, and because the revision now
+                // hashes the body the agent must read_js_object again before re-running the update.
+                if (request.jsBody !== undefined) {
+                  await api.updateActionCollectionBody(
+                    parsed.data.collectionId,
+                    { body: request.jsBody },
+                  );
+                }
+
+                try {
+                  await api.updateActionCollection(
+                    parsed.data.collectionId,
+                    request.body,
+                  );
+                } catch (error) {
+                  if (request.jsBody === undefined) throw error;
+
+                  throw new Error(
+                    `the JS object's code was written but its function list could not be updated (${error instanceof Error ? error.message : "unknown error"}); read_js_object for the new revision, then re-run the update`,
+                  );
+                }
+
+                // Re-read rather than trust the PATCH response: that route answers with `body` nulled.
+                const after = (await api.listActionCollections(
+                  parsed.data.applicationId,
+                )) as unknown;
+                const updated =
+                  (Array.isArray(after) ? after : []).find(
+                    (collection) =>
+                      (collection as { id?: unknown } | null)?.id ===
+                      parsed.data.collectionId,
+                  ) ?? current;
 
                 return {
-                  value: { jsObject: projectJsObject(updated) },
+                  value: { jsObject: jsObjectView(updated) },
                   revisionAfter: fingerprintJsObject(updated),
-                  rollback: { collectionId: parsed.data.collectionId },
+                  // The previous compiled body and JSAction list are recorded so the audit trail holds enough to
+                  // restore the object by hand (the rollback tools re-apply layout records only, today).
+                  rollback: {
+                    kind: "jsObject",
+                    collectionId: parsed.data.collectionId,
+                    body: currentSource,
+                    actions: (current as ExistingJsObject).actions,
+                  },
                   summary: { collectionId: parsed.data.collectionId },
                 };
               },
@@ -6708,7 +7369,9 @@ export function buildMcpServer(
             const { changeId } = await govJs.execute({
               actorId,
               organizationId,
-              entityKey: `jsobject:${parsed.data.collectionId}`,
+              // The confirmation above is bound to the object; the write itself is serialised with every other
+              // JS-object write in the application (see update_js_object).
+              entityKey: jsObjectsEntityKey(parsed.data.applicationId),
               operation: "delete_js_object",
               expectedRevision: parsed.data.revision,
               currentRevision: fingerprintJsObject(current),
@@ -6736,6 +7399,51 @@ export function buildMcpServer(
       );
     }
   }
+
+  // Edition tools (EE: workflows; none in CE). The host's registrar is the only way in, and it enforces the catalog
+  // rather than trusting the edition: an uncatalogued name or a destructive tool is refused (throws), a tool whose
+  // catalog gate is off under this session's gates is skipped (so get_capabilities and the registered set agree), and
+  // everything else goes through the same annotation-enforcing registerTool as the core tools.
+  const registerExtensionTool = ((...args: unknown[]) => {
+    const name = String(args[0]);
+    const entry = EXTENSION_TOOL_CATALOG.find((tool) => tool.name === name);
+
+    if (entry === undefined) {
+      throw new Error(
+        `MCP extension tool "${name}" is not in EXTENSION_TOOL_CATALOG`,
+      );
+    }
+
+    // Both checks run before the gate so a bad tool fails in every configuration, not only where its gate is on.
+    if (!Object.hasOwn(TOOL_ANNOTATIONS, name)) {
+      throw new Error(
+        `MCP tool "${name}" has no entry in TOOL_ANNOTATIONS (add it to EXTENSION_TOOL_ANNOTATIONS in ee/extensions/catalog.ts)`,
+      );
+    }
+
+    const { destructiveHint, readOnlyHint } = TOOL_ANNOTATIONS[name];
+
+    // Extension tools get no governed prepare/confirm or elicitation layer, so nothing destructive may register —
+    // including a non-read-only tool that leaves destructiveHint unset, which MCP defines (and clients treat) as
+    // destructive.
+    if (destructiveHint ?? readOnlyHint !== true) {
+      throw new Error(
+        `MCP extension tool "${name}" is destructive; extension tools cannot be destructive until the extension host offers governed approval`,
+      );
+    }
+
+    if (!gateActive(entry.gate, capabilityGates)) return undefined;
+
+    return (registerTool as (...rest: unknown[]) => RegisteredTool)(...args);
+  }) as ExtensionToolRegistrar;
+
+  registerExtensionTools({
+    registerTool: registerExtensionTool,
+    api,
+    ctx,
+    gates: capabilityGates,
+    result,
+  });
 
   registerInstructions(server);
 
@@ -7162,6 +7870,8 @@ export interface McpHttpServerOptions {
   // Operator strict mode (APPSMITH_MCP_STRICT_ELICITATION): requires in-band prompts, refuses relay — see
   // ServerContext.elicitationStrict. Wins over elicitationDisabled.
   elicitationStrict?: boolean;
+  // Override for the edition-gate resolution cap (default EXTENSION_GATES_TIMEOUT_MS); injectable for tests.
+  extensionGatesTimeoutMs?: number;
   // Operator-facing log line sink (default: process.stderr) — see ServerContext.logSink.
   logSink?: (line: string) => void;
   // Session RECORD store shared by every replica (default: in-process, which is correct for exactly one pod). On a
@@ -7384,6 +8094,54 @@ export function createMcpHttpServer(
     }
   }
 
+  // The session's edition gates (resolveExtensionGates; CE resolves none without a network call), resolved LIVE with
+  // the caller's own API client each time a session's server is built — at initialize and on rehydration — and never
+  // stored in or read from the shared session record, so (like isAdmin/organizationId) a Redis writer cannot switch
+  // a gate on. A resolver failure fails closed: every extension gate stays off and the operator sees one log line
+  // carrying only the error's class, never its message (which may echo an upstream body) or the token. So does a
+  // resolver that has not settled within extensionGatesTimeoutMs (logged as "timeout"); its late answer is ignored.
+  const extensionGatesTimeoutMs =
+    options.extensionGatesTimeoutMs ?? EXTENSION_GATES_TIMEOUT_MS;
+
+  async function liveExtensionGates(
+    api: AppsmithApi,
+  ): Promise<Readonly<Record<string, boolean>>> {
+    const timedOut = Symbol("timeout");
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    try {
+      // Only gates that are exactly true survive, whatever shape the resolver returned.
+      const resolved: unknown = await Promise.race([
+        resolveExtensionGates(api),
+        new Promise<typeof timedOut>((resolve) => {
+          timer = setTimeout(() => resolve(timedOut), extensionGatesTimeoutMs);
+        }),
+      ]);
+
+      if (resolved === timedOut) {
+        logSink(
+          "Appsmith MCP could not resolve edition tool gates for a session (timeout); its edition tools stay disabled\n",
+        );
+
+        return {};
+      }
+
+      return Object.fromEntries(
+        Object.entries(
+          typeof resolved === "object" && resolved !== null ? resolved : {},
+        ).filter(([, on]) => on === true),
+      );
+    } catch (error) {
+      logSink(
+        `Appsmith MCP could not resolve edition tool gates for a session (${error instanceof Error ? error.name : typeof error}); its edition tools stay disabled\n`,
+      );
+
+      return {};
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   // The per-session ServerContext fields that are instance configuration rather than session facts.
   function sessionServerContext() {
     return {
@@ -7447,6 +8205,7 @@ export function createMcpHttpServer(
         sessions.set(record.id, local);
       },
     );
+    const extensionGates = await liveExtensionGates(api);
     const mcpServer = buildMcpServer(api, {
       ...sessionServerContext(),
       actorId: record.username,
@@ -7454,6 +8213,7 @@ export function createMcpHttpServer(
       // stored record: a Redis writer must not be able to hand a session admin rights or another tenant.
       isAdmin: identity.isAdmin,
       organizationId: identity.organizationId,
+      extensionGates,
       requestOrigin: record.requestOrigin,
     });
 
@@ -7877,11 +8637,13 @@ export function createMcpHttpServer(
           randomUUID,
           registerSession,
         );
+        const extensionGates = await liveExtensionGates(api);
         const mcpServer = buildMcpServer(api, {
           ...sessionServerContext(),
           actorId: authenticatedUser,
           isAdmin,
           organizationId,
+          extensionGates,
           requestOrigin,
         });
 
