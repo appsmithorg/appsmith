@@ -404,8 +404,9 @@ public class DatasourceStorageServiceTest {
         DatasourceStorage requestStorage =
                 new DatasourceStorage("datasource-id", "environment-id", requestConfiguration, null, null, null);
 
-        DatasourceStorage boundStorage =
-                datasourceStorageService.bindStoredCredentials(requestStorage, storedStorage).datasourceStorage();
+        DatasourceStorage boundStorage = datasourceStorageService
+                .bindStoredCredentials(requestStorage, storedStorage)
+                .datasourceStorage();
 
         assertThat(boundStorage.getId()).isEqualTo("storage-id");
         assertThat(boundStorage.getDatasourceConfiguration()).isSameAs(requestConfiguration);
