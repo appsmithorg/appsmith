@@ -219,10 +219,17 @@ export const FIXED_APPLICATIONS = () => `Classic Applications`;
 export const AI_AGENTS_APPLICATIONS = () => `AI Agents`;
 export const AI_APPLICATION_CARD_LIST_ZERO_STATE = () =>
   `There are no AI Agents in this workspace.`;
-export const ANVIL_APPLICATIONS = () => `Anvil apps`;
+// User-facing label for the ANVIL layout system is "Responsive" (APP-15954).
+// The internal name stays "Anvil" everywhere — the persisted
+// appPositioning.type == ANVIL enum, LayoutSystemTypes.ANVIL, the feature flags
+// and the module paths are unchanged.
+// Sentence case and "applications" (not "Apps") to match every sibling on the
+// same screen — APPLICATIONS, NEW_APP, APPLICATION_CARD_LIST_ZERO_STATE.
+// "responsive" stays lowercase mid-sentence: it is a descriptor, not a brand.
+export const ANVIL_APPLICATIONS = () => `Responsive applications`;
 export const ANVIL_APPLICATION_CARD_LIST_ZERO_STATE = () =>
-  `There are no Anvil apps in this workspace yet.`;
-export const NEW_ANVIL_APP = () => `Anvil app`;
+  `There are no responsive applications in this workspace.`;
+export const NEW_ANVIL_APP = () => `Responsive application`;
 export const AI_AGENT_AUTH_SUBTITLE = () =>
   `Sign up with any Google account.\n Support for email will be available soon.`;
 
@@ -2075,8 +2082,15 @@ export const APP_SETTINGS_CLOSE_TOOLTIP = () => "Close settings panel";
 
 export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
 export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General settings";
-export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () => "App name and icon";
+export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
+  "App name, description and icon";
 export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App name";
+export const GENERAL_SETTINGS_APP_DESCRIPTION_LABEL = () => "App description";
+export const GENERAL_SETTINGS_APP_DESCRIPTION_PLACEHOLDER = () =>
+  "Shown under the app name";
+export const GENERAL_SETTINGS_APP_DESCRIPTION_TOO_LONG = (max: number) =>
+  `Description cannot exceed ${max} characters`;
+export const APP_CARD_DESCRIPTION_PLACEHOLDER = () => "Add a description";
 export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "App name cannot be empty";
 export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>

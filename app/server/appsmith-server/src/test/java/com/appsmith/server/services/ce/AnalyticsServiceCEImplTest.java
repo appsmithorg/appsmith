@@ -2,7 +2,12 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.enums.FeatureFlagEnum;
+import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.configurations.DeploymentProperties;
+import com.appsmith.server.configurations.ProjectProperties;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.segment.analytics.Analytics;
@@ -16,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -103,5 +109,70 @@ public class AnalyticsServiceCEImplTest {
                 .verifyComplete();
 
         verify(analytics, never()).enqueue(any());
+    }
+
+    // Deleting a user must not mint a Segment identity for the deleted user: user events are keyed by the
+    // object user, so each deletion would otherwise count as a new tracked user that never acts again.
+    @Test
+    void sendObjectEvent_deleteUser_returnsObjectWithoutEnqueueing() {
+        Analytics analytics = mock(Analytics.class);
+        AnalyticsServiceCEImpl analyticsService = analyticsServiceWithLoggedInAdmin(analytics);
+
+        User deletedUser = new User();
+        deletedUser.setId("user-to-delete");
+        deletedUser.setEmail("leaver@example.com");
+
+        StepVerifier.create(analyticsService.sendObjectEvent(
+                        AnalyticsEvents.DELETE, deletedUser, Map.of("isProvisioned", false)))
+                .expectNext(deletedUser)
+                .verifyComplete();
+
+        verify(analytics, never()).enqueue(any());
+    }
+
+    // The guard is specific to user deletions: other object events from the same session still reach Segment.
+    @Test
+    void sendObjectEvent_deleteWorkspace_stillEnqueues() {
+        Analytics analytics = mock(Analytics.class);
+        AnalyticsServiceCEImpl analyticsService = analyticsServiceWithLoggedInAdmin(analytics);
+
+        Workspace workspace = new Workspace();
+        workspace.setId("workspace-1");
+
+        StepVerifier.create(analyticsService.sendObjectEvent(AnalyticsEvents.DELETE, workspace, Map.of()))
+                .expectNext(workspace)
+                .verifyComplete();
+
+        verify(analytics, times(1)).enqueue(any());
+    }
+
+    private static AnalyticsServiceCEImpl analyticsServiceWithLoggedInAdmin(Analytics analytics) {
+        User admin = new User();
+        admin.setEmail("admin@example.com");
+        admin.setOrganizationId("org-1");
+        SessionUserService sessionUserService = mock(SessionUserService.class);
+        when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(admin));
+
+        // Cloud hosting keeps the user id unhashed, which is exactly the case the delete guard protects.
+        CommonConfig commonConfig = mock(CommonConfig.class);
+        when(commonConfig.getIsCloudHosting()).thenReturn(true);
+        when(commonConfig.getAdminEmailDomainHash()).thenReturn("admin-domain-hash");
+
+        ConfigService configService = mock(ConfigService.class);
+        when(configService.getInstanceId()).thenReturn(Mono.just("instance-id"));
+
+        ProjectProperties projectProperties = mock(ProjectProperties.class);
+        when(projectProperties.getVersion()).thenReturn("v1.0.0-test");
+
+        return new AnalyticsServiceCEImpl(
+                analytics,
+                sessionUserService,
+                commonConfig,
+                configService,
+                null, // userUtils
+                projectProperties,
+                mock(DeploymentProperties.class),
+                null, // userDataRepository
+                null); // featureFlagService: not consulted for a logged-in session user
     }
 }

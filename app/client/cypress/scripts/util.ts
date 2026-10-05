@@ -7,10 +7,6 @@ import fetch from "node-fetch";
 import globby from "globby";
 import minimatch from "minimatch";
 
-export interface DataItem {
-  name: string;
-  duration: string;
-}
 export default class util {
   public getVars() {
     return {
@@ -44,35 +40,6 @@ export default class util {
       }),
       gitWorkflowName: this.getEnvValue("GITHUB_WORKFLOW", { required: false }),
     };
-  }
-
-  public async divideSpecsIntoBalancedGroups(
-    data: DataItem[],
-    numberOfGroups: number,
-  ): Promise<DataItem[][]> {
-    const groups: DataItem[][] = Array.from(
-      { length: numberOfGroups },
-      () => [],
-    );
-    data.forEach((item) => {
-      // Find the group with the shortest total duration and add the item to it
-      const shortestGroupIndex = groups.reduce(
-        (minIndex, group, currentIndex) => {
-          const totalDuration = groups[minIndex].reduce(
-            (acc, item) => acc + Number(item.duration),
-            0,
-          );
-          const totalDurationCurrent = group.reduce(
-            (acc, item) => acc + Number(item.duration),
-            0,
-          );
-          return totalDurationCurrent < totalDuration ? currentIndex : minIndex;
-        },
-        0,
-      );
-      groups[shortestGroupIndex].push(item);
-    });
-    return groups;
   }
 
   // This function will get all the spec paths using the pattern

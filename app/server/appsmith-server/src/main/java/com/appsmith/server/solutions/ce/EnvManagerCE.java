@@ -46,8 +46,8 @@ public interface EnvManagerCE {
 
     /**
      * Writes {@code APPSMITH_MCP_INTERNAL_SECRET} to the env file without ACL or organization-config fan-out.
-     * An empty value unsets the variable. Does not require a restart; callers must also update
-     * {@code CommonConfig#mcpInternalSecret} for the running process.
+     * An empty value unsets the variable. Does not restart; the client Save and Restart flow applies the secret.
+     * Callers must also update {@code CommonConfig#mcpInternalSecret} for the running process.
      */
     Mono<Void> persistMcpInternalSecret(String secret);
 }

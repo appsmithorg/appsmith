@@ -47,6 +47,7 @@ export class ConfigFactory {
       categoryType: config.categoryType,
       isEnterprise: config.isEnterprise,
       needsRefresh: config.needsRefresh,
+      needsRestart: config.needsRestart,
       isFeatureEnabled: config.isFeatureEnabled,
       children: config?.children?.map((child) =>
         ConfigFactory.getCategory(child),

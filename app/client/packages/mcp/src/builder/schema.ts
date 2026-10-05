@@ -97,7 +97,8 @@ const iconName = z
 // Also reject U+2028/U+2029 (line/paragraph separators): JSON.stringify does not escape them, and on a pre-ES2019
 // JS engine they terminate a string literal — closing a defense-in-depth gap across every safeText sink (e.g. the
 // select's JS-evaluated sourceData), not just the ones that emit into a binding.
-const RAW_EXPRESSION = /\u007b\u007b|\u007d\u007d|\$\u007b|`|\u2028|\u2029/;
+export const RAW_EXPRESSION =
+  /\u007b\u007b|\u007d\u007d|\$\u007b|`|\u2028|\u2029/;
 
 function safeText(max: number) {
   return z
@@ -200,6 +201,25 @@ function safeUrl(max = 2000) {
     });
 }
 
+// An Image widget's src (`image`, `defaultImage`). The client interpolates it raw into a styled-components rule
+// (`background-image: url("<value>")`), and the eval worker's IMAGE_URL validator only checks that the string
+// CONTAINS an image URL, so free text here would be a CSS breakout (`"` closes the url(), `}` closes the rule, and
+// the rest is stylesheet text in the viewer: url() egress, overlays). So: the safeUrl gate (absolute http(s), no
+// credentials, no bindings), then the WHATWG-normalised href (percent-encodes `"`, space, `<`, `>`), then a refusal
+// of every character that could still end a CSS string or function: quotes, backslash, parentheses, whitespace.
+// Base64 `data:` images are deliberately not admitted (safeUrl is http(s)-only). [Security review, APP-16052 M5]
+export const imageUrl = safeUrl(2000)
+  .transform((value) => new URL(value).href)
+  .refine(
+    (href) => !/["'\\()\s]/.test(href),
+    "image URL must not contain quotes, backslashes, parentheses or whitespace",
+  )
+  // Percent-encoding can grow the href far past the 2000-character input bound (2000 CJK characters → ~18,000).
+  .refine(
+    (href) => href.length <= 2000,
+    "image URL is too long once normalised",
+  );
+
 const scalarCell = z.union([safeText(1000), z.number(), z.boolean(), z.null()]);
 
 // Column keys are agent-supplied strings that the TableWidgetV2 client embeds into a generated `{{ }}` column
@@ -294,6 +314,171 @@ export const storeKeySchema = z
   .refine((key) => !STORE_KEY_DENYLIST.has(key), {
     message: "store key collides with an Object.prototype property name",
   });
+
+// The same denylist, exported for every other place an agent-supplied name becomes an object key or a member
+// segment in emitted code (jsExpr object/with/get keys, JS-object member names, widget property paths).
+export const PROTOTYPE_PROPERTY_NAMES: ReadonlySet<string> = STORE_KEY_DENYLIST;
+
+// An ISO 8601 date or date-time (calendar date, optional time with Z or a numeric offset). The charset is digits,
+// `-` `:` `.` `T` `Z` `+` only, so a date literal can never carry quotes, braces, or `$`. The calendar fields are
+// range-checked explicitly (V8's Date.parse silently rolls 2026-02-30 forward to March), so an impossible date is
+// rejected up front rather than stored as a different day. Shared by the Mongo builder (`{ date }` values) and the
+// widget patch (a date picker's defaultDate / minDate / maxDate).
+export const ISO_DATE =
+  /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,3})?)?(?:Z|[+-](\d{2}):(\d{2}))?)?$/;
+
+export function isRealIsoDate(value: string): boolean {
+  const match = ISO_DATE.exec(value);
+
+  if (!match) return false;
+
+  const [, y, mo, d, h, mi, s, oh, om] = match;
+  const year = Number(y);
+  const month = Number(mo);
+  const day = Number(d);
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+
+  return (
+    month >= 1 &&
+    month <= 12 &&
+    day >= 1 &&
+    day <= daysInMonth &&
+    (h === undefined || Number(h) <= 23) &&
+    (mi === undefined || Number(mi) <= 59) &&
+    (s === undefined || Number(s) <= 59) &&
+    (oh === undefined || Number(oh) <= 14) &&
+    (om === undefined || Number(om) <= 59)
+  );
+}
+
+export const isoDateLiteral = z
+  .string()
+  .max(40)
+  .regex(ISO_DATE, "must be an ISO 8601 date or date-time")
+  .refine(isRealIsoDate, "must be a real calendar date");
+
+// Names that must never be accepted where the compiler emits a bare entity reference (`<name>.<path>`,
+// `<name>.run()`): the worker's own globals, JS builtins whose members are callable, and Appsmith's platform
+// action functions. A widget or query can never legitimately carry one of these names, so refusing them costs
+// nothing and closes the `{ widget: "globalThis", property: "eval" }` route [COUNCIL: APP-16052 M2 security].
+export const HOST_NAMES: ReadonlySet<string> = new Set([
+  "this",
+  "arguments",
+  "globalThis",
+  "window",
+  "self",
+  "top",
+  "parent",
+  "frames",
+  "document",
+  "location",
+  "navigator",
+  "eval",
+  "Function",
+  "AsyncFunction",
+  "GeneratorFunction",
+  "Reflect",
+  "Proxy",
+  "Symbol",
+  "Object",
+  "Array",
+  "String",
+  "Number",
+  "Boolean",
+  "BigInt",
+  "Date",
+  "Math",
+  "JSON",
+  "Promise",
+  "Error",
+  "Set",
+  "Map",
+  "WeakMap",
+  "WeakSet",
+  "WeakRef",
+  "RegExp",
+  "Intl",
+  "Atomics",
+  "SharedArrayBuffer",
+  "ArrayBuffer",
+  "DataView",
+  "fetch",
+  "XMLHttpRequest",
+  "WebSocket",
+  "Worker",
+  "importScripts",
+  "postMessage",
+  "setTimeout",
+  "setInterval",
+  "clearTimeout",
+  "clearInterval",
+  "queueMicrotask",
+  "structuredClone",
+  "require",
+  "module",
+  "exports",
+  "process",
+  "console",
+  "navigateTo",
+  "showAlert",
+  "storeValue",
+  "removeValue",
+  "clearStore",
+  "resetWidget",
+  "download",
+  "copyToClipboard",
+  "showModal",
+  "closeModal",
+  "postWindowMessage",
+  "geolocation",
+  "logoutUser",
+  "unlistenWindowMessage",
+  "windowMessageListener",
+  "item",
+]);
+
+// A dotted property path into a widget or entity, as it is emitted verbatim in a member position: segments are
+// DOT-SEPARATED identifiers (a doubled or trailing dot is a JS syntax error that breaks the whole binding), and
+// no segment may be an Object.prototype property or `prototype` — `text.constructor.constructor` would otherwise
+// walk from a string value to `Function` [COUNCIL: APP-16052 M2 security]. `run` and `clear` are refused too so a
+// path can never name a query's or store's action method.
+const PATH_SEGMENT_DENYLIST: ReadonlySet<string> = new Set([
+  ...STORE_KEY_DENYLIST,
+  "run",
+  "clear",
+]);
+
+// A page name as emitted inside a quoted navigateTo(...) argument (events.ts and the JS-object grammar share it).
+export const pageNameSchema = z
+  .string()
+  .min(1)
+  .max(64)
+  .regex(/^[A-Za-z0-9_ -]+$/, "must be a safe page name");
+
+// A table column name as emitted inside `Table.selectedRow[<JSON string>]`: JSON encoding makes any text safe in
+// the member position, so the charset only keeps names readable (letters, digits, space, _ - . # / ( )).
+export const tableColumnName = z
+  .string()
+  .min(1)
+  .max(64)
+  .regex(/^[A-Za-z0-9_ .\-#/()]+$/, "must be a plain column name")
+  .refine(
+    (column) => !PROTOTYPE_PROPERTY_NAMES.has(column) && column !== "prototype",
+    "collides with an Object.prototype property name",
+  );
+
+export const entityPropertyPath = z
+  .string()
+  .min(1)
+  .max(128)
+  .regex(
+    /^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/,
+    "must be a dotted identifier path (e.g. 'text' or 'selectedRow.id')",
+  )
+  .refine(
+    (path) => path.split(".").every((seg) => !PATH_SEGMENT_DENYLIST.has(seg)),
+    "property path must not contain a prototype or method segment",
+  );
 
 // M5 store binding form: bind a table's rows to a store key that wire_event's appendToStore accumulates into.
 // TABLE-ONLY by design — the list/card widget keeps the query-only tableDataRefSchema (store-bound card grids are
@@ -1152,7 +1337,7 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
       .object({
         type: z.literal("image"),
         name: nameField,
-        image: safeText(2000).optional(),
+        image: imageUrl.optional(),
         // Display binding: the image src from one field of a query's response. Compiler-emitted; mutually
         // exclusive with the static `image` (enforced in the template, like text's text/source).
         source: queryFieldRefSchema.optional(),

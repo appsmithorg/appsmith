@@ -6,25 +6,35 @@ import {
   MCP_SESSION_TTL_MS,
 } from "./app.js";
 import {
+  apiBaseUrlFromEnv,
   elicitationTimeoutFromEnv,
   gateEnabled,
+  gateEnabledUnlessFalse,
   publicOriginFromEnv,
+  requiredRedisUrlFromEnv,
   sessionLimitsFromEnv,
 } from "./gates.js";
 import { McpGovernanceCoordinator } from "./governance/coordinator.js";
 import {
   createGovernanceStoreFromEnv,
+  createRedisClientFromUrl,
   type MongoRedisGovernanceStore,
+  type RedisConnection,
 } from "./governance/store.js";
+import { RedisSessionRelay } from "./session/relay.js";
+import { RedisSessionStore, type McpSessionStore } from "./session/store.js";
 
 const port = Number(process.env.APPSMITH_MCP_PORT ?? 8092);
-const apiBaseUrl = process.env.APPSMITH_API_BASE_URL ?? "http://127.0.0.1:8080";
+const apiBaseUrl = apiBaseUrlFromEnv(
+  process.env.APPSMITH_API_BASE_URL ?? "http://127.0.0.1:8080",
+);
 
-// The data layer and restricted JS objects are OFF unless explicitly enabled, matching the parent
-// APPSMITH_MCP_ENABLED gate: an admin opts into each capability. Governed/destructive tools additionally require
-// Mongo+Redis, so they only register when that infra is present.
-const dataEnabled = gateEnabled(process.env.APPSMITH_MCP_DATA_ENABLED);
-const jsEnabled = gateEnabled(process.env.APPSMITH_MCP_JS_ENABLED);
+// Data and JS stay on unless an operator explicitly sets the env var to "false". Governed/destructive tools
+// still require Mongo+Redis and register only when that infrastructure is present.
+const dataEnabled = gateEnabledUnlessFalse(
+  process.env.APPSMITH_MCP_DATA_ENABLED,
+);
+const jsEnabled = gateEnabledUnlessFalse(process.env.APPSMITH_MCP_JS_ENABLED);
 
 // Optional Host-header allowlist (comma-separated hostnames) enforced on /mcp. Unset by default: this service is
 // fronted by Caddy which preserves the original Host, so a default loopback list would reject the proxied public
@@ -92,6 +102,8 @@ const sessionLimits = sessionLimitsFromEnv(
 
 let httpServer: Server | undefined;
 let governanceStore: MongoRedisGovernanceStore | undefined;
+let sessionRedis: RedisConnection | undefined;
+let sessionRelay: RedisSessionRelay | undefined;
 let shuttingDown = false;
 
 function shutdown(signal: string) {
@@ -107,7 +119,11 @@ function shutdown(signal: string) {
   forceExit.unref();
 
   const finish = (code: number) => {
-    void Promise.resolve(governanceStore?.close())
+    void Promise.allSettled([
+      Promise.resolve(governanceStore?.close()),
+      Promise.resolve(sessionRelay?.close()),
+      Promise.resolve(sessionRedis?.close()),
+    ])
       .catch(() => {})
       .finally(() => {
         clearTimeout(forceExit);
@@ -133,6 +149,27 @@ function shutdown(signal: string) {
   });
 }
 
+// How long a startup connection to Redis may take before the process gives up and exits (see main()).
+const STARTUP_CONNECT_TIMEOUT_MS = 30_000;
+
+async function withStartupTimeout<T>(
+  work: Promise<T>,
+  label: string,
+): Promise<T> {
+  let timer: NodeJS.Timeout | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      reject(
+        new Error(
+          `${label} did not connect within ${STARTUP_CONNECT_TIMEOUT_MS} ms (APPSMITH_REDIS_URL unreachable?)`,
+        ),
+      );
+    }, STARTUP_CONNECT_TIMEOUT_MS);
+  });
+
+  return Promise.race([work, timeout]).finally(() => clearTimeout(timer));
+}
+
 async function main(): Promise<void> {
   // Governance is available only when Mongo AND Redis are configured. If configured but unreachable we fail loudly
   // (supervisord restarts) rather than silently degrade — governed/destructive safety must not vanish unnoticed.
@@ -140,16 +177,55 @@ async function main(): Promise<void> {
   let governance: McpGovernanceCoordinator | undefined;
 
   if (store) {
-    await store.connect();
+    // Bounded like the session connects below: node-redis retries an unreachable server forever, and this await
+    // runs first, so without a timeout a pod could sit here indefinitely without ever listening.
+    await withStartupTimeout(store.connect(), "governance store");
     governanceStore = store;
     governance = new McpGovernanceCoordinator(store);
     process.stderr.write("Appsmith MCP governance store connected\n");
   } else {
     process.stderr.write(
-      "Appsmith MCP governance disabled (APPSMITH_MONGODB_URI/APPSMITH_DB_URL + APPSMITH_REDIS_URL not set); " +
+      "Appsmith MCP governance disabled (APPSMITH_DB_URL/APPSMITH_MONGODB_URI + APPSMITH_REDIS_URL not set); " +
         "governed and destructive tools will not be registered\n",
     );
   }
+
+  // Sessions ALWAYS live in the Redis that APPSMITH_REDIS_URL names — the one every Appsmith deployment already
+  // requires for the server's own web sessions — so any replica can serve any session and elicitation answers
+  // reach the pod that asked (see README "Running more than one replica"). There is no in-process mode: Appsmith
+  // itself does not run without Redis, so a missing or unusable URL fails startup loudly (supervisord restarts)
+  // rather than silently reproducing the multi-replica 404s.
+  const redisUrl = requiredRedisUrlFromEnv(process.env.APPSMITH_REDIS_URL);
+  const redis = createRedisClientFromUrl(redisUrl);
+
+  if (!redis) {
+    throw new Error(
+      "APPSMITH_REDIS_URL must be a redis://, rediss://, or redis-cluster:// URL for Appsmith MCP sessions",
+    );
+  }
+
+  // A runtime socket error with no listener would throw out of the event loop and exit the process; node-redis
+  // reconnects on its own, so log and keep serving (requests fail individually while it is down).
+  redis.on("error", (error) => {
+    process.stderr.write(
+      `Appsmith MCP session Redis error: ${error.message}\n`,
+    );
+  });
+  // node-redis retries an unreachable server forever, so a bare connect() would leave the process alive but
+  // never listening. Bound the startup connects: on timeout main() rejects, the process exits 1, and supervisord
+  // restarts it (visible in logs) instead of a silent hang.
+  await withStartupTimeout(redis.connect(), "session Redis");
+  sessionRedis = redis;
+  const sessionStore: McpSessionStore = new RedisSessionStore(redis);
+
+  sessionRelay = new RedisSessionRelay(redis);
+  // Open the relay's subscriber connection AND subscribe the pod channel NOW (RedisSessionRelay.connect), so an
+  // unreachable Redis or an ACL that forbids SUBSCRIBE fails startup loudly instead of leaving a live pod that
+  // answers 503 forever while Kubernetes — whose probes watch the backend — keeps it in rotation.
+  await withStartupTimeout(sessionRelay.connect(), "session relay subscriber");
+  process.stderr.write(
+    `Appsmith MCP sessions shared through Redis (pod id ${sessionRelay.podId})\n`,
+  );
 
   httpServer = createMcpHttpServer(apiBaseUrl, undefined, {
     dataEnabled,
@@ -161,6 +237,8 @@ async function main(): Promise<void> {
     elicitationStrict,
     elicitationTimeoutMs,
     ...sessionLimits,
+    sessionStore,
+    sessionRelay,
   });
 
   httpServer.listen(port, "127.0.0.1", () => {

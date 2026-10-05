@@ -860,6 +860,7 @@ class MultiSelectWidget extends BaseWidget<
         filterText={this.props.filterText}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isFilterable={this.props.isFilterable}
+        isRequired={this.props.isRequired}
         isValid={!isInvalid}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}

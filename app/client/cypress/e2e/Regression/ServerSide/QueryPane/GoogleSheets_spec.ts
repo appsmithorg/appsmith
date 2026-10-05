@@ -5,10 +5,6 @@ import {
   locators,
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
-import {
-  AppSidebar,
-  AppSidebarButton,
-} from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Google Sheets datasource row objects placeholder",
@@ -60,10 +56,7 @@ describe(
         "querying-google-sheets#create-queries",
         "getPluginForm",
       );
-      agHelper.GetNClick(locators._visibleTextSpan("Don't save"));
-      agHelper.Sleep();
-      AppSidebar.navigate(AppSidebarButton.Editor, true);
-      agHelper.Sleep();
+      dataSources.SaveDSFromDialog(false);
     });
   },
 );

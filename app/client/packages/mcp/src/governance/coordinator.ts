@@ -55,6 +55,10 @@ export interface DestructiveConfirmationBinding {
   operation: string;
   revision: string;
   digest: string;
+  // Optional confirm-time context stored inside the one-time confirmation (see PreparedConfirmation.context). Must
+  // be JSON-serializable and must NOT be the only thing that authorizes the operation: the digest/revision binding
+  // stays the security control, the context merely reconstructs what the prompt and execution need.
+  context?: Record<string, unknown>;
 }
 
 export interface ConsumeDestructiveConfirmation
@@ -205,6 +209,34 @@ export class McpGovernanceCoordinator {
     const confirmation = await this.store.peekConfirmation(confirmationId);
 
     return confirmation !== undefined && confirmation.actorId === actorId;
+  }
+
+  // NON-consuming, actor-bound read of the whole confirmation (context included) for the confirm step. Readable
+  // from ANY replica because it lives in the store, not in the memory of the pod that ran prepare. A foreign,
+  // expired, consumed, or unknown confirmationId reads nothing.
+  async readDestructiveConfirmation(
+    confirmationId: string,
+    actorId: string,
+  ): Promise<PreparedConfirmation | undefined> {
+    const confirmation = await this.store.peekConfirmation(confirmationId);
+
+    return confirmation !== undefined && confirmation.actorId === actorId
+      ? confirmation
+      : undefined;
+  }
+
+  // Drops a confirmation that can no longer succeed (its bound revision drifted) so a later confirm reads
+  // "missing" instead of re-running the drift checks. Actor-bound: only the preparer can discard their own token.
+  // The token would otherwise simply expire unconsumed — this is housekeeping, not a security control.
+  async discardDestructiveConfirmation(
+    confirmationId: string,
+    actorId: string,
+  ): Promise<void> {
+    const confirmation = await this.store.peekConfirmation(confirmationId);
+
+    if (confirmation !== undefined && confirmation.actorId === actorId) {
+      await this.store.consumeConfirmation(confirmationId);
+    }
   }
 
   async consumeDestructiveConfirmation(

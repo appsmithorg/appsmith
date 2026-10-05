@@ -29,38 +29,44 @@ public class ActionClonePageServiceCEImpl implements ClonePageServiceCE<NewActio
     @Override
     public Mono<Void> cloneEntities(ClonePageMetaDTO clonePageMetaDTO) {
         return getCloneableActions(clonePageMetaDTO.getBranchedSourcePageId())
-                .flatMap(action -> {
-                    // Set new page id in the actionDTO
-                    ActionDTO actionDTO = action.getUnpublishedAction();
-                    actionDTO.setRefType(clonePageMetaDTO.getRefType());
-                    actionDTO.setRefName(clonePageMetaDTO.getRefName());
+                .flatMap(
+                        action -> {
+                            // Set new page id in the actionDTO
+                            ActionDTO actionDTO = action.getUnpublishedAction();
+                            actionDTO.setRefType(clonePageMetaDTO.getRefType());
+                            actionDTO.setRefName(clonePageMetaDTO.getRefName());
 
-                    actionDTO.setPageId(clonePageMetaDTO.getClonedPageDTO().getId());
+                            actionDTO.setPageId(
+                                    clonePageMetaDTO.getClonedPageDTO().getId());
 
-                    boolean isJsAction = StringUtils.hasLength(actionDTO.getCollectionId());
+                            boolean isJsAction = StringUtils.hasLength(actionDTO.getCollectionId());
 
-                    if (isJsAction) {
-                        String newCollectionId =
-                                clonePageMetaDTO.getOldToNewCollectionIds().get(actionDTO.getCollectionId());
-                        actionDTO.setCollectionId(newCollectionId);
-                    }
-                    /*
-                     * - Now create the new action from the template of the source action.
-                     * - Use CLONE_PAGE context to make sure that page / application clone quirks are
-                     *   taken care of - e.g. onPageLoad setting is copied from action setting instead of
-                     *   being set to off by default.
-                     */
-                    AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE);
-                    ActionDTO cloneActionDTO = new ActionDTO();
+                            if (isJsAction) {
+                                String newCollectionId = clonePageMetaDTO
+                                        .getOldToNewCollectionIds()
+                                        .get(actionDTO.getCollectionId());
+                                actionDTO.setCollectionId(newCollectionId);
+                            }
+                            /*
+                             * - Now create the new action from the template of the source action.
+                             * - Use CLONE_PAGE context to make sure that page / application clone quirks are
+                             *   taken care of - e.g. onPageLoad setting is copied from action setting instead of
+                             *   being set to off by default.
+                             */
+                            AppsmithEventContext eventContext =
+                                    new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE);
+                            ActionDTO cloneActionDTO = new ActionDTO();
 
-                    // Indicates that source of action creation is clone page action
-                    cloneActionDTO.setSource(ActionCreationSourceTypeEnum.CLONE_PAGE);
-                    copyNestedNonNullProperties(actionDTO, cloneActionDTO);
-                    CreateActionMetaDTO createActionMetaDTO = new CreateActionMetaDTO();
-                    createActionMetaDTO.setIsJsAction(isJsAction);
-                    createActionMetaDTO.setEventContext(eventContext);
-                    return layoutActionService.createAction(cloneActionDTO, createActionMetaDTO);
-                })
+                            // Indicates that source of action creation is clone page action
+                            cloneActionDTO.setSource(ActionCreationSourceTypeEnum.CLONE_PAGE);
+                            copyNestedNonNullProperties(actionDTO, cloneActionDTO);
+                            CreateActionMetaDTO createActionMetaDTO = new CreateActionMetaDTO();
+                            createActionMetaDTO.setIsJsAction(isJsAction);
+                            createActionMetaDTO.setEventContext(eventContext);
+                            createActionMetaDTO.setNewPage(clonePageMetaDTO.getClonedNewPage());
+                            return layoutActionService.createAction(cloneActionDTO, createActionMetaDTO);
+                        },
+                        CLONE_CONCURRENCY)
                 .then();
     }
 

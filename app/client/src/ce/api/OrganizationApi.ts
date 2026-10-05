@@ -16,6 +16,7 @@ export type UpdateOrganizationConfigResponse = ApiResponse<{
 export interface UpdateOrganizationConfigRequest {
   organizationConfiguration: Record<string, string>;
   needsRefresh?: boolean;
+  needsRestart?: boolean;
   isOnlyOrganizationSettings?: boolean;
   apiConfig?: AxiosRequestConfig;
 }

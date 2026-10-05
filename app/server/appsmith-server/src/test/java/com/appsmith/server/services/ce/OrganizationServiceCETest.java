@@ -655,7 +655,7 @@ class OrganizationServiceCETest {
 
     @Test
     @WithUserDetails("api_user")
-    void updateOrganizationConfiguration_mcpFieldChangeWithoutExplicitEnabled_doesNotTouchInternalSecret() {
+    void updateOrganizationConfiguration_mcpUpdateWithoutExplicitEnabled_doesNotTouchInternalSecret() {
         commonConfig.setMcpInternalSecret("");
         McpConfig enable = new McpConfig();
         enable.setEnabled(TRUE);
@@ -667,58 +667,22 @@ class OrganizationServiceCETest {
         assertThat(secretAfterEnable).isNotBlank();
         clearInvocations(envManager);
 
-        McpConfig dataOnly = new McpConfig();
-        dataOnly.setDataEnabled(TRUE);
-        OrganizationConfiguration dataChanges = new OrganizationConfiguration();
-        dataChanges.setMcpConfig(dataOnly);
+        McpConfig unsetEnabled = new McpConfig();
+        OrganizationConfiguration unsetChanges = new OrganizationConfiguration();
+        unsetChanges.setMcpConfig(unsetEnabled);
 
-        StepVerifier.create(organizationService.updateOrganizationConfiguration(dataChanges))
+        StepVerifier.create(organizationService.updateOrganizationConfiguration(unsetChanges))
                 .assertNext(organization -> {
                     assertThat(organization
                                     .getOrganizationConfiguration()
                                     .getMcpConfig()
-                                    .getDataEnabled())
+                                    .getEnabled())
                             .isTrue();
                     assertThat(commonConfig.getMcpInternalSecret()).isEqualTo(secretAfterEnable);
                 })
                 .verifyComplete();
 
         verify(envManager, never()).persistMcpInternalSecret(anyString());
-    }
-
-    @Test
-    @WithUserDetails("api_user")
-    void updateOrganizationConfiguration_invalidMcpServerUrl_returnsError() {
-        McpConfig mcpConfig = new McpConfig();
-        mcpConfig.setEnabled(TRUE);
-        mcpConfig.setServerUrl("not-a-url");
-        final OrganizationConfiguration changes = new OrganizationConfiguration();
-        changes.setMcpConfig(mcpConfig);
-
-        StepVerifier.create(organizationService.updateOrganizationConfiguration(changes))
-                .expectErrorMatches(error -> {
-                    assertThat(error).isInstanceOf(AppsmithException.class);
-                    assertThat(error.getMessage()).contains("mcpConfig.serverUrl");
-                    return true;
-                })
-                .verify();
-    }
-
-    @Test
-    @WithUserDetails("api_user")
-    void updateOrganizationConfiguration_dataEnabledWithoutMcp_returnsError() {
-        McpConfig mcpConfig = new McpConfig();
-        mcpConfig.setDataEnabled(TRUE);
-        final OrganizationConfiguration changes = new OrganizationConfiguration();
-        changes.setMcpConfig(mcpConfig);
-
-        StepVerifier.create(organizationService.updateOrganizationConfiguration(changes))
-                .expectErrorMatches(error -> {
-                    assertThat(error).isInstanceOf(AppsmithException.class);
-                    assertThat(error.getMessage()).contains("mcpConfig.dataEnabled");
-                    return true;
-                })
-                .verify();
     }
 
     /**

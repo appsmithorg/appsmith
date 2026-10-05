@@ -1,9 +1,12 @@
 import {
   ELICITATION_TIMEOUT_CEILING_MS,
+  apiBaseUrlFromEnv,
   elicitationTimeoutFromEnv,
   gateEnabled,
+  gateEnabledUnlessFalse,
   parsePositiveInt,
   publicOriginFromEnv,
+  requiredRedisUrlFromEnv,
   sessionLimitsFromEnv,
 } from "./gates.js";
 
@@ -65,6 +68,26 @@ describe("gateEnabled — opt-in gate parsing (data/JS layers)", () => {
   });
 });
 
+describe("gateEnabledUnlessFalse — default-on until false", () => {
+  it.each(["false", "FALSE", "False", " false "])(
+    "disables for %j",
+    (value) => {
+      expect(gateEnabledUnlessFalse(value)).toBe(false);
+    },
+  );
+
+  it.each(["0", "off", "no", "disabled", "true", "1", "", "  "])(
+    "stays on for %j",
+    (value) => {
+      expect(gateEnabledUnlessFalse(value)).toBe(true);
+    },
+  );
+
+  it("stays on when the variable is unset", () => {
+    expect(gateEnabledUnlessFalse(undefined)).toBe(true);
+  });
+});
+
 describe("parsePositiveInt — session cap/TTL env overrides", () => {
   it.each([
     ["25", 25],
@@ -82,6 +105,31 @@ describe("parsePositiveInt — session cap/TTL env overrides", () => {
       expect(parsePositiveInt(value, 10)).toBe(10);
     },
   );
+});
+
+describe("apiBaseUrlFromEnv — APPSMITH_API_BASE_URL origin for /api/v1 paths", () => {
+  it.each([
+    ["http://127.0.0.1:8080", "http://127.0.0.1:8080"],
+    ["http://127.0.0.1:8080/", "http://127.0.0.1:8080"],
+    ["http://127.0.0.1:8080///", "http://127.0.0.1:8080"],
+    [" http://127.0.0.1:8080/ ", "http://127.0.0.1:8080"],
+    ["http://127.0.0.1:8080/api/v1", "http://127.0.0.1:8080"],
+    ["http://127.0.0.1:8080/api/v1/", "http://127.0.0.1:8080"],
+    ["https://apps.example.com/api/v1/", "https://apps.example.com"],
+    [
+      "https://apps.example.com/appsmith/api/v1/",
+      "https://apps.example.com/appsmith",
+    ],
+    ["HTTPS://apps.example.com/API/V1", "HTTPS://apps.example.com"],
+  ])("normalizes %j to %j", (value, expected) => {
+    expect(apiBaseUrlFromEnv(value)).toBe(expected);
+  });
+
+  it("leaves a non-api/v1 path prefix intact", () => {
+    expect(apiBaseUrlFromEnv("http://127.0.0.1:8080/appsmith")).toBe(
+      "http://127.0.0.1:8080/appsmith",
+    );
+  });
 });
 
 describe("publicOriginFromEnv — APPSMITH_MCP_PUBLIC_ORIGIN parsing (fail-closed)", () => {
@@ -136,6 +184,25 @@ describe("publicOriginFromEnv — APPSMITH_MCP_PUBLIC_ORIGIN parsing (fail-close
     expect(warn).toHaveBeenCalledTimes(1);
     expect(warn.mock.calls[0][0]).toContain("APPSMITH_MCP_PUBLIC_ORIGIN");
     expect(warn.mock.calls[0][0]).toContain("root-relative");
+  });
+});
+
+describe("requiredRedisUrlFromEnv — APPSMITH_REDIS_URL is mandatory for MCP sessions", () => {
+  it("returns the trimmed URL when set", () => {
+    expect(requiredRedisUrlFromEnv("redis://127.0.0.1:6379")).toBe(
+      "redis://127.0.0.1:6379",
+    );
+    expect(requiredRedisUrlFromEnv("  rediss://redis.internal:6380  ")).toBe(
+      "rediss://redis.internal:6380",
+    );
+  });
+
+  // There is no in-process fallback: Appsmith itself does not run without Redis, so a missing URL must stop the
+  // MCP process loudly instead of silently serving per-pod sessions behind a load balancer.
+  it.each([undefined, "", "   "])("throws for %j", (value) => {
+    expect(() => requiredRedisUrlFromEnv(value)).toThrow(
+      "APPSMITH_REDIS_URL is required",
+    );
   });
 });
 

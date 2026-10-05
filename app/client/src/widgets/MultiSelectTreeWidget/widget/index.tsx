@@ -728,6 +728,7 @@ class MultiSelectTreeWidget extends BaseWidget<
         expandAll={this.props.expandAll}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isFilterable
+        isRequired={this.props.isRequired}
         isValid={!isInvalid}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}

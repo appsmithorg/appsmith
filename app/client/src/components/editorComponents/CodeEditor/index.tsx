@@ -1523,11 +1523,14 @@ class CodeEditor extends Component<Props, State> {
       return;
     }
 
-    const lintErrors = this.props.lintErrors;
-
-    if (this.props.customErrors?.length) {
-      lintErrors.push(...this.props.customErrors);
-    }
+    // Copy before merging — getEntityLintErrors may return a shared emptyLint
+    // singleton. Mutating it with push() permanently pollutes that array, so
+    // custom widget compile errors survive after the syntax is fixed and can
+    // underline the wrong line once the source shifts.
+    const lintErrors = [
+      ...this.props.lintErrors,
+      ...(this.props.customErrors ?? []),
+    ];
 
     this.annotations = getLintAnnotations(editor.getValue(), lintErrors, {
       isJSObject,

@@ -1,4 +1,9 @@
+import {
+  EXTENSION_GUIDES,
+  EXTENSION_SERVER_INSTRUCTIONS,
+} from "../ee/extensions/catalog.js";
 import { WIDGET_CATALOG } from "./capabilities.js";
+import { renderJsObjectsGuide } from "./jsObjectGuide.js";
 import { listPresets } from "./presets.js";
 
 // M2 — instruction sets delivered through the MCP protocol as `resources` (reference/guides/recipes) and `prompts`
@@ -280,7 +285,7 @@ top-to-bottom, left-to-right order as the screenshot.
 user (a) which regions were approximated and how, (b) which were dropped, and (c) what a closer
 match would need (e.g. a native board/timeline widget).`;
 
-export const GUIDES: InstructionDoc[] = [
+const CORE_GUIDES: InstructionDoc[] = [
   {
     slug: "placement",
     title: "Placement guide",
@@ -299,6 +304,13 @@ export const GUIDES: InstructionDoc[] = [
     title: "Data & bindings guide",
     description: "Why raw expressions are rejected and how data binding works.",
     render: () => GUIDE_BINDINGS,
+  },
+  {
+    slug: "js-objects",
+    title: "JS objects guide",
+    description:
+      "The definition grammar for create_js_object / update_js_object: statements, expression leaves, every operator, function and separator (rendered from the compiler's tables), everyday Appsmith JavaScript mapped to definition shapes, and complete worked examples.",
+    render: renderJsObjectsGuide,
   },
   {
     slug: "git",
@@ -454,6 +466,28 @@ export const WIDGET_REFERENCE: InstructionDoc = {
   render: renderWidgetReference,
 };
 
+// Core guides plus the edition's (ee/extensions/catalog.ts; none in CE). Checked here, after every core doc is
+// declared: an extension guide may never take a core slug (guide, recipe or the widget reference) — get_guide and the
+// appsmith://guide/<slug> resource would otherwise serve two documents under one name — nor repeat its own.
+const CORE_DOC_SLUGS = new Set(
+  [WIDGET_REFERENCE, ...CORE_GUIDES, ...RECIPES].map((doc) => doc.slug),
+);
+
+for (const guide of EXTENSION_GUIDES) {
+  if (CORE_DOC_SLUGS.has(guide.slug)) {
+    throw new Error(`MCP extension guide "${guide.slug}" collides with core`);
+  }
+}
+
+if (
+  new Set(EXTENSION_GUIDES.map((guide) => guide.slug)).size !==
+  EXTENSION_GUIDES.length
+) {
+  throw new Error("MCP extension guides repeat a slug");
+}
+
+export const GUIDES: InstructionDoc[] = [...CORE_GUIDES, ...EXTENSION_GUIDES];
+
 // EVERY instruction doc (reference + guides + recipes) in one registry — the single source for both the MCP
 // resources and the always-on get_guide tool (tools-only clients like ChatGPT cannot read MCP resources, so the
 // same content must be reachable through a tool). Slugs are unique across all three groups (guarded by tests);
@@ -576,7 +610,7 @@ export function recipePresetNames(): string[] {
 // env-var names below are NOT bound to TOOL_CATALOG / WIDGET_CATALOG at compile time — on any tool rename, gate
 // change, or widget addition, reconcile this string with those sources. The `SERVER_INSTRUCTIONS names only real
 // tools + env vars` test guards against drift.
-export const SERVER_INSTRUCTIONS = `Appsmith MCP — build and modify REAL Appsmith applications through a safe, structured API. You never write raw widget DSL, SQL, JS, or bindings; you call tools and the server compiles them under the user's own permissions.
+const CORE_SERVER_INSTRUCTIONS = `Appsmith MCP — build and modify REAL Appsmith applications through a safe, structured API. You never write raw widget DSL, SQL, JS, or bindings; you call tools and the server compiles them under the user's own permissions.
 
 ALWAYS call get_capabilities first. It lists the exact tools available under this deployment's configuration, plus 'disabledCapabilities' — capability groups that exist but are turned off (e.g. datasources/queries, JS objects, publish). If a capability you need is disabled, relay that group's 'requires' instruction to the user (it tells them to ask their Appsmith administrator to enable it) — do NOT claim the server cannot do it. Enabling is controlled by APPSMITH_MCP_DATA_ENABLED / APPSMITH_MCP_JS_ENABLED and a Mongo + Redis governance backend.
 
@@ -596,3 +630,10 @@ If the user shows you a screenshot or mockup to recreate: read the appsmith://gu
 CLOSE THE LOOP before you call an app done — an app that shows stale data or dead-end selections is broken, not minimal: (1) EVERY wiring that runs a write query (INSERT/UPDATE/DELETE, non-GET REST) must chain onSuccess: [{ run: '<read query>' }] to re-run the reads it invalidates — otherwise tables/charts show stale data until the user reloads the page. (2) EVERY table whose rows users act on must feed something: a detail/edit panel bound to the selected row (source/defaultValue { table, column }), a visibleWhen { rowSelected } panel, or an onRowSelected event — a bare table whose selection does nothing is a dead end (display-only dashboards are the exception; say so if that's the intent). (3) After a Submit/Add wiring, reset the inputs (reset) and confirm with showAlert so the user sees it worked. inspect_page flags (1) as 'write-no-refresh' and (2) as 'selection-unused', and wire_event returns a refreshHint when you wire a write with no follow-up read — treat these as defects to fix, not noise.
 
 Read the appsmith://reference/widgets resource and appsmith://recipe/* walkthroughs for details. Prefer editing an existing app iteratively (read -> patch -> re-read) over rebuilding.`;
+
+// The edition's instruction text (ee/extensions/catalog.ts) is appended only when there is some, so CE serves the core
+// text byte-for-byte.
+export const SERVER_INSTRUCTIONS =
+  EXTENSION_SERVER_INSTRUCTIONS === ""
+    ? CORE_SERVER_INSTRUCTIONS
+    : `${CORE_SERVER_INSTRUCTIONS}\n\n${EXTENSION_SERVER_INSTRUCTIONS}`;

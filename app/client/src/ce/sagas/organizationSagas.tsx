@@ -143,6 +143,12 @@ export function* updateOrganizationConfigSaga(
       if (action.payload.needsRefresh) {
         location.reload();
       }
+
+      if (action.payload.needsRestart) {
+        yield put({
+          type: ReduxActionTypes.RESTART_SERVER_POLL,
+        });
+      }
     }
   } catch (error) {
     const errorObj = error as APIResponseError;

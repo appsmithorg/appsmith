@@ -58,6 +58,8 @@ function stubApi(): AppsmithApi {
     listActionCollections: jest.fn(),
     createActionCollection: jest.fn(),
     updateActionCollection: jest.fn(),
+    updateActionCollectionBody: jest.fn(),
+    setActionRunBehaviour: jest.fn(),
     deleteActionCollection: jest.fn(),
     validateToken: jest.fn(async () => ({
       username: "user@appsmith.com",
@@ -1011,9 +1013,11 @@ describe("M7 gate matrix — every pattern-copied gate call site refuses without
           collectionId: ENTITY_ID,
           revision: REVISION,
           name: "RenamedUtils",
+          // A code update too, so the gate is proven to sit ahead of BOTH routes (body PUT + PATCH).
+          functions: [{ name: "load", run: [{ query: "getUsers" }] }],
         },
       },
-      mutators: ["updateActionCollection"],
+      mutators: ["updateActionCollectionBody", "updateActionCollection"],
     },
     {
       tool: "confirm_delete_js_object",

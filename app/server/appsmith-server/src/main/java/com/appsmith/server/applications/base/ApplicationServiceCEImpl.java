@@ -283,6 +283,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if (!StringUtils.isEmpty(application.getName())) {
             application.setSlug(TextUtils.makeSlug(application.getName()));
         }
+        // Create, import, Git checkout, fork and clone must not fail on an oversized description
+        // (a hand-edited application.json would block a Git pull), so clamp instead of reject here.
+        application.clampDescriptionToMaxLength();
 
         if (application.getApplicationVersion() != null) {
             int appVersion = application.getApplicationVersion();
@@ -322,6 +325,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if (!StringUtils.hasLength(application.getColor())) {
             application.setColor(getRandomAppCardColor());
         }
+        // Create, import, Git checkout, fork and clone must not fail on an oversized description
+        // (a hand-edited application.json would block a Git pull), so clamp instead of reject here.
+        application.clampDescriptionToMaxLength();
         return super.create(application).onErrorResume(DuplicateKeyException.class, error -> {
             if (error.getMessage() != null
                     // Catch only if error message contains workspace_app_deleted_gitApplicationMetadata mongo error
@@ -363,6 +369,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             application.setLastEditedAt(Instant.now());
             if (!StringUtils.isEmpty(application.getName())) {
                 application.setSlug(TextUtils.makeSlug(application.getName()));
+            }
+
+            if (application.getDescription() != null
+                    && application.getDescription().length() > Application.DESCRIPTION_MAX_LENGTH) {
+                return Mono.error(
+                        new AppsmithException(AppsmithError.INVALID_PARAMETER, Application.Fields.description));
             }
 
             if (application.getApplicationVersion() != null) {

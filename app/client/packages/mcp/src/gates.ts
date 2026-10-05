@@ -8,6 +8,12 @@ export function gateEnabled(value: string | undefined): boolean {
   return value !== undefined && /^(1|true|yes|on)$/i.test(value.trim());
 }
 
+// Default-ON counterpart for capabilities whose server-side opt-in flags were removed. Enabled unless the env
+// value is "false" (trim + case-insensitive); "0", "off", blank, and unset all stay enabled.
+export function gateEnabledUnlessFalse(value: string | undefined): boolean {
+  return value === undefined || value.trim().toLowerCase() !== "false";
+}
+
 // Positive-integer env override (session caps, TTLs). Unset, non-numeric, fractional, zero, or negative values fall
 // back to the built-in default rather than failing startup or silently disabling a limit.
 export function parsePositiveInt(
@@ -19,6 +25,16 @@ export function parsePositiveInt(
   const parsed = Number(value);
 
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+// APPSMITH_API_BASE_URL is concatenated with paths that already start with /api/v1. Operators often paste the
+// Appsmith origin including that prefix (and a trailing slash). Strip both so we do not request /api/v1/api/v1/...
+export function apiBaseUrlFromEnv(value: string): string {
+  return value
+    .trim()
+    .replace(/\/+$/, "")
+    .replace(/\/api\/v1$/i, "")
+    .replace(/\/+$/, "");
 }
 
 // Public origin override for the URLs build_application returns (APPSMITH_MCP_PUBLIC_ORIGIN). Accepts ONLY an
@@ -112,6 +128,22 @@ export interface SessionLimits {
 // (e.g. "1e9" sessions, a week-long TTL) would silently remove the bound. Clamped with a warning, not rejected.
 export const MAX_SESSION_CAP_CEILING = 10_000;
 export const SESSION_TTL_CEILING_MS = 24 * 60 * 60 * 1000;
+
+// APPSMITH_REDIS_URL is REQUIRED: MCP sessions always live in the Redis that Appsmith itself already needs for its
+// own web sessions, so there is deliberately no in-process mode and no MCP-specific knob. Blank counts as missing
+// (docker.env-style files commonly carry empty keys). Throws, so main() exits before listening — loud, never a
+// silent fallback to per-pod memory that would reproduce the multi-replica 404s.
+export function requiredRedisUrlFromEnv(value: string | undefined): string {
+  const url = (value ?? "").trim();
+
+  if (url.length === 0) {
+    throw new Error(
+      "APPSMITH_REDIS_URL is required: Appsmith MCP sessions are shared through the same Redis the Appsmith server uses",
+    );
+  }
+
+  return url;
+}
 
 // Session-limit env overrides resolved against their built-in defaults. Lives here (not in the entrypoint) so the
 // env-var names and fallback behavior are unit-testable. A present-but-invalid value falls back AND is reported via

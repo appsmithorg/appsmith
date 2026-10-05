@@ -94,7 +94,7 @@ describe(
         pluginActionForm.toolbar.openContextMenu();
         deployMode.StubWindowNAssert(
           dataSources._queryDoc,
-          "connect-data/reference/using-smtp",
+          "using-smtp",
           "getPluginForm",
         );
       });

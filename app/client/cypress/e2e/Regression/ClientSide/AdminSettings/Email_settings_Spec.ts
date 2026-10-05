@@ -65,8 +65,7 @@ describe(
     });
 
     it("2. Verify admin setup smtp and test email works", () => {
-      agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
-      agHelper.CypressReload();
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       const testEmailSubject: string = "Test email from Appsmith";
       const testEmailBody: string =
         "This is a test email from Appsmith, initiated from Admin Settings page. If you are seeing this, your email configuration is working!";
@@ -248,8 +247,6 @@ describe(
     });
 
     it("4. To verify invite workspace email", () => {
-      agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
-      agHelper.CypressReload();
       const inviteEmailSubject: string =
         CURRENT_REPO === REPO.EE
           ? "You’re invited to the workspace"
@@ -257,8 +254,6 @@ describe(
       homePage.LogOutviaAPI();
       agHelper.VisitNAssert("/");
       agHelper.WaitUntilEleAppear(SignupPageLocators.forgetPasswordLink);
-      agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
-      agHelper.CypressReload();
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
       if (CURRENT_REPO === REPO.EE) adminSettings.EnableGAC(false, true);
@@ -325,8 +320,6 @@ describe(
     });
 
     it("5. To verify application invite email with developer right", () => {
-      agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
-      agHelper.CypressReload();
       const inviteEmailSubject: string =
         CURRENT_REPO === REPO.EE
           ? "You're invited to the app"
@@ -428,8 +421,6 @@ describe(
     });
 
     it("6. To verify application invite email with view right", () => {
-      agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
-      agHelper.CypressReload();
       const inviteEmailSubject: string =
         CURRENT_REPO === REPO.EE
           ? "You're invited to the app"
@@ -437,8 +428,8 @@ describe(
       homePage.LogOutviaAPI();
       agHelper.VisitNAssert("/");
       agHelper.WaitUntilEleAppear(SignupPageLocators.forgetPasswordLink);
-      agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      agHelper.VisitNAssert(adminSettings.routes.APPLICATIONS);
 
       if (CURRENT_REPO === REPO.EE) adminSettings.EnableGAC(false, true);
       agHelper.GenerateUUID();

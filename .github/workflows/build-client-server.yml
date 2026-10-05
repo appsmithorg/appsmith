@@ -10,10 +10,12 @@ concurrency:
 
 permissions:
   actions: read
+  checks: read
   contents: read
   issues: write
   packages: write
   pull-requests: write
+  statuses: write
 
 jobs:
   file-check:
@@ -765,3 +767,113 @@ jobs:
       - name: Check ci-test-limited-existing-docker-image set status
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
         run: exit 1
+
+  # Fork PRs: mark the single required gate `pending` as soon as an approved-CI
+  # run starts, so an earlier `success` cannot linger while the same commit is
+  # re-tested. Internal PRs are owned by merge-gate.yml (guarded out below). No
+  # checkout here (no fork code) — the PR number/head come from the trusted
+  # dispatch payload.
+  mark-fork-gate-pending:
+    name: mark-fork-gate-pending
+    if: github.event.action == 'approve-ci-command'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set ci/merge-gate pending for the fork PR
+        uses: actions/github-script@v7
+        env:
+          HEAD_SHA: ${{ github.event.client_payload.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.client_payload.pull_request.number }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const { HEAD_SHA, PR_NUMBER } = process.env;
+            const pr = (
+              await github.rest.pulls.get({ owner, repo, pull_number: Number(PR_NUMBER) })
+            ).data;
+            const isFork = !pr.head.repo || pr.head.repo.full_name !== `${owner}/${repo}`;
+            if (!isFork) {
+              core.info(`PR #${PR_NUMBER} is internal; merge-gate.yml owns it. Skipping.`);
+              return;
+            }
+            if (pr.state !== "open" || pr.base.ref !== "release" || pr.head.sha !== HEAD_SHA) {
+              core.info(`PR #${PR_NUMBER} not gatable / head moved; skipping.`);
+              return;
+            }
+            await github.rest.repos.createCommitStatus({
+              owner,
+              repo,
+              sha: HEAD_SHA,
+              state: "pending",
+              context: "ci/merge-gate",
+              description: "Approved CI running…",
+              target_url: `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`,
+            });
+
+  # Fork PRs: persist the approved Cypress result (`ci/fork-cypress`) on the
+  # approved head SHA, then write the single required `ci/merge-gate`. Uses the
+  # shared gate script, checked out from the trusted base repo (a
+  # repository_dispatch run defaults to the default branch — never fork code).
+  # Internal PRs are owned by merge-gate.yml (guarded out below).
+  set-fork-merge-gate:
+    name: set-fork-merge-gate
+    needs:
+      [
+        file-check,
+        ci-test-limited-result,
+        ci-test-full-result,
+        ci-test-limited-result-existing,
+      ]
+    if: always() && github.event.action == 'approve-ci-command' && needs.file-check.outputs.pr != '0'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout base repo (trusted — for the shared gate script only)
+        uses: actions/checkout@v4
+
+      - name: Write ci/merge-gate for the fork PR
+        uses: actions/github-script@v7
+        env:
+          NODE_PATH: ${{ github.workspace }}/.github/workflows/scripts
+          HEAD_SHA: ${{ github.event.client_payload.pull_request.head.sha }}
+          PR_NUMBER: ${{ needs.file-check.outputs.pr }}
+          CYPRESS_LIMITED: ${{ needs.ci-test-limited-result.result }}
+          CYPRESS_FULL: ${{ needs.ci-test-full-result.result }}
+          CYPRESS_EXISTING: ${{ needs.ci-test-limited-result-existing.result }}
+        with:
+          script: |
+            const gate = require("merge-gate.js");
+            const { owner, repo } = context.repo;
+            const { HEAD_SHA, PR_NUMBER, CYPRESS_LIMITED, CYPRESS_FULL, CYPRESS_EXISTING } = process.env;
+            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
+
+            const pr = (
+              await github.rest.pulls.get({ owner, repo, pull_number: Number(PR_NUMBER) })
+            ).data;
+
+            // Only fork PRs are gated here; internal PRs are owned by merge-gate.yml.
+            if (!gate.isFork(pr, owner, repo)) {
+              core.info(`PR #${PR_NUMBER} is internal; merge-gate.yml owns its status. Skipping.`);
+              return;
+            }
+
+            // Persist the approved Cypress result on the approved head SHA, then
+            // compute the gate from external-ci-result + that result. Passing the
+            // just-computed state avoids a read-after-write race on the status.
+            const forkCypressState = await gate.publishForkCypress({
+              github,
+              owner,
+              repo,
+              sha: HEAD_SHA,
+              results: [CYPRESS_LIMITED, CYPRESS_FULL, CYPRESS_EXISTING],
+              runUrl,
+            });
+
+            await gate.evaluate({
+              github,
+              core,
+              owner,
+              repo,
+              sha: HEAD_SHA,
+              pr,
+              forkCypressState,
+              runUrl,
+            });

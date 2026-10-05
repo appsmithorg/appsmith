@@ -123,11 +123,9 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                     OrganizationConfiguration snapshotOldConfig = oldOrganizationConfiguration;
                     Mono<Boolean> isMultiOrgMono =
                             organizationConfiguration.getMcpConfig() == null ? Mono.just(false) : isMultiOrgInstance();
-                    return envMono.then(isMultiOrgMono).flatMap(isMultiOrg -> {
-                        McpOrganizationConfigurationHelper.validate(
-                                organizationConfiguration.getMcpConfig(), snapshotOldConfig.getMcpConfig(), isMultiOrg);
-                        return Mono.zip(Mono.just(snapshotOldConfig), Mono.just(organization), Mono.just(isMultiOrg));
-                    });
+                    return envMono.then(isMultiOrgMono)
+                            .flatMap(isMultiOrg -> Mono.zip(
+                                    Mono.just(snapshotOldConfig), Mono.just(organization), Mono.just(isMultiOrg)));
                 })
                 .flatMap(tuple3 -> {
                     Organization organization = tuple3.getT2();

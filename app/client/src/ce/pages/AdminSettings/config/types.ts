@@ -120,6 +120,7 @@ export interface Category {
   subText?: string;
   isConnected?: boolean;
   needsRefresh?: boolean;
+  needsRestart?: boolean;
   children?: Category[];
   icon?: string;
   categoryType: string;
@@ -168,6 +169,7 @@ export interface AdminConfigType {
   canSave: boolean;
   isConnected?: boolean;
   needsRefresh?: boolean;
+  needsRestart?: boolean;
   icon?: string;
   categoryType: CategoryType;
   isEnterprise?: boolean;

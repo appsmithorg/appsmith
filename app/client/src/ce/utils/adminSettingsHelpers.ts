@@ -88,20 +88,12 @@ export const flattenOrganizationConfigForSettingsForm = (
       if (mcpConfig && typeof mcpConfig === "object") {
         const mcp = mcpConfig as Record<string, unknown>;
         const enabled = mcp.enabled === true;
-        const dataEnabled = mcp.dataEnabled === true;
 
         // Nested paths first: redux-form Field names like "mcpConfig.enabled" use lodash path get.
         // Dotted keys second: settingsMap / settingsConfig[id] lookups. lodash.set skips nesting
         // when the dotted own-property already exists.
         set(configs, "mcpConfig.enabled", enabled);
-        set(configs, "mcpConfig.dataEnabled", dataEnabled);
         configs["mcpConfig.enabled"] = enabled;
-        configs["mcpConfig.dataEnabled"] = dataEnabled;
-
-        if (typeof mcp.serverUrl === "string") {
-          set(configs, "mcpConfig.serverUrl", mcp.serverUrl);
-          configs["mcpConfig.serverUrl"] = mcp.serverUrl;
-        }
       }
 
       return;

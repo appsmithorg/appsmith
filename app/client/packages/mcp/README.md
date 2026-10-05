@@ -10,6 +10,145 @@ mutating/destructive operations go through a prepare/confirm handshake.
 
 ## Release notes
 
+### Authoring gaps closed from the Banner-editor exercise (APP-16052)
+
+Findings from building an internal admin app through MCP, all fixed without widening the closed vocabulary
+(agents still never author raw JS, Mongo commands, or `{{ }}` bindings):
+
+- `create_js_object` now sends `applicationId` (the server answered 400 `INVALID_PARAMETER` without it, so every
+  create failed) and one JSAction per function, as the web editor does, so functions are listed and runnable.
+- `update_js_object` now writes the compiled body through `PUT /collections/actions/{id}/body` (the PATCH route
+  nulls `body`, so updates never changed code before) and diffs functions into `actions.added/updated/deleted`
+  (`functions` replaces the whole set; absent functions are deleted). The server allowlist gains exactly that body
+  route. `read_js_object` reports `authoredBy` (`mcp` or `editor`) and returns the compiled `source` only for
+  MCP-authored objects; editor-authored JavaScript is never returned to the agent and is never overwritten by
+  `update_js_object` (rename only), because the closed grammar cannot re-express it and hand-written code is where
+  hardcoded secrets live. A code-only change moves the object's revision.
+- `create_mongo_query` filters take `op` from a closed enum (`eq` default, `ne`, `gt`, `gte`, `lt`, `lte`, `in`,
+  `nin`, `exists`) — the soft-delete predicate `{ deleted: { $ne: true } }` is now expressible. Values may be
+  `{ date: '<ISO 8601>' }` (normalised to a full UTC date-time, which Extended JSON requires) or a DatePicker's
+  `selectedDate` tagged `as: 'date'`; both compile into a compiler-owned `$date` wrapper so the plugin stores a
+  BSON date (compile-verified; a live smoke test is tracked on the issue).
+- `patch_widgets` accepts `inputType: MULTI_LINE_TEXT` and the literal `labelText`, `defaultCheckedState`,
+  `defaultSwitchState`, `defaultOptionValue` props that `read_semantic_page` already reported, type-checked per widget
+  family.
+- Widget-property audit: `patch_widgets` now covers every literal property-pane setting of the 18 supported widget
+  types (about 110 keys), and `read_semantic_page` reads the same keys back. Each is a closed literal copied from the
+  widget's own pane — enums (label position, font sizes and families, alignment, button variant, compact mode, time
+  precision, file types …), bounded numbers, colors under the shared color grammar, ISO dates, or binding-free text —
+  and every family-specific key is checked against the widget's real type, so a mismatch is refused instead of
+  written as a dead property. Theme presets are accepted by name (`borderRadius: 'M'`, `boxShadow: 'L'`) and stored
+  as the pane's CSS value; a literal on a style prop replaces its theme binding. A table's default row is now
+  settable: `defaultSelectedRowIndex` while multi-row selection is off (`-1` = none), `defaultSelectedRowIndices`
+  while it is on, with `multiRowSelection` switchable in the same update, and `defaultFrom` binds it to another
+  widget or a query field. Correction from the earlier round: checkbox, switch and radio keep their caption in
+  `label` (`labelText` belongs to select/multiselect); `labelText` on those widgets was a dead property and is now
+  refused with the right key named. The ownership table covers all 46 buildable widget types and is pinned by a
+  test that re-derives it from the client widgets' property-pane sources.
+- Security review of the audit: `image` / `defaultImage` (patch and build) are validated as absolute http(s) URLs,
+  normalised and refused if they carry quotes, backslashes, parentheses or whitespace, because the image widget
+  interpolates the value raw into a CSS `url("…")` rule; `tooltip` / `labelTooltip` refuse markup (the button renders
+  its tooltip as HTML); the CSV `delimiter` is one of `,` `;` `|` tab.
+- Follow-ups from the reviews above, all landed: every compiled JS-object `call` site carries a runtime call-depth
+  guard (a per-object `mcpCallDepth` counter, limit 32) so a cycle closed through editor-authored or drifted code
+  is stopped at run time too, not only the statically detectable ones; `update_js_object` refuses a rename onto a
+  name another JS object or query on the page already uses (`name_taken`); stored definitions are decoded once per
+  body (bounded cache) so the cycle check stays cheap on large pages; one `patch_widgets` update's props are capped
+  at 64 KB; `inspect_page` reports `narrow-canvas` for nested content laid out by an earlier MCP version at the
+  parent's column span, with an executable full-width relayout as its suggested fix; `read_semantic_page` reports
+  every inner canvas as the 64-column grid it is, lists a Tabs widget's hidden tabs in `tabsHidden`, and reads a
+  numeric-string tab order back as a number; and the MCP build workflow now also runs on widget-pane and widget-factory
+  changes, giving those PRs the fast standalone MCP check (the workspace-wide client unit-test job, which feeds the
+  merge gate, already runs the ownership drift test on every client PR).
+- Keyboard tab order and tab ordering. `patch_widgets` accepts the platform-level `tabOrder` (Accessibility > Tab
+  order: a positive integer on every focusable widget, `null` back to automatic top-to-bottom, left-to-right order)
+  and `read_semantic_page` reports it; the build path leaves it automatic, which already follows the compiler's
+  reading-order layout. On a Tabs widget, `reorderTabs` takes the existing tab labels in the wanted order (a
+  permutation, checked exactly) and rewrites each tab's index; `defaultTab` must name one of the widget's tabs;
+  `read_semantic_page` reports a Tabs widget's `tabs` in display order.
+- Nested canvases are laid out on the full 64-column grid. The compiler budgeted a container's, modal's, tab's or
+  list card's content at the parent widget's own column span and wrote that span as the inner canvas width, while the
+  client snaps every canvas to 64 columns whatever its pixel width, so a modal's fields rendered in the left half of
+  the modal and shrank again at each nesting level; the patch and lint paths read the same wrong width and refused
+  full-width fields ("the canvas is only 32 columns wide"). Build, edit, move, resize and lint now use 64 columns
+  inside every canvas. Apps built by earlier MCP versions keep their narrow layout until their nested widgets are
+  resized (a `patch_widgets` resize to the full width fixes them).
+- JS-object `call` cycles are refused (`call_cycle`): at create and update, the definition's call graph is joined
+  with the embedded definitions of the other compiler-authored objects on the page and any cycle, sibling or
+  cross-object, is rejected instead of compiling into awaited calls that would recurse until the evaluation worker
+  dies (Hacktron finding on PR #42311). The check runs under the object's post-update name, and a rename is refused
+  (`rename_breaks_calls`) while another compiler-authored object on the page still calls the old name, because the
+  server does not rewrite compiled calls. Residual risk, accepted for now: editor-authored and drifted objects are
+  opaque to the compiler, so a cycle through hand-written code is not detectable statically; a runtime depth guard
+  in the compiled function prologue is the tracked follow-up.
+- `wire_event` gains `{ call: { object, function, args? } }` → `Object.function(...)`, identifier-only (arguments are
+  scalar literals or widget-property refs) and checked against the application's JS objects before writing.
+- JS-object functions gain a closed expression/statement grammar (`builder/jsExpr.ts`): `params`, ordered `steps` (`let`/`set`
+  locals, `run` a query with `with` parameters and an `into` result, `if`/`else`, `forEach`, `throw`, `return`,
+  `showAlert`, `storeValue`, `resetWidget`) and expression trees (literals, `param`/`var`/`widget`/`query`/
+  `constant`/`store` refs, arithmetic and comparison operators, and string/array/number/date/boolean functions such as
+  `split` with a named separator, `trim`, `map`/`filter` with `{ item }`, `unique`, `number`, `date`, `isoString`).
+  The Banner editor's `splitLines`, `splitDomains`, related-field validation and Save orchestration all compile from
+  structure; the agent never writes JavaScript, regular expressions or member access, and node count, depth,
+  statement count and parameter count are capped. The compiled body embeds its definition as a base64 block comment,
+  so `read_js_object` returns a `definition` to edit and send back, and a compiler-authored object is recognised
+  exactly (the decoded definition must recompile to the code byte for byte). An object whose code is edited in the
+  editor after the compiler wrote it (a rename, a hand edit) reads back as `authoredBy: 'editor'` with
+  `definitionState: 'drifted'`; its source is withheld and agents recreate it from a definition rather than
+  update it. Security posture of the grammar: no agent expression is ever the receiver of a method call (array
+  functions run on a coerced real array, string functions on a primitive), widget/query names may not be host
+  globals or platform functions, property paths are dot-separated identifiers with prototype segments refused,
+  locals may not shadow any identifier the compiler emits, and the definition marker is parsed in linear time.
+- A `js-objects` guide (`get_guide` slug `js-objects`, resource `appsmith://guide/js-objects`) documents the
+  definition grammar. Its operator, function and separator tables are rendered from the compiler's own exports and
+  its worked examples are compiled in the test suite, so it cannot drift from what the compiler accepts. It also
+  maps the everyday Appsmith JavaScript idioms the Ask AI assistant teaches (`Query.run({ id })`, `storeValue`,
+  `showAlert`, `new Date`, optional chaining, `.map`) onto definition shapes, and names what is not available inside
+  a function (`try`/`catch`, `navigateTo`, timers, regular expressions) with the workaround for each.
+- `create_mongo_query` values accept `{ param: '<name>' }` (bound as `this.params.<name>`) so a function's computed
+  values reach a write through `run … with`; `patch_widgets` accepts `defaultFrom` (a widget-property or query-field
+  ref) on input/select/multiselect/radio/checkbox/switch/datepicker defaults.
+- Corpus-driven extension (an analysis of 21,121 JS objects / 7,043 distinct functions from the internal cluster put
+  "calls another function" ahead of every other missing construct combined): `{ call: "name", args? }` awaits a
+  sibling function of the object (`this.name(...)`) and `{ call: { object, function }, args? }` awaits a function of
+  another JS object of the application, as a value or as a statement with `into`. The callee is never an expression:
+  a sibling must be a function of the same definition, a cross-object pair must exist in the application (checked
+  before writing, exactly as `wire_event { call }` does), and neither is allowed inside the synchronous per-item
+  callbacks; a function may not call itself directly. The check is page-scoped (entity names are unique per page). Measured
+  on the same corpus, expressible distinct functions rise from 20% to 34%. A `showAlert` message may now be an expression,
+  rendered through `String(...)`.
+- Grammar extensions from the milestone-2 review: a `{ table, column }` leaf reads a selected-row column whose name
+  is not an identifier (`tblOrders.selectedRow["instance ids"]`, JSON-encoded); `run` takes an `onError` failure
+  branch (a compiler-owned try/catch whose error is never exposed); `showModal`, `closeModal` and `navigate` are
+  statements. The `create_js_object` / `update_js_object` handlers refuse a definition nested deeper than 64 JSON
+  levels before the recursive schemas run.
+- Two MongoDB hardening changes found while tracing `this.params` and object-typed bindings end to end:
+  - A run-time binding in a filter's equality position is emitted as `{ "$eq": {{ … }} }`, never bare. The browser
+    chooses each execute parameter's data type and the server trusts it, so a viewer who crafts the request can send
+    `{ "$ne": null }` typed as an object for ANY binding (an Input's text included); MongoDB compares the operand of
+    `$eq` as a literal, so the clause can no longer become an operator. Still open, server-side: `$in` lists and
+    range operators (an Extended-JSON regex or `$minKey` element) need a strict-values flag in the Mongo plugin.
+  - A missing `this.params.<name>` reaches Mongo as a bare `null`, which on a non-`_id` field matches every document
+    lacking the field and in a `$set` writes null. So after creating a query that reads params, the handler pins
+    it to `MANUAL` through `PUT /api/v1/actions/runBehaviour/{id}` (the only route that sets `userSetOnLoad`; the
+    server otherwise auto-switches a widget-bound query to run on page load, and drops the field from a create
+    request); if the pin fails the query is removed again (fail closed) and the agent is told, and only if that removal
+    also fails is the query reported as still present with the manual remediation. That route joins the server
+    allowlist. A function's
+    `run … with` passes its values through a compiler-owned guard that throws `missing query parameter: <name>` on
+    `undefined` instead of sending it.
+- Every builder now uses the one `RAW_EXPRESSION` gate exported from `schema.ts` (the `pages` and `theme` copies
+  lacked the U+2028/9 line separators), and the page-name schema is shared by `wire_event` and the grammar.
+  The always-false `isReadOnlyAction` predicate is gone; its reasoning lives in the comment above
+  `isAutoRunnableAction`.
+- `inspect_page` container-clipping and the auto-grow cascade measure content from children rows; the Appsmith
+  client stores an inner canvas's `bottomRow` in pixels, which produced ×10 false "45 vs 450" warnings and ×10
+  resize suggestions.
+- Collection mutations surface the Appsmith error code on failure (`… (400) [AE-…]`) instead of a bare status.
+
+Not changed, by design: `run_action` still refuses to auto-run any DB query, including a Mongo FIND — that gate is a
+prior security decision, not a mis-classification.
+
 ### Authenticated MCP surface — off by default
 
 The MCP server, its **data layer** (datasource discovery + structured SQL/REST query creation + action reads), and
@@ -29,8 +168,8 @@ it is off `mcp_…` tokens are rejected (401) and cannot be created or rotated a
 | `APPSMITH_MCP_DATA_ENABLED` | **off** | Opt-in. While off, datasource/query tools are unregistered; spec authoring + reads remain.                                                                   |
 | `APPSMITH_MCP_JS_ENABLED`   | **off** | Opt-in. While off, restricted JS-object tools are unregistered.                                                                                              |
 
-Governed and destructive tools additionally require a MongoDB + Redis backend (`APPSMITH_MONGODB_URI` /
-`APPSMITH_DB_URL` and `APPSMITH_REDIS_URL`); without them the server starts with read + spec-authoring tools only.
+Governed and destructive tools additionally require a MongoDB + Redis backend (`APPSMITH_DB_URL` /
+`APPSMITH_MONGODB_URI` and `APPSMITH_REDIS_URL`); without them the server starts with read + spec-authoring tools only.
 
 ### Session limits
 
@@ -46,6 +185,77 @@ values above the sanity ceilings (10000 sessions, 24 h TTL) are clamped — both
 | `APPSMITH_MCP_MAX_SESSIONS`          | 100             | Instance-wide cap on concurrent MCP sessions (hard 503 when full).   |
 | `APPSMITH_MCP_MAX_SESSIONS_PER_USER` | 25              | Per-user cap; at the cap the user's oldest session is evicted.       |
 | `APPSMITH_MCP_SESSION_TTL_MS`        | 900000 (15 min) | Idle session lifetime; every request on a session refreshes its TTL. |
+
+### Running more than one replica
+
+Session records live in the Redis that `APPSMITH_REDIS_URL` names — the same Redis every Appsmith deployment already
+requires for the server's own web sessions — so any replica can serve any session, and the human's answers to
+approval prompts are relayed back to the pod that asked. That is what makes MCP work behind a load balancer with two
+or more Appsmith pods (each running its own MCP process): MCP clients send no cookies, so without a shared store
+every request that landed on the _other_ pod answered 404, and ordinary sticky sessions cannot help. There is no
+setting: Redis is a hard dependency of Appsmith itself, so the MCP process requires `APPSMITH_REDIS_URL` and refuses
+to start without it. (An in-memory session store exists only as the unit-test default of `createMcpHttpServer`.)
+
+How it works, and what it costs:
+
+- The **record** is shared; the live transport is not. A pod that receives a request for a session it has never
+  seen rebuilds a server for it and replays the client's own `initialize` (so elicitation detection matches the
+  original pod), then serves the request. The record's idle TTL and the session caps above are enforced from Redis,
+  so an eviction or a client `DELETE` on one pod takes effect everywhere.
+- **Approval prompts** ride the tool call's own response stream (never the standalone GET stream, which may be
+  open on another pod). The client's answer may land on any pod; that pod forwards it over Redis pub/sub to the pod
+  holding the prompt. Each pod subscribes its own channel at startup and refuses to serve (503) if it cannot.
+- Prompt budgets (per confirmation and per session) and the git-state read cache are still counted per pod, so
+  with N replicas they are bounded by N× the documented limits.
+- The raw bearer is never stored; the record carries its SHA-256 and every request is re-authenticated upstream.
+- Fail-loud: a missing or unusable `APPSMITH_REDIS_URL`, a Redis that does not answer within 30 s, or a Redis ACL
+  that forbids `SUBSCRIBE` stops the MCP process at startup (supervisord restarts it; the container healthcheck
+  reports MCP down) instead of silently falling back to per-pod memory. Should the relay subscription still be lost before serving starts, `/health` and every
+  authenticated `/mcp` request answer 503. A later socket blip is logged and node-redis reconnects on its own.
+- An external Redis with a restricted ACL user needs read/write on `appsmith:mcp:*` keys, `EVAL` (`@scripting`;
+  governance releases locks and consumes one-time confirmations through two short Lua scripts), and
+  `PUBLISH`/`SUBSCRIBE` on the `appsmith:mcp:relay:*` channels.
+- Upgrading: an existing instance switches to the shared store on its first start with this build, with no action
+  required. Sessions then survive an MCP process restart.
+
+Operating it:
+
+- `APPSMITH_REDIS_URL` must resolve to **one Redis shared by every replica** (the Helm chart's bundled Redis, or an
+  external one), which is already the case wherever the Appsmith server itself works across replicas. A per-pod
+  Redis on `127.0.0.1` would share nothing.
+- Each MCP process opens two extra Redis connections (a client and a pub/sub subscriber) on top of governance's.
+- During a rolling upgrade, pods still on the old build keep private sessions, so a session opened on one kind of
+  pod answers 404 on the other until the rollout completes; clients re-initialize per the MCP spec.
+- Redis keys, all TTL-bound: `appsmith:mcp:session:*` (records, the idle session TTL),
+  `appsmith:mcp:sessions:*` (cap indexes, 24 h after their last write), `appsmith:mcp:pending:*` (prompt routing,
+  the idle session TTL floored at the 10-minute prompt-timeout ceiling); channel `appsmith:mcp:relay:<pod>`. A Redis
+  flush drops every session (clients re-initialize); a rollback leaves nothing behind once the TTLs pass.
+- Batched JSON-RPC responses are not relayed (the SDK clients never batch); a batched prompt answer that lands on
+  the wrong pod times out.
+
+### Tool annotations for hosted clients
+
+Every tool carries MCP tool annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`) so
+hosted clients can decide what needs a human's approval without asking on every call. The classification lives in
+one table, `src/toolAnnotations.ts`; the server refuses to register a tool that is missing from it, and a unit test
+pins the table against the live tool list, so a new tool cannot ship un-annotated.
+
+- **Reads and lists** (`list_*`, `get_*`, `read_*`, `inspect_page`, `validate_app_spec`, `resolve_workspace`) are
+  read-only and idempotent. `run_action` is read-only too (the server only executes provably read-only actions) but
+  is marked open-world because it reaches the datasource.
+- **Authoring writes** (`build_application`, `edit_page`, `patch_widgets`, `create_*`, `update_*`, ...) are
+  non-destructive: revision-checked and recorded as changes (layout edits also keep a rollback snapshot). `create_*`
+  tools that look the entity up by name first (datasources and queries) are also marked idempotent.
+- **`prepare_*`** mints a one-time confirmation and changes nothing else, so it is a non-destructive write; the
+  matching **`confirm_*`** is the destructive half. `confirm_commit` and `create_branch` are also open-world (they
+  push to the customer's git remote), as is `confirm_run_action`.
+
+Why it matters: the ChatGPT app (and the Codex runtime it uses for MCP) treats a tool with **no** annotations as
+destructive and open-world, which means an approval per call. Under its non-interactive policy that approval is
+denied, and the model reports the whole server as having no usable tools. With the annotations, reads and
+non-destructive writes run without a prompt; only the `confirm_*` tools ask. claude.ai and Claude Code ignore the
+hints and keep their own approval flow. Governance on the server is unchanged: the annotations describe the
+handshake, they do not replace it.
 
 ### Auto-publish on creation, and application URLs
 
@@ -169,6 +379,67 @@ unaffected — the parameter is optional and ignored.
   review URL — the user reviews on the branch, merges via Appsmith's branch UI or a pull request on the remote,
   then deletes the `mcp/` branch.
 
+## Adding an edition (EE) MCP tool
+
+Edition tools (EE: workflows) plug into a seam so the hourly CE→EE sync never conflicts. CE ships every
+`src/ee/extensions/*.ts` as an `export *` of the matching `src/ce/extensions/*.ts`; an edition replaces only those
+files. Checklist:
+
+1. **Replace only these files**: `src/ee/extensions/{catalog,api,tools,capabilities,routeContract}.ts`, and on the
+   server `filters/McpAllowlistExtensions.java`. Never edit `src/ce/extensions/*` or any core file (`app.ts`,
+   `builder/*`, `toolAnnotations.ts`, `McpAllowlistWebFilter.java`, ...); the contract comments in
+   `src/ce/extensions/*.ts` are the spec.
+2. **Catalog and annotate every tool** in `catalog.ts`: an `EXTENSION_TOOL_CATALOG` entry (name, gate, summary) and an
+   `EXTENSION_TOOL_ANNOTATIONS` entry. `catalog.ts` is data only, with `import type` and nothing else, because core
+   modules read it at load. Optional: `EXTENSION_GUIDES` (served by `get_guide` and `appsmith://guide/<slug>`) and
+   `EXTENSION_SERVER_INSTRUCTIONS` (appended to the initialize instructions).
+3. **Register in `tools.ts`** through `host.registerTool` only. It throws for a name that is not catalogued, and for
+   a caller-supplied annotations object. It skips a tool whose gate is off, so register every tool unconditionally.
+   Any runtime import from `app.ts` there may only be used inside functions (`app.ts` imports `tools.ts`).
+4. **Gates**: use a core gate (`always`, `data`, `governance`, ...) or an edition gate `extension:<name>`. Every
+   `extension:<name>` needs an `EXTENSION_GATE_REQUIREMENTS[<name>]` (`requires` / `provides`, shown in
+   `get_capabilities`' `disabledCapabilities` while off) and is decided per session by `resolveExtensionGates(api)`
+   in `tools.ts`. The resolver runs live at every session build (initialize, and rehydration on another replica)
+   and is never stored. Missing, non-`true`, a throw, or no answer within `EXTENSION_GATES_TIMEOUT_MS` (5 s) all
+   mean off. Because it is re-resolved per build, an entitlement change mid-session can make replicas disagree about
+   one session until the client reconnects — the same posture as `isAdmin`. `host.gates` is frozen.
+5. **No destructive tools yet.** The host refuses `destructiveHint: true`, and a non-read-only tool that leaves
+   `destructiveHint` unset, until it offers governed approval (prepare/confirm, elicitation) to extensions.
+   **Labelling rule for reviewers:** any tool that triggers, runs or publishes a workflow, or has any other external
+   side effect, must be annotated `destructiveHint: true` — and is therefore refused until CE adds that approval
+   layer. Annotations are not access control: server-side licence and ACL enforcement on `/api/v1/workflows` stays
+   mandatory.
+6. **Capabilities**: `capabilities.ts` returns extra top-level `get_capabilities` sections; a key that collides with
+   a core section is refused. An edition's override must keep a `workflows` section with an `available` key
+   (`extensions.test.ts` asserts it).
+7. **API and routes**: add methods in `api.ts` through the `request` it is handed (never `fetch`), describe them in
+   `routeContract.ts`, and allow each endpoint in `McpAllowlistExtensions.java`:
+
+   - `extensionPathPrefixes` declares the edition's own route families (EE must declare `/api/v1/workflows`).
+   - `extensionRules` must be written as literal `McpAllowRule.rule(HttpMethod.X, "...")` calls — the route-contract
+     test parses that form and counts every `rule(` / `new McpAllowRule(` / `HttpMethod.`, so a constant,
+     concatenated, `HEAD` or helper-built rule fails it. Paths use literals and `{var}` segments only.
+   - `extensionReservedSegments` applies only under the edition's prefixes; list every literal sibling route there so
+     a `{var}` rule cannot match it (EE workflows: `token`, `trigger`, `publish`, `import`, `export`,
+     `createResolutionPage`, as applicable).
+
+   The route-contract test checks that every wrapper route is allowed and that every extension rule is called by
+   some wrapper.
+
+**Where each check fails.** Catalog, annotation and guide-slug collisions, and an edition gate with no
+`EXTENSION_GATE_REQUIREMENTS` entry, throw at **module load** (the server will not start, and every test that
+imports the module fails). A bad registration (uncatalogued, destructive, or with caller-supplied annotations)
+throws inside `buildMcpServer`, so **every initialize fails** while the process stays up — keep a server-building
+test like those in `extensions.test.ts`. An API method that shadows a core one throws in **every
+`createAppsmithApi` call**. A capability section that overwrites a core one throws on **every `get_capabilities`
+call**. On the server, an extension rule outside `extensionPathPrefixes()`, a prefix in a core route family or with a
+segment outside `[a-z0-9-]`, a catch-all or regex variable, or anything touching `mcp-tokens` makes
+`McpAllowlistWebFilter` throw at construction, so **the server will not start**;
+`McpAllowlistWebFilterTest.defaultFilter_validatesAndAppendsTheEditionExtensions` catches it in CI.
+`src/extensions.test.ts` is edition-neutral, so keep it green after overriding.
+
 ## Local development
 
-Copy `.env.example` to `.env` and run the package standalone. See that file for the full set of variables.
+Copy `.env.example` to `.env` and run the package standalone. See that file for the full set of variables. A
+reachable Redis is required (`APPSMITH_REDIS_URL`; the example points at the local Appsmith server's Redis on
+`127.0.0.1:6379`), because sessions always live there; the process refuses to start without it.

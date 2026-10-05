@@ -1,6 +1,13 @@
 import { z } from "zod";
+import { jsCollectionName, jsFunctionName } from "./jsObject.js";
 import type { WidgetNode } from "./layout.js";
-import { responseFieldPath, storeKeySchema } from "./schema.js";
+import {
+  entityPropertyPath,
+  pageNameSchema,
+  responseFieldPath,
+  storeKeySchema,
+  RAW_EXPRESSION,
+} from "./schema.js";
 
 // M-F event wiring. A CLOSED event vocabulary: the agent supplies a structured action reference (run a query,
 // navigate to a page, show/close a modal), and the compiler emits the trigger binding. The agent never authors raw
@@ -17,11 +24,8 @@ const widgetName = z
   .min(1)
   .max(64)
   .regex(/^[A-Za-z0-9_]+$/, "must be a widget name (alphanumeric/underscore)");
-const pageName = z
-  .string()
-  .min(1)
-  .max(64)
-  .regex(/^[A-Za-z0-9_ ]+$/, "must be a safe page name");
+// Shared with the JS-object grammar's `navigate` step (schema.ts).
+const pageName = pageNameSchema;
 
 // Alert text is emitted inside a single-quoted argument, so the charset excludes quotes, backslashes, braces, and
 // backticks — nothing in it can terminate the string or open an expression.
@@ -35,6 +39,39 @@ const alertMessage = z
   );
 
 const alertStyle = z.enum(["info", "success", "warning", "error"]);
+
+// Call one function of a JS object (`Obj.fn()`). Both halves use the JS-object identifier grammar (the same schemas
+// create_js_object validates, so any function that can be created can be referenced), so the emitted member call
+// cannot carry arguments, property chains, or any caller-authored syntax; the tool additionally checks that the
+// object and function exist among the application's JS collections before writing (dangling guard). The object may
+// be MCP-compiled or editor-authored: like `run` on an existing query, the verb only wires an event to code that
+// already exists in the application, executing in the end user's browser under the end user's permissions.
+// Optional arguments: scalar literals (JSON-encoded at emission) or widget-property references (identifier +
+// dotted path, emitted bare). No expression position exists: `Obj.fn("x", Input1.text)` is the whole shape.
+const callArg = z.union([
+  z
+    .string()
+    .max(200)
+    .refine(
+      (value) => !RAW_EXPRESSION.test(value),
+      "must not contain bindings",
+    ),
+  z.number().finite(),
+  z.boolean(),
+  z.null(),
+  z.object({ widget: widgetName, property: entityPropertyPath }).strict(),
+]);
+const callAction = z
+  .object({
+    call: z
+      .object({
+        object: jsCollectionName,
+        function: jsFunctionName,
+        args: z.array(callArg).max(5).optional(),
+      })
+      .strict(),
+  })
+  .strict();
 
 // Reset (clear) one or more widgets to their default state — e.g. a Clear button that empties an input and resets a
 // table. Each name is a strict widget identifier, so the emitted resetWidget('Name', true) cannot be broken out of.
@@ -50,7 +87,6 @@ const resetAction = z
 // binding-syntax charsets are still rejected, because Appsmith's `{{ }}` extraction is text-level (not JS-aware) —
 // a `}}` inside a JSON-escaped string would still terminate the outer binding and let a following `{{ ... }}` in the
 // same key become a second, evaluated expression. Same rejection set as schema.ts safeText (incl. U+2028/U+2029).
-const RAW_EXPRESSION = /\u007b\u007b|\u007d\u007d|\$\u007b|`|\u2028|\u2029/;
 const storePathElement = z.union([
   z
     .string()
@@ -119,6 +155,7 @@ const followUpActionSchema = z.union([
   resetAction,
   appendToStoreAction,
   clearStoreKeyAction,
+  callAction,
 ]);
 
 export type FollowUpAction = z.infer<typeof followUpActionSchema>;
@@ -140,6 +177,7 @@ export const eventActionSchema = z.union([
   resetAction,
   appendToStoreAction,
   clearStoreKeyAction,
+  callAction,
 ]);
 
 export type EventAction = z.infer<typeof eventActionSchema>;
@@ -266,6 +304,18 @@ function compileStatement(action: FollowUpAction): string {
     return `storeValue('${action.clearStoreKey.key}', [], false)`;
   }
 
+  // JS-object function call: `Obj.fn(...)` from two validated identifiers; each argument is a JSON-encoded scalar
+  // literal or a validated `Widget.path` reference.
+  if ("call" in action) {
+    const args = (action.call.args ?? []).map((arg) =>
+      typeof arg === "object" && arg !== null
+        ? `${arg.widget}.${arg.property}`
+        : JSON.stringify(arg),
+    );
+
+    return `${action.call.object}.${action.call.function}(${args.join(", ")})`;
+  }
+
   return `showAlert('${action.showAlert}', '${action.style ?? "info"}')`;
 }
 
@@ -302,14 +352,30 @@ export function compileEventBinding(action: EventActionInput): string {
 // Every entity an event references — each primary statement plus all follow-ups — so the caller can verify each
 // exists before writing (dangling-reference guard). showAlert and clearStoreKey reference nothing;
 // appendToStore references its source query.
-export function eventReferences(action: EventActionInput): {
-  kind: "query" | "page" | "widget";
-  name: string;
-}[] {
-  const single = (
-    step: FollowUpAction,
-  ): { kind: "query" | "page" | "widget"; name: string }[] => {
+export type EventReference =
+  | { kind: "query" | "page" | "widget"; name: string }
+  // A JS-object function reference: `name` is the object, `member` the function (both checked by the tool).
+  | { kind: "jsFunction"; name: string; member: string };
+
+export function eventReferences(action: EventActionInput): EventReference[] {
+  const single = (step: FollowUpAction): EventReference[] => {
     if ("run" in step) return [{ kind: "query" as const, name: step.run }];
+
+    if ("call" in step) {
+      return [
+        {
+          kind: "jsFunction" as const,
+          name: step.call.object,
+          member: step.call.function,
+        },
+        // Widget-property arguments are widget references too (dangling guard).
+        ...(step.call.args ?? []).flatMap((arg) =>
+          typeof arg === "object" && arg !== null
+            ? [{ kind: "widget" as const, name: arg.widget }]
+            : [],
+        ),
+      ];
+    }
 
     if ("navigate" in step) {
       return [{ kind: "page" as const, name: step.navigate }];
@@ -335,9 +401,7 @@ export function eventReferences(action: EventActionInput): {
 
     return [];
   };
-  const primary = (
-    step: EventAction,
-  ): { kind: "query" | "page" | "widget"; name: string }[] => {
+  const primary = (step: EventAction): EventReference[] => {
     if (!("run" in step)) return single(step);
 
     return [
@@ -368,6 +432,8 @@ export function eventActionKinds(action: EventActionInput): string[] {
     if ("appendToStore" in step) return "appendToStore";
 
     if ("clearStoreKey" in step) return "clearStoreKey";
+
+    if ("call" in step) return "call";
 
     return "showAlert";
   };

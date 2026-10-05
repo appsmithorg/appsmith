@@ -40,6 +40,9 @@ public class MySqlDatasourceUtils {
 
     public static int MAX_CONNECTION_POOL_SIZE = 20;
 
+    private static final String MARIADB_URL_PREFIX = "r2dbc:mariadb://";
+    private static final String LEGACY_MARIADB_POOL_URL_PREFIX = "r2dbc:pool:mariadb://";
+
     /**
      * 1 sec is the recommended value as shown in the example here:
      * https://mariadb.com/docs/xpand/connect/programming-languages/java-r2dbc/native/connection-pools/
@@ -77,7 +80,7 @@ public class MySqlDatasourceUtils {
         if (isEmpty(datasourceConfiguration.getEndpoints())) {
             urlBuilder.append(datasourceConfiguration.getUrl());
         } else {
-            urlBuilder.append("r2dbc:pool:mariadb://");
+            urlBuilder.append(MARIADB_URL_PREFIX);
             final List<String> hosts = new ArrayList<>();
 
             if (!isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)) {
@@ -111,7 +114,12 @@ public class MySqlDatasourceUtils {
             }
         }
 
-        ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(urlBuilder.toString());
+        String connectionUrl = urlBuilder.toString();
+        if (connectionUrl.startsWith(LEGACY_MARIADB_POOL_URL_PREFIX)) {
+            connectionUrl = MARIADB_URL_PREFIX + connectionUrl.substring(LEGACY_MARIADB_POOL_URL_PREFIX.length());
+        }
+
+        ConnectionFactoryOptions baseOptions = ConnectionFactoryOptions.parse(connectionUrl);
         ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder()
                 .from(baseOptions)
                 .option(ConnectionFactoryOptions.USER, authentication.getUsername())

@@ -164,6 +164,26 @@ describe("modal build hygiene — closed by default, footer off the edge", () =>
     expect(button.leftColumn).toBeGreaterThan(0);
     expect(button.rightColumn).toBeLessThan(canvas.rightColumn as number);
   });
+
+  it("lays out a modal's fields across its full 64-column inner canvas, not the modal's own span", () => {
+    // The client snaps every canvas to 64 columns regardless of pixel width, so content budgeted at the modal's
+    // 32-column span rendered in the left half of the modal (deploy-preview finding). The inner canvas is 64 wide
+    // and a full-width field spans it.
+    const modal = buildModal();
+    const canvas = (modal.children ?? [])[0] as WidgetNode;
+
+    expect(modal.rightColumn as number).toBeLessThan(64);
+    expect(canvas.rightColumn).toBe(64);
+
+    const widest = Math.max(
+      ...(canvas.children ?? []).map((child) => child.rightColumn as number),
+    );
+
+    expect(widest).toBeGreaterThan(
+      (modal.rightColumn as number) - (modal.leftColumn as number),
+    );
+    expect(widest).toBeLessThanOrEqual(64);
+  });
 });
 
 describe("badge colors — validated per-widget text/background color", () => {
@@ -2571,5 +2591,79 @@ describe("security — agents never author raw expressions", () => {
 
     expect(table.dynamicBindingPathList).toEqual([]);
     expect(table.tableData).toBe(JSON.stringify([{ id: 1 }]));
+  });
+});
+
+describe("applyEdit — inner canvases are 64 columns whatever rightColumn they carry", () => {
+  function pageWithInnerCanvas(innerRightColumn: number): WidgetNode {
+    return {
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      topRow: 0,
+      bottomRow: 380,
+      leftColumn: 0,
+      rightColumn: 1242,
+      children: [
+        {
+          widgetId: "m1",
+          widgetName: "EditModal",
+          type: "MODAL_WIDGET",
+          detachFromLayout: true,
+          topRow: 0,
+          bottomRow: 24,
+          leftColumn: 16,
+          rightColumn: 48,
+          children: [
+            {
+              widgetId: "mc",
+              widgetName: "Canvas1",
+              type: "CANVAS_WIDGET",
+              detachFromLayout: true,
+              topRow: 0,
+              bottomRow: 24,
+              leftColumn: 0,
+              rightColumn: innerRightColumn,
+              children: [],
+            },
+          ],
+        },
+      ],
+    };
+  }
+
+  function findNamed(node: WidgetNode, name: string): WidgetNode | undefined {
+    if (node.widgetName === name) return node;
+
+    for (const child of node.children ?? []) {
+      const hit = findNamed(child, name);
+
+      if (hit) return hit;
+    }
+
+    return undefined;
+  }
+
+  it("does not clamp a 40-column table added inside a modal built by an earlier MCP version (inner rightColumn 32)", () => {
+    // Before the fix the edit path budgeted the add at the inner canvas's stored rightColumn (32), so the table
+    // was clamped to 32 columns. The canvas is a 64-column grid; the table keeps its 40-column footprint.
+    const { dsl } = applyEdit(
+      pageWithInnerCanvas(32),
+      {
+        add: [
+          {
+            type: "table",
+            name: "Orders",
+            data: [{ id: 1 }],
+            placement: { inside: "EditModal" },
+          },
+        ],
+      },
+      ids(),
+    );
+    const orders = findNamed(dsl, "Orders")!;
+
+    expect(orders.leftColumn).toBe(0);
+    expect(orders.rightColumn).toBe(40);
   });
 });

@@ -112,19 +112,30 @@ export class DeployMode {
   public StubWindowNAssert(
     selector: string,
     expectedUrl: string,
-    networkCall: string,
+    // networkCall kept for backward compatibility; no longer used
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    networkCall?: string,
   ) {
-    this.StubbingWindow();
-    this.agHelper.GetNClick(selector, 0, false, 0);
-    this.agHelper.Sleep(4000);
-    cy.get("@windowStub").should("be.calledOnce");
-    cy.url().should("contain", expectedUrl);
-    this.agHelper.Sleep(2000);
-    cy.window({ timeout: 60000 }).then((win) => {
-      win.history.back();
+    // Stub window.open WITHOUT navigating to the external URL.
+    // The old implementation set window.location.href = url, which
+    // caused a cross-origin navigation to docs.appsmith.com.  If that
+    // site was slow or unreachable from CI, Cypress hung indefinitely
+    // (no built-in timeout for cross-origin page loads) — see run
+    // 33826464528 shard 27 where GoogleSheets_spec hung for 4 hours.
+    //
+    // The test intent is "the link calls window.open with the correct
+    // docs URL", NOT "docs.appsmith.com is reachable".  Asserting on
+    // the stub's first argument achieves the same coverage without any
+    // external dependency.
+    cy.window({ timeout: 60000 }).then((win: any) => {
+      cy.stub(win, "open").as("windowStub");
     });
-    this.assertHelper.AssertNetworkResponseData("@" + networkCall);
-    this.assertHelper.AssertDocumentReady();
+    this.agHelper.GetNClick(selector, 0, false, 0);
+    this.agHelper.Sleep(2000);
+    cy.get("@windowStub").should("be.calledOnce");
+    cy.get("@windowStub").then((stub: any) => {
+      expect(stub.firstCall.args[0]).to.contain(expectedUrl);
+    });
   }
 
   public NavigateBacktoEditor(toastToCheck = "") {
