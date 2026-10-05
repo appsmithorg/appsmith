@@ -55,10 +55,14 @@ class ElasticSearchPluginSubstitutionTest {
     }
 
     private ExecuteActionDTO params(String key, String value) {
+        return params(key, value, ClientDataType.STRING);
+    }
+
+    private ExecuteActionDTO params(String key, String value, ClientDataType type) {
         Param param = new Param();
         param.setKey(key);
         param.setValue(value);
-        param.setClientDataType(ClientDataType.STRING);
+        param.setClientDataType(type);
         ExecuteActionDTO dto = new ExecuteActionDTO();
         dto.setParams(List.of(param));
         return dto;
@@ -115,6 +119,51 @@ class ElasticSearchPluginSubstitutionTest {
         JsonNode json = mapper.readTree(request.getBody().readUtf8());
         assertThat(json.path("query").path("term").path("name").asText()).isEqualTo("Ada \"quoted\"");
         assertThat(json.path("query").path("term").size()).isEqualTo(1);
+    }
+
+    @Test
+    void should_bindObjectAsJson_when_queryClauseIsPassedAsObject() throws Exception {
+        // Given
+        enqueueResponse();
+        ActionConfiguration action = action("/books/_search", "{\"query\":{{clause}}}");
+        ExecuteActionDTO parameters =
+                params("clause", "{\"term\":{\"name\":\"Ada \\\"quoted\\\"\"}}", ClientDataType.OBJECT);
+
+        // When
+        Mono<ActionExecutionResult> result =
+                executor.executeParameterized(client, parameters, new DatasourceConfiguration(), action);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(execution ->
+                        assertThat(execution.getIsExecutionSuccess()).isTrue())
+                .verifyComplete();
+        RecordedRequest request = server.takeRequest(5, TimeUnit.SECONDS);
+        assertThat(request).isNotNull();
+        JsonNode query = mapper.readTree(request.getBody().readUtf8()).path("query");
+        assertThat(query.isObject()).isTrue();
+        assertThat(query.path("term").path("name").asText()).isEqualTo("Ada \"quoted\"");
+    }
+
+    @Test
+    void should_bindCompletePatternAsJsonString_when_patternIsBuiltBeforeQueryRuns() throws Exception {
+        // Given
+        enqueueResponse();
+        ActionConfiguration action = action("/books/_search", "{\"query\":{\"wildcard\":{\"name\":{{pattern}}}}}");
+
+        // When
+        Mono<ActionExecutionResult> result = executor.executeParameterized(
+                client, params("pattern", "*Ada \"quoted\"*"), new DatasourceConfiguration(), action);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(execution ->
+                        assertThat(execution.getIsExecutionSuccess()).isTrue())
+                .verifyComplete();
+        RecordedRequest request = server.takeRequest(5, TimeUnit.SECONDS);
+        assertThat(request).isNotNull();
+        JsonNode query = mapper.readTree(request.getBody().readUtf8()).path("query");
+        assertThat(query.path("wildcard").path("name").asText()).isEqualTo("*Ada \"quoted\"*");
     }
 
     @Test
