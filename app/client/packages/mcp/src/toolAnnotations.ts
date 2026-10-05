@@ -1,4 +1,5 @@
 import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types.js";
+import { EXTENSION_TOOL_ANNOTATIONS } from "./ee/extensions/catalog.js";
 
 // MCP tool annotations for every registered tool. Hosted clients gate approvals on them: Codex / the ChatGPT app
 // treats a tool with NO annotations as destructive and open-world, so it demands a human approval for every call
@@ -49,7 +50,7 @@ const DESTRUCTIVE_EXTERNAL: ToolAnnotations = {
   openWorldHint: true,
 };
 
-export const TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
+const CORE_TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
   // Discovery and reads.
   list_workspaces: READ,
   resolve_workspace: READ,
@@ -121,4 +122,17 @@ export const TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
   // Commit always pushes to the remote; a confirmed run executes an arbitrary action against its datasource.
   confirm_commit: DESTRUCTIVE_EXTERNAL,
   confirm_run_action: DESTRUCTIVE_EXTERNAL,
+};
+
+// Core annotations plus the edition's (ee/extensions/catalog.ts; none in CE). An extension may annotate only its own
+// tools: relabelling a core tool (say, marking a destructive one read-only) would change what hosted clients approve.
+for (const name of Object.keys(EXTENSION_TOOL_ANNOTATIONS)) {
+  if (Object.hasOwn(CORE_TOOL_ANNOTATIONS, name)) {
+    throw new Error(`MCP extension annotation "${name}" collides with core`);
+  }
+}
+
+export const TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
+  ...CORE_TOOL_ANNOTATIONS,
+  ...EXTENSION_TOOL_ANNOTATIONS,
 };

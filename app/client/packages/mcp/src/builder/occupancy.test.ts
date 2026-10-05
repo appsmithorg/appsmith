@@ -206,13 +206,20 @@ describe("occupancy — nearestFreePosition", () => {
 });
 
 describe("occupancy — canvasColumns", () => {
-  it("uses the 64-column grid for the root canvas and rightColumn for inner canvases", () => {
+  it("is the 64-column grid for the root canvas AND for inner canvases, whatever rightColumn they carry", () => {
     expect(canvasColumns(rootCanvas([]))).toBe(64);
+    // An inner canvas's rightColumn is a pixel width (client render) or a stale column span (older MCP builds);
+    // neither is the width available to its children, which is always 64.
     expect(
       canvasColumns(
         widget({ widgetId: "c1", type: "CANVAS_WIDGET", rightColumn: 32 }),
       ),
-    ).toBe(32);
+    ).toBe(64);
+    expect(
+      canvasColumns(
+        widget({ widgetId: "c2", type: "CANVAS_WIDGET", rightColumn: 456 }),
+      ),
+    ).toBe(64);
   });
 });
 
@@ -463,6 +470,33 @@ describe("occupancy — cascadeFit (container fit, section D)", () => {
     // The final result introduces no overlap (what the delta gate checks).
     expect(overlapDelta(root, root).introduced).toEqual([]);
     expect(overlappingPairs(root.children ?? [])).toEqual([]);
+  });
+
+  it("sizes the container from its children's rows, ignoring a pixel-valued inner canvas bottomRow", () => {
+    // The Appsmith client stores an inner canvas's bottomRow in PIXELS (rows × 10) once it has saved the page. A
+    // 45-row container holding 30 rows of content must not be grown to 450 rows just because its canvas says 450.
+    const inside = widget({ widgetId: "Field", topRow: 0, bottomRow: 30 });
+    const { container, inner } = containerWith([inside], 45);
+
+    inner.bottomRow = 450;
+
+    const root = rootCanvas([container]);
+    const { adjustments } = cascadeFit(root, "Field");
+
+    expect(container.bottomRow).toBe(45);
+    expect(adjustments.map((a) => `${a.kind}:${a.widgetName}`)).not.toContain(
+      "resize:Card",
+    );
+
+    // A container that really is too short still grows — to the children's rows, not the pixel value.
+    const short = containerWith(
+      [widget({ widgetId: "Tall", topRow: 0, bottomRow: 30 })],
+      20,
+    );
+
+    short.inner.bottomRow = 200;
+    cascadeFit(rootCanvas([short.container]), "Tall");
+    expect(short.container.bottomRow).toBe(30);
   });
 
   it("warns (never grows) when a modal body outgrows the modal's pixel height", () => {

