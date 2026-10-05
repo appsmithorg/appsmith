@@ -388,8 +388,10 @@ public class AwsLambdaPlugin extends BasePlugin {
             return lambdaClientBuilder.build();
         }
 
+        /** The proxy comes from the https proxy settings; see {@link AwsHttpsProxyConfiguration}. */
         static ApacheHttpClient.Builder httpClientBuilder(Duration socketTimeout, Duration connectionTimeout) {
-            return ApacheHttpClient.builder().socketTimeout(socketTimeout).connectionTimeout(connectionTimeout);
+            return AwsHttpsProxyConfiguration.configure(
+                    ApacheHttpClient.builder().socketTimeout(socketTimeout).connectionTimeout(connectionTimeout));
         }
 
         /** The region entered for the datasource, or null when none is set. */
