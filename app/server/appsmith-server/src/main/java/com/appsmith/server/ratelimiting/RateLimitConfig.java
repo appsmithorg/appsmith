@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -85,13 +86,20 @@ public class RateLimitConfig {
     }
 
     public BucketProxy getOrCreateAPIUserSpecificBucket(String apiIdentifier, String userId) {
-        String bucketIdentifier = apiIdentifier + userId;
+        String bucketIdentifier = getBucketIdentifier(apiIdentifier, userId);
         Optional<BucketConfiguration> bucketProxy = proxyManager().getProxyConfiguration(bucketIdentifier.getBytes());
         if (bucketProxy.isPresent()) {
             return proxyManager().builder().build(bucketIdentifier.getBytes(), bucketProxy.get());
         }
 
         return proxyManager().builder().build(bucketIdentifier.getBytes(), apiConfigurationMap.get(apiIdentifier));
+    }
+
+    private static String getBucketIdentifier(String apiIdentifier, String userId) {
+        String canonicalUserId = RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API.equals(apiIdentifier)
+                ? userId.toUpperCase(Locale.ROOT).toLowerCase(Locale.ROOT)
+                : userId;
+        return apiIdentifier + canonicalUserId;
     }
 
     private static BucketConfiguration createBucketConfiguration(Duration refillDuration, int limit) {
