@@ -2,6 +2,7 @@ import type { Action } from "entities/Action";
 import { ActionExecutionContext } from "entities/Action";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import type { ApplicationPayload } from "entities/Application";
+import { APP_MODE } from "entities/App";
 import store from "store";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getDatasource } from "ee/selectors/entitiesSelector";
@@ -13,6 +14,17 @@ import { objectKeys } from "@appsmith/utils";
 
 export function getPluginActionNameToDisplay(action: Action) {
   return action.name;
+}
+
+/**
+ * Whether an `EXECUTE_ACTION` analytics event should be sent for an execution in the given app mode.
+ *
+ * Published apps run queries on behalf of their end users: that traffic is ~94% of the event, scales with
+ * end-user activity rather than with building, and carries no builder intent. Only edit-mode executions
+ * (and executions outside an app context, where the mode is unknown) are reported.
+ */
+export function shouldLogActionExecution(appMode: APP_MODE | undefined) {
+  return appMode !== APP_MODE.PUBLISHED;
 }
 
 export const getActionProperties = (
