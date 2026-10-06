@@ -21,6 +21,8 @@ class SegmentSingleton {
   private eventQueue: Array<{ name: string; data: EventProperties }> = [];
   private initState: InitializationStatus = InitializationStatus.WAITING;
   private pendingIdentifies = new Map<string, Promise<void>>();
+  // Bumped by reset(); an identify that was in flight across a reset belongs to the previous identity.
+  private identifyGeneration = 0;
 
   public static getInstance(): SegmentSingleton {
     if (!SegmentSingleton.instance) {
@@ -177,12 +179,20 @@ class SegmentSingleton {
     }
 
     const analytics = this.analytics;
+    const generation = this.identifyGeneration;
     const pending = (async () => {
       try {
         await analytics.identify(userId, traits);
-        writeSessionValue(LAST_IDENTIFY_STORAGE_KEY, identity);
+
+        // A reset() while this call was on the wire means it identified the previous session, not this one.
+        if (this.identifyGeneration === generation) {
+          writeSessionValue(LAST_IDENTIFY_STORAGE_KEY, identity);
+        }
       } finally {
-        this.pendingIdentifies.delete(identity);
+        // reset() already dropped this entry, and the key may now belong to a post-reset identify.
+        if (this.identifyGeneration === generation) {
+          this.pendingIdentifies.delete(identity);
+        }
       }
     })();
 
@@ -203,6 +213,10 @@ class SegmentSingleton {
   }
 
   public reset() {
+    // Invalidate identifies still in flight so the next sign-in identifies afresh instead of reusing them.
+    this.identifyGeneration += 1;
+    this.pendingIdentifies.clear();
+
     if (this.analytics) {
       this.analytics.reset();
     }

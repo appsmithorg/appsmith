@@ -254,6 +254,57 @@ describe("SegmentSingleton", () => {
 
       expect(mockAnalytics.identify).toHaveBeenCalledTimes(2);
     });
+
+    it("should start a fresh identify after a reset that interrupted an in-flight one", async () => {
+      const segment = SegmentSingleton.getInstance();
+
+      await segment.init(true);
+
+      let resolveIdentify: () => void = () => undefined;
+
+      mockAnalytics.identify.mockReturnValueOnce(
+        new Promise<void>((resolve) => {
+          resolveIdentify = resolve;
+        }),
+      );
+
+      const stale = segment.identify(userId, traits);
+
+      // Logout while the identify is still on the wire, then the same user logs in again.
+      segment.reset();
+      const fresh = segment.identify(userId, traits);
+
+      resolveIdentify();
+      await Promise.all([stale, fresh]);
+
+      expect(mockAnalytics.identify).toHaveBeenCalledTimes(2);
+    });
+
+    it("should not let an identify interrupted by reset mark the new session as identified", async () => {
+      const segment = SegmentSingleton.getInstance();
+
+      await segment.init(true);
+
+      let resolveIdentify: () => void = () => undefined;
+
+      mockAnalytics.identify.mockReturnValueOnce(
+        new Promise<void>((resolve) => {
+          resolveIdentify = resolve;
+        }),
+      );
+
+      const stale = segment.identify(userId, traits);
+
+      segment.reset();
+      resolveIdentify();
+      await stale;
+
+      // analytics.js knows the user again; only a post-reset identify may skip the call.
+      mockAnalytics.user.mockReturnValue({ id: () => userId });
+      await segment.identify(userId, traits);
+
+      expect(mockAnalytics.identify).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe("reset", () => {
