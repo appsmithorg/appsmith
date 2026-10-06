@@ -185,6 +185,7 @@ export function getDefaultColumnProperties(
 ): ColumnProperties {
   const columnProps = {
     allowCellWrapping: false,
+    allowHeaderWrapping: false,
     allowSameOptionsInNewRow: true,
     index: index,
     width: DEFAULT_COLUMN_WIDTH,
