@@ -100,29 +100,30 @@ public class ElasticSearchPlugin extends BasePlugin {
                         String preparedBody = MustacheHelper.replaceMustacheWithPlaceholder(body, bodyBindings);
                         body = (String) smartSubstitutionOfBindings(
                                 preparedBody, bodyBindings, params(executeActionDTO), new ArrayList<>());
-                        validateBody(body, isBulkQuery(path));
+                        validateBody(body, isNdjsonQuery(path), isBulkQuery(path));
                     }
                 }
                 if (path != null) {
                     path = bindPath(path, params(executeActionDTO));
                 }
 
-                // Generic substitution handles other fields without re-evaluating the request body or path.
-                actionConfiguration.setBody(null);
-                actionConfiguration.setPath(null);
-                try {
-                    prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
-                } finally {
-                    actionConfiguration.setBody(body);
-                    actionConfiguration.setPath(path);
-                }
-            } catch (Exception e) {
+            } catch (AppsmithPluginException | IllegalArgumentException | IOException e) {
                 ActionExecutionResult result = new ActionExecutionResult();
                 result.setIsExecutionSuccess(false);
                 result.setErrorInfo(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         ElasticSearchErrorMessages.INVALID_BINDING_ERROR_MSG));
                 return Mono.just(result);
+            }
+
+            // Generic substitution handles other fields without re-evaluating the request body or path.
+            actionConfiguration.setBody(null);
+            actionConfiguration.setPath(null);
+            try {
+                prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+            } finally {
+                actionConfiguration.setBody(body);
+                actionConfiguration.setPath(path);
             }
             return execute(client, datasourceConfiguration, actionConfiguration);
         }
@@ -195,8 +196,8 @@ public class ElasticSearchPlugin extends BasePlugin {
             return boundPath.toString();
         }
 
-        private static void validateBody(String body, boolean bulk) throws IOException {
-            if (bulk && !body.trim().startsWith("[")) {
+        private static void validateBody(String body, boolean ndjson, boolean bulk) throws IOException {
+            if (ndjson && !(bulk && body.trim().startsWith("["))) {
                 boolean foundDocument = false;
                 for (String line : body.split("\\R", -1)) {
                     if (!line.isBlank()) {
@@ -253,9 +254,12 @@ public class ElasticSearchPlugin extends BasePlugin {
                         final Request request = new Request(httpMethod.toString(), path);
                         ContentType contentType = ContentType.APPLICATION_JSON;
 
-                        if (isBulkQuery(path)) {
+                        boolean bulkQuery = isBulkQuery(path);
+                        if (bulkQuery || isMultiSearchQuery(path)) {
                             contentType = ContentType.create("application/x-ndjson");
+                        }
 
+                        if (bulkQuery) {
                             // If body is a JSON Array, convert it to an ND-JSON string.
                             if (body != null && body.trim().startsWith("[")) {
                                 final StringBuilder ndJsonBuilder = new StringBuilder();
@@ -331,6 +335,18 @@ public class ElasticSearchPlugin extends BasePlugin {
 
         private static boolean isBulkQuery(String path) {
             return path != null && path.split("\\?", 2)[0].matches(".*\\b_bulk$");
+        }
+
+        private static boolean isMultiSearchQuery(String path) {
+            if (path == null) {
+                return false;
+            }
+            String requestPath = path.split("\\?", 2)[0];
+            return requestPath.endsWith("/_msearch") || requestPath.endsWith("/_msearch/template");
+        }
+
+        private static boolean isNdjsonQuery(String path) {
+            return isBulkQuery(path) || isMultiSearchQuery(path);
         }
 
         public Long getPort(Endpoint endpoint) {

@@ -18,6 +18,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpMethod;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -315,5 +317,72 @@ class ElasticSearchPluginSubstitutionTest {
         assertThat(lines).hasSize(2);
         assertThat(mapper.readTree(lines[0]).path("index").path("_id").asText()).isEqualTo("id1");
         assertThat(mapper.readTree(lines[1]).path("name").asText()).isEqualTo("Ada \"quoted\"");
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "/books/_msearch?search_type=query_then_fetch",
+                "/books/_msearch/template?ccs_minimize_roundtrips=true"
+            })
+    void should_sendNdjson_when_multiSearchBodyHasBindings(String path) throws Exception {
+        // Given
+        enqueueResponse();
+        String search = path.contains("/template")
+                ? "{\"source\":{\"query\":{\"term\":{\"name\":\"{{name}}\"}}}}"
+                : "{\"query\":{\"term\":{\"name\":\"{{name}}\"}}}";
+        ActionConfiguration action = action(path, "{}\n" + search + "\n");
+
+        // When
+        Mono<ActionExecutionResult> result = executor.executeParameterized(
+                client, params("name", "Ada \"quoted\""), new DatasourceConfiguration(), action);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(execution ->
+                        assertThat(execution.getIsExecutionSuccess()).isTrue())
+                .verifyComplete();
+        RecordedRequest request = server.takeRequest(5, TimeUnit.SECONDS);
+        assertThat(request).isNotNull();
+        assertThat(request.getPath()).isEqualTo(path);
+        assertThat(request.getHeader("Content-Type")).startsWith("application/x-ndjson");
+        String body = request.getBody().readUtf8();
+        assertThat(body).endsWith("\n");
+        String[] lines = body.split("\\R");
+        assertThat(lines).hasSize(2);
+        assertThat(mapper.readTree(lines[0]).isObject()).isTrue();
+        JsonNode query = mapper.readTree(lines[1]);
+        JsonNode term = path.contains("/template")
+                ? query.path("source").path("query").path("term")
+                : query.path("query").path("term");
+        assertThat(term.path("name").asText()).isEqualTo("Ada \"quoted\"");
+    }
+
+    @Test
+    void should_rejectMalformedNdjson_when_multiSearchBodyHasBindings() {
+        // Given
+        ActionConfiguration action = action("/_msearch", "{}\n{\"query\":{\"term\":{\"name\":\"{{name}}\"}}\n");
+
+        // When
+        Mono<ActionExecutionResult> result =
+                executor.executeParameterized(client, params("name", "Ada"), new DatasourceConfiguration(), action);
+
+        // Then
+        StepVerifier.create(result).assertNext(this::assertRejected).verifyComplete();
+        assertThat(server.getRequestCount()).isZero();
+    }
+
+    @Test
+    void should_rejectBody_when_bindingIsMissing() {
+        // Given
+        ActionConfiguration action = action("/_search", "{\"query\":{{clause}}}");
+
+        // When
+        Mono<ActionExecutionResult> result =
+                executor.executeParameterized(client, params("other", "value"), new DatasourceConfiguration(), action);
+
+        // Then
+        StepVerifier.create(result).assertNext(this::assertRejected).verifyComplete();
+        assertThat(server.getRequestCount()).isZero();
     }
 }
