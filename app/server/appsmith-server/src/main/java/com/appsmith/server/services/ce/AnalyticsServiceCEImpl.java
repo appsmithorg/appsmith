@@ -236,7 +236,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         || !Boolean.TRUE.equals(properties.get(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY)));
     }
 
-    private Mono<Void> sendEventInternal(String event, String userId, Map<String, ?> properties, boolean hashUserId) {
+    // Protected so an edition can extend the Segment forward stage (EE adds its own suppressed names).
+    protected Mono<Void> sendEventInternal(String event, String userId, Map<String, ?> properties, boolean hashUserId) {
         if (isSuppressedForSegment(event, properties)) {
             return Mono.empty();
         }
