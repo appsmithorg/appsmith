@@ -34,6 +34,7 @@ let currentAppMode: APP_MODE | undefined;
 let isSegmentReady = false;
 let isSegmentIdentifyNeeded = false;
 let isSegmentIdentified = false;
+let segmentIdentifyGeneration = 0;
 
 function isAnonymousUser(user?: User) {
   return !user || user.isAnonymous || user.username === ANONYMOUS_USERNAME;
@@ -79,8 +80,15 @@ function identifySegmentUserOnce() {
   }
 
   isSegmentIdentified = true;
+  const generation = segmentIdentifyGeneration;
+
   identifyUserInSegment(currentUser).catch((error) => {
     log.error("Failed to identify user in Segment", error);
+
+    // Let the next allowed event retry, unless reset() has since started a new session.
+    if (generation === segmentIdentifyGeneration) {
+      isSegmentIdentified = false;
+    }
   });
 }
 
@@ -185,6 +193,7 @@ function reset() {
 
   windowDoc.pylon = undefined;
 
+  segmentIdentifyGeneration += 1;
   currentUser = undefined;
   isSegmentIdentifyNeeded = false;
   isSegmentIdentified = false;

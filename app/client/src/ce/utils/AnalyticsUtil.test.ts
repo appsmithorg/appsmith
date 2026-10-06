@@ -107,6 +107,20 @@ describe("AnalyticsUtil.logEvent", () => {
     expect(mockSegment.track).toHaveBeenCalledTimes(2);
   });
 
+  it("retries the identify on the next allowed event after a failed one", async () => {
+    const AnalyticsUtil = loadAnalyticsUtil();
+
+    mockSegment.identify.mockRejectedValueOnce(new Error("network"));
+
+    AnalyticsUtil.setAppMode(APP_MODE.EDIT);
+    await AnalyticsUtil.initialize(builder, sessionRecordingConfig, true);
+    AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE");
+    await new Promise(process.nextTick);
+    AnalyticsUtil.logEvent("CREATE_APP");
+
+    expect(mockSegment.identify).toHaveBeenCalledTimes(2);
+  });
+
   it("identifies nobody when every event in the session is blocked", async () => {
     const AnalyticsUtil = loadAnalyticsUtil();
 
