@@ -3363,6 +3363,52 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     expect(JSON.stringify(dto)).not.toContain("dbAuth");
   });
 
+  // On EE a workspace has real environments, and naming CE's fixed "unused_env" made the server refuse the create
+  // ("You do not have access to this environment"). With no environmentId, CE uses its fixed environment and EE the
+  // workspace's default one.
+  it.each([
+    ["rest", { url: "https://api.zippopotam.us" }],
+    [
+      "postgresql",
+      { connection: { host: "db.internal", databaseName: "appdb" } },
+    ],
+  ])(
+    "create_datasource (%s) leaves the storage's environment to the server",
+    async (plugin, target) => {
+      const createDatasource = jest.fn<
+        Promise<Record<string, unknown>>,
+        [Record<string, unknown>]
+      >(async () => ({ id: "ds1", name: "Env", pluginId: "p1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listPlugins: jest.fn(async () => [
+          { id: "p1", packageName: "restapi-plugin" },
+          { id: "p2", packageName: "postgres-plugin" },
+        ]),
+        listDatasources: jest.fn(async () => []),
+        createDatasource,
+      };
+
+      const body = await callTool(api, "create_datasource", {
+        workspaceId: "ws1",
+        name: "Env",
+        plugin,
+        ...target,
+      });
+
+      expect(body.created).toBe(true);
+
+      const storages = (
+        createDatasource.mock.calls[0][0] as {
+          datasourceStorages: Record<string, Record<string, unknown>>;
+        }
+      ).datasourceStorages;
+
+      expect(Object.values(storages)).toHaveLength(1);
+      expect(Object.values(storages)[0]).not.toHaveProperty("environmentId");
+    },
+  );
+
   it("create_datasource enforces url-vs-connection per plugin family and rejects unsafe URLs", async () => {
     const createDatasource = jest.fn();
     const api: AppsmithApi = {
