@@ -1,15 +1,12 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.helpers.Identifiable;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.DeploymentProperties;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.helpers.ExchangeUtils;
@@ -32,6 +29,7 @@ import reactor.core.publisher.Mono;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.AnalyticsConstants.ADMIN_EMAIL_DOMAIN_HASH;
@@ -46,6 +44,24 @@ import static com.appsmith.server.constants.ce.FieldNameCE.ROLE;
 
 @Slf4j
 public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
+
+    /**
+     * High-volume events that nobody reads in Segment, so they are not forwarded there. Audit logging (EE) is
+     * unaffected: it is written before {@link #sendObjectEvent} reaches this check.
+     */
+    private static final Set<String> SEGMENT_SUPPRESSED_EVENTS = Set.of(
+            "view_NEWPAGE",
+            "update_layout",
+            "update_NEWACTION",
+            "update_ACTIONCOLLECTION",
+            "unit_execution_time",
+            "login_USER",
+            "logout_USER");
+
+    /**
+     * Forwarded only when user-invoked; most of these updates are OAuth token refreshes.
+     */
+    private static final String DATASOURCE_STORAGE_UPDATE_EVENT = "update_DATASOURCESTORAGE";
 
     private final Analytics analytics;
     private final SessionUserService sessionUserService;
@@ -202,39 +218,29 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
     @Override
     public Mono<Void> sendEvent(String event, String userId, Map<String, ?> properties, boolean hashUserId) {
-        if (!isActive()) {
+        // Anonymous visitors are never sent: each anonymous id would be billed by Segment as a tracked user.
+        // sendObjectEvent drops anonymous sessions upstream; this covers direct callers.
+        if (!isActive() || FieldName.ANONYMOUS_USER.equals(userId)) {
             return Mono.empty();
-        }
-
-        // If the event is for an anonymous user, respect the
-        // configure_block_event_tracking_for_anonymous_users feature flag. sendObjectEvent applies the same
-        // check upstream on the session user; gating here additionally covers direct sendEvent callers that
-        // pass an anonymous userId.
-        if (FieldName.ANONYMOUS_USER.equals(userId)) {
-            return featureFlagService
-                    .check(FeatureFlagEnum.configure_block_event_tracking_for_anonymous_users)
-                    // Fail closed: if the flag state can't be resolved, drop the anonymous event rather than
-                    // erroring the caller's chain (analytics is fire-and-forget for direct callers).
-                    .onErrorResume(error -> {
-                        log.warn(
-                                "Could not resolve the block-anonymous-tracking flag; dropping anonymous event {}",
-                                event,
-                                error);
-                        return Mono.just(Boolean.TRUE);
-                    })
-                    .flatMap(isBlocked -> {
-                        if (isBlocked) {
-                            log.debug("Analytics event {} is not sent for anonymous user", event);
-                            return Mono.empty();
-                        }
-                        return sendEventInternal(event, userId, properties, hashUserId);
-                    });
         }
 
         return sendEventInternal(event, userId, properties, hashUserId);
     }
 
+    private static boolean isSuppressedForSegment(String event, Map<String, ?> properties) {
+        if (SEGMENT_SUPPRESSED_EVENTS.contains(event)) {
+            return true;
+        }
+        return DATASOURCE_STORAGE_UPDATE_EVENT.equals(event)
+                && (properties == null
+                        || !Boolean.TRUE.equals(properties.get(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY)));
+    }
+
     private Mono<Void> sendEventInternal(String event, String userId, Map<String, ?> properties, boolean hashUserId) {
+        if (isSuppressedForSegment(event, properties)) {
+            return Mono.empty();
+        }
+
         // Can't update the properties directly as it's throwing ImmutableCollection error
         // java.lang.UnsupportedOperationException: null
         // at java.base/java.util.ImmutableCollections.uoe(ImmutableCollections.java)
@@ -272,19 +278,13 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         final String finalUserId = userId;
 
         return Mono.zip(
-                        ExchangeUtils.getAnonymousUserIdFromCurrentRequest(),
                         ExchangeUtils.getUserAgentFromCurrentRequest(),
                         configService.getInstanceId().defaultIfEmpty("unknown-instance-id"))
                 .map(tuple -> {
-                    final String userIdFromClient = tuple.getT1();
-                    final String userAgent = tuple.getT2();
-                    final String instanceId = tuple.getT3();
-                    String userIdToSend = finalUserId;
-                    if (FieldName.ANONYMOUS_USER.equals(finalUserId)) {
-                        userIdToSend = StringUtils.defaultIfEmpty(userIdFromClient, FieldName.ANONYMOUS_USER);
-                    }
+                    final String userAgent = tuple.getT1();
+                    final String instanceId = tuple.getT2();
                     TrackMessage.Builder messageBuilder =
-                            TrackMessage.builder(event).userId(userIdToSend).context(Map.of("userAgent", userAgent));
+                            TrackMessage.builder(event).userId(finalUserId).context(Map.of("userAgent", userAgent));
                     // For Installation Setup Complete event we are using `instanceId` as tracking id
                     // As this does not satisfy the email validation it's not getting hashed correctly
                     if (AnalyticsEvents.INSTALLATION_SETUP_COMPLETE
@@ -348,75 +348,18 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         // For more info on this, refer to the `getEventTag` method and `getNonResourceEvents` method
         final String eventTag = getEventTag(event, object);
 
-        // We will create an anonymous user object for event tracking if no user is present
-        // Without this, a lot of flows meant for anonymous users will error out
-
-        // In case the event needs to be sent during sign in, then `sessionUserService.getCurrentUser()` returns
-        // Mono.empty()
-        // Handle the same by returning an anonymous user only for sending events.
-        User anonymousUser = new User();
-        anonymousUser.setName(FieldName.ANONYMOUS_USER);
-        anonymousUser.setEmail(FieldName.ANONYMOUS_USER);
-        anonymousUser.setIsAnonymous(true);
-
-        Mono<User> userMono = sessionUserService.getCurrentUser().switchIfEmpty(Mono.just(anonymousUser));
-
-        return userMono.flatMap(user -> {
-                    // if the user is anonymous, check if the feature flag
-                    // configure_block_event_tracking_for_anonymous_users is enabled.  If yes, then do not send the
-                    // analytics event.
-                    if (user.isAnonymous()) {
-                        return featureFlagService
-                                .check(FeatureFlagEnum.configure_block_event_tracking_for_anonymous_users)
-                                // Fail closed: if the flag state can't be resolved, drop the anonymous event rather
-                                // than erroring the business flow this analytics call is chained into.
-                                .onErrorResume(error -> {
-                                    log.warn(
-                                            "Could not resolve the block-anonymous-tracking flag; dropping anonymous event {}",
-                                            eventTag,
-                                            error);
-                                    return Mono.just(Boolean.TRUE);
-                                })
-                                .flatMap(isBlocked -> {
-                                    if (isBlocked) {
-                                        log.debug("Analytics event {} is not sent for anonymous user", eventTag);
-                                        return Mono.empty();
-                                    } else {
-                                        return Mono.just(user);
-                                    }
-                                });
-                    }
-
-                    return Mono.just(user);
-                })
-                .flatMap(user -> Mono.zip(
-                        user.isAnonymous()
-                                ? ExchangeUtils.getAnonymousUserIdFromCurrentRequest()
-                                : Mono.just(user.getUsername()),
-                        Mono.just(user)))
-                .flatMap(tuple -> {
-                    final String id = tuple.getT1();
-                    final User user = tuple.getT2();
-
-                    // In case the user is anonymous, don't raise an event, unless it's a signup, logout, page view or
-                    // action execution event.
-                    boolean isEventUserSignUpOrLogout = object instanceof User
-                            && (event == AnalyticsEvents.CREATE || event == AnalyticsEvents.LOGOUT);
-                    boolean isEventPageView = object instanceof NewPage && event == AnalyticsEvents.VIEW;
-                    boolean isEventActionExecution =
-                            object instanceof ActionDTO && event == AnalyticsEvents.EXECUTE_ACTION;
-                    boolean isAvoidLoggingEvent = user.isAnonymous()
-                            && !(isEventUserSignUpOrLogout || isEventPageView || isEventActionExecution);
-                    if (isAvoidLoggingEvent) {
-                        return Mono.just(object);
-                    }
-
+        // Anonymous visitors (no session user, e.g. during sign-in or sign-up) are never sent: each anonymous id would
+        // be billed by Segment as a tracked user.
+        return sessionUserService
+                .getCurrentUser()
+                .filter(user -> !user.isAnonymous())
+                .flatMap(user -> {
                     String organizationId = user.getOrganizationId();
 
                     final String username = (object instanceof User objectAsUser ? objectAsUser : user).getUsername();
 
                     HashMap<String, Object> analyticsProperties = new HashMap<>();
-                    analyticsProperties.put("id", id);
+                    analyticsProperties.put("id", user.getUsername());
                     analyticsProperties.put("oid", ((Identifiable) object).getId());
                     analyticsProperties.put("organizationId", ObjectUtils.defaultIfNull(organizationId, ""));
                     if (extraProperties != null) {
@@ -433,8 +376,6 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         analyticsProperties.remove(FieldName.CLOUD_HOSTED_EXTRA_PROPS);
                     }
 
-                    // The anonymous-user flag was already evaluated above for this session user, so route
-                    // straight to sendEventInternal to avoid re-checking the (Redis-backed) flag on this hot path.
                     return sendEventInternal(eventTag, username, analyticsProperties, true);
                 })
                 // Return the original object after sending the event

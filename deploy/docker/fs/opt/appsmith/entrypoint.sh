@@ -534,16 +534,6 @@ check_redis_compatible_page_size() {
   local page_size
   page_size="$(getconf PAGE_SIZE)"
   if [[ $page_size -gt 4096 ]]; then
-    if [[ -n "${APPSMITH_SEGMENT_CE_KEY-}" ]] && [[ "${APPSMITH_DISABLE_TELEMETRY-}" != "true" ]]; then
-      curl \
-      --connect-timeout 5 \
-        --silent \
-        --user "$APPSMITH_SEGMENT_CE_KEY:" \
-        --header 'Content-Type: application/json' \
-        --data '{ "userId": "redis-compile", "event":"RedisCompile", "properties": { "hostname": "'"$HOSTNAME"'" } }' \
-        https://api.segment.io/v1/track \
-        || true
-    fi
     tlog "Compile Redis stable with page size of $page_size"
     apt-get update
     apt-get install --yes build-essential
