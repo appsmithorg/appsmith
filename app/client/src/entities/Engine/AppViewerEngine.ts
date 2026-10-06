@@ -11,13 +11,9 @@ import {
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import type { APP_MODE } from "entities/App";
-import { call, put, select, spawn } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import type { DeployConsolidatedApi } from "sagas/InitSagas";
-import {
-  failFastApiCalls,
-  reportSWStatus,
-  waitForWidgetConfigBuild,
-} from "sagas/InitSagas";
+import { failFastApiCalls, waitForWidgetConfigBuild } from "sagas/InitSagas";
 import type { AppEnginePayload } from ".";
 import AppEngine, { ActionsNotFoundError } from ".";
 import {
@@ -76,7 +72,6 @@ export default class AppViewerEngine extends AppEngine {
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
     });
-    yield spawn(reportSWStatus);
 
     endSpan(completeChoreSpan);
   }

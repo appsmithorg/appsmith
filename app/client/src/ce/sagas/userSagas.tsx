@@ -152,24 +152,12 @@ function* getSessionRecordingConfig() {
   };
 }
 
-export function shouldTrackUser(
-  currentUser: User,
-  featureFlag: boolean,
-): boolean {
+export function shouldTrackUser(currentUser: User): boolean {
   try {
     const isAnonymous =
       currentUser?.isAnonymous || currentUser?.username === ANONYMOUS_USERNAME;
 
-    if (!isAnonymous) {
-      return true;
-    }
-
-    const telemetryOn = currentUser?.enableTelemetry ?? false;
-
-    // When the block-anonymous-tracking flag is on, never track anonymous
-    // users — including on licensed instances. Otherwise, track only if
-    // telemetry is enabled.
-    return telemetryOn && !featureFlag;
+    return !isAnonymous;
   } catch (error) {
     return true;
   }
@@ -187,12 +175,7 @@ function* initTrackers(currentUser: User): SagaIterator {
       getSessionRecordingConfig,
     );
 
-    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
-
-    const shouldTrack = shouldTrackUser(
-      currentUser,
-      featureFlags.configure_block_event_tracking_for_anonymous_users,
-    );
+    const shouldTrack = shouldTrackUser(currentUser);
 
     yield call(
       AnalyticsUtil.initialize,
