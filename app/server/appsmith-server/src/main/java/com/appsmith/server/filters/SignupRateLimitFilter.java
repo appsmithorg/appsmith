@@ -33,6 +33,7 @@ import static java.lang.Boolean.FALSE;
 public class SignupRateLimitFilter implements WebFilter {
 
     private static final String X_FORWARDED_FOR = "X-Forwarded-For";
+    private static final String UNKNOWN_CLIENT = "unknown";
     private static final String SIGNUP_PAGE_URL = "/user/signup";
 
     private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
@@ -51,10 +52,6 @@ public class SignupRateLimitFilter implements WebFilter {
         }
 
         String clientIp = getClientIp(exchange.getRequest());
-        if (clientIp == null) {
-            // No address to key on; throttling every such request through one shared bucket would lock out everyone.
-            return chain.filter(exchange);
-        }
 
         return rateLimitService
                 .tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_SIGNUP_API, clientIp)
@@ -80,9 +77,12 @@ public class SignupRateLimitFilter implements WebFilter {
     }
 
     /**
-     * Cloud sits behind CloudFront/ALB, so the first {@code X-Forwarded-For} value is the client. Only a literal IP
-     * address is accepted (never resolved), which also bounds the bucket key space; anything else falls back to the
-     * remote address.
+     * Cloud sits behind CloudFront/ALB, so the first {@code X-Forwarded-For} value is the client. In the running
+     * server {@code ForwardedHeaderTransformer} has already consumed that header: it is removed and the client is
+     * left as the (unresolved) remote address, so both shapes are read. Only a literal IP address is accepted (never
+     * resolved, canonicalised), which also bounds the bucket key space. A request with no usable address is counted
+     * in a shared {@value #UNKNOWN_CLIENT} bucket rather than skipped, so a malformed header cannot be used to
+     * bypass the limit; real traffic always carries a valid address, so it does not compete for that bucket.
      */
     private String getClientIp(ServerHttpRequest request) {
         String forwardedFor = request.getHeaders().getFirst(X_FORWARDED_FOR);
@@ -94,10 +94,14 @@ public class SignupRateLimitFilter implements WebFilter {
         }
 
         InetSocketAddress remoteAddress = request.getRemoteAddress();
-        if (remoteAddress == null || remoteAddress.getAddress() == null) {
-            return null;
+        if (remoteAddress != null) {
+            String host = remoteAddress.getHostString();
+            if (InetAddresses.isInetAddress(host)) {
+                return InetAddresses.forString(host).getHostAddress();
+            }
         }
-        return remoteAddress.getAddress().getHostAddress();
+
+        return UNKNOWN_CLIENT;
     }
 
     private Mono<Void> handleRateLimitExceeded(ServerWebExchange exchange) {

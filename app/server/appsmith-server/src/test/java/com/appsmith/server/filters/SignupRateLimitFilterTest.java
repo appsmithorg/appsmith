@@ -9,10 +9,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
+import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 import reactor.core.publisher.Mono;
 
 import java.net.InetAddress;
@@ -75,6 +77,13 @@ class SignupRateLimitFilterTest {
             builder.header("X-Forwarded-For", xForwardedFor);
         }
         return MockServerWebExchange.from(builder.body("email=a%40b.com&password=secret"));
+    }
+
+    private static ServerWebExchange withRequest(ServerHttpRequest request) {
+        return MockServerWebExchange.from(MockServerHttpRequest.post(SIGNUP_PATH))
+                .mutate()
+                .request(request)
+                .build();
     }
 
     private static InetSocketAddress inetSocketAddress(String ip) {
@@ -189,5 +198,64 @@ class SignupRateLimitFilterTest {
 
         verify(rateLimitService, never()).tryIncreaseCounter(anyString(), anyString());
         assertThat(chainInvocations.get()).isEqualTo(2);
+    }
+
+    @Test
+    void signup_afterForwardedHeaderTransformer_keysByForwardedClientIp() {
+        // Production runs ForwardedHeaderTransformer ahead of the web filters: it strips X-Forwarded-For and leaves the
+        // client as an unresolved remote address. The limit must still be keyed on that client.
+        MockServerHttpRequest raw = MockServerHttpRequest.post(SIGNUP_PATH)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .remoteAddress(inetSocketAddress("127.0.0.1"))
+                .header("X-Forwarded-For", "203.0.113.7, 10.0.0.1")
+                .build();
+        ServerHttpRequest transformed = new ForwardedHeaderTransformer().apply(raw);
+        assertThat(transformed.getHeaders().getFirst("X-Forwarded-For")).isNull();
+
+        for (int i = 0; i < LIMIT; i++) {
+            filter.filter(withRequest(transformed), chain).block();
+        }
+        ServerWebExchange blocked = withRequest(transformed);
+        filter.filter(blocked, chain).block();
+
+        verify(rateLimitService, org.mockito.Mockito.times(LIMIT + 1))
+                .tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_SIGNUP_API, "203.0.113.7");
+        assertRateLimited(blocked);
+        assertThat(chainInvocations.get()).isEqualTo(LIMIT);
+    }
+
+    @Test
+    void signup_withUnusableClientAddress_isStillCountedInSharedBucket() {
+        // A garbage X-Forwarded-For becomes an unresolved, non-IP remote address after the transformer. It must not
+        // be a way around the limit.
+        ServerHttpRequest transformed = new ForwardedHeaderTransformer()
+                .apply(MockServerHttpRequest.post(SIGNUP_PATH)
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .remoteAddress(inetSocketAddress("127.0.0.1"))
+                        .header("X-Forwarded-For", "not-an-ip")
+                        .build());
+
+        for (int i = 0; i < LIMIT; i++) {
+            filter.filter(withRequest(transformed), chain).block();
+        }
+        ServerWebExchange blocked = withRequest(transformed);
+        filter.filter(blocked, chain).block();
+
+        assertRateLimited(blocked);
+        assertThat(chainInvocations.get()).isEqualTo(LIMIT);
+        verify(rateLimitService, org.mockito.Mockito.times(LIMIT + 1))
+                .tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_SIGNUP_API, "unknown");
+    }
+
+    @Test
+    void signup_withoutAnyClientAddress_isCountedInSharedBucket() {
+        MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.post(SIGNUP_PATH)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .build());
+
+        filter.filter(exchange, chain).block();
+
+        verify(rateLimitService).tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_SIGNUP_API, "unknown");
+        assertThat(chainInvocations.get()).isEqualTo(1);
     }
 }
