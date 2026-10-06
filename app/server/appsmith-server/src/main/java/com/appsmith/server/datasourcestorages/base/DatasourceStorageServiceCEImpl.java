@@ -167,6 +167,8 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
             boolean isDryOps) {
         String datasourceId = datasourceStorage.getDatasourceId();
         String environmentId = datasourceStorage.getEnvironmentId();
+        // The datasource and environment select the storage and request data cannot retarget the persisted document.
+        datasourceStorage.setId(null);
 
         return this.findStrictlyByDatasourceIdAndEnvironmentId(datasourceId, environmentId)
                 .flatMap(this::checkEnvironment)
