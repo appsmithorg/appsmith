@@ -161,13 +161,13 @@ public class ElasticSearchPlugin extends BasePlugin {
                 String key = token.getValue()
                         .substring(2, token.getValue().length() - 2)
                         .trim();
-                String value = params.stream()
+                Param matchingParam = params.stream()
                         .filter(param -> param != null
                                 && param.getKey() != null
                                 && param.getKey().trim().equals(key))
-                        .map(Param::getValue)
                         .findFirst()
                         .orElse(null);
+                String value = matchingParam == null ? null : matchingParam.getValue();
                 if (value == null || !SAFE_PATH_VALUE.matcher(value).matches()) {
                     throw new IllegalArgumentException();
                 }
@@ -255,7 +255,8 @@ public class ElasticSearchPlugin extends BasePlugin {
                         ContentType contentType = ContentType.APPLICATION_JSON;
 
                         boolean bulkQuery = isBulkQuery(path);
-                        if (bulkQuery || isMultiSearchQuery(path)) {
+                        boolean ndjsonQuery = bulkQuery || isMultiSearchQuery(path);
+                        if (ndjsonQuery) {
                             contentType = ContentType.create("application/x-ndjson");
                         }
 
@@ -280,6 +281,10 @@ public class ElasticSearchPlugin extends BasePlugin {
                                 }
                                 body = ndJsonBuilder.toString();
                             }
+                        }
+
+                        if (ndjsonQuery && body != null && !body.isEmpty() && !body.endsWith("\n")) {
+                            body += "\n";
                         }
 
                         if (body != null) {

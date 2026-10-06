@@ -385,4 +385,44 @@ class ElasticSearchPluginSubstitutionTest {
         StepVerifier.create(result).assertNext(this::assertRejected).verifyComplete();
         assertThat(server.getRequestCount()).isZero();
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"/_msearch", "/books/_bulk"})
+    void should_appendFinalNewline_when_ndjsonBindingHasNoTerminator(String path) throws Exception {
+        // Given
+        enqueueResponse();
+        String firstLine = path.endsWith("_bulk") ? "{\"index\":{}}" : "{}";
+        String secondLine =
+                path.endsWith("_bulk") ? "{\"name\":\"{{name}}\"}" : "{\"query\":{\"term\":{\"name\":\"{{name}}\"}}}";
+        ActionConfiguration action = action(path, firstLine + "\n" + secondLine);
+
+        // When
+        Mono<ActionExecutionResult> result =
+                executor.executeParameterized(client, params("name", "Ada"), new DatasourceConfiguration(), action);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(execution ->
+                        assertThat(execution.getIsExecutionSuccess()).isTrue())
+                .verifyComplete();
+        RecordedRequest request = server.takeRequest(5, TimeUnit.SECONDS);
+        assertThat(request).isNotNull();
+        assertThat(request.getHeader("Content-Type")).startsWith("application/x-ndjson");
+        assertThat(request.getBody().readUtf8())
+                .isEqualTo(firstLine + "\n" + secondLine.replace("{{name}}", "Ada") + "\n");
+    }
+
+    @Test
+    void should_rejectPath_when_bindingValueIsNull() {
+        // Given
+        ActionConfiguration action = action("/{{index}}/_search", null);
+
+        // When
+        Mono<ActionExecutionResult> result =
+                executor.executeParameterized(client, params("index", null), new DatasourceConfiguration(), action);
+
+        // Then
+        StepVerifier.create(result).assertNext(this::assertRejected).verifyComplete();
+        assertThat(server.getRequestCount()).isZero();
+    }
 }
