@@ -99,8 +99,14 @@ public class QueryUtils {
             return false;
         }
 
-        String targetStatement = statements.get(statements.size() - 1);
-        return isStatementRowReturning(targetStatement);
+        for (int i = statements.size() - 1; i >= 0; i--) {
+            String stmt = statements.get(i);
+            if (skipWhitespaceAndComments(stmt, 0) < stmt.length()) {
+                return isStatementRowReturning(stmt);
+            }
+        }
+
+        return false;
     }
 
     /**

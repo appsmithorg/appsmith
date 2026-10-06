@@ -331,6 +331,28 @@ public class QueryUtilsTest {
     }
 
     /**
+     * Tests that queries followed by trailing comments after a semicolon are properly classified.
+     */
+    @Test
+    public void testIsRowReturningQuery_trailingCommentsAfterSemicolon_returnsTrue() {
+        assertTrue(QueryUtils.isRowReturningQuery("SELECT 1; /* note */"));
+        assertTrue(QueryUtils.isRowReturningQuery("SELECT * FROM users; -- trailing comment"));
+        assertTrue(QueryUtils.isRowReturningQuery("SELECT * FROM users; # trailing comment"));
+        assertTrue(QueryUtils.isRowReturningQuery("SET @x = 1; WITH cte AS (SELECT 1) SELECT * FROM cte; /* note */"));
+    }
+
+    /**
+     * Tests that a comment-only query returns false.
+     */
+    @Test
+    public void testIsRowReturningQuery_commentOnlyQuery_returnsFalse() {
+        assertFalse(QueryUtils.isRowReturningQuery("/* only a comment */"));
+        assertFalse(QueryUtils.isRowReturningQuery("-- only line comment\n"));
+        assertFalse(QueryUtils.isRowReturningQuery("# only hash comment\n"));
+        assertFalse(QueryUtils.isRowReturningQuery("/* comment 1 */; /* comment 2 */"));
+    }
+
+    /**
      * Tests that splitMultiQueries properly splits multiple SQL statements while ignoring semicolons in quotes.
      */
     @Test
