@@ -50,8 +50,9 @@ function loadAnalyticsUtil(): typeof AnalyticsUtilModule {
   let analyticsUtil: typeof AnalyticsUtilModule | undefined;
 
   jest.isolateModules(() => {
-    analyticsUtil =
-      jest.requireActual<typeof AnalyticsUtilModule>("./AnalyticsUtil");
+    analyticsUtil = jest.requireActual(
+      "./AnalyticsUtil",
+    ) as typeof AnalyticsUtilModule;
   });
 
   return analyticsUtil as typeof AnalyticsUtilModule;
