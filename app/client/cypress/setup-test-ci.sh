@@ -8,6 +8,29 @@ sudo echo "127.0.0.1	localhost" | sudo tee -a /etc/hosts
 
 sleep 10
 
+# The appsmith container's first boot initializes the embedded MongoDB with two mongod
+# forks, and the second fork occasionally exits 1, which takes the container down before
+# any spec runs. Restart it once from an empty data directory. The entrypoint skips the
+# first-boot init (user, replica set) whenever data files exist, so restarting on the
+# half-initialized directory would never become ready.
+appsmith_status=$(docker inspect --format '{{.State.Status}}' appsmith 2>/dev/null || echo unknown)
+if [ "$appsmith_status" = "exited" ]; then
+  stacks_dir=$(docker inspect --format '{{range .Mounts}}{{if eq .Destination "/appsmith-stacks"}}{{.Source}}{{end}}{{end}}' appsmith)
+  echo "The appsmith container exited during startup. Container logs:"
+  docker logs appsmith
+  if [ -n "$stacks_dir" ]; then
+    mongo_log="$stacks_dir/data/mongodb/log"
+    if sudo test -f "$mongo_log"; then
+      echo "Last 100 lines of the embedded MongoDB log:"
+      sudo tail -n 100 "$mongo_log"
+    fi
+    echo "Removing $stacks_dir/data/mongodb and restarting the appsmith container once"
+    sudo rm -rf "$stacks_dir/data/mongodb"
+    docker start appsmith
+    sleep 10
+  fi
+fi
+
 echo "Checking if the containers have started"
 sudo docker ps -a
 for fcid in $(sudo docker ps -a | awk '/Exited/ { print $1 }'); do
