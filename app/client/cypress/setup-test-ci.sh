@@ -8,22 +8,32 @@ sudo echo "127.0.0.1	localhost" | sudo tee -a /etc/hosts
 
 sleep 10
 
+appsmith_status() {
+  docker inspect --format '{{.State.Status}}' appsmith 2>/dev/null || echo unknown
+}
+
+# The embedded MongoDB log lives on the stacks volume and no artifact captures it, so
+# print its tail along with the container logs whenever the appsmith container dies.
+print_appsmith_exit_logs() {
+  echo "The appsmith container exited $1. Container logs:"
+  docker logs appsmith
+  mongo_log="$stacks_dir/data/mongodb/log"
+  if [ -n "$stacks_dir" ] && sudo test -f "$mongo_log"; then
+    echo "Last 100 lines of the embedded MongoDB log:"
+    sudo tail -n 100 "$mongo_log"
+  fi
+}
+
+stacks_dir=$(docker inspect --format '{{range .Mounts}}{{if eq .Destination "/appsmith-stacks"}}{{.Source}}{{end}}{{end}}' appsmith 2>/dev/null)
+
 # The appsmith container's first boot initializes the embedded MongoDB with two mongod
 # forks, and the second fork occasionally exits 1, which takes the container down before
 # any spec runs. Restart it once from an empty data directory. The entrypoint skips the
 # first-boot init (user, replica set) whenever data files exist, so restarting on the
 # half-initialized directory would never become ready.
-appsmith_status=$(docker inspect --format '{{.State.Status}}' appsmith 2>/dev/null || echo unknown)
-if [ "$appsmith_status" = "exited" ]; then
-  stacks_dir=$(docker inspect --format '{{range .Mounts}}{{if eq .Destination "/appsmith-stacks"}}{{.Source}}{{end}}{{end}}' appsmith)
-  echo "The appsmith container exited during startup. Container logs:"
-  docker logs appsmith
+if [ "$(appsmith_status)" = "exited" ]; then
+  print_appsmith_exit_logs "during startup"
   if [ -n "$stacks_dir" ]; then
-    mongo_log="$stacks_dir/data/mongodb/log"
-    if sudo test -f "$mongo_log"; then
-      echo "Last 100 lines of the embedded MongoDB log:"
-      sudo tail -n 100 "$mongo_log"
-    fi
     echo "Removing $stacks_dir/data/mongodb and restarting the appsmith container once"
     sudo rm -rf "$stacks_dir/data/mongodb"
     docker start appsmith
@@ -61,6 +71,9 @@ while :; do
     echo "Server is ready after $attempt attempt(s)"
     break
   fi
+  if [ "$(appsmith_status)" = "exited" ]; then
+    break
+  fi
   if [ "$(date +%s)" -ge "$deadline" ]; then
     break
   fi
@@ -73,7 +86,11 @@ ps -ef | grep java 2>&1
 ps -ef | grep serve 2>&1
 
 if [ "$status_code" -ne 200 ]; then
-  echo "Server did not become ready within ${timeout_seconds}s (last status: $status_code)" >&2
-  docker logs appsmith
+  if [ "$(appsmith_status)" = "exited" ]; then
+    print_appsmith_exit_logs "during the readiness wait" >&2
+  else
+    echo "Server did not become ready within ${timeout_seconds}s (last status: $status_code)" >&2
+    docker logs appsmith
+  fi
   exit 1
 fi
