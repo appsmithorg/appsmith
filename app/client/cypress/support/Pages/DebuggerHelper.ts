@@ -142,7 +142,16 @@ export class DebuggerHelper {
 
   AssertErrorCount(count: number) {
     const assertion = count > 0 ? `Debug (${count})` : "Debug ";
-    this.agHelper.GetNAssertElementText(this.locators._errorCount, assertion);
+    // Asserted directly on the element query so the check retries until the
+    // counter settles: the debugger shows transient errors for a few tens of
+    // milliseconds after some edits (for example deleting a List widget).
+    this.agHelper
+      .GetElement(
+        this.locators._errorCount,
+        "exist",
+        Cypress.config("defaultCommandTimeout"),
+      )
+      .should("have.text", assertion);
   }
 
   changeLogsGroup(option: string) {
