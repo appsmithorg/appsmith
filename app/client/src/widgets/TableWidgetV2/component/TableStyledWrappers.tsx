@@ -32,6 +32,7 @@ import { Layers } from "constants/Layers";
 
 const BORDER_RADIUS = "border-radius: 4px;";
 const HEADER_CONTROL_FONT_SIZE = "12px";
+const HEADER_WRAP_LINE_HEIGHT = 20;
 
 export const TableWrapper = styled.div<
   RowColorStyles & {
@@ -356,6 +357,50 @@ export const TableWrapper = styled.div<
     cursor: pointer;
     height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
     line-height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
+  }
+  .tr.header[data-header-wrap="true"] {
+    .th {
+      align-items: center;
+      height: auto;
+      line-height: ${HEADER_WRAP_LINE_HEIGHT}px;
+      min-height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
+    }
+
+    .draggable-header,
+    .hidden-header {
+      align-items: center;
+      align-self: stretch;
+      display: flex;
+      flex: 1 1 auto;
+      height: auto;
+      min-height: min-content;
+      min-width: 0;
+      overflow: hidden;
+      width: auto;
+    }
+
+    .header-sort-icon {
+      align-self: center;
+      flex-shrink: 0;
+    }
+
+    /*
+     * The arrow is display:none until .header-menu is hovered. align-items:center
+     * on .th would shrink that box to 0 height, so the hover target must stretch
+     * to the full header the way it does in a single-line row. The popover target
+     * fills that strip so the menu opens anywhere along it, with the arrow centered.
+     */
+    .header-menu {
+      align-self: stretch;
+      flex-shrink: 0;
+
+      &.hide:hover .bp3-popover2-target {
+        align-items: center;
+        display: flex;
+        height: 100%;
+        justify-content: center;
+      }
+    }
   }
   .th {
     display: flex !important;
