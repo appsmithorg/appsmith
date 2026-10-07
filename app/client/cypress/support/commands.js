@@ -35,7 +35,10 @@ const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import RapidMode from "./RapidMode";
-import { featureFlagIntercept } from "./Objects/FeatureFlags";
+import {
+  featureFlagIntercept,
+  rewriteUpstreamResponse,
+} from "./Objects/FeatureFlags";
 import { PluginActionForm } from "./Pages/PluginActionForm";
 
 const propPane = ObjectsRegistry.PropertyPane;
@@ -823,7 +826,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
       url: "/api/v1/product-alert/alert",
     },
     (req) => {
-      req.reply((res) => {
+      rewriteUpstreamResponse(req, (res) => {
         if (res) {
           if (res.statusCode === 200) {
             // Modify the response body to have empty data
