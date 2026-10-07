@@ -36,6 +36,11 @@ final class AwsLambdaResponseMapper {
 
     private static final JsonNodeFactory NODES = JsonNodeFactory.instance;
 
+    // Lambda environment variables routinely hold credentials and API tokens. The value of each variable is a secret
+    // that is unrelated to function metadata, so the names are exposed but every value is redacted rather than copied
+    // into the user-visible response.
+    private static final String REDACTED_VALUE = "[REDACTED]";
+
     private AwsLambdaResponseMapper() {}
 
     static ArrayNode functionConfigurations(List<FunctionConfiguration> functions) {
@@ -134,7 +139,7 @@ final class AwsLambdaResponseMapper {
         ObjectNode variables = NODES.objectNode();
         Map<String, String> environmentVariables = environment.variables();
         if (environmentVariables != null) {
-            environmentVariables.forEach(variables::put);
+            environmentVariables.keySet().forEach(name -> variables.put(name, REDACTED_VALUE));
         }
         node.set("variables", variables);
         node.set("error", object(environment.error(), AwsLambdaResponseMapper::environmentError));

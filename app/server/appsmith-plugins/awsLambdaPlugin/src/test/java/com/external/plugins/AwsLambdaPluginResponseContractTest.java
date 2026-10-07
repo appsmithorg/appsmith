@@ -100,6 +100,31 @@ class AwsLambdaPluginResponseContractTest {
     }
 
     @Test
+    void should_redactEnvironmentVariableValues_when_listingFunctions() {
+        // Given
+        LambdaClient lambda = mock(LambdaClient.class);
+        when(lambda.listFunctions())
+                .thenReturn(ListFunctionsResponse.builder()
+                        .functions(List.of(richFunctionConfiguration()))
+                        .build());
+
+        // When
+        Mono<ActionExecutionResult> result = execute(lambda, "LIST_FUNCTIONS", Map.of("functionName", "orders-api"));
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(actual -> {
+                    assertThat(actual.getIsExecutionSuccess()).isTrue();
+                    String body = prettyPrint(actual.getBody());
+                    // The variable names remain, but their secret values must never be serialized.
+                    assertThat(body).contains("STAGE").contains("LOG_LEVEL");
+                    assertThat(body).doesNotContain("prod").doesNotContain("debug");
+                    assertThat(body).contains("[REDACTED]");
+                })
+                .verifyComplete();
+    }
+
+    @Test
     void should_returnGoldenAliasConfigurationJson_when_listFunctionAliasesExecuted() {
         // Given
         LambdaClient lambda = mock(LambdaClient.class);

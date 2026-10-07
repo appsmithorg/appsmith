@@ -71,14 +71,14 @@
     "deadLetterConfig": null,
     "environment": {
       "variables": {
-        "ZED": "1",
-        "A": "2",
-        "DB_URL": "x",
-        "STAGE": "prod",
-        "LOG_LEVEL": "debug",
-        "m": "3",
-        "Mixed_Case": "4",
-        "empty": ""
+        "ZED": "[REDACTED]",
+        "A": "[REDACTED]",
+        "DB_URL": "[REDACTED]",
+        "STAGE": "[REDACTED]",
+        "LOG_LEVEL": "[REDACTED]",
+        "m": "[REDACTED]",
+        "Mixed_Case": "[REDACTED]",
+        "empty": "[REDACTED]"
       },
       "error": null
     },

@@ -23,8 +23,8 @@
     },
     "environment": {
       "variables": {
-        "STAGE": "prod",
-        "LOG_LEVEL": "debug"
+        "STAGE": "[REDACTED]",
+        "LOG_LEVEL": "[REDACTED]"
       },
       "error": {
         "errorCode": "KMSAccessDenied",
