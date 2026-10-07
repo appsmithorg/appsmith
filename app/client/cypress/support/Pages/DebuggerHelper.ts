@@ -145,7 +145,7 @@ export class DebuggerHelper {
     // Asserted directly on the element query so the check retries until the
     // counter settles: the debugger shows transient errors for a few tens of
     // milliseconds after some edits (for example deleting a List widget).
-    this.agHelper
+    return this.agHelper
       .GetElement(
         this.locators._errorCount,
         "exist",
