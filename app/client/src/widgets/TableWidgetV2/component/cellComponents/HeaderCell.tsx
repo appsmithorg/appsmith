@@ -18,6 +18,7 @@ import {
   MULTISELECT_CHECKBOX_WIDTH,
   POPOVER_ITEMS_TEXT_MAP,
   StickyType,
+  TEXT_ALIGN,
 } from "../Constants";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import { isColumnTypeEditable } from "widgets/TableWidgetV2/widget/utilities";
@@ -37,10 +38,12 @@ const EditIcon = importSvg(
   async () => import("assets/icons/control/edit-variant1.svg"),
 );
 
-const AscendingIcon = styled(ControlIcons.SORT_CONTROL)`
+const AscendingIcon = styled(ControlIcons.SORT_CONTROL)<{
+  $inWrappedRow?: boolean;
+}>`
   padding: 0;
   position: relative;
-  top: 3px;
+  top: ${({ $inWrappedRow }) => ($inWrappedRow ? 0 : 3)}px;
   cursor: pointer;
   transform: rotate(180deg);
   && svg {
@@ -50,10 +53,12 @@ const AscendingIcon = styled(ControlIcons.SORT_CONTROL)`
   }
 `;
 
-const DescendingIcon = styled(ControlIcons.SORT_CONTROL)`
+const DescendingIcon = styled(ControlIcons.SORT_CONTROL)<{
+  $inWrappedRow?: boolean;
+}>`
   padding: 0;
   position: relative;
-  top: 3px;
+  top: ${({ $inWrappedRow }) => ($inWrappedRow ? 0 : 3)}px;
   cursor: pointer;
   && svg {
     path {
@@ -64,32 +69,57 @@ const DescendingIcon = styled(ControlIcons.SORT_CONTROL)`
 
 const ColumnNameContainer = styled.div<{
   horizontalAlignment: CellAlignment;
+  $fill?: boolean;
 }>`
   display: flex;
   align-items: center;
   justify-content: ${(props) =>
     props?.horizontalAlignment && JUSTIFY_CONTENT[props.horizontalAlignment]};
+  ${({ $fill }) =>
+    $fill &&
+    `
+      flex: 1;
+      min-width: 0;
+      width: 100%;
+    `}
 `;
 
-const StyledEditIcon = styled(EditIcon)`
+const StyledEditIcon = styled(EditIcon)<{ $fixed?: boolean }>`
   width: 14px;
   min-width: 14px;
   margin-right: 3px;
+  ${({ $fixed }) => ($fixed ? "flex-shrink: 0;" : "")}
 `;
 
-const TitleWrapper = styled.div`
+const TitleWrapper = styled.div<{
+  $align?: CellAlignment;
+  $constrain?: boolean;
+  $wrap?: boolean;
+}>`
+  ${({ $align, $constrain, $wrap }) =>
+    $constrain &&
+    `
+      flex: 1;
+      min-width: 0;
+      text-align: ${$align ? TEXT_ALIGN[$align] : "left"};
+      ${$wrap ? "width: 100%;" : ""}
+    `}
   &,
   span {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: ${({ $wrap }) => ($wrap ? "visible" : "hidden")};
+    text-overflow: ${({ $wrap }) => ($wrap ? "clip" : "ellipsis")};
+    white-space: ${({ $wrap }) => ($wrap ? "break-spaces" : "nowrap")};
+    ${({ $wrap }) => ($wrap ? "word-break: break-word;" : "")}
   }
 `;
 
 interface TitleProps {
+  align?: CellAlignment;
   children: React.ReactNode;
+  constrain?: boolean;
   tableWidth?: number;
   width?: number;
+  wrap?: boolean;
 }
 
 function Title(props: TitleProps) {
@@ -97,6 +127,12 @@ function Title(props: TitleProps) {
   const [useToolTip, updateToolTip] = useState(false);
 
   useEffect(() => {
+    if (props.wrap) {
+      updateToolTip(false);
+
+      return;
+    }
+
     const element = ref.current;
 
     if (element && element.offsetWidth < element.scrollWidth) {
@@ -104,10 +140,15 @@ function Title(props: TitleProps) {
     } else {
       updateToolTip(false);
     }
-  }, [ref.current, props.width, props.children]);
+  }, [ref.current, props.width, props.children, props.wrap]);
 
   return (
-    <TitleWrapper ref={ref}>
+    <TitleWrapper
+      $align={props.align}
+      $constrain={props.constrain}
+      $wrap={props.wrap}
+      ref={ref}
+    >
       {useToolTip && props.children ? (
         <Tooltip
           autoFocus={false}
@@ -153,6 +194,7 @@ interface HeaderProps {
     e: React.DragEvent<HTMLDivElement>,
     destinationIndex: number,
   ) => void;
+  isWrappedHeaderRow?: boolean;
 }
 
 const HeaderCellComponent = (props: HeaderProps) => {
@@ -254,11 +296,19 @@ const HeaderCellComponent = (props: HeaderProps) => {
     [props.onDrop, props.columnIndex],
   );
 
+  const allowHeaderWrapping =
+    props.column.columnProperties?.allowHeaderWrapping === true;
+  const horizontalAlignment = props.column.columnProperties.horizontalAlignment;
+  const headerLabel = allowHeaderWrapping
+    ? props.columnName
+    : props.columnName.replace(/\s/g, "\u00a0");
+
   return (
     <div
       {...headerProps}
       className={`th header-reorder ${props.stickyRightModifier}`}
       data-header={props.columnName}
+      data-header-wrap={allowHeaderWrapping ? "true" : undefined}
     >
       <div
         className={!props.isHidden ? `draggable-header` : "hidden-header"}
@@ -276,13 +326,19 @@ const HeaderCellComponent = (props: HeaderProps) => {
         onDrop={onDrop}
       >
         <ColumnNameContainer
-          horizontalAlignment={
-            props.column.columnProperties.horizontalAlignment
-          }
+          $fill={props.isWrappedHeaderRow}
+          horizontalAlignment={horizontalAlignment}
         >
-          {isColumnEditable && <StyledEditIcon />}
-          <Title width={width}>
-            {props.columnName.replace(/\s/g, "\u00a0")}
+          {isColumnEditable && (
+            <StyledEditIcon $fixed={props.isWrappedHeaderRow} />
+          )}
+          <Title
+            align={horizontalAlignment}
+            constrain={props.isWrappedHeaderRow}
+            width={width}
+            wrap={allowHeaderWrapping}
+          >
+            {headerLabel}
           </Title>
         </ColumnNameContainer>
       </div>
@@ -358,11 +414,19 @@ const HeaderCellComponent = (props: HeaderProps) => {
         </Popover2>
       </div>
       {props.isAscOrder !== undefined ? (
-        <div>
+        <div className="header-sort-icon">
           {props.isAscOrder ? (
-            <AscendingIcon height={ICON_SIZE} width={ICON_SIZE} />
+            <AscendingIcon
+              $inWrappedRow={props.isWrappedHeaderRow}
+              height={ICON_SIZE}
+              width={ICON_SIZE}
+            />
           ) : (
-            <DescendingIcon height={ICON_SIZE} width={ICON_SIZE} />
+            <DescendingIcon
+              $inWrappedRow={props.isWrappedHeaderRow}
+              height={ICON_SIZE}
+              width={ICON_SIZE}
+            />
           )}
         </div>
       ) : null}
