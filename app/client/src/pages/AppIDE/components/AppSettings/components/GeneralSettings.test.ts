@@ -1,4 +1,21 @@
-import { isHtmlLangInputValid } from "./GeneralSettings";
+import {
+  isHtmlLangInputValid,
+  shouldAdoptSavedDescription,
+} from "./GeneralSettings";
+
+describe("shouldAdoptSavedDescription", () => {
+  it("adopts the store value when no save is in flight", () => {
+    expect(shouldAdoptSavedDescription("anything", null)).toBe(true);
+  });
+
+  it("adopts the store value when the draft still matches what was saved", () => {
+    expect(shouldAdoptSavedDescription("Locker", "Locker")).toBe(true);
+  });
+
+  it("keeps the draft when the user edited it after the save started", () => {
+    expect(shouldAdoptSavedDescription("Locker system", "Locker")).toBe(false);
+  });
+});
 
 describe("isHtmlLangInputValid", () => {
   it("accepts empty/blank values (falls back to default)", () => {

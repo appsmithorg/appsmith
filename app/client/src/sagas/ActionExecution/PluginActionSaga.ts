@@ -155,6 +155,7 @@ import {
   getActionProperties,
   getJSActionPathNameToDisplay,
   getPluginActionNameToDisplay,
+  shouldLogActionExecution,
 } from "ee/utils/actionExecutionUtils";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAllowedActionAnalyticsKeys } from "constants/AppsmithActionConstants/formConfig/ActionAnalyticsConfig";
@@ -585,7 +586,12 @@ export default function* executePluginActionTriggerSaga(
     datasourceId,
   );
 
-  AnalyticsUtil.logEvent("EXECUTE_ACTION", actionExecutionAnalytics);
+  const appMode: APP_MODE | undefined = yield select(getAppMode);
+
+  if (shouldLogActionExecution(appMode)) {
+    AnalyticsUtil.logEvent("EXECUTE_ACTION", actionExecutionAnalytics);
+  }
+
   const pagination =
     eventType === EventType.ON_NEXT_PAGE
       ? "NEXT"
@@ -1132,27 +1138,29 @@ function* executePageLoadAction(
       getIsAnvilEnabledInCurrentApplication,
     );
 
-    AnalyticsUtil.logEvent("EXECUTE_ACTION", {
-      type: pageAction.pluginType,
-      name: pageAction.name,
-      pageId: pageId,
-      appMode: appMode,
-      appId: currentApp.id,
-      onPageLoad: true,
-      appName: currentApp.name,
-      environmentId: currentEnvDetails.id,
-      environmentName: currentEnvDetails.name,
-      isExampleApp: currentApp.appIsExample,
-      pluginName: plugin?.name,
-      datasourceId: datasourceId,
-      isMock: !!datasource?.isMock,
-      actionId: pageAction?.id,
-      inputParams: 0,
-      source: !!actionExecutionContext
-        ? actionExecutionContext
-        : ActionExecutionContext.PAGE_LOAD,
-      runBehaviour: action?.runBehaviour,
-    });
+    if (shouldLogActionExecution(appMode)) {
+      AnalyticsUtil.logEvent("EXECUTE_ACTION", {
+        type: pageAction.pluginType,
+        name: pageAction.name,
+        pageId: pageId,
+        appMode: appMode,
+        appId: currentApp.id,
+        onPageLoad: true,
+        appName: currentApp.name,
+        environmentId: currentEnvDetails.id,
+        environmentName: currentEnvDetails.name,
+        isExampleApp: currentApp.appIsExample,
+        pluginName: plugin?.name,
+        datasourceId: datasourceId,
+        isMock: !!datasource?.isMock,
+        actionId: pageAction?.id,
+        inputParams: 0,
+        source: !!actionExecutionContext
+          ? actionExecutionContext
+          : ActionExecutionContext.PAGE_LOAD,
+        runBehaviour: action?.runBehaviour,
+      });
+    }
 
     const actionName = getPluginActionNameToDisplay(
       pageAction as unknown as Action,
@@ -1327,7 +1335,7 @@ interface ExecutePluginActionResponse {
  * In case of the execution was not completed, it will throw errors of type
  * PluginActionExecutionError which needs to be handled by any saga that calls this.
  * */
-function* executePluginActionSaga(
+export function* executePluginActionSaga(
   pluginAction: Action,
   paginationField?: PaginationField,
   params?: Record<string, unknown>,
@@ -1418,9 +1426,13 @@ function* executePluginActionSaga(
   try {
     response = yield ActionAPI.executeAction(formData, timeout);
 
+    // Validate before reading response.data: an error envelope
+    // (responseMeta.success is false) has no data, and validateResponse throws
+    // the envelope's error message. Callers report the failure, so no toast here.
+    yield validateResponse(response, false);
+
     const isError = isErrorResponse(response);
 
-    yield validateResponse(response);
     payload = createActionExecutionResponse(response);
 
     yield put(

@@ -935,6 +935,160 @@ public class ApplicationServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    void should_persistTrimmedDescription_when_updatedWithPresets() {
+        // Given
+        Application application = new Application();
+        application.setName("updateApplicationDescription-Test");
+
+        // When
+        Mono<Application> resultMono = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(created -> {
+                    Application update = new Application();
+                    update.setDescription("  Locker system replacement  ");
+                    return applicationService.updateApplicationWithPresets(created.getId(), update);
+                })
+                .flatMap(updated -> applicationService.getById(updated.getId()));
+
+        // Then
+        StepVerifier.create(resultMono)
+                .assertNext(app -> assertThat(app.getDescription()).isEqualTo("Locker system replacement"))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void should_clearDescription_when_blankSent() {
+        // Given
+        Application application = new Application();
+        application.setName("clearApplicationDescription-Test");
+
+        // When
+        Mono<Application> resultMono = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(created -> {
+                    Application set = new Application();
+                    set.setDescription("Will be cleared");
+                    return applicationService.updateApplicationWithPresets(created.getId(), set);
+                })
+                .flatMap(updated -> {
+                    Application clear = new Application();
+                    clear.setDescription("   ");
+                    return applicationService.updateApplicationWithPresets(updated.getId(), clear);
+                })
+                .flatMap(updated -> applicationService.getById(updated.getId()));
+
+        // Then
+        StepVerifier.create(resultMono)
+                .assertNext(app -> assertThat(app.getDescription()).isEmpty())
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void should_keepDescription_when_updatingSiblingField() {
+        // Given
+        Application application = new Application();
+        application.setName("siblingApplicationDescription-Test");
+
+        // When
+        Mono<Application> resultMono = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(created -> {
+                    Application set = new Application();
+                    set.setDescription("Sticky description");
+                    return applicationService.updateApplicationWithPresets(created.getId(), set);
+                })
+                .flatMap(updated -> {
+                    Application setIcon = new Application();
+                    setIcon.setIcon("flight");
+                    return applicationService.updateApplicationWithPresets(updated.getId(), setIcon);
+                })
+                .flatMap(updated -> applicationService.getById(updated.getId()));
+
+        // Then
+        StepVerifier.create(resultMono)
+                .assertNext(app -> {
+                    assertThat(app.getDescription()).isEqualTo("Sticky description");
+                    assertThat(app.getIcon()).isEqualTo("flight");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void should_rejectDescription_when_longerThanMaxLength() {
+        // Given
+        Application application = new Application();
+        application.setName("tooLongApplicationDescription-Test");
+        String tooLong = "x".repeat(Application.DESCRIPTION_MAX_LENGTH + 1);
+
+        // When
+        Mono<Application> resultMono = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(created -> {
+                    Application update = new Application();
+                    update.setDescription(tooLong);
+                    return applicationService.updateApplicationWithPresets(created.getId(), update);
+                });
+
+        // Then
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.INVALID_PARAMETER.getMessage(Application.Fields.description)))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void should_truncateDescription_when_savedLongerThanMaxLength() {
+        // Given
+        // save(Artifact) is the shared write path for create, import, Git checkout, fork and clone.
+        // Those paths never reject, so an oversized value is clamped instead of failing the operation.
+        Application application = new Application();
+        application.setName("truncateApplicationDescription-Test");
+        String tooLong = "y".repeat(Application.DESCRIPTION_MAX_LENGTH + 20);
+
+        // When
+        Mono<Application> resultMono = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(created -> {
+                    created.setDescription(tooLong);
+                    return applicationService.save(created);
+                })
+                .flatMap(saved -> applicationService.getById(saved.getId()));
+
+        // Then
+        StepVerifier.create(resultMono)
+                .assertNext(app ->
+                        assertThat(app.getDescription()).isEqualTo("y".repeat(Application.DESCRIPTION_MAX_LENGTH)))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void should_truncateDescription_when_createdLongerThanMaxLength() {
+        // Given
+        Application application = new Application();
+        application.setName("createApplicationDescription-Test");
+        application.setDescription("z".repeat(Application.DESCRIPTION_MAX_LENGTH + 20));
+
+        // When
+        Mono<Application> resultMono = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(created -> applicationService.getById(created.getId()));
+
+        // Then
+        StepVerifier.create(resultMono)
+                .assertNext(app ->
+                        assertThat(app.getDescription()).isEqualTo("z".repeat(Application.DESCRIPTION_MAX_LENGTH)))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void invalidUpdateApplication() {
         Application testApp1 = new Application();
         testApp1.setName("validApplication1");

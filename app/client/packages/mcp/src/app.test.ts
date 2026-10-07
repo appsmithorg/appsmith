@@ -15,6 +15,7 @@ import {
   type AppsmithApi,
 } from "./app.js";
 import { INSTRUCTION_DOCS } from "./builder/instructions.js";
+import { compileJsObject } from "./builder/jsObject.js";
 import { fingerprintDsl } from "./builder/semantic.js";
 import { McpGovernanceCoordinator } from "./governance/coordinator.js";
 import type {
@@ -349,6 +350,8 @@ function createApi(
     listActionCollections: jest.fn(),
     createActionCollection: jest.fn(),
     updateActionCollection: jest.fn(),
+    updateActionCollectionBody: jest.fn(),
+    setActionRunBehaviour: jest.fn(),
     deleteActionCollection: jest.fn(),
     validateToken,
   });
@@ -1558,6 +1561,7 @@ describe("MCP instruction surface (M2)", () => {
       [
         "appsmith://guide/bindings",
         "appsmith://guide/git",
+        "appsmith://guide/js-objects",
         "appsmith://guide/naming",
         "appsmith://guide/placement",
         "appsmith://guide/screenshot",
@@ -2032,6 +2036,89 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
       '{ "status": "open" }',
     );
     expect(dto.actionConfiguration.formData.smartSubstitution.data).toBe(true);
+  });
+
+  it("create_mongo_query pins a query that reads this.params to MANUAL through the run-behaviour route", async () => {
+    const createAction = jest.fn<
+      Promise<{ id: string }>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "act-p" }));
+    const setActionRunBehaviour = jest.fn<Promise<unknown>, [string, string]>(
+      async () => ({}),
+    );
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "Mongo", pluginId: "656f00000000000000000009" },
+      ]),
+      listPlugins: jest.fn(async () => [
+        { id: "656f00000000000000000009", packageName: "mongo-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+      setActionRunBehaviour,
+    };
+    const withParam = {
+      ...mongoQuery,
+      name: "findByOwner",
+      filter: [{ field: "owner", value: { param: "owner" } }],
+    };
+
+    const body = await callTool(api, "create_mongo_query", {
+      query: withParam,
+    });
+
+    expect(body.created).toBe(true);
+    expect(body.runBehaviour).toBe("MANUAL");
+    expect(setActionRunBehaviour).toHaveBeenCalledWith("act-p", "MANUAL");
+
+    // A plain query is left alone.
+    setActionRunBehaviour.mockClear();
+    await callTool(api, "create_mongo_query", { query: mongoQuery });
+    expect(setActionRunBehaviour).not.toHaveBeenCalled();
+
+    // A failed pin fails CLOSED: the query is removed again (an unpinned params query would be auto-switched onto
+    // page load), and the agent is told so.
+    const deleteAction = api.deleteAction as jest.Mock;
+
+    setActionRunBehaviour.mockRejectedValueOnce(
+      new Error("Appsmith API request failed (403)"),
+    );
+    const removed = await callTool(api, "create_mongo_query", {
+      query: { ...withParam, name: "findByOwner2" },
+    });
+
+    expect(removed.created).toBe(false);
+    expect(removed.code).toBe("run_behaviour_not_pinned");
+    expect(String(removed.error)).toContain("so it was removed again");
+    expect(deleteAction).toHaveBeenCalledWith("act-p");
+
+    // Only when the removal itself fails is the query reported as still present, with the manual remediation.
+    setActionRunBehaviour.mockRejectedValueOnce(
+      new Error("Appsmith API request failed (403)"),
+    );
+    deleteAction.mockRejectedValueOnce(
+      new Error("Appsmith API request failed (500)"),
+    );
+    const partial = await callTool(api, "create_mongo_query", {
+      query: { ...withParam, name: "findByOwner3" },
+    });
+
+    expect(partial.created).toBe(true);
+    expect(partial.code).toBe("run_behaviour_not_pinned");
+    expect(String(partial.error)).toContain("could not be removed either");
+
+    // A create response without an id cannot be cleaned up: the query is reported as present, never as removed.
+    createAction.mockResolvedValueOnce({} as never);
+    deleteAction.mockClear();
+    const noId = await callTool(api, "create_mongo_query", {
+      query: { ...withParam, name: "findByOwner4" },
+    });
+
+    expect(noId.created).toBe(true);
+    expect(noId.code).toBe("run_behaviour_not_pinned");
+    expect(String(noId.error)).toContain("carried no action id");
+    expect(deleteAction).not.toHaveBeenCalled();
   });
 
   it("create_mongo_query creates a targeted UPDATE ($set, SINGLE, manual)", async () => {
@@ -3275,6 +3362,52 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     expect(storage.datasourceConfiguration.endpoints).toBeUndefined();
     expect(JSON.stringify(dto)).not.toContain("dbAuth");
   });
+
+  // On EE a workspace has real environments, and naming CE's fixed "unused_env" made the server refuse the create
+  // ("You do not have access to this environment"). With no environmentId, CE uses its fixed environment and EE the
+  // workspace's default one.
+  it.each([
+    ["rest", { url: "https://api.zippopotam.us" }],
+    [
+      "postgresql",
+      { connection: { host: "db.internal", databaseName: "appdb" } },
+    ],
+  ])(
+    "create_datasource (%s) leaves the storage's environment to the server",
+    async (plugin, target) => {
+      const createDatasource = jest.fn<
+        Promise<Record<string, unknown>>,
+        [Record<string, unknown>]
+      >(async () => ({ id: "ds1", name: "Env", pluginId: "p1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listPlugins: jest.fn(async () => [
+          { id: "p1", packageName: "restapi-plugin" },
+          { id: "p2", packageName: "postgres-plugin" },
+        ]),
+        listDatasources: jest.fn(async () => []),
+        createDatasource,
+      };
+
+      const body = await callTool(api, "create_datasource", {
+        workspaceId: "ws1",
+        name: "Env",
+        plugin,
+        ...target,
+      });
+
+      expect(body.created).toBe(true);
+
+      const storages = (
+        createDatasource.mock.calls[0][0] as {
+          datasourceStorages: Record<string, Record<string, unknown>>;
+        }
+      ).datasourceStorages;
+
+      expect(Object.values(storages)).toHaveLength(1);
+      expect(Object.values(storages)[0]).not.toHaveProperty("environmentId");
+    },
+  );
 
   it("create_datasource enforces url-vs-connection per plugin family and rejects unsafe URLs", async () => {
     const createDatasource = jest.fn();
@@ -5128,11 +5261,1474 @@ describe("governance-wrapped layout mutations", () => {
     expect(created.body.created).toBe(true);
     expect(createActionCollection).toHaveBeenCalledTimes(1);
     // The compiled JS body is emitted by the compiler (async fn running a named query), not raw agent input.
-    const body = createActionCollection.mock.calls[0][0] as { body?: string };
+    const body = createActionCollection.mock.calls[0][0] as {
+      body?: string;
+      applicationId?: string;
+      actions?: unknown[];
+    };
 
     expect(body.body).toContain("await getUsers.run();");
     expect(body.body).not.toMatch(/\$\{|`/);
     expect(typeof created.body.changeId).toBe("string");
+    // The server rejects a create without applicationId (400 INVALID_PARAMETER) and needs one JSAction per
+    // function for the editor to list it — both were missing before, so every create failed.
+    expect(body.applicationId).toBe(APP);
+    expect(body.actions).toEqual([
+      expect.objectContaining({
+        name: "loadUsers",
+        clientSideExecution: true,
+        actionConfiguration: expect.objectContaining({
+          body: "async function () { await getUsers.run(); }",
+        }),
+      }),
+    ]);
+  });
+
+  it("read_js_object returns each object's compiled source and a body-sensitive revision", async () => {
+    const APP = "a".repeat(24);
+    const collection = {
+      id: "coll1",
+      name: "BannerAdmin",
+      pageId: "b".repeat(24),
+      body: "export default { save: async () => { await SaveBanner.run(); } };",
+      actions: [{ id: "act1", name: "save" }],
+    };
+    // Hand-written in the editor: arbitrary JS that may hold secrets. Its source must never reach the agent.
+    const editorAuthored = {
+      id: "coll2",
+      name: "Legacy",
+      pageId: "b".repeat(24),
+      body: "export default {\n\tapiKey: 'sk-live-secret',\n\tasync call () {\n\t\treturn fetch(this.apiKey);\n\t}\n}",
+      actions: [{ id: "act2", name: "call" }],
+    };
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listActionCollections: jest.fn(async () => [collection, editorAuthored]),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+    });
+
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+
+    expect(read.body.jsObjects[0]).toEqual({
+      id: "coll1",
+      name: "BannerAdmin",
+      pageId: "b".repeat(24),
+      functions: ["save"],
+      authoredBy: "mcp",
+      definitionState: "none",
+      source: collection.body,
+      revision: expect.stringMatching(/^[a-f0-9]{64}$/),
+    });
+    expect(read.body.jsObjects[1]).toEqual({
+      id: "coll2",
+      name: "Legacy",
+      pageId: "b".repeat(24),
+      functions: ["call"],
+      authoredBy: "editor",
+      definitionState: "none",
+      revision: expect.stringMatching(/^[a-f0-9]{64}$/),
+    });
+    expect(JSON.stringify(read.body)).not.toContain("sk-live-secret");
+
+    // A code-only change (same metadata, different body) moves the per-object revision.
+    (api.listActionCollections as jest.Mock).mockResolvedValueOnce([
+      { ...collection, body: "export default { save: async () => { } };" },
+    ]);
+    const reread = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+
+    expect(reread.body.jsObjects[0].revision).not.toBe(
+      read.body.jsObjects[0].revision,
+    );
+  });
+
+  it("update_js_object refuses a code update on an editor-authored object and never writes", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const editorAuthored = {
+      id: "coll2",
+      name: "Legacy",
+      pageId: "b".repeat(24),
+      body: "export default {\n\tasync call () {\n\t\treturn 1;\n\t}\n}",
+      actions: [{ id: "act2", name: "call" }],
+    };
+    const updateActionCollectionBody = jest.fn(async () => ({}));
+    const updateActionCollection = jest.fn(async () => ({}));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listActionCollections: jest.fn(async () => [editorAuthored]),
+      updateActionCollectionBody,
+      updateActionCollection,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const refused = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "coll2",
+        revision: read.body.jsObjects[0].revision,
+        functions: [{ name: "call", returns: { done: true } }],
+      },
+    });
+
+    expect(refused.body.code).toBe("editor_authored_js_object");
+    expect(updateActionCollectionBody).not.toHaveBeenCalled();
+    expect(updateActionCollection).not.toHaveBeenCalled();
+
+    // A rename does not touch the code and stays allowed.
+    const renamed = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "coll2",
+        revision: read.body.jsObjects[0].revision,
+        name: "LegacyRenamed",
+      },
+    });
+
+    expect(renamed.body.updated).toBe(true);
+    expect(updateActionCollectionBody).not.toHaveBeenCalled();
+    expect(updateActionCollection).toHaveBeenCalledTimes(1);
+  });
+
+  it("update_js_object writes the code through the body route, then diffs the functions on the PATCH", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const before = {
+      id: "coll1",
+      name: "BannerAdmin",
+      pageId: "b".repeat(24),
+      body: "export default { refresh: async () => { await GetBanners.run(); } };",
+      actions: [
+        { id: "act-refresh", name: "refresh" },
+        { id: "act-old", name: "legacyFn" },
+      ],
+    };
+    const after = {
+      ...before,
+      body: "export default { refresh: async () => { await GetBanners.run(); }, save: async () => { await SaveBanner.run(); await GetBanners.run(); return { saved: true }; } };",
+      actions: [
+        { id: "act-refresh", name: "refresh" },
+        { id: "act-save", name: "save" },
+      ],
+    };
+    const calls: string[] = [];
+    const listActionCollections = jest
+      .fn<Promise<unknown>, [string]>()
+      .mockResolvedValueOnce([before]) // read_js_object
+      .mockResolvedValueOnce([before]) // update: locate current
+      .mockResolvedValue([after]); // update: re-read after the writes
+    const updateActionCollectionBody = jest.fn<
+      Promise<unknown>,
+      [string, { body: string }]
+    >(async () => {
+      calls.push("body");
+
+      return {};
+    });
+    const updateActionCollection = jest.fn<
+      Promise<unknown>,
+      [string, Record<string, unknown>]
+    >(async () => {
+      calls.push("patch");
+
+      return { ...before, body: null };
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listActionCollections,
+      updateActionCollectionBody,
+      updateActionCollection,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const updated = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "coll1",
+        revision: read.body.jsObjects[0].revision,
+        functions: [
+          { name: "refresh", run: [{ query: "GetBanners" }] },
+          {
+            name: "save",
+            run: [{ query: "SaveBanner" }, { query: "GetBanners" }],
+            returns: { saved: true },
+          },
+        ],
+      },
+    });
+
+    expect(updated.body.updated).toBe(true);
+    // Body first (the only route that changes code), then the function diff.
+    expect(calls).toEqual(["body", "patch"]);
+    // The written body is the compiled code followed by the embedded definition marker.
+    expect(updateActionCollectionBody).toHaveBeenCalledWith("coll1", {
+      body: expect.stringMatching(
+        /^export default \{ refresh: async function \(\) \{ await GetBanners\.run\(\); \}, save: async function \(\) \{ await SaveBanner\.run\(\); await GetBanners\.run\(\); return \{ saved: true \}; \} \}; \/\* mcp-spec:[A-Za-z0-9+/=]+ \*\/$/,
+      ),
+    });
+    const patch = updateActionCollection.mock.calls[0][1] as {
+      actions: {
+        added: { name: string }[];
+        updated: { id: string; name: string }[];
+        deleted: { id: string; name: string }[];
+      };
+    };
+
+    expect(patch.actions.added.map((a) => a.name)).toEqual(["save"]);
+    expect(patch.actions.updated).toEqual([
+      expect.objectContaining({ id: "act-refresh", name: "refresh" }),
+    ]);
+    expect(patch.actions.deleted).toEqual([
+      { id: "act-old", name: "legacyFn" },
+    ]);
+    // The result reflects the re-read collection (the PATCH response carries a nulled body).
+    expect(updated.body.jsObject.functions).toEqual(["refresh", "save"]);
+    expect(updated.body.jsObject.source).toBe(after.body);
+  });
+
+  it("create → read → update round-trips a definition with params and steps (council M2 QA)", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const definition = {
+      constants: { maxIds: 50 },
+      functions: [
+        {
+          name: "splitLines",
+          params: ["value"],
+          returns: {
+            fn: "unique",
+            args: [
+              {
+                fn: "map",
+                args: [
+                  {
+                    fn: "split",
+                    args: [{ param: "value" }, { sep: "commaOrNewline" }],
+                  },
+                  { fn: "trim", args: [{ item: true }] },
+                ],
+              },
+            ],
+          },
+        },
+        {
+          name: "save",
+          steps: [
+            {
+              run: "UpsertBanner",
+              with: { ids: { widget: "inpIds", property: "text" } },
+              into: "result",
+            },
+            { return: { var: "result" } },
+          ],
+        },
+      ],
+    };
+    const compiledBody = compileJsObject(definition as never);
+    const createActionCollection = jest.fn<
+      Promise<unknown>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "coll1", name: "BannerAdmin" }));
+    const stored = {
+      id: "coll1",
+      name: "BannerAdmin",
+      pageId: "b".repeat(24),
+      body: compiledBody,
+      actions: [
+        { id: "act-split", name: "splitLines" },
+        { id: "act-save", name: "save" },
+      ],
+    };
+    // Empty until the create lands (the create's own revision check re-lists), then the stored object.
+    let collections: unknown[] = [];
+    const listActionCollections = jest.fn<Promise<unknown>, [string]>(
+      async () => collections,
+    );
+    const updateActionCollectionBody = jest.fn(async () => ({}));
+    const updateActionCollection = jest.fn(async () => ({
+      ...stored,
+      body: null,
+    }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listPlugins: jest.fn(async () => [
+        { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
+      ]),
+      listActionCollections,
+      createActionCollection,
+      updateActionCollectionBody,
+      updateActionCollection,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    const empty = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const created = await callTool(server, "create_js_object", {
+      spec: {
+        applicationId: APP,
+        pageId: "b".repeat(24),
+        name: "BannerAdmin",
+        revision: empty.body.revision,
+        ...definition,
+      },
+    });
+
+    expect(created.body).toEqual(expect.objectContaining({ created: true }));
+    collections = [stored];
+    const dto = createActionCollection.mock.calls[0][0] as {
+      body: string;
+      actions: {
+        name: string;
+        actionConfiguration: { jsArguments: unknown };
+      }[];
+    };
+
+    // The written body is exactly the compiler's image of the definition, and params become jsArguments.
+    expect(dto.body).toBe(compiledBody);
+    expect(dto.actions.map((a) => a.name)).toEqual(["splitLines", "save"]);
+    expect(dto.actions[0].actionConfiguration.jsArguments).toEqual([
+      { name: "value", value: "" },
+    ]);
+
+    // Reading it back yields the same definition, structurally, plus its state.
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+
+    expect(read.body.jsObjects[0]).toEqual(
+      expect.objectContaining({
+        authoredBy: "mcp",
+        definitionState: "current",
+        definition,
+        source: compiledBody,
+      }),
+    );
+
+    // Editing the definition and sending it back recompiles the whole body from the new definition.
+    const edited = {
+      ...definition,
+      functions: [
+        definition.functions[0],
+        {
+          ...definition.functions[1],
+          steps: [
+            ...(definition.functions[1].steps ?? []),
+            { showAlert: "Saved" },
+          ],
+        },
+      ],
+    };
+    const updated = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "coll1",
+        revision: read.body.jsObjects[0].revision,
+        ...edited,
+      },
+    });
+
+    expect(updated.body.updated).toBe(true);
+    expect(updateActionCollectionBody).toHaveBeenCalledWith("coll1", {
+      body: compileJsObject(edited as never),
+    });
+    expect((updateActionCollection.mock.calls[0] as unknown[])[1]).toEqual(
+      expect.objectContaining({
+        actions: expect.objectContaining({
+          updated: expect.arrayContaining([
+            expect.objectContaining({ id: "act-save", name: "save" }),
+          ]),
+        }),
+      }),
+    );
+  });
+
+  it("read_js_object reports a compiler-written body whose code was edited afterwards as drifted", async () => {
+    const APP = "a".repeat(24);
+    const body = compileJsObject({
+      functions: [{ name: "refresh", run: [{ query: "GetBanners" }] }],
+    } as never);
+    // An editor rename rewrote the code part; the marker still carries the old definition.
+    const drifted = {
+      id: "coll1",
+      name: "BannerAdmin",
+      pageId: "b".repeat(24),
+      body: body.replace("GetBanners.run()", "GetBanners2.run()"),
+      actions: [{ id: "act1", name: "refresh" }],
+    };
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listActionCollections: jest.fn(async () => [drifted]),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+    });
+
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+
+    expect(read.body.jsObjects[0]).toEqual({
+      id: "coll1",
+      name: "BannerAdmin",
+      pageId: "b".repeat(24),
+      functions: ["refresh"],
+      authoredBy: "editor",
+      definitionState: "drifted",
+      revision: expect.stringMatching(/^[a-f0-9]{64}$/),
+    });
+    // Neither the (now hand-edited) source nor the stale definition is returned.
+    expect(read.body.jsObjects[0].source).toBeUndefined();
+    expect(read.body.jsObjects[0].definition).toBeUndefined();
+  });
+
+  it("refuses a call cycle closed through another compiler-authored object on the page (create and update)", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const PAGE = "b".repeat(24);
+    // Existing MCP-authored object whose function calls Flow.go.
+    const utils = {
+      id: "coll-utils",
+      name: "Utils",
+      pageId: PAGE,
+      body: compileJsObject({
+        functions: [
+          {
+            name: "count",
+            returns: { call: { object: "Flow", function: "go" } },
+          },
+        ],
+      } as never),
+      actions: [{ id: "a1", name: "count" }],
+    };
+    const current = {
+      id: "coll1",
+      name: "Flow",
+      pageId: PAGE,
+      body: compileJsObject({
+        functions: [{ name: "go", steps: [{ return: 1 }] }],
+      } as never),
+      actions: [{ id: "act-go", name: "go" }],
+    };
+    const createActionCollection = jest.fn(async (body: unknown) => ({
+      ...(body as object),
+      id: "coll-new",
+    }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listPlugins: jest.fn(async () => [
+        { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
+      ]),
+      listActionCollections: jest.fn(async () => [current, utils]),
+      createActionCollection,
+      updateActionCollectionBody: jest.fn(async () => ({})),
+      updateActionCollection: jest.fn(async () => ({ ...current, body: null })),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    // Create: Flow2.start → Utils.count → Flow.go is a chain, fine; Report.tick → Utils.count → Flow.go → (Flow does
+    // not call back) is fine too. A NEW object whose function is called by Utils and calls Utils closes a cycle.
+    const listRead = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const created = await callTool(server, "create_js_object", {
+      spec: {
+        applicationId: APP,
+        pageId: PAGE,
+        name: "Report",
+        revision: listRead.body.revision,
+        functions: [
+          {
+            name: "tick",
+            returns: { call: { object: "Utils", function: "count" } },
+          },
+        ],
+      },
+    });
+
+    expect(created.body.created).toBe(true);
+
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const flow = read.body.jsObjects.find(
+      (o: { name: string }) => o.name === "Flow",
+    );
+    // Update: Flow.go → Utils.count, and Utils.count → Flow.go already exists on the page: a cycle.
+    const cyclic = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "coll1",
+        revision: flow.revision,
+        functions: [
+          {
+            name: "go",
+            returns: { call: { object: "Utils", function: "count" } },
+          },
+        ],
+      },
+    });
+
+    expect(cyclic.body.code).toBe("call_cycle");
+    expect(String(cyclic.body.error)).toContain(
+      "Flow.go → Utils.count → Flow.go",
+    );
+    expect(api.updateActionCollectionBody).not.toHaveBeenCalled();
+
+    // Create: a new object that Utils does not call cannot close a cycle even if it calls Utils.
+    const chain = await callTool(server, "create_js_object", {
+      spec: {
+        applicationId: APP,
+        pageId: PAGE,
+        name: "Report2",
+        revision: read.body.revision,
+        functions: [
+          {
+            name: "a",
+            returns: { call: { object: "Utils", function: "count" } },
+          },
+        ],
+      },
+    });
+
+    expect(chain.body.created).toBe(true);
+
+    // Create: a sibling cycle inside the new object is refused by the same handler check (code call_cycle).
+    const sibling = await callTool(server, "create_js_object", {
+      spec: {
+        applicationId: APP,
+        pageId: PAGE,
+        name: "Loop",
+        revision: read.body.revision,
+        functions: [
+          { name: "a", returns: { call: "b" } },
+          { name: "b", returns: { call: "a" } },
+        ],
+      },
+    });
+
+    expect(sibling.body.code).toBe("call_cycle");
+    expect(String(sibling.body.error)).toContain("Loop.a → Loop.b → Loop.a");
+  });
+
+  it("refuses a rename that would leave compiled calls dangling, and a rename that closes a cycle (security re-check B/C/D)", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const PAGE = "b".repeat(24);
+    const utils = {
+      id: "collUtils",
+      name: "Utils",
+      pageId: PAGE,
+      body: compileJsObject({
+        functions: [
+          {
+            name: "count",
+            returns: { call: { object: "Report", function: "go" } },
+          },
+        ],
+      } as never),
+      actions: [{ id: "a1", name: "count" }],
+    };
+    const report = {
+      id: "collReport",
+      name: "Report",
+      pageId: PAGE,
+      body: compileJsObject({
+        functions: [{ name: "go", steps: [{ return: 1 }] }],
+      } as never),
+      actions: [{ id: "a2", name: "go" }],
+    };
+    // An object nobody calls, whose function calls Utils.count.
+    const old = {
+      id: "collOld",
+      name: "Old",
+      pageId: PAGE,
+      body: compileJsObject({
+        functions: [
+          {
+            name: "go",
+            returns: { call: { object: "Utils", function: "count" } },
+          },
+        ],
+      } as never),
+      actions: [{ id: "a3", name: "go" }],
+    };
+    const updateActionCollection = jest.fn(async (body: unknown) => body);
+    const updateActionCollectionBody = jest.fn(async () => ({}));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listActionCollections: jest.fn(async () => [utils, report, old]),
+      updateActionCollection,
+      updateActionCollectionBody,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const revisionOf = (name: string) =>
+      read.body.jsObjects.find((o: { name: string }) => o.name === name)
+        .revision;
+    const update = async (collectionId: string, name: string, spec: object) =>
+      callTool(server, "update_js_object", {
+        spec: {
+          applicationId: APP,
+          collectionId,
+          revision: revisionOf(name),
+          ...spec,
+        },
+      });
+
+    // B: rename-only of an object another object calls → refused (its compiled call would dangle / re-bind).
+    const renamedAway = await update("collReport", "Report", {
+      name: "Other",
+    });
+
+    expect(renamedAway.body.code).toBe("rename_breaks_calls");
+    expect(String(renamedAway.body.error)).toContain("Utils.count");
+
+    // D: rename-only INTO a name another object calls, where this object calls back → cycle under the new name.
+    // (Old.go → Utils.count, Utils.count → Report.go; renaming Old to Report closes Report.go → Utils.count → Report.go.)
+    const listWithoutReport = [utils, old];
+
+    (api.listActionCollections as jest.Mock).mockResolvedValue(
+      listWithoutReport,
+    );
+    const renamedInto = await update("collOld", "Old", { name: "Report" });
+
+    expect(renamedInto.body.code).toBe("call_cycle");
+    expect(String(renamedInto.body.error)).toContain(
+      "Report.go → Utils.count → Report.go",
+    );
+
+    // C: rename + functions in one update, closing the same cycle → refused.
+    const renamedWithCode = await update("collOld", "Old", {
+      name: "Report",
+      functions: [
+        {
+          name: "go",
+          returns: { call: { object: "Utils", function: "count" } },
+        },
+      ],
+    });
+
+    expect(renamedWithCode.body.code).toBe("call_cycle");
+
+    // A rename that neither dangles nor cycles still works.
+    const harmless = await update("collOld", "Old", { name: "Helper" });
+
+    expect(harmless.body.updated).toBe(true);
+    expect(updateActionCollectionBody).not.toHaveBeenCalled();
+  });
+
+  it("refuses a three-object call cycle closed by an update and by a create", async () => {
+    const APP = "a".repeat(24);
+    const PAGE = "b".repeat(24);
+    const mk = (
+      id: string,
+      name: string,
+      fn: string,
+      target?: { object: string; function: string },
+    ) => ({
+      id,
+      name,
+      pageId: PAGE,
+      body: compileJsObject({
+        functions: [{ name: fn, returns: target ? { call: target } : 1 }],
+      } as never),
+      actions: [{ id: `${id}Act`, name: fn }],
+    });
+    const a = mk("collA", "A", "f", { object: "B", function: "g" });
+    const b = mk("collB", "B", "g", { object: "C", function: "h" });
+    const c = mk("collC", "C", "h");
+    const makeApi = (collections: unknown[]): AppsmithApi => ({
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listPlugins: jest.fn(async () => [
+        { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
+      ]),
+      listActionCollections: jest.fn(async () => collections),
+      createActionCollection: jest.fn(async (body: unknown) => ({
+        ...(body as object),
+        id: "collNew",
+      })),
+      updateActionCollectionBody: jest.fn(async () => ({})),
+      updateActionCollection: jest.fn(async () => ({ ...c, body: null })),
+    });
+
+    // Update: C.h -> A.f while A.f -> B.g -> C.h already exist on the page.
+    const api = makeApi([a, b, c]);
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const cObj = read.body.jsObjects.find(
+      (o: { name: string }) => o.name === "C",
+    );
+    const cyclic = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "collC",
+        revision: cObj.revision,
+        functions: [
+          { name: "h", returns: { call: { object: "A", function: "f" } } },
+        ],
+      },
+    });
+
+    expect(cyclic.body.code).toBe("call_cycle");
+    expect(String(cyclic.body.error)).toContain("C.h → A.f → B.g → C.h");
+    expect(api.updateActionCollectionBody).not.toHaveBeenCalled();
+
+    // Create: B.g -> D.k already exists (D not yet created); creating D with k -> A.f closes D.k -> A.f -> B.g -> D.k.
+    const b2 = mk("collB", "B", "g", { object: "D", function: "k" });
+    const api2 = makeApi([a, b2]);
+    const server2 = createMcpHttpServer(API_BASE_URL, () => api2, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+    const read2 = await callTool(server2, "read_js_object", {
+      applicationId: APP,
+    });
+    const created = await callTool(server2, "create_js_object", {
+      spec: {
+        applicationId: APP,
+        pageId: PAGE,
+        name: "D",
+        revision: read2.body.revision,
+        functions: [
+          { name: "k", returns: { call: { object: "A", function: "f" } } },
+        ],
+      },
+    });
+
+    expect(created.body.code).toBe("call_cycle");
+    expect(String(created.body.error)).toContain("D.k → A.f → B.g → D.k");
+    expect(api2.createActionCollection).not.toHaveBeenCalled();
+  });
+
+  it("refuses a rename onto a name another JS object or a query on the page already uses", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const PAGE = "b".repeat(24);
+    const mk = (id: string, name: string) => ({
+      id,
+      name,
+      pageId: PAGE,
+      body: compileJsObject({
+        functions: [{ name: "go", returns: 1 }],
+      } as never),
+      actions: [{ id: `${id}Act`, name: "go" }],
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listActionCollections: jest.fn(async () => [
+        mk("collA", "Alpha"),
+        mk("collB", "Beta"),
+      ]),
+      listActions: jest.fn(async () => [
+        { id: "q1", name: "GetUsers", pageId: PAGE },
+      ]),
+      updateActionCollection: jest.fn(async (body: unknown) => body),
+      updateActionCollectionBody: jest.fn(async () => ({})),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const revision = read.body.jsObjects.find(
+      (o: { name: string }) => o.name === "Alpha",
+    ).revision;
+    const rename = async (name: string) =>
+      callTool(server, "update_js_object", {
+        spec: { applicationId: APP, collectionId: "collA", revision, name },
+      });
+
+    const ontoObject = await rename("Beta");
+
+    expect(ontoObject.body.code).toBe("name_taken");
+    expect(String(ontoObject.body.error)).toContain('JS object "Beta"');
+
+    const ontoQuery = await rename("GetUsers");
+
+    expect(ontoQuery.body.code).toBe("name_taken");
+    expect(String(ontoQuery.body.error)).toContain('query "GetUsers"');
+    expect(api.updateActionCollection).not.toHaveBeenCalled();
+
+    const free = await rename("Gamma");
+
+    expect(free.body.updated).toBe(true);
+  });
+
+  it("allows a rename onto a name that only another page's JS object or query uses", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const PAGE = "b".repeat(24);
+    const OTHER_PAGE = "c".repeat(24);
+    const mk = (id: string, name: string, pageId: string) => ({
+      id,
+      name,
+      pageId,
+      body: compileJsObject({
+        functions: [{ name: "go", returns: 1 }],
+      } as never),
+      actions: [{ id: `${id}Act`, name: "go" }],
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listActionCollections: jest.fn(async () => [
+        mk("collA", "Alpha", PAGE),
+        mk("collB", "Beta", OTHER_PAGE),
+      ]),
+      listActions: jest.fn(async () => [
+        { id: "q1", name: "GetUsers", pageId: OTHER_PAGE },
+      ]),
+      updateActionCollection: jest.fn(async (body: unknown) => body),
+      updateActionCollectionBody: jest.fn(async () => ({})),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const revision = read.body.jsObjects.find(
+      (o: { name: string }) => o.name === "Alpha",
+    ).revision;
+    const rename = async (name: string) =>
+      callTool(server, "update_js_object", {
+        spec: { applicationId: APP, collectionId: "collA", revision, name },
+      });
+
+    // Names are page-scoped in the data tree: the same name on another page is a legal Appsmith state.
+    expect((await rename("Beta")).body.updated).toBe(true);
+    expect((await rename("GetUsers")).body.updated).toBe(true);
+  });
+
+  it("re-checks the rename target under the lock, so a create that lands between the early check and the lock is caught", async () => {
+    const APP = "a".repeat(24);
+    const PAGE = "b".repeat(24);
+    const mk = (id: string, name: string) => ({
+      id,
+      name,
+      pageId: PAGE,
+      body: compileJsObject({
+        functions: [{ name: "go", returns: 1 }],
+      } as never),
+      actions: [{ id: `${id}Act`, name: "go" }],
+    });
+    // The "concurrent create" lands the moment the update's lock is acquired: from then on the listing carries
+    // the object the rename wants to become.
+    let gammaExists = false;
+    const store = new (class extends MemoryGovernanceStore {
+      override async acquireLock(
+        entityKey: string,
+      ): Promise<string | undefined> {
+        const lock = await super.acquireLock(entityKey);
+
+        if (lock !== undefined) gammaExists = true;
+
+        return lock;
+      }
+    })();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listActionCollections: jest.fn(async () =>
+        gammaExists
+          ? [mk("collA", "Alpha"), mk("collG", "Gamma")]
+          : [mk("collA", "Alpha")],
+      ),
+      listActions: jest.fn(async () => []),
+      updateActionCollection: jest.fn(async (body: unknown) => body),
+      updateActionCollectionBody: jest.fn(async () => ({})),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const revision = read.body.jsObjects.find(
+      (o: { name: string }) => o.name === "Alpha",
+    ).revision;
+
+    const raced = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "collA",
+        revision,
+        name: "Gamma",
+      },
+    });
+
+    expect(raced.body.code).toBe("name_taken");
+    expect(String(raced.body.error)).toContain('JS object "Gamma"');
+    expect(api.updateActionCollection).not.toHaveBeenCalled();
+    expect(api.updateActionCollectionBody).not.toHaveBeenCalled();
+    // The lock was released on the way out.
+    expect(store.locked.size).toBe(0);
+  });
+
+  it("serialises every JS-object write in an application on one governance key", async () => {
+    const APP = "a".repeat(24);
+    const PAGE = "b".repeat(24);
+    const current = {
+      id: "collA",
+      name: "Alpha",
+      pageId: PAGE,
+      body: compileJsObject({
+        functions: [{ name: "go", returns: 1 }],
+      } as never),
+      actions: [{ id: "collAAct", name: "go" }],
+    };
+    const keys: string[] = [];
+    const store = new (class extends MemoryGovernanceStore {
+      override async acquireLock(
+        entityKey: string,
+      ): Promise<string | undefined> {
+        keys.push(entityKey);
+
+        return super.acquireLock(entityKey);
+      }
+    })();
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listActionCollections: jest.fn(async () => [current]),
+      listActions: jest.fn(async () => []),
+      updateActionCollection: jest.fn(async (body: unknown) => body),
+      updateActionCollectionBody: jest.fn(async () => ({})),
+      deleteActionCollection: jest.fn(async () => ({})),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const revision = read.body.jsObjects[0].revision;
+
+    const codeUpdate = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "collA",
+        revision,
+        functions: [{ name: "go", returns: 2 }],
+      },
+    });
+
+    expect(codeUpdate.body.updated).toBe(true);
+    expect(keys).toEqual([`application:${APP}:jsobjects`]);
+
+    // The delete executes on the same key (its one-time confirmation stays bound to the object itself).
+    const reread = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const spec = {
+      applicationId: APP,
+      collectionId: "collA",
+      revision: reread.body.jsObjects[0].revision,
+    };
+    const prepared = await callTool(server, "prepare_delete_js_object", {
+      spec,
+    });
+
+    expect(typeof prepared.body.confirmationId).toBe("string");
+
+    const confirmed = await callTool(server, "confirm_delete_js_object", {
+      spec,
+      confirmationId: prepared.body.confirmationId,
+    });
+
+    expect(confirmed.body.deleted).toBe(true);
+    expect(api.deleteActionCollection).toHaveBeenCalledWith("collA");
+    expect(keys).toEqual([
+      `application:${APP}:jsobjects`,
+      `application:${APP}:jsobjects`,
+    ]);
+    expect(store.locked.size).toBe(0);
+  });
+
+  it("update_js_object checks cross-object calls on this page before writing", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const current = {
+      id: "coll1",
+      name: "Flow",
+      pageId: "b".repeat(24),
+      body: compileJsObject({
+        functions: [{ name: "go", steps: [{ return: 1 }] }],
+      } as never),
+      actions: [{ id: "act-go", name: "go" }],
+    };
+    const utils = {
+      id: "coll-utils",
+      name: "Utils",
+      pageId: "b".repeat(24),
+      body: "export default {}",
+      actions: [{ id: "a1", name: "count" }],
+    };
+    const otherPageUtils = {
+      ...utils,
+      id: "coll-other",
+      name: "Helpers",
+      pageId: "z".repeat(24),
+    };
+    const updateActionCollectionBody = jest.fn(async () => ({}));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listActionCollections: jest.fn(async () => [
+        current,
+        utils,
+        otherPageUtils,
+      ]),
+      updateActionCollectionBody,
+      updateActionCollection: jest.fn(async () => ({ ...current, body: null })),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const update = async (call: unknown) =>
+      callTool(server, "update_js_object", {
+        spec: {
+          applicationId: APP,
+          collectionId: "coll1",
+          revision: read.body.jsObjects[0].revision,
+          functions: [
+            {
+              name: "go",
+              steps: [{ call, into: "n" }, { return: { var: "n" } }],
+            },
+          ],
+        },
+      });
+
+    expect(
+      String((await update({ object: "Nope", function: "count" })).body.error),
+    ).toMatch(/not found on this page/);
+    expect(
+      String((await update({ object: "Utils", function: "drop" })).body.error),
+    ).toMatch(/function "drop" was not found/);
+    expect(
+      String((await update({ object: "Flow", function: "go" })).body.error),
+    ).toMatch(/by its name alone/);
+    expect(
+      String(
+        (await update({ object: "Helpers", function: "count" })).body.error,
+      ),
+    ).toMatch(/not found on this page/);
+    expect(updateActionCollectionBody).not.toHaveBeenCalled();
+
+    const ok = await update({ object: "Utils", function: "count" });
+
+    expect(ok.body.updated).toBe(true);
+    expect(updateActionCollectionBody).toHaveBeenCalledTimes(1);
+  });
+
+  it("update_js_object reports a PATCH failure after the body write as a partial failure that needs a re-read", async () => {
+    const store = new MemoryGovernanceStore();
+    const APP = "a".repeat(24);
+    const before = {
+      id: "coll1",
+      name: "Helpers",
+      pageId: "b".repeat(24),
+      body: compileJsObject({
+        functions: [{ name: "refresh", run: [{ query: "GetOrders" }] }],
+      } as never),
+      actions: [{ id: "act-refresh", name: "refresh" }],
+    };
+    const updateActionCollectionBody = jest.fn(async () => ({}));
+    const updateActionCollection = jest.fn(async () => {
+      throw new Error("Appsmith API request failed (500)");
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listActionCollections: jest.fn(async () => [before]),
+      updateActionCollectionBody,
+      updateActionCollection,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+    const updated = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "coll1",
+        revision: read.body.jsObjects[0].revision,
+        functions: [
+          { name: "refresh", run: [{ query: "GetOrders" }] },
+          { name: "reset", steps: [{ resetWidget: "inpTitle" }] },
+        ],
+      },
+    });
+
+    // The body route was written, the PATCH failed, and the error says exactly that plus what to do next.
+    expect(updateActionCollectionBody).toHaveBeenCalledTimes(1);
+    expect(updated.body.updated).toBeUndefined();
+    // A thrown mutation error surfaces as { valid: false, errors: [{ message }] }.
+    const message = String(updated.body.errors?.[0]?.message);
+
+    expect(message).toContain(
+      "the JS object's code was written but its function list could not be updated",
+    );
+    expect(message).toContain("read_js_object for the new revision");
+  });
+
+  it("wire_event { call } resolves a function from the compiler's embedded definition when the JSAction list is empty", async () => {
+    const store = new MemoryGovernanceStore();
+    const DSL = {
+      ...ROOT_DSL,
+      children: [
+        {
+          widgetId: "b",
+          widgetName: "SaveBtn",
+          type: "BUTTON_WIDGET",
+          topRow: 0,
+          bottomRow: 4,
+          leftColumn: 0,
+          rightColumn: 16,
+        },
+      ],
+    };
+    let current: Record<string, unknown> = DSL;
+    const updateLayout = jest.fn<
+      Promise<{ ok: boolean }>,
+      [string, string, string, Record<string, unknown>]
+    >(async (_app, _page, _layout, dsl) => {
+      current = dsl;
+
+      return { ok: true };
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: current },
+      })),
+      listActionCollections: jest.fn(async () => [
+        {
+          id: "coll1",
+          name: "Helpers",
+          // Marker present, JSActions absent: the embedded definition is the function-name oracle.
+          body: compileJsObject({
+            functions: [{ name: "save", steps: [{ return: true }] }],
+          } as never),
+          actions: [],
+        },
+      ]),
+      updateLayout: updateLayout as never,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: false,
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const wire = async (call: { object: string; function: string }) =>
+      callTool(server, "wire_event", {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+        revision: fingerprintDsl(current as never),
+        spec: { widget: "SaveBtn", event: "onClick", action: { call } },
+      });
+
+    expect(
+      (await wire({ object: "Helpers", function: "nope" })).body.error,
+    ).toMatch(/function "nope" was not found on JS object "Helpers"/);
+    expect(
+      (await wire({ object: "Helpers", function: "save" })).body.changeId,
+    ).toBeDefined();
+  });
+
+  it("create_js_object checks cross-object calls against the application before writing", async () => {
+    const createActionCollection = jest.fn<
+      Promise<unknown>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "coll-new", name: "Flow" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listPlugins: jest.fn(async () => [
+        { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
+      ]),
+      listActionCollections: jest.fn(async () => [
+        {
+          id: "coll-utils",
+          name: "Utils",
+          pageId: "b".repeat(24),
+          body: "export default {}",
+          actions: [{ id: "a1", name: "count" }],
+        },
+      ]),
+      createActionCollection,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: "a".repeat(24),
+    });
+    const create = async (call: unknown) =>
+      callTool(server, "create_js_object", {
+        spec: {
+          applicationId: "a".repeat(24),
+          pageId: "b".repeat(24),
+          name: "Flow",
+          revision: read.body.revision,
+          functions: [
+            {
+              name: "go",
+              steps: [{ call, into: "n" }, { return: { var: "n" } }],
+            },
+          ],
+        },
+      });
+
+    expect(
+      String((await create({ object: "Nope", function: "count" })).body.error),
+    ).toMatch(/JS object "Nope" was not found/);
+    // A query is not a JS object: Query1.run is not a callable target here (use the run statement instead).
+    expect(
+      String((await create({ object: "Query1", function: "run" })).body.error),
+    ).toMatch(/JS object "Query1" was not found on this page/);
+    expect(
+      String((await create({ object: "Utils", function: "drop" })).body.error),
+    ).toMatch(/function "drop" was not found on JS object "Utils"/);
+    expect(
+      String((await create({ object: "Flow", function: "go" })).body.error),
+    ).toMatch(/by its name alone/);
+    expect(createActionCollection).not.toHaveBeenCalled();
+
+    // Page-scoped: a JS object of the same name on ANOTHER page does not resolve the call (entity names are
+    // unique per page, so a same-named query on this page would otherwise be what the call reaches at run time).
+    (api.listActionCollections as jest.Mock).mockResolvedValueOnce([
+      {
+        id: "coll-other",
+        name: "Utils",
+        pageId: "z".repeat(24),
+        body: "export default {}",
+        actions: [{ id: "a2", name: "count" }],
+      },
+    ]);
+    expect(
+      String((await create({ object: "Utils", function: "count" })).body.error),
+    ).toMatch(/not found on this page/);
+    expect(createActionCollection).not.toHaveBeenCalled();
+
+    const ok = await create({ object: "Utils", function: "count" });
+
+    expect(ok.body.created).toBe(true);
+    const dto = createActionCollection.mock.calls[0][0] as { body: string };
+
+    expect(dto.body).toContain("return await Utils.count(); } finally");
+  });
+
+  it("create_js_object refuses a definition nested past the JSON depth cap before parsing it", async () => {
+    const api: AppsmithApi = { ...createApi()() };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+    let deep: unknown = 1;
+
+    for (let i = 0; i < 200; i += 1) deep = { op: "neg", args: [deep] };
+
+    const refused = await callTool(server, "create_js_object", {
+      spec: {
+        applicationId: "a".repeat(24),
+        pageId: "b".repeat(24),
+        name: "Deep",
+        revision: "d".repeat(64),
+        functions: [{ name: "f", returns: deep }],
+      },
+    });
+
+    expect(String(refused.body.error)).toContain("nests deeper than");
+
+    // The update handler guards the same way, before any read.
+    const refusedUpdate = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: "a".repeat(24),
+        collectionId: "c".repeat(24),
+        revision: "d".repeat(64),
+        functions: [{ name: "f", returns: deep }],
+      },
+    });
+
+    expect(String(refusedUpdate.body.error)).toContain("nests deeper than");
+    expect(api.listActionCollections).not.toHaveBeenCalled();
+  });
+
+  it("wire_event { call } emits Object.function() only for a function that exists on a JS object of the app", async () => {
+    const store = new MemoryGovernanceStore();
+    const DSL = {
+      ...ROOT_DSL,
+      children: [
+        {
+          widgetId: "b",
+          widgetName: "SaveBtn",
+          type: "BUTTON_WIDGET",
+          topRow: 0,
+          bottomRow: 4,
+          leftColumn: 0,
+          rightColumn: 16,
+        },
+      ],
+    };
+    let current: Record<string, unknown> = DSL;
+    const updateLayout = jest.fn<
+      Promise<{ ok: boolean }>,
+      [string, string, string, Record<string, unknown>]
+    >(async (_app, _page, _layout, dsl) => {
+      current = dsl;
+
+      return { ok: true };
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: current },
+      })),
+      listActionCollections: jest.fn(async () => [
+        {
+          id: "coll1",
+          name: "BannerAdmin",
+          // No JSActions (a collection written before per-function actions existed): the compiled body shape
+          // still declares the member.
+          body: "export default { save: async () => { await SaveBanner.run(); } };",
+          actions: [],
+        },
+        {
+          id: "coll2",
+          name: "Legacy",
+          // Editor-authored: recognised by its JSAction names, never by scanning its body.
+          body: "export default {\n\tasync archive () {\n\t\treturn 1;\n\t}\n}",
+          actions: [{ id: "act2", name: "archive" }],
+        },
+      ]),
+      updateLayout: updateLayout as never,
+    };
+    // `call` is deliberately available without the JS-authoring gate: it only wires an event to code that already
+    // exists in the application (like `run` on an existing query).
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: false,
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const wire = async (call: { object: string; function: string }) =>
+      callTool(server, "wire_event", {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+        revision: fingerprintDsl(current as never),
+        spec: { widget: "SaveBtn", event: "onClick", action: { call } },
+      });
+
+    // Dangling references are refused before anything is written.
+    expect(
+      (await wire({ object: "Nope", function: "save" })).body.error,
+    ).toMatch(/JS object "Nope" was not found/);
+    expect(
+      (await wire({ object: "BannerAdmin", function: "drop" })).body.error,
+    ).toMatch(/function "drop" was not found on JS object "BannerAdmin"/);
+    expect(updateLayout).not.toHaveBeenCalled();
+
+    const wired = await wire({ object: "BannerAdmin", function: "save" });
+
+    expect(wired.body.changeId).toBeDefined();
+    const written = updateLayout.mock.calls[0][3] as {
+      children: { widgetName: string; onClick?: string }[];
+    };
+
+    expect(
+      written.children.find((w) => w.widgetName === "SaveBtn")?.onClick,
+    ).toBe("{{ BannerAdmin.save() }}");
+
+    // Editor-authored objects are callable too, resolved by JSAction name.
+    const legacy = await wire({ object: "Legacy", function: "archive" });
+
+    expect(legacy.body.changeId).toBeDefined();
+    expect(
+      (updateLayout.mock.calls[1][3] as { children: { onClick?: string }[] })
+        .children[0].onClick,
+    ).toBe("{{ Legacy.archive() }}");
   });
 
   it("JS-object tools are unavailable without the JS gate", async () => {
@@ -5600,7 +7196,7 @@ describe("governance-wrapped layout mutations", () => {
     // Security regression (hacktron): actionConfiguration.httpMethod is NOT a trusted read-only signal for a
     // host-restricted (DB) action. DB plugins do not use HTTP verbs, and the backend does not strip an injected
     // httpMethod — so a mutating SQL action stamped with "GET" must still route through prepare/confirm, never
-    // auto-run. Before the fix this exact document auto-ran (isReadOnlyAction returned true), executing the mutation
+    // auto-run. Before the fix this exact document auto-ran (the since-removed isReadOnlyAction predicate returned true), executing the mutation
     // with no human in the loop. The ONLY read auto-run door is the Sheets path (proven separately below).
     const executeAction = jest.fn();
     const server = createMcpHttpServer(
@@ -6911,7 +8507,7 @@ describe("close-the-loop — advisory write classifier", () => {
   });
 
   it("is advisory-only: a disguised mutation is missed here, never auto-run", () => {
-    // SELECT calling a mutating function — the fail-closed isReadOnlyAction gate (not this classifier)
+    // SELECT calling a mutating function — the fail-closed isAutoRunnableAction gate (not this classifier)
     // is what protects run_action; this classifier only powers hints.
     expect(looksLikeWriteAction(sqlAction("sneaky", "SELECT drop_old()"))).toBe(
       false,
@@ -6929,5 +8525,347 @@ describe("close-the-loop — advisory write classifier", () => {
 
     expect(writeActionNames(list)).toEqual(["insertTask", "callApi"]);
     expect(writeActionNames("not a list")).toEqual([]);
+  });
+});
+
+// APP-16087: the request log line and the backend calls a tool call makes must describe THAT tool call. MCP answers
+// every tool call with HTTP 200, and a session's API client outlives the request that created it.
+describe("MCP request correlation and outcome logging", () => {
+  async function openSession(
+    server: ReturnType<typeof createMcpHttpServer>,
+    headers: Record<string, string> = {},
+  ): Promise<string> {
+    const initialized = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set(headers)
+      .send(initializeRequest);
+    const sessionId = initialized.headers["mcp-session-id"] as string;
+
+    await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({ jsonrpc: "2.0", method: "notifications/initialized" });
+
+    return sessionId;
+  }
+
+  function callTool(
+    server: ReturnType<typeof createMcpHttpServer>,
+    sessionId: string,
+    name: string,
+    args: Record<string, unknown>,
+    headers: Record<string, string> = {},
+    id = 7,
+  ) {
+    return supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .set(headers)
+      .send({
+        jsonrpc: "2.0",
+        id,
+        method: "tools/call",
+        params: { name, arguments: args },
+      });
+  }
+
+  function captureEvents(): {
+    events: Record<string, unknown>[];
+    restore: () => void;
+  } {
+    const events: Record<string, unknown>[] = [];
+    const spy = jest
+      .spyOn(process.stderr, "write")
+      .mockImplementation((chunk: string | Uint8Array) => {
+        try {
+          events.push(
+            JSON.parse(typeof chunk === "string" ? chunk : chunk.toString()),
+          );
+        } catch {
+          // Non-JSON writes are irrelevant here.
+        }
+
+        return true;
+      });
+
+    return { events, restore: () => spy.mockRestore() };
+  }
+
+  it("sends the tool call's own correlation headers to the backend, not the session's initialize ones", async () => {
+    const fetchFn = jest.fn<
+      Promise<Response>,
+      [RequestInfo | URL, RequestInit?]
+    >(async (url) => {
+      const path = String(url).slice(API_BASE_URL.length);
+      const data = path.startsWith("/api/v1/users/me")
+        ? {
+            username: "user@appsmith.com",
+            isAnonymous: false,
+            organizationId: "org-1",
+          }
+        : [];
+
+      return new Response(JSON.stringify({ data }), { status: 200 });
+    });
+    const server = createMcpHttpServer(API_BASE_URL, (token, headers) =>
+      createAppsmithApi(
+        token,
+        API_BASE_URL,
+        fetchFn as unknown as typeof fetch,
+        headers,
+      ),
+    );
+    const sessionId = await openSession(server, {
+      "X-Appsmith-Request-Id": "initialize-request",
+      "X-Request-Id": "initialize-client-request",
+    });
+
+    await callTool(
+      server,
+      sessionId,
+      "list_workspaces",
+      {},
+      { "X-Appsmith-Request-Id": "tool-call-request" },
+    );
+
+    const toolCall = fetchFn.mock.calls.find(([url]) =>
+      String(url).endsWith("/api/v1/workspaces/home"),
+    );
+
+    expect(toolCall).toBeDefined();
+    const headers = new Headers(toolCall?.[1]?.headers);
+
+    expect(headers.get("X-Appsmith-Request-Id")).toBe("tool-call-request");
+    // The tool call carried no client request id, so none of the initialize request's leaks onto it.
+    expect(headers.get("X-Request-Id")).toBeNull();
+  });
+
+  it.each([
+    {
+      label: "a successful call",
+      tool: "list_workspaces",
+      args: {},
+      api: { listWorkspaces: jest.fn(async () => []) },
+      expected: { statusClass: "success" },
+    },
+    {
+      label: "a refusal carrying the tool's code",
+      tool: "create_datasource",
+      args: { workspaceId: "ws1", name: "Sheet", plugin: "googlesheets" },
+      api: {},
+      expected: { statusClass: "refused", toolCode: "needs_ui_oauth" },
+    },
+    {
+      label: "a backend failure",
+      tool: "list_workspaces",
+      args: {},
+      api: {
+        listWorkspaces: jest.fn(async () => {
+          throw new Error("Appsmith API request failed (401)");
+        }),
+      },
+      expected: { statusClass: "tool_error" },
+    },
+    {
+      label: "a spec the tool rejects",
+      tool: "validate_app_spec",
+      args: {
+        app: {
+          name: "Demo",
+          pages: [{ name: "Home", widgets: [{ type: "no_such_widget" }] }],
+        },
+      },
+      api: {},
+      expected: { statusClass: "invalid_input" },
+    },
+    {
+      label: "arguments the SDK rejects before the tool runs",
+      tool: "list_applications",
+      args: { workspaceId: 42 },
+      api: {},
+      expected: { statusClass: "invalid_input" },
+    },
+    {
+      label: "a tool that does not exist",
+      tool: "no_such_tool",
+      args: {},
+      api: {},
+      expected: { statusClass: "invalid_input" },
+    },
+    {
+      label: "a large successful result (classified without re-parsing it)",
+      tool: "list_workspaces",
+      args: {},
+      api: {
+        listWorkspaces: jest.fn(async () =>
+          Array.from({ length: 2000 }, (_, index) => ({
+            id: `ws-${index}`,
+            name: `Workspace ${index} with a long enough name to grow the result`,
+          })),
+        ),
+      },
+      expected: { statusClass: "success" },
+    },
+  ])(
+    "logs $label with the tool's outcome, not the HTTP 200",
+    async ({ api, args, expected, tool }) => {
+      const { events, restore } = captureEvents();
+
+      try {
+        const server = createMcpHttpServer(
+          API_BASE_URL,
+          () => ({ ...createApi()(), ...api }) as AppsmithApi,
+          { dataEnabled: true },
+        );
+        const sessionId = await openSession(server);
+        const response = await callTool(server, sessionId, tool, args);
+
+        expect(response.status).toBe(200);
+
+        const toolEvent = events.find(
+          (event) =>
+            event.event === "appsmith_mcp_request" && event.tool === tool,
+        );
+
+        expect(toolEvent).toMatchObject({ status: 200, ...expected });
+
+        if (!("toolCode" in expected)) {
+          expect(toolEvent?.toolCode).toBeUndefined();
+        }
+
+        // Only the class and the tool's own code are logged: no message text or arguments.
+        const serialized = JSON.stringify(toolEvent);
+
+        expect(serialized).not.toContain("Appsmith API request failed");
+        expect(serialized).not.toContain("OAuth");
+        expect(serialized).not.toContain("ws1");
+      } finally {
+        restore();
+      }
+    },
+  );
+
+  it("keeps two overlapping tool calls on one session on their own correlation ids", async () => {
+    // Call A is held at its authentication step until call B has started, so B's request is underway before A builds
+    // the headers of its backend call. Anything shared between requests would hand A the later request's id.
+    let holdAuth = false;
+    let authCalls = 0;
+    let firstHeld: () => void = () => {};
+    const firstAuthArrived = new Promise<void>((resolve) => {
+      firstHeld = resolve;
+    });
+    let releaseFirst: () => void = () => {};
+    const secondAuthArrived = new Promise<void>((resolve) => {
+      releaseFirst = resolve;
+    });
+    const fetchFn = jest.fn<
+      Promise<Response>,
+      [RequestInfo | URL, RequestInit?]
+    >(async (url) => {
+      const path = String(url).slice(API_BASE_URL.length);
+
+      if (path.startsWith("/api/v1/users/me")) {
+        if (holdAuth) {
+          authCalls += 1;
+
+          if (authCalls === 1) {
+            firstHeld();
+            await secondAuthArrived;
+          } else {
+            releaseFirst();
+          }
+        }
+
+        return new Response(
+          JSON.stringify({
+            data: {
+              username: "user@appsmith.com",
+              isAnonymous: false,
+              organizationId: "org-1",
+            },
+          }),
+          { status: 200 },
+        );
+      }
+
+      return new Response(JSON.stringify({ data: [] }), { status: 200 });
+    });
+    const server = createMcpHttpServer(API_BASE_URL, (token, headers) =>
+      createAppsmithApi(
+        token,
+        API_BASE_URL,
+        fetchFn as unknown as typeof fetch,
+        headers,
+      ),
+    );
+    const sessionId = await openSession(server, {
+      "X-Appsmith-Request-Id": "initialize-request",
+    });
+
+    holdAuth = true;
+
+    const callA = callTool(
+      server,
+      sessionId,
+      "list_workspaces",
+      {},
+      { "X-Appsmith-Request-Id": "call-a" },
+    ).then((response) => response);
+
+    await firstAuthArrived;
+
+    const callB = callTool(
+      server,
+      sessionId,
+      "list_workspaces",
+      {},
+      { "X-Appsmith-Request-Id": "call-b" },
+      8,
+    ).then((response) => response);
+
+    await Promise.all([callA, callB]);
+
+    const ids = fetchFn.mock.calls
+      .filter(([url]) => String(url).endsWith("/api/v1/workspaces/home"))
+      .map(([, init]) =>
+        new Headers(init?.headers).get("X-Appsmith-Request-Id"),
+      )
+      .sort();
+
+    expect(ids).toEqual(["call-a", "call-b"]);
+  });
+
+  it("keeps the HTTP-derived class for requests that are not tool calls", async () => {
+    const { events, restore } = captureEvents();
+
+    try {
+      const server = createMcpHttpServer(API_BASE_URL, createApi());
+      const sessionId = await openSession(server);
+
+      await supertest(server)
+        .post("/mcp")
+        .set("Accept", "application/json, text/event-stream")
+        .set("Authorization", "Bearer mcp_user-token")
+        .set("mcp-session-id", sessionId)
+        .send({ jsonrpc: "2.0", id: 9, method: "tools/list" });
+
+      const listEvent = events.find(
+        (event) =>
+          event.event === "appsmith_mcp_request" &&
+          event.mcpMethod === "tools/list",
+      );
+
+      expect(listEvent).toMatchObject({ status: 200, statusClass: "success" });
+      expect(listEvent?.tool).toBeUndefined();
+      expect(listEvent?.toolCode).toBeUndefined();
+    } finally {
+      restore();
+    }
   });
 });
