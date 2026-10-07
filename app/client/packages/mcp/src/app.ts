@@ -421,6 +421,10 @@ export class AppsmithApiError extends Error {
 // profile configured (and for other broken git configs). Verified against AppsmithErrorCode.java.
 const INVALID_GIT_CONFIGURATION_CODE = "AE-GIT-4031";
 
+// AppsmithErrorCode.INVALID_PARAMETER — what LayoutServiceCEImpl.getLayout answers (400) for a layoutId that is not one
+// of the page's layouts. Verified against AppsmithErrorCode.java.
+const INVALID_PARAMETER_CODE = "AE-APP-4000";
+
 // The core API client surface. AppsmithApi adds the edition's extension methods (ee/extensions/api.ts; none in CE).
 export interface CoreAppsmithApi {
   getApplicationContext: (
@@ -708,14 +712,22 @@ export function createAppsmithApi(
       request(
         `/api/v1/applications/home?workspaceId=${encodeURIComponent(workspaceId)}`,
       ),
+    // Page/layout reads carry the Appsmith error code (AppsmithApiError) so the layout tools can tell a layoutId that
+    // does not belong to the page (400) from an unreadable page, and say which.
     getApplicationContext: async (applicationId, pageId, layoutId) => {
       const [pages, page, layout] = await Promise.all([
         request(
           `/api/v1/pages?applicationId=${encodeURIComponent(applicationId)}`,
+          undefined,
+          { extractErrorCode: true },
         ),
-        request(`/api/v1/pages/${encodeURIComponent(pageId)}`),
+        request(`/api/v1/pages/${encodeURIComponent(pageId)}`, undefined, {
+          extractErrorCode: true,
+        }),
         request(
           `/api/v1/layouts/${encodeURIComponent(layoutId)}/pages/${encodeURIComponent(pageId)}`,
+          undefined,
+          { extractErrorCode: true },
         ),
       ]);
 
@@ -776,7 +788,9 @@ export function createAppsmithApi(
         `/api/v1/pages?applicationId=${encodeURIComponent(applicationId)}&mode=EDIT`,
       ),
     getPage: async (pageId) =>
-      request(`/api/v1/pages/${encodeURIComponent(pageId)}`),
+      request(`/api/v1/pages/${encodeURIComponent(pageId)}`, undefined, {
+        extractErrorCode: true,
+      }),
     // No GET /api/v1/applications/{id} exists (405). Source the Application from the pages DTO, returning its
     // `.application` SUB-OBJECT (carries gitApplicationMetadata/name/slug). Returning the whole DTO would leave
     // gitApplicationMetadata undefined -> git apps silently read "not connected" -> the branch/publish gates disable.
@@ -1495,6 +1509,23 @@ function layoutIdOf(page: unknown): string | undefined {
   const id = (layouts[0] as { id?: unknown } | null)?.id;
 
   return typeof id === "string" && id.length > 0 ? id : undefined;
+}
+
+// Why read_pages could not give a page a layoutId: the single-page fetch failed (HTTP status + Appsmith error code
+// when known — never the response body), or the page DTO carried no layouts. Reported per page so the agent does not
+// guess a layoutId for it.
+type PageLayoutError =
+  | { reason: "fetch_failed"; status?: number; code?: string }
+  | { reason: "no_layout" };
+
+function pageLayoutError(error: unknown): PageLayoutError {
+  if (!(error instanceof AppsmithApiError)) return { reason: "fetch_failed" };
+
+  return {
+    reason: "fetch_failed",
+    status: error.status,
+    ...(error.errorCode !== undefined ? { code: error.errorCode } : {}),
+  };
 }
 
 // The default page's layoutId, sourced from GET /api/v1/pages/{pageId} (one extra fetch per page). layoutId is an
@@ -3114,6 +3145,70 @@ export function buildMcpServer(
     };
   }
 
+  // Shared page read for the layout tools. A 400 INVALID_PARAMETER from the read means the layoutId does not belong to
+  // this page (LayoutServiceCEImpl.getLayout) — typically one the agent guessed because read_pages could not resolve
+  // it. pageId is authoritative, so re-resolve the page's own layoutId (layouts[0]: a page has one layout) once and
+  // retry; callers then write to the returned layoutId, and commitLayout refuses a corrected write that carries no
+  // revision. Any other failure, including an unreadable page, propagates with its status and error code.
+  async function readPageLayout(
+    applicationId: string,
+    pageId: string,
+    layoutId: string,
+  ): Promise<{
+    context: Awaited<ReturnType<AppsmithApi["getApplicationContext"]>>;
+    layoutId: string;
+    correctedLayoutId?: string;
+  }> {
+    try {
+      return {
+        context: await api.getApplicationContext(
+          applicationId,
+          pageId,
+          layoutId,
+        ),
+        layoutId,
+      };
+    } catch (error) {
+      if (
+        !(error instanceof AppsmithApiError) ||
+        error.status !== 400 ||
+        error.errorCode !== INVALID_PARAMETER_CODE
+      ) {
+        throw error;
+      }
+
+      const resolved = layoutIdOf(await api.getPage(pageId));
+
+      if (resolved === undefined) {
+        throw new Error(
+          `layoutId ${layoutId} does not belong to page ${pageId}, and the page reports no layout of its own — report this to the user; do not retry with another layoutId`,
+        );
+      }
+
+      if (resolved === layoutId) throw error;
+
+      return {
+        context: await api.getApplicationContext(
+          applicationId,
+          pageId,
+          resolved,
+        ),
+        layoutId: resolved,
+        correctedLayoutId: resolved,
+      };
+    }
+  }
+
+  // Surfaced on a tool result when readPageLayout replaced the caller's layoutId, so the agent uses the right one next.
+  function layoutCorrection(correctedLayoutId: string | undefined) {
+    return correctedLayoutId !== undefined
+      ? {
+          correctedLayoutId,
+          layoutNote: `the layoutId passed does not belong to this page; used the page's own layoutId ${correctedLayoutId} — pass it on later calls`,
+        }
+      : {};
+  }
+
   // Shared commit path for layout mutations (edit_page / patch_widgets). When governance is active it wraps the
   // write in a distributed lock + mandatory revision check + audit record (returning a changeId) and maps
   // governance failures to stable error codes; otherwise it performs the plain, already-revision-checked write.
@@ -3128,7 +3223,23 @@ export function buildMcpServer(
     operation: string;
     newDsl: WidgetNode;
     extra: Record<string, unknown>;
+    // Set when readPageLayout replaced the caller's layoutId (see there).
+    correctedLayoutId?: string;
   }): Promise<ToolResult> {
+    // A corrected layoutId with no revision would retarget a blind write — e.g. a wrong pageId paired with another
+    // page's layoutId would land on the wrong page. Fail closed; a revision from a read of this page proves the target.
+    if (
+      params.correctedLayoutId !== undefined &&
+      params.revision === undefined
+    ) {
+      return result({
+        error: `the layoutId passed does not belong to page ${params.pageId}; nothing was written. Re-read the page with read_semantic_page using layoutId ${params.correctedLayoutId} and pass its revision.`,
+        code: "layout_corrected",
+        correctedLayoutId: params.correctedLayoutId,
+      });
+    }
+
+    const correction = layoutCorrection(params.correctedLayoutId);
     const write = async () => {
       const layout = await api.updateLayout(
         params.applicationId,
@@ -3210,6 +3321,7 @@ export function buildMcpServer(
 
       return result({
         ...params.extra,
+        ...correction,
         ...(gitWarning ? { gitWarning } : {}),
         deployNote,
         diagnostics,
@@ -3252,6 +3364,7 @@ export function buildMcpServer(
 
       return result({
         ...params.extra,
+        ...correction,
         ...(gitWarning ? { gitWarning } : {}),
         deployNote,
         diagnostics: value.diagnostics,
@@ -3305,13 +3418,17 @@ export function buildMcpServer(
     "Read the requested application page and layout, plus the app's git-connection state. Appsmith authorizes every API request using the caller's bearer token.",
     { applicationId: idSchema, pageId: idSchema, layoutId: idSchema },
     async ({ applicationId, layoutId, pageId }) => {
-      const [context, git] = await Promise.all([
-        api.getApplicationContext(applicationId, pageId, layoutId),
+      const [read, git] = await Promise.all([
+        readPageLayout(applicationId, pageId, layoutId),
         fetchGitState(api, applicationId),
       ]);
 
       // Surface git state so an agent knows up front that edits will be uncommitted and publish is disabled here.
-      return result({ ...(context as Record<string, unknown>), git });
+      return result({
+        ...(read.context as Record<string, unknown>),
+        git,
+        ...layoutCorrection(read.correctedLayoutId),
+      });
     },
   );
 
@@ -3664,13 +3781,10 @@ export function buildMcpServer(
         return validationError(parsed.error.issues);
       }
 
-      const context = await api.getApplicationContext(
-        applicationId,
-        pageId,
-        layoutId,
-      );
-      const currentDsl = (context.layout as { dsl?: WidgetNode } | undefined)
-        ?.dsl;
+      const read = await readPageLayout(applicationId, pageId, layoutId);
+      const currentDsl = (
+        read.context.layout as { dsl?: WidgetNode } | undefined
+      )?.dsl;
 
       if (!currentDsl) {
         return result({ error: "could not read the current page layout" });
@@ -3692,7 +3806,7 @@ export function buildMcpServer(
       return commitLayout({
         applicationId,
         pageId,
-        layoutId,
+        layoutId: read.layoutId,
         currentDsl,
         currentRevision,
         revision,
@@ -3700,6 +3814,7 @@ export function buildMcpServer(
         operation: "edit_page",
         newDsl: dsl,
         extra: { notes },
+        correctedLayoutId: read.correctedLayoutId,
       });
     },
   );
@@ -3709,12 +3824,9 @@ export function buildMcpServer(
     "Lint a live page and return structural diagnostics (overlaps, off-grid widgets, clipped containers, duplicate names, dangling bindings). Use this to verify a build/edit and drive fixes. Read-only.",
     { applicationId: idSchema, pageId: idSchema, layoutId: idSchema },
     async ({ applicationId, layoutId, pageId }) => {
-      const context = await api.getApplicationContext(
-        applicationId,
-        pageId,
-        layoutId,
-      );
-      const dsl = (context.layout as { dsl?: WidgetNode } | undefined)?.dsl;
+      const read = await readPageLayout(applicationId, pageId, layoutId);
+      const dsl = (read.context.layout as { dsl?: WidgetNode } | undefined)
+        ?.dsl;
 
       if (!dsl) {
         return result({ error: "could not read the current page layout" });
@@ -3722,6 +3834,7 @@ export function buildMcpServer(
 
       return result({
         diagnostics: await lintLiveDsl(api, applicationId, dsl, dataEnabled),
+        ...layoutCorrection(read.correctedLayoutId),
       });
     },
   );
@@ -3744,13 +3857,10 @@ export function buildMcpServer(
 
       if (!parsed.success) return validationError(parsed.error.issues);
 
-      const context = await api.getApplicationContext(
-        applicationId,
-        pageId,
-        layoutId,
-      );
-      const currentDsl = (context.layout as { dsl?: WidgetNode } | undefined)
-        ?.dsl;
+      const read = await readPageLayout(applicationId, pageId, layoutId);
+      const currentDsl = (
+        read.context.layout as { dsl?: WidgetNode } | undefined
+      )?.dsl;
 
       if (!currentDsl) {
         return result({ error: "could not read the current page layout" });
@@ -3770,13 +3880,14 @@ export function buildMcpServer(
       return commitLayout({
         applicationId,
         pageId,
-        layoutId,
+        layoutId: read.layoutId,
         currentDsl,
         currentRevision,
         revision,
         branch,
         operation: "patch_widgets",
         newDsl: patched.dsl,
+        correctedLayoutId: read.correctedLayoutId,
         extra: {
           changes: patched.changes,
           // Collision repairs, cascade pushes, and modal-scroll warnings — surfaced top-level because agents
@@ -3808,13 +3919,10 @@ export function buildMcpServer(
 
       if (!parsed.success) return validationError(parsed.error.issues);
 
-      const context = await api.getApplicationContext(
-        applicationId,
-        pageId,
-        layoutId,
-      );
-      const currentDsl = (context.layout as { dsl?: WidgetNode } | undefined)
-        ?.dsl;
+      const read = await readPageLayout(applicationId, pageId, layoutId);
+      const currentDsl = (
+        read.context.layout as { dsl?: WidgetNode } | undefined
+      )?.dsl;
 
       if (!currentDsl) {
         return result({ error: "could not read the current page layout" });
@@ -3940,13 +4048,14 @@ export function buildMcpServer(
       return commitLayout({
         applicationId,
         pageId,
-        layoutId,
+        layoutId: read.layoutId,
         currentDsl,
         currentRevision,
         revision,
         branch,
         operation: "wire_event",
         newDsl,
+        correctedLayoutId: read.correctedLayoutId,
         extra: {
           widget: parsed.data.widget,
           event: parsed.data.event,
@@ -3967,12 +4076,9 @@ export function buildMcpServer(
     "Read a compact, safe semantic view of a page for targeted authoring. Returns widget hierarchy, geometry, and allowlisted static properties, plus a revision token for a later write. It never returns arbitrary DSL properties, events, or raw bindings.",
     { applicationId: idSchema, pageId: idSchema, layoutId: idSchema },
     async ({ applicationId, layoutId, pageId }) => {
-      const context = await api.getApplicationContext(
-        applicationId,
-        pageId,
-        layoutId,
-      );
-      const dsl = (context.layout as { dsl?: WidgetNode } | undefined)?.dsl;
+      const read = await readPageLayout(applicationId, pageId, layoutId);
+      const dsl = (read.context.layout as { dsl?: WidgetNode } | undefined)
+        ?.dsl;
 
       if (!dsl) {
         return result({ error: "could not read the current page layout" });
@@ -3982,13 +4088,14 @@ export function buildMcpServer(
         revision: fingerprintDsl(dsl),
         page: projectSemanticPage(dsl),
         diagnostics: await lintLiveDsl(api, applicationId, dsl, dataEnabled),
+        ...layoutCorrection(read.correctedLayoutId),
       });
     },
   );
 
   registerTool(
     "read_pages",
-    "List an application's pages (safe metadata: id, name, slug, visibility, layoutId) plus a revision token for create_page / rename_page / delete_page. The per-page layoutId is what read_semantic_page / patch_widgets / edit_page / wire_event require as input. Never returns DSL, actions, or bindings.",
+    "List an application's pages (safe metadata: id, name, slug, visibility, layoutId) plus a revision token for create_page / rename_page / delete_page. The per-page layoutId is what read_semantic_page / patch_widgets / edit_page / wire_event require as input. A page whose layout could not be resolved carries layoutError ({ reason: 'fetch_failed', status?, code? } or { reason: 'no_layout' }) instead of a layoutId — report it to the user rather than guessing a layoutId. Never returns DSL, actions, or bindings.",
     { applicationId: idSchema },
     async ({ applicationId }) => {
       const pages = await api.getApplicationPages(applicationId);
@@ -4003,9 +4110,11 @@ export function buildMcpServer(
           try {
             const layoutId = layoutIdOf(await api.getPage(page.id));
 
-            return layoutId !== undefined ? { ...page, layoutId } : page;
-          } catch {
-            return page;
+            return layoutId !== undefined
+              ? { ...page, layoutId }
+              : { ...page, layoutError: { reason: "no_layout" } };
+          } catch (error) {
+            return { ...page, layoutError: pageLayoutError(error) };
           }
         },
       );

@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import supertest from "supertest";
 import {
+  AppsmithApiError,
   MAX_ARTIFACT_BYTES,
   MCP_BUILD_INFO,
   READ_PAGES_LAYOUT_CONCURRENCY,
@@ -270,6 +271,36 @@ describe("Appsmith API client", () => {
     await expect(api.listWorkspaces()).rejects.toThrow(
       "Appsmith API request failed (403)",
     );
+  });
+
+  it("APP-16100: page and layout reads carry the Appsmith error code, never the body", async () => {
+    const fetchFn = jest.fn<
+      Promise<Response>,
+      [RequestInfo | URL, RequestInit?]
+    >(async () =>
+      Response.json(
+        {
+          responseMeta: {
+            error: { code: "AE-APP-4000", message: "secret detail" },
+          },
+        },
+        { status: 400 },
+      ),
+    );
+    const api = createAppsmithApi(
+      "user-token",
+      API_BASE_URL,
+      fetchFn as unknown as typeof fetch,
+    );
+
+    const pageError = await api.getPage("p1").catch((error: unknown) => error);
+
+    expect(pageError).toBeInstanceOf(AppsmithApiError);
+    expect(pageError).toMatchObject({ status: 400, errorCode: "AE-APP-4000" });
+    expect(String(pageError)).not.toContain("secret detail");
+    await expect(
+      api.getApplicationContext("a1", "p1", "l1"),
+    ).rejects.toMatchObject({ status: 400, errorCode: "AE-APP-4000" });
   });
 
   it("rejects oversized artifacts before issuing an API request", async () => {
@@ -4051,7 +4082,7 @@ describe("governance-wrapped layout mutations", () => {
     ]);
   });
 
-  it("F3: read_pages omits layoutId (never fails) when a page fetch throws", async () => {
+  it("F3: read_pages reports layoutError (never fails) when a page fetch throws", async () => {
     const api: AppsmithApi = {
       ...createApi()(),
       getApplicationPages: jest.fn(async () => PAGES),
@@ -4065,8 +4096,356 @@ describe("governance-wrapped layout mutations", () => {
     });
 
     expect(read.body.pages).toEqual([
-      { id: PAGE_ID, name: "Extra", slug: "extra" },
+      {
+        id: PAGE_ID,
+        name: "Extra",
+        slug: "extra",
+        layoutError: { reason: "fetch_failed" },
+      },
     ]);
+  });
+
+  it("APP-16100: read_pages carries the upstream status + error code of a failed page fetch, never the body", async () => {
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => PAGES),
+      getPage: jest.fn(async () => {
+        throw new AppsmithApiError(404, "AE-ACL-4004");
+      }) as never,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const read = await callTool(server, "read_pages", {
+      applicationId: APP_ID,
+    });
+
+    expect(read.body.pages[0]).not.toHaveProperty("layoutId");
+    expect(read.body.pages[0].layoutError).toEqual({
+      reason: "fetch_failed",
+      status: 404,
+      code: "AE-ACL-4004",
+    });
+  });
+
+  it("APP-16100: read_pages reports no_layout for a page DTO without layouts", async () => {
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => PAGES),
+      getPage: jest.fn(async () => ({ id: PAGE_ID, layouts: [] })) as never,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const read = await callTool(server, "read_pages", {
+      applicationId: APP_ID,
+    });
+
+    expect(read.body.pages[0].layoutError).toEqual({ reason: "no_layout" });
+  });
+
+  const LAYOUT_DSL = {
+    ...ROOT_DSL,
+    children: [
+      {
+        widgetId: "b",
+        widgetName: "SaveBtn",
+        type: "BUTTON_WIDGET",
+        topRow: 0,
+        bottomRow: 4,
+        leftColumn: 0,
+        rightColumn: 16,
+      },
+      {
+        widgetId: "m",
+        widgetName: "EditModal",
+        type: "MODAL_WIDGET",
+        topRow: 5,
+        bottomRow: 20,
+        leftColumn: 0,
+        rightColumn: 32,
+      },
+    ],
+  };
+  const LAYOUT_REVISION = fingerprintDsl(LAYOUT_DSL as never);
+
+  // A layout read with a layoutId that does not belong to the page answers 400 INVALID_PARAMETER. Fake that: only
+  // the page's own layoutId reads; anything else is a 400.
+  function layoutReadApi(overrides: Partial<AppsmithApi> = {}) {
+    const getApplicationContext = jest.fn(
+      async (_app: string, _page: string, layoutId: string) => {
+        if (layoutId !== "layout-real") {
+          throw new AppsmithApiError(400, "AE-APP-4000");
+        }
+
+        return { pages: [], page: {}, layout: { dsl: LAYOUT_DSL } };
+      },
+    );
+    const getPage = jest.fn(async () => ({
+      id: PAGE_ID,
+      layouts: [{ id: "layout-real" }],
+    }));
+    const updateLayout = jest.fn(async () => ({ ok: true }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: getApplicationContext as never,
+      getPage: getPage as never,
+      updateLayout: updateLayout as never,
+      ...overrides,
+    };
+
+    return { api, getApplicationContext, getPage, updateLayout };
+  }
+
+  async function callToolRaw(
+    server: ReturnType<typeof createMcpHttpServer>,
+    name: string,
+    args: Record<string, unknown>,
+  ) {
+    const sessionId = await initSession(server);
+    const call = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({
+        jsonrpc: "2.0",
+        id: 14,
+        method: "tools/call",
+        params: { name, arguments: args },
+      });
+    const { content, isError } = parseJsonRpc(call).result as {
+      content: { text: string }[];
+      isError?: boolean;
+    };
+
+    return { text: content[0].text, isError: isError === true };
+  }
+
+  it("APP-16100: read_semantic_page re-resolves a layoutId that does not belong to the page and says so", async () => {
+    const { api, getApplicationContext, getPage } = layoutReadApi();
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const read = await callTool(server, "read_semantic_page", {
+      applicationId: APP_ID,
+      pageId: PAGE_ID,
+      layoutId: "layout-guessed",
+    });
+
+    expect(getPage).toHaveBeenCalledWith(PAGE_ID);
+    expect(getApplicationContext).toHaveBeenLastCalledWith(
+      APP_ID,
+      PAGE_ID,
+      "layout-real",
+    );
+    expect(read.body.revision).toBe(LAYOUT_REVISION);
+    expect(read.body.correctedLayoutId).toBe("layout-real");
+    expect(read.body.layoutNote).toContain("layout-real");
+  });
+
+  it.each([
+    ["inspect_page", {}],
+    ["get_application_context", {}],
+  ])(
+    "APP-16100: %s reports the corrected layoutId",
+    async (tool, extraArgs) => {
+      const { api } = layoutReadApi();
+      const server = createMcpHttpServer(API_BASE_URL, () => api);
+      const read = await callTool(server, tool, {
+        applicationId: APP_ID,
+        pageId: PAGE_ID,
+        layoutId: "layout-guessed",
+        ...extraArgs,
+      });
+
+      expect(read.body.correctedLayoutId).toBe("layout-real");
+    },
+  );
+
+  it.each([
+    ["edit_page", { edit: { add: [{ type: "button", text: "Go" }] } }],
+    [
+      "patch_widgets",
+      {
+        patch: {
+          operations: [
+            {
+              kind: "move",
+              name: "SaveBtn",
+              position: { topRow: 30, leftColumn: 0 },
+            },
+          ],
+        },
+      },
+    ],
+    [
+      "wire_event",
+      {
+        spec: {
+          widget: "SaveBtn",
+          event: "onClick",
+          action: { showModal: "EditModal" },
+        },
+      },
+    ],
+  ])(
+    "APP-16100: %s writes to the page's own layout after a correction",
+    async (tool, toolArgs) => {
+      const { api, updateLayout } = layoutReadApi();
+      const server = createMcpHttpServer(API_BASE_URL, () => api);
+      const written = await callTool(server, tool, {
+        applicationId: APP_ID,
+        pageId: PAGE_ID,
+        layoutId: "layout-guessed",
+        revision: LAYOUT_REVISION,
+        ...toolArgs,
+      });
+
+      expect(written.body.error).toBeUndefined();
+      expect(updateLayout).toHaveBeenCalledTimes(1);
+      expect(updateLayout.mock.calls[0]).toEqual([
+        APP_ID,
+        PAGE_ID,
+        "layout-real",
+        expect.any(Object),
+      ]);
+      expect(written.body.correctedLayoutId).toBe("layout-real");
+    },
+  );
+
+  it("APP-16100: a corrected write without a revision fails closed and writes nothing", async () => {
+    const { api, updateLayout } = layoutReadApi();
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const edited = await callTool(server, "edit_page", {
+      applicationId: APP_ID,
+      pageId: PAGE_ID,
+      layoutId: "layout-guessed",
+      edit: { add: [{ type: "button", text: "Go" }] },
+    });
+
+    expect(edited.body.code).toBe("layout_corrected");
+    expect(edited.body.correctedLayoutId).toBe("layout-real");
+    expect(updateLayout).not.toHaveBeenCalled();
+  });
+
+  it("APP-16100: a corrected write whose revision is from another page is rejected as stale", async () => {
+    const { api, updateLayout } = layoutReadApi();
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const edited = await callTool(server, "edit_page", {
+      applicationId: APP_ID,
+      pageId: PAGE_ID,
+      layoutId: "layout-guessed",
+      revision: fingerprintDsl(ROOT_DSL as never),
+      edit: { add: [{ type: "button", text: "Go" }] },
+    });
+
+    expect(edited.body.code).toBe("revision_conflict");
+    expect(updateLayout).not.toHaveBeenCalled();
+  });
+
+  it("APP-16100: a governed corrected write snapshots the resolved layoutId and keeps the note out of the audit", async () => {
+    const store = new MemoryGovernanceStore();
+    const { api } = layoutReadApi();
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      governance: new McpGovernanceCoordinator(store),
+    });
+    const edited = await callTool(server, "edit_page", {
+      applicationId: APP_ID,
+      pageId: PAGE_ID,
+      layoutId: "layout-guessed",
+      revision: LAYOUT_REVISION,
+      edit: { add: [{ type: "button", text: "Go" }] },
+    });
+
+    expect(edited.body.changeId).toBeDefined();
+    expect(edited.body.correctedLayoutId).toBe("layout-real");
+    expect(store.changes).toHaveLength(1);
+    expect(store.changes[0].rollback).toMatchObject({
+      layoutId: "layout-real",
+    });
+    expect(JSON.stringify(store.changes[0])).not.toContain("layoutNote");
+  });
+
+  it("APP-16100: a correct layoutId reads once with no page re-fetch or correction", async () => {
+    const { api, getApplicationContext, getPage } = layoutReadApi();
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const read = await callTool(server, "inspect_page", {
+      applicationId: APP_ID,
+      pageId: PAGE_ID,
+      layoutId: "layout-real",
+    });
+
+    expect(getApplicationContext).toHaveBeenCalledTimes(1);
+    expect(getPage).not.toHaveBeenCalled();
+    expect(read.body).not.toHaveProperty("correctedLayoutId");
+  });
+
+  it("APP-16100: an unreadable page surfaces its own status + code instead of the misleading 400", async () => {
+    const { api } = layoutReadApi({
+      getPage: jest.fn(async () => {
+        throw new AppsmithApiError(404, "AE-ACL-4004");
+      }) as never,
+    });
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const read = await callToolRaw(server, "read_semantic_page", {
+      applicationId: APP_ID,
+      pageId: PAGE_ID,
+      layoutId: "layout-guessed",
+    });
+
+    expect(read.isError).toBe(true);
+    expect(read.text).toContain("(404)");
+    expect(read.text).toContain("AE-ACL-4004");
+  });
+
+  it("APP-16100: a page with no layout of its own fails with a legible error", async () => {
+    const { api } = layoutReadApi({
+      getPage: jest.fn(async () => ({ id: PAGE_ID, layouts: [] })) as never,
+    });
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const read = await callToolRaw(server, "read_semantic_page", {
+      applicationId: APP_ID,
+      pageId: PAGE_ID,
+      layoutId: "layout-guessed",
+    });
+
+    expect(read.isError).toBe(true);
+    expect(read.text).toContain("reports no layout of its own");
+  });
+
+  it("APP-16100: non-400 layout failures are not retried", async () => {
+    const getPage = jest.fn(async () => ({ layouts: [{ id: "layout-real" }] }));
+    const { api } = layoutReadApi({
+      getApplicationContext: jest.fn(async () => {
+        throw new AppsmithApiError(403, "AE-ACL-4003");
+      }) as never,
+      getPage: getPage as never,
+    });
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const read = await callToolRaw(server, "read_semantic_page", {
+      applicationId: APP_ID,
+      pageId: PAGE_ID,
+      layoutId: "layout-guessed",
+    });
+
+    expect(read.isError).toBe(true);
+    expect(read.text).toContain("(403)");
+    expect(getPage).not.toHaveBeenCalled();
+  });
+
+  it("APP-16100: a 400 that is not INVALID_PARAMETER is not retried", async () => {
+    const getPage = jest.fn(async () => ({ layouts: [{ id: "layout-real" }] }));
+    const { api } = layoutReadApi({
+      getApplicationContext: jest.fn(async () => {
+        throw new AppsmithApiError(400, "AE-APP-4004");
+      }) as never,
+      getPage: getPage as never,
+    });
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const read = await callToolRaw(server, "read_semantic_page", {
+      applicationId: APP_ID,
+      pageId: PAGE_ID,
+      layoutId: "layout-guessed",
+    });
+
+    expect(read.isError).toBe(true);
+    expect(read.text).toContain("AE-APP-4004");
+    expect(getPage).not.toHaveBeenCalled();
   });
 
   it("F3: read_pages fans out one bounded getPage per page and does not cross-contaminate layoutIds", async () => {
