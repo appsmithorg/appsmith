@@ -143,13 +143,13 @@ function Title(props: TitleProps) {
   }, [ref.current, props.width, props.children, props.wrap]);
 
   return (
-<TitleWrapper
-  $align={props.align}
-  $constrain={props.constrain}
-  $wrap={props.wrap}
-  className="header-title"
-  ref={ref}
->
+    <TitleWrapper
+      $align={props.align}
+      $constrain={props.constrain}
+      $wrap={props.wrap}
+      className="header-title"
+      ref={ref}
+    >
       {useToolTip && props.children ? (
         <Tooltip
           autoFocus={false}
