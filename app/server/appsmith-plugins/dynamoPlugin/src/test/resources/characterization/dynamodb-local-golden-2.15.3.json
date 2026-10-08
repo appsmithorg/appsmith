@@ -1,0 +1,941 @@
+{
+  "00_GetStructure_empty": {
+    "error": null,
+    "tables": []
+  },
+  "01_CreateTable": {
+    "body": {
+      "TableDescription": {
+        "ArchivalSummary": null,
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "Artist",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "SongTitle",
+            "AttributeType": "S"
+          }
+        ],
+        "BillingModeSummary": {
+          "BillingMode": "PAY_PER_REQUEST",
+          "LastUpdateToPayPerRequestDateTime": "Instant"
+        },
+        "CreationDateTime": "Instant",
+        "GlobalSecondaryIndexes": [],
+        "GlobalTableVersion": null,
+        "ItemCount": 0,
+        "KeySchema": [
+          {
+            "AttributeName": "Artist",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "SongTitle",
+            "KeyType": "RANGE"
+          }
+        ],
+        "LatestStreamArn": null,
+        "LatestStreamLabel": null,
+        "LocalSecondaryIndexes": [],
+        "ProvisionedThroughput": {
+          "LastDecreaseDateTime": "Instant",
+          "LastIncreaseDateTime": "Instant",
+          "NumberOfDecreasesToday": 0,
+          "ReadCapacityUnits": 0,
+          "WriteCapacityUnits": 0
+        },
+        "Replicas": [],
+        "RestoreSummary": null,
+        "SSEDescription": null,
+        "StreamSpecification": null,
+        "TableArn": "arn:aws:dynamodb:ddblocal:000000000000:table/Music",
+        "TableId": null,
+        "TableName": "Music",
+        "TableSizeBytes": 0,
+        "TableStatus": "ACTIVE"
+      }
+    },
+    "isExecutionSuccess": true
+  },
+  "02_CreateTable_provisionedThroughput": {
+    "body": "software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput$Builder.readCapacityUnits(java.lang.Integer)",
+    "errorType": "INTERNAL_ERROR",
+    "isExecutionSuccess": false,
+    "pluginErrorDetails": {
+      "appsmithErrorCode": "PE-DYN-5000",
+      "appsmithErrorMessage": "Error occurred while executing DynamoDB query.",
+      "downstreamErrorCode": null,
+      "downstreamErrorMessage": "software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput$Builder.readCapacityUnits(java.lang.Integer)",
+      "errorType": "INTERNAL_ERROR",
+      "title": "Query execution error"
+    },
+    "statusCode": "PE-DYN-5000",
+    "title": "Query execution error"
+  },
+  "03_CreateTable_globalSecondaryIndex": {
+    "body": {
+      "TableDescription": {
+        "ArchivalSummary": null,
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "Id",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "Kind",
+            "AttributeType": "S"
+          }
+        ],
+        "BillingModeSummary": {
+          "BillingMode": "PAY_PER_REQUEST",
+          "LastUpdateToPayPerRequestDateTime": "Instant"
+        },
+        "CreationDateTime": "Instant",
+        "GlobalSecondaryIndexes": [
+          {
+            "Backfilling": null,
+            "IndexArn": "arn:aws:dynamodb:ddblocal:000000000000:table/Indexed/index/KindIndex",
+            "IndexName": "KindIndex",
+            "IndexSizeBytes": 0,
+            "IndexStatus": "ACTIVE",
+            "ItemCount": 0,
+            "KeySchema": [
+              {
+                "AttributeName": "Kind",
+                "KeyType": "HASH"
+              }
+            ],
+            "Projection": {
+              "NonKeyAttributes": [],
+              "ProjectionType": "ALL"
+            },
+            "ProvisionedThroughput": null
+          }
+        ],
+        "GlobalTableVersion": null,
+        "ItemCount": 0,
+        "KeySchema": [
+          {
+            "AttributeName": "Id",
+            "KeyType": "HASH"
+          }
+        ],
+        "LatestStreamArn": null,
+        "LatestStreamLabel": null,
+        "LocalSecondaryIndexes": [],
+        "ProvisionedThroughput": {
+          "LastDecreaseDateTime": "Instant",
+          "LastIncreaseDateTime": "Instant",
+          "NumberOfDecreasesToday": 0,
+          "ReadCapacityUnits": 0,
+          "WriteCapacityUnits": 0
+        },
+        "Replicas": [],
+        "RestoreSummary": null,
+        "SSEDescription": null,
+        "StreamSpecification": null,
+        "TableArn": "arn:aws:dynamodb:ddblocal:000000000000:table/Indexed",
+        "TableId": null,
+        "TableName": "Indexed",
+        "TableSizeBytes": 0,
+        "TableStatus": "ACTIVE"
+      }
+    },
+    "isExecutionSuccess": true
+  },
+  "04_PutItem_allAttributeKinds": {
+    "body": {
+      "Attributes": {},
+      "ConsumedCapacity": {
+        "CapacityUnits": 1.0,
+        "GlobalSecondaryIndexes": {},
+        "LocalSecondaryIndexes": {},
+        "ReadCapacityUnits": null,
+        "Table": null,
+        "TableName": "Music",
+        "WriteCapacityUnits": null
+      },
+      "ItemCollectionMetrics": null
+    },
+    "isExecutionSuccess": true
+  },
+  "05_PutItem_second": {
+    "body": {
+      "Attributes": {},
+      "ConsumedCapacity": null,
+      "ItemCollectionMetrics": null
+    },
+    "isExecutionSuccess": true
+  },
+  "06_PutItem_third": {
+    "body": {
+      "Attributes": {},
+      "ConsumedCapacity": null,
+      "ItemCollectionMetrics": null
+    },
+    "isExecutionSuccess": true
+  },
+  "07_PutItem_otherArtist": {
+    "body": {
+      "Attributes": {},
+      "ConsumedCapacity": null,
+      "ItemCollectionMetrics": null
+    },
+    "isExecutionSuccess": true
+  },
+  "08_GetItem_allAttributeKinds": {
+    "body": {
+      "ConsumedCapacity": {
+        "CapacityUnits": 1.0,
+        "GlobalSecondaryIndexes": {},
+        "LocalSecondaryIndexes": {},
+        "ReadCapacityUnits": null,
+        "Table": null,
+        "TableName": "Music",
+        "WriteCapacityUnits": null
+      },
+      "Item": {
+        "Album": {
+          "Formats": ["CD", "Vinyl"],
+          "Label": {
+            "Name": "Acme"
+          },
+          "Title": "Somewhat Famous"
+        },
+        "Artist": "A",
+        "ChartPositions": ["1", "4", "12"],
+        "Cover": "image-bytes",
+        "Credits": [
+          {
+            "Name": "Jane",
+            "Role": "Writer"
+          },
+          "Session band",
+          "3",
+          true,
+          true,
+          ["a", "b"],
+          ["nested"]
+        ],
+        "EmptyList": {},
+        "EmptyMap": {},
+        "Explicit": false,
+        "Price": "1.99",
+        "Producer": true,
+        "Remastered": true,
+        "Samples": ["sample-1", "sample-2"],
+        "SongTitle": "S1",
+        "Tags": ["pop", "rock"],
+        "Year": "2015"
+      }
+    },
+    "isExecutionSuccess": true
+  },
+  "09_GetItem_projection": {
+    "body": {
+      "ConsumedCapacity": null,
+      "Item": {
+        "Album": {
+          "Title": "Somewhat Famous"
+        },
+        "Credits": [
+          {
+            "Name": "Jane",
+            "Role": "Writer"
+          }
+        ],
+        "Year": "2015"
+      }
+    },
+    "isExecutionSuccess": true
+  },
+  "10_GetItem_missingItem": {
+    "body": {
+      "ConsumedCapacity": null,
+      "Item": {}
+    },
+    "isExecutionSuccess": true
+  },
+  "11_Query_firstPage": {
+    "body": {
+      "ConsumedCapacity": {
+        "CapacityUnits": 0.5,
+        "GlobalSecondaryIndexes": {},
+        "LocalSecondaryIndexes": {},
+        "ReadCapacityUnits": null,
+        "Table": null,
+        "TableName": "Music",
+        "WriteCapacityUnits": null
+      },
+      "Count": 2,
+      "Items": [
+        {
+          "Artist": "A",
+          "SongTitle": "S1",
+          "Year": "2015"
+        },
+        {
+          "Artist": "A",
+          "SongTitle": "S2",
+          "Year": "2016"
+        }
+      ],
+      "LastEvaluatedKey": {
+        "Artist": "A",
+        "SongTitle": "S2"
+      },
+      "ScannedCount": 2
+    },
+    "isExecutionSuccess": true
+  },
+  "12_Query_nextPage": {
+    "body": {
+      "ConsumedCapacity": null,
+      "Count": 1,
+      "Items": [
+        {
+          "Artist": "A",
+          "SongTitle": "S3",
+          "Year": "2017"
+        }
+      ],
+      "LastEvaluatedKey": {},
+      "ScannedCount": 1
+    },
+    "isExecutionSuccess": true
+  },
+  "13_Query_filterDescending": {
+    "body": {
+      "ConsumedCapacity": null,
+      "Count": 2,
+      "Items": [],
+      "LastEvaluatedKey": {},
+      "ScannedCount": 3
+    },
+    "isExecutionSuccess": true
+  },
+  "14_Scan_firstPage": {
+    "body": {
+      "ConsumedCapacity": null,
+      "Count": 2,
+      "Items": [
+        {
+          "Artist": "B",
+          "SongTitle": "S1"
+        },
+        {
+          "Artist": "A",
+          "SongTitle": "S1"
+        }
+      ],
+      "LastEvaluatedKey": {
+        "Artist": "A",
+        "SongTitle": "S1"
+      },
+      "ScannedCount": 2
+    },
+    "isExecutionSuccess": true
+  },
+  "15_Scan_nextPage": {
+    "body": {
+      "ConsumedCapacity": null,
+      "Count": 1,
+      "Items": [
+        {
+          "Artist": "A",
+          "SongTitle": "S3"
+        }
+      ],
+      "LastEvaluatedKey": {},
+      "ScannedCount": 1
+    },
+    "isExecutionSuccess": true
+  },
+  "16_Scan_filter": {
+    "body": {
+      "ConsumedCapacity": null,
+      "Count": 1,
+      "Items": [
+        {
+          "Artist": "A",
+          "ChartPositions": ["1", "4", "12"],
+          "Cover": "image-bytes",
+          "Samples": ["sample-1", "sample-2"],
+          "SongTitle": "S1",
+          "Tags": ["pop", "rock"]
+        }
+      ],
+      "LastEvaluatedKey": {},
+      "ScannedCount": 4
+    },
+    "isExecutionSuccess": true
+  },
+  "17_UpdateItem": {
+    "body": {
+      "Attributes": {
+        "Album": {
+          "Cover": "cover-bytes",
+          "Formats": ["Digital"]
+        },
+        "AlbumTitle": "Louder Than Ever",
+        "Artist": "A",
+        "Plays": "11",
+        "SongTitle": "S2",
+        "Tags": ["indie"]
+      },
+      "ConsumedCapacity": null,
+      "ItemCollectionMetrics": null
+    },
+    "isExecutionSuccess": true
+  },
+  "18_UpdateItem_conditionalCheckFailed": {
+    "body": "The conditional request failed (Service: DynamoDb, Status Code: 400, Request ID: <uuid>, Extended Request ID: null)",
+    "errorType": "INTERNAL_ERROR",
+    "isExecutionSuccess": false,
+    "pluginErrorDetails": {
+      "appsmithErrorCode": "PE-DYN-5000",
+      "appsmithErrorMessage": "Error occurred while executing DynamoDB query.",
+      "downstreamErrorCode": null,
+      "downstreamErrorMessage": "The conditional request failed (Service: DynamoDb, Status Code: 400, Request ID: <uuid>, Extended Request ID: null)",
+      "errorType": "INTERNAL_ERROR",
+      "title": "Query execution error"
+    },
+    "statusCode": "PE-DYN-5000",
+    "title": "Query execution error"
+  },
+  "19_DeleteItem": {
+    "body": {
+      "Attributes": {
+        "Artist": "A",
+        "SongTitle": "S3",
+        "Year": "2017"
+      },
+      "ConsumedCapacity": null,
+      "ItemCollectionMetrics": null
+    },
+    "isExecutionSuccess": true
+  },
+  "20_BatchWriteItem": {
+    "body": {
+      "ConsumedCapacity": [],
+      "ItemCollectionMetrics": {},
+      "UnprocessedItems": {}
+    },
+    "isExecutionSuccess": true
+  },
+  "20b_BatchWriteItem_binary": {
+    "body": {
+      "ConsumedCapacity": [],
+      "ItemCollectionMetrics": {},
+      "UnprocessedItems": {}
+    },
+    "isExecutionSuccess": true
+  },
+  "20c_GetItem_batchWrittenBinary": {
+    "body": {
+      "ConsumedCapacity": null,
+      "Item": {
+        "Album": {
+          "Art": "art"
+        },
+        "Artist": "E",
+        "Cover": "hello",
+        "Samples": ["hi", "there"],
+        "SongTitle": "S1"
+      }
+    },
+    "isExecutionSuccess": true
+  },
+  "21_BatchGetItem": {
+    "body": {
+      "ConsumedCapacity": [
+        {
+          "CapacityUnits": 1.0,
+          "GlobalSecondaryIndexes": {},
+          "LocalSecondaryIndexes": {},
+          "ReadCapacityUnits": null,
+          "Table": null,
+          "TableName": "Music",
+          "WriteCapacityUnits": null
+        }
+      ],
+      "Responses": {
+        "Music": [
+          {
+            "Artist": "A",
+            "Plays": "11",
+            "SongTitle": "S2"
+          },
+          {
+            "Artist": "B",
+            "SongTitle": "S1"
+          }
+        ]
+      },
+      "UnprocessedKeys": {}
+    },
+    "isExecutionSuccess": true
+  },
+  "22_TransactGetItems": {
+    "body": {
+      "ConsumedCapacity": [],
+      "Responses": [
+        {
+          "Item": {
+            "Artist": "A",
+            "Plays": "11"
+          }
+        },
+        {
+          "Item": {
+            "Artist": "B",
+            "SongTitle": "S1",
+            "Year": "2012"
+          }
+        }
+      ]
+    },
+    "isExecutionSuccess": true
+  },
+  "23_TransactWriteItems_updateAndConditionCheck": {
+    "body": {
+      "ConsumedCapacity": [],
+      "ItemCollectionMetrics": {}
+    },
+    "isExecutionSuccess": true
+  },
+  "24_TransactWriteItems_put": {
+    "body": {
+      "ConsumedCapacity": [],
+      "ItemCollectionMetrics": {}
+    },
+    "isExecutionSuccess": true
+  },
+  "25_TransactWriteItems_canceled": {
+    "body": "Transaction cancelled, please refer cancellation reasons for specific reasons [ConditionalCheckFailed] (Service: DynamoDb, Status Code: 400, Request ID: <uuid>, Extended Request ID: null)",
+    "errorType": "INTERNAL_ERROR",
+    "isExecutionSuccess": false,
+    "pluginErrorDetails": {
+      "appsmithErrorCode": "PE-DYN-5000",
+      "appsmithErrorMessage": "Error occurred while executing DynamoDB query.",
+      "downstreamErrorCode": null,
+      "downstreamErrorMessage": "Transaction cancelled, please refer cancellation reasons for specific reasons [ConditionalCheckFailed] (Service: DynamoDb, Status Code: 400, Request ID: <uuid>, Extended Request ID: null)",
+      "errorType": "INTERNAL_ERROR",
+      "title": "Query execution error"
+    },
+    "statusCode": "PE-DYN-5000",
+    "title": "Query execution error"
+  },
+  "26_DescribeTable": {
+    "body": {
+      "Table": {
+        "ArchivalSummary": null,
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "Artist",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "SongTitle",
+            "AttributeType": "S"
+          }
+        ],
+        "BillingModeSummary": {
+          "BillingMode": "PAY_PER_REQUEST",
+          "LastUpdateToPayPerRequestDateTime": "Instant"
+        },
+        "CreationDateTime": "Instant",
+        "GlobalSecondaryIndexes": [],
+        "GlobalTableVersion": null,
+        "ItemCount": 6,
+        "KeySchema": [
+          {
+            "AttributeName": "Artist",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "SongTitle",
+            "KeyType": "RANGE"
+          }
+        ],
+        "LatestStreamArn": null,
+        "LatestStreamLabel": null,
+        "LocalSecondaryIndexes": [],
+        "ProvisionedThroughput": {
+          "LastDecreaseDateTime": "Instant",
+          "LastIncreaseDateTime": "Instant",
+          "NumberOfDecreasesToday": 0,
+          "ReadCapacityUnits": 0,
+          "WriteCapacityUnits": 0
+        },
+        "Replicas": [],
+        "RestoreSummary": null,
+        "SSEDescription": null,
+        "StreamSpecification": null,
+        "TableArn": "arn:aws:dynamodb:ddblocal:000000000000:table/Music",
+        "TableId": null,
+        "TableName": "Music",
+        "TableSizeBytes": 512,
+        "TableStatus": "ACTIVE"
+      }
+    },
+    "isExecutionSuccess": true
+  },
+  "27_ListTables_firstPage": {
+    "body": {
+      "LastEvaluatedTableName": "Indexed",
+      "TableNames": ["Indexed"]
+    },
+    "isExecutionSuccess": true
+  },
+  "28_ListTables_nextPage": {
+    "body": {
+      "LastEvaluatedTableName": null,
+      "TableNames": ["Music"]
+    },
+    "isExecutionSuccess": true
+  },
+  "29_ListTables_noBody": {
+    "body": {
+      "LastEvaluatedTableName": null,
+      "TableNames": ["Indexed", "Music"]
+    },
+    "isExecutionSuccess": true
+  },
+  "30_UpdateTimeToLive": {
+    "body": {
+      "TimeToLiveSpecification": {
+        "AttributeName": "ttl",
+        "Enabled": true
+      }
+    },
+    "isExecutionSuccess": true
+  },
+  "31_DescribeTimeToLive": {
+    "body": {
+      "TimeToLiveDescription": {
+        "AttributeName": "ttl",
+        "TimeToLiveStatus": "ENABLED"
+      }
+    },
+    "isExecutionSuccess": true
+  },
+  "32_TagResource": {
+    "body": "Tagging is not currently supported in DynamoDB Local. (Service: DynamoDb, Status Code: 400, Request ID: <uuid>, Extended Request ID: null)",
+    "errorType": "INTERNAL_ERROR",
+    "isExecutionSuccess": false,
+    "pluginErrorDetails": {
+      "appsmithErrorCode": "PE-DYN-5000",
+      "appsmithErrorMessage": "Error occurred while executing DynamoDB query.",
+      "downstreamErrorCode": null,
+      "downstreamErrorMessage": "Tagging is not currently supported in DynamoDB Local. (Service: DynamoDb, Status Code: 400, Request ID: <uuid>, Extended Request ID: null)",
+      "errorType": "INTERNAL_ERROR",
+      "title": "Query execution error"
+    },
+    "statusCode": "PE-DYN-5000",
+    "title": "Query execution error"
+  },
+  "33_ListTagsOfResource": {
+    "body": "Tagging is not currently supported in DynamoDB Local. (Service: DynamoDb, Status Code: 400, Request ID: <uuid>, Extended Request ID: null)",
+    "errorType": "INTERNAL_ERROR",
+    "isExecutionSuccess": false,
+    "pluginErrorDetails": {
+      "appsmithErrorCode": "PE-DYN-5000",
+      "appsmithErrorMessage": "Error occurred while executing DynamoDB query.",
+      "downstreamErrorCode": null,
+      "downstreamErrorMessage": "Tagging is not currently supported in DynamoDB Local. (Service: DynamoDb, Status Code: 400, Request ID: <uuid>, Extended Request ID: null)",
+      "errorType": "INTERNAL_ERROR",
+      "title": "Query execution error"
+    },
+    "statusCode": "PE-DYN-5000",
+    "title": "Query execution error"
+  },
+  "34_UntagResource": {
+    "body": "Tagging is not currently supported in DynamoDB Local. (Service: DynamoDb, Status Code: 400, Request ID: <uuid>, Extended Request ID: null)",
+    "errorType": "INTERNAL_ERROR",
+    "isExecutionSuccess": false,
+    "pluginErrorDetails": {
+      "appsmithErrorCode": "PE-DYN-5000",
+      "appsmithErrorMessage": "Error occurred while executing DynamoDB query.",
+      "downstreamErrorCode": null,
+      "downstreamErrorMessage": "Tagging is not currently supported in DynamoDB Local. (Service: DynamoDb, Status Code: 400, Request ID: <uuid>, Extended Request ID: null)",
+      "errorType": "INTERNAL_ERROR",
+      "title": "Query execution error"
+    },
+    "statusCode": "PE-DYN-5000",
+    "title": "Query execution error"
+  },
+  "35_UpdateTable_billingMode": {
+    "body": {
+      "TableDescription": {
+        "ArchivalSummary": null,
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "Id",
+            "AttributeType": "S"
+          }
+        ],
+        "BillingModeSummary": {
+          "BillingMode": "PAY_PER_REQUEST",
+          "LastUpdateToPayPerRequestDateTime": "Instant"
+        },
+        "CreationDateTime": "Instant",
+        "GlobalSecondaryIndexes": [
+          {
+            "Backfilling": null,
+            "IndexArn": "arn:aws:dynamodb:ddblocal:000000000000:table/Indexed/index/KindIndex",
+            "IndexName": "KindIndex",
+            "IndexSizeBytes": 0,
+            "IndexStatus": "DELETING",
+            "ItemCount": 0,
+            "KeySchema": [
+              {
+                "AttributeName": "Kind",
+                "KeyType": "HASH"
+              }
+            ],
+            "Projection": {
+              "NonKeyAttributes": [],
+              "ProjectionType": "ALL"
+            },
+            "ProvisionedThroughput": null
+          }
+        ],
+        "GlobalTableVersion": null,
+        "ItemCount": 0,
+        "KeySchema": [
+          {
+            "AttributeName": "Id",
+            "KeyType": "HASH"
+          }
+        ],
+        "LatestStreamArn": null,
+        "LatestStreamLabel": null,
+        "LocalSecondaryIndexes": [],
+        "ProvisionedThroughput": {
+          "LastDecreaseDateTime": "Instant",
+          "LastIncreaseDateTime": "Instant",
+          "NumberOfDecreasesToday": 0,
+          "ReadCapacityUnits": 0,
+          "WriteCapacityUnits": 0
+        },
+        "Replicas": [],
+        "RestoreSummary": null,
+        "SSEDescription": null,
+        "StreamSpecification": null,
+        "TableArn": "arn:aws:dynamodb:ddblocal:000000000000:table/Indexed",
+        "TableId": null,
+        "TableName": "Indexed",
+        "TableSizeBytes": 0,
+        "TableStatus": "ACTIVE"
+      }
+    },
+    "isExecutionSuccess": true
+  },
+  "36_DescribeLimits": {
+    "body": {
+      "AccountMaxReadCapacityUnits": 80000,
+      "AccountMaxWriteCapacityUnits": 80000,
+      "TableMaxReadCapacityUnits": 40000,
+      "TableMaxWriteCapacityUnits": 40000
+    },
+    "isExecutionSuccess": true
+  },
+  "37_DescribeEndpoints": {
+    "body": "An unknown operation was requested. (Service: DynamoDb, Status Code: 400, Request ID: <uuid>, Extended Request ID: null)",
+    "errorType": "INTERNAL_ERROR",
+    "isExecutionSuccess": false,
+    "pluginErrorDetails": {
+      "appsmithErrorCode": "PE-DYN-5000",
+      "appsmithErrorMessage": "Error occurred while executing DynamoDB query.",
+      "downstreamErrorCode": null,
+      "downstreamErrorMessage": "An unknown operation was requested. (Service: DynamoDb, Status Code: 400, Request ID: <uuid>, Extended Request ID: null)",
+      "errorType": "INTERNAL_ERROR",
+      "title": "Query execution error"
+    },
+    "statusCode": "PE-DYN-5000",
+    "title": "Query execution error"
+  },
+  "38_CreateBackup_unsupportedLocally": {
+    "body": "An unknown operation was requested. (Service: DynamoDb, Status Code: 400, Request ID: <uuid>, Extended Request ID: null)",
+    "errorType": "INTERNAL_ERROR",
+    "isExecutionSuccess": false,
+    "pluginErrorDetails": {
+      "appsmithErrorCode": "PE-DYN-5000",
+      "appsmithErrorMessage": "Error occurred while executing DynamoDB query.",
+      "downstreamErrorCode": null,
+      "downstreamErrorMessage": "An unknown operation was requested. (Service: DynamoDb, Status Code: 400, Request ID: <uuid>, Extended Request ID: null)",
+      "errorType": "INTERNAL_ERROR",
+      "title": "Query execution error"
+    },
+    "statusCode": "PE-DYN-5000",
+    "title": "Query execution error"
+  },
+  "39_GetItem_missingTable": {
+    "body": "Cannot do operations on a non-existent table (Service: DynamoDb, Status Code: 400, Request ID: <uuid>, Extended Request ID: null)",
+    "errorType": "INTERNAL_ERROR",
+    "isExecutionSuccess": false,
+    "pluginErrorDetails": {
+      "appsmithErrorCode": "PE-DYN-5000",
+      "appsmithErrorMessage": "Error occurred while executing DynamoDB query.",
+      "downstreamErrorCode": null,
+      "downstreamErrorMessage": "Cannot do operations on a non-existent table (Service: DynamoDb, Status Code: 400, Request ID: <uuid>, Extended Request ID: null)",
+      "errorType": "INTERNAL_ERROR",
+      "title": "Query execution error"
+    },
+    "statusCode": "PE-DYN-5000",
+    "title": "Query execution error"
+  },
+  "40_GetItem_invalidJson": {
+    "body": "Unexpected end-of-input within/between Object entries\n at [Source: (String)\"{ \"TableName\": \"; line: 1, column: 16]",
+    "errorType": "INTERNAL_ERROR",
+    "isExecutionSuccess": false,
+    "pluginErrorDetails": {
+      "appsmithErrorCode": "PE-JSN-4000",
+      "appsmithErrorMessage": "Plugin failed to parse JSON \"{ \"TableName\": \"",
+      "downstreamErrorCode": null,
+      "downstreamErrorMessage": "Unexpected end-of-input within/between Object entries\n at [Source: (String)\"{ \"TableName\": \"; line: 1, column: 16]",
+      "errorType": "INTERNAL_ERROR",
+      "title": "Invalid JSON found"
+    },
+    "statusCode": "PE-JSN-4000",
+    "title": "Invalid JSON found"
+  },
+  "41_NotAnAction": {
+    "body": "software.amazon.awssdk.services.dynamodb.model.NotAnActionRequest",
+    "errorType": "INTERNAL_ERROR",
+    "isExecutionSuccess": false,
+    "pluginErrorDetails": {
+      "appsmithErrorCode": "PE-DYN-5001",
+      "appsmithErrorMessage": "Unknown action: `NotAnAction`. Note that action names are case-sensitive.",
+      "downstreamErrorCode": null,
+      "downstreamErrorMessage": "software.amazon.awssdk.services.dynamodb.model.NotAnActionRequest",
+      "errorType": "INTERNAL_ERROR",
+      "title": "Query execution error"
+    },
+    "statusCode": "PE-DYN-5001",
+    "title": "Query execution error"
+  },
+  "42_MissingAction": {
+    "body": "Missing action name (like `ListTables`, `GetItem` etc.).",
+    "errorType": "ACTION_CONFIGURATION_ERROR",
+    "isExecutionSuccess": false,
+    "pluginErrorDetails": {
+      "appsmithErrorCode": "PE-ARG-5000",
+      "appsmithErrorMessage": "Missing action name (like `ListTables`, `GetItem` etc.).",
+      "downstreamErrorCode": null,
+      "downstreamErrorMessage": null,
+      "errorType": "ACTION_CONFIGURATION_ERROR",
+      "title": "Query configuration is invalid"
+    },
+    "statusCode": "PE-ARG-5000",
+    "title": "Query configuration is invalid"
+  },
+  "43_GetStructure": {
+    "error": null,
+    "tables": [
+      {
+        "columns": 0,
+        "keys": 0,
+        "name": "Indexed",
+        "schema": null,
+        "templates": 0,
+        "type": "TABLE"
+      },
+      {
+        "columns": 0,
+        "keys": 0,
+        "name": "Music",
+        "schema": null,
+        "templates": 0,
+        "type": "TABLE"
+      }
+    ]
+  },
+  "44_TestDatasource": {
+    "invalids": [],
+    "messages": null,
+    "success": true
+  },
+  "45_DeleteTable": {
+    "body": {
+      "TableDescription": {
+        "ArchivalSummary": null,
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "Artist",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "SongTitle",
+            "AttributeType": "S"
+          }
+        ],
+        "BillingModeSummary": {
+          "BillingMode": "PAY_PER_REQUEST",
+          "LastUpdateToPayPerRequestDateTime": "Instant"
+        },
+        "CreationDateTime": "Instant",
+        "GlobalSecondaryIndexes": [],
+        "GlobalTableVersion": null,
+        "ItemCount": 6,
+        "KeySchema": [
+          {
+            "AttributeName": "Artist",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "SongTitle",
+            "KeyType": "RANGE"
+          }
+        ],
+        "LatestStreamArn": null,
+        "LatestStreamLabel": null,
+        "LocalSecondaryIndexes": [],
+        "ProvisionedThroughput": {
+          "LastDecreaseDateTime": "Instant",
+          "LastIncreaseDateTime": "Instant",
+          "NumberOfDecreasesToday": 0,
+          "ReadCapacityUnits": 0,
+          "WriteCapacityUnits": 0
+        },
+        "Replicas": [],
+        "RestoreSummary": null,
+        "SSEDescription": null,
+        "StreamSpecification": null,
+        "TableArn": "arn:aws:dynamodb:ddblocal:000000000000:table/Music",
+        "TableId": null,
+        "TableName": "Music",
+        "TableSizeBytes": 512,
+        "TableStatus": "ACTIVE"
+      }
+    },
+    "isExecutionSuccess": true
+  },
+  "46_GetStructure_afterDelete": {
+    "error": null,
+    "tables": [
+      {
+        "columns": 0,
+        "keys": 0,
+        "name": "Indexed",
+        "schema": null,
+        "templates": 0,
+        "type": "TABLE"
+      }
+    ]
+  },
+  "testDatasource_connectionRefused": {
+    "invalids": [
+      "Unable to execute HTTP request: Connect to localhost:<port> [localhost/127.0.0.1, localhost/0:0:0:0:0:0:0:1] failed: Connection refused"
+    ],
+    "messages": null,
+    "success": false
+  },
+  "testDatasource_missingRegion": {
+    "invalids": ["Missing region in datasource."],
+    "messages": null,
+    "success": false
+  }
+}
