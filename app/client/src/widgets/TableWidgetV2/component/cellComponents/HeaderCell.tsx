@@ -147,6 +147,7 @@ function Title(props: TitleProps) {
       $align={props.align}
       $constrain={props.constrain}
       $wrap={props.wrap}
+      className="header-title"
       ref={ref}
     >
       {useToolTip && props.children ? (
