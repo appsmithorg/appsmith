@@ -40,7 +40,10 @@ restart_appsmith_once() {
   fi
   appsmith_restarted=1
   echo "Removing $stacks_dir/data/mongodb and restarting the appsmith container once"
-  sudo rm -rf "$stacks_dir/data/mongodb"
+  if ! sudo rm -rf "$stacks_dir/data/mongodb"; then
+    echo "Could not remove $stacks_dir/data/mongodb; the appsmith container stays exited" >&2
+    return 1
+  fi
   docker start appsmith
 }
 
