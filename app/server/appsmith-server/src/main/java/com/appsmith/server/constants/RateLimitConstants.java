@@ -4,6 +4,13 @@ public class RateLimitConstants {
     public static final String RATE_LIMIT_REACHED_ACCOUNT_SUSPENDED =
             "Your account is suspended for 24 hours. Please reset your password to continue";
     public static final String BUCKET_KEY_FOR_LOGIN_API = "login";
+
+    // Per-client-IP throttle for the unauthenticated self-serve signup endpoint (POST /api/v1/users, form data).
+    // The caller is anonymous at signup, so the bucket cannot be keyed by user or email.
+    public static final String BUCKET_KEY_FOR_SIGNUP_API = "signup";
+
+    public static final String RATE_LIMIT_REACHED_SIGNUP =
+            "Too many sign-up attempts from your network. Please try again after some time.";
     public static final String BUCKET_KEY_FOR_MCP_AUTHENTICATION = "mcp_authentication";
     public static final String BUCKET_KEY_FOR_TEST_DATASOURCE_API = "test_datasource_or_execute_query";
 
