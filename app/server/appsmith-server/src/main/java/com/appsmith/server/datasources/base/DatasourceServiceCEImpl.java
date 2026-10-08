@@ -4,7 +4,6 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.constants.PluginConstants;
 import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -16,6 +15,8 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
+import com.appsmith.server.datasourcestorages.base.DatasourceCredentialBindingResult;
+import com.appsmith.server.datasourcestorages.base.DatasourceCredentialsRequiredException;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
@@ -98,6 +99,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     private final Integer BLOCK_TEST_API_DURATION = 5;
     private final AppsmithException TOO_MANY_REQUESTS_EXCEPTION =
             new AppsmithException(AppsmithError.TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS);
+
+    private record DatasourceTestContext(
+            DatasourceStorage datasourceStorage, DatasourceCredentialBindingResult credentialBindingResult) {}
 
     @Autowired
     public DatasourceServiceCEImpl(
@@ -528,21 +532,30 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId) {
         DatasourceStorage datasourceStorage =
                 datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
-        return this.isEndpointBlockedForConnectionRequest(datasourceStorage).flatMap(isBlocked -> {
+        Mono<Void> datasourceTestAuthorization = Mono.empty();
+        if (!hasText(datasourceStorage.getDatasourceId())) {
+            if (!hasText(datasourceStorage.getWorkspaceId())) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+            }
+
+            datasourceTestAuthorization = workspacePermission
+                    .getDatasourceCreatePermission()
+                    .flatMap(permission -> workspaceService.findById(datasourceStorage.getWorkspaceId(), permission))
+                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
+                    .then();
+        }
+
+        Mono<Boolean> isEndpointBlockedMono = datasourceTestAuthorization.then(
+                Mono.defer(() -> this.isEndpointBlockedForConnectionRequest(datasourceStorage)));
+        return isEndpointBlockedMono.flatMap(isBlocked -> {
             if (!isBlocked) {
-                final Mono<DatasourceStorage> datasourceStorageMono;
+                final Mono<DatasourceTestContext> datasourceStorageMono;
 
                 // Ideally there should also be a check for missing environmentId,
                 // however since we are falling back to default this step is not required here.
 
                 // Cases where the datasource hasn't been saved yet
                 if (!hasText(datasourceStorage.getDatasourceId())) {
-
-                    if (!hasText(datasourceStorage.getWorkspaceId())) {
-                        return Mono.error(
-                                new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
-                    }
-
                     datasourceStorageMono = getTrueEnvironmentId(
                                     datasourceStorage.getWorkspaceId(),
                                     datasourceStorage.getEnvironmentId(),
@@ -550,17 +563,17 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                     null)
                             .map(trueEnvironmentId -> {
                                 datasourceStorage.setEnvironmentId(trueEnvironmentId);
-                                return datasourceStorage;
+                                return new DatasourceTestContext(datasourceStorage, null);
                             });
                 } else {
 
                     datasourceStorageMono = findById(
-                                    datasourceStorage.getDatasourceId(), datasourcePermission.getExecutePermission())
+                                    datasourceStorage.getDatasourceId(), datasourcePermission.getReadPermission())
                             .zipWhen(dbDatasource -> getTrueEnvironmentId(
                                     dbDatasource.getWorkspaceId(),
                                     datasourceStorage.getEnvironmentId(),
                                     dbDatasource.getPluginId(),
-                                    null))
+                                    environmentPermission.getExecutePermission()))
                             .flatMap(tuple2 -> {
                                 Datasource datasource = tuple2.getT1();
                                 String trueEnvironmentId = tuple2.getT2();
@@ -572,36 +585,39 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                             .flatMap(tuple2 -> {
                                 Datasource datasource = tuple2.getT1();
                                 DatasourceStorage datasourceStorage1 = tuple2.getT2();
-                                DatasourceConfiguration datasourceConfiguration =
-                                        datasourceStorage1.getDatasourceConfiguration();
-                                if (datasourceConfiguration == null
-                                        || datasourceConfiguration.getAuthentication() == null) {
-                                    return Mono.just(datasourceStorage);
-                                }
-
                                 String trueEnvironmentId = datasourceStorage1.getEnvironmentId();
-                                // Fetch any fields that maybe encrypted from the db if the datasource being tested does
+                                // Fetch any fields that maybe encrypted from the db if the datasource being
+                                // tested does
                                 // not have those fields set.
-                                // This scenario would happen whenever an existing datasource is being tested and no
-                                // changes are present in the encrypted field, because encrypted fields are not sent
+                                // This scenario would happen whenever an existing datasource is being tested
+                                // and no
+                                // changes are present in the encrypted field, because encrypted fields are not
+                                // sent
                                 // over the network after encryption back to the client
 
                                 if (!hasText(datasourceStorage.getId())) {
-                                    return Mono.just(datasourceStorage);
+                                    return Mono.just(new DatasourceTestContext(datasourceStorage, null));
                                 }
 
                                 return datasourceStorageService
                                         .findByDatasourceAndEnvironmentIdForExecution(datasource, trueEnvironmentId)
-                                        .map(dbDatasourceStorage -> {
-                                            copyNestedNonNullProperties(datasourceStorage, dbDatasourceStorage);
-                                            return dbDatasourceStorage;
-                                        })
-                                        .switchIfEmpty(Mono.just(datasourceStorage));
+                                        .map(dbDatasourceStorage -> datasourceStorageService.bindStoredCredentials(
+                                                datasourceStorage1, dbDatasourceStorage))
+                                        .map(bindingResult -> new DatasourceTestContext(
+                                                bindingResult.datasourceStorage(), bindingResult))
+                                        .switchIfEmpty(Mono.just(new DatasourceTestContext(datasourceStorage, null)))
+                                        .onErrorResume(
+                                                DatasourceCredentialsRequiredException.class,
+                                                error -> sendCredentialsRequiredTestEvent(datasourceStorage1, error)
+                                                        .then(Mono.error(error)));
                             })
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
                 }
                 return datasourceStorageMono
-                        .flatMap(datasourceStorageService::checkEnvironment)
+                        .flatMap(context -> datasourceStorageService
+                                .checkEnvironment(context.datasourceStorage())
+                                .map(checkedStorage ->
+                                        new DatasourceTestContext(checkedStorage, context.credentialBindingResult())))
                         .flatMap(this::verifyDatasourceAndTest);
             } else {
                 return Mono.just(new DatasourceTestResult(TOO_MANY_REQUESTS_EXCEPTION.getMessage()));
@@ -609,7 +625,30 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         });
     }
 
-    protected Mono<DatasourceTestResult> verifyDatasourceAndTest(DatasourceStorage datasourceStorage) {
+    private Mono<Void> sendCredentialsRequiredTestEvent(
+            DatasourceStorage datasourceStorage, DatasourceCredentialsRequiredException error) {
+        return datasourceStorageService
+                .getEnvironmentNameFromEnvironmentIdForAnalytics(datasourceStorage.getEnvironmentId())
+                .flatMap(environmentName -> {
+                    Map<String, Object> analyticsProperties =
+                            getAnalyticsPropertiesForTestEventStatus(datasourceStorage, false, error, environmentName);
+                    analyticsProperties.put(FieldName.CONNECTION_CONFIGURATION_CHANGED, true);
+                    analyticsProperties.put(
+                            FieldName.CREDENTIAL_SOURCE,
+                            DatasourceCredentialBindingResult.CredentialSource.REQUEST.getAnalyticsValue());
+                    analyticsProperties.put(
+                            FieldName.CHANGED_CONNECTION_SETTING_GROUPS, error.getChangedConnectionSettingGroups());
+                    analyticsProperties.put(
+                            FieldName.CONNECTION_TEST_RESULT, FieldName.CONNECTION_TEST_RESULT_CREDENTIALS_REQUIRED);
+                    return analyticsService
+                            .sendObjectEvent(
+                                    AnalyticsEvents.DS_TEST_EVENT_FAILED, datasourceStorage, analyticsProperties)
+                            .then();
+                });
+    }
+
+    protected Mono<DatasourceTestResult> verifyDatasourceAndTest(DatasourceTestContext context) {
+        DatasourceStorage datasourceStorage = context.datasourceStorage();
         return Mono.justOrEmpty(datasourceStorage)
                 .flatMap(datasourceStorageService::validateDatasourceConfiguration)
                 .zipWith(datasourceStorageService.getEnvironmentNameFromEnvironmentIdForAnalytics(
@@ -654,23 +693,34 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                                 return Mono.just(datasourceTestResult);
                                             })
                                             .flatMap(datasourceTestResult1 -> {
+                                                Map<String, Object> analyticsProperties =
+                                                        getAnalyticsPropertiesForTestEventStatus(
+                                                                datasourceStorage,
+                                                                datasourceTestResult1,
+                                                                environmentName);
+                                                addCredentialBindingProperties(
+                                                        analyticsProperties,
+                                                        context.credentialBindingResult(),
+                                                        FieldName.CONNECTION_TEST_RESULT_FAILED);
                                                 return analyticsService
                                                         .sendObjectEvent(
                                                                 AnalyticsEvents.DS_TEST_EVENT_FAILED,
                                                                 datasourceStorage,
-                                                                getAnalyticsPropertiesForTestEventStatus(
-                                                                        datasourceStorage,
-                                                                        datasourceTestResult1,
-                                                                        environmentName))
+                                                                analyticsProperties)
                                                         .thenReturn(datasourceTestResult1);
                                             });
                                 } else {
+                                    Map<String, Object> analyticsProperties = getAnalyticsPropertiesForTestEventStatus(
+                                            datasourceStorage, datasourceTestResult, environmentName);
+                                    addCredentialBindingProperties(
+                                            analyticsProperties,
+                                            context.credentialBindingResult(),
+                                            FieldName.CONNECTION_TEST_RESULT_SUCCEEDED);
                                     return analyticsService
                                             .sendObjectEvent(
                                                     AnalyticsEvents.DS_TEST_EVENT_SUCCESS,
                                                     datasourceStorage,
-                                                    getAnalyticsPropertiesForTestEventStatus(
-                                                            datasourceStorage, datasourceTestResult, environmentName))
+                                                    analyticsProperties)
                                             .thenReturn(datasourceTestResult);
                                 }
                             })
@@ -679,6 +729,22 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                 return datasourceTestResult;
                             });
                 });
+    }
+
+    private void addCredentialBindingProperties(
+            Map<String, Object> analyticsProperties,
+            DatasourceCredentialBindingResult bindingResult,
+            String connectionTestResult) {
+        analyticsProperties.put(FieldName.CONNECTION_TEST_RESULT, connectionTestResult);
+        if (bindingResult != null) {
+            analyticsProperties.put(
+                    FieldName.CONNECTION_CONFIGURATION_CHANGED, bindingResult.connectionConfigurationChanged());
+            analyticsProperties.put(
+                    FieldName.CREDENTIAL_SOURCE,
+                    bindingResult.credentialSource().getAnalyticsValue());
+            analyticsProperties.put(
+                    FieldName.CHANGED_CONNECTION_SETTING_GROUPS, bindingResult.changedConnectionSettingGroups());
+        }
     }
 
     protected Mono<DatasourceTestResult> testDatasourceViaPlugin(DatasourceStorage datasourceStorage) {

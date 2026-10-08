@@ -161,6 +161,13 @@ public class FieldNameCE {
 
     // this key will present in the analytics as a diff b/w server and user invoked flows
     public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY = "isDatasourceUpdateUserInvoked";
+    public static final String CONNECTION_CONFIGURATION_CHANGED = "connectionConfigurationChanged";
+    public static final String CREDENTIAL_SOURCE = "credentialSource";
+    public static final String CHANGED_CONNECTION_SETTING_GROUPS = "changedConnectionSettingGroups";
+    public static final String CONNECTION_TEST_RESULT = "connectionTestResult";
+    public static final String CONNECTION_TEST_RESULT_SUCCEEDED = "succeeded";
+    public static final String CONNECTION_TEST_RESULT_FAILED = "failed";
+    public static final String CONNECTION_TEST_RESULT_CREDENTIALS_REQUIRED = "credentials_required";
     public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
     /**
      * The internal marker the loopback MCP Node service stamps on every /api/v1 request it makes on behalf of an

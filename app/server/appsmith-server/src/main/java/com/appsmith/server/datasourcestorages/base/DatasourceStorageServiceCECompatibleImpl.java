@@ -7,6 +7,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,7 +21,8 @@ public class DatasourceStorageServiceCECompatibleImpl extends DatasourceStorageS
             PluginExecutorHelper pluginExecutorHelper,
             AnalyticsService analyticsService,
             ConfigService configService,
-            OrganizationService organizationService) {
+            OrganizationService organizationService,
+            ObjectMapper objectMapper) {
         super(
                 repository,
                 datasourcePermission,
@@ -28,6 +30,7 @@ public class DatasourceStorageServiceCECompatibleImpl extends DatasourceStorageS
                 pluginExecutorHelper,
                 analyticsService,
                 configService,
-                organizationService);
+                organizationService,
+                objectMapper);
     }
 }
