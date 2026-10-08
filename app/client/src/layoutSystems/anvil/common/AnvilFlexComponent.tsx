@@ -16,7 +16,6 @@ import { noop } from "utils/AppsmithUtils";
 import { convertFlexGrowToFlexBasis } from "../sectionSpaceDistributor/utils/spaceDistributionEditorUtils";
 import styles from "./styles.module.css";
 import { AnvilDataAttributes, anvilWidgets } from "widgets/wds/constants";
-import type { SizeConfig } from "WidgetProvider/types";
 
 const anvilWidgetStyleProps: CSSProperties = {
   position: "relative",
@@ -42,7 +41,7 @@ export function getAnvilFlexProps({
   flexGrow?: number;
   isFillWidget: boolean;
   verticalAlignment: FlexVerticalAlignment;
-  widgetSize?: SizeConfig;
+  widgetSize?: AnvilFlexComponentProps["widgetSize"];
   widgetType: string;
 }): FlexProps {
   let flexBasis = "auto";
