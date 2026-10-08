@@ -15,6 +15,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.external.plugins.exceptions.MongoPluginError;
 import com.external.plugins.exceptions.MongoPluginErrorMessages;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoSecurityException;
 import com.mongodb.reactivestreams.client.ListCollectionNamesPublisher;
@@ -544,6 +545,44 @@ public class MongoPluginErrorsTest {
                 .flatMap(conn -> pluginExecutor.executeParameterized(
                         conn, new ExecuteActionDTO(), dsConfig, actionConfiguration))
                 .block();
+    }
+
+    /**
+     * Test that updating an immutable field (_id) returns writeErrors in the response body (Issue #7479).
+     */
+    @Test
+    public void testUpdateImmutableFieldReturnsWriteErrors() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(
+                configMap,
+                BODY,
+                "{\"update\": \"users\", \"updates\": [{\"q\": {\"name\": \"Jack\"}, \"u\": {\"$set\": {\"_id\": \"new_id\"}}}]}");
+        actionConfiguration.setFormData(configMap);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn ->
+                pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    ObjectNode body = (ObjectNode) result.getBody();
+                    assertEquals(0, body.get("nModified").asInt());
+                    assertTrue(body.has("writeErrors"));
+                    ArrayNode writeErrors = (ArrayNode) body.get("writeErrors");
+                    assertTrue(writeErrors.size() > 0);
+                    assertEquals(66, writeErrors.get(0).get("code").asInt());
+                    assertTrue(writeErrors.get(0).get("errmsg").asText().contains("immutable"));
+                })
+                .verifyComplete();
     }
 
     @Test
