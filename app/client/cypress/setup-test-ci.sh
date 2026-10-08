@@ -25,20 +25,27 @@ print_appsmith_exit_logs() {
 }
 
 stacks_dir=$(docker inspect --format '{{range .Mounts}}{{if eq .Destination "/appsmith-stacks"}}{{.Source}}{{end}}{{end}}' appsmith 2>/dev/null)
+appsmith_restarted=0
 
 # The appsmith container's first boot initializes the embedded MongoDB with two mongod
 # forks, and the second fork occasionally exits 1, which takes the container down before
 # any spec runs. Restart it once from an empty data directory. The entrypoint skips the
 # first-boot init (user, replica set) whenever data files exist, so restarting on the
-# half-initialized directory would never become ready.
-if [ "$(appsmith_status)" = "exited" ]; then
-  print_appsmith_exit_logs "during startup"
-  if [ -n "$stacks_dir" ]; then
-    echo "Removing $stacks_dir/data/mongodb and restarting the appsmith container once"
-    sudo rm -rf "$stacks_dir/data/mongodb"
-    docker start appsmith
-    sleep 10
+# half-initialized directory would never become ready. Prints the exit logs on every call
+# and returns 1 when the single restart is already used or the stacks directory is unknown.
+restart_appsmith_once() {
+  print_appsmith_exit_logs "$1"
+  if [ "$appsmith_restarted" -ne 0 ] || [ -z "$stacks_dir" ]; then
+    return 1
   fi
+  appsmith_restarted=1
+  echo "Removing $stacks_dir/data/mongodb and restarting the appsmith container once"
+  sudo rm -rf "$stacks_dir/data/mongodb"
+  docker start appsmith
+}
+
+if [ "$(appsmith_status)" = "exited" ]; then
+  restart_appsmith_once "during startup" || true
 fi
 
 echo "Checking if the containers have started"
@@ -72,7 +79,9 @@ while :; do
     break
   fi
   if [ "$(appsmith_status)" = "exited" ]; then
-    break
+    restart_appsmith_once "during the readiness wait" || break
+    deadline=$(( $(date +%s) + timeout_seconds ))
+    echo "Waiting up to ${timeout_seconds}s for the restarted container"
   fi
   if [ "$(date +%s)" -ge "$deadline" ]; then
     break
@@ -87,7 +96,7 @@ ps -ef | grep serve 2>&1
 
 if [ "$status_code" -ne 200 ]; then
   if [ "$(appsmith_status)" = "exited" ]; then
-    print_appsmith_exit_logs "during the readiness wait" >&2
+    echo "The appsmith container is exited; its logs are above." >&2
   else
     echo "Server did not become ready within ${timeout_seconds}s (last status: $status_code)" >&2
     docker logs appsmith
