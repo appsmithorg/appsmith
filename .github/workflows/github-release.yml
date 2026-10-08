@@ -128,9 +128,15 @@ jobs:
 
       - name: Test and Build package
         working-directory: app/server
+        env:
+          RELEASE_TAG: "${{ needs.prelude.outputs.tag }}"
         run: |
+          # Maven and vulnerability scanners compare versions numerically, so the
+          # jars carry the tag without its leading v: tag v2.4.3 stamps 2.4.3.
+          version="${RELEASE_TAG#v}"
+          echo "Stamping Maven version $version"
           mvn --batch-mode versions:set \
-            -DnewVersion=${{ needs.prelude.outputs.tag }} \
+            -DnewVersion="$version" \
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
           ./build.sh -DskipTests
