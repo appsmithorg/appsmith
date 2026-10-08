@@ -366,6 +366,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
+        // The path parameter selects the datasource and request data cannot retarget the persisted document.
+        datasource.setId(id);
         // Since policies are a server only concept, first set the empty set (set by constructor) to null
         datasource.setPolicies(null);
         // this is important to avoid polluting the collection with configuration when we are saving the datasource
