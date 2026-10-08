@@ -16,10 +16,7 @@ describe(
       });
       cy.get(adminsSettings.subTextLink)
         .should("have.attr", "target", "_blank")
-        .invoke("removeAttr", "target")
-        .click()
-        .wait(3000); //for page to load fully;
-      cy.url().should("contain", GOOGLE_MAPS_SETUP_DOC);
+        .and("have.attr", "href", GOOGLE_MAPS_SETUP_DOC);
     });
 
     it(
