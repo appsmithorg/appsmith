@@ -4,6 +4,8 @@ import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import type { EventName } from "ee/utils/analyticsUtilTypes";
 import type { EventProperties } from "@segment/analytics-next";
+import type { APP_MODE } from "entities/App";
+import { shouldTrackEvent } from "ee/utils/Analytics/analyticsPolicy";
 
 import SegmentSingleton from "utils/Analytics/segment";
 import MixpanelSingleton, {
@@ -26,12 +28,25 @@ export enum AnalyticsEventType {
 
 let blockErrorLogs = false;
 let segmentAnalytics: SegmentSingleton | null = null;
+let currentUser: User | undefined;
+let currentAppMode: APP_MODE | undefined;
+// Segment is identified lazily, on the first event the policy lets through, so viewers are never identified.
+let isSegmentReady = false;
+let isSegmentIdentifyNeeded = false;
+let isSegmentIdentified = false;
+let segmentIdentifyGeneration = 0;
+
+function isAnonymousUser(user?: User) {
+  return !user || user.isAnonymous || user.username === ANONYMOUS_USERNAME;
+}
 
 async function initialize(
   user: User,
   sessionRecordingConfig: SessionRecordingConfig,
   shouldTrackUser: boolean,
 ) {
+  currentUser = user;
+
   // SentryUtil.init();
   await SmartlookUtil.init();
 
@@ -42,8 +57,39 @@ async function initialize(
   // Mixpanel needs to be initialized after Segment
   await MixpanelSingleton.getInstance().init(sessionRecordingConfig);
 
-  // Identify the user after all services are initialized
-  await identifyUser(user);
+  if (!isAnonymousUser(user)) {
+    identifyUserOutsideSegment(user);
+  }
+
+  isSegmentReady = true;
+
+  if (isSegmentIdentifyNeeded) {
+    identifySegmentUserOnce();
+  }
+}
+
+function setAppMode(appMode: APP_MODE) {
+  currentAppMode = appMode;
+}
+
+function identifySegmentUserOnce() {
+  isSegmentIdentifyNeeded = true;
+
+  if (!isSegmentReady || isSegmentIdentified || !currentUser) {
+    return;
+  }
+
+  isSegmentIdentified = true;
+  const generation = segmentIdentifyGeneration;
+
+  identifyUserInSegment(currentUser).catch((error) => {
+    log.error("Failed to identify user in Segment", error);
+
+    // Let the next allowed event retry, unless reset() has since started a new session.
+    if (generation === segmentIdentifyGeneration) {
+      isSegmentIdentified = false;
+    }
+  });
 }
 
 function logEvent(
@@ -55,28 +101,50 @@ function logEvent(
     return;
   }
 
+  if (
+    !shouldTrackEvent(eventName, currentAppMode, isAnonymousUser(currentUser))
+  ) {
+    return;
+  }
+
   const finalEventData = {
     ...eventData,
     ...getEventExtraProperties(),
   };
 
   if (segmentAnalytics) {
+    identifySegmentUserOnce();
     segmentAnalytics.track(eventName, finalEventData);
   }
 }
 
 async function identifyUser(userData: User, sendAdditionalData?: boolean) {
-  const { appVersion } = getAppsmithConfigs();
-
   // we don't want to identify anonymous users (anonymous users are not logged-in users)
-  if (userData.isAnonymous || userData.username === ANONYMOUS_USERNAME) {
+  if (isAnonymousUser(userData)) {
     return;
   }
 
-  // Initialize the TrackedUser singleton
-  const trackedUserInstance = TrackedUser.init(userData);
+  await identifyUserInSegment(userData, sendAdditionalData);
+  identifyUserOutsideSegment(userData);
+}
 
-  const trackedUser = trackedUserInstance.getUser();
+function identifyUserOutsideSegment(userData: User) {
+  const trackedUser = TrackedUser.init(userData).getUser();
+
+  appsmithTelemetry.identifyUser(trackedUser.userId, userData);
+
+  if (trackedUser.email) {
+    SmartlookUtil.identify(trackedUser.userId, trackedUser.email);
+  }
+}
+
+async function identifyUserInSegment(
+  userData: User,
+  sendAdditionalData?: boolean,
+) {
+  const { appVersion } = getAppsmithConfigs();
+  // Initialize the TrackedUser singleton
+  const trackedUser = TrackedUser.init(userData).getUser();
   const instanceId = getInstanceId();
 
   const additionalData = {
@@ -93,12 +161,6 @@ async function identifyUser(userData: User, sendAdditionalData?: boolean) {
 
     log.debug("Identify User " + trackedUser.userId);
     await segmentAnalytics.identify(trackedUser.userId, userProperties);
-  }
-
-  appsmithTelemetry.identifyUser(trackedUser.userId, userData);
-
-  if (trackedUser.email) {
-    SmartlookUtil.identify(trackedUser.userId, trackedUser.email);
   }
 }
 
@@ -131,6 +193,11 @@ function reset() {
 
   windowDoc.pylon = undefined;
 
+  segmentIdentifyGeneration += 1;
+  currentUser = undefined;
+  isSegmentIdentifyNeeded = false;
+  isSegmentIdentified = false;
+
   segmentAnalytics && segmentAnalytics.reset();
 }
 
@@ -151,4 +218,5 @@ export {
   getEventExtraProperties,
   initLicense,
   avoidTracking,
+  setAppMode,
 };

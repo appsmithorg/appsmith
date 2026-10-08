@@ -2,7 +2,6 @@ import get from "lodash/get";
 import {
   all,
   call,
-  delay,
   fork,
   put,
   race,
@@ -60,11 +59,7 @@ import {
 } from "ee/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "../entities/App";
 import { GIT_BRANCH_QUERY_KEY } from "../constants/routes";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import {
-  getAppMode,
-  getFavoriteApplicationIds,
-} from "ee/selectors/applicationSelectors";
+import { getFavoriteApplicationIds } from "ee/selectors/applicationSelectors";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { deleteErrorLog } from "actions/debuggerActions";
 import { getCurrentUser } from "actions/authActions";
@@ -181,41 +176,6 @@ export function* waitForWidgetConfigBuild() {
 
   if (!isBuilt) {
     yield take(ReduxActionTypes.WIDGET_INIT_SUCCESS);
-  }
-}
-
-export function* reportSWStatus() {
-  const mode: APP_MODE = yield select(getAppMode);
-  const startTime = Date.now();
-
-  if ("serviceWorker" in navigator) {
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result: { success: any; failed: any } = yield race({
-      success: navigator.serviceWorker.ready.then((reg) => ({
-        reg,
-        timeTaken: Date.now() - startTime,
-      })),
-      failed: delay(20000),
-    });
-
-    if (result.success) {
-      AnalyticsUtil.logEvent("SW_REGISTRATION_SUCCESS", {
-        message: "Service worker is active",
-        mode,
-        timeTaken: result.success.timeTaken,
-      });
-    } else {
-      AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
-        message: "Service worker is not active in 20s",
-        mode,
-      });
-    }
-  } else {
-    AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
-      message: "Service worker is not supported",
-      mode,
-    });
   }
 }
 

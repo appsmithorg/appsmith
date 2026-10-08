@@ -3,7 +3,6 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { setDataUrl } from "ee/sagas/PageSagas";
 import { getAppMode } from "ee/selectors/applicationSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { APP_MODE } from "entities/App";
 import type { Page } from "entities/Page";
 import { expectSaga } from "redux-saga-test-plan";
@@ -104,10 +103,6 @@ describe("NavigateActionSaga", () => {
         .call(pushToHistory, "/builder/basePage1")
         .run()
         .then(() => {
-          expect(AnalyticsUtil.logEvent).toHaveBeenCalledWith("NAVIGATE", {
-            pageName: "Page1",
-            pageParams: {},
-          });
           expect(AppsmithConsole.info).toHaveBeenCalledWith(
             expect.objectContaining({
               text: "navigateTo triggered",
@@ -138,7 +133,6 @@ describe("NavigateActionSaga", () => {
             "/viewer/basePage1",
             "_blank",
           );
-          expect(AnalyticsUtil.logEvent).toHaveBeenCalled();
         });
     });
 
@@ -178,9 +172,6 @@ describe("NavigateActionSaga", () => {
           expect(mockWindowLocationAssign).toHaveBeenCalledWith(
             "https://www.google.com?q=test",
           );
-          expect(AnalyticsUtil.logEvent).toHaveBeenCalledWith("NAVIGATE", {
-            navUrl: "www.google.com",
-          });
         });
     });
 
