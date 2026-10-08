@@ -6,8 +6,9 @@ Knowledge base for the supported, versioned platform API described in the Notion
 | Document | Use it for |
 |---|---|
 | [conventions.md](conventions.md) | The contract every public endpoint follows: base path, versioning, errors, pagination, rate limits, idempotency, side effects, long-running operations, organization and branch addressing, authentication and audit. Adopted in Phase 0 (APP-16030). |
+| [identity.md](identity.md) | Who may call the public API and how: the edition boundary, principals (users and service accounts), credential types (`apt_`, `ast_`, the existing MCP, API-key, Git, workflow and SCIM credentials), grants and the scope to `AclPermission` mapping, organization routing, lifecycle, enforcement, audit, migration of existing credentials, OIDC workload federation and the OAuth decision. Phase 1 design (APP-16047). |
 
-Later phases add their own documents here (identity, releases, hosted logic) without changing the
+Later phases add their own documents here (releases, hosted logic) without changing the
 conventions except through a reviewed PR to that file.
 
 ## The OpenAPI document
