@@ -121,6 +121,9 @@ class DynamoPluginLocalCharacterizationTest {
                 CharacterizationGolden.normalize(
                         result.getInvalids().stream()
                                 .map(invalid -> invalid.replace(String.valueOf(closedPort), "<port>"))
+                                // The JDK on Linux appends the OS error detail; macOS does not.
+                                .map(invalid ->
+                                        invalid.replace("Connection refused (connect failed)", "Connection refused"))
                                 .sorted()
                                 .toList(),
                         false));
