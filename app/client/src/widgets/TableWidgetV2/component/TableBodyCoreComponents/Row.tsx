@@ -86,6 +86,67 @@ export function Row(props: RowType) {
     isAddRowInProgress && props.index === 0 && "new-row",
   );
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Tab") {
+      const cellEl = (e.target as HTMLElement).closest<HTMLElement>(
+        "[data-colindex]",
+      );
+
+      if (!cellEl) return;
+
+      const currentColIndex = parseInt(cellEl.dataset.colindex || "-1", 10);
+
+      if (currentColIndex === -1) return;
+
+      const visibleColumnIndices = columns
+        .map((col, idx) => (col.isHidden ? -1 : idx))
+        .filter((idx) => idx !== -1);
+
+      if (visibleColumnIndices.length === 0) return;
+
+      if (e.shiftKey) {
+        const prevVisibleIndices = visibleColumnIndices.filter(
+          (idx) => idx < currentColIndex,
+        );
+
+        if (prevVisibleIndices.length > 0) {
+          const prevIndex = prevVisibleIndices[prevVisibleIndices.length - 1];
+          const targetCell = rowRef.current?.querySelector<HTMLElement>(
+            `[data-colindex="${prevIndex}"]`,
+          );
+
+          if (targetCell) {
+            targetCell.focus();
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }
+        // If no previous visible column exists (at first column), do not prevent default / trap focus
+      } else {
+        // Tab (Forward)
+        const nextVisibleIndices = visibleColumnIndices.filter(
+          (idx) => idx > currentColIndex,
+        );
+
+        if (nextVisibleIndices.length > 0) {
+          const nextIndex = nextVisibleIndices[0];
+          const targetCell = rowRef.current?.querySelector<HTMLElement>(
+            `[data-colindex="${nextIndex}"]`,
+          );
+
+          if (targetCell) {
+            targetCell.focus();
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }
+        // If no next visible column exists (at last column), do not prevent default / trap focus
+      }
+    }
+  };
+
+  const firstVisibleColIndex = columns.findIndex((col) => !col.isHidden);
+
   return (
     <div
       {...rowProps}
@@ -97,6 +158,7 @@ export function Row(props: RowType) {
         selectTableRow?.(props.row);
         e.stopPropagation();
       }}
+      onKeyDown={isRowSelected ? handleKeyDown : undefined}
     >
       {multiRowSelection &&
         renderBodyCheckBoxCell(isRowSelected, accentColor, borderRadius)}
@@ -110,6 +172,9 @@ export function Row(props: RowType) {
               ? cell.column.totalLeft + MULTISELECT_CHECKBOX_WIDTH
               : cellProperties?.style?.left,
         };
+
+        const isInitialFocusCell =
+          isRowSelected && cellIndex === firstVisibleColIndex;
 
         return (
           <div
@@ -128,6 +193,7 @@ export function Row(props: RowType) {
             data-colindex={cellIndex}
             data-rowindex={props.index}
             key={cellIndex}
+            tabIndex={isInitialFocusCell ? 0 : -1}
           >
             {cell.render("Cell")}
           </div>
