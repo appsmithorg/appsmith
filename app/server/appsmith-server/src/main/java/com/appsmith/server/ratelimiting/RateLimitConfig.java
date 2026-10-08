@@ -85,13 +85,28 @@ public class RateLimitConfig {
     }
 
     public BucketProxy getOrCreateAPIUserSpecificBucket(String apiIdentifier, String userId) {
-        String bucketIdentifier = apiIdentifier + userId;
+        String bucketIdentifier = getBucketIdentifier(apiIdentifier, userId);
         Optional<BucketConfiguration> bucketProxy = proxyManager().getProxyConfiguration(bucketIdentifier.getBytes());
         if (bucketProxy.isPresent()) {
             return proxyManager().builder().build(bucketIdentifier.getBytes(), bucketProxy.get());
         }
 
         return proxyManager().builder().build(bucketIdentifier.getBytes(), apiConfigurationMap.get(apiIdentifier));
+    }
+
+    private static String getBucketIdentifier(String apiIdentifier, String userId) {
+        String canonicalUserId = RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API.equals(apiIdentifier)
+                ? canonicalizeLoginIdentity(userId)
+                : userId;
+        return apiIdentifier + canonicalUserId;
+    }
+
+    private static String canonicalizeLoginIdentity(String userId) {
+        StringBuilder canonicalUserId = new StringBuilder(userId.length());
+        userId.codePoints()
+                .map(codePoint -> Character.toLowerCase(Character.toUpperCase(codePoint)))
+                .forEachOrdered(canonicalUserId::appendCodePoint);
+        return canonicalUserId.toString();
     }
 
     private static BucketConfiguration createBucketConfiguration(Duration refillDuration, int limit) {
