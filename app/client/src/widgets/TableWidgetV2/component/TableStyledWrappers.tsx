@@ -26,10 +26,13 @@ import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
 import type { RowColorStyles, TableVariant } from "../constants";
 import { TableVariantTypes } from "../constants";
+import { resolveHeaderFontWeight } from "./headerFontWeight";
+import { getHeaderEmphasis } from "./headerFontStyle";
 import { Layers } from "constants/Layers";
 
 const BORDER_RADIUS = "border-radius: 4px;";
 const HEADER_CONTROL_FONT_SIZE = "12px";
+const HEADER_WRAP_LINE_HEIGHT = 20;
 
 export const TableWrapper = styled.div<
   RowColorStyles & {
@@ -205,7 +208,8 @@ export const TableWrapper = styled.div<
       line-height: ${(props) =>
         props.isHeaderVisible ? props.tableSizes.COLUMN_HEADER_HEIGHT : 40}px;
       background: ${(props) => props.headerRowColor || "var(--wds-color-bg)"};
-      font-weight: bold;
+      font-weight: ${(props) =>
+        resolveHeaderFontWeight(props.headerFontWeight)};
     }
     .td {
       min-height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
@@ -289,6 +293,22 @@ export const TableWrapper = styled.div<
     text-overflow: ellipsis;
     overflow: hidden;
     color: ${(props) => props.headerTextColor || Colors.OXFORD_BLUE};
+    font-style: ${(props) =>
+      getHeaderEmphasis(props.headerFontStyle).italic ? "italic" : "normal"};
+    text-decoration: ${(props) =>
+      getHeaderEmphasis(props.headerFontStyle).underline
+        ? "underline"
+        : "none"};
+    /* Italic glyphs lean past the overflow box and clip the last letter. */
+    ${(props) =>
+      getHeaderEmphasis(props.headerFontStyle).italic
+        ? css`
+            .header-title,
+            .header-title span {
+              padding-inline-end: 0.2em;
+            }
+          `
+        : ""}
     padding-left: 10px;
     &.sorted {
       padding-left: 5px;
@@ -337,6 +357,50 @@ export const TableWrapper = styled.div<
     cursor: pointer;
     height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
     line-height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
+  }
+  .tr.header[data-header-wrap="true"] {
+    .th {
+      align-items: center;
+      height: auto;
+      line-height: ${HEADER_WRAP_LINE_HEIGHT}px;
+      min-height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
+    }
+
+    .draggable-header,
+    .hidden-header {
+      align-items: center;
+      align-self: stretch;
+      display: flex;
+      flex: 1 1 auto;
+      height: auto;
+      min-height: min-content;
+      min-width: 0;
+      overflow: hidden;
+      width: auto;
+    }
+
+    .header-sort-icon {
+      align-self: center;
+      flex-shrink: 0;
+    }
+
+    /*
+     * The arrow is display:none until .header-menu is hovered. align-items:center
+     * on .th would shrink that box to 0 height, so the hover target must stretch
+     * to the full header the way it does in a single-line row. The popover target
+     * fills that strip so the menu opens anywhere along it, with the arrow centered.
+     */
+    .header-menu {
+      align-self: stretch;
+      flex-shrink: 0;
+
+      &.hide:hover .bp3-popover2-target {
+        align-items: center;
+        display: flex;
+        height: 100%;
+        justify-content: center;
+      }
+    }
   }
   .th {
     display: flex !important;

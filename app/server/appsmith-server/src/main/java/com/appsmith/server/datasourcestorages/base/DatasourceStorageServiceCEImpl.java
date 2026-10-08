@@ -1,6 +1,10 @@
 package com.appsmith.server.datasourcestorages.base;
 
+import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.models.AppsmithDomain;
+import com.appsmith.external.models.AuthenticationDTO;
+import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
@@ -9,6 +13,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -20,16 +25,26 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
@@ -48,6 +63,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     private final AnalyticsService analyticsService;
     private final ConfigService configService;
     private final OrganizationService organizationService;
+    private final ObjectMapper objectMapper;
 
     public DatasourceStorageServiceCEImpl(
             DatasourceStorageRepository repository,
@@ -56,7 +72,8 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
             PluginExecutorHelper pluginExecutorHelper,
             AnalyticsService analyticsService,
             ConfigService configService,
-            OrganizationService organizationService) {
+            OrganizationService organizationService,
+            ObjectMapper objectMapper) {
         this.repository = repository;
         this.datasourcePermission = datasourcePermission;
         this.pluginService = pluginService;
@@ -64,6 +81,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         this.analyticsService = analyticsService;
         this.configService = configService;
         this.organizationService = organizationService;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -154,6 +172,331 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     }
 
     @Override
+    public DatasourceStorage mergeStoredCredentialsIfConnectionUnchanged(
+            DatasourceStorage datasourceStorage, DatasourceStorage storedDatasourceStorage) {
+        return bindStoredCredentials(datasourceStorage, storedDatasourceStorage).datasourceStorage();
+    }
+
+    @Override
+    public DatasourceCredentialBindingResult bindStoredCredentials(
+            DatasourceStorage datasourceStorage, DatasourceStorage storedDatasourceStorage) {
+        if (!Objects.equals(datasourceStorage.getDatasourceId(), storedDatasourceStorage.getDatasourceId())
+                || !Objects.equals(datasourceStorage.getEnvironmentId(), storedDatasourceStorage.getEnvironmentId())
+                || (StringUtils.hasText(datasourceStorage.getId())
+                        && !Objects.equals(datasourceStorage.getId(), storedDatasourceStorage.getId()))) {
+            throw new AppsmithException(AppsmithError.DATASOURCE_CREDENTIALS_REQUIRED);
+        }
+
+        DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
+        DatasourceConfiguration storedDatasourceConfiguration = storedDatasourceStorage.getDatasourceConfiguration();
+        Set<String> changedConnectionSettingGroups =
+                getChangedConnectionSettingGroups(datasourceConfiguration, storedDatasourceConfiguration);
+        boolean connectionConfigurationChanged = !changedConnectionSettingGroups.isEmpty()
+                || !hasSamePublicConfiguration(datasourceConfiguration, storedDatasourceConfiguration);
+        boolean requestContainsCredentials = containsEncryptedValue(datasourceConfiguration);
+        boolean storedConfigurationContainsCredentials = containsEncryptedValue(storedDatasourceConfiguration);
+
+        if (!connectionConfigurationChanged) {
+            copyNestedNonNullProperties(datasourceStorage, storedDatasourceStorage);
+            DatasourceCredentialBindingResult.CredentialSource credentialSource =
+                    storedConfigurationContainsCredentials && !requestContainsCredentials
+                            ? DatasourceCredentialBindingResult.CredentialSource.STORED
+                            : DatasourceCredentialBindingResult.CredentialSource.REQUEST;
+            return new DatasourceCredentialBindingResult(
+                    storedDatasourceStorage, false, credentialSource, changedConnectionSettingGroups);
+        }
+
+        if (datasourceConfiguration != null
+                && datasourceConfiguration.getAuthentication() == null
+                && storedDatasourceConfiguration != null
+                && storedDatasourceConfiguration.getAuthentication() != null
+                && hasSamePublicConfigurationExcludingAuthentication(
+                        datasourceConfiguration, storedDatasourceConfiguration)) {
+            return new DatasourceCredentialBindingResult(
+                    replaceStoredConfigurationClearingAuthentication(datasourceStorage, storedDatasourceStorage),
+                    true,
+                    DatasourceCredentialBindingResult.CredentialSource.CLEARED,
+                    changedConnectionSettingGroups);
+        }
+
+        if (storedConfigurationContainsCredentials
+                && !requestContainsCredentials
+                && canClearStoredOAuthTokens(datasourceConfiguration, storedDatasourceConfiguration)) {
+            OAuth2 requestOAuth = (OAuth2) datasourceConfiguration.getAuthentication();
+            requestOAuth.setAuthenticationResponse(null);
+            requestOAuth.setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.NONE);
+            requestOAuth.setIsAuthorized(false);
+            return new DatasourceCredentialBindingResult(
+                    replaceStoredConfiguration(datasourceStorage, storedDatasourceStorage),
+                    true,
+                    DatasourceCredentialBindingResult.CredentialSource.CLEARED,
+                    changedConnectionSettingGroups);
+        }
+
+        if (requestOmitsEncryptedValueFromRetainedCredentialSlot(
+                datasourceConfiguration, storedDatasourceConfiguration)) {
+            throw new DatasourceCredentialsRequiredException(changedConnectionSettingGroups);
+        }
+
+        if (storedConfigurationContainsCredentials && !requestContainsCredentials) {
+            throw new DatasourceCredentialsRequiredException(changedConnectionSettingGroups);
+        }
+
+        return new DatasourceCredentialBindingResult(
+                replaceStoredConfiguration(datasourceStorage, storedDatasourceStorage),
+                true,
+                DatasourceCredentialBindingResult.CredentialSource.REQUEST,
+                changedConnectionSettingGroups);
+    }
+
+    private boolean requestOmitsEncryptedValueFromRetainedCredentialSlot(
+            DatasourceConfiguration datasourceConfiguration, DatasourceConfiguration storedDatasourceConfiguration) {
+        if (datasourceConfiguration == null || storedDatasourceConfiguration == null) {
+            return false;
+        }
+
+        Object requestSsl = datasourceConfiguration.getConnection() == null
+                ? null
+                : datasourceConfiguration.getConnection().getSsl();
+        Object storedSsl = storedDatasourceConfiguration.getConnection() == null
+                ? null
+                : storedDatasourceConfiguration.getConnection().getSsl();
+
+        return requestOmitsEncryptedValueFromRetainedStructure(
+                        datasourceConfiguration.getAuthentication(), storedDatasourceConfiguration.getAuthentication())
+                || requestOmitsEncryptedValueFromRetainedStructure(requestSsl, storedSsl)
+                || requestOmitsEncryptedValueFromRetainedStructure(
+                        datasourceConfiguration.getSshProxy(), storedDatasourceConfiguration.getSshProxy());
+    }
+
+    private boolean requestOmitsEncryptedValueFromRetainedStructure(Object request, Object stored) {
+        Set<Object> visited = Collections.newSetFromMap(new IdentityHashMap<>());
+        return requestOmitsEncryptedValueFromRetainedStructure(request, stored, visited);
+    }
+
+    private boolean requestOmitsEncryptedValueFromRetainedStructure(
+            Object request, Object stored, Set<Object> visited) {
+        if (request == null
+                || stored == null
+                || !request.getClass().equals(stored.getClass())
+                || !(stored instanceof AppsmithDomain)
+                || !visited.add(stored)) {
+            return false;
+        }
+
+        for (Class<?> type = stored.getClass(); type != null && type != Object.class; type = type.getSuperclass()) {
+            for (Field field : type.getDeclaredFields()) {
+                if (Modifier.isStatic(field.getModifiers()) || field.isSynthetic()) {
+                    continue;
+                }
+
+                try {
+                    field.setAccessible(true);
+                    Object storedValue = field.get(stored);
+                    Object requestValue = field.get(request);
+                    if (field.getAnnotation(Encrypted.class) != null) {
+                        if (hasEncryptedFieldValue(storedValue) && !hasEncryptedFieldValue(requestValue)) {
+                            return true;
+                        }
+                    } else if (storedValue instanceof AppsmithDomain
+                            && requestValue instanceof AppsmithDomain
+                            && requestOmitsEncryptedValueFromRetainedStructure(requestValue, storedValue, visited)) {
+                        return true;
+                    }
+                } catch (IllegalAccessException exception) {
+                    throw new AppsmithException(exception, AppsmithError.DATASOURCE_CREDENTIALS_REQUIRED);
+                } finally {
+                    field.setAccessible(false);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean canClearStoredOAuthTokens(
+            DatasourceConfiguration datasourceConfiguration, DatasourceConfiguration storedDatasourceConfiguration) {
+        if (datasourceConfiguration == null
+                || storedDatasourceConfiguration == null
+                || !(datasourceConfiguration.getAuthentication() instanceof OAuth2)
+                || !(storedDatasourceConfiguration.getAuthentication() instanceof OAuth2 storedOAuth)) {
+            return false;
+        }
+
+        AuthenticationResponse storedAuthenticationResponse = storedOAuth.getAuthenticationResponse();
+        return storedAuthenticationResponse != null
+                && containsEncryptedValue(storedAuthenticationResponse)
+                && !containsEncryptedValue(storedDatasourceConfiguration, storedAuthenticationResponse);
+    }
+
+    private DatasourceStorage replaceStoredConfiguration(
+            DatasourceStorage datasourceStorage, DatasourceStorage storedDatasourceStorage) {
+        storedDatasourceStorage.setDatasourceConfiguration(datasourceStorage.getDatasourceConfiguration());
+        if (datasourceStorage.getIsConfigured() != null) {
+            storedDatasourceStorage.setIsConfigured(datasourceStorage.getIsConfigured());
+        }
+        storedDatasourceStorage.setName(datasourceStorage.getName());
+        storedDatasourceStorage.setPluginId(datasourceStorage.getPluginId());
+        storedDatasourceStorage.setPluginName(datasourceStorage.getPluginName());
+        storedDatasourceStorage.setWorkspaceId(datasourceStorage.getWorkspaceId());
+        storedDatasourceStorage.setTemplateName(datasourceStorage.getTemplateName());
+        storedDatasourceStorage.setIsAutoGenerated(datasourceStorage.getIsAutoGenerated());
+        storedDatasourceStorage.setIsRecentlyCreated(datasourceStorage.getIsRecentlyCreated());
+        storedDatasourceStorage.setIsTemplate(datasourceStorage.getIsTemplate());
+        storedDatasourceStorage.setIsMock(datasourceStorage.getIsMock());
+        return storedDatasourceStorage;
+    }
+
+    private DatasourceStorage replaceStoredConfigurationClearingAuthentication(
+            DatasourceStorage datasourceStorage, DatasourceStorage storedDatasourceStorage) {
+        DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
+        DatasourceConfiguration storedDatasourceConfiguration = storedDatasourceStorage.getDatasourceConfiguration();
+        copyNestedNonNullProperties(datasourceConfiguration, storedDatasourceConfiguration);
+        storedDatasourceConfiguration.setAuthentication(null);
+        datasourceStorage.setDatasourceConfiguration(storedDatasourceConfiguration);
+        return replaceStoredConfiguration(datasourceStorage, storedDatasourceStorage);
+    }
+
+    private boolean hasSamePublicConfiguration(
+            DatasourceConfiguration datasourceConfiguration, DatasourceConfiguration storedDatasourceConfiguration) {
+        return Objects.equals(
+                getPublicConfiguration(datasourceConfiguration), getPublicConfiguration(storedDatasourceConfiguration));
+    }
+
+    private JsonNode getPublicConfiguration(DatasourceConfiguration datasourceConfiguration) {
+        try {
+            JsonNode publicConfiguration = objectMapper.readTree(
+                    objectMapper.writerWithView(Views.Public.class).writeValueAsString(datasourceConfiguration));
+            if (publicConfiguration instanceof ObjectNode publicConfigurationObject
+                    && publicConfigurationObject.get("authentication") instanceof ObjectNode authenticationObject) {
+                authenticationObject.remove("authenticationStatus");
+                authenticationObject.remove("isAuthorized");
+            }
+            return publicConfiguration;
+        } catch (JsonProcessingException exception) {
+            throw new AppsmithException(exception, AppsmithError.DATASOURCE_CREDENTIALS_REQUIRED);
+        }
+    }
+
+    private boolean hasSamePublicConfigurationExcludingAuthentication(
+            DatasourceConfiguration datasourceConfiguration, DatasourceConfiguration storedDatasourceConfiguration) {
+        JsonNode requestConfiguration = getPublicConfiguration(datasourceConfiguration);
+        JsonNode storedConfiguration = getPublicConfiguration(storedDatasourceConfiguration);
+        if (!(requestConfiguration instanceof ObjectNode requestObject)
+                || !(storedConfiguration instanceof ObjectNode storedObject)) {
+            return false;
+        }
+
+        requestObject.remove("authentication");
+        storedObject.remove("authentication");
+        return Objects.equals(requestObject, storedObject);
+    }
+
+    private Set<String> getChangedConnectionSettingGroups(
+            DatasourceConfiguration datasourceConfiguration, DatasourceConfiguration storedDatasourceConfiguration) {
+        JsonNode requestConfiguration = getPublicConfiguration(datasourceConfiguration);
+        JsonNode storedConfiguration = getPublicConfiguration(storedDatasourceConfiguration);
+        Set<String> changedGroups = new HashSet<>();
+
+        addChangedGroup(changedGroups, "endpoint", requestConfiguration, storedConfiguration, "endpoints", "url");
+        addChangedGroup(
+                changedGroups,
+                "transport",
+                requestConfiguration,
+                storedConfiguration,
+                "connection",
+                "sshProxy",
+                "sshProxyEnabled");
+        addChangedGroup(changedGroups, "authentication", requestConfiguration, storedConfiguration, "authentication");
+        addChangedGroup(
+                changedGroups,
+                "properties",
+                requestConfiguration,
+                storedConfiguration,
+                "properties",
+                "headers",
+                "queryParameters");
+
+        return changedGroups;
+    }
+
+    private void addChangedGroup(
+            Set<String> changedGroups,
+            String group,
+            JsonNode requestConfiguration,
+            JsonNode storedConfiguration,
+            String... fields) {
+        for (String field : fields) {
+            if (!Objects.equals(requestConfiguration.get(field), storedConfiguration.get(field))) {
+                changedGroups.add(group);
+                return;
+            }
+        }
+    }
+
+    private boolean containsEncryptedValue(Object source) {
+        Set<Object> visited = Collections.newSetFromMap(new IdentityHashMap<>());
+        return containsEncryptedValue(source, visited, null);
+    }
+
+    private boolean containsEncryptedValue(Object source, Object excluded) {
+        Set<Object> visited = Collections.newSetFromMap(new IdentityHashMap<>());
+        return containsEncryptedValue(source, visited, excluded);
+    }
+
+    private boolean containsEncryptedValue(Object source, Set<Object> visited, Object excluded) {
+        if (source == null || source == excluded || !visited.add(source)) {
+            return false;
+        }
+
+        if (source instanceof Collection<?> collection) {
+            return collection.stream().anyMatch(value -> containsEncryptedValue(value, visited, excluded));
+        }
+
+        if (source instanceof Map<?, ?> map) {
+            return map.values().stream().anyMatch(value -> containsEncryptedValue(value, visited, excluded));
+        }
+
+        if (!(source instanceof AppsmithDomain)) {
+            return false;
+        }
+
+        for (Class<?> type = source.getClass(); type != null && type != Object.class; type = type.getSuperclass()) {
+            for (Field field : type.getDeclaredFields()) {
+                if (Modifier.isStatic(field.getModifiers()) || field.isSynthetic()) {
+                    continue;
+                }
+
+                try {
+                    field.setAccessible(true);
+                    Object value = field.get(source);
+                    if (field.getAnnotation(Encrypted.class) != null) {
+                        if (hasEncryptedFieldValue(value)) {
+                            return true;
+                        }
+                    } else if (value instanceof AppsmithDomain
+                            || value instanceof Collection<?>
+                            || value instanceof Map<?, ?>) {
+                        if (containsEncryptedValue(value, visited, excluded)) {
+                            return true;
+                        }
+                    }
+                } catch (IllegalAccessException exception) {
+                    throw new AppsmithException(exception, AppsmithError.DATASOURCE_CREDENTIALS_REQUIRED);
+                } finally {
+                    field.setAccessible(false);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean hasEncryptedFieldValue(Object value) {
+        return value != null && (!(value instanceof CharSequence text) || StringUtils.hasText(text));
+    }
+
+    @Override
     public Mono<DatasourceStorage> updateDatasourceStorage(
             DatasourceStorage datasourceStorage, String activeEnvironmentId, Boolean isUserRefreshedUpdate) {
         return updateDatasourceStorage(datasourceStorage, activeEnvironmentId, isUserRefreshedUpdate, false);
@@ -167,30 +510,57 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
             boolean isDryOps) {
         String datasourceId = datasourceStorage.getDatasourceId();
         String environmentId = datasourceStorage.getEnvironmentId();
+        // The datasource and environment select the storage and request data cannot retarget the persisted document.
+        datasourceStorage.setId(null);
 
         return this.findStrictlyByDatasourceIdAndEnvironmentId(datasourceId, environmentId)
                 .flatMap(this::checkEnvironment)
-                .map(dbStorage -> {
-                    copyNestedNonNullProperties(datasourceStorage, dbStorage);
+                .flatMap(dbStorage -> {
+                    Map<String, Object> credentialBindingProperties = new HashMap<>();
+                    DatasourceStorage storageToSave;
+                    if (TRUE.equals(isUserRefreshedUpdate)) {
+                        DatasourceCredentialBindingResult bindingResult =
+                                bindStoredCredentials(datasourceStorage, dbStorage);
+                        storageToSave = bindingResult.datasourceStorage();
+                        addCredentialBindingProperties(credentialBindingProperties, bindingResult);
+                    } else {
+                        copyNestedNonNullProperties(datasourceStorage, dbStorage);
 
-                    if (datasourceStorage.getDatasourceConfiguration() != null
-                            && datasourceStorage.getDatasourceConfiguration().getAuthentication() == null) {
-                        if (dbStorage.getDatasourceConfiguration() != null) {
-                            dbStorage.getDatasourceConfiguration().setAuthentication(null);
+                        if (datasourceStorage.getDatasourceConfiguration() != null
+                                && datasourceStorage
+                                                .getDatasourceConfiguration()
+                                                .getAuthentication()
+                                        == null) {
+                            if (dbStorage.getDatasourceConfiguration() != null) {
+                                dbStorage.getDatasourceConfiguration().setAuthentication(null);
+                            }
                         }
+                        storageToSave = dbStorage;
                     }
-                    return dbStorage;
-                })
-                .flatMap(datasourceStorage1 ->
-                        validateAndSaveDatasourceStorageToRepository(datasourceStorage1, isDryOps))
-                .flatMap(savedDatasourceStorage -> {
-                    Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasourceStorage);
-                    Boolean isUserInvokedUpdate = TRUE.equals(isUserRefreshedUpdate) ? TRUE : FALSE;
 
-                    analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, isUserInvokedUpdate);
-                    return analyticsService.sendUpdateEvent(savedDatasourceStorage, analyticsProperties);
+                    return validateAndSaveDatasourceStorageToRepository(storageToSave, isDryOps)
+                            .flatMap(savedDatasourceStorage -> {
+                                Map<String, Object> analyticsProperties =
+                                        getAnalyticsProperties(savedDatasourceStorage);
+                                Boolean isUserInvokedUpdate = TRUE.equals(isUserRefreshedUpdate) ? TRUE : FALSE;
+
+                                analyticsProperties.put(
+                                        FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, isUserInvokedUpdate);
+                                analyticsProperties.putAll(credentialBindingProperties);
+                                return analyticsService.sendUpdateEvent(savedDatasourceStorage, analyticsProperties);
+                            });
                 })
                 .flatMap(this::populateHintMessages);
+    }
+
+    private void addCredentialBindingProperties(
+            Map<String, Object> analyticsProperties, DatasourceCredentialBindingResult bindingResult) {
+        analyticsProperties.put(
+                FieldName.CONNECTION_CONFIGURATION_CHANGED, bindingResult.connectionConfigurationChanged());
+        analyticsProperties.put(
+                FieldName.CREDENTIAL_SOURCE, bindingResult.credentialSource().getAnalyticsValue());
+        analyticsProperties.put(
+                FieldName.CHANGED_CONNECTION_SETTING_GROUPS, bindingResult.changedConnectionSettingGroups());
     }
 
     public Mono<DatasourceStorage> executePreSaveActions(DatasourceStorage datasourceStorage) {

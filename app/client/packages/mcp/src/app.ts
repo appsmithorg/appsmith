@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { createHash, randomUUID } from "node:crypto";
 import {
   createServer,
@@ -17,8 +18,10 @@ import {
 import {
   ErrorCode,
   isInitializeRequest,
+  isJSONRPCErrorResponse,
   isJSONRPCNotification,
   isJSONRPCRequest,
+  isJSONRPCResultResponse,
   McpError,
   type JSONRPCMessage,
   type RequestId,
@@ -654,7 +657,10 @@ export function createAppsmithApi(
           // header is the documented exemption so import/upload requests aren't denied.
           "X-Requested-By": "Appsmith",
           ...(isMultipart ? {} : { "Content-Type": "application/json" }),
-          ...correlationHeaders,
+          // The HTTP request being served, when there is one: a session's client outlives the request that created
+          // it, and backend log lines must correlate with the tool call that caused them.
+          ...(mcpRequestContext.getStore()?.correlationHeaders ??
+            correlationHeaders),
           ...init?.headers,
           // Spread LAST so the env-sourced marker always wins: no correlation header or caller-supplied init.header
           // can override or inject the trusted internal marker (constraint: never sourced from an inbound request).
@@ -1002,8 +1008,11 @@ const GRAPHQL_PLUGIN_IDS = new Set(["graphql-plugin"]);
 // queried here by datasourceId. The supported providers (and their per-provider formData quirks) live in
 // AI_PROVIDERS in builder/aiQuery.ts; the tool resolves the provider from the datasource's plugin packageName.
 
-// CE keys every datasource storage under this fixed environment id (FieldNameCE.UNUSED_ENVIRONMENT_ID).
-const DEFAULT_ENVIRONMENT_ID = "unused_env";
+// The key of the single datasource storage create_datasource sends. The server ignores the map key and resolves the
+// storage's environment itself, because the storage names no environmentId: CE always uses its fixed environment
+// (FieldNameCE.UNUSED_ENVIRONMENT_ID, the same value as this key), and EE uses the workspace's default environment.
+// Naming an environment here would break EE, whose workspaces have real environment ids.
+const DATASOURCE_STORAGE_KEY = "unused_env";
 
 // The closed set of DATABASE plugin families create_datasource can provision. All share the endpoints + dbAuth
 // configuration shape (verified against each plugin's form.json — Mongo's form.json exposes the same
@@ -5591,7 +5600,6 @@ export function buildMcpServer(
 
         // REST base URL is not a secret, so a no-auth REST datasource is created CONFIGURED. Database datasources
         // are created UNCONFIGURED (no credentials) — the same state as importing an app without configuring them.
-        // CE keys every storage under the fixed "unused_env" environment.
         const datasourceConfiguration = isRest
           ? {
               url,
@@ -5626,8 +5634,8 @@ export function buildMcpServer(
           workspaceId,
           pluginId,
           datasourceStorages: {
-            [DEFAULT_ENVIRONMENT_ID]: {
-              environmentId: DEFAULT_ENVIRONMENT_ID,
+            // No environmentId: the server picks the edition's environment (see DATASOURCE_STORAGE_KEY).
+            [DATASOURCE_STORAGE_KEY]: {
               isConfigured: isRest,
               datasourceConfiguration,
             },
@@ -7586,6 +7594,137 @@ function mcpStatusClass(status: number): string {
   return "other";
 }
 
+// The HTTP request currently being served. Everything that runs on its behalf — the tool callback, its Appsmith API
+// calls and the JSON-RPC response — runs inside it, including continuations after an elicitation answer that arrived
+// on another request or pod. Two things read it:
+//   - the Appsmith API client sends THIS request's correlation headers, not the ones of the request that created the
+//     session (the session's client lives across many requests);
+//   - the session transport records how a tool call ended, because MCP answers every tool call with HTTP 200 and the
+//     outcome lives inside the JSON-RPC response.
+interface McpRequestContext {
+  correlationHeaders: Record<string, string>;
+  // The JSON-RPC id of the tools/call this request carries, when it carries one.
+  toolCallId?: RequestId;
+  toolOutcome?: ToolOutcome;
+}
+
+const mcpRequestContext = new AsyncLocalStorage<McpRequestContext>();
+
+// How a tool call ended, for the request log line. Only a closed class and the tool's own error code are recorded —
+// never the message, arguments or response content.
+interface ToolOutcome {
+  statusClass:
+    | "success"
+    | "refused"
+    | "invalid_input"
+    | "tool_error"
+    | "rpc_error";
+  code?: string;
+}
+
+const TOOL_ERROR_CODE = /^[a-z][a-z0-9_]{0,63}$/;
+// Results up to this size are parsed to classify them; refusals and validation failures are always far smaller.
+// Larger results (page reads, exports) are classified by their opening only, so they are never parsed twice.
+const MAX_CLASSIFY_PARSE_CHARS = 64 * 1024;
+// The openings of result()'s pretty-printed refusal and validation bodies when the deciding key comes first.
+const REFUSAL_RESULT_PREFIX = '{\n  "error": ';
+const INVALID_RESULT_PREFIX = '{\n  "valid": false';
+
+function classifyToolResponse(
+  message: JSONRPCMessage,
+): ToolOutcome | undefined {
+  if (isJSONRPCErrorResponse(message)) {
+    return {
+      statusClass:
+        message.error.code === ErrorCode.InvalidParams
+          ? "invalid_input"
+          : "rpc_error",
+    };
+  }
+
+  if (!isJSONRPCResultResponse(message)) return undefined;
+
+  const result = message.result as {
+    isError?: unknown;
+    content?: { type?: unknown; text?: unknown }[];
+  };
+
+  const text = result.content?.[0]?.text;
+
+  // The SDK reports arguments it refused before the tool ran (its InvalidParams McpError) as an isError result whose
+  // text carries that error's "MCP error -32602:" prefix; anything else with isError is a thrown tool error.
+  if (result.isError === true) {
+    return {
+      statusClass:
+        typeof text === "string" &&
+        text.startsWith(`MCP error ${ErrorCode.InvalidParams}:`)
+          ? "invalid_input"
+          : "tool_error",
+    };
+  }
+
+  // Tools answer refusals and validation failures as ordinary results: { error, code? } or { valid: false }.
+  if (typeof text !== "string" || !text.startsWith("{")) {
+    return { statusClass: "success" };
+  }
+
+  if (text.length > MAX_CLASSIFY_PARSE_CHARS) {
+    if (text.startsWith(INVALID_RESULT_PREFIX)) {
+      return { statusClass: "invalid_input" };
+    }
+
+    return {
+      statusClass: text.startsWith(REFUSAL_RESULT_PREFIX)
+        ? "refused"
+        : "success",
+    };
+  }
+
+  let body: unknown;
+
+  try {
+    body = JSON.parse(text);
+  } catch {
+    return { statusClass: "success" };
+  }
+
+  if (body === null || typeof body !== "object") {
+    return { statusClass: "success" };
+  }
+
+  const fields = body as { error?: unknown; code?: unknown; valid?: unknown };
+
+  if (fields.valid === false) return { statusClass: "invalid_input" };
+
+  if (typeof fields.error === "string") {
+    return {
+      statusClass: "refused",
+      ...(typeof fields.code === "string" && TOOL_ERROR_CODE.test(fields.code)
+        ? { code: fields.code }
+        : {}),
+    };
+  }
+
+  return { statusClass: "success" };
+}
+
+// Records the outcome of the tools/call the current request carries, when `message` is its response.
+function recordToolOutcome(message: JSONRPCMessage): void {
+  const context = mcpRequestContext.getStore();
+
+  if (
+    context?.toolCallId === undefined ||
+    // A server->client request (an elicitation prompt) can reuse the client's id number; only responses count.
+    isJSONRPCRequest(message) ||
+    !("id" in message) ||
+    message.id !== context.toolCallId
+  ) {
+    return;
+  }
+
+  context.toolOutcome = classifyToolResponse(message);
+}
+
 function requestOperation(body: unknown): { method?: string; tool?: string } {
   if (!body || typeof body !== "object") return {};
 
@@ -7708,6 +7847,8 @@ class RelayAwareTransport extends WebStandardStreamableHTTPServerTransport {
     message: JSONRPCMessage,
     options?: Parameters<WebStandardStreamableHTTPServerTransport["send"]>[1],
   ): Promise<void> {
+    recordToolOutcome(message);
+
     if (isJSONRPCRequest(message) && this.sessionId !== undefined) {
       // Tagged per pod so the pending key is globally unique (see McpSessionRelay.tagRequestId); the SDK keeps
       // its own handler under the untagged id, which the inbound path restores.
@@ -8304,11 +8445,25 @@ export function createMcpHttpServer(
     await listener(req, res);
   }
 
-  const server = createServer(async (req, res) => {
+  const server = createServer((req, res) => {
+    const context: McpRequestContext = {
+      correlationHeaders: correlationHeaders(req),
+    };
+
+    void mcpRequestContext.run(context, async () =>
+      serveRequest(req, res, context),
+    );
+  });
+
+  async function serveRequest(
+    req: IncomingMessage,
+    res: ServerResponse,
+    context: McpRequestContext,
+  ): Promise<void> {
     // Released in `finally`; holds a session reservation across the admission → registration gap.
     let releasePending = () => {};
     const startedAt = Date.now();
-    const upstreamHeaders = correlationHeaders(req);
+    const upstreamHeaders = context.correlationHeaders;
     const requestId = upstreamHeaders["X-Appsmith-Request-Id"];
     let username: string | undefined;
     let operation: { method?: string; tool?: string } = {};
@@ -8327,7 +8482,13 @@ export function createMcpHttpServer(
         tool: operation.tool,
         usernameHash: hashUsername(username),
         status: res.statusCode,
-        statusClass: mcpStatusClass(res.statusCode),
+        // A tool call is always HTTP 200; its own outcome (recorded from the JSON-RPC response) is what says whether
+        // it worked. Anything else, or a non-2xx answer, is classified by the HTTP status.
+        statusClass:
+          res.statusCode < 300 && context.toolOutcome !== undefined
+            ? context.toolOutcome.statusClass
+            : mcpStatusClass(res.statusCode),
+        toolCode: context.toolOutcome?.code,
         gates: gateSummary,
         durationMs: Date.now() - startedAt,
       });
@@ -8398,6 +8559,10 @@ export function createMcpHttpServer(
       let body = req.method === "POST" ? await readBody(req) : undefined;
 
       operation = requestOperation(body);
+
+      if (operation.tool !== undefined) {
+        context.toolCallId = (body as { id?: RequestId }).id;
+      }
 
       const tokenHash = hashToken(token);
       let local = sessionId !== undefined ? sessions.get(sessionId) : undefined;
@@ -8681,7 +8846,7 @@ export function createMcpHttpServer(
       // By now the session has either registered (counted in `sessions`) or failed; release the reservation.
       releasePending();
     }
-  });
+  }
 
   // Bound inbound sockets so a slow-loris or a flood of half-open connections can't pin the single process.
   server.maxConnections = MAX_INBOUND_CONNECTIONS;
