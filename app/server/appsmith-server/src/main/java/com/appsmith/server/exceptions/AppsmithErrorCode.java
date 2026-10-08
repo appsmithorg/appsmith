@@ -81,6 +81,7 @@ public enum AppsmithErrorCode {
     NO_CONFIGURATION_FOUND_IN_DATASOURCE("AE-DTS-4011", "No configuration found in datasource"),
     INVALID_DATASOURCE("AE-DTS-4013", "Invalid datasource"),
     INVALID_DATASOURCE_CONFIGURATION("AE-DTS-4015", "Invalid datasource configuration"),
+    DATASOURCE_CREDENTIALS_REQUIRED("AE-DTS-4016", "Datasource credentials required"),
     DATASOURCE_HAS_ACTIONS("AE-DTS-4030", "Datasource has actions"),
     DEPRECATED_DATASOURCE_PLUGIN("AE-DTS-4031", "Datasource creation is blocked for a deprecated plugin"),
     DEPRECATED_PLUGIN_QUERY_CREATION("AE-DTS-4032", "Query creation is blocked on a deprecated plugin's datasource"),
