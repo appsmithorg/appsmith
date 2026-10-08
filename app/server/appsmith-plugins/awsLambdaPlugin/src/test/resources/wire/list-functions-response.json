@@ -1,0 +1,119 @@
+{
+  "NextMarker": "marker-page-2",
+  "Functions": [
+    {
+      "Description": "",
+      "TracingConfig": { "Mode": "PassThrough" },
+      "VpcConfig": null,
+      "SigningJobArn": null,
+      "SnapStart": { "OptimizationStatus": "Off", "ApplyOn": "None" },
+      "RevisionId": "88ebe1e1-bfdf-4dc3-84de-3017268fa1ff",
+      "LastModified": "2024-05-01T10:15:30.000+0000",
+      "FileSystemConfigs": null,
+      "FunctionName": "zip-fn",
+      "Runtime": "nodejs20.x",
+      "Version": "$LATEST",
+      "PackageType": "Zip",
+      "LastUpdateStatus": null,
+      "Layers": null,
+      "FunctionArn": "arn:aws:lambda:us-east-1:123456789012:function:zip-fn",
+      "KMSKeyArn": null,
+      "MemorySize": 128,
+      "ImageConfigResponse": null,
+      "LastUpdateStatusReason": null,
+      "DeadLetterConfig": null,
+      "Timeout": 3,
+      "Handler": "index.handler",
+      "CodeSha256": "abc=",
+      "Role": "arn:aws:iam::123456789012:role/r",
+      "SigningProfileVersionArn": null,
+      "MasterArn": null,
+      "RuntimeVersionConfig": null,
+      "CodeSize": 299,
+      "State": null,
+      "StateReason": null,
+      "Environment": null,
+      "EphemeralStorage": { "Size": 512 },
+      "StateReasonCode": null,
+      "LastUpdateStatusReasonCode": null,
+      "Architectures": ["x86_64"],
+      "LoggingConfig": {
+        "LogFormat": "Text",
+        "ApplicationLogLevel": null,
+        "LogGroup": "/aws/lambda/zip-fn",
+        "SystemLogLevel": null
+      }
+    },
+    {
+      "FunctionName": "future-fn",
+      "Runtime": "java99",
+      "CodeSize": 9007199254740993,
+      "Timeout": 900,
+      "MemorySize": 10240,
+      "Architectures": ["riscv64", "x86_64"],
+      "PackageType": "Wasm",
+      "State": "Hibernating",
+      "StateReasonCode": "BrandNewCode",
+      "LastUpdateStatus": "Paused",
+      "LastUpdateStatusReasonCode": "NewCode",
+      "TracingConfig": { "Mode": "Sampled" },
+      "SnapStart": { "ApplyOn": "Everything", "OptimizationStatus": "Maybe" },
+      "LoggingConfig": {
+        "LogFormat": "XML",
+        "ApplicationLogLevel": "VERBOSE",
+        "SystemLogLevel": "LOUD",
+        "LogGroup": "g"
+      },
+      "VpcConfig": {
+        "SubnetIds": [],
+        "SecurityGroupIds": null,
+        "VpcId": "",
+        "Ipv6AllowedForDualStack": true
+      },
+      "Environment": {
+        "Variables": {
+          "ZED": "1",
+          "A": "2",
+          "DB_URL": "x",
+          "STAGE": "prod",
+          "LOG_LEVEL": "debug",
+          "m": "3",
+          "Mixed_Case": "4",
+          "empty": ""
+        },
+        "Error": null
+      },
+      "Layers": [
+        { "Arn": "l1", "CodeSize": 1 },
+        { "Arn": "l2", "CodeSize": 2, "SigningJobArn": "j" }
+      ],
+      "EphemeralStorage": { "Size": 10240 },
+      "TenancyConfig": { "TenantIsolationMode": "PER_TENANT" },
+      "DurableConfig": { "RetentionPeriodInDays": 7, "ExecutionTimeout": 60 },
+      "CapacityProviderConfig": {
+        "LambdaManagedInstancesCapacityProviderConfig": {
+          "CapacityProviderArn": "arn:cp"
+        }
+      },
+      "ConfigSha256": "cfg=",
+      "SomeFutureField": { "X": [1, 2, 3] },
+      "SomeFutureList": ["a"]
+    },
+    { "FunctionName": "minimal-fn" },
+    {
+      "FunctionName": "empties-fn",
+      "Description": "",
+      "Layers": [],
+      "Architectures": [],
+      "FileSystemConfigs": [],
+      "Environment": { "Variables": {} },
+      "VpcConfig": { "SubnetIds": ["s"], "SecurityGroupIds": [] },
+      "ImageConfigResponse": {
+        "ImageConfig": { "EntryPoint": null, "Command": [] }
+      },
+      "Timeout": 0,
+      "MemorySize": 0,
+      "CodeSize": 0
+    }
+  ]
+}

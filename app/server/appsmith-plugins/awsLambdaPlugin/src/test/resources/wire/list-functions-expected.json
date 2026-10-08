@@ -1,0 +1,223 @@
+[
+  {
+    "functionName": "zip-fn",
+    "functionArn": "arn:aws:lambda:us-east-1:123456789012:function:zip-fn",
+    "runtime": "nodejs20.x",
+    "role": "arn:aws:iam::123456789012:role/r",
+    "handler": "index.handler",
+    "codeSize": 299,
+    "description": "",
+    "timeout": 3,
+    "memorySize": 128,
+    "lastModified": "2024-05-01T10:15:30.000+0000",
+    "codeSha256": "abc=",
+    "version": "$LATEST",
+    "vpcConfig": null,
+    "deadLetterConfig": null,
+    "environment": null,
+    "tracingConfig": {
+      "mode": "PassThrough"
+    },
+    "masterArn": null,
+    "revisionId": "88ebe1e1-bfdf-4dc3-84de-3017268fa1ff",
+    "layers": [],
+    "state": null,
+    "stateReason": null,
+    "stateReasonCode": null,
+    "lastUpdateStatus": null,
+    "lastUpdateStatusReason": null,
+    "lastUpdateStatusReasonCode": null,
+    "fileSystemConfigs": [],
+    "packageType": "Zip",
+    "imageConfigResponse": null,
+    "signingProfileVersionArn": null,
+    "signingJobArn": null,
+    "architectures": ["x86_64"],
+    "ephemeralStorage": {
+      "size": 512
+    },
+    "snapStart": {
+      "applyOn": "None",
+      "optimizationStatus": "Off"
+    },
+    "runtimeVersionConfig": null,
+    "loggingConfig": {
+      "logFormat": "Text",
+      "applicationLogLevel": null,
+      "systemLogLevel": null,
+      "logGroup": "/aws/lambda/zip-fn"
+    },
+    "kmskeyArn": null
+  },
+  {
+    "functionName": "future-fn",
+    "functionArn": null,
+    "runtime": "java99",
+    "role": null,
+    "handler": null,
+    "codeSize": 9007199254740993,
+    "description": null,
+    "timeout": 900,
+    "memorySize": 10240,
+    "lastModified": null,
+    "codeSha256": null,
+    "version": null,
+    "vpcConfig": {
+      "subnetIds": [],
+      "securityGroupIds": [],
+      "vpcId": "",
+      "ipv6AllowedForDualStack": true
+    },
+    "deadLetterConfig": null,
+    "environment": {
+      "variables": {
+        "ZED": "1",
+        "A": "2",
+        "DB_URL": "x",
+        "STAGE": "prod",
+        "LOG_LEVEL": "debug",
+        "m": "3",
+        "Mixed_Case": "4",
+        "empty": ""
+      },
+      "error": null
+    },
+    "tracingConfig": {
+      "mode": "Sampled"
+    },
+    "masterArn": null,
+    "revisionId": null,
+    "layers": [
+      {
+        "arn": "l1",
+        "codeSize": 1,
+        "signingProfileVersionArn": null,
+        "signingJobArn": null
+      },
+      {
+        "arn": "l2",
+        "codeSize": 2,
+        "signingProfileVersionArn": null,
+        "signingJobArn": "j"
+      }
+    ],
+    "state": "Hibernating",
+    "stateReason": null,
+    "stateReasonCode": "BrandNewCode",
+    "lastUpdateStatus": "Paused",
+    "lastUpdateStatusReason": null,
+    "lastUpdateStatusReasonCode": "NewCode",
+    "fileSystemConfigs": [],
+    "packageType": "Wasm",
+    "imageConfigResponse": null,
+    "signingProfileVersionArn": null,
+    "signingJobArn": null,
+    "architectures": ["riscv64", "x86_64"],
+    "ephemeralStorage": {
+      "size": 10240
+    },
+    "snapStart": {
+      "applyOn": "Everything",
+      "optimizationStatus": "Maybe"
+    },
+    "runtimeVersionConfig": null,
+    "loggingConfig": {
+      "logFormat": "XML",
+      "applicationLogLevel": "VERBOSE",
+      "systemLogLevel": "LOUD",
+      "logGroup": "g"
+    },
+    "kmskeyArn": null
+  },
+  {
+    "functionName": "minimal-fn",
+    "functionArn": null,
+    "runtime": null,
+    "role": null,
+    "handler": null,
+    "codeSize": null,
+    "description": null,
+    "timeout": null,
+    "memorySize": null,
+    "lastModified": null,
+    "codeSha256": null,
+    "version": null,
+    "vpcConfig": null,
+    "deadLetterConfig": null,
+    "environment": null,
+    "tracingConfig": null,
+    "masterArn": null,
+    "revisionId": null,
+    "layers": [],
+    "state": null,
+    "stateReason": null,
+    "stateReasonCode": null,
+    "lastUpdateStatus": null,
+    "lastUpdateStatusReason": null,
+    "lastUpdateStatusReasonCode": null,
+    "fileSystemConfigs": [],
+    "packageType": null,
+    "imageConfigResponse": null,
+    "signingProfileVersionArn": null,
+    "signingJobArn": null,
+    "architectures": [],
+    "ephemeralStorage": null,
+    "snapStart": null,
+    "runtimeVersionConfig": null,
+    "loggingConfig": null,
+    "kmskeyArn": null
+  },
+  {
+    "functionName": "empties-fn",
+    "functionArn": null,
+    "runtime": null,
+    "role": null,
+    "handler": null,
+    "codeSize": 0,
+    "description": "",
+    "timeout": 0,
+    "memorySize": 0,
+    "lastModified": null,
+    "codeSha256": null,
+    "version": null,
+    "vpcConfig": {
+      "subnetIds": ["s"],
+      "securityGroupIds": [],
+      "vpcId": null,
+      "ipv6AllowedForDualStack": null
+    },
+    "deadLetterConfig": null,
+    "environment": {
+      "variables": {},
+      "error": null
+    },
+    "tracingConfig": null,
+    "masterArn": null,
+    "revisionId": null,
+    "layers": [],
+    "state": null,
+    "stateReason": null,
+    "stateReasonCode": null,
+    "lastUpdateStatus": null,
+    "lastUpdateStatusReason": null,
+    "lastUpdateStatusReasonCode": null,
+    "fileSystemConfigs": [],
+    "packageType": null,
+    "imageConfigResponse": {
+      "imageConfig": {
+        "entryPoint": [],
+        "command": [],
+        "workingDirectory": null
+      },
+      "error": null
+    },
+    "signingProfileVersionArn": null,
+    "signingJobArn": null,
+    "architectures": [],
+    "ephemeralStorage": null,
+    "snapStart": null,
+    "runtimeVersionConfig": null,
+    "loggingConfig": null,
+    "kmskeyArn": null
+  }
+]
