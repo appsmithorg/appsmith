@@ -27,6 +27,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
@@ -40,6 +41,7 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -51,6 +53,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.LinkedMultiValueMap;
@@ -65,6 +72,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -111,6 +119,9 @@ public class DatasourceServiceTest {
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    UserAndAccessManagementService userAndAccessManagementService;
 
     @Autowired
     PluginRepository pluginRepository;
@@ -843,6 +854,68 @@ public class DatasourceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void ghsa3m3rGf68P29g_unsavedDatasourceTestRequiresDatasourceCreatePermission() {
+        PermissionGroup viewerPermissionGroup = permissionGroupRepository
+                .findAllById(workspaceService
+                        .findById(workspaceId, READ_WORKSPACES)
+                        .block()
+                        .getDefaultPermissionGroups())
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .blockFirst();
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setPermissionGroupId(viewerPermissionGroup.getId());
+        inviteUsersDTO.setUsernames(List.of("usertest@usertest.com"));
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "test").block();
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
+        DatasourceConfiguration configuration = new DatasourceConfiguration();
+        configuration.setEndpoints(List.of(new Endpoint("internal.example", 5432L)));
+        DatasourceStorageDTO testStorage = new DatasourceStorageDTO(null, defaultEnvironmentId, configuration);
+        testStorage.setWorkspaceId(workspaceId);
+        testStorage.setPluginId(plugin.getId());
+
+        User viewer = userService.findByEmail("usertest@usertest.com").block();
+        Authentication authentication = new UsernamePasswordAuthenticationToken(viewer, null, viewer.getAuthorities());
+        SecurityContext securityContext = new SecurityContextImpl(authentication);
+
+        StepVerifier.create(datasourceService
+                        .testDatasource(testStorage, defaultEnvironmentId)
+                        .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext))))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) error).getError()).isEqualTo(AppsmithError.UNAUTHORIZED_ACCESS);
+                    assertThat(error.getMessage()).isEqualTo(AppsmithError.UNAUTHORIZED_ACCESS.getMessage());
+                })
+                .verify();
+
+        Mockito.verify(pluginExecutorHelper, Mockito.never()).getPluginExecutor(Mockito.any());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void ghsa3m3rGf68P29g_unsavedDatasourceTestAllowsDatasourceCreator() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
+        DatasourceConfiguration configuration = new DatasourceConfiguration();
+        configuration.setEndpoints(List.of(new Endpoint("internal.example", 5432L)));
+        DatasourceStorageDTO testStorage = new DatasourceStorageDTO(null, defaultEnvironmentId, configuration);
+        testStorage.setWorkspaceId(workspaceId);
+        testStorage.setPluginId(plugin.getId());
+
+        StepVerifier.create(datasourceService.testDatasource(testStorage, defaultEnvironmentId))
+                .assertNext(result -> assertThat(result.getInvalids()).isEmpty())
+                .verifyComplete();
+
+        Mockito.verify(pluginExecutorHelper, Mockito.atLeastOnce()).getPluginExecutor(Mockito.any());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void testDatasourceEmptyFields() {
 
         if (!StringUtils.hasLength(workspaceId)) {
@@ -908,6 +981,241 @@ public class DatasourceServiceTest {
                     assertThat(testResult.getInvalids()).isEmpty();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testDatasourceWithChangedConnectionDoesNotReuseStoredCredentials() {
+        Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
+        AtomicReference<DatasourceConfiguration> testedConfiguration = new AtomicReference<>();
+        MockPluginExecutor pluginExecutor = new MockPluginExecutor() {
+            @Override
+            public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+                testedConfiguration.set(datasourceConfiguration);
+                return Mono.just(new DatasourceTestResult());
+            }
+        };
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+
+        DatasourceConfiguration savedConfiguration = new DatasourceConfiguration();
+        savedConfiguration.setEndpoints(List.of(new Endpoint("trusted.example.com", 5432L)));
+        DBAuth savedAuthentication = new DBAuth();
+        savedAuthentication.setUsername("database-user");
+        savedAuthentication.setPassword("stored-password");
+        savedAuthentication.setDatabaseName("appsmith");
+        savedConfiguration.setAuthentication(savedAuthentication);
+
+        Datasource datasource = new Datasource();
+        datasource.setName("credential-bound datasource");
+        datasource.setWorkspaceId(workspaceId);
+        datasource.setPluginId(plugin.getId());
+        datasource.setDatasourceStorages(new HashMap<>(java.util.Map.of(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, savedConfiguration))));
+
+        Datasource savedDatasource = datasourceService.create(datasource).block();
+        DatasourceStorageDTO testStorage =
+                savedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+        testStorage.getDatasourceConfiguration().setEndpoints(List.of(new Endpoint("changed.example.com", 5432L)));
+        ((DBAuth) testStorage.getDatasourceConfiguration().getAuthentication()).setPassword(null);
+        testStorage.setPluginId(plugin.getId());
+
+        StepVerifier.create(datasourceService.testDatasource(testStorage, defaultEnvironmentId))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(error.getMessage()).containsIgnoringCase("re-enter");
+                })
+                .verify();
+
+        assertThat(testedConfiguration).hasNullValue();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testDatasourceWithChangedConnectionUsesOnlyFreshRequestCredentials() {
+        Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
+        AtomicReference<DatasourceConfiguration> testedConfiguration = new AtomicReference<>();
+        MockPluginExecutor pluginExecutor = new MockPluginExecutor() {
+            @Override
+            public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+                testedConfiguration.set(datasourceConfiguration);
+                return Mono.just(new DatasourceTestResult());
+            }
+        };
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+
+        DatasourceConfiguration savedConfiguration = new DatasourceConfiguration();
+        savedConfiguration.setEndpoints(List.of(new Endpoint("trusted.example.com", 5432L)));
+        DBAuth savedAuthentication = new DBAuth();
+        savedAuthentication.setUsername("database-user");
+        savedAuthentication.setPassword("stored-password");
+        savedAuthentication.setDatabaseName("appsmith");
+        savedConfiguration.setAuthentication(savedAuthentication);
+
+        Datasource datasource = new Datasource();
+        datasource.setName("fresh credential datasource");
+        datasource.setWorkspaceId(workspaceId);
+        datasource.setPluginId(plugin.getId());
+        datasource.setDatasourceStorages(new HashMap<>(java.util.Map.of(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, savedConfiguration))));
+
+        Datasource savedDatasource = datasourceService.create(datasource).block();
+        DatasourceStorageDTO testStorage =
+                savedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+        testStorage.getDatasourceConfiguration().setEndpoints(List.of(new Endpoint("changed.example.com", 5432L)));
+        ((DBAuth) testStorage.getDatasourceConfiguration().getAuthentication()).setPassword("fresh-password");
+        testStorage.setPluginId(plugin.getId());
+
+        StepVerifier.create(datasourceService.testDatasource(testStorage, defaultEnvironmentId))
+                .assertNext(testResult -> assertThat(testResult.getInvalids()).isEmpty())
+                .verifyComplete();
+
+        assertThat(testedConfiguration.get().getEndpoints().get(0).getHost()).isEqualTo("changed.example.com");
+        assertThat(((DBAuth) testedConfiguration.get().getAuthentication()).getPassword())
+                .isEqualTo("fresh-password")
+                .isNotEqualTo("stored-password");
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateDatasourceWithChangedConnectionDoesNotReuseStoredCredentials() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
+
+        DatasourceConfiguration savedConfiguration = new DatasourceConfiguration();
+        savedConfiguration.setEndpoints(List.of(new Endpoint("trusted.example.com", 5432L)));
+        DBAuth savedAuthentication = new DBAuth();
+        savedAuthentication.setUsername("database-user");
+        savedAuthentication.setPassword("stored-password");
+        savedAuthentication.setDatabaseName("appsmith");
+        savedConfiguration.setAuthentication(savedAuthentication);
+
+        Datasource datasource = new Datasource();
+        datasource.setName("credential-bound update datasource");
+        datasource.setWorkspaceId(workspaceId);
+        datasource.setPluginId(plugin.getId());
+        datasource.setDatasourceStorages(new HashMap<>(java.util.Map.of(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, savedConfiguration))));
+
+        Datasource savedDatasource = datasourceService.create(datasource).block();
+        DatasourceStorageDTO updateStorage =
+                savedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+        updateStorage.getDatasourceConfiguration().setEndpoints(List.of(new Endpoint("changed.example.com", 5432L)));
+        ((DBAuth) updateStorage.getDatasourceConfiguration().getAuthentication()).setPassword(null);
+
+        StepVerifier.create(
+                        datasourceService.updateDatasourceStorage(updateStorage, defaultEnvironmentId, Boolean.TRUE))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) error).getAppErrorCode())
+                            .isEqualTo(AppsmithErrorCode.DATASOURCE_CREDENTIALS_REQUIRED.getCode());
+                })
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testSavedDatasourceRequiresReadPermission() {
+        PermissionGroup viewerPermissionGroup = permissionGroupRepository
+                .findAllById(workspaceService
+                        .findById(workspaceId, READ_WORKSPACES)
+                        .block()
+                        .getDefaultPermissionGroups())
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .blockFirst();
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setPermissionGroupId(viewerPermissionGroup.getId());
+        inviteUsersDTO.setUsernames(List.of("usertest@usertest.com"));
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "test").block();
+
+        AtomicReference<DatasourceConfiguration> testedConfiguration = new AtomicReference<>();
+        MockPluginExecutor pluginExecutor = new MockPluginExecutor() {
+            @Override
+            public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+                testedConfiguration.set(datasourceConfiguration);
+                return Mono.just(new DatasourceTestResult());
+            }
+        };
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+
+        Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
+        DatasourceConfiguration savedConfiguration = new DatasourceConfiguration();
+        savedConfiguration.setEndpoints(List.of(new Endpoint("trusted.example.com", 5432L)));
+        DBAuth savedAuthentication = new DBAuth();
+        savedAuthentication.setUsername("database-user");
+        savedAuthentication.setPassword("stored-password");
+        savedAuthentication.setDatabaseName("appsmith");
+        savedConfiguration.setAuthentication(savedAuthentication);
+
+        Datasource datasource = new Datasource();
+        datasource.setName("read-protected datasource");
+        datasource.setWorkspaceId(workspaceId);
+        datasource.setPluginId(plugin.getId());
+        datasource.setDatasourceStorages(new HashMap<>(java.util.Map.of(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, savedConfiguration))));
+        Datasource savedDatasource = datasourceService.create(datasource).block();
+
+        DatasourceStorageDTO testStorage =
+                savedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+        ((DBAuth) testStorage.getDatasourceConfiguration().getAuthentication()).setPassword(null);
+        testStorage.setPluginId(plugin.getId());
+
+        User viewerUser = userService.findByEmail("usertest@usertest.com").block();
+        Authentication viewerAuthentication =
+                new UsernamePasswordAuthenticationToken(viewerUser, null, viewerUser.getAuthorities());
+        SecurityContext viewerSecurityContext = new SecurityContextImpl(viewerAuthentication);
+
+        StepVerifier.create(datasourceService
+                        .testDatasource(testStorage, defaultEnvironmentId)
+                        .contextWrite(
+                                ReactiveSecurityContextHolder.withSecurityContext(Mono.just(viewerSecurityContext))))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) error).getError()).isEqualTo(AppsmithError.UNAUTHORIZED_ACCESS);
+                })
+                .verify();
+
+        assertThat(testedConfiguration).hasNullValue();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testSavedDatasourceRequiresEnvironmentExecutePermission() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
+
+        DatasourceConfiguration savedConfiguration = new DatasourceConfiguration();
+        savedConfiguration.setEndpoints(List.of(new Endpoint("trusted.example.com", 5432L)));
+        DBAuth savedAuthentication = new DBAuth();
+        savedAuthentication.setUsername("database-user");
+        savedAuthentication.setPassword("stored-password");
+        savedConfiguration.setAuthentication(savedAuthentication);
+
+        Datasource datasource = new Datasource();
+        datasource.setName("environment-protected datasource");
+        datasource.setWorkspaceId(workspaceId);
+        datasource.setPluginId(plugin.getId());
+        datasource.setDatasourceStorages(new HashMap<>(java.util.Map.of(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, savedConfiguration))));
+        Datasource savedDatasource = datasourceService.create(datasource).block();
+
+        DatasourceStorageDTO testStorage =
+                savedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+        ((DBAuth) testStorage.getDatasourceConfiguration().getAuthentication()).setPassword(null);
+        testStorage.setPluginId(plugin.getId());
+        Mockito.clearInvocations(spyDatasourceService);
+
+        StepVerifier.create(spyDatasourceService.testDatasource(testStorage, defaultEnvironmentId))
+                .assertNext(testResult -> assertThat(testResult.getInvalids()).isEmpty())
+                .verifyComplete();
+
+        Mockito.verify(spyDatasourceService)
+                .getTrueEnvironmentId(
+                        workspaceId,
+                        defaultEnvironmentId,
+                        plugin.getId(),
+                        environmentPermission.getExecutePermission());
     }
 
     @Test

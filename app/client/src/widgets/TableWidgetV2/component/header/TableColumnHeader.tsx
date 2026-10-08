@@ -61,11 +61,20 @@ const TableColumnHeader = () => {
         const headerRowProps = {
           ...headerGroup.getHeaderGroupProps(),
         };
+        const isWrappedHeaderRow = headerGroup.headers.some(
+          (header) =>
+            (
+              header as {
+                columnProperties?: { allowHeaderWrapping?: boolean };
+              }
+            ).columnProperties?.allowHeaderWrapping === true,
+        );
 
         return (
           <StyledHeaderGroup
             {...headerRowProps}
             className="tr header"
+            data-header-wrap={isWrappedHeaderRow ? "true" : undefined}
             headerWidth={headerWidth}
             key={index}
           >
@@ -96,6 +105,7 @@ const TableColumnHeader = () => {
                   columnOrder={columnOrder}
                   isAscOrder={column.isAscOrder}
                   isHidden={column.isHidden}
+                  isWrappedHeaderRow={isWrappedHeaderRow}
                   key={columnIndex}
                   onDrag={onDrag}
                   onDragEnd={onDragEnd}
