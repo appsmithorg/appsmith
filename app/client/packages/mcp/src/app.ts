@@ -417,6 +417,15 @@ export class AppsmithApiError extends Error {
   }
 }
 
+// The same failure, raised by the layout read inside getApplicationContext (not its parallel pages-list or page read),
+// so readPageLayout retries a mismatched layoutId only when the layout request itself was rejected.
+export class LayoutRequestError extends AppsmithApiError {
+  constructor(status: number, errorCode?: string) {
+    super(status, errorCode);
+    this.name = "LayoutRequestError";
+  }
+}
+
 // AppsmithErrorCode.INVALID_GIT_CONFIGURATION — the commit path returns this when the caller has no git author
 // profile configured (and for other broken git configs). Verified against AppsmithErrorCode.java.
 const INVALID_GIT_CONFIGURATION_CODE = "AE-GIT-4031";
@@ -728,7 +737,11 @@ export function createAppsmithApi(
           `/api/v1/layouts/${encodeURIComponent(layoutId)}/pages/${encodeURIComponent(pageId)}`,
           undefined,
           { extractErrorCode: true },
-        ),
+        ).catch((error: unknown) => {
+          throw error instanceof AppsmithApiError
+            ? new LayoutRequestError(error.status, error.errorCode)
+            : error;
+        }),
       ]);
 
       return { pages, page, layout };
@@ -3145,11 +3158,12 @@ export function buildMcpServer(
     };
   }
 
-  // Shared page read for the layout tools. A 400 INVALID_PARAMETER from the read means the layoutId does not belong to
-  // this page (LayoutServiceCEImpl.getLayout) — typically one the agent guessed because read_pages could not resolve
-  // it. pageId is authoritative, so re-resolve the page's own layoutId (layouts[0]: a page has one layout) once and
-  // retry; callers then write to the returned layoutId, and commitLayout refuses a corrected write that carries no
-  // revision. Any other failure, including an unreadable page, propagates with its status and error code.
+  // Shared page read for the layout tools. A 400 INVALID_PARAMETER from the layout request (LayoutRequestError — not
+  // the parallel pages-list or page read) means the layoutId does not belong to this page
+  // (LayoutServiceCEImpl.getLayout) — typically one the agent guessed because read_pages could not resolve it. pageId is
+  // authoritative, so re-resolve the page's own layoutId (layouts[0]: a page has one layout) once and retry; callers
+  // then write to the returned layoutId, and commitLayout refuses a corrected write that carries no revision. Any other
+  // failure, including an unreadable page, propagates with its status and error code.
   async function readPageLayout(
     applicationId: string,
     pageId: string,
@@ -3170,7 +3184,7 @@ export function buildMcpServer(
       };
     } catch (error) {
       if (
-        !(error instanceof AppsmithApiError) ||
+        !(error instanceof LayoutRequestError) ||
         error.status !== 400 ||
         error.errorCode !== INVALID_PARAMETER_CODE
       ) {

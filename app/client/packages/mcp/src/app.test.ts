@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import supertest from "supertest";
 import {
   AppsmithApiError,
+  LayoutRequestError,
   MAX_ARTIFACT_BYTES,
   MCP_BUILD_INFO,
   READ_PAGES_LAYOUT_CONCURRENCY,
@@ -301,6 +302,40 @@ describe("Appsmith API client", () => {
     await expect(
       api.getApplicationContext("a1", "p1", "l1"),
     ).rejects.toMatchObject({ status: 400, errorCode: "AE-APP-4000" });
+  });
+
+  it("APP-16100: only the layout request's failure is a LayoutRequestError", async () => {
+    // Fail exactly one of getApplicationContext's three parallel reads, by path.
+    const failing = (failPath: RegExp) =>
+      createAppsmithApi("user-token", API_BASE_URL, (async (
+        input: RequestInfo | URL,
+      ) =>
+        failPath.test(String(input))
+          ? Response.json(
+              { responseMeta: { error: { code: "AE-APP-4000" } } },
+              { status: 400 },
+            )
+          : Response.json({
+              responseMeta: { success: true },
+              data: {},
+            })) as unknown as typeof fetch);
+
+    const layoutError = await failing(/\/layouts\//)
+      .getApplicationContext("a1", "p1", "l1")
+      .catch((error: unknown) => error);
+
+    expect(layoutError).toBeInstanceOf(LayoutRequestError);
+    expect(layoutError).toMatchObject({
+      status: 400,
+      errorCode: "AE-APP-4000",
+    });
+
+    const pageError = await failing(/\/pages\/p1$/)
+      .getApplicationContext("a1", "p1", "l1")
+      .catch((error: unknown) => error);
+
+    expect(pageError).toBeInstanceOf(AppsmithApiError);
+    expect(pageError).not.toBeInstanceOf(LayoutRequestError);
   });
 
   it("rejects oversized artifacts before issuing an API request", async () => {
@@ -4171,7 +4206,7 @@ describe("governance-wrapped layout mutations", () => {
     const getApplicationContext = jest.fn(
       async (_app: string, _page: string, layoutId: string) => {
         if (layoutId !== "layout-real") {
-          throw new AppsmithApiError(400, "AE-APP-4000");
+          throw new LayoutRequestError(400, "AE-APP-4000");
         }
 
         return { pages: [], page: {}, layout: { dsl: LAYOUT_DSL } };
@@ -4432,7 +4467,7 @@ describe("governance-wrapped layout mutations", () => {
     const getPage = jest.fn(async () => ({ layouts: [{ id: "layout-real" }] }));
     const { api } = layoutReadApi({
       getApplicationContext: jest.fn(async () => {
-        throw new AppsmithApiError(400, "AE-APP-4004");
+        throw new LayoutRequestError(400, "AE-APP-4004");
       }) as never,
       getPage: getPage as never,
     });
@@ -4446,6 +4481,30 @@ describe("governance-wrapped layout mutations", () => {
     expect(read.isError).toBe(true);
     expect(read.text).toContain("AE-APP-4004");
     expect(getPage).not.toHaveBeenCalled();
+  });
+
+  it("APP-16100: an INVALID_PARAMETER 400 from the pages-list or page read is not treated as a wrong layoutId", async () => {
+    const getPage = jest.fn(async () => ({ layouts: [{ id: "layout-real" }] }));
+    const getApplicationContext = jest.fn(async () => {
+      // A plain AppsmithApiError: the failure came from a parallel read, not the layout request.
+      throw new AppsmithApiError(400, "AE-APP-4000");
+    });
+    const { api } = layoutReadApi({
+      getApplicationContext: getApplicationContext as never,
+      getPage: getPage as never,
+    });
+    const server = createMcpHttpServer(API_BASE_URL, () => api);
+    const read = await callToolRaw(server, "read_semantic_page", {
+      applicationId: APP_ID,
+      pageId: PAGE_ID,
+      layoutId: "layout-guessed",
+    });
+
+    expect(read.isError).toBe(true);
+    expect(read.text).toContain("AE-APP-4000");
+    expect(read.text).not.toContain("correctedLayoutId");
+    expect(getPage).not.toHaveBeenCalled();
+    expect(getApplicationContext).toHaveBeenCalledTimes(1);
   });
 
   it("F3: read_pages fans out one bounded getPage per page and does not cross-contaminate layoutIds", async () => {
