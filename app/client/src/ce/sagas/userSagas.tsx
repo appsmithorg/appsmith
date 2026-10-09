@@ -67,6 +67,7 @@ import {
   getFirstTimeUserOnboardingApplicationIds,
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
+import { disableStartSignpostingAction } from "actions/onboardingActions";
 import { getAppsmithConfigs } from "ee/configs";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import { DEFAULT_FEATURE_FLAG_VALUE } from "ee/entities/FeatureFlag";
@@ -655,6 +656,14 @@ export function* fetchFeatureFlags(action?: {
 }
 
 export function* updateFirstTimeUserOnboardingSage() {
+  // Signposting is unreachable without the Help button, so clear any stored
+  // onboarding state instead of loading it.
+  if (getAppsmithConfigs().disableHelpIcon) {
+    yield put(disableStartSignpostingAction());
+
+    return;
+  }
+
   const enable: boolean | null = yield call(getEnableStartSignposting);
 
   if (enable) {
