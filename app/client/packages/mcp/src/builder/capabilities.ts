@@ -650,7 +650,12 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       summary: "datasource tables/columns",
     },
     { name: "list_actions", gate: "data", summary: "safe action metadata" },
-    { name: "create_query", gate: "data", summary: "structured SQL query" },
+    {
+      name: "create_query",
+      gate: "data",
+      summary:
+        "structured SQL query (filters: eq/ne/gt/gte/lt/lte/like/in, inList on PostgreSQL; skipWhenEmpty for filter bars)",
+    },
     {
       name: "create_mongo_query",
       gate: "data",
@@ -974,7 +979,7 @@ export function getCapabilities(
     resources: [
       "appsmith://reference/widgets — the widget catalog as a resource",
       "appsmith://guide/{placement,naming,bindings,git,screenshot} — technique guides (read the screenshot guide BEFORE recreating any screenshot/mockup the user shows you)",
-      "appsmith://recipe/{crud,form,table-detail,zip-lookup} — end-to-end build walkthroughs",
+      "appsmith://recipe/{crud,form,table-detail,zip-lookup,filter-bar} — end-to-end build walkthroughs",
       "Every doc above is also readable through the get_guide tool by slug (for clients that cannot read MCP resources).",
     ],
     prompts: [
