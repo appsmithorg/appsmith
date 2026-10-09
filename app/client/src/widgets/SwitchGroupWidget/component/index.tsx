@@ -71,6 +71,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
     labelWidth,
     onChange,
     options,
+    required,
     selected,
     valid,
   } = props;
@@ -95,6 +96,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
           helpText={labelTooltip}
           inline={inline}
           isDynamicHeightEnabled={isDynamicHeightEnabled}
+          isRequired={required}
           optionCount={optionCount}
           position={labelPosition}
           text={labelText}
