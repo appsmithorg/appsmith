@@ -27,7 +27,7 @@ jobs:
         with:
           filters: |
             ci-scripts:
-              - '.github/workflows/scripts/**'
+              - '.github/workflows/scripts/**/*.js'
             server:
               - 'app/server/**'
             client:

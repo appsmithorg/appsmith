@@ -82,9 +82,11 @@ test.describe("isDocsOnlyChange", () => {
     assert.equal(gate.isDocsOnlyChange({ files, expectedCount: 2 }), false);
   });
 
-  test("an unknown file count is accepted when the listing is complete", () => {
+  test("an unknown file count keeps the full gate", () => {
     const files = [{ filename: "docs/a.md" }];
-    assert.equal(gate.isDocsOnlyChange({ files, expectedCount: undefined }), true);
+    assert.equal(gate.isDocsOnlyChange({ files, expectedCount: undefined }), false);
+    assert.equal(gate.isDocsOnlyChange({ files, expectedCount: null }), false);
+    assert.equal(gate.isDocsOnlyChange({ files, expectedCount: "1" }), false);
   });
 
   test("a listing at the API cap keeps the full gate", () => {
@@ -181,8 +183,17 @@ test.describe("decide: fork PR", () => {
 
 test.describe("readDocsOnly", () => {
   const prOf = (n, changed) => ({ number: n, changed_files: changed, head: { repo: { full_name: "o/r" } } });
-  const githubWith = (files, { fail } = {}) => ({
-    rest: { pulls: { listFiles: "listFiles" } },
+  const githubWith = (files, { fail, fetchedCount, calls = [] } = {}) => ({
+    rest: {
+      pulls: {
+        listFiles: "listFiles",
+        get: async (params) => {
+          calls.push("get");
+          assert.equal(params.pull_number, 7);
+          return { data: { number: 7, changed_files: fetchedCount } };
+        },
+      },
+    },
     paginate: async (fn, params) => {
       assert.equal(fn, "listFiles");
       assert.equal(params.pull_number, 7);
@@ -205,5 +216,35 @@ test.describe("readDocsOnly", () => {
   test("returns false when the listing disagrees with the PR's file count", async () => {
     const github = githubWith([{ filename: "docs/a.md" }]);
     assert.equal(await gate.readDocsOnly({ github, core, owner: "o", repo: "r", pr: prOf(7, 3) }), false);
+  });
+
+  test("does not call pulls.get when the PR object already carries its file count", async () => {
+    const calls = [];
+    const github = githubWith([{ filename: "docs/a.md" }], { calls });
+    await gate.readDocsOnly({ github, core, owner: "o", repo: "r", pr: prOf(7, 1) });
+    assert.deepEqual(calls, []);
+  });
+
+  test("fetches the file count through pulls.get when the PR object lacks it", async () => {
+    const calls = [];
+    const github = githubWith([{ filename: "docs/a.md" }], { fetchedCount: 1, calls });
+    const pr = { number: 7, head: { repo: { full_name: "o/r" } } };
+    assert.equal(await gate.readDocsOnly({ github, core, owner: "o", repo: "r", pr }), true);
+    assert.deepEqual(calls, ["get"]);
+  });
+
+  test("returns false when the fetched file count disagrees with the listing", async () => {
+    const github = githubWith([{ filename: "docs/a.md" }], { fetchedCount: 2 });
+    const pr = { number: 7, head: { repo: { full_name: "o/r" } } };
+    assert.equal(await gate.readDocsOnly({ github, core, owner: "o", repo: "r", pr }), false);
+  });
+
+  test("returns false when pulls.get fails", async () => {
+    const github = githubWith([{ filename: "docs/a.md" }]);
+    github.rest.pulls.get = async () => {
+      throw new Error("boom");
+    };
+    const pr = { number: 7, head: { repo: { full_name: "o/r" } } };
+    assert.equal(await gate.readDocsOnly({ github, core, owner: "o", repo: "r", pr }), false);
   });
 });

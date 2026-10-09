@@ -51,12 +51,13 @@ function isDocsPath(path) {
 }
 
 // Pure decision over a PR's file listing. `expectedCount` is the PR's own
-// `changed_files`; a listing that disagrees with it was not read in full.
-// Fail-closed: empty, capped, or mismatched listings are not docs-only.
+// `changed_files`; the listing must agree with it to count as read in full.
+// Fail-closed: an empty, capped, uncounted, or mismatched listing is not
+// docs-only.
 function isDocsOnlyChange({ files, expectedCount }) {
   const list = files || [];
   if (list.length === 0 || list.length >= MAX_LISTED_FILES) return false;
-  if (Number.isInteger(expectedCount) && expectedCount !== list.length) return false;
+  if (!Number.isInteger(expectedCount) || expectedCount !== list.length) return false;
   return list.every(
     (f) =>
       f &&
@@ -225,24 +226,30 @@ async function readRef({ github, owner, repo, sha }) {
 }
 
 // Lists the PR's changed files through the API (never a checkout of the PR)
-// and reports whether every one of them is docs-only. An API error reads as
-// not docs-only, so the gate falls back to requiring Cypress.
+// and reports whether every one of them is docs-only. Only `pulls.get` returns
+// `changed_files`; a PR resolved through `pulls.list` or the commit association
+// lacks it, so it is fetched here. An API error reads as not docs-only, so the
+// gate falls back to requiring Cypress.
 async function readDocsOnly({ github, core, owner, repo, pr }) {
-  let files;
   try {
-    files = await github.paginate(github.rest.pulls.listFiles, {
+    let expectedCount = pr.changed_files;
+    if (!Number.isInteger(expectedCount)) {
+      expectedCount = (await github.rest.pulls.get({ owner, repo, pull_number: pr.number })).data
+        .changed_files;
+    }
+    const files = await github.paginate(github.rest.pulls.listFiles, {
       owner,
       repo,
       pull_number: pr.number,
       per_page: 100,
     });
+    return isDocsOnlyChange({ files, expectedCount });
   } catch (err) {
     if (core && core.warning) {
       core.warning(`Could not list files for PR #${pr.number} (${err.message}); requiring Cypress.`);
     }
     return false;
   }
-  return isDocsOnlyChange({ files, expectedCount: pr.changed_files });
 }
 
 async function writeGate({ github, owner, repo, sha, state, description, runUrl }) {
