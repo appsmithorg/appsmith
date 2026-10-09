@@ -306,6 +306,221 @@ describe("querySpecSchema — ordering/aggregation reject injection", () => {
   );
 });
 
+describe("APP-16164: filter-bar filters (skipWhenEmpty, inList)", () => {
+  const statusFilter = {
+    column: "status",
+    op: "eq",
+    value: { widget: "StatusSelect", property: "selectedOptionValue" },
+    skipWhenEmpty: true,
+  };
+  const tagsFilter = {
+    column: "tag",
+    op: "inList",
+    value: { widget: "TagsSelect", property: "selectedOptionValues" },
+  };
+
+  it("wraps a skipWhenEmpty filter in an empty guard and, on PostgreSQL, binds null while empty", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [statusFilter],
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toBe(
+      "SELECT * FROM tickets WHERE ({{ (StatusSelect.selectedOptionValue == null || StatusSelect.selectedOptionValue.length === 0) ? 1 : 0 }} = 1 OR status = {{ (StatusSelect.selectedOptionValue == null || StatusSelect.selectedOptionValue.length === 0) ? null : StatusSelect.selectedOptionValue }});",
+    );
+  });
+
+  it("keeps the plain value binding for a skipWhenEmpty filter on other databases (no untyped NULL parameter)", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [statusFilter],
+      }),
+    );
+
+    expect(body).toBe(
+      "SELECT * FROM tickets WHERE ({{ (StatusSelect.selectedOptionValue == null || StatusSelect.selectedOptionValue.length === 0) ? 1 : 0 }} = 1 OR status = {{ StatusSelect.selectedOptionValue }});",
+    );
+  });
+
+  it("compiles inList on PostgreSQL to a text-cast ANY over one array parameter", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [tagsFilter],
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toBe(
+      "SELECT * FROM tickets WHERE CAST(tag AS TEXT) = ANY(CAST({{ (TagsSelect.selectedOptionValues == null || TagsSelect.selectedOptionValues.length === 0) ? null : TagsSelect.selectedOptionValues }} AS TEXT[]));",
+    );
+  });
+
+  it("combines inList with skipWhenEmpty and ANDs it with other filters", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [{ ...tagsFilter, skipWhenEmpty: true }, statusFilter],
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toMatch(
+      /^SELECT \* FROM tickets WHERE \(\{\{ \(TagsSelect\.selectedOptionValues == null .* \? 1 : 0 \}\} = 1 OR CAST\(tag AS TEXT\) = ANY\(.*\)\) AND \(\{\{ \(StatusSelect\.selectedOptionValue == null .* = 1 OR status = .*\);$/,
+    );
+  });
+
+  it.each([undefined, "other" as const])(
+    "refuses inList unless the datasource is PostgreSQL (dialect %s)",
+    (dialect) => {
+      const spec = parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [tagsFilter],
+      });
+
+      expect(() => compileQuery(spec, { dialect })).toThrow(
+        /inList \(filter on tag\) is only available on a PostgreSQL datasource/,
+      );
+    },
+  );
+
+  it.each([
+    [
+      "inList with a literal",
+      { column: "tag", op: "inList", value: { literal: "a" } },
+      "inList needs a { widget, property } value",
+    ],
+    [
+      "skipWhenEmpty with a literal",
+      {
+        column: "status",
+        op: "eq",
+        value: { literal: "open" },
+        skipWhenEmpty: true,
+      },
+      "a literal is never empty",
+    ],
+    [
+      "skipWhenEmpty on an appsmith.* value",
+      {
+        column: "owner",
+        op: "eq",
+        value: { widget: "appsmith", property: "user.email" },
+        skipWhenEmpty: true,
+      },
+      "cannot be used on an appsmith.* value",
+    ],
+  ])("rejects %s at the schema", (_label, filter, message) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      filters: [filter],
+    });
+
+    expect(result.success).toBe(false);
+    expect(JSON.stringify(result.error?.issues)).toContain(message);
+  });
+
+  it.each(["UPDATE", "DELETE"])(
+    "refuses skipWhenEmpty on %s (an empty widget would widen the write to every row)",
+    (operation) => {
+      const result = querySpecSchema.safeParse({
+        ...base,
+        operation,
+        table: "tickets",
+        values:
+          operation === "UPDATE"
+            ? [{ column: "status", value: { literal: "closed" } }]
+            : undefined,
+        filters: [statusFilter],
+      });
+
+      expect(result.success).toBe(false);
+      expect(JSON.stringify(result.error?.issues)).toContain(
+        "only valid on a SELECT query",
+      );
+    },
+  );
+
+  it("leaves a plain widget filter and the existing in operator unchanged", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          {
+            column: "status",
+            op: "eq",
+            value: { widget: "StatusSelect", property: "selectedOptionValue" },
+          },
+          {
+            column: "tier",
+            op: "in",
+            value: { widget: "TierSelect", property: "selectedOptionValue" },
+          },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      "SELECT * FROM tickets WHERE status = {{ StatusSelect.selectedOptionValue }} AND tier IN ({{ TierSelect.selectedOptionValue }});",
+    );
+  });
+
+  // The emitted guard and value expressions run in the end user's browser. Evaluate exactly what the compiler wrote
+  // (the text inside {{ }}) against each kind of widget value to pin what "empty" means.
+  it.each([
+    [undefined, 1, null],
+    [null, 1, null],
+    ["", 1, null],
+    [[], 1, null],
+    ["open", 0, "open"],
+    [["a", "b"], 0, ["a", "b"]],
+    [0, 0, 0],
+    [false, 0, false],
+  ])(
+    "treats widget value %p as empty=%p and binds %p (PostgreSQL)",
+    (widgetValue, expectedGuard, expectedValue) => {
+      const body = compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          filters: [statusFilter],
+        }),
+        { dialect: "postgres" },
+      );
+      const [guard, value] = [...body.matchAll(/\{\{ (.*?) \}\}/g)].map(
+        (match) => match[1],
+      );
+      const evaluate = (expression: string) =>
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval
+        new Function("StatusSelect", `return (${expression});`)({
+          selectedOptionValue: widgetValue,
+        });
+
+      expect(evaluate(guard)).toBe(expectedGuard);
+      expect(evaluate(value)).toEqual(expectedValue);
+    },
+  );
+});
+
 describe("buildActionDto", () => {
   it("embeds the datasource as { id } and forces prepared statements on", () => {
     const spec = parse({ ...base, operation: "SELECT", table: "users" });

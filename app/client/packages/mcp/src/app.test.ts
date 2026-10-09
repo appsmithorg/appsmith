@@ -1879,6 +1879,48 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     expect(dto.datasource).toEqual({ id: "ds1" });
   });
 
+  it.each([
+    ["postgres-plugin", true],
+    ["mysql-plugin", false],
+  ])(
+    "APP-16164: create_query compiles inList only on a PostgreSQL datasource (%s)",
+    async (pluginId, allowed) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          filters: [
+            {
+              column: "tag",
+              op: "inList",
+              value: { widget: "TagsSelect", property: "selectedOptionValues" },
+              skipWhenEmpty: true,
+            },
+          ],
+        },
+      });
+
+      if (allowed) {
+        expect(body.created).toBe(true);
+        expect(body.body).toContain("CAST(tag AS TEXT) = ANY(");
+      } else {
+        expect(body.valid).toBe(false);
+        expect(JSON.stringify(body.errors)).toMatch(
+          /only available on a PostgreSQL datasource/,
+        );
+        expect(createAction).not.toHaveBeenCalled();
+      }
+    },
+  );
+
   it("create_query refuses a datasource the caller cannot access (IDOR guard)", async () => {
     const createAction = jest.fn();
     const api: AppsmithApi = {
@@ -4121,6 +4163,82 @@ describe("governance-wrapped layout mutations", () => {
     updatedAt: "2026-07-12T00:00:00.000Z",
     datasource: { id: "ds1", pluginId: "postgres" },
   };
+
+  // update_action recompiles a SQL spec, so it resolves the datasource like create_query: inList only on PostgreSQL,
+  // and only for a datasource accessible in the application's own workspace.
+  function sqlUpdateServer(datasources: unknown[]) {
+    const updateAction = jest.fn(async () => STORED_ACTION);
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getAction: jest.fn(async () => STORED_ACTION),
+      listDatasources: jest.fn(async () => datasources),
+      updateAction: updateAction as never,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      dataEnabled: true,
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+
+    return { server, updateAction };
+  }
+
+  async function updateWithInList(
+    server: ReturnType<typeof createMcpHttpServer>,
+  ) {
+    const read = await callTool(server, "get_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+
+    return callTool(server, "update_action", {
+      spec: {
+        kind: "SQL",
+        actionId: "act1",
+        applicationId: "app1",
+        revision: read.body.revision,
+        query: {
+          name: "OldName",
+          applicationId: "app1",
+          pageId: "p1",
+          datasourceId: "ds1",
+          operation: "SELECT",
+          table: "tickets",
+          filters: [
+            {
+              column: "tag",
+              op: "inList",
+              value: { widget: "TagsSelect", property: "selectedOptionValues" },
+              skipWhenEmpty: true,
+            },
+          ],
+        },
+      },
+    });
+  }
+
+  it("APP-16164: update_action recompiles an inList filter on a PostgreSQL datasource", async () => {
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+    ]);
+    const updated = await updateWithInList(server);
+
+    expect(updated.body.updated).toBe(true);
+    expect(
+      JSON.stringify(
+        (updateAction.mock.calls[0] as unknown[])[1] as Record<string, unknown>,
+      ),
+    ).toContain("CAST(tag AS TEXT) = ANY(");
+  });
+
+  it("APP-16164: update_action refuses a SQL spec on a datasource outside the application's workspace", async () => {
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "other", name: "X", pluginId: "postgres-plugin" },
+    ]);
+    const updated = await updateWithInList(server);
+
+    expect(updated.body.error).toMatch(/not accessible/);
+    expect(updateAction).not.toHaveBeenCalled();
+  });
 
   it("get_action returns safe metadata + revision, and update_action commits a governed rename", async () => {
     const store = new MemoryGovernanceStore();

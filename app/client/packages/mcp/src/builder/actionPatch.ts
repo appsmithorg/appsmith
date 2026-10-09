@@ -3,6 +3,7 @@ import {
   buildActionDto,
   compileQuery,
   querySpecSchema,
+  type CompileQueryOptions,
   type QuerySpec,
 } from "./query.js";
 import {
@@ -112,7 +113,10 @@ export interface UpdateActionRequest extends ActionLifecycleRequest {
   action: Record<string, unknown>;
 }
 
-function buildUpdateAction(spec: UpdateActionSpec): Record<string, unknown> {
+function buildUpdateAction(
+  spec: UpdateActionSpec,
+  options: CompileQueryOptions,
+): Record<string, unknown> {
   const source = spec.kind === "SQL" ? spec.query : spec.rest;
   const action: Record<string, unknown> = { id: spec.actionId };
   const name = spec.name ?? source?.name;
@@ -123,7 +127,7 @@ function buildUpdateAction(spec: UpdateActionSpec): Record<string, unknown> {
 
   if (spec.kind === "SQL") {
     const query = source as QuerySpec;
-    const body = compileQuery(query);
+    const body = compileQuery(query, options);
     const compiled = buildActionDto(query, body);
 
     return { id: spec.actionId, ...compiled };
@@ -136,15 +140,17 @@ function buildUpdateAction(spec: UpdateActionSpec): Record<string, unknown> {
 }
 
 // Builds the minimal, safe patch request. The output excludes every caller-controlled field except the closed
-// ActionDTO vocabulary produced by the structured SQL/REST compilers.
+// ActionDTO vocabulary produced by the structured SQL/REST compilers. `options.dialect` is the SQL datasource's
+// family (resolved by the caller), which inList needs.
 export function buildUpdateActionDto(
   spec: UpdateActionSpec,
+  options: CompileQueryOptions = {},
 ): UpdateActionRequest {
   return {
     actionId: spec.actionId,
     applicationId: spec.applicationId,
     revision: spec.revision,
-    action: buildUpdateAction(spec),
+    action: buildUpdateAction(spec, options),
   };
 }
 
