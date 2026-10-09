@@ -5,6 +5,7 @@
 // The gate is written on a PR's HEAD commit SHA and reflects whether the
 // checks that actually apply to that PR type are green:
 //   - internal PR: `qc-result` AND `perform-test / ci-test-result`
+//   - internal PR whose changed files are all docs-only: `qc-result` alone
 //   - fork PR:     `external-ci-result` AND the approved Cypress result
 //                  (persisted as the `ci/fork-cypress` commit status)
 //
@@ -29,6 +30,40 @@ const WORKFLOW_TO_CHECK = {
   "PR Automation test suite": "perform-test / ci-test-result",
   "External PR credential-free validation": "external-ci-result",
 };
+
+// Paths whose changes cannot affect runtime behaviour. An internal PR that
+// touches only these is gated on Quality checks alone; Cypress is not required.
+// `.github/**` is deliberately absent: a workflow-only PR would otherwise merge
+// with no CI signal at all.
+const DOCS_DIRS = ["docs/", "contributions/", ".cursor/", ".claude/"];
+const DOCS_EXTENSIONS = [".md", ".mdc"];
+const NOT_DOCS_DIRS = ["app/", "deploy/"];
+
+// pulls.listFiles returns at most this many files. A listing at the cap may be
+// incomplete, so it is never trusted to prove a PR docs-only.
+const MAX_LISTED_FILES = 3000;
+
+function isDocsPath(path) {
+  if (typeof path !== "string" || path === "" || path.split("/").includes("..")) return false;
+  if (DOCS_DIRS.some((dir) => path.startsWith(dir))) return true;
+  if (NOT_DOCS_DIRS.some((dir) => path.startsWith(dir))) return false;
+  return DOCS_EXTENSIONS.some((ext) => path.endsWith(ext));
+}
+
+// Pure decision over a PR's file listing. `expectedCount` is the PR's own
+// `changed_files`; a listing that disagrees with it was not read in full.
+// Fail-closed: empty, capped, or mismatched listings are not docs-only.
+function isDocsOnlyChange({ files, expectedCount }) {
+  const list = files || [];
+  if (list.length === 0 || list.length >= MAX_LISTED_FILES) return false;
+  if (Number.isInteger(expectedCount) && expectedCount !== list.length) return false;
+  return list.every(
+    (f) =>
+      f &&
+      isDocsPath(f.filename) &&
+      (f.previous_filename == null || isDocsPath(f.previous_filename)),
+  );
+}
 
 // A deleted fork leaves head.repo === null; treat a missing head.repo as a fork.
 function isFork(pr, owner, repo) {
@@ -67,7 +102,7 @@ function latestStatuses(statuses) {
 }
 
 // Pure decision so it can be unit-tested without the API.
-function decide({ fork, checkRuns, statuses, pendingChecks, forkCypressState }) {
+function decide({ fork, docsOnly, checkRuns, statuses, pendingChecks, forkCypressState }) {
   const checksByName = latestChecks(checkRuns || []);
   const statusesByCtx = latestStatuses(statuses || []);
   const forced = pendingChecks || new Set();
@@ -95,10 +130,12 @@ function decide({ fork, checkRuns, statuses, pendingChecks, forkCypressState }) 
         ["external-ci-result", checkOutcome("external-ci-result")],
         ["approved Cypress", statusOutcome(FORK_CYPRESS, forkCypressState)],
       ]
-    : [
-        ["qc-result", checkOutcome("qc-result")],
-        ["perform-test / ci-test-result", checkOutcome("perform-test / ci-test-result")],
-      ];
+    : docsOnly
+      ? [["qc-result", checkOutcome("qc-result")]]
+      : [
+          ["qc-result", checkOutcome("qc-result")],
+          ["perform-test / ci-test-result", checkOutcome("perform-test / ci-test-result")],
+        ];
 
   const failed = parts.filter(([, v]) => v === "failure").map(([k]) => k);
   const pending = parts.filter(([, v]) => v === "pending").map(([k]) => k);
@@ -113,7 +150,9 @@ function decide({ fork, checkRuns, statuses, pendingChecks, forkCypressState }) 
     state: "success",
     description: (fork
       ? "Credential-free + approved Cypress passed"
-      : "Quality checks + Cypress passed"
+      : docsOnly
+        ? "Quality checks passed; Cypress not required for a docs-only change"
+        : "Quality checks + Cypress passed"
     ).slice(0, 140),
   };
 }
@@ -185,6 +224,27 @@ async function readRef({ github, owner, repo, sha }) {
   return { checkRuns, statuses };
 }
 
+// Lists the PR's changed files through the API (never a checkout of the PR)
+// and reports whether every one of them is docs-only. An API error reads as
+// not docs-only, so the gate falls back to requiring Cypress.
+async function readDocsOnly({ github, core, owner, repo, pr }) {
+  let files;
+  try {
+    files = await github.paginate(github.rest.pulls.listFiles, {
+      owner,
+      repo,
+      pull_number: pr.number,
+      per_page: 100,
+    });
+  } catch (err) {
+    if (core && core.warning) {
+      core.warning(`Could not list files for PR #${pr.number} (${err.message}); requiring Cypress.`);
+    }
+    return false;
+  }
+  return isDocsOnlyChange({ files, expectedCount: pr.changed_files });
+}
+
 async function writeGate({ github, owner, repo, sha, state, description, runUrl }) {
   await github.rest.repos.createCommitStatus({
     owner,
@@ -218,10 +278,13 @@ async function evaluate({ github, core, owner, repo, sha, pr, pendingChecks, for
     return null;
   }
   const fork = isFork(pr, owner, repo);
+  const docsOnly = !fork && (await readDocsOnly({ github, core, owner, repo, pr }));
   const { checkRuns, statuses } = await readRef({ github, owner, repo, sha });
-  const { state, description } = decide({ fork, checkRuns, statuses, pendingChecks, forkCypressState });
+  const { state, description } = decide({ fork, docsOnly, checkRuns, statuses, pendingChecks, forkCypressState });
   await writeGate({ github, owner, repo, sha, state, description, runUrl });
-  if (core && core.info) core.info(`ci/merge-gate=${state} on ${sha} (fork=${fork}) — ${description}`);
+  if (core && core.info) {
+    core.info(`ci/merge-gate=${state} on ${sha} (fork=${fork}, docsOnly=${docsOnly}) — ${description}`);
+  }
   return state;
 }
 
@@ -229,8 +292,12 @@ module.exports = {
   GATE,
   FORK_CYPRESS,
   WORKFLOW_TO_CHECK,
+  MAX_LISTED_FILES,
   isFork,
   isGatable,
+  isDocsPath,
+  isDocsOnlyChange,
+  readDocsOnly,
   decide,
   forkCypressStateFromResults,
   resolvePr,
