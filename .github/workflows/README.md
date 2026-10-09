@@ -34,6 +34,27 @@ The comment-triggered version of this command was retired in March 2024. Comment
 gets you a bot reply saying the method is defunct. Use the PR body and the label, as
 above.
 
+### Docs-only internal PRs do not need Cypress
+
+For a PR from a branch in this repository, `ci/merge-gate` lists the changed files
+through the GitHub API. When every changed file, and the old name of every renamed
+file, matches one of these patterns, the gate passes from Quality checks alone and its
+description says that Cypress was not required:
+
+- `docs/**`
+- `contributions/**`
+- `.cursor/**`
+- `.claude/**`
+- `*.md` and `*.mdc` outside `app/` and `deploy/`
+
+Any other file, including a workflow file under `.github/workflows/`, needs the full
+gate: the `ok-to-test` label and a green Cypress run. Fork PRs are not classified this
+way; they keep the credential-free validation and approved Cypress requirements. The
+decision lives in
+`scripts/merge-gate.js`; its unit tests run with
+`find .github/workflows/scripts -name '*.test.js' -exec node --test {} +` and in the `ci-scripts-tests` job
+of Quality checks.
+
 ### Fork PRs cannot run Cypress this way
 
 GitHub gives workflows on pull requests from forks a read-only token and no access to

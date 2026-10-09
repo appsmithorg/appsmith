@@ -12,6 +12,7 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     outputs:
+      ci-scripts: ${{ steps.filter.outputs.ci-scripts }}
       server: ${{ steps.filter.outputs.server }}
       client: ${{ steps.filter.outputs.client == 'true' && steps.filter.outputs.not-cypress-manual == 'true' }}
     steps:
@@ -25,12 +26,28 @@ jobs:
         id: filter
         with:
           filters: |
+            ci-scripts:
+              - '.github/workflows/scripts/**/*.js'
             server:
               - 'app/server/**'
             client:
               - 'app/client/**'
             not-cypress-manual:
               - '!app/client/cypress/manual_TestSuite/**'
+
+  ci-scripts-tests:
+    name: ci-scripts-tests
+    needs: path-filter
+    if: needs.path-filter.outputs.ci-scripts == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the merged commit from PR and base branch
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+      - name: Run the workflow script unit tests
+        run: find .github/workflows/scripts -name '*.test.js' -exec node --test {} +
 
   server-spotless:
     name: server-spotless
@@ -100,6 +117,8 @@ jobs:
     name: qc-result
     needs:
       [
+        path-filter,
+        ci-scripts-tests,
         server-spotless,
         server-unit-tests,
         client-build,
@@ -118,17 +137,16 @@ jobs:
         shell: bash
     steps:
       - name: Return status for quality checks
+        env:
+          # Every job in `needs`, as {name: {result, outputs}}. `path-filter` must
+          # succeed, or every check it gates is skipped for the wrong reason. A
+          # job skipped by its path filter reads `skipped` and does not fail the
+          # gate; a failed or cancelled job does.
+          JOB_RESULTS: ${{ toJSON(needs) }}
         run: |
-          if [[ "${{ needs.server-spotless.result }}" == "failure" || \
-           "${{ needs.server-unit-tests.result }}" == "failure" || \
-           "${{ needs.client-build.result }}" == "failure" || \
-           "${{ needs.client-prettier.result }}" == "failure" || \
-           "${{ needs.client-unit-tests.result }}" == "failure" || \
-           "${{ needs.client-check-cyclic-deps.result }}" == "failure" || \
-           "${{ needs.client-lint.result }}" == "failure" ]]; then
-            echo "Quality checks failed";
-            exit 1;
-          else
-            echo "Quality checks successful";
-            exit 0;
+          if jq -e '.["path-filter"].result != "success" or any(.[]; .result == "failure" or .result == "cancelled")' <<< "$JOB_RESULTS" > /dev/null; then
+            echo "Quality checks failed"
+            jq -r 'to_entries[] | "\(.key): \(.value.result)"' <<< "$JOB_RESULTS"
+            exit 1
           fi
+          echo "Quality checks successful"
