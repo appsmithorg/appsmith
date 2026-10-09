@@ -452,7 +452,7 @@ export const ISDCodeOptions: Array<ISDCodeProps> = [
   },
   {
     name: "Guyana",
-    dial_code: "+595",
+    dial_code: "+592",
     code: "GY",
   },
   {

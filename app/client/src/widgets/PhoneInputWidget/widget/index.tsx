@@ -7,10 +7,13 @@ import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { createMessage, FIELD_REQUIRED_ERROR } from "ee/constants/messages";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
+import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
 import {
-  getCountryCode,
-  ISDCodeDropdownOptions,
-} from "../component/ISDCodeDropdown";
+  countryCodeDisplayedForDialCode,
+  findCountryByDialCode,
+  findCountryByIso,
+  resolveDisplayedPhoneCountry,
+} from "../component/utilities";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import _ from "lodash";
 import BaseInputWidget from "widgets/BaseInputWidget";
@@ -29,6 +32,7 @@ import {
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
+  PropertyUpdates,
 } from "WidgetProvider/types";
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
@@ -84,6 +88,27 @@ export function defaultValueValidation(
   };
 }
 
+function defaultCountryCodeUpdateHook(
+  props: { dynamicPropertyPathList?: Array<{ key: string }> },
+  propertyPath: string,
+  propertyValue: string,
+): PropertyUpdates[] {
+  const updates: PropertyUpdates[] = [{ propertyPath, propertyValue }];
+  const dialCodeIsDynamic = props.dynamicPropertyPathList?.some(
+    (path) => path.key === "defaultDialCode",
+  );
+  const country = findCountryByIso(propertyValue);
+
+  if (country && !dialCodeIsDynamic) {
+    updates.push({
+      propertyPath: "defaultDialCode",
+      propertyValue: country.dial_code,
+    });
+  }
+
+  return updates;
+}
+
 class PhoneInputWidget extends BaseInputWidget<
   PhoneInputWidgetProps,
   WidgetState
@@ -119,6 +144,7 @@ class PhoneInputWidget extends BaseInputWidget<
       rows: 7,
       labelPosition: LabelPosition.Top,
       defaultDialCode: getDefaultISDCode().dial_code,
+      defaultCountryCode: getDefaultISDCode().code,
       allowDialCodeChange: false,
       allowFormatting: true,
       responsiveBehavior: ResponsiveBehavior.Fill,
@@ -195,17 +221,35 @@ class PhoneInputWidget extends BaseInputWidget<
             },
             {
               helpText: "Changes the country code",
-              propertyName: "defaultDialCode",
+              propertyName: "defaultCountryCode",
               label: "Default country code",
               enableSearch: true,
               dropdownHeight: "156px",
               controlType: "DROP_DOWN",
               searchPlaceholderText: "Search by code or country name",
               options: ISDCodeDropdownOptions,
+              updateHook: defaultCountryCodeUpdateHook,
+              defaultValue: countryCodeDisplayedForDialCode,
               virtual: true,
               isJSConvertible: true,
               isBindProperty: true,
               isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.TEXT,
+              },
+            },
+            {
+              propertyName: "defaultDialCode",
+              label: "Dial code",
+              helpText: "Sets the dial code from a binding",
+              controlType: "INPUT_TEXT",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              hidden: (props: PhoneInputWidgetProps) =>
+                !props.dynamicPropertyPathList?.some(
+                  (path: { key: string }) => path.key === "defaultDialCode",
+                ),
               validation: {
                 type: ValidationTypes.TEXT,
               },
@@ -306,12 +350,14 @@ class PhoneInputWidget extends BaseInputWidget<
     return _.merge(super.getMetaPropertiesMap(), {
       value: "",
       dialCode: undefined,
+      countryCode: undefined,
     });
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return _.merge(super.getDefaultPropertiesMap(), {
       dialCode: "defaultDialCode",
+      countryCode: "defaultCountryCode",
     });
   }
 
@@ -323,14 +369,30 @@ class PhoneInputWidget extends BaseInputWidget<
     };
   }
 
+  private isDialCodeDynamic() {
+    return !!this.props.dynamicPropertyPathList?.some(
+      (path: { key: string }) => path.key === "defaultDialCode",
+    );
+  }
+
+  private getResolvedCountry() {
+    return resolveDisplayedPhoneCountry(
+      this.props.dialCode,
+      this.props.countryCode,
+      { preferCountry: !this.isDialCodeDynamic() },
+    );
+  }
+
   getFormattedPhoneNumber(value: string) {
-    const countryCode = getCountryCode(this.props.dialCode);
+    const countryCode = this.getResolvedCountry()?.code;
     let formattedValue;
 
     if (!value) {
       formattedValue = value;
-    } else if (this.props.allowFormatting) {
+    } else if (this.props.allowFormatting && countryCode) {
       formattedValue = new AsYouType(countryCode as CountryCode).input(value);
+    } else if (this.props.allowFormatting) {
+      formattedValue = new AsYouType().input(value);
     } else {
       formattedValue = parseIncompletePhoneNumber(value);
     }
@@ -356,8 +418,27 @@ class PhoneInputWidget extends BaseInputWidget<
   }
 
   componentDidUpdate(prevProps: PhoneInputWidgetProps) {
-    if (prevProps.dialCode !== this.props.dialCode) {
-      this.onISDCodeChange(this.props.dialCode);
+    if (
+      prevProps.dialCode !== this.props.dialCode ||
+      prevProps.countryCode !== this.props.countryCode
+    ) {
+      const resolved = this.getResolvedCountry();
+
+      if (
+        resolved &&
+        (resolved.code !== this.props.countryCode ||
+          resolved.dial_code !== this.props.dialCode)
+      ) {
+        this.onISDCodeChange(resolved.code);
+      } else if (
+        prevProps.dialCode !== this.props.dialCode &&
+        this.props.value &&
+        this.props.allowFormatting
+      ) {
+        const formattedValue = this.getFormattedPhoneNumber(this.props.value);
+
+        this.props.updateWidgetMetaProperty("text", formattedValue);
+      }
     }
 
     if (prevProps.allowFormatting !== this.props.allowFormatting) {
@@ -390,14 +471,23 @@ class PhoneInputWidget extends BaseInputWidget<
     }
   }
 
-  onISDCodeChange = (dialCode?: string) => {
-    const countryCode = getCountryCode(dialCode);
+  onISDCodeChange = (code?: string) => {
+    const country = findCountryByIso(code) ?? findCountryByDialCode(code);
 
-    this.props.updateWidgetMetaProperty("dialCode", dialCode);
-    this.props.updateWidgetMetaProperty("countryCode", countryCode);
+    if (!country) return;
+
+    if (this.props.dialCode !== country.dial_code) {
+      this.props.updateWidgetMetaProperty("dialCode", country.dial_code);
+    }
+
+    if (this.props.countryCode !== country.code) {
+      this.props.updateWidgetMetaProperty("countryCode", country.code);
+    }
 
     if (this.props.value && this.props.allowFormatting) {
-      const formattedValue = this.getFormattedPhoneNumber(this.props.value);
+      const formattedValue = new AsYouType(country.code as CountryCode).input(
+        this.props.value,
+      );
 
       this.props.updateWidgetMetaProperty("text", formattedValue);
     }
@@ -490,7 +580,7 @@ class PhoneInputWidget extends BaseInputWidget<
     const value = this.props.text ?? "";
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
-    const countryCode = this.props.countryCode;
+    const resolvedCountry = this.getResolvedCountry();
     const conditionalProps: Partial<PhoneInputComponentProps> = {};
 
     conditionalProps.errorMessage = this.props.errorMessage;
@@ -509,9 +599,9 @@ class PhoneInputWidget extends BaseInputWidget<
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         compactMode={isCompactMode(componentHeight)}
-        countryCode={countryCode}
+        countryCode={resolvedCountry?.code ?? this.props.countryCode}
         defaultValue={this.props.defaultText}
-        dialCode={this.props.dialCode}
+        dialCode={resolvedCountry?.dial_code ?? this.props.dialCode}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
         disabled={this.props.isDisabled}
         iconAlign={this.props.iconAlign}
@@ -545,6 +635,7 @@ class PhoneInputWidget extends BaseInputWidget<
 export interface PhoneInputWidgetProps extends BaseInputWidgetProps {
   dialCode?: string;
   countryCode?: CountryCode;
+  defaultCountryCode?: string;
   defaultText?: string;
   allowDialCodeChange: boolean;
 }

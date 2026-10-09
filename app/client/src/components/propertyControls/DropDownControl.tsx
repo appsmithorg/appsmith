@@ -69,17 +69,24 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       typeof this.props.options === "function"
         ? this.props.options(this.props.widgetProperties)
         : this.props?.options || [];
+    const resolvedDefault =
+      typeof this.props.defaultValue === "function"
+        ? this.props.defaultValue(
+            this.props.widgetProperties,
+            this.props.propertyName,
+          )
+        : this.props.defaultValue;
 
-    if (this.props.defaultValue) {
+    if (resolvedDefault) {
       if (this.props.isMultiSelect) {
-        const defaultValueSet = new Set(this.props.defaultValue);
+        const defaultValueSet = new Set(resolvedDefault);
 
         defaultSelected = options
           .filter((option) => defaultValueSet.has(option.value))
           .map((option) => option.value);
       } else {
         defaultSelected = options.find(
-          (option) => option.value === this.props.defaultValue,
+          (option) => option.value === resolvedDefault,
         )?.value;
       }
     }
@@ -292,7 +299,12 @@ export interface DropDownControlProps extends ControlProps {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options?: any[] | ((props: ControlProps["widgetProperties"]) => any[]);
-  defaultValue?: string;
+  defaultValue?:
+    | string
+    | ((
+        widgetProperties: ControlProps["widgetProperties"],
+        propertyName: string,
+      ) => string | undefined);
   virtual?: boolean;
   placeholderText: string;
   searchPlaceholderText: string;
