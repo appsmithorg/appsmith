@@ -40,7 +40,7 @@ RUN ./make build -pkgs=mongodump,mongorestore,bsondump,mongoexport,mongofiles,mo
       test -f /tmp/mongo-tools/bin/$tool || (echo "Missing binary: $tool" && exit 1); \
     done
 
-FROM ubuntu:24.04
+FROM ubuntu:25.10
 
 LABEL maintainer="tech@appsmith.com"
 
