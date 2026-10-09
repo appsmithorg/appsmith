@@ -230,6 +230,9 @@ class PhoneInputWidget extends BaseInputWidget<
               options: ISDCodeDropdownOptions,
               updateHook: defaultCountryCodeUpdateHook,
               defaultValue: countryCodeDisplayedForDialCode,
+              // The pane only supplies this property. Older widgets stored the
+              // dial code and have no defaultCountryCode, so the dropdown needs it.
+              dependencies: ["defaultDialCode"],
               virtual: true,
               isJSConvertible: true,
               isBindProperty: true,
@@ -250,6 +253,7 @@ class PhoneInputWidget extends BaseInputWidget<
                 !props.dynamicPropertyPathList?.some(
                   (path: { key: string }) => path.key === "defaultDialCode",
                 ),
+              dependencies: ["dynamicPropertyPathList"],
               validation: {
                 type: ValidationTypes.TEXT,
               },
