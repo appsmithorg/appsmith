@@ -599,7 +599,10 @@ class PhoneInputWidget extends BaseInputWidget<
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         compactMode={isCompactMode(componentHeight)}
-        countryCode={resolvedCountry?.code ?? this.props.countryCode}
+        countryCode={
+          (resolvedCountry?.code as CountryCode | undefined) ??
+          this.props.countryCode
+        }
         defaultValue={this.props.defaultText}
         dialCode={resolvedCountry?.dial_code ?? this.props.dialCode}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}

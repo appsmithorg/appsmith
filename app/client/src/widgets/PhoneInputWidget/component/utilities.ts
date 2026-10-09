@@ -1,7 +1,7 @@
 import { get } from "lodash";
+import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import type { ISDCodeProps } from "constants/ISDCodes_v2";
 import { ISDCodeOptions } from "constants/ISDCodes_v2";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 /**
  * Shared dial codes are stored once, so a dial code alone cannot say which
@@ -130,7 +130,7 @@ export const countryCodeDisplayedForDialCode = (
         ? source.dialCode
         : undefined;
 
-  if (!dialCode || isDynamicValue(dialCode)) return undefined;
+  if (!dialCode || DATA_BIND_REGEX.test(dialCode)) return undefined;
 
   return findCountryByDialCode(dialCode)?.code;
 };
