@@ -1569,6 +1569,7 @@ describe("MCP instruction surface (M2)", () => {
         "appsmith://recipe/form",
         "appsmith://recipe/table-detail",
         "appsmith://recipe/zip-lookup",
+        "appsmith://recipe/filter-bar",
         "appsmith://reference/widgets",
       ].sort(),
     );

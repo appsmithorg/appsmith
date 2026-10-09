@@ -431,6 +431,46 @@ Note: accumulated rows are SESSION-ONLY by design (the server compiles storeValu
 persist=false, so rows fetched under one user's permissions are never written to the shared
 browser's localStorage) — the table resets on reload.`;
 
+// A table driven by several filter controls, where an empty control means "no filter" — the filter-bar shape that a
+// plain structured query cannot express (every filter always applies). Data layer required.
+const RECIPE_FILTER_BAR = `# Recipe: Filter bar over a table
+
+Goal: a table of records with a row of filter controls above it. Each control narrows the table;
+a control left empty is ignored instead of matching nothing. Requires the data layer.
+
+1. \`get_datasource_structure\` — find the table to list and the columns to filter on.
+2. Build the page skeleton (\`build_application\`, or \`create_page\` + \`edit_page\` on an existing
+   app) with a heading. Queries need the page to exist first.
+3. Option lists — one \`create_query\` per control whose values come from data, e.g. the distinct
+   values of a column: { operation: 'SELECT', table, groupBy: ['status'], aggregate: { fn: 'count' },
+   orderBy: [{ column: 'status', direction: 'ASC' }] } (returns a status and a count per value).
+   A control with a fixed set of values can use static \`options\` instead.
+4. The table query — \`create_query\` SELECT with one filter per control, each with
+   \`skipWhenEmpty: true\`:
+   - single select: { column: 'status', op: 'eq', value: { widget: 'StatusFilter', property:
+     'selectedOptionValue' }, skipWhenEmpty: true }
+   - text input (exact match): { column: 'ticket_id', op: 'eq', value: { widget: 'TicketInput',
+     property: 'text' }, skipWhenEmpty: true }. 'like' adds no % wildcards — it matches the typed
+     text exactly unless the user types % themselves — so it is not a substring search.
+   - multi-select (widget type \`multiselect\`; PostgreSQL datasources only):
+     { column: 'tag', op: 'inList', value: { widget: 'TagFilter', property: 'selectedOptionValues' },
+     skipWhenEmpty: true }. Values are compared as text. On other databases use a single select with
+     'eq' instead; 'in' binds ONE value.
+   skipWhenEmpty is SELECT-only, and is refused on appsmith.* values (they may scope rows to the
+   viewer). Filters bound to widgets are for narrowing what is shown, never for restricting which
+   rows a user may see — viewers control widget values; use datasource or row-level permissions
+   for that. Add orderBy / limit as usual.
+5. Add the controls and the table (\`edit_page\`): selects with \`optionsSource\` = { query:
+   '<optionsQuery>', label: '<column>', value: '<column>' }, the multi-select with static
+   \`options\`, the table with \`source\` = { query: '<tableQuery>' }, and an Apply button with
+   onClick { run: '<tableQuery>' }.
+6. Re-run the table query when a control changes (\`wire_event\`): a select's onOptionChange and an
+   input's onSubmit → { run: '<tableQuery>' }. A control with no wire_event change event (a
+   multi-select) relies on the Apply button. If the page's widgets are edited through a tool whose
+   settings expose a change event such as onSelectionChange, set it to the same { run }.
+7. \`inspect_page\` — fix any diagnostics. Then publish LAST (\`prepare_publish\` -> \`confirm_publish\`,
+   governed) and hand over the \`viewerUrl\`; without governance share the \`editorUrl\`.`;
+
 export const RECIPES: InstructionDoc[] = [
   {
     slug: "crud",
@@ -456,6 +496,13 @@ export const RECIPES: InstructionDoc[] = [
     description:
       "Build a lookup form whose results table grows one row per lookup via appendToStore.",
     render: () => RECIPE_ZIP_LOOKUP,
+  },
+  {
+    slug: "filter-bar",
+    title: "Filter bar recipe (skipWhenEmpty / inList)",
+    description:
+      "Build a table narrowed by several filter controls, where an empty control means no filter.",
+    render: () => RECIPE_FILTER_BAR,
   },
 ];
 

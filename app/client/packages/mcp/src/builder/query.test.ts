@@ -306,6 +306,8 @@ describe("querySpecSchema — ordering/aggregation reject injection", () => {
   );
 });
 
+// The exact SQL shapes pinned below are also executed against a real PostgreSQL (testcontainers) in
+// app/server/appsmith-plugins/postgresPlugin/.../PostgresPluginTest.java (testFilterBar*). Change both together.
 describe("APP-16164: filter-bar filters (skipWhenEmpty, inList)", () => {
   const statusFilter = {
     column: "status",

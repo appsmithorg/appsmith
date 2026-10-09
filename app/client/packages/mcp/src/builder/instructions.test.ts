@@ -264,6 +264,26 @@ describe("M5 store accumulation — docs stay in sync with the vocabulary", () =
     expect(body).toContain("persist=false");
   });
 
+  it("ships a filter-bar recipe that teaches skippable filters, inList and re-running the table query", () => {
+    const body = getInstructionDoc("filter-bar")!.render();
+
+    // Every table filter is skippable, and the multi-select path is PostgreSQL-only inList.
+    expect(body).toContain("skipWhenEmpty: true");
+    expect(body).toContain("op: 'inList'");
+    expect(body).toContain("PostgreSQL datasources only");
+    expect(body).toContain("'in' binds ONE value");
+    // Controls are bound to option queries and the table to the filtered query, which re-runs on change.
+    expect(body).toContain("optionsSource");
+    expect(body).toContain("onOptionChange");
+    expect(body).toContain("{ run: '<tableQuery>' }");
+    // The write-widening and viewer-scoping refusals are stated where an agent will read them.
+    expect(body).toContain("SELECT-only");
+    expect(body).toContain("appsmith.*");
+    // Tools it names exist (create_query, wire_event, edit_page, ...) — the generic guard covers the rest.
+    expect(body).toContain("create_query");
+    expect(body).toContain("wire_event");
+  });
+
   it("mentions store accumulation in SERVER_INSTRUCTIONS (wire_event guidance)", () => {
     expect(SERVER_INSTRUCTIONS).toContain("appendToStore");
     expect(SERVER_INSTRUCTIONS).toContain("clearStoreKey");
@@ -478,6 +498,25 @@ describe("SERVER_INSTRUCTIONS stays in sync with reality (no prose drift)", () =
     );
 
     expect(unknown).toEqual([]);
+  });
+
+  it("recipes name only real, registered tools (backticked snake_case names)", () => {
+    const known = new Set(TOOL_CATALOG.map((tool) => tool.name));
+
+    for (const recipe of RECIPES) {
+      // Recipes write tool names in backticks; column/widget names appear in quotes or bare.
+      const referenced = [
+        ...recipe.render().matchAll(/`([a-z][a-z0-9]*(?:_[a-z0-9]+)+)`/g),
+      ].map((match) => match[1]);
+      const unknown = [...new Set(referenced)].filter(
+        (token) => !known.has(token),
+      );
+
+      expect({ recipe: recipe.slug, unknown }).toEqual({
+        recipe: recipe.slug,
+        unknown: [],
+      });
+    }
   });
 
   it("references only known MCP enablement env vars", () => {
