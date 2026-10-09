@@ -52,7 +52,7 @@ gate: the `ok-to-test` label and a green Cypress run. Fork PRs are not classifie
 way; they keep the credential-free validation and approved Cypress requirements. The
 decision lives in
 `scripts/merge-gate.js`; its unit tests run with
-`node --test .github/workflows/scripts/*.test.js` and in the `ci-scripts-tests` job
+`find .github/workflows/scripts -name '*.test.js' -exec node --test {} +` and in the `ci-scripts-tests` job
 of Quality checks.
 
 ### Fork PRs cannot run Cypress this way

@@ -1,6 +1,6 @@
 "use strict";
 
-// Run with: node --test .github/workflows/scripts/*.test.js
+// Run with: find .github/workflows/scripts -name '*.test.js' -exec node --test {} +
 const test = require("node:test");
 const assert = require("node:assert/strict");
 

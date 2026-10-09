@@ -47,7 +47,7 @@ jobs:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Run the workflow script unit tests
-        run: node --test .github/workflows/scripts/*.test.js
+        run: find .github/workflows/scripts -name '*.test.js' -exec node --test {} +
 
   server-spotless:
     name: server-spotless
