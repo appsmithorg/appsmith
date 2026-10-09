@@ -35,6 +35,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { User } from "constants/userConstants";
 import { builderURL } from "ee/RouteBuilder";
 import { isAirgapped } from "ee/utils/airgapHelpers";
+import { getAppsmithConfigs } from "ee/configs";
 
 // Signposting sagas
 function* setFirstTimeUserOnboardingApplicationId(action: ReduxAction<string>) {
@@ -81,24 +82,33 @@ function* endFirstTimeUserOnboardingSaga() {
   );
 }
 
-function* firstTimeUserOnboardingInitSaga(
+export function* firstTimeUserOnboardingInitSaga(
   action: ReduxAction<{
     applicationId: string;
     basePageId: string;
     suffix?: string;
   }>,
 ) {
-  yield call(setEnableStartSignposting, true);
-  yield put({
-    type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
-    payload: action.payload.applicationId,
-  });
+  // The signposting checklist only opens from the Help button, so skip it
+  // entirely when the Help icon is hidden.
+  const { disableHelpIcon } = getAppsmithConfigs();
+
+  if (!disableHelpIcon) {
+    yield call(setEnableStartSignposting, true);
+    yield put({
+      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+      payload: action.payload.applicationId,
+    });
+  }
+
   history.replace(
     builderURL({
       basePageId: action.payload.basePageId,
       suffix: action.payload.suffix || "",
     }),
   );
+
+  if (disableHelpIcon) return;
 
   const isEditorInitialised: boolean = yield select(getIsEditorInitialized);
 

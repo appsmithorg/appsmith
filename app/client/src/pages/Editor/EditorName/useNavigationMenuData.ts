@@ -45,6 +45,7 @@ export const useNavigationMenuData = ({
   const isApplicationIdPresent = !!(applicationId && applicationId.length > 0);
   const user = useSelector(getCurrentUser);
   const { isIntercomConsentGiven } = user || {};
+  const { disableHelpIcon } = getAppsmithConfigs();
 
   const currentApplication = useSelector(getCurrentApplication);
 
@@ -143,12 +144,12 @@ export const useNavigationMenuData = ({
         {
           text: "divider_2",
           type: MenuTypes.MENU_DIVIDER,
-          isVisible: true,
+          isVisible: !disableHelpIcon,
         },
         {
           text: "Help",
           type: MenuTypes.PARENT,
-          isVisible: true,
+          isVisible: !disableHelpIcon,
           children: [
             {
               text: "Documentation",
@@ -193,6 +194,7 @@ export const useNavigationMenuData = ({
       isAgentApp,
       setForkApplicationModalOpen,
       isIntercomConsentGiven,
+      disableHelpIcon,
       dispatch,
     ],
   );

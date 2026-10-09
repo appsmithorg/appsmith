@@ -73,7 +73,7 @@ const HomepageHeaderAction = ({
   );
   const isHomePage = useRouteMatch("/applications")?.isExact;
   const isAirgappedInstance = isAirgapped();
-  const { appVersion } = getAppsmithConfigs();
+  const { appVersion, disableHelpIcon } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
   const [showIntercomConsent, setShowIntercomConsent] = useState(false);
   const isAiAgentInstanceEnabled = useSelector(getIsAiAgentInstanceEnabled);
@@ -104,7 +104,7 @@ const HomepageHeaderAction = ({
           />
         </Tooltip>
       )}
-      {!isAirgappedInstance && (
+      {!isAirgappedInstance && !disableHelpIcon && (
         <Menu
           onOpenChange={(open) => {
             if (open) {
