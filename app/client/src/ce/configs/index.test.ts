@@ -1,5 +1,4 @@
 import { getAppsmithConfigs } from "./index";
-import type { INJECTED_CONFIGS } from "./index";
 
 const baseInjectedConfigs = {
   sentry: { dsn: "", release: "", environment: "" },
@@ -16,7 +15,7 @@ const setInjectedConfigs = (overrides: Record<string, unknown>) => {
   window.APPSMITH_FEATURE_CONFIGS = {
     ...baseInjectedConfigs,
     ...overrides,
-  } as unknown as INJECTED_CONFIGS;
+  } as unknown as Window["APPSMITH_FEATURE_CONFIGS"];
 };
 
 describe("getAppsmithConfigs - disableHelpIcon", () => {
