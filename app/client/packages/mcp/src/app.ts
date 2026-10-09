@@ -122,6 +122,7 @@ import {
   buildActionDto,
   compileQuery,
   querySpecSchema,
+  type SqlDialect,
 } from "./builder/query.js";
 import {
   buildMongoActionDto,
@@ -5753,7 +5754,7 @@ export function buildMcpServer(
 
     registerTool(
       "create_query",
-      "Create a SQL query (SELECT/INSERT/UPDATE/DELETE) on a datasource from a STRUCTURED spec — no raw SQL, no raw bindings. Values become prepared-statement parameters. SELECT supports columns/filters/limit plus orderBy [{column,direction}], aggregation {fn:count|sum|avg,column?}, and groupBy. Widgets then reference it by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
+      "Create a SQL query (SELECT/INSERT/UPDATE/DELETE) on a datasource from a STRUCTURED spec — no raw SQL, no raw bindings. Values become prepared-statement parameters. SELECT supports columns/filters/limit plus orderBy [{column,direction}], aggregate {fn:count|sum|avg,column?}, and groupBy. A filter is { column, op: eq|ne|gt|gte|lt|lte|like|in|inList, value: { literal } | { widget, property }, skipWhenEmpty? }. 'in' binds ONE value; to match any of a multi-select's values use 'inList' with its selectedOptionValues (PostgreSQL datasources only; values are compared as text, so they must match the column's text form, and the column's index is not used). For a filter bar, set skipWhenEmpty: true on each widget-valued filter (SELECT only) so an empty control (null, '', []) means 'no filter' instead of matching nothing. Then re-run the query when a control changes: { run } on each control's change event (onSelectionChange or onOptionChange, depending on the widget), an input's onSubmit, or an Apply button whose onClick runs it. Widgets then reference it by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
       {
         query: z.record(z.unknown()),
         branch: gitBranchParamSchema.optional(),
@@ -5817,7 +5818,15 @@ export function buildMcpServer(
         let body: string;
 
         try {
-          body = compileQuery(spec);
+          // inList binds a list as one SQL-array parameter, which only PostgreSQL supports; the compiler refuses it
+          // on any other (or unresolvable) datasource.
+          body = compileQuery(spec, {
+            dialect:
+              datasourcePackageName(datasources, plugins, spec.datasourceId) ===
+              "postgres-plugin"
+                ? "postgres"
+                : "other",
+          });
         } catch (error) {
           return compileError(error);
         }
@@ -6480,7 +6489,7 @@ export function buildMcpServer(
 
       registerTool(
         "update_action",
-        "Update a stored SQL or REST action from a STRUCTURED spec (no raw SQL, bindings, credentials, base URLs, or headers). Pass a revision from get_action. Returns safe metadata, new revision, and change id.",
+        "Update a stored SQL or REST action from a STRUCTURED spec (no raw SQL, bindings, credentials, base URLs, or headers). A SQL spec uses create_query's vocabulary, including skipWhenEmpty and inList filters. Pass a revision from get_action. Returns safe metadata, new revision, and change id.",
         {
           spec: z.record(z.unknown()),
           branch: gitBranchParamSchema.optional(),
@@ -6490,10 +6499,62 @@ export function buildMcpServer(
 
           if (!parsed.success) return validationError(parsed.error.issues);
 
-          const request = buildUpdateActionDto(parsed.data);
-          const gate = await gitBranchGate(request.applicationId, branch);
+          const gate = await gitBranchGate(parsed.data.applicationId, branch);
 
           if (!gate.ok) return gate.result;
+
+          // A SQL update recompiles the query against its datasource, so give it the same checks create_query has: the
+          // datasource must be accessible in the application's own workspace (resolved server-side), and its family
+          // decides whether inList is allowed.
+          const sqlQuery =
+            parsed.data.kind === "SQL" ? parsed.data.query : undefined;
+          let dialect: SqlDialect = "other";
+
+          if (sqlQuery !== undefined) {
+            const workspaceId = workspaceIdFromApplicationPages(
+              await api.getApplicationPages(parsed.data.applicationId),
+            );
+
+            if (typeof workspaceId !== "string") {
+              return result({
+                error: `could not resolve the workspace for application ${parsed.data.applicationId}`,
+              });
+            }
+
+            const datasources = await api.listDatasources(workspaceId);
+
+            if (!datasourceAccessible(datasources, sqlQuery.datasourceId)) {
+              return result({
+                error: `datasource ${sqlQuery.datasourceId} is not accessible in this application's workspace`,
+              });
+            }
+
+            const plugins = await api.listPlugins(workspaceId);
+
+            if (!isSqlDatasource(datasources, plugins, sqlQuery.datasourceId)) {
+              return result({
+                error:
+                  "a SQL update needs a MariaDB, Microsoft SQL Server, MySQL, Oracle, PostgreSQL, or Snowflake datasource",
+              });
+            }
+
+            dialect =
+              datasourcePackageName(
+                datasources,
+                plugins,
+                sqlQuery.datasourceId,
+              ) === "postgres-plugin"
+                ? "postgres"
+                : "other";
+          }
+
+          let request: ReturnType<typeof buildUpdateActionDto>;
+
+          try {
+            request = buildUpdateActionDto(parsed.data, { dialect });
+          } catch (error) {
+            return compileError(error);
+          }
 
           let current: unknown;
 
