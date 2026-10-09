@@ -117,6 +117,7 @@ jobs:
     name: qc-result
     needs:
       [
+        path-filter,
         ci-scripts-tests,
         server-spotless,
         server-unit-tests,
@@ -137,11 +138,13 @@ jobs:
     steps:
       - name: Return status for quality checks
         env:
-          # Every job in `needs`, as {name: {result, outputs}}; a job that was
-          # skipped by its path filter reads `skipped` and does not fail the gate.
+          # Every job in `needs`, as {name: {result, outputs}}. `path-filter` must
+          # succeed, or every check it gates is skipped for the wrong reason. A
+          # job skipped by its path filter reads `skipped` and does not fail the
+          # gate; a failed or cancelled job does.
           JOB_RESULTS: ${{ toJSON(needs) }}
         run: |
-          if jq -e 'any(.[]; .result == "failure")' <<< "$JOB_RESULTS" > /dev/null; then
+          if jq -e '.["path-filter"].result != "success" or any(.[]; .result == "failure" or .result == "cancelled")' <<< "$JOB_RESULTS" > /dev/null; then
             echo "Quality checks failed"
             jq -r 'to_entries[] | "\(.key): \(.value.result)"' <<< "$JOB_RESULTS"
             exit 1
