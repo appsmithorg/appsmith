@@ -9,6 +9,7 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
  * country people mean by that code.
  */
 export const PRIMARY_ISO_BY_DIAL_CODE: Record<string, string> = {
+  "+39": "IT",
   "+44": "GB",
   "+262": "RE",
   "+358": "FI",
@@ -17,6 +18,15 @@ export const PRIMARY_ISO_BY_DIAL_CODE: Record<string, string> = {
   "+590": "GP",
   "+61": "AU",
   "+672": "NF",
+};
+
+/**
+ * Older copies of this list stored these dial codes incorrectly. A saved
+ * widget still has the old string, so keep resolving it to the same country.
+ */
+const CORRECTED_DIAL_CODE_TO_ISO: Record<string, string> = {
+  "+ 345": "KY",
+  "+379": "VA",
 };
 
 export const countryToFlag = (isoCode: string) => {
@@ -39,6 +49,14 @@ export const findCountryByIso = (countryCode?: string) => {
 
 export const findCountryByDialCode = (dialCode?: string) => {
   if (!dialCode) return undefined;
+
+  const correctedIso = CORRECTED_DIAL_CODE_TO_ISO[dialCode];
+
+  if (correctedIso) {
+    const corrected = findCountryByIso(correctedIso);
+
+    if (corrected) return corrected;
+  }
 
   const primaryIso = PRIMARY_ISO_BY_DIAL_CODE[dialCode];
 

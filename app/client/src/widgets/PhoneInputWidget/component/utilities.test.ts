@@ -29,6 +29,7 @@ describe("Utilities - ", () => {
     expect(findCountryByDialCode("+358")?.code).toBe("FI");
     expect(findCountryByDialCode("+595")?.code).toBe("PY");
     expect(findCountryByDialCode("+592")?.code).toBe("GY");
+    expect(findCountryByDialCode("+39")?.code).toBe("IT");
     expect(findCountryByDialCode("+61")?.code).toBe("AU");
     expect(findCountryByDialCode("+672")?.code).toBe("NF");
   });
@@ -37,6 +38,9 @@ describe("Utilities - ", () => {
     expect(resolvePhoneCountry("+44", "GG")?.code).toBe("GG");
     expect(resolvePhoneCountry("+44", "GB")?.name).toBe("United Kingdom");
     expect(resolvePhoneCountry("+44")?.code).toBe("GB");
+    expect(resolvePhoneCountry("+39", "VA")?.code).toBe("VA");
+    expect(findCountryByDialCode("+379")?.code).toBe("VA");
+    expect(findCountryByDialCode("+ 345")?.code).toBe("KY");
   });
 
   it("follows the dial code when it no longer matches the country", () => {
@@ -97,5 +101,11 @@ describe("Utilities - ", () => {
     expect(
       ISDCodeOptions.find((country) => country.code === "GY")?.dial_code,
     ).toBe("+592");
+    expect(
+      ISDCodeOptions.find((country) => country.code === "KY")?.dial_code,
+    ).toBe("+1345");
+    expect(
+      ISDCodeOptions.find((country) => country.code === "VA")?.dial_code,
+    ).toBe("+39");
   });
 });
