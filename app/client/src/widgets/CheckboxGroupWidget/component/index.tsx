@@ -161,6 +161,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
     isDisabled,
     isDynamicHeightEnabled,
     isInline,
+    isRequired,
     isSelectAll,
     isValid,
     labelAlignment,
@@ -212,6 +213,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
           helpText={labelTooltip}
           inline={isInline}
           isDynamicHeightEnabled={isDynamicHeightEnabled}
+          isRequired={isRequired}
           optionCount={optionCount}
           position={labelPosition}
           text={labelText}

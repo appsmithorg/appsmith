@@ -126,6 +126,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
           helpText={labelTooltip}
           inline={inline}
           isDynamicHeightEnabled={isDynamicHeightEnabled}
+          isRequired={required}
           loading={loading}
           optionCount={optionCount}
           position={labelPosition}
