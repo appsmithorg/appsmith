@@ -183,7 +183,7 @@ describe.each(linterTypes)(
       });
     });
 
-    describe("2a. Verify geolocation lint errors in data fields", () => {
+    describe("2a. Verify no false lint errors for geolocation reads in data fields", () => {
       const data = {
         appsmith: {
           ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
