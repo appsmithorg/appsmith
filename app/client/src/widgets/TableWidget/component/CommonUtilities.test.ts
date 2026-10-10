@@ -96,6 +96,25 @@ describe("TransformTableDataIntoArrayOfArray", () => {
       JSON.stringify(expectedCsvData),
     );
   });
+  it("replaces every newline in a multi-line value", () => {
+    const data = [
+      {
+        id: "abc\ntest\nmore",
+      },
+      {
+        id: "xyz",
+      },
+    ];
+    const csvData = transformTableDataIntoCsv({
+      columns,
+      data,
+    });
+    const expectedCsvData = [["Id"], ["abc test more"], ["xyz"]];
+
+    expect(JSON.stringify(csvData)).toStrictEqual(
+      JSON.stringify(expectedCsvData),
+    );
+  });
   it("work as expected with comma", () => {
     const data = [
       {
