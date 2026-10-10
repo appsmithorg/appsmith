@@ -409,10 +409,27 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                     .then();
         }
 
+        // No entity and no application — the workflow editor, whose main JS object has no entity id and which is not
+        // an application. Authorize against the workflow instead.
+        if (StringUtils.hasText(context.getWorkflowId())) {
+            return authorizeWorkflowContext(context.getWorkflowId().trim());
+        }
+
         // Nothing to authorize against. Refuse rather than fall through: an unscoped request cannot be shown to come
         // from a developer, and this endpoint spends the organization's provider credits.
         return Mono.error(new AppsmithException(
-                AppsmithError.INVALID_PARAMETER, "Editor context must identify an entity or an application"));
+                AppsmithError.INVALID_PARAMETER,
+                "Editor context must identify an entity, an application or a workflow"));
+    }
+
+    /**
+     * Refuses the request unless the caller may edit the workflow it came from.
+     *
+     * <p>Workflows exist only in EE, so CE has nothing to check the id against and refuses — the same answer as an id
+     * the caller cannot see. EE overrides this with an edit-permission lookup on the workflow.
+     */
+    protected Mono<Void> authorizeWorkflowContext(String workflowId) {
+        return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "workflow", workflowId));
     }
 
     private AIEditorContextDTO applyDatasourceSchemaToContext(

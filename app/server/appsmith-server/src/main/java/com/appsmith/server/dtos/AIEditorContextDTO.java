@@ -30,6 +30,13 @@ public class AIEditorContextDTO {
      */
     @Size(max = 100, message = "Application id cannot exceed 100 characters") private String applicationId;
 
+    /**
+     * The workflow whose editor the request came from. A workflow is not an application, so a request from the
+     * workflow editor carries no {@code applicationId}; this is what such a request is authorized against when it has
+     * no {@code entityId} either (the workflow's main JS object, say).
+     */
+    @Size(max = 100, message = "Workflow id cannot exceed 100 characters") private String workflowId;
+
     @Size(max = 15000, message = "Database schema cannot exceed 15000 characters") private String databaseSchema;
 
     @Size(max = 100, message = "Datasource type cannot exceed 100 characters") private String datasourceType;

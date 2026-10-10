@@ -207,6 +207,8 @@ export class UserApi extends Api {
       mode?: string;
       currentValue?: string;
       entityId?: string;
+      applicationId?: string;
+      workflowId?: string;
     },
     conversationHistory?: Array<{ role: string; content: string }>,
   ): Promise<
