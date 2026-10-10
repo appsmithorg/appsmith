@@ -5,6 +5,7 @@ import {
 import { CustomLintErrorCode, LINTER_TYPE } from "../constants";
 import getLintingErrors from "../utils/getLintingErrors";
 import { Severity } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 
 // Define all the custom eslint rules you want to test here
 jest.mock("ee/utils/lintRulesHelpers", () => ({
@@ -98,6 +99,32 @@ describe.each(linterTypes)(
 
         expect(lintErrors.length).toEqual(0);
       });
+      it.each([
+        ["Blob", 'new Blob(["a"], { type: "text/plain" })'],
+        ["URL", "URL.createObjectURL(new Blob([]))"],
+        ["URLSearchParams", 'new URLSearchParams("a=1").get("a")'],
+        ["FormData", "new FormData()"],
+        ["File", 'new File(["a"], "a.txt")'],
+        ["FileReader", "new FileReader()"],
+        ["TextEncoder", 'new TextEncoder().encode("a")'],
+        ["TextDecoder", "new TextDecoder().decode(new Uint8Array())"],
+        ["atob and btoa", 'atob(btoa("a"))'],
+      ])("5. For %s", (_apiName, script) => {
+        const originalBinding = `{{${script}}}`;
+
+        const scriptType = getScriptType(false, true);
+
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          webworkerTelemetry,
+          data,
+          originalBinding,
+          script,
+          scriptType,
+        });
+
+        expect(lintErrors.length).toEqual(0);
+      });
     });
 
     describe("2. Verify lint errors are shown for unsupported window APIs", () => {
@@ -153,6 +180,37 @@ describe.each(linterTypes)(
         });
 
         expect(lintErrors.length).toEqual(1);
+      });
+    });
+
+    describe("2a. Verify geolocation lint errors in data fields", () => {
+      const data = {
+        appsmith: {
+          ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
+          URL: { pathname: "/app/page1/edit" },
+          geolocation: {
+            canBeRequested: true,
+            currentPosition: {},
+          },
+        },
+      };
+
+      it("1. Reading appsmith.geolocation.currentPosition shows no error", () => {
+        const originalBinding = "{{appsmith.geolocation.currentPosition}}";
+        const script = "appsmith.geolocation.currentPosition";
+
+        const scriptType = getScriptType(false, false);
+
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          webworkerTelemetry,
+          data,
+          originalBinding,
+          script,
+          scriptType,
+        });
+
+        expect(lintErrors.length).toEqual(0);
       });
     });
 
