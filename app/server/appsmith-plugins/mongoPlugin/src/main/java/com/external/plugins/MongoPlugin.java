@@ -168,10 +168,15 @@ public class MongoPlugin extends BasePlugin {
      * We use this regex to identify the $regex attribute and the respective argument provided:
      * e.g. {"code" : {$regex: value, $options: value}} / {"code" : {$regex: value}}
      * capturing the value group for regex.
-     * e.g {"code" : {$regex: 8777}}, this whole substring will be matched and 8777 is captured for further processing.
+     * e.g {"code" : {$regex: 8777}}, the substring "{$regex: 8777}" will be matched and " 8777" is captured for
+     * further processing.
+     * <p>
+     * The regex runs over the whole substituted query, which can be large and is controlled by the caller. Every
+     * quantifier is possessive so that a non-matching candidate fails without backtracking, and the match is anchored
+     * on the opening brace so that the matcher never rescans the query.
      */
     private static final String mongo$regexWithNumberIdentifier =
-            ".*\\{[\\s\\n]*\\$regex[\\s\\n]*:([\\s\\n]*(?:(?:\\\"[/]*)|(?:/[\\\"]*)|)[-]?[\\d]*\\.?[\\d]*(?:(?:[/]*\\\")|(?:[\\\"]*/)|)[\\s\\n]*)(?:,|\\})";
+            "\\{[\\s\\n]*+\\$regex[\\s\\n]*+:([\\s\\n]*+(?:(?:\\\"[/]*+)|(?:/[\\\"]*+)|)[-]?+[\\d]*+\\.?+[\\d]*+(?:(?:[/]*+\\\")|(?:[\\\"]*+/)|)[\\s\\n]*+)(?:,|\\})";
 
     /**
      * We use this regex to find usage of special Mongo data types like ObjectId(...) wrapped inside double quotes
@@ -186,9 +191,15 @@ public class MongoPlugin extends BasePlugin {
      * o group 2 will match ObjectId(...)
      * o group 3 will match 'xyz'
      * o group 4 will match xyz
+     * <p>
+     * Group 3 is everything between the parentheses. Group 4 is the first run of argument characters (word
+     * characters, '-', ':', '.', ',' and whitespace) inside group 3. The text before and after group 4 may contain
+     * any character except a parenthesis or a newline. The value being matched is controlled by the caller, so
+     * every quantifier is possessive: a candidate that does not match fails without backtracking, and a scan never
+     * runs past the next special type occurrence.
      */
     private static final String MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE =
-            "(\\\"(E\\((.*?((\\w|-|:|\\.|,|\\s)+).*?)?\\))\\\")";
+            "(\\\"(E\\(([^\\w\\-:.,\\s()\\n]*+([\\w\\-:.,\\s]++)[^()\\n]*+)\\))\\\")";
 
     private static final int DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX = 1;
 
