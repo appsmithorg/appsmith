@@ -216,6 +216,37 @@ public class MongoPluginRegexTest {
     }
 
     @Test
+    public void testTwoNumericRegexValuesInOneFilterAreBothQuoted() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setEncodeParamsToggle(Boolean.TRUE);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+
+        String rawFind = "{ find: \"teams\", filter: {\"goals_allowed\":{$regex: \"{{goals}}\"}, "
+                + "\"xGD\":{$regex: \"{{xgd}}\"}}}";
+        setDataValueSafelyInFormData(configMap, BODY, rawFind);
+
+        actionConfiguration.setFormData(configMap);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(List.of(new Param("goals", "20"), new Param("xgd", "-2.5")));
+
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection ->
+                pluginExecutor.executeParameterized(clientConnection, executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(actionExecutionResult -> {
+                    assertNotNull(actionExecutionResult);
+                    assertTrue(actionExecutionResult.getIsExecutionSuccess());
+                    assertEquals(1, ((ArrayNode) actionExecutionResult.getBody()).size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void testRegexNegativeDecimalNumberQueryWithSmartSubstitution() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
