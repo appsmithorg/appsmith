@@ -10,6 +10,7 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory/types";
 import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
 import {
   countryCodeDisplayedForDialCode,
+  countryCodeForLiteralDialCode,
   findCountryByDialCode,
   findCountryByIso,
   resolveDisplayedPhoneCountry,
@@ -103,6 +104,27 @@ function defaultCountryCodeUpdateHook(
     updates.push({
       propertyPath: "defaultDialCode",
       propertyValue: country.dial_code,
+    });
+  }
+
+  return updates;
+}
+
+function defaultDialCodeUpdateHook(
+  props: { dynamicPropertyPathList?: Array<{ key: string }> },
+  propertyPath: string,
+  propertyValue: string,
+): PropertyUpdates[] {
+  const updates: PropertyUpdates[] = [{ propertyPath, propertyValue }];
+  const countryIsDynamic = props.dynamicPropertyPathList?.some(
+    (path) => path.key === "defaultCountryCode",
+  );
+  const countryCode = countryCodeForLiteralDialCode(propertyValue);
+
+  if (countryCode && !countryIsDynamic) {
+    updates.push({
+      propertyPath: "defaultCountryCode",
+      propertyValue: countryCode,
     });
   }
 
@@ -232,7 +254,7 @@ class PhoneInputWidget extends BaseInputWidget<
               defaultValue: countryCodeDisplayedForDialCode,
               // The pane only supplies this property. Older widgets stored the
               // dial code and have no defaultCountryCode, so the dropdown needs it.
-              dependencies: ["defaultDialCode"],
+              dependencies: ["defaultDialCode", "dynamicPropertyPathList"],
               virtual: true,
               isJSConvertible: true,
               isBindProperty: true,
@@ -249,6 +271,7 @@ class PhoneInputWidget extends BaseInputWidget<
               isJSConvertible: true,
               isBindProperty: true,
               isTriggerProperty: false,
+              updateHook: defaultDialCodeUpdateHook,
               hidden: (props: PhoneInputWidgetProps) =>
                 !props.dynamicPropertyPathList?.some(
                   (path: { key: string }) => path.key === "defaultDialCode",

@@ -2,6 +2,7 @@ import { ISDCodeOptions } from "constants/ISDCodes_v2";
 import { ISDCodeDropdownOptions } from "./ISDCodeDropdown";
 import {
   countryCodeDisplayedForDialCode,
+  countryCodeForLiteralDialCode,
   countryToFlag,
   findCountryByDialCode,
   resolveDisplayedPhoneCountry,
@@ -61,6 +62,15 @@ describe("Utilities - ", () => {
     expect(
       resolveDisplayedPhoneCountry("+91", "AU", { preferCountry: false })?.code,
     ).toBe("IN");
+  });
+
+  it("sets the country when a literal dial code is edited", () => {
+    expect(countryCodeForLiteralDialCode("+43")).toBe("AT");
+    expect(countryCodeForLiteralDialCode("+44")).toBe("GB");
+    expect(countryCodeForLiteralDialCode("{{appsmith.store.test}}")).toBe(
+      undefined,
+    );
+    expect(countryCodeForLiteralDialCode("+999")).toBeUndefined();
   });
 
   it("shows the primary country when an older field stored only a dial code", () => {

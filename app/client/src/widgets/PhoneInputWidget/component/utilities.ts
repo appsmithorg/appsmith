@@ -70,6 +70,16 @@ export const findCountryByDialCode = (dialCode?: string) => {
 };
 
 /**
+ * Country to store when the dial code is edited as a literal, such as +43.
+ * A binding is not a country, so the caller leaves the country property alone.
+ */
+export const countryCodeForLiteralDialCode = (dialCode?: string) => {
+  if (!dialCode || DATA_BIND_REGEX.test(dialCode)) return undefined;
+
+  return findCountryByDialCode(dialCode.trim())?.code;
+};
+
+/**
  * An explicit country wins when its dial code matches. A dial code that no
  * longer matches that country (a binding changed it) falls back to the
  * primary country for the dial code.
