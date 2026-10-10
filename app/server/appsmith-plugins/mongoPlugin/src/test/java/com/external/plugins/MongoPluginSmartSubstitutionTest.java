@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Param;
@@ -20,6 +21,7 @@ import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 /**
@@ -112,11 +114,13 @@ public class MongoPluginSmartSubstitutionTest {
         final ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setFormData(configMap);
 
-        // No Mongo client is needed: smart substitution runs before the client is used. The execution is
-        // expected to fail afterwards; only the time taken by the substitution step matters here.
-        assertTimeoutPreemptively(Duration.ofSeconds(20), () -> Mono.defer(() -> pluginExecutor.executeParameterized(
-                        null, executeActionDTO, new DatasourceConfiguration(), actionConfiguration))
-                .onErrorResume(e -> Mono.empty())
-                .block());
+        // No Mongo client is needed: smart substitution runs before the client is used, and the null client then
+        // fails with StaleConnectionException. That exception proves substitution completed; the timeout bounds it.
+        assertTimeoutPreemptively(
+                Duration.ofSeconds(20),
+                () -> assertThrows(
+                        StaleConnectionException.class, () -> Mono.defer(() -> pluginExecutor.executeParameterized(
+                                        null, executeActionDTO, new DatasourceConfiguration(), actionConfiguration))
+                                .block()));
     }
 }
