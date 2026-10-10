@@ -3,6 +3,7 @@ import { ISDCodeDropdownOptions } from "./ISDCodeDropdown";
 import {
   countryCodeDisplayedForDialCode,
   countryCodeForLiteralDialCode,
+  dialCodeUpdateForCountryChange,
   countryToFlag,
   findCountryByDialCode,
   resolveDisplayedPhoneCountry,
@@ -71,6 +72,19 @@ describe("Utilities - ", () => {
       undefined,
     );
     expect(countryCodeForLiteralDialCode("+999")).toBeUndefined();
+  });
+
+  it("updates a plain dial code when the country changes", () => {
+    expect(dialCodeUpdateForCountryChange("+43", "+355")).toBe("+355");
+    expect(dialCodeUpdateForCountryChange("+43", "+355", true)).toBe(
+      '{{"+355"}}',
+    );
+    expect(
+      dialCodeUpdateForCountryChange("{{appsmith.store.test}}", "+355", true),
+    ).toBeUndefined();
+    expect(dialCodeUpdateForCountryChange('{{"+43"}}', "+355", true)).toBe(
+      '{{"+355"}}',
+    );
   });
 
   it("shows the primary country when an older field stored only a dial code", () => {

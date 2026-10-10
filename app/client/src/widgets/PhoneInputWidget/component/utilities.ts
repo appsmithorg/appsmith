@@ -79,6 +79,32 @@ export const countryCodeForLiteralDialCode = (dialCode?: string) => {
   return findCountryByDialCode(dialCode.trim())?.code;
 };
 
+/** A JS value that is only a dial code, such as {{"+43"}}. */
+const QUOTED_DIAL_CODE_BINDING = /^{{\s*(['"])(\+\d+)\1\s*}}$/;
+
+/**
+ * Dial code to store when the country changes. A binding such as
+ * {{appsmith.store.test}} is left alone. A plain value is replaced, and a
+ * JS-mode field is given a binding that evaluates to the new dial code.
+ */
+export const dialCodeUpdateForCountryChange = (
+  currentDialCode: unknown,
+  nextDialCode: string,
+  dialCodeIsDynamic = false,
+): string | undefined => {
+  if (
+    typeof currentDialCode === "string" &&
+    DATA_BIND_REGEX.test(currentDialCode)
+  ) {
+    if (!QUOTED_DIAL_CODE_BINDING.test(currentDialCode.trim()))
+      return undefined;
+  }
+
+  if (dialCodeIsDynamic) return `{{"${nextDialCode}"}}`;
+
+  return nextDialCode;
+};
+
 /**
  * An explicit country wins when its dial code matches. A dial code that no
  * longer matches that country (a binding changed it) falls back to the

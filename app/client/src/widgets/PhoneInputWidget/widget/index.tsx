@@ -11,6 +11,7 @@ import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
 import {
   countryCodeDisplayedForDialCode,
   countryCodeForLiteralDialCode,
+  dialCodeUpdateForCountryChange,
   findCountryByDialCode,
   findCountryByIso,
   resolveDisplayedPhoneCountry,
@@ -90,20 +91,31 @@ export function defaultValueValidation(
 }
 
 function defaultCountryCodeUpdateHook(
-  props: { dynamicPropertyPathList?: Array<{ key: string }> },
+  props: {
+    dynamicPropertyPathList?: Array<{ key: string }>;
+    defaultDialCode?: unknown;
+  },
   propertyPath: string,
   propertyValue: string,
 ): PropertyUpdates[] {
   const updates: PropertyUpdates[] = [{ propertyPath, propertyValue }];
+  const country = findCountryByIso(propertyValue);
+
+  if (!country) return updates;
+
   const dialCodeIsDynamic = props.dynamicPropertyPathList?.some(
     (path) => path.key === "defaultDialCode",
   );
-  const country = findCountryByIso(propertyValue);
+  const nextDialCode = dialCodeUpdateForCountryChange(
+    props.defaultDialCode,
+    country.dial_code,
+    dialCodeIsDynamic,
+  );
 
-  if (country && !dialCodeIsDynamic) {
+  if (nextDialCode) {
     updates.push({
       propertyPath: "defaultDialCode",
-      propertyValue: country.dial_code,
+      propertyValue: nextDialCode,
     });
   }
 
