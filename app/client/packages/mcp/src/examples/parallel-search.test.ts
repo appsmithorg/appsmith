@@ -17,10 +17,12 @@ const source: SearchSource = {
   excerpt: "A useful search result",
 };
 
+/** Wraps text in the MCP result shape used by tool-call tests. */
 function textResult(text: string) {
   return { content: [{ type: "text", text }] };
 }
 
+/** Creates a client stub whose tool calls are controlled by the test. */
 function mockClient(
   implementation: (request: ToolCallRequest) => Promise<unknown>,
 ) {

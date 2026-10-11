@@ -14,6 +14,7 @@ type ToolClient = {
   }) => Promise<unknown>;
 };
 
+/** A source selected from Parallel's web-search response. */
 export type SearchSource = {
   title: string;
   url: string;
@@ -28,10 +29,12 @@ export type ResearchAppSpec = {
   }>;
 };
 
+/** Narrows untrusted JSON values to non-array objects. */
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+/** Returns a string field or the first string in a string array. */
 function textValue(value: unknown): string | undefined {
   if (typeof value === "string") return value;
   if (Array.isArray(value)) {
@@ -40,6 +43,7 @@ function textValue(value: unknown): string | undefined {
   return undefined;
 }
 
+/** Joins text content blocks from an MCP tool response. */
 function resultText(result: unknown): string {
   if (!isRecord(result) || !Array.isArray(result.content)) return "";
 
@@ -54,6 +58,7 @@ function resultText(result: unknown): string {
     .trim();
 }
 
+/** Throws with the tool's returned error detail when an MCP call fails. */
 function assertToolSuccess(result: unknown, toolName: string): void {
   if (isRecord(result) && result.isError === true) {
     throw new Error(
@@ -62,6 +67,7 @@ function assertToolSuccess(result: unknown, toolName: string): void {
   }
 }
 
+/** Normalizes a public HTTP(S) URL and rejects credentials or other schemes. */
 function publicHttpUrl(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
 
@@ -80,10 +86,12 @@ function publicHttpUrl(value: unknown): string | undefined {
   }
 }
 
+/** Extracts up to five unique, credential-free HTTP(S) sources from search data. */
 function searchSources(value: unknown): SearchSource[] {
   const sources: SearchSource[] = [];
   const seen = new Set<string>();
 
+  /** Walks nested search data to find source records. */
   function visit(node: unknown): void {
     if (Array.isArray(node)) {
       node.forEach(visit);
@@ -111,6 +119,7 @@ function searchSources(value: unknown): SearchSource[] {
   return sources.slice(0, 5);
 }
 
+/** Parses JSON search output, retaining non-JSON text for URL extraction. */
 function parseSearchResult(text: string): unknown {
   try {
     return JSON.parse(text) as unknown;
@@ -119,6 +128,7 @@ function parseSearchResult(text: string): unknown {
   }
 }
 
+/** Escapes text that could be interpreted as Appsmith template syntax. */
 function appsmithSafeText(value: string): string {
   return value
     .replace(/\{\{/g, "{ {")
@@ -128,10 +138,12 @@ function appsmithSafeText(value: string): string {
     .replace(/[\u2028\u2029]/g, " ");
 }
 
+/** Removes C0 and C1 control characters before source text reaches the terminal. */
 export function terminalSafeText(value: string): string {
   return value.replace(/[\u0000-\u001f\u007f-\u009f]/g, "");
 }
 
+/** Builds a read-only research spec from the selected source and fetched text. */
 export function createResearchAppSpec(
   topic: string,
   source: SearchSource,
@@ -155,6 +167,7 @@ export function createResearchAppSpec(
   };
 }
 
+/** Searches, fetches a selected source, and validates its spec without creating an app. */
 export async function runParallelResearchExample(
   topic: string,
   parallelClient: ToolClient,
@@ -217,6 +230,7 @@ export async function runParallelResearchExample(
   return { source, fetchedText, validation };
 }
 
+/** Displays search results and returns the user's zero-based source selection. */
 async function promptForSource(sources: SearchSource[]): Promise<number> {
   sources.forEach((source, index) => {
     stdout.write(`${index + 1}. ${terminalSafeText(source.title)}\n`);
@@ -242,6 +256,7 @@ async function promptForSource(sources: SearchSource[]): Promise<number> {
   }
 }
 
+/** Connects to both MCP servers and runs the interactive research example. */
 async function main(): Promise<void> {
   const topic = process.argv.slice(2).join(" ").trim();
   if (!topic) {
