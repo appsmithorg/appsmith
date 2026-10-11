@@ -2,6 +2,7 @@ import { jest } from "@jest/globals";
 import {
   createResearchAppSpec,
   runParallelResearchExample,
+  terminalSafeText,
   type SearchSource,
 } from "./parallel-search.js";
 
@@ -27,6 +28,12 @@ function mockClient(
 }
 
 describe("Parallel Search MCP example", () => {
+  it("removes C0 and C1 controls from source text displayed in the terminal", () => {
+    expect(terminalSafeText("Title\u0000\u001f\u007f\u009f text")).toBe(
+      "Title text",
+    );
+  });
+
   it("fetches the chosen result and validates an Appsmith research spec", async () => {
     const parallelClient = mockClient(async ({ name }) => {
       if (name === "web_search") {

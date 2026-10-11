@@ -128,6 +128,10 @@ function appsmithSafeText(value: string): string {
     .replace(/[\u2028\u2029]/g, " ");
 }
 
+export function terminalSafeText(value: string): string {
+  return value.replace(/[\u0000-\u001f\u007f-\u009f]/g, "");
+}
+
 export function createResearchAppSpec(
   topic: string,
   source: SearchSource,
@@ -215,9 +219,10 @@ export async function runParallelResearchExample(
 
 async function promptForSource(sources: SearchSource[]): Promise<number> {
   sources.forEach((source, index) => {
-    stdout.write(`${index + 1}. ${source.title}\n`);
+    stdout.write(`${index + 1}. ${terminalSafeText(source.title)}\n`);
     stdout.write(`   ${source.url}\n`);
-    if (source.excerpt) stdout.write(`   ${source.excerpt}\n`);
+    if (source.excerpt)
+      stdout.write(`   ${terminalSafeText(source.excerpt)}\n`);
   });
 
   const terminal = createInterface({ input: stdin, output: stdout });
