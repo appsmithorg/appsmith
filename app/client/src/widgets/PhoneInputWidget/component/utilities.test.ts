@@ -68,6 +68,8 @@ describe("Utilities - ", () => {
   it("sets the country when a literal dial code is edited", () => {
     expect(countryCodeForLiteralDialCode("+43")).toBe("AT");
     expect(countryCodeForLiteralDialCode("+44")).toBe("GB");
+    expect(countryCodeForLiteralDialCode('{{"+40"}}')).toBe("RO");
+    expect(countryCodeForLiteralDialCode('{{"+43"}}')).toBe("AT");
     expect(countryCodeForLiteralDialCode("{{appsmith.store.test}}")).toBe(
       undefined,
     );

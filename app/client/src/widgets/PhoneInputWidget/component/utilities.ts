@@ -69,18 +69,24 @@ export const findCountryByDialCode = (dialCode?: string) => {
   return ISDCodeOptions.find((item) => item.dial_code === dialCode);
 };
 
-/**
- * Country to store when the dial code is edited as a literal, such as +43.
- * A binding is not a country, so the caller leaves the country property alone.
- */
-export const countryCodeForLiteralDialCode = (dialCode?: string) => {
-  if (!dialCode || DATA_BIND_REGEX.test(dialCode)) return undefined;
-
-  return findCountryByDialCode(dialCode.trim())?.code;
-};
-
 /** A JS value that is only a dial code, such as {{"+43"}}. */
 const QUOTED_DIAL_CODE_BINDING = /^{{\s*(['"])(\+\d+)\1\s*}}$/;
+
+/**
+ * Country to store when the dial code is edited as a literal, such as +43
+ * or {{"+43"}} while the field is in JS mode. A real binding is not a
+ * country, so the caller leaves the country property alone.
+ */
+export const countryCodeForLiteralDialCode = (dialCode?: string) => {
+  if (!dialCode) return undefined;
+
+  const trimmed = dialCode.trim();
+  const quoted = trimmed.match(QUOTED_DIAL_CODE_BINDING);
+
+  if (!quoted && DATA_BIND_REGEX.test(trimmed)) return undefined;
+
+  return findCountryByDialCode(quoted ? quoted[2] : trimmed)?.code;
+};
 
 /**
  * Dial code to store when the country changes. A binding such as
