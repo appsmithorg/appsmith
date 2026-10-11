@@ -163,16 +163,23 @@ class AIAssistantServiceCEImplTest {
         assertThat(service.authorizedWorkflowIds).isEmpty();
     }
 
+    /**
+     * A failed application check is final: it must not fall through to the workflow branch. The stand-in allows any
+     * workflow, so a fall-through would let this request through instead of refusing it.
+     */
     @Test
-    void requestWithApplicationTheCallerCannotEdit_isRefused() {
+    void requestWithApplicationTheCallerCannotEdit_isRefusedWithoutFallingThroughToWorkflow() {
+        WorkflowAwareService service = wire(new WorkflowAwareService(organizationService, newActionService));
         when(applicationPermission.getEditPermission()).thenReturn(AclPermission.MANAGE_APPLICATIONS);
         when(applicationService.findById("app-1", AclPermission.MANAGE_APPLICATIONS))
                 .thenReturn(Mono.empty());
 
-        StepVerifier.create(ceService().getAIResponse(PROVIDER, "fix this", context("app-1", null)))
+        StepVerifier.create(service.getAIResponse(PROVIDER, "fix this", context("app-1", "workflow-1")))
                 .expectErrorMatches(error -> error instanceof AppsmithException appsmithException
                         && appsmithException.getError() == AppsmithError.ACL_NO_RESOURCE_FOUND)
                 .verify();
+
+        assertThat(service.authorizedWorkflowIds).isEmpty();
     }
 
     /**
