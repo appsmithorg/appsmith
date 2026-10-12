@@ -945,8 +945,8 @@ public class ThemeServiceTest {
     }
 
     /**
-     * Creates an application owned by api_user with one named theme, then makes the application public, which
-     * grants read access on it without edit permission. See GHSA-x2jf-gfvj-wfg2.
+     * Creates an application owned by api_user with one named theme, then grants read access on it without
+     * edit permission. See GHSA-x2jf-gfvj-wfg2.
      */
     private Application createPublicApplicationWithNamedTheme() {
         Application savedApplication = createApplication();
@@ -1043,7 +1043,7 @@ public class ThemeServiceTest {
 
     /**
      * Fixture for the three-argument current-theme overload: published theme Sharp, edit-mode theme Classic,
-     * application public. See GHSA-x2jf-gfvj-wfg2.
+     * read access granted without edit permission. See GHSA-x2jf-gfvj-wfg2.
      */
     private Application createPublicApplicationWithDistinctEditAndPublishedThemes() {
         Theme sharpTheme = themeService.getSystemTheme("Sharp").block();

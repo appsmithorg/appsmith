@@ -32,7 +32,7 @@ import static org.springframework.security.test.web.reactive.server.SecurityMock
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
 
 /**
- * Drives the application theme-list route over HTTP, modelled on
+ * Exercises the theme-list route end to end, modelled on
  * {@link com.appsmith.server.configurations.AuthGuardTest}: the application theme list is editor data, so a
  * caller without edit permission on the application receives an empty list while a caller with edit
  * permission receives the named and system themes. See GHSA-x2jf-gfvj-wfg2.
@@ -142,8 +142,8 @@ class ThemeControllerTest {
     }
 
     /**
-     * Creates an application owned by {@code api_user} with one named theme, then makes it public, which
-     * grants read access on it without edit permission.
+     * Creates an application owned by {@code api_user} with one named theme, then grants read access on it
+     * without edit permission.
      */
     private Application createPublicApplicationWithNamedTheme(String namedThemeDisplayName) {
         Application application = new Application();
