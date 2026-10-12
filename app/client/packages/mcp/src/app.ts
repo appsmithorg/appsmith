@@ -5818,8 +5818,8 @@ export function buildMcpServer(
         let body: string;
 
         try {
-          // inList binds a list as one SQL-array parameter, which only PostgreSQL supports; the compiler refuses it
-          // on any other (or unresolvable) datasource.
+          // inList binds a list as one SQL array parameter. Only PostgreSQL supports this, so the compiler refuses
+          // inList on any other datasource and on a datasource it cannot resolve.
           body = compileQuery(spec, {
             dialect:
               datasourcePackageName(datasources, plugins, spec.datasourceId) ===
@@ -6503,9 +6503,9 @@ export function buildMcpServer(
 
           if (!gate.ok) return gate.result;
 
-          // A SQL update recompiles the query against its datasource, so give it the same checks create_query has: the
-          // datasource must be accessible in the application's own workspace (resolved server-side), and its family
-          // decides whether inList is allowed.
+          // A SQL update recompiles the query, so it gets the same datasource checks as create_query. The server
+          // confirms that the datasource is in the application's workspace. The datasource family decides whether
+          // inList is allowed.
           const sqlQuery =
             parsed.data.kind === "SQL" ? parsed.data.query : undefined;
           let dialect: SqlDialect = "other";

@@ -139,9 +139,9 @@ function buildUpdateAction(
   return { id: spec.actionId, ...compiled };
 }
 
-// Builds the minimal, safe patch request. The output excludes every caller-controlled field except the closed
-// ActionDTO vocabulary produced by the structured SQL/REST compilers. `options.dialect` is the SQL datasource's
-// family (resolved by the caller), which inList needs.
+// Builds the minimal, safe patch request. The output keeps only the ActionDTO fields that the structured SQL and
+// REST compilers produce; it drops every other caller-controlled field. `options.dialect` is the family of the SQL
+// datasource. The caller resolves it, and inList needs it.
 export function buildUpdateActionDto(
   spec: UpdateActionSpec,
   options: CompileQueryOptions = {},

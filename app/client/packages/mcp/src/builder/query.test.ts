@@ -483,8 +483,8 @@ describe("APP-16164: filter-bar filters (skipWhenEmpty, inList)", () => {
     );
   });
 
-  // The emitted guard and value expressions run in the end user's browser. Evaluate exactly what the compiler wrote
-  // (the text inside {{ }}) against each kind of widget value to pin what "empty" means.
+  // The emitted guard and value expressions run in the end user's browser. These tests evaluate exactly what the
+  // compiler wrote (the text inside {{ }}) against each kind of widget value, to pin down what "empty" means.
   it.each([
     [undefined, 1, null],
     [null, 1, null],

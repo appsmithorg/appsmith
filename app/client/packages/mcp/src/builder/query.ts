@@ -68,9 +68,11 @@ const OPERATORS = {
   in: "IN",
 } as const;
 
-// A WHERE filter. `inList` matches the column against a LIST held by a widget (a multi-select's selectedOptionValues);
-// `skipWhenEmpty` drops the filter while its widget value is empty (null, undefined, "" or []), so an unset dropdown
-// means "no filter" instead of "match nothing". Both need a widget reference: a literal is never empty and is a scalar.
+// A WHERE filter.
+// - `inList` matches the column against a list that a widget holds, such as a multi-select's selectedOptionValues.
+// - `skipWhenEmpty` drops the filter while the widget value is empty (null, undefined, "" or []). An unset dropdown
+//   then means "no filter", not "match nothing".
+// Both need a widget reference. A literal is a scalar and is never empty.
 const filterSchema = z
   .object({
     column: sqlIdentifier,
@@ -80,8 +82,8 @@ const filterSchema = z
   })
   .strict()
   .superRefine((filter, ctx) => {
-    // `appsmith.*` (e.g. appsmith.user.email) is the viewer's identity/context, the kind of value a filter scopes rows
-    // by. Never let it be skipped: an unset value would silently widen the read to every row.
+    // `appsmith.*` (for example appsmith.user.email) identifies the viewer, and filters use it to scope rows. Never
+    // skip it: an unset value would silently widen the read to every row.
     if (
       filter.skipWhenEmpty === true &&
       "widget" in filter.value &&
@@ -116,9 +118,10 @@ const filterSchema = z
     }
   });
 
-// The database family the query runs on. Only PostgreSQL binds a list as one prepared-statement parameter (an SQL
-// array); MySQL sends it as a JSON string and SQL Server refuses it, so `inList` is PostgreSQL-only. Everything else
-// the compiler emits is portable. Unknown (e.g. a caller that cannot resolve the datasource) is treated as "other".
+// The database family the query runs on. `inList` works only on PostgreSQL, which binds a list as one
+// prepared-statement parameter (an SQL array). MySQL sends the list as a JSON string, and SQL Server refuses it.
+// Everything else the compiler emits works on every family. An unknown family, such as when the caller cannot
+// resolve the datasource, counts as "other".
 export type SqlDialect = "postgres" | "other";
 
 export interface CompileQueryOptions {
@@ -182,8 +185,8 @@ export const querySpecSchema = z
   .superRefine((spec, ctx) => {
     if (spec.operation === "SELECT") return;
 
-    // A skipped filter widens the WHERE clause: harmless on a read, but on UPDATE/DELETE an empty widget would turn
-    // "change the selected rows" into "change every row". Refuse it outright on writes.
+    // A skipped filter widens the WHERE clause. That is harmless on a read. On UPDATE or DELETE, an empty widget would
+    // turn "change the selected rows" into "change every row", so writes refuse skipWhenEmpty.
     (spec.filters ?? []).forEach((filter, index) => {
       if (filter.skipWhenEmpty === true) {
         ctx.addIssue({
@@ -231,16 +234,17 @@ function emitBinding(value: ValueRef): string {
   return binding;
 }
 
-// The "is this widget value empty" test, as compiler template text around a validated identifier path: null,
-// undefined, "" and [] are empty; 0, false and non-empty strings/arrays are not (`.length` is undefined for them).
+// Template text that tests whether a widget value is empty, around a validated identifier path.
+// null, undefined, "" and [] are empty. 0, false and non-empty strings or arrays are not (`.length` is undefined
+// for 0 and false).
 function emptyTest(ref: WidgetRef): string {
   const path = `${ref.widget}.${ref.property}`;
 
   return `(${path} == null || ${path}.length === 0)`;
 }
 
-// `1` while the widget value is empty, else `0` — bound as an integer so `<guard> = 1` is valid SQL on every
-// supported database (a bound boolean is not a predicate in SQL Server or Oracle).
+// Binds `1` while the widget value is empty, and `0` otherwise. It binds an integer, not a boolean, so `<guard> = 1`
+// is valid SQL on every supported database. SQL Server and Oracle do not accept a bound boolean as a predicate.
 function emitEmptyGuard(ref: WidgetRef): string {
   const binding = `{{ ${emptyTest(ref)} ? 1 : 0 }}`;
 
@@ -251,8 +255,9 @@ function emitEmptyGuard(ref: WidgetRef): string {
   return binding;
 }
 
-// The widget value, or `null` while it is empty. An empty value is never bound as-is: "" would be compared against a
-// typed (e.g. integer) column, and PostgreSQL leaves an empty array parameter unset, failing the whole query.
+// Binds the widget value, or `null` while it is empty. It never binds an empty value as-is: "" would be compared
+// with a typed column (an integer column, for example), and PostgreSQL leaves an empty array parameter unset, which
+// fails the whole query.
 function emitNullWhenEmpty(ref: WidgetRef): string {
   const path = `${ref.widget}.${ref.property}`;
   const binding = `{{ ${emptyTest(ref)} ? null : ${path} }}`;
@@ -264,8 +269,9 @@ function emitNullWhenEmpty(ref: WidgetRef): string {
   return binding;
 }
 
-// The widget reference of an inList / skipWhenEmpty filter. filterSchema already refuses a literal there; re-check so a
-// caller that skipped parsing fails closed instead of emitting a template around a literal.
+// Returns the widget reference of an inList or skipWhenEmpty filter. filterSchema already refuses a literal here.
+// This checks again so that a caller that skipped parsing fails closed, instead of emitting a template around a
+// literal.
 function widgetRef(filter: Filter): WidgetRef {
   if ("literal" in filter.value) {
     throw new Error(
@@ -285,14 +291,15 @@ function emitCondition(filter: Filter, dialect: SqlDialect): string {
       );
     }
 
-    // CAST both sides to text so string option values (what a select holds) match text and numeric columns alike;
-    // the list binds as one SQL array parameter, and a null list (empty selection) matches nothing.
+    // CAST both sides to text. A select holds string option values, and this lets them match both text and numeric
+    // columns. The list binds as one SQL array parameter. A null list (an empty selection) matches nothing.
     return `CAST(${filter.column} AS TEXT) = ANY(CAST(${emitNullWhenEmpty(widgetRef(filter))} AS TEXT[]))`;
   }
 
-  // On PostgreSQL a skippable filter binds null while empty: "" against a typed (e.g. integer) column fails to prepare
-  // even though the guard short-circuits. Elsewhere the empty value binds as-is — MySQL and SQL Server coerce "", and
-  // Oracle treats "" as NULL — which avoids an untyped NULL parameter some JDBC drivers (Oracle) reject.
+  // On PostgreSQL, a skipWhenEmpty filter binds null while the widget value is empty. "" against a typed column (an
+  // integer column, for example) fails to prepare, even though the guard short-circuits.
+  // On other databases, the empty value binds as-is: MySQL and SQL Server coerce "", and Oracle treats "" as NULL.
+  // This avoids an untyped NULL parameter, which some JDBC drivers (Oracle's) reject.
   const binding =
     filter.skipWhenEmpty === true && dialect === "postgres"
       ? emitNullWhenEmpty(widgetRef(filter))
@@ -431,8 +438,9 @@ export function compileQuery(
 const SAFE_BINDING =
   /^\{\{ (?:[A-Za-z_][A-Za-z0-9_.]*|"(?:[^"\\]|\\.)*"|-?\d+(?:\.\d+)?|true|false|null) \}\}$/;
 
-// The only two expression bindings the compiler emits (skipWhenEmpty / inList): fixed template text around ONE
-// identifier path, repeated via backreference so a different path can't be smuggled into either position.
+// The only two expression bindings the compiler emits, for skipWhenEmpty and inList. Each is fixed template text
+// around ONE identifier path. A backreference repeats the path, so a different path cannot be slipped into
+// either position.
 const EMPTY_GUARD_BINDING =
   /^\{\{ \(([A-Za-z_][A-Za-z0-9_.]*) == null \|\| \1\.length === 0\) \? 1 : 0 \}\}$/;
 const NULL_WHEN_EMPTY_BINDING =

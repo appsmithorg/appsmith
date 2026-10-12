@@ -4164,8 +4164,8 @@ describe("governance-wrapped layout mutations", () => {
     datasource: { id: "ds1", pluginId: "postgres" },
   };
 
-  // update_action recompiles a SQL spec, so it resolves the datasource like create_query: inList only on PostgreSQL,
-  // and only for a datasource accessible in the application's own workspace.
+  // update_action recompiles a SQL spec, so it checks the datasource the same way create_query does. The
+  // datasource must be in the application's workspace, and inList works only on PostgreSQL.
   function sqlUpdateServer(datasources: unknown[]) {
     const updateAction = jest.fn(async () => STORED_ACTION);
     const api: AppsmithApi = {
