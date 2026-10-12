@@ -117,18 +117,23 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
         }
     }
 
+    // The application theme list is editor data: the named themes saved for an application are only used by the
+    // editor's theme picker. Listing them requires edit permission on the application; read permission (e.g. from
+    // a public application) is not sufficient. Without edit permission the branch-aware overload fails its
+    // application lookup with NO_RESOURCE_FOUND, and the single-argument overload yields an empty list, the same
+    // response as for an unknown application.
     @Override
     public Flux<Theme> getApplicationThemes(String applicationId, String branchName) {
         return applicationService
                 .findByBranchNameAndBaseApplicationId(
-                        branchName, applicationId, applicationPermission.getReadPermission())
+                        branchName, applicationId, applicationPermission.getEditPermission())
                 .flatMapMany(application -> repository.getApplicationThemes(application.getId(), READ_THEMES));
     }
 
     @Override
     public Flux<Theme> getApplicationThemes(String branchedApplicationId) {
         return applicationService
-                .findById(branchedApplicationId, applicationPermission.getReadPermission())
+                .findById(branchedApplicationId, applicationPermission.getEditPermission())
                 .flatMapMany(this::getApplicationThemes);
     }
 

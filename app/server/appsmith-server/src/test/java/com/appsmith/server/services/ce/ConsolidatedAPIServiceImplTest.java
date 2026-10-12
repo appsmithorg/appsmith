@@ -286,7 +286,6 @@ public class ConsolidatedAPIServiceImplTest {
         Theme sampleTheme = new Theme();
         sampleTheme.setName("sampleTheme");
         doReturn(Mono.just(sampleTheme)).when(spyThemeService).getApplicationTheme(any(Application.class), any());
-        doReturn(Flux.just(sampleTheme)).when(spyThemeService).getApplicationThemes(any(Application.class));
 
         CustomJSLib sampleCustomJSLib = new CustomJSLib();
         sampleCustomJSLib.setName("sampleJSLib");
@@ -365,16 +364,10 @@ public class ConsolidatedAPIServiceImplTest {
                                     .getData()
                                     .getName());
 
+                    // The application theme list is editor data: the published payload carries an empty list
                     assertNotNull(consolidatedAPIResponseDTO.getThemes());
                     assertEquals(
-                            1, consolidatedAPIResponseDTO.getThemes().getData().size());
-                    assertEquals(
-                            "sampleTheme",
-                            consolidatedAPIResponseDTO
-                                    .getThemes()
-                                    .getData()
-                                    .get(0)
-                                    .getName());
+                            0, consolidatedAPIResponseDTO.getThemes().getData().size());
 
                     assertNotNull(consolidatedAPIResponseDTO.getPublishedActionCollections());
                     assertEquals(
@@ -976,7 +969,6 @@ public class ConsolidatedAPIServiceImplTest {
         Theme sampleTheme = new Theme();
         sampleTheme.setName("sampleTheme");
         doReturn(Mono.just(sampleTheme)).when(spyThemeService).getApplicationTheme(any(Application.class), any());
-        doReturn(Flux.just(sampleTheme)).when(spyThemeService).getApplicationThemes(any(Application.class));
 
         CustomJSLib sampleCustomJSLib = new CustomJSLib();
         sampleCustomJSLib.setName("sampleJSLib");
@@ -1055,16 +1047,10 @@ public class ConsolidatedAPIServiceImplTest {
                                     .getData()
                                     .getName());
 
+                    // The application theme list is editor data: the published payload carries an empty list
                     assertNotNull(consolidatedAPIResponseDTO.getThemes());
                     assertEquals(
-                            1, consolidatedAPIResponseDTO.getThemes().getData().size());
-                    assertEquals(
-                            "sampleTheme",
-                            consolidatedAPIResponseDTO
-                                    .getThemes()
-                                    .getData()
-                                    .get(0)
-                                    .getName());
+                            0, consolidatedAPIResponseDTO.getThemes().getData().size());
 
                     assertNotNull(consolidatedAPIResponseDTO.getPublishedActionCollections());
                     assertEquals(
