@@ -116,7 +116,7 @@ class MongoPluginSmartSubstitutionTest {
     @Test
     void should_finishQuickly_when_valueHasThousandsOfDistinctSpecialTypes() {
         // Given
-        int count = 8000;
+        int count = 32000;
         String array = IntStream.range(0, count)
                 .mapToObj(i -> "\"ObjectId('" + String.format("%024x", i) + "')\"")
                 .collect(Collectors.joining(", ", "[", "]"));
