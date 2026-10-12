@@ -68,9 +68,13 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
 
     @Override
     public Mono<Theme> getApplicationTheme(String applicationId, ApplicationMode applicationMode, String branchName) {
+        // EDIT mode returns the unpublished, in-progress theme, so it requires edit permission on the
+        // application; read permission (e.g. from a public application) is only sufficient for PUBLISHED mode.
+        AclPermission permission = applicationMode == ApplicationMode.PUBLISHED
+                ? applicationPermission.getReadPermission()
+                : applicationPermission.getEditPermission();
         return applicationService
-                .findByBranchNameAndBaseApplicationId(
-                        branchName, applicationId, applicationPermission.getReadPermission())
+                .findByBranchNameAndBaseApplicationId(branchName, applicationId, permission)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .flatMap(application -> {
