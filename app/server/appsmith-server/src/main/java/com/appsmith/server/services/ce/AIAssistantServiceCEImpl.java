@@ -3,11 +3,14 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.PluginType;
-import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.artifacts.base.ArtifactService;
+import com.appsmith.server.artifacts.base.artifactbased.ArtifactBasedService;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.AIAssistantConfig;
 import com.appsmith.server.domains.AIProvider;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.AIEditorContextDTO;
 import com.appsmith.server.dtos.AIMessageDTO;
@@ -22,7 +25,6 @@ import com.appsmith.server.services.AIReferenceService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
-import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
 import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -44,9 +46,11 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.server.constants.AIConstants.DEFAULT_AZURE_API_VERSION;
 import static com.appsmith.server.constants.AIConstants.DEFAULT_AZURE_MAX_COMPLETION_TOKENS;
@@ -63,6 +67,10 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
     private static final int AI_SCHEMA_CHAR_BUDGET = 10000;
 
     private static final int AI_SCHEMA_CONTEXT_MAX = 15000;
+
+    /** The artifact types an Ask AI request may be authorized against. */
+    private static final Set<ArtifactType> AUTHORIZABLE_ARTIFACT_TYPES =
+            EnumSet.of(ArtifactType.APPLICATION, ArtifactType.WORKFLOW);
 
     /**
      * Full-file code generation (e.g. the custom widget copilot) routinely takes
@@ -83,8 +91,7 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
     // and the throttle is never silently absent.
     private RateLimitService rateLimitService;
     private SessionUserService sessionUserService;
-    private ApplicationService applicationService;
-    private ApplicationPermission applicationPermission;
+    private ArtifactService artifactService;
 
     @Autowired
     public void setRateLimitService(RateLimitService rateLimitService) {
@@ -97,13 +104,8 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
     }
 
     @Autowired
-    public void setApplicationService(ApplicationService applicationService) {
-        this.applicationService = applicationService;
-    }
-
-    @Autowired
-    public void setApplicationPermission(ApplicationPermission applicationPermission) {
-        this.applicationPermission = applicationPermission;
+    public void setArtifactService(ArtifactService artifactService) {
+        this.artifactService = artifactService;
     }
 
     private static final WebClient claudeWebClient = WebClientUtils.builder(
@@ -396,40 +398,33 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                     .then();
         }
 
-        // No entity — a widget property binding, for instance — so fall back to the application whose editor this
-        // came from. Ask AI has no surface outside the editor, so a caller who cannot edit the application has no
-        // legitimate way to reach this and is refused rather than merely rate-limited.
-        if (StringUtils.hasText(context.getApplicationId())) {
-            String applicationId = context.getApplicationId().trim();
+        // No entity — a widget property binding, or a workflow's main JS object — so fall back to the artifact whose
+        // editor this came from. Ask AI has no surface outside an editor, so a caller who cannot edit the artifact has
+        // no legitimate way to reach this and is refused rather than merely rate-limited.
+        if (StringUtils.hasText(context.getArtifactId())) {
+            // Only the artifacts whose editors have Ask AI. Not every artifact service enforces the permission it is
+            // given on findById (EE's package service ignores it), so any other type is refused before the lookup.
+            ArtifactType artifactType = context.getArtifactType();
+            if (!AUTHORIZABLE_ARTIFACT_TYPES.contains(artifactType)) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "artifactType"));
+            }
+            String artifactId = context.getArtifactId().trim();
+            ArtifactBasedService<? extends Artifact> artifactBasedService =
+                    artifactService.getArtifactBasedService(artifactType);
 
-            return applicationService
-                    .findById(applicationId, applicationPermission.getEditPermission())
+            return artifactBasedService
+                    .findById(
+                            artifactId,
+                            artifactBasedService.getPermissionService().getEditPermission())
                     .switchIfEmpty(Mono.error(new AppsmithException(
-                            AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
+                            AppsmithError.ACL_NO_RESOURCE_FOUND, artifactType.lowerCaseName(), artifactId)))
                     .then();
-        }
-
-        // No entity and no application — the workflow editor, whose main JS object has no entity id and which is not
-        // an application. Authorize against the workflow instead.
-        if (StringUtils.hasText(context.getWorkflowId())) {
-            return authorizeWorkflowContext(context.getWorkflowId().trim());
         }
 
         // Nothing to authorize against. Refuse rather than fall through: an unscoped request cannot be shown to come
         // from a developer, and this endpoint spends the organization's provider credits.
         return Mono.error(new AppsmithException(
-                AppsmithError.INVALID_PARAMETER,
-                "Editor context must identify an entity, an application or a workflow"));
-    }
-
-    /**
-     * Refuses the request unless the caller may edit the workflow it came from.
-     *
-     * <p>Workflows exist only in EE, so CE has nothing to check the id against and refuses — the same answer as an id
-     * the caller cannot see. EE overrides this with an edit-permission lookup on the workflow.
-     */
-    protected Mono<Void> authorizeWorkflowContext(String workflowId) {
-        return Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "workflow", workflowId));
+                AppsmithError.INVALID_PARAMETER, "Editor context must identify an entity or an artifact"));
     }
 
     private AIEditorContextDTO applyDatasourceSchemaToContext(

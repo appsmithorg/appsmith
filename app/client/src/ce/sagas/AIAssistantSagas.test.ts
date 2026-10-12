@@ -81,7 +81,7 @@ describe("fetchAIResponseSaga request context", () => {
     window.history.pushState({}, "", "/");
   });
 
-  it("sends the workflow id, and no stale application id, from the workflow editor", async () => {
+  it("sends the workflow as the artifact, not a stale application, from the workflow editor", async () => {
     const context = await requestContextFor(
       WORKFLOW_EDITOR_URL,
       {
@@ -92,12 +92,14 @@ describe("fetchAIResponseSaga request context", () => {
       { applicationId: "stale-app", workflowId: "workflow-1" },
     );
 
-    expect(context).toMatchObject({ workflowId: "workflow-1" });
-    expect(context).not.toHaveProperty("applicationId");
+    expect(context).toMatchObject({
+      artifactId: "workflow-1",
+      artifactType: "WORKFLOW",
+    });
     expect(context).not.toHaveProperty("entityId");
   });
 
-  it("sends the application id, and no stale workflow id, from the app editor", async () => {
+  it("sends the application as the artifact, not a stale workflow, from the app editor", async () => {
     const context = await requestContextFor(
       APP_EDITOR_URL,
       {
@@ -108,8 +110,10 @@ describe("fetchAIResponseSaga request context", () => {
       { applicationId: "app-1", workflowId: "stale-workflow" },
     );
 
-    expect(context).toMatchObject({ applicationId: "app-1" });
-    expect(context).not.toHaveProperty("workflowId");
+    expect(context).toMatchObject({
+      artifactId: "app-1",
+      artifactType: "APPLICATION",
+    });
   });
 
   it("does not send a widget's id as the entity id from a widget property binding", async () => {
@@ -124,7 +128,10 @@ describe("fetchAIResponseSaga request context", () => {
       { applicationId: "app-1" },
     );
 
-    expect(context).toMatchObject({ applicationId: "app-1" });
+    expect(context).toMatchObject({
+      artifactId: "app-1",
+      artifactType: "APPLICATION",
+    });
     expect(context).not.toHaveProperty("entityId");
   });
 
@@ -142,7 +149,8 @@ describe("fetchAIResponseSaga request context", () => {
 
     expect(context).toMatchObject({
       entityId: "action-1",
-      applicationId: "app-1",
+      artifactId: "app-1",
+      artifactType: "APPLICATION",
     });
   });
 });

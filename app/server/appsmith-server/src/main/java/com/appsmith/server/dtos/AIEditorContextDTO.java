@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.server.constants.ArtifactType;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
@@ -24,18 +25,14 @@ public class AIEditorContextDTO {
     @Size(max = 100, message = "Entity id cannot exceed 100 characters") private String entityId;
 
     /**
-     * The application whose editor the request came from. Ask AI only exists in the editor — there is no surface for
-     * it in a deployed app — so every legitimate request has one, and it is what a request with no {@code entityId}
-     * (a widget property binding, say) is authorized against.
+     * The artifact (application, workflow, ...) whose editor the request came from, named by {@link #artifactType}.
+     * Ask AI only exists in an editor, so every legitimate request has one, and it is what a request with no
+     * {@code entityId} (a widget property binding, or a workflow's main JS object) is authorized against.
      */
-    @Size(max = 100, message = "Application id cannot exceed 100 characters") private String applicationId;
+    @Size(max = 100, message = "Artifact id cannot exceed 100 characters") private String artifactId;
 
-    /**
-     * The workflow whose editor the request came from. A workflow is not an application, so a request from the
-     * workflow editor carries no {@code applicationId}; this is what such a request is authorized against when it has
-     * no {@code entityId} either (the workflow's main JS object, say).
-     */
-    @Size(max = 100, message = "Workflow id cannot exceed 100 characters") private String workflowId;
+    /** The type of {@link #artifactId}. Required whenever an artifact id is sent. */
+    private ArtifactType artifactType;
 
     @Size(max = 15000, message = "Database schema cannot exceed 15000 characters") private String databaseSchema;
 

@@ -152,8 +152,8 @@ function* fetchAIResponseSaga(
       getAIEditorContext,
     )) as AIEditorContext | null;
 
-    // The server authorizes every request against the action, the application or the workflow the editor belongs
-    // to — Ask AI only exists in the editor, so a caller who cannot edit any of them has no legitimate route here.
+    // The server authorizes every request against the action, or else the artifact (application or workflow) the
+    // editor belongs to — Ask AI only exists in an editor, so a caller who cannot edit either has no route here.
     const applicationId = (yield select(getCurrentApplicationId)) as
       | string
       | undefined;
