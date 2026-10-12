@@ -381,10 +381,12 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         // analytics/audit-log events and without cascading to child actions. Child actions are separately
         // archived by NewActionService.archiveActionsByApplicationId in the delete-application flow.
         // This avoids the OOM caused by hundreds of concurrent audit-log DB operations that previously
-        // exhausted heap memory and crashed the container.
+        // exhausted heap memory and crashed the container. Collections are archived one at a time
+        // because application deletion runs this inside a MongoDB transaction, which does not
+        // support parallel operations.
         return repository
                 .findByApplicationId(applicationId, permission, null)
-                .flatMap(repository::archive, 4)
+                .concatMap(repository::archive)
                 .then();
     }
 
