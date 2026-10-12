@@ -52,6 +52,7 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.themes.base.ThemeService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,6 +82,8 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -1585,5 +1588,115 @@ public class ConsolidatedAPIServiceImplTest {
                             .isEqualTo(AppsmithError.NO_RESOURCE_FOUND.getAppErrorCode());
                 })
                 .verifyComplete();
+    }
+
+    /**
+     * The application theme list is editor data. The published payload carries an empty list and the theme
+     * service is never asked to list themes in PUBLISHED mode. See GHSA-x2jf-gfvj-wfg2.
+     */
+    @Test
+    @DisplayName(
+            "Published consolidated payload carries an empty theme list without listing themes (GHSA-x2jf-gfvj-wfg2)")
+    void should_returnEmptyThemeListWithoutListingThemes_when_modeIsPublished() {
+        // Given
+        User sampleUser = new User();
+        when(mockSessionUserService.getCurrentUser()).thenReturn(Mono.just(sampleUser));
+
+        UserProfileDTO sampleUserProfileDTO = new UserProfileDTO();
+        sampleUserProfileDTO.setName("sampleUserProfileDTO");
+        when(mockUserService.buildUserProfileDTO(any())).thenReturn(Mono.just(sampleUserProfileDTO));
+
+        Map<String, Boolean> sampleFeatureFlagMap = new HashMap<>();
+        sampleFeatureFlagMap.put("sampleFeatureFlag", true);
+        when(mockUserDataService.getFeatureFlagsForCurrentUser()).thenReturn(Mono.just(sampleFeatureFlagMap));
+
+        Organization sampleOrganization = new Organization();
+        sampleOrganization.setDisplayName("sampleOrganization");
+        when(mockOrganizationService.getOrganizationConfiguration()).thenReturn(Mono.just(sampleOrganization));
+
+        ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
+        sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
+        when(mockProductAlertService.getSingleApplicableMessage())
+                .thenReturn(Mono.just(List.of(sampleProductAlertResponseDTO)));
+
+        ApplicationPagesDTO sampleApplicationPagesDTO = new ApplicationPagesDTO();
+        sampleApplicationPagesDTO.setWorkspaceId("sampleWorkspaceId");
+
+        Application mockApplication = new Application();
+        mockApplication.setId("mockApplicationId");
+        doReturn(Mono.just(mockApplication))
+                .when(spyApplicationService)
+                .findByBranchedApplicationIdAndApplicationMode(anyString(), any());
+
+        NewPage mockNewPage = new NewPage();
+        mockNewPage.setApplicationId("mockApplicationId");
+        mockNewPage.setId("mockPageId");
+        mockNewPage.setBranchName("branch");
+        doReturn(Mono.just(mockNewPage))
+                .when(spyNewPageService)
+                .findByRefTypeAndRefNameAndBasePageId(any(), anyString(), anyString(), any(), any());
+
+        doReturn(Mono.just(List.of(mockNewPage)))
+                .when(spyApplicationPageService)
+                .getPagesBasedOnApplicationMode(any(), any());
+
+        doReturn(Mono.just(sampleApplicationPagesDTO))
+                .when(spyNewPageService)
+                .createApplicationPagesDTO(any(), any(), anyBoolean(), anyBoolean());
+
+        Theme currentTheme = new Theme();
+        currentTheme.setName("currentTheme");
+        doReturn(Mono.just(currentTheme)).when(spyThemeService).getApplicationTheme(any(Application.class), any());
+
+        Theme namedTheme = new Theme();
+        namedTheme.setName("namedTheme");
+        namedTheme.setApplicationId("mockApplicationId");
+        doReturn(Flux.just(namedTheme)).when(spyThemeService).getApplicationThemes(any(Application.class));
+
+        CustomJSLib sampleCustomJSLib = new CustomJSLib();
+        sampleCustomJSLib.setName("sampleJSLib");
+        doReturn(Mono.just(List.of(sampleCustomJSLib)))
+                .when(spyCustomJSLibService)
+                .getAllJSLibsInContext(anyString(), any(), anyBoolean());
+
+        PageDTO samplePageDTO = new PageDTO();
+        samplePageDTO.setName("samplePageDTO");
+        doReturn(Mono.just(samplePageDTO))
+                .when(spyApplicationPageService)
+                .getPageAndMigrateDslByBranchedPageId(anyString(), anyBoolean(), anyBoolean());
+
+        ActionViewDTO sampleActionViewDTO = new ActionViewDTO();
+        sampleActionViewDTO.setName("sampleActionViewDTO");
+        doReturn(Flux.just(sampleActionViewDTO)).when(spyNewActionService).getActionsForViewModeByPageId(anyString());
+
+        ActionCollectionViewDTO sampleActionCollectionViewDTO = new ActionCollectionViewDTO();
+        sampleActionCollectionViewDTO.setName("sampleActionCollectionViewDTO");
+        doReturn(Flux.just(sampleActionCollectionViewDTO))
+                .when(spyActionCollectionService)
+                .getActionCollectionsForViewMode(anyString());
+
+        // When
+        Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
+                consolidatedAPIService.getConsolidatedInfoForPageLoad(
+                        "pageId123", null, RefType.branch, "branch", ApplicationMode.PUBLISHED);
+
+        // Then
+        StepVerifier.create(consolidatedInfoForPageLoad)
+                .assertNext(consolidatedAPIResponseDTO -> {
+                    assertThat(consolidatedAPIResponseDTO
+                                    .getCurrentTheme()
+                                    .getData()
+                                    .getName())
+                            .isEqualTo("currentTheme");
+                    assertThat(consolidatedAPIResponseDTO.getThemes()).isNotNull();
+                    assertThat(consolidatedAPIResponseDTO
+                                    .getThemes()
+                                    .getResponseMeta()
+                                    .getStatus())
+                            .isEqualTo(200);
+                    assertThat(consolidatedAPIResponseDTO.getThemes().getData()).isEmpty();
+                })
+                .verifyComplete();
+        verify(spyThemeService, never()).getApplicationThemes(any(Application.class));
     }
 }
