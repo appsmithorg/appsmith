@@ -30,6 +30,7 @@ import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInForm
 import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -216,7 +217,8 @@ public class MongoPluginRegexTest {
     }
 
     @Test
-    public void testTwoNumericRegexValuesInOneFilterAreBothQuoted() {
+    void should_quoteEveryNumericRegexValue_when_oneFilterHasTwo() {
+        // Given
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
@@ -235,13 +237,16 @@ public class MongoPluginRegexTest {
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setParams(List.of(new Param("goals", "20"), new Param("xgd", "-2.5")));
 
+        // When
         Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection ->
                 pluginExecutor.executeParameterized(clientConnection, executeActionDTO, dsConfig, actionConfiguration));
+
+        // Then
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
-                    assertNotNull(actionExecutionResult);
-                    assertTrue(actionExecutionResult.getIsExecutionSuccess());
-                    assertEquals(1, ((ArrayNode) actionExecutionResult.getBody()).size());
+                    assertThat(actionExecutionResult).isNotNull();
+                    assertThat(actionExecutionResult.getIsExecutionSuccess()).isTrue();
+                    assertThat((ArrayNode) actionExecutionResult.getBody()).hasSize(1);
                 })
                 .verifyComplete();
     }

@@ -15,19 +15,21 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 /**
  * Unit tests for the smart-substitution sanitizers in the Mongo plugin. These tests do not need a database.
  */
-public class MongoPluginSmartSubstitutionTest {
+class MongoPluginSmartSubstitutionTest {
 
     private final MongoPlugin.MongoPluginExecutor pluginExecutor =
             new MongoPlugin.MongoPluginExecutor(ObservationRegistry.NOOP);
@@ -37,55 +39,114 @@ public class MongoPluginSmartSubstitutionTest {
     }
 
     @Test
-    public void testObjectIdInsideQuotesIsUnwrapped() {
-        assertEquals("ObjectId(\"507f1f77bcf86cd799439011\")", sanitize("\"ObjectId('507f1f77bcf86cd799439011')\""));
-        assertEquals(
-                "ObjectId(\"507f1f77bcf86cd799439011\")", sanitize("\"ObjectId(\\\"507f1f77bcf86cd799439011\\\")\""));
+    void should_unwrapObjectId_when_argumentIsQuoted() {
+        // Given
+        String singleQuoted = "\"ObjectId('507f1f77bcf86cd799439011')\"";
+        String escapedDoubleQuoted = "\"ObjectId(\\\"507f1f77bcf86cd799439011\\\")\"";
         // Shape produced when an array element that contains escaped quotes is re-serialized as BSON.
-        assertEquals(
-                "ObjectId(\"507f1f77bcf86cd799439011\")",
-                sanitize("\"ObjectId(\\\\\"507f1f77bcf86cd799439011\\\\\")\""));
+        String reserialized = "\"ObjectId(\\\\\"507f1f77bcf86cd799439011\\\\\")\"";
+
+        // When / Then
+        assertThat(sanitize(singleQuoted)).isEqualTo("ObjectId(\"507f1f77bcf86cd799439011\")");
+        assertThat(sanitize(escapedDoubleQuoted)).isEqualTo("ObjectId(\"507f1f77bcf86cd799439011\")");
+        assertThat(sanitize(reserialized)).isEqualTo("ObjectId(\"507f1f77bcf86cd799439011\")");
     }
 
     @Test
-    public void testEverySpecialTypeOccurrenceInAnArrayIsUnwrapped() {
-        assertEquals(
-                "[ObjectId(\"507f1f77bcf86cd799439011\"), ObjectId(\"507f1f77bcf86cd799439012\")]",
-                sanitize("[\"ObjectId('507f1f77bcf86cd799439011')\", \"ObjectId('507f1f77bcf86cd799439012')\"]"));
+    void should_unwrapEveryOccurrence_when_valueIsAnArray() {
+        // Given
+        String array = "[\"ObjectId('507f1f77bcf86cd799439011')\", \"ObjectId('507f1f77bcf86cd799439012')\"]";
+
+        // When
+        String result = sanitize(array);
+
+        // Then
+        assertThat(result)
+                .isEqualTo("[ObjectId(\"507f1f77bcf86cd799439011\"), ObjectId(\"507f1f77bcf86cd799439012\")]");
     }
 
     @Test
-    public void testOtherSpecialTypesInsideQuotesAreUnwrapped() {
-        assertEquals("ISODate(\"1970-01-01T00:00:00.000Z\")", sanitize("\"ISODate('1970-01-01T00:00:00.000Z')\""));
-        assertEquals("NumberLong(\"9000000000000000000\")", sanitize("\"NumberLong(9000000000000000000)\""));
-        assertEquals("NumberDecimal(\"123456.789012\")", sanitize("\"NumberDecimal(\\\"123456.789012\\\")\""));
+    void should_unwrapOtherSpecialTypes_when_argumentIsQuoted() {
+        // Given / When / Then
+        assertThat(sanitize("\"ISODate('1970-01-01T00:00:00.000Z')\""))
+                .isEqualTo("ISODate(\"1970-01-01T00:00:00.000Z\")");
+        assertThat(sanitize("\"NumberLong(9000000000000000000)\"")).isEqualTo("NumberLong(\"9000000000000000000\")");
+        assertThat(sanitize("\"NumberDecimal(\\\"123456.789012\\\")\"")).isEqualTo("NumberDecimal(\"123456.789012\")");
         // Timestamp arguments are not quoted.
-        assertEquals("Timestamp(1421006159, 4)", sanitize("\"Timestamp(1421006159, 4)\""));
+        assertThat(sanitize("\"Timestamp(1421006159, 4)\"")).isEqualTo("Timestamp(1421006159, 4)");
     }
 
     @Test
-    public void testValuesWithoutSpecialTypesAreUnchanged() {
-        assertEquals("\"plain string\"", sanitize("\"plain string\""));
-        assertEquals("\"ObjectId\"", sanitize("\"ObjectId\""));
-        assertEquals("ObjectId('abc')", sanitize("ObjectId('abc')"));
+    void should_keepCompleteArgument_when_itContainsSignsOrExponents() {
+        // Given / When / Then
+        assertThat(sanitize("\"NumberDecimal(\\\"4E+9\\\")\"")).isEqualTo("NumberDecimal(\"4E+9\")");
+        assertThat(sanitize("\"NumberDecimal('-1.5E-3')\"")).isEqualTo("NumberDecimal(\"-1.5E-3\")");
+        assertThat(sanitize("\"NumberDecimal('+4.5')\"")).isEqualTo("NumberDecimal(\"+4.5\")");
+        assertThat(sanitize("\"NumberDecimal('Infinity')\"")).isEqualTo("NumberDecimal(\"Infinity\")");
+        assertThat(sanitize("\"NumberDecimal('NaN')\"")).isEqualTo("NumberDecimal(\"NaN\")");
     }
 
     @Test
-    public void testSpecialTypeWithoutArgumentIsUnchanged() {
-        assertEquals("\"ObjectId()\"", sanitize("\"ObjectId()\""));
-        assertEquals("\"ObjectId('')\"", sanitize("\"ObjectId('')\""));
+    void should_leaveValueUnchanged_when_itHasNoSpecialType() {
+        // Given / When / Then
+        assertThat(sanitize("\"plain string\"")).isEqualTo("\"plain string\"");
+        assertThat(sanitize("\"ObjectId\"")).isEqualTo("\"ObjectId\"");
+        assertThat(sanitize("ObjectId('abc')")).isEqualTo("ObjectId('abc')");
     }
 
     @Test
-    public void testUnterminatedSpecialTypeIsSanitizedInLinearTime() {
-        final String unterminated = "\"ObjectId(" + "a".repeat(4000);
-        final String result = assertTimeoutPreemptively(Duration.ofSeconds(5), () -> sanitize(unterminated));
-        assertEquals(unterminated, result);
+    void should_leaveValueUnchanged_when_specialTypeHasNoArgument() {
+        // Given / When / Then
+        assertThat(sanitize("\"ObjectId()\"")).isEqualTo("\"ObjectId()\"");
+        assertThat(sanitize("\"ObjectId('')\"")).isEqualTo("\"ObjectId('')\"");
     }
 
     @Test
-    public void testLargeRawBodyIsSubstitutedInLinearTime() {
-        final StringBuilder documents = new StringBuilder("[");
+    void should_leaveUnrelatedText_when_itRepeatsAnArgument() {
+        // Given
+        String array = "[\"ObjectId('abc123')\", \"x'abc123'y\"]";
+
+        // When
+        String result = sanitize(array);
+
+        // Then
+        assertThat(result).isEqualTo("[ObjectId(\"abc123\"), \"x'abc123'y\"]");
+    }
+
+    @Test
+    void should_finishQuickly_when_valueHasThousandsOfDistinctSpecialTypes() {
+        // Given
+        int count = 8000;
+        String array = IntStream.range(0, count)
+                .mapToObj(i -> "\"ObjectId('" + String.format("%024x", i) + "')\"")
+                .collect(Collectors.joining(", ", "[", "]"));
+
+        // When
+        String result = assertTimeoutPreemptively(Duration.ofSeconds(5), () -> sanitize(array));
+
+        // Then
+        assertThat(result).doesNotContain("\"ObjectId(");
+        assertThat(result.split("ObjectId\\(\"", -1)).hasSize(count + 1);
+        assertThat(result)
+                .startsWith("[ObjectId(\"000000000000000000000000\"), ObjectId(\"000000000000000000000001\")");
+    }
+
+    @Test
+    void should_finishQuickly_when_specialTypeIsUnterminated() {
+        // Given
+        String unterminated = "\"ObjectId(" + "a".repeat(4000);
+
+        // When
+        String result = assertTimeoutPreemptively(Duration.ofSeconds(5), () -> sanitize(unterminated));
+
+        // Then
+        assertThat(result).isEqualTo(unterminated);
+    }
+
+    @Test
+    void should_finishQuickly_when_rawBodyIsLarge() {
+        // Given
+        StringBuilder documents = new StringBuilder("[");
         for (int i = 0; i < 5000; i++) {
             if (i > 0) {
                 documents.append(",");
@@ -101,26 +162,26 @@ public class MongoPluginSmartSubstitutionTest {
         }
         documents.append("]");
 
-        final Param documentsParam = new Param("Input1.text", documents.toString());
+        Param documentsParam = new Param("Input1.text", documents.toString());
         documentsParam.setClientDataType(ClientDataType.ARRAY);
 
-        final ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setParams(List.of(documentsParam));
 
-        final Map<String, Object> configMap = new HashMap<>();
+        Map<String, Object> configMap = new HashMap<>();
         setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
         setDataValueSafelyInFormData(configMap, BODY, "{ \"insert\": \"users\", \"documents\": {{Input1.text}} }");
-        final ActionConfiguration actionConfiguration = new ActionConfiguration();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setFormData(configMap);
 
+        // When / Then
         // No Mongo client is needed: smart substitution runs before the client is used, and the null client then
         // fails with StaleConnectionException. That exception proves substitution completed; the timeout bounds it.
-        assertTimeoutPreemptively(
-                Duration.ofSeconds(20),
-                () -> assertThrows(
-                        StaleConnectionException.class, () -> Mono.defer(() -> pluginExecutor.executeParameterized(
+        assertTimeoutPreemptively(Duration.ofSeconds(20), () -> assertThatThrownBy(
+                        () -> Mono.defer(() -> pluginExecutor.executeParameterized(
                                         null, executeActionDTO, new DatasourceConfiguration(), actionConfiguration))
-                                .block()));
+                                .block())
+                .isInstanceOf(StaleConnectionException.class));
     }
 }
