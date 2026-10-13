@@ -21,6 +21,7 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.exceptions.OracleErrorMessages;
 import com.external.plugins.exceptions.OraclePluginError;
 import com.external.plugins.utils.OracleDatasourceUtils;
@@ -68,6 +69,10 @@ import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFo
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.applyQueryTimeout;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.isCancelEnabled;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.isQueryTimeoutCancellation;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.queryTimeoutError;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.external.plugins.utils.OracleDatasourceUtils.JDBC_DRIVER;
 import static com.external.plugins.utils.OracleDatasourceUtils.createConnectionPool;
@@ -95,8 +100,15 @@ public class OraclePlugin extends BasePlugin {
 
         private final ConnectionPoolConfig connectionPoolConfig;
 
+        private final SharedConfig sharedConfig;
+
         public OraclePluginExecutor(ConnectionPoolConfig connectionPoolConfig) {
+            this(connectionPoolConfig, null);
+        }
+
+        public OraclePluginExecutor(ConnectionPoolConfig connectionPoolConfig, SharedConfig sharedConfig) {
             this.connectionPoolConfig = connectionPoolConfig;
+            this.sharedConfig = sharedConfig;
         }
 
         @Override
@@ -257,6 +269,7 @@ public class OraclePlugin extends BasePlugin {
                         try {
                             if (FALSE.equals(preparedStatement)) {
                                 statement = connectionFromPool.createStatement();
+                                applyQueryTimeout(statement, actionConfiguration, isCancelEnabled(sharedConfig));
                                 isResultSet = statement.execute(query);
                                 resultSet = statement.getResultSet();
                             } else {
@@ -274,6 +287,7 @@ public class OraclePlugin extends BasePlugin {
                                                         parameters.get(i).getValue())));
 
                                 requestData.put("ps-parameters", parameters);
+                                applyQueryTimeout(preparedQuery, actionConfiguration, isCancelEnabled(sharedConfig));
                                 isResultSet = preparedQuery.execute();
                                 resultSet = preparedQuery.getResultSet();
                             }
@@ -287,6 +301,9 @@ public class OraclePlugin extends BasePlugin {
                                     statement,
                                     preparedQuery);
                         } catch (SQLException e) {
+                            if (isQueryTimeoutCancellation(e, isCancelEnabled(sharedConfig))) {
+                                return Mono.error(queryTimeoutError(actionConfiguration.getTimeoutInMillisecond(), e));
+                            }
                             log.error(Thread.currentThread().getName()
                                     + ": In the OraclePlugin, got action execution error");
                             log.error(e.getMessage());

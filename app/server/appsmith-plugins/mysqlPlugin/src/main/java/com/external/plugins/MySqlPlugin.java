@@ -29,6 +29,7 @@ import com.appsmith.external.models.SSHConnection;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.datatypes.MySQLSpecificDataTypes;
 import com.external.plugins.exceptions.MySQLErrorMessages;
 import com.external.plugins.exceptions.MySQLPluginError;
@@ -43,6 +44,7 @@ import io.r2dbc.spi.R2dbcBadGrammarException;
 import io.r2dbc.spi.R2dbcException;
 import io.r2dbc.spi.R2dbcNonTransientResourceException;
 import io.r2dbc.spi.R2dbcPermissionDeniedException;
+import io.r2dbc.spi.R2dbcTimeoutException;
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
@@ -79,6 +81,7 @@ import static com.appsmith.external.constants.spans.ce.ActionSpanCE.PLUGIN_EXECU
 import static com.appsmith.external.helpers.PluginUtils.MATCH_QUOTED_WORDS_REGEX;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.isCancelEnabled;
 import static com.appsmith.external.helpers.SSHUtils.getConnectionContext;
 import static com.appsmith.external.helpers.SSHUtils.isSSHTunnelConnected;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
@@ -168,11 +171,28 @@ public class MySqlPlugin extends BasePlugin {
         private final Scheduler scheduler = Schedulers.boundedElastic();
         private final ConnectionPoolConfig connectionPoolConfig;
 
+        private final SharedConfig sharedConfig;
+
         private final ObservationRegistry observationRegistry;
 
         public MySqlPluginExecutor(ConnectionPoolConfig connectionPoolConfig, ObservationRegistry observationRegistry) {
+            this(connectionPoolConfig, null, observationRegistry);
+        }
+
+        public MySqlPluginExecutor(
+                ConnectionPoolConfig connectionPoolConfig,
+                SharedConfig sharedConfig,
+                ObservationRegistry observationRegistry) {
             this.connectionPoolConfig = connectionPoolConfig;
+            this.sharedConfig = sharedConfig;
             this.observationRegistry = observationRegistry;
+        }
+
+        private Mono<Void> applyStatementTimeout(Connection connection, Duration timeout) {
+            return Mono.from(connection.setStatementTimeout(timeout)).onErrorResume(error -> {
+                log.debug("Unable to set MySQL statement timeout: {}", error.getMessage());
+                return Mono.empty();
+            });
         }
 
         /**
@@ -343,6 +363,8 @@ public class MySqlPlugin extends BasePlugin {
             List<RequestParamDTO> requestParams =
                     List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, transformedQuery, null, null, psParams));
             Instant requestedAt = Instant.now();
+            final boolean cancelEnabled = isCancelEnabled(sharedConfig);
+            final Duration statementTimeout = Duration.ofMillis(actionConfiguration.getTimeoutInMillisecond());
 
             return Mono.usingWhen(
                             connectionPool.create(),
@@ -358,19 +380,24 @@ public class MySqlPlugin extends BasePlugin {
                                                 isConnectionValid && isSSHTunnelConnected(sshTunnelContext))
                                         .flatMapMany(isValid -> {
                                             if (isValid) {
-                                                return createAndExecuteQueryFromConnection(
-                                                                finalQuery,
-                                                                connection,
-                                                                preparedStatement,
-                                                                mustacheValuesInOrder,
-                                                                executeActionDTO,
-                                                                requestData,
-                                                                psParams)
-                                                        .tag(
-                                                                "plugin",
-                                                                this.getClass().getName())
-                                                        .name(CREATE_AND_EXECUTE_QUERY_FROM_CONNECTION)
-                                                        .tap(Micrometer.observation(observationRegistry));
+                                                Mono<Void> statementTimeoutMono = cancelEnabled
+                                                        ? applyStatementTimeout(connection, statementTimeout)
+                                                        : Mono.empty();
+                                                return statementTimeoutMono.thenMany(
+                                                        createAndExecuteQueryFromConnection(
+                                                                        finalQuery,
+                                                                        connection,
+                                                                        preparedStatement,
+                                                                        mustacheValuesInOrder,
+                                                                        executeActionDTO,
+                                                                        requestData,
+                                                                        psParams)
+                                                                .tag(
+                                                                        "plugin",
+                                                                        this.getClass()
+                                                                                .getName())
+                                                                .name(CREATE_AND_EXECUTE_QUERY_FROM_CONNECTION)
+                                                                .tap(Micrometer.observation(observationRegistry)));
                                             }
                                             return Flux.error(new StaleConnectionException(
                                                     CONNECTION_VALIDITY_CHECK_FAILED_ERROR_MSG));
@@ -434,6 +461,15 @@ public class MySqlPlugin extends BasePlugin {
                                         .onErrorResume(error -> {
                                             if (error instanceof StaleConnectionException) {
                                                 return Mono.error(error);
+                                            } else if (cancelEnabled && error instanceof R2dbcTimeoutException) {
+                                                R2dbcTimeoutException r2dbcTimeoutException =
+                                                        (R2dbcTimeoutException) error;
+                                                error = new AppsmithPluginException(
+                                                        AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
+                                                        "Query",
+                                                        actionConfiguration.getTimeoutInMillisecond(),
+                                                        r2dbcTimeoutException.getMessage(),
+                                                        "SQLSTATE: " + r2dbcTimeoutException.getSqlState());
                                             } else if (error instanceof R2dbcBadGrammarException) {
                                                 R2dbcBadGrammarException r2dbcBadGrammarException =
                                                         ((R2dbcBadGrammarException) error);
@@ -484,7 +520,10 @@ public class MySqlPlugin extends BasePlugin {
                                             return result;
                                         });
                             },
-                            Connection::close)
+                            connection -> cancelEnabled
+                                    ? applyStatementTimeout(connection, Duration.ZERO)
+                                            .then(Mono.from(connection.close()))
+                                    : Mono.from(connection.close()))
                     .onErrorMap(TimeoutException.class, error -> new StaleConnectionException(error.getMessage()))
                     .onErrorMap(PoolShutdownException.class, error -> new StaleConnectionException(error.getMessage()))
                     .onErrorMap(
