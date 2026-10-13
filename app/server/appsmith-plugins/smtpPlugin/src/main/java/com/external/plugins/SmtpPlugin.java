@@ -12,6 +12,7 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.util.RestrictedHostFilter;
 import com.external.plugins.exceptions.SMTPErrorMessages;
 import com.external.plugins.exceptions.SMTPPluginError;
 import jakarta.activation.DataHandler;
@@ -229,8 +230,15 @@ public class SmtpPlugin extends BasePlugin {
         @Override
         public Mono<Session> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for SMTP plugin.");
+            // The host policy pre-check resolves DNS, so build the session off the subscribing thread.
+            return Mono.fromCallable(() -> createSession(datasourceConfiguration))
+                    .subscribeOn(scheduler);
+        }
+
+        private Session createSession(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
             Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+            assertHostAllowed(endpoint.getHost());
 
             Properties prop = new Properties();
             prop.put("mail.transport.protocol", "smtp");
@@ -241,6 +249,11 @@ public class SmtpPlugin extends BasePlugin {
             prop.put("mail.smtp.connectiontimeout", String.valueOf(SMTP_CONNECTION_TIMEOUT_MS));
             prop.put("mail.smtp.timeout", String.valueOf(SMTP_READ_TIMEOUT_MS));
             prop.put("mail.smtp.writetimeout", String.valueOf(SMTP_WRITE_TIMEOUT_MS));
+            // Connect-time enforcement of the restricted host policy: every socket JavaMail opens on
+            // this session resolves the host once, validates every address, and connects to the
+            // validated one (see RestrictedHostSmtpSocketFactory). Never fall back to a plain socket.
+            prop.put("mail.smtp.socketFactory", new RestrictedHostSmtpSocketFactory(endpoint.getHost()));
+            prop.put("mail.smtp.socketFactory.fallback", "false");
 
             Session session;
 
@@ -266,7 +279,20 @@ public class SmtpPlugin extends BasePlugin {
                 prop.put("mail.smtp.auth", "false");
                 session = Session.getInstance(prop);
             }
-            return Mono.just(session);
+            return session;
+        }
+
+        /**
+         * Create-time pre-check so a disallowed host fails fast and clearly on Save and Test. The
+         * security boundary is the connect-time check in {@link RestrictedHostSmtpSocketFactory}, which
+         * re-validates with a single resolution every time a socket opens.
+         */
+        private void assertHostAllowed(String host) throws AppsmithPluginException {
+            if (RestrictedHostFilter.isHostBlocked(host)) {
+                log.warn("Blocked an SMTP datasource pointed at disallowed host '{}' (SSRF filter).", host);
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, RestrictedHostFilter.HOST_NOT_ALLOWED);
+            }
         }
 
         @Override
