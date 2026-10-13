@@ -11,11 +11,17 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.InviteUsersDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.UserService;
@@ -28,6 +34,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -37,7 +48,12 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.models.DatasourceStructure.TableType.TABLE;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.constants.FieldName.VIEWER;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 public class DatasourceTriggerSolutionTest {
@@ -56,6 +72,12 @@ public class DatasourceTriggerSolutionTest {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    UserAndAccessManagementService userAndAccessManagementService;
 
     @Autowired
     PluginService pluginService;
@@ -199,6 +221,47 @@ public class DatasourceTriggerSolutionTest {
                     assertEquals(8, columns.size());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void viewerCannotTriggerDatasourceConfiguration_GHSA_qqcg_3xhq_fmc8() {
+        SecurityContext viewerSecurityContext = inviteViewerAndGetSecurityContext();
+        Mockito.clearInvocations(datasourceStructureSolution);
+
+        TriggerRequestDTO triggerRequest =
+                new TriggerRequestDTO("ENTITY_SELECTOR", Map.of(), ClientDataDisplayType.DROP_DOWN);
+        StepVerifier.create(datasourceTriggerSolution
+                        .trigger(datasourceId, defaultEnvironmentId, triggerRequest)
+                        .contextWrite(
+                                ReactiveSecurityContextHolder.withSecurityContext(Mono.just(viewerSecurityContext))))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) error).getError()).isEqualTo(AppsmithError.UNAUTHORIZED_ACCESS);
+                })
+                .verify();
+
+        verify(datasourceStructureSolution, never())
+                .getStructure(Mockito.anyString(), Mockito.anyBoolean(), Mockito.any());
+    }
+
+    private SecurityContext inviteViewerAndGetSecurityContext() {
+        PermissionGroup viewerPermissionGroup = permissionGroupRepository
+                .findAllById(workspaceService
+                        .findById(workspaceId, READ_WORKSPACES)
+                        .block()
+                        .getDefaultPermissionGroups())
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .blockFirst();
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setPermissionGroupId(viewerPermissionGroup.getId());
+        inviteUsersDTO.setUsernames(List.of("usertest@usertest.com"));
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "test").block();
+
+        User viewerUser = userService.findByEmail("usertest@usertest.com").block();
+        Authentication viewerAuthentication =
+                new UsernamePasswordAuthenticationToken(viewerUser, null, viewerUser.getAuthorities());
+        return new SecurityContextImpl(viewerAuthentication);
     }
 
     @Test
