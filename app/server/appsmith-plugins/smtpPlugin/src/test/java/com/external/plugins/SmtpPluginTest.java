@@ -8,6 +8,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.util.RestrictedHostFilter;
 import com.external.plugins.exceptions.SMTPErrorMessages;
 import com.external.plugins.exceptions.SMTPPluginError;
 import jakarta.mail.MessagingException;
@@ -15,7 +16,9 @@ import jakarta.mail.Session;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -26,8 +29,10 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
+import javax.net.SocketFactory;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Duration;
@@ -83,6 +88,22 @@ public class SmtpPluginTest {
     public static void setup() {
         // Initialize SMTP connection with default configuration (can be changed per test)
         configureSmtpConnection(smtp); // Default
+        // Testcontainers exposes maildev on loopback, which the production host filter rejects. Allow
+        // the container hosts for the duration of the class so the tests that switch the filter on can
+        // still reach the real server. Cleared in @AfterAll.
+        allowTestContainerHosts();
+    }
+
+    @AfterAll
+    public static void teardown() {
+        RestrictedHostFilter.clearAlwaysAllowedHostsForTesting();
+    }
+
+    private static void allowTestContainerHosts(String... extraHosts) {
+        List<String> allowed =
+                new ArrayList<>(List.of(smtp.getContainerIpAddress(), smtpWithoutAuth.getContainerIpAddress()));
+        allowed.addAll(Arrays.asList(extraHosts));
+        RestrictedHostFilter.setAlwaysAllowedHostsForTesting(allowed.toArray(new String[0]));
     }
 
     private static void configureSmtpConnection(GenericContainer container) {
@@ -409,7 +430,8 @@ public class SmtpPluginTest {
     @Test
     public void testSendMultipleEmailsConcurrently() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<Session> sessionMono = pluginExecutor.datasourceCreate(dsConfig);
+        // cache() so both sends share the one Session this test is about, as the datasource context does.
+        Mono<Session> sessionMono = pluginExecutor.datasourceCreate(dsConfig).cache();
 
         ActionConfiguration actionConfiguration1 = createActionConfiguration();
         ActionConfiguration actionConfiguration2 = createActionConfiguration();
@@ -715,5 +737,135 @@ public class SmtpPluginTest {
         assertFalse(
                 connectThread.get().startsWith("caller-event-loop"),
                 "connect ran on the subscribing thread: " + connectThread.get());
+    }
+
+    // ---------- Restricted host policy on SMTP datasource connections ----------
+
+    @Test
+    @DisplayName("GHSA-72m2-f9xp-wg9h")
+    public void should_rejectDatasource_when_hostIsBlockedAtCreate() {
+        // Surefire bypasses the host filter JVM-wide (see root pom); switch it on for this body.
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            DatasourceConfiguration blockedConfig = createDatasourceConfiguration();
+            blockedConfig.setEndpoints(List.of(new Endpoint("169.254.169.254", 25L)));
+
+            StepVerifier.create(pluginExecutor.datasourceCreate(blockedConfig))
+                    .expectErrorSatisfies(error -> {
+                        assertTrue(error instanceof AppsmithPluginException, "Expected a plugin error, got: " + error);
+                        assertTrue(
+                                error.getMessage().contains(RestrictedHostFilter.HOST_NOT_ALLOWED),
+                                "Expected '" + RestrictedHostFilter.HOST_NOT_ALLOWED + "', got: " + error.getMessage());
+                    })
+                    .verify();
+        } finally {
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
+    }
+
+    @Test
+    @DisplayName("GHSA-72m2-f9xp-wg9h")
+    public void should_rejectConnection_when_testDatasourceTargetsBlockedHost() {
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            // The Session is created while the container host is allowed, as a cached datasource context
+            // would be. The policy is then re-evaluated at connect time, where loopback is blocked again.
+            Session session = pluginExecutor
+                    .datasourceCreate(createDatasourceConfiguration())
+                    .block();
+            assertNotNull(session);
+            RestrictedHostFilter.clearAlwaysAllowedHostsForTesting();
+
+            StepVerifier.create(pluginExecutor.testDatasource(session))
+                    .assertNext(result -> {
+                        assertFalse(result.isSuccess(), "Connect to a blocked host must not succeed");
+                        assertEquals(
+                                Set.of(SMTPErrorMessages.DS_CONNECTION_FAILED_TO_SMTP_SERVER_ERROR_MSG),
+                                result.getInvalids());
+                    })
+                    .verifyComplete();
+        } finally {
+            allowTestContainerHosts();
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
+    }
+
+    @Test
+    @DisplayName("GHSA-72m2-f9xp-wg9h")
+    public void should_rejectSend_when_executeTargetsBlockedHost() {
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+            Session session = pluginExecutor.datasourceCreate(dsConfig).block();
+            assertNotNull(session);
+            RestrictedHostFilter.clearAlwaysAllowedHostsForTesting();
+
+            StepVerifier.create(pluginExecutor.execute(session, dsConfig, createActionConfiguration()))
+                    .expectErrorMatches(e -> e instanceof AppsmithPluginException
+                            && SMTPErrorMessages.MAIL_SENDING_FAILED_ERROR_MSG.equals(e.getMessage()))
+                    .verify();
+        } finally {
+            allowTestContainerHosts();
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
+    }
+
+    @Test
+    @DisplayName("GHSA-72m2-f9xp-wg9h")
+    public void should_connectAndSend_when_hostIsAllowedWithFilterOn() {
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+            Session session = pluginExecutor.datasourceCreate(dsConfig).block();
+            assertNotNull(session);
+            assertTrue(
+                    session.getProperties().get("mail.smtp.socketFactory") instanceof SocketFactory,
+                    "The session must open its sockets through the restricted socket factory");
+            assertEquals(
+                    "false",
+                    session.getProperties().getProperty("mail.smtp.socketFactory.fallback"),
+                    "JavaMail must not fall back to an unrestricted socket");
+
+            StepVerifier.create(pluginExecutor.testDatasource(session))
+                    .assertNext(result -> assertTrue(result.isSuccess(), "invalids: " + result.getInvalids()))
+                    .verifyComplete();
+            StepVerifier.create(pluginExecutor.execute(session, dsConfig, createActionConfiguration()))
+                    .assertNext(result -> assertTrue(result.getIsExecutionSuccess()))
+                    .verifyComplete();
+        } finally {
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
+    }
+
+    @Test
+    @DisplayName("GHSA-72m2-f9xp-wg9h")
+    public void should_connectToValidatedAddress_when_endpointPointsElsewhere() throws IOException {
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try (ServerSocket listener = new ServerSocket(0, 1, InetAddress.getLoopbackAddress())) {
+            listener.setSoTimeout(5000);
+            String listenerHost = listener.getInetAddress().getHostAddress();
+            allowTestContainerHosts(listenerHost);
+
+            DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+            dsConfig.setAuthentication(null);
+            dsConfig.setEndpoints(List.of(new Endpoint(listenerHost, (long) listener.getLocalPort())));
+            Session session = pluginExecutor.datasourceCreate(dsConfig).block();
+            assertNotNull(session);
+            Object factory = session.getProperties().get("mail.smtp.socketFactory");
+            assertTrue(factory instanceof SocketFactory, "No restricted socket factory on the session");
+
+            try (Socket socket = ((SocketFactory) factory).createSocket()) {
+                // The endpoint handed to connect() names a different, unroutable address. The socket must
+                // connect to the address it validated for the configured host, never to this endpoint.
+                socket.connect(new InetSocketAddress("192.0.2.1", listener.getLocalPort()), 2000);
+                try (Socket accepted = listener.accept()) {
+                    assertNotNull(accepted);
+                    assertTrue(socket.isConnected());
+                }
+            }
+        } finally {
+            allowTestContainerHosts();
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
     }
 }

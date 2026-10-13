@@ -3,6 +3,7 @@ package com.appsmith.util;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -115,6 +116,25 @@ public class RestrictedHostFilterTest {
         Optional<InetAddress> result = RestrictedHostFilter.resolveIfAllowed("1.1.1.1");
         assertTrue(result.isPresent());
         assertEquals("1.1.1.1", result.get().getHostAddress());
+    }
+
+    @Test
+    @DisplayName("GHSA-72m2-f9xp-wg9h")
+    public void should_rejectHost_when_resolveIfAllowedTargetsOwnInstanceIp() {
+        // Same address-level policy as the plugin connect paths: the instance's own IP is refused even
+        // though its address class (RFC 1918) is otherwise allowed.
+        RestrictedHostFilter.setOwnHostsForTesting("own-host.invalid");
+        RestrictedHostFilter.setOwnResolvedIpsForTesting("10.123.45.67");
+        assertTrue(RestrictedHostFilter.resolveIfAllowed("10.123.45.67").isEmpty());
+        assertTrue(RestrictedHostFilter.resolveIfAllowed("10.0.0.9").isPresent());
+    }
+
+    @Test
+    @DisplayName("GHSA-72m2-f9xp-wg9h")
+    public void should_rejectHost_when_resolveIfAllowedTargetsInternalRedisHost() {
+        RestrictedHostFilter.setInternalRedisHostsForTesting("10.0.0.9");
+        assertTrue(RestrictedHostFilter.resolveIfAllowed("10.0.0.9").isEmpty());
+        assertTrue(RestrictedHostFilter.resolveIfAllowed("10.0.0.10").isPresent());
     }
 
     // ---------- isBlockedIpAddressClass: literal-only IP-class check ----------
