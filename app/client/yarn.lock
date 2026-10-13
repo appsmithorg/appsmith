@@ -4838,9 +4838,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@modelcontextprotocol/sdk@npm:^1.30.0":
-  version: 1.30.0
-  resolution: "@modelcontextprotocol/sdk@npm:1.30.0"
+"@modelcontextprotocol/sdk@npm:^1.31.0":
+  version: 1.31.0
+  resolution: "@modelcontextprotocol/sdk@npm:1.31.0"
   dependencies:
     "@hono/node-server": ^1.19.9 || ^2.0.5
     ajv: ^8.17.1
@@ -4867,7 +4867,7 @@ __metadata:
       optional: true
     zod:
       optional: false
-  checksum: a932a26bfdb2097eb379a0ff526191fdb2dd15e2aa3d191fc58803a550139caf11f217a75f7d6929e8683a97124da619dbe0b0e17837e82372acd6bab39cd050
+  checksum: 2e9bb4214e2e350d007765f42c1438d01692ec71b28d5f73855a32d0d2307c265494e7ac1f5215b1a5cc0e4c966b8475fc57e00dfb29bf2b045d49b48126fe0c
   languageName: node
   linkType: hard
 
@@ -13935,7 +13935,7 @@ __metadata:
   resolution: "appsmith-mcp@workspace:packages/mcp"
   dependencies:
     "@hono/node-server": ^1.19.9 || ^2.0.5
-    "@modelcontextprotocol/sdk": ^1.30.0
+    "@modelcontextprotocol/sdk": ^1.31.0
     "@types/jest": ^29.5.3
     "@types/node": "*"
     "@types/supertest": ^6.0.2
