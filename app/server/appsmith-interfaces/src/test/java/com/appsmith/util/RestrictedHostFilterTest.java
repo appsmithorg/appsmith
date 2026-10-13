@@ -687,6 +687,54 @@ public class RestrictedHostFilterTest {
     }
 
     @Test
+    public void should_rejectAddressSet_when_anyResolvedAddressIsBlocked() throws Exception {
+        // The connect-time policy is all-or-nothing: one blocked address in the resolution result
+        // refuses the whole connection, so a dual-stack or round-robin host cannot smuggle a
+        // blocked address past a check that only looked at the first record.
+        InetAddress allowed = InetAddress.getByName("10.0.0.9");
+        InetAddress loopback = InetAddress.getByName("127.0.0.1");
+        assertTrue(RestrictedHostFilter.firstAllowedResolvedAddress("mail-host", new InetAddress[] {allowed, loopback})
+                .isEmpty());
+        assertTrue(RestrictedHostFilter.firstAllowedResolvedAddress("169.254.169.254", new InetAddress[] {allowed})
+                .isEmpty());
+        assertTrue(RestrictedHostFilter.firstAllowedResolvedAddress("mail-host", null)
+                .isEmpty());
+        assertTrue(RestrictedHostFilter.firstAllowedResolvedAddress("mail-host", new InetAddress[0])
+                .isEmpty());
+    }
+
+    @Test
+    public void should_returnFirstAddress_when_allResolvedAddressesAreAllowed() throws Exception {
+        InetAddress first = InetAddress.getByName("10.0.0.9");
+        InetAddress second = InetAddress.getByName("192.168.1.9");
+        Optional<InetAddress> result =
+                RestrictedHostFilter.firstAllowedResolvedAddress("mail-host", new InetAddress[] {first, second});
+        assertTrue(result.isPresent());
+        assertEquals(first, result.get());
+        // The Redis-named entry point is the same policy.
+        assertEquals(
+                result, RestrictedHostFilter.firstAllowedRedisAddress("mail-host", new InetAddress[] {first, second}));
+    }
+
+    @Test
+    public void should_bypassConnectTimePolicy_when_filterDisabledOrHostAllowListed() throws Exception {
+        InetAddress loopback = InetAddress.getByName("127.0.0.1");
+        assertTrue(RestrictedHostFilter.firstAllowedResolvedAddress("127.0.0.1", new InetAddress[] {loopback})
+                .isEmpty());
+        RestrictedHostFilter.setAlwaysAllowedHostsForTesting("127.0.0.1");
+        assertEquals(
+                loopback,
+                RestrictedHostFilter.firstAllowedResolvedAddress("127.0.0.1", new InetAddress[] {loopback})
+                        .orElseThrow());
+        RestrictedHostFilter.clearAlwaysAllowedHostsForTesting();
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(true);
+        assertEquals(
+                loopback,
+                RestrictedHostFilter.firstAllowedResolvedAddress("127.0.0.1", new InetAddress[] {loopback})
+                        .orElseThrow());
+    }
+
+    @Test
     public void ssrfFilterDisabled_bypassesOwnHostBlockOnAllEntryPoints() {
         RestrictedHostFilter.setOwnHostsForTesting("own-host.invalid");
         RestrictedHostFilter.setOwnResolvedIpsForTesting("10.123.45.67");
