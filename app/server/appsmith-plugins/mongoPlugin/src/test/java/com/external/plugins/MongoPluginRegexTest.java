@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -229,13 +230,17 @@ public class MongoPluginRegexTest {
         setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
         setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
 
-        String rawFind = "{ find: \"teams\", filter: {\"goals_allowed\":{$regex: \"{{goals}}\"}, "
-                + "\"xGD\":{$regex: \"{{xgd}}\"}}}";
+        String rawFind =
+                "{ find: \"teams\", filter: {\"goals_allowed\":{$regex: {{goals}}}, " + "\"xGD\":{$regex: {{xgd}}}}}";
         setDataValueSafelyInFormData(configMap, BODY, rawFind);
 
         actionConfiguration.setFormData(configMap);
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setParams(List.of(new Param("goals", "20"), new Param("xgd", "-2.5")));
+        Param goals = new Param("goals", "20");
+        goals.setClientDataType(ClientDataType.NUMBER);
+        Param xgd = new Param("xgd", "-2.5");
+        xgd.setClientDataType(ClientDataType.NUMBER);
+        executeActionDTO.setParams(List.of(goals, xgd));
 
         // When
         Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection ->
