@@ -650,7 +650,12 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       summary: "datasource tables/columns",
     },
     { name: "list_actions", gate: "data", summary: "safe action metadata" },
-    { name: "create_query", gate: "data", summary: "structured SQL query" },
+    {
+      name: "create_query",
+      gate: "data",
+      summary:
+        "structured SQL query (filters: eq/ne/gt/gte/lt/lte/like/in, inList on PostgreSQL; skipWhenEmpty for filter bars)",
+    },
     {
       name: "create_mongo_query",
       gate: "data",

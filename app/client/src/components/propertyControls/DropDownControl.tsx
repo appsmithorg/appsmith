@@ -103,11 +103,22 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           : this.props.propertyValue;
 
       selected = options.find(
-        (option) => option.value === computedValue,
+        (option) => String(option.value) === String(computedValue),
       )?.value;
 
       if (this.props.alwaysShowSelected && !selected) {
         selected = computedValue;
+      }
+
+      // An unset property still has a default, such as header font weight 700.
+      // Show that option instead of an empty dropdown.
+      if (
+        !selected &&
+        !Array.isArray(defaultSelected) &&
+        !isNil(defaultSelected) &&
+        (isNil(computedValue) || computedValue === "")
+      ) {
+        selected = defaultSelected;
       }
     }
 
@@ -272,7 +283,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
       return true;
     } else {
-      return allowedValues.has(value);
+      return allowedValues.has(String(value));
     }
   }
 }
