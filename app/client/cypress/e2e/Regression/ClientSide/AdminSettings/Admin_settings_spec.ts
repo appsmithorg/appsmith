@@ -119,9 +119,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       cy.get(adminsSettings.readMoreLink).within(() => {
         cy.get("a")
           .should("have.attr", "target", "_blank")
-          .invoke("removeAttr", "target")
-          .click();
-        agHelper.AssertURL(GOOGLE_SIGNUP_SETUP_DOC);
+          .and("have.attr", "href", GOOGLE_SIGNUP_SETUP_DOC);
       });
     },
   );
