@@ -19,6 +19,8 @@ import {
 import UserApi from "ee/api/UserApi";
 import OrganizationApi from "ee/api/OrganizationApi";
 import {
+  type AIArtifact,
+  getAIArtifact,
   getAIAssistantState,
   getAIEditorContext,
   getIsAIConfigLoaded,
@@ -28,11 +30,8 @@ import type {
   AIAssistantReduxState,
   AIEditorContext,
 } from "ce/reducers/aiAssistantReducer";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { getCurrentWorkflowId } from "ee/selectors/workflowSelectors";
 import { buildAIRequestContext } from "sagas/AIAssistantRequestContext";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
-import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { toast } from "@appsmith/ads";
@@ -152,20 +151,18 @@ function* fetchAIResponseSaga(
       getAIEditorContext,
     )) as AIEditorContext | null;
 
-    // The server authorizes every request against the action, or else the artifact (application or workflow) the
-    // editor belongs to — Ask AI only exists in an editor, so a caller who cannot edit either has no route here.
-    const applicationId = (yield select(getCurrentApplicationId)) as
-      | string
-      | undefined;
-    const workflowId = (yield select(getCurrentWorkflowId)) as
-      | string
-      | undefined;
+    // The server authorizes the request against the action, or else the artifact whose editor the user is in.
+    // The editor comes from the URL, because the ids of earlier editors stay in Redux after the user leaves them.
+    const artifact = (yield select(
+      getAIArtifact,
+      getIDETypeByUrl(window.location.pathname),
+    )) as AIArtifact;
 
-    const enrichedContext = buildAIRequestContext(context, editorContext, {
-      isAppEditor: getIDETypeByUrl(window.location.pathname) === IDE_TYPE.App,
-      applicationId,
-      workflowId,
-    });
+    const enrichedContext = buildAIRequestContext(
+      context,
+      editorContext,
+      artifact,
+    );
 
     // Build conversation history from state, excluding the just-added user message
     const messages = aiState.messages || [];

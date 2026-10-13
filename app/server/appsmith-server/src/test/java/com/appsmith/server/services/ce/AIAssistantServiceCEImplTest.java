@@ -2,7 +2,6 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.artifacts.base.ArtifactService;
-import com.appsmith.server.artifacts.base.ArtifactServiceImpl;
 import com.appsmith.server.artifacts.base.artifactbased.ArtifactBasedService;
 import com.appsmith.server.artifacts.permissions.ArtifactPermission;
 import com.appsmith.server.constants.ArtifactType;
@@ -17,9 +16,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.ratelimiting.RateLimitService;
-import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.AIReferenceService;
-import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -29,6 +26,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.util.EnumSet;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -77,6 +77,33 @@ class AIAssistantServiceCEImplTest {
     }
 
     private AIAssistantServiceCEImpl service() {
+        return wire(new AIAssistantServiceCEImpl(
+                organizationService,
+                Mockito.mock(AIReferenceService.class),
+                newActionService,
+                Mockito.mock(DatasourceStructureSolution.class),
+                Mockito.mock(PluginService.class),
+                Mockito.mock(ActionPermission.class)));
+    }
+
+    /** A subclass that adds workflows to the authorizable types, the way EE does. */
+    private AIAssistantServiceCEImpl serviceWithWorkflows() {
+        return wire(
+                new AIAssistantServiceCEImpl(
+                        organizationService,
+                        Mockito.mock(AIReferenceService.class),
+                        newActionService,
+                        Mockito.mock(DatasourceStructureSolution.class),
+                        Mockito.mock(PluginService.class),
+                        Mockito.mock(ActionPermission.class)) {
+                    @Override
+                    protected Set<ArtifactType> getAuthorizableArtifactTypes() {
+                        return EnumSet.of(ArtifactType.APPLICATION, ArtifactType.WORKFLOW);
+                    }
+                });
+    }
+
+    private AIAssistantServiceCEImpl wire(AIAssistantServiceCEImpl service) {
         User user = new User();
         user.setEmail("developer@example.com");
         SessionUserService sessionUserService = Mockito.mock(SessionUserService.class);
@@ -84,13 +111,6 @@ class AIAssistantServiceCEImplTest {
         RateLimitService rateLimitService = Mockito.mock(RateLimitService.class);
         when(rateLimitService.tryIncreaseCounter(anyString(), anyString())).thenReturn(Mono.just(true));
 
-        AIAssistantServiceCEImpl service = new AIAssistantServiceCEImpl(
-                organizationService,
-                Mockito.mock(AIReferenceService.class),
-                newActionService,
-                Mockito.mock(DatasourceStructureSolution.class),
-                Mockito.mock(PluginService.class),
-                Mockito.mock(ActionPermission.class));
         service.setSessionUserService(sessionUserService);
         service.setRateLimitService(rateLimitService);
         service.setArtifactService(artifactService);
@@ -123,14 +143,18 @@ class AIAssistantServiceCEImplTest {
         return error instanceof AppsmithException appsmithException && appsmithException.getError() == expected;
     }
 
+    /**
+     * EE adds workflows by overriding getAuthorizableArtifactTypes. An added type is checked with the edit permission
+     * that its own artifact service reports.
+     */
     @Test
-    void workflowRequest_isAuthorizedWithTheWorkflowsEditPermission() {
+    void typeAddedBySubclass_isAuthorizedWithThatTypesEditPermission() {
         givenArtifactService(ArtifactType.WORKFLOW, WORKFLOW_EDIT_PERMISSION);
         when(artifactBasedService.findById("workflow-1", WORKFLOW_EDIT_PERMISSION))
                 .thenReturn(Mono.just(new Application()));
 
-        StepVerifier.create(
-                        service().getAIResponse(PROVIDER, "fix this", context(" workflow-1 ", ArtifactType.WORKFLOW)))
+        StepVerifier.create(serviceWithWorkflows()
+                        .getAIResponse(PROVIDER, "fix this", context(" workflow-1 ", ArtifactType.WORKFLOW)))
                 .expectErrorMatches(AIAssistantServiceCEImplTest::passedAuthorization)
                 .verify();
 
@@ -152,38 +176,24 @@ class AIAssistantServiceCEImplTest {
 
     @Test
     void requestForAnArtifactTheCallerCannotEdit_isRefused() {
-        givenArtifactService(ArtifactType.WORKFLOW, WORKFLOW_EDIT_PERMISSION);
-        when(artifactBasedService.findById("workflow-1", WORKFLOW_EDIT_PERMISSION))
+        givenArtifactService(ArtifactType.APPLICATION, AclPermission.MANAGE_APPLICATIONS);
+        when(artifactBasedService.findById("app-1", AclPermission.MANAGE_APPLICATIONS))
                 .thenReturn(Mono.empty());
 
-        StepVerifier.create(service().getAIResponse(PROVIDER, "fix this", context("workflow-1", ArtifactType.WORKFLOW)))
+        StepVerifier.create(service().getAIResponse(PROVIDER, "fix this", context("app-1", ArtifactType.APPLICATION)))
                 .expectErrorMatches(error -> isError(error, AppsmithError.ACL_NO_RESOURCE_FOUND))
                 .verify();
     }
 
-    /**
-     * CE has no workflows. Its artifact service resolves every type to applications, so a workflow id is checked as an
-     * application with the application's edit permission, finds nothing, and is refused.
-     */
+    /** CE has Ask AI only in the application editor, so a workflow is refused before the lookup. */
     @Test
     void workflowRequest_isRefusedInCommunityEdition() {
-        ArtifactPermission applicationPermission = Mockito.mock(ArtifactPermission.class);
-        when(applicationPermission.getEditPermission()).thenReturn(AclPermission.MANAGE_APPLICATIONS);
-        when(artifactBasedService.getPermissionService()).thenReturn(applicationPermission);
-        when(artifactBasedService.findById("workflow-1", AclPermission.MANAGE_APPLICATIONS))
-                .thenReturn(Mono.empty());
-        AIAssistantServiceCEImpl service = service();
-        service.setArtifactService(new ArtifactServiceImpl(
-                artifactBasedService,
-                Mockito.mock(AnalyticsService.class),
-                Mockito.mock(GitDeployKeysRepository.class),
-                Mockito.mock(SessionUserService.class)));
-
-        StepVerifier.create(service.getAIResponse(PROVIDER, "fix this", context("workflow-1", ArtifactType.WORKFLOW)))
-                .expectErrorMatches(error -> isError(error, AppsmithError.ACL_NO_RESOURCE_FOUND))
+        StepVerifier.create(service().getAIResponse(PROVIDER, "fix this", context("workflow-1", ArtifactType.WORKFLOW)))
+                .expectErrorMatches(error -> isError(error, AppsmithError.INVALID_PARAMETER)
+                        && error.getMessage().contains("artifactType"))
                 .verify();
 
-        verify(artifactBasedService).findById("workflow-1", AclPermission.MANAGE_APPLICATIONS);
+        verifyNoInteractions(artifactService);
     }
 
     /** An artifact id alone does not say which permission to check, so it is refused rather than guessed at. */
@@ -198,12 +208,13 @@ class AIAssistantServiceCEImplTest {
     }
 
     /**
-     * Only applications and workflows have Ask AI. Any other type is refused before the lookup, because not every
-     * artifact service enforces the permission it is given (EE's package service ignores it).
+     * A type the subclass did not add is still refused before the lookup, because not every artifact service enforces
+     * the permission it is given (EE's package service ignores it).
      */
     @Test
     void requestForAnArtifactTypeWithoutAskAI_isRefusedBeforeTheLookup() {
-        StepVerifier.create(service().getAIResponse(PROVIDER, "fix this", context("package-1", ArtifactType.PACKAGE)))
+        StepVerifier.create(serviceWithWorkflows()
+                        .getAIResponse(PROVIDER, "fix this", context("package-1", ArtifactType.PACKAGE)))
                 .expectErrorMatches(error -> isError(error, AppsmithError.INVALID_PARAMETER)
                         && error.getMessage().contains("artifactType"))
                 .verify();
@@ -220,7 +231,7 @@ class AIAssistantServiceCEImplTest {
     void requestWithEntityThatIsNotAnEditableAction_isRefusedBeforeTheArtifactIsConsidered() {
         when(newActionService.findActionDTObyIdAndViewMode(eq("widget-1"), eq(false), any()))
                 .thenReturn(Mono.empty());
-        AIEditorContextDTO context = context("workflow-1", ArtifactType.WORKFLOW);
+        AIEditorContextDTO context = context("app-1", ArtifactType.APPLICATION);
         context.setEntityId("widget-1");
 
         StepVerifier.create(service().getAIResponse(PROVIDER, "fix this", context))

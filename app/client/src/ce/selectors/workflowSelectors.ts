@@ -29,8 +29,3 @@ export const getCurrentWorkflowJSActions = (
 ): JSCollectionData[] => [];
 
 export const getShowWorkflowFeature = () => false;
-
-export const getCurrentWorkflowId = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  state: DefaultRootState,
-): string | undefined => undefined;

@@ -2,13 +2,13 @@ import { expectSaga } from "redux-saga-test-plan";
 
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 import UserApi from "ee/api/UserApi";
 import {
+  getAIArtifact,
   getAIAssistantState,
   getAIEditorContext,
 } from "ee/selectors/aiAssistantSelectors";
-import { getCurrentWorkflowId } from "ee/selectors/workflowSelectors";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 import aiAssistantSagasListener from "./AIAssistantSagas";
 
 jest.mock("@appsmith/ads", () => ({
@@ -17,7 +17,6 @@ jest.mock("@appsmith/ads", () => ({
 }));
 
 const APP_EDITOR_URL = "/app/my-app/page1-6123456789abcdef01234567/edit";
-const WORKFLOW_EDITOR_URL = "/workflow/6123456789abcdef01234568/edit";
 
 const aiState = {
   isEnabled: true,
@@ -30,34 +29,32 @@ const okResponse = {
   data: { response: "done" },
 };
 
+const application = { artifactId: "app-1", artifactType: "APPLICATION" };
+
 /**
- * Drives the real FETCH_AI_RESPONSE path the way the side panel does — the whole editor context is the request
- * context — and returns the context the saga sends to the server. This is the wiring the server authorizes against:
- * if it stops sending the workflow id from the workflow editor, Ask AI there fails with "Editor context must identify
- * an entity or an application" again.
+ * Drives the real FETCH_AI_RESPONSE path the way the side panel does: the whole editor context is the request
+ * context. Returns the context the saga sends to the server and the IDE type it passed to getAIArtifact.
  */
-async function requestContextFor(
-  url: string,
-  editorContext: Record<string, unknown>,
-  ids: { applicationId?: string; workflowId?: string },
-) {
+async function requestFor(url: string, editorContext: Record<string, unknown>) {
   window.history.pushState({}, "", url);
 
   const requestAIResponse = jest.fn().mockResolvedValue(okResponse);
-
-  const selected = new Map<unknown, unknown>([
-    [getAIAssistantState, aiState],
-    [getAIEditorContext, editorContext],
-    [getCurrentApplicationId, ids.applicationId],
-    [getCurrentWorkflowId, ids.workflowId],
-  ]);
+  const artifactArgs: unknown[][] = [];
 
   await expectSaga(aiAssistantSagasListener)
     .provide({
-      // Dynamic providers so an id that is absent is returned as undefined rather than falling through to the real
-      // selector, which has no store to read here.
-      select({ selector }, next) {
-        return selected.has(selector) ? selected.get(selector) : next();
+      select({ args, selector }, next) {
+        if (selector === getAIAssistantState) return aiState;
+
+        if (selector === getAIEditorContext) return editorContext;
+
+        if (selector === getAIArtifact) {
+          artifactArgs.push(args);
+
+          return application;
+        }
+
+        return next();
       },
       call(effect, next) {
         return effect.fn === UserApi.requestAIResponse
@@ -73,7 +70,7 @@ async function requestContextFor(
 
   expect(requestAIResponse).toHaveBeenCalledTimes(1);
 
-  return requestAIResponse.mock.calls[0][2];
+  return { context: requestAIResponse.mock.calls[0][2], artifactArgs };
 }
 
 describe("fetchAIResponseSaga request context", () => {
@@ -81,76 +78,63 @@ describe("fetchAIResponseSaga request context", () => {
     window.history.pushState({}, "", "/");
   });
 
-  it("sends the workflow as the artifact, not a stale application, from the workflow editor", async () => {
-    const context = await requestContextFor(
-      WORKFLOW_EDITOR_URL,
+  // EE overrides getAIArtifact per editor. The IDE type comes from the URL, because the ids of earlier editors stay
+  // in Redux after the user leaves them.
+  it("asks getAIArtifact for the artifact of the editor in the URL", async () => {
+    const { artifactArgs } = await requestFor(APP_EDITOR_URL, {
+      mode: "javascript",
+      entityName: "JSObject1",
+      entityType: ENTITY_TYPE.JSACTION,
+    });
+
+    expect(artifactArgs).toEqual([[IDE_TYPE.App]]);
+  });
+
+  // CE has no workflow editor, so its URL resolves to IDE_TYPE.None. EE resolves it to IDE_TYPE.Workflow.
+  it("passes the IDE type of a non-app URL, not the app editor's", async () => {
+    const { artifactArgs } = await requestFor(
+      "/workflow/6123456789abcdef01234568/edit",
       {
         mode: "javascript",
         entityName: "Main",
         entityType: ENTITY_TYPE.JSACTION,
       },
-      { applicationId: "stale-app", workflowId: "workflow-1" },
     );
 
-    expect(context).toMatchObject({
-      artifactId: "workflow-1",
-      artifactType: "WORKFLOW",
+    expect(artifactArgs).toEqual([[IDE_TYPE.None]]);
+  });
+
+  it("sends the artifact from a JS object, which has no entity id", async () => {
+    const { context } = await requestFor(APP_EDITOR_URL, {
+      mode: "javascript",
+      entityName: "JSObject1",
+      entityType: ENTITY_TYPE.JSACTION,
     });
+
+    expect(context).toMatchObject(application);
     expect(context).not.toHaveProperty("entityId");
   });
 
-  it("sends the application as the artifact, not a stale workflow, from the app editor", async () => {
-    const context = await requestContextFor(
-      APP_EDITOR_URL,
-      {
-        mode: "javascript",
-        entityName: "JSObject1",
-        entityType: ENTITY_TYPE.JSACTION,
-      },
-      { applicationId: "app-1", workflowId: "stale-workflow" },
-    );
-
-    expect(context).toMatchObject({
-      artifactId: "app-1",
-      artifactType: "APPLICATION",
-    });
-  });
-
   it("does not send a widget's id as the entity id from a widget property binding", async () => {
-    const context = await requestContextFor(
-      APP_EDITOR_URL,
-      {
-        mode: "javascript",
-        entityName: "Table1",
-        entityId: "widget-1",
-        entityType: ENTITY_TYPE.WIDGET,
-      },
-      { applicationId: "app-1" },
-    );
-
-    expect(context).toMatchObject({
-      artifactId: "app-1",
-      artifactType: "APPLICATION",
+    const { context } = await requestFor(APP_EDITOR_URL, {
+      mode: "javascript",
+      entityName: "Table1",
+      entityId: "widget-1",
+      entityType: ENTITY_TYPE.WIDGET,
     });
+
+    expect(context).toMatchObject(application);
     expect(context).not.toHaveProperty("entityId");
   });
 
   it("sends a query's action id as the entity id", async () => {
-    const context = await requestContextFor(
-      APP_EDITOR_URL,
-      {
-        mode: "sql",
-        entityName: "Query1",
-        entityId: "action-1",
-        entityType: ENTITY_TYPE.ACTION,
-      },
-      { applicationId: "app-1" },
-    );
-
-    expect(context).toMatchObject({
+    const { context } = await requestFor(APP_EDITOR_URL, {
+      mode: "sql",
+      entityName: "Query1",
       entityId: "action-1",
-      artifactId: "app-1",
-      artifactType: "APPLICATION",
+      entityType: ENTITY_TYPE.ACTION,
     });
+
+    expect(context).toMatchObject({ entityId: "action-1", ...application });
   });
 });

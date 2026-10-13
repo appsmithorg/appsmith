@@ -68,10 +68,6 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
 
     private static final int AI_SCHEMA_CONTEXT_MAX = 15000;
 
-    /** The artifact types an Ask AI request may be authorized against. */
-    private static final Set<ArtifactType> AUTHORIZABLE_ARTIFACT_TYPES =
-            EnumSet.of(ArtifactType.APPLICATION, ArtifactType.WORKFLOW);
-
     /**
      * Full-file code generation (e.g. the custom widget copilot) routinely takes
      * longer than a minute; the client waits up to 180s, so match that here.
@@ -378,8 +374,7 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
      * whether the request ran. A caller without edit rights still got an answer and still spent provider credits.
      *
      * <p>So the authorization decision lives here, where an empty result is an error rather than a fallback.
-     * A request carrying no entity id has nothing to scope a check against and stays bounded by the per-user rate
-     * limit; that residual gap is a deliberate product decision, recorded on the PR.
+     * A request must name an entity or an artifact the caller can edit. A request that names neither is refused.
      */
     private Mono<Void> authorizeEntityContext(AIEditorContextDTO context) {
         if (context == null) {
@@ -398,14 +393,12 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                     .then();
         }
 
-        // No entity — a widget property binding, or a workflow's main JS object — so fall back to the artifact whose
-        // editor this came from. Ask AI has no surface outside an editor, so a caller who cannot edit the artifact has
-        // no legitimate way to reach this and is refused rather than merely rate-limited.
+        // No entity, such as a widget property binding or a JS object. Fall back to the artifact whose editor the
+        // request came from. Ask AI exists only inside an editor, so a caller who cannot edit the artifact is refused,
+        // not just rate-limited.
         if (StringUtils.hasText(context.getArtifactId())) {
-            // Only the artifacts whose editors have Ask AI. Not every artifact service enforces the permission it is
-            // given on findById (EE's package service ignores it), so any other type is refused before the lookup.
             ArtifactType artifactType = context.getArtifactType();
-            if (!AUTHORIZABLE_ARTIFACT_TYPES.contains(artifactType)) {
+            if (artifactType == null || !getAuthorizableArtifactTypes().contains(artifactType)) {
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "artifactType"));
             }
             String artifactId = context.getArtifactId().trim();
@@ -425,6 +418,16 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
         // from a developer, and this endpoint spends the organization's provider credits.
         return Mono.error(new AppsmithException(
                 AppsmithError.INVALID_PARAMETER, "Editor context must identify an entity or an artifact"));
+    }
+
+    /**
+     * Returns the artifact types whose editors have Ask AI. A request for any other type is refused before the lookup.
+     *
+     * <p>Add a type only if its artifact service enforces the permission passed to {@code findById}. Not every service
+     * does, so the gate cannot rely on the lookup alone.
+     */
+    protected Set<ArtifactType> getAuthorizableArtifactTypes() {
+        return EnumSet.of(ArtifactType.APPLICATION);
     }
 
     private AIEditorContextDTO applyDatasourceSchemaToContext(

@@ -3,35 +3,13 @@ import { buildAIRequestContext } from "./AIAssistantRequestContext";
 
 describe("buildAIRequestContext", () => {
   const baseContext = { mode: "javascript", currentValue: "export default {}" };
-  const appEditor = { isAppEditor: true, applicationId: "app-1" };
   const application = { artifactId: "app-1", artifactType: "APPLICATION" };
-  const workflow = { artifactId: "workflow-1", artifactType: "WORKFLOW" };
 
-  it("sends the workflow as the artifact from the workflow editor, where a JS object has no entity id", () => {
+  it("sends the artifact when there is no action, such as for a JS object", () => {
     const result = buildAIRequestContext(
       baseContext,
       { entityType: ENTITY_TYPE.JSACTION },
-      { isAppEditor: false, workflowId: "workflow-1" },
-    );
-
-    expect(result).toEqual({ ...baseContext, ...workflow });
-  });
-
-  it("does not send a stale application from the workflow editor", () => {
-    const result = buildAIRequestContext(
-      baseContext,
-      { entityType: ENTITY_TYPE.JSACTION },
-      { isAppEditor: false, applicationId: "app-1", workflowId: "workflow-1" },
-    );
-
-    expect(result).toEqual({ ...baseContext, ...workflow });
-  });
-
-  it("does not send a stale workflow from the app editor", () => {
-    const result = buildAIRequestContext(
-      baseContext,
-      { entityType: ENTITY_TYPE.JSACTION },
-      { ...appEditor, workflowId: "workflow-1" },
+      application,
     );
 
     expect(result).toEqual({ ...baseContext, ...application });
@@ -41,7 +19,7 @@ describe("buildAIRequestContext", () => {
     const result = buildAIRequestContext(
       baseContext,
       { entityId: "action-1", entityType: ENTITY_TYPE.ACTION },
-      appEditor,
+      application,
     );
 
     expect(result).toEqual({
@@ -52,7 +30,7 @@ describe("buildAIRequestContext", () => {
   });
 
   // The side panel dispatches the whole editor context as the request context, so the widget id arrives in both.
-  it("does not send a widget's id as the entity id, so the server falls back to the application", () => {
+  it("does not send a widget's id as the entity id, so the server falls back to the artifact", () => {
     const editorContext = {
       ...baseContext,
       entityId: "widget-1",
@@ -62,7 +40,7 @@ describe("buildAIRequestContext", () => {
     const result = buildAIRequestContext(
       editorContext,
       editorContext,
-      appEditor,
+      application,
     );
 
     expect(result).toEqual({ ...baseContext, ...application });
@@ -72,27 +50,14 @@ describe("buildAIRequestContext", () => {
     const result = buildAIRequestContext(
       { ...baseContext, entityId: "something-1" },
       { entityId: "something-1" },
-      appEditor,
+      application,
     );
 
     expect(result).toEqual({ ...baseContext, ...application });
   });
 
-  it("keeps the application outside the app editor when there is no workflow", () => {
-    const result = buildAIRequestContext(baseContext, null, {
-      isAppEditor: false,
-      applicationId: "app-1",
-    });
-
-    expect(result).toEqual({ ...baseContext, ...application });
-  });
-
-  it("sends only the request context when there is no editor context or id", () => {
-    expect(
-      buildAIRequestContext(baseContext, null, { isAppEditor: true }),
-    ).toEqual(baseContext);
-    expect(
-      buildAIRequestContext(undefined, null, { isAppEditor: false }),
-    ).toEqual({});
+  it("sends only the request context when there is no editor context or artifact", () => {
+    expect(buildAIRequestContext(baseContext, null, {})).toEqual(baseContext);
+    expect(buildAIRequestContext(undefined, null, {})).toEqual({});
   });
 });
