@@ -34,7 +34,7 @@
     "mongodb-connection-string-url": "^3.0.2",
     "nodemailer": "^10.0.9",
     "readline-sync": "1.4.10",
-    "simple-git": "^3.32.3"
+    "simple-git": "^4.0.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.14",
