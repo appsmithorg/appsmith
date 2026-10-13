@@ -283,9 +283,11 @@ public class SmtpPlugin extends BasePlugin {
         }
 
         /**
-         * Create-time pre-check so a disallowed host fails fast and clearly on Save and Test. The
-         * security boundary is the connect-time check in {@link RestrictedHostSmtpSocketFactory}, which
-         * re-validates with a single resolution every time a socket opens.
+         * Create-time pre-check so a disallowed host fails fast and clearly on Test and when the datasource
+         * context is first created for a query. Saving a datasource does not open a connection, so it is not
+         * where the policy applies. The security boundary is the connect-time check in
+         * {@link RestrictedHostSmtpSocketFactory}, which re-validates with a single resolution every time a
+         * socket opens.
          */
         private void assertHostAllowed(String host) throws AppsmithPluginException {
             if (RestrictedHostFilter.isHostBlocked(host)) {
