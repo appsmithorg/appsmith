@@ -3,7 +3,6 @@ import type { AIMessage } from "ee/actions/aiAssistantActions";
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports -- Ask AI is CE-owned; CE cannot add an ee/ shim (pre-push architecture guard).
 import type { AIEditorContext } from "ce/reducers/aiAssistantReducer";
 import type { IDEType } from "ee/IDE/Interfaces/IDETypes";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 /** Artifact types an Ask AI request can carry. The names match the server's ArtifactType enum. */
 export const AI_ARTIFACT_TYPE = {
@@ -25,7 +24,9 @@ export function getAIArtifact(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ideType: IDEType,
 ): AIArtifact {
-  const applicationId = getCurrentApplicationId(state);
+  // Reads state directly. Importing getCurrentApplicationId from selectors/editorSelectors creates an import cycle
+  // through the Ask AI side panel.
+  const applicationId = state.entities.pageList.applicationId;
 
   return applicationId
     ? { artifactId: applicationId, artifactType: AI_ARTIFACT_TYPE.APPLICATION }
