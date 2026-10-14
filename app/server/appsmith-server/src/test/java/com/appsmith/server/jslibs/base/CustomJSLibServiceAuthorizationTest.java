@@ -1,6 +1,7 @@
 package com.appsmith.server.jslibs.base;
 
 import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.User;
@@ -70,6 +71,20 @@ class CustomJSLibServiceAuthorizationTest {
                     new UsernamePasswordAuthenticationToken(user, "password", user.getAuthorities()));
             return ctx.put(SecurityContext.class, Mono.just(securityContext));
         });
+    }
+
+    /**
+     * The not-found answer for a context the caller cannot read. The resource name in the message is the
+     * one of the service the context type resolves to, so a package-typed read names the package.
+     */
+    private static void assertNoResourceFound(Throwable throwable, String contextId) {
+        assertThat(throwable).isInstanceOf(AppsmithException.class);
+        AppsmithException exception = (AppsmithException) throwable;
+        assertThat(exception.getError()).isEqualTo(AppsmithError.NO_RESOURCE_FOUND);
+        assertThat(exception.getMessage())
+                .isIn(
+                        AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, contextId),
+                        AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PACKAGE, contextId));
     }
 
     private Application createPrivateAppWithJsLib() {
@@ -142,7 +157,7 @@ class CustomJSLibServiceAuthorizationTest {
             names = {"PAGE", "MODULE", "WORKFLOW", "PACKAGE"})
     @DisplayName("GHSA-5hrq-v7jj-7m79")
     @WithUserDetails(value = "api_user")
-    void should_returnNoResourceFound_when_nonMemberReadsPublishedLibrariesWithContextType(
+    void should_returnNoResourceFound_when_callerCannotReadApplication_publishedLibraries(
             CreatorContextType contextType) {
         // Given
         Application privateApp = createPrivateAppWithJsLib();
@@ -154,10 +169,7 @@ class CustomJSLibServiceAuthorizationTest {
 
         // Then
         StepVerifier.create(readAsOtherUser)
-                .expectErrorSatisfies(throwable -> {
-                    assertThat(throwable).isInstanceOf(AppsmithException.class);
-                    assertThat(((AppsmithException) throwable).getError()).isEqualTo(AppsmithError.NO_RESOURCE_FOUND);
-                })
+                .expectErrorSatisfies(throwable -> assertNoResourceFound(throwable, privateApp.getId()))
                 .verify();
     }
 
@@ -167,7 +179,7 @@ class CustomJSLibServiceAuthorizationTest {
             names = {"PAGE", "MODULE", "WORKFLOW", "PACKAGE"})
     @DisplayName("GHSA-5hrq-v7jj-7m79")
     @WithUserDetails(value = "api_user")
-    void should_returnNoResourceFound_when_nonMemberReadsUnpublishedLibrariesWithContextType(
+    void should_returnNoResourceFound_when_callerCannotReadApplication_unpublishedLibraries(
             CreatorContextType contextType) {
         // Given
         Application privateApp = createPrivateAppWithJsLib();
@@ -179,16 +191,13 @@ class CustomJSLibServiceAuthorizationTest {
 
         // Then
         StepVerifier.create(readAsOtherUser)
-                .expectErrorSatisfies(throwable -> {
-                    assertThat(throwable).isInstanceOf(AppsmithException.class);
-                    assertThat(((AppsmithException) throwable).getError()).isEqualTo(AppsmithError.NO_RESOURCE_FOUND);
-                })
+                .expectErrorSatisfies(throwable -> assertNoResourceFound(throwable, privateApp.getId()))
                 .verify();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    void should_returnLibraries_when_ownerReadsPublishedLibraries() {
+    void should_returnLibraries_when_callerCanReadApplication_published() {
         // Given
         Application privateApp = createPrivateAppWithJsLib();
 
@@ -205,7 +214,7 @@ class CustomJSLibServiceAuthorizationTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    void should_returnLibraries_when_ownerReadsUnpublishedLibraries() {
+    void should_returnLibraries_when_callerCanReadApplication_unpublished() {
         // Given
         Application privateApp = createPrivateAppWithJsLib();
 

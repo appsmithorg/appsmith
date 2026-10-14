@@ -34,13 +34,12 @@ import java.util.Set;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
 
 /**
- * Verifies the HTTP contract of the published custom JS library route, {@code GET
- * /api/v1/libraries/{id}/view}. The route is reachable without a session so that public applications
- * can load their libraries. For an application the caller cannot read, the route answers 404 for every
- * {@code contextType} value, the same as a missing application.
+ * HTTP contract of the published custom JS library route: a caller with READ permission on the application
+ * receives its libraries; a caller without it receives the same 404 as for a missing application, for
+ * every {@code contextType} value.
  *
  * <p>Modelled on {@code AuthGuardTest}. Fixtures are created under an explicit security context so the
- * test methods themselves stay unauthenticated.
+ * requests the test methods send carry no session.
  */
 @SpringBootTest
 class CustomJSLibControllerAuthorizationTest {
@@ -117,8 +116,7 @@ class CustomJSLibControllerAuthorizationTest {
             value = CreatorContextType.class,
             names = {"PAGE", "MODULE", "WORKFLOW", "PACKAGE"})
     @DisplayName("GHSA-5hrq-v7jj-7m79")
-    void should_return404_when_anonymousReadsPrivateApplicationLibrariesWithContextType(
-            CreatorContextType contextType) {
+    void should_return404_when_callerCannotReadApplication_forEveryContextType(CreatorContextType contextType) {
         // Given
         User owner = userRepository.findByEmail("api_user").block();
         Application privateApp = createPublishedAppWithJsLib(owner);
@@ -136,7 +134,7 @@ class CustomJSLibControllerAuthorizationTest {
     }
 
     @Test
-    void should_return404_when_anonymousReadsPrivateApplicationLibraries() {
+    void should_return404_when_callerCannotReadApplication() {
         // Given
         User owner = userRepository.findByEmail("api_user").block();
         Application privateApp = createPublishedAppWithJsLib(owner);
@@ -151,7 +149,7 @@ class CustomJSLibControllerAuthorizationTest {
     }
 
     @Test
-    void should_return200_when_anonymousReadsPublicApplicationLibraries() {
+    void should_return200_when_callerCanReadApplication() {
         // Given
         User owner = userRepository.findByEmail("api_user").block();
         Application publicApp = createPublishedAppWithJsLib(owner);
