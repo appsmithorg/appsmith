@@ -5,6 +5,13 @@ Each one is named for what it does, and its `on:` block states its triggers.
 
 This README covers only what you cannot infer from the YAML: how to trigger CI by hand.
 
+## Docker configuration and Caddy route tests
+
+The `Caddy route tests` workflow can be run manually from Actions. It includes
+the data-only configuration loader and startup/service-restart boundary tests,
+shell checks, Docker configuration defaults, and Caddy routing tests. The loader
+tests use isolated fixtures without starting Appsmith's databases.
+
 ## Running Cypress on a PR
 
 1. Keep the `## Automation` section from the PR template in your PR description, and
