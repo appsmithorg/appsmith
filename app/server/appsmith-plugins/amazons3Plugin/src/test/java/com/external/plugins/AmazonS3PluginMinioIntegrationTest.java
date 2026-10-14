@@ -16,6 +16,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -138,7 +140,10 @@ class AmazonS3PluginMinioIntegrationTest {
         assertThat(fetched.body()).isEqualTo(bytes);
     }
 
-    /** An upload of more than 16 MB is stored byte for byte. */
+    /**
+     * An upload of more than 16 MB is stored byte for byte, by a multipart upload of four parts: the ETag of an object
+     * stored that way ends in the number of its parts.
+     */
     @Test
     void should_storeEveryByte_when_uploadingMoreThanSixteenMegabytes() throws Exception {
         // Given
@@ -157,6 +162,13 @@ class AmazonS3PluginMinioIntegrationTest {
         assertThat(fetched.statusCode()).isEqualTo(200);
         assertThat(fetched.body()).hasSize(bytes.length);
         assertThat(sha256Hex(fetched.body())).isEqualTo(sha256Hex(bytes));
+        HeadObjectResponse head = connection
+                .client()
+                .headObject(HeadObjectRequest.builder()
+                        .bucket(BUCKET_NAME)
+                        .key("large/seventeen-megabytes.bin")
+                        .build());
+        assertThat(head.eTag()).endsWith("-4\"");
     }
 
     @Test

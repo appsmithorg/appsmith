@@ -44,7 +44,13 @@ import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.http.ContentStreamProvider;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.AbortMultipartUploadRequest;
 import software.amazon.awssdk.services.s3.model.Bucket;
+import software.amazon.awssdk.services.s3.model.CompleteMultipartUploadRequest;
+import software.amazon.awssdk.services.s3.model.CompletedMultipartUpload;
+import software.amazon.awssdk.services.s3.model.CompletedPart;
+import software.amazon.awssdk.services.s3.model.CreateMultipartUploadRequest;
 import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
@@ -57,7 +63,9 @@ import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Error;
 import software.amazon.awssdk.services.s3.model.S3Object;
+import software.amazon.awssdk.services.s3.model.UploadPartRequest;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -136,6 +144,15 @@ public class AmazonS3Plugin extends BasePlugin {
 
         /** Content type of an upload whose body does not name one. */
         private static final String DEFAULT_UPLOAD_CONTENT_TYPE = "application/octet-stream";
+
+        /** Largest upload sent as one PutObject; larger ones are multipart uploads, as with SDK 1.x TransferManager. */
+        private static final long MULTIPART_UPLOAD_THRESHOLD = 16L * 1024 * 1024;
+
+        /** Smallest part of a multipart upload: the SDK 1.x TransferManager default and the S3 minimum. */
+        private static final long MINIMUM_UPLOAD_PART_SIZE = 5L * 1024 * 1024;
+
+        /** Most parts of a multipart upload: the SDK 1.x TransferManager default and the S3 maximum. */
+        private static final long MAXIMUM_UPLOAD_PARTS = 10_000;
 
         /** Start of the error detail of a bulk delete that reports per-key errors in its response. */
         private static final String BULK_DELETE_ERRORS_MESSAGE = "One or more objects could not be deleted";
@@ -1208,8 +1225,9 @@ public class AmazonS3Plugin extends BasePlugin {
         }
 
         /**
-         * Uploads the payload as a single PutObject request. The request body reads the payload array in place; the
-         * array is not modified afterwards.
+         * Uploads the payload as a single PutObject request, or as a multipart upload when it is larger than {@link
+         * #MULTIPART_UPLOAD_THRESHOLD}. The request bodies read the payload array in place; the array is not modified
+         * afterwards.
          */
         void uploadFileInS3(
                 byte[] payload,
@@ -1217,6 +1235,11 @@ public class AmazonS3Plugin extends BasePlugin {
                 MultipartFormDataDTO multipartFormDataDTO,
                 String bucketName,
                 String path) {
+            if (payload.length > MULTIPART_UPLOAD_THRESHOLD) {
+                multipartUpload(payload, connection, multipartFormDataDTO, bucketName, path);
+                return;
+            }
+
             PutObjectRequest.Builder putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(path)
@@ -1229,22 +1252,109 @@ public class AmazonS3Plugin extends BasePlugin {
             }
 
             // Calculate and set Content-MD5 header for Object Lock compliance
-            try {
-                MessageDigest md5Digest = MessageDigest.getInstance("MD5");
-                byte[] md5Hash = md5Digest.digest(payload);
-                String md5Base64 = Base64.getEncoder().encodeToString(md5Hash);
+            String md5Base64 = contentMd5(payload, 0, payload.length);
+            if (md5Base64 != null) {
                 putObjectRequest.contentMD5(md5Base64);
                 log.debug("Set Content-MD5 header for S3 upload: {}", md5Base64);
-            } catch (NoSuchAlgorithmException e) {
-                log.warn(
-                        "Failed to calculate MD5 checksum for S3 upload. Object Lock enabled buckets may reject this upload.",
-                        e);
-                // Continue with upload without MD5 header - let AWS handle the error if Object Lock is enabled
             }
 
             RequestBody requestBody = RequestBody.fromContentProvider(
                     ContentStreamProvider.fromByteArrayUnsafe(payload), payload.length, DEFAULT_UPLOAD_CONTENT_TYPE);
             connection.client().putObject(putObjectRequest.build(), requestBody);
+        }
+
+        /**
+         * Uploads the payload in parts of {@link #MINIMUM_UPLOAD_PART_SIZE} or more, one after another, each with its
+         * own Content-MD5. A part that fails is retried on its own by the client's retry strategy. When the upload
+         * fails after it was created, it is aborted so that the service discards the parts already stored, and the
+         * original failure is thrown.
+         */
+        private void multipartUpload(
+                byte[] payload,
+                S3Connection connection,
+                MultipartFormDataDTO multipartFormDataDTO,
+                String bucketName,
+                String path) {
+            S3Client client = connection.client();
+            String contentType = multipartFormDataDTO.getType() != null
+                    ? multipartFormDataDTO.getType()
+                    : DEFAULT_UPLOAD_CONTENT_TYPE;
+            String uploadId = client.createMultipartUpload(CreateMultipartUploadRequest.builder()
+                            .bucket(bucketName)
+                            .key(path)
+                            .contentType(contentType)
+                            .build())
+                    .uploadId();
+
+            try {
+                long partSize = Math.max(
+                        MINIMUM_UPLOAD_PART_SIZE, (payload.length + MAXIMUM_UPLOAD_PARTS - 1) / MAXIMUM_UPLOAD_PARTS);
+                List<CompletedPart> completedParts = new ArrayList<>();
+                for (int partNumber = 1, offset = 0; offset < payload.length; partNumber++) {
+                    int partOffset = offset;
+                    int partLength = (int) Math.min(partSize, payload.length - partOffset);
+                    UploadPartRequest.Builder uploadPartRequest = UploadPartRequest.builder()
+                            .bucket(bucketName)
+                            .key(path)
+                            .uploadId(uploadId)
+                            .partNumber(partNumber)
+                            .contentLength((long) partLength);
+                    String md5Base64 = contentMd5(payload, partOffset, partLength);
+                    if (md5Base64 != null) {
+                        uploadPartRequest.contentMD5(md5Base64);
+                    }
+                    RequestBody requestBody = RequestBody.fromContentProvider(
+                            () -> new ByteArrayInputStream(payload, partOffset, partLength),
+                            partLength,
+                            DEFAULT_UPLOAD_CONTENT_TYPE);
+                    String eTag = client.uploadPart(uploadPartRequest.build(), requestBody)
+                            .eTag();
+                    completedParts.add(CompletedPart.builder()
+                            .partNumber(partNumber)
+                            .eTag(eTag)
+                            .build());
+                    offset += partLength;
+                }
+
+                client.completeMultipartUpload(CompleteMultipartUploadRequest.builder()
+                        .bucket(bucketName)
+                        .key(path)
+                        .uploadId(uploadId)
+                        .multipartUpload(CompletedMultipartUpload.builder()
+                                .parts(completedParts)
+                                .build())
+                        .build());
+            } catch (RuntimeException e) {
+                try {
+                    client.abortMultipartUpload(AbortMultipartUploadRequest.builder()
+                            .bucket(bucketName)
+                            .key(path)
+                            .uploadId(uploadId)
+                            .build());
+                } catch (RuntimeException abortError) {
+                    log.warn(
+                            "Failed to abort the multipart upload of an S3 object after the upload failed", abortError);
+                    e.addSuppressed(abortError);
+                }
+                throw e;
+            }
+        }
+
+        /**
+         * The base64 MD5 digest of the given range of the payload, for the Content-MD5 header that Object Lock enabled
+         * buckets require; null when MD5 is not available, in which case the upload goes without the header.
+         */
+        private static String contentMd5(byte[] payload, int offset, int length) {
+            try {
+                MessageDigest md5Digest = MessageDigest.getInstance("MD5");
+                md5Digest.update(payload, offset, length);
+                return Base64.getEncoder().encodeToString(md5Digest.digest());
+            } catch (NoSuchAlgorithmException e) {
+                log.warn(
+                        "Failed to calculate MD5 checksum for S3 upload. Object Lock enabled buckets may reject this upload.",
+                        e);
+                return null;
+            }
         }
 
         /**

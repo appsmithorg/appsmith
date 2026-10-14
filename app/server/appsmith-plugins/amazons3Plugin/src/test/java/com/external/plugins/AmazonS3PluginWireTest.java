@@ -21,6 +21,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLDecoder;
@@ -36,6 +37,8 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -55,6 +58,7 @@ import static com.external.plugins.S3TestFixtures.md5Hex;
 import static com.external.plugins.S3TestFixtures.noParams;
 import static com.external.plugins.S3TestFixtures.queryParameters;
 import static com.external.plugins.S3TestFixtures.utf8;
+import static com.external.plugins.S3WireServer.UPLOAD_ID;
 import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.BUCKET;
 import static com.external.plugins.constants.FieldName.COMMAND;
@@ -73,6 +77,7 @@ import static com.external.plugins.exceptions.S3ErrorMessages.LIST_OF_BUCKET_FET
 import static com.external.plugins.exceptions.S3ErrorMessages.NON_EXITED_BUCKET_ERROR_MSG;
 import static com.external.plugins.exceptions.S3ErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 /**
  * Drives every plugin command with a real client against a local server that answers like S3, for the providers whose
@@ -88,6 +93,10 @@ class AmazonS3PluginWireTest {
     private static final Map<String, String> REGIONS = Map.of(MINIO, "", GCS, "", OTHER, "eu-west-3");
     private static final Map<String, String> SIGNING_REGIONS =
             Map.of(MINIO, "us-east-1", GCS, "auto", OTHER, "eu-west-3");
+
+    private static final int MEBIBYTE = 1024 * 1024;
+    private static final int FIVE_MEBIBYTES = 5 * MEBIBYTE;
+    private static final int SIXTEEN_MEBIBYTES = 16 * MEBIBYTE;
 
     private static final DateTimeFormatter AMZ_DATE =
             DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'").withZone(ZoneOffset.UTC);
@@ -429,6 +438,207 @@ class AmazonS3PluginWireTest {
         assertThat(result.getIsExecutionSuccess()).isTrue();
     }
 
+    /**
+     * An upload of more than 16 MiB goes out as a multipart upload with 5 MiB parts, each part carrying its own
+     * Content-MD5, and the parts listed with the ETags the service returned for them.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {MINIO, GCS, OTHER})
+    void should_uploadInParts_when_payloadExceedsSixteenMebibytes(String provider) {
+        // Given
+        server.respond(S3WireServer::multipartOk);
+        byte[] bytes = randomBytes(SIXTEEN_MEBIBYTES + 1);
+
+        // When
+        ActionExecutionResult result =
+                execute(provider, base64Upload("large/big file.bin", "application/x-test", bytes));
+
+        // Then
+        assertThat(result.getIsExecutionSuccess())
+                .as(String.valueOf(result.getBody()))
+                .isTrue();
+        List<Request> requests = server.requests();
+        assertThat(requests)
+                .extracting(S3WireServer::multipartStep)
+                .containsExactly(
+                        "CreateMultipartUpload",
+                        "UploadPart 1",
+                        "UploadPart 2",
+                        "UploadPart 3",
+                        "UploadPart 4",
+                        "CompleteMultipartUpload");
+        assertThat(requests).allSatisfy(request -> {
+            assertAddressedToBucket(provider, request);
+            assertThat(request.key(BUCKET_NAME)).isEqualTo("large/big file.bin");
+            assertNoFlexibleChecksumHeaders(request);
+        });
+        Request create = requests.get(0);
+        assertThat(create.query()).containsOnlyKeys("uploads");
+        assertThat(create.header("Content-Type")).isEqualTo("application/x-test");
+        List<Request> parts = requests.subList(1, 5);
+        assertThat(parts)
+                .extracting(part -> part.payload().length)
+                .containsExactly(FIVE_MEBIBYTES, FIVE_MEBIBYTES, FIVE_MEBIBYTES, MEBIBYTE + 1);
+        assertThat(parts).allSatisfy(part -> {
+            assertThat(part.query()).containsOnlyKeys("partNumber", "uploadId").containsEntry("uploadId", UPLOAD_ID);
+            assertThat(part.header("Content-MD5")).isEqualTo(md5Base64(part.payload()));
+        });
+        assertThat(concatenatedPayloads(parts)).isEqualTo(bytes);
+        Request complete = requests.get(5);
+        assertThat(complete.query()).containsOnlyKeys("uploadId").containsEntry("uploadId", UPLOAD_ID);
+        assertThat(S3WireServer.completedParts(complete))
+                .containsExactly(
+                        entry(1, "\"" + md5Hex(parts.get(0).payload()) + "\""),
+                        entry(2, "\"" + md5Hex(parts.get(1).payload()) + "\""),
+                        entry(3, "\"" + md5Hex(parts.get(2).payload()) + "\""),
+                        entry(4, "\"" + md5Hex(parts.get(3).payload()) + "\""));
+        assertThat(((Map<?, ?>) result.getBody()).get("url")).isEqualTo(unsignedUrl(provider, "large/big%20file.bin"));
+    }
+
+    @Test
+    void should_uploadWithOctetStreamContentType_when_multipartUploadHasNoType() {
+        // Given
+        server.respond(S3WireServer::multipartOk);
+
+        // When
+        ActionExecutionResult result =
+                execute(OTHER, base64Upload("large.bin", null, randomBytes(SIXTEEN_MEBIBYTES + 1)));
+
+        // Then
+        assertThat(result.getIsExecutionSuccess())
+                .as(String.valueOf(result.getBody()))
+                .isTrue();
+        Request create = server.requests().get(0);
+        assertThat(S3WireServer.multipartStep(create)).isEqualTo("CreateMultipartUpload");
+        assertThat(create.header("Content-Type")).isEqualTo("application/octet-stream");
+    }
+
+    /** 16 MiB is the largest upload sent as one PutObject, as with the TransferManager of AWS SDK for Java 1.x. */
+    @Test
+    void should_putSingleObject_when_payloadIsExactlySixteenMebibytes() {
+        // Given
+        server.respond(S3WireServer::multipartOk);
+        byte[] bytes = randomBytes(SIXTEEN_MEBIBYTES);
+
+        // When
+        ActionExecutionResult result = execute(OTHER, base64Upload("sixteen.bin", null, bytes));
+
+        // Then
+        assertThat(result.getIsExecutionSuccess())
+                .as(String.valueOf(result.getBody()))
+                .isTrue();
+        List<Request> requests = server.requests();
+        assertThat(requests).hasSize(1);
+        assertSinglePutWithoutChecksums(OTHER, requests.get(0), "sixteen.bin", bytes);
+    }
+
+    /** A part that fails with a retryable error is sent again on its own; the parts already uploaded are not. */
+    @Test
+    void should_retryOnlyFailedPart_when_uploadPartFailsOnce() {
+        // Given
+        AtomicInteger failures = new AtomicInteger();
+        server.respond(
+                request -> S3WireServer.multipartStep(request).equals("UploadPart 2") && failures.getAndIncrement() == 0
+                        ? S3WireServer.error(500, "InternalError", "We encountered an internal error.")
+                        : S3WireServer.multipartOk(request));
+        byte[] bytes = randomBytes(SIXTEEN_MEBIBYTES + 1);
+
+        // When
+        ActionExecutionResult result = execute(OTHER, base64Upload("retry.bin", null, bytes));
+
+        // Then
+        assertThat(result.getIsExecutionSuccess())
+                .as(String.valueOf(result.getBody()))
+                .isTrue();
+        List<Request> requests = server.requests();
+        assertThat(requests)
+                .extracting(S3WireServer::multipartStep)
+                .containsExactly(
+                        "CreateMultipartUpload",
+                        "UploadPart 1",
+                        "UploadPart 2",
+                        "UploadPart 2",
+                        "UploadPart 3",
+                        "UploadPart 4",
+                        "CompleteMultipartUpload");
+        assertThat(requests.get(3).payload()).isEqualTo(requests.get(2).payload());
+        assertThat(concatenatedPayloads(List.of(requests.get(1), requests.get(3), requests.get(4), requests.get(5))))
+                .isEqualTo(bytes);
+    }
+
+    /** The parts already stored are discarded, so that the service does not keep (and bill for) them. */
+    @Test
+    void should_abortMultipartUploadAndReturnReadableError_when_partFails() {
+        // Given
+        server.respond(request -> S3WireServer.multipartStep(request).equals("UploadPart 2")
+                ? S3WireServer.error(403, "AccessDenied", "Access Denied")
+                : S3WireServer.multipartOk(request));
+
+        // When
+        ActionExecutionResult result =
+                execute(OTHER, base64Upload("denied.bin", null, randomBytes(SIXTEEN_MEBIBYTES + 1)));
+
+        // Then
+        List<Request> requests = server.requests();
+        assertThat(requests)
+                .extracting(S3WireServer::multipartStep)
+                .containsExactly("CreateMultipartUpload", "UploadPart 1", "UploadPart 2", "AbortMultipartUpload");
+        Request abort = requests.get(3);
+        assertThat(abort.key(BUCKET_NAME)).isEqualTo("denied.bin");
+        assertThat(abort.query()).containsOnlyKeys("uploadId").containsEntry("uploadId", UPLOAD_ID);
+        assertThat(result.getIsExecutionSuccess()).isFalse();
+        assertThat(result.getReadableError()).isEqualTo("AccessDenied: Access Denied");
+    }
+
+    @Test
+    void should_abortMultipartUploadAndReturnReadableError_when_completeFails() {
+        // Given
+        server.respond(request -> S3WireServer.multipartStep(request).equals("CompleteMultipartUpload")
+                ? S3WireServer.error(400, "InvalidPart", "One or more of the specified parts could not be found.")
+                : S3WireServer.multipartOk(request));
+
+        // When
+        ActionExecutionResult result =
+                execute(OTHER, base64Upload("incomplete.bin", null, randomBytes(SIXTEEN_MEBIBYTES + 1)));
+
+        // Then
+        assertThat(server.requests())
+                .extracting(S3WireServer::multipartStep)
+                .containsExactly(
+                        "CreateMultipartUpload",
+                        "UploadPart 1",
+                        "UploadPart 2",
+                        "UploadPart 3",
+                        "UploadPart 4",
+                        "CompleteMultipartUpload",
+                        "AbortMultipartUpload");
+        assertThat(result.getIsExecutionSuccess()).isFalse();
+        assertThat(result.getReadableError())
+                .isEqualTo("InvalidPart: One or more of the specified parts could not be found.");
+    }
+
+    /** The user sees why the upload failed, not why discarding its parts failed. */
+    @Test
+    void should_returnErrorOfFailedPart_when_abortMultipartUploadAlsoFails() {
+        // Given
+        server.respond(request -> switch (S3WireServer.multipartStep(request)) {
+            case "UploadPart 2" -> S3WireServer.error(403, "AccessDenied", "Access Denied");
+            case "AbortMultipartUpload" -> S3WireServer.error(403, "AccessDenied", "Abort denied");
+            default -> S3WireServer.multipartOk(request);
+        });
+
+        // When
+        ActionExecutionResult result =
+                execute(OTHER, base64Upload("denied.bin", null, randomBytes(SIXTEEN_MEBIBYTES + 1)));
+
+        // Then
+        assertThat(server.requests())
+                .extracting(S3WireServer::multipartStep)
+                .containsExactly("CreateMultipartUpload", "UploadPart 1", "UploadPart 2", "AbortMultipartUpload");
+        assertThat(result.getIsExecutionSuccess()).isFalse();
+        assertThat(result.getReadableError()).isEqualTo("AccessDenied: Access Denied");
+    }
+
     // ----- UPLOAD_MULTIPLE_FILES_FROM_BODY -----
 
     @ParameterizedTest
@@ -462,6 +672,49 @@ class AmazonS3PluginWireTest {
                 .containsExactly(
                         unsignedUrl(provider, "multi/one.txt"), unsignedUrl(provider, "multi/two%20words.bin"));
         assertThat((List<?>) body.get("signedUrls")).hasSize(2);
+    }
+
+    @Test
+    void should_uploadLargeFileInParts_when_uploadingMultipleFiles() {
+        // Given
+        server.respond(S3WireServer::multipartOk);
+        byte[] large = randomBytes(SIXTEEN_MEBIBYTES + 1);
+
+        // When
+        ActionExecutionResult result = execute(
+                OTHER,
+                Map.of(
+                        COMMAND, "UPLOAD_MULTIPLE_FILES_FROM_BODY",
+                        BUCKET, BUCKET_NAME,
+                        PATH, "multi/",
+                        CREATE_DATATYPE, "YES",
+                        BODY,
+                                "[{\"name\": \"small.txt\", \"data\": \""
+                                        + Base64.getEncoder().encodeToString(utf8("small")) + "\"},"
+                                        + " {\"name\": \"large.bin\", \"data\": \""
+                                        + Base64.getEncoder().encodeToString(large) + "\"}]"));
+
+        // Then
+        assertThat(result.getIsExecutionSuccess())
+                .as(String.valueOf(result.getBody()))
+                .isTrue();
+        List<Request> requests = server.requests();
+        assertThat(requests)
+                .extracting(S3WireServer::multipartStep)
+                .containsExactly(
+                        "PutObject",
+                        "CreateMultipartUpload",
+                        "UploadPart 1",
+                        "UploadPart 2",
+                        "UploadPart 3",
+                        "UploadPart 4",
+                        "CompleteMultipartUpload");
+        assertSinglePutWithoutChecksums(OTHER, requests.get(0), "multi/small.txt", utf8("small"));
+        assertThat(requests.subList(1, 7))
+                .allSatisfy(request -> assertThat(request.key(BUCKET_NAME)).isEqualTo("multi/large.bin"));
+        assertThat(concatenatedPayloads(requests.subList(2, 6))).isEqualTo(large);
+        assertThat((List<Object>) ((Map<?, ?>) result.getBody()).get("urls"))
+                .containsExactly(unsignedUrl(OTHER, "multi/small.txt"), unsignedUrl(OTHER, "multi/large.bin"));
     }
 
     // ----- READ_FILE -----
@@ -1308,6 +1561,35 @@ class AmazonS3PluginWireTest {
         return provider.equals(MINIO)
                 ? "http://" + server.hostAndPort() + "/" + BUCKET_NAME + "/" + encodedKey
                 : "http://" + BUCKET_NAME + "." + server.hostAndPort() + "/" + encodedKey;
+    }
+
+    /** The fields of an UPLOAD_FILE_FROM_BODY of the bytes as a file picker sends them, with the type when not null. */
+    private static Map<String, Object> base64Upload(String path, String type, byte[] bytes) {
+        String typeField = type == null ? "" : "\"type\": \"" + type + "\", ";
+        return Map.of(
+                COMMAND,
+                "UPLOAD_FILE_FROM_BODY",
+                BUCKET,
+                BUCKET_NAME,
+                PATH,
+                path,
+                CREATE_DATATYPE,
+                "YES",
+                BODY,
+                "{" + typeField + "\"data\": \"data:application/octet-stream;base64,"
+                        + Base64.getEncoder().encodeToString(bytes) + "\"}");
+    }
+
+    private static byte[] randomBytes(int length) {
+        byte[] bytes = new byte[length];
+        new Random(42).nextBytes(bytes);
+        return bytes;
+    }
+
+    private static byte[] concatenatedPayloads(List<Request> requests) {
+        ByteArrayOutputStream payloads = new ByteArrayOutputStream();
+        requests.forEach(request -> payloads.writeBytes(request.payload()));
+        return payloads.toByteArray();
     }
 
     private static Map<String, Object> commandFields(String command) {

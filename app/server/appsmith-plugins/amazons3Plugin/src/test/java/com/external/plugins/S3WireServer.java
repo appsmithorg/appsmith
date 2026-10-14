@@ -17,6 +17,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -32,6 +33,9 @@ import java.util.regex.Pattern;
  * LoopbackSubdomainResolverProvider}.
  */
 final class S3WireServer implements Closeable {
+
+    /** The upload ID {@link #multipartOk(Request)} returns for CreateMultipartUpload. */
+    static final String UPLOAD_ID = "upload-id-1";
 
     private static final Pattern CREDENTIAL_SCOPE =
             Pattern.compile("Credential=[^/]+/\\d{8}/([^/]*)/([^/]*)/([^,]*),\\s*SignedHeaders=([^,]+),");
@@ -270,6 +274,71 @@ final class S3WireServer implements Closeable {
                 .addHeader("ETag", "\"" + S3TestFixtures.md5Hex(request.payload()) + "\"")
                 .addHeader("x-amz-request-id", "REQ123")
                 .addHeader("Content-Length", "0");
+    }
+
+    /**
+     * Answers the requests of a multipart upload as S3 does: {@link #UPLOAD_ID} for CreateMultipartUpload, the hex MD5
+     * of the part as the ETag of each UploadPart, a result for CompleteMultipartUpload and 204 for
+     * AbortMultipartUpload. Any other request is answered by {@link #putOk(Request)}.
+     */
+    static MockResponse multipartOk(Request request) {
+        return switch (multipartStep(request)) {
+            case "CreateMultipartUpload" ->
+                xml(
+                        200,
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?><InitiateMultipartUploadResult"
+                                + " xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><Bucket>bucket</Bucket>"
+                                + "<Key>key</Key><UploadId>" + UPLOAD_ID
+                                + "</UploadId></InitiateMultipartUploadResult>");
+            case "CompleteMultipartUpload" ->
+                xml(
+                        200,
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?><CompleteMultipartUploadResult"
+                                + " xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><Location>location</Location>"
+                                + "<Bucket>bucket</Bucket><Key>key</Key><ETag>&quot;multipart-etag-1&quot;</ETag>"
+                                + "</CompleteMultipartUploadResult>");
+            case "AbortMultipartUpload" -> noContent();
+            default -> putOk(request);
+        };
+    }
+
+    /**
+     * The S3 operation a request of an upload performs, from its method and query: {@code CreateMultipartUpload},
+     * {@code UploadPart <number>}, {@code CompleteMultipartUpload}, {@code AbortMultipartUpload} or {@code PutObject};
+     * the method and path for any other request.
+     */
+    static String multipartStep(Request request) {
+        Map<String, String> query = request.query();
+        if (request.method().equals("POST") && query.containsKey("uploads")) {
+            return "CreateMultipartUpload";
+        }
+        if (request.method().equals("PUT") && query.containsKey("partNumber")) {
+            return "UploadPart " + query.get("partNumber");
+        }
+        if (request.method().equals("POST") && query.containsKey("uploadId")) {
+            return "CompleteMultipartUpload";
+        }
+        if (request.method().equals("DELETE") && query.containsKey("uploadId")) {
+            return "AbortMultipartUpload";
+        }
+        if (request.method().equals("PUT") && query.isEmpty()) {
+            return "PutObject";
+        }
+        return request.method() + " " + request.path();
+    }
+
+    /** The parts a CompleteMultipartUpload request body lists, as part number to ETag, in the order listed. */
+    static Map<Integer, String> completedParts(Request request) {
+        Map<Integer, String> parts = new LinkedHashMap<>();
+        Matcher part = Pattern.compile("<Part>(.*?)</Part>").matcher(request.payloadUtf8());
+        while (part.find()) {
+            Matcher number = Pattern.compile("<PartNumber>(\\d+)</PartNumber>").matcher(part.group(1));
+            Matcher etag = Pattern.compile("<ETag>([^<]*)</ETag>").matcher(part.group(1));
+            parts.put(
+                    number.find() ? Integer.valueOf(number.group(1)) : null,
+                    etag.find() ? etag.group(1).replace("&quot;", "\"") : null);
+        }
+        return parts;
     }
 
     static MockResponse object(byte[] content, String etag) {
