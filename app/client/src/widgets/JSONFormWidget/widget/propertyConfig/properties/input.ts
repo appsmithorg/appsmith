@@ -5,10 +5,35 @@ import type { HiddenFnParams } from "../helper";
 import { getAutocompleteProperties, getSchemaItem } from "../helper";
 import type { InputFieldProps } from "widgets/JSONFormWidget/fields/InputField";
 import { ISDCodeDropdownOptions } from "widgets/PhoneInputWidget/component/ISDCodeDropdown";
+import {
+  countryCodeDisplayedForDialCode,
+  findCountryByIso,
+} from "widgets/PhoneInputWidget/component/utilities";
+import { getParentPropertyPath } from "../../helper";
 import type { JSONFormWidgetProps } from "../..";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { ICON_NAMES } from "WidgetProvider/constants";
+
+function phoneCountryCodeUpdateHook(
+  _props: JSONFormWidgetProps,
+  propertyPath: string,
+  propertyValue: string,
+) {
+  const updates: Array<{ propertyPath: string; propertyValue: string }> = [
+    { propertyPath, propertyValue },
+  ];
+  const country = findCountryByIso(propertyValue);
+
+  if (country) {
+    updates.push({
+      propertyPath: `${getParentPropertyPath(propertyPath)}.dialCode`,
+      propertyValue: country.dial_code,
+    });
+  }
+
+  return updates;
+}
 
 function defaultValueValidation(
   // TODO: Fix this the next time the file is edited
@@ -284,7 +309,7 @@ const PROPERTIES = {
         dependencies: ["schema"],
       },
       {
-        propertyName: "dialCode",
+        propertyName: "countryCode",
         helpText: "Changes the country code",
         label: "Default country code",
         enableSearch: true,
@@ -293,6 +318,8 @@ const PROPERTIES = {
         virtual: true,
         searchPlaceholderText: "Search by code or country name",
         options: ISDCodeDropdownOptions,
+        updateHook: phoneCountryCodeUpdateHook,
+        defaultValue: countryCodeDisplayedForDialCode,
         hidden: (...args: HiddenFnParams) =>
           getSchemaItem(...args).fieldTypeNotMatches(
             FieldType.PHONE_NUMBER_INPUT,

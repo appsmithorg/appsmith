@@ -44,7 +44,7 @@ describe(
 
     it("2. should check that widget can be used with dynamic default dial code", () => {
       cy.openPropertyPane(widgetName);
-      cy.get(".t--property-control-defaultcountrycode .CodeMirror-code").should(
+      cy.get(".t--property-control-dialcode .CodeMirror-code").should(
         "contain",
         "{{appsmith.store.test}}",
       );
@@ -52,7 +52,7 @@ describe(
       cy.get(".t--search-input input").type("india");
       cy.wait(500);
       cy.get(".t--dropdown-option").last().click();
-      cy.get(".t--property-control-defaultcountrycode .CodeMirror-code").should(
+      cy.get(".t--property-control-dialcode .CodeMirror-code").should(
         "contain",
         "{{appsmith.store.test}}",
       );
