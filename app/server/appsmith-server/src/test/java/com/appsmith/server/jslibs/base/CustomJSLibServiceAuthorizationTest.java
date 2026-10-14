@@ -74,8 +74,9 @@ class CustomJSLibServiceAuthorizationTest {
     }
 
     /**
-     * The not-found answer for a context the caller cannot read. The resource name in the message is the
-     * one of the service the context type resolves to, so a package-typed read names the package.
+     * The not-found answer for a context the caller cannot read. The resource named in the message is the
+     * one of the service the edition resolves the context type to: the application in CE for every context
+     * type, the application or the package in EE.
      */
     private static void assertNoResourceFound(Throwable throwable, String contextId) {
         assertThat(throwable).isInstanceOf(AppsmithException.class);
