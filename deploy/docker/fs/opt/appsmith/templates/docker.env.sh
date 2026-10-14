@@ -69,6 +69,11 @@ APPSMITH_REDIS_PASSWORD=$REDIS_PASSWORD
 APPSMITH_ENCRYPTION_PASSWORD=$ENCRYPTION_PASSWORD
 APPSMITH_ENCRYPTION_SALT=$ENCRYPTION_SALT
 
+# Shared marker between the embedded MCP service and the backend. Left empty here on purpose: the entrypoint fills
+# it in at first boot (ensure-mcp-internal-secret.sh). Never edit it by hand unless you intend to rotate it, and
+# restart afterwards so both processes pick up the new value.
+APPSMITH_MCP_INTERNAL_SECRET=
+
 APPSMITH_CUSTOM_DOMAIN=
 
 # Java command line arguments, as space-delimited string. Ex: "-Xms800M -Xmx800M"

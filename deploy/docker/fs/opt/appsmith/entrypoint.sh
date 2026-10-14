@@ -123,6 +123,12 @@ init_env_file() {
     fi
   fi
 
+  # The MCP internal secret must exist before the backend and the MCP service start, because both read it from
+  # docker.env at program start and the backend rejects MCP calls whose marker does not match. The template ships
+  # the key empty; this fills it in on the first boot (new and existing installs alike, under a lock shared with any
+  # other replica on the same volume), which is what lets an admin enable MCP without a restart.
+  bash /opt/appsmith/ensure-mcp-internal-secret.sh "$ENV_PATH"
+
   tlog "Load environment configuration"
 
   # Load the ones in `docker.env` in the stacks folder.
