@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.dtos.MultipartFormDataDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -20,6 +21,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.exception.AbortedException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -77,6 +80,7 @@ import static com.external.plugins.exceptions.S3ErrorMessages.LIST_OF_BUCKET_FET
 import static com.external.plugins.exceptions.S3ErrorMessages.NON_EXITED_BUCKET_ERROR_MSG;
 import static com.external.plugins.exceptions.S3ErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.entry;
 
 /**
@@ -536,11 +540,20 @@ class AmazonS3PluginWireTest {
     @Test
     void should_retryOnlyFailedPart_when_uploadPartFailsOnce() {
         // Given
-        AtomicInteger failures = new AtomicInteger();
-        server.respond(
-                request -> S3WireServer.multipartStep(request).equals("UploadPart 2") && failures.getAndIncrement() == 0
-                        ? S3WireServer.error(500, "InternalError", "We encountered an internal error.")
-                        : S3WireServer.multipartOk(request));
+        // Each UploadPart request gets its own ETag, so that the Complete request shows which attempt it lists.
+        AtomicInteger uploadPartRequests = new AtomicInteger();
+        server.respond(request -> {
+            if (!S3WireServer.multipartStep(request).startsWith("UploadPart ")) {
+                return S3WireServer.multipartOk(request);
+            }
+            int attempt = uploadPartRequests.incrementAndGet();
+            return attempt == 2
+                    ? S3WireServer.error(500, "InternalError", "We encountered an internal error.")
+                    : new MockResponse()
+                            .setResponseCode(200)
+                            .addHeader("ETag", "\"etag-" + attempt + "\"")
+                            .addHeader("Content-Length", "0");
+        });
         byte[] bytes = randomBytes(SIXTEEN_MEBIBYTES + 1);
 
         // When
@@ -562,8 +575,91 @@ class AmazonS3PluginWireTest {
                         "UploadPart 4",
                         "CompleteMultipartUpload");
         assertThat(requests.get(3).payload()).isEqualTo(requests.get(2).payload());
+        assertThat(requests.get(3).header("Content-MD5"))
+                .isEqualTo(requests.get(2).header("Content-MD5"))
+                .isEqualTo(md5Base64(requests.get(3).payload()));
         assertThat(concatenatedPayloads(List.of(requests.get(1), requests.get(3), requests.get(4), requests.get(5))))
                 .isEqualTo(bytes);
+        assertThat(S3WireServer.completedParts(requests.get(6)))
+                .containsExactly(
+                        entry(1, "\"etag-1\""), entry(2, "\"etag-3\""), entry(3, "\"etag-4\""), entry(4, "\"etag-5\""));
+    }
+
+    /** An upload that the service refuses to create has no parts to discard. */
+    @Test
+    void should_returnReadableErrorWithoutAbort_when_createMultipartUploadFails() {
+        // Given
+        server.respond(request -> S3WireServer.multipartStep(request).equals("CreateMultipartUpload")
+                ? S3WireServer.error(403, "AccessDenied", "Access Denied")
+                : S3WireServer.multipartOk(request));
+
+        // When
+        ActionExecutionResult result =
+                execute(OTHER, base64Upload("refused.bin", null, randomBytes(SIXTEEN_MEBIBYTES + 1)));
+
+        // Then
+        assertThat(server.requests()).extracting(S3WireServer::multipartStep).containsExactly("CreateMultipartUpload");
+        assertThat(result.getIsExecutionSuccess()).isFalse();
+        assertThat(result.getReadableError()).isEqualTo("AccessDenied: Access Denied");
+    }
+
+    /**
+     * An upload interrupted mid-way, as when the action times out and its worker thread is interrupted, is still
+     * aborted, and the thread is left interrupted.
+     */
+    @Test
+    void should_abortMultipartUploadAndKeepInterrupt_when_threadIsInterruptedDuringPart() {
+        // Given
+        Thread uploader = Thread.currentThread();
+        server.respond(request -> {
+            if (S3WireServer.multipartStep(request).equals("UploadPart 2")) {
+                uploader.interrupt();
+            }
+            return S3WireServer.multipartOk(request);
+        });
+        S3Connection connection = connect(datasource(OTHER));
+
+        // When
+        Throwable thrown;
+        boolean interruptedAfterwards;
+        try {
+            thrown = catchThrowable(() -> uploadDirectly(connection, "interrupted.bin"));
+        } finally {
+            interruptedAfterwards = Thread.interrupted();
+        }
+
+        // Then
+        assertThat(thrown).isInstanceOf(AbortedException.class);
+        assertThat(interruptedAfterwards).isTrue();
+        List<Request> requests = server.requests();
+        assertThat(requests)
+                .extracting(S3WireServer::multipartStep)
+                .containsExactly("CreateMultipartUpload", "UploadPart 1", "UploadPart 2", "AbortMultipartUpload");
+        assertThat(requests.get(3).query()).containsEntry("uploadId", UPLOAD_ID);
+    }
+
+    @Test
+    void should_attachAbortFailureAsSuppressed_when_abortMultipartUploadAlsoFails() {
+        // Given
+        server.respond(request -> switch (S3WireServer.multipartStep(request)) {
+            case "UploadPart 2" -> S3WireServer.error(403, "AccessDenied", "Access Denied");
+            case "AbortMultipartUpload" -> S3WireServer.error(403, "AccessDenied", "Abort denied");
+            default -> S3WireServer.multipartOk(request);
+        });
+        S3Connection connection = connect(datasource(OTHER));
+
+        // When
+        Throwable thrown = catchThrowable(() -> uploadDirectly(connection, "denied.bin"));
+
+        // Then
+        assertThat(thrown).isInstanceOfSatisfying(AwsServiceException.class, error -> assertThat(
+                        error.awsErrorDetails().errorMessage())
+                .isEqualTo("Access Denied"));
+        assertThat(thrown.getSuppressed())
+                .singleElement()
+                .isInstanceOfSatisfying(AwsServiceException.class, error -> assertThat(
+                                error.awsErrorDetails().errorMessage())
+                        .isEqualTo("Abort denied"));
     }
 
     /** The parts already stored are discarded, so that the service does not keep (and bill for) them. */
@@ -1578,6 +1674,16 @@ class AmazonS3PluginWireTest {
                 BODY,
                 "{" + typeField + "\"data\": \"data:application/octet-stream;base64,"
                         + Base64.getEncoder().encodeToString(bytes) + "\"}");
+    }
+
+    /** Uploads 16 MiB + 1 byte under the key on the calling thread, bypassing the plugin's scheduler and error mapping. */
+    private void uploadDirectly(S3Connection connection, String key) {
+        executor.uploadFileInS3(
+                randomBytes(SIXTEEN_MEBIBYTES + 1),
+                connection,
+                new MultipartFormDataDTO(key, null, null),
+                BUCKET_NAME,
+                key);
     }
 
     private static byte[] randomBytes(int length) {

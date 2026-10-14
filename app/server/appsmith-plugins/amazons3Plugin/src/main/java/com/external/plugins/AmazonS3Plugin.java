@@ -145,13 +145,19 @@ public class AmazonS3Plugin extends BasePlugin {
         /** Content type of an upload whose body does not name one. */
         private static final String DEFAULT_UPLOAD_CONTENT_TYPE = "application/octet-stream";
 
-        /** Largest upload sent as one PutObject; larger ones are multipart uploads, as with SDK 1.x TransferManager. */
+        /**
+         * Largest upload sent as one PutObject. Larger ones are multipart uploads, so that a failed request resends one
+         * part rather than the whole object.
+         */
         private static final long MULTIPART_UPLOAD_THRESHOLD = 16L * 1024 * 1024;
 
-        /** Smallest part of a multipart upload: the SDK 1.x TransferManager default and the S3 minimum. */
+        /** Smallest size S3 accepts for every part of a multipart upload but the last. */
         private static final long MINIMUM_UPLOAD_PART_SIZE = 5L * 1024 * 1024;
 
-        /** Most parts of a multipart upload: the SDK 1.x TransferManager default and the S3 maximum. */
+        /**
+         * Most parts S3 accepts in one multipart upload. Parts grow beyond the minimum size only for payloads above
+         * about 48 GiB, which a byte array cannot hold; the limit guards the part size calculation all the same.
+         */
         private static final long MAXIMUM_UPLOAD_PARTS = 10_000;
 
         /** Start of the error detail of a bulk delete that reports per-key errors in its response. */
@@ -1266,8 +1272,8 @@ public class AmazonS3Plugin extends BasePlugin {
         /**
          * Uploads the payload in parts of {@link #MINIMUM_UPLOAD_PART_SIZE} or more, one after another, each with its
          * own Content-MD5. A part that fails is retried on its own by the client's retry strategy. When the upload
-         * fails after it was created, it is aborted so that the service discards the parts already stored, and the
-         * original failure is thrown.
+         * fails after it was created, for any reason, it is aborted so that the service discards the parts already
+         * stored, and the original failure is thrown.
          */
         private void multipartUpload(
                 byte[] payload,
@@ -1324,19 +1330,38 @@ public class AmazonS3Plugin extends BasePlugin {
                                 .parts(completedParts)
                                 .build())
                         .build());
-            } catch (RuntimeException e) {
-                try {
-                    client.abortMultipartUpload(AbortMultipartUploadRequest.builder()
-                            .bucket(bucketName)
-                            .key(path)
-                            .uploadId(uploadId)
-                            .build());
-                } catch (RuntimeException abortError) {
-                    log.warn(
-                            "Failed to abort the multipart upload of an S3 object after the upload failed", abortError);
-                    e.addSuppressed(abortError);
-                }
+            } catch (Throwable e) {
+                abortMultipartUpload(client, bucketName, path, uploadId, e);
                 throw e;
+            }
+        }
+
+        /**
+         * Aborts a multipart upload that failed with the given error, so that the service discards its parts. The
+         * client refuses to send requests on an interrupted thread, as when the action times out: the interrupt is
+         * cleared for the abort and restored afterwards. An abort failure is attached to the error as suppressed.
+         */
+        private static void abortMultipartUpload(
+                S3Client client, String bucketName, String path, String uploadId, Throwable uploadError) {
+            boolean interrupted = Thread.interrupted();
+            try {
+                client.abortMultipartUpload(AbortMultipartUploadRequest.builder()
+                        .bucket(bucketName)
+                        .key(path)
+                        .uploadId(uploadId)
+                        .build());
+            } catch (RuntimeException abortError) {
+                log.warn(
+                        "Failed to abort multipart upload {} in bucket {} after the upload failed; its parts stay"
+                                + " stored until a lifecycle rule or a manual abort removes them",
+                        uploadId,
+                        bucketName,
+                        abortError);
+                uploadError.addSuppressed(abortError);
+            } finally {
+                if (interrupted) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
 
