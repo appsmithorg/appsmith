@@ -3,6 +3,7 @@ import { expectSaga } from "redux-saga-test-plan";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
 import UserApi from "ee/api/UserApi";
 import {
   getAIArtifact,
@@ -90,18 +91,18 @@ describe("fetchAIResponseSaga request context", () => {
     expect(artifactArgs).toEqual([[IDE_TYPE.App]]);
   });
 
-  // CE has no workflow editor, so its URL resolves to IDE_TYPE.None. EE resolves it to IDE_TYPE.Workflow.
+  // The workflow editor URL resolves to IDE_TYPE.Workflow in EE and to IDE_TYPE.None in CE, which has no workflow
+  // editor. Either way the request carries the URL's type, not the app editor's.
   it("passes the IDE type of a non-app URL, not the app editor's", async () => {
-    const { artifactArgs } = await requestFor(
-      "/workflow/6123456789abcdef01234568/edit",
-      {
-        mode: "javascript",
-        entityName: "Main",
-        entityType: ENTITY_TYPE.JSACTION,
-      },
-    );
+    const url = "/workflow/6123456789abcdef01234568/edit";
+    const { artifactArgs } = await requestFor(url, {
+      mode: "javascript",
+      entityName: "Main",
+      entityType: ENTITY_TYPE.JSACTION,
+    });
 
-    expect(artifactArgs).toEqual([[IDE_TYPE.None]]);
+    expect(artifactArgs).toEqual([[getIDETypeByUrl(url)]]);
+    expect(artifactArgs[0][0]).not.toBe(IDE_TYPE.App);
   });
 
   it("sends the artifact from a JS object, which has no entity id", async () => {
