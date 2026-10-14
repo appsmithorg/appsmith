@@ -189,8 +189,8 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     @Override
     public Mono<List<CustomJSLib>> getAllJSLibsInContext(
             @NotNull String branchedContextId, CreatorContextType contextType, Boolean isViewMode) {
-        // Authorize the resolved context before reading its libraries. Both controller routes
-        // (GET /libraries/{id} and the anonymous-reachable GET /libraries/{id}/view) funnel through here.
+        // Authorize the resolved context before reading its libraries. Both controller read routes funnel
+        // through here.
         return getReadAuthorizationMono(branchedContextId, contextType)
                 .then(Mono.defer(() -> readVisibleJSLibsInContext(branchedContextId, contextType, isViewMode)));
     }
