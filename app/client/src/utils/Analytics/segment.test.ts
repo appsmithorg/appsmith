@@ -146,17 +146,164 @@ describe("SegmentSingleton", () => {
   });
 
   describe("identify", () => {
+    const userId = "test-user";
+    const traits = { name: "Test User" };
+
+    beforeEach(() => {
+      window.sessionStorage.clear();
+      // analytics.js reports the user it already knows from storage; by default nobody is known.
+      mockAnalytics.user.mockReturnValue({ id: () => null });
+    });
+
     it("should call analytics identify when initialized", async () => {
       const segment = SegmentSingleton.getInstance();
 
       await segment.init(true);
 
-      const userId = "test-user";
-      const traits = { name: "Test User" };
-
       await segment.identify(userId, traits);
 
       expect(mockAnalytics.identify).toHaveBeenCalledWith(userId, traits);
+    });
+
+    it("should not repeat an identify for the same user and traits within a session", async () => {
+      const segment = SegmentSingleton.getInstance();
+
+      await segment.init(true);
+
+      await segment.identify(userId, traits);
+      // After the first identify analytics.js knows the user, as it would on the next page load.
+      mockAnalytics.user.mockReturnValue({ id: () => userId });
+      await segment.identify(userId, traits);
+      await segment.identify(userId, { ...traits });
+
+      expect(mockAnalytics.identify).toHaveBeenCalledTimes(1);
+    });
+
+    it("should identify again when the traits change", async () => {
+      const segment = SegmentSingleton.getInstance();
+
+      await segment.init(true);
+
+      await segment.identify(userId, traits);
+      mockAnalytics.user.mockReturnValue({ id: () => userId });
+      await segment.identify(userId, { ...traits, version: "Appsmith EE 1.0" });
+
+      expect(mockAnalytics.identify).toHaveBeenCalledTimes(2);
+    });
+
+    it("should identify again when a different user signs in", async () => {
+      const segment = SegmentSingleton.getInstance();
+
+      await segment.init(true);
+
+      await segment.identify(userId, traits);
+      mockAnalytics.user.mockReturnValue({ id: () => userId });
+      await segment.identify("another-user", traits);
+
+      expect(mockAnalytics.identify).toHaveBeenCalledTimes(2);
+      expect(mockAnalytics.identify).toHaveBeenLastCalledWith(
+        "another-user",
+        traits,
+      );
+    });
+
+    it("should identify again when analytics.js no longer knows the user", async () => {
+      const segment = SegmentSingleton.getInstance();
+
+      await segment.init(true);
+
+      await segment.identify(userId, traits);
+      // Session storage still remembers the identify, but analytics.js storage was cleared.
+      mockAnalytics.user.mockReturnValue({ id: () => null });
+      await segment.identify(userId, traits);
+
+      expect(mockAnalytics.identify).toHaveBeenCalledTimes(2);
+    });
+
+    it("should share one in-flight call between concurrent identifies", async () => {
+      const segment = SegmentSingleton.getInstance();
+
+      await segment.init(true);
+
+      let resolveIdentify: () => void = () => undefined;
+
+      mockAnalytics.identify.mockReturnValueOnce(
+        new Promise<void>((resolve) => {
+          resolveIdentify = resolve;
+        }),
+      );
+
+      const first = segment.identify(userId, traits);
+      const second = segment.identify(userId, traits);
+
+      resolveIdentify();
+      await Promise.all([first, second]);
+
+      expect(mockAnalytics.identify).toHaveBeenCalledTimes(1);
+    });
+
+    it("should identify again after reset", async () => {
+      const segment = SegmentSingleton.getInstance();
+
+      await segment.init(true);
+
+      await segment.identify(userId, traits);
+      mockAnalytics.user.mockReturnValue({ id: () => userId });
+      segment.reset();
+      await segment.identify(userId, traits);
+
+      expect(mockAnalytics.identify).toHaveBeenCalledTimes(2);
+    });
+
+    it("should start a fresh identify after a reset that interrupted an in-flight one", async () => {
+      const segment = SegmentSingleton.getInstance();
+
+      await segment.init(true);
+
+      let resolveIdentify: () => void = () => undefined;
+
+      mockAnalytics.identify.mockReturnValueOnce(
+        new Promise<void>((resolve) => {
+          resolveIdentify = resolve;
+        }),
+      );
+
+      const stale = segment.identify(userId, traits);
+
+      // Logout while the identify is still on the wire, then the same user logs in again.
+      segment.reset();
+      const fresh = segment.identify(userId, traits);
+
+      resolveIdentify();
+      await Promise.all([stale, fresh]);
+
+      expect(mockAnalytics.identify).toHaveBeenCalledTimes(2);
+    });
+
+    it("should not let an identify interrupted by reset mark the new session as identified", async () => {
+      const segment = SegmentSingleton.getInstance();
+
+      await segment.init(true);
+
+      let resolveIdentify: () => void = () => undefined;
+
+      mockAnalytics.identify.mockReturnValueOnce(
+        new Promise<void>((resolve) => {
+          resolveIdentify = resolve;
+        }),
+      );
+
+      const stale = segment.identify(userId, traits);
+
+      segment.reset();
+      resolveIdentify();
+      await stale;
+
+      // analytics.js knows the user again; only a post-reset identify may skip the call.
+      mockAnalytics.user.mockReturnValue({ id: () => userId });
+      await segment.identify(userId, traits);
+
+      expect(mockAnalytics.identify).toHaveBeenCalledTimes(2);
     });
   });
 

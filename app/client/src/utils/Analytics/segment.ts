@@ -20,6 +20,9 @@ class SegmentSingleton {
   private analytics: Analytics | null = null;
   private eventQueue: Array<{ name: string; data: EventProperties }> = [];
   private initState: InitializationStatus = InitializationStatus.WAITING;
+  private pendingIdentifies = new Map<string, Promise<void>>();
+  // Bumped by reset(); an identify that was in flight across a reset belongs to the previous identity.
+  private identifyGeneration = 0;
 
   public static getInstance(): SegmentSingleton {
     if (!SegmentSingleton.instance) {
@@ -147,10 +150,55 @@ class SegmentSingleton {
     this.analytics.track(eventName, eventData);
   }
 
+  /**
+   * Sends an identify call unless this browser session already identified the same user with the same traits.
+   * analytics.js persists the user id across page loads itself, so repeating an unchanged identify on every
+   * load only re-sends the same traits (and fans them out to every downstream tool) for nothing.
+   */
   public async identify(userId: string, traits: UserTraits) {
-    if (this.analytics) {
-      await this.analytics.identify(userId, traits);
+    if (!this.analytics) {
+      return;
     }
+
+    const identity = JSON.stringify({ userId, traits });
+
+    if (
+      this.analytics.user()?.id?.() === userId &&
+      readSessionValue(LAST_IDENTIFY_STORAGE_KEY) === identity
+    ) {
+      log.debug("Identify skipped, unchanged in this session", userId);
+
+      return;
+    }
+
+    // Concurrent callers (e.g. initialize() and a Help button click) share one in-flight call.
+    const inFlight = this.pendingIdentifies.get(identity);
+
+    if (inFlight) {
+      return inFlight;
+    }
+
+    const analytics = this.analytics;
+    const generation = this.identifyGeneration;
+    const pending = (async () => {
+      try {
+        await analytics.identify(userId, traits);
+
+        // A reset() while this call was on the wire means it identified the previous session, not this one.
+        if (this.identifyGeneration === generation) {
+          writeSessionValue(LAST_IDENTIFY_STORAGE_KEY, identity);
+        }
+      } finally {
+        // reset() already dropped this entry, and the key may now belong to a post-reset identify.
+        if (this.identifyGeneration === generation) {
+          this.pendingIdentifies.delete(identity);
+        }
+      }
+    })();
+
+    this.pendingIdentifies.set(identity, pending);
+
+    return pending;
   }
 
   public async addMiddleware(middleware: MiddlewareFunction) {
@@ -165,9 +213,38 @@ class SegmentSingleton {
   }
 
   public reset() {
+    // Invalidate identifies still in flight so the next sign-in identifies afresh instead of reusing them.
+    this.identifyGeneration += 1;
+    this.pendingIdentifies.clear();
+
     if (this.analytics) {
       this.analytics.reset();
     }
+
+    writeSessionValue(LAST_IDENTIFY_STORAGE_KEY, null);
+  }
+}
+
+const LAST_IDENTIFY_STORAGE_KEY = "appsmith:segment:lastIdentify";
+
+// sessionStorage can be unavailable or throw (privacy modes, quota); identifying again is the safe fallback.
+function readSessionValue(key: string): string | null {
+  try {
+    return window.sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeSessionValue(key: string, value: string | null) {
+  try {
+    if (value === null) {
+      window.sessionStorage.removeItem(key);
+    } else {
+      window.sessionStorage.setItem(key, value);
+    }
+  } catch {
+    // Nothing to do: the next identify simply goes out again.
   }
 }
 
