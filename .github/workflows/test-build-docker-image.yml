@@ -365,6 +365,8 @@ jobs:
 
       - name: Generate info.json
         id: info_json
+        env:
+          APPSMITH_BUILD_BRANCH: ${{ github.ref_name }}
         run: |
           content="$(scripts/generate_info_json.sh)"
           echo "$content"

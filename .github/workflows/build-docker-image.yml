@@ -106,6 +106,8 @@ jobs:
 
       - name: Generate info.json
         id: info_json
+        env:
+          APPSMITH_BUILD_BRANCH: ${{ inputs.checkout-ref == '' && inputs.pr == 0 && (inputs.branch || github.ref_name) || '' }}
         run: |
           scripts/generate_info_json.sh
 
