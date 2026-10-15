@@ -333,6 +333,7 @@ function createApi(
     getGitProtectedBranches: jest.fn(async () => []),
     listGitBranches: jest.fn(async () => []),
     createGitBranch: jest.fn(async () => ({})),
+    checkoutGitBranch: jest.fn(async () => ({})),
     commitGitApplication: jest.fn(async () => ({})),
     listActions: jest.fn(),
     createAction: jest.fn(),
