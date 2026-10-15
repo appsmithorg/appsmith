@@ -17,6 +17,7 @@ import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.git.dto.CommitDTO;
 import com.appsmith.git.dto.GitUser;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.authentication.tokens.McpTokenAuthentication;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
@@ -71,6 +72,7 @@ import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.CollectionUtils;
@@ -489,13 +491,49 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, REF_TYPE));
         }
 
+        // getBaseAndBranchedArtifacts issues the lookup at assembly time; defer it so the MCP guard runs first.
         Mono<Tuple2<? extends Artifact, ? extends Artifact>> baseAndBranchedArtifactMono =
-                getBaseAndBranchedArtifacts(referenceArtifactId, artifactType);
+                Mono.defer(() -> getBaseAndBranchedArtifacts(referenceArtifactId, artifactType));
 
-        return baseAndBranchedArtifactMono.flatMap(artifactTuples -> {
-            Artifact baseArtifact = artifactTuples.getT1();
-            return checkoutReference(baseArtifact, gitRefDTO, addFileLock, gitType);
-        });
+        return rejectRemoteOrTagCheckoutForMcpPrincipal(gitRefDTO)
+                .then(baseAndBranchedArtifactMono)
+                .flatMap(artifactTuples -> {
+                    Artifact baseArtifact = artifactTuples.getT1();
+                    return checkoutReference(baseArtifact, gitRefDTO, addFileLock, gitType);
+                });
+    }
+
+    /**
+     * {@code McpAllowlistWebFilter} permits routes by method and path only, so this method enforces its own rule for an
+     * MCP-token principal: an {@code origin/}-prefixed ref name (a remote fetch that creates a new branched artifact)
+     * and a tag ref are refused with 403. The check runs before the artifact lookup in this service, so the refusal
+     * does not reveal whether the id exists. It applies only when the subscriber's security context holds an MCP-token
+     * principal; a session user, or a chain with no security context, passes.
+     *
+     * <p>The two shapes are exactly the ones the 4-arg {@code checkoutReference} dispatches away from the local-branch
+     * path ({@code RefType.tag} to {@code checkoutTag}, an {@code ORIGIN} prefix to {@code checkoutRemoteReference}).
+     * A new remote dispatch there needs a matching clause here.
+     */
+    private Mono<Void> rejectRemoteOrTagCheckoutForMcpPrincipal(GitRefDTO gitRefDTO) {
+        String refusedShape;
+        if (RefType.tag.equals(gitRefDTO.getRefType())) {
+            refusedShape = "tag";
+        } else if (gitRefDTO.getRefName().startsWith(ORIGIN)) {
+            refusedShape = "remote branch";
+        } else {
+            return Mono.empty();
+        }
+
+        return ReactiveSecurityContextHolder.getContext()
+                .map(securityContext -> McpTokenAuthentication.isMcpPrincipal(securityContext.getAuthentication()))
+                .defaultIfEmpty(FALSE)
+                .flatMap(isMcpPrincipal -> {
+                    if (isMcpPrincipal) {
+                        log.warn("MCP principal denied checkout: {} refs are not allowed", refusedShape);
+                        return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+                    }
+                    return Mono.empty();
+                });
     }
 
     protected Mono<? extends Artifact> checkoutReference(
