@@ -2,21 +2,12 @@ package com.appsmith.server.configurations;
 
 import com.segment.analytics.Analytics;
 import com.segment.analytics.Log;
-import com.segment.analytics.messages.TrackMessage;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.function.Consumer;
 
 @Slf4j
 @Configuration
@@ -47,29 +38,7 @@ public class SegmentConfig {
             return null;
         }
 
-        final LogProcessor logProcessor = new LogProcessor();
-
-        Analytics analyticsOnAnalytics =
-                Analytics.builder(analyticsWriteKey).log(logProcessor).build();
-
-        // We use a different analytics instance for sending events about the analytics system itself so we don't end up
-        // in a recursive state.
-        final LogProcessor logProcessorWithErrorHandler = new LogProcessor();
-        final Analytics analytics = Analytics.builder(analyticsWriteKey)
-                .log(logProcessorWithErrorHandler)
-                .build();
-        logProcessorWithErrorHandler.onError(logData -> {
-            final Throwable error = logData.getError();
-            analyticsOnAnalytics.enqueue(TrackMessage.builder("segment_error")
-                    .userId("segmentError")
-                    .properties(Map.of(
-                            "message", logData.getMessage(),
-                            "error", error == null ? "" : error.getMessage(),
-                            "args", ObjectUtils.defaultIfNull(logData.getArgs(), Collections.emptyList()),
-                            "stackTrace", ExceptionUtils.getStackTrace(error))));
-        });
-
-        return analytics;
+        return Analytics.builder(analyticsWriteKey).log(new LogProcessor()).build();
     }
 
     public String getCeKey() {
@@ -77,8 +46,6 @@ public class SegmentConfig {
     }
 
     private static class LogProcessor implements Log {
-        private Consumer<LogData> errorHandler = null;
-
         @Override
         public void print(Level level, String format, Object... args) {
             print(level, null, format, args);
@@ -92,23 +59,8 @@ public class SegmentConfig {
             } else if (level == Level.DEBUG) {
                 log.debug(String.format(message, args), error);
             } else if (level == Level.ERROR) {
-                if (errorHandler != null) {
-                    errorHandler.accept(new LogData(error, format, args));
-                }
                 log.error(String.format(message, args), error);
             }
         }
-
-        public void onError(Consumer<LogData> handler) {
-            errorHandler = handler;
-        }
-    }
-
-    @Data
-    @RequiredArgsConstructor
-    private static class LogData {
-        final Throwable error;
-        final String message;
-        final Object[] args;
     }
 }
