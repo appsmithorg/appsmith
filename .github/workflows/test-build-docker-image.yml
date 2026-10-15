@@ -170,12 +170,15 @@ jobs:
 
       - name: Record the image under test
         env:
+          CI_TEST_RESULT: ${{ needs.ci-test.result }}
           PUSHED_IMAGE: ${{ needs.package-release.outputs.image }}
           GHCR_IMAGE: ghcr.io/${{ github.repository }}-citest:run-${{ github.run_id }}
         run: |
           {
             echo "## Image under test"
-            if [[ -n "$PUSHED_IMAGE" ]]; then
+            if [[ "$CI_TEST_RESULT" == "skipped" ]]; then
+              echo "Cypress did not run."
+            elif [[ -n "$PUSHED_IMAGE" ]]; then
               echo "Cypress tested the pushed image \`$PUSHED_IMAGE\`."
             else
               echo "Cypress tested the runner-built image \`$GHCR_IMAGE\`."
