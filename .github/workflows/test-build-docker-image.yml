@@ -113,9 +113,15 @@ jobs:
       pr: 0
 
   ci-test:
-    needs: [setup, build-docker-image]
-    # Only run if the build step is successful
-    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master')
+    needs: [setup, build-docker-image, package-release]
+    # On release, test the image package-release pushed, by digest. On other
+    # refs package-release is skipped and the test uses the runner-built image.
+    if: >-
+      !cancelled() &&
+      needs.setup.result == 'success' &&
+      needs.build-docker-image.result == 'success' &&
+      (needs.package-release.result == 'success' || needs.package-release.result == 'skipped') &&
+      ( github.event_name != 'push' || github.ref == 'refs/heads/master')
     name: ci-test
     uses: ./.github/workflows/ci-test-custom-script.yml
     secrets: inherit
@@ -124,6 +130,7 @@ jobs:
       tags: ${{needs.setup.outputs.tags}}
       matrix: ${{needs.setup.outputs.matrix}}
       ted_tag: ${{inputs.ted_tag}}
+      docker_image_name: ${{ needs.package-release.outputs.image }}
 
   server-unit-tests:
     name: server-unit-tests
@@ -146,7 +153,7 @@ jobs:
       pr: 0
 
   ci-test-result:
-    needs: [ci-test, client-unit-tests, server-unit-tests]
+    needs: [ci-test, client-unit-tests, server-unit-tests, package-release]
     if: "!cancelled() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'schedule' ||
@@ -160,6 +167,20 @@ jobs:
         shell: bash
     steps:
       - run: echo "All ci-test matrices completed"
+
+      - name: Record the image under test
+        env:
+          PUSHED_IMAGE: ${{ needs.package-release.outputs.image }}
+          GHCR_IMAGE: ghcr.io/${{ github.repository }}-citest:run-${{ github.run_id }}
+        run: |
+          {
+            echo "## Image under test"
+            if [[ -n "$PUSHED_IMAGE" ]]; then
+              echo "Cypress tested the pushed image \`$PUSHED_IMAGE\`."
+            else
+              echo "Cypress tested the runner-built image \`$GHCR_IMAGE\`."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
       # Deleting the existing dir's if any
       - name: Delete existing directories
@@ -308,6 +329,8 @@ jobs:
   package-release:
     needs: build-docker-image
     runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.pushed_image.outputs.image }}
     # Set permissions since we're using OIDC token authentication between Depot and GitHub
     permissions:
       contents: read
@@ -391,6 +414,7 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Build and push release image to Docker Hub
+        id: push
         if: success()
         uses: depot/build-push-action@v1
         with:
@@ -410,6 +434,18 @@ jobs:
             org.opencontainers.image.revision=${{ steps.info_json.outputs.commitSha }}
             org.opencontainers.image.source=${{ steps.info_json.outputs.repo }}
             org.opencontainers.image.version=${{ steps.info_json.outputs.version }}
+
+      - name: Record the pushed image digest
+        id: pushed_image
+        env:
+          REPOSITORY: ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: |
+          if [[ ! "$DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "::error::The release image push returned no valid digest: '$DIGEST'"
+            exit 1
+          fi
+          echo "image=$REPOSITORY@$DIGEST" | tee -a "$GITHUB_OUTPUT"
 
   package-master:
     needs: [ci-test, client-unit-tests, server-unit-tests]
