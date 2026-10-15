@@ -134,6 +134,8 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     handleColumnFreeze,
     handleReorderColumn,
     handleResizeColumn,
+    headerFontStyle,
+    headerFontWeight,
     headerRowColor,
     headerTextColor,
     height,
@@ -266,6 +268,8 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       handleColumnFreeze={handleColumnFreeze}
       handleReorderColumn={handleReorderColumn}
       handleResizeColumn={handleResizeColumn}
+      headerFontStyle={headerFontStyle}
+      headerFontWeight={headerFontWeight}
       headerRowColor={headerRowColor}
       headerTextColor={headerTextColor}
       height={height}
@@ -348,6 +352,8 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.borderWidth === next.borderWidth &&
     prev.borderColor === next.borderColor &&
     prev.accentColor === next.accentColor &&
+    prev.headerFontStyle === next.headerFontStyle &&
+    prev.headerFontWeight === next.headerFontWeight &&
     prev.headerRowColor === next.headerRowColor &&
     prev.headerTextColor === next.headerTextColor &&
     prev.oddRowColor === next.oddRowColor &&

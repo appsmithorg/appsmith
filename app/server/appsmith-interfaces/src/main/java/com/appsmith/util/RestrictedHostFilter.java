@@ -24,26 +24,34 @@ import java.util.Set;
  *     <li>{@link WebClientUtils} — request filter + Reactor Netty resolver covering REST,
  *     GraphQL, SaaS, and other WebClient-based plugins.</li>
  *     <li>The Elasticsearch plugin's Apache HttpAsyncClient resolver hook.</li>
- *     <li>The Redis plugin's {@code datasourceCreate} (connection-time enforcement; the
- *     plugin's {@code validateDatasource} intentionally does not enforce — see
+ *     <li>The Redis plugin's {@code datasourceCreate} (create-time pre-check) and its
+ *     {@code RestrictedHostJedisSocketFactory} (connect-time enforcement). The plugin's
+ *     {@code validateDatasource} intentionally does not enforce — see
  *     {@link com.appsmith.external.plugins.PluginExecutor#validateDatasource}, which
- *     documents that method as format-only).</li>
- *     <li>The SMTP test-email admin path in {@code EnvManagerCEImpl}.</li>
+ *     documents that method as format-only.</li>
+ *     <li>The SMTP datasource plugin's {@code datasourceCreate} (create-time pre-check) and its
+ *     {@code RestrictedHostSmtpSocketFactory} (connect-time enforcement on every Test and
+ *     Send), through {@link #isHostBlocked(String)} and
+ *     {@link #firstAllowedResolvedAddress(String, InetAddress[])}.</li>
+ *     <li>The SMTP test-email admin path in {@code EnvManagerCEImpl}, through
+ *     {@link #resolveIfAllowed(String)}.</li>
  * </ul>
  *
  * <p>Not applied to the JDBC plugins (Postgres, MySQL, MSSQL, Oracle, Redshift, Snowflake,
- * Databricks), Mongo, ArangoDB, or the SMTP runtime send path. Several of those support SSH
- * tunneling, where the user-entered host is resolved on the SSH server rather than in the
- * Java process — a literal/IP check here would false-positive any datasource tunneling to
- * loopback or an RFC1918 address on the far side of the tunnel. Closing those gaps needs
- * per-plugin design, not a drop-in of {@link #isHostBlocked(String)}.
+ * Databricks), Mongo, or ArangoDB. Several of those support SSH tunneling, where the
+ * user-entered host is resolved on the SSH server rather than in the Java process — a
+ * literal/IP check here would false-positive any datasource tunneling to loopback or an
+ * RFC1918 address on the far side of the tunnel. Closing those gaps needs per-plugin design,
+ * not a drop-in of {@link #isHostBlocked(String)}.
  *
- * <p>Two entry points for the two access patterns: {@link #isHostBlocked(String)} is
- * DNS-aware and intended for plugin connection paths that run on a scheduler tolerating
- * blocking I/O (e.g. Redis's {@code datasourceCreate}, wrapped in
+ * <p>Entry points by access pattern: {@link #isHostBlocked(String)} is DNS-aware and intended
+ * for plugin connection paths that run on a scheduler tolerating blocking I/O (e.g. the Redis
+ * and SMTP {@code datasourceCreate}, wrapped in
  * {@code Mono.fromCallable(...).subscribeOn(boundedElastic)}); {@link #isLiteralBlocked(String)}
  * is literal-only, for pre-resolver fast paths where the Netty/driver resolver runs DNS
- * separately, or for sync paths that can't afford a DNS round-trip.
+ * separately, or for sync paths that can't afford a DNS round-trip;
+ * {@link #firstAllowedResolvedAddress(String, InetAddress[])} is for connect-time socket
+ * factories that resolve the host exactly once and connect to the address it returns.
  */
 @Slf4j
 public final class RestrictedHostFilter {
@@ -65,8 +73,9 @@ public final class RestrictedHostFilter {
      * {@code @AfterAll} to restore the test-JVM-wide default.
      *
      * <p>When the filter is disabled, all of {@link #isHostBlocked(String)},
-     * {@link #isLiteralBlocked(String)}, {@link #isDisallowedAndFail(String, Promise)}, and
-     * {@link #resolveIfAllowed(String)} skip their checks. The address-class predicates
+     * {@link #isLiteralBlocked(String)}, {@link #isDisallowedAndFail(String, Promise)},
+     * {@link #resolveIfAllowed(String)}, and
+     * {@link #firstAllowedResolvedAddress(String, InetAddress[])} skip their checks. The address-class predicates
      * ({@link #isBlockedIpAddressClass(String)}, {@link #matchesBlockedAddressClass(InetAddress)})
      * still return facts about the address itself; callers that want to honor the kill-switch
      * should consult the high-level "is this allowed" methods instead.
@@ -392,16 +401,18 @@ public final class RestrictedHostFilter {
     }
 
     /**
-     * Resolves a hostname and validates that none of its addresses are disallowed for
-     * outbound connections from non-HTTP paths (e.g. SMTP via JavaMail). Checks against
-     * the cloud-metadata denylist, loopback, link-local, any-local, multicast, and IPv6
-     * Unique Local Addresses (fc00::/7). Returns the first validated resolved address so
-     * callers can connect to it directly, preventing DNS-rebinding TOCTOU bypasses.
+     * Resolves a hostname once and validates it with the shared connect-time policy
+     * ({@link #firstAllowedResolvedAddress(String, InetAddress[])}): the cloud-metadata denylist,
+     * loopback, link-local, any-local, multicast, IPv6 Unique Local Addresses (fc00::/7), the
+     * configured internal Redis hosts, and the instance's own host. Returns the first validated
+     * resolved address so callers can connect to it directly, preventing DNS-rebinding TOCTOU
+     * bypasses. Used by the SMTP test-email admin path in {@code EnvManagerCEImpl}.
      *
      * <p>RFC 1918 site-local ranges (10/8, 172.16/12, 192.168/16) are intentionally
      * allowed because legitimate SMTP servers frequently reside on private networks.
      *
-     * @return the resolved {@link InetAddress} if the host is allowed, or empty if blocked
+     * @return the resolved {@link InetAddress} if the host is allowed, or empty if blocked or
+     *     unresolvable
      */
     public static Optional<InetAddress> resolveIfAllowed(String host) {
         if (!StringUtils.hasText(host)) {
@@ -415,26 +426,7 @@ public final class RestrictedHostFilter {
             return Optional.empty();
         }
 
-        if (ssrfFilterDisabled || isExplicitlyAllowedForTesting(host)) {
-            // Operator has opted out (or this is a test-allowlisted host) — return the resolved
-            // address but skip the deny-set / address-class checks. The empty-on-unresolvable
-            // contract above still holds.
-            return Optional.of(resolved[0]);
-        }
-
-        final String canonicalHost = normalizeHostForComparisonQuietly(host);
-        if (DISALLOWED_HOSTS.contains(canonicalHost)) {
-            return Optional.empty();
-        }
-
-        for (InetAddress addr : resolved) {
-            if (DISALLOWED_HOSTS.contains(normalizeHostForComparisonQuietly(addr.getHostAddress()))
-                    || matchesBlockedAddressClass(addr)) {
-                return Optional.empty();
-            }
-        }
-
-        return Optional.of(resolved[0]);
+        return firstAllowedResolvedAddress(host, resolved);
     }
 
     private static boolean isExplicitlyAllowedForTesting(String host) {
@@ -458,12 +450,14 @@ public final class RestrictedHostFilter {
      * doesn't reject a legitimate but temporarily unreachable host. The driver's own
      * connection-time error will surface naturally in that case.
      *
-     * <p>Currently called from the Redis plugin's {@code datasourceCreate}, which is wrapped
+     * <p>Called from the Redis and SMTP plugins' {@code datasourceCreate}, which are wrapped
      * in {@code Mono.fromCallable(...).subscribeOn(boundedElastic)} so the blocking DNS call
      * is safe. The other deny-list-aware paths use sibling methods:
      * {@link #isLiteralBlocked(String)} for the WebClient request-filter fast path,
      * {@link #isDisallowedAndFail(String, Promise)} for the Netty / Apache HttpAsyncClient
-     * resolver hooks, and {@link #resolveIfAllowed(String)} for the SMTP test-email path.
+     * resolver hooks, {@link #firstAllowedResolvedAddress(String, InetAddress[])} for the Redis and
+     * SMTP connect-time socket factories, and {@link #resolveIfAllowed(String)} for the SMTP
+     * test-email path.
      */
     public static boolean isHostBlocked(String host) {
         if (!StringUtils.hasText(host) || ssrfFilterDisabled || isExplicitlyAllowedForTesting(host)) {
@@ -493,7 +487,7 @@ public final class RestrictedHostFilter {
      * Covers the static denylist (cloud-metadata literals, loopback), a non-routable IP-class
      * literal, a literal match against an internal Appsmith Redis hostname, and a literal match
      * against the Appsmith instance's own hostname. Extracted so {@link #isHostBlocked(String)}
-     * and {@link #firstAllowedRedisAddress(String, InetAddress[])} evaluate the deny list
+     * and {@link #firstAllowedResolvedAddress(String, InetAddress[])} evaluate the deny list
      * identically and cannot drift into an SSRF gap.
      */
     private static boolean isCanonicalHostBlocked(String canonicalHost) {
@@ -536,8 +530,8 @@ public final class RestrictedHostFilter {
      * Promise)}. Returns {@code true} when {@code canonicalHost} is a registered own hostname, or
      * equals one of the cached own IPs. Centralizing it here (alongside
      * {@link #isAnyResolvedAddressBlocked(InetAddress[])}, which applies the same own-IP overlap to
-     * the datasource-save and Redis paths) keeps the resolver paths from drifting back into an
-     * own-IP gap.
+     * the datasource-save and connect-time socket-factory paths) keeps the resolver paths from
+     * drifting back into an own-IP gap.
      *
      * <p>Pure set-membership — no DNS. The own IPs are resolved off this path (at startup /
      * {@link #registerOwnHost(String...)}) and cached in {@link #ownResolvedIps}, so this can run on
@@ -574,19 +568,21 @@ public final class RestrictedHostFilter {
     }
 
     /**
-     * Connection-time policy check for the Redis plugin's socket factory. Given a host and the
-     * addresses it has ALREADY been resolved to (by the caller, in a single DNS lookup), returns
-     * the first address that is safe to connect to, or empty if any resolved address is blocked —
+     * Connection-time policy check for a plugin socket factory. Given a host and the addresses it
+     * has ALREADY been resolved to (by the caller, in a single DNS lookup), returns the first
+     * address that is safe to connect to, or empty if the host or any resolved address is blocked —
      * static denylist (cloud-metadata literals), non-routable address class (loopback, any-local,
-     * link-local, multicast, IPv6 ULA), a literal match against an internal Appsmith Redis
-     * hostname, or overlap with the IPs an internal Redis hostname currently resolves to.
+     * link-local, multicast, IPv6 ULA), a literal match against an internal Appsmith Redis hostname
+     * or the instance's own hostname, or overlap with the IPs those hostnames currently resolve to.
      *
-     * <p>This is the half of the fix that closes the DNS-rebinding TOCTOU. {@link
-     * #isHostBlocked(String)} resolves at datasource-create time, but Jedis would resolve the
-     * hostname again when it opens the socket. {@code RestrictedHostJedisSocketFactory} (in the
-     * redisPlugin module) resolves exactly once at connect time and passes those addresses here,
-     * then connects directly to the returned {@link InetAddress} — so the check and the connect
-     * share one resolution and the driver never re-resolves the hostname.
+     * <p>This is the half of a plugin fix that closes the DNS-rebinding TOCTOU. {@link
+     * #isHostBlocked(String)} resolves at datasource-create time, but a driver would resolve the
+     * hostname again when it opens a socket. A connect-time socket factory
+     * ({@code RestrictedHostJedisSocketFactory} in the redisPlugin module,
+     * {@code RestrictedHostSmtpSocketFactory} in the smtpPlugin module) resolves exactly once at
+     * connect time and passes those addresses here, then connects directly to the returned
+     * {@link InetAddress} — so the check and the connect share one resolution and the driver never
+     * re-resolves the hostname.
      *
      * <p>The caller owns DNS resolution deliberately: passing addresses in (rather than resolving
      * here) lets the caller distinguish an unresolvable host (a genuine connection error) from a
@@ -594,7 +590,7 @@ public final class RestrictedHostFilter {
      * connected to. Honors the {@code APPSMITH_DISABLE_SSRF_FILTER} kill-switch and the test
      * allowlist, in which case the first resolved address is returned without policy checks.
      */
-    public static Optional<InetAddress> firstAllowedRedisAddress(String host, InetAddress[] resolvedAddresses) {
+    public static Optional<InetAddress> firstAllowedResolvedAddress(String host, InetAddress[] resolvedAddresses) {
         if (resolvedAddresses == null || resolvedAddresses.length == 0) {
             return Optional.empty();
         }
@@ -609,6 +605,14 @@ public final class RestrictedHostFilter {
         }
 
         return Optional.of(resolvedAddresses[0]);
+    }
+
+    /**
+     * Connection-time policy check for the Redis plugin's socket factory. Same contract as
+     * {@link #firstAllowedResolvedAddress(String, InetAddress[])}, which it delegates to.
+     */
+    public static Optional<InetAddress> firstAllowedRedisAddress(String host, InetAddress[] resolvedAddresses) {
+        return firstAllowedResolvedAddress(host, resolvedAddresses);
     }
 
     /**

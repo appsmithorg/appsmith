@@ -1555,6 +1555,86 @@ public class PostgresPluginTest {
                 .verifyComplete();
     }
 
+    /*
+     * The filter-bar shapes the MCP structured-query compiler emits (APP-16164): a list filter
+     * `CAST(col AS TEXT) = ANY(CAST(? AS TEXT[]))` bound to a multi-select's values, and an optional filter
+     * `(? = 1 OR col = ?)` whose integer guard is 1 while the control is empty. Rows 1-3 of `users` are the stable
+     * fixture (other tests add and remove higher ids), so each query is bounded to them.
+     */
+    private List<Integer> selectUserIds(String body, List<Param> params) {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(body);
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("preparedStatement", "true")));
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
+
+        ActionExecutionResult result = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(pool ->
+                        pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration))
+                .block();
+
+        assertNotNull(result);
+        assertTrue(result.getIsExecutionSuccess(), String.valueOf(result.getBody()));
+
+        List<Integer> ids = new ArrayList<>();
+        ((ArrayNode) result.getBody()).forEach(row -> ids.add(row.get("id").asInt()));
+        return ids;
+    }
+
+    private Param param(String key, String value, ClientDataType type) {
+        Param param = new Param(key, value);
+        param.setClientDataType(type);
+        return param;
+    }
+
+    @Test
+    public void testFilterBarListParameterMatchesIntegerColumnAsText() {
+        // A multi-select holds string option values; they must match an integer column through the text cast.
+        Param list = param("binding1", "[\"1\",\"2\"]", ClientDataType.ARRAY);
+        list.setDataTypesOfArrayElements(List.of(ClientDataType.STRING, ClientDataType.STRING));
+
+        List<Integer> ids = selectUserIds(
+                "SELECT id FROM public.\"users\" WHERE id <= 3 AND CAST(id AS TEXT) = ANY(CAST({{binding1}} AS TEXT[]))"
+                        + " ORDER BY id;",
+                List.of(list));
+
+        assertEquals(List.of(1, 2), ids);
+    }
+
+    @Test
+    public void testFilterBarNullListParameterMatchesNothing() {
+        // An empty selection is bound as null (an empty array would leave the parameter unset): no rows, no error.
+        List<Integer> ids = selectUserIds(
+                "SELECT id FROM public.\"users\" WHERE id <= 3 AND CAST(id AS TEXT) = ANY(CAST({{binding1}} AS TEXT[]))"
+                        + " ORDER BY id;",
+                List.of(param("binding1", null, ClientDataType.NULL)));
+
+        assertEquals(List.of(), ids);
+    }
+
+    @Test
+    public void testFilterBarEmptyGuardSkipsTheFilter() {
+        // Guard 1 (the control is empty) with the value bound as null: the filter is skipped and every row matches.
+        List<Integer> ids = selectUserIds(
+                "SELECT id FROM public.\"users\" WHERE id <= 3 AND ({{binding1}} = 1 OR id = {{binding2}}) ORDER BY id;",
+                List.of(param("binding1", "1", ClientDataType.NUMBER), param("binding2", null, ClientDataType.NULL)));
+
+        assertEquals(List.of(1, 2, 3), ids);
+    }
+
+    @Test
+    public void testFilterBarEmptyGuardOffAppliesTheFilter() {
+        // Guard 0 (the control has a value): the comparison applies.
+        List<Integer> ids = selectUserIds(
+                "SELECT id FROM public.\"users\" WHERE id <= 3 AND ({{binding1}} = 1 OR id = {{binding2}}) ORDER BY id;",
+                List.of(param("binding1", "0", ClientDataType.NUMBER), param("binding2", "2", ClientDataType.NUMBER)));
+
+        assertEquals(List.of(2), ids);
+    }
+
     @Test
     public void testTimestampPreparedStatement() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();

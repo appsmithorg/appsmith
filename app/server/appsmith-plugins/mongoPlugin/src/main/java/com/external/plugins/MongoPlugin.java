@@ -87,7 +87,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -168,10 +167,15 @@ public class MongoPlugin extends BasePlugin {
      * We use this regex to identify the $regex attribute and the respective argument provided:
      * e.g. {"code" : {$regex: value, $options: value}} / {"code" : {$regex: value}}
      * capturing the value group for regex.
-     * e.g {"code" : {$regex: 8777}}, this whole substring will be matched and 8777 is captured for further processing.
+     * e.g {"code" : {$regex: 8777}}, the substring "{$regex: 8777}" will be matched and " 8777" is captured for
+     * further processing.
+     * <p>
+     * The regex runs over the whole substituted query, which can be large and is controlled by the caller. Every
+     * quantifier is possessive so that a non-matching candidate fails without backtracking, and the match is anchored
+     * on the opening brace so that the matcher never rescans the query.
      */
     private static final String mongo$regexWithNumberIdentifier =
-            ".*\\{[\\s\\n]*\\$regex[\\s\\n]*:([\\s\\n]*(?:(?:\\\"[/]*)|(?:/[\\\"]*)|)[-]?[\\d]*\\.?[\\d]*(?:(?:[/]*\\\")|(?:[\\\"]*/)|)[\\s\\n]*)(?:,|\\})";
+            "\\{[\\s\\n]*+\\$regex[\\s\\n]*+:([\\s\\n]*+(?:(?:\\\"[/]*+)|(?:/[\\\"]*+)|)[-]?+[\\d]*+\\.?+[\\d]*+(?:(?:[/]*+\\\")|(?:[\\\"]*+/)|)[\\s\\n]*+)(?:,|\\})";
 
     /**
      * We use this regex to find usage of special Mongo data types like ObjectId(...) wrapped inside double quotes
@@ -182,13 +186,17 @@ public class MongoPlugin extends BasePlugin {
      * e.g. E will be replaced with ObjectId to find the occurrence of "ObjectId(...)" pattern.
      * <p>
      * Example: for "[\"ObjectId('xyz')\"]":
-     * o group 1 will match "ObjectId(...)"
-     * o group 2 will match ObjectId(...)
+     * o group 1 will match "ObjectId('xyz')"
+     * o group 2 will match ObjectId('xyz')
      * o group 3 will match 'xyz'
-     * o group 4 will match xyz
+     * <p>
+     * Group 3 is everything between the parentheses: a run of characters other than a parenthesis or a newline that
+     * contains at least one argument character (a word character, '-', ':', '.', ',' or whitespace). The value
+     * being matched is controlled by the caller, so every quantifier is possessive: a candidate that does not match
+     * fails without backtracking, and a scan never runs past the next special type occurrence.
      */
     private static final String MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE =
-            "(\\\"(E\\((.*?((\\w|-|:|\\.|,|\\s)+).*?)?\\))\\\")";
+            "(\\\"(E\\(([^()\\n\\w\\-:.,\\s]*+[\\w\\-:.,\\s][^()\\n]*+)\\))\\\")";
 
     private static final int DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX = 1;
 
@@ -615,51 +623,72 @@ public class MongoPlugin extends BasePlugin {
             // Iterating over MongoDB types and creating a regex for every one of them
             for (MongoSpecialDataTypes specialType : MongoSpecialDataTypes.values()) {
                 final String regex = MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE.replace("E", specialType.name());
+                final Matcher matcher = Pattern.compile(regex).matcher(query);
+                final StringBuilder updatedQuery = new StringBuilder(query.length());
 
-                Map<String, String> objectIdMap = new LinkedHashMap<>();
-
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(query);
                 while (matcher.find()) {
                     /*
-                     `If` branch will match when any special data type is found wrapped within double quotes e.g.
-                     "ObjectId('someId')":
+                     Each match is a special data type wrapped within double quotes e.g. "ObjectId('someId')":
                        o Group 1 = "ObjectId('someId')"
-                       o Group 2 = ObjectId(someId)
+                       o Group 2 = ObjectId('someId')
                        o Group 3 = 'someId'
-                       o Group 4 = someId
+                     The match is rewritten in place as ObjectId("someId"). Every match is handled exactly once, so the
+                     cost is linear in the length of the query and text outside a match is never touched.
                     */
-                    if (matcher.group(1) != null) {
-                        String objectIdWithQuotes = matcher.group(1);
-                        String objectIdWithoutQuotes = matcher.group(2);
-                        String argWithQuotes = matcher.group(3);
-                        String argWithoutQuotes = "";
+                    String argument = stripQuoteWrapper(matcher.group(3));
+                    if (argument.isEmpty()) {
+                        continue;
+                    }
+                    if (specialType.isQuotesRequiredAroundParameter()) {
                         try {
-                            argWithoutQuotes = matcher.group(4);
-                            if (specialType.isQuotesRequiredAroundParameter()) {
-                                log.debug(Thread.currentThread().getName()
-                                        + ": objectMapper writeValueAsString for Mongo plugin.");
-                                Stopwatch processStopwatch =
-                                        new Stopwatch("Mongo Plugin objectMapper writeValueAsString");
-                                argWithoutQuotes = objectMapper.writeValueAsString(argWithoutQuotes);
-                                processStopwatch.stopAndLogTimeInMillis();
-                            }
+                            argument = objectMapper.writeValueAsString(argument);
                         } catch (JsonProcessingException e) {
                             throw new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, argWithoutQuotes, e.getMessage());
+                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, argument, e.getMessage());
                         }
-                        objectIdMap.put(objectIdWithQuotes, objectIdWithoutQuotes);
-                        objectIdMap.put(argWithQuotes, argWithoutQuotes);
                     }
+                    matcher.appendReplacement(
+                            updatedQuery, Matcher.quoteReplacement(specialType.name() + "(" + argument + ")"));
                 }
-
-                for (Map.Entry<String, String> entry : objectIdMap.entrySet()) {
-                    String objectIdWithQuotes = (entry).getKey();
-                    String objectIdWithoutQuotes = (entry).getValue();
-                    query = query.replace(objectIdWithQuotes, objectIdWithoutQuotes);
-                }
+                matcher.appendTail(updatedQuery);
+                query = updatedQuery.toString();
             }
             return query;
+        }
+
+        /**
+         * Returns the argument of a special data type without the quote wrapper that the client may have put around
+         * it. The wrapper is a single or double quote, optionally preceded by backslashes, that opens and closes the
+         * argument in the same way: 'xyz', "xyz", \"xyz\" or \\"xyz\\" all return xyz. An argument without such a
+         * wrapper is returned trimmed and otherwise unchanged, so Timestamp(1234, 1) keeps its complete argument.
+         *
+         * @param argument - text between the parentheses of a special data type
+         * @return - the argument without its quote wrapper
+         */
+        private static String stripQuoteWrapper(String argument) {
+            final String trimmed = argument.trim();
+            int backslashes = 0;
+            while (backslashes < trimmed.length() && trimmed.charAt(backslashes) == '\\') {
+                backslashes++;
+            }
+            if (backslashes >= trimmed.length()) {
+                return trimmed;
+            }
+            final char quote = trimmed.charAt(backslashes);
+            if (quote != '\'' && quote != '"') {
+                return trimmed;
+            }
+            final int innerStart = backslashes + 1;
+            final int innerEnd = trimmed.length() - 1 - backslashes;
+            if (innerEnd < innerStart || trimmed.charAt(trimmed.length() - 1) != quote) {
+                return trimmed;
+            }
+            for (int i = innerEnd; i < trimmed.length() - 1; i++) {
+                if (trimmed.charAt(i) != '\\') {
+                    return trimmed;
+                }
+            }
+            return trimmed.substring(innerStart, innerEnd);
         }
 
         private String smartSubstituteBSON(

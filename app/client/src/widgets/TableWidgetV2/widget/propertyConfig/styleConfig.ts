@@ -1,4 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { headerFontWeightValidation } from "../../component/headerFontWeight";
 import { updateColumnStyles } from "../propertyUtils";
 
 export default [
@@ -188,6 +190,67 @@ export default [
         label: "Header text color",
         helpText: "Changes the text color of the header row",
         controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: "headerFontWeight",
+        label: "Header font weight",
+        helpText: "Sets the font weight of the column headers",
+        helperText:
+          "Enter a number from 1 to 1000. If the app font has no file for that weight, the browser uses the closest one it has. Invalid values use 700.",
+        placeholderText: "700",
+        controlType: "DROP_DOWN",
+        defaultValue: "700",
+        options: [
+          {
+            label: "Light",
+            value: "300",
+            subText: "300",
+          },
+          {
+            label: "Regular",
+            value: "400",
+            subText: "400",
+          },
+          {
+            label: "Bold",
+            value: "700",
+            subText: "700",
+          },
+        ],
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fnString: headerFontWeightValidation.toString(),
+            expected: {
+              type: "number (1 to 1000) | light | normal | regular | medium | semibold | semi-bold | bold",
+              example: "700",
+              autocompleteDataType: AutocompleteDataType.NUMBER,
+            },
+          },
+        },
+      },
+      {
+        propertyName: "headerFontStyle",
+        label: "Header emphasis",
+        helpText: "Italicizes or underlines the column headers",
+        controlType: "BUTTON_GROUP",
+        options: [
+          {
+            icon: "text-italic",
+            value: "ITALIC",
+          },
+          {
+            icon: "text-underline",
+            value: "UNDERLINE",
+          },
+        ],
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
