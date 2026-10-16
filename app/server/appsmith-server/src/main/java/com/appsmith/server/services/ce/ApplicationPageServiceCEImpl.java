@@ -590,7 +590,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         newPageService.archivePagesByApplicationId(application.getId(), pageDeletePermission)))
                 .then(themeService.archiveApplicationThemes(application))
                 .then(userDataService.removeApplicationFromAllFavorites(favoriteId))
-                .then(applicationService.archive(application));
+                .then(applicationService.archive(application))
+                .as(transactionalOperator::transactional);
     }
 
     protected Mono<Application> sendAppDeleteAnalytics(Application deletedApplication) {
