@@ -4,7 +4,10 @@ export const RESTORE_PATH = "/appsmith-stacks/data/restore";
 
 export const DUMP_FILE_NAME = "appsmith-data.archive";
 
-export const APPSMITHCTL_LOG_PATH = "/appsmith-stacks/logs/appsmithctl";
+// Follows APPSMITH_LOG_DIR like the rest of the container (see entrypoint.sh).
+export const APPSMITHCTL_LOG_PATH = `${
+  process.env.APPSMITH_LOG_DIR || "/appsmith-stacks/logs"
+}/appsmithctl`;
 
 export const LAST_ERROR_MAIL_TS =
   "/appsmith-stacks/data/backup/last-error-mail-ts";
