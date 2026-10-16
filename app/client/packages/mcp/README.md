@@ -443,3 +443,30 @@ segment outside `[a-z0-9-]`, a catch-all or regex variable, or anything touching
 Copy `.env.example` to `.env` and run the package standalone. See that file for the full set of variables. A
 reachable Redis is required (`APPSMITH_REDIS_URL`; the example points at the local Appsmith server's Redis on
 `127.0.0.1:6379`), because sessions always live there; the process refuses to start without it.
+
+### Optional Parallel Search client example
+
+`src/examples/parallel-search.ts` is a standalone example of using public source material alongside the authenticated
+Appsmith MCP tools. It searches with Parallel's anonymous Search MCP endpoint (free tier, no Parallel account or API
+key; anonymous searches use Fast mode), prompts you to choose a result, fetches that page, and sends the excerpt in
+an Appsmith `validate_app_spec` dry run. It does not create or publish an app.
+
+From `app/client`, install the client workspace dependencies as usual with `yarn install --immutable`. Start a local
+Appsmith instance with its MCP endpoint enabled and a user-scoped MCP token issued from **Profile → MCP tokens**.
+The standalone MCP server also needs the Redis configured by `APPSMITH_REDIS_URL`; see `.env.example`. The existing
+MCP feature gates and authentication requirements are unchanged.
+
+From `app/client/packages/mcp`, run:
+
+```sh
+yarn example:parallel-search "the research question"
+```
+
+Set `APPSMITH_MCP_TOKEN` in the current terminal to the user-scoped token before running. The example defaults to
+`http://127.0.0.1:8092/mcp`; set `APPSMITH_MCP_URL` to another MCP endpoint if needed. The token is sent only to
+Appsmith, never to Parallel. Do not put tokens in source files or commit them.
+
+The command compiles the TypeScript example to the ignored `dist/` directory and runs it. To verify the example
+without connecting to either server, run
+`yarn test:unit --runTestsByPath src/examples/parallel-search.test.ts` and `yarn check-types` from the package
+directory.
