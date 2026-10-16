@@ -3,7 +3,24 @@
 The workflow files in this directory are the source of truth for what runs and when.
 Each one is named for what it does, and its `on:` block states its triggers.
 
-This README covers only what you cannot infer from the YAML: how to trigger CI by hand.
+This README covers only what you cannot infer from the YAML: how to trigger CI by hand,
+and how builds get their version.
+
+## Build version
+
+`VERSION` at the repository root holds the version that the next release will carry,
+such as `2.6.0`. CE holds the source copy, and the sync carries it to EE.
+`scripts/build_version.sh` reads it for the server build and for `info.json`:
+
+- Builds from `release` and from `patch/*` branches stamp the plain version. Such a
+  build fails when a tag for that version is already published.
+- Every other build, including every PR build, stamps `<version>-SNAPSHOT`.
+- `github-release.yml` builds from the release tag and stamps the tag.
+
+After a release is published, merge a CE PR that sets `VERSION` to the next minor,
+such as `2.7.0`. Until that change reaches each repository, builds from `release` fail.
+For a patch release, cut a `patch/*` branch from the release tag and set `VERSION` to
+the patch version, such as `2.6.1`.
 
 ## Docker configuration and Caddy route tests
 
