@@ -76,7 +76,8 @@ class CustomJSLibServiceAuthorizationTest {
     /**
      * The not-found answer for a context the caller cannot read. The resource named in the message is the
      * one of the service the edition resolves the context type to: the application in CE for every context
-     * type, the application or the package in EE.
+     * type, the application or the package in EE. The package field name is spelled out because this test
+     * compiles in both editions.
      */
     private static void assertNoResourceFound(Throwable throwable, String contextId) {
         assertThat(throwable).isInstanceOf(AppsmithException.class);
@@ -85,7 +86,7 @@ class CustomJSLibServiceAuthorizationTest {
         assertThat(exception.getMessage())
                 .isIn(
                         AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, contextId),
-                        AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PACKAGE, contextId));
+                        AppsmithError.NO_RESOURCE_FOUND.getMessage("package", contextId));
     }
 
     private Application createPrivateAppWithJsLib() {
