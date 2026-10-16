@@ -3,6 +3,7 @@ package com.appsmith.util;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -10,6 +11,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.net.InetAddress;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -115,6 +117,38 @@ public class RestrictedHostFilterTest {
         Optional<InetAddress> result = RestrictedHostFilter.resolveIfAllowed("1.1.1.1");
         assertTrue(result.isPresent());
         assertEquals("1.1.1.1", result.get().getHostAddress());
+    }
+
+    @Test
+    @DisplayName("GHSA-72m2-f9xp-wg9h")
+    void should_rejectHost_when_resolveIfAllowedTargetsOwnInstanceIp() {
+        // Given: same address-level policy as the plugin connect paths — the instance's own IP is refused
+        // even though its address class (RFC 1918) is otherwise allowed.
+        RestrictedHostFilter.setOwnHostsForTesting("own-host.invalid");
+        RestrictedHostFilter.setOwnResolvedIpsForTesting("10.123.45.67");
+
+        // When
+        Optional<InetAddress> ownIp = RestrictedHostFilter.resolveIfAllowed("10.123.45.67");
+        Optional<InetAddress> otherPrivateIp = RestrictedHostFilter.resolveIfAllowed("10.0.0.9");
+
+        // Then
+        assertThat(ownIp).isEmpty();
+        assertThat(otherPrivateIp).isPresent();
+    }
+
+    @Test
+    @DisplayName("GHSA-72m2-f9xp-wg9h")
+    void should_rejectHost_when_resolveIfAllowedTargetsInternalRedisHost() {
+        // Given
+        RestrictedHostFilter.setInternalRedisHostsForTesting("10.0.0.9");
+
+        // When
+        Optional<InetAddress> redisIp = RestrictedHostFilter.resolveIfAllowed("10.0.0.9");
+        Optional<InetAddress> otherPrivateIp = RestrictedHostFilter.resolveIfAllowed("10.0.0.10");
+
+        // Then
+        assertThat(redisIp).isEmpty();
+        assertThat(otherPrivateIp).isPresent();
     }
 
     // ---------- isBlockedIpAddressClass: literal-only IP-class check ----------
@@ -664,6 +698,67 @@ public class RestrictedHostFilterTest {
         InetAddress otherAddr = InetAddress.getByName("10.0.0.9");
         assertTrue(RestrictedHostFilter.firstAllowedRedisAddress("redis-host", new InetAddress[] {otherAddr})
                 .isPresent());
+    }
+
+    @Test
+    void should_rejectAddressSet_when_anyResolvedAddressIsBlocked() throws Exception {
+        // Given: the connect-time policy is all-or-nothing, so a dual-stack or round-robin host cannot
+        // smuggle a blocked address past a check that only looked at the first record.
+        InetAddress allowed = InetAddress.getByName("10.0.0.9");
+        InetAddress loopback = InetAddress.getByName("127.0.0.1");
+
+        // When
+        Optional<InetAddress> mixedSet =
+                RestrictedHostFilter.firstAllowedResolvedAddress("mail-host", new InetAddress[] {allowed, loopback});
+        Optional<InetAddress> blockedHostname =
+                RestrictedHostFilter.firstAllowedResolvedAddress("169.254.169.254", new InetAddress[] {allowed});
+        Optional<InetAddress> nullSet = RestrictedHostFilter.firstAllowedResolvedAddress("mail-host", null);
+        Optional<InetAddress> emptySet =
+                RestrictedHostFilter.firstAllowedResolvedAddress("mail-host", new InetAddress[0]);
+
+        // Then
+        assertThat(mixedSet).isEmpty();
+        assertThat(blockedHostname).isEmpty();
+        assertThat(nullSet).isEmpty();
+        assertThat(emptySet).isEmpty();
+    }
+
+    @Test
+    void should_returnFirstAddress_when_allResolvedAddressesAreAllowed() throws Exception {
+        // Given
+        InetAddress first = InetAddress.getByName("10.0.0.9");
+        InetAddress second = InetAddress.getByName("192.168.1.9");
+
+        // When
+        Optional<InetAddress> result =
+                RestrictedHostFilter.firstAllowedResolvedAddress("mail-host", new InetAddress[] {first, second});
+        Optional<InetAddress> redisResult =
+                RestrictedHostFilter.firstAllowedRedisAddress("mail-host", new InetAddress[] {first, second});
+
+        // Then: the Redis-named entry point is the same policy.
+        assertThat(result).contains(first);
+        assertThat(redisResult).isEqualTo(result);
+    }
+
+    @Test
+    void should_bypassConnectTimePolicy_when_filterDisabledOrHostAllowListed() throws Exception {
+        // Given
+        InetAddress loopback = InetAddress.getByName("127.0.0.1");
+        InetAddress[] resolved = new InetAddress[] {loopback};
+        assertThat(RestrictedHostFilter.firstAllowedResolvedAddress("127.0.0.1", resolved))
+                .as("precondition: loopback is blocked with the filter on")
+                .isEmpty();
+
+        // When
+        RestrictedHostFilter.setAlwaysAllowedHostsForTesting("127.0.0.1");
+        Optional<InetAddress> allowListed = RestrictedHostFilter.firstAllowedResolvedAddress("127.0.0.1", resolved);
+        RestrictedHostFilter.clearAlwaysAllowedHostsForTesting();
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(true);
+        Optional<InetAddress> filterOff = RestrictedHostFilter.firstAllowedResolvedAddress("127.0.0.1", resolved);
+
+        // Then
+        assertThat(allowListed).contains(loopback);
+        assertThat(filterOff).contains(loopback);
     }
 
     @Test

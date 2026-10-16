@@ -20,6 +20,7 @@ import RestartBanner from "./RestartBanner";
 import SaveAdminSettings from "./SaveSettings";
 import { DisconnectService } from "./DisconnectService";
 import AdminConfig from "ee/pages/AdminSettings/config";
+import { objectKeys } from "@appsmith/utils";
 import type { Setting } from "ee/pages/AdminSettings/config/types";
 import { SettingTypes } from "ee/pages/AdminSettings/config/types";
 import {
@@ -70,6 +71,38 @@ function getSettingDetail(category: string, subCategory: string) {
 function getSettingsConfig(category: string, subCategory?: string) {
   return AdminConfig.get(subCategory ?? category);
 }
+
+/**
+ * Checks the settings shown on the current page. The form holds the stored settings of every page. A stored value on
+ * another page could otherwise disable Save here, and its error would never show, because that field is not rendered.
+ */
+export const validate = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  values: Record<string, any>,
+  props?: { match?: { params?: { category?: string; selected?: string } } },
+) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const errors: any = {};
+  const params = props?.match?.params;
+  const pageCategory = params?.selected ?? params?.category;
+
+  _.filter(values, (value, name) => {
+    const category = AdminConfig.settingsMap[name]?.category;
+
+    // Same rule as getSettingsConfig, which hides every setting whose category is not the page's.
+    if (pageCategory && category && category !== pageCategory) return;
+
+    const err_message = AdminConfig.validate(name, value);
+
+    if (err_message) {
+      errors[name] = err_message;
+    }
+  });
+
+  return errors;
+};
 
 export function SettingsForm(
   props: InjectedFormProps & RouteComponentProps & FormProps,
@@ -232,6 +265,16 @@ export function SettingsForm(
       }
     });
     props.initialize(props.settingsConfig);
+
+    // A stored value can fail a check that was added after it was saved. Such a value disables Save. Mark those fields
+    // touched so their errors show now. Otherwise Save is disabled with no reason on screen.
+    const invalidFields = objectKeys(
+      validate(props.settingsConfig, {
+        match: { params: { category, selected: subCategory } },
+      }) as Record<string, string>,
+    );
+
+    if (invalidFields.length) props.touch(...invalidFields);
   };
 
   useEffect(onClear, [subCategory]);
@@ -340,24 +383,6 @@ export function SettingsForm(
     </Wrapper>
   );
 }
-
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const validate = (values: Record<string, any>) => {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const errors: any = {};
-
-  _.filter(values, (value, name) => {
-    const err_message = AdminConfig.validate(name, value);
-
-    if (err_message) {
-      errors[name] = err_message;
-    }
-  });
-
-  return errors;
-};
 
 const selector = formValueSelector(SETTINGS_FORM_NAME);
 

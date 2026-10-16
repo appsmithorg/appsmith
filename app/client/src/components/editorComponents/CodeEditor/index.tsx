@@ -1778,6 +1778,7 @@ class CodeEditor extends Component<Props, State> {
                     editorId: getEditorIdentifier(this.props),
                     entityName: entityInformation?.entityName,
                     entityId: entityInformation?.entityId,
+                    entityType: entityInformation?.entityType,
                     propertyPath: entityInformation?.propertyPath,
                   });
                 } catch (error) {

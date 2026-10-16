@@ -21,6 +21,7 @@ import { useGitModEnabled } from "pages/Editor/gitSync/hooks/modHooks";
 import { AIAgentSupportTrigger } from "ee/components/BottomBar/AIAgentSupportTrigger";
 import { RunHistoryTrigger } from "ee/pages/WorkflowIDE/layouts/components/BottomBar/WorkflowRunHistory/RunHistoryTrigger";
 import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
+import { getAppsmithConfigs } from "ee/configs";
 
 function GitActions() {
   const isGitModEnabled = useGitModEnabled();
@@ -37,6 +38,7 @@ export default function BottomBar() {
   const isPreviewMode = useSelector(previewModeSelector);
   const isGitEnabled = !isAnvilEnabled && !isPreviewMode;
   const isAiAgentApp = useSelector(getIsAiAgentApp);
+  const { disableHelpIcon } = getAppsmithConfigs();
 
   const dispatch = useDispatch();
 
@@ -72,7 +74,7 @@ export default function BottomBar() {
           <AIAgentSupportTrigger />
           {isAiAgentApp && <RunHistoryTrigger />}
           <DebuggerTrigger />
-          <HelpButton />
+          {!disableHelpIcon && <HelpButton />}
         </Wrapper>
       )}
     </Container>
