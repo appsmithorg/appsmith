@@ -1,15 +1,5 @@
 package com.external.plugins;
 
-import com.amazonaws.services.lambda.AWSLambda;
-import com.amazonaws.services.lambda.model.AliasConfiguration;
-import com.amazonaws.services.lambda.model.FunctionConfiguration;
-import com.amazonaws.services.lambda.model.InvokeRequest;
-import com.amazonaws.services.lambda.model.InvokeResult;
-import com.amazonaws.services.lambda.model.ListAliasesRequest;
-import com.amazonaws.services.lambda.model.ListAliasesResult;
-import com.amazonaws.services.lambda.model.ListFunctionsResult;
-import com.amazonaws.services.lambda.model.ListVersionsByFunctionRequest;
-import com.amazonaws.services.lambda.model.ListVersionsByFunctionResult;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -26,8 +16,18 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
+import software.amazon.awssdk.core.SdkBytes;
+import software.amazon.awssdk.services.lambda.LambdaClient;
+import software.amazon.awssdk.services.lambda.model.AliasConfiguration;
+import software.amazon.awssdk.services.lambda.model.FunctionConfiguration;
+import software.amazon.awssdk.services.lambda.model.InvokeRequest;
+import software.amazon.awssdk.services.lambda.model.InvokeResponse;
+import software.amazon.awssdk.services.lambda.model.ListAliasesRequest;
+import software.amazon.awssdk.services.lambda.model.ListAliasesResponse;
+import software.amazon.awssdk.services.lambda.model.ListFunctionsResponse;
+import software.amazon.awssdk.services.lambda.model.ListVersionsByFunctionRequest;
+import software.amazon.awssdk.services.lambda.model.ListVersionsByFunctionResponse;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -88,9 +88,12 @@ public class AwsLambdaPluginTest {
         actionConfiguration.setFormData(configMap);
 
         // Mock the Lambda connection
-        AWSLambda mockLambda = mock(AWSLambda.class);
-        ListFunctionsResult mockFunctionsResult = new ListFunctionsResult();
-        mockFunctionsResult.setFunctions(List.of(new FunctionConfiguration().withFunctionName("test-aws-lambda")));
+        LambdaClient mockLambda = mock(LambdaClient.class);
+        ListFunctionsResponse mockFunctionsResult = ListFunctionsResponse.builder()
+                .functions(List.of(FunctionConfiguration.builder()
+                        .functionName("test-aws-lambda")
+                        .build()))
+                .build();
         when(mockLambda.listFunctions()).thenReturn(mockFunctionsResult);
 
         Mono<ActionExecutionResult> resultMono =
@@ -115,10 +118,11 @@ public class AwsLambdaPluginTest {
         actionConfiguration.setFormData(configMap);
 
         // Mock the Lambda connection
-        AWSLambda mockLambda = mock(AWSLambda.class);
-        InvokeResult mockResult = new InvokeResult();
-        mockResult.setPayload(ByteBuffer.wrap("Hello World".getBytes()));
-        when(mockLambda.invoke(any())).thenReturn(mockResult);
+        LambdaClient mockLambda = mock(LambdaClient.class);
+        InvokeResponse mockResult = InvokeResponse.builder()
+                .payload(SdkBytes.fromByteArray("Hello World".getBytes()))
+                .build();
+        when(mockLambda.invoke(any(InvokeRequest.class))).thenReturn(mockResult);
 
         Mono<ActionExecutionResult> resultMono =
                 pluginExecutor.execute(mockLambda, datasourceConfiguration, actionConfiguration);
@@ -198,7 +202,7 @@ public class AwsLambdaPluginTest {
     @Test
     public void testTrigger_missingRequestType() {
         // Test case: Missing request type
-        AWSLambda mockLambda = mock(AWSLambda.class);
+        LambdaClient mockLambda = mock(LambdaClient.class);
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         TriggerRequestDTO request = new TriggerRequestDTO();
 
@@ -219,12 +223,13 @@ public class AwsLambdaPluginTest {
         actionConfiguration.setFormData(configMap);
 
         // Mock the Lambda connection
-        AWSLambda mockLambda = mock(AWSLambda.class);
-        ListVersionsByFunctionResult mockVersionsResult = new ListVersionsByFunctionResult();
-        mockVersionsResult.setVersions(List.of(
-                new FunctionConfiguration().withVersion("$LATEST"),
-                new FunctionConfiguration().withVersion("1"),
-                new FunctionConfiguration().withVersion("2")));
+        LambdaClient mockLambda = mock(LambdaClient.class);
+        ListVersionsByFunctionResponse mockVersionsResult = ListVersionsByFunctionResponse.builder()
+                .versions(List.of(
+                        FunctionConfiguration.builder().version("$LATEST").build(),
+                        FunctionConfiguration.builder().version("1").build(),
+                        FunctionConfiguration.builder().version("2").build()))
+                .build();
         when(mockLambda.listVersionsByFunction(any(ListVersionsByFunctionRequest.class)))
                 .thenReturn(mockVersionsResult);
 
@@ -249,10 +254,12 @@ public class AwsLambdaPluginTest {
         actionConfiguration.setFormData(configMap);
 
         // Mock the Lambda connection
-        AWSLambda mockLambda = mock(AWSLambda.class);
-        ListAliasesResult mockAliasesResult = new ListAliasesResult();
-        mockAliasesResult.setAliases(
-                List.of(new AliasConfiguration().withName("PROD"), new AliasConfiguration().withName("STAGING")));
+        LambdaClient mockLambda = mock(LambdaClient.class);
+        ListAliasesResponse mockAliasesResult = ListAliasesResponse.builder()
+                .aliases(List.of(
+                        AliasConfiguration.builder().name("PROD").build(),
+                        AliasConfiguration.builder().name("STAGING").build()))
+                .build();
         when(mockLambda.listAliases(any(ListAliasesRequest.class))).thenReturn(mockAliasesResult);
 
         Mono<ActionExecutionResult> resultMono =
@@ -278,10 +285,11 @@ public class AwsLambdaPluginTest {
         actionConfiguration.setFormData(configMap);
 
         // Mock the Lambda connection
-        AWSLambda mockLambda = mock(AWSLambda.class);
-        InvokeResult mockResult = new InvokeResult();
-        mockResult.setPayload(ByteBuffer.wrap("Hello World from version 2".getBytes()));
-        when(mockLambda.invoke(any())).thenReturn(mockResult);
+        LambdaClient mockLambda = mock(LambdaClient.class);
+        InvokeResponse mockResult = InvokeResponse.builder()
+                .payload(SdkBytes.fromByteArray("Hello World from version 2".getBytes()))
+                .build();
+        when(mockLambda.invoke(any(InvokeRequest.class))).thenReturn(mockResult);
 
         // Capture the InvokeRequest to verify the qualifier is set correctly
         ArgumentCaptor<InvokeRequest> requestCaptor = ArgumentCaptor.forClass(InvokeRequest.class);
@@ -298,8 +306,8 @@ public class AwsLambdaPluginTest {
         // Verify that the InvokeRequest was called with the correct qualifier
         verify(mockLambda).invoke(requestCaptor.capture());
         InvokeRequest capturedRequest = requestCaptor.getValue();
-        assertEquals("test-aws-lambda", capturedRequest.getFunctionName());
-        assertEquals("2", capturedRequest.getQualifier());
+        assertEquals("test-aws-lambda", capturedRequest.functionName());
+        assertEquals("2", capturedRequest.qualifier());
     }
 
     @Test
@@ -316,10 +324,11 @@ public class AwsLambdaPluginTest {
         actionConfiguration.setFormData(configMap);
 
         // Mock the Lambda connection
-        AWSLambda mockLambda = mock(AWSLambda.class);
-        InvokeResult mockResult = new InvokeResult();
-        mockResult.setPayload(ByteBuffer.wrap("Hello World from PROD alias".getBytes()));
-        when(mockLambda.invoke(any())).thenReturn(mockResult);
+        LambdaClient mockLambda = mock(LambdaClient.class);
+        InvokeResponse mockResult = InvokeResponse.builder()
+                .payload(SdkBytes.fromByteArray("Hello World from PROD alias".getBytes()))
+                .build();
+        when(mockLambda.invoke(any(InvokeRequest.class))).thenReturn(mockResult);
 
         // Capture the InvokeRequest to verify the qualifier is set correctly
         ArgumentCaptor<InvokeRequest> requestCaptor = ArgumentCaptor.forClass(InvokeRequest.class);
@@ -336,8 +345,8 @@ public class AwsLambdaPluginTest {
         // Verify that the InvokeRequest was called with the correct qualifier
         verify(mockLambda).invoke(requestCaptor.capture());
         InvokeRequest capturedRequest = requestCaptor.getValue();
-        assertEquals("test-aws-lambda", capturedRequest.getFunctionName());
-        assertEquals("PROD", capturedRequest.getQualifier());
+        assertEquals("test-aws-lambda", capturedRequest.functionName());
+        assertEquals("PROD", capturedRequest.qualifier());
     }
 
     @Test
@@ -355,10 +364,11 @@ public class AwsLambdaPluginTest {
         actionConfiguration.setFormData(configMap);
 
         // Mock the Lambda connection
-        AWSLambda mockLambda = mock(AWSLambda.class);
-        InvokeResult mockResult = new InvokeResult();
-        mockResult.setPayload(ByteBuffer.wrap("Hello World from PROD alias (alias takes precedence)".getBytes()));
-        when(mockLambda.invoke(any())).thenReturn(mockResult);
+        LambdaClient mockLambda = mock(LambdaClient.class);
+        InvokeResponse mockResult = InvokeResponse.builder()
+                .payload(SdkBytes.fromByteArray("Hello World from PROD alias (alias takes precedence)".getBytes()))
+                .build();
+        when(mockLambda.invoke(any(InvokeRequest.class))).thenReturn(mockResult);
 
         // Capture the InvokeRequest to verify the qualifier is set correctly
         ArgumentCaptor<InvokeRequest> requestCaptor = ArgumentCaptor.forClass(InvokeRequest.class);
@@ -377,8 +387,8 @@ public class AwsLambdaPluginTest {
         // Verify that the InvokeRequest was called with the alias (not version) as qualifier
         verify(mockLambda).invoke(requestCaptor.capture());
         InvokeRequest capturedRequest = requestCaptor.getValue();
-        assertEquals("test-aws-lambda", capturedRequest.getFunctionName());
-        assertEquals("PROD", capturedRequest.getQualifier()); // Should be alias, not version "2"
+        assertEquals("test-aws-lambda", capturedRequest.functionName());
+        assertEquals("PROD", capturedRequest.qualifier()); // Should be alias, not version "2"
     }
 
     @Test
@@ -395,10 +405,11 @@ public class AwsLambdaPluginTest {
         actionConfiguration.setFormData(configMap);
 
         // Mock the Lambda connection
-        AWSLambda mockLambda = mock(AWSLambda.class);
-        InvokeResult mockResult = new InvokeResult();
-        mockResult.setPayload(ByteBuffer.wrap("Hello World from $LATEST".getBytes()));
-        when(mockLambda.invoke(any())).thenReturn(mockResult);
+        LambdaClient mockLambda = mock(LambdaClient.class);
+        InvokeResponse mockResult = InvokeResponse.builder()
+                .payload(SdkBytes.fromByteArray("Hello World from $LATEST".getBytes()))
+                .build();
+        when(mockLambda.invoke(any(InvokeRequest.class))).thenReturn(mockResult);
 
         // Capture the InvokeRequest to verify no qualifier is set (defaults to $LATEST)
         ArgumentCaptor<InvokeRequest> requestCaptor = ArgumentCaptor.forClass(InvokeRequest.class);
@@ -415,20 +426,25 @@ public class AwsLambdaPluginTest {
         // Verify that the InvokeRequest was called without a qualifier (defaults to $LATEST)
         verify(mockLambda).invoke(requestCaptor.capture());
         InvokeRequest capturedRequest = requestCaptor.getValue();
-        assertEquals("test-aws-lambda", capturedRequest.getFunctionName());
+        assertEquals("test-aws-lambda", capturedRequest.functionName());
         // When no qualifier is set, it should be null (AWS defaults to $LATEST)
-        assertEquals(null, capturedRequest.getQualifier());
+        assertEquals(null, capturedRequest.qualifier());
     }
 
     @Test
     public void testTriggerFunctionNames() {
-        AWSLambda mockLambda = mock(AWSLambda.class);
+        LambdaClient mockLambda = mock(LambdaClient.class);
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
-        ListFunctionsResult mockFunctionsResult = new ListFunctionsResult();
-        mockFunctionsResult.setFunctions(List.of(
-                new FunctionConfiguration().withFunctionName("function1"),
-                new FunctionConfiguration().withFunctionName("function2")));
+        ListFunctionsResponse mockFunctionsResult = ListFunctionsResponse.builder()
+                .functions(List.of(
+                        FunctionConfiguration.builder()
+                                .functionName("function1")
+                                .build(),
+                        FunctionConfiguration.builder()
+                                .functionName("function2")
+                                .build()))
+                .build();
         when(mockLambda.listFunctions()).thenReturn(mockFunctionsResult);
 
         TriggerRequestDTO request = new TriggerRequestDTO();
@@ -445,14 +461,15 @@ public class AwsLambdaPluginTest {
 
     @Test
     public void testTriggerFunctionVersions() {
-        AWSLambda mockLambda = mock(AWSLambda.class);
+        LambdaClient mockLambda = mock(LambdaClient.class);
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
-        ListVersionsByFunctionResult mockVersionsResult = new ListVersionsByFunctionResult();
-        mockVersionsResult.setVersions(List.of(
-                new FunctionConfiguration().withVersion("$LATEST"),
-                new FunctionConfiguration().withVersion("1"),
-                new FunctionConfiguration().withVersion("2")));
+        ListVersionsByFunctionResponse mockVersionsResult = ListVersionsByFunctionResponse.builder()
+                .versions(List.of(
+                        FunctionConfiguration.builder().version("$LATEST").build(),
+                        FunctionConfiguration.builder().version("1").build(),
+                        FunctionConfiguration.builder().version("2").build()))
+                .build();
         when(mockLambda.listVersionsByFunction(any(ListVersionsByFunctionRequest.class)))
                 .thenReturn(mockVersionsResult);
 
@@ -473,12 +490,14 @@ public class AwsLambdaPluginTest {
 
     @Test
     public void testTriggerFunctionAliases() {
-        AWSLambda mockLambda = mock(AWSLambda.class);
+        LambdaClient mockLambda = mock(LambdaClient.class);
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
-        ListAliasesResult mockAliasesResult = new ListAliasesResult();
-        mockAliasesResult.setAliases(
-                List.of(new AliasConfiguration().withName("PROD"), new AliasConfiguration().withName("STAGING")));
+        ListAliasesResponse mockAliasesResult = ListAliasesResponse.builder()
+                .aliases(List.of(
+                        AliasConfiguration.builder().name("PROD").build(),
+                        AliasConfiguration.builder().name("STAGING").build()))
+                .build();
         when(mockLambda.listAliases(any(ListAliasesRequest.class))).thenReturn(mockAliasesResult);
 
         TriggerRequestDTO request = new TriggerRequestDTO();
@@ -498,7 +517,7 @@ public class AwsLambdaPluginTest {
 
     @Test
     public void testTriggerUnsupportedRequestType() {
-        AWSLambda mockLambda = mock(AWSLambda.class);
+        LambdaClient mockLambda = mock(LambdaClient.class);
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         TriggerRequestDTO request = new TriggerRequestDTO();
         request.setRequestType("UNSUPPORTED_TYPE");
@@ -514,10 +533,13 @@ public class AwsLambdaPluginTest {
      */
     @Test
     public void trigger_doesNotRunOnTheSubscribingThread() {
-        AWSLambda mockLambda = mock(AWSLambda.class);
+        LambdaClient mockLambda = mock(LambdaClient.class);
         AtomicReference<String> sdkThread = new AtomicReference<>();
-        ListFunctionsResult functionsResult = new ListFunctionsResult();
-        functionsResult.setFunctions(List.of(new FunctionConfiguration().withFunctionName("function1")));
+        ListFunctionsResponse functionsResult = ListFunctionsResponse.builder()
+                .functions(List.of(FunctionConfiguration.builder()
+                        .functionName("function1")
+                        .build()))
+                .build();
         when(mockLambda.listFunctions()).thenAnswer(invocation -> {
             sdkThread.set(Thread.currentThread().getName());
             return functionsResult;
@@ -543,11 +565,11 @@ public class AwsLambdaPluginTest {
 
     @Test
     public void testDatasource_connection_doesNotRunOnTheSubscribingThread() {
-        AWSLambda mockLambda = mock(AWSLambda.class);
+        LambdaClient mockLambda = mock(LambdaClient.class);
         AtomicReference<String> sdkThread = new AtomicReference<>();
         when(mockLambda.listFunctions()).thenAnswer(invocation -> {
             sdkThread.set(Thread.currentThread().getName());
-            return new ListFunctionsResult();
+            return ListFunctionsResponse.builder().build();
         });
 
         Scheduler caller = Schedulers.newSingle("caller-event-loop");
