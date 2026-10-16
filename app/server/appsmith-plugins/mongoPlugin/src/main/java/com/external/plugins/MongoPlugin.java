@@ -31,6 +31,7 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.constants.MongoSpecialDataTypes;
 import com.external.plugins.datatypes.MongoSpecificDataTypes;
 import com.external.plugins.exceptions.MongoPluginError;
@@ -43,6 +44,7 @@ import com.mongodb.ConnectionString;
 import com.mongodb.DBRefCodecProvider;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCommandException;
+import com.mongodb.MongoExecutionTimeoutException;
 import com.mongodb.MongoSocketWriteException;
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.gridfs.codecs.GridFSFileCodecProvider;
@@ -63,7 +65,6 @@ import org.bson.codecs.MapCodecProvider;
 import org.bson.codecs.ValueCodecProvider;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.conversions.Bson;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.pf4j.Extension;
@@ -106,6 +107,7 @@ import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFo
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.isCancelEnabled;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINES;
 import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COUNT_QUERY;
@@ -237,11 +239,20 @@ public class MongoPlugin extends BasePlugin {
     public static class MongoPluginExecutor implements PluginExecutor<MongoClient>, SmartSubstitutionInterface {
         private final ObservationRegistry observationRegistry;
 
+        private final SharedConfig sharedConfig;
+
         public MongoPluginExecutor(ObservationRegistry observationRegistry) {
+            this(observationRegistry, null);
+        }
+
+        public MongoPluginExecutor(ObservationRegistry observationRegistry, SharedConfig sharedConfig) {
             this.observationRegistry = observationRegistry;
+            this.sharedConfig = sharedConfig;
         }
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
+
+        private static final String MAX_TIME_MS = "maxTimeMS";
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
@@ -342,7 +353,10 @@ public class MongoPlugin extends BasePlugin {
                 final Map<String, Object> formData = actionConfiguration.getFormData();
 
                 query = PluginUtils.getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE);
-                Bson command = Document.parse(query);
+                Document command = Document.parse(query);
+                if (isCancelEnabled(sharedConfig) && !command.containsKey(MAX_TIME_MS)) {
+                    command.put(MAX_TIME_MS, actionConfiguration.getTimeoutInMillisecond());
+                }
 
                 mongoOutputMono = Mono.from(database.runCommand(command));
                 requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, query, null, null, null));
@@ -361,6 +375,14 @@ public class MongoPlugin extends BasePlugin {
                             MongoTimeoutException.class,
                             error -> new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR, error.getMessage()))
+                    .onErrorMap(
+                            MongoExecutionTimeoutException.class,
+                            error -> new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
+                                    "Query",
+                                    actionConfiguration.getTimeoutInMillisecond(),
+                                    error.getMessage(),
+                                    String.valueOf(error.getCode())))
                     .onErrorMap(
                             MongoCommandException.class,
                             error -> new AppsmithPluginException(
