@@ -108,7 +108,6 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         uses: actions/cache@v4
         with:
           path: |
@@ -117,16 +116,15 @@ jobs:
 
       # Fetch prior run result
       - name: Get the previous run result
-        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
 
       # In case of prior failure run the job
-      - if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+      - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
       - name: Use Node.js
-        if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v4
         with:
           node-version-file: app/client/package.json
@@ -135,7 +133,7 @@ jobs:
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
       # Restoring the cache manually instead
       - name: Restore Yarn cache
-        if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: steps.run_result.outputs.run_result != 'success'
         uses: actions/cache@v4
         id: cache-dependencies
         with:
@@ -146,16 +144,16 @@ jobs:
 
       # Install all the dependencies
       - name: Install dependencies
-        if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --immutable
 
       # Type checking before starting the build
       - name: Run type check
-        if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: steps.run_result.outputs.run_result != 'success'
         run: yarn run check-types
 
       - name: Set the build environment based on the branch
-        if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: steps.run_result.outputs.run_result != 'success'
         id: vars
         run: |
           set +o pipefail
@@ -171,7 +169,6 @@ jobs:
       # Pylon: REACT_APP_* is required for CRA to embed values; secret name matches github-release.yml.
       # This is to ensure that we don't need to configure it in each installation.
       - name: Create the bundle
-        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
             export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
@@ -193,7 +190,7 @@ jobs:
       # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache
         uses: actions/cache/save@v4
-        if: steps.cache-dependencies.outputs.cache-hit != 'true' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
         with:
           path: |
             app/client/.yarn/cache
@@ -202,7 +199,6 @@ jobs:
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         uses: actions/cache@v4
         with:
           path: |
@@ -210,31 +206,8 @@ jobs:
           key: ${{ github.run_id }}-${{ github.job }}-client
 
       - name: Pack the client build directory
-        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
           tar -cvf ./build.tar -C build .
-
-      - name: Fetch client build from cache
-        if: steps.changed-files-specific.outputs.any_changed == 'false' && success()  && github.event_name != 'push' && github.event_name != 'workflow_dispatch'  && github.event_name != 'schedule'
-        env:
-          cachetoken: ${{ secrets.CACHETOKEN }}
-          reponame: ${{ github.event.repository.name }}
-          gituser: ${{ secrets.CACHE_GIT_USER }}
-          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
-        run: |
-          mkdir cacherepo
-          cd ./cacherepo
-          git lfs install
-          git config --global user.email "$gituseremail"
-          git config --global user.name "$gituser"
-          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
-          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
-          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
-          cd cibuildcache/$repodir/release/client
-          git lfs install
-          git lfs migrate import --everything --yes
-          git lfs pull ./build.tar
-          mv ./build.tar ../../../../../build.tar
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
@@ -243,33 +216,6 @@ jobs:
           name: client-build
           path: app/client/build.tar
           overwrite: true
-
-      - name: Put release build in cache
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
-        env:
-          cachetoken: ${{ secrets.CACHETOKEN }}
-          reponame: ${{ github.event.repository.name }}
-          gituser: ${{ secrets.CACHE_GIT_USER }}
-          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
-        # git lfs update --force in the script below overrides appsmith git hooks with git lfs hooks since appsmith hooks are not required during workflow runs
-        run: |
-          pwd
-          mkdir cacherepo
-          cd ./cacherepo
-          git config --global user.email "$gituseremail"
-          git config --global user.name "$gituser"
-          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
-          git lfs update --force
-          git lfs install
-          cd cibuildcache/
-          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
-          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
-          cd $repodir/release/client
-          cp ../../../../../build.tar ./
-          git lfs track "build.tar"
-          git add  build.tar
-          git commit --allow-empty -m "Update Latest build.tar"
-          git push
 
       # Set status = success
       - name: Save the status of the run
