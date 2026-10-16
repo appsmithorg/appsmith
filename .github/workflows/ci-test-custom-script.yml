@@ -3,6 +3,22 @@ name: Appsmith CI Test Workflow
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
+    inputs:
+      tags:
+        description: "These are the optional tags a developer can specify in order to run a subset of all the tests"
+        required: false
+        type: string
+        default: ""
+      docker_image_name:
+        description: Docker image name
+        required: false
+        type: string
+        default: ""
+      matrix:
+        description: "Matrix jobs"
+        required: false
+        type: string
+        default: "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]"
   workflow_call:
     inputs:
       pr:
@@ -31,6 +47,11 @@ on:
         default: latest
       checkout-ref:
         description: "Immutable commit SHA to checkout for an approved external PR"
+        required: false
+        type: string
+        default: ""
+      docker_image_name:
+        description: Docker image name
         required: false
         type: string
         default: ""
@@ -138,12 +159,23 @@ jobs:
       # The build job pushed the SUT image to GHCR tagged with this run's id;
       # pull it from there (layer-parallel, no single-blob cache bottleneck).
       - name: Load Docker image
+        if: inputs.docker_image_name == ''
         env:
           GHCR_IMAGE: ghcr.io/${{ github.repository }}-citest:run-${{ github.run_id }}
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
           docker pull "$GHCR_IMAGE"
           docker tag "$GHCR_IMAGE" cicontainer
+
+      # A caller that passes docker_image_name, such as the daily run on
+      # release, tests that published image instead of the runner-built one.
+      - name: Pull the image under test
+        if: inputs.docker_image_name != ''
+        env:
+          DOCKER_IMAGE_NAME: ${{ inputs.docker_image_name }}
+        run: |
+          docker pull "$DOCKER_IMAGE_NAME"
+          docker tag "$DOCKER_IMAGE_NAME" cicontainer
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
