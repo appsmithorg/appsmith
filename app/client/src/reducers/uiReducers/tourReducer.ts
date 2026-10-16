@@ -4,7 +4,6 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { TourType } from "entities/Tour";
 
 const initialState: TourReducerState = {
-  isTourInProgress: false,
   activeTourIndex: -1,
   activeTourType: undefined,
 };
@@ -33,7 +32,6 @@ const tourReducer = createReducer(initialState, {
 });
 
 export interface TourReducerState {
-  isTourInProgress: boolean;
   activeTourType?: TourType;
   activeTourIndex: number;
 }
