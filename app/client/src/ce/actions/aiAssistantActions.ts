@@ -89,8 +89,10 @@ export interface AIEditorContextPayload {
   currentValue?: string;
   editorId?: string;
   entityName?: string;
-  /** Unpublished action id — sent to server for schema injection */
+  /** Id of the entity the editor belongs to — an action id, widget id, etc. depending on entityType */
   entityId?: string;
+  /** ENTITY_TYPE of the entity; only an ACTION's id is sent to the server as entityId */
+  entityType?: string;
   propertyPath?: string;
 }
 
