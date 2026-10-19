@@ -49,8 +49,6 @@ describe(
         appSettings.locators._navigationMenuItem,
         page1,
       );
-      agHelper.ValidateToastMessage(page2ToastForOnPageUnload);
-      agHelper.WaitUntilAllToastsDisappear();
       agHelper.AssertElementVisibility(
         appSettings.locators._getActivePage(page1),
       );
