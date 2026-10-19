@@ -122,6 +122,7 @@ import {
   buildActionDto,
   compileQuery,
   querySpecSchema,
+  type SqlDialect,
 } from "./builder/query.js";
 import {
   buildMongoActionDto,
@@ -366,6 +367,13 @@ export const EXTENSION_GATES_TIMEOUT_MS = 5 * 1000;
 // The git commit API exports the whole application, commits, AND pushes — on large apps that comfortably exceeds
 // the default 30s outbound abort, so the commit call alone gets a longer budget [COUNCIL: architect].
 export const GIT_COMMIT_TIMEOUT_MS = 120 * 1000;
+// create-ref does the same work as a commit (exports the whole application, creates the ref, AND pushes it), so it
+// gets the same budget. A 30s budget aborts client-side on a large app while the server still finishes and pushes,
+// so the agent never receives the branched applicationId.
+export const GIT_CREATE_REF_TIMEOUT_MS = 120 * 1000;
+// checkout-ref is a local reset + checkout, but on in-memory-git deployments the @GitRoute aspect downloads the
+// whole repository from Redis and uploads it back around the call, so a large app needs the same budget here.
+export const GIT_CHECKOUT_REF_TIMEOUT_MS = 120 * 1000;
 export const HEADERS_TIMEOUT_MS = 10 * 1000;
 export const MAX_INBOUND_CONNECTIONS = 512;
 const MCP_TOKEN_PREFIX = "mcp_";
@@ -481,6 +489,17 @@ export interface CoreAppsmithApi {
   // (possibly uncommitted) state and PUSHES the new ref to the customer remote immediately (remote egress; can
   // trigger remote CI/webhooks). Returns the NEW branched application document.
   createGitBranch: (
+    referencedApplicationId: string,
+    branchName: string,
+  ) => Promise<unknown>;
+  // POST .../checkout-ref: the server's branch -> branched application lookup (GitRefDTO carries no application
+  // id, and no read-only route resolves one). For a LOCAL branch name it checks the file-system repo out to that
+  // branch under the git file lock and returns that branch's EXISTING application document (NO_RESOURCE_FOUND when
+  // the branch has no application). Local only for such a name: no remote contact, no push. The guard is the
+  // caller's: an "origin/"-prefixed name takes the server's remote-checkout path (fetch + new application), so
+  // callers must pass a validated local name. Used by create_branch to hand back the applicationId of an mcp/
+  // branch that already exists.
+  checkoutGitBranch: (
     referencedApplicationId: string,
     branchName: string,
   ) => Promise<unknown>;
@@ -806,6 +825,17 @@ export function createAppsmithApi(
           // RefType enum constants are lowercase on the server ("branch" | "tag").
           body: JSON.stringify({ refName: branchName, refType: "branch" }),
         },
+        // Longer outbound budget: create-ref exports + creates the ref + pushes, like a commit.
+        { timeoutMs: GIT_CREATE_REF_TIMEOUT_MS },
+      ),
+    checkoutGitBranch: async (referencedApplicationId, branchName) =>
+      request(
+        `/api/v1/git/applications/${encodeURIComponent(referencedApplicationId)}/checkout-ref`,
+        {
+          method: "POST",
+          body: JSON.stringify({ refName: branchName, refType: "branch" }),
+        },
+        { timeoutMs: GIT_CHECKOUT_REF_TIMEOUT_MS },
       ),
     commitGitApplication: async (branchedApplicationId, message) =>
       request(
@@ -4623,7 +4653,7 @@ export function buildMcpServer(
 
     registerTool(
       "create_branch",
-      "Create a NEW agent git branch on a git-connected application from its CURRENT (possibly uncommitted) state. The name MUST start with the reserved prefix 'mcp/' (remainder: 1-60 characters of A-Za-z0-9_-). IMPORTANT: this PUSHES the new ref to the customer's git remote immediately (deploy-key egress; remote CI/webhooks watching branch pushes will run). Appsmith models each branch as its OWN application and has no checkout: the result returns the NEW branched applicationId — ALL subsequent reads, edits, and events for this branch must target that id, passing branch: '<name>' (the human's editor view is untouched). At most 5 mcp/ branches per application; at the cap, reuse a branch you created earlier or ask the user to delete stale mcp/ branches in Appsmith's branch UI. If read_git_status shows uncommitted changes you did not make, surface that to the user BEFORE branching — they ride along onto the new branch. Governed.",
+      "Create a NEW agent git branch on a git-connected application from its CURRENT (possibly uncommitted) state. The name MUST start with the reserved prefix 'mcp/' (remainder: 1-60 characters of A-Za-z0-9_-). IMPORTANT: this PUSHES the new ref to the customer's git remote immediately (deploy-key egress; remote CI/webhooks watching branch pushes will run). Appsmith models each branch as its OWN application and has no checkout: the result returns the NEW branched applicationId — ALL subsequent reads, edits, and events for this branch must target that id, passing branch: '<name>' (the human's editor view is untouched). At most 5 mcp/ branches per application; at the cap, reuse a branch you created earlier or ask the user to delete stale mcp/ branches in Appsmith's branch UI. If the name already exists, the branch_exists error carries that branch's applicationId — continue on it (for example after a create_branch call that timed out) instead of creating another branch. If read_git_status shows uncommitted changes you did not make, surface that to the user BEFORE branching — they ride along onto the new branch. Governed.",
       {
         applicationId: idSchema,
         name: z.string().min(1).max(64),
@@ -4676,23 +4706,73 @@ export function buildMcpServer(
           });
         }
 
-        if (branchNames.includes(name)) {
+        // branch_exists recovery: a create-ref that aborted client-side (large app) still finishes and pushes
+        // server-side, so the agent's retry finds the branch already there but was never told its applicationId.
+        // Resolve that branch's EXISTING application through checkout-ref (local only, no push) and hand the id
+        // back, so the agent continues on it instead of minting -v2/-v3 refs on the customer remote toward the
+        // mcp/ cap. Best-effort: when the lookup fails the refusal stands without an id. Only the branch name, its
+        // applicationId, and a slug-derived editor URL cross — never the application document.
+        const branchExistsRefusal = async (): Promise<ToolResult> => {
+          let existing:
+            | ReturnType<typeof projectImportedApplication>
+            | undefined;
+
+          try {
+            existing = projectImportedApplication(
+              await api.checkoutGitBranch(applicationId, name),
+            );
+          } catch {
+            // Unresolvable (no application for the branch, git lock busy, network): refuse without an id.
+          }
+
+          if (existing?.applicationId === undefined) {
+            return result({
+              error: `branch "${name}" already exists on this application, but its applicationId could not be resolved: either another git operation holds the repository right now (retry shortly), or the branch has no Appsmith application on this instance (for example it exists only on the remote). If you created it earlier and still have its applicationId, continue on that; otherwise ask the user to check the branch out or delete it in Appsmith's branch UI, or pick a new name.`,
+              code: "branch_exists",
+              branchName: name,
+            });
+          }
+
+          const urls = applicationUrls(
+            requestOrigin,
+            existing.applicationSlug,
+            existing.pages,
+          );
+          const editorUrl =
+            urls.editorUrl !== undefined
+              ? `${urls.editorUrl}?branch=${encodeURIComponent(name)}`
+              : undefined;
+
           return result({
-            error: `branch "${name}" already exists on this application; pick a new name, or continue on that branch's applicationId if you created it earlier`,
+            error: `branch "${name}" already exists on this application as applicationId "${existing.applicationId}". If you created it earlier (for example a create_branch call that timed out), continue on that applicationId with branch: "${name}" instead of creating another branch; otherwise pick a new name.`,
             code: "branch_exists",
+            branchName: name,
+            applicationId: existing.applicationId,
+            ...(editorUrl !== undefined ? { editorUrl } : {}),
           });
+        };
+
+        if (branchNames.includes(name)) {
+          return branchExistsRefusal();
         }
 
         const mcpBranches = branchNames.filter((branchName) =>
           branchName.startsWith(MCP_BRANCH_PREFIX),
         );
 
-        if (mcpBranches.length >= MCP_BRANCH_CAP) {
-          return result({
-            error: `this application already has ${mcpBranches.length} mcp/ branches (the limit is ${MCP_BRANCH_CAP}). Reuse a branch you created earlier in this session, or ask the user to delete stale mcp/ branches in Appsmith's branch UI, then retry.`,
+        // Shared by the pre-check and the locked re-check so both refusals steer the same way: the listed names
+        // are the route to the ids (create_branch with an existing name returns its applicationId).
+        const branchLimitRefusal = (
+          existingMcpBranches: string[],
+        ): ToolResult =>
+          result({
+            error: `this application already has ${existingMcpBranches.length} mcp/ branches (the limit is ${MCP_BRANCH_CAP}). Reuse a branch you created earlier: call create_branch with one of the listed mcpBranches names to receive its applicationId, or ask the user to delete stale mcp/ branches in Appsmith's branch UI, then retry.`,
             code: "mcp_branch_limit",
-            mcpBranches,
+            mcpBranches: existingMcpBranches,
           });
+
+        if (mcpBranches.length >= MCP_BRANCH_CAP) {
+          return branchLimitRefusal(mcpBranches);
         }
 
         const revisionBefore = fingerprintBranchList(branchNames);
@@ -4727,12 +4807,7 @@ export function buildMcpServer(
               }
 
               if (freshNames.includes(name)) {
-                throw new BranchListRaceError(
-                  result({
-                    error: `branch "${name}" already exists on this application; pick a new name, or continue on that branch's applicationId if you created it earlier`,
-                    code: "branch_exists",
-                  }),
-                );
+                throw new BranchListRaceError(await branchExistsRefusal());
               }
 
               const freshMcpBranches = freshNames.filter((branchName) =>
@@ -4741,11 +4816,7 @@ export function buildMcpServer(
 
               if (freshMcpBranches.length >= MCP_BRANCH_CAP) {
                 throw new BranchListRaceError(
-                  result({
-                    error: `this application already has ${freshMcpBranches.length} mcp/ branches (the limit is ${MCP_BRANCH_CAP}). Reuse a branch you created earlier in this session, or ask the user to delete stale mcp/ branches in Appsmith's branch UI, then retry.`,
-                    code: "mcp_branch_limit",
-                    mcpBranches: freshMcpBranches,
-                  }),
+                  branchLimitRefusal(freshMcpBranches),
                 );
               }
 
@@ -4793,6 +4864,17 @@ export function buildMcpServer(
           });
         } catch (error) {
           if (error instanceof BranchListRaceError) return error.refusal;
+
+          // The outbound create-ref hit its budget. The server keeps going and usually finishes (creates AND
+          // pushes the ref), so the recovery is to retry the SAME name: branch_exists then returns the id.
+          // Without this mapping the agent sees only "This operation was aborted" and picks a new name.
+          if (error instanceof Error && error.name === "AbortError") {
+            return result({
+              error: `create_branch timed out after ${GIT_CREATE_REF_TIMEOUT_MS / 1000}s waiting for the server to create and push "${name}". The server is most likely still finishing: wait about 30 seconds, then retry create_branch with the SAME name. If the branch exists by then, the branch_exists error returns its applicationId — continue on that. Do not pick a new name.`,
+              code: "create_branch_timeout",
+              branchName: name,
+            });
+          }
 
           return governanceError(error) ?? compileError(error);
         }
@@ -5753,7 +5835,7 @@ export function buildMcpServer(
 
     registerTool(
       "create_query",
-      "Create a SQL query (SELECT/INSERT/UPDATE/DELETE) on a datasource from a STRUCTURED spec — no raw SQL, no raw bindings. Values become prepared-statement parameters. SELECT supports columns/filters/limit plus orderBy [{column,direction}], aggregation {fn:count|sum|avg,column?}, and groupBy. Widgets then reference it by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
+      "Create a SQL query (SELECT/INSERT/UPDATE/DELETE) on a datasource from a STRUCTURED spec — no raw SQL, no raw bindings. Values become prepared-statement parameters. SELECT supports columns/filters/limit plus orderBy [{column,direction}], aggregate {fn:count|sum|avg,column?}, and groupBy. A filter is { column, op: eq|ne|gt|gte|lt|lte|like|in|inList, value: { literal } | { widget, property }, skipWhenEmpty? }. 'in' binds ONE value; to match any of a multi-select's values use 'inList' with its selectedOptionValues (PostgreSQL datasources only; values are compared as text, so they must match the column's text form, and the column's index is not used). For a filter bar, set skipWhenEmpty: true on each widget-valued filter (SELECT only) so an empty control (null, '', []) means 'no filter' instead of matching nothing. Then re-run the query when a control changes: wire_event { run } on a select's onOptionChange or an input's onSubmit (a widget edited through a tool that exposes a change event such as onSelectionChange takes the same { run } there), or add an Apply button whose onClick runs it. 'like' adds no % wildcards. See the filter-bar recipe. Widgets then reference it by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
       {
         query: z.record(z.unknown()),
         branch: gitBranchParamSchema.optional(),
@@ -5817,7 +5899,15 @@ export function buildMcpServer(
         let body: string;
 
         try {
-          body = compileQuery(spec);
+          // inList binds a list as one SQL array parameter. Only PostgreSQL supports this, so the compiler refuses
+          // inList on any other datasource and on a datasource it cannot resolve.
+          body = compileQuery(spec, {
+            dialect:
+              datasourcePackageName(datasources, plugins, spec.datasourceId) ===
+              "postgres-plugin"
+                ? "postgres"
+                : "other",
+          });
         } catch (error) {
           return compileError(error);
         }
@@ -6480,7 +6570,7 @@ export function buildMcpServer(
 
       registerTool(
         "update_action",
-        "Update a stored SQL or REST action from a STRUCTURED spec (no raw SQL, bindings, credentials, base URLs, or headers). Pass a revision from get_action. Returns safe metadata, new revision, and change id.",
+        "Update a stored SQL or REST action from a STRUCTURED spec (no raw SQL, bindings, credentials, base URLs, or headers). A SQL spec uses create_query's vocabulary, including skipWhenEmpty and inList filters. Pass a revision from get_action. Returns safe metadata, new revision, and change id.",
         {
           spec: z.record(z.unknown()),
           branch: gitBranchParamSchema.optional(),
@@ -6490,10 +6580,62 @@ export function buildMcpServer(
 
           if (!parsed.success) return validationError(parsed.error.issues);
 
-          const request = buildUpdateActionDto(parsed.data);
-          const gate = await gitBranchGate(request.applicationId, branch);
+          const gate = await gitBranchGate(parsed.data.applicationId, branch);
 
           if (!gate.ok) return gate.result;
+
+          // A SQL update recompiles the query, so it gets the same datasource checks as create_query. The server
+          // confirms that the datasource is in the application's workspace. The datasource family decides whether
+          // inList is allowed.
+          const sqlQuery =
+            parsed.data.kind === "SQL" ? parsed.data.query : undefined;
+          let dialect: SqlDialect = "other";
+
+          if (sqlQuery !== undefined) {
+            const workspaceId = workspaceIdFromApplicationPages(
+              await api.getApplicationPages(parsed.data.applicationId),
+            );
+
+            if (typeof workspaceId !== "string") {
+              return result({
+                error: `could not resolve the workspace for application ${parsed.data.applicationId}`,
+              });
+            }
+
+            const datasources = await api.listDatasources(workspaceId);
+
+            if (!datasourceAccessible(datasources, sqlQuery.datasourceId)) {
+              return result({
+                error: `datasource ${sqlQuery.datasourceId} is not accessible in this application's workspace`,
+              });
+            }
+
+            const plugins = await api.listPlugins(workspaceId);
+
+            if (!isSqlDatasource(datasources, plugins, sqlQuery.datasourceId)) {
+              return result({
+                error:
+                  "a SQL update needs a MariaDB, Microsoft SQL Server, MySQL, Oracle, PostgreSQL, or Snowflake datasource",
+              });
+            }
+
+            dialect =
+              datasourcePackageName(
+                datasources,
+                plugins,
+                sqlQuery.datasourceId,
+              ) === "postgres-plugin"
+                ? "postgres"
+                : "other";
+          }
+
+          let request: ReturnType<typeof buildUpdateActionDto>;
+
+          try {
+            request = buildUpdateActionDto(parsed.data, { dialect });
+          } catch (error) {
+            return compileError(error);
+          }
 
           let current: unknown;
 

@@ -366,6 +366,7 @@ jobs:
           APPSMITH_AI_SERVER_MANAGED_HOSTING: ${{ secrets.APPSMITH_AI_SERVER_MANAGED_HOSTING }}
           APPSMITH_BETTERBUGS_API_KEY: ${{ secrets.APPSMITH_BETTERBUGS_API_KEY }}
           APPSMITH_PYLON_APP_ID: ${{ secrets.APPSMITH_PYLON_APP_ID }}
+          APPSMITH_SEGMENT_CE_KEY: ${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
         run: |
           echo "environment variables set to deploy the image" $IMAGE_HASH
           /bin/bash ./scripts/deploy_preview.sh

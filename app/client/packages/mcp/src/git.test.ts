@@ -2,14 +2,20 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import supertest from "supertest";
 import {
+  GIT_CHECKOUT_REF_TIMEOUT_MS,
+  GIT_CREATE_REF_TIMEOUT_MS,
   GIT_GATE_NOT_CONNECTED_TTL_MS,
   GitGateCache,
+  REQUEST_TIMEOUT_MS,
   createAppsmithApi,
   createMcpHttpServer,
   type AppsmithApi,
 } from "./app.js";
 import { fingerprintDsl } from "./builder/semantic.js";
-import { McpGovernanceCoordinator } from "./governance/coordinator.js";
+import {
+  DEFAULT_LOCK_TTL_MS,
+  McpGovernanceCoordinator,
+} from "./governance/coordinator.js";
 import type {
   McpChangeRecord,
   McpGovernanceStore,
@@ -41,6 +47,7 @@ function stubApi(): AppsmithApi {
     getGitProtectedBranches: jest.fn(async () => []),
     listGitBranches: jest.fn(async () => []),
     createGitBranch: jest.fn(async () => ({})),
+    checkoutGitBranch: jest.fn(async () => ({})),
     commitGitApplication: jest.fn(async () => ({})),
     listActions: jest.fn(),
     createAction: jest.fn(),
@@ -373,6 +380,115 @@ describe("Appsmith API git wrappers hit the verified controller paths", () => {
       refName: "mcp/fix-1",
       refType: "branch",
     });
+  });
+
+  it("resolves an existing branch's application through POST checkout-ref with the exact ref body", async () => {
+    const fetchFn = jest.fn<
+      Promise<Response>,
+      [RequestInfo | URL, RequestInit?]
+    >(async () =>
+      Response.json({
+        responseMeta: { success: true },
+        data: { id: "branchedApp1" },
+      }),
+    );
+    const api = createAppsmithApi(
+      "user-token",
+      API_BASE_URL,
+      fetchFn as unknown as typeof fetch,
+    );
+
+    const resolved = await api.checkoutGitBranch("app1", "mcp/fix-1");
+
+    expect(resolved).toEqual({ id: "branchedApp1" });
+    expect(fetchFn.mock.calls.map(([url]) => String(url))).toEqual([
+      `${API_BASE_URL}/api/v1/git/applications/app1/checkout-ref`,
+    ]);
+
+    const checkoutRef = fetchFn.mock.calls[0][1];
+
+    expect(checkoutRef?.method).toBe("POST");
+    expect(JSON.parse(String(checkoutRef?.body))).toEqual({
+      refName: "mcp/fix-1",
+      refType: "branch",
+    });
+  });
+
+  // A fetch that never resolves and only rejects on abort, so a budget test can observe WHEN the wrapper aborts.
+  function hangingFetch() {
+    const state = { aborted: false };
+    const fetchFn = jest.fn(
+      async (_url: RequestInfo | URL, init?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () => {
+            state.aborted = true;
+            reject(new Error("aborted"));
+          });
+        }),
+    );
+
+    return {
+      state,
+      api: createAppsmithApi(
+        "user-token",
+        API_BASE_URL,
+        fetchFn as unknown as typeof fetch,
+      ),
+    };
+  }
+
+  it("gives create-ref the longer 120s outbound budget, not the default 30s fetch abort", async () => {
+    jest.useFakeTimers();
+
+    try {
+      const { api, state } = hangingFetch();
+      const pending = api
+        .createGitBranch("app1", "mcp/slow-branch")
+        .catch((error: unknown) => error);
+
+      // Past the default budget: create-ref (export + ref + push on a large app) must still be in flight.
+      await jest.advanceTimersByTimeAsync(REQUEST_TIMEOUT_MS + 1_000);
+      expect(state.aborted).toBe(false);
+
+      // Past the create-ref budget: aborted.
+      await jest.advanceTimersByTimeAsync(GIT_CREATE_REF_TIMEOUT_MS);
+      expect(state.aborted).toBe(true);
+      await pending;
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it("gives checkout-ref the same longer budget (in-memory git moves the whole repo for a checkout)", async () => {
+    jest.useFakeTimers();
+
+    try {
+      const { api, state } = hangingFetch();
+      const pending = api
+        .checkoutGitBranch("app1", "mcp/slow-branch")
+        .catch((error: unknown) => error);
+
+      await jest.advanceTimersByTimeAsync(REQUEST_TIMEOUT_MS + 1_000);
+      expect(state.aborted).toBe(false);
+
+      await jest.advanceTimersByTimeAsync(GIT_CHECKOUT_REF_TIMEOUT_MS);
+      expect(state.aborted).toBe(true);
+      await pending;
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it("holds the governance lock longer than create_branch's slowest mutate (refs re-read + create-ref)", () => {
+    // The lock is held across mutate(), which re-reads the refs list (REQUEST_TIMEOUT_MS) and then either creates
+    // the ref (GIT_CREATE_REF_TIMEOUT_MS) or, on a duplicate race, resolves the existing branch
+    // (GIT_CHECKOUT_REF_TIMEOUT_MS). A TTL at or below either sum expires underneath a running mutation.
+    expect(DEFAULT_LOCK_TTL_MS).toBeGreaterThan(
+      REQUEST_TIMEOUT_MS + GIT_CREATE_REF_TIMEOUT_MS,
+    );
+    expect(DEFAULT_LOCK_TTL_MS).toBeGreaterThan(
+      REQUEST_TIMEOUT_MS + GIT_CHECKOUT_REF_TIMEOUT_MS,
+    );
   });
 });
 
@@ -1077,6 +1193,12 @@ describe("create_branch — governed agent branches (M7-T2)", () => {
         slug: "myapp",
         pages: [{ id: "pg1", slug: "home", isDefault: true }],
       })),
+      checkoutGitBranch: jest.fn(async () => ({
+        id: "existingBranchApp",
+        slug: "myapp",
+        pages: [{ id: "pg9", slug: "home", isDefault: true }],
+        gitApplicationMetadata: { gitAuth: { privateKey: "SECRET" } },
+      })),
       ...overrides,
     };
   }
@@ -1122,6 +1244,9 @@ describe("create_branch — governed agent branches (M7-T2)", () => {
 
       expect(body.code).toBe("branch_name_invalid");
     }
+
+    // The prefix check is the only thing keeping the server from checking out a human branch for the lookup.
+    expect(api.checkoutGitBranch).not.toHaveBeenCalled();
 
     // Over the 60-character remainder cap: rejected at the schema layer (65 > max 64), never our handler.
     const tooLong = await callTool(server, "create_branch", {
@@ -1194,6 +1319,8 @@ describe("create_branch — governed agent branches (M7-T2)", () => {
     expect(body.code).toBe("mcp_branch_limit");
     expect(String(body.error)).toContain("Reuse");
     expect(String(body.error)).toContain("branch UI");
+    // The listed names are the way to the ids: create_branch with one of them returns its applicationId.
+    expect(String(body.error)).toContain("applicationId");
     expect(body.mcpBranches).toEqual([
       "mcp/a",
       "mcp/b",
@@ -1276,6 +1403,118 @@ describe("create_branch — governed agent branches (M7-T2)", () => {
     expect(api.createGitBranch).not.toHaveBeenCalled();
   });
 
+  it("branch_exists carries the existing branch's applicationId so an aborted create can be recovered", async () => {
+    const api = gitApi({
+      listGitBranches: jest.fn(async () => [{ refName: "mcp/fix-1" }]),
+    });
+    const server = governedServer(api);
+    const { body, text } = await callTool(server, "create_branch", {
+      applicationId: "app1",
+      name: "mcp/fix-1",
+    });
+
+    expect(body.code).toBe("branch_exists");
+    expect(body.branchName).toBe("mcp/fix-1");
+    // The branch application is resolved by the exact (mcp/-prefixed) name the agent asked for.
+    expect(api.checkoutGitBranch).toHaveBeenCalledWith("app1", "mcp/fix-1");
+    expect(body.applicationId).toBe("existingBranchApp");
+    expect(String(body.error)).toContain("existingBranchApp");
+    expect(body.editorUrl).toBe(
+      `/app/myapp/home-pg9/edit?branch=${encodeURIComponent("mcp/fix-1")}`,
+    );
+    // Only the branch name and its applicationId cross: never the raw application document or git metadata.
+    expect(text).not.toContain("gitAuth");
+    expect(text).not.toContain("SECRET");
+    expect(api.createGitBranch).not.toHaveBeenCalled();
+  });
+
+  it("branch_exists still refuses, without an applicationId, when the branch application cannot be resolved", async () => {
+    const api = gitApi({
+      listGitBranches: jest.fn(async () => [{ refName: "mcp/fix-1" }]),
+      checkoutGitBranch: jest.fn(async () => {
+        throw new Error("network");
+      }),
+    });
+    const server = governedServer(api);
+    const { body } = await callTool(server, "create_branch", {
+      applicationId: "app1",
+      name: "mcp/fix-1",
+    });
+
+    expect(body.code).toBe("branch_exists");
+    expect(body.branchName).toBe("mcp/fix-1");
+    expect(body.applicationId).toBeUndefined();
+    expect(String(body.error)).toContain("already exists");
+    // The id-less case names its likely cause (no application on this instance, e.g. remote-only) and the way out.
+    expect(String(body.error)).toContain("no Appsmith application");
+    expect(String(body.error)).toContain("branch UI");
+    expect(api.createGitBranch).not.toHaveBeenCalled();
+  });
+
+  it("branch_exists stays id-less (and never guesses a URL) when the lookup returns a document without an id", async () => {
+    const api = gitApi({
+      listGitBranches: jest.fn(async () => [{ refName: "mcp/fix-1" }]),
+      checkoutGitBranch: jest.fn(async () => ({ slug: "myapp" })),
+    });
+    const server = governedServer(api);
+    const { body } = await callTool(server, "create_branch", {
+      applicationId: "app1",
+      name: "mcp/fix-1",
+    });
+
+    expect(body.code).toBe("branch_exists");
+    expect(body.applicationId).toBeUndefined();
+    expect(body.editorUrl).toBeUndefined();
+    expect(api.createGitBranch).not.toHaveBeenCalled();
+  });
+
+  it("maps an aborted create-ref to create_branch_timeout telling the agent to retry the SAME name", async () => {
+    const store = new MemoryGovernanceStore();
+    const api = gitApi({
+      createGitBranch: jest.fn(async () => {
+        const error = new Error("This operation was aborted");
+
+        error.name = "AbortError";
+        throw error;
+      }),
+    });
+    const server = governedServer(api, store);
+    const { body } = await callTool(server, "create_branch", {
+      applicationId: "app1",
+      name: "mcp/fix-1",
+    });
+
+    expect(body.code).toBe("create_branch_timeout");
+    expect(body.branchName).toBe("mcp/fix-1");
+    // The server may still finish and push: the way back to the id is the same name -> branch_exists.
+    expect(String(body.error)).toContain("SAME name");
+    expect(String(body.error)).toContain("branch_exists");
+    // No governed change was completed.
+    expect(store.changes).toHaveLength(0);
+  });
+
+  it("branch_exists from the mutate-time re-check (duplicate race) also carries the applicationId", async () => {
+    const listGitBranches = jest
+      .fn<Promise<unknown>, [string]>()
+      .mockResolvedValueOnce([{ refName: "master" }]) // pre-check: the name is free
+      .mockResolvedValue([{ refName: "master" }, { refName: "mcp/fix-1" }]); // locked re-read: a concurrent create landed it
+    const store = new MemoryGovernanceStore();
+    const api = gitApi({ listGitBranches });
+    const server = governedServer(api, store);
+    const { body } = await callTool(server, "create_branch", {
+      applicationId: "app1",
+      name: "mcp/fix-1",
+    });
+
+    expect(body.code).toBe("branch_exists");
+    expect(body.applicationId).toBe("existingBranchApp");
+    // Resolved once, from inside the locked re-check — the pre-check saw a free name and never looked it up.
+    expect(api.checkoutGitBranch).toHaveBeenCalledTimes(1);
+    expect(api.createGitBranch).not.toHaveBeenCalled();
+    // Nothing executed -> no audit record.
+    expect(store.changes).toHaveLength(0);
+  });
+
   it("creates the branch, returns the NEW branched applicationId + push honesty, and records the audit", async () => {
     const store = new MemoryGovernanceStore();
     const api = gitApi();
@@ -1286,6 +1525,8 @@ describe("create_branch — governed agent branches (M7-T2)", () => {
     });
 
     expect(api.createGitBranch).toHaveBeenCalledWith("app1", "mcp/fix-1");
+    // A checkout before create-ref would move the FS repo's HEAD mid-create; the lookup is for branch_exists only.
+    expect(api.checkoutGitBranch).not.toHaveBeenCalled();
     expect(body.created).toBe(true);
     expect(body.branchName).toBe("mcp/fix-1");
     // Branch-per-application: the result pivots the agent to the NEW id.
