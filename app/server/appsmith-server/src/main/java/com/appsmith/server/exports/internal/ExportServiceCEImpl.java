@@ -315,7 +315,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
                 });
     }
 
-        /**
+    /**
      * Applications record {@code application.exported} only for a JSON download. EE overrides this
      * so Git serialization, snapshots, and template publishing do not use that event. Other artifact
      * types keep the existing export event.
@@ -324,7 +324,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
         return true;
     }
 
-/**
+    /**
      * To send analytics event for import and export of application
      *
      * @param artifactBasedExportService : A exportService which is an implementation of contextBasedExportService
