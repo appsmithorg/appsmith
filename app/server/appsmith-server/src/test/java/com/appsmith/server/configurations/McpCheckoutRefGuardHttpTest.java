@@ -99,6 +99,7 @@ class McpCheckoutRefGuardHttpTest {
     private boolean mcpConfigReplaced;
     private McpConfig originalMcpConfig;
     private McpTokenResponseDTO mcpToken;
+    private String workspaceId;
     private String applicationId;
 
     @BeforeEach
@@ -131,8 +132,7 @@ class McpCheckoutRefGuardHttpTest {
 
         Workspace workspace = new Workspace();
         workspace.setName("McpCheckoutRefGuardHttpTest-" + UUID.randomUUID());
-        String workspaceId =
-                asApiUser(workspaceService.create(workspace)).block().getId();
+        workspaceId = asApiUser(workspaceService.create(workspace)).block().getId();
 
         Application application = new Application();
         application.setName("McpCheckoutRefGuardHttpTest");
@@ -151,6 +151,13 @@ class McpCheckoutRefGuardHttpTest {
         try {
             if (mcpToken != null) {
                 asApiUser(mcpTokenService.revoke(apiUser, mcpToken.id())).block();
+            }
+            if (applicationId != null) {
+                asApiUser(applicationPageService.deleteApplication(applicationId))
+                        .block();
+            }
+            if (workspaceId != null) {
+                asApiUser(workspaceService.archiveById(workspaceId)).block();
             }
         } finally {
             if (mcpConfigReplaced) {
