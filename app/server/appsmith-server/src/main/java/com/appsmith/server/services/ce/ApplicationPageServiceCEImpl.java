@@ -309,19 +309,17 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<PageDTO> getPageDTOAfterMigratingDSL(NewPage newPage, boolean viewMode, boolean migrateDsl) {
-        return sendPageViewAnalyticsEvent(newPage, viewMode)
-                .then(getPage(newPage, viewMode))
-                .flatMap(pageDTO -> {
-                    if (migrateDsl) {
-                        // Call the DSL Utils for on demand migration of the page.
-                        // Based on view mode save the migrated DSL to the database
-                        // Migrate the DSL to the latest version if required
-                        if (pageDTO.getLayouts() != null) {
-                            return migrateAndUpdatePageDsl(newPage, pageDTO, viewMode);
-                        }
-                    }
-                    return Mono.just(pageDTO);
-                });
+        return getPage(newPage, viewMode).flatMap(pageDTO -> {
+            if (migrateDsl) {
+                // Call the DSL Utils for on demand migration of the page.
+                // Based on view mode save the migrated DSL to the database
+                // Migrate the DSL to the latest version if required
+                if (pageDTO.getLayouts() != null) {
+                    return migrateAndUpdatePageDsl(newPage, pageDTO, viewMode);
+                }
+            }
+            return Mono.just(pageDTO);
+        });
     }
 
     @Override
@@ -332,9 +330,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return newPageService
                 .findByRefTypeAndRefNameAndBasePageId(
                         RefType.branch, refName, defaultPageId, pagePermission.getReadPermission(), null)
-                .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)
-                        .name(getQualifiedSpanName(MIGRATE_DSL, applicationMode))
-                        .tap(Micrometer.observation(observationRegistry)));
+                .flatMap(newPage -> sendPageViewAnalyticsEvent(newPage, viewMode)
+                        .then(getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)
+                                .name(getQualifiedSpanName(MIGRATE_DSL, applicationMode))
+                                .tap(Micrometer.observation(observationRegistry))));
     }
 
     @Override
@@ -343,7 +342,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         // Fetch the page with read permission in both editor and in viewer.
         return newPageService
                 .findById(branchedPageId, pagePermission.getReadPermission())
-                .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl));
+                .flatMap(newPage -> sendPageViewAnalyticsEvent(newPage, viewMode)
+                        .then(getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)));
     }
 
     private Mono<PageDTO> migrateAndUpdatePageDsl(NewPage newPage, PageDTO page, boolean viewMode) {
@@ -1118,15 +1118,21 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         return publishAndGetMetadata(applicationId, isPublishedManually)
                 .zipWith(contextMono)
-                .flatMap(tuple2 -> {
+                .flatMap(tuple2 -> Mono.deferContextual(parentCtx -> {
+                    // Orphan subscribe starts with an empty context. Put SecurityContext onto the
+                    // parent context so suppress flags from fork/import/Git reload still apply.
                     postApplicationPublishHookCoordinatorService
                             .executePostPublishHooks(applicationId)
-                            .contextWrite(Context.of(SecurityContext.class, Mono.just(tuple2.getT2())))
+                            .contextWrite(
+                                    ctx -> Context.of(parentCtx).put(SecurityContext.class, Mono.just(tuple2.getT2())))
                             .subscribeOn(LoadShifter.elasticScheduler)
-                            .subscribe();
+                            .subscribe(
+                                    null,
+                                    error -> log.error(
+                                            "Post-publish hooks failed for application {}", applicationId, error));
                     ApplicationPublishingMetaDTO metaDTO = tuple2.getT1().getT2();
                     return sendApplicationPublishedEvent(metaDTO);
-                })
+                }))
                 .elapsed()
                 .map(objects -> {
                     log.debug(
@@ -1450,7 +1456,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     /**
-     * To send analytics event for page views
+     * Records a page view when that page is opened. Layout loads for the other pages in the editor do not call this.
      *
      * @param newPage  Page being accessed
      * @param viewMode Page is accessed in view mode or not

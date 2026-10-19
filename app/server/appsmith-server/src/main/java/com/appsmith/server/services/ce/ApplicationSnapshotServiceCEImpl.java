@@ -10,6 +10,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.git.GitRehydrateAudit;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
@@ -71,7 +72,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
 
     @Override
     public Mono<Application> restoreSnapshot(String branchedApplicationId) {
-        return applicationService
+        return GitRehydrateAudit.suppress(applicationService
                 .findById(branchedApplicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)))
@@ -87,7 +88,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                 .map(importableArtifact -> (Application) importableArtifact)
                 .flatMap(application -> applicationSnapshotRepository
                         .deleteAllByApplicationId(application.getId())
-                        .thenReturn(application));
+                        .thenReturn(application)));
     }
 
     private Mono<String> getApplicationJsonStringFromSnapShot(String applicationId) {
