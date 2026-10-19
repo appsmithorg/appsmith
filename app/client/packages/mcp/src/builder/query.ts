@@ -68,6 +68,66 @@ const OPERATORS = {
   in: "IN",
 } as const;
 
+// A WHERE filter.
+// - `inList` matches the column against a list that a widget holds, such as a multi-select's selectedOptionValues.
+// - `skipWhenEmpty` drops the filter while the widget value is empty (null, undefined, "" or []). An unset dropdown
+//   then means "no filter", not "match nothing".
+// Both need a widget reference. A literal is a scalar and is never empty.
+const filterSchema = z
+  .object({
+    column: sqlIdentifier,
+    op: z.enum(["eq", "ne", "gt", "gte", "lt", "lte", "like", "in", "inList"]),
+    value: valueRef,
+    skipWhenEmpty: z.boolean().optional(),
+  })
+  .strict()
+  .superRefine((filter, ctx) => {
+    // `appsmith.*` (for example appsmith.user.email) identifies the viewer, and filters use it to scope rows. Never
+    // skip it: an unset value would silently widen the read to every row.
+    if (
+      filter.skipWhenEmpty === true &&
+      "widget" in filter.value &&
+      filter.value.widget === "appsmith"
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "skipWhenEmpty cannot be used on an appsmith.* value — it may be scoping rows to the viewer",
+        path: ["skipWhenEmpty"],
+      });
+    }
+
+    if (!("literal" in filter.value)) return;
+
+    if (filter.op === "inList") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "inList needs a { widget, property } value that holds a list (e.g. a multi-select's selectedOptionValues)",
+        path: ["value"],
+      });
+    }
+
+    if (filter.skipWhenEmpty === true) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "skipWhenEmpty needs a { widget, property } value — a literal is never empty",
+        path: ["skipWhenEmpty"],
+      });
+    }
+  });
+
+// The database family the query runs on. `inList` works only on PostgreSQL, which binds a list as one
+// prepared-statement parameter (an SQL array). MySQL sends the list as a JSON string, and SQL Server refuses it.
+// Everything else the compiler emits works on every family. An unknown family, such as when the caller cannot
+// resolve the datasource, counts as "other".
+export type SqlDialect = "postgres" | "other";
+
+export interface CompileQueryOptions {
+  dialect?: SqlDialect;
+}
+
 // A CLOSED set of aggregate functions. The SQL keyword is compiler-emitted from the enum, never interpolated from
 // agent text; the alias is the fn name itself (also from the enum), so agents/queries can reference the result column
 // by a stable, safe name.
@@ -88,18 +148,7 @@ export const querySpecSchema = z
     operation: z.enum(["SELECT", "INSERT", "UPDATE", "DELETE"]),
     table: qualifiedName,
     columns: z.array(sqlIdentifier).max(100).optional(),
-    filters: z
-      .array(
-        z
-          .object({
-            column: sqlIdentifier,
-            op: z.enum(["eq", "ne", "gt", "gte", "lt", "lte", "like", "in"]),
-            value: valueRef,
-          })
-          .strict(),
-      )
-      .max(20)
-      .optional(),
+    filters: z.array(filterSchema).max(20).optional(),
     values: z
       .array(z.object({ column: sqlIdentifier, value: valueRef }).strict())
       .max(100)
@@ -136,6 +185,19 @@ export const querySpecSchema = z
   .superRefine((spec, ctx) => {
     if (spec.operation === "SELECT") return;
 
+    // A skipped filter widens the WHERE clause. That is harmless on a read. On UPDATE or DELETE, an empty widget would
+    // turn "change the selected rows" into "change every row", so writes refuse skipWhenEmpty.
+    (spec.filters ?? []).forEach((filter, index) => {
+      if (filter.skipWhenEmpty === true) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            "skipWhenEmpty is only valid on a SELECT query (on a write, an empty value would widen it to every row)",
+          path: ["filters", index, "skipWhenEmpty"],
+        });
+      }
+    });
+
     for (const field of ["orderBy", "aggregate", "groupBy"] as const) {
       if (spec[field] !== undefined) {
         ctx.addIssue({
@@ -149,6 +211,8 @@ export const querySpecSchema = z
 
 export type QuerySpec = z.infer<typeof querySpecSchema>;
 type ValueRef = z.infer<typeof valueRef>;
+type WidgetRef = Extract<ValueRef, { widget: string }>;
+type Filter = z.infer<typeof filterSchema>;
 
 const MAX_BODY_BYTES = 8 * 1024;
 
@@ -168,6 +232,82 @@ function emitBinding(value: ValueRef): string {
   }
 
   return binding;
+}
+
+// Template text that tests whether a widget value is empty, around a validated identifier path.
+// null, undefined, "" and [] are empty. 0, false and non-empty strings or arrays are not (`.length` is undefined
+// for 0 and false).
+function emptyTest(ref: WidgetRef): string {
+  const path = `${ref.widget}.${ref.property}`;
+
+  return `(${path} == null || ${path}.length === 0)`;
+}
+
+// Binds `1` while the widget value is empty, and `0` otherwise. It binds an integer, not a boolean, so `<guard> = 1`
+// is valid SQL on every supported database. SQL Server and Oracle do not accept a bound boolean as a predicate.
+function emitEmptyGuard(ref: WidgetRef): string {
+  const binding = `{{ ${emptyTest(ref)} ? 1 : 0 }}`;
+
+  if (!EMPTY_GUARD_BINDING.test(binding)) {
+    throw new Error(`unsafe binding emitted: ${binding}`);
+  }
+
+  return binding;
+}
+
+// Binds the widget value, or `null` while it is empty. It never binds an empty value as-is: "" would be compared
+// with a typed column (an integer column, for example), and PostgreSQL leaves an empty array parameter unset, which
+// fails the whole query.
+function emitNullWhenEmpty(ref: WidgetRef): string {
+  const path = `${ref.widget}.${ref.property}`;
+  const binding = `{{ ${emptyTest(ref)} ? null : ${path} }}`;
+
+  if (!NULL_WHEN_EMPTY_BINDING.test(binding)) {
+    throw new Error(`unsafe binding emitted: ${binding}`);
+  }
+
+  return binding;
+}
+
+// Returns the widget reference of an inList or skipWhenEmpty filter. filterSchema already refuses a literal here.
+// This checks again so that a caller that skipped parsing fails closed, instead of emitting a template around a
+// literal.
+function widgetRef(filter: Filter): WidgetRef {
+  if ("literal" in filter.value) {
+    throw new Error(
+      `filter on ${filter.column} needs a { widget, property } value for ${filter.op === "inList" ? "inList" : "skipWhenEmpty"}`,
+    );
+  }
+
+  return filter.value;
+}
+
+// One WHERE condition, before any skipWhenEmpty wrapping.
+function emitCondition(filter: Filter, dialect: SqlDialect): string {
+  if (filter.op === "inList") {
+    if (dialect !== "postgres") {
+      throw new Error(
+        `inList (filter on ${filter.column}) is only available on a PostgreSQL datasource, which binds a list as one query parameter; on other databases use one eq filter per control (with skipWhenEmpty) or a single-select`,
+      );
+    }
+
+    // CAST both sides to text. A select holds string option values, and this lets them match both text and numeric
+    // columns. The list binds as one SQL array parameter. A null list (an empty selection) matches nothing.
+    return `CAST(${filter.column} AS TEXT) = ANY(CAST(${emitNullWhenEmpty(widgetRef(filter))} AS TEXT[]))`;
+  }
+
+  // On PostgreSQL, a skipWhenEmpty filter binds null while the widget value is empty. "" against a typed column (an
+  // integer column, for example) fails to prepare, even though the guard short-circuits.
+  // On other databases, the empty value binds as-is: MySQL and SQL Server coerce "", and Oracle treats "" as NULL.
+  // This avoids an untyped NULL parameter, which some JDBC drivers (Oracle's) reject.
+  const binding =
+    filter.skipWhenEmpty === true && dialect === "postgres"
+      ? emitNullWhenEmpty(widgetRef(filter))
+      : emitBinding(filter.value);
+
+  if (filter.op === "in") return `${filter.column} IN (${binding})`;
+
+  return `${filter.column} ${OPERATORS[filter.op]} ${binding}`;
 }
 
 // Emit `ORDER BY "col" ASC, "col2" DESC`. Columns are allow-listed identifiers (the charset admits no
@@ -210,16 +350,15 @@ function emitAggregate(aggregate: NonNullable<QuerySpec["aggregate"]>): string {
   return `${fn}("${aggregate.column}") AS ${aggregate.fn}`;
 }
 
-function emitWhere(filters: QuerySpec["filters"]): string {
+function emitWhere(filters: QuerySpec["filters"], dialect: SqlDialect): string {
   if (!filters || filters.length === 0) return "";
 
   const clauses = filters.map((filter) => {
-    const operator = OPERATORS[filter.op];
-    const binding = emitBinding(filter.value);
+    const condition = emitCondition(filter, dialect);
 
-    if (filter.op === "in") return `${filter.column} IN (${binding})`;
+    if (filter.skipWhenEmpty !== true) return condition;
 
-    return `${filter.column} ${operator} ${binding}`;
+    return `(${emitEmptyGuard(widgetRef(filter))} = 1 OR ${condition})`;
   });
 
   return ` WHERE ${clauses.join(" AND ")}`;
@@ -227,7 +366,11 @@ function emitWhere(filters: QuerySpec["filters"]): string {
 
 // Compile a structured spec into a parameterized SQL body. Throws on an empty/oversized body or if the emitted body
 // somehow contains a brace pair that isn't a compiler-emitted binding (fail-closed defense-in-depth).
-export function compileQuery(spec: QuerySpec): string {
+export function compileQuery(
+  spec: QuerySpec,
+  options: CompileQueryOptions = {},
+): string {
+  const dialect = options.dialect ?? "other";
   let body: string;
 
   switch (spec.operation) {
@@ -251,7 +394,7 @@ export function compileQuery(spec: QuerySpec): string {
       const limit = spec.limit !== undefined ? ` LIMIT ${spec.limit}` : "";
 
       // SQL clause order: SELECT ... FROM ... WHERE ... GROUP BY ... ORDER BY ... LIMIT.
-      body = `SELECT ${selectList} FROM ${spec.table}${emitWhere(spec.filters)}${emitGroupBy(spec.groupBy)}${emitOrderBy(spec.orderBy)}${limit};`;
+      body = `SELECT ${selectList} FROM ${spec.table}${emitWhere(spec.filters, dialect)}${emitGroupBy(spec.groupBy)}${emitOrderBy(spec.orderBy)}${limit};`;
       break;
     }
     case "INSERT": {
@@ -276,11 +419,11 @@ export function compileQuery(spec: QuerySpec): string {
         .map((entry) => `${entry.column} = ${emitBinding(entry.value)}`)
         .join(", ");
 
-      body = `UPDATE ${spec.table} SET ${assignments}${emitWhere(spec.filters)};`;
+      body = `UPDATE ${spec.table} SET ${assignments}${emitWhere(spec.filters, dialect)};`;
       break;
     }
     case "DELETE": {
-      body = `DELETE FROM ${spec.table}${emitWhere(spec.filters)};`;
+      body = `DELETE FROM ${spec.table}${emitWhere(spec.filters, dialect)};`;
       break;
     }
   }
@@ -294,6 +437,14 @@ export function compileQuery(spec: QuerySpec): string {
 // JSON scalar literal. Anything else (or a stray `${`/backtick) means a bug or an escape — reject.
 const SAFE_BINDING =
   /^\{\{ (?:[A-Za-z_][A-Za-z0-9_.]*|"(?:[^"\\]|\\.)*"|-?\d+(?:\.\d+)?|true|false|null) \}\}$/;
+
+// The only two expression bindings the compiler emits, for skipWhenEmpty and inList. Each is fixed template text
+// around ONE identifier path. A backreference repeats the path, so a different path cannot be slipped into
+// either position.
+const EMPTY_GUARD_BINDING =
+  /^\{\{ \(([A-Za-z_][A-Za-z0-9_.]*) == null \|\| \1\.length === 0\) \? 1 : 0 \}\}$/;
+const NULL_WHEN_EMPTY_BINDING =
+  /^\{\{ \(([A-Za-z_][A-Za-z0-9_.]*) == null \|\| \1\.length === 0\) \? null : \1 \}\}$/;
 
 function assertBodySafe(body: string): void {
   if (body.length === 0) throw new Error("compiled query is empty");

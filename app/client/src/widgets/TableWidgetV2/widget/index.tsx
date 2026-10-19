@@ -1349,6 +1349,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           handleColumnFreeze={this.handleColumnFreeze}
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
+          headerFontStyle={this.props.headerFontStyle}
+          headerFontWeight={this.props.headerFontWeight}
           headerRowColor={this.props.headerRowColor}
           headerTextColor={this.props.headerTextColor}
           height={componentHeight}

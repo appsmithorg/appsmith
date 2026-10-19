@@ -1236,6 +1236,7 @@ export function buildTableColumns(
 
     primaryColumns[id] = {
       allowCellWrapping: false,
+      allowHeaderWrapping: false,
       allowSameOptionsInNewRow: true,
       index,
       width: 150,

@@ -293,6 +293,7 @@ export interface ColumnBaseProperties {
   isAscOrder?: boolean;
   alias: string;
   allowCellWrapping: boolean;
+  allowHeaderWrapping?: boolean;
 }
 
 export interface ColumnStyleProperties {
