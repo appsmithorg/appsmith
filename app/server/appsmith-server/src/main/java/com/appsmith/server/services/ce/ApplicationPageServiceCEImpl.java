@@ -38,6 +38,7 @@ import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.DslUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.LoadShifter;
+import com.appsmith.server.helpers.LogHelper;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.helpers.WidgetIdRegenerationResult;
 import com.appsmith.server.layouts.UpdateLayoutService;
@@ -71,8 +72,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
@@ -1114,24 +1113,20 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      */
     @Override
     public Mono<Application> publishWithoutPermissionChecks(String applicationId, boolean isPublishedManually) {
-        Mono<SecurityContext> contextMono = ReactiveSecurityContextHolder.getContext();
-
         return publishAndGetMetadata(applicationId, isPublishedManually)
-                .zipWith(contextMono)
-                .flatMap(tuple2 -> Mono.deferContextual(parentCtx -> {
-                    // Orphan subscribe starts with an empty context. Put SecurityContext onto the
-                    // parent context so suppress flags from fork/import/Git reload still apply.
+                .flatMap(tuple -> Mono.deferContextual(parentCtx -> {
+                    // Orphan subscribe starts empty. Copy parent context so SecurityContext and
+                    // audit suppress flags from fork/import/Git reload still apply, but drop the
+                    // request MDC map so the background job does not share mutable logging state.
                     postApplicationPublishHookCoordinatorService
                             .executePostPublishHooks(applicationId)
-                            .contextWrite(
-                                    ctx -> Context.of(parentCtx).put(SecurityContext.class, Mono.just(tuple2.getT2())))
+                            .contextWrite(ctx -> Context.of(parentCtx).delete(LogHelper.CONTEXT_MAP))
                             .subscribeOn(LoadShifter.elasticScheduler)
                             .subscribe(
                                     null,
                                     error -> log.error(
                                             "Post-publish hooks failed for application {}", applicationId, error));
-                    ApplicationPublishingMetaDTO metaDTO = tuple2.getT1().getT2();
-                    return sendApplicationPublishedEvent(metaDTO);
+                    return sendApplicationPublishedEvent(tuple.getT2());
                 }))
                 .elapsed()
                 .map(objects -> {
