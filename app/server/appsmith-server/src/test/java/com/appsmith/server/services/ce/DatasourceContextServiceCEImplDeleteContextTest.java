@@ -6,6 +6,7 @@ import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.DatasourceContextIdentifier;
+import com.appsmith.server.domains.DatasourcePluginContext;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
@@ -26,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -102,6 +104,30 @@ class DatasourceContextServiceCEImplDeleteContextTest {
         // Then
         assertThat(destroyThread.get()).startsWith("boundedElastic");
         assertThat(service.datasourceContextMap).doesNotContainKey(key);
+    }
+
+    @Test
+    void should_returnDeletedContextAndDestroyOnce_when_lruEntryExists() {
+        // Given
+        Object connection = new Object();
+        DatasourceContext<Object> context = new DatasourceContext<>();
+        context.setConnection(connection);
+        service.datasourceContextMap.put(key, context);
+        DatasourcePluginContext<Object> pluginContext = new DatasourcePluginContext<>();
+        pluginContext.setConnection(connection);
+        pluginContext.setPluginId("plugin-1");
+        service.datasourcePluginContextMapLRUCache.put(key, pluginContext);
+        when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+
+        // When
+        StepVerifier.create(service.deleteDatasourceContext(datasourceStorage))
+                .expectNextMatches(removed -> removed == context)
+                .verifyComplete();
+
+        // Then
+        verify(pluginExecutor, times(1)).datasourceDestroy(connection);
+        assertThat(service.datasourceContextMap).doesNotContainKey(key);
+        assertThat(service.datasourcePluginContextMapLRUCache.getIfPresent(key)).isNull();
     }
 
     @Test

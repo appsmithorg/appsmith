@@ -530,13 +530,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                     if (cachedContextMono != null) {
                         datasourceContextMonoMap.remove(datasourceContextIdentifier, cachedContextMono);
                     }
-                    log.info(
-                            "Invalidating the LRU cache entry for datasource id {}, environment id {} as delete datasource context is invoked",
-                            datasourceContextIdentifier.getDatasourceId(),
-                            datasourceContextIdentifier.getEnvironmentId());
-                    datasourcePluginContextMapLRUCache.invalidate(datasourceContextIdentifier);
                     // Drop only the entry that was destroyed. A context rebuilt while the executor was being resolved
-                    // is live and stays cached.
+                    // is live and stays cached, together with any LRU entry it registered.
                     if (!datasourceContextMap.remove(datasourceContextIdentifier, datasourceContext)) {
                         log.info(
                                 "Datasource context for datasource id {}, environment id {} was replaced while being cleared; keeping the new one",
@@ -544,6 +539,13 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                 datasourceContextIdentifier.getEnvironmentId());
                         return Mono.empty();
                     }
+                    // The LRU removal listener destroys whatever connection it finds in datasourceContextMap, so it
+                    // runs after that entry is gone and does not close the connection a second time.
+                    log.info(
+                            "Invalidating the LRU cache entry for datasource id {}, environment id {} as delete datasource context is invoked",
+                            datasourceContextIdentifier.getDatasourceId(),
+                            datasourceContextIdentifier.getEnvironmentId());
+                    datasourcePluginContextMapLRUCache.invalidate(datasourceContextIdentifier);
 
                     return Mono.<DatasourceContext<?>>just(datasourceContext);
                 });
