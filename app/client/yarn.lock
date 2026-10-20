@@ -3030,7 +3030,7 @@ __metadata:
     chromatic: ^11.3.0
     glob: ^11.0.0
     storybook: 8.2.7
-    vite: ^6.2.7
+    vite: ^6.4.4
     vite-plugin-svgr: ^4.2.0
   languageName: unknown
   linkType: soft
@@ -35631,9 +35631,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:6.4.3":
-  version: 6.4.3
-  resolution: "vite@npm:6.4.3"
+"vite@npm:6.4.4":
+  version: 6.4.4
+  resolution: "vite@npm:6.4.4"
   dependencies:
     esbuild: ^0.25.0
     fdir: ^6.4.4
@@ -35682,7 +35682,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 349e2cc44efa3fad3f89f415f45c5a94ee08d710b87b3e8b3f2556494c34b0f56af9f92c42316ff2117e442bbda617aa2ee502772f2301fcb687020b6be96f7e
+  checksum: 1b14d9f99e925bb77dddc2ad6586060bf93aea67f827cf8859bcd9cb75ca030beaaf9311dc8dce2ec0b8b9150c3bea28ce177af34732ed639ccd52388ffb7afa
   languageName: node
   linkType: hard
 
