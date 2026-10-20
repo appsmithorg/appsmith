@@ -456,10 +456,10 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<Void> archivePagesByApplicationId(String applicationId, AclPermission permission) {
-        // Limit concurrency to avoid saturating the MongoDB NIO event loop thread pool
-        // during bulk application deletion.
+        // Archive one page at a time: application deletion runs this inside a MongoDB
+        // transaction, which does not support parallel operations.
         return findNewPagesByApplicationId(applicationId, permission)
-                .flatMap(repository::archive, 4)
+                .concatMap(repository::archive)
                 .then();
     }
 
