@@ -52,6 +52,7 @@ import com.appsmith.server.git.resolver.GitArtifactHelperResolver;
 import com.appsmith.server.git.resolver.GitHandlingServiceResolver;
 import com.appsmith.server.git.utils.GitAnalyticsUtils;
 import com.appsmith.server.git.utils.GitProfileUtils;
+import com.appsmith.server.git.utils.McpCheckoutRefGuard;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
@@ -498,13 +499,17 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, REF_TYPE));
         }
 
+        // getBaseAndBranchedArtifacts issues the lookup at assembly time; defer it so the MCP guard runs first.
         Mono<Tuple2<? extends Artifact, ? extends Artifact>> baseAndBranchedArtifactMono =
-                getBaseAndBranchedArtifacts(referenceArtifactId, artifactType);
+                Mono.defer(() -> getBaseAndBranchedArtifacts(referenceArtifactId, artifactType));
 
-        return baseAndBranchedArtifactMono.flatMap(artifactTuples -> {
-            Artifact baseArtifact = artifactTuples.getT1();
-            return checkoutReference(baseArtifact, gitRefDTO, addFileLock, gitType);
-        });
+        // The refusal runs before the artifact lookup, so it does not reveal whether the id exists.
+        return McpCheckoutRefGuard.rejectRemoteOrTagCheckout(gitRefDTO)
+                .then(baseAndBranchedArtifactMono)
+                .flatMap(artifactTuples -> {
+                    Artifact baseArtifact = artifactTuples.getT1();
+                    return checkoutReference(baseArtifact, gitRefDTO, addFileLock, gitType);
+                });
     }
 
     protected Mono<? extends Artifact> checkoutReference(
