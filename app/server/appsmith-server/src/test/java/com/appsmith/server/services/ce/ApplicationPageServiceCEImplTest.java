@@ -1,11 +1,15 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.solutions.PagePermission;
+import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,6 +17,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,6 +39,9 @@ class ApplicationPageServiceCEImplTest {
 
     @Mock
     private AnalyticsService analyticsService;
+
+    @Mock
+    private DSLMigrationUtils dslMigrationUtils;
 
     @InjectMocks
     private ApplicationPageServiceCEImpl applicationPageService;
@@ -93,6 +102,29 @@ class ApplicationPageServiceCEImplTest {
 
         // Then
         StepVerifier.create(result).verifyErrorMessage("page load failed");
+        verify(analyticsService, never()).sendObjectEvent(any(), any(), any());
+    }
+
+    @Test
+    void should_notRecordPageView_when_dslMigrationFails() {
+        // Given
+        NewPage newPage = new NewPage();
+        newPage.setId("page-1");
+        Layout layout = new Layout();
+        layout.setDsl(new JSONObject());
+        PageDTO page = new PageDTO();
+        page.setId("page-1");
+        page.setLayouts(List.of(layout));
+        when(newPageService.findById(eq("page-1"), any())).thenReturn(Mono.just(newPage));
+        when(newPageService.getPageByViewMode(newPage, false)).thenReturn(Mono.just(page));
+        when(dslMigrationUtils.getLatestDslVersion())
+                .thenReturn(Mono.error(new RuntimeException("dsl version failed")));
+
+        // When
+        Mono<PageDTO> result = applicationPageService.getPageAndMigrateDslByBranchedPageId("page-1", false, true);
+
+        // Then
+        StepVerifier.create(result).verifyError(AppsmithException.class);
         verify(analyticsService, never()).sendObjectEvent(any(), any(), any());
     }
 }
