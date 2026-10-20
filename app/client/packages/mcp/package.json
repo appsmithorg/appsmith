@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9 || ^2.0.5",
-    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@modelcontextprotocol/sdk": "^1.32.0",
     "mongodb": "^7.5.0",
     "redis": "^6.1.0",
     "zod": "^3.25.0"
