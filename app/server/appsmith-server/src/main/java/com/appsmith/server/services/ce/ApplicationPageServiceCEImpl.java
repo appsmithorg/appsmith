@@ -332,7 +332,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)
                         .name(getQualifiedSpanName(MIGRATE_DSL, applicationMode))
                         .tap(Micrometer.observation(observationRegistry))
-                        .flatMap(pageDTO -> sendPageViewAnalyticsEvent(newPage, viewMode).thenReturn(pageDTO)));
+                        .flatMap(pageDTO ->
+                                sendPageViewAnalyticsEvent(newPage, viewMode).thenReturn(pageDTO)));
     }
 
     @Override
@@ -342,7 +343,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return newPageService
                 .findById(branchedPageId, pagePermission.getReadPermission())
                 .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)
-                        .flatMap(pageDTO -> sendPageViewAnalyticsEvent(newPage, viewMode).thenReturn(pageDTO)));
+                        .flatMap(pageDTO ->
+                                sendPageViewAnalyticsEvent(newPage, viewMode).thenReturn(pageDTO)));
     }
 
     private Mono<PageDTO> migrateAndUpdatePageDsl(NewPage newPage, PageDTO page, boolean viewMode) {

@@ -72,8 +72,7 @@ class ApplicationSnapshotServiceCEImplTest {
         when(applicationPermission.getEditPermission()).thenReturn(AclPermission.MANAGE_APPLICATIONS);
         when(applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS))
                 .thenReturn(Mono.just(application));
-        when(applicationSnapshotRepository.findByApplicationId(applicationId))
-                .thenReturn(Flux.just(snapshotChunk));
+        when(applicationSnapshotRepository.findByApplicationId(applicationId)).thenReturn(Flux.just(snapshotChunk));
         when(gson.fromJson(any(String.class), eq(ApplicationJson.class))).thenReturn(applicationJson);
         when(importService.restoreSnapshot(eq(workspaceId), eq(applicationId), eq(applicationJson)))
                 .thenAnswer(invocation -> Mono.deferContextual(ctx -> {
