@@ -329,10 +329,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return newPageService
                 .findByRefTypeAndRefNameAndBasePageId(
                         RefType.branch, refName, defaultPageId, pagePermission.getReadPermission(), null)
-                .flatMap(newPage -> sendPageViewAnalyticsEvent(newPage, viewMode)
-                        .then(getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)
-                                .name(getQualifiedSpanName(MIGRATE_DSL, applicationMode))
-                                .tap(Micrometer.observation(observationRegistry))));
+                .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)
+                        .name(getQualifiedSpanName(MIGRATE_DSL, applicationMode))
+                        .tap(Micrometer.observation(observationRegistry))
+                        .flatMap(pageDTO -> sendPageViewAnalyticsEvent(newPage, viewMode).thenReturn(pageDTO)));
     }
 
     @Override
@@ -341,8 +341,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         // Fetch the page with read permission in both editor and in viewer.
         return newPageService
                 .findById(branchedPageId, pagePermission.getReadPermission())
-                .flatMap(newPage -> sendPageViewAnalyticsEvent(newPage, viewMode)
-                        .then(getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)));
+                .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)
+                        .flatMap(pageDTO -> sendPageViewAnalyticsEvent(newPage, viewMode).thenReturn(pageDTO)));
     }
 
     private Mono<PageDTO> migrateAndUpdatePageDsl(NewPage newPage, PageDTO page, boolean viewMode) {

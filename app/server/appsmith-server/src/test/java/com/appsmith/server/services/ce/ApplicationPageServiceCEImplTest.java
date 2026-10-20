@@ -78,4 +78,21 @@ class ApplicationPageServiceCEImplTest {
                 .verifyComplete();
         verify(analyticsService).sendObjectEvent(eq(AnalyticsEvents.VIEW), eq(newPage), any());
     }
+
+    @Test
+    void should_notRecordPageView_when_pageRetrievalFails() {
+        // Given
+        NewPage newPage = new NewPage();
+        newPage.setId("page-1");
+        when(newPageService.findById(eq("page-1"), any())).thenReturn(Mono.just(newPage));
+        when(newPageService.getPageByViewMode(newPage, false))
+                .thenReturn(Mono.error(new RuntimeException("page load failed")));
+
+        // When
+        Mono<PageDTO> result = applicationPageService.getPageAndMigrateDslByBranchedPageId("page-1", false, false);
+
+        // Then
+        StepVerifier.create(result).verifyErrorMessage("page load failed");
+        verify(analyticsService, never()).sendObjectEvent(any(), any(), any());
+    }
 }
