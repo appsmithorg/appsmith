@@ -516,6 +516,7 @@
     "smol-toml": "^1.9.0",
     "webpack-dev-middleware": "^7.4.6",
     "hono": "^4.13.7",
-    "moment": "^2.31.0"
+    "moment": "^2.31.0",
+    "follow-redirects": "^1.16.1"
   }
 }
