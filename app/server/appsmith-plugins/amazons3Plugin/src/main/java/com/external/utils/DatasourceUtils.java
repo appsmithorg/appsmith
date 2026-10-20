@@ -1,11 +1,5 @@
 package com.external.utils;
 
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.DBAuth;
@@ -14,12 +8,17 @@ import com.appsmith.external.models.Property;
 import com.external.plugins.exceptions.S3ErrorMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.amazonaws.regions.Regions.DEFAULT_REGION;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
 import static com.external.plugins.constants.S3PluginConstants.AUTO;
 import static com.external.plugins.constants.S3PluginConstants.CUSTOM_ENDPOINT_INDEX;
@@ -62,6 +61,22 @@ public class DatasourceUtils {
 
     public static int DREAM_OBJECTS_REGION_GROUP_INDEX = 1;
 
+    /** The region an Amazon S3 client is created in. Requests to buckets in other regions are redirected. */
+    private static final Region AMAZON_DEFAULT_REGION = Region.US_WEST_2;
+
+    /**
+     * The signing region of a custom-endpoint provider whose datasource does not name a region (MinIO and other). It
+     * is the region MinIO uses when none is configured, and servers that are not configured with a region accept any.
+     * Ref: https://docs.min.io/docs/how-to-use-aws-sdk-for-java-with-minio-server.html
+     */
+    private static final Region DEFAULT_CUSTOM_ENDPOINT_REGION = Region.US_EAST_1;
+
+    /** Scheme used for an endpoint entered without one. */
+    private static final String DEFAULT_ENDPOINT_SCHEME = "https";
+
+    /** A region name: one DNS label of letters, digits and hyphens. */
+    private static final Pattern REGION_NAME = Pattern.compile("[A-Za-z0-9-]{1,63}");
+
     /* This enum lists various types of S3 service providers that we support. */
     public enum S3ServiceProvider {
         AMAZON("amazon-s3"),
@@ -93,33 +108,70 @@ public class DatasourceUtils {
     }
 
     /**
-     * This method builds an `AmazonS3ClientBuilder` object from the datasourceConfiguration provided by user. The
-     * `AmazonS3ClientBuilder` object can then be used to get a connection object to connect to the S3 service.
+     * Everything that determines how the plugin talks to an S3 service, derived once from the datasource so that the
+     * client, the presigner and the unsigned URLs cannot disagree. {@link #toString()} shows no credentials.
      *
-     * @param datasourceConfiguration
-     * @return AmazonS3ClientBuilder object
-     * @throws AppsmithPluginException when (1) there is an error with parsing credentials (2) required
-     *                                 datasourceConfiguration properties are missing (3) endpoint URL is found incorrect.
+     * @param credentialsProvider   static credentials from the datasource's access key and secret key
+     * @param region                the region requests and unsigned URLs are signed for; for Amazon S3, presigned URLs
+     *                              are signed for each bucket's own region when it can be determined
+     * @param endpoint              the service endpoint as {@link DatasourceUtils#serviceEndpoint} derives it from the datasource's
+     *                              endpoint, or null for Amazon S3, whose endpoint the SDK resolves
+     * @param pathStyleAccess       whether the bucket goes in the path (true) or in the host name (false)
+     * @param resolveBucketRegions  whether each bucket's own region is looked up; for Amazon S3, where buckets live
+     *                              in many regions behind one datasource
      */
-    public static AmazonS3ClientBuilder getS3ClientBuilder(DatasourceConfiguration datasourceConfiguration)
+    public record S3ConnectionSettings(
+            AwsCredentialsProvider credentialsProvider,
+            Region region,
+            URI endpoint,
+            boolean pathStyleAccess,
+            boolean resolveBucketRegions) {
+        @Override
+        public String toString() {
+            return "S3ConnectionSettings[region=" + region.id() + ", endpoint="
+                    + (endpoint == null ? null : endpoint.getScheme() + "://" + endpoint.getHost())
+                    + ", pathStyleAccess="
+                    + pathStyleAccess + ", resolveBucketRegions=" + resolveBucketRegions + "]";
+        }
+    }
+
+    /**
+     * Opens a connection to the S3 service described by the datasource.
+     *
+     * @throws AppsmithPluginException when the credentials cannot be parsed, the service provider properties are
+     *                                 missing, the endpoint does not match the provider's endpoint pattern or is not a
+     *                                 URI with a host, or the region is not a region name.
+     * @throws RuntimeException        when the endpoint is missing, or the https proxy host is not a host name.
+     */
+    public static S3Connection createConnection(DatasourceConfiguration datasourceConfiguration)
             throws AppsmithPluginException {
-        log.debug(Thread.currentThread().getName() + ": getS3ClientBuilder action called.");
+        return S3Connection.open(getS3ConnectionSettings(datasourceConfiguration));
+    }
+
+    /**
+     * Derives the connection settings from the datasourceConfiguration provided by user.
+     *
+     * @throws AppsmithPluginException when the credentials cannot be parsed, the service provider properties are
+     *                                 missing, the endpoint does not match the provider's endpoint pattern or is not a
+     *                                 URI with a host, or the region is not a region name.
+     * @throws RuntimeException        when the endpoint is missing.
+     */
+    public static S3ConnectionSettings getS3ConnectionSettings(DatasourceConfiguration datasourceConfiguration)
+            throws AppsmithPluginException {
+        log.debug(Thread.currentThread().getName() + ": getS3ConnectionSettings action called.");
         DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
         String accessKey = authentication.getUsername();
         String secretKey = authentication.getPassword();
-        BasicAWSCredentials awsCreds;
+        AwsCredentialsProvider credentialsProvider;
         try {
-            awsCreds = new BasicAWSCredentials(accessKey, secretKey);
-        } catch (IllegalArgumentException e) {
+            credentialsProvider = StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
+        } catch (NullPointerException | IllegalArgumentException e) {
+            // AwsBasicCredentials rejects a null or blank key with a NullPointerException.
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                     S3ErrorMessages.AWS_CREDENTIALS_PARSING_ERROR_MSG,
                     e.getMessage());
         }
-
-        /* Set credentials in client builder. */
-        AmazonS3ClientBuilder s3ClientBuilder =
-                AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds));
 
         List<Property> properties = datasourceConfiguration.getProperties();
 
@@ -141,16 +193,14 @@ public class DatasourceUtils {
         S3ServiceProvider s3ServiceProvider = S3ServiceProvider.fromString(
                 (String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue());
         /**
-         * AmazonS3 provides an attribute `forceGlobalBucketAccessEnabled` that automatically routes the request to a
-         * region such that request should succeed.
-         * Ref: https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/s3/S3ClientOptions
-         * .Builder.html#enableForceGlobalBucketAccess--
+         * Amazon S3 buckets live in many regions behind one datasource: the client is created in a default region and
+         * follows the service's redirects to a bucket's own region, and presigned URLs are signed for the region the
+         * bucket is found in.
          *
-         * However, no mention of the attribute `forceGlobalBucketAccessEnabled` could be found within the
-         * documentation of other listed S3 service providers like Upcloud, Wasabi, Dream Objects, or Digital Ocean
-         * Spaces. Also, some these services failed on usage of this attribute - hence this attribute could not be
-         * reliably used for these S3 service providers. For these service providers, the region information is
-         * chained in the endpoint URL. Hence, the endpoint URL is used to extract the exact object storage region.
+         * No mention of such redirects could be found within the documentation of other listed S3 service providers
+         * like Upcloud, Wasabi, Dream Objects, or Digital Ocean Spaces. For these service providers, the region
+         * information is chained in the endpoint URL. Hence, the endpoint URL is used to extract the exact object
+         * storage region.
          *
          * Apart from the listed S3 services - AWS, Upcloud, Wasabi, Dream Objects and Digital Ocean spaces, any other
          * service provider falls in the category `other` and there is no special handling defined for it since we
@@ -158,78 +208,146 @@ public class DatasourceUtils {
          * explicitly provided.
          */
         if (s3ServiceProvider.equals(AMAZON)) {
-            s3ClientBuilder = s3ClientBuilder.withRegion(DEFAULT_REGION).enableForceGlobalBucketAccess();
-        } else {
-            String endpoint = datasourceConfiguration
-                    .getEndpoints()
-                    .get(CUSTOM_ENDPOINT_INDEX)
-                    .getHost();
-            String region = "";
-
-            switch (s3ServiceProvider) {
-                case AMAZON:
-                    /* This case can never be reached because of the if condition above. Just adding for sake of
-                    completeness. */
-
-                    break;
-                case GOOGLE_CLOUD_STORAGE:
-                    region = AUTO;
-                    break;
-                case UPCLOUD:
-                    region = getRegionFromEndpointPattern(
-                            endpoint, UPCLOUD_URL_ENDPOINT_PATTERN, UPCLOUD_REGION_GROUP_INDEX);
-
-                    break;
-                case WASABI:
-                    region = getRegionFromEndpointPattern(
-                            endpoint, WASABI_URL_ENDPOINT_PATTERN, WASABI_REGION_GROUP_INDEX);
-
-                    break;
-                case DIGITAL_OCEAN_SPACES:
-                    region = getRegionFromEndpointPattern(
-                            endpoint, DIGITAL_OCEAN_URL_ENDPOINT_PATTERN, DIGITAL_OCEAN_REGION_GROUP_INDEX);
-
-                    break;
-                case DREAM_OBJECTS:
-                    region = getRegionFromEndpointPattern(
-                            endpoint, DREAM_OBJECTS_URL_ENDPOINT_PATTERN, DREAM_OBJECTS_REGION_GROUP_INDEX);
-
-                    break;
-                case MINIO:
-                    region = getUserProvidedRegion(properties);
-                    if (StringUtils.isBlank(region)) {
-                        /**
-                         * Set a default region in case user has not provided a region.
-                         * Minio server can be configured to work both ways - with or without region attribute. Hence,
-                         * it is upto the user to know whether the Minio server they want to connect to has been
-                         * configured with a region or not.
-                         * As per my experimentation, in case the Minio server has not been configured with a region
-                         * attribute, then any placeholder value will work. However, I am going with US_EAST_1 here
-                         * since this the value that Minio documentation uses to show example applications.
-                         * Ref: https://docs.min.io/docs/how-to-use-aws-sdk-for-java-with-minio-server.html
-                         */
-                        region = Regions.US_EAST_1.getName();
-                    }
-
-                    ClientConfiguration clientConfiguration = new ClientConfiguration();
-                    clientConfiguration.setSignerOverride("AWSS3V4SignerType");
-
-                    /* Ref: https://docs.min.io/docs/how-to-use-aws-sdk-for-java-with-minio-server.html */
-                    s3ClientBuilder = s3ClientBuilder
-                            .withPathStyleAccessEnabled(true)
-                            .withClientConfiguration(clientConfiguration);
-
-                    break;
-                default:
-                    region = getValueSafelyFromPropertyList(
-                            properties, CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX, String.class, "");
-            }
-
-            s3ClientBuilder = s3ClientBuilder.withEndpointConfiguration(
-                    new AwsClientBuilder.EndpointConfiguration(endpoint, region));
+            return new S3ConnectionSettings(credentialsProvider, AMAZON_DEFAULT_REGION, null, false, true);
         }
 
-        return s3ClientBuilder;
+        String endpoint = datasourceConfiguration
+                .getEndpoints()
+                .get(CUSTOM_ENDPOINT_INDEX)
+                .getHost();
+        String region = "";
+        boolean pathStyleAccess = false;
+
+        switch (s3ServiceProvider) {
+            case GOOGLE_CLOUD_STORAGE:
+                region = AUTO;
+                break;
+            case UPCLOUD:
+                region = getRegionFromEndpointPattern(
+                        endpoint, UPCLOUD_URL_ENDPOINT_PATTERN, UPCLOUD_REGION_GROUP_INDEX);
+
+                break;
+            case WASABI:
+                region = getRegionFromEndpointPattern(endpoint, WASABI_URL_ENDPOINT_PATTERN, WASABI_REGION_GROUP_INDEX);
+
+                break;
+            case DIGITAL_OCEAN_SPACES:
+                region = getRegionFromEndpointPattern(
+                        endpoint, DIGITAL_OCEAN_URL_ENDPOINT_PATTERN, DIGITAL_OCEAN_REGION_GROUP_INDEX);
+
+                break;
+            case DREAM_OBJECTS:
+                region = getRegionFromEndpointPattern(
+                        endpoint, DREAM_OBJECTS_URL_ENDPOINT_PATTERN, DREAM_OBJECTS_REGION_GROUP_INDEX);
+
+                break;
+            case MINIO:
+                /**
+                 * Minio server can be configured to work both ways - with or without region attribute. Hence, it is upto
+                 * the user to know whether the Minio server they want to connect to has been configured with a region
+                 * or not. A blank region falls back to DEFAULT_CUSTOM_ENDPOINT_REGION below.
+                 */
+                region = getUserProvidedRegion(properties);
+
+                /* Ref: https://docs.min.io/docs/how-to-use-aws-sdk-for-java-with-minio-server.html */
+                pathStyleAccess = true;
+
+                break;
+            default:
+                region = getValueSafelyFromPropertyList(
+                        properties, CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX, String.class, "");
+        }
+
+        String regionName = StringUtils.isBlank(region) ? DEFAULT_CUSTOM_ENDPOINT_REGION.id() : region.trim();
+        if (!isRegionName(regionName)) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, S3ErrorMessages.INVALID_REGION_ERROR_MSG);
+        }
+        URI endpointUri = toEndpointUri(endpoint);
+        boolean bucketInPath = pathStyleAccess || isIpAddress(endpointUri.getHost());
+
+        return new S3ConnectionSettings(
+                credentialsProvider,
+                Region.of(regionName),
+                serviceEndpoint(endpointUri, bucketInPath),
+                bucketInPath,
+                false);
+    }
+
+    /** Whether the value is a region name: one DNS label of letters, digits and hyphens. */
+    static boolean isRegionName(String value) {
+        return value != null && REGION_NAME.matcher(value).matches();
+    }
+
+    /**
+     * Whether the host is an IP address: an IPv6 literal in brackets, or four dot-separated numbers from 0 to 255. A
+     * bucket name cannot be prefixed to an IP address, so such an endpoint takes the bucket in the path.
+     */
+    static boolean isIpAddress(String host) {
+        if (host == null) {
+            return false;
+        }
+        if (host.startsWith("[")) {
+            return true;
+        }
+        String[] parts = host.split("\\.");
+        if (parts.length != 4) {
+            return false;
+        }
+        for (String part : parts) {
+            try {
+                int value = Integer.parseInt(part);
+                if (value < 0 || value > 255) {
+                    return false;
+                }
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * The endpoint as a URI; an endpoint entered without a scheme uses HTTPS.
+     *
+     * @throws AppsmithPluginException when the endpoint is not a URI or names no host. The error does not repeat the
+     *                                 endpoint.
+     */
+    static URI toEndpointUri(String endpoint) throws AppsmithPluginException {
+        String endpointWithScheme = endpoint.contains("://") ? endpoint : DEFAULT_ENDPOINT_SCHEME + "://" + endpoint;
+        URI endpointUri;
+        try {
+            endpointUri = new URI(endpointWithScheme);
+        } catch (URISyntaxException e) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    S3ErrorMessages.INCORRECT_S3_ENDPOINT_URL_ERROR_MSG);
+        }
+        if (endpointUri.getHost() == null) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    S3ErrorMessages.INCORRECT_S3_ENDPOINT_URL_ERROR_MSG);
+        }
+        return endpointUri;
+    }
+
+    /**
+     * The endpoint requests and URLs are addressed to: the endpoint's scheme, host and port, and, when the bucket goes
+     * in the path, the endpoint's path without trailing slashes as a prefix of every path. The endpoint's query,
+     * fragment and user info are not part of it, and neither is its path when the bucket goes in the host name. On such
+     * a connection the SDK puts some buckets in the path instead, such as a name with upper-case letters or, on an
+     * https endpoint, a dotted name; their requests and URLs have no path prefix either.
+     */
+    static URI serviceEndpoint(URI endpointUri, boolean bucketInPath) {
+        StringBuilder serviceEndpoint =
+                new StringBuilder(endpointUri.getScheme()).append("://").append(endpointUri.getHost());
+        if (endpointUri.getPort() >= 0) {
+            serviceEndpoint.append(':').append(endpointUri.getPort());
+        }
+        if (bucketInPath && endpointUri.getRawPath() != null) {
+            serviceEndpoint.append(StringUtils.stripEnd(endpointUri.getRawPath(), "/"));
+        }
+        return URI.create(serviceEndpoint.toString());
     }
 
     private static String getUserProvidedRegion(List<Property> properties) {
@@ -237,7 +355,8 @@ public class DatasourceUtils {
     }
 
     /**
-     * This method checks if the S3 endpoint URL has correct format and extracts region information from it.
+     * This method checks if the S3 endpoint URL has correct format and extracts region information from it. A scheme
+     * the endpoint starts with is not part of the region.
      *
      * @param endpoint         : endpoint URL
      * @param regex            : expected endpoint URL pattern
@@ -258,7 +377,9 @@ public class DatasourceUtils {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(endpoint);
         if (matcher.find()) {
-            return matcher.group(regionGroupIndex);
+            String region = matcher.group(regionGroupIndex);
+            int schemeEnd = region.indexOf("://");
+            return schemeEnd < 0 ? region : region.substring(schemeEnd + "://".length());
         }
 
         /* Code flow is never expected to reach here. */
