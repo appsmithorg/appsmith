@@ -288,7 +288,6 @@ jobs:
             org.opencontainers.image.version=${{ steps.info_json.outputs.version }}
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
-            APPSMITH_MIXPANEL_KEY=${{ secrets.APPSMITH_MIXPANEL_KEY }}
             APPSMITH_BETTERBUGS_API_KEY=${{ secrets.APPSMITH_BETTERBUGS_API_KEY }}
             APPSMITH_PYLON_APP_ID=${{ secrets.APPSMITH_PYLON_APP_ID }}
             BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:${{ steps.set_base_tag.outputs.base_tag }}
