@@ -483,11 +483,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     }
                     return Mono.just(crudUser);
                 })
-                .then(Mono.zip(
-                        userWithOrgMono.flatMap(userWithOrg -> repository.findByEmailAndOrganizationId(
-                                user.getUsername(), userWithOrg.getOrganizationId())),
-                        userDataService.getForUserEmail(user.getUsername())))
-                .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()));
+                // The user is identified to analytics on their first login (AuthenticationSuccessHandlerCE), not
+                // here: users created by invites or provisioning may never sign in, and each identify call makes
+                // them a tracked user.
+                .then(userWithOrgMono.flatMap(userWithOrg ->
+                        repository.findByEmailAndOrganizationId(user.getUsername(), userWithOrg.getOrganizationId())));
     }
 
     private Mono<User> addUserPoliciesAndSaveToRepo(User user) {
@@ -821,6 +821,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
                     profile.setEmail(userFromDb.getEmail());
                     profile.setWorkspaceIds(userFromDb.getWorkspaceIds());
+                    profile.setOrganizationId(userFromDb.getOrganizationId());
                     profile.setUsername(userFromDb.getUsername());
                     profile.setName(userFromDb.getName());
                     profile.setGender(userFromDb.getGender());

@@ -6,6 +6,7 @@ import {
   AnalyticsBrowser,
 } from "@segment/analytics-next";
 import { getAppsmithConfigs } from "ee/configs";
+import { sha256 } from "js-sha256";
 import log from "loglevel";
 
 enum InitializationStatus {
@@ -161,10 +162,14 @@ class SegmentSingleton {
     }
 
     const identity = JSON.stringify({ userId, traits });
+    // Persist only a one-way digest, never the identity itself: the raw value carries PII (email,
+    // name) and sessionStorage is origin-wide, readable by same-origin application code such as an
+    // unsandboxed custom-widget iframe. The digest still gives us the equality check dedup needs.
+    const identityDigest = sha256(identity);
 
     if (
       this.analytics.user()?.id?.() === userId &&
-      readSessionValue(LAST_IDENTIFY_STORAGE_KEY) === identity
+      readSessionValue(LAST_IDENTIFY_STORAGE_KEY) === identityDigest
     ) {
       log.debug("Identify skipped, unchanged in this session", userId);
 
@@ -186,7 +191,7 @@ class SegmentSingleton {
 
         // A reset() while this call was on the wire means it identified the previous session, not this one.
         if (this.identifyGeneration === generation) {
-          writeSessionValue(LAST_IDENTIFY_STORAGE_KEY, identity);
+          writeSessionValue(LAST_IDENTIFY_STORAGE_KEY, identityDigest);
         }
       } finally {
         // reset() already dropped this entry, and the key may now belong to a post-reset identify.

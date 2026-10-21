@@ -35,7 +35,10 @@ const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import RapidMode from "./RapidMode";
-import { featureFlagIntercept } from "./Objects/FeatureFlags";
+import {
+  featureFlagIntercept,
+  rewriteUpstreamResponse,
+} from "./Objects/FeatureFlags";
 import { PluginActionForm } from "./Pages/PluginActionForm";
 
 const propPane = ObjectsRegistry.PropertyPane;
@@ -823,7 +826,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
       url: "/api/v1/product-alert/alert",
     },
     (req) => {
-      req.reply((res) => {
+      rewriteUpstreamResponse(req, (res) => {
         if (res) {
           if (res.statusCode === 200) {
             // Modify the response body to have empty data
@@ -1394,20 +1397,24 @@ Cypress.Commands.add("skipSignposting", () => {
   onboarding.skipSignposting();
 });
 
-Cypress.Commands.add("stubPricingPage", () => {
+// Replaces window.open with a stub that records the call and its URL. The
+// stub never navigates, so the test stays in the app. Restores any earlier
+// stub first, so a test can call this more than once on the same window.
+const stubWindowOpen = (alias) => {
   cy.window().then((win) => {
-    cy.stub(win, "open", (url) => {
-      win.location.href = "https://www.appsmith.com/pricing?";
-    }).as("pricingPage");
+    if (typeof win.open.restore === "function") {
+      win.open.restore();
+    }
+    cy.stub(win, "open").as(alias);
   });
+};
+
+Cypress.Commands.add("stubPricingPage", () => {
+  stubWindowOpen("pricingPage");
 });
 
 Cypress.Commands.add("stubCustomerPortalPage", () => {
-  cy.window().then((win) => {
-    cy.stub(win, "open", (url) => {
-      win.location.href = "https://customer.appsmith.com?";
-    }).as("customerPortalPage");
-  });
+  stubWindowOpen("customerPortalPage");
 });
 
 /**

@@ -516,6 +516,14 @@ public enum AppsmithError {
             "Datasource cannot be deleted",
             ErrorType.BAD_REQUEST,
             null),
+    DATASOURCE_CREDENTIALS_REQUIRED(
+            400,
+            AppsmithErrorCode.DATASOURCE_CREDENTIALS_REQUIRED.getCode(),
+            "The datasource connection settings changed. Re-enter the credentials and try again.",
+            AppsmithErrorAction.DEFAULT,
+            "Datasource credentials required",
+            ErrorType.DATASOURCE_CONFIGURATION_ERROR,
+            null),
     DEPRECATED_DATASOURCE_PLUGIN(
             400,
             AppsmithErrorCode.DEPRECATED_DATASOURCE_PLUGIN.getCode(),

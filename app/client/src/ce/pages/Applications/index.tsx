@@ -81,7 +81,8 @@ import React, {
 } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import MediaQuery from "react-responsive";
-import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
+import { useIsBannerVisible } from "pages/common/useIsBannerVisible";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled, { ThemeContext } from "styled-components";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
@@ -111,7 +112,6 @@ import {
   getIsFetchingMyOrganizations,
   getMyOrganizations,
   getOrganizationPermissions,
-  shouldShowLicenseBanner,
   activeOrganizationId,
 } from "ee/selectors/organizationSelectors";
 import { getWorkflowsList } from "ee/selectors/workflowSelectors";
@@ -1161,10 +1161,7 @@ export const ApplictionsMainPage = (props: any) => {
   const fetchedPackages = useSelector(getPackagesList);
   const fetchedWorkflows = useSelector(getWorkflowsList);
   const fetchedWorkspaceId = useSelector(getCurrentWorkspaceId);
-  const showBanner = useSelector(shouldShowLicenseBanner);
-  const isHomePage = useRouteMatch("/applications")?.isExact;
-  const isLicensePage = useRouteMatch("/license")?.isExact;
-  const isBannerVisible = showBanner && (isHomePage || isLicensePage);
+  const isBannerVisible = useIsBannerVisible();
   const organizations = useSelector(getMyOrganizations);
   const isFetchingOrganizations = useSelector(getIsFetchingMyOrganizations);
   const currentOrganizationId = useSelector(activeOrganizationId);

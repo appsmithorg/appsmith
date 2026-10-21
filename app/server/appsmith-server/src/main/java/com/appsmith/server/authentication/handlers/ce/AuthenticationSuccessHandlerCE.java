@@ -323,6 +323,12 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                     ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
                         }
 
+                        // First sign-in is when a user becomes real for analytics; `userCreate` deliberately does
+                        // not identify, so invited or provisioned users who never sign in are never tracked.
+                        monos.add(userDataService
+                                .getForUser(currentUser)
+                                .flatMap(userData -> analyticsService.identifyUser(currentUser, userData)));
+
                         monos.add(analyticsService.sendObjectEvent(
                                 AnalyticsEvents.FIRST_LOGIN,
                                 currentUser,

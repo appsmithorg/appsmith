@@ -1,8 +1,9 @@
 package com.external.utils;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
 import org.junit.jupiter.api.Test;
+import software.amazon.awssdk.awscore.exception.AwsErrorDetails;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -13,8 +14,13 @@ public class AmazonS3ErrorUtilsTest {
     public void getReadableErrorWithAmazonServiceException() throws InstantiationException {
         String errorMessage = "The specified access point name or account is not valid.";
         String errorCode = "InvalidAccessPoint";
-        AmazonServiceException amazonServiceException = new AmazonS3Exception(errorMessage);
-        amazonServiceException.setErrorCode(errorCode);
+        AwsServiceException amazonServiceException = AwsServiceException.builder()
+                .message(errorMessage)
+                .awsErrorDetails(AwsErrorDetails.builder()
+                        .errorCode(errorCode)
+                        .errorMessage(errorMessage)
+                        .build())
+                .build();
         AmazonS3ErrorUtils errorUtil = AmazonS3ErrorUtils.getInstance();
         String returnedErrorMessage = errorUtil.getReadableError(amazonServiceException);
         assertNotNull(returnedErrorMessage);
@@ -25,8 +31,13 @@ public class AmazonS3ErrorUtilsTest {
     public void getReadableErrorWithAmazonS3Exception() throws InstantiationException {
         String errorMessage = "Reduce your request rate.";
         String errorCode = "SlowDown";
-        AmazonS3Exception amazonS3Exception = new AmazonS3Exception(errorMessage);
-        amazonS3Exception.setErrorCode(errorCode);
+        AwsServiceException amazonS3Exception = S3Exception.builder()
+                .message(errorMessage)
+                .awsErrorDetails(AwsErrorDetails.builder()
+                        .errorCode(errorCode)
+                        .errorMessage(errorMessage)
+                        .build())
+                .build();
         AmazonS3ErrorUtils errorUtil = AmazonS3ErrorUtils.getInstance();
         String returnedErrorMessage = errorUtil.getReadableError(amazonS3Exception);
         assertNotNull(returnedErrorMessage);

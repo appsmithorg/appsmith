@@ -106,6 +106,22 @@ export default {
       },
     },
     {
+      propertyName: "allowHeaderWrapping",
+      dependencies: ["primaryColumns", "columnOrder"],
+      label: "Header wrapping",
+      helpText: "Allows content of the column header to be wrapped",
+      defaultValue: false,
+      controlType: "SWITCH",
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.BOOLEAN,
+        params: {
+          default: false,
+        },
+      },
+    },
+    {
       propertyName: "isCellEditable",
       dependencies: [
         "primaryColumns",

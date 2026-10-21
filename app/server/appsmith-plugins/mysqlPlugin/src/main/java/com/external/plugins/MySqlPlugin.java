@@ -508,7 +508,13 @@ public class MySqlPlugin extends BasePlugin {
                 Map<String, Object> requestData,
                 Map psParams) {
 
-            Statement connectionStatement = connection.createStatement(query);
+            // The MariaDB R2DBC driver uses server-side preparation for CALL even when
+            // useServerPrepStmts is false. The server cannot prepare a CALL followed by
+            // another statement, so use the driver's parameterized text protocol.
+            // Its CALL detection skips leading SQL comments, which must take the same path here.
+            String statementQuery =
+                    TRUE.equals(preparedStatement) && startsWithCall(query) ? "/*text*/ " + query : query;
+            Statement connectionStatement = connection.createStatement(statementQuery);
             if (FALSE.equals(preparedStatement) || mustacheValuesInOrder == null || mustacheValuesInOrder.isEmpty()) {
                 return Flux.from(connectionStatement.execute());
             }
@@ -534,6 +540,31 @@ public class MySqlPlugin extends BasePlugin {
             }
 
             return Flux.from(connectionStatement.execute());
+        }
+
+        private boolean startsWithCall(String query) {
+            int index = 0;
+            while (index < query.length()) {
+                if (Character.isWhitespace(query.charAt(index))) {
+                    index++;
+                } else if (query.startsWith("/*", index)) {
+                    int commentEnd = query.indexOf("*/", index + 2);
+                    if (commentEnd < 0) {
+                        return false;
+                    }
+                    index = commentEnd + 2;
+                } else if (query.charAt(index) == '#') {
+                    while (index < query.length() && query.charAt(index) != '\n' && query.charAt(index) != '\r') {
+                        index++;
+                    }
+                } else {
+                    break;
+                }
+            }
+
+            return query.regionMatches(true, index, "CALL", 0, 4)
+                    && index + 4 < query.length()
+                    && Character.isWhitespace(query.charAt(index + 4));
         }
 
         @Override

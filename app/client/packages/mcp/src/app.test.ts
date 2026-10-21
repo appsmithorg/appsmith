@@ -333,6 +333,7 @@ function createApi(
     getGitProtectedBranches: jest.fn(async () => []),
     listGitBranches: jest.fn(async () => []),
     createGitBranch: jest.fn(async () => ({})),
+    checkoutGitBranch: jest.fn(async () => ({})),
     commitGitApplication: jest.fn(async () => ({})),
     listActions: jest.fn(),
     createAction: jest.fn(),
@@ -1569,6 +1570,7 @@ describe("MCP instruction surface (M2)", () => {
         "appsmith://recipe/form",
         "appsmith://recipe/table-detail",
         "appsmith://recipe/zip-lookup",
+        "appsmith://recipe/filter-bar",
         "appsmith://reference/widgets",
       ].sort(),
     );
@@ -1878,6 +1880,48 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
 
     expect(dto.datasource).toEqual({ id: "ds1" });
   });
+
+  it.each([
+    ["postgres-plugin", true],
+    ["mysql-plugin", false],
+  ])(
+    "APP-16164: create_query compiles inList only on a PostgreSQL datasource (%s)",
+    async (pluginId, allowed) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          filters: [
+            {
+              column: "tag",
+              op: "inList",
+              value: { widget: "TagsSelect", property: "selectedOptionValues" },
+              skipWhenEmpty: true,
+            },
+          ],
+        },
+      });
+
+      if (allowed) {
+        expect(body.created).toBe(true);
+        expect(body.body).toContain("CAST(tag AS TEXT) = ANY(");
+      } else {
+        expect(body.valid).toBe(false);
+        expect(JSON.stringify(body.errors)).toMatch(
+          /only available on a PostgreSQL datasource/,
+        );
+        expect(createAction).not.toHaveBeenCalled();
+      }
+    },
+  );
 
   it("create_query refuses a datasource the caller cannot access (IDOR guard)", async () => {
     const createAction = jest.fn();
@@ -3363,6 +3407,52 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     expect(JSON.stringify(dto)).not.toContain("dbAuth");
   });
 
+  // On EE a workspace has real environments, and naming CE's fixed "unused_env" made the server refuse the create
+  // ("You do not have access to this environment"). With no environmentId, CE uses its fixed environment and EE the
+  // workspace's default one.
+  it.each([
+    ["rest", { url: "https://api.zippopotam.us" }],
+    [
+      "postgresql",
+      { connection: { host: "db.internal", databaseName: "appdb" } },
+    ],
+  ])(
+    "create_datasource (%s) leaves the storage's environment to the server",
+    async (plugin, target) => {
+      const createDatasource = jest.fn<
+        Promise<Record<string, unknown>>,
+        [Record<string, unknown>]
+      >(async () => ({ id: "ds1", name: "Env", pluginId: "p1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listPlugins: jest.fn(async () => [
+          { id: "p1", packageName: "restapi-plugin" },
+          { id: "p2", packageName: "postgres-plugin" },
+        ]),
+        listDatasources: jest.fn(async () => []),
+        createDatasource,
+      };
+
+      const body = await callTool(api, "create_datasource", {
+        workspaceId: "ws1",
+        name: "Env",
+        plugin,
+        ...target,
+      });
+
+      expect(body.created).toBe(true);
+
+      const storages = (
+        createDatasource.mock.calls[0][0] as {
+          datasourceStorages: Record<string, Record<string, unknown>>;
+        }
+      ).datasourceStorages;
+
+      expect(Object.values(storages)).toHaveLength(1);
+      expect(Object.values(storages)[0]).not.toHaveProperty("environmentId");
+    },
+  );
+
   it("create_datasource enforces url-vs-connection per plugin family and rejects unsafe URLs", async () => {
     const createDatasource = jest.fn();
     const api: AppsmithApi = {
@@ -4075,6 +4165,82 @@ describe("governance-wrapped layout mutations", () => {
     updatedAt: "2026-07-12T00:00:00.000Z",
     datasource: { id: "ds1", pluginId: "postgres" },
   };
+
+  // update_action recompiles a SQL spec, so it checks the datasource the same way create_query does. The
+  // datasource must be in the application's workspace, and inList works only on PostgreSQL.
+  function sqlUpdateServer(datasources: unknown[]) {
+    const updateAction = jest.fn(async () => STORED_ACTION);
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getAction: jest.fn(async () => STORED_ACTION),
+      listDatasources: jest.fn(async () => datasources),
+      updateAction: updateAction as never,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      dataEnabled: true,
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+
+    return { server, updateAction };
+  }
+
+  async function updateWithInList(
+    server: ReturnType<typeof createMcpHttpServer>,
+  ) {
+    const read = await callTool(server, "get_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+
+    return callTool(server, "update_action", {
+      spec: {
+        kind: "SQL",
+        actionId: "act1",
+        applicationId: "app1",
+        revision: read.body.revision,
+        query: {
+          name: "OldName",
+          applicationId: "app1",
+          pageId: "p1",
+          datasourceId: "ds1",
+          operation: "SELECT",
+          table: "tickets",
+          filters: [
+            {
+              column: "tag",
+              op: "inList",
+              value: { widget: "TagsSelect", property: "selectedOptionValues" },
+              skipWhenEmpty: true,
+            },
+          ],
+        },
+      },
+    });
+  }
+
+  it("APP-16164: update_action recompiles an inList filter on a PostgreSQL datasource", async () => {
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+    ]);
+    const updated = await updateWithInList(server);
+
+    expect(updated.body.updated).toBe(true);
+    expect(
+      JSON.stringify(
+        (updateAction.mock.calls[0] as unknown[])[1] as Record<string, unknown>,
+      ),
+    ).toContain("CAST(tag AS TEXT) = ANY(");
+  });
+
+  it("APP-16164: update_action refuses a SQL spec on a datasource outside the application's workspace", async () => {
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "other", name: "X", pluginId: "postgres-plugin" },
+    ]);
+    const updated = await updateWithInList(server);
+
+    expect(updated.body.error).toMatch(/not accessible/);
+    expect(updateAction).not.toHaveBeenCalled();
+  });
 
   it("get_action returns safe metadata + revision, and update_action commits a governed rename", async () => {
     const store = new MemoryGovernanceStore();
@@ -8479,5 +8645,347 @@ describe("close-the-loop — advisory write classifier", () => {
 
     expect(writeActionNames(list)).toEqual(["insertTask", "callApi"]);
     expect(writeActionNames("not a list")).toEqual([]);
+  });
+});
+
+// APP-16087: the request log line and the backend calls a tool call makes must describe THAT tool call. MCP answers
+// every tool call with HTTP 200, and a session's API client outlives the request that created it.
+describe("MCP request correlation and outcome logging", () => {
+  async function openSession(
+    server: ReturnType<typeof createMcpHttpServer>,
+    headers: Record<string, string> = {},
+  ): Promise<string> {
+    const initialized = await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set(headers)
+      .send(initializeRequest);
+    const sessionId = initialized.headers["mcp-session-id"] as string;
+
+    await supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .send({ jsonrpc: "2.0", method: "notifications/initialized" });
+
+    return sessionId;
+  }
+
+  function callTool(
+    server: ReturnType<typeof createMcpHttpServer>,
+    sessionId: string,
+    name: string,
+    args: Record<string, unknown>,
+    headers: Record<string, string> = {},
+    id = 7,
+  ) {
+    return supertest(server)
+      .post("/mcp")
+      .set("Accept", "application/json, text/event-stream")
+      .set("Authorization", "Bearer mcp_user-token")
+      .set("mcp-session-id", sessionId)
+      .set(headers)
+      .send({
+        jsonrpc: "2.0",
+        id,
+        method: "tools/call",
+        params: { name, arguments: args },
+      });
+  }
+
+  function captureEvents(): {
+    events: Record<string, unknown>[];
+    restore: () => void;
+  } {
+    const events: Record<string, unknown>[] = [];
+    const spy = jest
+      .spyOn(process.stderr, "write")
+      .mockImplementation((chunk: string | Uint8Array) => {
+        try {
+          events.push(
+            JSON.parse(typeof chunk === "string" ? chunk : chunk.toString()),
+          );
+        } catch {
+          // Non-JSON writes are irrelevant here.
+        }
+
+        return true;
+      });
+
+    return { events, restore: () => spy.mockRestore() };
+  }
+
+  it("sends the tool call's own correlation headers to the backend, not the session's initialize ones", async () => {
+    const fetchFn = jest.fn<
+      Promise<Response>,
+      [RequestInfo | URL, RequestInit?]
+    >(async (url) => {
+      const path = String(url).slice(API_BASE_URL.length);
+      const data = path.startsWith("/api/v1/users/me")
+        ? {
+            username: "user@appsmith.com",
+            isAnonymous: false,
+            organizationId: "org-1",
+          }
+        : [];
+
+      return new Response(JSON.stringify({ data }), { status: 200 });
+    });
+    const server = createMcpHttpServer(API_BASE_URL, (token, headers) =>
+      createAppsmithApi(
+        token,
+        API_BASE_URL,
+        fetchFn as unknown as typeof fetch,
+        headers,
+      ),
+    );
+    const sessionId = await openSession(server, {
+      "X-Appsmith-Request-Id": "initialize-request",
+      "X-Request-Id": "initialize-client-request",
+    });
+
+    await callTool(
+      server,
+      sessionId,
+      "list_workspaces",
+      {},
+      { "X-Appsmith-Request-Id": "tool-call-request" },
+    );
+
+    const toolCall = fetchFn.mock.calls.find(([url]) =>
+      String(url).endsWith("/api/v1/workspaces/home"),
+    );
+
+    expect(toolCall).toBeDefined();
+    const headers = new Headers(toolCall?.[1]?.headers);
+
+    expect(headers.get("X-Appsmith-Request-Id")).toBe("tool-call-request");
+    // The tool call carried no client request id, so none of the initialize request's leaks onto it.
+    expect(headers.get("X-Request-Id")).toBeNull();
+  });
+
+  it.each([
+    {
+      label: "a successful call",
+      tool: "list_workspaces",
+      args: {},
+      api: { listWorkspaces: jest.fn(async () => []) },
+      expected: { statusClass: "success" },
+    },
+    {
+      label: "a refusal carrying the tool's code",
+      tool: "create_datasource",
+      args: { workspaceId: "ws1", name: "Sheet", plugin: "googlesheets" },
+      api: {},
+      expected: { statusClass: "refused", toolCode: "needs_ui_oauth" },
+    },
+    {
+      label: "a backend failure",
+      tool: "list_workspaces",
+      args: {},
+      api: {
+        listWorkspaces: jest.fn(async () => {
+          throw new Error("Appsmith API request failed (401)");
+        }),
+      },
+      expected: { statusClass: "tool_error" },
+    },
+    {
+      label: "a spec the tool rejects",
+      tool: "validate_app_spec",
+      args: {
+        app: {
+          name: "Demo",
+          pages: [{ name: "Home", widgets: [{ type: "no_such_widget" }] }],
+        },
+      },
+      api: {},
+      expected: { statusClass: "invalid_input" },
+    },
+    {
+      label: "arguments the SDK rejects before the tool runs",
+      tool: "list_applications",
+      args: { workspaceId: 42 },
+      api: {},
+      expected: { statusClass: "invalid_input" },
+    },
+    {
+      label: "a tool that does not exist",
+      tool: "no_such_tool",
+      args: {},
+      api: {},
+      expected: { statusClass: "invalid_input" },
+    },
+    {
+      label: "a large successful result (classified without re-parsing it)",
+      tool: "list_workspaces",
+      args: {},
+      api: {
+        listWorkspaces: jest.fn(async () =>
+          Array.from({ length: 2000 }, (_, index) => ({
+            id: `ws-${index}`,
+            name: `Workspace ${index} with a long enough name to grow the result`,
+          })),
+        ),
+      },
+      expected: { statusClass: "success" },
+    },
+  ])(
+    "logs $label with the tool's outcome, not the HTTP 200",
+    async ({ api, args, expected, tool }) => {
+      const { events, restore } = captureEvents();
+
+      try {
+        const server = createMcpHttpServer(
+          API_BASE_URL,
+          () => ({ ...createApi()(), ...api }) as AppsmithApi,
+          { dataEnabled: true },
+        );
+        const sessionId = await openSession(server);
+        const response = await callTool(server, sessionId, tool, args);
+
+        expect(response.status).toBe(200);
+
+        const toolEvent = events.find(
+          (event) =>
+            event.event === "appsmith_mcp_request" && event.tool === tool,
+        );
+
+        expect(toolEvent).toMatchObject({ status: 200, ...expected });
+
+        if (!("toolCode" in expected)) {
+          expect(toolEvent?.toolCode).toBeUndefined();
+        }
+
+        // Only the class and the tool's own code are logged: no message text or arguments.
+        const serialized = JSON.stringify(toolEvent);
+
+        expect(serialized).not.toContain("Appsmith API request failed");
+        expect(serialized).not.toContain("OAuth");
+        expect(serialized).not.toContain("ws1");
+      } finally {
+        restore();
+      }
+    },
+  );
+
+  it("keeps two overlapping tool calls on one session on their own correlation ids", async () => {
+    // Call A is held at its authentication step until call B has started, so B's request is underway before A builds
+    // the headers of its backend call. Anything shared between requests would hand A the later request's id.
+    let holdAuth = false;
+    let authCalls = 0;
+    let firstHeld: () => void = () => {};
+    const firstAuthArrived = new Promise<void>((resolve) => {
+      firstHeld = resolve;
+    });
+    let releaseFirst: () => void = () => {};
+    const secondAuthArrived = new Promise<void>((resolve) => {
+      releaseFirst = resolve;
+    });
+    const fetchFn = jest.fn<
+      Promise<Response>,
+      [RequestInfo | URL, RequestInit?]
+    >(async (url) => {
+      const path = String(url).slice(API_BASE_URL.length);
+
+      if (path.startsWith("/api/v1/users/me")) {
+        if (holdAuth) {
+          authCalls += 1;
+
+          if (authCalls === 1) {
+            firstHeld();
+            await secondAuthArrived;
+          } else {
+            releaseFirst();
+          }
+        }
+
+        return new Response(
+          JSON.stringify({
+            data: {
+              username: "user@appsmith.com",
+              isAnonymous: false,
+              organizationId: "org-1",
+            },
+          }),
+          { status: 200 },
+        );
+      }
+
+      return new Response(JSON.stringify({ data: [] }), { status: 200 });
+    });
+    const server = createMcpHttpServer(API_BASE_URL, (token, headers) =>
+      createAppsmithApi(
+        token,
+        API_BASE_URL,
+        fetchFn as unknown as typeof fetch,
+        headers,
+      ),
+    );
+    const sessionId = await openSession(server, {
+      "X-Appsmith-Request-Id": "initialize-request",
+    });
+
+    holdAuth = true;
+
+    const callA = callTool(
+      server,
+      sessionId,
+      "list_workspaces",
+      {},
+      { "X-Appsmith-Request-Id": "call-a" },
+    ).then((response) => response);
+
+    await firstAuthArrived;
+
+    const callB = callTool(
+      server,
+      sessionId,
+      "list_workspaces",
+      {},
+      { "X-Appsmith-Request-Id": "call-b" },
+      8,
+    ).then((response) => response);
+
+    await Promise.all([callA, callB]);
+
+    const ids = fetchFn.mock.calls
+      .filter(([url]) => String(url).endsWith("/api/v1/workspaces/home"))
+      .map(([, init]) =>
+        new Headers(init?.headers).get("X-Appsmith-Request-Id"),
+      )
+      .sort();
+
+    expect(ids).toEqual(["call-a", "call-b"]);
+  });
+
+  it("keeps the HTTP-derived class for requests that are not tool calls", async () => {
+    const { events, restore } = captureEvents();
+
+    try {
+      const server = createMcpHttpServer(API_BASE_URL, createApi());
+      const sessionId = await openSession(server);
+
+      await supertest(server)
+        .post("/mcp")
+        .set("Accept", "application/json, text/event-stream")
+        .set("Authorization", "Bearer mcp_user-token")
+        .set("mcp-session-id", sessionId)
+        .send({ jsonrpc: "2.0", id: 9, method: "tools/list" });
+
+      const listEvent = events.find(
+        (event) =>
+          event.event === "appsmith_mcp_request" &&
+          event.mcpMethod === "tools/list",
+      );
+
+      expect(listEvent).toMatchObject({ status: 200, statusClass: "success" });
+      expect(listEvent?.tool).toBeUndefined();
+      expect(listEvent?.toolCode).toBeUndefined();
+    } finally {
+      restore();
+    }
   });
 });

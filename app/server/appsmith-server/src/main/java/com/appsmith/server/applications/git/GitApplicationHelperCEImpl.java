@@ -17,6 +17,7 @@ import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.git.SchemaVersionUpdateAudit;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
@@ -176,7 +177,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
         update.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
         update.setIsManualUpdate(false);
 
-        return applicationService.update(artifact.getId(), update);
+        return SchemaVersionUpdateAudit.suppress(applicationService.update(artifact.getId(), update));
     }
 
     @Override

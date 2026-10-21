@@ -1,5 +1,6 @@
 import SegmentSingleton from "./segment";
 import { getAppsmithConfigs } from "ee/configs";
+import { sha256 } from "js-sha256";
 import log from "loglevel";
 
 // Mock external dependencies
@@ -177,6 +178,33 @@ describe("SegmentSingleton", () => {
       await segment.identify(userId, { ...traits });
 
       expect(mockAnalytics.identify).toHaveBeenCalledTimes(1);
+    });
+
+    it("should persist only a non-reversible digest of the identity, never the raw traits", async () => {
+      const segment = SegmentSingleton.getInstance();
+
+      await segment.init(true);
+
+      const sensitiveTraits = {
+        name: "Test User",
+        email: "secret@example.com",
+      };
+
+      await segment.identify(userId, sensitiveTraits);
+
+      const stored = window.sessionStorage.getItem(
+        "appsmith:segment:lastIdentify",
+      );
+
+      // The dedup marker must not leak user identity/PII to same-origin code such as an
+      // unsandboxed custom-widget iframe, which can read the origin-wide sessionStorage.
+      expect(stored).not.toBeNull();
+      expect(stored).not.toContain("secret@example.com");
+      expect(stored).not.toContain("Test User");
+      expect(stored).not.toContain(userId);
+      expect(stored).toBe(
+        sha256(JSON.stringify({ userId, traits: sensitiveTraits })),
+      );
     });
 
     it("should identify again when the traits change", async () => {

@@ -135,6 +135,7 @@ interface RenderChildrenOption {
   parentColumnSpace: number;
   selectedItemKey?: string | null;
   startIndex: number;
+  disableSelection?: boolean;
 }
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
@@ -252,6 +253,7 @@ class ListWidget extends BaseWidget<
             "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
         },
         isVisible: DefaultAutocompleteDefinitions.isVisible,
+        disableSelection: "bool",
         itemSpacing: "number",
         selectedItem: generateTypeDef(widget.selectedItem, extraDefsToDefine),
         selectedItemView: generateTypeDef(
@@ -1049,6 +1051,8 @@ class ListWidget extends BaseWidget<
   };
 
   onItemClick = (rowIndex: number) => {
+    if (this.props.disableSelection === true) return;
+
     this.handleSelectedItemAndKey(rowIndex);
     this.handleSelectedItemView(rowIndex);
 
@@ -1262,8 +1266,13 @@ class ListWidget extends BaseWidget<
       metaWidgetChildrenStructure: ListWidgetProps["metaWidgetChildrenStructure"],
       options: RenderChildrenOption,
     ) => {
-      const { componentWidth, parentColumnSpace, selectedItemKey, startIndex } =
-        options;
+      const {
+        componentWidth,
+        disableSelection,
+        parentColumnSpace,
+        selectedItemKey,
+        startIndex,
+      } = options;
 
       const childWidgets = (metaWidgetChildrenStructure || [])
         .filter((child) => !child.isTemplate)
@@ -1298,6 +1307,7 @@ class ListWidget extends BaseWidget<
               ...container,
               focused,
               selected: selectedItemKey === key,
+              showHoverPointer: disableSelection !== true,
               onClick: (e: React.MouseEvent<HTMLElement>) => {
                 e.stopPropagation();
 
@@ -1329,7 +1339,8 @@ class ListWidget extends BaseWidget<
           prevOptions.componentWidth === nextOptions.componentWidth &&
           prevOptions.parentColumnSpace === nextOptions.parentColumnSpace &&
           prevOptions.selectedItemKey === nextOptions.selectedItemKey &&
-          prevOptions.startIndex === nextOptions.startIndex
+          prevOptions.startIndex === nextOptions.startIndex &&
+          prevOptions.disableSelection === nextOptions.disableSelection
         );
       },
     },
@@ -1506,6 +1517,7 @@ class ListWidget extends BaseWidget<
         >
           {this.renderChildren(this.props.metaWidgetChildrenStructure, {
             componentWidth,
+            disableSelection: this.props.disableSelection,
             parentColumnSpace,
             selectedItemKey,
             startIndex,
@@ -1547,6 +1559,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   serverSidePagination?: boolean;
   nestedViewIndex?: number;
   defaultSelectedItem?: string;
+  disableSelection?: boolean;
   totalRecordsCount?: number | string;
 }
 

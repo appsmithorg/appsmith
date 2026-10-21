@@ -1,17 +1,12 @@
 import React, { useEffect } from "react";
-import { useRouteMatch } from "react-router-dom";
-import { connect, useDispatch, useSelector } from "react-redux";
-import {
-  getCurrentUser,
-  getShouldShowBaseUrlMissingBanner,
-} from "selectors/usersSelectors";
+import { connect, useDispatch } from "react-redux";
+import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import type { DefaultRootState } from "react-redux";
 import type { User } from "constants/userConstants";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
-import { shouldShowLicenseBanner } from "ee/selectors/organizationSelectors";
 import { Banner } from "ee/utils/licenseHelpers";
 import BaseUrlMissingBanner from "components/editorComponents/BaseUrlMissingBanner";
 import bootPylon from "utils/bootPylon";
@@ -20,6 +15,7 @@ import {
   DESKTOP_BANNER_OFFSET,
   MOBILE_BANNER_OFFSET,
 } from "pages/common/bannerOffsets";
+import { useIsBannerVisible } from "pages/common/useIsBannerVisible";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -70,17 +66,12 @@ export function PageHeader(props: PageHeaderProps) {
     bootPylon(user);
   }, [user?.email]);
 
-  const showBanner = useSelector(shouldShowLicenseBanner);
-  const isHomePage = useRouteMatch("/applications")?.isExact;
-  const isLicensePage = useRouteMatch("/license")?.isExact;
-  // GHSA-j9gf-vw2f-9hrw — fold the base-url-missing admin banner into the same
-  // isBannerVisible signal that the existing license/trial banner uses, so the
-  // page header gets pushed down by DESKTOP_BANNER_OFFSET / MOBILE_BANNER_OFFSET
-  // when either banner is visible. Without this, the page header — which
-  // has a higher z-index — paints over the fixed-position banner at top: 0.
-  const showBaseUrlBanner = useSelector(getShouldShowBaseUrlMissingBanner);
-  const isAnyBannerVisible =
-    (showBanner && (isHomePage || isLicensePage)) || showBaseUrlBanner;
+  // APP-16059 / GHSA-j9gf-vw2f-9hrw — single source of truth for whether a
+  // top-of-screen banner is visible (the license/trial banner on the home and
+  // /license routes, or the global base-url-missing admin banner). When it is,
+  // the fixed page header is pushed down by DESKTOP_BANNER_OFFSET /
+  // MOBILE_BANNER_OFFSET instead of painting over the banner at top: 0.
+  const isAnyBannerVisible = useIsBannerVisible();
 
   return (
     <>

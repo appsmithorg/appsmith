@@ -27,7 +27,7 @@ import { fetchMockDatasources } from "actions/datasourceActions";
 import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import type { Datasource } from "entities/Datasource";
 import { fetchingEnvironmentConfigs } from "ee/actions/environmentAction";
-import { shouldShowLicenseBanner } from "ee/selectors/organizationSelectors";
+import { useIsBannerVisible } from "pages/common/useIsBannerVisible";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 
 const SectionWrapper = styled.div<{ isBannerVisible: boolean }>`
@@ -85,7 +85,10 @@ const CreateNewAppsOption = ({
     getDatasource(state, TEMP_DATASOURCE_ID || ""),
   );
 
-  const isBannerVisible = useSelector(shouldShowLicenseBanner);
+  // APP-16059 — not route-gated: this onboarding view is only mounted inside the
+  // Applications flow, and it must also offset below the global base-url-missing
+  // banner, not just the license banner.
+  const isBannerVisible = useIsBannerVisible({ routeGated: false });
   const dispatch = useDispatch();
 
   const startWithData = () => {
