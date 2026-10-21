@@ -1,0 +1,57 @@
+{
+  "form": [
+    {
+      "sectionName": "Details",
+      "id": 1,
+      "children": [
+        {
+          "label": "WSDL URL",
+          "subtitle": "Operations are discovered from this WSDL (1.1)",
+          "configProperty": "datasourceConfiguration.url",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "",
+          "placeholderText": "https://example.com/service?wsdl",
+          "isRequired": true
+        },
+        {
+          "label": "Endpoint URL override",
+          "subtitle": "Optional. Send requests here instead of the address in the WSDL",
+          "configProperty": "datasourceConfiguration.properties[0].value",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "",
+          "placeholderText": "https://example.com/service"
+        },
+        {
+          "label": "Authentication type",
+          "configProperty": "datasourceConfiguration.authentication.authenticationType",
+          "controlType": "DROP_DOWN",
+          "initialValue": "dbAuth",
+          "setFirstOptionAsDefault": true,
+          "options": [
+            {
+              "label": "Basic",
+              "value": "dbAuth"
+            }
+          ],
+          "hidden": true
+        },
+        {
+          "label": "Username",
+          "subtitle": "Optional. Sent as HTTP Basic auth with the WSDL fetch and every request",
+          "configProperty": "datasourceConfiguration.authentication.username",
+          "controlType": "INPUT_TEXT",
+          "initialValue": ""
+        },
+        {
+          "label": "Password",
+          "configProperty": "datasourceConfiguration.authentication.password",
+          "controlType": "INPUT_TEXT",
+          "dataType": "PASSWORD",
+          "initialValue": "",
+          "encrypted": true
+        }
+      ]
+    }
+  ],
+  "formButton": ["TEST", "CANCEL", "SAVE"]
+}
