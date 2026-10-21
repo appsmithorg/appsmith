@@ -515,25 +515,39 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
             // No resource context exists for this resource. Return void.
             return Mono.empty();
         }
+        Mono<DatasourceContext<Object>> cachedContextMono = datasourceContextMonoMap.get(datasourceContextIdentifier);
         return pluginExecutorHelper
                 .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
+                // datasourceDestroy blocks for pooled plugins (it closes the pool). Keep that off the I/O thread that
+                // delivered the executor.
+                .publishOn(Schedulers.boundedElastic())
                 .flatMap(pluginExecutor -> {
-                    log.info("Clearing datasource context for datasource storage ID {}.", datasourceStorage.getId());
+                    log.info(
+                            "Clearing datasource context for datasource id {}, environment id {}.",
+                            datasourceContextIdentifier.getDatasourceId(),
+                            datasourceContextIdentifier.getEnvironmentId());
                     pluginExecutor.datasourceDestroy(datasourceContext.getConnection());
-                    datasourceContextMonoMap.remove(datasourceContextIdentifier);
+                    if (cachedContextMono != null) {
+                        datasourceContextMonoMap.remove(datasourceContextIdentifier, cachedContextMono);
+                    }
+                    // Drop only the entry that was destroyed. A context rebuilt while the executor was being resolved
+                    // is live and stays cached, together with any LRU entry it registered.
+                    if (!datasourceContextMap.remove(datasourceContextIdentifier, datasourceContext)) {
+                        log.info(
+                                "Datasource context for datasource id {}, environment id {} was replaced while being cleared; keeping the new one",
+                                datasourceContextIdentifier.getDatasourceId(),
+                                datasourceContextIdentifier.getEnvironmentId());
+                        return Mono.empty();
+                    }
+                    // The LRU removal listener destroys whatever connection it finds in datasourceContextMap, so it
+                    // runs after that entry is gone and does not close the connection a second time.
                     log.info(
                             "Invalidating the LRU cache entry for datasource id {}, environment id {} as delete datasource context is invoked",
                             datasourceContextIdentifier.getDatasourceId(),
                             datasourceContextIdentifier.getEnvironmentId());
                     datasourcePluginContextMapLRUCache.invalidate(datasourceContextIdentifier);
-                    if (!datasourceContextMap.containsKey(datasourceContextIdentifier)) {
-                        log.info(
-                                "datasourceContextMap does not contain any entry for datasource storage with id: {} ",
-                                datasourceStorage.getId());
-                        return Mono.empty();
-                    }
 
-                    return Mono.just(datasourceContextMap.remove(datasourceContextIdentifier));
+                    return Mono.<DatasourceContext<?>>just(datasourceContext);
                 });
     }
 
