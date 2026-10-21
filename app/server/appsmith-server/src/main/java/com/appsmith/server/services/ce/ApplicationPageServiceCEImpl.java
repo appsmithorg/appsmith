@@ -260,7 +260,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<PageDTO> getPage(String pageId, boolean viewMode) {
-        AclPermission permission = pagePermission.getReadPermission();
+        AclPermission permission = getPagePermissionForMode(viewMode);
         return newPageService
                 .findPageById(pageId, permission, viewMode)
                 .map(newPage -> getDslEscapedPage(newPage))
@@ -325,10 +325,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<PageDTO> getPageAndMigrateDslByBranchAndBasePageId(
             String defaultPageId, String refName, boolean viewMode, boolean migrateDsl) {
         ApplicationMode applicationMode = viewMode ? ApplicationMode.PUBLISHED : ApplicationMode.EDIT;
-        // Fetch the page with read permission in both editor and in viewer.
         return newPageService
                 .findByRefTypeAndRefNameAndBasePageId(
-                        RefType.branch, refName, defaultPageId, pagePermission.getReadPermission(), null)
+                        RefType.branch, refName, defaultPageId, getPagePermissionForMode(viewMode), null)
                 .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)
                         .name(getQualifiedSpanName(MIGRATE_DSL, applicationMode))
                         .tap(Micrometer.observation(observationRegistry))
@@ -339,12 +338,21 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<PageDTO> getPageAndMigrateDslByBranchedPageId(
             String branchedPageId, boolean viewMode, boolean migrateDsl) {
-        // Fetch the page with read permission in both editor and in viewer.
         return newPageService
-                .findById(branchedPageId, pagePermission.getReadPermission())
+                .findById(branchedPageId, getPagePermissionForMode(viewMode))
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, branchedPageId)))
                 .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)
                         .flatMap(pageDTO ->
                                 sendPageViewAnalyticsEvent(newPage, viewMode).thenReturn(pageDTO)));
+    }
+
+    /**
+     * The page permission a read in the given mode requires: the read permission for the published copy in view
+     * mode, the edit permission for the draft copy in editor mode.
+     */
+    protected AclPermission getPagePermissionForMode(boolean viewMode) {
+        return viewMode ? pagePermission.getReadPermission() : pagePermission.getEditPermission();
     }
 
     private Mono<PageDTO> migrateAndUpdatePageDsl(NewPage newPage, PageDTO page, boolean viewMode) {
