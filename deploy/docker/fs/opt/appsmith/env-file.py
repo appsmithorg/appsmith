@@ -35,7 +35,7 @@ def valid_name(name):
     # Do not let a configuration file replace PATH, BASH_ENV, LD_PRELOAD,
     # or the shell loader's own variables.
     return name in DEPLOYMENT_JVM_NAMES or bool(
-        re.fullmatch(r"(?:APPSMITH_|MONGO_|KEYCLOAK_)[A-Za-z0-9_]+", name)
+        re.fullmatch(r"(?:APPSMITH_|MONGO_|KEYCLOAK_|OTEL_)[A-Za-z0-9_]+", name)
     ) or name in {
         "HTTP_PROXY", "HTTPS_PROXY", "NO_PROXY", "http_proxy", "https_proxy", "no_proxy",
         "NEW_RELIC_LICENSE_KEY", "NEW_RELIC_APP_NAME",
@@ -152,7 +152,7 @@ def main():
         return
     if mode == "snapshot":
         values = {key: value for key, value in os.environ.items()
-                  if key.startswith(("APPSMITH_", "MONGO_")) or key in DEPLOYMENT_JVM_NAMES}
+                  if key.startswith(("APPSMITH_", "MONGO_", "OTEL_")) or key in DEPLOYMENT_JVM_NAMES}
         if any(not valid_name(key) for key in values):
             raise ConfigError("externally supplied environment has an unsupported variable name")
         with open(path, "w", encoding="utf-8") as target:
