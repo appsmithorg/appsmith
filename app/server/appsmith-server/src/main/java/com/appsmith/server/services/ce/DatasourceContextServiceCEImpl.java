@@ -128,7 +128,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         if (connection != null) {
             pluginExecutorHelper
                     .getPluginExecutor(pluginMono)
-                    .flatMap(pluginExecutor -> Mono.fromRunnable(() -> pluginExecutor.datasourceDestroy(connection)))
+                    .flatMap(pluginExecutor -> destroyConnectionOnBoundedElastic(pluginExecutor, connection))
                     .onErrorResume(e -> {
                         log.error("Error destroying stale datasource connection", e);
                         return Mono.empty();
@@ -519,22 +519,36 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
                 .flatMap(pluginExecutor -> {
                     log.info("Clearing datasource context for datasource storage ID {}.", datasourceStorage.getId());
-                    pluginExecutor.datasourceDestroy(datasourceContext.getConnection());
-                    datasourceContextMonoMap.remove(datasourceContextIdentifier);
-                    log.info(
-                            "Invalidating the LRU cache entry for datasource id {}, environment id {} as delete datasource context is invoked",
-                            datasourceContextIdentifier.getDatasourceId(),
-                            datasourceContextIdentifier.getEnvironmentId());
-                    datasourcePluginContextMapLRUCache.invalidate(datasourceContextIdentifier);
-                    if (!datasourceContextMap.containsKey(datasourceContextIdentifier)) {
-                        log.info(
-                                "datasourceContextMap does not contain any entry for datasource storage with id: {} ",
-                                datasourceStorage.getId());
-                        return Mono.empty();
-                    }
+                    return destroyConnectionOnBoundedElastic(pluginExecutor, datasourceContext.getConnection())
+                            .then(Mono.defer(() -> {
+                                datasourceContextMonoMap.remove(datasourceContextIdentifier);
+                                log.info(
+                                        "Invalidating the LRU cache entry for datasource id {}, environment id {} as delete datasource context is invoked",
+                                        datasourceContextIdentifier.getDatasourceId(),
+                                        datasourceContextIdentifier.getEnvironmentId());
+                                datasourcePluginContextMapLRUCache.invalidate(datasourceContextIdentifier);
+                                if (!datasourceContextMap.containsKey(datasourceContextIdentifier)) {
+                                    log.info(
+                                            "datasourceContextMap does not contain any entry for datasource storage with id: {} ",
+                                            datasourceStorage.getId());
+                                    return Mono.empty();
+                                }
 
-                    return Mono.just(datasourceContextMap.remove(datasourceContextIdentifier));
+                                return Mono.just(datasourceContextMap.remove(datasourceContextIdentifier));
+                            }));
                 });
+    }
+
+    /**
+     * Closes a datasource connection on the boundedElastic scheduler. Closing a connection can block for many
+     * seconds, for example while a JDBC pool waits for hung connections. Callers usually run on the shared Netty I/O
+     * thread that delivered a Mongo or Redis response, and a blocked I/O thread stalls every other request that it
+     * serves, health checks included.
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private Mono<Void> destroyConnectionOnBoundedElastic(PluginExecutor pluginExecutor, Object connection) {
+        return Mono.<Void>fromRunnable(() -> pluginExecutor.datasourceDestroy(connection))
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     /**
