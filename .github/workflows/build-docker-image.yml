@@ -125,7 +125,6 @@ jobs:
         run: |
           set -o xtrace
           declare -a args
-          args+=(--build-arg "APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com")
           args+=(--build-arg "BASE=$BASE_IMAGE")
           args+=(--label "org.opencontainers.image.revision=${{ steps.info_json.outputs.commitSha }}")
           args+=(--label "org.opencontainers.image.source=${{ steps.info_json.outputs.repo }}")
