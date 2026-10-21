@@ -295,7 +295,27 @@ export class EntityExplorer {
           "have.class",
           "activePage",
         );
-        cy.get(this.locator._entityTestId(entityName)).dblclick();
+        // An active page item ignores double-clicks for a short time after it
+        // mounts, and reopening the list mounts it again. Repeat the
+        // double-click until the name field opens.
+        cy.waitUntil(
+          () => {
+            if (Cypress.$(this.locator._entityNameEditing).length > 0)
+              return true;
+
+            return cy
+              .get(this.locator._entityTestId(entityName))
+              .dblclick()
+              .then(
+                () => Cypress.$(this.locator._entityNameEditing).length > 0,
+              );
+          },
+          {
+            timeout: 10000,
+            interval: 500,
+            errorMsg: `Rename field did not open for page ${entityName}`,
+          },
+        );
       } else {
         cy.get(this.locator._entityTestId(entityName)).dblclick();
       }
