@@ -55,7 +55,7 @@ class SoapPluginTest {
                 .setBody(SoapFixtures.wsdl(server.url("/items").toString())));
         server.enqueue(new MockResponse().setBody(ITEM_RESPONSE));
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setParams(List.of(new Param("Input1.text", "<b>&")));
+        executeActionDTO.setParams(List.of(new Param("Input1.text", "<b>&\"q\"")));
 
         // When
         var result = executor.datasourceCreate(datasource)
@@ -66,7 +66,7 @@ class SoapPluginTest {
                         action(
                                 "ItemsSoap/GetItem",
                                 "<tns:GetItem xmlns:tns=\"http://example.com/items\">"
-                                        + "<tns:id>{{Input1.text}}</tns:id></tns:GetItem>")));
+                                        + "<tns:id kind=\"{{Input1.text}}\">{{Input1.text}}</tns:id></tns:GetItem>")));
 
         // Then
         StepVerifier.create(result)
@@ -84,7 +84,31 @@ class SoapPluginTest {
         assertThat(soapRequest.getPath()).isEqualTo("/items");
         assertThat(soapRequest.getHeader("SOAPAction")).isEqualTo("\"http://example.com/items/GetItem\"");
         assertThat(soapRequest.getHeader("Content-Type")).isEqualTo("text/xml; charset=utf-8");
-        assertThat(soapRequest.getBody().readUtf8()).contains("<tns:id>&lt;b&gt;&amp;</tns:id>");
+        assertThat(soapRequest.getBody().readUtf8())
+                .contains("<tns:id kind=\"&lt;b&gt;&amp;&#x22;q&#x22;\">&lt;b&gt;&amp;&#x22;q&#x22;</tns:id>");
+    }
+
+    @Test
+    void should_notSendCredentials_when_wsdlPointsToAnotherHost() throws Exception {
+        // Given: the WSDL's address names the same server under a different host name
+        String otherHost = "localhost".equals(server.getHostName()) ? "127.0.0.1" : "localhost";
+        DatasourceConfiguration datasource = datasource(null);
+        server.enqueue(new MockResponse()
+                .setBody(SoapFixtures.wsdl("http://" + otherHost + ":" + server.getPort() + "/items")));
+        server.enqueue(new MockResponse().setBody(ITEM_RESPONSE));
+
+        // When
+        var result = executor.datasourceCreate(datasource)
+                .flatMap(operations ->
+                        executor.execute(operations, datasource, action("ItemsSoap/GetItem", "<GetItem/>")));
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(r -> assertThat(r.getIsExecutionSuccess()).isTrue())
+                .verifyComplete();
+        server.takeRequest(5, TimeUnit.SECONDS);
+        RecordedRequest soapRequest = server.takeRequest(5, TimeUnit.SECONDS);
+        assertThat(soapRequest.getHeader("Authorization")).isNull();
     }
 
     @Test

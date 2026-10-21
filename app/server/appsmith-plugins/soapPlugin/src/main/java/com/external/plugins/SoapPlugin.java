@@ -155,9 +155,13 @@ public class SoapPlugin extends BasePlugin {
                 Map<String, String> escapedParams = new HashMap<>();
                 for (Param param : executeActionDTO.getParams()) {
                     if (param != null && param.getKey() != null) {
+                        // MustacheHelper.render rewrites &quot; as \" for JSON; &#x22; passes through.
                         escapedParams.putIfAbsent(
                                 param.getKey().trim(),
-                                param.getValue() == null ? null : StringEscapeUtils.escapeXml10(param.getValue()));
+                                param.getValue() == null
+                                        ? null
+                                        : StringEscapeUtils.escapeXml10(param.getValue())
+                                                .replace("&quot;", "&#x22;"));
                     }
                 }
                 actionConfiguration.setFormData(
@@ -203,7 +207,9 @@ public class SoapPlugin extends BasePlugin {
                     .uri(URI.create(operation.endpoint()))
                     .headers(headers -> {
                         headers.addAll(soapHeaders);
-                        addBasicAuth(headers, datasourceConfiguration);
+                        if (isConfiguredHost(operation.endpoint(), datasourceConfiguration)) {
+                            addBasicAuth(headers, datasourceConfiguration);
+                        }
                     })
                     .bodyValue(envelope.getBytes(StandardCharsets.UTF_8))
                     .exchangeToMono(response -> response.toEntity(byte[].class))
@@ -267,6 +273,19 @@ public class SoapPlugin extends BasePlugin {
                         auth.getPassword() == null ? "" : auth.getPassword(),
                         StandardCharsets.UTF_8);
             }
+        }
+
+        /** The WSDL picks the endpoint, so credentials only go to the WSDL's host or the user's endpoint override. */
+        static boolean isConfiguredHost(String endpoint, DatasourceConfiguration datasourceConfiguration) {
+            String host = URI.create(endpoint).getHost();
+            String endpointOverride = endpointOverride(datasourceConfiguration);
+            return host != null
+                    && (host.equalsIgnoreCase(
+                                    URI.create(datasourceConfiguration.getUrl().strip())
+                                            .getHost())
+                            || (endpointOverride != null
+                                    && host.equalsIgnoreCase(
+                                            URI.create(endpointOverride).getHost())));
         }
 
         private static String endpointOverride(DatasourceConfiguration datasourceConfiguration) {
