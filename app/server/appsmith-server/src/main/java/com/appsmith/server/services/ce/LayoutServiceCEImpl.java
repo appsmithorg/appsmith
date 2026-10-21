@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -21,8 +22,11 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
 
     @Override
     public Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode) {
+        // The published layout needs the read permission; the draft layout needs the edit permission.
+        AclPermission permission =
+                Boolean.TRUE.equals(viewMode) ? pagePermission.getReadPermission() : pagePermission.getEditPermission();
         return newPageService
-                .findByIdAndLayoutsId(pageId, layoutId, pagePermission.getReadPermission(), viewMode)
+                .findByIdAndLayoutsId(pageId, layoutId, permission, viewMode)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID)))
                 .map(page -> {
