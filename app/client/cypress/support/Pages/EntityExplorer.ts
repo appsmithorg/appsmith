@@ -289,6 +289,12 @@ export class EntityExplorer {
         PageList.ShowList();
         cy.get(this.locator._entityTestId(entityName)).click();
         PageList.ShowList();
+        // A click on a page that is not current yet switches to it and closes
+        // the list, so the double-click must wait for the switch to finish.
+        cy.get(this.locator._entityTestId(entityName)).should(
+          "have.class",
+          "activePage",
+        );
         cy.get(this.locator._entityTestId(entityName)).dblclick();
       } else {
         cy.get(this.locator._entityTestId(entityName)).dblclick();
