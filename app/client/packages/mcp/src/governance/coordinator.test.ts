@@ -182,9 +182,9 @@ describe("McpGovernanceCoordinator.execute", () => {
   });
 
   it("holds the lock longer than the slowest governed mutation", () => {
-    // The lock is held across mutate(); a git commit is the slowest governed path (GIT_COMMIT_TIMEOUT_MS =
-    // 120s in app.ts). A shorter lock expires underneath a running mutation and lets a second agent in.
-    expect(DEFAULT_LOCK_TTL_MS).toBeGreaterThan(120 * 1000);
+    // The lock is held across mutate(); create_branch is the slowest governed path (a 30s refs re-read, then a
+    // 120s create-ref, in app.ts). A shorter lock expires underneath a running mutation and lets a second agent in.
+    expect(DEFAULT_LOCK_TTL_MS).toBeGreaterThan(150 * 1000);
   });
 
   it("rejects a missing lock without invoking the mutation", async () => {

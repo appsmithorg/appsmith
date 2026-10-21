@@ -47,6 +47,7 @@ function stubApi(): AppsmithApi {
     getGitProtectedBranches: jest.fn(async () => []),
     listGitBranches: jest.fn(async () => []),
     createGitBranch: jest.fn(async () => ({})),
+    checkoutGitBranch: jest.fn(async () => ({})),
     commitGitApplication: jest.fn(async () => "Commit Result : ok"),
     listActions: jest.fn(),
     createAction: jest.fn(),
