@@ -63,8 +63,9 @@ echo "Add appsmith-ce to helm repo"
 AWS_REGION=ap-south-1 helm repo add $HELMCHART $HELMCHART_URL
 
 echo "Deploy appsmith helm chart"
+# The rollout annotation changes on every deploy, so the pod restarts even when the image tag is unchanged.
 helm upgrade -i $CHARTNAME appsmith/appsmith -n $NAMESPACE \
-  --create-namespace --recreate-pods --set image.repository=$DOCKER_HUB_ORGANIZATION/appsmith-dp --set image.tag=$IMAGE_HASH \
+  --create-namespace --set-string podAnnotations.deploy-preview/rollout="$(date -u +%Y%m%dT%H%M%SZ)" --set image.repository=$DOCKER_HUB_ORGANIZATION/appsmith-dp --set image.tag=$IMAGE_HASH \
   --set image.pullSecrets=$SECRET --set redis.enabled=false --set mongodb.enabled=false --set ingress.enabled=true \
   --set "ingress.annotations.service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert=$AWS_RELEASE_CERT" \
   --set "ingress.hosts[0].host=$DOMAINNAME, ingress.hosts[0].paths[0].path=/, ingress.hosts[0].paths[0].pathType=Prefix" \
