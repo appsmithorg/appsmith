@@ -74,7 +74,11 @@ export default class PartialImportExport {
 
     const currentSection = this.agHelper.GetElement(sectionSelector);
 
-    const checkboxesInSection = currentSection.find("input[type='checkbox']");
+    // Skip the section's "Select All" checkbox: it would select every entity,
+    // and the per-entity clicks below would then deselect them all.
+    const checkboxesInSection = currentSection
+      .find("input[type='checkbox']")
+      .not("[data-testid$='-select-all']");
     checkboxesInSection.each((element) => {
       cy.wrap(element).click({ force: true });
     });
