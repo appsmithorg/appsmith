@@ -21,6 +21,11 @@ on:
         required: false
         type: boolean
         default: true
+      recreate:
+        description: Wipe and recreate the preview
+        required: false
+        type: string
+        default: ""
 
 jobs:
   resolve-params:
@@ -297,7 +302,7 @@ jobs:
 
   build-deploy-preview:
     needs: [resolve-params, push-image]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       id-token: write
@@ -352,7 +357,7 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           PULL_REQUEST_NUMBER: ${{ needs.resolve-params.outputs.pr_number }}
-          RECREATE: ${{ github.event.client_payload.slash_command.args.named.recreate }}
+          RECREATE: ${{ github.event.client_payload.slash_command.args.named.recreate || inputs.recreate }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_URL: ${{ secrets.DB_URL }}
