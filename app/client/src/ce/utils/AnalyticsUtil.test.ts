@@ -178,6 +178,50 @@ describe("AnalyticsUtil.logEvent", () => {
     expect(mockSegment.identify).not.toHaveBeenCalled();
   });
 
+  it("resumes builder telemetry after the published viewer clears the app mode", async () => {
+    // Regression for: published app → "All apps" → create app. The viewer sets PUBLISHED, which
+    // suppresses events; leaving the viewer clears the mode so CREATE_APP tracks on the apps page.
+    const AnalyticsUtil = loadAnalyticsUtil();
+
+    AnalyticsUtil.setAppMode(APP_MODE.PUBLISHED);
+    await AnalyticsUtil.initialize(builder, sessionRecordingConfig, true);
+
+    // While viewing the published app, a builder event is dropped and nobody is identified.
+    AnalyticsUtil.logEvent("CREATE_APP");
+
+    expect(mockSegment.track).not.toHaveBeenCalled();
+    expect(mockSegment.identify).not.toHaveBeenCalled();
+
+    // Leaving the viewer clears the mode (AppViewer unmount calls setAppMode(undefined)).
+    AnalyticsUtil.setAppMode(undefined);
+    AnalyticsUtil.logEvent("CREATE_APP");
+
+    expect(mockSegment.track).toHaveBeenCalledTimes(1);
+    expect(mockSegment.track).toHaveBeenCalledWith(
+      "CREATE_APP",
+      expect.any(Object),
+    );
+    expect(mockSegment.identify).toHaveBeenCalledTimes(1);
+  });
+
+  it("clears the app mode on reset so a new session does not inherit PUBLISHED", async () => {
+    const AnalyticsUtil = loadAnalyticsUtil();
+
+    AnalyticsUtil.setAppMode(APP_MODE.PUBLISHED);
+    await AnalyticsUtil.initialize(builder, sessionRecordingConfig, true);
+    AnalyticsUtil.reset();
+
+    // A new sign-in landing on the applications page (no engine setup yet) must track builder events.
+    await AnalyticsUtil.initialize(builder, sessionRecordingConfig, true);
+    AnalyticsUtil.logEvent("CREATE_APP");
+
+    expect(mockSegment.track).toHaveBeenCalledTimes(1);
+    expect(mockSegment.track).toHaveBeenCalledWith(
+      "CREATE_APP",
+      expect.any(Object),
+    );
+  });
+
   it("identifies again after reset when the next user signs in", async () => {
     const AnalyticsUtil = loadAnalyticsUtil();
 

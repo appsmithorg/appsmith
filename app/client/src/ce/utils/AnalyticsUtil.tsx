@@ -68,7 +68,9 @@ async function initialize(
   }
 }
 
-function setAppMode(appMode: APP_MODE) {
+// `undefined` means "not inside any app" (e.g. the applications page). Only PUBLISHED is suppressed
+// by the policy, so clearing the mode when leaving the published viewer lets builder telemetry resume.
+function setAppMode(appMode: APP_MODE | undefined) {
   currentAppMode = appMode;
 }
 
@@ -195,6 +197,9 @@ function reset() {
 
   segmentIdentifyGeneration += 1;
   currentUser = undefined;
+  // A new session (e.g. SPA logout → login) must not inherit a stale PUBLISHED mode from the
+  // previous one, which would wrongly suppress builder events until the next engine setup.
+  currentAppMode = undefined;
   isSegmentIdentifyNeeded = false;
   isSegmentIdentified = false;
 
