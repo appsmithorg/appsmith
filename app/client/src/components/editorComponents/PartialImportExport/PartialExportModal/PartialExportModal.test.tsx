@@ -9,6 +9,7 @@ import { Provider } from "react-redux";
 import { defaultAppState } from "./unitTestUtils";
 import { PARTIAL_IMPORT_EXPORT, createMessage } from "ee/constants/messages";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { openPartialExportModal } from "actions/widgetActions";
 
 interface TestEntityResetProps {
   entityTitle: string;
@@ -321,6 +322,51 @@ describe("<PartialExportModal />", () => {
     fireEvent.click(screen.getByTestId(selectAllTestId));
     expect(screen.getByTestId(selectAllTestId)).toBeChecked();
     fireEvent.click(screen.getByTestId("t-partial-export-entities-btn"));
+    expect(screen.getByTestId(selectAllTestId)).not.toBeChecked();
+  });
+
+  it("unticks Select All after the modal is closed and reopened", () => {
+    const selectAllTestId = "t--partial-export-modal-jsObjects-select-all";
+    const storeWithModalOpen = (isExportModalOpen: boolean) =>
+      mockStore({
+        ...defaultAppState,
+        ui: {
+          ...defaultAppState.ui,
+          applications: {
+            ...defaultAppState.ui.applications,
+            partialImportExport: {
+              ...defaultAppState.ui.applications.partialImportExport,
+              isExportModalOpen,
+            },
+          },
+        },
+      });
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const renderWithStore = (storeToUse: any) => (
+      <Provider store={storeToUse}>
+        <ThemeProvider theme={lightTheme}>
+          <PartialExportModal />
+        </ThemeProvider>
+      </Provider>
+    );
+    const { rerender } = render(renderWithStore(store));
+
+    fireEvent.click(
+      screen.getByText(
+        createMessage(PARTIAL_IMPORT_EXPORT.export.sections.jsObjects),
+      ),
+    );
+    fireEvent.click(screen.getByTestId(selectAllTestId));
+    expect(screen.getByTestId(selectAllTestId)).toBeChecked();
+
+    fireEvent.click(screen.getByLabelText("Close"));
+    expect(store.getActions()).toContainEqual(openPartialExportModal(false));
+
+    rerender(renderWithStore(storeWithModalOpen(false)));
+    expect(screen.queryByTestId(selectAllTestId)).not.toBeInTheDocument();
+
+    rerender(renderWithStore(storeWithModalOpen(true)));
     expect(screen.getByTestId(selectAllTestId)).not.toBeChecked();
   });
 });

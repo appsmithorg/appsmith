@@ -97,6 +97,18 @@ describe("<JSObjectsNQueriesExport /> Select All", () => {
     expect(updateSelectedQueries).toHaveBeenCalledWith([]);
   });
 
+  it("is unchecked when one query is not selected", () => {
+    render(
+      <ThemeProvider theme={lightTheme}>
+        <JSObjectsNQueriesExport
+          {...baseProps}
+          selectedQueries={allQueryIds.slice(1)}
+        />
+      </ThemeProvider>,
+    );
+    expect(screen.getByTestId(selectAllTestId)).not.toBeChecked();
+  });
+
   it("does not render Select All when there are no queries", () => {
     render(
       <ThemeProvider theme={lightTheme}>
