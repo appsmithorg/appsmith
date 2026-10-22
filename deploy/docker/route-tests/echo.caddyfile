@@ -4,6 +4,9 @@
 
 http://:5050
 
+# Mirror the backend, which sends a sandbox CSP on asset responses.
+header /api/v1/assets/* Content-Security-Policy "sandbox; default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'"
+
 respond "Scheme = '{scheme}'
 X-Forwarded-Proto = '{header.x-forwarded-proto}'
 Host = '{host}'

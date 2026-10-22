@@ -122,9 +122,22 @@ parts.push(`
 
   header {
     -Server
-    Content-Security-Policy "frame-ancestors ${frameAncestorsPolicy}"
     X-Content-Type-Options "nosniff"
     X-Appsmith-Request-Id {http.request.uuid}
+  }
+
+  # Uploaded assets are served from this origin, so they get a sandbox policy that stops a stored SVG from running
+  # script when opened directly. The two matchers never overlap, so neither policy can overwrite the other.
+  @asset-path path /api/v1/assets/*
+  header @asset-path {
+    defer
+    Content-Security-Policy "frame-ancestors ${frameAncestorsPolicy}; sandbox; default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'"
+  }
+
+  @not-asset-path not path /api/v1/assets/*
+  header @not-asset-path {
+    defer
+    Content-Security-Policy "frame-ancestors ${frameAncestorsPolicy}"
   }
 
   header /static/* {
