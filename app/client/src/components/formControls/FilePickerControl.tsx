@@ -133,13 +133,6 @@ function RenderFilePicker(props: RenderFilePickerProps) {
 }
 
 class FilePickerControl extends BaseControl<FilePickerControlProps> {
-  constructor(props: FilePickerControlProps) {
-    super(props);
-    this.state = {
-      isOpen: false,
-    };
-  }
-
   render() {
     const { configProperty, disabled } = this.props;
 
@@ -155,10 +148,6 @@ class FilePickerControl extends BaseControl<FilePickerControlProps> {
   getControlType(): ControlType {
     return "FILE_PICKER";
   }
-}
-
-export interface FilePickerComponentState {
-  isOpen: boolean;
 }
 
 export type FilePickerControlProps = ControlProps;

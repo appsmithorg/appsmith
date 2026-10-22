@@ -59,27 +59,14 @@ interface CreateNewDatasourceScreenProps {
   isOnboardingScreen?: boolean;
 }
 
-interface CreateNewDatasourceScreenState {
-  unsupportedPluginDialogVisible: boolean;
-}
-
-class CreateNewDatasourceTab extends React.Component<
-  CreateNewDatasourceScreenProps,
-  CreateNewDatasourceScreenState
-> {
+class CreateNewDatasourceTab extends React.Component<CreateNewDatasourceScreenProps> {
   unsupportedPluginContinueAction: () => void;
   constructor(props: CreateNewDatasourceScreenProps) {
     super(props);
     this.unsupportedPluginContinueAction = () => null;
-    this.state = {
-      unsupportedPluginDialogVisible: false,
-    };
   }
 
   showUnsupportedPluginDialog = (callback: () => void) => {
-    this.setState({
-      unsupportedPluginDialogVisible: true,
-    });
     this.unsupportedPluginContinueAction = callback;
   };
   render() {
