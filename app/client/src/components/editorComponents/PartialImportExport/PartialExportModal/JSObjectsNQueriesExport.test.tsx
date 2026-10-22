@@ -56,3 +56,53 @@ describe("<JSObjectsNQueriesExport />", () => {
     expect(screen.getByText("Query1")).toBeVisible();
   });
 });
+
+describe("<JSObjectsNQueriesExport /> Select All", () => {
+  const selectAllTestId = "t--partial-export-modal-queries-select-all";
+  const allQueryIds = Object.values(mockDataBaseProps).flatMap((items) =>
+    items.map((item) => item.entity.id),
+  );
+
+  it("selects queries from every datasource group", () => {
+    const updateSelectedQueries = jest.fn();
+
+    render(
+      <ThemeProvider theme={lightTheme}>
+        <JSObjectsNQueriesExport
+          {...baseProps}
+          updateSelectedQueries={updateSelectedQueries}
+        />
+      </ThemeProvider>,
+    );
+    expect(allQueryIds.length).toBeGreaterThan(1);
+    expect(screen.getByTestId(selectAllTestId)).not.toBeChecked();
+    fireEvent.click(screen.getByTestId(selectAllTestId));
+    expect(updateSelectedQueries).toHaveBeenCalledWith(allQueryIds);
+  });
+
+  it("clears every query when unticked", () => {
+    const updateSelectedQueries = jest.fn();
+
+    render(
+      <ThemeProvider theme={lightTheme}>
+        <JSObjectsNQueriesExport
+          {...baseProps}
+          selectedQueries={allQueryIds}
+          updateSelectedQueries={updateSelectedQueries}
+        />
+      </ThemeProvider>,
+    );
+    expect(screen.getByTestId(selectAllTestId)).toBeChecked();
+    fireEvent.click(screen.getByTestId(selectAllTestId));
+    expect(updateSelectedQueries).toHaveBeenCalledWith([]);
+  });
+
+  it("does not render Select All when there are no queries", () => {
+    render(
+      <ThemeProvider theme={lightTheme}>
+        <JSObjectsNQueriesExport {...baseProps} data={{}} />
+      </ThemeProvider>,
+    );
+    expect(screen.queryByTestId(selectAllTestId)).not.toBeInTheDocument();
+  });
+});

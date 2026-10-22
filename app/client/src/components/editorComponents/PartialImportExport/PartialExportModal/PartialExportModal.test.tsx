@@ -184,4 +184,143 @@ describe("<PartialExportModal />", () => {
       );
     });
   });
+
+  const sectionSelectAllCases: {
+    key: "jsObjects" | "datasources" | "queries" | "customJSLibs";
+    sectionTitle: string;
+    expectedIds: string[];
+  }[] = [
+    {
+      key: "jsObjects",
+      sectionTitle: createMessage(
+        PARTIAL_IMPORT_EXPORT.export.sections.jsObjects,
+      ),
+      expectedIds: defaultAppState.entities.jsActions.map(
+        (jsAction) => jsAction.config.id,
+      ),
+    },
+    {
+      key: "datasources",
+      sectionTitle: createMessage(
+        PARTIAL_IMPORT_EXPORT.export.sections.databases,
+      ),
+      expectedIds: defaultAppState.entities.datasources.list.map(
+        (datasource) => datasource.id,
+      ),
+    },
+    {
+      key: "queries",
+      sectionTitle: createMessage(
+        PARTIAL_IMPORT_EXPORT.export.sections.queries,
+      ),
+      expectedIds: defaultAppState.entities.actions.map(
+        (action) => action.config.id,
+      ),
+    },
+    {
+      key: "customJSLibs",
+      sectionTitle: createMessage(
+        PARTIAL_IMPORT_EXPORT.export.sections.customLibs,
+      ),
+      expectedIds: defaultAppState.ui.libraries.installedLibraries
+        .filter((lib) => !!lib.url)
+        .map((lib) => ("id" in lib && lib.id) || lib.name),
+    },
+  ];
+
+  it.each(sectionSelectAllCases)(
+    "exports every $key entity when its Select All is ticked",
+    async ({ expectedIds, key, sectionTitle }) => {
+      render(<BaseComponentRender />);
+      const selectAllTestId = `t--partial-export-modal-${key}-select-all`;
+
+      expect(expectedIds.length).toBeGreaterThan(1);
+      fireEvent.click(screen.getByText(sectionTitle));
+      expect(screen.getByTestId(selectAllTestId)).not.toBeChecked();
+      fireEvent.click(screen.getByTestId(selectAllTestId));
+      expect(screen.getByTestId(selectAllTestId)).toBeChecked();
+      fireEvent.click(screen.getByTestId("t-partial-export-entities-btn"));
+
+      const getExportAction = () =>
+        store
+          .getActions()
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .find((action: any) => {
+            return action.type === ReduxActionTypes.PARTIAL_EXPORT_INIT;
+          });
+
+      await waitFor(() => {
+        expect(getExportAction()).toBeDefined();
+      });
+
+      const payload = getExportAction().payload;
+
+      expect([...payload[key]].sort()).toEqual([...expectedIds].sort());
+      (
+        [
+          "jsObjects",
+          "datasources",
+          "queries",
+          "customJSLibs",
+          "widgets",
+        ] as const
+      )
+        .filter((otherKey) => otherKey !== key)
+        .forEach((otherKey) => {
+          expect(payload[otherKey]).toEqual([]);
+        });
+    },
+  );
+
+  it.each(sectionSelectAllCases)(
+    "unticks $key Select All after Reset",
+    ({ key, sectionTitle }) => {
+      render(<BaseComponentRender />);
+      const selectAllTestId = `t--partial-export-modal-${key}-select-all`;
+      const exportButton = screen.getByTestId("t-partial-export-entities-btn");
+
+      fireEvent.click(screen.getByText(sectionTitle));
+      fireEvent.click(screen.getByTestId(selectAllTestId));
+      expect(screen.getByTestId(selectAllTestId)).toBeChecked();
+      expect(exportButton).not.toBeDisabled();
+      fireEvent.click(
+        screen.getByTestId(`t--partial-export-modal-reset-${sectionTitle}`),
+      );
+      expect(screen.getByTestId(selectAllTestId)).not.toBeChecked();
+      expect(exportButton).toBeDisabled();
+    },
+  );
+
+  it("unticks Select All when one item is deselected and reticks when it is selected again", () => {
+    render(<BaseComponentRender />);
+    const selectAllTestId = "t--partial-export-modal-jsObjects-select-all";
+
+    fireEvent.click(
+      screen.getByText(
+        createMessage(PARTIAL_IMPORT_EXPORT.export.sections.jsObjects),
+      ),
+    );
+    fireEvent.click(screen.getByTestId(selectAllTestId));
+    expect(screen.getByTestId(selectAllTestId)).toBeChecked();
+    fireEvent.click(screen.getByLabelText("JSObject1"));
+    expect(screen.getByTestId(selectAllTestId)).not.toBeChecked();
+    fireEvent.click(screen.getByLabelText("JSObject1"));
+    expect(screen.getByTestId(selectAllTestId)).toBeChecked();
+  });
+
+  it("unticks Select All after a successful export", () => {
+    render(<BaseComponentRender />);
+    const selectAllTestId = "t--partial-export-modal-queries-select-all";
+
+    fireEvent.click(
+      screen.getByText(
+        createMessage(PARTIAL_IMPORT_EXPORT.export.sections.queries),
+      ),
+    );
+    fireEvent.click(screen.getByTestId(selectAllTestId));
+    expect(screen.getByTestId(selectAllTestId)).toBeChecked();
+    fireEvent.click(screen.getByTestId("t-partial-export-entities-btn"));
+    expect(screen.getByTestId(selectAllTestId)).not.toBeChecked();
+  });
 });
