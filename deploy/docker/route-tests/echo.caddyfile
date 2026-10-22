@@ -4,9 +4,17 @@
 
 http://:5050
 
-respond "Scheme = '{scheme}'
+# Paths ending in /__slow go to the slow upstream, for timeout tests.
+@slow path */__slow
+handle @slow {
+  reverse_proxy 127.0.0.1:5051
+}
+
+handle {
+  respond "Scheme = '{scheme}'
 X-Forwarded-Proto = '{header.x-forwarded-proto}'
 Host = '{host}'
 X-Forwarded-Host = '{header.x-forwarded-host}'
 Forwarded = '{header.forwarded}'
 "
+}

@@ -8,7 +8,7 @@ new-spec() {
   echo "-----------" "$@" "-----------"
 
   # Unset influencing state
-  unset APPSMITH_CUSTOM_DOMAIN APPSMITH_ALLOWED_FRAME_ANCESTORS APPSMITH_RATE_LIMIT
+  unset APPSMITH_CUSTOM_DOMAIN APPSMITH_ALLOWED_FRAME_ANCESTORS APPSMITH_RATE_LIMIT APPSMITH_SERVER_TIMEOUT
 
   # Clean custom certificates
   mkdir -p /appsmith-stacks/ssl
@@ -31,6 +31,16 @@ run-hurl() {
     --resolve custom-domain.com:80:127.0.0.1 \
     --resolve custom-domain.com:443:127.0.0.1 \
     "$@"
+}
+
+fail() {
+  echo "FAILED: $*" >&2
+  exit 1
+}
+
+# Print the body of the named snippet in the rendered Caddyfile.
+snippet-body() {
+  awk -v start="($1) {" '$0 == start { found = 1; next } found && /^}/ { exit } found' "$TMP/Caddyfile"
 }
 
 if [[ "${OPEN_SHELL-}" == 1 ]]; then
@@ -64,6 +74,9 @@ XDG_DATA_HOME="$TMP/echo-data" \
   XDG_CONFIG_HOME="$TMP/echo-conf" \
   caddy start --config echo.caddyfile --adapter caddyfile \
   >> "$TMP/echo-caddy.log" 2>&1
+
+# Start the slow upstream that the echo server forwards */__slow paths to
+node slow-upstream.mjs >> "$TMP/slow-upstream.log" 2>&1 &
 
 # Start Caddy for use with our config to test. The admin endpoint must be the
 # same unix socket that the generated Caddyfile declares, so that reloads can
@@ -149,3 +162,46 @@ reload-caddy
 # Let the window from earlier specs' requests expire before counting.
 sleep 2
 run-hurl rate-limit/*.hurl
+
+
+new-spec "Spec 10: Server timeout unset puts no timeout on any upstream"
+node /caddy-reconfigure.mjs
+if grep -qE 'response_header_timeout|read_timeout' "$TMP/Caddyfile"; then
+  fail "a proxy timeout was rendered with APPSMITH_SERVER_TIMEOUT unset"
+fi
+reload-caddy
+run-hurl server-timeout/unset.hurl
+
+
+new-spec "Spec 11: Server timeout caps backend requests only"
+export APPSMITH_SERVER_TIMEOUT=2
+node /caddy-reconfigure.mjs
+[[ "$(grep -cE 'response_header_timeout' "$TMP/Caddyfile")" == 1 ]] \
+  || fail "expected exactly one response_header_timeout"
+grep -qE 'response_header_timeout[[:space:]]+2s$' <<< "$(snippet-body backend_reverse_proxy)" \
+  || fail "backend_reverse_proxy snippet does not set response_header_timeout 2s"
+! grep -qE 'read_timeout' "$TMP/Caddyfile" || fail "read_timeout must not be rendered"
+! grep -qE 'timeout' <<< "$(snippet-body reverse_proxy)" || fail "plain reverse_proxy snippet must have no timeout"
+grep -qE 'import backend_reverse_proxy 8080$' "$TMP/Caddyfile" || fail "@backend does not use backend_reverse_proxy"
+grep -qE 'import reverse_proxy 8091$' "$TMP/Caddyfile" || fail "/rts/* does not use the plain snippet"
+[[ "$(grep -cE 'import reverse_proxy 8092$' "$TMP/Caddyfile")" == 2 ]] || fail "/mcp routes do not use the plain snippet"
+reload-caddy
+run-hurl server-timeout/capped.hurl
+
+
+new-spec "Spec 12: Invalid server timeout values are ignored with a warning"
+for value in abc 0 -5 5s 1.5 " "; do
+  APPSMITH_SERVER_TIMEOUT="$value" node /caddy-reconfigure.mjs 2> "$TMP/reconfigure.err" \
+    || fail "caddy-reconfigure.mjs failed for APPSMITH_SERVER_TIMEOUT='$value'"
+  ! grep -qE 'response_header_timeout|read_timeout' "$TMP/Caddyfile" \
+    || fail "a proxy timeout was rendered for APPSMITH_SERVER_TIMEOUT='$value'"
+  [[ "$(grep -c 'APPSMITH_SERVER_TIMEOUT' "$TMP/reconfigure.err")" == 1 ]] \
+    || fail "expected one warning for APPSMITH_SERVER_TIMEOUT='$value', got: $(cat "$TMP/reconfigure.err")"
+done
+APPSMITH_SERVER_TIMEOUT="" node /caddy-reconfigure.mjs 2> "$TMP/reconfigure.err"
+! grep -qE 'response_header_timeout|read_timeout' "$TMP/Caddyfile" || fail "a proxy timeout was rendered for an empty value"
+! grep -q 'APPSMITH_SERVER_TIMEOUT' "$TMP/reconfigure.err" || fail "an empty value must not warn"
+APPSMITH_SERVER_TIMEOUT=" 30 " node /caddy-reconfigure.mjs
+grep -qE 'response_header_timeout[[:space:]]+30s$' <<< "$(snippet-body backend_reverse_proxy)" \
+  || fail "a value with surrounding whitespace was not accepted"
+echo "Spec 12 passed"

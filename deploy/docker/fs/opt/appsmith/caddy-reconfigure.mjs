@@ -24,6 +24,10 @@ const STATIC_RATE_LIMIT = RATE_LIMIT * 10
 // address via X-Forwarded-For and bypass IP-based rate limiting (GHSA-qrgm-h8c4-jjf7).
 const trustedProxies = (process.env.APPSMITH_TRUSTED_PROXIES || "private_ranges").trim()
 
+// Optional cap, in whole seconds, on how long the Java backend may take to send response
+// headers. Unset means no timeout. Invalid values are ignored so Caddy still starts.
+const serverTimeout = parseServerTimeout(process.env.APPSMITH_SERVER_TIMEOUT)
+
 let certLocation = null
 if (CUSTOM_DOMAIN !== "") {
   try {
@@ -85,7 +89,20 @@ parts.push(`
     header_up -Forwarded
     header_up X-Appsmith-Request-Id {http.request.uuid}
   }
-}
+}${serverTimeout ? `
+
+# Same as reverse_proxy, with a cap on the time to response headers. Uploads and
+# streaming response bodies are not cut, since the timer runs between the two.
+(backend_reverse_proxy) {
+  reverse_proxy {
+    to 127.0.0.1:{args[0]}
+    header_up -Forwarded
+    header_up X-Appsmith-Request-Id {http.request.uuid}
+    transport http {
+      response_header_timeout ${serverTimeout}s
+    }
+  }
+}` : ""}
 
 (all-config) {
   log {
@@ -169,7 +186,7 @@ parts.push(`
 
   @backend path /api/* /oauth2/* /login/*
   handle @backend {
-    import reverse_proxy 8080
+    import ${serverTimeout ? "backend_reverse_proxy" : "reverse_proxy"} 8080
   }
 
   handle /rts/* {
@@ -289,6 +306,18 @@ function finalizeHtmlFiles() {
 
     fs.writeFileSync(process.env.WWW_PATH + "/" + file, content)
   }
+}
+
+function parseServerTimeout(raw) {
+  if (raw === undefined || raw === "") {
+    return null
+  }
+  const value = raw.trim()
+  if (/^\d+$/.test(value) && parseInt(value, 10) > 0) {
+    return parseInt(value, 10)
+  }
+  console.warn(`Ignoring invalid APPSMITH_SERVER_TIMEOUT=${JSON.stringify(raw)}: expected a positive integer number of seconds`)
+  return null
 }
 
 function isCertExpired(path) {
