@@ -5,9 +5,9 @@
 //
 // This renders the real Caddyfile headlessly (no container, no live Caddy) by
 // running the generator with the caddy binary stubbed to a no-op, then asserts
-// on the emitted Caddyfile text. It is a local check; CI runs the shell twin
-// caddy-asset-csp-test.sh, and route-tests/common/asset-csp.hurl covers the
-// header behaviour against a live Caddy.
+// on the emitted Caddyfile text. It is a local check, as is its shell twin
+// caddy-asset-csp-test.sh. route-tests/common/asset-csp.hurl is the CI gate
+// and covers the header behaviour against a live Caddy.
 
 import { test, expect, beforeAll } from "vitest";
 import { spawnSync } from "node:child_process";
