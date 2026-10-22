@@ -184,13 +184,15 @@ grep -qE 'response_header_timeout[[:space:]]+2s$' <<< "$(snippet-body backend_re
 ! grep -qE 'timeout' <<< "$(snippet-body reverse_proxy)" || fail "plain reverse_proxy snippet must have no timeout"
 grep -qE 'import backend_reverse_proxy 8080$' "$TMP/Caddyfile" || fail "@backend does not use backend_reverse_proxy"
 grep -qE 'import reverse_proxy 8091$' "$TMP/Caddyfile" || fail "/rts/* does not use the plain snippet"
-[[ "$(grep -cE 'import reverse_proxy 8092$' "$TMP/Caddyfile")" == 2 ]] || fail "/mcp routes do not use the plain snippet"
+grep -qE 'import reverse_proxy 8092$' "$TMP/Caddyfile" || fail "/mcp routes do not use the plain snippet"
+! grep -qE 'import backend_reverse_proxy (8091|8092)$' "$TMP/Caddyfile" || fail "/rts/* or /mcp routes are capped"
 reload-caddy
 run-hurl server-timeout/capped.hurl
 
 
 new-spec "Spec 12: Invalid server timeout values are ignored with a warning"
-for value in abc 0 -5 5s 1.5 " "; do
+# 9223372037 s overflows Go's time.Duration; 25 digits would render in exponent form.
+for value in abc 0 -5 5s 1.5 " " 86401 9223372037 1234567890123456789012345; do
   APPSMITH_SERVER_TIMEOUT="$value" node /caddy-reconfigure.mjs 2> "$TMP/reconfigure.err" \
     || fail "caddy-reconfigure.mjs failed for APPSMITH_SERVER_TIMEOUT='$value'"
   ! grep -qE 'response_header_timeout|read_timeout' "$TMP/Caddyfile" \
@@ -201,7 +203,12 @@ done
 APPSMITH_SERVER_TIMEOUT="" node /caddy-reconfigure.mjs 2> "$TMP/reconfigure.err"
 ! grep -qE 'response_header_timeout|read_timeout' "$TMP/Caddyfile" || fail "a proxy timeout was rendered for an empty value"
 ! grep -q 'APPSMITH_SERVER_TIMEOUT' "$TMP/reconfigure.err" || fail "an empty value must not warn"
-APPSMITH_SERVER_TIMEOUT=" 30 " node /caddy-reconfigure.mjs
+APPSMITH_SERVER_TIMEOUT=" 30 " node /caddy-reconfigure.mjs 2> "$TMP/reconfigure.err"
 grep -qE 'response_header_timeout[[:space:]]+30s$' <<< "$(snippet-body backend_reverse_proxy)" \
   || fail "a value with surrounding whitespace was not accepted"
+! grep -q 'APPSMITH_SERVER_TIMEOUT' "$TMP/reconfigure.err" || fail "a valid value with surrounding whitespace must not warn"
+APPSMITH_SERVER_TIMEOUT=86400 node /caddy-reconfigure.mjs 2> "$TMP/reconfigure.err"
+grep -qE 'response_header_timeout[[:space:]]+86400s$' <<< "$(snippet-body backend_reverse_proxy)" \
+  || fail "the maximum value 86400 was not accepted"
+! grep -q 'APPSMITH_SERVER_TIMEOUT' "$TMP/reconfigure.err" || fail "the maximum value must not warn"
 echo "Spec 12 passed"

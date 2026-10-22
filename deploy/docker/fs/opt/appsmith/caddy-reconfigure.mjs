@@ -26,6 +26,7 @@ const trustedProxies = (process.env.APPSMITH_TRUSTED_PROXIES || "private_ranges"
 
 // Optional cap, in whole seconds, on how long the Java backend may take to send response
 // headers. Unset means no timeout. Invalid values are ignored so Caddy still starts.
+const MAX_SERVER_TIMEOUT = 86400
 const serverTimeout = parseServerTimeout(process.env.APPSMITH_SERVER_TIMEOUT)
 
 let certLocation = null
@@ -91,8 +92,9 @@ parts.push(`
   }
 }${serverTimeout ? `
 
-# Same as reverse_proxy, with a cap on the time to response headers. Uploads and
-# streaming response bodies are not cut, since the timer runs between the two.
+# Same as reverse_proxy (keep the header_up lines in sync), with a cap on the time to
+# response headers. The timer starts once the request body is fully sent and stops when
+# response headers arrive, so uploads and streaming response bodies are not cut.
 (backend_reverse_proxy) {
   reverse_proxy {
     to 127.0.0.1:{args[0]}
@@ -313,10 +315,12 @@ function parseServerTimeout(raw) {
     return null
   }
   const value = raw.trim()
-  if (/^\d+$/.test(value) && parseInt(value, 10) > 0) {
-    return parseInt(value, 10)
+  const seconds = Number(value)
+  // The upper bound keeps the value well inside what Caddy's duration parser accepts.
+  if (/^\d+$/.test(value) && Number.isSafeInteger(seconds) && seconds > 0 && seconds <= MAX_SERVER_TIMEOUT) {
+    return seconds
   }
-  console.warn(`Ignoring invalid APPSMITH_SERVER_TIMEOUT=${JSON.stringify(raw)}: expected a positive integer number of seconds`)
+  console.warn(`Ignoring invalid APPSMITH_SERVER_TIMEOUT=${JSON.stringify(raw)}: expected a positive integer number of seconds up to ${MAX_SERVER_TIMEOUT}; no timeout applied`)
   return null
 }
 
