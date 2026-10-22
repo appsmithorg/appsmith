@@ -116,7 +116,9 @@ helm mapkubeapis "$CHARTNAME" -n "$NAMESPACE" || echo "mapkubeapis failed, conti
 helm show chart appsmith-ee/$HELMCHART || echo "helm show chart failed (non-blocking)."
 
 echo "Deploying Appsmith Helm chart..."
-helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-namespace --recreate-pods \
+# The rollout annotation changes on every deploy, so the pod restarts even when the image tag is unchanged.
+helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-namespace \
+  --set-string podAnnotations.deploy-preview/rollout="$(date -u +%Y%m%dT%H%M%SZ)" \
   --set _image.repository="${IMAGE_REPOSITORY:-$DOCKER_HUB_ORGANIZATION/appsmith-dp}" \
   --set _image.tag="${IMAGE_TAG:-$IMAGE_HASH}" \
   --set _image.pullPolicy="Always" \

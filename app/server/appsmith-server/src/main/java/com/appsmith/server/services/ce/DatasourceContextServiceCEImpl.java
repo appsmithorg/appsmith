@@ -128,6 +128,10 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         if (connection != null) {
             pluginExecutorHelper
                     .getPluginExecutor(pluginMono)
+                    // datasourceDestroy blocks for pooled plugins (it closes the pool). Keep that off the I/O thread
+                    // that
+                    // delivered the executor.
+                    .publishOn(Schedulers.boundedElastic())
                     .flatMap(pluginExecutor -> Mono.fromRunnable(() -> pluginExecutor.datasourceDestroy(connection)))
                     .onErrorResume(e -> {
                         log.error("Error destroying stale datasource connection", e);
