@@ -5,6 +5,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.services.AnalyticsService;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -38,8 +39,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AssetServiceCEImplTest {
 
-    private static final String SANDBOX_CSP =
-            "sandbox; default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'";
+    private static final String SANDBOX_CSP = "sandbox; default-src 'none'; style-src 'unsafe-inline'";
 
     private static final String SVG_ATTACHMENT = "attachment; filename=\"asset.svg\"";
 
@@ -63,7 +63,7 @@ class AssetServiceCEImplTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"image/png", "image/jpeg", "image/x-icon", "image/svg+xml"})
+    @ValueSource(strings = {"image/png", "image/jpeg", "image/x-icon", "image/vnd.microsoft.icon", "image/svg+xml"})
     void should_setNosniffAndSandboxCsp_when_servingAsset(String contentType) {
         // Given / When
         final HttpHeaders headers = serveAsset(contentType);
@@ -85,12 +85,24 @@ class AssetServiceCEImplTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"image/png", "image/jpeg", "image/x-icon"})
+    @ValueSource(strings = {"image/png", "image/jpeg", "image/x-icon", "image/vnd.microsoft.icon"})
     void should_notForceDownload_when_assetIsRasterImage(String contentType) {
         // Given / When
         final HttpHeaders headers = serveAsset(contentType);
 
         // Then
+        assertThat(headers.containsKey(HttpHeaders.CONTENT_DISPOSITION)).isFalse();
+    }
+
+    @Test
+    void should_setNosniffAndSandboxCspWithoutContentType_when_assetHasNoContentType() {
+        // Given / When
+        final HttpHeaders headers = serveAsset(null);
+
+        // Then
+        assertThat(headers.get("X-Content-Type-Options")).containsExactly("nosniff");
+        assertThat(headers.get("Content-Security-Policy")).containsExactly(SANDBOX_CSP);
+        assertThat(headers.containsKey(HttpHeaders.CONTENT_TYPE)).isFalse();
         assertThat(headers.containsKey(HttpHeaders.CONTENT_DISPOSITION)).isFalse();
     }
 

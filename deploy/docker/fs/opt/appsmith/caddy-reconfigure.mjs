@@ -49,6 +49,11 @@ if (CUSTOM_DOMAIN !== "") {
 const frameAncestorsPolicy = (process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS || "'self'")
   .replace(/;.*$/, "")
 
+// Uploaded images (assets and profile photos) are served from this origin. This policy stops a stored SVG from running
+// script when opened directly. Keep it in sync with ASSET_CONTENT_SECURITY_POLICY in AssetServiceCEImpl.java.
+const imageSandboxPolicy = "sandbox; default-src 'none'; style-src 'unsafe-inline'"
+const imagePaths = "/api/v1/assets/* /api/v1/users/photo /api/v1/users/photo/*"
+
 const parts = []
 
 parts.push(`
@@ -126,16 +131,17 @@ parts.push(`
     X-Appsmith-Request-Id {http.request.uuid}
   }
 
-  # Uploaded assets are served from this origin, so they get a sandbox policy that stops a stored SVG from running
-  # script when opened directly. The two matchers never overlap, so neither policy can overwrite the other.
-  @asset-path path /api/v1/assets/*
-  header @asset-path {
+  # Caddy owns the final CSP on every route. The image-serving routes get frame-ancestors plus the sandbox policy, and
+  # every other route gets frame-ancestors only. The two matchers never overlap, so neither policy can overwrite the
+  # other. \`defer\` applies each set after the upstream response, so it replaces whatever CSP the backend sent.
+  @image-path path ${imagePaths}
+  header @image-path {
     defer
-    Content-Security-Policy "frame-ancestors ${frameAncestorsPolicy}; sandbox; default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'"
+    Content-Security-Policy "frame-ancestors ${frameAncestorsPolicy}; ${imageSandboxPolicy}"
   }
 
-  @not-asset-path not path /api/v1/assets/*
-  header @not-asset-path {
+  @not-image-path not path ${imagePaths}
+  header @not-image-path {
     defer
     Content-Security-Policy "frame-ancestors ${frameAncestorsPolicy}"
   }

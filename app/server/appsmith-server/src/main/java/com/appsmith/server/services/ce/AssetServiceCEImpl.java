@@ -53,9 +53,10 @@ public class AssetServiceCEImpl implements AssetServiceCE {
     private static final MediaType SVG_MEDIA_TYPE = MediaType.valueOf("image/svg+xml");
 
     // Assets are served from the instance origin. These headers stop a stored asset from running script when opened
-    // directly, while still letting it render through an <img> tag.
+    // directly, while still letting it render through an <img> tag. In the Docker image, Caddy replaces this CSP with
+    // its own copy of the policy (the @image-path block in deploy/docker/fs/opt/appsmith/caddy-reconfigure.mjs).
     private static final String ASSET_CONTENT_SECURITY_POLICY =
-            "sandbox; default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'";
+            "sandbox; default-src 'none'; style-src 'unsafe-inline'";
 
     private static final Set<String> ALLOWED_CONTENT_TYPES_STR =
             Set.of(MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE);
@@ -209,7 +210,8 @@ public class AssetServiceCEImpl implements AssetServiceCE {
                 headers.set(HttpHeaders.CONTENT_TYPE, contentType);
 
                 if (isSvg(contentType)) {
-                    // SVG can carry script. Force a download on direct navigation; <img> rendering is unaffected.
+                    // Assets stored before SVG uploads were rejected may still be SVG, which can carry script. Force
+                    // a download on direct navigation; <img> rendering is unaffected.
                     headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"asset.svg\"");
                 }
             }

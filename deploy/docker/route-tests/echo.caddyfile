@@ -4,8 +4,9 @@
 
 http://:5050
 
-# Mirror the backend, which sends a sandbox CSP on asset responses.
-header /api/v1/assets/* Content-Security-Policy "sandbox; default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'"
+# A weaker upstream CSP on the image-serving routes. asset-csp.hurl asserts that Caddy replaces it.
+@image-paths path /api/v1/assets/* /api/v1/users/photo /api/v1/users/photo/*
+header @image-paths Content-Security-Policy "default-src 'self'"
 
 respond "Scheme = '{scheme}'
 X-Forwarded-Proto = '{header.x-forwarded-proto}'
