@@ -1,7 +1,4 @@
-import {
-  type DeleteErrorLogPayload,
-  type LogDebuggerErrorAnalyticsPayload,
-} from "actions/debuggerActions";
+import { type DeleteErrorLogPayload } from "actions/debuggerActions";
 import {
   addErrorLogs,
   debuggerLog,
@@ -16,41 +13,19 @@ import type {
   LogObject,
 } from "entities/AppsmithConsole";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import {
-  all,
-  call,
-  fork,
-  put,
-  select,
-  take,
-  takeEvery,
-} from "redux-saga/effects";
-import { findIndex, get, isEmpty, isMatch, set } from "lodash";
+import { all, call, fork, put, select, takeEvery } from "redux-saga/effects";
+import { get, isEmpty, set } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
-import {
-  getAction,
-  getPlugin,
-  getJSCollection,
-  getAppMode,
-} from "ee/selectors/entitiesSelector";
+import { getAction } from "ee/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
-import { type Plugin, PluginType } from "entities/Plugin";
-import type { JSCollection } from "entities/JSCollection";
+import { PluginType } from "entities/Plugin";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { getConfigTree } from "selectors/dataTreeSelectors";
 import { createLogTitleString } from "components/editorComponents/Debugger/helpers";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { getWidget } from "./selectors";
-import AnalyticsUtil, { AnalyticsEventType } from "ee/utils/AnalyticsUtil";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import type { WidgetProps } from "widgets/BaseWidget";
-import * as log from "loglevel";
 import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import { isWidget } from "ee/workers/Evaluation/evaluationUtils";
-import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
-import { getActiveEditorField } from "selectors/activeEditorFieldSelectors";
 import {
   transformAddErrorLogsSaga,
   transformDeleteErrorLogsSaga,
@@ -60,12 +35,6 @@ import { getIDEViewMode } from "../selectors/ideSelectors";
 import type { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { getDebuggerPaneConfig } from "../components/editorComponents/Debugger/utils/getDebuggerPaneConfig";
 import { DEBUGGER_TAB_KEYS } from "../components/editorComponents/Debugger/constants";
-
-let blockedSource: string | null = null;
-
-function generateErrorId(error: Log) {
-  return error.id + "_" + error.timestamp;
-}
 
 // Saga to format action request values to be shown in the debugger
 function* formatActionRequestSaga(
@@ -343,262 +312,13 @@ function* debuggerLogSaga(action: ReduxAction<Log[]>) {
   }
 }
 
-// This saga is intended for analytics only
-function* logDebuggerErrorAnalyticsSaga(
-  analyticsPayload: LogDebuggerErrorAnalyticsPayload,
-  currentDebuggerErrors: Record<string, Log>,
-): unknown {
-  try {
-    const payload = analyticsPayload;
-    const currentPageId: string | undefined = yield select(getCurrentPageId);
-    const { source } = payload;
-    const activeEditorField: ReturnType<typeof getActiveEditorField> =
-      yield select(getActiveEditorField);
-    const sourceFullPath = source.name + "." + source.propertyPath || "";
-
-    // To prevent redundant logs for active editor fields
-    // We dispatch log events only after the onBlur event of the editor field is fired
-    if (sourceFullPath === activeEditorField) {
-      if (!blockedSource) {
-        blockedSource = sourceFullPath;
-        yield fork(
-          activeFieldDebuggerErrorHandler,
-          analyticsPayload,
-          currentDebuggerErrors,
-        );
-      }
-
-      return;
-    }
-
-    if (payload.entityType === ENTITY_TYPE.WIDGET) {
-      const widget: WidgetProps | undefined = yield select(
-        getWidget,
-        payload.entityId,
-      );
-      const widgetType = widget?.type || payload?.analytics?.widgetType || "";
-      const propertyPath = `${widgetType}.${payload.propertyPath}`;
-
-      // Sending widget type for widgets
-      AnalyticsUtil.logEvent(
-        payload.eventName,
-        {
-          entityType: widgetType,
-          propertyPath,
-          errorId: payload.errorId,
-          errorMessages: payload.errorMessages,
-          pageId: currentPageId,
-          errorMessage: payload.errorMessage,
-          errorType: payload.errorType,
-          appMode: payload.appMode,
-        },
-        AnalyticsEventType.error,
-      );
-    } else if (payload.entityType === ENTITY_TYPE.ACTION) {
-      const action: Action | undefined = yield select(
-        getAction,
-        payload.entityId,
-      );
-      const pluginId = action?.pluginId || payload?.analytics?.pluginId || "";
-      const plugin: Plugin = yield select(getPlugin, pluginId);
-      const pluginName = plugin?.name.replace(/ /g, "");
-      let propertyPath = `${pluginName}`;
-
-      if (payload.propertyPath) {
-        propertyPath += `.${payload.propertyPath}`;
-      }
-
-      // Sending plugin name for actions
-      AnalyticsUtil.logEvent(
-        payload.eventName,
-        {
-          entityType: pluginName,
-          propertyPath,
-          errorId: payload.errorId,
-          errorMessages: payload.errorMessages,
-          pageId: currentPageId,
-          errorMessage: payload.errorMessage,
-          errorType: payload.errorType,
-          errorSubType: payload.errorSubType,
-          appMode: payload.appMode,
-        },
-        AnalyticsEventType.error,
-      );
-    } else if (payload.entityType === ENTITY_TYPE.JSACTION) {
-      const action: JSCollection = yield select(
-        getJSCollection,
-        payload.entityId,
-      );
-
-      if (!action) return;
-
-      const plugin: Plugin = yield select(getPlugin, action.pluginId);
-      const pluginName = plugin?.name?.replace(/ /g, "");
-
-      // Sending plugin name for actions
-      AnalyticsUtil.logEvent(
-        payload.eventName,
-        {
-          entityType: pluginName,
-          errorId: payload.errorId,
-          propertyPath: payload.propertyPath,
-          errorMessages: payload.errorMessages,
-          pageId: currentPageId,
-          appMode: payload.appMode,
-        },
-        AnalyticsEventType.error,
-      );
-    }
-  } catch (e) {
-    log.error(e);
-  }
-}
-
 function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
   const errorLogs: Log[] = yield call(
     transformAddErrorLogsSaga,
     action.payload,
   );
-  const currentDebuggerErrors: Record<string, Log> =
-    yield select(getDebuggerErrors);
-  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
 
   yield put(debuggerLogInit(errorLogs));
-  const validErrorLogs = errorLogs.filter((log) => log.source && log.id);
-
-  if (isEmpty(validErrorLogs)) return;
-
-  for (const errorLog of validErrorLogs) {
-    const { id, messages, source } = errorLog;
-
-    if (!source || !id) continue;
-
-    const analyticsPayload = {
-      entityName: source.name,
-      entityType: source.type,
-      entityId: source.id,
-      propertyPath: source.propertyPath ?? "",
-    };
-
-    // If this is a new error
-    if (!currentDebuggerErrors.hasOwnProperty(id)) {
-      const errorMessages = errorLog.messages ?? [];
-
-      yield fork(
-        logDebuggerErrorAnalyticsSaga,
-        {
-          ...analyticsPayload,
-          eventName: "DEBUGGER_NEW_ERROR",
-          errorMessages,
-          appMode,
-          source,
-          logId: id,
-        } as LogDebuggerErrorAnalyticsPayload,
-        currentDebuggerErrors,
-      );
-
-      // Log analytics for new error messages
-      //errorID has timestamp for 1:1 mapping with new and resolved errors
-      if (errorMessages.length && errorLog) {
-        const currentEnvDetails: { id: string; name: string } = yield select(
-          getCurrentEnvironmentDetails,
-        );
-
-        yield all(
-          errorMessages.map((errorMessage) =>
-            fork(
-              logDebuggerErrorAnalyticsSaga,
-              {
-                ...analyticsPayload,
-                environmentId: currentEnvDetails.id,
-                environmentName: currentEnvDetails.name,
-                eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
-                errorId: generateErrorId(errorLog),
-                errorMessage: errorMessage.message,
-                errorType: errorMessage.type,
-                errorSubType: errorMessage.subType,
-                appMode,
-                source,
-                logId: id,
-              } as LogDebuggerErrorAnalyticsPayload,
-              currentDebuggerErrors,
-            ),
-          ),
-        );
-      }
-    } else {
-      const updatedErrorMessages = messages ?? [];
-      const existingErrorMessages = currentDebuggerErrors[id].messages ?? [];
-      const currentEnvDetails: { id: string; name: string } = yield select(
-        getCurrentEnvironmentDetails,
-      );
-
-      // Log new error messages
-      yield all(
-        updatedErrorMessages.map((updatedErrorMessage) => {
-          const exists = findIndex(
-            existingErrorMessages,
-            (existingErrorMessage) => {
-              return isMatch(existingErrorMessage, updatedErrorMessage);
-            },
-          );
-
-          if (exists < 0) {
-            //errorID has timestamp for 1:1 mapping with new and resolved errors
-            return fork(
-              logDebuggerErrorAnalyticsSaga,
-              {
-                ...analyticsPayload,
-                environmentId: currentEnvDetails.id,
-                environmentName: currentEnvDetails.name,
-                eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
-                errorId: generateErrorId(errorLog),
-                errorMessage: updatedErrorMessage.message,
-                errorType: updatedErrorMessage.type,
-                errorSubType: updatedErrorMessage.subType,
-                appMode,
-                source,
-                logId: id,
-              } as LogDebuggerErrorAnalyticsPayload,
-              currentDebuggerErrors,
-            );
-          }
-        }),
-      );
-      // Log resolved error messages
-      yield all(
-        existingErrorMessages.map((existingErrorMessage) => {
-          const exists = findIndex(
-            updatedErrorMessages,
-            (updatedErrorMessage) => {
-              return isMatch(updatedErrorMessage, existingErrorMessage);
-            },
-          );
-
-          if (exists < 0) {
-            //errorID has timestamp for 1:1 mapping with new and resolved errors
-            return fork(
-              logDebuggerErrorAnalyticsSaga,
-              {
-                ...analyticsPayload,
-                environmentId: currentEnvDetails.id,
-                environmentName: currentEnvDetails.name,
-                eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
-                errorId: generateErrorId(currentDebuggerErrors[id]),
-                errorMessage: existingErrorMessage.message,
-                errorType: existingErrorMessage.type,
-                errorSubType: existingErrorMessage.subType,
-                appMode,
-                source,
-                logId: id,
-              } as LogDebuggerErrorAnalyticsPayload,
-              currentDebuggerErrors,
-            );
-          }
-        }),
-      );
-    }
-  }
 }
 
 function* deleteDebuggerErrorLogsSaga(
@@ -610,7 +330,6 @@ function* deleteDebuggerErrorLogsSaga(
   );
   const currentDebuggerErrors: Record<string, Log> =
     yield select(getDebuggerErrors);
-  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const existingErrorPayloads = payload.filter((item) =>
     currentDebuggerErrors.hasOwnProperty(item.id),
   );
@@ -624,34 +343,6 @@ function* deleteDebuggerErrorLogsSaga(
   });
 
   if (isEmpty(validErrorPayloadsToDelete)) return;
-
-  for (const validErrorPayload of validErrorPayloadsToDelete) {
-    const error = currentDebuggerErrors[validErrorPayload.id];
-
-    if (!error || !error.source) continue;
-
-    const analyticsPayload = {
-      entityName: error.source.name,
-      entityType: error.source.type,
-      entityId: error.source.id,
-      propertyPath: error.source.propertyPath ?? "",
-      analytics: validErrorPayload.analytics,
-    };
-    const errorMessages = error.messages;
-
-    yield fork(
-      logDebuggerErrorAnalyticsSaga,
-      {
-        ...analyticsPayload,
-        eventName: "DEBUGGER_RESOLVED_ERROR",
-        errorMessages,
-        appMode,
-        source: error.source,
-        logId: error.id,
-      } as LogDebuggerErrorAnalyticsPayload,
-      currentDebuggerErrors,
-    );
-  }
 
   const validErrorIds = validErrorPayloadsToDelete.map((payload) => payload.id);
 
@@ -703,138 +394,6 @@ export function* updateTriggerMeta(
     // We use the dynamic trigger as the name if it is not a binding
     name = dynamicTrigger.replace("()", "");
     triggerMeta["triggerPropertyName"] = name;
-  }
-}
-
-// This function handles logging of debugger error events for active editor fields
-// Error logs are fired only after the editor gets blur
-function* activeFieldDebuggerErrorHandler(
-  analyticsPayload: LogDebuggerErrorAnalyticsPayload,
-  currentDebuggerErrors: Record<string, Log>,
-) {
-  const { logId, source } = analyticsPayload;
-  const initialSourceDebuggerError: Log = currentDebuggerErrors[logId];
-  const sourceMetaData = {
-    entityName: source.name,
-    entityType: source.type,
-    entityId: source.id,
-    propertyPath: source.propertyPath ?? "",
-    source: source,
-  };
-  const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
-  const currentEnvDetails: { id: string; name: string } = yield select(
-    getCurrentEnvironmentDetails,
-  );
-  const envMetaData = {
-    appMode,
-    environmentId: currentEnvDetails.id,
-    environmentName: currentEnvDetails.name,
-  };
-
-  yield take(ReduxActionTypes.RESET_ACTIVE_EDITOR_FIELD);
-
-  const latestDebuggerErrors: Record<string, Log> =
-    yield select(getDebuggerErrors);
-  const latestSourceDebuggerError: Log = latestDebuggerErrors[logId];
-
-  blockedSource = null;
-
-  if (!initialSourceDebuggerError && latestSourceDebuggerError) {
-    yield fork(
-      logDebuggerErrorAnalyticsSaga,
-      {
-        ...sourceMetaData,
-        ...envMetaData,
-        eventName: "DEBUGGER_NEW_ERROR",
-        errorMessages: latestSourceDebuggerError.messages,
-        errorId: generateErrorId(latestSourceDebuggerError),
-      } as LogDebuggerErrorAnalyticsPayload,
-      latestDebuggerErrors,
-    );
-
-    yield all(
-      latestSourceDebuggerError.messages?.map((errorMessage) =>
-        fork(
-          logDebuggerErrorAnalyticsSaga,
-          {
-            ...sourceMetaData,
-            ...envMetaData,
-            eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
-            errorId: generateErrorId(latestSourceDebuggerError),
-            errorMessage: errorMessage.message,
-            errorType: errorMessage.type,
-            errorSubType: errorMessage.subType,
-          } as LogDebuggerErrorAnalyticsPayload,
-          currentDebuggerErrors,
-        ),
-      ) || [],
-    );
-  }
-
-  if (!latestSourceDebuggerError && initialSourceDebuggerError) {
-    yield fork(
-      logDebuggerErrorAnalyticsSaga,
-      {
-        ...sourceMetaData,
-        ...envMetaData,
-        eventName: "DEBUGGER_RESOLVED_ERROR",
-        errorMessages: initialSourceDebuggerError.messages,
-        errorId: generateErrorId(initialSourceDebuggerError),
-      } as LogDebuggerErrorAnalyticsPayload,
-      latestDebuggerErrors,
-    );
-  }
-
-  if (latestSourceDebuggerError && initialSourceDebuggerError) {
-    const latestErrorMessages = latestSourceDebuggerError.messages || [];
-    const initialErrorMessages = initialSourceDebuggerError.messages || [];
-
-    yield all(
-      initialErrorMessages.map((initialErrorMessage) => {
-        const exists = findIndex(latestErrorMessages, (latestErrorMessage) => {
-          return isMatch(latestErrorMessage, initialErrorMessage);
-        });
-
-        if (exists < 0) {
-          return put({
-            type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
-            payload: {
-              ...sourceMetaData,
-              ...envMetaData,
-              eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
-              errorMessage: initialErrorMessage.message,
-              errorId: generateErrorId(initialSourceDebuggerError),
-            },
-          });
-        }
-      }),
-    );
-    yield all(
-      latestErrorMessages.map((latestErrorMessage) => {
-        const exists = findIndex(
-          initialErrorMessages,
-          (initialErrorMessage) => {
-            return isMatch(initialErrorMessage, latestErrorMessage);
-          },
-        );
-
-        if (exists < 0) {
-          return fork(
-            logDebuggerErrorAnalyticsSaga,
-            {
-              ...sourceMetaData,
-              ...envMetaData,
-              eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
-              errorMessage: latestErrorMessage.message,
-              errorType: latestErrorMessage.type,
-              errorSubType: latestErrorMessage.subType,
-              errorId: generateErrorId(latestSourceDebuggerError),
-            } as LogDebuggerErrorAnalyticsPayload,
-            currentDebuggerErrors,
-          );
-        }
-      }),
-    );
   }
 }
 
