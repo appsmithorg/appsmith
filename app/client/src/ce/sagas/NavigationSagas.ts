@@ -2,8 +2,6 @@ import { fork, put, select, call, take } from "redux-saga/effects";
 import type { RouteChangeActionPayload } from "actions/focusHistoryActions";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import log from "loglevel";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { type ReduxAction } from "actions/ReduxActionTypes";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
@@ -21,10 +19,8 @@ import { flushErrors } from "actions/errorActions";
 import type { NavigationMethod } from "utils/history";
 import UsagePulse from "usagePulse";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
-import type { EditorViewMode } from "IDE/Interfaces/EditorTypes";
 import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 import { updateIDETabsOnRouteChangeSaga } from "sagas/IDESaga";
-import { getIDEViewMode } from "selectors/ideSelectors";
 
 let previousPath: string;
 
@@ -48,7 +44,6 @@ export function* handleRouteChange(
     }
 
     if (IDEType === IDE_TYPE.App) {
-      yield fork(logNavigationAnalytics, action.payload);
       yield fork(appBackgroundHandler);
       const entityInfo = identifyEntityFromPath(pathname);
 
@@ -108,33 +103,6 @@ function* watchForTrackableUrl(payload: RouteChangeActionPayload) {
   if (!isOldPathTrackable && isNewPathTrackable) {
     yield call(UsagePulse.sendPulseAndScheduleNext);
   }
-}
-
-function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
-  const {
-    location: { pathname, state },
-  } = payload;
-  const recentEntityIds: Array<string> = yield select(getRecentEntityIds);
-  const currentEntity = identifyEntityFromPath(pathname);
-  const previousEntity = identifyEntityFromPath(previousPath);
-  const isRecent = recentEntityIds.some(
-    (entityId) => entityId === currentEntity.id,
-  );
-  const ideViewMode: EditorViewMode = yield select(getIDEViewMode);
-  const { height, width } = window.screen;
-
-  AnalyticsUtil.logEvent("ROUTE_CHANGE", {
-    toPath: pathname,
-    fromPath: previousPath || undefined,
-    navigationMethod: state?.invokedBy,
-    isRecent,
-    recentLength: recentEntityIds.length,
-    toType: currentEntity.entity,
-    fromType: previousEntity.entity,
-    screenHeight: height,
-    screenWidth: width,
-    editorMode: ideViewMode,
-  });
 }
 
 export function* setSelectedWidgetsSaga(invokedBy?: NavigationMethod) {
