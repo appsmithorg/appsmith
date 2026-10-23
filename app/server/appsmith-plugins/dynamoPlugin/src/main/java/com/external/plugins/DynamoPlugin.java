@@ -13,6 +13,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.util.RestrictedHostFilter;
 import com.external.plugins.exceptions.DynamoErrorMessages;
 import com.external.plugins.exceptions.DynamoPluginError;
 import lombok.NonNull;
@@ -44,6 +45,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -469,12 +471,15 @@ public class DynamoPlugin extends BasePlugin {
      * The HTTP client of every DynamoDB client: Apache's, with the SDK's default settings, taking its proxy from the
      * {@code http.proxy*} and {@code http.nonProxyHosts} system properties only, not from environment variables. It is
      * passed as a builder, so that the DynamoDB client owns the HTTP client and closing it releases the connection pool.
+     * Every host other than the {@code http.proxyHost} proxy is resolved under the restricted host policy; see
+     * {@link RestrictedHostDnsResolver}.
      */
     private static ApacheHttpClient.Builder httpClientBuilder() {
         return ApacheHttpClient.builder()
                 .proxyConfiguration(ProxyConfiguration.builder()
                         .useEnvironmentVariableValues(false)
-                        .build());
+                        .build())
+                .dnsResolver(new RestrictedHostDnsResolver(System.getProperty("http.proxyHost")));
     }
 
     private static String toLowerCamelCase(String action) {
@@ -776,11 +781,40 @@ public class DynamoPlugin extends BasePlugin {
         return true;
     }
 
+    /**
+     * The datasource's custom endpoint as an HTTP URI. The URI's host must be the endpoint host as entered, so that the
+     * host the restricted host policy checks is the host the client connects to.
+     *
+     * @throws AppsmithPluginException when the endpoint host is not a host name or IP address, or the restricted host
+     *                                 policy blocks it
+     */
+    private static URI endpointUri(Endpoint endpoint) {
+        final String host = endpoint.getHost();
+        final int port = endpoint.getPort() == null ? -1 : endpoint.getPort().intValue();
+        final URI uri;
+        try {
+            uri = new URI("http", null, host, port, null, null, null);
+        } catch (URISyntaxException | IllegalArgumentException e) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    DynamoErrorMessages.INVALID_ENDPOINT_ERROR_MSG);
+        }
+        // The URI constructor brackets an IPv6 literal.
+        final String expectedHost =
+                host != null && host.contains(":") && !host.startsWith("[") ? "[" + host + "]" : host;
+        if (uri.getHost() == null || !uri.getHost().equalsIgnoreCase(expectedHost)) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    DynamoErrorMessages.INVALID_ENDPOINT_ERROR_MSG);
+        }
+        RestrictedHostFilter.assertHostAllowed(uri.getHost());
+        return uri;
+    }
+
     private static DynamoDbClient getDynamoDBClientObject(
             DatasourceConfiguration dsConfig, DynamoDbClientBuilder builder) {
         if (!CollectionUtils.isEmpty(dsConfig.getEndpoints())) {
-            final Endpoint endpoint = dsConfig.getEndpoints().get(0);
-            builder.endpointOverride(URI.create("http://" + endpoint.getHost() + ":" + endpoint.getPort()));
+            builder.endpointOverride(endpointUri(dsConfig.getEndpoints().get(0)));
         }
 
         final DBAuth authentication = (DBAuth) dsConfig.getAuthentication();

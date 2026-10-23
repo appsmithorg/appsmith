@@ -5,6 +5,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
+import com.appsmith.util.RestrictedHostFilter;
 import com.external.plugins.exceptions.S3ErrorMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -265,13 +266,11 @@ public class DatasourceUtils {
         }
         URI endpointUri = toEndpointUri(endpoint);
         boolean bucketInPath = pathStyleAccess || isIpAddress(endpointUri.getHost());
+        URI serviceEndpoint = serviceEndpoint(endpointUri, bucketInPath);
+        RestrictedHostFilter.assertHostAllowed(serviceEndpoint.getHost());
 
         return new S3ConnectionSettings(
-                credentialsProvider,
-                Region.of(regionName),
-                serviceEndpoint(endpointUri, bucketInPath),
-                bucketInPath,
-                false);
+                credentialsProvider, Region.of(regionName), serviceEndpoint, bucketInPath, false);
     }
 
     /** Whether the value is a region name: one DNS label of letters, digits and hyphens. */
