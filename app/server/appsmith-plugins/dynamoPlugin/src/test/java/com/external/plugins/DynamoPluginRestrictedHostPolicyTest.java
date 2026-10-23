@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import reactor.test.StepVerifier;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
@@ -95,6 +96,18 @@ class DynamoPluginRestrictedHostPolicyTest {
     }
 
     @ParameterizedTest
+    @ValueSource(longs = {0L, 65536L, 4294967376L})
+    void should_rejectDatasource_when_endpointPortIsOutOfRange(long port) {
+        // When
+        StepVerifier.create(DynamoClientPath.WITHOUT_FLAG.create(datasource("dynamodb.example.com", port)))
+                // Then
+                .expectErrorSatisfies(error -> assertThat(error)
+                        .isInstanceOf(AppsmithPluginException.class)
+                        .hasMessage("The endpoint port must be from 1 to 65535."))
+                .verify(CALL_TIMEOUT);
+    }
+
+    @ParameterizedTest
     @EnumSource(DynamoClientPath.class)
     void should_reportHostNotAllowed_when_testingDatasourceWithBlockedEndpointHost(DynamoClientPath path) {
         // When
@@ -137,10 +150,10 @@ class DynamoPluginRestrictedHostPolicyTest {
         clients.add(client);
     }
 
-    private static DatasourceConfiguration datasource(String host, int port) {
+    private static DatasourceConfiguration datasource(String host, long port) {
         Endpoint endpoint = new Endpoint();
         endpoint.setHost(host);
-        endpoint.setPort((long) port);
+        endpoint.setPort(port);
         DBAuth auth = new DBAuth();
         auth.setUsername("access-key");
         auth.setPassword("secret-key");
