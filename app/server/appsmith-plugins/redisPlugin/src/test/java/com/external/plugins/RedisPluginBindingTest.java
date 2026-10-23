@@ -8,6 +8,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
 import com.appsmith.util.RestrictedHostFilter;
+import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,6 +28,7 @@ import redis.clients.jedis.JedisPool;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -198,6 +200,8 @@ class RedisPluginBindingTest {
         assertThat(result.getPluginErrorDetails()).isNotNull();
         assertThat(result.getPluginErrorDetails().getAppsmithErrorCode())
                 .isEqualTo(AppsmithPluginError.SMART_SUBSTITUTION_VALUE_MISSING.getAppErrorCode());
+        assertThat(result.getPluginErrorDetails().getAppsmithErrorMessage())
+                .isEqualTo(AppsmithPluginError.SMART_SUBSTITUTION_VALUE_MISSING.getMessage("Input2.text"));
         assertThat(storedValue("greeting")).isNull();
     }
 
@@ -217,5 +221,65 @@ class RedisPluginBindingTest {
                     assertThat(result.getBody().toString()).contains("Austin");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    void should_rejectQuery_when_bindingIsPartOfCommandName() {
+        // Given
+        ActionConfiguration action = action("GE{{Input1.text}} greeting");
+
+        // When
+        ActionExecutionResult result = pluginExecutor
+                .executeParameterized(jedisPool, params("Input1.text", "T"), datasourceConfiguration, action)
+                .block();
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getIsExecutionSuccess()).isFalse();
+        assertThat(result.getPluginErrorDetails()).isNotNull();
+        assertThat(result.getPluginErrorDetails().getAppsmithErrorCode())
+                .isEqualTo(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getAppErrorCode());
+        assertThat(result.getPluginErrorDetails().getAppsmithErrorMessage()).isEqualTo(STATIC_COMMAND_MESSAGE);
+    }
+
+    @Test
+    void should_storeBoundValueAsOneArgument_when_queryRunsThroughServerEntrypoint() {
+        // Given
+        assertThat(storedValue("greeting")).isNull();
+        ActionConfiguration action = action("SET {{Input1.text}} {{Input2.text}}");
+
+        // When
+        ActionExecutionResult result = pluginExecutor
+                .executeParameterizedWithMetricsAndFlags(
+                        jedisPool,
+                        params("Input1.text", "greeting", "Input2.text", "two words"),
+                        datasourceConfiguration,
+                        action,
+                        ObservationRegistry.NOOP,
+                        Map.of())
+                .block();
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getIsExecutionSuccess()).isTrue();
+        assertThat(storedValue("greeting")).isEqualTo("two words");
+    }
+
+    @Test
+    void should_runQuery_when_queryWithoutBindingsRunsThroughServerEntrypoint() {
+        // Given
+        assertThat(storedValue("greeting")).isNull();
+        ActionConfiguration action = action("SET greeting \"hello there\"");
+
+        // When
+        ActionExecutionResult result = pluginExecutor
+                .executeParameterizedWithMetricsAndFlags(
+                        jedisPool, params(), datasourceConfiguration, action, ObservationRegistry.NOOP, Map.of())
+                .block();
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getIsExecutionSuccess()).isTrue();
+        assertThat(storedValue("greeting")).isEqualTo("\"hello there\"");
     }
 }
