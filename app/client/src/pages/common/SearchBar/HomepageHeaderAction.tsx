@@ -44,7 +44,7 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import styled from "styled-components";
 import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
 import BetterbugsUtil from "utils/Analytics/betterbugs";
-import { useBetterbugsMetadata } from "utils/hooks/useBetterbugsMetadata";
+import { useBetterbugsMetadata } from "ee/hooks/useBetterbugsMetadata";
 
 const { betterbugs, cloudHosting } = getAppsmithConfigs();
 
