@@ -109,6 +109,7 @@ helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-n
   --set redis.enabled=false \
   --set postgresql.enabled=false \
   --set mongodb.enabled=false \
+  --set probes.startupProbe.failureThreshold=30 \
   --set ingress.enabled=true \
   --set "ingress.hosts[0].host=$DOMAINNAME, ingress.hosts[0].paths[0].path=/, ingress.hosts[0].paths[0].pathType=Prefix" \
   --set autoupdate.enabled=false \
