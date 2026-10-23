@@ -192,6 +192,20 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      # Stamp the version from the VERSION file into every module. Builds from release and
+      # patch/* get the plain version; every other build, including PR builds, gets a SNAPSHOT.
+      - name: Stamp the build version
+        if: steps.changed-files-specific.outputs.any_modified == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        env:
+          BUILD_BRANCH: ${{ inputs.checkout-ref == '' && inputs.pr == 0 && (inputs.branch || github.ref_name) || '' }}
+        run: |
+          version="$(../../scripts/build_version.sh "$BUILD_BRANCH")"
+          echo "Stamping version $version"
+          mvn --batch-mode versions:set \
+            -DnewVersion="$version" \
+            -DgenerateBackupPoms=false \
+            -DprocessAllModules=true
+
       # Build the code
       - name: Build
         if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_modified == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')

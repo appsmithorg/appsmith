@@ -19,12 +19,8 @@ if [[ $# -gt 0 ]]; then
 elif [[ "${GITHUB_REF-}" =~ ^refs/tags/v ]]; then
   version="${GITHUB_REF#refs/tags/}"
 else
-  latest_released_version="$(git ls-remote --tags --sort=-v:refname "$(git remote | head -1)" 'v*' | awk -F/ '{print $NF; exit}')"
-  echo "latest_released_version = $latest_released_version" >&2
-  # Next unreleased build is the next patch: v2.4.2 -> v2.4.3, v2.4 -> v2.4.1.
-  next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ if (NF < 3) $3 = 0; $3++; print }')"
-  echo "next_version = $next_version" >&2
-  version="$next_version-SNAPSHOT"
+  # APPSMITH_BUILD_BRANCH is the branch a non-PR build checks out. It is empty for PR builds.
+  version="$("$(dirname "$0")/build_version.sh" "${APPSMITH_BUILD_BRANCH-}")"
 fi
 
 if [[ -n ${GITHUB_RUN_ID-} ]]; then
