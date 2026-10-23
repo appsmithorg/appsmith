@@ -11,9 +11,11 @@ import {
   MenuItem,
   MenuSeparator,
   MenuTrigger,
+  toast,
 } from "@appsmith/ads";
 import { useBoolean } from "usehooks-ts";
 import {
+  CONTEXT_COPY_WIDGET_NAME,
   CONTEXT_DELETE,
   CONTEXT_RENAME,
   CONTEXT_SHOW_BINDING,
@@ -46,6 +48,17 @@ export const WidgetContextMenu = (props: {
     });
   }, [dispatch, widget?.widgetName, widgetId]);
 
+  const copyWidgetName = useCallback(async () => {
+    if (!widget?.widgetName) return;
+
+    try {
+      await navigator.clipboard.writeText(widget.widgetName);
+      toast.show("Widget name copied to clipboard", { kind: "success" });
+    } catch {
+      toast.show("Could not copy widget name", { kind: "error" });
+    }
+  }, [widget?.widgetName]);
+
   const editWidgetName = useCallback(() => {
     // We add a delay to avoid having the focus stuck in the menu trigger
     setTimeout(() => {
@@ -77,6 +90,13 @@ export const WidgetContextMenu = (props: {
         <MenuItem onClick={showBinding} startIcon="binding-new">
           {createMessage(CONTEXT_SHOW_BINDING)}
         </MenuItem>
+        <MenuItem
+          disabled={!widget?.widgetName}
+          onClick={copyWidgetName}
+          startIcon="copy"
+        >
+          {createMessage(CONTEXT_COPY_WIDGET_NAME)}
+        </MenuItem>
         <InspectStateMenuItem entityId={widgetId} />
         <MenuSeparator />
         <MenuItem
@@ -91,10 +111,12 @@ export const WidgetContextMenu = (props: {
     );
   }, [
     canManagePages,
+    copyWidgetName,
     editWidgetName,
     handleDeleteWidget,
     showBinding,
     widget?.isDeletable,
+    widget?.widgetName,
     widgetId,
   ]);
 
