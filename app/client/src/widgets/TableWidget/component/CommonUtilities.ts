@@ -87,7 +87,7 @@ export const transformTableDataIntoCsv = (props: {
       if (column.metaProperties && !column.metaProperties.isHidden) {
         value =
           isString(value) && value.includes("\n")
-            ? value.replace("\n", " ")
+            ? value.replace(/\r?\n/g, " ")
             : value;
 
         if (isString(value) && value.includes(",")) {
