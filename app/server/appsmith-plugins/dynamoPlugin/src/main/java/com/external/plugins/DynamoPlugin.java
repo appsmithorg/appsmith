@@ -785,12 +785,18 @@ public class DynamoPlugin extends BasePlugin {
      * The datasource's custom endpoint as an HTTP URI. The URI's host must be the endpoint host as entered, so that the
      * host the restricted host policy checks is the host the client connects to.
      *
-     * @throws AppsmithPluginException when the endpoint host is not a host name or IP address, or the restricted host
-     *                                 policy blocks it
+     * @throws AppsmithPluginException when the endpoint host is not a host name or IP address, the port is outside 1 to
+     *                                 65535, or the restricted host policy blocks the host
      */
     private static URI endpointUri(Endpoint endpoint) {
         final String host = endpoint.getHost();
-        final int port = endpoint.getPort() == null ? -1 : endpoint.getPort().intValue();
+        final Long configuredPort = endpoint.getPort();
+        if (configuredPort != null && (configuredPort < 1 || configuredPort > 65535)) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    DynamoErrorMessages.INVALID_ENDPOINT_PORT_ERROR_MSG);
+        }
+        final int port = configuredPort == null ? -1 : configuredPort.intValue();
         final URI uri;
         try {
             uri = new URI("http", null, host, port, null, null, null);

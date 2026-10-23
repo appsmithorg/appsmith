@@ -11,7 +11,8 @@ import java.net.UnknownHostException;
  * {@link RestrictedHostFilter#resolveAllIfAllowed(String)}, so a connection to a host the restricted host policy blocks
  * is refused at connect time, even when the host resolved to an allowed address when the datasource was created. The
  * operator's configured proxy host resolves without the check: the proxy comes from the server's own settings, not from
- * the datasource, and egress through it is the proxy operator's policy.
+ * the datasource, and egress through it is the proxy operator's policy. A datasource endpoint that names the proxy host
+ * is still checked when the datasource is created and tested.
  */
 final class RestrictedHostDnsResolver implements DnsResolver {
 
