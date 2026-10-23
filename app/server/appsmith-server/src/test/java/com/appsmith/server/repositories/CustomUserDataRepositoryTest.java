@@ -188,4 +188,76 @@ public class CustomUserDataRepositoryTest {
                 })
                 .verifyComplete();
     }
+
+    /**
+     * Verifies that when an application is removed from recently used list, it is pulled from both
+     * recentlyUsedEntityIds applicationIds lists and legacy recentlyUsedAppIds.
+     */
+    @Test
+    public void removeApplicationFromRecentlyUsedList_WhenApplicationIdExists_ApplicationIdRemoved() {
+        String randomId = UUID.randomUUID().toString();
+        String userId = "user_" + randomId;
+
+        UserData userData = new UserData();
+        userData.setUserId(userId);
+        RecentlyUsedEntityDTO entityDTO = new RecentlyUsedEntityDTO();
+        entityDTO.setWorkspaceId("ws_1");
+        entityDTO.setApplicationIds(new ArrayList<>(List.of("app_1", "app_2", "app_3")));
+        userData.setRecentlyUsedEntityIds(new ArrayList<>(List.of(entityDTO)));
+        userData.setRecentlyUsedAppIds(new ArrayList<>(List.of("app_1", "app_2")));
+
+        userDataRepository.save(userData).block();
+
+        StepVerifier.create(userDataRepository.removeApplicationFromRecentlyUsedList("app_2"))
+                .verifyComplete();
+
+        StepVerifier.create(userDataRepository.findByUserId(userId))
+                .assertNext(updatedUserData -> {
+                    assertThat(updatedUserData.getRecentlyUsedEntityIds()).hasSize(1);
+                    assertThat(updatedUserData.getRecentlyUsedEntityIds().get(0).getApplicationIds())
+                            .containsExactly("app_1", "app_3");
+                    assertThat(updatedUserData.getRecentlyUsedAppIds())
+                            .containsExactly("app_1");
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * Verifies that when a workspace is removed from recently used list, its entry is pulled from both
+     * recentlyUsedEntityIds and legacy recentlyUsedWorkspaceIds.
+     */
+    @Test
+    public void removeWorkspaceFromRecentlyUsedList_WhenWorkspaceIdExists_WorkspaceIdRemoved() {
+        String randomId = UUID.randomUUID().toString();
+        String userId = "user_" + randomId;
+
+        UserData userData = new UserData();
+        userData.setUserId(userId);
+        RecentlyUsedEntityDTO entityDTO1 = new RecentlyUsedEntityDTO();
+        entityDTO1.setWorkspaceId("ws_1");
+        entityDTO1.setApplicationIds(new ArrayList<>(List.of("app_1")));
+
+        RecentlyUsedEntityDTO entityDTO2 = new RecentlyUsedEntityDTO();
+        entityDTO2.setWorkspaceId("ws_2");
+        entityDTO2.setApplicationIds(new ArrayList<>(List.of("app_2")));
+
+        userData.setRecentlyUsedEntityIds(new ArrayList<>(List.of(entityDTO1, entityDTO2)));
+        userData.setRecentlyUsedWorkspaceIds(new ArrayList<>(List.of("ws_1", "ws_2")));
+
+        userDataRepository.save(userData).block();
+
+        StepVerifier.create(userDataRepository.removeWorkspaceFromRecentlyUsedList("ws_1"))
+                .verifyComplete();
+
+        StepVerifier.create(userDataRepository.findByUserId(userId))
+                .assertNext(updatedUserData -> {
+                    assertThat(updatedUserData.getRecentlyUsedEntityIds()).hasSize(1);
+                    assertThat(updatedUserData.getRecentlyUsedEntityIds().get(0).getWorkspaceId())
+                            .isEqualTo("ws_2");
+                    assertThat(updatedUserData.getRecentlyUsedWorkspaceIds())
+                            .containsExactly("ws_2");
+                })
+                .verifyComplete();
+    }
 }
+
