@@ -504,7 +504,7 @@
     "svgo": "^2.8.4",
     "@opentelemetry/core": "^2.8.0",
     "nanoid": "^3.3.17",
-    "ip-address": "^10.5.1",
+    "ip-address": "^10.7.4",
     "postcss-selector-parser": "^7.1.6",
     "qs": "^6.16.0",
     "fflate": "^0.4.9",
