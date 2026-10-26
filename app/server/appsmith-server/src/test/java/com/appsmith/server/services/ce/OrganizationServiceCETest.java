@@ -274,10 +274,10 @@ class OrganizationServiceCETest {
                             .as("organizationConfiguration must be present")
                             .isNotNull();
 
-                    // Fields that must be stripped for anonymous users
-                    assertThat(config.getGoogleMapsKey())
-                            .as("googleMapsKey must not be exposed to anonymous users")
-                            .isNull();
+                    // Fields that must be stripped for anonymous users.
+                    // googleMapsKey is intentionally NOT stripped — public apps need it for
+                    // the Map widget. Positive preservation is verified in
+                    // should_preserveGoogleMapsKey_when_strippingForAnonymousUser.
                     assertThat(config.getIsStrongPasswordPolicyEnabled())
                             .as("isStrongPasswordPolicyEnabled must not be exposed")
                             .isNull();
@@ -311,6 +311,25 @@ class OrganizationServiceCETest {
                             .isNull();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    void should_preserveGoogleMapsKey_when_strippingForAnonymousUser() {
+        // Given
+        OrganizationConfiguration config = new OrganizationConfiguration();
+        config.setGoogleMapsKey("test-maps-key");
+        config.setIsStrongPasswordPolicyEnabled(TRUE);
+
+        // When
+        config.stripFieldsForAnonymousUser();
+
+        // Then
+        assertThat(config.getGoogleMapsKey())
+                .as("googleMapsKey must survive stripping — public Map widget needs it")
+                .isEqualTo("test-maps-key");
+        assertThat(config.getIsStrongPasswordPolicyEnabled())
+                .as("isStrongPasswordPolicyEnabled must be stripped")
+                .isNull();
     }
 
     @Test

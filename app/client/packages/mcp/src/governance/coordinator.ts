@@ -82,9 +82,10 @@ export interface McpGovernanceCoordinatorOptions {
 export const DEFAULT_CHANGE_RETENTION_MS = 90 * 24 * 60 * 60 * 1000;
 
 // The lock is held across the caller's mutate(), so it MUST outlive the slowest governed mutation or a second
-// agent can acquire it mid-flight and lose an update. The slowest is a git commit (GIT_COMMIT_TIMEOUT_MS, 120s
-// in app.ts), so this sits above that with headroom rather than the 30s that used to expire underneath it.
-export const DEFAULT_LOCK_TTL_MS = 150_000;
+// agent can acquire it mid-flight and lose an update. The slowest is create_branch: a refs re-read
+// (REQUEST_TIMEOUT_MS, 30s) followed by create-ref (GIT_CREATE_REF_TIMEOUT_MS, 120s in app.ts); a commit is
+// bounded by GIT_COMMIT_TIMEOUT_MS (120s). This sits above that 150s sum with headroom.
+export const DEFAULT_LOCK_TTL_MS = 180_000;
 
 export class McpGovernanceCoordinator {
   private readonly lockTtlMs: number;

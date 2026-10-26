@@ -7,19 +7,18 @@ on:
       - release
     paths:
       - .github/workflows/caddy-routes-test.yml
-      - deploy/docker/fs/opt/appsmith/caddy-reconfigure.mjs
-      - deploy/docker/fs/opt/appsmith/templates/docker.env.sh
+      - deploy/docker/fs/opt/appsmith/**
       - deploy/docker/route-tests/**
       - deploy/docker/tests/**
   pull_request:
-    branches:
-      - release
     paths:
       - .github/workflows/caddy-routes-test.yml
-      - deploy/docker/fs/opt/appsmith/caddy-reconfigure.mjs
-      - deploy/docker/fs/opt/appsmith/templates/docker.env.sh
+      - deploy/docker/fs/opt/appsmith/**
       - deploy/docker/route-tests/**
       - deploy/docker/tests/**
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -27,6 +26,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Test configuration parsing and startup boundaries
+        run: python3 deploy/docker/tests/env-loader-test.py
+
+      - name: Check the shared shell loader
+        run: shellcheck deploy/docker/fs/opt/appsmith/load-env.sh
+
+      - name: Check startup shell syntax
+        run: |
+          bash -n deploy/docker/fs/opt/appsmith/load-env.sh
+          bash -n deploy/docker/fs/opt/appsmith/entrypoint.sh
+          bash -n deploy/docker/fs/opt/appsmith/run-with-env.sh
 
       - name: docker.env.sh default frame-ancestors is safe
         run: deploy/docker/tests/docker-env-defaults-test.sh

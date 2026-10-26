@@ -307,9 +307,18 @@ unaffected — the parameter is optional and ignored.
   the new ref to the customer's git remote under the instance deploy key** — remote CI/webhooks configured to run
   on branch pushes will run on `mcp/*` refs; operators should account for that egress. Appsmith is
   branch-per-application and has no checkout, so the result returns the **new branched `applicationId`**; all
-  subsequent edits for that branch must target it. A human branch named `mcp/*` falls inside the reserved agent
-  namespace — keep human branches out of it. Agents never delete branches; humans remove stale `mcp/` branches via
-  Appsmith's branch UI.
+  subsequent edits for that branch must target it. Creating a branch exports the application, creates the ref, and
+  pushes, so the call gets the same 120s outbound budget as a commit; past that budget the tool returns
+  `create_branch_timeout`, which tells the agent the server is most likely still finishing and to retry the **same**
+  name. When the name already exists, the `branch_exists` error carries that branch's `applicationId` and editor URL
+  (resolved server-side through `checkout-ref`, a local operation that never pushes), so an agent whose earlier call
+  timed out continues on the branch it already made instead of creating another; at the 5-branch cap,
+  `mcp_branch_limit` lists the existing `mcp/` names, and `create_branch` with one of them returns its id the same
+  way. The lookup is best-effort: a branch with no application on this instance (for example one that exists only on
+  the remote) or one held by a concurrent git operation comes back id-less, and the error says so. MCP clients that
+  enforce their own tool-call timeout below 120s still abort on the largest applications; the retry-same-name path
+  recovers the id. A human branch named `mcp/*` falls inside the reserved agent namespace — keep human branches out
+  of it. Agents never delete branches; humans remove stale `mcp/` branches via Appsmith's branch UI.
 - **`prepare_commit` / `confirm_commit` (governed): commit implies push.** Appsmith's commit API **always pushes to
   the customer's git remote after the local commit** — there is no commit-without-push and no separate push
   endpoint. Because of that, MCP commits are allowed **only on `mcp/` agent branches**: both tools refuse unless a

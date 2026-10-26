@@ -35,6 +35,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -533,7 +534,12 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     public Mono<ActionCollectionDTO> validateAndSaveCollection(ActionCollection actionCollection) {
         ActionCollectionDTO collectionDTO = actionCollection.getUnpublishedCollection();
 
-        List<ActionDTO> newlyAddedActions = new ArrayList<>();
+        // The new actions are created by a concurrent flatMap below, and each created action is
+        // appended here via doOnNext. Those appends run on different MongoDB/Netty worker threads,
+        // so the list must be thread-safe; a plain ArrayList corrupts under the concurrent writes
+        // (lost entries or ArrayIndexOutOfBoundsException). The list is read only downstream of
+        // collectList(), after every append has completed, so no extra iteration guard is needed.
+        List<ActionDTO> newlyAddedActions = Collections.synchronizedList(new ArrayList<>());
 
         return validateActionCollection(actionCollection)
                 .thenReturn(collectionDTO.getActions())

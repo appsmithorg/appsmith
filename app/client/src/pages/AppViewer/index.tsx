@@ -52,6 +52,7 @@ import { getRenderPage } from "selectors/evaluationSelectors";
 import type { ReactNode } from "react";
 import { registerLayoutComponents } from "layoutSystems/anvil/utils/layouts/layoutUtils";
 import { widgetInitialisationSuccess } from "actions/widgetActions";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -224,6 +225,15 @@ function AppViewer(props: Props) {
       urlBuilder.setCurrentBasePageId(null);
     };
   }, [resolvedBasePageId]);
+
+  // The engine sets PUBLISHED mode on entry; the viewer owns that state for its whole lifetime.
+  // Clear it on unmount so builder telemetry resumes once the user leaves the published app by any
+  // route (back button, logo, "All apps", or direct navigation), not just a single button.
+  useEffect(function clearAnalyticsAppModeOnUnmount() {
+    return () => {
+      AnalyticsUtil.setAppMode(undefined);
+    };
+  }, []);
 
   useEffect(() => {
     const header = document.querySelector(".js-appviewer-header");

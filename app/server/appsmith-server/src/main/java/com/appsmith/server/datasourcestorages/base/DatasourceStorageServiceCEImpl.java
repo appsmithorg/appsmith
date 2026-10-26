@@ -24,12 +24,14 @@ import com.appsmith.server.repositories.DatasourceStorageRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.OrganizationService;
+import com.appsmith.server.services.ce.DatasourceContextInvalidationPublisher;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -64,6 +66,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     private final ConfigService configService;
     private final OrganizationService organizationService;
     private final ObjectMapper objectMapper;
+    private DatasourceContextInvalidationPublisher datasourceContextInvalidationPublisher;
 
     public DatasourceStorageServiceCEImpl(
             DatasourceStorageRepository repository,
@@ -82,6 +85,16 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         this.configService = configService;
         this.organizationService = organizationService;
         this.objectMapper = objectMapper;
+    }
+
+    /**
+     * Injected after construction, so the constructor the EE subclasses call stays unchanged.
+     * {@code broadcastContextInvalidation} skips the broadcast while this is unset.
+     */
+    @Autowired
+    public void setDatasourceContextInvalidationPublisher(
+            DatasourceContextInvalidationPublisher datasourceContextInvalidationPublisher) {
+        this.datasourceContextInvalidationPublisher = datasourceContextInvalidationPublisher;
     }
 
     @Override
@@ -539,6 +552,8 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                     }
 
                     return validateAndSaveDatasourceStorageToRepository(storageToSave, isDryOps)
+                            .flatMap(savedDatasourceStorage -> broadcastContextInvalidation(
+                                    savedDatasourceStorage, isUserRefreshedUpdate, isDryOps))
                             .flatMap(savedDatasourceStorage -> {
                                 Map<String, Object> analyticsProperties =
                                         getAnalyticsProperties(savedDatasourceStorage);
@@ -551,6 +566,22 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                             });
                 })
                 .flatMap(this::populateHintMessages);
+    }
+
+    /**
+     * Tells every pod to drop its cached connection for the saved storage, so new credentials take effect
+     * everywhere and not only on this pod. Only a persisted, user-originated save broadcasts: the
+     * non-user update from {@code DatasourceContextServiceCEImpl#updateDatasourceAndSetAuthentication} runs right
+     * after a context is created, and broadcasting there would evict that fresh context on every creation.
+     */
+    private Mono<DatasourceStorage> broadcastContextInvalidation(
+            DatasourceStorage savedDatasourceStorage, Boolean isUserRefreshedUpdate, boolean isDryOps) {
+        if (isDryOps || !TRUE.equals(isUserRefreshedUpdate) || datasourceContextInvalidationPublisher == null) {
+            return Mono.just(savedDatasourceStorage);
+        }
+        return datasourceContextInvalidationPublisher
+                .publish(savedDatasourceStorage)
+                .thenReturn(savedDatasourceStorage);
     }
 
     private void addCredentialBindingProperties(

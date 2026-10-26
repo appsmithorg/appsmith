@@ -18,6 +18,7 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.newpages.PageBaseIdAudit;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -189,7 +190,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     if (StringUtils.isEmpty(newPage.getBaseId())) {
                         NewPage updatePage = new NewPage();
                         updatePage.setBaseId(savedPage.getId());
-                        return super.update(savedPage.getId(), updatePage);
+                        return PageBaseIdAudit.suppress(super.update(savedPage.getId(), updatePage));
                     }
                     return Mono.just(savedPage);
                 })
