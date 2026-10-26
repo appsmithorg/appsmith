@@ -246,6 +246,30 @@ tlog() { :; }
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(result.stdout, f"{name}=literal value\0".encode())
 
+    def test_otel_names_are_accepted_and_external_values_override_file(self):
+        for name in ["OTEL_EXPORTER_OTLP_TRACES_ENDPOINT", "OTEL_EXPORTER_OTLP_ENDPOINT"]:
+            with self.subTest(name=name):
+                result = self.parse(f"{name}=http://collector:4318/v1/traces\n")
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout, f"{name}=http://collector:4318/v1/traces\0".encode())
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            snapshot = root / "pre-define.json"
+            environment = dict(os.environ, OTEL_EXPORTER_OTLP_TRACES_ENDPOINT="http://external:4318/v1/traces")
+            subprocess.run(["/usr/bin/python3", str(APP / "env-file.py"), "snapshot", str(snapshot)],
+                           env=environment, check=True)
+            self.assertEqual(json.loads(snapshot.read_text())["OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"],
+                             "http://external:4318/v1/traces")
+            config = root / "docker.env"
+            config.write_text("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://stored:4318/v1/traces\n")
+            result = subprocess.run([
+                "bash", "-euc", 'source "$1"; load_env_file env "$2"; load_env_file json "$3"; '
+                'printf \'%s\' "$OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"',
+                "test", str(APP / "load-env.sh"), str(config), str(snapshot),
+            ], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout, "http://external:4318/v1/traces")
+
     def test_ghsa_h6hh_expression_migration_is_fail_closed_and_redacted(self):
         for expression in ['${PASSWORD}', '$PASSWORD', '$(printf secret)', '`printf secret`',
                            '"${PASSWORD}"', '"$(printf secret)"', '$1', '$?', '~/.secret',

@@ -115,8 +115,10 @@ Quoted or escaped spaces remain part of the value, and `NAME=#abc` preserves
 `#abc`. Quote values containing spaces. Duplicate
 assignments use the last value. LF and CRLF line endings are accepted.
 
-Supported names start with `APPSMITH_`, `MONGO_`, or `KEYCLOAK_` and contain only
-letters, digits, and underscores. The prefixes remain case-sensitive.
+Supported names start with `APPSMITH_`, `MONGO_`, `KEYCLOAK_`, or `OTEL_` and contain
+only letters, digits, and underscores. The prefixes remain case-sensitive.
+`OTEL_*` values reach every service; the Java server honors only the normalized
+trace endpoint and sampling probability from them.
 `HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY` and their lowercase equivalents are supported,
 as are `NEW_RELIC_LICENSE_KEY`, `NEW_RELIC_APP_NAME`,
 `JGROUPS_DISCOVERY_PROTOCOL`, `FILESTORE_IP_ADDRESS`, `FILE_SHARE_NAME`, and `PORT`.
@@ -147,7 +149,7 @@ quotes stop startup with the line number and, when recognizable, the variable
 name, without printing its value. Quoted multiline values in
 `docker.env` are not supported.
 
-External `APPSMITH_*` and `MONGO_*` environment variables override this file,
+External `APPSMITH_*`, `MONGO_*`, and `OTEL_*` environment variables override this file,
 including explicitly empty values. Their values are saved verbatim in a private
 JSON snapshot for service restarts; quotes, newlines, and non-UTF-8 bytes are preserved. Kubernetes
 Secrets and Vault values that are already resolved before container startup do

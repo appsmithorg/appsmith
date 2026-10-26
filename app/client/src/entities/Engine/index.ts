@@ -21,6 +21,7 @@ import type { Span } from "instrumentation/types";
 import { endSpan, startNestedSpan } from "instrumentation/generateTraces";
 import { selectGitApplicationCurrentBranch } from "selectors/gitModSelectors";
 import { getPersistentAppStore } from "constants/AppConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 export interface AppEnginePayload {
   applicationId?: string;
@@ -160,6 +161,7 @@ export default abstract class AppEngine {
 
     yield put(updateBranchLocally(branch || ""));
     yield put(setAppMode(this._mode));
+    yield call(AnalyticsUtil.setAppMode, this._mode);
     yield put(restoreIDEEditorViewMode());
     yield put({ type: ReduxActionTypes.START_EVALUATION });
 

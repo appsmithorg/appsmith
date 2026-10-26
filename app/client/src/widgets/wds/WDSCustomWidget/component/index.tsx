@@ -1,6 +1,5 @@
 import clsx from "clsx";
 import kebabCase from "lodash/kebabCase";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { cssRule, ThemeContext } from "@appsmith/wds-theming";
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 
@@ -16,8 +15,7 @@ import { useCustomWidgetHeight } from "./useCustomWidgetHeight";
 const { disableIframeWidgetSandbox } = getAppsmithConfigs();
 
 export function CustomWidgetComponent(props: CustomWidgetComponentProps) {
-  const { model, onConsole, onTriggerEvent, onUpdateModel, renderMode, size } =
-    props;
+  const { model, onConsole, onTriggerEvent, onUpdateModel, size } = props;
   const iframe = useRef<HTMLIFrameElement>(null);
   const theme = useContext(ThemeContext);
   const [loading, setLoading] = useState(true);
@@ -73,8 +71,6 @@ export function CustomWidgetComponent(props: CustomWidgetComponentProps) {
       model: props.model,
       mode: props.renderMode,
     });
-
-    logInitializationEvent();
   };
 
   // the iframe can make changes to the model, when it needs to
@@ -110,15 +106,6 @@ export function CustomWidgetComponent(props: CustomWidgetComponentProps) {
     if (!onConsole) return;
 
     onConsole(eventData.type as string, eventData.args as string);
-  };
-
-  const logInitializationEvent = () => {
-    if (renderMode === "DEPLOYED" || renderMode === "EDITOR") {
-      AnalyticsUtil.logEvent("CUSTOM_WIDGET_LOAD_INIT", {
-        widgetId: props.widgetId,
-        renderMode: props.renderMode,
-      });
-    }
   };
 
   useEffect(
