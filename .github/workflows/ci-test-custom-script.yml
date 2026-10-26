@@ -234,13 +234,43 @@ jobs:
             app/client/.yarn/cache
             app/client/node_modules/.cache/webpack/
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+          restore-keys: |
+            v1-yarn3-
 
-      # Install all the dependencies
+      # yarn install downloads the Cypress binary (about 200 MB) into ~/.cache/Cypress.
+      # A cached binary skips that download. The cache key includes the patches because
+      # the postinstall script applies them to the binary.
+      - name: Get the Cypress version
+        if: steps.run_result.outputs.run_result != 'success'
+        id: cypress-version
+        working-directory: app/client
+        run: |
+          echo "version=$(node -p 'require("./package.json").devDependencies.cypress')" >> "$GITHUB_OUTPUT"
+
+      - name: Restore Cypress binary cache
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: v1-cypress-${{ runner.os }}-${{ steps.cypress-version.outputs.version }}-${{ hashFiles('app/client/cypress/patches/**') }}
+
+      # A broken download (an npm package or the Cypress binary) fails the install.
+      # Retry here, because GitHub re-runs a failed shard only after the whole run ends.
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: app/client
         run: |
-          yarn install --immutable
+          for attempt in 1 2 3; do
+            if timeout 600 yarn install --immutable; then
+              exit 0
+            fi
+            echo "::warning::yarn install failed on attempt $attempt of 3."
+            if [[ "$attempt" -lt 3 ]]; then
+              sleep $((attempt * 20))
+            fi
+          done
+          echo "::error::yarn install failed 3 times."
+          exit 1
 
       - name: Set cypress tags to exclude
         if: steps.run_result.outputs.run_result != 'success'
