@@ -265,7 +265,7 @@
     "@grafana/faro-webpack-plugin": "^0.2.1",
     "@octokit/rest": "^20.0.1",
     "@peculiar/webcrypto": "^1.4.3",
-    "@playwright/test": "1.59.1",
+    "@playwright/test": "1.64.1",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
     "@simonsmith/cypress-image-snapshot": "^9.1.0",
     "@testing-library/jest-dom": "5.16.1",
