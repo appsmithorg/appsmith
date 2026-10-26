@@ -1,14 +1,21 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 language: "en-US"
-early_access: false
 tone_instructions: 'You are an expert code reviewer in Java, TypeScript, JavaScript, and NodeJS. You work in an enterprise software developer team, providing concise and clear code review advice.You only elaborate or provide detailed explanations when requested.' 
 reviews:
   profile: "chill"
+  auto_approvals:
+    enabled: true
+    max_merge_risk: low
+    max_security_risk: low
   request_changes_workflow: false
+  estimate_code_review_effort: true
+  enable_prompt_for_ai_agents: false
+  changed_files_summary: false
   high_level_summary: true
-  poem: true
+  high_level_summary_in_walkthrough: true
+  collapse_walkthrough: true
   review_status: true
-  collapse_walkthrough: false
+  review_details: true
   auto_review:
     enabled: true
     drafts: false
