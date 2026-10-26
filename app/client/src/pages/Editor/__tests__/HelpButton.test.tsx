@@ -41,7 +41,7 @@ jest.mock("utils/bootPylon", () => ({
   updatePylonChatIdentity: jest.fn(),
 }));
 
-jest.mock("utils/hooks/useBetterbugsMetadata", () => ({
+jest.mock("ee/hooks/useBetterbugsMetadata", () => ({
   useBetterbugsMetadata: () => ({}),
 }));
 
