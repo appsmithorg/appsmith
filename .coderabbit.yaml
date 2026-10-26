@@ -7,7 +7,6 @@ reviews:
     enabled: true
     max_merge_risk: low
     # max_security_risk: low ## to confirm the code rababit plan first
-  request_changes_workflow: false
   estimate_code_review_effort: true
   enable_prompt_for_ai_agents: false
   changed_files_summary: false
