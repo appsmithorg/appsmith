@@ -13,14 +13,14 @@ const tableData = Array.from({ length: 30 }, (_, index) => ({
 }));
 const GRID_ROW_HEIGHT = 10;
 
-// Rows, cells and the row height segments carry data-* attributes; the scroll
-// containers come from SimpleBar and the auto height wrapper, which only expose classes.
+// SimpleBar's scroll element and the shared auto height wrapper only expose classes
 const tableWidget = locators._widgetInDeployed(draggableWidgets.TABLE);
+const staticBody = `${tableWidget} [data-testid="t--table-v2-static-body"]`;
 const autoHeightLocators = {
   tableWidget,
-  dataRows: `${tableWidget} .tbody > [data-rowindex]`,
-  allRows: `${tableWidget} .tbody > .tr`,
-  bodyScrollWrapper: `${tableWidget} .tableWrap .simplebar-content-wrapper`,
+  dataRows: `${staticBody} [data-rowindex]:not([data-colindex])`,
+  emptyRows: `${staticBody} [data-testid="t--table-v2-empty-row"]`,
+  bodyScrollWrapper: `${staticBody} .simplebar-content-wrapper`,
   autoHeightScrollContainer: `${tableWidget} .auto-height-scroll-container`,
   pageSizeText: getWidgetSelector(draggableWidgets.TEXT),
   rowsPerPageControl: propPane._propertyControl("rowsperpage"),
@@ -109,8 +109,8 @@ describe(
         "Table data",
         JSON.stringify(tableData.slice(0, 2)),
       );
-      // Counts every body row, so filler rows would show up here
-      agHelper.AssertElementLength(autoHeightLocators.allRows, 2);
+      agHelper.AssertElementLength(autoHeightLocators.dataRows, 2);
+      agHelper.AssertElementAbsence(autoHeightLocators.emptyRows);
       propPane.EnterJSContext("Table data", JSON.stringify(tableData));
     });
 
@@ -137,13 +137,14 @@ describe(
             );
           });
           // The rows that do not fit scroll inside the outer auto height container
-          cy.get(autoHeightLocators.autoHeightScrollContainer)
-            .should("have.css", "overflow-y", "auto")
-            .and(($container) => {
+          cy.get(autoHeightLocators.autoHeightScrollContainer).should(
+            ($container) => {
+              expect($container.css("overflow-y")).to.eq("auto");
               expect($container[0].scrollHeight).to.be.greaterThan(
                 $container[0].clientHeight,
               );
-            });
+            },
+          );
         });
     });
 

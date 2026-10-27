@@ -105,6 +105,46 @@ describe("TableWidgetV2 auto height", () => {
     });
   });
 
+  describe("componentDidMount", () => {
+    const mount = (props: Partial<TableWidgetProps>) => {
+      const widget = new TableWidgetV2({ ...baseProps, ...props });
+      const batchUpdateWidgetProperty = jest
+        .spyOn(widget, "batchUpdateWidgetProperty")
+        .mockImplementation(jest.fn());
+
+      widget.componentDidMount();
+
+      return batchUpdateWidgetProperty;
+    };
+
+    it("turns infinite scroll off when a table loads with auto height and infinite scroll both on", () => {
+      const batchUpdateWidgetProperty = mount({
+        dynamicHeight: DynamicHeight.AUTO_HEIGHT,
+        infiniteScrollEnabled: true,
+      });
+
+      expect(batchUpdateWidgetProperty).toHaveBeenCalledTimes(1);
+      expect(batchUpdateWidgetProperty).toHaveBeenCalledWith(
+        { modify: expect.objectContaining({ infiniteScrollEnabled: false }) },
+        false,
+      );
+    });
+
+    it("leaves infinite scroll alone for fixed height tables", () => {
+      expect(mount({ infiniteScrollEnabled: true })).not.toHaveBeenCalled();
+    });
+
+    it("does not write widget properties outside the editor", () => {
+      expect(
+        mount({
+          dynamicHeight: DynamicHeight.AUTO_HEIGHT,
+          infiniteScrollEnabled: true,
+          renderMode: RenderModes.PAGE,
+        }),
+      ).not.toHaveBeenCalled();
+    });
+  });
+
   describe("componentDidUpdate", () => {
     const update = (
       prevProps: Partial<TableWidgetProps>,

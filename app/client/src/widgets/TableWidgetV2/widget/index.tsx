@@ -968,6 +968,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     // Commit Batch Updates property `true` is passed as commitBatchMetaUpdates is not called on componentDidMount and we need to call it for updating the batch updates
     this.updateInfiniteScrollProperties(true);
+
+    // A pasted or imported table can arrive with both auto height and infinite scroll on
+    if (
+      renderMode === RenderModes.CANVAS &&
+      this.props.infiniteScrollEnabled &&
+      isAutoHeightEnabledForWidget(this.props)
+    ) {
+      this.turnOffInfiniteScrollForAutoHeight();
+    }
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
