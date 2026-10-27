@@ -1,4 +1,9 @@
-import { buildActionDto, compileQuery, querySpecSchema } from "./query.js";
+import {
+  buildActionDto,
+  compileQuery,
+  querySpecSchema,
+  sqlDialectFor,
+} from "./query.js";
 
 function parse(spec: unknown) {
   const result = querySpecSchema.safeParse(spec);
@@ -521,6 +526,430 @@ describe("APP-16164: filter-bar filters (skipWhenEmpty, inList)", () => {
       expect(evaluate(value)).toEqual(expectedValue);
     },
   );
+});
+
+describe("APP-16324 F1: isNull and notNull filters", () => {
+  it.each([
+    ["isNull", "IS NULL"],
+    ["notNull", "IS NOT NULL"],
+  ])("compiles %s to %s with no bind parameter", (op, sql) => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [{ column: "l2owner", op }],
+      }),
+    );
+
+    expect(body).toBe(`SELECT * FROM tickets WHERE tickets.l2owner ${sql};`);
+  });
+
+  // Oracle "Unassigned tickets": an open status and no L2 owner.
+  it("ANDs an isNull filter with a value filter", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          { column: "status", op: "eq", value: { literal: "New" } },
+          { column: "l2owner", op: "isNull" },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT * FROM tickets WHERE status = {{ "New" }} AND tickets.l2owner IS NULL;',
+    );
+  });
+
+  it.each([
+    [undefined, "SELECT * FROM tickets WHERE tickets.closed_at IS NOT NULL;"],
+    [
+      "other" as const,
+      "SELECT * FROM tickets WHERE tickets.closed_at IS NOT NULL;",
+    ],
+    [
+      "postgres" as const,
+      'SELECT * FROM tickets WHERE "closed_at" IS NOT NULL;',
+    ],
+  ])("compiles to IS NOT NULL on dialect %s", (dialect, sql) => {
+    const spec = parse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      filters: [{ column: "closed_at", op: "notNull" }],
+    });
+
+    expect(compileQuery(spec, { dialect })).toBe(sql);
+  });
+
+  // The MySQL plugin refuses any prepared query with the word IS (MySqlPlugin.isIsOperatorUsed). The same SQL is
+  // executed in MySqlPluginTest.testNullSafeEqualityWithPreparedStatement. Change both together.
+  it.each([
+    ["isNull", "SELECT * FROM tickets WHERE tickets.l2owner <=> NULL;"],
+    ["notNull", "SELECT * FROM tickets WHERE NOT (tickets.l2owner <=> NULL);"],
+  ])("compiles %s on MySQL without the IS keyword", (op, sql) => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [{ column: "l2owner", op }],
+      }),
+      { dialect: "mysql" },
+    );
+
+    expect(body).toBe(sql);
+    expect(body).not.toMatch(/\bIS\b/i);
+  });
+
+  // A column named after a keyword must not compile to a predicate that is true for every row, such as a bare
+  // `null IS NULL`. On a DELETE that would empty the table.
+  // On PostgreSQL the column is quoted, not qualified: a missing `tickets.text` would read as the call text(tickets),
+  // which is never NULL. A quoted name is always a column, and a missing one is an error.
+  it.each([
+    [undefined, "DELETE FROM tickets WHERE tickets.null IS NULL;"],
+    ["mysql" as const, "DELETE FROM tickets WHERE tickets.null <=> NULL;"],
+    ["postgres" as const, 'DELETE FROM tickets WHERE "null" IS NULL;'],
+  ])(
+    "never emits a keyword column bare on DELETE (dialect %s)",
+    (dialect, sql) => {
+      const body = compileQuery(
+        parse({
+          ...base,
+          operation: "DELETE",
+          table: "tickets",
+          filters: [{ column: "null", op: "isNull" }],
+        }),
+        { dialect },
+      );
+
+      expect(body).toBe(sql);
+    },
+  );
+
+  // A value filter's unquoted EMAIL names the column `email` on PostgreSQL. The null filters must name the same one.
+  it("lower-cases the column before quoting it on PostgreSQL", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "UPDATE",
+        table: "users",
+        values: [{ column: "status", value: { literal: "inactive" } }],
+        filters: [
+          { column: "Email", op: "isNull" },
+          { column: "ID", op: "gt", value: { literal: 3 } },
+        ],
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toBe(
+      'UPDATE users SET status = {{ "inactive" }} WHERE "email" IS NULL AND ID > {{ 3 }};',
+    );
+  });
+
+  // On PostgreSQL a quoted name equal to the table's, with no such column, is the whole row. `"tickets" IS NOT NULL`
+  // is then true for every row whose fields are all set.
+  it.each([
+    ["tickets", "tickets"],
+    ["support.tickets", "tickets"],
+    ["Support.Tickets", "TICKETS"],
+  ])(
+    "refuses a null filter on a column named like the table %s on PostgreSQL",
+    (table, column) => {
+      const spec = parse({
+        ...base,
+        operation: "DELETE",
+        table,
+        filters: [{ column, op: "notNull" }],
+      });
+
+      expect(() => compileQuery(spec, { dialect: "postgres" })).toThrow(
+        /cannot test a column named like its table/,
+      );
+    },
+  );
+
+  // PostgreSQL cuts names to 63 characters, so these two read as the same name there.
+  it("refuses a column that matches the table only after PostgreSQL's 63-character cut", () => {
+    const prefix = "a".repeat(63);
+    const spec = parse({
+      ...base,
+      operation: "DELETE",
+      table: `${prefix}x`,
+      filters: [{ column: `${prefix}y`, op: "notNull" }],
+    });
+
+    expect(() => compileQuery(spec, { dialect: "postgres" })).toThrow(
+      /cannot test a column named like its table/,
+    );
+  });
+
+  // Redshift keeps names up to 127 characters, so it compares that many.
+  it("allows names that differ after 63 characters on Redshift", () => {
+    const prefix = "a".repeat(63);
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "DELETE",
+        table: `${prefix}x`,
+        filters: [{ column: `${prefix}y`, op: "notNull" }],
+      }),
+      { dialect: "redshift" },
+    );
+
+    expect(body).toContain(`"${prefix}y" IS NOT NULL`);
+  });
+
+  it("refuses names that match only after Redshift's 127-character cut", () => {
+    const prefix = "a".repeat(127);
+    const spec = parse({
+      ...base,
+      operation: "DELETE",
+      table: `${prefix}x`,
+      filters: [{ column: `${prefix}y`, op: "notNull" }],
+    });
+
+    expect(() => compileQuery(spec, { dialect: "redshift" })).toThrow(
+      /cannot test a column named like its table/,
+    );
+  });
+
+  it("allows a long column that differs from the table within 63 characters", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: `${"a".repeat(62)}x`,
+        filters: [{ column: `${"a".repeat(62)}y`, op: "isNull" }],
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toContain(`"${"a".repeat(62)}y" IS NULL`);
+  });
+
+  // Elsewhere `tickets.tickets` is a column or an error, never the whole row, so it is allowed.
+  it("allows a column named like the table on other databases", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [{ column: "tickets", op: "isNull" }],
+      }),
+      { dialect: "mysql" },
+    );
+
+    expect(body).toBe("SELECT * FROM tickets WHERE tickets.tickets <=> NULL;");
+  });
+
+  it("qualifies the column with a schema-qualified table", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "support.tickets",
+        filters: [{ column: "current_user", op: "notNull" }],
+      }),
+    );
+
+    expect(body).toBe(
+      "SELECT * FROM support.tickets WHERE support.tickets.current_user IS NOT NULL;",
+    );
+  });
+
+  it.each([
+    ["postgres-plugin", "postgres"],
+    ["mysql-plugin", "mysql"],
+    ["mariadb-plugin", "mysql"],
+    ["redshift-plugin", "redshift"],
+    ["mssql-plugin", "other"],
+    ["oracle-plugin", "other"],
+    [undefined, "other"],
+  ])("maps plugin %s to dialect %s", (packageName, dialect) => {
+    expect(sqlDialectFor(packageName)).toBe(dialect);
+  });
+
+  // Redshift derives from PostgreSQL, so `tickets.text` could read as a function call. It gets the quoted bare form.
+  it("uses the PostgreSQL null-filter form on Redshift", () => {
+    const spec = parse({
+      ...base,
+      operation: "DELETE",
+      table: "tickets",
+      filters: [{ column: "Text", op: "notNull" }],
+    });
+
+    expect(compileQuery(spec, { dialect: "redshift" })).toBe(
+      'DELETE FROM tickets WHERE "text" IS NOT NULL;',
+    );
+  });
+
+  it("refuses a column named like its table on Redshift", () => {
+    const spec = parse({
+      ...base,
+      operation: "DELETE",
+      table: "tickets",
+      filters: [{ column: "tickets", op: "isNull" }],
+    });
+
+    expect(() => compileQuery(spec, { dialect: "redshift" })).toThrow(
+      /on PostgreSQL or Redshift/,
+    );
+  });
+
+  // Only the null filters change on Redshift. A value filter on an empty widget still binds as on "other".
+  it("leaves value filters on Redshift as on other databases", () => {
+    const spec = parse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      filters: [
+        {
+          column: "status",
+          op: "eq",
+          value: { widget: "StatusSelect", property: "selectedOptionValue" },
+          skipWhenEmpty: true,
+        },
+      ],
+    });
+
+    expect(compileQuery(spec, { dialect: "redshift" })).toBe(
+      compileQuery(spec, { dialect: "other" }),
+    );
+  });
+
+  // MySQL and Redshift keep inList refused: they cannot bind a list as one parameter.
+  it.each(["mysql" as const, "redshift" as const])(
+    "still refuses inList on %s",
+    (dialect) => {
+      const spec = parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          {
+            column: "tag",
+            op: "inList",
+            value: { widget: "TagsSelect", property: "selectedOptionValues" },
+          },
+        ],
+      });
+
+      expect(() => compileQuery(spec, { dialect })).toThrow(
+        /only available on a PostgreSQL datasource/,
+      );
+    },
+  );
+
+  it("is allowed on a write, where it narrows the rows", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "UPDATE",
+        table: "tickets",
+        values: [{ column: "status", value: { literal: "Pending on L2" } }],
+        filters: [
+          { column: "id", op: "eq", value: { literal: 7 } },
+          { column: "l2owner", op: "isNull" },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      'UPDATE tickets SET status = {{ "Pending on L2" }} WHERE id = {{ 7 }} AND tickets.l2owner IS NULL;',
+    );
+  });
+
+  it("compiles on DELETE", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "DELETE",
+        table: "drafts",
+        filters: [{ column: "submitted_at", op: "isNull" }],
+      }),
+    );
+
+    expect(body).toBe("DELETE FROM drafts WHERE drafts.submitted_at IS NULL;");
+  });
+
+  // Agents often send optional fields with their "off" value. Neither changes what the filter does.
+  it("accepts skipWhenEmpty: false and an explicit value: undefined", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          { column: "l2owner", op: "isNull", skipWhenEmpty: false },
+          { column: "closed_at", op: "notNull", value: undefined },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      "SELECT * FROM tickets WHERE tickets.l2owner IS NULL AND tickets.closed_at IS NOT NULL;",
+    );
+  });
+
+  it.each([
+    [
+      "isNull with a value",
+      { column: "l2owner", op: "isNull", value: { literal: null } },
+      "isNull takes no value",
+    ],
+    [
+      "notNull with a widget value",
+      {
+        column: "l2owner",
+        op: "notNull",
+        value: { widget: "OwnerSelect", property: "selectedOptionValue" },
+      },
+      "notNull takes no value",
+    ],
+    [
+      "isNull with skipWhenEmpty",
+      { column: "l2owner", op: "isNull", skipWhenEmpty: true },
+      "isNull takes no value",
+    ],
+    ["eq with no value", { column: "status", op: "eq" }, "eq needs a value"],
+    [
+      "eq with an explicit value: undefined",
+      { column: "status", op: "eq", value: undefined },
+      "eq needs a value",
+    ],
+    [
+      "isNull on a column that is not an identifier",
+      { column: "l2owner IS NULL OR 1=1 --", op: "isNull" },
+      "must be a plain SQL identifier",
+    ],
+  ])("rejects %s at the schema", (_label, filter, message) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      filters: [filter],
+    });
+
+    expect(result.success).toBe(false);
+    expect(JSON.stringify(result.error?.issues)).toContain(message);
+  });
+
+  // A caller that skips parsing must still fail closed instead of emitting `col = undefined`.
+  it("throws in the compiler when a value filter reaches it without a value", () => {
+    const spec = {
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      filters: [{ column: "status", op: "eq" }],
+    } as unknown as Parameters<typeof compileQuery>[0];
+
+    expect(() => compileQuery(spec)).toThrow(/filter on status needs a value/);
+  });
 });
 
 describe("buildActionDto", () => {

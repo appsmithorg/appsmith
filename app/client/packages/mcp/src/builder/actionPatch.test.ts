@@ -59,6 +59,25 @@ describe("action lifecycle builders", () => {
     });
   });
 
+  it("compiles an isNull filter on the update_action path", () => {
+    const dto = buildUpdateActionDto(
+      parseUpdate({
+        ...reference,
+        kind: "SQL",
+        name: "ListUsers",
+        query: { ...query, filters: [{ column: "deleted_at", op: "isNull" }] },
+      }),
+    );
+
+    expect(dto).toMatchObject({
+      action: {
+        actionConfiguration: {
+          body: "SELECT * FROM users WHERE users.deleted_at IS NULL;",
+        },
+      },
+    });
+  });
+
   it("builds a REST update DTO solely from structured REST fields", () => {
     const dto = buildUpdateActionDto(
       parseUpdate({ ...reference, kind: "REST", name: "GetUsers", rest }),

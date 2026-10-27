@@ -68,20 +68,74 @@ const OPERATORS = {
   in: "IN",
 } as const;
 
+// Filters that test a column for NULL. The SQL is fixed text from these maps, so they take no value.
+// The MySQL plugin refuses any query with the word IS while prepared statements are on, and the compiler always turns
+// them on. MySQL uses its null-safe equality `<=>` instead.
+const NULL_OPERATORS = {
+  isNull: "IS NULL",
+  notNull: "IS NOT NULL",
+} as const;
+const MYSQL_NULL_TEMPLATES = {
+  isNull: (column: string) => `${column} <=> NULL`,
+  notNull: (column: string) => `NOT (${column} <=> NULL)`,
+} as const;
+
+type NullOperator = keyof typeof NULL_OPERATORS;
+
+function isNullOperator(op: string): op is NullOperator {
+  return Object.prototype.hasOwnProperty.call(NULL_OPERATORS, op);
+}
+
 // A WHERE filter.
 // - `inList` matches the column against a list that a widget holds, such as a multi-select's selectedOptionValues.
 // - `skipWhenEmpty` drops the filter while the widget value is empty (null, undefined, "" or []). An unset dropdown
 //   then means "no filter", not "match nothing".
-// Both need a widget reference. A literal is a scalar and is never empty.
+// - `isNull` and `notNull` take no value and no skipWhenEmpty. Every other op needs a value.
+// inList and skipWhenEmpty need a widget reference. A literal is a scalar and is never empty.
 const filterSchema = z
   .object({
     column: sqlIdentifier,
-    op: z.enum(["eq", "ne", "gt", "gte", "lt", "lte", "like", "in", "inList"]),
-    value: valueRef,
+    op: z.enum([
+      "eq",
+      "ne",
+      "gt",
+      "gte",
+      "lt",
+      "lte",
+      "like",
+      "in",
+      "inList",
+      "isNull",
+      "notNull",
+    ]),
+    value: valueRef.optional(),
     skipWhenEmpty: z.boolean().optional(),
   })
   .strict()
   .superRefine((filter, ctx) => {
+    if (isNullOperator(filter.op)) {
+      // skipWhenEmpty: false is a no-op, so it is accepted.
+      if (filter.value !== undefined || filter.skipWhenEmpty === true) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `${filter.op} takes no value and no skipWhenEmpty`,
+          path: [filter.value !== undefined ? "value" : "skipWhenEmpty"],
+        });
+      }
+
+      return;
+    }
+
+    if (filter.value === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `${filter.op} needs a value: { literal } or { widget, property }`,
+        path: ["value"],
+      });
+
+      return;
+    }
+
     // `appsmith.*` (for example appsmith.user.email) identifies the viewer, and filters use it to scope rows. Never
     // skip it: an unset value would silently widen the read to every row.
     if (
@@ -120,9 +174,26 @@ const filterSchema = z
 
 // The database family the query runs on. `inList` works only on PostgreSQL, which binds a list as one
 // prepared-statement parameter (an SQL array). MySQL sends the list as a JSON string, and SQL Server refuses it.
+// isNull and notNull compile differently on MySQL (see MYSQL_NULL_TEMPLATES), and Redshift uses the PostgreSQL form
+// for them. Redshift is otherwise "other": it cannot bind a list as one parameter, so inList stays refused there.
 // Everything else the compiler emits works on every family. An unknown family, such as when the caller cannot
 // resolve the datasource, counts as "other".
-export type SqlDialect = "postgres" | "other";
+export type SqlDialect = "postgres" | "redshift" | "mysql" | "other";
+
+// Maps a datasource's plugin package name to its SqlDialect. MariaDB counts as MySQL.
+export function sqlDialectFor(packageName: string | undefined): SqlDialect {
+  switch (packageName) {
+    case "postgres-plugin":
+      return "postgres";
+    case "redshift-plugin":
+      return "redshift";
+    case "mysql-plugin":
+    case "mariadb-plugin":
+      return "mysql";
+    default:
+      return "other";
+  }
+}
 
 export interface CompileQueryOptions {
   dialect?: SqlDialect;
@@ -269,21 +340,93 @@ function emitNullWhenEmpty(ref: WidgetRef): string {
   return binding;
 }
 
-// Returns the widget reference of an inList or skipWhenEmpty filter. filterSchema already refuses a literal here.
-// This checks again so that a caller that skipped parsing fails closed, instead of emitting a template around a
-// literal.
-function widgetRef(filter: Filter): WidgetRef {
-  if ("literal" in filter.value) {
+// Returns the value of a filter that needs one. filterSchema already refuses a missing value. This checks again so
+// that a caller that skipped parsing fails closed, instead of emitting `col = undefined`.
+function filterValue(filter: Filter): ValueRef {
+  if (filter.value === undefined) {
     throw new Error(
-      `filter on ${filter.column} needs a { widget, property } value for ${filter.op === "inList" ? "inList" : "skipWhenEmpty"}`,
+      `filter on ${filter.column} needs a value for ${filter.op}`,
     );
   }
 
   return filter.value;
 }
 
+// Returns the widget reference of an inList or skipWhenEmpty filter. filterSchema already refuses a literal here.
+// This checks again so that a caller that skipped parsing fails closed, instead of emitting a template around a
+// literal.
+function widgetRef(filter: Filter): WidgetRef {
+  const value = filterValue(filter);
+
+  if ("literal" in value) {
+    throw new Error(
+      `filter on ${filter.column} needs a { widget, property } value for ${filter.op === "inList" ? "inList" : "skipWhenEmpty"}`,
+    );
+  }
+
+  return value;
+}
+
+// The longest name each database keeps. PostgreSQL cuts every name, quoted or not, to 63 bytes. Redshift allows
+// 127 bytes. Identifiers here are ASCII, so bytes are characters.
+const MAX_IDENTIFIER_LENGTH = { postgres: 63, redshift: 127 } as const;
+
+// The PostgreSQL or Redshift column for an isNull or notNull filter: lower-cased, then quoted. Throws when the name
+// equals the table's own name (the last part of `schema.table`), because a missing column of that name reads as the
+// whole row. Both names are compared after the database's own cut, so two long names that differ only after it
+// still match.
+function postgresNullCheckColumn(
+  column: string,
+  table: string,
+  dialect: "postgres" | "redshift",
+): string {
+  const name = column.toLowerCase();
+  const tableName = (table.split(".").pop() ?? table).toLowerCase();
+  const maxLength = MAX_IDENTIFIER_LENGTH[dialect];
+
+  if (name.slice(0, maxLength) === tableName.slice(0, maxLength)) {
+    throw new Error(
+      `isNull and notNull cannot test a column named like its table (${column}) on PostgreSQL or Redshift, which would read it as the whole row`,
+    );
+  }
+
+  return `"${name}"`;
+}
+
+// The isNull or notNull test for a table-qualified column on every database except PostgreSQL.
+function emitQualifiedNullCheck(
+  op: NullOperator,
+  column: string,
+  dialect: SqlDialect,
+): string {
+  return dialect === "mysql"
+    ? MYSQL_NULL_TEMPLATES[op](column)
+    : `${column} ${NULL_OPERATORS[op]}`;
+}
+
 // One WHERE condition, before any skipWhenEmpty wrapping.
-function emitCondition(filter: Filter, dialect: SqlDialect): string {
+function emitCondition(
+  filter: Filter,
+  dialect: SqlDialect,
+  table: string,
+): string {
+  // The SQL comes from NULL_OPERATORS or MYSQL_NULL_TEMPLATES. No agent text and no binding.
+  // An allow-listed identifier can still be a keyword, such as `null` or `current_user`. A bare `null IS NULL` is true
+  // for every row, which would widen a DELETE to the whole table. So the column is never emitted bare:
+  // - PostgreSQL: lower-cased and quoted. Lower-casing gives the same column an unquoted value filter names, because
+  //   PostgreSQL folds unquoted names to lower case. Not `table.col`: when no such column exists, PostgreSQL reads
+  //   `users.text` as the call `text(users)`, which is never NULL. A missing quoted column is an error, except a
+  //   name equal to the table's, which PostgreSQL reads as the whole row. That name is refused.
+  // - Redshift: the PostgreSQL form. Redshift derives from PostgreSQL, so `table.col` could have the same
+  //   function-call reading. A quoted bare name cannot.
+  // - Every other database: qualified with its table. After a dot, MySQL always reads a column name. SQL Server,
+  //   Oracle and Snowflake read a column or refuse the query.
+  if (isNullOperator(filter.op)) {
+    return dialect === "postgres" || dialect === "redshift"
+      ? `${postgresNullCheckColumn(filter.column, table, dialect)} ${NULL_OPERATORS[filter.op]}`
+      : emitQualifiedNullCheck(filter.op, `${table}.${filter.column}`, dialect);
+  }
+
   if (filter.op === "inList") {
     if (dialect !== "postgres") {
       throw new Error(
@@ -303,7 +446,7 @@ function emitCondition(filter: Filter, dialect: SqlDialect): string {
   const binding =
     filter.skipWhenEmpty === true && dialect === "postgres"
       ? emitNullWhenEmpty(widgetRef(filter))
-      : emitBinding(filter.value);
+      : emitBinding(filterValue(filter));
 
   if (filter.op === "in") return `${filter.column} IN (${binding})`;
 
@@ -350,11 +493,15 @@ function emitAggregate(aggregate: NonNullable<QuerySpec["aggregate"]>): string {
   return `${fn}("${aggregate.column}") AS ${aggregate.fn}`;
 }
 
-function emitWhere(filters: QuerySpec["filters"], dialect: SqlDialect): string {
+function emitWhere(
+  filters: QuerySpec["filters"],
+  dialect: SqlDialect,
+  table: string,
+): string {
   if (!filters || filters.length === 0) return "";
 
   const clauses = filters.map((filter) => {
-    const condition = emitCondition(filter, dialect);
+    const condition = emitCondition(filter, dialect, table);
 
     if (filter.skipWhenEmpty !== true) return condition;
 
@@ -394,7 +541,7 @@ export function compileQuery(
       const limit = spec.limit !== undefined ? ` LIMIT ${spec.limit}` : "";
 
       // SQL clause order: SELECT ... FROM ... WHERE ... GROUP BY ... ORDER BY ... LIMIT.
-      body = `SELECT ${selectList} FROM ${spec.table}${emitWhere(spec.filters, dialect)}${emitGroupBy(spec.groupBy)}${emitOrderBy(spec.orderBy)}${limit};`;
+      body = `SELECT ${selectList} FROM ${spec.table}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy)}${emitOrderBy(spec.orderBy)}${limit};`;
       break;
     }
     case "INSERT": {
@@ -419,11 +566,11 @@ export function compileQuery(
         .map((entry) => `${entry.column} = ${emitBinding(entry.value)}`)
         .join(", ");
 
-      body = `UPDATE ${spec.table} SET ${assignments}${emitWhere(spec.filters, dialect)};`;
+      body = `UPDATE ${spec.table} SET ${assignments}${emitWhere(spec.filters, dialect, spec.table)};`;
       break;
     }
     case "DELETE": {
-      body = `DELETE FROM ${spec.table}${emitWhere(spec.filters, dialect)};`;
+      body = `DELETE FROM ${spec.table}${emitWhere(spec.filters, dialect, spec.table)};`;
       break;
     }
   }
