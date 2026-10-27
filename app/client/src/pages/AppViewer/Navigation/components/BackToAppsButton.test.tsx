@@ -12,12 +12,12 @@ jest.mock("../../AppViewerButton", () => ({
   __esModule: true,
   default: ({
     className,
-    text,
     onClick,
+    text,
   }: {
     className?: string;
-    text?: string | false;
     onClick?: () => void;
+    text?: string | false;
   }) => (
     <button className={className} onClick={onClick} type="button">
       {text || "button"}
@@ -52,8 +52,8 @@ jest.mock("selectors/usersSelectors", () => ({
 }));
 
 jest.mock("@appsmith/ads", () => ({
-  Icon: () => <span data-testid="mock-icon" />,
-  Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  Icon: () => <span data-testid="t--mock-icon" />,
+  Tooltip: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 import { getCurrentUser } from "selectors/usersSelectors";

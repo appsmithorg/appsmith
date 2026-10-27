@@ -11,12 +11,12 @@ jest.mock("../../AppViewerButton", () => ({
   __esModule: true,
   default: ({
     className,
-    text,
     onClick,
+    text,
   }: {
     className?: string;
-    text?: string | false;
     onClick?: () => void;
+    text?: string | false;
   }) => (
     <button className={className} onClick={onClick} type="button">
       {text || "button"}
@@ -47,13 +47,14 @@ jest.mock("utils/hooks/useFeatureFlag", () => ({
 
 jest.mock("pages/workspace/AppInviteUsersForm", () => () => null);
 
-jest.mock("components/editorComponents/form/FormDialogComponent", () => () =>
-  null,
+jest.mock(
+  "components/editorComponents/form/FormDialogComponent",
+  () => () => null,
 );
 
 jest.mock("@appsmith/ads", () => ({
-  Icon: () => <span data-testid="mock-icon" />,
-  Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  Icon: () => <span data-testid="t--mock-icon" />,
+  Tooltip: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 import ShareButton from "./ShareButton";
