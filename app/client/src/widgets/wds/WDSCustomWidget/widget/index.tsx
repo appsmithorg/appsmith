@@ -1,7 +1,6 @@
 import React from "react";
 
 import BaseWidget from "widgets/BaseWidget";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { AnvilConfig } from "WidgetProvider/types";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -35,11 +34,6 @@ export class WDSCustomWidget extends BaseWidget<
   WidgetState
 > {
   static type = "WDS_CUSTOM_WIDGET";
-
-  private modelUpdateCount = 0;
-  private modelUpdateLastEmitTime = 0;
-  private modelUpdateFlushTimer: ReturnType<typeof setTimeout> | null = null;
-  private static MODEL_UPDATE_THROTTLE_MS = 60000;
 
   static getConfig() {
     return config.metaConfig;
@@ -93,11 +87,6 @@ export class WDSCustomWidget extends BaseWidget<
         },
         globalContext: context,
       });
-
-      AnalyticsUtil.logEvent("CUSTOM_WIDGET_API_TRIGGER_EVENT", {
-        widgetId: this.props.widgetId,
-        eventName,
-      });
     }
   };
 
@@ -106,50 +95,7 @@ export class WDSCustomWidget extends BaseWidget<
       ...this.props.model,
       ...data,
     });
-
-    this.modelUpdateCount++;
-    const now = Date.now();
-
-    if (this.modelUpdateFlushTimer) {
-      clearTimeout(this.modelUpdateFlushTimer);
-    }
-
-    if (
-      now - this.modelUpdateLastEmitTime >=
-      WDSCustomWidget.MODEL_UPDATE_THROTTLE_MS
-    ) {
-      AnalyticsUtil.logEvent("CUSTOM_WIDGET_API_UPDATE_MODEL", {
-        widgetId: this.props.widgetId,
-        updateCount: this.modelUpdateCount,
-      });
-      this.modelUpdateCount = 0;
-      this.modelUpdateLastEmitTime = now;
-    } else {
-      this.modelUpdateFlushTimer = setTimeout(() => {
-        if (this.modelUpdateCount > 0) {
-          AnalyticsUtil.logEvent("CUSTOM_WIDGET_API_UPDATE_MODEL", {
-            widgetId: this.props.widgetId,
-            updateCount: this.modelUpdateCount,
-          });
-          this.modelUpdateCount = 0;
-          this.modelUpdateLastEmitTime = Date.now();
-        }
-      }, WDSCustomWidget.MODEL_UPDATE_THROTTLE_MS);
-    }
   };
-
-  componentWillUnmount() {
-    if (this.modelUpdateFlushTimer) {
-      clearTimeout(this.modelUpdateFlushTimer);
-    }
-
-    if (this.modelUpdateCount > 0) {
-      AnalyticsUtil.logEvent("CUSTOM_WIDGET_API_UPDATE_MODEL", {
-        widgetId: this.props.widgetId,
-        updateCount: this.modelUpdateCount,
-      });
-    }
-  }
 
   getRenderMode = () => {
     switch (this.props.renderMode) {
