@@ -37,8 +37,8 @@ defaults:
 
 jobs:
   build:
-    # RUNNER_SMALL_BUILD overrides ubuntu-latest, which has 2 vCPU in a private repository.
-    runs-on: ${{ vars.RUNNER_SMALL_BUILD || 'ubuntu-latest' }}
+    # RUNNER_BUILD overrides ubuntu-latest, which has 2 vCPU in a private repository.
+    runs-on: ${{ vars.RUNNER_BUILD || 'ubuntu-latest' }}
     # Only run this workflow for internally triggered events
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
