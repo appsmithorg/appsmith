@@ -523,6 +523,165 @@ describe("APP-16164: filter-bar filters (skipWhenEmpty, inList)", () => {
   );
 });
 
+describe("APP-16324 F1: isNull and notNull filters", () => {
+  it.each([
+    ["isNull", "IS NULL"],
+    ["notNull", "IS NOT NULL"],
+  ])("compiles %s to %s with no bind parameter", (op, sql) => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [{ column: "l2owner", op }],
+      }),
+    );
+
+    expect(body).toBe(`SELECT * FROM tickets WHERE l2owner ${sql};`);
+  });
+
+  // Oracle "Unassigned tickets": an open status and no L2 owner.
+  it("ANDs an isNull filter with a value filter", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          { column: "status", op: "eq", value: { literal: "New" } },
+          { column: "l2owner", op: "isNull" },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT * FROM tickets WHERE status = {{ "New" }} AND l2owner IS NULL;',
+    );
+  });
+
+  it.each([undefined, "postgres" as const, "other" as const])(
+    "works on every database family (dialect %s)",
+    (dialect) => {
+      const spec = parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [{ column: "closed_at", op: "notNull" }],
+      });
+
+      expect(compileQuery(spec, { dialect })).toBe(
+        "SELECT * FROM tickets WHERE closed_at IS NOT NULL;",
+      );
+    },
+  );
+
+  it("is allowed on a write, where it narrows the rows", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "UPDATE",
+        table: "tickets",
+        values: [{ column: "status", value: { literal: "Pending on L2" } }],
+        filters: [
+          { column: "id", op: "eq", value: { literal: 7 } },
+          { column: "l2owner", op: "isNull" },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      'UPDATE tickets SET status = {{ "Pending on L2" }} WHERE id = {{ 7 }} AND l2owner IS NULL;',
+    );
+  });
+
+  it("compiles on DELETE", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "DELETE",
+        table: "drafts",
+        filters: [{ column: "submitted_at", op: "isNull" }],
+      }),
+    );
+
+    expect(body).toBe("DELETE FROM drafts WHERE submitted_at IS NULL;");
+  });
+
+  // Agents often send optional fields with their "off" value. Neither changes what the filter does.
+  it("accepts skipWhenEmpty: false and an explicit value: undefined", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          { column: "l2owner", op: "isNull", skipWhenEmpty: false },
+          { column: "closed_at", op: "notNull", value: undefined },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      "SELECT * FROM tickets WHERE l2owner IS NULL AND closed_at IS NOT NULL;",
+    );
+  });
+
+  it.each([
+    [
+      "isNull with a value",
+      { column: "l2owner", op: "isNull", value: { literal: null } },
+      "isNull takes no value",
+    ],
+    [
+      "notNull with a widget value",
+      {
+        column: "l2owner",
+        op: "notNull",
+        value: { widget: "OwnerSelect", property: "selectedOptionValue" },
+      },
+      "notNull takes no value",
+    ],
+    [
+      "isNull with skipWhenEmpty",
+      { column: "l2owner", op: "isNull", skipWhenEmpty: true },
+      "isNull takes no value",
+    ],
+    ["eq with no value", { column: "status", op: "eq" }, "eq needs a value"],
+    [
+      "eq with an explicit value: undefined",
+      { column: "status", op: "eq", value: undefined },
+      "eq needs a value",
+    ],
+    [
+      "isNull on a column that is not an identifier",
+      { column: "l2owner IS NULL OR 1=1 --", op: "isNull" },
+      "must be a plain SQL identifier",
+    ],
+  ])("rejects %s at the schema", (_label, filter, message) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      filters: [filter],
+    });
+
+    expect(result.success).toBe(false);
+    expect(JSON.stringify(result.error?.issues)).toContain(message);
+  });
+
+  // A caller that skips parsing must still fail closed instead of emitting `col = undefined`.
+  it("throws in the compiler when a value filter reaches it without a value", () => {
+    const spec = {
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      filters: [{ column: "status", op: "eq" }],
+    } as unknown as Parameters<typeof compileQuery>[0];
+
+    expect(() => compileQuery(spec)).toThrow(/filter on status needs a value/);
+  });
+});
+
 describe("buildActionDto", () => {
   it("embeds the datasource as { id } and forces prepared statements on", () => {
     const spec = parse({ ...base, operation: "SELECT", table: "users" });

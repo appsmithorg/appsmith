@@ -68,20 +68,68 @@ const OPERATORS = {
   in: "IN",
 } as const;
 
+// Filters that test a column for NULL. The SQL is fixed text from this map, so they take no value.
+const NULL_OPERATORS = {
+  isNull: "IS NULL",
+  notNull: "IS NOT NULL",
+} as const;
+
+type NullOperator = keyof typeof NULL_OPERATORS;
+
+function isNullOperator(op: string): op is NullOperator {
+  return Object.prototype.hasOwnProperty.call(NULL_OPERATORS, op);
+}
+
 // A WHERE filter.
 // - `inList` matches the column against a list that a widget holds, such as a multi-select's selectedOptionValues.
 // - `skipWhenEmpty` drops the filter while the widget value is empty (null, undefined, "" or []). An unset dropdown
 //   then means "no filter", not "match nothing".
-// Both need a widget reference. A literal is a scalar and is never empty.
+// - `isNull` and `notNull` take no value and no skipWhenEmpty. Every other op needs a value.
+// inList and skipWhenEmpty need a widget reference. A literal is a scalar and is never empty.
 const filterSchema = z
   .object({
     column: sqlIdentifier,
-    op: z.enum(["eq", "ne", "gt", "gte", "lt", "lte", "like", "in", "inList"]),
-    value: valueRef,
+    op: z.enum([
+      "eq",
+      "ne",
+      "gt",
+      "gte",
+      "lt",
+      "lte",
+      "like",
+      "in",
+      "inList",
+      "isNull",
+      "notNull",
+    ]),
+    value: valueRef.optional(),
     skipWhenEmpty: z.boolean().optional(),
   })
   .strict()
   .superRefine((filter, ctx) => {
+    if (isNullOperator(filter.op)) {
+      // skipWhenEmpty: false is a no-op, so it is accepted.
+      if (filter.value !== undefined || filter.skipWhenEmpty === true) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `${filter.op} takes no value and no skipWhenEmpty`,
+          path: [filter.value !== undefined ? "value" : "skipWhenEmpty"],
+        });
+      }
+
+      return;
+    }
+
+    if (filter.value === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `${filter.op} needs a value: { literal } or { widget, property }`,
+        path: ["value"],
+      });
+
+      return;
+    }
+
     // `appsmith.*` (for example appsmith.user.email) identifies the viewer, and filters use it to scope rows. Never
     // skip it: an unset value would silently widen the read to every row.
     if (
@@ -269,21 +317,40 @@ function emitNullWhenEmpty(ref: WidgetRef): string {
   return binding;
 }
 
-// Returns the widget reference of an inList or skipWhenEmpty filter. filterSchema already refuses a literal here.
-// This checks again so that a caller that skipped parsing fails closed, instead of emitting a template around a
-// literal.
-function widgetRef(filter: Filter): WidgetRef {
-  if ("literal" in filter.value) {
+// Returns the value of a filter that needs one. filterSchema already refuses a missing value. This checks again so
+// that a caller that skipped parsing fails closed, instead of emitting `col = undefined`.
+function filterValue(filter: Filter): ValueRef {
+  if (filter.value === undefined) {
     throw new Error(
-      `filter on ${filter.column} needs a { widget, property } value for ${filter.op === "inList" ? "inList" : "skipWhenEmpty"}`,
+      `filter on ${filter.column} needs a value for ${filter.op}`,
     );
   }
 
   return filter.value;
 }
 
+// Returns the widget reference of an inList or skipWhenEmpty filter. filterSchema already refuses a literal here.
+// This checks again so that a caller that skipped parsing fails closed, instead of emitting a template around a
+// literal.
+function widgetRef(filter: Filter): WidgetRef {
+  const value = filterValue(filter);
+
+  if ("literal" in value) {
+    throw new Error(
+      `filter on ${filter.column} needs a { widget, property } value for ${filter.op === "inList" ? "inList" : "skipWhenEmpty"}`,
+    );
+  }
+
+  return value;
+}
+
 // One WHERE condition, before any skipWhenEmpty wrapping.
 function emitCondition(filter: Filter, dialect: SqlDialect): string {
+  // The column is an allow-listed identifier and the SQL comes from NULL_OPERATORS. No agent text and no binding.
+  if (isNullOperator(filter.op)) {
+    return `${filter.column} ${NULL_OPERATORS[filter.op]}`;
+  }
+
   if (filter.op === "inList") {
     if (dialect !== "postgres") {
       throw new Error(
@@ -303,7 +370,7 @@ function emitCondition(filter: Filter, dialect: SqlDialect): string {
   const binding =
     filter.skipWhenEmpty === true && dialect === "postgres"
       ? emitNullWhenEmpty(widgetRef(filter))
-      : emitBinding(filter.value);
+      : emitBinding(filterValue(filter));
 
   if (filter.op === "in") return `${filter.column} IN (${binding})`;
 
