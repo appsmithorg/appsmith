@@ -630,6 +630,93 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
     },
   );
 
+  // A value filter's unquoted EMAIL names the column `email` on PostgreSQL. The null filters must name the same one.
+  it("lower-cases the column before quoting it on PostgreSQL", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "UPDATE",
+        table: "users",
+        values: [{ column: "status", value: { literal: "inactive" } }],
+        filters: [
+          { column: "Email", op: "isNull" },
+          { column: "ID", op: "gt", value: { literal: 3 } },
+        ],
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toBe(
+      'UPDATE users SET status = {{ "inactive" }} WHERE "email" IS NULL AND ID > {{ 3 }};',
+    );
+  });
+
+  // On PostgreSQL a quoted name equal to the table's, with no such column, is the whole row. `"tickets" IS NOT NULL`
+  // is then true for every row whose fields are all set.
+  it.each([
+    ["tickets", "tickets"],
+    ["support.tickets", "tickets"],
+    ["Support.Tickets", "TICKETS"],
+  ])(
+    "refuses a null filter on a column named like the table %s on PostgreSQL",
+    (table, column) => {
+      const spec = parse({
+        ...base,
+        operation: "DELETE",
+        table,
+        filters: [{ column, op: "notNull" }],
+      });
+
+      expect(() => compileQuery(spec, { dialect: "postgres" })).toThrow(
+        /cannot test a column named like its table/,
+      );
+    },
+  );
+
+  // PostgreSQL cuts names to 63 characters, so these two read as the same name there.
+  it("refuses a column that matches the table only after PostgreSQL's 63-character cut", () => {
+    const prefix = "a".repeat(63);
+    const spec = parse({
+      ...base,
+      operation: "DELETE",
+      table: `${prefix}x`,
+      filters: [{ column: `${prefix}y`, op: "notNull" }],
+    });
+
+    expect(() => compileQuery(spec, { dialect: "postgres" })).toThrow(
+      /cannot test a column named like its table/,
+    );
+  });
+
+  it("allows a long column that differs from the table within 63 characters", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: `${"a".repeat(62)}x`,
+        filters: [{ column: `${"a".repeat(62)}y`, op: "isNull" }],
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toContain(`"${"a".repeat(62)}y" IS NULL`);
+  });
+
+  // Elsewhere `tickets.tickets` is a column or an error, never the whole row, so it is allowed.
+  it("allows a column named like the table on other databases", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [{ column: "tickets", op: "isNull" }],
+      }),
+      { dialect: "mysql" },
+    );
+
+    expect(body).toBe("SELECT * FROM tickets WHERE tickets.tickets <=> NULL;");
+  });
+
   it("qualifies the column with a schema-qualified table", () => {
     const body = compileQuery(
       parse({

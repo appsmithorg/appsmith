@@ -363,6 +363,39 @@ function widgetRef(filter: Filter): WidgetRef {
   return value;
 }
 
+// PostgreSQL cuts every name, quoted or not, to 63 bytes. Identifiers here are ASCII, so bytes are characters.
+const POSTGRES_MAX_IDENTIFIER_LENGTH = 63;
+
+// The PostgreSQL column for an isNull or notNull filter: lower-cased, then quoted. Throws when the name equals the
+// table's own name (the last part of `schema.table`), because a missing column of that name reads as the whole row.
+// Both names are compared after PostgreSQL's cut, so two long names that differ only after 63 characters still match.
+function postgresNullCheckColumn(column: string, table: string): string {
+  const name = column.toLowerCase();
+  const tableName = (table.split(".").pop() ?? table).toLowerCase();
+
+  if (
+    name.slice(0, POSTGRES_MAX_IDENTIFIER_LENGTH) ===
+    tableName.slice(0, POSTGRES_MAX_IDENTIFIER_LENGTH)
+  ) {
+    throw new Error(
+      `isNull and notNull cannot test a column named like its table (${column}) on PostgreSQL, which would read it as the whole row`,
+    );
+  }
+
+  return `"${name}"`;
+}
+
+// The isNull or notNull test for a table-qualified column on every database except PostgreSQL.
+function emitQualifiedNullCheck(
+  op: NullOperator,
+  column: string,
+  dialect: SqlDialect,
+): string {
+  return dialect === "mysql"
+    ? MYSQL_NULL_TEMPLATES[op](column)
+    : `${column} ${NULL_OPERATORS[op]}`;
+}
+
 // One WHERE condition, before any skipWhenEmpty wrapping.
 function emitCondition(
   filter: Filter,
@@ -372,19 +405,16 @@ function emitCondition(
   // The SQL comes from NULL_OPERATORS or MYSQL_NULL_TEMPLATES. No agent text and no binding.
   // An allow-listed identifier can still be a keyword, such as `null` or `current_user`. A bare `null IS NULL` is true
   // for every row, which would widen a DELETE to the whole table. So the column is never emitted bare:
-  // - PostgreSQL: quoted, like orderBy and groupBy. Not `table.col`: when no such column exists, PostgreSQL reads
-  //   `users.text` as the call `text(users)`, which is never NULL. A missing quoted column is an error instead.
+  // - PostgreSQL: lower-cased and quoted. Lower-casing gives the same column an unquoted value filter names, because
+  //   PostgreSQL folds unquoted names to lower case. Not `table.col`: when no such column exists, PostgreSQL reads
+  //   `users.text` as the call `text(users)`, which is never NULL. A missing quoted column is an error, except a
+  //   name equal to the table's, which PostgreSQL reads as the whole row. That name is refused.
   // - Every other database: qualified with its table. After a dot, MySQL always reads a column name. SQL Server,
   //   Oracle and Snowflake read a column or refuse the query.
   if (isNullOperator(filter.op)) {
-    const column =
-      dialect === "postgres"
-        ? `"${filter.column}"`
-        : `${table}.${filter.column}`;
-
-    return dialect === "mysql"
-      ? MYSQL_NULL_TEMPLATES[filter.op](column)
-      : `${column} ${NULL_OPERATORS[filter.op]}`;
+    return dialect === "postgres"
+      ? `${postgresNullCheckColumn(filter.column, table)} ${NULL_OPERATORS[filter.op]}`
+      : emitQualifiedNullCheck(filter.op, `${table}.${filter.column}`, dialect);
   }
 
   if (filter.op === "inList") {
