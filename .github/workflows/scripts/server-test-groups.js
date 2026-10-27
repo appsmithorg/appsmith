@@ -17,9 +17,9 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
-// Surefire's default includes. The `test` parameter replaces them, so the plan must
-// select the same classes that a plain `mvn test` runs.
-const TEST_FILE = /^(Test.*|.*Test|.*Tests|.*TestCase)\.java$/;
+// Surefire's default includes, plus the `*TestEE` classes of the EE repository. The
+// `test` parameter replaces the includes, so the plan selects every test class itself.
+const TEST_FILE = /^(Test.*|.*Test|.*Tests|.*TestCase|.*TestEE)\.java$/;
 const SKIPPED_DIRS = new Set(["target", "node_modules", ".git"]);
 const DEFAULT_SECONDS = 5;
 

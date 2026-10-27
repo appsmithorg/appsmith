@@ -26,7 +26,10 @@ test.describe("discoverTestClasses", () => {
       "server/src/test/java/com/a/FooTestCase.java": "",
       "server/src/test/java/com/a/TestFoo.java": "",
       "server/src/test/java/com/a/ActionServiceCE_Test.java": "",
+      "server/src/test/java/com/a/ee/UserRepositoryTestEE.java": "",
       "server/src/test/java/com/a/FooHelper.java": "",
+      "server/src/test/java/com/a/FooTestHelper.java": "",
+      "server/src/test/java/com/a/FooTest.java.disabled": "",
       "server/src/test/java/com/a/FooIT.java": "",
       "server/src/main/java/com/a/MainTest.java": "",
       "server/target/test-classes/com/a/StaleTest.java": "",
@@ -37,6 +40,7 @@ test.describe("discoverTestClasses", () => {
       "FooTestCase",
       "FooTests",
       "TestFoo",
+      "UserRepositoryTestEE",
     ]);
   });
 
