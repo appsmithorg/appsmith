@@ -24,12 +24,11 @@ import {
   tableDataValidation,
   totalRecordsCountValidation,
   uniqueColumnNameValidation,
-  updateAllowAddNewRowOnInfiniteScrollChange,
+  infiniteScrollUpdateHook,
   updateColumnOrderHook,
   updateCustomColumnAliasOnLabelChange,
   updateInlineEditingOptionDropdownVisibilityHook,
   updateInlineEditingSaveOptionHook,
-  updateSearchSortFilterOnInfiniteScrollChange,
 } from "../propertyUtils";
 import panelConfig from "./PanelConfig";
 
@@ -37,7 +36,7 @@ const INFINITE_SCROLL_DISABLED_HELP_TEXT =
   "This feature is disabled because infinite scroll is enabled";
 
 const AUTO_HEIGHT_INFINITE_SCROLL_DISABLED_HELP_TEXT =
-  "Infinite scroll is unavailable while the table height is set to Auto Height";
+  "Infinite scroll is unavailable when Height is not Fixed";
 
 export default [
   {
@@ -181,7 +180,7 @@ export default [
       },
       {
         helpText:
-          "Number of rows shown on each page. The table grows to fit them.",
+          "Number of rows shown on each page, up to 200. The table grows to fit them.",
         propertyName: "autoHeightRowCount",
         label: "Rows per page",
         controlType: "INPUT_TEXT",
@@ -190,7 +189,7 @@ export default [
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.NUMBER,
-          params: { min: 1, natural: true, default: 10 },
+          params: { min: 1, max: 200, natural: true, default: 10 },
         },
         hidden: (props: TableWidgetProps) =>
           !isAutoHeightEnabledForWidget(props),
@@ -217,10 +216,7 @@ export default [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
-        updateHook: composePropertyUpdateHook([
-          updateAllowAddNewRowOnInfiniteScrollChange,
-          updateSearchSortFilterOnInfiniteScrollChange,
-        ]),
+        updateHook: infiniteScrollUpdateHook,
         dependencies: [
           "primaryColumns",
           "serverSidePaginationEnabled",

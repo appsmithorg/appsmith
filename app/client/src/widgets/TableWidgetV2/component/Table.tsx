@@ -244,9 +244,9 @@ export function Table(props: TableProps) {
    * shouldUseVirtual: true -> height adjusts acc to content
    * Right now all HTML content is dynamic height in nature hence
    * for server paginated tables it needs this extra handling.
+   * Auto height renders every row of the page, so it never uses the virtual body.
    */
   //TODO: REMOVE THIS
-  // Auto height renders every row of the page, so it never uses the virtualised body
   const shouldUseVirtual = useMemo(
     () =>
       !props.isAutoHeightEnabled &&

@@ -30,7 +30,6 @@ import {
   RenderModes,
   WIDGET_PADDING,
   WIDGET_TAGS,
-  WidgetHeightLimits,
 } from "constants/WidgetConstants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import equal from "fast-deep-equal/es6";
@@ -143,10 +142,7 @@ import {
   isColumnTypeEditable,
   updateAndSyncTableLocalColumnOrders,
 } from "./utilities";
-import {
-  updateAllowAddNewRowOnInfiniteScrollChange,
-  updateSearchSortFilterOnInfiniteScrollChange,
-} from "./propertyUtils";
+import { infiniteScrollUpdateHook } from "./propertyUtils";
 import resetWidget from "workers/Evaluation/fns/resetWidget";
 
 const ReactTableComponent = lazy(async () =>
@@ -199,6 +195,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         sectionIndex: 6,
         active: true,
         defaultValue: DynamicHeight.FIXED,
+        helperText: (props?: WidgetProps) =>
+          props?.dynamicHeight === DynamicHeight.AUTO_HEIGHT ||
+          props?.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
+            ? "The table grows to fit Pagination > Rows per page (up to 200 rows). Infinite scroll is turned off."
+            : "",
       },
     };
   }
@@ -250,8 +251,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       cachedTableData: {},
       endOfData: false,
       autoHeightRowCount: 10,
-      minDynamicHeight: 12,
-      maxDynamicHeight: WidgetHeightLimits.MAX_HEIGHT_IN_ROWS,
     };
   }
 
@@ -393,6 +392,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getAutoLayoutConfig() {
     return {
+      // Auto layout sizes the table itself, so auto height must not carry over
+      disabledPropsDefaults: {
+        dynamicHeight: DynamicHeight.FIXED,
+      },
       widgetSize: [
         {
           viewportMinWidth: 0,
@@ -984,6 +987,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (
       this.props.renderMode === RenderModes.CANVAS &&
+      prevProps.dynamicHeight !== this.props.dynamicHeight &&
       infiniteScrollEnabled &&
       isAutoHeightEnabledForWidget(this.props)
     ) {
@@ -1141,22 +1145,20 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
    * scroll off the same way the infinite scroll toggle does.
    */
   turnOffInfiniteScrollForAutoHeight = () => {
-    const modify: Record<string, unknown> = { infiniteScrollEnabled: false };
-
-    [
-      ...(updateAllowAddNewRowOnInfiniteScrollChange(
+    const updates: PropertyUpdates[] = [
+      { propertyPath: "infiniteScrollEnabled", propertyValue: false },
+      ...(infiniteScrollUpdateHook(
         this.props,
         "infiniteScrollEnabled",
         false,
       ) || []),
-      ...(updateSearchSortFilterOnInfiniteScrollChange(
-        this.props,
-        "infiniteScrollEnabled",
-        false,
-      ) || []),
-    ].forEach(({ propertyPath, propertyValue }) => {
-      modify[propertyPath] = propertyValue;
-    });
+    ];
+    const modify = Object.fromEntries(
+      updates.map(({ propertyPath, propertyValue }) => [
+        propertyPath,
+        propertyValue,
+      ]),
+    );
 
     this.batchUpdateWidgetProperty({ modify }, false);
   };

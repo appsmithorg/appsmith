@@ -148,7 +148,7 @@ describe("TableWidgetV2 contentConfig tests", () => {
       expect(rowsPerPage.label).toBe("Rows per page");
       expect(rowsPerPage.dependencies).toContain("dynamicHeight");
       expect(rowsPerPage.validation.params).toEqual(
-        expect.objectContaining({ min: 1, natural: true }),
+        expect.objectContaining({ min: 1, max: 200, natural: true }),
       );
 
       expect(rowsPerPage.hidden(withHeight(DynamicHeight.FIXED), "")).toBe(
@@ -171,7 +171,7 @@ describe("TableWidgetV2 contentConfig tests", () => {
 
       expect(infiniteScroll.dependencies).toContain("dynamicHeight");
       expect(infiniteScroll.disabledHelpText).toBe(
-        "Infinite scroll is unavailable while the table height is set to Auto Height",
+        "Infinite scroll is unavailable when Height is not Fixed",
       );
       expect(
         infiniteScroll.shouldDisableSection(

@@ -99,6 +99,7 @@ const mockTableProviderProps = {
   showConnectDataOverlay: false,
   onConnectData: jest.fn(),
   isInfiniteScrollEnabled: false,
+  isAutoHeightEnabled: false,
   endOfData: false,
   cachedTableData: [],
 };
@@ -208,6 +209,7 @@ describe("TableContext", () => {
         "showConnectDataOverlay",
         "onConnectData",
         "isInfiniteScrollEnabled",
+        "isAutoHeightEnabled",
         "endOfData",
         "cachedTableData",
       ].sort();

@@ -258,6 +258,25 @@ describe("StaticTableBodyComponent", () => {
       expect(EmptyRows).not.toHaveBeenCalled();
     });
 
+    it("keeps empty rows while loading when auto height is enabled", () => {
+      const mockRows = [createMockRow(1, 0)];
+
+      (useAppsmithTable as jest.Mock).mockReturnValue({
+        ...mockTableContextState,
+        isAutoHeightEnabled: true,
+        isLoading: true,
+        pageSize: 5,
+        subPage: mockRows,
+      } as unknown as TableContextState);
+
+      render(<StaticTableBodyComponent />);
+
+      expect(EmptyRows).toHaveBeenCalledWith(
+        expect.objectContaining({ rows: 4 }),
+        expect.anything(),
+      );
+    });
+
     it("does not render empty rows when auto height is enabled", () => {
       const mockRows = [createMockRow(1, 0)];
 

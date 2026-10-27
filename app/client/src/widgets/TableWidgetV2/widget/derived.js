@@ -160,9 +160,12 @@ export default {
       props.dynamicHeight === "AUTO_HEIGHT" ||
       props.dynamicHeight === "AUTO_HEIGHT_WITH_LIMITS"
     ) {
+      const MAX_AUTO_HEIGHT_ROW_COUNT = 200;
       const autoHeightRowCount = Math.floor(Number(props.autoHeightRowCount));
 
-      return autoHeightRowCount >= 1 ? autoHeightRowCount : 10;
+      return autoHeightRowCount >= 1
+        ? Math.min(autoHeightRowCount, MAX_AUTO_HEIGHT_ROW_COUNT)
+        : 10;
     }
 
     const TABLE_SIZES = {

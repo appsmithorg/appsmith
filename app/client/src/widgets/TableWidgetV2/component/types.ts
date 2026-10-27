@@ -79,7 +79,7 @@ export interface TableProps extends RowColorStyles {
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
   isInfiniteScrollEnabled: boolean;
-  isAutoHeightEnabled?: boolean;
+  isAutoHeightEnabled: boolean;
   endOfData: boolean;
   cachedTableData: Array<Record<string, unknown>>;
 }

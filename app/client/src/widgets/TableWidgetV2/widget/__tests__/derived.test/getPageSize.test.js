@@ -55,6 +55,31 @@ describe("getPageSize -", () => {
       expect(getPageSize({ ...props, autoHeightRowCount: -5 })).toEqual(10);
     });
 
+    it("caps autoHeightRowCount at 200 rows", () => {
+      const props = {
+        componentHeight: 280,
+        dynamicHeight: "AUTO_HEIGHT",
+        tableData,
+      };
+
+      expect(getPageSize({ ...props, autoHeightRowCount: 201 })).toEqual(200);
+      expect(getPageSize({ ...props, autoHeightRowCount: 1e9 })).toEqual(200);
+      expect(getPageSize({ ...props, autoHeightRowCount: Infinity })).toEqual(
+        200,
+      );
+    });
+
+    it("falls back to 10 rows for NaN and non-numeric strings", () => {
+      const props = {
+        componentHeight: 280,
+        dynamicHeight: "AUTO_HEIGHT",
+        tableData,
+      };
+
+      expect(getPageSize({ ...props, autoHeightRowCount: NaN })).toEqual(10);
+      expect(getPageSize({ ...props, autoHeightRowCount: "ten" })).toEqual(10);
+    });
+
     it("rounds a fractional autoHeightRowCount down", () => {
       expect(
         getPageSize({

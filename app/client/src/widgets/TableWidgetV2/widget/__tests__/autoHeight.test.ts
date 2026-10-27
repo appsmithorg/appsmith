@@ -1,4 +1,5 @@
-import { RenderModes, WidgetHeightLimits } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import TableWidgetV2 from "..";
 import type { TableWidgetProps } from "../../constants";
@@ -47,13 +48,29 @@ describe("TableWidgetV2 auto height", () => {
       });
     });
 
-    it("defaults Rows per page and the auto height limits", () => {
+    it("explains the Height control only when height is auto", () => {
+      const { helperText } = TableWidgetV2.getFeatures().dynamicHeight;
+      const withHeight = (dynamicHeight: DynamicHeight) =>
+        ({ dynamicHeight }) as unknown as WidgetProps;
+      const message =
+        "The table grows to fit Pagination > Rows per page (up to 200 rows). Infinite scroll is turned off.";
+
+      expect(helperText(withHeight(DynamicHeight.FIXED))).toBe("");
+      expect(helperText(withHeight(DynamicHeight.AUTO_HEIGHT))).toBe(message);
+      expect(
+        helperText(withHeight(DynamicHeight.AUTO_HEIGHT_WITH_LIMITS)),
+      ).toBe(message);
+    });
+
+    it("defaults Rows per page to 10", () => {
       expect(TableWidgetV2.getDefaults()).toEqual(
-        expect.objectContaining({
-          autoHeightRowCount: 10,
-          minDynamicHeight: 12,
-          maxDynamicHeight: WidgetHeightLimits.MAX_HEIGHT_IN_ROWS,
-        }),
+        expect.objectContaining({ autoHeightRowCount: 10 }),
+      );
+    });
+
+    it("converts to Fixed height in auto layout", () => {
+      expect(TableWidgetV2.getAutoLayoutConfig().disabledPropsDefaults).toEqual(
+        { dynamicHeight: DynamicHeight.FIXED },
       );
     });
   });
@@ -123,6 +140,21 @@ describe("TableWidgetV2 auto height", () => {
         },
         false,
       );
+    });
+
+    it("turns infinite scroll off only once, on the switch to auto", () => {
+      const batchUpdateWidgetProperty = update(
+        {
+          dynamicHeight: DynamicHeight.AUTO_HEIGHT,
+          infiniteScrollEnabled: true,
+        },
+        {
+          dynamicHeight: DynamicHeight.AUTO_HEIGHT,
+          infiniteScrollEnabled: true,
+        },
+      );
+
+      expect(batchUpdateWidgetProperty).not.toHaveBeenCalled();
     });
 
     it("leaves infinite scroll alone when the height stays fixed", () => {
