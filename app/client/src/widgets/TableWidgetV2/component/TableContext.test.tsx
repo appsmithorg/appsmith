@@ -271,6 +271,24 @@ describe("TableContext", () => {
         width: 800,
       });
     });
+
+    it("leaves the height unset when auto height is enabled", async () => {
+      const testRenderer = TestRenderer.create(
+        <TableProvider
+          {...{ ...mockTableProviderProps, isAutoHeightEnabled: true }}
+        >
+          <TestParent />
+        </TableProvider>,
+      );
+      const testInstance = testRenderer.root;
+      const context = (await testInstance.findByType(TestChild)).props
+        .tableContext;
+
+      expect(context.scrollContainerStyles).toEqual({
+        height: undefined,
+        width: 800,
+      });
+    });
   });
 
   it("provides correct tableSizes based on compactMode", async () => {

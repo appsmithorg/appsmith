@@ -257,5 +257,24 @@ describe("StaticTableBodyComponent", () => {
       expect(queryByTestId("mocked-empty-rows")).toBeNull();
       expect(EmptyRows).not.toHaveBeenCalled();
     });
+
+    it("does not render empty rows when auto height is enabled", () => {
+      const mockRows = [createMockRow(1, 0)];
+
+      (useAppsmithTable as jest.Mock).mockReturnValue({
+        ...mockTableContextState,
+        isAutoHeightEnabled: true,
+        pageSize: 5,
+        subPage: mockRows,
+      } as unknown as TableContextState);
+
+      const { getAllByTestId, queryByTestId } = render(
+        <StaticTableBodyComponent />,
+      );
+
+      expect(getAllByTestId("mocked-row")).toHaveLength(1);
+      expect(queryByTestId("mocked-empty-rows")).toBeNull();
+      expect(EmptyRows).not.toHaveBeenCalled();
+    });
   });
 });

@@ -108,6 +108,7 @@ interface ReactTableComponentProps extends RowColorStyles {
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
   isInfiniteScrollEnabled: boolean;
+  isAutoHeightEnabled?: boolean;
   endOfData: boolean;
   cachedTableData: Array<Record<string, unknown>>;
 }
@@ -140,6 +141,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     headerTextColor,
     height,
     isAddRowInProgress,
+    isAutoHeightEnabled,
     isInfiniteScrollEnabled,
     isLoading,
     isSortable,
@@ -274,6 +276,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       headerTextColor={headerTextColor}
       height={height}
       isAddRowInProgress={isAddRowInProgress}
+      isAutoHeightEnabled={isAutoHeightEnabled}
       isInfiniteScrollEnabled={isInfiniteScrollEnabled}
       isLoading={isLoading}
       isSortable={isSortable}
@@ -377,6 +380,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.canFreezeColumn === next.canFreezeColumn &&
     prev.showConnectDataOverlay === next.showConnectDataOverlay &&
     prev.isInfiniteScrollEnabled === next.isInfiniteScrollEnabled &&
+    prev.isAutoHeightEnabled === next.isAutoHeightEnabled &&
     equal(prev.cachedTableData, next.cachedTableData)
   );
 });

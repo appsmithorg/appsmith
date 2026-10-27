@@ -246,16 +246,19 @@ export function Table(props: TableProps) {
    * for server paginated tables it needs this extra handling.
    */
   //TODO: REMOVE THIS
+  // Auto height renders every row of the page, so it never uses the virtualised body
   const shouldUseVirtual = useMemo(
     () =>
-      props.isInfiniteScrollEnabled ||
-      (props.serverSidePaginationEnabled &&
-        !props.columns.some(
-          (column) =>
-            !!column.columnProperties.allowCellWrapping ||
-            column.metaProperties?.type === ColumnTypes.HTML,
-        )),
+      !props.isAutoHeightEnabled &&
+      (props.isInfiniteScrollEnabled ||
+        (props.serverSidePaginationEnabled &&
+          !props.columns.some(
+            (column) =>
+              !!column.columnProperties.allowCellWrapping ||
+              column.metaProperties?.type === ColumnTypes.HTML,
+          ))),
     [
+      props.isAutoHeightEnabled,
       props.isInfiniteScrollEnabled,
       props.serverSidePaginationEnabled,
       props.columns,
@@ -333,6 +336,7 @@ export function Table(props: TableProps) {
         height={props.height}
         id={`table${props.widgetId}`}
         isAddRowInProgress={props.isAddRowInProgress}
+        isAutoHeightEnabled={props.isAutoHeightEnabled}
         isHeaderVisible={isHeaderVisible}
         isResizingColumn={isResizingColumn.current}
         multiRowSelection={props.multiRowSelection}

@@ -41,7 +41,7 @@ export interface TableProviderProps extends TableProps {
 export interface TableContextState
   extends Omit<TableProviderProps, "children"> {
   scrollContainerStyles: {
-    height: number;
+    height?: number;
     width: number;
   };
   tableSizes: TableSizes;
@@ -56,13 +56,24 @@ export const TableProvider = ({ children, ...state }: TableProviderProps) => {
   const tableSizes = TABLE_SIZES[state.compactMode];
 
   const scrollContainerStyles = useMemo(() => {
+    // With auto height the scroll container grows with its rows instead of scrolling them
+    if (state.isAutoHeightEnabled) {
+      return { height: undefined, width: state.width };
+    }
+
     return {
       height: state.isHeaderVisible
         ? state.height - tableSizes.TABLE_HEADER_HEIGHT - TABLE_SCROLLBAR_HEIGHT
         : state.height - TABLE_SCROLLBAR_HEIGHT - SCROLL_BAR_OFFSET,
       width: state.width,
     };
-  }, [state.isHeaderVisible, state.height, state.compactMode, state.width]);
+  }, [
+    state.isAutoHeightEnabled,
+    state.isHeaderVisible,
+    state.height,
+    state.compactMode,
+    state.width,
+  ]);
 
   return (
     <TableContext.Provider

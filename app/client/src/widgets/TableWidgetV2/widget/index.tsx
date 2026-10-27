@@ -30,6 +30,7 @@ import {
   RenderModes,
   WIDGET_PADDING,
   WIDGET_TAGS,
+  WidgetHeightLimits,
 } from "constants/WidgetConstants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import equal from "fast-deep-equal/es6";
@@ -43,6 +44,7 @@ import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { klonaRegularWithTelemetry } from "utils/helpers";
 import localStorage from "utils/localStorage";
+import { DynamicHeight } from "utils/WidgetFeatures";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -60,6 +62,7 @@ import type { MenuItem } from "widgets/MenuButtonWidget/constants";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 import {
   DefaultAutocompleteDefinitions,
+  isAutoHeightEnabledForWidget,
   sanitizeKey,
 } from "widgets/WidgetUtils";
 import { ButtonCell } from "../component/cellComponents/ButtonCell";
@@ -140,6 +143,10 @@ import {
   isColumnTypeEditable,
   updateAndSyncTableLocalColumnOrders,
 } from "./utilities";
+import {
+  updateAllowAddNewRowOnInfiniteScrollChange,
+  updateSearchSortFilterOnInfiniteScrollChange,
+} from "./propertyUtils";
 import resetWidget from "workers/Evaluation/fns/resetWidget";
 
 const ReactTableComponent = lazy(async () =>
@@ -183,6 +190,16 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.DISPLAY],
       needsMeta: true,
       needsHeightForContent: true,
+    };
+  }
+
+  static getFeatures() {
+    return {
+      dynamicHeight: {
+        sectionIndex: 6,
+        active: true,
+        defaultValue: DynamicHeight.FIXED,
+      },
     };
   }
 
@@ -232,6 +249,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       customIsLoadingValue: "",
       cachedTableData: {},
       endOfData: false,
+      autoHeightRowCount: 10,
+      minDynamicHeight: 12,
+      maxDynamicHeight: WidgetHeightLimits.MAX_HEIGHT_IN_ROWS,
     };
   }
 
@@ -962,6 +982,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       totalRecordsCount,
     } = this.props;
 
+    if (
+      this.props.renderMode === RenderModes.CANVAS &&
+      infiniteScrollEnabled &&
+      isAutoHeightEnabledForWidget(this.props)
+    ) {
+      this.turnOffInfiniteScrollForAutoHeight();
+    }
+
     // Bail out if tableData is a string. This signifies an error in evaluations
     if (isString(this.props.tableData)) {
       return;
@@ -1083,7 +1111,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (
       didInfiniteScrollEnabledChange ||
-      (infiniteScrollEnabled && didComponentHeightChange)
+      (infiniteScrollEnabled &&
+        didComponentHeightChange &&
+        !isAutoHeightEnabledForWidget(this.props))
     ) {
       this.resetTableForInfiniteScroll();
     }
@@ -1104,6 +1134,32 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     this.pushResetRowSelectionPropertiesUpdates(prevProps);
     commitBatchMetaUpdates();
   }
+
+  /**
+   * Auto height needs every row of the page rendered, which the virtualised
+   * infinite scroll body cannot do, so choosing Auto Height turns infinite
+   * scroll off the same way the infinite scroll toggle does.
+   */
+  turnOffInfiniteScrollForAutoHeight = () => {
+    const modify: Record<string, unknown> = { infiniteScrollEnabled: false };
+
+    [
+      ...(updateAllowAddNewRowOnInfiniteScrollChange(
+        this.props,
+        "infiniteScrollEnabled",
+        false,
+      ) || []),
+      ...(updateSearchSortFilterOnInfiniteScrollChange(
+        this.props,
+        "infiniteScrollEnabled",
+        false,
+      ) || []),
+    ].forEach(({ propertyPath, propertyValue }) => {
+      modify[propertyPath] = propertyValue;
+    });
+
+    this.batchUpdateWidgetProperty({ modify }, false);
+  };
 
   pushResetPageNoUpdates = (prevProps: TableWidgetProps) => {
     const { onPageSizeChange, pageSize, pushBatchMetaUpdates } = this.props;
@@ -1315,6 +1371,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const { componentHeight, componentWidth } =
       this.getPaddingAdjustedDimensions();
+    const isAutoHeightEnabled = isAutoHeightEnabledForWidget(this.props);
     const finalTableData = this.memoisedAddNewRow(
       transformedData,
       this.props.isAddRowInProgress,
@@ -1355,6 +1412,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           headerTextColor={this.props.headerTextColor}
           height={componentHeight}
           isAddRowInProgress={this.props.isAddRowInProgress}
+          isAutoHeightEnabled={isAutoHeightEnabled}
           isEditableCellsValid={this.props.isEditableCellsValid}
           isInfiniteScrollEnabled={this.props.infiniteScrollEnabled}
           isLoading={
@@ -1380,7 +1438,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           onRowClick={this.handleRowClick}
           pageNo={this.props.pageNo}
           pageSize={
-            isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
+            isVisibleHeaderOptions || isAutoHeightEnabled
+              ? Math.max(1, pageSize)
+              : pageSize + 1
           }
           prevPageClick={this.handlePrevPageClick}
           primaryColumnId={this.props.primaryColumnId}
