@@ -1923,6 +1923,33 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     },
   );
 
+  it.each([
+    ["postgres-plugin", 'SELECT * FROM users WHERE "email" IS NULL;'],
+    ["mysql-plugin", "SELECT * FROM users WHERE users.email <=> NULL;"],
+  ])(
+    "APP-16324: create_query compiles isNull for the datasource's database (%s)",
+    async (pluginId, sql) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          filters: [{ column: "email", op: "isNull" }],
+        },
+      });
+
+      expect(body.created).toBe(true);
+      expect(body.body).toBe(sql);
+    },
+  );
+
   it("create_query refuses a datasource the caller cannot access (IDOR guard)", async () => {
     const createAction = jest.fn();
     const api: AppsmithApi = {

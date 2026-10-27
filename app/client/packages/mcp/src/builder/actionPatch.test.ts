@@ -72,7 +72,7 @@ describe("action lifecycle builders", () => {
     expect(dto).toMatchObject({
       action: {
         actionConfiguration: {
-          body: "SELECT * FROM users WHERE deleted_at IS NULL;",
+          body: "SELECT * FROM users WHERE users.deleted_at IS NULL;",
         },
       },
     });

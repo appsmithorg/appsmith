@@ -1,4 +1,9 @@
-import { buildActionDto, compileQuery, querySpecSchema } from "./query.js";
+import {
+  buildActionDto,
+  compileQuery,
+  querySpecSchema,
+  sqlDialectFor,
+} from "./query.js";
 
 function parse(spec: unknown) {
   const result = querySpecSchema.safeParse(spec);
@@ -537,7 +542,7 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
       }),
     );
 
-    expect(body).toBe(`SELECT * FROM tickets WHERE l2owner ${sql};`);
+    expect(body).toBe(`SELECT * FROM tickets WHERE tickets.l2owner ${sql};`);
   });
 
   // Oracle "Unassigned tickets": an open status and no L2 owner.
@@ -555,25 +560,121 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
     );
 
     expect(body).toBe(
-      'SELECT * FROM tickets WHERE status = {{ "New" }} AND l2owner IS NULL;',
+      'SELECT * FROM tickets WHERE status = {{ "New" }} AND tickets.l2owner IS NULL;',
     );
   });
 
-  it.each([undefined, "postgres" as const, "other" as const])(
-    "works on every database family (dialect %s)",
-    (dialect) => {
-      const spec = parse({
+  it.each([
+    [undefined, "SELECT * FROM tickets WHERE tickets.closed_at IS NOT NULL;"],
+    [
+      "other" as const,
+      "SELECT * FROM tickets WHERE tickets.closed_at IS NOT NULL;",
+    ],
+    [
+      "postgres" as const,
+      'SELECT * FROM tickets WHERE "closed_at" IS NOT NULL;',
+    ],
+  ])("compiles to IS NOT NULL on dialect %s", (dialect, sql) => {
+    const spec = parse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      filters: [{ column: "closed_at", op: "notNull" }],
+    });
+
+    expect(compileQuery(spec, { dialect })).toBe(sql);
+  });
+
+  // The MySQL plugin refuses any prepared query with the word IS (MySqlPlugin.isIsOperatorUsed). The same SQL is
+  // executed in MySqlPluginTest.testNullSafeEqualityWithPreparedStatement. Change both together.
+  it.each([
+    ["isNull", "SELECT * FROM tickets WHERE tickets.l2owner <=> NULL;"],
+    ["notNull", "SELECT * FROM tickets WHERE NOT (tickets.l2owner <=> NULL);"],
+  ])("compiles %s on MySQL without the IS keyword", (op, sql) => {
+    const body = compileQuery(
+      parse({
         ...base,
         operation: "SELECT",
         table: "tickets",
-        filters: [{ column: "closed_at", op: "notNull" }],
-      });
+        filters: [{ column: "l2owner", op }],
+      }),
+      { dialect: "mysql" },
+    );
 
-      expect(compileQuery(spec, { dialect })).toBe(
-        "SELECT * FROM tickets WHERE closed_at IS NOT NULL;",
+    expect(body).toBe(sql);
+    expect(body).not.toMatch(/\bIS\b/i);
+  });
+
+  // A column named after a keyword must not compile to a predicate that is true for every row, such as a bare
+  // `null IS NULL`. On a DELETE that would empty the table.
+  // On PostgreSQL the column is quoted, not qualified: a missing `tickets.text` would read as the call text(tickets),
+  // which is never NULL. A quoted name is always a column, and a missing one is an error.
+  it.each([
+    [undefined, "DELETE FROM tickets WHERE tickets.null IS NULL;"],
+    ["mysql" as const, "DELETE FROM tickets WHERE tickets.null <=> NULL;"],
+    ["postgres" as const, 'DELETE FROM tickets WHERE "null" IS NULL;'],
+  ])(
+    "never emits a keyword column bare on DELETE (dialect %s)",
+    (dialect, sql) => {
+      const body = compileQuery(
+        parse({
+          ...base,
+          operation: "DELETE",
+          table: "tickets",
+          filters: [{ column: "null", op: "isNull" }],
+        }),
+        { dialect },
       );
+
+      expect(body).toBe(sql);
     },
   );
+
+  it("qualifies the column with a schema-qualified table", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "support.tickets",
+        filters: [{ column: "current_user", op: "notNull" }],
+      }),
+    );
+
+    expect(body).toBe(
+      "SELECT * FROM support.tickets WHERE support.tickets.current_user IS NOT NULL;",
+    );
+  });
+
+  it.each([
+    ["postgres-plugin", "postgres"],
+    ["mysql-plugin", "mysql"],
+    ["mariadb-plugin", "mysql"],
+    ["mssql-plugin", "other"],
+    ["oracle-plugin", "other"],
+    [undefined, "other"],
+  ])("maps plugin %s to dialect %s", (packageName, dialect) => {
+    expect(sqlDialectFor(packageName)).toBe(dialect);
+  });
+
+  // MySQL keeps inList refused: it still cannot bind a list as one parameter.
+  it("still refuses inList on MySQL", () => {
+    const spec = parse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      filters: [
+        {
+          column: "tag",
+          op: "inList",
+          value: { widget: "TagsSelect", property: "selectedOptionValues" },
+        },
+      ],
+    });
+
+    expect(() => compileQuery(spec, { dialect: "mysql" })).toThrow(
+      /only available on a PostgreSQL datasource/,
+    );
+  });
 
   it("is allowed on a write, where it narrows the rows", () => {
     const body = compileQuery(
@@ -590,7 +691,7 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
     );
 
     expect(body).toBe(
-      'UPDATE tickets SET status = {{ "Pending on L2" }} WHERE id = {{ 7 }} AND l2owner IS NULL;',
+      'UPDATE tickets SET status = {{ "Pending on L2" }} WHERE id = {{ 7 }} AND tickets.l2owner IS NULL;',
     );
   });
 
@@ -604,7 +705,7 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
       }),
     );
 
-    expect(body).toBe("DELETE FROM drafts WHERE submitted_at IS NULL;");
+    expect(body).toBe("DELETE FROM drafts WHERE drafts.submitted_at IS NULL;");
   });
 
   // Agents often send optional fields with their "off" value. Neither changes what the filter does.
@@ -622,7 +723,7 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
     );
 
     expect(body).toBe(
-      "SELECT * FROM tickets WHERE l2owner IS NULL AND closed_at IS NOT NULL;",
+      "SELECT * FROM tickets WHERE tickets.l2owner IS NULL AND tickets.closed_at IS NOT NULL;",
     );
   });
 

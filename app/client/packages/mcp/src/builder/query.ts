@@ -68,10 +68,16 @@ const OPERATORS = {
   in: "IN",
 } as const;
 
-// Filters that test a column for NULL. The SQL is fixed text from this map, so they take no value.
+// Filters that test a column for NULL. The SQL is fixed text from these maps, so they take no value.
+// The MySQL plugin refuses any query with the word IS while prepared statements are on, and the compiler always turns
+// them on. MySQL uses its null-safe equality `<=>` instead.
 const NULL_OPERATORS = {
   isNull: "IS NULL",
   notNull: "IS NOT NULL",
+} as const;
+const MYSQL_NULL_TEMPLATES = {
+  isNull: (column: string) => `${column} <=> NULL`,
+  notNull: (column: string) => `NOT (${column} <=> NULL)`,
 } as const;
 
 type NullOperator = keyof typeof NULL_OPERATORS;
@@ -168,9 +174,22 @@ const filterSchema = z
 
 // The database family the query runs on. `inList` works only on PostgreSQL, which binds a list as one
 // prepared-statement parameter (an SQL array). MySQL sends the list as a JSON string, and SQL Server refuses it.
-// Everything else the compiler emits works on every family. An unknown family, such as when the caller cannot
-// resolve the datasource, counts as "other".
-export type SqlDialect = "postgres" | "other";
+// isNull and notNull compile differently on MySQL (see MYSQL_NULL_TEMPLATES). Everything else the compiler emits works
+// on every family. An unknown family, such as when the caller cannot resolve the datasource, counts as "other".
+export type SqlDialect = "postgres" | "mysql" | "other";
+
+// Maps a datasource's plugin package name to its SqlDialect. MariaDB counts as MySQL.
+export function sqlDialectFor(packageName: string | undefined): SqlDialect {
+  switch (packageName) {
+    case "postgres-plugin":
+      return "postgres";
+    case "mysql-plugin":
+    case "mariadb-plugin":
+      return "mysql";
+    default:
+      return "other";
+  }
+}
 
 export interface CompileQueryOptions {
   dialect?: SqlDialect;
@@ -345,10 +364,27 @@ function widgetRef(filter: Filter): WidgetRef {
 }
 
 // One WHERE condition, before any skipWhenEmpty wrapping.
-function emitCondition(filter: Filter, dialect: SqlDialect): string {
-  // The column is an allow-listed identifier and the SQL comes from NULL_OPERATORS. No agent text and no binding.
+function emitCondition(
+  filter: Filter,
+  dialect: SqlDialect,
+  table: string,
+): string {
+  // The SQL comes from NULL_OPERATORS or MYSQL_NULL_TEMPLATES. No agent text and no binding.
+  // An allow-listed identifier can still be a keyword, such as `null` or `current_user`. A bare `null IS NULL` is true
+  // for every row, which would widen a DELETE to the whole table. So the column is never emitted bare:
+  // - PostgreSQL: quoted, like orderBy and groupBy. Not `table.col`: when no such column exists, PostgreSQL reads
+  //   `users.text` as the call `text(users)`, which is never NULL. A missing quoted column is an error instead.
+  // - Every other database: qualified with its table. After a dot, MySQL always reads a column name. SQL Server,
+  //   Oracle and Snowflake read a column or refuse the query.
   if (isNullOperator(filter.op)) {
-    return `${filter.column} ${NULL_OPERATORS[filter.op]}`;
+    const column =
+      dialect === "postgres"
+        ? `"${filter.column}"`
+        : `${table}.${filter.column}`;
+
+    return dialect === "mysql"
+      ? MYSQL_NULL_TEMPLATES[filter.op](column)
+      : `${column} ${NULL_OPERATORS[filter.op]}`;
   }
 
   if (filter.op === "inList") {
@@ -417,11 +453,15 @@ function emitAggregate(aggregate: NonNullable<QuerySpec["aggregate"]>): string {
   return `${fn}("${aggregate.column}") AS ${aggregate.fn}`;
 }
 
-function emitWhere(filters: QuerySpec["filters"], dialect: SqlDialect): string {
+function emitWhere(
+  filters: QuerySpec["filters"],
+  dialect: SqlDialect,
+  table: string,
+): string {
   if (!filters || filters.length === 0) return "";
 
   const clauses = filters.map((filter) => {
-    const condition = emitCondition(filter, dialect);
+    const condition = emitCondition(filter, dialect, table);
 
     if (filter.skipWhenEmpty !== true) return condition;
 
@@ -461,7 +501,7 @@ export function compileQuery(
       const limit = spec.limit !== undefined ? ` LIMIT ${spec.limit}` : "";
 
       // SQL clause order: SELECT ... FROM ... WHERE ... GROUP BY ... ORDER BY ... LIMIT.
-      body = `SELECT ${selectList} FROM ${spec.table}${emitWhere(spec.filters, dialect)}${emitGroupBy(spec.groupBy)}${emitOrderBy(spec.orderBy)}${limit};`;
+      body = `SELECT ${selectList} FROM ${spec.table}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy)}${emitOrderBy(spec.orderBy)}${limit};`;
       break;
     }
     case "INSERT": {
@@ -486,11 +526,11 @@ export function compileQuery(
         .map((entry) => `${entry.column} = ${emitBinding(entry.value)}`)
         .join(", ");
 
-      body = `UPDATE ${spec.table} SET ${assignments}${emitWhere(spec.filters, dialect)};`;
+      body = `UPDATE ${spec.table} SET ${assignments}${emitWhere(spec.filters, dialect, spec.table)};`;
       break;
     }
     case "DELETE": {
-      body = `DELETE FROM ${spec.table}${emitWhere(spec.filters, dialect)};`;
+      body = `DELETE FROM ${spec.table}${emitWhere(spec.filters, dialect, spec.table)};`;
       break;
     }
   }
