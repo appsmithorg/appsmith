@@ -85,26 +85,22 @@ describe(
       agHelper.AssertElementVisibility(appSettings.locators._topInline);
     });
 
-    it("5. Toggle 'Show share' and 'Show all apps' off; buttons should be hidden when deployed", () => {
+    it("5. Toggle 'Show share' and 'Show all apps' independently; each button follows its setting when deployed", () => {
       deployMode.NavigateBacktoEditor();
       AppSidebar.navigate(AppSidebarButton.Settings);
       agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
 
+      // Hide share only — all apps should stay visible
       agHelper.GetNClick(
         appSettings.locators._navigationSettings._showShareApp,
         0,
         true,
       );
-      agHelper.GetNClick(
-        appSettings.locators._navigationSettings._showAllApps,
-        0,
-        true,
-      );
-
       deployMode.DeployApp();
       agHelper.AssertElementAbsence(appSettings.locators._shareButton);
-      agHelper.AssertElementAbsence(appSettings.locators._backToAppsButton);
+      agHelper.AssertElementVisibility(appSettings.locators._backToAppsButton);
 
+      // Restore share, hide all apps only
       deployMode.NavigateBacktoEditor();
       AppSidebar.navigate(AppSidebarButton.Settings);
       agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
@@ -118,7 +114,19 @@ describe(
         0,
         true,
       );
+      deployMode.DeployApp();
+      agHelper.AssertElementVisibility(appSettings.locators._shareButton);
+      agHelper.AssertElementAbsence(appSettings.locators._backToAppsButton);
 
+      // Restore all apps
+      deployMode.NavigateBacktoEditor();
+      AppSidebar.navigate(AppSidebarButton.Settings);
+      agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
+      agHelper.GetNClick(
+        appSettings.locators._navigationSettings._showAllApps,
+        0,
+        true,
+      );
       deployMode.DeployApp();
       agHelper.AssertElementVisibility(appSettings.locators._shareButton);
       agHelper.AssertElementVisibility(appSettings.locators._backToAppsButton);
