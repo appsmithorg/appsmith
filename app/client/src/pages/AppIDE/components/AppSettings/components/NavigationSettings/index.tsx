@@ -34,83 +34,88 @@ function NavigationSettings() {
   const navigationSettingRef = useRef(navigationSetting);
   const applicationIdRef = useRef(applicationId);
   const dispatchRef = useRef(dispatch);
+  const hasLocalNavigationDraftRef = useRef(false);
+
+  navigationSettingRef.current = navigationSetting;
+  applicationIdRef.current = applicationId;
+  dispatchRef.current = dispatch;
 
   useEffect(() => {
-    navigationSettingRef.current = navigationSetting;
-  }, [navigationSetting]);
+    // Skip store sync while a local draft is waiting to persist, so a stale
+    // optimistic Redux write cannot overwrite a newer in-flight toggle.
+    if (hasLocalNavigationDraftRef.current) {
+      return;
+    }
 
-  useEffect(() => {
-    applicationIdRef.current = applicationId;
-  }, [applicationId]);
-
-  useEffect(() => {
-    dispatchRef.current = dispatch;
-  }, [dispatch]);
-
-  useEffect(() => {
     setNavigationSetting(application?.applicationDetail?.navigationSetting);
   }, [application?.applicationDetail?.navigationSetting]);
 
-  const updateSetting = useMemo(
+  const debouncedPersistNavigationSetting = useMemo(
     () =>
-      debounce(
-        (
-          key: keyof NavigationSetting,
-          value: NavigationSetting[keyof NavigationSetting],
-        ) => {
-          const currentNavigationSetting = navigationSettingRef.current;
+      debounce((newSettings: NavigationSetting) => {
+        const payload: UpdateApplicationPayload = {
+          currentApp: true,
+          applicationDetail: {
+            navigationSetting: newSettings,
+          },
+        };
 
-          if (
-            currentNavigationSetting &&
-            isPlainObject(currentNavigationSetting) &&
-            !isEmpty(currentNavigationSetting)
-          ) {
-            const newSettings: NavigationSetting = {
-              ...currentNavigationSetting,
-              [key]: value,
-            };
-
-            if (!equal(currentNavigationSetting, newSettings)) {
-              const payload: UpdateApplicationPayload = {
-                currentApp: true,
-              };
-
-              /**
-               * If the orientation changes, we need to set a new default value
-               * 1. in case of top, the default is stacked
-               * 2. in case of side, the default is sidebar
-               */
-              if (
-                currentNavigationSetting.orientation !== newSettings.orientation
-              ) {
-                newSettings.navStyle =
-                  newSettings.orientation ===
-                  NAVIGATION_SETTINGS.ORIENTATION.TOP
-                    ? NAVIGATION_SETTINGS.NAV_STYLE.STACKED
-                    : NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR;
-              }
-
-              payload.applicationDetail = {
-                navigationSetting: newSettings,
-              };
-
-              dispatchRef.current(
-                updateApplication(applicationIdRef.current, payload),
-              );
-              setNavigationSetting(newSettings);
-            }
-          }
-        },
-        50,
-      ),
+        dispatchRef.current(
+          updateApplication(applicationIdRef.current, payload),
+        );
+        hasLocalNavigationDraftRef.current = false;
+      }, 50),
     [],
   );
 
   useEffect(() => {
     return () => {
-      updateSetting.cancel();
+      // Persist any toggle made just before leaving the panel.
+      debouncedPersistNavigationSetting.flush();
     };
-  }, [updateSetting]);
+  }, [debouncedPersistNavigationSetting]);
+
+  const updateSetting = (
+    key: keyof NavigationSetting,
+    value: NavigationSetting[keyof NavigationSetting],
+  ) => {
+    const currentNavigationSetting = navigationSettingRef.current;
+
+    if (
+      !currentNavigationSetting ||
+      !isPlainObject(currentNavigationSetting) ||
+      isEmpty(currentNavigationSetting)
+    ) {
+      return;
+    }
+
+    const newSettings: NavigationSetting = {
+      ...currentNavigationSetting,
+      [key]: value,
+    };
+
+    /**
+     * If the orientation changes, we need to set a new default value
+     * 1. in case of top, the default is stacked
+     * 2. in case of side, the default is sidebar
+     */
+    if (currentNavigationSetting.orientation !== newSettings.orientation) {
+      newSettings.navStyle =
+        newSettings.orientation === NAVIGATION_SETTINGS.ORIENTATION.TOP
+          ? NAVIGATION_SETTINGS.NAV_STYLE.STACKED
+          : NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR;
+    }
+
+    if (equal(currentNavigationSetting, newSettings)) {
+      return;
+    }
+
+    // Apply locally immediately so rapid toggles accumulate; debounce only the API write.
+    hasLocalNavigationDraftRef.current = true;
+    navigationSettingRef.current = newSettings;
+    setNavigationSetting(newSettings);
+    debouncedPersistNavigationSetting(newSettings);
+  };
 
   if (!navigationSetting) {
     return (
@@ -127,9 +132,15 @@ function NavigationSettings() {
   const handleLogoConfigurationToggle = (
     key: keyof LogoConfigurationSwitches,
   ) => {
+    const currentNavigationSetting = navigationSettingRef.current;
+
+    if (!currentNavigationSetting) {
+      return;
+    }
+
     updateSetting(
       "logoConfiguration",
-      getNextLogoConfiguration(navigationSetting.logoConfiguration, key),
+      getNextLogoConfiguration(currentNavigationSetting.logoConfiguration, key),
     );
   };
 
