@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { APP_NAVIGATION_SETTING, createMessage } from "ee/constants/messages";
@@ -16,6 +16,10 @@ import { Spinner } from "@appsmith/ads";
 import LogoInput from "./LogoInput";
 import SwitchSettingForLogoConfiguration from "./SwitchSettingForLogoConfiguration";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import {
+  getLogoConfigurationSwitches,
+  getNextLogoConfiguration,
+} from "./utils";
 import type { LogoConfigurationSwitches } from "../../types";
 
 function NavigationSettings() {
@@ -26,128 +30,87 @@ function NavigationSettings() {
   const [navigationSetting, setNavigationSetting] = useState(
     application?.applicationDetail?.navigationSetting,
   );
-  const [logoConfigurationSwitches, setLogoConfigurationSwitches] =
-    useState<LogoConfigurationSwitches>({
-      logo: false,
-      applicationTitle: false,
-    });
+
+  const navigationSettingRef = useRef(navigationSetting);
+  const applicationIdRef = useRef(applicationId);
+  const dispatchRef = useRef(dispatch);
+
+  useEffect(() => {
+    navigationSettingRef.current = navigationSetting;
+  }, [navigationSetting]);
+
+  useEffect(() => {
+    applicationIdRef.current = applicationId;
+  }, [applicationId]);
+
+  useEffect(() => {
+    dispatchRef.current = dispatch;
+  }, [dispatch]);
 
   useEffect(() => {
     setNavigationSetting(application?.applicationDetail?.navigationSetting);
-
-    // Logo configuration
-    switch (navigationSetting?.logoConfiguration) {
-      case NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY:
-        setLogoConfigurationSwitches({
-          logo: false,
-          applicationTitle: true,
-        });
-        break;
-      case NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE:
-        setLogoConfigurationSwitches({
-          logo: true,
-          applicationTitle: true,
-        });
-        break;
-      case NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY:
-        setLogoConfigurationSwitches({
-          logo: true,
-          applicationTitle: false,
-        });
-        break;
-      case NAVIGATION_SETTINGS.LOGO_CONFIGURATION.NO_LOGO_OR_APPLICATION_TITLE:
-        setLogoConfigurationSwitches({
-          logo: false,
-          applicationTitle: false,
-        });
-        break;
-      default:
-        break;
-    }
   }, [application?.applicationDetail?.navigationSetting]);
 
-  useEffect(() => {
-    if (
-      logoConfigurationSwitches.logo &&
-      logoConfigurationSwitches.applicationTitle
-    ) {
-      updateSetting(
-        "logoConfiguration",
-        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
-      );
-    } else if (
-      logoConfigurationSwitches.logo &&
-      !logoConfigurationSwitches.applicationTitle
-    ) {
-      updateSetting(
-        "logoConfiguration",
-        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY,
-      );
-    } else if (
-      !logoConfigurationSwitches.logo &&
-      logoConfigurationSwitches.applicationTitle
-    ) {
-      updateSetting(
-        "logoConfiguration",
-        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY,
-      );
-    } else if (
-      !logoConfigurationSwitches.logo &&
-      !logoConfigurationSwitches.applicationTitle
-    ) {
-      updateSetting(
-        "logoConfiguration",
-        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.NO_LOGO_OR_APPLICATION_TITLE,
-      );
-    }
-  }, [logoConfigurationSwitches]);
+  const updateSetting = useMemo(
+    () =>
+      debounce(
+        (
+          key: keyof NavigationSetting,
+          value: NavigationSetting[keyof NavigationSetting],
+        ) => {
+          const currentNavigationSetting = navigationSettingRef.current;
 
-  const updateSetting = useCallback(
-    debounce(
-      (
-        key: keyof NavigationSetting,
-        value: NavigationSetting[keyof NavigationSetting],
-      ) => {
-        if (
-          navigationSetting &&
-          isPlainObject(navigationSetting) &&
-          !isEmpty(navigationSetting)
-        ) {
-          const newSettings: NavigationSetting = {
-            ...navigationSetting,
-            [key]: value,
-          };
-
-          if (!equal(navigationSetting, newSettings)) {
-            const payload: UpdateApplicationPayload = {
-              currentApp: true,
+          if (
+            currentNavigationSetting &&
+            isPlainObject(currentNavigationSetting) &&
+            !isEmpty(currentNavigationSetting)
+          ) {
+            const newSettings: NavigationSetting = {
+              ...currentNavigationSetting,
+              [key]: value,
             };
 
-            /**
-             * If the orientation changes, we need to set a new default value
-             * 1. in case of top, the default is stacked
-             * 2. in case of side, the default is sidebar
-             */
-            if (navigationSetting.orientation !== newSettings.orientation) {
-              newSettings.navStyle =
-                newSettings.orientation === NAVIGATION_SETTINGS.ORIENTATION.TOP
-                  ? NAVIGATION_SETTINGS.NAV_STYLE.STACKED
-                  : NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR;
+            if (!equal(currentNavigationSetting, newSettings)) {
+              const payload: UpdateApplicationPayload = {
+                currentApp: true,
+              };
+
+              /**
+               * If the orientation changes, we need to set a new default value
+               * 1. in case of top, the default is stacked
+               * 2. in case of side, the default is sidebar
+               */
+              if (
+                currentNavigationSetting.orientation !== newSettings.orientation
+              ) {
+                newSettings.navStyle =
+                  newSettings.orientation ===
+                  NAVIGATION_SETTINGS.ORIENTATION.TOP
+                    ? NAVIGATION_SETTINGS.NAV_STYLE.STACKED
+                    : NAVIGATION_SETTINGS.NAV_STYLE.SIDEBAR;
+              }
+
+              payload.applicationDetail = {
+                navigationSetting: newSettings,
+              };
+
+              dispatchRef.current(
+                updateApplication(applicationIdRef.current, payload),
+              );
+              setNavigationSetting(newSettings);
             }
-
-            payload.applicationDetail = {
-              navigationSetting: newSettings,
-            };
-
-            dispatch(updateApplication(applicationId, payload));
-            setNavigationSetting(newSettings);
           }
-        }
-      },
-      50,
-    ),
-    [navigationSetting],
+        },
+        50,
+      ),
+    [],
   );
+
+  useEffect(() => {
+    return () => {
+      updateSetting.cancel();
+    };
+  }, [updateSetting]);
 
   if (!navigationSetting) {
     return (
@@ -156,6 +119,19 @@ function NavigationSettings() {
       </div>
     );
   }
+
+  const logoConfigurationSwitches = getLogoConfigurationSwitches(
+    navigationSetting.logoConfiguration,
+  );
+
+  const handleLogoConfigurationToggle = (
+    key: keyof LogoConfigurationSwitches,
+  ) => {
+    updateSetting(
+      "logoConfiguration",
+      getNextLogoConfiguration(navigationSetting.logoConfiguration, key),
+    );
+  };
 
   return (
     <div className="px-4">
@@ -257,10 +233,10 @@ function NavigationSettings() {
             featureFlags.release_appnavigationlogoupload_enabled) && (
             <>
               <SwitchSettingForLogoConfiguration
+                isSelected={logoConfigurationSwitches.logo}
                 keyName="logo"
                 label={createMessage(APP_NAVIGATION_SETTING.showLogoLabel)}
-                logoConfigurationSwitches={logoConfigurationSwitches}
-                setLogoConfigurationSwitches={setLogoConfigurationSwitches}
+                onChange={() => handleLogoConfigurationToggle("logo")}
               />
 
               {(navigationSetting?.logoConfiguration ===
@@ -277,12 +253,12 @@ function NavigationSettings() {
           )}
 
           <SwitchSettingForLogoConfiguration
+            isSelected={logoConfigurationSwitches.applicationTitle}
             keyName="applicationTitle"
             label={createMessage(
               APP_NAVIGATION_SETTING.showApplicationTitleLabel,
             )}
-            logoConfigurationSwitches={logoConfigurationSwitches}
-            setLogoConfigurationSwitches={setLogoConfigurationSwitches}
+            onChange={() => handleLogoConfigurationToggle("applicationTitle")}
           />
 
           <SwitchSetting
