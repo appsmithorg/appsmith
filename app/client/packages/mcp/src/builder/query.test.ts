@@ -952,6 +952,399 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
   });
 });
 
+describe("APP-16324 F1.2: anyOf OR groups", () => {
+  // Oracle "Unassigned tickets": an open status and no L2 owner (null or empty).
+  it("compiles the Unassigned Tickets filter as two ANDed OR groups", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          {
+            anyOf: [
+              { column: "status", op: "eq", value: { literal: "New" } },
+              {
+                column: "status",
+                op: "eq",
+                value: { literal: "Pending on L2" },
+              },
+              {
+                column: "status",
+                op: "eq",
+                value: { literal: "Pending on L1" },
+              },
+            ],
+          },
+          {
+            anyOf: [
+              { column: "l2owner", op: "isNull" },
+              { column: "l2owner", op: "eq", value: { literal: "" } },
+            ],
+          },
+        ],
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toBe(
+      'SELECT * FROM tickets WHERE (status = {{ "New" }} OR status = {{ "Pending on L2" }} OR status = {{ "Pending on L1" }}) AND ("l2owner" IS NULL OR l2owner = {{ "" }});',
+    );
+  });
+
+  it("ANDs a group with plain filters, in order", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          { column: "archived", op: "eq", value: { literal: false } },
+          {
+            anyOf: [
+              {
+                column: "org_id",
+                op: "eq",
+                value: { widget: "Customers", property: "selectedRow.org_id" },
+              },
+              {
+                column: "requester_email",
+                op: "eq",
+                value: { widget: "Customers", property: "selectedRow.email" },
+              },
+            ],
+          },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      "SELECT * FROM tickets WHERE archived = {{ false }} AND (org_id = {{ Customers.selectedRow.org_id }} OR requester_email = {{ Customers.selectedRow.email }});",
+    );
+  });
+
+  it("allows a group on a write, where it narrows with the other filters", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "UPDATE",
+        table: "tickets",
+        values: [{ column: "status", value: { literal: "Closed" } }],
+        filters: [
+          { column: "id", op: "gt", value: { literal: 0 } },
+          {
+            anyOf: [
+              { column: "status", op: "eq", value: { literal: "Solved" } },
+              { column: "status", op: "eq", value: { literal: "Spam" } },
+            ],
+          },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      'UPDATE tickets SET status = {{ "Closed" }} WHERE id > {{ 0 }} AND (status = {{ "Solved" }} OR status = {{ "Spam" }});',
+    );
+  });
+
+  it("keeps a value that looks like SQL as a bind parameter inside a group", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          {
+            anyOf: [
+              {
+                column: "subject",
+                op: "eq",
+                value: { literal: "x' OR '1'='1" },
+              },
+              { column: "subject", op: "eq", value: { literal: "a -- b %" } },
+            ],
+          },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      `SELECT * FROM tickets WHERE (subject = {{ "x' OR '1'='1" }} OR subject = {{ "a -- b %" }});`,
+    );
+  });
+
+  it.each([
+    [
+      "a nested group",
+      {
+        anyOf: [
+          { column: "a", op: "eq", value: { literal: 1 } },
+          {
+            anyOf: [
+              { column: "b", op: "eq", value: { literal: 2 } },
+              { column: "c", op: "eq", value: { literal: 3 } },
+            ],
+          },
+        ],
+      },
+    ],
+    [
+      "a group with one member",
+      { anyOf: [{ column: "a", op: "eq", value: { literal: 1 } }] },
+    ],
+    ["an empty group", { anyOf: [] }],
+    [
+      "a group with more than 10 members",
+      {
+        anyOf: Array.from({ length: 11 }, (_, i) => ({
+          column: "a",
+          op: "eq",
+          value: { literal: i },
+        })),
+      },
+    ],
+    [
+      "a group with an extra key",
+      {
+        anyOf: [
+          { column: "a", op: "eq", value: { literal: 1 } },
+          { column: "b", op: "eq", value: { literal: 2 } },
+        ],
+        op: "eq",
+      },
+    ],
+    [
+      "a member column that is not an identifier",
+      {
+        anyOf: [
+          { column: "a OR 1=1", op: "eq", value: { literal: 1 } },
+          { column: "b", op: "eq", value: { literal: 2 } },
+        ],
+      },
+    ],
+  ])("rejects %s", (_label, entry) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      filters: [entry],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts a group at the 10-member maximum", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          {
+            anyOf: Array.from({ length: 10 }, (_, i) => ({
+              column: "priority",
+              op: "eq",
+              value: { literal: i },
+            })),
+          },
+        ],
+      }),
+    );
+
+    expect(body.match(/ OR /g)).toHaveLength(9);
+  });
+
+  it("compiles a group on DELETE", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "DELETE",
+        table: "drafts",
+        filters: [
+          {
+            anyOf: [
+              { column: "submitted_at", op: "isNull" },
+              { column: "status", op: "eq", value: { literal: "abandoned" } },
+            ],
+          },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      'DELETE FROM drafts WHERE (drafts.submitted_at IS NULL OR status = {{ "abandoned" }});',
+    );
+  });
+
+  // Members use each database's own form, so MySQL gets `<=>` inside a group too.
+  it("compiles a null member inside a group on MySQL without IS", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          {
+            anyOf: [
+              { column: "l2owner", op: "isNull" },
+              { column: "l2owner", op: "eq", value: { literal: "" } },
+            ],
+          },
+        ],
+      }),
+      { dialect: "mysql" },
+    );
+
+    expect(body).toBe(
+      'SELECT * FROM tickets WHERE (tickets.l2owner <=> NULL OR l2owner = {{ "" }});',
+    );
+    expect(body).not.toMatch(/\bIS\b/);
+  });
+
+  // A malformed entry must come back as a validation issue on a write, not throw out of the write-path refinement.
+  it.each([
+    ["null", null],
+    ["a number", 5],
+    ["a string", "x"],
+    ["anyOf as a string", { anyOf: "x" }],
+    ["anyOf as null", { anyOf: null }],
+    ["anyOf as undefined", { anyOf: undefined }],
+  ])(
+    "returns a validation issue, not a throw, for %s on DELETE",
+    (_label, entry) => {
+      let result: ReturnType<typeof querySpecSchema.safeParse> | undefined;
+
+      expect(() => {
+        result = querySpecSchema.safeParse({
+          ...base,
+          operation: "DELETE",
+          table: "tickets",
+          filters: [entry],
+        });
+      }).not.toThrow();
+      expect(result?.success).toBe(false);
+    },
+  );
+
+  it("reports a skipped group member at its own path", () => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      filters: [
+        {
+          anyOf: [
+            { column: "owner", op: "isNull" },
+            {
+              column: "status",
+              op: "eq",
+              value: { widget: "S", property: "selectedOptionValue" },
+              skipWhenEmpty: true,
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.path).toEqual([
+      "filters",
+      0,
+      "anyOf",
+      1,
+      "skipWhenEmpty",
+    ]);
+  });
+
+  // In an OR, a skipped member would compile to TRUE and make the whole group TRUE, so one empty control would match
+  // every row. Groups refuse skipWhenEmpty on every operation.
+  it.each(["SELECT", "UPDATE", "DELETE"])(
+    "refuses skipWhenEmpty inside a group on %s",
+    (operation) => {
+      const result = querySpecSchema.safeParse({
+        ...base,
+        operation,
+        table: "tickets",
+        values:
+          operation === "UPDATE"
+            ? [{ column: "status", value: { literal: "closed" } }]
+            : undefined,
+        filters: [
+          {
+            anyOf: [
+              {
+                column: "status",
+                op: "eq",
+                value: {
+                  widget: "StatusSelect",
+                  property: "selectedOptionValue",
+                },
+                skipWhenEmpty: true,
+              },
+              { column: "owner", op: "isNull" },
+            ],
+          },
+        ],
+      });
+
+      expect(result.success).toBe(false);
+      expect(JSON.stringify(result.error?.issues)).toContain(
+        "skipWhenEmpty cannot be used inside anyOf",
+      );
+    },
+  );
+
+  // A caller that skips parsing must still fail closed instead of emitting the always-true guard inside an OR.
+  it("throws in the compiler when a group member has skipWhenEmpty", () => {
+    const spec = {
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      filters: [
+        {
+          anyOf: [
+            {
+              column: "status",
+              op: "eq",
+              value: { widget: "S", property: "selectedOptionValue" },
+              skipWhenEmpty: true,
+            },
+            { column: "owner", op: "isNull" },
+          ],
+        },
+      ],
+    } as unknown as Parameters<typeof compileQuery>[0];
+
+    expect(() => compileQuery(spec)).toThrow(
+      /skipWhenEmpty cannot be used inside anyOf/,
+    );
+  });
+
+  it("applies the member rules inside a group (inList stays PostgreSQL-only)", () => {
+    const spec = parse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      filters: [
+        {
+          anyOf: [
+            {
+              column: "tag",
+              op: "inList",
+              value: { widget: "TagsSelect", property: "selectedOptionValues" },
+            },
+            { column: "tag", op: "isNull" },
+          ],
+        },
+      ],
+    });
+
+    expect(() => compileQuery(spec, { dialect: "mysql" })).toThrow(
+      /only available on a PostgreSQL datasource/,
+    );
+  });
+});
+
 describe("buildActionDto", () => {
   it("embeds the datasource as { id } and forces prepared statements on", () => {
     const spec = parse({ ...base, operation: "SELECT", table: "users" });

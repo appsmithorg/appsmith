@@ -458,6 +458,9 @@ a control left empty is ignored instead of matching nothing. Requires the data l
      'eq' instead; 'in' binds ONE value.
    - a fixed "missing value" condition, such as unassigned rows: { column: 'owner', op: 'isNull' }
      (or 'notNull'). It takes no value and no skipWhenEmpty.
+   - an OR inside the WHERE clause: { anyOf: [ { column: 'owner', op: 'isNull' }, { column: 'owner',
+     op: 'eq', value: { literal: '' } } ] }. Members are plain filters (2-10, one level) and cannot
+     use skipWhenEmpty, because a skipped member would make the whole group match every row.
    skipWhenEmpty is SELECT-only, and is refused on appsmith.* values (they may scope rows to the
    viewer). Filters bound to widgets are for narrowing what is shown, never for restricting which
    rows a user may see — viewers control widget values; use datasource or row-level permissions
