@@ -91,6 +91,19 @@ describe("getPageSize -", () => {
       ).toEqual(7);
     });
 
+    it("uses the height-derived page size for auto layout children", () => {
+      expect(
+        getPageSize({
+          componentHeight: 280,
+          compactMode: "DEFAULT",
+          dynamicHeight: "AUTO_HEIGHT",
+          autoHeightRowCount: 20,
+          isFlexChild: true,
+          tableData,
+        }),
+      ).toEqual(5);
+    });
+
     it("returns autoHeightRowCount even when infinite scroll is enabled", () => {
       expect(
         getPageSize({
