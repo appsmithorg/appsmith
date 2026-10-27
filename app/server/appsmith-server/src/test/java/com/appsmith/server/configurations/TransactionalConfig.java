@@ -12,9 +12,9 @@ public class TransactionalConfig {
     MongodArguments mongodArguments() {
         return MongodArguments.builder()
                 .replication(Storage.of("appsmith-replica-set", 10))
-                // On MongoDB 6.0 and later, transaction commits and index builds on this single-node
-                // replica set wait for the next journal flush. The default 100 ms flush interval makes
-                // each of them take about 100 ms, which doubles the test run time.
+                // On CI runners with MongoDB 6.0 and later, transaction commits and index builds on this
+                // single-node replica set wait about 100 ms for a journal flush at the default interval.
+                // A 1 ms interval removes most of that wait.
                 .putArgs("--journalCommitInterval", "1")
                 .build();
     }
