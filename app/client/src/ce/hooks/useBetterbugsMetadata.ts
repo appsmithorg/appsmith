@@ -20,5 +20,8 @@ export const useBetterbugsMetadata = (): BetterbugsMetadata => {
     tenantId,
     applicationId,
     pageId,
+    workflowId: null,
+    packageId: null,
+    moduleId: null,
   };
 };

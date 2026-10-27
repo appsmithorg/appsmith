@@ -115,30 +115,17 @@ jobs:
         run: |
           scripts/prepare_server_artifacts.sh
 
-      - name: Set base image tag
-        id: set_base_tag
-        run: |
-          if [[ "${{ inputs.pr }}" != 0 || "${{ github.ref_name }}" != master ]]; then
-            base_tag=release
-          else
-            base_tag=nightly
-          fi
-          echo "base_tag=$base_tag" >> $GITHUB_OUTPUT
-
-
       # We don't use Depot Docker builds because it's faster for local Docker images to be built locally.
       # It's slower and more expensive to build these Docker images on Depot and download it back to the CI node.
       - name: Build docker image
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."
+        env:
+          BASE_IMAGE: ${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:release
         run: |
           set -o xtrace
           declare -a args
-          base_tag=${{ steps.set_base_tag.outputs.base_tag }}
-          if [[ base_tag != 'nightly' ]]; then
-            args+=(--build-arg "APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com")
-          fi
-          args+=(--build-arg "BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:$base_tag")
+          args+=(--build-arg "BASE=$BASE_IMAGE")
           args+=(--label "org.opencontainers.image.revision=${{ steps.info_json.outputs.commitSha }}")
           args+=(--label "org.opencontainers.image.source=${{ steps.info_json.outputs.repo }}")
           args+=(--label "org.opencontainers.image.version=${{ steps.info_json.outputs.version }}")
