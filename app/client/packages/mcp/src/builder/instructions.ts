@@ -457,7 +457,7 @@ a control left empty is ignored instead of matching nothing. Requires the data l
      skipWhenEmpty: true }. Values are compared as text. On other databases use a single select with
      'eq' instead; 'in' binds ONE value.
    - a fixed "missing value" condition, such as unassigned rows: { column: 'owner', op: 'isNull' }
-     (or 'notNull'). It takes no value and no skipWhenEmpty, and works on every SQL database.
+     (or 'notNull'). It takes no value and no skipWhenEmpty.
    skipWhenEmpty is SELECT-only, and is refused on appsmith.* values (they may scope rows to the
    viewer). Filters bound to widgets are for narrowing what is shown, never for restricting which
    rows a user may see — viewers control widget values; use datasource or row-level permissions

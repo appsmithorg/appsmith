@@ -4213,6 +4213,14 @@ describe("governance-wrapped layout mutations", () => {
 
   async function updateWithInList(
     server: ReturnType<typeof createMcpHttpServer>,
+    filters: unknown[] = [
+      {
+        column: "tag",
+        op: "inList",
+        value: { widget: "TagsSelect", property: "selectedOptionValues" },
+        skipWhenEmpty: true,
+      },
+    ],
   ) {
     const read = await callTool(server, "get_action", {
       applicationId: "app1",
@@ -4232,14 +4240,7 @@ describe("governance-wrapped layout mutations", () => {
           datasourceId: "ds1",
           operation: "SELECT",
           table: "tickets",
-          filters: [
-            {
-              column: "tag",
-              op: "inList",
-              value: { widget: "TagsSelect", property: "selectedOptionValues" },
-              skipWhenEmpty: true,
-            },
-          ],
+          filters,
         },
       },
     });
@@ -4258,6 +4259,31 @@ describe("governance-wrapped layout mutations", () => {
       ),
     ).toContain("CAST(tag AS TEXT) = ANY(");
   });
+
+  // The MySQL plugin refuses any prepared query with the word IS, so update_action must pick the MySQL form too.
+  it.each([
+    ["postgres-plugin", 'SELECT * FROM tickets WHERE "l2owner" IS NULL;'],
+    ["mysql-plugin", "SELECT * FROM tickets WHERE tickets.l2owner <=> NULL;"],
+  ])(
+    "APP-16324: update_action compiles isNull for the datasource's database (%s)",
+    async (pluginId, sql) => {
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId },
+      ]);
+      const updated = await updateWithInList(server, [
+        { column: "l2owner", op: "isNull" },
+      ]);
+
+      expect(updated.body.updated).toBe(true);
+      expect(
+        (
+          (updateAction.mock.calls[0] as unknown[])[1] as {
+            actionConfiguration: { body: string };
+          }
+        ).actionConfiguration.body,
+      ).toBe(sql);
+    },
+  );
 
   it("APP-16164: update_action refuses a SQL spec on a datasource outside the application's workspace", async () => {
     const { server, updateAction } = sqlUpdateServer([
