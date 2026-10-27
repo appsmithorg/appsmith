@@ -174,15 +174,19 @@ const filterSchema = z
 
 // The database family the query runs on. `inList` works only on PostgreSQL, which binds a list as one
 // prepared-statement parameter (an SQL array). MySQL sends the list as a JSON string, and SQL Server refuses it.
-// isNull and notNull compile differently on MySQL (see MYSQL_NULL_TEMPLATES). Everything else the compiler emits works
-// on every family. An unknown family, such as when the caller cannot resolve the datasource, counts as "other".
-export type SqlDialect = "postgres" | "mysql" | "other";
+// isNull and notNull compile differently on MySQL (see MYSQL_NULL_TEMPLATES), and Redshift uses the PostgreSQL form
+// for them. Redshift is otherwise "other": it cannot bind a list as one parameter, so inList stays refused there.
+// Everything else the compiler emits works on every family. An unknown family, such as when the caller cannot
+// resolve the datasource, counts as "other".
+export type SqlDialect = "postgres" | "redshift" | "mysql" | "other";
 
 // Maps a datasource's plugin package name to its SqlDialect. MariaDB counts as MySQL.
 export function sqlDialectFor(packageName: string | undefined): SqlDialect {
   switch (packageName) {
     case "postgres-plugin":
       return "postgres";
+    case "redshift-plugin":
+      return "redshift";
     case "mysql-plugin":
     case "mariadb-plugin":
       return "mysql";
@@ -378,7 +382,7 @@ function postgresNullCheckColumn(column: string, table: string): string {
     tableName.slice(0, POSTGRES_MAX_IDENTIFIER_LENGTH)
   ) {
     throw new Error(
-      `isNull and notNull cannot test a column named like its table (${column}) on PostgreSQL, which would read it as the whole row`,
+      `isNull and notNull cannot test a column named like its table (${column}) on PostgreSQL or Redshift, which would read it as the whole row`,
     );
   }
 
@@ -409,10 +413,12 @@ function emitCondition(
   //   PostgreSQL folds unquoted names to lower case. Not `table.col`: when no such column exists, PostgreSQL reads
   //   `users.text` as the call `text(users)`, which is never NULL. A missing quoted column is an error, except a
   //   name equal to the table's, which PostgreSQL reads as the whole row. That name is refused.
+  // - Redshift: the PostgreSQL form. Redshift derives from PostgreSQL, so `table.col` could have the same
+  //   function-call reading. A quoted bare name cannot.
   // - Every other database: qualified with its table. After a dot, MySQL always reads a column name. SQL Server,
   //   Oracle and Snowflake read a column or refuse the query.
   if (isNullOperator(filter.op)) {
-    return dialect === "postgres"
+    return dialect === "postgres" || dialect === "redshift"
       ? `${postgresNullCheckColumn(filter.column, table)} ${NULL_OPERATORS[filter.op]}`
       : emitQualifiedNullCheck(filter.op, `${table}.${filter.column}`, dialect);
   }

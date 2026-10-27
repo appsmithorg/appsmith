@@ -736,6 +736,7 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
     ["postgres-plugin", "postgres"],
     ["mysql-plugin", "mysql"],
     ["mariadb-plugin", "mysql"],
+    ["redshift-plugin", "redshift"],
     ["mssql-plugin", "other"],
     ["oracle-plugin", "other"],
     [undefined, "other"],
@@ -743,25 +744,76 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
     expect(sqlDialectFor(packageName)).toBe(dialect);
   });
 
-  // MySQL keeps inList refused: it still cannot bind a list as one parameter.
-  it("still refuses inList on MySQL", () => {
+  // Redshift derives from PostgreSQL, so `tickets.text` could read as a function call. It gets the quoted bare form.
+  it("uses the PostgreSQL null-filter form on Redshift", () => {
+    const spec = parse({
+      ...base,
+      operation: "DELETE",
+      table: "tickets",
+      filters: [{ column: "Text", op: "notNull" }],
+    });
+
+    expect(compileQuery(spec, { dialect: "redshift" })).toBe(
+      'DELETE FROM tickets WHERE "text" IS NOT NULL;',
+    );
+  });
+
+  it("refuses a column named like its table on Redshift", () => {
+    const spec = parse({
+      ...base,
+      operation: "DELETE",
+      table: "tickets",
+      filters: [{ column: "tickets", op: "isNull" }],
+    });
+
+    expect(() => compileQuery(spec, { dialect: "redshift" })).toThrow(
+      /on PostgreSQL or Redshift/,
+    );
+  });
+
+  // Only the null filters change on Redshift. A value filter on an empty widget still binds as on "other".
+  it("leaves value filters on Redshift as on other databases", () => {
     const spec = parse({
       ...base,
       operation: "SELECT",
       table: "tickets",
       filters: [
         {
-          column: "tag",
-          op: "inList",
-          value: { widget: "TagsSelect", property: "selectedOptionValues" },
+          column: "status",
+          op: "eq",
+          value: { widget: "StatusSelect", property: "selectedOptionValue" },
+          skipWhenEmpty: true,
         },
       ],
     });
 
-    expect(() => compileQuery(spec, { dialect: "mysql" })).toThrow(
-      /only available on a PostgreSQL datasource/,
+    expect(compileQuery(spec, { dialect: "redshift" })).toBe(
+      compileQuery(spec, { dialect: "other" }),
     );
   });
+
+  // MySQL and Redshift keep inList refused: they cannot bind a list as one parameter.
+  it.each(["mysql" as const, "redshift" as const])(
+    "still refuses inList on %s",
+    (dialect) => {
+      const spec = parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          {
+            column: "tag",
+            op: "inList",
+            value: { widget: "TagsSelect", property: "selectedOptionValues" },
+          },
+        ],
+      });
+
+      expect(() => compileQuery(spec, { dialect })).toThrow(
+        /only available on a PostgreSQL datasource/,
+      );
+    },
+  );
 
   it("is allowed on a write, where it narrows the rows", () => {
     const body = compileQuery(
