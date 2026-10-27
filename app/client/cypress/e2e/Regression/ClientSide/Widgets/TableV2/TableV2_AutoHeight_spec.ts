@@ -139,10 +139,17 @@ describe(
           // The rows that do not fit scroll inside the outer auto height container
           cy.get(autoHeightLocators.autoHeightScrollContainer).should(
             ($container) => {
-              expect($container.css("overflow-y")).to.eq("auto");
               expect($container[0].scrollHeight).to.be.greaterThan(
                 $container[0].clientHeight,
               );
+            },
+          );
+          cy.get(autoHeightLocators.autoHeightScrollContainer).scrollTo(
+            "bottom",
+          );
+          cy.get(autoHeightLocators.autoHeightScrollContainer).should(
+            ($container) => {
+              expect($container[0].scrollTop).to.be.greaterThan(0);
             },
           );
         });
