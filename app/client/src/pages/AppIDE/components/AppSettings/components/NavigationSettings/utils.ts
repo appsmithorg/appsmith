@@ -37,6 +37,16 @@ export const logEvent = (
         show_sign_in: value,
       });
       break;
+    case keysOfNavigationSetting.showShareApp:
+      AnalyticsUtil.logEvent("APP_NAVIGATION_SHOW_SHARE_APP", {
+        show_share_app: value,
+      });
+      break;
+    case keysOfNavigationSetting.showAllApps:
+      AnalyticsUtil.logEvent("APP_NAVIGATION_SHOW_ALL_APPS", {
+        show_all_apps: value,
+      });
+      break;
     default:
       break;
   }

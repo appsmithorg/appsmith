@@ -290,7 +290,23 @@ function NavigationSettings() {
             label={createMessage(APP_NAVIGATION_SETTING.showSignInLabel)}
             tooltip={createMessage(APP_NAVIGATION_SETTING.showSignInTooltip)}
             updateSetting={updateSetting}
-            value={navigationSetting?.showSignIn}
+            value={navigationSetting?.showSignIn !== false}
+          />
+
+          <SwitchSetting
+            keyName="showShareApp"
+            label={createMessage(APP_NAVIGATION_SETTING.showShareAppLabel)}
+            tooltip={createMessage(APP_NAVIGATION_SETTING.showShareAppTooltip)}
+            updateSetting={updateSetting}
+            value={navigationSetting?.showShareApp !== false}
+          />
+
+          <SwitchSetting
+            keyName="showAllApps"
+            label={createMessage(APP_NAVIGATION_SETTING.showAllAppsLabel)}
+            tooltip={createMessage(APP_NAVIGATION_SETTING.showAllAppsTooltip)}
+            updateSetting={updateSetting}
+            value={navigationSetting?.showAllApps !== false}
           />
         </>
       )}
