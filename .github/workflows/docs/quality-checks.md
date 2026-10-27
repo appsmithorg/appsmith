@@ -33,6 +33,8 @@ This job, named `server-spotless`, performs a code formatting check on the serve
 
 The `server-unit-tests` job is responsible for running unit tests on the server-side code. It runs if changes related to the server were detected by the `path-filter` job.
 
+The tests run in five parallel groups. `scripts/server-test-groups.js` puts each test class in one group, so that the groups take about the same time. It uses the per-class durations in `server-test-durations/*.tsv`; a class without a recorded duration counts as the median. To refresh the durations, download the job logs of all groups of one run into one file and run `node .github/workflows/scripts/server-test-groups.js durations < groups.log > .github/workflows/server-test-durations/ce.tsv`. The EE repository writes `ee.tsv` instead, which overrides `ce.tsv`.
+
 ### `client-build`
 
 The `client-build` job handles the build process for the client-side codebase. It runs if changes related to the client were detected by the `path-filter` job.

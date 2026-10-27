@@ -58,6 +58,13 @@ jobs:
   server-unit-tests:
     runs-on: ubuntu-22.04-8core
 
+    # Each group runs a share of the test classes, balanced by the durations in
+    # .github/workflows/server-test-durations/. A build without tests uses one group.
+    strategy:
+      fail-fast: false
+      matrix:
+        group: ${{ fromJSON(inputs.skip-tests == 'true' && '[1]' || '[1, 2, 3, 4, 5]') }}
+
     # Service containers to run with this job. Required for running tests
     services:
       # Label used to access the service container
@@ -104,13 +111,17 @@ jobs:
           ref: ${{ inputs.checkout-ref }}
 
       - name: Figure out the PR number
-        run: echo ${{ inputs.pr }}
+        env:
+          PR: ${{ inputs.pr }}
+        run: echo "$PR"
 
       - name: Default database URL
-        run: echo "Is this a PG build? ${{ inputs.is-pg-build }}"
+        env:
+          IS_PG_BUILD: ${{ inputs.is-pg-build }}
+        run: echo "Is this a PG build? $IS_PG_BUILD"
 
       - name: Print the Github event
-        run: echo ${{ github.event_name }}
+        run: echo "$GITHUB_EVENT_NAME"
 
       - name: Get changed files in the server folder
         id: changed-files-specific
@@ -128,7 +139,7 @@ jobs:
         run: |
           echo "One or more files in the server folder has changed."
           echo "List all the files that have changed:"
-          cat "${{ github.workspace }}/.github/outputs/all_modified_files.txt"
+          cat "$GITHUB_WORKSPACE/.github/outputs/all_modified_files.txt"
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -138,7 +149,7 @@ jobs:
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-server-junit
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.group }}-server-junit
 
       # Fetch prior run result
       - name: Get the previous run result
@@ -155,7 +166,7 @@ jobs:
         if: steps.run_result.outputs.run_result == 'failedtest' && (steps.changed-files-specific.outputs.any_modified == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         uses: actions/download-artifact@v4
         with:
-          name: failed-server-tests
+          name: failed-server-tests-${{ matrix.group }}
           path: ~/failed-server-tests
 
       - name: Extract the tests for rerun
@@ -182,7 +193,7 @@ jobs:
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
-        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_modified == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: steps.run_result.outputs.run_result != 'success'  && (inputs.skip-tests == 'true' || steps.changed-files-specific.outputs.any_modified == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         uses: actions/cache@v4
         env:
           cache-name: cache-maven-dependencies
@@ -194,7 +205,7 @@ jobs:
 
       # Build the code
       - name: Build
-        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_modified == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: steps.run_result.outputs.run_result != 'success'  && (inputs.skip-tests == 'true' || steps.changed-files-specific.outputs.any_modified == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         run: |
           ./build.sh -DskipTests
 
@@ -210,18 +221,35 @@ jobs:
           APPSMITH_ENCRYPTION_SALT: "salt"
           APPSMITH_ENVFILE_PATH: /tmp/dummy.env
           APPSMITH_VERBOSE_LOGGING_ENABLED: false
+          IS_PG_BUILD: ${{ inputs.is-pg-build }}
+          RUN_RESULT: ${{ steps.run_result.outputs.run_result }}
+          FAILED_TESTS: ${{ steps.failed_tests.outputs.tests }}
+          GROUP: ${{ matrix.group }}
+          GROUP_COUNT: ${{ strategy.job-total }}
+          PR: ${{ inputs.pr }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [[ "${{ inputs.is-pg-build }}" == "true" ]]; then
+          if [[ "$IS_PG_BUILD" == "true" ]]; then
               export APPSMITH_DB_URL="postgresql://postgres:password@localhost:5432/postgres"
           else
               export APPSMITH_DB_URL="mongodb://localhost:27017/mobtools"
           fi
 
-          args=()
+          args=("-DfailIfNoTests=false" "-Dsurefire.failIfNoSpecifiedTests=false")
 
-          if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
-              failed_tests="${{ steps.failed_tests.outputs.tests }}"
-              args+=("-DfailIfNoTests=false" "-Dsurefire.failIfNoSpecifiedTests=false" "-Dtest=${failed_tests}")
+          if [[ "$RUN_RESULT" == "failedtest" ]]; then
+              args+=("-Dtest=$FAILED_TESTS")
+          else
+              group_tests="$(node "$GITHUB_WORKSPACE/.github/workflows/scripts/server-test-groups.js" plan \
+                  --root . \
+                  --durations "$GITHUB_WORKSPACE/.github/workflows/server-test-durations" \
+                  --groups "$GROUP_COUNT" \
+                  --group "$GROUP")"
+              if [[ -z "$group_tests" ]]; then
+                  echo "Group $GROUP has no test classes."
+                  exit 0
+              fi
+              args+=("-Dtest=$group_tests")
           fi
 
           # Run tests and capture logs
@@ -280,18 +308,20 @@ jobs:
 
           if [[ -s $OUTPUT_FILE ]]; then
               content="$(
-                  echo "## Failed server tests"
+                  echo "## Failed server tests (group $GROUP of $GROUP_COUNT)"
                   echo
                   sed 's/^/- /' "$OUTPUT_FILE"
               )"
               echo "$content" >> "$GITHUB_STEP_SUMMARY"
 
               # Post a comment to the PR
-              curl --silent --show-error \
-                  --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                  --data "$(jq -n --arg body "$content" '$ARGS.named')" \
-                  "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/${{ inputs.pr }}/comments" \
-                  > /dev/null
+              if [[ -n "$PR" && "$PR" != "0" ]]; then
+                  curl --silent --show-error --max-time 30 \
+                      --header "Authorization: Bearer $GITHUB_TOKEN" \
+                      --data "$(jq -n --arg body "$content" '$ARGS.named')" \
+                      "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/$PR/comments" \
+                      > /dev/null
+              fi
           fi
 
           # Fail the script if tests did not pass
@@ -314,19 +344,20 @@ jobs:
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-server-junit
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.group }}-server-junit
 
       - name: Upload the failed tests report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: failed-server-tests
+          name: failed-server-tests-${{ matrix.group }}
           path: app/server/failed-server-tests.txt
           if-no-files-found: ignore
           overwrite: true
 
       # The OpenAPI document is written by OpenApiDocumentGenerationTest during the test run.
       # Runtime instances keep springdoc disabled; this artifact is the build's copy of the contract.
+      # Only the group that runs that test has the document.
       - name: Upload the generated OpenAPI document
         if: always()
         uses: actions/upload-artifact@v4
@@ -336,33 +367,9 @@ jobs:
           if-no-files-found: ignore
           overwrite: true
 
-      - name: Fetch server build from cache
-        if: steps.changed-files-specific.outputs.any_modified == 'false' && success()  && github.event_name != 'push' && github.event_name != 'workflow_dispatch'  && github.event_name != 'schedule'
-        env:
-          cachetoken: ${{ secrets.CACHETOKEN }}
-          reponame: ${{ github.event.repository.name }}
-          gituser: ${{ secrets.CACHE_GIT_USER }}
-          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
-        run: |
-          mkdir cacherepo
-          cd ./cacherepo
-          git lfs install
-          git config --global user.email "$gituseremail"
-          git config --global user.name "$gituser"
-          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
-          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
-          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
-          cd cibuildcache/$repodir/release/server
-          git lfs install
-          git lfs migrate import --everything --yes
-          git lfs pull ./server.jar
-          mv ./server.jar ../../../../../server.jar
-          cd ../../../../../
-          tar -xzvf ./server.jar
-
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        if: steps.changed-files-specific.outputs.any_modified == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        if: matrix.group == 1
         uses: actions/cache@v4
         with:
           path: |
@@ -371,37 +378,13 @@ jobs:
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
+        if: matrix.group == 1
         uses: actions/upload-artifact@v4
         with:
           name: server-build
           path: app/server/dist/
+          if-no-files-found: error
           overwrite: true
-
-      - name: Put release build in cache
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
-        env:
-          cachetoken: ${{ secrets.CACHETOKEN }}
-          reponame: ${{ github.event.repository.name }}
-          gituser: ${{ secrets.CACHE_GIT_USER }}
-          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
-        run: |
-          pwd
-          tar -czvf server.jar dist/
-          mkdir cacherepo
-          cd ./cacherepo
-          git config --global user.email "$gituseremail"
-          git config --global user.name "$gituser"
-          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
-          git lfs install
-          cd cibuildcache/
-          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
-          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
-          cd $repodir/release/server
-          cp ../../../../../server.jar ./
-          git lfs track "server.jar"
-          git add  server.jar
-          git commit --allow-empty -m "Update Latest Server.jar"
-          git push
 
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
