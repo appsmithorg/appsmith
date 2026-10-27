@@ -367,20 +367,24 @@ function widgetRef(filter: Filter): WidgetRef {
   return value;
 }
 
-// PostgreSQL cuts every name, quoted or not, to 63 bytes. Identifiers here are ASCII, so bytes are characters.
-const POSTGRES_MAX_IDENTIFIER_LENGTH = 63;
+// The longest name each database keeps. PostgreSQL cuts every name, quoted or not, to 63 bytes. Redshift allows
+// 127 bytes. Identifiers here are ASCII, so bytes are characters.
+const MAX_IDENTIFIER_LENGTH = { postgres: 63, redshift: 127 } as const;
 
-// The PostgreSQL column for an isNull or notNull filter: lower-cased, then quoted. Throws when the name equals the
-// table's own name (the last part of `schema.table`), because a missing column of that name reads as the whole row.
-// Both names are compared after PostgreSQL's cut, so two long names that differ only after 63 characters still match.
-function postgresNullCheckColumn(column: string, table: string): string {
+// The PostgreSQL or Redshift column for an isNull or notNull filter: lower-cased, then quoted. Throws when the name
+// equals the table's own name (the last part of `schema.table`), because a missing column of that name reads as the
+// whole row. Both names are compared after the database's own cut, so two long names that differ only after it
+// still match.
+function postgresNullCheckColumn(
+  column: string,
+  table: string,
+  dialect: "postgres" | "redshift",
+): string {
   const name = column.toLowerCase();
   const tableName = (table.split(".").pop() ?? table).toLowerCase();
+  const maxLength = MAX_IDENTIFIER_LENGTH[dialect];
 
-  if (
-    name.slice(0, POSTGRES_MAX_IDENTIFIER_LENGTH) ===
-    tableName.slice(0, POSTGRES_MAX_IDENTIFIER_LENGTH)
-  ) {
+  if (name.slice(0, maxLength) === tableName.slice(0, maxLength)) {
     throw new Error(
       `isNull and notNull cannot test a column named like its table (${column}) on PostgreSQL or Redshift, which would read it as the whole row`,
     );
@@ -419,7 +423,7 @@ function emitCondition(
   //   Oracle and Snowflake read a column or refuse the query.
   if (isNullOperator(filter.op)) {
     return dialect === "postgres" || dialect === "redshift"
-      ? `${postgresNullCheckColumn(filter.column, table)} ${NULL_OPERATORS[filter.op]}`
+      ? `${postgresNullCheckColumn(filter.column, table, dialect)} ${NULL_OPERATORS[filter.op]}`
       : emitQualifiedNullCheck(filter.op, `${table}.${filter.column}`, dialect);
   }
 

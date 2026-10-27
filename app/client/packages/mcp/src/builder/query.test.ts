@@ -688,6 +688,36 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
     );
   });
 
+  // Redshift keeps names up to 127 characters, so it compares that many.
+  it("allows names that differ after 63 characters on Redshift", () => {
+    const prefix = "a".repeat(63);
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "DELETE",
+        table: `${prefix}x`,
+        filters: [{ column: `${prefix}y`, op: "notNull" }],
+      }),
+      { dialect: "redshift" },
+    );
+
+    expect(body).toContain(`"${prefix}y" IS NOT NULL`);
+  });
+
+  it("refuses names that match only after Redshift's 127-character cut", () => {
+    const prefix = "a".repeat(127);
+    const spec = parse({
+      ...base,
+      operation: "DELETE",
+      table: `${prefix}x`,
+      filters: [{ column: `${prefix}y`, op: "notNull" }],
+    });
+
+    expect(() => compileQuery(spec, { dialect: "redshift" })).toThrow(
+      /cannot test a column named like its table/,
+    );
+  });
+
   it("allows a long column that differs from the table within 63 characters", () => {
     const body = compileQuery(
       parse({
