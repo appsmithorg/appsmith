@@ -155,6 +155,16 @@ export default {
   },
   //
   getPageSize: (props, moment, _) => {
+    /* With auto height the widget grows to fit its rows, so the page size comes from Rows per page instead of the height */
+    if (
+      props.dynamicHeight === "AUTO_HEIGHT" ||
+      props.dynamicHeight === "AUTO_HEIGHT_WITH_LIMITS"
+    ) {
+      const autoHeightRowCount = Math.floor(Number(props.autoHeightRowCount));
+
+      return autoHeightRowCount >= 1 ? autoHeightRowCount : 10;
+    }
+
     const TABLE_SIZES = {
       DEFAULT: {
         COLUMN_HEADER_HEIGHT: 32,

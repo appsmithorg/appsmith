@@ -1,6 +1,7 @@
 import contentConfig from "../contentConfig";
 import type { TableWidgetProps } from "../../../constants";
 import type { PropertyPaneSectionConfig } from "constants/PropertyControlConstants";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 describe("TableWidgetV2 contentConfig tests", () => {
   it("should disable relevant sections when infinite scroll is enabled", () => {
@@ -110,5 +111,86 @@ describe("TableWidgetV2 contentConfig tests", () => {
         expect(infiniteScrollProperty.dependencies).toContain("primaryColumns");
       }
     }
+  });
+
+  describe("auto height", () => {
+    const withHeight = (dynamicHeight: DynamicHeight) =>
+      ({ dynamicHeight }) as unknown as TableWidgetProps;
+
+    const getPaginationControl = (propertyName: string) => {
+      const paginationSection = contentConfig.find(
+        (section) =>
+          (section as PropertyPaneSectionConfig).sectionName === "Pagination",
+      ) as PropertyPaneSectionConfig;
+
+      return paginationSection.children?.find(
+        (child) =>
+          (child as PropertyPaneSectionConfig & { propertyName: string })
+            .propertyName === propertyName,
+      ) as PropertyPaneSectionConfig & {
+        propertyName: string;
+        label: string;
+        hidden: (props: TableWidgetProps, propertyPath: string) => boolean;
+        shouldDisableSection: (
+          props: TableWidgetProps,
+          propertyPath: string,
+        ) => boolean;
+        disabledHelpText: string;
+        dependencies: string[];
+        validation: { type: string; params: Record<string, unknown> };
+      };
+    };
+
+    it("shows Rows per page only when height is auto", () => {
+      const rowsPerPage = getPaginationControl("autoHeightRowCount");
+
+      expect(rowsPerPage).toBeDefined();
+      expect(rowsPerPage.label).toBe("Rows per page");
+      expect(rowsPerPage.dependencies).toContain("dynamicHeight");
+      expect(rowsPerPage.validation.params).toEqual(
+        expect.objectContaining({ min: 1, natural: true }),
+      );
+
+      expect(rowsPerPage.hidden(withHeight(DynamicHeight.FIXED), "")).toBe(
+        true,
+      );
+      expect(rowsPerPage.hidden({} as TableWidgetProps, "")).toBe(true);
+      expect(
+        rowsPerPage.hidden(withHeight(DynamicHeight.AUTO_HEIGHT), ""),
+      ).toBe(false);
+      expect(
+        rowsPerPage.hidden(
+          withHeight(DynamicHeight.AUTO_HEIGHT_WITH_LIMITS),
+          "",
+        ),
+      ).toBe(false);
+    });
+
+    it("disables infinite scroll when height is auto", () => {
+      const infiniteScroll = getPaginationControl("infiniteScrollEnabled");
+
+      expect(infiniteScroll.dependencies).toContain("dynamicHeight");
+      expect(infiniteScroll.disabledHelpText).toBe(
+        "Infinite scroll is unavailable while the table height is set to Auto Height",
+      );
+      expect(
+        infiniteScroll.shouldDisableSection(
+          withHeight(DynamicHeight.AUTO_HEIGHT),
+          "",
+        ),
+      ).toBe(true);
+      expect(
+        infiniteScroll.shouldDisableSection(
+          withHeight(DynamicHeight.AUTO_HEIGHT_WITH_LIMITS),
+          "",
+        ),
+      ).toBe(true);
+      expect(
+        infiniteScroll.shouldDisableSection(
+          withHeight(DynamicHeight.FIXED),
+          "",
+        ),
+      ).toBe(false);
+    });
   });
 });
