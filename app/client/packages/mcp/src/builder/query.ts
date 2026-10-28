@@ -529,14 +529,16 @@ export const querySpecSchema = z
       });
     }
 
-    // Each group key needs its own name: the select list shows each under its column's name, and having finds a key by
-    // that name. A repeat (such as "tags" plain and "tags" split) would give two columns of one name.
+    // With a split, each group key needs its own name: the select list shows each under its column's name, and having
+    // finds a key by that name. A repeat (such as "tags" plain and "tags" split) would give two columns of one name.
+    // Without a split, a repeated group column stays accepted, as before.
+    const hasSplit = (spec.groupBy ?? []).some(isSplitColumn);
     const seenGroupColumns = new Set<string>();
 
     (spec.groupBy ?? []).forEach((entry, index) => {
       const name = columnNameOf(entry);
 
-      if (seenGroupColumns.has(name)) {
+      if (hasSplit && seenGroupColumns.has(name)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: `groupBy lists "${name}" more than once`,
@@ -549,7 +551,7 @@ export const querySpecSchema = z
 
     // The split source is named mcp_split with the item column mcp_split_value. With a split present, a table of that
     // name would collide with it, and a column of either name would bind to the split source instead of the table.
-    if ((spec.groupBy ?? []).some(isSplitColumn)) {
+    if (hasSplit) {
       if (spec.table.split(".").pop()?.toLowerCase() === SPLIT_SOURCE) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -595,6 +597,15 @@ export const querySpecSchema = z
       (spec.having ?? []).forEach((entry, index) =>
         refuse(entry.column, ["having", index, "column"]),
       );
+      // Every group column (the split one too) and the aggregate's column: a reserved name there would group or count
+      // the split source instead of the table.
+      (spec.groupBy ?? []).forEach((entry, index) =>
+        refuse(columnNameOf(entry), ["groupBy", index]),
+      );
+
+      if (spec.aggregate?.column !== undefined) {
+        refuse(spec.aggregate.column, ["aggregate", "column"]);
+      }
     }
 
     // A query has one lateral split source, so one split column.
