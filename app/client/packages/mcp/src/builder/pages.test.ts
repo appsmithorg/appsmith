@@ -2,9 +2,11 @@ import {
   buildCreatePageRequest,
   buildDeletePageRequest,
   buildRenamePageRequest,
+  buildSetPageVisibilityRequest,
   createPageSpecSchema,
   deletePageSpecSchema,
   renamePageSpecSchema,
+  setPageVisibilitySpecSchema,
 } from "./pages.js";
 
 const applicationId = "a".repeat(24);
@@ -54,6 +56,44 @@ describe("page CRUD request builders", () => {
       },
       destructive: false,
     });
+  });
+
+  it.each([true, false])(
+    "APP-16324 F4: builds a minimal visibility request (hidden %s)",
+    (hidden) => {
+      expect(
+        buildSetPageVisibilityRequest(
+          setPageVisibilitySpecSchema.parse({
+            applicationId,
+            pageId,
+            revision,
+            hidden,
+          }),
+        ),
+      ).toEqual({
+        applicationId,
+        revision,
+        method: "PUT",
+        path: `v1/pages/${pageId}`,
+        body: { isHidden: hidden },
+        destructive: false,
+      });
+    },
+  );
+
+  it.each([
+    ["no hidden flag", { applicationId, pageId, revision }],
+    [
+      "a non-boolean hidden flag",
+      { applicationId, pageId, revision, hidden: "yes" },
+    ],
+    [
+      "an extra field",
+      { applicationId, pageId, revision, hidden: true, name: "x" },
+    ],
+    ["no revision", { applicationId, pageId, hidden: true }],
+  ])("APP-16324 F4: rejects a visibility spec with %s", (_label, spec) => {
+    expect(setPageVisibilitySpecSchema.safeParse(spec).success).toBe(false);
   });
 
   it("builds a minimal rename request", () => {
