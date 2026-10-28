@@ -2048,6 +2048,325 @@ describe("APP-16324 F1.4: coalesce on selected and grouped columns", () => {
   });
 });
 
+describe("APP-16324 F1.5: having on aggregated selects", () => {
+  it.each([
+    ["eq", "="],
+    ["ne", "!="],
+    ["gt", ">"],
+    ["gte", ">="],
+    ["lt", "<"],
+    ["lte", "<="],
+  ])("emits having op %s as %s", (op, sql) => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "count", op, value: { literal: 3 } }],
+      }),
+    );
+
+    expect(body).toBe(
+      `SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" HAVING COUNT(*) ${sql} {{ 3 }};`,
+    );
+  });
+
+  // MySQL names are bare and case-insensitive, so "COUNT" would collide with the count result there.
+  it("refuses a group column named like the aggregate in any case", () => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      groupBy: ["COUNT"],
+      aggregate: { fn: "count" },
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.path.join("."))).toEqual([
+      "groupBy.0",
+    ]);
+  });
+
+  it("refuses a null literal, which = NULL would never match", () => {
+    for (const op of ["eq", "ne"]) {
+      const result = querySpecSchema.safeParse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "tag", op, value: { literal: null } }],
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error?.issues[0]?.message).toBe(
+        "having cannot compare with null: = NULL never matches",
+      );
+    }
+  });
+
+  it("filters on the aggregate by repeating its expression", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "count", op: "gt", value: { literal: 5 } }],
+        orderBy: [{ column: "count", direction: "DESC" }],
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" HAVING COUNT(*) > {{ 5 }} ORDER BY "count" DESC;',
+    );
+  });
+
+  // Oracle "Tag counts": HAVING tag <> 'N/A'.
+  it("filters on a group column", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "tag", op: "ne", value: { literal: "N/A" } }],
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" HAVING "tag" != {{ "N/A" }};',
+    );
+  });
+
+  // HAVING names group columns and the aggregate the way GROUP BY and the select list do, so on MySQL they are bare
+  // too (a double-quoted name there is a string, which would compare a constant).
+  it("emits HAVING columns and the aggregate bare on MySQL", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "orders",
+        groupBy: ["region"],
+        aggregate: { fn: "sum", column: "amount" },
+        having: [
+          { column: "sum", op: "gt", value: { literal: 100 } },
+          { column: "region", op: "ne", value: { literal: "test" } },
+        ],
+      }),
+      { dialect: "mysql" },
+    );
+
+    expect(body).toBe(
+      'SELECT region, SUM(amount) AS sum FROM orders GROUP BY region HAVING SUM(amount) > {{ 100 }} AND region != {{ "test" }};',
+    );
+  });
+
+  it("filters an avg over the whole table when there is no groupBy", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "orders",
+        aggregate: { fn: "avg", column: "amount" },
+        having: [{ column: "avg", op: "gt", value: { literal: 10.5 } }],
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT AVG("amount") AS avg FROM orders HAVING AVG("amount") > {{ 10.5 }};',
+    );
+  });
+
+  // Each refusal checks its exact message and the path of the field the agent must fix.
+  it.each([
+    [
+      "a column that is neither the aggregate nor a group column",
+      {
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "status", op: "eq", value: { literal: "x" } }],
+      },
+      'having can only test "count" or a groupBy column',
+      ["having", 0, "column"],
+    ],
+    [
+      "an aggregate name that does not match the aggregate",
+      {
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "sum", op: "gt", value: { literal: 1 } }],
+      },
+      'having can only test "count" or a groupBy column',
+      ["having", 0, "column"],
+    ],
+    // HAVING would test the stored value, not the fallback the select list shows.
+    [
+      "a group column that has coalesce",
+      {
+        groupBy: [{ column: "tag", coalesce: { literal: "none" } }],
+        aggregate: { fn: "count" },
+        having: [{ column: "tag", op: "ne", value: { literal: "none" } }],
+      },
+      "having cannot test a groupBy column that has coalesce (it would test the stored value, not the fallback shown)",
+      ["having", 0, "column"],
+    ],
+    [
+      "a group column named like the aggregate's result",
+      {
+        groupBy: ["count"],
+        aggregate: { fn: "count" },
+      },
+      'a groupBy column cannot be named "count", the name of the aggregate\'s result',
+      ["groupBy", 0],
+    ],
+    [
+      "skipWhenEmpty in having",
+      {
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [
+          {
+            column: "count",
+            op: "gt",
+            value: { widget: "W", property: "text" },
+            skipWhenEmpty: true,
+          },
+        ],
+      },
+      "Unrecognized key(s) in object: 'skipWhenEmpty'",
+      ["having", 0],
+    ],
+  ])("refuses %s, at its own path", (_label, override, message, path) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      ...(override as Record<string, unknown>),
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues).toContainEqual(
+      expect.objectContaining({ message, path }),
+    );
+  });
+
+  it("ANDs several having conditions and accepts a widget value", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "orders",
+        groupBy: ["region"],
+        aggregate: { fn: "sum", column: "amount" },
+        having: [
+          {
+            column: "sum",
+            op: "gte",
+            value: { widget: "MinAmount", property: "text" },
+          },
+          { column: "region", op: "ne", value: { literal: "test" } },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT "region", SUM("amount") AS sum FROM orders GROUP BY "region" HAVING SUM("amount") >= {{ MinAmount.text }} AND "region" != {{ "test" }};',
+    );
+  });
+
+  it("puts HAVING between GROUP BY and ORDER BY, after WHERE", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [{ column: "status", op: "eq", value: { literal: "open" } }],
+        groupBy: ["tag"],
+        aggregate: { fn: "count", column: "id" },
+        having: [{ column: "count", op: "lt", value: { literal: 100 } }],
+        orderBy: [{ column: "tag", direction: "ASC" }],
+        limit: 10,
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT "tag", COUNT("id") AS count FROM tickets WHERE status = {{ "open" }} GROUP BY "tag" HAVING COUNT("id") < {{ 100 }} ORDER BY "tag" ASC LIMIT 10;',
+    );
+  });
+
+  it.each([
+    [
+      "having without an aggregate",
+      {
+        groupBy: ["tag"],
+        having: [{ column: "tag", op: "ne", value: { literal: "x" } }],
+      },
+      "having needs an aggregate",
+    ],
+    [
+      "an op outside the comparison set",
+      {
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "tag", op: "like", value: { literal: "x" } }],
+      },
+      "Invalid enum value",
+    ],
+    [
+      "a column that is not an identifier",
+      {
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "count) OR (1", op: "gt", value: { literal: 1 } }],
+      },
+      "must be a plain SQL identifier",
+    ],
+    [
+      "more than 10 conditions",
+      {
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: Array.from({ length: 11 }, () => ({
+          column: "count",
+          op: "gt",
+          value: { literal: 1 },
+        })),
+      },
+      "too_big",
+    ],
+  ])("rejects %s", (_label, override, message) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      ...(override as Record<string, unknown>),
+    });
+
+    expect(result.success).toBe(false);
+    expect(JSON.stringify(result.error?.issues)).toContain(message);
+  });
+
+  it("refuses having on a write", () => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "DELETE",
+      table: "tickets",
+      filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+      having: [{ column: "count", op: "gt", value: { literal: 1 } }],
+    });
+
+    expect(result.success).toBe(false);
+    expect(JSON.stringify(result.error?.issues)).toContain(
+      "having is only valid on a SELECT query",
+    );
+  });
+});
+
 describe("buildActionDto", () => {
   it("embeds the datasource as { id } and forces prepared statements on", () => {
     const spec = parse({ ...base, operation: "SELECT", table: "users" });
