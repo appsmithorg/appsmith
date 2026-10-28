@@ -1950,6 +1950,62 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     },
   );
 
+  it("APP-16324 F1.2: create_query compiles an anyOf group and refuses skipWhenEmpty inside it", async () => {
+    const createAction = jest.fn(async () => ({ id: "act1" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction: createAction as never,
+    };
+    const created = await callTool(api, "create_query", {
+      query: {
+        ...validQuery,
+        filters: [
+          {
+            anyOf: [
+              { column: "email", op: "isNull" },
+              { column: "email", op: "eq", value: { literal: "" } },
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(created.created).toBe(true);
+    expect(created.body).toBe(
+      'SELECT * FROM users WHERE ("email" IS NULL OR email = {{ "" }});',
+    );
+
+    const refused = await callTool(api, "create_query", {
+      query: {
+        ...validQuery,
+        name: "getUsers2",
+        filters: [
+          {
+            anyOf: [
+              {
+                column: "email",
+                op: "eq",
+                value: { widget: "EmailInput", property: "text" },
+                skipWhenEmpty: true,
+              },
+              { column: "email", op: "isNull" },
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(refused.valid).toBe(false);
+    expect(JSON.stringify(refused.errors)).toContain(
+      "skipWhenEmpty cannot be used inside anyOf",
+    );
+    expect(createAction).toHaveBeenCalledTimes(1);
+  });
+
   it("create_query refuses a datasource the caller cannot access (IDOR guard)", async () => {
     const createAction = jest.fn();
     const api: AppsmithApi = {
@@ -4284,6 +4340,31 @@ describe("governance-wrapped layout mutations", () => {
       ).toBe(sql);
     },
   );
+
+  it("APP-16324 F1.2: update_action compiles an anyOf group", async () => {
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "ds1", name: "DB", pluginId: "mysql-plugin" },
+    ]);
+    const updated = await updateWithInList(server, [
+      {
+        anyOf: [
+          { column: "l2owner", op: "isNull" },
+          { column: "l2owner", op: "eq", value: { literal: "" } },
+        ],
+      },
+    ]);
+
+    expect(updated.body.updated).toBe(true);
+    expect(
+      (
+        (updateAction.mock.calls[0] as unknown[])[1] as {
+          actionConfiguration: { body: string };
+        }
+      ).actionConfiguration.body,
+    ).toBe(
+      'SELECT * FROM tickets WHERE (tickets.l2owner <=> NULL OR l2owner = {{ "" }});',
+    );
+  });
 
   it("APP-16164: update_action refuses a SQL spec on a datasource outside the application's workspace", async () => {
     const { server, updateAction } = sqlUpdateServer([

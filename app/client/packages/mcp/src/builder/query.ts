@@ -172,6 +172,58 @@ const filterSchema = z
     }
   });
 
+const SKIP_IN_GROUP_MESSAGE =
+  "skipWhenEmpty cannot be used inside anyOf: in an OR, a skipped member would match every row";
+
+// An OR group: `{ anyOf: [filter, filter, ...] }` compiles to `(a OR b OR ...)` and is ANDed with the other filters.
+// - Members are plain filters, so groups nest one level only.
+// - Members cannot use skipWhenEmpty. A skipped filter compiles to TRUE, and inside an OR that makes the whole group
+//   TRUE, so one empty control would match every row, even on a SELECT.
+const filterGroupSchema = z
+  .object({
+    anyOf: z.array(filterSchema).min(2).max(10),
+  })
+  .strict()
+  .superRefine((group, ctx) => {
+    group.anyOf.forEach((member, index) => {
+      if (member.skipWhenEmpty === true) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: SKIP_IN_GROUP_MESSAGE,
+          path: ["anyOf", index, "skipWhenEmpty"],
+        });
+      }
+    });
+  });
+
+// One entry of `filters`: a plain filter or an OR group. An own `anyOf` key decides which, so an agent gets the errors
+// for the shape it meant instead of a union of both. It returns the parsed entry, not the raw input, so any default or
+// transform in either schema applies.
+const filterEntrySchema = z
+  .unknown()
+  .transform(
+    (
+      entry,
+      ctx,
+    ): z.infer<typeof filterSchema> | z.infer<typeof filterGroupSchema> => {
+      const isGroup =
+        typeof entry === "object" &&
+        entry !== null &&
+        Object.prototype.hasOwnProperty.call(entry, "anyOf");
+      const result = (isGroup ? filterGroupSchema : filterSchema).safeParse(
+        entry,
+      );
+
+      if (!result.success) {
+        result.error.issues.forEach((issue) => ctx.addIssue(issue));
+
+        return z.NEVER;
+      }
+
+      return result.data;
+    },
+  );
+
 // The database family the query runs on. `inList` works only on PostgreSQL, which binds a list as one
 // prepared-statement parameter (an SQL array). MySQL sends the list as a JSON string, and SQL Server refuses it.
 // isNull and notNull compile differently on MySQL (see MYSQL_NULL_TEMPLATES), and Redshift uses the PostgreSQL form
@@ -219,7 +271,7 @@ export const querySpecSchema = z
     operation: z.enum(["SELECT", "INSERT", "UPDATE", "DELETE"]),
     table: qualifiedName,
     columns: z.array(sqlIdentifier).max(100).optional(),
-    filters: z.array(filterSchema).max(20).optional(),
+    filters: z.array(filterEntrySchema).max(20).optional(),
     values: z
       .array(z.object({ column: sqlIdentifier, value: valueRef }).strict())
       .max(100)
@@ -257,16 +309,33 @@ export const querySpecSchema = z
     if (spec.operation === "SELECT") return;
 
     // A skipped filter widens the WHERE clause. That is harmless on a read. On UPDATE or DELETE, an empty widget would
-    // turn "change the selected rows" into "change every row", so writes refuse skipWhenEmpty.
-    (spec.filters ?? []).forEach((filter, index) => {
-      if (filter.skipWhenEmpty === true) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            "skipWhenEmpty is only valid on a SELECT query (on a write, an empty value would widen it to every row)",
-          path: ["filters", index, "skipWhenEmpty"],
-        });
-      }
+    // turn "change the selected rows" into "change every row", so writes refuse skipWhenEmpty. The check also looks
+    // inside OR groups. filterGroupSchema already refuses skipWhenEmpty there, so this is a second guard.
+    // A malformed entry (null, a number, `{ anyOf: "x" }`) already has its own issue from filterEntrySchema, and this
+    // refinement can still see it in raw form. Skip anything that is not a filter or a group so it reports that issue
+    // instead of throwing.
+    (spec.filters ?? []).forEach((entry, index) => {
+      if (typeof entry !== "object" || entry === null) return;
+
+      if ("anyOf" in entry && !Array.isArray(entry.anyOf)) return;
+
+      const members = isFilterGroup(entry)
+        ? entry.anyOf.map((member, memberIndex) => ({
+            member,
+            path: ["filters", index, "anyOf", memberIndex, "skipWhenEmpty"],
+          }))
+        : [{ member: entry, path: ["filters", index, "skipWhenEmpty"] }];
+
+      members.forEach(({ member, path }) => {
+        if (member.skipWhenEmpty === true) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message:
+              "skipWhenEmpty is only valid on a SELECT query (on a write, an empty value would widen it to every row)",
+            path,
+          });
+        }
+      });
     });
 
     for (const field of ["orderBy", "aggregate", "groupBy"] as const) {
@@ -284,6 +353,11 @@ export type QuerySpec = z.infer<typeof querySpecSchema>;
 type ValueRef = z.infer<typeof valueRef>;
 type WidgetRef = Extract<ValueRef, { widget: string }>;
 type Filter = z.infer<typeof filterSchema>;
+type FilterGroup = z.infer<typeof filterGroupSchema>;
+
+function isFilterGroup(entry: Filter | FilterGroup): entry is FilterGroup {
+  return Array.isArray((entry as Partial<FilterGroup>).anyOf);
+}
 
 const MAX_BODY_BYTES = 8 * 1024;
 
@@ -500,15 +574,36 @@ function emitWhere(
 ): string {
   if (!filters || filters.length === 0) return "";
 
-  const clauses = filters.map((filter) => {
-    const condition = emitCondition(filter, dialect, table);
+  const clauses = filters.map((entry) => {
+    if (!isFilterGroup(entry)) return emitFilter(entry, dialect, table);
 
-    if (filter.skipWhenEmpty !== true) return condition;
+    const members = entry.anyOf.map((member) => {
+      // filterGroupSchema refuses this. Check again so that a caller that skipped parsing fails closed, instead of
+      // emitting a skip guard that makes the whole OR group TRUE.
+      if (member.skipWhenEmpty === true) {
+        throw new Error(SKIP_IN_GROUP_MESSAGE);
+      }
 
-    return `(${emitEmptyGuard(widgetRef(filter))} = 1 OR ${condition})`;
+      return emitCondition(member, dialect, table);
+    });
+
+    return `(${members.join(" OR ")})`;
   });
 
   return ` WHERE ${clauses.join(" AND ")}`;
+}
+
+// One plain filter, wrapped in its empty guard when it has skipWhenEmpty.
+function emitFilter(
+  filter: Filter,
+  dialect: SqlDialect,
+  table: string,
+): string {
+  const condition = emitCondition(filter, dialect, table);
+
+  if (filter.skipWhenEmpty !== true) return condition;
+
+  return `(${emitEmptyGuard(widgetRef(filter))} = 1 OR ${condition})`;
 }
 
 // Compile a structured spec into a parameterized SQL body. Throws on an empty/oversized body or if the emitted body
