@@ -5211,6 +5211,57 @@ describe("governance-wrapped layout mutations", () => {
     },
   );
 
+  // update_action reuses querySpecSchema, so the having refusals hold on this path too.
+  it.each([
+    [
+      "on a write",
+      {
+        operation: "DELETE",
+        filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+        having: [{ column: "count", op: "gt", value: { literal: 1 } }],
+      },
+    ],
+    [
+      "without an aggregate",
+      {
+        operation: "SELECT",
+        groupBy: ["tag"],
+        having: [{ column: "tag", op: "eq", value: { literal: "x" } }],
+      },
+    ],
+  ])(
+    "APP-16324 F1.5: update_action refuses having %s",
+    async (_case, query) => {
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+      ]);
+      const read = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SQL",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: read.body.revision,
+          query: {
+            name: "OldName",
+            applicationId: "app1",
+            pageId: "p1",
+            datasourceId: "ds1",
+            table: "tickets",
+            ...query,
+          },
+        },
+      });
+
+      expect(updated.body.updated).not.toBe(true);
+      expect(JSON.stringify(updated.body)).toContain("having");
+      expect(updateAction).not.toHaveBeenCalled();
+    },
+  );
+
   it("APP-16164: update_action refuses a SQL spec on a datasource outside the application's workspace", async () => {
     const { server, updateAction } = sqlUpdateServer([
       { id: "other", name: "X", pluginId: "postgres-plugin" },

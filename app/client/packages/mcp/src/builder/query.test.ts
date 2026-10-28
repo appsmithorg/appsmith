@@ -1799,6 +1799,42 @@ describe("APP-16324 F1.4: coalesce on selected and grouped columns", () => {
     );
   });
 
+  // MySQL and MariaDB read "col" as a string literal unless ANSI_QUOTES is on, which would group and sort by a
+  // constant. Backticks are refused in every body, so those identifiers are emitted bare there; other dialects keep
+  // double quotes.
+  it("emits grouped, aggregated and sorted columns bare on MySQL, never double-quoted", () => {
+    const spec = parse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      groupBy: [
+        "region",
+        { column: "appsmith_version", coalesce: { literal: "Unknown" } },
+      ],
+      aggregate: { fn: "sum", column: "amount" },
+      orderBy: [{ column: "region", direction: "ASC" }],
+    });
+
+    expect(compileQuery(spec, { dialect: "mysql" })).toBe(
+      'SELECT region, COALESCE(appsmith_version, {{ "Unknown" }}) AS appsmith_version, SUM(amount) AS sum FROM tickets GROUP BY region, appsmith_version ORDER BY region ASC;',
+    );
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: ["region"],
+          aggregate: { fn: "count", column: "id" },
+        }),
+        { dialect: "mysql" },
+      ),
+    ).toBe("SELECT region, COUNT(id) AS count FROM tickets GROUP BY region;");
+    expect(compileQuery(spec, { dialect: "postgres" })).toBe(
+      'SELECT "region", COALESCE("appsmith_version", {{ "Unknown" }}) AS "appsmith_version", SUM("amount") AS sum FROM tickets GROUP BY "region", "appsmith_version" ORDER BY "region" ASC;',
+    );
+  });
+
   it("mixes plain and coalesced group columns", () => {
     const body = compileQuery(
       parse({
@@ -1905,6 +1941,62 @@ describe("APP-16324 F1.4: coalesce on selected and grouped columns", () => {
     );
   });
 
+  it("refuses a columns coalesce with an aggregate, instead of dropping it", () => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      columns: ["id", { column: "status", coalesce: { literal: "none" } }],
+      groupBy: ["region"],
+      aggregate: { fn: "count" },
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.path.join("."))).toEqual([
+      "columns.1.coalesce",
+    ]);
+  });
+
+  // JSON such as 1e999 parses to Infinity, which JSON.stringify emits as null: the literal would silently bind NULL.
+  it.each([
+    [
+      "a coalesce fallback",
+      { columns: [{ column: "a", coalesce: { literal: Infinity } }] },
+    ],
+    [
+      "a filter value",
+      { filters: [{ column: "a", op: "eq", value: { literal: -Infinity } }] },
+    ],
+    [
+      "a NaN filter value",
+      { filters: [{ column: "a", op: "gt", value: { literal: NaN } }] },
+    ],
+  ])("refuses a non-finite number as %s", (_case, extra) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      ...extra,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  // The case that mattered most: an INSERT would have written NULL into the row.
+  it("refuses a non-finite number as an INSERT value", () => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "INSERT",
+      table: "tickets",
+      values: [{ column: "a", value: { literal: Infinity } }],
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.path.join(".")).toBe(
+      "values.0.value.literal",
+    );
+  });
+
   it("combines a coalesce column with filters, ordering and a limit", () => {
     const body = compileQuery(
       parse({
@@ -1959,6 +2051,64 @@ describe("APP-16324 F1.4: coalesce on selected and grouped columns", () => {
 });
 
 describe("APP-16324 F1.5: having on aggregated selects", () => {
+  it.each([
+    ["eq", "="],
+    ["ne", "!="],
+    ["gt", ">"],
+    ["gte", ">="],
+    ["lt", "<"],
+    ["lte", "<="],
+  ])("emits having op %s as %s", (op, sql) => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "count", op, value: { literal: 3 } }],
+      }),
+    );
+
+    expect(body).toBe(
+      `SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" HAVING COUNT(*) ${sql} {{ 3 }};`,
+    );
+  });
+
+  // MySQL names are bare and case-insensitive, so "COUNT" would collide with the count result there.
+  it("refuses a group column named like the aggregate in any case", () => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      groupBy: ["COUNT"],
+      aggregate: { fn: "count" },
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.path.join("."))).toEqual([
+      "groupBy.0",
+    ]);
+  });
+
+  it("refuses a null literal, which = NULL would never match", () => {
+    for (const op of ["eq", "ne"]) {
+      const result = querySpecSchema.safeParse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "tag", op, value: { literal: null } }],
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error?.issues[0]?.message).toBe(
+        "having cannot compare with null: = NULL never matches",
+      );
+    }
+  });
+
   it("filters on the aggregate by repeating its expression", () => {
     const body = compileQuery(
       parse({
@@ -1992,6 +2142,29 @@ describe("APP-16324 F1.5: having on aggregated selects", () => {
 
     expect(body).toBe(
       'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" HAVING "tag" != {{ "N/A" }};',
+    );
+  });
+
+  // HAVING names group columns and the aggregate the way GROUP BY and the select list do, so on MySQL they are bare
+  // too (a double-quoted name there is a string, which would compare a constant).
+  it("emits HAVING columns and the aggregate bare on MySQL", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "orders",
+        groupBy: ["region"],
+        aggregate: { fn: "sum", column: "amount" },
+        having: [
+          { column: "sum", op: "gt", value: { literal: 100 } },
+          { column: "region", op: "ne", value: { literal: "test" } },
+        ],
+      }),
+      { dialect: "mysql" },
+    );
+
+    expect(body).toBe(
+      'SELECT region, SUM(amount) AS sum FROM orders GROUP BY region HAVING SUM(amount) > {{ 100 }} AND region != {{ "test" }};',
     );
   });
 
