@@ -16,6 +16,7 @@ import {
 } from "./app.js";
 import { INSTRUCTION_DOCS } from "./builder/instructions.js";
 import { compileJsObject } from "./builder/jsObject.js";
+import { markMcpAuthoredBody, mcpAuthoredBody } from "./builder/query.js";
 import { fingerprintDsl } from "./builder/semantic.js";
 import { McpGovernanceCoordinator } from "./governance/coordinator.js";
 import type {
@@ -4396,6 +4397,158 @@ describe("governance-wrapped layout mutations", () => {
     datasource: { id: "ds1", pluginId: "postgres" },
   };
 
+  describe("APP-16324 F9: get_action returns the body of MCP-authored SQL", () => {
+    const compiled = 'SELECT id FROM tickets WHERE status = {{ "open" }};';
+
+    async function readAction(
+      body: unknown,
+      shape: "flat" | "unpublished" | "unpublishedType" = "flat",
+      pluginType = "DB",
+    ) {
+      // "unpublishedType": the plugin type only on unpublishedAction, as some stored NewActions hold it.
+      const withoutType: Record<string, unknown> = { ...STORED_ACTION };
+
+      delete withoutType.pluginType;
+      const stored =
+        shape === "flat"
+          ? { ...STORED_ACTION, pluginType, actionConfiguration: { body } }
+          : shape === "unpublished"
+            ? {
+                ...STORED_ACTION,
+                pluginType,
+                unpublishedAction: { actionConfiguration: { body } },
+              }
+            : {
+                ...withoutType,
+                unpublishedAction: {
+                  pluginType,
+                  actionConfiguration: { body },
+                },
+              };
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getAction: jest.fn(async () => stored),
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        dataEnabled: true,
+      });
+
+      return (
+        await callTool(server, "get_action", {
+          applicationId: "app1",
+          actionId: "act1",
+        })
+      ).body;
+    }
+
+    it("returns the compiled body and authoredBy mcp for a body the MCP wrote", async () => {
+      const read = await readAction(markMcpAuthoredBody(compiled));
+
+      expect(read.authoredBy).toBe("mcp");
+      expect(read.body).toBe(compiled);
+    });
+
+    it("reads the body from unpublishedAction, as a stored NewAction holds it", async () => {
+      const read = await readAction(
+        markMcpAuthoredBody(compiled),
+        "unpublished",
+      );
+
+      expect(read.authoredBy).toBe("mcp");
+      expect(read.body).toBe(compiled);
+    });
+
+    it("reads the plugin type from unpublishedAction when the action has none of its own", async () => {
+      const read = await readAction(
+        markMcpAuthoredBody(compiled),
+        "unpublishedType",
+      );
+
+      expect(read.authoredBy).toBe("mcp");
+      expect(read.body).toBe(compiled);
+
+      const api = await readAction(
+        markMcpAuthoredBody(compiled),
+        "unpublishedType",
+        "API",
+      );
+
+      expect(api.authoredBy).toBe("editor");
+      expect(api.body).toBeUndefined();
+    });
+
+    // Only SQL bodies are marked. A marked body on any other action type is never returned.
+    it("never returns a body for a non-DB action, even with a valid marker", async () => {
+      const read = await readAction(
+        markMcpAuthoredBody('{"token":"secret"}'),
+        "flat",
+        "API",
+      );
+
+      expect(read.authoredBy).toBe("editor");
+      expect(read.body).toBeUndefined();
+      expect(JSON.stringify(read)).not.toContain("secret");
+    });
+
+    it.each([
+      [
+        "an editor-written body",
+        "SELECT * FROM users WHERE api_key = 'secret';",
+      ],
+      [
+        "an MCP body edited afterwards",
+        markMcpAuthoredBody(compiled).replace("open", "open' OR 'x'='x"),
+      ],
+      ["no body", undefined],
+    ])("hides %s and reports authoredBy editor", async (_label, body) => {
+      const read = await readAction(body);
+
+      expect(read.authoredBy).toBe("editor");
+      expect(read.body).toBeUndefined();
+      expect(JSON.stringify(read)).not.toContain("secret");
+      expect(JSON.stringify(read)).not.toContain("SELECT");
+    });
+
+    it("create_query stores the marked body and returns the plain one", async () => {
+      const createAction = jest.fn<
+        Promise<{ id: string }>,
+        [Record<string, unknown>]
+      >(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        dataEnabled: true,
+      });
+      const created = (
+        await callTool(server, "create_query", {
+          query: {
+            name: "getUsers",
+            applicationId: "app1",
+            pageId: "p1",
+            datasourceId: "ds1",
+            operation: "SELECT",
+            table: "users",
+          },
+        })
+      ).body;
+      const stored = (
+        createAction.mock.calls[0][0] as {
+          actionConfiguration: { body: string };
+        }
+      ).actionConfiguration.body;
+
+      expect(created.body).toBe("SELECT * FROM users;");
+      expect(stored.startsWith("-- appsmith-mcp:v1 sha256=")).toBe(true);
+      expect(mcpAuthoredBody(stored)).toBe("SELECT * FROM users;");
+    });
+  });
+
   // update_action recompiles a SQL spec, so it checks the datasource the same way create_query does. The
   // datasource must be in the application's workspace, and inList works only on PostgreSQL.
   function sqlUpdateServer(datasources: unknown[]) {
@@ -4479,11 +4632,13 @@ describe("governance-wrapped layout mutations", () => {
 
       expect(updated.body.updated).toBe(true);
       expect(
-        (
-          (updateAction.mock.calls[0] as unknown[])[1] as {
-            actionConfiguration: { body: string };
-          }
-        ).actionConfiguration.body,
+        mcpAuthoredBody(
+          (
+            (updateAction.mock.calls[0] as unknown[])[1] as {
+              actionConfiguration: { body: string };
+            }
+          ).actionConfiguration.body,
+        ),
       ).toBe(sql);
     },
   );
@@ -4503,11 +4658,13 @@ describe("governance-wrapped layout mutations", () => {
 
     expect(updated.body.updated).toBe(true);
     expect(
-      (
-        (updateAction.mock.calls[0] as unknown[])[1] as {
-          actionConfiguration: { body: string };
-        }
-      ).actionConfiguration.body,
+      mcpAuthoredBody(
+        (
+          (updateAction.mock.calls[0] as unknown[])[1] as {
+            actionConfiguration: { body: string };
+          }
+        ).actionConfiguration.body,
+      ),
     ).toBe(
       'SELECT * FROM tickets WHERE (tickets.l2owner <=> NULL OR l2owner = {{ "" }});',
     );
@@ -4541,11 +4698,13 @@ describe("governance-wrapped layout mutations", () => {
 
     expect(updated.body.updated).toBe(true);
     expect(
-      (
-        (updateAction.mock.calls[0] as unknown[])[1] as {
-          actionConfiguration: { body: string };
-        }
-      ).actionConfiguration.body,
+      mcpAuthoredBody(
+        (
+          (updateAction.mock.calls[0] as unknown[])[1] as {
+            actionConfiguration: { body: string };
+          }
+        ).actionConfiguration.body,
+      ),
     ).toBe('SELECT id, COALESCE(owner, {{ "none" }}) AS owner FROM tickets;');
   });
 
@@ -4579,11 +4738,13 @@ describe("governance-wrapped layout mutations", () => {
 
     expect(updated.body.updated).toBe(true);
     expect(
-      (
-        (updateAction.mock.calls[0] as unknown[])[1] as {
-          actionConfiguration: { body: string };
-        }
-      ).actionConfiguration.body,
+      mcpAuthoredBody(
+        (
+          (updateAction.mock.calls[0] as unknown[])[1] as {
+            actionConfiguration: { body: string };
+          }
+        ).actionConfiguration.body,
+      ),
     ).toBe(
       'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" HAVING COUNT(*) > {{ 1 }};',
     );
@@ -9084,6 +9245,22 @@ describe("close-the-loop — advisory write classifier", () => {
     expect(looksLikeWriteAction(sqlAction("sel", "SELECT * FROM tasks"))).toBe(
       false,
     );
+  });
+
+  // A body the MCP stores starts with its marker comment, so the keyword is read after it, whether or not the body
+  // was edited since.
+  it("classifies an MCP-marked body by the query after its marker line", () => {
+    const marked = markMcpAuthoredBody("INSERT INTO tasks VALUES (1);");
+
+    expect(looksLikeWriteAction(sqlAction("ins", marked))).toBe(true);
+    expect(
+      looksLikeWriteAction(sqlAction("ins", `${marked} -- edited later`)),
+    ).toBe(true);
+    expect(
+      looksLikeWriteAction(
+        sqlAction("sel", markMcpAuthoredBody("SELECT * FROM tasks;")),
+      ),
+    ).toBe(false);
   });
 
   it("is advisory-only: a disguised mutation is missed here, never auto-run", () => {

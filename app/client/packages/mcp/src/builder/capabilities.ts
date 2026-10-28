@@ -696,7 +696,8 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
     {
       name: "get_action",
       gate: "data",
-      summary: "safe action read + revision",
+      summary:
+        "safe action read + revision; returns the body of SQL this server wrote and nobody edited since",
     },
     {
       name: "run_action",

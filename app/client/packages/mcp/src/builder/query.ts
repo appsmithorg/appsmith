@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { z } from "zod";
 import { RAW_EXPRESSION, storedId } from "./schema.js";
 
@@ -1233,6 +1234,50 @@ function assertBodySafe(body: string): void {
   if (opens !== closes) {
     throw new Error("compiled query has unbalanced bindings");
   }
+}
+
+// A stored SQL body that the MCP compiled starts with this marker line. It carries the sha256 of the rest of the
+// body, so get_action can return a body the MCP wrote and still hide one that was edited afterwards, which may now
+// hold a secret. The text tells editor users what it is.
+// - It is a `--` line comment, not a block comment: the MySQL plugin strips only `--` comments before it reads the
+//   first word to decide whether a query returns rows. A block comment would make every SELECT return a row count.
+// - It is plain ASCII with no `;`, quote, `?` or `{{`, so no plugin's quote, statement or parameter scan can trip on it.
+// - The hash is not keyed. A user who can edit the action could write a valid marker by hand; that only shows the
+//   agent a body that same user can already read in the editor.
+const MCP_BODY_MARKER =
+  /^-- appsmith-mcp:v1 sha256=([0-9a-f]{64}) \(written by the Appsmith MCP server, editing it stops MCP clients from reading it\)\n/;
+
+function sha256Hex(text: string): string {
+  return createHash("sha256").update(text, "utf8").digest("hex");
+}
+
+// Prefix a compiled body with the MCP-authored marker. Call it on the body that is STORED, not the one returned to
+// the agent.
+export function markMcpAuthoredBody(body: string): string {
+  return `-- appsmith-mcp:v1 sha256=${sha256Hex(body)} (written by the Appsmith MCP server, editing it stops MCP clients from reading it)\n${body}`;
+}
+
+// The compiled body of a stored action the MCP wrote, or undefined when the body has no marker or was changed after
+// the MCP wrote it, including a change of line endings. A hand-written valid marker is the one exception (see
+// MCP_BODY_MARKER).
+export function mcpAuthoredBody(stored: unknown): string | undefined {
+  if (typeof stored !== "string") return undefined;
+
+  const match = MCP_BODY_MARKER.exec(stored);
+
+  if (!match) return undefined;
+
+  const body = stored.slice(match[0].length);
+
+  return sha256Hex(body) === match[1] ? body : undefined;
+}
+
+// A stored body without its leading marker line, whether or not the hash still matches. For classifying what a query
+// does (such as whether it writes), never for deciding whether to show the body: that is mcpAuthoredBody's job.
+export function withoutMcpMarker(stored: string): string {
+  const match = MCP_BODY_MARKER.exec(stored);
+
+  return match ? stored.slice(match[0].length) : stored;
 }
 
 // Build the ActionDTO for POST /api/v1/actions. Datasource is an EMBEDDED { id } object (server derives

@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   buildActionDto,
   compileQuery,
+  markMcpAuthoredBody,
   querySpecSchema,
   type CompileQueryOptions,
   type QuerySpec,
@@ -128,7 +129,8 @@ function buildUpdateAction(
   if (spec.kind === "SQL") {
     const query = source as QuerySpec;
     const body = compileQuery(query, options);
-    const compiled = buildActionDto(query, body);
+    // The stored body carries the MCP-authored marker, so get_action can return it until someone edits it.
+    const compiled = buildActionDto(query, markMcpAuthoredBody(body));
 
     return { id: spec.actionId, ...compiled };
   }
