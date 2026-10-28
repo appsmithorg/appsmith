@@ -8260,7 +8260,18 @@ export function buildMcpServer(
             actorId,
           );
 
-          if (prepared === undefined) {
+          // The store can return a confirmation whose own expiry has passed (a Redis key can outlive it), and a
+          // JSON store returns the time as text. An unreadable expiry counts as expired.
+          const expiresAt =
+            prepared === undefined
+              ? Number.NaN
+              : new Date(prepared.expiresAt as Date | string).getTime();
+
+          if (
+            prepared === undefined ||
+            !Number.isFinite(expiresAt) ||
+            expiresAt <= Date.now()
+          ) {
             return result({
               error: `this confirmation is missing, expired, or already used; call ${prepareTool} again`,
               code: "confirmation_invalid",

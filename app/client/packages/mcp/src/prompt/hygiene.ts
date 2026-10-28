@@ -61,8 +61,8 @@ export function truncateForPrompt(text: string, max: number): string {
   return text.length > max ? `${text.slice(0, max)}…` : text;
 }
 
-// Everything interpolated into a human-facing approval prompt passes through here: C0 controls/DEL and bidi/format
-// controls are stripped (an app can be RENAMED outside MCP with hostile characters — the commit message is already
+// Everything interpolated into a human-facing approval prompt passes through here: C0 and C1 controls, DEL, the
+// U+2028/U+2029 line and paragraph separators, and bidi/format controls are stripped (an app can be RENAMED outside MCP with hostile characters — the commit message is already
 // hygiene-rejected, but names/branches are not under our control) and double quotes are replaced so interpolated
 // text cannot visually escape its quoted position in the prompt (M7 security code review, concerns 2–3).
 export function promptSafe(text: string): string {
@@ -77,7 +77,11 @@ export function stripPromptControls(text: string): string {
   for (const ch of text) {
     const code = ch.codePointAt(0) ?? 0;
 
-    if (code <= 0x1f || code === 0x7f) continue;
+    // C0 controls, DEL and C1 controls.
+    if (code <= 0x1f || (code >= 0x7f && code <= 0x9f)) continue;
+
+    // Line and paragraph separators, which can render as a line break.
+    if (code === 0x2028 || code === 0x2029) continue;
 
     if (
       (code >= 0x202a && code <= 0x202e) ||

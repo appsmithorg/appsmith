@@ -1227,6 +1227,40 @@ describe("edition extension seam", () => {
           },
         );
 
+        // CodeRabbit review: a Redis key can outlive the confirmation's own expiry, and a JSON store returns the
+        // expiry as text. A confirmation past its expiry is refused before any prompt.
+        it("refuses a confirmation past its own expiry, and accepts one whose expiry is text", async () => {
+          const edition = newEdition();
+
+          mockPair(edition);
+
+          const { client, store } = await governedClient();
+
+          try {
+            const expired = await prepare(client);
+            const expiredId = expired.confirmationId as string;
+
+            store.confirmations.get(expiredId)!.expiresAt = new Date(0);
+
+            expect((await confirm(client, expiredId)).code).toBe(
+              "confirmation_invalid",
+            );
+            expect(edition.executed).toEqual([]);
+
+            const textExpiry = await prepare(client);
+            const textId = textExpiry.confirmationId as string;
+            const stored = store.confirmations.get(textId)!;
+
+            stored.expiresAt = (stored.expiresAt as Date).toISOString();
+
+            expect(await confirm(client, textId)).toEqual({
+              removed: ["a", "b"],
+            });
+          } finally {
+            await client.close();
+          }
+        });
+
         it("refuses another actor's token, without spending it", async () => {
           const edition = newEdition();
 
