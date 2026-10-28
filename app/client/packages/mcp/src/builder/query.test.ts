@@ -1758,6 +1758,204 @@ describe("APP-16324 F1.3: like match position and ilike", () => {
   });
 });
 
+describe("APP-16324 F1.4: coalesce on selected and grouped columns", () => {
+  it("coalesces a selected column, keeping its name", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        columns: [
+          "id",
+          { column: "appsmith_version", coalesce: { literal: "Unknown" } },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT id, COALESCE(appsmith_version, {{ "Unknown" }}) AS appsmith_version FROM tickets;',
+    );
+  });
+
+  // Oracle "Tickets by version": tickets with no version count under "Unknown".
+  it("coalesces a grouped column in an aggregated select", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: [
+          { column: "appsmith_version", coalesce: { literal: "Unknown" } },
+        ],
+        aggregate: { fn: "count" },
+        orderBy: [{ column: "appsmith_version", direction: "DESC" }],
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT COALESCE("appsmith_version", {{ "Unknown" }}) AS "appsmith_version", COUNT(*) AS count FROM tickets GROUP BY "appsmith_version" ORDER BY "appsmith_version" DESC;',
+    );
+  });
+
+  it("mixes plain and coalesced group columns", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["region", { column: "tier", coalesce: { literal: 0 } }],
+        aggregate: { fn: "sum", column: "amount" },
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT "region", COALESCE("tier", {{ 0 }}) AS "tier", SUM("amount") AS sum FROM tickets GROUP BY "region", "tier";',
+    );
+  });
+
+  it("keeps a fallback that looks like SQL as a bound parameter", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        columns: [
+          { column: "owner", coalesce: { literal: "x') OR 1=1 -- %" } },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      `SELECT COALESCE(owner, {{ "x') OR 1=1 -- %" }}) AS owner FROM tickets;`,
+    );
+  });
+
+  it.each([
+    [
+      "a column that is not an identifier",
+      { columns: [{ column: "a, b", coalesce: { literal: "x" } }] },
+    ],
+    [
+      "a null fallback",
+      { columns: [{ column: "a", coalesce: { literal: null } }] },
+    ],
+    [
+      "a widget fallback",
+      {
+        columns: [
+          { column: "a", coalesce: { widget: "Input1", property: "text" } },
+        ],
+      },
+    ],
+    [
+      "template syntax in the fallback",
+      { columns: [{ column: "a", coalesce: { literal: "{{evil()}}" } }] },
+    ],
+    [
+      "an extra key",
+      { columns: [{ column: "a", coalesce: { literal: "x" }, as: "b" }] },
+    ],
+    [
+      "a grouped column that is not an identifier",
+      {
+        groupBy: [{ column: "a;b", coalesce: { literal: "x" } }],
+        aggregate: { fn: "count" },
+      },
+    ],
+  ])("rejects %s", (_label, override) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      ...(override as Record<string, unknown>),
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("refuses coalesce entries on a write", () => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "UPDATE",
+      table: "tickets",
+      values: [{ column: "status", value: { literal: "closed" } }],
+      columns: [{ column: "owner", coalesce: { literal: "x" } }],
+      filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+    });
+
+    expect(result.success).toBe(false);
+    expect(JSON.stringify(result.error?.issues)).toContain(
+      "coalesce is only valid on a SELECT query",
+    );
+  });
+
+  it("refuses a groupBy coalesce without an aggregate, instead of dropping it", () => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      groupBy: [{ column: "status", coalesce: { literal: "none" } }],
+    });
+
+    expect(result.success).toBe(false);
+    expect(JSON.stringify(result.error?.issues)).toContain(
+      "coalesce on a groupBy column needs an aggregate",
+    );
+  });
+
+  it("combines a coalesce column with filters, ordering and a limit", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        columns: [
+          "id",
+          { column: "owner", coalesce: { literal: "unassigned" } },
+        ],
+        filters: [{ column: "status", op: "eq", value: { literal: "New" } }],
+        orderBy: [{ column: "id", direction: "DESC" }],
+        limit: 50,
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT id, COALESCE(owner, {{ "unassigned" }}) AS owner FROM tickets WHERE status = {{ "New" }} ORDER BY "id" DESC LIMIT 50;',
+    );
+  });
+
+  // Plain columns on a write were always ignored, and still are.
+  it("still ignores plain columns on a write", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "DELETE",
+        table: "tickets",
+        columns: ["id"],
+        filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+      }),
+    );
+
+    expect(body).toBe("DELETE FROM tickets WHERE id = {{ 1 }};");
+  });
+
+  it("leaves plain columns and plain groupBy unchanged", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["region"],
+        aggregate: { fn: "count" },
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT "region", COUNT(*) AS count FROM tickets GROUP BY "region";',
+    );
+  });
+});
+
 describe("buildActionDto", () => {
   it("embeds the datasource as { id } and forces prepared statements on", () => {
     const spec = parse({ ...base, operation: "SELECT", table: "users" });

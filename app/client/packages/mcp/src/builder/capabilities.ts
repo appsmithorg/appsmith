@@ -654,7 +654,7 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       name: "create_query",
       gate: "data",
       summary:
-        "structured SQL query (filters: eq/ne/gt/gte/lt/lte/like/in, like match contains/prefix/suffix, isNull/notNull, anyOf OR groups, inList and ilike on PostgreSQL; skipWhenEmpty for filter bars)",
+        "structured SQL query (filters: eq/ne/gt/gte/lt/lte/like/in, like match contains/prefix/suffix, isNull/notNull, anyOf OR groups, inList and ilike on PostgreSQL; skipWhenEmpty for filter bars; coalesce on selected and grouped columns)",
     },
     {
       name: "create_mongo_query",

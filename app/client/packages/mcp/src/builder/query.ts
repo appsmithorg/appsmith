@@ -293,6 +293,31 @@ export interface CompileQueryOptions {
   dialect?: SqlDialect;
 }
 
+// A selected or grouped column. A plain name, or `{ column, coalesce: { literal } }`, which reads a fallback for
+// NULL and keeps the column's name: `COALESCE(col, {{ literal }}) AS col`. The fallback is a bound parameter. It
+// cannot be null (COALESCE with NULL changes nothing) or a widget value.
+const coalesceColumnSchema = z
+  .object({
+    column: sqlIdentifier,
+    coalesce: z
+      .object({
+        literal: literalScalar.refine(
+          (value) => value !== null,
+          "coalesce needs a non-null literal",
+        ),
+      })
+      .strict(),
+  })
+  .strict();
+
+const selectColumnSchema = z.union([sqlIdentifier, coalesceColumnSchema]);
+
+type SelectColumn = z.infer<typeof selectColumnSchema>;
+
+function columnNameOf(entry: SelectColumn): string {
+  return typeof entry === "string" ? entry : entry.column;
+}
+
 // A CLOSED set of aggregate functions. The SQL keyword is compiler-emitted from the enum, never interpolated from
 // agent text; the alias is the fn name itself (also from the enum), so agents/queries can reference the result column
 // by a stable, safe name.
@@ -312,7 +337,7 @@ export const querySpecSchema = z
     datasourceId: storedId,
     operation: z.enum(["SELECT", "INSERT", "UPDATE", "DELETE"]),
     table: qualifiedName,
-    columns: z.array(sqlIdentifier).max(100).optional(),
+    columns: z.array(selectColumnSchema).max(100).optional(),
     filters: z.array(filterEntrySchema).max(20).optional(),
     values: z
       .array(z.object({ column: sqlIdentifier, value: valueRef }).strict())
@@ -341,13 +366,28 @@ export const querySpecSchema = z
       .strict()
       .optional(),
     // GROUP BY columns for an aggregated SELECT — each an allow-listed identifier, emitted quoted.
-    groupBy: z.array(sqlIdentifier).max(20).optional(),
+    groupBy: z.array(selectColumnSchema).max(20).optional(),
     limit: z.number().int().min(1).max(1000).optional(),
   })
   .strict()
   // orderBy/aggregate/groupBy shape a SELECT only; compileQuery ignores them on INSERT/UPDATE/DELETE. Reject them
   // there so an agent gets clear feedback instead of a silently-dropped clause.
   .superRefine((spec, ctx) => {
+    // A grouped column's coalesce appears in the aggregated select list only. Without an aggregate the select list is
+    // `columns` or `*`, so the coalesce would be dropped without a word.
+    if (spec.aggregate === undefined) {
+      (spec.groupBy ?? []).forEach((entry, index) => {
+        if (typeof entry !== "string") {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message:
+              "coalesce on a groupBy column needs an aggregate; to coalesce a plain column, put it in columns",
+            path: ["groupBy", index, "coalesce"],
+          });
+        }
+      });
+    }
+
     if (spec.operation === "SELECT") return;
 
     // A skipped filter widens the WHERE clause. That is harmless on a read. On UPDATE or DELETE, an empty widget would
@@ -413,6 +453,18 @@ export const querySpecSchema = z
         });
       }
     }
+
+    // Plain columns on a write have always been ignored, and still are. A coalesce entry is refused instead, so the
+    // agent learns it has no effect.
+    (spec.columns ?? []).forEach((entry, index) => {
+      if (typeof entry !== "string") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "coalesce is only valid on a SELECT query",
+          path: ["columns", index, "coalesce"],
+        });
+      }
+    });
   });
 
 export type QuerySpec = z.infer<typeof querySpecSchema>;
@@ -651,9 +703,21 @@ function emitOrderBy(orderBy: QuerySpec["orderBy"]): string {
 function emitGroupBy(groupBy: QuerySpec["groupBy"]): string {
   if (!groupBy || groupBy.length === 0) return "";
 
-  const clauses = groupBy.map((column) => `"${column}"`);
+  // Group by the stored column, even when the select list coalesces it. NULLs form their own group, and the select
+  // list then shows that group under the fallback.
+  const clauses = groupBy.map((entry) => `"${columnNameOf(entry)}"`);
 
   return ` GROUP BY ${clauses.join(", ")}`;
+}
+
+// One select-list item. `quote` matches the list's own style: plain columns are emitted bare, group columns quoted.
+// A coalesce entry keeps the column's name as its alias, and its fallback is a bound parameter.
+function emitSelectColumn(entry: SelectColumn, quote: boolean): string {
+  const name = quote ? `"${columnNameOf(entry)}"` : columnNameOf(entry);
+
+  if (typeof entry === "string") return name;
+
+  return `COALESCE(${name}, ${emitBinding(entry.coalesce)}) AS ${name}`;
 }
 
 // Emit one aggregate select item, e.g. `COUNT(*) AS count`, `COUNT("id") AS count`, `SUM("amount") AS sum`. The
@@ -731,13 +795,17 @@ export function compileQuery(
       let selectList: string;
 
       if (spec.aggregate) {
-        const groupCols = (spec.groupBy ?? []).map((column) => `"${column}"`);
+        const groupCols = (spec.groupBy ?? []).map((entry) =>
+          emitSelectColumn(entry, true),
+        );
 
         selectList = [...groupCols, emitAggregate(spec.aggregate)].join(", ");
       } else {
         selectList =
           spec.columns && spec.columns.length > 0
-            ? spec.columns.join(", ")
+            ? spec.columns
+                .map((entry) => emitSelectColumn(entry, false))
+                .join(", ")
             : "*";
       }
 

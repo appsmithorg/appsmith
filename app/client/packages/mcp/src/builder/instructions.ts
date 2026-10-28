@@ -444,6 +444,8 @@ a control left empty is ignored instead of matching nothing. Requires the data l
 3. Option lists — one \`create_query\` per control whose values come from data, e.g. the distinct
    values of a column: { operation: 'SELECT', table, groupBy: ['status'], aggregate: { fn: 'count' },
    orderBy: [{ column: 'status', direction: 'ASC' }] } (returns a status and a count per value).
+   To show rows with no value under a label instead of a blank option, group by
+   { column: 'status', coalesce: { literal: 'Unknown' } }.
    A control with a fixed set of values can use static \`options\` instead.
 4. The table query — \`create_query\` SELECT with one filter per control, each with
    \`skipWhenEmpty: true\`:

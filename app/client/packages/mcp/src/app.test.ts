@@ -2052,6 +2052,30 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     },
   );
 
+  it("APP-16324 F1.4: create_query coalesces a grouped column", async () => {
+    const createAction = jest.fn(async () => ({ id: "act1" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction: createAction as never,
+    };
+    const body = await callTool(api, "create_query", {
+      query: {
+        ...validQuery,
+        groupBy: [{ column: "role", coalesce: { literal: "none" } }],
+        aggregate: { fn: "count" },
+      },
+    });
+
+    expect(body.created).toBe(true);
+    expect(body.body).toBe(
+      'SELECT COALESCE("role", {{ "none" }}) AS "role", COUNT(*) AS count FROM users GROUP BY "role";',
+    );
+  });
+
   it("create_query refuses a datasource the caller cannot access (IDOR guard)", async () => {
     const createAction = jest.fn();
     const api: AppsmithApi = {
@@ -4410,6 +4434,42 @@ describe("governance-wrapped layout mutations", () => {
     ).toBe(
       'SELECT * FROM tickets WHERE (tickets.l2owner <=> NULL OR l2owner = {{ "" }});',
     );
+  });
+
+  it("APP-16324 F1.4: update_action compiles a coalesced column", async () => {
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+    ]);
+    const read = await callTool(server, "get_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+    const updated = await callTool(server, "update_action", {
+      spec: {
+        kind: "SQL",
+        actionId: "act1",
+        applicationId: "app1",
+        revision: read.body.revision,
+        query: {
+          name: "OldName",
+          applicationId: "app1",
+          pageId: "p1",
+          datasourceId: "ds1",
+          operation: "SELECT",
+          table: "tickets",
+          columns: ["id", { column: "owner", coalesce: { literal: "none" } }],
+        },
+      },
+    });
+
+    expect(updated.body.updated).toBe(true);
+    expect(
+      (
+        (updateAction.mock.calls[0] as unknown[])[1] as {
+          actionConfiguration: { body: string };
+        }
+      ).actionConfiguration.body,
+    ).toBe('SELECT id, COALESCE(owner, {{ "none" }}) AS owner FROM tickets;');
   });
 
   it("APP-16164: update_action refuses a SQL spec on a datasource outside the application's workspace", async () => {
