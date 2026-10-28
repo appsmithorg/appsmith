@@ -3332,19 +3332,41 @@ export function buildMcpServer(
         operation: params.operation,
         expectedRevision: params.revision,
         currentRevision: params.currentRevision,
-        mutate: async () => ({
-          value: await write(),
-          revisionAfter,
-          // A layout snapshot the rollback tools can re-apply. Never returned to the agent.
-          rollback: {
-            kind: "layout",
-            applicationId: params.applicationId,
-            pageId: params.pageId,
-            layoutId: params.layoutId,
-            dsl: params.currentDsl,
-          },
-          summary: params.extra,
-        }),
+        mutate: async () => {
+          // The page was read before the lock. An editor change that landed since would be overwritten by this
+          // whole-layout write, so read the page again under the lock and refuse if it changed. This narrows the
+          // window to this read and the write below; the layout API has no compare-and-set.
+          const live = await api.getApplicationContext(
+            params.applicationId,
+            params.pageId,
+            params.layoutId,
+          );
+          const liveDsl = (live.layout as { dsl?: WidgetNode } | undefined)
+            ?.dsl;
+          const liveRevision =
+            liveDsl === undefined ? undefined : fingerprintDsl(liveDsl);
+
+          if (liveRevision !== params.currentRevision) {
+            throw new GovernanceRevisionConflictError(
+              params.currentRevision,
+              liveRevision ?? "unreadable",
+            );
+          }
+
+          return {
+            value: await write(),
+            revisionAfter,
+            // A layout snapshot the rollback tools can re-apply. Never returned to the agent.
+            rollback: {
+              kind: "layout",
+              applicationId: params.applicationId,
+              pageId: params.pageId,
+              layoutId: params.layoutId,
+              dsl: params.currentDsl,
+            },
+            summary: params.extra,
+          };
+        },
       });
 
       return result({
