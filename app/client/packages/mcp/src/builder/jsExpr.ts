@@ -370,7 +370,8 @@ export type Step =
   | { resetWidget: string }
   | { showModal: string }
   | { closeModal: string }
-  | { navigate: string }
+  // Open a page, optionally with URL query parameters (`?id=...`), each a bounded expression.
+  | { navigate: string; params?: Record<string, Expr> }
   // Call a sibling or another object's function for its effect, optionally keeping the result in a local.
   | {
       call: string | { object: string; function: string };
@@ -431,7 +432,19 @@ export const stepSchema: z.ZodType<Step> = z.lazy(() =>
     z.object({ resetWidget: bindingIdentifier }).strict(),
     z.object({ showModal: bindingIdentifier }).strict(),
     z.object({ closeModal: bindingIdentifier }).strict(),
-    z.object({ navigate: pageNameSchema }).strict(),
+    z
+      .object({
+        navigate: pageNameSchema,
+        // Keys are emitted as unquoted object-literal keys, so they use memberName (no Object.prototype names).
+        params: z
+          .record(memberName, exprSchema)
+          .refine(
+            (o) => Object.keys(o).length <= 10,
+            "at most 10 navigate params",
+          )
+          .optional(),
+      })
+      .strict(),
     z
       .object({
         call: callTarget,
@@ -879,6 +892,17 @@ function stepProblem(
 
   if ("return" in step) return prefixed(validateExpr(step.return, local));
 
+  // A navigate parameter is a value like any other, so it is scope-checked the same way.
+  if ("navigate" in step) {
+    for (const value of Object.values(step.params ?? {})) {
+      const problem = prefixed(validateExpr(value, local));
+
+      if (problem) return problem;
+    }
+
+    return undefined;
+  }
+
   if ("call" in step) {
     const problem = prefixed(
       validateExpr({ call: step.call, args: step.args }, local),
@@ -1176,7 +1200,17 @@ export function compileSteps(steps: Step[]): string[] {
     } else if ("closeModal" in step) {
       lines.push(`closeModal(${q(step.closeModal)});`);
     } else {
-      lines.push(`await navigateTo(${q(step.navigate)}, {}, "SAME_WINDOW");`);
+      const params = Object.entries(step.params ?? {});
+      const query =
+        params.length === 0
+          ? "{}"
+          : `{ ${params
+              .map(([key, value]) => `${key}: ${compileExpr(value)}`)
+              .join(", ")} }`;
+
+      lines.push(
+        `await navigateTo(${q(step.navigate)}, ${query}, "SAME_WINDOW");`,
+      );
     }
   }
 

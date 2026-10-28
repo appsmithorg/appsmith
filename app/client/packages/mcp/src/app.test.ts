@@ -5711,6 +5711,25 @@ describe("governance-wrapped layout mutations", () => {
     expect(dangling.body.error).toMatch(/"ghostQuery" was not found/);
     expect(updateLayout).not.toHaveBeenCalled();
 
+    // APP-16324 F11: a navigate param that reads a widget not on the page is refused before any write too.
+    const danglingParam = await callTool(server, "wire_event", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision: fingerprintDsl(DSL as never),
+      spec: {
+        widget: "SaveBtn",
+        event: "onClick",
+        action: {
+          navigate: "Details",
+          params: { id: { table: "GhostTable", column: "id" } },
+        },
+      },
+    });
+
+    expect(danglingParam.body.error).toMatch(/"GhostTable" was not found/);
+    expect(updateLayout).not.toHaveBeenCalled();
+
     const wired = await callTool(server, "wire_event", {
       applicationId: "app1",
       pageId: "p1",

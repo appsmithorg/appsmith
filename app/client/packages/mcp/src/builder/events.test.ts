@@ -35,6 +35,145 @@ function widget(
   };
 }
 
+describe("APP-16324 F11: navigate with URL parameters", () => {
+  // Oracle: Home's "Details" button opens Ticket Details with ?id= set to the selected row's zid.
+  it("passes the selected row's column as a query parameter", () => {
+    const action = wireEventSpecSchema.parse({
+      widget: "DetailsButton",
+      event: "onClick",
+      action: {
+        navigate: "Ticket Details",
+        params: { id: { table: "Table1", column: "zid" } },
+      },
+    }).action;
+
+    expect(compileEventBinding(action)).toBe(
+      `{{ navigateTo('Ticket Details', { id: Table1.selectedRow?.["zid"] }, 'SAME_WINDOW') }}`,
+    );
+  });
+
+  it("emits literal and widget-property parameters in order", () => {
+    const action = wireEventSpecSchema.parse({
+      widget: "Go",
+      event: "onClick",
+      action: {
+        navigate: "Search",
+        params: {
+          q: { widget: "SearchInput", property: "text" },
+          page: { literal: 2 },
+          archived: { literal: false },
+          tab: { literal: "open" },
+          col: { table: "Orders", column: "order id" },
+        },
+      },
+    }).action;
+
+    expect(compileEventBinding(action)).toBe(
+      `{{ navigateTo('Search', { q: SearchInput.text, page: 2, archived: false, tab: "open", col: Orders.selectedRow?.["order id"] }, 'SAME_WINDOW') }}`,
+    );
+  });
+
+  it("keeps a run follow-up navigate with parameters", () => {
+    const action = wireEventSpecSchema.parse({
+      widget: "Save",
+      event: "onClick",
+      action: {
+        run: "SaveTicket",
+        onSuccess: [
+          {
+            navigate: "Ticket Details",
+            params: { id: { widget: "IdInput", property: "text" } },
+          },
+        ],
+      },
+    }).action;
+
+    expect(compileEventBinding(action)).toContain(
+      "navigateTo('Ticket Details', { id: IdInput.text }, 'SAME_WINDOW')",
+    );
+  });
+
+  it("reports parameter widgets and tables to the dangling-reference guard", () => {
+    const action = wireEventSpecSchema.parse({
+      widget: "Go",
+      event: "onClick",
+      action: {
+        navigate: "Search",
+        params: {
+          q: { widget: "SearchInput", property: "text" },
+          id: { table: "Table1", column: "zid" },
+        },
+      },
+    }).action;
+
+    expect(eventReferences(action)).toEqual([
+      { kind: "page", name: "Search" },
+      { kind: "widget", name: "SearchInput" },
+      { kind: "widget", name: "Table1" },
+    ]);
+  });
+
+  it.each([
+    ["a key that is not an identifier", { "my-id": { literal: 1 } }],
+    // Parsed from JSON, as a tool call arrives: an object literal's __proto__ would set the prototype, not a key.
+    ["a prototype key", JSON.parse('{"__proto__": {"literal": 1}}')],
+    ["a constructor key", { constructor: { literal: 1 } }],
+    ["a literal with a single quote", { id: { literal: "a'); evil(); ('" } }],
+    ["a literal with binding syntax", { id: { literal: "{{evil()}}" } }],
+    ["a column with binding syntax", { id: { table: "T", column: "}}{{x" } }],
+    ["a column with a single quote", { id: { table: "T", column: "it's" } }],
+    // Appsmith splits a binding by counting braces even inside strings, so the handler would never run.
+    ["a literal with an unbalanced brace", { id: { literal: "x}" } }],
+    ["a column with a brace", { id: { table: "T", column: "{a" } }],
+    ["a widget property with a call", { id: { widget: "W", property: "a()" } }],
+    ["a null literal", { id: { literal: null } }],
+    ["an unknown value shape", { id: { query: "Q" } }],
+    [
+      "more than 10 parameters",
+      Object.fromEntries(
+        Array.from({ length: 11 }, (_, i) => [`p${i}`, { literal: i }]),
+      ),
+    ],
+  ])("rejects %s", (_label, params) => {
+    const result = wireEventSpecSchema.safeParse({
+      widget: "Go",
+      event: "onClick",
+      action: { navigate: "Search", params },
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it('JSON-encodes " and \\ in a literal so they stay inside the string', () => {
+    const action = wireEventSpecSchema.parse({
+      widget: "Go",
+      event: "onClick",
+      action: {
+        navigate: "Search",
+        params: { q: { literal: 'say "hi" \\ there' } },
+      },
+    }).action;
+    const binding = compileEventBinding(action);
+    const objectText = /navigateTo\('Search', (\{.*\}), 'SAME_WINDOW'\)/.exec(
+      binding,
+    )?.[1];
+
+    expect(binding).toBe(
+      `{{ navigateTo('Search', { q: "say \\"hi\\" \\\\ there" }, 'SAME_WINDOW') }}`,
+    );
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+    expect(new Function(`return (${objectText});`)()).toEqual({
+      q: 'say "hi" \\ there',
+    });
+  });
+
+  it("keeps a navigate without params unchanged", () => {
+    expect(compileEventBinding({ navigate: "Details Page" })).toBe(
+      "{{ navigateTo('Details Page', {}, 'SAME_WINDOW') }}",
+    );
+  });
+});
+
 describe("compileEventBinding — closed vocabulary", () => {
   it("emits the correct binding for each action kind", () => {
     expect(compileEventBinding({ run: "insertRow" })).toBe(
