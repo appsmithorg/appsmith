@@ -4356,7 +4356,15 @@ describe("governance-wrapped layout mutations", () => {
         governance: new McpGovernanceCoordinator(store),
       });
 
-      return { server, updateLayout, dsl: () => current };
+      return {
+        server,
+        updateLayout,
+        dsl: () => current,
+        // An edit made outside MCP, such as in the editor.
+        setDsl: (next: typeof current) => {
+          current = next;
+        },
+      };
     }
 
     const SPEC = {
@@ -4472,6 +4480,58 @@ describe("governance-wrapped layout mutations", () => {
       });
 
       expect(JSON.stringify(atCap.body)).toMatch(/not found|unknown|W0/i);
+    });
+
+    // Copilot review: the page is read before the lock. An editor edit that lands between that read and the lock
+    // would be overwritten by the whole-layout write, so commitLayout reads the page again under the lock.
+    it("refuses when the page changes between the last read and the lock, and writes nothing", async () => {
+      const store = new MemoryGovernanceStore();
+      const { dsl, server, setDsl, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const spec = { ...SPEC, revision, names: ["Greeting"] };
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec,
+      });
+      const acquireLock = store.acquireLock.bind(store);
+      const edited = {
+        ...removalDsl(),
+        children: [
+          ...(removalDsl().children as unknown[]),
+          {
+            widgetId: "added",
+            widgetName: "AddedInEditor",
+            type: "TEXT_WIDGET",
+            text: "new",
+            parentId: "0",
+            topRow: 40,
+            bottomRow: 44,
+            leftColumn: 0,
+            rightColumn: 8,
+          },
+        ],
+      };
+
+      // The editor saves just as MCP takes the page lock.
+      jest
+        .spyOn(store, "acquireLock")
+        .mockImplementation(async (...args: Parameters<typeof acquireLock>) => {
+          setDsl(edited as never);
+
+          return acquireLock(...args);
+        });
+
+      const confirmed = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(confirmed.body.code).toBe("revision_conflict");
+      expect(updateLayout).not.toHaveBeenCalled();
+      expect(
+        (dsl().children as { widgetName: string }[]).map(
+          (child) => child.widgetName,
+        ),
+      ).toContain("AddedInEditor");
     });
 
     it("refuses a token prepared for other widgets, and writes nothing", async () => {
