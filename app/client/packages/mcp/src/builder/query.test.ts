@@ -2049,6 +2049,64 @@ describe("APP-16324 F1.4: coalesce on selected and grouped columns", () => {
 });
 
 describe("APP-16324 F1.5: having on aggregated selects", () => {
+  it.each([
+    ["eq", "="],
+    ["ne", "!="],
+    ["gt", ">"],
+    ["gte", ">="],
+    ["lt", "<"],
+    ["lte", "<="],
+  ])("emits having op %s as %s", (op, sql) => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "count", op, value: { literal: 3 } }],
+      }),
+    );
+
+    expect(body).toBe(
+      `SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" HAVING COUNT(*) ${sql} {{ 3 }};`,
+    );
+  });
+
+  // MySQL names are bare and case-insensitive, so "COUNT" would collide with the count result there.
+  it("refuses a group column named like the aggregate in any case", () => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      groupBy: ["COUNT"],
+      aggregate: { fn: "count" },
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.path.join("."))).toEqual([
+      "groupBy.0",
+    ]);
+  });
+
+  it("refuses a null literal, which = NULL would never match", () => {
+    for (const op of ["eq", "ne"]) {
+      const result = querySpecSchema.safeParse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "tag", op, value: { literal: null } }],
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error?.issues[0]?.message).toBe(
+        "having cannot compare with null: = NULL never matches",
+      );
+    }
+  });
+
   it("filters on the aggregate by repeating its expression", () => {
     const body = compileQuery(
       parse({

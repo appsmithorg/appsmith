@@ -333,11 +333,15 @@ const HAVING_OPERATORS = {
 // One HAVING condition on an aggregated SELECT. `column` names either the aggregate's result (its fn, such as
 // "count") or one of the groupBy columns; querySpecSchema checks which. It is its own schema, not a WHERE filter: it
 // has no groups, no skipWhenEmpty, no like and no null tests, and it never uses the WHERE filters' column forms.
+// A null literal is refused: `= NULL` and `!= NULL` never match, so the condition would silently drop every group.
 const havingConditionSchema = z
   .object({
     column: sqlIdentifier,
     op: z.enum(["eq", "ne", "gt", "gte", "lt", "lte"]),
-    value: valueRef,
+    value: valueRef.refine(
+      (value) => !("literal" in value && value.literal === null),
+      "having cannot compare with null: = NULL never matches",
+    ),
   })
   .strict();
 
@@ -440,12 +444,13 @@ export const querySpecSchema = z
     }
 
     // A group column named like the aggregate's result (for example "count" with aggregate count) gives the result
-    // two columns of that name, and having could not tell them apart.
+    // two columns of that name, and having could not tell them apart. The match ignores case: MySQL names are bare and
+    // case-insensitive, so "COUNT" and count are the same name there.
     if (spec.aggregate !== undefined) {
       const fn = spec.aggregate.fn;
 
       (spec.groupBy ?? []).forEach((entry, index) => {
-        if (columnNameOf(entry) === fn) {
+        if (columnNameOf(entry).toLowerCase() === fn) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: `a groupBy column cannot be named "${fn}", the name of the aggregate's result`,
