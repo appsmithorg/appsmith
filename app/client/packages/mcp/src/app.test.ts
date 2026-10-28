@@ -19,6 +19,7 @@ import { compileJsObject } from "./builder/jsObject.js";
 import { markMcpAuthoredBody, mcpAuthoredBody } from "./builder/query.js";
 import { fingerprintDsl } from "./builder/semantic.js";
 import { McpGovernanceCoordinator } from "./governance/coordinator.js";
+import { WIDGET_REMOVAL_MAX } from "./governance/widgetRemoval.js";
 import type {
   McpChangeRecord,
   McpGovernanceStore,
@@ -4441,6 +4442,36 @@ describe("governance-wrapped layout mutations", () => {
           (child) => child.widgetName,
         ),
       ).toEqual(["Greeting", "Card1"]);
+      // Refused before the token is spent: it is still in the store. (commitLayout would also refuse a stale page,
+      // but only after spending the token.)
+      expect(
+        store.confirmations.has(prepared.body.confirmationId as string),
+      ).toBe(true);
+    });
+
+    it(`refuses more than ${WIDGET_REMOVAL_MAX} names`, async () => {
+      const store = new MemoryGovernanceStore();
+      const { server } = removalServer(store);
+      const names = (count: number) =>
+        Array.from({ length: count }, (_, i) => `W${i}`);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const tooMany = await callTool(server, "prepare_remove_widgets", {
+        spec: { ...SPEC, revision, names: names(WIDGET_REMOVAL_MAX + 1) },
+      });
+
+      // A schema refusal on `names` itself, not the unknown-widget refusal that would follow.
+      expect(tooMany.body.valid).toBe(false);
+      expect(
+        (tooMany.body.errors as { path: string; message: string }[])[0],
+      ).toMatchObject({ path: "names" });
+      expect(store.confirmations.size).toBe(0);
+
+      // At the cap the spec is valid; these widgets do not exist, so the refusal is about the names, not the count.
+      const atCap = await callTool(server, "prepare_remove_widgets", {
+        spec: { ...SPEC, revision, names: names(WIDGET_REMOVAL_MAX) },
+      });
+
+      expect(JSON.stringify(atCap.body)).toMatch(/not found|unknown|W0/i);
     });
 
     it("refuses a token prepared for other widgets, and writes nothing", async () => {
