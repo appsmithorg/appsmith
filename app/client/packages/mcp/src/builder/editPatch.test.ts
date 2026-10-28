@@ -3,6 +3,7 @@ import type { WidgetNode } from "./layout.js";
 import {
   applyWidgetPatch,
   LITERAL_PROP_OWNERS,
+  removeWidgets,
   widgetPatchSchema,
   widgetPropsPatchSchema,
 } from "./editPatch.js";
@@ -52,6 +53,112 @@ function page(): WidgetNode {
     children: [text, container],
   });
 }
+
+describe("APP-16324 F7: removeWidgets (the approved removal)", () => {
+  // A container holding a text widget on its inner canvas, like Oracle's leftover "Card title" cards.
+  function pageWithCard(): WidgetNode {
+    const title = node({
+      widgetId: "title",
+      widgetName: "CardTitle",
+      type: "TEXT_WIDGET",
+      text: "Card title",
+    });
+    const cardCanvas = node({
+      widgetId: "cardCanvas",
+      widgetName: "CardCanvas",
+      type: "CANVAS_WIDGET",
+      children: [title],
+    });
+    const card = node({
+      widgetId: "card",
+      widgetName: "Card1",
+      type: "CONTAINER_WIDGET",
+      children: [cardCanvas],
+    });
+    const root = page();
+
+    root.children = [...(root.children ?? []), card];
+
+    return root;
+  }
+
+  it("removes a leaf widget and reports it", () => {
+    const { dsl, removed } = removeWidgets(page(), ["Greeting"]);
+
+    expect(dsl.children?.map((child) => child.widgetName)).toEqual(["Details"]);
+    expect(removed).toEqual([
+      { name: "Greeting", type: "TEXT_WIDGET", contains: [] },
+    ]);
+  });
+
+  it("removes a container with everything inside it, listing what it held", () => {
+    const { dsl, removed } = removeWidgets(pageWithCard(), ["Card1"]);
+
+    expect(dsl.children?.map((child) => child.widgetName)).toEqual([
+      "Greeting",
+      "Details",
+    ]);
+    expect(removed).toEqual([
+      { name: "Card1", type: "CONTAINER_WIDGET", contains: ["CardTitle"] },
+    ]);
+  });
+
+  it("removes several widgets, skipping one already inside another and duplicates", () => {
+    const { dsl, removed } = removeWidgets(pageWithCard(), [
+      "CardTitle",
+      "Card1",
+      "Greeting",
+      "Greeting",
+    ]);
+
+    expect(dsl.children?.map((child) => child.widgetName)).toEqual(["Details"]);
+    expect(removed.map((entry) => entry.name)).toEqual(["Card1", "Greeting"]);
+  });
+
+  it("does not change the DSL it was given", () => {
+    const original = pageWithCard();
+    const before = JSON.stringify(original);
+
+    removeWidgets(original, ["Card1"]);
+
+    expect(JSON.stringify(original)).toBe(before);
+  });
+
+  it("refuses a page built from sections and zones", () => {
+    const zone = node({
+      widgetId: "zone",
+      widgetName: "Zone1",
+      type: "ZONE_WIDGET",
+      children: [],
+    });
+    const section = node({
+      widgetId: "section",
+      widgetName: "Section1",
+      type: "SECTION_WIDGET",
+      children: [zone],
+    });
+    const root = page();
+
+    root.children = [...(root.children ?? []), section];
+
+    expect(() => removeWidgets(root, ["Greeting"])).toThrow(
+      "built from sections and zones",
+    );
+  });
+
+  it.each([
+    ["an unknown widget", ["Ghost"], 'widget "Ghost" was not found'],
+    ["the root canvas", ["MainContainer"], "root canvas"],
+    [
+      "an inner canvas on its own",
+      ["CardCanvas"],
+      "an inner canvas cannot be removed on its own",
+    ],
+    ["an empty list", [], "name at least one widget"],
+  ])("refuses %s", (_label, names, message) => {
+    expect(() => removeWidgets(pageWithCard(), names)).toThrow(message);
+  });
+});
 
 describe("applyWidgetPatch", () => {
   it("updates only allowlisted literal properties and returns semantic details", () => {

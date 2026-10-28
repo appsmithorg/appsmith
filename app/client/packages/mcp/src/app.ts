@@ -72,7 +72,13 @@ import {
   widgetExists,
   wireEventSpecSchema,
 } from "./builder/events.js";
-import { applyWidgetPatch, widgetPatchSchema } from "./builder/editPatch.js";
+import {
+  applyWidgetPatch,
+  type RemovedWidget,
+  removeWidgets,
+  widgetPatchSchema,
+  widgetRemovalSpecSchema,
+} from "./builder/editPatch.js";
 import {
   FIELDS_FORMAT,
   getInstructionDoc,
@@ -187,6 +193,11 @@ import {
   type McpChangeRecord,
   type McpGovernanceCoordinator,
 } from "./governance/coordinator.js";
+import { pageEntityKey } from "./governance/entityKeys.js";
+import {
+  WIDGET_REMOVAL_OPERATION,
+  widgetRemovalBinding,
+} from "./governance/widgetRemoval.js";
 import { MCP_BUILD_INFO } from "./buildInfo.js";
 import {
   GitGateCache,
@@ -288,11 +299,6 @@ export interface ServerContext {
   elicitationStrict?: boolean;
   // Operator-facing log line sink (default: process.stderr). Injectable so tests can observe telemetry.
   logSink?: (line: string) => void;
-}
-
-// A page is the lock/audit entity for layout, page-metadata, and event mutations.
-function pageEntityKey(applicationId: string, pageId: string): string {
-  return `page:${applicationId}:${pageId}`;
 }
 
 // The application's page list is the lock/revision entity for page-list mutations (create/rename/delete page).
@@ -3318,19 +3324,41 @@ export function buildMcpServer(
         operation: params.operation,
         expectedRevision: params.revision,
         currentRevision: params.currentRevision,
-        mutate: async () => ({
-          value: await write(),
-          revisionAfter,
-          // A layout snapshot the rollback tools can re-apply. Never returned to the agent.
-          rollback: {
-            kind: "layout",
-            applicationId: params.applicationId,
-            pageId: params.pageId,
-            layoutId: params.layoutId,
-            dsl: params.currentDsl,
-          },
-          summary: params.extra,
-        }),
+        mutate: async () => {
+          // The page was read before the lock. An editor change that landed since would be overwritten by this
+          // whole-layout write, so read the page again under the lock and refuse if it changed. This narrows the
+          // window to this read and the write below; the layout API has no compare-and-set.
+          const live = await api.getApplicationContext(
+            params.applicationId,
+            params.pageId,
+            params.layoutId,
+          );
+          const liveDsl = (live.layout as { dsl?: WidgetNode } | undefined)
+            ?.dsl;
+          const liveRevision =
+            liveDsl === undefined ? undefined : fingerprintDsl(liveDsl);
+
+          if (liveRevision !== params.currentRevision) {
+            throw new GovernanceRevisionConflictError(
+              params.currentRevision,
+              liveRevision ?? "unreadable",
+            );
+          }
+
+          return {
+            value: await write(),
+            revisionAfter,
+            // A layout snapshot the rollback tools can re-apply. Never returned to the agent.
+            rollback: {
+              kind: "layout",
+              applicationId: params.applicationId,
+              pageId: params.pageId,
+              layoutId: params.layoutId,
+              dsl: params.currentDsl,
+            },
+            summary: params.extra,
+          };
+        },
       });
 
       return result({
@@ -3811,7 +3839,7 @@ export function buildMcpServer(
 
   registerTool(
     "patch_widgets",
-    "Directly update, move, resize, reparent, or remove widgets using a strict typed patch. Read the page with read_semantic_page first and pass its revision. Only allowlisted literal properties can change; removing a widget with children is rejected. Moves are occupancy-aware: a position that lands on another widget is repaired to the nearest free spot below (reported as requestedPosition vs position plus a note) unless the operation sets strict: true, which rejects with the colliding names and the nearest free position; reparenting always lands at the nearest free spot in the new canvas. Resize ({ kind: 'resize', name, rows?, columns?, strict? }, grid units) grows/shrinks a widget: growth pushes overlapping siblings down, width cannot exceed the canvas, containers cannot shrink below their children's rows (columns are free: nested content lives on the inner canvas's own 64-column grid), and modal rows translate to the modal's pixel height. Table styling: set literal 'oddRowColor'/'evenRowColor' for alternating (zebra) row backgrounds. Re-bind a table with structured 'tableData' { query, field?, clearWhenEmpty? } — clearWhenEmpty names an input whose emptiness clears the table (so a Clear button that resets that input also empties the table; resetWidget alone cannot clear a query-bound table). Input validation: set 'validation' { format: 'zipcode'|'email'|'number'|'integer'|'usPhone', message? } on an input to add a vetted regex + error message (never author a raw regex). Set 'disableWhenInvalid': '<input>' on a button to grey it out until that input passes validation (compiles to {{ !<input>.isValid }}) — use with validation so a bad value can't run the query. Conditional visibility / view switching: set 'visibleWhen' { control: '<select|tabs widget>', equals: '<value>' } to show a widget only when the control has that value — e.g. show a table when a ViewToggle equals 'Table' and a detail panel when it equals 'Details', switching views with one control. Two more predicate forms: { rowSelected: '<table>' } shows the widget only while that table has a selected row (detail panels, edit buttons), and { notEmpty: '<input>' } only while that input holds text.",
+    "Directly update, move, resize, or reparent widgets using a strict typed patch. Read the page with read_semantic_page first and pass its revision. Only allowlisted literal properties can change. Removing widgets needs the user's approval, so a { kind: 'remove' } operation is refused here: use prepare_remove_widgets then confirm_remove_widgets. Moves are occupancy-aware: a position that lands on another widget is repaired to the nearest free spot below (reported as requestedPosition vs position plus a note) unless the operation sets strict: true, which rejects with the colliding names and the nearest free position; reparenting always lands at the nearest free spot in the new canvas. Resize ({ kind: 'resize', name, rows?, columns?, strict? }, grid units) grows/shrinks a widget: growth pushes overlapping siblings down, width cannot exceed the canvas, containers cannot shrink below their children's rows (columns are free: nested content lives on the inner canvas's own 64-column grid), and modal rows translate to the modal's pixel height. Table styling: set literal 'oddRowColor'/'evenRowColor' for alternating (zebra) row backgrounds. Re-bind a table with structured 'tableData' { query, field?, clearWhenEmpty? } — clearWhenEmpty names an input whose emptiness clears the table (so a Clear button that resets that input also empties the table; resetWidget alone cannot clear a query-bound table). Input validation: set 'validation' { format: 'zipcode'|'email'|'number'|'integer'|'usPhone', message? } on an input to add a vetted regex + error message (never author a raw regex). Set 'disableWhenInvalid': '<input>' on a button to grey it out until that input passes validation (compiles to {{ !<input>.isValid }}) — use with validation so a bad value can't run the query. Conditional visibility / view switching: set 'visibleWhen' { control: '<select|tabs widget>', equals: '<value>' } to show a widget only when the control has that value — e.g. show a table when a ViewToggle equals 'Table' and a detail panel when it equals 'Details', switching views with one control. Two more predicate forms: { rowSelected: '<table>' } shows the widget only while that table has a selected row (detail panels, edit buttons), and { notEmpty: '<input>' } only while that input holds text.",
     {
       applicationId: idSchema,
       pageId: idSchema,
@@ -3826,6 +3854,18 @@ export function buildMcpServer(
       const parsed = widgetPatchSchema.safeParse(patch);
 
       if (!parsed.success) return validationError(parsed.error.issues);
+
+      // Removing a widget is destructive, so it needs the user's approval (APP-16324 F7). Nothing is written.
+      if (
+        parsed.data.operations.some((operation) => operation.kind === "remove")
+      ) {
+        return result({
+          error: governance
+            ? "removing widgets needs the user's approval: call prepare_remove_widgets with the names, show the user what it will remove, then confirm_remove_widgets"
+            : "removing widgets needs the user's approval through prepare_remove_widgets / confirm_remove_widgets, which require governance (not configured on this deployment); remove the widget in the Appsmith editor instead",
+          code: "confirmation_required",
+        });
+      }
 
       const context = await api.getApplicationContext(
         applicationId,
@@ -5677,6 +5717,293 @@ export function buildMcpServer(
         } catch (error) {
           return governanceError(error) ?? compileError(error);
         }
+      },
+    );
+
+    // APP-16324 F7: removing widgets is destructive, so it goes through the same approval as delete_page. The binding
+    // comes from governance/widgetRemoval.ts, which an edition tool that removes layout content can use too.
+    // patch_widgets refuses its remove operation and points here.
+
+    // The widgets a removal takes, for the prompt and the relay: each name, with how many widgets it holds.
+    const removalList = (removed: RemovedWidget[]): string =>
+      removed
+        .map(
+          (entry) =>
+            `"${promptSafe(truncateForPrompt(entry.name, 40))}"${entry.contains.length > 0 ? ` (with ${entry.contains.length} widget${entry.contains.length === 1 ? "" : "s"} inside)` : ""}`,
+        )
+        .join(", ");
+
+    // The page must belong to the application. The layout is read and written by page and layout id, while the git
+    // gate, the prompt's labels and the lock use the application id, so a page from another application would be
+    // changed under this application's checks. Fails closed when the page list cannot be read.
+    const removalPageProblem = async (
+      applicationId: string,
+      pageId: string,
+    ): Promise<ToolResult | undefined> => {
+      let pages: { id: string }[];
+
+      try {
+        pages = projectPages(await api.getApplicationPages(applicationId));
+      } catch {
+        return result({
+          error: "could not read the application's pages; retry",
+          code: "pages_unreadable",
+        });
+      }
+
+      return pages.some((page) => page.id === pageId)
+        ? undefined
+        : result({
+            error: `${pageId} is not a page of application ${applicationId}`,
+            code: "page_not_found",
+          });
+    };
+
+    // The page and app a removal happens on, so the user approves it on the right page. Best effort: the ids when the
+    // names cannot be read. The digest binds the ids, never these labels.
+    const removalPlace = async (
+      applicationId: string,
+      pageId: string,
+    ): Promise<string> => {
+      let pageLabel = pageId;
+      let appLabel = applicationId;
+
+      try {
+        const pagesResponse = await api.getApplicationPages(applicationId);
+        const page = projectPages(pagesResponse).find(
+          (entry) => entry.id === pageId,
+        );
+
+        if (page !== undefined && page.name.length > 0) pageLabel = page.name;
+
+        appLabel = applicationNameOf(pagesResponse) ?? appLabel;
+      } catch {
+        // Label read failed: name the ids rather than refuse.
+      }
+
+      return `the page "${promptSafe(truncateForPrompt(pageLabel, 40))}" of "${promptSafe(truncateForPrompt(appLabel, 40))}"`;
+    };
+
+    registerTool(
+      "prepare_remove_widgets",
+      "Prepare to remove widgets from a page ({ applicationId, pageId, layoutId, revision, names: [..] }, up to 20). Each named widget goes with EVERYTHING inside it (a container takes its content). Returns `removed` (every widget that will go, with what each contains), a one-time confirmation token bound to this page revision and these names, and 'relay' text to show the user. Then call confirm_remove_widgets with the same spec and the token.",
+      { spec: z.record(z.unknown()) },
+      async ({ spec }) => {
+        const parsed = widgetRemovalSpecSchema.safeParse(spec);
+
+        if (!parsed.success) return validationError(parsed.error.issues);
+
+        const { applicationId, layoutId, names, pageId, revision } =
+          parsed.data;
+        const notInApplication = await removalPageProblem(
+          applicationId,
+          pageId,
+        );
+
+        if (notInApplication) return notInApplication;
+
+        const context = await api.getApplicationContext(
+          applicationId,
+          pageId,
+          layoutId,
+        );
+        const currentDsl = (context.layout as { dsl?: WidgetNode } | undefined)
+          ?.dsl;
+
+        if (!currentDsl) {
+          return result({ error: "could not read the current page layout" });
+        }
+
+        const currentRevision = fingerprintDsl(currentDsl);
+
+        if (revision !== currentRevision) {
+          return result({
+            error:
+              "page revision is stale; re-read the page before preparing a removal",
+            code: "revision_conflict",
+            revision: currentRevision,
+          });
+        }
+
+        let removed: RemovedWidget[];
+
+        try {
+          removed = removeWidgets(currentDsl, names).removed;
+        } catch (error) {
+          return compileError(error);
+        }
+
+        const confirmation = await gov.prepareDestructiveConfirmation(
+          widgetRemovalBinding(
+            actorId,
+            { applicationId, layoutId, names, pageId },
+            revision,
+          ),
+        );
+        const place = await removalPlace(applicationId, pageId);
+
+        return result({
+          confirmationId: confirmation.id,
+          expiresAt: confirmation.expiresAt,
+          operation: WIDGET_REMOVAL_OPERATION,
+          removed,
+          // Relay text for clients WITHOUT elicitation support: shown to the human before confirming.
+          relay: `Show the user this and get their approval BEFORE calling confirm_remove_widgets: remove ${removalList(removed)} from ${place}. This cannot be undone via MCP. Do not call confirm_remove_widgets without the user's explicit approval.`,
+        });
+      },
+    );
+
+    registerTool(
+      "confirm_remove_widgets",
+      "Remove widgets using a confirmation token from prepare_remove_widgets, with the same spec. The token, actor, page, names and revision must all match, and the page must be unchanged since preparation. When the MCP client supports elicitation, the user is prompted for approval and ONLY an explicit accept proceeds; otherwise show the user the prepare_remove_widgets relay text and get their approval first.",
+      {
+        spec: z.record(z.unknown()),
+        confirmationId: idSchema,
+        branch: gitBranchParamSchema.optional(),
+      },
+      async ({ branch, confirmationId, spec }, extra) => {
+        const parsed = widgetRemovalSpecSchema.safeParse(spec);
+
+        if (!parsed.success) return validationError(parsed.error.issues);
+
+        const { applicationId, layoutId, names, pageId, revision } =
+          parsed.data;
+        const binding = widgetRemovalBinding(
+          actorId,
+          { applicationId, layoutId, names, pageId },
+          revision,
+        );
+
+        // Gate BEFORE consuming the confirmation, so the one-time token is not spent on a refused mutation.
+        const gate = await gitBranchGate(applicationId, branch);
+
+        if (!gate.ok) return gate.result;
+
+        const notInApplication = await removalPageProblem(
+          applicationId,
+          pageId,
+        );
+
+        if (notInApplication) return notInApplication;
+
+        // A page that changed since prepare is refused here, before the token is spent, so the agent can re-read
+        // and prepare again. commitLayout checks the revision once more after approval.
+        const before = await api.getApplicationContext(
+          applicationId,
+          pageId,
+          layoutId,
+        );
+        const beforeDsl = (before.layout as { dsl?: WidgetNode } | undefined)
+          ?.dsl;
+
+        if (!beforeDsl) {
+          return result({ error: "could not read the current page layout" });
+        }
+
+        const beforeRevision = fingerprintDsl(beforeDsl);
+
+        if (revision !== beforeRevision) {
+          return result({
+            error:
+              "page revision is stale; the page changed since prepare_remove_widgets. Re-read it and prepare again",
+            code: "revision_conflict",
+            revision: beforeRevision,
+          });
+        }
+
+        let planned: RemovedWidget[];
+
+        try {
+          planned = removeWidgets(beforeDsl, names).removed;
+        } catch (error) {
+          return compileError(error);
+        }
+
+        // Elicitation AFTER every refusal gate and BEFORE token consumption: a declined prompt leaves the
+        // one-time confirmation intact and consumable later. The prompt counts what each widget holds, so the
+        // user sees the full extent of the removal.
+        const approval = await elicitDestructiveApproval(
+          {
+            confirmationId,
+            promptMessage: async () =>
+              `Remove ${removalList(planned)} from ${await removalPlace(applicationId, pageId)}? This cannot be undone via MCP.`,
+            schemaTitle: "Approve widget removal",
+            schemaDescription:
+              "Select true to remove these widgets and everything inside them.",
+            operationNoun: "widget removal",
+            nothingHappened: "nothing was removed",
+            confirmTool: "confirm_remove_widgets",
+            prepareTool: "prepare_remove_widgets",
+            notConfirmedCode: "remove_widgets_not_confirmed",
+            invalidate: async () =>
+              gov.consumeDestructiveConfirmation({
+                confirmationId,
+                ...binding,
+              }),
+          },
+          extra,
+        );
+
+        if (!approval.approved) return approval.result;
+
+        // Read and plan BEFORE spending the token, so a failed read or a refused plan leaves it usable for a retry.
+        const context = await api.getApplicationContext(
+          applicationId,
+          pageId,
+          layoutId,
+        );
+        const currentDsl = (context.layout as { dsl?: WidgetNode } | undefined)
+          ?.dsl;
+
+        if (!currentDsl) {
+          return result({ error: "could not read the current page layout" });
+        }
+
+        // The page may have changed while the user was answering the prompt. Refuse here, before the token is spent,
+        // as confirm_commit does after its prompt.
+        const approvedRevision = fingerprintDsl(currentDsl);
+
+        if (revision !== approvedRevision) {
+          return result({
+            error:
+              "page revision is stale; the page changed while awaiting approval. Re-read it and prepare again",
+            code: "revision_conflict",
+            revision: approvedRevision,
+          });
+        }
+
+        let removal: ReturnType<typeof removeWidgets>;
+
+        try {
+          removal = removeWidgets(currentDsl, names);
+        } catch (error) {
+          return compileError(error);
+        }
+
+        try {
+          await gov.consumeDestructiveConfirmation({
+            confirmationId,
+            ...binding,
+          });
+          markElicitationConsumed(confirmationId);
+        } catch (error) {
+          return governanceError(error) ?? compileError(error);
+        }
+
+        // commitLayout re-checks the revision (a page changed since prepare is refused), runs the overlap gate,
+        // writes, and records the governed change.
+        return commitLayout({
+          applicationId,
+          pageId,
+          layoutId,
+          currentDsl,
+          currentRevision: fingerprintDsl(currentDsl),
+          revision,
+          branch,
+          operation: WIDGET_REMOVAL_OPERATION,
+          newDsl: removal.dsl,
+          extra: { removed: removal.removed },
+        });
       },
     );
   }

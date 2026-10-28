@@ -19,6 +19,7 @@ import { compileJsObject } from "./builder/jsObject.js";
 import { markMcpAuthoredBody, mcpAuthoredBody } from "./builder/query.js";
 import { fingerprintDsl } from "./builder/semantic.js";
 import { McpGovernanceCoordinator } from "./governance/coordinator.js";
+import { WIDGET_REMOVAL_MAX } from "./governance/widgetRemoval.js";
 import type {
   McpChangeRecord,
   McpGovernanceStore,
@@ -4269,6 +4270,467 @@ describe("governance-wrapped layout mutations", () => {
     expect(deletePage).not.toHaveBeenCalled();
   });
 
+  describe("APP-16324 F7: removing widgets needs approval", () => {
+    // A leftover card (container + text on its inner canvas) and a lone text, like Oracle's "Card title" leftovers.
+    function removalDsl(): Record<string, unknown> {
+      const base = {
+        topRow: 0,
+        bottomRow: 4,
+        leftColumn: 0,
+        rightColumn: 16,
+        parentRowSpace: 10,
+        parentColumnSpace: 10,
+      };
+
+      return {
+        widgetId: "0",
+        widgetName: "MainContainer",
+        type: "CANVAS_WIDGET",
+        ...base,
+        bottomRow: 400,
+        rightColumn: 64,
+        children: [
+          {
+            widgetId: "greet",
+            widgetName: "Greeting",
+            type: "TEXT_WIDGET",
+            text: "Hi",
+            parentId: "0",
+            ...base,
+          },
+          {
+            widgetId: "card",
+            widgetName: "Card1",
+            type: "CONTAINER_WIDGET",
+            parentId: "0",
+            ...base,
+            topRow: 10,
+            bottomRow: 30,
+            children: [
+              {
+                widgetId: "cardCanvas",
+                widgetName: "CardCanvas",
+                type: "CANVAS_WIDGET",
+                parentId: "card",
+                ...base,
+                bottomRow: 200,
+                rightColumn: 64,
+                children: [
+                  {
+                    widgetId: "cardTitle",
+                    widgetName: "CardTitle",
+                    type: "TEXT_WIDGET",
+                    text: "Card title",
+                    parentId: "cardCanvas",
+                    ...base,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+    }
+
+    function removalServer(store: McpGovernanceStore) {
+      let current = removalDsl();
+      const updateLayout = jest.fn<
+        Promise<{ ok: boolean }>,
+        [string, string, string, Record<string, unknown>]
+      >(async (_app, _page, _layout, dsl) => {
+        current = dsl;
+
+        return { ok: true };
+      });
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getApplicationContext: jest.fn(async () => ({
+          pages: [],
+          page: {},
+          layout: { dsl: current },
+        })),
+        getApplicationPages: jest.fn(async () => ({
+          application: { id: "app1", name: "Support" },
+          pages: [{ id: "p1", name: "Home" }],
+        })),
+        listActions: jest.fn(async () => []),
+        updateLayout: updateLayout as never,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        governance: new McpGovernanceCoordinator(store),
+      });
+
+      return {
+        api,
+        server,
+        updateLayout,
+        dsl: () => current,
+        // An edit made outside MCP, such as in the editor.
+        setDsl: (next: typeof current) => {
+          current = next;
+        },
+      };
+    }
+
+    const SPEC = {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+    };
+
+    it("prepare lists everything that will go; confirm removes it once, and the token cannot be replayed", async () => {
+      const store = new MemoryGovernanceStore();
+      const { dsl, server, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const spec = { ...SPEC, revision, names: ["Card1"] };
+
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec,
+      });
+
+      expect(prepared.body.removed).toEqual([
+        { name: "Card1", type: "CONTAINER_WIDGET", contains: ["CardTitle"] },
+      ]);
+      expect(prepared.body.relay).toContain('"Card1" (with 1 widget inside)');
+      expect(updateLayout).not.toHaveBeenCalled();
+
+      const confirmed = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(confirmed.body.removed).toEqual(prepared.body.removed);
+      expect(updateLayout).toHaveBeenCalledTimes(1);
+      expect(
+        (dsl().children as { widgetName: string }[]).map(
+          (child) => child.widgetName,
+        ),
+      ).toEqual(["Greeting"]);
+      expect(store.changes.some((c) => c.operation === "remove_widgets")).toBe(
+        true,
+      );
+
+      // A replay is refused: the removal changed the page, so the revision check stops it before the (already
+      // spent) token is even read.
+      const replay = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(replay.body.code).toBe("revision_conflict");
+      expect(updateLayout).toHaveBeenCalledTimes(1);
+    });
+
+    // The revision is checked before the token is spent, so a page that changed after prepare is refused cleanly.
+    it("refuses to confirm after the page changed since prepare, and removes nothing", async () => {
+      const store = new MemoryGovernanceStore();
+      const { dsl, server, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const spec = { ...SPEC, revision, names: ["Greeting"] };
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec,
+      });
+
+      // Someone edits the page between prepare and confirm.
+      await callTool(server, "patch_widgets", {
+        ...SPEC,
+        revision,
+        patch: {
+          operations: [
+            { kind: "update", name: "Greeting", props: { text: "Hello" } },
+          ],
+        },
+      });
+      expect(updateLayout).toHaveBeenCalledTimes(1);
+
+      const confirmed = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(confirmed.body.code).toBe("revision_conflict");
+      expect(updateLayout).toHaveBeenCalledTimes(1);
+      expect(
+        (dsl().children as { widgetName: string }[]).map(
+          (child) => child.widgetName,
+        ),
+      ).toEqual(["Greeting", "Card1"]);
+      // Refused before the token is spent: it is still in the store. (commitLayout would also refuse a stale page,
+      // but only after spending the token.)
+      expect(
+        store.confirmations.has(prepared.body.confirmationId as string),
+      ).toBe(true);
+    });
+
+    it(`refuses more than ${WIDGET_REMOVAL_MAX} names`, async () => {
+      const store = new MemoryGovernanceStore();
+      const { server } = removalServer(store);
+      const names = (count: number) =>
+        Array.from({ length: count }, (_, i) => `W${i}`);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const tooMany = await callTool(server, "prepare_remove_widgets", {
+        spec: { ...SPEC, revision, names: names(WIDGET_REMOVAL_MAX + 1) },
+      });
+
+      // A schema refusal on `names` itself, not the unknown-widget refusal that would follow.
+      expect(tooMany.body.valid).toBe(false);
+      expect(
+        (tooMany.body.errors as { path: string; message: string }[])[0],
+      ).toMatchObject({ path: "names" });
+      expect(store.confirmations.size).toBe(0);
+
+      // At the cap the spec is valid; these widgets do not exist, so the refusal is about the names, not the count.
+      const atCap = await callTool(server, "prepare_remove_widgets", {
+        spec: { ...SPEC, revision, names: names(WIDGET_REMOVAL_MAX) },
+      });
+
+      expect(JSON.stringify(atCap.body)).toMatch(/not found|unknown|W0/i);
+    });
+
+    // Copilot review: the page is read before the lock. An editor edit that lands between that read and the lock
+    // would be overwritten by the whole-layout write, so commitLayout reads the page again under the lock.
+    it("refuses when the page changes between the last read and the lock, and writes nothing", async () => {
+      const store = new MemoryGovernanceStore();
+      const { dsl, server, setDsl, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const spec = { ...SPEC, revision, names: ["Greeting"] };
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec,
+      });
+      const acquireLock = store.acquireLock.bind(store);
+      const edited = {
+        ...removalDsl(),
+        children: [
+          ...(removalDsl().children as unknown[]),
+          {
+            widgetId: "added",
+            widgetName: "AddedInEditor",
+            type: "TEXT_WIDGET",
+            text: "new",
+            parentId: "0",
+            topRow: 40,
+            bottomRow: 44,
+            leftColumn: 0,
+            rightColumn: 8,
+          },
+        ],
+      };
+
+      // The editor saves just as MCP takes the page lock.
+      jest
+        .spyOn(store, "acquireLock")
+        .mockImplementation(async (...args: Parameters<typeof acquireLock>) => {
+          setDsl(edited as never);
+
+          return acquireLock(...args);
+        });
+
+      const confirmed = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(confirmed.body.code).toBe("revision_conflict");
+      expect(updateLayout).not.toHaveBeenCalled();
+      expect(
+        (dsl().children as { widgetName: string }[]).map(
+          (child) => child.widgetName,
+        ),
+      ).toContain("AddedInEditor");
+    });
+
+    // Copilot review: the layout is read and written by page id, while the git gate, the labels and the lock use the
+    // application id, so a page of another application is refused before any token is issued or spent.
+    it("refuses a page that is not in the application, at prepare and at confirm", async () => {
+      const store = new MemoryGovernanceStore();
+      const { server, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const foreign = { ...SPEC, pageId: "p9", revision, names: ["Greeting"] };
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec: foreign,
+      });
+
+      expect(prepared.body.code).toBe("page_not_found");
+      expect(store.confirmations.size).toBe(0);
+
+      const ok = await callTool(server, "prepare_remove_widgets", {
+        spec: { ...SPEC, revision, names: ["Greeting"] },
+      });
+      const confirmed = await callTool(server, "confirm_remove_widgets", {
+        spec: foreign,
+        confirmationId: ok.body.confirmationId,
+      });
+
+      expect(confirmed.body.code).toBe("page_not_found");
+      expect(store.confirmations.has(ok.body.confirmationId as string)).toBe(
+        true,
+      );
+      expect(updateLayout).not.toHaveBeenCalled();
+    });
+
+    // CodeRabbit review: a read that fails after approval must not spend the token, so the same token can retry.
+    it("keeps the token when the page read after approval fails", async () => {
+      const store = new MemoryGovernanceStore();
+      const { api, server, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const spec = { ...SPEC, revision, names: ["Greeting"] };
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec,
+      });
+      const read = api.getApplicationContext as jest.Mock;
+      const realRead = read.getMockImplementation()!;
+      let confirmReads = 0;
+
+      // The first confirm read (the stale-revision check) succeeds; the read after approval returns no layout.
+      read.mockImplementation(async (...args: unknown[]) => {
+        confirmReads += 1;
+
+        return confirmReads === 2 ? { pages: [], page: {} } : realRead(...args);
+      });
+
+      const failed = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(failed.body.error).toMatch(
+        /could not read the current page layout/,
+      );
+      expect(updateLayout).not.toHaveBeenCalled();
+      expect(
+        store.confirmations.has(prepared.body.confirmationId as string),
+      ).toBe(true);
+
+      read.mockImplementation(realRead);
+
+      const retried = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(updateLayout).toHaveBeenCalledTimes(1);
+      expect(retried.body.code).toBeUndefined();
+    });
+
+    // CodeRabbit review: a change that lands while the user answers the prompt is refused before the token is spent.
+    it("refuses a page that changed during approval, without spending the token", async () => {
+      const store = new MemoryGovernanceStore();
+      const { api, server, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const spec = { ...SPEC, revision, names: ["Greeting"] };
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec,
+      });
+      const read = api.getApplicationContext as jest.Mock;
+      const realRead = read.getMockImplementation()!;
+      let confirmReads = 0;
+
+      // The read before the prompt sees the prepared page; the read after approval sees an edited one.
+      read.mockImplementation(async (...args: unknown[]) => {
+        confirmReads += 1;
+        const context = await realRead(...args);
+
+        if (confirmReads !== 2) return context;
+
+        const dslNow = context.layout.dsl as { children: unknown[] };
+
+        return {
+          ...context,
+          layout: {
+            dsl: {
+              ...dslNow,
+              children: [
+                ...dslNow.children,
+                {
+                  widgetId: "late",
+                  widgetName: "LateEdit",
+                  type: "TEXT_WIDGET",
+                  text: "x",
+                  parentId: "0",
+                  topRow: 60,
+                  bottomRow: 64,
+                  leftColumn: 0,
+                  rightColumn: 8,
+                },
+              ],
+            },
+          },
+        };
+      });
+
+      const refused = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(refused.body.code).toBe("revision_conflict");
+      expect(refused.body.error).toMatch(/while awaiting approval/);
+      expect(updateLayout).not.toHaveBeenCalled();
+      expect(
+        store.confirmations.has(prepared.body.confirmationId as string),
+      ).toBe(true);
+    });
+
+    it("refuses a token prepared for other widgets, and writes nothing", async () => {
+      const store = new MemoryGovernanceStore();
+      const { server, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec: { ...SPEC, revision, names: ["Greeting"] },
+      });
+      const confirmed = await callTool(server, "confirm_remove_widgets", {
+        spec: { ...SPEC, revision, names: ["Card1"] },
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(confirmed.body.code).toBe("confirmation_invalid");
+      expect(updateLayout).not.toHaveBeenCalled();
+    });
+
+    it("refuses to prepare against a stale revision", async () => {
+      const store = new MemoryGovernanceStore();
+      const { server } = removalServer(store);
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec: { ...SPEC, revision: "f".repeat(64), names: ["Greeting"] },
+      });
+
+      expect(prepared.body.code).toBe("revision_conflict");
+      expect(prepared.body.confirmationId).toBeUndefined();
+    });
+
+    it("refuses an inner canvas or an unknown widget at prepare", async () => {
+      const store = new MemoryGovernanceStore();
+      const { server } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+
+      for (const [names, message] of [
+        [["CardCanvas"], /inner canvas cannot be removed on its own/],
+        [["Ghost"], /"Ghost" was not found/],
+      ] as const) {
+        const prepared = await callTool(server, "prepare_remove_widgets", {
+          spec: { ...SPEC, revision, names },
+        });
+
+        expect(prepared.body.errors?.[0]?.message).toMatch(message);
+        expect(prepared.body.confirmationId).toBeUndefined();
+      }
+    });
+
+    it("patch_widgets refuses a remove operation and writes nothing", async () => {
+      const store = new MemoryGovernanceStore();
+      const { server, updateLayout } = removalServer(store);
+      const refused = await callTool(server, "patch_widgets", {
+        ...SPEC,
+        revision: fingerprintDsl(removalDsl() as never),
+        patch: { operations: [{ kind: "remove", name: "Greeting" }] },
+      });
+
+      expect(refused.body.code).toBe("confirmation_required");
+      expect(refused.body.error).toMatch(/prepare_remove_widgets/);
+      expect(updateLayout).not.toHaveBeenCalled();
+    });
+  });
+
   it("page CRUD tools are unavailable without governance", async () => {
     const api: AppsmithApi = {
       ...createApi()(),
@@ -4295,6 +4757,8 @@ describe("governance-wrapped layout mutations", () => {
       "set_page_visibility",
       "prepare_delete_page",
       "confirm_delete_page",
+      "prepare_remove_widgets",
+      "confirm_remove_widgets",
     ]) {
       expect(names).not.toContain(tool);
     }

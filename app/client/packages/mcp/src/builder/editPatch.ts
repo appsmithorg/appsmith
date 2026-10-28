@@ -23,6 +23,7 @@ import {
   type Position,
   type Rect,
 } from "./occupancy.js";
+import { WIDGET_REMOVAL_MAX } from "../governance/widgetRemoval.js";
 import { containsModal, hostModalOf, PAGE_HOST } from "./modalGraph.js";
 import {
   compileDisableWhenInvalid,
@@ -1023,6 +1024,20 @@ export const widgetPatchSchema = z
   .strict();
 
 export type WidgetPatch = z.infer<typeof widgetPatchSchema>;
+
+// The spec for prepare_remove_widgets / confirm_remove_widgets: the page, its revision, and up to 20 widget names.
+// Both steps take the same spec, so the confirmation digest can bind the exact target.
+export const widgetRemovalSpecSchema = z
+  .object({
+    applicationId: z.string().regex(/^[A-Za-z0-9_-]{1,128}$/),
+    pageId: z.string().regex(/^[A-Za-z0-9_-]{1,128}$/),
+    layoutId: z.string().regex(/^[A-Za-z0-9_-]{1,128}$/),
+    revision: z.string().regex(/^[a-f0-9]{64}$/),
+    names: z.array(widgetNameSchema).min(1).max(WIDGET_REMOVAL_MAX),
+  })
+  .strict();
+
+export type WidgetRemovalSpec = z.infer<typeof widgetRemovalSpecSchema>;
 export type WidgetPatchOperation = WidgetPatch["operations"][number];
 export type WidgetPropsPatch = z.infer<typeof widgetPropsPatchSchema>;
 
@@ -1126,6 +1141,80 @@ function removeFromParent(widget: LocatedWidget): void {
   }
 
   widget.parent.children.splice(index, 1);
+}
+
+// One widget an approved removal deletes, with every widget inside it (inner canvases are not listed: they are
+// structure, not content).
+export interface RemovedWidget {
+  name: string;
+  type: string;
+  contains: string[];
+}
+
+function contentNames(node: WidgetNode): string[] {
+  return (node.children ?? []).flatMap((child) => [
+    ...(child.type === "CANVAS_WIDGET" ? [] : [child.widgetName]),
+    ...contentNames(child),
+  ]);
+}
+
+// Removes the named widgets and everything inside them from a COPY of the DSL. This is the removal behind
+// prepare_remove_widgets / confirm_remove_widgets: prepare calls it to list what will go, and confirm calls it
+// again on the same revision. Unlike patch_widgets' remove, it takes containers with their content, because the
+// approval step shows the user everything it deletes.
+// - A name already inside another named widget, or listed twice, is removed once.
+// - The root canvas, an inner canvas on its own, and an unknown name are refused.
+export function removeWidgets(
+  current: WidgetNode,
+  names: readonly string[],
+): { dsl: WidgetNode; removed: RemovedWidget[] } {
+  if (names.length === 0) {
+    throw new Error("name at least one widget to remove");
+  }
+
+  const dsl = cloneDsl(current);
+  const widgets = indexWidgets(dsl);
+
+  // A page built from sections and zones is edited by its own tools, which keep each section and zone valid.
+  // Removing from it here could leave a section or zone broken, so this removal refuses such a page.
+  if (
+    [...widgets.values()].some(
+      ({ node }) =>
+        node.type === "SECTION_WIDGET" || node.type === "ZONE_WIDGET",
+    )
+  ) {
+    throw new Error(
+      "this page is built from sections and zones; remove its content with the tools for that kind of page",
+    );
+  }
+
+  const targets = [...new Set(names)].map((name) => {
+    const located = requireWidget(widgets, name);
+
+    if (located.node.type === "CANVAS_WIDGET") {
+      throw new Error(
+        `"${name}" is an inner canvas; an inner canvas cannot be removed on its own, remove the widget that holds it`,
+      );
+    }
+
+    return located;
+  });
+  // Keep only the outermost targets: one inside another goes with it.
+  const outermost = targets.filter(
+    (target) =>
+      !targets.some(
+        (other) => other !== target && isDescendant(other.node, target.node),
+      ),
+  );
+  const removed = outermost.map((target) => ({
+    name: target.node.widgetName,
+    type: String(target.node.type),
+    contains: contentNames(target.node),
+  }));
+
+  for (const target of outermost) removeFromParent(target);
+
+  return { dsl, removed };
 }
 
 function positionOf(node: WidgetNode): { topRow: number; leftColumn: number } {

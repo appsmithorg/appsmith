@@ -337,7 +337,8 @@ unaffected — the parameter is optional and ignored.
   remote?"); only an explicit accept proceeds, and decline/cancel/timeout leave the confirmation unconsumed
   (bounded at 3 prompts per confirmation, after which it is invalidated). The same elicitation layer guards
   **every** destructive confirm tool — `confirm_delete_page`, `confirm_delete_action`, `confirm_delete_js_object`,
-  `confirm_publish`, `confirm_rollback`, `confirm_run_action`, and `confirm_commit`: each prompt states the
+  `confirm_publish`, `confirm_rollback`, `confirm_run_action`, `confirm_remove_widgets`, and `confirm_commit`: each
+  prompt states the
   operation's load-bearing facts (what is deleted/deployed/run, with any agent-controlled text quoted and
   sanitized), a declined or unanswered prompt never consumes the one-time confirmation (the same token remains
   usable after the user approves), and each `prepare_*` tool returns relay text for the fallback posture.
