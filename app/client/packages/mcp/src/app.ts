@@ -2103,6 +2103,51 @@ function missingCrossObjectCall(
   return undefined;
 }
 
+// The page names a definition's navigate steps open. Only step positions are walked: a function's `steps`, and an
+// if's `then` / `else`, a forEach's `do` and a run's `onError`. Expressions hold no steps, and an expression record
+// (params, with, { object }) may have a key named `navigate` that is not a page.
+const NESTED_STEP_KEYS = ["then", "else", "do", "onError"] as const;
+
+function navigateTargets(definition: { functions?: unknown }): string[] {
+  const found = new Set<string>();
+  const visit = (steps: unknown): void => {
+    if (!Array.isArray(steps)) return;
+
+    for (const step of steps) {
+      if (step === null || typeof step !== "object") continue;
+
+      const entry = step as Record<string, unknown>;
+
+      if (typeof entry.navigate === "string") found.add(entry.navigate);
+
+      for (const key of NESTED_STEP_KEYS) visit(entry[key]);
+    }
+  };
+
+  for (const fn of Array.isArray(definition.functions)
+    ? definition.functions
+    : []) {
+    visit((fn as { steps?: unknown } | null)?.steps);
+  }
+
+  return [...found];
+}
+
+// A navigate step must open a page that exists, as wire_event's navigate must. navigateTo treats a target that is not
+// a page name as a URL, so a missing page with a dotted param could otherwise send the viewer to another host.
+function missingNavigatePage(
+  definition: { functions?: unknown },
+  pages: { name: string }[],
+): string | undefined {
+  const missing = navigateTargets(definition).find(
+    (target) => !pages.some((page) => page.name === target),
+  );
+
+  return missing === undefined
+    ? undefined
+    : `page "${missing}" was not found: a navigate step must open a page of this application`;
+}
+
 // A definition's calls, joined with the calls of every other compiler-authored JS object on the same page, may not
 // form a cycle: each compiled `call` is awaited, so `A.f → B.g → A.f` recurses until the client's evaluation
 // worker dies, and a wired event can start it. Sibling cycles inside the definition are edges too, so a → b → a is
@@ -3827,7 +3872,7 @@ export function buildMcpServer(
 
   registerTool(
     "wire_event",
-    "Wire a widget event to a safe action from a CLOSED vocabulary: run a query, navigate to a page, show/close a modal, show an alert, reset one or more widgets ({ reset: 'Widget' } or { reset: ['A','B'] } — e.g. a Clear button that empties an input and resets a table), append a query's rows to a store key ({ appendToStore: { key, query, field?, fields? } } — an accumulating results table; bind the table with a { store: '<key>' } source/tableData; session-only), or empty one store key ({ clearStoreKey: { key } }), or call one function of a JS object ({ call: { object: 'BannerAdmin', function: 'save', args?: [..] } } — emits BannerAdmin.save(...); the object and function must exist in this application; args are scalar literals or { widget, property } refs, up to 5, never expressions). A run action may chain onSuccess/onError follow-ups from the same vocabulary (e.g. submit -> run insert -> re-run the table's query -> close the modal -> alert). The action may also be an ordered LIST of 2-5 statements with at most one run (e.g. clearStoreKey + reset in one click). Supported events: button onClick, table onRowSelected, modal onClose, tabs onTabSelected, select onOptionChange, input onSubmit, checkbox onCheckChange, switch onChange, datepicker onDateSelected. Queries bound to widgets already run on page load automatically (the server derives on-page-load execution from bindings) — no event needed for that. Modal stacking is policed: opening a modal from inside another modal warns at depth 2 and is rejected at depth 3+ or on a cycle; close the host modal in the same action (closeModal + showModal) for a wizard-style transition that never stacks. Read the page first and pass its revision. The compiler emits the binding; no raw JS or bindings are accepted.",
+    "Wire a widget event to a safe action from a CLOSED vocabulary: run a query, navigate to a page (optionally with URL params: { navigate: 'Ticket Details', params: { id: { table: 'Table1', column: 'zid' } } } opens it with ?id= set to the selected row's zid; a param value is { literal }, { widget, property } or { table, column }; up to 10 identifier keys), show/close a modal, show an alert, reset one or more widgets ({ reset: 'Widget' } or { reset: ['A','B'] } — e.g. a Clear button that empties an input and resets a table), append a query's rows to a store key ({ appendToStore: { key, query, field?, fields? } } — an accumulating results table; bind the table with a { store: '<key>' } source/tableData; session-only), or empty one store key ({ clearStoreKey: { key } }), or call one function of a JS object ({ call: { object: 'BannerAdmin', function: 'save', args?: [..] } } — emits BannerAdmin.save(...); the object and function must exist in this application; args are scalar literals or { widget, property } refs, up to 5, never expressions). A run action may chain onSuccess/onError follow-ups from the same vocabulary (e.g. submit -> run insert -> re-run the table's query -> close the modal -> alert). The action may also be an ordered LIST of 2-5 statements with at most one run (e.g. clearStoreKey + reset in one click). Supported events: button onClick, table onRowSelected, modal onClose, tabs onTabSelected, select onOptionChange, input onSubmit, checkbox onCheckChange, switch onChange, datepicker onDateSelected. Queries bound to widgets already run on page load automatically (the server derives on-page-load execution from bindings) — no event needed for that. Modal stacking is policed: opening a modal from inside another modal warns at depth 2 and is rejected at depth 3+ or on a cycle; close the host modal in the same action (closeModal + showModal) for a wizard-style transition that never stacks. Read the page first and pass its revision. The compiler emits the binding; no raw JS or bindings are accepted.",
     {
       applicationId: idSchema,
       pageId: idSchema,
@@ -7174,7 +7219,7 @@ export function buildMcpServer(
 
       registerTool(
         "create_js_object",
-        "Create a restricted JS object from a declarative definition: constants (JSON literals, read as { constant }) and functions { name, params?, steps?, returns? }. steps is a CLOSED statement vocabulary: { let, value } / { set, value } locals; { run: '<query>', with?: { key: expr }, into?: local } (with becomes this.params.key inside the query; use { param } values in create_mongo_query); { if, then, else? }; { forEach, as, do }; { throw: 'message' }; { return: expr }; { showAlert, style? }; { storeValue, value }; { resetWidget }; { showModal } / { closeModal }; { navigate: '<page>' }; run takes an optional onError: [steps] failure branch; { call: '<siblingFn>' | { object, function }, args?, into? } awaits a function of this object or of another JS object on the same page, checked to exist before writing (both are also usable as a value); a showAlert message may be an expression. Every value is a bounded expression tree, never text: literals, { param }, { var }, { widget, property }, { table, column } (a selected-row column whose name is not an identifier), { query, field? }, { constant }, { store }, { op: add|sub|mul|div|mod|neg|eq|ne|gt|gte|lt|lte|and|or|not, args }, { fn, args } (string, number, date, boolean and array helpers such as trim, split with a named { sep }, number, date, isoString, unique, map/filter with { item: true }, get, coalesce — the full list with arities is in get_guide('js-objects')), { if, then, else }, { object: {..} }, { array: [..] }. Example (the exact JSON shape): { name: 'splitLines', params: ['value'], returns: { fn: 'unique', args: [{ fn: 'filter', args: [{ fn: 'map', args: [{ fn: 'split', args: [{ param: 'value' }, { sep: 'commaOrNewline' }] }, { fn: 'trim', args: [{ item: true }] }] }, { op: 'not', args: [{ fn: 'isEmpty', args: [{ item: true }] }] }] }] } } — note not is an op, item is { item: true }, and a param must be listed in params. Widget/query names may not be host globals (globalThis, eval, navigateTo, …) and property paths may not contain prototype segments. No raw JS, imports, globals, network calls, or regex text. Read get_guide('js-objects') first: it lists every statement, function, operator and separator with complete worked examples (split-and-dedupe, related-field validation, a full Save flow). Pass a JS-list revision from read_js_object. Governed.",
+        "Create a restricted JS object from a declarative definition: constants (JSON literals, read as { constant }) and functions { name, params?, steps?, returns? }. steps is a CLOSED statement vocabulary: { let, value } / { set, value } locals; { run: '<query>', with?: { key: expr }, into?: local } (with becomes this.params.key inside the query; use { param } values in create_mongo_query); { if, then, else? }; { forEach, as, do }; { throw: 'message' }; { return: expr }; { showAlert, style? }; { storeValue, value }; { resetWidget }; { showModal } / { closeModal }; { navigate: '<page>', params?: { key: expr } } (URL query parameters, up to 10); run takes an optional onError: [steps] failure branch; { call: '<siblingFn>' | { object, function }, args?, into? } awaits a function of this object or of another JS object on the same page, checked to exist before writing (both are also usable as a value); a showAlert message may be an expression. Every value is a bounded expression tree, never text: literals, { param }, { var }, { widget, property }, { table, column } (a selected-row column whose name is not an identifier), { query, field? }, { constant }, { store }, { op: add|sub|mul|div|mod|neg|eq|ne|gt|gte|lt|lte|and|or|not, args }, { fn, args } (string, number, date, boolean and array helpers such as trim, split with a named { sep }, number, date, isoString, unique, map/filter with { item: true }, get, coalesce — the full list with arities is in get_guide('js-objects')), { if, then, else }, { object: {..} }, { array: [..] }. Example (the exact JSON shape): { name: 'splitLines', params: ['value'], returns: { fn: 'unique', args: [{ fn: 'filter', args: [{ fn: 'map', args: [{ fn: 'split', args: [{ param: 'value' }, { sep: 'commaOrNewline' }] }, { fn: 'trim', args: [{ item: true }] }] }, { op: 'not', args: [{ fn: 'isEmpty', args: [{ item: true }] }] }] }] } } — note not is an op, item is { item: true }, and a param must be listed in params. Widget/query names may not be host globals (globalThis, eval, navigateTo, …) and property paths may not contain prototype segments. No raw JS, imports, globals, network calls, or regex text. Read get_guide('js-objects') first: it lists every statement, function, operator and separator with complete worked examples (split-and-dedupe, related-field validation, a full Save flow). Pass a JS-list revision from read_js_object. Governed.",
         {
           spec: z.record(z.unknown()),
           branch: gitBranchParamSchema.optional(),
@@ -7226,12 +7271,19 @@ export function buildMcpServer(
 
           const request = buildCreateJsObjectRequest(parsed.data);
           const existing = await api.listActionCollections(applicationId);
-          const dangling = missingCrossObjectCall(
-            parsed.data,
-            existing,
-            [parsed.data.name],
-            parsed.data.pageId,
-          );
+          const dangling =
+            missingCrossObjectCall(
+              parsed.data,
+              existing,
+              [parsed.data.name],
+              parsed.data.pageId,
+            ) ??
+            (navigateTargets(parsed.data).length > 0
+              ? missingNavigatePage(
+                  parsed.data,
+                  projectPages(await api.getApplicationPages(applicationId)),
+                )
+              : undefined);
 
           if (dangling !== undefined) return result({ error: dangling });
 
@@ -7377,15 +7429,25 @@ export function buildMcpServer(
           }
 
           if (parsed.data.functions !== undefined) {
-            const dangling = missingCrossObjectCall(
-              {
-                constants: parsed.data.constants,
-                functions: parsed.data.functions,
-              },
-              collections,
-              [currentName, nextName],
-              currentPageId,
-            );
+            const definition = {
+              constants: parsed.data.constants,
+              functions: parsed.data.functions,
+            };
+            const dangling =
+              missingCrossObjectCall(
+                definition,
+                collections,
+                [currentName, nextName],
+                currentPageId,
+              ) ??
+              (navigateTargets(definition).length > 0
+                ? missingNavigatePage(
+                    definition,
+                    projectPages(
+                      await api.getApplicationPages(parsed.data.applicationId),
+                    ),
+                  )
+                : undefined);
 
             if (dangling !== undefined) return result({ error: dangling });
           }

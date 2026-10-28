@@ -790,6 +790,55 @@ describe("jsExpr — milestone 3: table columns, failure branches, modal and nav
     expect(stepSchema.safeParse({ run: "Q", onError: [] }).success).toBe(false);
   });
 
+  it("APP-16324 F11: compiles a navigate step with URL parameters from expressions", () => {
+    expect(
+      compileSteps(
+        steps([
+          {
+            navigate: "Ticket Details",
+            params: {
+              id: { table: "Table1", column: "zid" },
+              tab: "open",
+            },
+          },
+        ]),
+      ),
+    ).toEqual([
+      'await navigateTo("Ticket Details", { id: Table1.selectedRow["zid"], tab: "open" }, "SAME_WINDOW");',
+    ]);
+    expect(
+      stepSchema.safeParse({
+        navigate: "Ticket Details",
+        params: { constructor: "x" },
+      }).success,
+    ).toBe(false);
+    expect(
+      stepSchema.safeParse({
+        navigate: "Ticket Details",
+        params: Object.fromEntries(
+          Array.from({ length: 11 }, (_, i) => [`p${i}`, i]),
+        ),
+      }).success,
+    ).toBe(false);
+    expect(
+      stepSchema.safeParse({
+        navigate: "Ticket Details",
+        params: Object.fromEntries(
+          Array.from({ length: 10 }, (_, i) => [`p${i}`, i]),
+        ),
+      }).success,
+    ).toBe(true);
+    // A parameter expression is scope-checked like any other value.
+    expect(
+      stepsProblem(
+        steps([
+          { navigate: "Ticket Details", params: { id: { var: "missing" } } },
+        ]),
+        ctx(),
+      ),
+    ).toMatch(/missing/);
+  });
+
   it("compiles showModal / closeModal / navigate steps from validated names", () => {
     expect(
       compileSteps(

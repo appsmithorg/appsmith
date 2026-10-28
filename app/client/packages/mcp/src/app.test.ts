@@ -5793,6 +5793,25 @@ describe("governance-wrapped layout mutations", () => {
     expect(dangling.body.error).toMatch(/"ghostQuery" was not found/);
     expect(updateLayout).not.toHaveBeenCalled();
 
+    // APP-16324 F11: a navigate param that reads a widget not on the page is refused before any write too.
+    const danglingParam = await callTool(server, "wire_event", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision: fingerprintDsl(DSL as never),
+      spec: {
+        widget: "SaveBtn",
+        event: "onClick",
+        action: {
+          navigate: "Details",
+          params: { id: { table: "GhostTable", column: "id" } },
+        },
+      },
+    });
+
+    expect(danglingParam.body.error).toMatch(/"GhostTable" was not found/);
+    expect(updateLayout).not.toHaveBeenCalled();
+
     const wired = await callTool(server, "wire_event", {
       applicationId: "app1",
       pageId: "p1",
@@ -7542,6 +7561,83 @@ describe("governance-wrapped layout mutations", () => {
     const dto = createActionCollection.mock.calls[0][0] as { body: string };
 
     expect(dto.body).toContain("return await Utils.count(); } finally");
+  });
+
+  // Security review of F11: navigateTo treats a target that is not a page as a URL, so a navigate step must open a
+  // page of this application, as wire_event's navigate must.
+  it("create_js_object refuses a navigate step to a page that does not exist, or one named like an IP", async () => {
+    const createActionCollection = jest.fn<
+      Promise<unknown>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "coll-new", name: "Flow" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+        pages: [{ id: "c".repeat(24), name: "Ticket Details" }],
+      })),
+      listPlugins: jest.fn(async () => [
+        { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
+      ]),
+      listActionCollections: jest.fn(async () => []),
+      createActionCollection,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: "a".repeat(24),
+    });
+    const createSteps = async (steps: unknown[]) =>
+      callTool(server, "create_js_object", {
+        spec: {
+          applicationId: "a".repeat(24),
+          pageId: "b".repeat(24),
+          name: "Flow",
+          revision: read.body.revision,
+          functions: [{ name: "go", steps }],
+        },
+      });
+    const create = async (navigate: string) =>
+      createSteps([{ navigate, params: { x: 1.55 } }]);
+
+    // Only step positions are walked: a param named "navigate" is a value, not a page, while a navigate nested in
+    // an if is still checked.
+    expect(
+      String(
+        (
+          await createSteps([
+            {
+              if: true,
+              then: [{ navigate: "Elsewhere" }],
+            },
+          ])
+        ).body.error,
+      ),
+    ).toMatch(/page "Elsewhere" was not found/);
+    expect(createActionCollection).not.toHaveBeenCalled();
+    expect(
+      (
+        await createSteps([
+          {
+            navigate: "Ticket Details",
+            params: { navigate: "not a page" },
+          },
+        ])
+      ).body.created,
+    ).toBe(true);
+    createActionCollection.mockClear();
+
+    expect(String((await create("Missing")).body.error)).toMatch(
+      /page "Missing" was not found/,
+    );
+    expect(JSON.stringify((await create("1572395042")).body)).toMatch(
+      /cannot read as an IP address/,
+    );
+    expect(createActionCollection).not.toHaveBeenCalled();
+
+    expect((await create("Ticket Details")).body.created).toBe(true);
   });
 
   it("create_js_object refuses a definition nested past the JSON depth cap before parsing it", async () => {
