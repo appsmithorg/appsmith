@@ -241,6 +241,13 @@ const FNS = Object.freeze({
   find: [2, 2],
   get: [2, 2],
   coalesce: [2, 4],
+  // Row shaping (APP-16324 F2): sort, cut and summarise a list, and bucket dates for a time series.
+  sortBy: [3, 3],
+  slice: [2, 3],
+  sum: [1, 1],
+  avg: [1, 1],
+  groupBy: [3, 3],
+  dateBucket: [2, 2],
 } as const);
 
 export type Fn = keyof typeof FNS;
@@ -263,7 +270,23 @@ export const LITERAL_TAIL: Readonly<Partial<Record<Fn, number>>> =
     replaceAll: 2,
     join: 1,
     get: 1,
+    sortBy: 2,
+    dateBucket: 1,
+    // groupBy is not listed: its key (argument 2) must be a literal too, but the tail counts from the end and the
+    // last argument is the aggregate. exprProblem checks the key directly.
   });
+
+// sortBy's direction and dateBucket's unit: closed sets, each choosing a fixed template.
+export const SORT_DIRECTIONS = ["asc", "desc"] as const;
+export const DATE_BUCKETS = ["day", "week", "month"] as const;
+// The most groups groupBy builds. Past it, the call throws instead of returning a cut list.
+export const GROUP_BY_MAX_GROUPS = 10000;
+
+// groupBy's third argument: what each group's `value` is. Admitted only in that position (enforced in exprProblem).
+export type GroupAggregate =
+  | { count: true }
+  | { sum: string }
+  | { avg: string };
 
 export type Expr =
   | Literal
@@ -277,8 +300,9 @@ export type Expr =
   | { constant: string }
   | { store: string }
   | { op: Op; args: Expr[] }
-  // `{ sep }` is admitted only as split's second argument (enforced in exprProblem).
-  | { fn: Fn; args: (Expr | { sep: SeparatorName })[] }
+  // `{ sep }` is admitted only as split's second argument, and a GroupAggregate only as groupBy's third (enforced in
+  // exprProblem).
+  | { fn: Fn; args: FnArg[] }
   | { if: Expr; then: Expr; else: Expr }
   | { object: Record<string, Expr> }
   | { array: Expr[] }
@@ -289,6 +313,39 @@ export type Expr =
   // existence the tool checks against the application before writing. Not allowed inside a per-item callback
   // (those are synchronous arrows).
   | { call: string | { object: string; function: string }; args?: Expr[] };
+
+export type FnArg = Expr | { sep: SeparatorName } | GroupAggregate;
+
+// A function argument is an Expr or one of two other shapes. This is split's `{ sep }`.
+function isSepArg(arg: FnArg): arg is { sep: SeparatorName } {
+  return typeof arg === "object" && arg !== null && "sep" in arg;
+}
+
+// The other shape: groupBy's aggregate. It names exactly one of count, sum or avg, so an object mixing them is not an
+// aggregate and is refused, even if a caller skipped the zod schema.
+function isGroupAggregate(arg: FnArg): arg is GroupAggregate {
+  if (typeof arg !== "object" || arg === null || Array.isArray(arg)) {
+    return false;
+  }
+
+  const keys = Object.keys(arg);
+
+  return (
+    keys.length === 1 &&
+    (keys[0] === "count" || keys[0] === "sum" || keys[0] === "avg")
+  );
+}
+
+// An object that names count, sum or avg but is not exactly one of them: a malformed aggregate.
+function isMalformedAggregate(arg: FnArg): boolean {
+  return (
+    typeof arg === "object" &&
+    arg !== null &&
+    !Array.isArray(arg) &&
+    !isGroupAggregate(arg) &&
+    ("count" in arg || "sum" in arg || "avg" in arg)
+  );
+}
 
 export const CALL_MAX_ARGS = 8;
 // Runtime guard at every compiled `call` site: a per-object counter (`this.mcpCallDepth`, an undeclared own property
@@ -304,6 +361,12 @@ const callTarget = z.union([
 ]);
 
 const sepArg = z.object({ sep: separatorSchema }).strict();
+// The field is checked as a plain, non-prototype key in exprProblem, like get's key.
+const groupAggregateArg = z.union([
+  z.object({ count: z.literal(true) }).strict(),
+  z.object({ sum: z.string().max(128) }).strict(),
+  z.object({ avg: z.string().max(128) }).strict(),
+]);
 
 export const exprSchema: z.ZodType<Expr> = z.lazy(() =>
   z.union([
@@ -324,7 +387,7 @@ export const exprSchema: z.ZodType<Expr> = z.lazy(() =>
     z
       .object({
         fn: z.enum(FN_NAMES),
-        args: z.array(z.union([exprSchema, sepArg])).max(8),
+        args: z.array(z.union([exprSchema, sepArg, groupAggregateArg])).max(8),
       })
       .strict(),
     z.object({ if: exprSchema, then: exprSchema, else: exprSchema }).strict(),
@@ -473,6 +536,16 @@ function isLiteral(expr: Expr): expr is Literal {
   return expr === null || typeof expr !== "object";
 }
 
+// A key that lands in `x?.[key]` (get, sortBy, groupBy): a plain identifier and never a prototype name, so a read
+// can never reach Object.prototype.
+function isPlainKey(key: string): boolean {
+  return (
+    IDENTIFIER.test(key) &&
+    !PROTOTYPE_PROPERTY_NAMES.has(key) &&
+    key !== "prototype"
+  );
+}
+
 function countNodes(expr: Expr): number {
   if (isLiteral(expr)) return 1;
 
@@ -485,10 +558,10 @@ function countNodes(expr: Expr): number {
   if ("op" in expr || "fn" in expr) {
     return (
       1 +
-      (expr.args as (Expr | { sep: SeparatorName })[]).reduce(
+      (expr.args as FnArg[]).reduce(
         (sum: number, arg) =>
           sum +
-          (typeof arg === "object" && arg !== null && "sep" in arg
+          (isSepArg(arg) || isGroupAggregate(arg)
             ? 1
             : countNodes(arg as Expr)),
         0,
@@ -620,7 +693,7 @@ export function exprProblem(
 
   if ("fn" in expr) {
     const [min, max] = FNS[expr.fn];
-    const args = expr.args as (Expr | { sep: SeparatorName })[];
+    const args = expr.args as FnArg[];
 
     if (args.length < min || args.length > max) {
       return `fn ${expr.fn} takes ${min === max ? min : `${min}-${max}`} argument(s)`;
@@ -631,7 +704,7 @@ export function exprProblem(
     for (let index = 0; index < args.length; index += 1) {
       const arg = args[index];
 
-      if (typeof arg === "object" && arg !== null && "sep" in arg) {
+      if (isSepArg(arg)) {
         if (expr.fn !== "split" || index !== 1) {
           return "{ sep } is only valid as the second argument of split";
         }
@@ -639,18 +712,65 @@ export function exprProblem(
         continue;
       }
 
-      if (index >= args.length - literalTail && typeof arg !== "string") {
-        return `fn ${expr.fn}: argument ${index + 1} must be a string literal`;
+      if (isMalformedAggregate(arg)) {
+        return "fn groupBy: the aggregate must name exactly one of count, sum or avg";
+      }
+
+      if (isGroupAggregate(arg)) {
+        if (expr.fn !== "groupBy" || index !== 2) {
+          return "{ count }, { sum } or { avg } is only valid as the third argument of groupBy";
+        }
+
+        if ("count" in arg) {
+          if (arg.count !== true) {
+            return "fn groupBy: count must be { count: true }";
+          }
+        } else {
+          const field = "sum" in arg ? arg.sum : arg.avg;
+
+          if (typeof field !== "string" || !isPlainKey(field)) {
+            return "fn groupBy: the summed or averaged field must be a plain, non-prototype identifier";
+          }
+        }
+
+        continue;
+      }
+
+      if (expr.fn === "groupBy" && index === 2) {
+        return "fn groupBy: argument 3 must be { count: true }, { sum: field } or { avg: field }";
       }
 
       if (
-        expr.fn === "get" &&
-        index === 1 &&
-        (!IDENTIFIER.test(arg as string) ||
-          PROTOTYPE_PROPERTY_NAMES.has(arg as string) ||
-          (arg as string) === "prototype")
+        (index >= args.length - literalTail ||
+          (expr.fn === "groupBy" && index === 1)) &&
+        typeof arg !== "string"
       ) {
-        return "fn get: the key must be a plain, non-prototype identifier";
+        return `fn ${expr.fn}: argument ${index + 1} must be a string literal`;
+      }
+
+      // The key positions: each lands in `row?.[key]`, so it must be a plain identifier and never a prototype name.
+      if (
+        index === 1 &&
+        (expr.fn === "get" || expr.fn === "sortBy" || expr.fn === "groupBy") &&
+        !isPlainKey(arg as string)
+      ) {
+        return `fn ${expr.fn}: the key must be a plain, non-prototype identifier`;
+      }
+
+      if (
+        expr.fn === "sortBy" &&
+        index === 2 &&
+        !(SORT_DIRECTIONS as readonly string[]).includes(arg as string)
+      ) {
+        return 'fn sortBy: the direction must be "asc" or "desc"';
+      }
+
+      if (
+        expr.fn === "dateBucket" &&
+        index === 1 &&
+        !(DATE_BUCKETS as readonly string[]).includes(arg as string)
+      ) {
+        return 'fn dateBucket: the unit must be "day", "week" or "month"';
       }
 
       if (
@@ -943,6 +1063,67 @@ function stepProblem(
 const q = (value: unknown): string => JSON.stringify(value);
 // Coerces an arbitrary value to a real array so array methods are always invoked on a genuine Array.
 const ARRAY_OF = "((v) => Array.isArray(v) ? v : [])";
+// A value as a number for sum, avg and groupBy: a number as it is, a non-empty string through Number(), and
+// anything else NaN, so it is skipped. Plain Number() would count null as 0 and [5] as 5.
+const NUMBER_OF =
+  '((v) => typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" ? Number(v) : NaN)';
+// A slice bound: a whole number, with NaN as 0. Array.prototype.slice clamps the rest.
+const INDEX_OF =
+  "((n) => { const v = Math.trunc(Number(n)); return Number.isNaN(v) ? 0 : v; })";
+
+// sortBy: a copy sorted by `row?.[key]`. Values are ranked by type first (numbers, then valid Dates, then strings,
+// then everything else, empty values included), so the comparator is always consistent. Only the order within a
+// rank follows the direction, so empty values stay last either way. Strings use one Intl.Collator per call.
+function compileSortBy(list: string, key: string, direction: string): string {
+  const sign = direction === "desc" ? "-" : "";
+
+  return `((rows) => { const collator = new Intl.Collator(); const rank = (v) => typeof v === "number" && !Number.isNaN(v) ? 0 : v instanceof Date && !Number.isNaN(v.getTime()) ? 1 : typeof v === "string" ? 2 : 3; return [...rows].sort((x, y) => { const a = x?.[${key}]; const b = y?.[${key}]; const ra = rank(a); const rb = rank(b); if (ra !== rb) { return ra - rb; } const c = ra === 0 ? a - b : ra === 1 ? a.getTime() - b.getTime() : ra === 2 ? collator.compare(a, b) : 0; return ${sign}c; }); })(${ARRAY_OF}(${list}))`;
+}
+
+// groupBy: one `{ key, value }` row per distinct `row?.[key]`, in first-seen order. Groups live in a Map, so a data
+// value such as "__proto__" is only a key, and an object key is its own group. Past GROUP_BY_MAX_GROUPS it throws.
+function compileGroupBy(
+  list: string,
+  key: string,
+  aggregate: GroupAggregate,
+): string {
+  const field =
+    "sum" in aggregate
+      ? aggregate.sum
+      : "avg" in aggregate
+        ? aggregate.avg
+        : undefined;
+  // The number helper is bound once per call, not rebuilt for every row.
+  const accumulate =
+    field === undefined
+      ? ""
+      : ` const n = num(row?.[${q(field)}]); if (Number.isFinite(n)) { group.total += n; group.n += 1; }`;
+  const value =
+    "count" in aggregate
+      ? "group.count"
+      : "sum" in aggregate
+        ? "group.total"
+        : "group.n === 0 ? null : group.total / group.n";
+
+  return `((rows) => { const num = ${NUMBER_OF}; const groups = new Map(); for (const row of rows) { const k = row?.[${key}]; let group = groups.get(k); if (group === undefined) { if (groups.size >= ${GROUP_BY_MAX_GROUPS}) { throw new Error("groupBy: more than ${GROUP_BY_MAX_GROUPS} groups"); } group = { count: 0, total: 0, n: 0 }; groups.set(k, group); } group.count += 1;${accumulate} } return [...groups].map(([k, group]) => ({ key: k, value: ${value} })); })(${ARRAY_OF}(${list}))`;
+}
+
+// dateBucket: the start of the UTC day, ISO week (Monday) or month, as YYYY-MM-DD. A missing or invalid date is null.
+// new Date() reads null and false as 1970, so null, undefined, "" and booleans are refused first: a SQL NULL date
+// must not land in a 1970 bucket. After the week or month step, a year outside 0000-9999 is null too: toISOString
+// writes such a year as "+275760" (breaking the YYYY-MM-DD shape), and getUTCFullYear is NaN for a date the step
+// pushed out of range.
+function compileDateBucket(date: string, unit: string): string {
+  const adjust =
+    unit === "month"
+      ? " d.setUTCDate(1);"
+      : unit === "week"
+        ? " d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));"
+        : "";
+
+  return `((v) => { if (v == null || v === "" || typeof v === "boolean") { return null; } const d = new Date(v); if (Number.isNaN(d.getTime())) { return null; }${adjust} const year = d.getUTCFullYear(); if (!(year >= 0 && year <= 9999)) { return null; } return d.toISOString().slice(0, 10); })(${date})`;
+}
+
 // Refuses to call a query with an undefined parameter (see the run step in compileSteps).
 const PARAMS_GUARD =
   '(($p) => { for (const $k of Object.keys($p)) { if ($p[$k] === undefined) { throw new Error("missing query parameter: " + $k); } } return $p; })';
@@ -1026,11 +1207,14 @@ export function compileExpr(expr: Expr): string {
   }
 
   if ("fn" in expr) {
-    const args = expr.args as (Expr | { sep: SeparatorName })[];
+    const args = expr.args as FnArg[];
+    // A GroupAggregate compiles inside compileGroupBy, so its slot here stays empty.
     const a = args.map((arg) =>
-      typeof arg === "object" && arg !== null && "sep" in arg
+      isSepArg(arg)
         ? SEPARATORS[arg.sep]
-        : compileExpr(arg as Expr),
+        : isGroupAggregate(arg)
+          ? ""
+          : compileExpr(arg as Expr),
     );
 
     switch (expr.fn) {
@@ -1109,6 +1293,20 @@ export function compileExpr(expr: Expr): string {
         return `(${a[0]})?.[${a[1]}]`;
       case "coalesce":
         return `(${a.join(" ?? ")})`;
+      // The key, direction and unit are validated literals: the key is emitted JSON-quoted, and the direction and
+      // unit only choose a template.
+      case "sortBy":
+        return compileSortBy(a[0], a[1], args[2] as string);
+      case "slice":
+        return `${ARRAY_OF}(${a[0]}).slice(${INDEX_OF}(${a[1]})${a.length === 3 ? `, ${INDEX_OF}(${a[2]})` : ""})`;
+      case "sum":
+        return `((list) => { const num = ${NUMBER_OF}; let total = 0; for (const v of list) { const n = num(v); if (Number.isFinite(n)) { total += n; } } return total; })(${ARRAY_OF}(${a[0]}))`;
+      case "avg":
+        return `((list) => { const num = ${NUMBER_OF}; let total = 0; let count = 0; for (const v of list) { const n = num(v); if (Number.isFinite(n)) { total += n; count += 1; } } return count === 0 ? null : total / count; })(${ARRAY_OF}(${a[0]}))`;
+      case "groupBy":
+        return compileGroupBy(a[0], a[1], args[2] as GroupAggregate);
+      case "dateBucket":
+        return compileDateBucket(a[0], args[1] as string);
     }
   }
 

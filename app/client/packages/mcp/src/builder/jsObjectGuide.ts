@@ -3,6 +3,7 @@ import {
   EXPR_MAX_NODES,
   FN_ARITY,
   type Fn,
+  GROUP_BY_MAX_GROUPS,
   ITEM_FNS,
   LITERAL_TAIL,
   type Op,
@@ -65,6 +66,15 @@ const FN_DESCRIPTIONS: Record<Fn, string> = {
   find: "first element whose per-item expression is truthy",
   get: "read a literal key of an object (`x?.[key]`); the key is a plain identifier, never a prototype name",
   coalesce: "first non-null of 2–4 values",
+  sortBy:
+    'a sorted copy of a list of rows by a literal key (a plain identifier, never a prototype name), `"asc"` or `"desc"`: numbers, then dates, then text in the viewer\'s locale order, with empty and other values last either way. Text that looks like a number (`"10"`, common for numeric SQL columns) sorts as text, so `map` it through `number` first. For a large query, bind a widget to `slice` or `groupBy` output, not the whole sorted copy',
+  slice:
+    "part of a list, from a start index to an optional end index (cut to whole numbers; negative counts from the end)",
+  sum: 'total of a list\'s numbers; numeric text counts, and null, empty text, booleans and objects are skipped (0 for an empty list). To total one column, `sum` a `map` of `{ "fn": "get", "args": [{ "item": true }, "amount"] }`',
+  avg: "average of a list's numbers, skipping values as `sum` does (null for an empty list)",
+  groupBy: `one \`{ key, value }\` row per distinct value of a literal key (a plain identifier, never a prototype name), in first-seen order; the third arg is \`{ "count": true }\`, \`{ "sum": "field" }\` or \`{ "avg": "field" }\` (a literal, plain field); at most ${GROUP_BY_MAX_GROUPS.toLocaleString("en-US")} groups, after which it throws`,
+  dateBucket:
+    'the start of a date\'s UTC `"day"`, ISO `"week"` (Monday) or `"month"`, as `YYYY-MM-DD` text (null for a missing or invalid date). Text without a time zone is read in the viewer\'s local time, so send ISO text with `Z` or an offset',
 };
 
 const OP_DESCRIPTIONS: Record<Op, string> = {
@@ -116,7 +126,10 @@ export const FN_GROUPS: { title: string; names: Fn[] }[] = [
     names: ["number", "string", "boolean", "isEmpty", "coalesce", "get"],
   },
   { title: "Numbers", names: ["round", "abs", "min", "max"] },
-  { title: "Dates", names: ["date", "now", "isoString", "isValidDate"] },
+  {
+    title: "Dates",
+    names: ["date", "now", "isoString", "isValidDate", "dateBucket"],
+  },
   {
     title: "Arrays",
     names: [
@@ -131,6 +144,10 @@ export const FN_GROUPS: { title: string; names: Fn[] }[] = [
       "every",
       "find",
     ],
+  },
+  {
+    title: "Sorting and summarising rows",
+    names: ["sortBy", "slice", "sum", "avg", "groupBy"],
   },
 ];
 
@@ -149,6 +166,51 @@ export const JS_OBJECT_GUIDE_EXAMPLES: {
           name: "refresh",
           run: [{ query: "GetOrders" }],
           returns: { finished: true },
+        },
+      ],
+    },
+  },
+  {
+    title: "A weekly count for a chart",
+    what: 'Counts the rows of the `Tickets` query per ISO week (UTC, starting Monday), oldest week first. Bind a chart to `{{ Stats.weekly() }}`: each row is `{ key: "2026-10-26", value: 12 }`. A row whose date is missing or invalid lands in a `null` week, sorted last.',
+    definition: {
+      functions: [
+        {
+          name: "weekly",
+          returns: {
+            fn: "sortBy",
+            args: [
+              {
+                fn: "groupBy",
+                args: [
+                  {
+                    fn: "map",
+                    args: [
+                      { query: "Tickets" },
+                      {
+                        object: {
+                          week: {
+                            fn: "dateBucket",
+                            args: [
+                              {
+                                fn: "get",
+                                args: [{ item: true }, "created_at"],
+                              },
+                              "week",
+                            ],
+                          },
+                        },
+                      },
+                    ],
+                  },
+                  "week",
+                  { count: true },
+                ],
+              },
+              "key",
+              "asc",
+            ],
+          },
         },
       ],
     },
