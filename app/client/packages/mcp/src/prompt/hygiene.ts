@@ -66,6 +66,12 @@ export function truncateForPrompt(text: string, max: number): string {
 // hygiene-rejected, but names/branches are not under our control) and double quotes are replaced so interpolated
 // text cannot visually escape its quoted position in the prompt (M7 security code review, concerns 2–3).
 export function promptSafe(text: string): string {
+  return stripPromptControls(text).replaceAll('"', "'");
+}
+
+// promptSafe's character stripping without the quote rewrite. The extension host applies it to a whole prompt that an
+// edition built, whose own quotes must stay.
+export function stripPromptControls(text: string): string {
   let cleaned = "";
 
   for (const ch of text) {
@@ -79,7 +85,7 @@ export function promptSafe(text: string): string {
     )
       continue;
 
-    cleaned += ch === '"' ? "'" : ch;
+    cleaned += ch;
   }
 
   return cleaned;

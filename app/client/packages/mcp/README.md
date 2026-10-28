@@ -402,8 +402,9 @@ files. Checklist:
    `EXTENSION_TOOL_ANNOTATIONS` entry. `catalog.ts` is data only, with `import type` and nothing else, because core
    modules read it at load. Optional: `EXTENSION_GUIDES` (served by `get_guide` and `appsmith://guide/<slug>`) and
    `EXTENSION_SERVER_INSTRUCTIONS` (appended to the initialize instructions).
-3. **Register in `tools.ts`** through `host.registerTool` only. It throws for a name that is not catalogued, and for
-   a caller-supplied annotations object. It skips a tool whose gate is off, so register every tool unconditionally.
+3. **Register in `tools.ts`** through `host.registerTool`, or `host.registerGovernedOperation` for a destructive
+   operation (item 5), never `server.tool`. `registerTool` throws for a name that is not catalogued, and for a
+   caller-supplied annotations object. Both skip a tool whose gate is off, so register every tool unconditionally.
    Any runtime import from `app.ts` there may only be used inside functions (`app.ts` imports `tools.ts`).
 4. **Gates**: use a core gate (`always`, `data`, `governance`, ...) or an edition gate `extension:<name>`. Every
    `extension:<name>` needs an `EXTENSION_GATE_REQUIREMENTS[<name>]` (`requires` / `provides`, shown in
@@ -412,12 +413,22 @@ files. Checklist:
    and is never stored. Missing, non-`true`, a throw, or no answer within `EXTENSION_GATES_TIMEOUT_MS` (5 s) all
    mean off. Because it is re-resolved per build, an entitlement change mid-session can make replicas disagree about
    one session until the client reconnects — the same posture as `isAdmin`. `host.gates` is frozen.
-5. **No destructive tools yet.** The host refuses `destructiveHint: true`, and a non-read-only tool that leaves
-   `destructiveHint` unset, until it offers governed approval (prepare/confirm, elicitation) to extensions.
+5. **Destructive operations are governed pairs.** `host.registerTool` refuses `destructiveHint: true`, and a
+   non-read-only tool that leaves `destructiveHint` unset. Register a destructive operation with
+   `host.registerGovernedOperation` instead. It adds a prepare tool and a confirm tool, and the host runs the
+   one-time token, the git branch gate and the user's approval prompt. The edition supplies a spec schema, `plan`
+   and `execute` (see `GovernedOperation` in `src/ce/extensions/tools.ts`). Requirements:
+
+   - Catalog both tools with `governed: true`. They are on only when their gate is on and governance is configured,
+     and `get_capabilities` reports the same.
+   - Annotate the prepare tool as a non-destructive write and the confirm tool `destructiveHint: true` (not
+     read-only).
+   - In `execute`, write through `ctx.governance.execute` with `expectedRevision: target.revision`.
+
    **Labelling rule for reviewers:** any tool that triggers, runs or publishes a workflow, or has any other external
-   side effect, must be annotated `destructiveHint: true` — and is therefore refused until CE adds that approval
-   layer. Annotations are not access control: server-side licence and ACL enforcement on `/api/v1/workflows` stays
-   mandatory.
+   side effect, must be annotated `destructiveHint: true`, so it must be a governed pair. Annotations are not access
+   control: server-side licence and ACL enforcement on `/api/v1/workflows` stays mandatory.
+
 6. **Capabilities**: `capabilities.ts` returns extra top-level `get_capabilities` sections; a key that collides with
    a core section is refused. An edition's override must keep a `workflows` section with an `available` key
    (`extensions.test.ts` asserts it).
@@ -437,8 +448,8 @@ files. Checklist:
 
 **Where each check fails.** Catalog, annotation and guide-slug collisions, and an edition gate with no
 `EXTENSION_GATE_REQUIREMENTS` entry, throw at **module load** (the server will not start, and every test that
-imports the module fails). A bad registration (uncatalogued, destructive, or with caller-supplied annotations)
-throws inside `buildMcpServer`, so **every initialize fails** while the process stays up — keep a server-building
+imports the module fails). A bad registration (uncatalogued, destructive, or with caller-supplied annotations, or a
+governed pair that is not catalogued `governed: true` or is annotated wrongly) throws inside `buildMcpServer`, so **every initialize fails** while the process stays up — keep a server-building
 test like those in `extensions.test.ts`. An API method that shadows a core one throws in **every
 `createAppsmithApi` call**. A capability section that overwrites a core one throws on **every `get_capabilities`
 call**. On the server, an extension rule outside `extensionPathPrefixes()`, a prefix in a core route family or with a
