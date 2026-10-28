@@ -2117,24 +2117,31 @@ function missingCrossObjectCall(
   return undefined;
 }
 
-// The page names a definition's navigate steps open. A step is the only node whose `navigate` holds a string.
+// The page names a definition's navigate steps open. Only step positions are walked: a function's `steps`, and an
+// if's `then` / `else`, a forEach's `do` and a run's `onError`. Expressions hold no steps, and an expression record
+// (params, with, { object }) may have a key named `navigate` that is not a page.
+const NESTED_STEP_KEYS = ["then", "else", "do", "onError"] as const;
+
 function navigateTargets(definition: { functions?: unknown }): string[] {
   const found = new Set<string>();
-  const stack: unknown[] = [definition.functions];
+  const visit = (steps: unknown): void => {
+    if (!Array.isArray(steps)) return;
 
-  while (stack.length > 0) {
-    const node = stack.pop();
+    for (const step of steps) {
+      if (step === null || typeof step !== "object") continue;
 
-    if (node === null || typeof node !== "object") continue;
+      const entry = step as Record<string, unknown>;
 
-    if (
-      !Array.isArray(node) &&
-      typeof (node as { navigate?: unknown }).navigate === "string"
-    ) {
-      found.add((node as { navigate: string }).navigate);
+      if (typeof entry.navigate === "string") found.add(entry.navigate);
+
+      for (const key of NESTED_STEP_KEYS) visit(entry[key]);
     }
+  };
 
-    stack.push(...Object.values(node as Record<string, unknown>));
+  for (const fn of Array.isArray(definition.functions)
+    ? definition.functions
+    : []) {
+    visit((fn as { steps?: unknown } | null)?.steps);
   }
 
   return [...found];

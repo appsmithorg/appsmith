@@ -7825,21 +7825,45 @@ describe("governance-wrapped layout mutations", () => {
     const read = await callTool(server, "read_js_object", {
       applicationId: "a".repeat(24),
     });
-    const create = async (navigate: string) =>
+    const createSteps = async (steps: unknown[]) =>
       callTool(server, "create_js_object", {
         spec: {
           applicationId: "a".repeat(24),
           pageId: "b".repeat(24),
           name: "Flow",
           revision: read.body.revision,
-          functions: [
-            {
-              name: "go",
-              steps: [{ navigate, params: { x: 1.55 } }],
-            },
-          ],
+          functions: [{ name: "go", steps }],
         },
       });
+    const create = async (navigate: string) =>
+      createSteps([{ navigate, params: { x: 1.55 } }]);
+
+    // Only step positions are walked: a param named "navigate" is a value, not a page, while a navigate nested in
+    // an if is still checked.
+    expect(
+      String(
+        (
+          await createSteps([
+            {
+              if: true,
+              then: [{ navigate: "Elsewhere" }],
+            },
+          ])
+        ).body.error,
+      ),
+    ).toMatch(/page "Elsewhere" was not found/);
+    expect(createActionCollection).not.toHaveBeenCalled();
+    expect(
+      (
+        await createSteps([
+          {
+            navigate: "Ticket Details",
+            params: { navigate: "not a page" },
+          },
+        ])
+      ).body.created,
+    ).toBe(true);
+    createActionCollection.mockClear();
 
     expect(String((await create("Missing")).body.error)).toMatch(
       /page "Missing" was not found/,
