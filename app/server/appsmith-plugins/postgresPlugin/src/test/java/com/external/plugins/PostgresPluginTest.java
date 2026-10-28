@@ -1738,8 +1738,9 @@ public class PostgresPluginTest {
      */
     @Test
     public void testSplitGroupColumnCountsEachTrimmedItem() {
+        // The NULL row has no items, so the CROSS JOIN leaves it out: it adds no group and no count.
         String rows =
-                "(VALUES ('billing, export'), ('billing'), ('N/A'), ('export ,billing')) AS tickets(\"feature_tags\")";
+                "(VALUES ('billing, export'), ('billing'), ('N/A'), ('export ,billing'), (NULL)) AS tickets(\"feature_tags\")";
         ActionExecutionResult result = runStatement(
                 "SELECT TRIM(mcp_split.mcp_split_value) AS \"feature_tags\", COUNT(*) AS count FROM " + rows
                         + " CROSS JOIN LATERAL unnest(string_to_array(\"feature_tags\", {{binding1}}))"
