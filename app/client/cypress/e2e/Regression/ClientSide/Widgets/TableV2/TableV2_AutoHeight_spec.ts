@@ -97,7 +97,7 @@ describe(
     it("3. Auto Height table body does not scroll vertically", function () {
       selectTable();
       propPane.SelectPropertiesDropDown("Height", "Auto Height");
-      setRowsPerPage(12);
+      setRowsPerPage(20);
       cy.get(autoHeightLocators.bodyScrollWrapper).should(($wrapper) => {
         expect($wrapper[0].scrollHeight).to.be.at.most(
           $wrapper[0].clientHeight,
