@@ -1686,6 +1686,28 @@ public class PostgresPluginTest {
                         List.of(param("binding1", "%billing", ClientDataType.STRING)))));
     }
 
+    /*
+     * The coalesced group column the MCP compiler emits (APP-16324 F1.4): the fallback is a prepared parameter inside
+     * the select list, and GROUP BY uses the stored column. NULLs form one group, shown under the fallback. The SQL
+     * shape matches app/client/packages/mcp/src/builder/query.test.ts.
+     */
+    @Test
+    public void testCoalescedGroupColumnUsesAParameterFallback() {
+        String rows = "(VALUES ('1.0'), ('1.0'), (NULL), (NULL), (NULL)) AS t(\"appsmith_version\")";
+        ActionExecutionResult result = runStatement(
+                "SELECT COALESCE(\"appsmith_version\", {{binding1}}) AS \"appsmith_version\", COUNT(*) AS count FROM "
+                        + rows + " GROUP BY \"appsmith_version\" ORDER BY \"appsmith_version\" DESC;",
+                true,
+                List.of(param("binding1", "Unknown", ClientDataType.STRING)));
+
+        ArrayNode body = (ArrayNode) result.getBody();
+        assertEquals(2, body.size());
+        assertEquals("Unknown", body.get(0).get("appsmith_version").asText());
+        assertEquals(3, body.get(0).get("count").asInt());
+        assertEquals("1.0", body.get(1).get("appsmith_version").asText());
+        assertEquals(2, body.get(1).get("count").asInt());
+    }
+
     @Test
     public void testNullFilterOnWriteDeletesOnlyNullRows() {
         runStatement("DROP TABLE IF EXISTS public.mcp_null_filter;", false, List.of());

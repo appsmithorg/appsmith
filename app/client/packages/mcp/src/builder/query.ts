@@ -41,12 +41,14 @@ const propertyPath = z
 // A scalar literal that cannot contain expression/template syntax (mirrors the schema's scalarCell).
 // U+2028/U+2029 are included for the same reason schema.ts documents: JSON.stringify does NOT escape them,
 // so a value carrying one can break out of the emitted string literal on an older JS engine.
+// Numbers must be finite: JSON input such as 1e999 parses to Infinity, which JSON.stringify emits as null, so the
+// literal would silently bind NULL.
 const literalScalar = z.union([
   z
     .string()
     .max(1000)
     .refine((value) => !RAW_EXPRESSION.test(value), "no template syntax"),
-  z.number(),
+  z.number().finite(),
   z.boolean(),
   z.null(),
 ]);
@@ -293,6 +295,31 @@ export interface CompileQueryOptions {
   dialect?: SqlDialect;
 }
 
+// A selected or grouped column. A plain name, or `{ column, coalesce: { literal } }`, which reads a fallback for
+// NULL and keeps the column's name: `COALESCE(col, {{ literal }}) AS col`. The fallback is a bound parameter. It
+// cannot be null (COALESCE with NULL changes nothing) or a widget value.
+const coalesceColumnSchema = z
+  .object({
+    column: sqlIdentifier,
+    coalesce: z
+      .object({
+        literal: literalScalar.refine(
+          (value) => value !== null,
+          "coalesce needs a non-null literal",
+        ),
+      })
+      .strict(),
+  })
+  .strict();
+
+const selectColumnSchema = z.union([sqlIdentifier, coalesceColumnSchema]);
+
+type SelectColumn = z.infer<typeof selectColumnSchema>;
+
+function columnNameOf(entry: SelectColumn): string {
+  return typeof entry === "string" ? entry : entry.column;
+}
+
 // A CLOSED set of aggregate functions. The SQL keyword is compiler-emitted from the enum, never interpolated from
 // agent text; the alias is the fn name itself (also from the enum), so agents/queries can reference the result column
 // by a stable, safe name.
@@ -312,7 +339,7 @@ export const querySpecSchema = z
     datasourceId: storedId,
     operation: z.enum(["SELECT", "INSERT", "UPDATE", "DELETE"]),
     table: qualifiedName,
-    columns: z.array(sqlIdentifier).max(100).optional(),
+    columns: z.array(selectColumnSchema).max(100).optional(),
     filters: z.array(filterEntrySchema).max(20).optional(),
     values: z
       .array(z.object({ column: sqlIdentifier, value: valueRef }).strict())
@@ -340,14 +367,43 @@ export const querySpecSchema = z
       })
       .strict()
       .optional(),
-    // GROUP BY columns for an aggregated SELECT — each an allow-listed identifier, emitted quoted.
-    groupBy: z.array(sqlIdentifier).max(20).optional(),
+    // GROUP BY columns for an aggregated SELECT — each an allow-listed identifier, quoted by quoteIdentifier (bare on
+    // MySQL).
+    groupBy: z.array(selectColumnSchema).max(20).optional(),
     limit: z.number().int().min(1).max(1000).optional(),
   })
   .strict()
   // orderBy/aggregate/groupBy shape a SELECT only; compileQuery ignores them on INSERT/UPDATE/DELETE. Reject them
   // there so an agent gets clear feedback instead of a silently-dropped clause.
   .superRefine((spec, ctx) => {
+    // A grouped column's coalesce appears in the aggregated select list only. Without an aggregate the select list is
+    // `columns` or `*`, so the coalesce would be dropped without a word.
+    if (spec.aggregate === undefined) {
+      (spec.groupBy ?? []).forEach((entry, index) => {
+        if (typeof entry !== "string") {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message:
+              "coalesce on a groupBy column needs an aggregate; to coalesce a plain column, put it in columns",
+            path: ["groupBy", index, "coalesce"],
+          });
+        }
+      });
+    } else {
+      // With an aggregate, the select list is the group columns and the aggregate only, so a `columns` coalesce would
+      // be dropped without a word too. Plain `columns` entries stay ignored, as before.
+      (spec.columns ?? []).forEach((entry, index) => {
+        if (typeof entry !== "string") {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message:
+              "coalesce in columns is ignored when an aggregate is set; put the column in groupBy instead",
+            path: ["columns", index, "coalesce"],
+          });
+        }
+      });
+    }
+
     if (spec.operation === "SELECT") return;
 
     // A skipped filter widens the WHERE clause. That is harmless on a read. On UPDATE or DELETE, an empty widget would
@@ -413,6 +469,18 @@ export const querySpecSchema = z
         });
       }
     }
+
+    // Plain columns on a write have always been ignored, and still are. A coalesce entry is refused instead, so the
+    // agent learns it has no effect.
+    (spec.columns ?? []).forEach((entry, index) => {
+      if (typeof entry !== "string") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "coalesce is only valid on a SELECT query",
+          path: ["columns", index, "coalesce"],
+        });
+      }
+    });
   });
 
 export type QuerySpec = z.infer<typeof querySpecSchema>;
@@ -635,35 +703,76 @@ function emitCondition(
   return `${filter.column} ${OPERATORS[filter.op]} ${binding}`;
 }
 
-// Emit `ORDER BY "col" ASC, "col2" DESC`. Columns are allow-listed identifiers (the charset admits no
-// quote/backslash), so quoting them is safe and unquotable; direction comes from a two-value enum, never agent text.
-function emitOrderBy(orderBy: QuerySpec["orderBy"]): string {
+// Quote an allow-listed column identifier for the dialect. MySQL and MariaDB read "col" as a string unless the
+// server runs with ANSI_QUOTES, which groups and sorts by a constant. Backtick quoting is not an option:
+// assertBodySafe refuses any backtick in a body. So MySQL gets the bare identifier, as plain select columns already
+// do. The identifier charset admits no quote or backslash, so a bare name cannot break out. A column named after a
+// reserved word then fails with a syntax error instead of returning wrong results.
+function quoteIdentifier(name: string, dialect: SqlDialect): string {
+  return dialect === "mysql" ? name : `"${name}"`;
+}
+
+// Emit `ORDER BY "col" ASC, "col2" DESC` (bare names on MySQL, see quoteIdentifier). Direction comes from a two-value
+// enum, never agent text.
+function emitOrderBy(
+  orderBy: QuerySpec["orderBy"],
+  dialect: SqlDialect,
+): string {
   if (!orderBy || orderBy.length === 0) return "";
 
   const clauses = orderBy.map(
-    (entry) => `"${entry.column}" ${entry.direction}`,
+    (entry) => `${quoteIdentifier(entry.column, dialect)} ${entry.direction}`,
   );
 
   return ` ORDER BY ${clauses.join(", ")}`;
 }
 
-// Emit `GROUP BY "col", "col2"`. Same allow-listed, quoted identifiers.
-function emitGroupBy(groupBy: QuerySpec["groupBy"]): string {
+// Emit `GROUP BY "col", "col2"`. Same allow-listed identifiers, quoted by quoteIdentifier (bare on MySQL).
+function emitGroupBy(
+  groupBy: QuerySpec["groupBy"],
+  dialect: SqlDialect,
+): string {
   if (!groupBy || groupBy.length === 0) return "";
 
-  const clauses = groupBy.map((column) => `"${column}"`);
+  // Group by the stored column, even when the select list coalesces it. NULLs form their own group, and the select
+  // list then shows that group under the fallback.
+  const clauses = groupBy.map((entry) =>
+    quoteIdentifier(columnNameOf(entry), dialect),
+  );
 
   return ` GROUP BY ${clauses.join(", ")}`;
 }
 
+// One select-list item. `quote` matches the list's own style: plain columns are emitted bare, group columns quoted.
+// A coalesce entry keeps the column's name as its alias, and its fallback is a bound parameter.
+function emitSelectColumn(
+  entry: SelectColumn,
+  quote: boolean,
+  dialect: SqlDialect,
+): string {
+  const name = quote
+    ? quoteIdentifier(columnNameOf(entry), dialect)
+    : columnNameOf(entry);
+
+  if (typeof entry === "string") return name;
+
+  return `COALESCE(${name}, ${emitBinding(entry.coalesce)}) AS ${name}`;
+}
+
 // Emit one aggregate select item, e.g. `COUNT(*) AS count`, `COUNT("id") AS count`, `SUM("amount") AS sum`. The
 // function keyword and the alias both come from the closed AGGREGATE_FNS enum; the column (when present) is an
-// allow-listed identifier emitted quoted. `sum`/`avg` require a column — a count-less aggregate is nonsensical.
-function emitAggregate(aggregate: NonNullable<QuerySpec["aggregate"]>): string {
+// allow-listed identifier quoted by quoteIdentifier (bare on MySQL). `sum`/`avg` require a column — a count-less
+// aggregate is nonsensical.
+function emitAggregate(
+  aggregate: NonNullable<QuerySpec["aggregate"]>,
+  dialect: SqlDialect,
+): string {
   const fn = AGGREGATE_FNS[aggregate.fn];
 
   if (aggregate.fn === "count") {
-    const target = aggregate.column ? `"${aggregate.column}"` : "*";
+    const target = aggregate.column
+      ? quoteIdentifier(aggregate.column, dialect)
+      : "*";
 
     return `${fn}(${target}) AS ${aggregate.fn}`;
   }
@@ -672,7 +781,7 @@ function emitAggregate(aggregate: NonNullable<QuerySpec["aggregate"]>): string {
     throw new Error(`${aggregate.fn} aggregation requires a column`);
   }
 
-  return `${fn}("${aggregate.column}") AS ${aggregate.fn}`;
+  return `${fn}(${quoteIdentifier(aggregate.column, dialect)}) AS ${aggregate.fn}`;
 }
 
 function emitWhere(
@@ -731,20 +840,27 @@ export function compileQuery(
       let selectList: string;
 
       if (spec.aggregate) {
-        const groupCols = (spec.groupBy ?? []).map((column) => `"${column}"`);
+        const groupCols = (spec.groupBy ?? []).map((entry) =>
+          emitSelectColumn(entry, true, dialect),
+        );
 
-        selectList = [...groupCols, emitAggregate(spec.aggregate)].join(", ");
+        selectList = [
+          ...groupCols,
+          emitAggregate(spec.aggregate, dialect),
+        ].join(", ");
       } else {
         selectList =
           spec.columns && spec.columns.length > 0
-            ? spec.columns.join(", ")
+            ? spec.columns
+                .map((entry) => emitSelectColumn(entry, false, dialect))
+                .join(", ")
             : "*";
       }
 
       const limit = spec.limit !== undefined ? ` LIMIT ${spec.limit}` : "";
 
       // SQL clause order: SELECT ... FROM ... WHERE ... GROUP BY ... ORDER BY ... LIMIT.
-      body = `SELECT ${selectList} FROM ${spec.table}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy)}${emitOrderBy(spec.orderBy)}${limit};`;
+      body = `SELECT ${selectList} FROM ${spec.table}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy, dialect)}${emitOrderBy(spec.orderBy, dialect)}${limit};`;
       break;
     }
     case "INSERT": {
