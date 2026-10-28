@@ -122,6 +122,7 @@ import {
   buildActionDto,
   compileQuery,
   querySpecSchema,
+  sqlDialectFor,
   type SqlDialect,
 } from "./builder/query.js";
 import {
@@ -5835,7 +5836,7 @@ export function buildMcpServer(
 
     registerTool(
       "create_query",
-      "Create a SQL query (SELECT/INSERT/UPDATE/DELETE) on a datasource from a STRUCTURED spec — no raw SQL, no raw bindings. Values become prepared-statement parameters. SELECT supports columns/filters/limit plus orderBy [{column,direction}], aggregate {fn:count|sum|avg,column?}, and groupBy. A filter is { column, op: eq|ne|gt|gte|lt|lte|like|in|inList, value: { literal } | { widget, property }, skipWhenEmpty? }. 'in' binds ONE value; to match any of a multi-select's values use 'inList' with its selectedOptionValues (PostgreSQL datasources only; values are compared as text, so they must match the column's text form, and the column's index is not used). For a filter bar, set skipWhenEmpty: true on each widget-valued filter (SELECT only) so an empty control (null, '', []) means 'no filter' instead of matching nothing. Then re-run the query when a control changes: wire_event { run } on a select's onOptionChange or an input's onSubmit (a widget edited through a tool that exposes a change event such as onSelectionChange takes the same { run } there), or add an Apply button whose onClick runs it. 'like' adds no % wildcards. See the filter-bar recipe. Widgets then reference it by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
+      "Create a SQL query (SELECT/INSERT/UPDATE/DELETE) on a datasource from a STRUCTURED spec — no raw SQL, no raw bindings. Values become prepared-statement parameters. SELECT supports columns/filters/limit plus orderBy [{column,direction}], aggregate {fn:count|sum|avg,column?}, and groupBy. A filter is { column, op: eq|ne|gt|gte|lt|lte|like|in|inList, value: { literal } | { widget, property }, skipWhenEmpty? }, or { column, op: isNull|notNull } with no value (IS NULL / IS NOT NULL, or <=> NULL on MySQL; use these for a missing value, since eq with a null literal never matches). A filters entry can also be an OR group { anyOf: [filter, ...] } (2-10 plain filters, one level, no skipWhenEmpty inside), compiled to (a OR b) and ANDed with the other filters, for example a status that is one of several values, or (owner isNull OR owner eq ''). 'in' binds ONE value; to match any of a multi-select's values use 'inList' with its selectedOptionValues (PostgreSQL datasources only; values are compared as text, so they must match the column's text form, and the column's index is not used). For a filter bar, set skipWhenEmpty: true on each widget-valued filter (SELECT only) so an empty control (null, '', []) means 'no filter' instead of matching nothing. Then re-run the query when a control changes: wire_event { run } on a select's onOptionChange or an input's onSubmit (a widget edited through a tool that exposes a change event such as onSelectionChange takes the same { run } there), or add an Apply button whose onClick runs it. 'like' adds no % wildcards unless you set match: contains|prefix|suffix (exact is the default); the % goes into the bound value, and a % or _ in the value itself still acts as a wildcard. 'ilike' is the case-insensitive form (PostgreSQL only). A wildcard match, and any like/ilike with a widget value, is SELECT-only, because the value could match every row. See the filter-bar recipe. Widgets then reference it by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
       {
         query: z.record(z.unknown()),
         branch: gitBranchParamSchema.optional(),
@@ -5900,13 +5901,12 @@ export function buildMcpServer(
 
         try {
           // inList binds a list as one SQL array parameter. Only PostgreSQL supports this, so the compiler refuses
-          // inList on any other datasource and on a datasource it cannot resolve.
+          // inList on any other datasource and on a datasource it cannot resolve. On MySQL, isNull and notNull
+          // compile without the IS keyword, which the MySQL plugin refuses in a prepared statement.
           body = compileQuery(spec, {
-            dialect:
-              datasourcePackageName(datasources, plugins, spec.datasourceId) ===
-              "postgres-plugin"
-                ? "postgres"
-                : "other",
+            dialect: sqlDialectFor(
+              datasourcePackageName(datasources, plugins, spec.datasourceId),
+            ),
           });
         } catch (error) {
           return compileError(error);
@@ -6570,7 +6570,7 @@ export function buildMcpServer(
 
       registerTool(
         "update_action",
-        "Update a stored SQL or REST action from a STRUCTURED spec (no raw SQL, bindings, credentials, base URLs, or headers). A SQL spec uses create_query's vocabulary, including skipWhenEmpty and inList filters. Pass a revision from get_action. Returns safe metadata, new revision, and change id.",
+        "Update a stored SQL or REST action from a STRUCTURED spec (no raw SQL, bindings, credentials, base URLs, or headers). A SQL spec uses create_query's vocabulary, including skipWhenEmpty, inList, isNull/notNull and anyOf OR-group filters. Pass a revision from get_action. Returns safe metadata, new revision, and change id.",
         {
           spec: z.record(z.unknown()),
           branch: gitBranchParamSchema.optional(),
@@ -6619,14 +6619,13 @@ export function buildMcpServer(
               });
             }
 
-            dialect =
+            dialect = sqlDialectFor(
               datasourcePackageName(
                 datasources,
                 plugins,
                 sqlQuery.datasourceId,
-              ) === "postgres-plugin"
-                ? "postgres"
-                : "other";
+              ),
+            );
           }
 
           let request: ReturnType<typeof buildUpdateActionDto>;

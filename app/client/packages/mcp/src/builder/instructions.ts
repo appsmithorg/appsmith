@@ -450,12 +450,20 @@ a control left empty is ignored instead of matching nothing. Requires the data l
    - single select: { column: 'status', op: 'eq', value: { widget: 'StatusFilter', property:
      'selectedOptionValue' }, skipWhenEmpty: true }
    - text input (exact match): { column: 'ticket_id', op: 'eq', value: { widget: 'TicketInput',
-     property: 'text' }, skipWhenEmpty: true }. 'like' adds no % wildcards — it matches the typed
-     text exactly unless the user types % themselves — so it is not a substring search.
+     property: 'text' }, skipWhenEmpty: true }
+   - text search: { column: 'subject', op: 'like', match: 'contains', value: { widget: 'SearchInput',
+     property: 'text' }, skipWhenEmpty: true }. Without match, 'like' adds no % wildcards and matches
+     the typed text exactly. Use op 'ilike' for a case-insensitive search (PostgreSQL only).
+     A % or _ the user types still acts as a wildcard.
    - multi-select (widget type \`multiselect\`; PostgreSQL datasources only):
      { column: 'tag', op: 'inList', value: { widget: 'TagFilter', property: 'selectedOptionValues' },
      skipWhenEmpty: true }. Values are compared as text. On other databases use a single select with
      'eq' instead; 'in' binds ONE value.
+   - a fixed "missing value" condition, such as unassigned rows: { column: 'owner', op: 'isNull' }
+     (or 'notNull'). It takes no value and no skipWhenEmpty.
+   - an OR inside the WHERE clause: { anyOf: [ { column: 'owner', op: 'isNull' }, { column: 'owner',
+     op: 'eq', value: { literal: '' } } ] }. Members are plain filters (2-10, one level) and cannot
+     use skipWhenEmpty, because a skipped member would make the whole group match every row.
    skipWhenEmpty is SELECT-only, and is refused on appsmith.* values (they may scope rows to the
    viewer). Filters bound to widgets are for narrowing what is shown, never for restricting which
    rows a user may see — viewers control widget values; use datasource or row-level permissions

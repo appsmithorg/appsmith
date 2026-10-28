@@ -65,23 +65,119 @@ const OPERATORS = {
   lt: "<",
   lte: "<=",
   like: "LIKE",
+  ilike: "ILIKE",
   in: "IN",
 } as const;
+
+// Where `like` and `ilike` add the % wildcard. The % is added to the bound VALUE, never to the SQL text. `exact` adds
+// none, which is also what a like filter with no `match` does. A % or _ inside the value itself still acts as a
+// wildcard.
+const LIKE_MATCHES = ["contains", "prefix", "suffix", "exact"] as const;
+
+type LikeMatch = (typeof LIKE_MATCHES)[number];
+
+function isWildcardMatch(match: LikeMatch | undefined): boolean {
+  return match !== undefined && match !== "exact";
+}
+
+function withWildcards(text: string, match: LikeMatch): string {
+  const before = match === "contains" || match === "suffix" ? "%" : "";
+  const after = match === "contains" || match === "prefix" ? "%" : "";
+
+  return `${before}${text}${after}`;
+}
+
+// Filters that test a column for NULL. The SQL is fixed text from these maps, so they take no value.
+// The MySQL plugin refuses any query with the word IS while prepared statements are on, and the compiler always turns
+// them on. MySQL uses its null-safe equality `<=>` instead.
+const NULL_OPERATORS = {
+  isNull: "IS NULL",
+  notNull: "IS NOT NULL",
+} as const;
+const MYSQL_NULL_TEMPLATES = {
+  isNull: (column: string) => `${column} <=> NULL`,
+  notNull: (column: string) => `NOT (${column} <=> NULL)`,
+} as const;
+
+type NullOperator = keyof typeof NULL_OPERATORS;
+
+function isNullOperator(op: string): op is NullOperator {
+  return Object.prototype.hasOwnProperty.call(NULL_OPERATORS, op);
+}
 
 // A WHERE filter.
 // - `inList` matches the column against a list that a widget holds, such as a multi-select's selectedOptionValues.
 // - `skipWhenEmpty` drops the filter while the widget value is empty (null, undefined, "" or []). An unset dropdown
 //   then means "no filter", not "match nothing".
-// Both need a widget reference. A literal is a scalar and is never empty.
+// - `isNull` and `notNull` take no value and no skipWhenEmpty. Every other op needs a value.
+// inList and skipWhenEmpty need a widget reference. A literal is a scalar and is never empty.
 const filterSchema = z
   .object({
     column: sqlIdentifier,
-    op: z.enum(["eq", "ne", "gt", "gte", "lt", "lte", "like", "in", "inList"]),
-    value: valueRef,
+    op: z.enum([
+      "eq",
+      "ne",
+      "gt",
+      "gte",
+      "lt",
+      "lte",
+      "like",
+      "ilike",
+      "in",
+      "inList",
+      "isNull",
+      "notNull",
+    ]),
+    value: valueRef.optional(),
     skipWhenEmpty: z.boolean().optional(),
+    match: z.enum(LIKE_MATCHES).optional(),
   })
   .strict()
   .superRefine((filter, ctx) => {
+    if (filter.match !== undefined) {
+      if (filter.op !== "like" && filter.op !== "ilike") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "match is only valid with like or ilike",
+          path: ["match"],
+        });
+      } else if (
+        isWildcardMatch(filter.match) &&
+        filter.value !== undefined &&
+        "literal" in filter.value &&
+        typeof filter.value.literal !== "string"
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `match "${filter.match}" needs a string literal or a { widget, property } value`,
+          path: ["value"],
+        });
+      }
+    }
+
+    if (isNullOperator(filter.op)) {
+      // skipWhenEmpty: false is a no-op, so it is accepted.
+      if (filter.value !== undefined || filter.skipWhenEmpty === true) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `${filter.op} takes no value and no skipWhenEmpty`,
+          path: [filter.value !== undefined ? "value" : "skipWhenEmpty"],
+        });
+      }
+
+      return;
+    }
+
+    if (filter.value === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `${filter.op} needs a value: { literal } or { widget, property }`,
+        path: ["value"],
+      });
+
+      return;
+    }
+
     // `appsmith.*` (for example appsmith.user.email) identifies the viewer, and filters use it to scope rows. Never
     // skip it: an unset value would silently widen the read to every row.
     if (
@@ -118,11 +214,80 @@ const filterSchema = z
     }
   });
 
+const SKIP_IN_GROUP_MESSAGE =
+  "skipWhenEmpty cannot be used inside anyOf: in an OR, a skipped member would match every row";
+
+// An OR group: `{ anyOf: [filter, filter, ...] }` compiles to `(a OR b OR ...)` and is ANDed with the other filters.
+// - Members are plain filters, so groups nest one level only.
+// - Members cannot use skipWhenEmpty. A skipped filter compiles to TRUE, and inside an OR that makes the whole group
+//   TRUE, so one empty control would match every row, even on a SELECT.
+const filterGroupSchema = z
+  .object({
+    anyOf: z.array(filterSchema).min(2).max(10),
+  })
+  .strict()
+  .superRefine((group, ctx) => {
+    group.anyOf.forEach((member, index) => {
+      if (member.skipWhenEmpty === true) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: SKIP_IN_GROUP_MESSAGE,
+          path: ["anyOf", index, "skipWhenEmpty"],
+        });
+      }
+    });
+  });
+
+// One entry of `filters`: a plain filter or an OR group. An own `anyOf` key decides which, so an agent gets the errors
+// for the shape it meant instead of a union of both. It returns the parsed entry, not the raw input, so any default or
+// transform in either schema applies.
+const filterEntrySchema = z
+  .unknown()
+  .transform(
+    (
+      entry,
+      ctx,
+    ): z.infer<typeof filterSchema> | z.infer<typeof filterGroupSchema> => {
+      const isGroup =
+        typeof entry === "object" &&
+        entry !== null &&
+        Object.prototype.hasOwnProperty.call(entry, "anyOf");
+      const result = (isGroup ? filterGroupSchema : filterSchema).safeParse(
+        entry,
+      );
+
+      if (!result.success) {
+        result.error.issues.forEach((issue) => ctx.addIssue(issue));
+
+        return z.NEVER;
+      }
+
+      return result.data;
+    },
+  );
+
 // The database family the query runs on. `inList` works only on PostgreSQL, which binds a list as one
 // prepared-statement parameter (an SQL array). MySQL sends the list as a JSON string, and SQL Server refuses it.
+// isNull and notNull compile differently on MySQL (see MYSQL_NULL_TEMPLATES), and Redshift uses the PostgreSQL form
+// for them. Redshift is otherwise "other": it cannot bind a list as one parameter, so inList stays refused there.
 // Everything else the compiler emits works on every family. An unknown family, such as when the caller cannot
 // resolve the datasource, counts as "other".
-export type SqlDialect = "postgres" | "other";
+export type SqlDialect = "postgres" | "redshift" | "mysql" | "other";
+
+// Maps a datasource's plugin package name to its SqlDialect. MariaDB counts as MySQL.
+export function sqlDialectFor(packageName: string | undefined): SqlDialect {
+  switch (packageName) {
+    case "postgres-plugin":
+      return "postgres";
+    case "redshift-plugin":
+      return "redshift";
+    case "mysql-plugin":
+    case "mariadb-plugin":
+      return "mysql";
+    default:
+      return "other";
+  }
+}
 
 export interface CompileQueryOptions {
   dialect?: SqlDialect;
@@ -148,7 +313,7 @@ export const querySpecSchema = z
     operation: z.enum(["SELECT", "INSERT", "UPDATE", "DELETE"]),
     table: qualifiedName,
     columns: z.array(sqlIdentifier).max(100).optional(),
-    filters: z.array(filterSchema).max(20).optional(),
+    filters: z.array(filterEntrySchema).max(20).optional(),
     values: z
       .array(z.object({ column: sqlIdentifier, value: valueRef }).strict())
       .max(100)
@@ -186,16 +351,57 @@ export const querySpecSchema = z
     if (spec.operation === "SELECT") return;
 
     // A skipped filter widens the WHERE clause. That is harmless on a read. On UPDATE or DELETE, an empty widget would
-    // turn "change the selected rows" into "change every row", so writes refuse skipWhenEmpty.
-    (spec.filters ?? []).forEach((filter, index) => {
-      if (filter.skipWhenEmpty === true) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            "skipWhenEmpty is only valid on a SELECT query (on a write, an empty value would widen it to every row)",
-          path: ["filters", index, "skipWhenEmpty"],
-        });
-      }
+    // turn "change the selected rows" into "change every row", so writes refuse skipWhenEmpty. The check also looks
+    // inside OR groups. filterGroupSchema already refuses skipWhenEmpty there, so this is a second guard.
+    // A malformed entry (null, a number, `{ anyOf: "x" }`) already has its own issue from filterEntrySchema, and this
+    // refinement can still see it in raw form. Skip anything that is not a filter or a group so it reports that issue
+    // instead of throwing.
+    (spec.filters ?? []).forEach((entry, index) => {
+      if (typeof entry !== "object" || entry === null) return;
+
+      if ("anyOf" in entry && !Array.isArray(entry.anyOf)) return;
+
+      const members = isFilterGroup(entry)
+        ? entry.anyOf.map((member, memberIndex) => ({
+            member,
+            path: ["filters", index, "anyOf", memberIndex, "skipWhenEmpty"],
+          }))
+        : [{ member: entry, path: ["filters", index, "skipWhenEmpty"] }];
+
+      members.forEach(({ member, path }) => {
+        if (member.skipWhenEmpty === true) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message:
+              "skipWhenEmpty is only valid on a SELECT query (on a write, an empty value would widen it to every row)",
+            path,
+          });
+        }
+
+        // An empty search value compiles to "%%", which matches every row, so a wildcard would widen a write.
+        if (isWildcardMatch(member.match)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message:
+              'a wildcard match is only valid on a SELECT query (an empty value would match every row); use match: "exact" on a write',
+            path: [...path.slice(0, -1), "match"],
+          });
+        }
+
+        // A widget value in a like or ilike is a pattern the end user writes: typing "%" would match every row.
+        if (
+          (member.op === "like" || member.op === "ilike") &&
+          member.value !== undefined &&
+          "widget" in member.value
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message:
+              "like and ilike with a { widget, property } value are only valid on a SELECT query (the end user could type % and match every row); use eq on a write",
+            path: [...path.slice(0, -1), "value"],
+          });
+        }
+      });
     });
 
     for (const field of ["orderBy", "aggregate", "groupBy"] as const) {
@@ -213,6 +419,11 @@ export type QuerySpec = z.infer<typeof querySpecSchema>;
 type ValueRef = z.infer<typeof valueRef>;
 type WidgetRef = Extract<ValueRef, { widget: string }>;
 type Filter = z.infer<typeof filterSchema>;
+type FilterGroup = z.infer<typeof filterGroupSchema>;
+
+function isFilterGroup(entry: Filter | FilterGroup): entry is FilterGroup {
+  return Array.isArray((entry as Partial<FilterGroup>).anyOf);
+}
 
 const MAX_BODY_BYTES = 8 * 1024;
 
@@ -269,21 +480,117 @@ function emitNullWhenEmpty(ref: WidgetRef): string {
   return binding;
 }
 
-// Returns the widget reference of an inList or skipWhenEmpty filter. filterSchema already refuses a literal here.
-// This checks again so that a caller that skipped parsing fails closed, instead of emitting a template around a
-// literal.
-function widgetRef(filter: Filter): WidgetRef {
-  if ("literal" in filter.value) {
+// Binds a like value with its wildcards. A literal gets them at compile time, so it stays a plain JSON string binding.
+// A widget value gets them at run time, from fixed template text around one identifier path. A null or undefined
+// widget value binds as "" plus the wildcards.
+function emitWildcardBinding(value: ValueRef, match: LikeMatch): string {
+  if ("literal" in value) {
+    if (typeof value.literal !== "string") {
+      throw new Error(`match "${match}" needs a string literal`);
+    }
+
+    return emitBinding({ literal: withWildcards(value.literal, match) });
+  }
+
+  const path = `${value.widget}.${value.property}`;
+  const before = match === "contains" || match === "suffix" ? '"%" + ' : "";
+  const after = match === "contains" || match === "prefix" ? ' + "%"' : "";
+  const binding = `{{ ${before}(${path} ?? "")${after} }}`;
+
+  if (!WILDCARD_BINDING.test(binding)) {
+    throw new Error(`unsafe binding emitted: ${binding}`);
+  }
+
+  return binding;
+}
+
+// Returns the value of a filter that needs one. filterSchema already refuses a missing value. This checks again so
+// that a caller that skipped parsing fails closed, instead of emitting `col = undefined`.
+function filterValue(filter: Filter): ValueRef {
+  if (filter.value === undefined) {
     throw new Error(
-      `filter on ${filter.column} needs a { widget, property } value for ${filter.op === "inList" ? "inList" : "skipWhenEmpty"}`,
+      `filter on ${filter.column} needs a value for ${filter.op}`,
     );
   }
 
   return filter.value;
 }
 
+// Returns the widget reference of an inList or skipWhenEmpty filter. filterSchema already refuses a literal here.
+// This checks again so that a caller that skipped parsing fails closed, instead of emitting a template around a
+// literal.
+function widgetRef(filter: Filter): WidgetRef {
+  const value = filterValue(filter);
+
+  if ("literal" in value) {
+    throw new Error(
+      `filter on ${filter.column} needs a { widget, property } value for ${filter.op === "inList" ? "inList" : "skipWhenEmpty"}`,
+    );
+  }
+
+  return value;
+}
+
+// The longest name each database keeps. PostgreSQL cuts every name, quoted or not, to 63 bytes. Redshift allows
+// 127 bytes. Identifiers here are ASCII, so bytes are characters.
+const MAX_IDENTIFIER_LENGTH = { postgres: 63, redshift: 127 } as const;
+
+// The PostgreSQL or Redshift column for an isNull or notNull filter: lower-cased, then quoted. Throws when the name
+// equals the table's own name (the last part of `schema.table`), because a missing column of that name reads as the
+// whole row. Both names are compared after the database's own cut, so two long names that differ only after it
+// still match.
+function postgresNullCheckColumn(
+  column: string,
+  table: string,
+  dialect: "postgres" | "redshift",
+): string {
+  const name = column.toLowerCase();
+  const tableName = (table.split(".").pop() ?? table).toLowerCase();
+  const maxLength = MAX_IDENTIFIER_LENGTH[dialect];
+
+  if (name.slice(0, maxLength) === tableName.slice(0, maxLength)) {
+    throw new Error(
+      `isNull and notNull cannot test a column named like its table (${column}) on PostgreSQL or Redshift, which would read it as the whole row`,
+    );
+  }
+
+  return `"${name}"`;
+}
+
+// The isNull or notNull test for a table-qualified column on every database except PostgreSQL.
+function emitQualifiedNullCheck(
+  op: NullOperator,
+  column: string,
+  dialect: SqlDialect,
+): string {
+  return dialect === "mysql"
+    ? MYSQL_NULL_TEMPLATES[op](column)
+    : `${column} ${NULL_OPERATORS[op]}`;
+}
+
 // One WHERE condition, before any skipWhenEmpty wrapping.
-function emitCondition(filter: Filter, dialect: SqlDialect): string {
+function emitCondition(
+  filter: Filter,
+  dialect: SqlDialect,
+  table: string,
+): string {
+  // The SQL comes from NULL_OPERATORS or MYSQL_NULL_TEMPLATES. No agent text and no binding.
+  // An allow-listed identifier can still be a keyword, such as `null` or `current_user`. A bare `null IS NULL` is true
+  // for every row, which would widen a DELETE to the whole table. So the column is never emitted bare:
+  // - PostgreSQL: lower-cased and quoted. Lower-casing gives the same column an unquoted value filter names, because
+  //   PostgreSQL folds unquoted names to lower case. Not `table.col`: when no such column exists, PostgreSQL reads
+  //   `users.text` as the call `text(users)`, which is never NULL. A missing quoted column is an error, except a
+  //   name equal to the table's, which PostgreSQL reads as the whole row. That name is refused.
+  // - Redshift: the PostgreSQL form. Redshift derives from PostgreSQL, so `table.col` could have the same
+  //   function-call reading. A quoted bare name cannot.
+  // - Every other database: qualified with its table. After a dot, MySQL always reads a column name. SQL Server,
+  //   Oracle and Snowflake read a column or refuse the query.
+  if (isNullOperator(filter.op)) {
+    return dialect === "postgres" || dialect === "redshift"
+      ? `${postgresNullCheckColumn(filter.column, table, dialect)} ${NULL_OPERATORS[filter.op]}`
+      : emitQualifiedNullCheck(filter.op, `${table}.${filter.column}`, dialect);
+  }
+
   if (filter.op === "inList") {
     if (dialect !== "postgres") {
       throw new Error(
@@ -296,6 +603,24 @@ function emitCondition(filter: Filter, dialect: SqlDialect): string {
     return `CAST(${filter.column} AS TEXT) = ANY(CAST(${emitNullWhenEmpty(widgetRef(filter))} AS TEXT[]))`;
   }
 
+  // Redshift has ILIKE, but its plugin runs queries without prepared statements, so a bound pattern is not a
+  // parameter there. Only PostgreSQL is supported.
+  if (filter.op === "ilike" && dialect !== "postgres") {
+    throw new Error(
+      `ilike (filter on ${filter.column}) is only available on a PostgreSQL datasource; on MySQL, like is already case-insensitive for most collations`,
+    );
+  }
+
+  // A like or ilike with a wildcard binds the value with the % around it, so the SQL text stays `col LIKE {{ ... }}`.
+  // An empty widget value binds "%%". On a SELECT that matches every row, and writes refuse a wildcard match.
+  if (
+    (filter.op === "like" || filter.op === "ilike") &&
+    filter.match !== undefined &&
+    isWildcardMatch(filter.match)
+  ) {
+    return `${filter.column} ${OPERATORS[filter.op]} ${emitWildcardBinding(filterValue(filter), filter.match)}`;
+  }
+
   // On PostgreSQL, a skipWhenEmpty filter binds null while the widget value is empty. "" against a typed column (an
   // integer column, for example) fails to prepare, even though the guard short-circuits.
   // On other databases, the empty value binds as-is: MySQL and SQL Server coerce "", and Oracle treats "" as NULL.
@@ -303,7 +628,7 @@ function emitCondition(filter: Filter, dialect: SqlDialect): string {
   const binding =
     filter.skipWhenEmpty === true && dialect === "postgres"
       ? emitNullWhenEmpty(widgetRef(filter))
-      : emitBinding(filter.value);
+      : emitBinding(filterValue(filter));
 
   if (filter.op === "in") return `${filter.column} IN (${binding})`;
 
@@ -350,18 +675,43 @@ function emitAggregate(aggregate: NonNullable<QuerySpec["aggregate"]>): string {
   return `${fn}("${aggregate.column}") AS ${aggregate.fn}`;
 }
 
-function emitWhere(filters: QuerySpec["filters"], dialect: SqlDialect): string {
+function emitWhere(
+  filters: QuerySpec["filters"],
+  dialect: SqlDialect,
+  table: string,
+): string {
   if (!filters || filters.length === 0) return "";
 
-  const clauses = filters.map((filter) => {
-    const condition = emitCondition(filter, dialect);
+  const clauses = filters.map((entry) => {
+    if (!isFilterGroup(entry)) return emitFilter(entry, dialect, table);
 
-    if (filter.skipWhenEmpty !== true) return condition;
+    const members = entry.anyOf.map((member) => {
+      // filterGroupSchema refuses this. Check again so that a caller that skipped parsing fails closed, instead of
+      // emitting a skip guard that makes the whole OR group TRUE.
+      if (member.skipWhenEmpty === true) {
+        throw new Error(SKIP_IN_GROUP_MESSAGE);
+      }
 
-    return `(${emitEmptyGuard(widgetRef(filter))} = 1 OR ${condition})`;
+      return emitCondition(member, dialect, table);
+    });
+
+    return `(${members.join(" OR ")})`;
   });
 
   return ` WHERE ${clauses.join(" AND ")}`;
+}
+
+// One plain filter, wrapped in its empty guard when it has skipWhenEmpty.
+function emitFilter(
+  filter: Filter,
+  dialect: SqlDialect,
+  table: string,
+): string {
+  const condition = emitCondition(filter, dialect, table);
+
+  if (filter.skipWhenEmpty !== true) return condition;
+
+  return `(${emitEmptyGuard(widgetRef(filter))} = 1 OR ${condition})`;
 }
 
 // Compile a structured spec into a parameterized SQL body. Throws on an empty/oversized body or if the emitted body
@@ -394,7 +744,7 @@ export function compileQuery(
       const limit = spec.limit !== undefined ? ` LIMIT ${spec.limit}` : "";
 
       // SQL clause order: SELECT ... FROM ... WHERE ... GROUP BY ... ORDER BY ... LIMIT.
-      body = `SELECT ${selectList} FROM ${spec.table}${emitWhere(spec.filters, dialect)}${emitGroupBy(spec.groupBy)}${emitOrderBy(spec.orderBy)}${limit};`;
+      body = `SELECT ${selectList} FROM ${spec.table}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy)}${emitOrderBy(spec.orderBy)}${limit};`;
       break;
     }
     case "INSERT": {
@@ -419,11 +769,11 @@ export function compileQuery(
         .map((entry) => `${entry.column} = ${emitBinding(entry.value)}`)
         .join(", ");
 
-      body = `UPDATE ${spec.table} SET ${assignments}${emitWhere(spec.filters, dialect)};`;
+      body = `UPDATE ${spec.table} SET ${assignments}${emitWhere(spec.filters, dialect, spec.table)};`;
       break;
     }
     case "DELETE": {
-      body = `DELETE FROM ${spec.table}${emitWhere(spec.filters, dialect)};`;
+      body = `DELETE FROM ${spec.table}${emitWhere(spec.filters, dialect, spec.table)};`;
       break;
     }
   }
@@ -443,6 +793,10 @@ const SAFE_BINDING =
 // either position.
 const EMPTY_GUARD_BINDING =
   /^\{\{ \(([A-Za-z_][A-Za-z0-9_.]*) == null \|\| \1\.length === 0\) \? 1 : 0 \}\}$/;
+// The run-time wildcard binding for like and ilike: an optional leading "%", ONE identifier path with a "" fallback,
+// and an optional trailing "%". Nothing else can appear.
+const WILDCARD_BINDING =
+  /^\{\{ (?:"%" \+ )?\([A-Za-z_][A-Za-z0-9_.]* \?\? ""\)(?: \+ "%")? \}\}$/;
 const NULL_WHEN_EMPTY_BINDING =
   /^\{\{ \(([A-Za-z_][A-Za-z0-9_.]*) == null \|\| \1\.length === 0\) \? null : \1 \}\}$/;
 

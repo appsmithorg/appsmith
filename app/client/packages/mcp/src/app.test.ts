@@ -1923,6 +1923,135 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     },
   );
 
+  it.each([
+    ["postgres-plugin", 'SELECT * FROM users WHERE "email" IS NULL;'],
+    ["mysql-plugin", "SELECT * FROM users WHERE users.email <=> NULL;"],
+  ])(
+    "APP-16324: create_query compiles isNull for the datasource's database (%s)",
+    async (pluginId, sql) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          filters: [{ column: "email", op: "isNull" }],
+        },
+      });
+
+      expect(body.created).toBe(true);
+      expect(body.body).toBe(sql);
+    },
+  );
+
+  it("APP-16324 F1.2: create_query compiles an anyOf group and refuses skipWhenEmpty inside it", async () => {
+    const createAction = jest.fn(async () => ({ id: "act1" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction: createAction as never,
+    };
+    const created = await callTool(api, "create_query", {
+      query: {
+        ...validQuery,
+        filters: [
+          {
+            anyOf: [
+              { column: "email", op: "isNull" },
+              { column: "email", op: "eq", value: { literal: "" } },
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(created.created).toBe(true);
+    expect(created.body).toBe(
+      'SELECT * FROM users WHERE ("email" IS NULL OR email = {{ "" }});',
+    );
+
+    const refused = await callTool(api, "create_query", {
+      query: {
+        ...validQuery,
+        name: "getUsers2",
+        filters: [
+          {
+            anyOf: [
+              {
+                column: "email",
+                op: "eq",
+                value: { widget: "EmailInput", property: "text" },
+                skipWhenEmpty: true,
+              },
+              { column: "email", op: "isNull" },
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(refused.valid).toBe(false);
+    expect(JSON.stringify(refused.errors)).toContain(
+      "skipWhenEmpty cannot be used inside anyOf",
+    );
+    expect(createAction).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    [
+      "postgres-plugin",
+      true,
+      'SELECT * FROM users WHERE email ILIKE {{ "%" + (SearchInput.text ?? "") + "%" }};',
+    ],
+    ["mysql-plugin", false, undefined],
+  ])(
+    "APP-16324 F1.3: create_query compiles ilike with a contains match only on PostgreSQL (%s)",
+    async (pluginId, allowed, sql) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          filters: [
+            {
+              column: "email",
+              op: "ilike",
+              match: "contains",
+              value: { widget: "SearchInput", property: "text" },
+            },
+          ],
+        },
+      });
+
+      if (allowed) {
+        expect(body.created).toBe(true);
+        expect(body.body).toBe(sql);
+      } else {
+        expect(body.valid).toBe(false);
+        expect(JSON.stringify(body.errors)).toMatch(
+          /ilike \(filter on email\) is only available on a PostgreSQL datasource/,
+        );
+        expect(createAction).not.toHaveBeenCalled();
+      }
+    },
+  );
+
   it("create_query refuses a datasource the caller cannot access (IDOR guard)", async () => {
     const createAction = jest.fn();
     const api: AppsmithApi = {
@@ -4186,6 +4315,14 @@ describe("governance-wrapped layout mutations", () => {
 
   async function updateWithInList(
     server: ReturnType<typeof createMcpHttpServer>,
+    filters: unknown[] = [
+      {
+        column: "tag",
+        op: "inList",
+        value: { widget: "TagsSelect", property: "selectedOptionValues" },
+        skipWhenEmpty: true,
+      },
+    ],
   ) {
     const read = await callTool(server, "get_action", {
       applicationId: "app1",
@@ -4205,14 +4342,7 @@ describe("governance-wrapped layout mutations", () => {
           datasourceId: "ds1",
           operation: "SELECT",
           table: "tickets",
-          filters: [
-            {
-              column: "tag",
-              op: "inList",
-              value: { widget: "TagsSelect", property: "selectedOptionValues" },
-              skipWhenEmpty: true,
-            },
-          ],
+          filters,
         },
       },
     });
@@ -4230,6 +4360,56 @@ describe("governance-wrapped layout mutations", () => {
         (updateAction.mock.calls[0] as unknown[])[1] as Record<string, unknown>,
       ),
     ).toContain("CAST(tag AS TEXT) = ANY(");
+  });
+
+  // The MySQL plugin refuses any prepared query with the word IS, so update_action must pick the MySQL form too.
+  it.each([
+    ["postgres-plugin", 'SELECT * FROM tickets WHERE "l2owner" IS NULL;'],
+    ["mysql-plugin", "SELECT * FROM tickets WHERE tickets.l2owner <=> NULL;"],
+  ])(
+    "APP-16324: update_action compiles isNull for the datasource's database (%s)",
+    async (pluginId, sql) => {
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId },
+      ]);
+      const updated = await updateWithInList(server, [
+        { column: "l2owner", op: "isNull" },
+      ]);
+
+      expect(updated.body.updated).toBe(true);
+      expect(
+        (
+          (updateAction.mock.calls[0] as unknown[])[1] as {
+            actionConfiguration: { body: string };
+          }
+        ).actionConfiguration.body,
+      ).toBe(sql);
+    },
+  );
+
+  it("APP-16324 F1.2: update_action compiles an anyOf group", async () => {
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "ds1", name: "DB", pluginId: "mysql-plugin" },
+    ]);
+    const updated = await updateWithInList(server, [
+      {
+        anyOf: [
+          { column: "l2owner", op: "isNull" },
+          { column: "l2owner", op: "eq", value: { literal: "" } },
+        ],
+      },
+    ]);
+
+    expect(updated.body.updated).toBe(true);
+    expect(
+      (
+        (updateAction.mock.calls[0] as unknown[])[1] as {
+          actionConfiguration: { body: string };
+        }
+      ).actionConfiguration.body,
+    ).toBe(
+      'SELECT * FROM tickets WHERE (tickets.l2owner <=> NULL OR l2owner = {{ "" }});',
+    );
   });
 
   it("APP-16164: update_action refuses a SQL spec on a datasource outside the application's workspace", async () => {
