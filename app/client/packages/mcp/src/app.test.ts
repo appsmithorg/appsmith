@@ -4349,6 +4349,10 @@ describe("governance-wrapped layout mutations", () => {
           page: {},
           layout: { dsl: current },
         })),
+        getApplicationPages: jest.fn(async () => ({
+          application: { id: "app1", name: "Support" },
+          pages: [{ id: "p1", name: "Home" }],
+        })),
         listActions: jest.fn(async () => []),
         updateLayout: updateLayout as never,
       };
@@ -4357,6 +4361,7 @@ describe("governance-wrapped layout mutations", () => {
       });
 
       return {
+        api,
         server,
         updateLayout,
         dsl: () => current,
@@ -4532,6 +4537,79 @@ describe("governance-wrapped layout mutations", () => {
           (child) => child.widgetName,
         ),
       ).toContain("AddedInEditor");
+    });
+
+    // Copilot review: the layout is read and written by page id, while the git gate, the labels and the lock use the
+    // application id, so a page of another application is refused before any token is issued or spent.
+    it("refuses a page that is not in the application, at prepare and at confirm", async () => {
+      const store = new MemoryGovernanceStore();
+      const { server, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const foreign = { ...SPEC, pageId: "p9", revision, names: ["Greeting"] };
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec: foreign,
+      });
+
+      expect(prepared.body.code).toBe("page_not_found");
+      expect(store.confirmations.size).toBe(0);
+
+      const ok = await callTool(server, "prepare_remove_widgets", {
+        spec: { ...SPEC, revision, names: ["Greeting"] },
+      });
+      const confirmed = await callTool(server, "confirm_remove_widgets", {
+        spec: foreign,
+        confirmationId: ok.body.confirmationId,
+      });
+
+      expect(confirmed.body.code).toBe("page_not_found");
+      expect(store.confirmations.has(ok.body.confirmationId as string)).toBe(
+        true,
+      );
+      expect(updateLayout).not.toHaveBeenCalled();
+    });
+
+    // CodeRabbit review: a read that fails after approval must not spend the token, so the same token can retry.
+    it("keeps the token when the page read after approval fails", async () => {
+      const store = new MemoryGovernanceStore();
+      const { api, server, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const spec = { ...SPEC, revision, names: ["Greeting"] };
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec,
+      });
+      const read = api.getApplicationContext as jest.Mock;
+      const realRead = read.getMockImplementation()!;
+      let confirmReads = 0;
+
+      // The first confirm read (the stale-revision check) succeeds; the read after approval returns no layout.
+      read.mockImplementation(async (...args: unknown[]) => {
+        confirmReads += 1;
+
+        return confirmReads === 2 ? { pages: [], page: {} } : realRead(...args);
+      });
+
+      const failed = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(failed.body.error).toMatch(
+        /could not read the current page layout/,
+      );
+      expect(updateLayout).not.toHaveBeenCalled();
+      expect(
+        store.confirmations.has(prepared.body.confirmationId as string),
+      ).toBe(true);
+
+      read.mockImplementation(realRead);
+
+      const retried = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(updateLayout).toHaveBeenCalledTimes(1);
+      expect(retried.body.code).toBeUndefined();
     });
 
     it("refuses a token prepared for other widgets, and writes nothing", async () => {
