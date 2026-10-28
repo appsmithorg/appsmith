@@ -14063,7 +14063,7 @@ __metadata:
     msw: ^0.28.0
     mutative: ^1.1.0
     nanoid: ^3.3.17
-    node-forge: ^1.4.0
+    node-forge: ^1.4.1
     object-hash: ^3.0.0
     openai: 4.87.3
     path-to-regexp: ^6.3.0
@@ -26491,10 +26491,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-forge@npm:1.4.0":
-  version: 1.4.0
-  resolution: "node-forge@npm:1.4.0"
-  checksum: c97c634d4d483aae815677db5b1bd14bfea4d873ab48817e020610a2b4d8bc6b3e77994860189b44151ff8e0842c0c4ba6faa80b9a6e6fbd6989865e8eb80b96
+"node-forge@npm:1.4.1":
+  version: 1.4.1
+  resolution: "node-forge@npm:1.4.1"
+  checksum: 68137551feb3f86e6e47f1d360596117d305d81a64d9b055165c4fc186ca5ac9c3b2dd1b3f7c5afee18e33399a0048119c691afeec9fdb5b143ed48c82435dc4
   languageName: node
   linkType: hard
 
