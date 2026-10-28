@@ -59,8 +59,11 @@ const assertTableGrowsAfter = (action: () => void) => {
     });
 };
 
+// Height lives in General and Rows per page in Pagination; both can start collapsed
 const selectTable = () => {
   agHelper.GetNClick(autoHeightLocators.tableWidget);
+  propPane.ExpandIfCollapsedSection("general");
+  propPane.ExpandIfCollapsedSection("pagination");
 };
 
 describe(
