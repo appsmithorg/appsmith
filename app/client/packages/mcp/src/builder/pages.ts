@@ -65,12 +65,19 @@ export const renamePageSpecSchema = pageReferenceSchema
   .extend({ name: pageName })
   .strict();
 
+// Hide or show an existing page in the app's navigation. `hidden` is the only caller-controlled field. The tool
+// refuses to hide the app's default (home) page, which the spec alone cannot know.
+export const setPageVisibilitySpecSchema = pageReferenceSchema
+  .extend({ hidden: z.boolean() })
+  .strict();
+
 // Delete has no optional caller-controlled fields and is deliberately separate from the non-destructive request
 // union, allowing the caller to require a governance confirmation before invoking the Page API.
 export const deletePageSpecSchema = pageReferenceSchema;
 
 export type CreatePageSpec = z.infer<typeof createPageSpecSchema>;
 export type RenamePageSpec = z.infer<typeof renamePageSpecSchema>;
+export type SetPageVisibilitySpec = z.infer<typeof setPageVisibilitySpecSchema>;
 export type DeletePageSpec = z.infer<typeof deletePageSpecSchema>;
 
 export interface PageMutationRequest {
@@ -123,6 +130,20 @@ export function buildRenamePageRequest(
     method: "PUT",
     path: `v1/pages/${spec.pageId}`,
     body: { name: spec.name },
+    destructive: false,
+  };
+}
+
+// The Page API's update copies non-null fields onto the stored page, so `{ isHidden }` changes only visibility.
+export function buildSetPageVisibilityRequest(
+  spec: SetPageVisibilitySpec,
+): PageMutationRequest {
+  return {
+    applicationId: spec.applicationId,
+    revision: spec.revision,
+    method: "PUT",
+    path: `v1/pages/${spec.pageId}`,
+    body: { isHidden: spec.hidden },
     destructive: false,
   };
 }

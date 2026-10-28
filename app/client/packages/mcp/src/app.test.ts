@@ -4292,11 +4292,215 @@ describe("governance-wrapped layout mutations", () => {
     for (const tool of [
       "create_page",
       "rename_page",
+      "set_page_visibility",
       "prepare_delete_page",
       "confirm_delete_page",
     ]) {
       expect(names).not.toContain(tool);
     }
+  });
+
+  describe("APP-16324 F4: set_page_visibility", () => {
+    const APP = "a".repeat(24);
+    const HOME = "b".repeat(24);
+    const DETAILS = "c".repeat(24);
+
+    function pagesServer() {
+      const pages = [
+        {
+          id: HOME,
+          name: "Home",
+          slug: "home",
+          isDefault: true,
+          isHidden: false,
+        },
+        {
+          id: DETAILS,
+          name: "Ticket Details",
+          slug: "ticket-details",
+          isDefault: false,
+          isHidden: false,
+        },
+      ];
+      const updatePage = jest.fn(
+        async (pageId: string, body: Record<string, unknown>) => {
+          const page = pages.find((entry) => entry.id === pageId);
+
+          if (page && typeof body.isHidden === "boolean") {
+            page.isHidden = body.isHidden;
+          }
+
+          return page;
+        },
+      );
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getApplicationPages: jest.fn(async () => ({
+          workspaceId: "ws1",
+          pages: pages.map((page) => ({ ...page })),
+        })),
+        updatePage: updatePage as never,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+      });
+
+      return { server, updatePage };
+    }
+
+    async function revisionOf(server: ReturnType<typeof createMcpHttpServer>) {
+      return (await callTool(server, "read_pages", { applicationId: APP })).body
+        .revision as string;
+    }
+
+    it("hides and then unhides a page, each with the current revision", async () => {
+      const { server, updatePage } = pagesServer();
+      const hidden = await callTool(server, "set_page_visibility", {
+        spec: {
+          applicationId: APP,
+          pageId: DETAILS,
+          revision: await revisionOf(server),
+          hidden: true,
+        },
+      });
+
+      expect(hidden.body.updated).toBe(true);
+      expect(hidden.body.changeId).toEqual(expect.any(String));
+      expect(updatePage).toHaveBeenLastCalledWith(DETAILS, { isHidden: true });
+      expect(
+        (hidden.body.pages as { id: string; isHidden?: boolean }[]).find(
+          (page) => page.id === DETAILS,
+        )?.isHidden,
+      ).toBe(true);
+
+      const shown = await callTool(server, "set_page_visibility", {
+        spec: {
+          applicationId: APP,
+          pageId: DETAILS,
+          revision: await revisionOf(server),
+          hidden: false,
+        },
+      });
+
+      expect(shown.body.updated).toBe(true);
+      expect(updatePage).toHaveBeenLastCalledWith(DETAILS, { isHidden: false });
+    });
+
+    it("refuses to hide the default (home) page", async () => {
+      const { server, updatePage } = pagesServer();
+      const refused = await callTool(server, "set_page_visibility", {
+        spec: {
+          applicationId: APP,
+          pageId: HOME,
+          revision: await revisionOf(server),
+          hidden: true,
+        },
+      });
+
+      expect(refused.body.error).toMatch(/home page and cannot be hidden/);
+      expect(updatePage).not.toHaveBeenCalled();
+    });
+
+    it("allows showing the home page, and records the change in the audit log", async () => {
+      const { server, updatePage } = pagesServer();
+      const shown = await callTool(server, "set_page_visibility", {
+        spec: {
+          applicationId: APP,
+          pageId: HOME,
+          revision: await revisionOf(server),
+          hidden: false,
+        },
+      });
+
+      expect(shown.body.updated).toBe(true);
+      expect(updatePage).toHaveBeenCalledWith(HOME, { isHidden: false });
+
+      const list = await callTool(server, "list_changes", {});
+      const change = list.body.changes.find(
+        (entry: { operation: string }) =>
+          entry.operation === "set_page_visibility",
+      );
+
+      expect(change).toBeDefined();
+      expect(change.id).toBe(shown.body.changeId);
+    });
+
+    // The revision does not cover which page is the default, so a page made the home page after the first read is
+    // refused under the lock.
+    it("refuses to hide a page that became the home page after the first read", async () => {
+      const pages = [
+        { id: HOME, name: "Home", isDefault: true, isHidden: false },
+        {
+          id: DETAILS,
+          name: "Ticket Details",
+          isDefault: false,
+          isHidden: false,
+        },
+      ];
+      let reads = 0;
+      const updatePage = jest.fn();
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getApplicationPages: jest.fn(async () => {
+          reads += 1;
+
+          // The third read is the one inside the lock (after read_pages and the handler's own read).
+          return {
+            workspaceId: "ws1",
+            pages: pages.map((page) =>
+              reads >= 3 ? { ...page, isDefault: page.id === DETAILS } : page,
+            ),
+          };
+        }),
+        updatePage: updatePage as never,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+      });
+      const refused = await callTool(server, "set_page_visibility", {
+        spec: {
+          applicationId: APP,
+          pageId: DETAILS,
+          revision: await revisionOf(server),
+          hidden: true,
+        },
+      });
+
+      expect(JSON.stringify(refused.body)).toMatch(
+        /home page and cannot be hidden/,
+      );
+      expect(updatePage).not.toHaveBeenCalled();
+    });
+
+    it("refuses a page that is not in the application", async () => {
+      const { server, updatePage } = pagesServer();
+      const refused = await callTool(server, "set_page_visibility", {
+        spec: {
+          applicationId: APP,
+          pageId: "d".repeat(24),
+          revision: await revisionOf(server),
+          hidden: true,
+        },
+      });
+
+      expect(refused.body.error).toMatch(/not a page of application/);
+      expect(updatePage).not.toHaveBeenCalled();
+    });
+
+    it("refuses a stale revision", async () => {
+      const { server, updatePage } = pagesServer();
+      const refused = await callTool(server, "set_page_visibility", {
+        spec: {
+          applicationId: APP,
+          pageId: DETAILS,
+          revision: "e".repeat(64),
+          hidden: true,
+        },
+      });
+
+      expect(JSON.stringify(refused.body)).toMatch(/stale|revision/i);
+      expect(updatePage).not.toHaveBeenCalled();
+    });
   });
 
   it("F3: read_pages includes each page's layoutId (per-page GET /pages/{pageId}, N+1)", async () => {

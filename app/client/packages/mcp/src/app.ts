@@ -113,9 +113,11 @@ import {
 import {
   buildCreatePageRequest,
   buildRenamePageRequest,
+  buildSetPageVisibilityRequest,
   createPageSpecSchema,
   deletePageSpecSchema,
   renamePageSpecSchema,
+  setPageVisibilitySpecSchema,
 } from "./builder/pages.js";
 import { listPresets, PRESETS } from "./builder/presets.js";
 import {
@@ -5374,6 +5376,99 @@ export function buildMcpServer(
           });
 
           return result({ renamed: true, ...value, changeId });
+        } catch (error) {
+          return governanceError(error) ?? compileError(error);
+        }
+      },
+    );
+
+    registerTool(
+      "set_page_visibility",
+      "Hide or show an existing page in the app's navigation ({ applicationId, pageId, revision, hidden }). A hidden page still opens through navigate. The app's default (home) page cannot be hidden. Pass the application's page-list revision. Returns the safe page list, new revision, and change id.",
+      {
+        spec: z.record(z.unknown()),
+        branch: gitBranchParamSchema.optional(),
+      },
+      async ({ branch, spec }) => {
+        const parsed = setPageVisibilitySpecSchema.safeParse(spec);
+
+        if (!parsed.success) return validationError(parsed.error.issues);
+
+        const gate = await gitBranchGate(parsed.data.applicationId, branch);
+
+        if (!gate.ok) return gate.result;
+
+        const { applicationId, hidden, pageId } = parsed.data;
+        const before = await api.getApplicationPages(applicationId);
+        const rawPages = (before as { pages?: unknown } | null)?.pages;
+        const target = Array.isArray(rawPages)
+          ? (rawPages.find(
+              (page) => (page as { id?: unknown } | null)?.id === pageId,
+            ) as { isDefault?: unknown; isHidden?: unknown } | undefined)
+          : undefined;
+
+        // The page must belong to this application: the revision and the lock are per application, so a page id
+        // from another app must not be changed under them.
+        if (target === undefined) {
+          return result({
+            error: `${pageId} is not a page of application ${applicationId}`,
+            code: "page_not_found",
+          });
+        }
+
+        // The same rule as create_responsive_app: the home page is where the app opens, so it stays visible.
+        if (hidden && target.isDefault === true) {
+          return result({
+            error: `${pageId} is the app's home page and cannot be hidden`,
+            code: "home_page",
+          });
+        }
+
+        const request = buildSetPageVisibilityRequest(parsed.data);
+
+        try {
+          const { changeId, value } = await gov.execute({
+            actorId,
+            organizationId,
+            entityKey: pagesEntityKey(applicationId),
+            operation: "set_page_visibility",
+            expectedRevision: parsed.data.revision,
+            currentRevision: fingerprintPages(before),
+            mutate: async () => {
+              // The revision does not cover which page is the default, so check again under the lock: the page may
+              // have become the home page since the read above.
+              if (hidden) {
+                const current = await api.getApplicationPages(applicationId);
+                const currentPages = (current as { pages?: unknown } | null)
+                  ?.pages;
+                const nowDefault =
+                  Array.isArray(currentPages) &&
+                  currentPages.some(
+                    (page) =>
+                      (page as { id?: unknown } | null)?.id === pageId &&
+                      (page as { isDefault?: unknown }).isDefault === true,
+                  );
+
+                if (nowDefault) {
+                  throw new Error(
+                    `${pageId} is the app's home page and cannot be hidden`,
+                  );
+                }
+              }
+
+              await api.updatePage(pageId, request.body);
+              const after = await api.getApplicationPages(applicationId);
+
+              return {
+                value: { pages: projectPages(after) },
+                revisionAfter: fingerprintPages(after),
+                rollback: { pageId, isHidden: target.isHidden === true },
+                summary: { hidden },
+              };
+            },
+          });
+
+          return result({ updated: true, ...value, changeId });
         } catch (error) {
           return governanceError(error) ?? compileError(error);
         }

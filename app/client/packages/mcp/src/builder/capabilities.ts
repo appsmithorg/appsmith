@@ -569,6 +569,12 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       summary: "rename a page (governed)",
     },
     {
+      name: "set_page_visibility",
+      gate: "governance",
+      summary:
+        "hide or show a page in navigation; not the home page (governed)",
+    },
+    {
       name: "prepare_delete_page",
       gate: "governance",
       summary: "prepare page delete (confirmation)",

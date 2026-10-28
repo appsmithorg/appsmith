@@ -88,6 +88,7 @@ const CORE_TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
   update_theme: WRITE,
   create_page: WRITE,
   rename_page: WRITE,
+  set_page_visibility: WRITE,
   create_datasource: WRITE_IDEMPOTENT,
   create_query: WRITE_IDEMPOTENT,
   create_rest_api: WRITE_IDEMPOTENT,
