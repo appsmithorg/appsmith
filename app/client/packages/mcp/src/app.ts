@@ -5709,6 +5709,41 @@ export function buildMcpServer(
     // APP-16324 F7: removing widgets is destructive, so it goes through the same approval as delete_page. The binding
     // comes from governance/widgetRemoval.ts, which an edition tool that removes layout content can use too.
     // patch_widgets refuses its remove operation and points here.
+
+    // The widgets a removal takes, for the prompt and the relay: each name, with how many widgets it holds.
+    const removalList = (removed: RemovedWidget[]): string =>
+      removed
+        .map(
+          (entry) =>
+            `"${promptSafe(truncateForPrompt(entry.name, 40))}"${entry.contains.length > 0 ? ` (with ${entry.contains.length} widget${entry.contains.length === 1 ? "" : "s"} inside)` : ""}`,
+        )
+        .join(", ");
+
+    // The page and app a removal happens on, so the user approves it on the right page. Best effort: the ids when the
+    // names cannot be read. The digest binds the ids, never these labels.
+    const removalPlace = async (
+      applicationId: string,
+      pageId: string,
+    ): Promise<string> => {
+      let pageLabel = pageId;
+      let appLabel = applicationId;
+
+      try {
+        const pagesResponse = await api.getApplicationPages(applicationId);
+        const page = projectPages(pagesResponse).find(
+          (entry) => entry.id === pageId,
+        );
+
+        if (page !== undefined && page.name.length > 0) pageLabel = page.name;
+
+        appLabel = applicationNameOf(pagesResponse) ?? appLabel;
+      } catch {
+        // Label read failed: name the ids rather than refuse.
+      }
+
+      return `the page "${promptSafe(truncateForPrompt(pageLabel, 40))}" of "${promptSafe(truncateForPrompt(appLabel, 40))}"`;
+    };
+
     registerTool(
       "prepare_remove_widgets",
       "Prepare to remove widgets from a page ({ applicationId, pageId, layoutId, revision, names: [..] }, up to 20). Each named widget goes with EVERYTHING inside it (a container takes its content). Returns `removed` (every widget that will go, with what each contains), a one-time confirmation token bound to this page revision and these names, and 'relay' text to show the user. Then call confirm_remove_widgets with the same spec and the token.",
@@ -5758,12 +5793,7 @@ export function buildMcpServer(
             revision,
           ),
         );
-        const listed = removed
-          .map(
-            (entry) =>
-              `"${promptSafe(truncateForPrompt(entry.name, 40))}"${entry.contains.length > 0 ? ` (with ${entry.contains.length} widget${entry.contains.length === 1 ? "" : "s"} inside)` : ""}`,
-          )
-          .join(", ");
+        const place = await removalPlace(applicationId, pageId);
 
         return result({
           confirmationId: confirmation.id,
@@ -5771,7 +5801,7 @@ export function buildMcpServer(
           operation: WIDGET_REMOVAL_OPERATION,
           removed,
           // Relay text for clients WITHOUT elicitation support: shown to the human before confirming.
-          relay: `Show the user this and get their approval BEFORE calling confirm_remove_widgets: remove ${listed} from the page. This cannot be undone via MCP. Do not call confirm_remove_widgets without the user's explicit approval.`,
+          relay: `Show the user this and get their approval BEFORE calling confirm_remove_widgets: remove ${removalList(removed)} from ${place}. This cannot be undone via MCP. Do not call confirm_remove_widgets without the user's explicit approval.`,
         });
       },
     );
@@ -5842,12 +5872,7 @@ export function buildMcpServer(
           {
             confirmationId,
             promptMessage: async () =>
-              `Remove ${planned
-                .map(
-                  (entry) =>
-                    `"${promptSafe(truncateForPrompt(entry.name, 40))}"${entry.contains.length > 0 ? ` (with ${entry.contains.length} widget${entry.contains.length === 1 ? "" : "s"} inside)` : ""}`,
-                )
-                .join(", ")} from this page? This cannot be undone via MCP.`,
+              `Remove ${removalList(planned)} from ${await removalPlace(applicationId, pageId)}? This cannot be undone via MCP.`,
             schemaTitle: "Approve widget removal",
             schemaDescription:
               "Select true to remove these widgets and everything inside them.",
