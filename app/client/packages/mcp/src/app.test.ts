@@ -2006,6 +2006,52 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     expect(createAction).toHaveBeenCalledTimes(1);
   });
 
+  it.each([
+    [
+      "postgres-plugin",
+      true,
+      'SELECT * FROM users WHERE email ILIKE {{ "%" + (SearchInput.text ?? "") + "%" }};',
+    ],
+    ["mysql-plugin", false, undefined],
+  ])(
+    "APP-16324 F1.3: create_query compiles ilike with a contains match only on PostgreSQL (%s)",
+    async (pluginId, allowed, sql) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          filters: [
+            {
+              column: "email",
+              op: "ilike",
+              match: "contains",
+              value: { widget: "SearchInput", property: "text" },
+            },
+          ],
+        },
+      });
+
+      if (allowed) {
+        expect(body.created).toBe(true);
+        expect(body.body).toBe(sql);
+      } else {
+        expect(body.valid).toBe(false);
+        expect(JSON.stringify(body.errors)).toMatch(
+          /ilike \(filter on email\) is only available on a PostgreSQL datasource/,
+        );
+        expect(createAction).not.toHaveBeenCalled();
+      }
+    },
+  );
+
   it("create_query refuses a datasource the caller cannot access (IDOR guard)", async () => {
     const createAction = jest.fn();
     const api: AppsmithApi = {

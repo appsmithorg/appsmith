@@ -450,8 +450,11 @@ a control left empty is ignored instead of matching nothing. Requires the data l
    - single select: { column: 'status', op: 'eq', value: { widget: 'StatusFilter', property:
      'selectedOptionValue' }, skipWhenEmpty: true }
    - text input (exact match): { column: 'ticket_id', op: 'eq', value: { widget: 'TicketInput',
-     property: 'text' }, skipWhenEmpty: true }. 'like' adds no % wildcards — it matches the typed
-     text exactly unless the user types % themselves — so it is not a substring search.
+     property: 'text' }, skipWhenEmpty: true }
+   - text search: { column: 'subject', op: 'like', match: 'contains', value: { widget: 'SearchInput',
+     property: 'text' }, skipWhenEmpty: true }. Without match, 'like' adds no % wildcards and matches
+     the typed text exactly. Use op 'ilike' for a case-insensitive search (PostgreSQL only).
+     A % or _ the user types still acts as a wildcard.
    - multi-select (widget type \`multiselect\`; PostgreSQL datasources only):
      { column: 'tag', op: 'inList', value: { widget: 'TagFilter', property: 'selectedOptionValues' },
      skipWhenEmpty: true }. Values are compared as text. On other databases use a single select with

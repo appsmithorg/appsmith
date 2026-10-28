@@ -65,8 +65,27 @@ const OPERATORS = {
   lt: "<",
   lte: "<=",
   like: "LIKE",
+  ilike: "ILIKE",
   in: "IN",
 } as const;
+
+// Where `like` and `ilike` add the % wildcard. The % is added to the bound VALUE, never to the SQL text. `exact` adds
+// none, which is also what a like filter with no `match` does. A % or _ inside the value itself still acts as a
+// wildcard.
+const LIKE_MATCHES = ["contains", "prefix", "suffix", "exact"] as const;
+
+type LikeMatch = (typeof LIKE_MATCHES)[number];
+
+function isWildcardMatch(match: LikeMatch | undefined): boolean {
+  return match !== undefined && match !== "exact";
+}
+
+function withWildcards(text: string, match: LikeMatch): string {
+  const before = match === "contains" || match === "suffix" ? "%" : "";
+  const after = match === "contains" || match === "prefix" ? "%" : "";
+
+  return `${before}${text}${after}`;
+}
 
 // Filters that test a column for NULL. The SQL is fixed text from these maps, so they take no value.
 // The MySQL plugin refuses any query with the word IS while prepared statements are on, and the compiler always turns
@@ -103,6 +122,7 @@ const filterSchema = z
       "lt",
       "lte",
       "like",
+      "ilike",
       "in",
       "inList",
       "isNull",
@@ -110,9 +130,31 @@ const filterSchema = z
     ]),
     value: valueRef.optional(),
     skipWhenEmpty: z.boolean().optional(),
+    match: z.enum(LIKE_MATCHES).optional(),
   })
   .strict()
   .superRefine((filter, ctx) => {
+    if (filter.match !== undefined) {
+      if (filter.op !== "like" && filter.op !== "ilike") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "match is only valid with like or ilike",
+          path: ["match"],
+        });
+      } else if (
+        isWildcardMatch(filter.match) &&
+        filter.value !== undefined &&
+        "literal" in filter.value &&
+        typeof filter.value.literal !== "string"
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `match "${filter.match}" needs a string literal or a { widget, property } value`,
+          path: ["value"],
+        });
+      }
+    }
+
     if (isNullOperator(filter.op)) {
       // skipWhenEmpty: false is a no-op, so it is accepted.
       if (filter.value !== undefined || filter.skipWhenEmpty === true) {
@@ -335,6 +377,30 @@ export const querySpecSchema = z
             path,
           });
         }
+
+        // An empty search value compiles to "%%", which matches every row, so a wildcard would widen a write.
+        if (isWildcardMatch(member.match)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message:
+              'a wildcard match is only valid on a SELECT query (an empty value would match every row); use match: "exact" on a write',
+            path: [...path.slice(0, -1), "match"],
+          });
+        }
+
+        // A widget value in a like or ilike is a pattern the end user writes: typing "%" would match every row.
+        if (
+          (member.op === "like" || member.op === "ilike") &&
+          member.value !== undefined &&
+          "widget" in member.value
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message:
+              "like and ilike with a { widget, property } value are only valid on a SELECT query (the end user could type % and match every row); use eq on a write",
+            path: [...path.slice(0, -1), "value"],
+          });
+        }
       });
     });
 
@@ -408,6 +474,30 @@ function emitNullWhenEmpty(ref: WidgetRef): string {
   const binding = `{{ ${emptyTest(ref)} ? null : ${path} }}`;
 
   if (!NULL_WHEN_EMPTY_BINDING.test(binding)) {
+    throw new Error(`unsafe binding emitted: ${binding}`);
+  }
+
+  return binding;
+}
+
+// Binds a like value with its wildcards. A literal gets them at compile time, so it stays a plain JSON string binding.
+// A widget value gets them at run time, from fixed template text around one identifier path. A null or undefined
+// widget value binds as "" plus the wildcards.
+function emitWildcardBinding(value: ValueRef, match: LikeMatch): string {
+  if ("literal" in value) {
+    if (typeof value.literal !== "string") {
+      throw new Error(`match "${match}" needs a string literal`);
+    }
+
+    return emitBinding({ literal: withWildcards(value.literal, match) });
+  }
+
+  const path = `${value.widget}.${value.property}`;
+  const before = match === "contains" || match === "suffix" ? '"%" + ' : "";
+  const after = match === "contains" || match === "prefix" ? ' + "%"' : "";
+  const binding = `{{ ${before}(${path} ?? "")${after} }}`;
+
+  if (!WILDCARD_BINDING.test(binding)) {
     throw new Error(`unsafe binding emitted: ${binding}`);
   }
 
@@ -511,6 +601,24 @@ function emitCondition(
     // CAST both sides to text. A select holds string option values, and this lets them match both text and numeric
     // columns. The list binds as one SQL array parameter. A null list (an empty selection) matches nothing.
     return `CAST(${filter.column} AS TEXT) = ANY(CAST(${emitNullWhenEmpty(widgetRef(filter))} AS TEXT[]))`;
+  }
+
+  // Redshift has ILIKE, but its plugin runs queries without prepared statements, so a bound pattern is not a
+  // parameter there. Only PostgreSQL is supported.
+  if (filter.op === "ilike" && dialect !== "postgres") {
+    throw new Error(
+      `ilike (filter on ${filter.column}) is only available on a PostgreSQL datasource; on MySQL, like is already case-insensitive for most collations`,
+    );
+  }
+
+  // A like or ilike with a wildcard binds the value with the % around it, so the SQL text stays `col LIKE {{ ... }}`.
+  // An empty widget value binds "%%". On a SELECT that matches every row, and writes refuse a wildcard match.
+  if (
+    (filter.op === "like" || filter.op === "ilike") &&
+    filter.match !== undefined &&
+    isWildcardMatch(filter.match)
+  ) {
+    return `${filter.column} ${OPERATORS[filter.op]} ${emitWildcardBinding(filterValue(filter), filter.match)}`;
   }
 
   // On PostgreSQL, a skipWhenEmpty filter binds null while the widget value is empty. "" against a typed column (an
@@ -685,6 +793,10 @@ const SAFE_BINDING =
 // either position.
 const EMPTY_GUARD_BINDING =
   /^\{\{ \(([A-Za-z_][A-Za-z0-9_.]*) == null \|\| \1\.length === 0\) \? 1 : 0 \}\}$/;
+// The run-time wildcard binding for like and ilike: an optional leading "%", ONE identifier path with a "" fallback,
+// and an optional trailing "%". Nothing else can appear.
+const WILDCARD_BINDING =
+  /^\{\{ (?:"%" \+ )?\([A-Za-z_][A-Za-z0-9_.]* \?\? ""\)(?: \+ "%")? \}\}$/;
 const NULL_WHEN_EMPTY_BINDING =
   /^\{\{ \(([A-Za-z_][A-Za-z0-9_.]*) == null \|\| \1\.length === 0\) \? null : \1 \}\}$/;
 
