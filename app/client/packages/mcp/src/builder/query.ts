@@ -315,7 +315,8 @@ const coalesceColumnSchema = z
 // A groupBy column that holds a delimited list, such as "billing, export". `{ column, split: "," }` groups by each
 // trimmed item instead of the whole value (PostgreSQL only). The split becomes a lateral source in FROM, and GROUP BY,
 // HAVING and the select list all use that item. The separator is a bound parameter.
-// - A row whose column is NULL has no items, so it is left out of every group (CROSS JOIN).
+// - A row whose column is NULL or '' has no items, so it is left out of every group (CROSS JOIN).
+// - An empty item inside a value ("a,,b" or "a,") is kept and forms its own '' group. A having `ne ''` drops it.
 // - A WHERE filter on the same column still tests the whole stored value, not an item.
 const splitColumnSchema = z
   .object({

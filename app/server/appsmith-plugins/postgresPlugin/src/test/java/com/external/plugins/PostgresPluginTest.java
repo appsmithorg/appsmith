@@ -1738,9 +1738,10 @@ public class PostgresPluginTest {
      */
     @Test
     public void testSplitGroupColumnCountsEachTrimmedItem() {
-        // The NULL row has no items, so the CROSS JOIN leaves it out: it adds no group and no count.
-        String rows =
-                "(VALUES ('billing, export'), ('billing'), ('N/A'), ('export ,billing'), (NULL)) AS tickets(\"feature_tags\")";
+        // The NULL and '' rows have no items, so the CROSS JOIN leaves them out: they add no group and no count. The
+        // empty item in 'billing,,export' is kept and forms its own '' group.
+        String rows = "(VALUES ('billing, export'), ('billing'), ('N/A'), ('export ,billing'), (NULL), (''),"
+                + " ('billing,,export')) AS tickets(\"feature_tags\")";
         ActionExecutionResult result = runStatement(
                 "SELECT TRIM(mcp_split.mcp_split_value) AS \"feature_tags\", COUNT(*) AS count FROM " + rows
                         + " CROSS JOIN LATERAL unnest(string_to_array(\"feature_tags\", {{binding1}}))"
@@ -1752,11 +1753,13 @@ public class PostgresPluginTest {
                         param("binding2", "N/A", ClientDataType.STRING)));
 
         ArrayNode body = (ArrayNode) result.getBody();
-        assertEquals(2, body.size());
+        assertEquals(3, body.size());
         assertEquals("billing", body.get(0).get("feature_tags").asText());
-        assertEquals(3, body.get(0).get("count").asInt());
+        assertEquals(4, body.get(0).get("count").asInt());
         assertEquals("export", body.get(1).get("feature_tags").asText());
-        assertEquals(2, body.get(1).get("count").asInt());
+        assertEquals(3, body.get(1).get("count").asInt());
+        assertEquals("", body.get(2).get("feature_tags").asText());
+        assertEquals(1, body.get(2).get("count").asInt());
     }
 
     @Test
