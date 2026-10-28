@@ -2390,6 +2390,48 @@ describe("APP-16324 F1.6: split a delimited column (PostgreSQL)", () => {
     );
   });
 
+  // A WHERE filter on the split column tests the whole stored value; having tests each item.
+  it("combines a split with a filter on the same column, having, orderBy and a limit", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          {
+            column: "tags",
+            op: "like",
+            match: "contains",
+            value: { literal: "a" },
+          },
+        ],
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+        having: [{ column: "count", op: "gt", value: { literal: 1 } }],
+        orderBy: [{ column: "tags", direction: "DESC" }],
+        limit: 5,
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toBe(
+      'SELECT TRIM(mcp_split.mcp_split_value) AS "tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("tags", {{ "," }})) AS mcp_split(mcp_split_value) WHERE tags LIKE {{ "%a%" }} GROUP BY TRIM(mcp_split.mcp_split_value) HAVING COUNT(*) > {{ 1 }} ORDER BY "tags" DESC LIMIT 5;',
+    );
+  });
+
+  // The repeated-column refusal exists for split; a plain repeated group column stays accepted, as before F1.6.
+  it("still accepts a plain group column listed twice without a split", () => {
+    expect(
+      querySpecSchema.safeParse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["region", "region"],
+        aggregate: { fn: "count" },
+      }).success,
+    ).toBe(true);
+  });
+
   it("keeps WHERE filters on the table's own columns, and other group columns", () => {
     const body = compileQuery(
       parse({
@@ -2547,6 +2589,69 @@ describe("APP-16324 F1.6: split a delimited column (PostgreSQL)", () => {
       },
       "with split, a column cannot be named mcp_split (that name is reserved for the split source)",
       ["filters", 0, "anyOf", 0, "column"],
+    ],
+    [
+      "a plain group column on the reserved item name",
+      {
+        groupBy: ["mcp_split_value", { column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      },
+      "with split, a column cannot be named mcp_split_value (that name is reserved for the split source)",
+      ["groupBy", 0],
+    ],
+    [
+      "the aggregate's column on the reserved source name",
+      {
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count", column: "mcp_split" },
+      },
+      "with split, a column cannot be named mcp_split (that name is reserved for the split source)",
+      ["aggregate", "column"],
+    ],
+    [
+      "an orderBy column on the reserved item name",
+      {
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+        orderBy: [{ column: "mcp_split_value", direction: "ASC" }],
+      },
+      "with split, a column cannot be named mcp_split_value (that name is reserved for the split source)",
+      ["orderBy", 0, "column"],
+    ],
+    [
+      "a having column on the reserved item name",
+      {
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+        having: [
+          { column: "mcp_split_value", op: "eq", value: { literal: "x" } },
+        ],
+      },
+      "with split, a column cannot be named mcp_split_value (that name is reserved for the split source)",
+      ["having", 0, "column"],
+    ],
+    [
+      "a selected column on the reserved source name",
+      {
+        columns: ["mcp_split"],
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      },
+      "with split, a column cannot be named mcp_split (that name is reserved for the split source)",
+      ["columns", 0],
+    ],
+    // WHERE columns are emitted unquoted and PostgreSQL lowercases them, so case is ignored.
+    [
+      "a mixed-case reserved name",
+      {
+        filters: [
+          { column: "Mcp_Split_Value", op: "eq", value: { literal: "x" } },
+        ],
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      },
+      "with split, a column cannot be named Mcp_Split_Value (that name is reserved for the split source)",
+      ["filters", 0, "column"],
     ],
   ])("refuses %s, at its own path", (_label, override, message, path) => {
     const result = querySpecSchema.safeParse({
