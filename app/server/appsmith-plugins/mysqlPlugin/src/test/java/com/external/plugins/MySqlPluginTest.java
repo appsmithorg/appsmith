@@ -633,6 +633,55 @@ public class MySqlPluginTest {
         });
     }
 
+    /**
+     * The MCP compiler emits isNull and notNull filters as `<=>` on MySQL, because this plugin refuses the IS keyword
+     * in a prepared statement. The SQL shape matches app/client/packages/mcp/src/builder/query.test.ts. Change both
+     * together.
+     */
+    @Test
+    public void testNullSafeEqualityWithPreparedStatement() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .map(connectionPool -> {
+                    instanceConnectionContext = connectionPool;
+                    return connectionPool;
+                });
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT t.id FROM (SELECT 1 AS id, NULL AS owner UNION ALL SELECT 2, 'ada') AS t"
+                + " WHERE t.owner <=> NULL AND t.id > {{binding1}} UNION ALL"
+                + " SELECT t.id FROM (SELECT 3 AS id, NULL AS owner UNION ALL SELECT 4, 'bob') AS t"
+                + " WHERE NOT (t.owner <=> NULL) AND t.id > {{binding1}} ORDER BY id;");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("binding1");
+        param1.setValue("0");
+        param1.setClientDataType(ClientDataType.NUMBER);
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> executeMono = connectionContextMono.flatMap(
+                conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    ArrayNode rows = (ArrayNode) result.getBody();
+                    // Row 1 has a null owner (isNull). Row 4 has an owner (notNull).
+                    assertEquals(2, rows.size());
+                    assertEquals(1, rows.get(0).get("id").asInt());
+                    assertEquals(4, rows.get(1).get("id").asInt());
+                })
+                .verifyComplete();
+    }
+
     @Test
     public void testPreparedStatementWithRealTypes() {
         Mono.from(getConnectionMonoFromContainer(mySQLContainer))

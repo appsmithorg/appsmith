@@ -12,7 +12,6 @@ export cluster_name="uatx-cluster"
 echo "Region: $region"
 echo "Cluster name: $cluster_name"
 echo "Pull Request Number: $PULL_REQUEST_NUMBER"
-echo "DP_EFS_ID: $DP_EFS_ID"
 
 # Set naming context
 export NAMESPACE="$edition$PULL_REQUEST_NUMBER"
@@ -55,6 +54,27 @@ fi
 
 # Create namespace and image pull secret
 kubectl create ns "$NAMESPACE" || true
+
+# Each preview's EFS volume is provisioned by the appsmith-dp-efs-<edition>
+# StorageClass: one access point per claim, rooted at /<edition>/<namespace> on
+# the deploy preview file system, created with the claim and removed with it.
+# The directory stays. The chart mounts this claim through
+# persistence.existingClaim. Keep exactly one data claim per namespace: two
+# claims on the same class in one namespace share the same directory.
+export PVC_NAME="$CHARTNAME-efs"
+kubectl apply -n "$NAMESPACE" -f - <<EOF
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: $PVC_NAME
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: appsmith-dp-efs-$edition
+  resources:
+    requests:
+      storage: 10Gi
+EOF
 
 kubectl create secret docker-registry "$SECRET" \
   --docker-server=https://index.docker.io/v1/ \
@@ -113,10 +133,8 @@ helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-n
   --set "ingress.hosts[0].host=$DOMAINNAME, ingress.hosts[0].paths[0].path=/, ingress.hosts[0].paths[0].pathType=Prefix" \
   --set autoupdate.enabled=false \
   --set ingress.className="traefik" \
-  --set persistence.efs.enabled=true \
-  --set persistence.efs.driver="efs.csi.aws.com" \
-  --set persistence.storageClass="efs-sc" \
-  --set persistence.efs.volumeHandle="$DP_EFS_ID:/$edition/$edition$PULL_REQUEST_NUMBER" \
+  --set persistence.existingClaim.enabled=true \
+  --set persistence.existingClaim.claimName="$PVC_NAME" \
   --set resources.requests.cpu="1m" \
   --set resources.requests.memory="3072Mi" \
   --set podDisruptionBudgets.enabled=false \

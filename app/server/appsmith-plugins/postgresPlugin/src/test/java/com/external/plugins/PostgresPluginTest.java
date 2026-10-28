@@ -1562,26 +1562,7 @@ public class PostgresPluginTest {
      * fixture (other tests add and remove higher ids), so each query is bounded to them.
      */
     private List<Integer> selectUserIds(String body, List<Param> params) {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody(body);
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("preparedStatement", "true")));
-
-        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setParams(params);
-
-        ActionExecutionResult result = pluginExecutor
-                .datasourceCreate(dsConfig)
-                .flatMap(pool ->
-                        pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration))
-                .block();
-
-        assertNotNull(result);
-        assertTrue(result.getIsExecutionSuccess(), String.valueOf(result.getBody()));
-
-        List<Integer> ids = new ArrayList<>();
-        ((ArrayNode) result.getBody()).forEach(row -> ids.add(row.get("id").asInt()));
-        return ids;
+        return rowIds(runStatement(body, true, params));
     }
 
     private Param param(String key, String value, ClientDataType type) {
@@ -1633,6 +1614,114 @@ public class PostgresPluginTest {
                 List.of(param("binding1", "0", ClientDataType.NUMBER), param("binding2", "2", ClientDataType.NUMBER)));
 
         assertEquals(List.of(2), ids);
+    }
+
+    private ActionExecutionResult runStatement(String body, boolean prepared, List<Param> params) {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(body);
+        actionConfiguration.setPluginSpecifiedTemplates(
+                List.of(new Property("preparedStatement", String.valueOf(prepared))));
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
+
+        // Close the pool on every path, so its idle connections do not use up the container's connection limit.
+        ConnectionContext<HikariDataSource> pool =
+                pluginExecutor.datasourceCreate(dsConfig).block();
+        assertNotNull(pool);
+
+        ActionExecutionResult result;
+        try {
+            result = pluginExecutor
+                    .executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration)
+                    .block();
+        } finally {
+            pool.getConnection().close();
+        }
+
+        assertNotNull(result);
+        assertTrue(result.getIsExecutionSuccess(), String.valueOf(result.getBody()));
+        return result;
+    }
+
+    private List<Integer> rowIds(ActionExecutionResult result) {
+        List<Integer> ids = new ArrayList<>();
+        ((ArrayNode) result.getBody()).forEach(row -> ids.add(row.get("id").asInt()));
+        return ids;
+    }
+
+    /*
+     * The null filters the MCP structured-query compiler emits on PostgreSQL (APP-16324): the column lower-cased and
+     * quoted, as in `"owner" IS NULL`. The SQL shape matches app/client/packages/mcp/src/builder/query.test.ts. Change
+     * both together. The test uses its own table so the shared `users` fixture is not changed.
+     */
+    /*
+     * The like and ilike filters the MCP compiler emits with a `match` (APP-16324 F1.3): the % is part of the bound
+     * VALUE, as in `subject LIKE ?` with "re%". This checks that a prepared parameter carries % as a wildcard, and that
+     * ILIKE ignores case where LIKE does not. The SQL shape matches app/client/packages/mcp/src/builder/query.test.ts.
+     */
+    @Test
+    public void testLikeFilterBindsTheWildcardInTheParameter() {
+        String rows = "(VALUES (1, 'Refund request'), (2, 're: billing'), (3, 'Other')) AS t(id, subject)";
+
+        assertEquals(
+                List.of(2),
+                rowIds(runStatement(
+                        "SELECT id FROM " + rows + " WHERE subject LIKE {{binding1}} ORDER BY id;",
+                        true,
+                        List.of(param("binding1", "re%", ClientDataType.STRING)))));
+        assertEquals(
+                List.of(1, 2),
+                rowIds(runStatement(
+                        "SELECT id FROM " + rows + " WHERE subject ILIKE {{binding1}} ORDER BY id;",
+                        true,
+                        List.of(param("binding1", "re%", ClientDataType.STRING)))));
+        // A suffix match: the % leads the bound value.
+        assertEquals(
+                List.of(2),
+                rowIds(runStatement(
+                        "SELECT id FROM " + rows + " WHERE subject LIKE {{binding1}} ORDER BY id;",
+                        true,
+                        List.of(param("binding1", "%billing", ClientDataType.STRING)))));
+    }
+
+    @Test
+    public void testNullFilterOnWriteDeletesOnlyNullRows() {
+        runStatement("DROP TABLE IF EXISTS public.mcp_null_filter;", false, List.of());
+        runStatement("CREATE TABLE public.mcp_null_filter (id int, owner text);", false, List.of());
+        runStatement(
+                "INSERT INTO public.mcp_null_filter VALUES (1, NULL), (2, 'ada'), (3, NULL), (4, 'bob');",
+                false,
+                List.of());
+
+        try {
+            runStatement(
+                    "DELETE FROM public.mcp_null_filter WHERE \"owner\" IS NULL AND id > {{binding1}};",
+                    true,
+                    List.of(param("binding1", "1", ClientDataType.NUMBER)));
+
+            assertEquals(
+                    List.of(1, 2, 4),
+                    rowIds(runStatement("SELECT id FROM public.mcp_null_filter ORDER BY id;", false, List.of())));
+            assertEquals(
+                    List.of(2, 4),
+                    rowIds(runStatement(
+                            "SELECT id FROM public.mcp_null_filter WHERE \"owner\" IS NOT NULL ORDER BY id;",
+                            true,
+                            List.of())));
+
+            // Why the compiler refuses a null filter on a column named like its table: with no such column,
+            // PostgreSQL reads the quoted table name as the whole row, so this matches every row with no NULL field.
+            assertEquals(
+                    List.of(2, 4),
+                    rowIds(runStatement(
+                            "SELECT id FROM public.mcp_null_filter WHERE \"mcp_null_filter\" IS NOT NULL ORDER BY id;",
+                            true,
+                            List.of())));
+        } finally {
+            runStatement("DROP TABLE IF EXISTS public.mcp_null_filter;", false, List.of());
+        }
     }
 
     @Test
