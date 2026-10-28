@@ -39,6 +39,7 @@ const assertPageSize = (assertion: (pageSize: number) => void) => {
   });
 };
 
+// Each call must change the value: an unchanged value sends no updateLayout request
 const setRowsPerPage = (rows: number) => {
   propPane.UpdatePropertyFieldValue("Rows per page", String(rows));
   assertPageSize((pageSize) => expect(pageSize).to.eq(rows));
@@ -96,7 +97,7 @@ describe(
     it("3. Auto Height table body does not scroll vertically", function () {
       selectTable();
       propPane.SelectPropertiesDropDown("Height", "Auto Height");
-      setRowsPerPage(15);
+      setRowsPerPage(12);
       cy.get(autoHeightLocators.bodyScrollWrapper).should(($wrapper) => {
         expect($wrapper[0].scrollHeight).to.be.at.most(
           $wrapper[0].clientHeight,
@@ -120,7 +121,7 @@ describe(
     it("5. Auto Height with limits never grows above the max height", function () {
       selectTable();
       propPane.SelectPropertiesDropDown("Height", "Auto Height");
-      setRowsPerPage(5);
+      setRowsPerPage(6);
       propPane.SelectPropertiesDropDown("Height", "Auto Height with limits");
 
       agHelper.HoverElement(propPane._autoHeightLimitMax);
