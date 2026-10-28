@@ -1065,6 +1065,20 @@ describe("M7 gate matrix — every pattern-copied gate call site refuses without
       mutators: ["deletePage"],
     },
     {
+      tool: "confirm_remove_widgets",
+      args: {
+        spec: {
+          applicationId: APP_ID,
+          pageId: PAGE_ID,
+          layoutId: ENTITY_ID,
+          revision: REVISION,
+          names: ["Greeting"],
+        },
+        confirmationId: "bogus-confirmation",
+      },
+      mutators: ["updateLayout"],
+    },
+    {
       tool: "create_rest_api",
       args: {
         api: {

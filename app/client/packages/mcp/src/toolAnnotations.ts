@@ -110,6 +110,7 @@ const CORE_TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
   prepare_publish: WRITE,
   prepare_commit: WRITE,
   prepare_delete_page: WRITE,
+  prepare_remove_widgets: WRITE,
   prepare_delete_action: WRITE,
   prepare_run_action: WRITE,
   prepare_delete_js_object: WRITE,
@@ -118,6 +119,7 @@ const CORE_TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
   confirm_rollback: DESTRUCTIVE,
   confirm_publish: DESTRUCTIVE,
   confirm_delete_page: DESTRUCTIVE,
+  confirm_remove_widgets: DESTRUCTIVE,
   confirm_delete_action: DESTRUCTIVE,
   confirm_delete_js_object: DESTRUCTIVE,
   // Commit always pushes to the remote; a confirmed run executes an arbitrary action against its datasource.
