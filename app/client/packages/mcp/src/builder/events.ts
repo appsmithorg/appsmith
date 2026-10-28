@@ -4,6 +4,7 @@ import type { WidgetNode } from "./layout.js";
 import {
   entityPropertyPath,
   pageNameSchema,
+  PROTOTYPE_PROPERTY_NAMES,
   responseFieldPath,
   storeKeySchema,
   RAW_EXPRESSION,
@@ -169,8 +170,18 @@ const navigateParamValue = z.union([
     })
     .strict(),
   z.object({ widget: widgetName, property: entityPropertyPath }).strict(),
+  // The column is read as T.selectedRow?.["col"], so it may not be an Object.prototype name.
   z
-    .object({ table: widgetName, column: navigateText.pipe(z.string().min(1)) })
+    .object({
+      table: widgetName,
+      column: navigateText
+        .pipe(z.string().min(1))
+        .refine(
+          (column) =>
+            !PROTOTYPE_PROPERTY_NAMES.has(column) && column !== "prototype",
+          "a column name cannot be an Object.prototype name",
+        ),
+    })
     .strict(),
 ]);
 

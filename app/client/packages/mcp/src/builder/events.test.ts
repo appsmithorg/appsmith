@@ -36,6 +36,35 @@ function widget(
 }
 
 describe("APP-16324 F11: navigate with URL parameters", () => {
+  // Security review: navigateTo treats a target that is not a page as a URL. "1572395042" + "?x=1.55" passes its URL
+  // check (the dot comes from the param) and https:// makes it the IP 93.184.216.34, an open redirect.
+  it("refuses a navigate target that reads as an IP address", () => {
+    for (const navigate of ["1572395042", "0x5db8d822"]) {
+      expect(
+        wireEventSpecSchema.safeParse({
+          widget: "Go",
+          event: "onClick",
+          action: { navigate, params: { x: { literal: 1.55 } } },
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it("refuses an Object.prototype name as a table column parameter", () => {
+    for (const column of ["constructor", "__proto__", "prototype"]) {
+      expect(
+        wireEventSpecSchema.safeParse({
+          widget: "Go",
+          event: "onClick",
+          action: {
+            navigate: "Details",
+            params: { id: { table: "Table1", column } },
+          },
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   // Oracle: Home's "Details" button opens Ticket Details with ?id= set to the selected row's zid.
   it("passes the selected row's column as a query parameter", () => {
     const action = wireEventSpecSchema.parse({
@@ -119,8 +148,13 @@ describe("APP-16324 F11: navigate with URL parameters", () => {
     ["a prototype key", JSON.parse('{"__proto__": {"literal": 1}}')],
     ["a constructor key", { constructor: { literal: 1 } }],
     ["a literal with a single quote", { id: { literal: "a'); evil(); ('" } }],
-    ["a literal with binding syntax", { id: { literal: "{{evil()}}" } }],
-    ["a column with binding syntax", { id: { table: "T", column: "}}{{x" } }],
+    // The brace rule rejects these first; the cases below reach the binding-syntax check on its own.
+    ["a literal with a binding pair", { id: { literal: "{{evil()}}" } }],
+    ["a column with a binding pair", { id: { table: "T", column: "}}{{x" } }],
+    ["a literal with a backtick", { id: { literal: "a`b" } }],
+    ["a literal with ${", { id: { literal: "a${b" } }],
+    ["a literal with U+2028", { id: { literal: "a b" } }],
+    ["a column with a backtick", { id: { table: "T", column: "a`b" } }],
     ["a column with a single quote", { id: { table: "T", column: "it's" } }],
     // Appsmith splits a binding by counting braces even inside strings, so the handler would never run.
     ["a literal with an unbalanced brace", { id: { literal: "x}" } }],
@@ -142,6 +176,21 @@ describe("APP-16324 F11: navigate with URL parameters", () => {
     });
 
     expect(result.success).toBe(false);
+  });
+
+  it("accepts exactly 10 parameters", () => {
+    expect(
+      wireEventSpecSchema.safeParse({
+        widget: "Go",
+        event: "onClick",
+        action: {
+          navigate: "Search",
+          params: Object.fromEntries(
+            Array.from({ length: 10 }, (_, i) => [`p${i}`, { literal: i }]),
+          ),
+        },
+      }).success,
+    ).toBe(true);
   });
 
   it('JSON-encodes " and \\ in a literal so they stay inside the string', () => {
