@@ -55,11 +55,30 @@ defaults:
     working-directory: app/server
 
 jobs:
+  # The scheduled run on release saves per-class test durations to the Actions cache.
+  # This job picks the newest entry once, so that every group plans from the same file.
+  find-test-durations:
+    if: inputs.skip-tests != 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      key: ${{ steps.lookup.outputs.cache-matched-key }}
+    steps:
+      - name: Find the newest server test durations
+        id: lookup
+        uses: actions/cache/restore@v4
+        with:
+          path: server-test-durations.tsv
+          key: server-test-durations-${{ github.run_id }}
+          restore-keys: server-test-durations-
+          lookup-only: true
+
   server-unit-tests:
+    needs: find-test-durations
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-22.04-8core
 
-    # Each group runs a share of the test classes, balanced by the durations in
-    # .github/workflows/server-test-durations/. A build without tests uses one group.
+    # Each group runs a share of the test classes, balanced by the durations from the
+    # last scheduled run on release. A build without tests uses one group.
     strategy:
       fail-fast: false
       matrix:
@@ -209,6 +228,14 @@ jobs:
         run: |
           ./build.sh -DskipTests
 
+      # Without this file, the groups are balanced by the number of test methods per class.
+      - name: Restore the server test durations
+        if: needs.find-test-durations.outputs.key != ''
+        uses: actions/cache/restore@v4
+        with:
+          path: server-test-durations.tsv
+          key: ${{ needs.find-test-durations.outputs.key }}
+
       # Test the code
       - name: Run only tests
         if: (inputs.skip-tests != 'true' || steps.run_result.outputs.run_result == 'failedtest')  && (steps.changed-files-specific.outputs.any_modified == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
@@ -242,7 +269,7 @@ jobs:
           else
               group_tests="$(node "$GITHUB_WORKSPACE/.github/workflows/scripts/server-test-groups.js" plan \
                   --root . \
-                  --durations "$GITHUB_WORKSPACE/.github/workflows/server-test-durations" \
+                  --durations "$GITHUB_WORKSPACE/server-test-durations.tsv" \
                   --groups "$GROUP_COUNT" \
                   --group "$GROUP")"
               if [[ -z "$group_tests" ]]; then
@@ -355,6 +382,27 @@ jobs:
           if-no-files-found: ignore
           overwrite: true
 
+      # The scheduled run on release records how long each test class took, for the
+      # save-test-durations job. A rerun of failed tests covers only those tests, so it
+      # keeps the first attempt's file.
+      - name: Collect the server test durations
+        if: ${{ !cancelled() && inputs.skip-tests != 'true' && steps.run_result.outputs.run_result != 'failedtest' && github.event_name == 'schedule' && github.ref == 'refs/heads/release' }}
+        env:
+          GROUP: ${{ matrix.group }}
+        run: |
+          node "$GITHUB_WORKSPACE/.github/workflows/scripts/server-test-groups.js" durations --reports . \
+              > "$GITHUB_WORKSPACE/server-test-durations-group.tsv"
+          echo "Group $GROUP: $(wc -l < "$GITHUB_WORKSPACE/server-test-durations-group.tsv") test classes with a duration"
+
+      - name: Upload the server test durations
+        if: ${{ !cancelled() && inputs.skip-tests != 'true' && steps.run_result.outputs.run_result != 'failedtest' && github.event_name == 'schedule' && github.ref == 'refs/heads/release' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-test-durations-${{ matrix.group }}
+          path: server-test-durations-group.tsv
+          if-no-files-found: ignore
+          retention-days: 1
+
       # The OpenAPI document is written by OpenApiDocumentGenerationTest during the test run.
       # Runtime instances keep springdoc disabled; this artifact is the build's copy of the contract.
       # Only the group that runs that test has the document.
@@ -388,3 +436,46 @@ jobs:
 
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+
+  # Merges the durations of all groups and saves them for the next runs. Each run reads
+  # the newest entry (see find-test-durations); the cache drops entries unused for 7 days.
+  save-test-durations:
+    needs: server-unit-tests
+    if: ${{ !cancelled() && inputs.skip-tests != 'true' && github.event_name == 'schedule' && github.ref == 'refs/heads/release' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - name: Download the group durations
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: server-test-durations-*
+          path: group-durations
+
+      - name: Merge the group durations
+        id: merge
+        run: |
+          shopt -s nullglob
+          files=(group-durations/*/*.tsv)
+          if (( ${#files[@]} == 0 )); then
+              echo "No group durations found; nothing to save."
+              echo "save=false" >> "$GITHUB_OUTPUT"
+              exit 0
+          fi
+          awk -F '\t' 'NF == 2 { total[$2] += $1 } END { for (c in total) printf "%.1f\t%s\n", total[c], c }' "${files[@]}" \
+              | sort -t "$(printf '\t')" -k 2 > server-test-durations.tsv
+          echo "Merged ${#files[@]} groups: $(wc -l < server-test-durations.tsv) test classes"
+          if [[ -s server-test-durations.tsv ]]; then
+              echo "save=true" >> "$GITHUB_OUTPUT"
+          else
+              echo "save=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Save the server test durations
+        if: steps.merge.outputs.save == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: server-test-durations.tsv
+          key: server-test-durations-${{ github.run_id }}
