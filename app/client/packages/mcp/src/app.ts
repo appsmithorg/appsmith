@@ -5741,6 +5741,32 @@ export function buildMcpServer(
         )
         .join(", ");
 
+    // The page must belong to the application. The layout is read and written by page and layout id, while the git
+    // gate, the prompt's labels and the lock use the application id, so a page from another application would be
+    // changed under this application's checks. Fails closed when the page list cannot be read.
+    const removalPageProblem = async (
+      applicationId: string,
+      pageId: string,
+    ): Promise<ToolResult | undefined> => {
+      let pages: { id: string }[];
+
+      try {
+        pages = projectPages(await api.getApplicationPages(applicationId));
+      } catch {
+        return result({
+          error: "could not read the application's pages; retry",
+          code: "pages_unreadable",
+        });
+      }
+
+      return pages.some((page) => page.id === pageId)
+        ? undefined
+        : result({
+            error: `${pageId} is not a page of application ${applicationId}`,
+            code: "page_not_found",
+          });
+    };
+
     // The page and app a removal happens on, so the user approves it on the right page. Best effort: the ids when the
     // names cannot be read. The digest binds the ids, never these labels.
     const removalPlace = async (
@@ -5777,6 +5803,13 @@ export function buildMcpServer(
 
         const { applicationId, layoutId, names, pageId, revision } =
           parsed.data;
+        const notInApplication = await removalPageProblem(
+          applicationId,
+          pageId,
+        );
+
+        if (notInApplication) return notInApplication;
+
         const context = await api.getApplicationContext(
           applicationId,
           pageId,
@@ -5854,6 +5887,13 @@ export function buildMcpServer(
 
         if (!gate.ok) return gate.result;
 
+        const notInApplication = await removalPageProblem(
+          applicationId,
+          pageId,
+        );
+
+        if (notInApplication) return notInApplication;
+
         // A page that changed since prepare is refused here, before the token is spent, so the agent can re-read
         // and prepare again. commitLayout checks the revision once more after approval.
         const before = await api.getApplicationContext(
@@ -5914,16 +5954,7 @@ export function buildMcpServer(
 
         if (!approval.approved) return approval.result;
 
-        try {
-          await gov.consumeDestructiveConfirmation({
-            confirmationId,
-            ...binding,
-          });
-          markElicitationConsumed(confirmationId);
-        } catch (error) {
-          return governanceError(error) ?? compileError(error);
-        }
-
+        // Read and plan BEFORE spending the token, so a failed read or a refused plan leaves it usable for a retry.
         const context = await api.getApplicationContext(
           applicationId,
           pageId,
@@ -5942,6 +5973,16 @@ export function buildMcpServer(
           removal = removeWidgets(currentDsl, names);
         } catch (error) {
           return compileError(error);
+        }
+
+        try {
+          await gov.consumeDestructiveConfirmation({
+            confirmationId,
+            ...binding,
+          });
+          markElicitationConsumed(confirmationId);
+        } catch (error) {
+          return governanceError(error) ?? compileError(error);
         }
 
         // commitLayout re-checks the revision (a page changed since prepare is refused), runs the overlap gate,
