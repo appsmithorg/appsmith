@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import {
   CALL_DEPTH_LIMIT,
   compileExpr,
@@ -9,6 +10,7 @@ import {
   type Fn,
   MAX_DEFINITION_JSON_DEPTH,
   FN_NAMES,
+  GROUP_BY_MAX_GROUPS,
   type Op,
   OPS,
   type Step,
@@ -16,6 +18,7 @@ import {
   stepsProblem,
   validateExpr,
 } from "./jsExpr.js";
+import { JS_OBJECT_GUIDE_EXAMPLES } from "./jsObjectGuide.js";
 
 const ctx = (over: Partial<ExprContext> = {}): ExprContext => ({
   params: new Set(),
@@ -654,6 +657,78 @@ describe("jsExpr — every fn and op compiles to valid JS that computes the expe
       [[null, 1], 1],
       [[null, null, null, 1], 1],
     ],
+    sortBy: [
+      [
+        [{ array: [{ object: { n: 2 } }, { object: { n: 1 } }] }, "n", "asc"],
+        [{ n: 1 }, { n: 2 }],
+      ],
+      [
+        [{ array: [{ object: { n: 1 } }, { object: { n: 2 } }] }, "n", "desc"],
+        [{ n: 2 }, { n: 1 }],
+      ],
+    ],
+    slice: [
+      [
+        [{ array: [1, 2, 3, 4] }, 1, 3],
+        [2, 3],
+      ],
+      [
+        [{ array: [1, 2, 3, 4] }, -2],
+        [3, 4],
+      ],
+    ],
+    sum: [[[{ array: [1, "2", null, "", true, "x"] }], 3]],
+    avg: [
+      [[{ array: [1, 2, null] }], 1.5],
+      [[{ array: [] }], null],
+    ],
+    groupBy: [
+      [
+        [
+          {
+            array: [
+              { object: { s: "a", n: 1 } },
+              { object: { s: "b", n: 2 } },
+              { object: { s: "a", n: 3 } },
+            ],
+          },
+          "s",
+          { count: true },
+        ],
+        [
+          { key: "a", value: 2 },
+          { key: "b", value: 1 },
+        ],
+      ],
+      [
+        [
+          {
+            array: [
+              { object: { s: "a", n: 1 } },
+              { object: { s: "a", n: "3" } },
+            ],
+          },
+          "s",
+          { sum: "n" },
+        ],
+        [{ key: "a", value: 4 }],
+      ],
+      [
+        [
+          { array: [{ object: { s: "a", n: 1 } }, { object: { s: "a" } }] },
+          "s",
+          { avg: "n" },
+        ],
+        [{ key: "a", value: 1 }],
+      ],
+    ],
+    dateBucket: [
+      // 2026-10-28 is a Wednesday; its ISO week starts on Monday the 26th.
+      [["2026-10-28T23:30:00Z", "day"], "2026-10-28"],
+      [["2026-10-28T12:00:00Z", "week"], "2026-10-26"],
+      [["2026-10-28T12:00:00Z", "month"], "2026-10-01"],
+      [["not a date", "day"], null],
+    ],
   };
   const OP_CASES: Record<Op, [unknown[], unknown]> = {
     add: [[1, 2], 3],
@@ -1250,5 +1325,425 @@ describe("jsExpr — runtime call-depth guard at every call site", () => {
     await expect(run(source, self)).resolves.toBe(1);
     expect(seen).toEqual([1, 2, 2, 1]);
     expect(self.mcpCallDepth).toBe(0);
+  });
+});
+
+// APP-16324 F2: row-shaping functions. The design (docs/plans/2026-10-28-mcp-js-row-transforms-design.md) and its
+// security review set these cases: prototype-named keys and data, mixed types, invalid dates, empty lists, a large
+// sort, and the group cap.
+describe("jsExpr — row shaping (sortBy, slice, sum, avg, groupBy, dateBucket)", () => {
+  const evaluate = (input: unknown, scope: Record<string, unknown> = {}) => {
+    const tree = expr(input);
+    const names = Object.keys(scope);
+
+    // Each scope entry stands for a declared local, as a `let` would make it.
+    expect(validateExpr(tree, ctx({ vars: new Set(names) }))).toBeUndefined();
+
+    return new Function(...names, `return ${compileExpr(tree)};`)(
+      ...names.map((name) => scope[name]),
+    );
+  };
+
+  const problem = (input: unknown): string | undefined => {
+    const parsed = exprSchema.safeParse(input);
+
+    if (!parsed.success) return JSON.stringify(parsed.error.issues);
+
+    return validateExpr(parsed.data, ctx());
+  };
+
+  describe("validation", () => {
+    it.each([
+      ["sortBy", ["__proto__", "constructor", "prototype", "a.b", "1a"]],
+      ["groupBy", ["__proto__", "constructor", "prototype", "a-b"]],
+    ])("refuses a non-plain or prototype key in %s", (fn, keys) => {
+      for (const key of keys) {
+        const args =
+          fn === "sortBy"
+            ? [{ array: [] }, key, "asc"]
+            : [{ array: [] }, key, { count: true }];
+
+        expect(problem({ fn, args })).toContain("plain, non-prototype");
+      }
+    });
+
+    it("refuses a prototype field in groupBy's sum or avg", () => {
+      for (const aggregate of [{ sum: "__proto__" }, { avg: "constructor" }]) {
+        expect(
+          problem({ fn: "groupBy", args: [{ array: [] }, "k", aggregate] }),
+        ).toContain("summed or averaged field");
+      }
+    });
+
+    it("refuses a key, direction or unit that is not a literal", () => {
+      expect(
+        problem({ fn: "sortBy", args: [{ array: [] }, { var: "k" }, "asc"] }),
+      ).toBeDefined();
+      expect(
+        problem({ fn: "sortBy", args: [{ array: [] }, "k", { var: "d" }] }),
+      ).toBeDefined();
+      expect(
+        problem({
+          fn: "groupBy",
+          args: [{ array: [] }, { var: "k" }, { count: true }],
+        }),
+      ).toBeDefined();
+      expect(
+        problem({ fn: "dateBucket", args: ["2026-01-01", { var: "u" }] }),
+      ).toBeDefined();
+    });
+
+    it("refuses a direction or unit outside the closed set", () => {
+      expect(
+        problem({ fn: "sortBy", args: [{ array: [] }, "k", "up"] }),
+      ).toContain('"asc" or "desc"');
+      expect(
+        problem({ fn: "dateBucket", args: ["2026-01-01", "year"] }),
+      ).toContain('"day", "week" or "month"');
+    });
+
+    it("admits an aggregate only as groupBy's third argument", () => {
+      expect(
+        problem({ fn: "groupBy", args: [{ array: [] }, "k", { var: "x" }] }),
+      ).toContain("argument 3 must be");
+      expect(problem({ fn: "sum", args: [{ count: true }] })).toContain(
+        "only valid as the third argument of groupBy",
+      );
+      expect(
+        problem({
+          fn: "map",
+          args: [{ array: [] }, { sum: "n" }],
+        }),
+      ).toContain("only valid as the third argument of groupBy");
+    });
+  });
+
+  describe("runtime", () => {
+    // A "__proto__" or "constructor" value in the data is only a Map key: it cannot reach Object.prototype.
+    it("groups prototype-named data values as ordinary keys", () => {
+      const rows = [
+        { s: "__proto__" },
+        { s: "constructor" },
+        { s: "__proto__" },
+      ];
+      const result = evaluate(
+        { fn: "groupBy", args: [{ var: "rows" }, "s", { count: true }] },
+        { rows },
+      );
+
+      expect(result).toEqual([
+        { key: "__proto__", value: 2 },
+        { key: "constructor", value: 1 },
+      ]);
+      expect(({} as Record<string, unknown>).polluted).toBeUndefined();
+      expect(Object.getPrototypeOf(result[0])).toBe(Object.prototype);
+    });
+
+    it("sorts mixed types by rank, keeps empty values last in both directions, and never sorts the input", () => {
+      const when = new Date("2026-01-01T00:00:00Z");
+      const rows = [
+        { v: "b" },
+        { v: null },
+        { v: 10 },
+        { v: when },
+        { v: "a" },
+        {},
+        { v: 2 },
+      ];
+      const values = (dir: string) =>
+        (
+          evaluate(
+            { fn: "sortBy", args: [{ var: "rows" }, "v", dir] },
+            { rows },
+          ) as { v?: unknown }[]
+        ).map((row) => row.v);
+
+      expect(values("asc")).toEqual([2, 10, when, "a", "b", null, undefined]);
+      expect(values("desc")).toEqual([10, 2, when, "b", "a", null, undefined]);
+      expect(rows[0]).toEqual({ v: "b" });
+    });
+
+    it("sorts 100,000 rows", () => {
+      const rows = Array.from({ length: 100000 }, (_, index) => ({
+        n: (index * 7919) % 100000,
+        name: `row ${index % 977}`,
+      }));
+      const byNumber = evaluate(
+        { fn: "sortBy", args: [{ var: "rows" }, "n", "asc"] },
+        { rows },
+      ) as { n: number }[];
+      const byText = evaluate(
+        { fn: "sortBy", args: [{ var: "rows" }, "name", "desc"] },
+        { rows },
+      ) as { name: string }[];
+
+      const collator = new Intl.Collator();
+
+      expect(byNumber.map((row) => row.n)).toEqual(
+        Array.from({ length: 100000 }, (_, index) => index),
+      );
+      expect(byText).toHaveLength(100000);
+      // Every neighbour pair is in descending locale order.
+      expect(
+        byText.every(
+          (row, index) =>
+            index === 0 ||
+            collator.compare(byText[index - 1].name, row.name) >= 0,
+        ),
+      ).toBe(true);
+    });
+
+    // Locale order, not code-unit order: "a" sorts with "A", not after "Z".
+    it("sorts text with the locale collator, dates against dates, and keeps equal keys in input order", () => {
+      const rows = [
+        { v: "b", i: 0 },
+        { v: "Z", i: 1 },
+        { v: "a", i: 2 },
+        { v: "b", i: 3 },
+      ];
+      const sorted = (dir: string) =>
+        (
+          evaluate(
+            { fn: "sortBy", args: [{ var: "rows" }, "v", dir] },
+            { rows },
+          ) as { i: number }[]
+        ).map((row) => row.i);
+
+      expect(sorted("asc")).toEqual([2, 0, 3, 1]);
+      expect(sorted("desc")).toEqual([1, 0, 3, 2]);
+
+      const later = new Date("2026-02-01T00:00:00Z");
+      const earlier = new Date("2026-01-01T00:00:00Z");
+
+      expect(
+        evaluate(
+          { fn: "sortBy", args: [{ var: "rows" }, "d", "asc"] },
+          { rows: [{ d: later }, { d: earlier }] },
+        ),
+      ).toEqual([{ d: earlier }, { d: later }]);
+    });
+
+    it("skips values that are not numbers inside groupBy sum and avg", () => {
+      const rows = [
+        { k: "a", n: null },
+        { k: "a", n: "" },
+        { k: "a", n: true },
+        { k: "a", n: [5] },
+        { k: "a", n: 4 },
+        { k: "b", n: null },
+      ];
+
+      expect(
+        evaluate(
+          { fn: "groupBy", args: [{ var: "rows" }, "k", { sum: "n" }] },
+          { rows },
+        ),
+      ).toEqual([
+        { key: "a", value: 4 },
+        { key: "b", value: 0 },
+      ]);
+      expect(
+        evaluate(
+          { fn: "groupBy", args: [{ var: "rows" }, "k", { avg: "n" }] },
+          { rows },
+        ),
+      ).toEqual([
+        { key: "a", value: 4 },
+        { key: "b", value: null },
+      ]);
+    });
+
+    it('keeps null, missing, 1 and "1" keys as separate groups, and groups object keys by identity', () => {
+      const shared = { id: 1 };
+
+      expect(
+        evaluate(
+          { fn: "groupBy", args: [{ var: "rows" }, "k", { count: true }] },
+          {
+            rows: [
+              { k: null },
+              {},
+              { k: 1 },
+              { k: "1" },
+              { k: shared },
+              { k: { id: 1 } },
+              { k: shared },
+            ],
+          },
+        ),
+      ).toEqual([
+        { key: null, value: 1 },
+        { key: undefined, value: 1 },
+        { key: 1, value: 1 },
+        { key: "1", value: 1 },
+        { key: shared, value: 2 },
+        { key: { id: 1 }, value: 1 },
+      ]);
+    });
+
+    // CI runs in UTC, where local and UTC days agree, so the compiled code runs in a child Node process pinned to
+    // UTC+14: a template that used local-time methods would bucket by the viewer's day there. (Changing TZ inside the
+    // jest worker does not take effect.)
+    it("buckets in UTC whatever the viewer's time zone", () => {
+      const bucket = (date: string, unit: string): unknown => {
+        const source = compileExpr(
+          expr({ fn: "dateBucket", args: [date, unit] }),
+        );
+
+        return JSON.parse(
+          execFileSync(
+            process.execPath,
+            ["-e", `process.stdout.write(JSON.stringify(${source}))`],
+            { env: { ...process.env, TZ: "Pacific/Kiritimati" } },
+          ).toString(),
+        );
+      };
+
+      // Sunday 2026-11-01 23:30 UTC is already Monday afternoon at UTC+14.
+      expect(bucket("2026-11-01T23:30:00Z", "week")).toBe("2026-10-26");
+      expect(bucket("2026-10-31T23:30:00Z", "month")).toBe("2026-10-01");
+      expect(bucket("2026-10-31T23:30:00Z", "day")).toBe("2026-10-31");
+    });
+
+    it("returns null for a date whose bucket falls outside the years 0000-9999", () => {
+      for (const edge of [-8.64e15, 8.64e15, "+010000-06-15T00:00:00Z"]) {
+        for (const unit of ["day", "week", "month"]) {
+          expect(
+            evaluate(
+              { fn: "dateBucket", args: [{ var: "d" }, unit] },
+              { d: edge },
+            ),
+          ).toBeNull();
+        }
+      }
+
+      expect(
+        evaluate({ fn: "dateBucket", args: ["0001-01-03T00:00:00Z", "day"] }),
+      ).toBe("0001-01-03");
+    });
+
+    it("returns null for an empty avg and 0 for an empty sum, and treats a non-list as empty", () => {
+      expect(evaluate({ fn: "avg", args: [{ array: [] }] })).toBeNull();
+      expect(evaluate({ fn: "sum", args: [{ array: [] }] })).toBe(0);
+      expect(evaluate({ fn: "sum", args: [{ var: "x" }] }, { x: "123" })).toBe(
+        0,
+      );
+      expect(
+        evaluate({ fn: "avg", args: [{ var: "x" }] }, { x: [null, "", [5]] }),
+      ).toBeNull();
+    });
+
+    it("returns null for an invalid date in every unit", () => {
+      for (const unit of ["day", "week", "month"]) {
+        expect(
+          evaluate({ fn: "dateBucket", args: [{ var: "d" }, unit] }, { d: {} }),
+        ).toBeNull();
+      }
+    });
+
+    // new Date(null) and new Date(false) are 1970: a SQL NULL date must not land in a 1970 bucket.
+    it("returns null for a missing date instead of a 1970 bucket", () => {
+      for (const missing of [null, undefined, "", false, true]) {
+        for (const unit of ["day", "week", "month"]) {
+          expect(
+            evaluate(
+              { fn: "dateBucket", args: [{ var: "d" }, unit] },
+              { d: missing },
+            ),
+          ).toBeNull();
+        }
+      }
+
+      // Epoch milliseconds are still a date.
+      expect(
+        evaluate({ fn: "dateBucket", args: [{ var: "d" }, "day"] }, { d: 0 }),
+      ).toBe("1970-01-01");
+    });
+
+    // A tree that never went through zod: the validator itself refuses a mixed or malformed aggregate.
+    it("refuses a malformed aggregate even without the zod schema", () => {
+      const tree = (aggregate: unknown) =>
+        ({
+          fn: "groupBy",
+          args: [{ array: [] }, "k", aggregate],
+        }) as unknown as Expr;
+
+      expect(
+        validateExpr(tree({ count: true, sum: "__proto__" }), ctx()),
+      ).toContain("exactly one of count, sum or avg");
+      expect(validateExpr(tree({ count: 1 }), ctx())).toContain(
+        "count must be { count: true }",
+      );
+      expect(validateExpr(tree({ sum: 5 }), ctx())).toContain(
+        "summed or averaged field",
+      );
+    });
+
+    it("buckets across month and year edges in UTC", () => {
+      // Friday 2027-01-01: its ISO week starts on Monday 2026-12-28.
+      expect(
+        evaluate({ fn: "dateBucket", args: ["2027-01-01T05:00:00Z", "week"] }),
+      ).toBe("2026-12-28");
+      // A Monday stays on itself.
+      expect(
+        evaluate({ fn: "dateBucket", args: ["2026-10-26T00:00:00Z", "week"] }),
+      ).toBe("2026-10-26");
+    });
+
+    it("turns slice bounds into whole numbers, with NaN as 0", () => {
+      expect(
+        evaluate({ fn: "slice", args: [{ array: [1, 2, 3, 4] }, "x", 2.9] }),
+      ).toEqual([1, 2]);
+      expect(
+        evaluate({ fn: "slice", args: [{ var: "x" }, 0] }, { x: null }),
+      ).toEqual([]);
+    });
+
+    it(`throws past ${GROUP_BY_MAX_GROUPS} groups instead of cutting the result`, () => {
+      const rows = Array.from({ length: GROUP_BY_MAX_GROUPS + 1 }, (_, k) => ({
+        k,
+      }));
+
+      expect(() =>
+        evaluate(
+          { fn: "groupBy", args: [{ var: "rows" }, "k", { count: true }] },
+          { rows },
+        ),
+      ).toThrow(`groupBy: more than ${GROUP_BY_MAX_GROUPS} groups`);
+      expect(
+        evaluate(
+          { fn: "groupBy", args: [{ var: "rows" }, "k", { count: true }] },
+          { rows: rows.slice(0, GROUP_BY_MAX_GROUPS) },
+        ),
+      ).toHaveLength(GROUP_BY_MAX_GROUPS);
+    });
+
+    // The guide's own worked example, evaluated as agents will copy it (not an inline copy that could drift), with
+    // the Tickets query stubbed.
+    it("evaluates the guide's weekly-count example over query rows", () => {
+      const example = JS_OBJECT_GUIDE_EXAMPLES.find(
+        (entry) => entry.title === "A weekly count for a chart",
+      );
+      const returns = (
+        example?.definition.functions[0] as { returns?: unknown } | undefined
+      )?.returns;
+      const rows = [
+        { created_at: "2026-10-28T10:00:00Z" },
+        { created_at: "2026-10-20T10:00:00Z" },
+        { created_at: "2026-10-27T10:00:00Z" },
+        { created_at: "nope" },
+        { created_at: null },
+      ];
+      const series = new Function(
+        "Tickets",
+        `return ${compileExpr(expr(returns))};`,
+      )({ data: rows });
+
+      expect(series).toEqual([
+        { key: "2026-10-19", value: 1 },
+        { key: "2026-10-26", value: 2 },
+        { key: null, value: 2 },
+      ]);
+    });
   });
 });
