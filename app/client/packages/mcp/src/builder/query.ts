@@ -312,9 +312,46 @@ const coalesceColumnSchema = z
   })
   .strict();
 
-const selectColumnSchema = z.union([sqlIdentifier, coalesceColumnSchema]);
+// A groupBy column that holds a delimited list, such as "billing, export". `{ column, split: "," }` groups by each
+// trimmed item instead of the whole value (PostgreSQL only). The split becomes a lateral source in FROM, and GROUP BY,
+// HAVING and the select list all use that item. The separator is a bound parameter.
+// - A row whose column is NULL or '' has no items, so it is left out of every group (CROSS JOIN).
+// - An empty item inside a value ("a,,b" or "a,") is kept and forms its own '' group. A having `ne ''` drops it.
+// - A WHERE filter on the same column still tests the whole stored value, not an item.
+const splitColumnSchema = z
+  .object({
+    column: sqlIdentifier,
+    split: z
+      .string()
+      .min(1)
+      .max(10)
+      .refine((value) => !RAW_EXPRESSION.test(value), "no template syntax"),
+  })
+  .strict();
+
+const selectColumnSchema = z.union([
+  sqlIdentifier,
+  coalesceColumnSchema,
+  splitColumnSchema,
+]);
 
 type SelectColumn = z.infer<typeof selectColumnSchema>;
+type SplitColumn = z.infer<typeof splitColumnSchema>;
+
+function isSplitColumn(entry: SelectColumn): entry is SplitColumn {
+  return typeof entry !== "string" && "split" in entry;
+}
+
+function isCoalesceColumn(
+  entry: SelectColumn,
+): entry is z.infer<typeof coalesceColumnSchema> {
+  return typeof entry !== "string" && "coalesce" in entry;
+}
+
+// The lateral source a split column reads from. The names are fixed text, and the item column has a name a table is
+// unlikely to use, so a WHERE filter on the table's own columns stays unambiguous.
+const SPLIT_SOURCE = "mcp_split";
+const SPLIT_ITEM = `TRIM(${SPLIT_SOURCE}.mcp_split_value)`;
 
 function columnNameOf(entry: SelectColumn): string {
   return typeof entry === "string" ? entry : entry.column;
@@ -417,9 +454,7 @@ export const querySpecSchema = z
         const groupBy = spec.groupBy ?? [];
         const groupColumns = new Set(groupBy.map(columnNameOf));
         const coalescedColumns = new Set(
-          groupBy
-            .filter((entry) => typeof entry !== "string")
-            .map(columnNameOf),
+          groupBy.filter(isCoalesceColumn).map(columnNameOf),
         );
 
         spec.having.forEach((condition, index) => {
@@ -460,16 +495,22 @@ export const querySpecSchema = z
       });
     }
 
-    // A grouped column's coalesce appears in the aggregated select list only. Without an aggregate the select list is
-    // `columns` or `*`, so the coalesce would be dropped without a word.
+    // A grouped column's coalesce or split appears in the aggregated select list only. Without an aggregate the select
+    // list is `columns` or `*`, so it would be dropped without a word.
     if (spec.aggregate === undefined) {
       (spec.groupBy ?? []).forEach((entry, index) => {
-        if (typeof entry !== "string") {
+        if (isCoalesceColumn(entry)) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message:
               "coalesce on a groupBy column needs an aggregate; to coalesce a plain column, put it in columns",
             path: ["groupBy", index, "coalesce"],
+          });
+        } else if (isSplitColumn(entry)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "split on a groupBy column needs an aggregate",
+            path: ["groupBy", index, "split"],
           });
         }
       });
@@ -487,6 +528,107 @@ export const querySpecSchema = z
         }
       });
     }
+
+    // With a split, each group key needs its own name: the select list shows each under its column's name, and having
+    // finds a key by that name. A repeat (such as "tags" plain and "tags" split) would give two columns of one name.
+    // Without a split, a repeated group column stays accepted, as before.
+    const hasSplit = (spec.groupBy ?? []).some(isSplitColumn);
+    const seenGroupColumns = new Set<string>();
+
+    (spec.groupBy ?? []).forEach((entry, index) => {
+      const name = columnNameOf(entry);
+
+      if (hasSplit && seenGroupColumns.has(name)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `groupBy lists "${name}" more than once`,
+          path: ["groupBy", index],
+        });
+      }
+
+      seenGroupColumns.add(name);
+    });
+
+    // The split source is named mcp_split with the item column mcp_split_value. With a split present, a table of that
+    // name would collide with it, and a column of either name would bind to the split source instead of the table.
+    if (hasSplit) {
+      if (spec.table.split(".").pop()?.toLowerCase() === SPLIT_SOURCE) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `split cannot be used on a table named ${SPLIT_SOURCE}`,
+          path: ["table"],
+        });
+      }
+
+      const reserved = new Set([SPLIT_SOURCE, `${SPLIT_SOURCE}_value`]);
+      const refuse = (column: string, path: (string | number)[]) => {
+        if (reserved.has(column.toLowerCase())) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `with split, a column cannot be named ${column} (that name is reserved for the split source)`,
+            path,
+          });
+        }
+      };
+
+      (spec.filters ?? []).forEach((entry, index) => {
+        if (typeof entry !== "object" || entry === null) return;
+
+        if (isFilterGroup(entry)) {
+          entry.anyOf.forEach((member, memberIndex) =>
+            refuse(member.column, [
+              "filters",
+              index,
+              "anyOf",
+              memberIndex,
+              "column",
+            ]),
+          );
+        } else if (typeof entry.column === "string") {
+          refuse(entry.column, ["filters", index, "column"]);
+        }
+      });
+      (spec.columns ?? []).forEach((entry, index) =>
+        refuse(columnNameOf(entry), ["columns", index]),
+      );
+      (spec.orderBy ?? []).forEach((entry, index) =>
+        refuse(entry.column, ["orderBy", index, "column"]),
+      );
+      (spec.having ?? []).forEach((entry, index) =>
+        refuse(entry.column, ["having", index, "column"]),
+      );
+      // Every group column (the split one too) and the aggregate's column: a reserved name there would group or count
+      // the split source instead of the table.
+      (spec.groupBy ?? []).forEach((entry, index) =>
+        refuse(columnNameOf(entry), ["groupBy", index]),
+      );
+
+      if (spec.aggregate?.column !== undefined) {
+        refuse(spec.aggregate.column, ["aggregate", "column"]);
+      }
+    }
+
+    // A query has one lateral split source, so one split column.
+    (spec.groupBy ?? []).filter(isSplitColumn).forEach((entry, splitIndex) => {
+      if (splitIndex === 0) return;
+
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "only one groupBy column can use split",
+        path: ["groupBy", (spec.groupBy ?? []).indexOf(entry), "split"],
+      });
+    });
+
+    // A split item is a group key. In columns it would have no meaning.
+    (spec.columns ?? []).forEach((entry, index) => {
+      if (isSplitColumn(entry)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "split is only valid in groupBy",
+          path: ["columns", index, "split"],
+        });
+      }
+    });
 
     if (spec.operation === "SELECT") return;
 
@@ -562,7 +704,7 @@ export const querySpecSchema = z
     // Plain columns on a write have always been ignored, and still are. A coalesce entry is refused instead, so the
     // agent learns it has no effect.
     (spec.columns ?? []).forEach((entry, index) => {
-      if (typeof entry !== "string") {
+      if (isCoalesceColumn(entry)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "coalesce is only valid on a SELECT query",
@@ -831,23 +973,51 @@ function emitGroupBy(
 }
 
 // The SQL a group key compiles to, shared by GROUP BY, HAVING and the aggregated select list, so all three name the
-// same thing. Today that is the stored column, quoted by quoteIdentifier (bare on MySQL).
+// same thing. A split column's key is the trimmed item from the lateral split source. Every other column's key is its
+// stored name, quoted by quoteIdentifier (bare on MySQL).
 function groupKeyExpression(entry: SelectColumn, dialect: SqlDialect): string {
+  if (isSplitColumn(entry)) return SPLIT_ITEM;
+
   return quoteIdentifier(columnNameOf(entry), dialect);
 }
 
 // One select-list item. `quote` matches the list's own style: plain columns are emitted bare, group columns quoted.
-// A coalesce entry keeps the column's name as its alias, and its fallback is a bound parameter.
+// - A coalesce entry keeps the column's name as its alias, and its fallback is a bound parameter.
+// - A split entry shows its item under the column's name.
 function emitSelectColumn(
   entry: SelectColumn,
   quote: boolean,
   dialect: SqlDialect,
 ): string {
+  if (isSplitColumn(entry)) {
+    if (!quote) {
+      throw new Error("split is only valid in groupBy");
+    }
+
+    return `${SPLIT_ITEM} AS ${quoteIdentifier(entry.column, dialect)}`;
+  }
+
   const name = quote ? groupKeyExpression(entry, dialect) : columnNameOf(entry);
 
   if (typeof entry === "string") return name;
 
   return `COALESCE(${name}, ${emitBinding(entry.coalesce)}) AS ${name}`;
+}
+
+// The FROM clause: the table, plus the lateral split source when a group column uses split (PostgreSQL only). The
+// separator is a bound parameter, and the source and item names are fixed text.
+function emitFrom(spec: QuerySpec, dialect: SqlDialect): string {
+  const split = (spec.groupBy ?? []).find(isSplitColumn);
+
+  if (split === undefined) return spec.table;
+
+  if (dialect !== "postgres") {
+    throw new Error(
+      `split (on ${split.column}) is only available on a PostgreSQL datasource, which can unnest an array`,
+    );
+  }
+
+  return `${spec.table} CROSS JOIN LATERAL unnest(string_to_array("${split.column}", ${emitBinding({ literal: split.split })})) AS ${SPLIT_SOURCE}(mcp_split_value)`;
 }
 
 // Emit one aggregate select item, e.g. `COUNT(*) AS count`, `COUNT("id") AS count`, `SUM("amount") AS sum`. The
@@ -899,7 +1069,12 @@ function emitHaving(spec: QuerySpec, dialect: SqlDialect): string {
     const target =
       condition.column === aggregate.fn
         ? aggregateExpression(aggregate, dialect)
-        : groupKeyExpression(condition.column, dialect);
+        : groupKeyExpression(
+            (spec.groupBy ?? []).find(
+              (entry) => columnNameOf(entry) === condition.column,
+            ) ?? condition.column,
+            dialect,
+          );
 
     return `${target} ${HAVING_OPERATORS[condition.op]} ${emitBinding(condition.value)}`;
   });
@@ -983,7 +1158,7 @@ export function compileQuery(
       const limit = spec.limit !== undefined ? ` LIMIT ${spec.limit}` : "";
 
       // SQL clause order: SELECT ... FROM ... WHERE ... GROUP BY ... ORDER BY ... LIMIT.
-      body = `SELECT ${selectList} FROM ${spec.table}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy, dialect)}${emitHaving(spec, dialect)}${emitOrderBy(spec.orderBy, dialect)}${limit};`;
+      body = `SELECT ${selectList} FROM ${emitFrom(spec, dialect)}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy, dialect)}${emitHaving(spec, dialect)}${emitOrderBy(spec.orderBy, dialect)}${limit};`;
       break;
     }
     case "INSERT": {

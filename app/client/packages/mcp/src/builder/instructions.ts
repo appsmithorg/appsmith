@@ -448,7 +448,9 @@ a control left empty is ignored instead of matching nothing. Requires the data l
    { column: 'status', coalesce: { literal: 'Unknown' } }. The label is for display only: an eq
    filter on 'Unknown' matches no rows, because the stored value is NULL. So do not coalesce the
    options of a control whose value feeds an eq filter. To list the rows with no value, use a
-   separate query with the filter { column: 'status', op: 'isNull' }.
+   separate query with the filter { column: 'status', op: 'isNull' }. For a column that holds a
+   comma-separated list (tags), group by { column: 'tags', split: ',' } to get one option per tag
+   (PostgreSQL only).
    A control with a fixed set of values can use static \`options\` instead.
 4. The table query — \`create_query\` SELECT with one filter per control, each with
    \`skipWhenEmpty: true\`:

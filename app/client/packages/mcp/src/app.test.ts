@@ -2115,6 +2115,44 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     expect(createAction).toHaveBeenCalledTimes(1);
   });
 
+  it.each([
+    ["postgres-plugin", true],
+    ["mysql-plugin", false],
+  ])(
+    "APP-16324 F1.6: create_query compiles a split group column only on PostgreSQL (%s)",
+    async (pluginId, allowed) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          groupBy: [{ column: "roles", split: "," }],
+          aggregate: { fn: "count" },
+        },
+      });
+
+      if (allowed) {
+        expect(body.created).toBe(true);
+        expect(body.body).toBe(
+          'SELECT TRIM(mcp_split.mcp_split_value) AS "roles", COUNT(*) AS count FROM users CROSS JOIN LATERAL unnest(string_to_array("roles", {{ "," }})) AS mcp_split(mcp_split_value) GROUP BY TRIM(mcp_split.mcp_split_value);',
+        );
+      } else {
+        expect(body.valid).toBe(false);
+        expect(JSON.stringify(body.errors)).toMatch(
+          /split \(on roles\) is only available on a PostgreSQL datasource/,
+        );
+        expect(createAction).not.toHaveBeenCalled();
+      }
+    },
+  );
+
   it("create_query refuses a datasource the caller cannot access (IDOR guard)", async () => {
     const createAction = jest.fn();
     const api: AppsmithApi = {
@@ -4550,6 +4588,58 @@ describe("governance-wrapped layout mutations", () => {
       'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" HAVING COUNT(*) > {{ 1 }};',
     );
   });
+
+  it.each([
+    ["postgres-plugin", true],
+    ["mysql-plugin", false],
+  ])(
+    "APP-16324 F1.6: update_action compiles a split group column only on PostgreSQL (%s)",
+    async (pluginId, allowed) => {
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId },
+      ]);
+      const read = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SQL",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: read.body.revision,
+          query: {
+            name: "OldName",
+            applicationId: "app1",
+            pageId: "p1",
+            datasourceId: "ds1",
+            operation: "SELECT",
+            table: "tickets",
+            groupBy: [{ column: "tags", split: "," }],
+            aggregate: { fn: "count" },
+          },
+        },
+      });
+
+      if (allowed) {
+        expect(updated.body.updated).toBe(true);
+        expect(
+          (
+            (updateAction.mock.calls[0] as unknown[])[1] as {
+              actionConfiguration: { body: string };
+            }
+          ).actionConfiguration.body,
+        ).toContain(
+          'CROSS JOIN LATERAL unnest(string_to_array("tags", {{ "," }}))',
+        );
+      } else {
+        expect(JSON.stringify(updated.body)).toMatch(
+          /split \(on tags\) is only available on a PostgreSQL datasource/,
+        );
+        expect(updateAction).not.toHaveBeenCalled();
+      }
+    },
+  );
 
   // update_action reuses querySpecSchema, so the having refusals hold on this path too.
   it.each([

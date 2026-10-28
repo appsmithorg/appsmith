@@ -1731,6 +1731,37 @@ public class PostgresPluginTest {
         assertEquals(3, body.get(0).get("count").asInt());
     }
 
+    /*
+     * The split group column the MCP compiler emits (APP-16324 F1.6), as the Oracle tag-count query uses it: a lateral
+     * unnest of the delimited column with the separator as a prepared parameter, grouped and tested by the trimmed
+     * item. The SQL shape matches app/client/packages/mcp/src/builder/query.test.ts.
+     */
+    @Test
+    public void testSplitGroupColumnCountsEachTrimmedItem() {
+        // The NULL and '' rows have no items, so the CROSS JOIN leaves them out: they add no group and no count. The
+        // empty item in 'billing,,export' is kept and forms its own '' group.
+        String rows = "(VALUES ('billing, export'), ('billing'), ('N/A'), ('export ,billing'), (NULL), (''),"
+                + " ('billing,,export')) AS tickets(\"feature_tags\")";
+        ActionExecutionResult result = runStatement(
+                "SELECT TRIM(mcp_split.mcp_split_value) AS \"feature_tags\", COUNT(*) AS count FROM " + rows
+                        + " CROSS JOIN LATERAL unnest(string_to_array(\"feature_tags\", {{binding1}}))"
+                        + " AS mcp_split(mcp_split_value) GROUP BY TRIM(mcp_split.mcp_split_value)"
+                        + " HAVING TRIM(mcp_split.mcp_split_value) != {{binding2}} ORDER BY \"count\" DESC;",
+                true,
+                List.of(
+                        param("binding1", ",", ClientDataType.STRING),
+                        param("binding2", "N/A", ClientDataType.STRING)));
+
+        ArrayNode body = (ArrayNode) result.getBody();
+        assertEquals(3, body.size());
+        assertEquals("billing", body.get(0).get("feature_tags").asText());
+        assertEquals(4, body.get(0).get("count").asInt());
+        assertEquals("export", body.get(1).get("feature_tags").asText());
+        assertEquals(3, body.get(1).get("count").asInt());
+        assertEquals("", body.get(2).get("feature_tags").asText());
+        assertEquals(1, body.get(2).get("count").asInt());
+    }
+
     @Test
     public void testNullFilterOnWriteDeletesOnlyNullRows() {
         runStatement("DROP TABLE IF EXISTS public.mcp_null_filter;", false, List.of());

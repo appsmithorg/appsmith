@@ -2367,6 +2367,331 @@ describe("APP-16324 F1.5: having on aggregated selects", () => {
   });
 });
 
+describe("APP-16324 F1.6: split a delimited column (PostgreSQL)", () => {
+  // Oracle "Tag counts": split feature_tags on ",", count each tag, skip "N/A", most-used first.
+  it("compiles the Tag Counts query with a lateral unnest", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: [{ column: "feature_tags", split: "," }],
+        aggregate: { fn: "count" },
+        having: [
+          { column: "feature_tags", op: "ne", value: { literal: "N/A" } },
+        ],
+        orderBy: [{ column: "count", direction: "DESC" }],
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toBe(
+      'SELECT TRIM(mcp_split.mcp_split_value) AS "feature_tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("feature_tags", {{ "," }})) AS mcp_split(mcp_split_value) GROUP BY TRIM(mcp_split.mcp_split_value) HAVING TRIM(mcp_split.mcp_split_value) != {{ "N/A" }} ORDER BY "count" DESC;',
+    );
+  });
+
+  // A WHERE filter on the split column tests the whole stored value; having tests each item.
+  it("combines a split with a filter on the same column, having, orderBy and a limit", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          {
+            column: "tags",
+            op: "like",
+            match: "contains",
+            value: { literal: "a" },
+          },
+        ],
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+        having: [{ column: "count", op: "gt", value: { literal: 1 } }],
+        orderBy: [{ column: "tags", direction: "DESC" }],
+        limit: 5,
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toBe(
+      'SELECT TRIM(mcp_split.mcp_split_value) AS "tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("tags", {{ "," }})) AS mcp_split(mcp_split_value) WHERE tags LIKE {{ "%a%" }} GROUP BY TRIM(mcp_split.mcp_split_value) HAVING COUNT(*) > {{ 1 }} ORDER BY "tags" DESC LIMIT 5;',
+    );
+  });
+
+  // The repeated-column refusal exists for split; a plain repeated group column stays accepted, as before F1.6.
+  it("still accepts a plain group column listed twice without a split", () => {
+    expect(
+      querySpecSchema.safeParse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["region", "region"],
+        aggregate: { fn: "count" },
+      }).success,
+    ).toBe(true);
+  });
+
+  it("keeps WHERE filters on the table's own columns, and other group columns", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [{ column: "status", op: "eq", value: { literal: "open" } }],
+        groupBy: ["product", { column: "feature_tags", split: ";" }],
+        aggregate: { fn: "count" },
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toBe(
+      'SELECT "product", TRIM(mcp_split.mcp_split_value) AS "feature_tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("feature_tags", {{ ";" }})) AS mcp_split(mcp_split_value) WHERE status = {{ "open" }} GROUP BY "product", TRIM(mcp_split.mcp_split_value);',
+    );
+  });
+
+  it("keeps a separator that looks like SQL as a bound parameter", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: [{ column: "tags", split: "')--" }],
+        aggregate: { fn: "count" },
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toContain(`string_to_array("tags", {{ "')--" }})`);
+  });
+
+  it.each([undefined, "mysql" as const, "other" as const, "redshift" as const])(
+    "refuses split unless the datasource is PostgreSQL (dialect %s)",
+    (dialect) => {
+      const spec = parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      });
+
+      expect(() => compileQuery(spec, { dialect })).toThrow(
+        /split \(on tags\) is only available on a PostgreSQL datasource/,
+      );
+    },
+  );
+
+  it.each([
+    [
+      "split in columns",
+      { columns: [{ column: "tags", split: "," }] },
+      "split is only valid in groupBy",
+      ["columns", 0, "split"],
+    ],
+    [
+      "two split columns",
+      {
+        groupBy: [
+          { column: "a", split: "," },
+          { column: "b", split: "," },
+        ],
+        aggregate: { fn: "count" },
+      },
+      "only one groupBy column can use split",
+      ["groupBy", 1, "split"],
+    ],
+    [
+      "split without an aggregate",
+      { groupBy: [{ column: "tags", split: "," }] },
+      "split on a groupBy column needs an aggregate",
+      ["groupBy", 0, "split"],
+    ],
+  ])("refuses %s, at its own path", (_label, override, message, path) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      ...(override as Record<string, unknown>),
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues).toContainEqual(
+      expect.objectContaining({ message, path }),
+    );
+  });
+
+  // PostgreSQL resolves an ORDER BY name to the output column first, so this sorts by the trimmed item.
+  it("orders by the split column's alias", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+        orderBy: [{ column: "tags", direction: "ASC" }],
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toMatch(
+      / GROUP BY TRIM\(mcp_split\.mcp_split_value\) ORDER BY "tags" ASC;$/,
+    );
+    expect(body).toContain('TRIM(mcp_split.mcp_split_value) AS "tags"');
+  });
+
+  it.each([
+    [
+      "the same column listed twice in groupBy",
+      {
+        groupBy: ["tags", { column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      },
+      'groupBy lists "tags" more than once',
+      ["groupBy", 1],
+    ],
+    [
+      "split on a table named mcp_split",
+      {
+        table: "public.mcp_split",
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      },
+      "split cannot be used on a table named mcp_split",
+      ["table"],
+    ],
+    [
+      "a filter on the reserved item column",
+      {
+        filters: [
+          { column: "mcp_split_value", op: "eq", value: { literal: "x" } },
+        ],
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      },
+      "with split, a column cannot be named mcp_split_value (that name is reserved for the split source)",
+      ["filters", 0, "column"],
+    ],
+    [
+      "a group member on the reserved source name",
+      {
+        filters: [
+          {
+            anyOf: [
+              { column: "mcp_split", op: "isNull" },
+              { column: "status", op: "eq", value: { literal: "x" } },
+            ],
+          },
+        ],
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      },
+      "with split, a column cannot be named mcp_split (that name is reserved for the split source)",
+      ["filters", 0, "anyOf", 0, "column"],
+    ],
+    [
+      "a plain group column on the reserved item name",
+      {
+        groupBy: ["mcp_split_value", { column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      },
+      "with split, a column cannot be named mcp_split_value (that name is reserved for the split source)",
+      ["groupBy", 0],
+    ],
+    [
+      "the aggregate's column on the reserved source name",
+      {
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count", column: "mcp_split" },
+      },
+      "with split, a column cannot be named mcp_split (that name is reserved for the split source)",
+      ["aggregate", "column"],
+    ],
+    [
+      "an orderBy column on the reserved item name",
+      {
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+        orderBy: [{ column: "mcp_split_value", direction: "ASC" }],
+      },
+      "with split, a column cannot be named mcp_split_value (that name is reserved for the split source)",
+      ["orderBy", 0, "column"],
+    ],
+    [
+      "a having column on the reserved item name",
+      {
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+        having: [
+          { column: "mcp_split_value", op: "eq", value: { literal: "x" } },
+        ],
+      },
+      "with split, a column cannot be named mcp_split_value (that name is reserved for the split source)",
+      ["having", 0, "column"],
+    ],
+    [
+      "a selected column on the reserved source name",
+      {
+        columns: ["mcp_split"],
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      },
+      "with split, a column cannot be named mcp_split (that name is reserved for the split source)",
+      ["columns", 0],
+    ],
+    // WHERE columns are emitted unquoted and PostgreSQL lowercases them, so case is ignored.
+    [
+      "a mixed-case reserved name",
+      {
+        filters: [
+          { column: "Mcp_Split_Value", op: "eq", value: { literal: "x" } },
+        ],
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      },
+      "with split, a column cannot be named Mcp_Split_Value (that name is reserved for the split source)",
+      ["filters", 0, "column"],
+    ],
+  ])("refuses %s, at its own path", (_label, override, message, path) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      ...(override as Record<string, unknown>),
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues).toContainEqual(
+      expect.objectContaining({ message, path }),
+    );
+  });
+
+  it.each([
+    ["an empty separator", { column: "tags", split: "" }],
+    [
+      "a separator longer than 10 characters",
+      { column: "tags", split: "x".repeat(11) },
+    ],
+    ["template syntax in the separator", { column: "tags", split: "{{a}}" }],
+    [
+      "split together with coalesce",
+      { column: "tags", split: ",", coalesce: { literal: "x" } },
+    ],
+    ["a column that is not an identifier", { column: "tags,1", split: "," }],
+  ])("rejects %s", (_label, entry) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      groupBy: [entry],
+      aggregate: { fn: "count" },
+    });
+
+    expect(result.success).toBe(false);
+  });
+});
+
 describe("buildActionDto", () => {
   it("embeds the datasource as { id } and forces prepared statements on", () => {
     const spec = parse({ ...base, operation: "SELECT", table: "users" });
