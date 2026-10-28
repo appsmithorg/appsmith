@@ -4612,6 +4612,65 @@ describe("governance-wrapped layout mutations", () => {
       expect(retried.body.code).toBeUndefined();
     });
 
+    // CodeRabbit review: a change that lands while the user answers the prompt is refused before the token is spent.
+    it("refuses a page that changed during approval, without spending the token", async () => {
+      const store = new MemoryGovernanceStore();
+      const { api, server, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const spec = { ...SPEC, revision, names: ["Greeting"] };
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec,
+      });
+      const read = api.getApplicationContext as jest.Mock;
+      const realRead = read.getMockImplementation()!;
+      let confirmReads = 0;
+
+      // The read before the prompt sees the prepared page; the read after approval sees an edited one.
+      read.mockImplementation(async (...args: unknown[]) => {
+        confirmReads += 1;
+        const context = await realRead(...args);
+
+        if (confirmReads !== 2) return context;
+
+        const dslNow = context.layout.dsl as { children: unknown[] };
+
+        return {
+          ...context,
+          layout: {
+            dsl: {
+              ...dslNow,
+              children: [
+                ...dslNow.children,
+                {
+                  widgetId: "late",
+                  widgetName: "LateEdit",
+                  type: "TEXT_WIDGET",
+                  text: "x",
+                  parentId: "0",
+                  topRow: 60,
+                  bottomRow: 64,
+                  leftColumn: 0,
+                  rightColumn: 8,
+                },
+              ],
+            },
+          },
+        };
+      });
+
+      const refused = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(refused.body.code).toBe("revision_conflict");
+      expect(refused.body.error).toMatch(/while awaiting approval/);
+      expect(updateLayout).not.toHaveBeenCalled();
+      expect(
+        store.confirmations.has(prepared.body.confirmationId as string),
+      ).toBe(true);
+    });
+
     it("refuses a token prepared for other widgets, and writes nothing", async () => {
       const store = new MemoryGovernanceStore();
       const { server, updateLayout } = removalServer(store);
