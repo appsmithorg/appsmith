@@ -1,6 +1,8 @@
 import {
   buildActionDto,
   compileQuery,
+  markMcpAuthoredBody,
+  mcpAuthoredBody,
   querySpecSchema,
   sqlDialectFor,
 } from "./query.js";
@@ -2411,6 +2413,66 @@ describe("APP-16324 F1.6: split a delimited column (PostgreSQL)", () => {
     });
 
     expect(result.success).toBe(false);
+  });
+});
+
+describe("APP-16324 F9: marking MCP-authored SQL", () => {
+  const body = 'SELECT id FROM tickets WHERE status = {{ "open" }};';
+
+  it("prefixes the body with a hash marker and reads it back", () => {
+    const stored = markMcpAuthoredBody(body);
+
+    expect(stored).toMatch(
+      /^-- appsmith-mcp:v1 sha256=[0-9a-f]{64} \(written by the Appsmith MCP server, editing it stops MCP clients from reading it\)\n/,
+    );
+    expect(stored.endsWith(body)).toBe(true);
+    expect(mcpAuthoredBody(stored)).toBe(body);
+  });
+
+  // The MySQL plugin strips `--` comments and then reads the first word to decide whether the query returns rows.
+  // The marker line must be plain ASCII with nothing a plugin scans for.
+  it("writes the marker as one ASCII line comment with no ; ' \" ? or {{", () => {
+    const markerLine = markMcpAuthoredBody(body).split("\n")[0];
+
+    expect(markerLine.startsWith("-- ")).toBe(true);
+    expect(/^[\x20-\x7e]*$/.test(markerLine)).toBe(true);
+    expect(markerLine).not.toMatch(/[;'"?]|\{\{/);
+  });
+
+  it("treats a body whose line endings became CRLF as not MCP-authored", () => {
+    expect(
+      mcpAuthoredBody(markMcpAuthoredBody(body).replace(/\n/g, "\r\n")),
+    ).toBeUndefined();
+  });
+
+  it.each([
+    ["an editor-written body (no marker)", body],
+    ["an empty body", ""],
+    ["a non-string body", 42],
+    ["undefined", undefined],
+  ])("treats %s as not MCP-authored", (_label, stored) => {
+    expect(mcpAuthoredBody(stored)).toBeUndefined();
+  });
+
+  // An edit after the MCP wrote the query, such as an added secret, must hide the body again.
+  it("treats a body edited after marking as not MCP-authored", () => {
+    const stored = markMcpAuthoredBody(body);
+
+    expect(
+      mcpAuthoredBody(stored.replace("open", "open' -- api_key=xyz")),
+    ).toBeUndefined();
+    expect(
+      mcpAuthoredBody(`${stored}\nSELECT secret FROM vault;`),
+    ).toBeUndefined();
+  });
+
+  it("treats a marker with a wrong hash as not MCP-authored", () => {
+    const stored = markMcpAuthoredBody(body).replace(
+      /sha256=[0-9a-f]{64}/,
+      `sha256=${"0".repeat(64)}`,
+    );
+
+    expect(mcpAuthoredBody(stored)).toBeUndefined();
   });
 });
 

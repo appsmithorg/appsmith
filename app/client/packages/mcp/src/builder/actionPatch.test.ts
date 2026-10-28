@@ -6,6 +6,7 @@ import {
   duplicateActionSpecSchema,
   updateActionSpecSchema,
 } from "./actionPatch.js";
+import { markMcpAuthoredBody } from "./query.js";
 
 const revision = "a".repeat(64);
 const reference = {
@@ -52,7 +53,8 @@ describe("action lifecycle builders", () => {
         // A SELECT runs on page load so a bound widget populates without a manual trigger.
         executeOnLoad: true,
         actionConfiguration: {
-          body: "SELECT * FROM users;",
+          // The stored body carries the MCP-authored marker (APP-16324 F9).
+          body: markMcpAuthoredBody("SELECT * FROM users;"),
           pluginSpecifiedTemplates: [{ value: true }],
         },
       },
@@ -72,7 +74,9 @@ describe("action lifecycle builders", () => {
     expect(dto).toMatchObject({
       action: {
         actionConfiguration: {
-          body: "SELECT * FROM users WHERE users.deleted_at IS NULL;",
+          body: markMcpAuthoredBody(
+            "SELECT * FROM users WHERE users.deleted_at IS NULL;",
+          ),
         },
       },
     });

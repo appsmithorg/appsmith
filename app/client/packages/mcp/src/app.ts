@@ -121,6 +121,8 @@ import { listPresets, PRESETS } from "./builder/presets.js";
 import {
   buildActionDto,
   compileQuery,
+  markMcpAuthoredBody,
+  mcpAuthoredBody,
   querySpecSchema,
   sqlDialectFor,
   type SqlDialect,
@@ -5912,7 +5914,11 @@ export function buildMcpServer(
           return compileError(error);
         }
 
-        const created = await api.createAction(buildActionDto(spec, body));
+        // Store the body with the MCP-authored marker (get_action returns it until someone edits it); return the
+        // plain body to the agent.
+        const created = await api.createAction(
+          buildActionDto(spec, markMcpAuthoredBody(body)),
+        );
 
         return result({ created: true, body, action: created });
       },
@@ -6528,14 +6534,30 @@ export function buildMcpServer(
 
     registerTool(
       "get_action",
-      "Read safe metadata for a single action (id, name, page, plugin, datasource) plus a revision token for update/duplicate/delete. Never returns the query body, headers, or credentials.",
+      "Read safe metadata for a single action (id, name, page, plugin, datasource) plus a revision token for update/duplicate/delete. authoredBy is 'mcp' for a SQL query this server wrote (create_query / update_action) and not edited since: its compiled body is returned so you can check your earlier work. Otherwise authoredBy is 'editor' and no body is returned. Headers and credentials are never returned.",
       { applicationId: idSchema, actionId: idSchema },
       async ({ actionId, applicationId }) => {
         const action = await api.getAction(applicationId, actionId);
+        // Only the body of a DB (SQL) action that the MCP compiled and nobody edited since (its marker hash still
+        // matches) is returned. An editor-written or edited body can hold a secret, so it never reaches the agent.
+        // Only SQL bodies are marked, so any other action type is refused outright.
+        const source = actionSource(action) as {
+          pluginType?: unknown;
+          actionConfiguration?: { body?: unknown };
+        } | null;
+        const pluginType =
+          (action as { pluginType?: unknown } | null)?.pluginType ??
+          source?.pluginType;
+        const body =
+          pluginType === "DB"
+            ? mcpAuthoredBody(source?.actionConfiguration?.body)
+            : undefined;
 
         return result({
           action: projectAction(action),
           revision: fingerprintAction(action),
+          authoredBy: body !== undefined ? "mcp" : "editor",
+          ...(body !== undefined ? { body } : {}),
         });
       },
     );
