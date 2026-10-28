@@ -365,7 +365,8 @@ export const querySpecSchema = z
       })
       .strict()
       .optional(),
-    // GROUP BY columns for an aggregated SELECT — each an allow-listed identifier, emitted quoted.
+    // GROUP BY columns for an aggregated SELECT — each an allow-listed identifier, quoted by quoteIdentifier (bare on
+    // MySQL).
     groupBy: z.array(selectColumnSchema).max(20).optional(),
     limit: z.number().int().min(1).max(1000).optional(),
   })
@@ -687,33 +688,56 @@ function emitCondition(
   return `${filter.column} ${OPERATORS[filter.op]} ${binding}`;
 }
 
-// Emit `ORDER BY "col" ASC, "col2" DESC`. Columns are allow-listed identifiers (the charset admits no
-// quote/backslash), so quoting them is safe and unquotable; direction comes from a two-value enum, never agent text.
-function emitOrderBy(orderBy: QuerySpec["orderBy"]): string {
+// Quote an allow-listed column identifier for the dialect. MySQL and MariaDB read "col" as a string unless the
+// server runs with ANSI_QUOTES, which groups and sorts by a constant. Backtick quoting is not an option:
+// assertBodySafe refuses any backtick in a body. So MySQL gets the bare identifier, as plain select columns already
+// do. The identifier charset admits no quote or backslash, so a bare name cannot break out. A column named after a
+// reserved word then fails with a syntax error instead of returning wrong results.
+function quoteIdentifier(name: string, dialect: SqlDialect): string {
+  return dialect === "mysql" ? name : `"${name}"`;
+}
+
+// Emit `ORDER BY "col" ASC, "col2" DESC` (bare names on MySQL, see quoteIdentifier). Direction comes from a two-value
+// enum, never agent text.
+function emitOrderBy(
+  orderBy: QuerySpec["orderBy"],
+  dialect: SqlDialect,
+): string {
   if (!orderBy || orderBy.length === 0) return "";
 
   const clauses = orderBy.map(
-    (entry) => `"${entry.column}" ${entry.direction}`,
+    (entry) => `${quoteIdentifier(entry.column, dialect)} ${entry.direction}`,
   );
 
   return ` ORDER BY ${clauses.join(", ")}`;
 }
 
-// Emit `GROUP BY "col", "col2"`. Same allow-listed, quoted identifiers.
-function emitGroupBy(groupBy: QuerySpec["groupBy"]): string {
+// Emit `GROUP BY "col", "col2"`. Same allow-listed identifiers, quoted by quoteIdentifier (bare on MySQL).
+function emitGroupBy(
+  groupBy: QuerySpec["groupBy"],
+  dialect: SqlDialect,
+): string {
   if (!groupBy || groupBy.length === 0) return "";
 
   // Group by the stored column, even when the select list coalesces it. NULLs form their own group, and the select
   // list then shows that group under the fallback.
-  const clauses = groupBy.map((entry) => `"${columnNameOf(entry)}"`);
+  const clauses = groupBy.map((entry) =>
+    quoteIdentifier(columnNameOf(entry), dialect),
+  );
 
   return ` GROUP BY ${clauses.join(", ")}`;
 }
 
 // One select-list item. `quote` matches the list's own style: plain columns are emitted bare, group columns quoted.
 // A coalesce entry keeps the column's name as its alias, and its fallback is a bound parameter.
-function emitSelectColumn(entry: SelectColumn, quote: boolean): string {
-  const name = quote ? `"${columnNameOf(entry)}"` : columnNameOf(entry);
+function emitSelectColumn(
+  entry: SelectColumn,
+  quote: boolean,
+  dialect: SqlDialect,
+): string {
+  const name = quote
+    ? quoteIdentifier(columnNameOf(entry), dialect)
+    : columnNameOf(entry);
 
   if (typeof entry === "string") return name;
 
@@ -722,12 +746,18 @@ function emitSelectColumn(entry: SelectColumn, quote: boolean): string {
 
 // Emit one aggregate select item, e.g. `COUNT(*) AS count`, `COUNT("id") AS count`, `SUM("amount") AS sum`. The
 // function keyword and the alias both come from the closed AGGREGATE_FNS enum; the column (when present) is an
-// allow-listed identifier emitted quoted. `sum`/`avg` require a column — a count-less aggregate is nonsensical.
-function emitAggregate(aggregate: NonNullable<QuerySpec["aggregate"]>): string {
+// allow-listed identifier quoted by quoteIdentifier (bare on MySQL). `sum`/`avg` require a column — a count-less
+// aggregate is nonsensical.
+function emitAggregate(
+  aggregate: NonNullable<QuerySpec["aggregate"]>,
+  dialect: SqlDialect,
+): string {
   const fn = AGGREGATE_FNS[aggregate.fn];
 
   if (aggregate.fn === "count") {
-    const target = aggregate.column ? `"${aggregate.column}"` : "*";
+    const target = aggregate.column
+      ? quoteIdentifier(aggregate.column, dialect)
+      : "*";
 
     return `${fn}(${target}) AS ${aggregate.fn}`;
   }
@@ -736,7 +766,7 @@ function emitAggregate(aggregate: NonNullable<QuerySpec["aggregate"]>): string {
     throw new Error(`${aggregate.fn} aggregation requires a column`);
   }
 
-  return `${fn}("${aggregate.column}") AS ${aggregate.fn}`;
+  return `${fn}(${quoteIdentifier(aggregate.column, dialect)}) AS ${aggregate.fn}`;
 }
 
 function emitWhere(
@@ -796,15 +826,18 @@ export function compileQuery(
 
       if (spec.aggregate) {
         const groupCols = (spec.groupBy ?? []).map((entry) =>
-          emitSelectColumn(entry, true),
+          emitSelectColumn(entry, true, dialect),
         );
 
-        selectList = [...groupCols, emitAggregate(spec.aggregate)].join(", ");
+        selectList = [
+          ...groupCols,
+          emitAggregate(spec.aggregate, dialect),
+        ].join(", ");
       } else {
         selectList =
           spec.columns && spec.columns.length > 0
             ? spec.columns
-                .map((entry) => emitSelectColumn(entry, false))
+                .map((entry) => emitSelectColumn(entry, false, dialect))
                 .join(", ")
             : "*";
       }
@@ -812,7 +845,7 @@ export function compileQuery(
       const limit = spec.limit !== undefined ? ` LIMIT ${spec.limit}` : "";
 
       // SQL clause order: SELECT ... FROM ... WHERE ... GROUP BY ... ORDER BY ... LIMIT.
-      body = `SELECT ${selectList} FROM ${spec.table}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy)}${emitOrderBy(spec.orderBy)}${limit};`;
+      body = `SELECT ${selectList} FROM ${spec.table}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy, dialect)}${emitOrderBy(spec.orderBy, dialect)}${limit};`;
       break;
     }
     case "INSERT": {

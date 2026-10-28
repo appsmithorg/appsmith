@@ -1797,6 +1797,42 @@ describe("APP-16324 F1.4: coalesce on selected and grouped columns", () => {
     );
   });
 
+  // MySQL and MariaDB read "col" as a string literal unless ANSI_QUOTES is on, which would group and sort by a
+  // constant. Backticks are refused in every body, so those identifiers are emitted bare there; other dialects keep
+  // double quotes.
+  it("emits grouped, aggregated and sorted columns bare on MySQL, never double-quoted", () => {
+    const spec = parse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      groupBy: [
+        "region",
+        { column: "appsmith_version", coalesce: { literal: "Unknown" } },
+      ],
+      aggregate: { fn: "sum", column: "amount" },
+      orderBy: [{ column: "region", direction: "ASC" }],
+    });
+
+    expect(compileQuery(spec, { dialect: "mysql" })).toBe(
+      'SELECT region, COALESCE(appsmith_version, {{ "Unknown" }}) AS appsmith_version, SUM(amount) AS sum FROM tickets GROUP BY region, appsmith_version ORDER BY region ASC;',
+    );
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: ["region"],
+          aggregate: { fn: "count", column: "id" },
+        }),
+        { dialect: "mysql" },
+      ),
+    ).toBe("SELECT region, COUNT(id) AS count FROM tickets GROUP BY region;");
+    expect(compileQuery(spec, { dialect: "postgres" })).toBe(
+      'SELECT "region", COALESCE("appsmith_version", {{ "Unknown" }}) AS "appsmith_version", SUM("amount") AS sum FROM tickets GROUP BY "region", "appsmith_version" ORDER BY "region" ASC;',
+    );
+  });
+
   it("mixes plain and coalesced group columns", () => {
     const body = compileQuery(
       parse({
