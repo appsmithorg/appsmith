@@ -820,6 +820,14 @@ describe("jsExpr — milestone 3: table columns, failure branches, modal and nav
         ),
       }).success,
     ).toBe(false);
+    expect(
+      stepSchema.safeParse({
+        navigate: "Ticket Details",
+        params: Object.fromEntries(
+          Array.from({ length: 10 }, (_, i) => [`p${i}`, i]),
+        ),
+      }).success,
+    ).toBe(true);
     // A parameter expression is scope-checked like any other value.
     expect(
       stepsProblem(
