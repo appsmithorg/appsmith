@@ -4466,9 +4466,9 @@ describe("governance-wrapped layout mutations", () => {
         },
       });
 
-      expect(JSON.stringify(refused.body)).toMatch(
-        /home page and cannot be hidden/,
-      );
+      // The same result as the check before the lock, so an agent sees one refusal either way.
+      expect(refused.body.code).toBe("home_page");
+      expect(refused.body.error).toMatch(/home page and cannot be hidden/);
       expect(updatePage).not.toHaveBeenCalled();
     });
 
