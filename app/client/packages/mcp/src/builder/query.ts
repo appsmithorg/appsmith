@@ -41,12 +41,14 @@ const propertyPath = z
 // A scalar literal that cannot contain expression/template syntax (mirrors the schema's scalarCell).
 // U+2028/U+2029 are included for the same reason schema.ts documents: JSON.stringify does NOT escape them,
 // so a value carrying one can break out of the emitted string literal on an older JS engine.
+// Numbers must be finite: JSON input such as 1e999 parses to Infinity, which JSON.stringify emits as null, so the
+// literal would silently bind NULL.
 const literalScalar = z.union([
   z
     .string()
     .max(1000)
     .refine((value) => !RAW_EXPRESSION.test(value), "no template syntax"),
-  z.number(),
+  z.number().finite(),
   z.boolean(),
   z.null(),
 ]);
@@ -384,6 +386,19 @@ export const querySpecSchema = z
             message:
               "coalesce on a groupBy column needs an aggregate; to coalesce a plain column, put it in columns",
             path: ["groupBy", index, "coalesce"],
+          });
+        }
+      });
+    } else {
+      // With an aggregate, the select list is the group columns and the aggregate only, so a `columns` coalesce would
+      // be dropped without a word too. Plain `columns` entries stay ignored, as before.
+      (spec.columns ?? []).forEach((entry, index) => {
+        if (typeof entry !== "string") {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message:
+              "coalesce in columns is ignored when an aggregate is set; put the column in groupBy instead",
+            path: ["columns", index, "coalesce"],
           });
         }
       });

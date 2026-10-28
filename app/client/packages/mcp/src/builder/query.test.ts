@@ -1939,6 +1939,62 @@ describe("APP-16324 F1.4: coalesce on selected and grouped columns", () => {
     );
   });
 
+  it("refuses a columns coalesce with an aggregate, instead of dropping it", () => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      columns: ["id", { column: "status", coalesce: { literal: "none" } }],
+      groupBy: ["region"],
+      aggregate: { fn: "count" },
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.path.join("."))).toEqual([
+      "columns.1.coalesce",
+    ]);
+  });
+
+  // JSON such as 1e999 parses to Infinity, which JSON.stringify emits as null: the literal would silently bind NULL.
+  it.each([
+    [
+      "a coalesce fallback",
+      { columns: [{ column: "a", coalesce: { literal: Infinity } }] },
+    ],
+    [
+      "a filter value",
+      { filters: [{ column: "a", op: "eq", value: { literal: -Infinity } }] },
+    ],
+    [
+      "a NaN filter value",
+      { filters: [{ column: "a", op: "gt", value: { literal: NaN } }] },
+    ],
+  ])("refuses a non-finite number as %s", (_case, extra) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      ...extra,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  // The case that mattered most: an INSERT would have written NULL into the row.
+  it("refuses a non-finite number as an INSERT value", () => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "INSERT",
+      table: "tickets",
+      values: [{ column: "a", value: { literal: Infinity } }],
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.path.join(".")).toBe(
+      "values.0.value.literal",
+    );
+  });
+
   it("combines a coalesce column with filters, ordering and a limit", () => {
     const body = compileQuery(
       parse({
