@@ -41,12 +41,14 @@ const propertyPath = z
 // A scalar literal that cannot contain expression/template syntax (mirrors the schema's scalarCell).
 // U+2028/U+2029 are included for the same reason schema.ts documents: JSON.stringify does NOT escape them,
 // so a value carrying one can break out of the emitted string literal on an older JS engine.
+// Numbers must be finite: JSON input such as 1e999 parses to Infinity, which JSON.stringify emits as null, so the
+// literal would silently bind NULL.
 const literalScalar = z.union([
   z
     .string()
     .max(1000)
     .refine((value) => !RAW_EXPRESSION.test(value), "no template syntax"),
-  z.number(),
+  z.number().finite(),
   z.boolean(),
   z.null(),
 ]);
@@ -367,11 +369,15 @@ const HAVING_OPERATORS = {
 // One HAVING condition on an aggregated SELECT. `column` names either the aggregate's result (its fn, such as
 // "count") or one of the groupBy columns; querySpecSchema checks which. It is its own schema, not a WHERE filter: it
 // has no groups, no skipWhenEmpty, no like and no null tests, and it never uses the WHERE filters' column forms.
+// A null literal is refused: `= NULL` and `!= NULL` never match, so the condition would silently drop every group.
 const havingConditionSchema = z
   .object({
     column: sqlIdentifier,
     op: z.enum(["eq", "ne", "gt", "gte", "lt", "lte"]),
-    value: valueRef,
+    value: valueRef.refine(
+      (value) => !("literal" in value && value.literal === null),
+      "having cannot compare with null: = NULL never matches",
+    ),
   })
   .strict();
 
@@ -422,7 +428,8 @@ export const querySpecSchema = z
       })
       .strict()
       .optional(),
-    // GROUP BY columns for an aggregated SELECT — each an allow-listed identifier, emitted quoted.
+    // GROUP BY columns for an aggregated SELECT — each an allow-listed identifier, quoted by quoteIdentifier (bare on
+    // MySQL).
     groupBy: z.array(selectColumnSchema).max(20).optional(),
     // HAVING conditions on an aggregated SELECT, ANDed together.
     having: z.array(havingConditionSchema).max(10).optional(),
@@ -471,12 +478,13 @@ export const querySpecSchema = z
     }
 
     // A group column named like the aggregate's result (for example "count" with aggregate count) gives the result
-    // two columns of that name, and having could not tell them apart.
+    // two columns of that name, and having could not tell them apart. The match ignores case: MySQL names are bare and
+    // case-insensitive, so "COUNT" and count are the same name there.
     if (spec.aggregate !== undefined) {
       const fn = spec.aggregate.fn;
 
       (spec.groupBy ?? []).forEach((entry, index) => {
-        if (columnNameOf(entry) === fn) {
+        if (columnNameOf(entry).toLowerCase() === fn) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: `a groupBy column cannot be named "${fn}", the name of the aggregate's result`,
@@ -502,6 +510,19 @@ export const querySpecSchema = z
             code: z.ZodIssueCode.custom,
             message: "split on a groupBy column needs an aggregate",
             path: ["groupBy", index, "split"],
+          });
+        }
+      });
+    } else {
+      // With an aggregate, the select list is the group columns and the aggregate only, so a `columns` coalesce would
+      // be dropped without a word too. Plain `columns` entries stay ignored, as before.
+      (spec.columns ?? []).forEach((entry, index) => {
+        if (typeof entry !== "string") {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message:
+              "coalesce in columns is ignored when an aggregate is set; put the column in groupBy instead",
+            path: ["columns", index, "coalesce"],
           });
         }
       });
@@ -901,52 +922,70 @@ function emitCondition(
   return `${filter.column} ${OPERATORS[filter.op]} ${binding}`;
 }
 
-// Emit `ORDER BY "col" ASC, "col2" DESC`. Columns are allow-listed identifiers (the charset admits no
-// quote/backslash), so quoting them is safe and unquotable; direction comes from a two-value enum, never agent text.
-function emitOrderBy(orderBy: QuerySpec["orderBy"]): string {
+// Quote an allow-listed column identifier for the dialect. MySQL and MariaDB read "col" as a string unless the
+// server runs with ANSI_QUOTES, which groups and sorts by a constant. Backtick quoting is not an option:
+// assertBodySafe refuses any backtick in a body. So MySQL gets the bare identifier, as plain select columns already
+// do. The identifier charset admits no quote or backslash, so a bare name cannot break out. A column named after a
+// reserved word then fails with a syntax error instead of returning wrong results.
+function quoteIdentifier(name: string, dialect: SqlDialect): string {
+  return dialect === "mysql" ? name : `"${name}"`;
+}
+
+// Emit `ORDER BY "col" ASC, "col2" DESC` (bare names on MySQL, see quoteIdentifier). Direction comes from a two-value
+// enum, never agent text.
+function emitOrderBy(
+  orderBy: QuerySpec["orderBy"],
+  dialect: SqlDialect,
+): string {
   if (!orderBy || orderBy.length === 0) return "";
 
   const clauses = orderBy.map(
-    (entry) => `"${entry.column}" ${entry.direction}`,
+    (entry) => `${quoteIdentifier(entry.column, dialect)} ${entry.direction}`,
   );
 
   return ` ORDER BY ${clauses.join(", ")}`;
 }
 
-// Emit `GROUP BY "col", "col2"`. Same allow-listed, quoted identifiers.
-function emitGroupBy(groupBy: QuerySpec["groupBy"]): string {
+// Emit `GROUP BY "col", "col2"`. Same allow-listed identifiers, quoted by quoteIdentifier (bare on MySQL).
+function emitGroupBy(
+  groupBy: QuerySpec["groupBy"],
+  dialect: SqlDialect,
+): string {
   if (!groupBy || groupBy.length === 0) return "";
 
   // Group by the stored column, even when the select list coalesces it. NULLs form their own group, and the select
   // list then shows that group under the fallback.
-  const clauses = groupBy.map((entry) => groupKeyExpression(entry));
+  const clauses = groupBy.map((entry) => groupKeyExpression(entry, dialect));
 
   return ` GROUP BY ${clauses.join(", ")}`;
 }
 
 // The SQL a group key compiles to, shared by GROUP BY, HAVING and the aggregated select list, so all three name the
-// same thing. Today that is the quoted stored column.
-// A split column's key is the trimmed item from the lateral split source. Every other column's key is its quoted
-// stored name.
-function groupKeyExpression(entry: SelectColumn): string {
+// same thing. A split column's key is the trimmed item from the lateral split source. Every other column's key is its
+// stored name, quoted by quoteIdentifier (bare on MySQL).
+function groupKeyExpression(entry: SelectColumn, dialect: SqlDialect): string {
   if (isSplitColumn(entry)) return SPLIT_ITEM;
 
-  return `"${columnNameOf(entry)}"`;
+  return quoteIdentifier(columnNameOf(entry), dialect);
 }
 
 // One select-list item. `quote` matches the list's own style: plain columns are emitted bare, group columns quoted.
 // - A coalesce entry keeps the column's name as its alias, and its fallback is a bound parameter.
 // - A split entry shows its item under the column's name.
-function emitSelectColumn(entry: SelectColumn, quote: boolean): string {
+function emitSelectColumn(
+  entry: SelectColumn,
+  quote: boolean,
+  dialect: SqlDialect,
+): string {
   if (isSplitColumn(entry)) {
     if (!quote) {
       throw new Error("split is only valid in groupBy");
     }
 
-    return `${SPLIT_ITEM} AS "${entry.column}"`;
+    return `${SPLIT_ITEM} AS ${quoteIdentifier(entry.column, dialect)}`;
   }
 
-  const name = quote ? groupKeyExpression(entry) : columnNameOf(entry);
+  const name = quote ? groupKeyExpression(entry, dialect) : columnNameOf(entry);
 
   if (typeof entry === "string") return name;
 
@@ -971,20 +1010,27 @@ function emitFrom(spec: QuerySpec, dialect: SqlDialect): string {
 
 // Emit one aggregate select item, e.g. `COUNT(*) AS count`, `COUNT("id") AS count`, `SUM("amount") AS sum`. The
 // function keyword and the alias both come from the closed AGGREGATE_FNS enum; the column (when present) is an
-// allow-listed identifier emitted quoted. `sum`/`avg` require a column — a count-less aggregate is nonsensical.
-function emitAggregate(aggregate: NonNullable<QuerySpec["aggregate"]>): string {
-  return `${aggregateExpression(aggregate)} AS ${aggregate.fn}`;
+// allow-listed identifier quoted by quoteIdentifier (bare on MySQL). `sum`/`avg` require a column — a count-less
+// aggregate is nonsensical.
+function emitAggregate(
+  aggregate: NonNullable<QuerySpec["aggregate"]>,
+  dialect: SqlDialect,
+): string {
+  return `${aggregateExpression(aggregate, dialect)} AS ${aggregate.fn}`;
 }
 
 // The aggregate call without its alias, such as `COUNT(*)` or `SUM("amount")`. HAVING repeats it, because PostgreSQL
 // does not accept a select-list alias there.
 function aggregateExpression(
   aggregate: NonNullable<QuerySpec["aggregate"]>,
+  dialect: SqlDialect,
 ): string {
   const fn = AGGREGATE_FNS[aggregate.fn];
 
   if (aggregate.fn === "count") {
-    const target = aggregate.column ? `"${aggregate.column}"` : "*";
+    const target = aggregate.column
+      ? quoteIdentifier(aggregate.column, dialect)
+      : "*";
 
     return `${fn}(${target})`;
   }
@@ -993,12 +1039,13 @@ function aggregateExpression(
     throw new Error(`${aggregate.fn} aggregation requires a column`);
   }
 
-  return `${fn}("${aggregate.column}")`;
+  return `${fn}(${quoteIdentifier(aggregate.column, dialect)})`;
 }
 
 // Emit `HAVING <cond> AND ...`. Each condition tests the aggregate (its expression is repeated) or a group column (its
-// stored, quoted name, as GROUP BY uses). Values are bound parameters, and the operator comes from HAVING_OPERATORS.
-function emitHaving(spec: QuerySpec): string {
+// stored name, quoted as GROUP BY quotes it). Values are bound parameters, and the operator comes from
+// HAVING_OPERATORS.
+function emitHaving(spec: QuerySpec, dialect: SqlDialect): string {
   if (!spec.having || spec.having.length === 0) return "";
 
   if (!spec.aggregate) {
@@ -1009,11 +1056,12 @@ function emitHaving(spec: QuerySpec): string {
   const conditions = spec.having.map((condition) => {
     const target =
       condition.column === aggregate.fn
-        ? aggregateExpression(aggregate)
+        ? aggregateExpression(aggregate, dialect)
         : groupKeyExpression(
             (spec.groupBy ?? []).find(
               (entry) => columnNameOf(entry) === condition.column,
             ) ?? condition.column,
+            dialect,
           );
 
     return `${target} ${HAVING_OPERATORS[condition.op]} ${emitBinding(condition.value)}`;
@@ -1079,15 +1127,18 @@ export function compileQuery(
 
       if (spec.aggregate) {
         const groupCols = (spec.groupBy ?? []).map((entry) =>
-          emitSelectColumn(entry, true),
+          emitSelectColumn(entry, true, dialect),
         );
 
-        selectList = [...groupCols, emitAggregate(spec.aggregate)].join(", ");
+        selectList = [
+          ...groupCols,
+          emitAggregate(spec.aggregate, dialect),
+        ].join(", ");
       } else {
         selectList =
           spec.columns && spec.columns.length > 0
             ? spec.columns
-                .map((entry) => emitSelectColumn(entry, false))
+                .map((entry) => emitSelectColumn(entry, false, dialect))
                 .join(", ")
             : "*";
       }
@@ -1095,7 +1146,7 @@ export function compileQuery(
       const limit = spec.limit !== undefined ? ` LIMIT ${spec.limit}` : "";
 
       // SQL clause order: SELECT ... FROM ... WHERE ... GROUP BY ... ORDER BY ... LIMIT.
-      body = `SELECT ${selectList} FROM ${emitFrom(spec, dialect)}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy)}${emitHaving(spec)}${emitOrderBy(spec.orderBy)}${limit};`;
+      body = `SELECT ${selectList} FROM ${emitFrom(spec, dialect)}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy, dialect)}${emitHaving(spec, dialect)}${emitOrderBy(spec.orderBy, dialect)}${limit};`;
       break;
     }
     case "INSERT": {
