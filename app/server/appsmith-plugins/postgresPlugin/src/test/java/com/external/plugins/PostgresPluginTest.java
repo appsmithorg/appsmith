@@ -1708,6 +1708,29 @@ public class PostgresPluginTest {
         assertEquals(2, body.get(1).get("count").asInt());
     }
 
+    /*
+     * The HAVING the MCP compiler emits (APP-16324 F1.5): the aggregate expression is repeated and compared with a
+     * prepared parameter, and a group column is tested by its quoted name. The SQL shape matches
+     * app/client/packages/mcp/src/builder/query.test.ts.
+     */
+    @Test
+    public void testHavingComparesTheAggregateWithAParameter() {
+        String rows = "(VALUES ('a'), ('a'), ('a'), ('b'), ('N/A'), ('N/A')) AS t(\"tag\")";
+        ActionExecutionResult result = runStatement(
+                "SELECT \"tag\", COUNT(*) AS count FROM " + rows
+                        + " GROUP BY \"tag\" HAVING COUNT(*) >= {{binding1}} AND \"tag\" != {{binding2}}"
+                        + " ORDER BY \"count\" DESC;",
+                true,
+                List.of(
+                        param("binding1", "2", ClientDataType.NUMBER),
+                        param("binding2", "N/A", ClientDataType.STRING)));
+
+        ArrayNode body = (ArrayNode) result.getBody();
+        assertEquals(1, body.size());
+        assertEquals("a", body.get(0).get("tag").asText());
+        assertEquals(3, body.get(0).get("count").asInt());
+    }
+
     @Test
     public void testNullFilterOnWriteDeletesOnlyNullRows() {
         runStatement("DROP TABLE IF EXISTS public.mcp_null_filter;", false, List.of());

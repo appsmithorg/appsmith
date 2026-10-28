@@ -318,6 +318,27 @@ function columnNameOf(entry: SelectColumn): string {
   return typeof entry === "string" ? entry : entry.column;
 }
 
+// The comparisons a HAVING condition can use. The SQL comes from this map.
+const HAVING_OPERATORS = {
+  eq: "=",
+  ne: "!=",
+  gt: ">",
+  gte: ">=",
+  lt: "<",
+  lte: "<=",
+} as const;
+
+// One HAVING condition on an aggregated SELECT. `column` names either the aggregate's result (its fn, such as
+// "count") or one of the groupBy columns; querySpecSchema checks which. It is its own schema, not a WHERE filter: it
+// has no groups, no skipWhenEmpty, no like and no null tests, and it never uses the WHERE filters' column forms.
+const havingConditionSchema = z
+  .object({
+    column: sqlIdentifier,
+    op: z.enum(["eq", "ne", "gt", "gte", "lt", "lte"]),
+    value: valueRef,
+  })
+  .strict();
+
 // A CLOSED set of aggregate functions. The SQL keyword is compiler-emitted from the enum, never interpolated from
 // agent text; the alias is the fn name itself (also from the enum), so agents/queries can reference the result column
 // by a stable, safe name.
@@ -367,12 +388,70 @@ export const querySpecSchema = z
       .optional(),
     // GROUP BY columns for an aggregated SELECT — each an allow-listed identifier, emitted quoted.
     groupBy: z.array(selectColumnSchema).max(20).optional(),
+    // HAVING conditions on an aggregated SELECT, ANDed together.
+    having: z.array(havingConditionSchema).max(10).optional(),
     limit: z.number().int().min(1).max(1000).optional(),
   })
   .strict()
   // orderBy/aggregate/groupBy shape a SELECT only; compileQuery ignores them on INSERT/UPDATE/DELETE. Reject them
   // there so an agent gets clear feedback instead of a silently-dropped clause.
   .superRefine((spec, ctx) => {
+    // HAVING filters groups, so it needs an aggregate, and each condition must name the aggregate's result or a group
+    // column. A name the select list does not group would fail at run time, or test something the agent did not mean.
+    if (spec.having !== undefined) {
+      if (spec.aggregate === undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "having needs an aggregate",
+          path: ["having"],
+        });
+      } else {
+        const fn = spec.aggregate.fn;
+        const groupBy = spec.groupBy ?? [];
+        const groupColumns = new Set(groupBy.map(columnNameOf));
+        const coalescedColumns = new Set(
+          groupBy
+            .filter((entry) => typeof entry !== "string")
+            .map(columnNameOf),
+        );
+
+        spec.having.forEach((condition, index) => {
+          if (condition.column !== fn && !groupColumns.has(condition.column)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `having can only test "${fn}" or a groupBy column`,
+              path: ["having", index, "column"],
+            });
+          } else if (coalescedColumns.has(condition.column)) {
+            // HAVING would test the stored value, not the fallback the select list shows, so an agent testing the
+            // label it sees would get the wrong groups.
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message:
+                "having cannot test a groupBy column that has coalesce (it would test the stored value, not the fallback shown)",
+              path: ["having", index, "column"],
+            });
+          }
+        });
+      }
+    }
+
+    // A group column named like the aggregate's result (for example "count" with aggregate count) gives the result
+    // two columns of that name, and having could not tell them apart.
+    if (spec.aggregate !== undefined) {
+      const fn = spec.aggregate.fn;
+
+      (spec.groupBy ?? []).forEach((entry, index) => {
+        if (columnNameOf(entry) === fn) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `a groupBy column cannot be named "${fn}", the name of the aggregate's result`,
+            path: ["groupBy", index],
+          });
+        }
+      });
+    }
+
     // A grouped column's coalesce appears in the aggregated select list only. Without an aggregate the select list is
     // `columns` or `*`, so the coalesce would be dropped without a word.
     if (spec.aggregate === undefined) {
@@ -444,7 +523,12 @@ export const querySpecSchema = z
       });
     });
 
-    for (const field of ["orderBy", "aggregate", "groupBy"] as const) {
+    for (const field of [
+      "orderBy",
+      "aggregate",
+      "groupBy",
+      "having",
+    ] as const) {
       if (spec[field] !== undefined) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -705,15 +789,21 @@ function emitGroupBy(groupBy: QuerySpec["groupBy"]): string {
 
   // Group by the stored column, even when the select list coalesces it. NULLs form their own group, and the select
   // list then shows that group under the fallback.
-  const clauses = groupBy.map((entry) => `"${columnNameOf(entry)}"`);
+  const clauses = groupBy.map((entry) => groupKeyExpression(entry));
 
   return ` GROUP BY ${clauses.join(", ")}`;
+}
+
+// The SQL a group key compiles to, shared by GROUP BY, HAVING and the aggregated select list, so all three name the
+// same thing. Today that is the quoted stored column.
+function groupKeyExpression(entry: SelectColumn): string {
+  return `"${columnNameOf(entry)}"`;
 }
 
 // One select-list item. `quote` matches the list's own style: plain columns are emitted bare, group columns quoted.
 // A coalesce entry keeps the column's name as its alias, and its fallback is a bound parameter.
 function emitSelectColumn(entry: SelectColumn, quote: boolean): string {
-  const name = quote ? `"${columnNameOf(entry)}"` : columnNameOf(entry);
+  const name = quote ? groupKeyExpression(entry) : columnNameOf(entry);
 
   if (typeof entry === "string") return name;
 
@@ -724,19 +814,49 @@ function emitSelectColumn(entry: SelectColumn, quote: boolean): string {
 // function keyword and the alias both come from the closed AGGREGATE_FNS enum; the column (when present) is an
 // allow-listed identifier emitted quoted. `sum`/`avg` require a column — a count-less aggregate is nonsensical.
 function emitAggregate(aggregate: NonNullable<QuerySpec["aggregate"]>): string {
+  return `${aggregateExpression(aggregate)} AS ${aggregate.fn}`;
+}
+
+// The aggregate call without its alias, such as `COUNT(*)` or `SUM("amount")`. HAVING repeats it, because PostgreSQL
+// does not accept a select-list alias there.
+function aggregateExpression(
+  aggregate: NonNullable<QuerySpec["aggregate"]>,
+): string {
   const fn = AGGREGATE_FNS[aggregate.fn];
 
   if (aggregate.fn === "count") {
     const target = aggregate.column ? `"${aggregate.column}"` : "*";
 
-    return `${fn}(${target}) AS ${aggregate.fn}`;
+    return `${fn}(${target})`;
   }
 
   if (!aggregate.column) {
     throw new Error(`${aggregate.fn} aggregation requires a column`);
   }
 
-  return `${fn}("${aggregate.column}") AS ${aggregate.fn}`;
+  return `${fn}("${aggregate.column}")`;
+}
+
+// Emit `HAVING <cond> AND ...`. Each condition tests the aggregate (its expression is repeated) or a group column (its
+// stored, quoted name, as GROUP BY uses). Values are bound parameters, and the operator comes from HAVING_OPERATORS.
+function emitHaving(spec: QuerySpec): string {
+  if (!spec.having || spec.having.length === 0) return "";
+
+  if (!spec.aggregate) {
+    throw new Error("having needs an aggregate");
+  }
+
+  const aggregate = spec.aggregate;
+  const conditions = spec.having.map((condition) => {
+    const target =
+      condition.column === aggregate.fn
+        ? aggregateExpression(aggregate)
+        : groupKeyExpression(condition.column);
+
+    return `${target} ${HAVING_OPERATORS[condition.op]} ${emitBinding(condition.value)}`;
+  });
+
+  return ` HAVING ${conditions.join(" AND ")}`;
 }
 
 function emitWhere(
@@ -812,7 +932,7 @@ export function compileQuery(
       const limit = spec.limit !== undefined ? ` LIMIT ${spec.limit}` : "";
 
       // SQL clause order: SELECT ... FROM ... WHERE ... GROUP BY ... ORDER BY ... LIMIT.
-      body = `SELECT ${selectList} FROM ${spec.table}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy)}${emitOrderBy(spec.orderBy)}${limit};`;
+      body = `SELECT ${selectList} FROM ${spec.table}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy)}${emitHaving(spec)}${emitOrderBy(spec.orderBy)}${limit};`;
       break;
     }
     case "INSERT": {
