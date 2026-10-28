@@ -1272,6 +1272,14 @@ export function mcpAuthoredBody(stored: unknown): string | undefined {
   return sha256Hex(body) === match[1] ? body : undefined;
 }
 
+// A stored body without its leading marker line, whether or not the hash still matches. For classifying what a query
+// does (such as whether it writes), never for deciding whether to show the body: that is mcpAuthoredBody's job.
+export function withoutMcpMarker(stored: string): string {
+  const match = MCP_BODY_MARKER.exec(stored);
+
+  return match ? stored.slice(match[0].length) : stored;
+}
+
 // Build the ActionDTO for POST /api/v1/actions. Datasource is an EMBEDDED { id } object (server derives
 // workspace/plugin from it); prepared statements are forced ON so values bind as parameters.
 export function buildActionDto(

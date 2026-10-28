@@ -5,6 +5,7 @@ import {
   mcpAuthoredBody,
   querySpecSchema,
   sqlDialectFor,
+  withoutMcpMarker,
 } from "./query.js";
 
 function parse(spec: unknown) {
@@ -2721,6 +2722,35 @@ describe("APP-16324 F9: marking MCP-authored SQL", () => {
     expect(
       mcpAuthoredBody(markMcpAuthoredBody(body).replace(/\n/g, "\r\n")),
     ).toBeUndefined();
+  });
+
+  // The marker line keeps its \n, so only the hash can notice a line-ending change inside the body.
+  it("treats a CRLF change inside a multi-line body as not MCP-authored", () => {
+    const multiLine = 'SELECT *\nFROM tickets\nWHERE status = {{ "open" }};';
+    const stored = markMcpAuthoredBody(multiLine);
+    const [markerLine, ...rest] = stored.split("\n");
+
+    expect(mcpAuthoredBody(stored)).toBe(multiLine);
+    expect(
+      mcpAuthoredBody(`${markerLine}\n${rest.join("\r\n")}`),
+    ).toBeUndefined();
+  });
+
+  // The marker must be the first line: text above it (such as an added secret) means the body is not what the MCP
+  // wrote, and it must stay hidden.
+  it("treats text above a valid marker as not MCP-authored", () => {
+    expect(
+      mcpAuthoredBody(`-- api_key=xyz\n${markMcpAuthoredBody(body)}`),
+    ).toBeUndefined();
+  });
+
+  it("strips only a leading marker line for classification, whatever its hash", () => {
+    const stored = markMcpAuthoredBody(body);
+
+    expect(withoutMcpMarker(stored)).toBe(body);
+    expect(withoutMcpMarker(`${stored} edited`)).toBe(`${body} edited`);
+    expect(withoutMcpMarker(body)).toBe(body);
+    expect(withoutMcpMarker(`-- x\n${stored}`)).toBe(`-- x\n${stored}`);
   });
 
   it.each([
