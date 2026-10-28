@@ -207,3 +207,35 @@ describe("page names reject binding syntax and line separators", () => {
     }
   });
 });
+
+// navigateTo treats a target that is not a page name as a URL and adds https://, so a page named like a numeric IP
+// could become a redirect to that IP. Such names are refused when creating or renaming a page.
+describe("page names that read as an IP address", () => {
+  it.each(["1572395042", "0x5db8d822", "12"])(
+    "refuses %s on create and rename",
+    (name) => {
+      expect(
+        createPageSpecSchema.safeParse({ applicationId, revision, name })
+          .success,
+      ).toBe(false);
+      expect(
+        renamePageSpecSchema.safeParse({
+          applicationId,
+          pageId: "p".repeat(24),
+          revision,
+          name,
+        }).success,
+      ).toBe(false);
+    },
+  );
+
+  it.each(["Orders", "Page 1", "2024 report", "Q4-2024"])(
+    "still accepts %s",
+    (name) => {
+      expect(
+        createPageSpecSchema.safeParse({ applicationId, revision, name })
+          .success,
+      ).toBe(true);
+    },
+  );
+});
