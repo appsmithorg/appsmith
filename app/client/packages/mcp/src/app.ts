@@ -2109,6 +2109,44 @@ function missingCrossObjectCall(
   return undefined;
 }
 
+// The page names a definition's navigate steps open. A step is the only node whose `navigate` holds a string.
+function navigateTargets(definition: { functions?: unknown }): string[] {
+  const found = new Set<string>();
+  const stack: unknown[] = [definition.functions];
+
+  while (stack.length > 0) {
+    const node = stack.pop();
+
+    if (node === null || typeof node !== "object") continue;
+
+    if (
+      !Array.isArray(node) &&
+      typeof (node as { navigate?: unknown }).navigate === "string"
+    ) {
+      found.add((node as { navigate: string }).navigate);
+    }
+
+    stack.push(...Object.values(node as Record<string, unknown>));
+  }
+
+  return [...found];
+}
+
+// A navigate step must open a page that exists, as wire_event's navigate must. navigateTo treats a target that is not
+// a page name as a URL, so a missing page with a dotted param could otherwise send the viewer to another host.
+function missingNavigatePage(
+  definition: { functions?: unknown },
+  pages: { name: string }[],
+): string | undefined {
+  const missing = navigateTargets(definition).find(
+    (target) => !pages.some((page) => page.name === target),
+  );
+
+  return missing === undefined
+    ? undefined
+    : `page "${missing}" was not found: a navigate step must open a page of this application`;
+}
+
 // A definition's calls, joined with the calls of every other compiler-authored JS object on the same page, may not
 // form a cycle: each compiled `call` is awaited, so `A.f → B.g → A.f` recurses until the client's evaluation
 // worker dies, and a wired event can start it. Sibling cycles inside the definition are edges too, so a → b → a is
@@ -7446,12 +7484,19 @@ export function buildMcpServer(
 
           const request = buildCreateJsObjectRequest(parsed.data);
           const existing = await api.listActionCollections(applicationId);
-          const dangling = missingCrossObjectCall(
-            parsed.data,
-            existing,
-            [parsed.data.name],
-            parsed.data.pageId,
-          );
+          const dangling =
+            missingCrossObjectCall(
+              parsed.data,
+              existing,
+              [parsed.data.name],
+              parsed.data.pageId,
+            ) ??
+            (navigateTargets(parsed.data).length > 0
+              ? missingNavigatePage(
+                  parsed.data,
+                  projectPages(await api.getApplicationPages(applicationId)),
+                )
+              : undefined);
 
           if (dangling !== undefined) return result({ error: dangling });
 
@@ -7597,15 +7642,25 @@ export function buildMcpServer(
           }
 
           if (parsed.data.functions !== undefined) {
-            const dangling = missingCrossObjectCall(
-              {
-                constants: parsed.data.constants,
-                functions: parsed.data.functions,
-              },
-              collections,
-              [currentName, nextName],
-              currentPageId,
-            );
+            const definition = {
+              constants: parsed.data.constants,
+              functions: parsed.data.functions,
+            };
+            const dangling =
+              missingCrossObjectCall(
+                definition,
+                collections,
+                [currentName, nextName],
+                currentPageId,
+              ) ??
+              (navigateTargets(definition).length > 0
+                ? missingNavigatePage(
+                    definition,
+                    projectPages(
+                      await api.getApplicationPages(parsed.data.applicationId),
+                    ),
+                  )
+                : undefined);
 
             if (dangling !== undefined) return result({ error: dangling });
           }
