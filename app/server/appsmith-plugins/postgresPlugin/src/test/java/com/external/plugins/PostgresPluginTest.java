@@ -1656,6 +1656,36 @@ public class PostgresPluginTest {
      * quoted, as in `"owner" IS NULL`. The SQL shape matches app/client/packages/mcp/src/builder/query.test.ts. Change
      * both together. The test uses its own table so the shared `users` fixture is not changed.
      */
+    /*
+     * The like and ilike filters the MCP compiler emits with a `match` (APP-16324 F1.3): the % is part of the bound
+     * VALUE, as in `subject LIKE ?` with "re%". This checks that a prepared parameter carries % as a wildcard, and that
+     * ILIKE ignores case where LIKE does not. The SQL shape matches app/client/packages/mcp/src/builder/query.test.ts.
+     */
+    @Test
+    public void testLikeFilterBindsTheWildcardInTheParameter() {
+        String rows = "(VALUES (1, 'Refund request'), (2, 're: billing'), (3, 'Other')) AS t(id, subject)";
+
+        assertEquals(
+                List.of(2),
+                rowIds(runStatement(
+                        "SELECT id FROM " + rows + " WHERE subject LIKE {{binding1}} ORDER BY id;",
+                        true,
+                        List.of(param("binding1", "re%", ClientDataType.STRING)))));
+        assertEquals(
+                List.of(1, 2),
+                rowIds(runStatement(
+                        "SELECT id FROM " + rows + " WHERE subject ILIKE {{binding1}} ORDER BY id;",
+                        true,
+                        List.of(param("binding1", "re%", ClientDataType.STRING)))));
+        // A suffix match: the % leads the bound value.
+        assertEquals(
+                List.of(2),
+                rowIds(runStatement(
+                        "SELECT id FROM " + rows + " WHERE subject LIKE {{binding1}} ORDER BY id;",
+                        true,
+                        List.of(param("binding1", "%billing", ClientDataType.STRING)))));
+    }
+
     @Test
     public void testNullFilterOnWriteDeletesOnlyNullRows() {
         runStatement("DROP TABLE IF EXISTS public.mcp_null_filter;", false, List.of());

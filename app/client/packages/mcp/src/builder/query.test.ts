@@ -1345,6 +1345,419 @@ describe("APP-16324 F1.2: anyOf OR groups", () => {
   });
 });
 
+describe("APP-16324 F1.3: like match position and ilike", () => {
+  it.each([
+    ["contains", '{{ "%open%" }}'],
+    ["prefix", '{{ "open%" }}'],
+    ["suffix", '{{ "%open" }}'],
+    ["exact", '{{ "open" }}'],
+  ])("puts the %s wildcard in a literal's bound value", (match, binding) => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          { column: "subject", op: "like", match, value: { literal: "open" } },
+        ],
+      }),
+    );
+
+    expect(body).toBe(`SELECT * FROM tickets WHERE subject LIKE ${binding};`);
+  });
+
+  it.each([
+    ["contains", '{{ "%" + (SearchInput.text ?? "") + "%" }}'],
+    ["prefix", '{{ (SearchInput.text ?? "") + "%" }}'],
+    ["suffix", '{{ "%" + (SearchInput.text ?? "") }}'],
+  ])(
+    "builds the %s wildcard around a widget value at run time",
+    (match, binding) => {
+      const body = compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          filters: [
+            {
+              column: "subject",
+              op: "like",
+              match,
+              value: { widget: "SearchInput", property: "text" },
+            },
+          ],
+        }),
+      );
+
+      expect(body).toBe(`SELECT * FROM tickets WHERE subject LIKE ${binding};`);
+    },
+  );
+
+  // The emitted template runs in the end user's browser. Evaluate exactly what the compiler wrote.
+  it.each([
+    ["abc", "%abc%"],
+    ["", "%%"],
+    [undefined, "%%"],
+    [null, "%%"],
+  ])("binds widget text %p as %p for contains", (text, expected) => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          {
+            column: "subject",
+            op: "like",
+            match: "contains",
+            value: { widget: "SearchInput", property: "text" },
+          },
+        ],
+      }),
+    );
+    const expression = /\{\{ (.*) \}\}/.exec(body)?.[1] ?? "";
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+    const value = new Function("SearchInput", `return (${expression});`)({
+      text,
+    });
+
+    expect(value).toBe(expected);
+  });
+
+  it("keeps the exact (no match) behaviour unchanged", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          {
+            column: "subject",
+            op: "like",
+            value: { widget: "SearchInput", property: "text" },
+          },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      "SELECT * FROM tickets WHERE subject LIKE {{ SearchInput.text }};",
+    );
+  });
+
+  it("keeps quotes, % and -- in the value as part of the bound parameter", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          {
+            column: "subject",
+            op: "like",
+            match: "contains",
+            value: { literal: "it's 50% -- off" },
+          },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      `SELECT * FROM tickets WHERE subject LIKE {{ "%it's 50% -- off%" }};`,
+    );
+  });
+
+  // Oracle "Customer tickets": org_id = $1 OR requester_email ILIKE '%' || $2 (a suffix match).
+  it("compiles the Customer Tickets filter with ilike on PostgreSQL", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          {
+            anyOf: [
+              {
+                column: "org_id",
+                op: "eq",
+                value: { widget: "Customers", property: "selectedRow.org_id" },
+              },
+              {
+                column: "requester_email",
+                op: "ilike",
+                match: "suffix",
+                value: { widget: "Customers", property: "selectedRow.domain" },
+              },
+            ],
+          },
+        ],
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toBe(
+      'SELECT * FROM tickets WHERE (org_id = {{ Customers.selectedRow.org_id }} OR requester_email ILIKE {{ "%" + (Customers.selectedRow.domain ?? "") }});',
+    );
+  });
+
+  // Redshift has ILIKE, but its plugin does not use prepared statements, so the bound pattern would not be a parameter.
+  it.each([undefined, "mysql" as const, "other" as const, "redshift" as const])(
+    "refuses ilike unless the datasource is PostgreSQL (dialect %s)",
+    (dialect) => {
+      const spec = parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          { column: "subject", op: "ilike", value: { literal: "open" } },
+        ],
+      });
+
+      expect(() => compileQuery(spec, { dialect })).toThrow(
+        /ilike \(filter on subject\) is only available on a PostgreSQL datasource/,
+      );
+    },
+  );
+
+  it.each([
+    ["prefix", "abc%"],
+    ["suffix", "%abc"],
+  ])("binds widget text as the %s pattern at run time", (match, expected) => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          {
+            column: "subject",
+            op: "like",
+            match,
+            value: { widget: "SearchInput", property: "text" },
+          },
+        ],
+      }),
+    );
+    const expression = /\{\{ (.*) \}\}/.exec(body)?.[1] ?? "";
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+    const value = new Function("SearchInput", `return (${expression});`)({
+      text: "abc",
+    });
+
+    expect(value).toBe(expected);
+  });
+
+  it("keeps a plain widget binding for match: exact", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          {
+            column: "subject",
+            op: "like",
+            match: "exact",
+            value: { widget: "SearchInput", property: "text" },
+          },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      "SELECT * FROM tickets WHERE subject LIKE {{ SearchInput.text }};",
+    );
+  });
+
+  it("compiles a wildcard member inside a group on a SELECT", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          {
+            anyOf: [
+              {
+                column: "subject",
+                op: "like",
+                match: "contains",
+                value: { literal: "refund" },
+              },
+              { column: "tag", op: "eq", value: { literal: "billing" } },
+            ],
+          },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT * FROM tickets WHERE (subject LIKE {{ "%refund%" }} OR tag = {{ "billing" }});',
+    );
+  });
+
+  // A widget value in like is a pattern the end user writes, so typing "%" would widen the write to every row.
+  it.each(["UPDATE", "DELETE"])(
+    "refuses like with a widget value on %s, even without a wildcard match",
+    (operation) => {
+      const result = querySpecSchema.safeParse({
+        ...base,
+        operation,
+        table: "tickets",
+        values:
+          operation === "UPDATE"
+            ? [{ column: "status", value: { literal: "closed" } }]
+            : undefined,
+        filters: [
+          {
+            column: "subject",
+            op: "like",
+            value: { widget: "SearchInput", property: "text" },
+          },
+        ],
+      });
+
+      expect(result.success).toBe(false);
+      expect(JSON.stringify(result.error?.issues)).toContain(
+        "like and ilike with a { widget, property } value are only valid on a SELECT query",
+      );
+    },
+  );
+
+  it.each([
+    [
+      "match on a non-like op",
+      {
+        column: "subject",
+        op: "eq",
+        match: "contains",
+        value: { literal: "a" },
+      },
+      "match is only valid with like or ilike",
+    ],
+    [
+      "an unknown match",
+      {
+        column: "subject",
+        op: "like",
+        match: "regex",
+        value: { literal: "a" },
+      },
+      "Invalid enum value",
+    ],
+    [
+      "match on isNull",
+      { column: "owner", op: "isNull", match: "contains" },
+      "match is only valid with like or ilike",
+    ],
+    [
+      "a wildcard match on a number literal",
+      { column: "id", op: "like", match: "prefix", value: { literal: 12 } },
+      "needs a string literal",
+    ],
+  ])("rejects %s", (_label, filter, message) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      filters: [filter],
+    });
+
+    expect(result.success).toBe(false);
+    expect(JSON.stringify(result.error?.issues)).toContain(message);
+  });
+
+  // An empty search box compiles to "%%", which matches every row, so a wildcard match would widen a write.
+  it.each(["UPDATE", "DELETE"])(
+    "refuses a wildcard match on %s, including inside a group",
+    (operation) => {
+      for (const filters of [
+        [
+          {
+            column: "subject",
+            op: "like",
+            match: "contains",
+            value: { widget: "SearchInput", property: "text" },
+          },
+        ],
+        [
+          {
+            anyOf: [
+              {
+                column: "subject",
+                op: "ilike",
+                match: "prefix",
+                value: { literal: "x" },
+              },
+              { column: "id", op: "eq", value: { literal: 1 } },
+            ],
+          },
+        ],
+      ]) {
+        const result = querySpecSchema.safeParse({
+          ...base,
+          operation,
+          table: "tickets",
+          values:
+            operation === "UPDATE"
+              ? [{ column: "status", value: { literal: "closed" } }]
+              : undefined,
+          filters,
+        });
+
+        expect(result.success).toBe(false);
+        expect(JSON.stringify(result.error?.issues)).toContain(
+          "a wildcard match is only valid on a SELECT query",
+        );
+      }
+    },
+  );
+
+  it("allows match: exact on a write", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "DELETE",
+        table: "tickets",
+        filters: [
+          {
+            column: "subject",
+            op: "like",
+            match: "exact",
+            value: { literal: "spam" },
+          },
+        ],
+      }),
+    );
+
+    expect(body).toBe('DELETE FROM tickets WHERE subject LIKE {{ "spam" }};');
+  });
+
+  it("combines a wildcard match with skipWhenEmpty on a SELECT", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          {
+            column: "subject",
+            op: "like",
+            match: "contains",
+            value: { widget: "SearchInput", property: "text" },
+            skipWhenEmpty: true,
+          },
+        ],
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toBe(
+      'SELECT * FROM tickets WHERE ({{ (SearchInput.text == null || SearchInput.text.length === 0) ? 1 : 0 }} = 1 OR subject LIKE {{ "%" + (SearchInput.text ?? "") + "%" }});',
+    );
+  });
+});
+
 describe("buildActionDto", () => {
   it("embeds the datasource as { id } and forces prepared statements on", () => {
     const spec = parse({ ...base, operation: "SELECT", table: "users" });
