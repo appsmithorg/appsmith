@@ -5475,13 +5475,18 @@ export function buildMcpServer(
           });
         }
 
-        // The same rule as create_responsive_app: the home page is where the app opens, so it stays visible.
+        // The same rule as create_responsive_app: the home page is where the app opens, so it stays visible. The
+        // check under the lock below returns the same result, so an agent sees one refusal either way.
+        const homePageRefusal = {
+          error: `${pageId} is the app's home page and cannot be hidden`,
+          code: "home_page",
+        };
+
         if (hidden && target.isDefault === true) {
-          return result({
-            error: `${pageId} is the app's home page and cannot be hidden`,
-            code: "home_page",
-          });
+          return result(homePageRefusal);
         }
+
+        let becameHomePage = false;
 
         const request = buildSetPageVisibilityRequest(parsed.data);
 
@@ -5509,9 +5514,8 @@ export function buildMcpServer(
                   );
 
                 if (nowDefault) {
-                  throw new Error(
-                    `${pageId} is the app's home page and cannot be hidden`,
-                  );
+                  becameHomePage = true;
+                  throw new Error(homePageRefusal.error);
                 }
               }
 
@@ -5529,6 +5533,8 @@ export function buildMcpServer(
 
           return result({ updated: true, ...value, changeId });
         } catch (error) {
+          if (becameHomePage) return result(homePageRefusal);
+
           return governanceError(error) ?? compileError(error);
         }
       },
