@@ -36,6 +36,35 @@ function widget(
 }
 
 describe("APP-16324 F11: navigate with URL parameters", () => {
+  // Security review: navigateTo treats a target that is not a page as a URL. "1572395042" + "?x=1.55" passes its URL
+  // check (the dot comes from the param) and https:// makes it the IP 93.184.216.34, an open redirect.
+  it("refuses a navigate target that reads as an IP address", () => {
+    for (const navigate of ["1572395042", "0x5db8d822"]) {
+      expect(
+        wireEventSpecSchema.safeParse({
+          widget: "Go",
+          event: "onClick",
+          action: { navigate, params: { x: { literal: 1.55 } } },
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it("refuses an Object.prototype name as a table column parameter", () => {
+    for (const column of ["constructor", "__proto__", "prototype"]) {
+      expect(
+        wireEventSpecSchema.safeParse({
+          widget: "Go",
+          event: "onClick",
+          action: {
+            navigate: "Details",
+            params: { id: { table: "Table1", column } },
+          },
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   // Oracle: Home's "Details" button opens Ticket Details with ?id= set to the selected row's zid.
   it("passes the selected row's column as a query parameter", () => {
     const action = wireEventSpecSchema.parse({

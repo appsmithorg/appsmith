@@ -7563,6 +7563,59 @@ describe("governance-wrapped layout mutations", () => {
     expect(dto.body).toContain("return await Utils.count(); } finally");
   });
 
+  // Security review of F11: navigateTo treats a target that is not a page as a URL, so a navigate step must open a
+  // page of this application, as wire_event's navigate must.
+  it("create_js_object refuses a navigate step to a page that does not exist, or one named like an IP", async () => {
+    const createActionCollection = jest.fn<
+      Promise<unknown>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "coll-new", name: "Flow" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+        pages: [{ id: "c".repeat(24), name: "Ticket Details" }],
+      })),
+      listPlugins: jest.fn(async () => [
+        { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
+      ]),
+      listActionCollections: jest.fn(async () => []),
+      createActionCollection,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: "a".repeat(24),
+    });
+    const create = async (navigate: string) =>
+      callTool(server, "create_js_object", {
+        spec: {
+          applicationId: "a".repeat(24),
+          pageId: "b".repeat(24),
+          name: "Flow",
+          revision: read.body.revision,
+          functions: [
+            {
+              name: "go",
+              steps: [{ navigate, params: { x: 1.55 } }],
+            },
+          ],
+        },
+      });
+
+    expect(String((await create("Missing")).body.error)).toMatch(
+      /page "Missing" was not found/,
+    );
+    expect(JSON.stringify((await create("1572395042")).body)).toMatch(
+      /cannot read as an IP address/,
+    );
+    expect(createActionCollection).not.toHaveBeenCalled();
+
+    expect((await create("Ticket Details")).body.created).toBe(true);
+  });
+
   it("create_js_object refuses a definition nested past the JSON depth cap before parsing it", async () => {
     const api: AppsmithApi = { ...createApi()() };
     const server = createMcpHttpServer(API_BASE_URL, () => api, {

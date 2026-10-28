@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { RAW_EXPRESSION } from "./schema.js";
+import { pageNameIsIpHost, RAW_EXPRESSION } from "./schema.js";
 
 const APP_OR_PAGE_ID = /^[A-Za-z0-9]{24,50}$/;
 const PAGE_NAME = /^[A-Za-z0-9][A-Za-z0-9 _-]*$/;
@@ -21,6 +21,11 @@ const pageName = z
   .refine(
     (value) => !RAW_EXPRESSION.test(value),
     "must not contain binding or template syntax",
+  )
+  // A page named like an IP address could turn a navigate into a redirect (see pageNameIsIpHost).
+  .refine(
+    (value) => !pageNameIsIpHost(value),
+    "a page name cannot read as an IP address (such as all digits or 0x...); add a letter",
   );
 
 const pageReferenceSchema = z
