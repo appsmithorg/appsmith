@@ -29210,13 +29210,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.16.0":
-  version: 6.16.0
-  resolution: "qs@npm:6.16.0"
+"qs@npm:^6.16.1":
+  version: 6.17.0
+  resolution: "qs@npm:6.17.0"
   dependencies:
     es-define-property: ^1.0.1
     side-channel: ^1.1.1
-  checksum: fb97665d1b481fadbcb17cc056f1af95ae93328195bf9536a56142137f4d9cc16fe2a1dab9cd17186c9fa69a7e6fa64a3766f71ffaa7c248ec5555f34d21047b
+  checksum: a69b500284902eae17f34743a600d1c8a32f874a550e6dcc1060ff43a22cbc91d439e713fb30445ff7a0378253821d455c485cbf7bd1197bf679000ea8d30ba7
   languageName: node
   linkType: hard
 
