@@ -467,6 +467,9 @@ export interface ToolCatalogEntry {
   name: string;
   gate: ToolGate;
   summary: string;
+  // Extension tools only: a tool of a governed prepare and confirm pair (host.registerGovernedOperation). It is on
+  // only when its gate is on AND governance is configured.
+  governed?: true;
 }
 
 // Core tools take only core gates; "extension:<name>" gates are for EXTENSION_TOOL_CATALOG entries.
@@ -845,6 +848,17 @@ export function gateActive(gate: ToolGate, gates: CapabilityGates): boolean {
   }
 }
 
+// Whether a catalogued tool is registered under these gates: its gate is on, and a governed extension tool also needs
+// governance. buildMcpServer and get_capabilities both use it, so they agree.
+export function toolActive(
+  tool: ToolCatalogEntry,
+  gates: CapabilityGates,
+): boolean {
+  return (
+    gateActive(tool.gate, gates) && (tool.governed !== true || gates.governance)
+  );
+}
+
 // What each (non-always) gate requires to be enabled, and what it unlocks — so an agent can SEE a capability that is
 // currently off and tell the user exactly which setting turns it on, instead of assuming the server simply can't do it.
 // `requires` is phrased as a HUMAN-facing instruction (so an agent relaying it gives an end user something they can
@@ -894,16 +908,23 @@ function disabledCapabilities(gates: CapabilityGates) {
   >();
 
   for (const tool of TOOL_CATALOG) {
-    if (tool.gate === "always" || gateActive(tool.gate, gates)) continue;
+    if (toolActive(tool, gates)) continue;
+
+    // A governed tool whose own gate is on is missing only governance, so it is listed under governance.
+    const gate: ToolGate = gateActive(tool.gate, gates)
+      ? "governance"
+      : tool.gate;
+
+    if (gate === "always") continue;
 
     // Edition gates carry their own requirement text (presence checked at load, above).
-    const requirement = isExtensionGate(tool.gate)
-      ? EXTENSION_GATE_REQUIREMENTS[extensionGateName(tool.gate)]
-      : GATE_REQUIREMENTS[tool.gate];
-    const group = groups.get(tool.gate) ?? { ...requirement, tools: [] };
+    const requirement = isExtensionGate(gate)
+      ? EXTENSION_GATE_REQUIREMENTS[extensionGateName(gate)]
+      : GATE_REQUIREMENTS[gate];
+    const group = groups.get(gate) ?? { ...requirement, tools: [] };
 
     group.tools.push(tool.name);
-    groups.set(tool.gate, group);
+    groups.set(gate, group);
   }
 
   return [...groups.values()];
@@ -969,7 +990,7 @@ export function getCapabilities(
     presets: listPresets(),
     grid: { columns: GRID_COLUMNS, rowHeightPx: ROW_HEIGHT },
     // Generated from the single TOOL_CATALOG so this list can never drift from what is actually registered.
-    tools: TOOL_CATALOG.filter((tool) => gateActive(tool.gate, gates)).map(
+    tools: TOOL_CATALOG.filter((tool) => toolActive(tool, gates)).map(
       (tool) => `${tool.name} — ${tool.summary}`,
     ),
     gates: {

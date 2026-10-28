@@ -27,6 +27,12 @@ import {
   type RequestId,
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
+// Imported from the CE contract, not ee/extensions/tools.ts, because an edition's replacement of that file may not
+// re-export these types.
+import type {
+  GovernedOperation,
+  GovernedTarget,
+} from "./ce/extensions/tools.js";
 import { createExtensionApi, type ExtensionApi } from "./ee/extensions/api.js";
 import { EXTENSION_TOOL_CATALOG } from "./ee/extensions/catalog.js";
 import {
@@ -62,6 +68,7 @@ import {
   type CapabilityGates,
   gateActive,
   getCapabilities,
+  toolActive,
 } from "./builder/capabilities.js";
 import { applyEdit, compileApp } from "./builder/compile.js";
 import {
@@ -216,6 +223,7 @@ import {
   MCP_COMMIT_MESSAGE_MAX,
   commitMessageProblem,
   promptSafe,
+  stripPromptControls,
   truncateForPrompt,
 } from "./prompt/hygiene.js";
 
@@ -8065,9 +8073,9 @@ export function buildMcpServer(
   }
 
   // Edition tools (EE: workflows; none in CE). The host's registrar is the only way in, and it enforces the catalog
-  // rather than trusting the edition: an uncatalogued name or a destructive tool is refused (throws), a tool whose
-  // catalog gate is off under this session's gates is skipped (so get_capabilities and the registered set agree), and
-  // everything else goes through the same annotation-enforcing registerTool as the core tools.
+  // rather than trusting the edition: an uncatalogued name, a governed tool or a destructive tool is refused (throws),
+  // a tool whose catalog gate is off under this session's gates is skipped (so get_capabilities and the registered set
+  // agree), and everything else goes through the same annotation-enforcing registerTool as the core tools.
   const registerExtensionTool = ((...args: unknown[]) => {
     const name = String(args[0]);
     const entry = EXTENSION_TOOL_CATALOG.find((tool) => tool.name === name);
@@ -8075,6 +8083,12 @@ export function buildMcpServer(
     if (entry === undefined) {
       throw new Error(
         `MCP extension tool "${name}" is not in EXTENSION_TOOL_CATALOG`,
+      );
+    }
+
+    if (entry.governed === true) {
+      throw new Error(
+        `MCP extension tool "${name}" is catalogued as governed; register it through registerGovernedOperation`,
       );
     }
 
@@ -8087,12 +8101,11 @@ export function buildMcpServer(
 
     const { destructiveHint, readOnlyHint } = TOOL_ANNOTATIONS[name];
 
-    // Extension tools get no governed prepare/confirm or elicitation layer, so nothing destructive may register —
-    // including a non-read-only tool that leaves destructiveHint unset, which MCP defines (and clients treat) as
-    // destructive.
+    // A destructive operation needs the user's approval, which only registerGovernedOperation provides. That includes
+    // a non-read-only tool that leaves destructiveHint unset, which MCP defines (and clients treat) as destructive.
     if (destructiveHint ?? readOnlyHint !== true) {
       throw new Error(
-        `MCP extension tool "${name}" is destructive; extension tools cannot be destructive until the extension host offers governed approval`,
+        `MCP extension tool "${name}" is destructive; register it as a prepare and confirm pair through registerGovernedOperation`,
       );
     }
 
@@ -8101,8 +8114,252 @@ export function buildMcpServer(
     return (registerTool as (...rest: unknown[]) => RegisteredTool)(...args);
   }) as ExtensionToolRegistrar;
 
+  // The longest approval prompt the host shows, after it strips control and bidi characters.
+  const GOVERNED_PROMPT_MAX = 1000;
+
+  // APP-16324 F7b: a destructive extension operation registers as a prepare and confirm pair, and the host runs the
+  // approval flow the core confirm tools use. The edition plans and executes. It never handles the token, the git
+  // gate or the prompt. See GovernedOperation in ce/extensions/tools.ts.
+  function registerGovernedOperation<Spec>(
+    operation: GovernedOperation<Spec>,
+  ): { prepare: RegisteredTool; confirm: RegisteredTool } | undefined {
+    const { confirmTool, prepareTool } = operation;
+    const entries = [prepareTool, confirmTool].map((name) => {
+      const entry = EXTENSION_TOOL_CATALOG.find((tool) => tool.name === name);
+
+      if (entry === undefined) {
+        throw new Error(
+          `MCP extension tool "${name}" is not in EXTENSION_TOOL_CATALOG`,
+        );
+      }
+
+      // The catalog flag is what makes get_capabilities count governance for this tool.
+      if (entry.governed !== true) {
+        throw new Error(
+          `MCP governed extension tool "${name}" must be catalogued with governed: true`,
+        );
+      }
+
+      if (!Object.hasOwn(TOOL_ANNOTATIONS, name)) {
+        throw new Error(
+          `MCP tool "${name}" has no entry in TOOL_ANNOTATIONS (add it to EXTENSION_TOOL_ANNOTATIONS in ee/extensions/catalog.ts)`,
+        );
+      }
+
+      return entry;
+    });
+
+    // The prepare tool only issues a token. The confirm tool is the destructive one, so clients see it as such and
+    // never run it as read-only.
+    const prepareHints = TOOL_ANNOTATIONS[prepareTool];
+    const confirmHints = TOOL_ANNOTATIONS[confirmTool];
+    const prepareIsDestructive =
+      prepareHints.destructiveHint ?? prepareHints.readOnlyHint !== true;
+    const confirmIsDestructive =
+      confirmHints.destructiveHint === true &&
+      confirmHints.readOnlyHint !== true;
+
+    if (prepareIsDestructive || !confirmIsDestructive) {
+      throw new Error(
+        `MCP governed extension pair "${prepareTool}" / "${confirmTool}" must annotate the prepare tool non-destructive and the confirm tool destructiveHint: true (not read-only)`,
+      );
+    }
+
+    // Registered only when governance is on and both catalog gates are on, as get_capabilities reports them.
+    if (
+      governance === undefined ||
+      !entries.every((entry) => toolActive(entry, capabilityGates))
+    ) {
+      return undefined;
+    }
+
+    const gov = governance;
+    const bindingOf = (target: GovernedTarget, spec: Spec) => ({
+      actorId,
+      entityKey: target.entityKey,
+      // The confirm tool's name, so a token prepared for one operation cannot confirm another.
+      operation: confirmTool,
+      revision: target.revision,
+      // The whole validated spec as well as the edition's digest, so no spec field can change between prepare and
+      // confirm, even one the edition's digest leaves out.
+      digest: operationDigest({ target: target.digest, spec }),
+    });
+    // The edition escapes what it interpolates (promptSafe). The host also strips control and bidi characters from
+    // the whole prompt, keeping the edition's quotes, and caps its length.
+    const promptOf = (plan: { prompt: string }) =>
+      truncateForPrompt(stripPromptControls(plan.prompt), GOVERNED_PROMPT_MAX);
+
+    const prepare = registerTool(
+      prepareTool,
+      operation.prepareDescription,
+      { spec: z.record(z.unknown()) },
+      async ({ spec }) => {
+        const parsed = operation.spec.safeParse(spec);
+
+        if (!parsed.success) return validationError(parsed.error.issues);
+
+        try {
+          const plan = await operation.plan(parsed.data);
+
+          if (!plan.ok) return plan.result;
+
+          const confirmation = await gov.prepareDestructiveConfirmation(
+            bindingOf(plan.target, parsed.data),
+          );
+
+          return result({
+            confirmationId: confirmation.id,
+            expiresAt: confirmation.expiresAt,
+            operation: confirmTool,
+            summary: plan.summary,
+            // Relay text for clients WITHOUT elicitation support: shown to the human before confirming.
+            relay: `Show the user this and get their approval BEFORE calling ${confirmTool}: ${promptOf(plan)} Do not call ${confirmTool} without the user's explicit approval.`,
+          });
+        } catch (error) {
+          return governanceError(error) ?? compileError(error);
+        }
+      },
+    );
+
+    const confirm = registerTool(
+      confirmTool,
+      operation.confirmDescription,
+      {
+        spec: z.record(z.unknown()),
+        confirmationId: idSchema,
+        branch: gitBranchParamSchema.optional(),
+      },
+      async ({ branch, confirmationId, spec }, extra) => {
+        const parsed = operation.spec.safeParse(spec);
+
+        if (!parsed.success) return validationError(parsed.error.issues);
+
+        // Set once the token is spent, for execute.
+        let approvedTarget: GovernedTarget;
+        let gitWarning: string | undefined;
+
+        try {
+          const plan = await operation.plan(parsed.data);
+
+          if (!plan.ok) return plan.result;
+
+          const binding = bindingOf(plan.target, parsed.data);
+
+          // Gate BEFORE consuming the confirmation, so the one-time token is not spent on a refused mutation.
+          const gate = await gitBranchGate(plan.target.applicationId, branch);
+
+          if (!gate.ok) return gate.result;
+
+          approvedTarget = plan.target;
+          gitWarning = gate.gitWarning;
+
+          // Consuming checks the binding only after it spends the token. Compare it first, without spending, so a
+          // target that changed since prepare is refused and the agent can re-read and prepare again.
+          const prepared = await gov.readDestructiveConfirmation(
+            confirmationId,
+            actorId,
+          );
+
+          // The store can return a confirmation whose own expiry has passed (a Redis key can outlive it), and a
+          // JSON store returns the time as text. An unreadable expiry counts as expired.
+          const expiresAt =
+            prepared === undefined
+              ? Number.NaN
+              : new Date(prepared.expiresAt as Date | string).getTime();
+
+          if (
+            prepared === undefined ||
+            !Number.isFinite(expiresAt) ||
+            expiresAt <= Date.now()
+          ) {
+            return result({
+              error: `this confirmation is missing, expired, or already used; call ${prepareTool} again`,
+              code: "confirmation_invalid",
+            });
+          }
+
+          if (
+            prepared.entityKey !== binding.entityKey ||
+            prepared.operation !== binding.operation ||
+            prepared.digest !== binding.digest
+          ) {
+            return result({
+              error: `this confirmation was prepared for a different change; call ${prepareTool} with this spec`,
+              code: "confirmation_mismatch",
+            });
+          }
+
+          if (prepared.revision !== binding.revision) {
+            return result({
+              error: `the target changed since ${prepareTool}. Re-read it and prepare again`,
+              code: "revision_conflict",
+              revision: binding.revision,
+            });
+          }
+
+          // Elicitation AFTER every refusal gate and BEFORE token consumption: a declined prompt leaves the
+          // one-time confirmation intact and consumable later.
+          const approval = await elicitDestructiveApproval(
+            {
+              confirmationId,
+              promptMessage: () => promptOf(plan),
+              schemaTitle: operation.approvalTitle,
+              schemaDescription: operation.approvalDescription,
+              operationNoun: operation.operationNoun,
+              nothingHappened: operation.nothingHappened,
+              confirmTool,
+              prepareTool,
+              notConfirmedCode: operation.notConfirmedCode,
+              invalidate: async () =>
+                gov.consumeDestructiveConfirmation({
+                  confirmationId,
+                  ...binding,
+                }),
+            },
+            extra,
+          );
+
+          if (!approval.approved) return approval.result;
+
+          await gov.consumeDestructiveConfirmation({
+            confirmationId,
+            ...binding,
+          });
+          markElicitationConsumed(confirmationId);
+        } catch (error) {
+          return governanceError(error) ?? compileError(error);
+        }
+
+        // The approval prompt can take minutes. execute receives the approved target, so it writes with
+        // target.revision as the expected revision and a page changed during the prompt is refused.
+        try {
+          return await operation.execute(parsed.data, {
+            branch,
+            target: approvedTarget,
+            gitWarning,
+          });
+        } catch (error) {
+          return (
+            governanceError(error) ??
+            result({
+              error: `the ${operation.operationNoun} failed after approval, and the confirmation is used; call ${prepareTool} again to retry: ${
+                error instanceof Error
+                  ? truncateForPrompt(stripPromptControls(error.message), 300)
+                  : "unknown error"
+              }`,
+              code: "operation_failed",
+            })
+          );
+        }
+      },
+    );
+
+    return { prepare, confirm };
+  }
+
   registerExtensionTools({
     registerTool: registerExtensionTool,
+    registerGovernedOperation,
     api,
     ctx,
     gates: capabilityGates,
