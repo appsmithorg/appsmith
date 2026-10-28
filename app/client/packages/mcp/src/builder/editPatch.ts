@@ -23,6 +23,7 @@ import {
   type Position,
   type Rect,
 } from "./occupancy.js";
+import { WIDGET_REMOVAL_MAX } from "../governance/widgetRemoval.js";
 import { containsModal, hostModalOf, PAGE_HOST } from "./modalGraph.js";
 import {
   compileDisableWhenInvalid,
@@ -1032,7 +1033,7 @@ export const widgetRemovalSpecSchema = z
     pageId: z.string().regex(/^[A-Za-z0-9_-]{1,128}$/),
     layoutId: z.string().regex(/^[A-Za-z0-9_-]{1,128}$/),
     revision: z.string().regex(/^[a-f0-9]{64}$/),
-    names: z.array(widgetNameSchema).min(1).max(20),
+    names: z.array(widgetNameSchema).min(1).max(WIDGET_REMOVAL_MAX),
   })
   .strict();
 
