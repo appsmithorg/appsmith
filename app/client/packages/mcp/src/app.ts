@@ -5967,6 +5967,19 @@ export function buildMcpServer(
           return result({ error: "could not read the current page layout" });
         }
 
+        // The page may have changed while the user was answering the prompt. Refuse here, before the token is spent,
+        // as confirm_commit does after its prompt.
+        const approvedRevision = fingerprintDsl(currentDsl);
+
+        if (revision !== approvedRevision) {
+          return result({
+            error:
+              "page revision is stale; the page changed while awaiting approval. Re-read it and prepare again",
+            code: "revision_conflict",
+            revision: approvedRevision,
+          });
+        }
+
         let removal: ReturnType<typeof removeWidgets>;
 
         try {
