@@ -4842,17 +4842,29 @@ describe("governance-wrapped layout mutations", () => {
 
     async function readAction(
       body: unknown,
-      shape: "flat" | "unpublished" = "flat",
+      shape: "flat" | "unpublished" | "unpublishedType" = "flat",
       pluginType = "DB",
     ) {
+      // "unpublishedType": the plugin type only on unpublishedAction, as some stored NewActions hold it.
+      const withoutType: Record<string, unknown> = { ...STORED_ACTION };
+
+      delete withoutType.pluginType;
       const stored =
         shape === "flat"
           ? { ...STORED_ACTION, pluginType, actionConfiguration: { body } }
-          : {
-              ...STORED_ACTION,
-              pluginType,
-              unpublishedAction: { actionConfiguration: { body } },
-            };
+          : shape === "unpublished"
+            ? {
+                ...STORED_ACTION,
+                pluginType,
+                unpublishedAction: { actionConfiguration: { body } },
+              }
+            : {
+                ...withoutType,
+                unpublishedAction: {
+                  pluginType,
+                  actionConfiguration: { body },
+                },
+              };
       const api: AppsmithApi = {
         ...createApi()(),
         getAction: jest.fn(async () => stored),
@@ -4884,6 +4896,25 @@ describe("governance-wrapped layout mutations", () => {
 
       expect(read.authoredBy).toBe("mcp");
       expect(read.body).toBe(compiled);
+    });
+
+    it("reads the plugin type from unpublishedAction when the action has none of its own", async () => {
+      const read = await readAction(
+        markMcpAuthoredBody(compiled),
+        "unpublishedType",
+      );
+
+      expect(read.authoredBy).toBe("mcp");
+      expect(read.body).toBe(compiled);
+
+      const api = await readAction(
+        markMcpAuthoredBody(compiled),
+        "unpublishedType",
+        "API",
+      );
+
+      expect(api.authoredBy).toBe("editor");
+      expect(api.body).toBeUndefined();
     });
 
     // Only SQL bodies are marked. A marked body on any other action type is never returned.
@@ -9673,6 +9704,22 @@ describe("close-the-loop — advisory write classifier", () => {
     expect(looksLikeWriteAction(sqlAction("sel", "SELECT * FROM tasks"))).toBe(
       false,
     );
+  });
+
+  // A body the MCP stores starts with its marker comment, so the keyword is read after it, whether or not the body
+  // was edited since.
+  it("classifies an MCP-marked body by the query after its marker line", () => {
+    const marked = markMcpAuthoredBody("INSERT INTO tasks VALUES (1);");
+
+    expect(looksLikeWriteAction(sqlAction("ins", marked))).toBe(true);
+    expect(
+      looksLikeWriteAction(sqlAction("ins", `${marked} -- edited later`)),
+    ).toBe(true);
+    expect(
+      looksLikeWriteAction(
+        sqlAction("sel", markMcpAuthoredBody("SELECT * FROM tasks;")),
+      ),
+    ).toBe(false);
   });
 
   it("is advisory-only: a disguised mutation is missed here, never auto-run", () => {
