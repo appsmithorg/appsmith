@@ -126,7 +126,6 @@ import type { ApplicationPayload } from "entities/Application";
 import equal from "fast-deep-equal";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 import type { Page } from "entities/Page";
-import type { ApplicationPayload } from "entities/Application";
 import { objectKeys } from "@appsmith/utils";
 import { findDefaultPage } from "pages/utils";
 import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
@@ -652,9 +651,10 @@ export type DeleteApplicationRecoveryContext = {
  */
 export function* resolveDeleteApplicationRecoveryContext(
   applicationId: string,
-): Generator<unknown, DeleteApplicationRecoveryContext, unknown> {
-  const currentApplication: ReturnType<typeof getCurrentApplication> =
-    yield select(getCurrentApplication);
+) {
+  const currentApplication: ApplicationPayload | undefined = yield select(
+    getCurrentApplication,
+  );
 
   if (
     currentApplication?.id === applicationId &&

@@ -40,6 +40,9 @@ jest.mock("ee/utils/AnalyticsUtil", () => ({
   },
 }));
 
+// Saga next()/throw() typing is too narrow for step-through unit tests.
+type TestSaga = Generator<unknown, unknown, unknown>;
+
 describe("shouldRecoverDeleteApplicationFromError", () => {
   it("returns true for request timeout", () => {
     expect(
@@ -113,7 +116,7 @@ describe("isApplicationPresentInHomeList", () => {
 
 describe("resolveDeleteApplicationRecoveryContext", () => {
   it("prefers the current application workspace and base id", () => {
-    const gen = resolveDeleteApplicationRecoveryContext("branch-1");
+    const gen: TestSaga = resolveDeleteApplicationRecoveryContext("branch-1");
 
     expect(gen.next().value).toEqual(select(getCurrentApplication));
     expect(
@@ -130,7 +133,7 @@ describe("resolveDeleteApplicationRecoveryContext", () => {
   });
 
   it("falls back to the workspace app list", () => {
-    const gen = resolveDeleteApplicationRecoveryContext("app-1");
+    const gen: TestSaga = resolveDeleteApplicationRecoveryContext("app-1");
 
     expect(gen.next().value).toEqual(select(getCurrentApplication));
     expect(gen.next(undefined).value).toEqual(
@@ -147,7 +150,7 @@ describe("resolveDeleteApplicationRecoveryContext", () => {
   });
 
   it("ignores favorites as a workspace id fallback", () => {
-    const gen = resolveDeleteApplicationRecoveryContext("app-1");
+    const gen: TestSaga = resolveDeleteApplicationRecoveryContext("app-1");
 
     gen.next();
     gen.next(undefined);
@@ -167,7 +170,7 @@ describe("recoverDeleteApplicationIfAlreadyGone", () => {
   };
 
   it("does not recover when the Git base app is still on /home after a branch delete", () => {
-    const gen = recoverDeleteApplicationIfAlreadyGone(
+    const gen: TestSaga = recoverDeleteApplicationIfAlreadyGone(
       "branch-9",
       { code: ERROR_CODES.REQUEST_TIMEOUT },
       recoveryContext,
@@ -188,7 +191,7 @@ describe("recoverDeleteApplicationIfAlreadyGone", () => {
   });
 
   it("recovers when neither branch nor base id remains on /home", () => {
-    const gen = recoverDeleteApplicationIfAlreadyGone(
+    const gen: TestSaga = recoverDeleteApplicationIfAlreadyGone(
       "branch-9",
       { code: ERROR_CODES.REQUEST_TIMEOUT },
       recoveryContext,
@@ -227,7 +230,7 @@ describe("recoverDeleteApplicationIfAlreadyGone", () => {
   });
 
   it("does not overwrite the app list when the selected workspace changed", () => {
-    const gen = recoverDeleteApplicationIfAlreadyGone(
+    const gen: TestSaga = recoverDeleteApplicationIfAlreadyGone(
       "app-1",
       { code: ERROR_CODES.REQUEST_TIMEOUT },
       { workspaceId: "ws-deleted-from", baseApplicationId: "app-1" },
@@ -250,7 +253,7 @@ describe("recoverDeleteApplicationIfAlreadyGone", () => {
   });
 
   it("returns false without refetching when workspace id is missing", () => {
-    const gen = recoverDeleteApplicationIfAlreadyGone(
+    const gen: TestSaga = recoverDeleteApplicationIfAlreadyGone(
       "app-1",
       { code: ERROR_CODES.REQUEST_TIMEOUT },
       { workspaceId: undefined, baseApplicationId: "app-1" },
@@ -261,7 +264,7 @@ describe("recoverDeleteApplicationIfAlreadyGone", () => {
   });
 
   it("returns false without refetching for non-recovery errors", () => {
-    const gen = recoverDeleteApplicationIfAlreadyGone(
+    const gen: TestSaga = recoverDeleteApplicationIfAlreadyGone(
       "app-1",
       { code: ERROR_CODES.REQUEST_FORBIDDEN },
       recoveryContext,
@@ -278,7 +281,7 @@ describe("deleteApplicationSaga", () => {
       type: ReduxActionTypes.DELETE_APPLICATION_INIT,
       payload: { applicationId: "app-1" },
     };
-    const gen = deleteApplicationSaga(action);
+    const gen: TestSaga = deleteApplicationSaga(action);
     const error = { code: ERROR_CODES.REQUEST_FORBIDDEN };
     const recoveryContext = {
       workspaceId: "ws-1",
@@ -313,7 +316,7 @@ describe("deleteApplicationSaga", () => {
       type: ReduxActionTypes.DELETE_APPLICATION_INIT,
       payload: { applicationId: "branch-9" },
     };
-    const gen = deleteApplicationSaga(action);
+    const gen: TestSaga = deleteApplicationSaga(action);
     const error = { code: ERROR_CODES.REQUEST_TIMEOUT };
     const recoveryContext = {
       workspaceId: "ws-1",
