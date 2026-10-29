@@ -332,7 +332,8 @@ describe("Appsmith API client", () => {
       errorCode: "AE-APP-4000",
     });
 
-    const pageError = await failing(/\/pages\/p1$/)
+    // Anchored to the page path, so the layout request (/layouts/l1/pages/p1) still succeeds.
+    const pageError = await failing(/\/api\/v1\/pages\/p1$/)
       .getApplicationContext("a1", "p1", "l1")
       .catch((error: unknown) => error);
 
