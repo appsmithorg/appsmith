@@ -5,6 +5,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import lombok.extern.slf4j.Slf4j;
@@ -132,6 +133,8 @@ public class ImportExportUtils {
 
     public static void setPropertiesToExistingApplication(
             Application importedApplication, Application existingApplication) {
+        boolean preserveAnvil = hasAnvilPositioning(existingApplication.getUnpublishedApplicationDetail())
+                || hasAnvilPositioning(existingApplication.getPublishedApplicationDetail());
         importedApplication.setId(existingApplication.getId());
 
         // Since we don't want to merge the ApplicationDetailObjects we would just assign the imported values directly
@@ -153,6 +156,24 @@ public class ImportExportUtils {
         }
 
         copyNestedNonNullProperties(importedApplication, existingApplication);
+
+        // Imports and snapshot restore must not remove a persisted layout entitlement stamp.
+        // Restore it after the whole-detail copy, including for published-only legacy stamps,
+        // so publishing the imported detail cannot erase the last remaining stamp.
+        if (preserveAnvil) {
+            ApplicationDetail detail = existingApplication.getUnpublishedApplicationDetail();
+            if (detail == null) {
+                detail = new ApplicationDetail();
+                existingApplication.setUnpublishedApplicationDetail(detail);
+            }
+            detail.setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.ANVIL));
+        }
+    }
+
+    private static boolean hasAnvilPositioning(ApplicationDetail detail) {
+        return detail != null
+                && detail.getAppPositioning() != null
+                && detail.getAppPositioning().getType() == Application.AppPositioning.Type.ANVIL;
     }
 
     public static boolean isPageNameInUpdatedList(ApplicationJson applicationJson, String pageName) {
