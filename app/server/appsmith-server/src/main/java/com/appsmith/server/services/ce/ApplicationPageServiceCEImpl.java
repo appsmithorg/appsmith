@@ -79,6 +79,7 @@ import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
+import reactor.util.context.ContextView;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
@@ -522,13 +523,27 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     /**
-     * This function performs a soft delete for the application along with it's associated pages and actions.
+     * Soft-deletes the application (and Git branch apps) in the database, then returns success without
+     * waiting on local Git filesystem cleanup. Local repo removal runs best-effort in the background so
+     * a slow disk wipe cannot cancel the HTTP response or analytics/audit that depend on this Mono.
      *
      * @param id The application id to delete
      * @return The modified application object with the deleted flag set
      */
     @Override
     public Mono<Application> deleteApplication(String id) {
+        return deleteApplicationFromDb(id).flatMap(application -> Mono.deferContextual(parentCtx -> {
+            scheduleLocalGitRepositoryCleanup(application, parentCtx);
+            return Mono.just(application);
+        }));
+    }
+
+    /**
+     * Soft-archives the application and every Git branch application that shares its base id.
+     * Does not touch the local Git filesystem — call {@link #cleanupLocalGitRepository(Application)}
+     * (or {@link #scheduleLocalGitRepositoryCleanup}) separately.
+     */
+    protected Mono<Application> deleteApplicationFromDb(String id) {
         log.debug("Archiving application with id: {}", id);
 
         Mono<Application> applicationMono = applicationPermission
@@ -562,20 +577,38 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             return deleteApplicationByResource(application);
                         },
                         2)
-                .then(applicationMono)
-                .flatMap(application -> {
-                    GitArtifactMetadata gitData = application.getGitApplicationMetadata();
-                    if (gitData != null
-                            && !StringUtils.isEmpty(gitData.getDefaultArtifactId())
-                            && !StringUtils.isEmpty(gitData.getRepoName())) {
-                        String repoName = gitData.getRepoName();
-                        Path repoPath =
-                                Paths.get(application.getWorkspaceId(), gitData.getDefaultArtifactId(), repoName);
-                        // Delete git repo from local
-                        return commonGitFileUtils.deleteLocalRepo(repoPath).then(Mono.just(application));
-                    }
-                    return Mono.just(application);
-                });
+                .then(applicationMono);
+    }
+
+    /**
+     * Removes the on-disk Git clone for a previously soft-deleted application, if one exists.
+     * Safe to call for non-Git apps (no-op).
+     */
+    protected Mono<Boolean> cleanupLocalGitRepository(Application application) {
+        GitArtifactMetadata gitData = application.getGitApplicationMetadata();
+        if (gitData == null
+                || !StringUtils.hasText(gitData.getDefaultArtifactId())
+                || !StringUtils.hasText(gitData.getRepoName())) {
+            return Mono.just(Boolean.TRUE);
+        }
+        Path repoPath = Paths.get(application.getWorkspaceId(), gitData.getDefaultArtifactId(), gitData.getRepoName());
+        return commonGitFileUtils.deleteLocalRepo(repoPath);
+    }
+
+    /**
+     * Fire-and-forget local Git cleanup so it is not cancelled when the HTTP subscriber disconnects.
+     * Copies parent Reactor context (minus mutable MDC) to preserve SecurityContext for any nested work.
+     */
+    protected void scheduleLocalGitRepositoryCleanup(Application application, ContextView parentCtx) {
+        cleanupLocalGitRepository(application)
+                .contextWrite(ctx -> Context.of(parentCtx).delete(LogHelper.CONTEXT_MAP))
+                .subscribeOn(LoadShifter.elasticScheduler)
+                .subscribe(
+                        null,
+                        error -> log.error(
+                                "Failed to delete local git repository for application {}",
+                                application.getId(),
+                                error));
     }
 
     @Override
