@@ -7,6 +7,8 @@ import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
 import com.appsmith.server.staticurl.StaticUrlService;
 import org.junit.jupiter.api.Test;
@@ -26,6 +28,8 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,9 +58,11 @@ class ApplicationImportPositioningTest {
         when(permissions.getRequiredPermissionOnTargetApplication()).thenReturn(AclPermission.MANAGE_APPLICATIONS);
         when(applicationService.findById("target-app", AclPermission.MANAGE_APPLICATIONS))
                 .thenReturn(Mono.just(target));
-        when(staticUrlService.generateAndUpdateApplicationSlugForImportsOnExistingApps(eq(incoming), eq(target)))
+        lenient()
+                .when(staticUrlService.generateAndUpdateApplicationSlugForImportsOnExistingApps(
+                        eq(incoming), eq(target)))
                 .thenReturn(Mono.just(incoming));
-        when(applicationService.save(any())).thenAnswer(inv -> Mono.just(inv.getArgument(0)));
+        lenient().when(applicationService.save(any())).thenAnswer(inv -> Mono.just(inv.getArgument(0)));
         ImportingMetaDTO meta = ImportingMetaDTO.builder()
                 .artifactId("target-app")
                 .workspaceId("workspace")
@@ -72,11 +78,13 @@ class ApplicationImportPositioningTest {
 
     @ParameterizedTest
     @MethodSource("downgradeCases")
-    void should_preserveAnvilStamp_when_importReplacesExistingDetail(boolean publishedOnly, String incomingType) {
+    void should_rejectIncompatibleReplacement_when_targetHasAnvilStamp(boolean publishedOnly, String incomingType) {
         // Given
         Application target = new Application();
+        target.setName("Original app");
         target.setUnpublishedApplicationDetail(detail(publishedOnly ? "FIXED" : "ANVIL"));
         target.setPublishedApplicationDetail(detail(publishedOnly ? "ANVIL" : "FIXED"));
+        ApplicationDetail originalDetail = target.getUnpublishedApplicationDetail();
         Application incoming = new Application();
         incoming.setName("Imported app");
         incoming.setUnpublishedApplicationDetail(incomingType == null ? null : detail(incomingType));
@@ -86,6 +94,31 @@ class ApplicationImportPositioningTest {
 
         // Then
         StepVerifier.create(result)
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) error).getAppErrorCode())
+                            .isEqualTo(AppsmithError.INVALID_PARAMETER.getAppErrorCode());
+                    assertThat(error.getMessage()).contains("replacement import must use responsive positioning");
+                })
+                .verify();
+        verify(applicationService, never()).save(any());
+        assertThat(target.getUnpublishedApplicationDetail()).isSameAs(originalDetail);
+        assertThat(target.getName()).isEqualTo("Original app");
+    }
+
+    @ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(booleans = {false, true})
+    void should_keepResponsiveImport_when_targetHasAnvilStamp(boolean publishedOnly) {
+        // Given
+        Application target = new Application();
+        target.setUnpublishedApplicationDetail(detail(publishedOnly ? "FIXED" : "ANVIL"));
+        target.setPublishedApplicationDetail(detail(publishedOnly ? "ANVIL" : "FIXED"));
+        Application incoming = new Application();
+        incoming.setName("Imported app");
+        incoming.setUnpublishedApplicationDetail(detail("ANVIL"));
+
+        // When / Then
+        StepVerifier.create(importOverExisting(incoming, target))
                 .assertNext(saved -> {
                     assertThat(saved.getUnpublishedApplicationDetail()
                                     .getAppPositioning()

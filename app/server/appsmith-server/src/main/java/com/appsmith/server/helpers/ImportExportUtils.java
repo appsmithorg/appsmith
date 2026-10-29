@@ -8,6 +8,8 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.mongodb.MongoTransactionException;
@@ -135,6 +137,11 @@ public class ImportExportUtils {
             Application importedApplication, Application existingApplication) {
         boolean preserveAnvil = hasAnvilPositioning(existingApplication.getUnpublishedApplicationDetail())
                 || hasAnvilPositioning(existingApplication.getPublishedApplicationDetail());
+        if (preserveAnvil && !hasAnvilPositioning(importedApplication.getUnpublishedApplicationDetail())) {
+            throw new AppsmithException(
+                    AppsmithError.INVALID_PARAMETER,
+                    "replacement import must use responsive positioning for an existing responsive application");
+        }
         importedApplication.setId(existingApplication.getId());
 
         // Since we don't want to merge the ApplicationDetailObjects we would just assign the imported values directly
@@ -156,18 +163,6 @@ public class ImportExportUtils {
         }
 
         copyNestedNonNullProperties(importedApplication, existingApplication);
-
-        // Imports and snapshot restore must not remove a persisted layout entitlement stamp.
-        // Restore it after the whole-detail copy, including for published-only legacy stamps,
-        // so publishing the imported detail cannot erase the last remaining stamp.
-        if (preserveAnvil) {
-            ApplicationDetail detail = existingApplication.getUnpublishedApplicationDetail();
-            if (detail == null) {
-                detail = new ApplicationDetail();
-                existingApplication.setUnpublishedApplicationDetail(detail);
-            }
-            detail.setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.ANVIL));
-        }
     }
 
     private static boolean hasAnvilPositioning(ApplicationDetail detail) {
