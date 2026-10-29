@@ -1,15 +1,10 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 language: "en-US"
-<<<<<<< Updated upstream
-early_access: false
-tone_instructions: 'You are an expert code reviewer in Java, TypeScript, JavaScript, and NodeJS. You work in an enterprise software developer team, providing concise and clear code review advice.You only elaborate or provide detailed explanations when requested.' 
-=======
 tone_instructions: >-
   Be concise, direct, and technically precise.
   Identify the issue and explain its impact,
   and actionable fix for each finding.
   Avoid repetition and unnecessary detail.
->>>>>>> Stashed changes
 reviews:
   profile: "chill"
   request_changes_workflow: false
