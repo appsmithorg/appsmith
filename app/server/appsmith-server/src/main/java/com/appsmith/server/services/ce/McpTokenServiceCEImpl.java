@@ -274,6 +274,20 @@ public class McpTokenServiceCEImpl implements McpTokenServiceCE {
                 .flatMap(this::requireMcpEnabled);
     }
 
+    @Override
+    public Mono<User> authenticateCached(String userKey) {
+        if (!StringUtils.hasText(userKey)) {
+            return Mono.empty();
+        }
+
+        String mcpKeyId = McpUserKeyCodec.expandKeyId(userKey);
+        if (!StringUtils.hasText(mcpKeyId)) {
+            return Mono.empty();
+        }
+
+        return authenticateFromCache(userKey, mcpKeyId).flatMap(this::requireMcpEnabled);
+    }
+
     private Mono<User> requireMcpEnabled(User user) {
         return validateMCPEnabled()
                 .thenReturn(user)

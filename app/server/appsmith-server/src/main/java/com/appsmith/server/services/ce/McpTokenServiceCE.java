@@ -22,4 +22,8 @@ public interface McpTokenServiceCE {
     Mono<Boolean> revoke(User user, String keyId);
 
     Mono<User> authenticate(String userKey);
+
+    // Checks the token against the auth cache only and never reads the token store. Empty when the cache holds no
+    // live entry that matches the token. The cache is written only after the store accepted the same token.
+    Mono<User> authenticateCached(String userKey);
 }
