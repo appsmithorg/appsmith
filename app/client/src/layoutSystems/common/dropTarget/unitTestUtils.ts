@@ -444,6 +444,8 @@ export const unitTestBaseMockStore = {
           navigationSetting: {
             showNavbar: true,
             showSignIn: true,
+            showShareApp: true,
+            showAllApps: true,
             orientation: "top",
             navStyle: "stacked",
             position: "static",

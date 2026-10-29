@@ -2252,6 +2252,12 @@ export const APP_NAVIGATION_SETTING = {
   showSignInLabel: () => "Show sign in",
   showSignInTooltip: () =>
     "Toggle to show the sign-in button for users who are not logged in.",
+  showShareAppLabel: () => "Show share",
+  showShareAppTooltip: () =>
+    "Toggle to show the share button in the published app.",
+  showAllAppsLabel: () => "Show all apps",
+  showAllAppsTooltip: () =>
+    "Toggle to show the all apps button in the published app.",
   logoUploadFormatError: () => `Uploaded file must be in .PNG or .JPG formats.`,
   logoUploadSizeError: () => `Uploaded file must be less than 1MB.`,
   showLogoLabel: () => "Show logo",
