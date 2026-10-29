@@ -5126,6 +5126,8 @@ describe("governance-wrapped layout mutations", () => {
       applicationId: APP_ID,
     });
 
+    // A network failure is tried twice (APP-16324 F13) before the page reports layoutError.
+    expect(api.getPage).toHaveBeenCalledTimes(2);
     expect(read.body.pages).toEqual([
       {
         id: PAGE_ID,
@@ -5154,6 +5156,120 @@ describe("governance-wrapped layout mutations", () => {
       reason: "fetch_failed",
       status: 404,
       code: "AE-ACL-4004",
+    });
+  });
+
+  describe("APP-16324 F13: read_pages retries a transient page fetch failure once", () => {
+    const TWO_PAGES = {
+      pages: [
+        { id: "p1", name: "One", slug: "one" },
+        { id: "p2", name: "Two", slug: "two" },
+      ],
+    };
+
+    async function readWith(getPage: jest.Mock) {
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getApplicationPages: jest.fn(async () => TWO_PAGES),
+        getPage: getPage as never,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api);
+
+      return (await callTool(server, "read_pages", { applicationId: APP_ID }))
+        .body;
+    }
+
+    it.each([[401], [429], [503]])(
+      "a %i on the first try is retried after the parallel pass and the page gets its layoutId",
+      async (status) => {
+        const calls: string[] = [];
+        let failed = false;
+        const getPage = jest.fn(async (pageId: string) => {
+          calls.push(pageId);
+
+          if (pageId === "p1" && !failed) {
+            failed = true;
+            throw new AppsmithApiError(status);
+          }
+
+          return { id: pageId, layouts: [{ id: `l-${pageId}` }] };
+        });
+        const body = await readWith(getPage);
+
+        expect(
+          body.pages.map((page: { layoutId?: string }) => page.layoutId),
+        ).toEqual(["l-p1", "l-p2"]);
+        expect(body.pages[0]).not.toHaveProperty("layoutError");
+        // The retry runs once, after both first reads.
+        expect(calls).toEqual(["p1", "p2", "p1"]);
+      },
+    );
+
+    it("a network failure is retried too", async () => {
+      const getPage = jest
+        .fn()
+        .mockRejectedValueOnce(new Error("network"))
+        .mockImplementation(async (pageId: string) => ({
+          id: pageId,
+          layouts: [{ id: `l-${pageId}` }],
+        }));
+      const body = await readWith(getPage);
+
+      expect(
+        body.pages.map((page: { layoutId?: string }) => page.layoutId),
+      ).toEqual(["l-p1", "l-p2"]);
+    });
+
+    it("a timeout is not retried", async () => {
+      const getPage = jest.fn(async (pageId: string) => {
+        if (pageId === "p1") {
+          throw new DOMException("This operation was aborted", "AbortError");
+        }
+
+        return { id: pageId, layouts: [{ id: `l-${pageId}` }] };
+      });
+      const body = await readWith(getPage);
+
+      expect(getPage).toHaveBeenCalledTimes(2);
+      expect(body.pages[0].layoutError).toEqual({ reason: "fetch_failed" });
+      expect(body.pages[1].layoutId).toBe("l-p2");
+    });
+
+    it("a final status such as 404 is not retried", async () => {
+      const getPage = jest.fn(async (pageId: string) => {
+        if (pageId === "p1") throw new AppsmithApiError(404, "AE-ACL-4004");
+
+        return { id: pageId, layouts: [{ id: `l-${pageId}` }] };
+      });
+      const body = await readWith(getPage);
+
+      expect(getPage).toHaveBeenCalledTimes(2);
+      expect(body.pages[0].layoutError).toEqual({
+        reason: "fetch_failed",
+        status: 404,
+        code: "AE-ACL-4004",
+      });
+      expect(body.pages[1].layoutId).toBe("l-p2");
+    });
+
+    it("a page that fails again reports the retry's error and is tried only twice", async () => {
+      const getPage = jest.fn(async (pageId: string) => {
+        if (pageId === "p1") {
+          throw getPage.mock.calls.filter(([id]) => id === "p1").length === 1
+            ? new AppsmithApiError(401)
+            : new AppsmithApiError(503, "AE-APP-5000");
+        }
+
+        return { id: pageId, layouts: [{ id: `l-${pageId}` }] };
+      });
+      const body = await readWith(getPage);
+
+      expect(getPage.mock.calls.filter(([id]) => id === "p1")).toHaveLength(2);
+      expect(body.pages[0].layoutError).toEqual({
+        reason: "fetch_failed",
+        status: 503,
+        code: "AE-APP-5000",
+      });
     });
   });
 

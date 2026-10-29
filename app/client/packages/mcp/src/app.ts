@@ -1591,6 +1591,18 @@ function pageLayoutError(error: unknown): PageLayoutError {
   };
 }
 
+// A page fetch that may succeed when tried again: a network failure, a 401 (the server's auth rate limit refuses
+// some reads of a parallel burst), a 429, or a 5xx. Any other status, such as 403 or 404, is final. A timeout is
+// final too: the request already waited REQUEST_TIMEOUT_MS, and retrying hung pages one at a time would multiply that.
+function isTransientPageFetchError(error: unknown): boolean {
+  // Checked by name: fetch rejects with a DOMException, which is not always an instance of this realm's Error.
+  if ((error as { name?: unknown } | null)?.name === "AbortError") return false;
+
+  if (!(error instanceof AppsmithApiError)) return true;
+
+  return error.status === 401 || error.status === 429 || error.status >= 500;
+}
+
 // The default page's layoutId, sourced from GET /api/v1/pages/{pageId} (one extra fetch per page). layoutId is an
 // additive convenience for the authoring tools — never load-bearing for a build — so any absence or fetch failure
 // degrades to undefined rather than surfacing an error.
@@ -4248,21 +4260,48 @@ export function buildMcpServer(
       // Per-page layoutId requires a single-page fetch each (the pages-LIST DTO omits layouts), so this is N+1 in the
       // page count — acceptable because pages per app are few, and layoutId is required by every authoring tool. The
       // fan-out is bounded (below) so a many-page app degrades to a few sequential waves rather than an N-wide burst.
-      const withLayouts = await mapWithConcurrency(
+      const withLayout = async (page: (typeof projected)[number]) => {
+        const layoutId = layoutIdOf(await api.getPage(page.id));
+
+        return layoutId !== undefined
+          ? { ...page, layoutId }
+          : { ...page, layoutError: { reason: "no_layout" } };
+      };
+      const firstPass = await mapWithConcurrency(
         projected,
         READ_PAGES_LAYOUT_CONCURRENCY,
-        async (page) => {
-          try {
-            const layoutId = layoutIdOf(await api.getPage(page.id));
-
-            return layoutId !== undefined
-              ? { ...page, layoutId }
-              : { ...page, layoutError: { reason: "no_layout" } };
-          } catch (error) {
-            return { ...page, layoutError: pageLayoutError(error) };
-          }
-        },
+        async (page) =>
+          withLayout(page).then(
+            (value) => ({ value }),
+            (error: unknown) => ({ error }),
+          ),
       );
+      // A page whose fetch failed for a transient reason is tried once more, one page at a time, after the parallel
+      // pass has finished. A page that fails again, or failed for a final reason, carries layoutError.
+      const withLayouts = [];
+
+      for (const [index, entry] of firstPass.entries()) {
+        if ("value" in entry) {
+          withLayouts.push(entry.value);
+          continue;
+        }
+
+        let error = entry.error;
+
+        if (isTransientPageFetchError(error)) {
+          try {
+            withLayouts.push(await withLayout(projected[index]));
+            continue;
+          } catch (retryError) {
+            error = retryError;
+          }
+        }
+
+        withLayouts.push({
+          ...projected[index],
+          layoutError: pageLayoutError(error),
+        });
+      }
 
       return result({
         pages: withLayouts,
