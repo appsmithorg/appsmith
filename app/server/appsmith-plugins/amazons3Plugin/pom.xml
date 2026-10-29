@@ -17,10 +17,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-bom</artifactId>
-                <!-- 1.12.795+ drops the unpatched software.amazon.ion:ion-java dependency (CVE-2024-21634) -->
-                <version>1.12.797</version>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>2.55.9</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -28,14 +27,34 @@
     </dependencyManagement>
 
     <dependencies>
-
+        <!-- The plugin builds its S3 client with an explicit ApacheHttpClient (apache-client, next), so the
+             SDK's default HTTP client runtimes (apache5-client, netty-nio-client) are excluded.
+             slf4j-api is provided by the server. -->
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>*</artifactId>
+                    <groupId>software.amazon.awssdk</groupId>
+                    <artifactId>apache5-client</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>software.amazon.awssdk</groupId>
+                    <artifactId>netty-nio-client</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>apache-client</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -48,6 +67,76 @@
         <plugins>
             <plugin>
                 <artifactId>maven-shade-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <!-- A free port for the local listener HTTP_PROXY points at in the http-proxy-environment test
+                         execution. -->
+                    <execution>
+                        <id>reserve-http-proxy-environment-port</id>
+                        <goals>
+                            <goal>reserve-network-port</goal>
+                        </goals>
+                        <phase>process-test-classes</phase>
+                        <configuration>
+                            <portNames>
+                                <portName>s3.httpProxyEnvironment.port</portName>
+                            </portNames>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <executions>
+                    <!-- A JVM without proxy environment variables, so the tests' requests to local servers are not sent
+                         to a proxy the machine is configured with. -->
+                    <execution>
+                        <id>default-test</id>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/*$*</exclude>
+                                <exclude>**/AmazonS3PluginHttpProxyEnvironmentTest.java</exclude>
+                            </excludes>
+                            <excludedEnvironmentVariables>
+                                <excludedEnvironmentVariable>HTTPS_PROXY</excludedEnvironmentVariable>
+                                <excludedEnvironmentVariable>https_proxy</excludedEnvironmentVariable>
+                                <excludedEnvironmentVariable>HTTP_PROXY</excludedEnvironmentVariable>
+                                <excludedEnvironmentVariable>http_proxy</excludedEnvironmentVariable>
+                                <excludedEnvironmentVariable>NO_PROXY</excludedEnvironmentVariable>
+                                <excludedEnvironmentVariable>no_proxy</excludedEnvironmentVariable>
+                            </excludedEnvironmentVariables>
+                        </configuration>
+                    </execution>
+                    <!-- A JVM whose environment has HTTP_PROXY and no https proxy settings. The test pinned here
+                         overrides -Dtest, so this execution runs only that test. -->
+                    <execution>
+                        <id>http-proxy-environment</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <test>AmazonS3PluginHttpProxyEnvironmentTest</test>
+                            <environmentVariables>
+                                <HTTP_PROXY>http://127.0.0.1:${s3.httpProxyEnvironment.port}</HTTP_PROXY>
+                            </environmentVariables>
+                            <excludedEnvironmentVariables>
+                                <excludedEnvironmentVariable>HTTPS_PROXY</excludedEnvironmentVariable>
+                                <excludedEnvironmentVariable>https_proxy</excludedEnvironmentVariable>
+                                <excludedEnvironmentVariable>http_proxy</excludedEnvironmentVariable>
+                                <excludedEnvironmentVariable>NO_PROXY</excludedEnvironmentVariable>
+                                <excludedEnvironmentVariable>no_proxy</excludedEnvironmentVariable>
+                            </excludedEnvironmentVariables>
+                            <systemPropertyVariables>
+                                <s3.httpProxyEnvironment.port>${s3.httpProxyEnvironment.port}</s3.httpProxyEnvironment.port>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>

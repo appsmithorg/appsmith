@@ -617,6 +617,27 @@ public class UserServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    void should_returnOrganizationId_when_buildingUserProfile() {
+        // Given
+        Mono<String> currentOrganizationIdMono = organizationService.getCurrentUserOrganizationId();
+
+        // When
+        Mono<UserProfileDTO> userProfileDTOMono =
+                sessionUserService.getCurrentUser().flatMap(userService::buildUserProfileDTO);
+
+        // Then
+        StepVerifier.create(Mono.zip(currentOrganizationIdMono, userProfileDTOMono))
+                .assertNext(tuple -> {
+                    String currentOrganizationId = tuple.getT1();
+                    UserProfileDTO userProfileDTO = tuple.getT2();
+                    assertThat(currentOrganizationId).isNotBlank();
+                    assertThat(userProfileDTO.getOrganizationId()).isEqualTo(currentOrganizationId);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void updateNameAndUseCaseOfUser() {
         UserUpdateDTO updateUser = new UserUpdateDTO();
         updateUser.setName("New name of user here");

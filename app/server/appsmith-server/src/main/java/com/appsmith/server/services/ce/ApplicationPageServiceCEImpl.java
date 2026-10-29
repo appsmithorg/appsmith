@@ -38,6 +38,7 @@ import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.DslUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.LoadShifter;
+import com.appsmith.server.helpers.LogHelper;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.helpers.WidgetIdRegenerationResult;
 import com.appsmith.server.layouts.UpdateLayoutService;
@@ -71,8 +72,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
@@ -261,7 +260,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<PageDTO> getPage(String pageId, boolean viewMode) {
-        AclPermission permission = pagePermission.getReadPermission();
+        AclPermission permission = getPagePermissionForMode(viewMode);
         return newPageService
                 .findPageById(pageId, permission, viewMode)
                 .map(newPage -> getDslEscapedPage(newPage))
@@ -309,41 +308,51 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<PageDTO> getPageDTOAfterMigratingDSL(NewPage newPage, boolean viewMode, boolean migrateDsl) {
-        return sendPageViewAnalyticsEvent(newPage, viewMode)
-                .then(getPage(newPage, viewMode))
-                .flatMap(pageDTO -> {
-                    if (migrateDsl) {
-                        // Call the DSL Utils for on demand migration of the page.
-                        // Based on view mode save the migrated DSL to the database
-                        // Migrate the DSL to the latest version if required
-                        if (pageDTO.getLayouts() != null) {
-                            return migrateAndUpdatePageDsl(newPage, pageDTO, viewMode);
-                        }
-                    }
-                    return Mono.just(pageDTO);
-                });
+        return getPage(newPage, viewMode).flatMap(pageDTO -> {
+            if (migrateDsl) {
+                // Call the DSL Utils for on demand migration of the page.
+                // Based on view mode save the migrated DSL to the database
+                // Migrate the DSL to the latest version if required
+                if (pageDTO.getLayouts() != null) {
+                    return migrateAndUpdatePageDsl(newPage, pageDTO, viewMode);
+                }
+            }
+            return Mono.just(pageDTO);
+        });
     }
 
     @Override
     public Mono<PageDTO> getPageAndMigrateDslByBranchAndBasePageId(
             String defaultPageId, String refName, boolean viewMode, boolean migrateDsl) {
         ApplicationMode applicationMode = viewMode ? ApplicationMode.PUBLISHED : ApplicationMode.EDIT;
-        // Fetch the page with read permission in both editor and in viewer.
         return newPageService
                 .findByRefTypeAndRefNameAndBasePageId(
-                        RefType.branch, refName, defaultPageId, pagePermission.getReadPermission(), null)
+                        RefType.branch, refName, defaultPageId, getPagePermissionForMode(viewMode), null)
                 .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)
                         .name(getQualifiedSpanName(MIGRATE_DSL, applicationMode))
-                        .tap(Micrometer.observation(observationRegistry)));
+                        .tap(Micrometer.observation(observationRegistry))
+                        .flatMap(pageDTO ->
+                                sendPageViewAnalyticsEvent(newPage, viewMode).thenReturn(pageDTO)));
     }
 
     @Override
     public Mono<PageDTO> getPageAndMigrateDslByBranchedPageId(
             String branchedPageId, boolean viewMode, boolean migrateDsl) {
-        // Fetch the page with read permission in both editor and in viewer.
         return newPageService
-                .findById(branchedPageId, pagePermission.getReadPermission())
-                .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl));
+                .findById(branchedPageId, getPagePermissionForMode(viewMode))
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, branchedPageId)))
+                .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)
+                        .flatMap(pageDTO ->
+                                sendPageViewAnalyticsEvent(newPage, viewMode).thenReturn(pageDTO)));
+    }
+
+    /**
+     * The page permission a read in the given mode requires: the read permission for the published copy in view
+     * mode, the edit permission for the draft copy in editor mode.
+     */
+    protected AclPermission getPagePermissionForMode(boolean viewMode) {
+        return viewMode ? pagePermission.getReadPermission() : pagePermission.getEditPermission();
     }
 
     private Mono<PageDTO> migrateAndUpdatePageDsl(NewPage newPage, PageDTO page, boolean viewMode) {
@@ -1114,19 +1123,21 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      */
     @Override
     public Mono<Application> publishWithoutPermissionChecks(String applicationId, boolean isPublishedManually) {
-        Mono<SecurityContext> contextMono = ReactiveSecurityContextHolder.getContext();
-
         return publishAndGetMetadata(applicationId, isPublishedManually)
-                .zipWith(contextMono)
-                .flatMap(tuple2 -> {
+                .flatMap(tuple -> Mono.deferContextual(parentCtx -> {
+                    // Orphan subscribe starts empty. Copy parent context so SecurityContext and
+                    // audit suppress flags from fork/import/Git reload still apply, but drop the
+                    // request MDC map so the background job does not share mutable logging state.
                     postApplicationPublishHookCoordinatorService
                             .executePostPublishHooks(applicationId)
-                            .contextWrite(Context.of(SecurityContext.class, Mono.just(tuple2.getT2())))
+                            .contextWrite(ctx -> Context.of(parentCtx).delete(LogHelper.CONTEXT_MAP))
                             .subscribeOn(LoadShifter.elasticScheduler)
-                            .subscribe();
-                    ApplicationPublishingMetaDTO metaDTO = tuple2.getT1().getT2();
-                    return sendApplicationPublishedEvent(metaDTO);
-                })
+                            .subscribe(
+                                    null,
+                                    error -> log.error(
+                                            "Post-publish hooks failed for application {}", applicationId, error));
+                    return sendApplicationPublishedEvent(tuple.getT2());
+                }))
                 .elapsed()
                 .map(objects -> {
                     log.debug(
@@ -1450,7 +1461,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     /**
-     * To send analytics event for page views
+     * Records a page view when that page is opened. Layout loads for the other pages in the editor do not call this.
      *
      * @param newPage  Page being accessed
      * @param viewMode Page is accessed in view mode or not

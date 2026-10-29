@@ -83,10 +83,10 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
      * and ready.
      */
     // Number of milliseconds between the start of each scheduled calls to this method.
-    @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 6 * 60 * 60 * 1000 /* six hours */)
+    @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 24 * 60 * 60 * 1000 /* a day */)
     @DistributedLock(
             key = "pingSchedule",
-            ttl = 5 * 60 * 60, // 5 hours
+            ttl = 23 * 60 * 60, // 23 hours
             shouldReleaseLock = false)
     @Observed(name = "pingSchedule")
     public void pingSchedule() {

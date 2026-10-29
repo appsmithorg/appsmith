@@ -13,6 +13,9 @@ public class UserProfileCE_DTO {
 
     Set<String> workspaceIds;
 
+    // The id of the caller's own organization (tenant). Null only when the user document has none.
+    String organizationId;
+
     String username;
 
     String name;

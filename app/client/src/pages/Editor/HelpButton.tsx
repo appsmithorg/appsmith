@@ -44,7 +44,7 @@ import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
 import { DOCS_AI_BASE_URL } from "constants/ThirdPartyConstants";
 import BetterbugsUtil from "utils/Analytics/betterbugs";
 import { isAirgapped } from "ee/utils/airgapHelpers";
-import { useBetterbugsMetadata } from "utils/hooks/useBetterbugsMetadata";
+import { useBetterbugsMetadata } from "ee/hooks/useBetterbugsMetadata";
 
 const { appVersion, betterbugs, cloudHosting } = getAppsmithConfigs();
 
@@ -176,7 +176,7 @@ function HelpButtonTooltip(props: {
   return <>{createMessage(HELP_RESOURCE_TOOLTIP)}</>;
 }
 
-function HelpButton() {
+function HelpButtonMenu() {
   const [showIntercomConsent, setShowIntercomConsent] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const user = useSelector(getCurrentUser);
@@ -347,6 +347,12 @@ function HelpButton() {
       )}
     </Menu>
   );
+}
+
+function HelpButton() {
+  if (getAppsmithConfigs().disableHelpIcon) return null;
+
+  return <HelpButtonMenu />;
 }
 
 export default HelpButton;

@@ -47,6 +47,7 @@ function stubApi(): AppsmithApi {
     getGitProtectedBranches: jest.fn(async () => []),
     listGitBranches: jest.fn(async () => []),
     createGitBranch: jest.fn(async () => ({})),
+    checkoutGitBranch: jest.fn(async () => ({})),
     commitGitApplication: jest.fn(async () => "Commit Result : ok"),
     listActions: jest.fn(),
     createAction: jest.fn(),
@@ -2091,6 +2092,7 @@ describe("elicitation docs — catalog, capabilities copy, and README stay in sy
     "confirm_rollback",
     "confirm_run_action",
     "confirm_commit",
+    "confirm_remove_widgets",
   ];
 
   it("every destructive confirm tool's TOOL_CATALOG summary mentions the elicitation prompt", () => {
@@ -2145,5 +2147,162 @@ describe("elicitation docs — catalog, capabilities copy, and README stay in sy
     expect(readme).toContain("APPSMITH_MCP_STRICT_ELICITATION");
     expect(readme).toContain("`elicitation_required`");
     expect(readme).toContain("APPSMITH_MCP_ELICITATION_TIMEOUT_MS");
+  });
+});
+
+// APP-16324 F7: removing widgets uses the same approval as delete_page. The prompt names the page and app, so the user
+// approves the removal on the right page, and a decline leaves the token and the page untouched.
+describe("confirm_remove_widgets approval", () => {
+  const LAYOUT_ID = "d".repeat(24);
+  const base = { topRow: 0, bottomRow: 4, leftColumn: 0, rightColumn: 8 };
+  const removalDsl = () => ({
+    widgetId: "0",
+    widgetName: "MainContainer",
+    type: "CANVAS_WIDGET",
+    topRow: 0,
+    bottomRow: 380,
+    leftColumn: 0,
+    rightColumn: 64,
+    children: [
+      {
+        widgetId: "card",
+        widgetName: "Card1",
+        type: "CONTAINER_WIDGET",
+        parentId: "0",
+        ...base,
+        children: [
+          {
+            widgetId: "cardCanvas",
+            widgetName: "CardCanvas",
+            type: "CANVAS_WIDGET",
+            parentId: "card",
+            ...base,
+            children: [
+              {
+                widgetId: "cardTitle",
+                widgetName: "CardTitle",
+                type: "TEXT_WIDGET",
+                text: "Card title",
+                parentId: "cardCanvas",
+                ...base,
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  });
+
+  function removalApi() {
+    let current: unknown = removalDsl();
+    const updateLayout = jest.fn(
+      async (_app: string, _page: string, _layout: string, dsl: unknown) => {
+        current = dsl;
+
+        return { ok: true };
+      },
+    );
+    const api = pagesApi({
+      getApplicationContext: jest.fn(async () => ({
+        pages: [],
+        page: {},
+        layout: { dsl: current },
+      })),
+      listActions: jest.fn(async () => []),
+      updateLayout: updateLayout as never,
+    });
+
+    return { api, updateLayout };
+  }
+
+  const spec = () => ({
+    applicationId: APP_ID,
+    pageId: PAGE_ID,
+    layoutId: LAYOUT_ID,
+    revision: fingerprintDsl(removalDsl() as never),
+    names: ["Card1"],
+  });
+
+  it("names the page and app, and a decline leaves the token and the page untouched", async () => {
+    const store = new MemoryGovernanceStore();
+    const { api, updateLayout } = removalApi();
+    const session = await connectClient(api, store, [DECLINE, ACCEPT]);
+
+    try {
+      const prepared = await callViaClient(
+        session.client,
+        "prepare_remove_widgets",
+        { spec: spec() },
+      );
+      const confirmationId = prepared.confirmationId as string;
+
+      expect(String(prepared.relay)).toContain(
+        'from the page "Checkout" of "Orders"',
+      );
+
+      const declined = await callViaClient(
+        session.client,
+        "confirm_remove_widgets",
+        { spec: spec(), confirmationId },
+      );
+
+      expect(session.prompts[0]).toContain(
+        'Remove "Card1" (with 1 widget inside) from the page "Checkout" of "Orders"?',
+      );
+      expect(declined.code).toBe("remove_widgets_not_confirmed");
+      expect(updateLayout).not.toHaveBeenCalled();
+      expect(store.confirmations.has(confirmationId)).toBe(true);
+
+      const accepted = await callViaClient(
+        session.client,
+        "confirm_remove_widgets",
+        { spec: spec(), confirmationId },
+      );
+
+      expect(updateLayout).toHaveBeenCalledTimes(1);
+      expect(JSON.stringify(accepted)).not.toMatch(/not_confirmed/);
+      expect(store.confirmations.has(confirmationId)).toBe(false);
+    } finally {
+      await session.close();
+    }
+  });
+
+  // The binding names the operation, so a token prepared for delete_page cannot confirm a widget removal.
+  it("refuses a token prepared for another operation", async () => {
+    const store = new MemoryGovernanceStore();
+    const { api, updateLayout } = removalApi();
+    const session = await connectClient(api, store, [ACCEPT]);
+
+    try {
+      const read = await callViaClient(session.client, "read_pages", {
+        applicationId: APP_ID,
+      });
+      const deletePrepared = await callViaClient(
+        session.client,
+        "prepare_delete_page",
+        {
+          spec: {
+            applicationId: APP_ID,
+            pageId: PAGE_ID,
+            revision: read.revision,
+          },
+        },
+      );
+      const confirmationId = deletePrepared.confirmationId as string;
+
+      expect(typeof confirmationId).toBe("string");
+
+      const refused = await callViaClient(
+        session.client,
+        "confirm_remove_widgets",
+        { spec: spec(), confirmationId },
+      );
+
+      expect(JSON.stringify(refused)).toMatch(/confirmation/i);
+      expect(updateLayout).not.toHaveBeenCalled();
+      expect(api.deletePage).not.toHaveBeenCalled();
+    } finally {
+      await session.close();
+    }
   });
 });

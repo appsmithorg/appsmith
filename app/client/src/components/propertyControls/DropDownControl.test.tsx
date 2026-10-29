@@ -47,6 +47,8 @@ describe("DropDownControl.canDisplayValue", () => {
     expect(DropDownControl.canDisplayValueInUI(config, "0")).toEqual(true);
     expect(DropDownControl.canDisplayValueInUI(config, "1")).toEqual(true);
     expect(DropDownControl.canDisplayValueInUI(config, "A")).toEqual(true);
+    // Validation stores a parsed number when JS mode is turned off.
+    expect(DropDownControl.canDisplayValueInUI(config, 0)).toEqual(true);
   });
 
   it("Should return false when a value that is not in the option is passed", () => {

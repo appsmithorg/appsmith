@@ -18,8 +18,10 @@ import {
 } from "./app.js";
 import { INSTRUCTION_DOCS } from "./builder/instructions.js";
 import { compileJsObject } from "./builder/jsObject.js";
+import { markMcpAuthoredBody, mcpAuthoredBody } from "./builder/query.js";
 import { fingerprintDsl } from "./builder/semantic.js";
 import { McpGovernanceCoordinator } from "./governance/coordinator.js";
+import { WIDGET_REMOVAL_MAX } from "./governance/widgetRemoval.js";
 import type {
   McpChangeRecord,
   McpGovernanceStore,
@@ -399,6 +401,7 @@ function createApi(
     getGitProtectedBranches: jest.fn(async () => []),
     listGitBranches: jest.fn(async () => []),
     createGitBranch: jest.fn(async () => ({})),
+    checkoutGitBranch: jest.fn(async () => ({})),
     commitGitApplication: jest.fn(async () => ({})),
     listActions: jest.fn(),
     createAction: jest.fn(),
@@ -1635,6 +1638,7 @@ describe("MCP instruction surface (M2)", () => {
         "appsmith://recipe/form",
         "appsmith://recipe/table-detail",
         "appsmith://recipe/zip-lookup",
+        "appsmith://recipe/filter-bar",
         "appsmith://reference/widgets",
       ].sort(),
     );
@@ -1944,6 +1948,278 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
 
     expect(dto.datasource).toEqual({ id: "ds1" });
   });
+
+  it.each([
+    ["postgres-plugin", true],
+    ["mysql-plugin", false],
+  ])(
+    "APP-16164: create_query compiles inList only on a PostgreSQL datasource (%s)",
+    async (pluginId, allowed) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          filters: [
+            {
+              column: "tag",
+              op: "inList",
+              value: { widget: "TagsSelect", property: "selectedOptionValues" },
+              skipWhenEmpty: true,
+            },
+          ],
+        },
+      });
+
+      if (allowed) {
+        expect(body.created).toBe(true);
+        expect(body.body).toContain("CAST(tag AS TEXT) = ANY(");
+      } else {
+        expect(body.valid).toBe(false);
+        expect(JSON.stringify(body.errors)).toMatch(
+          /only available on a PostgreSQL datasource/,
+        );
+        expect(createAction).not.toHaveBeenCalled();
+      }
+    },
+  );
+
+  it.each([
+    ["postgres-plugin", 'SELECT * FROM users WHERE "email" IS NULL;'],
+    ["mysql-plugin", "SELECT * FROM users WHERE users.email <=> NULL;"],
+  ])(
+    "APP-16324: create_query compiles isNull for the datasource's database (%s)",
+    async (pluginId, sql) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          filters: [{ column: "email", op: "isNull" }],
+        },
+      });
+
+      expect(body.created).toBe(true);
+      expect(body.body).toBe(sql);
+    },
+  );
+
+  it("APP-16324 F1.2: create_query compiles an anyOf group and refuses skipWhenEmpty inside it", async () => {
+    const createAction = jest.fn(async () => ({ id: "act1" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction: createAction as never,
+    };
+    const created = await callTool(api, "create_query", {
+      query: {
+        ...validQuery,
+        filters: [
+          {
+            anyOf: [
+              { column: "email", op: "isNull" },
+              { column: "email", op: "eq", value: { literal: "" } },
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(created.created).toBe(true);
+    expect(created.body).toBe(
+      'SELECT * FROM users WHERE ("email" IS NULL OR email = {{ "" }});',
+    );
+
+    const refused = await callTool(api, "create_query", {
+      query: {
+        ...validQuery,
+        name: "getUsers2",
+        filters: [
+          {
+            anyOf: [
+              {
+                column: "email",
+                op: "eq",
+                value: { widget: "EmailInput", property: "text" },
+                skipWhenEmpty: true,
+              },
+              { column: "email", op: "isNull" },
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(refused.valid).toBe(false);
+    expect(JSON.stringify(refused.errors)).toContain(
+      "skipWhenEmpty cannot be used inside anyOf",
+    );
+    expect(createAction).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    [
+      "postgres-plugin",
+      true,
+      'SELECT * FROM users WHERE email ILIKE {{ "%" + (SearchInput.text ?? "") + "%" }};',
+    ],
+    ["mysql-plugin", false, undefined],
+  ])(
+    "APP-16324 F1.3: create_query compiles ilike with a contains match only on PostgreSQL (%s)",
+    async (pluginId, allowed, sql) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          filters: [
+            {
+              column: "email",
+              op: "ilike",
+              match: "contains",
+              value: { widget: "SearchInput", property: "text" },
+            },
+          ],
+        },
+      });
+
+      if (allowed) {
+        expect(body.created).toBe(true);
+        expect(body.body).toBe(sql);
+      } else {
+        expect(body.valid).toBe(false);
+        expect(JSON.stringify(body.errors)).toMatch(
+          /ilike \(filter on email\) is only available on a PostgreSQL datasource/,
+        );
+        expect(createAction).not.toHaveBeenCalled();
+      }
+    },
+  );
+
+  it("APP-16324 F1.4: create_query coalesces a grouped column", async () => {
+    const createAction = jest.fn(async () => ({ id: "act1" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction: createAction as never,
+    };
+    const body = await callTool(api, "create_query", {
+      query: {
+        ...validQuery,
+        groupBy: [{ column: "role", coalesce: { literal: "none" } }],
+        aggregate: { fn: "count" },
+      },
+    });
+
+    expect(body.created).toBe(true);
+    expect(body.body).toBe(
+      'SELECT COALESCE("role", {{ "none" }}) AS "role", COUNT(*) AS count FROM users GROUP BY "role";',
+    );
+  });
+
+  it("APP-16324 F1.5: create_query compiles having and refuses an unknown having column", async () => {
+    const createAction = jest.fn(async () => ({ id: "act1" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction: createAction as never,
+    };
+    const created = await callTool(api, "create_query", {
+      query: {
+        ...validQuery,
+        groupBy: ["role"],
+        aggregate: { fn: "count" },
+        having: [{ column: "count", op: "gte", value: { literal: 2 } }],
+      },
+    });
+
+    expect(created.created).toBe(true);
+    expect(created.body).toBe(
+      'SELECT "role", COUNT(*) AS count FROM users GROUP BY "role" HAVING COUNT(*) >= {{ 2 }};',
+    );
+
+    const refused = await callTool(api, "create_query", {
+      query: {
+        ...validQuery,
+        name: "getUsers2",
+        groupBy: ["role"],
+        aggregate: { fn: "count" },
+        having: [{ column: "email", op: "eq", value: { literal: "x" } }],
+      },
+    });
+
+    expect(refused.valid).toBe(false);
+    expect(JSON.stringify(refused.errors)).toContain("or a groupBy column");
+    expect(createAction).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ["postgres-plugin", true],
+    ["mysql-plugin", false],
+  ])(
+    "APP-16324 F1.6: create_query compiles a split group column only on PostgreSQL (%s)",
+    async (pluginId, allowed) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          groupBy: [{ column: "roles", split: "," }],
+          aggregate: { fn: "count" },
+        },
+      });
+
+      if (allowed) {
+        expect(body.created).toBe(true);
+        expect(body.body).toBe(
+          'SELECT TRIM(mcp_split.mcp_split_value) AS "roles", COUNT(*) AS count FROM users CROSS JOIN LATERAL unnest(string_to_array("roles", {{ "," }})) AS mcp_split(mcp_split_value) GROUP BY TRIM(mcp_split.mcp_split_value);',
+        );
+      } else {
+        expect(body.valid).toBe(false);
+        expect(JSON.stringify(body.errors)).toMatch(
+          /split \(on roles\) is only available on a PostgreSQL datasource/,
+        );
+        expect(createAction).not.toHaveBeenCalled();
+      }
+    },
+  );
 
   it("create_query refuses a datasource the caller cannot access (IDOR guard)", async () => {
     const createAction = jest.fn();
@@ -4060,6 +4336,467 @@ describe("governance-wrapped layout mutations", () => {
     expect(deletePage).not.toHaveBeenCalled();
   });
 
+  describe("APP-16324 F7: removing widgets needs approval", () => {
+    // A leftover card (container + text on its inner canvas) and a lone text, like Oracle's "Card title" leftovers.
+    function removalDsl(): Record<string, unknown> {
+      const base = {
+        topRow: 0,
+        bottomRow: 4,
+        leftColumn: 0,
+        rightColumn: 16,
+        parentRowSpace: 10,
+        parentColumnSpace: 10,
+      };
+
+      return {
+        widgetId: "0",
+        widgetName: "MainContainer",
+        type: "CANVAS_WIDGET",
+        ...base,
+        bottomRow: 400,
+        rightColumn: 64,
+        children: [
+          {
+            widgetId: "greet",
+            widgetName: "Greeting",
+            type: "TEXT_WIDGET",
+            text: "Hi",
+            parentId: "0",
+            ...base,
+          },
+          {
+            widgetId: "card",
+            widgetName: "Card1",
+            type: "CONTAINER_WIDGET",
+            parentId: "0",
+            ...base,
+            topRow: 10,
+            bottomRow: 30,
+            children: [
+              {
+                widgetId: "cardCanvas",
+                widgetName: "CardCanvas",
+                type: "CANVAS_WIDGET",
+                parentId: "card",
+                ...base,
+                bottomRow: 200,
+                rightColumn: 64,
+                children: [
+                  {
+                    widgetId: "cardTitle",
+                    widgetName: "CardTitle",
+                    type: "TEXT_WIDGET",
+                    text: "Card title",
+                    parentId: "cardCanvas",
+                    ...base,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+    }
+
+    function removalServer(store: McpGovernanceStore) {
+      let current = removalDsl();
+      const updateLayout = jest.fn<
+        Promise<{ ok: boolean }>,
+        [string, string, string, Record<string, unknown>]
+      >(async (_app, _page, _layout, dsl) => {
+        current = dsl;
+
+        return { ok: true };
+      });
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getApplicationContext: jest.fn(async () => ({
+          pages: [],
+          page: {},
+          layout: { dsl: current },
+        })),
+        getApplicationPages: jest.fn(async () => ({
+          application: { id: "app1", name: "Support" },
+          pages: [{ id: "p1", name: "Home" }],
+        })),
+        listActions: jest.fn(async () => []),
+        updateLayout: updateLayout as never,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        governance: new McpGovernanceCoordinator(store),
+      });
+
+      return {
+        api,
+        server,
+        updateLayout,
+        dsl: () => current,
+        // An edit made outside MCP, such as in the editor.
+        setDsl: (next: typeof current) => {
+          current = next;
+        },
+      };
+    }
+
+    const SPEC = {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+    };
+
+    it("prepare lists everything that will go; confirm removes it once, and the token cannot be replayed", async () => {
+      const store = new MemoryGovernanceStore();
+      const { dsl, server, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const spec = { ...SPEC, revision, names: ["Card1"] };
+
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec,
+      });
+
+      expect(prepared.body.removed).toEqual([
+        { name: "Card1", type: "CONTAINER_WIDGET", contains: ["CardTitle"] },
+      ]);
+      expect(prepared.body.relay).toContain('"Card1" (with 1 widget inside)');
+      expect(updateLayout).not.toHaveBeenCalled();
+
+      const confirmed = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(confirmed.body.removed).toEqual(prepared.body.removed);
+      expect(updateLayout).toHaveBeenCalledTimes(1);
+      expect(
+        (dsl().children as { widgetName: string }[]).map(
+          (child) => child.widgetName,
+        ),
+      ).toEqual(["Greeting"]);
+      expect(store.changes.some((c) => c.operation === "remove_widgets")).toBe(
+        true,
+      );
+
+      // A replay is refused: the removal changed the page, so the revision check stops it before the (already
+      // spent) token is even read.
+      const replay = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(replay.body.code).toBe("revision_conflict");
+      expect(updateLayout).toHaveBeenCalledTimes(1);
+    });
+
+    // The revision is checked before the token is spent, so a page that changed after prepare is refused cleanly.
+    it("refuses to confirm after the page changed since prepare, and removes nothing", async () => {
+      const store = new MemoryGovernanceStore();
+      const { dsl, server, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const spec = { ...SPEC, revision, names: ["Greeting"] };
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec,
+      });
+
+      // Someone edits the page between prepare and confirm.
+      await callTool(server, "patch_widgets", {
+        ...SPEC,
+        revision,
+        patch: {
+          operations: [
+            { kind: "update", name: "Greeting", props: { text: "Hello" } },
+          ],
+        },
+      });
+      expect(updateLayout).toHaveBeenCalledTimes(1);
+
+      const confirmed = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(confirmed.body.code).toBe("revision_conflict");
+      expect(updateLayout).toHaveBeenCalledTimes(1);
+      expect(
+        (dsl().children as { widgetName: string }[]).map(
+          (child) => child.widgetName,
+        ),
+      ).toEqual(["Greeting", "Card1"]);
+      // Refused before the token is spent: it is still in the store. (commitLayout would also refuse a stale page,
+      // but only after spending the token.)
+      expect(
+        store.confirmations.has(prepared.body.confirmationId as string),
+      ).toBe(true);
+    });
+
+    it(`refuses more than ${WIDGET_REMOVAL_MAX} names`, async () => {
+      const store = new MemoryGovernanceStore();
+      const { server } = removalServer(store);
+      const names = (count: number) =>
+        Array.from({ length: count }, (_, i) => `W${i}`);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const tooMany = await callTool(server, "prepare_remove_widgets", {
+        spec: { ...SPEC, revision, names: names(WIDGET_REMOVAL_MAX + 1) },
+      });
+
+      // A schema refusal on `names` itself, not the unknown-widget refusal that would follow.
+      expect(tooMany.body.valid).toBe(false);
+      expect(
+        (tooMany.body.errors as { path: string; message: string }[])[0],
+      ).toMatchObject({ path: "names" });
+      expect(store.confirmations.size).toBe(0);
+
+      // At the cap the spec is valid; these widgets do not exist, so the refusal is about the names, not the count.
+      const atCap = await callTool(server, "prepare_remove_widgets", {
+        spec: { ...SPEC, revision, names: names(WIDGET_REMOVAL_MAX) },
+      });
+
+      expect(JSON.stringify(atCap.body)).toMatch(/not found|unknown|W0/i);
+    });
+
+    // Copilot review: the page is read before the lock. An editor edit that lands between that read and the lock
+    // would be overwritten by the whole-layout write, so commitLayout reads the page again under the lock.
+    it("refuses when the page changes between the last read and the lock, and writes nothing", async () => {
+      const store = new MemoryGovernanceStore();
+      const { dsl, server, setDsl, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const spec = { ...SPEC, revision, names: ["Greeting"] };
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec,
+      });
+      const acquireLock = store.acquireLock.bind(store);
+      const edited = {
+        ...removalDsl(),
+        children: [
+          ...(removalDsl().children as unknown[]),
+          {
+            widgetId: "added",
+            widgetName: "AddedInEditor",
+            type: "TEXT_WIDGET",
+            text: "new",
+            parentId: "0",
+            topRow: 40,
+            bottomRow: 44,
+            leftColumn: 0,
+            rightColumn: 8,
+          },
+        ],
+      };
+
+      // The editor saves just as MCP takes the page lock.
+      jest
+        .spyOn(store, "acquireLock")
+        .mockImplementation(async (...args: Parameters<typeof acquireLock>) => {
+          setDsl(edited as never);
+
+          return acquireLock(...args);
+        });
+
+      const confirmed = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(confirmed.body.code).toBe("revision_conflict");
+      expect(updateLayout).not.toHaveBeenCalled();
+      expect(
+        (dsl().children as { widgetName: string }[]).map(
+          (child) => child.widgetName,
+        ),
+      ).toContain("AddedInEditor");
+    });
+
+    // Copilot review: the layout is read and written by page id, while the git gate, the labels and the lock use the
+    // application id, so a page of another application is refused before any token is issued or spent.
+    it("refuses a page that is not in the application, at prepare and at confirm", async () => {
+      const store = new MemoryGovernanceStore();
+      const { server, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const foreign = { ...SPEC, pageId: "p9", revision, names: ["Greeting"] };
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec: foreign,
+      });
+
+      expect(prepared.body.code).toBe("page_not_found");
+      expect(store.confirmations.size).toBe(0);
+
+      const ok = await callTool(server, "prepare_remove_widgets", {
+        spec: { ...SPEC, revision, names: ["Greeting"] },
+      });
+      const confirmed = await callTool(server, "confirm_remove_widgets", {
+        spec: foreign,
+        confirmationId: ok.body.confirmationId,
+      });
+
+      expect(confirmed.body.code).toBe("page_not_found");
+      expect(store.confirmations.has(ok.body.confirmationId as string)).toBe(
+        true,
+      );
+      expect(updateLayout).not.toHaveBeenCalled();
+    });
+
+    // CodeRabbit review: a read that fails after approval must not spend the token, so the same token can retry.
+    it("keeps the token when the page read after approval fails", async () => {
+      const store = new MemoryGovernanceStore();
+      const { api, server, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const spec = { ...SPEC, revision, names: ["Greeting"] };
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec,
+      });
+      const read = api.getApplicationContext as jest.Mock;
+      const realRead = read.getMockImplementation()!;
+      let confirmReads = 0;
+
+      // The first confirm read (the stale-revision check) succeeds; the read after approval returns no layout.
+      read.mockImplementation(async (...args: unknown[]) => {
+        confirmReads += 1;
+
+        return confirmReads === 2 ? { pages: [], page: {} } : realRead(...args);
+      });
+
+      const failed = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(failed.body.error).toMatch(
+        /could not read the current page layout/,
+      );
+      expect(updateLayout).not.toHaveBeenCalled();
+      expect(
+        store.confirmations.has(prepared.body.confirmationId as string),
+      ).toBe(true);
+
+      read.mockImplementation(realRead);
+
+      const retried = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(updateLayout).toHaveBeenCalledTimes(1);
+      expect(retried.body.code).toBeUndefined();
+    });
+
+    // CodeRabbit review: a change that lands while the user answers the prompt is refused before the token is spent.
+    it("refuses a page that changed during approval, without spending the token", async () => {
+      const store = new MemoryGovernanceStore();
+      const { api, server, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const spec = { ...SPEC, revision, names: ["Greeting"] };
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec,
+      });
+      const read = api.getApplicationContext as jest.Mock;
+      const realRead = read.getMockImplementation()!;
+      let confirmReads = 0;
+
+      // The read before the prompt sees the prepared page; the read after approval sees an edited one.
+      read.mockImplementation(async (...args: unknown[]) => {
+        confirmReads += 1;
+        const context = await realRead(...args);
+
+        if (confirmReads !== 2) return context;
+
+        const dslNow = context.layout.dsl as { children: unknown[] };
+
+        return {
+          ...context,
+          layout: {
+            dsl: {
+              ...dslNow,
+              children: [
+                ...dslNow.children,
+                {
+                  widgetId: "late",
+                  widgetName: "LateEdit",
+                  type: "TEXT_WIDGET",
+                  text: "x",
+                  parentId: "0",
+                  topRow: 60,
+                  bottomRow: 64,
+                  leftColumn: 0,
+                  rightColumn: 8,
+                },
+              ],
+            },
+          },
+        };
+      });
+
+      const refused = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(refused.body.code).toBe("revision_conflict");
+      expect(refused.body.error).toMatch(/while awaiting approval/);
+      expect(updateLayout).not.toHaveBeenCalled();
+      expect(
+        store.confirmations.has(prepared.body.confirmationId as string),
+      ).toBe(true);
+    });
+
+    it("refuses a token prepared for other widgets, and writes nothing", async () => {
+      const store = new MemoryGovernanceStore();
+      const { server, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec: { ...SPEC, revision, names: ["Greeting"] },
+      });
+      const confirmed = await callTool(server, "confirm_remove_widgets", {
+        spec: { ...SPEC, revision, names: ["Card1"] },
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(confirmed.body.code).toBe("confirmation_invalid");
+      expect(updateLayout).not.toHaveBeenCalled();
+    });
+
+    it("refuses to prepare against a stale revision", async () => {
+      const store = new MemoryGovernanceStore();
+      const { server } = removalServer(store);
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec: { ...SPEC, revision: "f".repeat(64), names: ["Greeting"] },
+      });
+
+      expect(prepared.body.code).toBe("revision_conflict");
+      expect(prepared.body.confirmationId).toBeUndefined();
+    });
+
+    it("refuses an inner canvas or an unknown widget at prepare", async () => {
+      const store = new MemoryGovernanceStore();
+      const { server } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+
+      for (const [names, message] of [
+        [["CardCanvas"], /inner canvas cannot be removed on its own/],
+        [["Ghost"], /"Ghost" was not found/],
+      ] as const) {
+        const prepared = await callTool(server, "prepare_remove_widgets", {
+          spec: { ...SPEC, revision, names },
+        });
+
+        expect(prepared.body.errors?.[0]?.message).toMatch(message);
+        expect(prepared.body.confirmationId).toBeUndefined();
+      }
+    });
+
+    it("patch_widgets refuses a remove operation and writes nothing", async () => {
+      const store = new MemoryGovernanceStore();
+      const { server, updateLayout } = removalServer(store);
+      const refused = await callTool(server, "patch_widgets", {
+        ...SPEC,
+        revision: fingerprintDsl(removalDsl() as never),
+        patch: { operations: [{ kind: "remove", name: "Greeting" }] },
+      });
+
+      expect(refused.body.code).toBe("confirmation_required");
+      expect(refused.body.error).toMatch(/prepare_remove_widgets/);
+      expect(updateLayout).not.toHaveBeenCalled();
+    });
+  });
+
   it("page CRUD tools are unavailable without governance", async () => {
     const api: AppsmithApi = {
       ...createApi()(),
@@ -4083,11 +4820,217 @@ describe("governance-wrapped layout mutations", () => {
     for (const tool of [
       "create_page",
       "rename_page",
+      "set_page_visibility",
       "prepare_delete_page",
       "confirm_delete_page",
+      "prepare_remove_widgets",
+      "confirm_remove_widgets",
     ]) {
       expect(names).not.toContain(tool);
     }
+  });
+
+  describe("APP-16324 F4: set_page_visibility", () => {
+    const APP = "a".repeat(24);
+    const HOME = "b".repeat(24);
+    const DETAILS = "c".repeat(24);
+
+    function pagesServer() {
+      const pages = [
+        {
+          id: HOME,
+          name: "Home",
+          slug: "home",
+          isDefault: true,
+          isHidden: false,
+        },
+        {
+          id: DETAILS,
+          name: "Ticket Details",
+          slug: "ticket-details",
+          isDefault: false,
+          isHidden: false,
+        },
+      ];
+      const updatePage = jest.fn(
+        async (pageId: string, body: Record<string, unknown>) => {
+          const page = pages.find((entry) => entry.id === pageId);
+
+          if (page && typeof body.isHidden === "boolean") {
+            page.isHidden = body.isHidden;
+          }
+
+          return page;
+        },
+      );
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getApplicationPages: jest.fn(async () => ({
+          workspaceId: "ws1",
+          pages: pages.map((page) => ({ ...page })),
+        })),
+        updatePage: updatePage as never,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+      });
+
+      return { server, updatePage };
+    }
+
+    async function revisionOf(server: ReturnType<typeof createMcpHttpServer>) {
+      return (await callTool(server, "read_pages", { applicationId: APP })).body
+        .revision as string;
+    }
+
+    it("hides and then unhides a page, each with the current revision", async () => {
+      const { server, updatePage } = pagesServer();
+      const hidden = await callTool(server, "set_page_visibility", {
+        spec: {
+          applicationId: APP,
+          pageId: DETAILS,
+          revision: await revisionOf(server),
+          hidden: true,
+        },
+      });
+
+      expect(hidden.body.updated).toBe(true);
+      expect(hidden.body.changeId).toEqual(expect.any(String));
+      expect(updatePage).toHaveBeenLastCalledWith(DETAILS, { isHidden: true });
+      expect(
+        (hidden.body.pages as { id: string; isHidden?: boolean }[]).find(
+          (page) => page.id === DETAILS,
+        )?.isHidden,
+      ).toBe(true);
+
+      const shown = await callTool(server, "set_page_visibility", {
+        spec: {
+          applicationId: APP,
+          pageId: DETAILS,
+          revision: await revisionOf(server),
+          hidden: false,
+        },
+      });
+
+      expect(shown.body.updated).toBe(true);
+      expect(updatePage).toHaveBeenLastCalledWith(DETAILS, { isHidden: false });
+    });
+
+    it("refuses to hide the default (home) page", async () => {
+      const { server, updatePage } = pagesServer();
+      const refused = await callTool(server, "set_page_visibility", {
+        spec: {
+          applicationId: APP,
+          pageId: HOME,
+          revision: await revisionOf(server),
+          hidden: true,
+        },
+      });
+
+      expect(refused.body.error).toMatch(/home page and cannot be hidden/);
+      expect(updatePage).not.toHaveBeenCalled();
+    });
+
+    it("allows showing the home page, and records the change in the audit log", async () => {
+      const { server, updatePage } = pagesServer();
+      const shown = await callTool(server, "set_page_visibility", {
+        spec: {
+          applicationId: APP,
+          pageId: HOME,
+          revision: await revisionOf(server),
+          hidden: false,
+        },
+      });
+
+      expect(shown.body.updated).toBe(true);
+      expect(updatePage).toHaveBeenCalledWith(HOME, { isHidden: false });
+
+      const list = await callTool(server, "list_changes", {});
+      const change = list.body.changes.find(
+        (entry: { operation: string }) =>
+          entry.operation === "set_page_visibility",
+      );
+
+      expect(change).toBeDefined();
+      expect(change.id).toBe(shown.body.changeId);
+    });
+
+    // The revision does not cover which page is the default, so a page made the home page after the first read is
+    // refused under the lock.
+    it("refuses to hide a page that became the home page after the first read", async () => {
+      const pages = [
+        { id: HOME, name: "Home", isDefault: true, isHidden: false },
+        {
+          id: DETAILS,
+          name: "Ticket Details",
+          isDefault: false,
+          isHidden: false,
+        },
+      ];
+      let reads = 0;
+      const updatePage = jest.fn();
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getApplicationPages: jest.fn(async () => {
+          reads += 1;
+
+          // The third read is the one inside the lock (after read_pages and the handler's own read).
+          return {
+            workspaceId: "ws1",
+            pages: pages.map((page) =>
+              reads >= 3 ? { ...page, isDefault: page.id === DETAILS } : page,
+            ),
+          };
+        }),
+        updatePage: updatePage as never,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+      });
+      const refused = await callTool(server, "set_page_visibility", {
+        spec: {
+          applicationId: APP,
+          pageId: DETAILS,
+          revision: await revisionOf(server),
+          hidden: true,
+        },
+      });
+
+      // The same result as the check before the lock, so an agent sees one refusal either way.
+      expect(refused.body.code).toBe("home_page");
+      expect(refused.body.error).toMatch(/home page and cannot be hidden/);
+      expect(updatePage).not.toHaveBeenCalled();
+    });
+
+    it("refuses a page that is not in the application", async () => {
+      const { server, updatePage } = pagesServer();
+      const refused = await callTool(server, "set_page_visibility", {
+        spec: {
+          applicationId: APP,
+          pageId: "d".repeat(24),
+          revision: await revisionOf(server),
+          hidden: true,
+        },
+      });
+
+      expect(refused.body.error).toMatch(/not a page of application/);
+      expect(updatePage).not.toHaveBeenCalled();
+    });
+
+    it("refuses a stale revision", async () => {
+      const { server, updatePage } = pagesServer();
+      const refused = await callTool(server, "set_page_visibility", {
+        spec: {
+          applicationId: APP,
+          pageId: DETAILS,
+          revision: "e".repeat(64),
+          hidden: true,
+        },
+      });
+
+      expect(JSON.stringify(refused.body)).toMatch(/stale|revision/i);
+      expect(updatePage).not.toHaveBeenCalled();
+    });
   });
 
   it("F3: read_pages includes each page's layoutId (per-page GET /pages/{pageId}, N+1)", async () => {
@@ -4559,6 +5502,472 @@ describe("governance-wrapped layout mutations", () => {
     updatedAt: "2026-07-12T00:00:00.000Z",
     datasource: { id: "ds1", pluginId: "postgres" },
   };
+
+  describe("APP-16324 F9: get_action returns the body of MCP-authored SQL", () => {
+    const compiled = 'SELECT id FROM tickets WHERE status = {{ "open" }};';
+
+    async function readAction(
+      body: unknown,
+      shape: "flat" | "unpublished" | "unpublishedType" = "flat",
+      pluginType = "DB",
+    ) {
+      // "unpublishedType": the plugin type only on unpublishedAction, as some stored NewActions hold it.
+      const withoutType: Record<string, unknown> = { ...STORED_ACTION };
+
+      delete withoutType.pluginType;
+      const stored =
+        shape === "flat"
+          ? { ...STORED_ACTION, pluginType, actionConfiguration: { body } }
+          : shape === "unpublished"
+            ? {
+                ...STORED_ACTION,
+                pluginType,
+                unpublishedAction: { actionConfiguration: { body } },
+              }
+            : {
+                ...withoutType,
+                unpublishedAction: {
+                  pluginType,
+                  actionConfiguration: { body },
+                },
+              };
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getAction: jest.fn(async () => stored),
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        dataEnabled: true,
+      });
+
+      return (
+        await callTool(server, "get_action", {
+          applicationId: "app1",
+          actionId: "act1",
+        })
+      ).body;
+    }
+
+    it("returns the compiled body and authoredBy mcp for a body the MCP wrote", async () => {
+      const read = await readAction(markMcpAuthoredBody(compiled));
+
+      expect(read.authoredBy).toBe("mcp");
+      expect(read.body).toBe(compiled);
+    });
+
+    it("reads the body from unpublishedAction, as a stored NewAction holds it", async () => {
+      const read = await readAction(
+        markMcpAuthoredBody(compiled),
+        "unpublished",
+      );
+
+      expect(read.authoredBy).toBe("mcp");
+      expect(read.body).toBe(compiled);
+    });
+
+    it("reads the plugin type from unpublishedAction when the action has none of its own", async () => {
+      const read = await readAction(
+        markMcpAuthoredBody(compiled),
+        "unpublishedType",
+      );
+
+      expect(read.authoredBy).toBe("mcp");
+      expect(read.body).toBe(compiled);
+
+      const api = await readAction(
+        markMcpAuthoredBody(compiled),
+        "unpublishedType",
+        "API",
+      );
+
+      expect(api.authoredBy).toBe("editor");
+      expect(api.body).toBeUndefined();
+    });
+
+    // Only SQL bodies are marked. A marked body on any other action type is never returned.
+    it("never returns a body for a non-DB action, even with a valid marker", async () => {
+      const read = await readAction(
+        markMcpAuthoredBody('{"token":"secret"}'),
+        "flat",
+        "API",
+      );
+
+      expect(read.authoredBy).toBe("editor");
+      expect(read.body).toBeUndefined();
+      expect(JSON.stringify(read)).not.toContain("secret");
+    });
+
+    it.each([
+      [
+        "an editor-written body",
+        "SELECT * FROM users WHERE api_key = 'secret';",
+      ],
+      [
+        "an MCP body edited afterwards",
+        markMcpAuthoredBody(compiled).replace("open", "open' OR 'x'='x"),
+      ],
+      ["no body", undefined],
+    ])("hides %s and reports authoredBy editor", async (_label, body) => {
+      const read = await readAction(body);
+
+      expect(read.authoredBy).toBe("editor");
+      expect(read.body).toBeUndefined();
+      expect(JSON.stringify(read)).not.toContain("secret");
+      expect(JSON.stringify(read)).not.toContain("SELECT");
+    });
+
+    it("create_query stores the marked body and returns the plain one", async () => {
+      const createAction = jest.fn<
+        Promise<{ id: string }>,
+        [Record<string, unknown>]
+      >(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        dataEnabled: true,
+      });
+      const created = (
+        await callTool(server, "create_query", {
+          query: {
+            name: "getUsers",
+            applicationId: "app1",
+            pageId: "p1",
+            datasourceId: "ds1",
+            operation: "SELECT",
+            table: "users",
+          },
+        })
+      ).body;
+      const stored = (
+        createAction.mock.calls[0][0] as {
+          actionConfiguration: { body: string };
+        }
+      ).actionConfiguration.body;
+
+      expect(created.body).toBe("SELECT * FROM users;");
+      expect(stored.startsWith("-- appsmith-mcp:v1 sha256=")).toBe(true);
+      expect(mcpAuthoredBody(stored)).toBe("SELECT * FROM users;");
+    });
+  });
+
+  // update_action recompiles a SQL spec, so it checks the datasource the same way create_query does. The
+  // datasource must be in the application's workspace, and inList works only on PostgreSQL.
+  function sqlUpdateServer(datasources: unknown[]) {
+    const updateAction = jest.fn(async () => STORED_ACTION);
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getAction: jest.fn(async () => STORED_ACTION),
+      listDatasources: jest.fn(async () => datasources),
+      updateAction: updateAction as never,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      dataEnabled: true,
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+
+    return { server, updateAction };
+  }
+
+  async function updateWithInList(
+    server: ReturnType<typeof createMcpHttpServer>,
+    filters: unknown[] = [
+      {
+        column: "tag",
+        op: "inList",
+        value: { widget: "TagsSelect", property: "selectedOptionValues" },
+        skipWhenEmpty: true,
+      },
+    ],
+  ) {
+    const read = await callTool(server, "get_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+
+    return callTool(server, "update_action", {
+      spec: {
+        kind: "SQL",
+        actionId: "act1",
+        applicationId: "app1",
+        revision: read.body.revision,
+        query: {
+          name: "OldName",
+          applicationId: "app1",
+          pageId: "p1",
+          datasourceId: "ds1",
+          operation: "SELECT",
+          table: "tickets",
+          filters,
+        },
+      },
+    });
+  }
+
+  it("APP-16164: update_action recompiles an inList filter on a PostgreSQL datasource", async () => {
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+    ]);
+    const updated = await updateWithInList(server);
+
+    expect(updated.body.updated).toBe(true);
+    expect(
+      JSON.stringify(
+        (updateAction.mock.calls[0] as unknown[])[1] as Record<string, unknown>,
+      ),
+    ).toContain("CAST(tag AS TEXT) = ANY(");
+  });
+
+  // The MySQL plugin refuses any prepared query with the word IS, so update_action must pick the MySQL form too.
+  it.each([
+    ["postgres-plugin", 'SELECT * FROM tickets WHERE "l2owner" IS NULL;'],
+    ["mysql-plugin", "SELECT * FROM tickets WHERE tickets.l2owner <=> NULL;"],
+  ])(
+    "APP-16324: update_action compiles isNull for the datasource's database (%s)",
+    async (pluginId, sql) => {
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId },
+      ]);
+      const updated = await updateWithInList(server, [
+        { column: "l2owner", op: "isNull" },
+      ]);
+
+      expect(updated.body.updated).toBe(true);
+      expect(
+        mcpAuthoredBody(
+          (
+            (updateAction.mock.calls[0] as unknown[])[1] as {
+              actionConfiguration: { body: string };
+            }
+          ).actionConfiguration.body,
+        ),
+      ).toBe(sql);
+    },
+  );
+
+  it("APP-16324 F1.2: update_action compiles an anyOf group", async () => {
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "ds1", name: "DB", pluginId: "mysql-plugin" },
+    ]);
+    const updated = await updateWithInList(server, [
+      {
+        anyOf: [
+          { column: "l2owner", op: "isNull" },
+          { column: "l2owner", op: "eq", value: { literal: "" } },
+        ],
+      },
+    ]);
+
+    expect(updated.body.updated).toBe(true);
+    expect(
+      mcpAuthoredBody(
+        (
+          (updateAction.mock.calls[0] as unknown[])[1] as {
+            actionConfiguration: { body: string };
+          }
+        ).actionConfiguration.body,
+      ),
+    ).toBe(
+      'SELECT * FROM tickets WHERE (tickets.l2owner <=> NULL OR l2owner = {{ "" }});',
+    );
+  });
+
+  it("APP-16324 F1.4: update_action compiles a coalesced column", async () => {
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+    ]);
+    const read = await callTool(server, "get_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+    const updated = await callTool(server, "update_action", {
+      spec: {
+        kind: "SQL",
+        actionId: "act1",
+        applicationId: "app1",
+        revision: read.body.revision,
+        query: {
+          name: "OldName",
+          applicationId: "app1",
+          pageId: "p1",
+          datasourceId: "ds1",
+          operation: "SELECT",
+          table: "tickets",
+          columns: ["id", { column: "owner", coalesce: { literal: "none" } }],
+        },
+      },
+    });
+
+    expect(updated.body.updated).toBe(true);
+    expect(
+      mcpAuthoredBody(
+        (
+          (updateAction.mock.calls[0] as unknown[])[1] as {
+            actionConfiguration: { body: string };
+          }
+        ).actionConfiguration.body,
+      ),
+    ).toBe('SELECT id, COALESCE(owner, {{ "none" }}) AS owner FROM tickets;');
+  });
+
+  it("APP-16324 F1.5: update_action compiles having", async () => {
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+    ]);
+    const read = await callTool(server, "get_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+    const updated = await callTool(server, "update_action", {
+      spec: {
+        kind: "SQL",
+        actionId: "act1",
+        applicationId: "app1",
+        revision: read.body.revision,
+        query: {
+          name: "OldName",
+          applicationId: "app1",
+          pageId: "p1",
+          datasourceId: "ds1",
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: ["tag"],
+          aggregate: { fn: "count" },
+          having: [{ column: "count", op: "gt", value: { literal: 1 } }],
+        },
+      },
+    });
+
+    expect(updated.body.updated).toBe(true);
+    expect(
+      mcpAuthoredBody(
+        (
+          (updateAction.mock.calls[0] as unknown[])[1] as {
+            actionConfiguration: { body: string };
+          }
+        ).actionConfiguration.body,
+      ),
+    ).toBe(
+      'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" HAVING COUNT(*) > {{ 1 }};',
+    );
+  });
+
+  it.each([
+    ["postgres-plugin", true],
+    ["mysql-plugin", false],
+  ])(
+    "APP-16324 F1.6: update_action compiles a split group column only on PostgreSQL (%s)",
+    async (pluginId, allowed) => {
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId },
+      ]);
+      const read = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SQL",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: read.body.revision,
+          query: {
+            name: "OldName",
+            applicationId: "app1",
+            pageId: "p1",
+            datasourceId: "ds1",
+            operation: "SELECT",
+            table: "tickets",
+            groupBy: [{ column: "tags", split: "," }],
+            aggregate: { fn: "count" },
+          },
+        },
+      });
+
+      if (allowed) {
+        expect(updated.body.updated).toBe(true);
+        expect(
+          (
+            (updateAction.mock.calls[0] as unknown[])[1] as {
+              actionConfiguration: { body: string };
+            }
+          ).actionConfiguration.body,
+        ).toContain(
+          'CROSS JOIN LATERAL unnest(string_to_array("tags", {{ "," }}))',
+        );
+      } else {
+        expect(JSON.stringify(updated.body)).toMatch(
+          /split \(on tags\) is only available on a PostgreSQL datasource/,
+        );
+        expect(updateAction).not.toHaveBeenCalled();
+      }
+    },
+  );
+
+  // update_action reuses querySpecSchema, so the having refusals hold on this path too.
+  it.each([
+    [
+      "on a write",
+      {
+        operation: "DELETE",
+        filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+        having: [{ column: "count", op: "gt", value: { literal: 1 } }],
+      },
+    ],
+    [
+      "without an aggregate",
+      {
+        operation: "SELECT",
+        groupBy: ["tag"],
+        having: [{ column: "tag", op: "eq", value: { literal: "x" } }],
+      },
+    ],
+  ])(
+    "APP-16324 F1.5: update_action refuses having %s",
+    async (_case, query) => {
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+      ]);
+      const read = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SQL",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: read.body.revision,
+          query: {
+            name: "OldName",
+            applicationId: "app1",
+            pageId: "p1",
+            datasourceId: "ds1",
+            table: "tickets",
+            ...query,
+          },
+        },
+      });
+
+      expect(updated.body.updated).not.toBe(true);
+      expect(JSON.stringify(updated.body)).toContain("having");
+      expect(updateAction).not.toHaveBeenCalled();
+    },
+  );
+
+  it("APP-16164: update_action refuses a SQL spec on a datasource outside the application's workspace", async () => {
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "other", name: "X", pluginId: "postgres-plugin" },
+    ]);
+    const updated = await updateWithInList(server);
+
+    expect(updated.body.error).toMatch(/not accessible/);
+    expect(updateAction).not.toHaveBeenCalled();
+  });
 
   it("get_action returns safe metadata + revision, and update_action commits a governed rename", async () => {
     const store = new MemoryGovernanceStore();
@@ -5284,6 +6693,25 @@ describe("governance-wrapped layout mutations", () => {
     });
 
     expect(dangling.body.error).toMatch(/"ghostQuery" was not found/);
+    expect(updateLayout).not.toHaveBeenCalled();
+
+    // APP-16324 F11: a navigate param that reads a widget not on the page is refused before any write too.
+    const danglingParam = await callTool(server, "wire_event", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      revision: fingerprintDsl(DSL as never),
+      spec: {
+        widget: "SaveBtn",
+        event: "onClick",
+        action: {
+          navigate: "Details",
+          params: { id: { table: "GhostTable", column: "id" } },
+        },
+      },
+    });
+
+    expect(danglingParam.body.error).toMatch(/"GhostTable" was not found/);
     expect(updateLayout).not.toHaveBeenCalled();
 
     const wired = await callTool(server, "wire_event", {
@@ -7035,6 +8463,83 @@ describe("governance-wrapped layout mutations", () => {
     const dto = createActionCollection.mock.calls[0][0] as { body: string };
 
     expect(dto.body).toContain("return await Utils.count(); } finally");
+  });
+
+  // Security review of F11: navigateTo treats a target that is not a page as a URL, so a navigate step must open a
+  // page of this application, as wire_event's navigate must.
+  it("create_js_object refuses a navigate step to a page that does not exist, or one named like an IP", async () => {
+    const createActionCollection = jest.fn<
+      Promise<unknown>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "coll-new", name: "Flow" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+        pages: [{ id: "c".repeat(24), name: "Ticket Details" }],
+      })),
+      listPlugins: jest.fn(async () => [
+        { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
+      ]),
+      listActionCollections: jest.fn(async () => []),
+      createActionCollection,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: "a".repeat(24),
+    });
+    const createSteps = async (steps: unknown[]) =>
+      callTool(server, "create_js_object", {
+        spec: {
+          applicationId: "a".repeat(24),
+          pageId: "b".repeat(24),
+          name: "Flow",
+          revision: read.body.revision,
+          functions: [{ name: "go", steps }],
+        },
+      });
+    const create = async (navigate: string) =>
+      createSteps([{ navigate, params: { x: 1.55 } }]);
+
+    // Only step positions are walked: a param named "navigate" is a value, not a page, while a navigate nested in
+    // an if is still checked.
+    expect(
+      String(
+        (
+          await createSteps([
+            {
+              if: true,
+              then: [{ navigate: "Elsewhere" }],
+            },
+          ])
+        ).body.error,
+      ),
+    ).toMatch(/page "Elsewhere" was not found/);
+    expect(createActionCollection).not.toHaveBeenCalled();
+    expect(
+      (
+        await createSteps([
+          {
+            navigate: "Ticket Details",
+            params: { navigate: "not a page" },
+          },
+        ])
+      ).body.created,
+    ).toBe(true);
+    createActionCollection.mockClear();
+
+    expect(String((await create("Missing")).body.error)).toMatch(
+      /page "Missing" was not found/,
+    );
+    expect(JSON.stringify((await create("1572395042")).body)).toMatch(
+      /cannot read as an IP address/,
+    );
+    expect(createActionCollection).not.toHaveBeenCalled();
+
+    expect((await create("Ticket Details")).body.created).toBe(true);
   });
 
   it("create_js_object refuses a definition nested past the JSON depth cap before parsing it", async () => {
@@ -8942,6 +10447,22 @@ describe("close-the-loop — advisory write classifier", () => {
     expect(looksLikeWriteAction(sqlAction("sel", "SELECT * FROM tasks"))).toBe(
       false,
     );
+  });
+
+  // A body the MCP stores starts with its marker comment, so the keyword is read after it, whether or not the body
+  // was edited since.
+  it("classifies an MCP-marked body by the query after its marker line", () => {
+    const marked = markMcpAuthoredBody("INSERT INTO tasks VALUES (1);");
+
+    expect(looksLikeWriteAction(sqlAction("ins", marked))).toBe(true);
+    expect(
+      looksLikeWriteAction(sqlAction("ins", `${marked} -- edited later`)),
+    ).toBe(true);
+    expect(
+      looksLikeWriteAction(
+        sqlAction("sel", markMcpAuthoredBody("SELECT * FROM tasks;")),
+      ),
+    ).toBe(false);
   });
 
   it("is advisory-only: a disguised mutation is missed here, never auto-run", () => {
