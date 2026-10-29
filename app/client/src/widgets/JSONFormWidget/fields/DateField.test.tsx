@@ -1,6 +1,6 @@
 import React from "react";
 import { act, render } from "@testing-library/react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, type UseFormReturn } from "react-hook-form";
 
 import { RenderModes } from "constants/WidgetConstants";
 import FormContext from "../FormContext";
@@ -24,6 +24,12 @@ jest.mock("widgets/DatePickerWidget2/component", () => ({
   },
 }));
 
+let formMethods: UseFormReturn | undefined;
+
+const captureFormMethods = (methods: UseFormReturn) => {
+  formMethods = methods;
+};
+
 const getLastRenderedProps = (): MockDateComponentProps =>
   mockDateComponent.mock.calls[mockDateComponent.mock.calls.length - 1][0];
 
@@ -36,8 +42,16 @@ const formContextValue = {
   updateFormData: jest.fn(),
 };
 
-function MockFormWrapper({ children }: { children: React.ReactNode }) {
+function MockFormWrapper({
+  children,
+  onMethods,
+}: {
+  children: React.ReactNode;
+  onMethods?: (methods: UseFormReturn) => void;
+}) {
   const methods = useForm();
+
+  onMethods?.(methods);
 
   return (
     <FormProvider {...methods}>
@@ -112,5 +126,30 @@ describe("DateField", () => {
     });
 
     expect(getLastRenderedProps().isRequired).toBe(true);
+  });
+
+  it("clears the required error when the form is reset", () => {
+    render(
+      <MockFormWrapper onMethods={captureFormMethods}>
+        <DateField
+          fieldClassName="dob"
+          name="dob"
+          propertyPath="schema.__root_schema__.children.dob"
+          schemaItem={schemaItem}
+        />
+      </MockFormWrapper>,
+    );
+
+    act(() => {
+      getLastRenderedProps().onDateSelected("2024-01-15T10:00:00.000Z");
+    });
+
+    expect(getLastRenderedProps().isRequired).toBe(true);
+
+    act(() => {
+      formMethods?.reset({ dob: "" }, { keepErrors: true });
+    });
+
+    expect(getLastRenderedProps().isRequired).toBeFalsy();
   });
 });

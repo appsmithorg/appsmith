@@ -1,11 +1,5 @@
 import moment from "moment";
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { useCallback, useContext, useEffect, useMemo } from "react";
 import { useController } from "react-hook-form";
 
 import DateComponent from "widgets/DatePickerWidget2/component";
@@ -119,10 +113,10 @@ function DateField({
     onFocus: onFocusDynamicString,
   } = schemaItem;
   const { executeAction } = useContext(FormContext);
-  const [isDirty, setIsDirty] = useState(false);
 
   const {
     field: { onBlur, onChange, value },
+    fieldState: { isTouched },
   } = useController({
     name,
   });
@@ -145,13 +139,15 @@ function DateField({
 
   const onDateSelected = useCallback(
     (selectedValue: string) => {
-      setIsDirty(true);
-
       if (schemaItem.convertToISO || !selectedValue) {
         onChange(selectedValue);
       } else {
         onChange(moment(selectedValue).format(schemaItem.dateFormat));
       }
+
+      // Picking a date doesn't always blur the input, so mark the field as
+      // touched here. The form's reset clears this along with the value.
+      onBlur();
 
       if (schemaItem.onDateSelected && executeAction) {
         executeAction({
@@ -166,6 +162,7 @@ function DateField({
     },
     [
       executeAction,
+      onBlur,
       onChange,
       schemaItem.convertToISO,
       schemaItem.dateFormat,
@@ -217,7 +214,7 @@ function DateField({
         isLoading={false}
         // Only show the required error once the user has interacted with the
         // field, so an empty required date isn't highlighted on form load.
-        isRequired={isDirty && schemaItem.isRequired}
+        isRequired={isTouched && schemaItem.isRequired}
         labelText=""
         maxDate={schemaItem.maxDate}
         minDate={schemaItem.minDate}
@@ -235,7 +232,7 @@ function DateField({
     schemaItem.closeOnSelection,
     schemaItem.dateFormat,
     schemaItem.isDisabled,
-    isDirty,
+    isTouched,
     schemaItem.isRequired,
     schemaItem.maxDate,
     onDateSelected,
