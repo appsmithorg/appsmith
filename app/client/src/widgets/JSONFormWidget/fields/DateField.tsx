@@ -1,5 +1,11 @@
 import moment from "moment";
-import React, { useCallback, useContext, useEffect, useMemo } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useController } from "react-hook-form";
 
 import DateComponent from "widgets/DatePickerWidget2/component";
@@ -113,6 +119,7 @@ function DateField({
     onFocus: onFocusDynamicString,
   } = schemaItem;
   const { executeAction } = useContext(FormContext);
+  const [isDirty, setIsDirty] = useState(false);
 
   const {
     field: { onBlur, onChange, value },
@@ -138,6 +145,8 @@ function DateField({
 
   const onDateSelected = useCallback(
     (selectedValue: string) => {
+      setIsDirty(true);
+
       if (schemaItem.convertToISO || !selectedValue) {
         onChange(selectedValue);
       } else {
@@ -206,7 +215,9 @@ function DateField({
         inputRef={inputRef}
         isDisabled={schemaItem.isDisabled}
         isLoading={false}
-        isRequired={schemaItem.isRequired}
+        // Only show the required error once the user has interacted with the
+        // field, so an empty required date isn't highlighted on form load.
+        isRequired={isDirty && schemaItem.isRequired}
         labelText=""
         maxDate={schemaItem.maxDate}
         minDate={schemaItem.minDate}
@@ -224,6 +235,8 @@ function DateField({
     schemaItem.closeOnSelection,
     schemaItem.dateFormat,
     schemaItem.isDisabled,
+    isDirty,
+    schemaItem.isRequired,
     schemaItem.maxDate,
     onDateSelected,
     valueInISOFormat,
