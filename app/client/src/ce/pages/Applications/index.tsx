@@ -55,7 +55,6 @@ import {
   Option,
   Select,
   Tooltip,
-  Tag,
 } from "@appsmith/ads";
 import {
   AppIconCollection,
@@ -68,6 +67,7 @@ import {
 import { loadingUserWorkspaces } from "pages/Applications/ApplicationLoaders";
 import PageWrapper from "pages/common/PageWrapper";
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
+import PreviewTag from "components/editorComponents/PreviewTag";
 import React, {
   Component,
   useCallback,
@@ -292,18 +292,6 @@ const LeftPaneDataSection = styled.div<{ isBannerVisible?: boolean }>`
   display: flex;
   flex-direction: column;
 `;
-
-// Tags for some reason take all available space.
-// We're changing the max width to fit the contents as Tags are supposed to be
-const TitleTag = styled(Tag)`
-  max-width: fit-content;
-`;
-
-const PreviewTag = (
-  <TitleTag isClosable={false} onClose={() => {}}>
-    Preview
-  </TitleTag>
-);
 
 export function LeftPaneSection(props: {
   heading: string;
@@ -1092,7 +1080,7 @@ export function ApplicationsSection(props: any) {
                   isMobile={isMobile}
                   onClickAddNewButton={onClickAddNewAppButton}
                   title={createMessage(ANVIL_APPLICATIONS)}
-                  titleTag={PreviewTag}
+                  titleTag={<PreviewTag />}
                   updateApplicationDispatch={updateApplicationDispatch}
                   workspaceId={activeWorkspace.id}
                 />
