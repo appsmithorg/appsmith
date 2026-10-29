@@ -525,9 +525,9 @@ export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
 export const ERROR_WIDGET_CUT_NOT_ALLOWED = () =>
   `This selected widget cannot be cut.`;
 export const ERROR_PASTE_ANVIL_LAYOUT_SYSTEM_CONFLICT = () =>
-  `Apps made with Anvil α are not compatible with widgets from the classic layout system`;
+  `Responsive apps are not compatible with widgets from the classic layout system`;
 export const ERROR_PASTE_FIXED_LAYOUT_SYSTEM_CONFLICT = () =>
-  `Apps using the classic layout system are not compatible with Anvil α widgets`;
+  `Apps using the classic layout system are not compatible with responsive widgets`;
 export const SELECT_ALL_WIDGETS_MSG = () =>
   `All widgets in this page including modals have been selected`;
 export const ERROR_ADD_WIDGET_FROM_QUERY = () => `Failed to add widget`;
