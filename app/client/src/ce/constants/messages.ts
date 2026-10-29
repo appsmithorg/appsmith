@@ -2297,7 +2297,7 @@ export const GSHEET_SEARCH_PLACEHOLDER = () => "Search for spreadsheet";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";
-export const BUILD_RESPONSIVE = () => "Build responsive apps";
+export const BUILD_RESPONSIVE = () => "Build with auto-layout";
 export const BUILD_RESPONSIVE_TEXT = () =>
   "Appsmith will convert your application's UI to auto-layout, a new mode designed for building mobile-friendly apps in no time";
 export const BUILD_FIXED_LAYOUT = () => "Use fixed-layout";
