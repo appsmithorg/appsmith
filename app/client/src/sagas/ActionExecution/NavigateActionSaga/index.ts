@@ -68,7 +68,9 @@ export default function* navigateActionSaga(
     let url = pageNameOrUrl + getQueryStringfromObject(params);
 
     if (!isValidURL(url)) {
-      const looksLikeURL = matchesURLPattern(url);
+      // Check the target alone. A param value such as "report.pdf" must not make an unknown page name look like a
+      // domain.
+      const looksLikeURL = matchesURLPattern(pageNameOrUrl);
 
       // Filter out cases like navigateTo("1");
       if (!looksLikeURL)
