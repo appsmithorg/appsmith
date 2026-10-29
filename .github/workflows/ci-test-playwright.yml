@@ -102,13 +102,16 @@ jobs:
 
       # The build job pushed the SUT image to GHCR tagged with this run's id;
       # pull it from there (layer-parallel, no single-blob cache bottleneck).
+      # The test-image pulls in the next steps use the same GHCR login, so it
+      # runs even when DOCKER_IMAGE_NAME names another image.
       - name: Load Docker image
         env:
           GHCR_IMAGE: ghcr.io/${{ github.repository }}-citest:run-${{ github.run_id }}
           DOCKER_IMAGE_NAME: ${{ inputs.docker_image_name }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
           if [[ -z "$DOCKER_IMAGE_NAME" ]]; then
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
             docker pull "$GHCR_IMAGE"
             docker tag "$GHCR_IMAGE" cicontainer
           else
