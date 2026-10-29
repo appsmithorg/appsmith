@@ -467,6 +467,9 @@ export interface ToolCatalogEntry {
   name: string;
   gate: ToolGate;
   summary: string;
+  // Extension tools only: a tool of a governed prepare and confirm pair (host.registerGovernedOperation). It is on
+  // only when its gate is on AND governance is configured.
+  governed?: true;
 }
 
 // Core tools take only core gates; "extension:<name>" gates are for EXTENSION_TOOL_CATALOG entries.
@@ -517,7 +520,8 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
     {
       name: "patch_widgets",
       gate: "always",
-      summary: "typed widget update/move/remove",
+      summary:
+        "typed widget update/move/resize (remove goes through prepare_remove_widgets)",
     },
     {
       name: "wire_event",
@@ -569,9 +573,27 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       summary: "rename a page (governed)",
     },
     {
+      name: "set_page_visibility",
+      gate: "governance",
+      summary:
+        "hide or show a page in navigation; not the home page (governed)",
+    },
+    {
       name: "prepare_delete_page",
       gate: "governance",
       summary: "prepare page delete (confirmation)",
+    },
+    {
+      name: "prepare_remove_widgets",
+      gate: "governance",
+      summary:
+        "prepare removing widgets (with everything inside them); returns what will go and a one-time token",
+    },
+    {
+      name: "confirm_remove_widgets",
+      gate: "governance",
+      summary:
+        "remove widgets with a token; prompts the user for approval via elicitation when the client supports it",
     },
     {
       name: "confirm_delete_page",
@@ -654,7 +676,7 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       name: "create_query",
       gate: "data",
       summary:
-        "structured SQL query (filters: eq/ne/gt/gte/lt/lte/like/in, inList on PostgreSQL; skipWhenEmpty for filter bars)",
+        "structured SQL query (filters: eq/ne/gt/gte/lt/lte/like/in, like match contains/prefix/suffix, isNull/notNull, anyOf OR groups, inList and ilike on PostgreSQL; skipWhenEmpty for filter bars; coalesce on selected and grouped columns; having on aggregated selects; split a delimited group column on PostgreSQL)",
     },
     {
       name: "create_mongo_query",
@@ -696,7 +718,8 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
     {
       name: "get_action",
       gate: "data",
-      summary: "safe action read + revision",
+      summary:
+        "safe action read + revision; returns the body of SQL this server wrote and nobody edited since",
     },
     {
       name: "run_action",
@@ -825,6 +848,17 @@ export function gateActive(gate: ToolGate, gates: CapabilityGates): boolean {
   }
 }
 
+// Whether a catalogued tool is registered under these gates: its gate is on, and a governed extension tool also needs
+// governance. buildMcpServer and get_capabilities both use it, so they agree.
+export function toolActive(
+  tool: ToolCatalogEntry,
+  gates: CapabilityGates,
+): boolean {
+  return (
+    gateActive(tool.gate, gates) && (tool.governed !== true || gates.governance)
+  );
+}
+
 // What each (non-always) gate requires to be enabled, and what it unlocks — so an agent can SEE a capability that is
 // currently off and tell the user exactly which setting turns it on, instead of assuming the server simply can't do it.
 // `requires` is phrased as a HUMAN-facing instruction (so an agent relaying it gives an end user something they can
@@ -874,16 +908,23 @@ function disabledCapabilities(gates: CapabilityGates) {
   >();
 
   for (const tool of TOOL_CATALOG) {
-    if (tool.gate === "always" || gateActive(tool.gate, gates)) continue;
+    if (toolActive(tool, gates)) continue;
+
+    // A governed tool whose own gate is on is missing only governance, so it is listed under governance.
+    const gate: ToolGate = gateActive(tool.gate, gates)
+      ? "governance"
+      : tool.gate;
+
+    if (gate === "always") continue;
 
     // Edition gates carry their own requirement text (presence checked at load, above).
-    const requirement = isExtensionGate(tool.gate)
-      ? EXTENSION_GATE_REQUIREMENTS[extensionGateName(tool.gate)]
-      : GATE_REQUIREMENTS[tool.gate];
-    const group = groups.get(tool.gate) ?? { ...requirement, tools: [] };
+    const requirement = isExtensionGate(gate)
+      ? EXTENSION_GATE_REQUIREMENTS[extensionGateName(gate)]
+      : GATE_REQUIREMENTS[gate];
+    const group = groups.get(gate) ?? { ...requirement, tools: [] };
 
     group.tools.push(tool.name);
-    groups.set(tool.gate, group);
+    groups.set(gate, group);
   }
 
   return [...groups.values()];
@@ -913,7 +954,7 @@ export function getCapabilities(
     // build/edit spec in one place (tableData vs source) and agents are steered to this document first.
     patchSpec: {
       shape:
-        "{ operations: [{ kind: 'update', name: '<widget>', props: {...} } | { kind: 'move', name, parent?, position?, strict? } | { kind: 'resize', name, rows?, columns?, strict? } | { kind: 'remove', name }] }",
+        "{ operations: [{ kind: 'update', name: '<widget>', props: {...} } | { kind: 'move', name, parent?, position?, strict? } | { kind: 'resize', name, rows?, columns?, strict? }] } — a { kind: 'remove' } operation is refused: removing widgets needs the user's approval through prepare_remove_widgets / confirm_remove_widgets",
       move: "parent: '<containerWidget>' reparents; position: { topRow, leftColumn } places on the page grid (rows/columns, see `grid`) — set the same topRow as a sibling to sit widgets side by side. At least one of parent/position is required. NOT the build spec's placement { after/inside } — read the page first to learn current positions. Occupancy-aware: a position that lands on another widget is REPAIRED to the nearest free spot below (the change records requestedPosition vs the applied position, and the result carries a note) unless strict: true, which rejects with the colliding widget names and the nearest free position so one retry can succeed. Reparenting always lands at the nearest free spot in the destination canvas and the landing position is recorded in changes (it is no longer carried over blindly). A modal (or a subtree containing one) can never be moved under another modal's canvas — modals are page-level overlays.",
       resize:
         "{ kind: 'resize', name, rows?, columns?, strict? } — set a widget's span in grid units (integers >= 1; at least one of rows/columns). Growing into occupied cells pushes the colliding below-siblings down (strict: true rejects with their names instead); width growth past the canvas is rejected with the available columns; shrinking a container/form/tabs below its children's ROWS is rejected with the smallest height that fits them (columns are free: nested content lives on the inner canvas's own 64-column grid, which scales to the container's width). Modals translate rows into their pixel height (rows × grid.rowHeightPx) — modal columns are not resizable.",
@@ -949,7 +990,7 @@ export function getCapabilities(
     presets: listPresets(),
     grid: { columns: GRID_COLUMNS, rowHeightPx: ROW_HEIGHT },
     // Generated from the single TOOL_CATALOG so this list can never drift from what is actually registered.
-    tools: TOOL_CATALOG.filter((tool) => gateActive(tool.gate, gates)).map(
+    tools: TOOL_CATALOG.filter((tool) => toolActive(tool, gates)).map(
       (tool) => `${tool.name} — ${tool.summary}`,
     ),
     gates: {

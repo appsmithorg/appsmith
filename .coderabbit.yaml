@@ -7,11 +7,18 @@ tone_instructions: >-
   Avoid repetition and unnecessary detail.
 reviews:
   profile: "chill"
-  request_changes_workflow: false
+  auto_approvals:
+    enabled: true
+    max_merge_risk: low
+    # max_security_risk: low ## to confirm the code rababit plan first
+  estimate_code_review_effort: true
+  enable_prompt_for_ai_agents: false
+  changed_files_summary: false
   high_level_summary: true
-  poem: true
+  high_level_summary_in_walkthrough: true
+  collapse_walkthrough: true
   review_status: true
-  collapse_walkthrough: false
+  review_details: true
   auto_review:
     enabled: true
     drafts: false
