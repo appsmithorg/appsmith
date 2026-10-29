@@ -8,6 +8,7 @@ import {
   MAX_ARTIFACT_BYTES,
   MCP_BUILD_INFO,
   READ_PAGES_LAYOUT_CONCURRENCY,
+  REQUEST_TIMEOUT_MS,
   createAppsmithApi,
   createMcpHttpServer,
   hostHeaderName,
@@ -5218,6 +5219,35 @@ describe("governance-wrapped layout mutations", () => {
       expect(
         body.pages.map((page: { layoutId?: string }) => page.layoutId),
       ).toEqual(["l-p1", "l-p2"]);
+    });
+
+    it("no retry starts once the retry pass has run for REQUEST_TIMEOUT_MS", async () => {
+      let now = 1_000_000;
+      const clock = jest.spyOn(Date, "now").mockImplementation(() => now);
+      const getPage = jest.fn(async (pageId: string) => {
+        const tries = getPage.mock.calls.filter(([id]) => id === pageId).length;
+
+        // p1's retry is slow: the clock passes the deadline before it fails.
+        if (pageId === "p1" && tries === 2) now += REQUEST_TIMEOUT_MS;
+
+        throw new AppsmithApiError(503);
+      });
+
+      try {
+        const body = await readWith(getPage);
+
+        expect(getPage.mock.calls.map(([id]) => id)).toEqual([
+          "p1",
+          "p2",
+          "p1",
+        ]);
+        expect(body.pages[1].layoutError).toEqual({
+          reason: "fetch_failed",
+          status: 503,
+        });
+      } finally {
+        clock.mockRestore();
+      }
     });
 
     it("a timeout is not retried", async () => {

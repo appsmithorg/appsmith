@@ -4278,6 +4278,9 @@ export function buildMcpServer(
       );
       // A page whose fetch failed for a transient reason is tried once more, one page at a time, after the parallel
       // pass has finished. A page that fails again, or failed for a final reason, carries layoutError.
+      // No retry starts after REQUEST_TIMEOUT_MS from the start of this pass. Slow retries therefore add at most about
+      // two request timeouts to read_pages. A page left untried reports its first error.
+      const retryDeadline = Date.now() + REQUEST_TIMEOUT_MS;
       const withLayouts = [];
 
       for (const [index, entry] of firstPass.entries()) {
@@ -4288,7 +4291,7 @@ export function buildMcpServer(
 
         let error = entry.error;
 
-        if (isTransientPageFetchError(error)) {
+        if (isTransientPageFetchError(error) && Date.now() < retryDeadline) {
           try {
             withLayouts.push(await withLayout(projected[index]));
             continue;
