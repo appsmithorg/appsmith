@@ -2,10 +2,56 @@ import type {
   NavigationSetting,
   StringsFromNavigationSetting,
 } from "constants/AppConstants";
-import { keysOfNavigationSetting } from "constants/AppConstants";
+import {
+  keysOfNavigationSetting,
+  NAVIGATION_SETTINGS,
+} from "constants/AppConstants";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { APP_NAVIGATION_SETTING, createMessage } from "ee/constants/messages";
 import { toast } from "@appsmith/ads";
+import type { LogoConfigurationSwitches } from "../../types";
+
+export const getLogoConfigurationSwitches = (
+  logoConfiguration?: NavigationSetting["logoConfiguration"],
+): LogoConfigurationSwitches => {
+  switch (logoConfiguration) {
+    case NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY:
+      return { logo: false, applicationTitle: true };
+    case NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE:
+      return { logo: true, applicationTitle: true };
+    case NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY:
+      return { logo: true, applicationTitle: false };
+    case NAVIGATION_SETTINGS.LOGO_CONFIGURATION.NO_LOGO_OR_APPLICATION_TITLE:
+      return { logo: false, applicationTitle: false };
+    default:
+      return { logo: false, applicationTitle: false };
+  }
+};
+
+export const getNextLogoConfiguration = (
+  current: NavigationSetting["logoConfiguration"] | undefined,
+  key: keyof LogoConfigurationSwitches,
+): NavigationSetting["logoConfiguration"] => {
+  const switches = getLogoConfigurationSwitches(current);
+  const next = {
+    ...switches,
+    [key]: !switches[key],
+  };
+
+  if (next.logo && next.applicationTitle) {
+    return NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE;
+  }
+
+  if (next.logo && !next.applicationTitle) {
+    return NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY;
+  }
+
+  if (!next.logo && next.applicationTitle) {
+    return NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY;
+  }
+
+  return NAVIGATION_SETTINGS.LOGO_CONFIGURATION.NO_LOGO_OR_APPLICATION_TITLE;
+};
 
 export const logEvent = (
   keyName: keyof StringsFromNavigationSetting,

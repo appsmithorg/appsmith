@@ -14063,7 +14063,7 @@ __metadata:
     msw: ^0.28.0
     mutative: ^1.1.0
     nanoid: ^3.3.17
-    node-forge: ^1.4.0
+    node-forge: ^1.4.1
     object-hash: ^3.0.0
     openai: 4.87.3
     path-to-regexp: ^6.3.0
@@ -26491,10 +26491,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-forge@npm:1.4.0":
-  version: 1.4.0
-  resolution: "node-forge@npm:1.4.0"
-  checksum: c97c634d4d483aae815677db5b1bd14bfea4d873ab48817e020610a2b4d8bc6b3e77994860189b44151ff8e0842c0c4ba6faa80b9a6e6fbd6989865e8eb80b96
+"node-forge@npm:1.4.1":
+  version: 1.4.1
+  resolution: "node-forge@npm:1.4.1"
+  checksum: 68137551feb3f86e6e47f1d360596117d305d81a64d9b055165c4fc186ca5ac9c3b2dd1b3f7c5afee18e33399a0048119c691afeec9fdb5b143ed48c82435dc4
   languageName: node
   linkType: hard
 
@@ -29210,13 +29210,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.16.0":
-  version: 6.16.0
-  resolution: "qs@npm:6.16.0"
+"qs@npm:^6.16.1":
+  version: 6.17.0
+  resolution: "qs@npm:6.17.0"
   dependencies:
     es-define-property: ^1.0.1
     side-channel: ^1.1.1
-  checksum: fb97665d1b481fadbcb17cc056f1af95ae93328195bf9536a56142137f4d9cc16fe2a1dab9cd17186c9fa69a7e6fa64a3766f71ffaa7c248ec5555f34d21047b
+  checksum: a69b500284902eae17f34743a600d1c8a32f874a550e6dcc1060ff43a22cbc91d439e713fb30445ff7a0378253821d455c485cbf7bd1197bf679000ea8d30ba7
   languageName: node
   linkType: hard
 
