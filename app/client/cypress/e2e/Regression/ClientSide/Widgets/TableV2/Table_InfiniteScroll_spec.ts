@@ -183,8 +183,9 @@ describe(
         // Wait for network call to complete
         assertHelper.AssertNetworkStatus("@postExecute", 200);
 
-        // Verify more rows were loaded
-        cy.get(".t--widget-tablewidgetv2 .tbody .tr").then(($newRows) => {
+        // Verify more rows were loaded. The next page renders after its own
+        // request, which the wait above does not cover, so retry the count.
+        cy.get(".t--widget-tablewidgetv2 .tbody .tr").should(($newRows) => {
           expect($newRows.length).to.be.greaterThan(initialRowCount);
         });
       });

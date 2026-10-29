@@ -128,6 +128,16 @@ export const SUPPORTED_WEB_APIS = {
   crypto: true,
   fetch: true,
   Intl: true,
+  Blob: true,
+  File: true,
+  FileReader: true,
+  FormData: true,
+  URL: true,
+  URLSearchParams: true,
+  TextEncoder: true,
+  TextDecoder: true,
+  atob: true,
+  btoa: true,
 };
 export enum CustomLintErrorCode {
   INVALID_ENTITY_PROPERTY = "INVALID_ENTITY_PROPERTY",

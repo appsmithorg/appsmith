@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - release
-      - master
     paths:
       - "deploy/docker/base.dockerfile"
 
@@ -32,13 +31,12 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
+      # Builds from release publish the `release` tag, which every image build uses.
+      # A manual run on another branch publishes a tag named after that branch, for testing.
       - name: Get tag
         id: tag
         run: |
           tag="${GITHUB_REF_NAME//\//-}"
-          if [[ "$tag" == master ]]; then
-            tag=nightly
-          fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
       - name: Set up Depot CLI

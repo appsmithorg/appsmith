@@ -49,6 +49,9 @@ describe(
         appSettings.locators._navigationMenuItem,
         page1,
       );
+      agHelper.AssertElementVisibility(
+        appSettings.locators._getActivePage(page1),
+      );
       deployMode.NavigateBacktoEditor();
     });
 

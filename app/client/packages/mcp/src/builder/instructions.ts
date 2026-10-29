@@ -431,6 +431,61 @@ Note: accumulated rows are SESSION-ONLY by design (the server compiles storeValu
 persist=false, so rows fetched under one user's permissions are never written to the shared
 browser's localStorage) — the table resets on reload.`;
 
+// A table driven by several filter controls, where an empty control means "no filter" — the filter-bar shape that a
+// plain structured query cannot express (every filter always applies). Data layer required.
+const RECIPE_FILTER_BAR = `# Recipe: Filter bar over a table
+
+Goal: a table of records with a row of filter controls above it. Each control narrows the table;
+a control left empty is ignored instead of matching nothing. Requires the data layer.
+
+1. \`get_datasource_structure\` — find the table to list and the columns to filter on.
+2. Build the page skeleton (\`build_application\`, or \`create_page\` + \`edit_page\` on an existing
+   app) with a heading. Queries need the page to exist first.
+3. Option lists — one \`create_query\` per control whose values come from data, e.g. the distinct
+   values of a column: { operation: 'SELECT', table, groupBy: ['status'], aggregate: { fn: 'count' },
+   orderBy: [{ column: 'status', direction: 'ASC' }] } (returns a status and a count per value).
+   To show rows with no value under a label instead of a blank option, group by
+   { column: 'status', coalesce: { literal: 'Unknown' } }. The label is for display only: an eq
+   filter on 'Unknown' matches no rows, because the stored value is NULL. So do not coalesce the
+   options of a control whose value feeds an eq filter. To list the rows with no value, use a
+   separate query with the filter { column: 'status', op: 'isNull' }. For a column that holds a
+   comma-separated list (tags), group by { column: 'tags', split: ',' } to get one option per tag
+   (PostgreSQL only).
+   A control with a fixed set of values can use static \`options\` instead.
+4. The table query — \`create_query\` SELECT with one filter per control, each with
+   \`skipWhenEmpty: true\`:
+   - single select: { column: 'status', op: 'eq', value: { widget: 'StatusFilter', property:
+     'selectedOptionValue' }, skipWhenEmpty: true }
+   - text input (exact match): { column: 'ticket_id', op: 'eq', value: { widget: 'TicketInput',
+     property: 'text' }, skipWhenEmpty: true }
+   - text search: { column: 'subject', op: 'like', match: 'contains', value: { widget: 'SearchInput',
+     property: 'text' }, skipWhenEmpty: true }. Without match, 'like' adds no % wildcards and matches
+     the typed text exactly. Use op 'ilike' for a case-insensitive search (PostgreSQL only).
+     A % or _ the user types still acts as a wildcard.
+   - multi-select (widget type \`multiselect\`; PostgreSQL datasources only):
+     { column: 'tag', op: 'inList', value: { widget: 'TagFilter', property: 'selectedOptionValues' },
+     skipWhenEmpty: true }. Values are compared as text. On other databases use a single select with
+     'eq' instead; 'in' binds ONE value.
+   - a fixed "missing value" condition, such as unassigned rows: { column: 'owner', op: 'isNull' }
+     (or 'notNull'). It takes no value and no skipWhenEmpty.
+   - an OR inside the WHERE clause: { anyOf: [ { column: 'owner', op: 'isNull' }, { column: 'owner',
+     op: 'eq', value: { literal: '' } } ] }. Members are plain filters (2-10, one level) and cannot
+     use skipWhenEmpty, because a skipped member would make the whole group match every row.
+   skipWhenEmpty is SELECT-only, and is refused on appsmith.* values (they may scope rows to the
+   viewer). Filters bound to widgets are for narrowing what is shown, never for restricting which
+   rows a user may see — viewers control widget values; use datasource or row-level permissions
+   for that. Add orderBy / limit as usual.
+5. Add the controls and the table (\`edit_page\`): selects with \`optionsSource\` = { query:
+   '<optionsQuery>', label: '<column>', value: '<column>' }, the multi-select with static
+   \`options\`, the table with \`source\` = { query: '<tableQuery>' }, and an Apply button with
+   onClick { run: '<tableQuery>' }.
+6. Re-run the table query when a control changes (\`wire_event\`): a select's onOptionChange and an
+   input's onSubmit → { run: '<tableQuery>' }. A control with no wire_event change event (a
+   multi-select) relies on the Apply button. If the page's widgets are edited through a tool whose
+   settings expose a change event such as onSelectionChange, set it to the same { run }.
+7. \`inspect_page\` — fix any diagnostics. Then publish LAST (\`prepare_publish\` -> \`confirm_publish\`,
+   governed) and hand over the \`viewerUrl\`; without governance share the \`editorUrl\`.`;
+
 export const RECIPES: InstructionDoc[] = [
   {
     slug: "crud",
@@ -456,6 +511,13 @@ export const RECIPES: InstructionDoc[] = [
     description:
       "Build a lookup form whose results table grows one row per lookup via appendToStore.",
     render: () => RECIPE_ZIP_LOOKUP,
+  },
+  {
+    slug: "filter-bar",
+    title: "Filter bar recipe (skipWhenEmpty / inList)",
+    description:
+      "Build a table narrowed by several filter controls, where an empty control means no filter.",
+    render: () => RECIPE_FILTER_BAR,
   },
 ];
 
@@ -618,7 +680,7 @@ Recommended workflow for a production-quality app:
 1. Target a workspace: resolve_workspace(name) -> workspaceId (or list_workspaces). Tools take an id, not a name — never ask the user for a raw id if they gave you a name.
 2. Create the app: build_application(workspaceId, appSpec). Widgets: text, input, select, button, image, table, container, form, modal, datepicker, chart, tabs, list. Inputs support named-format validation; tables support a query 'source' (optionally clear-when-empty). 'list' renders a card grid (image + title + subtitle) bound to a query 'source' — point it at the same query as a table for a shared table/cards view (a query is required; there is no static-data card grid). The new app is auto-deployed on creation and the response includes an editorUrl and viewerUrl for the default page — that first deployed copy is only a scaffold until re-published, so don't hand out the viewer link yet.
 3. Add data (if listed by get_capabilities): create_datasource (DB or REST, no credentials) -> create_query / create_rest_api -> bind a table to it, and bind detail widgets to the selected row.
-4. Inspect and refine with read_semantic_page / inspect_page, then patch_widgets: bind a table's data, a text/image/input to the selected row (source / imageSource / defaultValue), toggle table search/filter/sort/pagination, set row striping, add input validation, disable a button while an input is invalid, and move/reparent/remove widgets. To switch between views (e.g. a table and a detail panel) with one control, gate each view's visibility on a select/tabs control (visibleWhen { control, equals }); gate a detail panel or action button on a row being selected (visibleWhen { rowSelected: "<table>" }) or on an input holding text (visibleWhen { notEmpty: "<input>" }). Append new widgets with edit_page.
+4. Inspect and refine with read_semantic_page / inspect_page, then patch_widgets: bind a table's data, a text/image/input to the selected row (source / imageSource / defaultValue), toggle table search/filter/sort/pagination, set row striping, add input validation, disable a button while an input is invalid, and move/reparent widgets. To remove widgets, call prepare_remove_widgets, show the user what it lists (a container goes with its content), then confirm_remove_widgets. To switch between views (e.g. a table and a detail panel) with one control, gate each view's visibility on a select/tabs control (visibleWhen { control, equals }); gate a detail panel or action button on a row being selected (visibleWhen { rowSelected: "<table>" }) or on an input holding text (visibleWhen { notEmpty: "<input>" }). Append new widgets with edit_page.
 5. Wire behavior: wire_event connects button onClick / table onRowSelected / modal onClose / tabs onTabSelected / select onOptionChange / input onSubmit / checkbox onCheckChange / switch onChange / datepicker onDateSelected to run a query (with onSuccess/onError chains), navigate, show/close a modal, show an alert, reset widgets (a Clear button), or accumulate query rows in the Appsmith store (appendToStore / clearStoreKey — bind a table to the key with a store source/tableData for a results table that grows with each run; rows are session-only). The action may also be an ordered list of 2-5 statements (at most one run).
 6. Add JS logic (if listed): create_js_object for restricted, declarative JS objects.
 7. Ship it LAST: finish wiring queries and events first — the copy auto-deployed at creation is a scaffold that goes stale as you edit. Then re-publish with prepare_publish -> confirm_publish (governed) and hand the user the viewerUrl as the final step. On deployments without governance, re-publishing is unavailable: relay the editorUrl from build_application plus the governance group's 'requires' instruction from get_capabilities instead of promising an up-to-date viewer link. GIT-APP CARVE-OUT: for a git-connected app the final deliverable is the mcp/ branch plus its branch-scoped review URL from confirm_commit, NOT a viewerUrl — publish refuses git apps.

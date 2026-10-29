@@ -55,7 +55,8 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
     @Override
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache, String environmentId) {
         return datasourceService
-                .findById(datasourceId, datasourcePermission.getExecutePermission())
+                .findById(datasourceId, datasourcePermission.getReadPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
                 .zipWhen(datasource -> datasourceService.getTrueEnvironmentId(
                         datasource.getWorkspaceId(),
                         environmentId,
@@ -69,7 +70,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                         error -> new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, error.getMessage()))
                 .onErrorMap(e -> {
-                    if (!(e instanceof AppsmithPluginException)) {
+                    if (!(e instanceof AppsmithPluginException) && !isUnauthorizedAccess(e)) {
                         return new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR, e.getMessage());
                     }
@@ -77,10 +78,18 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                     return e;
                 })
                 .onErrorResume(error -> {
+                    if (isUnauthorizedAccess(error)) {
+                        return Mono.error(error);
+                    }
                     DatasourceStructure dsStructure = new DatasourceStructure();
                     dsStructure.setErrorInfo(error);
                     return Mono.just(dsStructure);
                 });
+    }
+
+    private boolean isUnauthorizedAccess(Throwable error) {
+        return error instanceof AppsmithException appsmithException
+                && AppsmithError.UNAUTHORIZED_ACCESS.equals(appsmithException.getError());
     }
 
     @Override

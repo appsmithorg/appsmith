@@ -995,7 +995,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.socketFactory", pinnedSocketFactory(resolvedAddress));
         // Never fall back to an unpinned plain socket if the factory fails — that would
-        // silently reopen the DNS-rebinding hole. (Angus 2.x defaults to false; be explicit.)
+        // silently reopen the DNS-rebinding hole. (Angus 2.x defaults the fallback to true.)
         props.put("mail.smtp.socketFactory.fallback", "false");
         // TLS server identity checking is the lynchpin of this configuration — don't rely on
         // the library default (it differed between JavaMail and Angus Mail generations).

@@ -44,7 +44,7 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import styled from "styled-components";
 import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
 import BetterbugsUtil from "utils/Analytics/betterbugs";
-import { useBetterbugsMetadata } from "utils/hooks/useBetterbugsMetadata";
+import { useBetterbugsMetadata } from "ee/hooks/useBetterbugsMetadata";
 
 const { betterbugs, cloudHosting } = getAppsmithConfigs();
 
@@ -73,7 +73,7 @@ const HomepageHeaderAction = ({
   );
   const isHomePage = useRouteMatch("/applications")?.isExact;
   const isAirgappedInstance = isAirgapped();
-  const { appVersion } = getAppsmithConfigs();
+  const { appVersion, disableHelpIcon } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
   const [showIntercomConsent, setShowIntercomConsent] = useState(false);
   const isAiAgentInstanceEnabled = useSelector(getIsAiAgentInstanceEnabled);
@@ -104,7 +104,7 @@ const HomepageHeaderAction = ({
           />
         </Tooltip>
       )}
-      {!isAirgappedInstance && (
+      {!isAirgappedInstance && !disableHelpIcon && (
         <Menu
           onOpenChange={(open) => {
             if (open) {

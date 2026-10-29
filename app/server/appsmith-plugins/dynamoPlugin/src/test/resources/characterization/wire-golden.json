@@ -1,0 +1,2634 @@
+{
+  "BatchGetItem": {
+    "requests": [
+      {
+        "body": {
+          "RequestItems": {
+            "Music": {
+              "ConsistentRead": true,
+              "ExpressionAttributeNames": {
+                "#yr": "Year"
+              },
+              "Keys": [
+                {
+                  "Artist": {
+                    "S": "No One You Know"
+                  },
+                  "SongTitle": {
+                    "S": "Call Me Today"
+                  }
+                },
+                {
+                  "Artist": {
+                    "S": "Acme Band"
+                  },
+                  "SongTitle": {
+                    "S": "Happy Day"
+                  }
+                }
+              ],
+              "ProjectionExpression": "AlbumTitle, #yr, Tags"
+            }
+          },
+          "ReturnConsumedCapacity": "TOTAL"
+        },
+        "target": "DynamoDB_20120810.BatchGetItem"
+      }
+    ],
+    "result": {
+      "body": {
+        "ConsumedCapacity": [
+          {
+            "CapacityUnits": 1.0,
+            "GlobalSecondaryIndexes": {},
+            "LocalSecondaryIndexes": {},
+            "ReadCapacityUnits": null,
+            "Table": null,
+            "TableName": "Music",
+            "VectorIndexes": {},
+            "WriteCapacityUnits": null
+          }
+        ],
+        "Responses": {
+          "Music": [
+            {
+              "AlbumTitle": "Somewhat Famous",
+              "Tags": ["pop", "rock"],
+              "Year": "2015"
+            },
+            {
+              "AlbumTitle": "Songs About Life",
+              "Cover": "image-bytes",
+              "Year": "2016"
+            }
+          ]
+        },
+        "UnprocessedKeys": {}
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "BatchWriteItem": {
+    "requests": [
+      {
+        "body": {
+          "RequestItems": {
+            "Music": [
+              {
+                "PutRequest": {
+                  "Item": {
+                    "Artist": {
+                      "S": "No One You Know"
+                    },
+                    "SongTitle": {
+                      "S": "Call Me Today"
+                    },
+                    "Tags": {
+                      "SS": ["pop", "rock"]
+                    },
+                    "Year": {
+                      "N": "2015"
+                    }
+                  }
+                }
+              },
+              {
+                "DeleteRequest": {
+                  "Key": {
+                    "Artist": {
+                      "S": "Acme Band"
+                    },
+                    "SongTitle": {
+                      "S": "Happy Day"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "ReturnConsumedCapacity": "TOTAL",
+          "ReturnItemCollectionMetrics": "SIZE"
+        },
+        "target": "DynamoDB_20120810.BatchWriteItem"
+      }
+    ],
+    "result": {
+      "body": {
+        "ConsumedCapacity": [
+          {
+            "CapacityUnits": 2.0,
+            "GlobalSecondaryIndexes": {},
+            "LocalSecondaryIndexes": {},
+            "ReadCapacityUnits": null,
+            "Table": null,
+            "TableName": "Music",
+            "VectorIndexes": {},
+            "WriteCapacityUnits": null
+          }
+        ],
+        "ItemCollectionMetrics": {},
+        "UnprocessedItems": {}
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "BatchWriteItem_everyAttributeValueKind": {
+    "requests": [
+      {
+        "body": {
+          "RequestItems": {
+            "Music": [
+              {
+                "PutRequest": {
+                  "Item": {
+                    "Album": {
+                      "M": {
+                        "Formats": {
+                          "L": [
+                            {
+                              "S": "CD"
+                            },
+                            {
+                              "N": "2"
+                            }
+                          ]
+                        },
+                        "Title": {
+                          "S": "Somewhat Famous"
+                        }
+                      }
+                    },
+                    "Artist": {
+                      "S": "No One You Know"
+                    },
+                    "ChartPositions": {
+                      "NS": ["1", "4"]
+                    },
+                    "Cover": {
+                      "B": "aW1hZ2UtYnl0ZXM="
+                    },
+                    "Explicit": {
+                      "BOOL": false
+                    },
+                    "Producer": {
+                      "NULL": true
+                    },
+                    "Samples": {
+                      "BS": ["c2FtcGxlLTE=", "c2FtcGxlLTI="]
+                    },
+                    "SongTitle": {
+                      "S": "Call Me Today"
+                    },
+                    "Tags": {
+                      "SS": ["pop", "rock"]
+                    },
+                    "Year": {
+                      "N": "2015"
+                    }
+                  }
+                }
+              }
+            ],
+            "Reply": [
+              {
+                "DeleteRequest": {
+                  "Key": {
+                    "Id": {
+                      "S": "reply-1"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "target": "DynamoDB_20120810.BatchWriteItem"
+      }
+    ],
+    "result": {
+      "body": {
+        "ConsumedCapacity": [],
+        "ItemCollectionMetrics": {},
+        "UnprocessedItems": {}
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "CreateBackup": {
+    "requests": [
+      {
+        "body": {
+          "BackupName": "MusicBackup",
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.CreateBackup"
+      }
+    ],
+    "result": {
+      "body": {
+        "BackupDetails": {
+          "BackupArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music/backup/01489602797149-73d8d5bc",
+          "BackupCreationDateTime": "Instant:2017-03-15T18:33:17.149Z",
+          "BackupExpiryDateTime": null,
+          "BackupName": "MusicBackup",
+          "BackupSizeBytes": 0,
+          "BackupStatus": "CREATING",
+          "BackupType": "USER"
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "CreateGlobalTable": {
+    "requests": [
+      {
+        "body": {
+          "GlobalTableName": "Music",
+          "ReplicationGroup": [
+            {
+              "RegionName": "us-east-1"
+            },
+            {
+              "RegionName": "us-east-2"
+            }
+          ]
+        },
+        "target": "DynamoDB_20120810.CreateGlobalTable"
+      }
+    ],
+    "result": {
+      "body": {
+        "GlobalTableDescription": {
+          "CreationDateTime": "Instant:2017-03-15T18:33:17.149Z",
+          "GlobalTableArn": "arn:aws:dynamodb::123456789012:global-table/Music",
+          "GlobalTableName": "Music",
+          "GlobalTableStatus": "CREATING",
+          "ReplicationGroup": [
+            {
+              "GlobalSecondaryIndexes": [],
+              "GlobalTableSettingsReplicationMode": null,
+              "KMSMasterKeyId": null,
+              "OnDemandThroughputOverride": null,
+              "ProvisionedThroughputOverride": null,
+              "RegionName": "us-east-1",
+              "ReplicaArn": null,
+              "ReplicaInaccessibleDateTime": null,
+              "ReplicaStatus": "CREATING",
+              "ReplicaStatusDescription": null,
+              "ReplicaStatusPercentProgress": null,
+              "ReplicaTableClassSummary": null,
+              "WarmThroughput": null
+            },
+            {
+              "GlobalSecondaryIndexes": [],
+              "GlobalTableSettingsReplicationMode": null,
+              "KMSMasterKeyId": null,
+              "OnDemandThroughputOverride": null,
+              "ProvisionedThroughputOverride": null,
+              "RegionName": "us-east-2",
+              "ReplicaArn": null,
+              "ReplicaInaccessibleDateTime": null,
+              "ReplicaStatus": "CREATING",
+              "ReplicaStatusDescription": null,
+              "ReplicaStatusPercentProgress": null,
+              "ReplicaTableClassSummary": null,
+              "WarmThroughput": null
+            }
+          ]
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "CreateTable": {
+    "requests": [
+      {
+        "body": {
+          "AttributeDefinitions": [
+            {
+              "AttributeName": "Artist",
+              "AttributeType": "S"
+            },
+            {
+              "AttributeName": "SongTitle",
+              "AttributeType": "S"
+            }
+          ],
+          "BillingMode": "PAY_PER_REQUEST",
+          "KeySchema": [
+            {
+              "AttributeName": "Artist",
+              "KeyType": "HASH"
+            },
+            {
+              "AttributeName": "SongTitle",
+              "KeyType": "RANGE"
+            }
+          ],
+          "TableName": "Music",
+          "Tags": [
+            {
+              "Key": "Owner",
+              "Value": "blueTeam"
+            }
+          ]
+        },
+        "target": "DynamoDB_20120810.CreateTable"
+      }
+    ],
+    "result": {
+      "body": {
+        "TableDescription": {
+          "ArchivalSummary": null,
+          "AttributeDefinitions": [
+            {
+              "AttributeName": "Artist",
+              "AttributeType": "S"
+            },
+            {
+              "AttributeName": "SongTitle",
+              "AttributeType": "S"
+            }
+          ],
+          "BillingModeSummary": {
+            "BillingMode": "PAY_PER_REQUEST",
+            "LastUpdateToPayPerRequestDateTime": null
+          },
+          "CreationDateTime": "Instant:2017-03-15T18:33:17.149Z",
+          "DeletionProtectionEnabled": null,
+          "GlobalSecondaryIndexes": [],
+          "GlobalTableSettingsReplicationMode": null,
+          "GlobalTableVersion": null,
+          "GlobalTableWitnesses": [],
+          "ItemCount": 0,
+          "KeySchema": [
+            {
+              "AttributeName": "Artist",
+              "KeyType": "HASH"
+            },
+            {
+              "AttributeName": "SongTitle",
+              "KeyType": "RANGE"
+            }
+          ],
+          "LatestStreamArn": null,
+          "LatestStreamLabel": null,
+          "LocalSecondaryIndexes": [],
+          "MultiRegionConsistency": null,
+          "OnDemandThroughput": null,
+          "ProvisionedThroughput": {
+            "LastDecreaseDateTime": null,
+            "LastIncreaseDateTime": null,
+            "NumberOfDecreasesToday": 0,
+            "ReadCapacityUnits": 0,
+            "WriteCapacityUnits": 0
+          },
+          "Replicas": [],
+          "RestoreSummary": null,
+          "SSEDescription": null,
+          "StreamSpecification": null,
+          "TableArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music",
+          "TableClassSummary": null,
+          "TableId": "<uuid>",
+          "TableName": "Music",
+          "TableSizeBytes": 0,
+          "TableStatus": "CREATING",
+          "VectorIndexes": [],
+          "WarmThroughput": null
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "CreateTable_provisionedWithIndex": {
+    "requests": [],
+    "result": {
+      "body": "software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput$Builder.readCapacityUnits(java.lang.Integer)",
+      "errorType": "INTERNAL_ERROR",
+      "isExecutionSuccess": false,
+      "pluginErrorDetails": {
+        "appsmithErrorCode": "PE-DYN-5000",
+        "appsmithErrorMessage": "Error occurred while executing DynamoDB query.",
+        "downstreamErrorCode": null,
+        "downstreamErrorMessage": "software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput$Builder.readCapacityUnits(java.lang.Integer)",
+        "errorType": "INTERNAL_ERROR",
+        "title": "Query execution error"
+      },
+      "statusCode": "PE-DYN-5000",
+      "title": "Query execution error"
+    }
+  },
+  "DeleteBackup": {
+    "requests": [
+      {
+        "body": {
+          "BackupArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music/backup/01489602797149-73d8d5bc"
+        },
+        "target": "DynamoDB_20120810.DeleteBackup"
+      }
+    ],
+    "result": {
+      "body": {
+        "BackupDescription": {
+          "BackupDetails": {
+            "BackupArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music/backup/01489602797149-73d8d5bc",
+            "BackupCreationDateTime": "Instant:2017-03-15T18:33:17.149Z",
+            "BackupExpiryDateTime": null,
+            "BackupName": "MusicBackup",
+            "BackupSizeBytes": 1024,
+            "BackupStatus": "DELETED",
+            "BackupType": "USER"
+          },
+          "SourceTableDetails": {
+            "BillingMode": "PROVISIONED",
+            "ItemCount": 12,
+            "KeySchema": [
+              {
+                "AttributeName": "Artist",
+                "KeyType": "HASH"
+              },
+              {
+                "AttributeName": "SongTitle",
+                "KeyType": "RANGE"
+              }
+            ],
+            "OnDemandThroughput": null,
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": 5,
+              "WriteCapacityUnits": 5
+            },
+            "TableArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music",
+            "TableCreationDateTime": "Instant:2017-03-15T18:20:00Z",
+            "TableId": "<uuid>",
+            "TableName": "Music",
+            "TableSizeBytes": 1024
+          },
+          "SourceTableFeatureDetails": {
+            "GlobalSecondaryIndexes": [],
+            "LocalSecondaryIndexes": [],
+            "SSEDescription": null,
+            "StreamDescription": {
+              "StreamEnabled": false,
+              "StreamViewType": null
+            },
+            "TimeToLiveDescription": {
+              "AttributeName": "ttl",
+              "TimeToLiveStatus": "ENABLED"
+            },
+            "VectorIndexes": []
+          }
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "DeleteItem": {
+    "requests": [
+      {
+        "body": {
+          "ConditionExpression": "attribute_exists(Artist) AND #yr < :limit",
+          "ExpressionAttributeNames": {
+            "#yr": "Year"
+          },
+          "ExpressionAttributeValues": {
+            ":limit": {
+              "N": "2020"
+            }
+          },
+          "Key": {
+            "Artist": {
+              "S": "No One You Know"
+            },
+            "SongTitle": {
+              "S": "Scared of My Shadow"
+            }
+          },
+          "ReturnConsumedCapacity": "TOTAL",
+          "ReturnValues": "ALL_OLD",
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.DeleteItem"
+      }
+    ],
+    "result": {
+      "body": {
+        "Attributes": {
+          "Album": {
+            "Formats": ["CD", "Vinyl"],
+            "Title": "Somewhat Famous"
+          },
+          "Artist": "No One You Know",
+          "ChartPositions": ["1", "4", "12"],
+          "Cover": "image-bytes",
+          "Credits": [
+            {
+              "Name": "Jane",
+              "Role": "Writer"
+            },
+            "3"
+          ],
+          "Explicit": false,
+          "Price": "1.99",
+          "Producer": true,
+          "Samples": ["sample-1", "sample-2"],
+          "SongTitle": "Scared of My Shadow",
+          "Tags": ["pop", "rock"],
+          "Year": "2015"
+        },
+        "ConsumedCapacity": {
+          "CapacityUnits": 1.0,
+          "GlobalSecondaryIndexes": {},
+          "LocalSecondaryIndexes": {},
+          "ReadCapacityUnits": null,
+          "Table": null,
+          "TableName": "Music",
+          "VectorIndexes": {},
+          "WriteCapacityUnits": null
+        },
+        "ItemCollectionMetrics": null
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "DeleteTable": {
+    "requests": [
+      {
+        "body": {
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.DeleteTable"
+      }
+    ],
+    "result": {
+      "body": {
+        "TableDescription": {
+          "ArchivalSummary": null,
+          "AttributeDefinitions": [],
+          "BillingModeSummary": null,
+          "CreationDateTime": null,
+          "DeletionProtectionEnabled": null,
+          "GlobalSecondaryIndexes": [],
+          "GlobalTableSettingsReplicationMode": null,
+          "GlobalTableVersion": null,
+          "GlobalTableWitnesses": [],
+          "ItemCount": 0,
+          "KeySchema": [],
+          "LatestStreamArn": null,
+          "LatestStreamLabel": null,
+          "LocalSecondaryIndexes": [],
+          "MultiRegionConsistency": null,
+          "OnDemandThroughput": null,
+          "ProvisionedThroughput": {
+            "LastDecreaseDateTime": null,
+            "LastIncreaseDateTime": null,
+            "NumberOfDecreasesToday": 1,
+            "ReadCapacityUnits": 5,
+            "WriteCapacityUnits": 5
+          },
+          "Replicas": [],
+          "RestoreSummary": null,
+          "SSEDescription": null,
+          "StreamSpecification": null,
+          "TableArn": null,
+          "TableClassSummary": null,
+          "TableId": null,
+          "TableName": "Music",
+          "TableSizeBytes": 0,
+          "TableStatus": "DELETING",
+          "VectorIndexes": [],
+          "WarmThroughput": null
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "DescribeBackup": {
+    "requests": [
+      {
+        "body": {
+          "BackupArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music/backup/01489602797149-73d8d5bc"
+        },
+        "target": "DynamoDB_20120810.DescribeBackup"
+      }
+    ],
+    "result": {
+      "body": {
+        "BackupDescription": {
+          "BackupDetails": {
+            "BackupArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music/backup/01489602797149-73d8d5bc",
+            "BackupCreationDateTime": "Instant:2017-03-15T18:33:17.149Z",
+            "BackupExpiryDateTime": null,
+            "BackupName": "MusicBackup",
+            "BackupSizeBytes": 1024,
+            "BackupStatus": "AVAILABLE",
+            "BackupType": "USER"
+          },
+          "SourceTableDetails": {
+            "BillingMode": "PROVISIONED",
+            "ItemCount": null,
+            "KeySchema": [
+              {
+                "AttributeName": "Artist",
+                "KeyType": "HASH"
+              }
+            ],
+            "OnDemandThroughput": null,
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": 5,
+              "WriteCapacityUnits": 5
+            },
+            "TableArn": null,
+            "TableCreationDateTime": "Instant:2017-03-15T18:20:00Z",
+            "TableId": "<uuid>",
+            "TableName": "Music",
+            "TableSizeBytes": null
+          },
+          "SourceTableFeatureDetails": {
+            "GlobalSecondaryIndexes": [],
+            "LocalSecondaryIndexes": [
+              {
+                "IndexName": "AlbumIndex",
+                "KeySchema": [
+                  {
+                    "AttributeName": "Artist",
+                    "KeyType": "HASH"
+                  },
+                  {
+                    "AttributeName": "AlbumTitle",
+                    "KeyType": "RANGE"
+                  }
+                ],
+                "Projection": {
+                  "NonKeyAttributes": [],
+                  "ProjectionType": "ALL"
+                }
+              }
+            ],
+            "SSEDescription": {
+              "InaccessibleEncryptionDateTime": null,
+              "KMSMasterKeyArn": "arn:aws:kms:us-east-1:123456789012:key/abcd",
+              "SSEType": "KMS",
+              "Status": "ENABLED"
+            },
+            "StreamDescription": null,
+            "TimeToLiveDescription": null,
+            "VectorIndexes": []
+          }
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "DescribeContinuousBackups": {
+    "requests": [
+      {
+        "body": {
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.DescribeContinuousBackups"
+      }
+    ],
+    "result": {
+      "body": {
+        "ContinuousBackupsDescription": {
+          "ContinuousBackupsStatus": "ENABLED",
+          "PointInTimeRecoveryDescription": {
+            "EarliestRestorableDateTime": "Instant:2017-03-15T18:20:00Z",
+            "LatestRestorableDateTime": "Instant:2017-03-15T18:33:17.149Z",
+            "PointInTimeRecoveryStatus": "ENABLED",
+            "RecoveryPeriodInDays": null
+          }
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "DescribeContributorInsights": {
+    "requests": [
+      {
+        "body": {
+          "IndexName": "AlbumIndex",
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.DescribeContributorInsights"
+      }
+    ],
+    "result": {
+      "body": {
+        "ContributorInsightsMode": null,
+        "ContributorInsightsRuleList": [
+          "DynamoDBContributorInsights-PKC-Music-1576629651520"
+        ],
+        "ContributorInsightsStatus": "ENABLED",
+        "FailureException": null,
+        "IndexName": "AlbumIndex",
+        "LastUpdateDateTime": "Instant:2017-03-15T18:33:17.149Z",
+        "TableName": "Music"
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "DescribeEndpoints": {
+    "requests": [
+      {
+        "body": {},
+        "target": "DynamoDB_20120810.DescribeEndpoints"
+      }
+    ],
+    "result": {
+      "body": {
+        "Endpoints": [
+          {
+            "Address": "dynamodb.us-east-1.amazonaws.com",
+            "CachePeriodInMinutes": 1440
+          }
+        ]
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "DescribeGlobalTable": {
+    "requests": [
+      {
+        "body": {
+          "GlobalTableName": "Music"
+        },
+        "target": "DynamoDB_20120810.DescribeGlobalTable"
+      }
+    ],
+    "result": {
+      "body": {
+        "GlobalTableDescription": {
+          "CreationDateTime": "Instant:2017-03-15T18:33:17.149Z",
+          "GlobalTableArn": "arn:aws:dynamodb::123456789012:global-table/Music",
+          "GlobalTableName": "Music",
+          "GlobalTableStatus": "ACTIVE",
+          "ReplicationGroup": [
+            {
+              "GlobalSecondaryIndexes": [
+                {
+                  "IndexName": "AlbumIndex",
+                  "OnDemandThroughputOverride": null,
+                  "ProvisionedThroughputOverride": {
+                    "ReadCapacityUnits": 5
+                  },
+                  "WarmThroughput": null
+                }
+              ],
+              "GlobalTableSettingsReplicationMode": null,
+              "KMSMasterKeyId": null,
+              "OnDemandThroughputOverride": null,
+              "ProvisionedThroughputOverride": {
+                "ReadCapacityUnits": 10
+              },
+              "RegionName": "us-east-1",
+              "ReplicaArn": null,
+              "ReplicaInaccessibleDateTime": null,
+              "ReplicaStatus": "ACTIVE",
+              "ReplicaStatusDescription": null,
+              "ReplicaStatusPercentProgress": null,
+              "ReplicaTableClassSummary": null,
+              "WarmThroughput": null
+            },
+            {
+              "GlobalSecondaryIndexes": [],
+              "GlobalTableSettingsReplicationMode": null,
+              "KMSMasterKeyId": null,
+              "OnDemandThroughputOverride": null,
+              "ProvisionedThroughputOverride": null,
+              "RegionName": "us-east-2",
+              "ReplicaArn": null,
+              "ReplicaInaccessibleDateTime": null,
+              "ReplicaStatus": "ACTIVE",
+              "ReplicaStatusDescription": null,
+              "ReplicaStatusPercentProgress": null,
+              "ReplicaTableClassSummary": null,
+              "WarmThroughput": null
+            }
+          ]
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "DescribeGlobalTableSettings": {
+    "requests": [
+      {
+        "body": {
+          "GlobalTableName": "Music"
+        },
+        "target": "DynamoDB_20120810.DescribeGlobalTableSettings"
+      }
+    ],
+    "result": {
+      "body": {
+        "GlobalTableName": "Music",
+        "ReplicaSettings": [
+          {
+            "RegionName": "us-east-1",
+            "ReplicaBillingModeSummary": {
+              "BillingMode": "PROVISIONED",
+              "LastUpdateToPayPerRequestDateTime": null
+            },
+            "ReplicaGlobalSecondaryIndexSettings": [],
+            "ReplicaProvisionedReadCapacityAutoScalingSettings": {
+              "AutoScalingDisabled": false,
+              "AutoScalingRoleArn": "arn:aws:iam::123456789012:role/scaling",
+              "MaximumUnits": 100,
+              "MinimumUnits": 5,
+              "ScalingPolicies": [
+                {
+                  "PolicyName": "ReadPolicy",
+                  "TargetTrackingScalingPolicyConfiguration": {
+                    "DisableScaleIn": false,
+                    "ScaleInCooldown": 60,
+                    "ScaleOutCooldown": 60,
+                    "TargetValue": 70.0
+                  }
+                }
+              ]
+            },
+            "ReplicaProvisionedReadCapacityUnits": 5,
+            "ReplicaProvisionedWriteCapacityAutoScalingSettings": null,
+            "ReplicaProvisionedWriteCapacityUnits": 5,
+            "ReplicaStatus": "ACTIVE",
+            "ReplicaTableClassSummary": null
+          }
+        ]
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "DescribeLimits": {
+    "requests": [
+      {
+        "body": {},
+        "target": "DynamoDB_20120810.DescribeLimits"
+      }
+    ],
+    "result": {
+      "body": {
+        "AccountMaxReadCapacityUnits": 80000,
+        "AccountMaxWriteCapacityUnits": 80000,
+        "TableMaxReadCapacityUnits": 40000,
+        "TableMaxWriteCapacityUnits": 40000
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "DescribeTable": {
+    "requests": [
+      {
+        "body": {
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.DescribeTable"
+      }
+    ],
+    "result": {
+      "body": {
+        "Table": {
+          "ArchivalSummary": null,
+          "AttributeDefinitions": [
+            {
+              "AttributeName": "Artist",
+              "AttributeType": "S"
+            },
+            {
+              "AttributeName": "SongTitle",
+              "AttributeType": "S"
+            },
+            {
+              "AttributeName": "AlbumTitle",
+              "AttributeType": "S"
+            }
+          ],
+          "BillingModeSummary": {
+            "BillingMode": "PROVISIONED",
+            "LastUpdateToPayPerRequestDateTime": "Instant:2017-03-15T18:21:40Z"
+          },
+          "CreationDateTime": "Instant:2017-03-15T18:20:00Z",
+          "DeletionProtectionEnabled": null,
+          "GlobalSecondaryIndexes": [
+            {
+              "Backfilling": false,
+              "IndexArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music/index/TitleIndex",
+              "IndexName": "TitleIndex",
+              "IndexSizeBytes": 512,
+              "IndexStatus": "ACTIVE",
+              "ItemCount": 12,
+              "KeySchema": [
+                {
+                  "AttributeName": "SongTitle",
+                  "KeyType": "HASH"
+                }
+              ],
+              "OnDemandThroughput": null,
+              "Projection": {
+                "NonKeyAttributes": [],
+                "ProjectionType": "KEYS_ONLY"
+              },
+              "ProvisionedThroughput": {
+                "LastDecreaseDateTime": null,
+                "LastIncreaseDateTime": null,
+                "NumberOfDecreasesToday": 0,
+                "ReadCapacityUnits": 1,
+                "WriteCapacityUnits": 1
+              },
+              "WarmThroughput": null
+            }
+          ],
+          "GlobalTableSettingsReplicationMode": null,
+          "GlobalTableVersion": "2019.11.21",
+          "GlobalTableWitnesses": [],
+          "ItemCount": 12,
+          "KeySchema": [
+            {
+              "AttributeName": "Artist",
+              "KeyType": "HASH"
+            },
+            {
+              "AttributeName": "SongTitle",
+              "KeyType": "RANGE"
+            }
+          ],
+          "LatestStreamArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music/stream/2017-03-15T18:33:17.149",
+          "LatestStreamLabel": "2017-03-15T18:33:17.149",
+          "LocalSecondaryIndexes": [
+            {
+              "IndexArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music/index/AlbumIndex",
+              "IndexName": "AlbumIndex",
+              "IndexSizeBytes": 1024,
+              "ItemCount": 12,
+              "KeySchema": [
+                {
+                  "AttributeName": "Artist",
+                  "KeyType": "HASH"
+                },
+                {
+                  "AttributeName": "AlbumTitle",
+                  "KeyType": "RANGE"
+                }
+              ],
+              "Projection": {
+                "NonKeyAttributes": ["Year", "Genre"],
+                "ProjectionType": "INCLUDE"
+              }
+            }
+          ],
+          "MultiRegionConsistency": null,
+          "OnDemandThroughput": null,
+          "ProvisionedThroughput": {
+            "LastDecreaseDateTime": null,
+            "LastIncreaseDateTime": "Instant:2017-03-15T18:28:20Z",
+            "NumberOfDecreasesToday": 0,
+            "ReadCapacityUnits": 5,
+            "WriteCapacityUnits": 5
+          },
+          "Replicas": [
+            {
+              "GlobalSecondaryIndexes": [],
+              "GlobalTableSettingsReplicationMode": null,
+              "KMSMasterKeyId": null,
+              "OnDemandThroughputOverride": null,
+              "ProvisionedThroughputOverride": null,
+              "RegionName": "us-east-2",
+              "ReplicaArn": null,
+              "ReplicaInaccessibleDateTime": null,
+              "ReplicaStatus": "ACTIVE",
+              "ReplicaStatusDescription": null,
+              "ReplicaStatusPercentProgress": "100",
+              "ReplicaTableClassSummary": null,
+              "WarmThroughput": null
+            }
+          ],
+          "RestoreSummary": {
+            "RestoreDateTime": "Instant:2017-03-15T18:20:00Z",
+            "RestoreInProgress": false,
+            "SourceBackupArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music/backup/01489602797149-73d8d5bc",
+            "SourceTableArn": null
+          },
+          "SSEDescription": {
+            "InaccessibleEncryptionDateTime": null,
+            "KMSMasterKeyArn": "arn:aws:kms:us-east-1:123456789012:key/abcd",
+            "SSEType": "KMS",
+            "Status": "ENABLED"
+          },
+          "StreamSpecification": {
+            "StreamEnabled": true,
+            "StreamViewType": "NEW_AND_OLD_IMAGES"
+          },
+          "TableArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music",
+          "TableClassSummary": null,
+          "TableId": "<uuid>",
+          "TableName": "Music",
+          "TableSizeBytes": 2048,
+          "TableStatus": "ACTIVE",
+          "VectorIndexes": [],
+          "WarmThroughput": null
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "DescribeTableReplicaAutoScaling": {
+    "requests": [
+      {
+        "body": {
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.DescribeTableReplicaAutoScaling"
+      }
+    ],
+    "result": {
+      "body": {
+        "TableAutoScalingDescription": {
+          "Replicas": [
+            {
+              "GlobalSecondaryIndexes": [
+                {
+                  "IndexName": "TitleIndex",
+                  "IndexStatus": "ACTIVE",
+                  "ProvisionedReadCapacityAutoScalingSettings": null,
+                  "ProvisionedWriteCapacityAutoScalingSettings": null
+                }
+              ],
+              "RegionName": "us-east-1",
+              "ReplicaProvisionedReadCapacityAutoScalingSettings": {
+                "AutoScalingDisabled": false,
+                "AutoScalingRoleArn": null,
+                "MaximumUnits": 40000,
+                "MinimumUnits": 5,
+                "ScalingPolicies": [
+                  {
+                    "PolicyName": "ReadPolicy",
+                    "TargetTrackingScalingPolicyConfiguration": {
+                      "DisableScaleIn": null,
+                      "ScaleInCooldown": null,
+                      "ScaleOutCooldown": null,
+                      "TargetValue": 70.0
+                    }
+                  }
+                ]
+              },
+              "ReplicaProvisionedWriteCapacityAutoScalingSettings": null,
+              "ReplicaStatus": "ACTIVE"
+            }
+          ],
+          "TableName": "Music",
+          "TableStatus": "ACTIVE"
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "DescribeTimeToLive": {
+    "requests": [
+      {
+        "body": {
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.DescribeTimeToLive"
+      }
+    ],
+    "result": {
+      "body": {
+        "TimeToLiveDescription": {
+          "AttributeName": "ttl",
+          "TimeToLiveStatus": "ENABLED"
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "ExecuteStatement": {
+    "requests": [],
+    "result": {
+      "body": "software.amazon.awssdk.services.dynamodb.model.ExecuteStatementRequest",
+      "errorType": "INTERNAL_ERROR",
+      "isExecutionSuccess": false,
+      "pluginErrorDetails": {
+        "appsmithErrorCode": "PE-DYN-5001",
+        "appsmithErrorMessage": "Unknown action: `ExecuteStatement`. Note that action names are case-sensitive.",
+        "downstreamErrorCode": null,
+        "downstreamErrorMessage": "software.amazon.awssdk.services.dynamodb.model.ExecuteStatementRequest",
+        "errorType": "INTERNAL_ERROR",
+        "title": "Query execution error"
+      },
+      "statusCode": "PE-DYN-5001",
+      "title": "Query execution error"
+    }
+  },
+  "GetItem": {
+    "requests": [
+      {
+        "body": {
+          "ConsistentRead": true,
+          "ExpressionAttributeNames": {
+            "#yr": "Year"
+          },
+          "Key": {
+            "Artist": {
+              "S": "No One You Know"
+            },
+            "SongTitle": {
+              "S": "Call Me Today"
+            }
+          },
+          "ProjectionExpression": "Artist, SongTitle, #yr, Price, Cover, Explicit, Remastered, Producer, Tags, ChartPositions, Samples, Album, Credits, EmptyList, EmptyMap",
+          "ReturnConsumedCapacity": "TOTAL",
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.GetItem"
+      }
+    ],
+    "result": {
+      "body": {
+        "ConsumedCapacity": {
+          "CapacityUnits": 1.0,
+          "GlobalSecondaryIndexes": {},
+          "LocalSecondaryIndexes": {},
+          "ReadCapacityUnits": null,
+          "Table": null,
+          "TableName": "Music",
+          "VectorIndexes": {},
+          "WriteCapacityUnits": null
+        },
+        "Item": {
+          "Album": {
+            "Formats": ["CD", "Vinyl"],
+            "Title": "Somewhat Famous",
+            "Tracks": "12"
+          },
+          "Artist": "No One You Know",
+          "ChartPositions": ["1", "4", "12"],
+          "Cover": "image-bytes",
+          "Credits": [
+            {
+              "Name": "Jane",
+              "Role": "Writer"
+            },
+            "Session band",
+            "3",
+            true,
+            true
+          ],
+          "EmptyList": {},
+          "EmptyMap": {},
+          "Explicit": false,
+          "Price": "1.99",
+          "Producer": true,
+          "Remastered": true,
+          "Samples": ["sample-1", "sample-2"],
+          "SongTitle": "Call Me Today",
+          "Tags": ["pop", "rock"],
+          "Year": "2015"
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "GetItem_emptyBody": {
+    "requests": [
+      {
+        "body": {},
+        "target": "DynamoDB_20120810.GetItem"
+      }
+    ],
+    "result": {
+      "body": "1 validation error detected: Value null at 'tableName' failed to satisfy constraint: Member must not be null (Service: DynamoDb, Status Code: 400, Request ID: request-id-1) (SDK Attempt Count: 1)",
+      "errorType": "INTERNAL_ERROR",
+      "isExecutionSuccess": false,
+      "pluginErrorDetails": {
+        "appsmithErrorCode": "PE-DYN-5000",
+        "appsmithErrorMessage": "Error occurred while executing DynamoDB query.",
+        "downstreamErrorCode": null,
+        "downstreamErrorMessage": "1 validation error detected: Value null at 'tableName' failed to satisfy constraint: Member must not be null (Service: DynamoDb, Status Code: 400, Request ID: request-id-1) (SDK Attempt Count: 1)",
+        "errorType": "INTERNAL_ERROR",
+        "title": "Query execution error"
+      },
+      "statusCode": "PE-DYN-5000",
+      "title": "Query execution error"
+    }
+  },
+  "GetItem_resourceNotFound": {
+    "requests": [
+      {
+        "body": {
+          "Key": {
+            "Artist": {
+              "S": "No One You Know"
+            }
+          },
+          "TableName": "Missing"
+        },
+        "target": "DynamoDB_20120810.GetItem"
+      }
+    ],
+    "result": {
+      "body": "Requested resource not found (Service: DynamoDb, Status Code: 400, Request ID: request-id-1) (SDK Attempt Count: 1)",
+      "errorType": "INTERNAL_ERROR",
+      "isExecutionSuccess": false,
+      "pluginErrorDetails": {
+        "appsmithErrorCode": "PE-DYN-5000",
+        "appsmithErrorMessage": "Error occurred while executing DynamoDB query.",
+        "downstreamErrorCode": null,
+        "downstreamErrorMessage": "Requested resource not found (Service: DynamoDb, Status Code: 400, Request ID: request-id-1) (SDK Attempt Count: 1)",
+        "errorType": "INTERNAL_ERROR",
+        "title": "Query execution error"
+      },
+      "statusCode": "PE-DYN-5000",
+      "title": "Query execution error"
+    }
+  },
+  "GetItem_unknownAttribute": {
+    "requests": [],
+    "result": {
+      "body": "Invalid attribute/value by name NotAField",
+      "errorType": "ACTION_CONFIGURATION_ERROR",
+      "isExecutionSuccess": false,
+      "pluginErrorDetails": {
+        "appsmithErrorCode": "PE-ARG-5000",
+        "appsmithErrorMessage": "Invalid attribute/value by name NotAField",
+        "downstreamErrorCode": null,
+        "downstreamErrorMessage": null,
+        "errorType": "ACTION_CONFIGURATION_ERROR",
+        "title": "Query configuration is invalid"
+      },
+      "statusCode": "PE-ARG-5000",
+      "title": "Query configuration is invalid"
+    }
+  },
+  "GetItem_wrongValueType": {
+    "requests": [],
+    "result": {
+      "body": "software.amazon.awssdk.services.dynamodb.model.GetItemRequest$Builder.tableName(java.lang.Integer)",
+      "errorType": "INTERNAL_ERROR",
+      "isExecutionSuccess": false,
+      "pluginErrorDetails": {
+        "appsmithErrorCode": "PE-DYN-5000",
+        "appsmithErrorMessage": "Error occurred while executing DynamoDB query.",
+        "downstreamErrorCode": null,
+        "downstreamErrorMessage": "software.amazon.awssdk.services.dynamodb.model.GetItemRequest$Builder.tableName(java.lang.Integer)",
+        "errorType": "INTERNAL_ERROR",
+        "title": "Query execution error"
+      },
+      "statusCode": "PE-DYN-5000",
+      "title": "Query execution error"
+    }
+  },
+  "ListBackups": {
+    "requests": [
+      {
+        "body": {
+          "BackupType": "USER",
+          "ExclusiveStartBackupArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music/backup/01489602000000-00000000",
+          "Limit": 2,
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.ListBackups"
+      }
+    ],
+    "result": {
+      "body": {
+        "BackupSummaries": [
+          {
+            "BackupArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music/backup/01489602797149-73d8d5bc",
+            "BackupCreationDateTime": "Instant:2017-03-15T18:33:17.149Z",
+            "BackupExpiryDateTime": null,
+            "BackupName": "MusicBackup",
+            "BackupSizeBytes": 1024,
+            "BackupStatus": "AVAILABLE",
+            "BackupType": "USER",
+            "TableArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music",
+            "TableId": "<uuid>",
+            "TableName": "Music"
+          }
+        ],
+        "LastEvaluatedBackupArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music/backup/01489602797149-73d8d5bc"
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "ListContributorInsights": {
+    "requests": [
+      {
+        "body": {
+          "MaxResults": 10,
+          "NextToken": "page-1",
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.ListContributorInsights"
+      }
+    ],
+    "result": {
+      "body": {
+        "ContributorInsightsSummaries": [
+          {
+            "ContributorInsightsMode": null,
+            "ContributorInsightsStatus": "ENABLED",
+            "IndexName": "AlbumIndex",
+            "TableName": "Music"
+          }
+        ],
+        "NextToken": "page-2"
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "ListGlobalTables": {
+    "requests": [
+      {
+        "body": {
+          "ExclusiveStartGlobalTableName": "Forum",
+          "Limit": 5,
+          "RegionName": "us-east-1"
+        },
+        "target": "DynamoDB_20120810.ListGlobalTables"
+      }
+    ],
+    "result": {
+      "body": {
+        "GlobalTables": [
+          {
+            "GlobalTableName": "Music",
+            "ReplicationGroup": [
+              {
+                "RegionName": "us-east-1"
+              },
+              {
+                "RegionName": "us-east-2"
+              }
+            ]
+          }
+        ],
+        "LastEvaluatedGlobalTableName": "Music"
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "ListTables": {
+    "requests": [
+      {
+        "body": {
+          "ExclusiveStartTableName": "Forum",
+          "Limit": 2
+        },
+        "target": "DynamoDB_20120810.ListTables"
+      }
+    ],
+    "result": {
+      "body": {
+        "LastEvaluatedTableName": "Reply",
+        "TableNames": ["Music", "Reply"]
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "ListTables_noBody": {
+    "requests": [
+      {
+        "body": {},
+        "target": "DynamoDB_20120810.ListTables"
+      }
+    ],
+    "result": {
+      "body": {
+        "LastEvaluatedTableName": null,
+        "TableNames": ["Forum", "Music", "Reply", "Thread"]
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "ListTagsOfResource": {
+    "requests": [
+      {
+        "body": {
+          "NextToken": "page-1",
+          "ResourceArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music"
+        },
+        "target": "DynamoDB_20120810.ListTagsOfResource"
+      }
+    ],
+    "result": {
+      "body": {
+        "NextToken": "page-2",
+        "Tags": [
+          {
+            "Key": "Owner",
+            "Value": "blueTeam"
+          },
+          {
+            "Key": "Stage",
+            "Value": "prod"
+          }
+        ]
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "NotAnAction": {
+    "requests": [],
+    "result": {
+      "body": "software.amazon.awssdk.services.dynamodb.model.NotAnActionRequest",
+      "errorType": "INTERNAL_ERROR",
+      "isExecutionSuccess": false,
+      "pluginErrorDetails": {
+        "appsmithErrorCode": "PE-DYN-5001",
+        "appsmithErrorMessage": "Unknown action: `NotAnAction`. Note that action names are case-sensitive.",
+        "downstreamErrorCode": null,
+        "downstreamErrorMessage": "software.amazon.awssdk.services.dynamodb.model.NotAnActionRequest",
+        "errorType": "INTERNAL_ERROR",
+        "title": "Query execution error"
+      },
+      "statusCode": "PE-DYN-5001",
+      "title": "Query execution error"
+    }
+  },
+  "PutItem": {
+    "requests": [
+      {
+        "body": {
+          "ConditionExpression": "attribute_not_exists(Artist)",
+          "Item": {
+            "Album": {
+              "M": {
+                "Formats": {
+                  "L": [
+                    {
+                      "S": "CD"
+                    },
+                    {
+                      "S": "Vinyl"
+                    }
+                  ]
+                },
+                "Label": {
+                  "M": {
+                    "Name": {
+                      "S": "Acme"
+                    }
+                  }
+                },
+                "Title": {
+                  "S": "Somewhat Famous"
+                }
+              }
+            },
+            "Artist": {
+              "S": "No One You Know"
+            },
+            "ChartPositions": {
+              "NS": ["1", "4", "12"]
+            },
+            "Cover": {
+              "B": "aW1hZ2UtYnl0ZXM="
+            },
+            "Credits": {
+              "L": [
+                {
+                  "M": {
+                    "Name": {
+                      "S": "Jane"
+                    },
+                    "Role": {
+                      "S": "Writer"
+                    }
+                  }
+                },
+                {
+                  "S": "Session band"
+                },
+                {
+                  "N": "3"
+                },
+                {
+                  "BOOL": true
+                },
+                {
+                  "NULL": true
+                },
+                {
+                  "SS": ["a", "b"]
+                },
+                {
+                  "L": [
+                    {
+                      "S": "nested"
+                    }
+                  ]
+                }
+              ]
+            },
+            "Explicit": {
+              "BOOL": false
+            },
+            "Price": {
+              "N": "1.99"
+            },
+            "Producer": {
+              "NULL": true
+            },
+            "Samples": {
+              "BS": ["c2FtcGxlLTE=", "c2FtcGxlLTI="]
+            },
+            "SongTitle": {
+              "S": "Call Me Today"
+            },
+            "Tags": {
+              "SS": ["pop", "rock"]
+            },
+            "Year": {
+              "N": "2015"
+            }
+          },
+          "ReturnConsumedCapacity": "TOTAL",
+          "ReturnItemCollectionMetrics": "SIZE",
+          "ReturnValues": "ALL_OLD",
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.PutItem"
+      }
+    ],
+    "result": {
+      "body": {
+        "Attributes": {
+          "Artist": "No One You Know",
+          "SongTitle": "Call Me Today",
+          "Year": "2014"
+        },
+        "ConsumedCapacity": {
+          "CapacityUnits": 1.0,
+          "GlobalSecondaryIndexes": {},
+          "LocalSecondaryIndexes": {},
+          "ReadCapacityUnits": null,
+          "Table": null,
+          "TableName": "Music",
+          "VectorIndexes": {},
+          "WriteCapacityUnits": null
+        },
+        "ItemCollectionMetrics": {
+          "ItemCollectionKey": {
+            "Artist": "No One You Know"
+          },
+          "SizeEstimateRangeGB": [0.0, 1.0]
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "PutItem_binaryInListAndMap": {
+    "requests": [
+      {
+        "body": {
+          "Item": {
+            "Album": {
+              "M": {
+                "Art": {
+                  "B": "YUdWc2JHOD0="
+                }
+              }
+            },
+            "Artist": {
+              "S": "No One You Know"
+            },
+            "Covers": {
+              "L": [
+                {
+                  "B": "YUdWc2JHOD0="
+                },
+                {
+                  "S": "not binary"
+                }
+              ]
+            },
+            "SongTitle": {
+              "S": "Binary Song"
+            }
+          },
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.PutItem"
+      }
+    ],
+    "result": {
+      "body": {
+        "Attributes": {},
+        "ConsumedCapacity": null,
+        "ItemCollectionMetrics": null
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "PutItem_conditionalCheckFailed": {
+    "requests": [
+      {
+        "body": {
+          "ConditionExpression": "attribute_not_exists(Artist)",
+          "Item": {
+            "Artist": {
+              "S": "No One You Know"
+            },
+            "SongTitle": {
+              "S": "Call Me Today"
+            }
+          },
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.PutItem"
+      }
+    ],
+    "result": {
+      "body": "The conditional request failed (Service: DynamoDb, Status Code: 400, Request ID: request-id-1) (SDK Attempt Count: 1)",
+      "errorType": "INTERNAL_ERROR",
+      "isExecutionSuccess": false,
+      "pluginErrorDetails": {
+        "appsmithErrorCode": "PE-DYN-5000",
+        "appsmithErrorMessage": "Error occurred while executing DynamoDB query.",
+        "downstreamErrorCode": null,
+        "downstreamErrorMessage": "The conditional request failed (Service: DynamoDb, Status Code: 400, Request ID: request-id-1) (SDK Attempt Count: 1)",
+        "errorType": "INTERNAL_ERROR",
+        "title": "Query execution error"
+      },
+      "statusCode": "PE-DYN-5000",
+      "title": "Query execution error"
+    }
+  },
+  "PutItem_mapMemberNotAttributeValue": {
+    "requests": [],
+    "result": {
+      "body": "class java.lang.String cannot be cast to class software.amazon.awssdk.services.dynamodb.model.AttributeValue (java.lang.String is in module java.base of loader 'bootstrap'; software.amazon.awssdk.services.dynamodb.model.AttributeValue is in unnamed module of loader 'app')",
+      "errorType": "INTERNAL_ERROR",
+      "isExecutionSuccess": false,
+      "pluginErrorDetails": {
+        "appsmithErrorCode": "PE-DYN-5000",
+        "appsmithErrorMessage": "Error occurred while executing DynamoDB query.",
+        "downstreamErrorCode": null,
+        "downstreamErrorMessage": "class java.lang.String cannot be cast to class software.amazon.awssdk.services.dynamodb.model.AttributeValue (java.lang.String is in module java.base of loader 'bootstrap'; software.amazon.awssdk.services.dynamodb.model.AttributeValue is in unnamed module of loader 'app')",
+        "errorType": "INTERNAL_ERROR",
+        "title": "Query execution error"
+      },
+      "statusCode": "PE-DYN-5000",
+      "title": "Query execution error"
+    }
+  },
+  "Query": {
+    "requests": [
+      {
+        "body": {
+          "ConsistentRead": false,
+          "ExclusiveStartKey": {
+            "AlbumTitle": {
+              "S": "Album 1"
+            },
+            "Artist": {
+              "S": "No One You Know"
+            },
+            "SongTitle": {
+              "S": "Ballad"
+            }
+          },
+          "ExpressionAttributeNames": {
+            "#yr": "Year"
+          },
+          "ExpressionAttributeValues": {
+            ":artist": {
+              "S": "No One You Know"
+            },
+            ":explicit": {
+              "BOOL": false
+            },
+            ":price": {
+              "N": "5"
+            },
+            ":tag": {
+              "S": "rock"
+            },
+            ":title": {
+              "S": "A"
+            }
+          },
+          "FilterExpression": "contains(Tags, :tag) AND Price < :price AND Explicit = :explicit",
+          "IndexName": "AlbumIndex",
+          "KeyConditionExpression": "Artist = :artist AND AlbumTitle > :title",
+          "Limit": 2,
+          "ProjectionExpression": "Artist, AlbumTitle, #yr",
+          "ReturnConsumedCapacity": "INDEXES",
+          "ScanIndexForward": false,
+          "Select": "SPECIFIC_ATTRIBUTES",
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.Query"
+      }
+    ],
+    "result": {
+      "body": {
+        "ConsumedCapacity": {
+          "CapacityUnits": 0.5,
+          "GlobalSecondaryIndexes": {},
+          "LocalSecondaryIndexes": {
+            "AlbumIndex": {
+              "CapacityUnits": 0.5,
+              "ReadCapacityUnits": null,
+              "WriteCapacityUnits": null
+            }
+          },
+          "ReadCapacityUnits": null,
+          "Table": {
+            "CapacityUnits": 0.0,
+            "ReadCapacityUnits": null,
+            "WriteCapacityUnits": null
+          },
+          "TableName": "Music",
+          "VectorIndexes": {},
+          "WriteCapacityUnits": null
+        },
+        "Count": 2,
+        "Items": [
+          {
+            "AlbumTitle": "Somewhat Famous",
+            "Artist": "No One You Know",
+            "Year": "2015"
+          },
+          {
+            "AlbumTitle": "Blue Sky Blues",
+            "Artist": "No One You Know",
+            "Year": "2013"
+          }
+        ],
+        "LastEvaluatedKey": {
+          "AlbumTitle": "Blue Sky Blues",
+          "Artist": "No One You Know",
+          "SongTitle": "Call Me Today"
+        },
+        "ScannedCount": 3
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "RestoreTableFromBackup": {
+    "requests": [
+      {
+        "body": {
+          "BackupArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music/backup/01489602797149-73d8d5bc",
+          "BillingModeOverride": "PAY_PER_REQUEST",
+          "TargetTableName": "MusicRestored"
+        },
+        "target": "DynamoDB_20120810.RestoreTableFromBackup"
+      }
+    ],
+    "result": {
+      "body": {
+        "TableDescription": {
+          "ArchivalSummary": null,
+          "AttributeDefinitions": [],
+          "BillingModeSummary": {
+            "BillingMode": "PAY_PER_REQUEST",
+            "LastUpdateToPayPerRequestDateTime": null
+          },
+          "CreationDateTime": null,
+          "DeletionProtectionEnabled": null,
+          "GlobalSecondaryIndexes": [],
+          "GlobalTableSettingsReplicationMode": null,
+          "GlobalTableVersion": null,
+          "GlobalTableWitnesses": [],
+          "ItemCount": null,
+          "KeySchema": [],
+          "LatestStreamArn": null,
+          "LatestStreamLabel": null,
+          "LocalSecondaryIndexes": [],
+          "MultiRegionConsistency": null,
+          "OnDemandThroughput": null,
+          "ProvisionedThroughput": null,
+          "Replicas": [],
+          "RestoreSummary": {
+            "RestoreDateTime": "Instant:2017-03-15T18:33:17.149Z",
+            "RestoreInProgress": true,
+            "SourceBackupArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music/backup/01489602797149-73d8d5bc",
+            "SourceTableArn": null
+          },
+          "SSEDescription": null,
+          "StreamSpecification": null,
+          "TableArn": null,
+          "TableClassSummary": null,
+          "TableId": null,
+          "TableName": "MusicRestored",
+          "TableSizeBytes": null,
+          "TableStatus": "CREATING",
+          "VectorIndexes": [],
+          "WarmThroughput": null
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "RestoreTableToPointInTime": {
+    "requests": [
+      {
+        "body": {
+          "BillingModeOverride": "PROVISIONED",
+          "SourceTableName": "Music",
+          "TargetTableName": "MusicPitr",
+          "UseLatestRestorableTime": true
+        },
+        "target": "DynamoDB_20120810.RestoreTableToPointInTime"
+      }
+    ],
+    "result": {
+      "body": {
+        "TableDescription": {
+          "ArchivalSummary": null,
+          "AttributeDefinitions": [],
+          "BillingModeSummary": null,
+          "CreationDateTime": null,
+          "DeletionProtectionEnabled": null,
+          "GlobalSecondaryIndexes": [],
+          "GlobalTableSettingsReplicationMode": null,
+          "GlobalTableVersion": null,
+          "GlobalTableWitnesses": [],
+          "ItemCount": null,
+          "KeySchema": [],
+          "LatestStreamArn": null,
+          "LatestStreamLabel": null,
+          "LocalSecondaryIndexes": [],
+          "MultiRegionConsistency": null,
+          "OnDemandThroughput": null,
+          "ProvisionedThroughput": null,
+          "Replicas": [],
+          "RestoreSummary": {
+            "RestoreDateTime": "Instant:2017-03-15T18:33:17.149Z",
+            "RestoreInProgress": true,
+            "SourceBackupArn": null,
+            "SourceTableArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music"
+          },
+          "SSEDescription": null,
+          "StreamSpecification": null,
+          "TableArn": null,
+          "TableClassSummary": null,
+          "TableId": null,
+          "TableName": "MusicPitr",
+          "TableSizeBytes": null,
+          "TableStatus": "CREATING",
+          "VectorIndexes": [],
+          "WarmThroughput": null
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "Scan": {
+    "requests": [
+      {
+        "body": {
+          "ConsistentRead": false,
+          "ExclusiveStartKey": {
+            "Artist": {
+              "S": "Acme Band"
+            },
+            "SongTitle": {
+              "S": "Happy Day"
+            }
+          },
+          "ExpressionAttributeNames": {
+            "#yr": "Year"
+          },
+          "ExpressionAttributeValues": {
+            ":from": {
+              "N": "2010"
+            },
+            ":remastered": {
+              "BOOL": true
+            },
+            ":to": {
+              "N": "2020"
+            }
+          },
+          "FilterExpression": "#yr BETWEEN :from AND :to AND Remastered = :remastered",
+          "Limit": 10,
+          "ProjectionExpression": "Artist, SongTitle, #yr",
+          "ReturnConsumedCapacity": "TOTAL",
+          "Segment": 0,
+          "TableName": "Music",
+          "TotalSegments": 2
+        },
+        "target": "DynamoDB_20120810.Scan"
+      }
+    ],
+    "result": {
+      "body": {
+        "ConsumedCapacity": {
+          "CapacityUnits": 0.5,
+          "GlobalSecondaryIndexes": {},
+          "LocalSecondaryIndexes": {},
+          "ReadCapacityUnits": null,
+          "Table": null,
+          "TableName": "Music",
+          "VectorIndexes": {},
+          "WriteCapacityUnits": null
+        },
+        "Count": 1,
+        "Items": [
+          {
+            "Artist": "No One You Know",
+            "SongTitle": "Call Me Today",
+            "Year": "2015"
+          }
+        ],
+        "LastEvaluatedKey": {
+          "Artist": "No One You Know",
+          "SongTitle": "Call Me Today"
+        },
+        "ScannedCount": 10
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "TagResource": {
+    "requests": [
+      {
+        "body": {
+          "ResourceArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music",
+          "Tags": [
+            {
+              "Key": "Owner",
+              "Value": "blueTeam"
+            },
+            {
+              "Key": "Stage",
+              "Value": "prod"
+            }
+          ]
+        },
+        "target": "DynamoDB_20120810.TagResource"
+      }
+    ],
+    "result": {
+      "body": {},
+      "isExecutionSuccess": true
+    }
+  },
+  "TransactGetItems": {
+    "requests": [
+      {
+        "body": {
+          "ReturnConsumedCapacity": "TOTAL",
+          "TransactItems": [
+            {
+              "Get": {
+                "ExpressionAttributeNames": {
+                  "#yr": "Year"
+                },
+                "Key": {
+                  "Artist": {
+                    "S": "No One You Know"
+                  },
+                  "SongTitle": {
+                    "S": "Call Me Today"
+                  }
+                },
+                "ProjectionExpression": "Artist, #yr",
+                "TableName": "Music"
+              }
+            },
+            {
+              "Get": {
+                "Key": {
+                  "Artist": {
+                    "S": "Acme Band"
+                  },
+                  "SongTitle": {
+                    "S": "Happy Day"
+                  }
+                },
+                "TableName": "Music"
+              }
+            }
+          ]
+        },
+        "target": "DynamoDB_20120810.TransactGetItems"
+      }
+    ],
+    "result": {
+      "body": {
+        "ConsumedCapacity": [
+          {
+            "CapacityUnits": 4.0,
+            "GlobalSecondaryIndexes": {},
+            "LocalSecondaryIndexes": {},
+            "ReadCapacityUnits": null,
+            "Table": null,
+            "TableName": "Music",
+            "VectorIndexes": {},
+            "WriteCapacityUnits": null
+          }
+        ],
+        "Responses": [
+          {
+            "Item": {
+              "Artist": "No One You Know",
+              "Year": "2015"
+            }
+          },
+          {
+            "Item": {}
+          }
+        ]
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "TransactWriteItems": {
+    "requests": [
+      {
+        "body": {
+          "ClientRequestToken": "request-token-1",
+          "ReturnConsumedCapacity": "TOTAL",
+          "TransactItems": [
+            {
+              "Put": {
+                "Item": {
+                  "Artist": {
+                    "S": "No One You Know"
+                  },
+                  "SongTitle": {
+                    "S": "New Song"
+                  }
+                },
+                "TableName": "Music"
+              }
+            },
+            {
+              "Update": {
+                "ExpressionAttributeValues": {
+                  ":inc": {
+                    "N": "1"
+                  }
+                },
+                "Key": {
+                  "Artist": {
+                    "S": "No One You Know"
+                  },
+                  "SongTitle": {
+                    "S": "Call Me Today"
+                  }
+                },
+                "TableName": "Music",
+                "UpdateExpression": "SET Plays = Plays + :inc"
+              }
+            },
+            {
+              "Delete": {
+                "Key": {
+                  "Artist": {
+                    "S": "Acme Band"
+                  },
+                  "SongTitle": {
+                    "S": "Happy Day"
+                  }
+                },
+                "TableName": "Music"
+              }
+            }
+          ]
+        },
+        "target": "DynamoDB_20120810.TransactWriteItems"
+      }
+    ],
+    "result": {
+      "body": {
+        "ConsumedCapacity": [
+          {
+            "CapacityUnits": 6.0,
+            "GlobalSecondaryIndexes": {},
+            "LocalSecondaryIndexes": {},
+            "ReadCapacityUnits": null,
+            "Table": null,
+            "TableName": "Music",
+            "VectorIndexes": {},
+            "WriteCapacityUnits": null
+          }
+        ],
+        "ItemCollectionMetrics": {}
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "TransactWriteItems_binaryInPut": {
+    "requests": [
+      {
+        "body": {
+          "ClientRequestToken": "request-token-4",
+          "TransactItems": [
+            {
+              "Put": {
+                "Item": {
+                  "Artist": {
+                    "S": "No One You Know"
+                  },
+                  "Cover": {
+                    "B": "YUdWc2JHOD0="
+                  },
+                  "SongTitle": {
+                    "S": "Binary Song"
+                  }
+                },
+                "TableName": "Music"
+              }
+            }
+          ]
+        },
+        "target": "DynamoDB_20120810.TransactWriteItems"
+      }
+    ],
+    "result": {
+      "body": {
+        "ConsumedCapacity": [],
+        "ItemCollectionMetrics": {}
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "TransactWriteItems_canceled": {
+    "requests": [
+      {
+        "body": {
+          "ClientRequestToken": "request-token-3",
+          "TransactItems": [
+            {
+              "ConditionCheck": {
+                "ConditionExpression": "attribute_exists(Artist)",
+                "Key": {
+                  "Artist": {
+                    "S": "Acme Band"
+                  },
+                  "SongTitle": {
+                    "S": "Happy Day"
+                  }
+                },
+                "TableName": "Music"
+              }
+            }
+          ]
+        },
+        "target": "DynamoDB_20120810.TransactWriteItems"
+      }
+    ],
+    "result": {
+      "body": "Transaction cancelled, please refer cancellation reasons for specific reasons [ConditionalCheckFailed] (Service: DynamoDb, Status Code: 400, Request ID: request-id-1) (SDK Attempt Count: 1)",
+      "errorType": "INTERNAL_ERROR",
+      "isExecutionSuccess": false,
+      "pluginErrorDetails": {
+        "appsmithErrorCode": "PE-DYN-5000",
+        "appsmithErrorMessage": "Error occurred while executing DynamoDB query.",
+        "downstreamErrorCode": null,
+        "downstreamErrorMessage": "Transaction cancelled, please refer cancellation reasons for specific reasons [ConditionalCheckFailed] (Service: DynamoDb, Status Code: 400, Request ID: request-id-1) (SDK Attempt Count: 1)",
+        "errorType": "INTERNAL_ERROR",
+        "title": "Query execution error"
+      },
+      "statusCode": "PE-DYN-5000",
+      "title": "Query execution error"
+    }
+  },
+  "TransactWriteItems_updateAndConditionCheck": {
+    "requests": [
+      {
+        "body": {
+          "ClientRequestToken": "request-token-2",
+          "ReturnConsumedCapacity": "TOTAL",
+          "TransactItems": [
+            {
+              "Update": {
+                "ExpressionAttributeValues": {
+                  ":inc": {
+                    "N": "1"
+                  }
+                },
+                "Key": {
+                  "Artist": {
+                    "S": "No One You Know"
+                  },
+                  "SongTitle": {
+                    "S": "Call Me Today"
+                  }
+                },
+                "TableName": "Music",
+                "UpdateExpression": "SET Plays = Plays + :inc"
+              }
+            },
+            {
+              "ConditionCheck": {
+                "ConditionExpression": "attribute_exists(Artist)",
+                "Key": {
+                  "Artist": {
+                    "S": "Acme Band"
+                  },
+                  "SongTitle": {
+                    "S": "Happy Day"
+                  }
+                },
+                "TableName": "Music"
+              }
+            }
+          ]
+        },
+        "target": "DynamoDB_20120810.TransactWriteItems"
+      }
+    ],
+    "result": {
+      "body": {
+        "ConsumedCapacity": [
+          {
+            "CapacityUnits": 4.0,
+            "GlobalSecondaryIndexes": {},
+            "LocalSecondaryIndexes": {},
+            "ReadCapacityUnits": null,
+            "Table": null,
+            "TableName": "Music",
+            "VectorIndexes": {},
+            "WriteCapacityUnits": null
+          }
+        ],
+        "ItemCollectionMetrics": {}
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "UntagResource": {
+    "requests": [
+      {
+        "body": {
+          "ResourceArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music",
+          "TagKeys": ["Owner", "Stage"]
+        },
+        "target": "DynamoDB_20120810.UntagResource"
+      }
+    ],
+    "result": {
+      "body": {},
+      "isExecutionSuccess": true
+    }
+  },
+  "UpdateContinuousBackups": {
+    "requests": [
+      {
+        "body": {
+          "PointInTimeRecoverySpecification": {
+            "PointInTimeRecoveryEnabled": true
+          },
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.UpdateContinuousBackups"
+      }
+    ],
+    "result": {
+      "body": {
+        "ContinuousBackupsDescription": {
+          "ContinuousBackupsStatus": "ENABLED",
+          "PointInTimeRecoveryDescription": {
+            "EarliestRestorableDateTime": null,
+            "LatestRestorableDateTime": null,
+            "PointInTimeRecoveryStatus": "ENABLED",
+            "RecoveryPeriodInDays": null
+          }
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "UpdateContributorInsights": {
+    "requests": [
+      {
+        "body": {
+          "ContributorInsightsAction": "ENABLE",
+          "IndexName": "AlbumIndex",
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.UpdateContributorInsights"
+      }
+    ],
+    "result": {
+      "body": {
+        "ContributorInsightsMode": null,
+        "ContributorInsightsStatus": "ENABLING",
+        "IndexName": "AlbumIndex",
+        "TableName": "Music"
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "UpdateGlobalTable": {
+    "requests": [
+      {
+        "body": {
+          "GlobalTableName": "Music",
+          "ReplicaUpdates": [
+            {
+              "Create": {
+                "RegionName": "eu-west-1"
+              }
+            }
+          ]
+        },
+        "target": "DynamoDB_20120810.UpdateGlobalTable"
+      }
+    ],
+    "result": {
+      "body": {
+        "GlobalTableDescription": {
+          "CreationDateTime": null,
+          "GlobalTableArn": null,
+          "GlobalTableName": "Music",
+          "GlobalTableStatus": "UPDATING",
+          "ReplicationGroup": [
+            {
+              "GlobalSecondaryIndexes": [],
+              "GlobalTableSettingsReplicationMode": null,
+              "KMSMasterKeyId": null,
+              "OnDemandThroughputOverride": null,
+              "ProvisionedThroughputOverride": null,
+              "RegionName": "us-east-1",
+              "ReplicaArn": null,
+              "ReplicaInaccessibleDateTime": null,
+              "ReplicaStatus": "ACTIVE",
+              "ReplicaStatusDescription": null,
+              "ReplicaStatusPercentProgress": null,
+              "ReplicaTableClassSummary": null,
+              "WarmThroughput": null
+            },
+            {
+              "GlobalSecondaryIndexes": [],
+              "GlobalTableSettingsReplicationMode": null,
+              "KMSMasterKeyId": null,
+              "OnDemandThroughputOverride": null,
+              "ProvisionedThroughputOverride": null,
+              "RegionName": "eu-west-1",
+              "ReplicaArn": null,
+              "ReplicaInaccessibleDateTime": null,
+              "ReplicaStatus": "CREATING",
+              "ReplicaStatusDescription": null,
+              "ReplicaStatusPercentProgress": null,
+              "ReplicaTableClassSummary": null,
+              "WarmThroughput": null
+            }
+          ]
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "UpdateGlobalTableSettings": {
+    "requests": [
+      {
+        "body": {
+          "GlobalTableBillingMode": "PAY_PER_REQUEST",
+          "GlobalTableName": "Music"
+        },
+        "target": "DynamoDB_20120810.UpdateGlobalTableSettings"
+      }
+    ],
+    "result": {
+      "body": {
+        "GlobalTableName": "Music",
+        "ReplicaSettings": [
+          {
+            "RegionName": "us-east-1",
+            "ReplicaBillingModeSummary": {
+              "BillingMode": "PAY_PER_REQUEST",
+              "LastUpdateToPayPerRequestDateTime": null
+            },
+            "ReplicaGlobalSecondaryIndexSettings": [],
+            "ReplicaProvisionedReadCapacityAutoScalingSettings": null,
+            "ReplicaProvisionedReadCapacityUnits": null,
+            "ReplicaProvisionedWriteCapacityAutoScalingSettings": null,
+            "ReplicaProvisionedWriteCapacityUnits": null,
+            "ReplicaStatus": "UPDATING",
+            "ReplicaTableClassSummary": null
+          }
+        ]
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "UpdateItem": {
+    "requests": [
+      {
+        "body": {
+          "ConditionExpression": "attribute_exists(Artist)",
+          "ExpressionAttributeNames": {
+            "#yr": "Year"
+          },
+          "ExpressionAttributeValues": {
+            ":album": {
+              "M": {
+                "Cover": {
+                  "B": "Y292ZXItYnl0ZXM="
+                },
+                "Formats": {
+                  "L": [
+                    {
+                      "S": "Digital"
+                    }
+                  ]
+                }
+              }
+            },
+            ":inc": {
+              "N": "1"
+            },
+            ":tags": {
+              "SS": ["indie"]
+            },
+            ":title": {
+              "S": "Louder Than Ever"
+            },
+            ":yr": {
+              "N": "2016"
+            }
+          },
+          "Key": {
+            "Artist": {
+              "S": "No One You Know"
+            },
+            "SongTitle": {
+              "S": "Call Me Today"
+            }
+          },
+          "ReturnConsumedCapacity": "TOTAL",
+          "ReturnValues": "ALL_NEW",
+          "TableName": "Music",
+          "UpdateExpression": "SET AlbumTitle = :title, #yr = :yr, Album = :album REMOVE Obsolete ADD Tags :tags, Plays :inc"
+        },
+        "target": "DynamoDB_20120810.UpdateItem"
+      }
+    ],
+    "result": {
+      "body": {
+        "Attributes": {
+          "Album": {
+            "Cover": "cover-bytes",
+            "Formats": ["Digital"]
+          },
+          "AlbumTitle": "Louder Than Ever",
+          "Artist": "No One You Know",
+          "Plays": "11",
+          "SongTitle": "Call Me Today",
+          "Tags": ["indie", "pop", "rock"],
+          "Year": "2016"
+        },
+        "ConsumedCapacity": {
+          "CapacityUnits": 1.0,
+          "GlobalSecondaryIndexes": {},
+          "LocalSecondaryIndexes": {},
+          "ReadCapacityUnits": null,
+          "Table": null,
+          "TableName": "Music",
+          "VectorIndexes": {},
+          "WriteCapacityUnits": null
+        },
+        "ItemCollectionMetrics": null
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "UpdateTable": {
+    "requests": [
+      {
+        "body": {
+          "AttributeDefinitions": [
+            {
+              "AttributeName": "Artist",
+              "AttributeType": "S"
+            }
+          ],
+          "BillingMode": "PAY_PER_REQUEST",
+          "GlobalSecondaryIndexUpdates": [
+            {
+              "Delete": {
+                "IndexName": "TitleIndex"
+              }
+            }
+          ],
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.UpdateTable"
+      }
+    ],
+    "result": {
+      "body": {
+        "TableDescription": {
+          "ArchivalSummary": null,
+          "AttributeDefinitions": [],
+          "BillingModeSummary": {
+            "BillingMode": "PAY_PER_REQUEST",
+            "LastUpdateToPayPerRequestDateTime": null
+          },
+          "CreationDateTime": null,
+          "DeletionProtectionEnabled": null,
+          "GlobalSecondaryIndexes": [
+            {
+              "Backfilling": null,
+              "IndexArn": null,
+              "IndexName": "TitleIndex",
+              "IndexSizeBytes": null,
+              "IndexStatus": "DELETING",
+              "ItemCount": null,
+              "KeySchema": [],
+              "OnDemandThroughput": null,
+              "Projection": null,
+              "ProvisionedThroughput": null,
+              "WarmThroughput": null
+            }
+          ],
+          "GlobalTableSettingsReplicationMode": null,
+          "GlobalTableVersion": null,
+          "GlobalTableWitnesses": [],
+          "ItemCount": null,
+          "KeySchema": [],
+          "LatestStreamArn": null,
+          "LatestStreamLabel": null,
+          "LocalSecondaryIndexes": [],
+          "MultiRegionConsistency": null,
+          "OnDemandThroughput": null,
+          "ProvisionedThroughput": null,
+          "Replicas": [],
+          "RestoreSummary": null,
+          "SSEDescription": null,
+          "StreamSpecification": null,
+          "TableArn": null,
+          "TableClassSummary": null,
+          "TableId": null,
+          "TableName": "Music",
+          "TableSizeBytes": null,
+          "TableStatus": "UPDATING",
+          "VectorIndexes": [],
+          "WarmThroughput": null
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "UpdateTableReplicaAutoScaling": {
+    "requests": [
+      {
+        "body": {
+          "ProvisionedWriteCapacityAutoScalingUpdate": {
+            "AutoScalingDisabled": true
+          },
+          "TableName": "Music"
+        },
+        "target": "DynamoDB_20120810.UpdateTableReplicaAutoScaling"
+      }
+    ],
+    "result": {
+      "body": {
+        "TableAutoScalingDescription": {
+          "Replicas": [],
+          "TableName": "Music",
+          "TableStatus": "UPDATING"
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  },
+  "UpdateTable_provisionedThroughput": {
+    "requests": [],
+    "result": {
+      "body": "software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput$Builder.readCapacityUnits(java.lang.Integer)",
+      "errorType": "INTERNAL_ERROR",
+      "isExecutionSuccess": false,
+      "pluginErrorDetails": {
+        "appsmithErrorCode": "PE-DYN-5000",
+        "appsmithErrorMessage": "Error occurred while executing DynamoDB query.",
+        "downstreamErrorCode": null,
+        "downstreamErrorMessage": "software.amazon.awssdk.services.dynamodb.model.ProvisionedThroughput$Builder.readCapacityUnits(java.lang.Integer)",
+        "errorType": "INTERNAL_ERROR",
+        "title": "Query execution error"
+      },
+      "statusCode": "PE-DYN-5000",
+      "title": "Query execution error"
+    }
+  },
+  "UpdateTimeToLive": {
+    "requests": [
+      {
+        "body": {
+          "TableName": "Music",
+          "TimeToLiveSpecification": {
+            "AttributeName": "ttl",
+            "Enabled": true
+          }
+        },
+        "target": "DynamoDB_20120810.UpdateTimeToLive"
+      }
+    ],
+    "result": {
+      "body": {
+        "TimeToLiveSpecification": {
+          "AttributeName": "ttl",
+          "Enabled": true
+        }
+      },
+      "isExecutionSuccess": true
+    }
+  }
+}

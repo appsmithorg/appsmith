@@ -3,6 +3,7 @@ import {
   EXPR_MAX_NODES,
   FN_ARITY,
   type Fn,
+  GROUP_BY_MAX_GROUPS,
   ITEM_FNS,
   LITERAL_TAIL,
   type Op,
@@ -65,6 +66,15 @@ const FN_DESCRIPTIONS: Record<Fn, string> = {
   find: "first element whose per-item expression is truthy",
   get: "read a literal key of an object (`x?.[key]`); the key is a plain identifier, never a prototype name",
   coalesce: "first non-null of 2–4 values",
+  sortBy:
+    'a sorted copy of a list of rows by a literal key (a plain identifier, never a prototype name), `"asc"` or `"desc"`: numbers, then dates, then text in the viewer\'s locale order, with empty and other values last either way. Text that looks like a number (`"10"`, common for numeric SQL columns) sorts as text, so `map` it through `number` first. For a large query, bind a widget to `slice` or `groupBy` output, not the whole sorted copy',
+  slice:
+    "part of a list, from a start index to an optional end index (cut to whole numbers; negative counts from the end)",
+  sum: 'total of a list\'s numbers; numeric text counts, and null, empty text, booleans and objects are skipped (0 for an empty list). To total one column, `sum` a `map` of `{ "fn": "get", "args": [{ "item": true }, "amount"] }`',
+  avg: "average of a list's numbers, skipping values as `sum` does (null for an empty list)",
+  groupBy: `one \`{ key, value }\` row per distinct value of a literal key (a plain identifier, never a prototype name), in first-seen order; the third arg is \`{ "count": true }\`, \`{ "sum": "field" }\` or \`{ "avg": "field" }\` (a literal, plain field); at most ${GROUP_BY_MAX_GROUPS.toLocaleString("en-US")} groups, after which it throws`,
+  dateBucket:
+    'the start of a date\'s UTC `"day"`, ISO `"week"` (Monday) or `"month"`, as `YYYY-MM-DD` text (null for a missing or invalid date). Text without a time zone is read in the viewer\'s local time, so send ISO text with `Z` or an offset',
 };
 
 const OP_DESCRIPTIONS: Record<Op, string> = {
@@ -116,7 +126,10 @@ export const FN_GROUPS: { title: string; names: Fn[] }[] = [
     names: ["number", "string", "boolean", "isEmpty", "coalesce", "get"],
   },
   { title: "Numbers", names: ["round", "abs", "min", "max"] },
-  { title: "Dates", names: ["date", "now", "isoString", "isValidDate"] },
+  {
+    title: "Dates",
+    names: ["date", "now", "isoString", "isValidDate", "dateBucket"],
+  },
   {
     title: "Arrays",
     names: [
@@ -131,6 +144,10 @@ export const FN_GROUPS: { title: string; names: Fn[] }[] = [
       "every",
       "find",
     ],
+  },
+  {
+    title: "Sorting and summarising rows",
+    names: ["sortBy", "slice", "sum", "avg", "groupBy"],
   },
 ];
 
@@ -149,6 +166,51 @@ export const JS_OBJECT_GUIDE_EXAMPLES: {
           name: "refresh",
           run: [{ query: "GetOrders" }],
           returns: { finished: true },
+        },
+      ],
+    },
+  },
+  {
+    title: "A weekly count for a chart",
+    what: 'Counts the rows of the `Tickets` query per ISO week (UTC, starting Monday), oldest week first. Bind a chart to `{{ Stats.weekly() }}`: each row is `{ key: "2026-10-26", value: 12 }`. A row whose date is missing or invalid lands in a `null` week, sorted last.',
+    definition: {
+      functions: [
+        {
+          name: "weekly",
+          returns: {
+            fn: "sortBy",
+            args: [
+              {
+                fn: "groupBy",
+                args: [
+                  {
+                    fn: "map",
+                    args: [
+                      { query: "Tickets" },
+                      {
+                        object: {
+                          week: {
+                            fn: "dateBucket",
+                            args: [
+                              {
+                                fn: "get",
+                                args: [{ item: true }, "created_at"],
+                              },
+                              "week",
+                            ],
+                          },
+                        },
+                      },
+                    ],
+                  },
+                  "week",
+                  { count: true },
+                ],
+              },
+              "key",
+              "asc",
+            ],
+          },
         },
       ],
     },
@@ -632,7 +694,7 @@ export function renderJsObjectsGuide(): string {
     '| storeValue | `{ "storeValue": "key", "value": expr }` | write `appsmith.store.key` (session only) |',
     '| resetWidget | `{ "resetWidget": "WidgetName" }` | reset a widget to its default |',
     '| showModal / closeModal | `{ "showModal": "mdlEdit" }`, `{ "closeModal": "mdlEdit" }` | open or close a modal by name |',
-    '| navigate | `{ "navigate": "Order Details" }` | go to a page of this app (same window) |',
+    '| navigate | `{ "navigate": "Order Details", "params": { "id": { "table": "tblOrders", "column": "order id" } } }` | go to a page of this app (same window); `params` (optional, up to 10) become URL query parameters, each value an expression |',
     '| run … onError | `{ "run": "Q", "with": { … }, "into": "r", "onError": [steps] }` | the failure branch runs when the query rejects; the error itself is never exposed, and `r` is not readable inside it |',
     '| call | `{ "call": "helper", "args": [expr], "into": "r" }` or `{ "call": { "object": "Utils", "function": "count" }, "args": [expr] }` | `await this.helper(...)` on a sibling function of this object, or `await Utils.count(...)` on a function of another JS object on the same page (checked to exist before writing; a function may not call itself directly); `into` keeps the result |',
     "",
@@ -714,6 +776,7 @@ export function renderJsObjectsGuide(): string {
     '| `showAlert(`Saved ${n} rows`)` | `{ "showAlert": { "fn": "concat", "args": ["Saved ", n, " rows"] }, "style": "success" }` |',
     '| `showModal(\'mdlEdit\')`, `closeModal(\'mdlEdit\')` | `{ "showModal": "mdlEdit" }`, `{ "closeModal": "mdlEdit" }` |',
     '| `navigateTo(\'Orders\')` | `{ "navigate": "Orders" }` |',
+    '| `navigateTo(\'Order Details\', { id: tblOrders.selectedRow.id })` | `{ "navigate": "Order Details", "params": { "id": { "widget": "tblOrders", "property": "selectedRow.id" } } }` |',
     '| `try { await Q.run() } catch (e) { … }` | `{ "run": "Q", "onError": [...] }` (no `e`) |',
     '| `throw new Error("Title is required.")` | `{ "throw": "Title is required." }` |',
     '| `if (a && !b) { … } else { … }` | `{ "if": { "op": "and", "args": [a, { "op": "not", "args": [b] }] }, "then": [...], "else": [...] }` |',
@@ -739,7 +802,7 @@ export function renderJsObjectsGuide(): string {
     "  `missing query parameter` before the query runs, because a missing value would reach MongoDB as `null` and",
     "  broaden a filter. Check with `isEmpty` first, or pass an explicit `null` if that is what you mean.",
     "- `navigateTo(page)`, `showModal(name)`, `closeModal(name)`: the `navigate`, `showModal` and `closeModal`",
-    "  statements; `navigateTo` with query params or a new window is a `wire_event` concern.",
+    "  statements; `navigate` takes optional `params` for URL query parameters. Opening a new window is not supported.",
     '- `removeValue(key)`: not inside a function; use the `wire_event` action `{ "clearStoreKey": { "key": "…" } }`.',
     "- `clearStore`, `download`, `copyToClipboard`: not available through MCP; write the function in the editor.",
     "- `setTimeout`, `setInterval`, `fetch`, `console.log`, regular expressions, `moment`, `_` (lodash), string",
