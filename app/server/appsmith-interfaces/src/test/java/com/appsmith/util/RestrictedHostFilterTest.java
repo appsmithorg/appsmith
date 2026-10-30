@@ -1,5 +1,6 @@
 package com.appsmith.util;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -9,9 +10,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -895,5 +899,83 @@ public class RestrictedHostFilterTest {
         assertTrue(RestrictedHostFilter.isBlockedIpAddressClass("127.0.0.1"));
         assertTrue(RestrictedHostFilter.isBlockedIpAddressClass("169.254.0.1"));
         assertTrue(RestrictedHostFilter.isBlockedIpAddressClass("fc00::1"));
+    }
+
+    // ---------- assertHostAllowed: shared create-time check for datasource plugins ----------
+
+    @ParameterizedTest
+    @ValueSource(strings = {"127.0.0.1", "::1", "169.254.169.254", "0.0.0.0", "localhost"})
+    void should_throwHostNotAllowed_when_assertHostAllowedTargetsBlockedHost(String host) {
+        // Given: the filter is on (class setup)
+
+        // When / Then
+        assertThatThrownBy(() -> RestrictedHostFilter.assertHostAllowed(host))
+                .isInstanceOf(AppsmithPluginException.class)
+                .hasMessage(RestrictedHostFilter.HOST_NOT_ALLOWED);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"10.20.30.40", "192.168.1.5", "8.8.8.8"})
+    void should_returnQuietly_when_assertHostAllowedTargetsRoutableHost(String host) {
+        // Given: the filter is on (class setup); private and public routable hosts stay allowed
+
+        // When / Then
+        assertThatCode(() -> RestrictedHostFilter.assertHostAllowed(host)).doesNotThrowAnyException();
+    }
+
+    @Test
+    void should_returnQuietly_when_assertHostAllowedAndFilterDisabled() {
+        // Given: the operator kill switch is on
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(true);
+
+        // When / Then
+        assertThatCode(() -> RestrictedHostFilter.assertHostAllowed("127.0.0.1"))
+                .doesNotThrowAnyException();
+    }
+
+    // ---------- resolveAllIfAllowed: connect-time resolution for HTTP client DNS resolvers ----------
+
+    @ParameterizedTest
+    @ValueSource(strings = {"127.0.0.1", "::1", "169.254.169.254", "localhost"})
+    void should_throwHostNotAllowed_when_resolvingBlockedHost(String host) {
+        // Given: the filter is on (class setup)
+
+        // When / Then
+        assertThatThrownBy(() -> RestrictedHostFilter.resolveAllIfAllowed(host))
+                .isInstanceOf(UnknownHostException.class)
+                .hasMessage(RestrictedHostFilter.HOST_NOT_ALLOWED);
+    }
+
+    @Test
+    void should_returnResolvedAddresses_when_resolvingAllowedHost() throws Exception {
+        // When
+        InetAddress[] addresses = RestrictedHostFilter.resolveAllIfAllowed("10.20.30.40");
+
+        // Then
+        assertThat(addresses).extracting(InetAddress::getHostAddress).containsExactly("10.20.30.40");
+    }
+
+    @Test
+    void should_returnResolvedAddresses_when_hostAllowListedForTesting() throws Exception {
+        // Given
+        RestrictedHostFilter.setAlwaysAllowedHostsForTesting("localhost");
+
+        // When
+        InetAddress[] addresses = RestrictedHostFilter.resolveAllIfAllowed("localhost");
+
+        // Then
+        assertThat(addresses).isNotEmpty().allMatch(InetAddress::isLoopbackAddress);
+    }
+
+    @Test
+    void should_returnResolvedAddresses_when_resolvingBlockedHostAndFilterDisabled() throws Exception {
+        // Given: the operator kill switch is on
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(true);
+
+        // When
+        InetAddress[] addresses = RestrictedHostFilter.resolveAllIfAllowed("127.0.0.1");
+
+        // Then
+        assertThat(addresses).extracting(InetAddress::getHostAddress).containsExactly("127.0.0.1");
     }
 }

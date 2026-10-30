@@ -5,6 +5,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.util.RestrictedHostFilter;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
@@ -111,6 +112,26 @@ class DynamoPluginProxyTest {
         assertThat(proxy.requestLines())
                 .isNotEmpty()
                 .allMatch(("CONNECT dynamodb." + UNRESOLVABLE_REGION + ".amazonaws.com:443 HTTP/1.1")::equals);
+    }
+
+    @ParameterizedTest
+    @EnumSource(DynamoClientPath.class)
+    void should_tunnelThroughLoopbackHttpProxy_when_restrictedHostPolicyIsOn(DynamoClientPath path) {
+        // Given
+        useHttpProxy();
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            // When
+            ActionExecutionResult result = listTables(path, null);
+
+            // Then
+            assertThat(result.getIsExecutionSuccess()).isFalse();
+            assertThat(proxy.requestLines())
+                    .isNotEmpty()
+                    .allMatch(("CONNECT dynamodb." + UNRESOLVABLE_REGION + ".amazonaws.com:443 HTTP/1.1")::equals);
+        } finally {
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
     }
 
     @ParameterizedTest
