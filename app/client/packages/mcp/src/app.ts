@@ -8129,10 +8129,10 @@ export function buildMcpServer(
           }
         }
 
-        const request = buildUpdateJsObjectRequest(
-          parsed.data,
-          current as ExistingJsObject,
-        );
+        // Built here so a definition that does not compile is refused before the lock. The write itself uses the
+        // request rebuilt from the object read under the lock (below), so each kept function's run and confirm
+        // settings are the current ones, not the ones read before the lock.
+        buildUpdateJsObjectRequest(parsed.data, current as ExistingJsObject);
 
         try {
           const { changeId, value } = await govJs.execute({
@@ -8185,6 +8185,11 @@ export function buildMcpServer(
                 }
               }
 
+              const request = buildUpdateJsObjectRequest(
+                parsed.data,
+                live as ExistingJsObject,
+              );
+
               // Two server routes, in this order: the body route is the only one that writes the code (PATCH
               // nulls `body`), and the PATCH then creates/updates/deletes the per-function JSActions so the
               // editor's function list matches the new body. A PATCH failure after the body write leaves the
@@ -8228,8 +8233,8 @@ export function buildMcpServer(
                 rollback: {
                   kind: "jsObject",
                   collectionId: parsed.data.collectionId,
-                  body: currentSource,
-                  actions: (current as ExistingJsObject).actions,
+                  body: jsObjectSource(live),
+                  actions: (live as ExistingJsObject).actions,
                 },
                 summary: { collectionId: parsed.data.collectionId },
               };
@@ -8269,7 +8274,10 @@ export function buildMcpServer(
         const object = current as {
           name?: unknown;
           pageId?: unknown;
-          actions?: { name?: unknown }[];
+          actions?: {
+            name?: unknown;
+            actionConfiguration?: { isAsync?: unknown };
+          }[];
         };
         const name = String(object.name);
         const existing = (object.actions ?? [])
@@ -8279,18 +8287,36 @@ export function buildMcpServer(
         const removed = existing.filter((fn) => !wanted.has(fn)).sort();
         const added = functionNames.filter((fn) => !existing.includes(fn));
         const kept = functionNames.filter((fn) => existing.includes(fn));
+        // Every function the grammar writes is async. A kept function that was synchronous in the editor then returns
+        // a Promise, so a value binding such as {{ Name.fn() }} that reads its result breaks too.
+        const becomesAsync = (object.actions ?? [])
+          .filter(
+            (action) =>
+              typeof action.name === "string" &&
+              kept.includes(action.name) &&
+              action.actionConfiguration?.isAsync === false,
+          )
+          .map((action) => String(action.name));
         const brokenCalls: { where: string; calls: string }[] = [];
 
-        if (removed.length === 0) return { added, removed, kept, brokenCalls };
+        if (removed.length === 0 && becomesAsync.length === 0) {
+          return { added, removed, kept, brokenCalls };
+        }
 
         const escape = (text: string) =>
           text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        const patterns = removed.map((fn) => ({
-          calls: `${name}.${fn}`,
-          pattern: new RegExp(
-            `(^|[^.\\w$])${escape(name)}\\.${escape(fn)}(?![\\w$])`,
-          ),
-        }));
+        const patternFor = (fn: string) =>
+          new RegExp(`(^|[^.\\w$])${escape(name)}\\.${escape(fn)}(?![\\w$])`);
+        const patterns = [
+          ...removed.map((fn) => ({
+            calls: `${name}.${fn}`,
+            pattern: patternFor(fn),
+          })),
+          ...becomesAsync.map((fn) => ({
+            calls: `${name}.${fn} (becomes async)`,
+            pattern: patternFor(fn),
+          })),
+        ];
         const scan = (where: string, text: string) => {
           for (const { calls, pattern } of patterns) {
             if (pattern.test(text)) brokenCalls.push({ where, calls });
@@ -8498,7 +8524,7 @@ export function buildMcpServer(
         if (plan.brokenCalls.length > 0 && acknowledgeBrokenCalls !== true) {
           return {
             refusal: result({
-              error: `the replacement drops functions that are still called: ${plan.brokenCalls
+              error: `the replacement drops functions that are still called, or makes a synchronous function that is still called async: ${plan.brokenCalls
                 .map((entry) => `${entry.calls} (in ${entry.where})`)
                 .join(
                   ", ",

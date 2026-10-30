@@ -7994,6 +7994,67 @@ describe("governance-wrapped layout mutations", () => {
       expect(refused.body.code).toBe("js_object_too_large");
     });
 
+    it("refuses to make a synchronous function the page still calls async, unless acknowledged", async () => {
+      const { legacy, server } = setup("{{ Legacy.load() }}");
+
+      (legacy.actions[0] as Record<string, unknown>).actionConfiguration = {
+        isAsync: false,
+      };
+
+      const spec = await specFor(server, [
+        { name: "load", returns: 1 },
+        { name: "old", returns: 2 },
+      ]);
+      const refused = await callTool(server, "prepare_replace_js_object", {
+        spec,
+      });
+
+      expect(refused.body.code).toBe("replace_breaks_calls");
+      expect(refused.body.brokenCalls).toEqual([
+        { where: "the page layout", calls: "Legacy.load (becomes async)" },
+      ]);
+    });
+
+    it("writes the run and confirm settings read under the lock, not the earlier ones", async () => {
+      const { legacy, server, updateActionCollection } = setup();
+      const spec = await specFor(server, [
+        { name: "load", returns: 1 },
+        { name: "old", returns: 2 },
+      ]);
+      const prepared = await callTool(server, "prepare_replace_js_object", {
+        spec,
+      });
+      // A settings-only change in the editor does not change the object's revision.
+      const resettled = {
+        ...legacy,
+        actions: [
+          { id: "act1", name: "load", runBehaviour: "MANUAL" },
+          { id: "act2", name: "old" },
+        ],
+      };
+      let calls = 0;
+
+      (
+        serverApiOf(server).listActionCollections as jest.Mock
+      ).mockImplementation(async () => (++calls >= 3 ? [resettled] : [legacy]));
+
+      const confirmed = await callTool(server, "confirm_replace_js_object", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(confirmed.body.updated).toBe(true);
+      const patch = updateActionCollection.mock.calls[0][1] as {
+        actions: { updated: Record<string, unknown>[] };
+      };
+
+      expect(patch.actions.updated[0]).toMatchObject({
+        name: "load",
+        runBehaviour: "MANUAL",
+      });
+      expect(patch.actions.updated[0].confirmBeforeExecute).toBeUndefined();
+    });
+
     it("cuts returned editor source at 200,000 characters and flags it", async () => {
       const { legacy, server } = setup();
 
