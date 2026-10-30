@@ -176,12 +176,9 @@ jobs:
       # This is to ensure that we don't need to configure it in each installation.
       - name: Create the bundle
         if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        env:
+          REACT_APP_SEGMENT_CE_KEY: ${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-            export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
-          else
-            export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}"
-          fi
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
           REACT_APP_FARO_APP_ID=${{ secrets.REACT_APP_FARO_APP_ID }} \
           REACT_APP_FARO_APP_NAME=${{ secrets.REACT_APP_FARO_APP_NAME }} \
