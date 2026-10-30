@@ -20,6 +20,11 @@ import {
 import { INSTRUCTION_DOCS } from "./builder/instructions.js";
 import { compileJsObject } from "./builder/jsObject.js";
 import { markMcpAuthoredBody, mcpAuthoredBody } from "./builder/query.js";
+import {
+  buildRestActionDto,
+  compileRestApi,
+  restApiSpecSchema,
+} from "./builder/restApi.js";
 import { fingerprintDsl } from "./builder/semantic.js";
 import { McpGovernanceCoordinator } from "./governance/coordinator.js";
 import { WIDGET_REMOVAL_MAX } from "./governance/widgetRemoval.js";
@@ -809,9 +814,9 @@ describe("MCP HTTP server", () => {
         },
       ],
     };
-    const getApplicationContext = jest.fn(async () => ({
+    const getApplicationContext = jest.fn(async (applicationId: string) => ({
       pages: [],
-      page: {},
+      page: { applicationId },
       layout: { dsl: overlappingDsl },
     }));
     const updateLayout = jest.fn();
@@ -946,9 +951,9 @@ describe("MCP HTTP server", () => {
   }
 
   it("edit_page appends to the existing DSL and writes it back", async () => {
-    const getApplicationContext = jest.fn(async () => ({
+    const getApplicationContext = jest.fn(async (applicationId: string) => ({
       pages: [],
-      page: {},
+      page: { applicationId },
       layout: { dsl: existingPageDsl },
     }));
     const updateLayout = jest.fn<
@@ -1004,9 +1009,9 @@ describe("MCP HTTP server", () => {
   });
 
   it("edit_page reports a read failure without writing when the layout is missing", async () => {
-    const getApplicationContext = jest.fn(async () => ({
+    const getApplicationContext = jest.fn(async (applicationId: string) => ({
       pages: [],
-      page: {},
+      page: { applicationId },
       layout: {},
     }));
     const updateLayout = jest.fn(async () => ({ ok: true }));
@@ -1880,9 +1885,9 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
   it("inspect_page reports bindings to queries that do not exist", async () => {
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: {
           dsl: {
             widgetId: "0",
@@ -3989,9 +3994,9 @@ describe("governance-wrapped layout mutations", () => {
   function makeServer(store: McpGovernanceStore) {
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: ROOT_DSL },
       })),
       updateLayout: jest.fn(async () => ({ ok: true })),
@@ -4412,9 +4417,9 @@ describe("governance-wrapped layout mutations", () => {
       });
       const api: AppsmithApi = {
         ...createApi()(),
-        getApplicationContext: jest.fn(async () => ({
+        getApplicationContext: jest.fn(async (applicationId: string) => ({
           pages: [],
-          page: {},
+          page: { applicationId },
           layout: { dsl: current },
         })),
         getApplicationPages: jest.fn(async () => ({
@@ -4487,6 +4492,33 @@ describe("governance-wrapped layout mutations", () => {
 
       expect(replay.body.code).toBe("revision_conflict");
       expect(updateLayout).toHaveBeenCalledTimes(1);
+    });
+
+    it("prepare names the widgets whose bindings the removal breaks", async () => {
+      const store = new MemoryGovernanceStore();
+      const { server, setDsl } = removalServer(store);
+      const dsl = removalDsl();
+      const greeting = (dsl.children as Record<string, unknown>[]).find(
+        (child) => child.widgetName === "Greeting",
+      )!;
+
+      greeting.text = "{{ CardTitle.text }}";
+      setDsl(dsl);
+
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec: {
+          ...SPEC,
+          revision: fingerprintDsl(dsl as never),
+          names: ["Card1"],
+        },
+      });
+
+      expect(prepared.body.brokenReferences).toEqual([
+        { widget: "Greeting", refersTo: ["CardTitle"] },
+      ]);
+      expect(prepared.body.relay).toContain(
+        'Bindings on "Greeting" (uses "CardTitle") may stop working.',
+      );
     });
 
     it("confirm writes nothing when the page read reports another application", async () => {
@@ -5370,12 +5402,16 @@ describe("governance-wrapped layout mutations", () => {
   // the page's own layoutId reads; anything else is a 400.
   function layoutReadApi(overrides: Partial<AppsmithApi> = {}) {
     const getApplicationContext = jest.fn(
-      async (_app: string, _page: string, layoutId: string) => {
+      async (applicationId: string, _page: string, layoutId: string) => {
         if (layoutId !== "layout-real") {
           throw new LayoutRequestError(400, "AE-APP-4000");
         }
 
-        return { pages: [], page: {}, layout: { dsl: LAYOUT_DSL } };
+        return {
+          pages: [],
+          page: { applicationId },
+          layout: { dsl: LAYOUT_DSL },
+        };
       },
     );
     const getPage = jest.fn(async () => ({
@@ -5509,8 +5545,8 @@ describe("governance-wrapped layout mutations", () => {
     },
   );
 
-  // The page DTO names its application. A page of another application is refused before the git gate and the lock,
-  // because both use this application's id. A DTO without the field (as in older stubs) is not refused.
+  // The page DTO names its application. A page of another application, or a read that names none, is refused before
+  // the git gate and the lock, because both use this application's id.
   const layoutWrites: [string, Record<string, unknown>][] = [
     ["edit_page", { edit: { add: [{ type: "button", text: "Go" }] } }],
     [
@@ -5543,7 +5579,7 @@ describe("governance-wrapped layout mutations", () => {
     layoutWrites.flatMap(([tool]) => [
       [tool, "another application", 0, { applicationId: "other-app" }],
       [tool, "this application", 1, { applicationId: APP_ID }],
-      [tool, "an unnamed application", 1, {}],
+      [tool, "no application", 0, {}],
     ]) as [string, string, number, Record<string, unknown>][],
   )(
     "%s on a page of %s writes %s time(s)",
@@ -5788,6 +5824,75 @@ describe("governance-wrapped layout mutations", () => {
     updatedAt: "2026-07-12T00:00:00.000Z",
     datasource: { id: "ds1", pluginId: "postgres" },
   };
+
+  describe("APP-16375: get_action returns the config of an MCP-authored REST API", () => {
+    async function readRest(actionConfiguration: Record<string, unknown>) {
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getAction: jest.fn(async () => ({
+          ...STORED_ACTION,
+          pluginType: "API",
+          actionConfiguration,
+        })),
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        dataEnabled: true,
+      });
+
+      return (
+        await callTool(server, "get_action", {
+          applicationId: "app1",
+          actionId: "act1",
+        })
+      ).body;
+    }
+
+    function written(): Record<string, unknown> {
+      const spec = restApiSpecSchema.parse({
+        name: "getUsers",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        method: "GET",
+        path: "/v1/users",
+      });
+
+      return (
+        buildRestActionDto(spec, compileRestApi(spec)) as {
+          actionConfiguration: Record<string, unknown>;
+        }
+      ).actionConfiguration;
+    }
+
+    it("returns the config and authoredBy mcp for an API the MCP wrote", async () => {
+      const read = await readRest(written());
+
+      expect(read.authoredBy).toBe("mcp");
+      expect(read.config).toMatchObject({
+        httpMethod: "GET",
+        path: "/v1/users",
+      });
+    });
+
+    // A GraphQL action is also pluginType API. One the MCP wrote has no REST marker, so nothing is returned.
+    it("returns no config for a GraphQL action", async () => {
+      const read = await readRest({
+        body: "query { users { id } }",
+        formData: { apiContentType: "application/json" },
+        pluginSpecifiedTemplates: [{ value: "{}" }],
+      });
+
+      expect(read.authoredBy).toBe("editor");
+      expect(read.config).toBeUndefined();
+    });
+
+    it("returns no config for an API edited afterwards", async () => {
+      const read = await readRest({ ...written(), path: "/v1/admin" });
+
+      expect(read.authoredBy).toBe("editor");
+      expect(read.config).toBeUndefined();
+    });
+  });
 
   describe("APP-16324 F9: get_action returns the body of MCP-authored SQL", () => {
     const compiled = 'SELECT id FROM tickets WHERE status = {{ "open" }};';
@@ -6316,9 +6421,9 @@ describe("governance-wrapped layout mutations", () => {
     });
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: current },
       })),
       updateLayout: updateLayout as never,
@@ -6707,9 +6812,9 @@ describe("governance-wrapped layout mutations", () => {
     });
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: current },
       })),
       updateLayout: updateLayout as never,
@@ -6766,9 +6871,9 @@ describe("governance-wrapped layout mutations", () => {
     });
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: current },
       })),
       updateLayout: updateLayout as never,
@@ -6822,9 +6927,9 @@ describe("governance-wrapped layout mutations", () => {
     const updateLayout = jest.fn();
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: DSL },
       })),
       updateLayout: updateLayout as never,
@@ -6876,9 +6981,9 @@ describe("governance-wrapped layout mutations", () => {
     });
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: current },
       })),
       // No queries exist anywhere — a showAlert action needs no entity to resolve against.
@@ -6952,9 +7057,9 @@ describe("governance-wrapped layout mutations", () => {
     ]);
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: current },
       })),
       listActions,
@@ -7060,9 +7165,9 @@ describe("governance-wrapped layout mutations", () => {
     };
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: DSL },
       })),
       updateLayout: jest.fn(async () => ({ ok: true })),
@@ -7150,9 +7255,9 @@ describe("governance-wrapped layout mutations", () => {
     };
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: DSL },
       })),
       updateLayout: jest.fn(async () => ({ ok: true })),
@@ -7263,9 +7368,9 @@ describe("governance-wrapped layout mutations", () => {
     });
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: current },
       })),
       listActions: jest.fn(async () => [{ name: "LookupZip", pageId: "p1" }]),
@@ -8626,9 +8731,9 @@ describe("governance-wrapped layout mutations", () => {
     });
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: current },
       })),
       listActionCollections: jest.fn(async () => [
@@ -8891,9 +8996,9 @@ describe("governance-wrapped layout mutations", () => {
     });
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: current },
       })),
       listActionCollections: jest.fn(async () => [
@@ -9008,9 +9113,9 @@ describe("governance-wrapped layout mutations", () => {
   ) {
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: TEXT_DSL },
       })),
       updateLayout,
@@ -9096,9 +9201,9 @@ describe("governance-wrapped layout mutations", () => {
     >(async () => ({ ok: true }));
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: STACKED_DSL },
       })),
       updateLayout,
@@ -9149,9 +9254,9 @@ describe("governance-wrapped layout mutations", () => {
   it("layout mutations on a governed deployment steer the agent to re-publish (deployNote)", async () => {
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: TEXT_DSL },
       })),
       updateLayout: jest.fn(async () => ({ ok: true })),
@@ -9193,9 +9298,9 @@ describe("governance-wrapped layout mutations", () => {
     >(async () => ({ ok: true }));
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: TEXT_DSL },
       })),
       getApplication: jest.fn(async () => GIT_APP),
@@ -10584,9 +10689,9 @@ describe("M5 — build_application URLs + auto-publish", () => {
           return IMPORT_RESPONSE;
         },
       ),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: currentDsl },
       })),
       updateLayout: jest.fn(

@@ -1151,6 +1151,55 @@ export interface RemovedWidget {
   contains: string[];
 }
 
+// A widget that stays on the page but has a binding naming a removed widget. The binding breaks when the removal
+// lands, so the approval names it.
+export interface BrokenReference {
+  widget: string;
+  refersTo: string[];
+}
+
+const BINDING_BODY = /\{\{([\s\S]*?)\}\}/g;
+
+// The removed names each remaining widget's top-level bindings mention, as a whole identifier (not after a dot, so
+// `Table1.Name` does not match a widget called Name). Event bindings name modals in quotes, such as
+// showModal('Edit'), and those count too.
+function brokenReferences(
+  root: WidgetNode,
+  removedNames: ReadonlySet<string>,
+): BrokenReference[] {
+  const found: BrokenReference[] = [];
+  const patterns = [...removedNames].map((name) => ({
+    name,
+    pattern: new RegExp(
+      `(^|[^.\\w$])${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w$])`,
+    ),
+  }));
+
+  const visit = (node: WidgetNode): void => {
+    const refersTo = new Set<string>();
+
+    for (const [key, value] of Object.entries(node)) {
+      if (key === "children" || typeof value !== "string") continue;
+
+      for (const match of value.matchAll(BINDING_BODY)) {
+        for (const { name, pattern } of patterns) {
+          if (pattern.test(match[1])) refersTo.add(name);
+        }
+      }
+    }
+
+    if (refersTo.size > 0) {
+      found.push({ widget: node.widgetName, refersTo: [...refersTo].sort() });
+    }
+
+    for (const child of node.children ?? []) visit(child);
+  };
+
+  visit(root);
+
+  return found;
+}
+
 function contentNames(node: WidgetNode): string[] {
   return (node.children ?? []).flatMap((child) => [
     ...(child.type === "CANVAS_WIDGET" ? [] : [child.widgetName]),
@@ -1167,7 +1216,11 @@ function contentNames(node: WidgetNode): string[] {
 export function removeWidgets(
   current: WidgetNode,
   names: readonly string[],
-): { dsl: WidgetNode; removed: RemovedWidget[] } {
+): {
+  dsl: WidgetNode;
+  removed: RemovedWidget[];
+  brokenReferences: BrokenReference[];
+} {
   if (names.length === 0) {
     throw new Error("name at least one widget to remove");
   }
@@ -1229,7 +1282,15 @@ export function removeWidgets(
 
   for (const target of outermost) removeFromParent(target);
 
-  return { dsl, removed };
+  const removedNames = new Set(
+    removed.flatMap((entry) => [entry.name, ...entry.contains]),
+  );
+
+  return {
+    dsl,
+    removed,
+    brokenReferences: brokenReferences(dsl, removedNames),
+  };
 }
 
 function positionOf(node: WidgetNode): { topRow: number; leftColumn: number } {

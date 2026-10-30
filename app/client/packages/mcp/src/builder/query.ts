@@ -835,26 +835,27 @@ function widgetRef(filter: Filter): WidgetRef {
 // 127 bytes. Identifiers here are ASCII, so bytes are characters.
 const MAX_IDENTIFIER_LENGTH = { postgres: 63, redshift: 127 } as const;
 
-// The PostgreSQL or Redshift column for a filter: lower-cased, then quoted. Throws when the name
-// equals the table's own name (the last part of `schema.table`), because a missing column of that name reads as the
-// whole row. Both names are compared after the database's own cut, so two long names that differ only after it
-// still match.
-function postgresNullCheckColumn(
+// On PostgreSQL and Redshift, throws when a column name equals the table's own name (the last part of
+// `schema.table`), because a missing column of that name reads as the whole row. Names are compared lower-cased and
+// after the database's own cut, so two long names that differ only after it still match. `usage` names the clause in
+// the error, such as "a filter cannot test".
+function refuseTableNamedColumn(
   column: string,
   table: string,
-  dialect: "postgres" | "redshift",
-): string {
+  dialect: SqlDialect,
+  usage: string,
+): void {
+  if (dialect !== "postgres" && dialect !== "redshift") return;
+
   const name = column.toLowerCase();
   const tableName = (table.split(".").pop() ?? table).toLowerCase();
   const maxLength = MAX_IDENTIFIER_LENGTH[dialect];
 
   if (name.slice(0, maxLength) === tableName.slice(0, maxLength)) {
     throw new Error(
-      `a filter cannot test a column named like its table (${column}) on PostgreSQL or Redshift, which would read it as the whole row`,
+      `${usage} a column named like its table (${column}) on PostgreSQL or Redshift, which would read it as the whole row`,
     );
   }
-
-  return `"${name}"`;
 }
 
 // The column a filter tests, never bare (see emitCondition). On PostgreSQL and Redshift a column named like its table
@@ -871,7 +872,9 @@ function filterColumn(
     return `${table}.${filter.column}`;
   }
 
-  return postgresNullCheckColumn(filter.column, table, dialect);
+  refuseTableNamedColumn(filter.column, table, dialect, "a filter cannot test");
+
+  return `"${filter.column.toLowerCase()}"`;
 }
 
 // The isNull or notNull test for a table-qualified column on every database except PostgreSQL.
@@ -983,21 +986,36 @@ function emitOrderBy(
 function emitGroupBy(
   groupBy: QuerySpec["groupBy"],
   dialect: SqlDialect,
+  table: string,
 ): string {
   if (!groupBy || groupBy.length === 0) return "";
 
   // Group by the stored column, even when the select list coalesces it. NULLs form their own group, and the select
   // list then shows that group under the fallback.
-  const clauses = groupBy.map((entry) => groupKeyExpression(entry, dialect));
+  const clauses = groupBy.map((entry) =>
+    groupKeyExpression(entry, dialect, table),
+  );
 
   return ` GROUP BY ${clauses.join(", ")}`;
 }
 
 // The SQL a group key compiles to, shared by GROUP BY, HAVING and the aggregated select list, so all three name the
 // same thing. A split column's key is the trimmed item from the lateral split source. Every other column's key is its
-// stored name, quoted by quoteIdentifier (bare on MySQL).
-function groupKeyExpression(entry: SelectColumn, dialect: SqlDialect): string {
+// stored name, quoted by quoteIdentifier (bare on MySQL). On PostgreSQL and Redshift a group column named like the
+// table would group by, or test, the whole row, so it is refused.
+function groupKeyExpression(
+  entry: SelectColumn,
+  dialect: SqlDialect,
+  table: string,
+): string {
   if (isSplitColumn(entry)) return SPLIT_ITEM;
+
+  refuseTableNamedColumn(
+    columnNameOf(entry),
+    table,
+    dialect,
+    "groupBy and having cannot use",
+  );
 
   return quoteIdentifier(columnNameOf(entry), dialect);
 }
@@ -1009,6 +1027,7 @@ function emitSelectColumn(
   entry: SelectColumn,
   quote: boolean,
   dialect: SqlDialect,
+  table: string,
 ): string {
   if (isSplitColumn(entry)) {
     if (!quote) {
@@ -1018,7 +1037,9 @@ function emitSelectColumn(
     return `${SPLIT_ITEM} AS ${quoteIdentifier(entry.column, dialect)}`;
   }
 
-  const name = quote ? groupKeyExpression(entry, dialect) : columnNameOf(entry);
+  const name = quote
+    ? groupKeyExpression(entry, dialect, table)
+    : columnNameOf(entry);
 
   if (typeof entry === "string") return name;
 
@@ -1095,6 +1116,7 @@ function emitHaving(spec: QuerySpec, dialect: SqlDialect): string {
               (entry) => columnNameOf(entry) === condition.column,
             ) ?? condition.column,
             dialect,
+            spec.table,
           );
 
     return `${target} ${HAVING_OPERATORS[condition.op]} ${emitBinding(condition.value)}`;
@@ -1160,7 +1182,7 @@ export function compileQuery(
 
       if (spec.aggregate) {
         const groupCols = (spec.groupBy ?? []).map((entry) =>
-          emitSelectColumn(entry, true, dialect),
+          emitSelectColumn(entry, true, dialect, spec.table),
         );
 
         selectList = [
@@ -1171,7 +1193,9 @@ export function compileQuery(
         selectList =
           spec.columns && spec.columns.length > 0
             ? spec.columns
-                .map((entry) => emitSelectColumn(entry, false, dialect))
+                .map((entry) =>
+                  emitSelectColumn(entry, false, dialect, spec.table),
+                )
                 .join(", ")
             : "*";
       }
@@ -1179,7 +1203,7 @@ export function compileQuery(
       const limit = spec.limit !== undefined ? ` LIMIT ${spec.limit}` : "";
 
       // SQL clause order: SELECT ... FROM ... WHERE ... GROUP BY ... ORDER BY ... LIMIT.
-      body = `SELECT ${selectList} FROM ${emitFrom(spec, dialect)}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy, dialect)}${emitHaving(spec, dialect)}${emitOrderBy(spec.orderBy, dialect)}${limit};`;
+      body = `SELECT ${selectList} FROM ${emitFrom(spec, dialect)}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy, dialect, spec.table)}${emitHaving(spec, dialect)}${emitOrderBy(spec.orderBy, dialect)}${limit};`;
       break;
     }
     case "INSERT": {

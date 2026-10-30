@@ -1301,7 +1301,9 @@ export function buildTableColumns(
 }
 
 // Recursive: a container can hold child widgets. z.lazy handles the self-reference.
-export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
+// The union is built by a function with an inferred return type, so widgetSpecDrift.test.ts can compare its
+// fields with the hand-written WidgetSpec type. The exported schema keeps the WidgetSpec annotation.
+export const widgetSpecVariants = () =>
   z.discriminatedUnion("type", [
     z
       .object({
@@ -1932,8 +1934,10 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         placement: placementSchema.optional(),
       })
       .strict(),
-  ]),
-);
+  ]);
+
+export const widgetSpecSchema: z.ZodType<WidgetSpec> =
+  z.lazy(widgetSpecVariants);
 
 export interface PlacementSpec {
   after?: string;

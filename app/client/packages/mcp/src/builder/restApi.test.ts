@@ -1,6 +1,7 @@
 import {
   buildRestActionDto,
   compileRestApi,
+  mcpAuthoredRestConfig,
   restApiSpecSchema,
 } from "./restApi.js";
 
@@ -170,6 +171,69 @@ describe("compileRestApi — structured REST actions", () => {
       formData: { apiContentType: "application/json" },
       body: '{"name":"Ada"}',
     });
+  });
+});
+
+describe("APP-16375: the MCP-authored marker on a REST API", () => {
+  function storedConfig(): Record<string, unknown> {
+    const spec = parse({
+      ...base,
+      method: "POST",
+      queryParameters: [{ key: "page", value: { literal: 2 } }],
+      body: { type: "json", values: { name: { literal: "Ada" } } },
+    });
+
+    return structuredClone(
+      (
+        buildRestActionDto(spec, compileRestApi(spec)) as {
+          actionConfiguration: Record<string, unknown>;
+        }
+      ).actionConfiguration,
+    );
+  }
+
+  it("reads back the config the MCP wrote", () => {
+    expect(mcpAuthoredRestConfig(storedConfig())).toEqual({
+      httpMethod: "POST",
+      path: "/v1/users",
+      headers: [],
+      queryParameters: [{ key: "page", value: "2" }],
+      body: '{"name":"Ada"}',
+      bodyFormData: [],
+      apiContentType: "application/json",
+    });
+  });
+
+  it("still matches when the server adds fields to each row or drops an empty list", () => {
+    const stored = storedConfig();
+
+    stored.queryParameters = (
+      stored.queryParameters as Record<string, unknown>[]
+    ).map((row) => ({ ...row, editable: true }));
+    delete stored.bodyFormData;
+
+    expect(mcpAuthoredRestConfig(stored)).toBeDefined();
+  });
+
+  it.each([
+    ["the path", (c: Record<string, unknown>) => (c.path = "/v1/admin")],
+    [
+      "a header",
+      (c: Record<string, unknown>) =>
+        (c.headers = [{ key: "Authorization", value: "Bearer secret" }]),
+    ],
+    ["the body", (c: Record<string, unknown>) => (c.body = '{"name":"Eve"}')],
+    [
+      "the marker",
+      (c: Record<string, unknown>) =>
+        (c.formData = { apiContentType: "application/json" }),
+    ],
+  ])("hides the config after an edit to %s", (_label, edit) => {
+    const stored = storedConfig();
+
+    edit(stored);
+
+    expect(mcpAuthoredRestConfig(stored)).toBeUndefined();
   });
 });
 

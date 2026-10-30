@@ -388,7 +388,11 @@ export function evaluateModalWiring(params: {
 }
 
 export interface ModalStackFinding {
-  rule: "modal-stack" | "modal-cycle" | "modal-analysis-excluded";
+  rule:
+    | "modal-stack"
+    | "modal-cycle"
+    | "modal-analysis-excluded"
+    | "modal-no-opener";
   msg: string;
   widget?: string;
 }
@@ -428,6 +432,23 @@ export function modalStackFindings(dsl: WidgetNode): ModalStackFinding[] {
     }
   }
 
+  // A modal builds closed, so one that no event opens can never be seen. Skipped when some binding could not be
+  // parsed, since that binding may be the opener. A JS object can also open a modal, which this page scan cannot see,
+  // so the message says so.
+  if (graph.excludedBindings === 0) {
+    const opened = new Set(graph.edges.map((edge) => edge.target));
+
+    for (const modal of modalNames(dsl)) {
+      if (opened.has(modal)) continue;
+
+      findings.push({
+        rule: "modal-no-opener",
+        msg: `modal "${truncate(modal)}" is never opened by an event on this page, so users cannot see it; wire a showModal to it (ignore this if a JS object opens it)`,
+        widget: modal,
+      });
+    }
+  }
+
   if (graph.excludedBindings > 0) {
     findings.push({
       rule: "modal-analysis-excluded",
@@ -436,6 +457,14 @@ export function modalStackFindings(dsl: WidgetNode): ModalStackFinding[] {
   }
 
   return findings;
+}
+
+// The name of every MODAL_WIDGET in the tree.
+function modalNames(node: WidgetNode): string[] {
+  return [
+    ...(node.type === "MODAL_WIDGET" ? [nameOf(node)] : []),
+    ...(node.children ?? []).flatMap(modalNames),
+  ];
 }
 
 // Structural rule: no MODAL_WIDGET anywhere inside another modal's subtree.
