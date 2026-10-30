@@ -183,14 +183,6 @@ jobs:
             app/client/node_modules/.cache/webpack/
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
 
-      # Restore the previous built bundle if present. If not push the newly built into the cache
-      - name: Restore the previous bundle
-        uses: actions/cache@v4
-        with:
-          path: |
-            app/client/build/
-          key: ${{ github.run_id }}-${{ github.job }}-client
-
       - name: Pack the client build directory
         run: |
           tar -cvf ./build.tar -C build .
