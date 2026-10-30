@@ -13,8 +13,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import javax.net.ssl.SSLException;
+import java.net.ConnectException;
 import java.util.UUID;
 
 import static com.appsmith.server.helpers.GitUtils.isArtifactConnectedToGit;
@@ -123,6 +126,73 @@ public class GitUtilsTest {
         }
     }
 
+    /**
+     * Verifies that when an HTTPS check fails due to an SSL error (e.g. self-signed certificate or custom domain without cert),
+     * the private repo check falls back to HTTP and correctly recognizes a public repo returning 200 OK.
+     */
+    @Test
+    public void isRepoPrivate_WhenHttpsFailsWithSslError_FallsBackToHttpAndSucceeds() throws Exception {
+        MockWebServer mockServer = new MockWebServer();
+        mockServer.start();
+        try (MockedStatic<WebClientUtils> webClientUtilsMock = Mockito.mockStatic(WebClientUtils.class)) {
+            // HTTPS fails with SSL handshake exception (e.g., self-signed cert or no SSL on host)
+            webClientUtilsMock
+                    .when(() -> WebClientUtils.create(Mockito.startsWith("https://")))
+                    .thenReturn(WebClient.builder()
+                            .filter((request, next) ->
+                                    Mono.error(new SSLException("SSL handshake failed: self-signed certificate")))
+                            .build());
+
+            // HTTP fallback succeeds with 200 OK
+            webClientUtilsMock
+                    .when(() -> WebClientUtils.create(Mockito.startsWith("http://")))
+                    .thenReturn(WebClient.create(mockServer.url("/").toString()));
+
+            mockServer.enqueue(new MockResponse().setResponseCode(200));
+            StepVerifier.create(GitUtils.isRepoPrivate("https://git.example.com/org/custom-domain-repo.git"))
+                    .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.FALSE))
+                    .verifyComplete();
+        } finally {
+            mockServer.shutdown();
+        }
+    }
+
+    /**
+     * Verifies that when both HTTPS and HTTP fallback checks fail (e.g. connection refused or host unreachable),
+     * the method defaults to treating the repository as private.
+     */
+    @Test
+    public void isRepoPrivate_WhenBothHttpsAndHttpFail_ReturnsPrivate() {
+        try (MockedStatic<WebClientUtils> webClientUtilsMock = Mockito.mockStatic(WebClientUtils.class)) {
+            webClientUtilsMock
+                    .when(() -> WebClientUtils.create(Mockito.anyString()))
+                    .thenReturn(WebClient.builder()
+                            .filter((request, next) -> Mono.error(new ConnectException("Connection refused")))
+                            .build());
+
+            StepVerifier.create(GitUtils.isRepoPrivate("https://git.example.com/org/unreachable-repo.git"))
+                    .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.TRUE))
+                    .verifyComplete();
+        }
+    }
+
+    /**
+     * Verifies that empty or null repository URLs are safely handled and default to private without throwing exceptions.
+     */
+    @Test
+    public void isRepoPrivate_WhenUrlIsEmptyOrNull_ReturnsPrivate() {
+        StepVerifier.create(GitUtils.isRepoPrivate(""))
+                .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.TRUE))
+                .verifyComplete();
+
+        StepVerifier.create(GitUtils.isRepoPrivate(null))
+                .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.TRUE))
+                .verifyComplete();
+    }
+
+    /**
+     * Verifies that getRepoName correctly extracts the repository name from a valid Git SSH URL.
+     */
     @Test
     public void getRepoName_WhenUrlIsValid_RepoNameReturned() {
         assertThat(GitUtils.getRepoName("git@example.test.net:user/test/tests/lakechope.git"))
