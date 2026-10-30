@@ -448,12 +448,29 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     public Mono<Application> updateApplicationWithPresets(String branchedApplicationId, Application application) {
         return this.findById(branchedApplicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplication -> {
+                    // Enabling forking lets every user who can view the application copy it, so it
+                    // requires the export permission, the same permission the client uses to show
+                    // the setting. Disabling it, and re-sending an already enabled value, need only
+                    // edit access.
+                    boolean isEnablingForking = !Boolean.TRUE.equals(branchedApplication.getForkingEnabled())
+                            && Boolean.TRUE.equals(application.getForkingEnabled());
+                    if (isEnablingForking
+                            && !hasPermission(branchedApplication, applicationPermission.getExportPermission())) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.ACTION_IS_NOT_AUTHORIZED, "make application forkable"));
+                    }
+
                     application.setPages(null);
                     application.setGitApplicationMetadata(null);
 
                     return verifyIfForkingIsAllowed(branchedApplication, application)
                             .then(updateApplication(application, branchedApplication));
                 });
+    }
+
+    private static boolean hasPermission(Application application, AclPermission permission) {
+        return application.getUserPermissions() != null
+                && application.getUserPermissions().contains(permission.getValue());
     }
 
     private Mono<Application> updateApplication(Application application, Application branchedApplication) {
