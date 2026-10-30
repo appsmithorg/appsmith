@@ -5,6 +5,7 @@ import {
   checkRestoreVersionCompatability,
   decryptArchive,
   ensureEncryptionKeysPresent,
+  getBackupDatabaseName,
   getBackupFileName,
 } from "./restore";
 
@@ -75,6 +76,48 @@ describe("getBackupFileName with --backup-file", () => {
 
     expect(name).toBe("appsmith-backup-0001.tar.gz");
     expect(readlineSync.question).toHaveBeenCalled();
+  });
+});
+
+describe("getBackupDatabaseName with --backup-db-name", () => {
+  beforeEach(() => {
+    jest
+      .spyOn(fsPromises, "readFile")
+      .mockResolvedValue(JSON.stringify({ dbName: "manifest-db" }));
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("returns the --backup-db-name override", async () => {
+    await expect(
+      getBackupDatabaseName("/contents", ["--backup-db-name=legacy-db"]),
+    ).resolves.toBe("legacy-db");
+  });
+
+  it("rejects the space form with guidance to use the equals form", async () => {
+    await expect(
+      getBackupDatabaseName("/contents", ["--backup-db-name", "legacy-db"]),
+    ).rejects.toThrow("--backup-db-name=<name>");
+  });
+
+  it("throws when --backup-db-name has an empty value", async () => {
+    await expect(
+      getBackupDatabaseName("/contents", ["--backup-db-name="]),
+    ).rejects.toThrow("non-empty database name");
+  });
+
+  it("throws when --backup-db-name has no value", async () => {
+    await expect(
+      getBackupDatabaseName("/contents", ["--backup-db-name"]),
+    ).rejects.toThrow("--backup-db-name=<name>");
+  });
+
+  it("uses the manifest database name when no override is provided", async () => {
+    await expect(getBackupDatabaseName("/contents", [])).resolves.toBe(
+      "manifest-db",
+    );
   });
 });
 
