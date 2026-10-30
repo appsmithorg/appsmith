@@ -12,6 +12,7 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -45,6 +46,17 @@ public class AssetServiceCEImpl implements AssetServiceCE {
             MediaType.IMAGE_PNG,
             MediaType.valueOf("image/x-icon"),
             MediaType.valueOf("image/vnd.microsoft.icon"));
+
+    private static final String INVALID_IMAGE_MESSAGE =
+            "Please upload a valid image. Only JPEG, PNG and ICO are allowed.";
+
+    private static final MediaType SVG_MEDIA_TYPE = MediaType.valueOf("image/svg+xml");
+
+    // Assets are served from the instance origin. These headers stop a stored asset from running script when opened
+    // directly, while still letting it render through an <img> tag. In the Docker image, Caddy replaces this CSP with
+    // its own copy of the policy (the @image-path block in deploy/docker/fs/opt/appsmith/caddy-reconfigure.mjs).
+    private static final String ASSET_CONTENT_SECURITY_POLICY =
+            "sandbox; default-src 'none'; style-src 'unsafe-inline'";
 
     private static final Set<String> ALLOWED_CONTENT_TYPES_STR =
             Set.of(MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE);
@@ -86,9 +98,7 @@ public class AssetServiceCEImpl implements AssetServiceCE {
         // which can have arbitrary HTML/JS inside them.
         final MediaType contentType = firstPart.headers().getContentType();
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
-            return Mono.error(new AppsmithException(
-                    AppsmithError.VALIDATION_FAILURE,
-                    "Please upload a valid image. Only JPEG, PNG, SVG and ICO are allowed."));
+            return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, INVALID_IMAGE_MESSAGE));
         }
 
         final Flux<DataBuffer> contentCache =
@@ -137,9 +147,7 @@ public class AssetServiceCEImpl implements AssetServiceCE {
         MediaType contentType = srcContentType;
         Boolean isValidImage = checkImageTypeValidation(dataBuffer, contentType);
         if (isValidImage != true) {
-            throw new AppsmithException(
-                    AppsmithError.VALIDATION_FAILURE,
-                    "Please upload a valid image. Only JPEG, PNG, SVG and ICO are allowed.");
+            throw new AppsmithException(AppsmithError.VALIDATION_FAILURE, INVALID_IMAGE_MESSAGE);
         }
 
         byte[] imageData = null;
@@ -191,13 +199,33 @@ public class AssetServiceCEImpl implements AssetServiceCE {
             final String contentType = asset.getContentType();
             final ServerHttpResponse response = exchange.getResponse();
 
+            final HttpHeaders headers = response.getHeaders();
+
             response.setStatusCode(HttpStatus.OK);
 
+            headers.set("X-Content-Type-Options", "nosniff");
+            headers.set("Content-Security-Policy", ASSET_CONTENT_SECURITY_POLICY);
+
             if (contentType != null) {
-                response.getHeaders().set(HttpHeaders.CONTENT_TYPE, contentType);
+                headers.set(HttpHeaders.CONTENT_TYPE, contentType);
+
+                if (isSvg(contentType)) {
+                    // Assets stored before SVG uploads were rejected may still be SVG, which can carry script. Force
+                    // a download on direct navigation; <img> rendering is unaffected.
+                    headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"asset.svg\"");
+                }
             }
 
             return response.writeWith(Mono.just(new DefaultDataBufferFactory().wrap(asset.getData())));
         });
+    }
+
+    private static boolean isSvg(String contentType) {
+        try {
+            return SVG_MEDIA_TYPE.equalsTypeAndSubtype(MediaType.parseMediaType(contentType));
+        } catch (InvalidMediaTypeException e) {
+            // An unparseable content type can't be trusted to be safe, so treat it like SVG.
+            return true;
+        }
     }
 }
