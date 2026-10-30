@@ -9,6 +9,10 @@ Organizations build custom applications like dashboards, admin panels, customer 
 See the [Kubernetes installation guide](https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes)
 for prerequisites, step-by-step setup, and platform-specific instructions (EKS, GKE, Minikube, etc.).
 
+The startup probe allows 10 failed checks at 60-second intervals so first-install
+database migrations have time to finish. For slower MongoDB connections, increase
+`probes.startupProbe.failureThreshold` (for example, `--set probes.startupProbe.failureThreshold=30`).
+
 ## Values
 
 ### Appsmith configuration
