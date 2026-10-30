@@ -4,6 +4,7 @@ import type { WidgetNode } from "./layout.js";
 import {
   entityPropertyPath,
   pageNameSchema,
+  PROTOTYPE_PROPERTY_NAMES,
   responseFieldPath,
   storeKeySchema,
   RAW_EXPRESSION,
@@ -144,11 +145,76 @@ const clearStoreKeyAction = z
   .object({ clearStoreKey: z.object({ key: storeKeySchema }).strict() })
   .strict();
 
+// A value passed to navigate as a URL query parameter. Each is emitted as a JSON literal or a validated identifier
+// path, never as caller text:
+// - `{ literal }`: a string, number or boolean, JSON-encoded. A string may not hold binding syntax or a single quote
+//   (later text scans of the persisted binding look for quoted page and modal names), or a `{` or `}`: Appsmith
+//   splits a binding by counting braces, even inside a string, so an unbalanced one would turn the whole handler into
+//   plain text that never runs.
+// - `{ widget, property }`: a widget property path.
+// - `{ table, column }`: a column of the table's selected row, emitted as `Table.selectedRow?.["column"]`, so a
+//   column name with spaces works.
+const navigateText = z
+  .string()
+  .max(200)
+  .refine((value) => !RAW_EXPRESSION.test(value), "must not contain bindings")
+  .refine((value) => !value.includes("'"), "must not contain single quotes")
+  .refine(
+    (value) => !/[{}]/.test(value),
+    "must not contain { or } (the binding would not run)",
+  );
+const navigateParamValue = z.union([
+  z
+    .object({
+      literal: z.union([navigateText, z.number().finite(), z.boolean()]),
+    })
+    .strict(),
+  z.object({ widget: widgetName, property: entityPropertyPath }).strict(),
+  // The column is read as T.selectedRow?.["col"], so it may not be an Object.prototype name.
+  z
+    .object({
+      table: widgetName,
+      column: navigateText
+        .pipe(z.string().min(1))
+        .refine(
+          (column) =>
+            !PROTOTYPE_PROPERTY_NAMES.has(column) && column !== "prototype",
+          "a column name cannot be an Object.prototype name",
+        ),
+    })
+    .strict(),
+]);
+
+type NavigateParamValue = z.infer<typeof navigateParamValue>;
+
+// navigate opens a page, optionally with URL query parameters (`?id=...`). Keys use the store-key rule: an
+// identifier that is not an Object.prototype name, because each is emitted as an unquoted object-literal key.
+const navigateAction = z
+  .object({
+    navigate: pageName,
+    params: z
+      .record(storeKeySchema, navigateParamValue)
+      .refine(
+        (params) => Object.keys(params).length <= 10,
+        "at most 10 navigate params",
+      )
+      .optional(),
+  })
+  .strict();
+
+function compileNavigateParam(value: NavigateParamValue): string {
+  if ("literal" in value) return JSON.stringify(value.literal);
+
+  if ("widget" in value) return `${value.widget}.${value.property}`;
+
+  return `${value.table}.selectedRow?.[${JSON.stringify(value.column)}]`;
+}
+
 // A follow-up step inside a run's onSuccess/onError callback: the same closed kinds plus showAlert and reset.
 // Follow-ups can never nest further (no callbacks on callbacks), so the compiled binding stays one bounded chain.
 const followUpActionSchema = z.union([
   z.object({ run: queryName }).strict(),
-  z.object({ navigate: pageName }).strict(),
+  navigateAction,
   z.object({ showModal: widgetName }).strict(),
   z.object({ closeModal: widgetName }).strict(),
   z.object({ showAlert: alertMessage, style: alertStyle.optional() }).strict(),
@@ -170,7 +236,7 @@ export const eventActionSchema = z.union([
       onError: z.array(followUpActionSchema).min(1).max(5).optional(),
     })
     .strict(),
-  z.object({ navigate: pageName }).strict(),
+  navigateAction,
   z.object({ showModal: widgetName }).strict(),
   z.object({ closeModal: widgetName }).strict(),
   z.object({ showAlert: alertMessage, style: alertStyle.optional() }).strict(),
@@ -267,7 +333,15 @@ function compileStatement(action: FollowUpAction): string {
   if ("run" in action) return `${action.run}.run()`;
 
   if ("navigate" in action) {
-    return `navigateTo('${action.navigate}', {}, 'SAME_WINDOW')`;
+    const params = Object.entries(action.params ?? {});
+    const query =
+      params.length === 0
+        ? "{}"
+        : `{ ${params
+            .map(([key, value]) => `${key}: ${compileNavigateParam(value)}`)
+            .join(", ")} }`;
+
+    return `navigateTo('${action.navigate}', ${query}, 'SAME_WINDOW')`;
   }
 
   if ("showModal" in action) return `showModal('${action.showModal}')`;
@@ -378,7 +452,17 @@ export function eventReferences(action: EventActionInput): EventReference[] {
     }
 
     if ("navigate" in step) {
-      return [{ kind: "page" as const, name: step.navigate }];
+      return [
+        { kind: "page" as const, name: step.navigate },
+        // Parameter widgets and tables are widget references too (dangling guard).
+        ...Object.values(step.params ?? {}).flatMap((value) =>
+          "widget" in value
+            ? [{ kind: "widget" as const, name: value.widget }]
+            : "table" in value
+              ? [{ kind: "widget" as const, name: value.table }]
+              : [],
+        ),
+      ];
     }
 
     if ("showModal" in step) {

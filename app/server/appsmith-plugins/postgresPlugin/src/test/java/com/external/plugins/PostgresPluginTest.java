@@ -1686,6 +1686,82 @@ public class PostgresPluginTest {
                         List.of(param("binding1", "%billing", ClientDataType.STRING)))));
     }
 
+    /*
+     * The coalesced group column the MCP compiler emits (APP-16324 F1.4): the fallback is a prepared parameter inside
+     * the select list, and GROUP BY uses the stored column. NULLs form one group, shown under the fallback. The SQL
+     * shape matches app/client/packages/mcp/src/builder/query.test.ts.
+     */
+    @Test
+    public void testCoalescedGroupColumnUsesAParameterFallback() {
+        String rows = "(VALUES ('1.0'), ('1.0'), (NULL), (NULL), (NULL)) AS t(\"appsmith_version\")";
+        ActionExecutionResult result = runStatement(
+                "SELECT COALESCE(\"appsmith_version\", {{binding1}}) AS \"appsmith_version\", COUNT(*) AS count FROM "
+                        + rows + " GROUP BY \"appsmith_version\" ORDER BY \"appsmith_version\" DESC;",
+                true,
+                List.of(param("binding1", "Unknown", ClientDataType.STRING)));
+
+        ArrayNode body = (ArrayNode) result.getBody();
+        assertEquals(2, body.size());
+        assertEquals("Unknown", body.get(0).get("appsmith_version").asText());
+        assertEquals(3, body.get(0).get("count").asInt());
+        assertEquals("1.0", body.get(1).get("appsmith_version").asText());
+        assertEquals(2, body.get(1).get("count").asInt());
+    }
+
+    /*
+     * The HAVING the MCP compiler emits (APP-16324 F1.5): the aggregate expression is repeated and compared with a
+     * prepared parameter, and a group column is tested by its quoted name. The SQL shape matches
+     * app/client/packages/mcp/src/builder/query.test.ts.
+     */
+    @Test
+    public void testHavingComparesTheAggregateWithAParameter() {
+        String rows = "(VALUES ('a'), ('a'), ('a'), ('b'), ('N/A'), ('N/A')) AS t(\"tag\")";
+        ActionExecutionResult result = runStatement(
+                "SELECT \"tag\", COUNT(*) AS count FROM " + rows
+                        + " GROUP BY \"tag\" HAVING COUNT(*) >= {{binding1}} AND \"tag\" != {{binding2}}"
+                        + " ORDER BY \"count\" DESC;",
+                true,
+                List.of(
+                        param("binding1", "2", ClientDataType.NUMBER),
+                        param("binding2", "N/A", ClientDataType.STRING)));
+
+        ArrayNode body = (ArrayNode) result.getBody();
+        assertEquals(1, body.size());
+        assertEquals("a", body.get(0).get("tag").asText());
+        assertEquals(3, body.get(0).get("count").asInt());
+    }
+
+    /*
+     * The split group column the MCP compiler emits (APP-16324 F1.6), as the Oracle tag-count query uses it: a lateral
+     * unnest of the delimited column with the separator as a prepared parameter, grouped and tested by the trimmed
+     * item. The SQL shape matches app/client/packages/mcp/src/builder/query.test.ts.
+     */
+    @Test
+    public void testSplitGroupColumnCountsEachTrimmedItem() {
+        // The NULL and '' rows have no items, so the CROSS JOIN leaves them out: they add no group and no count. The
+        // empty item in 'billing,,export' is kept and forms its own '' group.
+        String rows = "(VALUES ('billing, export'), ('billing'), ('N/A'), ('export ,billing'), (NULL), (''),"
+                + " ('billing,,export')) AS tickets(\"feature_tags\")";
+        ActionExecutionResult result = runStatement(
+                "SELECT TRIM(mcp_split.mcp_split_value) AS \"feature_tags\", COUNT(*) AS count FROM " + rows
+                        + " CROSS JOIN LATERAL unnest(string_to_array(\"feature_tags\", {{binding1}}))"
+                        + " AS mcp_split(mcp_split_value) GROUP BY TRIM(mcp_split.mcp_split_value)"
+                        + " HAVING TRIM(mcp_split.mcp_split_value) != {{binding2}} ORDER BY \"count\" DESC;",
+                true,
+                List.of(
+                        param("binding1", ",", ClientDataType.STRING),
+                        param("binding2", "N/A", ClientDataType.STRING)));
+
+        ArrayNode body = (ArrayNode) result.getBody();
+        assertEquals(3, body.size());
+        assertEquals("billing", body.get(0).get("feature_tags").asText());
+        assertEquals(4, body.get(0).get("count").asInt());
+        assertEquals("export", body.get(1).get("feature_tags").asText());
+        assertEquals(3, body.get(1).get("count").asInt());
+        assertEquals("", body.get(2).get("feature_tags").asText());
+        assertEquals(1, body.get(2).get("count").asInt());
+    }
+
     @Test
     public void testNullFilterOnWriteDeletesOnlyNullRows() {
         runStatement("DROP TABLE IF EXISTS public.mcp_null_filter;", false, List.of());

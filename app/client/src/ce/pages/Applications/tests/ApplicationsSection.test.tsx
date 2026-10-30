@@ -11,24 +11,24 @@ import { PERMISSION_TYPE } from "ee/utils/permissionHelpers";
 import type { ApplicationPayload } from "entities/Application";
 import type { Workspace } from "ee/constants/workspaceConstants";
 import { ApplicationsSection } from "../index";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getIsAiAgentFlowEnabled } from "ee/selectors/aiAgentSelectors";
 
-// Force the AI-agent FLOW flag (license_ai_agent_enabled) ON. This is the exact
-// state that produced APP-15954: with the flag on, the ANVIL application list
-// was titled "AI Agents". The INSTANCE flag is left real — it gates the sibling
-// classic-application list, which this file does not exercise.
+jest.mock("utils/hooks/useFeatureFlag", () => ({ useFeatureFlag: jest.fn() }));
+beforeEach(() => {
+  jest
+    .mocked(useFeatureFlag)
+    .mockImplementation((flag) => flag === FEATURE_FLAG.license_anvil_enabled);
+  jest.mocked(getIsAiAgentFlowEnabled).mockReturnValue(true);
+});
+
+// Vary the retired AI flow flag independently from the current Anvil license.
+// The instance flag remains real; it gates the sibling classic list.
 jest.mock("ee/selectors/aiAgentSelectors", () => ({
   __esModule: true,
   ...jest.requireActual("ee/selectors/aiAgentSelectors"),
   getIsAiAgentFlowEnabled: jest.fn(() => true),
-}));
-
-// Keep the retired Anvil layout flag OFF so the AI-agent flag is the *only*
-// thing rendering the ANVIL list. That is the reported configuration, and it
-// means the assertions below cannot be satisfied by an unrelated code path.
-jest.mock("layoutSystems/anvil/integrations/selectors", () => ({
-  __esModule: true,
-  ...jest.requireActual("layoutSystems/anvil/integrations/selectors"),
-  getIsAnvilLayoutEnabled: jest.fn(() => false),
 }));
 
 // Everything below is page chrome that has nothing to do with the title
@@ -158,5 +158,31 @@ describe("ApplicationsSection - ANVIL application list heading (APP-15954)", () 
     expect(
       screen.queryByText("There are no AI Agents in this workspace."),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe("ApplicationsSection — responsive license gate", () => {
+  it.each([
+    [true, false],
+    [true, true],
+    [false, true],
+    [false, false],
+  ])("Anvil license %s, AI flow %s", (licensed, aiFlow) => {
+    jest
+      .mocked(useFeatureFlag)
+      .mockImplementation(
+        (flag) => flag === FEATURE_FLAG.license_anvil_enabled && licensed,
+      );
+    jest.mocked(getIsAiAgentFlowEnabled).mockReturnValue(aiFlow);
+    renderApplicationsSection([anvilApplication, classicApplication]);
+
+    if (licensed) {
+      expect(screen.getByText("Anvil App 1")).toBeInTheDocument();
+      expect(screen.getByText("Responsive applications")).toBeInTheDocument();
+    } else {
+      expect(
+        screen.queryByText("Responsive applications"),
+      ).not.toBeInTheDocument();
+    }
   });
 });

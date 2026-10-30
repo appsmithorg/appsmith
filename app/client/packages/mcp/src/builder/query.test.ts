@@ -1,8 +1,11 @@
 import {
   buildActionDto,
   compileQuery,
+  markMcpAuthoredBody,
+  mcpAuthoredBody,
   querySpecSchema,
   sqlDialectFor,
+  withoutMcpMarker,
 } from "./query.js";
 
 function parse(spec: unknown) {
@@ -1755,6 +1758,1029 @@ describe("APP-16324 F1.3: like match position and ilike", () => {
     expect(body).toBe(
       'SELECT * FROM tickets WHERE ({{ (SearchInput.text == null || SearchInput.text.length === 0) ? 1 : 0 }} = 1 OR subject LIKE {{ "%" + (SearchInput.text ?? "") + "%" }});',
     );
+  });
+});
+
+describe("APP-16324 F1.4: coalesce on selected and grouped columns", () => {
+  it("coalesces a selected column, keeping its name", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        columns: [
+          "id",
+          { column: "appsmith_version", coalesce: { literal: "Unknown" } },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT id, COALESCE(appsmith_version, {{ "Unknown" }}) AS appsmith_version FROM tickets;',
+    );
+  });
+
+  // Oracle "Tickets by version": tickets with no version count under "Unknown".
+  it("coalesces a grouped column in an aggregated select", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: [
+          { column: "appsmith_version", coalesce: { literal: "Unknown" } },
+        ],
+        aggregate: { fn: "count" },
+        orderBy: [{ column: "appsmith_version", direction: "DESC" }],
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT COALESCE("appsmith_version", {{ "Unknown" }}) AS "appsmith_version", COUNT(*) AS count FROM tickets GROUP BY "appsmith_version" ORDER BY "appsmith_version" DESC;',
+    );
+  });
+
+  // MySQL and MariaDB read "col" as a string literal unless ANSI_QUOTES is on, which would group and sort by a
+  // constant. Backticks are refused in every body, so those identifiers are emitted bare there; other dialects keep
+  // double quotes.
+  it("emits grouped, aggregated and sorted columns bare on MySQL, never double-quoted", () => {
+    const spec = parse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      groupBy: [
+        "region",
+        { column: "appsmith_version", coalesce: { literal: "Unknown" } },
+      ],
+      aggregate: { fn: "sum", column: "amount" },
+      orderBy: [{ column: "region", direction: "ASC" }],
+    });
+
+    expect(compileQuery(spec, { dialect: "mysql" })).toBe(
+      'SELECT region, COALESCE(appsmith_version, {{ "Unknown" }}) AS appsmith_version, SUM(amount) AS sum FROM tickets GROUP BY region, appsmith_version ORDER BY region ASC;',
+    );
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: ["region"],
+          aggregate: { fn: "count", column: "id" },
+        }),
+        { dialect: "mysql" },
+      ),
+    ).toBe("SELECT region, COUNT(id) AS count FROM tickets GROUP BY region;");
+    expect(compileQuery(spec, { dialect: "postgres" })).toBe(
+      'SELECT "region", COALESCE("appsmith_version", {{ "Unknown" }}) AS "appsmith_version", SUM("amount") AS sum FROM tickets GROUP BY "region", "appsmith_version" ORDER BY "region" ASC;',
+    );
+  });
+
+  it("mixes plain and coalesced group columns", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["region", { column: "tier", coalesce: { literal: 0 } }],
+        aggregate: { fn: "sum", column: "amount" },
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT "region", COALESCE("tier", {{ 0 }}) AS "tier", SUM("amount") AS sum FROM tickets GROUP BY "region", "tier";',
+    );
+  });
+
+  it("keeps a fallback that looks like SQL as a bound parameter", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        columns: [
+          { column: "owner", coalesce: { literal: "x') OR 1=1 -- %" } },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      `SELECT COALESCE(owner, {{ "x') OR 1=1 -- %" }}) AS owner FROM tickets;`,
+    );
+  });
+
+  it.each([
+    [
+      "a column that is not an identifier",
+      { columns: [{ column: "a, b", coalesce: { literal: "x" } }] },
+    ],
+    [
+      "a null fallback",
+      { columns: [{ column: "a", coalesce: { literal: null } }] },
+    ],
+    [
+      "a widget fallback",
+      {
+        columns: [
+          { column: "a", coalesce: { widget: "Input1", property: "text" } },
+        ],
+      },
+    ],
+    [
+      "template syntax in the fallback",
+      { columns: [{ column: "a", coalesce: { literal: "{{evil()}}" } }] },
+    ],
+    [
+      "an extra key",
+      { columns: [{ column: "a", coalesce: { literal: "x" }, as: "b" }] },
+    ],
+    [
+      "a grouped column that is not an identifier",
+      {
+        groupBy: [{ column: "a;b", coalesce: { literal: "x" } }],
+        aggregate: { fn: "count" },
+      },
+    ],
+  ])("rejects %s", (_label, override) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      ...(override as Record<string, unknown>),
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("refuses coalesce entries on a write", () => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "UPDATE",
+      table: "tickets",
+      values: [{ column: "status", value: { literal: "closed" } }],
+      columns: [{ column: "owner", coalesce: { literal: "x" } }],
+      filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+    });
+
+    expect(result.success).toBe(false);
+    expect(JSON.stringify(result.error?.issues)).toContain(
+      "coalesce is only valid on a SELECT query",
+    );
+  });
+
+  it("refuses a groupBy coalesce without an aggregate, instead of dropping it", () => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      groupBy: [{ column: "status", coalesce: { literal: "none" } }],
+    });
+
+    expect(result.success).toBe(false);
+    expect(JSON.stringify(result.error?.issues)).toContain(
+      "coalesce on a groupBy column needs an aggregate",
+    );
+  });
+
+  it("refuses a columns coalesce with an aggregate, instead of dropping it", () => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      columns: ["id", { column: "status", coalesce: { literal: "none" } }],
+      groupBy: ["region"],
+      aggregate: { fn: "count" },
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.path.join("."))).toEqual([
+      "columns.1.coalesce",
+    ]);
+  });
+
+  // JSON such as 1e999 parses to Infinity, which JSON.stringify emits as null: the literal would silently bind NULL.
+  it.each([
+    [
+      "a coalesce fallback",
+      { columns: [{ column: "a", coalesce: { literal: Infinity } }] },
+    ],
+    [
+      "a filter value",
+      { filters: [{ column: "a", op: "eq", value: { literal: -Infinity } }] },
+    ],
+    [
+      "a NaN filter value",
+      { filters: [{ column: "a", op: "gt", value: { literal: NaN } }] },
+    ],
+  ])("refuses a non-finite number as %s", (_case, extra) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      ...extra,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  // The case that mattered most: an INSERT would have written NULL into the row.
+  it("refuses a non-finite number as an INSERT value", () => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "INSERT",
+      table: "tickets",
+      values: [{ column: "a", value: { literal: Infinity } }],
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.path.join(".")).toBe(
+      "values.0.value.literal",
+    );
+  });
+
+  it("combines a coalesce column with filters, ordering and a limit", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        columns: [
+          "id",
+          { column: "owner", coalesce: { literal: "unassigned" } },
+        ],
+        filters: [{ column: "status", op: "eq", value: { literal: "New" } }],
+        orderBy: [{ column: "id", direction: "DESC" }],
+        limit: 50,
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT id, COALESCE(owner, {{ "unassigned" }}) AS owner FROM tickets WHERE status = {{ "New" }} ORDER BY "id" DESC LIMIT 50;',
+    );
+  });
+
+  // Plain columns on a write were always ignored, and still are.
+  it("still ignores plain columns on a write", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "DELETE",
+        table: "tickets",
+        columns: ["id"],
+        filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+      }),
+    );
+
+    expect(body).toBe("DELETE FROM tickets WHERE id = {{ 1 }};");
+  });
+
+  it("leaves plain columns and plain groupBy unchanged", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["region"],
+        aggregate: { fn: "count" },
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT "region", COUNT(*) AS count FROM tickets GROUP BY "region";',
+    );
+  });
+});
+
+describe("APP-16324 F1.5: having on aggregated selects", () => {
+  it.each([
+    ["eq", "="],
+    ["ne", "!="],
+    ["gt", ">"],
+    ["gte", ">="],
+    ["lt", "<"],
+    ["lte", "<="],
+  ])("emits having op %s as %s", (op, sql) => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "count", op, value: { literal: 3 } }],
+      }),
+    );
+
+    expect(body).toBe(
+      `SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" HAVING COUNT(*) ${sql} {{ 3 }};`,
+    );
+  });
+
+  // MySQL names are bare and case-insensitive, so "COUNT" would collide with the count result there.
+  it("refuses a group column named like the aggregate in any case", () => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      groupBy: ["COUNT"],
+      aggregate: { fn: "count" },
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.path.join("."))).toEqual([
+      "groupBy.0",
+    ]);
+  });
+
+  it("refuses a null literal, which = NULL would never match", () => {
+    for (const op of ["eq", "ne"]) {
+      const result = querySpecSchema.safeParse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "tag", op, value: { literal: null } }],
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error?.issues[0]?.message).toBe(
+        "having cannot compare with null: = NULL never matches",
+      );
+    }
+  });
+
+  it("filters on the aggregate by repeating its expression", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "count", op: "gt", value: { literal: 5 } }],
+        orderBy: [{ column: "count", direction: "DESC" }],
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" HAVING COUNT(*) > {{ 5 }} ORDER BY "count" DESC;',
+    );
+  });
+
+  // Oracle "Tag counts": HAVING tag <> 'N/A'.
+  it("filters on a group column", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "tag", op: "ne", value: { literal: "N/A" } }],
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" HAVING "tag" != {{ "N/A" }};',
+    );
+  });
+
+  // HAVING names group columns and the aggregate the way GROUP BY and the select list do, so on MySQL they are bare
+  // too (a double-quoted name there is a string, which would compare a constant).
+  it("emits HAVING columns and the aggregate bare on MySQL", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "orders",
+        groupBy: ["region"],
+        aggregate: { fn: "sum", column: "amount" },
+        having: [
+          { column: "sum", op: "gt", value: { literal: 100 } },
+          { column: "region", op: "ne", value: { literal: "test" } },
+        ],
+      }),
+      { dialect: "mysql" },
+    );
+
+    expect(body).toBe(
+      'SELECT region, SUM(amount) AS sum FROM orders GROUP BY region HAVING SUM(amount) > {{ 100 }} AND region != {{ "test" }};',
+    );
+  });
+
+  it("filters an avg over the whole table when there is no groupBy", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "orders",
+        aggregate: { fn: "avg", column: "amount" },
+        having: [{ column: "avg", op: "gt", value: { literal: 10.5 } }],
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT AVG("amount") AS avg FROM orders HAVING AVG("amount") > {{ 10.5 }};',
+    );
+  });
+
+  // Each refusal checks its exact message and the path of the field the agent must fix.
+  it.each([
+    [
+      "a column that is neither the aggregate nor a group column",
+      {
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "status", op: "eq", value: { literal: "x" } }],
+      },
+      'having can only test "count" or a groupBy column',
+      ["having", 0, "column"],
+    ],
+    [
+      "an aggregate name that does not match the aggregate",
+      {
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "sum", op: "gt", value: { literal: 1 } }],
+      },
+      'having can only test "count" or a groupBy column',
+      ["having", 0, "column"],
+    ],
+    // HAVING would test the stored value, not the fallback the select list shows.
+    [
+      "a group column that has coalesce",
+      {
+        groupBy: [{ column: "tag", coalesce: { literal: "none" } }],
+        aggregate: { fn: "count" },
+        having: [{ column: "tag", op: "ne", value: { literal: "none" } }],
+      },
+      "having cannot test a groupBy column that has coalesce (it would test the stored value, not the fallback shown)",
+      ["having", 0, "column"],
+    ],
+    [
+      "a group column named like the aggregate's result",
+      {
+        groupBy: ["count"],
+        aggregate: { fn: "count" },
+      },
+      'a groupBy column cannot be named "count", the name of the aggregate\'s result',
+      ["groupBy", 0],
+    ],
+    [
+      "skipWhenEmpty in having",
+      {
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [
+          {
+            column: "count",
+            op: "gt",
+            value: { widget: "W", property: "text" },
+            skipWhenEmpty: true,
+          },
+        ],
+      },
+      "Unrecognized key(s) in object: 'skipWhenEmpty'",
+      ["having", 0],
+    ],
+  ])("refuses %s, at its own path", (_label, override, message, path) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      ...(override as Record<string, unknown>),
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues).toContainEqual(
+      expect.objectContaining({ message, path }),
+    );
+  });
+
+  it("ANDs several having conditions and accepts a widget value", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "orders",
+        groupBy: ["region"],
+        aggregate: { fn: "sum", column: "amount" },
+        having: [
+          {
+            column: "sum",
+            op: "gte",
+            value: { widget: "MinAmount", property: "text" },
+          },
+          { column: "region", op: "ne", value: { literal: "test" } },
+        ],
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT "region", SUM("amount") AS sum FROM orders GROUP BY "region" HAVING SUM("amount") >= {{ MinAmount.text }} AND "region" != {{ "test" }};',
+    );
+  });
+
+  it("puts HAVING between GROUP BY and ORDER BY, after WHERE", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [{ column: "status", op: "eq", value: { literal: "open" } }],
+        groupBy: ["tag"],
+        aggregate: { fn: "count", column: "id" },
+        having: [{ column: "count", op: "lt", value: { literal: 100 } }],
+        orderBy: [{ column: "tag", direction: "ASC" }],
+        limit: 10,
+      }),
+    );
+
+    expect(body).toBe(
+      'SELECT "tag", COUNT("id") AS count FROM tickets WHERE status = {{ "open" }} GROUP BY "tag" HAVING COUNT("id") < {{ 100 }} ORDER BY "tag" ASC LIMIT 10;',
+    );
+  });
+
+  it.each([
+    [
+      "having without an aggregate",
+      {
+        groupBy: ["tag"],
+        having: [{ column: "tag", op: "ne", value: { literal: "x" } }],
+      },
+      "having needs an aggregate",
+    ],
+    [
+      "an op outside the comparison set",
+      {
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "tag", op: "like", value: { literal: "x" } }],
+      },
+      "Invalid enum value",
+    ],
+    [
+      "a column that is not an identifier",
+      {
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "count) OR (1", op: "gt", value: { literal: 1 } }],
+      },
+      "must be a plain SQL identifier",
+    ],
+    [
+      "more than 10 conditions",
+      {
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: Array.from({ length: 11 }, () => ({
+          column: "count",
+          op: "gt",
+          value: { literal: 1 },
+        })),
+      },
+      "too_big",
+    ],
+  ])("rejects %s", (_label, override, message) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      ...(override as Record<string, unknown>),
+    });
+
+    expect(result.success).toBe(false);
+    expect(JSON.stringify(result.error?.issues)).toContain(message);
+  });
+
+  it("refuses having on a write", () => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "DELETE",
+      table: "tickets",
+      filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+      having: [{ column: "count", op: "gt", value: { literal: 1 } }],
+    });
+
+    expect(result.success).toBe(false);
+    expect(JSON.stringify(result.error?.issues)).toContain(
+      "having is only valid on a SELECT query",
+    );
+  });
+});
+
+describe("APP-16324 F1.6: split a delimited column (PostgreSQL)", () => {
+  // Oracle "Tag counts": split feature_tags on ",", count each tag, skip "N/A", most-used first.
+  it("compiles the Tag Counts query with a lateral unnest", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: [{ column: "feature_tags", split: "," }],
+        aggregate: { fn: "count" },
+        having: [
+          { column: "feature_tags", op: "ne", value: { literal: "N/A" } },
+        ],
+        orderBy: [{ column: "count", direction: "DESC" }],
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toBe(
+      'SELECT TRIM(mcp_split.mcp_split_value) AS "feature_tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("feature_tags", {{ "," }})) AS mcp_split(mcp_split_value) GROUP BY TRIM(mcp_split.mcp_split_value) HAVING TRIM(mcp_split.mcp_split_value) != {{ "N/A" }} ORDER BY "count" DESC;',
+    );
+  });
+
+  // A WHERE filter on the split column tests the whole stored value; having tests each item.
+  it("combines a split with a filter on the same column, having, orderBy and a limit", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [
+          {
+            column: "tags",
+            op: "like",
+            match: "contains",
+            value: { literal: "a" },
+          },
+        ],
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+        having: [{ column: "count", op: "gt", value: { literal: 1 } }],
+        orderBy: [{ column: "tags", direction: "DESC" }],
+        limit: 5,
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toBe(
+      'SELECT TRIM(mcp_split.mcp_split_value) AS "tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("tags", {{ "," }})) AS mcp_split(mcp_split_value) WHERE tags LIKE {{ "%a%" }} GROUP BY TRIM(mcp_split.mcp_split_value) HAVING COUNT(*) > {{ 1 }} ORDER BY "tags" DESC LIMIT 5;',
+    );
+  });
+
+  // The repeated-column refusal exists for split; a plain repeated group column stays accepted, as before F1.6.
+  it("still accepts a plain group column listed twice without a split", () => {
+    expect(
+      querySpecSchema.safeParse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["region", "region"],
+        aggregate: { fn: "count" },
+      }).success,
+    ).toBe(true);
+  });
+
+  it("keeps WHERE filters on the table's own columns, and other group columns", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [{ column: "status", op: "eq", value: { literal: "open" } }],
+        groupBy: ["product", { column: "feature_tags", split: ";" }],
+        aggregate: { fn: "count" },
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toBe(
+      'SELECT "product", TRIM(mcp_split.mcp_split_value) AS "feature_tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("feature_tags", {{ ";" }})) AS mcp_split(mcp_split_value) WHERE status = {{ "open" }} GROUP BY "product", TRIM(mcp_split.mcp_split_value);',
+    );
+  });
+
+  it("keeps a separator that looks like SQL as a bound parameter", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: [{ column: "tags", split: "')--" }],
+        aggregate: { fn: "count" },
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toContain(`string_to_array("tags", {{ "')--" }})`);
+  });
+
+  it.each([undefined, "mysql" as const, "other" as const, "redshift" as const])(
+    "refuses split unless the datasource is PostgreSQL (dialect %s)",
+    (dialect) => {
+      const spec = parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      });
+
+      expect(() => compileQuery(spec, { dialect })).toThrow(
+        /split \(on tags\) is only available on a PostgreSQL datasource/,
+      );
+    },
+  );
+
+  it.each([
+    [
+      "split in columns",
+      { columns: [{ column: "tags", split: "," }] },
+      "split is only valid in groupBy",
+      ["columns", 0, "split"],
+    ],
+    [
+      "two split columns",
+      {
+        groupBy: [
+          { column: "a", split: "," },
+          { column: "b", split: "," },
+        ],
+        aggregate: { fn: "count" },
+      },
+      "only one groupBy column can use split",
+      ["groupBy", 1, "split"],
+    ],
+    [
+      "split without an aggregate",
+      { groupBy: [{ column: "tags", split: "," }] },
+      "split on a groupBy column needs an aggregate",
+      ["groupBy", 0, "split"],
+    ],
+  ])("refuses %s, at its own path", (_label, override, message, path) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      ...(override as Record<string, unknown>),
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues).toContainEqual(
+      expect.objectContaining({ message, path }),
+    );
+  });
+
+  // PostgreSQL resolves an ORDER BY name to the output column first, so this sorts by the trimmed item.
+  it("orders by the split column's alias", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+        orderBy: [{ column: "tags", direction: "ASC" }],
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toMatch(
+      / GROUP BY TRIM\(mcp_split\.mcp_split_value\) ORDER BY "tags" ASC;$/,
+    );
+    expect(body).toContain('TRIM(mcp_split.mcp_split_value) AS "tags"');
+  });
+
+  it.each([
+    [
+      "the same column listed twice in groupBy",
+      {
+        groupBy: ["tags", { column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      },
+      'groupBy lists "tags" more than once',
+      ["groupBy", 1],
+    ],
+    [
+      "split on a table named mcp_split",
+      {
+        table: "public.mcp_split",
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      },
+      "split cannot be used on a table named mcp_split",
+      ["table"],
+    ],
+    [
+      "a filter on the reserved item column",
+      {
+        filters: [
+          { column: "mcp_split_value", op: "eq", value: { literal: "x" } },
+        ],
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      },
+      "with split, a column cannot be named mcp_split_value (that name is reserved for the split source)",
+      ["filters", 0, "column"],
+    ],
+    [
+      "a group member on the reserved source name",
+      {
+        filters: [
+          {
+            anyOf: [
+              { column: "mcp_split", op: "isNull" },
+              { column: "status", op: "eq", value: { literal: "x" } },
+            ],
+          },
+        ],
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      },
+      "with split, a column cannot be named mcp_split (that name is reserved for the split source)",
+      ["filters", 0, "anyOf", 0, "column"],
+    ],
+    [
+      "a plain group column on the reserved item name",
+      {
+        groupBy: ["mcp_split_value", { column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      },
+      "with split, a column cannot be named mcp_split_value (that name is reserved for the split source)",
+      ["groupBy", 0],
+    ],
+    [
+      "the aggregate's column on the reserved source name",
+      {
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count", column: "mcp_split" },
+      },
+      "with split, a column cannot be named mcp_split (that name is reserved for the split source)",
+      ["aggregate", "column"],
+    ],
+    [
+      "an orderBy column on the reserved item name",
+      {
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+        orderBy: [{ column: "mcp_split_value", direction: "ASC" }],
+      },
+      "with split, a column cannot be named mcp_split_value (that name is reserved for the split source)",
+      ["orderBy", 0, "column"],
+    ],
+    [
+      "a having column on the reserved item name",
+      {
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+        having: [
+          { column: "mcp_split_value", op: "eq", value: { literal: "x" } },
+        ],
+      },
+      "with split, a column cannot be named mcp_split_value (that name is reserved for the split source)",
+      ["having", 0, "column"],
+    ],
+    [
+      "a selected column on the reserved source name",
+      {
+        columns: ["mcp_split"],
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      },
+      "with split, a column cannot be named mcp_split (that name is reserved for the split source)",
+      ["columns", 0],
+    ],
+    // WHERE columns are emitted unquoted and PostgreSQL lowercases them, so case is ignored.
+    [
+      "a mixed-case reserved name",
+      {
+        filters: [
+          { column: "Mcp_Split_Value", op: "eq", value: { literal: "x" } },
+        ],
+        groupBy: [{ column: "tags", split: "," }],
+        aggregate: { fn: "count" },
+      },
+      "with split, a column cannot be named Mcp_Split_Value (that name is reserved for the split source)",
+      ["filters", 0, "column"],
+    ],
+  ])("refuses %s, at its own path", (_label, override, message, path) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      ...(override as Record<string, unknown>),
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues).toContainEqual(
+      expect.objectContaining({ message, path }),
+    );
+  });
+
+  it.each([
+    ["an empty separator", { column: "tags", split: "" }],
+    [
+      "a separator longer than 10 characters",
+      { column: "tags", split: "x".repeat(11) },
+    ],
+    ["template syntax in the separator", { column: "tags", split: "{{a}}" }],
+    [
+      "split together with coalesce",
+      { column: "tags", split: ",", coalesce: { literal: "x" } },
+    ],
+    ["a column that is not an identifier", { column: "tags,1", split: "," }],
+  ])("rejects %s", (_label, entry) => {
+    const result = querySpecSchema.safeParse({
+      ...base,
+      operation: "SELECT",
+      table: "tickets",
+      groupBy: [entry],
+      aggregate: { fn: "count" },
+    });
+
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("APP-16324 F9: marking MCP-authored SQL", () => {
+  const body = 'SELECT id FROM tickets WHERE status = {{ "open" }};';
+
+  it("prefixes the body with a hash marker and reads it back", () => {
+    const stored = markMcpAuthoredBody(body);
+
+    expect(stored).toMatch(
+      /^-- appsmith-mcp:v1 sha256=[0-9a-f]{64} \(written by the Appsmith MCP server, editing it stops MCP clients from reading it\)\n/,
+    );
+    expect(stored.endsWith(body)).toBe(true);
+    expect(mcpAuthoredBody(stored)).toBe(body);
+  });
+
+  // The MySQL plugin strips `--` comments and then reads the first word to decide whether the query returns rows.
+  // The marker line must be plain ASCII with nothing a plugin scans for.
+  it("writes the marker as one ASCII line comment with no ; ' \" ? or {{", () => {
+    const markerLine = markMcpAuthoredBody(body).split("\n")[0];
+
+    expect(markerLine.startsWith("-- ")).toBe(true);
+    expect(/^[\x20-\x7e]*$/.test(markerLine)).toBe(true);
+    expect(markerLine).not.toMatch(/[;'"?]|\{\{/);
+  });
+
+  it("treats a body whose line endings became CRLF as not MCP-authored", () => {
+    expect(
+      mcpAuthoredBody(markMcpAuthoredBody(body).replace(/\n/g, "\r\n")),
+    ).toBeUndefined();
+  });
+
+  // The marker line keeps its \n, so only the hash can notice a line-ending change inside the body.
+  it("treats a CRLF change inside a multi-line body as not MCP-authored", () => {
+    const multiLine = 'SELECT *\nFROM tickets\nWHERE status = {{ "open" }};';
+    const stored = markMcpAuthoredBody(multiLine);
+    const [markerLine, ...rest] = stored.split("\n");
+
+    expect(mcpAuthoredBody(stored)).toBe(multiLine);
+    expect(
+      mcpAuthoredBody(`${markerLine}\n${rest.join("\r\n")}`),
+    ).toBeUndefined();
+  });
+
+  // The marker must be the first line: text above it (such as an added secret) means the body is not what the MCP
+  // wrote, and it must stay hidden.
+  it("treats text above a valid marker as not MCP-authored", () => {
+    expect(
+      mcpAuthoredBody(`-- api_key=xyz\n${markMcpAuthoredBody(body)}`),
+    ).toBeUndefined();
+  });
+
+  it("strips only a leading marker line for classification, whatever its hash", () => {
+    const stored = markMcpAuthoredBody(body);
+
+    expect(withoutMcpMarker(stored)).toBe(body);
+    expect(withoutMcpMarker(`${stored} edited`)).toBe(`${body} edited`);
+    expect(withoutMcpMarker(body)).toBe(body);
+    expect(withoutMcpMarker(`-- x\n${stored}`)).toBe(`-- x\n${stored}`);
+  });
+
+  it.each([
+    ["an editor-written body (no marker)", body],
+    ["an empty body", ""],
+    ["a non-string body", 42],
+    ["undefined", undefined],
+  ])("treats %s as not MCP-authored", (_label, stored) => {
+    expect(mcpAuthoredBody(stored)).toBeUndefined();
+  });
+
+  // An edit after the MCP wrote the query, such as an added secret, must hide the body again.
+  it("treats a body edited after marking as not MCP-authored", () => {
+    const stored = markMcpAuthoredBody(body);
+
+    expect(
+      mcpAuthoredBody(stored.replace("open", "open' -- api_key=xyz")),
+    ).toBeUndefined();
+    expect(
+      mcpAuthoredBody(`${stored}\nSELECT secret FROM vault;`),
+    ).toBeUndefined();
+  });
+
+  it("treats a marker with a wrong hash as not MCP-authored", () => {
+    const stored = markMcpAuthoredBody(body).replace(
+      /sha256=[0-9a-f]{64}/,
+      `sha256=${"0".repeat(64)}`,
+    );
+
+    expect(mcpAuthoredBody(stored)).toBeUndefined();
   });
 });
 
