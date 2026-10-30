@@ -438,15 +438,11 @@ export const extractIdentifierInfoFromCode = (
     const { functionalParams, references, variableDeclarations }: NodeList =
       getSanitizedWrappedAncestorWalk(code, evaluationVersion);
     const referencesArr = Array.from(references).filter((reference) => {
-      // To remove references derived from declared variables and function params,
+      // To remove references derived from invalid identifiers (e.g. Math, console),
       // We extract the topLevelIdentifier Eg. Api1.name => Api1
       const topLevelIdentifier = toPath(reference)[0];
 
-      return !(
-        functionalParams.has(topLevelIdentifier) ||
-        variableDeclarations.has(topLevelIdentifier) ||
-        has(invalidIdentifiers, topLevelIdentifier)
-      );
+      return !has(invalidIdentifiers, topLevelIdentifier);
     });
 
     return {
@@ -517,15 +513,11 @@ export const entityRefactorFromCode = (
     //To handle if oldName has property ("JSObject.myfunc")
     const oldNameArr = oldName.split(".");
     const referencesArr = Array.from(references).filter((reference) => {
-      // To remove references derived from declared variables and function params,
+      // To remove references derived from invalid identifiers,
       // We extract the topLevelIdentifier Eg. Api1.name => Api1
       const topLevelIdentifier = toPath(reference)[0];
 
-      return !(
-        functionalParams.has(topLevelIdentifier) ||
-        variableDeclarations.has(topLevelIdentifier) ||
-        has(invalidIdentifiers, topLevelIdentifier)
-      );
+      return !has(invalidIdentifiers, topLevelIdentifier);
     });
 
     //Traverse through all identifiers in the script
@@ -912,29 +904,382 @@ export const extractExpressionsFromCode = (
   };
 };
 
+interface DeclarationInfo {
+  name: string;
+  start: number;
+  end: number;
+  isParam?: boolean;
+  initNode?: Node | null;
+}
+
+const extractDeclaredNames = (pattern: Node): string[] => {
+  if (isIdentifierNode(pattern)) {
+    return [pattern.name];
+  }
+  if (isAssignmentPatternNode(pattern)) {
+    return extractDeclaredNames(pattern.left);
+  }
+  if (isRestElementNode(pattern)) {
+    return extractDeclaredNames(pattern.argument);
+  }
+  if (isArrayPatternNode(pattern)) {
+    const names: string[] = [];
+    pattern.elements.forEach((el) => {
+      if (el) names.push(...extractDeclaredNames(el));
+    });
+    return names;
+  }
+  if (isObjectPatternNode(pattern)) {
+    const names: string[] = [];
+    pattern.properties.forEach((prop) => {
+      if (prop.type === NodeTypes.Property) {
+        names.push(...extractDeclaredNames(prop.value));
+      } else if (prop.type === NodeTypes.RestElement) {
+        names.push(...extractDeclaredNames(prop.argument));
+      }
+    });
+    return names;
+  }
+  return [];
+};
+
+const isFunctionScopeNode = (node: Node): boolean => {
+  return (
+    node.type === NodeTypes.FunctionDeclaration ||
+    node.type === NodeTypes.FunctionExpression ||
+    node.type === NodeTypes.ArrowFunctionExpression
+  );
+};
+
+const isBlockScopeNode = (node: Node): boolean => {
+  return (
+    node.type === NodeTypes.BlockStatement ||
+    node.type === "SwitchStatement" ||
+    node.type === "ForStatement" ||
+    node.type === "ForInStatement" ||
+    node.type === "ForOfStatement" ||
+    node.type === "CatchClause" ||
+    node.type === "Program" ||
+    isFunctionScopeNode(node)
+  );
+};
+
+const getRootIdentifier = (
+  node: IdentifierNode | MemberExpressionNode,
+): IdentifierNode | null => {
+  if (isIdentifierNode(node)) {
+    return node;
+  }
+  if (isMemberExpressionNode(node)) {
+    if (isIdentifierNode(node.object)) {
+      return node.object;
+    }
+    if (isMemberExpressionNode(node.object)) {
+      return getRootIdentifier(node.object);
+    }
+  }
+  return null;
+};
+
+const populateScopeDeclarations = (
+  ast: Node,
+  variableDeclarations: Set<string>,
+  functionalParams: Set<string>,
+): Map<Node, DeclarationInfo[]> => {
+  const scopeDeclarations = new Map<Node, DeclarationInfo[]>();
+
+  const addDeclaration = (scopeNode: Node, decl: DeclarationInfo) => {
+    let list = scopeDeclarations.get(scopeNode);
+    if (!list) {
+      list = [];
+      scopeDeclarations.set(scopeNode, list);
+    }
+    list.push(decl);
+  };
+
+  ancestor(ast, {
+    VariableDeclaration(node: Node, ancestors: Node[]) {
+      const varDecl = node as any;
+      const isVar = varDecl.kind === "var";
+
+      let targetScope: Node = ancestors[0]; // fallback to Program
+
+      for (let i = ancestors.length - 2; i >= 0; i--) {
+        const anc = ancestors[i];
+        if (isVar) {
+          if (isFunctionScopeNode(anc) || anc.type === "Program") {
+            targetScope = anc;
+            break;
+          }
+        } else {
+          if (isBlockScopeNode(anc)) {
+            targetScope = anc;
+            break;
+          }
+        }
+      }
+
+      varDecl.declarations.forEach((declarator: any) => {
+        const names = extractDeclaredNames(declarator.id);
+        names.forEach((name) => {
+          variableDeclarations.add(name);
+          addDeclaration(targetScope, {
+            name,
+            start: declarator.start,
+            end: declarator.end,
+            initNode: declarator.init,
+            isParam: false,
+          });
+        });
+      });
+    },
+    FunctionDeclaration(node: Node, ancestors: Node[]) {
+      const funcDecl = node as any;
+      if (funcDecl.id && isIdentifierNode(funcDecl.id)) {
+        variableDeclarations.add(funcDecl.id.name);
+        let targetScope: Node = ancestors[0];
+        for (let i = ancestors.length - 2; i >= 0; i--) {
+          const anc = ancestors[i];
+          if (isBlockScopeNode(anc)) {
+            targetScope = anc;
+            break;
+          }
+        }
+        addDeclaration(targetScope, {
+          name: funcDecl.id.name,
+          start: funcDecl.start,
+          end: funcDecl.end,
+          isParam: false,
+        });
+      }
+
+      const paramNames = getFunctionalParamNamesFromNode(funcDecl);
+      paramNames.forEach((name) => {
+        functionalParams.add(name);
+        addDeclaration(funcDecl, {
+          name,
+          start: funcDecl.start,
+          end: funcDecl.end,
+          isParam: true,
+        });
+      });
+    },
+    FunctionExpression(node: Node) {
+      const funcExpr = node as any;
+      const paramNames = getFunctionalParamNamesFromNode(funcExpr);
+      paramNames.forEach((name) => {
+        functionalParams.add(name);
+        addDeclaration(funcExpr, {
+          name,
+          start: funcExpr.start,
+          end: funcExpr.end,
+          isParam: true,
+        });
+      });
+    },
+    ArrowFunctionExpression(node: Node) {
+      const arrowFunc = node as any;
+      const paramNames = getFunctionalParamNamesFromNode(arrowFunc);
+      paramNames.forEach((name) => {
+        functionalParams.add(name);
+        addDeclaration(arrowFunc, {
+          name,
+          start: arrowFunc.start,
+          end: arrowFunc.end,
+          isParam: true,
+        });
+      });
+    },
+    CatchClause(node: Node) {
+      const catchNode = node as any;
+      if (catchNode.param) {
+        const names = extractDeclaredNames(catchNode.param);
+        names.forEach((name) => {
+          functionalParams.add(name);
+          addDeclaration(catchNode, {
+            name,
+            start: catchNode.start,
+            end: catchNode.end,
+            isParam: true,
+          });
+        });
+      }
+    },
+  });
+
+  return scopeDeclarations;
+};
+
+const isDeclarationIdentifier = (node: Node, ancestors: Node[]): boolean => {
+  const parentNode = ancestors[ancestors.length - 2] as any;
+  if (!parentNode) return false;
+
+  // Computed property keys (e.g. { [key]: value }) are expressions, not declarations
+  if (
+    parentNode.type === NodeTypes.Property &&
+    parentNode.key === node &&
+    parentNode.computed
+  ) {
+    return false;
+  }
+
+  // 1. Property key of object literal (non-computed, non-shorthand)
+  if (
+    parentNode.type === NodeTypes.Property &&
+    parentNode.key === node &&
+    !parentNode.shorthand
+  ) {
+    return true;
+  }
+
+  // MethodDefinition or PropertyDefinition in class
+  if (
+    (parentNode.type === "MethodDefinition" ||
+      parentNode.type === "PropertyDefinition") &&
+    parentNode.key === node &&
+    !parentNode.computed
+  ) {
+    return true;
+  }
+
+  // LabeledStatement
+  if (parentNode.type === "LabeledStatement" && parentNode.label === node) {
+    return true;
+  }
+
+  // 2. Inside VariableDeclarator.id
+  for (let i = ancestors.length - 2; i >= 0; i--) {
+    const anc = ancestors[i] as any;
+    if (anc.type === NodeTypes.VariableDeclarator && anc.id) {
+      if (node.start >= anc.id.start && node.end <= anc.id.end) {
+        return true;
+      }
+      break;
+    }
+    if (
+      anc.type === NodeTypes.ExpressionStatement ||
+      anc.type === NodeTypes.BlockStatement
+    ) {
+      break;
+    }
+  }
+
+  // 3. Function declaration name
+  if (
+    parentNode.type === NodeTypes.FunctionDeclaration &&
+    parentNode.id === node
+  ) {
+    return true;
+  }
+
+  // 4. Function expression name
+  if (
+    parentNode.type === NodeTypes.FunctionExpression &&
+    parentNode.id === node
+  ) {
+    return true;
+  }
+
+  // 5. Class declaration / expression name
+  if (
+    (parentNode.type === "ClassDeclaration" ||
+      parentNode.type === "ClassExpression") &&
+    parentNode.id === node
+  ) {
+    return true;
+  }
+
+  // 6. Inside function parameters
+  for (let i = ancestors.length - 2; i >= 0; i--) {
+    const anc = ancestors[i] as any;
+    if (isFunctionScopeNode(anc) && anc.params) {
+      for (const param of anc.params) {
+        if (param.type === NodeTypes.AssignmentPattern) {
+          if (node.start >= param.left.start && node.end <= param.left.end) {
+            return true;
+          }
+        } else if (node.start >= param.start && node.end <= param.end) {
+          return true;
+        }
+      }
+      break;
+    }
+    if (anc.type === NodeTypes.BlockStatement) {
+      break;
+    }
+  }
+
+  // 7. Catch parameter
+  if (parentNode.type === "CatchClause" && parentNode.param) {
+    if (
+      node.start >= parentNode.param.start &&
+      node.end <= parentNode.param.end
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+const isIdentifierBoundInScope = (
+  rootIdNode: IdentifierNode,
+  ancestors: Node[],
+  scopeDeclarations: Map<Node, DeclarationInfo[]>,
+): boolean => {
+  for (let i = ancestors.length - 1; i >= 0; i--) {
+    const anc = ancestors[i];
+    const decls = scopeDeclarations.get(anc);
+    if (!decls) continue;
+
+    for (const decl of decls) {
+      if (decl.name !== rootIdNode.name) continue;
+
+      // Function parameter binds the function
+      if (decl.isParam) {
+        return true;
+      }
+
+      // If rootIdNode is inside init of this declaration, it refers to outer scope
+      if (
+        decl.initNode &&
+        (rootIdNode as any).start >= (decl.initNode as any).start &&
+        (rootIdNode as any).end <= (decl.initNode as any).end
+      ) {
+        continue;
+      }
+
+      // If rootIdNode appears before declaration, it refers to outer scope
+      if ((rootIdNode as any).start < decl.start) {
+        continue;
+      }
+
+      // Otherwise, bound to local declaration
+      return true;
+    }
+  }
+
+  return false;
+};
+
 const ancestorWalk = (ast: Node): NodeList => {
   //List of all Identifier nodes with their property(if exists).
   const identifierList = new Array<RefactorIdentifierNode>();
   // List of all references found
   const references = new Set<string>();
-  // List of variables declared within the script. All identifiers and member expressions derived from declared variables will be removed
+  // List of variables declared within the script.
   const variableDeclarations = new Set<string>();
-  // List of functional params declared within the script. All identifiers and member expressions derived from functional params will be removed
-  let functionalParams = new Set<string>();
+  // List of functional params declared within the script.
+  const functionalParams = new Set<string>();
 
-  /*
-   * We do an ancestor walk on the AST in order to extract all references. For example, for member expressions and identifiers, we need to know
-   * what surrounds the identifier (its parent and ancestors), ancestor walk will give that information in the callback
-   * doc: https://github.com/acornjs/acorn/tree/master/acorn-walk
-   */
+  const scopeDeclarations = populateScopeDeclarations(
+    ast,
+    variableDeclarations,
+    functionalParams,
+  );
+
   ancestor(ast, {
     Identifier(node: Node, ancestors: Node[]) {
-      /*
-       * We are interested in identifiers. Due to the nature of AST, Identifier nodes can
-       * also be nested inside MemberExpressions. For deeply nested object references, there
-       * could be nesting of many MemberExpressions. To find the final reference, we will
-       * try to find the top level MemberExpression that does not have a MemberExpression parent.
-       * */
       let candidateTopLevelNode: IdentifierNode | MemberExpressionNode =
         node as IdentifierNode;
       let depth = ancestors.length - 2; // start "depth" with first parent
@@ -944,14 +1289,6 @@ const ancestorWalk = (ast: Node): NodeList => {
 
         if (
           isMemberExpressionNode(parent) &&
-          /* Member expressions that are "computed" (with [ ] search)
-             and the ones that have optional chaining ( a.b?.c )
-             will be considered top level node.
-             We will stop looking for further parents */
-          /* "computed" exception - isArrayAccessorNode
-             Member expressions that are array accessors with static index - [9]
-             will not be considered top level.
-             We will continue looking further. */
           (!parent.computed || isArrayAccessorNode(parent)) &&
           !parent.optional
         ) {
@@ -963,66 +1300,33 @@ const ancestorWalk = (ast: Node): NodeList => {
         }
       }
 
-      //If parent is a Member expression then attach property to the Node.
-      //else push Identifier Node.
-      const parentNode = ancestors[ancestors.length - 2];
+      const rootId = getRootIdentifier(candidateTopLevelNode);
+      if (rootId && rootId === node) {
+        if (
+          !isDeclarationIdentifier(node, ancestors) &&
+          !isIdentifierBoundInScope(rootId, ancestors, scopeDeclarations)
+        ) {
+          const parentNode = ancestors[ancestors.length - 2];
 
-      if (isMemberExpressionNode(parentNode)) {
-        identifierList.push({
-          ...(node as IdentifierNode),
-          property: parentNode.property as IdentifierNode,
-        });
-      } else identifierList.push(node as RefactorIdentifierNode);
+          if (isMemberExpressionNode(parentNode)) {
+            identifierList.push({
+              ...(node as IdentifierNode),
+              property: parentNode.property as IdentifierNode,
+            });
+          } else {
+            identifierList.push(node as RefactorIdentifierNode);
+          }
 
-      if (isIdentifierNode(candidateTopLevelNode)) {
-        // If the node is an Identifier, just save that
-        references.add(candidateTopLevelNode.name);
-      } else {
-        // For MemberExpression Nodes, we will construct a final reference string and then add
-        // it to the references list
-        const memberExpIdentifier = constructFinalMemberExpIdentifier(
-          candidateTopLevelNode,
-        );
-
-        references.add(memberExpIdentifier);
+          if (isIdentifierNode(candidateTopLevelNode)) {
+            references.add(candidateTopLevelNode.name);
+          } else {
+            const memberExpIdentifier = constructFinalMemberExpIdentifier(
+              candidateTopLevelNode,
+            );
+            references.add(memberExpIdentifier);
+          }
+        }
       }
-    },
-    VariableDeclarator(node: Node) {
-      // keep a track of declared variables so they can be
-      // removed from the final list of references
-      if (isVariableDeclarator(node)) {
-        variableDeclarations.add(node.id.name);
-      }
-    },
-    FunctionDeclaration(node: Node) {
-      // params in function declarations are also counted as references so we keep
-      // track of them and remove them from the final list of references
-      if (!isFunctionDeclaration(node)) return;
-
-      functionalParams = new Set([
-        ...functionalParams,
-        ...getFunctionalParamNamesFromNode(node),
-      ]);
-    },
-    FunctionExpression(node: Node) {
-      // params in function expressions are also counted as references so we keep
-      // track of them and remove them from the final list of references
-      if (!isFunctionExpression(node)) return;
-
-      functionalParams = new Set([
-        ...functionalParams,
-        ...getFunctionalParamNamesFromNode(node),
-      ]);
-    },
-    ArrowFunctionExpression(node: Node) {
-      // params in arrow function expressions are also counted as references so we keep
-      // track of them and remove them from the final list of references
-      if (!isArrowFunctionExpression(node)) return;
-
-      functionalParams = new Set([
-        ...functionalParams,
-        ...getFunctionalParamNamesFromNode(node),
-      ]);
     },
   });
 
