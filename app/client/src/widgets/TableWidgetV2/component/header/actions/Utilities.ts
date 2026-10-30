@@ -33,7 +33,7 @@ export const transformTableDataIntoCsv = (props: {
       if (column.metaProperties && !column.metaProperties.isHidden) {
         value =
           isString(value) && value.includes("\n")
-            ? value.replace("\n", " ")
+            ? value.replace(/\r?\n/g, " ")
             : value;
 
         // HTML columns output multi line strings. We need to quote them to avoid CSV parsing issues.
