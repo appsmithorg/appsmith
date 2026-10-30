@@ -542,6 +542,9 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                         String errorMessage = ImportExportUtils.getErrorMessage(throwable);
                         log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
 
+                        if (throwable instanceof AppsmithException) {
+                            return Mono.error(throwable);
+                        }
                         if (throwable instanceof DuplicateKeyException) {
                             return Mono.error(new AppsmithException(
                                     AppsmithError.ARTIFACT_IMPORT_DUPLICATE_KEY_WRITE_ERROR, "Duplicate artifact key"));

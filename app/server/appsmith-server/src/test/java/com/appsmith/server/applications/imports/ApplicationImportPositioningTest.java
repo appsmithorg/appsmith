@@ -136,6 +136,34 @@ class ApplicationImportPositioningTest {
                 .map(incoming -> Arguments.of(published, incoming)));
     }
 
+    @ParameterizedTest
+    @org.junit.jupiter.params.provider.NullSource
+    @org.junit.jupiter.params.provider.ValueSource(strings = {"FIXED", "AUTO"})
+    void should_preservePublishedDetail_when_responsiveReplacementHasIncompatiblePublishedPositioning(String type) {
+        // Given
+        Application target = new Application();
+        target.setUnpublishedApplicationDetail(detail("ANVIL"));
+        ApplicationDetail published = detail("ANVIL");
+        target.setPublishedApplicationDetail(published);
+        Application incoming = new Application();
+        incoming.setUnpublishedApplicationDetail(detail("ANVIL"));
+        incoming.setPublishedApplicationDetail(type == null ? null : detail(type));
+
+        // When
+        Mono<Application> result = importOverExisting(incoming, target);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(saved -> {
+                    assertThat(saved.getPublishedApplicationDetail()).isSameAs(published);
+                    assertThat(saved.getPublishedApplicationDetail()
+                                    .getAppPositioning()
+                                    .getType())
+                            .isEqualTo(Application.AppPositioning.Type.ANVIL);
+                })
+                .verifyComplete();
+    }
+
     @Test
     void should_keepImportedLayout_when_targetIsNotAnvil() {
         // Given

@@ -142,6 +142,11 @@ public class ImportExportUtils {
                     AppsmithError.INVALID_PARAMETER,
                     "replacement import must use responsive positioning for an existing responsive application");
         }
+        // Published pages remain on the target during replacement. Do not switch their renderer.
+        if (hasAnvilPositioning(existingApplication.getPublishedApplicationDetail())
+                && !hasAnvilPositioning(importedApplication.getPublishedApplicationDetail())) {
+            importedApplication.setPublishedApplicationDetail(null);
+        }
         importedApplication.setId(existingApplication.getId());
 
         // Since we don't want to merge the ApplicationDetailObjects we would just assign the imported values directly
