@@ -1163,7 +1163,7 @@ function contentNames(node: WidgetNode): string[] {
 // again on the same revision. Unlike patch_widgets' remove, it takes containers with their content, because the
 // approval step shows the user everything it deletes.
 // - A name already inside another named widget, or listed twice, is removed once.
-// - The root canvas, an inner canvas on its own, and an unknown name are refused.
+// - The root canvas, an inner canvas on its own, a List's item template, and an unknown name are refused.
 export function removeWidgets(
   current: WidgetNode,
   names: readonly string[],
@@ -1206,6 +1206,21 @@ export function removeWidgets(
         (other) => other !== target && isDescendant(other.node, target.node),
       ),
   );
+
+  // A List renders every row from the one container inside it. Removing that container leaves a List with no rows.
+  for (const target of outermost) {
+    const holder =
+      target.parent?.type === "CANVAS_WIDGET"
+        ? widgets.get(target.parent.widgetName)?.parent
+        : target.parent;
+
+    if (holder?.type === "LIST_WIDGET_V2" || holder?.type === "LIST_WIDGET") {
+      throw new Error(
+        `"${target.node.widgetName}" is the item template of List "${holder.widgetName}"; it cannot be removed on its own, remove the List`,
+      );
+    }
+  }
+
   const removed = outermost.map((target) => ({
     name: target.node.widgetName,
     type: String(target.node.type),

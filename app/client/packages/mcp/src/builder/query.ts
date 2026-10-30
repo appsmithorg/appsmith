@@ -835,7 +835,7 @@ function widgetRef(filter: Filter): WidgetRef {
 // 127 bytes. Identifiers here are ASCII, so bytes are characters.
 const MAX_IDENTIFIER_LENGTH = { postgres: 63, redshift: 127 } as const;
 
-// The PostgreSQL or Redshift column for an isNull or notNull filter: lower-cased, then quoted. Throws when the name
+// The PostgreSQL or Redshift column for a filter: lower-cased, then quoted. Throws when the name
 // equals the table's own name (the last part of `schema.table`), because a missing column of that name reads as the
 // whole row. Both names are compared after the database's own cut, so two long names that differ only after it
 // still match.
@@ -850,11 +850,28 @@ function postgresNullCheckColumn(
 
   if (name.slice(0, maxLength) === tableName.slice(0, maxLength)) {
     throw new Error(
-      `isNull and notNull cannot test a column named like its table (${column}) on PostgreSQL or Redshift, which would read it as the whole row`,
+      `a filter cannot test a column named like its table (${column}) on PostgreSQL or Redshift, which would read it as the whole row`,
     );
   }
 
   return `"${name}"`;
+}
+
+// The column a filter tests, never bare (see emitCondition). On PostgreSQL and Redshift a column named like its table
+// can read as the whole row, and every filter refuses it:
+// - a null test or inList's CAST to text can match rows;
+// - the plugin binds text values untyped, so `"users" = $1` or `"users" < $1` compares the row with a row literal the
+//   value spells out.
+function filterColumn(
+  filter: Filter,
+  table: string,
+  dialect: SqlDialect,
+): string {
+  if (dialect !== "postgres" && dialect !== "redshift") {
+    return `${table}.${filter.column}`;
+  }
+
+  return postgresNullCheckColumn(filter.column, table, dialect);
 }
 
 // The isNull or notNull test for a table-qualified column on every database except PostgreSQL.
@@ -874,9 +891,9 @@ function emitCondition(
   dialect: SqlDialect,
   table: string,
 ): string {
-  // The SQL comes from NULL_OPERATORS or MYSQL_NULL_TEMPLATES. No agent text and no binding.
   // An allow-listed identifier can still be a keyword, such as `null` or `current_user`. A bare `null IS NULL` is true
-  // for every row, which would widen a DELETE to the whole table. So the column is never emitted bare:
+  // for every row, and so is `current_user = 'app'` when the value is the database user. Either would widen a DELETE
+  // to the whole table. So no filter emits its column bare (filterColumn):
   // - PostgreSQL: lower-cased and quoted. Lower-casing gives the same column an unquoted value filter names, because
   //   PostgreSQL folds unquoted names to lower case. Not `table.col`: when no such column exists, PostgreSQL reads
   //   `users.text` as the call `text(users)`, which is never NULL. A missing quoted column is an error, except a
@@ -885,10 +902,13 @@ function emitCondition(
   //   function-call reading. A quoted bare name cannot.
   // - Every other database: qualified with its table. After a dot, MySQL always reads a column name. SQL Server,
   //   Oracle and Snowflake read a column or refuse the query.
+  const column = filterColumn(filter, table, dialect);
+
+  // The null-test SQL comes from NULL_OPERATORS or MYSQL_NULL_TEMPLATES. No agent text and no binding.
   if (isNullOperator(filter.op)) {
     return dialect === "postgres" || dialect === "redshift"
-      ? `${postgresNullCheckColumn(filter.column, table, dialect)} ${NULL_OPERATORS[filter.op]}`
-      : emitQualifiedNullCheck(filter.op, `${table}.${filter.column}`, dialect);
+      ? `${column} ${NULL_OPERATORS[filter.op]}`
+      : emitQualifiedNullCheck(filter.op, column, dialect);
   }
 
   if (filter.op === "inList") {
@@ -900,7 +920,7 @@ function emitCondition(
 
     // CAST both sides to text. A select holds string option values, and this lets them match both text and numeric
     // columns. The list binds as one SQL array parameter. A null list (an empty selection) matches nothing.
-    return `CAST(${filter.column} AS TEXT) = ANY(CAST(${emitNullWhenEmpty(widgetRef(filter))} AS TEXT[]))`;
+    return `CAST(${column} AS TEXT) = ANY(CAST(${emitNullWhenEmpty(widgetRef(filter))} AS TEXT[]))`;
   }
 
   // Redshift has ILIKE, but its plugin runs queries without prepared statements, so a bound pattern is not a
@@ -918,7 +938,7 @@ function emitCondition(
     filter.match !== undefined &&
     isWildcardMatch(filter.match)
   ) {
-    return `${filter.column} ${OPERATORS[filter.op]} ${emitWildcardBinding(filterValue(filter), filter.match)}`;
+    return `${column} ${OPERATORS[filter.op]} ${emitWildcardBinding(filterValue(filter), filter.match)}`;
   }
 
   // On PostgreSQL, a skipWhenEmpty filter binds null while the widget value is empty. "" against a typed column (an
@@ -930,9 +950,9 @@ function emitCondition(
       ? emitNullWhenEmpty(widgetRef(filter))
       : emitBinding(filterValue(filter));
 
-  if (filter.op === "in") return `${filter.column} IN (${binding})`;
+  if (filter.op === "in") return `${column} IN (${binding})`;
 
-  return `${filter.column} ${OPERATORS[filter.op]} ${binding}`;
+  return `${column} ${OPERATORS[filter.op]} ${binding}`;
 }
 
 // Quote an allow-listed column identifier for the dialect. MySQL and MariaDB read "col" as a string unless the

@@ -3339,6 +3339,8 @@ export function buildMcpServer(
     applicationId: string;
     pageId: string;
     layoutId: string;
+    // The page DTO from the same read as currentDsl.
+    page: unknown;
     currentDsl: WidgetNode;
     currentRevision: string;
     revision: string | undefined;
@@ -3359,6 +3361,24 @@ export function buildMcpServer(
         error: `the layoutId passed does not belong to page ${params.pageId}; nothing was written. Re-read the page with read_semantic_page using layoutId ${params.correctedLayoutId} and pass its revision.`,
         code: "layout_corrected",
         correctedLayoutId: params.correctedLayoutId,
+      });
+    }
+
+    // The page must belong to the application. The layout is written by page and layout id, while the git gate, the
+    // lock and the audit record use the application id, so a page from another application would be changed under
+    // this application's checks. The server always returns the page's applicationId, so only a different one is
+    // refused.
+    const pageApplicationId = (
+      params.page as { applicationId?: unknown } | null
+    )?.applicationId;
+
+    if (
+      pageApplicationId !== undefined &&
+      pageApplicationId !== params.applicationId
+    ) {
+      return result({
+        error: `${params.pageId} is not a page of application ${params.applicationId}; nothing was written`,
+        code: "page_not_found",
       });
     }
 
@@ -3952,6 +3972,7 @@ export function buildMcpServer(
         applicationId,
         pageId,
         layoutId: read.layoutId,
+        page: read.context.page,
         currentDsl,
         currentRevision,
         revision,
@@ -4038,6 +4059,7 @@ export function buildMcpServer(
         applicationId,
         pageId,
         layoutId: read.layoutId,
+        page: read.context.page,
         currentDsl,
         currentRevision,
         revision,
@@ -4206,6 +4228,7 @@ export function buildMcpServer(
         applicationId,
         pageId,
         layoutId: read.layoutId,
+        page: read.context.page,
         currentDsl,
         currentRevision,
         revision,
@@ -6172,6 +6195,7 @@ export function buildMcpServer(
           applicationId,
           pageId,
           layoutId: read.layoutId,
+          page: read.context.page,
           currentDsl,
           currentRevision: fingerprintDsl(currentDsl),
           revision,
