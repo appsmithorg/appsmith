@@ -114,6 +114,7 @@ const CORE_TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
   prepare_delete_action: WRITE,
   prepare_run_action: WRITE,
   prepare_delete_js_object: WRITE,
+  prepare_replace_js_object: WRITE,
 
   // confirm_* executes the irreversible half.
   confirm_rollback: DESTRUCTIVE,
@@ -122,6 +123,7 @@ const CORE_TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
   confirm_remove_widgets: DESTRUCTIVE,
   confirm_delete_action: DESTRUCTIVE,
   confirm_delete_js_object: DESTRUCTIVE,
+  confirm_replace_js_object: DESTRUCTIVE,
   // Commit always pushes to the remote; a confirmed run executes an arbitrary action against its datasource.
   confirm_commit: DESTRUCTIVE_EXTERNAL,
   confirm_run_action: DESTRUCTIVE_EXTERNAL,

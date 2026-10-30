@@ -620,7 +620,7 @@ describe("mongoQuerySpecSchema — rejects escape chars and operator injection",
 });
 
 describe("buildMongoActionDto — the exact Mongo formData action shape", () => {
-  it("wraps every command leaf as { data } and forces smartSubstitution on (FIND)", () => {
+  it("wraps every command leaf as { data } and forces smartSubstitution and strictValues on (FIND)", () => {
     const spec = parse({
       ...base,
       operation: "FIND",
@@ -640,6 +640,7 @@ describe("buildMongoActionDto — the exact Mongo formData action shape", () => 
           command: { data: "FIND" },
           collection: { data: "users" },
           smartSubstitution: { data: true },
+          strictValues: { data: true },
           find: {
             query: { data: '{ "status": "active" }' },
             limit: { data: "10" },
@@ -666,6 +667,7 @@ describe("buildMongoActionDto — the exact Mongo formData action shape", () => 
       command: { data: "INSERT" },
       collection: { data: "users" },
       smartSubstitution: { data: true },
+      strictValues: { data: true },
       insert: { documents: { data: '[{ "name": "Ada" }]' } },
     });
     // The credential/secret invariant: nothing password-like is ever in the DTO.

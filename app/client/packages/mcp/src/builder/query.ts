@@ -273,9 +273,10 @@ const filterEntrySchema = z
 // prepared-statement parameter (an SQL array). MySQL sends the list as a JSON string, and SQL Server refuses it.
 // isNull and notNull compile differently on MySQL (see MYSQL_NULL_TEMPLATES), and Redshift uses the PostgreSQL form
 // for them. Redshift is otherwise "other": it cannot bind a list as one parameter, so inList stays refused there.
-// Everything else the compiler emits works on every family. An unknown family, such as when the caller cannot
-// resolve the datasource, counts as "other".
-export type SqlDialect = "postgres" | "redshift" | "mysql" | "other";
+// Oracle has no LIMIT and folds bare names to upper case, so it gets FETCH FIRST and bare identifiers (see
+// quoteIdentifier). Everything else the compiler emits works on every family. An unknown family, such as when the
+// caller cannot resolve the datasource, counts as "other".
+export type SqlDialect = "postgres" | "redshift" | "mysql" | "oracle" | "other";
 
 // Maps a datasource's plugin package name to its SqlDialect. MariaDB counts as MySQL.
 export function sqlDialectFor(packageName: string | undefined): SqlDialect {
@@ -287,6 +288,8 @@ export function sqlDialectFor(packageName: string | undefined): SqlDialect {
     case "mysql-plugin":
     case "mariadb-plugin":
       return "mysql";
+    case "oracle-plugin":
+      return "oracle";
     default:
       return "other";
   }
@@ -294,6 +297,8 @@ export function sqlDialectFor(packageName: string | undefined): SqlDialect {
 
 export interface CompileQueryOptions {
   dialect?: SqlDialect;
+  // The datasource's plugin package, such as "oracle-plugin". It decides where the action stores its SQL.
+  packageName?: string;
 }
 
 // A selected or grouped column. A plain name, or `{ column, coalesce: { literal } }`, which reads a fallback for
@@ -971,8 +976,10 @@ function emitCondition(
 // assertBodySafe refuses any backtick in a body. So MySQL gets the bare identifier, as plain select columns already
 // do. The identifier charset admits no quote or backslash, so a bare name cannot break out. A column named after a
 // reserved word then fails with a syntax error instead of returning wrong results.
+// Oracle also gets bare names: a quoted name is case-sensitive there, so "status" would not match a STATUS column
+// created without quotes, which is how most Oracle columns are made.
 function quoteIdentifier(name: string, dialect: SqlDialect): string {
-  return dialect === "mysql" ? name : `"${name}"`;
+  return dialect === "mysql" || dialect === "oracle" ? name : `"${name}"`;
 }
 
 // Emit `ORDER BY "col" ASC, "col2" DESC` (bare names on MySQL, see quoteIdentifier). Direction comes from a two-value
@@ -1208,7 +1215,13 @@ export function compileQuery(
             : "*";
       }
 
-      const limit = spec.limit !== undefined ? ` LIMIT ${spec.limit}` : "";
+      // Oracle (12c and later) has no LIMIT; FETCH FIRST is its row limit.
+      const limit =
+        spec.limit === undefined
+          ? ""
+          : dialect === "oracle"
+            ? ` FETCH FIRST ${spec.limit} ROWS ONLY`
+            : ` LIMIT ${spec.limit}`;
 
       // SQL clause order: SELECT ... FROM ... WHERE ... GROUP BY ... ORDER BY ... LIMIT.
       body = `SELECT ${selectList} FROM ${emitFrom(spec, dialect)}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy, dialect, spec.table)}${emitHaving(spec, dialect)}${emitOrderBy(spec.orderBy, dialect)}${limit};`;
@@ -1334,10 +1347,37 @@ export function withoutMcpMarker(stored: string): string {
 
 // Build the ActionDTO for POST /api/v1/actions. Datasource is an EMBEDDED { id } object (server derives
 // workspace/plugin from it); prepared statements are forced ON so values bind as parameters.
+// The SQL text of a stored action. Oracle keeps it in formData.body.data (see buildActionDto), and that is the text
+// it runs, so it wins over a stale actionConfiguration.body; every other SQL plugin keeps it in actionConfiguration.body.
+export function storedSqlBody(actionConfiguration: unknown): unknown {
+  const config = (actionConfiguration ?? {}) as {
+    body?: unknown;
+    formData?: { body?: { data?: unknown } };
+  };
+
+  return config.formData?.body?.data ?? config.body;
+}
+
+// Oracle's plugin and editor form read the query and the prepared-statement switch from formData, not from
+// actionConfiguration.body and pluginSpecifiedTemplates.
+const FORM_DATA_SQL_PACKAGES = new Set(["oracle-plugin"]);
+
 export function buildActionDto(
   spec: QuerySpec,
   body: string,
+  packageName?: string,
 ): Record<string, unknown> {
+  const actionConfiguration =
+    packageName !== undefined && FORM_DATA_SQL_PACKAGES.has(packageName)
+      ? {
+          formData: { body: { data: body }, preparedStatement: { data: true } },
+        }
+      : {
+          body,
+          // SQL plugins read the prepared-statement flag from pluginSpecifiedTemplates[0].value.
+          pluginSpecifiedTemplates: [{ value: true }],
+        };
+
   return {
     name: spec.name,
     pageId: spec.pageId,
@@ -1345,10 +1385,6 @@ export function buildActionDto(
     // A SELECT is a data fetch: run it on page load so a bound widget populates without a manual trigger (the query
     // is created after the layout, so the server's on-load analysis doesn't pick it up). Writes stay manual.
     executeOnLoad: spec.operation === "SELECT",
-    actionConfiguration: {
-      body,
-      // SQL plugins read the prepared-statement flag from pluginSpecifiedTemplates[0].value.
-      pluginSpecifiedTemplates: [{ value: true }],
-    },
+    actionConfiguration,
   };
 }

@@ -789,6 +789,18 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       summary:
         "delete a JS object with a token; prompts the user for approval via elicitation when the client supports it",
     },
+    {
+      name: "prepare_replace_js_object",
+      gate: "js_governance",
+      summary:
+        "prepare to replace all the code of a JS object written in the editor with a definition; lists dropped and added functions and refuses to break calls unless acknowledged",
+    },
+    {
+      name: "confirm_replace_js_object",
+      gate: "js_governance",
+      summary:
+        "replace an editor-written JS object's code with a token; prompts the user for approval via elicitation when the client supports it",
+    },
   ];
 
 // Core tools plus the edition's (ee/extensions/catalog.ts; none in CE). An extension tool may never shadow a core one,

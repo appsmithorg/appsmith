@@ -5,6 +5,7 @@ import supertest from "supertest";
 import {
   AppsmithApiError,
   LayoutRequestError,
+  STALE_LAYOUT_CODE,
   MAX_ARTIFACT_BYTES,
   MCP_BUILD_INFO,
   READ_PAGES_LAYOUT_CONCURRENCY,
@@ -1954,6 +1955,58 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     const dto = createAction.mock.calls[0][0] as { datasource: { id: string } };
 
     expect(dto.datasource).toEqual({ id: "ds1" });
+  });
+
+  it("create_query stores an Oracle query where the Oracle plugin reads it, and get_action reads it back", async () => {
+    const createAction = jest.fn<
+      Promise<{ id: string }>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "act1" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "DB", pluginId: "oracle-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const created = await callTool(api, "create_query", { query: validQuery });
+
+    expect(created.created).toBe(true);
+    const dto = createAction.mock.calls[0][0] as {
+      actionConfiguration: {
+        body?: unknown;
+        formData: {
+          body: { data: string };
+          preparedStatement: { data: boolean };
+        };
+      };
+    };
+
+    expect(dto.actionConfiguration.body).toBeUndefined();
+    expect(dto.actionConfiguration.formData.preparedStatement.data).toBe(true);
+    expect(dto.actionConfiguration.formData.body.data).toContain(
+      created.body as string,
+    );
+
+    const read = await callTool(
+      {
+        ...api,
+        getAction: jest.fn(async () => ({
+          id: "act1",
+          name: "GetUsers",
+          pageId: "p1",
+          datasource: { id: "ds1" },
+          pluginType: "DB",
+          actionConfiguration: dto.actionConfiguration,
+        })),
+      },
+      "get_action",
+      { applicationId: "app1", actionId: "act1" },
+    );
+
+    expect(read.authoredBy).toBe("mcp");
+    expect(read.body).toBe(created.body);
   });
 
   it.each([
@@ -5608,6 +5661,67 @@ describe("governance-wrapped layout mutations", () => {
     },
   );
 
+  // The server's compare-and-set: the layout read carries `revision`, the write sends it back, and the server refuses
+  // a write to a page that changed since that read.
+  describe("APP-16355: the server checks the layout has not changed", () => {
+    function api409(revision: string | undefined, refuse: boolean) {
+      const updateLayout = jest.fn<Promise<unknown>, unknown[]>(async () => {
+        if (refuse) throw new AppsmithApiError(409, STALE_LAYOUT_CODE);
+
+        return { ok: true };
+      });
+
+      return {
+        ...layoutReadApi({
+          getApplicationContext: jest.fn(async (applicationId: string) => ({
+            pages: [],
+            page: { applicationId },
+            layout: {
+              dsl: LAYOUT_DSL,
+              ...(revision !== undefined ? { revision } : {}),
+            },
+          })) as never,
+          updateLayout: updateLayout as never,
+        }),
+        updateLayout,
+      };
+    }
+
+    const edit = {
+      applicationId: APP_ID,
+      pageId: PAGE_ID,
+      layoutId: "layout-real",
+      revision: LAYOUT_REVISION,
+      edit: { add: [{ type: "button", text: "Go" }] },
+    };
+
+    it("sends the read's revision with the write", async () => {
+      const { api, updateLayout } = api409("1700000000123", false);
+      const server = createMcpHttpServer(API_BASE_URL, () => api);
+      const written = await callTool(server, "edit_page", edit);
+
+      expect(written.body.error).toBeUndefined();
+      expect(updateLayout.mock.calls[0][4]).toBe("1700000000123");
+    });
+
+    it("reports the server's stale-layout refusal as revision_conflict", async () => {
+      const { api } = api409("1700000000123", true);
+      const server = createMcpHttpServer(API_BASE_URL, () => api);
+      const written = await callTool(server, "edit_page", edit);
+
+      expect(written.body.code).toBe("revision_conflict");
+    });
+
+    it("writes as before when the server sends no revision", async () => {
+      const { api, updateLayout } = api409(undefined, false);
+      const server = createMcpHttpServer(API_BASE_URL, () => api);
+
+      await callTool(server, "edit_page", edit);
+
+      expect(updateLayout.mock.calls[0]).toHaveLength(4);
+    });
+  });
+
   it("APP-16100: a corrected write without a revision fails closed and writes nothing", async () => {
     const { api, updateLayout } = layoutReadApi();
     const server = createMcpHttpServer(API_BASE_URL, () => api);
@@ -7550,7 +7664,8 @@ describe("governance-wrapped layout mutations", () => {
       body: "export default { save: async () => { await SaveBanner.run(); } };",
       actions: [{ id: "act1", name: "save" }],
     };
-    // Hand-written in the editor: arbitrary JS that may hold secrets. Its source must never reach the agent.
+    // Hand-written in the editor: arbitrary JS that may hold secrets. Its source is returned as data (owner decision,
+    // APP-16355), as read_workflow returns a workflow's editor-written logic.
     const editorAuthored = {
       id: "coll2",
       name: "Legacy",
@@ -7587,9 +7702,9 @@ describe("governance-wrapped layout mutations", () => {
       functions: ["call"],
       authoredBy: "editor",
       definitionState: "none",
+      source: editorAuthored.body,
       revision: expect.stringMatching(/^[a-f0-9]{64}$/),
     });
-    expect(JSON.stringify(read.body)).not.toContain("sk-live-secret");
 
     // A code-only change (same metadata, different body) moves the per-object revision.
     (api.listActionCollections as jest.Mock).mockResolvedValueOnce([
@@ -7657,6 +7772,280 @@ describe("governance-wrapped layout mutations", () => {
     expect(updateActionCollection).toHaveBeenCalledTimes(1);
   });
 
+  describe("APP-16355: replacing a JS object written in the editor", () => {
+    const APP = "a".repeat(24);
+    const PAGE = "b".repeat(24);
+    const apis = new WeakMap<object, AppsmithApi>();
+    const serverApiOf = (server: object) => apis.get(server)!;
+
+    function setup(pageText = "", overrides: Partial<AppsmithApi> = {}) {
+      const store = new MemoryGovernanceStore();
+      const legacy = {
+        id: "coll2",
+        name: "Legacy",
+        pageId: PAGE,
+        body: "export default {\n\tapiKey: 'k',\n\tasync load () { return 1; },\n\tasync old () { return 2; }\n}",
+        actions: [
+          {
+            id: "act1",
+            name: "load",
+            runBehaviour: "ON_PAGE_LOAD",
+            confirmBeforeExecute: true,
+          },
+          { id: "act2", name: "old" },
+        ],
+      };
+      const updateActionCollectionBody = jest.fn(async () => ({}));
+      const updateActionCollection = jest.fn<
+        Promise<object>,
+        [string, unknown]
+      >(async () => ({}));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listActionCollections: jest.fn(async () => [legacy]),
+        listActions: jest.fn(async () => []),
+        getPage: jest.fn(async () => ({
+          id: PAGE,
+          layouts: [{ id: "l1", dsl: { text: pageText } }],
+        })),
+        updateActionCollectionBody,
+        updateActionCollection: updateActionCollection as never,
+        ...overrides,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        jsEnabled: true,
+        governance: new McpGovernanceCoordinator(store),
+      });
+
+      apis.set(server, api);
+
+      return {
+        legacy,
+        server,
+        updateActionCollection,
+        updateActionCollectionBody,
+      };
+    }
+
+    async function specFor(
+      server: ReturnType<typeof createMcpHttpServer>,
+      functions: unknown[],
+    ) {
+      const read = await callTool(server, "read_js_object", {
+        applicationId: APP,
+      });
+
+      return {
+        applicationId: APP,
+        collectionId: "coll2",
+        revision: read.body.jsObjects[0].revision,
+        functions,
+      };
+    }
+
+    it("lists what changes, asks first, keeps kept functions' settings, and returns the replaced code", async () => {
+      const {
+        legacy,
+        server,
+        updateActionCollection,
+        updateActionCollectionBody,
+      } = setup();
+      const spec = await specFor(server, [
+        { name: "load", returns: 1 },
+        { name: "fresh", returns: 3 },
+      ]);
+      const prepared = await callTool(server, "prepare_replace_js_object", {
+        spec,
+      });
+
+      expect(prepared.body.removedFunctions).toEqual(["old"]);
+      expect(prepared.body.addedFunctions).toEqual(["fresh"]);
+      expect(prepared.body.relay).toContain("replace ALL the code");
+      expect(updateActionCollectionBody).not.toHaveBeenCalled();
+
+      const confirmed = await callTool(server, "confirm_replace_js_object", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(confirmed.body.updated).toBe(true);
+      expect(confirmed.body.replacedSource).toBe(legacy.body);
+      expect(updateActionCollectionBody).toHaveBeenCalledTimes(1);
+      const patch = updateActionCollection.mock.calls[0][1] as {
+        actions: {
+          updated: Record<string, unknown>[];
+          added: Record<string, unknown>[];
+          deleted: { name: string }[];
+        };
+      };
+
+      expect(patch.actions.updated[0]).toMatchObject({
+        id: "act1",
+        name: "load",
+        runBehaviour: "ON_PAGE_LOAD",
+        confirmBeforeExecute: true,
+      });
+      expect(patch.actions.added.map((a) => a.name)).toEqual(["fresh"]);
+      expect(patch.actions.deleted.map((d) => d.name)).toEqual(["old"]);
+    });
+
+    it("refuses to drop a function the page still calls, unless acknowledged", async () => {
+      const { server } = setup("{{ Legacy.old() }}");
+      const spec = await specFor(server, [{ name: "load", returns: 1 }]);
+      const refused = await callTool(server, "prepare_replace_js_object", {
+        spec,
+      });
+
+      expect(refused.body.code).toBe("replace_breaks_calls");
+      expect(refused.body.brokenCalls).toEqual([
+        { where: "the page layout", calls: "Legacy.old" },
+      ]);
+
+      const acknowledged = await callTool(server, "prepare_replace_js_object", {
+        spec,
+        acknowledgeBrokenCalls: true,
+      });
+
+      expect(acknowledged.body.confirmationId).toEqual(expect.any(String));
+    });
+
+    it("returns short editor source exactly as written", async () => {
+      const { legacy, server } = setup();
+      const read = await callTool(server, "read_js_object", {
+        applicationId: APP,
+      });
+
+      expect(read.body.jsObjects[0].source).toBe(legacy.body);
+      expect(read.body.jsObjects[0].sourceTruncated).toBeUndefined();
+    });
+
+    it("on a git-connected app, refuses without the branch and keeps the token", async () => {
+      const { server, updateActionCollectionBody } = setup("", {
+        getApplication: jest.fn(async () => ({
+          id: APP,
+          gitApplicationMetadata: {
+            branchName: "feature/x",
+            remoteUrl: "git@github.com:acme/app.git",
+          },
+        })),
+      });
+      const spec = await specFor(server, [
+        { name: "load", returns: 1 },
+        { name: "old", returns: 2 },
+      ]);
+      const prepared = await callTool(server, "prepare_replace_js_object", {
+        spec,
+      });
+      const refused = await callTool(server, "confirm_replace_js_object", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(refused.body.code).toBe("git_branch_required");
+      expect(updateActionCollectionBody).not.toHaveBeenCalled();
+
+      const confirmed = await callTool(server, "confirm_replace_js_object", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+        branch: "feature/x",
+      });
+
+      expect(confirmed.body.updated).toBe(true);
+    });
+
+    it("refuses when the object changed after it was read, before writing", async () => {
+      const { legacy, server, updateActionCollectionBody } = setup();
+      const spec = await specFor(server, [
+        { name: "load", returns: 1 },
+        { name: "old", returns: 2 },
+      ]);
+      const prepared = await callTool(server, "prepare_replace_js_object", {
+        spec,
+      });
+      const edited = { ...legacy, body: `${legacy.body}\n` };
+      let calls = 0;
+
+      // confirm reads the object for its checks, then for the update, then once more under the lock: only that last
+      // read sees the editor's save.
+      (
+        serverApiOf(server).listActionCollections as jest.Mock
+      ).mockImplementation(async () => (++calls >= 3 ? [edited] : [legacy]));
+
+      const confirmed = await callTool(server, "confirm_replace_js_object", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(confirmed.body.code).toBe("revision_conflict");
+      expect(updateActionCollectionBody).not.toHaveBeenCalled();
+    });
+
+    it("refuses an object too large to keep a copy of in the change record", async () => {
+      const { legacy, server } = setup();
+
+      legacy.body = `export default { note: '${"x".repeat(9 * 1024 * 1024)}' }`;
+
+      const spec = await specFor(server, [{ name: "load", returns: 1 }]);
+      const refused = await callTool(server, "prepare_replace_js_object", {
+        spec,
+        acknowledgeBrokenCalls: true,
+      });
+
+      expect(refused.body.code).toBe("js_object_too_large");
+    });
+
+    it("cuts returned editor source at 200,000 characters and flags it", async () => {
+      const { legacy, server } = setup();
+
+      legacy.body = `export default { note: '${"x".repeat(200_100)}' }`;
+
+      const read = await callTool(server, "read_js_object", {
+        applicationId: APP,
+      });
+
+      expect(read.body.jsObjects[0].source).toHaveLength(200_000);
+      expect(read.body.jsObjects[0].sourceTruncated).toBe(true);
+    });
+
+    it("refuses a token prepared for a different definition", async () => {
+      const { server, updateActionCollectionBody } = setup();
+      const spec = await specFor(server, [
+        { name: "load", returns: 1 },
+        { name: "old", returns: 2 },
+      ]);
+      const prepared = await callTool(server, "prepare_replace_js_object", {
+        spec,
+      });
+      const swapped = await callTool(server, "confirm_replace_js_object", {
+        spec: {
+          ...spec,
+          functions: [
+            { name: "load", returns: 9 },
+            { name: "old", returns: 2 },
+          ],
+        },
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(swapped.body.updated).toBeUndefined();
+      expect(updateActionCollectionBody).not.toHaveBeenCalled();
+    });
+
+    it("sends an object MCP wrote to update_js_object instead", async () => {
+      const { legacy, server } = setup();
+
+      legacy.body =
+        "export default { refresh: async () => { await GetBanners.run(); } };";
+
+      const spec = await specFor(server, [{ name: "refresh", returns: 1 }]);
+      const refused = await callTool(server, "prepare_replace_js_object", {
+        spec,
+      });
+
+      expect(refused.body.code).toBe("mcp_authored_js_object");
+    });
+  });
+
   it("update_js_object writes the code through the body route, then diffs the functions on the PATCH", async () => {
     const store = new MemoryGovernanceStore();
     const APP = "a".repeat(24);
@@ -7683,6 +8072,7 @@ describe("governance-wrapped layout mutations", () => {
       .fn<Promise<unknown>, [string]>()
       .mockResolvedValueOnce([before]) // read_js_object
       .mockResolvedValueOnce([before]) // update: locate current
+      .mockResolvedValueOnce([before]) // update: re-read under the lock
       .mockResolvedValue([after]); // update: re-read after the writes
     const updateActionCollectionBody = jest.fn<
       Promise<unknown>,
@@ -7957,10 +8347,10 @@ describe("governance-wrapped layout mutations", () => {
       functions: ["refresh"],
       authoredBy: "editor",
       definitionState: "drifted",
+      source: expect.any(String),
       revision: expect.stringMatching(/^[a-f0-9]{64}$/),
     });
-    // Neither the (now hand-edited) source nor the stale definition is returned.
-    expect(read.body.jsObjects[0].source).toBeUndefined();
+    // The hand-edited source is returned as data; the stale definition is not.
     expect(read.body.jsObjects[0].definition).toBeUndefined();
   });
 

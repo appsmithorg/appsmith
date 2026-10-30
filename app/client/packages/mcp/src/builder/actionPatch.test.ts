@@ -115,6 +115,24 @@ describe("action lifecycle builders", () => {
     ).toMatchObject({ httpMethod: "GET", path: "/v1/users" });
   });
 
+  it("stores an Oracle SQL update in formData", () => {
+    const dto = buildUpdateActionDto(
+      parseUpdate({ ...reference, kind: "SQL", query }),
+      { packageName: "oracle-plugin" },
+    );
+    const config = (
+      dto.action as {
+        actionConfiguration: {
+          body?: unknown;
+          formData: { body: { data: string } };
+        };
+      }
+    ).actionConfiguration;
+
+    expect(config.body).toBeUndefined();
+    expect(config.formData.body.data).toContain("SELECT");
+  });
+
   it("allows a name-only update without an action configuration", () => {
     const dto = buildUpdateActionDto(
       parseUpdate({ ...reference, kind: "SQL", name: "RenamedQuery" }),
