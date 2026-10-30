@@ -1,6 +1,7 @@
 package com.appsmith.server.jslibs.base;
 
 import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.User;
@@ -13,7 +14,10 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,6 +31,8 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Verifies that reading an application's custom JS library manifest is gated by an application-level
@@ -65,6 +71,22 @@ class CustomJSLibServiceAuthorizationTest {
                     new UsernamePasswordAuthenticationToken(user, "password", user.getAuthorities()));
             return ctx.put(SecurityContext.class, Mono.just(securityContext));
         });
+    }
+
+    /**
+     * The not-found answer for a context the caller cannot read. The resource named in the message is the
+     * one of the service the edition resolves the context type to: the application in CE for every context
+     * type, the application or the package in EE. The package field name is spelled out because this test
+     * compiles in both editions.
+     */
+    private static void assertNoResourceFound(Throwable throwable, String contextId) {
+        assertThat(throwable).isInstanceOf(AppsmithException.class);
+        AppsmithException exception = (AppsmithException) throwable;
+        assertThat(exception.getError()).isEqualTo(AppsmithError.NO_RESOURCE_FOUND);
+        assertThat(exception.getMessage())
+                .isIn(
+                        AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, contextId),
+                        AppsmithError.NO_RESOURCE_FOUND.getMessage("package", contextId));
     }
 
     private Application createPrivateAppWithJsLib() {
@@ -129,5 +151,83 @@ class CustomJSLibServiceAuthorizationTest {
                             .isEqualTo(AppsmithError.NO_RESOURCE_FOUND);
                 })
                 .verify();
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = CreatorContextType.class,
+            names = {"PAGE", "MODULE", "WORKFLOW", "PACKAGE"})
+    @DisplayName("GHSA-5hrq-v7jj-7m79")
+    @WithUserDetails(value = "api_user")
+    void should_returnNoResourceFound_when_callerCannotReadApplication_publishedLibraries(
+            CreatorContextType contextType) {
+        // Given
+        Application privateApp = createPrivateAppWithJsLib();
+        User otherUser = userRepository.findByEmail("usertest@usertest.com").block();
+
+        // When
+        Mono<List<CustomJSLib>> readAsOtherUser =
+                runAs(customJSLibService.getAllJSLibsInContext(privateApp.getId(), contextType, true), otherUser);
+
+        // Then
+        StepVerifier.create(readAsOtherUser)
+                .expectErrorSatisfies(throwable -> assertNoResourceFound(throwable, privateApp.getId()))
+                .verify();
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = CreatorContextType.class,
+            names = {"PAGE", "MODULE", "WORKFLOW", "PACKAGE"})
+    @DisplayName("GHSA-5hrq-v7jj-7m79")
+    @WithUserDetails(value = "api_user")
+    void should_returnNoResourceFound_when_callerCannotReadApplication_unpublishedLibraries(
+            CreatorContextType contextType) {
+        // Given
+        Application privateApp = createPrivateAppWithJsLib();
+        User otherUser = userRepository.findByEmail("usertest@usertest.com").block();
+
+        // When
+        Mono<List<CustomJSLib>> readAsOtherUser =
+                runAs(customJSLibService.getAllJSLibsInContext(privateApp.getId(), contextType, false), otherUser);
+
+        // Then
+        StepVerifier.create(readAsOtherUser)
+                .expectErrorSatisfies(throwable -> assertNoResourceFound(throwable, privateApp.getId()))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void should_returnLibraries_when_callerCanReadApplication_published() {
+        // Given
+        Application privateApp = createPrivateAppWithJsLib();
+
+        // When
+        Mono<List<CustomJSLib>> readAsOwner =
+                customJSLibService.getAllJSLibsInContext(privateApp.getId(), CreatorContextType.APPLICATION, true);
+
+        // Then
+        StepVerifier.create(readAsOwner)
+                .assertNext(jsLibs ->
+                        assertThat(jsLibs).extracting(CustomJSLib::getName).contains("authzLib"))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void should_returnLibraries_when_callerCanReadApplication_unpublished() {
+        // Given
+        Application privateApp = createPrivateAppWithJsLib();
+
+        // When
+        Mono<List<CustomJSLib>> readAsOwner =
+                customJSLibService.getAllJSLibsInContext(privateApp.getId(), CreatorContextType.APPLICATION, false);
+
+        // Then
+        StepVerifier.create(readAsOwner)
+                .assertNext(jsLibs ->
+                        assertThat(jsLibs).extracting(CustomJSLib::getName).contains("authzLib"))
+                .verifyComplete();
     }
 }
