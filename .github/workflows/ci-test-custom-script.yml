@@ -178,8 +178,20 @@ jobs:
             echo "::error::docker pull $1 failed 3 times."
             return 1
           }
-          pull_image "$ted_image"
-          pull_image "$cs_image"
+          # The GHCR copies come from mirror-test-images.yml in appsmithorg/appsmith-ee.
+          # They need a GHCR login from an earlier step. Without that login, or
+          # without a copy for the tag, the image comes from Docker Hub.
+          pull_test_image() {
+            local mirror="ghcr.io/appsmithorg/ci-mirror/${1#appsmith/}"
+            if timeout 600 docker pull "$mirror"; then
+              docker tag "$mirror" "$1"
+              return 0
+            fi
+            echo "::warning::docker pull $mirror failed. Pulling $1 from Docker Hub."
+            pull_image "$1"
+          }
+          pull_test_image "$ted_image"
+          pull_test_image "$cs_image"
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
             -p 5433:5432 -p 28017:27017 -p 25:25 -p 4200:4200 -p 5000:5000 -p 3001:3000 -p 6001:6001 -p 8001:8000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
             "$ted_image"

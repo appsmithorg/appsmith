@@ -169,6 +169,13 @@ jobs:
         (inputs.docker_image_name != '' && needs.build-docker-image.result == 'skipped') ||
         (inputs.docker_image_name == '' && needs.build-docker-image.result == 'success')
       )
+    # Job-level permissions replace the top-level block for this job.
+    # packages: read lets the test job pull the GHCR images it uses.
+    permissions:
+      contents: read
+      pull-requests: write
+      actions: write
+      packages: read
     uses: ./.github/workflows/ci-test-playwright.yml
     secrets: inherit
     with:
