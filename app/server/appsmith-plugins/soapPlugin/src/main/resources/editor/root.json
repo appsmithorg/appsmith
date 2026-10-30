@@ -1,0 +1,67 @@
+{
+  "editor": [
+    {
+      "controlType": "SECTION_V2",
+      "identifier": "SELECTOR",
+      "children": [
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "children": [
+            {
+              "label": "Operation",
+              "tooltipText": "Operations are read from the datasource's WSDL",
+              "isRequired": true,
+              "propertyName": "operation",
+              "configProperty": "actionConfiguration.formData.operation.data",
+              "controlType": "DROP_DOWN",
+              "initialValue": "",
+              "options": [],
+              "placeholderText": "All operations will be fetched.",
+              "fetchOptionsConditionally": true,
+              "setFirstOptionAsDefault": true,
+              "alternateViewTypes": ["json"],
+              "conditionals": {
+                "enable": "{{true}}",
+                "fetchDynamicValues": {
+                  "condition": "{{true}}",
+                  "config": {
+                    "params": {
+                      "requestType": "OPERATIONS",
+                      "displayType": "DROP_DOWN"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION_V2",
+      "identifier": "REQUEST",
+      "children": [
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "children": [
+            {
+              "label": "SOAP body",
+              "subtitle": "XML placed inside <soap:Body>. Bound values are XML-escaped.",
+              "configProperty": "actionConfiguration.formData.body.data",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "initialValue": "",
+              "placeholderText": "<tns:GetItem xmlns:tns=\"http://example.com/\"><tns:id>{{Input1.text}}</tns:id></tns:GetItem>"
+            },
+            {
+              "label": "SOAP header",
+              "subtitle": "Optional XML placed inside <soap:Header>, e.g. WS-Security",
+              "configProperty": "actionConfiguration.formData.header.data",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "initialValue": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
