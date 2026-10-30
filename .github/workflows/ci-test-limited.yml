@@ -327,6 +327,7 @@ jobs:
           fi
 
       - name: Run the cypress test
+        id: run_cypress
         uses: cypress-io/github-action@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -455,15 +456,17 @@ jobs:
           path: ~/results
           overwrite: true
 
-      # Set status = failedtest
+      # Set status = failedtest only when Cypress ran and failed. A re-run then
+      # retries the failed specs that this shard recorded. A shard that failed
+      # before Cypress started recorded no specs, so it re-runs as a fresh shard.
       - name: Set fail if there are test failures
-        if: failure()
+        if: failure() && steps.run_cypress.outcome == 'failure'
         run: |
           echo "failedtest" > ~/run_result
 
       # Force store previous run result to cache
       - name: Store the previous run result
-        if: failure()
+        if: failure() && steps.run_cypress.outcome == 'failure'
         uses: actions/cache/save@v4
         with:
           path: |

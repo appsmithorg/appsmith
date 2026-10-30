@@ -400,6 +400,7 @@ jobs:
           fi
 
       - name: Run the cypress test
+        id: run_cypress
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
@@ -566,15 +567,17 @@ jobs:
           path: ~/results
           overwrite: true
 
-      # Set status = failedtest
+      # Set status = failedtest only when Cypress ran. A re-run then retries the
+      # failed specs that this job recorded. A job that failed before Cypress
+      # started recorded no specs, so it re-runs from the start.
       - name: Set fail if there are test failures
-        if: always()
+        if: always() && steps.run_cypress.outcome != 'skipped'
         run: |
           echo "failedtest" > ~/run_result
 
       # Force store previous run result to cache
       - name: Store the previous run result
-        if: always()
+        if: always() && steps.run_cypress.outcome != 'skipped'
         uses: actions/cache/save@v4
         with:
           path: |
