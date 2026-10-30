@@ -598,10 +598,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     /**
      * Fire-and-forget local Git cleanup so it is not cancelled when the HTTP subscriber disconnects.
-     * Copies parent Reactor context (minus mutable MDC) to preserve SecurityContext for any nested work.
+     * Uses {@link Mono#defer} so {@code deleteLocalRepo}'s synchronous filesystem work starts on the
+     * elastic scheduler, not on the delete-request thread. Copies parent Reactor context (minus mutable
+     * MDC) to preserve SecurityContext for any nested work.
      */
     protected void scheduleLocalGitRepositoryCleanup(Application application, ContextView parentCtx) {
-        cleanupLocalGitRepository(application)
+        Mono.defer(() -> cleanupLocalGitRepository(application))
                 .contextWrite(ctx -> Context.of(parentCtx).delete(LogHelper.CONTEXT_MAP))
                 .subscribeOn(LoadShifter.elasticScheduler)
                 .subscribe(

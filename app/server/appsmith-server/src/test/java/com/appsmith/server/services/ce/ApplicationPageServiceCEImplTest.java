@@ -20,10 +20,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.context.Context;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -166,6 +170,37 @@ class ApplicationPageServiceCEImplTest {
         StepVerifier.create(applicationPageService.cleanupLocalGitRepository(application))
                 .assertNext(deleted -> assertThat(deleted).isTrue())
                 .verifyComplete();
+        verify(commonGitFileUtils).deleteLocalRepo(expectedPath);
+    }
+
+    @Test
+    void should_runLocalRepoDeleteOffCallingThread_when_cleanupIsScheduled() throws Exception {
+        // Given — deleteLocalRepo runs synchronously when invoked; scheduling must not call it
+        // on the delete-request thread (Mono.defer + subscribeOn).
+        Application application = new Application();
+        application.setId("app-1");
+        application.setWorkspaceId("workspace-1");
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
+        gitData.setDefaultArtifactId("base-app-1");
+        gitData.setRepoName("repo");
+        application.setGitApplicationMetadata(gitData);
+        Path expectedPath = Paths.get("workspace-1", "base-app-1", "repo");
+
+        String callingThread = Thread.currentThread().getName();
+        AtomicReference<String> deleteThread = new AtomicReference<>();
+        CountDownLatch deleteStarted = new CountDownLatch(1);
+        when(commonGitFileUtils.deleteLocalRepo(expectedPath)).thenAnswer(invocation -> {
+            deleteThread.set(Thread.currentThread().getName());
+            deleteStarted.countDown();
+            return Mono.just(Boolean.TRUE);
+        });
+
+        // When
+        applicationPageService.scheduleLocalGitRepositoryCleanup(application, Context.empty());
+
+        // Then
+        assertThat(deleteStarted.await(5, TimeUnit.SECONDS)).isTrue();
+        assertThat(deleteThread.get()).isNotEqualTo(callingThread);
         verify(commonGitFileUtils).deleteLocalRepo(expectedPath);
     }
 }
