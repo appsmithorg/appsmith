@@ -12,12 +12,14 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @NoArgsConstructor
 public class URIUtils {
+    private static final Pattern URL_SCHEME_PATTERN = Pattern.compile("^[a-zA-Z][a-zA-Z0-9+.-]*://");
 
     public URI createUriWithQueryParams(
             ActionConfiguration actionConfiguration,
@@ -62,7 +64,7 @@ public class URIUtils {
     }
 
     protected String addHttpToUrlWhenPrefixNotPresent(String url) {
-        if (url == null || url.toLowerCase().startsWith("http") || url.contains("://")) {
+        if (url == null || URL_SCHEME_PATTERN.matcher(url).find()) {
             return url;
         }
         return "http://" + url;
