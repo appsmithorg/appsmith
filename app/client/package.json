@@ -329,7 +329,7 @@
     "cypress-file-upload": "^4.1.1",
     "cypress-mochawesome-reporter": "^3.5.1",
     "cypress-multi-reporters": "^1.2.4",
-    "cypress-network-idle": "^1.14.2",
+    "cypress-network-idle": "^2.0.1",
     "cypress-plugin-tab": "^1.0.5",
     "cypress-real-events": "^1.8.1",
     "cypress-tags": "^1.1.2",
