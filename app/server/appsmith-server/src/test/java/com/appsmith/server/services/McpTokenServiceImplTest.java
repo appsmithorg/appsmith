@@ -36,6 +36,7 @@ import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -490,6 +491,91 @@ class McpTokenServiceImplTest {
             assertThat(((AppsmithException) error).getError().getAppErrorCode())
                     .isEqualTo(AppsmithError.INTERNAL_SERVER_ERROR.getAppErrorCode());
         });
+    }
+
+    @Test
+    void should_returnOwnerWithoutStoreRead_whenAuthenticateCachedHashMatches() {
+        McpTokenResponseDTO generated = createToken("Claude Desktop", 30);
+        when(mcpTokenCache.get(generated.id()))
+                .thenReturn(Mono.just(new McpTokenCache.Entry(
+                        user.getId(), persistedToken.getTokenHash(), persistedToken.getExpiresAt())));
+        when(userRepository.findById(user.getId())).thenReturn(Mono.just(user));
+
+        StepVerifier.create(service.authenticateCached(generated.token()))
+                .expectNext(user)
+                .verifyComplete();
+
+        verify(mcpTokenRepository, never()).findByMcpKeyIdAndStatus(anyString(), any());
+    }
+
+    // authenticateCached never reads the store, so a cache miss, a wrong secret, an expired entry or a disabled user
+    // completes empty and leaves the decision to the charged path.
+    @Test
+    void should_completeEmptyWithoutStoreRead_whenAuthenticateCachedCannotAccept() {
+        McpTokenResponseDTO generated = createToken("Claude Desktop", 30);
+        McpTokenCache.Entry live =
+                new McpTokenCache.Entry(user.getId(), persistedToken.getTokenHash(), persistedToken.getExpiresAt());
+        McpTokenCache.Entry expired = new McpTokenCache.Entry(
+                user.getId(), persistedToken.getTokenHash(), Instant.now().minusSeconds(60));
+
+        // Cache miss.
+        when(mcpTokenCache.get(generated.id())).thenReturn(Mono.empty());
+        StepVerifier.create(service.authenticateCached(generated.token())).verifyComplete();
+
+        // Wrong secret for a live entry.
+        when(mcpTokenCache.get(generated.id())).thenReturn(Mono.just(live));
+        StepVerifier.create(service.authenticateCached("mcp_" + generated.id() + "_wrong-secret"))
+                .verifyComplete();
+
+        // Expired entry.
+        when(mcpTokenCache.get(generated.id())).thenReturn(Mono.just(expired));
+        StepVerifier.create(service.authenticateCached(generated.token())).verifyComplete();
+
+        // Disabled user.
+        user.setIsEnabled(false);
+        when(mcpTokenCache.get(generated.id())).thenReturn(Mono.just(live));
+        when(userRepository.findById(user.getId())).thenReturn(Mono.just(user));
+        StepVerifier.create(service.authenticateCached(generated.token())).verifyComplete();
+
+        // Blank or malformed keys.
+        StepVerifier.create(service.authenticateCached(null)).verifyComplete();
+        StepVerifier.create(service.authenticateCached("not-an-mcp-key")).verifyComplete();
+
+        verify(mcpTokenRepository, never()).findByMcpKeyIdAndStatus(anyString(), any());
+    }
+
+    // The fast path trusts the cache alone, so revoke must remove the entry it reads. This backs the cache with a map
+    // so the same put, get and evict calls the service makes decide the outcome.
+    @Test
+    void should_refuseFastPath_whenTokenIsRevoked() {
+        Map<String, McpTokenCache.Entry> cache = new HashMap<>();
+        when(mcpTokenCache.put(anyString(), any())).thenAnswer(invocation -> {
+            cache.put(invocation.getArgument(0), invocation.getArgument(1));
+            return Mono.empty();
+        });
+        when(mcpTokenCache.get(anyString()))
+                .thenAnswer(invocation -> Mono.justOrEmpty(cache.get(invocation.<String>getArgument(0))));
+        when(mcpTokenCache.evict(anyString())).thenAnswer(invocation -> {
+            cache.remove(invocation.<String>getArgument(0));
+            return Mono.empty();
+        });
+        when(userRepository.findById(user.getId())).thenReturn(Mono.just(user));
+        McpTokenResponseDTO generated = createToken("Claude Desktop", 30);
+
+        StepVerifier.create(service.authenticateCached(generated.token()))
+                .expectNext(user)
+                .verifyComplete();
+
+        when(mcpKeyRepository.findByIdAndUserIdAndRevokedAtIsNull(generated.id(), user.getId()))
+                .thenReturn(Mono.just(persistedKey));
+        when(mcpTokenRepository.findFirstByMcpKeyIdAndStatusOrderByCreatedAtDesc(generated.id(), McpTokenStatus.ACTIVE))
+                .thenReturn(Mono.just(persistedToken));
+        StepVerifier.create(service.revoke(user, generated.id()))
+                .expectNext(true)
+                .verifyComplete();
+
+        StepVerifier.create(service.authenticateCached(generated.token())).verifyComplete();
+        assertThat(cache).doesNotContainKey(generated.id());
     }
 
     @Test

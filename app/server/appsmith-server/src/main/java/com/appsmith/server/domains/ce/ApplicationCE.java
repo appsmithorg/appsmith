@@ -482,6 +482,12 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
 
         @JsonView({Views.Public.class, Git.class})
         private Boolean showSignIn;
+
+        @JsonView({Views.Public.class, Git.class})
+        private Boolean showShareApp;
+
+        @JsonView({Views.Public.class, Git.class})
+        private Boolean showAllApps;
     }
 
     /**
