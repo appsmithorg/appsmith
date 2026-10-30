@@ -20,6 +20,7 @@ public class FieldNameCE {
     public static final String NAME = "name";
     public static final String PAGE_ID = "pageId";
     public static final String LAYOUT_ID = "layoutId";
+    public static final String EXPECTED_REVISION = "expectedRevision";
     public static final String APPLICATION_ID = "applicationId";
     public static final String SOURCE_APPLICATION_ID = "sourceApplicationId";
     public static final String PLUGIN_ID = "pluginId";

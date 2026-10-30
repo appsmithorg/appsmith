@@ -3,10 +3,12 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.AppsmithRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +51,22 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
     Flux<NewPage> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
 
     Mono<Integer> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap);
+
+    /**
+     * Writes the unpublished page only if the page's `updatedAt` still equals {@code expectedUpdatedAt}.
+     *
+     * <p>The write sets `unpublishedPage` and `updatedAt = newUpdatedAt`. It also sets `gitSyncId` when
+     * {@code gitSyncId} is not null. The query checks the permission and skips deleted pages.
+     *
+     * @return the number of matched pages: 1 when written, 0 when the page is missing, not permitted, or changed.
+     */
+    Mono<Integer> updateUnpublishedPageIfUnchanged(
+            String pageId,
+            Instant expectedUpdatedAt,
+            Instant newUpdatedAt,
+            PageDTO unpublishedPage,
+            String gitSyncId,
+            AclPermission permission);
 
     Flux<NewPage> findByApplicationId(String applicationId);
 

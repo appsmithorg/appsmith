@@ -76,6 +76,15 @@ public class Layout {
     @JsonView({Views.Public.class, Views.Export.class})
     private String id;
 
+    /**
+     * Revision of the page that holds this layout, as epoch milliseconds. Set only on the edit-mode read. A client can
+     * send it back as `expectedRevision` on a layout update, and the server then refuses the update when the page
+     * changed in between. Never stored, exported, or written to Git.
+     */
+    @Transient
+    @JsonView(Views.Public.class)
+    private String revision;
+
     /*
      * These fields (except for `id`) only exist here because their removal will cause a huge diff on all layouts in
      * git-connected applications. So, instead, we keep them, but defunct. For all other practical purposes, these
