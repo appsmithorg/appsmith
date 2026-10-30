@@ -20677,6 +20677,12 @@ export const defaultAppState = {
           id: "655317be44e16d2e57f05dce",
         },
         {
+          name: "dayjs",
+          accessor: ["dayjs"],
+          version: "1.11.10",
+          url: "https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js",
+        },
+        {
           name: "lodash",
           docsURL: "https://lodash.com/docs/4.17.21",
           version: "4.17.21",
