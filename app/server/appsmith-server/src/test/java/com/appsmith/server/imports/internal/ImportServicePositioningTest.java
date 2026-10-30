@@ -74,6 +74,53 @@ class ImportServicePositioningTest {
         ApplicationDetail incomingDetail = new ApplicationDetail();
         incomingDetail.setAppPositioning(new Application.AppPositioning(type));
         incoming.setUnpublishedApplicationDetail(incomingDetail);
+        ApplicationJson json = prepareSnapshot(incoming);
+        when(applicationImportService.updateAndSaveArtifactInContext(eq(incoming), any(), any(), any()))
+                .thenAnswer(inv -> Mono.fromCallable(() -> {
+                    ImportExportUtils.setPropertiesToExistingApplication(incoming, target);
+                    return target;
+                }));
+
+        // When
+        var result = service.restoreSnapshot("workspace", "target", json);
+
+        // Then
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) error).getError()).isEqualTo(AppsmithError.INVALID_PARAMETER);
+                    assertThat(error.getMessage()).contains("replacement import must use responsive positioning");
+                })
+                .verify();
+        assertThat(target.getUnpublishedApplicationDetail()).isSameAs(targetDetail);
+    }
+
+    @ParameterizedTest
+    @org.junit.jupiter.params.provider.EnumSource(
+            value = AppsmithError.class,
+            names = {"GENERIC_BAD_REQUEST", "UNKNOWN_PLUGIN_REFERENCE"})
+    void should_keepGenericImportError_when_snapshotImportHasOperationalFailure(AppsmithError error) {
+        // Given
+        Application incoming = new Application();
+        ApplicationJson json = prepareSnapshot(incoming);
+        when(applicationImportService.updateAndSaveArtifactInContext(eq(incoming), any(), any(), any()))
+                .thenReturn(Mono.error(new AppsmithException(error, "failure")));
+
+        // When
+        var result = service.restoreSnapshot("workspace", "target", json);
+
+        // Then
+        StepVerifier.create(result)
+                .expectErrorSatisfies(failure -> {
+                    assertThat(failure).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) failure).getError())
+                            .isEqualTo(AppsmithError.GENERIC_JSON_IMPORT_ERROR);
+                    assertThat(failure.getMessage()).contains("Unable to import artifact in workspace workspace");
+                })
+                .verify();
+    }
+
+    private ApplicationJson prepareSnapshot(Application incoming) {
         ApplicationJson json = new ApplicationJson();
         json.setExportedApplication(incoming);
         when(permissionGroupRepository.getCurrentUserPermissionGroups()).thenReturn(Mono.just(Set.of("owner")));
@@ -90,24 +137,7 @@ class ImportServicePositioningTest {
                 .thenReturn(Flux.just("target"));
         when(applicationImportService.generateArtifactSpecificImportableEntities(eq(json), any(), any()))
                 .thenReturn(Mono.empty());
-        when(applicationImportService.updateAndSaveArtifactInContext(eq(incoming), any(), any(), any()))
-                .thenAnswer(inv -> Mono.fromCallable(() -> {
-                    ImportExportUtils.setPropertiesToExistingApplication(incoming, target);
-                    return target;
-                }));
         when(transactionalOperator.transactional(any(Mono.class))).thenAnswer(inv -> inv.getArgument(0));
-
-        // When
-        var result = service.restoreSnapshot("workspace", "target", json);
-
-        // Then
-        StepVerifier.create(result)
-                .expectErrorSatisfies(error -> {
-                    assertThat(error).isInstanceOf(AppsmithException.class);
-                    assertThat(((AppsmithException) error).getError()).isEqualTo(AppsmithError.INVALID_PARAMETER);
-                    assertThat(error.getMessage()).contains("replacement import must use responsive positioning");
-                })
-                .verify();
-        assertThat(target.getUnpublishedApplicationDetail()).isSameAs(targetDetail);
+        return json;
     }
 }
