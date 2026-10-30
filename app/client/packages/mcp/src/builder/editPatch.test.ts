@@ -82,6 +82,46 @@ describe("APP-16324 F7: removeWidgets (the approved removal)", () => {
     return root;
   }
 
+  it("names the remaining widgets whose bindings refer to a removed widget", () => {
+    const root = pageWithCard();
+
+    root.children = [
+      ...(root.children ?? []),
+      node({
+        widgetId: "copy",
+        widgetName: "CopyTitle",
+        type: "TEXT_WIDGET",
+        text: "{{ CardTitle.text }}",
+      }),
+      node({
+        widgetId: "open",
+        widgetName: "OpenCard",
+        type: "BUTTON_WIDGET",
+        onClick: "{{ showModal('Card1') }}",
+      }),
+      // A property that shares the removed widget's name is not a reference to it.
+      node({
+        widgetId: "other",
+        widgetName: "Other",
+        type: "TEXT_WIDGET",
+        text: "{{ Table1.Card1 }} Card1",
+      }),
+    ];
+
+    const { brokenReferences } = removeWidgets(root, ["Card1"]);
+
+    expect(brokenReferences).toEqual([
+      { widget: "CopyTitle", refersTo: ["CardTitle"] },
+      { widget: "OpenCard", refersTo: ["Card1"] },
+    ]);
+  });
+
+  it("reports no broken references when nothing refers to the removed widgets", () => {
+    expect(removeWidgets(pageWithCard(), ["Card1"]).brokenReferences).toEqual(
+      [],
+    );
+  });
+
   it("removes a leaf widget and reports it", () => {
     const { dsl, removed } = removeWidgets(page(), ["Greeting"]);
 

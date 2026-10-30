@@ -117,8 +117,11 @@ describe("M3 catalog — new widgets", () => {
     ]);
     const diagnostics = lintDsl(dsl);
 
+    // The only warning is the modal nothing opens yet; wire_event adds the opener.
     expect(diagnostics.errors).toBe(0);
-    expect(diagnostics.warnings).toBe(0);
+    expect(diagnostics.issues.map((issue) => issue.rule)).toEqual([
+      "modal-no-opener",
+    ]);
   });
 
   it("rejects malformed props on the new arms (M3)", () => {

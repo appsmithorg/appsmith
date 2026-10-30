@@ -7,6 +7,7 @@ import {
   updateActionSpecSchema,
 } from "./actionPatch.js";
 import { markMcpAuthoredBody } from "./query.js";
+import { mcpAuthoredRestConfig } from "./restApi.js";
 
 const revision = "a".repeat(64);
 const reference = {
@@ -99,6 +100,19 @@ describe("action lifecycle builders", () => {
       },
     });
     expect(dto.action).not.toHaveProperty("applicationId");
+  });
+
+  // update_action rebuilds the whole REST config, so it writes a fresh marker that get_action accepts.
+  it("marks a REST update as MCP-authored", () => {
+    const dto = buildUpdateActionDto(
+      parseUpdate({ ...reference, kind: "REST", rest }),
+    );
+
+    expect(
+      mcpAuthoredRestConfig(
+        (dto.action as { actionConfiguration: unknown }).actionConfiguration,
+      ),
+    ).toMatchObject({ httpMethod: "GET", path: "/v1/users" });
   });
 
   it("allows a name-only update without an action configuration", () => {
