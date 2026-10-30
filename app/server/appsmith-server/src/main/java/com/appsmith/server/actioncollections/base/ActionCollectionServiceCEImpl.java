@@ -311,17 +311,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                         modifiedActionCollectionMono = newActionService
                                 .findByCollectionIdAndViewMode(id, false, deleteActionPermission)
                                 .flatMap(newAction -> newActionService
-                                        .deleteGivenNewAction(newAction)
-                                        // return an empty action so that the filter can remove it from the list
-                                        .onErrorResume(throwable -> {
-                                            log.debug(
-                                                    "Failed to delete action with id {} for collection: {}",
-                                                    newAction.getId(),
-                                                    toDelete.getUnpublishedCollection()
-                                                            .getName());
-                                            log.error(throwable.getMessage());
-                                            return Mono.empty();
-                                        }))
+                                        .deleteGivenNewAction(newAction))
                                 .collectList()
                                 .then(repository.save(toDelete))
                                 .flatMap(modifiedActionCollection -> {
@@ -392,10 +382,12 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         // analytics/audit-log events and without cascading to child actions. Child actions are separately
         // archived by NewActionService.archiveActionsByApplicationId in the delete-application flow.
         // This avoids the OOM caused by hundreds of concurrent audit-log DB operations that previously
-        // exhausted heap memory and crashed the container.
+        // exhausted heap memory and crashed the container. Collections are archived one at a time
+        // because application deletion runs this inside a MongoDB transaction, which does not
+        // support parallel operations.
         return repository
                 .findByApplicationId(applicationId, permission, null)
-                .flatMap(repository::archive, 4)
+                .concatMap(repository::archive)
                 .then();
     }
 
@@ -444,16 +436,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         return unpublishedJsActionsFlux
                 .mergeWith(publishedJsActionsFlux)
                 .flatMap(toArchive -> newActionService
-                        .archiveGivenNewAction(toArchive)
-                        // return an empty action so that the filter can remove it from the list
-                        .onErrorResume(throwable -> {
-                            log.debug(
-                                    "Failed to delete action with id {} for collection with id: {}",
-                                    toArchive.getId(),
-                                    actionCollection.getId());
-                            log.error(throwable.getMessage());
-                            return Mono.empty();
-                        }))
+                        .archiveGivenNewAction(toArchive))
                 .collectList()
                 .flatMap(newActions -> {
                     List<ActionDTO> actionDTOs = newActions.stream()
