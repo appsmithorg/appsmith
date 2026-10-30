@@ -394,6 +394,8 @@ describe("call — invoke a restricted JS-object function", () => {
       [{ widget: "W", property: "a[0]" }],
       [{ widget: "W" }],
       ["`x`"],
+      ["x}"],
+      ["{x"],
       Array(6).fill(1),
     ]) {
       expect(

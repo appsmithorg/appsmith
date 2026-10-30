@@ -1944,7 +1944,7 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     });
 
     expect(body.created).toBe(true);
-    expect(body.body).toBe("SELECT * FROM users WHERE id = {{ 1 }};");
+    expect(body.body).toBe('SELECT * FROM users WHERE "id" = {{ 1 }};');
     expect(createAction).toHaveBeenCalledTimes(1);
     const dto = createAction.mock.calls[0][0] as { datasource: { id: string } };
 
@@ -1982,7 +1982,7 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
 
       if (allowed) {
         expect(body.created).toBe(true);
-        expect(body.body).toContain("CAST(tag AS TEXT) = ANY(");
+        expect(body.body).toContain('CAST("tag" AS TEXT) = ANY(');
       } else {
         expect(body.valid).toBe(false);
         expect(JSON.stringify(body.errors)).toMatch(
@@ -2046,7 +2046,7 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
 
     expect(created.created).toBe(true);
     expect(created.body).toBe(
-      'SELECT * FROM users WHERE ("email" IS NULL OR email = {{ "" }});',
+      'SELECT * FROM users WHERE ("email" IS NULL OR "email" = {{ "" }});',
     );
 
     const refused = await callTool(api, "create_query", {
@@ -2080,7 +2080,7 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     [
       "postgres-plugin",
       true,
-      'SELECT * FROM users WHERE email ILIKE {{ "%" + (SearchInput.text ?? "") + "%" }};',
+      'SELECT * FROM users WHERE "email" ILIKE {{ "%" + (SearchInput.text ?? "") + "%" }};',
     ],
     ["mysql-plugin", false, undefined],
   ])(
@@ -4489,6 +4489,30 @@ describe("governance-wrapped layout mutations", () => {
       expect(updateLayout).toHaveBeenCalledTimes(1);
     });
 
+    it("confirm writes nothing when the page read reports another application", async () => {
+      const store = new MemoryGovernanceStore();
+      const { api, server, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const spec = { ...SPEC, revision, names: ["Card1"] };
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec,
+      });
+
+      api.getApplicationContext = jest.fn(async () => ({
+        pages: [],
+        page: { applicationId: "other-app" },
+        layout: { dsl: removalDsl() },
+      }));
+
+      const confirmed = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(confirmed.body.code).toBe("page_not_found");
+      expect(updateLayout).not.toHaveBeenCalled();
+    });
+
     // APP-16100: a layoutId that does not belong to the page is replaced by the page's own. The token is bound to the
     // page's own layoutId, so confirm accepts either the original or the corrected one.
     it.each([["l-guessed"], ["l1"]])(
@@ -5485,6 +5509,69 @@ describe("governance-wrapped layout mutations", () => {
     },
   );
 
+  // The page DTO names its application. A page of another application is refused before the git gate and the lock,
+  // because both use this application's id. A DTO without the field (as in older stubs) is not refused.
+  const layoutWrites: [string, Record<string, unknown>][] = [
+    ["edit_page", { edit: { add: [{ type: "button", text: "Go" }] } }],
+    [
+      "patch_widgets",
+      {
+        patch: {
+          operations: [
+            {
+              kind: "move",
+              name: "SaveBtn",
+              position: { topRow: 30, leftColumn: 0 },
+            },
+          ],
+        },
+      },
+    ],
+    [
+      "wire_event",
+      {
+        spec: {
+          widget: "SaveBtn",
+          event: "onClick",
+          action: { showModal: "EditModal" },
+        },
+      },
+    ],
+  ];
+
+  it.each(
+    layoutWrites.flatMap(([tool]) => [
+      [tool, "another application", 0, { applicationId: "other-app" }],
+      [tool, "this application", 1, { applicationId: APP_ID }],
+      [tool, "an unnamed application", 1, {}],
+    ]) as [string, string, number, Record<string, unknown>][],
+  )(
+    "%s on a page of %s writes %s time(s)",
+    async (tool, _label, writes, page) => {
+      const { api, updateLayout } = layoutReadApi({
+        getApplicationContext: jest.fn(async () => ({
+          pages: [],
+          page,
+          layout: { dsl: LAYOUT_DSL },
+        })) as never,
+      });
+      const server = createMcpHttpServer(API_BASE_URL, () => api);
+      const toolArgs = layoutWrites.find(([name]) => name === tool)![1];
+      const written = await callTool(server, tool, {
+        applicationId: APP_ID,
+        pageId: PAGE_ID,
+        layoutId: "layout-real",
+        revision: LAYOUT_REVISION,
+        ...toolArgs,
+      });
+
+      expect(updateLayout).toHaveBeenCalledTimes(writes);
+      expect(written.body.code).toBe(
+        writes === 0 ? "page_not_found" : undefined,
+      );
+    },
+  );
+
   it("APP-16100: a corrected write without a revision fails closed and writes nothing", async () => {
     const { api, updateLayout } = layoutReadApi();
     const server = createMcpHttpServer(API_BASE_URL, () => api);
@@ -5918,7 +6005,7 @@ describe("governance-wrapped layout mutations", () => {
       JSON.stringify(
         (updateAction.mock.calls[0] as unknown[])[1] as Record<string, unknown>,
       ),
-    ).toContain("CAST(tag AS TEXT) = ANY(");
+    ).toContain('CAST(\\"tag\\" AS TEXT) = ANY(');
   });
 
   // The MySQL plugin refuses any prepared query with the word IS, so update_action must pick the MySQL form too.
@@ -5971,7 +6058,7 @@ describe("governance-wrapped layout mutations", () => {
         ).actionConfiguration.body,
       ),
     ).toBe(
-      'SELECT * FROM tickets WHERE (tickets.l2owner <=> NULL OR l2owner = {{ "" }});',
+      'SELECT * FROM tickets WHERE (tickets.l2owner <=> NULL OR tickets.l2owner = {{ "" }});',
     );
   });
 

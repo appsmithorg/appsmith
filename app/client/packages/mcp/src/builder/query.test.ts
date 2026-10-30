@@ -37,7 +37,7 @@ describe("compileQuery — parameterized SQL, no raw injection", () => {
     );
 
     expect(body).toBe(
-      'SELECT id, name FROM users WHERE status = {{ "active" }} LIMIT 50;',
+      'SELECT id, name FROM users WHERE users.status = {{ "active" }} LIMIT 50;',
     );
   });
 
@@ -58,7 +58,7 @@ describe("compileQuery — parameterized SQL, no raw injection", () => {
     );
 
     expect(body).toBe(
-      "SELECT * FROM orders WHERE id = {{ Table1.selectedRow.id }};",
+      "SELECT * FROM orders WHERE orders.id = {{ Table1.selectedRow.id }};",
     );
   });
 
@@ -96,9 +96,9 @@ describe("compileQuery — parameterized SQL, no raw injection", () => {
       'INSERT INTO users (name, age) VALUES ({{ "Ada" }}, {{ 30 }});',
     );
     expect(update).toBe(
-      'UPDATE users SET name = {{ "Ada" }} WHERE id = {{ 1 }};',
+      'UPDATE users SET name = {{ "Ada" }} WHERE users.id = {{ 1 }};',
     );
-    expect(del).toBe("DELETE FROM users WHERE id = {{ 1 }};");
+    expect(del).toBe("DELETE FROM users WHERE users.id = {{ 1 }};");
   });
 
   it("accepts a schema-qualified table name", () => {
@@ -203,7 +203,7 @@ describe("compileQuery — SELECT ordering & aggregation (M4-T1)", () => {
     );
 
     expect(body).toBe(
-      'SELECT "region", SUM("amount") AS sum FROM sales WHERE year = {{ 2026 }} GROUP BY "region" ORDER BY "region" ASC;',
+      'SELECT "region", SUM("amount") AS sum FROM sales WHERE sales.year = {{ 2026 }} GROUP BY "region" ORDER BY "region" ASC;',
     );
   });
 
@@ -341,7 +341,7 @@ describe("APP-16164: filter-bar filters (skipWhenEmpty, inList)", () => {
     );
 
     expect(body).toBe(
-      "SELECT * FROM tickets WHERE ({{ (StatusSelect.selectedOptionValue == null || StatusSelect.selectedOptionValue.length === 0) ? 1 : 0 }} = 1 OR status = {{ (StatusSelect.selectedOptionValue == null || StatusSelect.selectedOptionValue.length === 0) ? null : StatusSelect.selectedOptionValue }});",
+      'SELECT * FROM tickets WHERE ({{ (StatusSelect.selectedOptionValue == null || StatusSelect.selectedOptionValue.length === 0) ? 1 : 0 }} = 1 OR "status" = {{ (StatusSelect.selectedOptionValue == null || StatusSelect.selectedOptionValue.length === 0) ? null : StatusSelect.selectedOptionValue }});',
     );
   });
 
@@ -356,7 +356,7 @@ describe("APP-16164: filter-bar filters (skipWhenEmpty, inList)", () => {
     );
 
     expect(body).toBe(
-      "SELECT * FROM tickets WHERE ({{ (StatusSelect.selectedOptionValue == null || StatusSelect.selectedOptionValue.length === 0) ? 1 : 0 }} = 1 OR status = {{ StatusSelect.selectedOptionValue }});",
+      "SELECT * FROM tickets WHERE ({{ (StatusSelect.selectedOptionValue == null || StatusSelect.selectedOptionValue.length === 0) ? 1 : 0 }} = 1 OR tickets.status = {{ StatusSelect.selectedOptionValue }});",
     );
   });
 
@@ -372,7 +372,7 @@ describe("APP-16164: filter-bar filters (skipWhenEmpty, inList)", () => {
     );
 
     expect(body).toBe(
-      "SELECT * FROM tickets WHERE CAST(tag AS TEXT) = ANY(CAST({{ (TagsSelect.selectedOptionValues == null || TagsSelect.selectedOptionValues.length === 0) ? null : TagsSelect.selectedOptionValues }} AS TEXT[]));",
+      'SELECT * FROM tickets WHERE CAST("tag" AS TEXT) = ANY(CAST({{ (TagsSelect.selectedOptionValues == null || TagsSelect.selectedOptionValues.length === 0) ? null : TagsSelect.selectedOptionValues }} AS TEXT[]));',
     );
   });
 
@@ -388,7 +388,7 @@ describe("APP-16164: filter-bar filters (skipWhenEmpty, inList)", () => {
     );
 
     expect(body).toMatch(
-      /^SELECT \* FROM tickets WHERE \(\{\{ \(TagsSelect\.selectedOptionValues == null .* \? 1 : 0 \}\} = 1 OR CAST\(tag AS TEXT\) = ANY\(.*\)\) AND \(\{\{ \(StatusSelect\.selectedOptionValue == null .* = 1 OR status = .*\);$/,
+      /^SELECT \* FROM tickets WHERE \(\{\{ \(TagsSelect\.selectedOptionValues == null .* \? 1 : 0 \}\} = 1 OR CAST\("tag" AS TEXT\) = ANY\(.*\)\) AND \(\{\{ \(StatusSelect\.selectedOptionValue == null .* = 1 OR "status" = .*\);$/,
     );
   });
 
@@ -489,7 +489,7 @@ describe("APP-16164: filter-bar filters (skipWhenEmpty, inList)", () => {
     );
 
     expect(body).toBe(
-      "SELECT * FROM tickets WHERE status = {{ StatusSelect.selectedOptionValue }} AND tier IN ({{ TierSelect.selectedOptionValue }});",
+      "SELECT * FROM tickets WHERE tickets.status = {{ StatusSelect.selectedOptionValue }} AND tickets.tier IN ({{ TierSelect.selectedOptionValue }});",
     );
   });
 
@@ -563,7 +563,7 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
     );
 
     expect(body).toBe(
-      'SELECT * FROM tickets WHERE status = {{ "New" }} AND tickets.l2owner IS NULL;',
+      'SELECT * FROM tickets WHERE tickets.status = {{ "New" }} AND tickets.l2owner IS NULL;',
     );
   });
 
@@ -634,6 +634,44 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
   );
 
   // A value filter's unquoted EMAIL names the column `email` on PostgreSQL. The null filters must name the same one.
+  // A bare `current_user = {{ "app" }}` compares the database user, so it is true for every row when the value is
+  // that user's name, and a DELETE would empty the table.
+  it.each([
+    ["postgres" as const, '"current_user"'],
+    ["redshift" as const, '"current_user"'],
+    ["mysql" as const, "users.current_user"],
+    ["other" as const, "users.current_user"],
+  ])("never emits a value filter's column bare on %s", (dialect, column) => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "DELETE",
+        table: "users",
+        filters: [
+          { column: "current_user", op: "eq", value: { literal: "app" } },
+        ],
+      }),
+      { dialect },
+    );
+
+    expect(body).toBe(`DELETE FROM users WHERE ${column} = {{ "app" }};`);
+  });
+
+  // Only a null test refuses a column named like its table. Compared with a value, the whole row is a type error.
+  it("quotes a value filter on a column named like its table on PostgreSQL", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "status",
+        filters: [{ column: "status", op: "eq", value: { literal: "open" } }],
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toBe('SELECT * FROM status WHERE "status" = {{ "open" }};');
+  });
+
   it("lower-cases the column before quoting it on PostgreSQL", () => {
     const body = compileQuery(
       parse({
@@ -650,7 +688,7 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
     );
 
     expect(body).toBe(
-      'UPDATE users SET status = {{ "inactive" }} WHERE "email" IS NULL AND ID > {{ 3 }};',
+      'UPDATE users SET status = {{ "inactive" }} WHERE "email" IS NULL AND "id" > {{ 3 }};',
     );
   });
 
@@ -805,7 +843,7 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
   });
 
   // Only the null filters change on Redshift. A value filter on an empty widget still binds as on "other".
-  it("leaves value filters on Redshift as on other databases", () => {
+  it("quotes value filter columns on Redshift, as it does for isNull", () => {
     const spec = parse({
       ...base,
       operation: "SELECT",
@@ -821,7 +859,7 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
     });
 
     expect(compileQuery(spec, { dialect: "redshift" })).toBe(
-      compileQuery(spec, { dialect: "other" }),
+      'SELECT * FROM tickets WHERE ({{ (StatusSelect.selectedOptionValue == null || StatusSelect.selectedOptionValue.length === 0) ? 1 : 0 }} = 1 OR "status" = {{ StatusSelect.selectedOptionValue }});',
     );
   });
 
@@ -863,7 +901,7 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
     );
 
     expect(body).toBe(
-      'UPDATE tickets SET status = {{ "Pending on L2" }} WHERE id = {{ 7 }} AND tickets.l2owner IS NULL;',
+      'UPDATE tickets SET status = {{ "Pending on L2" }} WHERE tickets.id = {{ 7 }} AND tickets.l2owner IS NULL;',
     );
   });
 
@@ -991,7 +1029,7 @@ describe("APP-16324 F1.2: anyOf OR groups", () => {
     );
 
     expect(body).toBe(
-      'SELECT * FROM tickets WHERE (status = {{ "New" }} OR status = {{ "Pending on L2" }} OR status = {{ "Pending on L1" }}) AND ("l2owner" IS NULL OR l2owner = {{ "" }});',
+      'SELECT * FROM tickets WHERE ("status" = {{ "New" }} OR "status" = {{ "Pending on L2" }} OR "status" = {{ "Pending on L1" }}) AND ("l2owner" IS NULL OR "l2owner" = {{ "" }});',
     );
   });
 
@@ -1022,7 +1060,7 @@ describe("APP-16324 F1.2: anyOf OR groups", () => {
     );
 
     expect(body).toBe(
-      "SELECT * FROM tickets WHERE archived = {{ false }} AND (org_id = {{ Customers.selectedRow.org_id }} OR requester_email = {{ Customers.selectedRow.email }});",
+      "SELECT * FROM tickets WHERE tickets.archived = {{ false }} AND (tickets.org_id = {{ Customers.selectedRow.org_id }} OR tickets.requester_email = {{ Customers.selectedRow.email }});",
     );
   });
 
@@ -1046,7 +1084,7 @@ describe("APP-16324 F1.2: anyOf OR groups", () => {
     );
 
     expect(body).toBe(
-      'UPDATE tickets SET status = {{ "Closed" }} WHERE id > {{ 0 }} AND (status = {{ "Solved" }} OR status = {{ "Spam" }});',
+      'UPDATE tickets SET status = {{ "Closed" }} WHERE tickets.id > {{ 0 }} AND (tickets.status = {{ "Solved" }} OR tickets.status = {{ "Spam" }});',
     );
   });
 
@@ -1072,7 +1110,7 @@ describe("APP-16324 F1.2: anyOf OR groups", () => {
     );
 
     expect(body).toBe(
-      `SELECT * FROM tickets WHERE (subject = {{ "x' OR '1'='1" }} OR subject = {{ "a -- b %" }});`,
+      `SELECT * FROM tickets WHERE (tickets.subject = {{ "x' OR '1'='1" }} OR tickets.subject = {{ "a -- b %" }});`,
     );
   });
 
@@ -1175,7 +1213,7 @@ describe("APP-16324 F1.2: anyOf OR groups", () => {
     );
 
     expect(body).toBe(
-      'DELETE FROM drafts WHERE (drafts.submitted_at IS NULL OR status = {{ "abandoned" }});',
+      'DELETE FROM drafts WHERE (drafts.submitted_at IS NULL OR drafts.status = {{ "abandoned" }});',
     );
   });
 
@@ -1199,7 +1237,7 @@ describe("APP-16324 F1.2: anyOf OR groups", () => {
     );
 
     expect(body).toBe(
-      'SELECT * FROM tickets WHERE (tickets.l2owner <=> NULL OR l2owner = {{ "" }});',
+      'SELECT * FROM tickets WHERE (tickets.l2owner <=> NULL OR tickets.l2owner = {{ "" }});',
     );
     expect(body).not.toMatch(/\bIS\b/);
   });
@@ -1366,7 +1404,9 @@ describe("APP-16324 F1.3: like match position and ilike", () => {
       }),
     );
 
-    expect(body).toBe(`SELECT * FROM tickets WHERE subject LIKE ${binding};`);
+    expect(body).toBe(
+      `SELECT * FROM tickets WHERE tickets.subject LIKE ${binding};`,
+    );
   });
 
   it.each([
@@ -1392,7 +1432,9 @@ describe("APP-16324 F1.3: like match position and ilike", () => {
         }),
       );
 
-      expect(body).toBe(`SELECT * FROM tickets WHERE subject LIKE ${binding};`);
+      expect(body).toBe(
+        `SELECT * FROM tickets WHERE tickets.subject LIKE ${binding};`,
+      );
     },
   );
 
@@ -1444,7 +1486,7 @@ describe("APP-16324 F1.3: like match position and ilike", () => {
     );
 
     expect(body).toBe(
-      "SELECT * FROM tickets WHERE subject LIKE {{ SearchInput.text }};",
+      "SELECT * FROM tickets WHERE tickets.subject LIKE {{ SearchInput.text }};",
     );
   });
 
@@ -1466,7 +1508,7 @@ describe("APP-16324 F1.3: like match position and ilike", () => {
     );
 
     expect(body).toBe(
-      `SELECT * FROM tickets WHERE subject LIKE {{ "%it's 50% -- off%" }};`,
+      `SELECT * FROM tickets WHERE tickets.subject LIKE {{ "%it's 50% -- off%" }};`,
     );
   });
 
@@ -1499,7 +1541,7 @@ describe("APP-16324 F1.3: like match position and ilike", () => {
     );
 
     expect(body).toBe(
-      'SELECT * FROM tickets WHERE (org_id = {{ Customers.selectedRow.org_id }} OR requester_email ILIKE {{ "%" + (Customers.selectedRow.domain ?? "") }});',
+      'SELECT * FROM tickets WHERE ("org_id" = {{ Customers.selectedRow.org_id }} OR "requester_email" ILIKE {{ "%" + (Customers.selectedRow.domain ?? "") }});',
     );
   });
 
@@ -1568,7 +1610,7 @@ describe("APP-16324 F1.3: like match position and ilike", () => {
     );
 
     expect(body).toBe(
-      "SELECT * FROM tickets WHERE subject LIKE {{ SearchInput.text }};",
+      "SELECT * FROM tickets WHERE tickets.subject LIKE {{ SearchInput.text }};",
     );
   });
 
@@ -1595,7 +1637,7 @@ describe("APP-16324 F1.3: like match position and ilike", () => {
     );
 
     expect(body).toBe(
-      'SELECT * FROM tickets WHERE (subject LIKE {{ "%refund%" }} OR tag = {{ "billing" }});',
+      'SELECT * FROM tickets WHERE (tickets.subject LIKE {{ "%refund%" }} OR tickets.tag = {{ "billing" }});',
     );
   });
 
@@ -1733,7 +1775,9 @@ describe("APP-16324 F1.3: like match position and ilike", () => {
       }),
     );
 
-    expect(body).toBe('DELETE FROM tickets WHERE subject LIKE {{ "spam" }};');
+    expect(body).toBe(
+      'DELETE FROM tickets WHERE tickets.subject LIKE {{ "spam" }};',
+    );
   });
 
   it("combines a wildcard match with skipWhenEmpty on a SELECT", () => {
@@ -1756,7 +1800,7 @@ describe("APP-16324 F1.3: like match position and ilike", () => {
     );
 
     expect(body).toBe(
-      'SELECT * FROM tickets WHERE ({{ (SearchInput.text == null || SearchInput.text.length === 0) ? 1 : 0 }} = 1 OR subject LIKE {{ "%" + (SearchInput.text ?? "") + "%" }});',
+      'SELECT * FROM tickets WHERE ({{ (SearchInput.text == null || SearchInput.text.length === 0) ? 1 : 0 }} = 1 OR "subject" LIKE {{ "%" + (SearchInput.text ?? "") + "%" }});',
     );
   });
 });
@@ -2015,7 +2059,7 @@ describe("APP-16324 F1.4: coalesce on selected and grouped columns", () => {
     );
 
     expect(body).toBe(
-      'SELECT id, COALESCE(owner, {{ "unassigned" }}) AS owner FROM tickets WHERE status = {{ "New" }} ORDER BY "id" DESC LIMIT 50;',
+      'SELECT id, COALESCE(owner, {{ "unassigned" }}) AS owner FROM tickets WHERE tickets.status = {{ "New" }} ORDER BY "id" DESC LIMIT 50;',
     );
   });
 
@@ -2031,7 +2075,7 @@ describe("APP-16324 F1.4: coalesce on selected and grouped columns", () => {
       }),
     );
 
-    expect(body).toBe("DELETE FROM tickets WHERE id = {{ 1 }};");
+    expect(body).toBe("DELETE FROM tickets WHERE tickets.id = {{ 1 }};");
   });
 
   it("leaves plain columns and plain groupBy unchanged", () => {
@@ -2298,7 +2342,7 @@ describe("APP-16324 F1.5: having on aggregated selects", () => {
     );
 
     expect(body).toBe(
-      'SELECT "tag", COUNT("id") AS count FROM tickets WHERE status = {{ "open" }} GROUP BY "tag" HAVING COUNT("id") < {{ 100 }} ORDER BY "tag" ASC LIMIT 10;',
+      'SELECT "tag", COUNT("id") AS count FROM tickets WHERE tickets.status = {{ "open" }} GROUP BY "tag" HAVING COUNT("id") < {{ 100 }} ORDER BY "tag" ASC LIMIT 10;',
     );
   });
 
@@ -2418,7 +2462,7 @@ describe("APP-16324 F1.6: split a delimited column (PostgreSQL)", () => {
     );
 
     expect(body).toBe(
-      'SELECT TRIM(mcp_split.mcp_split_value) AS "tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("tags", {{ "," }})) AS mcp_split(mcp_split_value) WHERE tags LIKE {{ "%a%" }} GROUP BY TRIM(mcp_split.mcp_split_value) HAVING COUNT(*) > {{ 1 }} ORDER BY "tags" DESC LIMIT 5;',
+      'SELECT TRIM(mcp_split.mcp_split_value) AS "tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("tags", {{ "," }})) AS mcp_split(mcp_split_value) WHERE "tags" LIKE {{ "%a%" }} GROUP BY TRIM(mcp_split.mcp_split_value) HAVING COUNT(*) > {{ 1 }} ORDER BY "tags" DESC LIMIT 5;',
     );
   });
 
@@ -2449,7 +2493,7 @@ describe("APP-16324 F1.6: split a delimited column (PostgreSQL)", () => {
     );
 
     expect(body).toBe(
-      'SELECT "product", TRIM(mcp_split.mcp_split_value) AS "feature_tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("feature_tags", {{ ";" }})) AS mcp_split(mcp_split_value) WHERE status = {{ "open" }} GROUP BY "product", TRIM(mcp_split.mcp_split_value);',
+      'SELECT "product", TRIM(mcp_split.mcp_split_value) AS "feature_tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("feature_tags", {{ ";" }})) AS mcp_split(mcp_split_value) WHERE "status" = {{ "open" }} GROUP BY "product", TRIM(mcp_split.mcp_split_value);',
     );
   });
 
