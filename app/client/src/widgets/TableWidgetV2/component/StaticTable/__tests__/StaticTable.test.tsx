@@ -11,9 +11,18 @@ jest.mock("simplebar-react", () => {
     __esModule: true,
     default: React.forwardRef<
       HTMLDivElement,
-      { children: React.ReactNode; style?: React.CSSProperties }
+      {
+        children: React.ReactNode;
+        style?: React.CSSProperties;
+        "data-testid"?: string;
+      }
     >((props, ref) => (
-      <div className="simplebar-content-wrapper" ref={ref} style={props.style}>
+      <div
+        className="simplebar-content-wrapper"
+        data-testid={props["data-testid"]}
+        ref={ref}
+        style={props.style}
+      >
         {props.children}
       </div>
     )),
@@ -59,6 +68,12 @@ describe("StaticTable", () => {
 
     expect(screen.getByTestId("mock-table-header")).toBeInTheDocument();
     expect(screen.getByTestId("mock-table-body")).toBeInTheDocument();
+  });
+
+  it("marks the scroll container with a test id", () => {
+    render(<StaticTable ref={React.createRef<SimpleBar>()} />);
+
+    expect(screen.getByTestId("t--table-v2-static-body")).toBeInTheDocument();
   });
 
   it("applies correct scroll container styles from context", () => {

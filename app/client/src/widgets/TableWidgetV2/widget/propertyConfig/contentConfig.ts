@@ -11,7 +11,10 @@ import {
   INFINITE_SCROLL_ENABLED,
   InlineEditingSaveOptions,
 } from "widgets/TableWidgetV2/constants";
-import { composePropertyUpdateHook } from "widgets/WidgetUtils";
+import {
+  composePropertyUpdateHook,
+  isAutoHeightEnabledForWidget,
+} from "widgets/WidgetUtils";
 import {
   ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
   CUSTOM_SORT_FUNCTION_ENABLED,
@@ -21,17 +24,19 @@ import {
   tableDataValidation,
   totalRecordsCountValidation,
   uniqueColumnNameValidation,
-  updateAllowAddNewRowOnInfiniteScrollChange,
+  infiniteScrollUpdateHook,
   updateColumnOrderHook,
   updateCustomColumnAliasOnLabelChange,
   updateInlineEditingOptionDropdownVisibilityHook,
   updateInlineEditingSaveOptionHook,
-  updateSearchSortFilterOnInfiniteScrollChange,
 } from "../propertyUtils";
 import panelConfig from "./PanelConfig";
 
 const INFINITE_SCROLL_DISABLED_HELP_TEXT =
   "This feature is disabled because infinite scroll is enabled";
+
+const AUTO_HEIGHT_INFINITE_SCROLL_DISABLED_HELP_TEXT =
+  "Infinite scroll is unavailable when Height is not Fixed";
 
 export default [
   {
@@ -175,6 +180,23 @@ export default [
       },
       {
         helpText:
+          "Number of rows shown on each page, up to 200. The table grows to fit them.",
+        propertyName: "autoHeightRowCount",
+        label: "Rows per page",
+        controlType: "INPUT_TEXT",
+        placeholderText: "10",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.NUMBER,
+          params: { min: 1, max: 200, natural: true, default: 10 },
+        },
+        hidden: (props: TableWidgetProps) =>
+          !isAutoHeightEnabledForWidget(props),
+        dependencies: ["dynamicHeight"],
+      },
+      {
+        helpText:
           "Bind the Table.pageNo property in your API and call it onPageChange",
         propertyName: "serverSidePaginationEnabled",
         label: "Server side pagination",
@@ -194,14 +216,18 @@ export default [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
-        updateHook: composePropertyUpdateHook([
-          updateAllowAddNewRowOnInfiniteScrollChange,
-          updateSearchSortFilterOnInfiniteScrollChange,
-        ]),
-        dependencies: ["primaryColumns", "serverSidePaginationEnabled"],
+        updateHook: infiniteScrollUpdateHook,
+        dependencies: [
+          "primaryColumns",
+          "serverSidePaginationEnabled",
+          "dynamicHeight",
+        ],
         hidden: (props: TableWidgetProps) =>
           !Widget.getFeatureFlag(INFINITE_SCROLL_ENABLED) ||
           !props.serverSidePaginationEnabled,
+        shouldDisableSection: (props: TableWidgetProps) =>
+          isAutoHeightEnabledForWidget(props),
+        disabledHelpText: AUTO_HEIGHT_INFINITE_SCROLL_DISABLED_HELP_TEXT,
       },
       {
         helpText: createMessage(TABLE_WIDGET_TOTAL_RECORD_TOOLTIP),

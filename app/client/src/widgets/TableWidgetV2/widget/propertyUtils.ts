@@ -16,6 +16,7 @@ import {
 } from "./utilities";
 import type { PropertyUpdates } from "WidgetProvider/types";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
+import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import type { ValidationConfig } from "constants/PropertyControlConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 
@@ -1513,3 +1514,9 @@ export const updateSearchSortFilterOnInfiniteScrollChange = (
 
   return;
 };
+
+// Property updates applied whenever infinite scroll is turned on or off
+export const infiniteScrollUpdateHook = composePropertyUpdateHook([
+  updateAllowAddNewRowOnInfiniteScrollChange,
+  updateSearchSortFilterOnInfiniteScrollChange,
+]);
