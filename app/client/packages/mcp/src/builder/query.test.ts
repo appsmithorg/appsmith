@@ -1,5 +1,6 @@
 import {
   buildActionDto,
+  storedSqlBody,
   compileQuery,
   markMcpAuthoredBody,
   mcpAuthoredBody,
@@ -848,10 +849,62 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
     ["mariadb-plugin", "mysql"],
     ["redshift-plugin", "redshift"],
     ["mssql-plugin", "other"],
-    ["oracle-plugin", "other"],
+    ["oracle-plugin", "oracle"],
     [undefined, "other"],
   ])("maps plugin %s to dialect %s", (packageName, dialect) => {
     expect(sqlDialectFor(packageName)).toBe(dialect);
+  });
+
+  // Oracle has no LIMIT, and a quoted lower-case name would not match a column created without quotes.
+  it.each([
+    [
+      "INSERT",
+      { values: [{ column: "status", value: { literal: "open" } }] },
+      'INSERT INTO tickets (status) VALUES ({{ "open" }});',
+    ],
+    [
+      "UPDATE",
+      {
+        values: [{ column: "status", value: { literal: "done" } }],
+        filters: [{ column: "id", op: "eq", value: { literal: 7 } }],
+      },
+      'UPDATE tickets SET status = {{ "done" }} WHERE tickets.id = {{ 7 }};',
+    ],
+    [
+      "DELETE",
+      { filters: [{ column: "id", op: "eq", value: { literal: 7 } }] },
+      "DELETE FROM tickets WHERE tickets.id = {{ 7 }};",
+    ],
+  ])(
+    "compiles an Oracle %s with bound values and unquoted names",
+    (operation, extra, expected) => {
+      expect(
+        compileQuery(
+          parse({ ...base, operation, table: "tickets", ...extra }),
+          { dialect: "oracle" },
+        ),
+      ).toBe(expected);
+    },
+  );
+
+  it("compiles an Oracle SELECT with FETCH FIRST and bare identifiers", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        filters: [{ column: "status", op: "eq", value: { literal: "open" } }],
+        groupBy: ["tag"],
+        aggregate: { fn: "count", column: "id" },
+        orderBy: [{ column: "tag", direction: "ASC" }],
+        limit: 10,
+      }),
+      { dialect: "oracle" },
+    );
+
+    expect(body).toBe(
+      'SELECT tag, COUNT(id) AS count FROM tickets WHERE tickets.status = {{ "open" }} GROUP BY tag ORDER BY tag ASC FETCH FIRST 10 ROWS ONLY;',
+    );
   });
 
   // Redshift derives from PostgreSQL, so `tickets.text` could read as a function call. It gets the quoted bare form.
@@ -2951,5 +3004,28 @@ describe("buildActionDto", () => {
     expect(dto.actionConfiguration.pluginSpecifiedTemplates[0].value).toBe(
       true,
     );
+  });
+
+  // The Oracle plugin and its editor form read the query and the prepared-statement switch from formData.
+  it("stores an Oracle query in formData with prepared statements on", () => {
+    const spec = parse({ ...base, operation: "SELECT", table: "users" });
+    const dto = buildActionDto(
+      spec,
+      "SELECT * FROM users;",
+      "oracle-plugin",
+    ) as { actionConfiguration: Record<string, unknown> };
+
+    expect(dto.actionConfiguration).toEqual({
+      formData: {
+        body: { data: "SELECT * FROM users;" },
+        preparedStatement: { data: true },
+      },
+    });
+    expect(storedSqlBody(dto.actionConfiguration)).toBe("SELECT * FROM users;");
+  });
+
+  it("reads the stored body of any other SQL plugin from actionConfiguration.body", () => {
+    expect(storedSqlBody({ body: "SELECT 1;" })).toBe("SELECT 1;");
+    expect(storedSqlBody(undefined)).toBeUndefined();
   });
 });

@@ -69,7 +69,8 @@ public class LayoutControllerCE {
             @RequestBody LayoutUpdateDTO dto) {
         log.debug("update layout received for page {}", branchedPageId);
         return updateLayoutService
-                .updateLayout(branchedPageId, applicationId, layoutId, dto.toLayout())
+                .updateLayoutWithRevision(
+                        branchedPageId, applicationId, layoutId, dto.toLayout(), dto.expectedRevision())
                 .map(created -> new ResponseDTO<>(HttpStatus.OK, created));
     }
 

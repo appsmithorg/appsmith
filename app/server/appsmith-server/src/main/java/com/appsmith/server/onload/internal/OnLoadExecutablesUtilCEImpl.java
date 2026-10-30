@@ -40,6 +40,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -509,6 +510,17 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     public Mono<Layout> findAndUpdateLayout(
             String creatorId, CreatorContextType creatorType, String layoutId, Layout layout) {
         return getExecutableOnLoadService(creatorType).findAndUpdateLayout(creatorId, layoutId, layout);
+    }
+
+    @Override
+    public Mono<Layout> findAndUpdateLayout(
+            String creatorId,
+            CreatorContextType creatorType,
+            String layoutId,
+            Layout layout,
+            Instant expectedUpdatedAt) {
+        return getExecutableOnLoadService(creatorType)
+                .findAndUpdateLayout(creatorId, layoutId, layout, expectedUpdatedAt);
     }
 
     // Regular action here means action created as part of application editor

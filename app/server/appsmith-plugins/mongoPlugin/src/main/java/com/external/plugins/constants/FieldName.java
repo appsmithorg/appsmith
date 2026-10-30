@@ -5,6 +5,8 @@ public class FieldName {
     // Common field paths
     public static final String BODY = "body";
     public static final String SMART_SUBSTITUTION = "smartSubstitution";
+    // When true, smart substitution accepts only plain JSON values. See MongoPlugin.checkStrictValue.
+    public static final String STRICT_VALUES = "strictValues";
     public static final String COMMAND = "command";
     public static final String COLLECTION = "collection";
 

@@ -7,6 +7,18 @@ public class MongoPluginErrorMessages {
 
     public static final String QUERY_EXECUTION_FAILED_ERROR_MSG = "Your Mongo query failed to execute.";
 
+    public static final String STRICT_VALUES_NEED_SMART_SUBSTITUTION_ERROR_MSG =
+            "This query uses strict values, which need smart substitution. Turn on smart substitution and try again.";
+
+    public static final String STRICT_VALUES_TYPE_NOT_ALLOWED_ERROR_MSG =
+            "The value of {{%s}} is not allowed for this query. Use a string, number, boolean, null, or a plain JSON"
+                    + " object or array.";
+
+    public static final String STRICT_VALUES_KEY_NOT_ALLOWED_ERROR_MSG =
+            "The value of {{%s}} has a key that starts with \"$\". This query does not allow such keys in values.";
+
+    public static final String STRICT_VALUES_UNPARSABLE_ERROR_MSG = "The value of {{%s}} is not valid JSON.";
+
     public static final String CONNECTION_STRING_PARSING_FAILED_ERROR_MSG =
             "The Appsmith server has failed to parse the Mongo connection string URI.";
 
