@@ -835,25 +835,28 @@ function widgetRef(filter: Filter): WidgetRef {
 // 127 bytes. Identifiers here are ASCII, so bytes are characters.
 const MAX_IDENTIFIER_LENGTH = { postgres: 63, redshift: 127 } as const;
 
-// On PostgreSQL and Redshift, throws when a column name equals the table's own name (the last part of
-// `schema.table`), because a missing column of that name reads as the whole row. Names are compared lower-cased and
-// after the database's own cut, so two long names that differ only after it still match. `usage` names the clause in
-// the error, such as "a filter cannot test".
+// On PostgreSQL and Redshift, throws when a quoted column name equals the table's own name (the last part of
+// `schema.table`), because a missing column of that name reads as the whole row. `quoted` is the name exactly as it
+// goes between the double quotes. The table is emitted bare, so it is compared lower-cased:
+// - PostgreSQL keeps a quoted name's case, so "Tickets" cannot read as the row `tickets`.
+// - Redshift folds quoted names to lower case by default, so it compares lower-cased.
+// Both compare after the database's own cut, so two long names that differ only after it still match. `usage` names
+// the clause in the error, such as "a filter cannot test".
 function refuseTableNamedColumn(
-  column: string,
+  quoted: string,
   table: string,
   dialect: SqlDialect,
   usage: string,
 ): void {
   if (dialect !== "postgres" && dialect !== "redshift") return;
 
-  const name = column.toLowerCase();
+  const name = dialect === "redshift" ? quoted.toLowerCase() : quoted;
   const tableName = (table.split(".").pop() ?? table).toLowerCase();
   const maxLength = MAX_IDENTIFIER_LENGTH[dialect];
 
   if (name.slice(0, maxLength) === tableName.slice(0, maxLength)) {
     throw new Error(
-      `${usage} a column named like its table (${column}) on PostgreSQL or Redshift, which would read it as the whole row`,
+      `${usage} a column named like its table (${quoted}) on PostgreSQL or Redshift, which would read it as the whole row`,
     );
   }
 }
@@ -872,7 +875,12 @@ function filterColumn(
     return `${table}.${filter.column}`;
   }
 
-  refuseTableNamedColumn(filter.column, table, dialect, "a filter cannot test");
+  refuseTableNamedColumn(
+    filter.column.toLowerCase(),
+    table,
+    dialect,
+    "a filter cannot test",
+  );
 
   return `"${filter.column.toLowerCase()}"`;
 }

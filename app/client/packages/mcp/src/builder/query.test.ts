@@ -2367,7 +2367,12 @@ describe("APP-16324 F1.5: having on aggregated selects", () => {
 
   // A group column named like the table groups by, or tests, the whole row on PostgreSQL and Redshift.
   it.each([
-    ["postgres" as const, "a group column", { groupBy: ["Tickets"] }],
+    ["postgres" as const, "a group column", { groupBy: ["tickets"] }],
+    [
+      "redshift" as const,
+      "a mixed-case group column",
+      { groupBy: ["Tickets"] },
+    ],
     [
       "redshift" as const,
       "a having group column",
@@ -2389,6 +2394,24 @@ describe("APP-16324 F1.5: having on aggregated selects", () => {
         { dialect },
       ),
     ).toThrow(/groupBy and having cannot use a column named like its table/);
+  });
+
+  // PostgreSQL keeps a quoted name's case, so "Tickets" names a column, never the row `tickets`.
+  it("keeps a mixed-case group column on PostgreSQL", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: ["Tickets"],
+          aggregate: { fn: "count" },
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toBe(
+      'SELECT "Tickets", COUNT(*) AS count FROM tickets GROUP BY "Tickets";',
+    );
   });
 
   it("keeps a group column named like its table on MySQL", () => {

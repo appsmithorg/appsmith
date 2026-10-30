@@ -145,18 +145,20 @@ function scanWidget(target: ScanTarget): {
 
     try {
       const opens = matchAll(SHOW_MODAL, value);
-      const closes = new Set(matchAll(CLOSE_MODAL, value));
+      const closeCalls = matchAll(CLOSE_MODAL, value);
+      const closes = new Set(closeCalls);
+      const mentions = value.match(/showModal|closeModal/g)?.length ?? 0;
 
       // A binding that mentions the verbs in a shape the closed emitter never produces (e.g. double quotes,
       // variable arguments) parsed to nothing — count it excluded rather than silently treating it as inert.
-      if (
-        opens.length === 0 &&
-        closes.size === 0 &&
-        /showModal|closeModal/.test(value)
-      ) {
+      if (opens.length === 0 && closes.size === 0 && mentions > 0) {
         excluded += 1;
         continue;
       }
+
+      // Some calls parsed and some did not, such as closeModal('A'); showModal("B"). Keep the parsed edges, but
+      // count the binding excluded, so a rule that needs every opener (modal-no-opener) stands down.
+      if (mentions > opens.length + closeCalls.length) excluded += 1;
 
       for (const open of new Set(opens)) {
         edges.push({

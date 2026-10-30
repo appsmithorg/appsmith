@@ -211,6 +211,10 @@ describe("APP-16375: the MCP-authored marker on a REST API", () => {
       stored.queryParameters as Record<string, unknown>[]
     ).map((row) => ({ ...row, editable: true }));
     delete stored.bodyFormData;
+    // The server returns its defaults for fields the compiler leaves unset.
+    stored.paginationType = "NONE";
+    stored.timeoutInMillisecond = 10000;
+    stored.encodeParamsToggle = true;
 
     expect(mcpAuthoredRestConfig(stored)).toBeDefined();
   });
@@ -223,6 +227,20 @@ describe("APP-16375: the MCP-authored marker on a REST API", () => {
         (c.headers = [{ key: "Authorization", value: "Bearer secret" }]),
     ],
     ["the body", (c: Record<string, unknown>) => (c.body = '{"name":"Eve"}')],
+    [
+      "URL encoding",
+      (c: Record<string, unknown>) => (c.encodeParamsToggle = false),
+    ],
+    [
+      "smart JSON substitution",
+      (c: Record<string, unknown>) =>
+        (c.pluginSpecifiedTemplates = [{ value: false }]),
+    ],
+    ["pagination", (c: Record<string, unknown>) => (c.paginationType = "URL")],
+    [
+      "the timeout",
+      (c: Record<string, unknown>) => (c.timeoutInMillisecond = 60000),
+    ],
     [
       "the marker",
       (c: Record<string, unknown>) =>

@@ -318,6 +318,20 @@ describe("M6 modal graph — lint findings and structural rules", () => {
     expect(noOpener.map((finding) => finding.widget)).toEqual(["Orphan"]);
   });
 
+  it("does not report a modal without an opener when only part of a binding parsed", () => {
+    const dsl = page([
+      modal("Edit", [
+        button("Next", `{{ closeModal('Edit'); showModal("Orphan") }}`),
+      ]),
+      button("Open", "{{ showModal('Edit') }}"),
+      modal("Orphan", []),
+    ]);
+
+    expect(
+      modalStackFindings(dsl).map((finding) => finding.rule),
+    ).not.toContain("modal-no-opener");
+  });
+
   it("does not report a modal without an opener when a binding could not be parsed", () => {
     const dsl = page([
       node("Weird", "BUTTON_WIDGET", [], {
