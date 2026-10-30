@@ -4,7 +4,14 @@ import type { Placement, PopperOptions } from "popper.js";
 import PopperJS from "popper.js";
 import React, { useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { useSelector } from "react-redux";
+import {
+  getCurrentThemeMode,
+  getThemeDetails,
+  ThemeMode,
+} from "selectors/themeSelectors";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 import styled, { ThemeProvider } from "styled-components";
 import { generateReactKey } from "utils/generators";
 import { draggableElement } from "./utils";
@@ -138,8 +145,13 @@ export default (props: PopperProps) => {
     position,
     renderDragBlock,
     renderDragBlockPositions,
-    themeMode = props.themeMode || ThemeMode.LIGHT,
   } = props;
+  const currentThemeMode = useSelector(getCurrentThemeMode);
+  const themeMode =
+    props.themeMode ??
+    (getIDETypeByUrl(window.location.pathname) === IDE_TYPE.App
+      ? currentThemeMode
+      : ThemeMode.LIGHT);
 
   // Once the user has dragged the popper, its position is owned by inline
   // top/left. popper.js positions with a transform, so any update it runs on

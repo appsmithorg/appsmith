@@ -135,6 +135,7 @@ const TopHeader = (props: TopHeaderProps) => {
             {currentUser && currentUser.username !== ANONYMOUS_USERNAME && (
               <HeaderRightItemContainer>
                 <ProfileDropdown
+                  hideAppearanceOptions
                   modifiers={{
                     offset: {
                       enabled: true,

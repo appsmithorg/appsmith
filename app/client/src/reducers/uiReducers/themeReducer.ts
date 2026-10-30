@@ -2,15 +2,24 @@ import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { dark, light, theme } from "constants/DefaultTheme";
-import { ThemeMode } from "selectors/themeSelectors";
+import { getResolvedThemeMode, ThemeMode } from "selectors/themeSelectors";
+import localStorage from "utils/localStorage";
 
+const savedThemeMode = localStorage.getItem("THEME");
+const isThemeMode = (mode: string | null): mode is ThemeMode =>
+  Object.values(ThemeMode).some((themeMode) => themeMode === mode);
+const initialThemeMode = isThemeMode(savedThemeMode)
+  ? savedThemeMode
+  : ThemeMode.LIGHT;
+const initialColors =
+  getResolvedThemeMode(initialThemeMode) === ThemeMode.DARK ? dark : light;
 const initialState: ThemeState = {
-  mode: ThemeMode.LIGHT,
+  mode: initialThemeMode,
   theme: {
     ...theme,
     colors: {
       ...theme.colors,
-      ...light,
+      ...initialColors,
     },
   },
   hideHeaderShadow: false,
@@ -39,20 +48,13 @@ const themeReducer = createImmerReducer(initialState, {
       ...theme,
     };
 
-    switch (action.payload) {
-      case ThemeMode.DARK:
-        completeTheme.colors = {
-          ...completeTheme.colors,
-          ...dark,
-        };
-        break;
-      default:
-        completeTheme.colors = {
-          ...completeTheme.colors,
-          ...light,
-        };
-        break;
-    }
+    const colors =
+      getResolvedThemeMode(action.payload) === ThemeMode.DARK ? dark : light;
+
+    completeTheme.colors = {
+      ...completeTheme.colors,
+      ...colors,
+    };
     draftState.theme = completeTheme;
   },
   [ReduxActionTypes.SET_HEADER_META]: (

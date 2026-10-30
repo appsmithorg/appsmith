@@ -176,6 +176,9 @@ import { executeCommandAction } from "actions/pluginActionActions";
 import { PEEK_OVERLAY_DELAY } from "./PeekOverlayPopup/constants";
 import { SAVE_TRIGGER_DELAY_MS } from "./debounceConstants";
 import type { EvaluationSubstitutionType } from "constants/EvaluationConstants";
+import { getCurrentThemeMode, ThemeMode } from "selectors/themeSelectors";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import { IDE_TYPE } from "ee/IDE/Interfaces/IDETypes";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -323,6 +326,14 @@ class CodeEditor extends Component<Props, State> {
     ) && Boolean(this.props.AIAssisted);
   private multiplexConfig?: MultiplexingModeConfig;
 
+  private getEditorTheme = (): EditorTheme => {
+    if (this.props.theme === EditorTheme.LIGHT && this.props.isEditorDarkMode) {
+      return EditorTheme.DARK;
+    }
+
+    return this.props.theme;
+  };
+
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -361,7 +372,7 @@ class CodeEditor extends Component<Props, State> {
       const options: EditorConfiguration = {
         autoRefresh: true,
         mode: this.props.mode,
-        theme: EditorThemes[this.props.theme],
+        theme: EditorThemes[this.getEditorTheme()],
         viewportMargin: 10,
         tabSize: 2,
         autoCloseBrackets: true,
@@ -547,6 +558,13 @@ class CodeEditor extends Component<Props, State> {
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
+    if (
+      this.props.theme !== nextProps.theme ||
+      this.props.isEditorDarkMode !== nextProps.isEditorDarkMode
+    ) {
+      return true;
+    }
+
     if (this.props.dynamicData !== nextProps.dynamicData) {
       // check if isFocused as the other components that are not focused don't need a rerender (perf)
       // check if errors have changed as they will come from outside and we want to update if they have changed
@@ -586,6 +604,14 @@ class CodeEditor extends Component<Props, State> {
   }, 200);
 
   componentDidUpdate(prevProps: Props): void {
+    if (
+      this.editor &&
+      (prevProps.theme !== this.props.theme ||
+        prevProps.isEditorDarkMode !== this.props.isEditorDarkMode)
+    ) {
+      this.editor.setOption("theme", EditorThemes[this.getEditorTheme()]);
+    }
+
     if (
       !prevProps.AIAssisted &&
       this.props.AIAssisted &&
@@ -1716,7 +1742,9 @@ class CodeEditor extends Component<Props, State> {
         isActive={(this.state.isFocused && !isInvalid) || this.state.isOpened}
         isError={isInvalid}
         isNotHover={this.state.isFocused || this.state.isOpened}
-        skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
+        skin={
+          this.getEditorTheme() === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT
+        }
       >
         <div className="flex absolute gap-1 top-[6px] right-[6px] z-4 justify-center">
           <Button
@@ -1808,7 +1836,7 @@ class CodeEditor extends Component<Props, State> {
           isOpen={showEvaluatedValue}
           popperPlacement={this.props.popperPlacement}
           popperZIndex={this.props.popperZIndex}
-          theme={theme || EditorTheme.LIGHT}
+          theme={theme || this.getEditorTheme()}
           useValidationMessage={useValidationMessage}
         >
           <EditorWrapper
@@ -1821,7 +1849,7 @@ class CodeEditor extends Component<Props, State> {
             codeEditorVisibleOverflow={codeEditorVisibleOverflow}
             ctrlPressed={this.state.ctrlPressed}
             disabled={disabled}
-            editorTheme={this.props.theme}
+            editorTheme={this.getEditorTheme()}
             fillUp={fill}
             hasError={isInvalid}
             height={height}
@@ -1863,7 +1891,7 @@ class CodeEditor extends Component<Props, State> {
               tabIndex={0}
             >
               <CodeEditorSignPosting
-                editorTheme={this.props.theme}
+                editorTheme={this.getEditorTheme()}
                 forComp="editor"
                 isOpen={this.isBindingPromptOpen()}
                 mode={this.props.mode}
@@ -1904,6 +1932,9 @@ const mapStateToProps = (state: DefaultRootState, props: EditorProps) => {
   }
 
   return {
+    isEditorDarkMode:
+      getIDETypeByUrl(window.location.pathname) === IDE_TYPE.App &&
+      getCurrentThemeMode(state) === ThemeMode.DARK,
     dynamicData: getDataTreeForAutocomplete(state),
     datasources: state.entities.datasources,
     pluginIdToPlugin: getPluginIdToPlugin(state),

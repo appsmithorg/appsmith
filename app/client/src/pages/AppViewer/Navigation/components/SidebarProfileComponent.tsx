@@ -27,6 +27,7 @@ const SidebarProfileComponent = (props: SidebarProfileComponent) => {
       primaryColor={primaryColor}
     >
       <ProfileDropdown
+        hideAppearanceOptions
         modifiers={{
           offset: {
             enabled: true,

@@ -1,5 +1,107 @@
 @import "./tailwind.css";
 
+html[data-color-mode="light"] {
+  color-scheme: light;
+}
+
+html[data-color-mode="dark"] {
+  color-scheme: dark;
+
+  --ads-v2-color-bg-brand-secondary: #3b4654;
+  --ads-v2-color-bg-brand-secondary-emphasis: #303a47;
+  --ads-v2-color-bg-brand-secondary-emphasis-plus: #252d38;
+  --ads-v2-color-bg-emphasis-max: #101318;
+  --ads-v2-color-bg-emphasis-plus: #4a5564;
+  --ads-v2-color-bg-emphasis: #394350;
+  --ads-v2-color-bg: #1d222b;
+  --ads-v2-color-bg-muted: #252c36;
+  --ads-v2-color-bg-subtle: #2d3541;
+  --ads-v2-color-bg-error-emphasis-plus: #713536;
+  --ads-v2-color-bg-error-emphasis: #572c2e;
+  --ads-v2-color-bg-error: #3c2528;
+  --ads-v2-color-bg-success: #1d3b32;
+  --ads-v2-color-bg-warning: #443819;
+  --ads-v2-color-bg-information: #1e3654;
+  --ads-v2-color-bg-special: #342947;
+  --ads-v2-color-bg-premium: #44301f;
+
+  --ads-v2-color-fg-emphasis-plus: #f1f5f9;
+  --ads-v2-color-fg-emphasis: #e3e8ef;
+  --ads-v2-color-fg: #c5ceda;
+  --ads-v2-color-fg-muted: #a1adbd;
+  --ads-v2-color-fg-subtle: #8491a2;
+  --ads-v2-color-fg-on-brand: #ffffff;
+  --ads-v2-color-fg-on-brand-secondary: #ffffff;
+  --ads-v2-color-fg-on-emphasis-plus: #ffffff;
+  --ads-v2-color-fg-on-emphasis-max: #ffffff;
+  --ads-v2-color-fg-on-error: #ffb4b4;
+  --ads-v2-color-fg-on-success: #a7f3d0;
+  --ads-v2-color-fg-on-warning: #fde68a;
+  --ads-v2-color-fg-error: #ff8f8f;
+  --ads-v2-color-fg-success: #6ee7b7;
+  --ads-v2-color-fg-warning: #fcd34d;
+  --ads-v2-color-fg-information: #93c5fd;
+  --ads-v2-color-fg-special: #c4b5fd;
+  --ads-v2-color-fg-premium: #fdba74;
+
+  --ads-v2-color-border-emphasis-plus: #a1adbd;
+  --ads-v2-color-border-emphasis: #657181;
+  --ads-v2-color-border: #414b58;
+  --ads-v2-color-border-muted: #303945;
+  --ads-v2-color-border-error: #b95d5d;
+  --ads-v2-color-border-success: #3e8a70;
+  --ads-v2-color-border-warning: #9c7a2c;
+  --ads-v2-color-border-info: #4f78ad;
+  --ads-v2-color-border-special: #7862a0;
+  --ads-v2-color-border-premium: #a56f3c;
+}
+
+html[data-color-mode="dark"] .cm-s-duotone-light.CodeMirror {
+  background: #1d222b;
+  color: #d7dee8;
+}
+
+html[data-color-mode="dark"] .cm-s-duotone-light .CodeMirror-gutters {
+  background: #1d222b;
+  border-right-color: #394350;
+}
+
+html[data-color-mode="dark"] .cm-s-duotone-light .CodeMirror-linenumber {
+  color: #8491a2;
+}
+
+html[data-color-mode="dark"] .cm-s-duotone-light .CodeMirror-cursor {
+  border-left-color: #f1f5f9;
+}
+
+html[data-color-mode="dark"] .cm-s-duotone-light span.cm-comment {
+  color: #8491a2;
+}
+
+html[data-color-mode="dark"] .cm-s-duotone-light span.cm-keyword,
+html[data-color-mode="dark"] .cm-s-duotone-light span.cm-operator {
+  color: #c792ea;
+}
+
+html[data-color-mode="dark"] .cm-s-duotone-light span.cm-string {
+  color: #ecc48d;
+}
+
+html[data-color-mode="dark"] .cm-s-duotone-light span.cm-number,
+html[data-color-mode="dark"] .cm-s-duotone-light span.cm-atom {
+  color: #f78c6c;
+}
+
+html[data-color-mode="dark"] .cm-s-duotone-light span.cm-variable,
+html[data-color-mode="dark"] .cm-s-duotone-light span.cm-variable-2,
+html[data-color-mode="dark"] .cm-s-duotone-light span.cm-def {
+  color: #82aaff;
+}
+
+html[data-color-mode="dark"] .cm-s-duotone-light span.cm-property {
+  color: #ffcb6b;
+}
+
 /**
 * ---------------------------------------------------------------------------------------------------
 * general

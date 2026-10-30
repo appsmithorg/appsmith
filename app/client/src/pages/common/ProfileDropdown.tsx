@@ -13,6 +13,7 @@ import {
 import styled from "styled-components";
 import type { PopperModifiers } from "@blueprintjs/core";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
+import { useDispatch, useSelector } from "react-redux";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
@@ -21,6 +22,8 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { ADMIN_SETTINGS_CATEGORY_PROFILE_PATH } from "constants/routes";
 import { ACCOUNT_TOOLTIP, createMessage } from "ee/constants/messages";
 import type { NavigationSetting } from "constants/AppConstants";
+import { setThemeMode } from "actions/themeActions";
+import { getCurrentThemePreference, ThemeMode } from "selectors/themeSelectors";
 
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
@@ -29,6 +32,7 @@ type TagProps = CommonComponentProps & {
   modifiers?: PopperModifiers;
   photoId?: string;
   hideEditProfileLink?: boolean;
+  hideAppearanceOptions?: boolean;
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
 };
@@ -68,6 +72,9 @@ const UserNameWrapper = styled.div`
 `;
 
 export default function ProfileDropdown(props: TagProps) {
+  const dispatch = useDispatch();
+  const themePreference = useSelector(getCurrentThemePreference);
+
   function Profile(label?: string) {
     return (
       <Avatar
@@ -101,6 +108,30 @@ export default function ProfileDropdown(props: TagProps) {
           </UserInformation>
         </MenuItem>
         <MenuSeparator />
+        {!props.hideAppearanceOptions && (
+          <>
+            <MenuItem className="menuitem-nohover">
+              <Text kind="heading-xs">Appearance</Text>
+            </MenuItem>
+            {[
+              { label: "Light mode", mode: ThemeMode.LIGHT },
+              { label: "Dark mode", mode: ThemeMode.DARK },
+              { label: "System default", mode: ThemeMode.SYSTEM },
+            ].map(({ label, mode }) => (
+              <MenuItem
+                aria-checked={themePreference === mode}
+                className={`t--theme-${mode.toLowerCase()} ${BlueprintClasses.POPOVER_DISMISS}`}
+                key={mode}
+                onClick={() => dispatch(setThemeMode(mode))}
+                role="menuitemradio"
+              >
+                {label}
+                {themePreference === mode ? " (selected)" : ""}
+              </MenuItem>
+            ))}
+            <MenuSeparator />
+          </>
+        )}
         {!props.hideEditProfileLink && (
           <MenuItem
             className={`t--edit-profile ${BlueprintClasses.POPOVER_DISMISS}`}

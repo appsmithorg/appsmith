@@ -10,7 +10,7 @@ import "widgets";
 import React from "react";
 import "./wdyr";
 import ReactDOM from "react-dom";
-import { Provider } from "react-redux";
+import { connect, Provider, useDispatch, useSelector } from "react-redux";
 import "./index.css";
 import "@appsmith/ads-old/src/themes/default/index.css";
 import "@appsmith/ads/src/__theme__/default/index.css";
@@ -19,8 +19,13 @@ import { appInitializer } from "utils/AppUtils";
 import store, { runSagaMiddleware } from "./store";
 import { LayersContext, Layers } from "constants/Layers";
 import AppRouter from "ee/AppRouter";
-import { getCurrentThemeDetails } from "selectors/themeSelectors";
-import { connect } from "react-redux";
+import {
+  getCurrentThemeDetails,
+  getCurrentThemeMode,
+  getCurrentThemePreference,
+  ThemeMode,
+} from "selectors/themeSelectors";
+import { setThemeMode } from "actions/themeActions";
 import type { DefaultRootState } from "react-redux";
 import { Toast } from "@appsmith/ads";
 import "./assets/styles/index.css";
@@ -36,6 +41,13 @@ runSagaMiddleware();
 
 appInitializer();
 
+const initialThemePreference = getCurrentThemePreference(store.getState());
+
+document.documentElement.dataset.colorMode = getCurrentThemeMode(
+  store.getState(),
+).toLowerCase();
+store.dispatch(setThemeMode(initialThemePreference));
+
 (async () => {
   try {
     await import(/* webpackChunkName: "instrumentation" */ "./instrumentation");
@@ -48,12 +60,47 @@ function App() {
   return (
     <FaroErrorBoundary fallback={<div>An error has occured</div>}>
       <Provider store={store}>
+        <ThemeModeListener />
         <LayersContext.Provider value={Layers}>
           <ThemedAppWithProps />
         </LayersContext.Provider>
       </Provider>
     </FaroErrorBoundary>
   );
+}
+
+function ThemeModeListener() {
+  const dispatch = useDispatch();
+  const themePreference = useSelector(getCurrentThemePreference);
+  const resolvedThemeMode = useSelector(getCurrentThemeMode);
+
+  React.useEffect(
+    function updateColorSchemeAndSystemListener() {
+      document.documentElement.dataset.colorMode =
+        resolvedThemeMode.toLowerCase();
+
+      if (themePreference !== ThemeMode.SYSTEM) {
+        return;
+      }
+
+      if (typeof window.matchMedia !== "function") {
+        return;
+      }
+
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const handleSystemThemeChange = () => {
+        dispatch(setThemeMode(ThemeMode.SYSTEM));
+      };
+
+      mediaQuery.addEventListener("change", handleSystemThemeChange);
+
+      return () =>
+        mediaQuery.removeEventListener("change", handleSystemThemeChange);
+    },
+    [dispatch, resolvedThemeMode, themePreference],
+  );
+
+  return null;
 }
 
 class ThemedApp extends React.Component<{
