@@ -419,6 +419,12 @@ async function getBackupDatabaseName(restoreContentsPath: string) {
   return db_name;
 }
 
+export async function createRestoreTempDirectory(
+  tempDir: string = os.tmpdir(),
+): Promise<string> {
+  return fsPromises.mkdtemp(path.join(tempDir, "appsmithctl-restore-"));
+}
+
 export async function run() {
   let cleanupArchive = false;
   let overwriteEncryptionKeys = true;
@@ -465,7 +471,7 @@ export async function run() {
       }
 
       const backupName = backupFileName.replace(/\.tar\.gz$/, "");
-      const restoreRootPath = await fsPromises.mkdtemp(os.tmpdir());
+      const restoreRootPath = await createRestoreTempDirectory();
 
       await extractArchive(backupFilePath, restoreRootPath);
 
