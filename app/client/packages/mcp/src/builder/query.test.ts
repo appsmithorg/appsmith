@@ -657,20 +657,59 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
     expect(body).toBe(`DELETE FROM users WHERE ${column} = {{ "app" }};`);
   });
 
-  // Only a null test refuses a column named like its table. Compared with a value, the whole row is a type error.
-  it("quotes a value filter on a column named like its table on PostgreSQL", () => {
-    const body = compileQuery(
-      parse({
-        ...base,
-        operation: "SELECT",
-        table: "status",
-        filters: [{ column: "status", op: "eq", value: { literal: "open" } }],
-      }),
-      { dialect: "postgres" },
-    );
-
-    expect(body).toBe('SELECT * FROM status WHERE "status" = {{ "open" }};');
+  // CAST of the whole row to text can equal a list value, so inList refuses the name too, on a write as on a read.
+  it("refuses inList on a column named like its table on PostgreSQL", () => {
+    expect(() =>
+      compileQuery(
+        parse({
+          ...base,
+          operation: "DELETE",
+          table: "users",
+          filters: [
+            {
+              column: "users",
+              op: "inList",
+              value: { widget: "IdsSelect", property: "selectedOptionValues" },
+            },
+          ],
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toThrow(/cannot test a column named like its table/);
   });
+
+  // The PostgreSQL plugin binds text untyped, so a value compared with the whole row is read as a row literal.
+  it.each([
+    [
+      "eq",
+      { column: "users", op: "eq", value: { widget: "Id", property: "text" } },
+    ],
+    ["lt", { column: "users", op: "lt", value: { literal: "(,,)" } }],
+    [
+      "an anyOf member",
+      {
+        anyOf: [
+          { column: "id", op: "eq", value: { literal: 1 } },
+          { column: "users", op: "ne", value: { literal: "(0)" } },
+        ],
+      },
+    ],
+  ])(
+    "refuses %s on a column named like its table on PostgreSQL",
+    (_label, filter) => {
+      expect(() =>
+        compileQuery(
+          parse({
+            ...base,
+            operation: "DELETE",
+            table: "users",
+            filters: [filter],
+          }),
+          { dialect: "postgres" },
+        ),
+      ).toThrow(/cannot test a column named like its table/);
+    },
+  );
 
   it("lower-cases the column before quoting it on PostgreSQL", () => {
     const body = compileQuery(

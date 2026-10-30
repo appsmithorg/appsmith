@@ -835,7 +835,7 @@ function widgetRef(filter: Filter): WidgetRef {
 // 127 bytes. Identifiers here are ASCII, so bytes are characters.
 const MAX_IDENTIFIER_LENGTH = { postgres: 63, redshift: 127 } as const;
 
-// The PostgreSQL or Redshift column for an isNull or notNull filter: lower-cased, then quoted. Throws when the name
+// The PostgreSQL or Redshift column for a filter: lower-cased, then quoted. Throws when the name
 // equals the table's own name (the last part of `schema.table`), because a missing column of that name reads as the
 // whole row. Both names are compared after the database's own cut, so two long names that differ only after it
 // still match.
@@ -850,15 +850,18 @@ function postgresNullCheckColumn(
 
   if (name.slice(0, maxLength) === tableName.slice(0, maxLength)) {
     throw new Error(
-      `isNull and notNull cannot test a column named like its table (${column}) on PostgreSQL or Redshift, which would read it as the whole row`,
+      `a filter cannot test a column named like its table (${column}) on PostgreSQL or Redshift, which would read it as the whole row`,
     );
   }
 
   return `"${name}"`;
 }
 
-// The column a filter tests, never bare (see emitCondition). On PostgreSQL and Redshift only a null test refuses a
-// column named like its table: a value comparison against the whole row is a type error, not a match.
+// The column a filter tests, never bare (see emitCondition). On PostgreSQL and Redshift a column named like its table
+// can read as the whole row, and every filter refuses it:
+// - a null test or inList's CAST to text can match rows;
+// - the plugin binds text values untyped, so `"users" = $1` or `"users" < $1` compares the row with a row literal the
+//   value spells out.
 function filterColumn(
   filter: Filter,
   table: string,
@@ -868,9 +871,7 @@ function filterColumn(
     return `${table}.${filter.column}`;
   }
 
-  return isNullOperator(filter.op)
-    ? postgresNullCheckColumn(filter.column, table, dialect)
-    : `"${filter.column.toLowerCase()}"`;
+  return postgresNullCheckColumn(filter.column, table, dialect);
 }
 
 // The isNull or notNull test for a table-qualified column on every database except PostgreSQL.
