@@ -525,9 +525,9 @@ export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
 export const ERROR_WIDGET_CUT_NOT_ALLOWED = () =>
   `This selected widget cannot be cut.`;
 export const ERROR_PASTE_ANVIL_LAYOUT_SYSTEM_CONFLICT = () =>
-  `Apps made with Anvil α are not compatible with widgets from the classic layout system`;
+  `Responsive apps are not compatible with widgets from the classic layout system`;
 export const ERROR_PASTE_FIXED_LAYOUT_SYSTEM_CONFLICT = () =>
-  `Apps using the classic layout system are not compatible with Anvil α widgets`;
+  `Apps using the classic layout system are not compatible with responsive widgets`;
 export const SELECT_ALL_WIDGETS_MSG = () =>
   `All widgets in this page including modals have been selected`;
 export const ERROR_ADD_WIDGET_FROM_QUERY = () => `Failed to add widget`;
@@ -2252,6 +2252,12 @@ export const APP_NAVIGATION_SETTING = {
   showSignInLabel: () => "Show sign in",
   showSignInTooltip: () =>
     "Toggle to show the sign-in button for users who are not logged in.",
+  showShareAppLabel: () => "Show share",
+  showShareAppTooltip: () =>
+    "Toggle to show the share button in the published app.",
+  showAllAppsLabel: () => "Show all apps",
+  showAllAppsTooltip: () =>
+    "Toggle to show the all apps button in the published app.",
   logoUploadFormatError: () => `Uploaded file must be in .PNG or .JPG formats.`,
   logoUploadSizeError: () => `Uploaded file must be less than 1MB.`,
   showLogoLabel: () => "Show logo",
@@ -2297,7 +2303,7 @@ export const GSHEET_SEARCH_PLACEHOLDER = () => "Search for spreadsheet";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";
-export const BUILD_RESPONSIVE = () => "Build responsive apps";
+export const BUILD_RESPONSIVE = () => "Build with auto-layout";
 export const BUILD_RESPONSIVE_TEXT = () =>
   "Appsmith will convert your application's UI to auto-layout, a new mode designed for building mobile-friendly apps in no time";
 export const BUILD_FIXED_LAYOUT = () => "Use fixed-layout";
@@ -2799,6 +2805,7 @@ export const EMPTY_CANVAS_HINTS = {
 };
 
 export const BETA_TAG = () => `Beta`;
+export const PREVIEW_TAG = () => `Preview`;
 
 export const BUTTON_WIDGET_DEFAULT_LABEL = () => "Do something";
 

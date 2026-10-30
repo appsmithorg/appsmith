@@ -1045,12 +1045,38 @@ describe("M7 gate matrix — every pattern-copied gate call site refuses without
       mutators: ["updatePage"],
     },
     {
+      tool: "set_page_visibility",
+      args: {
+        spec: {
+          applicationId: APP_ID,
+          pageId: PAGE_ID,
+          revision: REVISION,
+          hidden: true,
+        },
+      },
+      mutators: ["updatePage"],
+    },
+    {
       tool: "confirm_delete_page",
       args: {
         spec: { applicationId: APP_ID, pageId: PAGE_ID, revision: REVISION },
         confirmationId: "bogus-confirmation",
       },
       mutators: ["deletePage"],
+    },
+    {
+      tool: "confirm_remove_widgets",
+      args: {
+        spec: {
+          applicationId: APP_ID,
+          pageId: PAGE_ID,
+          layoutId: ENTITY_ID,
+          revision: REVISION,
+          names: ["Greeting"],
+        },
+        confirmationId: "bogus-confirmation",
+      },
+      mutators: ["updateLayout"],
     },
     {
       tool: "create_rest_api",

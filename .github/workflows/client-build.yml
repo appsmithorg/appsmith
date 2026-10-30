@@ -154,18 +154,22 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         run: yarn run check-types
 
+      # Builds of release and master compile in production mode: full source maps, uploaded to Faro.
+      # Pull request builds and builds of other branches compile in development mode.
       - name: Set the build environment based on the branch
         if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         id: vars
+        env:
+          PR_NUMBER: ${{ inputs.pr }}
+          INPUT_BRANCH: ${{ inputs.branch }}
+          CHECKOUT_REF: ${{ inputs.checkout-ref }}
         run: |
-          set +o pipefail
-          echo "REACT_APP_ENVIRONMENT=DEVELOPMENT" >> $GITHUB_OUTPUT
-          if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
-              echo "REACT_APP_ENVIRONMENT=PRODUCTION" >> $GITHUB_OUTPUT
+          environment=DEVELOPMENT
+          if [[ "${PR_NUMBER:-0}" == 0 && -z "$INPUT_BRANCH" && -z "$CHECKOUT_REF" ]] &&
+            [[ "$GITHUB_REF" == refs/heads/release || "$GITHUB_REF" == refs/heads/master ]]; then
+            environment=PRODUCTION
           fi
-          if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
-              echo "REACT_APP_ENVIRONMENT=DEVELOPMENT" >> $GITHUB_OUTPUT
-          fi
+          echo "REACT_APP_ENVIRONMENT=$environment" >> "$GITHUB_OUTPUT"
 
       # We burn React environment & the Segment analytics key into the build itself.
       # Pylon: REACT_APP_* is required for CRA to embed values; secret name matches github-release.yml.

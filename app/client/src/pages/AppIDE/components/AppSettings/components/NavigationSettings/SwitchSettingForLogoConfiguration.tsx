@@ -1,5 +1,4 @@
 import React from "react";
-import type { Dispatch, SetStateAction } from "react";
 import { Switch } from "@appsmith/ads";
 import type { LogoConfigurationSwitches } from "../../types";
 import kebabCase from "lodash/kebabCase";
@@ -7,34 +6,18 @@ import kebabCase from "lodash/kebabCase";
 const SwitchSettingForLogoConfiguration = (props: {
   label: string;
   keyName: keyof LogoConfigurationSwitches;
-  tooltip?: string;
-  logoConfigurationSwitches: LogoConfigurationSwitches;
-  setLogoConfigurationSwitches: Dispatch<
-    SetStateAction<LogoConfigurationSwitches>
-  >;
+  isSelected: boolean;
+  onChange: () => void;
 }) => {
-  const {
-    keyName,
-    label,
-    logoConfigurationSwitches,
-    setLogoConfigurationSwitches,
-  } = props;
-
-  // updateSetting("logoConfiguration", !isChecked);
-  // logEvent(keyName as keyof StringsFromNavigationSetting, !isChecked);
+  const { isSelected, keyName, label, onChange } = props;
 
   return (
     <div className="pt-4">
       <Switch
         className="mb-0"
         id={`t--navigation-settings-${kebabCase(keyName)}`}
-        isSelected={logoConfigurationSwitches[keyName]}
-        onChange={() => {
-          setLogoConfigurationSwitches({
-            ...logoConfigurationSwitches,
-            [keyName]: !logoConfigurationSwitches[keyName],
-          });
-        }}
+        isSelected={isSelected}
+        onChange={onChange}
       >
         {label}
       </Switch>

@@ -449,11 +449,36 @@ const PATH_SEGMENT_DENYLIST: ReadonlySet<string> = new Set([
 ]);
 
 // A page name as emitted inside a quoted navigateTo(...) argument (events.ts and the JS-object grammar share it).
+// Whether a page name reads as a numeric IP host, such as "1572395042" or "0x5db8d822" (both 93.184.216.34).
+// navigateTo falls back to treating its target as a URL when no page has that name, and adds https://. With a
+// navigate param that holds a dot, such a name would send the viewer to an IP host the name encodes. "localhost" is
+// refused too: if that page later disappeared, the same fallback would open the viewer's own machine. So these names
+// are refused for pages and navigate targets.
+export function pageNameIsIpHost(name: string): boolean {
+  let host: string;
+
+  try {
+    host = new URL(`https://${name}`).hostname;
+  } catch {
+    return false;
+  }
+
+  return (
+    /^\d{1,3}(\.\d{1,3}){3}$/.test(host) ||
+    host.startsWith("[") ||
+    host === "localhost"
+  );
+}
+
 export const pageNameSchema = z
   .string()
   .min(1)
   .max(64)
-  .regex(/^[A-Za-z0-9_ -]+$/, "must be a safe page name");
+  .regex(/^[A-Za-z0-9_ -]+$/, "must be a safe page name")
+  .refine(
+    (name) => !pageNameIsIpHost(name),
+    "a page name cannot read as an IP address (such as all digits or 0x...); add a letter",
+  );
 
 // A table column name as emitted inside `Table.selectedRow[<JSON string>]`: JSON encoding makes any text safe in
 // the member position, so the charset only keeps names readable (letters, digits, space, _ - . # / ( )).

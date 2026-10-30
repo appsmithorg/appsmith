@@ -355,6 +355,39 @@ describe("jsExpr grammar in a JS object — params, steps and expression returns
   });
 });
 
+describe("APP-16324 F11: navigate params survive the JS-object round trip", () => {
+  it("compiles navigate params, embeds them in the definition, and reads them back exactly", () => {
+    const definition = {
+      functions: [
+        {
+          name: "openDetails",
+          steps: [
+            {
+              navigate: "Ticket Details",
+              params: {
+                id: { table: "tblTickets", column: "zid" },
+                tab: "open",
+              },
+            },
+          ],
+        },
+      ],
+    };
+    const spec = createJsObjectSpecSchema.parse({
+      ...createSpec,
+      constants: undefined,
+      ...definition,
+    });
+    const body = compileJsObject(spec);
+
+    expect(body).toContain(
+      'await navigateTo("Ticket Details", { id: tblTickets.selectedRow["zid"], tab: "open" }, "SAME_WINDOW");',
+    );
+    expect(jsObjectDefinitionFromBody(body)).toEqual(definition);
+    expect(isCompilerAuthoredJsBody(body)).toBe(true);
+  });
+});
+
 describe("isCompilerAuthoredJsBody — recognises exactly what compileJsObject emits", () => {
   it("accepts every shape the compiler produces", () => {
     const shapes = [
