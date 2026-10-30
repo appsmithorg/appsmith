@@ -335,6 +335,7 @@ export const DateCell = (props: DateComponentProps) => {
              * https://github.com/appsmithorg/appsmith/pull/19181#discussion_r1066871100
              **/
             isPopoverOpen={isNewRow ? undefined : true}
+            isRequired={isRequired}
             labelText=""
             maxDate={maxDate || COMPONENT_DEFAULT_VALUES.maxDate}
             minDate={minDate || COMPONENT_DEFAULT_VALUES.minDate}
