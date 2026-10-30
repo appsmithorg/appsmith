@@ -75,7 +75,7 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
 
         return webClient
                 .method(HttpMethod.GET)
-                .uri(uriBuilder.build(false).toUri())
+                .uri(uriBuilder.build().encode().toUri())
                 .body(BodyInserters.empty());
     }
 
