@@ -17,6 +17,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.external.helpers.QueryTimeoutUtils.isQueryTimeoutCancellation;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.queryTimeoutError;
 import static com.external.plugins.exceptions.SnowflakeErrorMessages.CONNECTION_INVALID_ERROR_MSG;
 
 @Slf4j
@@ -32,6 +34,12 @@ public class ExecutionUtils {
      */
     public static List<Map<String, Object>> getRowsFromQueryResult(Connection connection, String query)
             throws AppsmithPluginException, StaleConnectionException {
+        return getRowsFromQueryResult(connection, query, 0);
+    }
+
+    public static List<Map<String, Object>> getRowsFromQueryResult(
+            Connection connection, String query, int queryTimeoutSeconds)
+            throws AppsmithPluginException, StaleConnectionException {
         List<Map<String, Object>> rowsList = new ArrayList<>();
         ResultSet resultSet = null;
         Statement statement = null;
@@ -44,6 +52,9 @@ public class ExecutionUtils {
             }
 
             statement = connection.createStatement();
+            if (queryTimeoutSeconds > 0) {
+                statement.setQueryTimeout(queryTimeoutSeconds);
+            }
             resultSet = statement.executeQuery(query);
             ResultSetMetaData metaData = resultSet.getMetaData();
             int colCount = metaData.getColumnCount();
@@ -61,6 +72,9 @@ public class ExecutionUtils {
         } catch (SQLException e) {
             if (e instanceof SnowflakeReauthenticationRequest) {
                 throw new StaleConnectionException(e.getMessage());
+            }
+            if (queryTimeoutSeconds > 0 && isQueryTimeoutCancellation(e, true)) {
+                throw queryTimeoutError(queryTimeoutSeconds * 1000, e);
             }
             log.error("Exception caught when executing Snowflake query. Cause: ", e);
             throw new AppsmithPluginException(
