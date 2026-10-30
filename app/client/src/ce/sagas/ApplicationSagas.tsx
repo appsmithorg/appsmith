@@ -600,7 +600,9 @@ export function* updateApplicationSaga(
  * True when a failed delete may have succeeded on the server (timeout / disconnect /
  * already-gone), so the workspace app list should be rechecked before showing an error.
  */
-export function shouldRecoverDeleteApplicationFromError(error: unknown): boolean {
+export function shouldRecoverDeleteApplicationFromError(
+  error: unknown,
+): boolean {
   const err = error as {
     code?: string;
     message?: string;
@@ -616,10 +618,7 @@ export function shouldRecoverDeleteApplicationFromError(error: unknown): boolean
     return true;
   }
 
-  if (
-    err?.code &&
-    SERVER_ERROR_CODES.RESOURCE_NOT_FOUND.includes(err.code)
-  ) {
+  if (err?.code && SERVER_ERROR_CODES.RESOURCE_NOT_FOUND.includes(err.code)) {
     return true;
   }
 
@@ -638,11 +637,11 @@ export function shouldRecoverDeleteApplicationFromError(error: unknown): boolean
   return false;
 }
 
-export type DeleteApplicationRecoveryContext = {
+export interface DeleteApplicationRecoveryContext {
   workspaceId: string | undefined;
   /** Base/default-branch application id — what `/home` lists for Git apps. */
   baseApplicationId: string | undefined;
-};
+}
 
 /**
  * Capture workspace + base application id before navigation can change selection.
@@ -671,8 +670,7 @@ export function* resolveDeleteApplicationRecoveryContext(
   );
   const match = applications.find(
     (application) =>
-      application.id === applicationId ||
-      application.baseId === applicationId,
+      application.id === applicationId || application.baseId === applicationId,
   );
 
   if (match?.workspaceId) {
@@ -828,6 +826,7 @@ export function* recoverDeleteApplicationIfAlreadyGone(
       payload: { id: homeListApplicationId },
     });
     yield call(deleteRecentAppEntities, applicationId);
+
     if (homeListApplicationId !== applicationId) {
       yield call(deleteRecentAppEntities, homeListApplicationId);
     }

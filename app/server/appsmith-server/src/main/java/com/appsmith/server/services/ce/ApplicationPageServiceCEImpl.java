@@ -532,10 +532,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      */
     @Override
     public Mono<Application> deleteApplication(String id) {
-        return deleteApplicationFromDb(id).flatMap(application -> Mono.deferContextual(parentCtx -> {
-            scheduleLocalGitRepositoryCleanup(application, parentCtx);
-            return Mono.just(application);
-        }));
+        return deleteApplicationFromDb(id)
+                .flatMap(application -> Mono.deferContextual(parentCtx -> {
+                    scheduleLocalGitRepositoryCleanup(application, parentCtx);
+                    return Mono.just(application);
+                }));
     }
 
     /**
