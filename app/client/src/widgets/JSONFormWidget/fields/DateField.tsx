@@ -116,6 +116,7 @@ function DateField({
 
   const {
     field: { onBlur, onChange, value },
+    fieldState: { isTouched },
   } = useController({
     name,
   });
@@ -144,6 +145,10 @@ function DateField({
         onChange(moment(selectedValue).format(schemaItem.dateFormat));
       }
 
+      // Picking a date doesn't always blur the input, so mark the field as
+      // touched here. The form's reset clears this along with the value.
+      onBlur();
+
       if (schemaItem.onDateSelected && executeAction) {
         executeAction({
           triggerPropertyName: "onDateSelected",
@@ -157,6 +162,7 @@ function DateField({
     },
     [
       executeAction,
+      onBlur,
       onChange,
       schemaItem.convertToISO,
       schemaItem.dateFormat,
@@ -206,7 +212,9 @@ function DateField({
         inputRef={inputRef}
         isDisabled={schemaItem.isDisabled}
         isLoading={false}
-        isRequired={schemaItem.isRequired}
+        // Only show the required error once the user has interacted with the
+        // field, so an empty required date isn't highlighted on form load.
+        isRequired={isTouched && schemaItem.isRequired}
         labelText=""
         maxDate={schemaItem.maxDate}
         minDate={schemaItem.minDate}
@@ -224,6 +232,8 @@ function DateField({
     schemaItem.closeOnSelection,
     schemaItem.dateFormat,
     schemaItem.isDisabled,
+    isTouched,
+    schemaItem.isRequired,
     schemaItem.maxDate,
     onDateSelected,
     valueInISOFormat,
