@@ -229,9 +229,20 @@ module.exports = function (webpackEnv) {
     },
     cache: {
       type: "filesystem",
-      version: createEnvironmentHash(env.raw),
+      // The Sentry release is the commit SHA. Keeping it out of the version
+      // lets a build reuse the cache of an earlier commit.
+      version: createEnvironmentHash(
+        Object.fromEntries(
+          Object.entries(env.raw).filter(
+            ([key]) => key !== "REACT_APP_SENTRY_RELEASE",
+          ),
+        ),
+      ),
       cacheDirectory: paths.appWebpackCache,
       store: "pack",
+      // Drop cache entries that no build has used for a week. CI restores and
+      // re-saves this cache daily, so without a limit it grows without bound.
+      maxAge: 7 * 24 * 60 * 60 * 1000,
       buildDependencies: {
         defaultWebpack: ["webpack/lib/"],
         config: [__filename],

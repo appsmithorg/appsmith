@@ -12,6 +12,11 @@ on:
         required: false
         type: string
         default: "false"
+      airgap-enabled:
+        description: "This is a boolean value in case the workflow is building for airgap"
+        required: false
+        type: string
+        default: "false"
       branch:
         description: "This is the branch to be used for the build."
         required: false
@@ -21,6 +26,11 @@ on:
         required: false
         type: string
         default: ""
+      cache-seed:
+        description: "Build in development mode only to save the webpack cache for pull request builds. Skips the type check and does not publish the bundle."
+        required: false
+        type: string
+        default: "false"
 
 permissions:
   contents: read
@@ -139,9 +149,7 @@ jobs:
         uses: actions/cache@v4
         id: cache-dependencies
         with:
-          path: |
-            app/client/.yarn/cache
-            app/client/node_modules/.cache/webpack/
+          path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
 
       # Install all the dependencies
@@ -151,11 +159,11 @@ jobs:
 
       # Type checking before starting the build
       - name: Run type check
-        if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: inputs.cache-seed != 'true' && steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         run: yarn run check-types
 
       # Builds of release and master compile in production mode: full source maps, uploaded to Faro.
-      # Pull request builds and builds of other branches compile in development mode.
+      # Pull request builds, builds of other branches and cache seed builds compile in development mode.
       - name: Set the build environment based on the branch
         if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         id: vars
@@ -163,13 +171,29 @@ jobs:
           PR_NUMBER: ${{ inputs.pr }}
           INPUT_BRANCH: ${{ inputs.branch }}
           CHECKOUT_REF: ${{ inputs.checkout-ref }}
+          CACHE_SEED: ${{ inputs.cache-seed }}
         run: |
           environment=DEVELOPMENT
-          if [[ "${PR_NUMBER:-0}" == 0 && -z "$INPUT_BRANCH" && -z "$CHECKOUT_REF" ]] &&
+          if [[ "${PR_NUMBER:-0}" == 0 && -z "$INPUT_BRANCH" && -z "$CHECKOUT_REF" && "$CACHE_SEED" != "true" ]] &&
             [[ "$GITHUB_REF" == refs/heads/release || "$GITHUB_REF" == refs/heads/master ]]; then
             environment=PRODUCTION
           fi
           echo "REACT_APP_ENVIRONMENT=$environment" >> "$GITHUB_OUTPUT"
+          echo "cache_date=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      # The webpack and babel-loader caches live under node_modules/.cache. Builds of release and
+      # master save one entry per build mode, variant, lockfile and day. The restore key prefix lets
+      # any build start from the newest entry saved for the same build mode and variant. Pull request
+      # builds compile in development mode, so their entry comes from the cache seed workflow.
+      - name: Restore the webpack cache
+        if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        uses: actions/cache/restore@v4
+        id: webpack-cache
+        with:
+          path: app/client/node_modules/.cache
+          key: v1-webpack-${{ steps.vars.outputs.REACT_APP_ENVIRONMENT }}-airgap-${{ inputs.airgap-enabled }}-${{ hashFiles('app/client/yarn.lock') }}-${{ steps.vars.outputs.cache_date }}
+          restore-keys: |
+            v1-webpack-${{ steps.vars.outputs.REACT_APP_ENVIRONMENT }}-airgap-${{ inputs.airgap-enabled }}-
 
       # We burn React environment & the Segment analytics key into the build itself.
       # Pylon: REACT_APP_* is required for CRA to embed values; secret name matches github-release.yml.
@@ -194,19 +218,26 @@ jobs:
           REACT_APP_VERSION_EDITION="Community" \
           yarn build
 
+      # Only builds of the release or master branch itself may save. A repository_dispatch run
+      # has github.ref set to the default branch while it builds a pull request.
+      - name: Save the webpack cache
+        uses: actions/cache/save@v4
+        if: inputs.pr == 0 && inputs.branch == '' && inputs.checkout-ref == '' && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master') && steps.webpack-cache.outputs.cache-hit != 'true' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        with:
+          path: app/client/node_modules/.cache
+          key: ${{ steps.webpack-cache.outputs.cache-primary-key }}
+
       # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache
         uses: actions/cache/save@v4
         if: steps.cache-dependencies.outputs.cache-hit != 'true' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         with:
-          path: |
-            app/client/.yarn/cache
-            app/client/node_modules/.cache/webpack/
+          path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        if: inputs.cache-seed != 'true' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         uses: actions/cache@v4
         with:
           path: |
@@ -214,7 +245,7 @@ jobs:
           key: ${{ github.run_id }}-${{ github.job }}-client
 
       - name: Pack the client build directory
-        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        if: inputs.cache-seed != 'true' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         run: |
           tar -cvf ./build.tar -C build .
 
@@ -242,6 +273,7 @@ jobs:
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
+        if: inputs.cache-seed != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: client-build
@@ -249,7 +281,7 @@ jobs:
           overwrite: true
 
       - name: Put release build in cache
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: success() && inputs.cache-seed != 'true' && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         env:
           cachetoken: ${{ secrets.CACHETOKEN }}
           reponame: ${{ github.event.repository.name }}
