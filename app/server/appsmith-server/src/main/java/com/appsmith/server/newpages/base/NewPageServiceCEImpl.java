@@ -40,6 +40,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -170,6 +172,53 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
+    public Mono<NewPage> saveUnpublishedPageIfUnchanged(PageDTO page, Instant expectedUpdatedAt) {
+        final String pageId = page.getId();
+        final AclPermission editPermission = pagePermission.getEditPermission();
+
+        return findById(pageId, editPermission)
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
+                .flatMap(newPage -> {
+                    if (!expectedUpdatedAt.equals(newPage.getUpdatedAt())) {
+                        return Mono.error(new AppsmithException(AppsmithError.STALE_LAYOUT_UPDATE, pageId));
+                    }
+
+                    // gitSyncId will be used to sync resource across instances. Set it only when the page has none.
+                    final String gitSyncIdToSet =
+                            newPage.getGitSyncId() == null ? page.getApplicationId() + "_" + UUID.randomUUID() : null;
+
+                    // Mongo stores `updatedAt` in milliseconds. The new value must differ from the expected one, so
+                    // that a client holding the old revision cannot write again. Two saves in the same millisecond
+                    // would otherwise keep the same value.
+                    final Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+                    final Instant minimumNext = expectedUpdatedAt.plusMillis(1);
+                    final Instant newUpdatedAt = now.isAfter(minimumNext) ? now : minimumNext;
+
+                    return repository
+                            .updateUnpublishedPageIfUnchanged(
+                                    pageId, expectedUpdatedAt, newUpdatedAt, page, gitSyncIdToSet, editPermission)
+                            .flatMap(matchedCount -> {
+                                if (matchedCount > 0) {
+                                    newPage.setUnpublishedPage(page);
+                                    newPage.setUpdatedAt(newUpdatedAt);
+                                    if (gitSyncIdToSet != null) {
+                                        newPage.setGitSyncId(gitSyncIdToSet);
+                                    }
+                                    return Mono.just(newPage);
+                                }
+
+                                // No page matched. Read again to tell a missing page from a changed one.
+                                return findById(pageId, editPermission)
+                                        .flatMap(stored -> Mono.<NewPage>error(
+                                                new AppsmithException(AppsmithError.STALE_LAYOUT_UPDATE, pageId)))
+                                        .switchIfEmpty(Mono.error(new AppsmithException(
+                                                AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)));
+                            });
+                });
+    }
+
+    @Override
     public Mono<PageDTO> createDefault(PageDTO object) {
         NewPage newPage = new NewPage();
         newPage.setUnpublishedPage(object);
@@ -204,6 +253,12 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         return repository
                 .findByIdAndLayoutsIdAndViewMode(pageId, layoutId, aclPermission, view)
                 .flatMap(page -> getPageByViewMode(page, view));
+    }
+
+    @Override
+    public Mono<NewPage> findNewPageByIdAndLayoutsId(
+            String pageId, String layoutId, AclPermission aclPermission, Boolean view) {
+        return repository.findByIdAndLayoutsIdAndViewMode(pageId, layoutId, aclPermission, view);
     }
 
     @Override

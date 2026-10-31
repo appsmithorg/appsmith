@@ -1151,6 +1151,55 @@ export interface RemovedWidget {
   contains: string[];
 }
 
+// A widget that stays on the page but has a binding naming a removed widget. The binding breaks when the removal
+// lands, so the approval names it.
+export interface BrokenReference {
+  widget: string;
+  refersTo: string[];
+}
+
+const BINDING_BODY = /\{\{([\s\S]*?)\}\}/g;
+
+// The removed names each remaining widget's top-level bindings mention, as a whole identifier (not after a dot, so
+// `Table1.Name` does not match a widget called Name). Event bindings name modals in quotes, such as
+// showModal('Edit'), and those count too.
+function brokenReferences(
+  root: WidgetNode,
+  removedNames: ReadonlySet<string>,
+): BrokenReference[] {
+  const found: BrokenReference[] = [];
+  const patterns = [...removedNames].map((name) => ({
+    name,
+    pattern: new RegExp(
+      `(^|[^.\\w$])${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w$])`,
+    ),
+  }));
+
+  const visit = (node: WidgetNode): void => {
+    const refersTo = new Set<string>();
+
+    for (const [key, value] of Object.entries(node)) {
+      if (key === "children" || typeof value !== "string") continue;
+
+      for (const match of value.matchAll(BINDING_BODY)) {
+        for (const { name, pattern } of patterns) {
+          if (pattern.test(match[1])) refersTo.add(name);
+        }
+      }
+    }
+
+    if (refersTo.size > 0) {
+      found.push({ widget: node.widgetName, refersTo: [...refersTo].sort() });
+    }
+
+    for (const child of node.children ?? []) visit(child);
+  };
+
+  visit(root);
+
+  return found;
+}
+
 function contentNames(node: WidgetNode): string[] {
   return (node.children ?? []).flatMap((child) => [
     ...(child.type === "CANVAS_WIDGET" ? [] : [child.widgetName]),
@@ -1163,11 +1212,15 @@ function contentNames(node: WidgetNode): string[] {
 // again on the same revision. Unlike patch_widgets' remove, it takes containers with their content, because the
 // approval step shows the user everything it deletes.
 // - A name already inside another named widget, or listed twice, is removed once.
-// - The root canvas, an inner canvas on its own, and an unknown name are refused.
+// - The root canvas, an inner canvas on its own, a List's item template, and an unknown name are refused.
 export function removeWidgets(
   current: WidgetNode,
   names: readonly string[],
-): { dsl: WidgetNode; removed: RemovedWidget[] } {
+): {
+  dsl: WidgetNode;
+  removed: RemovedWidget[];
+  brokenReferences: BrokenReference[];
+} {
   if (names.length === 0) {
     throw new Error("name at least one widget to remove");
   }
@@ -1206,6 +1259,21 @@ export function removeWidgets(
         (other) => other !== target && isDescendant(other.node, target.node),
       ),
   );
+
+  // A List renders every row from the one container inside it. Removing that container leaves a List with no rows.
+  for (const target of outermost) {
+    const holder =
+      target.parent?.type === "CANVAS_WIDGET"
+        ? widgets.get(target.parent.widgetName)?.parent
+        : target.parent;
+
+    if (holder?.type === "LIST_WIDGET_V2" || holder?.type === "LIST_WIDGET") {
+      throw new Error(
+        `"${target.node.widgetName}" is the item template of List "${holder.widgetName}"; it cannot be removed on its own, remove the List`,
+      );
+    }
+  }
+
   const removed = outermost.map((target) => ({
     name: target.node.widgetName,
     type: String(target.node.type),
@@ -1214,7 +1282,15 @@ export function removeWidgets(
 
   for (const target of outermost) removeFromParent(target);
 
-  return { dsl, removed };
+  const removedNames = new Set(
+    removed.flatMap((entry) => [entry.name, ...entry.contains]),
+  );
+
+  return {
+    dsl,
+    removed,
+    brokenReferences: brokenReferences(dsl, removedNames),
+  };
 }
 
 function positionOf(node: WidgetNode): { topRow: number; leftColumn: number } {
