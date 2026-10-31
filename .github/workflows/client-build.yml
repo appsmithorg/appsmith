@@ -12,6 +12,11 @@ on:
         required: false
         type: string
         default: "false"
+      airgap-enabled:
+        description: "This is a boolean value in case the workflow is building for airgap"
+        required: false
+        type: string
+        default: "false"
       branch:
         description: "This is the branch to be used for the build."
         required: false
@@ -177,18 +182,18 @@ jobs:
           echo "cache_date=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
 
       # The webpack and babel-loader caches live under node_modules/.cache. Builds of release and
-      # master save one entry per build mode, variant and day. The restore key prefix lets any build
-      # start from the newest entry saved for the same build mode and variant. Pull request builds
-      # compile in development mode, so their entry comes from the cache seed workflow.
+      # master save one entry per build mode, variant, lockfile and day. The restore key prefix lets
+      # any build start from the newest entry saved for the same build mode and variant. Pull request
+      # builds compile in development mode, so their entry comes from the cache seed workflow.
       - name: Restore the webpack cache
         if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         uses: actions/cache/restore@v4
         id: webpack-cache
         with:
           path: app/client/node_modules/.cache
-          key: v1-webpack-${{ steps.vars.outputs.REACT_APP_ENVIRONMENT }}-airgap-${{ inputs.airgap-enabled || 'false' }}-${{ steps.vars.outputs.cache_date }}
+          key: v1-webpack-${{ steps.vars.outputs.REACT_APP_ENVIRONMENT }}-airgap-${{ inputs.airgap-enabled }}-${{ hashFiles('app/client/yarn.lock') }}-${{ steps.vars.outputs.cache_date }}
           restore-keys: |
-            v1-webpack-${{ steps.vars.outputs.REACT_APP_ENVIRONMENT }}-airgap-${{ inputs.airgap-enabled || 'false' }}-
+            v1-webpack-${{ steps.vars.outputs.REACT_APP_ENVIRONMENT }}-airgap-${{ inputs.airgap-enabled }}-
 
       # We burn React environment & the Segment analytics key into the build itself.
       # Pylon: REACT_APP_* is required for CRA to embed values; secret name matches github-release.yml.
@@ -213,9 +218,11 @@ jobs:
           REACT_APP_VERSION_EDITION="Community" \
           yarn build
 
+      # Only builds of the release or master branch itself may save. A repository_dispatch run
+      # has github.ref set to the default branch while it builds a pull request.
       - name: Save the webpack cache
         uses: actions/cache/save@v4
-        if: (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master') && steps.webpack-cache.outputs.cache-hit != 'true' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: inputs.pr == 0 && inputs.branch == '' && inputs.checkout-ref == '' && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master') && steps.webpack-cache.outputs.cache-hit != 'true' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         with:
           path: app/client/node_modules/.cache
           key: ${{ steps.webpack-cache.outputs.cache-primary-key }}
