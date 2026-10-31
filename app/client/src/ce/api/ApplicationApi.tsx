@@ -1,3 +1,5 @@
+import type { ApplicationTrackingDetails } from "ee/entities/CustomerTracking";
+import type { PageTrackingMetadata } from "ee/entities/CustomerTracking";
 import type { ApplicationVersion } from "ee/actions/applicationActions";
 import { getSnapShotAPIRoute } from "ee/constants/ApiConstants";
 import Api from "api/Api";
@@ -27,7 +29,7 @@ export interface ChangeAppViewAccessRequest {
 
 export type PublishApplicationResponse = ApiResponse;
 
-export interface ApplicationPagePayload {
+export interface ApplicationPagePayload extends PageTrackingMetadata {
   id: string;
   baseId: string;
   name: string;
@@ -122,7 +124,7 @@ export interface UpdateApplicationPayload {
   appLayout?: AppLayoutConfig;
   applicationVersion?: number;
   embedSetting?: AppEmbedSetting;
-  applicationDetail?: {
+  applicationDetail?: ApplicationTrackingDetails & {
     navigationSetting?: NavigationSetting;
     themeSetting?: ThemeSetting;
     appPositioning?: LayoutSystemTypeConfig;
@@ -227,7 +229,7 @@ export interface UpdateApplicationResponse {
   new: boolean;
   modifiedAt: Date;
   embedSetting: AppEmbedSetting;
-  applicationDetail?: {
+  applicationDetail?: ApplicationTrackingDetails & {
     navigationSetting?: NavigationSetting;
     appPositioning?: LayoutSystemTypeConfig;
     themeSetting?: ThemeSetting;

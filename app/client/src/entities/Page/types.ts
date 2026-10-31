@@ -1,4 +1,5 @@
-export interface Page {
+import type { PageTrackingMetadata } from "ee/entities/CustomerTracking";
+export interface Page extends PageTrackingMetadata {
   pageName: string;
   description?: string;
   pageId: string;

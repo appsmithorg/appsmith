@@ -1,3 +1,5 @@
+import { getEditionPageMetadata } from "ee/utils/pageMetadata";
+import type { PageTrackingMetadata } from "ee/entities/CustomerTracking";
 import type { WidgetType } from "constants/WidgetConstants";
 import type { AnyReduxAction, ReduxAction } from "./ReduxActionTypes";
 import {
@@ -268,7 +270,7 @@ export const clonePageInit = (
   };
 };
 
-export interface ClonePageSuccessPayload {
+export interface ClonePageSuccessPayload extends PageTrackingMetadata {
   pageName: string;
   description?: string;
   pageId: string;
@@ -284,6 +286,7 @@ export const clonePageSuccess = ({
   pageId,
   pageName,
   slug,
+  ...editionMetadata
 }: ClonePageSuccessPayload) => {
   return {
     type: ReduxActionTypes.CLONE_PAGE_SUCCESS,
@@ -293,6 +296,7 @@ export const clonePageSuccess = ({
       pageName,
       layoutId,
       slug,
+      ...getEditionPageMetadata(editionMetadata),
     },
   };
 };
@@ -314,7 +318,7 @@ export const fetchPublishedPageResources = ({
 
 // update a page
 
-export interface UpdatePageActionPayload {
+export interface UpdatePageActionPayload extends PageTrackingMetadata {
   id: string;
   name?: string;
   isHidden?: boolean;

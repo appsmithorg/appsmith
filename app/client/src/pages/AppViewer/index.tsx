@@ -1,3 +1,4 @@
+import CustomerTracking from "ee/pages/AppViewer/CustomerTracking";
 import React, { useEffect } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { useDispatch } from "react-redux";
@@ -270,6 +271,9 @@ function AppViewer(props: Props) {
             fontFamily={selectedTheme.properties.fontFamily.appFont}
             primaryColor={selectedTheme.properties.colors.primaryColor}
           />
+        )}
+        {isInitialized && (
+          <CustomerTracking application={currentApplicationDetails} />
         )}
         <HtmlTitle
           description={pageDescription}

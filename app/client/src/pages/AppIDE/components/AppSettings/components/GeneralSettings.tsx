@@ -51,6 +51,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import CustomerTrackingSettings from "ee/pages/AppIDE/components/AppSettings/CustomerTrackingSettings";
 import StaticURLConfirmationModal from "./StaticURLConfirmationModal";
 import { debounce } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
@@ -801,6 +802,8 @@ function GeneralSettings() {
           </Flex>
         </div>
       )}
+
+      <CustomerTrackingSettings />
 
       <StaticURLConfirmationModal
         baseUrl={`${window.location.origin}/app/`}

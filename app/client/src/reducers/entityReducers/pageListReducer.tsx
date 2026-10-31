@@ -1,3 +1,4 @@
+import { getEditionPageMetadata } from "ee/utils/pageMetadata";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
@@ -215,6 +216,7 @@ export const pageListReducer = createReducer(initialState, {
       const updatedPage = {
         ...pages[updatedPageIndex],
         pageName: action.payload.name,
+        ...getEditionPageMetadata(action.payload),
         isHidden: !!action.payload.isHidden,
         slug: action.payload.slug,
         customSlug: action.payload.customSlug,

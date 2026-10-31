@@ -494,9 +494,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             if (requestHtmlLang != null) {
                 presetApplicationDetail.setHtmlLang(requestHtmlLang);
             }
+            mergeEditionApplicationDetails(application.getUnpublishedApplicationDetail(), presetApplicationDetail);
             application.setUnpublishedApplicationDetail(presetApplicationDetail);
         }
         return this.update(branchedApplication.getId(), application);
+    }
+
+    protected void mergeEditionApplicationDetails(ApplicationDetail request, ApplicationDetail persisted) {
+        // Community Edition has no additional application details.
     }
 
     /**

@@ -23,6 +23,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -128,7 +129,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Flux<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission) {
-        List<String> includedFields = List.of(
+        List<String> includedFields = new ArrayList<>(List.of(
                 NewPage.Fields.applicationId,
                 NewPage.Fields.baseId,
                 NewPage.Fields.branchName,
@@ -146,7 +147,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 NewPage.Fields.publishedPage_isHidden,
                 NewPage.Fields.publishedPage_slug,
                 NewPage.Fields.publishedPage_customSlug,
-                NewPage.Fields.publishedPage_uniqueSlug);
+                NewPage.Fields.publishedPage_uniqueSlug));
+        includedFields.addAll(getEditionPageListFields());
 
         return this.queryBuilder()
                 .criteria(Bridge.in(NewPage.Fields.id, ids))
@@ -345,5 +347,9 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 .fields(projections)
                 .permission(aclPermission)
                 .one();
+    }
+
+    protected List<String> getEditionPageListFields() {
+        return List.of();
     }
 }

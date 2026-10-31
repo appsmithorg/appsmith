@@ -1,3 +1,4 @@
+import { getEditionPageMetadata } from "ee/utils/pageMetadata";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
   ReduxActionErrorTypes,
@@ -379,6 +380,7 @@ export function* fetchAppAndPagesSaga(
         payload: {
           pages: response.data.pages.map((page) => ({
             pageName: page.name,
+            ...getEditionPageMetadata(page),
             pageId: page.id,
             basePageId: page.baseId,
             isDefault: page.isDefault,

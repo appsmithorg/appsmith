@@ -1,3 +1,4 @@
+import type { PageTrackingMetadata } from "ee/entities/CustomerTracking";
 import Api from "api/Api";
 import type { ApiResponse } from "./ApiResponses";
 import type { AxiosPromise, CancelTokenSource } from "axios";
@@ -47,7 +48,7 @@ export interface PageLayoutsRequest {
   };
 }
 
-export interface FetchPageResponseData {
+export interface FetchPageResponseData extends PageTrackingMetadata {
   isDefault?: boolean;
   isHidden?: boolean;
   id: string;
@@ -84,7 +85,7 @@ export interface CreatePageRequest {
   layouts: Partial<PageLayout>[];
 }
 
-export interface UpdatePageRequest {
+export interface UpdatePageRequest extends PageTrackingMetadata {
   pageId: string;
   name?: string;
   isHidden?: boolean;
@@ -92,7 +93,7 @@ export interface UpdatePageRequest {
   uniqueSlug?: string;
 }
 
-export interface UpdatePageResponse {
+export interface UpdatePageResponse extends PageTrackingMetadata {
   id: string;
   baseId: string;
   name: string;
@@ -115,17 +116,19 @@ export interface SetPageOrderRequest {
 export type CreatePageResponse = ApiResponse;
 
 export interface FetchPageListResponseData {
-  pages: Array<{
-    id: string;
-    baseId: string;
-    name: string;
-    isDefault: boolean;
-    isHidden?: boolean;
-    layouts: Array<PageLayout>;
-    slug: string;
-    userPermissions?: string[];
-    description?: string;
-  }>;
+  pages: Array<
+    PageTrackingMetadata & {
+      id: string;
+      baseId: string;
+      name: string;
+      isDefault: boolean;
+      isHidden?: boolean;
+      layouts: Array<PageLayout>;
+      slug: string;
+      userPermissions?: string[];
+      description?: string;
+    }
+  >;
   workspaceId: string;
 }
 

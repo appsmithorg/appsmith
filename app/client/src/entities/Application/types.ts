@@ -1,3 +1,4 @@
+import type { ApplicationTrackingDetails } from "ee/entities/CustomerTracking";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { ApplicationVersion } from "ee/actions/applicationActions";
 import type { LayoutSystemTypeConfig } from "layoutSystems/types";
@@ -35,7 +36,7 @@ export interface ApplicationPayload {
   isAutoUpdate?: boolean;
   isManualUpdate?: boolean;
   embedSetting?: AppEmbedSetting;
-  applicationDetail?: {
+  applicationDetail?: ApplicationTrackingDetails & {
     appPositioning?: LayoutSystemTypeConfig;
     navigationSetting?: NavigationSetting;
     themeSetting?: ThemeSetting;

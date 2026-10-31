@@ -45,6 +45,7 @@ import {
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { getUpdatingEntity } from "selectors/explorerSelector";
 import { getPageLoadingState } from "selectors/pageListSelectors";
+import CustomerTrackingSettings from "ee/pages/AppIDE/components/AppSettings/CustomerTrackingSettings";
 import TextLoaderIcon from "./TextLoaderIcon";
 import UrlPreview from "./UrlPreview";
 import { filterAccentedAndSpecialCharacters, getUrlPreview } from "../utils";
@@ -604,6 +605,7 @@ function PageSettings(props: { page: Page }) {
           />
         </Switch>
       </div>
+      <CustomerTrackingSettings isDisabled={!canManagePages} page={page} />
     </>
   );
 }

@@ -403,7 +403,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         return applicationPagesDTO;
     }
 
-    private static PageNameIdDTO getPageNameIdDTO(
+    protected PageNameIdDTO getPageNameIdDTO(
             NewPage pageFromDb, String homePageId, boolean viewMode, boolean isStaticUrlEnabled) {
         PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
         pageNameIdDTO.setId(pageFromDb.getId());

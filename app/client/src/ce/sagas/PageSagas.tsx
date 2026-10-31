@@ -1,3 +1,4 @@
+import { getEditionPageMetadata } from "ee/utils/pageMetadata";
 import type { DefaultRootState } from "react-redux";
 import type { ReduxAction } from "actions/ReduxActionTypes";
 import {
@@ -787,6 +788,7 @@ export function* createPageSaga(action: ReduxAction<CreatePageActionPayload>) {
           pageId: response.data.id,
           basePageId: response.data.baseId,
           pageName: response.data.name,
+          ...getEditionPageMetadata(response.data),
           layoutId: response.data.layouts[0].id,
           slug: response.data.slug,
           customSlug: response.data.customSlug,
@@ -915,6 +917,7 @@ export function* clonePageSaga(
           pageId: response.data.id,
           basePageId: response.data.baseId,
           pageName: response.data.name,
+          ...getEditionPageMetadata(response.data),
           layoutId: response.data.layouts[0].id,
           slug: response.data.slug,
           isDefault: false,
