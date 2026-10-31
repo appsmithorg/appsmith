@@ -745,3 +745,52 @@ describe("the recipe's one-year boundary (APP-16381)", () => {
     expect(at(-1)).toBe(true);
   });
 });
+
+describe("a default may not feed back into itself (CodeRabbit on #42540)", () => {
+  it("refuses defaultDate reading its own picker", () => {
+    expect(() =>
+      update("NewEnd", {
+        defaultDate: {
+          expr: {
+            fn: "addDays",
+            args: [{ widget: "NewEnd", property: "selectedDate" }, 1],
+          },
+        },
+      }),
+    ).toThrow(/depends on the property this sets \(an evaluation cycle\)/);
+    // Any other read of the picker itself is refused too, as for defaultFrom.
+    expect(() =>
+      update("NewEnd", {
+        defaultDate: { expr: { widget: "NewEnd", property: "isVisible" } },
+      }),
+    ).toThrow(/'defaultDate' cannot reference the widget itself/);
+  });
+
+  it("refuses a default that reads a widget whose binding reads the default's own value", () => {
+    const dsl = page();
+
+    widget(dsl, "Warning").text = "{{ String(NewEnd.selectedDate) }}";
+    expect(() =>
+      update(
+        "NewEnd",
+        {
+          defaultDate: {
+            expr: { widget: "Warning", property: "text" },
+          },
+        },
+        undefined,
+        dsl,
+      ),
+    ).toThrow(/reads "NewEnd.selectedDate" \(an evaluation cycle\)/);
+  });
+});
+
+describe("defaultFrom reading another widget that does not read back (APP-16381)", () => {
+  it("is accepted", () => {
+    const { dsl } = update("RequestedBy", {
+      defaultFrom: { expr: { widget: "Warning", property: "text" } },
+    });
+
+    expect(widget(dsl, "RequestedBy").defaultText).toBe("{{ Warning.text }}");
+  });
+});

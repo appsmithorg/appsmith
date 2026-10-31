@@ -1916,9 +1916,22 @@ function checkBindingExpr(
 // Properties a widget computes from the one a condition sets: a control's `isValid` depends on its `isRequired`
 // and, for inputs, on its "Valid" check, so reading it from those conditions is a cycle. A cycle stops the page's
 // evaluation for every viewer, so it is refused up front.
+// A default prop feeds the widget's current value, so those values are computed from it too (CodeRabbit on
+// #42540: a date picker's defaultDate reading its own selectedDate was accepted).
 const SELF_READ_CYCLES: Readonly<Record<string, readonly string[]>> = {
   isRequired: ["isValid"],
   validation: ["isValid"],
+  defaultDate: ["selectedDate", "formattedDate", "isValid"],
+  defaultText: ["text", "inputText", "value", "isValid"],
+  defaultOptionValue: [
+    "selectedOptionValue",
+    "selectedOptionLabel",
+    "selectedOptionValues",
+    "selectedOptionLabels",
+    "isValid",
+  ],
+  defaultCheckedState: ["isChecked", "isValid"],
+  defaultSwitchState: ["isSwitchedOn", "isValid"],
 };
 
 // The stored props a control's isValid is computed from.
@@ -2508,6 +2521,17 @@ export function applyWidgetPatch(
         }
 
         checkBindingExpr(widgets, located.node, ref, key, key);
+
+        // A default may not read its own widget at all, as with defaultFrom: the picker's value is computed from it.
+        if (
+          key === "defaultDate" &&
+          bindingExprReads(ref.expr).some(
+            (read) => widgets.get(read.widget)?.node === located.node,
+          )
+        ) {
+          throw new Error("'defaultDate' cannot reference the widget itself");
+        }
+
         located.node[key] = compileDateBinding(ref.expr);
         registerDynamicBinding(located.node, key);
       }
