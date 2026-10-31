@@ -1,0 +1,24 @@
+name: Client build cache seed
+
+# Pull request builds compile the client in development mode and restore the newest webpack
+# cache saved by a development-mode build of release. This workflow is that build. It saves
+# the cache and publishes nothing.
+on:
+  schedule:
+    # 00:30 UTC on weekdays, before the nightly release image test.
+    - cron: "30 0 * * 1-5"
+  workflow_dispatch:
+
+# client-build.yml requests these permissions, and a called workflow cannot request more than its caller grants.
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  client-build:
+    if: github.repository_owner == 'appsmithorg'
+    uses: ./.github/workflows/client-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+      cache-seed: "true"
