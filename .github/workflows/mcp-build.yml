@@ -33,6 +33,10 @@ on:
       # filter and the non-required status together, or a non-matching PR would wait on it forever.
       - "app/client/src/widgets/**"
       - "app/client/src/WidgetProvider/factory/helpers.ts"
+      # routeContract.test.ts reads the server's MCP allowlist rules, so a PR that changes only those rules still runs
+      # the route check against the Node tools.
+      - "app/server/appsmith-server/src/main/java/com/appsmith/server/filters/McpAllow*.java"
+      - "app/server/appsmith-server/src/main/java/com/appsmith/server/filters/ce/McpAllow*.java"
 
 defaults:
   run:

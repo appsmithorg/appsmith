@@ -1199,9 +1199,9 @@ describe("confirm_delete_action / confirm_delete_js_object / confirm_rollback â€
     const api: AppsmithApi = {
       ...stubApi(),
       getApplication: jest.fn(async () => ({ id: APP_ID })),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: CURRENT_DSL },
       })),
       updateLayout: jest.fn(async () => ({ ok: true })),
@@ -2203,9 +2203,9 @@ describe("confirm_remove_widgets approval", () => {
       },
     );
     const api = pagesApi({
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: current },
       })),
       listActions: jest.fn(async () => []),

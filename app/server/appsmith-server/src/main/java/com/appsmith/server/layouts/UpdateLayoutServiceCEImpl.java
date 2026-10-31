@@ -37,6 +37,7 @@ import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -123,6 +124,20 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
             Layout layout,
             Integer evaluatedVersion,
             CreatorContextType creatorType) {
+        return updateLayoutDsl(creatorId, layoutId, layout, evaluatedVersion, creatorType, null);
+    }
+
+    /**
+     * Same as {@link #updateLayoutDsl(String, String, Layout, Integer, CreatorContextType)}. When
+     * {@code expectedUpdatedAt} is set, the final layout save happens only if the creator did not change since then.
+     */
+    protected Mono<LayoutDTO> updateLayoutDsl(
+            String creatorId,
+            String layoutId,
+            Layout layout,
+            Integer evaluatedVersion,
+            CreatorContextType creatorType,
+            Instant expectedUpdatedAt) {
         JSONObject dsl = layout.getDsl();
         if (dsl == null) {
             // There is no DSL here. No need to process anything. Return as is.
@@ -260,8 +275,12 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                                 // computation was
                                 // valid when last stored in the database.
 
-                                return onLoadExecutablesUtil
-                                        .findAndUpdateLayout(creatorId, creatorType, layoutId, layout)
+                                Mono<Layout> findAndUpdateLayoutMono = expectedUpdatedAt == null
+                                        ? onLoadExecutablesUtil.findAndUpdateLayout(
+                                                creatorId, creatorType, layoutId, layout)
+                                        : onLoadExecutablesUtil.findAndUpdateLayout(
+                                                creatorId, creatorType, layoutId, layout, expectedUpdatedAt);
+                                return findAndUpdateLayoutMono
                                         .tag("no_of_widgets", String.valueOf(widgetNames.size()))
                                         .tag("no_of_executables", String.valueOf(executableNames.size()))
                                         .name(FIND_AND_UPDATE_LAYOUT)
@@ -301,6 +320,60 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
     }
 
     @Override
+    public Mono<LayoutDTO> updateLayoutWithRevision(
+            String pageId, String applicationId, String layoutId, Layout layout, String expectedRevision) {
+        if (expectedRevision == null) {
+            return updateLayout(pageId, applicationId, layoutId, layout);
+        }
+
+        final Instant expectedUpdatedAt = parseRevision(expectedRevision);
+        if (expectedUpdatedAt == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.EXPECTED_REVISION));
+        }
+
+        // Check the revision before any side effect, such as the run-behaviour updates on actions. The conditional
+        // page write at the end is the guard that counts. This check only refuses early.
+        return newPageService
+                .findNewPageByIdAndLayoutsId(pageId, layoutId, pagePermission.getEditPermission(), false)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND,
+                        FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID,
+                        pageId + ", " + layoutId)))
+                .flatMap(newPage -> {
+                    if (!expectedUpdatedAt.equals(newPage.getUpdatedAt())) {
+                        return Mono.error(new AppsmithException(AppsmithError.STALE_LAYOUT_UPDATE, pageId));
+                    }
+                    return contextLayoutRefactorResolver
+                            .getContextLayoutRefactorHelper(null)
+                            .getEvaluationVersionMono(applicationId);
+                })
+                .flatMap(evaluationVersion -> updateLayoutDsl(
+                                pageId, layoutId, layout, evaluationVersion, CreatorContextType.PAGE, expectedUpdatedAt)
+                        .name(UPDATE_LAYOUT_DSL_METHOD));
+    }
+
+    /**
+     * Reads a revision token: epoch milliseconds as a decimal string of digits only. Returns null for any other
+     * input, such as an empty string, a sign, a decimal point, or a value too large for a long.
+     */
+    private static Instant parseRevision(String revision) {
+        if (revision.isEmpty() || revision.length() > 19) {
+            return null;
+        }
+        for (int i = 0; i < revision.length(); i++) {
+            char c = revision.charAt(i);
+            if (c < '0' || c > '9') {
+                return null;
+            }
+        }
+        try {
+            return Instant.ofEpochMilli(Long.parseLong(revision));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    @Override
     public Mono<LayoutDTO> updateLayout(
             String pageId, String applicationId, String layoutId, Layout layout, CreatorContextType contextType) {
         if (isPageContext(contextType)) {
@@ -334,6 +407,7 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         layoutDTO.setScreen(layout.getScreen());
         layoutDTO.setLayoutOnLoadActions(layout.getLayoutOnLoadActions());
         layoutDTO.setLayoutOnLoadActionErrors(layout.getLayoutOnLoadActionErrors());
+        layoutDTO.setRevision(layout.getRevision());
 
         return layoutDTO;
     }

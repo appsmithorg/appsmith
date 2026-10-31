@@ -273,9 +273,10 @@ const filterEntrySchema = z
 // prepared-statement parameter (an SQL array). MySQL sends the list as a JSON string, and SQL Server refuses it.
 // isNull and notNull compile differently on MySQL (see MYSQL_NULL_TEMPLATES), and Redshift uses the PostgreSQL form
 // for them. Redshift is otherwise "other": it cannot bind a list as one parameter, so inList stays refused there.
-// Everything else the compiler emits works on every family. An unknown family, such as when the caller cannot
-// resolve the datasource, counts as "other".
-export type SqlDialect = "postgres" | "redshift" | "mysql" | "other";
+// Oracle has no LIMIT and folds bare names to upper case, so it gets FETCH FIRST and bare identifiers (see
+// quoteIdentifier). Everything else the compiler emits works on every family. An unknown family, such as when the
+// caller cannot resolve the datasource, counts as "other".
+export type SqlDialect = "postgres" | "redshift" | "mysql" | "oracle" | "other";
 
 // Maps a datasource's plugin package name to its SqlDialect. MariaDB counts as MySQL.
 export function sqlDialectFor(packageName: string | undefined): SqlDialect {
@@ -287,6 +288,8 @@ export function sqlDialectFor(packageName: string | undefined): SqlDialect {
     case "mysql-plugin":
     case "mariadb-plugin":
       return "mysql";
+    case "oracle-plugin":
+      return "oracle";
     default:
       return "other";
   }
@@ -294,6 +297,8 @@ export function sqlDialectFor(packageName: string | undefined): SqlDialect {
 
 export interface CompileQueryOptions {
   dialect?: SqlDialect;
+  // The datasource's plugin package, such as "oracle-plugin". It decides where the action stores its SQL.
+  packageName?: string;
 }
 
 // A selected or grouped column. A plain name, or `{ column, coalesce: { literal } }`, which reads a fallback for
@@ -835,26 +840,54 @@ function widgetRef(filter: Filter): WidgetRef {
 // 127 bytes. Identifiers here are ASCII, so bytes are characters.
 const MAX_IDENTIFIER_LENGTH = { postgres: 63, redshift: 127 } as const;
 
-// The PostgreSQL or Redshift column for an isNull or notNull filter: lower-cased, then quoted. Throws when the name
-// equals the table's own name (the last part of `schema.table`), because a missing column of that name reads as the
-// whole row. Both names are compared after the database's own cut, so two long names that differ only after it
-// still match.
-function postgresNullCheckColumn(
-  column: string,
+// On PostgreSQL and Redshift, throws when a quoted column name equals the table's own name (the last part of
+// `schema.table`), because a missing column of that name reads as the whole row. `quoted` is the name exactly as it
+// goes between the double quotes. The table is emitted bare, so it is compared lower-cased:
+// - PostgreSQL keeps a quoted name's case, so "Tickets" cannot read as the row `tickets`.
+// - Redshift folds quoted names to lower case by default, so it compares lower-cased.
+// Both compare after the database's own cut, so two long names that differ only after it still match. `usage` names
+// the clause in the error, such as "a filter cannot test".
+function refuseTableNamedColumn(
+  quoted: string,
   table: string,
-  dialect: "postgres" | "redshift",
-): string {
-  const name = column.toLowerCase();
+  dialect: SqlDialect,
+  usage: string,
+): void {
+  if (dialect !== "postgres" && dialect !== "redshift") return;
+
+  const name = dialect === "redshift" ? quoted.toLowerCase() : quoted;
   const tableName = (table.split(".").pop() ?? table).toLowerCase();
   const maxLength = MAX_IDENTIFIER_LENGTH[dialect];
 
   if (name.slice(0, maxLength) === tableName.slice(0, maxLength)) {
     throw new Error(
-      `isNull and notNull cannot test a column named like its table (${column}) on PostgreSQL or Redshift, which would read it as the whole row`,
+      `${usage} a column named like its table (${quoted}) on PostgreSQL or Redshift, which would read it as the whole row`,
     );
   }
+}
 
-  return `"${name}"`;
+// The column a filter tests, never bare (see emitCondition). On PostgreSQL and Redshift a column named like its table
+// can read as the whole row, and every filter refuses it:
+// - a null test or inList's CAST to text can match rows;
+// - the plugin binds text values untyped, so `"users" = $1` or `"users" < $1` compares the row with a row literal the
+//   value spells out.
+function filterColumn(
+  filter: Filter,
+  table: string,
+  dialect: SqlDialect,
+): string {
+  if (dialect !== "postgres" && dialect !== "redshift") {
+    return `${table}.${filter.column}`;
+  }
+
+  refuseTableNamedColumn(
+    filter.column.toLowerCase(),
+    table,
+    dialect,
+    "a filter cannot test",
+  );
+
+  return `"${filter.column.toLowerCase()}"`;
 }
 
 // The isNull or notNull test for a table-qualified column on every database except PostgreSQL.
@@ -874,9 +907,9 @@ function emitCondition(
   dialect: SqlDialect,
   table: string,
 ): string {
-  // The SQL comes from NULL_OPERATORS or MYSQL_NULL_TEMPLATES. No agent text and no binding.
   // An allow-listed identifier can still be a keyword, such as `null` or `current_user`. A bare `null IS NULL` is true
-  // for every row, which would widen a DELETE to the whole table. So the column is never emitted bare:
+  // for every row, and so is `current_user = 'app'` when the value is the database user. Either would widen a DELETE
+  // to the whole table. So no filter emits its column bare (filterColumn):
   // - PostgreSQL: lower-cased and quoted. Lower-casing gives the same column an unquoted value filter names, because
   //   PostgreSQL folds unquoted names to lower case. Not `table.col`: when no such column exists, PostgreSQL reads
   //   `users.text` as the call `text(users)`, which is never NULL. A missing quoted column is an error, except a
@@ -885,10 +918,13 @@ function emitCondition(
   //   function-call reading. A quoted bare name cannot.
   // - Every other database: qualified with its table. After a dot, MySQL always reads a column name. SQL Server,
   //   Oracle and Snowflake read a column or refuse the query.
+  const column = filterColumn(filter, table, dialect);
+
+  // The null-test SQL comes from NULL_OPERATORS or MYSQL_NULL_TEMPLATES. No agent text and no binding.
   if (isNullOperator(filter.op)) {
     return dialect === "postgres" || dialect === "redshift"
-      ? `${postgresNullCheckColumn(filter.column, table, dialect)} ${NULL_OPERATORS[filter.op]}`
-      : emitQualifiedNullCheck(filter.op, `${table}.${filter.column}`, dialect);
+      ? `${column} ${NULL_OPERATORS[filter.op]}`
+      : emitQualifiedNullCheck(filter.op, column, dialect);
   }
 
   if (filter.op === "inList") {
@@ -900,7 +936,7 @@ function emitCondition(
 
     // CAST both sides to text. A select holds string option values, and this lets them match both text and numeric
     // columns. The list binds as one SQL array parameter. A null list (an empty selection) matches nothing.
-    return `CAST(${filter.column} AS TEXT) = ANY(CAST(${emitNullWhenEmpty(widgetRef(filter))} AS TEXT[]))`;
+    return `CAST(${column} AS TEXT) = ANY(CAST(${emitNullWhenEmpty(widgetRef(filter))} AS TEXT[]))`;
   }
 
   // Redshift has ILIKE, but its plugin runs queries without prepared statements, so a bound pattern is not a
@@ -918,7 +954,7 @@ function emitCondition(
     filter.match !== undefined &&
     isWildcardMatch(filter.match)
   ) {
-    return `${filter.column} ${OPERATORS[filter.op]} ${emitWildcardBinding(filterValue(filter), filter.match)}`;
+    return `${column} ${OPERATORS[filter.op]} ${emitWildcardBinding(filterValue(filter), filter.match)}`;
   }
 
   // On PostgreSQL, a skipWhenEmpty filter binds null while the widget value is empty. "" against a typed column (an
@@ -930,9 +966,9 @@ function emitCondition(
       ? emitNullWhenEmpty(widgetRef(filter))
       : emitBinding(filterValue(filter));
 
-  if (filter.op === "in") return `${filter.column} IN (${binding})`;
+  if (filter.op === "in") return `${column} IN (${binding})`;
 
-  return `${filter.column} ${OPERATORS[filter.op]} ${binding}`;
+  return `${column} ${OPERATORS[filter.op]} ${binding}`;
 }
 
 // Quote an allow-listed column identifier for the dialect. MySQL and MariaDB read "col" as a string unless the
@@ -940,8 +976,10 @@ function emitCondition(
 // assertBodySafe refuses any backtick in a body. So MySQL gets the bare identifier, as plain select columns already
 // do. The identifier charset admits no quote or backslash, so a bare name cannot break out. A column named after a
 // reserved word then fails with a syntax error instead of returning wrong results.
+// Oracle also gets bare names: a quoted name is case-sensitive there, so "status" would not match a STATUS column
+// created without quotes, which is how most Oracle columns are made.
 function quoteIdentifier(name: string, dialect: SqlDialect): string {
-  return dialect === "mysql" ? name : `"${name}"`;
+  return dialect === "mysql" || dialect === "oracle" ? name : `"${name}"`;
 }
 
 // Emit `ORDER BY "col" ASC, "col2" DESC` (bare names on MySQL, see quoteIdentifier). Direction comes from a two-value
@@ -963,21 +1001,36 @@ function emitOrderBy(
 function emitGroupBy(
   groupBy: QuerySpec["groupBy"],
   dialect: SqlDialect,
+  table: string,
 ): string {
   if (!groupBy || groupBy.length === 0) return "";
 
   // Group by the stored column, even when the select list coalesces it. NULLs form their own group, and the select
   // list then shows that group under the fallback.
-  const clauses = groupBy.map((entry) => groupKeyExpression(entry, dialect));
+  const clauses = groupBy.map((entry) =>
+    groupKeyExpression(entry, dialect, table),
+  );
 
   return ` GROUP BY ${clauses.join(", ")}`;
 }
 
 // The SQL a group key compiles to, shared by GROUP BY, HAVING and the aggregated select list, so all three name the
 // same thing. A split column's key is the trimmed item from the lateral split source. Every other column's key is its
-// stored name, quoted by quoteIdentifier (bare on MySQL).
-function groupKeyExpression(entry: SelectColumn, dialect: SqlDialect): string {
+// stored name, quoted by quoteIdentifier (bare on MySQL). On PostgreSQL and Redshift a group column named like the
+// table would group by, or test, the whole row, so it is refused.
+function groupKeyExpression(
+  entry: SelectColumn,
+  dialect: SqlDialect,
+  table: string,
+): string {
   if (isSplitColumn(entry)) return SPLIT_ITEM;
+
+  refuseTableNamedColumn(
+    columnNameOf(entry),
+    table,
+    dialect,
+    "groupBy and having cannot use",
+  );
 
   return quoteIdentifier(columnNameOf(entry), dialect);
 }
@@ -989,6 +1042,7 @@ function emitSelectColumn(
   entry: SelectColumn,
   quote: boolean,
   dialect: SqlDialect,
+  table: string,
 ): string {
   if (isSplitColumn(entry)) {
     if (!quote) {
@@ -998,7 +1052,9 @@ function emitSelectColumn(
     return `${SPLIT_ITEM} AS ${quoteIdentifier(entry.column, dialect)}`;
   }
 
-  const name = quote ? groupKeyExpression(entry, dialect) : columnNameOf(entry);
+  const name = quote
+    ? groupKeyExpression(entry, dialect, table)
+    : columnNameOf(entry);
 
   if (typeof entry === "string") return name;
 
@@ -1075,6 +1131,7 @@ function emitHaving(spec: QuerySpec, dialect: SqlDialect): string {
               (entry) => columnNameOf(entry) === condition.column,
             ) ?? condition.column,
             dialect,
+            spec.table,
           );
 
     return `${target} ${HAVING_OPERATORS[condition.op]} ${emitBinding(condition.value)}`;
@@ -1140,7 +1197,7 @@ export function compileQuery(
 
       if (spec.aggregate) {
         const groupCols = (spec.groupBy ?? []).map((entry) =>
-          emitSelectColumn(entry, true, dialect),
+          emitSelectColumn(entry, true, dialect, spec.table),
         );
 
         selectList = [
@@ -1151,15 +1208,23 @@ export function compileQuery(
         selectList =
           spec.columns && spec.columns.length > 0
             ? spec.columns
-                .map((entry) => emitSelectColumn(entry, false, dialect))
+                .map((entry) =>
+                  emitSelectColumn(entry, false, dialect, spec.table),
+                )
                 .join(", ")
             : "*";
       }
 
-      const limit = spec.limit !== undefined ? ` LIMIT ${spec.limit}` : "";
+      // Oracle (12c and later) has no LIMIT; FETCH FIRST is its row limit.
+      const limit =
+        spec.limit === undefined
+          ? ""
+          : dialect === "oracle"
+            ? ` FETCH FIRST ${spec.limit} ROWS ONLY`
+            : ` LIMIT ${spec.limit}`;
 
       // SQL clause order: SELECT ... FROM ... WHERE ... GROUP BY ... ORDER BY ... LIMIT.
-      body = `SELECT ${selectList} FROM ${emitFrom(spec, dialect)}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy, dialect)}${emitHaving(spec, dialect)}${emitOrderBy(spec.orderBy, dialect)}${limit};`;
+      body = `SELECT ${selectList} FROM ${emitFrom(spec, dialect)}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy, dialect, spec.table)}${emitHaving(spec, dialect)}${emitOrderBy(spec.orderBy, dialect)}${limit};`;
       break;
     }
     case "INSERT": {
@@ -1282,10 +1347,37 @@ export function withoutMcpMarker(stored: string): string {
 
 // Build the ActionDTO for POST /api/v1/actions. Datasource is an EMBEDDED { id } object (server derives
 // workspace/plugin from it); prepared statements are forced ON so values bind as parameters.
+// The SQL text of a stored action. Oracle keeps it in formData.body.data (see buildActionDto), and that is the text
+// it runs, so it wins over a stale actionConfiguration.body; every other SQL plugin keeps it in actionConfiguration.body.
+export function storedSqlBody(actionConfiguration: unknown): unknown {
+  const config = (actionConfiguration ?? {}) as {
+    body?: unknown;
+    formData?: { body?: { data?: unknown } };
+  };
+
+  return config.formData?.body?.data ?? config.body;
+}
+
+// Oracle's plugin and editor form read the query and the prepared-statement switch from formData, not from
+// actionConfiguration.body and pluginSpecifiedTemplates.
+const FORM_DATA_SQL_PACKAGES = new Set(["oracle-plugin"]);
+
 export function buildActionDto(
   spec: QuerySpec,
   body: string,
+  packageName?: string,
 ): Record<string, unknown> {
+  const actionConfiguration =
+    packageName !== undefined && FORM_DATA_SQL_PACKAGES.has(packageName)
+      ? {
+          formData: { body: { data: body }, preparedStatement: { data: true } },
+        }
+      : {
+          body,
+          // SQL plugins read the prepared-statement flag from pluginSpecifiedTemplates[0].value.
+          pluginSpecifiedTemplates: [{ value: true }],
+        };
+
   return {
     name: spec.name,
     pageId: spec.pageId,
@@ -1293,10 +1385,6 @@ export function buildActionDto(
     // A SELECT is a data fetch: run it on page load so a bound widget populates without a manual trigger (the query
     // is created after the layout, so the server's on-load analysis doesn't pick it up). Writes stay manual.
     executeOnLoad: spec.operation === "SELECT",
-    actionConfiguration: {
-      body,
-      // SQL plugins read the prepared-statement flag from pluginSpecifiedTemplates[0].value.
-      pluginSpecifiedTemplates: [{ value: true }],
-    },
+    actionConfiguration,
   };
 }

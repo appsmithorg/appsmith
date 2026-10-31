@@ -83,6 +83,10 @@ export class AnvilSnapshot {
     cy.viewport(1400, 1200);
 
     this.agHelper.BrowserNavigation(-1);
+    // The browser back returns before the editor has loaded the page. Wait for
+    // the canvas so the editor's page-load requests finish in this test, and the
+    // next test does not start on an editor that is still loading.
+    this.agHelper.AssertElementVisibility(this.locators.canvas);
   };
 
   public enterPreviewMode = () => {

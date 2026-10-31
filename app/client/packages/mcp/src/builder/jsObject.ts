@@ -304,7 +304,8 @@ export interface JsActionDto extends Record<string, unknown> {
   id?: string;
   name: string;
   workspaceId?: string;
-  runBehaviour: "MANUAL";
+  runBehaviour: string;
+  confirmBeforeExecute?: boolean;
   clientSideExecution: true;
   actionConfiguration: {
     body: string;
@@ -341,7 +342,12 @@ export interface ActionCollectionMutationRequest {
 // The subset of an existing collection the update builder needs to diff functions by name: each JSAction's id and
 // name. Everything else on the collection is ignored.
 export interface ExistingJsObject {
-  actions?: { id?: unknown; name?: unknown }[];
+  actions?: {
+    id?: unknown;
+    name?: unknown;
+    runBehaviour?: unknown;
+    confirmBeforeExecute?: unknown;
+  }[];
 }
 
 export interface DeleteJsObjectRequest {
@@ -849,11 +855,24 @@ export function buildUpdateJsObjectRequest(
     // Diff the new function set against the collection's existing JSActions by name: a matching name is an
     // update (keeps its id and settings), a new name is an add, a name no longer present is a delete. The server
     // creates/updates/deletes one NewAction per entry; the body is written separately (jsBody).
-    const existing = new Map<string, string>();
+    // A function that keeps its name also keeps the settings a user gave it in the editor: when it runs (for example
+    // on page load) and whether it asks for confirmation first. Only the code changes.
+    const existing = new Map<
+      string,
+      { id: string; runBehaviour?: string; confirmBeforeExecute?: boolean }
+    >();
 
     for (const action of current.actions ?? []) {
       if (typeof action.id === "string" && typeof action.name === "string") {
-        existing.set(action.name, action.id);
+        existing.set(action.name, {
+          id: action.id,
+          ...(typeof action.runBehaviour === "string"
+            ? { runBehaviour: action.runBehaviour }
+            : {}),
+          ...(typeof action.confirmBeforeExecute === "boolean"
+            ? { confirmBeforeExecute: action.confirmBeforeExecute }
+            : {}),
+        });
       }
     }
 
@@ -862,18 +881,18 @@ export function buildUpdateJsObjectRequest(
     for (const fn of spec.functions) {
       wanted.add(fn.name);
 
-      const id = existing.get(fn.name);
+      const kept = existing.get(fn.name);
       // No workspaceId on update: the server fills it from the collection (populateActionFieldsFromCollection).
       const dto = toJsActionDto(fn);
 
-      if (id === undefined) {
+      if (kept === undefined) {
         actions.added.push(dto);
       } else {
-        actions.updated.push({ ...dto, id });
+        actions.updated.push({ ...dto, ...kept });
       }
     }
 
-    for (const [name, id] of existing) {
+    for (const [name, { id }] of existing) {
       if (!wanted.has(name)) actions.deleted.push({ id, name });
     }
   }

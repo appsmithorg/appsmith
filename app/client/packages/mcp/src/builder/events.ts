@@ -49,13 +49,15 @@ const alertStyle = z.enum(["info", "success", "warning", "error"]);
 // already exists in the application, executing in the end user's browser under the end user's permissions.
 // Optional arguments: scalar literals (JSON-encoded at emission) or widget-property references (identifier +
 // dotted path, emitted bare). No expression position exists: `Obj.fn("x", Input1.text)` is the whole shape.
+// A string argument may not hold a `{` or `}`, for the same reason as a navigate literal (see navigateText).
 const callArg = z.union([
   z
     .string()
     .max(200)
+    .refine((value) => !RAW_EXPRESSION.test(value), "must not contain bindings")
     .refine(
-      (value) => !RAW_EXPRESSION.test(value),
-      "must not contain bindings",
+      (value) => !/[{}]/.test(value),
+      "must not contain { or } (the binding would not run)",
     ),
   z.number().finite(),
   z.boolean(),

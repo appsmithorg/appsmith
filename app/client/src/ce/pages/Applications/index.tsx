@@ -18,11 +18,7 @@ import {
   NO_WORKSPACE_HEADING,
   WORKSPACES_HEADING,
 } from "ee/constants/messages";
-import {
-  getIsAiAgentFlowEnabled,
-  getIsAiAgentInstanceEnabled,
-} from "ee/selectors/aiAgentSelectors";
-import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
+import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
 import type { ApplicationPayload } from "entities/Application";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { createWorkspaceSubmitHandler } from "ee/pages/workspace/helpers";
@@ -59,7 +55,6 @@ import {
   Option,
   Select,
   Tooltip,
-  Tag,
 } from "@appsmith/ads";
 import {
   AppIconCollection,
@@ -72,6 +67,7 @@ import {
 import { loadingUserWorkspaces } from "pages/Applications/ApplicationLoaders";
 import PageWrapper from "pages/common/PageWrapper";
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
+import PreviewTag from "components/editorComponents/PreviewTag";
 import React, {
   Component,
   useCallback,
@@ -296,18 +292,6 @@ const LeftPaneDataSection = styled.div<{ isBannerVisible?: boolean }>`
   display: flex;
   flex-direction: column;
 `;
-
-// Tags for some reason take all available space.
-// We're changing the max width to fit the contents as Tags are supposed to be
-const TitleTag = styled(Tag)`
-  max-width: fit-content;
-`;
-
-const PreviewTag = (
-  <TitleTag isClosable={false} onClose={() => {}}>
-    Preview
-  </TitleTag>
-);
 
 export function LeftPaneSection(props: {
   heading: string;
@@ -708,9 +692,8 @@ export function ApplicationsSection(props: any) {
   const isDeletingWorkspace = useSelector(getIsDeletingWorkspace);
   const { isFetchingPackages } = usePackage();
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
-  const isAiAgentFlowEnabled = useSelector(getIsAiAgentFlowEnabled);
   const isAiAgentInstanceEnabled = useSelector(getIsAiAgentInstanceEnabled);
-  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
+  const isAnvilEnabled = useFeatureFlag(FEATURE_FLAG.license_anvil_enabled);
   const currentUser = useSelector(getCurrentUser);
   const isMobile = useIsMobileDevice();
   const urlParams = new URLSearchParams(location.search);
@@ -1081,7 +1064,7 @@ export function ApplicationsSection(props: any) {
                   workspaceId={activeWorkspace.id}
                 />
               )}
-              {(isAiAgentFlowEnabled || isAnvilEnabled) && (
+              {isAnvilEnabled && (
                 <ApplicationCardList
                   applications={anvilApplications}
                   canInviteToWorkspace={canInviteToWorkspace}
@@ -1096,21 +1079,8 @@ export function ApplicationsSection(props: any) {
                   hasManageWorkspacePermissions={hasManageWorkspacePermissions}
                   isMobile={isMobile}
                   onClickAddNewButton={onClickAddNewAppButton}
-                  // This list holds ANVIL-layout applications, so it is titled
-                  // for them regardless of the AI-agent flag — they were never
-                  // AI agents, they were only filed under that heading because
-                  // the flag was on (APP-15954).
-                  //
-                  // NOTE: the render gate on this block is NOT correct and is
-                  // not fixed here. `isAnvilEnabled` resolves via
-                  // getIsAnvilLayoutEnabled, which reads the RETIRED
-                  // release_anvil_enabled flag — never served, so always false in
-                  // production. The gate therefore collapses to
-                  // isAiAgentFlowEnabled alone, and an org licensed for Anvil but
-                  // without the AI-agent flag never sees this section at all.
-                  // Tracked separately; see APP-15950.
                   title={createMessage(ANVIL_APPLICATIONS)}
-                  titleTag={PreviewTag}
+                  titleTag={<PreviewTag />}
                   updateApplicationDispatch={updateApplicationDispatch}
                   workspaceId={activeWorkspace.id}
                 />

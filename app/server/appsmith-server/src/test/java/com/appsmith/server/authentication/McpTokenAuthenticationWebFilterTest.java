@@ -35,6 +35,7 @@ class McpTokenAuthenticationWebFilterTest {
     @Test
     void invalidMcpBearer_withValidMarker_returnsUnauthorizedFromAuthenticationFilter() {
         McpTokenService service = mock(McpTokenService.class);
+        when(service.authenticateCached("mcp_invalid")).thenReturn(Mono.empty());
         when(service.authenticate("mcp_invalid")).thenReturn(Mono.empty());
 
         authenticationClient(service)

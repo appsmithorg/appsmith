@@ -305,6 +305,46 @@ describe("M6 modal graph — lint findings and structural rules", () => {
     expect(rules).toContain("modal-analysis-excluded");
   });
 
+  it("reports a modal that no event opens, and only that one", () => {
+    const dsl = page([
+      button("Open", "{{ showModal('Edit') }}"),
+      modal("Edit", []),
+      modal("Orphan", []),
+    ]);
+    const noOpener = modalStackFindings(dsl).filter(
+      (finding) => finding.rule === "modal-no-opener",
+    );
+
+    expect(noOpener.map((finding) => finding.widget)).toEqual(["Orphan"]);
+  });
+
+  it("does not report a modal without an opener when only part of a binding parsed", () => {
+    const dsl = page([
+      modal("Edit", [
+        button("Next", `{{ closeModal('Edit'); showModal("Orphan") }}`),
+      ]),
+      button("Open", "{{ showModal('Edit') }}"),
+      modal("Orphan", []),
+    ]);
+
+    expect(
+      modalStackFindings(dsl).map((finding) => finding.rule),
+    ).not.toContain("modal-no-opener");
+  });
+
+  it("does not report a modal without an opener when a binding could not be parsed", () => {
+    const dsl = page([
+      node("Weird", "BUTTON_WIDGET", [], {
+        onClick: "{{ showModal(pickModal()) }}",
+      }),
+      modal("Orphan", []),
+    ]);
+
+    expect(
+      modalStackFindings(dsl).map((finding) => finding.rule),
+    ).not.toContain("modal-no-opener");
+  });
+
   it("reports a plain stack of depth 2 as a warning finding", () => {
     const dsl = page([
       button("Open", "{{ showModal('Edit') }}"),

@@ -13,6 +13,8 @@ export class AppSettings {
     _navigationSettings: {
       _showNavbar: "#t--navigation-settings-show-navbar",
       _showSignIn: "#t--navigation-settings-show-sign-in",
+      _showShareApp: "#t--navigation-settings-show-share-app",
+      _showAllApps: "#t--navigation-settings-show-all-apps",
       _orientation: ".t--navigation-settings-orientation",
       _navStyle: ".t--navigation-settings-navStyle",
       _colorStyle: ".t--navigation-settings-colorStyle",
@@ -31,6 +33,7 @@ export class AppSettings {
     _topStacked: ".t--app-viewer-navigation-top-stacked",
     _applicationName: ".t--app-viewer-application-name",
     _shareButton: ".t--app-viewer-share-button",
+    _backToAppsButton: ".t--app-viewer-back-to-apps-button",
     _modal: "div[role=dialog]",
     _modalClose: "div[role=dialog] button[aria-label='Close']",
     _canvas: ".t--canvas-artboard",
