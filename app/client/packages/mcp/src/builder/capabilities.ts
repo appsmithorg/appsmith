@@ -37,7 +37,7 @@ export const WIDGET_CATALOG = [
       defaultValue:
         "{ table: '<tableWidget>', column: '<column>' } — prefill from the selected row (edit forms)",
       validation:
-        "{ format: 'zipcode'|'email'|'number'|'integer'|'usPhone', message? } — vetted regex + error message; makes the input required (never author a raw regex)",
+        "{ format: 'zipcode'|'email'|'number'|'integer'|'usPhone'|'alpha'|'alphanumeric'|'initials', message? } or { minLength?, maxLength?, message? } — vetted regex + error message; makes the input required (never author a raw regex)",
     },
     purpose:
       "Single-line text entry. Pair validation with a button's disableWhenInvalid (patch_widgets) so bad input can't run a query.",
@@ -1032,7 +1032,7 @@ export function getCapabilities(
     resources: [
       "appsmith://reference/widgets — the widget catalog as a resource",
       "appsmith://guide/{placement,naming,bindings,git,screenshot} — technique guides (read the screenshot guide BEFORE recreating any screenshot/mockup the user shows you)",
-      "appsmith://recipe/{crud,form,table-detail,zip-lookup,filter-bar} — end-to-end build walkthroughs",
+      "appsmith://recipe/{crud,form,table-detail,zip-lookup,filter-bar,conditional-form} — end-to-end build walkthroughs",
       "Every doc above is also readable through the get_guide tool by slug (for clients that cannot read MCP resources).",
     ],
     prompts: [

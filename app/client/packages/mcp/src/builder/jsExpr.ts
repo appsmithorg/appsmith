@@ -248,6 +248,14 @@ const FNS = Object.freeze({
   avg: [1, 1],
   groupBy: [3, 3],
   dateBucket: [2, 2],
+  // Calendar dates in the viewer's local time (APP-16381): today + 14 days, an end date + 1 year, days between two
+  // dates.
+  addDays: [2, 2],
+  addMonths: [2, 2],
+  addYears: [2, 2],
+  startOfDay: [1, 1],
+  diffDays: [2, 2],
+  isoDate: [1, 1],
 } as const);
 
 export type Fn = keyof typeof FNS;
@@ -276,6 +284,10 @@ export const LITERAL_TAIL: Readonly<Partial<Record<Fn, number>>> =
     // last argument is the aggregate. exprProblem checks the key directly.
   });
 
+// The fields of `appsmith.user` an expression may read: the signed-in viewer's name, email and username.
+export const USER_FIELDS = ["name", "email", "username"] as const;
+export type UserField = (typeof USER_FIELDS)[number];
+
 // sortBy's direction and dateBucket's unit: closed sets, each choosing a fixed template.
 export const SORT_DIRECTIONS = ["asc", "desc"] as const;
 export const DATE_BUCKETS = ["day", "week", "month"] as const;
@@ -294,11 +306,14 @@ export type Expr =
   | { var: string }
   | { item: true }
   | { widget: string; property: string }
-  // A column of a table's selected row, for column names that are not identifiers ("instance ids").
-  | { table: string; column: string }
+  // A column of a table's selected row, for column names that are not identifiers ("instance ids"). With
+  // `row: "triggered"`, the row whose button column was clicked.
+  | { table: string; column: string; row?: "triggered" }
   | { query: string; field?: string }
   | { constant: string }
   | { store: string }
+  // A field of the signed-in viewer (`appsmith.user.name`).
+  | { user: UserField }
   | { op: Op; args: Expr[] }
   // `{ sep }` is admitted only as split's second argument, and a GroupAggregate only as groupBy's third (enforced in
   // exprProblem).
@@ -375,12 +390,19 @@ export const exprSchema: z.ZodType<Expr> = z.lazy(() =>
     z.object({ var: localName }).strict(),
     z.object({ item: z.literal(true) }).strict(),
     z.object({ widget: bindingIdentifier, property: propertyPath }).strict(),
-    z.object({ table: bindingIdentifier, column: tableColumnName }).strict(),
+    z
+      .object({
+        table: bindingIdentifier,
+        column: tableColumnName,
+        row: z.literal("triggered").optional(),
+      })
+      .strict(),
     z
       .object({ query: bindingIdentifier, field: propertyPath.optional() })
       .strict(),
     z.object({ constant: memberName }).strict(),
     z.object({ store: storeKeySchema }).strict(),
+    z.object({ user: z.enum(USER_FIELDS) }).strict(),
     z
       .object({ op: z.enum(OPS), args: z.array(exprSchema).min(1).max(8) })
       .strict(),
@@ -673,7 +695,7 @@ export function exprProblem(
       : undefined;
   }
 
-  if ("store" in expr) return undefined;
+  if ("store" in expr || "user" in expr) return undefined;
 
   if ("op" in expr) {
     const [min, max] = OP_ARITY[expr.op];
@@ -1124,6 +1146,20 @@ function compileDateBucket(date: string, unit: string): string {
   return `((v) => { if (v == null || v === "" || typeof v === "boolean") { return null; } const d = new Date(v); if (Number.isNaN(d.getTime())) { return null; }${adjust} const year = d.getUTCFullYear(); if (!(year >= 0 && year <= 9999)) { return null; } return d.toISOString().slice(0, 10); })(${date})`;
 }
 
+// A value as a NEW Date in the viewer's local time, or null. Each call gets its own copy, so a date function never
+// changes a Date it was given. A `YYYY-MM-DD` text is local midnight of that day (new Date() would read it as UTC
+// midnight, the day before in the Americas). null, undefined, "", booleans and an invalid date give null, as in
+// dateBucket. The regex has no braces, so the template stays brace-balanced inside a widget's {{ }} binding.
+const LOCAL_DATE_OF =
+  '((v) => { if (v == null || v === "" || typeof v === "boolean") { return null; } const d = typeof v === "string" && /^\\d\\d\\d\\d-\\d\\d-\\d\\d$/.test(v) ? new Date(Number(v.slice(0, 4)), Number(v.slice(5, 7)) - 1, Number(v.slice(8, 10))) : new Date(v instanceof Date ? v.getTime() : v); return Number.isNaN(d.getTime()) ? null : d; })';
+// A day, month or year count: a whole number, or null when it is not a finite number.
+const WHOLE_OF =
+  "((n) => { const v = Math.trunc(Number(n)); return Number.isFinite(v) ? v : null; })";
+// Adds whole months, clamping the day to the target month's last day: 31 January + 1 month is 28 or 29 February,
+// and 29 February + 1 year is 28 February. The time of day is kept.
+const ADD_MONTHS =
+  "((d, n) => { if (d === null || n === null) { return null; } const day = d.getDate(); d.setDate(1); d.setMonth(d.getMonth() + n); d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate())); return d; })";
+
 // Refuses to call a query with an undefined parameter (see the run step in compileSteps).
 const PARAMS_GUARD =
   '(($p) => { for (const $k of Object.keys($p)) { if ($p[$k] === undefined) { throw new Error("missing query parameter: " + $k); } } return $p; })';
@@ -1156,7 +1192,9 @@ export function compileExpr(expr: Expr): string {
 
   if ("widget" in expr) return `${expr.widget}.${expr.property}`;
 
-  if ("table" in expr) return `${expr.table}.selectedRow[${q(expr.column)}]`;
+  if ("table" in expr) {
+    return `${expr.table}.${expr.row === "triggered" ? "triggeredRow" : "selectedRow"}[${q(expr.column)}]`;
+  }
 
   if ("query" in expr) {
     return expr.field
@@ -1167,6 +1205,8 @@ export function compileExpr(expr: Expr): string {
   if ("constant" in expr) return `this.${expr.constant}`;
 
   if ("store" in expr) return `appsmith.store.${expr.store}`;
+
+  if ("user" in expr) return `appsmith.user.${expr.user}`;
 
   if ("op" in expr) {
     const a = expr.args.map(compileExpr);
@@ -1307,6 +1347,18 @@ export function compileExpr(expr: Expr): string {
         return compileGroupBy(a[0], a[1], args[2] as GroupAggregate);
       case "dateBucket":
         return compileDateBucket(a[0], args[1] as string);
+      case "addDays":
+        return `((d, n) => { if (d === null || n === null) { return null; } d.setDate(d.getDate() + n); return d; })(${LOCAL_DATE_OF}(${a[0]}), ${WHOLE_OF}(${a[1]}))`;
+      case "addMonths":
+        return `((d, n) => ${ADD_MONTHS}(d, n))(${LOCAL_DATE_OF}(${a[0]}), ${WHOLE_OF}(${a[1]}))`;
+      case "addYears":
+        return `((d, n) => ${ADD_MONTHS}(d, n === null ? null : n * 12))(${LOCAL_DATE_OF}(${a[0]}), ${WHOLE_OF}(${a[1]}))`;
+      case "startOfDay":
+        return `((d) => { if (d === null) { return null; } d.setHours(0, 0, 0, 0); return d; })(${LOCAL_DATE_OF}(${a[0]}))`;
+      case "diffDays":
+        return `((a, b) => { if (a === null || b === null) { return null; } a.setHours(0, 0, 0, 0); b.setHours(0, 0, 0, 0); return Math.round((b.getTime() - a.getTime()) / 86400000); })(${LOCAL_DATE_OF}(${a[0]}), ${LOCAL_DATE_OF}(${a[1]}))`;
+      case "isoDate":
+        return `((d) => d === null ? null : String(d.getFullYear()).padStart(4, "0") + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"))(${LOCAL_DATE_OF}(${a[0]}))`;
     }
   }
 

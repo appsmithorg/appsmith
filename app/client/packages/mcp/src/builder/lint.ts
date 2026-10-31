@@ -600,6 +600,23 @@ const GLOBAL_BINDING_HEADS = new Set([
   "Boolean",
   "Date",
   "window",
+  // APP-16381: lodash, other evaluator globals, and JS words a binding can start with (`new Date(...)` is what
+  // the date functions compile to).
+  "_",
+  "Intl",
+  "Promise",
+  "parseInt",
+  "parseFloat",
+  "isNaN",
+  "new",
+  "typeof",
+  "void",
+  "await",
+  "this",
+  "true",
+  "false",
+  "null",
+  "undefined",
   // Platform action functions (compiler-emitted event bindings).
   "resetWidget",
   "navigateTo",

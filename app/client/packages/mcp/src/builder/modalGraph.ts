@@ -45,8 +45,9 @@ export interface ModalEdge {
 
 export interface ModalGraph {
   edges: ModalEdge[];
-  // Trigger bindings excluded from analysis: oversized, nested-path trigger keys (e.g. table primaryColumns
-  // events — not authorable via MCP), or showModal/closeModal text in a shape the closed emitter never produces.
+  // Trigger bindings excluded from analysis: oversized, nested-path trigger keys other than a table column's
+  // onClick (which wire_event writes since APP-16381, so it is scanned), or showModal/closeModal text in a shape the
+  // closed emitter never produces.
   excludedBindings: number;
 }
 
@@ -96,6 +97,33 @@ interface ScanTarget {
   skipProp?: string;
 }
 
+// The trigger path of a table column's onClick, with an identifier column id.
+const COLUMN_ON_CLICK = /^primaryColumns\.([A-Za-z_][A-Za-z0-9_]*)\.onClick$/;
+
+// The value at a trigger key: a top-level prop, or a column's onClick. Own properties only, so a hostile column id
+// such as `__proto__` reads nothing.
+function triggerValue(widget: WidgetNode, key: string): unknown {
+  const column = COLUMN_ON_CLICK.exec(key);
+
+  if (!column) return widget[key];
+
+  const columns = widget.primaryColumns;
+
+  if (
+    typeof columns !== "object" ||
+    columns === null ||
+    !Object.prototype.hasOwnProperty.call(columns, column[1])
+  ) {
+    return undefined;
+  }
+
+  const entry = (columns as Record<string, unknown>)[column[1]];
+
+  return typeof entry === "object" && entry !== null
+    ? (entry as Record<string, unknown>).onClick
+    : undefined;
+}
+
 function triggerKeys(widget: WidgetNode): {
   topLevel: string[];
   nested: number;
@@ -113,10 +141,11 @@ function triggerKeys(widget: WidgetNode): {
 
     if (typeof key !== "string") continue;
 
-    // Nested trigger paths (table primaryColumns button events, human-authored) are outside the scan — the
-    // documented fail-open limitation; they are counted so inspect_page can surface the omission.
-    if (key.includes(".")) nested += 1;
-    else topLevel.add(key);
+    // A table column's onClick (`primaryColumns.<id>.onClick`) is scanned: wire_event writes it. Other nested
+    // trigger paths (human-authored) are outside the scan — the documented fail-open limitation; they are counted
+    // so inspect_page can surface the omission.
+    if (!key.includes(".") || COLUMN_ON_CLICK.test(key)) topLevel.add(key);
+    else nested += 1;
   }
 
   return { topLevel: [...topLevel], nested };
@@ -134,7 +163,7 @@ function scanWidget(target: ScanTarget): {
   for (const key of topLevel) {
     if (key === skipProp) continue;
 
-    const value = widget[key];
+    const value = triggerValue(widget, key);
 
     if (typeof value !== "string" || value.length === 0) continue;
 

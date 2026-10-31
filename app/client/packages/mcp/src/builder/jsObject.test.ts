@@ -921,3 +921,20 @@ describe("returns: an Expr leaf is never mistaken for a legacy literal record", 
     expect(source).toContain("return { done: true, count: 2 };");
   });
 });
+
+describe("returns { user } (APP-16381)", () => {
+  it("reads the signed-in user, while an older literal record with a user key stays a record", () => {
+    const spec = (returns: unknown) =>
+      createJsObjectSpecSchema.parse({
+        ...createSpec,
+        functions: [{ name: "who", returns }],
+      });
+
+    expect(compileJsObjectCode(spec({ user: "email" }))).toContain(
+      "return appsmith.user.email",
+    );
+    expect(
+      compileJsObjectCode(spec({ user: "someone", role: "admin" })),
+    ).toContain('return { user: "someone", role: "admin" }');
+  });
+});

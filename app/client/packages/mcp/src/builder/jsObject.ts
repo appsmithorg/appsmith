@@ -19,6 +19,7 @@ import {
   stepSchema,
   STEPS_MAX,
   stepsProblem,
+  USER_FIELDS,
   validateExpr,
   CALL_DEPTH_MEMBER,
 } from "./jsExpr.js";
@@ -173,6 +174,18 @@ function isLegacyReturns(
   ];
 
   if (keys.some((key) => exprKeys.includes(key))) return false;
+
+  // The `{ user }` leaf (APP-16381) is recognised only in its exact shape, so an older literal record that merely
+  // has a `user` key still compiles as before and keeps its marker.
+  if (
+    keys.length === 1 &&
+    keys[0] === "user" &&
+    (USER_FIELDS as readonly unknown[]).includes(
+      (returns as Record<string, unknown>).user,
+    )
+  ) {
+    return false;
+  }
 
   return Object.values(returns).every(
     (value) =>

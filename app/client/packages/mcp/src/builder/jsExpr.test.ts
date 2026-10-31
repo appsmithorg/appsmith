@@ -729,6 +729,47 @@ describe("jsExpr — every fn and op compiles to valid JS that computes the expe
       [["2026-10-28T12:00:00Z", "month"], "2026-10-01"],
       [["not a date", "day"], null],
     ],
+    // Date-only text is local midnight; the results are local Dates, compared to local Dates.
+    addDays: [
+      [["2026-10-31", 14], new Date(2026, 10, 14)],
+      [["2026-03-01", -1], new Date(2026, 1, 28)],
+      [["not a date", 1], null],
+      [["2026-10-31", "x"], null],
+    ],
+    addMonths: [
+      [["2026-01-31", 1], new Date(2026, 1, 28)],
+      [["2028-01-31", 1], new Date(2028, 1, 29)],
+      [["2026-10-31", -12], new Date(2025, 9, 31)],
+    ],
+    addYears: [
+      [["2028-02-29", 1], new Date(2029, 1, 28)],
+      [["2026-10-31", 1], new Date(2027, 9, 31)],
+      [[null, 1], null],
+    ],
+    startOfDay: [
+      [
+        [{ fn: "date", args: [1_793_000_000_000] }],
+        (() => {
+          const d = new Date(1_793_000_000_000);
+
+          d.setHours(0, 0, 0, 0);
+
+          return d;
+        })(),
+      ],
+      [[""], null],
+    ],
+    diffDays: [
+      [["2026-10-31", "2026-11-14"], 14],
+      [["2027-10-31", "2026-10-31"], -365],
+      [["2028-01-01", "2029-01-01"], 366],
+      [["2026-10-31", false], null],
+    ],
+    isoDate: [
+      [["2026-10-31"], "2026-10-31"],
+      [[{ fn: "addYears", args: ["2026-10-31", 1] }], "2027-10-31"],
+      [["nope"], null],
+    ],
   };
   const OP_CASES: Record<Op, [unknown[], unknown]> = {
     add: [[1, 2], 3],
@@ -1753,5 +1794,111 @@ describe("jsExpr — row shaping (sortBy, slice, sum, avg, groupBy, dateBucket)"
         { key: null, value: 2 },
       ]);
     });
+  });
+});
+
+describe("jsExpr — viewer, triggered row and calendar dates (APP-16381)", () => {
+  const run = (source: string, scope: Record<string, unknown> = {}): unknown =>
+    new Function(...Object.keys(scope), `return ${source};`)(
+      ...Object.values(scope),
+    );
+
+  it("reads the signed-in viewer's name, email or username", () => {
+    const appsmith = {
+      user: { name: "Ada", email: "ada@example.com", username: "ada" },
+    };
+
+    for (const field of ["name", "email", "username"] as const) {
+      const tree = expr({ user: field });
+
+      expect(validateExpr(tree, ctx())).toBeUndefined();
+      expect(compileExpr(tree)).toBe(`appsmith.user.${field}`);
+      expect(run(compileExpr(tree), { appsmith })).toBe(appsmith.user[field]);
+    }
+  });
+
+  it("refuses any other user field", () => {
+    expect(exprSchema.safeParse({ user: "roles" }).success).toBe(false);
+    expect(exprSchema.safeParse({ user: "name", extra: 1 }).success).toBe(
+      false,
+    );
+  });
+
+  it("reads the triggered row only when asked, and keeps the selected-row text otherwise", () => {
+    expect(compileExpr(expr({ table: "T", column: "end date" }))).toBe(
+      'T.selectedRow["end date"]',
+    );
+    expect(
+      compileExpr(expr({ table: "T", column: "end date", row: "triggered" })),
+    ).toBe('T.triggeredRow["end date"]');
+    expect(
+      exprSchema.safeParse({ table: "T", column: "c", row: "selected" })
+        .success,
+    ).toBe(false);
+  });
+
+  it("never changes a Date it is given", () => {
+    const given = new Date(2026, 9, 31, 15, 30);
+    const before = given.getTime();
+
+    for (const fn of ["addDays", "addMonths", "addYears"]) {
+      const tree = expr({
+        fn,
+        args: [{ widget: "Picker", property: "selectedDate" }, 2],
+      });
+
+      run(compileExpr(tree), { Picker: { selectedDate: given } });
+    }
+
+    run(
+      compileExpr(
+        expr({
+          fn: "diffDays",
+          args: [
+            { widget: "Picker", property: "selectedDate" },
+            { widget: "Picker", property: "selectedDate" },
+          ],
+        }),
+      ),
+      { Picker: { selectedDate: given } },
+    );
+    expect(given.getTime()).toBe(before);
+  });
+
+  it("keeps the time of day when it adds days, months or years", () => {
+    const tree = expr({ fn: "addMonths", args: ["2026-01-31T09:15:00", 1] });
+
+    expect(run(compileExpr(tree))).toEqual(new Date(2026, 1, 28, 9, 15));
+  });
+
+  it("compares a date picker's ISO text with a year from now, the billing-warning case", () => {
+    // selectedDate is ISO text, and text < Date is always false in JavaScript, so the text goes through `date`.
+    const tree = expr({
+      op: "lt",
+      args: [
+        { fn: "date", args: [{ widget: "Picker", property: "selectedDate" }] },
+        { fn: "addYears", args: [{ fn: "now", args: [] }, 1] },
+      ],
+    });
+
+    expect(validateExpr(tree, ctx())).toBeUndefined();
+    expect(
+      run(compileExpr(tree), {
+        Picker: {
+          selectedDate: new Date(Date.now() + 30 * 86_400_000).toISOString(),
+        },
+      }),
+    ).toBe(true);
+  });
+});
+
+describe("diffDays counts calendar days, not 24-hour spans (APP-16381)", () => {
+  it("counts 23:00 to 01:00 the next day as one day", () => {
+    const tree = expr({
+      fn: "diffDays",
+      args: ["2026-10-31T23:00:00", "2026-11-01T01:00:00"],
+    });
+
+    expect(new Function(`return ${compileExpr(tree)};`)()).toBe(1);
   });
 });

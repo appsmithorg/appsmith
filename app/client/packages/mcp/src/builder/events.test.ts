@@ -419,7 +419,13 @@ describe("call — invoke a restricted JS-object function", () => {
       { object: "1Banner", function: "save" },
       { object: "BannerAdmin" },
       { object: "BannerAdmin", function: "save", args: "not-a-list" },
-      { object: "BannerAdmin", function: "save", args: [{ expr: "1+1" }] },
+      { object: "BannerAdmin", function: "save", args: [{ raw: "1+1" }] },
+      // An expression argument is a grammar tree: raw JavaScript is not one of its shapes.
+      {
+        object: "BannerAdmin",
+        function: "save",
+        args: [{ expr: { js: "1+1" } }],
+      },
     ]) {
       expect(
         wireEventSpecSchema.safeParse({
@@ -1035,5 +1041,178 @@ describe("eventReferences / widgetExists", () => {
 
     expect(widgetExists(dsl, "EditModal")).toBe(true);
     expect(widgetExists(dsl, "Nope")).toBe(false);
+  });
+});
+
+describe("APP-16381: change events, expression arguments and table column clicks", () => {
+  const parse = (spec: unknown) => wireEventSpecSchema.parse(spec);
+
+  it("wires radio and checkbox-group selection changes and multiselect option changes", () => {
+    for (const [type, event] of [
+      ["RADIO_GROUP_WIDGET", "onSelectionChange"],
+      ["CHECKBOX_GROUP_WIDGET", "onSelectionChange"],
+      ["MULTI_SELECT_WIDGET_V2", "onOptionChange"],
+    ] as const) {
+      const dsl = page([widget({ widgetId: "Ctl", type })]);
+      const { binding, dsl: next } = applyEvent(
+        dsl,
+        parse({ widget: "Ctl", event, action: { reset: "NewEnd" } }),
+      );
+
+      expect(binding).toBe("{{ resetWidget('NewEnd', true) }}");
+      expect(next.children?.[0][event]).toBe(binding);
+      expect(next.children?.[0].dynamicTriggerPathList).toEqual([
+        { key: event },
+      ]);
+    }
+
+    expect(() =>
+      applyEvent(
+        page([widget({ widgetId: "Ctl", type: "SELECT_WIDGET" })]),
+        parse({
+          widget: "Ctl",
+          event: "onSelectionChange",
+          action: { reset: "X" },
+        }),
+      ),
+    ).toThrow(/not supported on SELECT_WIDGET/);
+  });
+
+  it("passes an expression argument to a JS function, and reports what it reads", () => {
+    const spec = parse({
+      widget: "Btn",
+      event: "onClick",
+      action: {
+        call: {
+          object: "Licenses",
+          function: "extend",
+          args: [
+            {
+              expr: {
+                fn: "addYears",
+                args: [
+                  { table: "Tbl", column: "end date", row: "triggered" },
+                  1,
+                ],
+              },
+            },
+            { expr: { query: "GetLicense", field: "id" } },
+            { expr: { user: "email" } },
+          ],
+        },
+      },
+    });
+    const binding = compileEventBinding(spec.action);
+
+    expect(binding).toMatch(/^\{\{ Licenses\.extend\(/);
+    expect(binding).toContain('Tbl.triggeredRow["end date"]');
+    expect(binding).toContain("GetLicense.data?.id");
+    expect(binding).toContain("appsmith.user.email");
+    expect(eventReferences(spec.action)).toEqual([
+      { kind: "jsFunction", name: "Licenses", member: "extend" },
+      { kind: "widget", name: "Tbl" },
+      { kind: "query", name: "GetLicense", readOnly: true },
+    ]);
+  });
+
+  it("encodes a single quote in a literal argument, and refuses one in an expression or a call or brace inside one", () => {
+    const binding = compileEventBinding(
+      parse({
+        widget: "Btn",
+        event: "onClick",
+        action: { call: { object: "O", function: "f", args: ["O'Brien"] } },
+      }).action,
+    );
+
+    // Valid JS for the same string, with no quote character in the stored text for the modal-graph scan to misread.
+    expect(binding).toBe('{{ O.f("O\\u0027Brien") }}');
+    expect(new Function("return " + binding.slice(7, -4))()).toBe("O'Brien");
+
+    for (const arg of [
+      { expr: { fn: "concat", args: ["it's", "x"] } },
+      { expr: { fn: "concat", args: ["{", "x"] } },
+      { expr: { call: "save" } },
+    ]) {
+      expect(
+        wireEventSpecSchema.safeParse({
+          widget: "Btn",
+          event: "onClick",
+          action: { call: { object: "O", function: "f", args: [arg] } },
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  function tableWith(columns: Record<string, unknown>): WidgetNode {
+    return page([
+      widget({
+        widgetId: "Tbl",
+        type: "TABLE_WIDGET_V2",
+        primaryColumns: columns,
+      }),
+    ]);
+  }
+
+  it("wires a button column's onClick and registers the nested trigger path", () => {
+    const dsl = tableWith({
+      extend: { id: "extend", columnType: "button" },
+      name: { id: "name", columnType: "text" },
+    });
+    const { binding, dsl: next } = applyEvent(
+      dsl,
+      parse({
+        widget: "Tbl",
+        column: "extend",
+        event: "onClick",
+        action: { showModal: "ExtendModal" },
+      }),
+    );
+    const table = next.children?.[0] as WidgetNode & {
+      primaryColumns: Record<string, Record<string, unknown>>;
+    };
+
+    expect(table.primaryColumns.extend.onClick).toBe(binding);
+    expect(table.onClick).toBeUndefined();
+    expect(table.dynamicTriggerPathList).toEqual([
+      { key: "primaryColumns.extend.onClick" },
+    ]);
+    // The caller's DSL is unchanged.
+    expect(
+      (dsl.children?.[0].primaryColumns as Record<string, object>).extend,
+    ).not.toHaveProperty("onClick");
+  });
+
+  it("refuses a column wiring on a non-button column, a missing column, another event or another widget", () => {
+    const dsl = tableWith({ name: { columnType: "text" } });
+    const wire = (over: Record<string, unknown>, target = dsl) =>
+      applyEvent(
+        target,
+        parse({
+          widget: "Tbl",
+          column: "name",
+          event: "onClick",
+          action: { showModal: "M" },
+          ...over,
+        }),
+      );
+
+    expect(() => wire({})).toThrow(/only button and iconButton columns/);
+    expect(() => wire({ column: "missing" })).toThrow(
+      /column "missing" was not found/,
+    );
+    expect(() => wire({ event: "onRowSelected" })).toThrow(
+      /wired with event "onClick"/,
+    );
+    expect(() =>
+      wire({}, page([widget({ widgetId: "Tbl", type: "BUTTON_WIDGET" })])),
+    ).toThrow(/can only be wired on a TABLE_WIDGET_V2/);
+    expect(
+      wireEventSpecSchema.safeParse({
+        widget: "Tbl",
+        column: "__proto__",
+        event: "onClick",
+        action: { showModal: "M" },
+      }).success,
+    ).toBe(false);
   });
 });
