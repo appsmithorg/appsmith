@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.server.dtos.PageDTO;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ public class EqualityTest {
 
     private final Set<Class<?>> TESTED_CLASSES = Set.of(
             // Note: Adding a class here means that we have a test for its equality in this file.
+            PageDTO.class,
             ApplicationDetail.class,
             OrganizationConfiguration.class,
             TenantConfiguration.class,
@@ -124,5 +126,25 @@ public class EqualityTest {
         a2.getAutoCommitConfig().setEnabled(Boolean.FALSE);
 
         assertThat(a1).isNotEqualTo(a2).isNotEqualTo(a3);
+    }
+
+    @Test
+    void should_preserveIdentityEquality_when_pageDTOExtendsCEBase() {
+        // Given
+        PageDTO first = new PageDTO();
+        first.setName("page");
+        PageDTO sameValues = new PageDTO();
+        sameValues.setName("page");
+
+        // When
+        boolean sameObject = first.equals(first);
+        boolean separateObjects = first.equals(sameValues);
+
+        // Then
+        // PageDTO is a mutable transport object. Extracting its CE base must not
+        // introduce value equality that did not exist before the extraction.
+        assertThat(sameObject).isTrue();
+        assertThat(separateObjects).isFalse();
+        assertThat(first.hashCode()).isEqualTo(System.identityHashCode(first));
     }
 }
