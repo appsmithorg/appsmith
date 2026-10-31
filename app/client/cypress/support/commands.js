@@ -540,7 +540,8 @@ Cypress.Commands.add(
 // Clicks a day in an open date picker. `day` is a dayjs date in the month the calendar shows: use
 // otherDayThisMonth() (support/otherDayThisMonth.js), never today + N days, which can fall outside that month.
 //   - v2: the property pane's date control (ADS DatePicker). `dateFormate` is not used.
-//   - v1: the widget's own calendar (Blueprint DateInput), whose day labels use `dateFormate`.
+//   - v1: the widget's own calendar (Blueprint DateInput). Its day labels are Date.toDateString() text, such as
+//     "Thu Oct 15 2026", so `dateFormate` defaults to that format.
 Cypress.Commands.add("setDate", (day, dateFormate, ver = "v2") => {
   // A shape check, not dayjs.isDayjs: Cypress bundles this file and each spec separately, each with its own copy
   // of dayjs, so a date made in a spec is not an instance of this file's dayjs class.
@@ -564,7 +565,7 @@ Cypress.Commands.add("setDate", (day, dateFormate, ver = "v2") => {
     cy.get(
       formWidgetsPage.widgetCalendarDay.replace(
         "{day}",
-        day.format(dateFormate),
+        day.format(dateFormate ?? "ddd MMM DD YYYY"),
       ),
     ).click();
   }

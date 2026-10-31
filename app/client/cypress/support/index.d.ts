@@ -135,10 +135,17 @@ declare namespace Cypress {
     isSelectRow(index: number);
 
     // `day` is a dayjs date in the shown month, such as otherDayThisMonth() from support/otherDayThisMonth.js.
+    // v2 (default): the property pane's date control; no format is used.
     setDate(
       day: { format(template: string): string },
       dateFormate?: string,
-      ver?: "v1" | "v2",
+      ver?: "v2",
+    );
+    // v1: the widget's own calendar; the format is its day label, "ddd MMM DD YYYY".
+    setDate(
+      day: { format(template: string): string },
+      dateFormate: string,
+      ver: "v1",
     );
 
     pageNo();
