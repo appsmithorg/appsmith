@@ -541,17 +541,56 @@ Cypress.Commands.add("getDate", (date, dateFormate) => {
   return eDate;
 });
 
+// Clicks the day `date` days from today in an open date picker. When that day is not in the month the calendar
+// shows (for example tomorrow on the last day of a month), the calendar is moved a month at a time towards it first.
+// Days of the next or previous month that the grid shows greyed out are not used, so the result never depends on
+// which weekday the month ends on.
+//   - v2: the property pane's date control (ADS DatePicker).
+//   - v1: the widget's own calendar (Blueprint DateInput).
 Cypress.Commands.add("setDate", (date, dateFormate, ver = "v2") => {
-  if (ver == "v2") {
-    const expDate = dayjs().add(date, "days").format("dddd, MMMM D");
-    cy.get(`.react-datepicker__day[aria-label^="Choose ${expDate}"]`)
-      .first()
-      .click();
-  } else if (ver == "v1") {
-    const expDate = dayjs().add(date, "days").format(dateFormate);
-    const sel = `.DayPicker-Day[aria-label=\"${expDate}\"]`;
-    cy.get(sel).click();
-  }
+  const target = dayjs().add(date, "days");
+  const forward = !target.isBefore(dayjs(), "day");
+  const daySelector =
+    ver == "v2"
+      ? `.react-datepicker__day:not(.react-datepicker__day--outside-month)[aria-label^="Choose ${target.format(
+          "dddd, MMMM D",
+        )}"]`
+      : `.DayPicker-Day:not(.DayPicker-Day--outside)[aria-label="${target.format(
+          dateFormate,
+        )}"]`;
+  const monthButton =
+    ver == "v2"
+      ? `.ads-v2-datepicker__calender-header button`
+      : `.DayPicker-NavButton--${forward ? "next" : "prev"}`;
+
+  const selectDay = (monthsMoved) => {
+    cy.get("body").then(($body) => {
+      if ($body.find(daySelector).length > 0) {
+        cy.get(daySelector).first().click();
+
+        return;
+      }
+
+      if (monthsMoved >= 12) {
+        throw new Error(`setDate: ${target.format("YYYY-MM-DD")} not found`);
+      }
+
+      // The ADS header holds previous, month, year and next buttons, in that order.
+      if (ver == "v2") {
+        cy.get(monthButton)[forward ? "last" : "first"]().click();
+      } else {
+        cy.get(monthButton).first().click();
+      }
+
+      selectDay(monthsMoved + 1);
+    });
+  };
+
+  // The first check reads the page once, so wait for the calendar grid before it.
+  cy.get(ver == "v2" ? ".react-datepicker__month" : ".DayPicker-Month").should(
+    "be.visible",
+  );
+  selectDay(0);
 });
 
 Cypress.Commands.add("validateDisableWidget", (widgetCss, disableCss) => {
