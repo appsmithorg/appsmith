@@ -79,8 +79,5 @@
   "minDateInput" : ".t--property-control-mindate .ads-v2-input__input-section-input",
   "datePickerInput": ".t--widget-datepickerwidget2 .bp3-input",
   "dayPickerNextButton": ".DayPicker-NavButton--next",
-  "adsDatePickerHeader": ".ads-v2-datepicker__calender-header",
-  "datePickerYearSelect": ".bp3-datepicker-year-select select",
-  "datePickerMonthSelect": ".bp3-datepicker-month-select select",
   "dayPickerToday": ".ads-v2-datepicker__calender-today"
 }

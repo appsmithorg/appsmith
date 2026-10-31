@@ -24,7 +24,6 @@ dayjs.extend(advancedFormat);
 
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
-const formWidgetsPage = require("../locators/FormWidgets.json");
 import ApiEditor from "../locators/ApiEditor";
 import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 
@@ -543,59 +542,15 @@ Cypress.Commands.add("getDate", (date, dateFormate) => {
 });
 
 Cypress.Commands.add("setDate", (date, dateFormate, ver = "v2") => {
-  const target = dayjs().add(date, "days");
   if (ver == "v2") {
-    return cy
-      .get(formWidgetsPage.adsDatePickerHeader)
-      .find("button")
-      .eq(1)
-      .invoke("text")
-      .then((month) => {
-        return cy
-          .get(formWidgetsPage.adsDatePickerHeader)
-          .find("button")
-          .eq(2)
-          .invoke("text")
-          .then((year) => {
-            const displayed = dayjs(new Date(`${month} 1, ${year}`));
-            const monthDelta = target
-              .startOf("month")
-              .diff(displayed.startOf("month"), "month");
-            let navigation = cy.wrap(null, { log: false });
-            for (let index = 0; index < Math.abs(monthDelta); index++) {
-              navigation = navigation.then(() => {
-                const buttons = cy
-                  .get(formWidgetsPage.adsDatePickerHeader)
-                  .find("button");
-                return (
-                  monthDelta > 0 ? buttons.last() : buttons.first()
-                ).click();
-              });
-            }
-            return navigation.then(() =>
-              cy
-                .get(
-                  `.react-datepicker__day[aria-label^="Choose ${target.format("dddd, MMMM D")}"]`,
-                )
-                .first()
-                .click(),
-            );
-          });
-      });
+    const expDate = dayjs().add(date, "days").format("dddd, MMMM D");
+    cy.get(`.react-datepicker__day[aria-label^="Choose ${expDate}"]`)
+      .first()
+      .click();
   } else if (ver == "v1") {
-    return cy
-      .get(formWidgetsPage.datePickerYearSelect)
-      .select(String(target.year()))
-      .then(() => {
-        return cy
-          .get(formWidgetsPage.datePickerMonthSelect)
-          .select(String(target.month()));
-      })
-      .then(() => {
-        return cy
-          .get(`.DayPicker-Day[aria-label="${target.format(dateFormate)}"]`)
-          .click();
-      });
+    const expDate = dayjs().add(date, "days").format(dateFormate);
+    const sel = `.DayPicker-Day[aria-label=\"${expDate}\"]`;
+    cy.get(sel).click();
   }
 });
 
