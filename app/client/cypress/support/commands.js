@@ -24,6 +24,7 @@ dayjs.extend(advancedFormat);
 
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
+const formWidgetsPage = require("../locators/FormWidgets.json");
 import ApiEditor from "../locators/ApiEditor";
 import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 
@@ -538,7 +539,6 @@ Cypress.Commands.add(
 
 // Clicks a day in an open date picker. `day` is a dayjs date in the month the calendar shows: use
 // otherDayThisMonth() (support/otherDayThisMonth.js), never today + N days, which can fall outside that month.
-// Days of the next or previous month that the grid shows greyed out are not matched.
 //   - v2: the property pane's date control (ADS DatePicker). `dateFormate` is not used.
 //   - v1: the widget's own calendar (Blueprint DateInput), whose day labels use `dateFormate`.
 Cypress.Commands.add("setDate", (day, dateFormate, ver = "v2") => {
@@ -550,19 +550,22 @@ Cypress.Commands.add("setDate", (day, dateFormate, ver = "v2") => {
     );
   }
 
+  // The day locators (FormWidgets.json) leave out the greyed-out days of the next or previous month.
   if (ver == "v2") {
     cy.get(
-      `.react-datepicker__day:not(.react-datepicker__day--outside-month)[aria-label^="Choose ${day.format(
-        "dddd, MMMM D",
-      )}"]`,
+      formWidgetsPage.propertyPaneCalendarDay.replace(
+        "{day}",
+        day.format("dddd, MMMM D"),
+      ),
     )
       .first()
       .click();
   } else if (ver == "v1") {
     cy.get(
-      `.DayPicker-Day:not(.DayPicker-Day--outside)[aria-label="${day.format(
-        dateFormate,
-      )}"]`,
+      formWidgetsPage.widgetCalendarDay.replace(
+        "{day}",
+        day.format(dateFormate),
+      ),
     ).click();
   }
 });
