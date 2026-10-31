@@ -610,7 +610,7 @@ const OPERATOR_WORDS: ReadonlySet<string> = new Set([
 
 // Binding heads that are always valid: JS/Appsmith globals and the platform action functions the compiler emits
 // (e.g. wire_event -> resetWidget/navigateTo/showAlert), so they aren't mistaken for dangling entity references.
-const GLOBAL_BINDING_HEADS = new Set([
+export const GLOBAL_BINDING_HEADS: ReadonlySet<string> = new Set([
   "appsmith",
   "moment",
   "Math",
@@ -633,9 +633,22 @@ const GLOBAL_BINDING_HEADS = new Set([
   "Map",
   "Set",
   "RegExp",
+  "Error",
+  // The web APIs the evaluator supports (SUPPORTED_WEB_APIS in the client's src/plugins/Linting/constants.ts;
+  // lint-globals-drift.test.ts keeps the two in step).
+  "console",
+  "crypto",
+  "fetch",
+  "Blob",
+  "File",
+  "FileReader",
+  "FormData",
   "URL",
   "URLSearchParams",
-  "Error",
+  "TextEncoder",
+  "TextDecoder",
+  "atob",
+  "btoa",
   "this",
   "true",
   "false",

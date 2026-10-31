@@ -853,5 +853,7 @@ describe("dangling-binding after a JS operator word (CodeRabbit on #42540)", () 
     expect(dangling("{{ typeof (GetUsers.data) }}")).toEqual([]);
     expect(dangling("{{ [...new Set(GetUsers.data)].length }}")).toEqual([]);
     expect(dangling("{{ new Map([]).size }}")).toEqual([]);
+    expect(dangling('{{ new Blob(["hi"]).size }}')).toEqual([]);
+    expect(dangling("{{ new FormData() }}")).toEqual([]);
   });
 });
