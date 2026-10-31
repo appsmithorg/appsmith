@@ -1,4 +1,3 @@
-import CustomerTracking from "ee/pages/AppViewer/CustomerTracking";
 import React, { useEffect } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { useDispatch } from "react-redux";
@@ -36,6 +35,7 @@ import { APP_MODE } from "entities/App";
 import { initAppViewerAction } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
+import CustomerTracking from "ee/pages/AppViewer/CustomerTracking";
 import HtmlTitle from "./AppViewerHtmlTitle";
 import type { ApplicationPayload } from "entities/Application";
 import {
