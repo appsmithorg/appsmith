@@ -536,61 +536,35 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("getDate", (date, dateFormate) => {
-  const eDate = dayjs().add(date, "days").format(dateFormate);
-  return eDate;
-});
+// Clicks a day in an open date picker. `day` is a dayjs date in the month the calendar shows: use
+// otherDayThisMonth() (support/otherDayThisMonth.js), never today + N days, which can fall outside that month.
+// Days of the next or previous month that the grid shows greyed out are not matched.
+//   - v2: the property pane's date control (ADS DatePicker). `dateFormate` is not used.
+//   - v1: the widget's own calendar (Blueprint DateInput), whose day labels use `dateFormate`.
+Cypress.Commands.add("setDate", (day, dateFormate, ver = "v2") => {
+  // A shape check, not dayjs.isDayjs: Cypress bundles this file and each spec separately, each with its own copy
+  // of dayjs, so a date made in a spec is not an instance of this file's dayjs class.
+  if (typeof day === "number" || typeof day?.format !== "function") {
+    throw new Error(
+      "setDate takes a dayjs date in the shown month, such as otherDayThisMonth(), not a number of days from today",
+    );
+  }
 
-// Clicks the day `date` days from today in an open date picker. When that day is not in the month the calendar
-// shows (for example tomorrow on the last day of a month), the calendar is moved a month at a time towards it first.
-// Days of the next or previous month that the grid shows greyed out are not used, so the result never depends on
-// which weekday the month ends on.
-//   - v2: the property pane's date control (ADS DatePicker).
-//   - v1: the widget's own calendar (Blueprint DateInput).
-Cypress.Commands.add("setDate", (date, dateFormate, ver = "v2") => {
-  const target = dayjs().add(date, "days");
-  const forward = !target.isBefore(dayjs(), "day");
-  const daySelector =
-    ver == "v2"
-      ? `.react-datepicker__day:not(.react-datepicker__day--outside-month)[aria-label^="Choose ${target.format(
-          "dddd, MMMM D",
-        )}"]`
-      : `.DayPicker-Day:not(.DayPicker-Day--outside)[aria-label="${target.format(
-          dateFormate,
-        )}"]`;
-  const monthButton =
-    ver == "v2"
-      ? `.ads-v2-datepicker__calender-header button`
-      : `.DayPicker-NavButton--${forward ? "next" : "prev"}`;
-
-  const selectDay = (monthsMoved) => {
-    cy.get("body").then(($body) => {
-      if ($body.find(daySelector).length > 0) {
-        cy.get(daySelector).first().click();
-
-        return;
-      }
-
-      if (monthsMoved >= 12) {
-        throw new Error(`setDate: ${target.format("YYYY-MM-DD")} not found`);
-      }
-
-      // The ADS header holds previous, month, year and next buttons, in that order.
-      if (ver == "v2") {
-        cy.get(monthButton)[forward ? "last" : "first"]().click();
-      } else {
-        cy.get(monthButton).first().click();
-      }
-
-      selectDay(monthsMoved + 1);
-    });
-  };
-
-  // The first check reads the page once, so wait for the calendar grid before it.
-  cy.get(ver == "v2" ? ".react-datepicker__month" : ".DayPicker-Month").should(
-    "be.visible",
-  );
-  selectDay(0);
+  if (ver == "v2") {
+    cy.get(
+      `.react-datepicker__day:not(.react-datepicker__day--outside-month)[aria-label^="Choose ${day.format(
+        "dddd, MMMM D",
+      )}"]`,
+    )
+      .first()
+      .click();
+  } else if (ver == "v1") {
+    cy.get(
+      `.DayPicker-Day:not(.DayPicker-Day--outside)[aria-label="${day.format(
+        dateFormate,
+      )}"]`,
+    ).click();
+  }
 });
 
 Cypress.Commands.add("validateDisableWidget", (widgetCss, disableCss) => {

@@ -134,9 +134,12 @@ declare namespace Cypress {
 
     isSelectRow(index: number);
 
-    getDate(date: number, dateFormate: string);
-
-    setDate(date: number, dateFormate: string);
+    // `day` is a dayjs date in the shown month, such as otherDayThisMonth() from support/otherDayThisMonth.js.
+    setDate(
+      day: { format(template: string): string },
+      dateFormate?: string,
+      ver?: "v1" | "v2",
+    );
 
     pageNo();
 
