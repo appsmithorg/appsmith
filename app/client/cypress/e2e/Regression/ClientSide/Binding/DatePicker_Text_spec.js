@@ -2,6 +2,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import { otherDayThisMonth } from "../../../../support/otherDayThisMonth";
 
 describe(
   "Binding the Datepicker and Text Widget",
@@ -28,7 +29,7 @@ describe(
       cy.get(formWidgetsPage.datepickerWidget).first().click();
       cy.get(formWidgetsPage.datepickerFooter).contains("Today").click();
 
-      cy.getDate(1, "YYYY-MM-DD").then((date) => {
+      cy.wrap(otherDayThisMonth().format("YYYY-MM-DD")).then((date) => {
         cy.log("retured date" + date);
         nextDay = date;
         cy.wait("@updateLayout");
@@ -43,7 +44,7 @@ describe(
           .eq(0)
           .click();
         cy.SetDateToToday();
-        cy.setDate(1, "ddd MMM DD YYYY", "v1");
+        cy.setDate(otherDayThisMonth(), "ddd MMM DD YYYY", "v1");
         cy.get(commonlocators.labelTextStyle).should("contain", nextDay);
       });
 
@@ -70,18 +71,18 @@ describe(
         });
 
       /**
-       * Changing date on datepicker1 to current date +1
+       * Changing date on datepicker1 to another day of this month
        */
       cy.openPropertyPane("datepickerwidget");
       cy.get(formWidgetsPage.defaultDate).click();
       cy.get(formWidgetsPage.dayPickerToday).click();
       cy.get(formWidgetsPage.defaultDate).click();
-      cy.setDate(1);
+      cy.setDate(otherDayThisMonth());
 
       /**
        *Validate the date in text widget
        */
-      cy.getDate(1, "YYYY-MM-DD").then((date) => {
+      cy.wrap(otherDayThisMonth().format("YYYY-MM-DD")).then((date) => {
         cy.log("retured date" + date);
         nextDay = date;
         cy.get(commonlocators.labelTextStyle).should("contain", nextDay);
