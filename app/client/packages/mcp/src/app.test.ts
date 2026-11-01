@@ -1915,6 +1915,7 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
         },
       })),
       listActions: jest.fn(async () => [{ name: "getOrders", pageId: "p1" }]),
+      listActionCollections: jest.fn(async () => []),
     };
 
     const body = await callTool(api, "inspect_page", {
@@ -2011,6 +2012,37 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
       ),
     ).toEqual([]);
   });
+
+  it.each(["inspect_page", "read_semantic_page"])(
+    "%s keeps structural diagnostics when JS-object names cannot be read",
+    async (tool) => {
+      const api = licensePageApi();
+      const context = (await api.getApplicationContext("app1", "p1", "l1")) as {
+        pages: unknown;
+        page: unknown;
+        layout: { dsl: { children: { topRow: number; bottomRow: number }[] } };
+      };
+
+      context.layout.dsl.children[1].topRow = 0;
+      context.layout.dsl.children[1].bottomRow = 4;
+      api.getApplicationContext = jest.fn(async () => context);
+      api.listActionCollections = jest.fn(async () => {
+        throw new Error("unavailable");
+      });
+      const body = await callTool(api, tool, {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+      });
+      const issues = (body.diagnostics as { issues: { rule: string }[] })
+        .issues;
+
+      expect(issues.filter(({ rule }) => rule === "dangling-binding")).toEqual(
+        [],
+      );
+      expect(issues.some(({ rule }) => rule === "overlap")).toBe(true);
+    },
+  );
 
   it("read_semantic_page lists table columns and summarises hand-written bindings by name only (APP-16381)", async () => {
     const body = await callTool(licensePageApi(), "read_semantic_page", {

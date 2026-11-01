@@ -2717,11 +2717,13 @@ async function lintLiveDsl(
   // preserve the write result and return the structural diagnostics that are still available locally.
   const names = known ?? (await entityNamesOf(api, applicationId, dataEnabled));
 
-  if (names.queries === undefined) return lintDsl(dsl);
+  if (names.queries === undefined || names.jsObjects === undefined) {
+    return lintDsl(dsl);
+  }
 
   // JS objects are valid binding heads too (APP-16381: `{{ Utils.getLicenseData() }}` was reported as dangling).
   return lintDsl(dsl, {
-    knownDataNames: [...names.queries, ...(names.jsObjects ?? [])],
+    knownDataNames: [...names.queries, ...names.jsObjects],
     writeDataNames: names.writeQueries,
   });
 }

@@ -966,10 +966,12 @@ export function getCapabilities(
     // build/edit spec in one place (tableData vs source) and agents are steered to this document first.
     patchSpec: {
       shape:
-        "{ operations: [{ kind: 'update', name: '<widget>', props: {...} } | { kind: 'move', name, parent?, position?, strict? } | { kind: 'resize', name, rows?, columns?, strict? }] } — a { kind: 'remove' } operation is refused: removing widgets needs the user's approval through prepare_remove_widgets / confirm_remove_widgets",
+        "{ operations: [{ kind: 'update', name: '<widget>', props: {...} } | { kind: 'move', name, parent?, position?, strict? } | { kind: 'resize', name, rows?, columns?, strict? } | { kind: 'addColumn', name: '<table>', column: { key, label?, type?, hidden?, buttonLabel?, iconName? } } | { kind: 'updateColumn', name: '<table>', column: '<id>', props: { label?, hidden?, buttonLabel?, iconName? } }] } — a { kind: 'remove' } operation is refused: removing widgets needs the user's approval through prepare_remove_widgets / confirm_remove_widgets",
       move: "parent: '<containerWidget>' reparents; position: { topRow, leftColumn } places on the page grid (rows/columns, see `grid`) — set the same topRow as a sibling to sit widgets side by side. At least one of parent/position is required. NOT the build spec's placement { after/inside } — read the page first to learn current positions. Occupancy-aware: a position that lands on another widget is REPAIRED to the nearest free spot below (the change records requestedPosition vs the applied position, and the result carries a note) unless strict: true, which rejects with the colliding widget names and the nearest free position so one retry can succeed. Reparenting always lands at the nearest free spot in the destination canvas and the landing position is recorded in changes (it is no longer carried over blindly). A modal (or a subtree containing one) can never be moved under another modal's canvas — modals are page-level overlays.",
       resize:
         "{ kind: 'resize', name, rows?, columns?, strict? } — set a widget's span in grid units (integers >= 1; at least one of rows/columns). Growing into occupied cells pushes the colliding below-siblings down (strict: true rejects with their names instead); width growth past the canvas is rejected with the available columns; shrinking a container/form/tabs below its children's ROWS is rejected with the smallest height that fits them (columns are free: nested content lives on the inner canvas's own 64-column grid, which scales to the container's width). Modals translate rows into their pixel height (rows × grid.rowHeightPx) — modal columns are not resizable.",
+      columns:
+        "addColumn adds a table column with a key and optional label, type (text|number|date|image|video|url|boolean|button|iconButton), hidden, buttonLabel and iconName. updateColumn changes label, hidden, buttonLabel or iconName on an existing column id. Read column ids with read_semantic_page; wire button/iconButton onClick with wire_event's column parameter.",
       overlapPolicy:
         "Any layout mutation whose result would INTRODUCE overlapping widgets is rejected with code 'overlap_introduced', the offending name pairs, and a ready-to-apply suggestedFix ({ tool: 'patch_widgets', operations: [...] }). Pre-existing overlaps on a page never block edits. Containers/forms/tabs auto-grow to fit new content and push widgets below them down; every automatic adjustment is reported in changes/notes.",
       updateProps: {
@@ -984,19 +986,32 @@ export function getCapabilities(
         tableData:
           "{ query: '<queryName>', field?: '<responsePath>', clearWhenEmpty?: '<inputWidget>' } OR { store: '<storeKey>' } — bind an EXISTING table's rows to a query, or to a store key accumulated by wire_event's appendToStore (session-only). This is the patch-path name for the build spec's `source`; read_semantic_page also reports it as tableData.",
         source:
-          "{ table: '<Table>', column: '<col>' } — selected-row display binding on a text widget. NOT the table data binding (use tableData for that).",
+          "{ table: '<Table>', column: '<col>' } OR { store: '<key>' } — selected-row or store display binding on a text widget. NOT the table data binding (use tableData for that).",
         defaultValue:
           "{ table: '<Table>', column: '<col>' } — selected-row prefill on an input widget",
         defaultFrom:
-          "{ widget: '<Widget>', property: '<path>' } OR { query: '<queryName>', field?: '<responsePath>' } — dynamic default for an input/select/multiselect/radio/checkbox/switch/datepicker/table, compiled onto its own default prop (defaultText / defaultOptionValue / defaultCheckedState / defaultSwitchState / defaultDate; a table's defaultSelectedRowIndex, or defaultSelectedRowIndices while multiRowSelection is on)",
+          "{ widget: '<Widget>', property: '<path>' } OR { query: '<queryName>', field?: '<responsePath>' } OR { expr: <tree> } — dynamic default for an input/select/multiselect/radio/checkbox/switch/datepicker/table, compiled onto its own default prop (defaultText / defaultOptionValue / defaultCheckedState / defaultSwitchState / defaultDate; a table's defaultSelectedRowIndex, or defaultSelectedRowIndices while multiRowSelection is on)",
         visibleWhen:
-          "{ control: '<widget>', equals: <literal> } | { rowSelected: '<table>' } | { notEmpty: '<input>' }",
+          "{ control: '<widget>', equals: <literal> } | { rowSelected: '<table>' } | { notEmpty: '<input>' } | { expr: <tree> }",
+        disabledWhen: "same condition forms as visibleWhen; sets isDisabled",
+        requiredWhen:
+          "same condition forms as visibleWhen; sets isRequired on a form control",
+        validWhen:
+          "same condition forms as visibleWhen; sets the Valid check on an input, currency input or phone input",
+        value: "text widget: { expr: <tree> } compiles a display value",
+        defaultDate:
+          "datepicker: literal ISO date or { expr: <tree> }; cannot be set together with defaultFrom",
+        minDate: "datepicker: literal ISO date or { expr: <tree> }",
+        maxDate: "datepicker: literal ISO date or { expr: <tree> }",
+        expressions:
+          "The bounded js-objects expression grammar (no param, var, constant or call), including user fields, date math, widget/query/store reads and boolean conditions. Read appsmith://guide/bindings and appsmith://recipe/conditional-form.",
         reorderTabs:
           "['<tab label>', …] on a TABS_WIDGET (up to 20 tabs) — the widget's existing tabs in the wanted order (every tab exactly once; read them from read_semantic_page's `tabs`, which is absent when a tab label carries a binding — such a widget cannot be reordered here). Only each tab's index changes; tabs are never created, dropped or renamed here. Hidden tabs are included in `tabs` (and listed separately in `tabsHidden`) and must be listed too. `defaultTab` must name one of those tabs.",
         tabOrder:
           "keyboard focus order (Accessibility > Tab order): an integer 1–1000 on any focusable widget, or null to return to automatic order. Automatic order is top-to-bottom then left-to-right; numbered widgets are focused first (lowest number first), the rest follow automatically. Set it only to override the automatic order, e.g. a sidebar form whose Save button should come straight after the last field. Absent means automatic (null clears the key). A modal itself is never inside a tab scope, so tabOrder on the modal widget has no effect; set it on the widgets inside the modal.",
         validation: "input validation spec",
-        disableWhenInvalid: "boolean (button)",
+        disableWhenInvalid:
+          "'<controlWidget>' or a list of 1–10 control names (button); disabled until every named control is valid",
       },
     },
     presets: listPresets(),
