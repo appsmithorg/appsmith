@@ -38,7 +38,8 @@ on:
       # filter and the non-required status together, or a non-matching PR would wait on it forever.
       - "app/client/src/widgets/**"
       - "app/client/src/WidgetProvider/factory/helpers.ts"
-      # routeContract.test.ts reads the server's MCP allowlist rules and the CE controllers that serve the routes.
+      # routeContract.test.ts reads the server's MCP allowlist rules and the CE controllers that serve the routes,
+      # and hardcodes the route constants from UrlCE.java and Entity.java.
       # A PR that changes only those server files still runs the route check against the Node tools. For a
       # server-only PR this is the only check that runs the test: client-unit-tests runs on app/client/** changes
       # only, and this workflow is not a required check. Reviewers must read the mcp-build status by hand on such
@@ -47,6 +48,8 @@ on:
       - "app/server/appsmith-server/src/main/java/com/appsmith/server/filters/ce/McpAllow*.java"
       - "app/server/appsmith-server/src/main/java/com/appsmith/server/controllers/ce/*ControllerCE.java"
       - "app/server/appsmith-server/src/main/java/com/appsmith/server/git/controllers/GitApplicationControllerCE.java"
+      - "app/server/appsmith-server/src/main/java/com/appsmith/server/constants/ce/UrlCE.java"
+      - "app/server/appsmith-server/src/main/java/com/appsmith/server/constants/Entity.java"
 
 defaults:
   run:
