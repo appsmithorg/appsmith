@@ -986,7 +986,7 @@ export function getCapabilities(
         tableData:
           "{ query: '<queryName>', field?: '<responsePath>', clearWhenEmpty?: '<inputWidget>' } OR { store: '<storeKey>' } — bind an EXISTING table's rows to a query, or to a store key accumulated by wire_event's appendToStore (session-only). This is the patch-path name for the build spec's `source`; read_semantic_page also reports it as tableData.",
         source:
-          "{ table: '<Table>', column: '<col>' } OR { store: '<key>' } — selected-row or store display binding on a text widget. NOT the table data binding (use tableData for that).",
+          "{ table: '<Table>', column: '<col>' } OR { query: '<queryName>', field?: '<responsePath>' } OR { store: '<key>' } — selected-row, scalar query or store display binding on a text widget. NOT the table data binding (use tableData for that).",
         defaultValue:
           "{ table: '<Table>', column: '<col>' } — selected-row prefill on an input widget",
         defaultFrom:
@@ -1011,7 +1011,7 @@ export function getCapabilities(
           "keyboard focus order (Accessibility > Tab order): an integer 1–1000 on any focusable widget, or null to return to automatic order. Automatic order is top-to-bottom then left-to-right; numbered widgets are focused first (lowest number first), the rest follow automatically. Set it only to override the automatic order, e.g. a sidebar form whose Save button should come straight after the last field. Absent means automatic (null clears the key). A modal itself is never inside a tab scope, so tabOrder on the modal widget has no effect; set it on the widgets inside the modal.",
         validation: "input validation spec",
         disableWhenInvalid:
-          "'<controlWidget>' or a list of 1–10 control names (button); disabled until every named control is valid",
+          "'<controlWidget>' or a list of 1–10 control names (button or JSON_FORM_WIDGET); disabled until every named control is valid",
       },
     },
     presets: listPresets(),
