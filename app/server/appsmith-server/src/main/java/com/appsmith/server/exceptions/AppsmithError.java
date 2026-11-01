@@ -144,7 +144,7 @@ public enum AppsmithError {
     INVALID_ACTION_NAME(
             400,
             AppsmithErrorCode.INVALID_ACTION_NAME.getCode(),
-            "Invalid entity name. Entity names must follow JavaScript variable naming conventions: single word consisting only of alphanumeric characters or underscores, without special characters (e.g., '-', ',', '#'). Please rename the entity.",
+            "Invalid entity name. Entity names must start with an ASCII letter or underscore, contain only ASCII letters, digits, or underscores, and not be a reserved word. Please rename the entity.",
             AppsmithErrorAction.DEFAULT,
             "Invalid action name",
             ErrorType.CONFIGURATION_ERROR,
