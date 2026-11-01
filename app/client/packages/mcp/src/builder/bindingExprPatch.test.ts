@@ -1,3 +1,4 @@
+import { RECIPES } from "./instructions.js";
 import type { WidgetNode } from "./layout.js";
 import { applyWidgetPatch, widgetPatchSchema } from "./editPatch.js";
 import {
@@ -793,4 +794,93 @@ describe("defaultFrom reading another widget that does not read back (APP-16381)
 
     expect(widget(dsl, "RequestedBy").defaultText).toBe("{{ Warning.text }}");
   });
+});
+
+describe("review regressions: derived-property cycles", () => {
+  it("refuses two input defaults reading each other's text", () => {
+    const first = update("Initials", {
+      defaultFrom: { expr: { widget: "RequestedBy", property: "text" } },
+    }).dsl;
+
+    expect(() =>
+      update(
+        "RequestedBy",
+        { defaultFrom: { expr: { widget: "Initials", property: "text" } } },
+        undefined,
+        first,
+      ),
+    ).toThrow(/evaluation cycle/);
+  });
+  it.each(["minDate", "maxDate"])(
+    "refuses %s feeding the picker's validity back to itself",
+    (prop) => {
+      expect(() =>
+        update("NewEnd", {
+          [prop]: { expr: { widget: "NewEnd", property: "isValid" } },
+        }),
+      ).toThrow(/evaluation cycle/);
+      const dsl = page();
+
+      widget(dsl, "NewEnd")[prop] = "{{ Initials.isRequired }}";
+      expect(() =>
+        update(
+          "Initials",
+          { requiredWhen: { expr: { widget: "NewEnd", property: "isValid" } } },
+          undefined,
+          dsl,
+        ),
+      ).toThrow(/evaluation cycle/);
+    },
+  );
+  it("allows independent defaults between inputs", () => {
+    const first = update("Initials", {
+      defaultFrom: { expr: { user: "name" } },
+    }).dsl;
+
+    expect(() =>
+      update(
+        "RequestedBy",
+        { defaultFrom: { expr: { widget: "Initials", property: "text" } } },
+        undefined,
+        first,
+      ),
+    ).not.toThrow();
+  });
+});
+
+it("the documented Submit condition ignores hidden invalid initials but always checks the date", () => {
+  const recipe = RECIPES.find(
+    ({ slug }) => slug === "conditional-form",
+  )!.render();
+  const json = recipe.match(/`disabledWhen: (\{[^`]+\})`/)?.[1];
+
+  expect(json).toBeDefined();
+  const dsl = page();
+
+  widget(dsl, "Warning").widgetName = "BillingWarning";
+  const patched = update(
+    "Submit",
+    { disabledWhen: JSON.parse(json!) },
+    undefined,
+    dsl,
+  ).dsl;
+  const binding = widget(patched, "Submit").isDisabled;
+  const check = (
+    warning: boolean,
+    date: boolean,
+    initials: boolean,
+    ack: boolean,
+  ) =>
+    evaluate(binding, {
+      BillingWarning: { isVisible: warning },
+      NewEnd: { isValid: date },
+      Initials: { isValid: initials },
+      Ack: { isValid: ack },
+    });
+
+  expect(check(true, true, false, true)).toBe(true);
+  expect(check(true, true, true, false)).toBe(true);
+  expect(check(true, true, true, true)).toBe(false);
+  expect(check(false, true, false, false)).toBe(false);
+  expect(check(false, false, true, true)).toBe(true);
 });

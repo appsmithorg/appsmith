@@ -1902,3 +1902,43 @@ describe("diffDays counts calendar days, not 24-hour spans (APP-16381)", () => {
     expect(new Function(`return ${compileExpr(tree)};`)()).toBe(1);
   });
 });
+
+describe("review regressions: local calendar parsing", () => {
+  const evaluate = (value: unknown) =>
+    new Function(`return ${compileExpr(expr(value))};`)();
+
+  it.each([
+    "2026-13-01",
+    "2026-02-29",
+    "2026-00-01",
+    "2026-01-00",
+    "2026-04-31",
+  ])("refuses invalid date-only %s in every calendar helper", (date) => {
+    for (const fn of ["addDays", "addMonths", "addYears", "diffDays"]) {
+      expect(
+        evaluate({ fn, args: [date, fn === "diffDays" ? "2026-01-01" : 1] }),
+      ).toBeNull();
+    }
+
+    for (const fn of ["startOfDay", "isoDate"])
+      expect(evaluate({ fn, args: [date] })).toBeNull();
+  });
+  it.each(["0000-02-29", "0004-02-29", "0099-01-01"])(
+    "preserves year in %s",
+    (date) => {
+      expect(evaluate({ fn: "isoDate", args: [date] })).toBe(date);
+      expect(
+        evaluate({
+          fn: "isoDate",
+          args: [{ fn: "addMonths", args: [date, 12] }],
+        }),
+      ).toBe(
+        date === "0000-02-29"
+          ? "0001-02-28"
+          : date === "0004-02-29"
+            ? "0005-02-28"
+            : "0100-01-01",
+      );
+    },
+  );
+});

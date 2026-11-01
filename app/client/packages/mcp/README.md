@@ -99,6 +99,10 @@ Findings from building an internal admin app through MCP, all fixed without wide
   functions run on a coerced real array, string functions on a primitive), widget/query names may not be host
   globals or platform functions, property paths are dot-separated identifiers with prototype segments refused,
   locals may not shadow any identifier the compiler emits, and the definition marker is parsed in linear time.
+  Version-1 markers remain readable. A legacy single-field `returns: { user: "email" }` (also `name` or
+  `username`) is returned as an explicit `{ object: { user: "email" } }` literal record, so editing it preserves
+  its meaning. New definitions use version 2 to distinguish the current-user leaf. Rolling back the MCP server
+  leaves these objects executable, but the older server cannot read their version-2 definitions for editing.
 - A `js-objects` guide (`get_guide` slug `js-objects`, resource `appsmith://guide/js-objects`) documents the
   definition grammar. Its operator, function and separator tables are rendered from the compiler's own exports and
   its worked examples are compiled in the test suite, so it cannot drift from what the compiler accepts. It also

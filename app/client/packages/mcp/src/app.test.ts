@@ -7134,6 +7134,7 @@ describe("governance-wrapped layout mutations", () => {
         page: { applicationId },
         layout: { dsl: current },
       })),
+      listActions: jest.fn(async () => [{ name: "getCities" }]),
       updateLayout: updateLayout as never,
     };
     const server = createMcpHttpServer(API_BASE_URL, () => api, {
@@ -11083,6 +11084,149 @@ describe("governance-wrapped layout mutations", () => {
     expect(executeAction).toHaveBeenCalledWith("act1");
     expect(typeof confirmed.body.changeId).toBe("string");
     expect(store.changes.some((c) => c.operation === "run_action")).toBe(true);
+  });
+  describe("APP-16381 review regressions", () => {
+    const dsl = {
+      ...ROOT_DSL,
+      children: [
+        {
+          ...ROOT_DSL,
+          widgetId: "b",
+          widgetName: "Submit",
+          type: "BUTTON_WIDGET",
+        },
+        {
+          ...ROOT_DSL,
+          widgetId: "i",
+          widgetName: "Initials",
+          type: "INPUT_WIDGET_V2",
+        },
+        {
+          ...ROOT_DSL,
+          widgetId: "t",
+          widgetName: "Licenses",
+          type: "TABLE_WIDGET_V2",
+        },
+      ],
+    };
+
+    function setup(listActions: () => Promise<unknown>, dataEnabled = false) {
+      const updateLayout = jest.fn(async () => ({ ok: true }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getApplicationContext: jest.fn(async (applicationId: string) => ({
+          pages: [],
+          page: {
+            applicationId,
+            layouts: [
+              { id: "l1", dsl },
+              { id: "l2", dsl },
+            ],
+          },
+          layout: { id: "l1", dsl },
+        })),
+        listActionCollections: jest.fn(async () => [
+          { name: "Utils", actions: [{ name: "save" }] },
+        ]),
+        listActions: jest.fn(listActions) as never,
+        updateLayout: updateLayout as never,
+      };
+
+      return {
+        api,
+        updateLayout,
+        server: createMcpHttpServer(API_BASE_URL, () => api, {
+          dataEnabled,
+          jsEnabled: true,
+          governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+        }),
+      };
+    }
+
+    it("removes embedded page DSL when narrowing a widget with default include", async () => {
+      const { server } = setup(async () => []);
+      const read = await callTool(server, "get_application_context", {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+        widget: "Initials",
+      });
+
+      expect(read.body.error).toBeUndefined();
+      expect(JSON.stringify(read.body)).not.toContain(
+        '"widgetName":"Licenses"',
+      );
+      expect(
+        (read.body.page as { layouts: { dsl?: unknown }[] }).layouts.every(
+          (l) => l.dsl === undefined,
+        ),
+      ).toBe(true);
+      expect(
+        (read.body.layout as { dsl: { widgetName: string } }).dsl.widgetName,
+      ).toBe("Initials");
+      const full = await callTool(server, "get_application_context", {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+      });
+
+      expect(JSON.stringify(full.body)).toContain('"widgetName":"Licenses"');
+    });
+    const wire = async (
+      server: ReturnType<typeof setup>["server"],
+      arg: unknown,
+    ) =>
+      callTool(server, "wire_event", {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+        revision: fingerprintDsl(dsl as never),
+        spec: {
+          widget: "Submit",
+          event: "onClick",
+          action: {
+            call: { object: "Utils", function: "save", args: [{ expr: arg }] },
+          },
+        },
+      });
+
+    it.each([false, true])(
+      "checks expression queries with dataEnabled=%s",
+      async (enabled) => {
+        const good = setup(async () => [{ name: "GetUsage" }], enabled);
+
+        expect(
+          (await wire(good.server, { query: "GetUsage" })).body.error,
+        ).toBeUndefined();
+        expect(good.updateLayout).toHaveBeenCalledTimes(1);
+        const missing = setup(async () => [], enabled);
+
+        expect(
+          (await wire(missing.server, { query: "GetUsage" })).body.error,
+        ).toMatch(/was not found/);
+        expect(missing.updateLayout).not.toHaveBeenCalled();
+        const down = setup(async () => {
+          throw new Error("down");
+        }, enabled);
+
+        expect(
+          (await wire(down.server, { query: "GetUsage" })).body.error,
+        ).toMatch(/cannot be checked/);
+        expect(down.updateLayout).not.toHaveBeenCalled();
+      },
+    );
+    it("refuses a table expression on an input and permits a real table", async () => {
+      const { server, updateLayout } = setup(async () => []);
+
+      expect(
+        (await wire(server, { table: "Initials", column: "id" })).body.error,
+      ).toMatch(/not a table widget/);
+      expect(updateLayout).not.toHaveBeenCalled();
+      expect(
+        (await wire(server, { table: "Licenses", column: "id" })).body.error,
+      ).toBeUndefined();
+      expect(updateLayout).toHaveBeenCalledTimes(1);
+    });
   });
 });
 

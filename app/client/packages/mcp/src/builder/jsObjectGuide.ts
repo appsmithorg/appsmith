@@ -742,7 +742,7 @@ export function renderJsObjectsGuide(): string {
     '| table | `{ "table": "tblOrders", "column": "instance ids" }` | a column of the table\'s selected row, for names that are not identifiers (`tblOrders.selectedRow["instance ids"]`). Add `"row": "triggered"` for the row whose button column was clicked |',
     '| user | `{ "user": "name" }` | the signed-in viewer: `"name"`, `"email"` or `"username"` (`appsmith.user.name`) |',
     "",
-    "A text without a time zone, such as `2026-10-31`, is that day at local midnight for the date functions.",
+    "The calendar helpers (addDays, addMonths, addYears, startOfDay, diffDays, isoDate) read YYYY-MM-DD at local midnight, preserve years 0000–0099, and return null for invalid calendar dates such as 2026-02-29.",
     "To compare dates with `lt` or `gt`, wrap each side in `date`: a date picker's `selectedDate` is ISO text, and text compared with a date is always false.",
     "",
     'Nodes: `{ "op": name, "args": [...] }`, `{ "fn": name, "args": [...] }`,',

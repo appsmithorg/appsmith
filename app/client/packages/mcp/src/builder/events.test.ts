@@ -1,3 +1,4 @@
+import { applyWidgetPatch } from "./editPatch.js";
 import {
   applyEvent,
   compileEventBinding,
@@ -138,7 +139,7 @@ describe("APP-16324 F11: navigate with URL parameters", () => {
     expect(eventReferences(action)).toEqual([
       { kind: "page", name: "Search" },
       { kind: "widget", name: "SearchInput" },
-      { kind: "widget", name: "Table1" },
+      { kind: "widget", name: "Table1", table: true },
     ]);
   });
 
@@ -1110,7 +1111,7 @@ describe("APP-16381: change events, expression arguments and table column clicks
     expect(binding).toContain("appsmith.user.email");
     expect(eventReferences(spec.action)).toEqual([
       { kind: "jsFunction", name: "Licenses", member: "extend" },
-      { kind: "widget", name: "Tbl" },
+      { kind: "widget", name: "Tbl", table: true },
       { kind: "query", name: "GetLicense", readOnly: true },
     ]);
   });
@@ -1215,4 +1216,45 @@ describe("APP-16381: change events, expression arguments and table column clicks
       }).success,
     ).toBe(false);
   });
+});
+
+it("wires a button column whose sanitized numeric key grows to 65 characters", () => {
+  const key = "1".repeat(64);
+  const id = `_${key}`;
+  const dsl = applyWidgetPatch(
+    page([
+      widget({
+        widgetId: "t",
+        widgetName: "Licenses",
+        type: "TABLE_WIDGET_V2",
+      }),
+    ]),
+    {
+      operations: [
+        {
+          kind: "addColumn",
+          name: "Licenses",
+          column: { key, type: "button", buttonLabel: "Save" },
+        },
+      ],
+    },
+  ).dsl;
+  const wired = applyEvent(
+    dsl,
+    wireEventSpecSchema.parse({
+      widget: "Licenses",
+      column: id,
+      event: "onClick",
+      action: { showAlert: "Saved" },
+    }),
+  );
+
+  expect(
+    (
+      wired.dsl.children![0].primaryColumns as Record<
+        string,
+        { onClick: string }
+      >
+    )[id].onClick,
+  ).toContain("showAlert");
 });

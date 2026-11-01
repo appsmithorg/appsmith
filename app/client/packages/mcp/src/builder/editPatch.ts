@@ -1889,7 +1889,15 @@ function checkBindingExpr(
     // A two-step cycle: the property read is itself a binding that reads the property this sets, or a property
     // computed from it (this widget's isValid, when this sets isRequired or the Valid check). A read of another
     // control's isValid is checked through the stored props it is computed from.
-    const readHeads = head === "isValid" ? ISVALID_INPUTS : [head];
+    const readHeads = new Set(
+      head === "isValid" ? [head, ...ISVALID_INPUTS] : [head],
+    );
+    const defaultProp = defaultPropOf(found.node, {});
+
+    if (defaultProp && SELF_READ_CYCLES[defaultProp]?.includes(head)) {
+      readHeads.add(defaultProp);
+    }
+
     const setProperties = [
       targetProperty,
       ...(SELF_READ_CYCLES[targetProperty] ?? []),
@@ -1921,6 +1929,8 @@ function checkBindingExpr(
 const SELF_READ_CYCLES: Readonly<Record<string, readonly string[]>> = {
   isRequired: ["isValid"],
   validation: ["isValid"],
+  minDate: ["isValid"],
+  maxDate: ["isValid"],
   defaultDate: ["selectedDate", "formattedDate", "isValid"],
   defaultText: ["text", "inputText", "value", "isValid"],
   defaultOptionValue: [
@@ -1935,7 +1945,12 @@ const SELF_READ_CYCLES: Readonly<Record<string, readonly string[]>> = {
 };
 
 // The stored props a control's isValid is computed from.
-const ISVALID_INPUTS: readonly string[] = ["isRequired", "validation"];
+const ISVALID_INPUTS: readonly string[] = [
+  "isRequired",
+  "validation",
+  "minDate",
+  "maxDate",
+];
 
 const MAX_CYCLE_SCAN_LENGTH = 100_000;
 

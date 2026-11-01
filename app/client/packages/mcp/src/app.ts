@@ -77,7 +77,6 @@ import {
   eventTriggerKey,
   type EventReference,
   eventReferences,
-  widgetExists,
   wireEventSpecSchema,
 } from "./builder/events.js";
 import {
@@ -3812,6 +3811,26 @@ export function buildMcpServer(
         }
 
         narrowed.layout = { ...layout, dsl: subtree };
+
+        // PageDTO embeds the complete layouts too. Keep their metadata without duplicating the full DSL.
+        if (sections.has("page")) {
+          const page = context.page as Record<string, unknown>;
+
+          narrowed.page = {
+            ...page,
+            ...(Array.isArray(page.layouts)
+              ? {
+                  layouts: page.layouts.map((layout) => {
+                    const metadata = { ...layout };
+
+                    delete metadata.dsl;
+
+                    return metadata;
+                  }),
+                }
+              : {}),
+          };
+        }
       }
 
       // Surface git state so an agent knows up front that edits will be uncommitted and publish is disabled here.
@@ -4350,13 +4369,22 @@ export function buildMcpServer(
       const references = eventReferences(parsed.data.action);
 
       for (const reference of references) {
-        if (
-          reference.kind === "widget" &&
-          !widgetExists(currentDsl, reference.name)
-        ) {
+        if (reference.kind !== "widget") continue;
+
+        const widget = findWidgetNode(currentDsl, reference.name);
+
+        if (!widget) {
           return result({
             error: `modal/widget "${reference.name}" was not found on this page`,
           });
+        }
+
+        if (
+          "table" in reference &&
+          reference.table &&
+          widget.type !== "TABLE_WIDGET_V2"
+        ) {
+          return result({ error: `"${reference.name}" is not a table widget` });
         }
       }
 
@@ -4410,8 +4438,25 @@ export function buildMcpServer(
       const queryReferences = references.filter((ref) => ref.kind === "query");
       let refreshHint: string | undefined;
 
-      if (queryReferences.length > 0 && dataEnabled) {
-        const actions = await api.listActions(applicationId);
+      if (queryReferences.length > 0) {
+        let actions: unknown;
+
+        try {
+          actions = await api.listActions(applicationId);
+        } catch {
+          return result({
+            error:
+              "query references cannot be checked here: could not read this application's queries",
+          });
+        }
+
+        if (!Array.isArray(actions)) {
+          return result({
+            error:
+              "query references cannot be checked here: could not read this application's queries",
+          });
+        }
+
         const known = actionNames(actions);
 
         for (const reference of queryReferences) {

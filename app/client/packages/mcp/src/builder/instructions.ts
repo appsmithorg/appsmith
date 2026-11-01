@@ -550,9 +550,9 @@ fields. Every step is an MCP call; no editor follow-up.
      decides when it is required).
 8. Warning text: \`value: { "expr": { "fn": "concat", "args": ["This bills the customer through ",
    { "fn": "isoDate", "args": [{ "widget": "NewEnd", "property": "selectedDate" }] }] } }\`.
-9. Submit: \`disableWhenInvalid: ["NewEnd", "Initials", "Ack"]\` greys it out until every control is
-   valid (a hidden, not-required control is valid). Wire its onClick to the save query, then
-   \`closeModal\`.
+9. Submit: use \`disabledWhen: { "expr": { "op": "or", "args": [{ "op": "not", "args": [{ "widget": "NewEnd", "property": "isValid" }] }, { "op": "and", "args": [{ "widget": "BillingWarning", "property": "isVisible" }, { "op": "or", "args": [{ "op": "not", "args": [{ "widget": "Initials", "property": "isValid" }] }, { "op": "not", "args": [{ "widget": "Ack", "property": "isValid" }] }] }] }] } }\`.
+   NewEnd must always be valid. Initials and Ack matter only while the step-7 warning is visible:
+   a hidden input can retain invalid nonempty text. Wire onClick to the save query, then \`closeModal\`.
 10. Reset the date when the kind changes: \`wire_event\` \`{ "widget": "Kind", "event":
     "onSelectionChange", "action": { "reset": "NewEnd" } }\`.
 11. \`inspect_page\`, then publish LAST.`;

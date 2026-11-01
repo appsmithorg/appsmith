@@ -1151,14 +1151,14 @@ function compileDateBucket(date: string, unit: string): string {
 // midnight, the day before in the Americas). null, undefined, "", booleans and an invalid date give null, as in
 // dateBucket. The regex has no braces, so the template stays brace-balanced inside a widget's {{ }} binding.
 const LOCAL_DATE_OF =
-  '((v) => { if (v == null || v === "" || typeof v === "boolean") { return null; } const d = typeof v === "string" && /^\\d\\d\\d\\d-\\d\\d-\\d\\d$/.test(v) ? new Date(Number(v.slice(0, 4)), Number(v.slice(5, 7)) - 1, Number(v.slice(8, 10))) : new Date(v instanceof Date ? v.getTime() : v); return Number.isNaN(d.getTime()) ? null : d; })';
+  '((v) => { if (v == null || v === "" || typeof v === "boolean") { return null; } let d; if (typeof v === "string" && /^\\d\\d\\d\\d-\\d\\d-\\d\\d$/.test(v)) { const y = Number(v.slice(0, 4)), m = Number(v.slice(5, 7)) - 1, day = Number(v.slice(8, 10)); d = new Date(0); d.setFullYear(y, m, day); d.setHours(0, 0, 0, 0); if (d.getFullYear() !== y || d.getMonth() !== m || d.getDate() !== day) { return null; } } else { d = new Date(v instanceof Date ? v.getTime() : v); } return Number.isNaN(d.getTime()) ? null : d; })';
 // A day, month or year count: a whole number, or null when it is not a finite number.
 const WHOLE_OF =
   "((n) => { const v = Math.trunc(Number(n)); return Number.isFinite(v) ? v : null; })";
 // Adds whole months, clamping the day to the target month's last day: 31 January + 1 month is 28 or 29 February,
 // and 29 February + 1 year is 28 February. The time of day is kept.
 const ADD_MONTHS =
-  "((d, n) => { if (d === null || n === null) { return null; } const day = d.getDate(); d.setDate(1); d.setMonth(d.getMonth() + n); d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate())); return d; })";
+  "((d, n) => { if (d === null || n === null) { return null; } const day = d.getDate(); d.setDate(1); d.setMonth(d.getMonth() + n); const last = new Date(d.getTime()); last.setMonth(last.getMonth() + 1, 0); d.setDate(Math.min(day, last.getDate())); return d; })";
 
 // Refuses to call a query with an undefined parameter (see the run step in compileSteps).
 const PARAMS_GUARD =

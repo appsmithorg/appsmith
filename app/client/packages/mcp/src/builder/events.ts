@@ -328,7 +328,7 @@ const EVENTS_BY_TYPE: Record<string, readonly string[]> = {
 const columnId = z
   .string()
   .min(1)
-  .max(64)
+  .max(100)
   .regex(/^[A-Za-z_][A-Za-z0-9_]*$/, "must be a column id (an identifier)")
   .refine(
     (id) => !PROTOTYPE_PROPERTY_NAMES.has(id),
@@ -480,6 +480,7 @@ export function compileEventBinding(action: EventActionInput): string {
 // appendToStore references its source query.
 export type EventReference =
   | { kind: "query" | "page" | "widget"; name: string }
+  | { kind: "widget"; name: string; table: true }
   // A query an expression argument only reads (APP-16381): checked to exist, but not run.
   | { kind: "query"; name: string; readOnly: true }
   // A JS-object function reference: `name` is the object, `member` the function (both checked by the tool).
@@ -505,6 +506,7 @@ export function eventReferences(action: EventActionInput): EventReference[] {
                   ...bindingExprReads(arg.expr).map((read) => ({
                     kind: "widget" as const,
                     name: read.widget,
+                    ...(read.table ? { table: true as const } : {}),
                   })),
                   ...bindingExprQueries(arg.expr).map((name) => ({
                     kind: "query" as const,
@@ -526,7 +528,13 @@ export function eventReferences(action: EventActionInput): EventReference[] {
           "widget" in value
             ? [{ kind: "widget" as const, name: value.widget }]
             : "table" in value
-              ? [{ kind: "widget" as const, name: value.table }]
+              ? [
+                  {
+                    kind: "widget" as const,
+                    name: value.table,
+                    table: true as const,
+                  },
+                ]
               : [],
         ),
       ];
