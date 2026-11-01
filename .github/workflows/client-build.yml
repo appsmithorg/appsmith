@@ -154,7 +154,13 @@ jobs:
       # We burn React environment & the Segment analytics key into the build itself.
       # Pylon: REACT_APP_* is required for CRA to embed values; secret name matches github-release.yml.
       # This is to ensure that we don't need to configure it in each installation.
+      # Only production builds upload source maps, so only they receive the upload credentials.
+      # Pull request builds run code from the PR and get empty values.
       - name: Create the bundle
+        env:
+          REACT_APP_FARO_SOURCEMAP_UPLOAD_API_KEY: ${{ steps.vars.outputs.REACT_APP_ENVIRONMENT == 'PRODUCTION' && secrets.REACT_APP_FARO_SOURCEMAP_UPLOAD_API_KEY || '' }}
+          REACT_APP_FARO_SOURCEMAP_UPLOAD_ENDPOINT: ${{ steps.vars.outputs.REACT_APP_ENVIRONMENT == 'PRODUCTION' && secrets.REACT_APP_FARO_SOURCEMAP_UPLOAD_ENDPOINT || '' }}
+          SENTRY_AUTH_TOKEN: ${{ steps.vars.outputs.REACT_APP_ENVIRONMENT == 'PRODUCTION' && secrets.SENTRY_AUTH_TOKEN || '' }}
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
             export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
@@ -164,12 +170,9 @@ jobs:
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
           REACT_APP_FARO_APP_ID=${{ secrets.REACT_APP_FARO_APP_ID }} \
           REACT_APP_FARO_APP_NAME=${{ secrets.REACT_APP_FARO_APP_NAME }} \
-          REACT_APP_FARO_SOURCEMAP_UPLOAD_API_KEY=${{ secrets.REACT_APP_FARO_SOURCEMAP_UPLOAD_API_KEY }} \
-          REACT_APP_FARO_SOURCEMAP_UPLOAD_ENDPOINT=${{ secrets.REACT_APP_FARO_SOURCEMAP_UPLOAD_ENDPOINT }} \
           REACT_APP_FARO_STACK_ID=${{ secrets.REACT_APP_FARO_STACK_ID }} \
           REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
           REACT_APP_PYLON_APP_ID=${{ secrets.APPSMITH_PYLON_APP_ID }} \
-          SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
           REACT_APP_VERSION_EDITION="Community" \
           yarn build
 
