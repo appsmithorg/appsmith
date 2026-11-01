@@ -141,10 +141,10 @@ declare namespace Cypress {
       dateFormate?: string,
       ver?: "v2",
     );
-    // v1: the widget's own calendar; the format is its day label, "ddd MMM DD YYYY".
+    // v1: the widget's own calendar; the format is its day label and defaults to "ddd MMM DD YYYY".
     setDate(
       day: { format(template: string): string },
-      dateFormate: string,
+      dateFormate: string | undefined,
       ver: "v1",
     );
 
