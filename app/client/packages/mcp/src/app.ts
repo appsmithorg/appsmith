@@ -4529,6 +4529,9 @@ export function buildMcpServer(
         extra: {
           widget: parsed.data.widget,
           event: parsed.data.event,
+          ...(parsed.data.column !== undefined
+            ? { column: parsed.data.column }
+            : {}),
           ...(modalVerdict.warning !== undefined
             ? { modalWarning: modalVerdict.warning }
             : {}),

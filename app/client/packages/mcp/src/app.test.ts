@@ -7195,6 +7195,7 @@ describe("governance-wrapped layout mutations", () => {
     };
     const select = written.children.find((w) => w.widgetName === "Region");
 
+    expect(wired.body).not.toHaveProperty("column");
     expect(select?.onOptionChange).toBe("{{ getCities.run() }}");
     expect(select?.dynamicTriggerPathList).toEqual([{ key: "onOptionChange" }]);
   });
@@ -8071,6 +8072,7 @@ describe("governance-wrapped layout mutations", () => {
               rightColumn: 24,
               primaryColumns: {
                 extend: { id: "extend", columnType: "button" },
+                renew: { id: "renew", columnType: "button" },
               },
             },
           ]),
@@ -8096,7 +8098,8 @@ describe("governance-wrapped layout mutations", () => {
       };
     }
 
-    async function wire(dsl: Record<string, unknown>) {
+    async function wire(dsl: Record<string, unknown>, column = "extend") {
+      const store = new MemoryGovernanceStore();
       const updateLayout = jest.fn(async () => ({ ok: true }));
       const api: AppsmithApi = {
         ...createApi()(),
@@ -8110,7 +8113,7 @@ describe("governance-wrapped layout mutations", () => {
       };
       const server = createMcpHttpServer(API_BASE_URL, () => api, {
         dataEnabled: true,
-        governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+        governance: new McpGovernanceCoordinator(store),
       });
       const wired = await callTool(server, "wire_event", {
         applicationId: "app1",
@@ -8119,13 +8122,13 @@ describe("governance-wrapped layout mutations", () => {
         revision: fingerprintDsl(dsl as never),
         spec: {
           widget: "Licenses",
-          column: "extend",
+          column,
           event: "onClick",
           action: { showModal: "Inner" },
         },
       });
 
-      return { wired, updateLayout };
+      return { wired, updateLayout, store };
     }
 
     it("writes the column's onClick, registers the nested path and warns at stack depth 2", async () => {
@@ -8153,6 +8156,22 @@ describe("governance-wrapped layout mutations", () => {
         { key: "primaryColumns.extend.onClick" },
       ]);
     });
+
+    it.each(["extend", "renew"])(
+      "identifies column %s in the result and audit summary",
+      async (column) => {
+        const { store, wired } = await wire(dslWith(false), column);
+
+        expect(wired.body.error).toBeUndefined();
+        expect(wired.body.column).toBe(column);
+        expect(store.changes).toHaveLength(1);
+        expect(store.changes[0].summary).toMatchObject({
+          widget: "Licenses",
+          event: "onClick",
+          column,
+        });
+      },
+    );
 
     it("refuses a column wiring that closes a modal cycle", async () => {
       const { updateLayout, wired } = await wire(dslWith(true));
