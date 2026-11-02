@@ -5,9 +5,10 @@ export const RESTORE_PATH = "/appsmith-stacks/data/restore";
 export const DUMP_FILE_NAME = "appsmith-data.archive";
 
 // Follows APPSMITH_LOG_DIR like the rest of the container (see entrypoint.sh).
-export const APPSMITHCTL_LOG_PATH = `${
-  process.env.APPSMITH_LOG_DIR || "/appsmith-stacks/logs"
-}/appsmithctl`;
+// Read on each call, since index.ts loads docker.env after this module.
+export function getAppsmithctlLogPath(): string {
+  return `${process.env.APPSMITH_LOG_DIR || "/appsmith-stacks/logs"}/appsmithctl`;
+}
 
 export const LAST_ERROR_MAIL_TS =
   "/appsmith-stacks/data/backup/last-error-mail-ts";
