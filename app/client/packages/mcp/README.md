@@ -49,9 +49,11 @@ Findings from building an internal admin app through MCP, all fixed without wide
   normalised and refused if they carry quotes, backslashes, parentheses or whitespace, because the image widget
   interpolates the value raw into a CSS `url("…")` rule; `tooltip` / `labelTooltip` refuse markup (the button renders
   its tooltip as HTML); the CSV `delimiter` is one of `,` `;` `|` tab.
-- Follow-ups from the reviews above, all landed: every compiled JS-object `call` site carries a runtime call-depth
-  guard (a per-object `mcpCallDepth` counter, limit 32) so a cycle closed through editor-authored or drifted code
-  is stopped at run time too, not only the statically detectable ones; `update_js_object` refuses a rename onto a
+- Follow-ups from the reviews above, all landed: every cross-object JS `call` site carries a runtime call-depth guard
+  (a per-object `mcpCallDepth` counter, limit 32) so a cycle closed through editor-authored or drifted code is
+  stopped at run time too, not only the statically detectable ones. The original one-line layout guards sibling
+  calls as well; the readable layout writes a sibling call as a plain `await this.<name>(…)`, because create and
+  update refuse every sibling cycle before writing (`callCycleProblem`); `update_js_object` refuses a rename onto a
   name another JS object or query on the page already uses (`name_taken`); stored definitions are decoded once per
   body (bounded cache) so the cycle check stays cheap on large pages; one `patch_widgets` update's props are capped
   at 64 KB; `inspect_page` reports `narrow-canvas` for nested content laid out by an earlier MCP version at the

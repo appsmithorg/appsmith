@@ -1,14 +1,12 @@
 import { randomUUID } from "node:crypto";
 
 import {
+  compileJsObject,
   jsBodyHash,
+  MAX_CLASSIFIED_BODY_BYTES,
   parseStoredJsDefinition,
   type JsObjectDefinition,
 } from "../builder/jsObject.js";
-
-// Bodies above this size are never recognised as compiler-authored (builder/jsObject.ts), so their definitions are
-// not stored either.
-const MAX_JS_DEFINITION_BODY_BYTES = 256 * 1024;
 
 import type {
   McpChangeRecord,
@@ -302,7 +300,7 @@ export class McpGovernanceCoordinator {
       throw new Error("JS definitions are stored per organization");
     }
 
-    if (Buffer.byteLength(body, "utf8") > MAX_JS_DEFINITION_BODY_BYTES) {
+    if (Buffer.byteLength(body, "utf8") > MAX_CLASSIFIED_BODY_BYTES) {
       throw new Error("the compiled JS object is larger than 256 KB");
     }
 
@@ -310,8 +308,15 @@ export class McpGovernanceCoordinator {
 
     // Saved exactly as every pod will read it back, so the body cannot read as MCP-written on one pod and as
     // editor-written on another.
-    if (parseStoredJsDefinition(json) === undefined) {
+    const stored = parseStoredJsDefinition(json);
+
+    if (stored === undefined) {
       throw new Error("the JS-object definition does not match its schema");
+    }
+
+    // The record is trusted by hash alone when it is read back, so it must describe exactly this body.
+    if (compileJsObject(stored, { readable: true }) !== body) {
+      throw new Error("the JS-object definition does not compile to this body");
     }
 
     await this.store.saveJsDefinition({

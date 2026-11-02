@@ -439,7 +439,7 @@ describe("definitions kept by the governance store", () => {
     ).toBe(0);
   });
 
-  it("refuses to save without an organization, over 256 KB, or a definition the schema rejects", async () => {
+  it("refuses to save without an organization, over 256 KB, off-schema, or for a body the definition does not compile to", async () => {
     const store = storeWithDefinitions();
     const coordinator = new McpGovernanceCoordinator(store);
 
@@ -458,6 +458,10 @@ describe("definitions kept by the governance store", () => {
         functions: [{ name: "constructor" }],
       } as never),
     ).rejects.toThrow("does not match its schema");
+    // A valid definition saved under another body's hash would make that body read as MCP-written.
+    await expect(
+      coordinator.saveJsDefinition("org1", `${body}// edited\n`, definition),
+    ).rejects.toThrow("does not compile to this body");
     expect(store.definitions).toHaveLength(0);
     expect((await coordinator.loadJsDefinitions("", [body])).size).toBe(0);
   });

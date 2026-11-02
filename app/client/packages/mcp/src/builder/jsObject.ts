@@ -817,7 +817,10 @@ const MEMBER_SOURCE = `(?:${CONSTANT_SOURCE}|${FUNCTION_SOURCE})`;
 const LEGACY_COMPILED_JS_BODY = new RegExp(
   String.raw`^export default \{ ?(?:${MEMBER_SOURCE}(?:, ${MEMBER_SOURCE})*)? \};$`,
 );
-const MAX_CLASSIFIED_BODY_BYTES = 256 * 1024;
+
+// The largest body ever recognised as compiler-authored. The governance store and the listing loader use the same
+// cap, so a definition is never saved for a body that could not be recognised.
+export const MAX_CLASSIFIED_BODY_BYTES = 256 * 1024;
 const MAX_LEGACY_CLASSIFIED_BODY_BYTES = 64 * 1024;
 
 // The definition a compiler-authored body carries, or undefined when the body is editor-authored (no marker, an

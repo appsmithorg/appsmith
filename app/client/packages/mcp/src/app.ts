@@ -118,6 +118,7 @@ import {
   hasSpecMarker,
   isCompilerAuthoredJsBody,
   jsBodyHash,
+  MAX_CLASSIFIED_BODY_BYTES,
   JS_IDENTIFIER_SOURCE,
   jsObjectDefinitionFromBody,
   updateJsObjectSpecSchema,
@@ -2861,7 +2862,7 @@ function withJsDefinitionLoading(
           // Marked and oversized bodies never have a record; skip them.
           return body !== undefined &&
             !hasSpecMarker(body) &&
-            Buffer.byteLength(body, "utf8") <= MAX_JS_DEFINITION_BODY_BYTES
+            Buffer.byteLength(body, "utf8") <= MAX_CLASSIFIED_BODY_BYTES
             ? [body]
             : [];
         },
@@ -2910,9 +2911,6 @@ function pureJsDefinition(spec: {
     functions: spec.functions,
   } as JsObjectDefinition;
 }
-
-// The same cap as the body classifier in builder/jsObject.ts: larger bodies are never compiler-authored.
-const MAX_JS_DEFINITION_BODY_BYTES = 256 * 1024;
 
 export function buildMcpServer(
   baseApi: AppsmithApi,
