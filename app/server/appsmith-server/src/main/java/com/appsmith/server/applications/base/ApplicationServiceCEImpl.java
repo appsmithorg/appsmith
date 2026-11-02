@@ -410,16 +410,15 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             // Error message : E11000 duplicate key error collection: appsmith.application index:
                             // workspace_app_deleted_gitApplicationMetadata dup key:
                             // { workspaceId: "******", name: "AppName", deletedAt: null }
-                            if (error.getCause()
-                                    .getMessage()
-                                    .contains("workspace_app_deleted_gitApplicationMetadata")) {
+                            final Throwable cause = error.getCause();
+                            final String errorMessage = cause != null ? cause.getMessage() : error.getMessage();
+                            if (errorMessage != null && errorMessage.contains("workspace_app_deleted_gitApplicationMetadata")) {
                                 return Mono.error(new AppsmithException(
                                         AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME));
                             }
                             return Mono.error(new AppsmithException(
                                     AppsmithError.DUPLICATE_KEY,
-                                    DuplicateKeyExceptionUtils.extractConflictingObjectName(
-                                            error.getCause().getMessage())));
+                                    DuplicateKeyExceptionUtils.extractConflictingObjectName(errorMessage)));
                         }
                         return Mono.error(error);
                     })
