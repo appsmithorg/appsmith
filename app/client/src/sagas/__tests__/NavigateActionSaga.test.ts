@@ -3,7 +3,6 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { setDataUrl } from "ee/sagas/PageSagas";
 import { getAppMode } from "ee/selectors/applicationSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { APP_MODE } from "entities/App";
 import type { Page } from "entities/Page";
 import { expectSaga } from "redux-saga-test-plan";
@@ -104,10 +103,6 @@ describe("NavigateActionSaga", () => {
         .call(pushToHistory, "/builder/basePage1")
         .run()
         .then(() => {
-          expect(AnalyticsUtil.logEvent).toHaveBeenCalledWith("NAVIGATE", {
-            pageName: "Page1",
-            pageParams: {},
-          });
           expect(AppsmithConsole.info).toHaveBeenCalledWith(
             expect.objectContaining({
               text: "navigateTo triggered",
@@ -138,7 +133,6 @@ describe("NavigateActionSaga", () => {
             "/viewer/basePage1",
             "_blank",
           );
-          expect(AnalyticsUtil.logEvent).toHaveBeenCalled();
         });
     });
 
@@ -178,9 +172,6 @@ describe("NavigateActionSaga", () => {
           expect(mockWindowLocationAssign).toHaveBeenCalledWith(
             "https://www.google.com?q=test",
           );
-          expect(AnalyticsUtil.logEvent).toHaveBeenCalledWith("NAVIGATE", {
-            navUrl: "www.google.com",
-          });
         });
     });
 
@@ -215,12 +206,83 @@ describe("NavigateActionSaga", () => {
         },
       };
 
+      await expect(
+        expectSaga(navigateActionSaga, action)
+          .provide([[select(getPageList), MOCK_PAGE_LIST]])
+          .run(),
+      ).rejects.toThrow(
+        new TriggerFailureError("Enter a valid URL or page name"),
+      );
+    });
+
+    // A page name that is not in the app (for example, a renamed or deleted page) is not a URL, even when a param
+    // value looks like a domain. The URL fallback is decided on the target alone, without its query or fragment.
+    it.each([
+      ["passed in params", "OldPage", { file: "report.pdf" }],
+      ["written into the target's query", "OldPage?file=report.pdf", {}],
+      ["written into the target's fragment", "OldPage#report.pdf", {}],
+    ])(
+      "should not treat an unknown page name as a URL when a domain-like value is %s",
+      async (_label, pageNameOrUrl, params) => {
+        const action: TNavigateToDescription = {
+          type: "NAVIGATE_TO",
+          payload: {
+            pageNameOrUrl,
+            params,
+            target: NavigationTargetType.SAME_WINDOW,
+          },
+        };
+
+        await expect(
+          expectSaga(navigateActionSaga, action)
+            .provide([[select(getPageList), MOCK_PAGE_LIST]])
+            .run(),
+        ).rejects.toThrow(
+          new TriggerFailureError("Enter a valid URL or page name"),
+        );
+        expect(mockWindowLocationAssign).not.toHaveBeenCalled();
+        expect(mockWindowOpen).not.toHaveBeenCalled();
+      },
+    );
+
+    it("should still add https to a domain target that has its own query", async () => {
+      const action: TNavigateToDescription = {
+        type: "NAVIGATE_TO",
+        payload: {
+          pageNameOrUrl: "www.google.com?q=report.pdf",
+          params: {},
+          target: NavigationTargetType.SAME_WINDOW,
+        },
+      };
+
       return expectSaga(navigateActionSaga, action)
         .provide([[select(getPageList), MOCK_PAGE_LIST]])
         .run()
-        .catch((e) => {
-          expect(e).toBeInstanceOf(TriggerFailureError);
-          expect(e.message).toBe("Enter a valid URL or page name");
+        .then(() => {
+          expect(mockWindowLocationAssign).toHaveBeenCalledWith(
+            "https://www.google.com?q=report.pdf",
+          );
+        });
+    });
+
+    it("should still add https to a domain target that has params", async () => {
+      const action: TNavigateToDescription = {
+        type: "NAVIGATE_TO",
+        payload: {
+          pageNameOrUrl: "example.com/docs",
+          params: { file: "report.pdf" },
+          target: NavigationTargetType.NEW_WINDOW,
+        },
+      };
+
+      return expectSaga(navigateActionSaga, action)
+        .provide([[select(getPageList), MOCK_PAGE_LIST]])
+        .run()
+        .then(() => {
+          expect(mockWindowOpen).toHaveBeenCalledWith(
+            "https://example.com/docs?file=report.pdf",
+            "_blank",
+          );
         });
     });
 

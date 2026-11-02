@@ -15,13 +15,9 @@ import {
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import type { APP_MODE } from "entities/App";
-import { call, fork, put, select, spawn } from "redux-saga/effects";
+import { call, fork, put, select } from "redux-saga/effects";
 import type { EditConsolidatedApi } from "sagas/InitSagas";
-import {
-  failFastApiCalls,
-  reportSWStatus,
-  waitForWidgetConfigBuild,
-} from "sagas/InitSagas";
+import { failFastApiCalls, waitForWidgetConfigBuild } from "sagas/InitSagas";
 import { isGitPersistBranchEnabledSelector } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 // import history from "utils/history";
@@ -369,7 +365,6 @@ export default class AppEditorEngine extends AppEngine {
     });
 
     yield call(waitForWidgetConfigBuild);
-    yield spawn(reportSWStatus);
 
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,

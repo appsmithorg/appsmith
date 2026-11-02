@@ -4,10 +4,14 @@ import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Executable;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ExecutableDependencyEdge;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,4 +48,25 @@ public interface OnLoadExecutablesUtilCE {
             CreatorContextType creatorType);
 
     Mono<Layout> findAndUpdateLayout(String creatorId, CreatorContextType creatorType, String layoutId, Layout layout);
+
+    /**
+     * Saves the layout only if the creator did not change since {@code expectedUpdatedAt}.
+     *
+     * <p>This default supports no revision check:
+     * <ul>
+     *   <li>{@code expectedUpdatedAt} is null: saves the layout without a check.
+     *   <li>{@code expectedUpdatedAt} is set: fails with {@code INVALID_PARAMETER}.
+     * </ul>
+     */
+    default Mono<Layout> findAndUpdateLayout(
+            String creatorId,
+            CreatorContextType creatorType,
+            String layoutId,
+            Layout layout,
+            Instant expectedUpdatedAt) {
+        if (expectedUpdatedAt == null) {
+            return findAndUpdateLayout(creatorId, creatorType, layoutId, layout);
+        }
+        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.EXPECTED_REVISION));
+    }
 }
