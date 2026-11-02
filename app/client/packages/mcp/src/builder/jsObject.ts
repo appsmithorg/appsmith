@@ -19,6 +19,7 @@ import {
   stepSchema,
   STEPS_MAX,
   stepsProblem,
+  USER_FIELDS,
   validateExpr,
   CALL_DEPTH_MEMBER,
 } from "./jsExpr.js";
@@ -173,6 +174,18 @@ function isLegacyReturns(
   ];
 
   if (keys.some((key) => exprKeys.includes(key))) return false;
+
+  // The `{ user }` leaf (APP-16381) is recognised only in its exact shape, so an older literal record that merely
+  // has a `user` key still compiles as before and keeps its marker.
+  if (
+    keys.length === 1 &&
+    keys[0] === "user" &&
+    (USER_FIELDS as readonly unknown[]).includes(
+      (returns as Record<string, unknown>).user,
+    )
+  ) {
+    return false;
+  }
 
   return Object.values(returns).every(
     (value) =>
@@ -449,7 +462,7 @@ export function compileJsObjectCode(definition: JsObjectDefinition): string {
 //
 // The payload carries `v`: the compiler's output text is the recognition contract, so when a template changes,
 // bump SPEC_VERSION and add an upgrade path for older markers instead of silently demoting every object.
-const SPEC_VERSION = 1;
+const SPEC_VERSION = 2;
 const MARKER_PREFIX = " /* mcp-spec:";
 const MARKER_SUFFIX = " */";
 const BASE64 = /^[A-Za-z0-9+/=]+$/;
@@ -768,7 +781,7 @@ function decodeDefinitionFromBody(
   if (
     decoded === null ||
     typeof decoded !== "object" ||
-    (decoded as { v?: unknown }).v !== SPEC_VERSION ||
+    ![1, SPEC_VERSION].includes((decoded as { v?: unknown }).v as number) ||
     exceedsJsonDepth(decoded, MAX_DEFINITION_JSON_DEPTH)
   ) {
     return undefined;
@@ -778,7 +791,34 @@ function decodeDefinitionFromBody(
     ...(decoded as Record<string, unknown>),
   };
 
+  const version = definition.v;
+
   delete definition.v;
+
+  // Version 1 predates the user leaf. Make its ambiguous literal record explicit before recompiling.
+  // Byte equality below still proves that the stored body matches the decoded definition.
+  if (version === 1 && Array.isArray(definition.functions)) {
+    definition.functions = definition.functions.map((fn: unknown) => {
+      if (fn === null || typeof fn !== "object") return fn;
+
+      const spec = fn as Record<string, unknown>;
+      const returns = spec.returns;
+
+      if (
+        returns !== null &&
+        typeof returns === "object" &&
+        !Array.isArray(returns) &&
+        Object.keys(returns).length === 1 &&
+        "user" in returns &&
+        (USER_FIELDS as readonly unknown[]).includes(returns.user)
+      ) {
+        return { ...spec, returns: { object: returns } };
+      }
+
+      return fn;
+    });
+  }
+
   const parsed = jsObjectDefinitionSchema.safeParse(definition);
 
   if (!parsed.success) return undefined;

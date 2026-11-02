@@ -1642,6 +1642,7 @@ describe("MCP instruction surface (M2)", () => {
         "appsmith://guide/naming",
         "appsmith://guide/placement",
         "appsmith://guide/screenshot",
+        "appsmith://recipe/conditional-form",
         "appsmith://recipe/crud",
         "appsmith://recipe/form",
         "appsmith://recipe/table-detail",
@@ -1914,6 +1915,7 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
         },
       })),
       listActions: jest.fn(async () => [{ name: "getOrders", pageId: "p1" }]),
+      listActionCollections: jest.fn(async () => []),
     };
 
     const body = await callTool(api, "inspect_page", {
@@ -1927,6 +1929,180 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
         (issue) => issue.rule,
       ),
     ).toContain("dangling-binding");
+  });
+
+  // APP-16381: a page bound to editor-written JS objects and lodash, read back and linted.
+  function licensePageApi(): AppsmithApi {
+    return {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
+        pages: [{ id: "p1" }],
+        page: { applicationId },
+        layout: {
+          id: "l1",
+          dsl: {
+            widgetId: "0",
+            widgetName: "MainContainer",
+            type: "CANVAS_WIDGET",
+            topRow: 0,
+            bottomRow: 380,
+            leftColumn: 0,
+            rightColumn: 640,
+            children: [
+              {
+                widgetId: "t",
+                widgetName: "Licenses",
+                type: "TABLE_WIDGET_V2",
+                topRow: 0,
+                bottomRow: 20,
+                leftColumn: 0,
+                rightColumn: 64,
+                tableData: "{{ Utils.getLicenseData() }}",
+                primaryColumns: {
+                  customerName: {
+                    id: "customerName",
+                    originalId: "customerName",
+                    label: "Customer",
+                    columnType: "text",
+                    index: 0,
+                    computedValue: "{{ Licenses.processedTableData }}",
+                  },
+                  usage: {
+                    id: "usage",
+                    label: "{{ Variables.label }}",
+                    columnType: "button",
+                    isVisible: false,
+                    index: 1,
+                  },
+                },
+                columnOrder: ["usage", "customerName"],
+              },
+              {
+                widgetId: "x",
+                widgetName: "Total",
+                type: "TEXT_WIDGET",
+                topRow: 20,
+                bottomRow: 24,
+                leftColumn: 0,
+                rightColumn: 16,
+                text: "{{ _.sum(GetUsage.data.map((r) => r.n)) }} for {{ appsmith.user.email }} {{ Licenses.selectedRow.id }}",
+              },
+            ],
+          },
+        },
+      })),
+      listActions: jest.fn(async () => [{ name: "GetUsage", pageId: "p1" }]),
+      listActionCollections: jest.fn(async () => [
+        { name: "Utils" },
+        { name: "Variables" },
+      ]),
+    };
+  }
+
+  it("does not report bindings to editor-written JS objects or lodash as dangling (APP-16381)", async () => {
+    const body = await callTool(licensePageApi(), "inspect_page", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+    });
+
+    expect(
+      (body.diagnostics as { issues: { rule: string }[] }).issues.filter(
+        (issue) => issue.rule === "dangling-binding",
+      ),
+    ).toEqual([]);
+  });
+
+  it.each(["inspect_page", "read_semantic_page"])(
+    "%s keeps structural diagnostics when JS-object names cannot be read",
+    async (tool) => {
+      const api = licensePageApi();
+      const context = (await api.getApplicationContext("app1", "p1", "l1")) as {
+        pages: unknown;
+        page: unknown;
+        layout: { dsl: { children: { topRow: number; bottomRow: number }[] } };
+      };
+
+      context.layout.dsl.children[1].topRow = 0;
+      context.layout.dsl.children[1].bottomRow = 4;
+      api.getApplicationContext = jest.fn(async () => context);
+      api.listActionCollections = jest.fn(async () => {
+        throw new Error("unavailable");
+      });
+      const body = await callTool(api, tool, {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+      });
+      const issues = (body.diagnostics as { issues: { rule: string }[] })
+        .issues;
+
+      expect(issues.filter(({ rule }) => rule === "dangling-binding")).toEqual(
+        [],
+      );
+      expect(issues.some(({ rule }) => rule === "overlap")).toBe(true);
+    },
+  );
+
+  it("read_semantic_page lists table columns and summarises hand-written bindings by name only (APP-16381)", async () => {
+    const body = await callTool(licensePageApi(), "read_semantic_page", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+    });
+    const widgets = (body.page as { widgets: Record<string, unknown>[] })
+      .widgets;
+    const table = widgets.find((w) => w.name === "Licenses");
+    const total = widgets.find((w) => w.name === "Total");
+
+    expect(table?.columns).toEqual([
+      { id: "usage", type: "button", visible: false, order: 0 },
+      {
+        id: "customerName",
+        key: "customerName",
+        label: "Customer",
+        type: "text",
+        visible: true,
+        order: 1,
+      },
+    ]);
+    expect(table?.boundProps).toEqual({ tableData: { jsObjects: ["Utils"] } });
+    expect(total?.boundProps).toEqual({
+      text: {
+        queries: ["GetUsage"],
+        widgets: ["Licenses"],
+        user: ["email"],
+      },
+    });
+    // No expression text is returned.
+    expect(JSON.stringify(body.page)).not.toContain("getLicenseData");
+    expect(JSON.stringify(body.page)).not.toContain("processedTableData");
+  });
+
+  it("get_application_context narrows to the named sections and one widget's subtree (APP-16381)", async () => {
+    const body = await callTool(licensePageApi(), "get_application_context", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      include: ["layout"],
+      widget: "Total",
+    });
+
+    expect(body.pages).toBeUndefined();
+    expect(body.page).toBeUndefined();
+    expect(
+      (body.layout as { id: string; dsl: { widgetName: string } }).dsl
+        .widgetName,
+    ).toBe("Total");
+    expect((body.layout as { id: string }).id).toBe("l1");
+
+    const missing = await callTool(
+      licensePageApi(),
+      "get_application_context",
+      { applicationId: "app1", pageId: "p1", layoutId: "l1", widget: "Nope" },
+    );
+
+    expect(missing.error).toMatch(/widget "Nope" was not found/);
   });
 
   it("create_query creates a parameterized query when the datasource is accessible", async () => {
@@ -6990,6 +7166,7 @@ describe("governance-wrapped layout mutations", () => {
         page: { applicationId },
         layout: { dsl: current },
       })),
+      listActions: jest.fn(async () => [{ name: "getCities" }]),
       updateLayout: updateLayout as never,
     };
     const server = createMcpHttpServer(API_BASE_URL, () => api, {
@@ -7018,6 +7195,7 @@ describe("governance-wrapped layout mutations", () => {
     };
     const select = written.children.find((w) => w.widgetName === "Region");
 
+    expect(wired.body).not.toHaveProperty("column");
     expect(select?.onOptionChange).toBe("{{ getCities.run() }}");
     expect(select?.dynamicTriggerPathList).toEqual([{ key: "onOptionChange" }]);
   });
@@ -7655,6 +7833,355 @@ describe("governance-wrapped layout mutations", () => {
     ]);
   });
 
+  it("read_js_object returns each function's parameter names and async flag, never default values (APP-16381)", async () => {
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listActionCollections: jest.fn(async () => [
+        {
+          id: "c1",
+          name: "Utils",
+          pageId: "p1",
+          body: "export default { getLicenseData (row, opts) { return row; }, sync () {} }",
+          actions: [
+            {
+              name: "getLicenseData",
+              actionConfiguration: {
+                isAsync: true,
+                jsArguments: [
+                  { name: "row", value: "secretDefault()" },
+                  { name: "opts" },
+                  { name: "not an identifier" },
+                ],
+              },
+            },
+            {
+              name: "sync",
+              actionConfiguration: {
+                isAsync: false,
+                jsArguments: Array.from({ length: 30 }, (_, i) => ({
+                  name: `p${i}`,
+                })),
+              },
+            },
+          ],
+        },
+      ]),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: "a".repeat(24),
+    });
+    const signatures = read.body.jsObjects[0].signatures as {
+      name: string;
+      params: string[];
+      async?: boolean;
+    }[];
+
+    expect(signatures[0]).toEqual({
+      name: "getLicenseData",
+      params: ["row", "opts"],
+      async: true,
+    });
+    expect(signatures[1].async).toBe(false);
+    expect(signatures[1].params).toHaveLength(20);
+    expect(JSON.stringify(signatures)).not.toContain("secretDefault");
+  });
+
+  it("read_semantic_page names JS objects a binding refers to when only the JS tools are on (APP-16381)", async () => {
+    const listActions = jest.fn(async () => {
+      throw new Error("the data tools are off");
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
+        pages: [],
+        page: { applicationId },
+        layout: {
+          dsl: {
+            ...ROOT_DSL,
+            children: [
+              {
+                widgetId: "t",
+                widgetName: "Licenses",
+                type: "TABLE_WIDGET_V2",
+                topRow: 0,
+                bottomRow: 20,
+                leftColumn: 0,
+                rightColumn: 64,
+                tableData: "{{ Utils.getLicenseData() }}",
+              },
+            ],
+          },
+        },
+      })),
+      listActions: listActions as never,
+      listActionCollections: jest.fn(async () => [{ name: "Utils" }]),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+    });
+    const read = await callTool(server, "read_semantic_page", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+    });
+    const table = (
+      read.body.page as { widgets: Record<string, unknown>[] }
+    ).widgets.find((w) => w.name === "Licenses");
+
+    expect(table?.boundProps).toEqual({ tableData: { jsObjects: ["Utils"] } });
+    expect(listActions).not.toHaveBeenCalled();
+  });
+
+  describe("patch_widgets checks a binding expression's query leaves against the app (APP-16381)", () => {
+    const DSL = {
+      ...ROOT_DSL,
+      children: [
+        {
+          widgetId: "w",
+          widgetName: "Warning",
+          type: "TEXT_WIDGET",
+          topRow: 0,
+          bottomRow: 4,
+          leftColumn: 0,
+          rightColumn: 16,
+          text: "Careful",
+        },
+      ],
+    };
+    const patch = {
+      operations: [
+        {
+          kind: "update",
+          name: "Warning",
+          props: {
+            visibleWhen: {
+              expr: {
+                op: "gt",
+                args: [{ query: "GetUsage", field: "total" }, 0],
+              },
+            },
+          },
+        },
+      ],
+    };
+
+    function serverWith(listActions: () => Promise<unknown>) {
+      const updateLayout = jest.fn(async () => ({ ok: true }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getApplicationContext: jest.fn(async (applicationId: string) => ({
+          pages: [],
+          page: { applicationId },
+          layout: { dsl: DSL },
+        })),
+        listActions: jest.fn(listActions) as never,
+        updateLayout: updateLayout as never,
+      };
+
+      return {
+        updateLayout,
+        server: createMcpHttpServer(API_BASE_URL, () => api, {
+          dataEnabled: true,
+          governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+        }),
+      };
+    }
+
+    const call = async (server: ReturnType<typeof serverWith>["server"]) =>
+      callTool(server, "patch_widgets", {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+        revision: fingerprintDsl(DSL as never),
+        patch,
+      });
+
+    it("writes the binding when the query exists", async () => {
+      const { server, updateLayout } = serverWith(async () => [
+        { name: "GetUsage" },
+      ]);
+      const patched = await call(server);
+
+      expect(patched.body.error).toBeUndefined();
+
+      const written = (updateLayout.mock.calls[0] as unknown[])[3] as {
+        children: { isVisible?: string }[];
+      };
+
+      expect(written.children[0].isVisible).toBe(
+        "{{ Boolean((GetUsage.data?.total > 0)) }}",
+      );
+    });
+
+    it("refuses an unknown query, and a patch whose query list cannot be read", async () => {
+      const unknown = serverWith(async () => [{ name: "Other" }]);
+      const failing = serverWith(async () => {
+        throw new Error("down");
+      });
+
+      expect(JSON.stringify((await call(unknown.server)).body)).toMatch(
+        /query \\"GetUsage\\" was not found/,
+      );
+      expect(JSON.stringify((await call(failing.server)).body)).toMatch(
+        /cannot be checked here/,
+      );
+      expect(unknown.updateLayout).not.toHaveBeenCalled();
+      expect(failing.updateLayout).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("wire_event on a table's button column (APP-16381)", () => {
+    // A table inside modal Outer, with a button column; modal Inner on the page.
+    function dslWith(innerOpensOuter: boolean) {
+      const modal = (name: string, children: unknown[]) => ({
+        widgetId: name,
+        widgetName: name,
+        type: "MODAL_WIDGET",
+        topRow: 0,
+        bottomRow: 40,
+        leftColumn: 0,
+        rightColumn: 24,
+        children: [
+          {
+            widgetId: `${name}Canvas`,
+            widgetName: `${name}Canvas`,
+            type: "CANVAS_WIDGET",
+            topRow: 0,
+            bottomRow: 40,
+            leftColumn: 0,
+            rightColumn: 24,
+            children,
+          },
+        ],
+      });
+
+      return {
+        ...ROOT_DSL,
+        children: [
+          modal("Outer", [
+            {
+              widgetId: "t",
+              widgetName: "Licenses",
+              type: "TABLE_WIDGET_V2",
+              topRow: 0,
+              bottomRow: 20,
+              leftColumn: 0,
+              rightColumn: 24,
+              primaryColumns: {
+                extend: { id: "extend", columnType: "button" },
+                renew: { id: "renew", columnType: "button" },
+              },
+            },
+          ]),
+          modal(
+            "Inner",
+            innerOpensOuter
+              ? [
+                  {
+                    widgetId: "b",
+                    widgetName: "Back",
+                    type: "BUTTON_WIDGET",
+                    topRow: 0,
+                    bottomRow: 4,
+                    leftColumn: 0,
+                    rightColumn: 8,
+                    onClick: "{{ showModal('Outer') }}",
+                    dynamicTriggerPathList: [{ key: "onClick" }],
+                  },
+                ]
+              : [],
+          ),
+        ],
+      };
+    }
+
+    async function wire(dsl: Record<string, unknown>, column = "extend") {
+      const store = new MemoryGovernanceStore();
+      const updateLayout = jest.fn(async () => ({ ok: true }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getApplicationContext: jest.fn(async (applicationId: string) => ({
+          pages: [],
+          page: { applicationId },
+          layout: { dsl },
+        })),
+        listActions: jest.fn(async () => []),
+        updateLayout: updateLayout as never,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        dataEnabled: true,
+        governance: new McpGovernanceCoordinator(store),
+      });
+      const wired = await callTool(server, "wire_event", {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+        revision: fingerprintDsl(dsl as never),
+        spec: {
+          widget: "Licenses",
+          column,
+          event: "onClick",
+          action: { showModal: "Inner" },
+        },
+      });
+
+      return { wired, updateLayout, store };
+    }
+
+    it("writes the column's onClick, registers the nested path and warns at stack depth 2", async () => {
+      const { updateLayout, wired } = await wire(dslWith(false));
+
+      expect(wired.body.error).toBeUndefined();
+      expect(String(wired.body.modalWarning)).toMatch(/stack depth 2/);
+
+      const written = (updateLayout.mock.calls[0] as unknown[])[3] as {
+        children: {
+          children: {
+            children: {
+              primaryColumns?: Record<string, { onClick?: string }>;
+              dynamicTriggerPathList?: { key: string }[];
+            }[];
+          }[];
+        }[];
+      };
+      const table = written.children[0].children[0].children[0];
+
+      expect(table.primaryColumns?.extend.onClick).toBe(
+        "{{ showModal('Inner') }}",
+      );
+      expect(table.dynamicTriggerPathList).toEqual([
+        { key: "primaryColumns.extend.onClick" },
+      ]);
+    });
+
+    it.each(["extend", "renew"])(
+      "identifies column %s in the result and audit summary",
+      async (column) => {
+        const { store, wired } = await wire(dslWith(false), column);
+
+        expect(wired.body.error).toBeUndefined();
+        expect(wired.body.column).toBe(column);
+        expect(store.changes).toHaveLength(1);
+        expect(store.changes[0].summary).toMatchObject({
+          widget: "Licenses",
+          event: "onClick",
+          column,
+        });
+      },
+    );
+
+    it("refuses a column wiring that closes a modal cycle", async () => {
+      const { updateLayout, wired } = await wire(dslWith(true));
+
+      expect(wired.body.code).toBe("modal_stack");
+      expect(String(wired.body.error)).toMatch(/modal cycle/);
+      expect(updateLayout).not.toHaveBeenCalled();
+    });
+  });
+
   it("read_js_object returns each object's compiled source and a body-sensitive revision", async () => {
     const APP = "a".repeat(24);
     const collection = {
@@ -7689,6 +8216,7 @@ describe("governance-wrapped layout mutations", () => {
       id: "coll1",
       name: "BannerAdmin",
       pageId: "b".repeat(24),
+      signatures: [{ name: "save", params: [] }],
       functions: ["save"],
       authoredBy: "mcp",
       definitionState: "none",
@@ -7699,6 +8227,7 @@ describe("governance-wrapped layout mutations", () => {
       id: "coll2",
       name: "Legacy",
       pageId: "b".repeat(24),
+      signatures: [{ name: "call", params: [] }],
       functions: ["call"],
       authoredBy: "editor",
       definitionState: "none",
@@ -8405,6 +8934,7 @@ describe("governance-wrapped layout mutations", () => {
       id: "coll1",
       name: "BannerAdmin",
       pageId: "b".repeat(24),
+      signatures: [{ name: "refresh", params: [] }],
       functions: ["refresh"],
       authoredBy: "editor",
       definitionState: "drifted",
@@ -10605,6 +11135,149 @@ describe("governance-wrapped layout mutations", () => {
     expect(executeAction).toHaveBeenCalledWith("act1");
     expect(typeof confirmed.body.changeId).toBe("string");
     expect(store.changes.some((c) => c.operation === "run_action")).toBe(true);
+  });
+  describe("APP-16381 review regressions", () => {
+    const dsl = {
+      ...ROOT_DSL,
+      children: [
+        {
+          ...ROOT_DSL,
+          widgetId: "b",
+          widgetName: "Submit",
+          type: "BUTTON_WIDGET",
+        },
+        {
+          ...ROOT_DSL,
+          widgetId: "i",
+          widgetName: "Initials",
+          type: "INPUT_WIDGET_V2",
+        },
+        {
+          ...ROOT_DSL,
+          widgetId: "t",
+          widgetName: "Licenses",
+          type: "TABLE_WIDGET_V2",
+        },
+      ],
+    };
+
+    function setup(listActions: () => Promise<unknown>, dataEnabled = false) {
+      const updateLayout = jest.fn(async () => ({ ok: true }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getApplicationContext: jest.fn(async (applicationId: string) => ({
+          pages: [],
+          page: {
+            applicationId,
+            layouts: [
+              { id: "l1", dsl },
+              { id: "l2", dsl },
+            ],
+          },
+          layout: { id: "l1", dsl },
+        })),
+        listActionCollections: jest.fn(async () => [
+          { name: "Utils", actions: [{ name: "save" }] },
+        ]),
+        listActions: jest.fn(listActions) as never,
+        updateLayout: updateLayout as never,
+      };
+
+      return {
+        api,
+        updateLayout,
+        server: createMcpHttpServer(API_BASE_URL, () => api, {
+          dataEnabled,
+          jsEnabled: true,
+          governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+        }),
+      };
+    }
+
+    it("removes embedded page DSL when narrowing a widget with default include", async () => {
+      const { server } = setup(async () => []);
+      const read = await callTool(server, "get_application_context", {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+        widget: "Initials",
+      });
+
+      expect(read.body.error).toBeUndefined();
+      expect(JSON.stringify(read.body)).not.toContain(
+        '"widgetName":"Licenses"',
+      );
+      expect(
+        (read.body.page as { layouts: { dsl?: unknown }[] }).layouts.every(
+          (l) => l.dsl === undefined,
+        ),
+      ).toBe(true);
+      expect(
+        (read.body.layout as { dsl: { widgetName: string } }).dsl.widgetName,
+      ).toBe("Initials");
+      const full = await callTool(server, "get_application_context", {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+      });
+
+      expect(JSON.stringify(full.body)).toContain('"widgetName":"Licenses"');
+    });
+    const wire = async (
+      server: ReturnType<typeof setup>["server"],
+      arg: unknown,
+    ) =>
+      callTool(server, "wire_event", {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+        revision: fingerprintDsl(dsl as never),
+        spec: {
+          widget: "Submit",
+          event: "onClick",
+          action: {
+            call: { object: "Utils", function: "save", args: [{ expr: arg }] },
+          },
+        },
+      });
+
+    it.each([false, true])(
+      "checks expression queries with dataEnabled=%s",
+      async (enabled) => {
+        const good = setup(async () => [{ name: "GetUsage" }], enabled);
+
+        expect(
+          (await wire(good.server, { query: "GetUsage" })).body.error,
+        ).toBeUndefined();
+        expect(good.updateLayout).toHaveBeenCalledTimes(1);
+        const missing = setup(async () => [], enabled);
+
+        expect(
+          (await wire(missing.server, { query: "GetUsage" })).body.error,
+        ).toMatch(/was not found/);
+        expect(missing.updateLayout).not.toHaveBeenCalled();
+        const down = setup(async () => {
+          throw new Error("down");
+        }, enabled);
+
+        expect(
+          (await wire(down.server, { query: "GetUsage" })).body.error,
+        ).toMatch(/cannot be checked/);
+        expect(down.updateLayout).not.toHaveBeenCalled();
+      },
+    );
+    it("refuses a table expression on an input and permits a real table", async () => {
+      const { server, updateLayout } = setup(async () => []);
+
+      expect(
+        (await wire(server, { table: "Initials", column: "id" })).body.error,
+      ).toMatch(/not a table widget/);
+      expect(updateLayout).not.toHaveBeenCalled();
+      expect(
+        (await wire(server, { table: "Licenses", column: "id" })).body.error,
+      ).toBeUndefined();
+      expect(updateLayout).toHaveBeenCalledTimes(1);
+    });
   });
 });
 
