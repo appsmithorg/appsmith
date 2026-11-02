@@ -121,8 +121,11 @@ describe(
         `'`;
       dataSources.EnterQuery(checkNoOfConnQuery);
       dataSources.RunQuery();
-      dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-        expect(Number($cellData)).to.eq(0);
+      // The datasource pool keeps MINIMUM_POOL_SIZE (1) idle connection open
+      // (PostgresPlugin.java) and opens a new one after its connections are
+      // terminated, so one connection may already be back by the time of this read.
+      dataSources.ReadQueryTableResponse(0).should(($cellData) => {
+        expect(Number($cellData)).to.be.at.most(1);
       });
       deployMode.DeployApp();
       agHelper.Sleep(10000);
