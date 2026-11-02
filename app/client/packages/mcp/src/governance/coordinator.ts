@@ -1,5 +1,15 @@
 import { randomUUID } from "node:crypto";
 
+import {
+  jsBodyHash,
+  parseStoredJsDefinition,
+  type JsObjectDefinition,
+} from "../builder/jsObject.js";
+
+// Bodies above this size are never recognised as compiler-authored (builder/jsObject.ts), so their definitions are
+// not stored either.
+const MAX_JS_DEFINITION_BODY_BYTES = 256 * 1024;
+
 import type {
   McpChangeRecord,
   McpGovernanceStore,
@@ -266,5 +276,80 @@ export class McpGovernanceCoordinator {
     }
 
     return confirmation;
+  }
+
+  // Whether JS objects can be written in the readable layout: the store must keep their definitions, because a
+  // readable body carries no marker.
+  get supportsJsDefinitions(): boolean {
+    return (
+      typeof this.store.saveJsDefinition === "function" &&
+      typeof this.store.findJsDefinitions === "function"
+    );
+  }
+
+  // Records the definition a readable body was compiled from. Called BEFORE the body is written: if the record
+  // cannot be saved, the write does not happen, so a readable body never exists without its definition.
+  async saveJsDefinition(
+    organizationId: string,
+    body: string,
+    definition: JsObjectDefinition,
+  ): Promise<void> {
+    if (!this.store.saveJsDefinition) {
+      throw new Error("this governance store does not keep JS definitions");
+    }
+
+    if (organizationId === "") {
+      throw new Error("JS definitions are stored per organization");
+    }
+
+    if (Buffer.byteLength(body, "utf8") > MAX_JS_DEFINITION_BODY_BYTES) {
+      throw new Error("the compiled JS object is larger than 256 KB");
+    }
+
+    const json = JSON.stringify(definition);
+
+    // Saved exactly as every pod will read it back, so the body cannot read as MCP-written on one pod and as
+    // editor-written on another.
+    if (parseStoredJsDefinition(json) === undefined) {
+      throw new Error("the JS-object definition does not match its schema");
+    }
+
+    await this.store.saveJsDefinition({
+      organizationId,
+      codeHash: jsBodyHash(body),
+      definition: json,
+      createdAt: this.now(),
+    });
+  }
+
+  // The organization's stored definitions of the given bodies, by body hash. A body with no record (or with a
+  // record that no longer parses) is absent, so it reads as editor-authored.
+  async loadJsDefinitions(
+    organizationId: string,
+    bodies: readonly string[],
+  ): Promise<Map<string, JsObjectDefinition>> {
+    const found = new Map<string, JsObjectDefinition>();
+
+    if (
+      !this.store.findJsDefinitions ||
+      organizationId === "" ||
+      bodies.length === 0
+    ) {
+      return found;
+    }
+
+    const hashes = [...new Set(bodies.map(jsBodyHash))];
+    const records = await this.store.findJsDefinitions(organizationId, hashes);
+
+    for (const record of records) {
+      const definition =
+        record.organizationId === organizationId
+          ? parseStoredJsDefinition(record.definition)
+          : undefined;
+
+      if (definition !== undefined) found.set(record.codeHash, definition);
+    }
+
+    return found;
   }
 }

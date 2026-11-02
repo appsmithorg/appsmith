@@ -90,12 +90,18 @@ Findings from building an internal admin app through MCP, all fixed without wide
   `split` with a named separator, `trim`, `map`/`filter` with `{ item }`, `unique`, `number`, `date`, `isoString`).
   The Banner editor's `splitLines`, `splitDomains`, related-field validation and Save orchestration all compile from
   structure; the agent never writes JavaScript, regular expressions or member access, and node count, depth,
-  statement count and parameter count are capped. The compiled body embeds its definition as a base64 block comment,
-  so `read_js_object` returns a `definition` to edit and send back, and a compiler-authored object is recognised
-  exactly (the decoded definition must recompile to the code byte for byte). An object whose code is edited in the
-  editor after the compiler wrote it (a rename, a hand edit) reads back as `authoredBy: 'editor'` with
-  `definitionState: 'drifted'`; its source is withheld and agents recreate it from a definition rather than
-  update it. Security posture of the grammar: no agent expression is ever the receiver of a method call (array
+  statement count and parameter count are capped. With a governance store, the compiled body is readable code: one
+  statement per line, indented, with no marker. Its definition is saved first in the `mcp_js_definitions` Mongo
+  collection, keyed by the caller's organization and the SHA-256 of the exact body. Each JS-object listing loads
+  the records for its bodies, so `read_js_object` returns a `definition` to edit and send back. An object is
+  compiler-authored only while its body still has that exact hash. Records do not expire. Without a definition
+  store, or when the caller's organization is unknown, the body is written in the original layout: one line with
+  the definition embedded as a base64 block comment, recognised when the decoded definition recompiles to the code
+  byte for byte. EE workflow logic always uses that layout. An object whose code is edited in the editor after the
+  compiler wrote it (a rename, a hand edit) reads back as `authoredBy: 'editor'`, with `definitionState: 'drifted'`
+  for the original layout and `'none'` for the readable one. Agents recreate such an object from a definition
+  rather than update it. When the store cannot be read, objects read as `authoredBy: 'editor'` with
+  `definitionState: 'unavailable'` until it can. Security posture of the grammar: no agent expression is ever the receiver of a method call (array
   functions run on a coerced real array, string functions on a primitive), widget/query names may not be host
   globals or platform functions, property paths are dot-separated identifiers with prototype segments refused,
   locals may not shadow any identifier the compiler emits, and the definition marker is parsed in linear time.

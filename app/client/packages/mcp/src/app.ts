@@ -117,6 +117,7 @@ import {
   type ExistingJsObject,
   hasSpecMarker,
   isCompilerAuthoredJsBody,
+  jsBodyHash,
   JS_IDENTIFIER_SOURCE,
   jsObjectDefinitionFromBody,
   updateJsObjectSpecSchema,
@@ -2176,24 +2177,69 @@ const MAX_REPLACED_RECORD_BYTES = 8 * 1024 * 1024;
 // The most editor-written JS source read_js_object returns per object; longer source is cut and flagged.
 const MAX_RETURNED_JS_SOURCE = 200_000;
 
+// Definitions of readable bodies (written without a marker), attached to the collection objects of ONE listing by
+// withJsDefinitionLoading, which loads them from the governance store for the caller's organization. Keyed by the
+// object itself, so a definition never outlives the request or reaches another organization's listing.
+const readableJsDefinitions = new WeakMap<object, JsObjectDefinition>();
+// Collections of a listing whose definitions could not be loaded (the store failed).
+const jsDefinitionsUnavailable = new WeakSet<object>();
+
+function attachReadableJsDefinition(
+  collection: unknown,
+  definition: JsObjectDefinition,
+): void {
+  if (collection !== null && typeof collection === "object") {
+    readableJsDefinitions.set(collection, definition);
+  }
+}
+
+// The definition a collection's body was compiled from: attached by the listing for a readable body, decoded from
+// the marker for a body in the original layout. Undefined for editor-written code.
+function collectionJsDefinition(
+  collection: unknown,
+): JsObjectDefinition | undefined {
+  const attached =
+    collection !== null && typeof collection === "object"
+      ? readableJsDefinitions.get(collection)
+      : undefined;
+
+  if (attached !== undefined) return attached;
+
+  const source = jsObjectSource(collection);
+
+  return source === undefined ? undefined : jsObjectDefinitionFromBody(source);
+}
+
+function isCompilerAuthoredCollection(collection: unknown): boolean {
+  if (collectionJsDefinition(collection) !== undefined) return true;
+
+  const source = jsObjectSource(collection);
+
+  return source !== undefined && isCompilerAuthoredJsBody(source);
+}
+
 function jsObjectView(collection: unknown): Record<string, unknown> {
   const source = jsObjectSource(collection);
-  const compilerAuthored =
-    source !== undefined && isCompilerAuthoredJsBody(source);
+  const compilerAuthored = isCompilerAuthoredCollection(collection);
 
-  // `definition` is the declarative spec the body carries (objects written since the jsExpr grammar); an agent
-  // edits it structurally and sends it back through update_js_object, so unrelated functions survive an update.
-  const definition =
-    source !== undefined ? jsObjectDefinitionFromBody(source) : undefined;
-  // `definitionState` tells an agent WHY an object is editor-authored: "drifted" means the compiler wrote it but
-  // the code was edited afterwards (an editor rename, a hand edit), so the fix is to recreate it from a definition,
-  // not to assume it was always hand-written. "none" is a body the compiler never marked.
+  // `definition` is the declarative spec the body was compiled from (objects written since the jsExpr grammar); an
+  // agent edits it structurally and sends it back through update_js_object, so unrelated functions survive.
+  const definition = collectionJsDefinition(collection);
+  // `definitionState` tells an agent WHY an object is editor-authored:
+  // - "drifted": the compiler wrote it in the original layout, and the code was edited afterwards (an editor
+  //   rename, a hand edit). The fix is to recreate it from a definition.
+  // - "unavailable": the stored definitions could not be read just now. Read again later; do not recreate it.
+  // - "none": no definition matches the body. A readable body edited by hand also reads as "none".
   const definitionState =
     definition !== undefined
       ? "current"
       : source !== undefined && hasSpecMarker(source)
         ? "drifted"
-        : "none";
+        : collection !== null &&
+            typeof collection === "object" &&
+            jsDefinitionsUnavailable.has(collection)
+          ? "unavailable"
+          : "none";
 
   return {
     ...projectJsObject(collection),
@@ -2380,9 +2426,7 @@ function compilerAuthoredObjectsOnPage(
       continue;
     }
 
-    const source = jsObjectSource(other);
-    const definition =
-      source === undefined ? undefined : jsObjectDefinitionFromBody(source);
+    const definition = collectionJsDefinition(other);
 
     if (definition !== undefined) {
       found.push({
@@ -2475,7 +2519,7 @@ function jsObjectFunctionNames(collection: unknown): string[] {
 
   if (source === undefined) return [...names];
 
-  const definition = jsObjectDefinitionFromBody(source);
+  const definition = collectionJsDefinition(collection);
 
   if (definition !== undefined) {
     for (const fn of definition.functions) names.add(fn.name);
@@ -2790,8 +2834,88 @@ function projectWorkspaces(raw: unknown): { id: string; name: string }[] {
   return workspaces;
 }
 
-export function buildMcpServer(
+// Wraps listActionCollections so each listing loads, from the governance store, the definitions of the readable
+// JS-object bodies it returns. A failed load is reported and the listing still returns: the affected objects then
+// read as editor-authored, which only makes the server refuse to rewrite them (fail-closed).
+function withJsDefinitionLoading(
   api: AppsmithApi,
+  governance: McpGovernanceCoordinator | undefined,
+  organizationId: string,
+): AppsmithApi {
+  if (
+    governance === undefined ||
+    !governance.supportsJsDefinitions ||
+    organizationId === ""
+  ) {
+    return api;
+  }
+
+  return {
+    ...api,
+    listActionCollections: async (applicationId) => {
+      const collections = await api.listActionCollections(applicationId);
+      const bodies = (Array.isArray(collections) ? collections : []).flatMap(
+        (collection) => {
+          const body = jsObjectSource(collection);
+
+          // Marked and oversized bodies never have a record; skip them.
+          return body !== undefined &&
+            !hasSpecMarker(body) &&
+            Buffer.byteLength(body, "utf8") <= MAX_JS_DEFINITION_BODY_BYTES
+            ? [body]
+            : [];
+        },
+      );
+
+      try {
+        const definitions = await governance.loadJsDefinitions(
+          organizationId,
+          bodies,
+        );
+
+        for (const collection of asArray(collections)) {
+          const body = jsObjectSource(collection);
+          const definition =
+            body === undefined ? undefined : definitions.get(jsBodyHash(body));
+
+          if (definition !== undefined) {
+            attachReadableJsDefinition(collection, definition);
+          }
+        }
+      } catch (error) {
+        for (const collection of asArray(collections)) {
+          if (collection !== null && typeof collection === "object") {
+            jsDefinitionsUnavailable.add(collection);
+          }
+        }
+
+        // The error's class only: a driver message can carry connection details.
+        process.stderr.write(
+          `appsmith-mcp: could not load JS-object definitions for application ${applicationId} (${error instanceof Error ? error.name : "unknown error"})\n`,
+        );
+      }
+
+      return collections;
+    },
+  };
+}
+
+// The definition fields of a create or update spec (ids, revision and name are not part of the code).
+function pureJsDefinition(spec: {
+  constants?: unknown;
+  functions?: unknown;
+}): JsObjectDefinition {
+  return {
+    ...(spec.constants !== undefined ? { constants: spec.constants } : {}),
+    functions: spec.functions,
+  } as JsObjectDefinition;
+}
+
+// The same cap as the body classifier in builder/jsObject.ts: larger bodies are never compiler-authored.
+const MAX_JS_DEFINITION_BODY_BYTES = 256 * 1024;
+
+export function buildMcpServer(
+  baseApi: AppsmithApi,
   ctx: ServerContext = { dataEnabled: false, jsEnabled: false, actorId: "" },
 ) {
   const {
@@ -2810,6 +2934,9 @@ export function buildMcpServer(
   // Tenant scope for every governance audit read/write. Empty string when unreported → org-scoped queries match
   // nothing (fail-closed), never an unscoped cross-tenant read.
   const organizationId = ctx.organizationId ?? "";
+  // Every JS-object listing loads the definitions of the readable bodies it returns (they carry no marker), so the
+  // synchronous recognition used everywhere below finds them.
+  const api = withJsDefinitionLoading(baseApi, governance, organizationId);
   const logSink = ctx.logSink ?? ((line: string) => process.stderr.write(line));
   // This session's gates: what get_capabilities reports and what the extension host registers against, so the two
   // cannot drift. The object and its extensions record are copied and frozen (host.gates hands this very object to
@@ -8094,6 +8221,26 @@ export function buildMcpServer(
 
     if (governance) {
       const govJs = governance;
+      // JS objects are written in the readable layout (one statement per line, no definition marker) when the
+      // governance store keeps their definitions and the caller's organization is known (definitions are stored
+      // per organization; an unreported one would put every such caller in one shared bucket). Otherwise they are
+      // written in the original one-line layout with its marker.
+      const jsCompile = {
+        readable: govJs.supportsJsDefinitions && organizationId !== "",
+      };
+      // Saves the definition of a readable body before the body is written (see saveJsDefinition).
+      const recordJsDefinition = async (
+        body: string | undefined,
+        definition: { constants?: unknown; functions?: unknown },
+      ) => {
+        if (body === undefined || !jsCompile.readable) return;
+
+        await govJs.saveJsDefinition(
+          organizationId,
+          body,
+          pureJsDefinition(definition),
+        );
+      };
 
       registerTool(
         "create_js_object",
@@ -8147,7 +8294,7 @@ export function buildMcpServer(
 
           if (!parsed.success) return validationError(parsed.error.issues);
 
-          const request = buildCreateJsObjectRequest(parsed.data);
+          const request = buildCreateJsObjectRequest(parsed.data, jsCompile);
           const existing = await api.listActionCollections(applicationId);
           const dangling =
             missingCrossObjectCall(
@@ -8187,7 +8334,19 @@ export function buildMcpServer(
               expectedRevision: parsed.data.revision,
               currentRevision,
               mutate: async () => {
+                await recordJsDefinition(
+                  (request.body as { body?: string }).body,
+                  parsed.data,
+                );
+
                 const created = await api.createActionCollection(request.body);
+
+                if (jsCompile.readable) {
+                  attachReadableJsDefinition(
+                    created,
+                    pureJsDefinition(parsed.data),
+                  );
+                }
 
                 return {
                   value: { jsObject: jsObjectView(created) },
@@ -8253,7 +8412,7 @@ export function buildMcpServer(
           !allowEditorCode &&
           parsed.data.functions !== undefined &&
           (currentSource === undefined ||
-            !isCompilerAuthoredJsBody(currentSource))
+            !isCompilerAuthoredCollection(current))
         ) {
           return result({
             error:
@@ -8336,9 +8495,7 @@ export function buildMcpServer(
           const definition =
             parsed.data.functions !== undefined
               ? { functions: parsed.data.functions }
-              : currentSource === undefined
-                ? undefined
-                : jsObjectDefinitionFromBody(currentSource);
+              : collectionJsDefinition(current);
 
           if (definition !== undefined) {
             const cycle = callCycleProblem(
@@ -8358,7 +8515,11 @@ export function buildMcpServer(
         // Built here so a definition that does not compile is refused before the lock. The write itself uses the
         // request rebuilt from the object read under the lock (below), so each kept function's run and confirm
         // settings are the current ones, not the ones read before the lock.
-        buildUpdateJsObjectRequest(parsed.data, current as ExistingJsObject);
+        buildUpdateJsObjectRequest(
+          parsed.data,
+          current as ExistingJsObject,
+          jsCompile,
+        );
 
         try {
           const { changeId, value } = await govJs.execute({
@@ -8414,7 +8575,10 @@ export function buildMcpServer(
               const request = buildUpdateJsObjectRequest(
                 parsed.data,
                 live as ExistingJsObject,
+                jsCompile,
               );
+
+              await recordJsDefinition(request.jsBody, parsed.data);
 
               // Two server routes, in this order: the body route is the only one that writes the code (PATCH
               // nulls `body`), and the PATCH then creates/updates/deletes the per-function JSActions so the
@@ -8675,7 +8839,7 @@ export function buildMcpServer(
           };
         }
 
-        if (isCompilerAuthoredJsBody(currentSource)) {
+        if (isCompilerAuthoredCollection(current)) {
           return {
             refusal: result({
               error:
