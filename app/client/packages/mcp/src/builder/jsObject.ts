@@ -19,6 +19,7 @@ import {
   stepSchema,
   STEPS_MAX,
   stepsProblem,
+  USER_FIELDS,
   validateExpr,
   CALL_DEPTH_MEMBER,
 } from "./jsExpr.js";
@@ -174,6 +175,18 @@ function isLegacyReturns(
 
   if (keys.some((key) => exprKeys.includes(key))) return false;
 
+  // The `{ user }` leaf (APP-16381) is recognised only in its exact shape, so an older literal record that merely
+  // has a `user` key still compiles as before and keeps its marker.
+  if (
+    keys.length === 1 &&
+    keys[0] === "user" &&
+    (USER_FIELDS as readonly unknown[]).includes(
+      (returns as Record<string, unknown>).user,
+    )
+  ) {
+    return false;
+  }
+
   return Object.values(returns).every(
     (value) =>
       value === null || ["string", "number", "boolean"].includes(typeof value),
@@ -304,7 +317,8 @@ export interface JsActionDto extends Record<string, unknown> {
   id?: string;
   name: string;
   workspaceId?: string;
-  runBehaviour: "MANUAL";
+  runBehaviour: string;
+  confirmBeforeExecute?: boolean;
   clientSideExecution: true;
   actionConfiguration: {
     body: string;
@@ -341,7 +355,12 @@ export interface ActionCollectionMutationRequest {
 // The subset of an existing collection the update builder needs to diff functions by name: each JSAction's id and
 // name. Everything else on the collection is ignored.
 export interface ExistingJsObject {
-  actions?: { id?: unknown; name?: unknown }[];
+  actions?: {
+    id?: unknown;
+    name?: unknown;
+    runBehaviour?: unknown;
+    confirmBeforeExecute?: unknown;
+  }[];
 }
 
 export interface DeleteJsObjectRequest {
@@ -443,7 +462,7 @@ export function compileJsObjectCode(definition: JsObjectDefinition): string {
 //
 // The payload carries `v`: the compiler's output text is the recognition contract, so when a template changes,
 // bump SPEC_VERSION and add an upgrade path for older markers instead of silently demoting every object.
-const SPEC_VERSION = 1;
+const SPEC_VERSION = 2;
 const MARKER_PREFIX = " /* mcp-spec:";
 const MARKER_SUFFIX = " */";
 const BASE64 = /^[A-Za-z0-9+/=]+$/;
@@ -762,7 +781,7 @@ function decodeDefinitionFromBody(
   if (
     decoded === null ||
     typeof decoded !== "object" ||
-    (decoded as { v?: unknown }).v !== SPEC_VERSION ||
+    ![1, SPEC_VERSION].includes((decoded as { v?: unknown }).v as number) ||
     exceedsJsonDepth(decoded, MAX_DEFINITION_JSON_DEPTH)
   ) {
     return undefined;
@@ -772,7 +791,34 @@ function decodeDefinitionFromBody(
     ...(decoded as Record<string, unknown>),
   };
 
+  const version = definition.v;
+
   delete definition.v;
+
+  // Version 1 predates the user leaf. Make its ambiguous literal record explicit before recompiling.
+  // Byte equality below still proves that the stored body matches the decoded definition.
+  if (version === 1 && Array.isArray(definition.functions)) {
+    definition.functions = definition.functions.map((fn: unknown) => {
+      if (fn === null || typeof fn !== "object") return fn;
+
+      const spec = fn as Record<string, unknown>;
+      const returns = spec.returns;
+
+      if (
+        returns !== null &&
+        typeof returns === "object" &&
+        !Array.isArray(returns) &&
+        Object.keys(returns).length === 1 &&
+        "user" in returns &&
+        (USER_FIELDS as readonly unknown[]).includes(returns.user)
+      ) {
+        return { ...spec, returns: { object: returns } };
+      }
+
+      return fn;
+    });
+  }
+
   const parsed = jsObjectDefinitionSchema.safeParse(definition);
 
   if (!parsed.success) return undefined;
@@ -849,11 +895,24 @@ export function buildUpdateJsObjectRequest(
     // Diff the new function set against the collection's existing JSActions by name: a matching name is an
     // update (keeps its id and settings), a new name is an add, a name no longer present is a delete. The server
     // creates/updates/deletes one NewAction per entry; the body is written separately (jsBody).
-    const existing = new Map<string, string>();
+    // A function that keeps its name also keeps the settings a user gave it in the editor: when it runs (for example
+    // on page load) and whether it asks for confirmation first. Only the code changes.
+    const existing = new Map<
+      string,
+      { id: string; runBehaviour?: string; confirmBeforeExecute?: boolean }
+    >();
 
     for (const action of current.actions ?? []) {
       if (typeof action.id === "string" && typeof action.name === "string") {
-        existing.set(action.name, action.id);
+        existing.set(action.name, {
+          id: action.id,
+          ...(typeof action.runBehaviour === "string"
+            ? { runBehaviour: action.runBehaviour }
+            : {}),
+          ...(typeof action.confirmBeforeExecute === "boolean"
+            ? { confirmBeforeExecute: action.confirmBeforeExecute }
+            : {}),
+        });
       }
     }
 
@@ -862,18 +921,18 @@ export function buildUpdateJsObjectRequest(
     for (const fn of spec.functions) {
       wanted.add(fn.name);
 
-      const id = existing.get(fn.name);
+      const kept = existing.get(fn.name);
       // No workspaceId on update: the server fills it from the collection (populateActionFieldsFromCollection).
       const dto = toJsActionDto(fn);
 
-      if (id === undefined) {
+      if (kept === undefined) {
         actions.added.push(dto);
       } else {
-        actions.updated.push({ ...dto, id });
+        actions.updated.push({ ...dto, ...kept });
       }
     }
 
-    for (const [name, id] of existing) {
+    for (const [name, { id }] of existing) {
       if (!wanted.has(name)) actions.deleted.push({ id, name });
     }
   }

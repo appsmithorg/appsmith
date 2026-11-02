@@ -400,7 +400,21 @@ class Linter {
 
         if (!head) continue;
 
-        const reference = head[1];
+        // After a JS operator word (`typeof X`, `await Q.run()`, `new Date()`), the name that follows is the
+        // reference to check (CodeRabbit on #42540).
+        let reference = head[1];
+        let rest = match[1].slice(head.index + head[0].length);
+
+        while (OPERATOR_WORDS.has(reference)) {
+          const next = BINDING_HEAD.exec(rest);
+
+          if (!next) break;
+
+          reference = next[1];
+          rest = rest.slice(next.index + next[0].length);
+        }
+
+        if (OPERATOR_WORDS.has(reference)) continue;
 
         // Only flag when we have a known-name set to check against (M4). `appsmith`/`moment`/JS globals and widget
         // names on this page (display bindings like `{{ Table1.selectedRow[...] }}`) are always valid heads.
@@ -586,9 +600,17 @@ class Linter {
   }
 }
 
+// JS words a binding can start with. The lint checks the name after them, not the word itself.
+const OPERATOR_WORDS: ReadonlySet<string> = new Set([
+  "new",
+  "typeof",
+  "void",
+  "await",
+]);
+
 // Binding heads that are always valid: JS/Appsmith globals and the platform action functions the compiler emits
 // (e.g. wire_event -> resetWidget/navigateTo/showAlert), so they aren't mistaken for dangling entity references.
-const GLOBAL_BINDING_HEADS = new Set([
+export const GLOBAL_BINDING_HEADS: ReadonlySet<string> = new Set([
   "appsmith",
   "moment",
   "Math",
@@ -600,6 +622,38 @@ const GLOBAL_BINDING_HEADS = new Set([
   "Boolean",
   "Date",
   "window",
+  // APP-16381: lodash, other evaluator globals, and JS words a binding can start with (`new Date(...)` is what
+  // the date functions compile to).
+  "_",
+  "Intl",
+  "Promise",
+  "parseInt",
+  "parseFloat",
+  "isNaN",
+  "Map",
+  "Set",
+  "RegExp",
+  "Error",
+  // The web APIs the evaluator supports (SUPPORTED_WEB_APIS in the client's src/plugins/Linting/constants.ts;
+  // lint-globals-drift.test.ts keeps the two in step).
+  "console",
+  "crypto",
+  "fetch",
+  "Blob",
+  "File",
+  "FileReader",
+  "FormData",
+  "URL",
+  "URLSearchParams",
+  "TextEncoder",
+  "TextDecoder",
+  "atob",
+  "btoa",
+  "this",
+  "true",
+  "false",
+  "null",
+  "undefined",
   // Platform action functions (compiler-emitted event bindings).
   "resetWidget",
   "navigateTo",
