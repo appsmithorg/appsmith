@@ -1164,6 +1164,132 @@ const ADD_MONTHS =
 const PARAMS_GUARD =
   '(($p) => { for (const $k of Object.keys($p)) { if ($p[$k] === undefined) { throw new Error("missing query parameter: " + $k); } } return $p; })';
 
+// Set while the readable layout compiles (see withReadableExpressions). It changes a few templates to shorter
+// forms that run the same way; the one-line layout never sees it, so marker-recognised bodies keep recompiling to
+// the same bytes. Compilation is synchronous, so a module flag cannot leak into another compile.
+let readableExpressions = false;
+
+export function withReadableExpressions<T>(compile: () => T): T {
+  const previous = readableExpressions;
+
+  readableExpressions = true;
+
+  try {
+    return compile();
+  } finally {
+    readableExpressions = previous;
+  }
+}
+
+// A value that is safe to name twice: reading it again has no side effects and gives the same value. Widget
+// properties are plain data-tree values; variables, parameters and constants are plain reads.
+function isPlainRead(expr: unknown): boolean {
+  return (
+    expr !== null &&
+    typeof expr === "object" &&
+    ("var" in expr || "param" in expr || "constant" in expr || "widget" in expr)
+  );
+}
+
+// Functions whose result is always an array, and array literals.
+const ARRAY_FUNCTIONS = new Set(["split", "slice", "unique", "map", "filter"]);
+
+function isArrayValue(expr: unknown): boolean {
+  return (
+    expr !== null &&
+    typeof expr === "object" &&
+    ("array" in expr ||
+      ("fn" in expr &&
+        ARRAY_FUNCTIONS.has(String((expr as { fn: unknown }).fn))))
+  );
+}
+
+// Functions whose result is always a string (never null), and string literals.
+const TEXT_FUNCTIONS = new Set([
+  "trim",
+  "lower",
+  "upper",
+  "concat",
+  "string",
+  "stripPrefix",
+  "stripSuffix",
+  "replaceAll",
+  "isoString",
+  "join",
+]);
+
+function isTextValue(expr: unknown): boolean {
+  return (
+    typeof expr === "string" ||
+    (expr !== null &&
+      typeof expr === "object" &&
+      "fn" in expr &&
+      TEXT_FUNCTIONS.has(String((expr as { fn: unknown }).fn)))
+  );
+}
+
+function isFnCall(expr: unknown, fn: string): boolean {
+  return (
+    expr !== null &&
+    typeof expr === "object" &&
+    "fn" in expr &&
+    (expr as { fn: unknown }).fn === fn
+  );
+}
+
+// The array guard as the readable layout writes it (see `list` in compileExpr): nothing for a value that is
+// already an array, an inline check for a plain read, the shared guard otherwise.
+function readableList(expr: unknown, compiled: string): string {
+  if (isArrayValue(expr)) return compiled;
+
+  return isPlainRead(expr)
+    ? `(Array.isArray(${compiled}) ? ${compiled} : [])`
+    : `${ARRAY_OF}(${compiled})`;
+}
+
+// An expression that already compiles to a fresh Date (`date` or `now`), so it needs no second `new Date(...)`.
+function isDateValue(expr: unknown): boolean {
+  return (
+    expr !== null &&
+    typeof expr === "object" &&
+    "fn" in expr &&
+    ((expr as { fn: unknown }).fn === "date" ||
+      (expr as { fn: unknown }).fn === "now")
+  );
+}
+
+// Removes one pair of parentheses that wraps the whole expression, for a statement that has its own delimiters
+// (`let x = …;`, `if (…)`, `return …;`). Strings are skipped while matching; the compiler writes only double-quoted
+// strings and a few regular expressions without parentheses.
+export function stripOuterParens(code: string): string {
+  if (!code.startsWith("(") || !code.endsWith(")")) return code;
+
+  let depth = 0;
+  let inString = false;
+
+  for (let i = 0; i < code.length; i += 1) {
+    const ch = code[i];
+
+    if (inString) {
+      if (ch === "\\") i += 1;
+      else if (ch === '"') inString = false;
+
+      continue;
+    }
+
+    if (ch === '"') inString = true;
+    else if (ch === "(") depth += 1;
+    else if (ch === ")") {
+      depth -= 1;
+
+      // The first parenthesis closes before the end: `(a) + (b)` is not wrapped as a whole.
+      if (depth === 0 && i !== code.length - 1) return code;
+    }
+  }
+
+  return code.slice(1, -1);
+}
+
 export function compileExpr(expr: Expr): string {
   if (isLiteral(expr)) return q(expr);
 
@@ -1174,6 +1300,13 @@ export function compileExpr(expr: Expr): string {
         : `${expr.call.object}.${expr.call.function}`;
 
     const args = (expr.args ?? []).map(compileExpr).join(", ");
+
+    // A call to another function of the same object needs no runtime guard in the readable layout: every
+    // sibling cycle is visible to the compiler, and create/update refuse one before writing (callCycleProblem in
+    // app.ts). Cross-object calls keep the guard, because a cycle can run through editor-written code.
+    if (readableExpressions && typeof expr.call === "string") {
+      return `(await ${callee}(${args}))`;
+    }
 
     // An arrow IIFE keeps `this` (the JS object) and lets the guard wrap the awaited call as one expression. The
     // counter is checked BEFORE it is incremented and is never reset: every frame that incremented also decrements
@@ -1242,6 +1375,15 @@ export function compileExpr(expr: Expr): string {
       case "or":
         return `(${a.join(" || ")})`;
       case "not":
+        // `not(isValidDate(x))` reads as `Number.isNaN(…)` rather than `!!Number.isNaN(…)`.
+        if (
+          readableExpressions &&
+          isFnCall(expr.args[0], "isValidDate") &&
+          a[0].startsWith("!")
+        ) {
+          return `(${a[0].slice(1)})`;
+        }
+
         return `(!${a[0]})`;
     }
   }
@@ -1257,39 +1399,61 @@ export function compileExpr(expr: Expr): string {
           : compileExpr(arg as Expr),
     );
 
+    // `String(x ?? "")` turns null into "" and anything else into text. The readable layout skips it when x is
+    // already text: a string literal or a function that always returns a string.
+    const text = (i: number) =>
+      readableExpressions && isTextValue(args[i])
+        ? a[i]
+        : `String(${a[i]} ?? "")`;
+    // `ARRAY_OF(x)` turns a non-array into []. The readable layout skips it when x is already an array, and writes
+    // it inline when x is a plain read (naming it twice is safe).
+    const list = (i: number) =>
+      readableExpressions
+        ? readableList(args[i], a[i])
+        : `${ARRAY_OF}(${a[i]})`;
+    // A literal whole number needs no index guard (the guard truncates and turns NaN into 0).
+    const index = (i: number) =>
+      readableExpressions && Number.isInteger(args[i])
+        ? a[i]
+        : `${INDEX_OF}(${a[i]})`;
+
     switch (expr.fn) {
       case "trim":
-        return `String(${a[0]} ?? "").trim()`;
+        return `${text(0)}.trim()`;
       case "lower":
-        return `String(${a[0]} ?? "").toLowerCase()`;
+        return `${text(0)}.toLowerCase()`;
       case "upper":
-        return `String(${a[0]} ?? "").toUpperCase()`;
+        return `${text(0)}.toUpperCase()`;
       case "length":
         // Operand evaluated once (an IIFE, like isEmpty/last): repeating it doubled the emitted text per nesting level.
         return `((v) => v == null ? 0 : v.length)(${a[0]})`;
       case "concat":
-        return `(${a.map((x) => `String(${x} ?? "")`).join(" + ")})`;
+        return `(${a.map((_, i) => text(i)).join(" + ")})`;
       case "startsWith":
-        return `String(${a[0]} ?? "").startsWith(${a[1]})`;
+        return `${text(0)}.startsWith(${a[1]})`;
       case "endsWith":
-        return `String(${a[0]} ?? "").endsWith(${a[1]})`;
+        return `${text(0)}.endsWith(${a[1]})`;
       case "includes":
-        return `${ARRAY_OF}(${a[0]}).includes(${a[1]})`;
+        return `${list(0)}.includes(${a[1]})`;
       case "split":
-        return `String(${a[0]} ?? "").split(${a[1]})`;
+        return `${text(0)}.split(${a[1]})`;
       case "stripPrefix":
-        return `((s, p) => s.startsWith(p) ? s.slice(p.length) : s)(String(${a[0]} ?? ""), ${a[1]})`;
+        return `((s, p) => s.startsWith(p) ? s.slice(p.length) : s)(${text(0)}, ${a[1]})`;
       case "stripSuffix":
-        return `((s, p) => s.endsWith(p) ? s.slice(0, s.length - p.length) : s)(String(${a[0]} ?? ""), ${a[1]})`;
+        return `((s, p) => s.endsWith(p) ? s.slice(0, s.length - p.length) : s)(${text(0)}, ${a[1]})`;
       case "replaceAll":
-        return `String(${a[0]} ?? "").split(${a[1]}).join(${a[2]})`;
+        return `${text(0)}.split(${a[1]}).join(${a[2]})`;
       case "number":
         return `Number(${a[0]})`;
       case "string":
-        return `String(${a[0]} ?? "")`;
+        return `${text(0)}`;
       case "boolean":
         return `Boolean(${a[0]})`;
       case "isEmpty":
+        if (readableExpressions && isPlainRead(args[0])) {
+          return `(${a[0]} == null || ${a[0]} === "" || (Array.isArray(${a[0]}) && ${a[0]}.length === 0))`;
+        }
+
         return `((v) => v == null || v === "" || (Array.isArray(v) && v.length === 0))(${a[0]})`;
       case "round":
         // Number(...) makes the receiver a primitive; the precision is a validated integer literal.
@@ -1303,32 +1467,43 @@ export function compileExpr(expr: Expr): string {
       case "max":
         return `Math.max(${a.join(", ")})`;
       case "date":
+        // `date(date(x))` and `date(now())`: the argument is already a fresh Date.
+        if (readableExpressions && isDateValue(args[0])) return a[0];
+
         return `new Date(${a[0]})`;
       case "now":
         return "new Date()";
       case "isoString":
+        if (readableExpressions && isDateValue(args[0])) {
+          return `${a[0]}.toISOString()`;
+        }
+
         return `new Date(${a[0]}).toISOString()`;
       case "isValidDate":
+        if (readableExpressions && isDateValue(args[0])) {
+          return `!Number.isNaN(${a[0]}.getTime())`;
+        }
+
         return `!Number.isNaN(new Date(${a[0]}).getTime())`;
       case "unique":
-        return `[...new Set(${ARRAY_OF}(${a[0]}))]`;
+        return `[...new Set(${list(0)})]`;
       case "join":
-        return `${ARRAY_OF}(${a[0]}).join(${a[1]})`;
+        return `${list(0)}.join(${a[1]})`;
       case "first":
-        return `${ARRAY_OF}(${a[0]})[0]`;
+        return `${list(0)}[0]`;
       case "last":
-        return `((v) => v[v.length - 1])(${ARRAY_OF}(${a[0]}))`;
+        return `((v) => v[v.length - 1])(${list(0)})`;
       // Per-item bodies are parenthesised: a bare `{ k: v }` after `=>` parses as a block, not an object literal.
       case "map":
-        return `${ARRAY_OF}(${a[0]}).map((item) => (${a[1]}))`;
+        return `${list(0)}.map((item) => (${a[1]}))`;
       case "filter":
-        return `${ARRAY_OF}(${a[0]}).filter((item) => (${a[1]}))`;
+        return `${list(0)}.filter((item) => (${a[1]}))`;
       case "some":
-        return `${ARRAY_OF}(${a[0]}).some((item) => (${a[1]}))`;
+        return `${list(0)}.some((item) => (${a[1]}))`;
       case "every":
-        return `${ARRAY_OF}(${a[0]}).every((item) => (${a[1]}))`;
+        return `${list(0)}.every((item) => (${a[1]}))`;
       case "find":
-        return `${ARRAY_OF}(${a[0]}).find((item) => (${a[1]}))`;
+        return `${list(0)}.find((item) => (${a[1]}))`;
       case "get":
         return `(${a[0]})?.[${a[1]}]`;
       case "coalesce":
@@ -1338,11 +1513,11 @@ export function compileExpr(expr: Expr): string {
       case "sortBy":
         return compileSortBy(a[0], a[1], args[2] as string);
       case "slice":
-        return `${ARRAY_OF}(${a[0]}).slice(${INDEX_OF}(${a[1]})${a.length === 3 ? `, ${INDEX_OF}(${a[2]})` : ""})`;
+        return `${list(0)}.slice(${index(1)}${a.length === 3 ? `, ${index(2)}` : ""})`;
       case "sum":
-        return `((list) => { const num = ${NUMBER_OF}; let total = 0; for (const v of list) { const n = num(v); if (Number.isFinite(n)) { total += n; } } return total; })(${ARRAY_OF}(${a[0]}))`;
+        return `((list) => { const num = ${NUMBER_OF}; let total = 0; for (const v of list) { const n = num(v); if (Number.isFinite(n)) { total += n; } } return total; })(${list(0)})`;
       case "avg":
-        return `((list) => { const num = ${NUMBER_OF}; let total = 0; let count = 0; for (const v of list) { const n = num(v); if (Number.isFinite(n)) { total += n; count += 1; } } return count === 0 ? null : total / count; })(${ARRAY_OF}(${a[0]}))`;
+        return `((list) => { const num = ${NUMBER_OF}; let total = 0; let count = 0; for (const v of list) { const n = num(v); if (Number.isFinite(n)) { total += n; count += 1; } } return count === 0 ? null : total / count; })(${list(0)})`;
       case "groupBy":
         return compileGroupBy(a[0], a[1], args[2] as GroupAggregate);
       case "dateBucket":
@@ -1375,6 +1550,115 @@ export function compileExpr(expr: Expr): string {
   }
 
   return `[${expr.array.map(compileExpr).join(", ")}]`;
+}
+
+// The readable layout of compileSteps: one statement per line, each block (`if`, `else`, `for`, `try`) on its own
+// lines, nested bodies indented one tab deeper. `indent` is the indentation of the statements themselves. Each
+// returned entry is one statement; a block statement spans several lines joined with "\n", every line already
+// indented. Expressions are compiled by the same compileExpr as the one-line layout, so both layouts run the same
+// code. Only the line breaks and indentation differ.
+export function compileStepsBlock(steps: Step[], indent: string): string[] {
+  const inner = `${indent}\t`;
+  const body = (nested: Step[]) => compileStepsBlock(nested, inner);
+  const block = (head: string, nested: string[], tail = "}") =>
+    [`${indent}${head} {`, ...nested, `${indent}${tail}`].join("\n");
+  const statements: string[] = [];
+
+  for (const step of steps) {
+    if ("run" in step && step.onError) {
+      const params = step.with
+        ? `${PARAMS_GUARD}({ ${Object.entries(step.with)
+            .map(([key, value]) => `${key}: ${compileExpr(value)}`)
+            .join(", ")} })`
+        : "";
+      const args = step.with ? "$a" : "";
+      const attempt = step.into
+        ? `${step.into} = await ${step.run}.run(${args});`
+        : `await ${step.run}.run(${args});`;
+      // The guard runs BEFORE the try (see compileSteps), and $a stays block-scoped so several runs in one function
+      // do not clash. Without parameters there is no $a, so no extra block is needed.
+      const tryCatch = (at: string) => {
+        const deeper = `${at}\t`;
+
+        return [
+          `${at}try {`,
+          `${deeper}${attempt}`,
+          `${at}} catch ($e) {`,
+          ...compileStepsBlock(step.onError ?? [], deeper),
+          `${at}}`,
+        ].join("\n");
+      };
+
+      if (step.into) statements.push(`${indent}let ${step.into};`);
+
+      statements.push(
+        step.with
+          ? [
+              `${indent}{`,
+              `${inner}const $a = ${params};`,
+              tryCatch(inner),
+              `${indent}}`,
+            ].join("\n")
+          : tryCatch(indent),
+      );
+    } else if ("let" in step) {
+      statements.push(
+        `${indent}let ${step.let} = ${stripOuterParens(compileExpr(step.value))};`,
+      );
+    } else if ("set" in step) {
+      statements.push(
+        `${indent}${step.set} = ${stripOuterParens(compileExpr(step.value))};`,
+      );
+    } else if ("return" in step) {
+      statements.push(
+        `${indent}return ${stripOuterParens(compileExpr(step.return))};`,
+      );
+    } else if ("call" in step) {
+      const call = stripOuterParens(
+        compileExpr({ call: step.call, args: step.args }),
+      );
+
+      statements.push(
+        step.into
+          ? `${indent}let ${step.into} = ${call};`
+          : `${indent}${call};`,
+      );
+    } else if ("if" in step) {
+      let text = block(
+        `if (${stripOuterParens(compileExpr(step.if))})`,
+        body(step.then),
+      );
+      let rest = step.else;
+
+      // `else { if … }` with nothing else in the else branch reads as `else if …`.
+      while (rest && rest.length === 1 && "if" in rest[0]) {
+        const next = rest[0] as Extract<Step, { if: unknown }>;
+
+        text = `${text.slice(0, -`${indent}}`.length)}${indent}} else if (${stripOuterParens(compileExpr(next.if))}) {\n${[...body(next.then), `${indent}}`].join("\n")}`;
+        rest = next.else;
+      }
+
+      if (rest) {
+        text = `${text.slice(0, -`${indent}}`.length)}${indent}} else {\n${[...body(rest), `${indent}}`].join("\n")}`;
+      }
+
+      statements.push(text);
+    } else if ("forEach" in step) {
+      statements.push(
+        block(
+          `for (let ${step.as} of ${readableList(step.forEach, compileExpr(step.forEach))})`,
+          body(step.do),
+        ),
+      );
+    } else {
+      // Every other statement is a single line, identical to the one-line layout.
+      for (const line of compileSteps([step])) {
+        statements.push(`${indent}${line}`);
+      }
+    }
+  }
+
+  return statements;
 }
 
 export function compileSteps(steps: Step[]): string[] {
