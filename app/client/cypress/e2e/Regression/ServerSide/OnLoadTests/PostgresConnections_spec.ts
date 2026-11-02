@@ -125,6 +125,7 @@ describe(
       // (PostgresPlugin.java) and opens a new one after its connections are
       // terminated, so one connection may already be back by the time of this read.
       dataSources.ReadQueryTableResponse(0).should(($cellData) => {
+        expect($cellData).to.match(/^\d+$/);
         expect(Number($cellData)).to.be.at.most(1);
       });
       deployMode.DeployApp();
