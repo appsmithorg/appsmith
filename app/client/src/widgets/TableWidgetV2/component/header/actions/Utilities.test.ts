@@ -33,6 +33,20 @@ describe("TransformTableDataIntoArrayOfArray", () => {
     },
   ];
 
+  const htmlColumns: TableColumnProps[] = [
+    {
+      ...columns[0],
+      metaProperties: {
+        isHidden: false,
+        type: ColumnTypes.HTML,
+      },
+      columnProperties: {
+        ...columns[0].columnProperties,
+        columnType: ColumnTypes.HTML,
+      },
+    },
+  ];
+
   it("work as expected", () => {
     const data = [
       {
@@ -91,23 +105,46 @@ describe("TransformTableDataIntoArrayOfArray", () => {
     );
   });
 
-  it("work as expected with html", () => {
+  it("strips HTML markup for HTML columns", () => {
     const data = [
       {
         id: "<p>abc</p>",
+      },
+      {
+        id: '<span style="color:white">completed</span>',
       },
       {
         id: "<table><tr><td>abc</td></tr></table>",
       },
     ];
     const csvData = transformTableDataIntoCsv({
-      columns,
+      columns: htmlColumns,
+      data,
+    });
+    const expectedCsvData = [["Id"], ["abc"], ["completed"], ["abc"]];
+
+    expect(JSON.stringify(csvData)).toStrictEqual(
+      JSON.stringify(expectedCsvData),
+    );
+  });
+
+  it("replaces all newlines in HTML columns and escapes quotes", () => {
+    const data = [
+      {
+        id: "<p>line1\nline2\nline3</p>",
+      },
+      {
+        id: '<span>He said "hi"</span>',
+      },
+    ];
+    const csvData = transformTableDataIntoCsv({
+      columns: htmlColumns,
       data,
     });
     const expectedCsvData = [
       ["Id"],
-      ["<p>abc</p>"],
-      ["<table><tr><td>abc</td></tr></table>"],
+      ["line1 line2 line3"],
+      ['"He said ""hi"""'],
     ];
 
     expect(JSON.stringify(csvData)).toStrictEqual(

@@ -11,6 +11,8 @@ import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import React, { memo } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import AppsmithConsole from "utils/AppsmithConsole";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import { getTextFromHTML } from "widgets/TableWidgetV2/utilities/getTextFromHTML";
 import type { ReactTableColumnProps } from "../../Constants";
 import { TableIconWrapper } from "../../TableStyledWrappers";
 import ActionItem from "./ActionItem";
@@ -160,7 +162,11 @@ function TableDataDownload(props: TableDataDownloadProps) {
 
         props.columns.forEach((column) => {
           if (column.metaProperties && !column.metaProperties.isHidden) {
-            const value = data[column.alias];
+            let value = data[column.alias];
+
+            if (column.metaProperties.type === ColumnTypes.HTML) {
+              value = getTextFromHTML(value);
+            }
 
             if (
               column.columnProperties?.columnType === "number" &&

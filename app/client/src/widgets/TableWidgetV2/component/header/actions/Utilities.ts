@@ -1,6 +1,9 @@
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import { getTextFromHTML } from "widgets/TableWidgetV2/utilities/getTextFromHTML";
 import type { TableColumnProps } from "../../Constants";
 import { isString } from "lodash";
+
+const escapeCsvField = (value: string) => value.replace(/"/g, '""');
 
 export const transformTableDataIntoCsv = (props: {
   columns: TableColumnProps[];
@@ -31,18 +34,30 @@ export const transformTableDataIntoCsv = (props: {
       let value = data[column.alias];
 
       if (column.metaProperties && !column.metaProperties.isHidden) {
-        value =
-          isString(value) && value.includes("\n")
-            ? value.replace("\n", " ")
-            : value;
+        const isHtmlColumn = column.metaProperties.type === ColumnTypes.HTML;
 
-        // HTML columns output multi line strings. We need to quote them to avoid CSV parsing issues.
+        if (isHtmlColumn) {
+          value = getTextFromHTML(value);
+
+          // HTML cells can contain many newlines; collapse all for CSV.
+          if (isString(value)) {
+            value = value.replace(/\n/g, " ");
+          }
+        } else {
+          value =
+            isString(value) && value.includes("\n")
+              ? value.replace("\n", " ")
+              : value;
+        }
+
         const shouldQuote =
-          (isString(value) && value.includes(",")) ||
-          column.metaProperties.type === ColumnTypes.HTML;
+          isString(value) &&
+          (value.includes(",") ||
+            // HTML extras: quote when the stripped value still contains quotes.
+            (isHtmlColumn && value.includes('"')));
 
         if (shouldQuote) {
-          csvDataRow.push(`"${value}"`);
+          csvDataRow.push(`"${escapeCsvField(value)}"`);
         } else {
           csvDataRow.push(value);
         }
