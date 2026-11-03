@@ -90,6 +90,34 @@ export const getDatasources = (state: DefaultRootState) => {
 export const getPlugins = (state: DefaultRootState) =>
   state.entities.plugins.list;
 
+/**
+ * Returns true for plugins that the editor no longer shows.
+ *
+ * Appsmith AI is deprecated and its service has shut down. Its datasources and
+ * queries stay in the store, so existing apps still evaluate and run page-load
+ * actions. Only the editor lists hide them. Use the "visible" selectors below
+ * for anything shown to the user. Keep the base selectors unfiltered.
+ */
+export const isHiddenPlugin = (plugin?: { packageName?: string }) =>
+  plugin?.packageName === PluginPackageName.APPSMITH_AI;
+
+export const getHiddenPluginIds = createSelector(
+  getPlugins,
+  (plugins) =>
+    new Set(
+      plugins.filter((plugin) => isHiddenPlugin(plugin)).map((p) => p.id),
+    ),
+);
+
+export const getVisibleDatasources = createSelector(
+  getDatasources,
+  getHiddenPluginIds,
+  (datasources, hiddenPluginIds) =>
+    datasources.filter(
+      (datasource) => !hiddenPluginIds.has(datasource.pluginId),
+    ),
+);
+
 export enum PluginCategory {
   SAAS = "SaaS integrations",
   AI = "AI integrations",
@@ -112,7 +140,7 @@ export type DatasourceGroupByPluginCategory = Record<
 >;
 
 export const getDatasourcesGroupedByPluginCategory = createSelector(
-  getDatasources,
+  getVisibleDatasources,
   getPlugins,
   (datasources, plugins): DatasourceGroupByPluginCategory => {
     const groupedPlugins = keyBy(plugins, "id");
@@ -703,6 +731,14 @@ export const getCurrentActions = createSelector(
 
     return actions.filter((a) => a.config.pageId === pageId);
   },
+);
+
+// For editor lists only. See isHiddenPlugin.
+export const getVisibleActions = createSelector(
+  getActions,
+  getHiddenPluginIds,
+  (actions, hiddenPluginIds): ActionDataState =>
+    actions.filter((action) => !hiddenPluginIds.has(action.config.pluginId)),
 );
 
 export const getCanvasWidgets = (
@@ -1712,7 +1748,11 @@ export const getQuerySegmentItems = createSelector(
     const items: EntityItem[] = actions
       .filter((action) => {
         // We don't want to show system generated actions in the query explorer
-        return Boolean(action.config.systemGenerated) === false;
+        // or queries of hidden plugins (see isHiddenPlugin).
+        return (
+          Boolean(action.config.systemGenerated) === false &&
+          !isHiddenPlugin(pluginGroups[action.config.pluginId])
+        );
       })
       .map((action) => {
         let group;
