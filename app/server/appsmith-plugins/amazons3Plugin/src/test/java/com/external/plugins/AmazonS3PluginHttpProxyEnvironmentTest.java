@@ -43,9 +43,7 @@ class AmazonS3PluginHttpProxyEnvironmentTest {
         assertThat(System.getProperty("https.proxyHost")).isNull();
         assertThat(System.getProperty("http.proxyHost")).isNull();
         byte[] content = utf8("direct");
-        try (S3WireServer server = new S3WireServer()) {
-            // A proxied request would reach the S3 server if the server took the free proxy port.
-            assertThat(server.hostAndPort()).isNotEqualTo("localhost:" + port);
+        try (S3WireServer server = wireServerNotOn(port)) {
             server.respond(request -> S3WireServer.object(content, md5Hex(content)));
             AmazonS3Plugin.S3PluginExecutor executor = new AmazonS3Plugin.S3PluginExecutor();
             DatasourceConfiguration configuration =
@@ -70,6 +68,21 @@ class AmazonS3PluginHttpProxyEnvironmentTest {
                     .isTrue();
             assertThat(((Map<?, ?>) result.getBody()).get("fileData")).isEqualTo("direct");
             assertThat(server.requests()).hasSize(1);
+        }
+    }
+
+    /**
+     * A wire server on any port but {@code proxyPort}; on that port, a proxied request would reach the S3 server. The
+     * proxy port is free, so a server can land on it. If one does, a second server is started while the first still
+     * holds that port, so the second gets a different port, and the first is closed.
+     */
+    private static S3WireServer wireServerNotOn(String proxyPort) throws IOException {
+        S3WireServer server = new S3WireServer();
+        if (!server.hostAndPort().equals("localhost:" + proxyPort)) {
+            return server;
+        }
+        try (server) {
+            return new S3WireServer();
         }
     }
 }
