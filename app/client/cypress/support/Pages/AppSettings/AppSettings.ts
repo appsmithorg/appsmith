@@ -96,7 +96,13 @@ export class AppSettings {
   }
 
   public GoToPageSettings(pageName: string) {
-    this.agHelper.GetNClick(this.locators._getPageSettingsHeader(pageName));
+    // The settings pane remounts every page item each time it renders. Keep the
+    // click chain query-only so Cypress re-finds the item instead of holding a
+    // detached element.
+    return cy
+      .get(this.locators._getPageSettingsHeader(pageName))
+      .click("center")
+      .wait(500);
   }
 
   public OpenPaneAndChangeTheme(themeName: string) {
