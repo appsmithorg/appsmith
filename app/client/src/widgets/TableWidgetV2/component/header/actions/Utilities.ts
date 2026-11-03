@@ -40,9 +40,9 @@ export const transformTableDataIntoCsv = (props: {
           value = getTextFromHTML(value);
         }
 
-        // Collapse newlines so a single cell cannot split into multiple CSV rows.
+        // Collapse newlines (LF, CRLF, CR) so a cell cannot split CSV rows.
         if (isString(value)) {
-          value = value.replace(/\n/g, " ");
+          value = value.replace(/\r\n|\r|\n/g, " ");
         }
 
         const shouldQuote =
