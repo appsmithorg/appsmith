@@ -131,7 +131,7 @@ describe(
     it("6. Switching back to Fixed derives the page size from the height again", function () {
       selectTable();
       propPane.SelectPropertiesDropDown("Height", "Auto Height");
-      setRowsPerPage(5);
+      setRowsPerPage(6);
       propPane.SelectPropertiesDropDown("Height", "Fixed");
       agHelper.AssertElementAbsence(autoHeightLocators.rowsPerPageControl);
 
