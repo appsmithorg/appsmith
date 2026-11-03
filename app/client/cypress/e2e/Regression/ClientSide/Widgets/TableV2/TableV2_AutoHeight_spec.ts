@@ -23,6 +23,8 @@ const autoHeightLocators = {
   pageSizeText: getWidgetSelector(draggableWidgets.TEXT),
   rowsPerPageControl: propPane._propertyControl("rowsperpage"),
   shortRowHeight: `${propPane._propertyControl("defaultrowheight")} [data-value="SHORT"]`,
+  // Property pane dropdown options carry the t--dropdown-option class; closed popups stay in the DOM
+  openDropdownOptions: `${locators._dropdownText}:visible`,
 };
 
 const readPageSize = () =>
@@ -119,14 +121,9 @@ describe(
     it("5. Height offers only Auto Height and Fixed", function () {
       selectTable();
       agHelper.GetNClick(propPane._selectPropDropdown("Height"));
-      // _dropdownOptions is an XPath locator, so it needs cy.xpath. It also matches
-      // each option's inner "-content" div, so keep only the option elements.
-      cy.xpath(propPane._dropdownOptions).should(($options) => {
+      cy.get(autoHeightLocators.openDropdownOptions).should(($options) => {
         expect(
-          $options
-            .filter(".rc-select-item-option")
-            .toArray()
-            .map((option) => option.textContent?.trim()),
+          $options.toArray().map((option) => option.textContent?.trim()),
         ).to.deep.eq(["Auto Height", "Fixed"]);
       });
       agHelper.GetNClick(propPane._selectPropDropdown("Height"));
