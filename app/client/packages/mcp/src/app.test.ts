@@ -32,6 +32,7 @@ import { WIDGET_REMOVAL_MAX } from "./governance/widgetRemoval.js";
 import type {
   McpChangeRecord,
   McpGovernanceStore,
+  McpJsDefinitionRecord,
   PreparedConfirmation,
 } from "./governance/store.js";
 
@@ -8903,6 +8904,369 @@ describe("governance-wrapped layout mutations", () => {
         }),
       }),
     );
+  });
+
+  // A store that keeps JS definitions, as the Mongo store does.
+  class DefinitionStore extends MemoryGovernanceStore {
+    readonly definitions: McpJsDefinitionRecord[] = [];
+    failSave = false;
+    failFind = false;
+
+    async saveJsDefinition(record: McpJsDefinitionRecord): Promise<void> {
+      if (this.failSave) throw new Error("store unavailable");
+
+      if (
+        !this.definitions.some(
+          (d) =>
+            d.organizationId === record.organizationId &&
+            d.codeHash === record.codeHash,
+        )
+      ) {
+        this.definitions.push(record);
+      }
+    }
+    async findJsDefinitions(
+      organizationId: string,
+      codeHashes: readonly string[],
+    ): Promise<McpJsDefinitionRecord[]> {
+      if (this.failFind) throw new Error("mongodb://user:secret@host down");
+
+      return this.definitions.filter(
+        (d) =>
+          d.organizationId === organizationId &&
+          codeHashes.includes(d.codeHash),
+      );
+    }
+  }
+
+  it("writes readable JS objects when the store keeps definitions, and reads them back on another pod", async () => {
+    const store = new DefinitionStore();
+    const APP = "a".repeat(24);
+    const definition = {
+      constants: { limit: 10 },
+      functions: [
+        {
+          name: "label",
+          params: ["value"],
+          returns: { fn: "trim", args: [{ param: "value" }] },
+        },
+        {
+          name: "save",
+          steps: [
+            {
+              call: "label",
+              args: [{ widget: "inpName", property: "text" }],
+              into: "name",
+            },
+            {
+              if: { fn: "isEmpty", args: [{ var: "name" }] },
+              then: [
+                { showAlert: "Enter a name.", style: "warning" },
+                { return: false },
+              ],
+              else: [{ showAlert: "Saved", style: "success" }],
+            },
+            { return: true },
+          ],
+        },
+      ],
+    };
+    const readable = compileJsObject(definition as never, { readable: true });
+    let collections: unknown[] = [];
+    const createActionCollection = jest.fn<
+      Promise<unknown>,
+      [Record<string, unknown>]
+    >(async (dto) => ({ id: "coll1", name: "Form", body: dto.body }));
+    const updateActionCollectionBody = jest.fn(async () => ({}));
+    const updateActionCollection = jest.fn(async () => ({}));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listPlugins: jest.fn(async () => [
+        { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
+      ]),
+      listActionCollections: jest.fn(async () => collections),
+      createActionCollection,
+      updateActionCollectionBody,
+      updateActionCollection,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    const empty = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+
+    // The store cannot save: nothing is written, because a readable body without its definition would read back
+    // as editor-authored.
+    store.failSave = true;
+    const refused = await callTool(server, "create_js_object", {
+      spec: {
+        applicationId: APP,
+        pageId: "b".repeat(24),
+        name: "Form",
+        revision: empty.body.revision,
+        ...definition,
+      },
+    });
+
+    expect(refused.body.created).toBeUndefined();
+    expect(createActionCollection).not.toHaveBeenCalled();
+    store.failSave = false;
+
+    const created = await callTool(server, "create_js_object", {
+      spec: {
+        applicationId: APP,
+        pageId: "b".repeat(24),
+        name: "Form",
+        revision: empty.body.revision,
+        ...definition,
+      },
+    });
+
+    expect(created.body).toEqual(expect.objectContaining({ created: true }));
+    const dto = createActionCollection.mock.calls[0][0] as {
+      body: string;
+      actions: { name: string; actionConfiguration: { body: string } }[];
+    };
+
+    // One statement per line, no marker, and each function's JSAction body is that function's text.
+    expect(dto.body).toBe(readable);
+    expect(dto.body).not.toContain("mcp-spec");
+    expect(dto.body).toContain(
+      "\n\tsave: async function () {\n\t\tlet name = await this.label(inpName.text);\n",
+    );
+    expect(dto.actions[1].actionConfiguration.body).toBe(
+      readable.slice(
+        readable.indexOf("async function () {"),
+        readable.lastIndexOf("\t},") + 2,
+      ),
+    );
+    expect(store.definitions).toHaveLength(1);
+
+    // Each listing loads the definitions from the store (nothing is kept in the process between requests).
+    collections = [
+      {
+        id: "coll1",
+        name: "Form",
+        pageId: "b".repeat(24),
+        body: readable,
+        actions: [
+          { id: "act-label", name: "label" },
+          { id: "act-save", name: "save" },
+        ],
+      },
+    ];
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+
+    expect(read.body.jsObjects[0]).toEqual(
+      expect.objectContaining({
+        authoredBy: "mcp",
+        definitionState: "current",
+        definition,
+        source: readable,
+      }),
+    );
+
+    // An update writes the readable layout too, and records the new body's definition first.
+    const edited = {
+      ...definition,
+      functions: [
+        definition.functions[0],
+        {
+          ...definition.functions[1],
+          steps: (definition.functions[1].steps ?? []).slice(0, 1),
+        },
+      ],
+    };
+    const updated = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "coll1",
+        revision: read.body.jsObjects[0].revision,
+        ...edited,
+      },
+    });
+
+    expect(updated.body.updated).toBe(true);
+    expect(updateActionCollectionBody).toHaveBeenCalledWith("coll1", {
+      body: compileJsObject(edited as never, { readable: true }),
+    });
+    expect(store.definitions).toHaveLength(2);
+
+    // A hand edit of the readable body makes it editor-written: no record matches the new text.
+    collections = [
+      {
+        ...(collections[0] as Record<string, unknown>),
+        body: readable.replace("Saved", "Saved!"),
+      },
+    ];
+    const afterEdit = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+
+    expect(afterEdit.body.jsObjects[0]).toEqual(
+      expect.objectContaining({ authoredBy: "editor" }),
+    );
+    expect(afterEdit.body.jsObjects[0].definition).toBeUndefined();
+  });
+
+  describe("readable JS objects: failure paths and replacement", () => {
+    const APP = "a".repeat(24);
+    const PAGE = "b".repeat(24);
+    const definition = {
+      functions: [{ name: "label", returns: { fn: "trim", args: [" x "] } }],
+    };
+    const readable = compileJsObject(definition as never, { readable: true });
+
+    function setup(store: DefinitionStore, body: string) {
+      const collection = () => ({
+        id: "coll1",
+        name: "Form",
+        pageId: PAGE,
+        body,
+        actions: [{ id: "act-label", name: "label" }],
+      });
+      const updateActionCollectionBody = jest.fn(async () => ({}));
+      const updateActionCollection = jest.fn(async () => ({}));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listActionCollections: jest.fn(async () => [collection()]),
+        listActions: jest.fn(async () => []),
+        getPage: jest.fn(async () => ({
+          id: PAGE,
+          layouts: [{ id: "l1", dsl: {} }],
+        })),
+        updateActionCollectionBody,
+        updateActionCollection,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        jsEnabled: true,
+        governance: new McpGovernanceCoordinator(store),
+      });
+
+      return { server, updateActionCollection, updateActionCollectionBody };
+    }
+
+    const edited = {
+      functions: [{ name: "label", returns: { fn: "trim", args: [" y "] } }],
+    };
+
+    it("refuses an update, and writes nothing, when the definition cannot be saved", async () => {
+      const store = new DefinitionStore();
+
+      await new McpGovernanceCoordinator(store).saveJsDefinition(
+        "org-default",
+        readable,
+        definition as never,
+      );
+      const { server, updateActionCollection, updateActionCollectionBody } =
+        setup(store, readable);
+      const read = await callTool(server, "read_js_object", {
+        applicationId: APP,
+      });
+
+      expect(read.body.jsObjects[0].authoredBy).toBe("mcp");
+      store.failSave = true;
+      const refused = await callTool(server, "update_js_object", {
+        spec: {
+          applicationId: APP,
+          collectionId: "coll1",
+          revision: read.body.jsObjects[0].revision,
+          ...edited,
+        },
+      });
+
+      expect(refused.body.updated).toBeUndefined();
+      expect(updateActionCollectionBody).not.toHaveBeenCalled();
+      expect(updateActionCollection).not.toHaveBeenCalled();
+    });
+
+    it("reads an object as unavailable, and refuses to rewrite it, when the store cannot be read", async () => {
+      const store = new DefinitionStore();
+
+      await new McpGovernanceCoordinator(store).saveJsDefinition(
+        "org-default",
+        readable,
+        definition as never,
+      );
+      store.failFind = true;
+      const stderr = jest
+        .spyOn(process.stderr, "write")
+        .mockImplementation(() => true);
+      const { server, updateActionCollectionBody } = setup(store, readable);
+
+      try {
+        const read = await callTool(server, "read_js_object", {
+          applicationId: APP,
+        });
+
+        expect(read.body.jsObjects[0]).toEqual(
+          expect.objectContaining({
+            authoredBy: "editor",
+            definitionState: "unavailable",
+          }),
+        );
+        const refused = await callTool(server, "update_js_object", {
+          spec: {
+            applicationId: APP,
+            collectionId: "coll1",
+            revision: read.body.jsObjects[0].revision,
+            ...edited,
+          },
+        });
+
+        expect(refused.body.code).toBe("editor_authored_js_object");
+        expect(updateActionCollectionBody).not.toHaveBeenCalled();
+        const logged = stderr.mock.calls.map(([line]) => String(line)).join("");
+
+        expect(logged).toContain("could not load JS-object definitions");
+        // Only the error's class is logged, never its message.
+        expect(logged).not.toContain("secret");
+      } finally {
+        stderr.mockRestore();
+      }
+    });
+
+    it("replaces an editor-written object with readable code and records its definition", async () => {
+      const store = new DefinitionStore();
+      const editorBody = "export default {\n\tasync label () { return 1; }\n}";
+      const { server, updateActionCollectionBody } = setup(store, editorBody);
+      const read = await callTool(server, "read_js_object", {
+        applicationId: APP,
+      });
+
+      expect(read.body.jsObjects[0].authoredBy).toBe("editor");
+      const spec = {
+        applicationId: APP,
+        collectionId: "coll1",
+        revision: read.body.jsObjects[0].revision,
+        ...edited,
+      };
+      const prepared = await callTool(server, "prepare_replace_js_object", {
+        spec,
+      });
+      const confirmed = await callTool(server, "confirm_replace_js_object", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+      const written = compileJsObject(edited as never, { readable: true });
+
+      expect(confirmed.body.updated).toBe(true);
+      expect(updateActionCollectionBody).toHaveBeenCalledWith("coll1", {
+        body: written,
+      });
+      expect(written).not.toContain("mcp-spec");
+      expect(store.definitions.map((d) => d.organizationId)).toEqual([
+        "org-default",
+      ]);
+    });
   });
 
   it("read_js_object reports a compiler-written body whose code was edited afterwards as drifted", async () => {

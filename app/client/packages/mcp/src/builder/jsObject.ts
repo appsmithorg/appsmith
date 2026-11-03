@@ -3,6 +3,9 @@ import { z } from "zod";
 import {
   compileExpr,
   compileSteps,
+  compileStepsBlock,
+  stripOuterParens,
+  withReadableExpressions,
   type Expr,
   type ExprContext,
   exprSchema,
@@ -414,8 +417,56 @@ function renderFunction(spec: FunctionSpec): string {
   return `${spec.name}: ${renderFunctionSource(spec)}`;
 }
 
-function toJsActionDto(spec: FunctionSpec, workspaceId?: string): JsActionDto {
-  const source = renderFunctionSource(spec);
+// The readable layout of renderFunctionSource: the same statements, one per line. The function sits one tab deep in
+// the object, so its statements are two tabs deep and its closing brace one tab deep. The JSAction body uses exactly
+// this text too, as the editor does (it keeps each function's text as written in the object).
+function renderReadableFunctionSource(spec: FunctionSpec): string {
+  return withReadableExpressions(() => readableFunctionSource(spec));
+}
+
+function readableFunctionSource(spec: FunctionSpec): string {
+  const indent = "\t\t";
+  const statements = (spec.run ?? []).map(
+    ({ query }) => `${indent}await ${query}.run();`,
+  );
+
+  if (spec.steps) {
+    statements.push(...compileStepsBlock(spec.steps as Step[], indent));
+  }
+
+  if (spec.returns !== undefined) {
+    statements.push(
+      isLegacyReturns(spec.returns)
+        ? `${indent}return { ${renderObject(spec.returns)} };`
+        : `${indent}return ${stripOuterParens(compileExpr(spec.returns as Expr))};`,
+    );
+  }
+
+  const params = (spec.params ?? []).join(", ");
+
+  // A function expression, never an arrow (see renderFunctionSource).
+  return statements.length === 0
+    ? `async function (${params}) {\n\t}`
+    : `async function (${params}) {\n${statements.join("\n")}\n\t}`;
+}
+
+// Which layout the compiler writes:
+// - readable: one statement per line, indented, with no definition marker. The caller must keep the definition
+//   somewhere else (the governance store; see rememberJsDefinition), or the object reads back as editor-authored.
+// - the default (one line plus the base64 definition marker) is the original layout. Bodies written in it stay
+//   recognisable from the body alone, which callers without a definition store (EE workflows) rely on.
+export interface JsCompileOptions {
+  readable?: boolean;
+}
+
+function toJsActionDto(
+  spec: FunctionSpec,
+  workspaceId?: string,
+  options: JsCompileOptions = {},
+): JsActionDto {
+  const source = options.readable
+    ? renderReadableFunctionSource(spec)
+    : renderFunctionSource(spec);
 
   if (RAW_EXPRESSION.test(source)) {
     throw new Error("compiled JS function contains forbidden template syntax");
@@ -442,6 +493,26 @@ export function compileJsObjectCode(definition: JsObjectDefinition): string {
     : "";
   const functionsSource = definition.functions.map(renderFunction).join(", ");
   const source = `export default { ${[constantsSource, functionsSource].filter(Boolean).join(", ")} };`;
+
+  if (RAW_EXPRESSION.test(source)) {
+    throw new Error("compiled JS object contains forbidden template syntax");
+  }
+
+  return source;
+}
+
+// The readable layout of the whole object: one member per line, a blank line before each function, a trailing
+// comma after every member (as the editor's own template writes them).
+export function formatJsObjectCode(definition: JsObjectDefinition): string {
+  const members = [
+    ...Object.entries(definition.constants ?? {}).map(
+      ([key, value]) => `\t${key}: ${JSON.stringify(value)},`,
+    ),
+    ...definition.functions.map(
+      (fn) => `\n\t${fn.name}: ${renderReadableFunctionSource(fn)},`,
+    ),
+  ];
+  const source = `export default {\n${members.join("\n").replace(/^\n/, "")}\n};\n`;
 
   if (RAW_EXPRESSION.test(source)) {
     throw new Error("compiled JS object contains forbidden template syntax");
@@ -632,7 +703,10 @@ export function findCallCycle(
   return undefined;
 }
 
-export function compileJsObject(definition: JsObjectDefinition): string {
+export function compileJsObject(
+  definition: JsObjectDefinition,
+  options: JsCompileOptions = {},
+): string {
   // Embed ONLY the definition fields: a caller may pass a whole create/update spec (ids, revision, name), and the
   // strict definition schema must accept the decoded marker for the object to be recognised as compiler-authored.
   const pure: JsObjectDefinition = {
@@ -641,6 +715,9 @@ export function compileJsObject(definition: JsObjectDefinition): string {
       : {}),
     functions: definition.functions,
   };
+
+  if (options.readable) return formatJsObjectCode(pure);
+
   const code = compileJsObjectCode(pure);
   const encoded = Buffer.from(
     JSON.stringify({ v: SPEC_VERSION, ...pure }),
@@ -687,11 +764,47 @@ export function hasSpecMarker(body: string): boolean {
 // at the top of jsExpr.ts's compiler section.
 export function compileJsObjectFromSpec(
   spec: Pick<CreateJsObjectSpec, "constants" | "functions">,
+  options: JsCompileOptions = {},
 ): string {
-  return compileJsObject({
-    constants: spec.constants,
-    functions: spec.functions,
-  });
+  return compileJsObject(
+    {
+      constants: spec.constants,
+      functions: spec.functions,
+    },
+    options,
+  );
+}
+
+// A readable body carries no marker: its definition lives in the governance store, keyed by this hash of the
+// exact body text (see McpGovernanceCoordinator.saveJsDefinition), and app.ts attaches it to the listed collection.
+export function jsBodyHash(body: string): string {
+  return createHash("sha256").update(body).digest("hex");
+}
+
+// Parses a stored definition (the governance store keeps it as JSON text) through the same guards as a marker:
+// depth first, then the strict schema. Returns undefined for anything that does not parse.
+export function parseStoredJsDefinition(
+  json: string,
+): JsObjectDefinition | undefined {
+  let decoded: unknown;
+
+  try {
+    decoded = JSON.parse(json);
+  } catch {
+    return undefined;
+  }
+
+  if (
+    decoded === null ||
+    typeof decoded !== "object" ||
+    exceedsJsonDepth(decoded, MAX_DEFINITION_JSON_DEPTH)
+  ) {
+    return undefined;
+  }
+
+  const parsed = jsObjectDefinitionSchema.safeParse(decoded);
+
+  return parsed.success ? parsed.data : undefined;
 }
 
 // Legacy shape (objects written before the definition marker existed): `export default { <member>, ... };` where
@@ -704,7 +817,10 @@ const MEMBER_SOURCE = `(?:${CONSTANT_SOURCE}|${FUNCTION_SOURCE})`;
 const LEGACY_COMPILED_JS_BODY = new RegExp(
   String.raw`^export default \{ ?(?:${MEMBER_SOURCE}(?:, ${MEMBER_SOURCE})*)? \};$`,
 );
-const MAX_CLASSIFIED_BODY_BYTES = 256 * 1024;
+
+// The largest body ever recognised as compiler-authored. The governance store and the listing loader use the same
+// cap, so a definition is never saved for a body that could not be recognised.
+export const MAX_CLASSIFIED_BODY_BYTES = 256 * 1024;
 const MAX_LEGACY_CLASSIFIED_BODY_BYTES = 64 * 1024;
 
 // The definition a compiler-authored body carries, or undefined when the body is editor-authored (no marker, an
@@ -725,7 +841,7 @@ export function jsObjectDefinitionFromBody(
   }
 
   // Keyed by content hash so the cache holds 128 digests, not 128 bodies.
-  const key = createHash("sha256").update(body).digest("hex");
+  const key = jsBodyHash(body);
 
   if (definitionCache.has(key)) {
     const cached = definitionCache.get(key);
@@ -844,6 +960,7 @@ export function isCompilerAuthoredJsBody(body: string): boolean {
 
 export function buildCreateJsObjectRequest(
   spec: CreateJsObjectSpec,
+  options: JsCompileOptions = {},
 ): ActionCollectionMutationRequest {
   // applicationId is REQUIRED by the server (LayoutCollectionServiceCEImpl answers INVALID_PARAMETER / 400 without
   // it, before any other check) — its absence was the "Appsmith API request failed (400)" on every create.
@@ -854,9 +971,11 @@ export function buildCreateJsObjectRequest(
     workspaceId: spec.workspaceId,
     pluginId: spec.pluginId,
     pluginType: "JS",
-    body: compileJsObjectFromSpec(spec),
+    body: compileJsObjectFromSpec(spec, options),
     variables: [],
-    actions: spec.functions.map((fn) => toJsActionDto(fn, spec.workspaceId)),
+    actions: spec.functions.map((fn) =>
+      toJsActionDto(fn, spec.workspaceId, options),
+    ),
   };
 
   return {
@@ -872,6 +991,7 @@ export function buildCreateJsObjectRequest(
 export function buildUpdateJsObjectRequest(
   spec: UpdateJsObjectSpec,
   current: ExistingJsObject = {},
+  options: JsCompileOptions = {},
 ): ActionCollectionMutationRequest {
   const actionCollection: ActionCollectionDto & { id: string } = {
     id: spec.collectionId,
@@ -887,10 +1007,13 @@ export function buildUpdateJsObjectRequest(
   if (spec.name !== undefined) actionCollection.name = spec.name;
 
   if (spec.functions !== undefined) {
-    jsBody = compileJsObjectFromSpec({
-      constants: spec.constants,
-      functions: spec.functions,
-    });
+    jsBody = compileJsObjectFromSpec(
+      {
+        constants: spec.constants,
+        functions: spec.functions,
+      },
+      options,
+    );
 
     // Diff the new function set against the collection's existing JSActions by name: a matching name is an
     // update (keeps its id and settings), a new name is an add, a name no longer present is a delete. The server
@@ -923,7 +1046,7 @@ export function buildUpdateJsObjectRequest(
 
       const kept = existing.get(fn.name);
       // No workspaceId on update: the server fills it from the collection (populateActionFieldsFromCollection).
-      const dto = toJsActionDto(fn);
+      const dto = toJsActionDto(fn, undefined, options);
 
       if (kept === undefined) {
         actions.added.push(dto);
