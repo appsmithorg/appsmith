@@ -119,7 +119,8 @@ describe(
     it("5. Height offers only Auto Height and Fixed", function () {
       selectTable();
       agHelper.GetNClick(propPane._selectPropDropdown("Height"));
-      cy.get(propPane._dropdownOptions).should(($options) => {
+      // _dropdownOptions is an XPath locator, so it needs cy.xpath
+      cy.xpath(propPane._dropdownOptions).should(($options) => {
         expect(
           $options.toArray().map((option) => option.textContent?.trim()),
         ).to.deep.eq(["Auto Height", "Fixed"]);
