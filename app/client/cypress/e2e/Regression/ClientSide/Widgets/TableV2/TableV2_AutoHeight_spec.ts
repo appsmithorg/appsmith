@@ -119,10 +119,14 @@ describe(
     it("5. Height offers only Auto Height and Fixed", function () {
       selectTable();
       agHelper.GetNClick(propPane._selectPropDropdown("Height"));
-      // _dropdownOptions is an XPath locator, so it needs cy.xpath
+      // _dropdownOptions is an XPath locator, so it needs cy.xpath. It also matches
+      // each option's inner "-content" div, so keep only the option elements.
       cy.xpath(propPane._dropdownOptions).should(($options) => {
         expect(
-          $options.toArray().map((option) => option.textContent?.trim()),
+          $options
+            .filter(".rc-select-item-option")
+            .toArray()
+            .map((option) => option.textContent?.trim()),
         ).to.deep.eq(["Auto Height", "Fixed"]);
       });
       agHelper.GetNClick(propPane._selectPropDropdown("Height"));
