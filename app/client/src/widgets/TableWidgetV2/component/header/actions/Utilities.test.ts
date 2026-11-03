@@ -66,10 +66,11 @@ describe("TransformTableDataIntoArrayOfArray", () => {
       JSON.stringify(expectedCsvData),
     );
   });
-  it("work as expected with newline", () => {
+
+  it("replaces all newlines in any column", () => {
     const data = [
       {
-        id: "abc\ntest",
+        id: "abc\ntest\nmore",
       },
       {
         id: "xyz",
@@ -79,12 +80,13 @@ describe("TransformTableDataIntoArrayOfArray", () => {
       columns,
       data,
     });
-    const expectedCsvData = [["Id"], ["abc test"], ["xyz"]];
+    const expectedCsvData = [["Id"], ["abc test more"], ["xyz"]];
 
     expect(JSON.stringify(csvData)).toStrictEqual(
       JSON.stringify(expectedCsvData),
     );
   });
+
   it("work as expected with comma", () => {
     const data = [
       {
@@ -99,6 +101,30 @@ describe("TransformTableDataIntoArrayOfArray", () => {
       data,
     });
     const expectedCsvData = [["Id"], ['"abc,test"'], ["xyz"]];
+
+    expect(JSON.stringify(csvData)).toStrictEqual(
+      JSON.stringify(expectedCsvData),
+    );
+  });
+
+  it("quotes and escapes double quotes in any column", () => {
+    const data = [
+      {
+        id: 'He said "hi"',
+      },
+      {
+        id: 'a,"b",c',
+      },
+    ];
+    const csvData = transformTableDataIntoCsv({
+      columns,
+      data,
+    });
+    const expectedCsvData = [
+      ["Id"],
+      ['"He said ""hi"""'],
+      ['"a,""b"",c"'],
+    ];
 
     expect(JSON.stringify(csvData)).toStrictEqual(
       JSON.stringify(expectedCsvData),
@@ -128,7 +154,7 @@ describe("TransformTableDataIntoArrayOfArray", () => {
     );
   });
 
-  it("replaces all newlines in HTML columns and escapes quotes", () => {
+  it("strips HTML then applies CSV quoting rules", () => {
     const data = [
       {
         id: "<p>line1\nline2\nline3</p>",

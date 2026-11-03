@@ -34,27 +34,17 @@ export const transformTableDataIntoCsv = (props: {
       let value = data[column.alias];
 
       if (column.metaProperties && !column.metaProperties.isHidden) {
-        const isHtmlColumn = column.metaProperties.type === ColumnTypes.HTML;
-
-        if (isHtmlColumn) {
+        if (column.metaProperties.type === ColumnTypes.HTML) {
           value = getTextFromHTML(value);
+        }
 
-          // HTML cells can contain many newlines; collapse all for CSV.
-          if (isString(value)) {
-            value = value.replace(/\n/g, " ");
-          }
-        } else {
-          value =
-            isString(value) && value.includes("\n")
-              ? value.replace("\n", " ")
-              : value;
+        // Collapse newlines so a single cell cannot split into multiple CSV rows.
+        if (isString(value)) {
+          value = value.replace(/\n/g, " ");
         }
 
         const shouldQuote =
-          isString(value) &&
-          (value.includes(",") ||
-            // HTML extras: quote when the stripped value still contains quotes.
-            (isHtmlColumn && value.includes('"')));
+          isString(value) && (value.includes(",") || value.includes('"'));
 
         if (shouldQuote) {
           csvDataRow.push(`"${escapeCsvField(value)}"`);
