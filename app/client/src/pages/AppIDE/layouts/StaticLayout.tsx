@@ -13,6 +13,10 @@ import LeftPane from "./routers/LeftPane";
 import MainPane from "./routers/MainPane";
 import RightPane from "./routers/RightPane";
 import { ProtectedCallout } from "../components/ProtectedCallout";
+import {
+  AppsmithAIQueriesCallout,
+  useAppsmithAIQueriesCalloutOffset,
+} from "../components/AppsmithAIQueriesCallout";
 import { useGridLayoutTemplate } from "./hooks/useGridLayoutTemplate";
 import { Areas } from "./constants";
 import {
@@ -40,11 +44,17 @@ export const StaticLayout = React.memo(() => {
   const { areas, columns } = useGridLayoutTemplate();
 
   const isSidebarVisible = columns[0] !== "0px";
+  const aiQueriesCallout = useAppsmithAIQueriesCalloutOffset();
 
   return (
     <>
       <GitProtectedBranchCallout />
-      <EditorWrapperContainer>
+      {aiQueriesCallout.showCallout && (
+        <AppsmithAIQueriesCallout
+          onHeightChange={aiQueriesCallout.onHeightChange}
+        />
+      )}
+      <EditorWrapperContainer topOffset={aiQueriesCallout.topOffset}>
         <GridContainer
           style={{
             gridTemplateRows: "100%",

@@ -741,6 +741,17 @@ export const getVisibleActions = createSelector(
     actions.filter((action) => !hiddenPluginIds.has(action.config.pluginId)),
 );
 
+// Queries of hidden plugins on every page of the app. The editor banner offers
+// to remove them, because the lists do not show them.
+export const getHiddenPluginActions = createSelector(
+  getActions,
+  getHiddenPluginIds,
+  (actions, hiddenPluginIds): ActionDataState =>
+    hiddenPluginIds.size === 0
+      ? []
+      : actions.filter((action) => hiddenPluginIds.has(action.config.pluginId)),
+);
+
 export const getCanvasWidgets = (
   state: DefaultRootState,
 ): CanvasWidgetsReduxState => state.entities.canvasWidgets;

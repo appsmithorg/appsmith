@@ -6,6 +6,7 @@ import {
   getCurrentActions,
   getDatasources,
   getDatasourcesGroupedByPluginCategory,
+  getHiddenPluginActions,
   getHiddenPluginIds,
   getQuerySegmentItems,
   getVisibleActions,
@@ -128,6 +129,13 @@ describe("hidden plugin selectors (Appsmith AI)", () => {
       "OpenAIQuery",
       "UsersQuery",
     ]);
+  });
+
+  it("getHiddenPluginActions returns Appsmith AI queries on every page", () => {
+    expect(getHiddenPluginActions(makeState()).map((a) => a.config.id)).toEqual(
+      ["AIQuery", "OtherPageAI"],
+    );
+    expect(getHiddenPluginActions(makeState(plugins.slice(1)))).toEqual([]);
   });
 
   it("the query list drops Appsmith AI queries", () => {
