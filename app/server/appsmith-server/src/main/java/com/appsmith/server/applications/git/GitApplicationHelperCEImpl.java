@@ -223,7 +223,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
                     .filter(applicationPage -> Boolean.TRUE.equals(applicationPage.getIsDefault()))
                     .findFirst()
                     .map(applicationPage -> applicationPage.getId())
-                    .orElse("");
+                    .orElse(application.getPages().get(0).getId());
         }
 
         String viewModeUrl = Paths.get("/", Entity.APPLICATIONS, "/", artifact.getId(), Entity.PAGES, basePageId)
