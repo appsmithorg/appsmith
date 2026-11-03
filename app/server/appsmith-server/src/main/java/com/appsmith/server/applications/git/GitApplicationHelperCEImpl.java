@@ -220,10 +220,10 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
         String basePageId = "";
         if (!application.getPages().isEmpty()) {
             basePageId = application.getPages().stream()
-                    .filter(applicationPage -> applicationPage.getIsDefault().equals(Boolean.TRUE))
-                    .toList()
-                    .get(0)
-                    .getId();
+                    .filter(applicationPage -> Boolean.TRUE.equals(applicationPage.getIsDefault()))
+                    .findFirst()
+                    .map(applicationPage -> applicationPage.getId())
+                    .orElse("");
         }
 
         String viewModeUrl = Paths.get("/", Entity.APPLICATIONS, "/", artifact.getId(), Entity.PAGES, basePageId)
