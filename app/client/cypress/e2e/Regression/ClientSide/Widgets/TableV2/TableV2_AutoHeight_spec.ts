@@ -11,9 +11,8 @@ const tableData = Array.from({ length: 30 }, (_, index) => ({
   id: index + 1,
   name: `Name ${index + 1}`,
 }));
-const GRID_ROW_HEIGHT = 10;
 
-// SimpleBar's scroll element and the shared auto height wrapper only expose classes
+// SimpleBar's scroll element only exposes classes
 const tableWidget = locators._widgetInDeployed(draggableWidgets.TABLE);
 const staticBody = `${tableWidget} [data-testid="t--table-v2-static-body"]`;
 const autoHeightLocators = {
@@ -21,7 +20,6 @@ const autoHeightLocators = {
   dataRows: `${staticBody} [data-rowindex]:not([data-colindex])`,
   emptyRows: `${staticBody} [data-testid="t--table-v2-empty-row"]`,
   bodyScrollWrapper: `${staticBody} .simplebar-content-wrapper`,
-  autoHeightScrollContainer: `${tableWidget} .auto-height-scroll-container`,
   pageSizeText: getWidgetSelector(draggableWidgets.TEXT),
   rowsPerPageControl: propPane._propertyControl("rowsperpage"),
   shortRowHeight: `${propPane._propertyControl("defaultrowheight")} [data-value="SHORT"]`,
@@ -118,45 +116,15 @@ describe(
       propPane.EnterJSContext("Table data", JSON.stringify(tableData));
     });
 
-    it("5. Auto Height with limits never grows above the max height", function () {
+    it("5. Height offers only Auto Height and Fixed", function () {
       selectTable();
-      propPane.SelectPropertiesDropDown("Height", "Auto Height");
-      setRowsPerPage(6);
-      propPane.SelectPropertiesDropDown("Height", "Auto Height with limits");
-
-      agHelper.HoverElement(propPane._autoHeightLimitMax);
-      cy.contains(/Max-Height: \d+ rows/)
-        .invoke("text")
-        .then((label) => {
-          const maxHeightInRows = Number(
-            /Max-Height: (\d+) rows/.exec(label)?.[1],
-          );
-
-          expect(maxHeightInRows).to.be.greaterThan(0);
-
-          setRowsPerPage(25);
-          cy.get(autoHeightLocators.tableWidget).should(($table) => {
-            expect(Number($table.height())).to.be.at.most(
-              maxHeightInRows * GRID_ROW_HEIGHT,
-            );
-          });
-          // The rows that do not fit scroll inside the outer auto height container
-          cy.get(autoHeightLocators.autoHeightScrollContainer).should(
-            ($container) => {
-              expect($container[0].scrollHeight).to.be.greaterThan(
-                $container[0].clientHeight,
-              );
-            },
-          );
-          cy.get(autoHeightLocators.autoHeightScrollContainer).scrollTo(
-            "bottom",
-          );
-          cy.get(autoHeightLocators.autoHeightScrollContainer).should(
-            ($container) => {
-              expect($container[0].scrollTop).to.be.greaterThan(0);
-            },
-          );
-        });
+      agHelper.GetNClick(propPane._selectPropDropdown("Height"));
+      cy.get(propPane._dropdownOptions).should(($options) => {
+        expect(
+          $options.toArray().map((option) => option.textContent?.trim()),
+        ).to.deep.eq(["Auto Height", "Fixed"]);
+      });
+      agHelper.GetNClick(propPane._selectPropDropdown("Height"));
     });
 
     it("6. Switching back to Fixed derives the page size from the height again", function () {
