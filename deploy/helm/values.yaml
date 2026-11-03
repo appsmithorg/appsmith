@@ -714,10 +714,49 @@ externalSecrets:
   # -- How often to refresh secrets from the remote provider
   # @section -- External Secrets
   refreshInterval: 1m
-  ## @param externalSecrets.remoteNameSecret Name of the secret in the external provider
-  # -- Name of the secret in the external provider
+  ## @param externalSecrets.remoteSecretName Name of the secret in the external provider (legacy single-secret path)
+  # -- Name of the secret in the external provider, pulled verbatim via dataFrom.extract
   # @section -- External Secrets
-  remoteNameSecret: "" # @schema description: Name of the secret in the external Secret provider.
+  remoteSecretName: "" # @schema description: Name of the secret in the external Secret provider (legacy single-secret path, dataFrom.extract).
+  ## @param externalSecrets.secretStoreRef Default SecretStore reference used by the generated ExternalSecret resources
+  # @schema description: Default SecretStore reference (name/kind) applied to every generated ExternalSecret unless overridden per entry.
+  # -- Default SecretStore reference for the generated ExternalSecret resources
+  # @section -- External Secrets
+  secretStoreRef:
+    ## @param externalSecrets.secretStoreRef.name Name of the SecretStore/ClusterSecretStore
+    name: secretstore
+    ## @param externalSecrets.secretStoreRef.kind Kind of the store (SecretStore or ClusterSecretStore)
+    kind: SecretStore
+  ## @param externalSecrets.additionalSecrets Additional ExternalSecret resources with optional per-key mapping
+  # @schema description: List of extra ExternalSecret resources. Each entry renames remote keys via `data` (per-key mapping) or pulls all keys via `dataFrom`. Every generated Secret is loaded into the pod via envFrom.
+  # -- Additional ExternalSecret resources with optional per-key mapping
+  # @section -- External Secrets
+  # Example: rename AWS Secrets Manager keys (host/port/password) to the env vars Appsmith expects:
+  #
+  # additionalSecrets:
+  #   - name: redis
+  #     # secretStoreRef:            # optional, overrides externalSecrets.secretStoreRef
+  #     #   name: aws-secretstore
+  #     #   kind: ClusterSecretStore
+  #     data:
+  #       - secretKey: APPSMITH_REDIS_HOST
+  #         remoteRef:
+  #           key: redis-prd-appsmith   # name of the secret in AWS Secrets Manager
+  #           property: host            # JSON property within that secret
+  #       - secretKey: APPSMITH_REDIS_PORT
+  #         remoteRef:
+  #           key: redis-prd-appsmith
+  #           property: port
+  #       - secretKey: APPSMITH_REDIS_PASSWORD
+  #         remoteRef:
+  #           key: redis-prd-appsmith
+  #           property: password
+  additionalSecrets: []
+  ## @param externalSecrets.remoteNameSecret [Deprecated] Renamed to externalSecrets.remoteSecretName
+  # @schema description: Deprecated alias; use externalSecrets.remoteSecretName instead. Kept for backward compatibility and ignored by the templates.
+  # -- [Deprecated] Use externalSecrets.remoteSecretName instead
+  # @section -- External Secrets
+  remoteNameSecret: ""
 
 
 ## prometheus paramaters

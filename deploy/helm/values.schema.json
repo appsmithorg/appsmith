@@ -102,9 +102,100 @@
                     "description": "How often to refresh secrets from the remote provider (Go duration string).",
                     "type": "string"
                 },
-                "remoteNameSecret": {
-                    "description": "Name of the secret in the external Secret provider.",
+                "remoteSecretName": {
+                    "description": "Name of the secret in the external provider, pulled verbatim via dataFrom.extract (legacy single-secret path).",
                     "type": "string"
+                },
+                "remoteNameSecret": {
+                    "description": "Deprecated alias; use remoteSecretName instead. Kept for backward compatibility and ignored by the templates.",
+                    "type": "string"
+                },
+                "secretStoreRef": {
+                    "description": "Default SecretStore reference applied to every generated ExternalSecret unless overridden per entry.",
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "description": "Name of the SecretStore or ClusterSecretStore.",
+                            "type": "string"
+                        },
+                        "kind": {
+                            "description": "Kind of the store: SecretStore or ClusterSecretStore.",
+                            "type": "string"
+                        }
+                    }
+                },
+                "additionalSecrets": {
+                    "description": "Additional ExternalSecret resources with optional per-key mapping. Each entry renames remote keys via 'data' or pulls all keys via 'dataFrom'; every generated Secret is loaded into the pod via envFrom.",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "name"
+                        ],
+                        "properties": {
+                            "name": {
+                                "description": "Suffix for the generated Secret/ExternalSecret name (<fullname>-<name>).",
+                                "type": "string"
+                            },
+                            "refreshInterval": {
+                                "description": "Override refresh interval for this entry (defaults to externalSecrets.refreshInterval).",
+                                "type": "string"
+                            },
+                            "secretStoreRef": {
+                                "description": "Override the SecretStore reference for this entry.",
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "kind": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "data": {
+                                "description": "Per-key mapping: list of {secretKey, remoteRef{key, property, version}} entries.",
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "secretKey",
+                                        "remoteRef"
+                                    ],
+                                    "properties": {
+                                        "secretKey": {
+                                            "description": "Key name in the generated Kubernetes Secret (becomes the env var name).",
+                                            "type": "string"
+                                        },
+                                        "remoteRef": {
+                                            "type": "object",
+                                            "required": [
+                                                "key"
+                                            ],
+                                            "properties": {
+                                                "key": {
+                                                    "description": "Name of the secret in the external provider.",
+                                                    "type": "string"
+                                                },
+                                                "property": {
+                                                    "description": "Property within the remote secret (e.g. a JSON field).",
+                                                    "type": "string"
+                                                },
+                                                "version": {
+                                                    "description": "Version of the remote secret to pull.",
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "dataFrom": {
+                                "description": "Bulk extract: raw External Secrets dataFrom entries, passed through verbatim.",
+                                "type": "array"
+                            }
+                        }
+                    }
                 }
             }
         },
