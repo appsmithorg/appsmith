@@ -8,8 +8,10 @@ const escapeCsvField = (value: string) => value.replace(/"/g, '""');
 export const transformTableDataIntoCsv = (props: {
   columns: TableColumnProps[];
   data: Array<Record<string, unknown>>;
+  delimiter?: string;
 }) => {
   const csvData = [];
+  const delimiter = props.delimiter || ",";
 
   csvData.push(
     props.columns
@@ -44,7 +46,8 @@ export const transformTableDataIntoCsv = (props: {
         }
 
         const shouldQuote =
-          isString(value) && (value.includes(",") || value.includes('"'));
+          isString(value) &&
+          (value.includes(delimiter) || value.includes('"'));
 
         if (shouldQuote) {
           csvDataRow.push(`"${escapeCsvField(value)}"`);

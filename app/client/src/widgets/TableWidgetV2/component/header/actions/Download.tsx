@@ -207,6 +207,7 @@ function TableDataDownload(props: TableDataDownloadProps) {
     const csvData = transformTableDataIntoCsv({
       columns: props.columns,
       data: props.data,
+      delimiter: props.delimiter,
     });
 
     downloadDataAsCSV({

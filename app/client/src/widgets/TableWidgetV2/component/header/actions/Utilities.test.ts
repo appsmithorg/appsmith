@@ -107,6 +107,27 @@ describe("TransformTableDataIntoArrayOfArray", () => {
     );
   });
 
+  it("quotes values that contain a custom delimiter", () => {
+    const data = [
+      {
+        id: "abc;test",
+      },
+      {
+        id: "plain",
+      },
+    ];
+    const csvData = transformTableDataIntoCsv({
+      columns,
+      data,
+      delimiter: ";",
+    });
+    const expectedCsvData = [["Id"], ['"abc;test"'], ["plain"]];
+
+    expect(JSON.stringify(csvData)).toStrictEqual(
+      JSON.stringify(expectedCsvData),
+    );
+  });
+
   it("quotes and escapes double quotes in any column", () => {
     const data = [
       {
