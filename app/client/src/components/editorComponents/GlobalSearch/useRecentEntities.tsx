@@ -2,9 +2,10 @@ import { useSelector } from "react-redux";
 import type { DefaultRootState } from "react-redux";
 import { getPageList } from "selectors/editorSelectors";
 import {
-  getActions,
   getAllWidgetsMap,
   getJSCollections,
+  getVisibleActions,
+  getVisibleDatasources,
 } from "ee/selectors/entitiesSelector";
 import { SEARCH_ITEM_TYPES } from "./utils";
 import { get } from "lodash";
@@ -25,11 +26,9 @@ const useResentEntities = (): Array<
 > => {
   const widgetsMap = useSelector(getAllWidgetsMap);
   const recentEntities = useSelector(recentEntitiesSelector);
-  const actions = useSelector(getActions);
+  const actions = useSelector(getVisibleActions);
   const jsActions = useSelector(getJSCollections);
-  const reducerDatasources = useSelector((state: DefaultRootState) => {
-    return state.entities.datasources.list;
-  });
+  const reducerDatasources = useSelector(getVisibleDatasources);
 
   const pages = useSelector(getPageList);
   const result = useMemo(
@@ -64,12 +63,12 @@ const useResentEntities = (): Array<
                 pageId,
               }
             );
-          } else if (type === FocusEntity.API || type === FocusEntity.QUERY)
-            return {
-              ...actions.find((action) => action?.config?.id === id),
-              entityType: type,
-            };
-          else if (type === FocusEntity.JS_OBJECT)
+          } else if (type === FocusEntity.API || type === FocusEntity.QUERY) {
+            const action = actions.find((a) => a?.config?.id === id);
+
+            // Skip deleted queries and queries of hidden plugins.
+            return action ? { ...action, entityType: type } : null;
+          } else if (type === FocusEntity.JS_OBJECT)
             return {
               ...jsActions.find(
                 (action: JSCollectionData) => action?.config?.id === id,
