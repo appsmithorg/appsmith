@@ -17,4 +17,6 @@ export enum AppSettingsTabs {
   Navigation,
   Page,
   Import,
+  /** A section added by another edition. See `SelectedTab.editionSectionId`. */
+  Edition,
 }

@@ -26,6 +26,7 @@ import { getSearchQuery } from "utils/helpers";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useSelector } from "react-redux";
 import BrandingBadge from "./BrandingBadge";
+import { ViewerEditionExtensions } from "ee/pages/AppViewer/ViewerEditionExtensions";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { CANVAS_SELECTOR } from "constants/WidgetConstants";
 import { fetchPublishedPageResources } from "actions/pageActions";
@@ -290,6 +291,7 @@ function AppViewer(props: Props) {
           >
             {isInitialized && <AppViewerPageContainer />}
           </AppViewerBody>
+          {isInitialized && <ViewerEditionExtensions />}
           <div className={"fixed hidden right-8 z-3 md:flex bottom-4"}>
             {!hideWatermark && (
               <a
