@@ -246,6 +246,9 @@ module.exports = function (webpackEnv) {
       buildDependencies: {
         defaultWebpack: ["webpack/lib/"],
         config: [__filename],
+        // A Yarn patch changes a package without changing its version, and
+        // webpack snapshots node_modules by package version.
+        lockfile: [paths.yarnLockFile],
         tsconfig: [paths.appTsConfig, paths.appJsConfig].filter((f) =>
           fs.existsSync(f),
         ),

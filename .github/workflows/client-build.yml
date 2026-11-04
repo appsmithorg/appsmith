@@ -160,20 +160,27 @@ jobs:
           fi
           echo "REACT_APP_ENVIRONMENT=$environment" >> "$GITHUB_OUTPUT"
           echo "cache_date=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+          # master builds embed different analytics keys, which are part of webpack's cache version
+          analytics_keys=release
+          if [[ "$GITHUB_REF" == refs/heads/master ]]; then
+            analytics_keys=master
+          fi
+          echo "analytics_keys=$analytics_keys" >> "$GITHUB_OUTPUT"
 
       # The webpack and babel-loader caches live under node_modules/.cache. Builds of release and
-      # master save one entry per build mode, variant, lockfile and day. The restore key prefix lets
-      # any build start from the newest entry saved for the same build mode and variant. Pull request
-      # builds compile in development mode, so their entry comes from the cache seed workflow.
+      # master save one entry per build mode, analytics keys, variant, lockfile and day. The restore
+      # key prefix lets any build start from the newest entry saved for the same build mode, analytics
+      # keys and variant. Pull request builds compile in development mode, so their entry comes from
+      # the cache seed workflow.
       - name: Restore the webpack cache
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/cache/restore@v4
         id: webpack-cache
         with:
           path: app/client/node_modules/.cache
-          key: v1-webpack-${{ steps.vars.outputs.REACT_APP_ENVIRONMENT }}-airgap-${{ inputs.airgap-enabled }}-${{ hashFiles('app/client/yarn.lock') }}-${{ steps.vars.outputs.cache_date }}
+          key: v1-webpack-${{ steps.vars.outputs.REACT_APP_ENVIRONMENT }}-${{ steps.vars.outputs.analytics_keys }}-airgap-${{ inputs.airgap-enabled }}-${{ hashFiles('app/client/yarn.lock') }}-${{ steps.vars.outputs.cache_date }}
           restore-keys: |
-            v1-webpack-${{ steps.vars.outputs.REACT_APP_ENVIRONMENT }}-airgap-${{ inputs.airgap-enabled }}-
+            v1-webpack-${{ steps.vars.outputs.REACT_APP_ENVIRONMENT }}-${{ steps.vars.outputs.analytics_keys }}-airgap-${{ inputs.airgap-enabled }}-
 
       # We burn React environment & the Segment analytics key into the build itself.
       # Pylon: REACT_APP_* is required for CRA to embed values; secret name matches github-release.yml.
@@ -202,6 +209,15 @@ jobs:
 
       # Only builds of the release or master branch itself may save. A repository_dispatch run
       # has github.ref set to the default branch while it builds a pull request.
+      # webpack expires its own entries through cache.maxAge. babel-loader never deletes its files,
+      # so entries it has not written for a week are removed before the cache is saved.
+      - name: Prune the babel-loader cache
+        if: inputs.pr == 0 && inputs.branch == '' && inputs.checkout-ref == '' && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master') && steps.webpack-cache.outputs.cache-hit != 'true'
+        run: |
+          if [[ -d node_modules/.cache/babel-loader ]]; then
+            find node_modules/.cache/babel-loader -type f -mtime +7 -delete
+          fi
+
       - name: Save the webpack cache
         uses: actions/cache/save@v4
         if: inputs.pr == 0 && inputs.branch == '' && inputs.checkout-ref == '' && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master') && steps.webpack-cache.outputs.cache-hit != 'true'

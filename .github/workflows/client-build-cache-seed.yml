@@ -7,6 +7,11 @@ on:
   schedule:
     # 00:30 UTC on weekdays, before the nightly release image test.
     - cron: "30 0 * * 1-5"
+  # A lockfile change invalidates the webpack cache.
+  push:
+    branches: [release]
+    paths:
+      - "app/client/yarn.lock"
   workflow_dispatch:
 
 # client-build.yml requests these permissions, and a called workflow cannot request more than its caller grants.
