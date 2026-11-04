@@ -15,6 +15,10 @@ import MainPane from "./routers/MainPane";
 import RightPane from "./routers/RightPane";
 import { Areas } from "./constants";
 import { ProtectedCallout } from "../components/ProtectedCallout";
+import {
+  AppsmithAIQueriesCallout,
+  useAppsmithAIQueriesCalloutOffset,
+} from "../components/AppsmithAIQueriesCallout";
 import { GlobalAISidePanel } from "ee/components/editorComponents/GlobalAISidePanel";
 
 function GitProtectedBranchCallout() {
@@ -34,6 +38,7 @@ function GitProtectedBranchCallout() {
 
 function AnimatedLayout() {
   const { areas, columns, rows } = useGridLayoutTemplate();
+  const aiQueriesCallout = useAppsmithAIQueriesCalloutOffset();
 
   if (columns.length === 0) {
     return null;
@@ -42,7 +47,12 @@ function AnimatedLayout() {
   return (
     <>
       <GitProtectedBranchCallout />
-      <EditorWrapperContainer>
+      {aiQueriesCallout.showCallout && (
+        <AppsmithAIQueriesCallout
+          onHeightChange={aiQueriesCallout.onHeightChange}
+        />
+      )}
+      <EditorWrapperContainer topOffset={aiQueriesCallout.topOffset}>
         <AnimatedGridLayout
           areas={areas}
           columns={columns}
