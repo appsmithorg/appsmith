@@ -26,6 +26,16 @@ import {
 import { WIDGET_REMOVAL_MAX } from "../governance/widgetRemoval.js";
 import { containsModal, hostModalOf, PAGE_HOST } from "./modalGraph.js";
 import {
+  bindingExprProblem,
+  bindingExprSchema,
+  bindingExprQueries,
+  bindingExprReads,
+  compileBindingExpr,
+  compileBindingExprBody,
+  compileDateBinding,
+  type BindingExpr,
+} from "./bindingExpr.js";
+import {
   compileDisableWhenInvalid,
   compileInputValidation,
   compileComputedValue,
@@ -42,7 +52,12 @@ import {
   imageUrl,
   inputValidationSchema,
   isoDateLiteral,
+  ACTION_COLUMN_TYPES,
+  PROTOTYPE_PROPERTY_NAMES,
+  buildPatchColumn,
+  TABLE_COLUMN_TYPES,
   queryFieldRefSchema,
+  storeKeySchema,
   selectedRowRefSchema,
   tableColumnName,
   tableDataBindingSchema,
@@ -703,6 +718,12 @@ export const LITERAL_PROP_OWNERS: Readonly<Record<string, readonly string[]>> =
     maxFileSize: ["FILE_PICKER_WIDGET_V2"],
   };
 
+// A condition for visibleWhen, disabledWhen, requiredWhen and validWhen: one of the three named predicates, or a
+// binding expression (bindingExpr.ts) such as "New contract is chosen and the date is less than a year out".
+const conditionSchema = z.union([visibleWhenRefSchema, bindingExprSchema]);
+
+type Condition = VisibleWhenRef | BindingExpr;
+
 // This is deliberately a closed, mostly literal-only property vocabulary. It excludes events, raw bindings,
 // dynamic path lists, and arbitrary style/configuration fields that could become executable at render time. The two
 // exceptions — `source` (text) and `defaultValue` (input) — are STRUCTURED selected-row references compiled by the
@@ -710,10 +731,16 @@ export const LITERAL_PROP_OWNERS: Readonly<Record<string, readonly string[]>> =
 export const widgetPropsPatchSchema = z
   .object({
     text: safeText(10_000).optional(),
-    // Text content: a selected-row ref (detail views) OR a query-field ref (scalar readouts).
-    source: z.union([selectedRowRefSchema, queryFieldRefSchema]).optional(),
-    // Computed text value (dates, counts, concat) — compiled onto the text prop. Text-only.
-    value: computedValueSchema.optional(),
+    // Text content: a selected-row ref (detail views), a query-field ref (scalar readouts) or a store key.
+    source: z
+      .union([
+        selectedRowRefSchema,
+        queryFieldRefSchema,
+        z.object({ store: storeKeySchema }).strict(),
+      ])
+      .optional(),
+    // Computed text value (dates, counts, concat, or a binding expression) — compiled onto the text prop. Text-only.
+    value: z.union([computedValueSchema, bindingExprSchema]).optional(),
     defaultValue: selectedRowRefSchema.optional(),
     // Dynamic default from ANOTHER widget's property or a query field, compiled onto the widget's own default prop
     // (defaultText / defaultOptionValue / defaultCheckedState / defaultSwitchState / defaultDate by type). The
@@ -724,6 +751,7 @@ export const widgetPropsPatchSchema = z
           .object({ widget: widgetNameSchema, property: entityPropertyPath })
           .strict(),
         queryFieldRefSchema,
+        bindingExprSchema,
       ])
       .optional(),
     // Bind an image's src to a column of a table's selected row (e.g. an employee photo in a detail panel) OR
@@ -734,14 +762,23 @@ export const widgetPropsPatchSchema = z
     // Gate a widget's visibility: on a control's value ({ control, equals } — a view toggle switching panels),
     // on a table having a selected row ({ rowSelected } — detail panels/action buttons), or on an input holding
     // text ({ notEmpty }). Compiled to isVisible.
-    visibleWhen: visibleWhenRefSchema.optional(),
+    visibleWhen: conditionSchema.optional(),
+    // The same condition shapes, compiled to isDisabled and isRequired (APP-16381): disable a submit button until
+    // an acknowledgement is ticked, require initials only in one case.
+    disabledWhen: conditionSchema.optional(),
+    requiredWhen: conditionSchema.optional(),
+    // An input's "Valid" check from a condition, for a rule a named format cannot state. Inputs only.
+    validWhen: conditionSchema.optional(),
     // Re-bind a table's data: a query ref (optionally clear-when-empty) OR (M5) a store key accumulated by
     // wire_event's appendToStore ({ store: '<key>' }). Compiled, never literal-assigned.
     tableData: tableDataBindingSchema.optional(),
     // Add named-format validation to an input (compiled to a vetted regex + error message).
     validation: inputValidationSchema.optional(),
-    // Disable this widget while the named input is invalid — compiled to `{{ !<input>.isValid }}`.
-    disableWhenInvalid: widgetNameSchema.optional(),
+    // Disable this widget while the named input is invalid — compiled to `{{ !<input>.isValid }}` — or while any
+    // of up to 10 named form controls is invalid.
+    disableWhenInvalid: z
+      .union([widgetNameSchema, z.array(widgetNameSchema).min(1).max(10)])
+      .optional(),
     label: safeText(200).optional(),
     // MULTI_LINE_TEXT is the Input widget's textarea mode (DSL migration 075 renamed it from a separate widget);
     // it is a plain enum literal like the other modes and carries no expression.
@@ -908,9 +945,10 @@ export const widgetPropsPatchSchema = z
     serverSidePagination: z.boolean().optional(),
     defaultSelectedItem: literalScalarSchema.optional(),
     // Date picker.
-    defaultDate: isoDateLiteral.optional(),
-    minDate: isoDateLiteral.optional(),
-    maxDate: isoDateLiteral.optional(),
+    // An ISO date, or a binding expression such as today + 14 days (APP-16381).
+    defaultDate: z.union([isoDateLiteral, bindingExprSchema]).optional(),
+    minDate: z.union([isoDateLiteral, bindingExprSchema]).optional(),
+    maxDate: z.union([isoDateLiteral, bindingExprSchema]).optional(),
     firstDayOfWeek: boundedInt(0, 6).optional(),
     timePrecision: z.enum(["None", "minute", "second"]).optional(),
     shortcuts: z.boolean().optional(),
@@ -1007,6 +1045,57 @@ const removeOperationSchema = z
   })
   .strict();
 
+// APP-16381: add or change one column of an existing table. A button or icon-button column's onClick is then
+// wired with wire_event `column`. Labels are plain text (never a binding).
+const columnLabelText = safeText(200);
+const addColumnOperationSchema = z
+  .object({
+    kind: z.literal("addColumn"),
+    name: widgetNameSchema,
+    column: z
+      .object({
+        // The data field a data column reads; for a button column, the name its id is made from.
+        key: tableColumnName,
+        label: columnLabelText.optional(),
+        type: z
+          .enum([...TABLE_COLUMN_TYPES, ...ACTION_COLUMN_TYPES])
+          .optional(),
+        hidden: z.boolean().optional(),
+        buttonLabel: columnLabelText.optional(),
+        iconName: iconNameSchema.optional(),
+      })
+      .strict(),
+  })
+  .strict();
+
+const patchColumnId = z
+  .string()
+  .min(1)
+  .max(100)
+  .regex(/^[A-Za-z_][A-Za-z0-9_]*$/, "must be a column id (an identifier)")
+  .refine(
+    (id) => !PROTOTYPE_PROPERTY_NAMES.has(id),
+    "collides with an Object.prototype property name",
+  );
+
+const updateColumnOperationSchema = z
+  .object({
+    kind: z.literal("updateColumn"),
+    name: widgetNameSchema,
+    // The column id from read_semantic_page `columns`.
+    column: patchColumnId,
+    props: z
+      .object({
+        label: columnLabelText.optional(),
+        hidden: z.boolean().optional(),
+        buttonLabel: columnLabelText.optional(),
+        iconName: iconNameSchema.optional(),
+      })
+      .strict()
+      .refine((p) => Object.keys(p).length > 0, "must update a property"),
+  })
+  .strict();
+
 export const widgetPatchSchema = z
   .object({
     operations: z
@@ -1016,6 +1105,8 @@ export const widgetPatchSchema = z
           moveOperationSchema,
           resizeOperationSchema,
           removeOperationSchema,
+          addColumnOperationSchema,
+          updateColumnOperationSchema,
         ]),
       )
       .min(1)
@@ -1044,6 +1135,8 @@ export type WidgetPropsPatch = z.infer<typeof widgetPropsPatchSchema>;
 export interface WidgetPatchChange {
   kind: WidgetPatchOperation["kind"];
   widgetName: string;
+  // addColumn / updateColumn: the column id.
+  column?: string;
   changedProps?: (keyof WidgetPropsPatch)[];
   previousParentWidgetName?: string;
   parentWidgetName?: string;
@@ -1178,8 +1271,25 @@ function brokenReferences(
   const visit = (node: WidgetNode): void => {
     const refersTo = new Set<string>();
 
-    for (const [key, value] of Object.entries(node)) {
-      if (key === "children" || typeof value !== "string") continue;
+    // Top-level string props, plus each table column's string props (a button column's onClick, written by
+    // wire_event since APP-16381, can open a modal being removed).
+    const columns =
+      typeof node.primaryColumns === "object" && node.primaryColumns !== null
+        ? Object.values(node.primaryColumns as Record<string, unknown>)
+        : [];
+    const values = [
+      ...Object.entries(node)
+        .filter(([key]) => key !== "children")
+        .map(([, value]) => value),
+      ...columns.flatMap((column) =>
+        typeof column === "object" && column !== null
+          ? Object.values(column as Record<string, unknown>)
+          : [],
+      ),
+    ];
+
+    for (const value of values) {
+      if (typeof value !== "string") continue;
 
       for (const match of value.matchAll(BINDING_BODY)) {
         for (const { name, pattern } of patterns) {
@@ -1517,7 +1627,7 @@ function applyReorderTabs(node: WidgetNode, order: string[]): void {
 function applyDefaultFromBinding(
   widgets: Map<string, LocatedWidget>,
   node: WidgetNode,
-  ref: { widget: string; property: string } | QueryFieldRef,
+  ref: { widget: string; property: string } | QueryFieldRef | BindingExpr,
   conflicts: {
     defaultValue: SelectedRowRef | undefined;
     literals: Record<string, unknown>;
@@ -1543,7 +1653,25 @@ function applyDefaultFromBinding(
     );
   }
 
-  if ("widget" in ref) {
+  if ("expr" in ref) {
+    checkBindingExpr(widgets, node, ref, "defaultFrom", property);
+
+    if (
+      bindingExprReads(ref.expr).some(
+        (read) => widgets.get(read.widget)?.node === node,
+      )
+    ) {
+      throw new Error("'defaultFrom' cannot reference the widget itself");
+    }
+
+    // A date picker's default must be a date (compileDateBinding); a checkbox or switch default a boolean.
+    node[property] =
+      node.type === "DATE_PICKER_WIDGET2"
+        ? compileDateBinding(ref.expr)
+        : node.type === "CHECKBOX_WIDGET" || node.type === "SWITCH_WIDGET"
+          ? `{{ Boolean(${compileBindingExprBody(ref.expr)}) }}`
+          : compileBindingExpr(ref.expr);
+  } else if ("widget" in ref) {
     const sourceWidget = widgets.get(ref.widget);
 
     if (!sourceWidget) throw new Error(`widget "${ref.widget}" was not found`);
@@ -1566,7 +1694,7 @@ function applyDefaultFromBinding(
 function applyScalarDisplayBinding(
   widgets: Map<string, LocatedWidget>,
   node: WidgetNode,
-  ref: SelectedRowRef | QueryFieldRef,
+  ref: SelectedRowRef | QueryFieldRef | { store: string },
   expected: { widgetType: string; property: string; field: string },
 ): void {
   if ("table" in ref) {
@@ -1581,7 +1709,10 @@ function applyScalarDisplayBinding(
     );
   }
 
-  node[expected.property] = compileQueryFieldBinding(ref);
+  node[expected.property] =
+    "store" in ref
+      ? `{{ appsmith.store.${ref.store} ?? "" }}`
+      : compileQueryFieldBinding(ref);
   registerDynamicBinding(node, expected.property);
 }
 
@@ -1643,104 +1774,298 @@ function applyInputValidation(node: WidgetNode, ref: InputValidationRef): void {
 
   node.regex = regex;
   node.errorMessage = errorMessage;
-  node.isRequired = true;
+
+  // An input whose isRequired is a binding (requiredWhen) keeps it: the condition decides when it is required.
+  const boundRequired =
+    Array.isArray(node.dynamicBindingPathList) &&
+    (node.dynamicBindingPathList as { key: string }[]).some(
+      (entry) => entry.key === "isRequired",
+    );
+
+  if (!boundRequired) node.isRequired = true;
 }
 
-// Disable a widget while the named input is invalid — emits `{{ !<input>.isValid }}` onto isDisabled and registers
-// the dynamic path. The referenced widget must be an input (only inputs expose `.isValid`).
+// Form controls with both a required check (`isRequired`) and an `isValid` value, from the widgets' own property
+// panes and derived props: the targets of requiredWhen, and the controls disableWhenInvalid may name.
+const VALIDATED_CONTROL_TYPES: readonly string[] = [
+  "CHECKBOX_GROUP_WIDGET",
+  "CHECKBOX_WIDGET",
+  "CURRENCY_INPUT_WIDGET",
+  "DATE_PICKER_WIDGET2",
+  "FILE_PICKER_WIDGET_V2",
+  "INPUT_WIDGET_V2",
+  "MULTI_SELECT_TREE_WIDGET",
+  "MULTI_SELECT_WIDGET_V2",
+  "PHONE_INPUT_WIDGET",
+  "RADIO_GROUP_WIDGET",
+  "RICH_TEXT_EDITOR_WIDGET",
+  "SELECT_WIDGET",
+  "SINGLE_SELECT_TREE_WIDGET",
+  "SWITCH_GROUP_WIDGET",
+];
+
+// The input family that has the "Valid" (`validation`) property, the target of validWhen.
+const VALID_PROP_TYPES: readonly string[] = [
+  "CURRENCY_INPUT_WIDGET",
+  "INPUT_WIDGET_V2",
+  "PHONE_INPUT_WIDGET",
+];
+
+// Disable a widget while a named control is invalid. One name emits `{{ !<name>.isValid }}`; a list emits
+// `{{ !A.isValid || !B.isValid }}`. Each name must be a form control with an `isValid` value.
 function applyDisableWhenInvalid(
   widgets: Map<string, LocatedWidget>,
   node: WidgetNode,
-  inputName: string,
+  names: string | string[],
 ): void {
-  const input = widgets.get(inputName);
+  const list = typeof names === "string" ? [names] : [...new Set(names)];
 
-  if (!input) {
-    throw new Error(`disableWhenInvalid input "${inputName}" was not found`);
+  for (const name of list) {
+    const control = widgets.get(name);
+
+    if (!control) {
+      throw new Error(`disableWhenInvalid input "${name}" was not found`);
+    }
+
+    if (!VALIDATED_CONTROL_TYPES.includes(control.node.type)) {
+      throw new Error(
+        `disableWhenInvalid "${name}" must be a form control with a validity check (${VALIDATED_CONTROL_TYPES.join(" / ")}; it is ${control.node.type})`,
+      );
+    }
+
+    if (control.node === node) {
+      throw new Error("disableWhenInvalid cannot name the widget itself");
+    }
   }
 
-  if (input.node.type !== "INPUT_WIDGET_V2") {
-    throw new Error(
-      `disableWhenInvalid "${inputName}" must be an input widget (it is ${input.node.type})`,
-    );
-  }
-
-  node.isDisabled = compileDisableWhenInvalid(inputName);
+  node.isDisabled =
+    list.length === 1
+      ? compileDisableWhenInvalid(list[0])
+      : `{{ ${list.map((name) => `!${name}.isValid`).join(" || ")} }}`;
   registerDynamicBinding(node, "isDisabled");
+}
+
+// Checks a binding expression for one property: the grammar limits (bindingExpr.ts), every widget it reads exists
+// on the page, a table leaf names a table, and it does not read the property it sets on its own widget.
+function checkBindingExpr(
+  widgets: Map<string, LocatedWidget>,
+  node: WidgetNode,
+  ref: BindingExpr,
+  field: string,
+  targetProperty: string,
+): void {
+  const problem = bindingExprProblem(ref.expr);
+
+  if (problem) throw new Error(`'${field}': ${problem}`);
+
+  for (const read of bindingExprReads(ref.expr)) {
+    const found = widgets.get(read.widget);
+
+    if (!found) {
+      throw new Error(`'${field}': widget "${read.widget}" was not found`);
+    }
+
+    if (read.table && found.node.type !== "TABLE_WIDGET_V2") {
+      throw new Error(`'${field}': "${read.widget}" is not a table widget`);
+    }
+
+    const head = read.property.split(".")[0];
+
+    if (
+      found.node === node &&
+      SELF_READ_CYCLES[targetProperty]?.includes(head)
+    ) {
+      throw new Error(
+        `'${field}' cannot read "${read.widget}.${head}": it depends on the property this sets (an evaluation cycle)`,
+      );
+    }
+
+    if (found.node === node && head === targetProperty) {
+      throw new Error(
+        `'${field}' cannot read "${read.widget}.${targetProperty}", the property it sets`,
+      );
+    }
+
+    // A two-step cycle: the property read is itself a binding that reads the property this sets, or a property
+    // computed from it (this widget's isValid, when this sets isRequired or the Valid check). A read of another
+    // control's isValid is checked through the stored props it is computed from.
+    const readHeads = new Set(
+      head === "isValid" ? [head, ...ISVALID_INPUTS] : [head],
+    );
+    const defaultProp = defaultPropOf(found.node, {});
+
+    if (defaultProp && SELF_READ_CYCLES[defaultProp]?.includes(head)) {
+      readHeads.add(defaultProp);
+    }
+
+    const setProperties = [
+      targetProperty,
+      ...(SELF_READ_CYCLES[targetProperty] ?? []),
+    ];
+
+    for (const readHead of readHeads) {
+      const readValue = found.node[readHead];
+
+      if (typeof readValue !== "string") continue;
+
+      const cycle = setProperties.find((property) =>
+        readsProperty(readValue, node.widgetName, property),
+      );
+
+      if (cycle !== undefined) {
+        throw new Error(
+          `'${field}' reads "${read.widget}.${head}", which reads "${node.widgetName}.${cycle}" (an evaluation cycle)`,
+        );
+      }
+    }
+  }
+}
+
+// Properties a widget computes from the one a condition sets: a control's `isValid` depends on its `isRequired`
+// and, for inputs, on its "Valid" check, so reading it from those conditions is a cycle. A cycle stops the page's
+// evaluation for every viewer, so it is refused up front.
+// A default prop feeds the widget's current value, so those values are computed from it too (CodeRabbit on
+// #42540: a date picker's defaultDate reading its own selectedDate was accepted).
+const SELF_READ_CYCLES: Readonly<Record<string, readonly string[]>> = {
+  isRequired: ["isValid"],
+  validation: ["isValid"],
+  minDate: ["isValid"],
+  maxDate: ["isValid"],
+  defaultDate: ["selectedDate", "formattedDate", "isValid"],
+  defaultText: ["text", "inputText", "value", "isValid"],
+  defaultOptionValue: [
+    "selectedOptionValue",
+    "selectedOptionLabel",
+    "selectedOptionValues",
+    "selectedOptionLabels",
+    "isValid",
+  ],
+  defaultCheckedState: ["isChecked", "isValid"],
+  defaultSwitchState: ["isSwitchedOn", "isValid"],
+};
+
+// The stored props a control's isValid is computed from.
+const ISVALID_INPUTS: readonly string[] = [
+  "isRequired",
+  "validation",
+  "minDate",
+  "maxDate",
+];
+
+const MAX_CYCLE_SCAN_LENGTH = 100_000;
+
+// Whether a stored value holds a binding that reads `<widget>.<property>`. Both names are validated identifiers, so
+// they are safe in the pattern. Bounded like the other DSL text scans.
+function readsProperty(
+  value: string,
+  widget: string,
+  property: string,
+): boolean {
+  if (!value.includes("{{") || value.length > MAX_CYCLE_SCAN_LENGTH) {
+    return false;
+  }
+
+  return new RegExp(
+    `(?:^|[^A-Za-z0-9_.$])${widget}\\.${property}(?![A-Za-z0-9_$])`,
+  ).test(value);
 }
 
 // The meta value property a control widget exposes, used by visibleWhen. Only controls that hold a single selectable
 // value are supported; the agent never supplies the property name.
 const CONTROL_VALUE_PROPS: Record<string, string> = {
   SELECT_WIDGET: "selectedOptionValue",
+  RADIO_GROUP_WIDGET: "selectedOptionValue",
   TABS_WIDGET: "selectedTab",
 };
 
-// Gate a widget's visibility on a control's value — emits `{{ Control.<valueProp> === '<equals>' }}` onto isVisible.
-// The control must exist and be a supported single-value control.
-function applyVisibleWhenBinding(
+// Compiles a condition (visibleWhen, disabledWhen, requiredWhen, validWhen) to a boolean binding for
+// `targetProperty`. The three named predicates keep their exact emitted text (read_semantic_page recognises it);
+// a binding expression is wrapped in Boolean(), since each target property expects a boolean.
+function compileCondition(
   widgets: Map<string, LocatedWidget>,
   node: WidgetNode,
-  ref: VisibleWhenRef,
-): void {
-  // Row-selection predicate: visible only while the referenced table has a selected row.
+  ref: Condition,
+  field: string,
+  targetProperty: string,
+): string {
+  if ("expr" in ref) {
+    checkBindingExpr(widgets, node, ref, field, targetProperty);
+
+    return `{{ Boolean(${compileBindingExprBody(ref.expr)}) }}`;
+  }
+
+  // Row-selection predicate: true only while the referenced table has a selected row.
   if ("rowSelected" in ref) {
     const table = widgets.get(ref.rowSelected);
 
     if (!table) {
-      throw new Error(`visibleWhen table "${ref.rowSelected}" was not found`);
+      throw new Error(`${field} table "${ref.rowSelected}" was not found`);
     }
 
     if (table.node.type !== "TABLE_WIDGET_V2") {
       throw new Error(`"${ref.rowSelected}" is not a table widget`);
     }
 
-    node.isVisible = compileRowSelectedBinding(ref.rowSelected);
-    registerDynamicBinding(node, "isVisible");
-
-    return;
+    return compileRowSelectedBinding(ref.rowSelected);
   }
 
-  // Non-empty-input predicate: visible only while the referenced input holds text.
+  // Non-empty-input predicate: true only while the referenced input holds text.
   if ("notEmpty" in ref) {
     const input = widgets.get(ref.notEmpty);
 
     if (!input) {
-      throw new Error(`visibleWhen input "${ref.notEmpty}" was not found`);
+      throw new Error(`${field} input "${ref.notEmpty}" was not found`);
     }
 
     if (input.node.type !== "INPUT_WIDGET_V2") {
       throw new Error(
-        `visibleWhen "${ref.notEmpty}" must be an input widget (it is ${input.node.type})`,
+        `${field} "${ref.notEmpty}" must be an input widget (it is ${input.node.type})`,
       );
     }
 
-    node.isVisible = compileNotEmptyBinding(ref.notEmpty);
-    registerDynamicBinding(node, "isVisible");
-
-    return;
+    return compileNotEmptyBinding(ref.notEmpty);
   }
 
   const control = widgets.get(ref.control);
 
   if (!control) {
-    throw new Error(`visibleWhen control "${ref.control}" was not found`);
+    throw new Error(`${field} control "${ref.control}" was not found`);
   }
 
   const valueProp = CONTROL_VALUE_PROPS[control.node.type];
 
   if (!valueProp) {
     throw new Error(
-      `visibleWhen "${ref.control}" must be a select or tabs control (it is ${control.node.type})`,
+      `${field} "${ref.control}" must be a select, radio or tabs control (it is ${control.node.type}); use { expr } for other controls`,
     );
   }
 
-  node.isVisible = compileVisibleWhenBinding(
-    ref.control,
-    valueProp,
-    ref.equals,
+  return compileVisibleWhenBinding(ref.control, valueProp, ref.equals);
+}
+
+// Sets one condition-bound property: checks the widget type owns it, compiles the condition and registers the path.
+function applyCondition(
+  widgets: Map<string, LocatedWidget>,
+  node: WidgetNode,
+  ref: Condition,
+  field: string,
+  targetProperty: string,
+  owners?: readonly string[],
+): void {
+  if (owners !== undefined && !owners.includes(node.type)) {
+    throw new Error(
+      `'${field}' can only be set on ${owners.join(" / ")} ("${node.widgetName}" is ${node.type})`,
+    );
+  }
+
+  node[targetProperty] = compileCondition(
+    widgets,
+    node,
+    ref,
+    field,
+    targetProperty,
   );
-  registerDynamicBinding(node, "isVisible");
+  registerDynamicBinding(node, targetProperty);
 }
 
 function formatPosition(position: Position): string {
@@ -1773,12 +2098,198 @@ function innerCanvasesOf(node: WidgetNode): WidgetNode[] {
   );
 }
 
+// The table's own columns, own properties only.
+function tableColumns(
+  node: WidgetNode,
+): Record<string, Record<string, unknown>> {
+  if (node.type !== "TABLE_WIDGET_V2") {
+    throw new Error(
+      `columns can only be changed on a TABLE_WIDGET_V2 ("${node.widgetName}" is ${node.type})`,
+    );
+  }
+
+  if (typeof node.primaryColumns !== "object" || node.primaryColumns === null) {
+    node.primaryColumns = {};
+  }
+
+  return node.primaryColumns as Record<string, Record<string, unknown>>;
+}
+
+// addColumn and updateColumn (APP-16381).
+function applyColumnOperation(
+  node: WidgetNode,
+  operation: Extract<
+    WidgetPatchOperation,
+    { kind: "addColumn" | "updateColumn" }
+  >,
+  changes: WidgetPatchChange[],
+): void {
+  const columns = tableColumns(node);
+  const ids = Object.keys(columns);
+
+  if (operation.kind === "addColumn") {
+    const indexes = ids
+      .map((id) => columns[id]?.index)
+      .filter((index): index is number => typeof index === "number");
+    const built = buildPatchColumn(operation.column, node.widgetName, {
+      ids: new Set(ids),
+      nextIndex: indexes.length > 0 ? Math.max(...indexes) + 1 : 0,
+    });
+
+    columns[built.id] = built.properties;
+
+    const order = Array.isArray(node.columnOrder)
+      ? (node.columnOrder as unknown[]).filter(
+          (id): id is string => typeof id === "string",
+        )
+      : ids;
+
+    node.columnOrder = [...order.filter((id) => id !== built.id), built.id];
+
+    if (built.bindingPath !== undefined) {
+      registerDynamicBinding(node, built.bindingPath);
+    }
+
+    changes.push({
+      kind: "addColumn",
+      widgetName: node.widgetName,
+      column: built.id,
+    });
+
+    return;
+  }
+
+  const id = operation.column;
+
+  if (!Object.prototype.hasOwnProperty.call(columns, id)) {
+    throw new Error(
+      `column "${id}" was not found on "${node.widgetName}" (columns: ${ids.join(", ")})`,
+    );
+  }
+
+  const column = columns[id];
+  const { buttonLabel, hidden, iconName, label } = operation.props;
+
+  if (buttonLabel !== undefined && column.columnType !== "button") {
+    throw new Error(`'buttonLabel' can only be set on a button column`);
+  }
+
+  if (iconName !== undefined && column.columnType !== "iconButton") {
+    throw new Error(`'iconName' can only be set on an iconButton column`);
+  }
+
+  const literals: Record<string, unknown> = {};
+
+  if (label !== undefined) literals.label = label;
+
+  if (buttonLabel !== undefined) literals.buttonLabel = buttonLabel;
+
+  if (iconName !== undefined) literals.iconName = iconName;
+
+  if (hidden !== undefined) {
+    literals.isVisible = !hidden;
+    literals.isCellVisible = !hidden;
+  }
+
+  Object.assign(column, literals);
+
+  // A literal replaces a binding the column property carried.
+  for (const key of Object.keys(literals)) {
+    unregisterDynamicBinding(node, `primaryColumns.${id}.${key}`);
+  }
+
+  changes.push({
+    kind: "updateColumn",
+    widgetName: node.widgetName,
+    column: id,
+  });
+}
+
+// The date picker props that take an ISO literal or a binding expression.
+const DATE_BINDING_PROPS = ["defaultDate", "minDate", "maxDate"] as const;
+
+// Separates date picker props given as a binding expression from the plain literals.
+function splitDateBindings<T extends Record<string, unknown>>(
+  props: T,
+): { dateBindings: Record<string, BindingExpr>; literals: T } {
+  const dateBindings: Record<string, BindingExpr> = {};
+  const literals: Record<string, unknown> = { ...props };
+
+  for (const key of DATE_BINDING_PROPS) {
+    const value = literals[key];
+
+    if (typeof value === "object" && value !== null) {
+      dateBindings[key] = value as BindingExpr;
+      delete literals[key];
+    }
+  }
+
+  return { dateBindings, literals: literals as T };
+}
+
 // Applies local, typed widget mutations without interpreting templates or bindings. The input DSL is never mutated.
+export interface WidgetPatchOptions {
+  // The application's query names. A binding expression's `{ query }` leaf must name one. Without the list, a
+  // patch with a query leaf is refused.
+  queryNames?: ReadonlySet<string>;
+}
+
+// Every binding expression in an update's props (APP-16381), wherever it sits.
+function propBindingExprs(props: Record<string, unknown>): BindingExpr[] {
+  return Object.values(props).filter(
+    (value): value is BindingExpr =>
+      typeof value === "object" &&
+      value !== null &&
+      !Array.isArray(value) &&
+      "expr" in value,
+  );
+}
+
+// Refuses a `{ query }` leaf that does not name a query of the application, before anything is applied.
+function checkBindingExprQueries(
+  props: Record<string, unknown>,
+  queryNames: ReadonlySet<string> | undefined,
+): void {
+  for (const ref of propBindingExprs(props)) {
+    for (const name of bindingExprQueries(ref.expr)) {
+      if (queryNames === undefined) {
+        throw new Error(
+          `query "${name}" cannot be checked here (the query list is not available); bind it with source / tableData, or retry`,
+        );
+      }
+
+      if (!queryNames.has(name)) {
+        throw new Error(`query "${name}" was not found in this application`);
+      }
+    }
+  }
+}
+
+// Whether any update in a parsed patch reads a query through a binding expression, so the caller knows to fetch
+// the application's query names first.
+export function patchReadsQueries(patch: WidgetPatch): boolean {
+  return patch.operations.some(
+    (operation) =>
+      operation.kind === "update" &&
+      propBindingExprs(operation.props).some(
+        (ref) => bindingExprQueries(ref.expr).length > 0,
+      ),
+  );
+}
+
 export function applyWidgetPatch(
   currentDsl: WidgetNode,
   patchInput: unknown,
+  options: WidgetPatchOptions = {},
 ): WidgetPatchResult {
   const patch = widgetPatchSchema.parse(patchInput);
+
+  for (const operation of patch.operations) {
+    if (operation.kind === "update") {
+      checkBindingExprQueries(operation.props, options.queryNames);
+    }
+  }
+
   const dsl = cloneDsl(currentDsl);
   const changes: WidgetPatchChange[] = [];
   const notes: string[] = [];
@@ -1792,16 +2303,21 @@ export function applyWidgetPatch(
       const {
         defaultFrom,
         defaultValue,
+        disabledWhen,
         disableWhenInvalid,
         imageSource,
         reorderTabs,
+        requiredWhen,
         source,
         tableData,
         validation,
+        validWhen,
         value,
         visibleWhen,
-        ...literals
+        ...props
       } = operation.props;
+      // A date picker limit or default given as a binding expression is compiled, not assigned (APP-16381).
+      const { dateBindings, literals } = splitDateBindings(props);
 
       // A binding and a literal for the same property in one patch would silently race; reject the ambiguity.
       if (source !== undefined && literals.text !== undefined) {
@@ -1836,13 +2352,23 @@ export function applyWidgetPatch(
         );
       }
 
-      // disableWhenInvalid emits an isDisabled binding; a literal isDisabled in the same update would race it.
-      if (
-        disableWhenInvalid !== undefined &&
-        literals.isDisabled !== undefined
-      ) {
+      // disableWhenInvalid and disabledWhen each emit an isDisabled binding; any two of them with a literal
+      // isDisabled in the same update would race.
+      const disabledSources = [
+        literals.isDisabled !== undefined ? "isDisabled" : undefined,
+        disableWhenInvalid !== undefined ? "disableWhenInvalid" : undefined,
+        disabledWhen !== undefined ? "disabledWhen" : undefined,
+      ].filter((name): name is string => name !== undefined);
+
+      if (disabledSources.length > 1) {
         throw new Error(
-          "cannot set both 'isDisabled' and 'disableWhenInvalid' in one update",
+          `cannot set both '${disabledSources[0]}' and '${disabledSources[1]}' in one update`,
+        );
+      }
+
+      if (requiredWhen !== undefined && literals.isRequired !== undefined) {
+        throw new Error(
+          "cannot set both 'isRequired' and 'requiredWhen' in one update",
         );
       }
 
@@ -1880,7 +2406,18 @@ export function applyWidgetPatch(
         });
       }
 
-      if (value !== undefined) {
+      if (value !== undefined && "expr" in value) {
+        if (located.node.type !== "TEXT_WIDGET") {
+          throw new Error(
+            `'value' can only be set on a TEXT_WIDGET ("${located.node.widgetName}" is ${located.node.type})`,
+          );
+        }
+
+        checkBindingExpr(widgets, located.node, value, "value", "text");
+        // null and undefined show as blank text, not "null".
+        located.node.text = `{{ String((${compileBindingExprBody(value.expr)}) ?? "") }}`;
+        registerDynamicBinding(located.node, "text");
+      } else if (value !== undefined) {
         if (located.node.type !== "TEXT_WIDGET") {
           throw new Error(
             `'value' can only be set on a TEXT_WIDGET ("${located.node.widgetName}" is ${located.node.type})`,
@@ -1941,7 +2478,77 @@ export function applyWidgetPatch(
       }
 
       if (visibleWhen !== undefined) {
-        applyVisibleWhenBinding(widgets, located.node, visibleWhen);
+        applyCondition(
+          widgets,
+          located.node,
+          visibleWhen,
+          "visibleWhen",
+          "isVisible",
+        );
+      }
+
+      if (disabledWhen !== undefined) {
+        applyCondition(
+          widgets,
+          located.node,
+          disabledWhen,
+          "disabledWhen",
+          "isDisabled",
+        );
+      }
+
+      // After validation, which marks the input required: a requiredWhen in the same update decides instead.
+      if (requiredWhen !== undefined) {
+        applyCondition(
+          widgets,
+          located.node,
+          requiredWhen,
+          "requiredWhen",
+          "isRequired",
+          VALIDATED_CONTROL_TYPES,
+        );
+      }
+
+      if (validWhen !== undefined) {
+        applyCondition(
+          widgets,
+          located.node,
+          validWhen,
+          "validWhen",
+          "validation",
+          VALID_PROP_TYPES,
+        );
+      }
+
+      for (const [key, ref] of Object.entries(dateBindings)) {
+        const owners = LITERAL_PROP_OWNERS[key];
+
+        if (!owners.includes(located.node.type)) {
+          throw new Error(
+            `'${key}' can only be set on ${owners.join(" / ")} ("${located.node.widgetName}" is ${located.node.type})`,
+          );
+        }
+
+        if (key === "defaultDate" && defaultFrom !== undefined) {
+          throw new Error(
+            "cannot set both 'defaultDate' and 'defaultFrom' in one update",
+          );
+        }
+
+        checkBindingExpr(widgets, located.node, ref, key, key);
+
+        // A default may not read its own widget at all, as with defaultFrom: the picker's value is computed from it.
+        if (
+          key === "defaultDate" &&
+          bindingExprReads(ref.expr).some(
+            (read) => widgets.get(read.widget)?.node === located.node,
+          )
+        ) {
+          throw new Error("'defaultDate' cannot reference the widget itself");
+        }
+
+        located.node[key] = compileDateBinding(ref.expr);
+        registerDynamicBinding(located.node, key);
       }
 
       if (reorderTabs !== undefined)
@@ -1982,6 +2589,11 @@ export function applyWidgetPatch(
           operation.props,
         ) as (keyof WidgetPropsPatch)[],
       });
+      continue;
+    }
+
+    if (operation.kind === "addColumn" || operation.kind === "updateColumn") {
+      applyColumnOperation(located.node, operation, changes);
       continue;
     }
 

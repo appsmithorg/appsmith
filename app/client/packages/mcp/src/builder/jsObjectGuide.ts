@@ -75,6 +75,17 @@ const FN_DESCRIPTIONS: Record<Fn, string> = {
   groupBy: `one \`{ key, value }\` row per distinct value of a literal key (a plain identifier, never a prototype name), in first-seen order; the third arg is \`{ "count": true }\`, \`{ "sum": "field" }\` or \`{ "avg": "field" }\` (a literal, plain field); at most ${GROUP_BY_MAX_GROUPS.toLocaleString("en-US")} groups, after which it throws`,
   dateBucket:
     'the start of a date\'s UTC `"day"`, ISO `"week"` (Monday) or `"month"`, as `YYYY-MM-DD` text (null for a missing or invalid date). Text without a time zone is read in the viewer\'s local time, so send ISO text with `Z` or an offset',
+  addDays:
+    "a date plus a whole number of days (negative goes back), in the viewer's local time; null for a missing or invalid date",
+  addMonths:
+    "a date plus whole months; the day is cut to the month's last day (31 January + 1 month is the last day of February)",
+  addYears:
+    "a date plus whole years, cut the same way (29 February + 1 year is 28 February)",
+  startOfDay: "local midnight of a date",
+  diffDays:
+    "whole calendar days from the first date to the second (negative when the second is earlier)",
+  isoDate:
+    "a date as local `YYYY-MM-DD` text, for display or a date column; null for a missing or invalid date",
 };
 
 const OP_DESCRIPTIONS: Record<Op, string> = {
@@ -128,7 +139,19 @@ export const FN_GROUPS: { title: string; names: Fn[] }[] = [
   { title: "Numbers", names: ["round", "abs", "min", "max"] },
   {
     title: "Dates",
-    names: ["date", "now", "isoString", "isValidDate", "dateBucket"],
+    names: [
+      "date",
+      "now",
+      "isoString",
+      "isValidDate",
+      "dateBucket",
+      "addDays",
+      "addMonths",
+      "addYears",
+      "startOfDay",
+      "diffDays",
+      "isoDate",
+    ],
   },
   {
     title: "Arrays",
@@ -716,7 +739,11 @@ export function renderJsObjectsGuide(): string {
     '| query | `{ "query": "GetUsers", "field": "items" }` | `GetUsers.data` or a dotted field of it |',
     '| constant | `{ "constant": "maxTags" }` | a constant of this object |',
     '| store | `{ "store": "currentUser" }` | `appsmith.store.currentUser` |',
-    '| table | `{ "table": "tblOrders", "column": "instance ids" }` | a column of the table\'s selected row, for names that are not identifiers (`tblOrders.selectedRow["instance ids"]`) |',
+    '| table | `{ "table": "tblOrders", "column": "instance ids" }` | a column of the table\'s selected row, for names that are not identifiers (`tblOrders.selectedRow["instance ids"]`). Add `"row": "triggered"` for the row whose button column was clicked |',
+    '| user | `{ "user": "name" }` | the signed-in viewer: `"name"`, `"email"` or `"username"` (`appsmith.user.name`) |',
+    "",
+    "The calendar helpers (addDays, addMonths, addYears, startOfDay, diffDays, isoDate) read YYYY-MM-DD at local midnight, preserve years 0000–0099, and return null for invalid calendar dates such as 2026-02-29.",
+    "To compare dates with `lt` or `gt`, wrap each side in `date`: a date picker's `selectedDate` is ISO text, and text compared with a date is always false.",
     "",
     'Nodes: `{ "op": name, "args": [...] }`, `{ "fn": name, "args": [...] }`,',
     '`{ "if": expr, "then": expr, "else": expr }`, `{ "object": { key: expr } }`, `{ "array": [expr] }`.',

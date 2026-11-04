@@ -10,21 +10,30 @@ import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 
 interface EditorWrapperContainerProps {
   children: React.ReactNode;
+  // Height in px of other banners shown above the editor, such as the
+  // Appsmith AI queries banner. The protected-branch banner is counted
+  // separately, so do not include it.
+  topOffset?: number;
 }
 
 const Wrapper = styled.div<{
   isProtectedMode: boolean;
+  topOffset: number;
 }>`
   display: flex;
   height: calc(
     100vh - ${IDE_HEADER_HEIGHT}px - ${BOTTOM_BAR_HEIGHT}px -
       ${(props) =>
-        props.isProtectedMode ? PROTECTED_CALLOUT_HEIGHT + "px" : "0px"}
+        props.isProtectedMode ? PROTECTED_CALLOUT_HEIGHT + "px" : "0px"} -
+      ${(props) => props.topOffset}px
   );
   background-color: ${(props) => props.theme.appBackground};
 `;
 
-function EditorWrapperContainer({ children }: EditorWrapperContainerProps) {
+function EditorWrapperContainer({
+  children,
+  topOffset = 0,
+}: EditorWrapperContainerProps) {
   const isCombinedPreviewMode = useSelector(selectCombinedPreviewMode);
   const isProtectedMode = useGitProtectedMode();
 
@@ -35,6 +44,7 @@ function EditorWrapperContainer({ children }: EditorWrapperContainerProps) {
         "select-none": !isCombinedPreviewMode,
       })}
       isProtectedMode={isProtectedMode}
+      topOffset={topOffset}
     >
       {children}
     </Wrapper>

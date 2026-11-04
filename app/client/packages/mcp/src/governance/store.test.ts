@@ -57,6 +57,90 @@ describe("MongoRedisGovernanceStore confirmation reads", () => {
   });
 });
 
+describe("MongoRedisGovernanceStore JS definitions", () => {
+  // Records the calls each collection receives; mcp_changes and mcp_js_definitions are told apart by name.
+  function storeWithCollections() {
+    const calls: { collection: string; method: string; args: unknown[] }[] = [];
+    const collection = (name: string) => ({
+      createIndex: async (...args: unknown[]) => {
+        calls.push({ collection: name, method: "createIndex", args });
+      },
+      updateOne: async (...args: unknown[]) => {
+        calls.push({ collection: name, method: "updateOne", args });
+      },
+      find: (...args: unknown[]) => {
+        calls.push({ collection: name, method: "find", args });
+
+        return { toArray: async () => [] };
+      },
+    });
+    const mongo = {
+      connect: async () => undefined,
+      db: () => ({ collection }),
+    } as unknown as MongoClient;
+    const redis = { connect: async () => undefined };
+
+    return {
+      calls,
+      store: new MongoRedisGovernanceStore(mongo, redis as never),
+    };
+  }
+
+  it("creates a unique index on organization and body hash", async () => {
+    const { calls, store } = storeWithCollections();
+
+    await store.connect();
+
+    expect(calls).toContainEqual({
+      collection: "mcp_js_definitions",
+      method: "createIndex",
+      args: [{ organizationId: 1, codeHash: 1 }, { unique: true }],
+    });
+    // No TTL on definitions: a JS object can stay unchanged for years.
+    expect(
+      calls.some(
+        (c) =>
+          c.collection === "mcp_js_definitions" &&
+          JSON.stringify(c.args).includes("expireAfterSeconds"),
+      ),
+    ).toBe(false);
+  });
+
+  it("inserts a record once, keeping the first, and looks records up within one organization", async () => {
+    const { calls, store } = storeWithCollections();
+    const record = {
+      organizationId: "org1",
+      codeHash: "h1",
+      definition: "{}",
+      createdAt: new Date(0),
+    };
+
+    await store.saveJsDefinition(record);
+    await store.findJsDefinitions("org1", ["h1", "h2"]);
+    expect(await store.findJsDefinitions("org1", [])).toEqual([]);
+
+    expect(calls).toEqual([
+      {
+        collection: "mcp_js_definitions",
+        method: "updateOne",
+        args: [
+          { organizationId: "org1", codeHash: "h1" },
+          { $setOnInsert: record },
+          { upsert: true },
+        ],
+      },
+      {
+        collection: "mcp_js_definitions",
+        method: "find",
+        args: [
+          { organizationId: "org1", codeHash: { $in: ["h1", "h2"] } },
+          { projection: { _id: 0 } },
+        ],
+      },
+    ]);
+  });
+});
+
 interface RedisClusterTestOptions {
   rootNodes: Array<{ url?: string }>;
   defaults?: {

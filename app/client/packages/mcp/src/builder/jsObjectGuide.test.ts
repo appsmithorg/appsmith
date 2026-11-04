@@ -65,6 +65,21 @@ describe("js-objects guide — rendered from the grammar, examples that really c
     },
   );
 
+  it.each(
+    JS_OBJECT_GUIDE_EXAMPLES.map((e) => [e.title, e.definition] as const),
+  )(
+    "example %s also compiles to valid JavaScript in the readable layout",
+    (_title, definition) => {
+      const body = compileJsObject(definition, { readable: true });
+
+      expect(body).not.toMatch(/\{\{|\}\}|\$\{|`|mcp-spec/);
+      // Parses as JavaScript (it is never run here).
+      expect(
+        () => new Function(body.replace("export default", "return")),
+      ).not.toThrow();
+    },
+  );
+
   it("covers every statement kind and every leaf kind in its examples", () => {
     const text = JSON.stringify(JS_OBJECT_GUIDE_EXAMPLES);
 

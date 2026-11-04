@@ -561,6 +561,17 @@ export const INPUT_VALIDATION_FORMATS = {
     regex: "^\\d{10}$",
     message: "Please enter a 10-digit phone number",
   },
+  // Letters only (A to Z, either case), and letters or digits. One character class each, so the match is linear.
+  alpha: { regex: "^[A-Za-z]+$", message: "Please use letters only" },
+  alphanumeric: {
+    regex: "^[A-Za-z0-9]+$",
+    message: "Please use letters and numbers only",
+  },
+  // A person's initials: 2 to 4 letters.
+  initials: {
+    regex: "^[A-Za-z]{2,4}$",
+    message: "Please enter 2 to 4 letters",
+  },
 } as const;
 
 export type InputValidationFormat = keyof typeof INPUT_VALIDATION_FORMATS;
@@ -571,28 +582,95 @@ const INPUT_VALIDATION_FORMAT_NAMES = Object.keys(INPUT_VALIDATION_FORMATS) as [
   ...InputValidationFormat[],
 ];
 
+// The longest length rule. The emitted regex is a single `[\s\S]{min,max}` class, so it matches in linear time.
+export const INPUT_VALIDATION_MAX_LENGTH = 10_000;
+
+const lengthBound = z.number().int().min(0).max(INPUT_VALIDATION_MAX_LENGTH);
+
 export const inputValidationSchema = z
   .object({
-    format: z.enum(INPUT_VALIDATION_FORMAT_NAMES),
+    // A named format, or a length rule (minLength and/or maxLength) — not both: a length rule is its own regex.
+    format: z.enum(INPUT_VALIDATION_FORMAT_NAMES).optional(),
+    minLength: lengthBound.optional(),
+    maxLength: lengthBound.optional(),
     // Optional override of the default error message. Safe text (no binding/template syntax), emitted as a literal
     // into the input's `errorMessage`.
     message: safeText(200).optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((ref, ctx) => {
+    const hasLength =
+      ref.minLength !== undefined || ref.maxLength !== undefined;
+
+    if (ref.format === undefined && !hasLength) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "set a format, or minLength and/or maxLength",
+      });
+    }
+
+    if (ref.format !== undefined && hasLength) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "set a format or a length rule, not both (use validWhen for a combined rule)",
+      });
+    }
+
+    if (
+      ref.minLength !== undefined &&
+      ref.maxLength !== undefined &&
+      ref.minLength > ref.maxLength
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "minLength must not be greater than maxLength",
+      });
+    }
+  });
 
 export interface InputValidationRef {
-  format: InputValidationFormat;
+  format?: InputValidationFormat;
+  minLength?: number;
+  maxLength?: number;
   message?: string;
 }
 
-// Emits the two literal input props for a named validation format: the vetted regex and the (overridable) message.
+// The default message of a length rule.
+function lengthMessage(min: number | undefined, max: number | undefined) {
+  if (min !== undefined && max !== undefined) {
+    return min === max
+      ? `Please enter exactly ${min} characters`
+      : `Please enter ${min} to ${max} characters`;
+  }
+
+  return min !== undefined
+    ? `Please enter at least ${min} characters`
+    : `Please enter at most ${max} characters`;
+}
+
+// Emits the two literal input props for a validation rule: the vetted regex and the (overridable) message. A length
+// rule's regex is built from two validated integers only.
 export function compileInputValidation(ref: InputValidationRef): {
   regex: string;
   errorMessage: string;
 } {
-  const preset = INPUT_VALIDATION_FORMATS[ref.format];
+  if (ref.format !== undefined) {
+    const preset = INPUT_VALIDATION_FORMATS[ref.format];
 
-  return { regex: preset.regex, errorMessage: ref.message ?? preset.message };
+    return {
+      regex: preset.regex,
+      errorMessage: ref.message ?? preset.message,
+    };
+  }
+
+  const min = ref.minLength ?? 0;
+  const max = ref.maxLength === undefined ? "" : String(ref.maxLength);
+
+  return {
+    regex: `^[\\s\\S]{${min},${max}}$`,
+    errorMessage: ref.message ?? lengthMessage(ref.minLength, ref.maxLength),
+  };
 }
 
 // A structured "disable this widget while the named input is invalid" wire — emits `{{ !<input>.isValid }}` onto the
@@ -1234,6 +1312,127 @@ export interface BuiltTableColumns {
   bindingPaths: string[];
 }
 
+// One column's properties, the shape of the client's getDefaultColumnProperties (TableWidgetV2/widget/utilities.ts).
+function columnProperties(column: {
+  id: string;
+  key: string;
+  index: number;
+  columnType: string;
+  label: string;
+  hidden: boolean;
+  isDerived: boolean;
+  computedValue: string;
+}): Record<string, unknown> {
+  return {
+    allowCellWrapping: false,
+    allowHeaderWrapping: false,
+    allowSameOptionsInNewRow: true,
+    index: column.index,
+    width: 150,
+    originalId: column.key,
+    id: column.id,
+    alias: column.key,
+    horizontalAlignment: "LEFT",
+    verticalAlignment: "CENTER",
+    columnType: column.columnType,
+    textColor: "#231F20",
+    textSize: "0.875rem",
+    fontStyle: "REGULAR",
+    enableFilter: true,
+    enableSort: true,
+    isVisible: !column.hidden,
+    isDisabled: false,
+    isCellEditable: false,
+    isEditable: false,
+    isCellVisible: !column.hidden,
+    isDerived: column.isDerived,
+    label: column.label,
+    isSaveVisible: true,
+    isDiscardVisible: true,
+    computedValue: column.computedValue,
+    sticky: "",
+    validation: {},
+    currencyCode: "USD",
+    decimals: 0,
+    thousandSeparator: true,
+    notation: "standard",
+  };
+}
+
+// Button columns for patch_widgets addColumn (APP-16381). Their onClick is wired with wire_event `column`.
+export const ACTION_COLUMN_TYPES = ["button", "iconButton"] as const;
+export type ActionColumnType = (typeof ACTION_COLUMN_TYPES)[number];
+
+export interface PatchColumnSpec {
+  key: string;
+  label?: string;
+  type?: TableColumnType | ActionColumnType;
+  hidden?: boolean;
+  buttonLabel?: string;
+  iconName?: string;
+}
+
+// One column added to an existing table. `existing` holds the table's column ids: the new id must not collide
+// (refused rather than renamed, so the agent knows the id it wires), and it takes the next free index.
+//   - A data column reads `currentRow[key]` like a built one.
+//   - A button or icon-button column is DERIVED with an empty computedValue: the table deletes a non-derived column
+//     whose key is missing from its data, and a button has no data of its own.
+export function buildPatchColumn(
+  col: PatchColumnSpec,
+  widgetName: string,
+  existing: { ids: ReadonlySet<string>; nextIndex: number },
+): { id: string; properties: Record<string, unknown>; bindingPath?: string } {
+  // The table name is emitted unescaped into computedValue: re-check it here (see the SECURITY INVARIANT above).
+  if (!/^[A-Za-z0-9_]+$/.test(widgetName)) {
+    throw new Error(`"${widgetName}" is not a valid table name`);
+  }
+
+  const id = sanitizeColumnId(col.key, new Set());
+
+  if (
+    PROTOTYPE_PROPERTY_NAMES.has(id) ||
+    PROTOTYPE_PROPERTY_NAMES.has(col.key)
+  ) {
+    throw new Error(
+      `column "${col.key}" collides with an Object.prototype property name`,
+    );
+  }
+
+  if (existing.ids.has(id)) {
+    throw new Error(
+      `column "${id}" already exists on "${widgetName}"; use updateColumn`,
+    );
+  }
+
+  const action = col.type === "button" || col.type === "iconButton";
+  const properties = columnProperties({
+    id,
+    key: col.key,
+    index: existing.nextIndex,
+    columnType: action
+      ? (col.type as string)
+      : TABLE_COLUMN_TYPE_MAP[(col.type as TableColumnType) ?? "text"],
+    label: col.label ?? col.key,
+    hidden: col.hidden === true,
+    isDerived: action,
+    computedValue: action ? "" : dataColumnComputedValue(widgetName, col.key),
+  });
+
+  if (col.type === "button") {
+    properties.buttonLabel = col.buttonLabel ?? col.label ?? col.key;
+    properties.buttonVariant = "PRIMARY";
+  }
+
+  if (col.type === "iconButton") {
+    properties.iconName = col.iconName ?? "add";
+    properties.buttonVariant = "PRIMARY";
+  }
+
+  return action
+    ? { id, properties }
+    : { id, properties, bindingPath: `primaryColumns.${id}.computedValue` };
+}
+
 // Compile a table's column specs into primaryColumns/columnOrder + the binding paths. Called from compile.ts once
 // the table's widgetName is allocated (computedValue self-references it), mirroring the list-widget precedent.
 export function buildTableColumns(
@@ -1259,42 +1458,18 @@ export function buildTableColumns(
         ? "number"
         : "text";
 
-    primaryColumns[id] = {
-      allowCellWrapping: false,
-      allowHeaderWrapping: false,
-      allowSameOptionsInNewRow: true,
-      index,
-      width: 150,
-      originalId: col.key,
+    primaryColumns[id] = columnProperties({
       id,
-      alias: col.key,
-      horizontalAlignment: "LEFT",
-      verticalAlignment: "CENTER",
+      key: col.key,
+      index,
       columnType,
-      textColor: "#231F20",
-      textSize: "0.875rem",
-      fontStyle: "REGULAR",
-      enableFilter: true,
-      enableSort: true,
-      isVisible: col.hidden !== true,
-      isDisabled: false,
-      isCellEditable: false,
-      isEditable: false,
-      isCellVisible: col.hidden !== true,
-      isDerived,
       label: col.label ?? col.key,
-      isSaveVisible: true,
-      isDiscardVisible: true,
+      hidden: col.hidden === true,
+      isDerived,
       computedValue: isDerived
         ? computedColumnComputedValue(widgetName, col.computed as FormulaExpr)
         : dataColumnComputedValue(widgetName, col.key),
-      sticky: "",
-      validation: {},
-      currencyCode: "USD",
-      decimals: 0,
-      thousandSeparator: true,
-      notation: "standard",
-    };
+    });
   });
 
   return { primaryColumns, columnOrder, bindingPaths };

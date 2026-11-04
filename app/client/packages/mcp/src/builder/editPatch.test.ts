@@ -927,7 +927,7 @@ describe("applyWidgetPatch", () => {
           },
         ],
       }),
-    ).toThrow(/must be a select or tabs control/);
+    ).toThrow(/must be a select, radio or tabs control/);
 
     // A literal isVisible alongside visibleWhen is ambiguous.
     expect(() =>
@@ -1370,7 +1370,7 @@ describe("applyWidgetPatch", () => {
           },
         ],
       }),
-    ).toThrow(/must be an input widget/);
+    ).toThrow(/must be a form control with a validity check/);
 
     // Ambiguous: literal isDisabled AND disableWhenInvalid.
     expect(() =>
@@ -4006,5 +4006,42 @@ describe("applyWidgetPatch — one update's props are bounded as a whole", () =>
         ],
       }).success,
     ).toBe(true);
+  });
+});
+
+describe("removeWidgets reports a table column click that refers to a removed widget (APP-16381)", () => {
+  it("lists the table whose button column opens the removed modal", () => {
+    const root = page();
+    const modalCanvas = node({
+      widgetId: "mc",
+      widgetName: "ExtendCanvas",
+      type: "CANVAS_WIDGET",
+      children: [],
+    });
+
+    root.children = [
+      ...(root.children ?? []),
+      node({
+        widgetId: "tbl",
+        widgetName: "Licenses",
+        type: "TABLE_WIDGET_V2",
+        primaryColumns: {
+          extend: {
+            columnType: "button",
+            onClick: "{{ showModal('ExtendModal') }}",
+          },
+        },
+      }),
+      node({
+        widgetId: "m",
+        widgetName: "ExtendModal",
+        type: "MODAL_WIDGET",
+        children: [modalCanvas],
+      }),
+    ];
+
+    expect(removeWidgets(root, ["ExtendModal"]).brokenReferences).toEqual([
+      { widget: "Licenses", refersTo: ["ExtendModal"] },
+    ]);
   });
 });

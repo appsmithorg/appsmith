@@ -1,4 +1,11 @@
 import { z } from "zod";
+import {
+  bindingExprProblem,
+  bindingExprQueries,
+  bindingExprReads,
+  bindingExprSchema,
+  compileBindingExprBody,
+} from "./bindingExpr.js";
 import { jsCollectionName, jsFunctionName } from "./jsObject.js";
 import type { WidgetNode } from "./layout.js";
 import {
@@ -47,9 +54,13 @@ const alertStyle = z.enum(["info", "success", "warning", "error"]);
 // object and function exist among the application's JS collections before writing (dangling guard). The object may
 // be MCP-compiled or editor-authored: like `run` on an existing query, the verb only wires an event to code that
 // already exists in the application, executing in the end user's browser under the end user's permissions.
-// Optional arguments: scalar literals (JSON-encoded at emission) or widget-property references (identifier +
-// dotted path, emitted bare). No expression position exists: `Obj.fn("x", Input1.text)` is the whole shape.
-// A string argument may not hold a `{` or `}`, for the same reason as a navigate literal (see navigateText).
+// Optional arguments: scalar literals (JSON-encoded at emission), widget-property references (identifier + dotted
+// path, emitted bare), or (APP-16381) a binding expression `{ expr }` from the closed grammar (bindingExpr.ts), such
+// as the selected row's end date plus a year. A string argument may not hold a `{` or `}`, for the same reason as a
+// navigate literal (see navigateText). A `'` in a string argument is emitted as the escape \u0027, so the stored
+// trigger text never holds a quote character: the modal-graph scan reads that text, and a quoted `closeModal('X')`
+// inside a string would otherwise read as a real edge (as M6 refused for store paths). An expression argument's
+// strings cannot use that escape (compileExpr's output is shared with JS objects), so they refuse `'`.
 const callArg = z.union([
   z
     .string()
@@ -63,6 +74,15 @@ const callArg = z.union([
   z.boolean(),
   z.null(),
   z.object({ widget: widgetName, property: entityPropertyPath }).strict(),
+  bindingExprSchema.superRefine((value, ctx) => {
+    // zod still runs this after the tree failed to parse (it carries the issue already).
+    if (typeof value !== "object" || value === null) return;
+
+    const problem = bindingExprProblem(value.expr, { trigger: true });
+
+    if (problem)
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: problem });
+  }),
 ]);
 const callAction = z
   .object({
@@ -296,7 +316,30 @@ const EVENTS_BY_TYPE: Record<string, readonly string[]> = {
   CHECKBOX_WIDGET: ["onCheckChange"],
   SWITCH_WIDGET: ["onChange"],
   DATE_PICKER_WIDGET2: ["onDateSelected"],
+  // APP-16381: choosing a radio option (for example, resetting a date picker when the request kind changes), a
+  // checkbox group's selection, and a multiselect's options.
+  RADIO_GROUP_WIDGET: ["onSelectionChange"],
+  CHECKBOX_GROUP_WIDGET: ["onSelectionChange"],
+  MULTI_SELECT_WIDGET_V2: ["onOptionChange"],
 };
+
+// A table column id for a column's onClick (`primaryColumns.<id>.onClick`): an identifier that is never a prototype
+// name, so the nested write cannot reach Object.prototype.
+const columnId = z
+  .string()
+  .min(1)
+  .max(100)
+  .regex(/^[A-Za-z_][A-Za-z0-9_]*$/, "must be a column id (an identifier)")
+  .refine(
+    (id) => !PROTOTYPE_PROPERTY_NAMES.has(id),
+    "collides with an Object.prototype property name",
+  );
+
+// The column types whose cells are buttons, and so have an onClick.
+const CLICKABLE_COLUMN_TYPES: ReadonlySet<string> = new Set([
+  "button",
+  "iconButton",
+]);
 
 export const wireEventSpecSchema = z
   .object({
@@ -311,7 +354,12 @@ export const wireEventSpecSchema = z
       "onCheckChange",
       "onChange",
       "onDateSelected",
+      "onSelectionChange",
     ]),
+    // APP-16381: a button or icon-button column of a table (its id from read_semantic_page `columns`). Only with
+    // event onClick; the trigger lands on `primaryColumns.<column>.onClick`, where `{ table, column, row:
+    // "triggered" }` reads the clicked row.
+    column: columnId.optional(),
     // A single action, or (M5) an ordered list of 2–5 statements.
     action: z.union([eventActionSchema, eventActionListSchema]),
   })
@@ -385,8 +433,10 @@ function compileStatement(action: FollowUpAction): string {
   if ("call" in action) {
     const args = (action.call.args ?? []).map((arg) =>
       typeof arg === "object" && arg !== null
-        ? `${arg.widget}.${arg.property}`
-        : JSON.stringify(arg),
+        ? "expr" in arg
+          ? compileBindingExprBody(arg.expr)
+          : `${arg.widget}.${arg.property}`
+        : JSON.stringify(arg).replace(/'/g, "\\u0027"),
     );
 
     return `${action.call.object}.${action.call.function}(${args.join(", ")})`;
@@ -430,6 +480,9 @@ export function compileEventBinding(action: EventActionInput): string {
 // appendToStore references its source query.
 export type EventReference =
   | { kind: "query" | "page" | "widget"; name: string }
+  | { kind: "widget"; name: string; table: true }
+  // A query an expression argument only reads (APP-16381): checked to exist, but not run.
+  | { kind: "query"; name: string; readOnly: true }
   // A JS-object function reference: `name` is the object, `member` the function (both checked by the tool).
   | { kind: "jsFunction"; name: string; member: string };
 
@@ -444,10 +497,24 @@ export function eventReferences(action: EventActionInput): EventReference[] {
           name: step.call.object,
           member: step.call.function,
         },
-        // Widget-property arguments are widget references too (dangling guard).
-        ...(step.call.args ?? []).flatMap((arg) =>
+        // Widget-property arguments, and the widgets and queries an expression argument reads, are references too
+        // (dangling guard).
+        ...(step.call.args ?? []).flatMap((arg): EventReference[] =>
           typeof arg === "object" && arg !== null
-            ? [{ kind: "widget" as const, name: arg.widget }]
+            ? "expr" in arg
+              ? [
+                  ...bindingExprReads(arg.expr).map((read) => ({
+                    kind: "widget" as const,
+                    name: read.widget,
+                    ...(read.table ? { table: true as const } : {}),
+                  })),
+                  ...bindingExprQueries(arg.expr).map((name) => ({
+                    kind: "query" as const,
+                    name,
+                    readOnly: true as const,
+                  })),
+                ]
+              : [{ kind: "widget" as const, name: arg.widget }]
             : [],
         ),
       ];
@@ -461,7 +528,13 @@ export function eventReferences(action: EventActionInput): EventReference[] {
           "widget" in value
             ? [{ kind: "widget" as const, name: value.widget }]
             : "table" in value
-              ? [{ kind: "widget" as const, name: value.table }]
+              ? [
+                  {
+                    kind: "widget" as const,
+                    name: value.table,
+                    table: true as const,
+                  },
+                ]
               : [],
         ),
       ];
@@ -560,6 +633,52 @@ function locateWidgetNamed(
   return undefined;
 }
 
+// The trigger path a wiring writes: the event prop, or a table column's `primaryColumns.<id>.onClick`.
+export function eventTriggerKey(spec: WireEventSpec): string {
+  return spec.column === undefined
+    ? spec.event
+    : `primaryColumns.${spec.column}.onClick`;
+}
+
+// The column a column wiring targets: a table, event onClick, and an existing button or icon-button column (own
+// property only).
+function columnOf(
+  widget: WidgetNode,
+  spec: WireEventSpec,
+): Record<string, unknown> {
+  if (widget.type !== "TABLE_WIDGET_V2") {
+    throw new Error(
+      `'column' can only be wired on a TABLE_WIDGET_V2 ("${spec.widget}" is ${widget.type})`,
+    );
+  }
+
+  if (spec.event !== "onClick") {
+    throw new Error(`a table column is wired with event "onClick"`);
+  }
+
+  const columns = widget.primaryColumns as Record<string, unknown> | undefined;
+  const column =
+    typeof columns === "object" &&
+    columns !== null &&
+    Object.prototype.hasOwnProperty.call(columns, spec.column as string)
+      ? (columns[spec.column as string] as Record<string, unknown> | null)
+      : undefined;
+
+  if (typeof column !== "object" || column === null) {
+    throw new Error(
+      `column "${spec.column}" was not found on table "${spec.widget}"`,
+    );
+  }
+
+  if (!CLICKABLE_COLUMN_TYPES.has(String(column.columnType))) {
+    throw new Error(
+      `column "${spec.column}" is a ${String(column.columnType)} column; only button and iconButton columns have onClick (add one with patch_widgets addColumn)`,
+    );
+  }
+
+  return column;
+}
+
 // Set the event's trigger binding on the named widget and register the trigger path. Returns a new DSL (the caller's
 // DSL is never mutated) plus a small change summary. Throws on unknown widget or an event invalid for the type.
 export function applyEvent(
@@ -573,24 +692,29 @@ export function applyEvent(
     throw new Error(`widget "${spec.widget}" was not found on this page`);
   }
 
-  const allowed = EVENTS_BY_TYPE[widget.type];
-
-  if (!allowed || !allowed.includes(spec.event)) {
-    throw new Error(
-      `event "${spec.event}" is not supported on ${widget.type} (${spec.widget})`,
-    );
-  }
-
   const binding = compileEventBinding(spec.action);
 
-  widget[spec.event] = binding;
+  if (spec.column !== undefined) {
+    columnOf(widget, spec).onClick = binding;
+  } else {
+    const allowed = EVENTS_BY_TYPE[widget.type];
 
+    if (!allowed || !allowed.includes(spec.event)) {
+      throw new Error(
+        `event "${spec.event}" is not supported on ${widget.type} (${spec.widget})`,
+      );
+    }
+
+    widget[spec.event] = binding;
+  }
+
+  const key = eventTriggerKey(spec);
   const triggerPaths = Array.isArray(widget.dynamicTriggerPathList)
     ? (widget.dynamicTriggerPathList as { key: string }[])
     : [];
 
-  if (!triggerPaths.some((entry) => entry.key === spec.event)) {
-    triggerPaths.push({ key: spec.event });
+  if (!triggerPaths.some((entry) => entry.key === key)) {
+    triggerPaths.push({ key });
   }
 
   widget.dynamicTriggerPathList = triggerPaths;
