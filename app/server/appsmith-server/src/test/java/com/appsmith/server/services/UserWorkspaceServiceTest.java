@@ -20,6 +20,7 @@ import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,6 +94,9 @@ public class UserWorkspaceServiceTest {
 
     @Autowired
     UserAndAccessManagementService userAndAccessManagementService;
+
+    @Autowired
+    WorkspacePermission workspacePermission;
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -455,8 +459,11 @@ public class UserWorkspaceServiceTest {
     @WithUserDetails(value = "api_user")
     public void getUserWorkspacesInAlphabeticalOrder_WhenUserHasWorkspaces_ReturnsWorkspacesSortedAlphabetically() {
 
-        List<String> existingWorkspaceNames =
-                workspaceService.getAll().map(Workspace::getName).collectList().block();
+        List<String> existingWorkspaceNames = workspaceService
+                .getAll(workspacePermission.getReadPermission())
+                .map(Workspace::getName)
+                .collectList()
+                .block();
 
         // Arrange: Create multiple workspaces with different names
         List<String> workspaceNames =

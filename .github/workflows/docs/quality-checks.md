@@ -33,6 +33,8 @@ This job, named `server-spotless`, performs a code formatting check on the serve
 
 The `server-unit-tests` job is responsible for running unit tests on the server-side code. It runs if changes related to the server were detected by the `path-filter` job.
 
+The tests run in five parallel groups. `scripts/server-test-groups.js` puts each test class in one group, so that the groups take about the same time. It weighs each class by its duration in the last scheduled run on `release`, which `server-build.yml` saves to the Actions cache under the key prefix `server-test-durations-`. A class without a recorded duration, or every class when no cache entry exists, weighs its number of `@Test`, `@ParameterizedTest` and `@RepeatedTest` methods. No timing data is kept in the repository; the cache refreshes on every scheduled run, and the cache drops an entry that no run reads for 7 days.
+
 ### `client-build`
 
 The `client-build` job handles the build process for the client-side codebase. It runs if changes related to the client were detected by the `path-filter` job.
