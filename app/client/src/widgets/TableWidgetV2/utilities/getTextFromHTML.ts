@@ -1,6 +1,8 @@
 /**
- * Plain-text extraction for HTML table cells (export, and mirrored in derived.js
- * for search/filter/sort — derived.js cannot import this module).
+ * Plain-text extraction for HTML table cells on export.
+ *
+ * Uses tag-stripping (not DOMParser textContent) so results match the
+ * linkedom worker path in derived.js used for search/filter/sort.
  */
 
 export const stripHtmlTags = (value: string): string => {
@@ -25,22 +27,10 @@ export const getTextFromHTML = (html: unknown): string => {
     return String(value);
   }
 
-  // Plain-text fast path: skip DOMParser when there are no tags.
+  // Plain-text fast path when there are no tags.
   if (!/<[^>]*>/.test(value)) {
     return value;
   }
 
-  try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(value, "text/html");
-    const text = (doc.body && doc.body.textContent) || "";
-
-    if (text.trim()) {
-      return text;
-    }
-
-    return stripHtmlTags(value);
-  } catch {
-    return stripHtmlTags(value);
-  }
+  return stripHtmlTags(value);
 };

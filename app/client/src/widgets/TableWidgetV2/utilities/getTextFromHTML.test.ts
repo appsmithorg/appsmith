@@ -20,6 +20,12 @@ describe("getTextFromHTML", () => {
     ).toBe("completed");
   });
 
+  it("inserts spaces between adjacent tagged text like the worker path", () => {
+    expect(getTextFromHTML("Line1<br>Line2")).toBe("Line1 Line2");
+    expect(getTextFromHTML("<td>A</td><td>B</td>")).toBe("A B");
+    expect(getTextFromHTML("<p>Hello</p><p>World</p>")).toBe("Hello World");
+  });
+
   it("stringifies objects", () => {
     expect(getTextFromHTML({ a: 1 })).toBe('{"a":1}');
   });
