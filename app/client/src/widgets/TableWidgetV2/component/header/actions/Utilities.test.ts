@@ -80,11 +80,7 @@ describe("TransformTableDataIntoArrayOfArray", () => {
       columns,
       data,
     });
-    const expectedCsvData = [
-      ["Id"],
-      ["abc test more"],
-      ["crlf line oldmac"],
-    ];
+    const expectedCsvData = [["Id"], ["abc test more"], ["crlf line oldmac"]];
 
     expect(JSON.stringify(csvData)).toStrictEqual(
       JSON.stringify(expectedCsvData),
@@ -145,11 +141,7 @@ describe("TransformTableDataIntoArrayOfArray", () => {
       columns,
       data,
     });
-    const expectedCsvData = [
-      ["Id"],
-      ['"He said ""hi"""'],
-      ['"a,""b"",c"'],
-    ];
+    const expectedCsvData = [["Id"], ['"He said ""hi"""'], ['"a,""b"",c"']];
 
     expect(JSON.stringify(csvData)).toStrictEqual(
       JSON.stringify(expectedCsvData),

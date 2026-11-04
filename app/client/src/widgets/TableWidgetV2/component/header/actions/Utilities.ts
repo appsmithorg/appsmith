@@ -43,8 +43,7 @@ export const transformTableDataIntoCsv = (props: {
         }
 
         const shouldQuote =
-          isString(value) &&
-          (value.includes(delimiter) || value.includes('"'));
+          isString(value) && (value.includes(delimiter) || value.includes('"'));
 
         if (shouldQuote) {
           csvDataRow.push(`"${escapeCsvField(value)}"`);
