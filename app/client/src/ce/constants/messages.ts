@@ -498,8 +498,35 @@ export const CREATE_NEW_AI_SECTION_HEADER = () => "AI Integrations";
 // Appsmith AI deprecation (release 2.3): update this date if the shutdown date moves
 export const APPSMITH_AI_KILL_DATE = "September 30, 2026";
 export const APPSMITH_AI_DEPRECATION_MESSAGE = () =>
-  `Appsmith AI is deprecated and will stop working on ${APPSMITH_AI_KILL_DATE}. Migrate to OpenAI, Anthropic, or Google AI with your own API key. Uploaded files (file context) will not be available after this date.`;
+  `Appsmith AI stopped working on ${APPSMITH_AI_KILL_DATE}. Its queries no longer run, and uploaded files (file context) are no longer available. Migrate to OpenAI, Anthropic, or Google AI with your own API key, then delete this query or datasource.`;
 export const APPSMITH_AI_DEPRECATION_LEARN_MORE = () => "Learn how to migrate";
+// Editor banner shown while an app still has Appsmith AI queries
+const pluralQueries = (count: number) => (count === 1 ? "query" : "queries");
+const itOrThem = (count: number) => (count === 1 ? "it" : "them");
+
+export const APPSMITH_AI_QUERIES_BANNER_MESSAGE = (count: number) =>
+  `${count} Appsmith AI ${pluralQueries(count)} in this app stopped working on ${APPSMITH_AI_KILL_DATE}. ${count === 1 ? "It no longer appears" : "They no longer appear"} in the query list.`;
+export const APPSMITH_AI_QUERIES_BANNER_NO_PERMISSION = (count: number) =>
+  `Ask a developer who can delete queries to delete ${itOrThem(count)}.`;
+export const APPSMITH_AI_QUERIES_DELETE = (count: number) =>
+  `Delete ${count} ${pluralQueries(count)}`;
+export const APPSMITH_AI_QUERIES_DELETE_TITLE = (count: number) =>
+  `Delete ${count} Appsmith AI ${pluralQueries(count)}?`;
+export const APPSMITH_AI_QUERIES_DELETE_DESCRIPTION = (count: number) =>
+  `This deletes ${count === 1 ? "this query" : "these queries"} from every page of the app. You can't undo this. Widgets and JS objects that use ${itOrThem(count)} show errors until you update them.`;
+export const APPSMITH_AI_QUERIES_DELETE_DATASOURCES = () =>
+  "Appsmith AI datasources that no other query uses are deleted too. A datasource that the deployed app still uses stays.";
+export const APPSMITH_AI_QUERIES_DELETE_PARTIAL = (
+  deletable: number,
+  total: number,
+) =>
+  `You can delete ${deletable} of ${total}. Ask a developer who can delete queries to delete the rest.`;
+export const APPSMITH_AI_QUERIES_DELETE_LIST_LABEL = () =>
+  "Appsmith AI queries to delete";
+export const APPSMITH_AI_QUERIES_DELETE_CONFIRM = () => "Delete";
+export const APPSMITH_AI_QUERIES_DELETE_CANCEL = () => "Cancel";
+export const APPSMITH_AI_QUERIES_DELETED = (count: number) =>
+  `Deleted ${count} Appsmith AI ${pluralQueries(count)}.`;
 export const CONNECT_A_DATASOURCE_HEADING = () => "Connect a datasource";
 export const CONNECT_A_DATASOURCE_SUBHEADING = () =>
   "Select a sample datasource or connect your own";
@@ -2642,6 +2669,7 @@ export const PARTIAL_IMPORT_EXPORT = {
     modalHeading: () => "Export",
     modalSubHeading: () => "Select entities below to export from the Page",
     cta: () => "Export selected entities",
+    selectAll: () => "Select All",
     sections: {
       jsObjects: () => "JS objects",
       databases: () => "Databases",
@@ -2805,6 +2833,7 @@ export const EMPTY_CANVAS_HINTS = {
 };
 
 export const BETA_TAG = () => `Beta`;
+export const PREVIEW_TAG = () => `Preview`;
 
 export const BUTTON_WIDGET_DEFAULT_LABEL = () => "Do something";
 

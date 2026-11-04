@@ -37,4 +37,8 @@ public class LayoutDTO {
     // All the toast messages that the developer user should be displayed to inform about the consequences of update
     // layout.
     List<String> messages;
+
+    // Page revision that this update wrote, as epoch milliseconds. Set only when the request sent an
+    // `expectedRevision`.
+    String revision;
 }
