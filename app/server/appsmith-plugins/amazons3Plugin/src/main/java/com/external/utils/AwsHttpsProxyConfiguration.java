@@ -54,11 +54,6 @@ final class AwsHttpsProxyConfiguration {
 
     private AwsHttpsProxyConfiguration() {}
 
-    /** Sets the client's proxy from this JVM's system properties and environment. */
-    static ApacheHttpClient.Builder configure(ApacheHttpClient.Builder builder) {
-        return configure(builder, resolve(System::getProperty, System::getenv));
-    }
-
     /** Sets the client's proxy to {@code proxy}, or to no proxy when it is null. */
     static ApacheHttpClient.Builder configure(ApacheHttpClient.Builder builder, HttpsProxy proxy) {
         builder.proxyConfiguration(ProxyConfiguration.builder()
