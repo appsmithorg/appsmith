@@ -132,10 +132,11 @@ public class OrganizationConfigurationCE implements Serializable {
      * Strips fields that should not be visible to unauthenticated (anonymous) users.
      * Only fields required for the login/signup page are preserved (branding, auth method flags,
      * instance name, form login state, third-party auth list).
+     * {@code googleMapsKey} is intentionally NOT stripped: public (anonymous) apps need it to
+     * render the Map widget, consistent with other runtime fields such as branding.
      * EE subclass overrides this to strip additional EE-specific fields.
      */
     public void stripFieldsForAnonymousUser() {
-        this.googleMapsKey = null;
         this.isSignupDisabled = null;
         this.emailVerificationEnabled = null;
         this.mcpConfig = null;

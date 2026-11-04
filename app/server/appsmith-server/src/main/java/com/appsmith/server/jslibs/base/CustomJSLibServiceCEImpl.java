@@ -156,32 +156,43 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                 .map(count -> count > 0);
     }
 
-    @Override
-    public Mono<List<CustomJSLib>> getAllJSLibsInContext(
-            @NotNull String branchedContextId, CreatorContextType contextType, Boolean isViewMode) {
-        ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
-        // Gate the manifest read on an application-level READ check. Both controller routes
-        // (GET /libraries/{id} and the anonymous-reachable GET /libraries/{id}/view) funnel through
-        // here, and the downstream visibility lookup reaches a projection read that carries no ACL
-        // criterion, so without this check any caller can enumerate the JS libraries of any
-        // application by id. A public application grants read:applications to the anonymous role, so
-        // legitimate anonymous reads of public apps keep working; private apps the caller cannot read
-        // now resolve empty and surface the existing NO_RESOURCE_FOUND that callers already handle.
-        Mono<Void> readAuthorizationMono = CreatorContextType.APPLICATION.equals(contextType)
-                ? applicationService
-                        .findById(branchedContextId, applicationPermission.getReadPermission())
-                        .switchIfEmpty(Mono.error(new AppsmithException(
-                                AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedContextId)))
-                        .then()
-                : Mono.empty();
-        return readAuthorizationMono.then(Mono.defer(() -> contextBasedService
+    /**
+     * Authorization for reading the libraries of {@code branchedContextId}. Every context type resolves to
+     * the application service here (see {@link #getContextBasedService}), so the check is the application
+     * READ permission for every context type. A context the caller cannot read and a missing context both
+     * answer {@link AppsmithError#NO_RESOURCE_FOUND}.
+     */
+    protected Mono<Void> getReadAuthorizationMono(String branchedContextId, CreatorContextType contextType) {
+        return applicationService
+                .findById(branchedContextId, applicationPermission.getReadPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedContextId)))
+                .then();
+    }
+
+    /**
+     * Reads the visible libraries of an already authorized context. Callers run
+     * {@link #getReadAuthorizationMono} first and subscribe to this only after it completes.
+     */
+    protected Mono<List<CustomJSLib>> readVisibleJSLibsInContext(
+            String branchedContextId, CreatorContextType contextType, Boolean isViewMode) {
+        return getContextBasedService(contextType)
                 .getAllVisibleJSLibContextDTOFromContext(branchedContextId, isViewMode)
                 .flatMapMany(repository::findCustomJsLibsInContext)
                 .collectList()
                 .map(jsLibList -> {
                     jsLibList.sort(Comparator.comparing(CustomJSLib::getUidString));
                     return jsLibList;
-                })));
+                });
+    }
+
+    @Override
+    public Mono<List<CustomJSLib>> getAllJSLibsInContext(
+            @NotNull String branchedContextId, CreatorContextType contextType, Boolean isViewMode) {
+        // Authorize the resolved context before reading its libraries. Both controller read routes funnel
+        // through here.
+        return getReadAuthorizationMono(branchedContextId, contextType)
+                .then(Mono.defer(() -> readVisibleJSLibsInContext(branchedContextId, contextType, isViewMode)));
     }
 
     @Override

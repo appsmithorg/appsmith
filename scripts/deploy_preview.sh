@@ -12,7 +12,6 @@ export cluster_name="uatx-cluster"
 echo "Region: $region"
 echo "Cluster name: $cluster_name"
 echo "Pull Request Number: $PULL_REQUEST_NUMBER"
-echo "DP_EFS_ID: $DP_EFS_ID"
 
 # Set naming context
 export NAMESPACE="$edition$PULL_REQUEST_NUMBER"
@@ -31,6 +30,7 @@ export APPSMITH_CARBON_API_BASE_PATH="$APPSMITH_CARBON_API_BASE_PATH"
 export APPSMITH_AI_SERVER_MANAGED_HOSTING="$APPSMITH_AI_SERVER_MANAGED_HOSTING"
 export APPSMITH_BETTERBUGS_API_KEY="$APPSMITH_BETTERBUGS_API_KEY"
 export APPSMITH_PYLON_APP_ID="${APPSMITH_PYLON_APP_ID:-}"
+export APPSMITH_SEGMENT_CE_KEY="${APPSMITH_SEGMENT_CE_KEY:-}"
 
 # Update kubeconfig
 aws eks update-kubeconfig --region "$region" --name "$cluster_name"
@@ -55,11 +55,46 @@ fi
 # Create namespace and image pull secret
 kubectl create ns "$NAMESPACE" || true
 
+# Each preview's EFS volume is provisioned by the appsmith-dp-efs-<edition>
+# StorageClass: one access point per claim, rooted at /<edition>/<namespace> on
+# the deploy preview file system, created with the claim and removed with it.
+# The directory stays. The chart mounts this claim through
+# persistence.existingClaim. Keep exactly one data claim per namespace: two
+# claims on the same class in one namespace share the same directory.
+export PVC_NAME="$CHARTNAME-efs"
+kubectl apply -n "$NAMESPACE" -f - <<EOF
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: $PVC_NAME
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: appsmith-dp-efs-$edition
+  resources:
+    requests:
+      storage: 10Gi
+EOF
+
 kubectl create secret docker-registry "$SECRET" \
   --docker-server=https://index.docker.io/v1/ \
   --docker-username="$DOCKER_HUB_USERNAME" \
   --docker-password="$DOCKER_HUB_ACCESS_TOKEN" \
   -n "$NAMESPACE" || true
+
+# A preview runs against staging, so the staging license server URL and analytics keys
+# override the image defaults. APPSMITH_MIXPANEL_KEY must be empty, and the chart omits
+# empty applicationConfig values from its ConfigMap, so it is delivered through a Secret
+# that the chart mounts with envFrom.
+kubectl apply -n "$NAMESPACE" -f - <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: $CHARTNAME-env
+type: Opaque
+stringData:
+  APPSMITH_MIXPANEL_KEY: ""
+EOF
 
 # Add Helm repo (idempotent)
 AWS_REGION=us-east-2 helm repo add appsmith-ee "$HELMCHART_URL" || echo "Helm repo already added."
@@ -81,7 +116,9 @@ helm mapkubeapis "$CHARTNAME" -n "$NAMESPACE" || echo "mapkubeapis failed, conti
 helm show chart appsmith-ee/$HELMCHART || echo "helm show chart failed (non-blocking)."
 
 echo "Deploying Appsmith Helm chart..."
-helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-namespace --recreate-pods \
+# The rollout annotation changes on every deploy, so the pod restarts even when the image tag is unchanged.
+helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-namespace \
+  --set-string podAnnotations.deploy-preview/rollout="$(date -u +%Y%m%dT%H%M%SZ)" \
   --set _image.repository="${IMAGE_REPOSITORY:-$DOCKER_HUB_ORGANIZATION/appsmith-dp}" \
   --set _image.tag="${IMAGE_TAG:-$IMAGE_HASH}" \
   --set _image.pullPolicy="Always" \
@@ -96,10 +133,8 @@ helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-n
   --set "ingress.hosts[0].host=$DOMAINNAME, ingress.hosts[0].paths[0].path=/, ingress.hosts[0].paths[0].pathType=Prefix" \
   --set autoupdate.enabled=false \
   --set ingress.className="traefik" \
-  --set persistence.efs.enabled=true \
-  --set persistence.efs.driver="efs.csi.aws.com" \
-  --set persistence.storageClass="efs-sc" \
-  --set persistence.efs.volumeHandle="$DP_EFS_ID:/$edition/$edition$PULL_REQUEST_NUMBER" \
+  --set persistence.existingClaim.enabled=true \
+  --set persistence.existingClaim.claimName="$PVC_NAME" \
   --set resources.requests.cpu="1m" \
   --set resources.requests.memory="3072Mi" \
   --set podDisruptionBudgets.enabled=false \
@@ -115,6 +150,9 @@ helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-n
   --set applicationConfig.APPSMITH_PYLON_APP_ID="$APPSMITH_PYLON_APP_ID" \
   --set applicationConfig.APPSMITH_BASE_URL="https://$DOMAINNAME" \
   --set applicationConfig.APPSMITH_CUSTOMER_PORTAL_URL="https://release-customer.appsmith.com" \
+  --set applicationConfig.APPSMITH_CLOUD_SERVICES_BASE_URL="https://release-cs.appsmith.com" \
+  --set applicationConfig.APPSMITH_SEGMENT_CE_KEY="$APPSMITH_SEGMENT_CE_KEY" \
+  --set secretName="$CHARTNAME-env" \
   --set applicationConfig.APPSMITH_RATE_LIMIT="1000" \
   --set affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key=instance_name \
   --set affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator=In \

@@ -7,7 +7,12 @@ import { querySpecSchema } from "./query.js";
 import { redisQuerySpecSchema } from "./redisQuery.js";
 import { restApiSpecSchema } from "./restApi.js";
 import { s3QuerySpecSchema } from "./s3Query.js";
-import { imageUrl, storedId } from "./schema.js";
+import {
+  imageUrl,
+  pageNameIsIpHost,
+  pageNameSchema,
+  storedId,
+} from "./schema.js";
 import { sheetsQuerySpecSchema } from "./sheetsQuery.js";
 
 // The charset is the security property: these ids are interpolated into URL path segments, encodeURIComponent
@@ -257,5 +262,32 @@ describe("imageUrl — the build spec's image src cannot break out of the widget
     ]) {
       expect(imageUrl.safeParse(value).success).toBe(false);
     }
+  });
+});
+
+describe("pageNameIsIpHost", () => {
+  // Each of these is what https://<name> parses to: a numeric IPv4 host.
+  it.each([
+    "1572395042",
+    "0x5db8d822",
+    "12",
+    "127.1",
+    "1.2.3.4",
+    "localhost",
+    "LocalHost",
+  ])("reads %s as an IP host", (name) => {
+    expect(pageNameIsIpHost(name)).toBe(true);
+  });
+
+  it.each(["Orders", "Page 1", "2024 report", "Q4-2024", "page_2"])(
+    "does not read %s as an IP host",
+    (name) => {
+      expect(pageNameIsIpHost(name)).toBe(false);
+    },
+  );
+
+  it("refuses an IP-like navigate target in pageNameSchema", () => {
+    expect(pageNameSchema.safeParse("1572395042").success).toBe(false);
+    expect(pageNameSchema.safeParse("Ticket Details").success).toBe(true);
   });
 });

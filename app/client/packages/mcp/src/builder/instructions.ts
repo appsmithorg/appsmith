@@ -166,14 +166,15 @@ evaluated as code in a viewer's browser.
   host in the same action: \`[{ "closeModal": "Step1" }, { "showModal": "Step2" }]\` — a
   close-then-open is a transition and never counts as a stack. Bindings hand-written in the
   Appsmith editor that the analyzer can't parse are skipped fail-open; \`inspect_page\` reports
-  how many were excluded (nested trigger paths like table row-button events are also outside
-  the analysis).
-- HAND-AUTHORED apps (built in the Appsmith editor, not by MCP): read-back hides every binding
-  the analyzer does not recognize — a widget can carry a live hand-written expression that
-  \`read_semantic_page\` simply does not show, and NO count reports hidden PROPERTY bindings
-  (\`inspect_page\`'s excluded-binding count covers only event/trigger bindings). So on ANY
-  page a human built or edited: an empty read-back NEVER means an unbound prop. Before
-  overwriting a prop (a literal \`text\`, a new \`source\`, \`tableData\`, ...) on such a page,
+  how many were excluded. A table button column's onClick is analysed; other nested trigger
+  paths (such as menu-button items) are outside the analysis.
+- HAND-AUTHORED apps (built in the Appsmith editor, not by MCP): read-back never returns the
+  text of a binding it does not recognise. Instead, \`boundProps\` lists each such top-level prop
+  with the queries, JS objects, widgets and \`appsmith.user\` fields it refers to (for example
+  \`tableData: { jsObjects: ["Utils"] }\`). Bindings inside nested props (a column's own settings,
+  a list item) are not summarised, and \`inspect_page\`'s excluded-binding count covers
+  only event/trigger bindings, never property bindings. So on ANY page a human built or
+  edited: an empty read-back NEVER means an unbound prop. Before overwriting a prop (a literal \`text\`, a new \`source\`, \`tableData\`, ...) on such a page,
   TELL the user any existing hand-written binding on that prop will be REPLACED and get their
   confirmation first.
 - Accumulating results across runs (store accumulation): re-running a query REPLACES its
@@ -193,7 +194,32 @@ evaluated as code in a viewer's browser.
   - Store keys are identifiers (letter/underscore start, max 64). Accumulated rows are
     SESSION-ONLY by design (never persisted to localStorage, so one user's rows can't leak to
     the next browser user): results reset on reload. See appsmith://recipe/zip-lookup for the
-    full worked example.`;
+    full worked example.
+- Dynamic properties (binding expressions): on \`patch_widgets\`, a property can take
+  \`{ "expr": <tree> }\`, a tree of the same closed grammar as JS-object definitions (see the
+  js-objects guide for every leaf, operator and function). It is compiled to a \`{{ }}\` binding;
+  you never write the expression text. Where it is accepted:
+  - \`visibleWhen\`, \`disabledWhen\`, \`requiredWhen\` (form controls) and \`validWhen\` (inputs'
+    "Valid" check): a condition, or one of the named forms (\`{ control, equals }\` for a select,
+    radio or tabs; \`{ rowSelected }\`; \`{ notEmpty }\`).
+  - \`defaultFrom\`: a widget's default (a date picker's default date, an input's default text).
+  - \`minDate\`, \`maxDate\`, \`defaultDate\` on a date picker: an ISO date, or an expression whose
+    value is a date.
+  - \`value\` on a text widget (blank for null); text \`source\` also takes \`{ "store": "key" }\`.
+  - \`wire_event\` \`call\` arguments: \`{ "expr": <tree> }\` (strings there may not hold \`'\`).
+  Rules: no \`param\`, \`var\`, \`constant\` or \`call\` leaf (a binding has no locals and cannot
+  await); no \`{\` or \`}\` in a string; every widget it reads must exist on the page and every
+  query must exist in the app; it may not read the property it sets (for example, requiredWhen
+  reading the same input's isValid), or a property that already reads it back (an evaluation
+  cycle stops the whole page).
+  Leaves that help forms: \`{ "user": "name" | "email" | "username" }\` (the signed-in viewer),
+  \`{ "table": "T", "column": "end date", "row": "triggered" }\` (the row whose button column was
+  clicked). Date functions \`addDays\`, \`addMonths\`, \`addYears\`, \`startOfDay\`, \`diffDays\`,
+  \`isoDate\` work in the viewer's local time and read \`YYYY-MM-DD\` as local midnight; \`date\`,
+  \`isoString\` and \`dateBucket\` keep their UTC meaning. Wrap a date picker's \`selectedDate\` (ISO
+  text) in \`date\` before comparing it with \`lt\` / \`gt\`. Base a date default on
+  \`startOfDay\` of \`now\`, so it does not move while the user is on the page. See
+  appsmith://recipe/conditional-form for a full example.`;
 
 const GUIDE_GIT = `# Git-connected applications guide
 
@@ -444,18 +470,33 @@ a control left empty is ignored instead of matching nothing. Requires the data l
 3. Option lists — one \`create_query\` per control whose values come from data, e.g. the distinct
    values of a column: { operation: 'SELECT', table, groupBy: ['status'], aggregate: { fn: 'count' },
    orderBy: [{ column: 'status', direction: 'ASC' }] } (returns a status and a count per value).
+   To show rows with no value under a label instead of a blank option, group by
+   { column: 'status', coalesce: { literal: 'Unknown' } }. The label is for display only: an eq
+   filter on 'Unknown' matches no rows, because the stored value is NULL. So do not coalesce the
+   options of a control whose value feeds an eq filter. To list the rows with no value, use a
+   separate query with the filter { column: 'status', op: 'isNull' }. For a column that holds a
+   comma-separated list (tags), group by { column: 'tags', split: ',' } to get one option per tag
+   (PostgreSQL only).
    A control with a fixed set of values can use static \`options\` instead.
 4. The table query — \`create_query\` SELECT with one filter per control, each with
    \`skipWhenEmpty: true\`:
    - single select: { column: 'status', op: 'eq', value: { widget: 'StatusFilter', property:
      'selectedOptionValue' }, skipWhenEmpty: true }
    - text input (exact match): { column: 'ticket_id', op: 'eq', value: { widget: 'TicketInput',
-     property: 'text' }, skipWhenEmpty: true }. 'like' adds no % wildcards — it matches the typed
-     text exactly unless the user types % themselves — so it is not a substring search.
+     property: 'text' }, skipWhenEmpty: true }
+   - text search: { column: 'subject', op: 'like', match: 'contains', value: { widget: 'SearchInput',
+     property: 'text' }, skipWhenEmpty: true }. Without match, 'like' adds no % wildcards and matches
+     the typed text exactly. Use op 'ilike' for a case-insensitive search (PostgreSQL only).
+     A % or _ the user types still acts as a wildcard.
    - multi-select (widget type \`multiselect\`; PostgreSQL datasources only):
      { column: 'tag', op: 'inList', value: { widget: 'TagFilter', property: 'selectedOptionValues' },
      skipWhenEmpty: true }. Values are compared as text. On other databases use a single select with
      'eq' instead; 'in' binds ONE value.
+   - a fixed "missing value" condition, such as unassigned rows: { column: 'owner', op: 'isNull' }
+     (or 'notNull'). It takes no value and no skipWhenEmpty.
+   - an OR inside the WHERE clause: { anyOf: [ { column: 'owner', op: 'isNull' }, { column: 'owner',
+     op: 'eq', value: { literal: '' } } ] }. Members are plain filters (2-10, one level) and cannot
+     use skipWhenEmpty, because a skipped member would make the whole group match every row.
    skipWhenEmpty is SELECT-only, and is refused on appsmith.* values (they may scope rows to the
    viewer). Filters bound to widgets are for narrowing what is shown, never for restricting which
    rows a user may see — viewers control widget values; use datasource or row-level permissions
@@ -470,6 +511,51 @@ a control left empty is ignored instead of matching nothing. Requires the data l
    settings expose a change event such as onSelectionChange, set it to the same { run }.
 7. \`inspect_page\` — fix any diagnostics. Then publish LAST (\`prepare_publish\` -> \`confirm_publish\`,
    governed) and hand over the \`viewerUrl\`; without governance share the \`editorUrl\`.`;
+
+const RECIPE_CONDITIONAL_FORM = `# Conditional form recipe (dates, conditions, current user)
+
+An "Extend license" modal: open it from a button column on each row, prefill who asked, pick a
+request kind, and let the kind decide the date default, the date limit, a warning and two extra
+fields. Every step is an MCP call; no editor follow-up.
+
+1. Table column: \`patch_widgets\` \`{ "kind": "addColumn", "name": "Licenses", "column": { "key":
+   "extend", "type": "button", "buttonLabel": "Extend" } }\`. Wire it with \`wire_event\`
+   \`{ "widget": "Licenses", "column": "extend", "event": "onClick", "action": { "showModal":
+   "ExtendModal" } }\`.
+2. Modal fields (\`edit_page\` into the modal): text \`CustomerName\`, text \`CustomerEmail\`,
+   input \`RequestedBy\`, radio \`Kind\` (options "temporary" and "contract"), date picker
+   \`NewEnd\`, text \`BillingWarning\`, input \`Initials\`, checkbox \`Ack\`, button \`Submit\`.
+3. Read-only row values: \`value: { "expr": { "table": "Licenses", "column": "customerName",
+   "row": "triggered" } }\` on \`CustomerName\` (and the same for the email).
+4. Who asked: \`defaultFrom: { "expr": { "user": "name" } }\` on \`RequestedBy\`, with
+   \`isDisabled: true\`.
+5. Date default by kind, on \`NewEnd\`:
+   \`defaultFrom: { "expr": { "if": { "op": "eq", "args": [{ "widget": "Kind", "property":
+   "selectedOptionValue" }, "temporary"] }, "then": { "fn": "addDays", "args": [{ "fn":
+   "startOfDay", "args": [{ "fn": "now", "args": [] }] }, 14] }, "else": { "fn": "addYears",
+   "args": [{ "table": "Licenses", "column": "expiry", "row": "triggered" }, 1] } } }\`.
+6. Date limit by kind: \`maxDate\` is today + 14 days for "temporary" and no limit for "contract"
+   (\`null\` reads as no limit): \`maxDate: { "expr": { "if": <the same eq>, "then": <today + 14>,
+   "else": null } }\`, and \`minDate: { "expr": { "fn": "startOfDay", "args": [{ "fn": "now",
+   "args": [] }] } }\`.
+7. The under-a-year case, as one condition used three times:
+   \`{ "op": "and", "args": [{ "op": "eq", "args": [{ "widget": "Kind", "property":
+   "selectedOptionValue" }, "contract"] }, { "op": "lt", "args": [{ "fn": "date", "args":
+   [{ "widget": "NewEnd", "property": "selectedDate" }] }, { "fn": "addYears", "args":
+   [{ "fn": "startOfDay", "args": [{ "fn": "now", "args": [] }] }, 1] }] }] }\`
+   (a date exactly one year from today is not "less than a year out")
+   - \`visibleWhen: { "expr": <condition> }\` on \`BillingWarning\`, \`Initials\` and \`Ack\`;
+   - \`requiredWhen: { "expr": <condition> }\` on \`Initials\` and \`Ack\`;
+   - \`validation: { "format": "initials" }\` on \`Initials\` (2 to 4 letters; requiredWhen still
+     decides when it is required).
+8. Warning text: \`value: { "expr": { "fn": "concat", "args": ["This bills the customer through ",
+   { "fn": "isoDate", "args": [{ "widget": "NewEnd", "property": "selectedDate" }] }] } }\`.
+9. Submit: use \`disabledWhen: { "expr": { "op": "or", "args": [{ "op": "not", "args": [{ "widget": "NewEnd", "property": "isValid" }] }, { "op": "and", "args": [{ "widget": "BillingWarning", "property": "isVisible" }, { "op": "or", "args": [{ "op": "not", "args": [{ "widget": "Initials", "property": "isValid" }] }, { "op": "not", "args": [{ "widget": "Ack", "property": "isValid" }] }] }] }] } }\`.
+   NewEnd must always be valid. Initials and Ack matter only while the step-7 warning is visible:
+   a hidden input can retain invalid nonempty text. Wire onClick to the save query, then \`closeModal\`.
+10. Reset the date when the kind changes: \`wire_event\` \`{ "widget": "Kind", "event":
+    "onSelectionChange", "action": { "reset": "NewEnd" } }\`.
+11. \`inspect_page\`, then publish LAST.`;
 
 export const RECIPES: InstructionDoc[] = [
   {
@@ -503,6 +589,13 @@ export const RECIPES: InstructionDoc[] = [
     description:
       "Build a table narrowed by several filter controls, where an empty control means no filter.",
     render: () => RECIPE_FILTER_BAR,
+  },
+  {
+    slug: "conditional-form",
+    title: "Conditional form recipe (dates, conditions, current user)",
+    description:
+      "Build a modal form whose date default, date limit, warning and required fields depend on a radio choice and the row that opened it.",
+    render: () => RECIPE_CONDITIONAL_FORM,
   },
 ];
 
@@ -665,8 +758,8 @@ Recommended workflow for a production-quality app:
 1. Target a workspace: resolve_workspace(name) -> workspaceId (or list_workspaces). Tools take an id, not a name — never ask the user for a raw id if they gave you a name.
 2. Create the app: build_application(workspaceId, appSpec). Widgets: text, input, select, button, image, table, container, form, modal, datepicker, chart, tabs, list. Inputs support named-format validation; tables support a query 'source' (optionally clear-when-empty). 'list' renders a card grid (image + title + subtitle) bound to a query 'source' — point it at the same query as a table for a shared table/cards view (a query is required; there is no static-data card grid). The new app is auto-deployed on creation and the response includes an editorUrl and viewerUrl for the default page — that first deployed copy is only a scaffold until re-published, so don't hand out the viewer link yet.
 3. Add data (if listed by get_capabilities): create_datasource (DB or REST, no credentials) -> create_query / create_rest_api -> bind a table to it, and bind detail widgets to the selected row.
-4. Inspect and refine with read_semantic_page / inspect_page, then patch_widgets: bind a table's data, a text/image/input to the selected row (source / imageSource / defaultValue), toggle table search/filter/sort/pagination, set row striping, add input validation, disable a button while an input is invalid, and move/reparent/remove widgets. To switch between views (e.g. a table and a detail panel) with one control, gate each view's visibility on a select/tabs control (visibleWhen { control, equals }); gate a detail panel or action button on a row being selected (visibleWhen { rowSelected: "<table>" }) or on an input holding text (visibleWhen { notEmpty: "<input>" }). Append new widgets with edit_page.
-5. Wire behavior: wire_event connects button onClick / table onRowSelected / modal onClose / tabs onTabSelected / select onOptionChange / input onSubmit / checkbox onCheckChange / switch onChange / datepicker onDateSelected to run a query (with onSuccess/onError chains), navigate, show/close a modal, show an alert, reset widgets (a Clear button), or accumulate query rows in the Appsmith store (appendToStore / clearStoreKey — bind a table to the key with a store source/tableData for a results table that grows with each run; rows are session-only). The action may also be an ordered list of 2-5 statements (at most one run).
+4. Inspect and refine with read_semantic_page / inspect_page, then patch_widgets: bind a table's data, a text/image/input to the selected row (source / imageSource / defaultValue), toggle table search/filter/sort/pagination, set row striping, add input validation, disable a button while an input is invalid, and move/reparent widgets. To remove widgets, call prepare_remove_widgets, show the user what it lists (a container goes with its content), then confirm_remove_widgets. To switch between views (e.g. a table and a detail panel) with one control, gate each view's visibility on a select/tabs control (visibleWhen { control, equals }); gate a detail panel or action button on a row being selected (visibleWhen { rowSelected: "<table>" }) or on an input holding text (visibleWhen { notEmpty: "<input>" }). Append new widgets with edit_page.
+5. Wire behavior: wire_event connects button onClick / table onRowSelected / modal onClose / tabs onTabSelected / select onOptionChange / input onSubmit / checkbox onCheckChange / switch onChange / datepicker onDateSelected / radio and checkbox-group onSelectionChange / multiselect onOptionChange / a table's button column (column + onClick) to run a query (with onSuccess/onError chains), navigate, show/close a modal, show an alert, reset widgets (a Clear button), or accumulate query rows in the Appsmith store (appendToStore / clearStoreKey — bind a table to the key with a store source/tableData for a results table that grows with each run; rows are session-only). The action may also be an ordered list of 2-5 statements (at most one run).
 6. Add JS logic (if listed): create_js_object for restricted, declarative JS objects.
 7. Ship it LAST: finish wiring queries and events first — the copy auto-deployed at creation is a scaffold that goes stale as you edit. Then re-publish with prepare_publish -> confirm_publish (governed) and hand the user the viewerUrl as the final step. On deployments without governance, re-publishing is unavailable: relay the editorUrl from build_application plus the governance group's 'requires' instruction from get_capabilities instead of promising an up-to-date viewer link. GIT-APP CARVE-OUT: for a git-connected app the final deliverable is the mcp/ branch plus its branch-scoped review URL from confirm_commit, NOT a viewerUrl — publish refuses git apps.
 

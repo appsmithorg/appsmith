@@ -1,16 +1,5 @@
 package com.external.plugins;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.DeleteObjectsResult;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.amazonaws.util.Base64;
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -29,6 +18,7 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.external.plugins.constants.AmazonS3Action;
 import com.external.plugins.exceptions.S3ErrorMessages;
 import com.external.plugins.exceptions.S3PluginError;
+import com.external.utils.S3Connection;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
@@ -38,9 +28,23 @@ import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import software.amazon.awssdk.awscore.exception.AwsErrorDetails;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.ResponseBytes;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Bucket;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
+import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsResponse;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -49,6 +53,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +82,7 @@ import static com.external.plugins.constants.S3PluginConstants.DEFAULT_URL_EXPIR
 import static com.external.plugins.constants.S3PluginConstants.GOOGLE_CLOUD_SERVICE_PROVIDER;
 import static com.external.plugins.constants.S3PluginConstants.NO;
 import static com.external.plugins.constants.S3PluginConstants.YES;
-import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
+import static com.external.utils.DatasourceUtils.getS3ConnectionSettings;
 import static com.external.utils.TemplateUtils.CREATE_FILE_TEMPLATE_NAME;
 import static com.external.utils.TemplateUtils.CREATE_MULTIPLE_FILES_TEMPLATE_NAME;
 import static com.external.utils.TemplateUtils.DEFAULT_DIR;
@@ -339,22 +344,9 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        ObjectListing mockObjectListing = mock(ObjectListing.class);
-        AmazonS3 mockConnection = mock(AmazonS3.class);
-        when(mockConnection.listObjects(anyString(), anyString())).thenReturn(mockObjectListing);
-
-        S3ObjectSummary mockS3ObjectSummary = mock(S3ObjectSummary.class);
-        List<S3ObjectSummary> mockS3ObjectSummaryList = new ArrayList<>();
-        mockS3ObjectSummaryList.add(mockS3ObjectSummary);
-        when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
-
         String dummyKey1 = "file_path_1";
         String dummyKey2 = "file_path_2";
-        when(mockS3ObjectSummary.getKey()).thenReturn(dummyKey1).thenReturn(dummyKey2);
-
-        when(mockObjectListing.isTruncated()).thenReturn(true).thenReturn(false);
-        when(mockConnection.listNextBatchOfObjects(mockObjectListing)).thenReturn(mockObjectListing);
-        when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
+        S3Connection mockConnection = mockConnectionListingOneKeyPerPage(dummyKey1, dummyKey2);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 mockConnection, executeActionDTO, datasourceConfiguration, actionConfiguration);
@@ -396,7 +388,7 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        AmazonS3 connection =
+        S3Connection connection =
                 pluginExecutor.datasourceCreate(datasourceConfiguration).block();
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 connection, executeActionDTO, datasourceConfiguration, actionConfiguration);
@@ -435,7 +427,7 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        AmazonS3 connection =
+        S3Connection connection =
                 pluginExecutor.datasourceCreate(datasourceConfiguration).block();
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 connection, executeActionDTO, datasourceConfiguration, actionConfiguration);
@@ -479,7 +471,7 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        AmazonS3 connection =
+        S3Connection connection =
                 pluginExecutor.datasourceCreate(datasourceConfiguration).block();
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 connection, executeActionDTO, datasourceConfiguration, actionConfiguration);
@@ -513,7 +505,7 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        AmazonS3 connection =
+        S3Connection connection =
                 pluginExecutor.datasourceCreate(datasourceConfiguration).block();
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 connection, executeActionDTO, datasourceConfiguration, actionConfiguration);
@@ -565,7 +557,7 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        AmazonS3 connection =
+        S3Connection connection =
                 pluginExecutor.datasourceCreate(datasourceConfiguration).block();
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 connection, executeActionDTO, datasourceConfiguration, actionConfiguration);
@@ -623,7 +615,7 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        AmazonS3 connection =
+        S3Connection connection =
                 pluginExecutor.datasourceCreate(datasourceConfiguration).block();
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 connection, executeActionDTO, datasourceConfiguration, actionConfiguration);
@@ -656,14 +648,13 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        S3Object mockS3Object = mock(S3Object.class);
-        AmazonS3 mockConnection = mock(AmazonS3.class);
-        when(mockConnection.getObject(anyString(), anyString())).thenReturn(mockS3Object);
-
         String dummyContent = "Hello World !!!\n";
-        InputStream dummyInputStream = new ByteArrayInputStream(dummyContent.getBytes());
-        S3ObjectInputStream dummyS3ObjectInputStream = new S3ObjectInputStream(dummyInputStream, null);
-        when(mockS3Object.getObjectContent()).thenReturn(dummyS3ObjectInputStream);
+        S3Client mockClient = mock(S3Client.class);
+        when(mockClient.getObjectAsBytes(any(GetObjectRequest.class)))
+                .thenReturn(
+                        ResponseBytes.fromByteArray(GetObjectResponse.builder().build(), dummyContent.getBytes()));
+        S3Connection mockConnection = mock(S3Connection.class);
+        when(mockConnection.client()).thenReturn(mockClient);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 mockConnection, executeActionDTO, datasourceConfiguration, actionConfiguration);
@@ -694,14 +685,13 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        S3Object mockS3Object = mock(S3Object.class);
-        AmazonS3 mockConnection = mock(AmazonS3.class);
-        when(mockConnection.getObject(anyString(), anyString())).thenReturn(mockS3Object);
-
         String dummyContent = "Hello World !!!\n";
-        InputStream dummyInputStream = new ByteArrayInputStream(dummyContent.getBytes());
-        S3ObjectInputStream dummyS3ObjectInputStream = new S3ObjectInputStream(dummyInputStream, null);
-        when(mockS3Object.getObjectContent()).thenReturn(dummyS3ObjectInputStream);
+        S3Client mockClient = mock(S3Client.class);
+        when(mockClient.getObjectAsBytes(any(GetObjectRequest.class)))
+                .thenReturn(
+                        ResponseBytes.fromByteArray(GetObjectResponse.builder().build(), dummyContent.getBytes()));
+        S3Connection mockConnection = mock(S3Connection.class);
+        when(mockConnection.client()).thenReturn(mockClient);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 mockConnection, executeActionDTO, datasourceConfiguration, actionConfiguration);
@@ -710,7 +700,7 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     Map<String, Object> body = (Map<String, Object>) result.getBody();
-                    assertEquals(new String(Base64.encode(dummyContent.getBytes())), body.get("fileData"));
+                    assertEquals(new String(Base64.getEncoder().encode(dummyContent.getBytes())), body.get("fileData"));
 
                     /*
                      * - RequestParamDTO object only have attributes configProperty and value at this point.
@@ -747,8 +737,11 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        AmazonS3 mockConnection = mock(AmazonS3.class);
-        doNothing().when(mockConnection).deleteObject(anyString(), anyString());
+        S3Client mockClient = mock(S3Client.class);
+        when(mockClient.deleteObject(any(DeleteObjectRequest.class)))
+                .thenReturn(DeleteObjectResponse.builder().build());
+        S3Connection mockConnection = mock(S3Connection.class);
+        when(mockConnection.client()).thenReturn(mockClient);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 mockConnection, executeActionDTO, datasourceConfiguration, actionConfiguration);
@@ -793,22 +786,9 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        ObjectListing mockObjectListing = mock(ObjectListing.class);
-        AmazonS3 mockConnection = mock(AmazonS3.class);
-        when(mockConnection.listObjects(anyString(), anyString())).thenReturn(mockObjectListing);
-
-        S3ObjectSummary mockS3ObjectSummary = mock(S3ObjectSummary.class);
-        List<S3ObjectSummary> mockS3ObjectSummaryList = new ArrayList<>();
-        mockS3ObjectSummaryList.add(mockS3ObjectSummary);
-        when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
-
         String dummyKey1 = "file_path_with_matching_prefix_1";
         String dummyKey2 = "file_path_with_matching_prefix_2";
-        when(mockS3ObjectSummary.getKey()).thenReturn(dummyKey1).thenReturn(dummyKey2);
-
-        when(mockObjectListing.isTruncated()).thenReturn(true).thenReturn(false);
-        when(mockConnection.listNextBatchOfObjects(mockObjectListing)).thenReturn(mockObjectListing);
-        when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
+        S3Connection mockConnection = mockConnectionListingOneKeyPerPage(dummyKey1, dummyKey2);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 mockConnection, executeActionDTO, datasourceConfiguration, actionConfiguration);
@@ -845,28 +825,15 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        ObjectListing mockObjectListing = mock(ObjectListing.class);
-        AmazonS3 mockConnection = mock(AmazonS3.class);
-        when(mockConnection.listObjects(anyString(), anyString())).thenReturn(mockObjectListing);
-
-        S3ObjectSummary mockS3ObjectSummary = mock(S3ObjectSummary.class);
-        List<S3ObjectSummary> mockS3ObjectSummaryList = new ArrayList<>();
-        mockS3ObjectSummaryList.add(mockS3ObjectSummary);
-        when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
-
         String dummyKey1 = "file_path_1";
         String dummyKey2 = "file_path_2";
-        when(mockS3ObjectSummary.getKey()).thenReturn(dummyKey1).thenReturn(dummyKey2);
-
-        when(mockObjectListing.isTruncated()).thenReturn(true).thenReturn(false);
-        when(mockConnection.listNextBatchOfObjects(mockObjectListing)).thenReturn(mockObjectListing);
-        when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
+        S3Connection mockConnection = mockConnectionListingOneKeyPerPage(dummyKey1, dummyKey2);
 
         URL dummyUrl1 = new URL("http", "dummy_url_1", "");
         URL dummyUrl2 = new URL("http", "dummy_url_1", "");
-        when(mockConnection.getUrl(anyString(), anyString()))
-                .thenReturn(dummyUrl1)
-                .thenReturn(dummyUrl2);
+        when(mockConnection.unsignedUrl(anyString(), anyString()))
+                .thenReturn(dummyUrl1.toString())
+                .thenReturn(dummyUrl2.toString());
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 mockConnection, executeActionDTO, datasourceConfiguration, actionConfiguration);
@@ -909,26 +876,14 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        ObjectListing mockObjectListing = mock(ObjectListing.class);
-        AmazonS3 mockConnection = mock(AmazonS3.class);
-        when(mockConnection.listObjects(anyString(), anyString())).thenReturn(mockObjectListing);
-
-        S3ObjectSummary mockS3ObjectSummary = mock(S3ObjectSummary.class);
-        List<S3ObjectSummary> mockS3ObjectSummaryList = new ArrayList<>();
-        mockS3ObjectSummaryList.add(mockS3ObjectSummary);
-        when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
-
         String dummyKey1 = "file_path_1";
         String dummyKey2 = "file_path_2";
-        when(mockS3ObjectSummary.getKey()).thenReturn(dummyKey1).thenReturn(dummyKey2);
-
-        when(mockObjectListing.isTruncated()).thenReturn(true).thenReturn(false);
-        when(mockConnection.listNextBatchOfObjects(mockObjectListing)).thenReturn(mockObjectListing);
-        when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
+        S3Connection mockConnection = mockConnectionListingOneKeyPerPage(dummyKey1, dummyKey2);
 
         URL dummyUrl1 = new URL("http", "dummy_url_1", "");
         URL dummyUrl2 = new URL("http", "dummy_url_1", "");
-        when(mockConnection.generatePresignedUrl(any())).thenReturn(dummyUrl1).thenReturn(dummyUrl2);
+        when(mockConnection.presignedGetUrls(anyString(), any(), any()))
+                .thenReturn(List.of(dummyUrl1.toString(), dummyUrl2.toString()));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 mockConnection, executeActionDTO, datasourceConfiguration, actionConfiguration);
@@ -973,26 +928,14 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        ObjectListing mockObjectListing = mock(ObjectListing.class);
-        AmazonS3 mockConnection = mock(AmazonS3.class);
-        when(mockConnection.listObjects(anyString(), anyString())).thenReturn(mockObjectListing);
-
-        S3ObjectSummary mockS3ObjectSummary = mock(S3ObjectSummary.class);
-        List<S3ObjectSummary> mockS3ObjectSummaryList = new ArrayList<>();
-        mockS3ObjectSummaryList.add(mockS3ObjectSummary);
-        when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
-
         String dummyKey1 = "file_path_1";
         String dummyKey2 = "file_path_2";
-        when(mockS3ObjectSummary.getKey()).thenReturn(dummyKey1).thenReturn(dummyKey2);
-
-        when(mockObjectListing.isTruncated()).thenReturn(true).thenReturn(false);
-        when(mockConnection.listNextBatchOfObjects(mockObjectListing)).thenReturn(mockObjectListing);
-        when(mockObjectListing.getObjectSummaries()).thenReturn(mockS3ObjectSummaryList);
+        S3Connection mockConnection = mockConnectionListingOneKeyPerPage(dummyKey1, dummyKey2);
 
         URL dummyUrl1 = new URL("http", "dummy_url_1", "");
         URL dummyUrl2 = new URL("http", "dummy_url_1", "");
-        when(mockConnection.generatePresignedUrl(any())).thenReturn(dummyUrl1).thenReturn(dummyUrl2);
+        when(mockConnection.presignedGetUrls(anyString(), any(), any()))
+                .thenReturn(List.of(dummyUrl1.toString(), dummyUrl2.toString()));
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 mockConnection, executeActionDTO, datasourceConfiguration, actionConfiguration);
@@ -1043,11 +986,13 @@ public class AmazonS3PluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
-        Bucket mockS3Bucket1 = mock(Bucket.class);
-        when(mockS3Bucket1.getName()).thenReturn("dummy_bucket_1");
+        Bucket mockS3Bucket1 = Bucket.builder().name("dummy_bucket_1").build();
 
-        AmazonS3 mockConnection = mock(AmazonS3.class);
-        when(mockConnection.listBuckets()).thenReturn(List.of(mockS3Bucket1));
+        S3Client mockClient = mock(S3Client.class);
+        when(mockClient.listBuckets())
+                .thenReturn(ListBucketsResponse.builder().buckets(mockS3Bucket1).build());
+        S3Connection mockConnection = mock(S3Connection.class);
+        when(mockConnection.client()).thenReturn(mockClient);
 
         StepVerifier.create(pluginExecutor.getStructure(mockConnection, datasourceConfiguration))
                 .assertNext(datasourceStructure -> {
@@ -1198,29 +1143,33 @@ public class AmazonS3PluginTest {
         datasourceConfiguration.getProperties().get(1).setValue("upcloud");
         datasourceConfiguration.getEndpoints().get(0).setHost("appsmith-test-storage-2.de-fra1.upcloudobjects.com");
 
-        AmazonS3ClientBuilder s3ClientBuilder = getS3ClientBuilder(datasourceConfiguration);
-        assertEquals("de-fra1", s3ClientBuilder.getEndpoint().getSigningRegion());
+        assertEquals(
+                "de-fra1",
+                getS3ConnectionSettings(datasourceConfiguration).region().id());
 
         // Test for Wasabi
         datasourceConfiguration.getProperties().get(1).setValue("wasabi");
         datasourceConfiguration.getEndpoints().get(0).setHost("s3.ap-northeast-1.wasabisys.com");
 
-        s3ClientBuilder = getS3ClientBuilder(datasourceConfiguration);
-        assertEquals("ap-northeast-1", s3ClientBuilder.getEndpoint().getSigningRegion());
+        assertEquals(
+                "ap-northeast-1",
+                getS3ConnectionSettings(datasourceConfiguration).region().id());
 
         // Test for Digital Ocean spaces
         datasourceConfiguration.getProperties().get(1).setValue("digital-ocean-spaces");
         datasourceConfiguration.getEndpoints().get(0).setHost("fra1.digitaloceanspaces.com");
 
-        s3ClientBuilder = getS3ClientBuilder(datasourceConfiguration);
-        assertEquals("fra1", s3ClientBuilder.getEndpoint().getSigningRegion());
+        assertEquals(
+                "fra1",
+                getS3ConnectionSettings(datasourceConfiguration).region().id());
 
         // Test for Dream Objects
         datasourceConfiguration.getProperties().get(1).setValue("dream-objects");
         datasourceConfiguration.getEndpoints().get(0).setHost("objects-us-east-1.dream.io");
 
-        s3ClientBuilder = getS3ClientBuilder(datasourceConfiguration);
-        assertEquals("us-east-1", s3ClientBuilder.getEndpoint().getSigningRegion());
+        assertEquals(
+                "us-east-1",
+                getS3ConnectionSettings(datasourceConfiguration).region().id());
     }
 
     @Test
@@ -1231,7 +1180,7 @@ public class AmazonS3PluginTest {
         datasourceConfiguration.getProperties().get(1).setValue("upcloud");
         datasourceConfiguration.getEndpoints().get(0).setHost("appsmith-test-storage-2..de-fra1.upcloudobjects.com");
 
-        StepVerifier.create(Mono.fromCallable(() -> getS3ClientBuilder(datasourceConfiguration)))
+        StepVerifier.create(Mono.fromCallable(() -> getS3ConnectionSettings(datasourceConfiguration)))
                 .expectErrorSatisfies(error -> {
                     String expectedErrorMessage = "Your S3 endpoint URL seems to be incorrect for the selected S3 "
                             + "service provider. Please check your endpoint URL and the selected S3 service provider.";
@@ -1258,8 +1207,11 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        AmazonS3 mockConnection = mock(AmazonS3.class);
-        when(mockConnection.deleteObjects(any())).thenReturn(new DeleteObjectsResult(new ArrayList<>()));
+        S3Client mockClient = mock(S3Client.class);
+        when(mockClient.deleteObjects(any(DeleteObjectsRequest.class)))
+                .thenReturn(DeleteObjectsResponse.builder().build());
+        S3Connection mockConnection = mock(S3Connection.class);
+        when(mockConnection.client()).thenReturn(mockClient);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(
                 mockConnection, executeActionDTO, datasourceConfiguration, actionConfiguration);
@@ -1294,14 +1246,19 @@ public class AmazonS3PluginTest {
 
         String errorMessage = "The requested range is not valid for the request. Try another range.";
         String errorCode = "InvalidRange";
-        AmazonS3Exception amazonS3Exception = new AmazonS3Exception(errorMessage);
-        amazonS3Exception.setErrorCode(errorCode);
+        AwsServiceException amazonS3Exception = S3Exception.builder()
+                .message(errorMessage)
+                .awsErrorDetails(AwsErrorDetails.builder()
+                        .errorCode(errorCode)
+                        .errorMessage(errorMessage)
+                        .build())
+                .build();
 
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
-        AmazonS3 mockConnection = Mockito.mock(AmazonS3.class);
+        S3Connection mockConnection = Mockito.mock(S3Connection.class);
         Method executeCommon = AmazonS3Plugin.S3PluginExecutor.class.getDeclaredMethod(
-                "executeCommon", AmazonS3.class, DatasourceConfiguration.class, ActionConfiguration.class);
+                "executeCommon", S3Connection.class, DatasourceConfiguration.class, ActionConfiguration.class);
         executeCommon.setAccessible(true);
 
         ActionConfiguration mockAction = Mockito.mock(ActionConfiguration.class);
@@ -1334,14 +1291,19 @@ public class AmazonS3PluginTest {
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         String errorMessage = "The version ID specified in the request does not match an existing version.";
         String errorCode = "NoSuchVersion";
-        AmazonServiceException amazonServiceException = new AmazonServiceException(errorMessage);
-        amazonServiceException.setErrorCode(errorCode);
+        AwsServiceException amazonServiceException = AwsServiceException.builder()
+                .message(errorMessage)
+                .awsErrorDetails(AwsErrorDetails.builder()
+                        .errorCode(errorCode)
+                        .errorMessage(errorMessage)
+                        .build())
+                .build();
 
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
-        AmazonS3 mockConnection = Mockito.mock(AmazonS3.class);
+        S3Connection mockConnection = Mockito.mock(S3Connection.class);
         Method executeCommon = AmazonS3Plugin.S3PluginExecutor.class.getDeclaredMethod(
-                "executeCommon", AmazonS3.class, DatasourceConfiguration.class, ActionConfiguration.class);
+                "executeCommon", S3Connection.class, DatasourceConfiguration.class, ActionConfiguration.class);
         executeCommon.setAccessible(true);
 
         ActionConfiguration mockAction = Mockito.mock(ActionConfiguration.class);
@@ -1375,7 +1337,7 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        AmazonS3 connection =
+        S3Connection connection =
                 spyS3PluginExecutor.datasourceCreate(datasourceConfiguration).block();
         ArrayList<String> signedURLS = new ArrayList<>();
         signedURLS.add("https://example.signed.url");
@@ -1416,7 +1378,7 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        AmazonS3 connection =
+        S3Connection connection =
                 spyS3PluginExecutor.datasourceCreate(datasourceConfiguration).block();
         ArrayList<String> signedURLS = new ArrayList<>();
         signedURLS.add("https://example.signed.url1");
@@ -1470,7 +1432,7 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        AmazonS3 connection =
+        S3Connection connection =
                 spyS3PluginExecutor.datasourceCreate(datasourceConfiguration).block();
         ArrayList<String> signedURLS = new ArrayList<>();
         signedURLS.add("https://example.signed.url");
@@ -1508,7 +1470,7 @@ public class AmazonS3PluginTest {
 
         actionConfiguration.setFormData(configMap);
 
-        AmazonS3 connection =
+        S3Connection connection =
                 spyS3PluginExecutor.datasourceCreate(datasourceConfiguration).block();
         ArrayList<String> signedURLS = new ArrayList<>();
         signedURLS.add("https://example.signed.url1");
@@ -1547,10 +1509,17 @@ public class AmazonS3PluginTest {
 
     @Test
     public void verifyTestDatasourcePassOnAccessDeniedError() {
-        AmazonS3Exception accessDeniedException = new AmazonS3Exception("access denied");
-        accessDeniedException.setErrorCode("AccessDenied");
-        AmazonS3 mockConnection = mock(AmazonS3.class);
-        when(mockConnection.listBuckets()).thenThrow(accessDeniedException);
+        AwsServiceException accessDeniedException = S3Exception.builder()
+                .message("access denied")
+                .awsErrorDetails(AwsErrorDetails.builder()
+                        .errorCode("AccessDenied")
+                        .errorMessage("access denied")
+                        .build())
+                .build();
+        S3Client mockClient = mock(S3Client.class);
+        when(mockClient.listBuckets()).thenThrow(accessDeniedException);
+        S3Connection mockConnection = mock(S3Connection.class);
+        when(mockConnection.client()).thenReturn(mockClient);
 
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
         Mono<DatasourceTestResult> datasourceTestResultMono = pluginExecutor.testDatasource(mockConnection);
@@ -1611,6 +1580,23 @@ public class AmazonS3PluginTest {
         // Verify base64 encoding
         String expectedBase64 = java.util.Base64.getEncoder().encodeToString(hexToBytes(expectedMd5Hex));
         assertEquals(expectedBase64, md5Base64);
+    }
+
+    /** A connection whose bucket lists the first key on a truncated first page and the second key on the next page. */
+    private static S3Connection mockConnectionListingOneKeyPerPage(String firstKey, String secondKey) {
+        S3Client mockClient = mock(S3Client.class);
+        when(mockClient.listObjects(any(ListObjectsRequest.class)))
+                .thenReturn(ListObjectsResponse.builder()
+                        .contents(S3Object.builder().key(firstKey).build())
+                        .isTruncated(true)
+                        .build())
+                .thenReturn(ListObjectsResponse.builder()
+                        .contents(S3Object.builder().key(secondKey).build())
+                        .isTruncated(false)
+                        .build());
+        S3Connection mockConnection = mock(S3Connection.class);
+        when(mockConnection.client()).thenReturn(mockClient);
+        return mockConnection;
     }
 
     private String bytesToHex(byte[] bytes) {

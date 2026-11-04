@@ -79,6 +79,18 @@ class McpAllowlistWebFilterTest {
     }
 
     @Test
+    void should_passThrough_when_mcpPrincipalPostsGitCheckoutRef() {
+        // Given: create_branch resolves an existing mcp/ branch's application through checkout-ref (a local
+        // branch -> application lookup; it never pushes).
+        MockServerWebExchange exchange =
+                MockServerWebExchange.from(MockServerHttpRequest.post("/api/v1/git/applications/abc123/checkout-ref"));
+        Authentication principal = mcpPrincipal();
+
+        // When / Then: the chain runs once and no status is set
+        assertPassesThrough(exchange, principal);
+    }
+
+    @Test
     void mcpPrincipal_collectionUpdate_isPatchNotPut() {
         // The JS-object update is served as PATCH (PUT is not mapped on the controller); the allowlist must match
         // the Node client's verb, and the unserved PUT stays outside the cap.

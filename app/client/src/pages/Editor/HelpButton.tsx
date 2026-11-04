@@ -44,7 +44,7 @@ import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
 import { DOCS_AI_BASE_URL } from "constants/ThirdPartyConstants";
 import BetterbugsUtil from "utils/Analytics/betterbugs";
 import { isAirgapped } from "ee/utils/airgapHelpers";
-import { useBetterbugsMetadata } from "utils/hooks/useBetterbugsMetadata";
+import { useBetterbugsMetadata } from "ee/hooks/useBetterbugsMetadata";
 
 const { appVersion, betterbugs, cloudHosting } = getAppsmithConfigs();
 

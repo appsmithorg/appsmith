@@ -110,6 +110,11 @@ public enum AnalyticsEvents {
 
     /** API key test or local LLM connection test from AI Assistant admin. */
     ASK_AI_ORG_TEST_RUN("ask_ai_ORG_TEST_RUN"),
+
+    /** Audit log for creating an application snapshot. Not sent to product analytics on its own. */
+    APPLICATION_SNAPSHOT_CREATED,
+    /** Audit log for publishing an application as a template. */
+    APPLICATION_PUBLISHED_AS_TEMPLATE,
     ;
 
     private final String eventName;

@@ -2,6 +2,8 @@ package com.external.plugins;
 
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -53,9 +55,11 @@ import static com.external.plugins.constants.FieldName.FIND_QUERY;
 import static com.external.plugins.constants.FieldName.FIND_SORT;
 import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static com.external.plugins.constants.FieldName.STRICT_VALUES;
 import static com.external.plugins.constants.FieldName.UPDATE_LIMIT;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
 import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -1573,6 +1577,111 @@ public class MongoPluginFormsTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(1, ((ArrayNode) result.getBody()).size());
+                })
+                .verifyComplete();
+    }
+
+    private static Param objectParam(String key, String value) {
+        Param param = new Param(key, value);
+        param.setClientDataType(ClientDataType.OBJECT);
+        return param;
+    }
+
+    @Test
+    void should_insertPlainObject_when_strictValuesOn() {
+        // Given
+        String collection = "strictValuesInsert";
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, STRICT_VALUES, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "INSERT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, collection);
+        setDataValueSafelyInFormData(configMap, INSERT_DOCUMENT, "{{Input1.text}}");
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(List.of(objectParam(
+                "Input1.text", "{\"name\": \"strict\", \"profile\": {\"city\": \"Pune\"}, \"tags\": [\"a\"]}")));
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // When
+        Mono<ActionExecutionResult> executeMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(conn ->
+                        pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+
+        // Then
+        StepVerifier.create(executeMono)
+                .assertNext(result -> assertThat(result.getIsExecutionSuccess()).isTrue())
+                .verifyComplete();
+        MongoCollection<Document> stored = mongoClient.getDatabase("test").getCollection(collection);
+        Document inserted =
+                Mono.from(stored.find(new Document("name", "strict")).first()).block();
+        assertThat(inserted).isNotNull();
+        assertThat(inserted.get("profile", Document.class).getString("city")).isEqualTo("Pune");
+        Mono.from(stored.drop()).block();
+    }
+
+    @Test
+    void should_refuseFind_when_strictValuesOnAndValueHasDollarKey() {
+        // Given
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, STRICT_VALUES, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(
+                configMap, BODY, "{ \"find\": \"users\", \"filter\": { \"name\": {{Input1.text}} } }");
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(List.of(objectParam("Input1.text", "{\"$custom\": 1}")));
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // When
+        Mono<ActionExecutionResult> executeMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(conn ->
+                        pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+
+        // Then
+        StepVerifier.create(executeMono)
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithPluginException.class);
+                    assertThat(((AppsmithPluginException) error).getError())
+                            .isEqualTo(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR);
+                })
+                .verify();
+    }
+
+    @Test
+    void should_runFormFind_when_strictValuesOnAndValueIsPlainJson() {
+        // Given
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, STRICT_VALUES, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "FIND");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, FIND_QUERY, "{{Input1.text}}");
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(List.of(objectParam("Input1.text", "{\"gender\": \"F\"}")));
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // When
+        Mono<ActionExecutionResult> executeMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(conn ->
+                        pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+
+        // Then
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertThat(result.getIsExecutionSuccess()).isTrue();
+                    assertThat(((ArrayNode) result.getBody()).size()).isEqualTo(2);
                 })
                 .verifyComplete();
     }

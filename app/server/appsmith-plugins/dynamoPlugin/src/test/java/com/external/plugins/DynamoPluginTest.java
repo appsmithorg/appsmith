@@ -66,8 +66,9 @@ public class DynamoPluginTest {
 
     @SuppressWarnings("rawtypes")
     @Container
-    public static GenericContainer container =
-            new GenericContainer(CompletableFuture.completedFuture("amazon/dynamodb-local")).withExposedPorts(8000);
+    public static GenericContainer container = new GenericContainer(
+                    CompletableFuture.completedFuture("amazon/dynamodb-local:3.3.1"))
+            .withExposedPorts(8000);
 
     private static final DatasourceConfiguration dsConfig = new DatasourceConfiguration();
 

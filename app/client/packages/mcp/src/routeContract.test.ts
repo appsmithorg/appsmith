@@ -112,6 +112,7 @@ function apiInvocations(
     getGitProtectedBranches: async () => api.getGitProtectedBranches(PARAM),
     listGitBranches: async () => api.listGitBranches(PARAM),
     createGitBranch: async () => api.createGitBranch(PARAM, "branch-x"),
+    checkoutGitBranch: async () => api.checkoutGitBranch(PARAM, "branch-x"),
     commitGitApplication: async () =>
       api.commitGitApplication(PARAM, "message-x"),
     listActions: async () => api.listActions(PARAM),

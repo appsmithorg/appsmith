@@ -88,6 +88,7 @@ const CORE_TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
   update_theme: WRITE,
   create_page: WRITE,
   rename_page: WRITE,
+  set_page_visibility: WRITE,
   create_datasource: WRITE_IDEMPOTENT,
   create_query: WRITE_IDEMPOTENT,
   create_rest_api: WRITE_IDEMPOTENT,
@@ -109,16 +110,20 @@ const CORE_TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
   prepare_publish: WRITE,
   prepare_commit: WRITE,
   prepare_delete_page: WRITE,
+  prepare_remove_widgets: WRITE,
   prepare_delete_action: WRITE,
   prepare_run_action: WRITE,
   prepare_delete_js_object: WRITE,
+  prepare_replace_js_object: WRITE,
 
   // confirm_* executes the irreversible half.
   confirm_rollback: DESTRUCTIVE,
   confirm_publish: DESTRUCTIVE,
   confirm_delete_page: DESTRUCTIVE,
+  confirm_remove_widgets: DESTRUCTIVE,
   confirm_delete_action: DESTRUCTIVE,
   confirm_delete_js_object: DESTRUCTIVE,
+  confirm_replace_js_object: DESTRUCTIVE,
   // Commit always pushes to the remote; a confirmed run executes an arbitrary action against its datasource.
   confirm_commit: DESTRUCTIVE_EXTERNAL,
   confirm_run_action: DESTRUCTIVE_EXTERNAL,

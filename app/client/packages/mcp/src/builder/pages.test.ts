@@ -2,9 +2,11 @@ import {
   buildCreatePageRequest,
   buildDeletePageRequest,
   buildRenamePageRequest,
+  buildSetPageVisibilityRequest,
   createPageSpecSchema,
   deletePageSpecSchema,
   renamePageSpecSchema,
+  setPageVisibilitySpecSchema,
 } from "./pages.js";
 
 const applicationId = "a".repeat(24);
@@ -54,6 +56,44 @@ describe("page CRUD request builders", () => {
       },
       destructive: false,
     });
+  });
+
+  it.each([true, false])(
+    "APP-16324 F4: builds a minimal visibility request (hidden %s)",
+    (hidden) => {
+      expect(
+        buildSetPageVisibilityRequest(
+          setPageVisibilitySpecSchema.parse({
+            applicationId,
+            pageId,
+            revision,
+            hidden,
+          }),
+        ),
+      ).toEqual({
+        applicationId,
+        revision,
+        method: "PUT",
+        path: `v1/pages/${pageId}`,
+        body: { isHidden: hidden },
+        destructive: false,
+      });
+    },
+  );
+
+  it.each([
+    ["no hidden flag", { applicationId, pageId, revision }],
+    [
+      "a non-boolean hidden flag",
+      { applicationId, pageId, revision, hidden: "yes" },
+    ],
+    [
+      "an extra field",
+      { applicationId, pageId, revision, hidden: true, name: "x" },
+    ],
+    ["no revision", { applicationId, pageId, hidden: true }],
+  ])("APP-16324 F4: rejects a visibility spec with %s", (_label, spec) => {
+    expect(setPageVisibilitySpecSchema.safeParse(spec).success).toBe(false);
   });
 
   it("builds a minimal rename request", () => {
@@ -166,4 +206,36 @@ describe("page names reject binding syntax and line separators", () => {
       ).toBe(false);
     }
   });
+});
+
+// navigateTo treats a target that is not a page name as a URL and adds https://, so a page named like a numeric IP
+// could become a redirect to that IP. Such names are refused when creating or renaming a page.
+describe("page names that read as an IP address", () => {
+  it.each(["1572395042", "0x5db8d822", "12"])(
+    "refuses %s on create and rename",
+    (name) => {
+      expect(
+        createPageSpecSchema.safeParse({ applicationId, revision, name })
+          .success,
+      ).toBe(false);
+      expect(
+        renamePageSpecSchema.safeParse({
+          applicationId,
+          pageId: "p".repeat(24),
+          revision,
+          name,
+        }).success,
+      ).toBe(false);
+    },
+  );
+
+  it.each(["Orders", "Page 1", "2024 report", "Q4-2024"])(
+    "still accepts %s",
+    (name) => {
+      expect(
+        createPageSpecSchema.safeParse({ applicationId, revision, name })
+          .success,
+      ).toBe(true);
+    },
+  );
 });

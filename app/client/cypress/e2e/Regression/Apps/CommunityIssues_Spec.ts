@@ -410,13 +410,21 @@ describe(
         "multiselectwidget",
       );
       agHelper.ClickButton("Save");
-      table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
-        expect(cellData).to.be.equal("Troubleshooting");
-      });
-
-      table.ReadTableRowColumnData(0, 1, "v2").then((cellData) => {
-        expect(cellData).to.be.equal(updatedIssueTitle);
-      });
+      // The table refreshes after the update query returns; retry until it does.
+      agHelper
+        .GetElement(
+          table._tableRowColumnData(0, 0, "v2"),
+          "exist",
+          Cypress.config("defaultCommandTimeout"),
+        )
+        .should("have.text", "Troubleshooting");
+      agHelper
+        .GetElement(
+          table._tableRowColumnData(0, 1, "v2"),
+          "exist",
+          Cypress.config("defaultCommandTimeout"),
+        )
+        .should("have.text", updatedIssueTitle);
     });
 
     it("10. Validate Deleting the newly created issue", () => {

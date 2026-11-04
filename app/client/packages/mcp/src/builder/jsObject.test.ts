@@ -355,6 +355,39 @@ describe("jsExpr grammar in a JS object — params, steps and expression returns
   });
 });
 
+describe("APP-16324 F11: navigate params survive the JS-object round trip", () => {
+  it("compiles navigate params, embeds them in the definition, and reads them back exactly", () => {
+    const definition = {
+      functions: [
+        {
+          name: "openDetails",
+          steps: [
+            {
+              navigate: "Ticket Details",
+              params: {
+                id: { table: "tblTickets", column: "zid" },
+                tab: "open",
+              },
+            },
+          ],
+        },
+      ],
+    };
+    const spec = createJsObjectSpecSchema.parse({
+      ...createSpec,
+      constants: undefined,
+      ...definition,
+    });
+    const body = compileJsObject(spec);
+
+    expect(body).toContain(
+      'await navigateTo("Ticket Details", { id: tblTickets.selectedRow["zid"], tab: "open" }, "SAME_WINDOW");',
+    );
+    expect(jsObjectDefinitionFromBody(body)).toEqual(definition);
+    expect(isCompilerAuthoredJsBody(body)).toBe(true);
+  });
+});
+
 describe("isCompilerAuthoredJsBody — recognises exactly what compileJsObject emits", () => {
   it("accepts every shape the compiler produces", () => {
     const shapes = [
@@ -478,11 +511,11 @@ describe("definition marker — availability and versioning (council M2 security
     const encoded = body.slice(body.lastIndexOf(" /* mcp-spec:") + 13, -3);
     const payload = JSON.parse(Buffer.from(encoded, "base64").toString("utf8"));
 
-    expect(payload.v).toBe(1);
+    expect(payload.v).toBe(2);
     expect(jsObjectDefinitionFromBody(body)).toEqual(definition);
 
     const other = Buffer.from(
-      JSON.stringify({ ...payload, v: 2 }),
+      JSON.stringify({ ...payload, v: 99 }),
       "utf8",
     ).toString("base64");
     const code = body.slice(0, body.lastIndexOf(" /* mcp-spec:"));
@@ -886,5 +919,59 @@ describe("returns: an Expr leaf is never mistaken for a legacy literal record", 
     expect(source).toContain('Orders.selectedRow["id"]');
     // A genuine legacy record (only literal values, no grammar key) still compiles as a record.
     expect(source).toContain("return { done: true, count: 2 };");
+  });
+});
+
+describe("returns { user } (APP-16381)", () => {
+  it("reads the signed-in user, while an older literal record with a user key stays a record", () => {
+    const spec = (returns: unknown) =>
+      createJsObjectSpecSchema.parse({
+        ...createSpec,
+        functions: [{ name: "who", returns }],
+      });
+
+    expect(compileJsObjectCode(spec({ user: "email" }))).toContain(
+      "return appsmith.user.email",
+    );
+    expect(
+      compileJsObjectCode(spec({ user: "someone", role: "admin" })),
+    ).toContain('return { user: "someone", role: "admin" }');
+  });
+});
+
+describe("review regressions: version-1 user literal records", () => {
+  it.each(["name", "email", "username"])(
+    "keeps an old user: %s return editable as a literal record",
+    (user) => {
+      const old = { functions: [{ name: "who", returns: { user } }] };
+      const code = `export default { who: async function () { return { user: "${user}" }; } };`;
+      const body = `${code} /* mcp-spec:${Buffer.from(JSON.stringify({ v: 1, ...old })).toString("base64")} */`;
+      const decoded = jsObjectDefinitionFromBody(body);
+
+      expect(decoded).toEqual({
+        functions: [{ name: "who", returns: { object: { user } } }],
+      });
+      expect(compileJsObjectCode(decoded!)).toBe(code);
+      expect(jsObjectDefinitionFromBody(compileJsObject(decoded!))).toEqual(
+        decoded,
+      );
+      expect(
+        jsObjectDefinitionFromBody(
+          body.replace(
+            "return { user:",
+            "return appsmith.user.email; /* { user:",
+          ),
+        ),
+      ).toBeUndefined();
+    },
+  );
+  it("round-trips new user expressions without treating them as records", () => {
+    const definition = jsObjectDefinitionSchema.parse({
+      functions: [{ name: "who", returns: { user: "email" } }],
+    });
+
+    expect(jsObjectDefinitionFromBody(compileJsObject(definition))).toEqual(
+      definition,
+    );
   });
 });

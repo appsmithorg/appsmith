@@ -1,0 +1,123 @@
+{
+  "DescribeTable_populated": {
+    "body": {
+      "Table": {
+        "ArchivalSummary": null,
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "Artist",
+            "AttributeType": "S"
+          }
+        ],
+        "BillingModeSummary": {
+          "BillingMode": "PROVISIONED",
+          "LastUpdateToPayPerRequestDateTime": null
+        },
+        "CreationDateTime": "Instant:2017-03-15T18:33:17.149Z",
+        "DeletionProtectionEnabled": null,
+        "GlobalSecondaryIndexes": [
+          {
+            "Backfilling": null,
+            "IndexArn": null,
+            "IndexName": "TitleIndex",
+            "IndexSizeBytes": null,
+            "IndexStatus": "ACTIVE",
+            "ItemCount": null,
+            "KeySchema": [],
+            "OnDemandThroughput": null,
+            "Projection": {
+              "NonKeyAttributes": [],
+              "ProjectionType": "KEYS_ONLY"
+            },
+            "ProvisionedThroughput": null,
+            "WarmThroughput": null
+          }
+        ],
+        "GlobalTableSettingsReplicationMode": null,
+        "GlobalTableVersion": null,
+        "GlobalTableWitnesses": [],
+        "ItemCount": 12,
+        "KeySchema": [
+          {
+            "AttributeName": "Artist",
+            "KeyType": "HASH"
+          }
+        ],
+        "LatestStreamArn": null,
+        "LatestStreamLabel": null,
+        "LocalSecondaryIndexes": [],
+        "MultiRegionConsistency": null,
+        "OnDemandThroughput": null,
+        "ProvisionedThroughput": {
+          "LastDecreaseDateTime": null,
+          "LastIncreaseDateTime": null,
+          "NumberOfDecreasesToday": 0,
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5
+        },
+        "Replicas": [],
+        "RestoreSummary": null,
+        "SSEDescription": null,
+        "StreamSpecification": {
+          "StreamEnabled": true,
+          "StreamViewType": "NEW_IMAGE"
+        },
+        "TableArn": "arn:aws:dynamodb:us-east-1:123456789012:table/Music",
+        "TableClassSummary": null,
+        "TableId": null,
+        "TableName": "Music",
+        "TableSizeBytes": 2048,
+        "TableStatus": "ACTIVE",
+        "VectorIndexes": [],
+        "WarmThroughput": null
+      }
+    },
+    "isExecutionSuccess": true
+  },
+  "GetItem_everyAttributeValueKind": {
+    "body": "class java.util.HashMap cannot be cast to class java.util.List (java.util.HashMap and java.util.List are in module java.base of loader 'bootstrap')",
+    "errorType": "INTERNAL_ERROR",
+    "isExecutionSuccess": false,
+    "pluginErrorDetails": {
+      "appsmithErrorCode": "PE-DYN-5000",
+      "appsmithErrorMessage": "Error occurred while executing DynamoDB query.",
+      "downstreamErrorCode": null,
+      "downstreamErrorMessage": "class java.util.HashMap cannot be cast to class java.util.List (java.util.HashMap and java.util.List are in module java.base of loader 'bootstrap')",
+      "errorType": "INTERNAL_ERROR",
+      "title": "Query execution error"
+    },
+    "statusCode": "PE-DYN-5000",
+    "title": "Query execution error"
+  },
+  "Query_page": {
+    "body": {
+      "ConsumedCapacity": {
+        "CapacityUnits": 0.5,
+        "GlobalSecondaryIndexes": {},
+        "LocalSecondaryIndexes": {},
+        "ReadCapacityUnits": null,
+        "Table": {
+          "CapacityUnits": 0.5,
+          "ReadCapacityUnits": null,
+          "WriteCapacityUnits": null
+        },
+        "TableName": "Music",
+        "VectorIndexes": {},
+        "WriteCapacityUnits": null
+      },
+      "Count": 1,
+      "Items": [
+        {
+          "Artist": "A",
+          "SongTitle": "S1"
+        }
+      ],
+      "LastEvaluatedKey": {
+        "Artist": "A",
+        "SongTitle": "S1"
+      },
+      "ScannedCount": 3
+    },
+    "isExecutionSuccess": true
+  }
+}

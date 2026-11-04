@@ -112,27 +112,9 @@ jobs:
       - name: Print the Github event
         run: echo ${{ github.event_name }}
 
-      - name: Get changed files in the server folder
-        id: changed-files-specific
-        uses: tj-actions/changed-files@v46
-        with:
-          files: "app/server/**"
-          write_output_files: true
-
-      # - name: Updating the server changed file variable
-      #   id: changed-files-specific
-      #   run: echo "any_modified=true" >> "$GITHUB_OUTPUT"
-
-      - name: Run step if any file(s) in the server folder change
-        if: steps.changed-files-specific.outputs.any_modified == 'true'
-        run: |
-          echo "One or more files in the server folder has changed."
-          echo "List all the files that have changed:"
-          cat "${{ github.workspace }}/.github/outputs/all_modified_files.txt"
-
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        if: inputs.skip-tests != 'true' && (steps.changed-files-specific.outputs.any_modified == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: inputs.skip-tests != 'true'
         id: cache-appsmith
         uses: actions/cache@v4
         with:
@@ -142,7 +124,7 @@ jobs:
 
       # Fetch prior run result
       - name: Get the previous run result
-        if: inputs.skip-tests != 'true' && (steps.changed-files-specific.outputs.any_modified == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: inputs.skip-tests != 'true'
         id: run_result
         run: |
           if [ -f ~/run_result ]; then
@@ -152,7 +134,7 @@ jobs:
           fi
 
       - name: Download the failed test artifact in case of rerun
-        if: steps.run_result.outputs.run_result == 'failedtest' && (steps.changed-files-specific.outputs.any_modified == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: steps.run_result.outputs.run_result == 'failedtest'
         uses: actions/download-artifact@v4
         with:
           name: failed-server-tests
@@ -167,7 +149,7 @@ jobs:
           echo "tests=$failed_tests" >> $GITHUB_OUTPUT
 
       # In case of prior failure run the job
-      - if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_modified == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+      - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
       # Setup Java
@@ -182,7 +164,7 @@ jobs:
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
-        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_modified == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: steps.run_result.outputs.run_result != 'success'
         uses: actions/cache@v4
         env:
           cache-name: cache-maven-dependencies
@@ -194,13 +176,13 @@ jobs:
 
       # Build the code
       - name: Build
-        if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_modified == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: steps.run_result.outputs.run_result != 'success'
         run: |
           ./build.sh -DskipTests
 
       # Test the code
       - name: Run only tests
-        if: (inputs.skip-tests != 'true' || steps.run_result.outputs.run_result == 'failedtest')  && (steps.changed-files-specific.outputs.any_modified == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        if: inputs.skip-tests != 'true' || steps.run_result.outputs.run_result == 'failedtest'
         env:
           ACTIVE_PROFILE: test
           APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
@@ -336,39 +318,6 @@ jobs:
           if-no-files-found: ignore
           overwrite: true
 
-      - name: Fetch server build from cache
-        if: steps.changed-files-specific.outputs.any_modified == 'false' && success()  && github.event_name != 'push' && github.event_name != 'workflow_dispatch'  && github.event_name != 'schedule'
-        env:
-          cachetoken: ${{ secrets.CACHETOKEN }}
-          reponame: ${{ github.event.repository.name }}
-          gituser: ${{ secrets.CACHE_GIT_USER }}
-          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
-        run: |
-          mkdir cacherepo
-          cd ./cacherepo
-          git lfs install
-          git config --global user.email "$gituseremail"
-          git config --global user.name "$gituser"
-          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
-          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
-          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
-          cd cibuildcache/$repodir/release/server
-          git lfs install
-          git lfs migrate import --everything --yes
-          git lfs pull ./server.jar
-          mv ./server.jar ../../../../../server.jar
-          cd ../../../../../
-          tar -xzvf ./server.jar
-
-      # Restore the previous built bundle if present. If not push the newly built into the cache
-      - name: Restore the previous bundle
-        if: steps.changed-files-specific.outputs.any_modified == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/cache@v4
-        with:
-          path: |
-            app/server/dist/
-          key: ${{ github.run_id }}-${{ github.job }}-server
-
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
         uses: actions/upload-artifact@v4
@@ -376,32 +325,6 @@ jobs:
           name: server-build
           path: app/server/dist/
           overwrite: true
-
-      - name: Put release build in cache
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
-        env:
-          cachetoken: ${{ secrets.CACHETOKEN }}
-          reponame: ${{ github.event.repository.name }}
-          gituser: ${{ secrets.CACHE_GIT_USER }}
-          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
-        run: |
-          pwd
-          tar -czvf server.jar dist/
-          mkdir cacherepo
-          cd ./cacherepo
-          git config --global user.email "$gituseremail"
-          git config --global user.name "$gituser"
-          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
-          git lfs install
-          cd cibuildcache/
-          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
-          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
-          cd $repodir/release/server
-          cp ../../../../../server.jar ./
-          git lfs track "server.jar"
-          git add  server.jar
-          git commit --allow-empty -m "Update Latest Server.jar"
-          git push
 
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result

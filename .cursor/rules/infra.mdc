@@ -35,7 +35,7 @@ Systemd service template for Keycloak 16.1.1 as identity provider (SSO/SAML/OIDC
 
 ## CI/CD Scripts (`scripts/`)
 
-Key scripts: `deploy_preview.sh`, `build_dp_from_branch.sh`, `cleanup_dp.sh`, `health_check.sh`, `generate_info_json.sh`, `prepare_server_artifacts.sh`, `local_testing.sh`
+Key scripts: `deploy_preview.sh`, `cleanup_dp.sh`, `health_check.sh`, `generate_info_json.sh`, `prepare_server_artifacts.sh`, `local_testing.sh`
 
 ## Developer Docs (`contributions/`)
 
