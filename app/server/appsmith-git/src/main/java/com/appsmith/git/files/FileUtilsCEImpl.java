@@ -608,31 +608,33 @@ public class FileUtilsCEImpl implements FileInterface {
     public Mono<Boolean> deleteLocalRepo(Path baseRepoSuffix) {
         // Remove the complete directory from path: baseRepo/workspaceId/defaultApplicationId
         return Mono.fromCallable(() -> {
-            Path repoParent = Paths.get(gitServiceConfig.getGitRootPath())
-                    .resolve(baseRepoSuffix)
-                    .getParent();
-            deleteDirectoryWithRetry(repoParent);
-            return Boolean.TRUE;
-        });
+                    Path repoParent = Paths.get(gitServiceConfig.getGitRootPath())
+                            .resolve(baseRepoSuffix)
+                            .getParent();
+                    deleteDirectoryWithRetry(repoParent);
+                    return Boolean.TRUE;
+                })
+                .subscribeOn(scheduler);
     }
 
     @Override
     public Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) {
         return Mono.fromCallable(() -> {
-            File[] files = Paths.get(gitServiceConfig.getGitRootPath())
-                    .resolve(baseRepoSuffix)
-                    .toFile()
-                    .listFiles();
-            for (File file : files) {
-                if (!ALLOWED_FILE_EXTENSION_PATTERN.matcher(file.getName()).matches()
-                        && !file.getName().equals("LICENSE")) {
-                    // Remove the cloned repo from the file system since the repo doesnt satisfy the criteria
-                    deleteDirectoryWithRetry(file.toPath());
-                    return false;
-                }
-            }
-            return true;
-        });
+                    File[] files = Paths.get(gitServiceConfig.getGitRootPath())
+                            .resolve(baseRepoSuffix)
+                            .toFile()
+                            .listFiles();
+                    for (File file : files) {
+                        if (!ALLOWED_FILE_EXTENSION_PATTERN.matcher(file.getName()).matches()
+                                && !file.getName().equals("LICENSE")) {
+                            // Remove the cloned repo from the file system since the repo doesnt satisfy the criteria
+                            deleteDirectoryWithRetry(file.toPath());
+                            return false;
+                        }
+                    }
+                    return true;
+                })
+                .subscribeOn(scheduler);
     }
 
     /**

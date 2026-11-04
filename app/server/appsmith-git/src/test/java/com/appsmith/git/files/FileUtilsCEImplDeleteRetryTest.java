@@ -9,6 +9,7 @@ import com.appsmith.git.handler.FSGitHandlerImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -17,6 +18,7 @@ import org.mockito.Mockito;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
@@ -101,10 +103,12 @@ class FileUtilsCEImplDeleteRetryTest {
         Files.createDirectories(target);
         Files.writeString(target.resolve("sticky.txt"), "cannot delete me");
         Files.setPosixFilePermissions(target, PosixFilePermissions.fromString("r-x------"));
+        Assumptions.assumeFalse(
+                Files.isWritable(target), "Permissions are not enforced (running as root?)");
 
         // When / Then — zero delay so the test stays fast; still exercises bounded attempts
         assertThatThrownBy(() -> fileUtils.deleteDirectoryWithRetry(target, 3, 0L))
-                .isInstanceOf(IOException.class);
+                .isInstanceOf(FileSystemException.class);
         assertThat(Files.exists(target)).isTrue();
     }
 
@@ -117,10 +121,12 @@ class FileUtilsCEImplDeleteRetryTest {
         Files.createDirectories(LOCAL_TEST_DIRECTORY_PATH.resolve(repoSuffix));
         Files.writeString(appParent.resolve("sticky.txt"), "cannot delete me");
         Files.setPosixFilePermissions(appParent, PosixFilePermissions.fromString("r-x------"));
+        Assumptions.assumeFalse(
+                Files.isWritable(appParent), "Permissions are not enforced (running as root?)");
 
         // When / Then — production delay is 100ms × 2 waits; bound the wait so a hang would fail the test
         StepVerifier.create(fileUtils.deleteLocalRepo(repoSuffix))
-                .expectError(IOException.class)
+                .expectError(FileSystemException.class)
                 .verify(Duration.ofSeconds(5));
     }
 }
