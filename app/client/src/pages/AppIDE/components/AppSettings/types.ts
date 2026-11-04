@@ -1,4 +1,5 @@
 import type { NavigationSetting } from "constants/AppConstants";
+import type { Page } from "entities/Page";
 
 export type UpdateSetting = (
   key: keyof NavigationSetting,
@@ -19,4 +20,11 @@ export enum AppSettingsTabs {
   Import,
   /** A section added by another edition. See `SelectedTab.editionSectionId`. */
   Edition,
+}
+
+export interface SelectedTab {
+  type: AppSettingsTabs;
+  page?: Page;
+  /** Tells edition sections apart when `type` is `AppSettingsTabs.Edition`. */
+  editionSectionId?: string;
 }

@@ -35,15 +35,10 @@ import { Divider } from "@appsmith/ads";
 import { ImportAppSettings } from "./components/ImportAppSettings";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
-import { AppSettingsTabs } from "./types";
+import { AppSettingsTabs, type SelectedTab } from "./types";
 import { useEditionAppSettingsSections } from "ee/pages/AppIDE/components/AppSettings/useEditionAppSettingsSections";
 
-export interface SelectedTab {
-  type: AppSettingsTabs;
-  page?: Page;
-  /** Tells edition sections apart when `type` is `AppSettingsTabs.Edition`. */
-  editionSectionId?: string;
-}
+export type { SelectedTab };
 
 const Wrapper = styled.div`
   height: calc(100% - 48px);

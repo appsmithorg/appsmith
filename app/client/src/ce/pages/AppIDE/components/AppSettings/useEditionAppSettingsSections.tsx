@@ -1,6 +1,6 @@
 import type React from "react";
 import type { SectionHeaderProps } from "IDE/Components/SectionHeader";
-import type { SelectedTab } from "pages/AppIDE/components/AppSettings/AppSettings";
+import type { SelectedTab } from "pages/AppIDE/components/AppSettings/types";
 
 export interface EditionAppSettingsSectionsParams {
   selectedTab: SelectedTab;

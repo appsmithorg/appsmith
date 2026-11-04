@@ -114,4 +114,48 @@ describe("AppSettings edition sections", () => {
 
     expect(screen.getByText("edition content")).toBeInTheDocument();
   });
+
+  it("renders only the content of the edition section that was clicked", () => {
+    const header = (
+      id: string,
+      setSelectedTab: (tab: {
+        type: AppSettingsTabs;
+        editionSectionId?: string;
+      }) => void,
+    ) => ({
+      id: `t--edition-${id}-header`,
+      icon: "settings-v3",
+      isSelected: false,
+      name: `Section ${id}`,
+      onClick: () =>
+        setSelectedTab({
+          type: AppSettingsTabs.Edition,
+          editionSectionId: id,
+        }),
+      subText: `Edition section ${id}`,
+    });
+
+    mockUseEditionSections.mockImplementation(({ setSelectedTab }) => ({
+      headers: [
+        header("first", setSelectedTab),
+        header("second", setSelectedTab),
+      ],
+      renderSection: (tab: { editionSectionId?: string }) =>
+        tab.editionSectionId ? (
+          <div>{`content ${tab.editionSectionId}`}</div>
+        ) : null,
+    }));
+
+    renderSettings();
+
+    fireEvent.click(screen.getByText("Section first"));
+
+    expect(screen.getByText("content first")).toBeInTheDocument();
+    expect(screen.queryByText("content second")).toBeNull();
+
+    fireEvent.click(screen.getByText("Section second"));
+
+    expect(screen.getByText("content second")).toBeInTheDocument();
+    expect(screen.queryByText("content first")).toBeNull();
+  });
 });
