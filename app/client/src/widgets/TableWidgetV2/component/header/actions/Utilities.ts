@@ -1,5 +1,4 @@
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
-import { getTextFromHTML } from "widgets/TableWidgetV2/utilities/getTextFromHTML";
+import { getExportCellValue } from "widgets/TableWidgetV2/utilities/getExportCellValue";
 import type { TableColumnProps } from "../../Constants";
 import { isString } from "lodash";
 
@@ -36,9 +35,7 @@ export const transformTableDataIntoCsv = (props: {
       let value = data[column.alias];
 
       if (column.metaProperties && !column.metaProperties.isHidden) {
-        if (column.metaProperties.type === ColumnTypes.HTML) {
-          value = getTextFromHTML(value);
-        }
+        value = getExportCellValue(column.metaProperties.type, value);
 
         // Collapse newlines (LF, CRLF, CR) so a cell cannot split CSV rows.
         if (isString(value)) {

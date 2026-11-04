@@ -156,6 +156,30 @@ describe("TransformTableDataIntoArrayOfArray", () => {
     );
   });
 
+  it("keeps HTML-looking markup for non-HTML columns", () => {
+    const data = [
+      {
+        id: "<p>abc</p>",
+      },
+      {
+        id: "<table><tr><td>abc</td></tr></table>",
+      },
+    ];
+    const csvData = transformTableDataIntoCsv({
+      columns,
+      data,
+    });
+    const expectedCsvData = [
+      ["Id"],
+      ["<p>abc</p>"],
+      ["<table><tr><td>abc</td></tr></table>"],
+    ];
+
+    expect(JSON.stringify(csvData)).toStrictEqual(
+      JSON.stringify(expectedCsvData),
+    );
+  });
+
   it("strips HTML markup for HTML columns", () => {
     const data = [
       {
