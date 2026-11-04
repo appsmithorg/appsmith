@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import {
   getCurrentActions,
   getCurrentPageWidgets,
+  getHiddenPluginIds,
   getPluginIdPackageNamesMap,
   getPlugins,
   getQueryModuleInstances,
@@ -304,7 +305,23 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
       .filter(Boolean);
   }, [currentPageWidgets, addBinding, isConnectableToWidget]);
 
-  return { queryOptions, widgetOptions };
+  // Queries of hidden plugins (see isHiddenPlugin) are not offered for new
+  // bindings. queryOptions keeps them, so an existing binding still resolves
+  // to its label.
+  const hiddenPluginIds = useSelector(getHiddenPluginIds);
+  const visibleQueryOptions = useMemo(() => {
+    const hiddenQueryIds = new Set(
+      [...pageQueries, ...moduleQueries]
+        .filter((query) => hiddenPluginIds.has(query.config.pluginId))
+        .map((query) => query.config.id),
+    );
+
+    if (hiddenQueryIds.size === 0) return queryOptions;
+
+    return queryOptions.filter((option) => !hiddenQueryIds.has(option.id));
+  }, [pageQueries, moduleQueries, hiddenPluginIds, queryOptions]);
+
+  return { queryOptions, visibleQueryOptions, widgetOptions };
 }
 
 export default useConnectToOptions;

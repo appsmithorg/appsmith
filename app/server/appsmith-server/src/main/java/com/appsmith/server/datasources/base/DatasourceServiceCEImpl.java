@@ -370,6 +370,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         datasource.setId(id);
         // Since policies are a server only concept, first set the empty set (set by constructor) to null
         datasource.setPolicies(null);
+        // The workspace a datasource belongs to is fixed at creation. Never take it from an update body.
+        datasource.setWorkspaceId(null);
         // this is important to avoid polluting the collection with configuration when we are saving the datasource
         // check method docstring for description
         datasource.nullifyStorageReplicaFields();

@@ -37,6 +37,16 @@ export interface PreparedConfirmation {
   context?: Record<string, unknown>;
 }
 
+// The definition behind a readable JS-object body (see rememberJsDefinition in builder/jsObject.ts). A readable body
+// carries no marker, so the definition an agent edits is kept here, keyed by the SHA-256 of the exact body text.
+// `definition` is the JSON text of the definition.
+export interface McpJsDefinitionRecord {
+  organizationId: string;
+  codeHash: string;
+  definition: string;
+  createdAt: Date;
+}
+
 export interface McpGovernanceStore {
   acquireLock(entityKey: string, ttlMs: number): Promise<string | undefined>;
   releaseLock(entityKey: string, lockId: string): Promise<void>;
@@ -72,6 +82,13 @@ export interface McpGovernanceStore {
     organizationId: string,
     limit: number,
   ): Promise<McpChangeRecord[]>;
+  // Optional: a store without them makes the server keep writing JS objects in the original one-line layout, whose
+  // marker carries the definition inside the body. Both are scoped to the caller's organization.
+  saveJsDefinition?(record: McpJsDefinitionRecord): Promise<void>;
+  findJsDefinitions?(
+    organizationId: string,
+    codeHashes: readonly string[],
+  ): Promise<McpJsDefinitionRecord[]>;
 }
 
 const LOCK_PREFIX = "appsmith:mcp:lock:";
@@ -138,6 +155,7 @@ function reviveConfirmation(value: string): PreparedConfirmation | undefined {
 // governance metadata around authorized REST mutations made by the MCP service.
 export class MongoRedisGovernanceStore implements McpGovernanceStore {
   private readonly changes: Collection<McpChangeRecord>;
+  private readonly jsDefinitions: Collection<McpJsDefinitionRecord>;
 
   constructor(
     private readonly mongo: MongoClient,
@@ -150,6 +168,9 @@ export class MongoRedisGovernanceStore implements McpGovernanceStore {
     this.changes = mongo
       .db(databaseName)
       .collection<McpChangeRecord>("mcp_changes");
+    this.jsDefinitions = mongo
+      .db(databaseName)
+      .collection<McpJsDefinitionRecord>("mcp_js_definitions");
   }
 
   async connect(): Promise<void> {
@@ -169,6 +190,12 @@ export class MongoRedisGovernanceStore implements McpGovernanceStore {
     // Reclaims records whose stamped expiresAt has passed (see DEFAULT_CHANGE_RETENTION_MS in coordinator.ts).
     // The coordinator MUST stamp expiresAt — Mongo's TTL silently skips documents that lack the field.
     await this.changes.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+    // One record per organization and body. Records never expire: a JS object can stay unchanged for years, and
+    // without its record it reads back as editor-authored.
+    await this.jsDefinitions.createIndex(
+      { organizationId: 1, codeHash: 1 },
+      { unique: true },
+    );
   }
 
   async close(): Promise<void> {
@@ -240,6 +267,29 @@ export class MongoRedisGovernanceStore implements McpGovernanceStore {
 
   async saveChange(change: McpChangeRecord): Promise<void> {
     await this.changes.insertOne(change);
+  }
+
+  async saveJsDefinition(record: McpJsDefinitionRecord): Promise<void> {
+    // The same body always comes from the same definition, so an existing record is kept as it is.
+    await this.jsDefinitions.updateOne(
+      { organizationId: record.organizationId, codeHash: record.codeHash },
+      { $setOnInsert: record },
+      { upsert: true },
+    );
+  }
+
+  async findJsDefinitions(
+    organizationId: string,
+    codeHashes: readonly string[],
+  ): Promise<McpJsDefinitionRecord[]> {
+    if (codeHashes.length === 0) return [];
+
+    return this.jsDefinitions
+      .find(
+        { organizationId, codeHash: { $in: [...codeHashes] } },
+        { projection: { _id: 0 } },
+      )
+      .toArray();
   }
 
   async getChange(

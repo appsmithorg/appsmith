@@ -38,6 +38,11 @@ public class RateLimitConfig {
                 createBucketConfiguration(Duration.ofMinutes(1), 5));
         apiConfigurationMap.put(
                 RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, createBucketConfiguration(Duration.ofDays(1), 5));
+        // Per-client-IP cap for self-serve signup: at most 20 signups per IP per 24h. Cloud sees roughly 140-200
+        // signups a day in total, so a single address legitimately creating 20 accounts in a day is implausible,
+        // while a scripted create/delete loop (about 10,900 users a day from one organization) is stopped at 20.
+        apiConfigurationMap.put(
+                RateLimitConstants.BUCKET_KEY_FOR_SIGNUP_API, createBucketConfiguration(Duration.ofDays(1), 20));
         apiConfigurationMap.put(
                 RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API,
                 createBucketConfiguration(Duration.ofSeconds(5), 3));

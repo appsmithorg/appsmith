@@ -7,10 +7,15 @@ on:
     paths:
       - "app/client/packages/design-system/**"
       - "app/client/packages/storybook/**"
+      - "app/client/yarn.lock"
   pull_request:
     paths:
       - "app/client/packages/design-system/**"
       - "app/client/packages/storybook/**"
+      - "app/client/yarn.lock"
+
+permissions:
+  contents: read
 
 jobs:
   storybook-tests:

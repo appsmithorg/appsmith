@@ -125,10 +125,13 @@ describe("M6 modal graph — structural extraction and DSL scan", () => {
       node("Weird", "BUTTON_WIDGET", [], {
         onClick: `{{ showModal(dynamicName) }}`,
       }),
-      // A nested trigger path (table row button) is outside the scan and counted.
+      // A nested trigger path other than a column's onClick (a menu-button column item) is outside the scan and
+      // counted.
       {
         ...node("Table1", "TABLE_WIDGET_V2", []),
-        dynamicTriggerPathList: [{ key: "primaryColumns.x.onClick" }],
+        dynamicTriggerPathList: [
+          { key: "primaryColumns.x.menuItems.y.onClick" },
+        ],
       } as unknown as WidgetNode,
       // Non-trigger string props are never scanned even if they contain the text.
       node("Label", "TEXT_WIDGET", []),
@@ -137,6 +140,37 @@ describe("M6 modal graph — structural extraction and DSL scan", () => {
 
     expect(graph.edges).toEqual([]);
     expect(graph.excludedBindings).toBe(3);
+  });
+
+  it("scans a table column's onClick, which wire_event writes (APP-16381)", () => {
+    const table = {
+      ...node("Licenses", "TABLE_WIDGET_V2", []),
+      primaryColumns: {
+        extend: { columnType: "button", onClick: "{{ showModal('Extend') }}" },
+      },
+      dynamicTriggerPathList: [{ key: "primaryColumns.extend.onClick" }],
+    } as unknown as WidgetNode;
+    const graph = collectModalGraph(page([table, modal("Extend", [])]));
+
+    expect(graph.edges).toEqual([
+      { host: PAGE_HOST, target: "Extend", closesHost: false, via: "Licenses" },
+    ]);
+    expect(graph.excludedBindings).toBe(0);
+    // The column being rewired is skipped, like a top-level event.
+    expect(
+      collectModalGraph(page([table]), {
+        widget: "Licenses",
+        event: "primaryColumns.extend.onClick",
+      }).edges,
+    ).toEqual([]);
+    // A column id that is a prototype name reads nothing.
+    const hostile = {
+      ...node("T2", "TABLE_WIDGET_V2", []),
+      primaryColumns: {},
+      dynamicTriggerPathList: [{ key: "primaryColumns.constructor.onClick" }],
+    } as unknown as WidgetNode;
+
+    expect(collectModalGraph(page([hostile])).edges).toEqual([]);
   });
 
   it("attributes hosts to the nearest enclosing modal and honors the skip parameter", () => {
@@ -303,6 +337,46 @@ describe("M6 modal graph — lint findings and structural rules", () => {
 
     expect(rules).toContain("modal-cycle");
     expect(rules).toContain("modal-analysis-excluded");
+  });
+
+  it("reports a modal that no event opens, and only that one", () => {
+    const dsl = page([
+      button("Open", "{{ showModal('Edit') }}"),
+      modal("Edit", []),
+      modal("Orphan", []),
+    ]);
+    const noOpener = modalStackFindings(dsl).filter(
+      (finding) => finding.rule === "modal-no-opener",
+    );
+
+    expect(noOpener.map((finding) => finding.widget)).toEqual(["Orphan"]);
+  });
+
+  it("does not report a modal without an opener when only part of a binding parsed", () => {
+    const dsl = page([
+      modal("Edit", [
+        button("Next", `{{ closeModal('Edit'); showModal("Orphan") }}`),
+      ]),
+      button("Open", "{{ showModal('Edit') }}"),
+      modal("Orphan", []),
+    ]);
+
+    expect(
+      modalStackFindings(dsl).map((finding) => finding.rule),
+    ).not.toContain("modal-no-opener");
+  });
+
+  it("does not report a modal without an opener when a binding could not be parsed", () => {
+    const dsl = page([
+      node("Weird", "BUTTON_WIDGET", [], {
+        onClick: "{{ showModal(pickModal()) }}",
+      }),
+      modal("Orphan", []),
+    ]);
+
+    expect(
+      modalStackFindings(dsl).map((finding) => finding.rule),
+    ).not.toContain("modal-no-opener");
   });
 
   it("reports a plain stack of depth 2 as a warning finding", () => {

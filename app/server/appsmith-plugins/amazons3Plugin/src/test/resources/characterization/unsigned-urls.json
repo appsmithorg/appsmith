@@ -1,0 +1,1186 @@
+{
+  "amazon-s3 | ignored.example.com": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.s3.us-west-2.amazonaws.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.s3.us-west-2.amazonaws.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.s3.us-west-2.amazonaws.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.s3.us-west-2.amazonaws.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.s3.us-west-2.amazonaws.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.s3.us-west-2.amazonaws.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.s3.us-west-2.amazonaws.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.s3.us-west-2.amazonaws.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.s3.us-west-2.amazonaws.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.s3.us-west-2.amazonaws.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.s3.us-west-2.amazonaws.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.s3.us-west-2.amazonaws.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://s3.us-west-2.amazonaws.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://s3.us-west-2.amazonaws.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://s3.us-west-2.amazonaws.com/my_bucket/dir/file.txt"
+    }
+  },
+  "upcloud | appsmith.de-fra1.upcloudobjects.com": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://appsmith.de-fra1.upcloudobjects.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://appsmith.de-fra1.upcloudobjects.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://appsmith.de-fra1.upcloudobjects.com/my_bucket/dir/file.txt"
+    }
+  },
+  "upcloud | https://appsmith.de-fra1.upcloudobjects.com": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://appsmith.de-fra1.upcloudobjects.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://appsmith.de-fra1.upcloudobjects.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://appsmith.de-fra1.upcloudobjects.com/my_bucket/dir/file.txt"
+    }
+  },
+  "upcloud | http://appsmith.de-fra1.upcloudobjects.com": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "http://my-bucket.appsmith.de-fra1.upcloudobjects.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "http://my-bucket.appsmith.de-fra1.upcloudobjects.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "http://my-bucket.appsmith.de-fra1.upcloudobjects.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "http://my-bucket.appsmith.de-fra1.upcloudobjects.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "http://my-bucket.appsmith.de-fra1.upcloudobjects.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "http://my-bucket.appsmith.de-fra1.upcloudobjects.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "http://my-bucket.appsmith.de-fra1.upcloudobjects.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "http://my-bucket.appsmith.de-fra1.upcloudobjects.com//leading.txt",
+      "my-bucket :: trailing/": "http://my-bucket.appsmith.de-fra1.upcloudobjects.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "http://my-bucket.appsmith.de-fra1.upcloudobjects.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "http://my-bucket.appsmith.de-fra1.upcloudobjects.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "http://my-bucket.appsmith.de-fra1.upcloudobjects.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "http://my.dotted.bucket.appsmith.de-fra1.upcloudobjects.com/dir/file.txt",
+      "MyBucket :: dir/file.txt": "http://appsmith.de-fra1.upcloudobjects.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "http://appsmith.de-fra1.upcloudobjects.com/my_bucket/dir/file.txt"
+    }
+  },
+  "upcloud | appsmith.de-fra1.upcloudobjects.com:443": {
+    "create": "AppsmithPluginException: Your S3 endpoint URL seems to be incorrect for the selected S3 service provider. Please check your endpoint URL and the selected S3 service provider. [PE-DSE-5003 Datasource configuration is invalid]"
+  },
+  "upcloud | appsmith..de-fra1.upcloudobjects.com": {
+    "create": "AppsmithPluginException: Your S3 endpoint URL seems to be incorrect for the selected S3 service provider. Please check your endpoint URL and the selected S3 service provider. [PE-DSE-5003 Datasource configuration is invalid]"
+  },
+  "wasabi | s3.eu-central-1.wasabisys.com": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.s3.eu-central-1.wasabisys.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://s3.eu-central-1.wasabisys.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://s3.eu-central-1.wasabisys.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://s3.eu-central-1.wasabisys.com/my_bucket/dir/file.txt"
+    }
+  },
+  "wasabi | https://s3.eu-central-1.wasabisys.com": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.s3.eu-central-1.wasabisys.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://s3.eu-central-1.wasabisys.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://s3.eu-central-1.wasabisys.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://s3.eu-central-1.wasabisys.com/my_bucket/dir/file.txt"
+    }
+  },
+  "wasabi | s3.wasabisys.com": {
+    "create": "AppsmithPluginException: Your S3 endpoint URL seems to be incorrect for the selected S3 service provider. Please check your endpoint URL and the selected S3 service provider. [PE-DSE-5003 Datasource configuration is invalid]"
+  },
+  "wasabi | https://s3.eu-central-1.wasabisys.com/base/path": {
+    "create": "AppsmithPluginException: Your S3 endpoint URL seems to be incorrect for the selected S3 service provider. Please check your endpoint URL and the selected S3 service provider. [PE-DSE-5003 Datasource configuration is invalid]"
+  },
+  "digital-ocean-spaces | fra1.digitaloceanspaces.com": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.fra1.digitaloceanspaces.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.fra1.digitaloceanspaces.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.fra1.digitaloceanspaces.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.fra1.digitaloceanspaces.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.fra1.digitaloceanspaces.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.fra1.digitaloceanspaces.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.fra1.digitaloceanspaces.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.fra1.digitaloceanspaces.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.fra1.digitaloceanspaces.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.fra1.digitaloceanspaces.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.fra1.digitaloceanspaces.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.fra1.digitaloceanspaces.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://fra1.digitaloceanspaces.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://fra1.digitaloceanspaces.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://fra1.digitaloceanspaces.com/my_bucket/dir/file.txt"
+    }
+  },
+  "digital-ocean-spaces | https://fra1.digitaloceanspaces.com": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.fra1.digitaloceanspaces.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.fra1.digitaloceanspaces.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.fra1.digitaloceanspaces.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.fra1.digitaloceanspaces.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.fra1.digitaloceanspaces.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.fra1.digitaloceanspaces.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.fra1.digitaloceanspaces.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.fra1.digitaloceanspaces.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.fra1.digitaloceanspaces.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.fra1.digitaloceanspaces.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.fra1.digitaloceanspaces.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.fra1.digitaloceanspaces.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://fra1.digitaloceanspaces.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://fra1.digitaloceanspaces.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://fra1.digitaloceanspaces.com/my_bucket/dir/file.txt"
+    }
+  },
+  "digital-ocean-spaces | http://fra1.digitaloceanspaces.com": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "http://my-bucket.fra1.digitaloceanspaces.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "http://my-bucket.fra1.digitaloceanspaces.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "http://my-bucket.fra1.digitaloceanspaces.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "http://my-bucket.fra1.digitaloceanspaces.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "http://my-bucket.fra1.digitaloceanspaces.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "http://my-bucket.fra1.digitaloceanspaces.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "http://my-bucket.fra1.digitaloceanspaces.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "http://my-bucket.fra1.digitaloceanspaces.com//leading.txt",
+      "my-bucket :: trailing/": "http://my-bucket.fra1.digitaloceanspaces.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "http://my-bucket.fra1.digitaloceanspaces.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "http://my-bucket.fra1.digitaloceanspaces.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "http://my-bucket.fra1.digitaloceanspaces.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "http://my.dotted.bucket.fra1.digitaloceanspaces.com/dir/file.txt",
+      "MyBucket :: dir/file.txt": "http://fra1.digitaloceanspaces.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "http://fra1.digitaloceanspaces.com/my_bucket/dir/file.txt"
+    }
+  },
+  "dream-objects | objects-us-east-1.dream.io": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.objects-us-east-1.dream.io/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.objects-us-east-1.dream.io/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.objects-us-east-1.dream.io/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.objects-us-east-1.dream.io/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.objects-us-east-1.dream.io/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects-us-east-1.dream.io/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.objects-us-east-1.dream.io/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects-us-east-1.dream.io//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.objects-us-east-1.dream.io/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.objects-us-east-1.dream.io/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.objects-us-east-1.dream.io/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.objects-us-east-1.dream.io/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://objects-us-east-1.dream.io/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://objects-us-east-1.dream.io/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://objects-us-east-1.dream.io/my_bucket/dir/file.txt"
+    }
+  },
+  "dream-objects | https://objects-us-east-1.dream.io": {
+    "create": "AppsmithPluginException: Your S3 endpoint URL seems to be incorrect for the selected S3 service provider. Please check your endpoint URL and the selected S3 service provider. [PE-DSE-5003 Datasource configuration is invalid]"
+  },
+  "minio | minio.example.com": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://minio.example.com/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://minio.example.com/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://minio.example.com/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://minio.example.com/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://minio.example.com/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://minio.example.com/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://minio.example.com/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "https://minio.example.com/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://minio.example.com/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://minio.example.com/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://minio.example.com/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://minio.example.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://minio.example.com/my_bucket/dir/file.txt"
+    }
+  },
+  "minio | minio.example.com:9000": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://minio.example.com:9000/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://minio.example.com:9000/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://minio.example.com:9000/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://minio.example.com:9000/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://minio.example.com:9000/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://minio.example.com:9000/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://minio.example.com:9000/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "https://minio.example.com:9000/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://minio.example.com:9000/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://minio.example.com:9000/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://minio.example.com:9000/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com:9000/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://minio.example.com:9000/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://minio.example.com:9000/my_bucket/dir/file.txt"
+    }
+  },
+  "minio | http://minio.example.com:9000": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "http://minio.example.com:9000/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "http://minio.example.com:9000/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "http://minio.example.com:9000/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "http://minio.example.com:9000/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "http://minio.example.com:9000/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "http://minio.example.com:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "http://minio.example.com:9000/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "http://minio.example.com:9000/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "http://minio.example.com:9000/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "http://minio.example.com:9000/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "http://minio.example.com:9000/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "http://minio.example.com:9000/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "http://minio.example.com:9000/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "http://minio.example.com:9000/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "http://minio.example.com:9000/my_bucket/dir/file.txt"
+    }
+  },
+  "minio | https://minio.example.com": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://minio.example.com/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://minio.example.com/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://minio.example.com/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://minio.example.com/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://minio.example.com/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://minio.example.com/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://minio.example.com/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "https://minio.example.com/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://minio.example.com/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://minio.example.com/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://minio.example.com/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://minio.example.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://minio.example.com/my_bucket/dir/file.txt"
+    }
+  },
+  "minio | https://minio.example.com/": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://minio.example.com/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://minio.example.com/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://minio.example.com/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://minio.example.com/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://minio.example.com/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://minio.example.com/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://minio.example.com/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "https://minio.example.com/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://minio.example.com/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://minio.example.com/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://minio.example.com/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://minio.example.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://minio.example.com/my_bucket/dir/file.txt"
+    }
+  },
+  "minio | 10.0.0.5:9000": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://10.0.0.5:9000/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://10.0.0.5:9000/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://10.0.0.5:9000/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://10.0.0.5:9000/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://10.0.0.5:9000/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://10.0.0.5:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://10.0.0.5:9000/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://10.0.0.5:9000/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "https://10.0.0.5:9000/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://10.0.0.5:9000/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://10.0.0.5:9000/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://10.0.0.5:9000/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://10.0.0.5:9000/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://10.0.0.5:9000/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://10.0.0.5:9000/my_bucket/dir/file.txt"
+    }
+  },
+  "minio | http://10.0.0.5:9000": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "http://10.0.0.5:9000/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "http://10.0.0.5:9000/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "http://10.0.0.5:9000/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "http://10.0.0.5:9000/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "http://10.0.0.5:9000/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "http://10.0.0.5:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "http://10.0.0.5:9000/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "http://10.0.0.5:9000/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "http://10.0.0.5:9000/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "http://10.0.0.5:9000/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "http://10.0.0.5:9000/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "http://10.0.0.5:9000/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "http://10.0.0.5:9000/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "http://10.0.0.5:9000/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "http://10.0.0.5:9000/my_bucket/dir/file.txt"
+    }
+  },
+  "minio | http://[::1]:9000": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "http://[::1]:9000/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "http://[::1]:9000/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "http://[::1]:9000/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "http://[::1]:9000/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "http://[::1]:9000/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "http://[::1]:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "http://[::1]:9000/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "http://[::1]:9000/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "http://[::1]:9000/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "http://[::1]:9000/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "http://[::1]:9000/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "http://[::1]:9000/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "http://[::1]:9000/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "http://[::1]:9000/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "http://[::1]:9000/my_bucket/dir/file.txt"
+    }
+  },
+  "minio | https://minio.example.com/base/path": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://minio.example.com/base/path/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://minio.example.com/base/path/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://minio.example.com/base/path/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://minio.example.com/base/path/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://minio.example.com/base/path/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com/base/path/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://minio.example.com/base/path/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://minio.example.com/base/path/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "https://minio.example.com/base/path/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://minio.example.com/base/path/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://minio.example.com/base/path/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://minio.example.com/base/path/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com/base/path/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://minio.example.com/base/path/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://minio.example.com/base/path/my_bucket/dir/file.txt"
+    }
+  },
+  "minio | https://minio.example.com/base/path/": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://minio.example.com/base/path/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://minio.example.com/base/path/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://minio.example.com/base/path/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://minio.example.com/base/path/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://minio.example.com/base/path/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com/base/path/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://minio.example.com/base/path/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://minio.example.com/base/path/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "https://minio.example.com/base/path/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://minio.example.com/base/path/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://minio.example.com/base/path/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://minio.example.com/base/path/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com/base/path/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://minio.example.com/base/path/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://minio.example.com/base/path/my_bucket/dir/file.txt"
+    }
+  },
+  "minio | http://10.0.0.5:9000/base/path": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "http://10.0.0.5:9000/base/path/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "http://10.0.0.5:9000/base/path/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "http://10.0.0.5:9000/base/path/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "http://10.0.0.5:9000/base/path/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "http://10.0.0.5:9000/base/path/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "http://10.0.0.5:9000/base/path/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "http://10.0.0.5:9000/base/path/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "http://10.0.0.5:9000/base/path/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "http://10.0.0.5:9000/base/path/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "http://10.0.0.5:9000/base/path/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "http://10.0.0.5:9000/base/path/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my_bucket/dir/file.txt"
+    }
+  },
+  "minio | http://10.0.0.5:9000/base/path/": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "http://10.0.0.5:9000/base/path/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "http://10.0.0.5:9000/base/path/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "http://10.0.0.5:9000/base/path/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "http://10.0.0.5:9000/base/path/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "http://10.0.0.5:9000/base/path/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "http://10.0.0.5:9000/base/path/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "http://10.0.0.5:9000/base/path/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "http://10.0.0.5:9000/base/path/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "http://10.0.0.5:9000/base/path/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "http://10.0.0.5:9000/base/path/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "http://10.0.0.5:9000/base/path/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my_bucket/dir/file.txt"
+    }
+  },
+  "minio | https://minio.example.com?x=1": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://minio.example.com/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://minio.example.com/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://minio.example.com/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://minio.example.com/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://minio.example.com/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://minio.example.com/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://minio.example.com/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "https://minio.example.com/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://minio.example.com/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://minio.example.com/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://minio.example.com/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://minio.example.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://minio.example.com/my_bucket/dir/file.txt"
+    }
+  },
+  "minio | https://minio.example.com#frag": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://minio.example.com/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://minio.example.com/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://minio.example.com/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://minio.example.com/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://minio.example.com/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://minio.example.com/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://minio.example.com/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "https://minio.example.com/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://minio.example.com/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://minio.example.com/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://minio.example.com/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://minio.example.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://minio.example.com/my_bucket/dir/file.txt"
+    }
+  },
+  "minio | https://endpoint-user:endpoint-pass@minio.example.com": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://minio.example.com/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://minio.example.com/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://minio.example.com/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://minio.example.com/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://minio.example.com/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://minio.example.com/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://minio.example.com/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "https://minio.example.com/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://minio.example.com/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://minio.example.com/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://minio.example.com/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://minio.example.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://minio.example.com/my_bucket/dir/file.txt"
+    }
+  },
+  "minio | https://endpoint-user:endpoint-pass@minio.example.com:9000/base/path/?x=1#frag": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://minio.example.com:9000/base/path/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://minio.example.com:9000/base/path/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://minio.example.com:9000/base/path/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://minio.example.com:9000/base/path/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://minio.example.com:9000/base/path/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com:9000/base/path/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://minio.example.com:9000/base/path/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://minio.example.com:9000/base/path/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "https://minio.example.com:9000/base/path/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://minio.example.com:9000/base/path/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://minio.example.com:9000/base/path/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://minio.example.com:9000/base/path/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com:9000/base/path/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://minio.example.com:9000/base/path/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://minio.example.com:9000/base/path/my_bucket/dir/file.txt"
+    }
+  },
+  "minio | //minio.example.com": {
+    "create": "AppsmithPluginException: Your S3 endpoint URL seems to be incorrect for the selected S3 service provider. Please check your endpoint URL and the selected S3 service provider. [PE-DSE-5003 Datasource configuration is invalid]"
+  },
+  "google-cloud-storage | storage.googleapis.com": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.storage.googleapis.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.storage.googleapis.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.storage.googleapis.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.storage.googleapis.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.storage.googleapis.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.storage.googleapis.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.storage.googleapis.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.storage.googleapis.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.storage.googleapis.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.storage.googleapis.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://storage.googleapis.com/my_bucket/dir/file.txt"
+    }
+  },
+  "google-cloud-storage | storage.googleapis.com:9000": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.storage.googleapis.com:9000/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.storage.googleapis.com:9000/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.storage.googleapis.com:9000/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.storage.googleapis.com:9000/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.storage.googleapis.com:9000/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com:9000/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.storage.googleapis.com:9000/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com:9000//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.storage.googleapis.com:9000/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.storage.googleapis.com:9000/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.storage.googleapis.com:9000/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.storage.googleapis.com:9000/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com:9000/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com:9000/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://storage.googleapis.com:9000/my_bucket/dir/file.txt"
+    }
+  },
+  "google-cloud-storage | http://storage.googleapis.com:9000": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "http://my-bucket.storage.googleapis.com:9000/file.txt",
+      "my-bucket :: dir/sub/file.txt": "http://my-bucket.storage.googleapis.com:9000/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "http://my-bucket.storage.googleapis.com:9000/with%20space.txt",
+      "my-bucket :: a+b.txt": "http://my-bucket.storage.googleapis.com:9000/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "http://my-bucket.storage.googleapis.com:9000/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "http://my-bucket.storage.googleapis.com:9000/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "http://my-bucket.storage.googleapis.com:9000/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "http://my-bucket.storage.googleapis.com:9000//leading.txt",
+      "my-bucket :: trailing/": "http://my-bucket.storage.googleapis.com:9000/trailing/",
+      "my-bucket :: tilde~star*.txt": "http://my-bucket.storage.googleapis.com:9000/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "http://my-bucket.storage.googleapis.com:9000/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "http://my-bucket.storage.googleapis.com:9000/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "http://my.dotted.bucket.storage.googleapis.com:9000/dir/file.txt",
+      "MyBucket :: dir/file.txt": "http://storage.googleapis.com:9000/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "http://storage.googleapis.com:9000/my_bucket/dir/file.txt"
+    }
+  },
+  "google-cloud-storage | https://storage.googleapis.com": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.storage.googleapis.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.storage.googleapis.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.storage.googleapis.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.storage.googleapis.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.storage.googleapis.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.storage.googleapis.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.storage.googleapis.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.storage.googleapis.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.storage.googleapis.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.storage.googleapis.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://storage.googleapis.com/my_bucket/dir/file.txt"
+    }
+  },
+  "google-cloud-storage | https://storage.googleapis.com/": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.storage.googleapis.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.storage.googleapis.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.storage.googleapis.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.storage.googleapis.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.storage.googleapis.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.storage.googleapis.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.storage.googleapis.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.storage.googleapis.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.storage.googleapis.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.storage.googleapis.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://storage.googleapis.com/my_bucket/dir/file.txt"
+    }
+  },
+  "google-cloud-storage | 10.0.0.5:9000": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://10.0.0.5:9000/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://10.0.0.5:9000/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://10.0.0.5:9000/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://10.0.0.5:9000/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://10.0.0.5:9000/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://10.0.0.5:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://10.0.0.5:9000/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://10.0.0.5:9000/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "https://10.0.0.5:9000/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://10.0.0.5:9000/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://10.0.0.5:9000/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://10.0.0.5:9000/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://10.0.0.5:9000/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://10.0.0.5:9000/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://10.0.0.5:9000/my_bucket/dir/file.txt"
+    }
+  },
+  "google-cloud-storage | http://10.0.0.5:9000": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "http://10.0.0.5:9000/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "http://10.0.0.5:9000/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "http://10.0.0.5:9000/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "http://10.0.0.5:9000/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "http://10.0.0.5:9000/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "http://10.0.0.5:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "http://10.0.0.5:9000/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "http://10.0.0.5:9000/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "http://10.0.0.5:9000/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "http://10.0.0.5:9000/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "http://10.0.0.5:9000/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "http://10.0.0.5:9000/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "http://10.0.0.5:9000/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "http://10.0.0.5:9000/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "http://10.0.0.5:9000/my_bucket/dir/file.txt"
+    }
+  },
+  "google-cloud-storage | http://[::1]:9000": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "http://[::1]:9000/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "http://[::1]:9000/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "http://[::1]:9000/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "http://[::1]:9000/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "http://[::1]:9000/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "http://[::1]:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "http://[::1]:9000/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "http://[::1]:9000/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "http://[::1]:9000/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "http://[::1]:9000/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "http://[::1]:9000/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "http://[::1]:9000/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "http://[::1]:9000/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "http://[::1]:9000/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "http://[::1]:9000/my_bucket/dir/file.txt"
+    }
+  },
+  "google-cloud-storage | https://storage.googleapis.com/base/path": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.storage.googleapis.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.storage.googleapis.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.storage.googleapis.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.storage.googleapis.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.storage.googleapis.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.storage.googleapis.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.storage.googleapis.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.storage.googleapis.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.storage.googleapis.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.storage.googleapis.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://storage.googleapis.com/my_bucket/dir/file.txt"
+    }
+  },
+  "google-cloud-storage | https://storage.googleapis.com/base/path/": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.storage.googleapis.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.storage.googleapis.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.storage.googleapis.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.storage.googleapis.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.storage.googleapis.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.storage.googleapis.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.storage.googleapis.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.storage.googleapis.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.storage.googleapis.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.storage.googleapis.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://storage.googleapis.com/my_bucket/dir/file.txt"
+    }
+  },
+  "google-cloud-storage | http://10.0.0.5:9000/base/path": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "http://10.0.0.5:9000/base/path/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "http://10.0.0.5:9000/base/path/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "http://10.0.0.5:9000/base/path/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "http://10.0.0.5:9000/base/path/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "http://10.0.0.5:9000/base/path/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "http://10.0.0.5:9000/base/path/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "http://10.0.0.5:9000/base/path/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "http://10.0.0.5:9000/base/path/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "http://10.0.0.5:9000/base/path/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "http://10.0.0.5:9000/base/path/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "http://10.0.0.5:9000/base/path/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my_bucket/dir/file.txt"
+    }
+  },
+  "google-cloud-storage | http://10.0.0.5:9000/base/path/": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "http://10.0.0.5:9000/base/path/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "http://10.0.0.5:9000/base/path/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "http://10.0.0.5:9000/base/path/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "http://10.0.0.5:9000/base/path/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "http://10.0.0.5:9000/base/path/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "http://10.0.0.5:9000/base/path/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "http://10.0.0.5:9000/base/path/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "http://10.0.0.5:9000/base/path/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "http://10.0.0.5:9000/base/path/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "http://10.0.0.5:9000/base/path/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "http://10.0.0.5:9000/base/path/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my_bucket/dir/file.txt"
+    }
+  },
+  "google-cloud-storage | https://storage.googleapis.com?x=1": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.storage.googleapis.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.storage.googleapis.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.storage.googleapis.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.storage.googleapis.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.storage.googleapis.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.storage.googleapis.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.storage.googleapis.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.storage.googleapis.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.storage.googleapis.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.storage.googleapis.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://storage.googleapis.com/my_bucket/dir/file.txt"
+    }
+  },
+  "google-cloud-storage | https://storage.googleapis.com#frag": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.storage.googleapis.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.storage.googleapis.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.storage.googleapis.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.storage.googleapis.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.storage.googleapis.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.storage.googleapis.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.storage.googleapis.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.storage.googleapis.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.storage.googleapis.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.storage.googleapis.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://storage.googleapis.com/my_bucket/dir/file.txt"
+    }
+  },
+  "google-cloud-storage | https://endpoint-user:endpoint-pass@storage.googleapis.com": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.storage.googleapis.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.storage.googleapis.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.storage.googleapis.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.storage.googleapis.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.storage.googleapis.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.storage.googleapis.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.storage.googleapis.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.storage.googleapis.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.storage.googleapis.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.storage.googleapis.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://storage.googleapis.com/my_bucket/dir/file.txt"
+    }
+  },
+  "google-cloud-storage | https://endpoint-user:endpoint-pass@storage.googleapis.com:9000/base/path/?x=1#frag": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.storage.googleapis.com:9000/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.storage.googleapis.com:9000/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.storage.googleapis.com:9000/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.storage.googleapis.com:9000/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.storage.googleapis.com:9000/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com:9000/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.storage.googleapis.com:9000/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com:9000//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.storage.googleapis.com:9000/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.storage.googleapis.com:9000/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.storage.googleapis.com:9000/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.storage.googleapis.com:9000/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com:9000/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com:9000/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://storage.googleapis.com:9000/my_bucket/dir/file.txt"
+    }
+  },
+  "google-cloud-storage | //storage.googleapis.com": {
+    "create": "AppsmithPluginException: Your S3 endpoint URL seems to be incorrect for the selected S3 service provider. Please check your endpoint URL and the selected S3 service provider. [PE-DSE-5003 Datasource configuration is invalid]"
+  },
+  "other | objects.example.com": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.objects.example.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.objects.example.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.objects.example.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.objects.example.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.objects.example.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.objects.example.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.objects.example.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.objects.example.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.objects.example.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.objects.example.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://objects.example.com/my_bucket/dir/file.txt"
+    }
+  },
+  "other | objects.example.com:9000": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.objects.example.com:9000/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.objects.example.com:9000/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.objects.example.com:9000/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.objects.example.com:9000/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.objects.example.com:9000/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com:9000/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.objects.example.com:9000/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com:9000//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.objects.example.com:9000/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.objects.example.com:9000/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.objects.example.com:9000/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.objects.example.com:9000/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com:9000/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://objects.example.com:9000/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://objects.example.com:9000/my_bucket/dir/file.txt"
+    }
+  },
+  "other | http://objects.example.com:9000": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "http://my-bucket.objects.example.com:9000/file.txt",
+      "my-bucket :: dir/sub/file.txt": "http://my-bucket.objects.example.com:9000/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "http://my-bucket.objects.example.com:9000/with%20space.txt",
+      "my-bucket :: a+b.txt": "http://my-bucket.objects.example.com:9000/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "http://my-bucket.objects.example.com:9000/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "http://my-bucket.objects.example.com:9000/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "http://my-bucket.objects.example.com:9000/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "http://my-bucket.objects.example.com:9000//leading.txt",
+      "my-bucket :: trailing/": "http://my-bucket.objects.example.com:9000/trailing/",
+      "my-bucket :: tilde~star*.txt": "http://my-bucket.objects.example.com:9000/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "http://my-bucket.objects.example.com:9000/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "http://my-bucket.objects.example.com:9000/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "http://my.dotted.bucket.objects.example.com:9000/dir/file.txt",
+      "MyBucket :: dir/file.txt": "http://objects.example.com:9000/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "http://objects.example.com:9000/my_bucket/dir/file.txt"
+    }
+  },
+  "other | https://objects.example.com": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.objects.example.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.objects.example.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.objects.example.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.objects.example.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.objects.example.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.objects.example.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.objects.example.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.objects.example.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.objects.example.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.objects.example.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://objects.example.com/my_bucket/dir/file.txt"
+    }
+  },
+  "other | https://objects.example.com/": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.objects.example.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.objects.example.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.objects.example.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.objects.example.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.objects.example.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.objects.example.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.objects.example.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.objects.example.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.objects.example.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.objects.example.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://objects.example.com/my_bucket/dir/file.txt"
+    }
+  },
+  "other | 10.0.0.5:9000": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://10.0.0.5:9000/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://10.0.0.5:9000/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://10.0.0.5:9000/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://10.0.0.5:9000/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://10.0.0.5:9000/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://10.0.0.5:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://10.0.0.5:9000/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://10.0.0.5:9000/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "https://10.0.0.5:9000/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://10.0.0.5:9000/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://10.0.0.5:9000/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://10.0.0.5:9000/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://10.0.0.5:9000/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://10.0.0.5:9000/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://10.0.0.5:9000/my_bucket/dir/file.txt"
+    }
+  },
+  "other | http://10.0.0.5:9000": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "http://10.0.0.5:9000/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "http://10.0.0.5:9000/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "http://10.0.0.5:9000/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "http://10.0.0.5:9000/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "http://10.0.0.5:9000/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "http://10.0.0.5:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "http://10.0.0.5:9000/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "http://10.0.0.5:9000/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "http://10.0.0.5:9000/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "http://10.0.0.5:9000/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "http://10.0.0.5:9000/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "http://10.0.0.5:9000/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "http://10.0.0.5:9000/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "http://10.0.0.5:9000/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "http://10.0.0.5:9000/my_bucket/dir/file.txt"
+    }
+  },
+  "other | http://[::1]:9000": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "http://[::1]:9000/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "http://[::1]:9000/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "http://[::1]:9000/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "http://[::1]:9000/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "http://[::1]:9000/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "http://[::1]:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "http://[::1]:9000/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "http://[::1]:9000/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "http://[::1]:9000/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "http://[::1]:9000/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "http://[::1]:9000/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "http://[::1]:9000/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "http://[::1]:9000/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "http://[::1]:9000/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "http://[::1]:9000/my_bucket/dir/file.txt"
+    }
+  },
+  "other | https://objects.example.com/base/path": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.objects.example.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.objects.example.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.objects.example.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.objects.example.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.objects.example.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.objects.example.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.objects.example.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.objects.example.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.objects.example.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.objects.example.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://objects.example.com/my_bucket/dir/file.txt"
+    }
+  },
+  "other | https://objects.example.com/base/path/": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.objects.example.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.objects.example.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.objects.example.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.objects.example.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.objects.example.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.objects.example.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.objects.example.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.objects.example.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.objects.example.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.objects.example.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://objects.example.com/my_bucket/dir/file.txt"
+    }
+  },
+  "other | http://10.0.0.5:9000/base/path": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "http://10.0.0.5:9000/base/path/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "http://10.0.0.5:9000/base/path/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "http://10.0.0.5:9000/base/path/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "http://10.0.0.5:9000/base/path/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "http://10.0.0.5:9000/base/path/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "http://10.0.0.5:9000/base/path/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "http://10.0.0.5:9000/base/path/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "http://10.0.0.5:9000/base/path/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "http://10.0.0.5:9000/base/path/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "http://10.0.0.5:9000/base/path/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "http://10.0.0.5:9000/base/path/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my_bucket/dir/file.txt"
+    }
+  },
+  "other | http://10.0.0.5:9000/base/path/": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "http://10.0.0.5:9000/base/path/my-bucket/file.txt",
+      "my-bucket :: dir/sub/file.txt": "http://10.0.0.5:9000/base/path/my-bucket/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "http://10.0.0.5:9000/base/path/my-bucket/with%20space.txt",
+      "my-bucket :: a+b.txt": "http://10.0.0.5:9000/base/path/my-bucket/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "http://10.0.0.5:9000/base/path/my-bucket/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "http://10.0.0.5:9000/base/path/my-bucket/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "http://10.0.0.5:9000/base/path/my-bucket//leading.txt",
+      "my-bucket :: trailing/": "http://10.0.0.5:9000/base/path/my-bucket/trailing/",
+      "my-bucket :: tilde~star*.txt": "http://10.0.0.5:9000/base/path/my-bucket/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "http://10.0.0.5:9000/base/path/my-bucket/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "http://10.0.0.5:9000/base/path/my-bucket/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my_bucket/dir/file.txt"
+    }
+  },
+  "other | https://objects.example.com?x=1": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.objects.example.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.objects.example.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.objects.example.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.objects.example.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.objects.example.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.objects.example.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.objects.example.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.objects.example.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.objects.example.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.objects.example.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://objects.example.com/my_bucket/dir/file.txt"
+    }
+  },
+  "other | https://objects.example.com#frag": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.objects.example.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.objects.example.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.objects.example.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.objects.example.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.objects.example.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.objects.example.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.objects.example.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.objects.example.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.objects.example.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.objects.example.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://objects.example.com/my_bucket/dir/file.txt"
+    }
+  },
+  "other | https://endpoint-user:endpoint-pass@objects.example.com": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.objects.example.com/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.objects.example.com/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.objects.example.com/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.objects.example.com/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.objects.example.com/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.objects.example.com/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.objects.example.com/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.objects.example.com/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.objects.example.com/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.objects.example.com/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://objects.example.com/my_bucket/dir/file.txt"
+    }
+  },
+  "other | https://endpoint-user:endpoint-pass@objects.example.com:9000/base/path/?x=1#frag": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: file.txt": "https://my-bucket.objects.example.com:9000/file.txt",
+      "my-bucket :: dir/sub/file.txt": "https://my-bucket.objects.example.com:9000/dir/sub/file.txt",
+      "my-bucket :: with space.txt": "https://my-bucket.objects.example.com:9000/with%20space.txt",
+      "my-bucket :: a+b.txt": "https://my-bucket.objects.example.com:9000/a%2Bb.txt",
+      "my-bucket :: 100%.txt": "https://my-bucket.objects.example.com:9000/100%25.txt",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com:9000/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt",
+      "my-bucket :: q?a#b&c=d.txt": "https://my-bucket.objects.example.com:9000/q%3Fa%23b%26c%3Dd.txt",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com:9000//leading.txt",
+      "my-bucket :: trailing/": "https://my-bucket.objects.example.com:9000/trailing/",
+      "my-bucket :: tilde~star*.txt": "https://my-bucket.objects.example.com:9000/tilde~star%2A.txt",
+      "my-bucket :: dir//double.txt": "https://my-bucket.objects.example.com:9000/dir//double.txt",
+      "my-bucket :: semi;colon,comma@at$dollar!bang'quote(paren).txt": "https://my-bucket.objects.example.com:9000/semi%3Bcolon%2Ccomma%40at%24dollar%21bang%27quote%28paren%29.txt",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com:9000/my.dotted.bucket/dir/file.txt",
+      "MyBucket :: dir/file.txt": "https://objects.example.com:9000/MyBucket/dir/file.txt",
+      "my_bucket :: dir/file.txt": "https://objects.example.com:9000/my_bucket/dir/file.txt"
+    }
+  },
+  "other | //objects.example.com": {
+    "create": "AppsmithPluginException: Your S3 endpoint URL seems to be incorrect for the selected S3 service provider. Please check your endpoint URL and the selected S3 service provider. [PE-DSE-5003 Datasource configuration is invalid]"
+  }
+}

@@ -9,15 +9,21 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -25,11 +31,16 @@ import net.minidev.json.parser.ParseException;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
@@ -74,6 +85,15 @@ public class ApplicationPageServiceTest {
 
     @Autowired
     ApplicationPermission applicationPermission;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    UserAndAccessManagementService userAndAccessManagementService;
+
+    @Autowired
+    UserService userService;
 
     Workspace workspace;
 
@@ -489,6 +509,234 @@ public class ApplicationPageServiceTest {
                     assertThat(pageNames).contains(pageName);
                     assertThat(pageNames).contains(unpublishedPageName);
                 })
+                .verifyComplete();
+    }
+
+    /**
+     * A page whose published copy and draft copy carry different names, so a test can tell which copy a read returned.
+     */
+    record PublishedPageWithDraft(String applicationId, String pageId, String publishedName, String draftName) {}
+
+    PublishedPageWithDraft createPublishedPageWithDraftChanges(String uniquePrefix) {
+        Application application = createApplication(uniquePrefix).block();
+        assertThat(application).isNotNull();
+        String pageId = application.getPages().get(0).getId();
+        applicationPageService.publish(application.getId(), true).block();
+        NewPage publishedPage =
+                newPageService.getByIdWithoutPermissionCheck(pageId).block();
+        assertThat(publishedPage).isNotNull();
+        String publishedName = publishedPage.getPublishedPage().getName();
+
+        String draftName = uniquePrefix + "_draft";
+        PageDTO rename = new PageDTO();
+        rename.setName(draftName);
+        newPageService.updatePage(pageId, rename).block();
+        assertThat(draftName).isNotEqualTo(publishedName);
+        return new PublishedPageWithDraft(application.getId(), pageId, publishedName, draftName);
+    }
+
+    void makeApplicationPublic(String applicationId) {
+        ApplicationAccessDTO access = new ApplicationAccessDTO();
+        access.setPublicAccess(true);
+        Application application = applicationService
+                .changeViewAccessForSingleBranchByBranchedApplicationId(applicationId, access)
+                .block();
+        assertThat(application).isNotNull();
+        assertThat(application.getIsPublic()).isTrue();
+    }
+
+    SecurityContext securityContextOf(User user) {
+        return new SecurityContextImpl(new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()));
+    }
+
+    SecurityContext anonymousSecurityContext() {
+        User anonymousUser = new User();
+        anonymousUser.setEmail(FieldName.ANONYMOUS_USER);
+        anonymousUser.setName(FieldName.ANONYMOUS_USER);
+        anonymousUser.setIsAnonymous(true);
+        return securityContextOf(anonymousUser);
+    }
+
+    SecurityContext workspaceViewerSecurityContext() {
+        Workspace currentWorkspace = workspaceService
+                .findById(workspace.getId(), AclPermission.READ_WORKSPACES)
+                .block();
+        assertThat(currentWorkspace).isNotNull();
+        List<PermissionGroup> defaultGroups = permissionGroupRepository
+                .findAllById(currentWorkspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
+        assertThat(defaultGroups).isNotNull();
+        PermissionGroup viewerGroup = defaultGroups.stream()
+                .filter(group -> group.getName().startsWith(FieldName.VIEWER))
+                .findFirst()
+                .orElseThrow();
+
+        InviteUsersDTO invite = new InviteUsersDTO();
+        invite.setPermissionGroupId(viewerGroup.getId());
+        invite.setUsernames(List.of("usertest@usertest.com"));
+        userAndAccessManagementService.inviteUsers(invite, "test").block();
+
+        User viewer = userService.findByEmail("usertest@usertest.com").block();
+        assertThat(viewer).isNotNull();
+        return securityContextOf(viewer);
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    @DisplayName("GHSA-j564-5cm6-xjgj")
+    void should_rejectEditorModePageRead_when_callerIsAnonymousOnPublicApplication() {
+        // Given
+        PublishedPageWithDraft fixture = createPublishedPageWithDraftChanges("anonEditorRead_" + UUID.randomUUID());
+        makeApplicationPublic(fixture.applicationId());
+
+        // When
+        Mono<PageDTO> editorRead = applicationPageService
+                .getPageAndMigrateDslByBranchedPageId(fixture.pageId(), false, false)
+                .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(anonymousSecurityContext())));
+
+        // Then
+        StepVerifier.create(editorRead)
+                .expectErrorSatisfies(error -> assertThat(error)
+                        .isInstanceOf(AppsmithException.class)
+                        .hasMessage(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.PAGE, fixture.pageId())))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    @DisplayName("GHSA-j564-5cm6-xjgj")
+    void should_returnPublishedPage_when_callerIsAnonymousOnPublicApplicationInViewMode() {
+        // Given
+        PublishedPageWithDraft fixture = createPublishedPageWithDraftChanges("anonViewRead_" + UUID.randomUUID());
+        makeApplicationPublic(fixture.applicationId());
+
+        // When
+        Mono<PageDTO> viewRead = applicationPageService
+                .getPageAndMigrateDslByBranchedPageId(fixture.pageId(), true, false)
+                .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(anonymousSecurityContext())));
+
+        // Then
+        StepVerifier.create(viewRead)
+                .assertNext(page -> assertThat(page.getName()).isEqualTo(fixture.publishedName()))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    @DisplayName("GHSA-j564-5cm6-xjgj")
+    void should_rejectEditorModePageRead_when_callerIsWorkspaceViewer() {
+        // Given
+        PublishedPageWithDraft fixture = createPublishedPageWithDraftChanges("viewerEditorRead_" + UUID.randomUUID());
+        SecurityContext viewer = workspaceViewerSecurityContext();
+
+        // When
+        Mono<PageDTO> editorRead = applicationPageService
+                .getPageAndMigrateDslByBranchedPageId(fixture.pageId(), false, false)
+                .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(viewer)));
+
+        // Then
+        StepVerifier.create(editorRead)
+                .expectErrorSatisfies(error -> assertThat(error)
+                        .isInstanceOf(AppsmithException.class)
+                        .hasMessage(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.PAGE, fixture.pageId())))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    @DisplayName("GHSA-j564-5cm6-xjgj")
+    void should_returnPublishedPage_when_workspaceViewerReadsInViewMode() {
+        // Given
+        PublishedPageWithDraft fixture = createPublishedPageWithDraftChanges("viewerViewRead_" + UUID.randomUUID());
+        SecurityContext viewer = workspaceViewerSecurityContext();
+
+        // When
+        Mono<PageDTO> viewRead = applicationPageService
+                .getPageAndMigrateDslByBranchedPageId(fixture.pageId(), true, false)
+                .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(viewer)));
+
+        // Then
+        StepVerifier.create(viewRead)
+                .assertNext(page -> assertThat(page.getName()).isEqualTo(fixture.publishedName()))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    @DisplayName("GHSA-j564-5cm6-xjgj")
+    void should_returnDraftPage_when_editorReadsInEditorMode() {
+        // Given
+        PublishedPageWithDraft fixture = createPublishedPageWithDraftChanges("editorEditorRead_" + UUID.randomUUID());
+
+        // When
+        Mono<PageDTO> editorRead =
+                applicationPageService.getPageAndMigrateDslByBranchedPageId(fixture.pageId(), false, false);
+
+        // Then
+        StepVerifier.create(editorRead)
+                .assertNext(page -> assertThat(page.getName()).isEqualTo(fixture.draftName()))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    @DisplayName("GHSA-j564-5cm6-xjgj")
+    void should_rejectEditorModePageReadByBasePageId_when_callerIsWorkspaceViewer() {
+        // Given
+        PublishedPageWithDraft fixture = createPublishedPageWithDraftChanges("viewerBaseRead_" + UUID.randomUUID());
+        SecurityContext viewer = workspaceViewerSecurityContext();
+
+        // When
+        Mono<PageDTO> editorRead = applicationPageService
+                .getPageAndMigrateDslByBranchAndBasePageId(fixture.pageId(), null, false, false)
+                .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(viewer)));
+
+        // Then
+        StepVerifier.create(editorRead)
+                .expectErrorSatisfies(error -> assertThat(error)
+                        .isInstanceOf(AppsmithException.class)
+                        .hasMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PAGE, fixture.pageId())))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    @DisplayName("GHSA-j564-5cm6-xjgj")
+    void should_rejectEditorModeGetPage_when_callerIsWorkspaceViewer() {
+        // Given
+        PublishedPageWithDraft fixture = createPublishedPageWithDraftChanges("viewerGetPage_" + UUID.randomUUID());
+        SecurityContext viewer = workspaceViewerSecurityContext();
+
+        // When
+        Mono<PageDTO> editorRead = applicationPageService
+                .getPage(fixture.pageId(), false)
+                .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(viewer)));
+
+        // Then
+        StepVerifier.create(editorRead)
+                .expectErrorSatisfies(error -> assertThat(error)
+                        .isInstanceOf(AppsmithException.class)
+                        .hasMessage(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(FieldName.PAGE, fixture.pageId())))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    @DisplayName("GHSA-j564-5cm6-xjgj")
+    void should_returnPublishedPage_when_workspaceViewerCallsGetPageInViewMode() {
+        // Given
+        PublishedPageWithDraft fixture = createPublishedPageWithDraftChanges("viewerGetPageView_" + UUID.randomUUID());
+        SecurityContext viewer = workspaceViewerSecurityContext();
+
+        // When
+        Mono<PageDTO> viewRead = applicationPageService
+                .getPage(fixture.pageId(), true)
+                .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(viewer)));
+
+        // Then
+        StepVerifier.create(viewRead)
+                .assertNext(page -> assertThat(page.getName()).isEqualTo(fixture.publishedName()))
                 .verifyComplete();
     }
 }

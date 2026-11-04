@@ -30,6 +30,7 @@ import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.core.SdkField;
 import software.amazon.awssdk.core.SdkPojo;
 import software.amazon.awssdk.http.apache.ApacheHttpClient;
+import software.amazon.awssdk.http.apache.ProxyConfiguration;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClientBuilder;
@@ -46,6 +47,7 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -53,7 +55,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
@@ -73,6 +77,54 @@ public class DynamoPlugin extends BasePlugin {
     private static final String DYNAMO_TYPE_MAP_LABEL = "M";
     private static final String DYNAMO_TYPE_LIST_LABEL = "L";
     private static final Duration CONNECTION_TIME_TO_LIVE = Duration.ofDays(1);
+    static final String MODEL_PACKAGE = "software.amazon.awssdk.services.dynamodb.model.";
+
+    /** A region name: one DNS label of letters, digits and hyphens. */
+    private static final Pattern REGION_NAME = Pattern.compile("[A-Za-z0-9-]{1,63}");
+
+    /** The actions the query editor offers (editor.json). Other DynamoDB operations are reported as unknown actions. */
+    static final Set<String> ACTIONS = Set.of(
+            "BatchGetItem",
+            "BatchWriteItem",
+            "CreateBackup",
+            "CreateGlobalTable",
+            "CreateTable",
+            "DeleteBackup",
+            "DeleteItem",
+            "DeleteTable",
+            "DescribeBackup",
+            "DescribeContinuousBackups",
+            "DescribeContributorInsights",
+            "DescribeEndpoints",
+            "DescribeGlobalTable",
+            "DescribeGlobalTableSettings",
+            "DescribeLimits",
+            "DescribeTable",
+            "DescribeTableReplicaAutoScaling",
+            "DescribeTimeToLive",
+            "GetItem",
+            "ListBackups",
+            "ListContributorInsights",
+            "ListGlobalTables",
+            "ListTables",
+            "ListTagsOfResource",
+            "PutItem",
+            "Query",
+            "RestoreTableFromBackup",
+            "RestoreTableToPointInTime",
+            "Scan",
+            "TagResource",
+            "TransactGetItems",
+            "TransactWriteItems",
+            "UntagResource",
+            "UpdateContinuousBackups",
+            "UpdateContributorInsights",
+            "UpdateGlobalTable",
+            "UpdateGlobalTableSettings",
+            "UpdateItem",
+            "UpdateTable",
+            "UpdateTableReplicaAutoScaling",
+            "UpdateTimeToLive");
 
     public DynamoPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -221,10 +273,18 @@ public class DynamoPlugin extends BasePlugin {
                         }
                         requestData.put("parameters", parameters);
 
+                        final String requestClassName = MODEL_PACKAGE + action + "Request";
+                        // The downstream message of an unknown action is the SDK request class name the action maps
+                        // to, the same text as for an action that has no request class.
+                        if (!ACTIONS.contains(action)) {
+                            throw new AppsmithPluginException(
+                                    DynamoPluginError.UNKNOWN_ACTION_NAME,
+                                    String.format(DynamoErrorMessages.UNKNOWN_ACTION_NAME_ERROR_MSG, action),
+                                    requestClassName);
+                        }
                         final Class<?> requestClass;
                         try {
-                            requestClass = Class.forName(
-                                    "software.amazon.awssdk.services.dynamodb.model." + action + "Request");
+                            requestClass = Class.forName(requestClassName);
                         } catch (ClassNotFoundException e) {
                             throw new AppsmithPluginException(
                                     DynamoPluginError.UNKNOWN_ACTION_NAME,
@@ -301,11 +361,10 @@ public class DynamoPlugin extends BasePlugin {
                         if (isFlagEnabled) {
                             log.debug("DynamoDB client builder created with custom connection time to live");
                             builder = DynamoDbClient.builder()
-                                    .httpClient(ApacheHttpClient.builder()
-                                            .connectionTimeToLive(CONNECTION_TIME_TO_LIVE)
-                                            .build());
+                                    .httpClientBuilder(
+                                            httpClientBuilder().connectionTimeToLive(CONNECTION_TIME_TO_LIVE));
                         } else {
-                            builder = DynamoDbClient.builder();
+                            builder = DynamoDbClient.builder().httpClientBuilder(httpClientBuilder());
                         }
 
                         return getDynamoDBClientObject(datasourceConfiguration, builder);
@@ -313,16 +372,15 @@ public class DynamoPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        // This method is not being used right now as we had created a separate method with the same name in the
-        // DynamoPlugin class.
-        // which creates dynamoDB client based on feature flagging
-        // Once feature flagging is removed, we can go back to using this method.
+        // The client the server creates when the release_dynamodb_connection_time_to_live_enabled flag is off; with the
+        // flag on, the server calls datasourceCreate(datasourceConfiguration, true).
         @Override
         public Mono<DynamoDbClient> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Dynamo plugin.");
             return Mono.fromCallable(() -> {
                         log.debug(Thread.currentThread().getName() + ": creating dynamodbclient from DynamoDB plugin.");
-                        final DynamoDbClientBuilder builder = DynamoDbClient.builder();
+                        final DynamoDbClientBuilder builder =
+                                DynamoDbClient.builder().httpClientBuilder(httpClientBuilder());
 
                         return getDynamoDBClientObject(datasourceConfiguration, builder);
                     })
@@ -359,6 +417,8 @@ public class DynamoPlugin extends BasePlugin {
 
                 if (StringUtils.isEmpty(authentication.getDatabaseName())) {
                     invalids.add("Missing region configuration.");
+                } else if (!isRegionName(authentication.getDatabaseName().trim())) {
+                    invalids.add(DynamoErrorMessages.INVALID_REGION_ERROR_MSG);
                 }
             }
 
@@ -405,6 +465,18 @@ public class DynamoPlugin extends BasePlugin {
         }
     }
 
+    /**
+     * The HTTP client of every DynamoDB client: Apache's, with the SDK's default settings, taking its proxy from the
+     * {@code http.proxy*} and {@code http.nonProxyHosts} system properties only, not from environment variables. It is
+     * passed as a builder, so that the DynamoDB client owns the HTTP client and closing it releases the connection pool.
+     */
+    private static ApacheHttpClient.Builder httpClientBuilder() {
+        return ApacheHttpClient.builder()
+                .proxyConfiguration(ProxyConfiguration.builder()
+                        .useEnvironmentVariableValues(false)
+                        .build());
+    }
+
     private static String toLowerCamelCase(String action) {
         return action.substring(0, 1).toLowerCase() + action.substring(1);
     }
@@ -425,6 +497,16 @@ public class DynamoPlugin extends BasePlugin {
     public static <T> T plainToSdk(Map<String, Object> mapping, Class<T> type)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, AppsmithPluginException,
                     ClassNotFoundException {
+        return plainToSdk(mapping, type, false);
+    }
+
+    /**
+     * {@link #plainToSdk(Map, Class)}, with binary values read as base64 when {@code binaryIsBase64}, otherwise as
+     * UTF-8 text.
+     */
+    private static <T> T plainToSdk(Map<String, Object> mapping, Class<T> type, boolean binaryIsBase64)
+            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, AppsmithPluginException,
+                    ClassNotFoundException {
 
         final Class<?> builderType = Class.forName(type.getName() + "$Builder");
 
@@ -438,10 +520,12 @@ public class DynamoPlugin extends BasePlugin {
                 if (value instanceof String) {
                     // AWS SDK has two data types that are represented as Strings in JSON, namely strings and binary.
                     // We look at the parameter types for the setter method to decide which it should be, and then set
-                    // convert the value if needed before calling the setter.
+                    // convert the value if needed before calling the setter. Only one-argument methods are setters:
+                    // builders also have zero-argument getters of the same name, such as overrideConfiguration().
                     final Method setterMethod = findMethod(builderType, method -> {
                         final Class<?>[] parameterTypes = method.getParameterTypes();
                         return method.getName().equals(setterName)
+                                && method.getParameterCount() == 1
                                 && (SdkBytes.class.isAssignableFrom(parameterTypes[0])
                                         || String.class.isAssignableFrom(parameterTypes[0]));
                     });
@@ -451,7 +535,7 @@ public class DynamoPlugin extends BasePlugin {
                                 String.format(DynamoErrorMessages.INVALID_ATTRIBUTE_ERROR_MSG, entry.getKey()));
                     }
                     if (SdkBytes.class.isAssignableFrom(setterMethod.getParameterTypes()[0])) {
-                        value = SdkBytes.fromUtf8String((String) value);
+                        value = toSdkBytes((String) value, binaryIsBase64);
                     }
                     setterMethod.invoke(builder, value);
 
@@ -466,8 +550,14 @@ public class DynamoPlugin extends BasePlugin {
                 } else if (value instanceof Map) {
                     // For maps, we go recursive, applying this transformation to each value, and replacing with the
                     // result in the map. Generic types in the setter method's signature are used to convert the values.
-                    final Method setterMethod =
-                            findMethod(builderType, m -> m.getName().equals(setterName));
+                    // A nested object's setter has an overload that takes a Consumer of the object's builder, and
+                    // getMethods() lists overloads in no fixed order, so that overload is excluded. Only one-argument
+                    // methods are setters: builders also have zero-argument getters of the same name.
+                    final Method setterMethod = findMethod(
+                            builderType,
+                            m -> m.getName().equals(setterName)
+                                    && m.getParameterCount() == 1
+                                    && !Consumer.class.equals(m.getParameterTypes()[0]));
                     final Type parameterType = setterMethod.getGenericParameterTypes()[0];
                     if (parameterType instanceof ParameterizedType) {
                         final ParameterizedType valueType = (ParameterizedType) parameterType;
@@ -476,7 +566,17 @@ public class DynamoPlugin extends BasePlugin {
                             Object innerValue = innerEntry.getValue();
                             if (innerValue instanceof Map) {
                                 innerValue = plainToSdk(
-                                        (Map) innerValue, (Class<?>) valueType.getActualTypeArguments()[1]);
+                                        (Map) innerValue,
+                                        (Class<?>) valueType.getActualTypeArguments()[1],
+                                        binaryIsBase64);
+                            } else if (innerValue instanceof Collection) {
+                                // A map of lists: BatchWriteItem's RequestItems, the write requests per table. Binary
+                                // values in them are read as base64, the form DynamoDB takes in a request's JSON, so
+                                // that each write request means what its JSON means to DynamoDB. Everywhere else, as in
+                                // PutItem's Item, binary values are UTF-8 text that the plugin encodes.
+                                innerValue = plainToSdkMembers(
+                                        (Collection<Object>) innerValue,
+                                        valueType.getActualTypeArguments()[1]);
                             }
                             transformedMap.put(innerEntry.getKey(), innerValue);
                         }
@@ -485,20 +585,22 @@ public class DynamoPlugin extends BasePlugin {
                             // Some setters don't take a plain map. For example, some require an `AttributeValue`
                             // instance
                             // for objects that are just maps in JSON. So, we make that conversion here.
-                            value = plainToSdk((Map) value, (Class<T>) valueType.getRawType());
+                            value = plainToSdk((Map) value, (Class<T>) valueType.getRawType(), binaryIsBase64);
                         }
                         setterMethod.invoke(builder, value);
                     } else if (parameterType instanceof Class) {
-                        setterMethod.invoke(builder, plainToSdk((Map) value, (Class) parameterType));
+                        setterMethod.invoke(builder, plainToSdk((Map) value, (Class) parameterType, binaryIsBase64));
                     }
 
                 } else if (value instanceof Collection) {
                     // For linear collections, the process is similar to that of maps.
                     final Collection<Object> valueAsCollection = (Collection) value;
-                    // Find method by name and exclude the varargs version of the method.
+                    // Find method by name and exclude the varargs version of the method. Only one-argument methods are
+                    // setters: builders also have zero-argument getters of the same name.
                     final Method setterMethod = findMethod(
                             builderType,
                             m -> m.getName().equals(setterName)
+                                    && m.getParameterCount() == 1
                                     && !m.getParameterTypes()[0].getName().startsWith("[L"));
                     Type valueType = ((ParameterizedType) setterMethod.getGenericParameterTypes()[0])
                             .getActualTypeArguments()[0];
@@ -510,10 +612,10 @@ public class DynamoPlugin extends BasePlugin {
                     final Collection<Object> reTypedList = new ArrayList<>();
                     for (final Object innerValue : valueAsCollection) {
                         if (innerValue instanceof Map) {
-                            reTypedList.add(plainToSdk((Map) innerValue, valueType));
+                            reTypedList.add(plainToSdk((Map) innerValue, valueType, binaryIsBase64));
                         } else if (innerValue instanceof String
                                 && SdkBytes.class.isAssignableFrom((Class<?>) valueType)) {
-                            reTypedList.add(SdkBytes.fromUtf8String((String) innerValue));
+                            reTypedList.add(toSdkBytes((String) innerValue, binaryIsBase64));
                         } else {
                             reTypedList.add(innerValue);
                         }
@@ -536,13 +638,19 @@ public class DynamoPlugin extends BasePlugin {
     public static Object plainToSdk(Map<String, Object> mapping, Type type)
             throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, AppsmithPluginException,
                     IllegalAccessException {
+        return plainToSdk(mapping, type, false);
+    }
+
+    private static Object plainToSdk(Map<String, Object> mapping, Type type, boolean binaryIsBase64)
+            throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, AppsmithPluginException,
+                    IllegalAccessException {
 
         if (mapping == null) {
             return null;
         }
 
         if (!(type instanceof ParameterizedType)) {
-            return plainToSdk(mapping, (Class) type);
+            return plainToSdk(mapping, (Class) type, binaryIsBase64);
         }
 
         final ParameterizedType ptype = (ParameterizedType) type;
@@ -550,8 +658,10 @@ public class DynamoPlugin extends BasePlugin {
         if (Map.class.equals(ptype.getRawType())) {
             final Map<String, Object> convertedMap = new HashMap<>();
             for (final Map.Entry<String, Object> entry : mapping.entrySet()) {
-                convertedMap.put(entry.getKey(), plainToSdk((Map) entry.getValue(), (Class<?>)
-                        ptype.getActualTypeArguments()[1]));
+                convertedMap.put(
+                        entry.getKey(),
+                        plainToSdk(
+                                (Map) entry.getValue(), (Class<?>) ptype.getActualTypeArguments()[1], binaryIsBase64));
             }
             return convertedMap;
         }
@@ -560,6 +670,32 @@ public class DynamoPlugin extends BasePlugin {
                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                 String.format(
                         DynamoErrorMessages.UNKNOWN_TYPE_FOUND_TO_CONVERT_TO_SDK_STYLE_ERROR_MSG, type.getTypeName()));
+    }
+
+    /**
+     * Converts the members of a list that is a map's value, typed {@code collectionType}: each member that is an
+     * object becomes the list's member type, with binary values read as base64.
+     */
+    private static List<Object> plainToSdkMembers(Collection<Object> members, Type collectionType)
+            throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, AppsmithPluginException,
+                    IllegalAccessException {
+        final Type listType =
+                collectionType instanceof WildcardType wildcard ? wildcard.getUpperBounds()[0] : collectionType;
+        final List<Object> converted = new ArrayList<>(members);
+        if (!(listType instanceof ParameterizedType parameterizedListType)) {
+            return converted;
+        }
+        final Type memberType = parameterizedListType.getActualTypeArguments()[0];
+        for (int i = 0; i < converted.size(); i++) {
+            if (converted.get(i) instanceof Map) {
+                converted.set(i, plainToSdk((Map) converted.get(i), memberType, true));
+            }
+        }
+        return converted;
+    }
+
+    private static SdkBytes toSdkBytes(String value, boolean isBase64) {
+        return isBase64 ? SdkBytes.fromByteArray(Base64.getDecoder().decode(value)) : SdkBytes.fromUtf8String(value);
     }
 
     private static Method findMethod(Class<?> builderType, Predicate<Method> predicate) {
@@ -626,6 +762,11 @@ public class DynamoPlugin extends BasePlugin {
         return valueObj;
     }
 
+    /** Whether the value is a region name: one DNS label of letters, digits and hyphens. */
+    private static boolean isRegionName(String value) {
+        return REGION_NAME.matcher(value).matches();
+    }
+
     private static boolean isUpperCase(String s) {
         for (char c : s.toCharArray()) {
             if (!Character.isUpperCase(c)) {
@@ -648,7 +789,14 @@ public class DynamoPlugin extends BasePlugin {
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, DynamoErrorMessages.MISSING_REGION_ERROR_MSG);
         }
 
-        builder.region(Region.of(authentication.getDatabaseName()));
+        // Region.of keeps every distinct name it is given for the life of the JVM. Only region names reach it, which
+        // bounds the length of each kept name, not how many names are kept.
+        final String region = authentication.getDatabaseName().trim();
+        if (!isRegionName(region)) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, DynamoErrorMessages.INVALID_REGION_ERROR_MSG);
+        }
+        builder.region(Region.of(region));
 
         builder.credentialsProvider(StaticCredentialsProvider.create(
                 AwsBasicCredentials.create(authentication.getUsername(), authentication.getPassword())));

@@ -7,7 +7,7 @@ import { useCurrentAppState } from "IDE/hooks/useCurrentAppState";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { fetchWorkspace } from "ee/actions/workspaceActions";
 import { IDESidebar } from "@appsmith/ads";
-import { getDatasources } from "ee/selectors/entitiesSelector";
+import { getVisibleDatasources } from "ee/selectors/entitiesSelector";
 import {
   BottomButtons,
   TopButtons,
@@ -19,7 +19,7 @@ function Sidebar() {
   const appState = useCurrentAppState();
   const basePageId = useSelector(getCurrentBasePageId);
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
-  const datasources = useSelector(getDatasources);
+  const datasources = useSelector(getVisibleDatasources);
   const datasourcesExist = datasources.length > 0;
   const isAgentApp = useSelector(getIsAiAgentApp);
 

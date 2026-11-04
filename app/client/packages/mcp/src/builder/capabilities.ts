@@ -37,7 +37,7 @@ export const WIDGET_CATALOG = [
       defaultValue:
         "{ table: '<tableWidget>', column: '<column>' } — prefill from the selected row (edit forms)",
       validation:
-        "{ format: 'zipcode'|'email'|'number'|'integer'|'usPhone', message? } — vetted regex + error message; makes the input required (never author a raw regex)",
+        "{ format: 'zipcode'|'email'|'number'|'integer'|'usPhone'|'alpha'|'alphanumeric'|'initials', message? } or { minLength?, maxLength?, message? } — vetted regex + error message; makes the input required (never author a raw regex)",
     },
     purpose:
       "Single-line text entry. Pair validation with a button's disableWhenInvalid (patch_widgets) so bad input can't run a query.",
@@ -467,6 +467,9 @@ export interface ToolCatalogEntry {
   name: string;
   gate: ToolGate;
   summary: string;
+  // Extension tools only: a tool of a governed prepare and confirm pair (host.registerGovernedOperation). It is on
+  // only when its gate is on AND governance is configured.
+  governed?: true;
 }
 
 // Core tools take only core gates; "extension:<name>" gates are for EXTENSION_TOOL_CATALOG entries.
@@ -517,7 +520,8 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
     {
       name: "patch_widgets",
       gate: "always",
-      summary: "typed widget update/move/remove",
+      summary:
+        "typed widget update/move/resize (remove goes through prepare_remove_widgets)",
     },
     {
       name: "wire_event",
@@ -569,9 +573,27 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       summary: "rename a page (governed)",
     },
     {
+      name: "set_page_visibility",
+      gate: "governance",
+      summary:
+        "hide or show a page in navigation; not the home page (governed)",
+    },
+    {
       name: "prepare_delete_page",
       gate: "governance",
       summary: "prepare page delete (confirmation)",
+    },
+    {
+      name: "prepare_remove_widgets",
+      gate: "governance",
+      summary:
+        "prepare removing widgets (with everything inside them); returns what will go and a one-time token",
+    },
+    {
+      name: "confirm_remove_widgets",
+      gate: "governance",
+      summary:
+        "remove widgets with a token; prompts the user for approval via elicitation when the client supports it",
     },
     {
       name: "confirm_delete_page",
@@ -654,7 +676,7 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       name: "create_query",
       gate: "data",
       summary:
-        "structured SQL query (filters: eq/ne/gt/gte/lt/lte/like/in, inList on PostgreSQL; skipWhenEmpty for filter bars)",
+        "structured SQL query (filters: eq/ne/gt/gte/lt/lte/like/in, like match contains/prefix/suffix, isNull/notNull, anyOf OR groups, inList and ilike on PostgreSQL; skipWhenEmpty for filter bars; coalesce on selected and grouped columns; having on aggregated selects; split a delimited group column on PostgreSQL)",
     },
     {
       name: "create_mongo_query",
@@ -696,7 +718,8 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
     {
       name: "get_action",
       gate: "data",
-      summary: "safe action read + revision",
+      summary:
+        "safe action read + revision; returns the body of SQL this server wrote and nobody edited since",
     },
     {
       name: "run_action",
@@ -766,6 +789,18 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       summary:
         "delete a JS object with a token; prompts the user for approval via elicitation when the client supports it",
     },
+    {
+      name: "prepare_replace_js_object",
+      gate: "js_governance",
+      summary:
+        "prepare to replace all the code of a JS object written in the editor with a definition; lists dropped and added functions and refuses to break calls unless acknowledged",
+    },
+    {
+      name: "confirm_replace_js_object",
+      gate: "js_governance",
+      summary:
+        "replace an editor-written JS object's code with a token; prompts the user for approval via elicitation when the client supports it",
+    },
   ];
 
 // Core tools plus the edition's (ee/extensions/catalog.ts; none in CE). An extension tool may never shadow a core one,
@@ -825,6 +860,17 @@ export function gateActive(gate: ToolGate, gates: CapabilityGates): boolean {
   }
 }
 
+// Whether a catalogued tool is registered under these gates: its gate is on, and a governed extension tool also needs
+// governance. buildMcpServer and get_capabilities both use it, so they agree.
+export function toolActive(
+  tool: ToolCatalogEntry,
+  gates: CapabilityGates,
+): boolean {
+  return (
+    gateActive(tool.gate, gates) && (tool.governed !== true || gates.governance)
+  );
+}
+
 // What each (non-always) gate requires to be enabled, and what it unlocks — so an agent can SEE a capability that is
 // currently off and tell the user exactly which setting turns it on, instead of assuming the server simply can't do it.
 // `requires` is phrased as a HUMAN-facing instruction (so an agent relaying it gives an end user something they can
@@ -874,16 +920,23 @@ function disabledCapabilities(gates: CapabilityGates) {
   >();
 
   for (const tool of TOOL_CATALOG) {
-    if (tool.gate === "always" || gateActive(tool.gate, gates)) continue;
+    if (toolActive(tool, gates)) continue;
+
+    // A governed tool whose own gate is on is missing only governance, so it is listed under governance.
+    const gate: ToolGate = gateActive(tool.gate, gates)
+      ? "governance"
+      : tool.gate;
+
+    if (gate === "always") continue;
 
     // Edition gates carry their own requirement text (presence checked at load, above).
-    const requirement = isExtensionGate(tool.gate)
-      ? EXTENSION_GATE_REQUIREMENTS[extensionGateName(tool.gate)]
-      : GATE_REQUIREMENTS[tool.gate];
-    const group = groups.get(tool.gate) ?? { ...requirement, tools: [] };
+    const requirement = isExtensionGate(gate)
+      ? EXTENSION_GATE_REQUIREMENTS[extensionGateName(gate)]
+      : GATE_REQUIREMENTS[gate];
+    const group = groups.get(gate) ?? { ...requirement, tools: [] };
 
     group.tools.push(tool.name);
-    groups.set(tool.gate, group);
+    groups.set(gate, group);
   }
 
   return [...groups.values()];
@@ -913,10 +966,12 @@ export function getCapabilities(
     // build/edit spec in one place (tableData vs source) and agents are steered to this document first.
     patchSpec: {
       shape:
-        "{ operations: [{ kind: 'update', name: '<widget>', props: {...} } | { kind: 'move', name, parent?, position?, strict? } | { kind: 'resize', name, rows?, columns?, strict? } | { kind: 'remove', name }] }",
+        "{ operations: [{ kind: 'update', name: '<widget>', props: {...} } | { kind: 'move', name, parent?, position?, strict? } | { kind: 'resize', name, rows?, columns?, strict? } | { kind: 'addColumn', name: '<table>', column: { key, label?, type?, hidden?, buttonLabel?, iconName? } } | { kind: 'updateColumn', name: '<table>', column: '<id>', props: { label?, hidden?, buttonLabel?, iconName? } }] } — a { kind: 'remove' } operation is refused: removing widgets needs the user's approval through prepare_remove_widgets / confirm_remove_widgets",
       move: "parent: '<containerWidget>' reparents; position: { topRow, leftColumn } places on the page grid (rows/columns, see `grid`) — set the same topRow as a sibling to sit widgets side by side. At least one of parent/position is required. NOT the build spec's placement { after/inside } — read the page first to learn current positions. Occupancy-aware: a position that lands on another widget is REPAIRED to the nearest free spot below (the change records requestedPosition vs the applied position, and the result carries a note) unless strict: true, which rejects with the colliding widget names and the nearest free position so one retry can succeed. Reparenting always lands at the nearest free spot in the destination canvas and the landing position is recorded in changes (it is no longer carried over blindly). A modal (or a subtree containing one) can never be moved under another modal's canvas — modals are page-level overlays.",
       resize:
         "{ kind: 'resize', name, rows?, columns?, strict? } — set a widget's span in grid units (integers >= 1; at least one of rows/columns). Growing into occupied cells pushes the colliding below-siblings down (strict: true rejects with their names instead); width growth past the canvas is rejected with the available columns; shrinking a container/form/tabs below its children's ROWS is rejected with the smallest height that fits them (columns are free: nested content lives on the inner canvas's own 64-column grid, which scales to the container's width). Modals translate rows into their pixel height (rows × grid.rowHeightPx) — modal columns are not resizable.",
+      columns:
+        "addColumn adds a table column with a key and optional label, type (text|number|date|image|video|url|boolean|button|iconButton), hidden, buttonLabel and iconName. updateColumn changes label, hidden, buttonLabel or iconName on an existing column id. Read column ids with read_semantic_page; wire button/iconButton onClick with wire_event's column parameter.",
       overlapPolicy:
         "Any layout mutation whose result would INTRODUCE overlapping widgets is rejected with code 'overlap_introduced', the offending name pairs, and a ready-to-apply suggestedFix ({ tool: 'patch_widgets', operations: [...] }). Pre-existing overlaps on a page never block edits. Containers/forms/tabs auto-grow to fit new content and push widgets below them down; every automatic adjustment is reported in changes/notes.",
       updateProps: {
@@ -931,25 +986,38 @@ export function getCapabilities(
         tableData:
           "{ query: '<queryName>', field?: '<responsePath>', clearWhenEmpty?: '<inputWidget>' } OR { store: '<storeKey>' } — bind an EXISTING table's rows to a query, or to a store key accumulated by wire_event's appendToStore (session-only). This is the patch-path name for the build spec's `source`; read_semantic_page also reports it as tableData.",
         source:
-          "{ table: '<Table>', column: '<col>' } — selected-row display binding on a text widget. NOT the table data binding (use tableData for that).",
+          "{ table: '<Table>', column: '<col>' } OR { query: '<queryName>', field?: '<responsePath>' } OR { store: '<key>' } — selected-row, scalar query or store display binding on a text widget. NOT the table data binding (use tableData for that).",
         defaultValue:
           "{ table: '<Table>', column: '<col>' } — selected-row prefill on an input widget",
         defaultFrom:
-          "{ widget: '<Widget>', property: '<path>' } OR { query: '<queryName>', field?: '<responsePath>' } — dynamic default for an input/select/multiselect/radio/checkbox/switch/datepicker/table, compiled onto its own default prop (defaultText / defaultOptionValue / defaultCheckedState / defaultSwitchState / defaultDate; a table's defaultSelectedRowIndex, or defaultSelectedRowIndices while multiRowSelection is on)",
+          "{ widget: '<Widget>', property: '<path>' } OR { query: '<queryName>', field?: '<responsePath>' } OR { expr: <tree> } — dynamic default for an input/select/multiselect/radio/checkbox/switch/datepicker/table, compiled onto its own default prop (defaultText / defaultOptionValue / defaultCheckedState / defaultSwitchState / defaultDate; a table's defaultSelectedRowIndex, or defaultSelectedRowIndices while multiRowSelection is on)",
         visibleWhen:
-          "{ control: '<widget>', equals: <literal> } | { rowSelected: '<table>' } | { notEmpty: '<input>' }",
+          "{ control: '<widget>', equals: <literal> } | { rowSelected: '<table>' } | { notEmpty: '<input>' } | { expr: <tree> }",
+        disabledWhen: "same condition forms as visibleWhen; sets isDisabled",
+        requiredWhen:
+          "same condition forms as visibleWhen; sets isRequired on a form control",
+        validWhen:
+          "same condition forms as visibleWhen; sets the Valid check on an input, currency input or phone input",
+        value: "text widget: { expr: <tree> } compiles a display value",
+        defaultDate:
+          "datepicker: literal ISO date or { expr: <tree> }; cannot be set together with defaultFrom",
+        minDate: "datepicker: literal ISO date or { expr: <tree> }",
+        maxDate: "datepicker: literal ISO date or { expr: <tree> }",
+        expressions:
+          "The bounded js-objects expression grammar (no param, var, constant or call), including user fields, date math, widget/query/store reads and boolean conditions. Read appsmith://guide/bindings and appsmith://recipe/conditional-form.",
         reorderTabs:
           "['<tab label>', …] on a TABS_WIDGET (up to 20 tabs) — the widget's existing tabs in the wanted order (every tab exactly once; read them from read_semantic_page's `tabs`, which is absent when a tab label carries a binding — such a widget cannot be reordered here). Only each tab's index changes; tabs are never created, dropped or renamed here. Hidden tabs are included in `tabs` (and listed separately in `tabsHidden`) and must be listed too. `defaultTab` must name one of those tabs.",
         tabOrder:
           "keyboard focus order (Accessibility > Tab order): an integer 1–1000 on any focusable widget, or null to return to automatic order. Automatic order is top-to-bottom then left-to-right; numbered widgets are focused first (lowest number first), the rest follow automatically. Set it only to override the automatic order, e.g. a sidebar form whose Save button should come straight after the last field. Absent means automatic (null clears the key). A modal itself is never inside a tab scope, so tabOrder on the modal widget has no effect; set it on the widgets inside the modal.",
         validation: "input validation spec",
-        disableWhenInvalid: "boolean (button)",
+        disableWhenInvalid:
+          "'<controlWidget>' or a list of 1–10 control names (button or JSON_FORM_WIDGET); disabled until every named control is valid",
       },
     },
     presets: listPresets(),
     grid: { columns: GRID_COLUMNS, rowHeightPx: ROW_HEIGHT },
     // Generated from the single TOOL_CATALOG so this list can never drift from what is actually registered.
-    tools: TOOL_CATALOG.filter((tool) => gateActive(tool.gate, gates)).map(
+    tools: TOOL_CATALOG.filter((tool) => toolActive(tool, gates)).map(
       (tool) => `${tool.name} — ${tool.summary}`,
     ),
     gates: {
@@ -979,7 +1047,7 @@ export function getCapabilities(
     resources: [
       "appsmith://reference/widgets — the widget catalog as a resource",
       "appsmith://guide/{placement,naming,bindings,git,screenshot} — technique guides (read the screenshot guide BEFORE recreating any screenshot/mockup the user shows you)",
-      "appsmith://recipe/{crud,form,table-detail,zip-lookup,filter-bar} — end-to-end build walkthroughs",
+      "appsmith://recipe/{crud,form,table-detail,zip-lookup,filter-bar,conditional-form} — end-to-end build walkthroughs",
       "Every doc above is also readable through the get_guide tool by slug (for clients that cannot read MCP resources).",
     ],
     prompts: [

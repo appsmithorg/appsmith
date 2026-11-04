@@ -366,6 +366,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             // update body, so strip them here alongside isPublic.
             application.setExportWithConfiguration(null);
             application.setForkWithConfiguration(null);
+            // The workspace an application belongs to is fixed at creation and changes only through
+            // server-internal flows. Never take it from an update body.
+            application.setWorkspaceId(null);
             application.setLastEditedAt(Instant.now());
             if (!StringUtils.isEmpty(application.getName())) {
                 application.setSlug(TextUtils.makeSlug(application.getName()));

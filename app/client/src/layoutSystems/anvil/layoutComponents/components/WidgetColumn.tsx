@@ -15,6 +15,7 @@ class WidgetColumn extends BaseLayoutComponent {
 
   getFlexLayoutProps(): Omit<FlexLayoutProps, "children"> {
     return {
+      alignSelf: "stretch",
       ...super.getFlexLayoutProps(),
       direction: "column",
     };
