@@ -103,8 +103,7 @@ class FileUtilsCEImplDeleteRetryTest {
         Files.createDirectories(target);
         Files.writeString(target.resolve("sticky.txt"), "cannot delete me");
         Files.setPosixFilePermissions(target, PosixFilePermissions.fromString("r-x------"));
-        Assumptions.assumeFalse(
-                Files.isWritable(target), "Permissions are not enforced (running as root?)");
+        Assumptions.assumeFalse(Files.isWritable(target), "Permissions are not enforced (running as root?)");
 
         // When / Then — zero delay so the test stays fast; still exercises bounded attempts
         assertThatThrownBy(() -> fileUtils.deleteDirectoryWithRetry(target, 3, 0L))
@@ -121,8 +120,7 @@ class FileUtilsCEImplDeleteRetryTest {
         Files.createDirectories(LOCAL_TEST_DIRECTORY_PATH.resolve(repoSuffix));
         Files.writeString(appParent.resolve("sticky.txt"), "cannot delete me");
         Files.setPosixFilePermissions(appParent, PosixFilePermissions.fromString("r-x------"));
-        Assumptions.assumeFalse(
-                Files.isWritable(appParent), "Permissions are not enforced (running as root?)");
+        Assumptions.assumeFalse(Files.isWritable(appParent), "Permissions are not enforced (running as root?)");
 
         // When / Then — production delay is 100ms × 2 waits; bound the wait so a hang would fail the test
         StepVerifier.create(fileUtils.deleteLocalRepo(repoSuffix))

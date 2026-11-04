@@ -625,7 +625,9 @@ public class FileUtilsCEImpl implements FileInterface {
                             .toFile()
                             .listFiles();
                     for (File file : files) {
-                        if (!ALLOWED_FILE_EXTENSION_PATTERN.matcher(file.getName()).matches()
+                        if (!ALLOWED_FILE_EXTENSION_PATTERN
+                                        .matcher(file.getName())
+                                        .matches()
                                 && !file.getName().equals("LICENSE")) {
                             // Remove the cloned repo from the file system since the repo doesnt satisfy the criteria
                             deleteDirectoryWithRetry(file.toPath());
