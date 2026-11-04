@@ -86,6 +86,11 @@ public class FileUtilsCEImpl implements FileInterface {
     private static final Pattern ALLOWED_FILE_EXTENSION_PATTERN =
             Pattern.compile("(.*?)\\.(md|MD|git|gitignore|github|yml|yaml)$");
 
+    /** Bounded retries so a failed delete cannot spin forever on the elastic pool. */
+    private static final int DELETE_MAX_ATTEMPTS = 3;
+
+    private static final long DELETE_RETRY_DELAY_MS = 100L;
+
     protected final Scheduler scheduler = Schedulers.boundedElastic();
 
     private static final String CANVAS_WIDGET = "(Canvas)[0-9]*.";
@@ -602,14 +607,13 @@ public class FileUtilsCEImpl implements FileInterface {
     @Override
     public Mono<Boolean> deleteLocalRepo(Path baseRepoSuffix) {
         // Remove the complete directory from path: baseRepo/workspaceId/defaultApplicationId
-        File file = Paths.get(gitServiceConfig.getGitRootPath())
-                .resolve(baseRepoSuffix)
-                .getParent()
-                .toFile();
-        while (file.exists()) {
-            FileSystemUtils.deleteRecursively(file);
-        }
-        return Mono.just(Boolean.TRUE);
+        return Mono.fromCallable(() -> {
+            Path repoParent = Paths.get(gitServiceConfig.getGitRootPath())
+                    .resolve(baseRepoSuffix)
+                    .getParent();
+            deleteDirectoryWithRetry(repoParent);
+            return Boolean.TRUE;
+        });
     }
 
     @Override
@@ -623,14 +627,61 @@ public class FileUtilsCEImpl implements FileInterface {
                 if (!ALLOWED_FILE_EXTENSION_PATTERN.matcher(file.getName()).matches()
                         && !file.getName().equals("LICENSE")) {
                     // Remove the cloned repo from the file system since the repo doesnt satisfy the criteria
-                    while (file.exists()) {
-                        FileSystemUtils.deleteRecursively(file);
-                    }
+                    deleteDirectoryWithRetry(file.toPath());
                     return false;
                 }
             }
             return true;
         });
+    }
+
+    /**
+     * Deletes {@code path} using the Path overload of {@link FileSystemUtils#deleteRecursively(Path)},
+     * which throws on failure. Retries a small number of times with a short delay so transient FS
+     * locks can clear, then fails. Avoids the File overload's boolean return, which previously
+     * powered an infinite {@code while (exists)} loop when delete kept failing.
+     */
+    void deleteDirectoryWithRetry(Path path) throws IOException {
+        deleteDirectoryWithRetry(path, DELETE_MAX_ATTEMPTS, DELETE_RETRY_DELAY_MS);
+    }
+
+    /**
+     * Package-visible overload for tests that need a zero delay.
+     */
+    void deleteDirectoryWithRetry(Path path, int maxAttempts, long retryDelayMs) throws IOException {
+        if (path == null || !Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
+            return;
+        }
+        if (maxAttempts < 1) {
+            throw new IllegalArgumentException("maxAttempts must be >= 1");
+        }
+
+        IOException lastFailure = null;
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                FileSystemUtils.deleteRecursively(path);
+                if (!Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
+                    return;
+                }
+                lastFailure = new IOException("Directory still exists after delete: " + path);
+            } catch (IOException e) {
+                if (!Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
+                    return;
+                }
+                lastFailure = e;
+            }
+
+            if (attempt < maxAttempts) {
+                try {
+                    Thread.sleep(retryDelayMs);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException("Interrupted while retrying delete of " + path, ie);
+                }
+            }
+        }
+
+        throw lastFailure != null ? lastFailure : new IOException("Failed to delete directory: " + path);
     }
 
     /**
