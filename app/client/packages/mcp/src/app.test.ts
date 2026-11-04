@@ -5,6 +5,7 @@ import supertest from "supertest";
 import {
   AppsmithApiError,
   LayoutRequestError,
+  STALE_LAYOUT_CODE,
   MAX_ARTIFACT_BYTES,
   MCP_BUILD_INFO,
   READ_PAGES_LAYOUT_CONCURRENCY,
@@ -20,12 +21,18 @@ import {
 import { INSTRUCTION_DOCS } from "./builder/instructions.js";
 import { compileJsObject } from "./builder/jsObject.js";
 import { markMcpAuthoredBody, mcpAuthoredBody } from "./builder/query.js";
+import {
+  buildRestActionDto,
+  compileRestApi,
+  restApiSpecSchema,
+} from "./builder/restApi.js";
 import { fingerprintDsl } from "./builder/semantic.js";
 import { McpGovernanceCoordinator } from "./governance/coordinator.js";
 import { WIDGET_REMOVAL_MAX } from "./governance/widgetRemoval.js";
 import type {
   McpChangeRecord,
   McpGovernanceStore,
+  McpJsDefinitionRecord,
   PreparedConfirmation,
 } from "./governance/store.js";
 
@@ -809,9 +816,9 @@ describe("MCP HTTP server", () => {
         },
       ],
     };
-    const getApplicationContext = jest.fn(async () => ({
+    const getApplicationContext = jest.fn(async (applicationId: string) => ({
       pages: [],
-      page: {},
+      page: { applicationId },
       layout: { dsl: overlappingDsl },
     }));
     const updateLayout = jest.fn();
@@ -946,9 +953,9 @@ describe("MCP HTTP server", () => {
   }
 
   it("edit_page appends to the existing DSL and writes it back", async () => {
-    const getApplicationContext = jest.fn(async () => ({
+    const getApplicationContext = jest.fn(async (applicationId: string) => ({
       pages: [],
-      page: {},
+      page: { applicationId },
       layout: { dsl: existingPageDsl },
     }));
     const updateLayout = jest.fn<
@@ -1004,9 +1011,9 @@ describe("MCP HTTP server", () => {
   });
 
   it("edit_page reports a read failure without writing when the layout is missing", async () => {
-    const getApplicationContext = jest.fn(async () => ({
+    const getApplicationContext = jest.fn(async (applicationId: string) => ({
       pages: [],
-      page: {},
+      page: { applicationId },
       layout: {},
     }));
     const updateLayout = jest.fn(async () => ({ ok: true }));
@@ -1636,6 +1643,7 @@ describe("MCP instruction surface (M2)", () => {
         "appsmith://guide/naming",
         "appsmith://guide/placement",
         "appsmith://guide/screenshot",
+        "appsmith://recipe/conditional-form",
         "appsmith://recipe/crud",
         "appsmith://recipe/form",
         "appsmith://recipe/table-detail",
@@ -1880,9 +1888,9 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
   it("inspect_page reports bindings to queries that do not exist", async () => {
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: {
           dsl: {
             widgetId: "0",
@@ -1908,6 +1916,7 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
         },
       })),
       listActions: jest.fn(async () => [{ name: "getOrders", pageId: "p1" }]),
+      listActionCollections: jest.fn(async () => []),
     };
 
     const body = await callTool(api, "inspect_page", {
@@ -1921,6 +1930,180 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
         (issue) => issue.rule,
       ),
     ).toContain("dangling-binding");
+  });
+
+  // APP-16381: a page bound to editor-written JS objects and lodash, read back and linted.
+  function licensePageApi(): AppsmithApi {
+    return {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
+        pages: [{ id: "p1" }],
+        page: { applicationId },
+        layout: {
+          id: "l1",
+          dsl: {
+            widgetId: "0",
+            widgetName: "MainContainer",
+            type: "CANVAS_WIDGET",
+            topRow: 0,
+            bottomRow: 380,
+            leftColumn: 0,
+            rightColumn: 640,
+            children: [
+              {
+                widgetId: "t",
+                widgetName: "Licenses",
+                type: "TABLE_WIDGET_V2",
+                topRow: 0,
+                bottomRow: 20,
+                leftColumn: 0,
+                rightColumn: 64,
+                tableData: "{{ Utils.getLicenseData() }}",
+                primaryColumns: {
+                  customerName: {
+                    id: "customerName",
+                    originalId: "customerName",
+                    label: "Customer",
+                    columnType: "text",
+                    index: 0,
+                    computedValue: "{{ Licenses.processedTableData }}",
+                  },
+                  usage: {
+                    id: "usage",
+                    label: "{{ Variables.label }}",
+                    columnType: "button",
+                    isVisible: false,
+                    index: 1,
+                  },
+                },
+                columnOrder: ["usage", "customerName"],
+              },
+              {
+                widgetId: "x",
+                widgetName: "Total",
+                type: "TEXT_WIDGET",
+                topRow: 20,
+                bottomRow: 24,
+                leftColumn: 0,
+                rightColumn: 16,
+                text: "{{ _.sum(GetUsage.data.map((r) => r.n)) }} for {{ appsmith.user.email }} {{ Licenses.selectedRow.id }}",
+              },
+            ],
+          },
+        },
+      })),
+      listActions: jest.fn(async () => [{ name: "GetUsage", pageId: "p1" }]),
+      listActionCollections: jest.fn(async () => [
+        { name: "Utils" },
+        { name: "Variables" },
+      ]),
+    };
+  }
+
+  it("does not report bindings to editor-written JS objects or lodash as dangling (APP-16381)", async () => {
+    const body = await callTool(licensePageApi(), "inspect_page", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+    });
+
+    expect(
+      (body.diagnostics as { issues: { rule: string }[] }).issues.filter(
+        (issue) => issue.rule === "dangling-binding",
+      ),
+    ).toEqual([]);
+  });
+
+  it.each(["inspect_page", "read_semantic_page"])(
+    "%s keeps structural diagnostics when JS-object names cannot be read",
+    async (tool) => {
+      const api = licensePageApi();
+      const context = (await api.getApplicationContext("app1", "p1", "l1")) as {
+        pages: unknown;
+        page: unknown;
+        layout: { dsl: { children: { topRow: number; bottomRow: number }[] } };
+      };
+
+      context.layout.dsl.children[1].topRow = 0;
+      context.layout.dsl.children[1].bottomRow = 4;
+      api.getApplicationContext = jest.fn(async () => context);
+      api.listActionCollections = jest.fn(async () => {
+        throw new Error("unavailable");
+      });
+      const body = await callTool(api, tool, {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+      });
+      const issues = (body.diagnostics as { issues: { rule: string }[] })
+        .issues;
+
+      expect(issues.filter(({ rule }) => rule === "dangling-binding")).toEqual(
+        [],
+      );
+      expect(issues.some(({ rule }) => rule === "overlap")).toBe(true);
+    },
+  );
+
+  it("read_semantic_page lists table columns and summarises hand-written bindings by name only (APP-16381)", async () => {
+    const body = await callTool(licensePageApi(), "read_semantic_page", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+    });
+    const widgets = (body.page as { widgets: Record<string, unknown>[] })
+      .widgets;
+    const table = widgets.find((w) => w.name === "Licenses");
+    const total = widgets.find((w) => w.name === "Total");
+
+    expect(table?.columns).toEqual([
+      { id: "usage", type: "button", visible: false, order: 0 },
+      {
+        id: "customerName",
+        key: "customerName",
+        label: "Customer",
+        type: "text",
+        visible: true,
+        order: 1,
+      },
+    ]);
+    expect(table?.boundProps).toEqual({ tableData: { jsObjects: ["Utils"] } });
+    expect(total?.boundProps).toEqual({
+      text: {
+        queries: ["GetUsage"],
+        widgets: ["Licenses"],
+        user: ["email"],
+      },
+    });
+    // No expression text is returned.
+    expect(JSON.stringify(body.page)).not.toContain("getLicenseData");
+    expect(JSON.stringify(body.page)).not.toContain("processedTableData");
+  });
+
+  it("get_application_context narrows to the named sections and one widget's subtree (APP-16381)", async () => {
+    const body = await callTool(licensePageApi(), "get_application_context", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+      include: ["layout"],
+      widget: "Total",
+    });
+
+    expect(body.pages).toBeUndefined();
+    expect(body.page).toBeUndefined();
+    expect(
+      (body.layout as { id: string; dsl: { widgetName: string } }).dsl
+        .widgetName,
+    ).toBe("Total");
+    expect((body.layout as { id: string }).id).toBe("l1");
+
+    const missing = await callTool(
+      licensePageApi(),
+      "get_application_context",
+      { applicationId: "app1", pageId: "p1", layoutId: "l1", widget: "Nope" },
+    );
+
+    expect(missing.error).toMatch(/widget "Nope" was not found/);
   });
 
   it("create_query creates a parameterized query when the datasource is accessible", async () => {
@@ -1944,11 +2127,63 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     });
 
     expect(body.created).toBe(true);
-    expect(body.body).toBe("SELECT * FROM users WHERE id = {{ 1 }};");
+    expect(body.body).toBe('SELECT * FROM users WHERE "id" = {{ 1 }};');
     expect(createAction).toHaveBeenCalledTimes(1);
     const dto = createAction.mock.calls[0][0] as { datasource: { id: string } };
 
     expect(dto.datasource).toEqual({ id: "ds1" });
+  });
+
+  it("create_query stores an Oracle query where the Oracle plugin reads it, and get_action reads it back", async () => {
+    const createAction = jest.fn<
+      Promise<{ id: string }>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "act1" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "DB", pluginId: "oracle-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+    const created = await callTool(api, "create_query", { query: validQuery });
+
+    expect(created.created).toBe(true);
+    const dto = createAction.mock.calls[0][0] as {
+      actionConfiguration: {
+        body?: unknown;
+        formData: {
+          body: { data: string };
+          preparedStatement: { data: boolean };
+        };
+      };
+    };
+
+    expect(dto.actionConfiguration.body).toBeUndefined();
+    expect(dto.actionConfiguration.formData.preparedStatement.data).toBe(true);
+    expect(dto.actionConfiguration.formData.body.data).toContain(
+      created.body as string,
+    );
+
+    const read = await callTool(
+      {
+        ...api,
+        getAction: jest.fn(async () => ({
+          id: "act1",
+          name: "GetUsers",
+          pageId: "p1",
+          datasource: { id: "ds1" },
+          pluginType: "DB",
+          actionConfiguration: dto.actionConfiguration,
+        })),
+      },
+      "get_action",
+      { applicationId: "app1", actionId: "act1" },
+    );
+
+    expect(read.authoredBy).toBe("mcp");
+    expect(read.body).toBe(created.body);
   });
 
   it.each([
@@ -1982,7 +2217,7 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
 
       if (allowed) {
         expect(body.created).toBe(true);
-        expect(body.body).toContain("CAST(tag AS TEXT) = ANY(");
+        expect(body.body).toContain('CAST("tag" AS TEXT) = ANY(');
       } else {
         expect(body.valid).toBe(false);
         expect(JSON.stringify(body.errors)).toMatch(
@@ -2046,7 +2281,7 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
 
     expect(created.created).toBe(true);
     expect(created.body).toBe(
-      'SELECT * FROM users WHERE ("email" IS NULL OR email = {{ "" }});',
+      'SELECT * FROM users WHERE ("email" IS NULL OR "email" = {{ "" }});',
     );
 
     const refused = await callTool(api, "create_query", {
@@ -2080,7 +2315,7 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     [
       "postgres-plugin",
       true,
-      'SELECT * FROM users WHERE email ILIKE {{ "%" + (SearchInput.text ?? "") + "%" }};',
+      'SELECT * FROM users WHERE "email" ILIKE {{ "%" + (SearchInput.text ?? "") + "%" }};',
     ],
     ["mysql-plugin", false, undefined],
   ])(
@@ -3989,9 +4224,9 @@ describe("governance-wrapped layout mutations", () => {
   function makeServer(store: McpGovernanceStore) {
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: ROOT_DSL },
       })),
       updateLayout: jest.fn(async () => ({ ok: true })),
@@ -4412,9 +4647,9 @@ describe("governance-wrapped layout mutations", () => {
       });
       const api: AppsmithApi = {
         ...createApi()(),
-        getApplicationContext: jest.fn(async () => ({
+        getApplicationContext: jest.fn(async (applicationId: string) => ({
           pages: [],
-          page: {},
+          page: { applicationId },
           layout: { dsl: current },
         })),
         getApplicationPages: jest.fn(async () => ({
@@ -4487,6 +4722,57 @@ describe("governance-wrapped layout mutations", () => {
 
       expect(replay.body.code).toBe("revision_conflict");
       expect(updateLayout).toHaveBeenCalledTimes(1);
+    });
+
+    it("prepare names the widgets whose bindings the removal breaks", async () => {
+      const store = new MemoryGovernanceStore();
+      const { server, setDsl } = removalServer(store);
+      const dsl = removalDsl();
+      const greeting = (dsl.children as Record<string, unknown>[]).find(
+        (child) => child.widgetName === "Greeting",
+      )!;
+
+      greeting.text = "{{ CardTitle.text }}";
+      setDsl(dsl);
+
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec: {
+          ...SPEC,
+          revision: fingerprintDsl(dsl as never),
+          names: ["Card1"],
+        },
+      });
+
+      expect(prepared.body.brokenReferences).toEqual([
+        { widget: "Greeting", refersTo: ["CardTitle"] },
+      ]);
+      expect(prepared.body.relay).toContain(
+        'Bindings on "Greeting" (uses "CardTitle") may stop working.',
+      );
+    });
+
+    it("confirm writes nothing when the page read reports another application", async () => {
+      const store = new MemoryGovernanceStore();
+      const { api, server, updateLayout } = removalServer(store);
+      const revision = fingerprintDsl(removalDsl() as never);
+      const spec = { ...SPEC, revision, names: ["Card1"] };
+      const prepared = await callTool(server, "prepare_remove_widgets", {
+        spec,
+      });
+
+      api.getApplicationContext = jest.fn(async () => ({
+        pages: [],
+        page: { applicationId: "other-app" },
+        layout: { dsl: removalDsl() },
+      }));
+
+      const confirmed = await callTool(server, "confirm_remove_widgets", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(confirmed.body.code).toBe("page_not_found");
+      expect(updateLayout).not.toHaveBeenCalled();
     });
 
     // APP-16100: a layoutId that does not belong to the page is replaced by the page's own. The token is bound to the
@@ -5346,12 +5632,16 @@ describe("governance-wrapped layout mutations", () => {
   // the page's own layoutId reads; anything else is a 400.
   function layoutReadApi(overrides: Partial<AppsmithApi> = {}) {
     const getApplicationContext = jest.fn(
-      async (_app: string, _page: string, layoutId: string) => {
+      async (applicationId: string, _page: string, layoutId: string) => {
         if (layoutId !== "layout-real") {
           throw new LayoutRequestError(400, "AE-APP-4000");
         }
 
-        return { pages: [], page: {}, layout: { dsl: LAYOUT_DSL } };
+        return {
+          pages: [],
+          page: { applicationId },
+          layout: { dsl: LAYOUT_DSL },
+        };
       },
     );
     const getPage = jest.fn(async () => ({
@@ -5484,6 +5774,130 @@ describe("governance-wrapped layout mutations", () => {
       expect(written.body.correctedLayoutId).toBe("layout-real");
     },
   );
+
+  // The page DTO names its application. A page of another application, or a read that names none, is refused before
+  // the git gate and the lock, because both use this application's id.
+  const layoutWrites: [string, Record<string, unknown>][] = [
+    ["edit_page", { edit: { add: [{ type: "button", text: "Go" }] } }],
+    [
+      "patch_widgets",
+      {
+        patch: {
+          operations: [
+            {
+              kind: "move",
+              name: "SaveBtn",
+              position: { topRow: 30, leftColumn: 0 },
+            },
+          ],
+        },
+      },
+    ],
+    [
+      "wire_event",
+      {
+        spec: {
+          widget: "SaveBtn",
+          event: "onClick",
+          action: { showModal: "EditModal" },
+        },
+      },
+    ],
+  ];
+
+  it.each(
+    layoutWrites.flatMap(([tool]) => [
+      [tool, "another application", 0, { applicationId: "other-app" }],
+      [tool, "this application", 1, { applicationId: APP_ID }],
+      [tool, "no application", 0, {}],
+    ]) as [string, string, number, Record<string, unknown>][],
+  )(
+    "%s on a page of %s writes %s time(s)",
+    async (tool, _label, writes, page) => {
+      const { api, updateLayout } = layoutReadApi({
+        getApplicationContext: jest.fn(async () => ({
+          pages: [],
+          page,
+          layout: { dsl: LAYOUT_DSL },
+        })) as never,
+      });
+      const server = createMcpHttpServer(API_BASE_URL, () => api);
+      const toolArgs = layoutWrites.find(([name]) => name === tool)![1];
+      const written = await callTool(server, tool, {
+        applicationId: APP_ID,
+        pageId: PAGE_ID,
+        layoutId: "layout-real",
+        revision: LAYOUT_REVISION,
+        ...toolArgs,
+      });
+
+      expect(updateLayout).toHaveBeenCalledTimes(writes);
+      expect(written.body.code).toBe(
+        writes === 0 ? "page_not_found" : undefined,
+      );
+    },
+  );
+
+  // The server's compare-and-set: the layout read carries `revision`, the write sends it back, and the server refuses
+  // a write to a page that changed since that read.
+  describe("APP-16355: the server checks the layout has not changed", () => {
+    function api409(revision: string | undefined, refuse: boolean) {
+      const updateLayout = jest.fn<Promise<unknown>, unknown[]>(async () => {
+        if (refuse) throw new AppsmithApiError(409, STALE_LAYOUT_CODE);
+
+        return { ok: true };
+      });
+
+      return {
+        ...layoutReadApi({
+          getApplicationContext: jest.fn(async (applicationId: string) => ({
+            pages: [],
+            page: { applicationId },
+            layout: {
+              dsl: LAYOUT_DSL,
+              ...(revision !== undefined ? { revision } : {}),
+            },
+          })) as never,
+          updateLayout: updateLayout as never,
+        }),
+        updateLayout,
+      };
+    }
+
+    const edit = {
+      applicationId: APP_ID,
+      pageId: PAGE_ID,
+      layoutId: "layout-real",
+      revision: LAYOUT_REVISION,
+      edit: { add: [{ type: "button", text: "Go" }] },
+    };
+
+    it("sends the read's revision with the write", async () => {
+      const { api, updateLayout } = api409("1700000000123", false);
+      const server = createMcpHttpServer(API_BASE_URL, () => api);
+      const written = await callTool(server, "edit_page", edit);
+
+      expect(written.body.error).toBeUndefined();
+      expect(updateLayout.mock.calls[0][4]).toBe("1700000000123");
+    });
+
+    it("reports the server's stale-layout refusal as revision_conflict", async () => {
+      const { api } = api409("1700000000123", true);
+      const server = createMcpHttpServer(API_BASE_URL, () => api);
+      const written = await callTool(server, "edit_page", edit);
+
+      expect(written.body.code).toBe("revision_conflict");
+    });
+
+    it("writes as before when the server sends no revision", async () => {
+      const { api, updateLayout } = api409(undefined, false);
+      const server = createMcpHttpServer(API_BASE_URL, () => api);
+
+      await callTool(server, "edit_page", edit);
+
+      expect(updateLayout.mock.calls[0]).toHaveLength(4);
+    });
+  });
 
   it("APP-16100: a corrected write without a revision fails closed and writes nothing", async () => {
     const { api, updateLayout } = layoutReadApi();
@@ -5702,6 +6116,75 @@ describe("governance-wrapped layout mutations", () => {
     datasource: { id: "ds1", pluginId: "postgres" },
   };
 
+  describe("APP-16375: get_action returns the config of an MCP-authored REST API", () => {
+    async function readRest(actionConfiguration: Record<string, unknown>) {
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getAction: jest.fn(async () => ({
+          ...STORED_ACTION,
+          pluginType: "API",
+          actionConfiguration,
+        })),
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        dataEnabled: true,
+      });
+
+      return (
+        await callTool(server, "get_action", {
+          applicationId: "app1",
+          actionId: "act1",
+        })
+      ).body;
+    }
+
+    function written(): Record<string, unknown> {
+      const spec = restApiSpecSchema.parse({
+        name: "getUsers",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        method: "GET",
+        path: "/v1/users",
+      });
+
+      return (
+        buildRestActionDto(spec, compileRestApi(spec)) as {
+          actionConfiguration: Record<string, unknown>;
+        }
+      ).actionConfiguration;
+    }
+
+    it("returns the config and authoredBy mcp for an API the MCP wrote", async () => {
+      const read = await readRest(written());
+
+      expect(read.authoredBy).toBe("mcp");
+      expect(read.config).toMatchObject({
+        httpMethod: "GET",
+        path: "/v1/users",
+      });
+    });
+
+    // A GraphQL action is also pluginType API. One the MCP wrote has no REST marker, so nothing is returned.
+    it("returns no config for a GraphQL action", async () => {
+      const read = await readRest({
+        body: "query { users { id } }",
+        formData: { apiContentType: "application/json" },
+        pluginSpecifiedTemplates: [{ value: "{}" }],
+      });
+
+      expect(read.authoredBy).toBe("editor");
+      expect(read.config).toBeUndefined();
+    });
+
+    it("returns no config for an API edited afterwards", async () => {
+      const read = await readRest({ ...written(), path: "/v1/admin" });
+
+      expect(read.authoredBy).toBe("editor");
+      expect(read.config).toBeUndefined();
+    });
+  });
+
   describe("APP-16324 F9: get_action returns the body of MCP-authored SQL", () => {
     const compiled = 'SELECT id FROM tickets WHERE status = {{ "open" }};';
 
@@ -5918,7 +6401,7 @@ describe("governance-wrapped layout mutations", () => {
       JSON.stringify(
         (updateAction.mock.calls[0] as unknown[])[1] as Record<string, unknown>,
       ),
-    ).toContain("CAST(tag AS TEXT) = ANY(");
+    ).toContain('CAST(\\"tag\\" AS TEXT) = ANY(');
   });
 
   // The MySQL plugin refuses any prepared query with the word IS, so update_action must pick the MySQL form too.
@@ -5971,7 +6454,7 @@ describe("governance-wrapped layout mutations", () => {
         ).actionConfiguration.body,
       ),
     ).toBe(
-      'SELECT * FROM tickets WHERE (tickets.l2owner <=> NULL OR l2owner = {{ "" }});',
+      'SELECT * FROM tickets WHERE (tickets.l2owner <=> NULL OR tickets.l2owner = {{ "" }});',
     );
   });
 
@@ -6229,9 +6712,9 @@ describe("governance-wrapped layout mutations", () => {
     });
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: current },
       })),
       updateLayout: updateLayout as never,
@@ -6620,9 +7103,9 @@ describe("governance-wrapped layout mutations", () => {
     });
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: current },
       })),
       updateLayout: updateLayout as never,
@@ -6679,11 +7162,12 @@ describe("governance-wrapped layout mutations", () => {
     });
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: current },
       })),
+      listActions: jest.fn(async () => [{ name: "getCities" }]),
       updateLayout: updateLayout as never,
     };
     const server = createMcpHttpServer(API_BASE_URL, () => api, {
@@ -6712,6 +7196,7 @@ describe("governance-wrapped layout mutations", () => {
     };
     const select = written.children.find((w) => w.widgetName === "Region");
 
+    expect(wired.body).not.toHaveProperty("column");
     expect(select?.onOptionChange).toBe("{{ getCities.run() }}");
     expect(select?.dynamicTriggerPathList).toEqual([{ key: "onOptionChange" }]);
   });
@@ -6735,9 +7220,9 @@ describe("governance-wrapped layout mutations", () => {
     const updateLayout = jest.fn();
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: DSL },
       })),
       updateLayout: updateLayout as never,
@@ -6789,9 +7274,9 @@ describe("governance-wrapped layout mutations", () => {
     });
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: current },
       })),
       // No queries exist anywhere — a showAlert action needs no entity to resolve against.
@@ -6865,9 +7350,9 @@ describe("governance-wrapped layout mutations", () => {
     ]);
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: current },
       })),
       listActions,
@@ -6973,9 +7458,9 @@ describe("governance-wrapped layout mutations", () => {
     };
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: DSL },
       })),
       updateLayout: jest.fn(async () => ({ ok: true })),
@@ -7063,9 +7548,9 @@ describe("governance-wrapped layout mutations", () => {
     };
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: DSL },
       })),
       updateLayout: jest.fn(async () => ({ ok: true })),
@@ -7176,9 +7661,9 @@ describe("governance-wrapped layout mutations", () => {
     });
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: current },
       })),
       listActions: jest.fn(async () => [{ name: "LookupZip", pageId: "p1" }]),
@@ -7349,6 +7834,355 @@ describe("governance-wrapped layout mutations", () => {
     ]);
   });
 
+  it("read_js_object returns each function's parameter names and async flag, never default values (APP-16381)", async () => {
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listActionCollections: jest.fn(async () => [
+        {
+          id: "c1",
+          name: "Utils",
+          pageId: "p1",
+          body: "export default { getLicenseData (row, opts) { return row; }, sync () {} }",
+          actions: [
+            {
+              name: "getLicenseData",
+              actionConfiguration: {
+                isAsync: true,
+                jsArguments: [
+                  { name: "row", value: "secretDefault()" },
+                  { name: "opts" },
+                  { name: "not an identifier" },
+                ],
+              },
+            },
+            {
+              name: "sync",
+              actionConfiguration: {
+                isAsync: false,
+                jsArguments: Array.from({ length: 30 }, (_, i) => ({
+                  name: `p${i}`,
+                })),
+              },
+            },
+          ],
+        },
+      ]),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+    });
+    const read = await callTool(server, "read_js_object", {
+      applicationId: "a".repeat(24),
+    });
+    const signatures = read.body.jsObjects[0].signatures as {
+      name: string;
+      params: string[];
+      async?: boolean;
+    }[];
+
+    expect(signatures[0]).toEqual({
+      name: "getLicenseData",
+      params: ["row", "opts"],
+      async: true,
+    });
+    expect(signatures[1].async).toBe(false);
+    expect(signatures[1].params).toHaveLength(20);
+    expect(JSON.stringify(signatures)).not.toContain("secretDefault");
+  });
+
+  it("read_semantic_page names JS objects a binding refers to when only the JS tools are on (APP-16381)", async () => {
+    const listActions = jest.fn(async () => {
+      throw new Error("the data tools are off");
+    });
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
+        pages: [],
+        page: { applicationId },
+        layout: {
+          dsl: {
+            ...ROOT_DSL,
+            children: [
+              {
+                widgetId: "t",
+                widgetName: "Licenses",
+                type: "TABLE_WIDGET_V2",
+                topRow: 0,
+                bottomRow: 20,
+                leftColumn: 0,
+                rightColumn: 64,
+                tableData: "{{ Utils.getLicenseData() }}",
+              },
+            ],
+          },
+        },
+      })),
+      listActions: listActions as never,
+      listActionCollections: jest.fn(async () => [{ name: "Utils" }]),
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+    });
+    const read = await callTool(server, "read_semantic_page", {
+      applicationId: "app1",
+      pageId: "p1",
+      layoutId: "l1",
+    });
+    const table = (
+      read.body.page as { widgets: Record<string, unknown>[] }
+    ).widgets.find((w) => w.name === "Licenses");
+
+    expect(table?.boundProps).toEqual({ tableData: { jsObjects: ["Utils"] } });
+    expect(listActions).not.toHaveBeenCalled();
+  });
+
+  describe("patch_widgets checks a binding expression's query leaves against the app (APP-16381)", () => {
+    const DSL = {
+      ...ROOT_DSL,
+      children: [
+        {
+          widgetId: "w",
+          widgetName: "Warning",
+          type: "TEXT_WIDGET",
+          topRow: 0,
+          bottomRow: 4,
+          leftColumn: 0,
+          rightColumn: 16,
+          text: "Careful",
+        },
+      ],
+    };
+    const patch = {
+      operations: [
+        {
+          kind: "update",
+          name: "Warning",
+          props: {
+            visibleWhen: {
+              expr: {
+                op: "gt",
+                args: [{ query: "GetUsage", field: "total" }, 0],
+              },
+            },
+          },
+        },
+      ],
+    };
+
+    function serverWith(listActions: () => Promise<unknown>) {
+      const updateLayout = jest.fn(async () => ({ ok: true }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getApplicationContext: jest.fn(async (applicationId: string) => ({
+          pages: [],
+          page: { applicationId },
+          layout: { dsl: DSL },
+        })),
+        listActions: jest.fn(listActions) as never,
+        updateLayout: updateLayout as never,
+      };
+
+      return {
+        updateLayout,
+        server: createMcpHttpServer(API_BASE_URL, () => api, {
+          dataEnabled: true,
+          governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+        }),
+      };
+    }
+
+    const call = async (server: ReturnType<typeof serverWith>["server"]) =>
+      callTool(server, "patch_widgets", {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+        revision: fingerprintDsl(DSL as never),
+        patch,
+      });
+
+    it("writes the binding when the query exists", async () => {
+      const { server, updateLayout } = serverWith(async () => [
+        { name: "GetUsage" },
+      ]);
+      const patched = await call(server);
+
+      expect(patched.body.error).toBeUndefined();
+
+      const written = (updateLayout.mock.calls[0] as unknown[])[3] as {
+        children: { isVisible?: string }[];
+      };
+
+      expect(written.children[0].isVisible).toBe(
+        "{{ Boolean((GetUsage.data?.total > 0)) }}",
+      );
+    });
+
+    it("refuses an unknown query, and a patch whose query list cannot be read", async () => {
+      const unknown = serverWith(async () => [{ name: "Other" }]);
+      const failing = serverWith(async () => {
+        throw new Error("down");
+      });
+
+      expect(JSON.stringify((await call(unknown.server)).body)).toMatch(
+        /query \\"GetUsage\\" was not found/,
+      );
+      expect(JSON.stringify((await call(failing.server)).body)).toMatch(
+        /cannot be checked here/,
+      );
+      expect(unknown.updateLayout).not.toHaveBeenCalled();
+      expect(failing.updateLayout).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("wire_event on a table's button column (APP-16381)", () => {
+    // A table inside modal Outer, with a button column; modal Inner on the page.
+    function dslWith(innerOpensOuter: boolean) {
+      const modal = (name: string, children: unknown[]) => ({
+        widgetId: name,
+        widgetName: name,
+        type: "MODAL_WIDGET",
+        topRow: 0,
+        bottomRow: 40,
+        leftColumn: 0,
+        rightColumn: 24,
+        children: [
+          {
+            widgetId: `${name}Canvas`,
+            widgetName: `${name}Canvas`,
+            type: "CANVAS_WIDGET",
+            topRow: 0,
+            bottomRow: 40,
+            leftColumn: 0,
+            rightColumn: 24,
+            children,
+          },
+        ],
+      });
+
+      return {
+        ...ROOT_DSL,
+        children: [
+          modal("Outer", [
+            {
+              widgetId: "t",
+              widgetName: "Licenses",
+              type: "TABLE_WIDGET_V2",
+              topRow: 0,
+              bottomRow: 20,
+              leftColumn: 0,
+              rightColumn: 24,
+              primaryColumns: {
+                extend: { id: "extend", columnType: "button" },
+                renew: { id: "renew", columnType: "button" },
+              },
+            },
+          ]),
+          modal(
+            "Inner",
+            innerOpensOuter
+              ? [
+                  {
+                    widgetId: "b",
+                    widgetName: "Back",
+                    type: "BUTTON_WIDGET",
+                    topRow: 0,
+                    bottomRow: 4,
+                    leftColumn: 0,
+                    rightColumn: 8,
+                    onClick: "{{ showModal('Outer') }}",
+                    dynamicTriggerPathList: [{ key: "onClick" }],
+                  },
+                ]
+              : [],
+          ),
+        ],
+      };
+    }
+
+    async function wire(dsl: Record<string, unknown>, column = "extend") {
+      const store = new MemoryGovernanceStore();
+      const updateLayout = jest.fn(async () => ({ ok: true }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getApplicationContext: jest.fn(async (applicationId: string) => ({
+          pages: [],
+          page: { applicationId },
+          layout: { dsl },
+        })),
+        listActions: jest.fn(async () => []),
+        updateLayout: updateLayout as never,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        dataEnabled: true,
+        governance: new McpGovernanceCoordinator(store),
+      });
+      const wired = await callTool(server, "wire_event", {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+        revision: fingerprintDsl(dsl as never),
+        spec: {
+          widget: "Licenses",
+          column,
+          event: "onClick",
+          action: { showModal: "Inner" },
+        },
+      });
+
+      return { wired, updateLayout, store };
+    }
+
+    it("writes the column's onClick, registers the nested path and warns at stack depth 2", async () => {
+      const { updateLayout, wired } = await wire(dslWith(false));
+
+      expect(wired.body.error).toBeUndefined();
+      expect(String(wired.body.modalWarning)).toMatch(/stack depth 2/);
+
+      const written = (updateLayout.mock.calls[0] as unknown[])[3] as {
+        children: {
+          children: {
+            children: {
+              primaryColumns?: Record<string, { onClick?: string }>;
+              dynamicTriggerPathList?: { key: string }[];
+            }[];
+          }[];
+        }[];
+      };
+      const table = written.children[0].children[0].children[0];
+
+      expect(table.primaryColumns?.extend.onClick).toBe(
+        "{{ showModal('Inner') }}",
+      );
+      expect(table.dynamicTriggerPathList).toEqual([
+        { key: "primaryColumns.extend.onClick" },
+      ]);
+    });
+
+    it.each(["extend", "renew"])(
+      "identifies column %s in the result and audit summary",
+      async (column) => {
+        const { store, wired } = await wire(dslWith(false), column);
+
+        expect(wired.body.error).toBeUndefined();
+        expect(wired.body.column).toBe(column);
+        expect(store.changes).toHaveLength(1);
+        expect(store.changes[0].summary).toMatchObject({
+          widget: "Licenses",
+          event: "onClick",
+          column,
+        });
+      },
+    );
+
+    it("refuses a column wiring that closes a modal cycle", async () => {
+      const { updateLayout, wired } = await wire(dslWith(true));
+
+      expect(wired.body.code).toBe("modal_stack");
+      expect(String(wired.body.error)).toMatch(/modal cycle/);
+      expect(updateLayout).not.toHaveBeenCalled();
+    });
+  });
+
   it("read_js_object returns each object's compiled source and a body-sensitive revision", async () => {
     const APP = "a".repeat(24);
     const collection = {
@@ -7358,7 +8192,8 @@ describe("governance-wrapped layout mutations", () => {
       body: "export default { save: async () => { await SaveBanner.run(); } };",
       actions: [{ id: "act1", name: "save" }],
     };
-    // Hand-written in the editor: arbitrary JS that may hold secrets. Its source must never reach the agent.
+    // Hand-written in the editor: arbitrary JS that may hold secrets. Its source is returned as data (owner decision,
+    // APP-16355), as read_workflow returns a workflow's editor-written logic.
     const editorAuthored = {
       id: "coll2",
       name: "Legacy",
@@ -7382,6 +8217,7 @@ describe("governance-wrapped layout mutations", () => {
       id: "coll1",
       name: "BannerAdmin",
       pageId: "b".repeat(24),
+      signatures: [{ name: "save", params: [] }],
       functions: ["save"],
       authoredBy: "mcp",
       definitionState: "none",
@@ -7392,12 +8228,13 @@ describe("governance-wrapped layout mutations", () => {
       id: "coll2",
       name: "Legacy",
       pageId: "b".repeat(24),
+      signatures: [{ name: "call", params: [] }],
       functions: ["call"],
       authoredBy: "editor",
       definitionState: "none",
+      source: editorAuthored.body,
       revision: expect.stringMatching(/^[a-f0-9]{64}$/),
     });
-    expect(JSON.stringify(read.body)).not.toContain("sk-live-secret");
 
     // A code-only change (same metadata, different body) moves the per-object revision.
     (api.listActionCollections as jest.Mock).mockResolvedValueOnce([
@@ -7465,6 +8302,341 @@ describe("governance-wrapped layout mutations", () => {
     expect(updateActionCollection).toHaveBeenCalledTimes(1);
   });
 
+  describe("APP-16355: replacing a JS object written in the editor", () => {
+    const APP = "a".repeat(24);
+    const PAGE = "b".repeat(24);
+    const apis = new WeakMap<object, AppsmithApi>();
+    const serverApiOf = (server: object) => apis.get(server)!;
+
+    function setup(pageText = "", overrides: Partial<AppsmithApi> = {}) {
+      const store = new MemoryGovernanceStore();
+      const legacy = {
+        id: "coll2",
+        name: "Legacy",
+        pageId: PAGE,
+        body: "export default {\n\tapiKey: 'k',\n\tasync load () { return 1; },\n\tasync old () { return 2; }\n}",
+        actions: [
+          {
+            id: "act1",
+            name: "load",
+            runBehaviour: "ON_PAGE_LOAD",
+            confirmBeforeExecute: true,
+          },
+          { id: "act2", name: "old" },
+        ],
+      };
+      const updateActionCollectionBody = jest.fn(async () => ({}));
+      const updateActionCollection = jest.fn<
+        Promise<object>,
+        [string, unknown]
+      >(async () => ({}));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listActionCollections: jest.fn(async () => [legacy]),
+        listActions: jest.fn(async () => []),
+        getPage: jest.fn(async () => ({
+          id: PAGE,
+          layouts: [{ id: "l1", dsl: { text: pageText } }],
+        })),
+        updateActionCollectionBody,
+        updateActionCollection: updateActionCollection as never,
+        ...overrides,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        jsEnabled: true,
+        governance: new McpGovernanceCoordinator(store),
+      });
+
+      apis.set(server, api);
+
+      return {
+        legacy,
+        server,
+        updateActionCollection,
+        updateActionCollectionBody,
+      };
+    }
+
+    async function specFor(
+      server: ReturnType<typeof createMcpHttpServer>,
+      functions: unknown[],
+    ) {
+      const read = await callTool(server, "read_js_object", {
+        applicationId: APP,
+      });
+
+      return {
+        applicationId: APP,
+        collectionId: "coll2",
+        revision: read.body.jsObjects[0].revision,
+        functions,
+      };
+    }
+
+    it("lists what changes, asks first, keeps kept functions' settings, and returns the replaced code", async () => {
+      const {
+        legacy,
+        server,
+        updateActionCollection,
+        updateActionCollectionBody,
+      } = setup();
+      const spec = await specFor(server, [
+        { name: "load", returns: 1 },
+        { name: "fresh", returns: 3 },
+      ]);
+      const prepared = await callTool(server, "prepare_replace_js_object", {
+        spec,
+      });
+
+      expect(prepared.body.removedFunctions).toEqual(["old"]);
+      expect(prepared.body.addedFunctions).toEqual(["fresh"]);
+      expect(prepared.body.relay).toContain("replace ALL the code");
+      expect(updateActionCollectionBody).not.toHaveBeenCalled();
+
+      const confirmed = await callTool(server, "confirm_replace_js_object", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(confirmed.body.updated).toBe(true);
+      expect(confirmed.body.replacedSource).toBe(legacy.body);
+      expect(updateActionCollectionBody).toHaveBeenCalledTimes(1);
+      const patch = updateActionCollection.mock.calls[0][1] as {
+        actions: {
+          updated: Record<string, unknown>[];
+          added: Record<string, unknown>[];
+          deleted: { name: string }[];
+        };
+      };
+
+      expect(patch.actions.updated[0]).toMatchObject({
+        id: "act1",
+        name: "load",
+        runBehaviour: "ON_PAGE_LOAD",
+        confirmBeforeExecute: true,
+      });
+      expect(patch.actions.added.map((a) => a.name)).toEqual(["fresh"]);
+      expect(patch.actions.deleted.map((d) => d.name)).toEqual(["old"]);
+    });
+
+    it("refuses to drop a function the page still calls, unless acknowledged", async () => {
+      const { server } = setup("{{ Legacy.old() }}");
+      const spec = await specFor(server, [{ name: "load", returns: 1 }]);
+      const refused = await callTool(server, "prepare_replace_js_object", {
+        spec,
+      });
+
+      expect(refused.body.code).toBe("replace_breaks_calls");
+      expect(refused.body.brokenCalls).toEqual([
+        { where: "the page layout", calls: "Legacy.old" },
+      ]);
+
+      const acknowledged = await callTool(server, "prepare_replace_js_object", {
+        spec,
+        acknowledgeBrokenCalls: true,
+      });
+
+      expect(acknowledged.body.confirmationId).toEqual(expect.any(String));
+    });
+
+    it("returns short editor source exactly as written", async () => {
+      const { legacy, server } = setup();
+      const read = await callTool(server, "read_js_object", {
+        applicationId: APP,
+      });
+
+      expect(read.body.jsObjects[0].source).toBe(legacy.body);
+      expect(read.body.jsObjects[0].sourceTruncated).toBeUndefined();
+    });
+
+    it("on a git-connected app, refuses without the branch and keeps the token", async () => {
+      const { server, updateActionCollectionBody } = setup("", {
+        getApplication: jest.fn(async () => ({
+          id: APP,
+          gitApplicationMetadata: {
+            branchName: "feature/x",
+            remoteUrl: "git@github.com:acme/app.git",
+          },
+        })),
+      });
+      const spec = await specFor(server, [
+        { name: "load", returns: 1 },
+        { name: "old", returns: 2 },
+      ]);
+      const prepared = await callTool(server, "prepare_replace_js_object", {
+        spec,
+      });
+      const refused = await callTool(server, "confirm_replace_js_object", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(refused.body.code).toBe("git_branch_required");
+      expect(updateActionCollectionBody).not.toHaveBeenCalled();
+
+      const confirmed = await callTool(server, "confirm_replace_js_object", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+        branch: "feature/x",
+      });
+
+      expect(confirmed.body.updated).toBe(true);
+    });
+
+    it("refuses when the object changed after it was read, before writing", async () => {
+      const { legacy, server, updateActionCollectionBody } = setup();
+      const spec = await specFor(server, [
+        { name: "load", returns: 1 },
+        { name: "old", returns: 2 },
+      ]);
+      const prepared = await callTool(server, "prepare_replace_js_object", {
+        spec,
+      });
+      const edited = { ...legacy, body: `${legacy.body}\n` };
+      let calls = 0;
+
+      // confirm reads the object for its checks, then for the update, then once more under the lock: only that last
+      // read sees the editor's save.
+      (
+        serverApiOf(server).listActionCollections as jest.Mock
+      ).mockImplementation(async () => (++calls >= 3 ? [edited] : [legacy]));
+
+      const confirmed = await callTool(server, "confirm_replace_js_object", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(confirmed.body.code).toBe("revision_conflict");
+      expect(updateActionCollectionBody).not.toHaveBeenCalled();
+    });
+
+    it("refuses an object too large to keep a copy of in the change record", async () => {
+      const { legacy, server } = setup();
+
+      legacy.body = `export default { note: '${"x".repeat(9 * 1024 * 1024)}' }`;
+
+      const spec = await specFor(server, [{ name: "load", returns: 1 }]);
+      const refused = await callTool(server, "prepare_replace_js_object", {
+        spec,
+        acknowledgeBrokenCalls: true,
+      });
+
+      expect(refused.body.code).toBe("js_object_too_large");
+    });
+
+    it("refuses to make a synchronous function the page still calls async, unless acknowledged", async () => {
+      const { legacy, server } = setup("{{ Legacy.load() }}");
+
+      (legacy.actions[0] as Record<string, unknown>).actionConfiguration = {
+        isAsync: false,
+      };
+
+      const spec = await specFor(server, [
+        { name: "load", returns: 1 },
+        { name: "old", returns: 2 },
+      ]);
+      const refused = await callTool(server, "prepare_replace_js_object", {
+        spec,
+      });
+
+      expect(refused.body.code).toBe("replace_breaks_calls");
+      expect(refused.body.brokenCalls).toEqual([
+        { where: "the page layout", calls: "Legacy.load (becomes async)" },
+      ]);
+    });
+
+    it("writes the run and confirm settings read under the lock, not the earlier ones", async () => {
+      const { legacy, server, updateActionCollection } = setup();
+      const spec = await specFor(server, [
+        { name: "load", returns: 1 },
+        { name: "old", returns: 2 },
+      ]);
+      const prepared = await callTool(server, "prepare_replace_js_object", {
+        spec,
+      });
+      // A settings-only change in the editor does not change the object's revision.
+      const resettled = {
+        ...legacy,
+        actions: [
+          { id: "act1", name: "load", runBehaviour: "MANUAL" },
+          { id: "act2", name: "old" },
+        ],
+      };
+      let calls = 0;
+
+      (
+        serverApiOf(server).listActionCollections as jest.Mock
+      ).mockImplementation(async () => (++calls >= 3 ? [resettled] : [legacy]));
+
+      const confirmed = await callTool(server, "confirm_replace_js_object", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(confirmed.body.updated).toBe(true);
+      const patch = updateActionCollection.mock.calls[0][1] as {
+        actions: { updated: Record<string, unknown>[] };
+      };
+
+      expect(patch.actions.updated[0]).toMatchObject({
+        name: "load",
+        runBehaviour: "MANUAL",
+      });
+      expect(patch.actions.updated[0].confirmBeforeExecute).toBeUndefined();
+    });
+
+    it("cuts returned editor source at 200,000 characters and flags it", async () => {
+      const { legacy, server } = setup();
+
+      legacy.body = `export default { note: '${"x".repeat(200_100)}' }`;
+
+      const read = await callTool(server, "read_js_object", {
+        applicationId: APP,
+      });
+
+      expect(read.body.jsObjects[0].source).toHaveLength(200_000);
+      expect(read.body.jsObjects[0].sourceTruncated).toBe(true);
+    });
+
+    it("refuses a token prepared for a different definition", async () => {
+      const { server, updateActionCollectionBody } = setup();
+      const spec = await specFor(server, [
+        { name: "load", returns: 1 },
+        { name: "old", returns: 2 },
+      ]);
+      const prepared = await callTool(server, "prepare_replace_js_object", {
+        spec,
+      });
+      const swapped = await callTool(server, "confirm_replace_js_object", {
+        spec: {
+          ...spec,
+          functions: [
+            { name: "load", returns: 9 },
+            { name: "old", returns: 2 },
+          ],
+        },
+        confirmationId: prepared.body.confirmationId,
+      });
+
+      expect(swapped.body.updated).toBeUndefined();
+      expect(updateActionCollectionBody).not.toHaveBeenCalled();
+    });
+
+    it("sends an object MCP wrote to update_js_object instead", async () => {
+      const { legacy, server } = setup();
+
+      legacy.body =
+        "export default { refresh: async () => { await GetBanners.run(); } };";
+
+      const spec = await specFor(server, [{ name: "refresh", returns: 1 }]);
+      const refused = await callTool(server, "prepare_replace_js_object", {
+        spec,
+      });
+
+      expect(refused.body.code).toBe("mcp_authored_js_object");
+    });
+  });
+
   it("update_js_object writes the code through the body route, then diffs the functions on the PATCH", async () => {
     const store = new MemoryGovernanceStore();
     const APP = "a".repeat(24);
@@ -7491,6 +8663,7 @@ describe("governance-wrapped layout mutations", () => {
       .fn<Promise<unknown>, [string]>()
       .mockResolvedValueOnce([before]) // read_js_object
       .mockResolvedValueOnce([before]) // update: locate current
+      .mockResolvedValueOnce([before]) // update: re-read under the lock
       .mockResolvedValue([after]); // update: re-read after the writes
     const updateActionCollectionBody = jest.fn<
       Promise<unknown>,
@@ -7733,6 +8906,369 @@ describe("governance-wrapped layout mutations", () => {
     );
   });
 
+  // A store that keeps JS definitions, as the Mongo store does.
+  class DefinitionStore extends MemoryGovernanceStore {
+    readonly definitions: McpJsDefinitionRecord[] = [];
+    failSave = false;
+    failFind = false;
+
+    async saveJsDefinition(record: McpJsDefinitionRecord): Promise<void> {
+      if (this.failSave) throw new Error("store unavailable");
+
+      if (
+        !this.definitions.some(
+          (d) =>
+            d.organizationId === record.organizationId &&
+            d.codeHash === record.codeHash,
+        )
+      ) {
+        this.definitions.push(record);
+      }
+    }
+    async findJsDefinitions(
+      organizationId: string,
+      codeHashes: readonly string[],
+    ): Promise<McpJsDefinitionRecord[]> {
+      if (this.failFind) throw new Error("mongodb://user:secret@host down");
+
+      return this.definitions.filter(
+        (d) =>
+          d.organizationId === organizationId &&
+          codeHashes.includes(d.codeHash),
+      );
+    }
+  }
+
+  it("writes readable JS objects when the store keeps definitions, and reads them back on another pod", async () => {
+    const store = new DefinitionStore();
+    const APP = "a".repeat(24);
+    const definition = {
+      constants: { limit: 10 },
+      functions: [
+        {
+          name: "label",
+          params: ["value"],
+          returns: { fn: "trim", args: [{ param: "value" }] },
+        },
+        {
+          name: "save",
+          steps: [
+            {
+              call: "label",
+              args: [{ widget: "inpName", property: "text" }],
+              into: "name",
+            },
+            {
+              if: { fn: "isEmpty", args: [{ var: "name" }] },
+              then: [
+                { showAlert: "Enter a name.", style: "warning" },
+                { return: false },
+              ],
+              else: [{ showAlert: "Saved", style: "success" }],
+            },
+            { return: true },
+          ],
+        },
+      ],
+    };
+    const readable = compileJsObject(definition as never, { readable: true });
+    let collections: unknown[] = [];
+    const createActionCollection = jest.fn<
+      Promise<unknown>,
+      [Record<string, unknown>]
+    >(async (dto) => ({ id: "coll1", name: "Form", body: dto.body }));
+    const updateActionCollectionBody = jest.fn(async () => ({}));
+    const updateActionCollection = jest.fn(async () => ({}));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+      })),
+      listPlugins: jest.fn(async () => [
+        { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
+      ]),
+      listActionCollections: jest.fn(async () => collections),
+      createActionCollection,
+      updateActionCollectionBody,
+      updateActionCollection,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(store),
+    });
+
+    const empty = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+
+    // The store cannot save: nothing is written, because a readable body without its definition would read back
+    // as editor-authored.
+    store.failSave = true;
+    const refused = await callTool(server, "create_js_object", {
+      spec: {
+        applicationId: APP,
+        pageId: "b".repeat(24),
+        name: "Form",
+        revision: empty.body.revision,
+        ...definition,
+      },
+    });
+
+    expect(refused.body.created).toBeUndefined();
+    expect(createActionCollection).not.toHaveBeenCalled();
+    store.failSave = false;
+
+    const created = await callTool(server, "create_js_object", {
+      spec: {
+        applicationId: APP,
+        pageId: "b".repeat(24),
+        name: "Form",
+        revision: empty.body.revision,
+        ...definition,
+      },
+    });
+
+    expect(created.body).toEqual(expect.objectContaining({ created: true }));
+    const dto = createActionCollection.mock.calls[0][0] as {
+      body: string;
+      actions: { name: string; actionConfiguration: { body: string } }[];
+    };
+
+    // One statement per line, no marker, and each function's JSAction body is that function's text.
+    expect(dto.body).toBe(readable);
+    expect(dto.body).not.toContain("mcp-spec");
+    expect(dto.body).toContain(
+      "\n\tsave: async function () {\n\t\tlet name = await this.label(inpName.text);\n",
+    );
+    expect(dto.actions[1].actionConfiguration.body).toBe(
+      readable.slice(
+        readable.indexOf("async function () {"),
+        readable.lastIndexOf("\t},") + 2,
+      ),
+    );
+    expect(store.definitions).toHaveLength(1);
+
+    // Each listing loads the definitions from the store (nothing is kept in the process between requests).
+    collections = [
+      {
+        id: "coll1",
+        name: "Form",
+        pageId: "b".repeat(24),
+        body: readable,
+        actions: [
+          { id: "act-label", name: "label" },
+          { id: "act-save", name: "save" },
+        ],
+      },
+    ];
+    const read = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+
+    expect(read.body.jsObjects[0]).toEqual(
+      expect.objectContaining({
+        authoredBy: "mcp",
+        definitionState: "current",
+        definition,
+        source: readable,
+      }),
+    );
+
+    // An update writes the readable layout too, and records the new body's definition first.
+    const edited = {
+      ...definition,
+      functions: [
+        definition.functions[0],
+        {
+          ...definition.functions[1],
+          steps: (definition.functions[1].steps ?? []).slice(0, 1),
+        },
+      ],
+    };
+    const updated = await callTool(server, "update_js_object", {
+      spec: {
+        applicationId: APP,
+        collectionId: "coll1",
+        revision: read.body.jsObjects[0].revision,
+        ...edited,
+      },
+    });
+
+    expect(updated.body.updated).toBe(true);
+    expect(updateActionCollectionBody).toHaveBeenCalledWith("coll1", {
+      body: compileJsObject(edited as never, { readable: true }),
+    });
+    expect(store.definitions).toHaveLength(2);
+
+    // A hand edit of the readable body makes it editor-written: no record matches the new text.
+    collections = [
+      {
+        ...(collections[0] as Record<string, unknown>),
+        body: readable.replace("Saved", "Saved!"),
+      },
+    ];
+    const afterEdit = await callTool(server, "read_js_object", {
+      applicationId: APP,
+    });
+
+    expect(afterEdit.body.jsObjects[0]).toEqual(
+      expect.objectContaining({ authoredBy: "editor" }),
+    );
+    expect(afterEdit.body.jsObjects[0].definition).toBeUndefined();
+  });
+
+  describe("readable JS objects: failure paths and replacement", () => {
+    const APP = "a".repeat(24);
+    const PAGE = "b".repeat(24);
+    const definition = {
+      functions: [{ name: "label", returns: { fn: "trim", args: [" x "] } }],
+    };
+    const readable = compileJsObject(definition as never, { readable: true });
+
+    function setup(store: DefinitionStore, body: string) {
+      const collection = () => ({
+        id: "coll1",
+        name: "Form",
+        pageId: PAGE,
+        body,
+        actions: [{ id: "act-label", name: "label" }],
+      });
+      const updateActionCollectionBody = jest.fn(async () => ({}));
+      const updateActionCollection = jest.fn(async () => ({}));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listActionCollections: jest.fn(async () => [collection()]),
+        listActions: jest.fn(async () => []),
+        getPage: jest.fn(async () => ({
+          id: PAGE,
+          layouts: [{ id: "l1", dsl: {} }],
+        })),
+        updateActionCollectionBody,
+        updateActionCollection,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        jsEnabled: true,
+        governance: new McpGovernanceCoordinator(store),
+      });
+
+      return { server, updateActionCollection, updateActionCollectionBody };
+    }
+
+    const edited = {
+      functions: [{ name: "label", returns: { fn: "trim", args: [" y "] } }],
+    };
+
+    it("refuses an update, and writes nothing, when the definition cannot be saved", async () => {
+      const store = new DefinitionStore();
+
+      await new McpGovernanceCoordinator(store).saveJsDefinition(
+        "org-default",
+        readable,
+        definition as never,
+      );
+      const { server, updateActionCollection, updateActionCollectionBody } =
+        setup(store, readable);
+      const read = await callTool(server, "read_js_object", {
+        applicationId: APP,
+      });
+
+      expect(read.body.jsObjects[0].authoredBy).toBe("mcp");
+      store.failSave = true;
+      const refused = await callTool(server, "update_js_object", {
+        spec: {
+          applicationId: APP,
+          collectionId: "coll1",
+          revision: read.body.jsObjects[0].revision,
+          ...edited,
+        },
+      });
+
+      expect(refused.body.updated).toBeUndefined();
+      expect(updateActionCollectionBody).not.toHaveBeenCalled();
+      expect(updateActionCollection).not.toHaveBeenCalled();
+    });
+
+    it("reads an object as unavailable, and refuses to rewrite it, when the store cannot be read", async () => {
+      const store = new DefinitionStore();
+
+      await new McpGovernanceCoordinator(store).saveJsDefinition(
+        "org-default",
+        readable,
+        definition as never,
+      );
+      store.failFind = true;
+      const stderr = jest
+        .spyOn(process.stderr, "write")
+        .mockImplementation(() => true);
+      const { server, updateActionCollectionBody } = setup(store, readable);
+
+      try {
+        const read = await callTool(server, "read_js_object", {
+          applicationId: APP,
+        });
+
+        expect(read.body.jsObjects[0]).toEqual(
+          expect.objectContaining({
+            authoredBy: "editor",
+            definitionState: "unavailable",
+          }),
+        );
+        const refused = await callTool(server, "update_js_object", {
+          spec: {
+            applicationId: APP,
+            collectionId: "coll1",
+            revision: read.body.jsObjects[0].revision,
+            ...edited,
+          },
+        });
+
+        expect(refused.body.code).toBe("editor_authored_js_object");
+        expect(updateActionCollectionBody).not.toHaveBeenCalled();
+        const logged = stderr.mock.calls.map(([line]) => String(line)).join("");
+
+        expect(logged).toContain("could not load JS-object definitions");
+        // Only the error's class is logged, never its message.
+        expect(logged).not.toContain("secret");
+      } finally {
+        stderr.mockRestore();
+      }
+    });
+
+    it("replaces an editor-written object with readable code and records its definition", async () => {
+      const store = new DefinitionStore();
+      const editorBody = "export default {\n\tasync label () { return 1; }\n}";
+      const { server, updateActionCollectionBody } = setup(store, editorBody);
+      const read = await callTool(server, "read_js_object", {
+        applicationId: APP,
+      });
+
+      expect(read.body.jsObjects[0].authoredBy).toBe("editor");
+      const spec = {
+        applicationId: APP,
+        collectionId: "coll1",
+        revision: read.body.jsObjects[0].revision,
+        ...edited,
+      };
+      const prepared = await callTool(server, "prepare_replace_js_object", {
+        spec,
+      });
+      const confirmed = await callTool(server, "confirm_replace_js_object", {
+        spec,
+        confirmationId: prepared.body.confirmationId,
+      });
+      const written = compileJsObject(edited as never, { readable: true });
+
+      expect(confirmed.body.updated).toBe(true);
+      expect(updateActionCollectionBody).toHaveBeenCalledWith("coll1", {
+        body: written,
+      });
+      expect(written).not.toContain("mcp-spec");
+      expect(store.definitions.map((d) => d.organizationId)).toEqual([
+        "org-default",
+      ]);
+    });
+  });
+
   it("read_js_object reports a compiler-written body whose code was edited afterwards as drifted", async () => {
     const APP = "a".repeat(24);
     const body = compileJsObject({
@@ -7762,13 +9298,14 @@ describe("governance-wrapped layout mutations", () => {
       id: "coll1",
       name: "BannerAdmin",
       pageId: "b".repeat(24),
+      signatures: [{ name: "refresh", params: [] }],
       functions: ["refresh"],
       authoredBy: "editor",
       definitionState: "drifted",
+      source: expect.any(String),
       revision: expect.stringMatching(/^[a-f0-9]{64}$/),
     });
-    // Neither the (now hand-edited) source nor the stale definition is returned.
-    expect(read.body.jsObjects[0].source).toBeUndefined();
+    // The hand-edited source is returned as data; the stale definition is not.
     expect(read.body.jsObjects[0].definition).toBeUndefined();
   });
 
@@ -8539,9 +10076,9 @@ describe("governance-wrapped layout mutations", () => {
     });
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: current },
       })),
       listActionCollections: jest.fn(async () => [
@@ -8804,9 +10341,9 @@ describe("governance-wrapped layout mutations", () => {
     });
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: current },
       })),
       listActionCollections: jest.fn(async () => [
@@ -8921,9 +10458,9 @@ describe("governance-wrapped layout mutations", () => {
   ) {
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: TEXT_DSL },
       })),
       updateLayout,
@@ -9009,9 +10546,9 @@ describe("governance-wrapped layout mutations", () => {
     >(async () => ({ ok: true }));
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: STACKED_DSL },
       })),
       updateLayout,
@@ -9062,9 +10599,9 @@ describe("governance-wrapped layout mutations", () => {
   it("layout mutations on a governed deployment steer the agent to re-publish (deployNote)", async () => {
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: TEXT_DSL },
       })),
       updateLayout: jest.fn(async () => ({ ok: true })),
@@ -9106,9 +10643,9 @@ describe("governance-wrapped layout mutations", () => {
     >(async () => ({ ok: true }));
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: TEXT_DSL },
       })),
       getApplication: jest.fn(async () => GIT_APP),
@@ -9963,6 +11500,149 @@ describe("governance-wrapped layout mutations", () => {
     expect(typeof confirmed.body.changeId).toBe("string");
     expect(store.changes.some((c) => c.operation === "run_action")).toBe(true);
   });
+  describe("APP-16381 review regressions", () => {
+    const dsl = {
+      ...ROOT_DSL,
+      children: [
+        {
+          ...ROOT_DSL,
+          widgetId: "b",
+          widgetName: "Submit",
+          type: "BUTTON_WIDGET",
+        },
+        {
+          ...ROOT_DSL,
+          widgetId: "i",
+          widgetName: "Initials",
+          type: "INPUT_WIDGET_V2",
+        },
+        {
+          ...ROOT_DSL,
+          widgetId: "t",
+          widgetName: "Licenses",
+          type: "TABLE_WIDGET_V2",
+        },
+      ],
+    };
+
+    function setup(listActions: () => Promise<unknown>, dataEnabled = false) {
+      const updateLayout = jest.fn(async () => ({ ok: true }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getApplicationContext: jest.fn(async (applicationId: string) => ({
+          pages: [],
+          page: {
+            applicationId,
+            layouts: [
+              { id: "l1", dsl },
+              { id: "l2", dsl },
+            ],
+          },
+          layout: { id: "l1", dsl },
+        })),
+        listActionCollections: jest.fn(async () => [
+          { name: "Utils", actions: [{ name: "save" }] },
+        ]),
+        listActions: jest.fn(listActions) as never,
+        updateLayout: updateLayout as never,
+      };
+
+      return {
+        api,
+        updateLayout,
+        server: createMcpHttpServer(API_BASE_URL, () => api, {
+          dataEnabled,
+          jsEnabled: true,
+          governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+        }),
+      };
+    }
+
+    it("removes embedded page DSL when narrowing a widget with default include", async () => {
+      const { server } = setup(async () => []);
+      const read = await callTool(server, "get_application_context", {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+        widget: "Initials",
+      });
+
+      expect(read.body.error).toBeUndefined();
+      expect(JSON.stringify(read.body)).not.toContain(
+        '"widgetName":"Licenses"',
+      );
+      expect(
+        (read.body.page as { layouts: { dsl?: unknown }[] }).layouts.every(
+          (l) => l.dsl === undefined,
+        ),
+      ).toBe(true);
+      expect(
+        (read.body.layout as { dsl: { widgetName: string } }).dsl.widgetName,
+      ).toBe("Initials");
+      const full = await callTool(server, "get_application_context", {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+      });
+
+      expect(JSON.stringify(full.body)).toContain('"widgetName":"Licenses"');
+    });
+    const wire = async (
+      server: ReturnType<typeof setup>["server"],
+      arg: unknown,
+    ) =>
+      callTool(server, "wire_event", {
+        applicationId: "app1",
+        pageId: "p1",
+        layoutId: "l1",
+        revision: fingerprintDsl(dsl as never),
+        spec: {
+          widget: "Submit",
+          event: "onClick",
+          action: {
+            call: { object: "Utils", function: "save", args: [{ expr: arg }] },
+          },
+        },
+      });
+
+    it.each([false, true])(
+      "checks expression queries with dataEnabled=%s",
+      async (enabled) => {
+        const good = setup(async () => [{ name: "GetUsage" }], enabled);
+
+        expect(
+          (await wire(good.server, { query: "GetUsage" })).body.error,
+        ).toBeUndefined();
+        expect(good.updateLayout).toHaveBeenCalledTimes(1);
+        const missing = setup(async () => [], enabled);
+
+        expect(
+          (await wire(missing.server, { query: "GetUsage" })).body.error,
+        ).toMatch(/was not found/);
+        expect(missing.updateLayout).not.toHaveBeenCalled();
+        const down = setup(async () => {
+          throw new Error("down");
+        }, enabled);
+
+        expect(
+          (await wire(down.server, { query: "GetUsage" })).body.error,
+        ).toMatch(/cannot be checked/);
+        expect(down.updateLayout).not.toHaveBeenCalled();
+      },
+    );
+    it("refuses a table expression on an input and permits a real table", async () => {
+      const { server, updateLayout } = setup(async () => []);
+
+      expect(
+        (await wire(server, { table: "Initials", column: "id" })).body.error,
+      ).toMatch(/not a table widget/);
+      expect(updateLayout).not.toHaveBeenCalled();
+      expect(
+        (await wire(server, { table: "Licenses", column: "id" })).body.error,
+      ).toBeUndefined();
+      expect(updateLayout).toHaveBeenCalledTimes(1);
+    });
+  });
 });
 
 // M5 — build_application returns editor/viewer URLs for the default page and AUTO-PUBLISHES the app it just
@@ -10497,9 +12177,9 @@ describe("M5 — build_application URLs + auto-publish", () => {
           return IMPORT_RESPONSE;
         },
       ),
-      getApplicationContext: jest.fn(async () => ({
+      getApplicationContext: jest.fn(async (applicationId: string) => ({
         pages: [],
-        page: {},
+        page: { applicationId },
         layout: { dsl: currentDsl },
       })),
       updateLayout: jest.fn(

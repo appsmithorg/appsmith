@@ -5,12 +5,12 @@ import { useAppWideAndOtherDatasource } from "ee/pages/Editor/Explorer/hooks";
 import { useMemo } from "react";
 import { getPageList } from "selectors/editorSelectors";
 import {
-  getActions,
   getAllPageWidgets,
   getJSCollections,
   getPluginByPackageName,
   getPlugins,
   getRecentDatasourceIds,
+  getVisibleActions,
 } from "ee/selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
@@ -268,7 +268,7 @@ export const useFilteredWidgets = (query: string) => {
 };
 
 export const useFilteredActions = (query: string) => {
-  const actions = useSelector(getActions);
+  const actions = useSelector(getVisibleActions);
   const pages = useSelector(getPageList) || [];
   const pageMap = keyBy(pages, "pageId");
 
