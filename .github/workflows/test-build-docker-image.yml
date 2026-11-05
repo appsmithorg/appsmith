@@ -458,8 +458,15 @@ jobs:
       contents: read
       id-token: write
 
-    # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
-    if: ( success() && github.ref == 'refs/heads/master' )
+    # Runs on master only, when every test job passed. The results are checked by
+    # name because success() also covers indirect dependencies, and
+    # package-release, which ci-test needs, is always skipped on master.
+    if: >-
+      !cancelled() &&
+      needs.ci-test.result == 'success' &&
+      needs.client-unit-tests.result == 'success' &&
+      needs.server-unit-tests.result == 'success' &&
+      github.ref == 'refs/heads/master'
 
     steps:
       - name: Checkout the head commit of the branch
