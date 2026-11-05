@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.util.RestrictedHostFilter;
 import com.external.utils.S3Connection;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -102,6 +103,25 @@ class AmazonS3PluginProxyTest {
         assertThat(proxy.requestLines())
                 .isNotEmpty()
                 .allMatch(("CONNECT " + UNRESOLVABLE_HOST + ":443 HTTP/1.1")::equals);
+    }
+
+    @Test
+    void should_tunnelThroughLoopbackProxy_when_restrictedHostPolicyIsOn() {
+        // Given
+        useHttpsProxy();
+        RestrictedHostFilter.setSsrfFilterDisabledForTesting(false);
+        try {
+            // When
+            ActionExecutionResult result = readFile("https://" + UNRESOLVABLE_HOST);
+
+            // Then
+            assertThat(result.getIsExecutionSuccess()).isFalse();
+            assertThat(proxy.requestLines())
+                    .isNotEmpty()
+                    .allMatch(("CONNECT " + UNRESOLVABLE_HOST + ":443 HTTP/1.1")::equals);
+        } finally {
+            RestrictedHostFilter.resetSsrfFilterDisabledForTesting();
+        }
     }
 
     @Test

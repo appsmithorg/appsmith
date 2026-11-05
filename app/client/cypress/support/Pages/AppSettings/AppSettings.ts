@@ -28,6 +28,7 @@ export class AppSettings {
     _sideNavbar: ".t--app-viewer-navigation-sidebar",
     _getPageSettingsHeader: (pageName: string) =>
       `#t--page-settings-${pageName}`,
+    _pageSettingsName: "#t--page-settings-name",
     _updateStatus: ".ads-v2-icon.rotate",
     _header: ".t--app-viewer-navigation-header",
     _topStacked: ".t--app-viewer-navigation-top-stacked",
@@ -96,7 +97,14 @@ export class AppSettings {
   }
 
   public GoToPageSettings(pageName: string) {
-    this.agHelper.GetNClick(this.locators._getPageSettingsHeader(pageName));
+    // The settings pane remounts every page item each time it renders. Keep the
+    // click chain query-only so Cypress re-finds the item instead of holding a
+    // detached element, then wait for the pane to show the selected page.
+    cy.get(this.locators._getPageSettingsHeader(pageName)).click("center");
+
+    return cy
+      .get(this.locators._pageSettingsName)
+      .should("have.value", pageName);
   }
 
   public OpenPaneAndChangeTheme(themeName: string) {
