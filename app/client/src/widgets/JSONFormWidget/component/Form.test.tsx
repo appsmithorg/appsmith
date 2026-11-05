@@ -94,6 +94,16 @@ describe("Form Component", () => {
       expect(screen.getByText("Test Form")).toBeInTheDocument();
     });
 
+    it("applies titleTextColor to the form title", () => {
+      render(
+        <Form {...defaultProps} titleTextColor="#ff0000">
+          Form Content
+        </Form>,
+      );
+
+      expect(screen.getByText("Test Form")).toHaveStyle("color: #ff0000");
+    });
+
     it("renders children inside the form body", () => {
       render(<Form {...defaultProps}>Form Content</Form>);
       expect(screen.getByText("Form Content")).toBeInTheDocument();
