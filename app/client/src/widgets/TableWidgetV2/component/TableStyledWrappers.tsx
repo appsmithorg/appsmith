@@ -51,10 +51,12 @@ export const TableWrapper = styled.div<
     variant?: TableVariant;
     isAddRowInProgress: boolean;
     multiRowSelection?: boolean;
+    isAutoHeightEnabled?: boolean;
   }
 >`
   width: 100%;
-  height: 100%;
+  height: ${({ isAutoHeightEnabled }) =>
+    isAutoHeightEnabled ? "auto" : "100%"};
   background: white;
   border-style: solid;
   border-width: ${({ borderWidth }) => `${borderWidth}px`};
@@ -96,7 +98,8 @@ export const TableWrapper = styled.div<
     }
   }
   .tableWrap {
-    height: 100%;
+    height: ${({ isAutoHeightEnabled }) =>
+      isAutoHeightEnabled ? "auto" : "100%"};
     display: block;
     position: relative;
     width: ${({ width }) => width}px;
