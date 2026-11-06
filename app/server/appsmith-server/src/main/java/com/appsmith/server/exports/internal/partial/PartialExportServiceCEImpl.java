@@ -26,7 +26,6 @@ import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +56,6 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
     private final ExportableService<Plugin> pluginExportableService;
     private final ExportableService<NewAction> newActionExportableService;
     private final ExportableService<ActionCollection> actionCollectionExportableService;
-    private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
     private final JsonSchemaVersions jsonSchemaVersions;
 

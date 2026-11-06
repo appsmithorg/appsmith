@@ -40,7 +40,6 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationTemplateService;
-import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -85,7 +84,6 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
-    private final SessionUserService sessionUserService;
     private final TransactionalOperator transactionalOperator;
     private final PermissionGroupRepository permissionGroupRepository;
     private final ImportableService<Plugin> pluginImportableService;
