@@ -5,6 +5,7 @@ import com.appsmith.server.domains.Workspace;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
 import org.springframework.data.mongodb.core.aggregation.Fields;
@@ -14,6 +15,7 @@ import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
+@Slf4j
 @ChangeUnit(order = "004", id = "migrate-default-workspace-id-to-default-domain-id")
 public class Migration004PermissionGroupDefaultWorkspaceIdMigration {
     private final MongoTemplate mongoTemplate;
@@ -31,7 +33,7 @@ public class Migration004PermissionGroupDefaultWorkspaceIdMigration {
                 query(where(PermissionGroup.Fields.defaultWorkspaceId).exists(true));
 
         if (mongoTemplate.findOne(defaultWorkspaceIdExistsQuery, PermissionGroup.class) == null) {
-            System.out.println("No permissionGroup data to migrate.");
+            log.info("No permissionGroup data to migrate.");
             return;
         }
 
