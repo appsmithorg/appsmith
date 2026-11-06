@@ -28,6 +28,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
         RecentlyUsedEntityDTO recentlyUsedEntityDTO = new RecentlyUsedEntityDTO();
         recentlyUsedEntityDTO.setWorkspaceId(workspaceId);
         update.pull(UserData.Fields.recentlyUsedEntityIds, recentlyUsedEntityDTO);
+        update.pull(UserData.Fields.recentlyUsedWorkspaceIds, workspaceId);
         return queryBuilder()
                 .criteria(Bridge.equal(UserData.Fields.userId, userId))
                 .updateFirst(update)
@@ -52,6 +53,36 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
         // MongoDB update query to pull applicationId from all users' favoriteApplicationIds arrays
         BridgeUpdate update = new BridgeUpdate();
         update.pull(UserData.Fields.favoriteApplicationIds, applicationId);
+        return queryBuilder().updateAll(update).then();
+    }
+
+    /**
+     * Removes the specified application ID from all users' recently used entity lists and legacy appId lists.
+     *
+     * @param applicationId ID of the application to remove
+     * @return Mono completing when the updateAll operation finishes
+     */
+    @Override
+    public Mono<Void> removeApplicationFromRecentlyUsedList(String applicationId) {
+        BridgeUpdate update = new BridgeUpdate();
+        update.pull(UserData.Fields.recentlyUsedEntityIds + ".$[].applicationIds", applicationId);
+        update.pull(UserData.Fields.recentlyUsedAppIds, applicationId);
+        return queryBuilder().updateAll(update).then();
+    }
+
+    /**
+     * Removes the specified workspace entry from all users' recently used entity lists and legacy workspaceId lists.
+     *
+     * @param workspaceId ID of the workspace to remove
+     * @return Mono completing when the updateAll operation finishes
+     */
+    @Override
+    public Mono<Void> removeWorkspaceFromRecentlyUsedList(String workspaceId) {
+        BridgeUpdate update = new BridgeUpdate();
+        RecentlyUsedEntityDTO recentlyUsedEntityDTO = new RecentlyUsedEntityDTO();
+        recentlyUsedEntityDTO.setWorkspaceId(workspaceId);
+        update.pull(UserData.Fields.recentlyUsedEntityIds, recentlyUsedEntityDTO);
+        update.pull(UserData.Fields.recentlyUsedWorkspaceIds, workspaceId);
         return queryBuilder().updateAll(update).then();
     }
 
