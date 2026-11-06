@@ -21,7 +21,7 @@ function GoogleSheetFilePicker({
   gsheetProjectID,
   gsheetToken,
 }: Props) {
-  const [scriptLoadedFlag] = useState<boolean>(
+  const scriptLoadedFlag: boolean = Boolean(
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).googleAPIsLoaded,
