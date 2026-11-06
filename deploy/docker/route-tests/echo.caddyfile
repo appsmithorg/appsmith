@@ -4,6 +4,10 @@
 
 http://:5050
 
+# A weaker upstream CSP on the image-serving routes. asset-csp.hurl asserts that Caddy replaces it.
+@image-paths path /api/v1/assets/* /api/v1/users/photo /api/v1/users/photo/*
+header @image-paths Content-Security-Policy "default-src 'self'"
+
 respond "Scheme = '{scheme}'
 X-Forwarded-Proto = '{header.x-forwarded-proto}'
 Host = '{host}'
