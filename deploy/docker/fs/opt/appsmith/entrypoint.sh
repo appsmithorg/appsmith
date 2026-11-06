@@ -31,6 +31,64 @@ fi
 
 tlog "Running as: $(id)"
 
+# Build APPSMITH_REDIS_URL from its individual components when a full URL has not
+# been supplied. This lets operators wire up Redis from the discrete values that
+# secret stores such as AWS Secrets Manager expose for a managed Redis/ElastiCache
+# instance (host, port, password) without having to hand-assemble a connection URL:
+#
+#   APPSMITH_REDIS_HOST=master.redis-prd-appsmith.lbfmiu.euc1.cache.amazonaws.com
+#   APPSMITH_REDIS_PORT=6379
+#   APPSMITH_REDIS_PASSWORD=<password>
+#
+# Precedence and rules:
+#   - An explicitly set APPSMITH_REDIS_URL always wins and is left untouched, so
+#     existing deployments keep working unchanged.
+#   - Composition only happens when APPSMITH_REDIS_HOST is set and
+#     APPSMITH_REDIS_URL is empty.
+#   - APPSMITH_REDIS_PORT defaults to 6379 when not provided.
+#   - APPSMITH_REDIS_PASSWORD is optional; when empty, a passwordless URL is built.
+#   - APPSMITH_REDIS_TLS=true (or APPSMITH_REDIS_SSL=true) selects the `rediss://`
+#     scheme for TLS-enabled endpoints; otherwise `redis://` is used.
+#
+# The composed value is exported so every downstream consumer (the Java server, the
+# RTS/appsmithctl tooling, the MCP process, and this script's own embedded-vs-external
+# Redis detection) sees a single, consistent URL.
+compose_redis_url_from_parts() {
+  # Nothing to do if an explicit URL is already provided.
+  if [[ -n "${APPSMITH_REDIS_URL:-}" ]]; then
+    return 0
+  fi
+
+  # Need at least a host to compose a URL.
+  if [[ -z "${APPSMITH_REDIS_HOST:-}" ]]; then
+    return 0
+  fi
+
+  local host="$APPSMITH_REDIS_HOST"
+  local port="${APPSMITH_REDIS_PORT:-6379}"
+  local password="${APPSMITH_REDIS_PASSWORD:-}"
+
+  local scheme="redis"
+  if [[ "${APPSMITH_REDIS_TLS:-}" == "true" || "${APPSMITH_REDIS_SSL:-}" == "true" ]]; then
+    scheme="rediss"
+  fi
+
+  local userinfo=""
+  if [[ -n "$password" ]]; then
+    # URL-encode the password so special characters (/, @, :, #, ? ...) in
+    # secret-store values do not corrupt the composed URL. The username part is
+    # left empty, matching the `redis://:<password>@host:port` convention
+    # Appsmith already uses for its embedded Redis.
+    local encoded_password
+    encoded_password="$(ENC_PASSWORD="$password" /usr/bin/python3 -c \
+      'import os, urllib.parse; print(urllib.parse.quote(os.environ["ENC_PASSWORD"], safe=""))')"
+    userinfo=":${encoded_password}@"
+  fi
+
+  export APPSMITH_REDIS_URL="${scheme}://${userinfo}${host}:${port}"
+  tlog "Composed APPSMITH_REDIS_URL from APPSMITH_REDIS_HOST/PORT/PASSWORD (scheme: ${scheme}, host: ${host}, port: ${port})"
+}
+
 setup_proxy_variables() {
   export NO_PROXY="${NO_PROXY-localhost,127.0.0.1}"
 
@@ -141,6 +199,7 @@ init_env_file() {
 }
 
 init_env_file
+compose_redis_url_from_parts
 setup_proxy_variables
 
 # ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
