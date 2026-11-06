@@ -31,6 +31,11 @@ import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { klonaRegularWithTelemetry } from "utils/helpers";
+import {
+  ensureUppyLocale,
+  getAppHtmlLang,
+  getDashboardLocaleOption,
+} from "../utils/uppyLocale";
 
 const CSV_ARRAY_LABEL = "Array of Objects (CSV, XLS(X), JSON, TSV)";
 
@@ -450,12 +455,15 @@ class FilePickerWidget extends BaseWidget<
    */
   loadAndInitUppyOnce = _.memoize(async () => {
     const { Uppy } = await importUppy();
+    const htmlLang = getAppHtmlLang();
+    const uppyLocale = await ensureUppyLocale(htmlLang);
 
     const uppyState = {
       id: this.props.widgetId,
       autoProceed: false,
       allowMultipleUploads: true,
       debug: false,
+      ...(uppyLocale ? { locale: uppyLocale } : {}),
       restrictions: {
         maxFileSize: this.props.maxFileSize
           ? this.props.maxFileSize * 1024 * 1024
@@ -473,7 +481,7 @@ class FilePickerWidget extends BaseWidget<
 
     const uppy = Uppy(uppyState);
 
-    await this.initializeUppyEventListeners(uppy);
+    await this.initializeUppyEventListeners(uppy, htmlLang, uppyLocale);
     await this.initializeSelectedFiles(uppy);
 
     return uppy;
@@ -509,7 +517,11 @@ class FilePickerWidget extends BaseWidget<
   /**
    * add all uppy events listeners needed
    */
-  initializeUppyEventListeners = async (uppy: Uppy) => {
+  initializeUppyEventListeners = async (
+    uppy: Uppy,
+    htmlLang: string = getAppHtmlLang(),
+    uppyLocale: Awaited<ReturnType<typeof ensureUppyLocale>> = null,
+  ) => {
     const { Dashboard, GoogleDrive, OneDrive, Url, Webcam } =
       await importUppy();
 
@@ -544,11 +556,7 @@ class FilePickerWidget extends BaseWidget<
             isUppyModalOpen: false,
           });
         },
-        locale: {
-          strings: {
-            closeModal: "Close",
-          },
-        },
+        locale: getDashboardLocaleOption(htmlLang, uppyLocale),
       })
       .use(GoogleDrive, { companionUrl: "https://companion.uppy.io" })
       .use(Url, { companionUrl: "https://companion.uppy.io" })
@@ -562,7 +570,7 @@ class FilePickerWidget extends BaseWidget<
         countdown: false,
         mirror: true,
         facingMode: "user",
-        locale: {},
+        locale: uppyLocale ?? {},
       });
     }
 
@@ -771,7 +779,10 @@ class FilePickerWidget extends BaseWidget<
     super.componentDidMount();
 
     try {
+      await ensureUppyLocale(getAppHtmlLang());
       await this.loadAndInitUppyOnce();
+      // Refresh the selected-files button label once the Uppy locale pack is cached.
+      this.forceUpdate();
     } catch (e) {
       log.debug("Error in initializing uppy");
     }

@@ -2,12 +2,13 @@ import React from "react";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { BaseButton } from "widgets/ButtonWidget/component";
 import { Colors } from "constants/Colors";
+import { formatXFilesSelected } from "../utils/uppyLocale";
 
 function FilePickerComponent(props: FilePickerComponentProps) {
   let computedLabel = props.label;
 
   if (props.files && props.files.length) {
-    computedLabel = `${props.files.length} files selected`;
+    computedLabel = formatXFilesSelected(props.files.length);
   }
 
   return (
