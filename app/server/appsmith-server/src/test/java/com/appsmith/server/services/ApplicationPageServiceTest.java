@@ -20,10 +20,12 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
+import com.appsmith.server.themes.base.ThemeService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -37,6 +39,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
@@ -77,6 +80,12 @@ public class ApplicationPageServiceTest {
     @Autowired
     NewPageService newPageService;
 
+    @Autowired
+    NewPageRepository newPageRepository;
+
+    @SpyBean
+    ThemeService themeService;
+
     @MockBean
     DSLMigrationUtils dslMigrationUtils;
 
@@ -106,6 +115,7 @@ public class ApplicationPageServiceTest {
 
     @AfterEach
     public void cleanup() {
+        Mockito.reset(themeService);
         List<Application> deletedApplications = applicationPermission
                 .getDeletePermission()
                 .flatMapMany(permission -> applicationService.findByWorkspaceId(workspace.getId(), permission))
@@ -510,6 +520,26 @@ public class ApplicationPageServiceTest {
                     assertThat(pageNames).contains(unpublishedPageName);
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void testDeleteApplicationResourcesRollsBackWhenLaterResourceDeletionFails() {
+        PageDTO page = createPageMono("transactional_delete").block();
+        assertThat(page).isNotNull();
+        assertThat(page.getId()).isNotNull();
+
+        Mockito.doReturn(Mono.error(new IllegalStateException("theme archive failed")))
+                .when(themeService)
+                .archiveApplicationThemes(any(Application.class));
+
+        StepVerifier.create(applicationPageService.deleteApplication(page.getApplicationId()))
+                .expectErrorMessage("theme archive failed")
+                .verify();
+
+        NewPage persistedPage = newPageRepository.findById(page.getId()).block();
+        assertThat(persistedPage).isNotNull();
+        assertThat(persistedPage.getUnpublishedPage().getDeletedAt()).isNull();
     }
 
     /**
