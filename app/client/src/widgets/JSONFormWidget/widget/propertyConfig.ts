@@ -656,6 +656,17 @@ export const styleConfig = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
+      {
+        propertyName: "titleTextColor",
+        helpText: "Sets the font color of the form title",
+        placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+        label: "Title font color",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
     ],
   },
   {
