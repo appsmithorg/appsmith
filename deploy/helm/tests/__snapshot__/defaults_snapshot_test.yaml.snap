@@ -103,7 +103,7 @@
                   memory: 3000Mi
               securityContext: {}
               startupProbe:
-                failureThreshold: 30
+                failureThreshold: 60
                 httpGet:
                   path: /api/v1/health
                   port: 80

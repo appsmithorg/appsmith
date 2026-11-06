@@ -140,7 +140,7 @@ spec:
             httpGet:
               port: {{ dig "startupProbe" "port" "80" $probes }}
               path: {{ dig "startupProbe" "api" "/api/v1/health" $probes }}
-            failureThreshold: {{ dig "startupProbe" "failureThreshold" 30 $probes }}
+            failureThreshold: {{ dig "startupProbe" "failureThreshold" 60 $probes }}
             periodSeconds: {{ dig "startupProbe" "periodSeconds" 10 $probes }}
             timeoutSeconds: {{ dig "startupProbe" "timeoutSeconds" 5 $probes }}
           livenessProbe:

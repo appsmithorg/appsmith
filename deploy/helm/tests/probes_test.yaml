@@ -7,16 +7,16 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].startupProbe
-          value:
+          value: &defaultStartupProbe
             httpGet:
               port: 80
               path: /api/v1/health
             periodSeconds: 10
             timeoutSeconds: 5
-            failureThreshold: 30
+            failureThreshold: 60
       - equal:
           path: spec.template.spec.containers[0].livenessProbe
-          value:
+          value: &defaultLivenessProbe
             httpGet:
               port: 80
               path: /api/v1/health
@@ -25,13 +25,29 @@ tests:
             failureThreshold: 18
       - equal:
           path: spec.template.spec.containers[0].readinessProbe
-          value:
+          value: &defaultReadinessProbe
             httpGet:
               port: 80
               path: /api/v1/health
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
+
+  # `helm upgrade --reuse-values` from a chart without `probes` in values.yaml renders
+  # without these values, so the template fallbacks must match the values.yaml defaults.
+  - name: template fallbacks match the values.yaml defaults when probes is unset
+    set:
+      probes: null
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe
+          value: *defaultStartupProbe
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe
+          value: *defaultLivenessProbe
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe
+          value: *defaultReadinessProbe
 
   - name: a partial override changes only the keys it sets
     set:
