@@ -106,6 +106,7 @@ export interface JSONFormWidgetProps extends WidgetProps {
   submitButtonLabel: string;
   submitButtonStyles: ButtonStyleProps;
   title: string;
+  titleTextColor?: string;
   childStylesheet: FieldThemeStylesheet;
 }
 
@@ -870,6 +871,7 @@ class JSONFormWidget extends BaseWidget<
         submitButtonLabel={this.props.submitButtonLabel}
         submitButtonStyles={this.props.submitButtonStyles}
         title={this.props.title}
+        titleTextColor={this.props.titleTextColor}
         unregisterResetObserver={this.unregisterResetObserver}
         updateFormData={this.updateFormData}
         updateWidgetMetaProperty={this.onUpdateWidgetMetaProperty}
