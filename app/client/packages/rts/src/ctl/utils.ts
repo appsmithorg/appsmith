@@ -258,7 +258,8 @@ export async function listLocalBackupFiles() {
       console.log(err);
     });
 
-  return backupFiles;
+  // readdir order is not chronological; the timestamped names sort oldest first
+  return backupFiles.sort();
 }
 
 export async function updateLastBackupErrorMailSentInMilliSec(ts) {
