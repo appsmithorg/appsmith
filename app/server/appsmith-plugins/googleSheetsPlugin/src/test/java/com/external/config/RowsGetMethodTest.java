@@ -8,9 +8,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -242,5 +248,95 @@ public class RowsGetMethodTest {
         MethodConfig methodConfig = new MethodConfig(triggerRequest);
         Boolean actualResult = rowsGetMethod.validateExecutionMethodRequest(methodConfig);
         assertEquals(true, actualResult);
+    }
+
+    @Test
+    public void testGetExecutionClient_sheetNameWithAmpersand_properlyUrlEncoded() {
+        AtomicReference<URI> capturedUri = new AtomicReference<>();
+        WebClient webClient = WebClient.builder()
+                .exchangeFunction(clientRequest -> {
+                    capturedUri.set(clientRequest.url());
+                    return Mono.just(ClientResponse.create(HttpStatus.OK).build());
+                })
+                .build();
+
+        MethodConfig methodConfig = MethodConfig.builder()
+                .spreadsheetId("testSpreadsheetId")
+                .sheetName("Sheet&27")
+                .tableHeaderIndex("1")
+                .queryFormat("ROWS")
+                .build();
+
+        RowsGetMethod rowsGetMethod = new RowsGetMethod(new ObjectMapper());
+        rowsGetMethod.getExecutionClient(webClient, methodConfig).exchange().block();
+
+        assertNotNull(capturedUri.get());
+        String rawQuery = capturedUri.get().getRawQuery();
+        assertTrue(
+                rawQuery.contains("ranges='Sheet%2627'!1:1"),
+                "Expected range parameter to be URL-encoded with %26 for ampersand, but got: " + rawQuery);
+        assertTrue(
+                rawQuery.contains("ranges='Sheet%2627'!A2:ZZZ"),
+                "Expected range parameter to be URL-encoded with %26 for ampersand, but got: " + rawQuery);
+    }
+
+    @Test
+    public void testGetExecutionClient_normalSheetName_properlyConstructed() {
+        AtomicReference<URI> capturedUri = new AtomicReference<>();
+        WebClient webClient = WebClient.builder()
+                .exchangeFunction(clientRequest -> {
+                    capturedUri.set(clientRequest.url());
+                    return Mono.just(ClientResponse.create(HttpStatus.OK).build());
+                })
+                .build();
+
+        MethodConfig methodConfig = MethodConfig.builder()
+                .spreadsheetId("testSpreadsheetId")
+                .sheetName("Sheet1")
+                .tableHeaderIndex("1")
+                .queryFormat("ROWS")
+                .build();
+
+        RowsGetMethod rowsGetMethod = new RowsGetMethod(new ObjectMapper());
+        rowsGetMethod.getExecutionClient(webClient, methodConfig).exchange().block();
+
+        assertNotNull(capturedUri.get());
+        String rawQuery = capturedUri.get().getRawQuery();
+        assertTrue(
+                rawQuery.contains("ranges='Sheet1'!1:1"),
+                "Expected range parameter to contain 'Sheet1'!1:1, but got: " + rawQuery);
+        assertTrue(
+                rawQuery.contains("ranges='Sheet1'!A2:ZZZ"),
+                "Expected range parameter to contain 'Sheet1'!A2:ZZZ, but got: " + rawQuery);
+    }
+
+    @Test
+    public void testGetExecutionClient_sheetNameWithSpaces_properlyUrlEncoded() {
+        AtomicReference<URI> capturedUri = new AtomicReference<>();
+        WebClient webClient = WebClient.builder()
+                .exchangeFunction(clientRequest -> {
+                    capturedUri.set(clientRequest.url());
+                    return Mono.just(ClientResponse.create(HttpStatus.OK).build());
+                })
+                .build();
+
+        MethodConfig methodConfig = MethodConfig.builder()
+                .spreadsheetId("testSpreadsheetId")
+                .sheetName("My Sheet")
+                .tableHeaderIndex("1")
+                .queryFormat("ROWS")
+                .build();
+
+        RowsGetMethod rowsGetMethod = new RowsGetMethod(new ObjectMapper());
+        rowsGetMethod.getExecutionClient(webClient, methodConfig).exchange().block();
+
+        assertNotNull(capturedUri.get());
+        String rawQuery = capturedUri.get().getRawQuery();
+        assertTrue(
+                rawQuery.contains("ranges='My%20Sheet'!1:1"),
+                "Expected range parameter to be URL-encoded with %20 for spaces, but got: " + rawQuery);
+        assertTrue(
+                rawQuery.contains("ranges='My%20Sheet'!A2:ZZZ"),
+                "Expected range parameter to be URL-encoded with %20 for spaces, but got: " + rawQuery);
     }
 }
