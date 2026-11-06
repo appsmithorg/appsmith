@@ -1,10 +1,12 @@
 import {
   ENGLISH_X_FILES_SELECTED,
+  ensureUppyLocale,
   formatXFilesSelected,
   getDashboardLocaleOption,
   isEnglishHtmlLang,
   resetUppyLocaleCache,
   resolveUppyLocaleId,
+  setUppyLocaleLoaderForTests,
   type UppyLocale,
 } from "./uppyLocale";
 
@@ -115,6 +117,78 @@ describe("FilePicker Uppy locale helpers", () => {
       };
 
       expect(getDashboardLocaleOption("de", german)).toEqual({ strings: {} });
+    });
+  });
+
+  describe("ensureUppyLocale concurrency", () => {
+    const german: UppyLocale = {
+      strings: { closeModal: "Schließen" },
+      pluralize: (n) => (n === 1 ? 0 : 1),
+    };
+    const french: UppyLocale = {
+      strings: { closeModal: "Fermer" },
+      pluralize: (n) => (n === 1 ? 0 : 1),
+    };
+
+    it("shares one in-flight load for concurrent same-key callers", async () => {
+      let loadCount = 0;
+      let release!: (locale: UppyLocale) => void;
+      const gate = new Promise<UppyLocale>((resolve) => {
+        release = resolve;
+      });
+
+      setUppyLocaleLoaderForTests(async () => {
+        loadCount += 1;
+
+        return gate;
+      });
+
+      const first = ensureUppyLocale("de");
+      const second = ensureUppyLocale("de");
+
+      release(german);
+
+      const [a, b] = await Promise.all([first, second]);
+
+      expect(loadCount).toBe(1);
+      expect(a).toBe(german);
+      expect(b).toBe(german);
+      expect(await ensureUppyLocale("de")).toBe(german);
+    });
+
+    it("does not let a slower prior load overwrite a newer language", async () => {
+      let releaseDe!: (locale: UppyLocale) => void;
+      let releaseFr!: (locale: UppyLocale) => void;
+      const deGate = new Promise<UppyLocale>((resolve) => {
+        releaseDe = resolve;
+      });
+      const frGate = new Promise<UppyLocale>((resolve) => {
+        releaseFr = resolve;
+      });
+
+      setUppyLocaleLoaderForTests(async (localeId) => {
+        if (localeId === "de_DE") {
+          return deGate;
+        }
+
+        if (localeId === "fr_FR") {
+          return frGate;
+        }
+
+        return null;
+      });
+
+      const deRequest = ensureUppyLocale("de");
+      const frRequest = ensureUppyLocale("fr");
+
+      releaseFr(french);
+      expect(await frRequest).toBe(french);
+
+      releaseDe(german);
+      expect(await deRequest).toBe(german);
+
+      // Settled cache must remain French (latest requested key).
+      expect(await ensureUppyLocale("fr")).toBe(french);
     });
   });
 });

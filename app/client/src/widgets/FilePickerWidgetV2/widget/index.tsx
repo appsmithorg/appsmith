@@ -585,7 +585,7 @@ class FilePickerWidget extends BaseWidget<
       this.appliedHtmlLang = htmlLang;
       this.setState({ uppyLocale });
     } catch (e) {
-      log.debug("Error syncing FilePicker Uppy locale");
+      log.debug("Error syncing FilePicker Uppy locale", e);
     }
   };
 

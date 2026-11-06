@@ -109,9 +109,18 @@ const LOCALE_IDS = Object.keys(LOCALE_LOADERS);
  * Module cache is keyed by resolved Uppy locale id (or "en").
  * One app has one htmlLang, so all FilePickers share the same pack.
  * Multi-language-per-page is out of scope.
+ *
+ * Concurrent callers share an in-flight Promise per key. Settled cache
+ * updates only when the completed key is still the latest requested key,
+ * so a slower load cannot overwrite a newer language.
  */
-let cachedHtmlLangKey: string | null = null;
-let cachedLocale: UppyLocale | null = null;
+let settledCacheKey: string | null = null;
+let settledLocale: UppyLocale | null = null;
+let latestRequestedKey: string | null = null;
+const inflightByKey = new Map<string, Promise<UppyLocale | null>>();
+
+type LocaleLoader = (localeId: string) => Promise<UppyLocale | null>;
+let localeLoader: LocaleLoader | null = null;
 
 /**
  * Typed empty locale for Uppy / plugin setOptions when falling back to English.
@@ -213,32 +222,60 @@ export async function ensureUppyLocale(
   const localeId = resolveUppyLocaleId(htmlLang);
   const cacheKey = localeId ?? "en";
 
-  if (cachedHtmlLangKey === cacheKey) {
-    return cachedLocale;
+  latestRequestedKey = cacheKey;
+
+  if (settledCacheKey === cacheKey && !inflightByKey.has(cacheKey)) {
+    return settledLocale;
   }
 
-  cachedHtmlLangKey = cacheKey;
+  let loadPromise = inflightByKey.get(cacheKey);
 
-  if (!localeId) {
-    cachedLocale = null;
+  if (!loadPromise) {
+    loadPromise = (async (): Promise<UppyLocale | null> => {
+      if (!localeId) {
+        return null;
+      }
 
-    return null;
+      try {
+        const load = localeLoader ?? loadUppyLocaleById;
+
+        return await load(localeId);
+      } catch {
+        // Unsupported or failed pack load → English defaults.
+        return null;
+      }
+    })();
+    inflightByKey.set(cacheKey, loadPromise);
   }
 
   try {
-    cachedLocale = await loadUppyLocaleById(localeId);
-  } catch {
-    // Unsupported or failed pack load → English defaults.
-    cachedLocale = null;
-  }
+    const locale = await loadPromise;
 
-  return cachedLocale;
+    if (latestRequestedKey === cacheKey) {
+      settledCacheKey = cacheKey;
+      settledLocale = locale;
+    }
+
+    return locale;
+  } finally {
+    if (inflightByKey.get(cacheKey) === loadPromise) {
+      inflightByKey.delete(cacheKey);
+    }
+  }
 }
 
-/** Test helper — clears the module locale cache. */
+/** Test helper — clears the module locale cache and in-flight loads. */
 export function resetUppyLocaleCache(): void {
-  cachedHtmlLangKey = null;
-  cachedLocale = null;
+  settledCacheKey = null;
+  settledLocale = null;
+  latestRequestedKey = null;
+  inflightByKey.clear();
+  localeLoader = null;
+}
+
+/** Test helper — inject a locale loader (e.g. delayed) to exercise concurrency. */
+export function setUppyLocaleLoaderForTests(loader: LocaleLoader | null): void {
+  localeLoader = loader;
 }
 
 /**
