@@ -161,19 +161,15 @@ function TableDataDownload(props: TableDataDownloadProps) {
 
         props.columns.forEach((column) => {
           if (column.metaProperties && !column.metaProperties.isHidden) {
-            const value = getExportCellValue(
-              column.metaProperties.type,
-              data[column.alias],
+            tableRow.push(
+              getExportCellValue(
+                column.metaProperties.type,
+                data[column.alias],
+                {
+                  asNumber: column.columnProperties?.columnType === "number",
+                },
+              ),
             );
-
-            if (
-              column.columnProperties?.columnType === "number" &&
-              typeof value === "string"
-            ) {
-              tableRow.push(Number(value) || 0);
-            } else {
-              tableRow.push(value);
-            }
           }
         });
 
