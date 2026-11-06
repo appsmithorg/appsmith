@@ -14,7 +14,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
@@ -31,8 +30,12 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -178,27 +181,42 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                                 applicationJson,
                                 SerialiseArtifactObjective.SHARE);
                     }
-                    return Mono.just(applicationJson).zipWith(sessionUserService.getCurrentUser());
+                    return Mono.just(applicationJson);
                 })
-                .flatMap(tuple -> {
-                    ApplicationJson applicationJson1 = tuple.getT1();
-                    Application application = applicationJson1.getExportedApplication();
+                .flatMap(exportedJson -> {
+                    Application application = exportedJson.getExportedApplication();
 
                     applicationJson.setWidgets(partialExportFileDTO.getWidget());
                     applicationJson.setExportedApplication(null);
 
-                    User user = tuple.getT2();
-                    final Map<String, Object> eventData = Map.of(FieldName.APPLICATION, application);
+                    final Map<String, Object> eventData = new HashMap<>();
+                    eventData.put(FieldName.APPLICATION, application);
+                    eventData.put(FieldName.PARTIAL_RESOURCE_COUNTS, buildPartialResourceCounts(partialExportFileDTO));
 
-                    final Map<String, Object> data = Map.of(
-                            FieldName.APPLICATION_ID, application.getId(),
-                            FieldName.WORKSPACE_ID, application.getWorkspaceId(),
-                            FieldName.EVENT_DATA, eventData);
+                    final Map<String, Object> data = new HashMap<>();
+                    data.put(FieldName.APPLICATION_ID, application.getId());
+                    data.put(FieldName.WORKSPACE_ID, application.getWorkspaceId());
+                    data.put(FieldName.PAGE_ID, branchedPageId);
+                    data.put(FieldName.EVENT_DATA, eventData);
 
                     return analyticsService
-                            .sendEvent(AnalyticsEvents.PARTIAL_EXPORT.getEventName(), user.getUsername(), data)
+                            .sendObjectEvent(AnalyticsEvents.PARTIAL_EXPORT, application, data)
                             .thenReturn(applicationJson);
                 });
+    }
+
+    private static Map<String, Object> buildPartialResourceCounts(PartialExportFileDTO partialExportFileDTO) {
+        Map<String, Object> counts = new HashMap<>();
+        counts.put(FieldName.ACTION_COUNT, collectionSize(partialExportFileDTO.getActionList()));
+        counts.put(FieldName.ACTION_COLLECTION_COUNT, collectionSize(partialExportFileDTO.getActionCollectionList()));
+        counts.put(FieldName.DATASOURCE_COUNT, collectionSize(partialExportFileDTO.getDatasourceList()));
+        counts.put(FieldName.JS_LIB_COUNT, collectionSize(partialExportFileDTO.getCustomJsLib()));
+        counts.put(FieldName.HAS_WIDGETS, StringUtils.hasText(partialExportFileDTO.getWidget()));
+        return counts;
+    }
+
+    private static int collectionSize(Collection<?> collection) {
+        return CollectionUtils.isEmpty(collection) ? 0 : collection.size();
     }
 
     private void exportDatasource(List<String> validDatasource, ApplicationJson applicationJson) {
