@@ -451,15 +451,26 @@ jobs:
           echo "image=$REPOSITORY@$DIGEST" | tee -a "$GITHUB_OUTPUT"
 
   package-master:
-    needs: [ci-test, client-unit-tests, server-unit-tests]
+    needs: [setup, ci-test, client-unit-tests, server-unit-tests]
     runs-on: ubuntu-latest
     # Set permissions since we're using OIDC token authentication between Depot and GitHub
     permissions:
       contents: read
       id-token: write
 
-    # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
-    if: ( success() && github.ref == 'refs/heads/master' )
+    # Runs on master only, when every test job passed on the full Cypress suite.
+    # A manual run with a tag filter tests only part of the suite, so it does not
+    # publish. The results are checked by name because success() also covers
+    # indirect dependencies, and package-release, which ci-test needs, is always
+    # skipped on master.
+    if: >-
+      !cancelled() &&
+      needs.setup.result == 'success' &&
+      needs.setup.outputs.tags == '' &&
+      needs.ci-test.result == 'success' &&
+      needs.client-unit-tests.result == 'success' &&
+      needs.server-unit-tests.result == 'success' &&
+      github.ref == 'refs/heads/master'
 
     steps:
       - name: Checkout the head commit of the branch
