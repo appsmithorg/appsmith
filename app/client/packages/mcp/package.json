@@ -9,7 +9,8 @@
     "lint": "yarn g:lint",
     "prettier": "yarn g:prettier",
     "start": "./start-server.sh",
-    "test:unit": "jest -b --colors --no-cache --silent"
+    "test:unit": "jest -b --colors --no-cache --silent",
+    "example:parallel-search": "tsc --target ES2022 --module NodeNext --moduleResolution NodeNext --strict --skipLibCheck --esModuleInterop --outDir dist --rootDir src src/examples/parallel-search.ts && node dist/examples/parallel-search.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9 || ^2.0.5",
