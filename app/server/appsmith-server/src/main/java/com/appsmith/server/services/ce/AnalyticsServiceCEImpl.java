@@ -416,7 +416,10 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                 AnalyticsEvents.DS_TEST_EVENT,
                 AnalyticsEvents.DS_TEST_EVENT_SUCCESS,
                 AnalyticsEvents.DS_TEST_EVENT_FAILED,
-                AnalyticsEvents.DS_SCHEMA_FETCH_EVENT);
+                AnalyticsEvents.DS_SCHEMA_FETCH_EVENT,
+                // Keep Segment event names as partial_import / partial_export (no _APPLICATION suffix).
+                AnalyticsEvents.PARTIAL_IMPORT,
+                AnalyticsEvents.PARTIAL_EXPORT);
     }
 
     /**
