@@ -1,0 +1,28 @@
+templates:
+  - deployment.yaml
+tests:
+  - name: startup allows ten failed checks while liveness and readiness keep their defaults
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].startupProbe.failureThreshold
+          value: 10
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].startupProbe.periodSeconds
+          value: 60
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].livenessProbe.failureThreshold
+          value: 3
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].readinessProbe.failureThreshold
+          value: 3
+  - name: startup accepts the preview override and custom check interval
+    set:
+      probes.startupProbe.failureThreshold: 30
+      probes.startupProbe.periodSeconds: 20
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].startupProbe.failureThreshold
+          value: 30
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "appsmith")].startupProbe.periodSeconds
+          value: 20

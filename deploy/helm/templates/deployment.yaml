@@ -140,7 +140,8 @@ spec:
             httpGet:
               port: {{ dig "startupProbe" "port" "80" $probes }}
               path: {{ dig "startupProbe" "api" "/api/v1/health" $probes }}
-            failureThreshold: {{ dig "startupProbe" "failureThreshold" 3 $probes }}
+            # Allow a fresh database time to finish migrations against a remote MongoDB.
+            failureThreshold: {{ dig "startupProbe" "failureThreshold" 10 $probes }}
             periodSeconds: {{ dig "startupProbe" "periodSeconds" 60 $probes }}
           livenessProbe:
             httpGet:

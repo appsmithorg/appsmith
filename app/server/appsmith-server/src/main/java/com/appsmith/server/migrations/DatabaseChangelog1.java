@@ -131,6 +131,9 @@ public class DatabaseChangelog1 {
 
     @ChangeSet(order = "001", id = "initial-plugins", author = "")
     public void initialPlugins(MongoTemplate mongoTemplate) {
+        // Enforce uniqueness before inserting so retries after an interrupted first boot are safe.
+        ensureIndexes(mongoTemplate, Plugin.class, makeIndex("packageName").unique());
+
         Plugin plugin1 = new Plugin();
         plugin1.setName("PostgreSQL");
         plugin1.setType(PluginType.DB);
