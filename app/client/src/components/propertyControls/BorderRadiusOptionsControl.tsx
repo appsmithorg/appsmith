@@ -78,7 +78,11 @@ class BorderRadiusOptionsControl extends BaseControl<BorderRadiusOptionsControlP
         }}
         options={options}
         ref={this.componentRef}
-        value={this.props.evaluatedValue || ""}
+        value={
+          this.props.evaluatedValue !== undefined
+            ? this.props.evaluatedValue
+            : this.props.propertyValue || ""
+        }
       />
     );
   }
