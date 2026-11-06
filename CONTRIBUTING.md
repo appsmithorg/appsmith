@@ -12,6 +12,15 @@ Read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing
 
 There are many ways in which you can contribute to Appsmith.
 
+### Prerequisites
+
+- Node.js 20+ and Yarn (check with `node -v` and `yarn -v`)
+- Java 17+ (for server, check with `java -version`)
+- Docker and Docker Compose (for local setup)
+- Git
+
+> See our [Code Contribution Guide](contributions/CodeContributionsGuidelines.md) for detailed setup instructions.
+
 #### 🐛 Report a bug
 Report all issues through GitHub Issues using the [Report a Bug](https://github.com/appsmithorg/appsmith/issues/new?assignees=Nikhil-Nandagopal&labels=Bug%2CNeeds+Triaging&template=--bug-report.yaml&title=%5BBug%5D%3A+) template.
 To help resolve your issue as quickly as possible, read the template and provide all the requested information.
