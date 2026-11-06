@@ -60,6 +60,7 @@ export interface JSONFormComponentProps<TValues = any> {
   showReset: boolean;
   submitButtonStyles: ButtonStyleProps;
   title: string;
+  titleTextColor?: string;
   updateFormData: (values: TValues) => void;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -232,6 +233,7 @@ function JSONFormComponent<TValues>(
           submitButtonLabel={submitButtonLabel}
           submitButtonStyles={rest.submitButtonStyles}
           title={rest.title}
+          titleTextColor={rest.titleTextColor}
           unregisterResetObserver={unregisterResetObserver}
           updateFormData={updateFormData}
         >
