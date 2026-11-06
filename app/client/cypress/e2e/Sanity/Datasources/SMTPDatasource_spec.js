@@ -104,11 +104,11 @@ describe(
       cy.xpath("//input[@class='bp3-input']").eq(2).type("this is a smtp test");
       // adding an attachment in file picker
       const fixturePath = "testFile.mov";
-      agHelper.ClickButton("Select Files"); //1 files selected
+      agHelper.ClickButton("Select Files"); //1 file selected
       agHelper.UploadFile(fixturePath);
       //eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
-      cy.get("button").contains("1 files selected");
+      cy.get("button").contains("1 file selected");
       agHelper.ClickButton("Run query");
       agHelper.ValidateToastMessage("Sent the email successfully");
 

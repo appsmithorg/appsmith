@@ -57,7 +57,7 @@ describe(
       //cy.get(".ads-v2-spinner").should("have.length", 1);
       //eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
-      cy.get("button").contains("1 files selected");
+      cy.get("button").contains("1 file selected");
     });
 
     it("4. It checks the deletion of filepicker works as expected", function () {
@@ -69,7 +69,7 @@ describe(
         });
       cy.get(commonlocators.filePickerUploadButton).click();
       cy.wait(500);
-      cy.get("button").contains("1 files selected");
+      cy.get("button").contains("1 file selected");
       cy.get(commonlocators.filePickerButton).click();
       //eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(200);
