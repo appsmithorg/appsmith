@@ -1449,7 +1449,12 @@ export function colorForEachRowValidation(
   return generateResponseAndReturn(false, DEFAULT_MESSAGE);
 }
 
-// Infinite scroll not supported for add new row yet
+/**
+ * Infinite scroll does not support adding a row, so turning it on turns
+ * add new row off. Turning infinite scroll off leaves add new row as it is,
+ * because its earlier value is not stored and turning add new row on without
+ * the author's choice would open a write path.
+ */
 export const updateAllowAddNewRowOnInfiniteScrollChange = (
   props: TableWidgetProps,
   propertyPath: string,
@@ -1462,19 +1467,16 @@ export const updateAllowAddNewRowOnInfiniteScrollChange = (
         propertyValue: false,
       },
     ];
-  } else if (propertyValue === false) {
-    return [
-      {
-        propertyPath: "allowAddNewRow",
-        propertyValue: true,
-      },
-    ];
   }
 
   return;
 };
 
-// Infinite scroll not supported for search, sort and filters yet
+/**
+ * Infinite scroll does not support search, filters or sorting, so turning it
+ * on turns them off. Turning infinite scroll off leaves them as they are,
+ * because their earlier values are not stored.
+ */
 export const updateSearchSortFilterOnInfiniteScrollChange = (
   props: TableWidgetProps,
   propertyPath: string,
@@ -1495,27 +1497,12 @@ export const updateSearchSortFilterOnInfiniteScrollChange = (
         propertyValue: false,
       },
     ];
-  } else if (propertyValue === false) {
-    return [
-      {
-        propertyPath: "isVisibleFilters",
-        propertyValue: true,
-      },
-      {
-        propertyPath: "isVisibleSearch",
-        propertyValue: true,
-      },
-      {
-        propertyPath: "isSortable",
-        propertyValue: true,
-      },
-    ];
   }
 
   return;
 };
 
-// Property updates applied whenever infinite scroll is turned on or off
+// Property updates applied when infinite scroll changes. Only turning it on produces updates.
 export const infiniteScrollUpdateHook = composePropertyUpdateHook([
   updateAllowAddNewRowOnInfiniteScrollChange,
   updateSearchSortFilterOnInfiniteScrollChange,
