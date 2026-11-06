@@ -141,6 +141,28 @@
           }
         },
         {
+          "label": "Authorization expires in (seconds)",
+          "configProperty": "datasourceConfiguration.authentication.expiresIn",
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "3600",
+          "isRequired": false,
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "datasourceConfiguration.authentication.authenticationType",
+                "comparison": "NOT_EQUALS",
+                "value": "oAuth2"
+              },
+              {
+                "path": "datasourceConfiguration.authentication.grantType",
+                "comparison": "NOT_EQUALS",
+                "value": "AUTHORIZATION_CODE"
+              }
+            ]
+          }
+        },
+        {
           "label": "Header prefix",
           "configProperty": "datasourceConfiguration.authentication.headerPrefix",
           "controlType": "INPUT_TEXT",
