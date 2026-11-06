@@ -11,6 +11,7 @@ import {
   selectColumnOptionsValidation,
   allowedFirstDayOfWeekRange,
   updateSearchSortFilterOnInfiniteScrollChange,
+  infiniteScrollUpdateHook,
 } from "../propertyUtils";
 import _ from "lodash";
 import type { ColumnTypes, TableWidgetProps } from "../../constants";
@@ -1053,10 +1054,9 @@ describe("allowedFirstDayOfWeekRange", () => {
 });
 
 describe("Infinite Scroll Update Hooks - ", () => {
-  it("updateAllowAddNewRowOnInfiniteScrollChange - should disable/enable add new row when infinite scroll is toggled", () => {
+  it("updateAllowAddNewRowOnInfiniteScrollChange - should disable add new row when infinite scroll is turned on", () => {
     const props = {} as TableWidgetProps;
 
-    // When infinite scroll is enabled
     expect(
       updateAllowAddNewRowOnInfiniteScrollChange(
         props,
@@ -1069,22 +1069,23 @@ describe("Infinite Scroll Update Hooks - ", () => {
         propertyValue: false,
       },
     ]);
+  });
 
-    // When infinite scroll is disabled
+  it("updateAllowAddNewRowOnInfiniteScrollChange - should leave add new row as it is when infinite scroll is turned off", () => {
+    const props = { allowAddNewRow: false } as TableWidgetProps;
+
     expect(
       updateAllowAddNewRowOnInfiniteScrollChange(
         props,
         "infiniteScrollEnabled",
         false,
       ),
-    ).toEqual([
-      {
-        propertyPath: "allowAddNewRow",
-        propertyValue: true,
-      },
-    ]);
+    ).toBeUndefined();
+  });
 
-    // When some other value is passed
+  it("updateAllowAddNewRowOnInfiniteScrollChange - should not update add new row for a non-boolean value", () => {
+    const props = {} as TableWidgetProps;
+
     expect(
       updateAllowAddNewRowOnInfiniteScrollChange(
         props,
@@ -1094,10 +1095,9 @@ describe("Infinite Scroll Update Hooks - ", () => {
     ).toBeUndefined();
   });
 
-  it("updateSearchSortFilterOnInfiniteScrollChange - should disable/enable search, filter, sort when infinite scroll is toggled", () => {
+  it("updateSearchSortFilterOnInfiniteScrollChange - should disable search, filter, sort when infinite scroll is turned on", () => {
     const props = {} as TableWidgetProps;
 
-    // When infinite scroll is enabled
     expect(
       updateSearchSortFilterOnInfiniteScrollChange(
         props,
@@ -1118,36 +1118,46 @@ describe("Infinite Scroll Update Hooks - ", () => {
         propertyValue: false,
       },
     ]);
+  });
 
-    // When infinite scroll is disabled
+  it("updateSearchSortFilterOnInfiniteScrollChange - should leave search, filter, sort as they are when infinite scroll is turned off", () => {
+    const props = {
+      isVisibleSearch: false,
+      isVisibleFilters: false,
+      isSortable: false,
+    } as unknown as TableWidgetProps;
+
     expect(
       updateSearchSortFilterOnInfiniteScrollChange(
         props,
         "infiniteScrollEnabled",
         false,
       ),
-    ).toEqual([
-      {
-        propertyPath: "isVisibleFilters",
-        propertyValue: true,
-      },
-      {
-        propertyPath: "isVisibleSearch",
-        propertyValue: true,
-      },
-      {
-        propertyPath: "isSortable",
-        propertyValue: true,
-      },
-    ]);
+    ).toBeUndefined();
+  });
 
-    // When some other value is passed
+  it("updateSearchSortFilterOnInfiniteScrollChange - should not update search, filter, sort for a non-boolean value", () => {
+    const props = {} as TableWidgetProps;
+
     expect(
       updateSearchSortFilterOnInfiniteScrollChange(
         props,
         "infiniteScrollEnabled",
         "some-other-value",
       ),
+    ).toBeUndefined();
+  });
+
+  it("infiniteScrollUpdateHook - should not change add new row, search, filter, sort when infinite scroll is turned off", () => {
+    const props = {
+      allowAddNewRow: true,
+      isVisibleSearch: true,
+      isVisibleFilters: true,
+      isSortable: true,
+    } as unknown as TableWidgetProps;
+
+    expect(
+      infiniteScrollUpdateHook(props, "infiniteScrollEnabled", false),
     ).toBeUndefined();
   });
 });
