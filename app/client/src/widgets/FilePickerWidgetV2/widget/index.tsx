@@ -31,21 +31,40 @@ import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { klonaRegularWithTelemetry } from "utils/helpers";
+import { getAppsmithConfigs } from "ee/configs";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import store from "store";
 import {
   ensureUppyLocale,
-  getAppHtmlLang,
+  formatXFilesSelected,
   getDashboardLocaleOption,
+  type UppyLocale,
 } from "../utils/uppyLocale";
 
 const CSV_ARRAY_LABEL = "Array of Objects (CSV, XLS(X), JSON, TSV)";
 
 const ARRAY_CSV_HELPER_TEXT = `All non CSV, XLS(X), JSON or TSV filetypes will have an empty value. \n Large files used in widgets directly might slow down the app.`;
 
+/** Same resolution as published `<html lang>` (app setting → instance default → en). */
+function readAppHtmlLang(): string {
+  const application = getCurrentApplication(store.getState());
+  const { defaultHtmlLang } = getAppsmithConfigs();
+
+  return (
+    application?.applicationDetail?.htmlLang ||
+    defaultHtmlLang ||
+    "en"
+  ).trim();
+}
+
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
   FilePickerWidgetState
 > {
   private isWidgetUnmounting: boolean;
+  private appliedHtmlLang: string | null = null;
+  private unsubscribeStore: (() => void) | null = null;
+  private syncLocaleGeneration = 0;
 
   constructor(props: FilePickerWidgetProps) {
     super(props);
@@ -54,6 +73,8 @@ class FilePickerWidget extends BaseWidget<
       areFilesLoading: false,
       isWaitingForUppyToLoad: false,
       isUppyModalOpen: false,
+      htmlLang: readAppHtmlLang(),
+      uppyLocale: null,
     };
   }
 
@@ -455,7 +476,7 @@ class FilePickerWidget extends BaseWidget<
    */
   loadAndInitUppyOnce = _.memoize(async () => {
     const { Uppy } = await importUppy();
-    const htmlLang = getAppHtmlLang();
+    const htmlLang = readAppHtmlLang();
     const uppyLocale = await ensureUppyLocale(htmlLang);
 
     const uppyState = {
@@ -486,6 +507,53 @@ class FilePickerWidget extends BaseWidget<
 
     return uppy;
   });
+
+  /**
+   * Apply (or re-apply) Uppy locale from the current app HTML language.
+   * Safe to call when htmlLang arrives late or changes in App Settings.
+   */
+  syncLocaleFromApp = async () => {
+    const generation = ++this.syncLocaleGeneration;
+    const htmlLang = readAppHtmlLang();
+
+    try {
+      const uppyLocale = await ensureUppyLocale(htmlLang);
+
+      if (generation !== this.syncLocaleGeneration || this.isWidgetUnmounting) {
+        return;
+      }
+
+      const uppy = await this.loadAndInitUppyOnce();
+
+      if (generation !== this.syncLocaleGeneration || this.isWidgetUnmounting) {
+        return;
+      }
+
+      uppy.setOptions(uppyLocale ? { locale: uppyLocale } : { locale: {} });
+
+      const dashboardPlugin = uppy.getPlugin("Dashboard") as
+        | Dashboard
+        | undefined;
+
+      dashboardPlugin?.setOptions({
+        locale: getDashboardLocaleOption(htmlLang, uppyLocale),
+      });
+
+      const webcamPlugin = uppy.getPlugin("Webcam");
+
+      webcamPlugin?.setOptions({
+        locale: uppyLocale ?? {},
+      });
+
+      this.appliedHtmlLang = htmlLang;
+      this.setState({
+        htmlLang,
+        uppyLocale,
+      });
+    } catch (e) {
+      log.debug("Error syncing FilePicker Uppy locale");
+    }
+  };
 
   /**
    * set states on the uppy instance with new values
@@ -519,8 +587,8 @@ class FilePickerWidget extends BaseWidget<
    */
   initializeUppyEventListeners = async (
     uppy: Uppy,
-    htmlLang: string = getAppHtmlLang(),
-    uppyLocale: Awaited<ReturnType<typeof ensureUppyLocale>> = null,
+    htmlLang: string,
+    uppyLocale: UppyLocale | null,
   ) => {
     const { Dashboard, GoogleDrive, OneDrive, Url, Webcam } =
       await importUppy();
@@ -778,11 +846,16 @@ class FilePickerWidget extends BaseWidget<
   async componentDidMount() {
     super.componentDidMount();
 
+    this.unsubscribeStore = store.subscribe(() => {
+      const nextHtmlLang = readAppHtmlLang();
+
+      if (nextHtmlLang !== this.appliedHtmlLang) {
+        void this.syncLocaleFromApp();
+      }
+    });
+
     try {
-      await ensureUppyLocale(getAppHtmlLang());
-      await this.loadAndInitUppyOnce();
-      // Refresh the selected-files button label once the Uppy locale pack is cached.
-      this.forceUpdate();
+      await this.syncLocaleFromApp();
     } catch (e) {
       log.debug("Error in initializing uppy");
     }
@@ -790,6 +863,8 @@ class FilePickerWidget extends BaseWidget<
 
   componentWillUnmount() {
     this.isWidgetUnmounting = true;
+    this.unsubscribeStore?.();
+    this.unsubscribeStore = null;
     this.loadAndInitUppyOnce().then((uppy) => {
       uppy.close();
     });
@@ -811,13 +886,18 @@ class FilePickerWidget extends BaseWidget<
   }
 
   getWidgetView() {
+    const selectedFiles = this.props.selectedFiles || [];
+    const buttonLabel =
+      selectedFiles.length > 0
+        ? formatXFilesSelected(selectedFiles.length, this.state.uppyLocale)
+        : this.props.label;
+
     return (
       <>
         <FilePickerComponent
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
           buttonColor={this.props.buttonColor}
-          files={this.props.selectedFiles || []}
           isDisabled={this.props.isDisabled}
           isLoading={
             this.props.isLoading ||
@@ -825,7 +905,7 @@ class FilePickerWidget extends BaseWidget<
             this.state.isWaitingForUppyToLoad
           }
           key={this.props.widgetId}
-          label={this.props.label}
+          label={buttonLabel}
           maxWidth={this.props.maxWidth}
           minHeight={this.props.minHeight}
           minWidth={this.props.minWidth}
@@ -866,6 +946,8 @@ interface FilePickerWidgetState extends WidgetState {
   areFilesLoading: boolean;
   isWaitingForUppyToLoad: boolean;
   isUppyModalOpen: boolean;
+  htmlLang: string;
+  uppyLocale: UppyLocale | null;
 }
 
 interface FilePickerWidgetProps extends WidgetProps {

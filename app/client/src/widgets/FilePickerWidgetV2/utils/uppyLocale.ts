@@ -1,6 +1,7 @@
-import { getAppsmithConfigs } from "ee/configs";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import store from "store";
+/**
+ * Uppy locale helpers for FilePickerWidgetV2.
+ * Pure functions — callers pass htmlLang / locale; no Redux store access here.
+ */
 
 /**
  * Uppy locale object shape used by @uppy/core / @uppy/dashboard / @uppy/locales.
@@ -107,20 +108,6 @@ const LOCALE_IDS = Object.keys(LOCALE_LOADERS);
 let cachedHtmlLangKey: string | null = null;
 let cachedLocale: UppyLocale | null = null;
 
-/**
- * App HTML language (same resolution as published `<html lang>`).
- */
-export function getAppHtmlLang(): string {
-  const application = getCurrentApplication(store.getState());
-  const { defaultHtmlLang } = getAppsmithConfigs();
-
-  return (
-    application?.applicationDetail?.htmlLang ||
-    defaultHtmlLang ||
-    "en"
-  ).trim();
-}
-
 export function isEnglishHtmlLang(htmlLang: string): boolean {
   const primary = htmlLang
     .trim()
@@ -200,7 +187,7 @@ async function loadUppyLocaleById(
  * English / unsupported → null (Uppy built-in English strings).
  */
 export async function ensureUppyLocale(
-  htmlLang: string = getAppHtmlLang(),
+  htmlLang: string,
 ): Promise<UppyLocale | null> {
   const localeId = resolveUppyLocaleId(htmlLang);
   const cacheKey = localeId ?? "en";
@@ -227,10 +214,6 @@ export async function ensureUppyLocale(
   return cachedLocale;
 }
 
-export function getCachedUppyLocale(): UppyLocale | null {
-  return cachedLocale;
-}
-
 /** Test helper — clears the module locale cache. */
 export function resetUppyLocaleCache(): void {
   cachedHtmlLangKey = null;
@@ -242,7 +225,7 @@ export function resetUppyLocaleCache(): void {
  */
 export function formatXFilesSelected(
   count: number,
-  locale: UppyLocale | null = getCachedUppyLocale(),
+  locale: UppyLocale | null = null,
 ): string {
   const xFilesSelected = locale?.strings?.xFilesSelected;
   const forms =
@@ -264,7 +247,7 @@ export function formatXFilesSelected(
 export function getDashboardLocaleOption(
   htmlLang: string,
   uppyLocale: UppyLocale | null,
-): { strings: Record<string, string> } | UppyLocale | Record<string, never> {
+): { strings: Record<string, string> } | Record<string, never> {
   if (isEnglishHtmlLang(htmlLang) || !uppyLocale) {
     return {
       strings: {

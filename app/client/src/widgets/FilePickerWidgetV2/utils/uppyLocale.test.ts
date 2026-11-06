@@ -1,20 +1,3 @@
-jest.mock("store", () => ({
-  __esModule: true,
-  default: {
-    getState: jest.fn(() => ({
-      ui: { applications: { currentApplication: undefined } },
-    })),
-  },
-}));
-
-jest.mock("ee/configs", () => ({
-  getAppsmithConfigs: () => ({ defaultHtmlLang: "" }),
-}));
-
-jest.mock("ee/selectors/applicationSelectors", () => ({
-  getCurrentApplication: () => undefined,
-}));
-
 import {
   ENGLISH_X_FILES_SELECTED,
   formatXFilesSelected,
