@@ -555,12 +555,20 @@
                             "type": "string"
                         },
                         "failureThreshold": {
-                            "type": "integer",
-                            "minimum": 1
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "minimum": 1,
+                            "pattern": "^[1-9][0-9]*$"
                         },
                         "periodSeconds": {
-                            "type": "integer",
-                            "minimum": 1
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "minimum": 1,
+                            "pattern": "^[1-9][0-9]*$"
                         },
                         "port": {
                             "type": [
@@ -569,8 +577,12 @@
                             ]
                         },
                         "timeoutSeconds": {
-                            "type": "integer",
-                            "minimum": 1
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "minimum": 1,
+                            "pattern": "^[1-9][0-9]*$"
                         }
                     }
                 },
@@ -582,12 +594,20 @@
                             "type": "string"
                         },
                         "failureThreshold": {
-                            "type": "integer",
-                            "minimum": 1
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "minimum": 1,
+                            "pattern": "^[1-9][0-9]*$"
                         },
                         "periodSeconds": {
-                            "type": "integer",
-                            "minimum": 1
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "minimum": 1,
+                            "pattern": "^[1-9][0-9]*$"
                         },
                         "port": {
                             "type": [
@@ -596,8 +616,12 @@
                             ]
                         },
                         "timeoutSeconds": {
-                            "type": "integer",
-                            "minimum": 1
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "minimum": 1,
+                            "pattern": "^[1-9][0-9]*$"
                         }
                     }
                 },
@@ -609,12 +633,20 @@
                             "type": "string"
                         },
                         "failureThreshold": {
-                            "type": "integer",
-                            "minimum": 1
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "minimum": 1,
+                            "pattern": "^[1-9][0-9]*$"
                         },
                         "periodSeconds": {
-                            "type": "integer",
-                            "minimum": 1
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "minimum": 1,
+                            "pattern": "^[1-9][0-9]*$"
                         },
                         "port": {
                             "type": [
@@ -623,8 +655,12 @@
                             ]
                         },
                         "timeoutSeconds": {
-                            "type": "integer",
-                            "minimum": 1
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "minimum": 1,
+                            "pattern": "^[1-9][0-9]*$"
                         }
                     }
                 }

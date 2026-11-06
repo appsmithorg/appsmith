@@ -76,3 +76,35 @@ tests:
           timeoutSeconds: 0
     asserts:
       - failedTemplate: {}
+
+  # Chart 3.9.1 rendered quoted numbers from probes overrides as integers.
+  # Upgrades that keep those values must still pass the schema.
+  - name: accepts a quoted positive number from an older override
+    set:
+      probes:
+        livenessProbe:
+          periodSeconds: "60"
+          failureThreshold: "3"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.periodSeconds
+          value: 60
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.failureThreshold
+          value: 3
+
+  - name: rejects a quoted probe number that is not a positive integer
+    set:
+      probes:
+        startupProbe:
+          failureThreshold: "0"
+    asserts:
+      - failedTemplate: {}
+
+  - name: rejects a probe number that is not numeric
+    set:
+      probes:
+        startupProbe:
+          periodSeconds: "ten"
+    asserts:
+      - failedTemplate: {}
