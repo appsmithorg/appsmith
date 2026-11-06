@@ -37,4 +37,3 @@ describe("getTableCellActionIconSize", () => {
     expect(TABLE_CELL_ACTION_ICON_SIZE.DEFAULT).toBe(27);
   });
 });
-
