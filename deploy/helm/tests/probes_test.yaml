@@ -1,0 +1,110 @@
+# Tests for the startup, liveness and readiness probes on the Appsmith container.
+suite: health probes
+templates:
+  - deployment.yaml
+tests:
+  - name: default probes tolerate in-app server restarts
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe
+          value: &defaultStartupProbe
+            httpGet:
+              port: 80
+              path: /api/v1/health
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 60
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe
+          value: &defaultLivenessProbe
+            httpGet:
+              port: 80
+              path: /api/v1/health
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 18
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe
+          value: &defaultReadinessProbe
+            httpGet:
+              port: 80
+              path: /api/v1/health
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+  # `helm upgrade --reuse-values` from a chart without `probes` in values.yaml renders
+  # without these values, so the template fallbacks must match the values.yaml defaults.
+  - name: template fallbacks match the values.yaml defaults when probes is unset
+    set:
+      probes: null
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe
+          value: *defaultStartupProbe
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe
+          value: *defaultLivenessProbe
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe
+          value: *defaultReadinessProbe
+
+  - name: a partial override changes only the keys it sets
+    set:
+      probes:
+        livenessProbe:
+          timeoutSeconds: 15
+          port: 8080
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe
+          value:
+            httpGet:
+              port: 8080
+              path: /api/v1/health
+            periodSeconds: 10
+            timeoutSeconds: 15
+            failureThreshold: 18
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.timeoutSeconds
+          value: 5
+
+  - name: rejects a probe timeoutSeconds below 1
+    set:
+      probes:
+        readinessProbe:
+          timeoutSeconds: 0
+    asserts:
+      - failedTemplate: {}
+
+  # Chart 3.9.1 rendered quoted numbers from probes overrides as integers.
+  # Upgrades that keep those values must still pass the schema.
+  - name: accepts a quoted positive number from an older override
+    set:
+      probes:
+        livenessProbe:
+          periodSeconds: "60"
+          failureThreshold: "3"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.periodSeconds
+          value: 60
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.failureThreshold
+          value: 3
+
+  - name: rejects a quoted probe number that is not a positive integer
+    set:
+      probes:
+        startupProbe:
+          failureThreshold: "0"
+    asserts:
+      - failedTemplate: {}
+
+  - name: rejects a probe number that is not numeric
+    set:
+      probes:
+        startupProbe:
+          periodSeconds: "ten"
+    asserts:
+      - failedTemplate: {}

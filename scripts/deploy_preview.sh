@@ -117,6 +117,7 @@ helm show chart appsmith-ee/$HELMCHART || echo "helm show chart failed (non-bloc
 
 echo "Deploying Appsmith Helm chart..."
 # The rollout annotation changes on every deploy, so the pod restarts even when the image tag is unchanged.
+# A preview's first boot runs every migration against a remote Atlas cluster, so the startup probe allows 30 minutes.
 helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-namespace \
   --set-string podAnnotations.deploy-preview/rollout="$(date -u +%Y%m%dT%H%M%SZ)" \
   --set _image.repository="${IMAGE_REPOSITORY:-$DOCKER_HUB_ORGANIZATION/appsmith-dp}" \
@@ -129,6 +130,8 @@ helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-n
   --set redis.enabled=false \
   --set postgresql.enabled=false \
   --set mongodb.enabled=false \
+  --set probes.startupProbe.periodSeconds=10 \
+  --set probes.startupProbe.failureThreshold=180 \
   --set ingress.enabled=true \
   --set "ingress.hosts[0].host=$DOMAINNAME, ingress.hosts[0].paths[0].path=/, ingress.hosts[0].paths[0].pathType=Prefix" \
   --set autoupdate.enabled=false \
