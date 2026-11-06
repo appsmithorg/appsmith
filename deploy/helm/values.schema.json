@@ -17,7 +17,7 @@
             "type": "object"
         },
         "applicationConfig": {
-            "description": "Map of APPSMITH_* environment variables passed to the application container. Helm and the Kubernetes API stringify scalar values when rendering env vars, so writing booleans (true/false) or integers (1/0) is fine — the schema accepts any scalar. See https://docs.appsmith.com/getting-started/setup/environment-variables for the full list of recognized keys. The keys enumerated here are common starting points and are not exhaustive.",
+            "description": "Map of APPSMITH_* environment variables passed to the application container. Helm and the Kubernetes API stringify scalar values when rendering env vars, so writing booleans (true/false) or integers (1/0) is fine — the schema accepts any scalar. See https://docs.appsmith.com/getting-started/setup/environment-variables for the full list of recognized keys. The keys enumerated here are common starting points and are not exhaustive. APPSMITH_OTEL_HTTP_ENDPOINT configures Caddy, Java server, and RTS tracing. Runtime precedence is APPSMITH_OTEL_HTTP_ENDPOINT, then OTEL_EXPORTER_OTLP_TRACES_ENDPOINT, then OTEL_EXPORTER_OTLP_ENDPOINT (auto-appended with /v1/traces), then http://localhost:4318/v1/traces. APPSMITH_ENABLE_OTEL accepts case-insensitive enabled forms true, 1, yes, on and disabled forms false, 0, no, off, empty, unset. Any other value fails startup fast. APPSMITH_OTEL_TRACING_SAMPLING_PROBABILITY controls root-span head sampling for those services with a valid range of 0..1 and default 1. Invalid values fail startup fast.",
             "type": "object",
             "additionalProperties": {
                 "type": [
