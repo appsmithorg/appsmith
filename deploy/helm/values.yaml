@@ -272,6 +272,56 @@ resources:
      cpu: 500m
      memory: 3000Mi
 
+## Health probes for the Appsmith container. All three call the HTTP health endpoint.
+## Saving some admin settings restarts the server inside the container. A restart takes
+## about 45 seconds. The liveness defaults tolerate several restarts in a row: Kubernetes
+## restarts the container only after 180 seconds of continuous failure (10 s x 18).
+## Each probe accepts: port, api (the HTTP path), periodSeconds, timeoutSeconds, failureThreshold.
+# @schema description: Health probes for the Appsmith container. Each probe accepts port, api (HTTP path), periodSeconds, timeoutSeconds and failureThreshold.
+probes:
+  ## @param probes.startupProbe Startup probe. Liveness and readiness checks start only after it succeeds. Defaults allow 300 seconds to boot.
+  # @schema description: Startup probe. Liveness and readiness checks start only after it succeeds.
+  # -- Startup probe. Liveness and readiness checks start only after it succeeds. Defaults allow 300 seconds to boot.
+  # @section -- Workload configuration
+  startupProbe:
+    # @schema type: [string, integer]
+    port: "80"
+    api: /api/v1/health
+    # @schema minimum: 1
+    periodSeconds: 10
+    # @schema minimum: 1
+    timeoutSeconds: 5
+    # @schema minimum: 1
+    failureThreshold: 30
+  ## @param probes.livenessProbe Liveness probe. Kubernetes restarts the container when it fails failureThreshold times in a row. Defaults tolerate 180 seconds of continuous failure.
+  # @schema description: Liveness probe. Kubernetes restarts the container when it fails failureThreshold times in a row.
+  # -- Liveness probe. Kubernetes restarts the container when it fails failureThreshold times in a row. Defaults tolerate 180 seconds of continuous failure.
+  # @section -- Workload configuration
+  livenessProbe:
+    # @schema type: [string, integer]
+    port: "80"
+    api: /api/v1/health
+    # @schema minimum: 1
+    periodSeconds: 10
+    # @schema minimum: 1
+    timeoutSeconds: 5
+    # @schema minimum: 1
+    failureThreshold: 18
+  ## @param probes.readinessProbe Readiness probe. Kubernetes stops sending traffic to the pod while it fails. Defaults mark the pod unready after 30 seconds of failure.
+  # @schema description: Readiness probe. Kubernetes stops sending traffic to the pod while it fails.
+  # -- Readiness probe. Kubernetes stops sending traffic to the pod while it fails. Defaults mark the pod unready after 30 seconds of failure.
+  # @section -- Workload configuration
+  readinessProbe:
+    # @schema type: [string, integer]
+    port: "80"
+    api: /api/v1/health
+    # @schema minimum: 1
+    periodSeconds: 10
+    # @schema minimum: 1
+    timeoutSeconds: 5
+    # @schema minimum: 1
+    failureThreshold: 3
+
 ## @param workload.kind Select workload resource type: Deployment or StatefulSet
 ## When set to Deployment, the chart creates a Deployment instead of a StatefulSet.
 ## Note: This value is ignored when autoscaling.enabled is true (Deployment is used).

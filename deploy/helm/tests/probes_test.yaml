@@ -1,0 +1,62 @@
+# Tests for the startup, liveness and readiness probes on the Appsmith container.
+suite: health probes
+templates:
+  - deployment.yaml
+tests:
+  - name: default probes tolerate in-app server restarts
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe
+          value:
+            httpGet:
+              port: 80
+              path: /api/v1/health
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe
+          value:
+            httpGet:
+              port: 80
+              path: /api/v1/health
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 18
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe
+          value:
+            httpGet:
+              port: 80
+              path: /api/v1/health
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+  - name: a partial override changes only the keys it sets
+    set:
+      probes:
+        livenessProbe:
+          timeoutSeconds: 15
+          port: 8080
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe
+          value:
+            httpGet:
+              port: 8080
+              path: /api/v1/health
+            periodSeconds: 10
+            timeoutSeconds: 15
+            failureThreshold: 18
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.timeoutSeconds
+          value: 5
+
+  - name: rejects a probe timeoutSeconds below 1
+    set:
+      probes:
+        readinessProbe:
+          timeoutSeconds: 0
+    asserts:
+      - failedTemplate: {}

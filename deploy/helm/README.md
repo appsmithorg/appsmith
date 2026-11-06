@@ -47,6 +47,9 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 | customCAcert | string | `nil` | Custom CA certificates to trust at runtime (map of filename to PEM content) |
 | resources.limits | object | `{}` | Resource limits for the Appsmith container |
 | resources.requests | object | `{"cpu":"500m","memory":"3000Mi"}` | Resource requests for the Appsmith container |
+| probes.startupProbe | object | `{"api":"/api/v1/health","failureThreshold":30,"periodSeconds":10,"port":"80","timeoutSeconds":5}` | Startup probe. Liveness and readiness checks start only after it succeeds. Defaults allow 300 seconds to boot. |
+| probes.livenessProbe | object | `{"api":"/api/v1/health","failureThreshold":18,"periodSeconds":10,"port":"80","timeoutSeconds":5}` | Liveness probe. Kubernetes restarts the container when it fails failureThreshold times in a row. Defaults tolerate 180 seconds of continuous failure. |
+| probes.readinessProbe | object | `{"api":"/api/v1/health","failureThreshold":3,"periodSeconds":10,"port":"80","timeoutSeconds":5}` | Readiness probe. Kubernetes stops sending traffic to the pod while it fails. Defaults mark the pod unready after 30 seconds of failure. |
 | workload | object | `{"kind":"StatefulSet"}` | Select workload resource type: Deployment or StatefulSet |
 | replicas | int | `1` | Number of replicas when autoscaling is disabled |
 | autoscaling.enabled | bool | `false` | Enable the HorizontalPodAutoscaler |

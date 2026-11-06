@@ -543,6 +543,93 @@
             },
             "additionalProperties": true
         },
+        "probes": {
+            "description": "Health probes for the Appsmith container. Each probe accepts port, api (HTTP path), periodSeconds, timeoutSeconds and failureThreshold.",
+            "type": "object",
+            "properties": {
+                "livenessProbe": {
+                    "description": "Liveness probe. Kubernetes restarts the container when it fails failureThreshold times in a row.",
+                    "type": "object",
+                    "properties": {
+                        "api": {
+                            "type": "string"
+                        },
+                        "failureThreshold": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "periodSeconds": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "port": {
+                            "type": [
+                                "string",
+                                "integer"
+                            ]
+                        },
+                        "timeoutSeconds": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                },
+                "readinessProbe": {
+                    "description": "Readiness probe. Kubernetes stops sending traffic to the pod while it fails.",
+                    "type": "object",
+                    "properties": {
+                        "api": {
+                            "type": "string"
+                        },
+                        "failureThreshold": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "periodSeconds": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "port": {
+                            "type": [
+                                "string",
+                                "integer"
+                            ]
+                        },
+                        "timeoutSeconds": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                },
+                "startupProbe": {
+                    "description": "Startup probe. Liveness and readiness checks start only after it succeeds.",
+                    "type": "object",
+                    "properties": {
+                        "api": {
+                            "type": "string"
+                        },
+                        "failureThreshold": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "periodSeconds": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "port": {
+                            "type": [
+                                "string",
+                                "integer"
+                            ]
+                        },
+                        "timeoutSeconds": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                }
+            }
+        },
         "prometheus": {
             "type": "object",
             "properties": {
