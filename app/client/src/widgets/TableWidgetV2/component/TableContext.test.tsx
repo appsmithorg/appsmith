@@ -99,6 +99,7 @@ const mockTableProviderProps = {
   showConnectDataOverlay: false,
   onConnectData: jest.fn(),
   isInfiniteScrollEnabled: false,
+  isAutoHeightEnabled: false,
   endOfData: false,
   cachedTableData: [],
 };
@@ -208,6 +209,7 @@ describe("TableContext", () => {
         "showConnectDataOverlay",
         "onConnectData",
         "isInfiniteScrollEnabled",
+        "isAutoHeightEnabled",
         "endOfData",
         "cachedTableData",
       ].sort();
@@ -268,6 +270,24 @@ describe("TableContext", () => {
 
       expect(context.scrollContainerStyles).toEqual({
         height: 388, // 400 - 10 - 2 (height - TABLE_SCROLLBAR_HEIGHT - SCROLL_BAR_OFFSET)
+        width: 800,
+      });
+    });
+
+    it("leaves the height unset when auto height is enabled", async () => {
+      const testRenderer = TestRenderer.create(
+        <TableProvider
+          {...{ ...mockTableProviderProps, isAutoHeightEnabled: true }}
+        >
+          <TestParent />
+        </TableProvider>,
+      );
+      const testInstance = testRenderer.root;
+      const context = (await testInstance.findByType(TestChild)).props
+        .tableContext;
+
+      expect(context.scrollContainerStyles).toEqual({
+        height: undefined,
         width: 800,
       });
     });
