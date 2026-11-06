@@ -11,4 +11,8 @@ public interface SharedConfigCE {
     default String getAIProxyBasePathUrl() {
         return "";
     }
+
+    default boolean isQueryTimeoutCancelEnabled() {
+        return false;
+    }
 }
