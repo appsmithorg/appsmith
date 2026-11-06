@@ -105,8 +105,29 @@ const LOCALE_LOADERS: Record<string, () => Promise<{ default: UppyLocale }>> = {
 
 const LOCALE_IDS = Object.keys(LOCALE_LOADERS);
 
+/**
+ * Module cache is keyed by resolved Uppy locale id (or "en").
+ * One app has one htmlLang, so all FilePickers share the same pack.
+ * Multi-language-per-page is out of scope.
+ */
 let cachedHtmlLangKey: string | null = null;
 let cachedLocale: UppyLocale | null = null;
+
+/**
+ * Typed empty locale for Uppy / plugin setOptions when falling back to English.
+ * Uppy merges missing string keys with its built-in English defaults.
+ */
+export const EMPTY_UPPY_LOCALE: UppyLocale = {
+  strings: {},
+  pluralize: ENGLISH_PLURALIZE,
+};
+
+/** Dashboard / Webcam locale option with required `strings` (never a bare `{}`). */
+export interface UppyPluginLocaleOption {
+  strings: Record<string, string>;
+}
+
+export const EMPTY_PLUGIN_LOCALE: UppyPluginLocaleOption = { strings: {} };
 
 export function isEnglishHtmlLang(htmlLang: string): boolean {
   const primary = htmlLang
@@ -242,12 +263,13 @@ export function formatXFilesSelected(
 
 /**
  * Dashboard locale option: keep Appsmith's short English close label;
- * for other languages let the Uppy pack supply closeModal.
+ * for other languages re-assert the pack's closeModal so a prior English
+ * override does not stick after setOptions merge.
  */
 export function getDashboardLocaleOption(
   htmlLang: string,
   uppyLocale: UppyLocale | null,
-): { strings: Record<string, string> } | Record<string, never> {
+): UppyPluginLocaleOption {
   if (isEnglishHtmlLang(htmlLang) || !uppyLocale) {
     return {
       strings: {
@@ -256,5 +278,11 @@ export function getDashboardLocaleOption(
     };
   }
 
-  return {};
+  const closeModal = uppyLocale.strings.closeModal;
+
+  if (typeof closeModal === "string") {
+    return { strings: { closeModal } };
+  }
+
+  return EMPTY_PLUGIN_LOCALE;
 }

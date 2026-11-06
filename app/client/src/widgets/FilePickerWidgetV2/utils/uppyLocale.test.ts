@@ -97,13 +97,24 @@ describe("FilePicker Uppy locale helpers", () => {
       });
     });
 
-    it("does not override closeModal when a non-English pack is active", () => {
+    it("re-asserts the pack closeModal when a non-English pack is active", () => {
       const german: UppyLocale = {
         strings: { closeModal: "Modal schließen" },
         pluralize: (n) => (n === 1 ? 0 : 1),
       };
 
-      expect(getDashboardLocaleOption("de", german)).toEqual({});
+      expect(getDashboardLocaleOption("de", german)).toEqual({
+        strings: { closeModal: "Modal schließen" },
+      });
+    });
+
+    it("returns an empty strings object when the pack has no closeModal string", () => {
+      const german: UppyLocale = {
+        strings: {},
+        pluralize: (n) => (n === 1 ? 0 : 1),
+      };
+
+      expect(getDashboardLocaleOption("de", german)).toEqual({ strings: {} });
     });
   });
 });
