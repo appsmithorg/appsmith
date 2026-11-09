@@ -59,6 +59,22 @@ const getInputDSL = (): DSLWidget => ({
     },
     {
       ...baseWidget,
+      widgetId: "8",
+      widgetName: "Table4",
+      type: "TABLE_WIDGET_V2",
+      dynamicHeight: "FIXED",
+      children: [],
+    },
+    {
+      ...baseWidget,
+      widgetId: "9",
+      widgetName: "Table5",
+      type: "TABLE_WIDGET_V2",
+      dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
+      children: [],
+    },
+    {
+      ...baseWidget,
       widgetId: "6",
       widgetName: "TableV1",
       type: "TABLE_WIDGET",
@@ -101,6 +117,10 @@ describe("Migrate TABLE_WIDGET_V2 dynamic height", () => {
     const outputDSL = migrateTableWidgetV2DynamicHeight(getInputDSL());
 
     expect(findWidget(outputDSL, "5")?.dynamicHeight).toEqual("AUTO_HEIGHT");
+    expect(findWidget(outputDSL, "8")?.dynamicHeight).toEqual("FIXED");
+    expect(findWidget(outputDSL, "9")?.dynamicHeight).toEqual(
+      "AUTO_HEIGHT_WITH_LIMITS",
+    );
   });
 
   it("does not touch other widget types", () => {
