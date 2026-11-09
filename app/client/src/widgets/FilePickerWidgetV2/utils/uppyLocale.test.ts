@@ -190,5 +190,64 @@ describe("FilePicker Uppy locale helpers", () => {
       // Settled cache must remain French (latest requested key).
       expect(await ensureUppyLocale("fr")).toBe(french);
     });
+
+    it("lets English settle and ignores a slower prior pack load", async () => {
+      let releaseDe!: (locale: UppyLocale) => void;
+      const deGate = new Promise<UppyLocale>((resolve) => {
+        releaseDe = resolve;
+      });
+
+      setUppyLocaleLoaderForTests(async (localeId) => {
+        if (localeId === "de_DE") {
+          return deGate;
+        }
+
+        return null;
+      });
+
+      const deRequest = ensureUppyLocale("de");
+      const enRequest = ensureUppyLocale("en");
+
+      expect(await enRequest).toBeNull();
+
+      releaseDe(german);
+      expect(await deRequest).toBe(german);
+
+      expect(await ensureUppyLocale("en")).toBeNull();
+    });
+
+    it("does not let a settled-cache hit block a newer in-flight language from settling", async () => {
+      let releaseFr!: (locale: UppyLocale) => void;
+      const frGate = new Promise<UppyLocale>((resolve) => {
+        releaseFr = resolve;
+      });
+      let frLoadCount = 0;
+
+      setUppyLocaleLoaderForTests(async (localeId) => {
+        if (localeId === "de_DE") {
+          return german;
+        }
+
+        if (localeId === "fr_FR") {
+          frLoadCount += 1;
+
+          return frGate;
+        }
+
+        return null;
+      });
+
+      expect(await ensureUppyLocale("de")).toBe(german);
+
+      const frRequest = ensureUppyLocale("fr");
+
+      // Settled German hit must not rewind latestRequestedKey away from French.
+      expect(await ensureUppyLocale("de")).toBe(german);
+
+      releaseFr(french);
+      expect(await frRequest).toBe(french);
+      expect(await ensureUppyLocale("fr")).toBe(french);
+      expect(frLoadCount).toBe(1);
+    });
   });
 });

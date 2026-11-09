@@ -222,11 +222,13 @@ export async function ensureUppyLocale(
   const localeId = resolveUppyLocaleId(htmlLang);
   const cacheKey = localeId ?? "en";
 
-  latestRequestedKey = cacheKey;
-
+  // Settled hits must not bump latestRequestedKey — that would let a
+  // concurrent newer load finish without settling (cache poison).
   if (settledCacheKey === cacheKey && !inflightByKey.has(cacheKey)) {
     return settledLocale;
   }
+
+  latestRequestedKey = cacheKey;
 
   let loadPromise = inflightByKey.get(cacheKey);
 

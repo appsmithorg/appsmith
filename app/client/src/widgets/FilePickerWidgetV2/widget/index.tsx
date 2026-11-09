@@ -519,7 +519,7 @@ class FilePickerWidget extends BaseWidget<
       autoProceed: false,
       allowMultipleUploads: true,
       debug: false,
-      ...(uppyLocale ? { locale: uppyLocale } : {}),
+      locale: uppyLocale ?? EMPTY_UPPY_LOCALE,
       restrictions: {
         maxFileSize: this.props.maxFileSize
           ? this.props.maxFileSize * 1024 * 1024
@@ -546,8 +546,10 @@ class FilePickerWidget extends BaseWidget<
   /**
    * Apply (or re-apply) Uppy locale from the current app HTML language.
    * Safe to call when htmlLang arrives late or changes in App Settings.
+   * Retries once on failure so a transient error does not leave the widget
+   * stuck on the wrong language until remount or another lang change.
    */
-  syncLocaleFromApp = async () => {
+  syncLocaleFromApp = async (isRetry = false) => {
     const generation = ++this.syncLocaleGeneration;
     const htmlLang = readAppHtmlLang();
 
@@ -586,6 +588,10 @@ class FilePickerWidget extends BaseWidget<
       this.setState({ uppyLocale });
     } catch (e) {
       log.debug("Error syncing FilePicker Uppy locale", e);
+
+      if (!isRetry && !this.isWidgetUnmounting) {
+        await this.syncLocaleFromApp(true);
+      }
     }
   };
 
