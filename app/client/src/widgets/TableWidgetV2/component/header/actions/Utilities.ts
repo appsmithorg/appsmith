@@ -1,12 +1,16 @@
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import { getExportCellValue } from "widgets/TableWidgetV2/utilities/getExportCellValue";
 import type { TableColumnProps } from "../../Constants";
 import { isString } from "lodash";
+
+const escapeCsvField = (value: string) => value.replace(/"/g, '""');
 
 export const transformTableDataIntoCsv = (props: {
   columns: TableColumnProps[];
   data: Array<Record<string, unknown>>;
+  delimiter?: string;
 }) => {
   const csvData = [];
+  const delimiter = props.delimiter || ",";
 
   csvData.push(
     props.columns
@@ -31,18 +35,18 @@ export const transformTableDataIntoCsv = (props: {
       let value = data[column.alias];
 
       if (column.metaProperties && !column.metaProperties.isHidden) {
-        value =
-          isString(value) && value.includes("\n")
-            ? value.replace("\n", " ")
-            : value;
+        value = getExportCellValue(column.metaProperties.type, value);
 
-        // HTML columns output multi line strings. We need to quote them to avoid CSV parsing issues.
+        // Collapse newlines (LF, CRLF, CR) so a cell cannot split CSV rows.
+        if (isString(value)) {
+          value = value.replace(/\r\n|\r|\n/g, " ");
+        }
+
         const shouldQuote =
-          (isString(value) && value.includes(",")) ||
-          column.metaProperties.type === ColumnTypes.HTML;
+          isString(value) && (value.includes(delimiter) || value.includes('"'));
 
         if (shouldQuote) {
-          csvDataRow.push(`"${value}"`);
+          csvDataRow.push(`"${escapeCsvField(value)}"`);
         } else {
           csvDataRow.push(value);
         }
