@@ -15,6 +15,7 @@ export class ManifestLink implements Link {
     const manifestData = {
       appsmithVersion: version,
       dbName: utils.getDatabaseNameFromMongoURI(utils.getDburl()),
+      excludedCollections: this.state.excludedCollections,
     };
 
     await fsPromises.writeFile(
