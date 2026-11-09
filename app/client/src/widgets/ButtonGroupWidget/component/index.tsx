@@ -434,27 +434,41 @@ class ButtonGroupComponent extends React.Component<
       itemWidths: {},
       loadedBtnId: "",
       openMenuBtnId: "",
+      openTooltipBtnId: "",
     };
   }
 
   wrapWithTooltip = (
     content: React.ReactNode,
+    buttonId: string,
     tooltip?: string,
-    options?: { disabled?: boolean },
   ) => {
     if (!tooltip) {
       return content;
     }
 
+    const isMenuOpen = this.state.openMenuBtnId === buttonId;
+    const isTooltipOpen =
+      this.state.openTooltipBtnId === buttonId && !isMenuOpen;
+
     return (
       <ToolTipWrapper>
-        <TooltipStyles />
         <Popover2
           autoFocus={false}
           content={<Interweave content={tooltip} />}
-          disabled={options?.disabled}
+          disabled={isMenuOpen}
           hoverOpenDelay={200}
           interactionKind="hover"
+          isOpen={isTooltipOpen}
+          onInteraction={(nextOpenState) => {
+            if (this.state.openMenuBtnId === buttonId) {
+              return;
+            }
+
+            this.setState({
+              openTooltipBtnId: nextOpenState ? buttonId : "",
+            });
+          }}
           portalClassName="btnGroupTooltipContainer"
           position={Position.TOP}
         >
@@ -605,7 +619,7 @@ class ButtonGroupComponent extends React.Component<
       orientation,
       widgetId,
     } = this.props;
-    const { loadedBtnId, openMenuBtnId } = this.state;
+    const { loadedBtnId } = this.state;
     const isHorizontal = orientation === "horizontal";
 
     let items = objectKeys(groupButtons)
@@ -615,6 +629,7 @@ class ButtonGroupComponent extends React.Component<
     // sort btns by index
     items = sortBy(items, ["index"]);
     const popoverId = `button-group-${widgetId}`;
+    const hasTooltip = items.some((button) => !!button.tooltip);
 
     const getOnClick = (button: GroupButtonProps) => {
       if (!button.onClick) return;
@@ -632,6 +647,7 @@ class ButtonGroupComponent extends React.Component<
         className="t--buttongroup-widget"
         isHorizontal={isHorizontal}
       >
+        {hasTooltip && <TooltipStyles />}
         {items.map((button) => {
           const isLoading = button.id === loadedBtnId;
           const isButtonDisabled =
@@ -665,9 +681,13 @@ class ButtonGroupComponent extends React.Component<
                   disabled={button.isDisabled}
                   fill
                   minimal
-                  onInteraction={(nextOpenState) => {
+                  onClosing={() => {
+                    this.setState({ openMenuBtnId: "" });
+                  }}
+                  onOpening={() => {
                     this.setState({
-                      openMenuBtnId: nextOpenState ? button.id : "",
+                      openMenuBtnId: button.id,
+                      openTooltipBtnId: "",
                     });
                   }}
                   placement="bottom-end"
@@ -717,9 +737,7 @@ class ButtonGroupComponent extends React.Component<
 
             return (
               <React.Fragment key={button.id}>
-                {this.wrapWithTooltip(menuButton, button.tooltip, {
-                  disabled: openMenuBtnId === button.id,
-                })}
+                {this.wrapWithTooltip(menuButton, button.id, button.tooltip)}
               </React.Fragment>
             );
           }
@@ -769,7 +787,7 @@ class ButtonGroupComponent extends React.Component<
 
           return (
             <React.Fragment key={button.id}>
-              {this.wrapWithTooltip(simpleButton, button.tooltip)}
+              {this.wrapWithTooltip(simpleButton, button.id, button.tooltip)}
             </React.Fragment>
           );
         })}
@@ -838,6 +856,7 @@ export interface ButtonGroupComponentState {
   itemWidths: Record<string, number>;
   loadedBtnId: string;
   openMenuBtnId: string;
+  openTooltipBtnId: string;
 }
 
 export default ButtonGroupComponent;

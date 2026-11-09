@@ -4,6 +4,15 @@ import ButtonGroupWidget from "../index";
 import { RenderModes } from "constants/WidgetConstants";
 import type { ButtonGroupWidgetProps } from "../index";
 import { klona } from "klona";
+import { lightTheme } from "selectors/themeSelectors";
+import { ThemeProvider } from "styled-components";
+
+const renderWidget = (props: ButtonGroupWidgetProps) =>
+  render(
+    <ThemeProvider theme={lightTheme}>
+      <ButtonGroupWidget {...props} />
+    </ThemeProvider>,
+  );
 
 const defaultProps: ButtonGroupWidgetProps = {
   widgetId: "test-button-group",
@@ -49,13 +58,17 @@ const defaultProps: ButtonGroupWidgetProps = {
   },
 };
 
+const getTooltipContent = () =>
+  document.querySelector(".btnGroupTooltipContainer .bp3-popover2-content")
+    ?.textContent;
+
 describe("ButtonGroupWidget disabledWhenInvalid", () => {
   it("disables buttons when disabledWhenInvalid is true and form is invalid", () => {
     const props = klona(defaultProps);
 
     props.isFormValid = false;
 
-    const { container } = render(<ButtonGroupWidget {...props} />);
+    const { container } = renderWidget(props);
     const buttons = container.querySelectorAll("button");
 
     buttons.forEach((button) => {
@@ -68,7 +81,7 @@ describe("ButtonGroupWidget disabledWhenInvalid", () => {
 
     props.isFormValid = true;
 
-    const { container } = render(<ButtonGroupWidget {...props} />);
+    const { container } = renderWidget(props);
     const buttons = container.querySelectorAll("button");
 
     buttons.forEach((button) => {
@@ -91,7 +104,7 @@ describe("ButtonGroupWidget disabledWhenInvalid", () => {
       },
     };
 
-    const { container } = render(<ButtonGroupWidget {...props} />);
+    const { container } = renderWidget(props);
     const buttons = container.querySelectorAll("button");
 
     buttons.forEach((button) => {
@@ -132,35 +145,115 @@ describe("ButtonGroupWidget tooltip", () => {
     props.groupButtons.groupButton1.disabledWhenInvalid = false;
     props.groupButtons.groupButton2.disabledWhenInvalid = false;
 
-    const { container } = render(<ButtonGroupWidget {...props} />);
+    const { container } = renderWidget(props);
     const button = container.querySelector("button");
 
     expect(button).not.toBeNull();
     fireEvent.mouseEnter(button as HTMLButtonElement);
 
     await waitFor(() => {
-      expect(
-        document.querySelector(
-          ".btnGroupTooltipContainer .bp3-popover2-content",
-        )?.textContent,
-      ).toBe("Favorite this item");
+      expect(getTooltipContent()).toBe("Favorite this item");
     });
   });
 
-  it("does not show a tooltip on hover when tooltip is empty", async () => {
+  it("does not mount a tooltip portal when tooltip is empty", () => {
     const props = klona(defaultProps);
 
     props.groupButtons.groupButton1.disabledWhenInvalid = false;
     props.groupButtons.groupButton2.disabledWhenInvalid = false;
 
-    const { container } = render(<ButtonGroupWidget {...props} />);
+    renderWidget(props);
+
+    expect(document.querySelector(".btnGroupTooltipContainer")).toBeNull();
+  });
+
+  it("shows tooltip content on hover for a menu trigger", async () => {
+    const props = klona(defaultProps);
+
+    props.groupButtons = {
+      groupButton1: {
+        label: "More",
+        id: "groupButton1",
+        widgetId: "",
+        buttonType: "MENU",
+        placement: "CENTER",
+        isVisible: true,
+        isDisabled: false,
+        disabledWhenInvalid: false,
+        index: 0,
+        tooltip: "Open more actions",
+        menuItems: {
+          menuItem1: {
+            label: "First Option",
+            id: "menuItem1",
+            widgetId: "",
+            isVisible: true,
+            isDisabled: false,
+            index: 0,
+          },
+        },
+      },
+    };
+
+    const { container } = renderWidget(props);
     const button = container.querySelector("button");
 
     expect(button).not.toBeNull();
     fireEvent.mouseEnter(button as HTMLButtonElement);
 
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await waitFor(() => {
+      expect(getTooltipContent()).toBe("Open more actions");
+    });
+  });
 
-    expect(document.querySelector(".btnGroupTooltipContainer")).toBeNull();
+  it("hides the menu trigger tooltip while the menu is open", async () => {
+    const props = klona(defaultProps);
+
+    props.groupButtons = {
+      groupButton1: {
+        label: "More",
+        id: "groupButton1",
+        widgetId: "",
+        buttonType: "MENU",
+        placement: "CENTER",
+        isVisible: true,
+        isDisabled: false,
+        disabledWhenInvalid: false,
+        index: 0,
+        tooltip: "Open more actions",
+        menuItems: {
+          menuItem1: {
+            label: "First Option",
+            id: "menuItem1",
+            widgetId: "",
+            isVisible: true,
+            isDisabled: false,
+            index: 0,
+          },
+        },
+      },
+    };
+
+    const { container } = renderWidget(props);
+    const button = container.querySelector("button");
+
+    expect(button).not.toBeNull();
+    fireEvent.mouseEnter(button as HTMLButtonElement);
+
+    await waitFor(() => {
+      expect(getTooltipContent()).toBe("Open more actions");
+    });
+
+    fireEvent.click(button as HTMLButtonElement);
+
+    await waitFor(() => {
+      expect(getTooltipContent()).toBeUndefined();
+    });
+
+    fireEvent.mouseEnter(button as HTMLButtonElement);
+
+    await waitFor(() => {
+      expect(getTooltipContent()).toBeUndefined();
+    });
   });
 });
