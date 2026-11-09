@@ -55,9 +55,13 @@ describe(
       });
       cy.get(commonlocators.filePickerUploadButton).click();
       //cy.get(".ads-v2-spinner").should("have.length", 1);
-      //eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(500);
-      cy.get("button").contains("1 file selected");
+      // Wait for Uppy modal to close so we assert the canvas widget, not the
+      // StatusBar upload button still present while the dashboard is open.
+      cy.get(commonlocators.filePickerUploadButton).should("not.exist");
+      cy.get(commonlocators.filePickerButton).should(
+        "contain",
+        "1 file selected",
+      );
     });
 
     it("4. It checks the deletion of filepicker works as expected", function () {
@@ -68,15 +72,18 @@ describe(
           force: true,
         });
       cy.get(commonlocators.filePickerUploadButton).click();
-      cy.wait(500);
-      cy.get("button").contains("1 file selected");
+      cy.get(commonlocators.filePickerUploadButton).should("not.exist");
+      cy.get(commonlocators.filePickerButton).should(
+        "contain",
+        "1 file selected",
+      );
       cy.get(commonlocators.filePickerButton).click();
       //eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(200);
       cy.get("button.uppy-Dashboard-Item-action--remove").click();
       _.agHelper.GetNClick(".uppy-u-reset.uppy-Dashboard-close");
-      cy.wait(500);
-      cy.get("button").contains("Select Files");
+      cy.get(commonlocators.filePickerUploadButton).should("not.exist");
+      cy.get(commonlocators.filePickerButton).should("contain", "Select Files");
     });
 
     afterEach(() => {

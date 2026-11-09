@@ -165,13 +165,19 @@ describe("FilePicker Uppy locale helpers", () => {
       const frGate = new Promise<UppyLocale>((resolve) => {
         releaseFr = resolve;
       });
+      let deLoadCount = 0;
+      let frLoadCount = 0;
 
       setUppyLocaleLoaderForTests(async (localeId) => {
         if (localeId === "de_DE") {
+          deLoadCount += 1;
+
           return deGate;
         }
 
         if (localeId === "fr_FR") {
+          frLoadCount += 1;
+
           return frGate;
         }
 
@@ -187,8 +193,10 @@ describe("FilePicker Uppy locale helpers", () => {
       releaseDe(german);
       expect(await deRequest).toBe(german);
 
-      // Settled cache must remain French (latest requested key).
+      // Settled cache must remain French without reloading (settle-on-latest).
       expect(await ensureUppyLocale("fr")).toBe(french);
+      expect(deLoadCount).toBe(1);
+      expect(frLoadCount).toBe(1);
     });
 
     it("lets English settle and ignores a slower prior pack load", async () => {
@@ -196,9 +204,12 @@ describe("FilePicker Uppy locale helpers", () => {
       const deGate = new Promise<UppyLocale>((resolve) => {
         releaseDe = resolve;
       });
+      let deLoadCount = 0;
 
       setUppyLocaleLoaderForTests(async (localeId) => {
         if (localeId === "de_DE") {
+          deLoadCount += 1;
+
           return deGate;
         }
 
@@ -214,6 +225,28 @@ describe("FilePicker Uppy locale helpers", () => {
       expect(await deRequest).toBe(german);
 
       expect(await ensureUppyLocale("en")).toBeNull();
+      expect(deLoadCount).toBe(1);
+      // English stayed settled; a fresh German request must load again.
+      expect(await ensureUppyLocale("de")).toBe(german);
+      expect(deLoadCount).toBe(2);
+    });
+
+    it("does not permanently cache a failed pack load as settled English", async () => {
+      let attempts = 0;
+
+      setUppyLocaleLoaderForTests(async () => {
+        attempts += 1;
+
+        if (attempts === 1) {
+          throw new Error("pack missing");
+        }
+
+        return german;
+      });
+
+      expect(await ensureUppyLocale("de")).toBeNull();
+      expect(await ensureUppyLocale("de")).toBe(german);
+      expect(attempts).toBe(2);
     });
 
     it("does not let a settled-cache hit block a newer in-flight language from settling", async () => {

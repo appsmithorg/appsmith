@@ -238,14 +238,9 @@ export async function ensureUppyLocale(
         return null;
       }
 
-      try {
-        const load = localeLoader ?? loadUppyLocaleById;
+      const load = localeLoader ?? loadUppyLocaleById;
 
-        return await load(localeId);
-      } catch {
-        // Unsupported or failed pack load → English defaults.
-        return null;
-      }
+      return load(localeId);
     })();
     inflightByKey.set(cacheKey, loadPromise);
   }
@@ -259,6 +254,10 @@ export async function ensureUppyLocale(
     }
 
     return locale;
+  } catch {
+    // Pack load failed — do not settle, so a later call can retry.
+    // Callers treat null as English defaults for this attempt.
+    return null;
   } finally {
     if (inflightByKey.get(cacheKey) === loadPromise) {
       inflightByKey.delete(cacheKey);

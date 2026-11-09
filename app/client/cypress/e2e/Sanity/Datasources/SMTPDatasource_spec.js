@@ -106,9 +106,11 @@ describe(
       const fixturePath = "testFile.mov";
       agHelper.ClickButton("Select Files"); //1 file selected
       agHelper.UploadFile(fixturePath);
-      //eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(500);
-      cy.get("button").contains("1 file selected");
+      cy.get(".uppy-StatusBar-actionBtn--upload").should("not.exist");
+      cy.get(".t--widget-filepickerwidget").should(
+        "contain",
+        "1 file selected",
+      );
       agHelper.ClickButton("Run query");
       agHelper.ValidateToastMessage("Sent the email successfully");
 
