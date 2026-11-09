@@ -1,6 +1,3 @@
-import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import type { WidgetType } from "WidgetProvider/factory/types";
-
 /**
  * Lets an edition add a custom styling section to a widget's property pane config.
  * WidgetFactory calls it before it enhances the config, at two call sites:
@@ -18,9 +15,13 @@ import type { WidgetType } from "WidgetProvider/factory/types";
  *   Returning the input unchanged is allowed.
  * - Do not import widget maps, because WidgetFactory imports this file.
  *
+ * This file imports nothing, not even types. The cyclic dependency check also
+ * counts type imports, and WidgetFactory imports this file. The config type
+ * comes from the caller instead.
+ *
  * CE returns the config unchanged.
  */
-export const addCustomStylingSection = (
-  type: WidgetType,
-  config: PropertyPaneConfig[] | undefined,
-): PropertyPaneConfig[] | undefined => config;
+export const addCustomStylingSection = <TConfig>(
+  type: string,
+  config: TConfig,
+): TConfig => config;
