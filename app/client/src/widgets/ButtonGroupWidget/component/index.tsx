@@ -136,7 +136,9 @@ const ToolTipWrapper = styled.div`
     height: 100%;
     width: 100%;
 
-    & > div {
+    /* Fill for both canvas DragContainer (div) and published-mode bare button */
+    & > * {
+      width: 100%;
       height: 100%;
     }
   }
@@ -461,12 +463,18 @@ class ButtonGroupComponent extends React.Component<
           interactionKind="hover"
           isOpen={isTooltipOpen}
           onInteraction={(nextOpenState) => {
-            if (this.state.openMenuBtnId === buttonId) {
-              return;
-            }
+            this.setState((prevState) => {
+              if (prevState.openMenuBtnId === buttonId) {
+                return null;
+              }
 
-            this.setState({
-              openTooltipBtnId: nextOpenState ? buttonId : "",
+              if (!nextOpenState && prevState.openTooltipBtnId !== buttonId) {
+                return null;
+              }
+
+              return {
+                openTooltipBtnId: nextOpenState ? buttonId : "",
+              };
             });
           }}
           portalClassName="btnGroupTooltipContainer"
@@ -750,6 +758,9 @@ class ButtonGroupComponent extends React.Component<
               loading={!!loadedBtnId}
               onClick={getOnClick(button)}
               renderMode={this.props.renderMode}
+              // Keep a fill wrapper in published mode when tooltipped (same
+              // reason ButtonWidget keeps DragContainer for tooltips).
+              showInAllModes={!!button.tooltip}
               style={button.tooltip ? undefined : { flex: "1 1 auto" }}
             >
               <StyledButton

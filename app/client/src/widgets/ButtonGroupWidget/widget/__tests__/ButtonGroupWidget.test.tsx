@@ -62,6 +62,31 @@ const getTooltipContent = () =>
   document.querySelector(".btnGroupTooltipContainer .bp3-popover2-content")
     ?.textContent;
 
+const menuButtonProps = (): ButtonGroupWidgetProps["groupButtons"] => ({
+  groupButton1: {
+    label: "More",
+    id: "groupButton1",
+    widgetId: "",
+    buttonType: "MENU",
+    placement: "CENTER",
+    isVisible: true,
+    isDisabled: false,
+    disabledWhenInvalid: false,
+    index: 0,
+    tooltip: "Open more actions",
+    menuItems: {
+      menuItem1: {
+        label: "First Option",
+        id: "menuItem1",
+        widgetId: "",
+        isVisible: true,
+        isDisabled: false,
+        index: 0,
+      },
+    },
+  },
+});
+
 describe("ButtonGroupWidget disabledWhenInvalid", () => {
   it("disables buttons when disabledWhenInvalid is true and form is invalid", () => {
     const props = klona(defaultProps);
@@ -156,44 +181,53 @@ describe("ButtonGroupWidget tooltip", () => {
     });
   });
 
-  it("does not mount a tooltip portal when tooltip is empty", () => {
+  it("does not show a tooltip on hover when tooltip is empty", async () => {
     const props = klona(defaultProps);
 
+    props.groupButtons.groupButton1.tooltip = "";
     props.groupButtons.groupButton1.disabledWhenInvalid = false;
     props.groupButtons.groupButton2.disabledWhenInvalid = false;
 
-    renderWidget(props);
+    const { container } = renderWidget(props);
+    const group = container.querySelector(".t--buttongroup-widget");
+    const button = container.querySelector("button");
 
+    expect(button).not.toBeNull();
+    // Without a tooltip, wrapWithTooltip must not add a Popover2 target wrapper.
+    expect(group?.querySelectorAll(".bp3-popover2-target")).toHaveLength(0);
+
+    fireEvent.mouseEnter(button as HTMLButtonElement);
+
+    await waitFor(() => {
+      expect(getTooltipContent()).toBeUndefined();
+    });
     expect(document.querySelector(".btnGroupTooltipContainer")).toBeNull();
+  });
+
+  it("fills the group slot for a tooltipped simple button in published mode", () => {
+    const props = klona(defaultProps);
+
+    props.renderMode = RenderModes.PAGE;
+    props.groupButtons.groupButton1.tooltip = "Favorite this item";
+    props.groupButtons.groupButton1.disabledWhenInvalid = false;
+    props.groupButtons.groupButton2.disabledWhenInvalid = false;
+
+    const { container } = renderWidget(props);
+    const tooltipTarget = container.querySelector(
+      ".t--buttongroup-widget .bp3-popover2-target",
+    );
+    const fillWrapper = tooltipTarget?.firstElementChild;
+
+    expect(tooltipTarget).not.toBeNull();
+    // showInAllModes keeps a DragContainer div under the target in PAGE mode.
+    expect(fillWrapper?.tagName).toBe("DIV");
+    expect(fillWrapper?.querySelector("button")).not.toBeNull();
   });
 
   it("shows tooltip content on hover for a menu trigger", async () => {
     const props = klona(defaultProps);
 
-    props.groupButtons = {
-      groupButton1: {
-        label: "More",
-        id: "groupButton1",
-        widgetId: "",
-        buttonType: "MENU",
-        placement: "CENTER",
-        isVisible: true,
-        isDisabled: false,
-        disabledWhenInvalid: false,
-        index: 0,
-        tooltip: "Open more actions",
-        menuItems: {
-          menuItem1: {
-            label: "First Option",
-            id: "menuItem1",
-            widgetId: "",
-            isVisible: true,
-            isDisabled: false,
-            index: 0,
-          },
-        },
-      },
-    };
+    props.groupButtons = menuButtonProps();
 
     const { container } = renderWidget(props);
     const button = container.querySelector("button");
@@ -206,33 +240,10 @@ describe("ButtonGroupWidget tooltip", () => {
     });
   });
 
-  it("hides the menu trigger tooltip while the menu is open", async () => {
+  it("hides the menu trigger tooltip while the menu is open and restores it after close", async () => {
     const props = klona(defaultProps);
 
-    props.groupButtons = {
-      groupButton1: {
-        label: "More",
-        id: "groupButton1",
-        widgetId: "",
-        buttonType: "MENU",
-        placement: "CENTER",
-        isVisible: true,
-        isDisabled: false,
-        disabledWhenInvalid: false,
-        index: 0,
-        tooltip: "Open more actions",
-        menuItems: {
-          menuItem1: {
-            label: "First Option",
-            id: "menuItem1",
-            widgetId: "",
-            isVisible: true,
-            isDisabled: false,
-            index: 0,
-          },
-        },
-      },
-    };
+    props.groupButtons = menuButtonProps();
 
     const { container } = renderWidget(props);
     const button = container.querySelector("button");
@@ -254,6 +265,21 @@ describe("ButtonGroupWidget tooltip", () => {
 
     await waitFor(() => {
       expect(getTooltipContent()).toBeUndefined();
+    });
+
+    // Toggle the menu closed, then confirm tooltip can open again.
+    fireEvent.click(button as HTMLButtonElement);
+
+    await waitFor(() => {
+      expect(
+        document.querySelector(".button-group-test-button-group"),
+      ).toBeNull();
+    });
+
+    fireEvent.mouseEnter(button as HTMLButtonElement);
+
+    await waitFor(() => {
+      expect(getTooltipContent()).toBe("Open more actions");
     });
   });
 });
