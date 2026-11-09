@@ -107,14 +107,26 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
 
     @Override
     public Mono<Application> importResourceInPage(String workspaceId, String applicationId, String pageId, Part file) {
+        // File upload is the only path that emits PARTIAL_IMPORT (Segment + EE audit).
+        // The String overload is shared by BulkNewActionCreator and workflow HITL.
         return importService
                 .readFilePartToString(file)
-                .flatMap(fileContents -> importResourceInPage(workspaceId, applicationId, pageId, fileContents));
+                .flatMap(fileContents ->
+                        importResourceInPageFromContents(workspaceId, applicationId, pageId, fileContents, true));
     }
 
     @Override
     public Mono<Application> importResourceInPage(
             String workspaceId, String applicationId, String pageId, String fileContents) {
+        return importResourceInPageFromContents(workspaceId, applicationId, pageId, fileContents, false);
+    }
+
+    private Mono<Application> importResourceInPageFromContents(
+            String workspaceId,
+            String applicationId,
+            String pageId,
+            String fileContents,
+            boolean emitPartialImportAnalytics) {
         return importService.extractArtifactExchangeJson(fileContents).flatMap(artifactExchangeJson -> {
             if (!(artifactExchangeJson instanceof ApplicationJson applicationJson)
                     || !isImportableResource(applicationJson)) {
@@ -128,6 +140,10 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
             return importResourceInPage(workspaceId, applicationId, pageId, applicationJson)
                     .flatMap(buildingBlockImportDTO -> {
                         Application application = buildingBlockImportDTO.getApplication();
+                        if (!emitPartialImportAnalytics) {
+                            return Mono.just(application);
+                        }
+
                         final Map<String, Object> eventData = new HashMap<>();
                         eventData.put(FieldName.APPLICATION, application);
                         eventData.put(FieldName.PARTIAL_RESOURCE_COUNTS, resourceCounts);
