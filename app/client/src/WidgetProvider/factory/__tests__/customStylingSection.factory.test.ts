@@ -123,4 +123,47 @@ describe("WidgetFactory custom styling seam", () => {
       children: [{ propertyName: "textColor", label: "Text color" }],
     });
   });
+
+  // An edition replaces the config. These tests prove the factory uses what
+  // the seam returns, not the original config.
+  it("uses the config the seam returns for the style config", () => {
+    mockedAddCustomStylingSection.mockReturnValueOnce(makeSection("Custom"));
+    registerTestWidget(WITH_STYLE, {
+      getPropertyPaneStyleConfig: () => makeSection("Color"),
+    });
+
+    const result = WidgetFactory.getWidgetPropertyPaneStyleConfig(WITH_STYLE);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({ sectionName: "Custom" });
+    expect(result[0].id).toEqual(expect.any(String));
+  });
+
+  it("uses the config the seam returns when the widget has no style config", () => {
+    mockedAddCustomStylingSection.mockReturnValueOnce(makeSection("Custom"));
+    registerTestWidget(WITHOUT_STYLE, {
+      getPropertyPaneStyleConfig: () => undefined,
+    });
+
+    const result =
+      WidgetFactory.getWidgetPropertyPaneStyleConfig(WITHOUT_STYLE);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({ sectionName: "Custom" });
+  });
+
+  it("uses the config the seam returns for the single property pane config", () => {
+    mockedAddCustomStylingSection.mockReturnValueOnce(makeSection("Custom"));
+    registerTestWidget(LEGACY_CONFIG, {
+      getPropertyPaneConfig: () => makeSection("General"),
+    });
+
+    const result = WidgetFactory.getWidgetPropertyPaneConfig(
+      LEGACY_CONFIG,
+      {} as WidgetProps,
+    );
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({ sectionName: "Custom" });
+  });
 });
