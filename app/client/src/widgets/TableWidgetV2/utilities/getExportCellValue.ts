@@ -16,13 +16,13 @@ export const neutralizeSpreadsheetFormula = (value: string): string => {
   return value;
 };
 
-export type GetExportCellValueOptions = {
+export interface GetExportCellValueOptions {
   /**
    * When true, coerce string values to numbers (Excel number columns)
    * before formula neutralization so legitimate negatives stay numeric.
    */
   asNumber?: boolean;
-};
+}
 
 /**
  * Shared cell formatting for CSV and Excel download.
