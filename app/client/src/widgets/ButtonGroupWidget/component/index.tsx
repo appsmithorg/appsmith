@@ -8,6 +8,7 @@ import {
   Menu,
   MenuItem,
   Classes as CoreClass,
+  Position,
   Spinner,
 } from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
@@ -33,6 +34,7 @@ import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { buttonHoverActiveStyles } from "../../ButtonWidget/component/utils";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 import type { ThemeProp } from "WidgetProvider/types";
+import Interweave from "interweave";
 
 // Utility functions
 interface ButtonData {
@@ -105,8 +107,12 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
   }
 `;
 
-const MenuButtonWrapper = styled.div<{ renderMode: RenderMode }>`
-  flex: 1 1 auto;
+const MenuButtonWrapper = styled.div<{
+  renderMode: RenderMode;
+  $fillParent?: boolean;
+}>`
+  ${({ $fillParent }) =>
+    $fillParent ? "width: 100%; height: 100%;" : "flex: 1 1 auto;"};
   cursor: pointer;
   position: relative;
 
@@ -119,6 +125,31 @@ const MenuButtonWrapper = styled.div<{ renderMode: RenderMode }>`
 
   & > .${Classes.POPOVER2_TARGET} {
     height: 100%;
+  }
+`;
+
+const ToolTipWrapper = styled.div`
+  flex: 1 1 auto;
+  height: 100%;
+
+  && .${Classes.POPOVER2_TARGET} {
+    height: 100%;
+    width: 100%;
+
+    & > div {
+      height: 100%;
+    }
+  }
+`;
+
+const TooltipStyles = createGlobalStyle`
+  .btnGroupTooltipContainer {
+    .${Classes.POPOVER2_CONTENT} {
+      max-width: 350px;
+      overflow-wrap: anywhere;
+      padding: 10px 12px;
+      border-radius: 0px;
+    }
   }
 `;
 
@@ -402,8 +433,36 @@ class ButtonGroupComponent extends React.Component<
       itemRefs: {},
       itemWidths: {},
       loadedBtnId: "",
+      openMenuBtnId: "",
     };
   }
+
+  wrapWithTooltip = (
+    content: React.ReactNode,
+    tooltip?: string,
+    options?: { disabled?: boolean },
+  ) => {
+    if (!tooltip) {
+      return content;
+    }
+
+    return (
+      <ToolTipWrapper>
+        <TooltipStyles />
+        <Popover2
+          autoFocus={false}
+          content={<Interweave content={tooltip} />}
+          disabled={options?.disabled}
+          hoverOpenDelay={200}
+          interactionKind="hover"
+          portalClassName="btnGroupTooltipContainer"
+          position={Position.TOP}
+        >
+          {content}
+        </Popover2>
+      </ToolTipWrapper>
+    );
+  };
 
   componentDidMount() {
     this.setState(() => {
@@ -546,7 +605,7 @@ class ButtonGroupComponent extends React.Component<
       orientation,
       widgetId,
     } = this.props;
-    const { loadedBtnId } = this.state;
+    const { loadedBtnId, openMenuBtnId } = this.state;
     const isHorizontal = orientation === "horizontal";
 
     let items = objectKeys(groupButtons)
@@ -584,10 +643,9 @@ class ButtonGroupComponent extends React.Component<
 
           if (button.buttonType === "MENU" && !isButtonDisabled) {
             const { menuItems } = button;
-
-            return (
+            const menuButton = (
               <MenuButtonWrapper
-                key={button.id}
+                $fillParent={!!button.tooltip}
                 renderMode={this.props.renderMode}
               >
                 <PopoverStyles
@@ -607,6 +665,11 @@ class ButtonGroupComponent extends React.Component<
                   disabled={button.isDisabled}
                   fill
                   minimal
+                  onInteraction={(nextOpenState) => {
+                    this.setState({
+                      openMenuBtnId: nextOpenState ? button.id : "",
+                    });
+                  }}
                   placement="bottom-end"
                   popoverClassName={popoverId}
                 >
@@ -625,7 +688,6 @@ class ButtonGroupComponent extends React.Component<
                       iconAlign={button.iconAlign}
                       isHorizontal={isHorizontal}
                       isLabel={!!button.label}
-                      key={button.id}
                       minHeight={this.props.minHeight}
                       minWidth={this.props.buttonMinWidth}
                       ref={this.state.itemRefs[button.id]}
@@ -652,18 +714,25 @@ class ButtonGroupComponent extends React.Component<
                 </Popover2>
               </MenuButtonWrapper>
             );
+
+            return (
+              <React.Fragment key={button.id}>
+                {this.wrapWithTooltip(menuButton, button.tooltip, {
+                  disabled: openMenuBtnId === button.id,
+                })}
+              </React.Fragment>
+            );
           }
 
-          return (
+          const simpleButton = (
             <DragContainer
               buttonColor={button.buttonColor}
               buttonVariant={buttonVariant}
               disabled={isButtonDisabled}
-              key={button.id}
               loading={!!loadedBtnId}
               onClick={getOnClick(button)}
               renderMode={this.props.renderMode}
-              style={{ flex: "1 1 auto" }}
+              style={button.tooltip ? undefined : { flex: "1 1 auto" }}
             >
               <StyledButton
                 borderRadius={this.props.borderRadius}
@@ -697,6 +766,12 @@ class ButtonGroupComponent extends React.Component<
               </StyledButton>
             </DragContainer>
           );
+
+          return (
+            <React.Fragment key={button.id}>
+              {this.wrapWithTooltip(simpleButton, button.tooltip)}
+            </React.Fragment>
+          );
         })}
       </ButtonGroupWrapper>
     );
@@ -711,6 +786,7 @@ interface GroupButtonProps {
   isDisabled?: boolean;
   disabledWhenInvalid?: boolean;
   label?: string;
+  tooltip?: string;
   buttonType?: string;
   buttonColor?: string;
   iconName?: IconName;
@@ -761,6 +837,7 @@ export interface ButtonGroupComponentState {
   itemRefs: Record<string, RefObject<HTMLButtonElement>>;
   itemWidths: Record<string, number>;
   loadedBtnId: string;
+  openMenuBtnId: string;
 }
 
 export default ButtonGroupComponent;
