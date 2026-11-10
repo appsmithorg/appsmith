@@ -176,6 +176,9 @@ describe("ButtonGroupWidget tooltip", () => {
     expect(button).not.toBeNull();
     fireEvent.mouseEnter(button as HTMLButtonElement);
 
+    // hoverOpenDelay={200} — must not open synchronously via wrapper mouseEnter.
+    expect(getTooltipContent()).toBeUndefined();
+
     await waitFor(() => {
       expect(getTooltipContent()).toBe("Favorite this item");
     });

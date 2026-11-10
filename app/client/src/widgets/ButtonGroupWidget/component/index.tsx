@@ -456,9 +456,13 @@ class ButtonGroupComponent extends React.Component<
     return (
       <ToolTipWrapper
         onMouseEnter={() => {
-          // Re-arm hover if the pointer returns while the menu is open.
-          // Visibility stays gated by !isMenuOpen.
-          this.setState({ openTooltipBtnId: buttonId });
+          // Only re-arm while this button's menu is open. Normal opens go
+          // through Popover2 onInteraction so hoverOpenDelay still applies.
+          this.setState((prevState) =>
+            prevState.openMenuBtnId === buttonId
+              ? { openTooltipBtnId: buttonId }
+              : null,
+          );
         }}
         onMouseLeave={() => {
           // Popover2 leave is ignored while the menu is open (clicks/focus can
