@@ -258,7 +258,7 @@ describe("ButtonGroupWidget tooltip", () => {
     });
   });
 
-  it("hides the menu trigger tooltip while the menu is open and restores it after close", async () => {
+  it("hides the menu trigger tooltip while the menu is open and does not restore it on toggle-close", async () => {
     const props = klona(defaultProps);
 
     props.groupButtons = menuButtonProps();
@@ -279,8 +279,7 @@ describe("ButtonGroupWidget tooltip", () => {
       expect(getTooltipContent()).toBeUndefined();
     });
 
-    // Toggle the menu closed without remouseenter — tooltip should return
-    // while the pointer is still over the trigger.
+    // Toggle closed while still "hovering" — require a fresh hover, no flash.
     fireEvent.click(button as HTMLButtonElement);
 
     await waitFor(() => {
@@ -290,11 +289,11 @@ describe("ButtonGroupWidget tooltip", () => {
     });
 
     await waitFor(() => {
-      expect(getTooltipContent()).toBe("Open more actions");
+      expect(getTooltipContent()).toBeUndefined();
     });
   });
 
-  it("does not restore the menu tooltip after close if the pointer left the trigger", async () => {
+  it("does not show the menu tooltip after selecting a menu item", async () => {
     const props = klona(defaultProps);
 
     props.groupButtons = menuButtonProps();
@@ -314,14 +313,6 @@ describe("ButtonGroupWidget tooltip", () => {
     await waitFor(() => {
       expect(getTooltipContent()).toBeUndefined();
     });
-
-    // Pointer moved to the menu / away from the trigger while the menu is open.
-    const tooltipWrapper = button?.closest(
-      ".t--buttongroup-widget",
-    )?.firstElementChild;
-
-    expect(tooltipWrapper).not.toBeNull();
-    fireEvent.mouseLeave(tooltipWrapper as Element);
 
     const menuItem = document.querySelector(".bp3-menu-item");
 
@@ -339,7 +330,7 @@ describe("ButtonGroupWidget tooltip", () => {
     });
   });
 
-  it("re-arms the menu tooltip if the pointer returns to the trigger before close", async () => {
+  it("shows the menu tooltip again only after a fresh hover following menu close", async () => {
     const props = klona(defaultProps);
 
     props.groupButtons = menuButtonProps();
@@ -360,15 +351,6 @@ describe("ButtonGroupWidget tooltip", () => {
       expect(getTooltipContent()).toBeUndefined();
     });
 
-    const tooltipWrapper = button?.closest(
-      ".t--buttongroup-widget",
-    )?.firstElementChild;
-
-    expect(tooltipWrapper).not.toBeNull();
-    fireEvent.mouseLeave(tooltipWrapper as Element);
-    // Pointer returns to the trigger while the menu is still open.
-    fireEvent.mouseEnter(tooltipWrapper as Element);
-
     fireEvent.click(button as HTMLButtonElement);
 
     await waitFor(() => {
@@ -376,6 +358,17 @@ describe("ButtonGroupWidget tooltip", () => {
         document.querySelector(".button-group-test-button-group"),
       ).toBeNull();
     });
+
+    expect(getTooltipContent()).toBeUndefined();
+
+    const tooltipWrapper = button?.closest(
+      ".t--buttongroup-widget",
+    )?.firstElementChild;
+
+    expect(tooltipWrapper).not.toBeNull();
+    fireEvent.mouseLeave(tooltipWrapper as Element);
+    fireEvent.mouseEnter(tooltipWrapper as Element);
+    fireEvent.mouseEnter(button as HTMLButtonElement);
 
     await waitFor(() => {
       expect(getTooltipContent()).toBe("Open more actions");

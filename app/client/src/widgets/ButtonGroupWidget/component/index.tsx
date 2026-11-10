@@ -437,6 +437,8 @@ class ButtonGroupComponent extends React.Component<
       loadedBtnId: "",
       openMenuBtnId: "",
       openTooltipBtnId: "",
+      // After a menu closes, block tooltip reopen until a fresh mouseEnter.
+      suppressTooltipBtnId: "",
     };
   }
 
@@ -456,27 +458,26 @@ class ButtonGroupComponent extends React.Component<
     return (
       <ToolTipWrapper
         onMouseEnter={() => {
-          // Only re-arm while this button's menu is open. Normal opens go
-          // through Popover2 onInteraction so hoverOpenDelay still applies.
+          // Lift post-menu suppress so the next onInteraction can open.
           this.setState((prevState) =>
-            prevState.openMenuBtnId === buttonId
-              ? { openTooltipBtnId: buttonId }
+            prevState.suppressTooltipBtnId === buttonId
+              ? { suppressTooltipBtnId: "" }
               : null,
           );
         }}
         onMouseLeave={() => {
-          // Popover2 leave is ignored while the menu is open (clicks/focus can
-          // fire it spuriously). Real pointer leave to the menu portal lands here.
           this.setState((prevState) => {
-            if (prevState.openMenuBtnId !== buttonId) {
+            const clearTooltip = prevState.openTooltipBtnId === buttonId;
+            const clearSuppress = prevState.suppressTooltipBtnId === buttonId;
+
+            if (!clearTooltip && !clearSuppress) {
               return null;
             }
 
-            if (prevState.openTooltipBtnId !== buttonId) {
-              return null;
-            }
-
-            return { openTooltipBtnId: "" };
+            return {
+              ...(clearTooltip ? { openTooltipBtnId: "" } : {}),
+              ...(clearSuppress ? { suppressTooltipBtnId: "" } : {}),
+            };
           });
         }}
       >
@@ -489,13 +490,6 @@ class ButtonGroupComponent extends React.Component<
           onInteraction={(nextOpenState) => {
             this.setState((prevState) => {
               if (!nextOpenState) {
-                // Ignore leave while the menu is open so click-to-close without
-                // moving the pointer can restore the tooltip. Wrapper mouseLeave
-                // clears hover when the pointer actually leaves.
-                if (prevState.openMenuBtnId === buttonId) {
-                  return null;
-                }
-
                 if (prevState.openTooltipBtnId !== buttonId) {
                   return null;
                 }
@@ -503,7 +497,14 @@ class ButtonGroupComponent extends React.Component<
                 return { openTooltipBtnId: "" };
               }
 
-              // Always re-arm on hover-open; hide while menu open via isOpen.
+              // Menu open, or still suppressed after menu dismiss: do not arm.
+              if (
+                prevState.openMenuBtnId === buttonId ||
+                prevState.suppressTooltipBtnId === buttonId
+              ) {
+                return null;
+              }
+
               return { openTooltipBtnId: buttonId };
             });
           }}
@@ -723,16 +724,28 @@ class ButtonGroupComponent extends React.Component<
                     // Only clear if this button still owns the open menu.
                     // Otherwise opening MENU B while A closes can wipe B's id
                     // and let B's tooltip show over B's open menu.
+                    // Always drop tooltip arming and require a fresh hover —
+                    // keeps the tooltip from flashing after a menu-item click
+                    // or toggle-close while the pointer never left.
                     this.setState((prevState) =>
                       prevState.openMenuBtnId === button.id
-                        ? { openMenuBtnId: "" }
+                        ? {
+                            openMenuBtnId: "",
+                            openTooltipBtnId:
+                              prevState.openTooltipBtnId === button.id
+                                ? ""
+                                : prevState.openTooltipBtnId,
+                            suppressTooltipBtnId: button.id,
+                          }
                         : null,
                     );
                   }}
                   onOpening={() => {
-                    // Keep openTooltipBtnId so the tooltip can return when the
-                    // menu closes without requiring a remouseenter.
-                    this.setState({ openMenuBtnId: button.id });
+                    this.setState({
+                      openMenuBtnId: button.id,
+                      openTooltipBtnId: "",
+                      suppressTooltipBtnId: button.id,
+                    });
                   }}
                   placement="bottom-end"
                   popoverClassName={popoverId}
@@ -904,6 +917,7 @@ export interface ButtonGroupComponentState {
   loadedBtnId: string;
   openMenuBtnId: string;
   openTooltipBtnId: string;
+  suppressTooltipBtnId: string;
 }
 
 export default ButtonGroupComponent;
