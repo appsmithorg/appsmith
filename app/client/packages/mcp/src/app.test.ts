@@ -14,6 +14,7 @@ import {
   createMcpHttpServer,
   hostHeaderName,
   looksLikeWriteAction,
+  mcpKeyIdPrefix,
   sessionOriginFromHeaders,
   writeActionNames,
   type AppsmithApi,
@@ -634,6 +635,217 @@ describe("MCP HTTP server", () => {
     } finally {
       stderrSpy.mockRestore();
     }
+  });
+
+  // A refused request must say why in its request event, and name the key by a short public prefix only, so an
+  // operator can match it to the backend's "MCP token rejected" line without the log ever holding a secret.
+  describe("auth rejection telemetry", () => {
+    const KEY_ID = "6abbc80c72911eecce2a61dd";
+    const SECRET = "s3cret-part-of-the-token";
+    const TOKEN = `mcp_${KEY_ID}_${SECRET}`;
+
+    async function requestEventFor(
+      send: (
+        server: ReturnType<typeof createMcpHttpServer>,
+      ) => Promise<unknown>,
+      server: ReturnType<typeof createMcpHttpServer>,
+    ): Promise<Record<string, unknown> | undefined> {
+      const events: Record<string, unknown>[] = [];
+      const stderrSpy = jest
+        .spyOn(process.stderr, "write")
+        .mockImplementation((chunk: string | Uint8Array) => {
+          const line = typeof chunk === "string" ? chunk : chunk.toString();
+
+          try {
+            events.push(JSON.parse(line));
+          } catch {
+            // Non-JSON writes are irrelevant to these assertions.
+          }
+
+          return true;
+        });
+
+      try {
+        await send(server);
+      } finally {
+        stderrSpy.mockRestore();
+      }
+
+      return events.find((event) => event.event === "appsmith_mcp_request");
+    }
+
+    it("keeps only the first 10 characters of a hex or UUID key id", () => {
+      expect(mcpKeyIdPrefix(TOKEN)).toBe("6abbc80c72");
+      expect(mcpKeyIdPrefix("mcp_6ABBC80C72911eecce2a61dd_x")).toBe(
+        "6abbc80c72",
+      );
+      expect(mcpKeyIdPrefix("mcp_8f3a2b1c-4d5e-6f70-8192-a3b4c5d6e7f8_x")).toBe(
+        "8f3a2b1c-4",
+      );
+      expect(mcpKeyIdPrefix("mcp_user-token")).toBe("invalid");
+      expect(mcpKeyIdPrefix("mcp_6abb")).toBe("invalid");
+    });
+
+    it("records missing_bearer when no bearer is sent", async () => {
+      const server = createMcpHttpServer(API_BASE_URL, createApi());
+      const event = await requestEventFor(
+        (target) =>
+          supertest(target)
+            .post("/mcp")
+            .set("Accept", "application/json, text/event-stream")
+            .send(initializeRequest),
+        server,
+      );
+
+      expect(event).toMatchObject({
+        status: 401,
+        authRejection: "missing_bearer",
+      });
+      expect(event).not.toHaveProperty("keyIdPrefix");
+    });
+
+    it("records not_mcp_token and no key prefix for a non-MCP bearer", async () => {
+      const server = createMcpHttpServer(API_BASE_URL, createApi());
+      const event = await requestEventFor(
+        (target) =>
+          supertest(target)
+            .post("/mcp")
+            .set("Accept", "application/json, text/event-stream")
+            .set("Authorization", "Bearer some-other-secret")
+            .send(initializeRequest),
+        server,
+      );
+
+      expect(event).toMatchObject({
+        status: 401,
+        authRejection: "not_mcp_token",
+      });
+      expect(event).not.toHaveProperty("keyIdPrefix");
+      expect(JSON.stringify(event)).not.toContain("some-other-secret");
+    });
+
+    it("records token_rejected with the key prefix when the backend refuses the token", async () => {
+      const validateToken = jest.fn(async () => {
+        throw new Error("401 from backend");
+      });
+      const server = createMcpHttpServer(
+        API_BASE_URL,
+        createApi(validateToken),
+      );
+      const event = await requestEventFor(
+        (target) =>
+          supertest(target)
+            .post("/mcp")
+            .set("Accept", "application/json, text/event-stream")
+            .set("Authorization", `Bearer ${TOKEN}`)
+            .send(initializeRequest),
+        server,
+      );
+
+      expect(event).toMatchObject({
+        status: 401,
+        authRejection: "token_rejected",
+        keyIdPrefix: "6abbc80c72",
+      });
+
+      const serialized = JSON.stringify(event);
+
+      expect(serialized).not.toContain(SECRET);
+      expect(serialized).not.toContain(KEY_ID);
+    });
+
+    it("records token_rejected when the backend answers with an anonymous profile", async () => {
+      const validateToken = jest.fn(async () => ({ isAnonymous: true }));
+      const server = createMcpHttpServer(
+        API_BASE_URL,
+        createApi(validateToken),
+      );
+      const event = await requestEventFor(
+        (target) =>
+          supertest(target)
+            .post("/mcp")
+            .set("Accept", "application/json, text/event-stream")
+            .set("Authorization", `Bearer ${TOKEN}`)
+            .send(initializeRequest),
+        server,
+      );
+
+      expect(event).toMatchObject({
+        status: 401,
+        authRejection: "token_rejected",
+        keyIdPrefix: "6abbc80c72",
+      });
+    });
+
+    it("records session_token_mismatch when another token names the session", async () => {
+      const server = createMcpHttpServer(API_BASE_URL, createApi());
+      const sessionId = await initSession(server);
+      const event = await requestEventFor(
+        (target) =>
+          supertest(target)
+            .post("/mcp")
+            .set("Accept", "application/json, text/event-stream")
+            .set("Authorization", `Bearer ${TOKEN}`)
+            .set("mcp-session-id", sessionId)
+            .send({ jsonrpc: "2.0", method: "notifications/initialized" }),
+        server,
+      );
+
+      expect(event).toMatchObject({
+        status: 401,
+        authRejection: "session_token_mismatch",
+      });
+    });
+
+    it("records session_owner_mismatch when the token now belongs to another user", async () => {
+      const validateToken = jest
+        .fn()
+        .mockResolvedValueOnce({
+          username: "user@appsmith.com",
+          isAnonymous: false,
+        })
+        .mockResolvedValue({
+          username: "other@appsmith.com",
+          isAnonymous: false,
+        });
+      const server = createMcpHttpServer(
+        API_BASE_URL,
+        createApi(validateToken),
+      );
+      const sessionId = await initSession(server);
+      const event = await requestEventFor(
+        (target) =>
+          supertest(target)
+            .post("/mcp")
+            .set("Accept", "application/json, text/event-stream")
+            .set("Authorization", "Bearer mcp_user-token")
+            .set("mcp-session-id", sessionId)
+            .send({ jsonrpc: "2.0", method: "notifications/initialized" }),
+        server,
+      );
+
+      expect(event).toMatchObject({
+        status: 401,
+        authRejection: "session_owner_mismatch",
+      });
+    });
+
+    it("records the key prefix and no rejection when the token is accepted", async () => {
+      const server = createMcpHttpServer(API_BASE_URL, createApi());
+      const event = await requestEventFor(
+        (target) =>
+          supertest(target)
+            .post("/mcp")
+            .set("Accept", "application/json, text/event-stream")
+            .set("Authorization", `Bearer ${TOKEN}`)
+            .send(initializeRequest),
+        server,
+      );
+
+      expect(event).toMatchObject({ status: 200, keyIdPrefix: "6abbc80c72" });
+      expect(event).not.toHaveProperty("authRejection");
+      expect(JSON.stringify(event)).not.toContain(SECRET);
+    });
   });
 
   it("binds sessions to the bearer token and revalidates reuse", async () => {
