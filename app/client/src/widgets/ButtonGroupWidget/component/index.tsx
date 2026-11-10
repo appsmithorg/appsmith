@@ -475,8 +475,10 @@ class ButtonGroupComponent extends React.Component<
             }
 
             return {
-              ...(clearTooltip ? { openTooltipBtnId: "" } : {}),
-              ...(clearSuppress ? { suppressTooltipBtnId: "" } : {}),
+              openTooltipBtnId: clearTooltip ? "" : prevState.openTooltipBtnId,
+              suppressTooltipBtnId: clearSuppress
+                ? ""
+                : prevState.suppressTooltipBtnId,
             };
           });
         }}
