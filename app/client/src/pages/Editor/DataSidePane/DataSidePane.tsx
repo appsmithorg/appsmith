@@ -3,10 +3,10 @@ import styled from "styled-components";
 import { EntityGroupsList, Flex } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import {
-  getDatasources,
   getDatasourcesGroupedByPluginCategory,
   getPluginImages,
   getPlugins,
+  getVisibleDatasources,
 } from "ee/selectors/entitiesSelector";
 import history from "utils/history";
 import { datasourcesEditorIdURL, integrationEditorURL } from "ee/RouteBuilder";
@@ -56,7 +56,7 @@ export const DataSidePane = (props: DataSidePaneProps) => {
   const [currentSelectedDatasource, setCurrentSelectedDatasource] = useState<
     string | undefined
   >("");
-  const datasources = useSelector(getDatasources);
+  const datasources = useSelector(getVisibleDatasources);
   const groupedDatasources = useSelector(getDatasourcesGroupedByPluginCategory);
   const pluginImages = useSelector(getPluginImages);
   const plugins = useSelector(getPlugins);

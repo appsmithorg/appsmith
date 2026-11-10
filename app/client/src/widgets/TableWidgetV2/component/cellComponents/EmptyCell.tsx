@@ -57,7 +57,12 @@ export const EmptyRows: React.FC<EmptyRowsProps> = ({
           };
 
           return (
-            <div {...rowProps} className="tr" key={index}>
+            <div
+              {...rowProps}
+              className="tr"
+              data-testid="t--table-v2-empty-row"
+              key={index}
+            >
               {multiRowSelection &&
                 renderBodyCheckBoxCell(false, accentColor, borderRadius)}
               {row.cells.map(
@@ -116,7 +121,12 @@ export const EmptyRows: React.FC<EmptyRowsProps> = ({
       <>
         {rows.map((row: string, index: number) => {
           return (
-            <EmptyRow className="tr" key={index} style={style}>
+            <EmptyRow
+              className="tr"
+              data-testid="t--table-v2-empty-row"
+              key={index}
+              style={style}
+            >
               {multiRowSelection &&
                 renderBodyCheckBoxCell(false, accentColor, borderRadius)}
               {/* TODO: Fix this the next time the file is edited */}

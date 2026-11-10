@@ -130,7 +130,11 @@ function buildUpdateAction(
     const query = source as QuerySpec;
     const body = compileQuery(query, options);
     // The stored body carries the MCP-authored marker, so get_action can return it until someone edits it.
-    const compiled = buildActionDto(query, markMcpAuthoredBody(body));
+    const compiled = buildActionDto(
+      query,
+      markMcpAuthoredBody(body),
+      options.packageName,
+    );
 
     return { id: spec.actionId, ...compiled };
   }

@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.git.constants.ce.RefType;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
@@ -23,6 +24,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -292,6 +294,33 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         BridgeUpdate update = Bridge.update();
         update.set(NewPage.Fields.unpublishedPage_dependencyMap, dependencyMap);
         return queryBuilder().criteria(q).updateFirst(update);
+    }
+
+    @Override
+    public Mono<Integer> updateUnpublishedPageIfUnchanged(
+            String pageId,
+            Instant expectedUpdatedAt,
+            Instant newUpdatedAt,
+            PageDTO unpublishedPage,
+            String gitSyncId,
+            AclPermission permission) {
+        final BridgeQuery<NewPage> q = Bridge.equal(NewPage.Fields.id, pageId);
+        // The page must still carry the revision the caller read. Any other save in between changes `updatedAt`.
+        final Criteria unchanged = where(BaseDomain.Fields.updatedAt).is(expectedUpdatedAt);
+
+        // Auditing does not run on an update query, so set `updatedAt` here.
+        final BridgeUpdate update = Bridge.update();
+        update.set(NewPage.Fields.unpublishedPage, unpublishedPage);
+        update.set(BaseDomain.Fields.updatedAt, newUpdatedAt);
+        if (gitSyncId != null) {
+            update.set(NewPage.Fields.gitSyncId, gitSyncId);
+        }
+
+        return queryBuilder()
+                .criteria(q)
+                .criteria(unchanged)
+                .permission(permission)
+                .updateFirst(update);
     }
 
     @Override

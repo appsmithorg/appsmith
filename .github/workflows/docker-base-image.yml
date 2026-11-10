@@ -2,8 +2,10 @@ name: Docker Base Image
 
 on:
   workflow_dispatch:
+  # Rebuild every weekday so the `release` base tag carries the current OS
+  # security updates. Every image build starts from this tag.
   schedule:
-    - cron: "0 5 * * MON"
+    - cron: "0 5 * * MON-FRI"
   push:
     branches:
       - release

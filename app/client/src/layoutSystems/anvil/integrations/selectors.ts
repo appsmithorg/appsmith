@@ -8,8 +8,8 @@ import { createSelector } from "reselect";
 
 /**
  * @deprecated DEAD / RETIRED (M5). Reads the retired `release_anvil_enabled`
- * flag and has ZERO production callers — the last one (WorkspaceAction) now
- * reads `license_anvil_enabled` (Decision 10: license is the sole Anvil gate).
+ * flag and has ZERO production callers — WorkspaceAction and the workspace list now
+ * read `license_anvil_enabled` (Decision 10: license is the sole Anvil gate).
  *
  * Do NOT add new callers: re-introducing `release_anvil_enabled` would create
  * an ungated Anvil window that diverges from the license entitlement. Use
