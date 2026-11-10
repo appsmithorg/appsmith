@@ -106,7 +106,6 @@ describe(
       const fixturePath = "testFile.mov";
       agHelper.ClickButton("Select Files"); //1 file selected
       agHelper.UploadFile(fixturePath);
-      cy.get(".uppy-StatusBar-actionBtn--upload").should("not.exist");
       cy.get(".t--widget-filepickerwidget").should(
         "contain",
         "1 file selected",

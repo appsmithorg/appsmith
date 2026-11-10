@@ -39,6 +39,7 @@ import {
   ensureUppyLocale,
   formatXFilesSelected,
   getDashboardLocaleOption,
+  resolveUppyLocaleId,
   type UppyLocale,
 } from "../utils/uppyLocale";
 
@@ -558,6 +559,15 @@ class FilePickerWidget extends BaseWidget<
 
       if (generation !== this.syncLocaleGeneration || this.isWidgetUnmounting) {
         return;
+      }
+
+      // Soft-fail from ensureUppyLocale returns null without throwing. Treat a
+      // missing expected pack as a sync failure so the catch/retry path runs
+      // and appliedHtmlLang is not marked done.
+      if (resolveUppyLocaleId(htmlLang) && !uppyLocale) {
+        throw new Error(
+          `Uppy locale pack unavailable for htmlLang=${htmlLang}`,
+        );
       }
 
       const uppy = await this.loadAndInitUppyOnce();

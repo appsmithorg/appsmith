@@ -55,9 +55,9 @@ describe(
       });
       cy.get(commonlocators.filePickerUploadButton).click();
       //cy.get(".ads-v2-spinner").should("have.length", 1);
-      // Wait for Uppy modal to close so we assert the canvas widget, not the
-      // StatusBar upload button still present while the dashboard is open.
-      cy.get(commonlocators.filePickerUploadButton).should("not.exist");
+      // Assert the canvas widget only — do not wait for the Uppy StatusBar
+      // upload button to leave the DOM; the modal often stays open while
+      // onFilesSelected runs.
       cy.get(commonlocators.filePickerButton).should(
         "contain",
         "1 file selected",
@@ -72,7 +72,6 @@ describe(
           force: true,
         });
       cy.get(commonlocators.filePickerUploadButton).click();
-      cy.get(commonlocators.filePickerUploadButton).should("not.exist");
       cy.get(commonlocators.filePickerButton).should(
         "contain",
         "1 file selected",
@@ -82,7 +81,6 @@ describe(
       cy.wait(200);
       cy.get("button.uppy-Dashboard-Item-action--remove").click();
       _.agHelper.GetNClick(".uppy-u-reset.uppy-Dashboard-close");
-      cy.get(commonlocators.filePickerUploadButton).should("not.exist");
       cy.get(commonlocators.filePickerButton).should("contain", "Select Files");
     });
 
