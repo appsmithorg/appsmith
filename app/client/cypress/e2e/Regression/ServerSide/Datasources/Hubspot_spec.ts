@@ -114,14 +114,15 @@ describe(
 
       // HubSpot resets the connection now and then. Test 2 retries its own
       // query run; the page-load run in view mode has no retry, so reload the
-      // deployed page until that run succeeds before reading the widget.
+      // deployed page while that run reports a failure before reading the
+      // widget. Any other response reaches the assertion unchanged.
       const assertWidgetAfterPageLoadRun = (retries = 3) => {
         cy.wait(assertHelper.GetAliasName("@postExecute")).then(
           (interception) => {
             const isExecutionSuccess =
               interception.response?.body?.data?.isExecutionSuccess;
 
-            if (!isExecutionSuccess && retries > 1) {
+            if (isExecutionSuccess === false && retries > 1) {
               cy.log(
                 `Page-load run of Api1 failed. Reloading, attempts left: ${
                   retries - 1
