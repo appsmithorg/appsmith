@@ -22,17 +22,28 @@ describe("getDisabledControlValueText", () => {
 
 describe("DisabledControlValue", () => {
   it("shows the value as read-only text", () => {
-    render(<DisabledControlValue value={".card {\n  color: red;\n}"} />);
+    render(
+      <DisabledControlValue
+        label="Custom CSS"
+        value={".card {\n  color: red;\n}"}
+      />,
+    );
 
     const block = screen.getByTestId("t--property-control-disabled-value");
 
     expect(block.textContent).toBe(".card {\n  color: red;\n}");
     expect(block.getAttribute("role")).toBe("textbox");
+    expect(block.getAttribute("aria-label")).toBe("Custom CSS");
     expect(block.getAttribute("aria-readonly")).toBe("true");
   });
 
   it("renders markup in the value as text, not as elements", () => {
-    render(<DisabledControlValue value={"<img src=x onerror=alert(1)>"} />);
+    render(
+      <DisabledControlValue
+        label="Custom CSS"
+        value={"<img src=x onerror=alert(1)>"}
+      />,
+    );
 
     const block = screen.getByTestId("t--property-control-disabled-value");
 
@@ -41,7 +52,7 @@ describe("DisabledControlValue", () => {
   });
 
   it("renders nothing for an empty value", () => {
-    render(<DisabledControlValue value="" />);
+    render(<DisabledControlValue label="Custom CSS" value="" />);
 
     expect(
       screen.queryByTestId("t--property-control-disabled-value"),

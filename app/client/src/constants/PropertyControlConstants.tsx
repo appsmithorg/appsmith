@@ -329,6 +329,11 @@ export interface PropertyPaneControlConfig {
    */
   controlConfig?: Record<string, unknown>;
   /**
+   * Text for the empty field of a `COLOR_PICKER` control. When unset, the
+   * field shows its own default text. Other controls ignore it.
+   */
+  colorPlaceholderText?: string;
+  /**
    * The default value of the property.
    */
   defaultValue?: unknown;

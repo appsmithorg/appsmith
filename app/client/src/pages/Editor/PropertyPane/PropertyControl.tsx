@@ -1130,7 +1130,10 @@ const PropertyControl = memo((props: Props) => {
             </div>
           )}
           {isControlDisabled && props.showValueWhenDisabled && (
-            <DisabledControlValue value={propertyValue} />
+            <DisabledControlValue
+              label={label || propertyName}
+              value={propertyValue}
+            />
           )}
           {!isControlDisabled &&
             PropertyControlFactory.createControl(

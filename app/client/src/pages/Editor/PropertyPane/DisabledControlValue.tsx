@@ -37,6 +37,8 @@ export function getDisabledControlValueText(value: unknown): string | null {
 }
 
 interface DisabledControlValueProps {
+  /** The property's label. Screen readers use it to name the text box. */
+  label: string;
   value: unknown;
 }
 
@@ -55,6 +57,7 @@ export function DisabledControlValue(props: DisabledControlValueProps) {
 
   return (
     <ValueBlock
+      aria-label={props.label}
       aria-multiline="true"
       aria-readonly="true"
       data-testid="t--property-control-disabled-value"
