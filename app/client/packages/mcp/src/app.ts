@@ -9681,6 +9681,48 @@ interface McpRequestContext {
   // The JSON-RPC id of the tools/call this request carries, when it carries one.
   toolCallId?: RequestId;
   toolOutcome?: ToolOutcome;
+  // Why this request was refused with 401, for the request log line. Unset when it was not refused.
+  authRejection?: McpAuthRejection;
+  // The first characters of the bearer's public key id (see mcpKeyIdPrefix). Never the secret.
+  keyIdPrefix?: string;
+}
+
+// Reasons the MCP service answers 401:
+//   - missing_bearer, not_mcp_token: refused here, before any backend call.
+//   - token_rejected: the backend refused the token. The backend writes its own finer reason (for example EXPIRED
+//     or SECRET_MISMATCH) in an "MCP token rejected" line with the same keyIdPrefix, so search on keyIdPrefix.
+//   - session_token_mismatch, session_owner_mismatch: the token does not own the session it names.
+type McpAuthRejection =
+  | "missing_bearer"
+  | "not_mcp_token"
+  | "token_rejected"
+  | "session_token_mismatch"
+  | "session_owner_mismatch";
+
+const MCP_KEY_ID_PREFIX_LENGTH = 10;
+
+// Returns the first MCP_KEY_ID_PREFIX_LENGTH characters of the public key id in "mcp_<keyId>_<secret>", in lower case,
+// for the log. The key id is public (the MCP keys page shows it). It is a 24-hex ObjectId or an older UUID, so only hex
+// digits and "-" are kept. Returns "invalid" for anything else, so a value that is not a real key never reaches the
+// log. The backend applies the same rule, so both log lines carry the same prefix.
+export function mcpKeyIdPrefix(token: string): string {
+  const prefix = token.slice(
+    MCP_TOKEN_PREFIX.length,
+    MCP_TOKEN_PREFIX.length + MCP_KEY_ID_PREFIX_LENGTH,
+  );
+
+  return prefix.length === MCP_KEY_ID_PREFIX_LENGTH &&
+    /^[0-9a-f-]+$/i.test(prefix)
+    ? prefix.toLowerCase()
+    : "invalid";
+}
+
+function rejectAuth(reason: McpAuthRejection): void {
+  const context = mcpRequestContext.getStore();
+
+  if (context !== undefined) {
+    context.authRejection = reason;
+  }
 }
 
 const mcpRequestContext = new AsyncLocalStorage<McpRequestContext>();
@@ -10224,10 +10266,12 @@ export function createMcpHttpServer(
         organizationId?: string;
       };
     } catch {
+      rejectAuth("token_rejected");
       throw new HttpError(401, "invalid bearer token");
     }
 
     if (!profile || profile.isAnonymous === true || !profile.username) {
+      rejectAuth("token_rejected");
       throw new HttpError(401, "invalid bearer token");
     }
 
@@ -10564,6 +10608,9 @@ export function createMcpHttpServer(
             ? context.toolOutcome.statusClass
             : mcpStatusClass(res.statusCode),
         toolCode: context.toolOutcome?.code,
+        // Set only for an mcp_ bearer: the first 10 characters of its public key id, never the secret.
+        keyIdPrefix: context.keyIdPrefix,
+        authRejection: context.authRejection,
         gates: gateSummary,
         durationMs: Date.now() - startedAt,
       });
@@ -10621,11 +10668,14 @@ export function createMcpHttpServer(
       const token = bearerToken(req);
 
       if (!token || !token.startsWith(MCP_TOKEN_PREFIX)) {
+        context.authRejection = token ? "not_mcp_token" : "missing_bearer";
         res.writeHead(401, { "WWW-Authenticate": "Bearer" });
         res.end();
 
         return;
       }
+
+      context.keyIdPrefix = mcpKeyIdPrefix(token);
 
       await ensureRelayStarted();
       removeExpiredSessions();
@@ -10659,6 +10709,7 @@ export function createMcpHttpServer(
         if (!tokenHashesMatch(record.tokenHash, tokenHash)) {
           // Do NOT evict the session here: a mismatched token must not let someone who guessed/leaked a session id
           // tear down the real owner's session (targeted DoS). The owner's own token still binds it.
+          context.authRejection = "session_token_mismatch";
           writeJson(res, 401, { error: "invalid MCP session" });
 
           return;
@@ -10673,6 +10724,7 @@ export function createMcpHttpServer(
         // The bearer's LIVE identity must still be the record's owner. A matching hash under a different principal
         // can only mean a tampered record (or a future token reassignment); refuse it, again without evicting.
         if (authenticated.username !== record.username) {
+          context.authRejection = "session_owner_mismatch";
           writeJson(res, 401, { error: "invalid MCP session" });
 
           return;
