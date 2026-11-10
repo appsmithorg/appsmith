@@ -693,10 +693,9 @@ class ButtonGroupComponent extends React.Component<
                     this.setState({ openMenuBtnId: "" });
                   }}
                   onOpening={() => {
-                    this.setState({
-                      openMenuBtnId: button.id,
-                      openTooltipBtnId: "",
-                    });
+                    // Keep openTooltipBtnId so the tooltip can return when the
+                    // menu closes without requiring a remouseenter.
+                    this.setState({ openMenuBtnId: button.id });
                   }}
                   placement="bottom-end"
                   popoverClassName={popoverId}

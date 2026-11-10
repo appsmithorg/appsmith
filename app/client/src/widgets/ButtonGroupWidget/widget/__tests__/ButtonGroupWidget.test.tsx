@@ -261,13 +261,8 @@ describe("ButtonGroupWidget tooltip", () => {
       expect(getTooltipContent()).toBeUndefined();
     });
 
-    fireEvent.mouseEnter(button as HTMLButtonElement);
-
-    await waitFor(() => {
-      expect(getTooltipContent()).toBeUndefined();
-    });
-
-    // Toggle the menu closed, then confirm tooltip can open again.
+    // Toggle the menu closed without remouseenter — tooltip should return
+    // while the pointer is still over the trigger.
     fireEvent.click(button as HTMLButtonElement);
 
     await waitFor(() => {
@@ -275,8 +270,6 @@ describe("ButtonGroupWidget tooltip", () => {
         document.querySelector(".button-group-test-button-group"),
       ).toBeNull();
     });
-
-    fireEvent.mouseEnter(button as HTMLButtonElement);
 
     await waitFor(() => {
       expect(getTooltipContent()).toBe("Open more actions");
