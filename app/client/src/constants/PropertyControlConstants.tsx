@@ -233,6 +233,14 @@ export interface PropertyPaneControlConfig {
    */
   disabledHelpText?: string;
   /**
+   * When true and `shouldDisableSection` returns true, the pane shows the
+   * property's raw stored value as read-only text. A binding shows as its
+   * `{{ }}` source, not its evaluated result. Objects and arrays show
+   * nothing. When false or unset, a disabled property shows no value, as
+   * before.
+   */
+  showValueWhenDisabled?: boolean;
+  /**
    * If true, the property is hidden.
    * Note: hidden and invisible do the same thing but differently. hidden uses a callback to determine if the property should be hidden.
    * invisible is a boolean flag to hide the property.

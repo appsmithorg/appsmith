@@ -61,6 +61,7 @@ import PropertyControlFactory from "utils/PropertyControlFactory";
 import { getExpectedValue } from "utils/validation/common";
 import type { PropertyUpdates } from "WidgetProvider/types";
 import WidgetFactory from "WidgetProvider/factory";
+import { DisabledControlValue } from "./DisabledControlValue";
 import { savePropertyInSessionStorageIfRequired } from "./helpers";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
@@ -1127,6 +1128,9 @@ const PropertyControl = memo((props: Props) => {
                 )}
               </div>
             </div>
+          )}
+          {isControlDisabled && props.showValueWhenDisabled && (
+            <DisabledControlValue value={propertyValue} />
           )}
           {!isControlDisabled &&
             PropertyControlFactory.createControl(
