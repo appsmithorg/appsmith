@@ -147,10 +147,25 @@ describe("ButtonGroupWidget tooltip", () => {
     const groupButtonsProperty = buttonsSection?.children?.find(
       (child) => child.propertyName === "groupButtons",
     );
-    const generalSection =
-      groupButtonsProperty?.panelConfig?.contentChildren?.find(
-        (section) => section.sectionName === "General",
-      );
+
+    expect(groupButtonsProperty).toBeDefined();
+    expect(groupButtonsProperty).toHaveProperty("panelConfig");
+
+    // Narrow the property-pane union: only GROUP_BUTTONS carries panelConfig.
+    const panelConfig = (
+      groupButtonsProperty as {
+        panelConfig: {
+          contentChildren: Array<{
+            sectionName: string;
+            children?: Array<{ propertyName: string }>;
+          }>;
+        };
+      }
+    ).panelConfig;
+
+    const generalSection = panelConfig.contentChildren.find(
+      (section) => section.sectionName === "General",
+    );
     const tooltipProperty = generalSection?.children?.find(
       (child) => child.propertyName === "tooltip",
     );
