@@ -92,6 +92,7 @@ import * as m88 from "../migrations/088-migrate-custom-widget-dynamic-height";
 import * as m89 from "../migrations/089-migrage-table-widget-v2-currentRow-binding";
 import * as m90 from "../migrations/090-migrate-table-compute-value-binding";
 import * as m92 from "../migrations/092-update-ai-chat-widget";
+import * as m94 from "../migrations/094-migrate-table-widget-v2-dynamic-height";
 
 interface Migration {
   functionLookup: {
@@ -963,6 +964,15 @@ const migrations: Migration[] = [
       },
     ],
     version: 93,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: m94,
+        functionName: "migrateTableWidgetV2DynamicHeight",
+      },
+    ],
+    version: 94,
   },
 ];
 
