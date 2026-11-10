@@ -455,6 +455,11 @@ class ButtonGroupComponent extends React.Component<
 
     return (
       <ToolTipWrapper
+        onMouseEnter={() => {
+          // Re-arm hover if the pointer returns while the menu is open.
+          // Visibility stays gated by !isMenuOpen.
+          this.setState({ openTooltipBtnId: buttonId });
+        }}
         onMouseLeave={() => {
           // Popover2 leave is ignored while the menu is open (clicks/focus can
           // fire it spuriously). Real pointer leave to the menu portal lands here.
@@ -494,10 +499,7 @@ class ButtonGroupComponent extends React.Component<
                 return { openTooltipBtnId: "" };
               }
 
-              if (prevState.openMenuBtnId === buttonId) {
-                return null;
-              }
-
+              // Always re-arm on hover-open; hide while menu open via isOpen.
               return { openTooltipBtnId: buttonId };
             });
           }}

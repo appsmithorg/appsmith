@@ -320,4 +320,47 @@ describe("ButtonGroupWidget tooltip", () => {
       expect(getTooltipContent()).toBeUndefined();
     });
   });
+
+  it("re-arms the menu tooltip if the pointer returns to the trigger before close", async () => {
+    const props = klona(defaultProps);
+
+    props.groupButtons = menuButtonProps();
+
+    const { container } = renderWidget(props);
+    const button = container.querySelector("button");
+
+    expect(button).not.toBeNull();
+    fireEvent.mouseEnter(button as HTMLButtonElement);
+
+    await waitFor(() => {
+      expect(getTooltipContent()).toBe("Open more actions");
+    });
+
+    fireEvent.click(button as HTMLButtonElement);
+
+    await waitFor(() => {
+      expect(getTooltipContent()).toBeUndefined();
+    });
+
+    const tooltipWrapper = button?.closest(
+      ".t--buttongroup-widget",
+    )?.firstElementChild;
+
+    expect(tooltipWrapper).not.toBeNull();
+    fireEvent.mouseLeave(tooltipWrapper as Element);
+    // Pointer returns to the trigger while the menu is still open.
+    fireEvent.mouseEnter(tooltipWrapper as Element);
+
+    fireEvent.click(button as HTMLButtonElement);
+
+    await waitFor(() => {
+      expect(
+        document.querySelector(".button-group-test-button-group"),
+      ).toBeNull();
+    });
+
+    await waitFor(() => {
+      expect(getTooltipContent()).toBe("Open more actions");
+    });
+  });
 });
