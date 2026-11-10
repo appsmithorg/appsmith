@@ -3,6 +3,7 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
@@ -15,7 +16,8 @@ describe(
 
     beforeEach(() => {
       _.agHelper.RestoreLocalStorageCache();
-      _.agHelper.AddDsl("newFormDsl");
+      // V2 form of newFormDsl — current FilePicker under test.
+      _.agHelper.AddDsl("filePicker2_formDsl");
     });
 
     it("1. Create API to be used in Filepicker", function () {
@@ -49,39 +51,37 @@ describe(
       );
       const fixturePath = "cypress/fixtures/testFile.mov";
       cy.executeDbQuery("FirstAPI", "onFilesSelected");
-      cy.get(commonlocators.filePickerButton).click();
+      cy.get(widgetsPage.filepickerwidgetv2).click();
       cy.get(commonlocators.filePickerInput).first().selectFile(fixturePath, {
         force: true,
       });
       cy.get(commonlocators.filePickerUploadButton).click();
       //cy.get(".ads-v2-spinner").should("have.length", 1);
-      // Assert the canvas widget only — do not wait for the Uppy StatusBar
-      // upload button to leave the DOM; the modal often stays open while
-      // onFilesSelected runs.
-      cy.get(commonlocators.filePickerButton).should(
+      // Assert the canvas V2 widget only — modal may stay open during onFilesSelected.
+      cy.get(widgetsPage.filepickerwidgetv2).should(
         "contain",
         "1 file selected",
       );
     });
 
     it("4. It checks the deletion of filepicker works as expected", function () {
-      cy.get(commonlocators.filePickerButton).click();
+      cy.get(widgetsPage.filepickerwidgetv2).click();
       cy.get(commonlocators.filePickerInput)
         .first()
         .selectFile("cypress/fixtures/testFile.mov", {
           force: true,
         });
       cy.get(commonlocators.filePickerUploadButton).click();
-      cy.get(commonlocators.filePickerButton).should(
+      cy.get(widgetsPage.filepickerwidgetv2).should(
         "contain",
         "1 file selected",
       );
-      cy.get(commonlocators.filePickerButton).click();
+      cy.get(widgetsPage.filepickerwidgetv2).click();
       //eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(200);
       cy.get("button.uppy-Dashboard-Item-action--remove").click();
       _.agHelper.GetNClick(".uppy-u-reset.uppy-Dashboard-close");
-      cy.get(commonlocators.filePickerButton).should("contain", "Select Files");
+      cy.get(widgetsPage.filepickerwidgetv2).should("contain", "Select Files");
     });
 
     afterEach(() => {

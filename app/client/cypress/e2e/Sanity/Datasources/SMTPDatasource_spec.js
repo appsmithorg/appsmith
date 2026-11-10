@@ -2,6 +2,7 @@ import EditorNavigation from "../../../support/Pages/EditorNavigation";
 
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
+const widgetsPage = require("../../../locators/Widgets.json");
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe(
@@ -106,7 +107,7 @@ describe(
       const fixturePath = "testFile.mov";
       agHelper.ClickButton("Select Files"); //1 file selected
       agHelper.UploadFile(fixturePath);
-      cy.get(".t--widget-filepickerwidget").should(
+      cy.get(widgetsPage.filepickerwidgetv2).should(
         "contain",
         "1 file selected",
       );
