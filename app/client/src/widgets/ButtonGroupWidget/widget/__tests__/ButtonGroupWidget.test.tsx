@@ -275,4 +275,49 @@ describe("ButtonGroupWidget tooltip", () => {
       expect(getTooltipContent()).toBe("Open more actions");
     });
   });
+
+  it("does not restore the menu tooltip after close if the pointer left the trigger", async () => {
+    const props = klona(defaultProps);
+
+    props.groupButtons = menuButtonProps();
+
+    const { container } = renderWidget(props);
+    const button = container.querySelector("button");
+
+    expect(button).not.toBeNull();
+    fireEvent.mouseEnter(button as HTMLButtonElement);
+
+    await waitFor(() => {
+      expect(getTooltipContent()).toBe("Open more actions");
+    });
+
+    fireEvent.click(button as HTMLButtonElement);
+
+    await waitFor(() => {
+      expect(getTooltipContent()).toBeUndefined();
+    });
+
+    // Pointer moved to the menu / away from the trigger while the menu is open.
+    const tooltipWrapper = button?.closest(
+      ".t--buttongroup-widget",
+    )?.firstElementChild;
+
+    expect(tooltipWrapper).not.toBeNull();
+    fireEvent.mouseLeave(tooltipWrapper as Element);
+
+    const menuItem = document.querySelector(".bp3-menu-item");
+
+    expect(menuItem).not.toBeNull();
+    fireEvent.click(menuItem as HTMLElement);
+
+    await waitFor(() => {
+      expect(
+        document.querySelector(".button-group-test-button-group"),
+      ).toBeNull();
+    });
+
+    await waitFor(() => {
+      expect(getTooltipContent()).toBeUndefined();
+    });
+  });
 });

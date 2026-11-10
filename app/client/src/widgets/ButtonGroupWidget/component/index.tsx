@@ -454,27 +454,51 @@ class ButtonGroupComponent extends React.Component<
       this.state.openTooltipBtnId === buttonId && !isMenuOpen;
 
     return (
-      <ToolTipWrapper>
+      <ToolTipWrapper
+        onMouseLeave={() => {
+          // Popover2 leave is ignored while the menu is open (clicks/focus can
+          // fire it spuriously). Real pointer leave to the menu portal lands here.
+          this.setState((prevState) => {
+            if (prevState.openMenuBtnId !== buttonId) {
+              return null;
+            }
+
+            if (prevState.openTooltipBtnId !== buttonId) {
+              return null;
+            }
+
+            return { openTooltipBtnId: "" };
+          });
+        }}
+      >
         <Popover2
           autoFocus={false}
           content={<Interweave content={tooltip} />}
-          disabled={isMenuOpen}
           hoverOpenDelay={200}
           interactionKind="hover"
           isOpen={isTooltipOpen}
           onInteraction={(nextOpenState) => {
             this.setState((prevState) => {
+              if (!nextOpenState) {
+                // Ignore leave while the menu is open so click-to-close without
+                // moving the pointer can restore the tooltip. Wrapper mouseLeave
+                // clears hover when the pointer actually leaves.
+                if (prevState.openMenuBtnId === buttonId) {
+                  return null;
+                }
+
+                if (prevState.openTooltipBtnId !== buttonId) {
+                  return null;
+                }
+
+                return { openTooltipBtnId: "" };
+              }
+
               if (prevState.openMenuBtnId === buttonId) {
                 return null;
               }
 
-              if (!nextOpenState && prevState.openTooltipBtnId !== buttonId) {
-                return null;
-              }
-
-              return {
-                openTooltipBtnId: nextOpenState ? buttonId : "",
-              };
+              return { openTooltipBtnId: buttonId };
             });
           }}
           portalClassName="btnGroupTooltipContainer"
