@@ -363,4 +363,59 @@ describe("ButtonGroupWidget tooltip", () => {
       expect(getTooltipContent()).toBe("Open more actions");
     });
   });
+
+  it("keeps the open menu owner when switching between two menu buttons", async () => {
+    const props = klona(defaultProps);
+
+    props.groupButtons = {
+      ...menuButtonProps(),
+      groupButton2: {
+        label: "Options",
+        id: "groupButton2",
+        widgetId: "",
+        buttonType: "MENU",
+        placement: "CENTER",
+        isVisible: true,
+        isDisabled: false,
+        disabledWhenInvalid: false,
+        index: 1,
+        tooltip: "Open options",
+        menuItems: {
+          menuItem1: {
+            label: "Second Option",
+            id: "menuItem1",
+            widgetId: "",
+            isVisible: true,
+            isDisabled: false,
+            index: 0,
+          },
+        },
+      },
+    };
+
+    const { container } = renderWidget(props);
+    const buttons = container.querySelectorAll("button");
+
+    expect(buttons).toHaveLength(2);
+
+    fireEvent.mouseEnter(buttons[0]);
+    fireEvent.click(buttons[0]);
+
+    await waitFor(() => {
+      expect(document.querySelector(".bp3-menu-item")).not.toBeNull();
+    });
+
+    fireEvent.mouseEnter(buttons[1]);
+    fireEvent.click(buttons[1]);
+
+    await waitFor(() => {
+      expect(document.body.textContent).toContain("Second Option");
+    });
+
+    // Options menu is open; its tooltip must stay hidden even after More's
+    // onClosing runs in the same interaction.
+    await waitFor(() => {
+      expect(getTooltipContent()).toBeUndefined();
+    });
+  });
 });

@@ -716,7 +716,14 @@ class ButtonGroupComponent extends React.Component<
                   fill
                   minimal
                   onClosing={() => {
-                    this.setState({ openMenuBtnId: "" });
+                    // Only clear if this button still owns the open menu.
+                    // Otherwise opening MENU B while A closes can wipe B's id
+                    // and let B's tooltip show over B's open menu.
+                    this.setState((prevState) =>
+                      prevState.openMenuBtnId === button.id
+                        ? { openMenuBtnId: "" }
+                        : null,
+                    );
                   }}
                   onOpening={() => {
                     // Keep openTooltipBtnId so the tooltip can return when the
