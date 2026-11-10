@@ -652,12 +652,13 @@ export const getEditActionColumnProperties = () => ({
 export const getEditActionColumnDynamicProperties = (widgetName: string) => {
   // Match TABLE_COMPUTE_VALUE's IIFE binding so the property pane can unwrap
   // the per-row expression. The legacy `.map(...)` form displayed as truncated
-  // JS and broke Save/Discard when edited (APP-16454 / #40926).
-  const disabledBinding = `!${widgetName}.updatedRowIndices.includes(currentIndex)`;
+  // JS and broke Save/Discard when edited.
+  const disabledExpression = `!${widgetName}.updatedRowIndices.includes(currentIndex)`;
+  const disabledBinding = `{{(() => { const tableData = ${widgetName}.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (${disabledExpression})) : ${disabledExpression} })()}}`;
 
   return {
-    isSaveDisabled: `{{(() => { const tableData = ${widgetName}.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (${disabledBinding})) : ${disabledBinding} })()}}`,
-    isDiscardDisabled: `{{(() => { const tableData = ${widgetName}.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (${disabledBinding})) : ${disabledBinding} })()}}`,
+    isSaveDisabled: disabledBinding,
+    isDiscardDisabled: disabledBinding,
   };
 };
 
