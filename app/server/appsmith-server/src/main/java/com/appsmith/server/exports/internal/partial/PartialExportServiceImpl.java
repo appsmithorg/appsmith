@@ -12,7 +12,6 @@ import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,7 +30,6 @@ public class PartialExportServiceImpl extends PartialExportServiceCEImpl impleme
             ExportableService<Plugin> pluginExportableService,
             ExportableService<NewAction> newActionExportableService,
             ExportableService<ActionCollection> actionCollectionExportableService,
-            SessionUserService sessionUserService,
             AnalyticsService analyticsService,
             JsonSchemaVersions jsonSchemaVersions) {
         super(
@@ -45,7 +43,6 @@ public class PartialExportServiceImpl extends PartialExportServiceCEImpl impleme
                 pluginExportableService,
                 newActionExportableService,
                 actionCollectionExportableService,
-                sessionUserService,
                 analyticsService,
                 jsonSchemaVersions);
     }
