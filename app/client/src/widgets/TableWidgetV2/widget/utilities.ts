@@ -649,10 +649,17 @@ export const getEditActionColumnProperties = () => ({
   discardButtonColor: Colors.GREEN,
 });
 
-export const getEditActionColumnDynamicProperties = (widgetName: string) => ({
-  isSaveDisabled: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
-  isDiscardDisabled: `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( !${widgetName}.updatedRowIndices.includes(currentIndex)))}}`,
-});
+export const getEditActionColumnDynamicProperties = (widgetName: string) => {
+  // Match TABLE_COMPUTE_VALUE's IIFE binding so the property pane can unwrap
+  // the per-row expression. The legacy `.map(...)` form displayed as truncated
+  // JS and broke Save/Discard when edited (APP-16454 / #40926).
+  const disabledBinding = `!${widgetName}.updatedRowIndices.includes(currentIndex)`;
+
+  return {
+    isSaveDisabled: `{{(() => { const tableData = ${widgetName}.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (${disabledBinding})) : ${disabledBinding} })()}}`,
+    isDiscardDisabled: `{{(() => { const tableData = ${widgetName}.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (${disabledBinding})) : ${disabledBinding} })()}}`,
+  };
+};
 
 export const createColumn = (props: TableWidgetProps, baseName: string) => {
   const columns = props.primaryColumns || {};

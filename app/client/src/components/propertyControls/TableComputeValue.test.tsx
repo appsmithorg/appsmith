@@ -101,4 +101,20 @@ describe("ComputeTablePropertyControlV2.getInputComputedValue", () => {
       ComputeTablePropertyControlV2.getInputComputedValue(computedValue),
     ).toBe(`{{${complexInput}}}`);
   });
+
+  it("6. should unwrap legacy processedTableData.map bindings without the IIFE fallback", () => {
+    const legacyBinding = `{{${tableName}.processedTableData.map((currentRow, currentIndex) => ( !${tableName}.updatedRowIndices.includes(currentIndex)))}}`;
+
+    expect(
+      ComputeTablePropertyControlV2.getInputComputedValue(legacyBinding),
+    ).toBe(`{{ !${tableName}.updatedRowIndices.includes(currentIndex)}}`);
+  });
+
+  it("7. should return the original value when a map binding has no recognizable end marker", () => {
+    const incompleteBinding = `{{${tableName}.processedTableData.map((currentRow, currentIndex) => (currentRow.price`;
+
+    expect(
+      ComputeTablePropertyControlV2.getInputComputedValue(incompleteBinding),
+    ).toBe(incompleteBinding);
+  });
 });
