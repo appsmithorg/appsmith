@@ -54,6 +54,7 @@ import type { ReactNode } from "react";
 import { registerLayoutComponents } from "layoutSystems/anvil/utils/layouts/layoutUtils";
 import { widgetInitialisationSuccess } from "actions/widgetActions";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useWDSThemeProps } from "ee/hooks/useWDSThemeProps";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -88,13 +89,7 @@ const DEFAULT_FONT_NAME = "System Default";
 function WDSThemeProviderWithTheme({ children }: { children: ReactNode }) {
   const isAnvilLayout = useSelector(getIsAnvilLayout);
   const themeSetting = useSelector(getAppThemeSettings);
-  const wdsThemeProps = {
-    borderRadius: themeSetting.borderRadius,
-    seedColor: themeSetting.accentColor,
-    colorMode: themeSetting.colorMode.toLowerCase(),
-    userSizing: themeSetting.sizing,
-    userDensity: themeSetting.density,
-  } as Parameters<typeof useTheme>[0];
+  const wdsThemeProps = useWDSThemeProps(themeSetting);
   const { theme } = useTheme(isAnvilLayout ? wdsThemeProps : {});
 
   return <WDSThemeProvider theme={theme}>{children}</WDSThemeProvider>;

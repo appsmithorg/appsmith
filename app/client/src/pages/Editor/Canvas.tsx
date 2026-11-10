@@ -16,6 +16,7 @@ import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
+import { useWDSThemeProps } from "ee/hooks/useWDSThemeProps";
 import CodeModeTooltip from "pages/Editor/WidgetsEditor/components/CodeModeTooltip";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { focusWidget } from "actions/widgetActions";
@@ -52,13 +53,7 @@ const Canvas = (props: CanvasProps) => {
   const isAnvilLayout = useSelector(getIsAnvilLayout);
 
   const themeSetting = useSelector(getAppThemeSettings);
-  const wdsThemeProps = {
-    borderRadius: themeSetting.borderRadius,
-    seedColor: themeSetting.accentColor,
-    colorMode: themeSetting.colorMode.toLowerCase(),
-    userSizing: themeSetting.sizing,
-    userDensity: themeSetting.density,
-  } as Parameters<typeof useTheme>[0];
+  const wdsThemeProps = useWDSThemeProps(themeSetting);
   // in case of non-WDS theme, we will pass an empty object to useTheme hook
   // so that fixedLayout theme does not break because of calculations done in useTheme
   const { theme } = useTheme(isAnvilLayout ? wdsThemeProps : {});
