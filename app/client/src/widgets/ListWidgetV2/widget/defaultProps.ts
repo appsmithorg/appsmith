@@ -51,6 +51,7 @@ export default {
   rows: 40,
   columns: 24,
   animateLoading: true,
+  disableSelection: false,
   gridType: "vertical",
   //positioning: Positioning.Fixed,
   minWidth: FILL_WIDGET_MIN_WIDTH,

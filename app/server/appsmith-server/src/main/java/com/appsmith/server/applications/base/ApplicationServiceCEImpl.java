@@ -283,6 +283,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if (!StringUtils.isEmpty(application.getName())) {
             application.setSlug(TextUtils.makeSlug(application.getName()));
         }
+        // Create, import, Git checkout, fork and clone must not fail on an oversized description
+        // (a hand-edited application.json would block a Git pull), so clamp instead of reject here.
+        application.clampDescriptionToMaxLength();
 
         if (application.getApplicationVersion() != null) {
             int appVersion = application.getApplicationVersion();
@@ -322,6 +325,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if (!StringUtils.hasLength(application.getColor())) {
             application.setColor(getRandomAppCardColor());
         }
+        // Create, import, Git checkout, fork and clone must not fail on an oversized description
+        // (a hand-edited application.json would block a Git pull), so clamp instead of reject here.
+        application.clampDescriptionToMaxLength();
         return super.create(application).onErrorResume(DuplicateKeyException.class, error -> {
             if (error.getMessage() != null
                     // Catch only if error message contains workspace_app_deleted_gitApplicationMetadata mongo error
@@ -360,9 +366,18 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             // update body, so strip them here alongside isPublic.
             application.setExportWithConfiguration(null);
             application.setForkWithConfiguration(null);
+            // The workspace an application belongs to is fixed at creation and changes only through
+            // server-internal flows. Never take it from an update body.
+            application.setWorkspaceId(null);
             application.setLastEditedAt(Instant.now());
             if (!StringUtils.isEmpty(application.getName())) {
                 application.setSlug(TextUtils.makeSlug(application.getName()));
+            }
+
+            if (application.getDescription() != null
+                    && application.getDescription().length() > Application.DESCRIPTION_MAX_LENGTH) {
+                return Mono.error(
+                        new AppsmithException(AppsmithError.INVALID_PARAMETER, Application.Fields.description));
             }
 
             if (application.getApplicationVersion() != null) {
@@ -433,12 +448,29 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     public Mono<Application> updateApplicationWithPresets(String branchedApplicationId, Application application) {
         return this.findById(branchedApplicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplication -> {
+                    // Enabling forking lets every user who can view the application copy it, so it
+                    // requires the export permission, the same permission the client uses to show
+                    // the setting. Disabling it, and re-sending an already enabled value, need only
+                    // edit access.
+                    boolean isEnablingForking = !Boolean.TRUE.equals(branchedApplication.getForkingEnabled())
+                            && Boolean.TRUE.equals(application.getForkingEnabled());
+                    if (isEnablingForking
+                            && !hasPermission(branchedApplication, applicationPermission.getExportPermission())) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.ACTION_IS_NOT_AUTHORIZED, "make application forkable"));
+                    }
+
                     application.setPages(null);
                     application.setGitApplicationMetadata(null);
 
                     return verifyIfForkingIsAllowed(branchedApplication, application)
                             .then(updateApplication(application, branchedApplication));
                 });
+    }
+
+    private static boolean hasPermission(Application application, AclPermission permission) {
+        return application.getUserPermissions() != null
+                && application.getUserPermissions().contains(permission.getValue());
     }
 
     private Mono<Application> updateApplication(Application application, Application branchedApplication) {

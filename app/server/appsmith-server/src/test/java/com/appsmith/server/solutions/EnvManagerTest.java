@@ -22,6 +22,7 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ce.EnvManagerCEImpl;
+import com.appsmith.server.solutions.ce.InstanceRestartPublisher;
 import com.appsmith.util.RestrictedHostFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -114,8 +115,11 @@ public class EnvManagerTest {
 
     private EmailService emailService;
 
+    private InstanceRestartPublisher instanceRestartPublisher;
+
     @BeforeEach
     public void setup() {
+        instanceRestartPublisher = Mockito.mock(InstanceRestartPublisher.class);
         EnvManager realEnvManager = new EnvManagerImpl(
                 sessionUserService,
                 userService,
@@ -127,6 +131,7 @@ public class EnvManagerTest {
                 javaMailSender,
                 googleRecaptchaConfig,
                 fileUtils,
+                instanceRestartPublisher,
                 permissionGroupService,
                 configService,
                 userUtils,
@@ -400,6 +405,51 @@ public class EnvManagerTest {
         StepVerifier.create(envManager.sendTestEmail(null))
                 .expectErrorMessage(AppsmithError.UNAUTHORIZED_ACCESS.getMessage())
                 .verify();
+    }
+
+    @Test
+    public void restart_whenSuperUser_publishesAndDoesNotRestartLocally() {
+        mockSuperUser();
+        Mockito.when(instanceRestartPublisher.publish()).thenReturn(Mono.just(1L));
+
+        StepVerifier.create(envManager.restart()).verifyComplete();
+
+        Mockito.verify(instanceRestartPublisher).publish();
+        Mockito.verify(envManager, Mockito.never()).restartWithoutAclCheck();
+    }
+
+    @Test
+    public void restart_whenNoSubscriberReceivesTheMessage_restartsLocally() {
+        mockSuperUser();
+        Mockito.when(instanceRestartPublisher.publish()).thenReturn(Mono.just(0L));
+        Mockito.doReturn(Mono.empty()).when(envManager).restartWithoutAclCheck();
+
+        StepVerifier.create(envManager.restart()).verifyComplete();
+
+        Mockito.verify(envManager).restartWithoutAclCheck();
+    }
+
+    @Test
+    public void restart_whenCurrentUserIsEmpty_doesNotPublish() {
+        Mockito.when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(true));
+        Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.empty());
+
+        StepVerifier.create(envManager.restart()).verifyComplete();
+
+        Mockito.verify(instanceRestartPublisher, Mockito.never()).publish();
+        Mockito.verify(envManager, Mockito.never()).restartWithoutAclCheck();
+    }
+
+    @Test
+    public void restart_whenNotSuperUser_doesNotPublish() {
+        Mockito.when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(false));
+
+        StepVerifier.create(envManager.restart())
+                .expectErrorMessage(AppsmithError.UNAUTHORIZED_ACCESS.getMessage())
+                .verify();
+
+        Mockito.verify(instanceRestartPublisher, Mockito.never()).publish();
+        Mockito.verify(envManager, Mockito.never()).restartWithoutAclCheck();
     }
 
     private void mockSuperUser() {

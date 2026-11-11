@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { storedId } from "./schema.js";
+import { RAW_EXPRESSION, storedId } from "./schema.js";
 
 // D4 create_s3_query — a STRUCTURED Amazon S3 file-action builder. The agent never authors a raw request body or raw
 // `{{ }}` bindings: it picks an operation (list / read / upload / delete) and supplies a bucket, key, and (for
@@ -43,7 +43,6 @@ const propertyPath = z
 
 // U+2028/U+2029 are included for the same reason schema.ts documents: JSON.stringify does NOT escape them,
 // so a value carrying one can break out of the emitted string literal on an older JS engine.
-const RAW_EXPRESSION = /\{\{|\}\}|\$\{|`|\u2028|\u2029/;
 // A value (upload body) — a literal (no binding/template syntax) or a widget reference parameterized at runtime.
 const valueRef = z.union([
   z

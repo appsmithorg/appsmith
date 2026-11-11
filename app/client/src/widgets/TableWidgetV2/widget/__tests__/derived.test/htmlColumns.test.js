@@ -183,6 +183,35 @@ describe("HTML columns", () => {
     delete input.searchText;
   });
 
+  it("validate search on HTML columns with plain text (no tags)", () => {
+    const plainTextInput = _.cloneDeep(input);
+
+    plainTextInput.tableData = [
+      { id: 1, name: "Jim Doe", status: "Active" },
+      { id: 2, name: "Usain Bolt", status: "Pending" },
+      { id: 3, name: "Elon Musk", status: "Active" },
+    ];
+    plainTextInput.processedTableData = [
+      { id: 1, name: "Jim Doe", status: "Active", __originalIndex__: 0 },
+      { id: 2, name: "Usain Bolt", status: "Pending", __originalIndex__: 1 },
+      { id: 3, name: "Elon Musk", status: "Active", __originalIndex__: 2 },
+    ];
+    plainTextInput.searchText = "Pending";
+
+    const expected = [
+      {
+        id: 2,
+        name: "Usain Bolt",
+        status: "Pending",
+        __originalIndex__: 1,
+      },
+    ];
+
+    const result = getFilteredTableData(plainTextInput, moment, _);
+
+    expect(result).toStrictEqual(expected);
+  });
+
   it("validate search works when a javascript object is sent in HTMLcolumn", () => {
     const jsObjectInput = _.cloneDeep(input);
 

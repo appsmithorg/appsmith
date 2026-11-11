@@ -37,10 +37,7 @@ describe(
       cy.get(adminsSettings.readMoreLink).within(() => {
         cy.get("a")
           .should("have.attr", "target", "_blank")
-          .invoke("removeAttr", "target")
-          .click()
-          .wait(3000); //for page to load fully;
-        cy.url().should("contain", GOOGLE_SIGNUP_SETUP_DOC);
+          .and("have.attr", "href", GOOGLE_SIGNUP_SETUP_DOC);
       });
     });
 
@@ -53,10 +50,7 @@ describe(
       cy.get(adminsSettings.readMoreLink).within(() => {
         cy.get("a")
           .should("have.attr", "target", "_blank")
-          .invoke("removeAttr", "target")
-          .click()
-          .wait(3000); //for page to load fully
-        cy.url().should("contain", GITHUB_SIGNUP_SETUP_DOC);
+          .and("have.attr", "href", GITHUB_SIGNUP_SETUP_DOC);
       });
     });
 

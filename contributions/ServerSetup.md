@@ -437,6 +437,23 @@ mvn -B clean compile && ./build.sh -DskipTests
 ```
 ## Running Tests on Server
 
+MongoDB-backed JUnit tests use an isolated replica set started by Flapdoodle. The
+MongoDB version is pinned in
+`app/server/appsmith-server/src/test/resources/application-test.properties`.
+Flapdoodle downloads the build for the operating system and CPU architecture and
+caches it under `~/.embedmongo`. A separately installed MongoDB is not required for
+these tests. On Apple Silicon, use an ARM64 JDK; `mvn -v` should report `aarch64` or
+`arm64` as the architecture.
+
+To check native MongoDB startup, platform package selection, and transaction
+commit/rollback without starting Redis, run from `app/server`:
+
+```bash
+mvn -pl appsmith-server -am test \
+  -Dtest=EmbeddedMongoPackageTest,EmbeddedMongoTest \
+  -Dsurefire.failIfNoSpecifiedTests=false
+```
+
 1. Ensure that you have Redis running on your local system.
 
 2. Run the command to execute tests from repo root:

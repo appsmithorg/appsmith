@@ -97,7 +97,8 @@ const iconName = z
 // Also reject U+2028/U+2029 (line/paragraph separators): JSON.stringify does not escape them, and on a pre-ES2019
 // JS engine they terminate a string literal — closing a defense-in-depth gap across every safeText sink (e.g. the
 // select's JS-evaluated sourceData), not just the ones that emit into a binding.
-const RAW_EXPRESSION = /\u007b\u007b|\u007d\u007d|\$\u007b|`|\u2028|\u2029/;
+export const RAW_EXPRESSION =
+  /\u007b\u007b|\u007d\u007d|\$\u007b|`|\u2028|\u2029/;
 
 function safeText(max: number) {
   return z
@@ -200,6 +201,25 @@ function safeUrl(max = 2000) {
     });
 }
 
+// An Image widget's src (`image`, `defaultImage`). The client interpolates it raw into a styled-components rule
+// (`background-image: url("<value>")`), and the eval worker's IMAGE_URL validator only checks that the string
+// CONTAINS an image URL, so free text here would be a CSS breakout (`"` closes the url(), `}` closes the rule, and
+// the rest is stylesheet text in the viewer: url() egress, overlays). So: the safeUrl gate (absolute http(s), no
+// credentials, no bindings), then the WHATWG-normalised href (percent-encodes `"`, space, `<`, `>`), then a refusal
+// of every character that could still end a CSS string or function: quotes, backslash, parentheses, whitespace.
+// Base64 `data:` images are deliberately not admitted (safeUrl is http(s)-only). [Security review, APP-16052 M5]
+export const imageUrl = safeUrl(2000)
+  .transform((value) => new URL(value).href)
+  .refine(
+    (href) => !/["'\\()\s]/.test(href),
+    "image URL must not contain quotes, backslashes, parentheses or whitespace",
+  )
+  // Percent-encoding can grow the href far past the 2000-character input bound (2000 CJK characters → ~18,000).
+  .refine(
+    (href) => href.length <= 2000,
+    "image URL is too long once normalised",
+  );
+
 const scalarCell = z.union([safeText(1000), z.number(), z.boolean(), z.null()]);
 
 // Column keys are agent-supplied strings that the TableWidgetV2 client embeds into a generated `{{ }}` column
@@ -295,6 +315,196 @@ export const storeKeySchema = z
     message: "store key collides with an Object.prototype property name",
   });
 
+// The same denylist, exported for every other place an agent-supplied name becomes an object key or a member
+// segment in emitted code (jsExpr object/with/get keys, JS-object member names, widget property paths).
+export const PROTOTYPE_PROPERTY_NAMES: ReadonlySet<string> = STORE_KEY_DENYLIST;
+
+// An ISO 8601 date or date-time (calendar date, optional time with Z or a numeric offset). The charset is digits,
+// `-` `:` `.` `T` `Z` `+` only, so a date literal can never carry quotes, braces, or `$`. The calendar fields are
+// range-checked explicitly (V8's Date.parse silently rolls 2026-02-30 forward to March), so an impossible date is
+// rejected up front rather than stored as a different day. Shared by the Mongo builder (`{ date }` values) and the
+// widget patch (a date picker's defaultDate / minDate / maxDate).
+export const ISO_DATE =
+  /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,3})?)?(?:Z|[+-](\d{2}):(\d{2}))?)?$/;
+
+export function isRealIsoDate(value: string): boolean {
+  const match = ISO_DATE.exec(value);
+
+  if (!match) return false;
+
+  const [, y, mo, d, h, mi, s, oh, om] = match;
+  const year = Number(y);
+  const month = Number(mo);
+  const day = Number(d);
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+
+  return (
+    month >= 1 &&
+    month <= 12 &&
+    day >= 1 &&
+    day <= daysInMonth &&
+    (h === undefined || Number(h) <= 23) &&
+    (mi === undefined || Number(mi) <= 59) &&
+    (s === undefined || Number(s) <= 59) &&
+    (oh === undefined || Number(oh) <= 14) &&
+    (om === undefined || Number(om) <= 59)
+  );
+}
+
+export const isoDateLiteral = z
+  .string()
+  .max(40)
+  .regex(ISO_DATE, "must be an ISO 8601 date or date-time")
+  .refine(isRealIsoDate, "must be a real calendar date");
+
+// Names that must never be accepted where the compiler emits a bare entity reference (`<name>.<path>`,
+// `<name>.run()`): the worker's own globals, JS builtins whose members are callable, and Appsmith's platform
+// action functions. A widget or query can never legitimately carry one of these names, so refusing them costs
+// nothing and closes the `{ widget: "globalThis", property: "eval" }` route [COUNCIL: APP-16052 M2 security].
+export const HOST_NAMES: ReadonlySet<string> = new Set([
+  "this",
+  "arguments",
+  "globalThis",
+  "window",
+  "self",
+  "top",
+  "parent",
+  "frames",
+  "document",
+  "location",
+  "navigator",
+  "eval",
+  "Function",
+  "AsyncFunction",
+  "GeneratorFunction",
+  "Reflect",
+  "Proxy",
+  "Symbol",
+  "Object",
+  "Array",
+  "String",
+  "Number",
+  "Boolean",
+  "BigInt",
+  "Date",
+  "Math",
+  "JSON",
+  "Promise",
+  "Error",
+  "Set",
+  "Map",
+  "WeakMap",
+  "WeakSet",
+  "WeakRef",
+  "RegExp",
+  "Intl",
+  "Atomics",
+  "SharedArrayBuffer",
+  "ArrayBuffer",
+  "DataView",
+  "fetch",
+  "XMLHttpRequest",
+  "WebSocket",
+  "Worker",
+  "importScripts",
+  "postMessage",
+  "setTimeout",
+  "setInterval",
+  "clearTimeout",
+  "clearInterval",
+  "queueMicrotask",
+  "structuredClone",
+  "require",
+  "module",
+  "exports",
+  "process",
+  "console",
+  "navigateTo",
+  "showAlert",
+  "storeValue",
+  "removeValue",
+  "clearStore",
+  "resetWidget",
+  "download",
+  "copyToClipboard",
+  "showModal",
+  "closeModal",
+  "postWindowMessage",
+  "geolocation",
+  "logoutUser",
+  "unlistenWindowMessage",
+  "windowMessageListener",
+  "item",
+]);
+
+// A dotted property path into a widget or entity, as it is emitted verbatim in a member position: segments are
+// DOT-SEPARATED identifiers (a doubled or trailing dot is a JS syntax error that breaks the whole binding), and
+// no segment may be an Object.prototype property or `prototype` — `text.constructor.constructor` would otherwise
+// walk from a string value to `Function` [COUNCIL: APP-16052 M2 security]. `run` and `clear` are refused too so a
+// path can never name a query's or store's action method.
+const PATH_SEGMENT_DENYLIST: ReadonlySet<string> = new Set([
+  ...STORE_KEY_DENYLIST,
+  "run",
+  "clear",
+]);
+
+// A page name as emitted inside a quoted navigateTo(...) argument (events.ts and the JS-object grammar share it).
+// Whether a page name reads as a numeric IP host, such as "1572395042" or "0x5db8d822" (both 93.184.216.34).
+// navigateTo falls back to treating its target as a URL when no page has that name, and adds https://. With a
+// navigate param that holds a dot, such a name would send the viewer to an IP host the name encodes. "localhost" is
+// refused too: if that page later disappeared, the same fallback would open the viewer's own machine. So these names
+// are refused for pages and navigate targets.
+export function pageNameIsIpHost(name: string): boolean {
+  let host: string;
+
+  try {
+    host = new URL(`https://${name}`).hostname;
+  } catch {
+    return false;
+  }
+
+  return (
+    /^\d{1,3}(\.\d{1,3}){3}$/.test(host) ||
+    host.startsWith("[") ||
+    host === "localhost"
+  );
+}
+
+export const pageNameSchema = z
+  .string()
+  .min(1)
+  .max(64)
+  .regex(/^[A-Za-z0-9_ -]+$/, "must be a safe page name")
+  .refine(
+    (name) => !pageNameIsIpHost(name),
+    "a page name cannot read as an IP address (such as all digits or 0x...); add a letter",
+  );
+
+// A table column name as emitted inside `Table.selectedRow[<JSON string>]`: JSON encoding makes any text safe in
+// the member position, so the charset only keeps names readable (letters, digits, space, _ - . # / ( )).
+export const tableColumnName = z
+  .string()
+  .min(1)
+  .max(64)
+  .regex(/^[A-Za-z0-9_ .\-#/()]+$/, "must be a plain column name")
+  .refine(
+    (column) => !PROTOTYPE_PROPERTY_NAMES.has(column) && column !== "prototype",
+    "collides with an Object.prototype property name",
+  );
+
+export const entityPropertyPath = z
+  .string()
+  .min(1)
+  .max(128)
+  .regex(
+    /^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/,
+    "must be a dotted identifier path (e.g. 'text' or 'selectedRow.id')",
+  )
+  .refine(
+    (path) => path.split(".").every((seg) => !PATH_SEGMENT_DENYLIST.has(seg)),
+    "property path must not contain a prototype or method segment",
+  );
+
 // M5 store binding form: bind a table's rows to a store key that wire_event's appendToStore accumulates into.
 // TABLE-ONLY by design — the list/card widget keeps the query-only tableDataRefSchema (store-bound card grids are
 // out of scope in v1), which is why this union is a SEPARATE schema instead of widening tableDataRefSchema.
@@ -351,6 +561,17 @@ export const INPUT_VALIDATION_FORMATS = {
     regex: "^\\d{10}$",
     message: "Please enter a 10-digit phone number",
   },
+  // Letters only (A to Z, either case), and letters or digits. One character class each, so the match is linear.
+  alpha: { regex: "^[A-Za-z]+$", message: "Please use letters only" },
+  alphanumeric: {
+    regex: "^[A-Za-z0-9]+$",
+    message: "Please use letters and numbers only",
+  },
+  // A person's initials: 2 to 4 letters.
+  initials: {
+    regex: "^[A-Za-z]{2,4}$",
+    message: "Please enter 2 to 4 letters",
+  },
 } as const;
 
 export type InputValidationFormat = keyof typeof INPUT_VALIDATION_FORMATS;
@@ -361,28 +582,95 @@ const INPUT_VALIDATION_FORMAT_NAMES = Object.keys(INPUT_VALIDATION_FORMATS) as [
   ...InputValidationFormat[],
 ];
 
+// The longest length rule. The emitted regex is a single `[\s\S]{min,max}` class, so it matches in linear time.
+export const INPUT_VALIDATION_MAX_LENGTH = 10_000;
+
+const lengthBound = z.number().int().min(0).max(INPUT_VALIDATION_MAX_LENGTH);
+
 export const inputValidationSchema = z
   .object({
-    format: z.enum(INPUT_VALIDATION_FORMAT_NAMES),
+    // A named format, or a length rule (minLength and/or maxLength) — not both: a length rule is its own regex.
+    format: z.enum(INPUT_VALIDATION_FORMAT_NAMES).optional(),
+    minLength: lengthBound.optional(),
+    maxLength: lengthBound.optional(),
     // Optional override of the default error message. Safe text (no binding/template syntax), emitted as a literal
     // into the input's `errorMessage`.
     message: safeText(200).optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((ref, ctx) => {
+    const hasLength =
+      ref.minLength !== undefined || ref.maxLength !== undefined;
+
+    if (ref.format === undefined && !hasLength) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "set a format, or minLength and/or maxLength",
+      });
+    }
+
+    if (ref.format !== undefined && hasLength) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "set a format or a length rule, not both (use validWhen for a combined rule)",
+      });
+    }
+
+    if (
+      ref.minLength !== undefined &&
+      ref.maxLength !== undefined &&
+      ref.minLength > ref.maxLength
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "minLength must not be greater than maxLength",
+      });
+    }
+  });
 
 export interface InputValidationRef {
-  format: InputValidationFormat;
+  format?: InputValidationFormat;
+  minLength?: number;
+  maxLength?: number;
   message?: string;
 }
 
-// Emits the two literal input props for a named validation format: the vetted regex and the (overridable) message.
+// The default message of a length rule.
+function lengthMessage(min: number | undefined, max: number | undefined) {
+  if (min !== undefined && max !== undefined) {
+    return min === max
+      ? `Please enter exactly ${min} characters`
+      : `Please enter ${min} to ${max} characters`;
+  }
+
+  return min !== undefined
+    ? `Please enter at least ${min} characters`
+    : `Please enter at most ${max} characters`;
+}
+
+// Emits the two literal input props for a validation rule: the vetted regex and the (overridable) message. A length
+// rule's regex is built from two validated integers only.
 export function compileInputValidation(ref: InputValidationRef): {
   regex: string;
   errorMessage: string;
 } {
-  const preset = INPUT_VALIDATION_FORMATS[ref.format];
+  if (ref.format !== undefined) {
+    const preset = INPUT_VALIDATION_FORMATS[ref.format];
 
-  return { regex: preset.regex, errorMessage: ref.message ?? preset.message };
+    return {
+      regex: preset.regex,
+      errorMessage: ref.message ?? preset.message,
+    };
+  }
+
+  const min = ref.minLength ?? 0;
+  const max = ref.maxLength === undefined ? "" : String(ref.maxLength);
+
+  return {
+    regex: `^[\\s\\S]{${min},${max}}$`,
+    errorMessage: ref.message ?? lengthMessage(ref.minLength, ref.maxLength),
+  };
 }
 
 // A structured "disable this widget while the named input is invalid" wire — emits `{{ !<input>.isValid }}` onto the
@@ -1024,6 +1312,127 @@ export interface BuiltTableColumns {
   bindingPaths: string[];
 }
 
+// One column's properties, the shape of the client's getDefaultColumnProperties (TableWidgetV2/widget/utilities.ts).
+function columnProperties(column: {
+  id: string;
+  key: string;
+  index: number;
+  columnType: string;
+  label: string;
+  hidden: boolean;
+  isDerived: boolean;
+  computedValue: string;
+}): Record<string, unknown> {
+  return {
+    allowCellWrapping: false,
+    allowHeaderWrapping: false,
+    allowSameOptionsInNewRow: true,
+    index: column.index,
+    width: 150,
+    originalId: column.key,
+    id: column.id,
+    alias: column.key,
+    horizontalAlignment: "LEFT",
+    verticalAlignment: "CENTER",
+    columnType: column.columnType,
+    textColor: "#231F20",
+    textSize: "0.875rem",
+    fontStyle: "REGULAR",
+    enableFilter: true,
+    enableSort: true,
+    isVisible: !column.hidden,
+    isDisabled: false,
+    isCellEditable: false,
+    isEditable: false,
+    isCellVisible: !column.hidden,
+    isDerived: column.isDerived,
+    label: column.label,
+    isSaveVisible: true,
+    isDiscardVisible: true,
+    computedValue: column.computedValue,
+    sticky: "",
+    validation: {},
+    currencyCode: "USD",
+    decimals: 0,
+    thousandSeparator: true,
+    notation: "standard",
+  };
+}
+
+// Button columns for patch_widgets addColumn (APP-16381). Their onClick is wired with wire_event `column`.
+export const ACTION_COLUMN_TYPES = ["button", "iconButton"] as const;
+export type ActionColumnType = (typeof ACTION_COLUMN_TYPES)[number];
+
+export interface PatchColumnSpec {
+  key: string;
+  label?: string;
+  type?: TableColumnType | ActionColumnType;
+  hidden?: boolean;
+  buttonLabel?: string;
+  iconName?: string;
+}
+
+// One column added to an existing table. `existing` holds the table's column ids: the new id must not collide
+// (refused rather than renamed, so the agent knows the id it wires), and it takes the next free index.
+//   - A data column reads `currentRow[key]` like a built one.
+//   - A button or icon-button column is DERIVED with an empty computedValue: the table deletes a non-derived column
+//     whose key is missing from its data, and a button has no data of its own.
+export function buildPatchColumn(
+  col: PatchColumnSpec,
+  widgetName: string,
+  existing: { ids: ReadonlySet<string>; nextIndex: number },
+): { id: string; properties: Record<string, unknown>; bindingPath?: string } {
+  // The table name is emitted unescaped into computedValue: re-check it here (see the SECURITY INVARIANT above).
+  if (!/^[A-Za-z0-9_]+$/.test(widgetName)) {
+    throw new Error(`"${widgetName}" is not a valid table name`);
+  }
+
+  const id = sanitizeColumnId(col.key, new Set());
+
+  if (
+    PROTOTYPE_PROPERTY_NAMES.has(id) ||
+    PROTOTYPE_PROPERTY_NAMES.has(col.key)
+  ) {
+    throw new Error(
+      `column "${col.key}" collides with an Object.prototype property name`,
+    );
+  }
+
+  if (existing.ids.has(id)) {
+    throw new Error(
+      `column "${id}" already exists on "${widgetName}"; use updateColumn`,
+    );
+  }
+
+  const action = col.type === "button" || col.type === "iconButton";
+  const properties = columnProperties({
+    id,
+    key: col.key,
+    index: existing.nextIndex,
+    columnType: action
+      ? (col.type as string)
+      : TABLE_COLUMN_TYPE_MAP[(col.type as TableColumnType) ?? "text"],
+    label: col.label ?? col.key,
+    hidden: col.hidden === true,
+    isDerived: action,
+    computedValue: action ? "" : dataColumnComputedValue(widgetName, col.key),
+  });
+
+  if (col.type === "button") {
+    properties.buttonLabel = col.buttonLabel ?? col.label ?? col.key;
+    properties.buttonVariant = "PRIMARY";
+  }
+
+  if (col.type === "iconButton") {
+    properties.iconName = col.iconName ?? "add";
+    properties.buttonVariant = "PRIMARY";
+  }
+
+  return action
+    ? { id, properties }
+    : { id, properties, bindingPath: `primaryColumns.${id}.computedValue` };
+}
+
 // Compile a table's column specs into primaryColumns/columnOrder + the binding paths. Called from compile.ts once
 // the table's widgetName is allocated (computedValue self-references it), mirroring the list-widget precedent.
 export function buildTableColumns(
@@ -1049,48 +1458,27 @@ export function buildTableColumns(
         ? "number"
         : "text";
 
-    primaryColumns[id] = {
-      allowCellWrapping: false,
-      allowSameOptionsInNewRow: true,
-      index,
-      width: 150,
-      originalId: col.key,
+    primaryColumns[id] = columnProperties({
       id,
-      alias: col.key,
-      horizontalAlignment: "LEFT",
-      verticalAlignment: "CENTER",
+      key: col.key,
+      index,
       columnType,
-      textColor: "#231F20",
-      textSize: "0.875rem",
-      fontStyle: "REGULAR",
-      enableFilter: true,
-      enableSort: true,
-      isVisible: col.hidden !== true,
-      isDisabled: false,
-      isCellEditable: false,
-      isEditable: false,
-      isCellVisible: col.hidden !== true,
-      isDerived,
       label: col.label ?? col.key,
-      isSaveVisible: true,
-      isDiscardVisible: true,
+      hidden: col.hidden === true,
+      isDerived,
       computedValue: isDerived
         ? computedColumnComputedValue(widgetName, col.computed as FormulaExpr)
         : dataColumnComputedValue(widgetName, col.key),
-      sticky: "",
-      validation: {},
-      currencyCode: "USD",
-      decimals: 0,
-      thousandSeparator: true,
-      notation: "standard",
-    };
+    });
   });
 
   return { primaryColumns, columnOrder, bindingPaths };
 }
 
 // Recursive: a container can hold child widgets. z.lazy handles the self-reference.
-export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
+// The union is built by a function with an inferred return type, so widgetSpecDrift.test.ts can compare its
+// fields with the hand-written WidgetSpec type. The exported schema keeps the WidgetSpec annotation.
+export const widgetSpecVariants = () =>
   z.discriminatedUnion("type", [
     z
       .object({
@@ -1152,7 +1540,7 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
       .object({
         type: z.literal("image"),
         name: nameField,
-        image: safeText(2000).optional(),
+        image: imageUrl.optional(),
         // Display binding: the image src from one field of a query's response. Compiler-emitted; mutually
         // exclusive with the static `image` (enforced in the template, like text's text/source).
         source: queryFieldRefSchema.optional(),
@@ -1721,8 +2109,10 @@ export const widgetSpecSchema: z.ZodType<WidgetSpec> = z.lazy(() =>
         placement: placementSchema.optional(),
       })
       .strict(),
-  ]),
-);
+  ]);
+
+export const widgetSpecSchema: z.ZodType<WidgetSpec> =
+  z.lazy(widgetSpecVariants);
 
 export interface PlacementSpec {
   after?: string;

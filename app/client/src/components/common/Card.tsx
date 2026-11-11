@@ -30,6 +30,7 @@ type CardProps = PropsWithChildren<{
   testId: string;
   title: string;
   titleTestId: string;
+  subtitle?: string;
   isSelected?: boolean;
   hasEditPermission?: boolean;
   isFavorited?: boolean;
@@ -58,7 +59,19 @@ const ApplicationImage = styled.div`
   }
 `;
 
-const AppNameWrapper = styled.div<{ isFetching: boolean }>`
+const lineClamp = (lines: number) => `
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: ${lines};
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+`;
+
+const AppNameWrapper = styled.div<{
+  isFetching: boolean;
+  hasSubtitle?: boolean;
+}>`
   padding: 0;
   padding-right: 12px;
   ${(props) =>
@@ -69,18 +82,28 @@ const AppNameWrapper = styled.div<{ isFetching: boolean }>`
     margin-left: 10px;
   `
       : null};
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 3; /* number of lines to show */
-  -webkit-box-orient: vertical;
-  word-break: break-word;
+  /* With a subtitle the title and subtitle clamp independently; without one the
+     whole block clamps to three lines. */
+  ${(props) => (props.hasSubtitle ? "overflow: hidden;" : lineClamp(3))}
   color: ${(props) => props.theme.colors.text.heading};
   flex: 1;
 
   .bp3-popover-target {
     display: inline;
   }
+`;
+
+const AppTitle = styled.div`
+  ${lineClamp(2)}
+`;
+
+const AppSubtitle = styled.div`
+  ${lineClamp(2)}
+  margin-top: 2px;
+  font-size: var(--ads-v2-font-size-2);
+  line-height: var(--ads-v2-line-height-2);
+  /* fg (not fg-muted) keeps AA contrast on every tinted card background. */
+  color: var(--ads-v2-color-fg);
 `;
 
 const Container = styled.div<{ isMobile?: boolean }>`
@@ -369,10 +392,17 @@ function Card({
   setShowOverlay,
   showGitBadge,
   showOverlay,
+  subtitle,
   testId,
   title,
   titleTestId,
 }: CardProps) {
+  const hasSubtitle = Boolean(subtitle?.trim());
+  const titleNode = (
+    <Text data-testid={titleTestId} type={TextType.H4}>
+      {title}
+    </Text>
+  );
   const isGitModEnabled = useGitModEnabled();
 
   const gitBadge = useMemo(() => {
@@ -432,11 +462,19 @@ function Card({
           <CircleAppIcon name={icon} size={Size.large} />
           <AppNameWrapper
             className={isFetching ? Classes.SKELETON : ""}
+            hasSubtitle={hasSubtitle}
             isFetching={isFetching}
           >
-            <Text data-testid={titleTestId} type={TextType.H4}>
-              {title}
-            </Text>
+            {hasSubtitle ? (
+              <>
+                <AppTitle>{titleNode}</AppTitle>
+                <AppSubtitle data-testid="t--app-card-description">
+                  {subtitle}
+                </AppSubtitle>
+              </>
+            ) : (
+              titleNode
+            )}
           </AppNameWrapper>
           {showOverlay && !isMobile && (
             <div className="overlay">

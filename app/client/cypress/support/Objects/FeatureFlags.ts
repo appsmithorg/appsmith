@@ -1,3 +1,7 @@
+import type {
+  CyHttpMessages,
+  HttpResponseInterceptor,
+} from "cypress/types/net-stubbing";
 import { LICENSE_FEATURE_FLAGS } from "../Constants";
 import { ObjectsRegistry } from "./Registry";
 
@@ -6,6 +10,20 @@ const defaultFlags = {
   release_git_modularisation_enabled: true,
   release_git_api_contracts_enabled: true,
   license_static_url_enabled: true,
+};
+
+// Sends an intercepted request upstream, skips earlier handlers on the same
+// route, and lets `handler` rewrite the response. The handler is registered
+// with req.on("response") because Cypress fails the running test when a
+// request that carries a req.reply(callback) or req.continue(callback) handler
+// is aborted mid-response, which cy.visit, cy.reload and in-app navigation do
+// to any request still in flight.
+export const rewriteUpstreamResponse = (
+  req: CyHttpMessages.IncomingHttpRequest,
+  handler: HttpResponseInterceptor,
+) => {
+  req.on("response", handler);
+  req.continue();
 };
 
 export const featureFlagIntercept = (
@@ -25,7 +43,7 @@ export const featureFlagIntercept = (
   );
   if (preserveOtherFlags) {
     cy.intercept("GET", "/api/v1/users/features", (req) => {
-      req.reply((res: any) => {
+      rewriteUpstreamResponse(req, (res: any) => {
         const original = res?.body?.data ?? {};
         res.send({
           responseMeta: { status: 200, success: true },
@@ -58,7 +76,7 @@ export const getConsolidatedDataApi = (
 ) => {
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
     delete req.headers["if-none-match"];
-    req.reply((res: any) => {
+    rewriteUpstreamResponse(req, (res: any) => {
       if (
         res.statusCode === 200 ||
         res.statusCode === 401 ||
@@ -92,7 +110,7 @@ export const featureFlagInterceptForLicenseFlags = () => {
       url: "/api/v1/users/features",
     },
     (req) => {
-      req.reply((res) => {
+      rewriteUpstreamResponse(req, (res) => {
         if (res) {
           const originalResponse = res.body;
           let modifiedResponse: any = {};
@@ -119,7 +137,7 @@ export const featureFlagInterceptForLicenseFlags = () => {
   ).as("getLicenseFeatures");
 
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
-    req.reply((res: any) => {
+    rewriteUpstreamResponse(req, (res: any) => {
       delete req.headers["if-none-match"];
       if (res.statusCode === 200) {
         const originalResponse = res?.body;

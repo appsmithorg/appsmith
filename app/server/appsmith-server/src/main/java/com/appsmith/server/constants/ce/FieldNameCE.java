@@ -20,6 +20,7 @@ public class FieldNameCE {
     public static final String NAME = "name";
     public static final String PAGE_ID = "pageId";
     public static final String LAYOUT_ID = "layoutId";
+    public static final String EXPECTED_REVISION = "expectedRevision";
     public static final String APPLICATION_ID = "applicationId";
     public static final String SOURCE_APPLICATION_ID = "sourceApplicationId";
     public static final String PLUGIN_ID = "pluginId";
@@ -141,6 +142,12 @@ public class FieldNameCE {
     public static final String DEFAULT_PERMISSION_GROUPS = "defaultPermissionGroups";
     public static final String PUBLIC_PERMISSION_GROUP = "publicPermissionGroup";
     public static final String EVENT_DATA = "eventData";
+    public static final String PARTIAL_RESOURCE_COUNTS = "partialResourceCounts";
+    public static final String ACTION_COUNT = "actionCount";
+    public static final String ACTION_COLLECTION_COUNT = "actionCollectionCount";
+    public static final String DATASOURCE_COUNT = "datasourceCount";
+    public static final String JS_LIB_COUNT = "jsLibCount";
+    public static final String HAS_WIDGETS = "hasWidgets";
     public static final String CLOUD_HOSTED_EXTRA_PROPS = "cloudHostedExtraProps";
     public static final String MODE_OF_LOGIN = "modeOfLogin";
     public static final String FORM_LOGIN = "FormLogin";
@@ -161,6 +168,13 @@ public class FieldNameCE {
 
     // this key will present in the analytics as a diff b/w server and user invoked flows
     public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY = "isDatasourceUpdateUserInvoked";
+    public static final String CONNECTION_CONFIGURATION_CHANGED = "connectionConfigurationChanged";
+    public static final String CREDENTIAL_SOURCE = "credentialSource";
+    public static final String CHANGED_CONNECTION_SETTING_GROUPS = "changedConnectionSettingGroups";
+    public static final String CONNECTION_TEST_RESULT = "connectionTestResult";
+    public static final String CONNECTION_TEST_RESULT_SUCCEEDED = "succeeded";
+    public static final String CONNECTION_TEST_RESULT_FAILED = "failed";
+    public static final String CONNECTION_TEST_RESULT_CREDENTIALS_REQUIRED = "credentials_required";
     public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
     /**
      * The internal marker the loopback MCP Node service stamps on every /api/v1 request it makes on behalf of an

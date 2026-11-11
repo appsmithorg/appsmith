@@ -305,11 +305,13 @@ public class AIConfigServiceCEImpl implements AIConfigServiceCE {
         return organizationService.getCurrentUserOrganizationId().flatMap(organizationId -> organizationService
                 .findById(organizationId, MANAGE_ORGANIZATION)
                 .map(organization -> buildAIConfigResponseForGet(organization.getOrganizationConfiguration()))
-                // findById SIGNALS an error rather than completing empty when the caller lacks
-                // MANAGE_ORGANIZATION — it ends in switchIfEmpty(Mono.error(NO_RESOURCE_FOUND)), and both editions
-                // share that implementation. A switchIfEmpty here would therefore never be reached, which left every
-                // non-manager receiving an error instead of the enablement flags the editor reads on session start.
-                // Narrow to the not-found/denied signal specifically so a genuine failure still surfaces.
+                // Defense-in-depth: the CE findById ends in switchIfEmpty(Mono.error(NO_RESOURCE_FOUND)) so the
+                // onErrorResume below is the primary fallback path. However, the EE edition historically overrode
+                // findById without that guard, returning an empty Mono instead. This switchIfEmpty ensures the
+                // non-manager fallback fires in both cases (APP-16012).
+                .switchIfEmpty(Mono.defer(() -> organizationService
+                        .getCurrentUserOrganization()
+                        .map(organization -> buildAIConfigStatusResponse(organization.getOrganizationConfiguration()))))
                 .onErrorResume(
                         error -> error instanceof AppsmithException appsmithException
                                 && (AppsmithErrorCode.NO_RESOURCE_FOUND

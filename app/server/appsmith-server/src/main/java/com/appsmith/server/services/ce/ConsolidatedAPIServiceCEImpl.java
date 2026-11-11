@@ -14,6 +14,7 @@ import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.OrganizationConfiguration;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ConsolidatedAPIResponseDTO;
 import com.appsmith.server.dtos.MockDataDTO;
@@ -306,9 +307,12 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                 .name(getQualifiedSpanName(CURRENT_THEME_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry)));
 
-        /* Get all themes */
+        /* Get all themes. The application theme list is editor data: in PUBLISHED mode the payload carries an
+         * empty list and the theme service is not asked to list themes. The Mono stays chained to the application
+         * so that an application resolution error still surfaces here the same way. */
         fetches.add(branchedApplicationMonoCached
-                .flatMapMany(themeService::getApplicationThemes)
+                .flatMapMany(branchedApplication ->
+                        isViewMode ? Flux.<Theme>empty() : themeService.getApplicationThemes(branchedApplication))
                 .collectList()
                 .as(this::toResponseDTO)
                 .doOnError(e -> log.error("Error fetching themes", e))

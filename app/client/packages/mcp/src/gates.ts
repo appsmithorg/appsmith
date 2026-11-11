@@ -129,6 +129,22 @@ export interface SessionLimits {
 export const MAX_SESSION_CAP_CEILING = 10_000;
 export const SESSION_TTL_CEILING_MS = 24 * 60 * 60 * 1000;
 
+// APPSMITH_REDIS_URL is REQUIRED: MCP sessions always live in the Redis that Appsmith itself already needs for its
+// own web sessions, so there is deliberately no in-process mode and no MCP-specific knob. Blank counts as missing
+// (docker.env-style files commonly carry empty keys). Throws, so main() exits before listening — loud, never a
+// silent fallback to per-pod memory that would reproduce the multi-replica 404s.
+export function requiredRedisUrlFromEnv(value: string | undefined): string {
+  const url = (value ?? "").trim();
+
+  if (url.length === 0) {
+    throw new Error(
+      "APPSMITH_REDIS_URL is required: Appsmith MCP sessions are shared through the same Redis the Appsmith server uses",
+    );
+  }
+
+  return url;
+}
+
 // Session-limit env overrides resolved against their built-in defaults. Lives here (not in the entrypoint) so the
 // env-var names and fallback behavior are unit-testable. A present-but-invalid value falls back AND is reported via
 // `warn`, so an operator who mistypes a *tightening* override finds out at startup instead of silently running with

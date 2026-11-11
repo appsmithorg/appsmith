@@ -19,6 +19,7 @@ export interface AIEditorContext {
   editorId?: string;
   entityName?: string;
   entityId?: string;
+  entityType?: string;
   propertyPath?: string;
 }
 

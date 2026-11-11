@@ -10,7 +10,7 @@ module.exports = {
     "jest-canvas-mock",
     "<rootDir>/test/__mocks__/reactMarkdown.tsx",
   ],
-  roots: ["<rootDir>/src"],
+  roots: ["<rootDir>/src", "<rootDir>/cypress/scripts"],
   transform: {
     "^.+\\.(png|js|ts|tsx)$": [
       "ts-jest",

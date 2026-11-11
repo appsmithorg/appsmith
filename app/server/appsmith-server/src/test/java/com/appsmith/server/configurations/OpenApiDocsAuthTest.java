@@ -35,8 +35,13 @@ public class OpenApiDocsAuthTest {
         webTestClient.get().uri("/v3/docs").exchange().expectStatus().isUnauthorized();
     }
 
+    /**
+     * {@code springdoc.swagger-ui.path=/v3/swagger} in {@code application-ce.properties}; the earlier
+     * {@code /v3/swagger-ui.html} target never matched a springdoc route, so the 401 it saw came from the
+     * catch-all rule rather than from the Swagger UI endpoint.
+     */
     @Test
     void swaggerUiEndpoint_unauthenticated_returns401() {
-        webTestClient.get().uri("/v3/swagger-ui.html").exchange().expectStatus().isUnauthorized();
+        webTestClient.get().uri("/v3/swagger").exchange().expectStatus().isUnauthorized();
     }
 }

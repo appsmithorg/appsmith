@@ -31,6 +31,7 @@ import com.appsmith.server.imports.internal.partial.PartialImportService;
 import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationSnapshotService;
+import com.appsmith.server.services.ArtifactCopyAudit;
 import com.appsmith.server.solutions.UserReleaseNotes;
 import com.appsmith.server.staticurl.StaticUrlService;
 import com.appsmith.server.themes.base.ThemeService;
@@ -243,8 +244,9 @@ public class ApplicationControllerCE {
             @PathVariable String workspaceId,
             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String branchedApplicationId) {
         log.debug("Going to import application in workspace with id: {}", workspaceId);
-        return fileMono.flatMap(file -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        file, workspaceId, branchedApplicationId))
+        return fileMono.flatMap(
+                        file -> ArtifactCopyAudit.suppress(importService.extractArtifactExchangeJsonAndSaveArtifact(
+                                file, workspaceId, branchedApplicationId)))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK, fetchedResource));
     }
 

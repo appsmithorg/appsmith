@@ -9,6 +9,9 @@ import {
 } from "ee/actions/applicationActions";
 import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
 import {
+  GENERAL_SETTINGS_APP_DESCRIPTION_LABEL,
+  GENERAL_SETTINGS_APP_DESCRIPTION_PLACEHOLDER,
+  GENERAL_SETTINGS_APP_DESCRIPTION_TOO_LONG,
   GENERAL_SETTINGS_APP_ICON_LABEL,
   GENERAL_SETTINGS_APP_LANGUAGE_LABEL,
   GENERAL_SETTINGS_APP_LANGUAGE_TOOLTIP,
@@ -41,7 +44,13 @@ import {
   Tooltip,
 } from "@appsmith/ads";
 import { IconSelector } from "@appsmith/ads-old";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import StaticURLConfirmationModal from "./StaticURLConfirmationModal";
 import { debounce } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
@@ -54,6 +63,7 @@ const STATIC_URL_DOCS_URL =
 import {
   getCurrentApplication,
   getIsSavingAppName,
+  getIsSavingAppDescription,
   getIsSavingHtmlLang,
   getIsPersistingAppSlug,
   getIsValidatingAppSlug,
@@ -70,6 +80,11 @@ import styled from "styled-components";
 import TextLoaderIcon from "./TextLoaderIcon";
 import UrlPreview from "./UrlPreview";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import {
+  APP_DESCRIPTION_MAX_LENGTH,
+  isAppDescriptionInputValid,
+  normalizeAppDescription,
+} from "utils/appDescription";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const IconSelectorWrapper = styled.div`
@@ -111,6 +126,16 @@ export function isHtmlLangInputValid(value: string) {
   return trimmed === "" || BCP47_REGEX.test(trimmed);
 }
 
+// A save response must not clobber text the user typed while that save was
+// in flight. Adopt the store value only when no save is pending or the draft
+// still equals what was submitted.
+export function shouldAdoptSavedDescription(
+  draft: string,
+  submitted: string | null,
+) {
+  return submitted === null || draft === submitted;
+}
+
 function GeneralSettings() {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
@@ -118,6 +143,7 @@ function GeneralSettings() {
   const pages = useSelector(getPageList);
   const currentBasePageId = useSelector(getCurrentBasePageId);
   const isSavingAppName = useSelector(getIsSavingAppName);
+  const isSavingAppDescription = useSelector(getIsSavingAppDescription);
   const isSavingHtmlLang = useSelector(getIsSavingHtmlLang);
   const isApplicationSlugValid = useSelector(getIsApplicationSlugValid);
   const isValidatingAppSlug = useSelector(getIsValidatingAppSlug);
@@ -132,6 +158,10 @@ function GeneralSettings() {
   const [applicationIcon, setApplicationIcon] = useState(
     application?.icon as AppIconName,
   );
+  const [appDescription, setAppDescription] = useState(
+    application?.description || "",
+  );
+  const [isAppDescriptionValid, setIsAppDescriptionValid] = useState(true);
   const [htmlLang, setHtmlLang] = useState(
     application?.applicationDetail?.htmlLang || "",
   );
@@ -156,6 +186,58 @@ function GeneralSettings() {
       !isSavingAppName && setApplicationName(application?.name);
     },
     [application, application?.name, isSavingAppName],
+  );
+
+  // Refs, not state, so the sync effect can read the latest draft and the
+  // value submitted by the in-flight save without re-running on every keystroke.
+  const appDescriptionDraftRef = useRef(appDescription);
+  const submittedAppDescriptionRef = useRef<string | null>(null);
+
+  useEffect(
+    function syncAppDescription() {
+      if (
+        !shouldAdoptSavedDescription(
+          appDescriptionDraftRef.current,
+          submittedAppDescriptionRef.current,
+        )
+      ) {
+        return;
+      }
+
+      submittedAppDescriptionRef.current = null;
+      const saved = application?.description || "";
+
+      appDescriptionDraftRef.current = saved;
+      setAppDescription(saved);
+      setIsAppDescriptionValid(true);
+    },
+    [application?.description],
+  );
+
+  const onAppDescriptionChange = useCallback((value: string) => {
+    appDescriptionDraftRef.current = value;
+    setAppDescription(value);
+    setIsAppDescriptionValid(isAppDescriptionInputValid(value));
+  }, []);
+
+  const saveAppDescription = useCallback(
+    (value: string) => {
+      if (!isAppDescriptionInputValid(value)) return;
+
+      const trimmed = normalizeAppDescription(value);
+      const current = application?.description || "";
+
+      if (trimmed === current) return;
+
+      submittedAppDescriptionRef.current = value;
+      dispatch(
+        updateApplication(applicationId, {
+          currentApp: true,
+          description: trimmed,
+        }),
+      );
+    },
+    [applicationId, application?.description, dispatch],
   );
 
   useEffect(
@@ -493,6 +575,36 @@ function GeneralSettings() {
           size="md"
           type="text"
           value={applicationName}
+        />
+      </div>
+
+      <div className="pt-2 pb-2 relative">
+        {isSavingAppDescription && <TextLoaderIcon />}
+        <Input
+          errorMessage={
+            isAppDescriptionValid
+              ? undefined
+              : createMessage(
+                  GENERAL_SETTINGS_APP_DESCRIPTION_TOO_LONG,
+                  APP_DESCRIPTION_MAX_LENGTH,
+                )
+          }
+          id="t--general-settings-app-description"
+          isValid={isAppDescriptionValid}
+          label={createMessage(GENERAL_SETTINGS_APP_DESCRIPTION_LABEL)}
+          onBlur={() => saveAppDescription(appDescription)}
+          onChange={onAppDescriptionChange}
+          onKeyPress={(ev: React.KeyboardEvent) => {
+            if (ev.key === "Enter") {
+              saveAppDescription(appDescription);
+            }
+          }}
+          placeholder={createMessage(
+            GENERAL_SETTINGS_APP_DESCRIPTION_PLACEHOLDER,
+          )}
+          size="md"
+          type="text"
+          value={appDescription}
         />
       </div>
 

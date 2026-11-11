@@ -1,7 +1,145 @@
+import type { MongoClient } from "mongodb";
 import {
   createGovernanceStoreFromEnv,
   createRedisClientFromUrl,
+  MongoRedisGovernanceStore,
+  type PreparedConfirmation,
 } from "./store.js";
+
+describe("MongoRedisGovernanceStore confirmation reads", () => {
+  // The Mongo side is never touched by the confirmation reads; the constructor only resolves the collection.
+  const mongo = {
+    db: () => ({ collection: () => ({}) }),
+  } as unknown as MongoClient;
+  const stored: PreparedConfirmation = {
+    id: "conf-1",
+    actorId: "user-1",
+    entityKey: "application:app1",
+    operation: "commit",
+    revision: "rev-1",
+    digest: "digest-1",
+    expiresAt: new Date("2026-09-24T12:00:00.000Z"),
+    context: { branch: "mcp/fix-1", message: "Fix orders" },
+  };
+
+  function storeWith(value: string | null) {
+    const redis = {
+      connect: async () => undefined,
+      close: async () => undefined,
+      set: async () => "OK",
+      get: async () => value,
+      eval: async () => value,
+    };
+
+    return new MongoRedisGovernanceStore(mongo, redis as never);
+  }
+
+  it("revives expiresAt as a Date and carries the context through the JSON round trip", async () => {
+    const store = storeWith(JSON.stringify(stored));
+
+    for (const read of [
+      await store.peekConfirmation("conf-1"),
+      await store.consumeConfirmation("conf-1"),
+    ]) {
+      expect(read?.expiresAt).toBeInstanceOf(Date);
+      expect(read?.expiresAt.getTime()).toBe(stored.expiresAt.getTime());
+      expect(read?.context).toEqual(stored.context);
+      expect(read?.actorId).toBe("user-1");
+    }
+  });
+
+  it("reads a missing or malformed confirmation as absent", async () => {
+    expect(await storeWith(null).peekConfirmation("conf-1")).toBeUndefined();
+    expect(await storeWith("{oops").peekConfirmation("conf-1")).toBeUndefined();
+    expect(
+      await storeWith(JSON.stringify({ id: 1 })).peekConfirmation("conf-1"),
+    ).toBeUndefined();
+  });
+});
+
+describe("MongoRedisGovernanceStore JS definitions", () => {
+  // Records the calls each collection receives; mcp_changes and mcp_js_definitions are told apart by name.
+  function storeWithCollections() {
+    const calls: { collection: string; method: string; args: unknown[] }[] = [];
+    const collection = (name: string) => ({
+      createIndex: async (...args: unknown[]) => {
+        calls.push({ collection: name, method: "createIndex", args });
+      },
+      updateOne: async (...args: unknown[]) => {
+        calls.push({ collection: name, method: "updateOne", args });
+      },
+      find: (...args: unknown[]) => {
+        calls.push({ collection: name, method: "find", args });
+
+        return { toArray: async () => [] };
+      },
+    });
+    const mongo = {
+      connect: async () => undefined,
+      db: () => ({ collection }),
+    } as unknown as MongoClient;
+    const redis = { connect: async () => undefined };
+
+    return {
+      calls,
+      store: new MongoRedisGovernanceStore(mongo, redis as never),
+    };
+  }
+
+  it("creates a unique index on organization and body hash", async () => {
+    const { calls, store } = storeWithCollections();
+
+    await store.connect();
+
+    expect(calls).toContainEqual({
+      collection: "mcp_js_definitions",
+      method: "createIndex",
+      args: [{ organizationId: 1, codeHash: 1 }, { unique: true }],
+    });
+    // No TTL on definitions: a JS object can stay unchanged for years.
+    expect(
+      calls.some(
+        (c) =>
+          c.collection === "mcp_js_definitions" &&
+          JSON.stringify(c.args).includes("expireAfterSeconds"),
+      ),
+    ).toBe(false);
+  });
+
+  it("inserts a record once, keeping the first, and looks records up within one organization", async () => {
+    const { calls, store } = storeWithCollections();
+    const record = {
+      organizationId: "org1",
+      codeHash: "h1",
+      definition: "{}",
+      createdAt: new Date(0),
+    };
+
+    await store.saveJsDefinition(record);
+    await store.findJsDefinitions("org1", ["h1", "h2"]);
+    expect(await store.findJsDefinitions("org1", [])).toEqual([]);
+
+    expect(calls).toEqual([
+      {
+        collection: "mcp_js_definitions",
+        method: "updateOne",
+        args: [
+          { organizationId: "org1", codeHash: "h1" },
+          { $setOnInsert: record },
+          { upsert: true },
+        ],
+      },
+      {
+        collection: "mcp_js_definitions",
+        method: "find",
+        args: [
+          { organizationId: "org1", codeHash: { $in: ["h1", "h2"] } },
+          { projection: { _id: 0 } },
+        ],
+      },
+    ]);
+  });
+});
 
 interface RedisClusterTestOptions {
   rootNodes: Array<{ url?: string }>;
@@ -102,6 +240,16 @@ describe("createGovernanceStoreFromEnv", () => {
     process.env.APPSMITH_REDIS_URL = "redis://127.0.0.1:6379";
 
     expect(() => createGovernanceStoreFromEnv()).not.toThrow();
+    expect(createGovernanceStoreFromEnv()).toBeUndefined();
+  });
+
+  it("prefers APPSMITH_DB_URL over APPSMITH_MONGODB_URI when both are set", () => {
+    // A leftover docker.env Mongo URI must not override the product DB URL (Java/RTS order).
+    process.env.APPSMITH_DB_URL =
+      "postgresql://user:pass@localhost:5432/appsmith";
+    process.env.APPSMITH_MONGODB_URI = "mongodb://127.0.0.1:27017/appsmith";
+    process.env.APPSMITH_REDIS_URL = "redis://127.0.0.1:6379";
+
     expect(createGovernanceStoreFromEnv()).toBeUndefined();
   });
 

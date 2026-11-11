@@ -54,7 +54,11 @@ describe(
 
       const paginationProperties = ["serversidepagination"];
 
-      const itemSelectionProperties = ["defaultselecteditem", "onitemclick"];
+      const itemSelectionProperties = [
+        "disableselection",
+        "defaultselecteditem",
+        "onitemclick",
+      ];
 
       const generalProperties = ["visible", "animateloading"];
 

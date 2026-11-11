@@ -30,6 +30,7 @@ export const initialState: ApplicationsReduxState = {
   isSavingAppName: false,
   isErrorSavingAppName: false,
   isSavingHtmlLang: false,
+  isSavingAppDescription: false,
   isFetchingApplication: false,
   isChangingViewAccess: false,
   applicationList: [],
@@ -145,6 +146,16 @@ export const handlers = {
       ...state.currentApplication,
       name: action.payload.name,
       slug: action.payload.slug,
+    },
+  }),
+  [ReduxActionTypes.CURRENT_APPLICATION_DESCRIPTION_UPDATE]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<string>,
+  ) => ({
+    ...state,
+    currentApplication: {
+      ...state.currentApplication,
+      description: action.payload,
     },
   }),
   [ReduxActionTypes.CURRENT_APPLICATION_ICON_UPDATE]: (
@@ -315,9 +326,15 @@ export const handlers = {
     let isSavingAppName = false;
     let isSavingNavigationSetting = false;
     let isSavingHtmlLang = false;
+    let isSavingAppDescription = false;
 
     if (action.payload.name) {
       isSavingAppName = true;
+    }
+
+    // Presence check: clearing sends description: "" and must still show the spinner.
+    if (action.payload.description !== undefined) {
+      isSavingAppDescription = true;
     }
 
     if (action.payload.applicationDetail?.navigationSetting) {
@@ -338,6 +355,7 @@ export const handlers = {
       isSavingNavigationSetting,
       isErrorSavingNavigationSetting: false,
       isSavingHtmlLang,
+      isSavingAppDescription,
       ...(action.payload.applicationDetail && state.currentApplication
         ? {
             currentApplication: {
@@ -365,6 +383,7 @@ export const handlers = {
       isSavingNavigationSetting: false,
       isErrorSavingNavigationSetting: false,
       isSavingHtmlLang: false,
+      isSavingAppDescription: false,
     };
   },
   [ReduxActionErrorTypes.UPDATE_APPLICATION_ERROR]: (
@@ -377,6 +396,7 @@ export const handlers = {
       isSavingNavigationSetting: false,
       isErrorSavingNavigationSetting: true,
       isSavingHtmlLang: false,
+      isSavingAppDescription: false,
     };
   },
   [ReduxActionTypes.RESET_CURRENT_APPLICATION]: (
@@ -952,6 +972,7 @@ export interface ApplicationsReduxState {
   isSavingAppName: boolean;
   isErrorSavingAppName: boolean;
   isSavingHtmlLang: boolean;
+  isSavingAppDescription: boolean;
   isFetchingApplication: boolean;
   isChangingViewAccess: boolean;
   creatingApplication: creatingApplicationMap;

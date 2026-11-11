@@ -1,0 +1,225 @@
+[
+  {
+    "functionName": "orders-api",
+    "functionArn": "arn:aws:lambda:ap-south-1:123456789012:function:orders-api",
+    "runtime": "java17",
+    "role": "arn:aws:iam::123456789012:role/orders-api-role",
+    "handler": "com.example.Handler::handleRequest",
+    "codeSize": 5242880,
+    "description": "Orders API",
+    "timeout": 30,
+    "memorySize": 512,
+    "lastModified": "2024-05-01T10:15:30.000+0000",
+    "codeSha256": "abc123sha=",
+    "version": "$LATEST",
+    "vpcConfig": {
+      "subnetIds": ["subnet-1", "subnet-2"],
+      "securityGroupIds": ["sg-1"],
+      "vpcId": "vpc-1",
+      "ipv6AllowedForDualStack": false
+    },
+    "deadLetterConfig": {
+      "targetArn": "arn:aws:sqs:ap-south-1:123456789012:dlq"
+    },
+    "environment": {
+      "variables": {
+        "STAGE": "prod",
+        "LOG_LEVEL": "debug"
+      },
+      "error": {
+        "errorCode": "KMSAccessDenied",
+        "message": "cannot decrypt"
+      }
+    },
+    "tracingConfig": {
+      "mode": "Active"
+    },
+    "masterArn": "arn:aws:lambda:us-east-1:123456789012:function:edge",
+    "revisionId": "rev-1",
+    "layers": [
+      {
+        "arn": "arn:aws:lambda:ap-south-1:123456789012:layer:deps:3",
+        "codeSize": 1024,
+        "signingProfileVersionArn": "arn:aws:signer:profile/1",
+        "signingJobArn": "arn:aws:signer:job/1"
+      }
+    ],
+    "state": "Active",
+    "stateReason": "ready",
+    "stateReasonCode": "Idle",
+    "lastUpdateStatus": "Successful",
+    "lastUpdateStatusReason": "done",
+    "lastUpdateStatusReasonCode": "EniLimitExceeded",
+    "fileSystemConfigs": [
+      {
+        "arn": "arn:aws:elasticfilesystem:ap-south-1:123456789012:access-point/fsap-1",
+        "localMountPath": "/mnt/efs"
+      }
+    ],
+    "packageType": "Image",
+    "imageConfigResponse": {
+      "imageConfig": {
+        "entryPoint": ["/entry.sh"],
+        "command": ["app.handler", "--flag"],
+        "workingDirectory": "/var/task"
+      },
+      "error": {
+        "errorCode": "InvalidImage",
+        "message": "bad image"
+      }
+    },
+    "signingProfileVersionArn": "arn:aws:signer:profile/2",
+    "signingJobArn": "arn:aws:signer:job/2",
+    "architectures": ["arm64"],
+    "ephemeralStorage": {
+      "size": 1024
+    },
+    "snapStart": {
+      "applyOn": "PublishedVersions",
+      "optimizationStatus": "On"
+    },
+    "runtimeVersionConfig": {
+      "runtimeVersionArn": "arn:aws:lambda:ap-south-1::runtime:abc",
+      "error": {
+        "errorCode": "RuntimeErr",
+        "message": "runtime problem"
+      }
+    },
+    "loggingConfig": {
+      "logFormat": "JSON",
+      "applicationLogLevel": "INFO",
+      "systemLogLevel": "WARN",
+      "logGroup": "/aws/lambda/orders-api"
+    },
+    "kmskeyArn": "arn:aws:kms:ap-south-1:123456789012:key/k-1"
+  },
+  {
+    "functionName": "minimal-fn",
+    "functionArn": null,
+    "runtime": null,
+    "role": null,
+    "handler": null,
+    "codeSize": null,
+    "description": null,
+    "timeout": null,
+    "memorySize": null,
+    "lastModified": null,
+    "codeSha256": null,
+    "version": null,
+    "vpcConfig": null,
+    "deadLetterConfig": null,
+    "environment": null,
+    "tracingConfig": null,
+    "masterArn": null,
+    "revisionId": null,
+    "layers": [],
+    "state": null,
+    "stateReason": null,
+    "stateReasonCode": null,
+    "lastUpdateStatus": null,
+    "lastUpdateStatusReason": null,
+    "lastUpdateStatusReasonCode": null,
+    "fileSystemConfigs": [],
+    "packageType": null,
+    "imageConfigResponse": null,
+    "signingProfileVersionArn": null,
+    "signingJobArn": null,
+    "architectures": [],
+    "ephemeralStorage": null,
+    "snapStart": null,
+    "runtimeVersionConfig": null,
+    "loggingConfig": null,
+    "kmskeyArn": null
+  },
+  {
+    "functionName": "sparse-fn",
+    "functionArn": null,
+    "runtime": null,
+    "role": null,
+    "handler": null,
+    "codeSize": null,
+    "description": null,
+    "timeout": null,
+    "memorySize": null,
+    "lastModified": null,
+    "codeSha256": null,
+    "version": null,
+    "vpcConfig": {
+      "subnetIds": [],
+      "securityGroupIds": [],
+      "vpcId": null,
+      "ipv6AllowedForDualStack": null
+    },
+    "deadLetterConfig": {
+      "targetArn": null
+    },
+    "environment": {
+      "variables": {},
+      "error": {
+        "errorCode": null,
+        "message": null
+      }
+    },
+    "tracingConfig": {
+      "mode": null
+    },
+    "masterArn": null,
+    "revisionId": null,
+    "layers": [
+      {
+        "arn": null,
+        "codeSize": null,
+        "signingProfileVersionArn": null,
+        "signingJobArn": null
+      }
+    ],
+    "state": null,
+    "stateReason": null,
+    "stateReasonCode": null,
+    "lastUpdateStatus": null,
+    "lastUpdateStatusReason": null,
+    "lastUpdateStatusReasonCode": null,
+    "fileSystemConfigs": [
+      {
+        "arn": null,
+        "localMountPath": null
+      }
+    ],
+    "packageType": null,
+    "imageConfigResponse": {
+      "imageConfig": {
+        "entryPoint": [],
+        "command": [],
+        "workingDirectory": null
+      },
+      "error": {
+        "errorCode": null,
+        "message": null
+      }
+    },
+    "signingProfileVersionArn": null,
+    "signingJobArn": null,
+    "architectures": [],
+    "ephemeralStorage": {
+      "size": null
+    },
+    "snapStart": {
+      "applyOn": null,
+      "optimizationStatus": null
+    },
+    "runtimeVersionConfig": {
+      "runtimeVersionArn": null,
+      "error": {
+        "errorCode": null,
+        "message": null
+      }
+    },
+    "loggingConfig": {
+      "logFormat": null,
+      "applicationLogLevel": null,
+      "systemLogLevel": null,
+      "logGroup": null
+    },
+    "kmskeyArn": null
+  }
+]

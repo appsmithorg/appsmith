@@ -1,4 +1,4 @@
-import { ROW_HEIGHT, type WidgetNode } from "./layout.js";
+import { ROOT_WIDGET_ID, ROW_HEIGHT, type WidgetNode } from "./layout.js";
 import {
   canvasColumns,
   computeCanvasOverlapFixes,
@@ -9,6 +9,8 @@ import {
   suggestedFix,
   VALID_PATCH_NAME,
   type SuggestedFix,
+  type SuggestedOperation,
+  isDetached,
 } from "./occupancy.js";
 import { modalStackFindings } from "./modalGraph.js";
 
@@ -144,6 +146,14 @@ class Linter {
     // Geometry checks apply to the direct children laid out on a canvas.
     if (node.type === CANVAS_TYPE) this.checkCanvasChildren(node);
 
+    // Nested content laid out by an earlier MCP version at the parent's column span fills only a fraction of the
+    // canvas the client renders (always 64 columns); offer the full-width relayout.
+    for (const child of node.children ?? []) {
+      if (child.type === CANVAS_TYPE && node.widgetId !== ROOT_WIDGET_ID) {
+        this.checkNarrowCanvas(node, child);
+      }
+    }
+
     // A container's own box must be tall enough to hold its inner canvas's extent.
     if (CONTAINER_TYPES.has(node.type)) this.checkContainerHeight(node);
 
@@ -235,6 +245,77 @@ class Linter {
     }
   }
 
+  // Fingerprint of a canvas the MCP built before it laid nested content out on the full 64-column grid: the stored
+  // canvas rightColumn equals the parent widget's column span (the editor writes a pixel width there, never the
+  // span, and current builds write 64) and every in-flow child fits inside that span. The fix scales each child's
+  // column position and width from the span to 64 (floor/ceil so neighbours stay apart), rightmost child first so
+  // no intermediate step lands one child on another.
+  private checkNarrowCanvas(parent: WidgetNode, canvas: WidgetNode): void {
+    if (
+      !isNumber(parent.leftColumn) ||
+      !isNumber(parent.rightColumn) ||
+      !isNumber(canvas.rightColumn)
+    ) {
+      return;
+    }
+
+    const span = parent.rightColumn - parent.leftColumn;
+    const columns = canvasColumns(canvas);
+
+    if (span <= 0 || span >= columns || canvas.rightColumn !== span) return;
+
+    const children = (canvas.children ?? []).filter(
+      (child) =>
+        !isDetached(child) &&
+        isNumber(child.leftColumn) &&
+        isNumber(child.rightColumn) &&
+        isNumber(child.topRow),
+    );
+
+    if (children.length === 0) return;
+
+    const widest = Math.max(
+      ...children.map((child) => child.rightColumn as number),
+    );
+
+    if (widest > span) return;
+
+    const scale = columns / span;
+
+    // Convergence: only flag when the scaled content would extend past the span, so applying the fix (children
+    // then exceed the span) silences the rule, and a lone small widget in a big container is not a finding.
+    if (widest * scale <= span) return;
+
+    const ordered = [...children].sort(
+      (a, b) => (b.leftColumn as number) - (a.leftColumn as number),
+    );
+    const operations: SuggestedOperation[] = [];
+
+    for (const child of ordered) {
+      const name = nameOf(child);
+
+      if (!VALID_PATCH_NAME.test(name)) continue;
+
+      const left = Math.ceil((child.leftColumn as number) * scale);
+      const right = Math.floor((child.rightColumn as number) * scale);
+      const width = Math.max(1, Math.min(columns - left, right - left));
+
+      operations.push({
+        kind: "move",
+        name,
+        position: { topRow: child.topRow as number, leftColumn: left },
+      });
+      operations.push({ kind: "resize", name, columns: width });
+    }
+
+    this.warn(
+      "narrow-canvas",
+      `"${nameOf(parent)}" holds content laid out for a ${span}-column canvas by an earlier MCP version; it fills only ${span}/${columns} of the width (the client renders every canvas as ${columns} columns)`,
+      nameOf(parent),
+      suggestedFix(operations),
+    );
+  }
+
   private checkContainerHeight(container: WidgetNode): void {
     const inner = childCanvasOf(container);
 
@@ -248,14 +329,18 @@ class Linter {
     }
 
     const containerHeight = container.bottomRow - container.topRow;
+    // The inner extent is measured from the CHILDREN's row coordinates, never from the inner canvas's own
+    // bottomRow: the MCP compiler writes that value in rows, but the Appsmith client rewrites it in PIXELS
+    // (WidgetSizeUtils / ContainerWidget set the canvas bottomRow to componentHeight), so on any page the editor
+    // has saved a 45-row container carries a 450 inner bottomRow and a row-vs-row comparison reports a ×10 false
+    // clip with a ×10 resize suggestion. Children rows are unit-stable across both writers. A canvas with no
+    // children has nothing to clip.
+    const extent = Math.round(contentExtent(inner));
 
-    if (containerHeight < inner.bottomRow) {
+    if (extent > 0 && containerHeight < extent) {
       // Executable repair: resize the container to the rows that fit its content (B2 gives the vocabulary a
       // resize op, so this diagnostic is no longer a dead end).
-      const rows = Math.max(
-        Math.round(inner.bottomRow),
-        Math.round(contentExtent(inner)),
-      );
+      const rows = extent;
       const name = nameOf(container);
       // rows clamped to the resize schema's ceiling so the emitted suggestion always validates, even on a
       // corrupt DSL with absurd extents.
@@ -268,7 +353,7 @@ class Linter {
 
       this.warn(
         "container-clips",
-        `"${name}" is shorter than its content (height ${containerHeight} < inner extent ${inner.bottomRow}); inner widgets will be clipped`,
+        `"${name}" is shorter than its content (height ${containerHeight} < inner extent ${extent} rows); inner widgets will be clipped`,
         name,
         fix,
       );
@@ -315,7 +400,21 @@ class Linter {
 
         if (!head) continue;
 
-        const reference = head[1];
+        // After a JS operator word (`typeof X`, `await Q.run()`, `new Date()`), the name that follows is the
+        // reference to check (CodeRabbit on #42540).
+        let reference = head[1];
+        let rest = match[1].slice(head.index + head[0].length);
+
+        while (OPERATOR_WORDS.has(reference)) {
+          const next = BINDING_HEAD.exec(rest);
+
+          if (!next) break;
+
+          reference = next[1];
+          rest = rest.slice(next.index + next[0].length);
+        }
+
+        if (OPERATOR_WORDS.has(reference)) continue;
 
         // Only flag when we have a known-name set to check against (M4). `appsmith`/`moment`/JS globals and widget
         // names on this page (display bindings like `{{ Table1.selectedRow[...] }}`) are always valid heads.
@@ -501,9 +600,17 @@ class Linter {
   }
 }
 
+// JS words a binding can start with. The lint checks the name after them, not the word itself.
+const OPERATOR_WORDS: ReadonlySet<string> = new Set([
+  "new",
+  "typeof",
+  "void",
+  "await",
+]);
+
 // Binding heads that are always valid: JS/Appsmith globals and the platform action functions the compiler emits
 // (e.g. wire_event -> resetWidget/navigateTo/showAlert), so they aren't mistaken for dangling entity references.
-const GLOBAL_BINDING_HEADS = new Set([
+export const GLOBAL_BINDING_HEADS: ReadonlySet<string> = new Set([
   "appsmith",
   "moment",
   "Math",
@@ -515,6 +622,38 @@ const GLOBAL_BINDING_HEADS = new Set([
   "Boolean",
   "Date",
   "window",
+  // APP-16381: lodash, other evaluator globals, and JS words a binding can start with (`new Date(...)` is what
+  // the date functions compile to).
+  "_",
+  "Intl",
+  "Promise",
+  "parseInt",
+  "parseFloat",
+  "isNaN",
+  "Map",
+  "Set",
+  "RegExp",
+  "Error",
+  // The web APIs the evaluator supports (SUPPORTED_WEB_APIS in the client's src/plugins/Linting/constants.ts;
+  // lint-globals-drift.test.ts keeps the two in step).
+  "console",
+  "crypto",
+  "fetch",
+  "Blob",
+  "File",
+  "FileReader",
+  "FormData",
+  "URL",
+  "URLSearchParams",
+  "TextEncoder",
+  "TextDecoder",
+  "atob",
+  "btoa",
+  "this",
+  "true",
+  "false",
+  "null",
+  "undefined",
   // Platform action functions (compiler-emitted event bindings).
   "resetWidget",
   "navigateTo",

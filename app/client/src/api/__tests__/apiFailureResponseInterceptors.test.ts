@@ -1,5 +1,4 @@
-import axios from "axios";
-import type { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 
 import {
   apiFailureResponseInterceptor,
@@ -14,7 +13,18 @@ import {
   SERVER_API_TIMEOUT_ERROR,
 } from "ee/constants/messages";
 import { ERROR_CODES } from "ee/constants/ApiConstants";
-import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
+import {
+  extractExecutionErrorMessage,
+  UserCancelledActionExecutionError,
+} from "sagas/ActionExecution/errorUtils";
+
+const rejectionOf = async (request: Promise<unknown>) =>
+  request.then(
+    () => {
+      throw new Error("Expected the request to reject");
+    },
+    (error: unknown) => error,
+  );
 
 describe("Api success response interceptors", () => {
   beforeAll(() => {
@@ -22,6 +32,10 @@ describe("Api success response interceptors", () => {
       apiSuccessResponseInterceptor,
       apiFailureResponseInterceptor,
     );
+  });
+
+  afterEach(() => {
+    axios.defaults.adapter = undefined;
   });
 
   it("checks 413 error", async () => {
@@ -44,8 +58,6 @@ describe("Api success response interceptors", () => {
         (error as AxiosError<ApiResponse> & { statusCode?: string }).statusCode,
       ).toBe("AE-APP-4013");
     }
-
-    axios.defaults.adapter = undefined;
   });
 
   it("checks the response message when request is made when user is offline", async () => {
@@ -96,8 +108,6 @@ describe("Api success response interceptors", () => {
     } catch (error) {
       expect(error).toBeInstanceOf(UserCancelledActionExecutionError);
     }
-
-    axios.defaults.adapter = undefined;
   });
 
   it("checks the response message when request fails for exeuction action urls", async () => {
@@ -125,8 +135,40 @@ describe("Api success response interceptors", () => {
     const response = await axios.get(url);
 
     expect(response).toHaveProperty("clientMeta");
+  });
 
-    axios.defaults.adapter = undefined;
+  it("rejects with the original error when an execution action url times out without a response", async () => {
+    axios.defaults.adapter = async (config) => {
+      return Promise.reject(
+        new AxiosError(
+          "timeout of 1000ms exceeded",
+          AxiosError.ECONNABORTED,
+          config,
+        ),
+      );
+    };
+
+    const error = await rejectionOf(axios.post("/v1/actions/execute"));
+
+    expect(error).toBeInstanceOf(AxiosError);
+    expect(extractExecutionErrorMessage(error)).toBe(
+      "Action execution timed out. Try increasing the timeout in the action settings.",
+    );
+  });
+
+  it("rejects with the original error when an execution action url has a network error", async () => {
+    axios.defaults.adapter = async (config) => {
+      return Promise.reject(
+        new AxiosError("Network Error", AxiosError.ERR_NETWORK, config),
+      );
+    };
+
+    const error = await rejectionOf(axios.post("/v1/actions/execute"));
+
+    expect(error).toBeInstanceOf(AxiosError);
+    expect(extractExecutionErrorMessage(error)).toBe(
+      "Network error: could not reach the Appsmith server. Check your connection.",
+    );
   });
 
   it("checks the error response in case of timeout", async () => {
@@ -147,8 +189,6 @@ describe("Api success response interceptors", () => {
         ERROR_CODES.REQUEST_TIMEOUT,
       );
     }
-
-    axios.defaults.adapter = undefined;
   });
 
   it("checks the error response in case of server error", async () => {
@@ -170,8 +210,6 @@ describe("Api success response interceptors", () => {
         ERROR_CODES.SERVER_ERROR,
       );
     }
-
-    axios.defaults.adapter = undefined;
   });
 
   it("checks error response in case of unauthorized error", async () => {

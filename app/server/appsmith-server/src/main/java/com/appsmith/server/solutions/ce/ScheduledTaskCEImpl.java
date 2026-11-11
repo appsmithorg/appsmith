@@ -83,14 +83,16 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
      * and ready.
      */
     // Number of milliseconds between the start of each scheduled calls to this method.
-    @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 6 * 60 * 60 * 1000 /* six hours */)
+    @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 24 * 60 * 60 * 1000 /* a day */)
     @DistributedLock(
             key = "pingSchedule",
-            ttl = 5 * 60 * 60, // 5 hours
+            ttl = 23 * 60 * 60, // 23 hours
             shouldReleaseLock = false)
     @Observed(name = "pingSchedule")
     public void pingSchedule() {
-        if (commonConfig.getIsTelemetryDisabled()) {
+        // The ping is one call per organization. Appsmith Cloud is a single installation with one organization
+        // per customer, so running it there reports the same instance tens of thousands of times every run.
+        if (commonConfig.getIsTelemetryDisabled() || commonConfig.getIsCloudHosting()) {
             return;
         }
 

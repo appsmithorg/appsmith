@@ -56,6 +56,7 @@ export function AskAIButton(props: AskAIButtonProps) {
   return (
     <Tooltip content="Open AI Assistant" placement="top">
       <StyledButton
+        data-testid="t--ask-ai-button"
         kind="tertiary"
         onClick={props.onClick}
         size="sm"

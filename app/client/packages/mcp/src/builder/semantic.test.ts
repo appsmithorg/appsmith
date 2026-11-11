@@ -564,3 +564,242 @@ describe("DSL fingerprints", () => {
     expect(fingerprintDsl(first)).not.toBe(fingerprintDsl(changed));
   });
 });
+
+describe("projectSemanticPage — widget-property audit read-back", () => {
+  it("reads back the audit literals, including scalar lists and flat records, and hides bound or nested values", () => {
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t",
+          widgetName: "Banners",
+          type: "TABLE_WIDGET_V2",
+          multiRowSelection: true,
+          defaultSelectedRowIndices: [0, 2],
+          defaultSelectedRowIndex: "{{ Q.data.index }}",
+          defaultNewRow: { tone: "INFO", priority: 1 },
+          compactMode: "SHORT",
+          borderRadius: "0.375rem",
+          boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+          headerRowColor: "#f5f5f5",
+          primaryColumnId: "id",
+        }),
+        node({
+          widgetId: "f",
+          widgetName: "Upload",
+          type: "FILE_PICKER_WIDGET_V2",
+          allowedFileTypes: ["image/*", ".png"],
+          maxFileSize: 10,
+          fileDataType: "Base64",
+        }),
+        node({
+          widgetId: "ms",
+          widgetName: "Tags",
+          type: "MULTI_SELECT_WIDGET_V2",
+          labelText: "Tags",
+          defaultOptionValue: ["a", "b"],
+          labelStyle: "BOLD",
+        }),
+        node({
+          widgetId: "x",
+          widgetName: "Odd",
+          type: "TABLE_WIDGET_V2",
+          defaultSelectedRowIndices: [0, "{{ Q.data }}"],
+          defaultNewRow: { tone: { nested: true } },
+          allowedFileTypes: [{ label: "x" }],
+        }),
+        node({
+          widgetId: "y",
+          widgetName: "Keyed",
+          type: "TABLE_WIDGET_V2",
+          defaultNewRow: { "{{ Q.data }}": 1 },
+        }),
+      ],
+    });
+
+    const byName = (name: string) =>
+      projectSemanticPage(dsl).widgets.find((w) => w.name === name)!;
+
+    expect(byName("Banners").props).toMatchObject({
+      multiRowSelection: true,
+      defaultSelectedRowIndices: [0, 2],
+      defaultNewRow: { tone: "INFO", priority: 1 },
+      compactMode: "SHORT",
+      borderRadius: "0.375rem",
+      headerRowColor: "#f5f5f5",
+      primaryColumnId: "id",
+    });
+    // Bound values never surface as props (the binding reflection is separate and structured).
+    expect(byName("Banners").props).not.toHaveProperty(
+      "defaultSelectedRowIndex",
+    );
+    expect(byName("Banners").props).not.toHaveProperty("boxShadow");
+
+    expect(byName("Upload").props).toMatchObject({
+      allowedFileTypes: ["image/*", ".png"],
+      maxFileSize: 10,
+      fileDataType: "Base64",
+    });
+    expect(byName("Tags").props).toMatchObject({
+      labelText: "Tags",
+      defaultOptionValue: ["a", "b"],
+      labelStyle: "BOLD",
+    });
+
+    // A list with a bound element, a nested record, or a list of objects is hidden whole rather than partially shown.
+    expect(byName("Odd").props).toEqual({});
+    expect(JSON.stringify(byName("Odd"))).not.toContain("Q.data");
+    // A record whose KEY carries binding syntax is hidden whole.
+    expect(byName("Keyed").props).not.toHaveProperty("defaultNewRow");
+    expect(JSON.stringify(byName("Keyed"))).not.toContain("Q.data");
+  });
+});
+
+describe("projectSemanticPage — a null literal still reads back as null", () => {
+  it("reports null for a null-valued safe prop", () => {
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "s",
+          widgetName: "Tone",
+          type: "SELECT_WIDGET",
+          defaultOptionValue: null,
+          labelText: "Tone",
+        }),
+      ],
+    });
+
+    expect(projectSemanticPage(dsl).widgets[1].props).toEqual({
+      defaultOptionValue: null,
+      labelText: "Tone",
+    });
+  });
+});
+
+describe("projectSemanticPage — tabs in display order and the keyboard tabOrder", () => {
+  it("lists a Tabs widget's tab labels sorted by index, reports tabOrder, and omits tabs elsewhere", () => {
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      children: [
+        node({
+          widgetId: "t",
+          widgetName: "Views",
+          type: "TABS_WIDGET",
+          defaultTab: "Schedule",
+          tabsObj: {
+            a: {
+              id: "a",
+              label: "Schedule",
+              widgetId: "c1",
+              index: 1,
+              isVisible: true,
+            },
+            b: {
+              id: "b",
+              label: "Content",
+              widgetId: "c2",
+              index: 0,
+              isVisible: true,
+            },
+          },
+        }),
+        node({
+          widgetId: "i",
+          widgetName: "Email",
+          type: "INPUT_WIDGET_V2",
+          tabOrder: 2,
+        }),
+        node({
+          widgetId: "x",
+          widgetName: "Title",
+          type: "TEXT_WIDGET",
+          text: "Hi",
+        }),
+      ],
+    });
+    const byName = (name: string) =>
+      projectSemanticPage(dsl).widgets.find((w) => w.name === name)!;
+
+    expect(byName("Views").props).toEqual({
+      defaultTab: "Schedule",
+      tabs: ["Content", "Schedule"],
+    });
+    expect(byName("Email").props).toMatchObject({ tabOrder: 2 });
+    expect(byName("Title").props).not.toHaveProperty("tabs");
+  });
+});
+
+describe("projectSemanticPage — inner canvases are 64 columns, hidden tabs, numeric tabOrder", () => {
+  it("reports every inner canvas as the 64-column grid, keeps the root's geometry, and lists hidden tabs", () => {
+    const dsl = node({
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      rightColumn: 1242,
+      children: [
+        node({
+          widgetId: "c",
+          widgetName: "Card",
+          type: "CONTAINER_WIDGET",
+          rightColumn: 32,
+          children: [
+            node({
+              widgetId: "cc",
+              widgetName: "CardCanvas",
+              type: "CANVAS_WIDGET",
+              rightColumn: 456,
+              children: [],
+            }),
+          ],
+        }),
+        node({
+          widgetId: "t",
+          widgetName: "Views",
+          type: "TABS_WIDGET",
+          tabsObj: {
+            a: {
+              id: "a",
+              label: "Content",
+              widgetId: "c1",
+              index: 0,
+              isVisible: true,
+            },
+            b: {
+              id: "b",
+              label: "Secret",
+              widgetId: "c2",
+              index: 1,
+              isVisible: false,
+            },
+          },
+        }),
+        node({
+          widgetId: "i",
+          widgetName: "Email",
+          type: "INPUT_WIDGET_V2",
+          tabOrder: "3",
+        }),
+      ],
+    });
+    const byName = (name: string) =>
+      projectSemanticPage(dsl).widgets.find((w) => w.name === name)!;
+
+    expect(byName("MainContainer").geometry.rightColumn).toBe(1242);
+    expect(byName("CardCanvas").geometry).toMatchObject({
+      leftColumn: 0,
+      rightColumn: 64,
+    });
+    expect(byName("Views").props).toEqual({
+      tabs: ["Content", "Secret"],
+      tabsHidden: ["Secret"],
+    });
+    expect(byName("Email").props).toMatchObject({ tabOrder: 3 });
+  });
+});

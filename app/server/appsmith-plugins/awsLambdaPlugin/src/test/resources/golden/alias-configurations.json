@@ -1,0 +1,33 @@
+[
+  {
+    "aliasArn": "arn:aws:lambda:ap-south-1:123456789012:function:orders-api:PROD",
+    "name": "PROD",
+    "functionVersion": "2",
+    "description": "production",
+    "routingConfig": {
+      "additionalVersionWeights": {
+        "3": 0.1,
+        "4": 0.25
+      }
+    },
+    "revisionId": "rev-alias-1"
+  },
+  {
+    "aliasArn": null,
+    "name": "minimal-alias",
+    "functionVersion": null,
+    "description": null,
+    "routingConfig": null,
+    "revisionId": null
+  },
+  {
+    "aliasArn": null,
+    "name": "sparse-alias",
+    "functionVersion": null,
+    "description": null,
+    "routingConfig": {
+      "additionalVersionWeights": {}
+    },
+    "revisionId": null
+  }
+]

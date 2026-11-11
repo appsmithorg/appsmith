@@ -34,6 +34,7 @@ import {
   getDatasources,
   getDatasourcesGroupedByPluginCategory,
   getDatasourcesUsedInApplicationByActions,
+  getHiddenPluginIds,
   getEditorConfig,
   getEntityExplorerDatasources,
   getGenerateCRUDEnabledPluginMap,
@@ -381,8 +382,14 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
  * 2. If it is the only item, navigate to the add url
  * 3. If there are other items, navigate to an item close to the current one
  * **/
-function* handleDatasourceDeleteRedirect(deletedDatasourceId: string) {
-  const allDatasources: Datasource[] = yield select(getDatasources);
+export function* handleDatasourceDeleteRedirect(deletedDatasourceId: string) {
+  // Redirect only to datasources the user can see in the list, so skip those
+  // of hidden plugins (see isHiddenPlugin). This reads getDatasources and
+  // filters here, because EE's copy of this file also uses getDatasources.
+  const hiddenPluginIds: Set<string> = yield select(getHiddenPluginIds);
+  const allDatasources: Datasource[] = (
+    (yield select(getDatasources)) as Datasource[]
+  ).filter((datasource) => !hiddenPluginIds.has(datasource.pluginId));
 
   const currentSelectedEntity = identifyEntityFromPath(
     window.location.pathname,
@@ -422,7 +429,9 @@ function* handleDatasourceDeleteRedirect(deletedDatasourceId: string) {
     }
   }
 
-  const groupDatasources = groupedDatasources[deletedGroup];
+  // A hidden datasource (see isHiddenPlugin) is in no group, so the group can
+  // be missing.
+  const groupDatasources = groupedDatasources[deletedGroup] ?? [];
   const remainingGroupDatasources = groupDatasources.filter(
     (d) => d.id !== deletedDatasourceId,
   );
@@ -910,7 +919,6 @@ export function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     workspaceId = yield select(getWorkspaceIdForImport);
   }
 
-  const { initialValues } = yield select(getFormData, DATASOURCE_DB_FORM);
   const datasource = shouldBeDefined<Datasource>(
     yield select(getDatasource, actionPayload.payload.id),
     `Datasource not found for id - ${actionPayload.payload.id}`,
@@ -928,14 +936,9 @@ export function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   let payloadWithoutDatasourceId: DatasourceStorage =
     payload.datasourceStorages[currentEnvironment];
 
-  const initialDSStorage = initialValues.datasourceStorages[currentEnvironment];
-
   // when datasource is not yet saved by user, datasource id is temporary
   // for temporary datasource, we do not need to pass datasource id in test api call
-  if (
-    !equal(initialDSStorage, payloadWithoutDatasourceId) ||
-    payloadWithoutDatasourceId?.datasourceId === TEMP_DATASOURCE_ID
-  ) {
+  if (payloadWithoutDatasourceId?.datasourceId === TEMP_DATASOURCE_ID) {
     // we have to do this so that the original object is not mutated
     payloadWithoutDatasourceId = {
       ...payloadWithoutDatasourceId,

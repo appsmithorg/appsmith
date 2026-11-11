@@ -16,6 +16,8 @@ name: Merge gate
 #     failure / pending (fail-closed: skipped/neutral/absent => pending).
 # It owns internal PRs outright and recomputes the fork credential-free side;
 # the fork Cypress side is written by build-client-server.yml on `/approve-ci`.
+# An internal PR whose changed files are all docs-only (the list is in
+# merge-gate.js) is gated on `qc-result` alone; Cypress is not required.
 #
 # Security: it never checks out or runs PR code — it only checks out the base
 # repo for the shared script and calls the GitHub API — and runs from the

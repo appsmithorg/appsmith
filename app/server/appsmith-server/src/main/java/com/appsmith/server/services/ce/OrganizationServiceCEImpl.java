@@ -147,7 +147,7 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                     // Snapshot before the merge, since it rewrites oldConfig in place.
                     AIAssistantConfig previousAiCredentials =
                             AIConfigSecretsCE.snapshotCredentials(oldConfig.getAiAssistantConfig());
-                    AppsmithBeanUtils.copyNestedNonNullProperties(organizationConfiguration, oldConfig);
+                    mergeOrganizationConfiguration(organizationConfiguration, oldConfig);
                     AIConfigSecretsCE.unbindCredentialsWithChangedDestination(
                             previousAiCredentials, oldConfig.getAiAssistantConfig());
                     organization.setOrganizationConfiguration(oldConfig);
@@ -168,6 +168,19 @@ public class OrganizationServiceCEImpl extends BaseService<OrganizationRepositor
                             .then(mcpSecretMono)
                             .then(updatedOrganizationMono);
                 });
+    }
+
+    /**
+     * Merges an incoming configuration update into the stored configuration. It changes {@code existing} in place.
+     * The CE version copies every non-null property and recurses into nested objects, so a nested object is merged
+     * field by field. EE overrides this method to replace some nested objects as a whole.
+     *
+     * @param incoming the partial configuration sent by the client
+     * @param existing the stored configuration that receives the update
+     */
+    protected void mergeOrganizationConfiguration(
+            OrganizationConfiguration incoming, OrganizationConfiguration existing) {
+        AppsmithBeanUtils.copyNestedNonNullProperties(incoming, existing);
     }
 
     protected List<Mono<Boolean>> calculateOrganizationConfigurationUpdateSideEffects(

@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { WidgetNode } from "./layout.js";
+import { GRID_COLUMNS, tabEntriesOf, type WidgetNode } from "./layout.js";
 import { COMPUTED_NOW_FORMATS, type WidgetType } from "./schema.js";
 
 const CATALOG_TYPE_BY_APPSMITH_TYPE: Record<string, WidgetType> = {
@@ -42,16 +42,135 @@ const SAFE_PROP_KEYS = [
   // no reverse structured ref). safeScalar still hides any value carrying binding syntax.
   "regex",
   "errorMessage",
-  // M4-T5 widgets: the caption + inert default-state literals so checkbox/switch/radio/multiselect round-trip their
-  // label and default on read (all safe scalars; safeScalar still hides anything carrying binding syntax).
+  // Caption + inert default-state literals (labelText is the select/multiselect caption; the other form controls
+  // use label above). safeValue still hides anything carrying binding syntax.
   "labelText",
   "defaultCheckedState",
   "defaultSwitchState",
   "defaultOptionValue",
+  // Widget-property audit (APP-16052): every remaining property-pane literal patch_widgets can write, so the read
+  // and patch vocabularies agree. Lists (defaultSelectedRowIndices, allowedFileTypes, a multiselect default) and
+  // flat records (defaultNewRow) project only when every element is a safe scalar.
+  "defaultSelectedRowIndex",
+  "defaultSelectedRowIndices",
+  "multiRowSelection",
+  "primaryColumnId",
+  "serverSidePaginationEnabled",
+  "infiniteScrollEnabled",
+  "enableServerSideFiltering",
+  "defaultSearchText",
+  "allowAddNewRow",
+  "defaultNewRow",
+  "canFreezeColumn",
+  "delimiter",
+  "inlineEditingSaveOption",
+  "compactMode",
+  "textSize",
+  "horizontalAlignment",
+  "verticalAlignment",
+  "cellBackground",
+  "headerRowColor",
+  "headerTextColor",
+  "oddRowColor",
+  "evenRowColor",
+  "variant",
+  "isVisibleSearch",
+  "enableClientSideSearch",
+  "isVisibleFilters",
+  "isSortable",
+  "isVisibleDownload",
+  "isVisiblePagination",
+  "overflow",
+  "fontFamily",
+  "fontSize",
+  "textAlign",
+  "fontStyle",
+  "disableLink",
+  "textColor",
+  "backgroundColor",
+  "truncateButtonColor",
+  "borderColor",
+  "borderWidth",
+  "borderRadius",
+  "boxShadow",
+  "accentColor",
+  "buttonColor",
+  "animateLoading",
+  "labelPosition",
+  "labelAlignment",
+  "alignWidget",
+  "alignment",
+  "labelWidth",
+  "labelTooltip",
+  "tooltip",
+  "labelTextColor",
+  "labelTextSize",
+  "labelStyle",
+  "maxChars",
+  "minNum",
+  "maxNum",
+  "rtl",
+  "iconName",
+  "iconAlign",
+  "isSpellCheck",
+  "showStepArrows",
+  "autoFocus",
+  "shouldAllowAutofill",
+  "allowFormatting",
+  "resetOnSubmit",
+  "isFilterable",
+  "serverSideFiltering",
+  "allowSelectAll",
+  "buttonVariant",
+  "placement",
+  "disabledWhenInvalid",
+  "resetFormOnClick",
+  "defaultImage",
+  "objectFit",
+  "maxZoomLevel",
+  "enableRotation",
+  "enableDownload",
+  "shouldScrollContents",
+  "canOutsideClickClose",
+  "shouldShowTabs",
+  "defaultTab",
+  // Keyboard focus order (platform-level Accessibility > Tab order); absent means automatic order.
+  "tabOrder",
+  "itemSpacing",
+  "serverSidePagination",
+  "defaultSelectedItem",
+  "defaultDate",
+  "minDate",
+  "maxDate",
+  "firstDayOfWeek",
+  "timePrecision",
+  "shortcuts",
+  "closeOnSelection",
+  "seriesName",
+  "xAxisName",
+  "yAxisName",
+  "allowScroll",
+  "showDataPointLabel",
+  "setAdaptiveYMin",
+  "labelOrientation",
+  "isInline",
+  "allowedFileTypes",
+  "fileDataType",
+  "dynamicTyping",
+  "maxNumFiles",
+  "maxFileSize",
 ] as const;
 
 type SafeCommonProp = (typeof SAFE_PROP_KEYS)[number];
-type SafePropValue = string | number | boolean | null | SafeOption[];
+// Computed on read, never a node prop: a Tabs widget's tab labels in display order (from tabsObj indices, hidden
+// tabs included), so an agent can `reorderTabs` or pick a `defaultTab` that exists.
+type ComputedProp = "tabs" | "tabsHidden";
+type SafeScalar = string | number | boolean | null;
+type SafePropValue =
+  | SafeScalar
+  | SafeOption[]
+  | SafeScalar[]
+  | Record<string, SafeScalar>;
 
 export interface SafeOption {
   label: string;
@@ -74,8 +193,9 @@ export interface SemanticBindingRef {
   field?: string;
   // Present on a guarded table binding: the input whose emptiness clears the table.
   clearWhenEmpty?: string;
-  // Present on an isDisabled binding: the input whose invalidity disables this widget.
-  disableWhenInvalid?: string;
+  // Present on an isDisabled binding: the input (or, for the list form, the controls) whose invalidity disables
+  // this widget.
+  disableWhenInvalid?: string | string[];
   // Present on an isVisible binding: the control + value this widget's visibility is gated on — or the table
   // whose row selection, or the input whose non-emptiness, gates it.
   control?: string;
@@ -87,6 +207,26 @@ export interface SemanticBindingRef {
   count?: { query: string; field?: string };
 }
 
+// One column of a table (APP-16381), for patch_widgets updateColumn and wire_event `column`. The computed-value
+// binding is never returned. A label holding binding syntax is left out.
+export interface SemanticColumn {
+  id: string;
+  key?: string;
+  label?: string;
+  type?: string;
+  visible: boolean;
+  order: number;
+}
+
+// What a binding the projection cannot read back refers to (APP-16381): only names that match a widget on the page,
+// a query or a JS object of the application, and the fields of the signed-in user it reads. Never expression text.
+export interface SemanticBoundProp {
+  queries?: string[];
+  jsObjects?: string[];
+  widgets?: string[];
+  user?: string[];
+}
+
 export interface SemanticWidget {
   id: string;
   name: string;
@@ -94,8 +234,15 @@ export interface SemanticWidget {
   catalogType?: WidgetType;
   parentWidgetName?: string;
   geometry: SemanticGeometry;
-  props: Partial<Record<SafeCommonProp, SafePropValue>>;
+  props: Partial<Record<SafeCommonProp | ComputedProp, SafePropValue>>;
   bindings?: Record<string, SemanticBindingRef>;
+  columns?: SemanticColumn[];
+  boundProps?: Record<string, SemanticBoundProp>;
+}
+
+export interface SemanticNames {
+  queries?: readonly string[];
+  jsObjects?: readonly string[];
 }
 
 export interface SemanticPage {
@@ -142,15 +289,89 @@ function safeOptions(value: unknown): SafeOption[] | undefined {
   return options;
 }
 
+// A list of safe scalars (a table's default row indices, a file picker's allowed types, a multiselect default).
+function safeList(value: unknown): SafeScalar[] | undefined {
+  if (!Array.isArray(value) || value.length > 1_000) return undefined;
+
+  const list: SafeScalar[] = [];
+
+  for (const item of value) {
+    const safeItem = safeScalar(item);
+
+    if (safeItem === undefined) return undefined;
+
+    list.push(safeItem);
+  }
+
+  return list;
+}
+
+// A flat record of safe scalars (a table's defaultNewRow). Keys carrying binding syntax hide the whole record.
+function safeRecord(value: unknown): Record<string, SafeScalar> | undefined {
+  if (!isRecord(value)) return undefined;
+
+  const entries = Object.entries(value);
+
+  if (entries.length > 100) return undefined;
+
+  const record: Record<string, SafeScalar> = {};
+
+  for (const [key, item] of entries) {
+    const safeItem = safeScalar(item);
+
+    if (containsBindingSyntax(key) || safeItem === undefined) return undefined;
+
+    record[key] = safeItem;
+  }
+
+  return record;
+}
+
+function safeValue(
+  key: SafeCommonProp,
+  value: unknown,
+): SafePropValue | undefined {
+  if (key === "options") return safeOptions(value);
+
+  if (Array.isArray(value)) return safeList(value);
+
+  if (isRecord(value)) return safeRecord(value);
+
+  return safeScalar(value);
+}
+
 function safeProps(node: WidgetNode): SemanticWidget["props"] {
   const props: SemanticWidget["props"] = {};
 
   for (const key of SAFE_PROP_KEYS) {
-    const value = node[key];
-    const safeValue =
-      key === "options" ? safeOptions(value) : safeScalar(value);
+    const value = safeValue(key, node[key]);
 
-    if (safeValue !== undefined) props[key] = safeValue;
+    if (value !== undefined) props[key] = value;
+  }
+
+  if (node.type === "TABS_WIDGET") {
+    const entries = tabEntriesOf(node);
+    const tabs = safeList(entries.map((tab) => tab.label));
+
+    if (tabs !== undefined && tabs.length > 0) {
+      props.tabs = tabs;
+
+      // Hidden tabs are still part of the order (reorderTabs must list them) but the viewer never shows them.
+      const hidden = entries
+        .filter((tab) => tab.isVisible === false)
+        .map((tab) => tab.label);
+
+      if (hidden.length > 0) props.tabsHidden = hidden;
+    }
+  }
+
+  // The editor stores tabOrder as a number; a numeric string in a saved DSL is accepted by the client at runtime
+  // but would not round-trip through the patch schema, so it reads back as the number it means.
+  if (
+    typeof props.tabOrder === "string" &&
+    /^[1-9][0-9]*$/.test(props.tabOrder)
+  ) {
+    props.tabOrder = Number(props.tabOrder);
   }
 
   return props;
@@ -184,8 +405,10 @@ const QUERY_DATA_BINDING =
 // The guarded (clear-when-empty) variant: `{{ Input.text ? (Query.data?.field ?? []) : [] }}`.
 const GUARDED_QUERY_DATA_BINDING =
   /^\{\{ ([A-Za-z0-9_]+)\.text \? \(([A-Za-z0-9_]+)\.data(?:\?\.([A-Za-z0-9_.]+))? \?\? \[\]\) : \[\] \}\}$/;
-// The disable-when-invalid binding: `{{ !Input.isValid }}`.
+// The disable-when-invalid binding: `{{ !Input.isValid }}`, or a list `{{ !A.isValid || !B.isValid }}`.
 const DISABLE_WHEN_INVALID_BINDING = /^\{\{ !([A-Za-z0-9_]+)\.isValid \}\}$/;
+const DISABLE_WHEN_INVALID_LIST_BINDING =
+  /^\{\{ ![A-Za-z0-9_]+\.isValid(?: \|\| ![A-Za-z0-9_]+\.isValid){1,9} \}\}$/;
 // The visible-when binding: `{{ Control.selectedOptionValue === 'value' }}` / `{{ Control.selectedTab === 'value' }}`.
 const VISIBLE_WHEN_BINDING =
   /^\{\{ ([A-Za-z0-9_]+)\.(?:selectedOptionValue|selectedTab) === '([A-Za-z0-9_ .-]+)' \}\}$/;
@@ -265,7 +488,15 @@ function safeBindings(
   if (typeof node.isDisabled === "string") {
     const match = DISABLE_WHEN_INVALID_BINDING.exec(node.isDisabled);
 
-    if (match) bindings.isDisabled = { disableWhenInvalid: match[1] };
+    if (match) {
+      bindings.isDisabled = { disableWhenInvalid: match[1] };
+    } else if (DISABLE_WHEN_INVALID_LIST_BINDING.test(node.isDisabled)) {
+      bindings.isDisabled = {
+        disableWhenInvalid: [
+          ...node.isDisabled.matchAll(/!([A-Za-z0-9_]+)\.isValid/g),
+        ].map((m) => m[1]),
+      };
+    }
   }
 
   if (typeof node.isVisible === "string") {
@@ -285,7 +516,19 @@ function safeBindings(
   return Object.keys(bindings).length > 0 ? bindings : undefined;
 }
 
-function semanticGeometry(node: WidgetNode): SemanticGeometry {
+function semanticGeometry(node: WidgetNode, isRoot: boolean): SemanticGeometry {
+  // An inner canvas's stored rightColumn is the pixel width the client last rendered (or a stale span from an
+  // earlier MCP build), never the grid its children use: every canvas is 64 columns wide to its children, so that
+  // is what an agent should see and lay out against. The page root keeps its stored geometry.
+  if (node.type === "CANVAS_WIDGET" && !isRoot) {
+    return {
+      topRow: node.topRow,
+      bottomRow: node.bottomRow,
+      leftColumn: 0,
+      rightColumn: GRID_COLUMNS,
+    };
+  }
+
   return {
     topRow: node.topRow,
     bottomRow: node.bottomRow,
@@ -294,14 +537,160 @@ function semanticGeometry(node: WidgetNode): SemanticGeometry {
   };
 }
 
+const MAX_COLUMNS = 200;
+
+// A table's columns in display order (columnOrder first, then any others by index).
+function semanticColumns(node: WidgetNode): SemanticColumn[] | undefined {
+  if (node.type !== "TABLE_WIDGET_V2" || !isRecord(node.primaryColumns)) {
+    return undefined;
+  }
+
+  const columns = node.primaryColumns;
+  const ids = new Set(
+    Object.keys(columns)
+      .slice(0, MAX_COLUMNS * 5)
+      .filter(
+        (id) => /^[A-Za-z0-9_]{1,100}$/.test(id) && isRecord(columns[id]),
+      ),
+  );
+  const order = [
+    ...new Set(
+      Array.isArray(node.columnOrder)
+        ? (node.columnOrder as unknown[]).filter(
+            (id): id is string => typeof id === "string" && ids.has(id),
+          )
+        : [],
+    ),
+  ];
+  const ordered = new Set(order);
+  const rest = [...ids]
+    .filter((id) => !ordered.has(id))
+    .sort(
+      (a, b) =>
+        Number((columns[a] as Record<string, unknown>).index ?? 0) -
+        Number((columns[b] as Record<string, unknown>).index ?? 0),
+    );
+
+  return [...order, ...rest].slice(0, MAX_COLUMNS).map((id, index) => {
+    const column = columns[id] as Record<string, unknown>;
+    const key = safeScalar(column.originalId);
+    const label = safeScalar(column.label);
+    const type = safeScalar(column.columnType);
+
+    return {
+      id,
+      ...(typeof key === "string" ? { key } : {}),
+      ...(typeof label === "string" ? { label } : {}),
+      ...(typeof type === "string" ? { type } : {}),
+      visible: column.isVisible !== false,
+      order: index,
+    };
+  });
+}
+
+const MAX_SUMMARY_SCAN = 20_000;
+const MAX_SUMMARY_PROPS = 100;
+const SUMMARY_PROP_KEY = /^[A-Za-z_][A-Za-z0-9_]{0,63}$/;
+const USER_FIELD_READ =
+  /appsmith\.user\.(name|email|username)(?![A-Za-z0-9_$])/g;
+const NAME_READ =
+  /(?:^|[^A-Za-z0-9_.$])([A-Za-z_$][A-Za-z0-9_$]{0,63})(?=\s*[.([])/g;
+
+// For each top-level prop holding a binding that `bindings` does not describe: the known names it refers to.
+function boundPropSummary(
+  node: WidgetNode,
+  described: Record<string, SemanticBindingRef> | undefined,
+  widgetNames: ReadonlySet<string>,
+  queries: ReadonlySet<string>,
+  jsObjects: ReadonlySet<string>,
+): Record<string, SemanticBoundProp> | undefined {
+  const summary: Record<string, SemanticBoundProp> = Object.create(null);
+  let count = 0;
+
+  for (const [key, value] of Object.entries(node)) {
+    if (count >= MAX_SUMMARY_PROPS) break;
+
+    if (
+      typeof value !== "string" ||
+      !value.includes("{{") ||
+      !SUMMARY_PROP_KEY.test(key) ||
+      key === "children" ||
+      described?.[key] !== undefined
+    ) {
+      continue;
+    }
+
+    const text = value.slice(0, MAX_SUMMARY_SCAN);
+    const found: Record<keyof SemanticBoundProp, Set<string>> = {
+      queries: new Set(),
+      jsObjects: new Set(),
+      widgets: new Set(),
+      user: new Set(),
+    };
+
+    for (const match of text.matchAll(NAME_READ)) {
+      const name = match[1];
+
+      if (queries.has(name)) found.queries.add(name);
+      else if (jsObjects.has(name)) found.jsObjects.add(name);
+      else if (widgetNames.has(name) && name !== node.widgetName) {
+        found.widgets.add(name);
+      }
+    }
+
+    for (const match of text.matchAll(USER_FIELD_READ)) {
+      found.user.add(match[1]);
+    }
+
+    const entry: SemanticBoundProp = {};
+
+    for (const field of ["queries", "jsObjects", "widgets", "user"] as const) {
+      if (found[field].size > 0) entry[field] = [...found[field]].sort();
+    }
+
+    summary[key] = entry;
+    count += 1;
+  }
+
+  return count > 0 ? { ...summary } : undefined;
+}
+
+function widgetNamesOf(dsl: WidgetNode): Set<string> {
+  const names = new Set<string>();
+  const stack = [dsl];
+
+  while (stack.length > 0) {
+    const node = stack.pop() as WidgetNode;
+
+    names.add(node.widgetName);
+    stack.push(...(node.children ?? []));
+  }
+
+  return names;
+}
+
 // Produces a compact, flattened view of a page DSL. It intentionally excludes bindings, events, and every prop
 // outside SAFE_PROP_KEYS, so it can be supplied to an agent without revealing arbitrary page configuration.
-export function projectSemanticPage(dsl: WidgetNode): SemanticPage {
+export function projectSemanticPage(
+  dsl: WidgetNode,
+  names: SemanticNames = {},
+): SemanticPage {
   const widgets: SemanticWidget[] = [];
+  const widgetNames = widgetNamesOf(dsl);
+  const queries = new Set(names.queries ?? []);
+  const jsObjects = new Set(names.jsObjects ?? []);
 
   function visit(node: WidgetNode, parentWidgetName?: string): void {
     const catalogType = CATALOG_TYPE_BY_APPSMITH_TYPE[node.type];
     const bindings = safeBindings(node);
+    const columns = semanticColumns(node);
+    const boundProps = boundPropSummary(
+      node,
+      bindings,
+      widgetNames,
+      queries,
+      jsObjects,
+    );
 
     widgets.push({
       id: node.widgetId,
@@ -309,9 +698,11 @@ export function projectSemanticPage(dsl: WidgetNode): SemanticPage {
       appsmithType: node.type,
       ...(catalogType !== undefined ? { catalogType } : {}),
       ...(parentWidgetName !== undefined ? { parentWidgetName } : {}),
-      geometry: semanticGeometry(node),
+      geometry: semanticGeometry(node, parentWidgetName === undefined),
       props: safeProps(node),
       ...(bindings !== undefined ? { bindings } : {}),
+      ...(columns !== undefined ? { columns } : {}),
+      ...(boundProps !== undefined ? { boundProps } : {}),
     });
 
     for (const child of node.children ?? []) visit(child, node.widgetName);

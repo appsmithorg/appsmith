@@ -1,8 +1,12 @@
 package com.external.utils;
 
-import com.amazonaws.AmazonServiceException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.AppsmithPluginErrorUtils;
+import software.amazon.awssdk.awscore.exception.AwsErrorDetails;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.http.SdkHttpResponse;
+
+import java.util.Optional;
 
 public class AmazonS3ErrorUtils extends AppsmithPluginErrorUtils {
 
@@ -54,22 +58,36 @@ public class AmazonS3ErrorUtils extends AppsmithPluginErrorUtils {
             externalError = error;
         }
 
-        if (externalError instanceof AmazonServiceException) {
-            AmazonServiceException amazonServiceException = (AmazonServiceException) externalError;
+        if (externalError instanceof AwsServiceException awsServiceException) {
             /**
-             * parsing the unreadable AmazonServiceException error messages into readable
+             * parsing the unreadable AwsServiceException error messages into readable
              *
              * Sample external error message:
              * The specified access point name or account is not valid.
              * Sample external error code:
              * InvalidAccessPoint
              * Return string: InvalidAccessPoint: The specified access point name or account is not valid.
+             *
+             * A response without an S3 error document, such as an empty or HTML body, carries neither; the HTTP
+             * status takes their place, e.g. "403 Forbidden: Forbidden".
              */
-            return amazonServiceException.getErrorCode() + ": " + amazonServiceException.getErrorMessage();
+            AwsErrorDetails details = awsServiceException.awsErrorDetails();
+            String errorCode = details == null ? null : details.errorCode();
+            String errorMessage = details == null ? awsServiceException.getMessage() : details.errorMessage();
+            if (errorCode == null && errorMessage == null) {
+                Optional<String> statusText = Optional.ofNullable(details)
+                        .map(AwsErrorDetails::sdkHttpResponse)
+                        .flatMap(SdkHttpResponse::statusText);
+                errorCode = statusText
+                        .map(text -> awsServiceException.statusCode() + " " + text)
+                        .orElse(String.valueOf(awsServiceException.statusCode()));
+                errorMessage = statusText.orElse(awsServiceException.getMessage());
+            }
+            return errorCode + ": " + errorMessage;
         }
 
         /**
-         * Base case when the error is not an instance of AmazonServiceException or of its subclasses.
+         * Base case when the error is not an instance of AwsServiceException or of its subclasses.
          * Sample external error message:
          * An unescaped quote was found while parsing the CSV file. To allow quoted record delimiters, set AllowQuotedRecordDelimiter to 'TRUE'.
          * Return String

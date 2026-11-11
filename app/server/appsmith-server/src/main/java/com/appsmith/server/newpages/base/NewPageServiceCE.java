@@ -12,6 +12,7 @@ import com.appsmith.server.services.CrudService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -35,9 +36,25 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<PageDTO> saveUnpublishedPage(PageDTO page);
 
+    /**
+     * Saves the unpublished page only if the stored page's `updatedAt` still equals {@code expectedUpdatedAt}.
+     *
+     * <ul>
+     *   <li>Written: emits the page as written, with the new `updatedAt`.
+     *   <li>Page missing or no edit permission: fails with {@code ACL_NO_RESOURCE_FOUND}.
+     *   <li>Page changed since {@code expectedUpdatedAt}: fails with {@code STALE_LAYOUT_UPDATE}.
+     * </ul>
+     */
+    Mono<NewPage> saveUnpublishedPageIfUnchanged(PageDTO page, Instant expectedUpdatedAt);
+
     Mono<PageDTO> createDefault(PageDTO object);
 
     Mono<PageDTO> findByIdAndLayoutsId(String pageId, String layoutId, AclPermission aclPermission, Boolean view);
+
+    // Same lookup as findByIdAndLayoutsId, but emits the stored NewPage so the caller can read fields such as
+    // `updatedAt` that the PageDTO does not carry.
+    Mono<NewPage> findNewPageByIdAndLayoutsId(
+            String pageId, String layoutId, AclPermission aclPermission, Boolean view);
 
     Mono<PageDTO> findByNameAndViewMode(String name, AclPermission permission, Boolean view);
 

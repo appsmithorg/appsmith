@@ -107,6 +107,10 @@ export const PartialExportModal = () => {
             onEntityChecked={(id, selected) =>
               onEntitySelected("jsObjects", id, selected)
             }
+            onSelectAll={(ids, selected) =>
+              onAllEntitiesSelected("jsObjects", ids, selected)
+            }
+            selectAllTestId="t--partial-export-modal-jsObjects-select-all"
             selectedIds={selectedParams.jsObjects}
           />
         ) : null,
@@ -130,6 +134,10 @@ export const PartialExportModal = () => {
               onEntityChecked={(id, selected) =>
                 onEntitySelected("datasources", id, selected)
               }
+              onSelectAll={(ids, selected) =>
+                onAllEntitiesSelected("datasources", ids, selected)
+              }
+              selectAllTestId="t--partial-export-modal-datasources-select-all"
               selectedIds={selectedParams.datasources}
             />
           ) : null,
@@ -175,6 +183,10 @@ export const PartialExportModal = () => {
               onEntityChecked={(id, selected) =>
                 onEntitySelected("customJSLibs", id, selected)
               }
+              onSelectAll={(ids, selected) =>
+                onAllEntitiesSelected("customJSLibs", ids, selected)
+              }
+              selectAllTestId="t--partial-export-modal-customJSLibs-select-all"
               selectedIds={selectedParams.customJSLibs}
             />
           ) : null,
@@ -241,6 +253,17 @@ export const PartialExportModal = () => {
 
       return toUpdate;
     });
+  };
+
+  const onAllEntitiesSelected = (
+    keyToUpdate: keyof PartialExportParams,
+    ids: string[],
+    selected: boolean,
+  ) => {
+    setSelectedParams((prev) => ({
+      ...prev,
+      [keyToUpdate]: selected ? ids : [],
+    }));
   };
 
   const selectOnlyParentIds = (

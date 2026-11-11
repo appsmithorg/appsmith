@@ -6,6 +6,20 @@ alwaysApply: true
 
 # Agent Behavior
 
+## Writing style
+Follow ISO 24495-1 (plain language).
+
+- Use simple words. Keep standard technical terms.
+- Write short sentences. Do not force one sentence length.
+- Drop a repeated subject or explanation when the meaning stays clear.
+- Use active voice when it is clearer.
+- Keep exact names for APIs, types, states, and system behavior.
+- Keep a detail only when it helps the reader do the task.
+- Use one term for one concept.
+- State the condition and the outcome. Keep exceptions, failures, and dependencies.
+- Use a heading, list, table, or example when it makes the page easier to scan.
+- Write for the reader and the task. Explain an unfamiliar concept. Leave an established concept unexplained.
+
 ## Workflow Orchestration
 ### 1. Plan Node Default
 - Enter plan mode for ANY non-trivial task (3+ steps or architectural decisions)

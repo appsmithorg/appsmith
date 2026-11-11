@@ -467,6 +467,7 @@ export function GlobalAISidePanel() {
 
         <InputSection>
           <PromptInput
+            data-testid="t--ai-assistant-prompt"
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="What would you like help with? (Cmd+Enter to send)"
@@ -477,6 +478,7 @@ export function GlobalAISidePanel() {
               {prompt.length > 0 && `${prompt.length} chars`}
             </Text>
             <SendButton
+              data-testid="t--ai-assistant-send"
               isDisabled={!prompt.trim()}
               isLoading={isLoading}
               kind="primary"

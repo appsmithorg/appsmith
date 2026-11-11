@@ -1,7 +1,11 @@
 package com.external.plugins;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.SmartSubstitutionHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -9,11 +13,16 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.MustacheBindingToken;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.exceptions.ElasticSearchErrorMessages;
 import com.external.plugins.exceptions.ElasticSearchPluginError;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -64,7 +73,7 @@ public class ElasticSearchPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class ElasticSearchPluginExecutor implements PluginExecutor<RestClient> {
+    public static class ElasticSearchPluginExecutor implements PluginExecutor<RestClient>, SmartSubstitutionInterface {
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
@@ -73,6 +82,145 @@ public class ElasticSearchPlugin extends BasePlugin {
 
         private static final Pattern patternForNotFound =
                 Pattern.compile(".*not.?found|refused|not.?known|timed?\\s?out.*", Pattern.CASE_INSENSITIVE);
+
+        private static final Pattern SAFE_PATH_VALUE = Pattern.compile("[A-Za-z0-9._~-]+");
+
+        @Override
+        public Mono<ActionExecutionResult> executeParameterized(
+                RestClient client,
+                ExecuteActionDTO executeActionDTO,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration) {
+            String body = actionConfiguration.getBody();
+            String path = actionConfiguration.getPath();
+            try {
+                if (body != null) {
+                    List<MustacheBindingToken> bodyBindings = MustacheHelper.extractMustacheKeysInOrder(body);
+                    if (!bodyBindings.isEmpty()) {
+                        String preparedBody = MustacheHelper.replaceMustacheWithPlaceholder(body, bodyBindings);
+                        body = (String) smartSubstitutionOfBindings(
+                                preparedBody, bodyBindings, params(executeActionDTO), new ArrayList<>());
+                        validateBody(body, isNdjsonQuery(path), isBulkQuery(path));
+                    }
+                }
+                if (path != null) {
+                    path = bindPath(path, params(executeActionDTO));
+                }
+
+            } catch (AppsmithPluginException | IllegalArgumentException | IOException e) {
+                ActionExecutionResult result = new ActionExecutionResult();
+                result.setIsExecutionSuccess(false);
+                result.setErrorInfo(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        ElasticSearchErrorMessages.INVALID_BINDING_ERROR_MSG));
+                return Mono.just(result);
+            }
+
+            // Generic substitution handles other fields without re-evaluating the request body or path.
+            actionConfiguration.setBody(null);
+            actionConfiguration.setPath(null);
+            try {
+                prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+            } finally {
+                actionConfiguration.setBody(body);
+                actionConfiguration.setPath(path);
+            }
+            return execute(client, datasourceConfiguration, actionConfiguration);
+        }
+
+        @Override
+        public Object substituteValueInInput(
+                int index,
+                String binding,
+                String value,
+                Object input,
+                List<Map.Entry<String, String>> insertedParams,
+                Object... args) {
+            if (value == null || value.contains(SmartSubstitutionHelper.APPSMITH_SUBSTITUTION_PLACEHOLDER)) {
+                throw new IllegalArgumentException();
+            }
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(
+                    (String) input, value, null, insertedParams, null, (Param) args[0]);
+        }
+
+        private static List<Param> params(ExecuteActionDTO executeActionDTO) {
+            return executeActionDTO == null || executeActionDTO.getParams() == null
+                    ? List.of()
+                    : executeActionDTO.getParams();
+        }
+
+        private static String bindPath(String template, List<Param> params) {
+            StringBuilder boundPath = new StringBuilder();
+            boolean hasBinding = false;
+            for (MustacheBindingToken token : MustacheHelper.tokenize(template)) {
+                if (!token.getIncludesHandleBars()) {
+                    boundPath.append(token.getValue());
+                    continue;
+                }
+                hasBinding = true;
+                String key = token.getValue()
+                        .substring(2, token.getValue().length() - 2)
+                        .trim();
+                Param matchingParam = params.stream()
+                        .filter(param -> param != null
+                                && param.getKey() != null
+                                && param.getKey().trim().equals(key))
+                        .findFirst()
+                        .orElse(null);
+                String value = matchingParam == null ? null : matchingParam.getValue();
+                if (value == null || !SAFE_PATH_VALUE.matcher(value).matches()) {
+                    throw new IllegalArgumentException();
+                }
+                boundPath.append(value);
+            }
+
+            if (hasBinding) {
+                String path = boundPath.toString().split("\\?", 2)[0];
+                for (String segment : path.split("/", -1)) {
+                    if (segment.equals(".") || segment.equals("..")) {
+                        throw new IllegalArgumentException();
+                    }
+                }
+                // Evaluated segments must not select Elasticsearch's reserved API names.
+                String[] templateSegments = template.split("\\?", 2)[0].split("/", -1);
+                String[] boundSegments = path.split("/", -1);
+                if (templateSegments.length != boundSegments.length) {
+                    throw new IllegalArgumentException();
+                }
+                for (int i = 0; i < templateSegments.length; i++) {
+                    if (templateSegments[i].contains("{{") && boundSegments[i].startsWith("_")) {
+                        throw new IllegalArgumentException();
+                    }
+                }
+            }
+            return boundPath.toString();
+        }
+
+        private static void validateBody(String body, boolean ndjson, boolean bulk) throws IOException {
+            if (ndjson && !(bulk && body.trim().startsWith("["))) {
+                boolean foundDocument = false;
+                for (String line : body.split("\\R", -1)) {
+                    if (!line.isBlank()) {
+                        validateJsonDocument(line);
+                        foundDocument = true;
+                    }
+                }
+                if (!foundDocument) {
+                    throw new IllegalArgumentException();
+                }
+            } else {
+                validateJsonDocument(body);
+            }
+        }
+
+        private static void validateJsonDocument(String body) throws IOException {
+            try (JsonParser parser = objectMapper.createParser(body)) {
+                JsonNode value = objectMapper.readTree(parser);
+                if (value == null || parser.nextToken() != null) {
+                    throw new IllegalArgumentException();
+                }
+            }
+        }
 
         @Override
         public Mono<ActionExecutionResult> execute(
@@ -106,9 +254,13 @@ public class ElasticSearchPlugin extends BasePlugin {
                         final Request request = new Request(httpMethod.toString(), path);
                         ContentType contentType = ContentType.APPLICATION_JSON;
 
-                        if (isBulkQuery(path)) {
+                        boolean bulkQuery = isBulkQuery(path);
+                        boolean ndjsonQuery = bulkQuery || isMultiSearchQuery(path);
+                        if (ndjsonQuery) {
                             contentType = ContentType.create("application/x-ndjson");
+                        }
 
+                        if (bulkQuery) {
                             // If body is a JSON Array, convert it to an ND-JSON string.
                             if (body != null && body.trim().startsWith("[")) {
                                 final StringBuilder ndJsonBuilder = new StringBuilder();
@@ -129,6 +281,10 @@ public class ElasticSearchPlugin extends BasePlugin {
                                 }
                                 body = ndJsonBuilder.toString();
                             }
+                        }
+
+                        if (ndjsonQuery && body != null && !body.isEmpty() && !body.endsWith("\n")) {
+                            body += "\n";
                         }
 
                         if (body != null) {
@@ -183,7 +339,19 @@ public class ElasticSearchPlugin extends BasePlugin {
         }
 
         private static boolean isBulkQuery(String path) {
-            return path.split("\\?", 1)[0].matches(".*\\b_bulk$");
+            return path != null && path.split("\\?", 2)[0].matches(".*\\b_bulk$");
+        }
+
+        private static boolean isMultiSearchQuery(String path) {
+            if (path == null) {
+                return false;
+            }
+            String requestPath = path.split("\\?", 2)[0];
+            return requestPath.endsWith("/_msearch") || requestPath.endsWith("/_msearch/template");
+        }
+
+        private static boolean isNdjsonQuery(String path) {
+            return isBulkQuery(path) || isMultiSearchQuery(path);
         }
 
         public Long getPort(Endpoint endpoint) {

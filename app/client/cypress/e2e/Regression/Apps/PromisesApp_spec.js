@@ -62,7 +62,6 @@ describe(
         },
       );
       PageLeftPane.switchSegment(PagePaneSegment.UI);
-      cy.wait("@getConsolidatedData");
       // verify text in the text widget
 
       agHelper.AssertContains(

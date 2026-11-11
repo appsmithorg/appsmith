@@ -18,6 +18,8 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 export interface RowColorStyles {
   headerRowColor?: string;
   headerTextColor?: string;
+  headerFontWeight?: string | number;
+  headerFontStyle?: string;
   oddRowColor?: string;
   evenRowColor?: string;
 }

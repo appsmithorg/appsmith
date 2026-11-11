@@ -63,10 +63,15 @@ export class LibraryInstaller {
   }
 
   public uninstallLibrary(libraryName: string) {
-    cy.get(this.getLibraryLocatorInExplorer(libraryName))
+    // The uninstall button is hidden by CSS unless the library row is hovered,
+    // and Cypress does not repeat the hover while it retries the click. Force
+    // the click so a hover that did not hold cannot stall it. Callers assert
+    // the result of the uninstall.
+    return cy
+      .get(this.getLibraryLocatorInExplorer(libraryName))
       .realHover()
       .find(".t--uninstall-library")
-      .click();
+      .click({ force: true });
   }
 
   public assertUnInstall(libraryName: string) {

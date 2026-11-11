@@ -52,6 +52,14 @@ const BackToAppsButton = (props: BackToAppsButtonProps) => {
     return null;
   }
 
+  // Hide only when explicitly false — unset means show (legacy apps).
+  if (
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.showAllApps === false
+  ) {
+    return null;
+  }
+
   const handleNavigation = () => {
     const applicationsUrl = currentWorkspaceId
       ? `${APPLICATIONS_URL}?workspaceId=${currentWorkspaceId}`

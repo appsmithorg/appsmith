@@ -13,6 +13,7 @@ import lombok.experimental.FieldNameConstants;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.annotation.Transient;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,14 @@ import java.util.Map;
 @Data
 @FieldNameConstants
 public class OrganizationConfigurationCE implements Serializable {
+
+    // The organization is cached in Redis with Java serialization. Without a fixed value, Java
+    // computes one from the fields and methods, so adding a field makes every cached organization
+    // unreadable after an upgrade or a rollback. This is the value Java computed for this class on
+    // release 126c94321b. Do not change it. While it stays the same, adding or removing fields stays compatible.
+    // Changing a field's type does not.
+    @Serial
+    private static final long serialVersionUID = -1093613682409951944L;
 
     @Transient
     @Deprecated(forRemoval = true, since = "v1.65")
@@ -132,10 +141,11 @@ public class OrganizationConfigurationCE implements Serializable {
      * Strips fields that should not be visible to unauthenticated (anonymous) users.
      * Only fields required for the login/signup page are preserved (branding, auth method flags,
      * instance name, form login state, third-party auth list).
+     * {@code googleMapsKey} is intentionally NOT stripped: public (anonymous) apps need it to
+     * render the Map widget, consistent with other runtime fields such as branding.
      * EE subclass overrides this to strip additional EE-specific fields.
      */
     public void stripFieldsForAnonymousUser() {
-        this.googleMapsKey = null;
         this.isSignupDisabled = null;
         this.emailVerificationEnabled = null;
         this.mcpConfig = null;

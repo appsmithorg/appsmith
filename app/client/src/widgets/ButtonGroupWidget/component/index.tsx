@@ -8,6 +8,7 @@ import {
   Menu,
   MenuItem,
   Classes as CoreClass,
+  Position,
   Spinner,
 } from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
@@ -33,6 +34,7 @@ import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { buttonHoverActiveStyles } from "../../ButtonWidget/component/utils";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 import type { ThemeProp } from "WidgetProvider/types";
+import Interweave from "interweave";
 
 // Utility functions
 interface ButtonData {
@@ -105,8 +107,12 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
   }
 `;
 
-const MenuButtonWrapper = styled.div<{ renderMode: RenderMode }>`
-  flex: 1 1 auto;
+const MenuButtonWrapper = styled.div<{
+  renderMode: RenderMode;
+  $fillParent?: boolean;
+}>`
+  ${({ $fillParent }) =>
+    $fillParent ? "width: 100%; height: 100%;" : "flex: 1 1 auto;"};
   cursor: pointer;
   position: relative;
 
@@ -119,6 +125,33 @@ const MenuButtonWrapper = styled.div<{ renderMode: RenderMode }>`
 
   & > .${Classes.POPOVER2_TARGET} {
     height: 100%;
+  }
+`;
+
+const ToolTipWrapper = styled.div`
+  flex: 1 1 auto;
+  height: 100%;
+
+  && .${Classes.POPOVER2_TARGET} {
+    height: 100%;
+    width: 100%;
+
+    /* Fill for both canvas DragContainer (div) and published-mode bare button */
+    & > * {
+      width: 100%;
+      height: 100%;
+    }
+  }
+`;
+
+const TooltipStyles = createGlobalStyle`
+  .btnGroupTooltipContainer {
+    .${Classes.POPOVER2_CONTENT} {
+      max-width: 350px;
+      overflow-wrap: anywhere;
+      padding: 10px 12px;
+      border-radius: 0px;
+    }
   }
 `;
 
@@ -402,8 +435,89 @@ class ButtonGroupComponent extends React.Component<
       itemRefs: {},
       itemWidths: {},
       loadedBtnId: "",
+      openMenuBtnId: "",
+      openTooltipBtnId: "",
+      // After a menu closes, block tooltip reopen until a fresh mouseEnter.
+      suppressTooltipBtnId: "",
     };
   }
+
+  wrapWithTooltip = (
+    content: React.ReactNode,
+    buttonId: string,
+    tooltip?: string,
+  ) => {
+    if (!tooltip) {
+      return content;
+    }
+
+    const isMenuOpen = this.state.openMenuBtnId === buttonId;
+    const isTooltipOpen =
+      this.state.openTooltipBtnId === buttonId && !isMenuOpen;
+
+    return (
+      <ToolTipWrapper
+        onMouseEnter={() => {
+          // Lift post-menu suppress so the next onInteraction can open.
+          this.setState((prevState) =>
+            prevState.suppressTooltipBtnId === buttonId
+              ? { suppressTooltipBtnId: "" }
+              : null,
+          );
+        }}
+        onMouseLeave={() => {
+          this.setState((prevState) => {
+            const clearTooltip = prevState.openTooltipBtnId === buttonId;
+            const clearSuppress = prevState.suppressTooltipBtnId === buttonId;
+
+            if (!clearTooltip && !clearSuppress) {
+              return null;
+            }
+
+            return {
+              openTooltipBtnId: clearTooltip ? "" : prevState.openTooltipBtnId,
+              suppressTooltipBtnId: clearSuppress
+                ? ""
+                : prevState.suppressTooltipBtnId,
+            };
+          });
+        }}
+      >
+        <Popover2
+          autoFocus={false}
+          content={<Interweave content={tooltip} />}
+          hoverOpenDelay={200}
+          interactionKind="hover"
+          isOpen={isTooltipOpen}
+          onInteraction={(nextOpenState) => {
+            this.setState((prevState) => {
+              if (!nextOpenState) {
+                if (prevState.openTooltipBtnId !== buttonId) {
+                  return null;
+                }
+
+                return { openTooltipBtnId: "" };
+              }
+
+              // Menu open, or still suppressed after menu dismiss: do not arm.
+              if (
+                prevState.openMenuBtnId === buttonId ||
+                prevState.suppressTooltipBtnId === buttonId
+              ) {
+                return null;
+              }
+
+              return { openTooltipBtnId: buttonId };
+            });
+          }}
+          portalClassName="btnGroupTooltipContainer"
+          position={Position.TOP}
+        >
+          {content}
+        </Popover2>
+      </ToolTipWrapper>
+    );
+  };
 
   componentDidMount() {
     this.setState(() => {
@@ -556,6 +670,7 @@ class ButtonGroupComponent extends React.Component<
     // sort btns by index
     items = sortBy(items, ["index"]);
     const popoverId = `button-group-${widgetId}`;
+    const hasTooltip = items.some((button) => !!button.tooltip);
 
     const getOnClick = (button: GroupButtonProps) => {
       if (!button.onClick) return;
@@ -573,6 +688,7 @@ class ButtonGroupComponent extends React.Component<
         className="t--buttongroup-widget"
         isHorizontal={isHorizontal}
       >
+        {hasTooltip && <TooltipStyles />}
         {items.map((button) => {
           const isLoading = button.id === loadedBtnId;
           const isButtonDisabled =
@@ -584,10 +700,9 @@ class ButtonGroupComponent extends React.Component<
 
           if (button.buttonType === "MENU" && !isButtonDisabled) {
             const { menuItems } = button;
-
-            return (
+            const menuButton = (
               <MenuButtonWrapper
-                key={button.id}
+                $fillParent={!!button.tooltip}
                 renderMode={this.props.renderMode}
               >
                 <PopoverStyles
@@ -607,6 +722,33 @@ class ButtonGroupComponent extends React.Component<
                   disabled={button.isDisabled}
                   fill
                   minimal
+                  onClosing={() => {
+                    // Only clear if this button still owns the open menu.
+                    // Otherwise opening MENU B while A closes can wipe B's id
+                    // and let B's tooltip show over B's open menu.
+                    // Always drop tooltip arming and require a fresh hover —
+                    // keeps the tooltip from flashing after a menu-item click
+                    // or toggle-close while the pointer never left.
+                    this.setState((prevState) =>
+                      prevState.openMenuBtnId === button.id
+                        ? {
+                            openMenuBtnId: "",
+                            openTooltipBtnId:
+                              prevState.openTooltipBtnId === button.id
+                                ? ""
+                                : prevState.openTooltipBtnId,
+                            suppressTooltipBtnId: button.id,
+                          }
+                        : null,
+                    );
+                  }}
+                  onOpening={() => {
+                    this.setState({
+                      openMenuBtnId: button.id,
+                      openTooltipBtnId: "",
+                      suppressTooltipBtnId: button.id,
+                    });
+                  }}
                   placement="bottom-end"
                   popoverClassName={popoverId}
                 >
@@ -625,7 +767,6 @@ class ButtonGroupComponent extends React.Component<
                       iconAlign={button.iconAlign}
                       isHorizontal={isHorizontal}
                       isLabel={!!button.label}
-                      key={button.id}
                       minHeight={this.props.minHeight}
                       minWidth={this.props.buttonMinWidth}
                       ref={this.state.itemRefs[button.id]}
@@ -652,18 +793,26 @@ class ButtonGroupComponent extends React.Component<
                 </Popover2>
               </MenuButtonWrapper>
             );
+
+            return (
+              <React.Fragment key={button.id}>
+                {this.wrapWithTooltip(menuButton, button.id, button.tooltip)}
+              </React.Fragment>
+            );
           }
 
-          return (
+          const simpleButton = (
             <DragContainer
               buttonColor={button.buttonColor}
               buttonVariant={buttonVariant}
               disabled={isButtonDisabled}
-              key={button.id}
               loading={!!loadedBtnId}
               onClick={getOnClick(button)}
               renderMode={this.props.renderMode}
-              style={{ flex: "1 1 auto" }}
+              // Keep a fill wrapper in published mode when tooltipped (same
+              // reason ButtonWidget keeps DragContainer for tooltips).
+              showInAllModes={!!button.tooltip}
+              style={button.tooltip ? undefined : { flex: "1 1 auto" }}
             >
               <StyledButton
                 borderRadius={this.props.borderRadius}
@@ -697,6 +846,12 @@ class ButtonGroupComponent extends React.Component<
               </StyledButton>
             </DragContainer>
           );
+
+          return (
+            <React.Fragment key={button.id}>
+              {this.wrapWithTooltip(simpleButton, button.id, button.tooltip)}
+            </React.Fragment>
+          );
         })}
       </ButtonGroupWrapper>
     );
@@ -711,6 +866,7 @@ interface GroupButtonProps {
   isDisabled?: boolean;
   disabledWhenInvalid?: boolean;
   label?: string;
+  tooltip?: string;
   buttonType?: string;
   buttonColor?: string;
   iconName?: IconName;
@@ -761,6 +917,9 @@ export interface ButtonGroupComponentState {
   itemRefs: Record<string, RefObject<HTMLButtonElement>>;
   itemWidths: Record<string, number>;
   loadedBtnId: string;
+  openMenuBtnId: string;
+  openTooltipBtnId: string;
+  suppressTooltipBtnId: string;
 }
 
 export default ButtonGroupComponent;

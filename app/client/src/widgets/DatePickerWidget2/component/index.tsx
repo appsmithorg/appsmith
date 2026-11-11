@@ -355,6 +355,7 @@ class DatePickerComponent extends React.Component<
             fontStyle={labelStyle}
             helpText={labelTooltip}
             isDynamicHeightEnabled={this.props.isDynamicHeightEnabled}
+            isRequired={isRequired}
             loading={isLoading}
             position={labelPosition}
             text={labelText}
