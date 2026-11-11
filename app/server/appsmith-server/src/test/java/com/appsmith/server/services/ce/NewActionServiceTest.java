@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -289,6 +290,9 @@ public class NewActionServiceTest {
                 .getPublicPermissionGroup();
         Mockito.doReturn(Mono.just(Set.of())).when(datasourceService).extractKeysFromDatasource(any(Datasource.class));
         Mockito.doReturn(Mono.just(application)).when(applicationService).findById(applicationId);
+        Mockito.doReturn(Flux.just(datasource))
+                .when(datasourceService)
+                .findAllByIds(eq(List.of(datasourceId)), any(AclPermission.class));
         Mockito.doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
                 .when(datasourceService)
                 .save(any(Datasource.class), eq(false));
@@ -306,6 +310,7 @@ public class NewActionServiceTest {
 
         Mockito.verify(permissionGroupService, times(1)).getPublicPermissionGroup();
         Mockito.verify(applicationService, times(1)).findById(applicationId);
+        Mockito.verify(datasourceService, times(1)).findAllByIds(eq(List.of(datasourceId)), any(AclPermission.class));
         Mockito.verify(datasourceService, times(1)).save(any(Datasource.class), eq(false));
     }
 
@@ -481,5 +486,148 @@ public class NewActionServiceTest {
                 .verify();
         assertThat(isExecutableByPublicPermissionGroup(viewOnlyDatasource.getId(), publicPermissionGroupId))
                 .isFalse();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    @DisplayName("GHSA-rx37-m7qm-4hrh")
+    void should_validateDryAction_when_actionIsNotPublicAndCallerCanOnlyReadDatasource() {
+        // Given
+        String applicationId = UUID.randomUUID().toString();
+        Plugin plugin = createPlugin(UUID.randomUUID().toString());
+        stubPublicImportDependencies(applicationId, plugin);
+        Datasource viewOnlyDatasource =
+                saveDatasourceGrantingApiUser(plugin.getId(), Set.of(AclPermission.READ_DATASOURCES));
+        NewAction privateAction = createImportAction("PrivateAction", applicationId, viewOnlyDatasource, Set.of());
+
+        // When
+        Mono<NewAction> result = newActionService.validateAction(privateAction, true);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(validatedAction -> assertThat(validatedAction
+                                .getUnpublishedAction()
+                                .getDatasource()
+                                .getId())
+                        .isEqualTo(viewOnlyDatasource.getId()))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    @DisplayName("GHSA-rx37-m7qm-4hrh")
+    void should_validateImportedActions_when_actionsAreNotPublicAndCallerCanOnlyReadDatasource() {
+        // Given
+        String applicationId = UUID.randomUUID().toString();
+        Plugin plugin = createPlugin(UUID.randomUUID().toString());
+        stubPublicImportDependencies(applicationId, plugin);
+        Datasource viewOnlyDatasource =
+                saveDatasourceGrantingApiUser(plugin.getId(), Set.of(AclPermission.READ_DATASOURCES));
+        NewAction privateAction = createImportAction("PrivateAction", applicationId, viewOnlyDatasource, Set.of());
+
+        // When
+        Mono<Tuple2<List<NewAction>, List<NewAction>>> result =
+                newActionService.validateActionsBeforeImport(null, List.of(privateAction), List.of());
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(
+                        validatedActions -> assertThat(validatedActions.getT1()).hasSize(1))
+                .verifyComplete();
+        Mockito.verify(datasourceService, times(0)).findAllByIds(any(), any(AclPermission.class));
+    }
+
+    @Test
+    @DisplayName("GHSA-rx37-m7qm-4hrh")
+    void should_authorizeAllPublicDatasourceCandidatesInOneLookup_when_importReferencesSeveralDatasources() {
+        // Given
+        String pluginId = "plugin-id";
+        String applicationId = "application-id";
+        String publicPermissionGroupId = "public-permission-group-id";
+        Datasource firstDatasource = createDatasource("first-datasource-id", pluginId);
+        Datasource secondDatasource = createDatasource("second-datasource-id", pluginId);
+        Application application = new Application();
+        application.setId(applicationId);
+        application.setIsPublic(true);
+        Set<Policy> publicActionPolicies =
+                Set.of(createPolicy(actionPermission.getExecutePermission(), publicPermissionGroupId));
+
+        Mockito.doReturn(Mono.just(createPlugin(pluginId))).when(pluginService).findById(pluginId);
+        Mockito.doReturn(Mono.just(createPermissionGroup(publicPermissionGroupId)))
+                .when(permissionGroupService)
+                .getPublicPermissionGroup();
+        Mockito.doReturn(Mono.just(Set.of())).when(datasourceService).extractKeysFromDatasource(any(Datasource.class));
+        Mockito.doReturn(Mono.just(application)).when(applicationService).findById(applicationId);
+        Mockito.doReturn(Flux.just(firstDatasource, secondDatasource))
+                .when(datasourceService)
+                .findAllByIds(any(), any(AclPermission.class));
+        Mockito.doAnswer(invocation -> Mono.just(invocation.getArgument(0)))
+                .when(datasourceService)
+                .save(any(Datasource.class), eq(false));
+
+        List<NewAction> publicActions = List.of(
+                createImportAction("FirstAction", applicationId, firstDatasource, publicActionPolicies),
+                createImportAction("SecondAction", applicationId, secondDatasource, publicActionPolicies),
+                createImportAction("ThirdAction", applicationId, secondDatasource, publicActionPolicies));
+
+        // When
+        Mono<Tuple2<List<NewAction>, List<NewAction>>> result =
+                newActionService.validateActionsBeforeImport(null, publicActions, List.of());
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(
+                        validatedActions -> assertThat(validatedActions.getT1()).hasSize(3))
+                .verifyComplete();
+        Mockito.verify(datasourceService, times(1))
+                .findAllByIds(
+                        Mockito.argThat(ids -> ids.size() == 2
+                                && Set.copyOf(ids).equals(Set.of("first-datasource-id", "second-datasource-id"))),
+                        any(AclPermission.class));
+        Mockito.verify(datasourceService, times(2)).save(any(Datasource.class), eq(false));
+    }
+
+    @Test
+    @DisplayName("GHSA-rx37-m7qm-4hrh")
+    void should_rejectWholeBatchBeforeAnySave_when_oneOfSeveralPublicDatasourceCandidatesIsUnauthorized() {
+        // Given
+        String pluginId = "plugin-id";
+        String applicationId = "application-id";
+        String publicPermissionGroupId = "public-permission-group-id";
+        Datasource authorizedDatasource = createDatasource("authorized-datasource-id", pluginId);
+        Datasource unauthorizedDatasource = createDatasource("unauthorized-datasource-id", pluginId);
+        Application application = new Application();
+        application.setId(applicationId);
+        application.setIsPublic(true);
+        Set<Policy> publicActionPolicies =
+                Set.of(createPolicy(actionPermission.getExecutePermission(), publicPermissionGroupId));
+
+        Mockito.doReturn(Mono.just(createPlugin(pluginId))).when(pluginService).findById(pluginId);
+        Mockito.doReturn(Mono.just(createPermissionGroup(publicPermissionGroupId)))
+                .when(permissionGroupService)
+                .getPublicPermissionGroup();
+        Mockito.doReturn(Mono.just(Set.of())).when(datasourceService).extractKeysFromDatasource(any(Datasource.class));
+        Mockito.doReturn(Mono.just(application)).when(applicationService).findById(applicationId);
+        Mockito.doReturn(Flux.just(authorizedDatasource))
+                .when(datasourceService)
+                .findAllByIds(any(), any(AclPermission.class));
+
+        List<NewAction> publicActions = List.of(
+                createImportAction("AuthorizedAction", applicationId, authorizedDatasource, publicActionPolicies),
+                createImportAction("UnauthorizedAction", applicationId, unauthorizedDatasource, publicActionPolicies));
+
+        // When
+        Mono<Tuple2<List<NewAction>, List<NewAction>>> result =
+                newActionService.validateActionsBeforeImport(null, publicActions, List.of());
+
+        // Then
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(((AppsmithException) error).getError()).isEqualTo(AppsmithError.ACL_NO_RESOURCE_FOUND);
+                    assertThat(error.getMessage()).contains("unauthorized-datasource-id");
+                })
+                .verify();
+        Mockito.verify(datasourceService, times(0)).save(any(Datasource.class), eq(false));
     }
 }

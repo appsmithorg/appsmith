@@ -31,6 +31,8 @@ public interface DatasourceServiceCE {
 
     Mono<Datasource> findById(String id, AclPermission aclPermission);
 
+    Flux<Datasource> findAllByIds(List<String> ids, AclPermission aclPermission);
+
     Mono<Datasource> findByIdWithStorages(String id);
 
     Mono<Datasource> findByIdAndEnvironmentId(String id, String environmentId);

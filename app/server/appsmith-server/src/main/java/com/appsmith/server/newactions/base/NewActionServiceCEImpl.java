@@ -427,35 +427,64 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             }
 
             validationContext.datasourcesNeedingPublicExecute.putIfAbsent(
-                    datasource.getId(), new DatasourcePublicAccessUpdate(action.getApplicationId(), datasource));
+                    datasource.getId(), action.getApplicationId());
             return datasource;
         });
     }
 
     private Mono<Void> updateDatasourcePoliciesForPublicActions(BulkActionValidationContext validationContext) {
-        return Flux.fromIterable(validationContext.datasourcesNeedingPublicExecute.values())
-                .flatMap(update -> validationContext.publicPermissionGroupMono.flatMap(publicPermissionGroup -> {
-                    String publicPermissionGroupId = publicPermissionGroup.getId();
-                    return getApplicationById(update.applicationId(), validationContext)
-                            .flatMap(application -> {
-                                if (!application.getIsPublic()) {
-                                    return Mono.error(
-                                            new AppsmithException(AppsmithError.PUBLIC_APP_NO_PERMISSION_GROUP));
-                                }
+        Map<String, String> applicationIdByDatasourceId = validationContext.datasourcesNeedingPublicExecute;
+        if (applicationIdByDatasourceId.isEmpty()) {
+            return Mono.empty();
+        }
 
-                                Policy executePolicy = Policy.builder()
-                                        .permission(EXECUTE_DATASOURCES.getValue())
-                                        .permissionGroups(Set.of(publicPermissionGroupId))
-                                        .build();
-                                Map<String, Policy> datasourcePolicyMap =
-                                        Map.of(EXECUTE_DATASOURCES.getValue(), executePolicy);
+        // Adding the public execute policy requires the datasource action-create permission, as in validateAction.
+        // Every candidate is authorized before the first policy is written.
+        List<String> datasourceIds = new ArrayList<>(applicationIdByDatasourceId.keySet());
+        Mono<Map<String, Datasource>> authorizedDatasourcesMono = datasourcePermission
+                .getActionCreatePermission()
+                .flatMap(permission -> datasourceService
+                        .findAllByIds(datasourceIds, permission)
+                        .collectMap(Datasource::getId))
+                .flatMap(authorizedDatasourceById -> {
+                    Optional<String> unauthorizedDatasourceId = datasourceIds.stream()
+                            .filter(datasourceId -> !authorizedDatasourceById.containsKey(datasourceId))
+                            .sorted()
+                            .findFirst();
+                    if (unauthorizedDatasourceId.isPresent()) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.ACL_NO_RESOURCE_FOUND,
+                                FieldName.DATASOURCE,
+                                unauthorizedDatasourceId.get()));
+                    }
+                    return Mono.just(authorizedDatasourceById);
+                });
 
-                                Datasource updatedDatasource = policySolution.addPoliciesToExistingObject(
-                                        datasourcePolicyMap, update.datasource());
+        return Mono.zip(authorizedDatasourcesMono, validationContext.publicPermissionGroupMono)
+                .flatMapMany(tuple -> {
+                    Map<String, Datasource> authorizedDatasourceById = tuple.getT1();
+                    String publicPermissionGroupId = tuple.getT2().getId();
+                    return Flux.fromIterable(applicationIdByDatasourceId.entrySet())
+                            .flatMap(entry -> getApplicationById(entry.getValue(), validationContext)
+                                    .flatMap(application -> {
+                                        if (!application.getIsPublic()) {
+                                            return Mono.error(new AppsmithException(
+                                                    AppsmithError.PUBLIC_APP_NO_PERMISSION_GROUP));
+                                        }
 
-                                return datasourceService.save(updatedDatasource, false);
-                            });
-                }))
+                                        Policy executePolicy = Policy.builder()
+                                                .permission(EXECUTE_DATASOURCES.getValue())
+                                                .permissionGroups(Set.of(publicPermissionGroupId))
+                                                .build();
+                                        Map<String, Policy> datasourcePolicyMap =
+                                                Map.of(EXECUTE_DATASOURCES.getValue(), executePolicy);
+
+                                        Datasource updatedDatasource = policySolution.addPoliciesToExistingObject(
+                                                datasourcePolicyMap, authorizedDatasourceById.get(entry.getKey()));
+
+                                        return datasourceService.save(updatedDatasource, false);
+                                    }));
+                })
                 .then();
     }
 
@@ -540,13 +569,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         private final Map<String, Mono<Plugin>> pluginByPackageName = new ConcurrentHashMap<>();
         private final Map<String, Mono<Set<MustacheBindingToken>>> datasourceBindingsById = new ConcurrentHashMap<>();
         private final Map<String, Mono<Application>> applicationById = new ConcurrentHashMap<>();
-        private final Map<String, DatasourcePublicAccessUpdate> datasourcesNeedingPublicExecute =
-                new ConcurrentHashMap<>();
+        private final Map<String, String> datasourcesNeedingPublicExecute = new ConcurrentHashMap<>();
         private final Mono<PermissionGroup> publicPermissionGroupMono =
                 permissionGroupService.getPublicPermissionGroup().cache();
     }
-
-    private record DatasourcePublicAccessUpdate(String applicationId, Datasource datasource) {}
 
     @Override
     public Mono<NewAction> validateAction(NewAction newAction, boolean isDryOps) {
@@ -647,7 +673,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 return datasource;
                             })
                             // If the action is publicly executable, update the datasource policy
-                            .flatMap(datasource -> updateDatasourcePolicyForPublicAction(newAction, datasource));
+                            .flatMap(datasource ->
+                                    updateDatasourcePolicyForPublicAction(newAction, datasource, isDryOps));
                 }
             }
 
@@ -1630,7 +1657,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .then();
     }
 
-    private Mono<Datasource> updateDatasourcePolicyForPublicAction(NewAction action, Datasource datasource) {
+    /**
+     * Adds the public execute policy to the datasource when the action is public and the datasource is not.
+     *
+     * @param authorizeDatasource when true, the datasource is first resolved with the action-create permission and
+     *                            the policy is written to the stored datasource. Callers that already resolved the
+     *                            datasource with that permission pass false.
+     */
+    private Mono<Datasource> updateDatasourcePolicyForPublicAction(
+            NewAction action, Datasource datasource, boolean authorizeDatasource) {
         if (datasource.getId() == null) {
             // This seems to be a nested datasource. Return as is.
             return Mono.just(datasource);
@@ -1667,10 +1702,16 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         .build();
                 Map<String, Policy> datasourcePolicyMap = Map.of(EXECUTE_DATASOURCES.getValue(), executePolicy);
 
-                Datasource updatedDatasource =
-                        policySolution.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                Mono<Datasource> datasourceToUpdateMono = authorizeDatasource
+                        ? datasourcePermission
+                                .getActionCreatePermission()
+                                .flatMap(permission -> datasourceService.findById(datasource.getId(), permission))
+                                .switchIfEmpty(Mono.error(new AppsmithException(
+                                        AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasource.getId())))
+                        : Mono.just(datasource);
 
-                return datasourceService.save(updatedDatasource, false);
+                return datasourceToUpdateMono.flatMap(datasourceToUpdate -> datasourceService.save(
+                        policySolution.addPoliciesToExistingObject(datasourcePolicyMap, datasourceToUpdate), false));
             });
         });
     }
