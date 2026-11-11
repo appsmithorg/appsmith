@@ -21,7 +21,7 @@ const UploadSuccessIcon = importSvg(
 );
 
 export const FileEndings = {
-  IMAGE: ".jpeg,.png,.svg",
+  IMAGE: ".jpeg,.jpg,.png,.ico",
   JSON: ".json",
   TEXT: ".txt",
   ANY: "*",
