@@ -635,7 +635,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         newPageService.archivePagesByApplicationId(application.getId(), pageDeletePermission)))
                 .then(themeService.archiveApplicationThemes(application))
                 .then(userDataService.removeApplicationFromAllFavorites(favoriteId))
-                .then(applicationService.archive(application));
+                .then(applicationService.archive(application))
+                // Run all archive steps in one transaction so that a failure or server shutdown midway
+                // does not leave the application document behind with its pages and actions archived.
+                .as(transactionalOperator::transactional);
     }
 
     protected Mono<Application> sendAppDeleteAnalytics(Application deletedApplication) {

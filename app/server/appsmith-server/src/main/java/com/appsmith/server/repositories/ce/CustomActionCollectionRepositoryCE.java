@@ -6,6 +6,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.repositories.AppsmithRepository;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +14,8 @@ import java.util.Optional;
 public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<ActionCollection> {
 
     Flux<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
+
+    Mono<Integer> archiveAllByApplicationId(String applicationId, AclPermission aclPermission);
 
     Flux<ActionCollection> findByApplicationId(
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort);

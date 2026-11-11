@@ -1617,17 +1617,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<Void> archiveActionsByApplicationId(String applicationId, AclPermission permission) {
-        // Limit concurrency to avoid saturating the MongoDB NIO event loop thread pool
-        // during bulk application deletion. Per-entity analytics are intentionally skipped here;
-        // only the top-level application.deleted event is logged.
-        return repository
-                .findByApplicationId(applicationId, permission)
-                .flatMap(repository::archive, 8)
-                .onErrorResume(throwable -> {
-                    log.error(throwable.getMessage());
-                    return Mono.empty();
-                })
-                .then();
+        // Archive all actions with a single bulk update instead of one save per action, so that
+        // bulk application deletion is one DB round trip regardless of the number of actions.
+        // Errors are propagated so that the application delete transaction rolls back. Per-entity
+        // analytics are intentionally skipped here; only the top-level application.deleted event is logged.
+        return repository.archiveAllByApplicationId(applicationId, permission).then();
     }
 
     private Mono<Datasource> updateDatasourcePolicyForPublicAction(NewAction action, Datasource datasource) {

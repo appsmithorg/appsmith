@@ -20,6 +20,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -43,6 +44,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -94,6 +96,12 @@ public class ApplicationPageServiceTest {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    NewPageRepository newPageRepository;
+
+    @MockitoSpyBean
+    UserDataService userDataService;
 
     Workspace workspace;
 
@@ -737,6 +745,35 @@ public class ApplicationPageServiceTest {
         // Then
         StepVerifier.create(viewRead)
                 .assertNext(page -> assertThat(page.getName()).isEqualTo(fixture.publishedName()))
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void deleteApplication_WhenLaterArchiveStepFails_RollsBackArchivedResources() {
+        PageDTO page = createPageMono(UUID.randomUUID().toString()).block();
+        assertThat(page).isNotNull();
+        String applicationId = page.getApplicationId();
+
+        // Fail the step that runs after actions, pages and themes are archived, but before the
+        // application itself is archived. Without a transaction this leaves a "ghost" application.
+        Mockito.doReturn(Mono.error(new IllegalStateException("simulated failure")))
+                .when(userDataService)
+                .removeApplicationFromAllFavorites(any());
+
+        try {
+            StepVerifier.create(applicationPageService.deleteApplication(applicationId))
+                    .expectErrorMessage("simulated failure")
+                    .verify();
+        } finally {
+            Mockito.reset(userDataService);
+        }
+
+        StepVerifier.create(applicationRepository.findById(applicationId))
+                .assertNext(application -> assertThat(application.isDeleted()).isFalse())
+                .verifyComplete();
+        StepVerifier.create(newPageRepository.findById(page.getId()))
+                .assertNext(newPage -> assertThat(newPage.isDeleted()).isFalse())
                 .verifyComplete();
     }
 }

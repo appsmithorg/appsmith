@@ -6,10 +6,13 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +30,17 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 .permission(aclPermission)
                 .sort(sort)
                 .all();
+    }
+
+    @Override
+    public Mono<Integer> archiveAllByApplicationId(String applicationId, AclPermission aclPermission) {
+        BridgeUpdate update = Bridge.update();
+        update.set(ActionCollection.Fields.deleted, true);
+        update.set(ActionCollection.Fields.deletedAt, Instant.now());
+        return queryBuilder()
+                .criteria(Bridge.equal(ActionCollection.Fields.applicationId, applicationId))
+                .permission(aclPermission)
+                .updateAll(update);
     }
 
     @Override
