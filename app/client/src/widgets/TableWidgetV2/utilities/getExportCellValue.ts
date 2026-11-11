@@ -2,8 +2,9 @@ import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { getTextFromHTML } from "./getTextFromHTML";
 
 /**
- * Spreadsheet formula-injection prefixes (CSV/Excel).
+ * Spreadsheet formula-injection prefixes for CSV export.
  * Prefixing with `'` forces the cell to be treated as text.
+ * Excel skips this step: SheetJS writes primitive strings as text cells.
  * See https://owasp.org/www-community/attacks/CSV_Injection
  */
 const SPREADSHEET_FORMULA_PREFIX = /^[=+\-@\t\r]/;
@@ -22,12 +23,17 @@ export interface GetExportCellValueOptions {
    * before formula neutralization so legitimate negatives stay numeric.
    */
   asNumber?: boolean;
+  /**
+   * When false, skip the CSV apostrophe prefix. Use for Excel, where
+   * SheetJS already stores primitive strings as text cells. Default true.
+   */
+  neutralizeFormulas?: boolean;
 }
 
 /**
  * Shared cell formatting for CSV and Excel download.
- * Strips HTML columns to plain text, then neutralizes spreadsheet
- * formula-injection prefixes on string values.
+ * Strips HTML columns to plain text, then optionally neutralizes
+ * spreadsheet formula-injection prefixes on string values (CSV).
  */
 export const getExportCellValue = (
   columnType: string | undefined,
@@ -48,7 +54,7 @@ export const getExportCellValue = (
     return result;
   }
 
-  if (typeof result === "string") {
+  if (typeof result === "string" && options?.neutralizeFormulas !== false) {
     return neutralizeSpreadsheetFormula(result);
   }
 

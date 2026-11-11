@@ -72,4 +72,17 @@ describe("getExportCellValue", () => {
       }),
     ).toBe(0);
   });
+
+  it("skips formula neutralization when neutralizeFormulas is false", () => {
+    expect(
+      getExportCellValue(ColumnTypes.TEXT, "+1234", {
+        neutralizeFormulas: false,
+      }),
+    ).toBe("+1234");
+    expect(
+      getExportCellValue(ColumnTypes.HTML, "<b>=1+2</b>", {
+        neutralizeFormulas: false,
+      }),
+    ).toBe("=1+2");
+  });
 });

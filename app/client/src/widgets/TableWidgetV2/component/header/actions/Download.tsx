@@ -167,6 +167,9 @@ function TableDataDownload(props: TableDataDownloadProps) {
                 data[column.alias],
                 {
                   asNumber: column.columnProperties?.columnType === "number",
+                  // SheetJS writes primitive strings as text cells; a leading
+                  // apostrophe would become part of the Excel cell value.
+                  neutralizeFormulas: false,
                 },
               ),
             );
