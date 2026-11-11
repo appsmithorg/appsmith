@@ -130,6 +130,22 @@ describe("TableWidgetV2 auto height", () => {
       );
     });
 
+    it("keeps add new row, search, filters and sort off when it turns infinite scroll off on load", () => {
+      const batchUpdateWidgetProperty = mount({
+        dynamicHeight: DynamicHeight.AUTO_HEIGHT,
+        infiniteScrollEnabled: true,
+        allowAddNewRow: false,
+        isVisibleSearch: false,
+        isVisibleFilters: false,
+        isSortable: false,
+      });
+
+      expect(batchUpdateWidgetProperty).toHaveBeenCalledWith(
+        { modify: { infiniteScrollEnabled: false } },
+        false,
+      );
+    });
+
     it("leaves infinite scroll alone for fixed height tables", () => {
       expect(mount({ infiniteScrollEnabled: true })).not.toHaveBeenCalled();
     });
@@ -170,14 +186,7 @@ describe("TableWidgetV2 auto height", () => {
       );
 
       expect(batchUpdateWidgetProperty).toHaveBeenCalledWith(
-        {
-          modify: expect.objectContaining({
-            infiniteScrollEnabled: false,
-            isVisibleSearch: true,
-            isVisibleFilters: true,
-            isSortable: true,
-          }),
-        },
+        { modify: { infiniteScrollEnabled: false } },
         false,
       );
     });
