@@ -1,15 +1,13 @@
 export default {
   isValid: (props, moment) => {
-    const parsedMinDate = new Date(props.minDate);
-    const parsedMaxDate = new Date(props.maxDate);
-    const parsedSelectedDate = props.selectedDate
-      ? moment(new Date(props.selectedDate))
-      : null;
-
-    // only do validation when the date is dirty
+    // Only validate when the date is dirty.
     if (!props.isDirty) {
       return true;
     }
+
+    const parsedSelectedDate = props.selectedDate
+      ? moment(props.selectedDate)
+      : null;
 
     if (!parsedSelectedDate && !props.isRequired) {
       return true;
@@ -19,16 +17,27 @@ export default {
       return false;
     }
 
-    if (props.minDate && props.maxDate) {
-      return parsedSelectedDate.isBetween(parsedMinDate, parsedMaxDate);
+    // Parse all dates consistently using Moment.
+    const parsedMinDate = props.minDate ? moment(props.minDate) : null;
+    const parsedMaxDate = props.maxDate ? moment(props.maxDate) : null;
+
+    // Respect the configured DatePicker precision.
+    const precision = props.timePrecision || "day";
+
+    // Include the minimum date in the valid range.
+    if (
+      parsedMinDate &&
+      !parsedSelectedDate.isSameOrAfter(parsedMinDate, precision)
+    ) {
+      return false;
     }
 
-    if (props.minDate) {
-      return parsedSelectedDate.isAfter(parsedMinDate);
-    }
-
-    if (props.maxDate) {
-      return parsedSelectedDate.isBefore(parsedMaxDate);
+    // Include the maximum date in the valid range.
+    if (
+      parsedMaxDate &&
+      !parsedSelectedDate.isSameOrBefore(parsedMaxDate, precision)
+    ) {
+      return false;
     }
 
     return true;
