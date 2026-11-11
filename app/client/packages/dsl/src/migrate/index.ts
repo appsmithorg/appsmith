@@ -93,9 +93,10 @@ import { migrateCustomWidgetDynamicHeight } from "./migrations/088-migrate-custo
 import { migrateTableWidgetV2CurrentRowInValidationsBinding } from "./migrations/089-migrage-table-widget-v2-currentRow-binding";
 import { migrateTableComputeValueBinding } from "./migrations/090-migrate-table-compute-value-binding";
 import { migrateAIChatWidget } from "./migrations/092-update-ai-chat-widget";
+import { migrateTableWidgetV2DynamicHeight } from "./migrations/094-migrate-table-widget-v2-dynamic-height";
 import type { DSLWidget } from "./types";
 
-export const LATEST_DSL_VERSION = 94;
+export const LATEST_DSL_VERSION = 95;
 
 export const calculateDynamicHeight = () => {
   const DEFAULT_GRID_ROW_HEIGHT = 10;
@@ -648,6 +649,11 @@ const migrateVersionedDSL = async (currentDSL: DSLWidget, newPage = false) => {
      * This migration will update all those values to the latest computed value, ensuring they are displayed correctly by the control.
      */
     currentDSL = migrateTableComputeValueBinding(currentDSL);
+    currentDSL.version = 94;
+  }
+
+  if (currentDSL.version === 94) {
+    currentDSL = migrateTableWidgetV2DynamicHeight(currentDSL);
     currentDSL.version = LATEST_DSL_VERSION;
   }
 
