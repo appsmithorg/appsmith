@@ -248,6 +248,14 @@ const FNS = Object.freeze({
   avg: [1, 1],
   groupBy: [3, 3],
   dateBucket: [2, 2],
+  // Calendar dates in the viewer's local time (APP-16381): today + 14 days, an end date + 1 year, days between two
+  // dates.
+  addDays: [2, 2],
+  addMonths: [2, 2],
+  addYears: [2, 2],
+  startOfDay: [1, 1],
+  diffDays: [2, 2],
+  isoDate: [1, 1],
 } as const);
 
 export type Fn = keyof typeof FNS;
@@ -276,6 +284,10 @@ export const LITERAL_TAIL: Readonly<Partial<Record<Fn, number>>> =
     // last argument is the aggregate. exprProblem checks the key directly.
   });
 
+// The fields of `appsmith.user` an expression may read: the signed-in viewer's name, email and username.
+export const USER_FIELDS = ["name", "email", "username"] as const;
+export type UserField = (typeof USER_FIELDS)[number];
+
 // sortBy's direction and dateBucket's unit: closed sets, each choosing a fixed template.
 export const SORT_DIRECTIONS = ["asc", "desc"] as const;
 export const DATE_BUCKETS = ["day", "week", "month"] as const;
@@ -294,11 +306,14 @@ export type Expr =
   | { var: string }
   | { item: true }
   | { widget: string; property: string }
-  // A column of a table's selected row, for column names that are not identifiers ("instance ids").
-  | { table: string; column: string }
+  // A column of a table's selected row, for column names that are not identifiers ("instance ids"). With
+  // `row: "triggered"`, the row whose button column was clicked.
+  | { table: string; column: string; row?: "triggered" }
   | { query: string; field?: string }
   | { constant: string }
   | { store: string }
+  // A field of the signed-in viewer (`appsmith.user.name`).
+  | { user: UserField }
   | { op: Op; args: Expr[] }
   // `{ sep }` is admitted only as split's second argument, and a GroupAggregate only as groupBy's third (enforced in
   // exprProblem).
@@ -375,12 +390,19 @@ export const exprSchema: z.ZodType<Expr> = z.lazy(() =>
     z.object({ var: localName }).strict(),
     z.object({ item: z.literal(true) }).strict(),
     z.object({ widget: bindingIdentifier, property: propertyPath }).strict(),
-    z.object({ table: bindingIdentifier, column: tableColumnName }).strict(),
+    z
+      .object({
+        table: bindingIdentifier,
+        column: tableColumnName,
+        row: z.literal("triggered").optional(),
+      })
+      .strict(),
     z
       .object({ query: bindingIdentifier, field: propertyPath.optional() })
       .strict(),
     z.object({ constant: memberName }).strict(),
     z.object({ store: storeKeySchema }).strict(),
+    z.object({ user: z.enum(USER_FIELDS) }).strict(),
     z
       .object({ op: z.enum(OPS), args: z.array(exprSchema).min(1).max(8) })
       .strict(),
@@ -673,7 +695,7 @@ export function exprProblem(
       : undefined;
   }
 
-  if ("store" in expr) return undefined;
+  if ("store" in expr || "user" in expr) return undefined;
 
   if ("op" in expr) {
     const [min, max] = OP_ARITY[expr.op];
@@ -1124,9 +1146,149 @@ function compileDateBucket(date: string, unit: string): string {
   return `((v) => { if (v == null || v === "" || typeof v === "boolean") { return null; } const d = new Date(v); if (Number.isNaN(d.getTime())) { return null; }${adjust} const year = d.getUTCFullYear(); if (!(year >= 0 && year <= 9999)) { return null; } return d.toISOString().slice(0, 10); })(${date})`;
 }
 
+// A value as a NEW Date in the viewer's local time, or null. Each call gets its own copy, so a date function never
+// changes a Date it was given. A `YYYY-MM-DD` text is local midnight of that day (new Date() would read it as UTC
+// midnight, the day before in the Americas). null, undefined, "", booleans and an invalid date give null, as in
+// dateBucket. The regex has no braces, so the template stays brace-balanced inside a widget's {{ }} binding.
+const LOCAL_DATE_OF =
+  '((v) => { if (v == null || v === "" || typeof v === "boolean") { return null; } let d; if (typeof v === "string" && /^\\d\\d\\d\\d-\\d\\d-\\d\\d$/.test(v)) { const y = Number(v.slice(0, 4)), m = Number(v.slice(5, 7)) - 1, day = Number(v.slice(8, 10)); d = new Date(0); d.setFullYear(y, m, day); d.setHours(0, 0, 0, 0); if (d.getFullYear() !== y || d.getMonth() !== m || d.getDate() !== day) { return null; } } else { d = new Date(v instanceof Date ? v.getTime() : v); } return Number.isNaN(d.getTime()) ? null : d; })';
+// A day, month or year count: a whole number, or null when it is not a finite number.
+const WHOLE_OF =
+  "((n) => { const v = Math.trunc(Number(n)); return Number.isFinite(v) ? v : null; })";
+// Adds whole months, clamping the day to the target month's last day: 31 January + 1 month is 28 or 29 February,
+// and 29 February + 1 year is 28 February. The time of day is kept.
+const ADD_MONTHS =
+  "((d, n) => { if (d === null || n === null) { return null; } const day = d.getDate(); d.setDate(1); d.setMonth(d.getMonth() + n); const last = new Date(d.getTime()); last.setMonth(last.getMonth() + 1, 0); d.setDate(Math.min(day, last.getDate())); return d; })";
+
 // Refuses to call a query with an undefined parameter (see the run step in compileSteps).
 const PARAMS_GUARD =
   '(($p) => { for (const $k of Object.keys($p)) { if ($p[$k] === undefined) { throw new Error("missing query parameter: " + $k); } } return $p; })';
+
+// Set while the readable layout compiles (see withReadableExpressions). It changes a few templates to shorter
+// forms that run the same way; the one-line layout never sees it, so marker-recognised bodies keep recompiling to
+// the same bytes. Compilation is synchronous, so a module flag cannot leak into another compile.
+let readableExpressions = false;
+
+export function withReadableExpressions<T>(compile: () => T): T {
+  const previous = readableExpressions;
+
+  readableExpressions = true;
+
+  try {
+    return compile();
+  } finally {
+    readableExpressions = previous;
+  }
+}
+
+// A value that is safe to name twice: reading it again has no side effects and gives the same value. Widget
+// properties are plain data-tree values; variables, parameters and constants are plain reads.
+function isPlainRead(expr: unknown): boolean {
+  return (
+    expr !== null &&
+    typeof expr === "object" &&
+    ("var" in expr || "param" in expr || "constant" in expr || "widget" in expr)
+  );
+}
+
+// Functions whose result is always an array, and array literals.
+const ARRAY_FUNCTIONS = new Set(["split", "slice", "unique", "map", "filter"]);
+
+function isArrayValue(expr: unknown): boolean {
+  return (
+    expr !== null &&
+    typeof expr === "object" &&
+    ("array" in expr ||
+      ("fn" in expr &&
+        ARRAY_FUNCTIONS.has(String((expr as { fn: unknown }).fn))))
+  );
+}
+
+// Functions whose result is always a string (never null), and string literals.
+const TEXT_FUNCTIONS = new Set([
+  "trim",
+  "lower",
+  "upper",
+  "concat",
+  "string",
+  "stripPrefix",
+  "stripSuffix",
+  "replaceAll",
+  "isoString",
+  "join",
+]);
+
+function isTextValue(expr: unknown): boolean {
+  return (
+    typeof expr === "string" ||
+    (expr !== null &&
+      typeof expr === "object" &&
+      "fn" in expr &&
+      TEXT_FUNCTIONS.has(String((expr as { fn: unknown }).fn)))
+  );
+}
+
+function isFnCall(expr: unknown, fn: string): boolean {
+  return (
+    expr !== null &&
+    typeof expr === "object" &&
+    "fn" in expr &&
+    (expr as { fn: unknown }).fn === fn
+  );
+}
+
+// The array guard as the readable layout writes it (see `list` in compileExpr): nothing for a value that is
+// already an array, an inline check for a plain read, the shared guard otherwise.
+function readableList(expr: unknown, compiled: string): string {
+  if (isArrayValue(expr)) return compiled;
+
+  return isPlainRead(expr)
+    ? `(Array.isArray(${compiled}) ? ${compiled} : [])`
+    : `${ARRAY_OF}(${compiled})`;
+}
+
+// An expression that already compiles to a fresh Date (`date` or `now`), so it needs no second `new Date(...)`.
+function isDateValue(expr: unknown): boolean {
+  return (
+    expr !== null &&
+    typeof expr === "object" &&
+    "fn" in expr &&
+    ((expr as { fn: unknown }).fn === "date" ||
+      (expr as { fn: unknown }).fn === "now")
+  );
+}
+
+// Removes one pair of parentheses that wraps the whole expression, for a statement that has its own delimiters
+// (`let x = …;`, `if (…)`, `return …;`). Strings are skipped while matching; the compiler writes only double-quoted
+// strings and a few regular expressions without parentheses.
+export function stripOuterParens(code: string): string {
+  if (!code.startsWith("(") || !code.endsWith(")")) return code;
+
+  let depth = 0;
+  let inString = false;
+
+  for (let i = 0; i < code.length; i += 1) {
+    const ch = code[i];
+
+    if (inString) {
+      if (ch === "\\") i += 1;
+      else if (ch === '"') inString = false;
+
+      continue;
+    }
+
+    if (ch === '"') inString = true;
+    else if (ch === "(") depth += 1;
+    else if (ch === ")") {
+      depth -= 1;
+
+      // The first parenthesis closes before the end: `(a) + (b)` is not wrapped as a whole.
+      if (depth === 0 && i !== code.length - 1) return code;
+    }
+  }
+
+  return code.slice(1, -1);
+}
 
 export function compileExpr(expr: Expr): string {
   if (isLiteral(expr)) return q(expr);
@@ -1138,6 +1300,13 @@ export function compileExpr(expr: Expr): string {
         : `${expr.call.object}.${expr.call.function}`;
 
     const args = (expr.args ?? []).map(compileExpr).join(", ");
+
+    // A call to another function of the same object needs no runtime guard in the readable layout: every
+    // sibling cycle is visible to the compiler, and create/update refuse one before writing (callCycleProblem in
+    // app.ts). Cross-object calls keep the guard, because a cycle can run through editor-written code.
+    if (readableExpressions && typeof expr.call === "string") {
+      return `(await ${callee}(${args}))`;
+    }
 
     // An arrow IIFE keeps `this` (the JS object) and lets the guard wrap the awaited call as one expression. The
     // counter is checked BEFORE it is incremented and is never reset: every frame that incremented also decrements
@@ -1156,7 +1325,9 @@ export function compileExpr(expr: Expr): string {
 
   if ("widget" in expr) return `${expr.widget}.${expr.property}`;
 
-  if ("table" in expr) return `${expr.table}.selectedRow[${q(expr.column)}]`;
+  if ("table" in expr) {
+    return `${expr.table}.${expr.row === "triggered" ? "triggeredRow" : "selectedRow"}[${q(expr.column)}]`;
+  }
 
   if ("query" in expr) {
     return expr.field
@@ -1167,6 +1338,8 @@ export function compileExpr(expr: Expr): string {
   if ("constant" in expr) return `this.${expr.constant}`;
 
   if ("store" in expr) return `appsmith.store.${expr.store}`;
+
+  if ("user" in expr) return `appsmith.user.${expr.user}`;
 
   if ("op" in expr) {
     const a = expr.args.map(compileExpr);
@@ -1202,6 +1375,15 @@ export function compileExpr(expr: Expr): string {
       case "or":
         return `(${a.join(" || ")})`;
       case "not":
+        // `not(isValidDate(x))` reads as `Number.isNaN(…)` rather than `!!Number.isNaN(…)`.
+        if (
+          readableExpressions &&
+          isFnCall(expr.args[0], "isValidDate") &&
+          a[0].startsWith("!")
+        ) {
+          return `(${a[0].slice(1)})`;
+        }
+
         return `(!${a[0]})`;
     }
   }
@@ -1217,39 +1399,61 @@ export function compileExpr(expr: Expr): string {
           : compileExpr(arg as Expr),
     );
 
+    // `String(x ?? "")` turns null into "" and anything else into text. The readable layout skips it when x is
+    // already text: a string literal or a function that always returns a string.
+    const text = (i: number) =>
+      readableExpressions && isTextValue(args[i])
+        ? a[i]
+        : `String(${a[i]} ?? "")`;
+    // `ARRAY_OF(x)` turns a non-array into []. The readable layout skips it when x is already an array, and writes
+    // it inline when x is a plain read (naming it twice is safe).
+    const list = (i: number) =>
+      readableExpressions
+        ? readableList(args[i], a[i])
+        : `${ARRAY_OF}(${a[i]})`;
+    // A literal whole number needs no index guard (the guard truncates and turns NaN into 0).
+    const index = (i: number) =>
+      readableExpressions && Number.isInteger(args[i])
+        ? a[i]
+        : `${INDEX_OF}(${a[i]})`;
+
     switch (expr.fn) {
       case "trim":
-        return `String(${a[0]} ?? "").trim()`;
+        return `${text(0)}.trim()`;
       case "lower":
-        return `String(${a[0]} ?? "").toLowerCase()`;
+        return `${text(0)}.toLowerCase()`;
       case "upper":
-        return `String(${a[0]} ?? "").toUpperCase()`;
+        return `${text(0)}.toUpperCase()`;
       case "length":
         // Operand evaluated once (an IIFE, like isEmpty/last): repeating it doubled the emitted text per nesting level.
         return `((v) => v == null ? 0 : v.length)(${a[0]})`;
       case "concat":
-        return `(${a.map((x) => `String(${x} ?? "")`).join(" + ")})`;
+        return `(${a.map((_, i) => text(i)).join(" + ")})`;
       case "startsWith":
-        return `String(${a[0]} ?? "").startsWith(${a[1]})`;
+        return `${text(0)}.startsWith(${a[1]})`;
       case "endsWith":
-        return `String(${a[0]} ?? "").endsWith(${a[1]})`;
+        return `${text(0)}.endsWith(${a[1]})`;
       case "includes":
-        return `${ARRAY_OF}(${a[0]}).includes(${a[1]})`;
+        return `${list(0)}.includes(${a[1]})`;
       case "split":
-        return `String(${a[0]} ?? "").split(${a[1]})`;
+        return `${text(0)}.split(${a[1]})`;
       case "stripPrefix":
-        return `((s, p) => s.startsWith(p) ? s.slice(p.length) : s)(String(${a[0]} ?? ""), ${a[1]})`;
+        return `((s, p) => s.startsWith(p) ? s.slice(p.length) : s)(${text(0)}, ${a[1]})`;
       case "stripSuffix":
-        return `((s, p) => s.endsWith(p) ? s.slice(0, s.length - p.length) : s)(String(${a[0]} ?? ""), ${a[1]})`;
+        return `((s, p) => s.endsWith(p) ? s.slice(0, s.length - p.length) : s)(${text(0)}, ${a[1]})`;
       case "replaceAll":
-        return `String(${a[0]} ?? "").split(${a[1]}).join(${a[2]})`;
+        return `${text(0)}.split(${a[1]}).join(${a[2]})`;
       case "number":
         return `Number(${a[0]})`;
       case "string":
-        return `String(${a[0]} ?? "")`;
+        return `${text(0)}`;
       case "boolean":
         return `Boolean(${a[0]})`;
       case "isEmpty":
+        if (readableExpressions && isPlainRead(args[0])) {
+          return `(${a[0]} == null || ${a[0]} === "" || (Array.isArray(${a[0]}) && ${a[0]}.length === 0))`;
+        }
+
         return `((v) => v == null || v === "" || (Array.isArray(v) && v.length === 0))(${a[0]})`;
       case "round":
         // Number(...) makes the receiver a primitive; the precision is a validated integer literal.
@@ -1263,32 +1467,43 @@ export function compileExpr(expr: Expr): string {
       case "max":
         return `Math.max(${a.join(", ")})`;
       case "date":
+        // `date(date(x))` and `date(now())`: the argument is already a fresh Date.
+        if (readableExpressions && isDateValue(args[0])) return a[0];
+
         return `new Date(${a[0]})`;
       case "now":
         return "new Date()";
       case "isoString":
+        if (readableExpressions && isDateValue(args[0])) {
+          return `${a[0]}.toISOString()`;
+        }
+
         return `new Date(${a[0]}).toISOString()`;
       case "isValidDate":
+        if (readableExpressions && isDateValue(args[0])) {
+          return `!Number.isNaN(${a[0]}.getTime())`;
+        }
+
         return `!Number.isNaN(new Date(${a[0]}).getTime())`;
       case "unique":
-        return `[...new Set(${ARRAY_OF}(${a[0]}))]`;
+        return `[...new Set(${list(0)})]`;
       case "join":
-        return `${ARRAY_OF}(${a[0]}).join(${a[1]})`;
+        return `${list(0)}.join(${a[1]})`;
       case "first":
-        return `${ARRAY_OF}(${a[0]})[0]`;
+        return `${list(0)}[0]`;
       case "last":
-        return `((v) => v[v.length - 1])(${ARRAY_OF}(${a[0]}))`;
+        return `((v) => v[v.length - 1])(${list(0)})`;
       // Per-item bodies are parenthesised: a bare `{ k: v }` after `=>` parses as a block, not an object literal.
       case "map":
-        return `${ARRAY_OF}(${a[0]}).map((item) => (${a[1]}))`;
+        return `${list(0)}.map((item) => (${a[1]}))`;
       case "filter":
-        return `${ARRAY_OF}(${a[0]}).filter((item) => (${a[1]}))`;
+        return `${list(0)}.filter((item) => (${a[1]}))`;
       case "some":
-        return `${ARRAY_OF}(${a[0]}).some((item) => (${a[1]}))`;
+        return `${list(0)}.some((item) => (${a[1]}))`;
       case "every":
-        return `${ARRAY_OF}(${a[0]}).every((item) => (${a[1]}))`;
+        return `${list(0)}.every((item) => (${a[1]}))`;
       case "find":
-        return `${ARRAY_OF}(${a[0]}).find((item) => (${a[1]}))`;
+        return `${list(0)}.find((item) => (${a[1]}))`;
       case "get":
         return `(${a[0]})?.[${a[1]}]`;
       case "coalesce":
@@ -1298,15 +1513,27 @@ export function compileExpr(expr: Expr): string {
       case "sortBy":
         return compileSortBy(a[0], a[1], args[2] as string);
       case "slice":
-        return `${ARRAY_OF}(${a[0]}).slice(${INDEX_OF}(${a[1]})${a.length === 3 ? `, ${INDEX_OF}(${a[2]})` : ""})`;
+        return `${list(0)}.slice(${index(1)}${a.length === 3 ? `, ${index(2)}` : ""})`;
       case "sum":
-        return `((list) => { const num = ${NUMBER_OF}; let total = 0; for (const v of list) { const n = num(v); if (Number.isFinite(n)) { total += n; } } return total; })(${ARRAY_OF}(${a[0]}))`;
+        return `((list) => { const num = ${NUMBER_OF}; let total = 0; for (const v of list) { const n = num(v); if (Number.isFinite(n)) { total += n; } } return total; })(${list(0)})`;
       case "avg":
-        return `((list) => { const num = ${NUMBER_OF}; let total = 0; let count = 0; for (const v of list) { const n = num(v); if (Number.isFinite(n)) { total += n; count += 1; } } return count === 0 ? null : total / count; })(${ARRAY_OF}(${a[0]}))`;
+        return `((list) => { const num = ${NUMBER_OF}; let total = 0; let count = 0; for (const v of list) { const n = num(v); if (Number.isFinite(n)) { total += n; count += 1; } } return count === 0 ? null : total / count; })(${list(0)})`;
       case "groupBy":
         return compileGroupBy(a[0], a[1], args[2] as GroupAggregate);
       case "dateBucket":
         return compileDateBucket(a[0], args[1] as string);
+      case "addDays":
+        return `((d, n) => { if (d === null || n === null) { return null; } d.setDate(d.getDate() + n); return d; })(${LOCAL_DATE_OF}(${a[0]}), ${WHOLE_OF}(${a[1]}))`;
+      case "addMonths":
+        return `((d, n) => ${ADD_MONTHS}(d, n))(${LOCAL_DATE_OF}(${a[0]}), ${WHOLE_OF}(${a[1]}))`;
+      case "addYears":
+        return `((d, n) => ${ADD_MONTHS}(d, n === null ? null : n * 12))(${LOCAL_DATE_OF}(${a[0]}), ${WHOLE_OF}(${a[1]}))`;
+      case "startOfDay":
+        return `((d) => { if (d === null) { return null; } d.setHours(0, 0, 0, 0); return d; })(${LOCAL_DATE_OF}(${a[0]}))`;
+      case "diffDays":
+        return `((a, b) => { if (a === null || b === null) { return null; } a.setHours(0, 0, 0, 0); b.setHours(0, 0, 0, 0); return Math.round((b.getTime() - a.getTime()) / 86400000); })(${LOCAL_DATE_OF}(${a[0]}), ${LOCAL_DATE_OF}(${a[1]}))`;
+      case "isoDate":
+        return `((d) => d === null ? null : String(d.getFullYear()).padStart(4, "0") + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"))(${LOCAL_DATE_OF}(${a[0]}))`;
     }
   }
 
@@ -1323,6 +1550,115 @@ export function compileExpr(expr: Expr): string {
   }
 
   return `[${expr.array.map(compileExpr).join(", ")}]`;
+}
+
+// The readable layout of compileSteps: one statement per line, each block (`if`, `else`, `for`, `try`) on its own
+// lines, nested bodies indented one tab deeper. `indent` is the indentation of the statements themselves. Each
+// returned entry is one statement; a block statement spans several lines joined with "\n", every line already
+// indented. Expressions are compiled by the same compileExpr as the one-line layout, so both layouts run the same
+// code. Only the line breaks and indentation differ.
+export function compileStepsBlock(steps: Step[], indent: string): string[] {
+  const inner = `${indent}\t`;
+  const body = (nested: Step[]) => compileStepsBlock(nested, inner);
+  const block = (head: string, nested: string[], tail = "}") =>
+    [`${indent}${head} {`, ...nested, `${indent}${tail}`].join("\n");
+  const statements: string[] = [];
+
+  for (const step of steps) {
+    if ("run" in step && step.onError) {
+      const params = step.with
+        ? `${PARAMS_GUARD}({ ${Object.entries(step.with)
+            .map(([key, value]) => `${key}: ${compileExpr(value)}`)
+            .join(", ")} })`
+        : "";
+      const args = step.with ? "$a" : "";
+      const attempt = step.into
+        ? `${step.into} = await ${step.run}.run(${args});`
+        : `await ${step.run}.run(${args});`;
+      // The guard runs BEFORE the try (see compileSteps), and $a stays block-scoped so several runs in one function
+      // do not clash. Without parameters there is no $a, so no extra block is needed.
+      const tryCatch = (at: string) => {
+        const deeper = `${at}\t`;
+
+        return [
+          `${at}try {`,
+          `${deeper}${attempt}`,
+          `${at}} catch ($e) {`,
+          ...compileStepsBlock(step.onError ?? [], deeper),
+          `${at}}`,
+        ].join("\n");
+      };
+
+      if (step.into) statements.push(`${indent}let ${step.into};`);
+
+      statements.push(
+        step.with
+          ? [
+              `${indent}{`,
+              `${inner}const $a = ${params};`,
+              tryCatch(inner),
+              `${indent}}`,
+            ].join("\n")
+          : tryCatch(indent),
+      );
+    } else if ("let" in step) {
+      statements.push(
+        `${indent}let ${step.let} = ${stripOuterParens(compileExpr(step.value))};`,
+      );
+    } else if ("set" in step) {
+      statements.push(
+        `${indent}${step.set} = ${stripOuterParens(compileExpr(step.value))};`,
+      );
+    } else if ("return" in step) {
+      statements.push(
+        `${indent}return ${stripOuterParens(compileExpr(step.return))};`,
+      );
+    } else if ("call" in step) {
+      const call = stripOuterParens(
+        compileExpr({ call: step.call, args: step.args }),
+      );
+
+      statements.push(
+        step.into
+          ? `${indent}let ${step.into} = ${call};`
+          : `${indent}${call};`,
+      );
+    } else if ("if" in step) {
+      let text = block(
+        `if (${stripOuterParens(compileExpr(step.if))})`,
+        body(step.then),
+      );
+      let rest = step.else;
+
+      // `else { if … }` with nothing else in the else branch reads as `else if …`.
+      while (rest && rest.length === 1 && "if" in rest[0]) {
+        const next = rest[0] as Extract<Step, { if: unknown }>;
+
+        text = `${text.slice(0, -`${indent}}`.length)}${indent}} else if (${stripOuterParens(compileExpr(next.if))}) {\n${[...body(next.then), `${indent}}`].join("\n")}`;
+        rest = next.else;
+      }
+
+      if (rest) {
+        text = `${text.slice(0, -`${indent}}`.length)}${indent}} else {\n${[...body(rest), `${indent}}`].join("\n")}`;
+      }
+
+      statements.push(text);
+    } else if ("forEach" in step) {
+      statements.push(
+        block(
+          `for (let ${step.as} of ${readableList(step.forEach, compileExpr(step.forEach))})`,
+          body(step.do),
+        ),
+      );
+    } else {
+      // Every other statement is a single line, identical to the one-line layout.
+      for (const line of compileSteps([step])) {
+        statements.push(`${indent}${line}`);
+      }
+    }
+  }
+
+  return statements;
 }
 
 export function compileSteps(steps: Step[]): string[] {

@@ -237,7 +237,7 @@ jobs:
           # Retry here, because GitHub re-runs a failed shard only after the whole run ends.
           pull_image() {
             for attempt in 1 2 3; do
-              if timeout 300 docker pull "$1"; then
+              if timeout 900 docker pull "$1"; then
                 return 0
               fi
               echo "::warning::docker pull $1 failed on attempt $attempt of 3."

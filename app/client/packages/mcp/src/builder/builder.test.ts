@@ -401,6 +401,7 @@ describe("compileApp — import artifact contract", () => {
 
     expect(table.type).toBe("TABLE_WIDGET_V2");
     expect(table.version).toBe(2);
+    expect(table.dynamicHeight).toBe("FIXED");
     // Literal rows are serialized as static JSON and NOT registered as a dynamic binding.
     expect(table.tableData).toBe(JSON.stringify([{ id: 1, name: "Ada" }]));
     expect(table.dynamicBindingPathList).toEqual([]);

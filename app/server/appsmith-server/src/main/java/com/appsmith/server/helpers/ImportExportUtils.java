@@ -5,8 +5,11 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.mongodb.MongoTransactionException;
@@ -132,6 +135,18 @@ public class ImportExportUtils {
 
     public static void setPropertiesToExistingApplication(
             Application importedApplication, Application existingApplication) {
+        boolean preserveAnvil = hasAnvilPositioning(existingApplication.getUnpublishedApplicationDetail())
+                || hasAnvilPositioning(existingApplication.getPublishedApplicationDetail());
+        if (preserveAnvil && !hasAnvilPositioning(importedApplication.getUnpublishedApplicationDetail())) {
+            throw new AppsmithException(
+                    AppsmithError.INVALID_PARAMETER,
+                    "replacement import must use responsive positioning for an existing responsive application");
+        }
+        // Published pages remain on the target during replacement. Do not switch their renderer.
+        if (hasAnvilPositioning(existingApplication.getPublishedApplicationDetail())
+                && !hasAnvilPositioning(importedApplication.getPublishedApplicationDetail())) {
+            importedApplication.setPublishedApplicationDetail(null);
+        }
         importedApplication.setId(existingApplication.getId());
 
         // Since we don't want to merge the ApplicationDetailObjects we would just assign the imported values directly
@@ -153,6 +168,12 @@ public class ImportExportUtils {
         }
 
         copyNestedNonNullProperties(importedApplication, existingApplication);
+    }
+
+    private static boolean hasAnvilPositioning(ApplicationDetail detail) {
+        return detail != null
+                && detail.getAppPositioning() != null
+                && detail.getAppPositioning().getType() == Application.AppPositioning.Type.ANVIL;
     }
 
     public static boolean isPageNameInUpdatedList(ApplicationJson applicationJson, String pageName) {

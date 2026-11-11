@@ -19,6 +19,10 @@ public class DynamoErrorMessages extends BasePluginErrorMessages {
     public static final String INVALID_REGION_ERROR_MSG =
             "The region must contain only letters, digits and hyphens, at most 63 characters, for example 'us-east-1'.";
 
+    public static final String INVALID_ENDPOINT_ERROR_MSG = "The endpoint host is not a valid host name or IP address.";
+
+    public static final String INVALID_ENDPOINT_PORT_ERROR_MSG = "The endpoint port must be from 1 to 65535.";
+
     public static final String INVALID_ATTRIBUTE_ERROR_MSG = "Invalid attribute/value by name %s";
 
     public static final String UNKNOWN_TYPE_DURING_DESERIALIZATION_ERROR_MSG =

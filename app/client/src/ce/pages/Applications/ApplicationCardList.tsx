@@ -83,6 +83,7 @@ function ApplicationCardList({
       {applications.length === 0 && (
         <NoAppsFound>
           <img
+            alt=""
             className="mb-7"
             src={getAssetUrl(`${ASSETS_CDN_URL}/no-applications.svg`)}
           />

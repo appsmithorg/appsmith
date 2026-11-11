@@ -1,5 +1,7 @@
 import { getPlugins } from "ee/selectors/entitiesSelector";
+import { PARTIAL_IMPORT_EXPORT, createMessage } from "ee/constants/messages";
 import {
+  Checkbox,
   Collapsible,
   CollapsibleContent,
   CollapsibleHeader,
@@ -66,11 +68,30 @@ const JSObjectsNQueriesExport = ({
     updateSelectedQueries(updatedSelectedNodes);
   };
 
+  const allQueryIds = Object.values(data).flatMap((items) =>
+    items.map((item) => item.entity.id),
+  );
+  const isAllSelected = allQueryIds.every((id) => selectedQueries.includes(id));
+
   return (
     <div
       className="pl-4 pr-4"
       data-testid="t--partialExportModal-queriesSection"
     >
+      {allQueryIds.length > 0 && (
+        <Checkbox
+          className="mb-4"
+          data-testid="t--partial-export-modal-queries-select-all"
+          isSelected={isAllSelected}
+          onChange={(isSelected) =>
+            updateSelectedQueries(isSelected ? allQueryIds : [])
+          }
+        >
+          <Text kind="body-m" renderAs="p">
+            {createMessage(PARTIAL_IMPORT_EXPORT.export.selectAll)}
+          </Text>
+        </Checkbox>
+      )}
       {Object.keys(data).map((dsName) => (
         <Collapsible isOpen key={dsName}>
           <CollapsibleHeader>
