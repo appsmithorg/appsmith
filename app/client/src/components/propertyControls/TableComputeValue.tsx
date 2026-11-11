@@ -162,12 +162,24 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
     if (!isComputedValue) return propertyValue;
 
     // Extract the computation logic from the full binding string
-    // Input example: "{{(() => { const tableData = Table1.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow.price * 2)) : currentRow.price * 2 })()}}"
+    // IIFE example: "{{(() => { const tableData = Table1.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow.price * 2)) : currentRow.price * 2 })()}}"
+    // Legacy example: "{{Table1.processedTableData.map((currentRow, currentIndex) => ( !Table1.updatedRowIndices.includes(currentIndex)))}}"
     const mapSignatureIndex = propertyValue.indexOf(MAP_FUNCTION_SIGNATURE);
 
     // Find the actual computation expression between the map parentheses
     const computationStart = mapSignatureIndex + MAP_FUNCTION_SIGNATURE.length;
-    const computationEnd = propertyValue.lastIndexOf(")) : ");
+    const iifeComputationEnd = propertyValue.lastIndexOf(")) : ");
+    // Prefer the IIFE marker when present. Fall back to the legacy
+    // `{{table.processedTableData.map(... => (expr))}}` suffix so older
+    // Save/Discard Disabled bindings still unwrap for the property pane.
+    const computationEnd =
+      iifeComputationEnd !== -1
+        ? iifeComputationEnd
+        : propertyValue.lastIndexOf("))}}");
+
+    if (computationEnd === -1 || computationEnd < computationStart) {
+      return propertyValue;
+    }
 
     // Extract the computation expression between the map parentheses
     // Note: At this point, we're just extracting the raw expression like "currentRow.price * 2"
