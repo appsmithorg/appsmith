@@ -84,7 +84,7 @@ describe(
       let imageNameToUpload = "AAAGlobeChristmas.jpeg";
 
       let fixturePath = uid + "Globe.jpeg";
-      agHelper.ClickButton("Select Files"); //1 files selected
+      agHelper.ClickButton("Select Files"); //1 file selected
 
       agHelper.UploadFile(imageNameToUpload);
 
@@ -130,7 +130,7 @@ describe(
       imageNameToUpload = "AAAFlowerVase.jpeg";
       fixturePath = uid + "FlowerVase.jpeg";
       cy.wait(3000);
-      agHelper.ClickButton("Select Files"); //1 files selected
+      agHelper.ClickButton("Select Files"); //1 file selected
       agHelper.UploadFile(imageNameToUpload);
 
       agHelper.ClearNType(
@@ -178,12 +178,12 @@ describe(
     it("2. Edit from S3 Deployed crud page", function () {
       let imageNameToUpload = "Datatypes/Bridge.jpg"; //Massachusetts
       let fixturePath = uid + imageNameToUpload;
-      agHelper.ClickButton("Select Files"); //1 files selected
+      agHelper.ClickButton("Select Files"); //1 file selected
       agHelper.UploadFile(imageNameToUpload);
 
       agHelper.AssertElementAbsence(locators._buttonByText("Select Files")); //verifying buttons are changed
       agHelper.AssertElementVisibility(
-        locators._buttonByText("1 files selected"),
+        locators._buttonByText("1 file selected"),
       );
 
       agHelper.ClearTextField(
@@ -202,7 +202,7 @@ describe(
       assertHelper.AssertNetworkExecutionSuccess("@postExecute", true);
 
       agHelper.AssertElementVisibility(locators._buttonByText("Select Files"));
-      agHelper.AssertElementAbsence(locators._buttonByText("1 files selected"));
+      agHelper.AssertElementAbsence(locators._buttonByText("1 file selected"));
 
       agHelper.ValidateToastMessage("File Uploaded"); //Verifies bug # 6975
 
@@ -233,7 +233,7 @@ describe(
       agHelper.AssertElementAbsence(locators._visibleTextSpan("Update File")); //verifying Update File dialog is closed
 
       agHelper.GetNClick(dataSources._s3CrudIcons(fixturePath, "Edit"));
-      agHelper.ClickButton("Select File"); //1 files selected
+      agHelper.ClickButton("Select File"); //1 file selected
       agHelper.UploadFile(imageNameToUpload, true, 2);
 
       agHelper.AssertElementEnabledDisabled(dataSources._s3EditFileName);
@@ -299,7 +299,7 @@ describe(
         bulkyId = "BulkUpload/" + uid;
       // Datatypes/Maine.jpeg,
 
-      agHelper.ClickButton("Select Files"); //1 files selected
+      agHelper.ClickButton("Select Files"); //1 file selected
       agHelper.UploadFile(imageNameToUpload, false);
 
       agHelper.ClickButton("Add more");
