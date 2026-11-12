@@ -776,4 +776,45 @@ public class ApplicationPageServiceTest {
                 .assertNext(newPage -> assertThat(newPage.isDeleted()).isFalse())
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void deleteApplication_GitConnectedAppWithFavoritedBaseApp_AllBranchesArchived() {
+        Application application = new Application();
+        application.setName("app" + UUID.randomUUID());
+        GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
+        gitArtifactMetadata.setRefName("branch1");
+        gitArtifactMetadata.setRemoteUrl("git@github.com:test/repo.git");
+        application.setGitApplicationMetadata(gitArtifactMetadata);
+
+        Application baseApplication = applicationPageService
+                .createApplication(application, workspace.getId())
+                .flatMap(createdApp -> {
+                    createdApp.getGitApplicationMetadata().setDefaultApplicationId(createdApp.getId());
+                    return applicationService.save(createdApp);
+                })
+                .block();
+        assertThat(baseApplication).isNotNull();
+        String baseApplicationId = baseApplication.getId();
+
+        baseApplication.setId(null);
+        baseApplication.getGitApplicationMetadata().setRefName("branch2");
+        String branchApplicationId =
+                applicationRepository.save(baseApplication).block().getId();
+
+        // Every branch removes the same base application id from favorites during delete.
+        userDataService.toggleFavoriteApplication(baseApplicationId).block();
+
+        StepVerifier.create(applicationPageService.deleteApplication(baseApplicationId))
+                .assertNext(deletedApplication ->
+                        assertThat(deletedApplication.getId()).isEqualTo(baseApplicationId))
+                .verifyComplete();
+
+        StepVerifier.create(applicationRepository.findById(baseApplicationId)).verifyComplete();
+        StepVerifier.create(applicationRepository.findById(branchApplicationId)).verifyComplete();
+        StepVerifier.create(userDataService.getForCurrentUser())
+                .assertNext(userData ->
+                        assertThat(userData.getFavoriteApplicationIds()).doesNotContain(baseApplicationId))
+                .verifyComplete();
+    }
 }

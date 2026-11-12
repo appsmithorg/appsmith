@@ -570,14 +570,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     }
                     return Flux.fromIterable(List.of(application));
                 })
-                // Limit concurrency to avoid saturating the event loop during deletion of
-                // git-connected apps with many branches
-                .flatMap(
-                        application -> {
-                            log.debug("Archiving application with id: {}", application.getId());
-                            return deleteApplicationByResource(application);
-                        },
-                        2)
+                // Archive branches one at a time. Each branch is archived in its own transaction, and all
+                // branches remove the same base application id from users' favorites, so running them
+                // concurrently causes write conflicts that abort the delete.
+                .concatMap(application -> {
+                    log.debug("Archiving application with id: {}", application.getId());
+                    return deleteApplicationByResource(application);
+                })
                 .then(applicationMono);
     }
 
