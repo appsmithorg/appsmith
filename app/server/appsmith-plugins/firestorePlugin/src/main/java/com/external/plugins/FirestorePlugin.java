@@ -119,8 +119,11 @@ public class FirestorePlugin extends BasePlugin {
         private static final int DATABASE_ID_PROPERTY_INDEX = 0;
 
         // Firestore database IDs: 4 to 63 lowercase letters, numbers or hyphens, starting with a letter and ending
-        // with a letter or number.
+        // with a letter or number, and not shaped like a UUID.
         private static final Pattern DATABASE_ID_PATTERN = Pattern.compile("^[a-z][a-z0-9-]{2,61}[a-z0-9]$");
+
+        private static final Pattern UUID_LIKE_PATTERN =
+                Pattern.compile("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$");
 
         @Override
         @Deprecated
@@ -1054,7 +1057,8 @@ public class FirestorePlugin extends BasePlugin {
 
             final String databaseId = resolveDatabaseId(datasourceConfiguration);
             if (!DEFAULT_DATABASE_ID.equals(databaseId)
-                    && !DATABASE_ID_PATTERN.matcher(databaseId).matches()) {
+                    && (!DATABASE_ID_PATTERN.matcher(databaseId).matches()
+                            || UUID_LIKE_PATTERN.matcher(databaseId).matches())) {
                 invalids.add(FirestoreErrorMessages.DS_INVALID_DATABASE_ID_ERROR_MSG);
             }
 

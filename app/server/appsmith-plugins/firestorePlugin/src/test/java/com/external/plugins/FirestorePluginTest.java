@@ -918,7 +918,8 @@ public class FirestorePluginTest {
                 "abc", // 3 characters, below the minimum of 4
                 "a".repeat(64), // 64 characters, above the maximum of 63
                 "1abc", // leading digit
-                "abc-" // trailing hyphen
+                "abc-", // trailing hyphen
+                "f47ac10b-58cc-0372-8567-0e02b2c3d479" // UUID-like
                 );
     }
 
