@@ -748,6 +748,12 @@ public class ApplicationPageServiceTest {
                 .verifyComplete();
     }
 
+    /**
+     * Deleting an application archives its actions, pages and themes before archiving the application itself.
+     * This test makes a later step (removing the app from favorites) fail after those resources are archived,
+     * and checks that the whole delete is rolled back: the application and its page must both still be live,
+     * instead of leaving an application whose pages are already gone.
+     */
     @Test
     @WithUserDetails("api_user")
     public void deleteApplication_WhenLaterArchiveStepFails_RollsBackArchivedResources() {
@@ -777,6 +783,12 @@ public class ApplicationPageServiceTest {
                 .verifyComplete();
     }
 
+    /**
+     * A Git-connected application is stored as one application per branch, and every branch removes the same
+     * base application id from users' favorites when it is deleted. This test deletes an application with two
+     * branches whose base application is favorited, and checks that both branches are archived and the favorite
+     * is removed, instead of the branches conflicting with each other and failing the delete.
+     */
     @Test
     @WithUserDetails("api_user")
     public void deleteApplication_GitConnectedAppWithFavoritedBaseApp_AllBranchesArchived() {
@@ -818,6 +830,10 @@ public class ApplicationPageServiceTest {
                 .verifyComplete();
     }
 
+    /**
+     * The user has favorited two applications and deletes one of them. This test checks that only the deleted
+     * application is removed from the user's favorites, and the other favorite is left untouched.
+     */
     @Test
     @WithUserDetails("api_user")
     public void deleteApplication_WhenOtherAppAlsoFavorited_OnlyDeletedAppRemovedFromFavorites() {
