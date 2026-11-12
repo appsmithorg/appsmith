@@ -31,16 +31,79 @@ import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { klonaRegularWithTelemetry } from "utils/helpers";
+import { getAppsmithConfigs } from "ee/configs";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import store from "store";
+import {
+  EMPTY_UPPY_LOCALE,
+  ensureUppyLocale,
+  formatXFilesSelected,
+  getDashboardLocaleOption,
+  resolveUppyLocaleId,
+  type UppyLocale,
+} from "../utils/uppyLocale";
 
 const CSV_ARRAY_LABEL = "Array of Objects (CSV, XLS(X), JSON, TSV)";
 
 const ARRAY_CSV_HELPER_TEXT = `All non CSV, XLS(X), JSON or TSV filetypes will have an empty value. \n Large files used in widgets directly might slow down the app.`;
+
+/** Instance default; configs do not change at runtime. */
+const defaultHtmlLang = getAppsmithConfigs().defaultHtmlLang || "";
+
+/** Same resolution as published `<html lang>` (app setting → instance default → en). */
+function readAppHtmlLang(): string {
+  const application = getCurrentApplication(store.getState());
+
+  return (
+    application?.applicationDetail?.htmlLang ||
+    defaultHtmlLang ||
+    "en"
+  ).trim();
+}
+
+type HtmlLangListener = (htmlLang: string) => void;
+
+/** One Redux subscription shared by all FilePicker instances on the page. */
+const htmlLangListeners = new Set<HtmlLangListener>();
+let sharedStoreUnsubscribe: (() => void) | null = null;
+let lastNotifiedHtmlLang: string | null = null;
+
+function subscribeAppHtmlLang(listener: HtmlLangListener): () => void {
+  htmlLangListeners.add(listener);
+
+  if (!sharedStoreUnsubscribe) {
+    lastNotifiedHtmlLang = readAppHtmlLang();
+    sharedStoreUnsubscribe = store.subscribe(() => {
+      const nextHtmlLang = readAppHtmlLang();
+
+      if (nextHtmlLang === lastNotifiedHtmlLang) {
+        return;
+      }
+
+      lastNotifiedHtmlLang = nextHtmlLang;
+      htmlLangListeners.forEach((notify) => notify(nextHtmlLang));
+    });
+  }
+
+  return () => {
+    htmlLangListeners.delete(listener);
+
+    if (htmlLangListeners.size === 0 && sharedStoreUnsubscribe) {
+      sharedStoreUnsubscribe();
+      sharedStoreUnsubscribe = null;
+      lastNotifiedHtmlLang = null;
+    }
+  };
+}
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
   FilePickerWidgetState
 > {
   private isWidgetUnmounting: boolean;
+  private appliedHtmlLang: string | null = null;
+  private unsubscribeHtmlLang: (() => void) | null = null;
+  private syncLocaleGeneration = 0;
 
   constructor(props: FilePickerWidgetProps) {
     super(props);
@@ -49,6 +112,7 @@ class FilePickerWidget extends BaseWidget<
       areFilesLoading: false,
       isWaitingForUppyToLoad: false,
       isUppyModalOpen: false,
+      uppyLocale: null,
     };
   }
 
@@ -450,12 +514,15 @@ class FilePickerWidget extends BaseWidget<
    */
   loadAndInitUppyOnce = _.memoize(async () => {
     const { Uppy } = await importUppy();
+    const htmlLang = readAppHtmlLang();
+    const uppyLocale = await ensureUppyLocale(htmlLang);
 
     const uppyState = {
       id: this.props.widgetId,
       autoProceed: false,
       allowMultipleUploads: true,
       debug: false,
+      locale: uppyLocale ?? EMPTY_UPPY_LOCALE,
       restrictions: {
         maxFileSize: this.props.maxFileSize
           ? this.props.maxFileSize * 1024 * 1024
@@ -473,21 +540,84 @@ class FilePickerWidget extends BaseWidget<
 
     const uppy = Uppy(uppyState);
 
-    await this.initializeUppyEventListeners(uppy);
+    await this.initializeUppyEventListeners(uppy, htmlLang, uppyLocale);
     await this.initializeSelectedFiles(uppy);
 
     return uppy;
   });
 
   /**
+   * Apply (or re-apply) Uppy locale from the current app HTML language.
+   * Safe to call when htmlLang arrives late or changes in App Settings.
+   * Retries once on failure so a transient error does not leave the widget
+   * stuck on the wrong language until remount or another lang change.
+   */
+  syncLocaleFromApp = async (isRetry = false) => {
+    const generation = ++this.syncLocaleGeneration;
+    const htmlLang = readAppHtmlLang();
+
+    try {
+      const uppyLocale = await ensureUppyLocale(htmlLang);
+
+      if (generation !== this.syncLocaleGeneration || this.isWidgetUnmounting) {
+        return;
+      }
+
+      // Soft-fail from ensureUppyLocale returns null without throwing. Treat a
+      // missing expected pack as a sync failure so the catch/retry path runs
+      // and appliedHtmlLang is not marked done.
+      if (resolveUppyLocaleId(htmlLang) && !uppyLocale) {
+        throw new Error(
+          `Uppy locale pack unavailable for htmlLang=${htmlLang}`,
+        );
+      }
+
+      const uppy = await this.loadAndInitUppyOnce();
+
+      if (generation !== this.syncLocaleGeneration || this.isWidgetUnmounting) {
+        return;
+      }
+
+      uppy.setOptions({
+        locale: uppyLocale ?? EMPTY_UPPY_LOCALE,
+      });
+
+      const dashboardPlugin = uppy.getPlugin("Dashboard") as
+        | Dashboard
+        | undefined;
+
+      dashboardPlugin?.setOptions({
+        locale: getDashboardLocaleOption(htmlLang, uppyLocale),
+      });
+
+      const webcamPlugin = uppy.getPlugin("Webcam");
+
+      webcamPlugin?.setOptions({
+        locale: uppyLocale ?? EMPTY_UPPY_LOCALE,
+      });
+
+      this.appliedHtmlLang = htmlLang;
+      this.setState({ uppyLocale });
+    } catch (e) {
+      log.debug("Error syncing FilePicker Uppy locale", e);
+
+      if (!isRetry && !this.isWidgetUnmounting) {
+        await this.syncLocaleFromApp(true);
+      }
+    }
+  };
+
+  /**
    * set states on the uppy instance with new values
    */
   reinitializeUppy = async (props: FilePickerWidgetProps) => {
+    const uppyLocale = this.state.uppyLocale ?? EMPTY_UPPY_LOCALE;
     const uppyState = {
       id: props.widgetId,
       autoProceed: false,
       allowMultipleUploads: true,
       debug: false,
+      locale: uppyLocale,
       restrictions: {
         maxFileSize: props.maxFileSize ? props.maxFileSize * 1024 * 1024 : null,
         maxNumberOfFiles: props.maxNumFiles,
@@ -509,7 +639,11 @@ class FilePickerWidget extends BaseWidget<
   /**
    * add all uppy events listeners needed
    */
-  initializeUppyEventListeners = async (uppy: Uppy) => {
+  initializeUppyEventListeners = async (
+    uppy: Uppy,
+    htmlLang: string,
+    uppyLocale: UppyLocale | null,
+  ) => {
     const { Dashboard, GoogleDrive, OneDrive, Url, Webcam } =
       await importUppy();
 
@@ -544,11 +678,7 @@ class FilePickerWidget extends BaseWidget<
             isUppyModalOpen: false,
           });
         },
-        locale: {
-          strings: {
-            closeModal: "Close",
-          },
-        },
+        locale: getDashboardLocaleOption(htmlLang, uppyLocale),
       })
       .use(GoogleDrive, { companionUrl: "https://companion.uppy.io" })
       .use(Url, { companionUrl: "https://companion.uppy.io" })
@@ -562,7 +692,7 @@ class FilePickerWidget extends BaseWidget<
         countdown: false,
         mirror: true,
         facingMode: "user",
-        locale: {},
+        locale: uppyLocale ?? EMPTY_UPPY_LOCALE,
       });
     }
 
@@ -770,8 +900,14 @@ class FilePickerWidget extends BaseWidget<
   async componentDidMount() {
     super.componentDidMount();
 
+    this.unsubscribeHtmlLang = subscribeAppHtmlLang((nextHtmlLang) => {
+      if (nextHtmlLang !== this.appliedHtmlLang) {
+        void this.syncLocaleFromApp();
+      }
+    });
+
     try {
-      await this.loadAndInitUppyOnce();
+      await this.syncLocaleFromApp();
     } catch (e) {
       log.debug("Error in initializing uppy");
     }
@@ -779,6 +915,8 @@ class FilePickerWidget extends BaseWidget<
 
   componentWillUnmount() {
     this.isWidgetUnmounting = true;
+    this.unsubscribeHtmlLang?.();
+    this.unsubscribeHtmlLang = null;
     this.loadAndInitUppyOnce().then((uppy) => {
       uppy.close();
     });
@@ -800,13 +938,18 @@ class FilePickerWidget extends BaseWidget<
   }
 
   getWidgetView() {
+    const selectedFiles = this.props.selectedFiles || [];
+    const buttonLabel =
+      selectedFiles.length > 0
+        ? formatXFilesSelected(selectedFiles.length, this.state.uppyLocale)
+        : this.props.label;
+
     return (
       <>
         <FilePickerComponent
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
           buttonColor={this.props.buttonColor}
-          files={this.props.selectedFiles || []}
           isDisabled={this.props.isDisabled}
           isLoading={
             this.props.isLoading ||
@@ -814,7 +957,7 @@ class FilePickerWidget extends BaseWidget<
             this.state.isWaitingForUppyToLoad
           }
           key={this.props.widgetId}
-          label={this.props.label}
+          label={buttonLabel}
           maxWidth={this.props.maxWidth}
           minHeight={this.props.minHeight}
           minWidth={this.props.minWidth}
@@ -855,6 +998,7 @@ interface FilePickerWidgetState extends WidgetState {
   areFilesLoading: boolean;
   isWaitingForUppyToLoad: boolean;
   isUppyModalOpen: boolean;
+  uppyLocale: UppyLocale | null;
 }
 
 interface FilePickerWidgetProps extends WidgetProps {
