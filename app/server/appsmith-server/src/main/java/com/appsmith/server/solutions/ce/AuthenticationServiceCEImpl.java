@@ -248,10 +248,10 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .flatMap(datasourceStorage -> {
                     OAuth2 oAuth2 = (OAuth2)
                             datasourceStorage.getDatasourceConfiguration().getAuthentication();
-                    final HttpClient httpClient = HttpClient.create();
+                    HttpClient httpClient = HttpClient.create();
 
                     if (oAuth2.getUseSelfSignedCert()) {
-                        httpClient.secure(
+                        httpClient = httpClient.secure(
                                 SSLHelper.sslCheckForHttpClient(datasourceStorage.getDatasourceConfiguration()));
                     }
 
