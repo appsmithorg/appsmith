@@ -47,10 +47,12 @@ const CSV_ARRAY_LABEL = "Array of Objects (CSV, XLS(X), JSON, TSV)";
 
 const ARRAY_CSV_HELPER_TEXT = `All non CSV, XLS(X), JSON or TSV filetypes will have an empty value. \n Large files used in widgets directly might slow down the app.`;
 
+/** Instance default; configs do not change at runtime. */
+const defaultHtmlLang = getAppsmithConfigs().defaultHtmlLang || "";
+
 /** Same resolution as published `<html lang>` (app setting → instance default → en). */
 function readAppHtmlLang(): string {
   const application = getCurrentApplication(store.getState());
-  const { defaultHtmlLang } = getAppsmithConfigs();
 
   return (
     application?.applicationDetail?.htmlLang ||
