@@ -20,7 +20,7 @@
         },
         {
           "label": "Database ID",
-          "subtitle": "Use this for a named Firestore database. Leave empty for the (default) database.",
+          "subtitle": "Use this for a named Firestore database. Leave empty for the (default) database. Database URL does not select the database.",
           "configProperty": "datasourceConfiguration.properties[0].value",
           "controlType": "INPUT_TEXT",
           "isRequired": false,

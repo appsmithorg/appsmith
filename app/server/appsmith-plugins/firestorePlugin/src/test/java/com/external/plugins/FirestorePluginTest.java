@@ -102,6 +102,15 @@ public class FirestorePluginTest {
 
     static DatasourceConfiguration dsConfig = new DatasourceConfiguration();
 
+    @AfterEach
+    public void deleteNamedFirebaseApps() {
+        // FirebaseApp instances live in a JVM-wide registry. Remove the ones created by datasourceCreate so that
+        // tests do not leak apps into each other. The [DEFAULT] app is left alone.
+        FirebaseApp.getApps().stream()
+                .filter(app -> !FirebaseApp.DEFAULT_APP_NAME.equals(app.getName()))
+                .forEach(FirebaseApp::delete);
+    }
+
     @BeforeAll
     public static void setUp() throws ExecutionException, InterruptedException, ParseException {
         firestoreConnection = FirestoreOptions.newBuilder()
@@ -802,15 +811,6 @@ public class FirestorePluginTest {
         return ((ServiceAccountCredentials) firestore.getOptions().getCredentials()).getClientEmail();
     }
 
-    @AfterEach
-    public void deleteNamedFirebaseApps() {
-        // FirebaseApp instances live in a JVM-wide registry. Remove the ones created by datasourceCreate so that
-        // tests do not leak apps into each other. The [DEFAULT] app is left alone.
-        FirebaseApp.getApps().stream()
-                .filter(app -> !FirebaseApp.DEFAULT_APP_NAME.equals(app.getName()))
-                .forEach(FirebaseApp::delete);
-    }
-
     @Test
     public void datasourceCreate_withDatabaseId_usesNamedDatabase() throws NoSuchAlgorithmException {
         String projectId = "named-db-project";
@@ -842,13 +842,15 @@ public class FirestorePluginTest {
 
         StepVerifier.create(
                         pluginExecutor.datasourceCreate(serviceAccountDatasourceConfig(projectId, clientJson, null)))
-                .assertNext(firestore ->
-                        assertEquals("(default)", firestore.getOptions().getDatabaseId()))
+                .assertNext(firestore -> assertEquals(
+                        FirestorePlugin.FirestorePluginExecutor.DEFAULT_DATABASE_ID,
+                        firestore.getOptions().getDatabaseId()))
                 .verifyComplete();
 
         StepVerifier.create(pluginExecutor.datasourceCreate(serviceAccountDatasourceConfig(projectId, clientJson, "")))
-                .assertNext(firestore ->
-                        assertEquals("(default)", firestore.getOptions().getDatabaseId()))
+                .assertNext(firestore -> assertEquals(
+                        FirestorePlugin.FirestorePluginExecutor.DEFAULT_DATABASE_ID,
+                        firestore.getOptions().getDatabaseId()))
                 .verifyComplete();
     }
 
@@ -888,17 +890,29 @@ public class FirestorePluginTest {
 
     @Test
     public void validateDatasource_invalidDatabaseId_returnsError() {
-        DatasourceConfiguration datasourceConfiguration =
-                serviceAccountDatasourceConfig("some-project", "{}", "My_DB!");
+        String[] invalidIds = {
+            "My_DB!", // invalid characters
+            "MyDb", // uppercase
+            "abc", // 3 characters, below the minimum of 4
+            "a".repeat(64), // 64 characters, above the maximum of 63
+            "1abc", // leading digit
+            "abc-", // trailing hyphen
+        };
+        for (String databaseId : invalidIds) {
+            DatasourceConfiguration datasourceConfiguration =
+                    serviceAccountDatasourceConfig("some-project", "{}", databaseId);
 
-        Set<String> invalids = pluginExecutor.validateDatasource(datasourceConfiguration);
+            Set<String> invalids = pluginExecutor.validateDatasource(datasourceConfiguration);
 
-        assertTrue(invalids.contains(FirestoreErrorMessages.DS_INVALID_DATABASE_ID_ERROR_MSG));
+            assertTrue(
+                    invalids.contains(FirestoreErrorMessages.DS_INVALID_DATABASE_ID_ERROR_MSG),
+                    "Expected a validation error for database ID '" + databaseId + "'");
+        }
     }
 
     @Test
     public void validateDatasource_validOrDefaultDatabaseId_returnsNoError() {
-        for (String databaseId : new String[] {"my-db", "  my-db  ", "(default)", "", "  "}) {
+        for (String databaseId : new String[] {"my-db", "  my-db  ", "abcd", "a".repeat(63), "(default)", "", "  "}) {
             DatasourceConfiguration datasourceConfiguration =
                     serviceAccountDatasourceConfig("some-project", "{}", databaseId);
 
@@ -906,6 +920,18 @@ public class FirestorePluginTest {
                     pluginExecutor.validateDatasource(datasourceConfiguration).isEmpty(),
                     "Expected no validation errors for database ID '" + databaseId + "'");
         }
+    }
+
+    @Test
+    public void resolveDatabaseId_nullFirstProperty_returnsDefault() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        List<Property> properties = new ArrayList<>();
+        properties.add(null);
+        datasourceConfiguration.setProperties(properties);
+
+        assertEquals(
+                FirestorePlugin.FirestorePluginExecutor.DEFAULT_DATABASE_ID,
+                FirestorePlugin.FirestorePluginExecutor.resolveDatabaseId(datasourceConfiguration));
     }
 
     @Test

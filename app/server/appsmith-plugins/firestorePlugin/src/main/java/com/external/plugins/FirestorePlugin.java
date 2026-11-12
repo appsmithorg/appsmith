@@ -1024,6 +1024,8 @@ public class FirestorePlugin extends BasePlugin {
             // This is empty because there's no concept of destroying a Firestore connection here.
             // The FirebaseApp behind the connection stays in the JVM-wide registry and is reused by any datasource
             // with the same project ID and service account credentials.
+            // Do not delete the FirebaseApp or close the Firestore here: other datasources with the same project,
+            // credentials and database ID share the same instances.
         }
 
         @Override
