@@ -37,6 +37,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.testcontainers.containers.FirestoreEmulatorContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -62,6 +64,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
@@ -80,12 +83,12 @@ import static com.external.constants.FieldName.PREV;
 import static com.external.constants.FieldName.START_AFTER;
 import static com.external.constants.FieldName.TIMESTAMP_VALUE_PATH;
 import static com.external.constants.FieldName.WHERE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
@@ -103,7 +106,7 @@ public class FirestorePluginTest {
     static DatasourceConfiguration dsConfig = new DatasourceConfiguration();
 
     @AfterEach
-    public void deleteNamedFirebaseApps() {
+    void deleteNamedFirebaseApps() {
         // FirebaseApp instances live in a JVM-wide registry. Remove the ones created by datasourceCreate so that
         // tests do not leak apps into each other. The [DEFAULT] app is left alone.
         FirebaseApp.getApps().stream()
@@ -812,126 +815,158 @@ public class FirestorePluginTest {
     }
 
     @Test
-    public void datasourceCreate_withDatabaseId_usesNamedDatabase() throws NoSuchAlgorithmException {
+    void should_useNamedDatabase_when_databaseIdIsSet() throws NoSuchAlgorithmException {
+        // Given
         String projectId = "named-db-project";
         DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig(
                 projectId, serviceAccountJson(projectId, "sa@named-db-project.iam.gserviceaccount.com"), "my-db");
 
-        StepVerifier.create(pluginExecutor.datasourceCreate(datasourceConfiguration))
+        // When
+        Mono<Firestore> result = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        // Then
+        StepVerifier.create(result)
                 .assertNext(firestore ->
-                        assertEquals("my-db", firestore.getOptions().getDatabaseId()))
+                        assertThat(firestore.getOptions().getDatabaseId()).isEqualTo("my-db"))
                 .verifyComplete();
     }
 
     @Test
-    public void datasourceCreate_withPaddedDatabaseId_trimsWhitespace() throws NoSuchAlgorithmException {
+    void should_trimWhitespace_when_databaseIdIsPadded() throws NoSuchAlgorithmException {
+        // Given
         String projectId = "padded-db-project";
         DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig(
                 projectId, serviceAccountJson(projectId, "sa@padded-db-project.iam.gserviceaccount.com"), "  my-db  ");
 
-        StepVerifier.create(pluginExecutor.datasourceCreate(datasourceConfiguration))
+        // When
+        Mono<Firestore> result = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        // Then
+        StepVerifier.create(result)
                 .assertNext(firestore ->
-                        assertEquals("my-db", firestore.getOptions().getDatabaseId()))
+                        assertThat(firestore.getOptions().getDatabaseId()).isEqualTo("my-db"))
                 .verifyComplete();
     }
 
     @Test
-    public void datasourceCreate_withoutDatabaseId_usesDefaultDatabase() throws NoSuchAlgorithmException {
+    void should_useDefaultDatabase_when_databaseIdIsAbsentOrEmpty() throws NoSuchAlgorithmException {
+        // Given
         String projectId = "default-db-project";
         String clientJson = serviceAccountJson(projectId, "sa@default-db-project.iam.gserviceaccount.com");
 
-        StepVerifier.create(
-                        pluginExecutor.datasourceCreate(serviceAccountDatasourceConfig(projectId, clientJson, null)))
-                .assertNext(firestore -> assertEquals(
-                        FirestorePlugin.FirestorePluginExecutor.DEFAULT_DATABASE_ID,
-                        firestore.getOptions().getDatabaseId()))
-                .verifyComplete();
+        // When
+        Mono<Firestore> withoutProperty =
+                pluginExecutor.datasourceCreate(serviceAccountDatasourceConfig(projectId, clientJson, null));
+        Mono<Firestore> withEmptyProperty =
+                pluginExecutor.datasourceCreate(serviceAccountDatasourceConfig(projectId, clientJson, ""));
 
-        StepVerifier.create(pluginExecutor.datasourceCreate(serviceAccountDatasourceConfig(projectId, clientJson, "")))
-                .assertNext(firestore -> assertEquals(
-                        FirestorePlugin.FirestorePluginExecutor.DEFAULT_DATABASE_ID,
-                        firestore.getOptions().getDatabaseId()))
+        // Then
+        StepVerifier.create(withoutProperty)
+                .assertNext(firestore -> assertThat(firestore.getOptions().getDatabaseId())
+                        .isEqualTo(FirestorePlugin.FirestorePluginExecutor.DEFAULT_DATABASE_ID))
+                .verifyComplete();
+        StepVerifier.create(withEmptyProperty)
+                .assertNext(firestore -> assertThat(firestore.getOptions().getDatabaseId())
+                        .isEqualTo(FirestorePlugin.FirestorePluginExecutor.DEFAULT_DATABASE_ID))
                 .verifyComplete();
     }
 
     @Test
-    public void datasourceCreate_sameProjectDifferentCredentials_doesNotShareApp() throws NoSuchAlgorithmException {
+    void should_notShareApp_when_sameProjectHasDifferentCredentials() throws NoSuchAlgorithmException {
+        // Given
         String projectId = "shared-project";
         DatasourceConfiguration first = serviceAccountDatasourceConfig(
                 projectId, serviceAccountJson(projectId, "first@shared-project.iam.gserviceaccount.com"), null);
         DatasourceConfiguration second = serviceAccountDatasourceConfig(
                 projectId, serviceAccountJson(projectId, "second@shared-project.iam.gserviceaccount.com"), null);
 
+        // When
         Firestore firstFirestore = pluginExecutor.datasourceCreate(first).block();
         Firestore secondFirestore = pluginExecutor.datasourceCreate(second).block();
 
-        assertNotNull(firstFirestore);
-        assertNotNull(secondFirestore);
-        assertEquals("first@shared-project.iam.gserviceaccount.com", clientEmailOf(firstFirestore));
-        assertEquals("second@shared-project.iam.gserviceaccount.com", clientEmailOf(secondFirestore));
+        // Then
+        assertThat(firstFirestore).isNotNull();
+        assertThat(secondFirestore).isNotNull();
+        assertThat(clientEmailOf(firstFirestore)).isEqualTo("first@shared-project.iam.gserviceaccount.com");
+        assertThat(clientEmailOf(secondFirestore)).isEqualTo("second@shared-project.iam.gserviceaccount.com");
     }
 
     @Test
-    public void datasourceCreate_calledTwiceSameConfig_reusesApp() throws NoSuchAlgorithmException {
+    void should_reuseApp_when_sameConfigIsCreatedTwice() throws NoSuchAlgorithmException {
+        // Given
         String projectId = "reuse-project";
         DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig(
                 projectId, serviceAccountJson(projectId, "sa@reuse-project.iam.gserviceaccount.com"), "my-db");
-
         Firestore first =
                 pluginExecutor.datasourceCreate(datasourceConfiguration).block();
         int appCount = FirebaseApp.getApps().size();
+
+        // When
         Firestore second =
                 pluginExecutor.datasourceCreate(datasourceConfiguration).block();
 
-        assertNotNull(first);
-        assertSame(first, second);
-        assertEquals(appCount, FirebaseApp.getApps().size());
+        // Then
+        assertThat(first).isNotNull();
+        assertThat(second).isSameAs(first);
+        assertThat(FirebaseApp.getApps()).hasSize(appCount);
+    }
+
+    static Stream<String> invalidDatabaseIds() {
+        return Stream.of(
+                "My_DB!", // invalid characters
+                "MyDb", // uppercase
+                "abc", // 3 characters, below the minimum of 4
+                "a".repeat(64), // 64 characters, above the maximum of 63
+                "1abc", // leading digit
+                "abc-" // trailing hyphen
+                );
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidDatabaseIds")
+    void should_returnInvalidDatabaseIdError_when_databaseIdIsInvalid(String databaseId) {
+        // Given
+        DatasourceConfiguration datasourceConfiguration =
+                serviceAccountDatasourceConfig("some-project", "{}", databaseId);
+
+        // When
+        Set<String> invalids = pluginExecutor.validateDatasource(datasourceConfiguration);
+
+        // Then
+        assertThat(invalids).contains(FirestoreErrorMessages.DS_INVALID_DATABASE_ID_ERROR_MSG);
+    }
+
+    static Stream<String> validOrDefaultDatabaseIds() {
+        return Stream.of("my-db", "  my-db  ", "abcd", "a".repeat(63), "(default)", "", "  ");
+    }
+
+    @ParameterizedTest
+    @MethodSource("validOrDefaultDatabaseIds")
+    void should_returnNoErrors_when_databaseIdIsValidOrDefault(String databaseId) {
+        // Given
+        DatasourceConfiguration datasourceConfiguration =
+                serviceAccountDatasourceConfig("some-project", "{}", databaseId);
+
+        // When
+        Set<String> invalids = pluginExecutor.validateDatasource(datasourceConfiguration);
+
+        // Then
+        assertThat(invalids).isEmpty();
     }
 
     @Test
-    public void validateDatasource_invalidDatabaseId_returnsError() {
-        String[] invalidIds = {
-            "My_DB!", // invalid characters
-            "MyDb", // uppercase
-            "abc", // 3 characters, below the minimum of 4
-            "a".repeat(64), // 64 characters, above the maximum of 63
-            "1abc", // leading digit
-            "abc-", // trailing hyphen
-        };
-        for (String databaseId : invalidIds) {
-            DatasourceConfiguration datasourceConfiguration =
-                    serviceAccountDatasourceConfig("some-project", "{}", databaseId);
-
-            Set<String> invalids = pluginExecutor.validateDatasource(datasourceConfiguration);
-
-            assertTrue(
-                    invalids.contains(FirestoreErrorMessages.DS_INVALID_DATABASE_ID_ERROR_MSG),
-                    "Expected a validation error for database ID '" + databaseId + "'");
-        }
-    }
-
-    @Test
-    public void validateDatasource_validOrDefaultDatabaseId_returnsNoError() {
-        for (String databaseId : new String[] {"my-db", "  my-db  ", "abcd", "a".repeat(63), "(default)", "", "  "}) {
-            DatasourceConfiguration datasourceConfiguration =
-                    serviceAccountDatasourceConfig("some-project", "{}", databaseId);
-
-            assertTrue(
-                    pluginExecutor.validateDatasource(datasourceConfiguration).isEmpty(),
-                    "Expected no validation errors for database ID '" + databaseId + "'");
-        }
-    }
-
-    @Test
-    public void resolveDatabaseId_nullFirstProperty_returnsDefault() {
+    void should_returnDefaultDatabaseId_when_firstPropertyIsNull() {
+        // Given
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         List<Property> properties = new ArrayList<>();
         properties.add(null);
         datasourceConfiguration.setProperties(properties);
 
-        assertEquals(
-                FirestorePlugin.FirestorePluginExecutor.DEFAULT_DATABASE_ID,
-                FirestorePlugin.FirestorePluginExecutor.resolveDatabaseId(datasourceConfiguration));
+        // When
+        String databaseId = FirestorePlugin.FirestorePluginExecutor.resolveDatabaseId(datasourceConfiguration);
+
+        // Then
+        assertThat(databaseId).isEqualTo(FirestorePlugin.FirestorePluginExecutor.DEFAULT_DATABASE_ID);
     }
 
     @Test
