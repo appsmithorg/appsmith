@@ -817,4 +817,25 @@ public class ApplicationPageServiceTest {
                         assertThat(userData.getFavoriteApplicationIds()).doesNotContain(baseApplicationId))
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void deleteApplication_WhenOtherAppAlsoFavorited_OnlyDeletedAppRemovedFromFavorites() {
+        String deletedApplicationId =
+                createPageMono(UUID.randomUUID().toString()).block().getApplicationId();
+        String keptApplicationId =
+                createPageMono(UUID.randomUUID().toString()).block().getApplicationId();
+        userDataService.toggleFavoriteApplication(deletedApplicationId).block();
+        userDataService.toggleFavoriteApplication(keptApplicationId).block();
+
+        StepVerifier.create(applicationPageService.deleteApplication(deletedApplicationId))
+                .expectNextCount(1)
+                .verifyComplete();
+
+        StepVerifier.create(userDataService.getForCurrentUser())
+                .assertNext(userData -> assertThat(userData.getFavoriteApplicationIds())
+                        .contains(keptApplicationId)
+                        .doesNotContain(deletedApplicationId))
+                .verifyComplete();
+    }
 }
