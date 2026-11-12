@@ -1562,26 +1562,7 @@ public class PostgresPluginTest {
      * fixture (other tests add and remove higher ids), so each query is bounded to them.
      */
     private List<Integer> selectUserIds(String body, List<Param> params) {
-        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody(body);
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property("preparedStatement", "true")));
-
-        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setParams(params);
-
-        ActionExecutionResult result = pluginExecutor
-                .datasourceCreate(dsConfig)
-                .flatMap(pool ->
-                        pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration))
-                .block();
-
-        assertNotNull(result);
-        assertTrue(result.getIsExecutionSuccess(), String.valueOf(result.getBody()));
-
-        List<Integer> ids = new ArrayList<>();
-        ((ArrayNode) result.getBody()).forEach(row -> ids.add(row.get("id").asInt()));
-        return ids;
+        return rowIds(runStatement(body, true, params));
     }
 
     private Param param(String key, String value, ClientDataType type) {
@@ -1633,6 +1614,190 @@ public class PostgresPluginTest {
                 List.of(param("binding1", "0", ClientDataType.NUMBER), param("binding2", "2", ClientDataType.NUMBER)));
 
         assertEquals(List.of(2), ids);
+    }
+
+    private ActionExecutionResult runStatement(String body, boolean prepared, List<Param> params) {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(body);
+        actionConfiguration.setPluginSpecifiedTemplates(
+                List.of(new Property("preparedStatement", String.valueOf(prepared))));
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(params);
+
+        // Close the pool on every path, so its idle connections do not use up the container's connection limit.
+        ConnectionContext<HikariDataSource> pool =
+                pluginExecutor.datasourceCreate(dsConfig).block();
+        assertNotNull(pool);
+
+        ActionExecutionResult result;
+        try {
+            result = pluginExecutor
+                    .executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration)
+                    .block();
+        } finally {
+            pool.getConnection().close();
+        }
+
+        assertNotNull(result);
+        assertTrue(result.getIsExecutionSuccess(), String.valueOf(result.getBody()));
+        return result;
+    }
+
+    private List<Integer> rowIds(ActionExecutionResult result) {
+        List<Integer> ids = new ArrayList<>();
+        ((ArrayNode) result.getBody()).forEach(row -> ids.add(row.get("id").asInt()));
+        return ids;
+    }
+
+    /*
+     * The null filters the MCP structured-query compiler emits on PostgreSQL (APP-16324): the column lower-cased and
+     * quoted, as in `"owner" IS NULL`. The SQL shape matches app/client/packages/mcp/src/builder/query.test.ts. Change
+     * both together. The test uses its own table so the shared `users` fixture is not changed.
+     */
+    /*
+     * The like and ilike filters the MCP compiler emits with a `match` (APP-16324 F1.3): the % is part of the bound
+     * VALUE, as in `subject LIKE ?` with "re%". This checks that a prepared parameter carries % as a wildcard, and that
+     * ILIKE ignores case where LIKE does not. The SQL shape matches app/client/packages/mcp/src/builder/query.test.ts.
+     */
+    @Test
+    public void testLikeFilterBindsTheWildcardInTheParameter() {
+        String rows = "(VALUES (1, 'Refund request'), (2, 're: billing'), (3, 'Other')) AS t(id, subject)";
+
+        assertEquals(
+                List.of(2),
+                rowIds(runStatement(
+                        "SELECT id FROM " + rows + " WHERE subject LIKE {{binding1}} ORDER BY id;",
+                        true,
+                        List.of(param("binding1", "re%", ClientDataType.STRING)))));
+        assertEquals(
+                List.of(1, 2),
+                rowIds(runStatement(
+                        "SELECT id FROM " + rows + " WHERE subject ILIKE {{binding1}} ORDER BY id;",
+                        true,
+                        List.of(param("binding1", "re%", ClientDataType.STRING)))));
+        // A suffix match: the % leads the bound value.
+        assertEquals(
+                List.of(2),
+                rowIds(runStatement(
+                        "SELECT id FROM " + rows + " WHERE subject LIKE {{binding1}} ORDER BY id;",
+                        true,
+                        List.of(param("binding1", "%billing", ClientDataType.STRING)))));
+    }
+
+    /*
+     * The coalesced group column the MCP compiler emits (APP-16324 F1.4): the fallback is a prepared parameter inside
+     * the select list, and GROUP BY uses the stored column. NULLs form one group, shown under the fallback. The SQL
+     * shape matches app/client/packages/mcp/src/builder/query.test.ts.
+     */
+    @Test
+    public void testCoalescedGroupColumnUsesAParameterFallback() {
+        String rows = "(VALUES ('1.0'), ('1.0'), (NULL), (NULL), (NULL)) AS t(\"appsmith_version\")";
+        ActionExecutionResult result = runStatement(
+                "SELECT COALESCE(\"appsmith_version\", {{binding1}}) AS \"appsmith_version\", COUNT(*) AS count FROM "
+                        + rows + " GROUP BY \"appsmith_version\" ORDER BY \"appsmith_version\" DESC;",
+                true,
+                List.of(param("binding1", "Unknown", ClientDataType.STRING)));
+
+        ArrayNode body = (ArrayNode) result.getBody();
+        assertEquals(2, body.size());
+        assertEquals("Unknown", body.get(0).get("appsmith_version").asText());
+        assertEquals(3, body.get(0).get("count").asInt());
+        assertEquals("1.0", body.get(1).get("appsmith_version").asText());
+        assertEquals(2, body.get(1).get("count").asInt());
+    }
+
+    /*
+     * The HAVING the MCP compiler emits (APP-16324 F1.5): the aggregate expression is repeated and compared with a
+     * prepared parameter, and a group column is tested by its quoted name. The SQL shape matches
+     * app/client/packages/mcp/src/builder/query.test.ts.
+     */
+    @Test
+    public void testHavingComparesTheAggregateWithAParameter() {
+        String rows = "(VALUES ('a'), ('a'), ('a'), ('b'), ('N/A'), ('N/A')) AS t(\"tag\")";
+        ActionExecutionResult result = runStatement(
+                "SELECT \"tag\", COUNT(*) AS count FROM " + rows
+                        + " GROUP BY \"tag\" HAVING COUNT(*) >= {{binding1}} AND \"tag\" != {{binding2}}"
+                        + " ORDER BY \"count\" DESC;",
+                true,
+                List.of(
+                        param("binding1", "2", ClientDataType.NUMBER),
+                        param("binding2", "N/A", ClientDataType.STRING)));
+
+        ArrayNode body = (ArrayNode) result.getBody();
+        assertEquals(1, body.size());
+        assertEquals("a", body.get(0).get("tag").asText());
+        assertEquals(3, body.get(0).get("count").asInt());
+    }
+
+    /*
+     * The split group column the MCP compiler emits (APP-16324 F1.6), as the Oracle tag-count query uses it: a lateral
+     * unnest of the delimited column with the separator as a prepared parameter, grouped and tested by the trimmed
+     * item. The SQL shape matches app/client/packages/mcp/src/builder/query.test.ts.
+     */
+    @Test
+    public void testSplitGroupColumnCountsEachTrimmedItem() {
+        // The NULL and '' rows have no items, so the CROSS JOIN leaves them out: they add no group and no count. The
+        // empty item in 'billing,,export' is kept and forms its own '' group.
+        String rows = "(VALUES ('billing, export'), ('billing'), ('N/A'), ('export ,billing'), (NULL), (''),"
+                + " ('billing,,export')) AS tickets(\"feature_tags\")";
+        ActionExecutionResult result = runStatement(
+                "SELECT TRIM(mcp_split.mcp_split_value) AS \"feature_tags\", COUNT(*) AS count FROM " + rows
+                        + " CROSS JOIN LATERAL unnest(string_to_array(\"feature_tags\", {{binding1}}))"
+                        + " AS mcp_split(mcp_split_value) GROUP BY TRIM(mcp_split.mcp_split_value)"
+                        + " HAVING TRIM(mcp_split.mcp_split_value) != {{binding2}} ORDER BY \"count\" DESC;",
+                true,
+                List.of(
+                        param("binding1", ",", ClientDataType.STRING),
+                        param("binding2", "N/A", ClientDataType.STRING)));
+
+        ArrayNode body = (ArrayNode) result.getBody();
+        assertEquals(3, body.size());
+        assertEquals("billing", body.get(0).get("feature_tags").asText());
+        assertEquals(4, body.get(0).get("count").asInt());
+        assertEquals("export", body.get(1).get("feature_tags").asText());
+        assertEquals(3, body.get(1).get("count").asInt());
+        assertEquals("", body.get(2).get("feature_tags").asText());
+        assertEquals(1, body.get(2).get("count").asInt());
+    }
+
+    @Test
+    public void testNullFilterOnWriteDeletesOnlyNullRows() {
+        runStatement("DROP TABLE IF EXISTS public.mcp_null_filter;", false, List.of());
+        runStatement("CREATE TABLE public.mcp_null_filter (id int, owner text);", false, List.of());
+        runStatement(
+                "INSERT INTO public.mcp_null_filter VALUES (1, NULL), (2, 'ada'), (3, NULL), (4, 'bob');",
+                false,
+                List.of());
+
+        try {
+            runStatement(
+                    "DELETE FROM public.mcp_null_filter WHERE \"owner\" IS NULL AND id > {{binding1}};",
+                    true,
+                    List.of(param("binding1", "1", ClientDataType.NUMBER)));
+
+            assertEquals(
+                    List.of(1, 2, 4),
+                    rowIds(runStatement("SELECT id FROM public.mcp_null_filter ORDER BY id;", false, List.of())));
+            assertEquals(
+                    List.of(2, 4),
+                    rowIds(runStatement(
+                            "SELECT id FROM public.mcp_null_filter WHERE \"owner\" IS NOT NULL ORDER BY id;",
+                            true,
+                            List.of())));
+
+            // Why the compiler refuses a null filter on a column named like its table: with no such column,
+            // PostgreSQL reads the quoted table name as the whole row, so this matches every row with no NULL field.
+            assertEquals(
+                    List.of(2, 4),
+                    rowIds(runStatement(
+                            "SELECT id FROM public.mcp_null_filter WHERE \"mcp_null_filter\" IS NOT NULL ORDER BY id;",
+                            true,
+                            List.of())));
+        } finally {
+            runStatement("DROP TABLE IF EXISTS public.mcp_null_filter;", false, List.of());
+        }
     }
 
     @Test

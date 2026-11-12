@@ -39,6 +39,7 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ArtifactCopyAudit;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -517,8 +518,10 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
         // means that even if the subscriber has cancelled its subscription, the create method still generates its
         // event.
-        return Mono.create(
-                sink -> forkApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+        // Suppress wraps the inner mono (same pattern as Git reload), so create/update/publish audit rows
+        // from the copy are skipped. The forked row is not in that skip list.
+        return Mono.create(sink -> ArtifactCopyAudit.suppress(forkApplicationMono)
+                .subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     public Mono<ApplicationImportDTO> forkApplicationToWorkspace(
@@ -558,11 +561,13 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     String sourceEnvironmentId = tuple.getT2();
                     return forkApplicationToWorkspaceWithEnvironment(
                                     fromApplicationId, targetWorkspaceId, sourceEnvironmentId)
-                            .flatMap(application -> importService.getArtifactImportDTO(
+                            // The response step runs the page layout pass again, after the copy
+                            // suppress above has ended. Skip those rows too. The fork row is already written.
+                            .flatMap(application -> ArtifactCopyAudit.suppress(importService.getArtifactImportDTO(
                                     application.getWorkspaceId(),
                                     application.getId(),
                                     application,
-                                    ArtifactType.APPLICATION))
+                                    ArtifactType.APPLICATION)))
                             .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
                 });
     }

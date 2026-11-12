@@ -61,6 +61,7 @@ class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
             ? computedEvaluatedValue
             : this.props.propertyValue || ""
         }
+        placeholderText={this.props.colorPlaceholderText}
         ref={this.componentRef}
         showApplicationColors
         showThemeColors
@@ -81,6 +82,15 @@ class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
 
 export interface ColorPickerControlProps extends ControlProps {
   defaultColor?: string;
+  /**
+   * Text for the empty color field. When unset, the field shows its own
+   * default text.
+   *
+   * This is a separate prop from `placeholderText` on purpose. Many existing
+   * color configs set `placeholderText`, but the field has never shown it.
+   * Forwarding `placeholderText` would change the text on those widgets.
+   */
+  colorPlaceholderText?: string;
 }
 
 export default ColorPickerControl;

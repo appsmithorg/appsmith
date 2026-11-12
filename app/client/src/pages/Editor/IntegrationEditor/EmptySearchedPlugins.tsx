@@ -10,7 +10,11 @@ import {
 } from "ee/constants/messages";
 import { useSelector } from "react-redux";
 import { pluginSearchSelector } from "./CreateNewDatasourceHeader";
-import { getPlugins, getUpcomingPlugins } from "ee/selectors/entitiesSelector";
+import {
+  getPlugins,
+  getUpcomingPlugins,
+  isHiddenPlugin,
+} from "ee/selectors/entitiesSelector";
 import { getFilteredUpcomingIntegrations } from "./PremiumDatasources/Constants";
 import styled from "styled-components";
 import { filterSearch } from "./util";
@@ -35,7 +39,10 @@ export default function EmptySearchedPlugins({
   const upcomingPlugins = useSelector(getUpcomingPlugins);
 
   searchedPlugin = (searchedPlugin || "").toLocaleLowerCase();
-  const plugins = useSelector(getPlugins);
+  // Hidden plugins are not listed, so they must not count as a search match.
+  const plugins = useSelector(getPlugins).filter(
+    (plugin) => !isHiddenPlugin(plugin),
+  );
 
   const isExternalSaasEnabled = useSelector((state) =>
     selectFeatureFlagCheck(

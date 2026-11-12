@@ -46,6 +46,9 @@ public class AssetServiceCEImpl implements AssetServiceCE {
             MediaType.valueOf("image/x-icon"),
             MediaType.valueOf("image/vnd.microsoft.icon"));
 
+    private static final String INVALID_IMAGE_MESSAGE =
+            "Please upload a valid image. Only JPEG, PNG and ICO are allowed.";
+
     private static final Set<String> ALLOWED_CONTENT_TYPES_STR =
             Set.of(MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE);
 
@@ -86,9 +89,7 @@ public class AssetServiceCEImpl implements AssetServiceCE {
         // which can have arbitrary HTML/JS inside them.
         final MediaType contentType = firstPart.headers().getContentType();
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
-            return Mono.error(new AppsmithException(
-                    AppsmithError.VALIDATION_FAILURE,
-                    "Please upload a valid image. Only JPEG, PNG, SVG and ICO are allowed."));
+            return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, INVALID_IMAGE_MESSAGE));
         }
 
         final Flux<DataBuffer> contentCache =
@@ -137,9 +138,7 @@ public class AssetServiceCEImpl implements AssetServiceCE {
         MediaType contentType = srcContentType;
         Boolean isValidImage = checkImageTypeValidation(dataBuffer, contentType);
         if (isValidImage != true) {
-            throw new AppsmithException(
-                    AppsmithError.VALIDATION_FAILURE,
-                    "Please upload a valid image. Only JPEG, PNG, SVG and ICO are allowed.");
+            throw new AppsmithException(AppsmithError.VALIDATION_FAILURE, INVALID_IMAGE_MESSAGE);
         }
 
         byte[] imageData = null;

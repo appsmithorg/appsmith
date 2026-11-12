@@ -810,3 +810,50 @@ describe("lint — narrow-canvas (nested content laid out by an earlier MCP vers
     ).toBe(false);
   });
 });
+
+describe("dangling-binding after a JS operator word (CodeRabbit on #42540)", () => {
+  function textWith(text: string): WidgetNode {
+    return {
+      widgetId: "0",
+      widgetName: "MainContainer",
+      type: "CANVAS_WIDGET",
+      topRow: 0,
+      bottomRow: 380,
+      leftColumn: 0,
+      rightColumn: 640,
+      children: [
+        {
+          widgetId: "t",
+          widgetName: "Label",
+          type: "TEXT_WIDGET",
+          topRow: 0,
+          bottomRow: 4,
+          leftColumn: 0,
+          rightColumn: 16,
+          text,
+        },
+      ],
+    };
+  }
+
+  const dangling = (text: string) =>
+    lintDsl(textWith(text), { knownDataNames: ["GetUsers"] }).issues.filter(
+      (issue) => issue.rule === "dangling-binding",
+    );
+
+  it("checks the name after typeof, void, await and new", () => {
+    expect(dangling("{{ typeof MissingWidget.value }}")).toHaveLength(1);
+    expect(dangling("{{ await MissingQuery.run() }}")).toHaveLength(1);
+    expect(dangling("{{ void Nope.x }}")).toHaveLength(1);
+  });
+
+  it("accepts a known name or a global after them", () => {
+    expect(dangling("{{ typeof GetUsers.data }}")).toEqual([]);
+    expect(dangling("{{ new Date().getFullYear() }}")).toEqual([]);
+    expect(dangling("{{ typeof (GetUsers.data) }}")).toEqual([]);
+    expect(dangling("{{ [...new Set(GetUsers.data)].length }}")).toEqual([]);
+    expect(dangling("{{ new Map([]).size }}")).toEqual([]);
+    expect(dangling('{{ new Blob(["hi"]).size }}')).toEqual([]);
+    expect(dangling("{{ new FormData() }}")).toEqual([]);
+  });
+});

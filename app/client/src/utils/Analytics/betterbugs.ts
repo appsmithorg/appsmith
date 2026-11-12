@@ -17,6 +17,9 @@ export interface BetterbugsMetadata {
   tenantId: string | undefined;
   applicationId: string | null;
   pageId: string | null;
+  workflowId?: string | null;
+  packageId?: string | null;
+  moduleId?: string | null;
 }
 
 const DEFAULT_BETTERBUGS_METADATA: BetterbugsMetadata = {
@@ -24,6 +27,9 @@ const DEFAULT_BETTERBUGS_METADATA: BetterbugsMetadata = {
   tenantId: undefined,
   applicationId: null,
   pageId: null,
+  workflowId: null,
+  packageId: null,
+  moduleId: null,
 };
 
 class BetterbugsUtil {
@@ -91,6 +97,9 @@ class BetterbugsUtil {
         url_path: null,
         application_id: null,
         page_id: null,
+        workflow_id: null,
+        package_id: null,
+        module_id: null,
       };
     }
 
@@ -100,6 +109,9 @@ class BetterbugsUtil {
       url_path: urlPath,
       application_id: betterbugsMetadata.applicationId || null,
       page_id: betterbugsMetadata.pageId || null,
+      workflow_id: betterbugsMetadata.workflowId || null,
+      package_id: betterbugsMetadata.packageId || null,
+      module_id: betterbugsMetadata.moduleId || null,
     };
   }
 

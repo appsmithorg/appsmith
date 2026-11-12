@@ -140,20 +140,23 @@ spec:
             httpGet:
               port: {{ dig "startupProbe" "port" "80" $probes }}
               path: {{ dig "startupProbe" "api" "/api/v1/health" $probes }}
-            failureThreshold: {{ dig "startupProbe" "failureThreshold" 3 $probes }}
-            periodSeconds: {{ dig "startupProbe" "periodSeconds" 60 $probes }}
+            failureThreshold: {{ dig "startupProbe" "failureThreshold" 60 $probes }}
+            periodSeconds: {{ dig "startupProbe" "periodSeconds" 10 $probes }}
+            timeoutSeconds: {{ dig "startupProbe" "timeoutSeconds" 5 $probes }}
           livenessProbe:
             httpGet:
               port: {{ dig "livenessProbe" "port" "80" $probes }}
               path: {{ dig "livenessProbe" "api" "/api/v1/health" $probes }}
-            failureThreshold: {{ dig "livenessProbe" "failureThreshold" 3 $probes }}
-            periodSeconds: {{ dig "livenessProbe" "periodSeconds" 60 $probes }}
+            failureThreshold: {{ dig "livenessProbe" "failureThreshold" 18 $probes }}
+            periodSeconds: {{ dig "livenessProbe" "periodSeconds" 10 $probes }}
+            timeoutSeconds: {{ dig "livenessProbe" "timeoutSeconds" 5 $probes }}
           readinessProbe:
             httpGet:
               port: {{ dig "readinessProbe" "port" "80" $probes }}
               path: {{ dig "readinessProbe" "api" "/api/v1/health" $probes }}
             failureThreshold: {{ dig "readinessProbe" "failureThreshold" 3 $probes }}
-            periodSeconds: {{ dig "readinessProbe" "periodSeconds" 60 $probes }}
+            periodSeconds: {{ dig "readinessProbe" "periodSeconds" 10 $probes }}
+            timeoutSeconds: {{ dig "readinessProbe" "timeoutSeconds" 5 $probes }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:

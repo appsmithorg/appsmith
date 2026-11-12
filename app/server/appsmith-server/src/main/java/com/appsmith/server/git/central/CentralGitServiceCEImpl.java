@@ -44,6 +44,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.git.GitRedisUtils;
+import com.appsmith.server.git.GitRehydrateAudit;
 import com.appsmith.server.git.autocommit.helpers.GitAutoCommitHelper;
 import com.appsmith.server.git.central.helpers.GitDiscardChangesAsyncEventManager;
 import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
@@ -58,6 +59,7 @@ import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
+import com.appsmith.server.services.ArtifactCopyAudit;
 import com.appsmith.server.services.GitArtifactHelper;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -372,9 +374,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                             "Datasource already exists with the same name"));
                                 }
 
-                                return importService
-                                        .importArtifactInWorkspaceFromGit(
-                                                workspaceId, baseArtifact.getId(), artifactExchangeJson, defaultBranch)
+                                // The import writes the copy through the normal save methods. Skip those
+                                // rows. The import row stays.
+                                return ArtifactCopyAudit.suppress(importService.importArtifactInWorkspaceFromGit(
+                                                workspaceId, baseArtifact.getId(), artifactExchangeJson, defaultBranch))
                                         .onErrorResume(throwable -> {
                                             log.error(
                                                     "Error in importing the artifact {}",
@@ -388,9 +391,15 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                                     AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage()));
                                         });
                             })
+                            // Publish stays outside both skips, so the deployed row is kept.
                             .flatMap(artifact -> gitArtifactHelper.publishArtifact(artifact, false))
-                            .flatMap(artifact -> importService.getArtifactImportDTO(
-                                    artifact.getWorkspaceId(), artifact.getId(), artifact, artifact.getArtifactType()));
+                            // The response step runs the page layout pass again, after publish.
+                            // Skip those rows too.
+                            .flatMap(artifact -> ArtifactCopyAudit.suppress(importService.getArtifactImportDTO(
+                                    artifact.getWorkspaceId(),
+                                    artifact.getId(),
+                                    artifact,
+                                    artifact.getArtifactType())));
                 },
                 baseArtifact -> {
                     // on success send analytics
@@ -679,8 +688,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .name(GitSpan.OPS_CHECKOUT_BRANCH)
                 .tap(Micrometer.observation(observationRegistry));
 
-        return Mono.create(sink ->
-                checkedOutRemoteArtifactMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+        return Mono.create(sink -> GitRehydrateAudit.suppress(checkedOutRemoteArtifactMono)
+                .subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     @Override
@@ -921,7 +930,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .name(GitSpan.OPS_CREATE_BRANCH)
                 .tap(Micrometer.observation(observationRegistry));
 
-        return Mono.create(sink -> createBranchMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+        return Mono.create(sink -> GitRehydrateAudit.suppress(createBranchMono)
+                .subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     protected Mono<? extends ArtifactExchangeJson> getArtifactExchangeJsonForRefCreation(
@@ -1356,7 +1366,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                         .onErrorResume(error -> {
                                             log.error("Error while committing", error);
                                             // If the push fails remove all the cloned files from local repo
-                                            return this.detachRemote(baseArtifactId, artifactType, gitType)
+                                            return this.detachRemote(baseArtifactId, artifactType, gitType, true)
                                                     .flatMap(isDeleted -> {
                                                         if (error instanceof TransportException
                                                                 && isInvalidSshKeyError(error)) {
@@ -1386,8 +1396,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                     artifact.getGitArtifactMetadata().getIsRepoPrivate()));
                 });
 
-        return Mono.create(
-                sink -> connectedArtifactMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+        return Mono.create(sink -> GitRehydrateAudit.suppress(connectedArtifactMono)
+                .subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     @Override
@@ -1667,6 +1677,14 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     @Override
     public Mono<? extends Artifact> detachRemote(
             String branchedArtifactId, ArtifactType artifactType, GitType gitType) {
+        return detachRemote(branchedArtifactId, artifactType, gitType, false);
+    }
+
+    /**
+     * @param systemGenerated true when this disconnect rolls back a failed connect, which is not a user action
+     */
+    private Mono<? extends Artifact> detachRemote(
+            String branchedArtifactId, ArtifactType artifactType, GitType gitType, boolean systemGenerated) {
 
         GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
@@ -1741,7 +1759,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 })
                 .flatMap(disconnectedBaseArtifact -> {
                     return gitAnalyticsUtils.addAnalyticsForGitOperation(
-                            AnalyticsEvents.GIT_DISCONNECT, disconnectedBaseArtifact, false);
+                            AnalyticsEvents.GIT_DISCONNECT, disconnectedBaseArtifact, "", "", false, systemGenerated);
                 })
                 .name(GitSpan.OPS_DETACH_REMOTE)
                 .tap(Micrometer.observation(observationRegistry));
@@ -2020,8 +2038,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .name(GitSpan.OPS_PULL)
                 .tap(Micrometer.observation(observationRegistry));
 
-        return Mono.create(
-                sink -> lockHandledpullDTOMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+        return Mono.create(sink -> GitRehydrateAudit.suppress(lockHandledpullDTOMono)
+                .subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     /**
@@ -2462,8 +2480,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .name(GitSpan.OPS_DISCARD_CHANGES)
                 .tap(Micrometer.observation(observationRegistry));
 
-        return Mono.create(
-                sink -> artifactFromLastCommitMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+        return Mono.create(sink -> GitRehydrateAudit.suppress(artifactFromLastCommitMono)
+                .subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     public Mono<List<GitRefDTO>> listBranchForArtifact(
@@ -3282,7 +3300,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .name(GitSpan.OPS_MERGE_BRANCH)
                 .tap(Micrometer.observation(observationRegistry));
 
-        return Mono.create(sink -> mergeMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+        return Mono.create(sink -> GitRehydrateAudit.suppress(mergeMono)
+                .subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     @Override

@@ -35,12 +35,10 @@ import { Divider } from "@appsmith/ads";
 import { ImportAppSettings } from "./components/ImportAppSettings";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { getIsAiAgentApp } from "ee/selectors/aiAgentSelectors";
-import { AppSettingsTabs } from "./types";
+import { AppSettingsTabs, type SelectedTab } from "./types";
+import { useEditionAppSettingsSections } from "ee/pages/AppIDE/components/AppSettings/useEditionAppSettingsSections";
 
-export interface SelectedTab {
-  type: AppSettingsTabs;
-  page?: Page;
-}
+export type { SelectedTab };
 
 const Wrapper = styled.div`
   height: calc(100% - 48px);
@@ -186,6 +184,13 @@ function AppSettings() {
     },
   ];
 
+  const editionSections = useEditionAppSettingsSections({
+    selectedTab,
+    setSelectedTab,
+  });
+
+  SectionHeadersConfig.push(...editionSections.headers);
+
   const isAgentApp = useSelector(getIsAiAgentApp);
 
   if (isAgentApp) {
@@ -266,6 +271,8 @@ function AppSettings() {
               return <NavigationSettings />;
             case AppSettingsTabs.Import:
               return <ImportAppSettings />;
+            case AppSettingsTabs.Edition:
+              return editionSections.renderSection(selectedTab);
           }
         })()}
       </SectionContent>

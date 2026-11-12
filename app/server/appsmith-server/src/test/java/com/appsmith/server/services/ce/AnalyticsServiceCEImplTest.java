@@ -32,6 +32,7 @@ import reactor.test.StepVerifier;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
@@ -42,6 +43,14 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class AnalyticsServiceCEImplTest {
+    @Test
+    void getNonResourceEvents_includesPartialImportAndExport() {
+        AnalyticsServiceCEImpl analyticsService = analyticsService(mock(Analytics.class), loggedInAdmin());
+
+        assertThat(analyticsService.getNonResourceEvents())
+                .contains(AnalyticsEvents.PARTIAL_IMPORT, AnalyticsEvents.PARTIAL_EXPORT);
+    }
+
     @Test
     void shouldHashUserId_anonymousUserIdCE_shouldReturnFalse() {
         Boolean shouldHash =

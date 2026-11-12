@@ -186,8 +186,13 @@ public class ExportServiceCEImpl implements ExportServiceCE {
                             .sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data)
                             .thenReturn(artifactExchangeJson);
                 })
-                .flatMap(unused -> sendExportArtifactAnalyticsEvent(
-                        artifactBasedExportService, exportingMetaDTO.getArtifactId(), AnalyticsEvents.EXPORT))
+                .flatMap(unused -> {
+                    if (!shouldSendExportAnalyticsEvent(artifactType)) {
+                        return Mono.empty();
+                    }
+                    return sendExportArtifactAnalyticsEvent(
+                            artifactBasedExportService, exportingMetaDTO.getArtifactId(), AnalyticsEvents.EXPORT);
+                })
                 .thenReturn(artifactExchangeJson);
     }
 
@@ -311,6 +316,15 @@ public class ExportServiceCEImpl implements ExportServiceCE {
     }
 
     /**
+     * Applications record {@code application.exported} only for a JSON download. EE overrides this
+     * so Git serialization, snapshots, and template publishing do not use that event. Other artifact
+     * types keep the existing export event.
+     */
+    protected boolean shouldSendExportAnalyticsEvent(ArtifactType artifactType) {
+        return true;
+    }
+
+    /**
      * To send analytics event for import and export of application
      *
      * @param artifactBasedExportService : A exportService which is an implementation of contextBasedExportService
@@ -318,7 +332,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
      * @param event : Analytics Event
      * @return a subclass of  which is imported or exported
      */
-    private Mono<? extends Artifact> sendExportArtifactAnalyticsEvent(
+    protected Mono<? extends Artifact> sendExportArtifactAnalyticsEvent(
             ArtifactBasedExportService<?, ?> artifactBasedExportService,
             String exportableArtifactId,
             AnalyticsEvents event) {

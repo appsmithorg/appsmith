@@ -11215,6 +11215,8 @@ export const defaultAppState = {
           navigationSetting: {
             showNavbar: true,
             showSignIn: true,
+            showShareApp: true,
+            showAllApps: true,
             orientation: "top",
             navStyle: "stacked",
             position: "static",
@@ -20673,6 +20675,12 @@ export const defaultAppState = {
           version: "2.5.1",
           url: "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
           id: "655317be44e16d2e57f05dce",
+        },
+        {
+          name: "dayjs",
+          accessor: ["dayjs"],
+          version: "1.11.10",
+          url: "https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js",
         },
         {
           name: "lodash",
