@@ -19,6 +19,7 @@ import com.external.plugins.exceptions.FirestoreErrorMessages;
 import com.external.plugins.exceptions.FirestorePluginError;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.NoCredentials;
 import com.google.cloud.ServiceOptions;
 import com.google.cloud.firestore.Blob;
@@ -33,6 +34,7 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.internal.EmulatorCredentials;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -44,15 +46,20 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -78,6 +85,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
@@ -750,6 +758,154 @@ public class FirestorePluginTest {
                             ((AppsmithPluginException) error).getError().getErrorAction());
                 })
                 .verify();
+    }
+
+    private static String serviceAccountJson(String projectId, String clientEmail) throws NoSuchAlgorithmException {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        String privateKeyPem = "-----BEGIN PRIVATE KEY-----\n"
+                + Base64.getMimeEncoder(64, "\n".getBytes(StandardCharsets.UTF_8))
+                        .encodeToString(keyPair.getPrivate().getEncoded())
+                + "\n-----END PRIVATE KEY-----\n";
+
+        Map<String, String> json = new HashMap<>();
+        json.put("type", "service_account");
+        json.put("project_id", projectId);
+        json.put("private_key_id", "test-key-id");
+        json.put("private_key", privateKeyPem);
+        json.put("client_email", clientEmail);
+        json.put("client_id", "1234567890");
+        json.put("token_uri", "https://oauth2.googleapis.com/token");
+        try {
+            return new ObjectMapper().writeValueAsString(json);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static DatasourceConfiguration serviceAccountDatasourceConfig(
+            String projectId, String clientJson, String databaseId) {
+        DBAuth auth = new DBAuth();
+        auth.setUsername(projectId);
+        auth.setPassword(clientJson);
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(auth);
+        datasourceConfiguration.setUrl("https://" + projectId + ".firebaseio.com");
+        if (databaseId != null) {
+            datasourceConfiguration.setProperties(List.of(new Property("Database ID", databaseId)));
+        }
+        return datasourceConfiguration;
+    }
+
+    private static String clientEmailOf(Firestore firestore) {
+        return ((ServiceAccountCredentials) firestore.getOptions().getCredentials()).getClientEmail();
+    }
+
+    @AfterEach
+    public void deleteNamedFirebaseApps() {
+        // FirebaseApp instances live in a JVM-wide registry. Remove the ones created by datasourceCreate so that
+        // tests do not leak apps into each other. The [DEFAULT] app is left alone.
+        FirebaseApp.getApps().stream()
+                .filter(app -> !FirebaseApp.DEFAULT_APP_NAME.equals(app.getName()))
+                .forEach(FirebaseApp::delete);
+    }
+
+    @Test
+    public void datasourceCreate_withDatabaseId_usesNamedDatabase() throws NoSuchAlgorithmException {
+        String projectId = "named-db-project";
+        DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig(
+                projectId, serviceAccountJson(projectId, "sa@named-db-project.iam.gserviceaccount.com"), "my-db");
+
+        StepVerifier.create(pluginExecutor.datasourceCreate(datasourceConfiguration))
+                .assertNext(firestore ->
+                        assertEquals("my-db", firestore.getOptions().getDatabaseId()))
+                .verifyComplete();
+    }
+
+    @Test
+    public void datasourceCreate_withPaddedDatabaseId_trimsWhitespace() throws NoSuchAlgorithmException {
+        String projectId = "padded-db-project";
+        DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig(
+                projectId, serviceAccountJson(projectId, "sa@padded-db-project.iam.gserviceaccount.com"), "  my-db  ");
+
+        StepVerifier.create(pluginExecutor.datasourceCreate(datasourceConfiguration))
+                .assertNext(firestore ->
+                        assertEquals("my-db", firestore.getOptions().getDatabaseId()))
+                .verifyComplete();
+    }
+
+    @Test
+    public void datasourceCreate_withoutDatabaseId_usesDefaultDatabase() throws NoSuchAlgorithmException {
+        String projectId = "default-db-project";
+        String clientJson = serviceAccountJson(projectId, "sa@default-db-project.iam.gserviceaccount.com");
+
+        StepVerifier.create(
+                        pluginExecutor.datasourceCreate(serviceAccountDatasourceConfig(projectId, clientJson, null)))
+                .assertNext(firestore ->
+                        assertEquals("(default)", firestore.getOptions().getDatabaseId()))
+                .verifyComplete();
+
+        StepVerifier.create(pluginExecutor.datasourceCreate(serviceAccountDatasourceConfig(projectId, clientJson, "")))
+                .assertNext(firestore ->
+                        assertEquals("(default)", firestore.getOptions().getDatabaseId()))
+                .verifyComplete();
+    }
+
+    @Test
+    public void datasourceCreate_sameProjectDifferentCredentials_doesNotShareApp() throws NoSuchAlgorithmException {
+        String projectId = "shared-project";
+        DatasourceConfiguration first = serviceAccountDatasourceConfig(
+                projectId, serviceAccountJson(projectId, "first@shared-project.iam.gserviceaccount.com"), null);
+        DatasourceConfiguration second = serviceAccountDatasourceConfig(
+                projectId, serviceAccountJson(projectId, "second@shared-project.iam.gserviceaccount.com"), null);
+
+        Firestore firstFirestore = pluginExecutor.datasourceCreate(first).block();
+        Firestore secondFirestore = pluginExecutor.datasourceCreate(second).block();
+
+        assertNotNull(firstFirestore);
+        assertNotNull(secondFirestore);
+        assertEquals("first@shared-project.iam.gserviceaccount.com", clientEmailOf(firstFirestore));
+        assertEquals("second@shared-project.iam.gserviceaccount.com", clientEmailOf(secondFirestore));
+    }
+
+    @Test
+    public void datasourceCreate_calledTwiceSameConfig_reusesApp() throws NoSuchAlgorithmException {
+        String projectId = "reuse-project";
+        DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig(
+                projectId, serviceAccountJson(projectId, "sa@reuse-project.iam.gserviceaccount.com"), "my-db");
+
+        Firestore first =
+                pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        int appCount = FirebaseApp.getApps().size();
+        Firestore second =
+                pluginExecutor.datasourceCreate(datasourceConfiguration).block();
+
+        assertNotNull(first);
+        assertSame(first, second);
+        assertEquals(appCount, FirebaseApp.getApps().size());
+    }
+
+    @Test
+    public void validateDatasource_invalidDatabaseId_returnsError() {
+        DatasourceConfiguration datasourceConfiguration =
+                serviceAccountDatasourceConfig("some-project", "{}", "My_DB!");
+
+        Set<String> invalids = pluginExecutor.validateDatasource(datasourceConfiguration);
+
+        assertTrue(invalids.contains(FirestoreErrorMessages.DS_INVALID_DATABASE_ID_ERROR_MSG));
+    }
+
+    @Test
+    public void validateDatasource_validOrDefaultDatabaseId_returnsNoError() {
+        for (String databaseId : new String[] {"my-db", "  my-db  ", "(default)", "", "  "}) {
+            DatasourceConfiguration datasourceConfiguration =
+                    serviceAccountDatasourceConfig("some-project", "{}", databaseId);
+
+            assertTrue(
+                    pluginExecutor.validateDatasource(datasourceConfiguration).isEmpty(),
+                    "Expected no validation errors for database ID '" + databaseId + "'");
+        }
     }
 
     @Test

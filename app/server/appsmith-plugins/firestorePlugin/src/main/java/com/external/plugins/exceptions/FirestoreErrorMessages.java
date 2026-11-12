@@ -96,6 +96,10 @@ public class FirestoreErrorMessages extends BasePluginErrorMessages {
 
     public static final String DS_MISSING_FIRESTORE_URL_ERROR_MSG = "Missing Firestore URL.";
 
+    public static final String DS_INVALID_DATABASE_ID_ERROR_MSG = "Invalid Database ID. Use 4 to 63 lowercase "
+            + "letters, numbers or hyphens, starting with a letter and ending with a letter or number. Leave it empty "
+            + "to use the (default) database.";
+
     /*
     ************************************************************************************************************************************************
                                        Warning messages related to datasource.
