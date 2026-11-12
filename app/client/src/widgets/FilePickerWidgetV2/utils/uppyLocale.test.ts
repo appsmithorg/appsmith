@@ -45,6 +45,9 @@ describe("FilePicker Uppy locale helpers", () => {
       expect(resolveUppyLocaleId("ja")).toBe("ja_JP");
       expect(resolveUppyLocaleId("zh")).toBe("zh_CN");
       expect(resolveUppyLocaleId("pt")).toBe("pt_BR");
+      expect(resolveUppyLocaleId("nb")).toBe("nb_NO");
+      expect(resolveUppyLocaleId("no")).toBe("nb_NO");
+      expect(resolveUppyLocaleId("nn")).toBe("nb_NO");
     });
 
     it("maps BCP 47 region tags to Uppy ids", () => {
@@ -54,9 +57,17 @@ describe("FilePicker Uppy locale helpers", () => {
       expect(resolveUppyLocaleId("sr-RS-Latin")).toBe("sr_RS_Latin");
     });
 
+    it("maps Traditional Chinese script and region tags to zh_TW", () => {
+      expect(resolveUppyLocaleId("zh-Hant")).toBe("zh_TW");
+      expect(resolveUppyLocaleId("zh-HK")).toBe("zh_TW");
+      expect(resolveUppyLocaleId("zh-MO")).toBe("zh_TW");
+      expect(resolveUppyLocaleId("zh-Hant-TW")).toBe("zh_TW");
+    });
+
     it("falls back to the preferred pack for unknown regions of a known language", () => {
       expect(resolveUppyLocaleId("de-AT")).toBe("de_DE");
       expect(resolveUppyLocaleId("fr-CA")).toBe("fr_FR");
+      expect(resolveUppyLocaleId("zh-CN")).toBe("zh_CN");
     });
   });
 

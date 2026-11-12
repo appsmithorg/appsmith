@@ -44,6 +44,8 @@ const PREFERRED_LOCALE_BY_LANGUAGE: Record<string, string> = {
   ja: "ja_JP",
   ko: "ko_KR",
   nb: "nb_NO",
+  nn: "nb_NO",
+  no: "nb_NO",
   nl: "nl_NL",
   pl: "pl_PL",
   pt: "pt_BR",
@@ -166,6 +168,11 @@ export function resolveUppyLocaleId(htmlLang: string): string | null {
 
   if (!language) {
     return null;
+  }
+
+  // Traditional Chinese script/region tags → zh_TW (not preferred zh_CN).
+  if (language === "zh" && /^(hant|tw|hk|mo)(_|$)/i.test(rest)) {
+    return "zh_TW";
   }
 
   const exactCandidate = rest
