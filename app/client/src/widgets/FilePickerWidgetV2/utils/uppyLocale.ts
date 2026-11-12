@@ -288,20 +288,28 @@ export function setUppyLocaleLoaderForTests(loader: LocaleLoader | null): void {
 
 /**
  * Canvas button label when files are selected — Uppy `xFilesSelected`.
+ * Packs may supply a plural object or a single string (e.g. zh_CN, ko_KR).
  */
 export function formatXFilesSelected(
   count: number,
   locale: UppyLocale | null = null,
 ): string {
   const xFilesSelected = locale?.strings?.xFilesSelected;
-  const forms =
-    xFilesSelected && typeof xFilesSelected === "object"
-      ? (xFilesSelected as Record<string, string>)
-      : ENGLISH_X_FILES_SELECTED;
-  const pluralize = locale?.pluralize ?? ENGLISH_PLURALIZE;
-  const formIndex = pluralize(count);
-  const template =
-    forms[String(formIndex)] ?? forms["1"] ?? ENGLISH_X_FILES_SELECTED["1"];
+  let template: string;
+
+  if (typeof xFilesSelected === "string") {
+    template = xFilesSelected;
+  } else {
+    const forms =
+      xFilesSelected && typeof xFilesSelected === "object"
+        ? (xFilesSelected as Record<string, string>)
+        : ENGLISH_X_FILES_SELECTED;
+    const pluralize = locale?.pluralize ?? ENGLISH_PLURALIZE;
+    const formIndex = pluralize(count);
+
+    template =
+      forms[String(formIndex)] ?? forms["1"] ?? ENGLISH_X_FILES_SELECTED["1"];
+  }
 
   return template.replace(/%\{smart_count\}/g, String(count));
 }

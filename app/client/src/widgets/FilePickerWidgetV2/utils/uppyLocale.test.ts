@@ -93,6 +93,18 @@ describe("FilePicker Uppy locale helpers", () => {
       expect(formatXFilesSelected(3, german)).toBe("3 Dateien ausgewählt");
     });
 
+    it("uses a string xFilesSelected template (zh_CN / ko_KR style)", () => {
+      const zhCN: UppyLocale = {
+        strings: {
+          xFilesSelected: "%{smart_count} 个文件待上传",
+        },
+        pluralize: () => 0,
+      };
+
+      expect(formatXFilesSelected(1, zhCN)).toBe("1 个文件待上传");
+      expect(formatXFilesSelected(3, zhCN)).toBe("3 个文件待上传");
+    });
+
     it("matches Dashboard English defaults", () => {
       expect(ENGLISH_X_FILES_SELECTED["0"]).toBe(
         "%{smart_count} file selected",
