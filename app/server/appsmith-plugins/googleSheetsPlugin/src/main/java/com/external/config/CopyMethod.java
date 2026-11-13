@@ -48,6 +48,6 @@ public class CopyMethod implements ExecutionMethod {
         return webClient
                 .method(HttpMethod.POST)
                 .uri(uriBuilder.build(true).toUri())
-                .body(BodyInserters.fromObject(methodConfig.getRowObjects()));
+                .body(BodyInserters.fromValue(methodConfig.getRowObjects()));
     }
 }

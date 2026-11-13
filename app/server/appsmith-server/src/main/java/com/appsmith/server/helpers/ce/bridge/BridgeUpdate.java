@@ -40,7 +40,7 @@ public class BridgeUpdate implements UpdateDefinition {
     }
 
     @Override
-    public Boolean isIsolated() {
+    public boolean isIsolated() {
         return false;
     }
 
@@ -55,8 +55,9 @@ public class BridgeUpdate implements UpdateDefinition {
     }
 
     @Override
-    public void inc(@NonNull String key) {
+    public BridgeUpdate inc(@NonNull String key) {
         update.inc(key);
+        return this;
     }
 
     @Override

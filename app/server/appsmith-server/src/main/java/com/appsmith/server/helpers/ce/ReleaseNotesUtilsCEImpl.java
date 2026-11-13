@@ -59,8 +59,8 @@ public class ReleaseNotesUtilsCEImpl implements ReleaseNotesUtilsCE {
                                 + projectProperties.getVersion() + "&edition="
                                 + ProjectProperties.EDITION)
                         .get()
-                        .exchange())
-                .flatMap(response -> response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Releases>>() {}))
+                        .exchangeToMono(response ->
+                                response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<Releases>>() {})))
                 .map(result -> result.getData().getNodes())
                 .map(nodes -> {
                     releaseNodesCache.clear();

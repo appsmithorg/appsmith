@@ -516,7 +516,7 @@ public class AmazonS3PluginTest {
                     String message = (String) result.getBody();
                     assertTrue(message.contains("Unrecognized token 'erroneousBody': was expecting "
                             + "(JSON String, Number, Array, Object or token 'null', 'true' or 'false')\n"
-                            + " at [Source: (String)\"erroneousBody\"; line: 1, column: 14]"));
+                            + " at [Source: (String)\"erroneousBody\"; line: 1, column: 1]"));
                     assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
 
                     /*

@@ -91,7 +91,7 @@ public class CsrfConfigCE implements Customizer<ServerHttpSecurity.CsrfSpec>, Se
             return ServerWebExchangeMatcher.MatchResult.notMatch();
         }
 
-        if (headers.containsKey(VERSION_HEADER)) {
+        if (headers.containsHeader(VERSION_HEADER)) {
             // If `X-Appsmith-Version` header is present, CSRF check isn't needed.
             return ServerWebExchangeMatcher.MatchResult.notMatch();
         }

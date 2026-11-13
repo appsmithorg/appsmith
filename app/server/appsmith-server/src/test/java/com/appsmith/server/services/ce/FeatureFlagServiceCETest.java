@@ -18,12 +18,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -52,16 +52,16 @@ public class FeatureFlagServiceCETest {
     @Autowired
     FeatureFlagService featureFlagService;
 
-    @SpyBean
+    @MockitoSpyBean
     CacheableFeatureFlagHelper cacheableFeatureFlagHelper;
 
     @Autowired
     ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
 
-    @SpyBean
+    @MockitoSpyBean
     CacheManager cacheManager;
 
-    @MockBean
+    @MockitoBean
     FeatureFlagMigrationHelper featureFlagMigrationHelper;
 
     @Autowired

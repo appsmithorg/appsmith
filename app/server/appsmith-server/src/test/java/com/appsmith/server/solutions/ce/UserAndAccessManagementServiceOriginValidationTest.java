@@ -19,11 +19,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests that origin validation (APPSMITH_BASE_URL vs request Origin header) runs
  * BEFORE any user creation or permission-group assignment in the invite flow.
  *
- * <p>Uses {@code @SpyBean} on {@link SecureBaseUrlResolver} to simulate origin
+ * <p>Uses {@code @MockitoSpyBean} on {@link SecureBaseUrlResolver} to simulate origin
  * mismatch without requiring a separate Spring context with custom property overrides.
  */
 @SpringBootTest
@@ -61,10 +61,10 @@ public class UserAndAccessManagementServiceOriginValidationTest {
     @Autowired
     private UserRepository userRepository;
 
-    @MockBean
+    @MockitoBean
     private PluginExecutorHelper pluginExecutorHelper;
 
-    @SpyBean
+    @MockitoSpyBean
     private SecureBaseUrlResolver secureBaseUrlResolver;
 
     @BeforeEach

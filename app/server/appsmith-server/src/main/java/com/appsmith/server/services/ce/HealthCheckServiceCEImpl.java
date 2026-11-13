@@ -4,9 +4,8 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.actuate.data.mongo.MongoReactiveHealthIndicator;
-import org.springframework.boot.actuate.data.redis.RedisReactiveHealthIndicator;
-import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.data.redis.health.DataRedisReactiveHealthIndicator;
+import org.springframework.boot.health.contributor.Health;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import reactor.core.observability.micrometer.Micrometer;
@@ -45,8 +44,8 @@ public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
             log.warn("Redis health check timed out: {}", error.getMessage());
             return new AppsmithException(AppsmithError.HEALTHCHECK_TIMEOUT, "Redis");
         };
-        RedisReactiveHealthIndicator redisReactiveHealthIndicator =
-                new RedisReactiveHealthIndicator(reactiveRedisConnectionFactory);
+        DataRedisReactiveHealthIndicator redisReactiveHealthIndicator =
+                new DataRedisReactiveHealthIndicator(reactiveRedisConnectionFactory);
         return redisReactiveHealthIndicator
                 .health()
                 .timeout(Duration.ofSeconds(3))
@@ -60,10 +59,14 @@ public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
             log.warn("MongoDB health check timed out: {}", error.getMessage());
             return new AppsmithException(AppsmithError.HEALTHCHECK_TIMEOUT, "Mongo");
         };
-        MongoReactiveHealthIndicator mongoReactiveHealthIndicator =
-                new MongoReactiveHealthIndicator(reactiveMongoTemplate);
-        return mongoReactiveHealthIndicator
-                .health()
+        // Spring Boot 4's MongoReactiveHealthIndicator calls listDatabaseNames, which needs the listDatabases
+        // privilege. Keep the Spring Boot 3 check: a `hello` command, and a DOWN result (not an error) on failure.
+        return reactiveMongoTemplate
+                .executeCommand("{ hello: 1 }")
+                .map(document -> Health.up()
+                        .withDetail("maxWireVersion", document.getInteger("maxWireVersion"))
+                        .build())
+                .onErrorResume(error -> Mono.just(Health.down(error).build()))
                 .timeout(Duration.ofSeconds(1))
                 .onErrorMap(TimeoutException.class, healthTimeout)
                 .name(MONGO_HEALTH)

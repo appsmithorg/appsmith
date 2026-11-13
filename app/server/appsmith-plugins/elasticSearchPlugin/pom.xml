@@ -31,7 +31,7 @@
         <!-- Test Dependencies -->
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>elasticsearch</artifactId>
+            <artifactId>testcontainers-elasticsearch</artifactId>
             <version>${testcontainers.version}</version>
             <scope>test</scope>
             <exclusions>

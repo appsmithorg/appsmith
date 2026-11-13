@@ -22,7 +22,7 @@ import io.mongock.runner.springboot.base.MongockInitializingBeanRunner;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.conversions.Bson;
-import org.springframework.boot.autoconfigure.mongo.MongoProperties;
+import org.springframework.boot.mongodb.autoconfigure.MongoProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -266,8 +266,13 @@ public class MongoConfig {
     }
 
     @Bean
+    @SuppressWarnings("deprecation")
     public MongoCustomConversions mongoCustomConversions() {
-        return new MongoCustomConversions(Collections.singletonList(new StringToInstantConverter()));
+        // Spring Data MongoDB 5 no longer stores BigDecimal and BigInteger as strings by default. Existing documents
+        // hold them as strings, so keep that format explicitly.
+        return MongoCustomConversions.create(
+                adapter -> adapter.bigDecimal(MongoCustomConversions.BigDecimalRepresentation.STRING)
+                        .registerConverters(Collections.singletonList(new StringToInstantConverter())));
     }
 
     @Bean

@@ -7,11 +7,10 @@ import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.autoconfigure.web.WebProperties;
-import org.springframework.boot.autoconfigure.web.reactive.error.DefaultErrorWebExceptionHandler;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
-import org.springframework.boot.web.reactive.error.ErrorAttributes;
+import org.springframework.boot.webflux.autoconfigure.error.DefaultErrorWebExceptionHandler;
+import org.springframework.boot.webflux.error.ErrorAttributes;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
@@ -43,11 +42,11 @@ public class AppSmithErrorWebExceptionHandler extends DefaultErrorWebExceptionHa
     public AppSmithErrorWebExceptionHandler(
             ErrorAttributes errorAttributes,
             WebProperties webProperties,
-            ServerProperties serverProperties,
             ApplicationContext applicationContext,
             ObjectProvider<ViewResolver> viewResolvers,
             ServerCodecConfigurer serverCodecConfigurer) {
-        super(errorAttributes, webProperties.getResources(), serverProperties.getError(), applicationContext);
+        // Spring Boot 4 moved the error properties from ServerProperties to WebProperties
+        super(errorAttributes, webProperties.getResources(), webProperties.getError(), applicationContext);
         this.setViewResolvers(viewResolvers.orderedStream().collect(Collectors.toList()));
         this.setMessageWriters(serverCodecConfigurer.getWriters());
         this.setMessageReaders(serverCodecConfigurer.getReaders());

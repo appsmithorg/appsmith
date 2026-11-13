@@ -47,8 +47,7 @@ public class GitCloudServicesUtils {
                     // Call the cloud service API
                     return WebClientUtils.create(baseUrl + "/api/v1/git/limit/" + key)
                             .get()
-                            .exchange()
-                            .flatMap(response -> {
+                            .exchangeToMono(response -> {
                                 if (response.statusCode().is2xxSuccessful()) {
                                     return response.bodyToMono(
                                             new ParameterizedTypeReference<ResponseDTO<Integer>>() {});

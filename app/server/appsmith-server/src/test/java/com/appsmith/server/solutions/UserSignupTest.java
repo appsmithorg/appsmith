@@ -22,8 +22,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.server.MockWebSession;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -38,37 +38,37 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(SpringExtension.class)
 public class UserSignupTest {
-    @MockBean
+    @MockitoBean
     private UserService userService;
 
-    @MockBean
+    @MockitoBean
     private UserDataService userDataService;
 
-    @MockBean
+    @MockitoBean
     private CaptchaService captchaService;
 
-    @MockBean
+    @MockitoBean
     private AuthenticationSuccessHandler authenticationSuccessHandler;
 
-    @MockBean
+    @MockitoBean
     private ConfigService configService;
 
-    @MockBean
+    @MockitoBean
     private AnalyticsService analyticsService;
 
-    @MockBean
+    @MockitoBean
     private EnvManager envManager;
 
-    @MockBean
+    @MockitoBean
     private UserUtils userUtils;
 
-    @MockBean
+    @MockitoBean
     private NetworkUtils networkUtils;
 
-    @MockBean
+    @MockitoBean
     private EmailService emailService;
 
-    @MockBean
+    @MockitoBean
     private OrganizationService organizationService;
 
     private UserSignup userSignup;

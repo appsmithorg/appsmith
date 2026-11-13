@@ -117,8 +117,7 @@ public class GitUtils {
                     HttpClientRequest reactorRequest = httpRequest.getNativeRequest();
                     reactorRequest.responseTimeout(Duration.ofSeconds(2));
                 })
-                .exchange()
-                .flatMap(response -> {
+                .exchangeToMono(response -> {
                     if (response.statusCode().is2xxSuccessful()) {
                         return Mono.just(Boolean.FALSE);
                     } else {

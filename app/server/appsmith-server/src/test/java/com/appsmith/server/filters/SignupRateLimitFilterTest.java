@@ -225,6 +225,25 @@ class SignupRateLimitFilterTest {
     }
 
     @Test
+    void should_keyByTheForwardedIpv6Client_when_forwardedHeadersWereAlreadyApplied() {
+        // Given
+        // Spring Framework 7 keeps the brackets around an IPv6 client taken from X-Forwarded-For.
+        ServerHttpRequest transformed = new ForwardedHeaderTransformer()
+                .apply(MockServerHttpRequest.post(SIGNUP_PATH)
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .remoteAddress(inetSocketAddress("127.0.0.1"))
+                        .header("X-Forwarded-For", "2001:db8::1")
+                        .build());
+
+        // When
+        filter.filter(withRequest(transformed), chain).block();
+
+        // Then
+        verify(rateLimitService)
+                .tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_SIGNUP_API, "2001:db8:0:0:0:0:0:1");
+    }
+
+    @Test
     void signup_withUnusableClientAddress_isStillCountedInSharedBucket() {
         // A garbage X-Forwarded-For becomes an unresolved, non-IP remote address after the transformer. It must not
         // be a way around the limit.

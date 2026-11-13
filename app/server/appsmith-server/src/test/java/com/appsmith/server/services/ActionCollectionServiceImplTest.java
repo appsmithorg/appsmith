@@ -36,7 +36,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -69,41 +69,41 @@ public class ActionCollectionServiceImplTest {
     ActionCollectionService actionCollectionService;
     LayoutCollectionService layoutCollectionService;
 
-    @MockBean
+    @MockitoBean
     NewPageService newPageService;
 
-    @MockBean
+    @MockitoBean
     LayoutActionService layoutActionService;
 
-    @MockBean
+    @MockitoBean
     UpdateLayoutService updateLayoutService;
 
-    @MockBean
+    @MockitoBean
     RefactoringService refactoringService;
 
-    @MockBean
+    @MockitoBean
     ActionCollectionRepository actionCollectionRepository;
 
-    @MockBean
+    @MockitoBean
     NewActionService newActionService;
 
-    @MockBean
+    @MockitoBean
     ApplicationService applicationService;
 
     ApplicationPermission applicationPermission;
     PagePermission pagePermission;
     ActionPermission actionPermission;
 
-    @MockBean
+    @MockitoBean
     ObservationRegistry observationRegistry;
 
-    @MockBean
+    @MockitoBean
     private Validator validator;
 
-    @MockBean
+    @MockitoBean
     private AnalyticsService analyticsService;
 
-    @MockBean
+    @MockitoBean
     private PolicyGenerator policyGenerator;
 
     @BeforeEach

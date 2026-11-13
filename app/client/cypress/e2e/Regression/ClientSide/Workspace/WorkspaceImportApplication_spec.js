@@ -34,7 +34,7 @@ describe(
             .to.have.property("content-disposition")
             .that.includes("attachment;")
             .and.includes(
-              `filename="=?UTF-8?Q?${appname.replace(/\s/g, "_")}.json`,
+              `filename*=UTF-8''${encodeURIComponent(appname)}.json`,
             );
           cy.writeFile("cypress/fixtures/exported-app.json", body, "utf-8");
 

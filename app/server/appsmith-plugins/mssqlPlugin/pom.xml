@@ -38,7 +38,7 @@
 
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>mssqlserver</artifactId>
+            <artifactId>testcontainers-mssqlserver</artifactId>
             <version>${testcontainers.version}</version>
             <scope>test</scope>
             <exclusions>

@@ -4,8 +4,8 @@ import com.appsmith.caching.components.InstanceIdProvider;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -29,7 +29,7 @@ class DistributedLockAspectTest {
     @Autowired
     private ReactiveRedisOperations<String, String> redisOperations;
 
-    @MockBean
+    @MockitoBean
     private InstanceIdProvider instanceIdProvider;
 
     private static final String LOCK_PREFIX = "lock";

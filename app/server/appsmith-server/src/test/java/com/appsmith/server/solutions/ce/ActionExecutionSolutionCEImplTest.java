@@ -37,8 +37,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.codec.ByteBufferDecoder;
 import org.springframework.core.codec.StringDecoder;
 import org.springframework.http.HttpMethod;
@@ -54,6 +52,8 @@ import org.springframework.http.codec.xml.Jaxb2XmlDecoder;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.web.reactive.function.BodyExtractor;
 import org.springframework.web.reactive.function.BodyExtractors;
 import reactor.core.publisher.Flux;
@@ -82,63 +82,63 @@ class ActionExecutionSolutionCEImplTest {
 
     ActionExecutionSolutionCEImpl actionExecutionSolution;
 
-    @SpyBean
+    @MockitoSpyBean
     NewActionService newActionService;
 
-    @MockBean
+    @MockitoBean
     ActionPermission actionPermission;
 
     ObservationRegistry observationRegistry;
 
-    @SpyBean
+    @MockitoSpyBean
     ObjectMapper objectMapper;
 
-    @SpyBean
+    @MockitoSpyBean
     DatasourceService datasourceService;
 
-    @MockBean
+    @MockitoBean
     PluginService pluginService;
 
-    @MockBean
+    @MockitoBean
     DatasourceContextService datasourceContextService;
 
-    @MockBean
+    @MockitoBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    @MockBean
+    @MockitoBean
     NewPageService newPageService;
 
-    @SpyBean
+    @MockitoSpyBean
     ApplicationService applicationService;
 
-    @SpyBean
+    @MockitoSpyBean
     SessionUserService sessionUserService;
 
-    @MockBean
+    @MockitoBean
     AuthenticationValidator authenticationValidator;
 
-    @MockBean
+    @MockitoBean
     DatasourcePermission datasourcePermission;
 
-    @MockBean
+    @MockitoBean
     AnalyticsService analyticsService;
 
-    @MockBean
+    @MockitoBean
     DatasourceStorageService datasourceStorageService;
 
-    @SpyBean
+    @MockitoSpyBean
     ConfigService configService;
 
-    @SpyBean
+    @MockitoSpyBean
     OrganizationService organizationService;
 
-    @SpyBean
+    @MockitoSpyBean
     CommonConfig commonConfig;
 
-    @SpyBean
+    @MockitoSpyBean
     ActionExecutionSolutionHelper actionExecutionSolutionHelper;
 
-    @SpyBean
+    @MockitoSpyBean
     FeatureFlagService featureFlagService;
 
     @Autowired
