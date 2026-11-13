@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { RAW_EXPRESSION, storedId } from "./schema.js";
+import { RESERVED_RESULT_NAMES } from "./sqlReservedWords.js";
 
 // M4 create_query — a STRUCTURED query builder (Security ruling "Option B"). The agent never authors raw SQL or raw
 // `{{ }}`. The compiler emits the SQL text AND every binding from validated identifiers, and every value is emitted
@@ -335,17 +336,56 @@ const splitColumnSchema = z
   })
   .strict();
 
+// The name of a result column that the compiler makes, such as an aggregate's `as` or a bucket's `as`. It is emitted
+// bare, like `AS count`, and ORDER BY names it bare too (see emitOrderBy). Each database folds both the same way:
+// - PostgreSQL folds them to lower case.
+// - MySQL compares these names without case.
+// - Oracle and Snowflake fold them to upper case.
+// A reserved SQL word would not parse as a bare name, so those are refused (see sqlReservedWords.ts). Oracle needs a
+// bare name to start with a letter, so a leading _ is refused too.
+const RESULT_NAME = /^[a-z][a-z0-9_]{0,62}$/;
+const resultNameSchema = z
+  .string()
+  .regex(
+    RESULT_NAME,
+    "must be a lower-case name: a letter, then letters, digits or _, up to 63 characters",
+  )
+  .refine(
+    (name) => !RESERVED_RESULT_NAMES.has(name),
+    (name) => ({
+      message: `"${name}" is a reserved SQL word; pick another name`,
+    }),
+  );
+
+// A groupBy column truncated to a date unit: `{ column, bucket: "week", as: "week" }` groups by
+// `DATE_TRUNC('week', "column")` and shows it as `week` (PostgreSQL and Redshift only). `as` is required.
+// querySpecSchema checks it, so a missing `as` gets its own message instead of a union error.
+const BUCKET_UNITS = ["day", "week", "month", "quarter", "year"] as const;
+const bucketColumnSchema = z
+  .object({
+    column: sqlIdentifier,
+    bucket: z.enum(BUCKET_UNITS),
+    as: resultNameSchema.optional(),
+  })
+  .strict();
+
 const selectColumnSchema = z.union([
   sqlIdentifier,
   coalesceColumnSchema,
   splitColumnSchema,
+  bucketColumnSchema,
 ]);
 
 type SelectColumn = z.infer<typeof selectColumnSchema>;
 type SplitColumn = z.infer<typeof splitColumnSchema>;
+type BucketColumn = z.infer<typeof bucketColumnSchema>;
 
 function isSplitColumn(entry: SelectColumn): entry is SplitColumn {
   return typeof entry !== "string" && "split" in entry;
+}
+
+function isBucketColumn(entry: SelectColumn): entry is BucketColumn {
+  return typeof entry !== "string" && "bucket" in entry;
 }
 
 function isCoalesceColumn(
@@ -390,12 +430,263 @@ const havingConditionSchema = z
 
 // A CLOSED set of aggregate functions. The SQL keyword is compiler-emitted from the enum, never interpolated from
 // agent text; the alias is the fn name itself (also from the enum), so agents/queries can reference the result column
-// by a stable, safe name.
+// by a stable, safe name. The single `aggregate` still accepts count, sum and avg only. `aggregates` accepts all five.
 const AGGREGATE_FNS = {
   count: "COUNT",
   sum: "SUM",
   avg: "AVG",
+  min: "MIN",
+  max: "MAX",
 } as const;
+
+// How an aggregate's result is rounded, such as FLOOR(AVG(...)). The SQL keyword comes from this map.
+const ROUND_FNS = {
+  floor: "FLOOR",
+  ceil: "CEIL",
+  round: "ROUND",
+} as const;
+
+// The DATE_TRUNC unit of a bucket. It is emitted as literal SQL text, not as a binding. A bound unit would become a
+// different $n parameter in GROUP BY and in the select list, and PostgreSQL would then refuse the select list as not
+// grouped.
+const DATE_BUCKETS = {
+  day: "day",
+  week: "week",
+  month: "month",
+  quarter: "quarter",
+  year: "year",
+} as const;
+
+// Looks up a SQL keyword in one of the closed maps above. Only the map's own keys count, so a name such as
+// "constructor" is not found. Throws on a miss, so a caller that skipped parsing never gets other text into the SQL.
+function sqlKeyword(
+  map: Readonly<Record<string, string>>,
+  key: unknown,
+  what: string,
+): string {
+  if (
+    typeof key !== "string" ||
+    !Object.prototype.hasOwnProperty.call(map, key)
+  ) {
+    throw new Error(`unknown ${what} ${JSON.stringify(key)}`);
+  }
+
+  return map[key];
+}
+
+const ABS_ON_COUNT_MESSAGE = "abs is not valid with count";
+const ROUND_FN_MESSAGE = "round is only valid with sum or avg";
+
+// One entry of `aggregates`. `column` is required except for count, which then counts rows (COUNT(*)).
+// - `abs: true` wraps the input: AVG(ABS("col")). It has no meaning for count.
+// - `round` wraps the result: FLOOR(AVG(...)). Only sum and avg can return a fraction.
+// - `as` names the result. The default is the fn name.
+const aggregateEntrySchema = z
+  .object({
+    fn: z.enum(["count", "sum", "avg", "min", "max"]),
+    column: sqlIdentifier.optional(),
+    abs: z.boolean().optional(),
+    round: z.enum(["floor", "ceil", "round"]).optional(),
+    as: resultNameSchema.optional(),
+  })
+  .strict()
+  .superRefine((entry, ctx) => {
+    if (entry.fn !== "count" && entry.column === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `${entry.fn} needs a column`,
+        path: ["column"],
+      });
+    }
+
+    // abs: false is a no-op, so it is accepted.
+    if (entry.fn === "count" && entry.abs === true) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: ABS_ON_COUNT_MESSAGE,
+        path: ["abs"],
+      });
+    }
+
+    if (entry.round !== undefined && entry.fn !== "sum" && entry.fn !== "avg") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: ROUND_FN_MESSAGE,
+        path: ["round"],
+      });
+    }
+  });
+
+type AggregateEntry = z.infer<typeof aggregateEntrySchema>;
+
+// The name a group key or an aggregate has in the result:
+// - a bucket's name is its `as` only. A bucket without `as` has no name, so it returns undefined. querySpecSchema
+//   refuses that, and emitResultName throws on it.
+// - an aggregate's name is its `as`, or else its fn;
+// - any other group key keeps its column's name.
+function resultNameOf(
+  entry: AggregateEntry | Exclude<SelectColumn, BucketColumn>,
+): string;
+function resultNameOf(entry: SelectColumn | AggregateEntry): string | undefined;
+function resultNameOf(
+  entry: SelectColumn | AggregateEntry,
+): string | undefined {
+  if (typeof entry === "string") return entry;
+
+  if ("fn" in entry) return entry.as ?? entry.fn;
+
+  if (isBucketColumn(entry)) return entry.as;
+
+  return entry.column;
+}
+
+// The split source and its item column. A result name of either would be confused with them.
+const SPLIT_NAMES = new Set([SPLIT_SOURCE, `${SPLIT_SOURCE}_value`]);
+
+const BOTH_AGGREGATE_FORMS_MESSAGE = "use aggregate or aggregates, not both";
+
+const bucketHavingMessage = (column: string) =>
+  `having cannot test a bucket or its column (${column}); filter ${column} in filters instead`;
+
+// The parts of a spec the helpers below read. It is written out, not taken from QuerySpec, so the schema's type does
+// not depend on itself.
+interface AggregateShape {
+  aggregate?: { fn: "count" | "sum" | "avg"; column?: string };
+  aggregates?: AggregateEntry[];
+  columns?: SelectColumn[];
+  groupBy?: SelectColumn[];
+  orderBy?: { column: string }[];
+}
+
+// The aggregates of a spec as one list. The single `aggregate` becomes a one-entry list, so both forms share the
+// checks and the emit path, and the single form compiles exactly as before. querySpecSchema refuses a spec with both,
+// and compileQuery throws on one.
+function aggregateEntriesOf(spec: AggregateShape): AggregateEntry[] {
+  if (spec.aggregates !== undefined) return spec.aggregates;
+
+  if (spec.aggregate !== undefined) {
+    return [{ fn: spec.aggregate.fn, column: spec.aggregate.column }];
+  }
+
+  return [];
+}
+
+// The result names that ORDER BY emits bare: each aggregate's name, from `aggregate` or `aggregates`, and each
+// bucket's `as`. Any other orderBy name is a column and stays quoted.
+function bareResultNames(spec: AggregateShape): ReadonlySet<string> {
+  const buckets = (spec.groupBy ?? []).filter(isBucketColumn);
+  const names = [
+    ...aggregateEntriesOf(spec).map((entry) => resultNameOf(entry)),
+    ...buckets.map((entry) => entry.as),
+  ];
+
+  return new Set(names.filter((name): name is string => name !== undefined));
+}
+
+// The rules for result names. They run only when `aggregates` or a bucket is present.
+// - Each group key and aggregate needs its own result name. The match ignores case, because MySQL and Oracle compare
+//   names without case.
+// - An `as` cannot be a split source name.
+// - orderBy can only name a result. A bucket's source column is not a result, so ordering by it is refused.
+function refineResultNames(spec: AggregateShape, ctx: z.RefinementCtx): void {
+  const seen = new Set<string>();
+  const names: string[] = [];
+  const check = (
+    name: string,
+    hasAs: boolean,
+    path: (string | number)[],
+  ): void => {
+    if (hasAs && SPLIT_NAMES.has(name)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `"${name}" is reserved for the split source; pick another name`,
+        path,
+      });
+    }
+
+    if (seen.has(name.toLowerCase())) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `the result name "${name}" is used more than once (names ignore case); give each aggregate and group key its own name`,
+        path,
+      });
+    }
+
+    seen.add(name.toLowerCase());
+    names.push(name);
+  };
+
+  (spec.groupBy ?? []).forEach((entry, index) => {
+    if (isBucketColumn(entry)) {
+      // A bucket without `as` already has its own issue.
+      if (entry.as !== undefined) {
+        check(entry.as, true, ["groupBy", index, "as"]);
+      }
+    } else {
+      check(resultNameOf(entry), false, ["groupBy", index]);
+    }
+  });
+
+  if (spec.aggregates !== undefined) {
+    spec.aggregates.forEach((entry, index) =>
+      check(resultNameOf(entry), entry.as !== undefined, [
+        "aggregates",
+        index,
+        "as",
+      ]),
+    );
+  } else if (spec.aggregate !== undefined) {
+    check(spec.aggregate.fn, false, ["aggregate"]);
+  }
+
+  (spec.orderBy ?? []).forEach((entry, index) => {
+    if (!names.includes(entry.column)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `with aggregates or a bucket, orderBy can only name a result column (${names.map((name) => `"${name}"`).join(", ")})`,
+        path: ["orderBy", index, "column"],
+      });
+    }
+  });
+}
+
+const DISTINCT_COLUMNS_MESSAGE = "distinct needs a non-empty columns list";
+
+// SELECT DISTINCT needs a column list, and works on plain rows only. PostgreSQL refuses ORDER BY on a column that is not
+// selected when DISTINCT is set, so orderBy can only name a column in `columns`.
+function refineDistinct(spec: AggregateShape, ctx: z.RefinementCtx): void {
+  const columns = spec.columns ?? [];
+
+  if (columns.length === 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: DISTINCT_COLUMNS_MESSAGE,
+      path: ["distinct"],
+    });
+  }
+
+  for (const field of ["aggregate", "aggregates", "groupBy"] as const) {
+    if (spec[field] !== undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `distinct cannot be used with ${field}`,
+        path: ["distinct"],
+      });
+    }
+  }
+
+  const selected = new Set(columns.map(columnNameOf));
+
+  (spec.orderBy ?? []).forEach((entry, index) => {
+    if (!selected.has(entry.column)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "with distinct, orderBy can only name a column in columns",
+        path: ["orderBy", index, "column"],
+      });
+    }
+  });
+}
 
 export const querySpecSchema = z
   .object({
@@ -435,28 +726,47 @@ export const querySpecSchema = z
       })
       .strict()
       .optional(),
+    // More than one aggregate in one SELECT, such as an average and a count. Use this or `aggregate`, not both.
+    aggregates: z.array(aggregateEntrySchema).min(1).max(6).optional(),
     // GROUP BY columns for an aggregated SELECT — each an allow-listed identifier, quoted by quoteIdentifier (bare on
     // MySQL).
     groupBy: z.array(selectColumnSchema).max(20).optional(),
     // HAVING conditions on an aggregated SELECT, ANDed together.
     having: z.array(havingConditionSchema).max(10).optional(),
+    // SELECT DISTINCT over `columns`. false is a no-op.
+    distinct: z.boolean().optional(),
     limit: z.number().int().min(1).max(1000).optional(),
   })
   .strict()
   // orderBy/aggregate/groupBy shape a SELECT only; compileQuery ignores them on INSERT/UPDATE/DELETE. Reject them
   // there so an agent gets clear feedback instead of a silently-dropped clause.
   .superRefine((spec, ctx) => {
-    // HAVING filters groups, so it needs an aggregate, and each condition must name the aggregate's result or a group
+    const hasAggregate =
+      spec.aggregate !== undefined || spec.aggregates !== undefined;
+    const aggregateEntries = aggregateEntriesOf(spec);
+    const buckets = (spec.groupBy ?? []).filter(isBucketColumn);
+    // The result-name rules below apply only to the new forms, so a spec that uses neither keeps its old behaviour.
+    const usesResultNames = spec.aggregates !== undefined || buckets.length > 0;
+
+    if (spec.aggregate !== undefined && spec.aggregates !== undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: BOTH_AGGREGATE_FORMS_MESSAGE,
+        path: ["aggregates"],
+      });
+    }
+
+    // HAVING filters groups, so it needs an aggregate, and each condition must name an aggregate's result or a group
     // column. A name the select list does not group would fail at run time, or test something the agent did not mean.
     if (spec.having !== undefined) {
-      if (spec.aggregate === undefined) {
+      if (!hasAggregate) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "having needs an aggregate",
           path: ["having"],
         });
       } else {
-        const fn = spec.aggregate.fn;
+        const aggregateNames = aggregateEntries.map(resultNameOf);
         const groupBy = spec.groupBy ?? [];
         const groupColumns = new Set(groupBy.map(columnNameOf));
         const coalescedColumns = new Set(
@@ -464,10 +774,30 @@ export const querySpecSchema = z
         );
 
         spec.having.forEach((condition, index) => {
-          if (condition.column !== fn && !groupColumns.has(condition.column)) {
+          // A bucket is refused by its result name and by its source column. HAVING on the source column would test
+          // the stored value, not the bucket. An aggregate's result name comes first, as in emitHaving, so an
+          // aggregate named like a bucket's source column is allowed.
+          const bucket = aggregateNames.includes(condition.column)
+            ? undefined
+            : buckets.find(
+                (entry) =>
+                  entry.as === condition.column ||
+                  entry.column === condition.column,
+              );
+
+          if (bucket !== undefined) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
-              message: `having can only test "${fn}" or a groupBy column`,
+              message: bucketHavingMessage(bucket.column),
+              path: ["having", index, "column"],
+            });
+          } else if (
+            !aggregateNames.includes(condition.column) &&
+            !groupColumns.has(condition.column)
+          ) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `having can only test ${aggregateNames.map((name) => `"${name}"`).join(", ")} or a groupBy column`,
               path: ["having", index, "column"],
             });
           } else if (coalescedColumns.has(condition.column)) {
@@ -486,8 +816,9 @@ export const querySpecSchema = z
 
     // A group column named like the aggregate's result (for example "count" with aggregate count) gives the result
     // two columns of that name, and having could not tell them apart. The match ignores case: MySQL names are bare and
-    // case-insensitive, so "COUNT" and count are the same name there.
-    if (spec.aggregate !== undefined) {
+    // case-insensitive, so "COUNT" and count are the same name there. With aggregates or a bucket, the result-name
+    // rules below check this instead.
+    if (spec.aggregate !== undefined && !usesResultNames) {
       const fn = spec.aggregate.fn;
 
       (spec.groupBy ?? []).forEach((entry, index) => {
@@ -501,9 +832,9 @@ export const querySpecSchema = z
       });
     }
 
-    // A grouped column's coalesce or split appears in the aggregated select list only. Without an aggregate the select
-    // list is `columns` or `*`, so it would be dropped without a word.
-    if (spec.aggregate === undefined) {
+    // A grouped column's coalesce, split or bucket appears in the aggregated select list only. Without an aggregate the
+    // select list is `columns` or `*`, so it would be dropped without a word.
+    if (!hasAggregate) {
       (spec.groupBy ?? []).forEach((entry, index) => {
         if (isCoalesceColumn(entry)) {
           ctx.addIssue({
@@ -518,13 +849,20 @@ export const querySpecSchema = z
             message: "split on a groupBy column needs an aggregate",
             path: ["groupBy", index, "split"],
           });
+        } else if (isBucketColumn(entry)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "bucket on a groupBy column needs an aggregate",
+            path: ["groupBy", index, "bucket"],
+          });
         }
       });
     } else {
-      // With an aggregate, the select list is the group columns and the aggregate only, so a `columns` coalesce would
-      // be dropped without a word too. Plain `columns` entries stay ignored, as before.
+      // With an aggregate, the select list is the group columns and the aggregates only, so a `columns` coalesce would
+      // be dropped without a word too. Plain `columns` entries stay ignored, as before. A bucket in columns gets its
+      // own message below.
       (spec.columns ?? []).forEach((entry, index) => {
-        if (typeof entry !== "string") {
+        if (typeof entry !== "string" && !isBucketColumn(entry)) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message:
@@ -612,6 +950,12 @@ export const querySpecSchema = z
       if (spec.aggregate?.column !== undefined) {
         refuse(spec.aggregate.column, ["aggregate", "column"]);
       }
+
+      (spec.aggregates ?? []).forEach((entry, index) => {
+        if (entry.column !== undefined) {
+          refuse(entry.column, ["aggregates", index, "column"]);
+        }
+      });
     }
 
     // A query has one lateral split source, so one split column.
@@ -625,7 +969,7 @@ export const querySpecSchema = z
       });
     });
 
-    // A split item is a group key. In columns it would have no meaning.
+    // A split item or a bucket is a group key. In columns it would have no meaning.
     (spec.columns ?? []).forEach((entry, index) => {
       if (isSplitColumn(entry)) {
         ctx.addIssue({
@@ -633,8 +977,31 @@ export const querySpecSchema = z
           message: "split is only valid in groupBy",
           path: ["columns", index, "split"],
         });
+      } else if (isBucketColumn(entry)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "bucket is only valid in groupBy",
+          path: ["columns", index, "bucket"],
+        });
       }
     });
+
+    (spec.groupBy ?? []).forEach((entry, index) => {
+      if (isBucketColumn(entry) && entry.as === undefined) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            'bucket needs as, the name of its result column (such as "week")',
+          path: ["groupBy", index, "as"],
+        });
+      }
+    });
+
+    if (usesResultNames) refineResultNames(spec, ctx);
+
+    if (spec.operation === "SELECT" && spec.distinct === true) {
+      refineDistinct(spec, ctx);
+    }
 
     if (spec.operation === "SELECT") return;
 
@@ -695,8 +1062,10 @@ export const querySpecSchema = z
     for (const field of [
       "orderBy",
       "aggregate",
+      "aggregates",
       "groupBy",
       "having",
+      "distinct",
     ] as const) {
       if (spec[field] !== undefined) {
         ctx.addIssue({
@@ -978,21 +1347,33 @@ function emitCondition(
 // reserved word then fails with a syntax error instead of returning wrong results.
 // Oracle also gets bare names: a quoted name is case-sensitive there, so "status" would not match a STATUS column
 // created without quotes, which is how most Oracle columns are made.
+// The schema already allows only plain identifiers. This checks again, on every dialect, so that a caller that
+// skipped parsing cannot put other text into the SQL.
 function quoteIdentifier(name: string, dialect: SqlDialect): string {
+  if (typeof name !== "string" || !SQL_IDENTIFIER.test(name)) {
+    throw new Error(`unsafe identifier: ${JSON.stringify(name)}`);
+  }
+
   return dialect === "mysql" || dialect === "oracle" ? name : `"${name}"`;
 }
 
 // Emit `ORDER BY "col" ASC, "col2" DESC` (bare names on MySQL, see quoteIdentifier). Direction comes from a two-value
-// enum, never agent text.
+// enum, never agent text. A name in `bareNames` is an aggregate or bucket result name. It is emitted bare, like its
+// `AS` alias, so both fold the same way. A quoted "n" would miss the alias n on Snowflake, which folds it to N.
 function emitOrderBy(
   orderBy: QuerySpec["orderBy"],
   dialect: SqlDialect,
+  bareNames: ReadonlySet<string>,
 ): string {
   if (!orderBy || orderBy.length === 0) return "";
 
-  const clauses = orderBy.map(
-    (entry) => `${quoteIdentifier(entry.column, dialect)} ${entry.direction}`,
-  );
+  const clauses = orderBy.map((entry) => {
+    const name = bareNames.has(entry.column)
+      ? emitResultName(entry.column)
+      : quoteIdentifier(entry.column, dialect);
+
+    return `${name} ${entry.direction}`;
+  });
 
   return ` ORDER BY ${clauses.join(", ")}`;
 }
@@ -1015,15 +1396,18 @@ function emitGroupBy(
 }
 
 // The SQL a group key compiles to, shared by GROUP BY, HAVING and the aggregated select list, so all three name the
-// same thing. A split column's key is the trimmed item from the lateral split source. Every other column's key is its
-// stored name, quoted by quoteIdentifier (bare on MySQL). On PostgreSQL and Redshift a group column named like the
-// table would group by, or test, the whole row, so it is refused.
+// same thing. A split column's key is the trimmed item from the lateral split source. A bucket's key is its
+// DATE_TRUNC call (see bucketExpression). Every other column's key is its stored name, quoted by quoteIdentifier
+// (bare on MySQL). On PostgreSQL and Redshift a group column named like the table would group by, or test, the whole
+// row, so it is refused.
 function groupKeyExpression(
   entry: SelectColumn,
   dialect: SqlDialect,
   table: string,
 ): string {
   if (isSplitColumn(entry)) return SPLIT_ITEM;
+
+  if (isBucketColumn(entry)) return bucketExpression(entry, dialect, table);
 
   refuseTableNamedColumn(
     columnNameOf(entry),
@@ -1035,9 +1419,51 @@ function groupKeyExpression(
   return quoteIdentifier(columnNameOf(entry), dialect);
 }
 
+// A bucket's group key, such as `DATE_TRUNC('week', "created_at")`. GROUP BY repeats this call and never uses the
+// alias, because PostgreSQL reads a GROUP BY name as an input column first. Only PostgreSQL and Redshift are
+// supported. The unit comes from DATE_BUCKETS, and the column is refused when it is named like the table.
+function bucketExpression(
+  entry: BucketColumn,
+  dialect: SqlDialect,
+  table: string,
+): string {
+  if (dialect !== "postgres" && dialect !== "redshift") {
+    throw new Error(
+      `bucket (on ${entry.column}) is only available on a PostgreSQL or Redshift datasource, which have DATE_TRUNC`,
+    );
+  }
+
+  const unit = sqlKeyword(DATE_BUCKETS, entry.bucket, "bucket");
+
+  refuseTableNamedColumn(
+    entry.column,
+    table,
+    dialect,
+    "groupBy and having cannot use",
+  );
+
+  return `DATE_TRUNC('${unit}', ${quoteIdentifier(entry.column, dialect)})`;
+}
+
+// A result name, emitted bare. querySpecSchema already checks it. This checks again so that a caller that skipped
+// parsing cannot put other text into the SQL.
+function emitResultName(name: string | undefined): string {
+  if (
+    name === undefined ||
+    !RESULT_NAME.test(name) ||
+    RESERVED_RESULT_NAMES.has(name) ||
+    SPLIT_NAMES.has(name)
+  ) {
+    throw new Error(`invalid result name: ${JSON.stringify(name)}`);
+  }
+
+  return name;
+}
+
 // One select-list item. `quote` matches the list's own style: plain columns are emitted bare, group columns quoted.
 // - A coalesce entry keeps the column's name as its alias, and its fallback is a bound parameter.
 // - A split entry shows its item under the column's name.
+// - A bucket shows its DATE_TRUNC call under its `as`.
 function emitSelectColumn(
   entry: SelectColumn,
   quote: boolean,
@@ -1050,6 +1476,14 @@ function emitSelectColumn(
     }
 
     return `${SPLIT_ITEM} AS ${quoteIdentifier(entry.column, dialect)}`;
+  }
+
+  if (isBucketColumn(entry)) {
+    if (!quote) {
+      throw new Error("bucket is only valid in groupBy");
+    }
+
+    return `${groupKeyExpression(entry, dialect, table)} AS ${emitResultName(entry.as)}`;
   }
 
   const name = quote
@@ -1077,64 +1511,100 @@ function emitFrom(spec: QuerySpec, dialect: SqlDialect): string {
   return `${spec.table} CROSS JOIN LATERAL unnest(string_to_array("${split.column}", ${emitBinding({ literal: split.split })})) AS ${SPLIT_SOURCE}(mcp_split_value)`;
 }
 
-// Emit one aggregate select item, e.g. `COUNT(*) AS count`, `COUNT("id") AS count`, `SUM("amount") AS sum`. The
-// function keyword and the alias both come from the closed AGGREGATE_FNS enum; the column (when present) is an
-// allow-listed identifier quoted by quoteIdentifier (bare on MySQL). `sum`/`avg` require a column — a count-less
-// aggregate is nonsensical.
-function emitAggregate(
-  aggregate: NonNullable<QuerySpec["aggregate"]>,
-  dialect: SqlDialect,
-): string {
-  return `${aggregateExpression(aggregate, dialect)} AS ${aggregate.fn}`;
+// Emit one aggregate select item, e.g. `COUNT(*) AS count`, `SUM("amount") AS sum`, `FLOOR(AVG(ABS("x"))) AS avg`.
+// The single `aggregate` and each `aggregates` entry both use it. The alias is the entry's result name, emitted bare.
+function emitAggregate(entry: AggregateEntry, dialect: SqlDialect): string {
+  return `${aggregateExpression(entry, dialect)} AS ${emitResultName(resultNameOf(entry))}`;
 }
 
-// The aggregate call without its alias, such as `COUNT(*)` or `SUM("amount")`. HAVING repeats it, because PostgreSQL
-// does not accept a select-list alias there.
+// The aggregate call without its alias, such as `COUNT(*)`, `SUM("amount")` or `FLOOR(AVG(ABS("x")))`. HAVING repeats
+// it, because PostgreSQL does not accept a select-list alias there. Every keyword comes from AGGREGATE_FNS or
+// ROUND_FNS, and the column is an allow-listed identifier quoted by quoteIdentifier (bare on MySQL). Only count can
+// omit the column. abs and round are checked again here, so a caller that skipped parsing fails closed.
 function aggregateExpression(
-  aggregate: NonNullable<QuerySpec["aggregate"]>,
+  entry: AggregateEntry,
   dialect: SqlDialect,
 ): string {
-  const fn = AGGREGATE_FNS[aggregate.fn];
+  const fn = sqlKeyword(AGGREGATE_FNS, entry.fn, "aggregate fn");
 
-  if (aggregate.fn === "count") {
-    const target = aggregate.column
-      ? quoteIdentifier(aggregate.column, dialect)
-      : "*";
+  if (entry.fn === "count") {
+    if (entry.abs === true) throw new Error(ABS_ON_COUNT_MESSAGE);
+
+    if (entry.round !== undefined) throw new Error(ROUND_FN_MESSAGE);
+
+    const target = entry.column ? quoteIdentifier(entry.column, dialect) : "*";
 
     return `${fn}(${target})`;
   }
 
-  if (!aggregate.column) {
-    throw new Error(`${aggregate.fn} aggregation requires a column`);
+  if (!entry.column) {
+    throw new Error(`${entry.fn} aggregation requires a column`);
   }
 
-  return `${fn}(${quoteIdentifier(aggregate.column, dialect)})`;
+  const column = quoteIdentifier(entry.column, dialect);
+  const call = `${fn}(${entry.abs === true ? `ABS(${column})` : column})`;
+
+  if (entry.round === undefined) return call;
+
+  if (entry.fn !== "sum" && entry.fn !== "avg") {
+    throw new Error(ROUND_FN_MESSAGE);
+  }
+
+  // SQL Server spells ceil as CEILING, and its ROUND needs a second argument. "other" covers SQL Server, so ceil and
+  // round are refused there. FLOOR works on every database.
+  if (
+    dialect === "other" &&
+    (entry.round === "ceil" || entry.round === "round")
+  ) {
+    throw new Error(
+      `round "${entry.round}" (on ${entry.column}) is only available on a PostgreSQL, Redshift, MySQL or Oracle datasource; on other databases use round "floor" or no round`,
+    );
+  }
+
+  return `${sqlKeyword(ROUND_FNS, entry.round, "round")}(${call})`;
 }
 
-// Emit `HAVING <cond> AND ...`. Each condition tests the aggregate (its expression is repeated) or a group column (its
-// stored name, quoted as GROUP BY quotes it). Values are bound parameters, and the operator comes from
-// HAVING_OPERATORS.
+// Emit `HAVING <cond> AND ...`. Each condition tests an aggregate (the entry whose result name matches, its
+// expression repeated) or a group column (its stored name, quoted as GROUP BY quotes it). Values are bound parameters,
+// and the operator comes from HAVING_OPERATORS.
 function emitHaving(spec: QuerySpec, dialect: SqlDialect): string {
   if (!spec.having || spec.having.length === 0) return "";
 
-  if (!spec.aggregate) {
+  const aggregates = aggregateEntriesOf(spec);
+
+  if (aggregates.length === 0) {
     throw new Error("having needs an aggregate");
   }
 
-  const aggregate = spec.aggregate;
   const conditions = spec.having.map((condition) => {
+    const aggregate = aggregates.find(
+      (entry) => resultNameOf(entry) === condition.column,
+    );
+    const groupEntry = (spec.groupBy ?? []).find(
+      (entry) =>
+        columnNameOf(entry) === condition.column ||
+        resultNameOf(entry) === condition.column,
+    );
+
+    // querySpecSchema refuses this. Check again so that a caller that skipped parsing fails closed.
+    if (
+      aggregate === undefined &&
+      groupEntry !== undefined &&
+      isBucketColumn(groupEntry)
+    ) {
+      throw new Error(bucketHavingMessage(groupEntry.column));
+    }
+
     const target =
-      condition.column === aggregate.fn
+      aggregate !== undefined
         ? aggregateExpression(aggregate, dialect)
         : groupKeyExpression(
-            (spec.groupBy ?? []).find(
-              (entry) => columnNameOf(entry) === condition.column,
-            ) ?? condition.column,
+            groupEntry ?? condition.column,
             dialect,
             spec.table,
           );
 
-    return `${target} ${HAVING_OPERATORS[condition.op]} ${emitBinding(condition.value)}`;
+    return `${target} ${sqlKeyword(HAVING_OPERATORS, condition.op, "having op")} ${emitBinding(condition.value)}`;
   });
 
   return ` HAVING ${conditions.join(" AND ")}`;
@@ -1190,19 +1660,51 @@ export function compileQuery(
 
   switch (spec.operation) {
     case "SELECT": {
-      // Aggregated SELECT: the group-by columns (quoted) followed by the single aggregate item, e.g.
+      // Aggregated SELECT: the group-by columns (quoted) followed by the aggregate items, e.g.
       // `SELECT "region", SUM("amount") AS sum`. Otherwise the plain column list (unquoted, matching the
       // existing convention) or `*`.
+      // querySpecSchema refuses each check below. They run again so that a caller that skipped parsing fails closed.
+      if (spec.aggregate !== undefined && spec.aggregates !== undefined) {
+        throw new Error(BOTH_AGGREGATE_FORMS_MESSAGE);
+      }
+
+      const aggregates = aggregateEntriesOf(spec);
+
+      if (spec.distinct === true) {
+        if (aggregates.length > 0 || spec.groupBy !== undefined) {
+          throw new Error(
+            "distinct cannot be used with aggregate, aggregates or groupBy",
+          );
+        }
+
+        if (!spec.columns || spec.columns.length === 0) {
+          throw new Error(DISTINCT_COLUMNS_MESSAGE);
+        }
+      }
+
       let selectList: string;
 
-      if (spec.aggregate) {
+      if (aggregates.length > 0) {
         const groupCols = (spec.groupBy ?? []).map((entry) =>
           emitSelectColumn(entry, true, dialect, spec.table),
         );
 
+        // Only the new `aggregates` form refuses a column named like the table. The single `aggregate` keeps its old
+        // behaviour.
+        (spec.aggregates ?? []).forEach((entry) => {
+          if (entry.column !== undefined) {
+            refuseTableNamedColumn(
+              entry.column,
+              spec.table,
+              dialect,
+              "an aggregate cannot use",
+            );
+          }
+        });
+
         selectList = [
           ...groupCols,
-          emitAggregate(spec.aggregate, dialect),
+          ...aggregates.map((entry) => emitAggregate(entry, dialect)),
         ].join(", ");
       } else {
         selectList =
@@ -1224,7 +1726,10 @@ export function compileQuery(
             : ` LIMIT ${spec.limit}`;
 
       // SQL clause order: SELECT ... FROM ... WHERE ... GROUP BY ... ORDER BY ... LIMIT.
-      body = `SELECT ${selectList} FROM ${emitFrom(spec, dialect)}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy, dialect, spec.table)}${emitHaving(spec, dialect)}${emitOrderBy(spec.orderBy, dialect)}${limit};`;
+      // DISTINCT is fixed text.
+      const distinct = spec.distinct === true ? "DISTINCT " : "";
+
+      body = `SELECT ${distinct}${selectList} FROM ${emitFrom(spec, dialect)}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy, dialect, spec.table)}${emitHaving(spec, dialect)}${emitOrderBy(spec.orderBy, dialect, bareResultNames(spec))}${limit};`;
       break;
     }
     case "INSERT": {
