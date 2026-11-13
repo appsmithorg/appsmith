@@ -640,7 +640,9 @@ describe(
     });
 
     it("17. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
-      deployMode.DeployApp();
+      // Test 15 dropped the Vessels table, so the page's SelectQuery fails on
+      // load and its failure toast is expected here.
+      deployMode.DeployApp(undefined, false);
       deployMode.NavigateBacktoEditor();
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409);
     });
