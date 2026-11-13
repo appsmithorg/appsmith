@@ -2716,6 +2716,71 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     },
   );
 
+  // APP-16507: Redshift and Snowflake run SQL as plain text, so the server would paste a viewer's widget value into
+  // the query. create_query refuses any value there and stores nothing. A query with no values still works.
+  it.each([
+    ["redshift-plugin", "Redshift"],
+    ["snowflake-plugin", "Snowflake"],
+  ])(
+    "APP-16507: create_query refuses a widget-valued filter on %s and creates nothing",
+    async (pluginId, database) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          filters: [
+            {
+              column: "email",
+              op: "eq",
+              value: { widget: "EmailInput", property: "text" },
+            },
+          ],
+        },
+      });
+
+      expect(body.valid).toBe(false);
+      expect(JSON.stringify(body.errors)).toContain(
+        `the ${database} plugin does not use prepared statements`,
+      );
+      expect(createAction).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["redshift-plugin", "snowflake-plugin"])(
+    "APP-16507: create_query still creates a query with no values on %s",
+    async (pluginId) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          columns: ["id", "email"],
+          filters: [{ column: "deleted_at", op: "isNull" }],
+          limit: 50,
+        },
+      });
+
+      expect(body.created).toBe(true);
+      expect(body.body).not.toContain("{{");
+      expect(createAction).toHaveBeenCalledTimes(1);
+    },
+  );
+
   // Oracle "weekly resolution time", end to end: the stored body is the compiled SQL behind the MCP marker.
   it("APP-16495: create_query compiles the Oracle weekly shape and stores it", async () => {
     const createAction = jest.fn(async () => ({ id: "act1" }));
@@ -7082,6 +7147,52 @@ describe("governance-wrapped layout mutations", () => {
         );
         expect(updateAction).not.toHaveBeenCalled();
       }
+    },
+  );
+
+  // APP-16507: Redshift and Snowflake paste each {{ }} value into the SQL text, so update_action must not store one.
+  it.each([
+    ["redshift-plugin", "Redshift"],
+    ["snowflake-plugin", "Snowflake"],
+  ])(
+    "APP-16507: update_action refuses a widget-valued filter on %s before any API write",
+    async (pluginId, database) => {
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId },
+      ]);
+      const read = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SQL",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: read.body.revision,
+          query: {
+            name: "OldName",
+            applicationId: "app1",
+            pageId: "p1",
+            datasourceId: "ds1",
+            operation: "SELECT",
+            table: "tickets",
+            filters: [
+              {
+                column: "owner",
+                op: "eq",
+                value: { widget: "OwnerInput", property: "text" },
+              },
+            ],
+          },
+        },
+      });
+
+      expect(updated.body.updated).not.toBe(true);
+      expect(JSON.stringify(updated.body.errors)).toContain(
+        `the ${database} plugin does not use prepared statements`,
+      );
+      expect(updateAction).not.toHaveBeenCalled();
     },
   );
 
