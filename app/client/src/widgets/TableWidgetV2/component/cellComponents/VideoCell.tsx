@@ -1,16 +1,10 @@
 import React from "react";
-import styled from "styled-components";
 
 import type { BaseCellComponentProps } from "../Constants";
-import { TABLE_CELL_ACTION_VERTICAL_PADDING } from "../Constants";
-import { CellWrapper } from "../TableStyledWrappers";
+import { ActionCellWrapper, CellWrapper } from "../TableStyledWrappers";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import { isString } from "lodash";
 import { YOUTUBE_URL_REGEX } from "WidgetProvider/constants";
-
-const ActionCellWrapper = styled(CellWrapper)`
-  padding: ${TABLE_CELL_ACTION_VERTICAL_PADDING}px 10px;
-`;
 
 type renderCellType = BaseCellComponentProps & {
   value: unknown;

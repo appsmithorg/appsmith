@@ -1,20 +1,16 @@
 import React, { useState } from "react";
-import styled from "styled-components";
 
 import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import type { IconName } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
 import type { BaseCellComponentProps } from "../Constants";
+import { getTableCellActionIconSize } from "../Constants";
 import {
-  TABLE_CELL_ACTION_VERTICAL_PADDING,
-  getTableCellActionIconSize,
-} from "../Constants";
-import { CellWrapper, IconButtonWrapper } from "../TableStyledWrappers";
+  ActionCellWrapper,
+  CellWrapper,
+  IconButtonWrapper,
+} from "../TableStyledWrappers";
 import { StyledButton } from "widgets/IconButtonWidget/component";
-
-const ActionCellWrapper = styled(CellWrapper)`
-  padding: ${TABLE_CELL_ACTION_VERTICAL_PADDING}px 10px;
-`;
 
 interface RenderIconButtonProps extends BaseCellComponentProps {
   isSelected: boolean;
