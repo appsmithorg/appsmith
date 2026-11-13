@@ -8,6 +8,7 @@ import {
   sqlDialectFor,
   withoutMcpMarker,
   type QuerySpec,
+  type SqlDialect,
 } from "./query.js";
 
 function parse(spec: unknown) {
@@ -4580,4 +4581,1070 @@ describe("APP-16506 A: system catalogs are refused", () => {
       }
     },
   );
+});
+
+// APP-16506 B: a SELECT over several tables (`from` and `joins`).
+const ALIASED_MODE_MESSAGE =
+  "from and joins need a PostgreSQL, MySQL, MariaDB, Oracle or SQL Server datasource that the server can identify. Redshift and Snowflake are not supported: their plugins put values into the SQL text instead of binding them";
+
+const ALIASED_PACKAGES = [
+  "postgres-plugin",
+  "mysql-plugin",
+  "mariadb-plugin",
+  "oracle-plugin",
+  "mssql-plugin",
+] as const;
+
+function compileFor(spec: unknown, packageName: string) {
+  return compileQuery(parse(spec), {
+    dialect: sqlDialectFor(packageName),
+    packageName,
+  });
+}
+
+function issuesOf(spec: unknown) {
+  const result = querySpecSchema.safeParse(spec);
+
+  return result.success
+    ? []
+    : result.error.issues.map((issue) => ({
+        path: issue.path,
+        message: issue.message,
+      }));
+}
+
+// Three tables: orders, the customer of each order, and its payments.
+const threeTableJoin = {
+  ...base,
+  operation: "SELECT",
+  from: { table: "public.orders", as: "o" },
+  joins: [
+    {
+      type: "inner",
+      table: "public.customers",
+      as: "c",
+      on: [{ left: "c.id", right: "o.customer_id" }],
+    },
+    {
+      type: "left",
+      table: "public.payments",
+      as: "p",
+      on: [{ left: "p.order_id", right: "o.id" }],
+    },
+  ],
+  filters: [
+    { column: "o.status", op: "eq", value: { literal: "paid" } },
+    {
+      anyOf: [
+        { column: "p.refunded", op: "isNull" },
+        { column: "p.refunded", op: "eq", value: { literal: false } },
+      ],
+    },
+    {
+      column: "c.region",
+      op: "eq",
+      value: { widget: "RegionSelect", property: "selectedOptionValue" },
+    },
+  ],
+  groupBy: ["c.region", { column: "c.name", as: "customer" }],
+  aggregates: [
+    { fn: "count", as: "orders" },
+    { fn: "sum", column: "p.amount", as: "paid_total" },
+  ],
+  having: [{ column: "orders", op: "gt", value: { literal: 1 } }],
+  orderBy: [{ column: "paid_total", direction: "DESC" }],
+  limit: 50,
+};
+
+const THREE_TABLE_POSTGRES =
+  'SELECT c."region" AS region, c."name" AS customer, COUNT(*) AS orders, SUM(p."amount") AS paid_total FROM (SELECT "customer_id", "id", "status" FROM public.orders) o INNER JOIN (SELECT "id", "region", "name" FROM public.customers) c ON c."id" = o."customer_id" LEFT JOIN (SELECT "order_id", "refunded", "amount" FROM public.payments) p ON p."order_id" = o."id" WHERE o."status" = {{ "paid" }} AND (p."refunded" IS NULL OR p."refunded" = {{ false }}) AND c."region" = {{ RegionSelect.selectedOptionValue }} GROUP BY c."region", c."name" HAVING COUNT(*) > {{ 1 }} ORDER BY paid_total DESC LIMIT 50;';
+const THREE_TABLE_MYSQL =
+  'SELECT c.region AS region, c.name AS customer, COUNT(*) AS orders, SUM(p.amount) AS paid_total FROM public.orders o INNER JOIN public.customers c ON c.id = o.customer_id LEFT JOIN public.payments p ON p.order_id = o.id WHERE o.status = {{ "paid" }} AND (p.refunded <=> NULL OR p.refunded = {{ false }}) AND c.region = {{ RegionSelect.selectedOptionValue }} GROUP BY c.region, c.name HAVING COUNT(*) > {{ 1 }} ORDER BY paid_total DESC LIMIT 50;';
+const THREE_TABLE_ORACLE =
+  'SELECT c.region AS region, c.name AS customer, COUNT(*) AS orders, SUM(p.amount) AS paid_total FROM public.orders o INNER JOIN public.customers c ON c.id = o.customer_id LEFT JOIN public.payments p ON p.order_id = o.id WHERE o.status = {{ "paid" }} AND (p.refunded IS NULL OR p.refunded = {{ false }}) AND c.region = {{ RegionSelect.selectedOptionValue }} GROUP BY c.region, c.name HAVING COUNT(*) > {{ 1 }} ORDER BY paid_total DESC FETCH FIRST 50 ROWS ONLY;';
+const THREE_TABLE_MSSQL =
+  'SELECT TOP (50) c."region" AS region, c."name" AS customer, COUNT(*) AS orders, SUM(p."amount") AS paid_total FROM public.orders o INNER JOIN public.customers c ON c."id" = o."customer_id" LEFT JOIN public.payments p ON p."order_id" = o."id" WHERE o."status" = {{ "paid" }} AND (p."refunded" IS NULL OR p."refunded" = {{ false }}) AND c."region" = {{ RegionSelect.selectedOptionValue }} GROUP BY c."region", c."name" HAVING COUNT(*) > {{ 1 }} ORDER BY paid_total DESC;';
+
+// A chain of joins: each joins the source before it.
+function joinChain(joinCount: number, onPairs = 1) {
+  return {
+    ...base,
+    operation: "SELECT",
+    from: { table: "orders", as: "o" },
+    joins: Array.from({ length: joinCount }, (_, index) => ({
+      type: "inner",
+      table: `t${index + 1}`,
+      as: `j${index + 1}`,
+      on: Array.from({ length: onPairs }, (__, pair) => ({
+        left: `j${index + 1}.k${pair}`,
+        right: `${index === 0 ? "o" : `j${index}`}.k${pair}`,
+      })),
+    })),
+    columns: ["o.id"],
+    limit: 10,
+  };
+}
+
+// A minimal valid two-table spec that each refusal test changes in one place.
+const twoTables = {
+  ...base,
+  operation: "SELECT",
+  from: { table: "orders", as: "o" },
+  joins: [
+    {
+      type: "inner",
+      table: "customers",
+      as: "c",
+      on: [{ left: "c.id", right: "o.customer_id" }],
+    },
+  ],
+  columns: ["o.id", { column: "c.name", as: "customer" }],
+  limit: 20,
+};
+
+describe("APP-16506 B: from + joins", () => {
+  describe("compiled bodies", () => {
+    it.each([
+      ["postgres-plugin", THREE_TABLE_POSTGRES],
+      ["mysql-plugin", THREE_TABLE_MYSQL],
+      ["mariadb-plugin", THREE_TABLE_MYSQL],
+      ["oracle-plugin", THREE_TABLE_ORACLE],
+      ["mssql-plugin", THREE_TABLE_MSSQL],
+    ])(
+      "should_compile_a_three_table_join_with_filters_group_having_order_and_limit_when_plugin_is_%s",
+      (packageName, expected) => {
+        // Given
+        const spec = threeTableJoin;
+
+        // When
+        const body = compileFor(spec, packageName);
+
+        // Then
+        expect(body).toBe(expected);
+      },
+    );
+
+    it("should_write_the_oracle_table_alias_without_as", () => {
+      // Given
+      const spec = twoTables;
+
+      // When
+      const body = compileFor(spec, "oracle-plugin");
+
+      // Then
+      expect(body).toBe(
+        "SELECT o.id AS id, c.name AS customer FROM orders o INNER JOIN customers c ON c.id = o.customer_id FETCH FIRST 20 ROWS ONLY;",
+      );
+      expect(body).not.toMatch(/ AS [oc] /);
+    });
+
+    it("should_keep_the_case_of_a_mixed_case_column_in_the_inner_list_and_the_outer_reference_on_postgres", () => {
+      // Given
+      const spec = {
+        ...twoTables,
+        columns: [
+          { column: "o.createdAt", as: "created_at" },
+          { column: "c.name", as: "customer" },
+        ],
+        filters: [
+          {
+            column: "o.createdAt",
+            op: "gte",
+            value: { literal: "2026-01-01" },
+          },
+        ],
+      };
+
+      // When
+      const body = compileFor(spec, "postgres-plugin");
+
+      // Then
+      expect(body).toBe(
+        'SELECT o."createdAt" AS created_at, c."name" AS customer FROM (SELECT "customer_id", "createdAt" FROM orders) o INNER JOIN (SELECT "id", "name" FROM customers) c ON c."id" = o."customer_id" WHERE o."createdAt" >= {{ "2026-01-01" }} LIMIT 20;',
+      );
+    });
+
+    it("should_keep_two_columns_that_differ_only_in_case_and_dedupe_exact_repeats_on_postgres", () => {
+      // Given
+      const spec = {
+        ...twoTables,
+        columns: [
+          { column: "o.Status", as: "status_upper" },
+          { column: "o.status", as: "status" },
+          { column: "o.status", as: "status_again" },
+          { column: "c.name", as: "customer" },
+        ],
+      };
+
+      // When
+      const body = compileFor(spec, "postgres-plugin");
+
+      // Then
+      expect(body).toBe(
+        'SELECT o."Status" AS status_upper, o."status" AS status, o."status" AS status_again, c."name" AS customer FROM (SELECT "customer_id", "Status", "status" FROM orders) o INNER JOIN (SELECT "id", "name" FROM customers) c ON c."id" = o."customer_id" LIMIT 20;',
+      );
+    });
+
+    it("should_write_a_mixed_case_column_as_written_on_mysql_oracle_and_sql_server", () => {
+      // Given
+      const spec = {
+        ...twoTables,
+        columns: [{ column: "o.createdAt", as: "created_at" }, "c.name"],
+      };
+
+      // When / Then
+      expect(compileFor(spec, "mysql-plugin")).toBe(
+        "SELECT o.createdAt AS created_at, c.name AS name FROM orders o INNER JOIN customers c ON c.id = o.customer_id LIMIT 20;",
+      );
+      expect(compileFor(spec, "mssql-plugin")).toBe(
+        'SELECT TOP (20) o."createdAt" AS created_at, c."name" AS name FROM orders o INNER JOIN customers c ON c."id" = o."customer_id";',
+      );
+    });
+
+    it("should_compile_coalesce_distinct_and_mssql_top_together", () => {
+      // Given
+      const spec = {
+        ...twoTables,
+        columns: [
+          { column: "c.name", coalesce: { literal: "Unknown" } },
+          { column: "o.region", coalesce: { literal: "none" }, as: "area" },
+        ],
+        distinct: true,
+        orderBy: [{ column: "name", direction: "ASC" }],
+      };
+
+      // When
+      const mssql = compileFor(spec, "mssql-plugin");
+      const postgres = compileFor(spec, "postgres-plugin");
+
+      // Then
+      expect(mssql).toBe(
+        'SELECT DISTINCT TOP (20) COALESCE(c."name", {{ "Unknown" }}) AS name, COALESCE(o."region", {{ "none" }}) AS area FROM orders o INNER JOIN customers c ON c."id" = o."customer_id" ORDER BY name ASC;',
+      );
+      expect(postgres).toBe(
+        'SELECT DISTINCT COALESCE(c."name", {{ "Unknown" }}) AS name, COALESCE(o."region", {{ "none" }}) AS area FROM (SELECT "customer_id", "region" FROM orders) o INNER JOIN (SELECT "id", "name" FROM customers) c ON c."id" = o."customer_id" ORDER BY name ASC LIMIT 20;',
+      );
+    });
+
+    it("should_compile_a_bucket_skip_when_empty_and_in_list_on_postgres", () => {
+      // Given
+      const spec = {
+        ...twoTables,
+        columns: undefined,
+        filters: [
+          {
+            column: "c.tier",
+            op: "inList",
+            value: { widget: "Tiers", property: "selectedOptionValues" },
+          },
+          {
+            column: "o.status",
+            op: "eq",
+            value: { widget: "Status", property: "selectedOptionValue" },
+            skipWhenEmpty: true,
+          },
+        ],
+        groupBy: [{ column: "o.created_at", bucket: "month", as: "month" }],
+        aggregates: [{ fn: "count" }],
+      };
+
+      // When
+      const body = compileFor(spec, "postgres-plugin");
+
+      // Then
+      expect(body).toBe(
+        'SELECT DATE_TRUNC(\'month\', o."created_at") AS month, COUNT(*) AS count FROM (SELECT "customer_id", "created_at", "status" FROM orders) o INNER JOIN (SELECT "id", "tier" FROM customers) c ON c."id" = o."customer_id" WHERE CAST(c."tier" AS TEXT) = ANY(CAST({{ (Tiers.selectedOptionValues == null || Tiers.selectedOptionValues.length === 0) ? null : Tiers.selectedOptionValues }} AS TEXT[])) AND ({{ (Status.selectedOptionValue == null || Status.selectedOptionValue.length === 0) ? 1 : 0 }} = 1 OR o."status" = {{ (Status.selectedOptionValue == null || Status.selectedOptionValue.length === 0) ? null : Status.selectedOptionValue }}) GROUP BY DATE_TRUNC(\'month\', o."created_at") LIMIT 20;',
+      );
+    });
+
+    it.each([
+      [
+        "bucket",
+        {
+          columns: undefined,
+          groupBy: [{ column: "o.created_at", bucket: "week", as: "week" }],
+          aggregates: [{ fn: "count" }],
+        },
+        "bucket (on o.created_at) is only available on a PostgreSQL or Redshift datasource, which have DATE_TRUNC",
+      ],
+      [
+        "ilike",
+        {
+          filters: [{ column: "c.name", op: "ilike", value: { literal: "a" } }],
+        },
+        "ilike (filter on c.name) is only available on a PostgreSQL datasource; on MySQL, like is already case-insensitive for most collations",
+      ],
+    ])("should_keep_%s_postgres_only_with_joins", (_label, change, message) => {
+      // Given
+      const spec = { ...twoTables, ...change };
+
+      // When / Then
+      expect(() => compileFor(spec, "mysql-plugin")).toThrow(
+        new Error(message),
+      );
+      expect(() => compileFor(spec, "postgres-plugin")).not.toThrow();
+    });
+
+    it("should_accept_seven_joins_and_four_on_pairs", () => {
+      // Given
+      const spec = joinChain(7, 4);
+
+      // When
+      const body = compileFor(spec, "mysql-plugin");
+
+      // Then
+      expect(body.match(/INNER JOIN/g)).toHaveLength(7);
+      expect(body).toContain(
+        "INNER JOIN t7 j7 ON j7.k0 = j6.k0 AND j7.k1 = j6.k1 AND j7.k2 = j6.k2 AND j7.k3 = j6.k3",
+      );
+    });
+
+    it("should_refuse_a_column_named_like_its_table_inside_the_postgres_projection", () => {
+      // Given
+      const spec = {
+        ...twoTables,
+        columns: [{ column: "c.customers", as: "x" }],
+      };
+
+      // When / Then
+      expect(() => compileFor(spec, "postgres-plugin")).toThrow(
+        new Error(
+          "a query with from and joins cannot read a column named like its table (customers) on PostgreSQL or Redshift, which would read it as the whole row",
+        ),
+      );
+      expect(compileFor(spec, "mysql-plugin")).toBe(
+        "SELECT c.customers AS x FROM orders o INNER JOIN customers c ON c.id = o.customer_id LIMIT 20;",
+      );
+    });
+  });
+
+  describe("the plugin gate", () => {
+    it.each([
+      ["redshift-plugin", "redshift"],
+      ["snowflake-plugin", "other"],
+      ["unknown-plugin", "other"],
+      ["snowflake-plugin", "postgres"],
+      ["postgres-plugin", "mysql"],
+      [undefined, "postgres"],
+      [undefined, undefined],
+    ])(
+      "should_refuse_from_and_joins_when_packageName_is_%s_and_dialect_is_%s",
+      (packageName, dialect) => {
+        // Given
+        const spec = parse(twoTables);
+
+        // When / Then
+        expect(() =>
+          compileQuery(spec, {
+            dialect: dialect as SqlDialect | undefined,
+            packageName,
+          }),
+        ).toThrow(new Error(ALIASED_MODE_MESSAGE));
+      },
+    );
+
+    it("should_refuse_from_and_joins_when_no_options_are_passed", () => {
+      // Given
+      const spec = parse(twoTables);
+
+      // When / Then
+      expect(() => compileQuery(spec)).toThrow(new Error(ALIASED_MODE_MESSAGE));
+    });
+
+    it.each(ALIASED_PACKAGES)(
+      "should_compile_from_and_joins_when_packageName_is_%s",
+      (packageName) => {
+        expect(compileFor(twoTables, packageName)).toMatch(/^SELECT /);
+      },
+    );
+  });
+
+  describe("querySpecSchema refusals", () => {
+    const COLUMN_REF_MESSAGE =
+      'must be alias.column, such as "o.status": a source alias from from or joins, a dot, then a plain column name';
+
+    it.each([
+      [
+        "an unqualified column in columns",
+        { columns: ["id"] },
+        [{ path: ["columns", 0], message: COLUMN_REF_MESSAGE }],
+      ],
+      [
+        "an unqualified filter column",
+        { filters: [{ column: "status", op: "eq", value: { literal: 1 } }] },
+        [{ path: ["filters", 0, "column"], message: COLUMN_REF_MESSAGE }],
+      ],
+      [
+        "an unqualified aggregate column",
+        { columns: undefined, aggregates: [{ fn: "sum", column: "amount" }] },
+        [{ path: ["aggregates", 0, "column"], message: COLUMN_REF_MESSAGE }],
+      ],
+      [
+        "an a.b.c reference",
+        { columns: ["a.b.c"] },
+        [{ path: ["columns", 0], message: COLUMN_REF_MESSAGE }],
+      ],
+      [
+        "an injection string in an on side",
+        {
+          joins: [
+            {
+              type: "inner",
+              table: "customers",
+              as: "c",
+              on: [{ left: "c.id; DROP TABLE x", right: "o.customer_id" }],
+            },
+          ],
+        },
+        [
+          {
+            path: ["joins", 0, "on", 0, "left"],
+            message: COLUMN_REF_MESSAGE,
+          },
+        ],
+      ],
+      [
+        "a join type of left outer",
+        {
+          joins: [{ ...twoTables.joins[0], type: "left outer" }],
+        },
+        [
+          {
+            path: ["joins", 0, "type"],
+            message:
+              "Invalid enum value. Expected 'inner' | 'left', received 'left outer'",
+          },
+        ],
+      ],
+      [
+        "a join type of constructor",
+        {
+          joins: [{ ...twoTables.joins[0], type: "constructor" }],
+        },
+        [
+          {
+            path: ["joins", 0, "type"],
+            message:
+              "Invalid enum value. Expected 'inner' | 'left', received 'constructor'",
+          },
+        ],
+      ],
+      [
+        "an injection string in a join table",
+        {
+          joins: [{ ...twoTables.joins[0], table: "x; DROP TABLE y" }],
+        },
+        [
+          {
+            path: ["joins", 0, "table"],
+            message: "must be table or schema.table (plain identifiers)",
+          },
+        ],
+      ],
+      [
+        "an injection string as an alias",
+        { from: { table: "orders", as: "x; DROP" } },
+        [
+          {
+            path: ["from", "as"],
+            message:
+              "must be a lower-case name: a letter, then letters, digits or _, up to 63 characters",
+          },
+        ],
+      ],
+      [
+        "a reserved word as an alias",
+        { joins: [{ ...twoTables.joins[0], as: "select" }] },
+        [
+          {
+            path: ["joins", 0, "as"],
+            message: '"select" is a reserved SQL word; pick another name',
+          },
+        ],
+      ],
+      [
+        "an alias that starts with mcp_split",
+        { from: { table: "orders", as: "mcp_split_x" } },
+        [
+          {
+            path: ["from", "as"],
+            message: "an alias cannot start with mcp_split",
+          },
+        ],
+      ],
+      [
+        "a constructor alias that no source declares",
+        { columns: ["constructor.id"] },
+        [
+          {
+            path: ["columns", 0],
+            message:
+              '"constructor.id" uses the alias "constructor", which no source declares (aliases: o, c)',
+          },
+        ],
+      ],
+      [
+        "a system catalog as a join table",
+        {
+          joins: [
+            { ...twoTables.joins[0], table: "information_schema.tables" },
+          ],
+        },
+        [
+          {
+            path: ["joins", 0, "table"],
+            message: CATALOG_MESSAGE("information_schema.tables"),
+          },
+        ],
+      ],
+      [
+        "an alias used twice",
+        {
+          joins: [
+            {
+              ...twoTables.joins[0],
+              as: "o",
+              on: [{ left: "o.id", right: "o.customer_id" }],
+            },
+          ],
+          columns: ["o.id"],
+        },
+        [
+          {
+            path: ["joins", 0, "as"],
+            message:
+              'the alias "o" is used more than once (aliases ignore case); give each source its own alias',
+          },
+          {
+            path: ["joins", 0, "on", 0],
+            message:
+              "each on pair compares a column of this join's own alias with a column of a source declared before it (this join is o; earlier sources: o)",
+          },
+        ],
+      ],
+      [
+        "an on pair with this join's alias on both sides",
+        {
+          joins: [
+            {
+              ...twoTables.joins[0],
+              on: [{ left: "c.id", right: "c.parent_id" }],
+            },
+          ],
+        },
+        [
+          {
+            path: ["joins", 0, "on", 0],
+            message:
+              "each on pair compares a column of this join's own alias with a column of a source declared before it (this join is c; earlier sources: o)",
+          },
+        ],
+      ],
+      [
+        "an on pair that names a later join",
+        {
+          joins: [
+            {
+              ...twoTables.joins[0],
+              on: [{ left: "c.id", right: "p.customer_id" }],
+            },
+            {
+              type: "left",
+              table: "payments",
+              as: "p",
+              on: [{ left: "p.order_id", right: "o.id" }],
+            },
+          ],
+        },
+        [
+          {
+            path: ["joins", 0, "on", 0],
+            message:
+              "each on pair compares a column of this join's own alias with a column of a source declared before it (this join is c; earlier sources: o)",
+          },
+        ],
+      ],
+      [
+        "an on pair that does not use this join's alias",
+        {
+          joins: [
+            twoTables.joins[0],
+            {
+              type: "left",
+              table: "payments",
+              as: "p",
+              on: [{ left: "c.id", right: "o.customer_id" }],
+            },
+          ],
+          columns: ["o.id", { column: "p.amount", as: "amount" }],
+        },
+        [
+          {
+            path: ["joins", 1, "on", 0],
+            message:
+              "each on pair compares a column of this join's own alias with a column of a source declared before it (this join is p; earlier sources: o, c)",
+          },
+        ],
+      ],
+      [
+        "an unused alias",
+        {
+          joins: undefined,
+          columns: undefined,
+          aggregates: [{ fn: "count" }],
+        },
+        [
+          {
+            path: ["from", "as"],
+            message:
+              'the alias "o" is not used; read a column through it or remove the source',
+          },
+        ],
+      ],
+      [
+        "a missing limit",
+        { limit: undefined },
+        [
+          {
+            path: ["limit"],
+            message:
+              "limit is required with from and joins (at most 1000 rows)",
+          },
+        ],
+      ],
+      [
+        "a limit over the cap",
+        { limit: 1001 },
+        [
+          {
+            path: ["limit"],
+            message: "Number must be less than or equal to 1000",
+          },
+        ],
+      ],
+      [
+        "SELECT *",
+        { columns: undefined },
+        [
+          {
+            path: ["columns"],
+            message:
+              "with from and joins, list the columns to return in columns (SELECT * is not available)",
+          },
+        ],
+      ],
+      [
+        "a write",
+        { operation: "UPDATE" },
+        [
+          {
+            path: ["operation"],
+            message: "from and joins are only valid on a SELECT query",
+          },
+        ],
+      ],
+      [
+        "values",
+        { values: [{ column: "a", value: { literal: 1 } }] },
+        [{ path: [], message: "Unrecognized key(s) in object: 'values'" }],
+      ],
+      [
+        "a repeated result name",
+        { columns: ["o.id", "c.id"] },
+        [
+          {
+            path: ["columns", 1],
+            message:
+              'the result name "id" is used more than once (names ignore case); give each output its own name with as',
+          },
+        ],
+      ],
+      [
+        "a column part that is not a result name",
+        { columns: ["o.Status", "c.select"] },
+        [
+          {
+            path: ["columns", 0],
+            message:
+              'the column name "Status" cannot be a result name as it is; add as with a lower-case name that is not a SQL keyword',
+          },
+          {
+            path: ["columns", 1],
+            message:
+              'the column name "select" cannot be a result name as it is; add as with a lower-case name that is not a SQL keyword',
+          },
+        ],
+      ],
+      [
+        "split",
+        {
+          columns: undefined,
+          groupBy: [{ column: "o.tags", split: "," }],
+          aggregates: [{ fn: "count" }],
+        },
+        [
+          {
+            path: ["groupBy", 0, "split"],
+            message: "split is not available with from and joins",
+          },
+        ],
+      ],
+      [
+        "groupBy without aggregates",
+        { groupBy: ["o.status"] },
+        [{ path: ["groupBy"], message: "groupBy needs aggregates" }],
+      ],
+      [
+        "columns with aggregates",
+        { aggregates: [{ fn: "count" }] },
+        [
+          {
+            path: ["columns"],
+            message:
+              "with aggregates, put the columns to return in groupBy, not in columns",
+          },
+        ],
+      ],
+      [
+        "an orderBy that is not a result name",
+        { orderBy: [{ column: "created_at", direction: "ASC" }] },
+        [
+          {
+            path: ["orderBy", 0, "column"],
+            message:
+              'with from and joins, orderBy can only name a result name ("id", "customer")',
+          },
+        ],
+      ],
+      [
+        "a having that is not a result name",
+        {
+          columns: undefined,
+          groupBy: ["o.status"],
+          aggregates: [{ fn: "count" }],
+          having: [{ column: "total", op: "gt", value: { literal: 1 } }],
+        },
+        [
+          {
+            path: ["having", 0, "column"],
+            message:
+              'having can only test an aggregate\'s result name ("count") or a groupBy result name',
+          },
+        ],
+      ],
+      [
+        "an injection string in from.table",
+        { from: { table: "orders; DROP TABLE x", as: "o" } },
+        [
+          {
+            path: ["from", "table"],
+            message: "must be table or schema.table (plain identifiers)",
+          },
+        ],
+      ],
+      [
+        "an injection string in the on right side",
+        {
+          joins: [
+            {
+              ...twoTables.joins[0],
+              on: [{ left: "c.id", right: "o.customer_id OR 1=1" }],
+            },
+          ],
+        },
+        [
+          {
+            path: ["joins", 0, "on", 0, "right"],
+            message: COLUMN_REF_MESSAGE,
+          },
+        ],
+      ],
+      [
+        "an injection string in a groupBy column reference",
+        {
+          columns: undefined,
+          groupBy: ['o.status" --'],
+          aggregates: [{ fn: "count" }],
+        },
+        [{ path: ["groupBy", 0], message: COLUMN_REF_MESSAGE }],
+      ],
+      [
+        "an injection string in having",
+        {
+          columns: undefined,
+          groupBy: ["o.status"],
+          aggregates: [{ fn: "count" }],
+          having: [
+            { column: "count; DROP TABLE x", op: "gt", value: { literal: 1 } },
+          ],
+        },
+        [
+          {
+            path: ["having", 0, "column"],
+            message: "must be a plain SQL identifier",
+          },
+          {
+            path: ["having", 0, "column"],
+            message:
+              'having can only test an aggregate\'s result name ("count") or a groupBy result name',
+          },
+        ],
+      ],
+      [
+        "an injection string in orderBy",
+        { orderBy: [{ column: "id DESC; --", direction: "ASC" }] },
+        [
+          {
+            path: ["orderBy", 0, "column"],
+            message: "must be a plain SQL identifier",
+          },
+          {
+            path: ["orderBy", 0, "column"],
+            message:
+              'with from and joins, orderBy can only name a result name ("id", "customer")',
+          },
+        ],
+      ],
+      [
+        "table and from together",
+        { table: "orders" },
+        [
+          {
+            path: ["table"],
+            message:
+              "use table for a query on one table, or from (with joins) for several, not both",
+          },
+        ],
+      ],
+    ])("should_refuse_%s", (_label, change, issues) => {
+      // Given
+      const spec = { ...twoTables, ...change };
+
+      // When / Then
+      expect(issuesOf(spec)).toEqual(issues);
+    });
+
+    it("should_refuse_joins_without_from", () => {
+      // Given
+      const spec = { ...twoTables, from: undefined };
+
+      // When / Then
+      expect(issuesOf(spec)).toEqual([{ path: ["from"], message: "Required" }]);
+    });
+
+    it("should_refuse_a_qualified_column_in_single_table_mode", () => {
+      // Given
+      const spec = {
+        ...base,
+        operation: "SELECT",
+        table: "orders",
+        columns: ["o.id"],
+      };
+
+      // When / Then
+      expect(issuesOf(spec)).toEqual([
+        { path: ["columns", 0], message: "must be a plain SQL identifier" },
+      ]);
+    });
+
+    it.each([
+      [
+        "eight joins",
+        joinChain(8),
+        ["joins"],
+        "Array must contain at most 7 element(s)",
+      ],
+      [
+        "five on pairs",
+        joinChain(1, 5),
+        ["joins", 0, "on"],
+        "Array must contain at most 4 element(s)",
+      ],
+    ])("should_refuse_%s", (_label, spec, path, message) => {
+      expect(issuesOf(spec)).toEqual([{ path, message }]);
+    });
+
+    it("should_accept_a_qualified_column_with_as_and_a_repeated_column_part", () => {
+      // Given
+      const spec = {
+        ...twoTables,
+        columns: ["o.id", { column: "c.id", as: "customer_id" }],
+      };
+
+      // When / Then
+      expect(issuesOf(spec)).toEqual([]);
+    });
+  });
+
+  describe("the compiler fails closed on unparsed specs", () => {
+    function compileUnparsed(
+      change: Record<string, unknown>,
+      packageName = "postgres-plugin",
+    ) {
+      const spec = { ...twoTables, ...change } as unknown as QuerySpec;
+
+      return () =>
+        compileQuery(spec, {
+          dialect: sqlDialectFor(packageName),
+          packageName,
+        });
+    }
+
+    it.each([
+      [
+        "join type left outer",
+        { joins: [{ ...twoTables.joins[0], type: "left outer" }] },
+        'unknown join type "left outer"',
+      ],
+      [
+        "join type constructor",
+        { joins: [{ ...twoTables.joins[0], type: "constructor" }] },
+        'unknown join type "constructor"',
+      ],
+      [
+        "an injection string as an alias",
+        { joins: [{ ...twoTables.joins[0], as: "c; DROP" }] },
+        'unsafe alias: "c; DROP"',
+      ],
+      [
+        "an injection string as a join table",
+        { joins: [{ ...twoTables.joins[0], table: "t; DROP TABLE x" }] },
+        'unsafe table name: "t; DROP TABLE x"',
+      ],
+      [
+        "an a.b.c on side",
+        {
+          joins: [
+            { ...twoTables.joins[0], on: [{ left: "c.id.x", right: "o.id" }] },
+          ],
+        },
+        'unsafe column reference: "c.id.x"',
+      ],
+      [
+        "an on pair with this join's alias on both sides",
+        {
+          joins: [
+            { ...twoTables.joins[0], on: [{ left: "c.id", right: "c.id" }] },
+          ],
+        },
+        "each on pair compares a column of this join's own alias with a column of a source declared before it",
+      ],
+      [
+        "an alias used twice",
+        { joins: [{ ...twoTables.joins[0], as: "o" }] },
+        'the alias "o" is used more than once',
+      ],
+      [
+        "a catalog join table",
+        { joins: [{ ...twoTables.joins[0], table: "pg_catalog.pg_authid" }] },
+        CATALOG_MESSAGE("pg_catalog.pg_authid"),
+      ],
+      [
+        "a pg_ join table on postgres",
+        { joins: [{ ...twoTables.joins[0], table: "pg_shadow" }] },
+        CATALOG_MESSAGE("pg_shadow"),
+      ],
+      [
+        "eight joins",
+        { joins: joinChain(8).joins },
+        "joins must be a list of at most 7 joins",
+      ],
+      [
+        "a join with no on pairs",
+        { joins: [{ ...twoTables.joins[0], on: [] }] },
+        "a join needs 1 to 4 on pairs",
+      ],
+      [
+        "a write",
+        { operation: "DELETE" },
+        "from and joins are only valid on a SELECT query",
+      ],
+      [
+        "no limit",
+        { limit: undefined },
+        "limit is required with from and joins (at most 1000 rows)",
+      ],
+      [
+        "a limit over the cap",
+        { limit: 5000 },
+        "limit must be an integer from 1 to 1000: 5000",
+      ],
+      [
+        "SELECT *",
+        { columns: [] },
+        "with from and joins, list the columns to return in columns (SELECT * is not available)",
+      ],
+      [
+        "table and from together",
+        { table: "orders" },
+        "use table for a query on one table, or from (with joins) for several, not both",
+      ],
+      [
+        "an alias that no source declares",
+        {
+          filters: [{ column: "x.id", op: "eq", value: { literal: 1 } }],
+        },
+        '"x.id" uses an alias that no source declares',
+      ],
+      [
+        "an unqualified column",
+        { columns: ["id"] },
+        'unsafe column reference: "id"',
+      ],
+      [
+        "an unused alias",
+        { joins: undefined, columns: [{ column: "c.id", as: "id" }] },
+        '"c.id" uses an alias that no source declares',
+      ],
+      [
+        "a repeated result name",
+        { columns: ["o.id", "c.id"] },
+        'the result name "id" is used more than once',
+      ],
+      [
+        "an invalid result name",
+        { columns: [{ column: "o.id", as: "x FROM y" }] },
+        'invalid result name: "x FROM y"',
+      ],
+      [
+        "split",
+        {
+          columns: undefined,
+          groupBy: [{ column: "o.tags", split: "," }],
+          aggregates: [{ fn: "count" }],
+        },
+        "split is not available with from and joins",
+      ],
+      [
+        "an unknown having name",
+        {
+          columns: undefined,
+          groupBy: ["o.status"],
+          aggregates: [{ fn: "count" }],
+          having: [{ column: "o.secret", op: "gt", value: { literal: 1 } }],
+        },
+        'having can only test an aggregate\'s result name or a plain groupBy result name: "o.secret"',
+      ],
+    ])("should_throw_on_%s", (_label, change, message) => {
+      expect(compileUnparsed(change)).toThrow(new Error(message));
+    });
+
+    // The projection is built from the spec before anything is emitted. orderBy names result names, so it adds
+    // nothing to the projection. A hand-built orderBy on a source column is a reference the projection missed: the
+    // emit-time check must refuse it rather than write c."secret".
+    it.each(["postgres-plugin", "mysql-plugin"])(
+      "should_refuse_an_outer_reference_to_a_column_that_is_not_projected_when_plugin_is_%s",
+      (packageName) => {
+        // Given
+        const change = {
+          orderBy: [{ column: "c.secret", direction: "ASC" }],
+        };
+
+        // When / Then
+        expect(compileUnparsed(change, packageName)).toThrow(
+          new Error('"c.secret" is not a column this query reads through c'),
+        );
+      },
+    );
+  });
 });

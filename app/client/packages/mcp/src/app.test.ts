@@ -21,7 +21,11 @@ import {
 } from "./app.js";
 import { INSTRUCTION_DOCS } from "./builder/instructions.js";
 import { compileJsObject } from "./builder/jsObject.js";
-import { markMcpAuthoredBody, mcpAuthoredBody } from "./builder/query.js";
+import {
+  markMcpAuthoredBody,
+  mcpAuthoredBody,
+  storedSqlBody,
+} from "./builder/query.js";
 import {
   buildRestActionDto,
   compileRestApi,
@@ -2872,6 +2876,108 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
           "\"pg_user\" is in a system catalog, which the MCP does not query (a best-effort guard; the datasource's credentials decide what can be read). To see a datasource's tables and columns, call get_datasource_structure",
       },
     ]);
+    expect(createAction).not.toHaveBeenCalled();
+  });
+
+  // APP-16506 B: a SELECT over several tables. Only plugins that bind every value accept from and joins.
+  const joinQuery = {
+    name: "getOrders",
+    applicationId: "app1",
+    pageId: "p1",
+    datasourceId: "ds1",
+    operation: "SELECT",
+    from: { table: "orders", as: "o" },
+    joins: [
+      {
+        type: "inner",
+        table: "customers",
+        as: "c",
+        on: [{ left: "c.id", right: "o.customer_id" }],
+      },
+    ],
+    columns: ["o.id", { column: "c.name", as: "customer" }],
+    limit: 20,
+  };
+  const JOIN_POSTGRES_BODY =
+    'SELECT o."id" AS id, c."name" AS customer FROM (SELECT "customer_id", "id" FROM orders) o INNER JOIN (SELECT "id", "name" FROM customers) c ON c."id" = o."customer_id" LIMIT 20;';
+
+  function joinApi(pluginId: string) {
+    const createAction = jest.fn<
+      Promise<{ id: string }>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "act1" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "DB", pluginId },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+
+    return { api, createAction };
+  }
+
+  it("APP-16506: should_store_the_marked_body_when_create_query_joins_on_postgres", async () => {
+    // Given
+    const { api, createAction } = joinApi("postgres-plugin");
+
+    // When
+    const created = await callTool(api, "create_query", { query: joinQuery });
+
+    // Then
+    expect(created.created).toBe(true);
+    expect(created.body).toBe(JOIN_POSTGRES_BODY);
+
+    const stored = (
+      createAction.mock.calls[0][0] as {
+        actionConfiguration: { body: string };
+      }
+    ).actionConfiguration.body;
+
+    expect(stored.startsWith("-- appsmith-mcp:v1 sha256=")).toBe(true);
+    expect(mcpAuthoredBody(stored)).toBe(JOIN_POSTGRES_BODY);
+  });
+
+  it.each(["redshift-plugin", "snowflake-plugin"])(
+    "APP-16506: should_refuse_joins_before_any_write_when_create_query_runs_on_%s",
+    async (pluginId) => {
+      // Given
+      const { api, createAction } = joinApi(pluginId);
+
+      // When
+      const refused = await callTool(api, "create_query", {
+        query: joinQuery,
+      });
+
+      // Then
+      expect(refused.valid).toBe(false);
+      expect(refused.errors).toEqual([
+        {
+          path: "",
+          message:
+            "from and joins need a PostgreSQL, MySQL, MariaDB, Oracle or SQL Server datasource that the server can identify. Redshift and Snowflake are not supported: their plugins put values into the SQL text instead of binding them",
+        },
+      ]);
+      expect(createAction).not.toHaveBeenCalled();
+    },
+  );
+
+  it("APP-16506: should_refuse_joins_on_a_write_when_create_query_gets_a_delete", async () => {
+    // Given
+    const { api, createAction } = joinApi("postgres-plugin");
+
+    // When
+    const refused = await callTool(api, "create_query", {
+      query: { ...joinQuery, operation: "DELETE" },
+    });
+
+    // Then
+    expect(refused.valid).toBe(false);
+    expect(refused.errors).toContainEqual({
+      path: "operation",
+      message: "from and joins are only valid on a SELECT query",
+    });
     expect(createAction).not.toHaveBeenCalled();
   });
 
@@ -7170,6 +7276,135 @@ describe("governance-wrapped layout mutations", () => {
       expect(updateAction).not.toHaveBeenCalled();
     },
   );
+
+  // APP-16506 B: update_action recompiles from and joins for the datasource's plugin, through actionPatch.
+  async function updateWithJoin(
+    server: ReturnType<typeof createMcpHttpServer>,
+    change: Record<string, unknown> = {},
+  ) {
+    const read = await callTool(server, "get_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+
+    return callTool(server, "update_action", {
+      spec: {
+        kind: "SQL",
+        actionId: "act1",
+        applicationId: "app1",
+        revision: read.body.revision,
+        query: {
+          name: "OldName",
+          applicationId: "app1",
+          pageId: "p1",
+          datasourceId: "ds1",
+          operation: "SELECT",
+          from: { table: "orders", as: "o" },
+          joins: [
+            {
+              type: "inner",
+              table: "customers",
+              as: "c",
+              on: [{ left: "c.id", right: "o.customer_id" }],
+            },
+          ],
+          columns: ["o.id", { column: "c.name", as: "customer" }],
+          limit: 20,
+          ...change,
+        },
+      },
+    });
+  }
+
+  it.each([
+    [
+      "postgres-plugin",
+      'SELECT o."id" AS id, c."name" AS customer FROM (SELECT "customer_id", "id" FROM orders) o INNER JOIN (SELECT "id", "name" FROM customers) c ON c."id" = o."customer_id" LIMIT 20;',
+    ],
+    [
+      "mysql-plugin",
+      "SELECT o.id AS id, c.name AS customer FROM orders o INNER JOIN customers c ON c.id = o.customer_id LIMIT 20;",
+    ],
+    [
+      "mariadb-plugin",
+      "SELECT o.id AS id, c.name AS customer FROM orders o INNER JOIN customers c ON c.id = o.customer_id LIMIT 20;",
+    ],
+    [
+      "oracle-plugin",
+      "SELECT o.id AS id, c.name AS customer FROM orders o INNER JOIN customers c ON c.id = o.customer_id FETCH FIRST 20 ROWS ONLY;",
+    ],
+    [
+      "mssql-plugin",
+      'SELECT TOP (20) o."id" AS id, c."name" AS customer FROM orders o INNER JOIN customers c ON c."id" = o."customer_id";',
+    ],
+  ])(
+    "APP-16506: should_store_the_join_body_when_update_action_runs_on_%s",
+    async (pluginId, sql) => {
+      // Given
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId },
+      ]);
+
+      // When
+      const updated = await updateWithJoin(server);
+
+      // Then
+      expect(updated.body.updated).toBe(true);
+      expect(
+        mcpAuthoredBody(
+          storedSqlBody(
+            (
+              (updateAction.mock.calls[0] as unknown[])[1] as {
+                actionConfiguration: unknown;
+              }
+            ).actionConfiguration,
+          ),
+        ),
+      ).toBe(sql);
+    },
+  );
+
+  it.each(["redshift-plugin", "snowflake-plugin"])(
+    "APP-16506: should_refuse_joins_before_any_write_when_update_action_runs_on_%s",
+    async (pluginId) => {
+      // Given
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId },
+      ]);
+
+      // When
+      const updated = await updateWithJoin(server);
+
+      // Then
+      expect(updated.body.updated).not.toBe(true);
+      expect(updated.body.errors).toEqual([
+        {
+          path: "",
+          message:
+            "from and joins need a PostgreSQL, MySQL, MariaDB, Oracle or SQL Server datasource that the server can identify. Redshift and Snowflake are not supported: their plugins put values into the SQL text instead of binding them",
+        },
+      ]);
+      expect(updateAction).not.toHaveBeenCalled();
+    },
+  );
+
+  it("APP-16506: should_refuse_joins_on_a_write_when_update_action_gets_an_update", async () => {
+    // Given
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+    ]);
+
+    // When
+    const updated = await updateWithJoin(server, { operation: "UPDATE" });
+
+    // Then
+    expect(updated.body.updated).not.toBe(true);
+    expect(updated.body.errors).toContainEqual({
+      path: "query.operation",
+      message: "from and joins are only valid on a SELECT query",
+    });
+    expect(updateAction).not.toHaveBeenCalled();
+  });
 
   it("APP-16164: update_action refuses a SQL spec on a datasource outside the application's workspace", async () => {
     const { server, updateAction } = sqlUpdateServer([

@@ -194,7 +194,8 @@ function isNullOperator(op: string): op is NullOperator {
 //   then means "no filter", not "match nothing".
 // - `isNull` and `notNull` take no value and no skipWhenEmpty. Every other op needs a value.
 // inList and skipWhenEmpty need a widget reference. A literal is a scalar and is never empty.
-const filterSchema = z
+// The object and its rules are separate, so a query with joins can reuse the rules with an alias.column `column`.
+const filterObjectSchema = z
   .object({
     column: sqlIdentifier,
     op: z.enum([
@@ -215,87 +216,93 @@ const filterSchema = z
     skipWhenEmpty: z.boolean().optional(),
     match: z.enum(LIKE_MATCHES).optional(),
   })
-  .strict()
-  .superRefine((filter, ctx) => {
-    if (filter.match !== undefined) {
-      if (filter.op !== "like" && filter.op !== "ilike") {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "match is only valid with like or ilike",
-          path: ["match"],
-        });
-      } else if (
-        isWildcardMatch(filter.match) &&
-        filter.value !== undefined &&
-        "literal" in filter.value &&
-        typeof filter.value.literal !== "string"
-      ) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `match "${filter.match}" needs a string literal or a { widget, property } value`,
-          path: ["value"],
-        });
-      }
-    }
+  .strict();
 
-    if (isNullOperator(filter.op)) {
-      // skipWhenEmpty: false is a no-op, so it is accepted.
-      if (filter.value !== undefined || filter.skipWhenEmpty === true) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `${filter.op} takes no value and no skipWhenEmpty`,
-          path: [filter.value !== undefined ? "value" : "skipWhenEmpty"],
-        });
-      }
-
-      return;
-    }
-
-    if (filter.value === undefined) {
+function refineFilter(
+  filter: z.infer<typeof filterObjectSchema>,
+  ctx: z.RefinementCtx,
+): void {
+  if (filter.match !== undefined) {
+    if (filter.op !== "like" && filter.op !== "ilike") {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: `${filter.op} needs a value: { literal } or { widget, property }`,
-        path: ["value"],
+        message: "match is only valid with like or ilike",
+        path: ["match"],
       });
-
-      return;
-    }
-
-    // `appsmith.*` (for example appsmith.user.email) identifies the viewer, and filters use it to scope rows. Never
-    // skip it: an unset value would silently widen the read to every row.
-    if (
-      filter.skipWhenEmpty === true &&
-      "widget" in filter.value &&
-      filter.value.widget === "appsmith"
+    } else if (
+      isWildcardMatch(filter.match) &&
+      filter.value !== undefined &&
+      "literal" in filter.value &&
+      typeof filter.value.literal !== "string"
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message:
-          "skipWhenEmpty cannot be used on an appsmith.* value — it may be scoping rows to the viewer",
-        path: ["skipWhenEmpty"],
-      });
-    }
-
-    if (!("literal" in filter.value)) return;
-
-    if (filter.op === "inList") {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          "inList needs a { widget, property } value that holds a list (e.g. a multi-select's selectedOptionValues)",
+        message: `match "${filter.match}" needs a string literal or a { widget, property } value`,
         path: ["value"],
       });
     }
+  }
 
-    if (filter.skipWhenEmpty === true) {
+  if (isNullOperator(filter.op)) {
+    // skipWhenEmpty: false is a no-op, so it is accepted.
+    if (filter.value !== undefined || filter.skipWhenEmpty === true) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message:
-          "skipWhenEmpty needs a { widget, property } value — a literal is never empty",
-        path: ["skipWhenEmpty"],
+        message: `${filter.op} takes no value and no skipWhenEmpty`,
+        path: [filter.value !== undefined ? "value" : "skipWhenEmpty"],
       });
     }
-  });
+
+    return;
+  }
+
+  if (filter.value === undefined) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `${filter.op} needs a value: { literal } or { widget, property }`,
+      path: ["value"],
+    });
+
+    return;
+  }
+
+  // `appsmith.*` (for example appsmith.user.email) identifies the viewer, and filters use it to scope rows. Never
+  // skip it: an unset value would silently widen the read to every row.
+  if (
+    filter.skipWhenEmpty === true &&
+    "widget" in filter.value &&
+    filter.value.widget === "appsmith"
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message:
+        "skipWhenEmpty cannot be used on an appsmith.* value — it may be scoping rows to the viewer",
+      path: ["skipWhenEmpty"],
+    });
+  }
+
+  if (!("literal" in filter.value)) return;
+
+  if (filter.op === "inList") {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message:
+        "inList needs a { widget, property } value that holds a list (e.g. a multi-select's selectedOptionValues)",
+      path: ["value"],
+    });
+  }
+
+  if (filter.skipWhenEmpty === true) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message:
+        "skipWhenEmpty needs a { widget, property } value — a literal is never empty",
+      path: ["skipWhenEmpty"],
+    });
+  }
+}
+
+const filterSchema = filterObjectSchema.superRefine(refineFilter);
 
 const SKIP_IN_GROUP_MESSAGE =
   "skipWhenEmpty cannot be used inside anyOf: in an OR, a skipped member would match every row";
@@ -304,50 +311,60 @@ const SKIP_IN_GROUP_MESSAGE =
 // - Members are plain filters, so groups nest one level only.
 // - Members cannot use skipWhenEmpty. A skipped filter compiles to TRUE, and inside an OR that makes the whole group
 //   TRUE, so one empty control would match every row, even on a SELECT.
+function refineFilterGroup(
+  group: { anyOf: { skipWhenEmpty?: boolean }[] },
+  ctx: z.RefinementCtx,
+): void {
+  group.anyOf.forEach((member, index) => {
+    if (member.skipWhenEmpty === true) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: SKIP_IN_GROUP_MESSAGE,
+        path: ["anyOf", index, "skipWhenEmpty"],
+      });
+    }
+  });
+}
+
 const filterGroupSchema = z
   .object({
     anyOf: z.array(filterSchema).min(2).max(10),
   })
   .strict()
-  .superRefine((group, ctx) => {
-    group.anyOf.forEach((member, index) => {
-      if (member.skipWhenEmpty === true) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: SKIP_IN_GROUP_MESSAGE,
-          path: ["anyOf", index, "skipWhenEmpty"],
-        });
-      }
-    });
-  });
+  .superRefine(refineFilterGroup);
 
 // One entry of `filters`: a plain filter or an OR group. An own `anyOf` key decides which, so an agent gets the errors
 // for the shape it meant instead of a union of both. It returns the parsed entry, not the raw input, so any default or
 // transform in either schema applies.
-const filterEntrySchema = z
-  .unknown()
-  .transform(
-    (
-      entry,
-      ctx,
-    ): z.infer<typeof filterSchema> | z.infer<typeof filterGroupSchema> => {
-      const isGroup =
-        typeof entry === "object" &&
-        entry !== null &&
-        Object.prototype.hasOwnProperty.call(entry, "anyOf");
-      const result = (isGroup ? filterGroupSchema : filterSchema).safeParse(
+function filterEntrySchemaOf(
+  plain: z.ZodType<z.infer<typeof filterSchema>, z.ZodTypeDef, unknown>,
+  group: z.ZodType<z.infer<typeof filterGroupSchema>, z.ZodTypeDef, unknown>,
+) {
+  return z
+    .unknown()
+    .transform(
+      (
         entry,
-      );
+        ctx,
+      ): z.infer<typeof filterSchema> | z.infer<typeof filterGroupSchema> => {
+        const isGroup =
+          typeof entry === "object" &&
+          entry !== null &&
+          Object.prototype.hasOwnProperty.call(entry, "anyOf");
+        const result = (isGroup ? group : plain).safeParse(entry);
 
-      if (!result.success) {
-        result.error.issues.forEach((issue) => ctx.addIssue(issue));
+        if (!result.success) {
+          result.error.issues.forEach((issue) => ctx.addIssue(issue));
 
-        return z.NEVER;
-      }
+          return z.NEVER;
+        }
 
-      return result.data;
-    },
-  );
+        return result.data;
+      },
+    );
+}
+
+const filterEntrySchema = filterEntrySchemaOf(filterSchema, filterGroupSchema);
 
 // The database family the query runs on. `inList` works only on PostgreSQL, which binds a list as one
 // prepared-statement parameter (an SQL array). MySQL sends the list as a JSON string, and SQL Server refuses it.
@@ -560,7 +577,8 @@ const ROUND_FN_MESSAGE = "round is only valid with sum or avg";
 // - `abs: true` wraps the input: AVG(ABS("col")). It has no meaning for count.
 // - `round` wraps the result: FLOOR(AVG(...)). Only sum and avg can return a fraction.
 // - `as` names the result. The default is the fn name.
-const aggregateEntrySchema = z
+// The object and its rules are separate, so a query with joins can reuse the rules with an alias.column `column`.
+const aggregateObjectSchema = z
   .object({
     fn: z.enum(["count", "sum", "avg", "min", "max"]),
     column: sqlIdentifier.optional(),
@@ -568,33 +586,39 @@ const aggregateEntrySchema = z
     round: z.enum(["floor", "ceil", "round"]).optional(),
     as: resultNameSchema.optional(),
   })
-  .strict()
-  .superRefine((entry, ctx) => {
-    if (entry.fn !== "count" && entry.column === undefined) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: `${entry.fn} needs a column`,
-        path: ["column"],
-      });
-    }
+  .strict();
 
-    // abs: false is a no-op, so it is accepted.
-    if (entry.fn === "count" && entry.abs === true) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: ABS_ON_COUNT_MESSAGE,
-        path: ["abs"],
-      });
-    }
+function refineAggregate(
+  entry: z.infer<typeof aggregateObjectSchema>,
+  ctx: z.RefinementCtx,
+): void {
+  if (entry.fn !== "count" && entry.column === undefined) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `${entry.fn} needs a column`,
+      path: ["column"],
+    });
+  }
 
-    if (entry.round !== undefined && entry.fn !== "sum" && entry.fn !== "avg") {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: ROUND_FN_MESSAGE,
-        path: ["round"],
-      });
-    }
-  });
+  // abs: false is a no-op, so it is accepted.
+  if (entry.fn === "count" && entry.abs === true) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: ABS_ON_COUNT_MESSAGE,
+      path: ["abs"],
+    });
+  }
+
+  if (entry.round !== undefined && entry.fn !== "sum" && entry.fn !== "avg") {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: ROUND_FN_MESSAGE,
+      path: ["round"],
+    });
+  }
+}
+
+const aggregateEntrySchema = aggregateObjectSchema.superRefine(refineAggregate);
 
 type AggregateEntry = z.infer<typeof aggregateEntrySchema>;
 
@@ -770,7 +794,21 @@ function refineDistinct(spec: AggregateShape, ctx: z.RefinementCtx): void {
   });
 }
 
-export const querySpecSchema = z
+// SELECT ordering: each column is an allow-listed identifier; direction is a two-value enum (never interpolated
+// raw). Emitted as `ORDER BY "<col>" <DIR>, ...`. A query with joins orders by result names only.
+const orderBySchema = z
+  .array(
+    z
+      .object({
+        column: sqlIdentifier,
+        direction: z.enum(["ASC", "DESC"]),
+      })
+      .strict(),
+  )
+  .max(20);
+
+// A query on one table (`table`). querySpecSchema picks this schema, or aliasedSpecSchema for a query with `from`.
+const singleTableSpecSchema = z
   .object({
     name: bindingIdentifier,
     // NOTE: no workspaceId — the tool resolves the workspace server-authoritatively from applicationId so a
@@ -786,19 +824,7 @@ export const querySpecSchema = z
       .array(z.object({ column: sqlIdentifier, value: valueRef }).strict())
       .max(100)
       .optional(),
-    // SELECT ordering: each column is an allow-listed identifier; direction is a two-value enum (never interpolated
-    // raw). Emitted as `ORDER BY "<col>" <DIR>, ...`.
-    orderBy: z
-      .array(
-        z
-          .object({
-            column: sqlIdentifier,
-            direction: z.enum(["ASC", "DESC"]),
-          })
-          .strict(),
-      )
-      .max(20)
-      .optional(),
+    orderBy: orderBySchema.optional(),
     // SELECT aggregation over a CLOSED set of functions. `count` may omit the column (COUNT(*)); `sum`/`avg` require a
     // column (enforced in the compiler). Pair with `groupBy` for grouped rollups.
     aggregate: z
@@ -1169,6 +1195,550 @@ export const querySpecSchema = z
         });
       }
     });
+  });
+
+// --- Aliased mode: a SELECT over several tables (`from` and `joins`) ------------------------------------------------
+// A query with `from` names each source with an alias, and every column reference is "alias.column". Each output gets
+// a bare `AS <result name>`. Only these plugins bind every value as a parameter and are supported (see aliasedDialect).
+// Redshift and Snowflake paste values into the SQL text (APP-16507), so they are refused.
+const ALIASED_SQL_PACKAGES: ReadonlySet<string> = new Set([
+  "postgres-plugin",
+  "mysql-plugin",
+  "mariadb-plugin",
+  "oracle-plugin",
+  "mssql-plugin",
+]);
+
+const MAX_JOINS = 7;
+const MAX_ON_PAIRS = 4;
+
+const ALIASED_MODE_MESSAGE =
+  "from and joins need a PostgreSQL, MySQL, MariaDB, Oracle or SQL Server datasource that the server can identify. Redshift and Snowflake are not supported: their plugins put values into the SQL text instead of binding them";
+const ALIASED_SELECT_ONLY_MESSAGE =
+  "from and joins are only valid on a SELECT query";
+const ALIASED_LIMIT_MESSAGE = `limit is required with from and joins (at most ${MAX_LIMIT} rows)`;
+const ALIASED_COLUMNS_MESSAGE =
+  "with from and joins, list the columns to return in columns (SELECT * is not available)";
+const ALIASED_COLUMNS_WITH_AGGREGATES_MESSAGE =
+  "with aggregates, put the columns to return in groupBy, not in columns";
+const ALIASED_GROUP_BY_MESSAGE = "groupBy needs aggregates";
+const ALIASED_SPLIT_MESSAGE = "split is not available with from and joins";
+const ON_SIDES_MESSAGE =
+  "each on pair compares a column of this join's own alias with a column of a source declared before it";
+const BOTH_TABLE_AND_FROM_MESSAGE =
+  "use table for a query on one table, or from (with joins) for several, not both";
+
+// A column reference in aliased mode: a source alias, a dot, then a plain column name.
+const COLUMN_REF = /^([a-z][a-z0-9_]{0,62})\.([A-Za-z_][A-Za-z0-9_]{0,127})$/;
+const columnRefSchema = z
+  .string()
+  .regex(
+    COLUMN_REF,
+    'must be alias.column, such as "o.status": a source alias from from or joins, a dot, then a plain column name',
+  );
+
+// A source alias, such as `o` in `orders o`. It follows the result-name rules, so it is emitted bare. It cannot start
+// with mcp_split, the name of the split source.
+const aliasSchema = resultNameSchema.refine(
+  (name) => !name.startsWith(SPLIT_SOURCE),
+  `an alias cannot start with ${SPLIT_SOURCE}`,
+);
+
+const sourceSchema = z
+  .object({ table: tableNameSchema, as: aliasSchema })
+  .strict();
+
+// The join keywords. The SQL comes from this map, never from agent text.
+const JOIN_TYPES = { inner: "INNER JOIN", left: "LEFT JOIN" } as const;
+
+// One join. `on` is a list of equality pairs, ANDed together.
+const joinSchema = z
+  .object({
+    type: z.enum(["inner", "left"]),
+    table: tableNameSchema,
+    as: aliasSchema,
+    on: z
+      .array(
+        z.object({ left: columnRefSchema, right: columnRefSchema }).strict(),
+      )
+      .min(1)
+      .max(MAX_ON_PAIRS),
+  })
+  .strict();
+
+// A select or groupBy entry in aliased mode:
+// - "o.status", shown as status (the column part);
+// - { column, as }, shown as `as`;
+// - { column, coalesce, as? };
+// - { column, bucket, as } (groupBy only, PostgreSQL only).
+// The split shape is listed only so that its refusal can name it.
+const aliasedSelectSchema = z.union([
+  columnRefSchema,
+  z.object({ column: columnRefSchema, as: resultNameSchema }).strict(),
+  coalesceColumnSchema.extend({
+    column: columnRefSchema,
+    as: resultNameSchema.optional(),
+  }),
+  bucketColumnSchema.extend({ column: columnRefSchema }),
+  splitColumnSchema.extend({ column: columnRefSchema }),
+]);
+
+type AliasedSelect = z.infer<typeof aliasedSelectSchema>;
+
+const aliasedFilterSchema = filterObjectSchema
+  .extend({ column: columnRefSchema })
+  .superRefine(refineFilter);
+const aliasedFilterEntrySchema = filterEntrySchemaOf(
+  aliasedFilterSchema,
+  z
+    .object({ anyOf: z.array(aliasedFilterSchema).min(2).max(10) })
+    .strict()
+    .superRefine(refineFilterGroup),
+);
+const aliasedAggregateSchema = aggregateObjectSchema
+  .extend({ column: columnRefSchema.optional() })
+  .superRefine(refineAggregate);
+
+function isAliasedSplit(
+  entry: AliasedSelect,
+): entry is Extract<AliasedSelect, { split: string }> {
+  return typeof entry !== "string" && "split" in entry;
+}
+
+function isAliasedBucket(
+  entry: AliasedSelect,
+): entry is Extract<AliasedSelect, { bucket: string }> {
+  return typeof entry !== "string" && "bucket" in entry;
+}
+
+function isAliasedCoalesce(
+  entry: AliasedSelect,
+): entry is Extract<AliasedSelect, { coalesce: unknown }> {
+  return typeof entry !== "string" && "coalesce" in entry;
+}
+
+function aliasedColumnOf(entry: AliasedSelect): string {
+  return typeof entry === "string" ? entry : entry.column;
+}
+
+// The alias and the column of an alias.column reference, or undefined when the value is not one.
+function columnRefParts(
+  ref: unknown,
+): { alias: string; column: string } | undefined {
+  if (typeof ref !== "string") return undefined;
+
+  const match = COLUMN_REF.exec(ref);
+
+  return match ? { alias: match[1], column: match[2] } : undefined;
+}
+
+// The result name of a select or groupBy entry in aliased mode: its `as`, or else the column part of its reference. A
+// bucket has its `as` only, and returns undefined without one.
+function aliasedResultName(entry: AliasedSelect): string | undefined {
+  if (typeof entry !== "string" && "as" in entry && entry.as !== undefined) {
+    return entry.as;
+  }
+
+  if (isAliasedBucket(entry)) return undefined;
+
+  return columnRefParts(aliasedColumnOf(entry))?.column;
+}
+
+// The parts of an aliased spec that hold column references. It is written out, not taken from AliasedSpec, so the
+// schema's type does not depend on itself.
+interface AliasedRefShape {
+  joins?: { on: { left: string; right: string }[] }[];
+  columns?: AliasedSelect[];
+  filters?: (Filter | FilterGroup)[];
+  groupBy?: AliasedSelect[];
+  aggregates?: { column?: string }[];
+}
+
+// Every column reference in an aliased spec, with its path: the join conditions, columns, filters (OR-group members
+// too), groupBy and aggregate columns. having and orderBy name result names, never a column. Both the schema rules and
+// the projection (projectionOf) read this list, so they see the same references. A malformed entry in a spec that
+// skipped parsing gives an undefined reference, which the compiler refuses.
+function columnRefsOf(
+  spec: AliasedRefShape,
+): { ref: unknown; path: (string | number)[] }[] {
+  const refs: { ref: unknown; path: (string | number)[] }[] = [];
+  const objectOrNull = (value: unknown) =>
+    typeof value === "object" && value !== null
+      ? (value as Record<string, unknown>)
+      : undefined;
+
+  (spec.joins ?? []).forEach((join, index) =>
+    (objectOrNull(join)?.on as unknown[] | undefined)?.forEach((pair, p) => {
+      refs.push({
+        ref: objectOrNull(pair)?.left,
+        path: ["joins", index, "on", p, "left"],
+      });
+      refs.push({
+        ref: objectOrNull(pair)?.right,
+        path: ["joins", index, "on", p, "right"],
+      });
+    }),
+  );
+
+  for (const field of ["columns", "groupBy"] as const) {
+    (spec[field] ?? []).forEach((entry, index) =>
+      refs.push({
+        ref: typeof entry === "string" ? entry : objectOrNull(entry)?.column,
+        path:
+          typeof entry === "string" ? [field, index] : [field, index, "column"],
+      }),
+    );
+  }
+
+  (spec.filters ?? []).forEach((entry, index) => {
+    const group = objectOrNull(entry);
+
+    if (group !== undefined && Array.isArray(group.anyOf)) {
+      group.anyOf.forEach((member: unknown, memberIndex: number) =>
+        refs.push({
+          ref: objectOrNull(member)?.column,
+          path: ["filters", index, "anyOf", memberIndex, "column"],
+        }),
+      );
+    } else {
+      refs.push({ ref: group?.column, path: ["filters", index, "column"] });
+    }
+  });
+
+  (spec.aggregates ?? []).forEach((entry, index) => {
+    const column = objectOrNull(entry)?.column;
+
+    if (column !== undefined) {
+      refs.push({ ref: column, path: ["aggregates", index, "column"] });
+    }
+  });
+
+  return refs;
+}
+
+// The alias scope of a query with `from`. `aliases` lists the from alias, then each join's alias.
+// - Each on pair links the new join to a source declared before it: one side uses the join's own alias, the other an
+//   earlier alias.
+// - Every reference names a declared alias.
+// - Every alias is used. A join's own on pair counts as a use.
+function refineAliasScope(
+  spec: Omit<AliasedRefShape, "joins"> & {
+    joins?: { as: string; on: { left: string; right: string }[] }[];
+  },
+  aliases: string[],
+  issue: (path: (string | number)[], message: string) => void,
+): void {
+  (spec.joins ?? []).forEach((join, index) => {
+    const earlier = new Set(aliases.slice(0, index + 1));
+
+    join.on.forEach((pair, pairIndex) => {
+      const left = columnRefParts(pair.left)?.alias;
+      const right = columnRefParts(pair.right)?.alias;
+
+      // A malformed side already has its own issue.
+      if (left === undefined || right === undefined) return;
+
+      const ownLeft = left === join.as;
+      const other = ownLeft ? right : left;
+
+      if (ownLeft === (right === join.as) || !earlier.has(other)) {
+        issue(
+          ["joins", index, "on", pairIndex],
+          `${ON_SIDES_MESSAGE} (this join is ${join.as}; earlier sources: ${[...earlier].join(", ")})`,
+        );
+      }
+    });
+  });
+
+  const declared = new Set(aliases);
+  const used = new Set<string>();
+
+  columnRefsOf(spec).forEach(({ path, ref }) => {
+    const parts = columnRefParts(ref);
+
+    if (parts === undefined) return;
+
+    if (!declared.has(parts.alias)) {
+      issue(
+        path,
+        `"${String(ref)}" uses the alias "${parts.alias}", which no source declares (aliases: ${aliases.join(", ")})`,
+      );
+    }
+
+    used.add(parts.alias);
+  });
+
+  aliases.forEach((alias, index) => {
+    if (!used.has(alias)) {
+      issue(
+        index === 0 ? ["from", "as"] : ["joins", index - 1, "as"],
+        `the alias "${alias}" is not used; read a column through it or remove the source`,
+      );
+    }
+  });
+}
+
+// The rules for a query with `from`. Every check adds an issue and none throws.
+function refineAliasedSpec(
+  spec: {
+    operation: string;
+    from: { as: string };
+    joins?: { as: string; on: { left: string; right: string }[] }[];
+    columns?: AliasedSelect[];
+    filters?: (Filter | FilterGroup)[];
+    groupBy?: AliasedSelect[];
+    aggregates?: AggregateEntry[];
+    having?: { column: string }[];
+    orderBy?: { column: string }[];
+    distinct?: boolean;
+    limit?: number;
+  },
+  ctx: z.RefinementCtx,
+): void {
+  const issue = (path: (string | number)[], message: string) =>
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message, path });
+
+  if (spec.operation !== "SELECT") {
+    issue(["operation"], ALIASED_SELECT_ONLY_MESSAGE);
+
+    return;
+  }
+
+  const joins = spec.joins ?? [];
+  const aliases = [spec.from.as, ...joins.map((join) => join.as)];
+  const aliasPath = (index: number) =>
+    index === 0 ? ["from", "as"] : ["joins", index - 1, "as"];
+  const seenAliases = new Set<string>();
+
+  aliases.forEach((alias, index) => {
+    if (seenAliases.has(alias.toLowerCase())) {
+      issue(
+        aliasPath(index),
+        `the alias "${alias}" is used more than once (aliases ignore case); give each source its own alias`,
+      );
+    }
+
+    seenAliases.add(alias.toLowerCase());
+  });
+
+  // An alias that breaks its own rule already has an issue. The scope checks would repeat it for every reference, so
+  // they are skipped.
+  if (aliases.every((alias) => aliasSchema.safeParse(alias).success)) {
+    refineAliasScope(spec, aliases, issue);
+  }
+
+  if (spec.limit === undefined) issue(["limit"], ALIASED_LIMIT_MESSAGE);
+
+  const aggregates = spec.aggregates;
+
+  if (aggregates === undefined) {
+    if (spec.columns === undefined || spec.columns.length === 0) {
+      issue(["columns"], ALIASED_COLUMNS_MESSAGE);
+    }
+
+    if (spec.groupBy !== undefined) {
+      issue(["groupBy"], ALIASED_GROUP_BY_MESSAGE);
+    }
+
+    if (spec.having !== undefined)
+      issue(["having"], "having needs an aggregate");
+  } else {
+    if (spec.columns !== undefined) {
+      issue(["columns"], ALIASED_COLUMNS_WITH_AGGREGATES_MESSAGE);
+    }
+
+    if (spec.distinct === true) {
+      issue(["distinct"], "distinct cannot be used with aggregates");
+    }
+  }
+
+  // Result names: each output's name is checked like an `as`, and all are unique ignoring case. A name taken from a
+  // column part may not fit the rules, so it then needs an `as`.
+  const names: string[] = [];
+  const checkName = (
+    name: string | undefined,
+    path: (string | number)[],
+    fromColumn: boolean,
+  ) => {
+    if (name === undefined) return;
+
+    if (
+      fromColumn &&
+      (!RESULT_NAME.test(name) || RESERVED_RESULT_NAMES.has(name))
+    ) {
+      issue(
+        path,
+        `the column name "${name}" cannot be a result name as it is; add as with a lower-case name that is not a SQL keyword`,
+      );
+    }
+
+    if (SPLIT_NAMES.has(name)) {
+      issue(
+        path,
+        `"${name}" is reserved for the split source; pick another name`,
+      );
+    }
+
+    if (names.some((seen) => seen.toLowerCase() === name.toLowerCase())) {
+      issue(
+        path,
+        `the result name "${name}" is used more than once (names ignore case); give each output its own name with as`,
+      );
+    }
+
+    names.push(name);
+  };
+  const outputField = aggregates === undefined ? "columns" : "groupBy";
+
+  for (const field of ["columns", "groupBy"] as const) {
+    (spec[field] ?? []).forEach((entry, index) => {
+      if (isAliasedSplit(entry)) {
+        issue([field, index, "split"], ALIASED_SPLIT_MESSAGE);
+
+        return;
+      }
+
+      if (isAliasedBucket(entry)) {
+        if (field === "columns") {
+          issue([field, index, "bucket"], "bucket is only valid in groupBy");
+
+          return;
+        }
+
+        if (entry.as === undefined) {
+          issue(
+            [field, index, "as"],
+            'bucket needs as, the name of its result column (such as "week")',
+          );
+
+          return;
+        }
+      }
+
+      if (field !== outputField) return;
+
+      const hasAs = typeof entry !== "string" && entry.as !== undefined;
+
+      checkName(
+        aliasedResultName(entry),
+        hasAs
+          ? [field, index, "as"]
+          : typeof entry === "string"
+            ? [field, index]
+            : [field, index, "column"],
+        !hasAs,
+      );
+    });
+  }
+
+  (aggregates ?? []).forEach((entry, index) =>
+    checkName(resultNameOf(entry), ["aggregates", index, "as"], false),
+  );
+
+  // having names an aggregate's result, or a groupBy result name that is not a bucket or a coalesce.
+  if (spec.having !== undefined && aggregates !== undefined) {
+    const aggregateNames = aggregates.map((entry) => resultNameOf(entry));
+
+    spec.having.forEach((condition, index) => {
+      if (aggregateNames.includes(condition.column)) return;
+
+      const group = (spec.groupBy ?? []).find(
+        (entry) => aliasedResultName(entry) === condition.column,
+      );
+      const path = ["having", index, "column"];
+
+      if (group === undefined) {
+        issue(
+          path,
+          `having can only test an aggregate's result name (${aggregateNames.map((name) => `"${name}"`).join(", ")}) or a groupBy result name`,
+        );
+      } else if (isAliasedBucket(group)) {
+        issue(
+          path,
+          "having cannot test a bucket; filter its column in filters instead",
+        );
+      } else if (isAliasedCoalesce(group)) {
+        issue(
+          path,
+          "having cannot test a groupBy column that has coalesce (it would test the stored value, not the fallback shown)",
+        );
+      }
+    });
+  }
+
+  (spec.orderBy ?? []).forEach((entry, index) => {
+    if (!names.includes(entry.column)) {
+      issue(
+        ["orderBy", index, "column"],
+        `with from and joins, orderBy can only name a result name (${names.map((name) => `"${name}"`).join(", ")})`,
+      );
+    }
+  });
+}
+
+// A SELECT over several tables. querySpecSchema picks it when the spec has `from` or `joins`.
+const aliasedSpecSchema = z
+  .object({
+    name: bindingIdentifier,
+    applicationId: storedId,
+    pageId: storedId,
+    datasourceId: storedId,
+    operation: z.enum(["SELECT", "INSERT", "UPDATE", "DELETE"]),
+    from: sourceSchema,
+    joins: z.array(joinSchema).max(MAX_JOINS).optional(),
+    columns: z.array(aliasedSelectSchema).max(100).optional(),
+    filters: z.array(aliasedFilterEntrySchema).max(20).optional(),
+    orderBy: orderBySchema.optional(),
+    aggregates: z.array(aliasedAggregateSchema).min(1).max(6).optional(),
+    groupBy: z.array(aliasedSelectSchema).max(20).optional(),
+    having: z.array(havingConditionSchema).max(10).optional(),
+    distinct: z.boolean().optional(),
+    limit: z.number().int().min(1).max(MAX_LIMIT).optional(),
+  })
+  .strict()
+  .superRefine(refineAliasedSpec);
+
+type SingleTableSpec = z.infer<typeof singleTableSpecSchema>;
+type AliasedSpec = z.infer<typeof aliasedSpecSchema>;
+
+function hasOwnValue(value: object, key: string): boolean {
+  return (
+    Object.prototype.hasOwnProperty.call(value, key) &&
+    (value as Record<string, unknown>)[key] !== undefined
+  );
+}
+
+// A spec with `from` or `joins` is in aliased mode. Anything else is a query on one table, parsed exactly as before.
+// It returns the parsed spec, so each schema's own rules apply, and passes on each issue with its own path.
+export const querySpecSchema = z
+  .unknown()
+  .transform((input, ctx): SingleTableSpec | AliasedSpec => {
+    const aliased =
+      typeof input === "object" &&
+      input !== null &&
+      (hasOwnValue(input, "from") || hasOwnValue(input, "joins"));
+
+    if (aliased && hasOwnValue(input, "table")) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: BOTH_TABLE_AND_FROM_MESSAGE,
+        path: ["table"],
+      });
+
+      return z.NEVER;
+    }
+
+    const result = aliased
+      ? aliasedSpecSchema.safeParse(input)
+      : singleTableSpecSchema.safeParse(input);
+
+    if (!result.success) {
+      result.error.issues.forEach((issue) => ctx.addIssue(issue));
+
+      return z.NEVER;
+    }
+
+    return result.data;
   });
 
 export type QuerySpec = z.infer<typeof querySpecSchema>;
@@ -1570,7 +2140,7 @@ function emitOrderBy(
 
 // Emit `GROUP BY "col", "col2"`. Same allow-listed identifiers, quoted by quoteIdentifier (bare on MySQL).
 function emitGroupBy(
-  groupBy: QuerySpec["groupBy"],
+  groupBy: SingleTableSpec["groupBy"],
   dialect: SqlDialect,
   columns: ColumnResolver,
 ): string {
@@ -1675,7 +2245,7 @@ function emitSelectColumn(
 // separator is a bound parameter, and the source and item names are fixed text. The resolver checked the table name
 // again when it was made (see checkedTableName).
 function emitFrom(
-  spec: QuerySpec,
+  spec: SingleTableSpec,
   dialect: SqlDialect,
   columns: ColumnResolver,
 ): string {
@@ -1754,7 +2324,7 @@ function aggregateExpression(
 // expression repeated) or a group column (its stored name, quoted as GROUP BY quotes it). Values are bound parameters,
 // and the operator comes from HAVING_OPERATORS.
 function emitHaving(
-  spec: QuerySpec,
+  spec: SingleTableSpec,
   dialect: SqlDialect,
   columns: ColumnResolver,
 ): string {
@@ -1797,7 +2367,7 @@ function emitHaving(
 }
 
 function emitWhere(
-  filters: QuerySpec["filters"],
+  filters: SingleTableSpec["filters"],
   dialect: SqlDialect,
   columns: ColumnResolver,
 ): string {
@@ -1841,6 +2411,14 @@ function emitFilter(
 function emitLimit(limit: unknown, dialect: SqlDialect): string {
   if (limit === undefined) return "";
 
+  const rows = checkedLimit(limit);
+
+  return dialect === "oracle"
+    ? ` FETCH FIRST ${rows} ROWS ONLY`
+    : ` LIMIT ${rows}`;
+}
+
+function checkedLimit(limit: unknown): number {
   if (
     typeof limit !== "number" ||
     !Number.isInteger(limit) ||
@@ -1852,17 +2430,483 @@ function emitLimit(limit: unknown, dialect: SqlDialect): string {
     );
   }
 
-  return dialect === "oracle"
-    ? ` FETCH FIRST ${limit} ROWS ONLY`
-    : ` LIMIT ${limit}`;
+  return limit;
+}
+
+// --- Aliased mode: compile a SELECT over several tables ---------------------------------------------------------------
+
+// The database family of a query with `from`. The plugin must be in ALIASED_SQL_PACKAGES, and the dialect must be the
+// one that plugin maps to, so a caller cannot pair a supported dialect with another plugin. A caller that cannot name
+// the plugin (packageName undefined) is refused too.
+function aliasedDialect(options: CompileQueryOptions): SqlDialect {
+  const { dialect, packageName } = options;
+
+  if (
+    typeof packageName !== "string" ||
+    !ALIASED_SQL_PACKAGES.has(packageName) ||
+    dialect !== sqlDialectFor(packageName)
+  ) {
+    throw new Error(ALIASED_MODE_MESSAGE);
+  }
+
+  return dialect;
+}
+
+// A source alias, checked again with the aliasSchema rules.
+function checkedAlias(alias: unknown): string {
+  if (
+    typeof alias !== "string" ||
+    !RESULT_NAME.test(alias) ||
+    RESERVED_RESULT_NAMES.has(alias) ||
+    alias.startsWith(SPLIT_SOURCE)
+  ) {
+    throw new Error(`unsafe alias: ${JSON.stringify(alias)}`);
+  }
+
+  return alias;
+}
+
+// An alias.column reference, checked again with the columnRefSchema rule.
+function checkedColumnRef(ref: unknown): { alias: string; column: string } {
+  const parts = columnRefParts(ref);
+
+  if (parts === undefined) {
+    throw new Error(`unsafe column reference: ${JSON.stringify(ref)}`);
+  }
+
+  return parts;
+}
+
+// A source table, checked again: a qualifiedName that is not a system catalog.
+function checkedSourceTable(table: unknown, dialect: SqlDialect): string {
+  const checked = checkedTableName(table);
+
+  refuseSystemCatalog(checked, dialect);
+
+  return checked;
+}
+
+interface AliasedSource {
+  alias: string;
+  table: string;
+  // The join type (a JOIN_TYPES key). The first source has none.
+  type?: string;
+  on: { left: string; right: string }[];
+}
+
+// The sources of a query with `from`, checked again: every alias, table, join type and on pair. One side of each on
+// pair uses the join's own alias, and the other an alias declared before it.
+function checkedSources(
+  spec: AliasedSpec,
+  dialect: SqlDialect,
+): AliasedSource[] {
+  const asRecord = (value: unknown) =>
+    (typeof value === "object" && value !== null ? value : {}) as Record<
+      string,
+      unknown
+    >;
+  const from = asRecord(spec.from);
+  const joins: unknown = spec.joins ?? [];
+
+  if (!Array.isArray(joins) || joins.length > MAX_JOINS) {
+    throw new Error(`joins must be a list of at most ${MAX_JOINS} joins`);
+  }
+
+  const sources: AliasedSource[] = [
+    {
+      alias: checkedAlias(from.as),
+      table: checkedSourceTable(from.table, dialect),
+      on: [],
+    },
+  ];
+  const declared = new Set([sources[0].alias]);
+
+  joins.forEach((value: unknown) => {
+    const join = asRecord(value);
+    const alias = checkedAlias(join.as);
+
+    if (declared.has(alias)) {
+      throw new Error(`the alias "${alias}" is used more than once`);
+    }
+
+    // Throws on a type that is not a JOIN_TYPES key, such as "left outer" or "constructor".
+    sqlKeyword(JOIN_TYPES, join.type, "join type");
+
+    const on: unknown = join.on;
+
+    if (!Array.isArray(on) || on.length < 1 || on.length > MAX_ON_PAIRS) {
+      throw new Error(`a join needs 1 to ${MAX_ON_PAIRS} on pairs`);
+    }
+
+    const pairs = on.map((pairValue: unknown) => {
+      const pair = asRecord(pairValue);
+      const left = checkedColumnRef(pair.left);
+      const right = checkedColumnRef(pair.right);
+      const ownLeft = left.alias === alias;
+      const other = ownLeft ? right.alias : left.alias;
+
+      if (ownLeft === (right.alias === alias) || !declared.has(other)) {
+        throw new Error(ON_SIDES_MESSAGE);
+      }
+
+      return {
+        left: `${left.alias}.${left.column}`,
+        right: `${right.alias}.${right.column}`,
+      };
+    });
+
+    declared.add(alias);
+    sources.push({
+      alias,
+      table: checkedSourceTable(join.table, dialect),
+      type: join.type as string,
+      on: pairs,
+    });
+  });
+
+  return sources;
+}
+
+// The one name normalizer for a projected column. The projection, the inner column list and the outer reference all
+// use it, so the inner list and the outer reference always name the same column.
+// - PostgreSQL: the name exactly as written. It is quoted, so "o.createdAt" reads the column createdAt, and "o.Status"
+//   and "o.status" are two columns.
+// - Redshift: lower-cased, because Redshift folds quoted names to lower case by default.
+// - Every other database: the name as written. Only the projection check uses it there.
+function projectedName(column: string, dialect: SqlDialect): string {
+  const name = checkedColumnName(column);
+
+  return dialect === "redshift" ? name.toLowerCase() : name;
+}
+
+// The columns the query reads through each alias, built from the spec before anything is emitted. Each alias.column
+// reference adds its column once, in the order the spec first names it. Every source must be read at least once.
+function projectionOf(
+  spec: AliasedSpec,
+  sources: AliasedSource[],
+  dialect: SqlDialect,
+): Map<string, string[]> {
+  const projection = new Map(
+    sources.map((source) => [source.alias, [] as string[]]),
+  );
+
+  for (const { ref } of columnRefsOf(spec)) {
+    const { alias, column } = checkedColumnRef(ref);
+    const names = projection.get(alias);
+
+    if (names === undefined) {
+      throw new Error(
+        `"${alias}.${column}" uses an alias that no source declares`,
+      );
+    }
+
+    const name = projectedName(column, dialect);
+
+    if (!names.includes(name)) names.push(name);
+  }
+
+  for (const [alias, names] of projection) {
+    if (names.length === 0) {
+      throw new Error(`the alias "${alias}" is not used`);
+    }
+  }
+
+  return projection;
+}
+
+// The resolver for a query with `from`. A column is "alias.column", written alias."col" (bare on MySQL and Oracle,
+// see quoteIdentifier; on PostgreSQL and Redshift the name comes from projectedName). Before it writes one, it checks
+// that the column is in the alias's projection. So a reference that the projection missed never reaches the SQL. On
+// PostgreSQL this keeps alias."col" a column: for a missing column, PostgreSQL reads `alias.name` as the call
+// name(alias).
+function aliasedColumns(
+  projection: ReadonlyMap<string, readonly string[]>,
+  dialect: SqlDialect,
+): ColumnResolver {
+  const reference = (ref: string): string => {
+    const { alias, column } = checkedColumnRef(ref);
+    const name = projectedName(column, dialect);
+
+    if (projection.get(alias)?.includes(name) !== true) {
+      throw new Error(
+        `"${alias}.${column}" is not a column this query reads through ${alias}`,
+      );
+    }
+
+    return dialect === "postgres" || dialect === "redshift"
+      ? `${alias}."${name}"`
+      : `${alias}.${quoteIdentifier(column, dialect)}`;
+  };
+  const unavailable = (what: string) => (): never => {
+    throw new Error(`${what} is not available with from and joins`);
+  };
+
+  return {
+    get table(): string {
+      throw new Error("a query with from and joins has no single table");
+    },
+    filterColumn: reference,
+    selectColumn: reference,
+    columnAlias: unavailable("a column alias"),
+    groupColumn: reference,
+    aggregateColumn: reference,
+    orderColumn: reference,
+    splitColumn: unavailable("split"),
+    writeColumn: unavailable("a write"),
+    // The closed projection already refuses a column named like its table (see emitAliasedSource).
+    refuseRowRead: () => undefined,
+  };
+}
+
+// One source in FROM or a join, without its join keyword. On PostgreSQL and Redshift it is a closed projection:
+// `(SELECT "c1", "c2" FROM schema.t) o`, which lists exactly the columns the spec reads through `o`. Inside it only one
+// table is in scope, so a missing column is an error, not a function call. The inner FROM has no alias, so only the
+// table's own name can read as the whole row, and refuseTableNamedColumn refuses it. Every other database gets
+// `schema.t o`. No database gets AS before the alias: Oracle does not accept it.
+function emitAliasedSource(
+  source: AliasedSource,
+  projection: ReadonlyMap<string, readonly string[]>,
+  dialect: SqlDialect,
+): string {
+  const alias = checkedAlias(source.alias);
+  const table = checkedSourceTable(source.table, dialect);
+
+  if (dialect !== "postgres" && dialect !== "redshift") {
+    return `${table} ${alias}`;
+  }
+
+  const names = projection.get(alias) ?? [];
+
+  if (names.length === 0) {
+    throw new Error(`the alias "${alias}" is not used`);
+  }
+
+  const list = names
+    .map((name) => {
+      const checked = projectedName(name, dialect);
+
+      refuseTableNamedColumn(
+        checked,
+        table,
+        dialect,
+        "a query with from and joins cannot read",
+      );
+
+      return `"${checked}"`;
+    })
+    .join(", ");
+
+  return `(SELECT ${list} FROM ${table}) ${alias}`;
+}
+
+// FROM and its joins: `<source> INNER JOIN <source> ON a."x" = b."y" AND ...`. It checks the plugin again (see
+// aliasedDialect). The join keyword comes from JOIN_TYPES and the operator is a fixed `=`.
+function emitAliasedFrom(
+  sources: AliasedSource[],
+  projection: ReadonlyMap<string, readonly string[]>,
+  columns: ColumnResolver,
+  options: CompileQueryOptions,
+): string {
+  const dialect = aliasedDialect(options);
+
+  return sources
+    .map((source, index) => {
+      const text = emitAliasedSource(source, projection, dialect);
+
+      if (index === 0) return text;
+
+      const on = source.on
+        .map(
+          (pair) =>
+            `${columns.filterColumn(pair.left)} = ${columns.filterColumn(pair.right)}`,
+        )
+        .join(" AND ");
+
+      return `${sqlKeyword(JOIN_TYPES, source.type, "join type")} ${text} ON ${on}`;
+    })
+    .join(" ");
+}
+
+// A group key in aliased mode: a bucket's DATE_TRUNC call, or else the referenced column.
+function aliasedGroupKey(
+  entry: AliasedSelect,
+  dialect: SqlDialect,
+  columns: ColumnResolver,
+): string {
+  if (isAliasedSplit(entry)) throw new Error(ALIASED_SPLIT_MESSAGE);
+
+  if (isAliasedBucket(entry)) return bucketExpression(entry, dialect, columns);
+
+  return columns.groupColumn(aliasedColumnOf(entry));
+}
+
+// One output in aliased mode, always with a bare `AS <result name>`: the column, its COALESCE, or a bucket (groupBy
+// only).
+function emitAliasedOutput(
+  entry: AliasedSelect,
+  grouped: boolean,
+  dialect: SqlDialect,
+  columns: ColumnResolver,
+): string {
+  if (isAliasedBucket(entry) && !grouped) {
+    throw new Error("bucket is only valid in groupBy");
+  }
+
+  const expression = aliasedGroupKey(entry, dialect, columns);
+  const name = emitResultName(aliasedResultName(entry));
+
+  if (isAliasedCoalesce(entry)) {
+    return `COALESCE(${expression}, ${emitBinding(entry.coalesce)}) AS ${name}`;
+  }
+
+  return `${expression} AS ${name}`;
+}
+
+// HAVING in aliased mode. Each condition names an aggregate's result (its expression is repeated) or a plain groupBy
+// result name (its column is repeated). Values are bound, and the operator comes from HAVING_OPERATORS.
+function emitAliasedHaving(
+  spec: AliasedSpec,
+  dialect: SqlDialect,
+  columns: ColumnResolver,
+): string {
+  if (!spec.having || spec.having.length === 0) return "";
+
+  const aggregates = spec.aggregates ?? [];
+
+  if (aggregates.length === 0) throw new Error("having needs an aggregate");
+
+  const conditions = spec.having.map((condition) => {
+    const aggregate = aggregates.find(
+      (entry) => resultNameOf(entry) === condition.column,
+    );
+    const group = (spec.groupBy ?? []).find(
+      (entry) => aliasedResultName(entry) === condition.column,
+    );
+    let target: string;
+
+    if (aggregate !== undefined) {
+      target = aggregateExpression(aggregate, dialect, columns);
+    } else if (
+      group !== undefined &&
+      !isAliasedBucket(group) &&
+      !isAliasedCoalesce(group)
+    ) {
+      target = aliasedGroupKey(group, dialect, columns);
+    } else {
+      throw new Error(
+        `having can only test an aggregate's result name or a plain groupBy result name: ${JSON.stringify(condition.column)}`,
+      );
+    }
+
+    return `${target} ${sqlKeyword(HAVING_OPERATORS, condition.op, "having op")} ${emitBinding(condition.value)}`;
+  });
+
+  return ` HAVING ${conditions.join(" AND ")}`;
+}
+
+// Compile a query with `from`. querySpecSchema already checks each rule below. They run again so that a caller that
+// skipped parsing fails closed. SQL Server has no LIMIT, so the row cap there is `SELECT TOP (n)`.
+function compileAliasedSelect(
+  spec: AliasedSpec,
+  options: CompileQueryOptions,
+): string {
+  const dialect = aliasedDialect(options);
+
+  if (hasOwnValue(spec, "table")) throw new Error(BOTH_TABLE_AND_FROM_MESSAGE);
+
+  if (spec.operation !== "SELECT") throw new Error(ALIASED_SELECT_ONLY_MESSAGE);
+
+  if (spec.limit === undefined) throw new Error(ALIASED_LIMIT_MESSAGE);
+
+  const rows = checkedLimit(spec.limit);
+  const sources = checkedSources(spec, dialect);
+  const projection = projectionOf(spec, sources, dialect);
+  const columns = aliasedColumns(projection, dialect);
+  const aggregates = spec.aggregates ?? [];
+  const groupBy = spec.groupBy ?? [];
+  let outputs: string[];
+  let names: (string | undefined)[];
+
+  if (aggregates.length > 0) {
+    if (spec.columns !== undefined) {
+      throw new Error(ALIASED_COLUMNS_WITH_AGGREGATES_MESSAGE);
+    }
+
+    if (spec.distinct === true) {
+      throw new Error("distinct cannot be used with aggregates");
+    }
+
+    outputs = [
+      ...groupBy.map((entry) =>
+        emitAliasedOutput(entry, true, dialect, columns),
+      ),
+      ...aggregates.map((entry) => emitAggregate(entry, dialect, columns)),
+    ];
+    names = [
+      ...groupBy.map(aliasedResultName),
+      ...aggregates.map((entry) => resultNameOf(entry)),
+    ];
+  } else {
+    if (!spec.columns || spec.columns.length === 0) {
+      throw new Error(ALIASED_COLUMNS_MESSAGE);
+    }
+
+    if (spec.groupBy !== undefined) throw new Error(ALIASED_GROUP_BY_MESSAGE);
+
+    if (spec.having !== undefined) throw new Error("having needs an aggregate");
+
+    outputs = spec.columns.map((entry) =>
+      emitAliasedOutput(entry, false, dialect, columns),
+    );
+    names = spec.columns.map(aliasedResultName);
+  }
+
+  // Result names are unique, ignoring case. orderBy emits them bare (see emitOrderBy).
+  const resultNames = new Set<string>();
+  const seenNames = new Set<string>();
+
+  for (const name of names) {
+    const checked = emitResultName(name);
+
+    if (seenNames.has(checked.toLowerCase())) {
+      throw new Error(`the result name "${checked}" is used more than once`);
+    }
+
+    seenNames.add(checked.toLowerCase());
+    resultNames.add(checked);
+  }
+
+  const top = options.packageName === "mssql-plugin" ? `TOP (${rows}) ` : "";
+  const limit = top === "" ? emitLimit(rows, dialect) : "";
+  const distinct = spec.distinct === true ? "DISTINCT " : "";
+  const groupByClause =
+    aggregates.length > 0 && groupBy.length > 0
+      ? ` GROUP BY ${groupBy.map((entry) => aliasedGroupKey(entry, dialect, columns)).join(", ")}`
+      : "";
+
+  return `SELECT ${distinct}${top}${outputs.join(", ")} FROM ${emitAliasedFrom(sources, projection, columns, options)}${emitWhere(spec.filters, dialect, columns)}${groupByClause}${emitAliasedHaving(spec, dialect, columns)}${emitOrderBy(spec.orderBy, columns, resultNames)}${limit};`;
+}
+
+function isAliasedSpec(spec: QuerySpec): spec is AliasedSpec {
+  return hasOwnValue(spec, "from") || hasOwnValue(spec, "joins");
 }
 
 // Compile a structured spec into a parameterized SQL body. Throws on an empty/oversized body or if the emitted body
 // somehow contains a brace pair that isn't a compiler-emitted binding (fail-closed defense-in-depth).
+// A spec with `from` or `joins` compiles in aliased mode (compileAliasedSelect). Every other spec compiles as a query
+// on one table.
 export function compileQuery(
   spec: QuerySpec,
   options: CompileQueryOptions = {},
 ): string {
+  if (isAliasedSpec(spec)) {
+    const aliasedBody = compileAliasedSelect(spec, options);
+
+    assertBodySafe(aliasedBody);
+
+    return aliasedBody;
+  }
+
   const dialect = options.dialect ?? "other";
   // Throws on a missing or unsafe table name (see checkedTableName).
   const columns = singleTableColumns(spec.table, dialect);

@@ -3352,3 +3352,171 @@ describe("APP-16506 golden: buildActionDto stays the same", () => {
     expect(buildActionDto(spec, body, packageName)).toEqual(entry.expected);
   });
 });
+
+// APP-16506 B: queries with `from` and `joins`, compiled as the tools compile them, with the plugin's package name.
+// Only the five plugins that bind every value accept them. `none` is a call with no options, as EE workflow queries
+// make before the datasource is known.
+const PLUGINS = [
+  "postgres-plugin",
+  "mysql-plugin",
+  "mariadb-plugin",
+  "oracle-plugin",
+  "mssql-plugin",
+  "redshift-plugin",
+  "snowflake-plugin",
+] as const;
+
+type PluginOutcomes = Record<"none" | (typeof PLUGINS)[number], Outcome>;
+
+const ALIASED_MODE_MESSAGE =
+  "from and joins need a PostgreSQL, MySQL, MariaDB, Oracle or SQL Server datasource that the server can identify. Redshift and Snowflake are not supported: their plugins put values into the SQL text instead of binding them";
+
+function compileForEveryPlugin(spec: Record<string, unknown>): PluginOutcomes {
+  const parsed = querySpecSchema.parse({ ...base, ...spec });
+  const outcomes = {
+    none: outcome(() => compileQuery(parsed)),
+  } as PluginOutcomes;
+
+  for (const packageName of PLUGINS) {
+    outcomes[packageName] = outcome(() =>
+      compileQuery(parsed, {
+        dialect: sqlDialectFor(packageName),
+        packageName,
+      }),
+    );
+  }
+
+  return outcomes;
+}
+
+const GOLDEN_PLUGIN_CASES = [
+  {
+    name: "left join on two pairs, coalesce, notNull and a viewer filter",
+    spec: {
+      operation: "SELECT",
+      from: { table: "sales.orders", as: "o" },
+      joins: [
+        {
+          type: "left",
+          table: "sales.customers",
+          as: "c",
+          on: [
+            { left: "c.id", right: "o.customer_id" },
+            { left: "c.region", right: "o.region" },
+          ],
+        },
+      ],
+      columns: [
+        "o.id",
+        { column: "c.name", as: "customer" },
+        { column: "c.tier", coalesce: { literal: "none" } },
+      ],
+      filters: [
+        { column: "o.total", op: "gte", value: { literal: 100 } },
+        { column: "c.email", op: "notNull" },
+        {
+          column: "o.owner",
+          op: "eq",
+          value: { widget: "appsmith", property: "user.email" },
+        },
+      ],
+      orderBy: [{ column: "customer", direction: "ASC" }],
+      limit: 25,
+    },
+    expected: {
+      none: { throws: ALIASED_MODE_MESSAGE },
+      "postgres-plugin":
+        'SELECT o."id" AS id, c."name" AS customer, COALESCE(c."tier", {{ "none" }}) AS tier FROM (SELECT "customer_id", "region", "id", "total", "owner" FROM sales.orders) o LEFT JOIN (SELECT "id", "region", "name", "tier", "email" FROM sales.customers) c ON c."id" = o."customer_id" AND c."region" = o."region" WHERE o."total" >= {{ 100 }} AND c."email" IS NOT NULL AND o."owner" = {{ appsmith.user.email }} ORDER BY customer ASC LIMIT 25;',
+      "mysql-plugin":
+        'SELECT o.id AS id, c.name AS customer, COALESCE(c.tier, {{ "none" }}) AS tier FROM sales.orders o LEFT JOIN sales.customers c ON c.id = o.customer_id AND c.region = o.region WHERE o.total >= {{ 100 }} AND NOT (c.email <=> NULL) AND o.owner = {{ appsmith.user.email }} ORDER BY customer ASC LIMIT 25;',
+      "mariadb-plugin":
+        'SELECT o.id AS id, c.name AS customer, COALESCE(c.tier, {{ "none" }}) AS tier FROM sales.orders o LEFT JOIN sales.customers c ON c.id = o.customer_id AND c.region = o.region WHERE o.total >= {{ 100 }} AND NOT (c.email <=> NULL) AND o.owner = {{ appsmith.user.email }} ORDER BY customer ASC LIMIT 25;',
+      "oracle-plugin":
+        'SELECT o.id AS id, c.name AS customer, COALESCE(c.tier, {{ "none" }}) AS tier FROM sales.orders o LEFT JOIN sales.customers c ON c.id = o.customer_id AND c.region = o.region WHERE o.total >= {{ 100 }} AND c.email IS NOT NULL AND o.owner = {{ appsmith.user.email }} ORDER BY customer ASC FETCH FIRST 25 ROWS ONLY;',
+      "mssql-plugin":
+        'SELECT TOP (25) o."id" AS id, c."name" AS customer, COALESCE(c."tier", {{ "none" }}) AS tier FROM sales.orders o LEFT JOIN sales.customers c ON c."id" = o."customer_id" AND c."region" = o."region" WHERE o."total" >= {{ 100 }} AND c."email" IS NOT NULL AND o."owner" = {{ appsmith.user.email }} ORDER BY customer ASC;',
+      "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
+      "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
+    },
+  },
+  {
+    name: "inner join with groupBy, aggregates and having",
+    spec: {
+      operation: "SELECT",
+      from: { table: "orders", as: "o" },
+      joins: [
+        {
+          type: "inner",
+          table: "items",
+          as: "i",
+          on: [{ left: "i.order_id", right: "o.id" }],
+        },
+      ],
+      groupBy: [{ column: "o.status", as: "status" }],
+      aggregates: [
+        { fn: "count", as: "line_count" },
+        { fn: "avg", column: "i.price", round: "floor", as: "avg_price" },
+      ],
+      having: [{ column: "line_count", op: "gte", value: { literal: 2 } }],
+      orderBy: [{ column: "line_count", direction: "DESC" }],
+      limit: 100,
+    },
+    expected: {
+      none: { throws: ALIASED_MODE_MESSAGE },
+      "postgres-plugin":
+        'SELECT o."status" AS status, COUNT(*) AS line_count, FLOOR(AVG(i."price")) AS avg_price FROM (SELECT "id", "status" FROM orders) o INNER JOIN (SELECT "order_id", "price" FROM items) i ON i."order_id" = o."id" GROUP BY o."status" HAVING COUNT(*) >= {{ 2 }} ORDER BY line_count DESC LIMIT 100;',
+      "mysql-plugin":
+        "SELECT o.status AS status, COUNT(*) AS line_count, FLOOR(AVG(i.price)) AS avg_price FROM orders o INNER JOIN items i ON i.order_id = o.id GROUP BY o.status HAVING COUNT(*) >= {{ 2 }} ORDER BY line_count DESC LIMIT 100;",
+      "mariadb-plugin":
+        "SELECT o.status AS status, COUNT(*) AS line_count, FLOOR(AVG(i.price)) AS avg_price FROM orders o INNER JOIN items i ON i.order_id = o.id GROUP BY o.status HAVING COUNT(*) >= {{ 2 }} ORDER BY line_count DESC LIMIT 100;",
+      "oracle-plugin":
+        "SELECT o.status AS status, COUNT(*) AS line_count, FLOOR(AVG(i.price)) AS avg_price FROM orders o INNER JOIN items i ON i.order_id = o.id GROUP BY o.status HAVING COUNT(*) >= {{ 2 }} ORDER BY line_count DESC FETCH FIRST 100 ROWS ONLY;",
+      "mssql-plugin":
+        'SELECT TOP (100) o."status" AS status, COUNT(*) AS line_count, FLOOR(AVG(i."price")) AS avg_price FROM orders o INNER JOIN items i ON i."order_id" = o."id" GROUP BY o."status" HAVING COUNT(*) >= {{ 2 }} ORDER BY line_count DESC;',
+      "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
+      "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
+    },
+  },
+  {
+    name: "mixed-case columns keep their case",
+    spec: {
+      operation: "SELECT",
+      from: { table: "orders", as: "o" },
+      joins: [
+        {
+          type: "inner",
+          table: "customers",
+          as: "c",
+          on: [{ left: "c.id", right: "o.customerId" }],
+        },
+      ],
+      columns: [
+        { column: "o.createdAt", as: "created_at" },
+        { column: "c.fullName", as: "full_name" },
+      ],
+      orderBy: [{ column: "created_at", direction: "DESC" }],
+      limit: 10,
+    },
+    expected: {
+      none: { throws: ALIASED_MODE_MESSAGE },
+      "postgres-plugin":
+        'SELECT o."createdAt" AS created_at, c."fullName" AS full_name FROM (SELECT "customerId", "createdAt" FROM orders) o INNER JOIN (SELECT "id", "fullName" FROM customers) c ON c."id" = o."customerId" ORDER BY created_at DESC LIMIT 10;',
+      "mysql-plugin":
+        "SELECT o.createdAt AS created_at, c.fullName AS full_name FROM orders o INNER JOIN customers c ON c.id = o.customerId ORDER BY created_at DESC LIMIT 10;",
+      "mariadb-plugin":
+        "SELECT o.createdAt AS created_at, c.fullName AS full_name FROM orders o INNER JOIN customers c ON c.id = o.customerId ORDER BY created_at DESC LIMIT 10;",
+      "oracle-plugin":
+        "SELECT o.createdAt AS created_at, c.fullName AS full_name FROM orders o INNER JOIN customers c ON c.id = o.customerId ORDER BY created_at DESC FETCH FIRST 10 ROWS ONLY;",
+      "mssql-plugin":
+        'SELECT TOP (10) o."createdAt" AS created_at, c."fullName" AS full_name FROM orders o INNER JOIN customers c ON c."id" = o."customerId" ORDER BY created_at DESC;',
+      "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
+      "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
+    },
+  },
+];
+
+describe("APP-16506 golden: from and joins per plugin", () => {
+  it.each(GOLDEN_PLUGIN_CASES)("$name", ({ expected, spec }) => {
+    expect(compileForEveryPlugin(spec)).toEqual(expected);
+  });
+});
