@@ -32,6 +32,11 @@ const DIALECTS: SqlDialect[] = [
   "other",
 ];
 
+// APP-16506: the refusal of a system catalog table.
+function CATALOG_MESSAGE(table: string): string {
+  return `${JSON.stringify(table)} is in a system catalog, which the MCP does not query (a best-effort guard; the datasource's credentials decide what can be read). To see a datasource's tables and columns, call get_datasource_structure`;
+}
+
 function outcome(run: () => string): Outcome {
   try {
     return run();
@@ -2095,9 +2100,105 @@ const GOLDEN_CASES = [
         'DELETE FROM comments WHERE (comments.status = {{ "spam" }} OR comments.flagged = {{ true }}) AND comments.postId = {{ Table1.selectedRow.id }};',
     },
   },
+  // APP-16506 catalog refusal: a pg_ name is refused on PostgreSQL and Redshift only.
+  {
+    name: "pg_ table",
+    spec: {
+      operation: "SELECT",
+      table: "pg_user",
+    },
+    expected: {
+      none: "SELECT * FROM pg_user;",
+      postgres: {
+        throws: CATALOG_MESSAGE("pg_user"),
+      },
+      redshift: {
+        throws: CATALOG_MESSAGE("pg_user"),
+      },
+      mysql: "SELECT * FROM pg_user;",
+      oracle: "SELECT * FROM pg_user;",
+      other: "SELECT * FROM pg_user;",
+    },
+  },
+  // APP-16506 catalog refusal: Redshift system tables (stl_, stv_, svv_, svl_) on Redshift only.
+  {
+    name: "Redshift stl_ table",
+    spec: {
+      operation: "SELECT",
+      table: "stl_query",
+    },
+    expected: {
+      none: "SELECT * FROM stl_query;",
+      postgres: "SELECT * FROM stl_query;",
+      redshift: {
+        throws: CATALOG_MESSAGE("stl_query"),
+      },
+      mysql: "SELECT * FROM stl_query;",
+      oracle: "SELECT * FROM stl_query;",
+      other: "SELECT * FROM stl_query;",
+    },
+  },
+  // APP-16506 catalog refusal: Oracle's SYSTEM schema, ignoring case, on Oracle only.
+  {
+    name: "Oracle SYSTEM schema",
+    spec: {
+      operation: "SELECT",
+      table: "System.help",
+    },
+    expected: {
+      none: "SELECT * FROM System.help;",
+      postgres: "SELECT * FROM System.help;",
+      redshift: "SELECT * FROM System.help;",
+      mysql: "SELECT * FROM System.help;",
+      oracle: {
+        throws: CATALOG_MESSAGE("System.help"),
+      },
+      other: "SELECT * FROM System.help;",
+    },
+  },
 ];
 
 const GOLDEN_REFUSALS = [
+  // APP-16506 catalog refusal: system schemas, ignoring case, on every database.
+  {
+    name: "information_schema table",
+    spec: {
+      operation: "SELECT",
+      table: "information_schema.tables",
+    },
+    issues: [
+      {
+        path: ["table"],
+        message: CATALOG_MESSAGE("information_schema.tables"),
+      },
+    ],
+  },
+  {
+    name: "upper-case pg_catalog table",
+    spec: {
+      operation: "SELECT",
+      table: "PG_CATALOG.pg_class",
+    },
+    issues: [
+      {
+        path: ["table"],
+        message: CATALOG_MESSAGE("PG_CATALOG.pg_class"),
+      },
+    ],
+  },
+  {
+    name: "sys schema in a three-part name",
+    spec: {
+      operation: "DELETE",
+      table: "master.sys.objects",
+    },
+    issues: [
+      {
+        path: ["table"],
+        message: CATALOG_MESSAGE("master.sys.objects"),
+      },
+    ],
+  },
   {
     name: "table missing",
     spec: {
@@ -2607,6 +2708,15 @@ const GOLDEN_REFUSALS = [
 ];
 
 const GOLDEN_FAIL_CLOSED = [
+  // APP-16506 catalog refusal, for a caller that skipped parsing.
+  {
+    name: "information_schema table in an unparsed spec",
+    spec: {
+      operation: "SELECT",
+      table: "information_schema.columns",
+    },
+    throws: CATALOG_MESSAGE("information_schema.columns"),
+  },
   {
     name: "unsafe orderBy column",
     spec: {

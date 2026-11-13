@@ -7,6 +7,7 @@ import {
   querySpecSchema,
   sqlDialectFor,
   withoutMcpMarker,
+  type QuerySpec,
 } from "./query.js";
 
 function parse(spec: unknown) {
@@ -4424,4 +4425,159 @@ describe("buildActionDto", () => {
     expect(storedSqlBody({ body: "SELECT 1;" })).toBe("SELECT 1;");
     expect(storedSqlBody(undefined)).toBeUndefined();
   });
+});
+
+const DIALECTS = ["postgres", "redshift", "mysql", "oracle", "other"] as const;
+
+const CATALOG_MESSAGE = (table: string) =>
+  `${JSON.stringify(table)} is in a system catalog, which the MCP does not query (a best-effort guard; the datasource's credentials decide what can be read). To see a datasource's tables and columns, call get_datasource_structure`;
+
+describe("APP-16506 A: system catalogs are refused", () => {
+  it.each([
+    "information_schema.tables",
+    "PG_CATALOG.pg_class",
+    "pg_toast.pg_toast_2619",
+    "pg_temp_3.scratch",
+    "mysql.user",
+    "Performance_Schema.threads",
+    "sys.objects",
+    "master.sys.objects",
+  ])("should_refuse_a_system_schema_when_table_is_%s", (table) => {
+    // Given
+    const spec = { ...base, operation: "SELECT", table };
+
+    // When
+    const result = querySpecSchema.safeParse(spec);
+
+    // Then
+    expect(result.success).toBe(false);
+    expect(
+      result.success
+        ? []
+        : result.error.issues.map((issue) => ({
+            path: issue.path,
+            message: issue.message,
+          })),
+    ).toEqual([{ path: ["table"], message: CATALOG_MESSAGE(table) }]);
+  });
+
+  it.each([
+    ["SELECT", {}],
+    ["INSERT", { values: [{ column: "a", value: { literal: 1 } }] }],
+    ["UPDATE", { values: [{ column: "a", value: { literal: 1 } }] }],
+    ["DELETE", {}],
+  ])(
+    "should_throw_on_a_system_schema_when_an_unparsed_%s_reaches_the_compiler",
+    (operation, extra) => {
+      // Given
+      const spec = {
+        ...base,
+        operation,
+        table: "information_schema.columns",
+        ...extra,
+      } as unknown as QuerySpec;
+
+      // When / Then
+      for (const dialect of DIALECTS) {
+        expect(() => compileQuery(spec, { dialect })).toThrow(
+          new Error(CATALOG_MESSAGE("information_schema.columns")),
+        );
+      }
+    },
+  );
+
+  it.each(["pg_user", "public.pg_stats", "PG_SHADOW", "pg_x.t"])(
+    "should_refuse_%s_only_on_postgres_and_redshift",
+    (table) => {
+      // Given
+      const spec = parse({ ...base, operation: "SELECT", table });
+
+      // When / Then
+      for (const dialect of ["postgres", "redshift"] as const) {
+        expect(() => compileQuery(spec, { dialect })).toThrow(
+          new Error(CATALOG_MESSAGE(table)),
+        );
+      }
+
+      for (const dialect of ["mysql", "oracle", "other"] as const) {
+        expect(compileQuery(spec, { dialect })).toBe(`SELECT * FROM ${table};`);
+      }
+    },
+  );
+
+  it.each([
+    "stl_query",
+    "public.stv_sessions",
+    "SVV_TABLE_INFO",
+    "pg_catalog_x.svl_qlog",
+  ])("should_refuse_%s_only_on_redshift_and_postgres_pg_rules", (table) => {
+    // Given
+    const spec = parse({ ...base, operation: "SELECT", table });
+    const refused = table
+      .toLowerCase()
+      .split(".")
+      .some((part) => part.startsWith("pg_"))
+      ? ["postgres", "redshift"]
+      : ["redshift"];
+
+    // When / Then
+    for (const dialect of DIALECTS) {
+      if (refused.includes(dialect)) {
+        expect(() => compileQuery(spec, { dialect })).toThrow(
+          new Error(CATALOG_MESSAGE(table)),
+        );
+      } else {
+        expect(compileQuery(spec, { dialect })).toBe(`SELECT * FROM ${table};`);
+      }
+    }
+  });
+
+  it.each(["SYSTEM.help", "system.users", "Prod.System.t"])(
+    "should_refuse_the_oracle_system_schema_only_on_oracle_when_table_is_%s",
+    (table) => {
+      // Given
+      const spec = parse({ ...base, operation: "SELECT", table });
+
+      // When / Then
+      expect(() => compileQuery(spec, { dialect: "oracle" })).toThrow(
+        new Error(CATALOG_MESSAGE(table)),
+      );
+
+      for (const dialect of [
+        "postgres",
+        "redshift",
+        "mysql",
+        "other",
+      ] as const) {
+        expect(compileQuery(spec, { dialect })).toBe(`SELECT * FROM ${table};`);
+      }
+    },
+  );
+
+  it("should_refuse_a_redshift_system_table_on_a_write_too", () => {
+    // Given
+    const spec = parse({
+      ...base,
+      operation: "DELETE",
+      table: "stl_load_errors",
+    });
+
+    // When / Then
+    expect(() => compileQuery(spec, { dialect: "redshift" })).toThrow(
+      new Error(CATALOG_MESSAGE("stl_load_errors")),
+    );
+  });
+
+  it.each(["public.pgsql_data", "sysadmin.users", "app.mysql_users", "sys"])(
+    "should_accept_%s_because_it_is_not_a_system_catalog",
+    (table) => {
+      // Given
+      const spec = parse({ ...base, operation: "SELECT", table });
+
+      // When / Then
+      for (const dialect of DIALECTS) {
+        expect(compileQuery(spec, { dialect })).toBe(`SELECT * FROM ${table};`);
+      }
+    },
+  );
 });

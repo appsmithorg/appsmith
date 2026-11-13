@@ -2844,6 +2844,37 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     },
   );
 
+  // APP-16506 A: a system catalog table is refused before any write. pg_ names are refused on PostgreSQL only, so this
+  // refusal comes from the compiler, after the datasource is known.
+  it("APP-16506: should_refuse_a_system_catalog_when_create_query_reads_pg_user_on_postgres", async () => {
+    // Given
+    const createAction = jest.fn(async () => ({ id: "act1" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction: createAction as never,
+    };
+
+    // When
+    const refused = await callTool(api, "create_query", {
+      query: { ...validQuery, table: "pg_user" },
+    });
+
+    // Then
+    expect(refused.valid).toBe(false);
+    expect(refused.errors).toEqual([
+      {
+        path: "",
+        message:
+          "\"pg_user\" is in a system catalog, which the MCP does not query (a best-effort guard; the datasource's credentials decide what can be read). To see a datasource's tables and columns, call get_datasource_structure",
+      },
+    ]);
+    expect(createAction).not.toHaveBeenCalled();
+  });
+
   it("create_query refuses a datasource the caller cannot access (IDOR guard)", async () => {
     const createAction = jest.fn();
     const api: AppsmithApi = {

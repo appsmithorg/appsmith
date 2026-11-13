@@ -33,6 +33,78 @@ const qualifiedName = z
     "must be table or schema.table (plain identifiers)",
   );
 
+// System catalogs hold the database's own metadata, such as its users and grants, not application data. The compiler
+// refuses these schemas on every database, ignoring case:
+// - pg_catalog, information_schema, pg_toast and pg_temp*;
+// - mysql and performance_schema;
+// - sys.
+// Some rules need the database, so only the compiler applies them (see refuseSystemCatalog):
+// - PostgreSQL: any name part that starts with pg_ (pg_user, for example). Those catalogs are on the search path, so
+//   they need no schema.
+// - Redshift: the same pg_ rule, and any name part that starts with stl_, stv_, svv_ or svl_ (its system tables and
+//   views).
+// - Oracle: the SYSTEM schema, ignoring case.
+// This is defense in depth, not the trust boundary: the datasource's credentials decide what a query can read. Known
+// gaps:
+// - SQL Server's sysobjects compatibility views, such as sysobjects and syscolumns without a schema;
+// - Oracle's data dictionary views without a schema, such as dba_*, all_* and user_*;
+// - a MySQL connection whose default database is mysql.
+const SYSTEM_SCHEMAS: ReadonlySet<string> = new Set([
+  "pg_catalog",
+  "information_schema",
+  "pg_toast",
+  "mysql",
+  "performance_schema",
+  "sys",
+]);
+
+function isSystemSchema(part: string): boolean {
+  const name = part.toLowerCase();
+
+  return SYSTEM_SCHEMAS.has(name) || name.startsWith("pg_temp");
+}
+
+// True when a schema part of `table` (every part but the last) is a system schema.
+function readsSystemSchema(table: string): boolean {
+  return table.split(".").slice(0, -1).some(isSystemSchema);
+}
+
+function systemCatalogMessage(table: string): string {
+  return `${JSON.stringify(table)} is in a system catalog, which the MCP does not query (a best-effort guard; the datasource's credentials decide what can be read). To see a datasource's tables and columns, call get_datasource_structure`;
+}
+
+// The name-part prefixes of each database's system catalogs (see SYSTEM_SCHEMAS).
+const SYSTEM_PREFIXES: Partial<Record<SqlDialect, readonly string[]>> = {
+  postgres: ["pg_"],
+  redshift: ["pg_", "stl_", "stv_", "svv_", "svl_"],
+};
+
+// Throws when `table` names a system catalog on this database. `dialect` decides which prefix and schema rules apply.
+function refuseSystemCatalog(table: string, dialect: SqlDialect): void {
+  const parts = table.split(".").map((part) => part.toLowerCase());
+  const prefixes = SYSTEM_PREFIXES[dialect] ?? [];
+  const prefixed = parts.some((part) =>
+    prefixes.some((prefix) => part.startsWith(prefix)),
+  );
+  const oracleSystem =
+    dialect === "oracle" && parts.slice(0, -1).includes("system");
+
+  if (prefixed || oracleSystem || readsSystemSchema(table)) {
+    throw new Error(systemCatalogMessage(table));
+  }
+}
+
+// A table name: a qualifiedName that is not in a system schema. The pg_ rule needs the database, so compileQuery checks
+// it (see refuseSystemCatalog).
+const tableNameSchema = qualifiedName.superRefine((table, ctx) => {
+  if (hasPlainIdentifierParts(table) && readsSystemSchema(table)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: systemCatalogMessage(table),
+    });
+  }
+});
+
 // Binding identifier (query/widget name), same rule the widget-binding vocabulary uses.
 const bindingIdentifier = z
   .string()
@@ -707,7 +779,7 @@ export const querySpecSchema = z
     pageId: storedId,
     datasourceId: storedId,
     operation: z.enum(["SELECT", "INSERT", "UPDATE", "DELETE"]),
-    table: qualifiedName,
+    table: tableNameSchema,
     columns: z.array(selectColumnSchema).max(100).optional(),
     filters: z.array(filterEntrySchema).max(20).optional(),
     values: z
@@ -1437,6 +1509,9 @@ function singleTableColumns(
   dialect: SqlDialect,
 ): ColumnResolver {
   const checkedTable = checkedTableName(table);
+
+  refuseSystemCatalog(checkedTable, dialect);
+
   const refuseRowRead = (column: string, usage: string) =>
     refuseTableNamedColumn(column, checkedTable, dialect, usage);
 
