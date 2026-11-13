@@ -39,7 +39,6 @@ class FileTabs {
   closeTab(name: string) {
     const tab = this.locators.tabName(name);
     // Hover with the mouse pointer only. On Chrome 156 a touch tap on the tab closes it.
-    ObjectsRegistry.AggregateHelper.HoverElement(tab, 0, false);
     (ObjectsRegistry.AggregateHelper.GetElement(tab) as any).realHover({
       pointer: "mouse",
     });
