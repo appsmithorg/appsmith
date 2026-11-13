@@ -89,6 +89,16 @@ const StyledFormFooter = styled.div<StyledFooterProps>`
   }
 `;
 
+/**
+ * Submitting is handled by the submit button's onClick. When the form has a
+ * single text field and no submit button (for example, the footer is hidden),
+ * pressing Enter makes the browser submit the form natively, which reloads
+ * the page. Block the native submit so that can't happen.
+ */
+const preventNativeSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+};
+
 const StyledForm = styled.form<StyledFormProps>`
   display: flex;
   flex-direction: column;
@@ -283,6 +293,7 @@ function Form<TValues = any>(
     <FormProvider {...methods}>
       <StyledForm
         fixedFooter={fixedFooter}
+        onSubmit={preventNativeSubmit}
         ref={bodyRef as React.RefObject<HTMLFormElement>}
         scrollContents={scrollContents}
       >
