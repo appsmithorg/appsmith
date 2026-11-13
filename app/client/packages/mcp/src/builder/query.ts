@@ -341,13 +341,14 @@ const splitColumnSchema = z
 // - PostgreSQL folds them to lower case.
 // - MySQL compares these names without case.
 // - Oracle and Snowflake fold them to upper case.
-// A reserved SQL word would not parse as a bare name, so those are refused (see sqlReservedWords.ts).
-const RESULT_NAME = /^[a-z_][a-z0-9_]{0,62}$/;
+// A reserved SQL word would not parse as a bare name, so those are refused (see sqlReservedWords.ts). Oracle needs a
+// bare name to start with a letter, so a leading _ is refused too.
+const RESULT_NAME = /^[a-z][a-z0-9_]{0,62}$/;
 const resultNameSchema = z
   .string()
   .regex(
     RESULT_NAME,
-    "must be a lower-case name: a letter or _, then letters, digits or _, up to 63 characters",
+    "must be a lower-case name: a letter, then letters, digits or _, up to 63 characters",
   )
   .refine(
     (name) => !RESERVED_RESULT_NAMES.has(name),
@@ -774,12 +775,15 @@ export const querySpecSchema = z
 
         spec.having.forEach((condition, index) => {
           // A bucket is refused by its result name and by its source column. HAVING on the source column would test
-          // the stored value, not the bucket.
-          const bucket = buckets.find(
-            (entry) =>
-              entry.as === condition.column ||
-              entry.column === condition.column,
-          );
+          // the stored value, not the bucket. An aggregate's result name comes first, as in emitHaving, so an
+          // aggregate named like a bucket's source column is allowed.
+          const bucket = aggregateNames.includes(condition.column)
+            ? undefined
+            : buckets.find(
+                (entry) =>
+                  entry.as === condition.column ||
+                  entry.column === condition.column,
+              );
 
           if (bucket !== undefined) {
             ctx.addIssue({

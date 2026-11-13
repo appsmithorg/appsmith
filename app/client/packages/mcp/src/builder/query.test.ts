@@ -3148,7 +3148,7 @@ describe("APP-16495 A: aggregates (more than one aggregate)", () => {
     [
       "an upper-case result name",
       { aggregates: [{ fn: "count", as: "Total" }] },
-      "must be a lower-case name: a letter or _, then letters, digits or _, up to 63 characters",
+      "must be a lower-case name: a letter, then letters, digits or _, up to 63 characters",
       ["aggregates", 0, "as"],
     ],
     [
@@ -3869,6 +3869,71 @@ describe("APP-16495: CodeRabbit follow-ups", () => {
       ),
     ).toBe(
       'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" ORDER BY count DESC;',
+    );
+  });
+
+  // Oracle needs a bare name to start with a letter, so a leading _ is refused on every database.
+  it.each([
+    [
+      "an aggregate",
+      { aggregates: [{ fn: "count", as: "_n" }] },
+      ["aggregates", 0, "as"],
+    ],
+    [
+      "a bucket",
+      {
+        groupBy: [{ column: "created_at", bucket: "day", as: "_day" }],
+        aggregates: [{ fn: "count" }],
+      },
+      ["groupBy", 0, "as"],
+    ],
+  ])(
+    "refuses a result name that starts with _ on %s",
+    (_label, extra, path) => {
+      expectIssue(
+        extra,
+        "must be a lower-case name: a letter, then letters, digits or _, up to 63 characters",
+        path,
+      );
+    },
+  );
+
+  it("throws on a result name that starts with _, without parsing", () => {
+    expect(() =>
+      compileQuery(
+        {
+          ...base,
+          operation: "SELECT",
+          table: "t",
+          aggregates: [{ fn: "count", as: "_n" }],
+        } as never,
+        { dialect: "oracle" },
+      ),
+    ).toThrow(/^invalid result name: "_n"$/);
+  });
+
+  // HAVING resolves an aggregate's result name first, so an aggregate named like a bucket's source column is allowed.
+  it("allows having on an aggregate named like a bucket's source column", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: [{ column: "created_at", bucket: "month", as: "month" }],
+          aggregates: [{ fn: "max", column: "created_at", as: "created_at" }],
+          having: [
+            {
+              column: "created_at",
+              op: "gt",
+              value: { literal: "2026-01-01" },
+            },
+          ],
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toBe(
+      'SELECT DATE_TRUNC(\'month\', "created_at") AS month, MAX("created_at") AS created_at FROM tickets GROUP BY DATE_TRUNC(\'month\', "created_at") HAVING MAX("created_at") > {{ "2026-01-01" }};',
     );
   });
 
