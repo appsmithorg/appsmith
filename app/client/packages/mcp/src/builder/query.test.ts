@@ -2260,7 +2260,7 @@ describe("APP-16324 F1.5: having on aggregated selects", () => {
     );
 
     expect(body).toBe(
-      'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" HAVING COUNT(*) > {{ 5 }} ORDER BY "count" DESC;',
+      'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" HAVING COUNT(*) > {{ 5 }} ORDER BY count DESC;',
     );
   });
 
@@ -2589,7 +2589,7 @@ describe("APP-16324 F1.6: split a delimited column (PostgreSQL)", () => {
     );
 
     expect(body).toBe(
-      'SELECT TRIM(mcp_split.mcp_split_value) AS "feature_tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("feature_tags", {{ "," }})) AS mcp_split(mcp_split_value) GROUP BY TRIM(mcp_split.mcp_split_value) HAVING TRIM(mcp_split.mcp_split_value) != {{ "N/A" }} ORDER BY "count" DESC;',
+      'SELECT TRIM(mcp_split.mcp_split_value) AS "feature_tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("feature_tags", {{ "," }})) AS mcp_split(mcp_split_value) GROUP BY TRIM(mcp_split.mcp_split_value) HAVING TRIM(mcp_split.mcp_split_value) != {{ "N/A" }} ORDER BY count DESC;',
     );
   });
 
@@ -2892,6 +2892,1068 @@ describe("APP-16324 F1.6: split a delimited column (PostgreSQL)", () => {
     });
 
     expect(result.success).toBe(false);
+  });
+});
+
+// Checks that a spec is refused with this exact message at this exact path. `.strict()` refuses an unknown key, so
+// `success === false` alone would also pass before a field exists.
+function expectIssue(
+  spec: Record<string, unknown>,
+  message: string,
+  path: (string | number)[],
+) {
+  const result = querySpecSchema.safeParse({
+    ...base,
+    operation: "SELECT",
+    table: "tickets",
+    ...spec,
+  });
+
+  expect(result.success).toBe(false);
+  expect(result.error?.issues).toContainEqual(
+    expect.objectContaining({ message, path }),
+  );
+}
+
+const dupName = (name: string) =>
+  `the result name "${name}" is used more than once (names ignore case); give each aggregate and group key its own name`;
+
+describe("APP-16495 A: aggregates (more than one aggregate)", () => {
+  // Oracle "weekly resolution time": a week bucket plus 3 columns, the rounded mean of the absolute time, and a count.
+  it("compiles the Oracle weekly shape on PostgreSQL", () => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "public.oracle_support_ticket",
+        filters: [
+          {
+            column: "created_at",
+            op: "gte",
+            value: { widget: "StartDate", property: "selectedDate" },
+          },
+        ],
+        groupBy: [
+          { column: "created_at", bucket: "week", as: "week" },
+          "status",
+          "severity",
+          "support_level",
+        ],
+        aggregates: [
+          { fn: "avg", column: "resolution_time", abs: true, round: "floor" },
+          { fn: "count" },
+        ],
+        orderBy: [{ column: "week", direction: "ASC" }],
+      }),
+      { dialect: "postgres" },
+    );
+
+    expect(body).toBe(
+      'SELECT DATE_TRUNC(\'week\', "created_at") AS week, "status", "severity", "support_level", FLOOR(AVG(ABS("resolution_time"))) AS avg, COUNT(*) AS count FROM public.oracle_support_ticket WHERE "created_at" >= {{ StartDate.selectedDate }} GROUP BY DATE_TRUNC(\'week\', "created_at"), "status", "severity", "support_level" ORDER BY week ASC;',
+    );
+  });
+
+  it.each([
+    [
+      "mysql" as const,
+      "SELECT status, FLOOR(AVG(ABS(resolution_time))) AS avg, COUNT(*) AS tickets FROM tickets GROUP BY status ORDER BY tickets DESC LIMIT 10;",
+    ],
+    [
+      "oracle" as const,
+      "SELECT status, FLOOR(AVG(ABS(resolution_time))) AS avg, COUNT(*) AS tickets FROM tickets GROUP BY status ORDER BY tickets DESC FETCH FIRST 10 ROWS ONLY;",
+    ],
+  ])("emits result names bare and orders by one on %s", (dialect, expected) => {
+    const body = compileQuery(
+      parse({
+        ...base,
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["status"],
+        aggregates: [
+          {
+            fn: "avg",
+            column: "resolution_time",
+            abs: true,
+            round: "floor",
+          },
+          { fn: "count", as: "tickets" },
+        ],
+        orderBy: [{ column: "tickets", direction: "DESC" }],
+        limit: 10,
+      }),
+      { dialect },
+    );
+
+    expect(body).toBe(expected);
+  });
+
+  it.each([
+    [
+      { fn: "sum", column: "amount", round: "ceil" },
+      'CEIL(SUM("amount")) AS sum',
+    ],
+    [
+      { fn: "avg", column: "amount", round: "round", as: "avg_amount" },
+      'ROUND(AVG("amount")) AS avg_amount',
+    ],
+    [{ fn: "min", column: "delta", abs: true }, 'MIN(ABS("delta")) AS min'],
+    [{ fn: "max", column: "delta", abs: true }, 'MAX(ABS("delta")) AS max'],
+    [{ fn: "min", column: "delta" }, 'MIN("delta") AS min'],
+    [{ fn: "count", column: "id" }, 'COUNT("id") AS count'],
+    [{ fn: "sum", column: "amount", abs: false }, 'SUM("amount") AS sum'],
+  ])("compiles %j", (entry, item) => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "orders",
+          aggregates: [entry],
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toBe(`SELECT ${item} FROM orders;`);
+  });
+
+  // The single `aggregate` goes through the same emit path, so the two forms give the same SQL.
+  it.each([
+    [{ fn: "count" }],
+    [{ fn: "count", column: "id" }],
+    [{ fn: "sum", column: "amount" }],
+    [{ fn: "avg", column: "amount" }],
+  ])("gives aggregates [%j] the same SQL as the single aggregate", (entry) => {
+    const spec = {
+      ...base,
+      operation: "SELECT",
+      table: "orders",
+      groupBy: ["region"],
+    };
+
+    expect(compileQuery(parse({ ...spec, aggregates: [entry] }))).toBe(
+      compileQuery(parse({ ...spec, aggregate: entry })),
+    );
+  });
+
+  it("still refuses min and max on the single aggregate", () => {
+    for (const fn of ["min", "max"]) {
+      const result = querySpecSchema.safeParse({
+        ...base,
+        operation: "SELECT",
+        table: "orders",
+        aggregate: { fn, column: "amount" },
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error?.issues[0]?.path).toEqual(["aggregate", "fn"]);
+    }
+  });
+
+  it.each([
+    [
+      "aggregate and aggregates together",
+      { aggregate: { fn: "count" }, aggregates: [{ fn: "count" }] },
+      "use aggregate or aggregates, not both",
+      ["aggregates"],
+    ],
+    [
+      "two avg entries without as",
+      {
+        aggregates: [
+          { fn: "avg", column: "a" },
+          { fn: "avg", column: "b" },
+        ],
+      },
+      dupName("avg"),
+      ["aggregates", 1, "as"],
+    ],
+    [
+      'as: "count" on sum next to a default count',
+      {
+        aggregates: [{ fn: "sum", column: "a", as: "count" }, { fn: "count" }],
+      },
+      dupName("count"),
+      ["aggregates", 1, "as"],
+    ],
+    [
+      "an as equal to a group column in another case",
+      { groupBy: ["Status"], aggregates: [{ fn: "count", as: "status" }] },
+      dupName("status"),
+      ["aggregates", 0, "as"],
+    ],
+    [
+      "0 entries",
+      { aggregates: [] },
+      "Array must contain at least 1 element(s)",
+      ["aggregates"],
+    ],
+    [
+      "7 entries",
+      {
+        aggregates: Array.from({ length: 7 }, (_, index) => ({
+          fn: "count",
+          as: `c${index}`,
+        })),
+      },
+      "Array must contain at most 6 element(s)",
+      ["aggregates"],
+    ],
+    [
+      "abs on count",
+      { aggregates: [{ fn: "count", column: "id", abs: true }] },
+      "abs is not valid with count",
+      ["aggregates", 0, "abs"],
+    ],
+    [
+      "round on count",
+      { aggregates: [{ fn: "count", round: "floor" }] },
+      "round is only valid with sum or avg",
+      ["aggregates", 0, "round"],
+    ],
+    [
+      "round on min",
+      { aggregates: [{ fn: "min", column: "a", round: "floor" }] },
+      "round is only valid with sum or avg",
+      ["aggregates", 0, "round"],
+    ],
+    [
+      "round on max",
+      { aggregates: [{ fn: "max", column: "a", round: "ceil" }] },
+      "round is only valid with sum or avg",
+      ["aggregates", 0, "round"],
+    ],
+    [
+      "sum without a column",
+      { aggregates: [{ fn: "sum" }] },
+      "sum needs a column",
+      ["aggregates", 0, "column"],
+    ],
+    [
+      "the reserved word order as a result name",
+      { aggregates: [{ fn: "count", as: "order" }] },
+      '"order" is a reserved SQL word; pick another name',
+      ["aggregates", 0, "as"],
+    ],
+    [
+      "the reserved word user as a result name",
+      { aggregates: [{ fn: "count", as: "user" }] },
+      '"user" is a reserved SQL word; pick another name',
+      ["aggregates", 0, "as"],
+    ],
+    [
+      "the reserved word null as a result name",
+      { aggregates: [{ fn: "count", as: "null" }] },
+      '"null" is a reserved SQL word; pick another name',
+      ["aggregates", 0, "as"],
+    ],
+    [
+      "an upper-case result name",
+      { aggregates: [{ fn: "count", as: "Total" }] },
+      "must be a lower-case name: a letter, then letters, digits or _, up to 63 characters",
+      ["aggregates", 0, "as"],
+    ],
+    [
+      "the split source name as a result name",
+      { aggregates: [{ fn: "count", as: "mcp_split" }] },
+      '"mcp_split" is reserved for the split source; pick another name',
+      ["aggregates", 0, "as"],
+    ],
+    [
+      "the split item name as a result name",
+      { aggregates: [{ fn: "count", as: "mcp_split_value" }] },
+      '"mcp_split_value" is reserved for the split source; pick another name',
+      ["aggregates", 0, "as"],
+    ],
+    [
+      "an aggregate column on the reserved split item name",
+      {
+        groupBy: [{ column: "tags", split: "," }],
+        aggregates: [{ fn: "sum", column: "mcp_split_value" }],
+      },
+      "with split, a column cannot be named mcp_split_value (that name is reserved for the split source)",
+      ["aggregates", 0, "column"],
+    ],
+    [
+      "an orderBy column that is not a result name",
+      {
+        groupBy: ["status"],
+        aggregates: [{ fn: "count" }],
+        orderBy: [{ column: "created_at", direction: "ASC" }],
+      },
+      'with aggregates or a bucket, orderBy can only name a result column ("status", "count")',
+      ["orderBy", 0, "column"],
+    ],
+  ])("refuses %s, at its own path", (_label, override, message, path) => {
+    expectIssue(override, message, path);
+  });
+
+  it("refuses an aggregate column named like its table on PostgreSQL", () => {
+    expect(() =>
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          aggregates: [{ fn: "count", column: "tickets" }],
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toThrow(/an aggregate cannot use a column named like its table/);
+  });
+
+  describe("having", () => {
+    it("repeats the full aggregate expression", () => {
+      expect(
+        compileQuery(
+          parse({
+            ...base,
+            operation: "SELECT",
+            table: "tickets",
+            groupBy: ["tag"],
+            aggregates: [{ fn: "avg", column: "x", abs: true, round: "floor" }],
+            having: [{ column: "avg", op: "gt", value: { literal: 5 } }],
+          }),
+        ),
+      ).toBe(
+        'SELECT "tag", FLOOR(AVG(ABS("x"))) AS avg FROM tickets GROUP BY "tag" HAVING FLOOR(AVG(ABS("x"))) > {{ 5 }};',
+      );
+    });
+
+    it("picks the entry whose result name matches", () => {
+      expect(
+        compileQuery(
+          parse({
+            ...base,
+            operation: "SELECT",
+            table: "orders",
+            groupBy: ["region"],
+            aggregates: [
+              { fn: "sum", column: "amount" },
+              { fn: "count", as: "n" },
+            ],
+            having: [{ column: "n", op: "gte", value: { literal: 2 } }],
+          }),
+        ),
+      ).toBe(
+        'SELECT "region", SUM("amount") AS sum, COUNT(*) AS n FROM orders GROUP BY "region" HAVING COUNT(*) >= {{ 2 }};',
+      );
+    });
+
+    it.each([
+      [
+        "a name that is neither a result nor a group column",
+        {
+          groupBy: ["region"],
+          aggregates: [
+            { fn: "sum", column: "amount" },
+            { fn: "count", as: "n" },
+          ],
+          having: [{ column: "count", op: "gt", value: { literal: 1 } }],
+        },
+        'having can only test "sum", "n" or a groupBy column',
+      ],
+      [
+        "a bucket's result name",
+        {
+          groupBy: [{ column: "created_at", bucket: "week", as: "week" }],
+          aggregates: [{ fn: "count" }],
+          having: [{ column: "week", op: "gt", value: { literal: "x" } }],
+        },
+        "having cannot test a bucket or its column (created_at); filter created_at in filters instead",
+      ],
+      [
+        "a bucket's source column",
+        {
+          groupBy: [{ column: "created_at", bucket: "week", as: "week" }],
+          aggregate: { fn: "count" },
+          having: [{ column: "created_at", op: "gt", value: { literal: "x" } }],
+        },
+        "having cannot test a bucket or its column (created_at); filter created_at in filters instead",
+      ],
+    ])("refuses %s", (_label, override, message) => {
+      expectIssue(override, message, ["having", 0, "column"]);
+    });
+  });
+});
+
+describe("APP-16495 B: date bucket group key", () => {
+  const weekly = {
+    ...base,
+    operation: "SELECT",
+    table: "tickets",
+    groupBy: [{ column: "created_at", bucket: "week", as: "week" }],
+    aggregates: [{ fn: "count" }],
+  };
+
+  it.each(["day", "week", "month", "quarter", "year"])(
+    "emits DATE_TRUNC with the %s unit as fixed text",
+    (bucket) => {
+      expect(
+        compileQuery(
+          parse({
+            ...weekly,
+            groupBy: [{ column: "created_at", bucket, as: "period" }],
+          }),
+          { dialect: "postgres" },
+        ),
+      ).toBe(
+        `SELECT DATE_TRUNC('${bucket}', "created_at") AS period, COUNT(*) AS count FROM tickets GROUP BY DATE_TRUNC('${bucket}', "created_at");`,
+      );
+    },
+  );
+
+  it("compiles on Redshift the same way", () => {
+    expect(compileQuery(parse(weekly), { dialect: "redshift" })).toBe(
+      "SELECT DATE_TRUNC('week', \"created_at\") AS week, COUNT(*) AS count FROM tickets GROUP BY DATE_TRUNC('week', \"created_at\");",
+    );
+  });
+
+  it("works with the single aggregate", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: [{ column: "created_at", bucket: "day", as: "day" }],
+          aggregate: { fn: "count" },
+          orderBy: [{ column: "day", direction: "DESC" }],
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toBe(
+      "SELECT DATE_TRUNC('day', \"created_at\") AS day, COUNT(*) AS count FROM tickets GROUP BY DATE_TRUNC('day', \"created_at\") ORDER BY day DESC;",
+    );
+  });
+
+  it.each([undefined, "mysql" as const, "oracle" as const, "other" as const])(
+    "refuses a bucket unless the datasource is PostgreSQL or Redshift (dialect %s)",
+    (dialect) => {
+      expect(() => compileQuery(parse(weekly), { dialect })).toThrow(
+        /^bucket \(on created_at\) is only available on a PostgreSQL or Redshift datasource/,
+      );
+    },
+  );
+
+  it("refuses a bucket column named like its table on PostgreSQL", () => {
+    expect(() =>
+      compileQuery(
+        parse({
+          ...weekly,
+          groupBy: [{ column: "tickets", bucket: "week", as: "week" }],
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toThrow(/groupBy and having cannot use a column named like its table/);
+  });
+
+  const withSplit = {
+    ...base,
+    operation: "SELECT",
+    table: "tickets",
+    groupBy: [
+      { column: "created_at", bucket: "month", as: "month" },
+      { column: "tags", split: "," },
+    ],
+    aggregates: [{ fn: "count" }],
+  };
+
+  it("combines a bucket with a split on PostgreSQL", () => {
+    expect(compileQuery(parse(withSplit), { dialect: "postgres" })).toBe(
+      'SELECT DATE_TRUNC(\'month\', "created_at") AS month, TRIM(mcp_split.mcp_split_value) AS "tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("tags", {{ "," }})) AS mcp_split(mcp_split_value) GROUP BY DATE_TRUNC(\'month\', "created_at"), TRIM(mcp_split.mcp_split_value);',
+    );
+  });
+
+  it("still refuses the split on Redshift when a bucket is present", () => {
+    expect(() =>
+      compileQuery(parse(withSplit), { dialect: "redshift" }),
+    ).toThrow(/split \(on tags\) is only available on a PostgreSQL datasource/);
+  });
+
+  it.each([
+    [
+      "a bucket without an aggregate",
+      { groupBy: [{ column: "created_at", bucket: "week", as: "week" }] },
+      "bucket on a groupBy column needs an aggregate",
+      ["groupBy", 0, "bucket"],
+    ],
+    [
+      "a bucket in columns",
+      { columns: [{ column: "created_at", bucket: "week", as: "week" }] },
+      "bucket is only valid in groupBy",
+      ["columns", 0, "bucket"],
+    ],
+    [
+      "a bucket without as",
+      {
+        groupBy: [{ column: "created_at", bucket: "week" }],
+        aggregates: [{ fn: "count" }],
+      },
+      'bucket needs as, the name of its result column (such as "week")',
+      ["groupBy", 0, "as"],
+    ],
+    [
+      "a reserved bucket result name",
+      {
+        groupBy: [{ column: "created_at", bucket: "week", as: "date" }],
+        aggregates: [{ fn: "count" }],
+      },
+      '"date" is a reserved SQL word; pick another name',
+      ["groupBy", 0, "as"],
+    ],
+    [
+      "a bucket result name equal to a group column",
+      {
+        groupBy: ["week", { column: "created_at", bucket: "week", as: "week" }],
+        aggregate: { fn: "count" },
+      },
+      dupName("week"),
+      ["groupBy", 1, "as"],
+    ],
+    [
+      "a bucket result name equal to the single aggregate's",
+      {
+        groupBy: [{ column: "created_at", bucket: "week", as: "count" }],
+        aggregate: { fn: "count" },
+      },
+      dupName("count"),
+      ["aggregate"],
+    ],
+    [
+      "an orderBy on the bucket's source column",
+      {
+        groupBy: [{ column: "created_at", bucket: "week", as: "week" }],
+        aggregates: [{ fn: "count" }],
+        orderBy: [{ column: "created_at", direction: "ASC" }],
+      },
+      'with aggregates or a bucket, orderBy can only name a result column ("week", "count")',
+      ["orderBy", 0, "column"],
+    ],
+  ])("refuses %s, at its own path", (_label, override, message, path) => {
+    expectIssue(override, message, path);
+  });
+});
+
+describe("APP-16495 C: distinct", () => {
+  it("compiles SELECT DISTINCT with an ORDER BY on a selected column", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "customers",
+          distinct: true,
+          columns: ["domain", "id"],
+          orderBy: [{ column: "id", direction: "ASC" }],
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toBe('SELECT DISTINCT domain, id FROM customers ORDER BY "id" ASC;');
+  });
+
+  it("allows a coalesce column, which keeps its name", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          distinct: true,
+          columns: [{ column: "owner", coalesce: { literal: "none" } }, "id"],
+          orderBy: [{ column: "owner", direction: "ASC" }],
+        }),
+      ),
+    ).toBe(
+      'SELECT DISTINCT COALESCE(owner, {{ "none" }}) AS owner, id FROM tickets ORDER BY "owner" ASC;',
+    );
+  });
+
+  it("accepts distinct: false with no columns as a no-op", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          distinct: false,
+        }),
+      ),
+    ).toBe("SELECT * FROM tickets;");
+  });
+
+  it.each([
+    [
+      "no columns",
+      { distinct: true },
+      "distinct needs a non-empty columns list",
+    ],
+    [
+      "an empty columns list",
+      { distinct: true, columns: [] },
+      "distinct needs a non-empty columns list",
+    ],
+    [
+      "an aggregate",
+      { distinct: true, columns: ["a"], aggregate: { fn: "count" } },
+      "distinct cannot be used with aggregate",
+    ],
+    [
+      "aggregates",
+      { distinct: true, columns: ["a"], aggregates: [{ fn: "count" }] },
+      "distinct cannot be used with aggregates",
+    ],
+    [
+      "groupBy",
+      { distinct: true, columns: ["a"], groupBy: ["a"] },
+      "distinct cannot be used with groupBy",
+    ],
+  ])("refuses distinct with %s", (_label, override, message) => {
+    expectIssue(override, message, ["distinct"]);
+  });
+
+  it("refuses an orderBy column that is not in columns", () => {
+    expectIssue(
+      {
+        distinct: true,
+        columns: ["domain"],
+        orderBy: [{ column: "id", direction: "ASC" }],
+      },
+      "with distinct, orderBy can only name a column in columns",
+      ["orderBy", 0, "column"],
+    );
+  });
+});
+
+describe("APP-16495: write guard and fail-closed compiler", () => {
+  const writes: [string, Record<string, unknown>][] = [
+    ["INSERT", { values: [{ column: "a", value: { literal: 1 } }] }],
+    [
+      "UPDATE",
+      {
+        values: [{ column: "a", value: { literal: 1 } }],
+        filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+      },
+    ],
+    [
+      "DELETE",
+      { filters: [{ column: "id", op: "eq", value: { literal: 1 } }] },
+    ],
+  ];
+
+  it.each(writes)(
+    "refuses aggregates and distinct on %s",
+    (operation, extra) => {
+      for (const [field, value] of [
+        ["aggregates", [{ fn: "count" }]],
+        ["distinct", true],
+      ] as const) {
+        const result = querySpecSchema.safeParse({
+          ...base,
+          operation,
+          table: "tickets",
+          ...extra,
+          [field]: value,
+        });
+
+        expect(result.success).toBe(false);
+        expect(result.error?.issues).toContainEqual(
+          expect.objectContaining({
+            message: `${field} is only valid on a SELECT query`,
+            path: [field],
+          }),
+        );
+      }
+    },
+  );
+
+  // A caller that skips parsing must not get SQL text from an unknown key or a bad result name.
+  it.each([
+    [
+      "an unknown fn",
+      { aggregates: [{ fn: "median", column: "x" }] },
+      /^unknown aggregate fn "median"$/,
+    ],
+    [
+      "an inherited fn name",
+      { aggregates: [{ fn: "constructor", column: "x" }] },
+      /^unknown aggregate fn "constructor"$/,
+    ],
+    [
+      "an unknown round",
+      { aggregates: [{ fn: "avg", column: "x", round: "trunc" }] },
+      /^unknown round "trunc"$/,
+    ],
+    [
+      "an unknown bucket",
+      {
+        groupBy: [{ column: "d", bucket: "decade", as: "d10" }],
+        aggregates: [{ fn: "count" }],
+      },
+      /^unknown bucket "decade"$/,
+    ],
+    [
+      "a result name with SQL in it",
+      { aggregates: [{ fn: "count", as: "c FROM t; DROP TABLE t; --" }] },
+      /^invalid result name/,
+    ],
+    [
+      "a bucket with no result name",
+      {
+        groupBy: [{ column: "d", bucket: "week" }],
+        aggregates: [{ fn: "count" }],
+      },
+      /^invalid result name/,
+    ],
+    [
+      "abs on count",
+      { aggregates: [{ fn: "count", abs: true }] },
+      /^abs is not valid with count$/,
+    ],
+    [
+      "round on min",
+      { aggregates: [{ fn: "min", column: "x", round: "floor" }] },
+      /^round is only valid with sum or avg$/,
+    ],
+    [
+      "aggregate and aggregates together",
+      { aggregate: { fn: "count" }, aggregates: [{ fn: "count" }] },
+      /^use aggregate or aggregates, not both$/,
+    ],
+    [
+      "distinct with an aggregate",
+      { distinct: true, columns: ["a"], aggregates: [{ fn: "count" }] },
+      /^distinct cannot be used with aggregate, aggregates or groupBy$/,
+    ],
+    [
+      "distinct without columns",
+      { distinct: true },
+      /^distinct needs a non-empty columns list$/,
+    ],
+  ])("throws in the compiler on %s", (_label, extra, error) => {
+    expect(() =>
+      compileQuery(
+        {
+          ...base,
+          operation: "SELECT",
+          table: "t",
+          ...extra,
+        } as never,
+        { dialect: "postgres" },
+      ),
+    ).toThrow(error);
+  });
+});
+
+describe("APP-16495: council follow-ups", () => {
+  // Bare MySQL and Oracle reserved words. As a bare alias, each would fail to parse at run time there.
+  it.each(["key", "rank", "rowid", "level", "number", "size", "comment"])(
+    "refuses the MySQL or Oracle reserved word %s as a result name",
+    (name) => {
+      expectIssue(
+        { aggregates: [{ fn: "count", as: name }] },
+        `"${name}" is a reserved SQL word; pick another name`,
+        ["aggregates", 0, "as"],
+      );
+    },
+  );
+
+  it("refuses an Oracle reserved word as a bucket result name", () => {
+    expectIssue(
+      {
+        groupBy: [{ column: "created_at", bucket: "day", as: "sysdate" }],
+        aggregates: [{ fn: "count" }],
+      },
+      '"sysdate" is a reserved SQL word; pick another name',
+      ["groupBy", 0, "as"],
+    );
+  });
+
+  // SQL Server spells these CEILING and ROUND(x, n). "other" covers it, so ceil and round are refused there.
+  it.each([
+    ["ceil", undefined],
+    ["ceil", "other" as const],
+    ["round", undefined],
+    ["round", "other" as const],
+  ])("refuses round %s on dialect %s", (round, dialect) => {
+    expect(() =>
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "orders",
+          aggregates: [{ fn: "avg", column: "amount", round }],
+        }),
+        { dialect },
+      ),
+    ).toThrow(
+      new RegExp(
+        `^round "${round}" \\(on amount\\) is only available on a PostgreSQL, Redshift, MySQL or Oracle datasource`,
+      ),
+    );
+  });
+
+  it.each([
+    ["postgres" as const, "ceil", 'CEIL(AVG("amount"))'],
+    ["redshift" as const, "round", 'ROUND(AVG("amount"))'],
+    ["mysql" as const, "ceil", "CEIL(AVG(amount))"],
+    ["oracle" as const, "round", "ROUND(AVG(amount))"],
+    ["other" as const, "floor", 'FLOOR(AVG("amount"))'],
+    [undefined, "floor", 'FLOOR(AVG("amount"))'],
+  ])("allows on dialect %s round %s", (dialect, round, expression) => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "orders",
+          aggregates: [{ fn: "avg", column: "amount", round }],
+        }),
+        { dialect },
+      ),
+    ).toBe(`SELECT ${expression} AS avg FROM orders;`);
+  });
+
+  it("refuses a second case-insensitive duplicate: a group column WEEK and a bucket named week", () => {
+    expectIssue(
+      {
+        groupBy: ["WEEK", { column: "created_at", bucket: "week", as: "week" }],
+        aggregates: [{ fn: "count" }],
+      },
+      dupName("week"),
+      ["groupBy", 1, "as"],
+    );
+  });
+
+  // A caller that skips parsing must not get a quoted or bare name with SQL in it, or an operator that is not in the
+  // closed map.
+  it.each([
+    [
+      "an orderBy column",
+      {
+        columns: ["id"],
+        orderBy: [{ column: 'id" DESC; DROP TABLE t; --', direction: "ASC" }],
+      },
+      "postgres" as const,
+    ],
+    [
+      "a group column on MySQL, where names are bare",
+      {
+        groupBy: ["status FROM t; DROP TABLE t; --"],
+        aggregates: [{ fn: "count" }],
+      },
+      "mysql" as const,
+    ],
+    [
+      "an aggregate column on Oracle",
+      { aggregates: [{ fn: "sum", column: "amount) FROM t; --" }] },
+      "oracle" as const,
+    ],
+  ])("throws on an unsafe identifier in %s", (_label, extra, dialect) => {
+    expect(() =>
+      compileQuery(
+        { ...base, operation: "SELECT", table: "t", ...extra } as never,
+        { dialect },
+      ),
+    ).toThrow(/^unsafe identifier: /);
+  });
+
+  it("throws on a having op that is not in the closed map", () => {
+    expect(() =>
+      compileQuery(
+        {
+          ...base,
+          operation: "SELECT",
+          table: "t",
+          aggregates: [{ fn: "count" }],
+          having: [
+            { column: "count", op: "constructor", value: { literal: 1 } },
+          ],
+        } as never,
+        { dialect: "postgres" },
+      ),
+    ).toThrow(/^unknown having op "constructor"$/);
+  });
+});
+
+describe("APP-16495: CodeRabbit follow-ups", () => {
+  // Reserved as a bare name on MySQL, PostgreSQL, SQL Server or Snowflake. SQL Server and Snowflake are "other".
+  it.each([
+    "precision",
+    "database",
+    "returning",
+    "ilike",
+    "top",
+    "percent",
+    "qualify",
+  ])("refuses the reserved word %s as a result name", (name) => {
+    expectIssue(
+      { aggregates: [{ fn: "count", as: name }] },
+      `"${name}" is a reserved SQL word; pick another name`,
+      ["aggregates", 0, "as"],
+    );
+  });
+
+  // Snowflake folds the bare alias n to N, so a quoted "n" in ORDER BY would not find it. A bare reference folds the
+  // same way as the alias on every database.
+  it("orders by an aggregate result name bare on dialect other", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "sales",
+          groupBy: ["region"],
+          aggregates: [{ fn: "count", as: "n" }],
+          orderBy: [{ column: "n", direction: "DESC" }],
+        }),
+        { dialect: "other" },
+      ),
+    ).toBe(
+      'SELECT "region", COUNT(*) AS n FROM sales GROUP BY "region" ORDER BY n DESC;',
+    );
+  });
+
+  it("orders by a bucket and an aggregate bare, and by a group column quoted", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: [
+            { column: "created_at", bucket: "week", as: "week" },
+            "status",
+          ],
+          aggregates: [{ fn: "count" }],
+          orderBy: [
+            { column: "week", direction: "ASC" },
+            { column: "status", direction: "ASC" },
+            { column: "count", direction: "DESC" },
+          ],
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toBe(
+      'SELECT DATE_TRUNC(\'week\', "created_at") AS week, "status", COUNT(*) AS count FROM tickets GROUP BY DATE_TRUNC(\'week\', "created_at"), "status" ORDER BY week ASC, "status" ASC, count DESC;',
+    );
+  });
+
+  // A caller that skips parsing must not get an unsafe result name into ORDER BY through the bare path.
+  it("throws on an unsafe result name that orderBy names, without parsing", () => {
+    expect(() =>
+      compileQuery(
+        {
+          ...base,
+          operation: "SELECT",
+          table: "t",
+          aggregates: [{ fn: "count", as: "x; DROP TABLE t; --" }],
+          orderBy: [{ column: "x; DROP TABLE t; --", direction: "ASC" }],
+        } as never,
+        { dialect: "other" },
+      ),
+    ).toThrow(/^invalid result name: /);
+  });
+
+  // The single aggregate names its result bare too. On Snowflake, a quoted "count" would miss the alias COUNT.
+  it("orders by the single aggregate's result name bare on dialect other", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: ["tag"],
+          aggregate: { fn: "count" },
+          orderBy: [{ column: "count", direction: "DESC" }],
+        }),
+        { dialect: "other" },
+      ),
+    ).toBe(
+      'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" ORDER BY count DESC;',
+    );
+  });
+
+  // Oracle needs a bare name to start with a letter, so a leading _ is refused on every database.
+  it.each([
+    [
+      "an aggregate",
+      { aggregates: [{ fn: "count", as: "_n" }] },
+      ["aggregates", 0, "as"],
+    ],
+    [
+      "a bucket",
+      {
+        groupBy: [{ column: "created_at", bucket: "day", as: "_day" }],
+        aggregates: [{ fn: "count" }],
+      },
+      ["groupBy", 0, "as"],
+    ],
+  ])(
+    "refuses a result name that starts with _ on %s",
+    (_label, extra, path) => {
+      expectIssue(
+        extra,
+        "must be a lower-case name: a letter, then letters, digits or _, up to 63 characters",
+        path,
+      );
+    },
+  );
+
+  it("throws on a result name that starts with _, without parsing", () => {
+    expect(() =>
+      compileQuery(
+        {
+          ...base,
+          operation: "SELECT",
+          table: "t",
+          aggregates: [{ fn: "count", as: "_n" }],
+        } as never,
+        { dialect: "oracle" },
+      ),
+    ).toThrow(/^invalid result name: "_n"$/);
+  });
+
+  // HAVING resolves an aggregate's result name first, so an aggregate named like a bucket's source column is allowed.
+  it("allows having on an aggregate named like a bucket's source column", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: [{ column: "created_at", bucket: "month", as: "month" }],
+          aggregates: [{ fn: "max", column: "created_at", as: "created_at" }],
+          having: [
+            {
+              column: "created_at",
+              op: "gt",
+              value: { literal: "2026-01-01" },
+            },
+          ],
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toBe(
+      'SELECT DATE_TRUNC(\'month\', "created_at") AS month, MAX("created_at") AS created_at FROM tickets GROUP BY DATE_TRUNC(\'month\', "created_at") HAVING MAX("created_at") > {{ "2026-01-01" }};',
+    );
+  });
+
+  // An orderBy name that is not the aggregate's result stays quoted.
+  it("keeps a group column quoted when the single aggregate is present", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: ["tag"],
+          aggregate: { fn: "sum", column: "amount" },
+          orderBy: [{ column: "tag", direction: "ASC" }],
+        }),
+        { dialect: "other" },
+      ),
+    ).toBe(
+      'SELECT "tag", SUM("amount") AS sum FROM tickets GROUP BY "tag" ORDER BY "tag" ASC;',
+    );
   });
 });
 
