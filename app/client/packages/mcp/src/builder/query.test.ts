@@ -3957,6 +3957,340 @@ describe("APP-16495: CodeRabbit follow-ups", () => {
   });
 });
 
+// A caller that skips parsing must not get a bad table name into the SQL. Before this check, a missing table compiled
+// to `FROM undefined`, and `t; DROP TABLE u` was written as is.
+describe("APP-16506: the compiler checks the table name again", () => {
+  const operations: [string, Record<string, unknown>][] = [
+    ["SELECT", {}],
+    ["INSERT", { values: [{ column: "a", value: { literal: 1 } }] }],
+    ["UPDATE", { values: [{ column: "a", value: { literal: 1 } }] }],
+    ["DELETE", {}],
+  ];
+  const badTables: [string, unknown][] = [
+    ["a missing table", undefined],
+    ["an empty table", ""],
+    ["a non-string table", 42],
+    ["a statement after the table", "t; DROP TABLE u"],
+    ["an empty name part", "public..t"],
+    ["a name that is too long", `s.${"t".repeat(256)}`],
+  ];
+
+  describe.each(operations)("%s", (operation, extra) => {
+    it.each(badTables)("refuses %s", (_, table) => {
+      const spec = {
+        ...base,
+        operation,
+        table,
+        ...extra,
+      } as unknown as Parameters<typeof compileQuery>[0];
+
+      for (const dialect of [undefined, "postgres", "mysql"] as const) {
+        expect(() =>
+          compileQuery(spec, dialect === undefined ? undefined : { dialect }),
+        ).toThrow(new Error(`unsafe table name: ${JSON.stringify(table)}`));
+      }
+    });
+
+    it("still compiles a schema-qualified table", () => {
+      const body = compileQuery(
+        parse({ ...base, operation, table: "public.tickets", ...extra }),
+        { dialect: "postgres" },
+      );
+
+      expect(body).toContain("public.tickets");
+    });
+  });
+});
+
+// A caller that skips parsing must not get other text into the SQL through a column name or a literal. Before these
+// checks, each case below compiled with the text written as is.
+describe("APP-16506: names are re-checked when written", () => {
+  const unsafe = "x OR 1=1 OR y";
+  const compileUnparsed = (
+    spec: Record<string, unknown>,
+    dialect: "postgres" | "redshift" | "mysql" | "oracle" | "other",
+  ) =>
+    compileQuery(
+      { ...base, table: "t", ...spec } as unknown as Parameters<
+        typeof compileQuery
+      >[0],
+      { dialect },
+    );
+  const columnError = new Error(
+    `unsafe column name: ${JSON.stringify(unsafe)}`,
+  );
+
+  it.each(["postgres", "redshift", "mysql", "oracle", "other"] as const)(
+    "refuses an unsafe filter column on %s",
+    (dialect) => {
+      expect(() =>
+        compileUnparsed(
+          {
+            operation: "DELETE",
+            filters: [{ column: unsafe, op: "eq", value: { literal: 1 } }],
+          },
+          dialect,
+        ),
+      ).toThrow(columnError);
+    },
+  );
+
+  it("refuses an unsafe column in the plain select list", () => {
+    expect(() =>
+      compileUnparsed(
+        { operation: "SELECT", columns: ["a FROM secrets --"] },
+        "postgres",
+      ),
+    ).toThrow(
+      new Error(`unsafe column name: ${JSON.stringify("a FROM secrets --")}`),
+    );
+  });
+
+  it("refuses an unsafe coalesce column in the plain select list", () => {
+    expect(() =>
+      compileUnparsed(
+        {
+          operation: "SELECT",
+          columns: [{ column: unsafe, coalesce: { literal: 0 } }],
+        },
+        "mysql",
+      ),
+    ).toThrow(columnError);
+  });
+
+  it("refuses an unsafe split column", () => {
+    expect(() =>
+      compileUnparsed(
+        {
+          operation: "SELECT",
+          groupBy: [{ column: 'a") ,1) x; --', split: "," }],
+        },
+        "postgres",
+      ),
+    ).toThrow(
+      new Error(`unsafe column name: ${JSON.stringify('a") ,1) x; --')}`),
+    );
+  });
+
+  it.each([
+    ["INSERT", "a) VALUES (1); DROP TABLE t; --"],
+    ["UPDATE", "a = 1, b"],
+  ])("refuses an unsafe %s column", (operation, column) => {
+    expect(() =>
+      compileUnparsed(
+        { operation, values: [{ column, value: { literal: 1 } }] },
+        "postgres",
+      ),
+    ).toThrow(new Error(`unsafe column name: ${JSON.stringify(column)}`));
+  });
+
+  it.each([
+    [
+      "a filter value",
+      { filters: [{ column: "a", op: "eq", value: { literal: "{{ x }}" } }] },
+    ],
+    [
+      "a like value",
+      {
+        filters: [
+          {
+            column: "a",
+            op: "like",
+            value: { literal: "}}" },
+            match: "contains",
+          },
+        ],
+      },
+    ],
+    [
+      "a coalesce fallback",
+      { columns: [{ column: "a", coalesce: { literal: "{{ x" } }] },
+    ],
+  ])("refuses template braces in %s", (_, extra) => {
+    expect(() =>
+      compileUnparsed({ operation: "SELECT", ...extra }, "postgres"),
+    ).toThrow(new Error("unsafe literal value"));
+  });
+
+  it("still compiles a literal with a single brace, escaped", () => {
+    expect(
+      compileUnparsed(
+        {
+          operation: "SELECT",
+          filters: [{ column: "a", op: "eq", value: { literal: "{x}" } }],
+        },
+        "postgres",
+      ),
+    ).toBe('SELECT * FROM t WHERE "a" = {{ "\\u007bx\\u007d" }};');
+  });
+});
+
+// Splits a body into text and `{{ }}` segments the way Appsmith does (getDynamicStringSegments in
+// src/utils/DynamicBindingUtils.ts). It counts single braces and does not skip quoted text.
+function appsmithSegments(text: string): string[] {
+  const start = text.indexOf("{{");
+
+  if (start === -1) return [text];
+
+  const segments = start > 0 ? [text.slice(0, start)] : [];
+  const rest = text.slice(start);
+  let depth = 0;
+
+  for (let i = 0; i < rest.length; i++) {
+    if (rest[i] === "{") depth++;
+
+    if (rest[i] === "}") {
+      depth--;
+
+      if (rest[i - 1] === "}" && depth === 0) {
+        segments.push(rest.slice(0, i + 1));
+
+        const tail = rest.slice(i + 1);
+
+        return tail ? [...segments, ...appsmithSegments(tail)] : segments;
+      }
+    }
+  }
+
+  return [text];
+}
+
+// A caller that skips parsing must not get other text into the SQL through a value, a direction, a limit, an operator
+// or an over-long name. Single braces also arrive through parsed specs.
+describe("APP-16506: emitted tokens are re-checked", () => {
+  const compileUnparsed = (
+    spec: Record<string, unknown>,
+    dialect: "postgres" | "oracle" | "mysql" = "postgres",
+  ) =>
+    compileQuery(
+      { ...base, table: "t", ...spec } as unknown as Parameters<
+        typeof compileQuery
+      >[0],
+      { dialect },
+    );
+
+  it("keeps single braces in literals inside their own binding", () => {
+    // Given a parsed spec with { in one literal and } in another
+    const spec = parse({
+      ...base,
+      operation: "SELECT",
+      table: "t",
+      filters: [
+        { column: "a", op: "eq", value: { literal: "{" } },
+        { column: "b", op: "eq", value: { literal: "}" } },
+      ],
+    });
+
+    // When it compiles
+    const body = compileQuery(spec, { dialect: "mysql" });
+
+    // Then each value is its own binding, and every brace left belongs to a binding
+    expect(body).toBe(
+      'SELECT * FROM t WHERE t.a = {{ "\\u007b" }} AND t.b = {{ "\\u007d" }};',
+    );
+    expect(appsmithSegments(body)).toEqual([
+      "SELECT * FROM t WHERE t.a = ",
+      '{{ "\\u007b" }}',
+      " AND t.b = ",
+      '{{ "\\u007d" }}',
+      ";",
+    ]);
+    expect(
+      appsmithSegments(body)
+        .filter((segment) => !segment.startsWith("{{"))
+        .join(""),
+    ).not.toMatch(/[{}]/);
+  });
+
+  it.each([
+    ["${", "${x}"],
+    ["a backtick", "`x`"],
+    ["U+2028", "a b"],
+    ["U+2029", "a b"],
+  ])("refuses %s in a string literal", (_, literal) => {
+    expect(() =>
+      compileUnparsed({
+        operation: "SELECT",
+        filters: [{ column: "a", op: "eq", value: { literal } }],
+      }),
+    ).toThrow(new Error("unsafe literal value"));
+  });
+
+  it("refuses an orderBy direction that is not ASC or DESC", () => {
+    expect(() =>
+      compileUnparsed({
+        operation: "SELECT",
+        orderBy: [{ column: "a", direction: "ASC; DROP TABLE t" }],
+      }),
+    ).toThrow(new Error('unknown orderBy direction "ASC; DROP TABLE t"'));
+  });
+
+  it.each([
+    ["postgres", "1; DROP TABLE t"],
+    ["postgres", 0],
+    ["postgres", 1001],
+    ["postgres", 1.5],
+    ["oracle", "1 ROWS ONLY; DROP TABLE t; --"],
+    ["oracle", 1001],
+    ["oracle", -1],
+  ] as const)("refuses a bad limit on %s: %p", (dialect, limit) => {
+    expect(() =>
+      compileUnparsed({ operation: "SELECT", limit }, dialect),
+    ).toThrow(
+      new Error(
+        `limit must be an integer from 1 to 1000: ${JSON.stringify(limit)}`,
+      ),
+    );
+  });
+
+  it.each(["between", "constructor", "toString"])(
+    "refuses the filter op %s",
+    (op) => {
+      expect(() =>
+        compileUnparsed({
+          operation: "DELETE",
+          filters: [{ column: "a", op, value: { literal: 1 } }],
+        }),
+      ).toThrow(new Error(`unknown filter op ${JSON.stringify(op)}`));
+    },
+  );
+
+  it.each([
+    [
+      "an orderBy column",
+      { orderBy: [{ column: "a".repeat(129), direction: "ASC" }] },
+    ],
+    [
+      "a group column",
+      { aggregate: { fn: "count" }, groupBy: ["a".repeat(129)] },
+    ],
+    [
+      "an aggregate column",
+      { aggregate: { fn: "sum", column: "a".repeat(129) } },
+    ],
+  ])("refuses %s longer than 128 characters", (_, extra) => {
+    expect(() =>
+      compileUnparsed({ operation: "SELECT", ...extra }, "mysql"),
+    ).toThrow(
+      new Error(`unsafe identifier: ${JSON.stringify("a".repeat(129))}`),
+    );
+  });
+
+  it("still compiles a 128-character column", () => {
+    const name = "a".repeat(128);
+
+    expect(
+      compileUnparsed(
+        {
+          operation: "SELECT",
+          orderBy: [{ column: name, direction: "ASC" }],
+        },
+        "mysql",
+      ),
+    ).toBe(`SELECT * FROM t ORDER BY ${name} ASC;`);
+  });
+});
+
 describe("APP-16324 F9: marking MCP-authored SQL", () => {
   const body = 'SELECT id FROM tickets WHERE status = {{ "open" }};';
 

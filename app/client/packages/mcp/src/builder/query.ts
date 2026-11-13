@@ -10,19 +10,26 @@ import { RESERVED_RESULT_NAMES } from "./sqlReservedWords.js";
 
 // SQL identifier: a table/column/schema name. No quotes, semicolons, whitespace, comment tokens, or brace/`$`.
 const SQL_IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/;
+const MAX_SQL_IDENTIFIER_LENGTH = 128;
 const sqlIdentifier = z
   .string()
   .min(1)
-  .max(128)
+  .max(MAX_SQL_IDENTIFIER_LENGTH)
   .regex(SQL_IDENTIFIER, "must be a plain SQL identifier");
 
 // A qualified name is `table` or `schema.table` — each part a plain identifier.
+const MAX_QUALIFIED_NAME_LENGTH = 257;
+
+function hasPlainIdentifierParts(value: string): boolean {
+  return value.split(".").every((part) => SQL_IDENTIFIER.test(part));
+}
+
 const qualifiedName = z
   .string()
   .min(1)
-  .max(257)
+  .max(MAX_QUALIFIED_NAME_LENGTH)
   .refine(
-    (value) => value.split(".").every((part) => SQL_IDENTIFIER.test(part)),
+    hasPlainIdentifierParts,
     "must be table or schema.table (plain identifiers)",
   );
 
@@ -652,6 +659,9 @@ function refineResultNames(spec: AggregateShape, ctx: z.RefinementCtx): void {
 
 const DISTINCT_COLUMNS_MESSAGE = "distinct needs a non-empty columns list";
 
+// The most rows a SELECT can ask for.
+const MAX_LIMIT = 1000;
+
 // SELECT DISTINCT needs a column list, and works on plain rows only. PostgreSQL refuses ORDER BY on a column that is not
 // selected when DISTINCT is set, so orderBy can only name a column in `columns`.
 function refineDistinct(spec: AggregateShape, ctx: z.RefinementCtx): void {
@@ -735,7 +745,7 @@ export const querySpecSchema = z
     having: z.array(havingConditionSchema).max(10).optional(),
     // SELECT DISTINCT over `columns`. false is a no-op.
     distinct: z.boolean().optional(),
-    limit: z.number().int().min(1).max(1000).optional(),
+    limit: z.number().int().min(1).max(MAX_LIMIT).optional(),
   })
   .strict()
   // orderBy/aggregate/groupBy shape a SELECT only; compileQuery ignores them on INSERT/UPDATE/DELETE. Reject them
@@ -1101,13 +1111,29 @@ function isFilterGroup(entry: Filter | FilterGroup): entry is FilterGroup {
 
 const MAX_BODY_BYTES = 8 * 1024;
 
-// Emit a value as a `{{ }}` bind parameter. A literal is JSON-encoded (safe: it passed the no-raw-expression gate, so
-// it cannot contain braces); a widget reference is a validated identifier path. Either way the braces are
-// compiler-authored and the inner content cannot break out.
+// Writes each brace in a JSON-encoded literal as a \u escape. Appsmith finds bindings by counting single braces, and
+// it does not skip quoted text. So `{{ "{" }} AND b = {{ "}" }}` would read as one binding, and `AND b =` would drop
+// out of the SQL. The escape gives the same string when the binding is evaluated.
+function escapeBraces(json: string): string {
+  return json.replace(/\{/g, "\\u007b").replace(/\}/g, "\\u007d");
+}
+
+// Emit a value as a `{{ }}` bind parameter. A literal is JSON-encoded, and a widget reference is a validated
+// identifier path. Either way the braces are compiler-authored and the inner content cannot break out.
 function emitBinding(value: ValueRef): string {
+  // literalScalar already refuses template syntax. Check again so that a caller that skipped parsing cannot nest a
+  // binding inside a string literal, which SAFE_BINDING and the brace count both accept.
+  if (
+    "literal" in value &&
+    typeof value.literal === "string" &&
+    RAW_EXPRESSION.test(value.literal)
+  ) {
+    throw new Error("unsafe literal value");
+  }
+
   const binding =
     "literal" in value
-      ? `{{ ${JSON.stringify(value.literal)} }}`
+      ? `{{ ${escapeBraces(JSON.stringify(value.literal))} }}`
       : `{{ ${value.widget}.${value.property} }}`;
 
   // Fail-closed at the point of construction, where this is unambiguously a single binding (a body-level scan can be
@@ -1235,30 +1261,6 @@ function refuseTableNamedColumn(
   }
 }
 
-// The column a filter tests, never bare (see emitCondition). On PostgreSQL and Redshift a column named like its table
-// can read as the whole row, and every filter refuses it:
-// - a null test or inList's CAST to text can match rows;
-// - the plugin binds text values untyped, so `"users" = $1` or `"users" < $1` compares the row with a row literal the
-//   value spells out.
-function filterColumn(
-  filter: Filter,
-  table: string,
-  dialect: SqlDialect,
-): string {
-  if (dialect !== "postgres" && dialect !== "redshift") {
-    return `${table}.${filter.column}`;
-  }
-
-  refuseTableNamedColumn(
-    filter.column.toLowerCase(),
-    table,
-    dialect,
-    "a filter cannot test",
-  );
-
-  return `"${filter.column.toLowerCase()}"`;
-}
-
 // The isNull or notNull test for a table-qualified column on every database except PostgreSQL.
 function emitQualifiedNullCheck(
   op: NullOperator,
@@ -1274,11 +1276,11 @@ function emitQualifiedNullCheck(
 function emitCondition(
   filter: Filter,
   dialect: SqlDialect,
-  table: string,
+  columns: ColumnResolver,
 ): string {
   // An allow-listed identifier can still be a keyword, such as `null` or `current_user`. A bare `null IS NULL` is true
   // for every row, and so is `current_user = 'app'` when the value is the database user. Either would widen a DELETE
-  // to the whole table. So no filter emits its column bare (filterColumn):
+  // to the whole table. So no filter emits its column bare (ColumnResolver.filterColumn):
   // - PostgreSQL: lower-cased and quoted. Lower-casing gives the same column an unquoted value filter names, because
   //   PostgreSQL folds unquoted names to lower case. Not `table.col`: when no such column exists, PostgreSQL reads
   //   `users.text` as the call `text(users)`, which is never NULL. A missing quoted column is an error, except a
@@ -1287,7 +1289,7 @@ function emitCondition(
   //   function-call reading. A quoted bare name cannot.
   // - Every other database: qualified with its table. After a dot, MySQL always reads a column name. SQL Server,
   //   Oracle and Snowflake read a column or refuse the query.
-  const column = filterColumn(filter, table, dialect);
+  const column = columns.filterColumn(filter.column);
 
   // The null-test SQL comes from NULL_OPERATORS or MYSQL_NULL_TEMPLATES. No agent text and no binding.
   if (isNullOperator(filter.op)) {
@@ -1323,7 +1325,7 @@ function emitCondition(
     filter.match !== undefined &&
     isWildcardMatch(filter.match)
   ) {
-    return `${column} ${OPERATORS[filter.op]} ${emitWildcardBinding(filterValue(filter), filter.match)}`;
+    return `${column} ${sqlKeyword(OPERATORS, filter.op, "filter op")} ${emitWildcardBinding(filterValue(filter), filter.match)}`;
   }
 
   // On PostgreSQL, a skipWhenEmpty filter binds null while the widget value is empty. "" against a typed column (an
@@ -1337,7 +1339,7 @@ function emitCondition(
 
   if (filter.op === "in") return `${column} IN (${binding})`;
 
-  return `${column} ${OPERATORS[filter.op]} ${binding}`;
+  return `${column} ${sqlKeyword(OPERATORS, filter.op, "filter op")} ${binding}`;
 }
 
 // Quote an allow-listed column identifier for the dialect. MySQL and MariaDB read "col" as a string unless the
@@ -1347,22 +1349,135 @@ function emitCondition(
 // reserved word then fails with a syntax error instead of returning wrong results.
 // Oracle also gets bare names: a quoted name is case-sensitive there, so "status" would not match a STATUS column
 // created without quotes, which is how most Oracle columns are made.
-// The schema already allows only plain identifiers. This checks again, on every dialect, so that a caller that
-// skipped parsing cannot put other text into the SQL.
+// The schema already allows only plain identifiers of up to 128 characters. This checks again, on every dialect, so
+// that a caller that skipped parsing cannot put other text into the SQL.
 function quoteIdentifier(name: string, dialect: SqlDialect): string {
-  if (typeof name !== "string" || !SQL_IDENTIFIER.test(name)) {
+  if (
+    typeof name !== "string" ||
+    name.length > MAX_SQL_IDENTIFIER_LENGTH ||
+    !SQL_IDENTIFIER.test(name)
+  ) {
     throw new Error(`unsafe identifier: ${JSON.stringify(name)}`);
   }
 
   return dialect === "mysql" || dialect === "oracle" ? name : `"${name}"`;
 }
 
-// Emit `ORDER BY "col" ASC, "col2" DESC` (bare names on MySQL, see quoteIdentifier). Direction comes from a two-value
-// enum, never agent text. A name in `bareNames` is an aggregate or bucket result name. It is emitted bare, like its
-// `AS` alias, so both fold the same way. A quoted "n" would miss the alias n on Snowflake, which folds it to N.
+// The table name, checked again with the qualifiedName rule. querySpecSchema already checks it. This stops a caller
+// that skipped parsing from putting other text, or `undefined`, into FROM, INSERT INTO, UPDATE or DELETE FROM.
+function checkedTableName(table: unknown): string {
+  if (
+    typeof table !== "string" ||
+    table.length === 0 ||
+    table.length > MAX_QUALIFIED_NAME_LENGTH ||
+    !hasPlainIdentifierParts(table)
+  ) {
+    throw new Error(`unsafe table name: ${JSON.stringify(table)}`);
+  }
+
+  return table;
+}
+
+// A column name, checked again with the sqlIdentifier rule. querySpecSchema already checks it. This is for the names a
+// resolver writes without quoteIdentifier, which checks its own. It stops a caller that skipped parsing from putting
+// other text into the SQL.
+function checkedColumnName(column: unknown): string {
+  if (
+    typeof column !== "string" ||
+    column.length > MAX_SQL_IDENTIFIER_LENGTH ||
+    !SQL_IDENTIFIER.test(column)
+  ) {
+    throw new Error(`unsafe column name: ${JSON.stringify(column)}`);
+  }
+
+  return column;
+}
+
+// How the emitters write the table and its columns. Each clause has its own method, because each clause writes a
+// column its own way. The emitters take a resolver instead of the table name, so another query shape can pass its own
+// resolver without a change to the emitters. A resolver writes names only. Values still go through emitBinding, and
+// keywords through sqlKeyword.
+interface ColumnResolver {
+  // The table, as FROM, INSERT INTO, UPDATE and DELETE FROM write it.
+  readonly table: string;
+  // The column a WHERE condition tests.
+  filterColumn(column: string): string;
+  // A column in the plain select list, with no aggregate.
+  selectColumn(column: string): string;
+  // The name a select item shows a coalesced or split column under. `grouped` is true in the aggregated select list.
+  columnAlias(column: string, grouped: boolean): string;
+  // A group key column. GROUP BY, HAVING and a bucket's DATE_TRUNC use it.
+  groupColumn(column: string): string;
+  // The column inside an aggregate call.
+  aggregateColumn(column: string): string;
+  // An orderBy column that is not a result name.
+  orderColumn(column: string): string;
+  // The column a split reads in FROM.
+  splitColumn(column: string): string;
+  // The column an INSERT or UPDATE writes.
+  writeColumn(column: string): string;
+  // Throws when the column would read the whole row (see refuseTableNamedColumn).
+  refuseRowRead(column: string, usage: string): void;
+}
+
+// The resolver for a query on one table. It writes each clause as the compiler always has:
+// - filters: never bare (see emitCondition). On PostgreSQL and Redshift, lower-cased and quoted. Everywhere else,
+//   `table.col`.
+// - the plain select list, write columns and a non-grouped alias: bare.
+// - group keys, aggregate columns, orderBy and a grouped alias: through quoteIdentifier.
+// - the split column: quoted.
+// Every name is checked again before it is written: by quoteIdentifier, or else by checkedColumnName.
+// On PostgreSQL and Redshift a column named like its table can read as the whole row. Filters and group keys refuse
+// it. For filters this matters because:
+// - a null test or inList's CAST to text can match rows;
+// - the plugin binds text values untyped, so `"users" = $1` or `"users" < $1` compares the row with a row literal the
+//   value spells out.
+function singleTableColumns(
+  table: unknown,
+  dialect: SqlDialect,
+): ColumnResolver {
+  const checkedTable = checkedTableName(table);
+  const refuseRowRead = (column: string, usage: string) =>
+    refuseTableNamedColumn(column, checkedTable, dialect, usage);
+
+  return {
+    table: checkedTable,
+    filterColumn(column) {
+      const name = checkedColumnName(column);
+
+      if (dialect !== "postgres" && dialect !== "redshift") {
+        return `${checkedTable}.${name}`;
+      }
+
+      refuseRowRead(name.toLowerCase(), "a filter cannot test");
+
+      return `"${name.toLowerCase()}"`;
+    },
+    selectColumn: (column) => checkedColumnName(column),
+    columnAlias: (column, grouped) =>
+      grouped ? quoteIdentifier(column, dialect) : checkedColumnName(column),
+    groupColumn(column) {
+      refuseRowRead(column, "groupBy and having cannot use");
+
+      return quoteIdentifier(column, dialect);
+    },
+    aggregateColumn: (column) => quoteIdentifier(column, dialect),
+    orderColumn: (column) => quoteIdentifier(column, dialect),
+    splitColumn: (column) => `"${checkedColumnName(column)}"`,
+    writeColumn: (column) => checkedColumnName(column),
+    refuseRowRead,
+  };
+}
+
+// The orderBy directions. The SQL keyword comes from this map.
+const ORDER_DIRECTIONS = { ASC: "ASC", DESC: "DESC" } as const;
+
+// Emit `ORDER BY "col" ASC, "col2" DESC` (bare names on MySQL, see quoteIdentifier). Direction comes from
+// ORDER_DIRECTIONS, never agent text. A name in `bareNames` is an aggregate or bucket result name. It is emitted bare,
+// like its `AS` alias, so both fold the same way. A quoted "n" would miss the alias n on Snowflake, which folds it to N.
 function emitOrderBy(
   orderBy: QuerySpec["orderBy"],
-  dialect: SqlDialect,
+  columns: ColumnResolver,
   bareNames: ReadonlySet<string>,
 ): string {
   if (!orderBy || orderBy.length === 0) return "";
@@ -1370,9 +1485,9 @@ function emitOrderBy(
   const clauses = orderBy.map((entry) => {
     const name = bareNames.has(entry.column)
       ? emitResultName(entry.column)
-      : quoteIdentifier(entry.column, dialect);
+      : columns.orderColumn(entry.column);
 
-    return `${name} ${entry.direction}`;
+    return `${name} ${sqlKeyword(ORDER_DIRECTIONS, entry.direction, "orderBy direction")}`;
   });
 
   return ` ORDER BY ${clauses.join(", ")}`;
@@ -1382,14 +1497,14 @@ function emitOrderBy(
 function emitGroupBy(
   groupBy: QuerySpec["groupBy"],
   dialect: SqlDialect,
-  table: string,
+  columns: ColumnResolver,
 ): string {
   if (!groupBy || groupBy.length === 0) return "";
 
   // Group by the stored column, even when the select list coalesces it. NULLs form their own group, and the select
   // list then shows that group under the fallback.
   const clauses = groupBy.map((entry) =>
-    groupKeyExpression(entry, dialect, table),
+    groupKeyExpression(entry, dialect, columns),
   );
 
   return ` GROUP BY ${clauses.join(", ")}`;
@@ -1403,20 +1518,13 @@ function emitGroupBy(
 function groupKeyExpression(
   entry: SelectColumn,
   dialect: SqlDialect,
-  table: string,
+  columns: ColumnResolver,
 ): string {
   if (isSplitColumn(entry)) return SPLIT_ITEM;
 
-  if (isBucketColumn(entry)) return bucketExpression(entry, dialect, table);
+  if (isBucketColumn(entry)) return bucketExpression(entry, dialect, columns);
 
-  refuseTableNamedColumn(
-    columnNameOf(entry),
-    table,
-    dialect,
-    "groupBy and having cannot use",
-  );
-
-  return quoteIdentifier(columnNameOf(entry), dialect);
+  return columns.groupColumn(columnNameOf(entry));
 }
 
 // A bucket's group key, such as `DATE_TRUNC('week', "created_at")`. GROUP BY repeats this call and never uses the
@@ -1425,7 +1533,7 @@ function groupKeyExpression(
 function bucketExpression(
   entry: BucketColumn,
   dialect: SqlDialect,
-  table: string,
+  columns: ColumnResolver,
 ): string {
   if (dialect !== "postgres" && dialect !== "redshift") {
     throw new Error(
@@ -1435,14 +1543,7 @@ function bucketExpression(
 
   const unit = sqlKeyword(DATE_BUCKETS, entry.bucket, "bucket");
 
-  refuseTableNamedColumn(
-    entry.column,
-    table,
-    dialect,
-    "groupBy and having cannot use",
-  );
-
-  return `DATE_TRUNC('${unit}', ${quoteIdentifier(entry.column, dialect)})`;
+  return `DATE_TRUNC('${unit}', ${columns.groupColumn(entry.column)})`;
 }
 
 // A result name, emitted bare. querySpecSchema already checks it. This checks again so that a caller that skipped
@@ -1468,14 +1569,14 @@ function emitSelectColumn(
   entry: SelectColumn,
   quote: boolean,
   dialect: SqlDialect,
-  table: string,
+  columns: ColumnResolver,
 ): string {
   if (isSplitColumn(entry)) {
     if (!quote) {
       throw new Error("split is only valid in groupBy");
     }
 
-    return `${SPLIT_ITEM} AS ${quoteIdentifier(entry.column, dialect)}`;
+    return `${SPLIT_ITEM} AS ${columns.columnAlias(entry.column, true)}`;
   }
 
   if (isBucketColumn(entry)) {
@@ -1483,24 +1584,29 @@ function emitSelectColumn(
       throw new Error("bucket is only valid in groupBy");
     }
 
-    return `${groupKeyExpression(entry, dialect, table)} AS ${emitResultName(entry.as)}`;
+    return `${groupKeyExpression(entry, dialect, columns)} AS ${emitResultName(entry.as)}`;
   }
 
   const name = quote
-    ? groupKeyExpression(entry, dialect, table)
-    : columnNameOf(entry);
+    ? groupKeyExpression(entry, dialect, columns)
+    : columns.selectColumn(columnNameOf(entry));
 
   if (typeof entry === "string") return name;
 
-  return `COALESCE(${name}, ${emitBinding(entry.coalesce)}) AS ${name}`;
+  return `COALESCE(${name}, ${emitBinding(entry.coalesce)}) AS ${columns.columnAlias(entry.column, quote)}`;
 }
 
 // The FROM clause: the table, plus the lateral split source when a group column uses split (PostgreSQL only). The
-// separator is a bound parameter, and the source and item names are fixed text.
-function emitFrom(spec: QuerySpec, dialect: SqlDialect): string {
+// separator is a bound parameter, and the source and item names are fixed text. The resolver checked the table name
+// again when it was made (see checkedTableName).
+function emitFrom(
+  spec: QuerySpec,
+  dialect: SqlDialect,
+  columns: ColumnResolver,
+): string {
   const split = (spec.groupBy ?? []).find(isSplitColumn);
 
-  if (split === undefined) return spec.table;
+  if (split === undefined) return columns.table;
 
   if (dialect !== "postgres") {
     throw new Error(
@@ -1508,13 +1614,17 @@ function emitFrom(spec: QuerySpec, dialect: SqlDialect): string {
     );
   }
 
-  return `${spec.table} CROSS JOIN LATERAL unnest(string_to_array("${split.column}", ${emitBinding({ literal: split.split })})) AS ${SPLIT_SOURCE}(mcp_split_value)`;
+  return `${columns.table} CROSS JOIN LATERAL unnest(string_to_array(${columns.splitColumn(split.column)}, ${emitBinding({ literal: split.split })})) AS ${SPLIT_SOURCE}(mcp_split_value)`;
 }
 
 // Emit one aggregate select item, e.g. `COUNT(*) AS count`, `SUM("amount") AS sum`, `FLOOR(AVG(ABS("x"))) AS avg`.
 // The single `aggregate` and each `aggregates` entry both use it. The alias is the entry's result name, emitted bare.
-function emitAggregate(entry: AggregateEntry, dialect: SqlDialect): string {
-  return `${aggregateExpression(entry, dialect)} AS ${emitResultName(resultNameOf(entry))}`;
+function emitAggregate(
+  entry: AggregateEntry,
+  dialect: SqlDialect,
+  columns: ColumnResolver,
+): string {
+  return `${aggregateExpression(entry, dialect, columns)} AS ${emitResultName(resultNameOf(entry))}`;
 }
 
 // The aggregate call without its alias, such as `COUNT(*)`, `SUM("amount")` or `FLOOR(AVG(ABS("x")))`. HAVING repeats
@@ -1524,6 +1634,7 @@ function emitAggregate(entry: AggregateEntry, dialect: SqlDialect): string {
 function aggregateExpression(
   entry: AggregateEntry,
   dialect: SqlDialect,
+  columns: ColumnResolver,
 ): string {
   const fn = sqlKeyword(AGGREGATE_FNS, entry.fn, "aggregate fn");
 
@@ -1532,7 +1643,7 @@ function aggregateExpression(
 
     if (entry.round !== undefined) throw new Error(ROUND_FN_MESSAGE);
 
-    const target = entry.column ? quoteIdentifier(entry.column, dialect) : "*";
+    const target = entry.column ? columns.aggregateColumn(entry.column) : "*";
 
     return `${fn}(${target})`;
   }
@@ -1541,7 +1652,7 @@ function aggregateExpression(
     throw new Error(`${entry.fn} aggregation requires a column`);
   }
 
-  const column = quoteIdentifier(entry.column, dialect);
+  const column = columns.aggregateColumn(entry.column);
   const call = `${fn}(${entry.abs === true ? `ABS(${column})` : column})`;
 
   if (entry.round === undefined) return call;
@@ -1567,7 +1678,11 @@ function aggregateExpression(
 // Emit `HAVING <cond> AND ...`. Each condition tests an aggregate (the entry whose result name matches, its
 // expression repeated) or a group column (its stored name, quoted as GROUP BY quotes it). Values are bound parameters,
 // and the operator comes from HAVING_OPERATORS.
-function emitHaving(spec: QuerySpec, dialect: SqlDialect): string {
+function emitHaving(
+  spec: QuerySpec,
+  dialect: SqlDialect,
+  columns: ColumnResolver,
+): string {
   if (!spec.having || spec.having.length === 0) return "";
 
   const aggregates = aggregateEntriesOf(spec);
@@ -1597,12 +1712,8 @@ function emitHaving(spec: QuerySpec, dialect: SqlDialect): string {
 
     const target =
       aggregate !== undefined
-        ? aggregateExpression(aggregate, dialect)
-        : groupKeyExpression(
-            groupEntry ?? condition.column,
-            dialect,
-            spec.table,
-          );
+        ? aggregateExpression(aggregate, dialect, columns)
+        : groupKeyExpression(groupEntry ?? condition.column, dialect, columns);
 
     return `${target} ${sqlKeyword(HAVING_OPERATORS, condition.op, "having op")} ${emitBinding(condition.value)}`;
   });
@@ -1613,12 +1724,12 @@ function emitHaving(spec: QuerySpec, dialect: SqlDialect): string {
 function emitWhere(
   filters: QuerySpec["filters"],
   dialect: SqlDialect,
-  table: string,
+  columns: ColumnResolver,
 ): string {
   if (!filters || filters.length === 0) return "";
 
   const clauses = filters.map((entry) => {
-    if (!isFilterGroup(entry)) return emitFilter(entry, dialect, table);
+    if (!isFilterGroup(entry)) return emitFilter(entry, dialect, columns);
 
     const members = entry.anyOf.map((member) => {
       // filterGroupSchema refuses this. Check again so that a caller that skipped parsing fails closed, instead of
@@ -1627,7 +1738,7 @@ function emitWhere(
         throw new Error(SKIP_IN_GROUP_MESSAGE);
       }
 
-      return emitCondition(member, dialect, table);
+      return emitCondition(member, dialect, columns);
     });
 
     return `(${members.join(" OR ")})`;
@@ -1640,13 +1751,35 @@ function emitWhere(
 function emitFilter(
   filter: Filter,
   dialect: SqlDialect,
-  table: string,
+  columns: ColumnResolver,
 ): string {
-  const condition = emitCondition(filter, dialect, table);
+  const condition = emitCondition(filter, dialect, columns);
 
   if (filter.skipWhenEmpty !== true) return condition;
 
   return `(${emitEmptyGuard(widgetRef(filter))} = 1 OR ${condition})`;
+}
+
+// The row limit. Oracle (12c and later) has no LIMIT; FETCH FIRST is its row limit. querySpecSchema already allows only
+// an integer from 1 to MAX_LIMIT. This checks again so that a caller that skipped parsing cannot put other text into
+// the SQL or lift the cap.
+function emitLimit(limit: unknown, dialect: SqlDialect): string {
+  if (limit === undefined) return "";
+
+  if (
+    typeof limit !== "number" ||
+    !Number.isInteger(limit) ||
+    limit < 1 ||
+    limit > MAX_LIMIT
+  ) {
+    throw new Error(
+      `limit must be an integer from 1 to ${MAX_LIMIT}: ${JSON.stringify(limit)}`,
+    );
+  }
+
+  return dialect === "oracle"
+    ? ` FETCH FIRST ${limit} ROWS ONLY`
+    : ` LIMIT ${limit}`;
 }
 
 // Compile a structured spec into a parameterized SQL body. Throws on an empty/oversized body or if the emitted body
@@ -1656,6 +1789,8 @@ export function compileQuery(
   options: CompileQueryOptions = {},
 ): string {
   const dialect = options.dialect ?? "other";
+  // Throws on a missing or unsafe table name (see checkedTableName).
+  const columns = singleTableColumns(spec.table, dialect);
   let body: string;
 
   switch (spec.operation) {
@@ -1686,50 +1821,39 @@ export function compileQuery(
 
       if (aggregates.length > 0) {
         const groupCols = (spec.groupBy ?? []).map((entry) =>
-          emitSelectColumn(entry, true, dialect, spec.table),
+          emitSelectColumn(entry, true, dialect, columns),
         );
 
         // Only the new `aggregates` form refuses a column named like the table. The single `aggregate` keeps its old
         // behaviour.
         (spec.aggregates ?? []).forEach((entry) => {
           if (entry.column !== undefined) {
-            refuseTableNamedColumn(
-              entry.column,
-              spec.table,
-              dialect,
-              "an aggregate cannot use",
-            );
+            columns.refuseRowRead(entry.column, "an aggregate cannot use");
           }
         });
 
         selectList = [
           ...groupCols,
-          ...aggregates.map((entry) => emitAggregate(entry, dialect)),
+          ...aggregates.map((entry) => emitAggregate(entry, dialect, columns)),
         ].join(", ");
       } else {
         selectList =
           spec.columns && spec.columns.length > 0
             ? spec.columns
                 .map((entry) =>
-                  emitSelectColumn(entry, false, dialect, spec.table),
+                  emitSelectColumn(entry, false, dialect, columns),
                 )
                 .join(", ")
             : "*";
       }
 
-      // Oracle (12c and later) has no LIMIT; FETCH FIRST is its row limit.
-      const limit =
-        spec.limit === undefined
-          ? ""
-          : dialect === "oracle"
-            ? ` FETCH FIRST ${spec.limit} ROWS ONLY`
-            : ` LIMIT ${spec.limit}`;
+      const limit = emitLimit(spec.limit, dialect);
 
       // SQL clause order: SELECT ... FROM ... WHERE ... GROUP BY ... ORDER BY ... LIMIT.
       // DISTINCT is fixed text.
       const distinct = spec.distinct === true ? "DISTINCT " : "";
 
-      body = `SELECT ${distinct}${selectList} FROM ${emitFrom(spec, dialect)}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy, dialect, spec.table)}${emitHaving(spec, dialect)}${emitOrderBy(spec.orderBy, dialect, bareResultNames(spec))}${limit};`;
+      body = `SELECT ${distinct}${selectList} FROM ${emitFrom(spec, dialect, columns)}${emitWhere(spec.filters, dialect, columns)}${emitGroupBy(spec.groupBy, dialect, columns)}${emitHaving(spec, dialect, columns)}${emitOrderBy(spec.orderBy, columns, bareResultNames(spec))}${limit};`;
       break;
     }
     case "INSERT": {
@@ -1737,12 +1861,14 @@ export function compileQuery(
         throw new Error("INSERT requires values");
       }
 
-      const columns = spec.values.map((entry) => entry.column).join(", ");
+      const names = spec.values
+        .map((entry) => columns.writeColumn(entry.column))
+        .join(", ");
       const bindings = spec.values
         .map((entry) => emitBinding(entry.value))
         .join(", ");
 
-      body = `INSERT INTO ${spec.table} (${columns}) VALUES (${bindings});`;
+      body = `INSERT INTO ${columns.table} (${names}) VALUES (${bindings});`;
       break;
     }
     case "UPDATE": {
@@ -1751,14 +1877,17 @@ export function compileQuery(
       }
 
       const assignments = spec.values
-        .map((entry) => `${entry.column} = ${emitBinding(entry.value)}`)
+        .map(
+          (entry) =>
+            `${columns.writeColumn(entry.column)} = ${emitBinding(entry.value)}`,
+        )
         .join(", ");
 
-      body = `UPDATE ${spec.table} SET ${assignments}${emitWhere(spec.filters, dialect, spec.table)};`;
+      body = `UPDATE ${columns.table} SET ${assignments}${emitWhere(spec.filters, dialect, columns)};`;
       break;
     }
     case "DELETE": {
-      body = `DELETE FROM ${spec.table}${emitWhere(spec.filters, dialect, spec.table)};`;
+      body = `DELETE FROM ${columns.table}${emitWhere(spec.filters, dialect, columns)};`;
       break;
     }
   }
