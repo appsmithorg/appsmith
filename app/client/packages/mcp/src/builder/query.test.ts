@@ -2260,7 +2260,7 @@ describe("APP-16324 F1.5: having on aggregated selects", () => {
     );
 
     expect(body).toBe(
-      'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" HAVING COUNT(*) > {{ 5 }} ORDER BY "count" DESC;',
+      'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" HAVING COUNT(*) > {{ 5 }} ORDER BY count DESC;',
     );
   });
 
@@ -2589,7 +2589,7 @@ describe("APP-16324 F1.6: split a delimited column (PostgreSQL)", () => {
     );
 
     expect(body).toBe(
-      'SELECT TRIM(mcp_split.mcp_split_value) AS "feature_tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("feature_tags", {{ "," }})) AS mcp_split(mcp_split_value) GROUP BY TRIM(mcp_split.mcp_split_value) HAVING TRIM(mcp_split.mcp_split_value) != {{ "N/A" }} ORDER BY "count" DESC;',
+      'SELECT TRIM(mcp_split.mcp_split_value) AS "feature_tags", COUNT(*) AS count FROM tickets CROSS JOIN LATERAL unnest(string_to_array("feature_tags", {{ "," }})) AS mcp_split(mcp_split_value) GROUP BY TRIM(mcp_split.mcp_split_value) HAVING TRIM(mcp_split.mcp_split_value) != {{ "N/A" }} ORDER BY count DESC;',
     );
   });
 
@@ -3853,8 +3853,8 @@ describe("APP-16495: CodeRabbit follow-ups", () => {
     ).toThrow(/^invalid result name: /);
   });
 
-  // The single aggregate without a bucket keeps its old output. This is PostgreSQL, where the quoted name is correct.
-  it("keeps the quoted ORDER BY for the single aggregate without a bucket", () => {
+  // The single aggregate names its result bare too. On Snowflake, a quoted "count" would miss the alias COUNT.
+  it("orders by the single aggregate's result name bare on dialect other", () => {
     expect(
       compileQuery(
         parse({
@@ -3865,10 +3865,29 @@ describe("APP-16495: CodeRabbit follow-ups", () => {
           aggregate: { fn: "count" },
           orderBy: [{ column: "count", direction: "DESC" }],
         }),
-        { dialect: "postgres" },
+        { dialect: "other" },
       ),
     ).toBe(
-      'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" ORDER BY "count" DESC;',
+      'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" ORDER BY count DESC;',
+    );
+  });
+
+  // An orderBy name that is not the aggregate's result stays quoted.
+  it("keeps a group column quoted when the single aggregate is present", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: ["tag"],
+          aggregate: { fn: "sum", column: "amount" },
+          orderBy: [{ column: "tag", direction: "ASC" }],
+        }),
+        { dialect: "other" },
+      ),
+    ).toBe(
+      'SELECT "tag", SUM("amount") AS sum FROM tickets GROUP BY "tag" ORDER BY "tag" ASC;',
     );
   });
 });

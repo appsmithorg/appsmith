@@ -570,16 +570,10 @@ function aggregateEntriesOf(spec: AggregateShape): AggregateEntry[] {
   return [];
 }
 
-// The result names that ORDER BY emits bare: each aggregate's name and each bucket's `as`. It applies only when
-// `aggregates` or a bucket is present. The single `aggregate` without a bucket keeps its quoted ORDER BY, so its
-// output does not change.
+// The result names that ORDER BY emits bare: each aggregate's name, from `aggregate` or `aggregates`, and each
+// bucket's `as`. Any other orderBy name is a column and stays quoted.
 function bareResultNames(spec: AggregateShape): ReadonlySet<string> {
   const buckets = (spec.groupBy ?? []).filter(isBucketColumn);
-
-  if (spec.aggregates === undefined && buckets.length === 0) {
-    return new Set();
-  }
-
   const names = [
     ...aggregateEntriesOf(spec).map((entry) => resultNameOf(entry)),
     ...buckets.map((entry) => entry.as),
