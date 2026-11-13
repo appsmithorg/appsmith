@@ -12903,6 +12903,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@uppy/locales@npm:1.22.0":
+  version: 1.22.0
+  resolution: "@uppy/locales@npm:1.22.0"
+  checksum: e481243f663130defcc1ee3c3385500ee210e5ced9b29192e4a3de94bb9c1e39287ce923c88347f296f0404d7148f3673e3f5cf0e21c229bf8c397fdf6ad38e7
+  languageName: node
+  linkType: hard
+
 "@uppy/onedrive@npm:^1.1.22":
   version: 1.1.22
   resolution: "@uppy/onedrive@npm:1.1.22"
@@ -13943,6 +13950,7 @@ __metadata:
     "@uppy/dashboard": ^1.16.0
     "@uppy/google-drive": ^1.5.22
     "@uppy/image-editor": ^0.2.4
+    "@uppy/locales": 1.22.0
     "@uppy/onedrive": ^1.1.22
     "@uppy/react": ^1.11.2
     "@uppy/url": ^1.5.16
