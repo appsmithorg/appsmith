@@ -2670,6 +2670,180 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     },
   );
 
+  it.each([
+    ["postgres-plugin", true],
+    ["redshift-plugin", true],
+    ["mysql-plugin", false],
+    ["oracle-plugin", false],
+    ["mssql-plugin", false],
+  ])(
+    "APP-16495: create_query compiles a date bucket with aggregates only on PostgreSQL or Redshift (%s)",
+    async (pluginId, allowed) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          groupBy: [{ column: "created_at", bucket: "week", as: "week" }],
+          aggregates: [{ fn: "count" }],
+          orderBy: [{ column: "week", direction: "ASC" }],
+        },
+      });
+
+      if (allowed) {
+        expect(body.created).toBe(true);
+        expect(body.body).toBe(
+          'SELECT DATE_TRUNC(\'week\', "created_at") AS week, COUNT(*) AS count FROM users GROUP BY DATE_TRUNC(\'week\', "created_at") ORDER BY "week" ASC;',
+        );
+      } else {
+        expect(body.valid).toBe(false);
+        expect(body.errors).toContainEqual(
+          expect.objectContaining({
+            message:
+              "bucket (on created_at) is only available on a PostgreSQL or Redshift datasource, which have DATE_TRUNC",
+            path: "",
+          }),
+        );
+        expect(createAction).not.toHaveBeenCalled();
+      }
+    },
+  );
+
+  // Oracle "weekly resolution time", end to end: the stored body is the compiled SQL behind the MCP marker.
+  it("APP-16495: create_query compiles the Oracle weekly shape and stores it", async () => {
+    const createAction = jest.fn(async () => ({ id: "act1" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction: createAction as never,
+    };
+    const body = await callTool(api, "create_query", {
+      query: {
+        ...validQuery,
+        table: "public.oracle_support_ticket",
+        groupBy: [
+          { column: "created_at", bucket: "week", as: "week" },
+          "status",
+          "severity",
+          "support_level",
+        ],
+        aggregates: [
+          { fn: "avg", column: "resolution_time", abs: true, round: "floor" },
+          { fn: "count" },
+        ],
+        orderBy: [{ column: "week", direction: "ASC" }],
+      },
+    });
+    const sql =
+      'SELECT DATE_TRUNC(\'week\', "created_at") AS week, "status", "severity", "support_level", FLOOR(AVG(ABS("resolution_time"))) AS avg, COUNT(*) AS count FROM public.oracle_support_ticket GROUP BY DATE_TRUNC(\'week\', "created_at"), "status", "severity", "support_level" ORDER BY "week" ASC;';
+
+    expect(body.created).toBe(true);
+    expect(body.body).toBe(sql);
+    expect(
+      mcpAuthoredBody(
+        (
+          (createAction.mock.calls[0] as unknown[])[0] as {
+            actionConfiguration: { body: string };
+          }
+        ).actionConfiguration.body,
+      ),
+    ).toBe(sql);
+  });
+
+  it.each([
+    [
+      "aggregates",
+      {
+        operation: "DELETE",
+        filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+        aggregates: [{ fn: "count" }],
+      },
+    ],
+    [
+      "distinct",
+      {
+        operation: "UPDATE",
+        values: [{ column: "name", value: { literal: "x" } }],
+        filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+        distinct: true,
+      },
+    ],
+  ])(
+    "APP-16495: create_query refuses %s on a write before any API write",
+    async (field, query) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: { ...validQuery, ...query },
+      });
+
+      expect(body.valid).toBe(false);
+      expect(body.errors).toContainEqual({
+        path: field,
+        message: `${field} is only valid on a SELECT query`,
+      });
+      expect(createAction).not.toHaveBeenCalled();
+    },
+  );
+
+  // SQL Server spells these CEILING and ROUND(x, n), so ceil and round are refused there before any API write.
+  it.each([
+    ["mssql-plugin", "ceil", false],
+    ["mssql-plugin", "round", false],
+    ["mssql-plugin", "floor", true],
+    ["mysql-plugin", "ceil", true],
+  ])(
+    "APP-16495: create_query on %s with round %s",
+    async (pluginId, round, allowed) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          aggregates: [{ fn: "avg", column: "age", round }],
+        },
+      });
+
+      if (allowed) {
+        expect(body.created).toBe(true);
+        expect(createAction).toHaveBeenCalledTimes(1);
+      } else {
+        expect(body.valid).toBe(false);
+        expect(body.errors).toContainEqual(
+          expect.objectContaining({
+            message: `round "${round}" (on age) is only available on a PostgreSQL, Redshift, MySQL or Oracle datasource; on other databases use round "floor" or no round`,
+            path: "",
+          }),
+        );
+        expect(createAction).not.toHaveBeenCalled();
+      }
+    },
+  );
+
   it("create_query refuses a datasource the caller cannot access (IDOR guard)", async () => {
     const createAction = jest.fn();
     const api: AppsmithApi = {
@@ -6849,6 +7023,119 @@ describe("governance-wrapped layout mutations", () => {
 
       expect(updated.body.updated).not.toBe(true);
       expect(JSON.stringify(updated.body)).toContain("having");
+      expect(updateAction).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([
+    ["postgres-plugin", true],
+    ["mysql-plugin", false],
+  ])(
+    "APP-16495: update_action compiles a date bucket only on PostgreSQL or Redshift (%s)",
+    async (pluginId, allowed) => {
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId },
+      ]);
+      const read = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SQL",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: read.body.revision,
+          query: {
+            name: "OldName",
+            applicationId: "app1",
+            pageId: "p1",
+            datasourceId: "ds1",
+            operation: "SELECT",
+            table: "tickets",
+            groupBy: [{ column: "created_at", bucket: "month", as: "month" }],
+            aggregates: [{ fn: "count" }],
+          },
+        },
+      });
+
+      if (allowed) {
+        expect(updated.body.updated).toBe(true);
+        expect(
+          mcpAuthoredBody(
+            (
+              (updateAction.mock.calls[0] as unknown[])[1] as {
+                actionConfiguration: { body: string };
+              }
+            ).actionConfiguration.body,
+          ),
+        ).toBe(
+          "SELECT DATE_TRUNC('month', \"created_at\") AS month, COUNT(*) AS count FROM tickets GROUP BY DATE_TRUNC('month', \"created_at\");",
+        );
+      } else {
+        expect(updated.body.errors).toContainEqual(
+          expect.objectContaining({
+            message:
+              "bucket (on created_at) is only available on a PostgreSQL or Redshift datasource, which have DATE_TRUNC",
+            path: "",
+          }),
+        );
+        expect(updateAction).not.toHaveBeenCalled();
+      }
+    },
+  );
+
+  it.each([
+    [
+      "aggregates",
+      {
+        operation: "DELETE",
+        filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+        aggregates: [{ fn: "count" }],
+      },
+    ],
+    [
+      "distinct",
+      {
+        operation: "INSERT",
+        values: [{ column: "name", value: { literal: "x" } }],
+        distinct: true,
+      },
+    ],
+  ])(
+    "APP-16495: update_action refuses %s on a write before any API write",
+    async (field, query) => {
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+      ]);
+      const read = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SQL",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: read.body.revision,
+          query: {
+            name: "OldName",
+            applicationId: "app1",
+            pageId: "p1",
+            datasourceId: "ds1",
+            table: "tickets",
+            ...query,
+          },
+        },
+      });
+
+      expect(updated.body.updated).not.toBe(true);
+      expect(updated.body.errors).toContainEqual(
+        expect.objectContaining({
+          message: `${field} is only valid on a SELECT query`,
+          path: `query.${field}`,
+        }),
+      );
       expect(updateAction).not.toHaveBeenCalled();
     },
   );
