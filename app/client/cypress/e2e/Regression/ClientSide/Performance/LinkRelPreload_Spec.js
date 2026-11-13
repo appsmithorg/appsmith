@@ -56,10 +56,6 @@ describe(
 );
 
 function testPreloadMetadata(viewOrEditMode) {
-  // Make all web workers empty. This prevents web workers from loading additional chunks,
-  // as we need to collect only chunks from the main thread
-  cy.intercept(/\/static\/js\/.+Worker\..+\.js/, { body: "" }).as("worker");
-
   // Reload without preloading, as we want to collect only chunks
   // actually requested by the current route
   reloadAndTogglePreloading(false);
