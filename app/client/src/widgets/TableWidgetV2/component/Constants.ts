@@ -55,14 +55,15 @@ export enum ImageSizes {
 }
 
 /**
- * In-cell action control sizes. DEFAULT/TALL content budget is
- * ROW_HEIGHT (40) − VERTICAL_PADDING (6×2) = 28px; 27 matches the
- * Button column and leaves 1px slack so pageSize rows fit without a scrollbar.
- * @see https://github.com/appsmithorg/appsmith/issues/37014
+ * In-cell Icon Button sizes. DEFAULT/TALL content budget is
+ * ROW_HEIGHT (40) − VERTICAL_PADDING (6×2) = 28px. 28px fills that budget
+ * with an even size so a 16px glyph centers on whole pixels.
+ * Menu Button stays at Button-column size (27); see menuButtonTableComponent.
+ * @see https://github.com/appsmithorg/appsmith-ee/issues/10561
  */
 export const TABLE_CELL_ACTION_ICON_SIZE = {
   SHORT: 24,
-  DEFAULT: 27,
+  DEFAULT: 28,
 } as const;
 
 export function getTableCellActionIconSize(compactMode?: string): number {
