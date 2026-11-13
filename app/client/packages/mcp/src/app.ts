@@ -7849,6 +7849,19 @@ export function buildMcpServer(
                 sqlQuery.datasourceId,
               );
               dialect = sqlDialectFor(packageName);
+            } else {
+              // A REST body needs a REST datasource, as in create_rest_api. Otherwise a REST spec naming a SQL
+              // datasource would pass the plugin check below on a SQL action, and its SQL plugin would run the REST
+              // body.
+              const plugins = await api.listPlugins(workspaceId);
+
+              if (
+                !isRestDatasource(datasources, plugins, newSource.datasourceId)
+              ) {
+                return result({
+                  error: "a REST update needs a REST API datasource",
+                });
+              }
             }
           }
 

@@ -7332,6 +7332,23 @@ describe("governance-wrapped layout mutations", () => {
       expect(updateAction).not.toHaveBeenCalled();
     });
 
+    it("should_refuse_a_REST_spec_that_names_a_SQL_datasource", async () => {
+      // Given: a PostgreSQL action, and a REST spec naming the same PostgreSQL datasource, so the plugins match.
+      const { server, updateAction } = storedServer(
+        { ...STORED_ACTION, pluginId: "postgres-plugin" },
+        PG,
+      );
+
+      // When
+      const updated = await restTo(server, "dspg");
+
+      // Then
+      expect(updated.body.error).toBe(
+        "a REST update needs a REST API datasource",
+      );
+      expect(updateAction).not.toHaveBeenCalled();
+    });
+
     it("should_update_a_REST_action_on_a_REST_datasource", async () => {
       // Given
       const { server, updateAction } = storedServer(
