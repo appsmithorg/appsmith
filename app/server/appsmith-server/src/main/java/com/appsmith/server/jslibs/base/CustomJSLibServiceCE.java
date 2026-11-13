@@ -32,6 +32,11 @@ public interface CustomJSLibServiceCE extends CrudService<CustomJSLib, String> {
     Mono<CustomJSLibContextDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
             CustomJSLib jsLib, Boolean isForceInstall);
 
+    /**
+     * With {@code isDryOps}, adds the library to {@code customJSLibsDryOps} for a later bulk save instead of saving
+     * it. Import shares that map across concurrent calls, so implementations must add to it with
+     * {@link com.appsmith.server.helpers.DryOpsUtils#addDryOp}.
+     */
     Mono<CustomJSLibContextDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
             CustomJSLib jsLib,
             Boolean isForceInstall,
