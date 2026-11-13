@@ -24,4 +24,10 @@ describe("getTableCellActionIconSize", () => {
       contentBudget,
     );
   });
+
+  it("is intentionally larger than Button/Menu DEFAULT (30 vs 27)", () => {
+    // Icon/Video restored to 30px per APP-16500; Button/Menu stay at 27px.
+    expect(TABLE_CELL_ACTION_ICON_SIZE.DEFAULT).toBe(30);
+    expect(TABLE_CELL_ACTION_ICON_SIZE.DEFAULT).toBeGreaterThan(27);
+  });
 });
