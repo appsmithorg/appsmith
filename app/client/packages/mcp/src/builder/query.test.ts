@@ -2949,7 +2949,7 @@ describe("APP-16495 A: aggregates (more than one aggregate)", () => {
     );
 
     expect(body).toBe(
-      'SELECT DATE_TRUNC(\'week\', "created_at") AS week, "status", "severity", "support_level", FLOOR(AVG(ABS("resolution_time"))) AS avg, COUNT(*) AS count FROM public.oracle_support_ticket WHERE "created_at" >= {{ StartDate.selectedDate }} GROUP BY DATE_TRUNC(\'week\', "created_at"), "status", "severity", "support_level" ORDER BY "week" ASC;',
+      'SELECT DATE_TRUNC(\'week\', "created_at") AS week, "status", "severity", "support_level", FLOOR(AVG(ABS("resolution_time"))) AS avg, COUNT(*) AS count FROM public.oracle_support_ticket WHERE "created_at" >= {{ StartDate.selectedDate }} GROUP BY DATE_TRUNC(\'week\', "created_at"), "status", "severity", "support_level" ORDER BY week ASC;',
     );
   });
 
@@ -3321,7 +3321,7 @@ describe("APP-16495 B: date bucket group key", () => {
         { dialect: "postgres" },
       ),
     ).toBe(
-      'SELECT DATE_TRUNC(\'day\', "created_at") AS day, COUNT(*) AS count FROM tickets GROUP BY DATE_TRUNC(\'day\', "created_at") ORDER BY "day" DESC;',
+      "SELECT DATE_TRUNC('day', \"created_at\") AS day, COUNT(*) AS count FROM tickets GROUP BY DATE_TRUNC('day', \"created_at\") ORDER BY day DESC;",
     );
   });
 
@@ -3771,6 +3771,105 @@ describe("APP-16495: council follow-ups", () => {
         { dialect: "postgres" },
       ),
     ).toThrow(/^unknown having op "constructor"$/);
+  });
+});
+
+describe("APP-16495: CodeRabbit follow-ups", () => {
+  // Reserved as a bare name on MySQL, PostgreSQL, SQL Server or Snowflake. SQL Server and Snowflake are "other".
+  it.each([
+    "precision",
+    "database",
+    "returning",
+    "ilike",
+    "top",
+    "percent",
+    "qualify",
+  ])("refuses the reserved word %s as a result name", (name) => {
+    expectIssue(
+      { aggregates: [{ fn: "count", as: name }] },
+      `"${name}" is a reserved SQL word; pick another name`,
+      ["aggregates", 0, "as"],
+    );
+  });
+
+  // Snowflake folds the bare alias n to N, so a quoted "n" in ORDER BY would not find it. A bare reference folds the
+  // same way as the alias on every database.
+  it("orders by an aggregate result name bare on dialect other", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "sales",
+          groupBy: ["region"],
+          aggregates: [{ fn: "count", as: "n" }],
+          orderBy: [{ column: "n", direction: "DESC" }],
+        }),
+        { dialect: "other" },
+      ),
+    ).toBe(
+      'SELECT "region", COUNT(*) AS n FROM sales GROUP BY "region" ORDER BY n DESC;',
+    );
+  });
+
+  it("orders by a bucket and an aggregate bare, and by a group column quoted", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: [
+            { column: "created_at", bucket: "week", as: "week" },
+            "status",
+          ],
+          aggregates: [{ fn: "count" }],
+          orderBy: [
+            { column: "week", direction: "ASC" },
+            { column: "status", direction: "ASC" },
+            { column: "count", direction: "DESC" },
+          ],
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toBe(
+      'SELECT DATE_TRUNC(\'week\', "created_at") AS week, "status", COUNT(*) AS count FROM tickets GROUP BY DATE_TRUNC(\'week\', "created_at"), "status" ORDER BY week ASC, "status" ASC, count DESC;',
+    );
+  });
+
+  // A caller that skips parsing must not get an unsafe result name into ORDER BY through the bare path.
+  it("throws on an unsafe result name that orderBy names, without parsing", () => {
+    expect(() =>
+      compileQuery(
+        {
+          ...base,
+          operation: "SELECT",
+          table: "t",
+          aggregates: [{ fn: "count", as: "x; DROP TABLE t; --" }],
+          orderBy: [{ column: "x; DROP TABLE t; --", direction: "ASC" }],
+        } as never,
+        { dialect: "other" },
+      ),
+    ).toThrow(/^invalid result name: /);
+  });
+
+  // The single aggregate without a bucket keeps its old output. This is PostgreSQL, where the quoted name is correct.
+  it("keeps the quoted ORDER BY for the single aggregate without a bucket", () => {
+    expect(
+      compileQuery(
+        parse({
+          ...base,
+          operation: "SELECT",
+          table: "tickets",
+          groupBy: ["tag"],
+          aggregate: { fn: "count" },
+          orderBy: [{ column: "count", direction: "DESC" }],
+        }),
+        { dialect: "postgres" },
+      ),
+    ).toBe(
+      'SELECT "tag", COUNT(*) AS count FROM tickets GROUP BY "tag" ORDER BY "count" DESC;',
+    );
   });
 });
 

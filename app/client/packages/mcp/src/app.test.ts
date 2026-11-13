@@ -2700,7 +2700,7 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
       if (allowed) {
         expect(body.created).toBe(true);
         expect(body.body).toBe(
-          'SELECT DATE_TRUNC(\'week\', "created_at") AS week, COUNT(*) AS count FROM users GROUP BY DATE_TRUNC(\'week\', "created_at") ORDER BY "week" ASC;',
+          "SELECT DATE_TRUNC('week', \"created_at\") AS week, COUNT(*) AS count FROM users GROUP BY DATE_TRUNC('week', \"created_at\") ORDER BY week ASC;",
         );
       } else {
         expect(body.valid).toBe(false);
@@ -2745,7 +2745,7 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
       },
     });
     const sql =
-      'SELECT DATE_TRUNC(\'week\', "created_at") AS week, "status", "severity", "support_level", FLOOR(AVG(ABS("resolution_time"))) AS avg, COUNT(*) AS count FROM public.oracle_support_ticket GROUP BY DATE_TRUNC(\'week\', "created_at"), "status", "severity", "support_level" ORDER BY "week" ASC;';
+      'SELECT DATE_TRUNC(\'week\', "created_at") AS week, "status", "severity", "support_level", FLOOR(AVG(ABS("resolution_time"))) AS avg, COUNT(*) AS count FROM public.oracle_support_ticket GROUP BY DATE_TRUNC(\'week\', "created_at"), "status", "severity", "support_level" ORDER BY week ASC;';
 
     expect(body.created).toBe(true);
     expect(body.body).toBe(sql);

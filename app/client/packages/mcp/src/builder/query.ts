@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { RAW_EXPRESSION, storedId } from "./schema.js";
+import { RESERVED_RESULT_NAMES } from "./sqlReservedWords.js";
 
 // M4 create_query — a STRUCTURED query builder (Security ruling "Option B"). The agent never authors raw SQL or raw
 // `{{ }}`. The compiler emits the SQL text AND every binding from validated identifiers, and every value is emitted
@@ -336,185 +337,12 @@ const splitColumnSchema = z
   .strict();
 
 // The name of a result column that the compiler makes, such as an aggregate's `as` or a bucket's `as`. It is emitted
-// bare, like `AS count`. A bare lower-case name works on every database:
-// - PostgreSQL folds a bare name to lower case, so a quoted `ORDER BY "week"` still finds it.
+// bare, like `AS count`, and ORDER BY names it bare too (see emitOrderBy). Each database folds both the same way:
+// - PostgreSQL folds them to lower case.
 // - MySQL compares these names without case.
-// - Oracle folds the alias and a bare ORDER BY name to upper case, so they match.
-// A reserved SQL word would not parse as a bare name, so those are refused.
+// - Oracle and Snowflake fold them to upper case.
+// A reserved SQL word would not parse as a bare name, so those are refused (see sqlReservedWords.ts).
 const RESULT_NAME = /^[a-z_][a-z0-9_]{0,62}$/;
-const RESERVED_RESULT_NAMES = new Set([
-  "all",
-  "and",
-  "any",
-  "as",
-  "asc",
-  "between",
-  "by",
-  "case",
-  "cast",
-  "current_date",
-  "current_time",
-  "current_timestamp",
-  "current_user",
-  "date",
-  "default",
-  "desc",
-  "distinct",
-  "else",
-  "end",
-  "false",
-  "from",
-  "group",
-  "having",
-  "in",
-  "interval",
-  "is",
-  "join",
-  "like",
-  "limit",
-  "not",
-  "null",
-  "offset",
-  "on",
-  "or",
-  "order",
-  "select",
-  "session_user",
-  "table",
-  "then",
-  "time",
-  "timestamp",
-  "true",
-  "union",
-  "user",
-  "when",
-  "where",
-  "with",
-  // Reserved as a bare name on MySQL or Oracle. Oracle's whole reserved-word list is here. The MySQL words are the
-  // ones an agent is likely to pick.
-  "access",
-  "add",
-  "alter",
-  "audit",
-  "bigint",
-  "both",
-  "char",
-  "check",
-  "cluster",
-  "column",
-  "comment",
-  "compress",
-  "condition",
-  "connect",
-  "constraint",
-  "create",
-  "cross",
-  "current",
-  "cursor",
-  "decimal",
-  "declare",
-  "delete",
-  "dense_rank",
-  "div",
-  "double",
-  "drop",
-  "exclusive",
-  "exists",
-  "file",
-  "float",
-  "for",
-  "grant",
-  "groups",
-  "identified",
-  "immediate",
-  "increment",
-  "index",
-  "initial",
-  "inner",
-  "insert",
-  "int",
-  "integer",
-  "intersect",
-  "into",
-  "key",
-  "keys",
-  "leading",
-  "left",
-  "level",
-  "lock",
-  "long",
-  "match",
-  "maxextents",
-  "minus",
-  "mlslabel",
-  "mod",
-  "mode",
-  "modify",
-  "natural",
-  "noaudit",
-  "nocompress",
-  "nowait",
-  "number",
-  "numeric",
-  "of",
-  "offline",
-  "online",
-  "option",
-  "outer",
-  "over",
-  "partition",
-  "pctfree",
-  "primary",
-  "prior",
-  "public",
-  "range",
-  "rank",
-  "raw",
-  "read",
-  "real",
-  "references",
-  "release",
-  "rename",
-  "replace",
-  "resource",
-  "return",
-  "revoke",
-  "right",
-  "row",
-  "row_number",
-  "rowid",
-  "rownum",
-  "rows",
-  "schema",
-  "session",
-  "set",
-  "share",
-  "size",
-  "smallint",
-  "sql",
-  "start",
-  "successful",
-  "synonym",
-  "sysdate",
-  "to",
-  "trailing",
-  "trigger",
-  "uid",
-  "unique",
-  "update",
-  "usage",
-  "use",
-  "using",
-  "validate",
-  "values",
-  "varchar",
-  "varchar2",
-  "view",
-  "whenever",
-  "window",
-  "write",
-  "xor",
-]);
 const resultNameSchema = z
   .string()
   .regex(
@@ -740,6 +568,24 @@ function aggregateEntriesOf(spec: AggregateShape): AggregateEntry[] {
   }
 
   return [];
+}
+
+// The result names that ORDER BY emits bare: each aggregate's name and each bucket's `as`. It applies only when
+// `aggregates` or a bucket is present. The single `aggregate` without a bucket keeps its quoted ORDER BY, so its
+// output does not change.
+function bareResultNames(spec: AggregateShape): ReadonlySet<string> {
+  const buckets = (spec.groupBy ?? []).filter(isBucketColumn);
+
+  if (spec.aggregates === undefined && buckets.length === 0) {
+    return new Set();
+  }
+
+  const names = [
+    ...aggregateEntriesOf(spec).map((entry) => resultNameOf(entry)),
+    ...buckets.map((entry) => entry.as),
+  ];
+
+  return new Set(names.filter((name): name is string => name !== undefined));
 }
 
 // The rules for result names. They run only when `aggregates` or a bucket is present.
@@ -1514,16 +1360,22 @@ function quoteIdentifier(name: string, dialect: SqlDialect): string {
 }
 
 // Emit `ORDER BY "col" ASC, "col2" DESC` (bare names on MySQL, see quoteIdentifier). Direction comes from a two-value
-// enum, never agent text.
+// enum, never agent text. A name in `bareNames` is an aggregate or bucket result name. It is emitted bare, like its
+// `AS` alias, so both fold the same way. A quoted "n" would miss the alias n on Snowflake, which folds it to N.
 function emitOrderBy(
   orderBy: QuerySpec["orderBy"],
   dialect: SqlDialect,
+  bareNames: ReadonlySet<string>,
 ): string {
   if (!orderBy || orderBy.length === 0) return "";
 
-  const clauses = orderBy.map(
-    (entry) => `${quoteIdentifier(entry.column, dialect)} ${entry.direction}`,
-  );
+  const clauses = orderBy.map((entry) => {
+    const name = bareNames.has(entry.column)
+      ? emitResultName(entry.column)
+      : quoteIdentifier(entry.column, dialect);
+
+    return `${name} ${entry.direction}`;
+  });
 
   return ` ORDER BY ${clauses.join(", ")}`;
 }
@@ -1879,7 +1731,7 @@ export function compileQuery(
       // DISTINCT is fixed text.
       const distinct = spec.distinct === true ? "DISTINCT " : "";
 
-      body = `SELECT ${distinct}${selectList} FROM ${emitFrom(spec, dialect)}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy, dialect, spec.table)}${emitHaving(spec, dialect)}${emitOrderBy(spec.orderBy, dialect)}${limit};`;
+      body = `SELECT ${distinct}${selectList} FROM ${emitFrom(spec, dialect)}${emitWhere(spec.filters, dialect, spec.table)}${emitGroupBy(spec.groupBy, dialect, spec.table)}${emitHaving(spec, dialect)}${emitOrderBy(spec.orderBy, dialect, bareResultNames(spec))}${limit};`;
       break;
     }
     case "INSERT": {
