@@ -296,6 +296,7 @@ describe(
 
       agHelper.GetNClick(deployMode._clearDropdown);
       agHelper.GetNClick(deployMode._jsonSelectDropdown);
+      agHelper.ClickOutside();
 
       deployMode.ClearJSONFieldValue("Timezone");
       deployMode.ClearJSONFieldValue("Status Name");
