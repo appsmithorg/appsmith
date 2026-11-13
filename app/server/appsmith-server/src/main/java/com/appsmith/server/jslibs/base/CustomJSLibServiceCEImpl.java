@@ -9,6 +9,7 @@ import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.dtos.DBOpsType;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DryOpsUtils;
 import com.appsmith.server.jslibs.context.ContextBasedJsLibService;
 import com.appsmith.server.repositories.CustomJSLibRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -20,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -107,7 +107,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                 .switchIfEmpty(Mono.defer(() -> {
                     if (isDryOps) {
                         jsLib.updateForBulkWriteOperation();
-                        addDryOpsForEntity(DBOpsType.SAVE, customJSLibsDryOps, jsLib);
+                        DryOpsUtils.addDryOp(customJSLibsDryOps, DBOpsType.SAVE, jsLib);
                         return Mono.just(jsLib);
                     }
                     return repository.save(jsLib);
@@ -121,7 +121,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                     if ((jsLib.getDefs().length() > foundJSLib.getDefs().length()) || isForceInstall) {
                         jsLib.setId(foundJSLib.getId());
                         if (isDryOps) {
-                            addDryOpsForEntity(DBOpsType.SAVE, customJSLibsDryOps, jsLib);
+                            DryOpsUtils.addDryOp(customJSLibsDryOps, DBOpsType.SAVE, jsLib);
                             return Mono.just(jsLib);
                         }
                         return repository.save(jsLib);
@@ -202,17 +202,6 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
         return contextBasedService
                 .getAllVisibleJSLibContextDTOFromContext(branchedContextId, isViewMode)
                 .flatMapMany(repository::findCustomJsLibsInContext);
-    }
-
-    private void addDryOpsForEntity(
-            DBOpsType queryType, Map<DBOpsType, List<CustomJSLib>> dryRunOpsMap, CustomJSLib createdCustomJsLib) {
-        if (dryRunOpsMap.containsKey(queryType)) {
-            dryRunOpsMap.get(queryType).add(createdCustomJsLib);
-        } else {
-            List<CustomJSLib> customJsLibList = new ArrayList<>();
-            customJsLibList.add(createdCustomJsLib);
-            dryRunOpsMap.put(queryType, customJsLibList);
-        }
     }
 
     @Override
