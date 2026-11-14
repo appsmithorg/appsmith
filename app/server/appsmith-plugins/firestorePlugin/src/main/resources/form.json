@@ -19,6 +19,14 @@
           "initialValue": ""
         },
         {
+          "label": "Database ID",
+          "subtitle": "Use this for a named Firestore database. Leave empty for the (default) database. Database URL does not select the database.",
+          "configProperty": "datasourceConfiguration.properties[0].value",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "placeholderText": "(default)"
+        },
+        {
           "label": "Service account credentials",
           "configProperty": "datasourceConfiguration.authentication.password",
           "controlType": "INPUT_TEXT",

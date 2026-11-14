@@ -16,6 +16,7 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -51,14 +52,19 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -106,6 +112,18 @@ public class FirestorePlugin extends BasePlugin {
     public static class FirestorePluginExecutor implements PluginExecutor<Firestore>, SmartSubstitutionInterface {
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
+
+        static final String DEFAULT_DATABASE_ID = "(default)";
+
+        // The Database ID is the first datasource property, bound by form.json.
+        private static final int DATABASE_ID_PROPERTY_INDEX = 0;
+
+        // Firestore database IDs: 4 to 63 lowercase letters, numbers or hyphens, starting with a letter and ending
+        // with a letter or number, and not shaped like a UUID.
+        private static final Pattern DATABASE_ID_PATTERN = Pattern.compile("^[a-z][a-z0-9-]{2,61}[a-z0-9]$");
+
+        private static final Pattern UUID_LIKE_PATTERN =
+                Pattern.compile("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$");
 
         @Override
         @Deprecated
@@ -908,6 +926,7 @@ public class FirestorePlugin extends BasePlugin {
 
             final String projectId = authentication.getUsername();
             final String clientJson = authentication.getPassword();
+            final String databaseId = resolveDatabaseId(datasourceConfiguration);
 
             InputStream serviceAccount = new ByteArrayInputStream(clientJson.getBytes());
 
@@ -931,15 +950,55 @@ public class FirestorePlugin extends BasePlugin {
                                 .build();
                     })
                     .onErrorMap(Exceptions::unwrap)
-                    .map(options -> {
-                        try {
-                            return FirebaseApp.getInstance(projectId);
-                        } catch (IllegalStateException e) {
-                            return FirebaseApp.initializeApp(options, projectId);
-                        }
-                    })
-                    .map(FirestoreClient::getFirestore)
+                    .map(options -> getOrInitializeApp(options, firebaseAppName(projectId, clientJson)))
+                    .map(app -> FirestoreClient.getFirestore(app, databaseId))
                     .subscribeOn(scheduler);
+        }
+
+        /**
+         * FirebaseApp instances live in a JVM-wide registry, and each app holds its own credentials. The name is
+         * derived from both the project ID and the service account JSON so that datasources with different
+         * credentials never share an app, even when they point to the same project.
+         */
+        static String firebaseAppName(String projectId, String clientJson) {
+            try {
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                byte[] hash = digest.digest((projectId + "\n" + clientJson).getBytes(StandardCharsets.UTF_8));
+                return "firestore-" + HexFormat.of().formatHex(hash);
+            } catch (NoSuchAlgorithmException e) {
+                throw new IllegalStateException("SHA-256 is not available", e);
+            }
+        }
+
+        private static FirebaseApp getOrInitializeApp(FirebaseOptions options, String appName) {
+            try {
+                return FirebaseApp.getInstance(appName);
+            } catch (IllegalStateException notFound) {
+                try {
+                    return FirebaseApp.initializeApp(options, appName);
+                } catch (IllegalStateException alreadyExists) {
+                    // Another thread initialized the same app between the lookup and the initialization.
+                    return FirebaseApp.getInstance(appName);
+                }
+            }
+        }
+
+        /**
+         * Reads the optional Database ID from the datasource configuration. An empty or missing value selects the
+         * project's default Firestore database.
+         */
+        static String resolveDatabaseId(DatasourceConfiguration datasourceConfiguration) {
+            List<Property> properties = datasourceConfiguration.getProperties();
+            if (CollectionUtils.isEmpty(properties) || properties.get(DATABASE_ID_PROPERTY_INDEX) == null) {
+                return DEFAULT_DATABASE_ID;
+            }
+
+            Object value = properties.get(DATABASE_ID_PROPERTY_INDEX).getValue();
+            if (value == null || isBlank(value.toString())) {
+                return DEFAULT_DATABASE_ID;
+            }
+
+            return value.toString().trim();
         }
 
         @Override
@@ -966,7 +1025,10 @@ public class FirestorePlugin extends BasePlugin {
         @Override
         public void datasourceDestroy(Firestore connection) {
             // This is empty because there's no concept of destroying a Firestore connection here.
-            // When the datasource is updated, the FirebaseApp instance will delete & re-create the app
+            // The FirebaseApp behind the connection stays in the JVM-wide registry and is reused by any datasource
+            // with the same project ID and service account credentials.
+            // Do not delete the FirebaseApp or close the Firestore here: other datasources with the same project,
+            // credentials and database ID share the same instances.
         }
 
         @Override
@@ -991,6 +1053,13 @@ public class FirestorePlugin extends BasePlugin {
 
             if (isBlank(datasourceConfiguration.getUrl())) {
                 invalids.add(FirestoreErrorMessages.DS_MISSING_FIRESTORE_URL_ERROR_MSG);
+            }
+
+            final String databaseId = resolveDatabaseId(datasourceConfiguration);
+            if (!DEFAULT_DATABASE_ID.equals(databaseId)
+                    && (!DATABASE_ID_PATTERN.matcher(databaseId).matches()
+                            || UUID_LIKE_PATTERN.matcher(databaseId).matches())) {
+                invalids.add(FirestoreErrorMessages.DS_INVALID_DATABASE_ID_ERROR_MSG);
             }
 
             return invalids;
