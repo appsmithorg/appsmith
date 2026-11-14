@@ -21,7 +21,7 @@ import java.nio.file.Paths;
  *   <li>It names a file or directory below the repository directory, not the repository directory itself.</li>
  *   <li>It is not inside the {@code .git} directory of the repository.</li>
  *   <li>The real location of its parent directory, after symbolic links are resolved, is inside the
- *       repository directory.</li>
+ *       repository directory and not inside its {@code .git} directory.</li>
  * </ul>
  */
 @Slf4j
@@ -91,6 +91,11 @@ public final class RepositoryPathValidator {
             Path realRepository = toRealPathResolvingExistingPrefix(repository);
             Path realParent = toRealPathResolvingExistingPrefix(target.getParent());
             if (!realParent.startsWith(realRepository)) {
+                throw outsideRepository();
+            }
+            Path realParentInRepository = realRepository.relativize(realParent);
+            if (GIT_METADATA_DIRECTORY.equalsIgnoreCase(
+                    realParentInRepository.getName(0).toString())) {
                 throw outsideRepository();
             }
         } catch (IOException e) {

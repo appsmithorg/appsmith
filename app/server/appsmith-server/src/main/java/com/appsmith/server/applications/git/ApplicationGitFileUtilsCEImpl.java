@@ -121,13 +121,14 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
                 .forEach(newPage -> {
                     removeUnwantedFieldsFromPage(newPage);
                     PageDTO pageDTO = newPage.getUnpublishedPage();
+                    // Validate before the page layout is modified, so a rejected name leaves the page unchanged
+                    validateGitFilePathSegment(pageDTO.getName(), "Page");
                     JSONObject dsl = pageDTO.getLayouts().get(0).getDsl();
                     // Get MainContainer widget data, remove the children and club with Canvas.json file
                     JSONObject mainContainer = new JSONObject(dsl);
                     mainContainer.remove(CHILDREN);
                     pageDTO.getLayouts().get(0).setDsl(mainContainer);
                     // pageName will be used for naming the json file
-                    validateGitFilePathSegment(pageDTO.getName(), "Page");
                     final String pagePathPrefix = PAGE_DIRECTORY + DELIMITER_PATH + pageDTO.getName() + DELIMITER_PATH;
                     final String pageFilePath = pagePathPrefix + pageDTO.getName() + JSON_EXTENSION;
                     GitResourceIdentity pageIdentity = new GitResourceIdentity(
