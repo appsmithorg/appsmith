@@ -56,6 +56,7 @@ import static com.appsmith.server.constants.FieldName.PAGE_LIST;
 import static com.appsmith.server.constants.FieldName.WIDGET_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.WIDGET_NAME;
 import static com.appsmith.server.helpers.ce.CommonGitFileUtilsCE.removeUnwantedFieldsFromBaseDomain;
+import static com.appsmith.server.helpers.ce.CommonGitFileUtilsCE.validateGitFilePathSegment;
 
 @Slf4j
 @Component
@@ -126,6 +127,7 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
                     mainContainer.remove(CHILDREN);
                     pageDTO.getLayouts().get(0).setDsl(mainContainer);
                     // pageName will be used for naming the json file
+                    validateGitFilePathSegment(pageDTO.getName(), "Page");
                     final String pagePathPrefix = PAGE_DIRECTORY + DELIMITER_PATH + pageDTO.getName() + DELIMITER_PATH;
                     final String pageFilePath = pagePathPrefix + pageDTO.getName() + JSON_EXTENSION;
                     GitResourceIdentity pageIdentity = new GitResourceIdentity(
@@ -215,6 +217,11 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
                 .map(Map.Entry::getValue)
                 .map(pageObject -> objectMapper.convertValue(pageObject, NewPage.class))
                 .collect(Collectors.toList());
+        pageList.forEach(newPage -> {
+            if (newPage != null && newPage.getUnpublishedPage() != null) {
+                validateGitFilePathSegment(newPage.getUnpublishedPage().getName(), "Page");
+            }
+        });
         artifactExchangeJson.setContextList(pageList);
 
         // widgets

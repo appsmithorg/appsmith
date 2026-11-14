@@ -30,7 +30,14 @@ public class FileNameValidator implements ConstraintValidator<FileName, String> 
             return isNullValid;
         }
 
-        if (value.isBlank() || value.startsWith(".") || value.endsWith(".") || value.length() > 255) {
+        return isValidFileName(value);
+    }
+
+    /**
+     * Checks a non-null name against the file-name rule of the {@link FileName} constraint.
+     */
+    public static boolean isValidFileName(String value) {
+        if (value == null || value.isBlank() || value.startsWith(".") || value.endsWith(".") || value.length() > 255) {
             return false;
         }
 
