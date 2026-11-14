@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -167,6 +168,81 @@ class RepositoryFileOperationsStayWithinRepositoryTest {
                 .isInstanceOf(AppsmithPluginException.class)
                 .hasMessage(OUTSIDE_REPOSITORY_MESSAGE);
         assertThat(otherRepositoryPages).isEmptyDirectory();
+    }
+
+    @Test
+    @DisplayName("GHSA-x4j8-9c4j-73r7")
+    void should_rejectWrite_when_targetIsSymbolicLink() throws IOException {
+        // Given
+        Path otherRepositoryFile = otherRepository.resolve("theme.json");
+        Files.writeString(otherRepositoryFile, OTHER_REPOSITORY_CONTENT);
+        Files.createSymbolicLink(repository.resolve("theme.json"), otherRepositoryFile);
+        GitResourceMap resourcesFromDB = resourceMapWith("theme.json");
+
+        // When
+        ThrowingCallable operation =
+                () -> fileUtils.updateEntitiesInRepo(resourcesFromDB, repository, new GitResourceMap());
+
+        // Then
+        assertThatThrownBy(operation)
+                .isInstanceOf(AppsmithPluginException.class)
+                .hasMessage(OUTSIDE_REPOSITORY_MESSAGE);
+        assertThat(otherRepositoryFile).hasContent(OTHER_REPOSITORY_CONTENT);
+    }
+
+    @Test
+    @DisplayName("GHSA-x4j8-9c4j-73r7")
+    void should_rejectDelete_when_symbolicLinkInRepositoryLeavesRepository() throws IOException {
+        // Given
+        Path otherRepositoryPages = Files.createDirectories(otherRepository.resolve("pages"));
+        Path otherRepositoryFile = otherRepositoryPages.resolve("Page1.json");
+        Files.writeString(otherRepositoryFile, OTHER_REPOSITORY_CONTENT);
+        Files.createSymbolicLink(repository.resolve("pages"), otherRepositoryPages);
+        GitResourceMap resourcesFromFS = resourceMapWith("pages/Page1.json");
+
+        // When
+        ThrowingCallable operation =
+                () -> fileUtils.updateEntitiesInRepo(new GitResourceMap(), repository, resourcesFromFS);
+
+        // Then
+        assertThatThrownBy(operation)
+                .isInstanceOf(AppsmithPluginException.class)
+                .hasMessage(OUTSIDE_REPOSITORY_MESSAGE);
+        assertThat(otherRepositoryFile).hasContent(OTHER_REPOSITORY_CONTENT);
+    }
+
+    @Test
+    void should_deleteOnlyTheLink_when_staleFileIsSymbolicLink() throws IOException {
+        // Given
+        Path otherRepositoryFile = otherRepository.resolve("theme.json");
+        Files.writeString(otherRepositoryFile, OTHER_REPOSITORY_CONTENT);
+        Path link = Files.createSymbolicLink(repository.resolve("stale.json"), otherRepositoryFile);
+        GitResourceMap resourcesFromFS = resourceMapWith("stale.json");
+
+        // When
+        fileUtils.updateEntitiesInRepo(new GitResourceMap(), repository, resourcesFromFS);
+
+        // Then
+        assertThat(Files.exists(link, LinkOption.NOFOLLOW_LINKS)).isFalse();
+        assertThat(otherRepositoryFile).hasContent(OTHER_REPOSITORY_CONTENT);
+    }
+
+    @Test
+    @DisplayName("GHSA-x4j8-9c4j-73r7")
+    void should_writeNoResourceInFallback_when_oneResourcePathLeavesRepository() {
+        // Given
+        GitResourceMap resourcesFromDB = resourceMapWith(
+                pathRelativeToRepository(otherRepository.resolve("new-file.json")), "pages/Page1/Page1.json");
+
+        // When
+        ThrowingCallable operation = () -> fileUtils.updateEntitiesInRepoFallback(resourcesFromDB, repository);
+
+        // Then
+        assertThatThrownBy(operation)
+                .isInstanceOf(AppsmithPluginException.class)
+                .hasMessage(OUTSIDE_REPOSITORY_MESSAGE);
+        assertThat(otherRepository.resolve("new-file.json")).doesNotExist();
+        assertThat(repository.resolve("pages")).doesNotExist();
     }
 
     @Test

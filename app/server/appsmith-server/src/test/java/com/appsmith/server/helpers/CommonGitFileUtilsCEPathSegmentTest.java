@@ -22,6 +22,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
@@ -104,6 +107,22 @@ class CommonGitFileUtilsCEPathSegmentTest {
                 .isInstanceOf(AppsmithException.class)
                 .hasMessage(AppsmithError.GIT_FILE_SYSTEM_ERROR.getMessage(
                         "ActionCollection context name is not a valid Git file path segment"));
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {" "})
+    void should_notRejectSerialization_when_contextNameIsNullOrWhitespace(String contextName) {
+        // Given
+        ApplicationJson applicationJson = new ApplicationJson();
+        applicationJson.setActionList(new ArrayList<>(List.of(actionInContext(contextName))));
+        applicationJson.setActionCollectionList(new ArrayList<>(List.of(actionCollectionInContext(contextName))));
+
+        // When
+        ThrowingCallable serialization = () -> commonGitFileUtils.createGitResourceMap(applicationJson);
+
+        // Then
+        assertThatCode(serialization).doesNotThrowAnyException();
     }
 
     @Test

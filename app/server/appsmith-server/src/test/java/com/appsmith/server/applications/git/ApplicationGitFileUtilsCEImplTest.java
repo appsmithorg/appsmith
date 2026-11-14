@@ -19,6 +19,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -28,6 +30,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
@@ -91,6 +94,22 @@ class ApplicationGitFileUtilsCEImplTest {
                 .filteredOn(identity -> GitResourceType.CONTEXT_CONFIG.equals(identity.getResourceType()))
                 .extracting(GitResourceIdentity::getFilePath)
                 .containsExactly("pages/" + pageName + "/" + pageName + ".json");
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {" "})
+    void should_notRejectSerialization_when_pageNameIsNullOrWhitespace(String pageName) {
+        // Given
+        ApplicationJson applicationJson = applicationJsonWithPage(pageName);
+        GitResourceMap gitResourceMap = new GitResourceMap();
+
+        // When
+        ThrowingCallable serialization =
+                () -> applicationGitFileUtils.setArtifactDependentResources(applicationJson, gitResourceMap);
+
+        // Then
+        assertThatCode(serialization).doesNotThrowAnyException();
     }
 
     @ParameterizedTest
