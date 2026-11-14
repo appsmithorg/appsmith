@@ -3,6 +3,7 @@ package com.appsmith.server.dtos;
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.meta.validations.FileName;
+import com.appsmith.server.meta.validations.FileNameValidator;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import net.minidev.json.JSONObject;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 public record PageCreationDTO(
-        @FileName(message = "Page names must be valid file names", isNullValid = false) @Size(max = 30) String name,
+        @FileName(message = FileNameValidator.INVALID_PAGE_NAME_MESSAGE, isNullValid = false) @Size(max = 30) String name,
         @NotEmpty @Size(min = 24, max = 50) String applicationId,
         @NotEmpty List<LayoutDTO> layouts) {
 

@@ -24,6 +24,11 @@ public class FileNameValidator implements ConstraintValidator<FileName, String> 
                     + "cannot start or end with a dot, cannot be longer than 255 characters, "
                     + "and cannot be a reserved device name such as CON or NUL.";
 
+    /**
+     * The message for a page name that {@link #isValidFileName} rejects.
+     */
+    public static final String INVALID_PAGE_NAME_MESSAGE = "The page name is not valid. " + PAGE_NAME_RULE;
+
     private boolean isNullValid;
 
     @Override

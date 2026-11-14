@@ -154,8 +154,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         } else if (!FileNameValidator.isValidFileName(page.getName())) {
             return Mono.error(new AppsmithException(
-                    AppsmithError.GENERIC_BAD_REQUEST,
-                    "The page name is not valid. " + FileNameValidator.PAGE_NAME_RULE));
+                    AppsmithError.GENERIC_BAD_REQUEST, FileNameValidator.INVALID_PAGE_NAME_MESSAGE));
         } else if (page.getApplicationId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
