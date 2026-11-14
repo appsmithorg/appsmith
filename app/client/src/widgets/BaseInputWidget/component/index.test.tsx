@@ -50,4 +50,16 @@ describe("BaseInputComponent TestCases", () => {
 
     expect(numericInputIcon).toBeInTheDocument();
   });
+
+  test("2. Numeric input should have inputmode attribute set to decimal", () => {
+    const { container } = renderBaseInputComponent({
+      inputType: "NUMBER",
+      inputHTMLType: "NUMBER",
+      value: "123",
+    });
+
+    const inputElement = container.querySelector("input");
+
+    expect(inputElement).toHaveAttribute("inputmode", "decimal");
+  });
 });
