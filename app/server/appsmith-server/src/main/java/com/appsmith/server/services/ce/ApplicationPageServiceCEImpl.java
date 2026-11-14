@@ -150,8 +150,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<PageDTO> createPage(PageDTO page) {
         if (page.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
-        } else if (page.getName() == null || !FileNameValidator.isValidFileName(page.getName())) {
+        } else if (page.getName() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
+        } else if (!FileNameValidator.isValidFileName(page.getName())) {
+            return Mono.error(new AppsmithException(
+                    AppsmithError.GENERIC_BAD_REQUEST,
+                    "The page name is not valid. " + FileNameValidator.PAGE_NAME_RULE));
         } else if (page.getApplicationId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
