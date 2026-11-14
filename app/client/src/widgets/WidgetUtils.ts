@@ -340,8 +340,9 @@ export const PopoverStyles = createGlobalStyle<{
   borderRadius: string;
   portalClassName: string;
   accentColor: string;
+  hideClearButton?: boolean;
 }>`
-  ${({ accentColor, borderRadius, portalClassName }) => `
+  ${({ accentColor, borderRadius, hideClearButton, portalClassName }) => `
     .${portalClassName} .${Classes.POPOVER} {
       border-radius: ${borderRadius} !important;
       overflow: hidden;
@@ -404,6 +405,15 @@ export const PopoverStyles = createGlobalStyle<{
       Classes.BUTTON
     }:hover {
       background-color: ${lightenColor(accentColor)};
+    }
+    ${
+      hideClearButton
+        ? `
+        .${portalClassName} .${DTClasses.DATEPICKER_FOOTER} .${Classes.BUTTON}:last-child {
+          display: none;
+        }
+      `
+        : ""
     }
 
     .${portalClassName} .${DTClasses.DATEPICKER_NAVBUTTON} span {
