@@ -3754,6 +3754,7 @@ function compileAliasedLevel(
 
 // Compile a query with `from`: checks the plugin, compiles each CTE in order with the CTEs before it in scope, then the
 // outer level. Every CTE must be read. WITH is refused on MySQL and MariaDB (see WITH_ON_MYSQL_MESSAGE).
+// The statement has no `;`. compileQuery adds it (see terminated).
 function compileAliasedSelect(
   spec: AliasedSpec,
   options: CompileQueryOptions,
@@ -3767,7 +3768,7 @@ function compileAliasedSelect(
   const ctes: unknown = spec.with;
 
   if (ctes === undefined) {
-    return `${compileAliasedLevel(spec, "outer", options, NO_CTES).sql};`;
+    return compileAliasedLevel(spec, "outer", options, NO_CTES).sql;
   }
 
   if (dialect === "mysql") throw new Error(WITH_ON_MYSQL_MESSAGE);
@@ -3818,7 +3819,16 @@ function compileAliasedSelect(
     }
   }
 
-  return `WITH ${parts.join(", ")} ${outer.sql};`;
+  return `WITH ${parts.join(", ")} ${outer.sql}`;
+}
+
+// End a compiled statement with `;`, except on Oracle.
+// The Oracle plugin removes `;` from a query only when OracleExecuteUtils.isPLSQL returns false. isPLSQL looks for
+// the words begin, declare, end and exception anywhere in the query. So a CASE column (`... END AS alias`), or a
+// column named begin, declare or exception, makes a plain SELECT look like PL/SQL. The plugin then keeps the `;`, and
+// Oracle 21c and older fail with ORA-00933. An Oracle body therefore has no `;` for the plugin to keep.
+function terminated(body: string, dialect: SqlDialect | undefined): string {
+  return dialect === "oracle" ? body : `${body};`;
 }
 
 function isAliasedSpec(spec: QuerySpec): spec is AliasedSpec {
@@ -3838,7 +3848,11 @@ export function compileQuery(
   options: CompileQueryOptions = {},
 ): string {
   if (isAliasedSpec(spec)) {
-    const aliasedBody = compileAliasedSelect(spec, options);
+    // compileAliasedSelect has already checked that options.dialect matches options.packageName.
+    const aliasedBody = terminated(
+      compileAliasedSelect(spec, options),
+      options.dialect,
+    );
 
     assertBodySafe(aliasedBody);
 
@@ -3910,7 +3924,7 @@ export function compileQuery(
       // DISTINCT is fixed text.
       const distinct = spec.distinct === true ? "DISTINCT " : "";
 
-      body = `SELECT ${distinct}${selectList} FROM ${emitFrom(spec, dialect, columns)}${emitWhere(spec.filters, dialect, columns)}${emitGroupBy(spec.groupBy, dialect, columns)}${emitHaving(spec, dialect, columns)}${emitOrderBy(spec.orderBy, columns, bareResultNames(spec))}${limit};`;
+      body = `SELECT ${distinct}${selectList} FROM ${emitFrom(spec, dialect, columns)}${emitWhere(spec.filters, dialect, columns)}${emitGroupBy(spec.groupBy, dialect, columns)}${emitHaving(spec, dialect, columns)}${emitOrderBy(spec.orderBy, columns, bareResultNames(spec))}${limit}`;
       break;
     }
     case "INSERT": {
@@ -3925,7 +3939,7 @@ export function compileQuery(
         .map((entry) => emitBinding(entry.value))
         .join(", ");
 
-      body = `INSERT INTO ${columns.table} (${names}) VALUES (${bindings});`;
+      body = `INSERT INTO ${columns.table} (${names}) VALUES (${bindings})`;
       break;
     }
     case "UPDATE": {
@@ -3940,15 +3954,16 @@ export function compileQuery(
         )
         .join(", ");
 
-      body = `UPDATE ${columns.table} SET ${assignments}${emitWhere(spec.filters, dialect, columns)};`;
+      body = `UPDATE ${columns.table} SET ${assignments}${emitWhere(spec.filters, dialect, columns)}`;
       break;
     }
     case "DELETE": {
-      body = `DELETE FROM ${columns.table}${emitWhere(spec.filters, dialect, columns)};`;
+      body = `DELETE FROM ${columns.table}${emitWhere(spec.filters, dialect, columns)}`;
       break;
     }
   }
 
+  body = terminated(body, dialect);
   assertBodySafe(body);
   assertBindingsSupported(body, options.packageName);
 

@@ -7893,7 +7893,7 @@ describe("governance-wrapped layout mutations", () => {
     ],
     [
       "oracle-plugin",
-      "SELECT o.id AS id, c.name AS customer FROM orders o INNER JOIN customers c ON c.id = o.customer_id FETCH FIRST 20 ROWS ONLY;",
+      "SELECT o.id AS id, c.name AS customer FROM orders o INNER JOIN customers c ON c.id = o.customer_id FETCH FIRST 20 ROWS ONLY",
     ],
     [
       "mssql-plugin",
@@ -7958,7 +7958,7 @@ describe("governance-wrapped layout mutations", () => {
     ],
     [
       "oracle-plugin",
-      'SELECT o.id AS id, CASE WHEN c.tier = {{ "gold" }} THEN {{ "priority" }} ELSE {{ "standard" }} END AS service FROM orders o INNER JOIN customers c ON c.id = o.customer_id FETCH FIRST 20 ROWS ONLY;',
+      'SELECT o.id AS id, CASE WHEN c.tier = {{ "gold" }} THEN {{ "priority" }} ELSE {{ "standard" }} END AS service FROM orders o INNER JOIN customers c ON c.id = o.customer_id FETCH FIRST 20 ROWS ONLY',
     ],
     [
       "mssql-plugin",

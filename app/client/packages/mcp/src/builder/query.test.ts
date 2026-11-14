@@ -862,7 +862,7 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
     [
       "INSERT",
       { values: [{ column: "status", value: { literal: "open" } }] },
-      'INSERT INTO tickets (status) VALUES ({{ "open" }});',
+      'INSERT INTO tickets (status) VALUES ({{ "open" }})',
     ],
     [
       "UPDATE",
@@ -870,12 +870,12 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
         values: [{ column: "status", value: { literal: "done" } }],
         filters: [{ column: "id", op: "eq", value: { literal: 7 } }],
       },
-      'UPDATE tickets SET status = {{ "done" }} WHERE tickets.id = {{ 7 }};',
+      'UPDATE tickets SET status = {{ "done" }} WHERE tickets.id = {{ 7 }}',
     ],
     [
       "DELETE",
       { filters: [{ column: "id", op: "eq", value: { literal: 7 } }] },
-      "DELETE FROM tickets WHERE tickets.id = {{ 7 }};",
+      "DELETE FROM tickets WHERE tickets.id = {{ 7 }}",
     ],
   ])(
     "compiles an Oracle %s with bound values and unquoted names",
@@ -905,7 +905,7 @@ describe("APP-16324 F1: isNull and notNull filters", () => {
     );
 
     expect(body).toBe(
-      'SELECT tag, COUNT(id) AS count FROM tickets WHERE tickets.status = {{ "open" }} GROUP BY tag ORDER BY tag ASC FETCH FIRST 10 ROWS ONLY;',
+      'SELECT tag, COUNT(id) AS count FROM tickets WHERE tickets.status = {{ "open" }} GROUP BY tag ORDER BY tag ASC FETCH FIRST 10 ROWS ONLY',
     );
   });
 
@@ -2962,7 +2962,7 @@ describe("APP-16495 A: aggregates (more than one aggregate)", () => {
     ],
     [
       "oracle" as const,
-      "SELECT status, FLOOR(AVG(ABS(resolution_time))) AS avg, COUNT(*) AS tickets FROM tickets GROUP BY status ORDER BY tickets DESC FETCH FIRST 10 ROWS ONLY;",
+      "SELECT status, FLOOR(AVG(ABS(resolution_time))) AS avg, COUNT(*) AS tickets FROM tickets GROUP BY status ORDER BY tickets DESC FETCH FIRST 10 ROWS ONLY",
     ],
   ])("emits result names bare and orders by one on %s", (dialect, expected) => {
     const body = compileQuery(
@@ -3694,13 +3694,13 @@ describe("APP-16495: council follow-ups", () => {
   });
 
   it.each([
-    ["postgres" as const, "ceil", 'CEIL(AVG("amount"))'],
-    ["redshift" as const, "round", 'ROUND(AVG("amount"))'],
-    ["mysql" as const, "ceil", "CEIL(AVG(amount))"],
-    ["oracle" as const, "round", "ROUND(AVG(amount))"],
-    ["other" as const, "floor", 'FLOOR(AVG("amount"))'],
-    [undefined, "floor", 'FLOOR(AVG("amount"))'],
-  ])("allows on dialect %s round %s", (dialect, round, expression) => {
+    ["postgres" as const, "ceil", 'CEIL(AVG("amount"))', ";"],
+    ["redshift" as const, "round", 'ROUND(AVG("amount"))', ";"],
+    ["mysql" as const, "ceil", "CEIL(AVG(amount))", ";"],
+    ["oracle" as const, "round", "ROUND(AVG(amount))", ""],
+    ["other" as const, "floor", 'FLOOR(AVG("amount"))', ";"],
+    [undefined, "floor", 'FLOOR(AVG("amount"))', ";"],
+  ])("allows on dialect %s round %s", (dialect, round, expression, end) => {
     expect(
       compileQuery(
         parse({
@@ -3711,7 +3711,7 @@ describe("APP-16495: council follow-ups", () => {
         }),
         { dialect },
       ),
-    ).toBe(`SELECT ${expression} AS avg FROM orders;`);
+    ).toBe(`SELECT ${expression} AS avg FROM orders${end}`);
   });
 
   it("refuses a second case-insensitive duplicate: a group column WEEK and a bucket named week", () => {
@@ -4618,6 +4618,18 @@ describe("APP-16507: no bindings for plugins without prepared statements", () =>
 
 const DIALECTS = ["postgres", "redshift", "mysql", "oracle", "other"] as const;
 
+// `SELECT * FROM <table>` as each dialect ends it. An Oracle body has no `;`.
+const SELECT_STAR_END: Record<SqlDialect, string> = {
+  postgres: ";",
+  redshift: ";",
+  mysql: ";",
+  oracle: "",
+  other: ";",
+};
+
+const selectStar = (table: string, dialect: SqlDialect) =>
+  `SELECT * FROM ${table}${SELECT_STAR_END[dialect]}`;
+
 const CATALOG_MESSAGE = (table: string) =>
   `${JSON.stringify(table)} is in a system catalog, which the MCP does not query (a best-effort guard; the datasource's credentials decide what can be read). To see a datasource's tables and columns, call get_datasource_structure`;
 
@@ -4689,7 +4701,9 @@ describe("APP-16506 A: system catalogs are refused", () => {
       }
 
       for (const dialect of ["mysql", "oracle", "other"] as const) {
-        expect(compileQuery(spec, { dialect })).toBe(`SELECT * FROM ${table};`);
+        expect(compileQuery(spec, { dialect })).toBe(
+          selectStar(table, dialect),
+        );
       }
     },
   );
@@ -4716,7 +4730,9 @@ describe("APP-16506 A: system catalogs are refused", () => {
           new Error(CATALOG_MESSAGE(table)),
         );
       } else {
-        expect(compileQuery(spec, { dialect })).toBe(`SELECT * FROM ${table};`);
+        expect(compileQuery(spec, { dialect })).toBe(
+          selectStar(table, dialect),
+        );
       }
     }
   });
@@ -4765,7 +4781,9 @@ describe("APP-16506 A: system catalogs are refused", () => {
 
       // When / Then
       for (const dialect of DIALECTS) {
-        expect(compileQuery(spec, { dialect })).toBe(`SELECT * FROM ${table};`);
+        expect(compileQuery(spec, { dialect })).toBe(
+          selectStar(table, dialect),
+        );
       }
     },
   );
@@ -4849,7 +4867,7 @@ const THREE_TABLE_POSTGRES =
 const THREE_TABLE_MYSQL =
   'SELECT c.region AS region, c.name AS customer, COUNT(*) AS orders, SUM(p.amount) AS paid_total FROM public.orders o INNER JOIN public.customers c ON c.id = o.customer_id LEFT JOIN public.payments p ON p.order_id = o.id WHERE o.status = {{ "paid" }} AND (p.refunded <=> NULL OR p.refunded = {{ false }}) AND c.region = {{ RegionSelect.selectedOptionValue }} GROUP BY c.region, c.name HAVING COUNT(*) > {{ 1 }} ORDER BY paid_total DESC LIMIT 50;';
 const THREE_TABLE_ORACLE =
-  'SELECT c.region AS region, c.name AS customer, COUNT(*) AS orders, SUM(p.amount) AS paid_total FROM public.orders o INNER JOIN public.customers c ON c.id = o.customer_id LEFT JOIN public.payments p ON p.order_id = o.id WHERE o.status = {{ "paid" }} AND (p.refunded IS NULL OR p.refunded = {{ false }}) AND c.region = {{ RegionSelect.selectedOptionValue }} GROUP BY c.region, c.name HAVING COUNT(*) > {{ 1 }} ORDER BY paid_total DESC FETCH FIRST 50 ROWS ONLY;';
+  'SELECT c.region AS region, c.name AS customer, COUNT(*) AS orders, SUM(p.amount) AS paid_total FROM public.orders o INNER JOIN public.customers c ON c.id = o.customer_id LEFT JOIN public.payments p ON p.order_id = o.id WHERE o.status = {{ "paid" }} AND (p.refunded IS NULL OR p.refunded = {{ false }}) AND c.region = {{ RegionSelect.selectedOptionValue }} GROUP BY c.region, c.name HAVING COUNT(*) > {{ 1 }} ORDER BY paid_total DESC FETCH FIRST 50 ROWS ONLY';
 const THREE_TABLE_MSSQL =
   'SELECT TOP (50) c."region" AS region, c."name" AS customer, COUNT(*) AS orders, SUM(p."amount") AS paid_total FROM public.orders o INNER JOIN public.customers c ON c."id" = o."customer_id" LEFT JOIN public.payments p ON p."order_id" = o."id" WHERE o."status" = {{ "paid" }} AND (p."refunded" IS NULL OR p."refunded" = {{ false }}) AND c."region" = {{ RegionSelect.selectedOptionValue }} GROUP BY c."region", c."name" HAVING COUNT(*) > {{ 1 }} ORDER BY paid_total DESC;';
 
@@ -4921,7 +4939,7 @@ describe("APP-16506 B: from + joins", () => {
 
       // Then
       expect(body).toBe(
-        "SELECT o.id AS id, c.name AS customer FROM orders o INNER JOIN customers c ON c.id = o.customer_id FETCH FIRST 20 ROWS ONLY;",
+        "SELECT o.id AS id, c.name AS customer FROM orders o INNER JOIN customers c ON c.id = o.customer_id FETCH FIRST 20 ROWS ONLY",
       );
       expect(body).not.toMatch(/ AS [oc] /);
     });
@@ -5944,7 +5962,7 @@ function withBandCase(change: Record<string, unknown>) {
 const CASE_COLUMNS_POSTGRES =
   'SELECT o."id" AS id, CASE WHEN o."total" >= {{ 1000 }} THEN {{ "large" }} WHEN o."total" IS NULL AND (o."status" = {{ "new" }} OR o."status" IS NULL) THEN o."status" ELSE {{ "small" }} END AS order_band FROM (SELECT "id", "total", "status" FROM orders) o LIMIT 50;';
 const CASE_COLUMNS_ORACLE =
-  'SELECT o.id AS id, CASE WHEN o.total >= {{ 1000 }} THEN {{ "large" }} WHEN o.total IS NULL AND (o.status = {{ "new" }} OR o.status IS NULL) THEN o.status ELSE {{ "small" }} END AS order_band FROM orders o FETCH FIRST 50 ROWS ONLY;';
+  'SELECT o.id AS id, CASE WHEN o.total >= {{ 1000 }} THEN {{ "large" }} WHEN o.total IS NULL AND (o.status = {{ "new" }} OR o.status IS NULL) THEN o.status ELSE {{ "small" }} END AS order_band FROM orders o FETCH FIRST 50 ROWS ONLY';
 const CASE_COLUMNS_MSSQL =
   'SELECT TOP (50) o."id" AS id, CASE WHEN o."total" >= {{ 1000 }} THEN {{ "large" }} WHEN o."total" IS NULL AND (o."status" = {{ "new" }} OR o."status" IS NULL) THEN o."status" ELSE {{ "small" }} END AS order_band FROM orders o;';
 const CASE_COLUMNS_MYSQL =
@@ -5952,7 +5970,7 @@ const CASE_COLUMNS_MYSQL =
 const CASE_AGGREGATES_POSTGRES =
   'SELECT o."region" AS region, SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o."refunded" IS NOT NULL THEN {{ 1 }} END) AS refunds FROM (SELECT "region", "status", "total", "refunded" FROM orders) o GROUP BY o."region" HAVING SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC LIMIT 20;';
 const CASE_AGGREGATES_ORACLE =
-  'SELECT o.region AS region, SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o.refunded IS NOT NULL THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o.region HAVING SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC FETCH FIRST 20 ROWS ONLY;';
+  'SELECT o.region AS region, SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o.refunded IS NOT NULL THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o.region HAVING SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC FETCH FIRST 20 ROWS ONLY';
 const CASE_AGGREGATES_MSSQL =
   'SELECT TOP (20) o."region" AS region, SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o."refunded" IS NOT NULL THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o."region" HAVING SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC;';
 
@@ -6561,7 +6579,7 @@ function withCteQuery(index: number, change: Record<string, unknown>) {
 const WITH_JOIN_POSTGRES =
   'WITH order_totals AS (SELECT o."customer_id" AS customer_id, SUM(o."total") AS paid_total FROM (SELECT "customer_id", "status", "total" FROM orders) o WHERE o."status" = {{ "paid" }} GROUP BY o."customer_id"), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT c."name" AS customer, b.paid_total AS paid_total FROM (SELECT "id", "name" FROM customers) c INNER JOIN big_spenders b ON b.customer_id = c."id" ORDER BY paid_total DESC LIMIT 10;';
 const WITH_JOIN_ORACLE =
-  'WITH order_totals AS (SELECT o.customer_id AS customer_id, SUM(o.total) AS paid_total FROM orders o WHERE o.status = {{ "paid" }} GROUP BY o.customer_id), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT c.name AS customer, b.paid_total AS paid_total FROM customers c INNER JOIN big_spenders b ON b.customer_id = c.id ORDER BY paid_total DESC FETCH FIRST 10 ROWS ONLY;';
+  'WITH order_totals AS (SELECT o.customer_id AS customer_id, SUM(o.total) AS paid_total FROM orders o WHERE o.status = {{ "paid" }} GROUP BY o.customer_id), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT c.name AS customer, b.paid_total AS paid_total FROM customers c INNER JOIN big_spenders b ON b.customer_id = c.id ORDER BY paid_total DESC FETCH FIRST 10 ROWS ONLY';
 const WITH_JOIN_MSSQL =
   'WITH order_totals AS (SELECT o."customer_id" AS customer_id, SUM(o."total") AS paid_total FROM orders o WHERE o."status" = {{ "paid" }} GROUP BY o."customer_id"), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT TOP (10) c."name" AS customer, b.paid_total AS paid_total FROM customers c INNER JOIN big_spenders b ON b.customer_id = c."id" ORDER BY paid_total DESC;';
 
@@ -7218,5 +7236,65 @@ describe("APP-16506 D: WITH", () => {
         new Error(WITH_ON_MYSQL),
       );
     });
+  });
+});
+
+// APP-16506: the Oracle plugin removes `;` from a query only when OracleExecuteUtils.isPLSQL returns false. This is a
+// copy of its PLSQL_MATCH_REGEX. isPLSQL runs it on the lower-cased query and looks for a match anywhere.
+const ORACLE_PLSQL_MATCH =
+  /(\bdeclare\b(\s))|(\bbegin\b(\s))|(\bend\b(\s|;))|(\bexception\b(\s))/;
+
+// When isPLSQL matches, the plugin keeps every `;`, and Oracle 21c and older fail with ORA-00933. So an Oracle body
+// must have no `;` at all: then the plugin has nothing to keep.
+describe("APP-16506: Oracle bodies have no trailing semicolon", () => {
+  it("should_have_no_semicolon_when_an_oracle_case_column_looks_like_plsql", () => {
+    // Given
+    const spec = caseColumns;
+
+    // When
+    const body = compileFor(spec, "oracle-plugin");
+    const stored = markMcpAuthoredBody(body);
+
+    // Then
+    expect(ORACLE_PLSQL_MATCH.test(stored.toLowerCase())).toBe(true);
+    expect(stored).not.toContain(";");
+  });
+
+  it("should_have_no_semicolon_when_a_single_table_oracle_column_is_named_exception", () => {
+    // Given
+    const spec = parse({
+      ...base,
+      operation: "SELECT",
+      table: "incidents",
+      // "exception FROM" matches isPLSQL. "exception," would not, because the word needs a space after it.
+      columns: ["id", "exception"],
+      limit: 10,
+    });
+
+    // When
+    const body = compileQuery(spec, { dialect: "oracle" });
+    const stored = markMcpAuthoredBody(body);
+
+    // Then
+    expect(ORACLE_PLSQL_MATCH.test(stored.toLowerCase())).toBe(true);
+    expect(stored).not.toContain(";");
+  });
+
+  it("should_keep_the_trailing_semicolon_when_the_dialect_is_not_oracle", () => {
+    // Given
+    const spec = parse({
+      ...base,
+      operation: "SELECT",
+      table: "incidents",
+      columns: ["id", "exception"],
+      limit: 10,
+    });
+
+    // When / Then
+    for (const dialect of ["postgres", "redshift", "mysql", "other"] as const) {
+      expect(compileQuery(spec, { dialect })).toMatch(/;$/);
+    }
+
+    expect(compileQuery(spec)).toMatch(/;$/);
   });
 });
