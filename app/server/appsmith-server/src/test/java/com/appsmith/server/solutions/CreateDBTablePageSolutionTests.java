@@ -79,6 +79,11 @@ import static org.mockito.Mockito.spy;
 @DirtiesContext
 public class CreateDBTablePageSolutionTests {
 
+    private static final String INVALID_GENERATED_PAGE_NAME_MESSAGE = AppsmithError.GENERIC_BAD_REQUEST.getMessage(
+            "The page name is taken from the table or sheet name, and that name is not a valid page name. "
+                    + "A page name cannot be blank, cannot contain \\ / : < > \" | ? * or control characters, cannot start or end with a dot, cannot be longer than 255 characters, and cannot be a reserved device name such as CON or NUL."
+                    + " Rename the table or sheet and try again.");
+
     // Regex to break string in separate words
     static final String specialCharactersRegex = "[^a-zA-Z0-9,;(){}*_]+";
     private static final String DATA = "data";
@@ -339,7 +344,7 @@ public class CreateDBTablePageSolutionTests {
         StepVerifier.create(resultMono)
                 .expectErrorSatisfies(error -> assertThat(error)
                         .isInstanceOf(AppsmithException.class)
-                        .hasMessage(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME)))
+                        .hasMessage(INVALID_GENERATED_PAGE_NAME_MESSAGE))
                 .verify();
         assertThat(pageCountOf(testApp.getId())).isEqualTo(pageCountBefore);
     }

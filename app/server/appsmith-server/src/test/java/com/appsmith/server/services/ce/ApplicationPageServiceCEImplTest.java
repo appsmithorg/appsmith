@@ -49,6 +49,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ApplicationPageServiceCEImplTest {
 
+    private static final String INVALID_PAGE_NAME_MESSAGE = AppsmithError.GENERIC_BAD_REQUEST.getMessage(
+            "The page name is not valid. "
+                    + "A page name cannot be blank, cannot contain \\ / : < > \" | ? * or control characters, cannot start or end with a dot, cannot be longer than 255 characters, and cannot be a reserved device name such as CON or NUL.");
+
     @Mock
     private NewPageService newPageService;
 
@@ -237,9 +241,8 @@ class ApplicationPageServiceCEImplTest {
 
         // Then
         StepVerifier.create(result)
-                .expectErrorSatisfies(error -> assertThat(error)
-                        .isInstanceOf(AppsmithException.class)
-                        .hasMessage(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME)))
+                .expectErrorSatisfies(error ->
+                        assertThat(error).isInstanceOf(AppsmithException.class).hasMessage(INVALID_PAGE_NAME_MESSAGE))
                 .verify();
         verify(newPageService, never()).createDefault(any());
     }
