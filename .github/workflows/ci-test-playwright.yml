@@ -102,13 +102,19 @@ jobs:
 
       # The build job pushed the SUT image to GHCR tagged with this run's id;
       # pull it from there (layer-parallel, no single-blob cache bottleneck).
+      # The test-image pulls in the next steps use the same GHCR login, so it
+      # runs even when DOCKER_IMAGE_NAME names another image. A failed login
+      # stops the job only through the GHCR pull of the image under test.
       - name: Load Docker image
         env:
           GHCR_IMAGE: ghcr.io/${{ github.repository }}-citest:run-${{ github.run_id }}
           DOCKER_IMAGE_NAME: ${{ inputs.docker_image_name }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          if ! echo "$GHCR_TOKEN" | timeout 60 docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin; then
+            echo "::warning::GHCR login failed. The test images come from Docker Hub."
+          fi
           if [[ -z "$DOCKER_IMAGE_NAME" ]]; then
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
             docker pull "$GHCR_IMAGE"
             docker tag "$GHCR_IMAGE" cicontainer
           else
@@ -151,8 +157,20 @@ jobs:
             echo "::error::docker pull $1 failed 3 times."
             return 1
           }
-          pull_image "$ted_image"
-          pull_image "$cs_image"
+          # The GHCR copies come from mirror-test-images.yml in appsmithorg/appsmith-ee.
+          # They need a GHCR login from an earlier step. Without that login, or
+          # without a copy for the tag, the image comes from Docker Hub.
+          pull_test_image() {
+            local mirror="ghcr.io/appsmithorg/ci-mirror/${1#appsmith/}"
+            if timeout 600 docker pull "$mirror"; then
+              docker tag "$mirror" "$1"
+              return 0
+            fi
+            echo "::warning::docker pull $mirror failed. Pulling $1 from Docker Hub."
+            pull_image "$1"
+          }
+          pull_test_image "$ted_image"
+          pull_test_image "$cs_image"
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
             -p 5433:5432 -p 28017:27017 -p 25:25 -p 4200:4200 -p 5000:5000 -p 3001:3000 -p 6001:6001 -p 8001:8000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
             "$ted_image"
