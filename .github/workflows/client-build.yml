@@ -161,12 +161,8 @@ jobs:
           REACT_APP_FARO_SOURCEMAP_UPLOAD_API_KEY: ${{ steps.vars.outputs.REACT_APP_ENVIRONMENT == 'PRODUCTION' && secrets.REACT_APP_FARO_SOURCEMAP_UPLOAD_API_KEY || '' }}
           REACT_APP_FARO_SOURCEMAP_UPLOAD_ENDPOINT: ${{ steps.vars.outputs.REACT_APP_ENVIRONMENT == 'PRODUCTION' && secrets.REACT_APP_FARO_SOURCEMAP_UPLOAD_ENDPOINT || '' }}
           SENTRY_AUTH_TOKEN: ${{ steps.vars.outputs.REACT_APP_ENVIRONMENT == 'PRODUCTION' && secrets.SENTRY_AUTH_TOKEN || '' }}
+          REACT_APP_SEGMENT_CE_KEY: ${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-            export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
-          else
-            export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}"
-          fi
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
           REACT_APP_FARO_APP_ID=${{ secrets.REACT_APP_FARO_APP_ID }} \
           REACT_APP_FARO_APP_NAME=${{ secrets.REACT_APP_FARO_APP_NAME }} \
