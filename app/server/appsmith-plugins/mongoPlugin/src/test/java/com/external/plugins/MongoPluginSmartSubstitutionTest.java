@@ -192,6 +192,22 @@ class MongoPluginSmartSubstitutionTest {
         assertThat(substituted.get("name")).isEqualTo(value);
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"/O'Reilly/", "/say \"hi/", "/a\\/b'c/i"})
+    void should_quoteRegexArgument_when_queryHasQuoteInsideRegexLiteral(String regexLiteral) {
+        // Given
+        String filter = "{ \"owner\": " + regexLiteral + ", \"code\": { $regex: 5 }, \"name\": {{Input1.text}} }";
+        String value = "see { $regex: 5 } for details";
+
+        // When
+        Document substituted = substituteIntoFilter(filter, value, ClientDataType.STRING);
+
+        // Then
+        assertThat(substituted.keySet()).containsExactly("owner", "code", "name");
+        assertThat(substituted.get("code", Document.class).get("$regex")).isEqualTo("5");
+        assertThat(substituted.get("name")).isEqualTo(value);
+    }
+
     static Stream<String> stringsThatLookLikeArraysOrObjects() {
         return Stream.of(
                 "[\"first\", \"second\"]",
