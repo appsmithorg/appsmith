@@ -111,20 +111,36 @@ describe(
       propPane.EnterJSContext("Text", "{{Api1.data}}");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TEXT));
       agHelper.AssertElementVisibility(appSettings.locators._header);
-      //agHelper.RefreshPage(); // Refreshing the page due to frequent connection reset from Hubspot
-      // Assert that the text widget contains the expected data
-      cy.get(locators._widgetInDeployed(draggableWidgets.TEXT)).should(
-        "contain.text",
-        "appsmith1",
-      );
-      // agHelper
-      //   .GetElement(locators._widgetInDeployed(draggableWidgets.TEXT))
-      //   .then(($elements) => {
-      //     const values = $elements
-      //       .map((_, el) => Cypress.$(el).text().trim())
-      //       .get();
-      //     expect(values).to.include("appsmith1");
-      //   });
+
+      // HubSpot resets the connection now and then. Test 2 retries its own
+      // query run; the page-load run in view mode has no retry, so reload the
+      // deployed page while that run reports a failure before reading the
+      // widget. Any other response reaches the assertion unchanged.
+      const assertWidgetAfterPageLoadRun = (retries = 3) => {
+        cy.wait(assertHelper.GetAliasName("@postExecute")).then(
+          (interception) => {
+            const isExecutionSuccess =
+              interception.response?.body?.data?.isExecutionSuccess;
+
+            if (isExecutionSuccess === false && retries > 1) {
+              cy.log(
+                `Page-load run of Api1 failed. Reloading, attempts left: ${
+                  retries - 1
+                }`,
+              );
+              agHelper.CypressReload();
+              assertWidgetAfterPageLoadRun(retries - 1);
+            } else {
+              cy.get(locators._widgetInDeployed(draggableWidgets.TEXT)).should(
+                "contain.text",
+                "appsmith1",
+              );
+            }
+          },
+        );
+      };
+
+      assertWidgetAfterPageLoadRun();
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Api1", EntityType.Query);
     });
