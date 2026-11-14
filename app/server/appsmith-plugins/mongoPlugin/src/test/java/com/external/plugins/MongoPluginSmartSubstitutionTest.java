@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -33,7 +34,9 @@ import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.external.plugins.constants.FieldName.BODY;
+import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
+import static com.external.plugins.constants.FieldName.FIND_QUERY;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -56,6 +59,10 @@ class MongoPluginSmartSubstitutionTest {
      * substitution, and the substituted query is read back from the form data.
      */
     private Document substituteIntoFilter(String value, ClientDataType clientDataType) {
+        return substituteIntoFilter("{ \"name\": {{Input1.text}} }", value, clientDataType);
+    }
+
+    private Document substituteIntoFilter(String filter, String value, ClientDataType clientDataType) {
         Param param = new Param("Input1.text", value);
         param.setClientDataType(clientDataType);
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
@@ -64,8 +71,7 @@ class MongoPluginSmartSubstitutionTest {
         Map<String, Object> formData = new HashMap<>();
         setDataValueSafelyInFormData(formData, SMART_SUBSTITUTION, Boolean.TRUE);
         setDataValueSafelyInFormData(formData, COMMAND, "RAW");
-        setDataValueSafelyInFormData(
-                formData, BODY, "{ \"find\": \"users\", \"filter\": { \"name\": {{Input1.text}} } }");
+        setDataValueSafelyInFormData(formData, BODY, "{ \"find\": \"users\", \"filter\": " + filter + " }");
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setFormData(formData);
 
@@ -156,6 +162,125 @@ class MongoPluginSmartSubstitutionTest {
         Document filter = substituteIntoFilter(value, ClientDataType.STRING);
 
         // Then
+        assertThat(filter.keySet()).containsExactly("name");
+        assertThat(filter.get("name")).isEqualTo(value);
+    }
+
+    static Stream<String> stringsThatContainRegexOperatorText() {
+        return Stream.of(
+                "{ $regex: 5 }",
+                "{ $regex: 5 } at the start",
+                "at the end { $regex: 5 }",
+                "after a backslash \\{ $regex: 5 }",
+                "after a quote \"{ $regex: 5 }",
+                "{ $regex: 5, $options: 7 }");
+    }
+
+    @ParameterizedTest
+    @MethodSource("stringsThatContainRegexOperatorText")
+    @DisplayName("GHSA-gcgj-p6xv-xpcp")
+    void should_keepBoundStringUnchanged_when_queryAlsoHasRegexArgument(String value) {
+        // Given
+        String filter = "{ \"code\": { $regex: 5 }, \"name\": {{Input1.text}} }";
+
+        // When
+        Document substituted = substituteIntoFilter(filter, value, ClientDataType.STRING);
+
+        // Then
+        assertThat(substituted.keySet()).containsExactly("code", "name");
+        assertThat(substituted.get("code", Document.class).get("$regex")).isEqualTo("5");
+        assertThat(substituted.get("name")).isEqualTo(value);
+    }
+
+    static Stream<String> stringsThatLookLikeArraysOrObjects() {
+        return Stream.of(
+                "[\"first\", \"second\"]",
+                "{\"first\": \"second\"}",
+                "[\"ObjectId('" + OBJECT_ID + "')\"]",
+                "{\"first\": \"ObjectId('" + OBJECT_ID + "')\"}");
+    }
+
+    @ParameterizedTest
+    @MethodSource("stringsThatLookLikeArraysOrObjects")
+    @DisplayName("GHSA-gcgj-p6xv-xpcp")
+    void should_keepBoundStringAsOneStringValue_when_itLooksLikeAnArrayOrObject(String value) {
+        // Given / When
+        Document filter = substituteIntoFilter(value, ClientDataType.STRING);
+
+        // Then
+        assertThat(filter.keySet()).containsExactly("name");
+        assertThat(filter.get("name")).isEqualTo(value);
+    }
+
+    @Test
+    @DisplayName("GHSA-gcgj-p6xv-xpcp")
+    void should_convertOnlyCompleteLiterals_when_objectHasNestedMembers() {
+        // Given
+        String incomplete = "leading text \"ObjectId('" + OBJECT_ID + "')";
+        String object =
+                "{\"outer\": {\"id\": \"ObjectId('" + OBJECT_ID + "')\", \"note\": \"leading text \\\"ObjectId('"
+                        + OBJECT_ID + "')\", \"count\": 3, \"missing\": null}}";
+
+        // When
+        Document filter = substituteIntoFilter(object, ClientDataType.OBJECT);
+
+        // Then
+        Document outer = filter.get("name", Document.class).get("outer", Document.class);
+        assertThat(outer.keySet()).containsExactlyInAnyOrder("id", "note", "count", "missing");
+        assertThat(outer.get("id")).isEqualTo(new ObjectId(OBJECT_ID));
+        assertThat(outer.get("note")).isEqualTo(incomplete);
+        assertThat(outer.get("count")).isEqualTo(3);
+        assertThat(outer.get("missing")).isNull();
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {"Timestamp(4294967296, 1)", "Timestamp(1, 4294967296)", "Timestamp(99999999999999999999, 1)"})
+    @DisplayName("GHSA-gcgj-p6xv-xpcp")
+    void should_keepTimestampTextAsString_when_argumentIsOutOfRange(String value) {
+        // Given / When
+        Document filter = substituteIntoFilter(value, ClientDataType.STRING);
+
+        // Then
+        assertThat(filter.get("name")).isEqualTo(value);
+    }
+
+    @Test
+    void should_writeTimestamp_when_argumentIsAtTheUpperBound() {
+        // Given / When
+        Document filter = substituteIntoFilter("Timestamp(2147483647, 2147483647)", ClientDataType.STRING);
+
+        // Then
+        assertThat(filter.get("name")).isEqualTo(new BsonTimestamp(2147483647, 2147483647));
+    }
+
+    @Test
+    @DisplayName("GHSA-gcgj-p6xv-xpcp")
+    void should_keepBoundStringAsOneStringValue_when_commandIsAFormFind() {
+        // Given
+        String value = "note \"ObjectId('" + OBJECT_ID + "')\" end";
+        Param param = new Param("Input1.text", value);
+        param.setClientDataType(ClientDataType.STRING);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(new ArrayList<>(List.of(param)));
+
+        Map<String, Object> formData = new HashMap<>();
+        setDataValueSafelyInFormData(formData, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(formData, COMMAND, "FIND");
+        setDataValueSafelyInFormData(formData, COLLECTION, "users");
+        setDataValueSafelyInFormData(formData, FIND_QUERY, "{ \"name\": \"{{Input1.text}}\" }");
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(formData);
+
+        // When
+        assertThatThrownBy(() -> Mono.defer(() -> pluginExecutor.executeParameterized(
+                                null, executeActionDTO, new DatasourceConfiguration(), actionConfiguration))
+                        .block())
+                .isInstanceOf(StaleConnectionException.class);
+
+        // Then
+        Document command = Document.parse(getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE));
+        Document filter = command.get("filter", Document.class);
         assertThat(filter.keySet()).containsExactly("name");
         assertThat(filter.get("name")).isEqualTo(value);
     }
