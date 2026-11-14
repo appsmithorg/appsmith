@@ -228,9 +228,11 @@ public class MongoPlugin extends BasePlugin {
 
     /**
      * The argument of a special data type that is written without quotes, such as Timestamp(1234, 1): two unsigned
-     * integers.
+     * integers of at most ten digits. Each integer must also fit in a signed 32-bit integer, which is the range
+     * that the BSON parser accepts.
      */
-    private static final Pattern UNQUOTED_SPECIAL_TYPE_ARGUMENT_PATTERN = Pattern.compile("\\d++\\s*+,\\s*+\\d++");
+    private static final Pattern UNQUOTED_SPECIAL_TYPE_ARGUMENT_PATTERN =
+            Pattern.compile("(\\d{1,10}+)\\s*+,\\s*+(\\d{1,10}+)");
 
     /**
      * Limit on the nesting of an array or object value that is written with its special data type members. It
@@ -661,7 +663,10 @@ public class MongoPlugin extends BasePlugin {
                                 AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, argument, e.getMessage());
                     }
                 }
-                if (!UNQUOTED_SPECIAL_TYPE_ARGUMENT_PATTERN.matcher(argument).matches()) {
+                final Matcher unquotedArgument = UNQUOTED_SPECIAL_TYPE_ARGUMENT_PATTERN.matcher(argument);
+                if (!unquotedArgument.matches()
+                        || Long.parseLong(unquotedArgument.group(1)) > Integer.MAX_VALUE
+                        || Long.parseLong(unquotedArgument.group(2)) > Integer.MAX_VALUE) {
                     return Optional.empty();
                 }
                 return Optional.of(specialType.name() + "(" + argument + ")");
@@ -982,7 +987,9 @@ public class MongoPlugin extends BasePlugin {
                 if (insideStringLiteral == null) {
                     insideStringLiteral = findStringLiteralPositions(inputQuery);
                 }
-                if (insideStringLiteral.get(mongo$regexIdentifierMatcher.start())) {
+                final int firstInsideStringLiteral =
+                        insideStringLiteral.nextSetBit(mongo$regexIdentifierMatcher.start());
+                if (firstInsideStringLiteral >= 0 && firstInsideStringLiteral < mongo$regexIdentifierMatcher.end(1)) {
                     continue;
                 }
 
@@ -1340,14 +1347,15 @@ public class MongoPlugin extends BasePlugin {
                         jsonBody, value, dataType, insertedParams, null, param);
             }
             /*
-             An array or object value is written by this plugin, so that a member is turned into a special data
-             type only when the complete member is one literal. A value with no client data type that is an array
-             or object with such a member is written the same way.
+             An array or object value that has a special data type member is written by this plugin, so that a
+             member is turned into a special data type only when the complete member is one literal. A value with
+             no client data type that is an array or object with such a member is written the same way. Every
+             other value takes the common handling.
             */
-            final boolean isUntypedArrayOrObject = param.getClientDataType() == null
-                    && DataType.STRING.equals(dataType)
-                    && isArrayOrObjectWithSpecialTypeMember(value);
-            if (DataType.ARRAY.equals(dataType) || DataType.JSON_OBJECT.equals(dataType) || isUntypedArrayOrObject) {
+            final boolean isArrayOrObject = DataType.ARRAY.equals(dataType) || DataType.JSON_OBJECT.equals(dataType);
+            final boolean isUntypedArrayOrObject =
+                    param.getClientDataType() == null && DataType.STRING.equals(dataType);
+            if ((isArrayOrObject || isUntypedArrayOrObject) && isArrayOrObjectWithSpecialTypeMember(value)) {
                 final DataType writtenDataType = isUntypedArrayOrObject ? DataType.BSON_SPECIAL_DATA_TYPES : dataType;
                 insertedParams.add(new SimpleEntry<>(value, writtenDataType.toString()));
                 return DataTypeStringUtils.placeholderPattern
