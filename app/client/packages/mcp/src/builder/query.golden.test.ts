@@ -3370,6 +3370,8 @@ type PluginOutcomes = Record<"none" | (typeof PLUGINS)[number], Outcome>;
 
 const ALIASED_MODE_MESSAGE =
   "from and joins need a PostgreSQL, MySQL, MariaDB, Oracle or SQL Server datasource that the server can identify. Redshift and Snowflake are not supported: their plugins put values into the SQL text instead of binding them";
+const WITH_ON_MYSQL_MESSAGE =
+  "with is not available on MySQL or MariaDB: their plugin returns rows only for a query whose first word is SELECT";
 
 function compileForEveryPlugin(spec: Record<string, unknown>): PluginOutcomes {
   const parsed = querySpecSchema.parse({ ...base, ...spec });
@@ -3622,6 +3624,61 @@ const GOLDEN_PLUGIN_CASES = [
         'SELECT o.region AS region, SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o.refunded IS NOT NULL THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o.region HAVING SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC FETCH FIRST 20 ROWS ONLY;',
       "mssql-plugin":
         'SELECT TOP (20) o."region" AS region, SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o."refunded" IS NOT NULL THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o."region" HAVING SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC;',
+      "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
+      "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
+    },
+  },
+  // APP-16506 D: two CTEs, the second reading the first, joined to a table. Refused on MySQL and MariaDB.
+  {
+    name: "WITH two CTEs joined to a table",
+    spec: {
+      operation: "SELECT",
+      with: [
+        {
+          name: "order_totals",
+          query: {
+            from: { table: "orders", as: "o" },
+            filters: [
+              { column: "o.status", op: "eq", value: { literal: "paid" } },
+            ],
+            groupBy: [{ column: "o.customer_id", as: "customer_id" }],
+            aggregates: [{ fn: "sum", column: "o.total", as: "paid_total" }],
+          },
+        },
+        {
+          name: "big_spenders",
+          query: {
+            from: { cte: "order_totals", as: "t" },
+            columns: ["t.customer_id", "t.paid_total"],
+            filters: [
+              { column: "t.paid_total", op: "gte", value: { literal: 500 } },
+            ],
+          },
+        },
+      ],
+      from: { table: "customers", as: "c" },
+      joins: [
+        {
+          type: "inner",
+          cte: "big_spenders",
+          as: "b",
+          on: [{ left: "b.customer_id", right: "c.id" }],
+        },
+      ],
+      columns: [{ column: "c.name", as: "customer" }, "b.paid_total"],
+      orderBy: [{ column: "paid_total", direction: "DESC" }],
+      limit: 10,
+    },
+    expected: {
+      none: { throws: ALIASED_MODE_MESSAGE },
+      "postgres-plugin":
+        'WITH order_totals AS (SELECT o."customer_id" AS customer_id, SUM(o."total") AS paid_total FROM (SELECT "customer_id", "status", "total" FROM orders) o WHERE o."status" = {{ "paid" }} GROUP BY o."customer_id"), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT c."name" AS customer, b.paid_total AS paid_total FROM (SELECT "id", "name" FROM customers) c INNER JOIN big_spenders b ON b.customer_id = c."id" ORDER BY paid_total DESC LIMIT 10;',
+      "mysql-plugin": { throws: WITH_ON_MYSQL_MESSAGE },
+      "mariadb-plugin": { throws: WITH_ON_MYSQL_MESSAGE },
+      "oracle-plugin":
+        'WITH order_totals AS (SELECT o.customer_id AS customer_id, SUM(o.total) AS paid_total FROM orders o WHERE o.status = {{ "paid" }} GROUP BY o.customer_id), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT c.name AS customer, b.paid_total AS paid_total FROM customers c INNER JOIN big_spenders b ON b.customer_id = c.id ORDER BY paid_total DESC FETCH FIRST 10 ROWS ONLY;',
+      "mssql-plugin":
+        'WITH order_totals AS (SELECT o."customer_id" AS customer_id, SUM(o."total") AS paid_total FROM orders o WHERE o."status" = {{ "paid" }} GROUP BY o."customer_id"), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT TOP (10) c."name" AS customer, b.paid_total AS paid_total FROM customers c INNER JOIN big_spenders b ON b.customer_id = c."id" ORDER BY paid_total DESC;',
       "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
       "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
     },
