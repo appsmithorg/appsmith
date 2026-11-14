@@ -242,7 +242,17 @@ evaluated as code in a viewer's browser.
     stay PostgreSQL only. A query with joins is SELECT only.
   - To scope rows to the viewer, filter the table that holds the owner column, such as
     \`{ "column": "o.owner_email", "op": "eq", "value": { "widget": "appsmith", "property":
-    "user.email" } }\`.`;
+    "user.email" } }\`.
+- CASE (only in a query with \`from\`): a \`columns\` entry \`{ "case": { "when": [{ "if": [condition,
+  ...], "then": operand }], "else": operand }, "as": "band" }\`, or an aggregate input
+  \`{ "fn": "sum", "case": { ... }, "as": "paid_total" }\` (column or case, not both).
+  - A condition has the filters shape (a filter or an anyOf group) without skipWhenEmpty or
+    inList. Up to 8 \`when\` branches, each with 1 to 4 conditions, ANDed.
+  - then and else are \`{ "column": "o.total" }\` or \`{ "literal": ... }\`. A literal is bound, never
+    null and never a widget value. All literal then and else values in one CASE have one type.
+    Oracle and SQL Server refuse a boolean then or else.
+  - No CASE inside a CASE, and none in groupBy: compute it in a with query, then group by that
+    query's output. At most 12 CASE expressions in one query level.`;
 
 const GUIDE_GIT = `# Git-connected applications guide
 
