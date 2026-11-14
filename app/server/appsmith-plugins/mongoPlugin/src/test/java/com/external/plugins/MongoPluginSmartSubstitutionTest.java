@@ -146,6 +146,20 @@ class MongoPluginSmartSubstitutionTest {
         assertThat(filter.get("name")).isEqualTo(value);
     }
 
+    @Test
+    @DisplayName("GHSA-gcgj-p6xv-xpcp")
+    void should_keepBoundStringAsOneStringValue_when_itContainsRegexOperatorText() {
+        // Given
+        String value = "see { $regex: 5 } for details";
+
+        // When
+        Document filter = substituteIntoFilter(value, ClientDataType.STRING);
+
+        // Then
+        assertThat(filter.keySet()).containsExactly("name");
+        assertThat(filter.get("name")).isEqualTo(value);
+    }
+
     static Stream<Arguments> completeSpecialTypeLiterals() {
         return Stream.of(
                 Arguments.of("ObjectId('" + OBJECT_ID + "')", new ObjectId(OBJECT_ID)),
