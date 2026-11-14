@@ -105,7 +105,7 @@ public class RowsGetMethod implements ExecutionMethod, TemplateMethod, TriggerMe
 
         return webClient
                 .method(HttpMethod.GET)
-                .uri(uriBuilder.build(false).toUri())
+                .uri(uriBuilder.build().encode().toUri())
                 .body(BodyInserters.empty());
     }
 
