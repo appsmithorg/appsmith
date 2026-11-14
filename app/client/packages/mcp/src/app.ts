@@ -1837,6 +1837,42 @@ function fingerprintAction(action: unknown): string {
     .digest("hex");
 }
 
+// The plugin document id of a datasource in the workspace list, or undefined when the datasource or its id is missing.
+function datasourcePluginIdOf(
+  datasources: unknown,
+  datasourceId: string,
+): string | undefined {
+  if (!Array.isArray(datasources)) return undefined;
+
+  const entry = datasources.find(
+    (candidate) =>
+      candidate !== null &&
+      typeof candidate === "object" &&
+      (candidate as { id?: unknown }).id === datasourceId,
+  ) as { pluginId?: unknown } | undefined;
+
+  return typeof entry?.pluginId === "string" ? entry.pluginId : undefined;
+}
+
+// The plugin a stored action runs on. The server runs an action on its own pluginId (top level, or on the edit copy),
+// and falls back to its datasource's plugin only when the action has none.
+function storedActionPluginId(action: unknown): string | undefined {
+  const own = (action as { pluginId?: unknown } | null)?.pluginId;
+
+  if (typeof own === "string" && own !== "") return own;
+
+  const source = actionSource(action);
+  const edit = source?.pluginId;
+
+  if (typeof edit === "string" && edit !== "") return edit;
+
+  const datasource = source?.datasource as { pluginId?: unknown } | undefined;
+
+  return typeof datasource?.pluginId === "string" && datasource.pluginId !== ""
+    ? datasource.pluginId
+    : undefined;
+}
+
 function actionSource(action: unknown): Record<string, unknown> | null {
   const source =
     (action as { unpublishedAction?: unknown } | null)?.unpublishedAction ??
@@ -7764,10 +7800,14 @@ export function buildMcpServer(
           // inList is allowed.
           const sqlQuery =
             parsed.data.kind === "SQL" ? parsed.data.query : undefined;
+          // A SQL or REST spec rewrites the action's body and datasource. A name-only update does neither.
+          const newSource =
+            parsed.data.kind === "SQL" ? parsed.data.query : parsed.data.rest;
           let dialect: SqlDialect = "other";
           let packageName: string | undefined;
+          let datasourcePluginId: string | undefined;
 
-          if (sqlQuery !== undefined) {
+          if (newSource !== undefined) {
             const workspaceId = workspaceIdFromApplicationPages(
               await api.getApplicationPages(parsed.data.applicationId),
             );
@@ -7780,27 +7820,49 @@ export function buildMcpServer(
 
             const datasources = await api.listDatasources(workspaceId);
 
-            if (!datasourceAccessible(datasources, sqlQuery.datasourceId)) {
+            if (!datasourceAccessible(datasources, newSource.datasourceId)) {
               return result({
-                error: `datasource ${sqlQuery.datasourceId} is not accessible in this application's workspace`,
+                error: `datasource ${newSource.datasourceId} is not accessible in this application's workspace`,
               });
             }
 
-            const plugins = await api.listPlugins(workspaceId);
-
-            if (!isSqlDatasource(datasources, plugins, sqlQuery.datasourceId)) {
-              return result({
-                error:
-                  "a SQL update needs a MariaDB, Microsoft SQL Server, MySQL, Oracle, PostgreSQL, Redshift, or Snowflake datasource",
-              });
-            }
-
-            packageName = datasourcePackageName(
+            datasourcePluginId = datasourcePluginIdOf(
               datasources,
-              plugins,
-              sqlQuery.datasourceId,
+              newSource.datasourceId,
             );
-            dialect = sqlDialectFor(packageName);
+
+            if (sqlQuery !== undefined) {
+              const plugins = await api.listPlugins(workspaceId);
+
+              if (
+                !isSqlDatasource(datasources, plugins, sqlQuery.datasourceId)
+              ) {
+                return result({
+                  error:
+                    "a SQL update needs a MariaDB, Microsoft SQL Server, MySQL, Oracle, PostgreSQL, Redshift, or Snowflake datasource",
+                });
+              }
+
+              packageName = datasourcePackageName(
+                datasources,
+                plugins,
+                sqlQuery.datasourceId,
+              );
+              dialect = sqlDialectFor(packageName);
+            } else {
+              // A REST body needs a REST datasource, as in create_rest_api. Otherwise a REST spec naming a SQL
+              // datasource would pass the plugin check below on a SQL action, and its SQL plugin would run the REST
+              // body.
+              const plugins = await api.listPlugins(workspaceId);
+
+              if (
+                !isRestDatasource(datasources, plugins, newSource.datasourceId)
+              ) {
+                return result({
+                  error: "a REST update needs a REST API datasource",
+                });
+              }
+            }
           }
 
           let request: ReturnType<typeof buildUpdateActionDto>;
@@ -7823,6 +7885,30 @@ export function buildMcpServer(
             );
           } catch (error) {
             return compileError(error);
+          }
+
+          // APP-16517: the server runs an action on its own stored plugin, not on its datasource's plugin, and an
+          // update keeps the stored plugin. The new body above was built for the new datasource's plugin. So an update
+          // that rewrites the body must stay on the same plugin. Otherwise, for example:
+          // - a Redshift action could get SQL compiled for PostgreSQL, with bound values, and still run on Redshift,
+          //   which pastes the values into the SQL text;
+          // - a SQL action could get a REST body, with widget values, that its SQL plugin then runs as SQL.
+          if (newSource !== undefined) {
+            const storedPluginId = storedActionPluginId(current);
+
+            if (storedPluginId === undefined) {
+              return result({
+                error:
+                  "could not find the plugin this action runs on, so its body cannot be rewritten. Create a new query instead",
+              });
+            }
+
+            if (storedPluginId !== datasourcePluginId) {
+              return result({
+                error:
+                  "an update must keep the action on a datasource of the same plugin, such as PostgreSQL to PostgreSQL. To use a datasource of another plugin, create a new query with create_query or create_rest_api",
+              });
+            }
           }
 
           try {
