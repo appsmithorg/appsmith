@@ -18,7 +18,7 @@
     "@llamaindex/readers": "2.0.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.220.0",
     "@opentelemetry/instrumentation": "^0.220.0",
-    "@opentelemetry/instrumentation-http": "^0.220.0",
+    "@opentelemetry/instrumentation-http": "^0.222.0",
     "@opentelemetry/resources": "^2.8.0",
     "@opentelemetry/sdk-trace-node": "^2.8.0",
     "@opentelemetry/semantic-conventions": "^1.28.0",
