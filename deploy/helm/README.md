@@ -165,7 +165,11 @@ for prerequisites, step-by-step setup, and platform-specific instructions (EKS, 
 |-----|------|---------|-------------|
 | externalSecrets.enabled | bool | `false` | Enable External Secrets Operator integration |
 | externalSecrets.refreshInterval | string | `"1m"` | How often to refresh secrets from the remote provider |
-| externalSecrets.remoteNameSecret | string | `""` | Name of the secret in the external provider |
+| externalSecrets.remoteSecretName | string | `""` | Name of the secret in the external provider, pulled verbatim via dataFrom.extract (legacy single-secret path) |
+| externalSecrets.secretStoreRef.name | string | `"secretstore"` | Name of the SecretStore/ClusterSecretStore used by generated ExternalSecret resources |
+| externalSecrets.secretStoreRef.kind | string | `"SecretStore"` | Kind of the store (SecretStore or ClusterSecretStore) |
+| externalSecrets.additionalSecrets | list | `[]` | Additional ExternalSecret resources with optional per-key mapping (rename remote keys); each generated Secret is loaded via envFrom |
+| externalSecrets.remoteNameSecret | string | `""` | [Deprecated] Use externalSecrets.remoteSecretName instead |
 
 ### Monitoring
 

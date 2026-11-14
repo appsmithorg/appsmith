@@ -222,6 +222,10 @@ spec:
             - secretRef:
                 name: "{{ include "appsmith.fullname" . }}-external-secret"
             {{- end }}
+            {{- range $secret := .Values.externalSecrets.additionalSecrets }}
+            - secretRef:
+                name: "{{ include "appsmith.fullname" $ }}-{{ $secret.name }}"
+            {{- end }}
       {{- $pullSecretName := dig "pullSecrets" "" $customImage }}
       {{- if $pullSecretName }}
       imagePullSecrets:
