@@ -56,40 +56,6 @@ describe(
 );
 
 function testPreloadMetadata(viewOrEditMode) {
-  // Disable network caching in Chromium, per https://docs.cypress.io/api/commands/intercept#cyintercept-and-request-caching
-  // and https://github.com/cypress-io/cypress/issues/14459#issuecomment-768616195
-  Cypress.automation("remote:debugger:protocol", {
-    command: "Network.enable",
-    params: {},
-  });
-  Cypress.automation("remote:debugger:protocol", {
-    command: "Network.setCacheDisabled",
-    params: { cacheDisabled: true },
-  });
-
-  const jsRequests = [];
-
-  // Intercept all JS network requests and collect them
-  cy.intercept(/\/static\/js\/.+\.js/, (req) => {
-    // Don’t collect:
-    // - requests to worker files
-    // - requests to icons
-    // - request to the main bundle
-    // as those aren’t <link rel="preload">ed by design
-    if (
-      req.url.includes("Worker.") ||
-      req.url.includes("/icon.") ||
-      req.url.includes("/main.")
-    ) {
-      return;
-    }
-    jsRequests.push(new URL(req.url).pathname);
-  }).as("jsRequests");
-
-  // Make all web workers empty. This prevents web workers from loading additional chunks,
-  // as we need to collect only chunks from the main thread
-  cy.intercept(/\/static\/js\/.+Worker\..+\.js/, { body: "" }).as("worker");
-
   // Reload without preloading, as we want to collect only chunks
   // actually requested by the current route
   reloadAndTogglePreloading(false);
@@ -97,7 +63,25 @@ function testPreloadMetadata(viewOrEditMode) {
   cy.waitForNetworkIdle("/static/js/*.js", 5000, { timeout: 60 * 1000 });
 
   cy.window().then((window) => {
-    // If this line fails, then we failed to intercept any JS requests for some reason
+    // Every JS chunk the document loaded, from the network or from a cache. Resource timing
+    // records main-thread loads only, so chunks loaded inside workers are not included.
+    // Don’t collect:
+    // - worker files
+    // - icons
+    // - the main bundle
+    // as those aren’t <link rel="preload">ed by design
+    const jsRequests = window.performance
+      .getEntriesByType("resource")
+      .map((entry) => new URL(entry.name).pathname)
+      .filter((pathname) => /\/static\/js\/.+\.js$/.test(pathname))
+      .filter(
+        (pathname) =>
+          !pathname.includes("Worker.") &&
+          !pathname.includes("/icon.") &&
+          !pathname.includes("/main."),
+      );
+
+    // If this line fails, then the document loaded no JS chunks for some reason
     expect(jsRequests).to.not.be.empty;
 
     if (!window.__APPSMITH_CHUNKS_TO_PRELOAD) {
@@ -153,6 +137,11 @@ function reloadAndTogglePreloading(chunkPreloadingEnabled) {
     } else {
       url.searchParams.delete("disableChunkPreload");
     }
-    cy.visit(url.toString());
+    cy.visit(url.toString(), {
+      onBeforeLoad(win) {
+        // The default buffer holds 250 entries; the editor loads more chunks than that.
+        win.performance.setResourceTimingBufferSize(5000);
+      },
+    });
   });
 }
