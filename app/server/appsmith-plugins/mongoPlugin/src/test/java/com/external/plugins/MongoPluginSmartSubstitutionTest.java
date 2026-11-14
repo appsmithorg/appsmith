@@ -184,7 +184,7 @@ class MongoPluginSmartSubstitutionTest {
     }
 
     private String sanitize(String value) {
-        return pluginExecutor.sanitizeReplacement(value, DataType.BSON_SPECIAL_DATA_TYPES);
+        return pluginExecutor.sanitizeReplacement(value, DataType.BSON);
     }
 
     @Test

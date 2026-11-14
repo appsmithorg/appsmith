@@ -82,11 +82,13 @@ import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -201,6 +203,39 @@ public class MongoPlugin extends BasePlugin {
      */
     private static final String MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE =
             "(\\\"(E\\(([^()\\n\\w\\-:.,\\s]*+[\\w\\-:.,\\s][^()\\n]*+)\\))\\\")";
+
+    /**
+     * Matches a value only when the complete value is one special Mongo data type literal, such as ObjectId('xyz')
+     * or "ObjectId('xyz')". E is replaced by the name of the special data type. Group 1 is the optional double
+     * quote around the literal. Group 2 is everything between the parentheses, with the same argument rule as
+     * {@link #MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE}. Every quantifier is possessive, so a value that
+     * does not match fails without backtracking.
+     */
+    private static final String MONGODB_COMPLETE_SPECIAL_TYPE_REGEX_TEMPLATE =
+            "\\s*+(\"?)E\\(([^()\\n\\w\\-:.,\\s]*+[\\w\\-:.,\\s][^()\\n]*+)\\)\\1\\s*+";
+
+    private static final Map<MongoSpecialDataTypes, Pattern> COMPLETE_SPECIAL_TYPE_PATTERNS =
+            new EnumMap<>(MongoSpecialDataTypes.class);
+
+    static {
+        for (MongoSpecialDataTypes specialType : MongoSpecialDataTypes.values()) {
+            COMPLETE_SPECIAL_TYPE_PATTERNS.put(
+                    specialType,
+                    Pattern.compile(MONGODB_COMPLETE_SPECIAL_TYPE_REGEX_TEMPLATE.replace("E", specialType.name())));
+        }
+    }
+
+    /**
+     * The argument of a special data type that is written without quotes, such as Timestamp(1234, 1): two unsigned
+     * integers.
+     */
+    private static final Pattern UNQUOTED_SPECIAL_TYPE_ARGUMENT_PATTERN = Pattern.compile("\\d++\\s*+,\\s*+\\d++");
+
+    /**
+     * Limit on the nesting of an array or object value that is written with its special data type members. It
+     * matches the default nesting limit of the JSON writer that serializes these values elsewhere.
+     */
+    private static final int MAX_VALUE_NESTING_DEPTH = 1000;
 
     private static final int DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX = 1;
 
@@ -570,21 +605,174 @@ public class MongoPlugin extends BasePlugin {
         @Override
         public String sanitizeReplacement(String replacementValue, DataType dataType) {
             log.debug(Thread.currentThread().getName() + ": sanitizeReplacement() called for Mongo plugin.");
-            replacementValue = removeOrAddQuotesAroundMongoDBSpecialTypes(replacementValue);
 
             if (DataType.BSON_SPECIAL_DATA_TYPES.equals(dataType)) {
                 /*
-                 For all other data types the replacementValue is prepared for replacement (by using Matcher
-                 .quoteReplacement(...)) during the common handling of data types in
-                 `jsonSmartReplacementPlaceholderWithValue(...)` method before reaching this program point. For
-                 BSON_SPECIAL_DATA_TYPES it is skipped in the common handling flow because we want to modify
-                 (removeOrAddQuotesAroundMongoDBSpecialTypes(...)) the replacement value further before the final
-                 replacement happens.
+                 The common handling in `jsonSmartReplacementPlaceholderWithValue(...)` passes a value of this type
+                 on as it is. It is written here as the special data type literal that the complete value stands
+                 for, and prepared for replacement with Matcher.quoteReplacement(...). A value that is not one
+                 complete literal is refused.
                 */
-                replacementValue = Matcher.quoteReplacement(replacementValue);
+                final String literal = renderCompleteSpecialTypeLiteral(replacementValue)
+                        .orElseThrow(() -> new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                MongoPluginErrorMessages.SPECIAL_TYPE_LITERAL_EXPECTED_ERROR_MSG));
+                return Matcher.quoteReplacement(literal);
             }
 
+            if (DataType.BSON.equals(dataType)) {
+                // A raw BSON value is query text already, so special data types inside it are unwrapped in place.
+                return removeOrAddQuotesAroundMongoDBSpecialTypes(replacementValue);
+            }
+
+            // Every other value has been escaped for its data type and is written as it is.
             return replacementValue;
+        }
+
+        /**
+         * Returns the special Mongo data type literal that the complete value stands for, or empty when the value
+         * is anything else. ObjectId('xyz'), "ObjectId('xyz')" and ObjectId(\"xyz\") all return ObjectId("xyz").
+         * The argument of a type that takes a quoted argument is written as a JSON string. The argument of a type
+         * that takes an unquoted argument must be two unsigned integers.
+         *
+         * @param value - complete value of a binding, or of one member of an array or object binding
+         * @return - the literal to write into the query
+         */
+        static Optional<String> renderCompleteSpecialTypeLiteral(String value) {
+            if (value == null || value.indexOf('(') < 0) {
+                return Optional.empty();
+            }
+            for (Map.Entry<MongoSpecialDataTypes, Pattern> entry : COMPLETE_SPECIAL_TYPE_PATTERNS.entrySet()) {
+                final Matcher matcher = entry.getValue().matcher(value);
+                if (!matcher.matches()) {
+                    continue;
+                }
+                final MongoSpecialDataTypes specialType = entry.getKey();
+                final String argument = stripQuoteWrapper(matcher.group(2));
+                if (argument.isEmpty()) {
+                    return Optional.empty();
+                }
+                if (specialType.isQuotesRequiredAroundParameter()) {
+                    try {
+                        return Optional.of(specialType.name() + "(" + objectMapper.writeValueAsString(argument) + ")");
+                    } catch (JsonProcessingException e) {
+                        throw new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, argument, e.getMessage());
+                    }
+                }
+                if (!UNQUOTED_SPECIAL_TYPE_ARGUMENT_PATTERN.matcher(argument).matches()) {
+                    return Optional.empty();
+                }
+                return Optional.of(specialType.name() + "(" + argument + ")");
+            }
+            return Optional.empty();
+        }
+
+        /**
+         * Writes an array or object value as JSON. A string member is written as a special Mongo data type literal
+         * when the complete member is one such literal. Every other member is written as a JSON value, so a string
+         * member stays one string.
+         *
+         * @param value - array or object value of a binding
+         * @return - text to write into the query
+         */
+        private static String writeJsonWithSpecialTypeMembers(String value) {
+            final Object parsed;
+            try {
+                parsed = new net.minidev.json.parser.JSONParser(net.minidev.json.parser.JSONParser.MODE_PERMISSIVE)
+                        .parse(value);
+            } catch (net.minidev.json.parser.ParseException e) {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, value, e.getMessage());
+            }
+            if (!(parsed instanceof Map<?, ?>) && !(parsed instanceof List<?>)) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                        value,
+                        MongoPluginErrorMessages.ARRAY_OR_OBJECT_EXPECTED_ERROR_MSG);
+            }
+            final StringBuilder json = new StringBuilder(value.length() + 16);
+            try {
+                appendJsonWithSpecialTypeMembers(json, parsed, 0);
+            } catch (JsonProcessingException e) {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, value, e.getMessage());
+            }
+            return json.toString();
+        }
+
+        private static void appendJsonWithSpecialTypeMembers(StringBuilder json, Object node, int depth)
+                throws JsonProcessingException {
+            if (depth > MAX_VALUE_NESTING_DEPTH) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        MongoPluginErrorMessages.VALUE_NESTED_TOO_DEEP_ERROR_MSG);
+            }
+            if (node instanceof Map<?, ?> map) {
+                json.append('{');
+                boolean first = true;
+                for (Map.Entry<?, ?> entry : map.entrySet()) {
+                    if (!first) {
+                        json.append(',');
+                    }
+                    first = false;
+                    json.append(objectMapper.writeValueAsString(String.valueOf(entry.getKey())));
+                    json.append(':');
+                    appendJsonWithSpecialTypeMembers(json, entry.getValue(), depth + 1);
+                }
+                json.append('}');
+            } else if (node instanceof List<?> list) {
+                json.append('[');
+                boolean first = true;
+                for (Object item : list) {
+                    if (!first) {
+                        json.append(',');
+                    }
+                    first = false;
+                    appendJsonWithSpecialTypeMembers(json, item, depth + 1);
+                }
+                json.append(']');
+            } else if (node instanceof String text) {
+                final Optional<String> literal = renderCompleteSpecialTypeLiteral(text);
+                json.append(literal.isPresent() ? literal.get() : objectMapper.writeValueAsString(text));
+            } else {
+                json.append(objectMapper.writeValueAsString(node));
+            }
+        }
+
+        /**
+         * Returns true when the value is a JSON array or object that has at least one string member, at any depth,
+         * that is one complete special Mongo data type literal.
+         */
+        private static boolean isArrayOrObjectWithSpecialTypeMember(String value) {
+            final String trimmed = value == null ? "" : value.trim();
+            final boolean isArrayText = trimmed.startsWith("[") && trimmed.endsWith("]");
+            final boolean isObjectText = trimmed.startsWith("{") && trimmed.endsWith("}");
+            if ((!isArrayText && !isObjectText) || trimmed.indexOf('(') < 0) {
+                return false;
+            }
+            final Object parsed;
+            try {
+                parsed = new net.minidev.json.parser.JSONParser(net.minidev.json.parser.JSONParser.MODE_PERMISSIVE)
+                        .parse(trimmed);
+            } catch (net.minidev.json.parser.ParseException e) {
+                return false;
+            }
+            if (!(parsed instanceof List<?>) && !(parsed instanceof Map<?, ?>)) {
+                return false;
+            }
+            final Deque<Object> pending = new ArrayDeque<>();
+            pending.push(parsed);
+            while (!pending.isEmpty()) {
+                final Object node = pending.pop();
+                if (node instanceof Map<?, ?> map) {
+                    map.values().stream().filter(item -> item != null).forEach(pending::push);
+                } else if (node instanceof List<?> list) {
+                    list.stream().filter(item -> item != null).forEach(pending::push);
+                } else if (node instanceof String text
+                        && renderCompleteSpecialTypeLiteral(text).isPresent()) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /**
@@ -1096,11 +1284,31 @@ public class MongoPlugin extends BasePlugin {
             boolean strictValues = args.length > 1 && TRUE.equals(args[0]);
             DataType dataType = stringToKnownMongoDBDataTypeConverter(value, param.getClientDataType());
             if (strictValues) {
+                if (DataType.BSON_SPECIAL_DATA_TYPES.equals(dataType)
+                        && !value.trim().startsWith("\"")) {
+                    // Strict values keeps a special data type literal that has no quotes around it as text.
+                    dataType = DataType.STRING;
+                }
                 checkStrictValue(binding, value, dataType);
                 // Skip sanitizeReplacement. It rewrites quoted special types, such as "ObjectId('...')", into raw
                 // BSON, and strict values keep every string a string.
                 return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(
                         jsonBody, value, dataType, insertedParams, null, param);
+            }
+            /*
+             An array or object value is written by this plugin, so that a member is turned into a special data
+             type only when the complete member is one literal. A value with no client data type that is an array
+             or object with such a member is written the same way.
+            */
+            final boolean isUntypedArrayOrObject = param.getClientDataType() == null
+                    && DataType.STRING.equals(dataType)
+                    && isArrayOrObjectWithSpecialTypeMember(value);
+            if (DataType.ARRAY.equals(dataType) || DataType.JSON_OBJECT.equals(dataType) || isUntypedArrayOrObject) {
+                final DataType writtenDataType = isUntypedArrayOrObject ? DataType.BSON_SPECIAL_DATA_TYPES : dataType;
+                insertedParams.add(new SimpleEntry<>(value, writtenDataType.toString()));
+                return DataTypeStringUtils.placeholderPattern
+                        .matcher(jsonBody)
+                        .replaceFirst(Matcher.quoteReplacement(writeJsonWithSpecialTypeMembers(value)));
             }
             return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(
                     jsonBody, value, dataType, insertedParams, this, param);
@@ -1193,11 +1401,11 @@ public class MongoPlugin extends BasePlugin {
         }
 
         /**
-         * This method checks if the replacement string contains any usage of special Mongo data types like
-         * `ObjectId` or `ISODate`. For complete list please check out `MongoSpecialDataTypes.java`. The check for
-         * special data type only happens if the common data type detection login in `DataTypeStringUtils
-         * .stringToKnownDataTypeConverter` identifies the data type of the replacement value as `DataType.STRING`
-         * even though it contains a Mongo special data type and hence should be treated differently.
+         * This method checks if the complete replacement string is one special Mongo data type literal like
+         * `ObjectId(...)` or `ISODate(...)`. For complete list please check out `MongoSpecialDataTypes.java`. The
+         * check for special data type only happens if the common data type detection logic identifies the data
+         * type of the replacement value as `DataType.STRING`. A string that only contains a special data type
+         * stays a string.
          *
          * @param replacement replacement value
          * @return identified data type of replacement value
@@ -1206,17 +1414,9 @@ public class MongoPlugin extends BasePlugin {
             AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(
                     clientDataType, replacement, MongoSpecificDataTypes.pluginSpecificTypes);
             DataType dataType = appsmithType.type();
-            if (dataType == DataType.STRING) {
-                for (MongoSpecialDataTypes specialType : MongoSpecialDataTypes.values()) {
-                    final String regex =
-                            MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE.replace("E", specialType.name());
-                    final Pattern pattern = Pattern.compile(regex);
-                    final Matcher matcher = pattern.matcher(replacement);
-                    if (matcher.find()) {
-                        dataType = DataType.BSON_SPECIAL_DATA_TYPES;
-                        break;
-                    }
-                }
+            if (dataType == DataType.STRING
+                    && renderCompleteSpecialTypeLiteral(replacement).isPresent()) {
+                dataType = DataType.BSON_SPECIAL_DATA_TYPES;
             }
 
             return dataType;
