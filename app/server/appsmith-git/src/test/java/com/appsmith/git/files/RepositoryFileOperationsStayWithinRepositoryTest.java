@@ -212,6 +212,46 @@ class RepositoryFileOperationsStayWithinRepositoryTest {
     }
 
     @Test
+    @DisplayName("GHSA-x4j8-9c4j-73r7")
+    void should_rejectWrite_when_symbolicLinkResolvesIntoGitMetadataDirectory() throws IOException {
+        // Given
+        Path gitMetadataDirectory = Files.createDirectories(repository.resolve(".git"));
+        Files.createSymbolicLink(repository.resolve("pages"), gitMetadataDirectory);
+        GitResourceMap resourcesFromDB = resourceMapWith("pages/resource.json");
+
+        // When
+        ThrowingCallable operation =
+                () -> fileUtils.updateEntitiesInRepo(resourcesFromDB, repository, new GitResourceMap());
+
+        // Then
+        assertThatThrownBy(operation)
+                .isInstanceOf(AppsmithPluginException.class)
+                .hasMessage(OUTSIDE_REPOSITORY_MESSAGE);
+        assertThat(gitMetadataDirectory).isEmptyDirectory();
+    }
+
+    @Test
+    @DisplayName("GHSA-x4j8-9c4j-73r7")
+    void should_rejectDelete_when_symbolicLinkResolvesIntoGitMetadataDirectory() throws IOException {
+        // Given
+        Path gitMetadataDirectory = Files.createDirectories(repository.resolve(".git"));
+        Path gitMetadataFile = gitMetadataDirectory.resolve("config");
+        Files.writeString(gitMetadataFile, "repository configuration");
+        Files.createSymbolicLink(repository.resolve("pages"), gitMetadataDirectory);
+        GitResourceMap resourcesFromFS = resourceMapWith("pages/config");
+
+        // When
+        ThrowingCallable operation =
+                () -> fileUtils.updateEntitiesInRepo(new GitResourceMap(), repository, resourcesFromFS);
+
+        // Then
+        assertThatThrownBy(operation)
+                .isInstanceOf(AppsmithPluginException.class)
+                .hasMessage(OUTSIDE_REPOSITORY_MESSAGE);
+        assertThat(gitMetadataFile).hasContent("repository configuration");
+    }
+
+    @Test
     void should_deleteOnlyTheLink_when_staleFileIsSymbolicLink() throws IOException {
         // Given
         Path otherRepositoryFile = otherRepository.resolve("theme.json");

@@ -12,10 +12,12 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -94,6 +96,35 @@ class ApplicationGitFileUtilsCEImplTest {
                 .filteredOn(identity -> GitResourceType.CONTEXT_CONFIG.equals(identity.getResourceType()))
                 .extracting(GitResourceIdentity::getFilePath)
                 .containsExactly("pages/" + pageName + "/" + pageName + ".json");
+    }
+
+    @Test
+    @DisplayName("GHSA-x4j8-9c4j-73r7")
+    void should_leavePageLayoutUnchanged_when_pageNameIsRejected() {
+        // Given
+        ApplicationJson applicationJson = applicationJsonWithPage("Parent/Child");
+        Layout layout = applicationJson
+                .getPageList()
+                .get(0)
+                .getUnpublishedPage()
+                .getLayouts()
+                .get(0);
+        JSONObject child = new JSONObject();
+        child.put("widgetName", "Text1");
+        child.put("widgetId", "1");
+        JSONArray children = new JSONArray();
+        children.add(child);
+        layout.getDsl().put("children", children);
+        JSONObject layoutBefore = layout.getDsl();
+
+        // When
+        ThrowingCallable serialization =
+                () -> applicationGitFileUtils.setArtifactDependentResources(applicationJson, new GitResourceMap());
+
+        // Then
+        assertThatThrownBy(serialization).isInstanceOf(AppsmithException.class).hasMessage(INVALID_PAGE_NAME_MESSAGE);
+        assertThat(layout.getDsl()).isSameAs(layoutBefore);
+        assertThat(layout.getDsl()).containsKey("children");
     }
 
     @ParameterizedTest
