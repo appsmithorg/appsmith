@@ -1,20 +1,28 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
 import net.minidev.json.JSONObject;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -24,6 +32,7 @@ import reactor.util.context.Context;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -54,6 +63,12 @@ class ApplicationPageServiceCEImplTest {
 
     @Mock
     private CommonGitFileUtils commonGitFileUtils;
+
+    @Mock
+    private ApplicationPermission applicationPermission;
+
+    @Mock
+    private ApplicationService applicationService;
 
     @InjectMocks
     private ApplicationPageServiceCEImpl applicationPageService;
@@ -202,5 +217,58 @@ class ApplicationPageServiceCEImplTest {
         assertThat(deleteStarted.await(5, TimeUnit.SECONDS)).isTrue();
         assertThat(deleteThread.get()).isNotEqualTo(callingThread);
         verify(commonGitFileUtils).deleteLocalRepo(expectedPath);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"Parent/Child", "Parent\\Child", "..", ".hidden", "trailing.", " ", "Sales:2024", "CON"})
+    @DisplayName("GHSA-x4j8-9c4j-73r7")
+    void should_rejectPageCreation_when_nameIsNotValidFileName(String pageName) {
+        // Given
+        PageDTO page = newPageNamed(pageName);
+        lenient()
+                .when(applicationPermission.getPageCreatePermission())
+                .thenReturn(Mono.just(AclPermission.MANAGE_APPLICATIONS));
+        lenient()
+                .when(applicationService.findById("application-1", AclPermission.MANAGE_APPLICATIONS))
+                .thenReturn(Mono.empty());
+
+        // When
+        Mono<PageDTO> result = applicationPageService.createPage(page);
+
+        // Then
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> assertThat(error)
+                        .isInstanceOf(AppsmithException.class)
+                        .hasMessage(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME)))
+                .verify();
+        verify(newPageService, never()).createDefault(any());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"Page1", "Sales.2024", "Monthly report", "Übersicht"})
+    void should_lookUpApplication_when_pageNameIsValidFileName(String pageName) {
+        // Given
+        PageDTO page = newPageNamed(pageName);
+        when(applicationPermission.getPageCreatePermission()).thenReturn(Mono.just(AclPermission.MANAGE_APPLICATIONS));
+        when(applicationService.findById("application-1", AclPermission.MANAGE_APPLICATIONS))
+                .thenReturn(Mono.empty());
+
+        // When
+        Mono<PageDTO> result = applicationPageService.createPage(page);
+
+        // Then
+        StepVerifier.create(result)
+                .expectErrorSatisfies(error -> assertThat(error)
+                        .isInstanceOf(AppsmithException.class)
+                        .hasMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, "application-1")))
+                .verify();
+    }
+
+    private static PageDTO newPageNamed(String pageName) {
+        PageDTO page = new PageDTO();
+        page.setName(pageName);
+        page.setApplicationId("application-1");
+        page.setLayouts(new ArrayList<>(List.of(new Layout())));
+        return page;
     }
 }

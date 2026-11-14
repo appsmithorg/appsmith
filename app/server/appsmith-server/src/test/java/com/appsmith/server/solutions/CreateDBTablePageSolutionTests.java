@@ -47,6 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,6 +141,9 @@ public class CreateDBTablePageSolutionTests {
 
     @Autowired
     NewPageService newPageService;
+
+    @Autowired
+    PagePermission pagePermission;
 
     @Autowired
     WorkspaceService workspaceService;
@@ -317,6 +321,35 @@ public class CreateDBTablePageSolutionTests {
                                 .getMessage()
                                 .equals(AppsmithError.INVALID_PARAMETER.getMessage("tableName and datasourceId")))
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    @DisplayName("GHSA-x4j8-9c4j-73r7")
+    void should_rejectRequestAndCreateNoPage_when_tableNameIsNotValidPageName() {
+        // Given
+        resource.setApplicationId(testApp.getId());
+        resource.setTableName("Parent/Child");
+        int pageCountBefore = pageCountOf(testApp.getId());
+
+        // When
+        Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(null, resource, testDefaultEnvironmentId);
+
+        // Then
+        StepVerifier.create(resultMono)
+                .expectErrorSatisfies(error -> assertThat(error)
+                        .isInstanceOf(AppsmithException.class)
+                        .hasMessage(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME)))
+                .verify();
+        assertThat(pageCountOf(testApp.getId())).isEqualTo(pageCountBefore);
+    }
+
+    private int pageCountOf(String applicationId) {
+        return newPageService
+                .findByApplicationId(applicationId, pagePermission.getEditPermission(), false)
+                .collectList()
+                .block()
+                .size();
     }
 
     @Test
