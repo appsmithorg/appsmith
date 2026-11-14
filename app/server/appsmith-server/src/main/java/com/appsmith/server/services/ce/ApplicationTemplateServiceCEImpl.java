@@ -203,7 +203,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
 
     public static class NoEncodingUriBuilderFactory extends DefaultUriBuilderFactory {
         public NoEncodingUriBuilderFactory(String baseUriTemplate) {
-            super(UriComponentsBuilder.fromHttpUrl(baseUriTemplate));
+            super(UriComponentsBuilder.fromUriString(baseUriTemplate));
             super.setEncodingMode(EncodingMode.NONE);
         }
     }

@@ -5,7 +5,7 @@ import com.appsmith.server.services.AstService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.doReturn;
 @SpringBootTest
 @Slf4j
 public class ASTServiceCETest {
-    @SpyBean
+    @MockitoSpyBean
     AstService astService;
 
     @Test

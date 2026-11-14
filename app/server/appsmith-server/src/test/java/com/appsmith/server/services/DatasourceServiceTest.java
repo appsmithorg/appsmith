@@ -50,8 +50,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -60,6 +58,8 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -93,10 +93,10 @@ public class DatasourceServiceTest {
     @Autowired
     DatasourceService datasourceService;
 
-    @SpyBean
+    @MockitoSpyBean
     DatasourceService spyDatasourceService;
 
-    @SpyBean
+    @MockitoSpyBean
     DatasourceStorageService datasourceStorageService;
 
     @Autowired
@@ -126,7 +126,7 @@ public class DatasourceServiceTest {
     @Autowired
     PluginRepository pluginRepository;
 
-    @MockBean
+    @MockitoBean
     PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired

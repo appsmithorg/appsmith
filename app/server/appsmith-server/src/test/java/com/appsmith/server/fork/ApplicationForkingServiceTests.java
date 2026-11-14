@@ -78,10 +78,10 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -153,7 +153,7 @@ public class ApplicationForkingServiceTests {
     @Autowired
     private PluginRepository pluginRepository;
 
-    @MockBean
+    @MockitoBean
     private PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired

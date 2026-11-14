@@ -22,8 +22,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -38,16 +38,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 public class AutoCommitEligibilityHelperTest {
 
-    @SpyBean
+    @MockitoSpyBean
     AutoCommitEligibilityHelper autoCommitEligibilityHelper;
 
-    @SpyBean
+    @MockitoSpyBean
     CommonGitFileUtils commonGitFileUtils;
 
-    @MockBean
+    @MockitoBean
     DSLMigrationUtils dslMigrationUtils;
 
-    @MockBean
+    @MockitoBean
     GitRedisUtils gitRedisUtils;
 
     @Autowired

@@ -4,9 +4,8 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.data.convert.TypeInformationMapper;
+import org.springframework.data.core.TypeInformation;
 import org.springframework.data.mapping.Alias;
-import org.springframework.data.util.ClassTypeInformation;
-import org.springframework.data.util.TypeInformation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,8 +20,8 @@ import java.util.Map;
  */
 public class DocumentTypeMapper implements TypeInformationMapper {
 
-    private final Map<String, ClassTypeInformation<?>> aliasToTypeMap;
-    private final Map<ClassTypeInformation<?>, String> typeToAliasMap;
+    private final Map<String, TypeInformation<?>> aliasToTypeMap;
+    private final Map<TypeInformation<?>, String> typeToAliasMap;
 
     private DocumentTypeMapper(List<String> basePackagesToScan) {
         aliasToTypeMap = new HashMap<>();
@@ -43,7 +42,7 @@ public class DocumentTypeMapper implements TypeInformationMapper {
                     Class<?> clazz = Class.forName(bd.getBeanClassName());
                     DocumentType documentTypeAnnotation = clazz.getAnnotation(DocumentType.class);
 
-                    ClassTypeInformation<?> type = ClassTypeInformation.from(clazz);
+                    TypeInformation<?> type = TypeInformation.of(clazz);
                     String alias = documentTypeAnnotation.value();
 
                     aliasToTypeMap.put(alias, type);

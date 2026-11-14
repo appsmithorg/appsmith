@@ -36,12 +36,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -65,7 +64,7 @@ public class AuthenticationServiceTest {
     @Autowired
     PluginService pluginService;
 
-    @MockBean
+    @MockitoBean
     PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired
@@ -89,7 +88,7 @@ public class AuthenticationServiceTest {
     @Autowired
     ApplicationService applicationService;
 
-    @SpyBean
+    @MockitoSpyBean
     NewPageService newPageService;
 
     @Autowired
@@ -183,7 +182,7 @@ public class AuthenticationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_validDatasource() {
-        LinkedMultiValueMap<String, String> mockHeaders = new LinkedMultiValueMap<>(2);
+        HttpHeaders mockHeaders = new HttpHeaders();
         mockHeaders.add(HttpHeaders.HOST, "mock.origin.com");
         mockHeaders.add(HttpHeaders.REFERER, "https://mock.origin.com/source/uri");
 
@@ -275,7 +274,7 @@ public class AuthenticationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_validDatasourceAndBranchName() {
-        LinkedMultiValueMap<String, String> mockHeaders = new LinkedMultiValueMap<>(2);
+        HttpHeaders mockHeaders = new HttpHeaders();
         mockHeaders.add(HttpHeaders.HOST, "mock.origin.com");
         mockHeaders.add(HttpHeaders.REFERER, "https://mock.origin.com/source/uri");
 

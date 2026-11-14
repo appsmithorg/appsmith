@@ -51,8 +51,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
@@ -66,6 +66,7 @@ import java.util.Base64;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
 import static com.appsmith.external.constants.Authentication.AUDIENCE;
@@ -294,10 +295,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             .method(HttpMethod.POST)
                             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                             .body(BodyInserters.fromFormData(map))
-                            .exchange()
-                            .doOnError(
-                                    e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
-                            .flatMap(response -> {
+                            .exchangeToMono(response -> {
                                 if (response.statusCode().is2xxSuccessful()) {
                                     oAuth2.setIsAuthorized(true);
                                     return response.bodyToMono(Map.class);
@@ -447,14 +445,15 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                             integrationDTO, context, requestAppsmithTokenDTO.getContextType()));
                         }))
                 .flatMap(integrationDTO -> {
-                    Mono<ClientResponse> clientResponseMono = WebClientUtils.create(
+                    // A supplier, so the request can be sent again after the instance re-registers
+                    Supplier<WebClient.RequestHeadersSpec<?>> tokenRequest = () -> WebClientUtils.create(
                                     cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/appsmith")
                             .method(HttpMethod.POST)
-                            .body(BodyInserters.fromValue(integrationDTO))
-                            .exchange();
+                            .body(BodyInserters.fromValue(integrationDTO));
 
-                    return clientResponseMono
-                            .flatMap(response -> {
+                    return tokenRequest
+                            .get()
+                            .exchangeToMono(response -> {
                                 if (response.statusCode().is2xxSuccessful()) {
                                     return response.bodyToMono(Map.class);
                                 } else {
@@ -463,23 +462,27 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                         Mono<? extends Config> registerInstanceMono =
                                                 instanceConfigHelper.registerInstance();
                                         return registerInstanceMono
-                                                .flatMap(config -> clientResponseMono.flatMap(res -> {
-                                                    if (res.statusCode().is2xxSuccessful()) {
-                                                        // After re-registering the instance, the appsmith token request
-                                                        // is successful
-                                                        return res.bodyToMono(Map.class);
-                                                    } else {
-                                                        // After re-registering the instance, the appsmith token request
-                                                        // has failed
-                                                        log.debug(
-                                                                "Unable to retrieve appsmith token with error {}",
-                                                                res.statusCode());
-                                                        return Mono.error(new AppsmithException(
-                                                                AppsmithError.AUTHENTICATION_FAILURE,
-                                                                "Unable to retrieve appsmith token with error "
-                                                                        + res.statusCode()));
-                                                    }
-                                                }))
+                                                .flatMap(config -> tokenRequest
+                                                        .get()
+                                                        .exchangeToMono(res -> {
+                                                            if (res.statusCode().is2xxSuccessful()) {
+                                                                // After re-registering the instance, the appsmith token
+                                                                // request
+                                                                // is successful
+                                                                return res.bodyToMono(Map.class);
+                                                            } else {
+                                                                // After re-registering the instance, the appsmith token
+                                                                // request
+                                                                // has failed
+                                                                log.debug(
+                                                                        "Unable to retrieve appsmith token with error {}",
+                                                                        res.statusCode());
+                                                                return Mono.error(new AppsmithException(
+                                                                        AppsmithError.AUTHENTICATION_FAILURE,
+                                                                        "Unable to retrieve appsmith token with error "
+                                                                                + res.statusCode()));
+                                                            }
+                                                        }))
                                                 .onErrorResume(e -> {
                                                     log.error("Error while registering instance", e.getMessage());
                                                     return Mono.error(new AppsmithException(
@@ -619,10 +622,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     return WebClientUtils.create()
                             .method(HttpMethod.POST)
                             .uri(uriBuilder.build(true).toUri())
-                            .exchange()
-                            .doOnError(
-                                    e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
-                            .flatMap(response -> {
+                            .exchangeToMono(response -> {
                                 if (response.statusCode().is2xxSuccessful()) {
                                     return response.bodyToMono(AuthenticationResponse.class);
                                 } else {
@@ -751,9 +751,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/refresh")
                             .method(HttpMethod.POST)
                             .body(BodyInserters.fromValue(integrationDTO))
-                            .exchange()
-                            .onErrorMap(e -> new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e))
-                            .flatMap(response -> {
+                            .exchangeToMono(response -> {
                                 if (response.statusCode().is2xxSuccessful()) {
                                     return response.bodyToMono(AuthenticationResponse.class);
                                 } else {
@@ -762,6 +760,10 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                             AppsmithError.AUTHENTICATION_FAILURE, response.statusCode()));
                                 }
                             })
+                            // Map request failures only, as exchange().onErrorMap(...) did before
+                            .onErrorMap(
+                                    WebClientRequestException.class,
+                                    e -> new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e))
                             .flatMap(authenticationResponse -> {
                                 // We need to set refresh token here, because refresh token API call made to google,
                                 // does not return refresh token in the response

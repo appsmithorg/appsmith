@@ -47,7 +47,63 @@
     <properties>
         <jjwt.version>0.11.5</jjwt.version>
     </properties>
-
+    <dependencyManagement>
+        <!-- The netty 4.2 BOM (imported by Spring Boot 4) manages its native-classifier jars with runtime scope.
+             A managed scope overrides the provided scope these jars inherit from reactor-netty, and widens
+             netty-common, netty-buffer and the rest to runtime with them. That takes netty off the plugin compile
+             classpath and bundles it into plugin jars. The server ships netty, so plugins keep it provided. -->
+        <dependencies>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport-native-epoll</artifactId>
+                <version>${netty.version}</version>
+                <classifier>linux-x86_64</classifier>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-resolver-dns-native-macos</artifactId>
+                <version>${netty.version}</version>
+                <classifier>osx-x86_64</classifier>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-native-quic</artifactId>
+                <version>${netty.version}</version>
+                <classifier>linux-x86_64</classifier>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-native-quic</artifactId>
+                <version>${netty.version}</version>
+                <classifier>linux-aarch_64</classifier>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-native-quic</artifactId>
+                <version>${netty.version}</version>
+                <classifier>osx-x86_64</classifier>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-native-quic</artifactId>
+                <version>${netty.version}</version>
+                <classifier>osx-aarch_64</classifier>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-native-quic</artifactId>
+                <version>${netty.version}</version>
+                <classifier>windows-x86_64</classifier>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
 
         <dependency>
@@ -141,7 +197,6 @@
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>
-            <version>${reactor-test.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -151,13 +206,6 @@
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
-            <version>${mockito.version}</version>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/mockwebserver3 -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -176,7 +224,7 @@
 
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
+            <artifactId>testcontainers-junit-jupiter</artifactId>
             <version>${testcontainers.version}</version>
             <scope>test</scope>
             <exclusions>

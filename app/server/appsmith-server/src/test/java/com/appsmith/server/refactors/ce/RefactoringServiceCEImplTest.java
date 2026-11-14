@@ -34,8 +34,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -58,40 +58,40 @@ class RefactoringServiceCEImplTest {
     @Autowired
     ActionPermission actionPermission;
 
-    @MockBean
+    @MockitoBean
     private NewPageService newPageService;
 
-    @SpyBean
+    @MockitoSpyBean
     private NewActionService newActionService;
 
-    @MockBean
+    @MockitoBean
     private UpdateLayoutService updateLayoutService;
 
-    @SpyBean
+    @MockitoSpyBean
     private ApplicationService applicationService;
 
-    @MockBean
+    @MockitoBean
     private AnalyticsService analyticsService;
 
-    @MockBean
+    @MockitoBean
     private SessionUserService sessionUserService;
 
-    @MockBean
+    @MockitoBean
     ActionCollectionRepository actionCollectionRepository;
 
-    @SpyBean
+    @MockitoSpyBean
     private EntityRefactoringService<Void> jsActionEntityRefactoringService;
 
-    @SpyBean
+    @MockitoSpyBean
     private EntityRefactoringService<NewAction> newActionEntityRefactoringService;
 
-    @SpyBean
+    @MockitoSpyBean
     private EntityRefactoringService<ActionCollection> actionCollectionEntityRefactoringService;
 
-    @SpyBean
+    @MockitoSpyBean
     private EntityRefactoringService<Layout> widgetEntityRefactoringService;
 
-    @SpyBean
+    @MockitoSpyBean
     private ContextLayoutRefactorResolver contextLayoutRefactorResolver;
 
     @Autowired

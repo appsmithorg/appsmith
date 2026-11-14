@@ -210,11 +210,10 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                         "Bearer "
                                                 + oauth2.getAuthenticationResponse()
                                                         .getToken()))
-                                .exchange()
+                                .exchangeToMono(clientResponse -> clientResponse.toEntity(byte[].class))
                                 .tag("plugin", this.getClass().getName())
                                 .name(ACTUAL_API_CALL)
                                 .tap(Micrometer.observation(observationRegistry))
-                                .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                                 .map(response -> {
                                     // Populate result object
                                     ActionExecutionResult result = new ActionExecutionResult();
@@ -229,7 +228,10 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                     // Convert the headers into json tree to store in the results
                                     String headerInJsonString;
                                     try {
-                                        headerInJsonString = objectMapper.writeValueAsString(headers);
+                                        // HttpHeaders is no longer a Map in Spring Framework 7. Serialize its map view
+                                        // to keep the
+                                        // {"name": ["value"]} shape that action results have always had.
+                                        headerInJsonString = objectMapper.writeValueAsString(headers.asMultiValueMap());
                                     } catch (JsonProcessingException e) {
                                         throw Exceptions.propagate(new AppsmithPluginException(
                                                 GSheetsPluginError.RESPONSE_PROCESSING_ERROR, e));
@@ -371,8 +373,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                     .headers(headers -> headers.set(
                             "Authorization",
                             "Bearer " + oauth2.getAuthenticationResponse().getToken()))
-                    .exchange()
-                    .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
+                    .exchangeToMono(clientResponse -> clientResponse.toEntity(byte[].class))
                     .map(response -> {
                         // Choose body depending on response status
                         byte[] body = response.getBody();

@@ -44,10 +44,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.util.StreamUtils;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -102,7 +102,7 @@ public class PartialImportServiceTest {
     @Autowired
     WorkspaceService workspaceService;
 
-    @MockBean
+    @MockitoBean
     PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired
@@ -120,7 +120,7 @@ public class PartialImportServiceTest {
     @Autowired
     PagePermission pagePermission;
 
-    @SpyBean
+    @MockitoSpyBean
     PluginService pluginService;
 
     @Autowired
@@ -141,7 +141,7 @@ public class PartialImportServiceTest {
     @Autowired
     ImportService importService;
 
-    @MockBean
+    @MockitoBean
     ApplicationTemplateService applicationTemplateService;
 
     @BeforeEach

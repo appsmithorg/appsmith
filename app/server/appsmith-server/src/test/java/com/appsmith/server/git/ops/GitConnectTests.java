@@ -28,8 +28,8 @@ import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -64,16 +64,16 @@ public class GitConnectTests {
     @Autowired
     WorkspaceService workspaceService;
 
-    @SpyBean
+    @MockitoSpyBean
     FSGitHandler fsGitHandler;
 
-    @SpyBean
+    @MockitoSpyBean
     CommonGitFileUtils commonGitFileUtils;
 
-    @SpyBean
+    @MockitoSpyBean
     GitCloudServicesUtils gitCloudServicesUtils;
 
-    @SpyBean
+    @MockitoSpyBean
     GitHandlingService gitHandlingService;
 
     @Test

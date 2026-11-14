@@ -80,10 +80,9 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                             .post()
                             .body(BodyInserters.fromValue(Map.of("key", instanceId)))
                             .headers(httpHeaders -> httpHeaders.set(HttpHeaders.CONTENT_TYPE, "application/json"))
-                            .exchange();
+                            .exchangeToMono(clientResponse ->
+                                    clientResponse.toEntity(new ParameterizedTypeReference<ResponseDTO<String>>() {}));
                 })
-                .flatMap(clientResponse ->
-                        clientResponse.toEntity(new ParameterizedTypeReference<ResponseDTO<String>>() {}))
                 .flatMap(responseEntity -> {
                     if (responseEntity.getStatusCode().is2xxSuccessful()) {
                         return Mono.justOrEmpty(

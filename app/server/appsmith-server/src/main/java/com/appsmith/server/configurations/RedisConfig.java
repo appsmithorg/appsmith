@@ -15,6 +15,7 @@ import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.metrics.MicrometerCommandLatencyRecorder;
 import io.lettuce.core.metrics.MicrometerOptions;
 import io.lettuce.core.resource.ClientResources;
+import io.lettuce.core.tracing.MicrometerTracing;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.annotation.PostConstruct;
@@ -33,7 +34,6 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettucePoolingClientConfiguration;
-import org.springframework.data.redis.connection.lettuce.observability.MicrometerTracingAdapter;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
@@ -203,7 +203,7 @@ public class RedisConfig {
     @Bean
     public ClientResources clientResources(ObservationRegistry observationRegistry, MeterRegistry meterRegistry) {
         return ClientResources.builder()
-                .tracing(new MicrometerTracingAdapter(observationRegistry, "appsmith-redis"))
+                .tracing(new MicrometerTracing(observationRegistry, "appsmith-redis"))
                 .commandLatencyRecorder(new MicrometerCommandLatencyRecorder(meterRegistry, MicrometerOptions.create()))
                 .build();
     }

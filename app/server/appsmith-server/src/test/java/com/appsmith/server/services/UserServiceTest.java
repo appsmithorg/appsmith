@@ -42,14 +42,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -104,30 +104,30 @@ public class UserServiceTest {
     @Autowired
     UserDataService userDataService;
 
-    @MockBean
+    @MockitoBean
     PasswordResetTokenRepository passwordResetTokenRepository;
 
-    @MockBean
+    @MockitoBean
     EmailVerificationTokenRepository emailVerificationTokenRepository;
 
     // Spied so forgot-password tests can pin a resolved base URL and verify email dispatch without
     // actually sending mail. Real behaviour is preserved for every other test in this class.
-    @SpyBean
+    @MockitoSpyBean
     SecureBaseUrlResolver secureBaseUrlResolver;
 
-    @SpyBean
+    @MockitoSpyBean
     EmailService emailService;
 
     // Mocked so the in-service per-email resend throttle does not reach Redis in these unit tests; the
     // throttle's real behaviour (limit trigger + non-distinguishability) is covered against a Redis
     // testcontainer in UserServiceResendEmailVerificationRateLimitTest. Defaults to "within limit".
-    @MockBean
+    @MockitoBean
     RateLimitService rateLimitService;
 
     // Spied so the resend "verification disabled" test can pin the real gate — email verification is gated
     // on InstanceVariablesHelper.isEmailVerificationEnabled (the instance-variables config), not the
     // OrganizationConfiguration. Real behaviour is preserved for every other test.
-    @SpyBean
+    @MockitoSpyBean
     InstanceVariablesHelper instanceVariablesHelper;
 
     @Autowired
@@ -141,7 +141,7 @@ public class UserServiceTest {
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
 
-    @SpyBean
+    @MockitoSpyBean
     CommonConfig commonConfig;
 
     @BeforeEach

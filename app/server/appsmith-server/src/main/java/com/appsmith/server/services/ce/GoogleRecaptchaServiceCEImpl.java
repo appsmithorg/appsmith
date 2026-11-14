@@ -54,8 +54,7 @@ public class GoogleRecaptchaServiceCEImpl implements CaptchaServiceCE {
                         .queryParam("response", recaptchaResponse)
                         .queryParam("secret", googleRecaptchaConfig.getSecretKey())
                         .build())
-                .exchange()
-                .flatMap(response -> {
+                .exchangeToMono(response -> {
                     return response.bodyToMono(String.class).zipWith(Mono.just(response.statusCode()));
                 })
                 .flatMap(tuple -> {

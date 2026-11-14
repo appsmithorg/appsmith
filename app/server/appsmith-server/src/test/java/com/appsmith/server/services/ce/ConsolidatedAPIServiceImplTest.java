@@ -57,9 +57,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -93,19 +93,19 @@ public class ConsolidatedAPIServiceImplTest {
     @Autowired
     ConsolidatedAPIService consolidatedAPIService;
 
-    @MockBean
+    @MockitoBean
     SessionUserService mockSessionUserService;
 
-    @MockBean
+    @MockitoBean
     UserService mockUserService;
 
-    @MockBean
+    @MockitoBean
     UserDataService mockUserDataService;
 
-    @MockBean
+    @MockitoBean
     OrganizationService mockOrganizationService;
 
-    @MockBean
+    @MockitoBean
     ProductAlertService mockProductAlertService;
 
     /**
@@ -113,9 +113,9 @@ public class ConsolidatedAPIServiceImplTest {
      * {@link SecureBaseUrlResolver#isBaseUrlConfigurationHealthy()} alongside the org-config
      * fetch. Mock it here so the test class doesn't escape into the real EE resolver chain
      * (which transitively pulls in FeatureFlagService → OrganizationService and would NPE
-     * since OrganizationService is itself a @MockBean returning null for unstubbed methods).
+     * since OrganizationService is itself a @MockitoBean returning null for unstubbed methods).
      */
-    @MockBean
+    @MockitoBean
     SecureBaseUrlResolver mockSecureBaseUrlResolver;
 
     @BeforeEach
@@ -125,43 +125,43 @@ public class ConsolidatedAPIServiceImplTest {
         when(mockSecureBaseUrlResolver.isBaseUrlConfigurationHealthy()).thenReturn(Mono.just(true));
     }
 
-    @SpyBean
+    @MockitoSpyBean
     NewPageService spyNewPageService;
 
-    @SpyBean
+    @MockitoSpyBean
     NewActionService spyNewActionService;
 
-    @SpyBean
+    @MockitoSpyBean
     ActionCollectionService spyActionCollectionService;
 
-    @SpyBean
+    @MockitoSpyBean
     ThemeService spyThemeService;
 
-    @SpyBean
+    @MockitoSpyBean
     ApplicationPageService spyApplicationPageService;
 
-    @SpyBean
+    @MockitoSpyBean
     CustomJSLibService spyCustomJSLibService;
 
-    @MockBean
+    @MockitoBean
     PluginService mockPluginService;
 
-    @SpyBean
+    @MockitoSpyBean
     ApplicationService spyApplicationService;
 
-    @MockBean
+    @MockitoBean
     DatasourceService mockDatasourceService;
 
-    @MockBean
+    @MockitoBean
     MockDataService mockMockDataService;
 
-    @SpyBean
+    @MockitoSpyBean
     ApplicationRepository spyApplicationRepository;
 
-    @SpyBean
+    @MockitoSpyBean
     NewPageRepository mockNewPageRepository;
 
-    @SpyBean
+    @MockitoSpyBean
     FeatureFlagService featureFlagService;
 
     @Test
