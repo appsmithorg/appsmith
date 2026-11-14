@@ -1266,6 +1266,17 @@ const joinSchema = z
   })
   .strict();
 
+const aliasedFilterSchema = filterObjectSchema
+  .extend({ column: columnRefSchema })
+  .superRefine(refineFilter);
+const aliasedFilterEntrySchema = filterEntrySchemaOf(
+  aliasedFilterSchema,
+  z
+    .object({ anyOf: z.array(aliasedFilterSchema).min(2).max(10) })
+    .strict()
+    .superRefine(refineFilterGroup),
+);
+
 // A select or groupBy entry in aliased mode:
 // - "o.status", shown as status (the column part);
 // - { column, as }, shown as `as`;
@@ -1285,16 +1296,6 @@ const aliasedSelectSchema = z.union([
 
 type AliasedSelect = z.infer<typeof aliasedSelectSchema>;
 
-const aliasedFilterSchema = filterObjectSchema
-  .extend({ column: columnRefSchema })
-  .superRefine(refineFilter);
-const aliasedFilterEntrySchema = filterEntrySchemaOf(
-  aliasedFilterSchema,
-  z
-    .object({ anyOf: z.array(aliasedFilterSchema).min(2).max(10) })
-    .strict()
-    .superRefine(refineFilterGroup),
-);
 const aliasedAggregateSchema = aggregateObjectSchema
   .extend({ column: columnRefSchema.optional() })
   .superRefine(refineAggregate);
@@ -1380,6 +1381,22 @@ function columnRefsOf(
     }),
   );
 
+  // A filter, or an OR group's members.
+  const walkFilter = (entry: unknown, path: (string | number)[]) => {
+    const group = objectOrNull(entry);
+
+    if (group !== undefined && Array.isArray(group.anyOf)) {
+      group.anyOf.forEach((member: unknown, memberIndex: number) =>
+        refs.push({
+          ref: objectOrNull(member)?.column,
+          path: [...path, "anyOf", memberIndex, "column"],
+        }),
+      );
+    } else {
+      refs.push({ ref: group?.column, path: [...path, "column"] });
+    }
+  };
+
   for (const field of ["columns", "groupBy"] as const) {
     (spec[field] ?? []).forEach((entry, index) =>
       refs.push({
@@ -1390,20 +1407,9 @@ function columnRefsOf(
     );
   }
 
-  (spec.filters ?? []).forEach((entry, index) => {
-    const group = objectOrNull(entry);
-
-    if (group !== undefined && Array.isArray(group.anyOf)) {
-      group.anyOf.forEach((member: unknown, memberIndex: number) =>
-        refs.push({
-          ref: objectOrNull(member)?.column,
-          path: ["filters", index, "anyOf", memberIndex, "column"],
-        }),
-      );
-    } else {
-      refs.push({ ref: group?.column, path: ["filters", index, "column"] });
-    }
-  });
+  (spec.filters ?? []).forEach((entry, index) =>
+    walkFilter(entry, ["filters", index]),
+  );
 
   (spec.aggregates ?? []).forEach((entry, index) => {
     const column = objectOrNull(entry)?.column;
@@ -1478,24 +1484,28 @@ function refineAliasScope(
   });
 }
 
+// One query level as refineAliasedLevel reads it.
+interface AliasedRefineLevel {
+  from: { as: string };
+  joins?: { as: string; on: { left: string; right: string }[] }[];
+  columns?: AliasedSelect[];
+  filters?: (Filter | FilterGroup)[];
+  groupBy?: AliasedSelect[];
+  aggregates?: AggregateEntry[];
+  having?: { column: string }[];
+  orderBy?: { column: string }[];
+  distinct?: boolean;
+  limit?: number;
+}
+
+type IssueAt = (path: (string | number)[], message: string) => void;
+
 // The rules for a query with `from`. Every check adds an issue and none throws.
 function refineAliasedSpec(
-  spec: {
-    operation: string;
-    from: { as: string };
-    joins?: { as: string; on: { left: string; right: string }[] }[];
-    columns?: AliasedSelect[];
-    filters?: (Filter | FilterGroup)[];
-    groupBy?: AliasedSelect[];
-    aggregates?: AggregateEntry[];
-    having?: { column: string }[];
-    orderBy?: { column: string }[];
-    distinct?: boolean;
-    limit?: number;
-  },
+  spec: AliasedRefineLevel & { operation: string },
   ctx: z.RefinementCtx,
 ): void {
-  const issue = (path: (string | number)[], message: string) =>
+  const issue: IssueAt = (path, message) =>
     ctx.addIssue({ code: z.ZodIssueCode.custom, message, path });
 
   if (spec.operation !== "SELECT") {
@@ -1504,6 +1514,11 @@ function refineAliasedSpec(
     return;
   }
 
+  refineAliasedLevel(spec, issue);
+}
+
+// The rules for one query level with `from`.
+function refineAliasedLevel(spec: AliasedRefineLevel, issue: IssueAt): void {
   const joins = spec.joins ?? [];
   const aliases = [spec.from.as, ...joins.map((join) => join.as)];
   const aliasPath = (index: number) =>
@@ -2486,27 +2501,43 @@ function checkedSourceTable(table: unknown, dialect: SqlDialect): string {
   return checked;
 }
 
-interface AliasedSource {
+// One source of a query level: a real table.
+type AliasedSource = {
   alias: string;
-  table: string;
   // The join type (a JOIN_TYPES key). The first source has none.
   type?: string;
   on: { left: string; right: string }[];
+} & { kind: "table"; table: string };
+
+// One query level with `from`.
+interface AliasedLevel {
+  from: unknown;
+  joins?: { on: { left: string; right: string }[] }[];
+  columns?: AliasedSelect[];
+  filters?: (Filter | FilterGroup)[];
+  groupBy?: AliasedSelect[];
+  aggregates?: AggregateEntry[];
+  having?: { column: string; op: string; value: ValueRef }[];
+  orderBy?: { column: string; direction: "ASC" | "DESC" }[];
+  distinct?: boolean;
+  limit?: unknown;
 }
 
-// The sources of a query with `from`, checked again: every alias, table, join type and on pair. One side of each on
-// pair uses the join's own alias, and the other an alias declared before it.
+function asRecord(value: unknown): Record<string, unknown> {
+  return (typeof value === "object" && value !== null ? value : {}) as Record<
+    string,
+    unknown
+  >;
+}
+
+// The sources of a query level, checked again: every alias, table, join type and on pair. One side of each on pair
+// uses the join's own alias, and the other an alias declared before it.
 function checkedSources(
-  spec: AliasedSpec,
+  level: AliasedLevel,
   dialect: SqlDialect,
 ): AliasedSource[] {
-  const asRecord = (value: unknown) =>
-    (typeof value === "object" && value !== null ? value : {}) as Record<
-      string,
-      unknown
-    >;
-  const from = asRecord(spec.from);
-  const joins: unknown = spec.joins ?? [];
+  const from = asRecord(level.from);
+  const joins: unknown = level.joins ?? [];
 
   if (!Array.isArray(joins) || joins.length > MAX_JOINS) {
     throw new Error(`joins must be a list of at most ${MAX_JOINS} joins`);
@@ -2515,8 +2546,9 @@ function checkedSources(
   const sources: AliasedSource[] = [
     {
       alias: checkedAlias(from.as),
-      table: checkedSourceTable(from.table, dialect),
       on: [],
+      kind: "table",
+      table: checkedSourceTable(from.table, dialect),
     },
   ];
   const declared = new Set([sources[0].alias]);
@@ -2558,9 +2590,10 @@ function checkedSources(
     declared.add(alias);
     sources.push({
       alias,
-      table: checkedSourceTable(join.table, dialect),
       type: join.type as string,
       on: pairs,
+      kind: "table",
+      table: checkedSourceTable(join.table, dialect),
     });
   });
 
@@ -2579,10 +2612,11 @@ function projectedName(column: string, dialect: SqlDialect): string {
   return dialect === "redshift" ? name.toLowerCase() : name;
 }
 
-// The columns the query reads through each alias, built from the spec before anything is emitted. Each alias.column
-// reference adds its column once, in the order the spec first names it. Every source must be read at least once.
+// The columns a query level reads through each alias, built from the spec before anything is emitted. Each
+// alias.column reference adds its column once, in the order the spec first names it. Every source must be read at
+// least once.
 function projectionOf(
-  spec: AliasedSpec,
+  level: AliasedLevel,
   sources: AliasedSource[],
   dialect: SqlDialect,
 ): Map<string, string[]> {
@@ -2590,7 +2624,7 @@ function projectionOf(
     sources.map((source) => [source.alias, [] as string[]]),
   );
 
-  for (const { ref } of columnRefsOf(spec)) {
+  for (const { ref } of columnRefsOf(level)) {
     const { alias, column } = checkedColumnRef(ref);
     const names = projection.get(alias);
 
@@ -2614,10 +2648,10 @@ function projectionOf(
   return projection;
 }
 
-// The resolver for a query with `from`. A column is "alias.column", written alias."col" (bare on MySQL and Oracle,
-// see quoteIdentifier; on PostgreSQL and Redshift the name comes from projectedName). Before it writes one, it checks
-// that the column is in the alias's projection. So a reference that the projection missed never reaches the SQL. On
-// PostgreSQL this keeps alias."col" a column: for a missing column, PostgreSQL reads `alias.name` as the call
+// The resolver for a query level with `from`. A column is "alias.column", written alias."col" (bare on MySQL and
+// Oracle, see quoteIdentifier; on PostgreSQL and Redshift the name comes from projectedName). Before it writes one, it
+// checks that the column is in the alias's projection. So a reference that the projection missed never reaches the
+// SQL. On PostgreSQL this keeps alias."col" a column: for a missing column, PostgreSQL reads `alias.name` as the call
 // name(alias).
 function aliasedColumns(
   projection: ReadonlyMap<string, readonly string[]>,
@@ -2765,7 +2799,7 @@ function emitAliasedOutput(
 // HAVING in aliased mode. Each condition names an aggregate's result (its expression is repeated) or a plain groupBy
 // result name (its column is repeated). Values are bound, and the operator comes from HAVING_OPERATORS.
 function emitAliasedHaving(
-  spec: AliasedSpec,
+  spec: AliasedLevel,
   dialect: SqlDialect,
   columns: ColumnResolver,
 ): string {
@@ -2804,17 +2838,14 @@ function emitAliasedHaving(
   return ` HAVING ${conditions.join(" AND ")}`;
 }
 
-// Compile a query with `from`. querySpecSchema already checks each rule below. They run again so that a caller that
-// skipped parsing fails closed. SQL Server has no LIMIT, so the row cap there is `SELECT TOP (n)`.
-function compileAliasedSelect(
-  spec: AliasedSpec,
+// Compile one query level with `from`, without a trailing semicolon. limit is required. SQL Server has no LIMIT, so
+// the row cap there is `SELECT TOP (n)`. querySpecSchema already checks each rule below. They run again so that a
+// caller that skipped parsing fails closed.
+function compileAliasedLevel(
+  spec: AliasedLevel,
   options: CompileQueryOptions,
 ): string {
   const dialect = aliasedDialect(options);
-
-  if (hasOwnValue(spec, "table")) throw new Error(BOTH_TABLE_AND_FROM_MESSAGE);
-
-  if (spec.operation !== "SELECT") throw new Error(ALIASED_SELECT_ONLY_MESSAGE);
 
   if (spec.limit === undefined) throw new Error(ALIASED_LIMIT_MESSAGE);
 
@@ -2884,7 +2915,22 @@ function compileAliasedSelect(
       ? ` GROUP BY ${groupBy.map((entry) => aliasedGroupKey(entry, dialect, columns)).join(", ")}`
       : "";
 
-  return `SELECT ${distinct}${top}${outputs.join(", ")} FROM ${emitAliasedFrom(sources, projection, columns, options)}${emitWhere(spec.filters, dialect, columns)}${groupByClause}${emitAliasedHaving(spec, dialect, columns)}${emitOrderBy(spec.orderBy, columns, resultNames)}${limit};`;
+  return `SELECT ${distinct}${top}${outputs.join(", ")} FROM ${emitAliasedFrom(sources, projection, columns, options)}${emitWhere(spec.filters, dialect, columns)}${groupByClause}${emitAliasedHaving(spec, dialect, columns)}${emitOrderBy(spec.orderBy, columns, resultNames)}${limit}`;
+}
+
+// Compile a query with `from`: checks the plugin, then compiles the query level.
+function compileAliasedSelect(
+  spec: AliasedSpec,
+  options: CompileQueryOptions,
+): string {
+  // Throws on a plugin that cannot run a query with from, before any other check.
+  aliasedDialect(options);
+
+  if (hasOwnValue(spec, "table")) throw new Error(BOTH_TABLE_AND_FROM_MESSAGE);
+
+  if (spec.operation !== "SELECT") throw new Error(ALIASED_SELECT_ONLY_MESSAGE);
+
+  return `${compileAliasedLevel(spec, options)};`;
 }
 
 function isAliasedSpec(spec: QuerySpec): spec is AliasedSpec {
