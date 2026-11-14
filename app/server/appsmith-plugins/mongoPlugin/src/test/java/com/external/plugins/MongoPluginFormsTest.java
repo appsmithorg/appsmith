@@ -23,6 +23,7 @@ import com.mongodb.reactivestreams.client.MongoCollection;
 import io.micrometer.observation.ObservationRegistry;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -1682,6 +1683,45 @@ public class MongoPluginFormsTest {
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isTrue();
                     assertThat(((ArrayNode) result.getBody()).size()).isEqualTo(2);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("GHSA-gcgj-p6xv-xpcp")
+    void should_matchOnlyTheBoundString_when_boundStringContainsSpecialTypeText() {
+        // Given
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(
+                configMap, BODY, "{ \"find\": \"users\", \"filter\": { \"name\": \"{{Input1.text}}\" } }");
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(configMap);
+
+        String value = "note \"ObjectId('507f1f77bcf86cd799439011')\" end";
+        Param param = new Param("Input1.text", value);
+        param.setClientDataType(ClientDataType.STRING);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(new ArrayList<>(List.of(param)));
+
+        // When
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(
+                conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+
+        // Then
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertThat(result.getIsExecutionSuccess()).isTrue();
+                    // No user has this text as a name, so the query matches nothing.
+                    assertThat((ArrayNode) result.getBody()).isEmpty();
+                    Document filter =
+                            Document.parse(result.getRequest().getQuery()).get("filter", Document.class);
+                    assertThat(filter.keySet()).containsExactly("name");
+                    assertThat(filter.get("name")).isEqualTo(value);
                 })
                 .verifyComplete();
     }
