@@ -588,11 +588,16 @@ const aggregateObjectSchema = z
   })
   .strict();
 
+// `case` is the input of an aggregate in a query with `from` (aliasedAggregateSchema). A query on one table has none.
 function refineAggregate(
-  entry: z.infer<typeof aggregateObjectSchema>,
+  entry: z.infer<typeof aggregateObjectSchema> & { case?: unknown },
   ctx: z.RefinementCtx,
 ): void {
-  if (entry.fn !== "count" && entry.column === undefined) {
+  if (
+    entry.fn !== "count" &&
+    entry.column === undefined &&
+    entry.case === undefined
+  ) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: `${entry.fn} needs a column`,
@@ -1227,6 +1232,9 @@ const ON_SIDES_MESSAGE =
   "each on pair compares a column of this join's own alias with a column of a source declared before it";
 const BOTH_TABLE_AND_FROM_MESSAGE =
   "use table for a query on one table, or from (with joins) for several, not both";
+const CASE_NEEDS_FROM_MESSAGE = "a CASE is only available in a query with from";
+const AGGREGATE_COLUMN_AND_CASE_MESSAGE =
+  "an aggregate takes column or case, not both";
 
 // A column reference in aliased mode: a source alias, a dot, then a plain column name.
 const COLUMN_REF = /^([a-z][a-z0-9_]{0,62})\.([A-Za-z_][A-Za-z0-9_]{0,127})$/;
@@ -1277,13 +1285,190 @@ const aliasedFilterEntrySchema = filterEntrySchemaOf(
     .superRefine(refineFilterGroup),
 );
 
+// --- CASE (aliased mode only) --------------------------------------------------------------------------------------
+// `{ case: { when: [{ if: [condition, ...], then }], else? }, as }` compiles to `CASE WHEN ... THEN ... ELSE ... END`.
+// The keywords are fixed text. Each condition is a filter, and each then or else is a column or a bound literal.
+const MAX_CASE_BRANCHES = 8;
+const MAX_CASE_CONDITIONS = 4;
+const MAX_CASES_PER_LEVEL = 12;
+
+const CASE_IN_GROUP_BY_MESSAGE =
+  "a CASE cannot be in groupBy: compute it in a with query, then group by that query's output";
+const NESTED_CASE_MESSAGE = "a CASE cannot contain another CASE";
+const CASE_OPERAND_MESSAGE =
+  'then and else take { column: "alias.column" } or { literal } (not a widget value)';
+const CASE_LITERAL_MESSAGE =
+  "a CASE literal must be a string, number or boolean, not null";
+const CASE_SKIP_MESSAGE = "a CASE condition cannot use skipWhenEmpty";
+const CASE_IN_LIST_MESSAGE = "a CASE condition cannot use inList";
+const CASE_CAP_MESSAGE = `a query level can have at most ${MAX_CASES_PER_LEVEL} CASE expressions`;
+const BOOLEAN_CASE_MESSAGE =
+  "a boolean then or else is not available on Oracle or SQL Server; use a number or a string";
+
+function caseLiteralTypesMessage(first: string, other: string): string {
+  return `every literal then and else in one CASE has the same type: the first is a ${first}, this one is a ${other}`;
+}
+
+function hasOwn(value: unknown, key: string): boolean {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    Object.prototype.hasOwnProperty.call(value, key)
+  );
+}
+
+const caseColumnOperandSchema = z.object({ column: columnRefSchema }).strict();
+const caseLiteralOperandSchema = z
+  .object({
+    literal: literalScalar.refine(
+      (value) => value !== null,
+      CASE_LITERAL_MESSAGE,
+    ),
+  })
+  .strict();
+
+type CaseOperand =
+  | z.infer<typeof caseColumnOperandSchema>
+  | z.infer<typeof caseLiteralOperandSchema>;
+
+// One then or else. An own `column` or `literal` key decides which shape it is, so the agent gets the errors for the
+// shape it meant.
+const caseOperandSchema = z.unknown().transform((entry, ctx): CaseOperand => {
+  if (hasOwn(entry, "case")) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: NESTED_CASE_MESSAGE });
+
+    return z.NEVER;
+  }
+
+  const schema = hasOwn(entry, "column")
+    ? caseColumnOperandSchema
+    : hasOwn(entry, "literal")
+      ? caseLiteralOperandSchema
+      : undefined;
+
+  if (schema === undefined) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: CASE_OPERAND_MESSAGE,
+    });
+
+    return z.NEVER;
+  }
+
+  const result = schema.safeParse(entry);
+
+  if (!result.success) {
+    result.error.issues.forEach((issue) => ctx.addIssue(issue));
+
+    return z.NEVER;
+  }
+
+  return result.data;
+});
+
+// A `when` condition: a filter or an anyOf group, without skipWhenEmpty or inList. A skipped condition would turn
+// the branch on for every row, and inList needs a widget list.
+const caseConditionSchema = aliasedFilterEntrySchema.superRefine(
+  (entry, ctx) => {
+    const members =
+      typeof entry === "object" && entry !== null && isFilterGroup(entry)
+        ? entry.anyOf.map((member, index) => ({
+            member,
+            path: ["anyOf", index] as (string | number)[],
+          }))
+        : [{ member: entry as Filter, path: [] as (string | number)[] }];
+
+    members.forEach(({ member, path }) => {
+      if (typeof member !== "object" || member === null) return;
+
+      if (member.skipWhenEmpty === true) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: CASE_SKIP_MESSAGE,
+          path: [...path, "skipWhenEmpty"],
+        });
+      }
+
+      if (member.op === "inList") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: CASE_IN_LIST_MESSAGE,
+          path: [...path, "op"],
+        });
+      }
+    });
+  },
+);
+
+// Every literal then and else in one CASE has one JSON type. A CASE returns one SQL type, and a bound literal's type
+// comes from its JSON type.
+function refineCaseLiterals(
+  value: { when: { then: CaseOperand }[]; else?: CaseOperand },
+  ctx: z.RefinementCtx,
+): void {
+  const operands: { operand: CaseOperand; path: (string | number)[] }[] = [
+    ...value.when.map((branch, index) => ({
+      operand: branch.then,
+      path: ["when", index, "then"] as (string | number)[],
+    })),
+    ...(value.else === undefined
+      ? []
+      : [{ operand: value.else, path: ["else"] as (string | number)[] }]),
+  ];
+  let first: string | undefined;
+
+  operands.forEach(({ operand, path }) => {
+    if (typeof operand !== "object" || operand === null) return;
+
+    if (!("literal" in operand) || operand.literal === null) return;
+
+    const type = typeof operand.literal;
+
+    if (first === undefined) {
+      first = type;
+    } else if (type !== first) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: caseLiteralTypesMessage(first, type),
+        path: [...path, "literal"],
+      });
+    }
+  });
+}
+
+const caseSchema = z
+  .object({
+    when: z
+      .array(
+        z
+          .object({
+            if: z.array(caseConditionSchema).min(1).max(MAX_CASE_CONDITIONS),
+            then: caseOperandSchema,
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(MAX_CASE_BRANCHES),
+    else: caseOperandSchema.optional(),
+  })
+  .strict()
+  .superRefine(refineCaseLiterals);
+
+// A `columns` entry that computes a CASE. `as` is required: a CASE has no column name to borrow.
+const caseColumnSchema = z
+  .object({ case: caseSchema, as: resultNameSchema })
+  .strict();
+
+type CaseColumn = z.infer<typeof caseColumnSchema>;
+
 // A select or groupBy entry in aliased mode:
 // - "o.status", shown as status (the column part);
 // - { column, as }, shown as `as`;
 // - { column, coalesce, as? };
-// - { column, bucket, as } (groupBy only, PostgreSQL only).
+// - { column, bucket, as } (groupBy only, PostgreSQL only);
+// - { case, as } (columns only).
 // The split shape is listed only so that its refusal can name it.
-const aliasedSelectSchema = z.union([
+const aliasedPlainSelectSchema = z.union([
   columnRefSchema,
   z.object({ column: columnRefSchema, as: resultNameSchema }).strict(),
   coalesceColumnSchema.extend({
@@ -1294,11 +1479,46 @@ const aliasedSelectSchema = z.union([
   splitColumnSchema.extend({ column: columnRefSchema }),
 ]);
 
-type AliasedSelect = z.infer<typeof aliasedSelectSchema>;
+type AliasedSelect = z.infer<typeof aliasedPlainSelectSchema> | CaseColumn;
 
+// An own `case` key picks the CASE shape, so the agent gets the CASE errors instead of a union of every shape.
+const aliasedSelectSchema = z
+  .unknown()
+  .transform((entry, ctx): AliasedSelect => {
+    const result = hasOwn(entry, "case")
+      ? caseColumnSchema.safeParse(entry)
+      : aliasedPlainSelectSchema.safeParse(entry);
+
+    if (!result.success) {
+      result.error.issues.forEach((issue) => ctx.addIssue(issue));
+
+      return z.NEVER;
+    }
+
+    return result.data;
+  });
+
+// An aggregate in aliased mode. Its input is `column` or `case`, not both. count may have neither (COUNT(*)).
 const aliasedAggregateSchema = aggregateObjectSchema
-  .extend({ column: columnRefSchema.optional() })
-  .superRefine(refineAggregate);
+  .extend({
+    column: columnRefSchema.optional(),
+    case: caseSchema.optional(),
+  })
+  .superRefine((entry, ctx) => {
+    if (entry.case !== undefined && entry.column !== undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: AGGREGATE_COLUMN_AND_CASE_MESSAGE,
+        path: ["case"],
+      });
+    }
+
+    refineAggregate(entry, ctx);
+  });
+
+function isAliasedCase(entry: AliasedSelect): entry is CaseColumn {
+  return typeof entry !== "string" && "case" in entry;
+}
 
 function isAliasedSplit(
   entry: AliasedSelect,
@@ -1318,7 +1538,7 @@ function isAliasedCoalesce(
   return typeof entry !== "string" && "coalesce" in entry;
 }
 
-function aliasedColumnOf(entry: AliasedSelect): string {
+function aliasedColumnOf(entry: Exclude<AliasedSelect, CaseColumn>): string {
   return typeof entry === "string" ? entry : entry.column;
 }
 
@@ -1340,7 +1560,7 @@ function aliasedResultName(entry: AliasedSelect): string | undefined {
     return entry.as;
   }
 
-  if (isAliasedBucket(entry)) return undefined;
+  if (isAliasedBucket(entry) || isAliasedCase(entry)) return undefined;
 
   return columnRefParts(aliasedColumnOf(entry))?.column;
 }
@@ -1396,15 +1616,61 @@ function columnRefsOf(
       refs.push({ ref: group?.column, path: [...path, "column"] });
     }
   };
+  // A CASE: every `when` condition, and each then or else that reads a column.
+  const walkCase = (value: unknown, path: (string | number)[]) => {
+    const operand = (entry: unknown, at: (string | number)[]) => {
+      const record = objectOrNull(entry);
+
+      if (
+        record !== undefined &&
+        Object.prototype.hasOwnProperty.call(record, "column")
+      ) {
+        refs.push({ ref: record.column, path: [...at, "column"] });
+      }
+    };
+    const branches = objectOrNull(value)?.when;
+
+    (Array.isArray(branches) ? branches : []).forEach(
+      (branch: unknown, branchIndex: number) => {
+        const conditions = objectOrNull(branch)?.if;
+
+        (Array.isArray(conditions) ? conditions : []).forEach(
+          (condition: unknown, conditionIndex: number) =>
+            walkFilter(condition, [
+              ...path,
+              "when",
+              branchIndex,
+              "if",
+              conditionIndex,
+            ]),
+        );
+        operand(objectOrNull(branch)?.then, [
+          ...path,
+          "when",
+          branchIndex,
+          "then",
+        ]);
+      },
+    );
+    operand(objectOrNull(value)?.else, [...path, "else"]);
+  };
+  const hasCase = (entry: unknown) =>
+    Object.prototype.hasOwnProperty.call(objectOrNull(entry) ?? {}, "case");
 
   for (const field of ["columns", "groupBy"] as const) {
-    (spec[field] ?? []).forEach((entry, index) =>
+    (spec[field] ?? []).forEach((entry, index) => {
+      if (hasCase(entry)) {
+        walkCase(objectOrNull(entry)?.case, [field, index, "case"]);
+
+        return;
+      }
+
       refs.push({
         ref: typeof entry === "string" ? entry : objectOrNull(entry)?.column,
         path:
           typeof entry === "string" ? [field, index] : [field, index, "column"],
-      }),
-    );
+      });
+    });
   }
 
   (spec.filters ?? []).forEach((entry, index) =>
@@ -1416,6 +1682,10 @@ function columnRefsOf(
 
     if (column !== undefined) {
       refs.push({ ref: column, path: ["aggregates", index, "column"] });
+    }
+
+    if (hasCase(entry)) {
+      walkCase(objectOrNull(entry)?.case, ["aggregates", index, "case"]);
     }
   });
 
@@ -1491,7 +1761,7 @@ interface AliasedRefineLevel {
   columns?: AliasedSelect[];
   filters?: (Filter | FilterGroup)[];
   groupBy?: AliasedSelect[];
-  aggregates?: AggregateEntry[];
+  aggregates?: (AggregateEntry & { case?: unknown })[];
   having?: { column: string }[];
   orderBy?: { column: string }[];
   distinct?: boolean;
@@ -1604,9 +1874,26 @@ function refineAliasedLevel(spec: AliasedRefineLevel, issue: IssueAt): void {
     names.push(name);
   };
   const outputField = aggregates === undefined ? "columns" : "groupBy";
+  let caseCount = 0;
+  // Counts a CASE, and refuses the one past the cap.
+  const countCase = (path: (string | number)[]) => {
+    caseCount += 1;
+
+    if (caseCount > MAX_CASES_PER_LEVEL) issue(path, CASE_CAP_MESSAGE);
+  };
 
   for (const field of ["columns", "groupBy"] as const) {
     (spec[field] ?? []).forEach((entry, index) => {
+      if (isAliasedCase(entry)) {
+        if (field === "groupBy") {
+          issue([field, index, "case"], CASE_IN_GROUP_BY_MESSAGE);
+
+          return;
+        }
+
+        countCase([field, index, "case"]);
+      }
+
       if (isAliasedSplit(entry)) {
         issue([field, index, "split"], ALIASED_SPLIT_MESSAGE);
 
@@ -1646,9 +1933,11 @@ function refineAliasedLevel(spec: AliasedRefineLevel, issue: IssueAt): void {
     });
   }
 
-  (aggregates ?? []).forEach((entry, index) =>
-    checkName(resultNameOf(entry), ["aggregates", index, "as"], false),
-  );
+  (aggregates ?? []).forEach((entry, index) => {
+    if (entry.case !== undefined) countCase(["aggregates", index, "case"]);
+
+    checkName(resultNameOf(entry), ["aggregates", index, "as"], false);
+  });
 
   // having names an aggregate's result, or a groupBy result name that is not a bucket or a coalesce.
   if (spec.having !== undefined && aggregates !== undefined) {
@@ -2075,6 +2364,8 @@ interface ColumnResolver {
   writeColumn(column: string): string;
   // Throws when the column would read the whole row (see refuseTableNamedColumn).
   refuseRowRead(column: string, usage: string): void;
+  // A CASE expression, as an aggregate's input. Only a query with `from` has one.
+  caseExpression(value: unknown): string;
 }
 
 // The resolver for a query on one table. It writes each clause as the compiler always has:
@@ -2126,6 +2417,9 @@ function singleTableColumns(
     splitColumn: (column) => `"${checkedColumnName(column)}"`,
     writeColumn: (column) => checkedColumnName(column),
     refuseRowRead,
+    caseExpression: () => {
+      throw new Error(CASE_NEEDS_FROM_MESSAGE);
+    },
   };
 }
 
@@ -2291,28 +2585,42 @@ function emitAggregate(
 // it, because PostgreSQL does not accept a select-list alias there. Every keyword comes from AGGREGATE_FNS or
 // ROUND_FNS, and the column is an allow-listed identifier quoted by quoteIdentifier (bare on MySQL). Only count can
 // omit the column. abs and round are checked again here, so a caller that skipped parsing fails closed.
+// A query with `from` can use a CASE as the input instead of a column (see ColumnResolver.caseExpression). The
+// single-table resolver refuses a CASE, so a query on one table compiles exactly as before.
 function aggregateExpression(
-  entry: AggregateEntry,
+  entry: AggregateEntry & { case?: unknown },
   dialect: SqlDialect,
   columns: ColumnResolver,
 ): string {
   const fn = sqlKeyword(AGGREGATE_FNS, entry.fn, "aggregate fn");
+
+  if (entry.case !== undefined && entry.column !== undefined) {
+    throw new Error(AGGREGATE_COLUMN_AND_CASE_MESSAGE);
+  }
 
   if (entry.fn === "count") {
     if (entry.abs === true) throw new Error(ABS_ON_COUNT_MESSAGE);
 
     if (entry.round !== undefined) throw new Error(ROUND_FN_MESSAGE);
 
-    const target = entry.column ? columns.aggregateColumn(entry.column) : "*";
+    let target = "*";
+
+    if (entry.column) {
+      target = columns.aggregateColumn(entry.column);
+    } else if (entry.case !== undefined) {
+      target = columns.caseExpression(entry.case);
+    }
 
     return `${fn}(${target})`;
   }
 
-  if (!entry.column) {
+  if (!entry.column && entry.case === undefined) {
     throw new Error(`${entry.fn} aggregation requires a column`);
   }
 
-  const column = columns.aggregateColumn(entry.column);
+  const column = entry.column
+    ? columns.aggregateColumn(entry.column)
+    : columns.caseExpression(entry.case);
   const call = `${fn}(${entry.abs === true ? `ABS(${column})` : column})`;
 
   if (entry.round === undefined) return call;
@@ -2328,7 +2636,7 @@ function aggregateExpression(
     (entry.round === "ceil" || entry.round === "round")
   ) {
     throw new Error(
-      `round "${entry.round}" (on ${entry.column}) is only available on a PostgreSQL, Redshift, MySQL or Oracle datasource; on other databases use round "floor" or no round`,
+      `round "${entry.round}" (on ${entry.column ?? "a CASE"}) is only available on a PostgreSQL, Redshift, MySQL or Oracle datasource; on other databases use round "floor" or no round`,
     );
   }
 
@@ -2516,7 +2824,7 @@ interface AliasedLevel {
   columns?: AliasedSelect[];
   filters?: (Filter | FilterGroup)[];
   groupBy?: AliasedSelect[];
-  aggregates?: AggregateEntry[];
+  aggregates?: (AggregateEntry & { case?: unknown })[];
   having?: { column: string; op: string; value: ValueRef }[];
   orderBy?: { column: string; direction: "ASC" | "DESC" }[];
   distinct?: boolean;
@@ -2674,8 +2982,7 @@ function aliasedColumns(
   const unavailable = (what: string) => (): never => {
     throw new Error(`${what} is not available with from and joins`);
   };
-
-  return {
+  const resolver: ColumnResolver = {
     get table(): string {
       throw new Error("a query with from and joins has no single table");
     },
@@ -2689,7 +2996,124 @@ function aliasedColumns(
     writeColumn: unavailable("a write"),
     // The closed projection already refuses a column named like its table (see emitAliasedSource).
     refuseRowRead: () => undefined,
+    caseExpression: (value) => emitCaseExpression(value, dialect, resolver),
   };
+
+  return resolver;
+}
+
+// One `when` condition of a CASE: a filter, or an OR group in parentheses. skipWhenEmpty and inList are refused, as
+// caseConditionSchema refuses them.
+function emitCaseCondition(
+  value: unknown,
+  dialect: SqlDialect,
+  columns: ColumnResolver,
+): string {
+  if (typeof value !== "object" || value === null) {
+    throw new Error(`unsafe CASE condition: ${JSON.stringify(value)}`);
+  }
+
+  const condition = (filter: Filter) => {
+    if (filter.skipWhenEmpty === true) throw new Error(CASE_SKIP_MESSAGE);
+
+    if (filter.op === "inList") throw new Error(CASE_IN_LIST_MESSAGE);
+
+    return emitCondition(filter, dialect, columns);
+  };
+  const entry = value as Filter | FilterGroup;
+
+  if (isFilterGroup(entry)) {
+    return `(${entry.anyOf.map(condition).join(" OR ")})`;
+  }
+
+  return condition(entry);
+}
+
+// `CASE WHEN <conditions> THEN <operand> ... ELSE <operand> END`. The keywords are fixed text. A then or else is a
+// column, through the resolver's projection check, or a literal, bound with emitBinding. Every literal in one CASE has
+// one JSON type, and none is null. A boolean literal is refused on Oracle and SQL Server, which have no boolean
+// expression type to return. Each rule is checked again here, so a caller that skipped parsing fails closed.
+function emitCaseExpression(
+  value: unknown,
+  dialect: SqlDialect,
+  columns: ColumnResolver,
+): string {
+  const record = asRecord(value);
+  const branches = record.when;
+
+  if (
+    !Array.isArray(branches) ||
+    branches.length < 1 ||
+    branches.length > MAX_CASE_BRANCHES
+  ) {
+    throw new Error(`a CASE needs 1 to ${MAX_CASE_BRANCHES} when branches`);
+  }
+
+  let literalType: string | undefined;
+  const operand = (entry: unknown): string => {
+    if (hasOwn(entry, "case")) throw new Error(NESTED_CASE_MESSAGE);
+
+    const operandRecord = asRecord(entry);
+    const isColumn = hasOwn(entry, "column");
+    const isLiteral = hasOwn(entry, "literal");
+
+    if (isColumn === isLiteral || Object.keys(operandRecord).length !== 1) {
+      throw new Error(CASE_OPERAND_MESSAGE);
+    }
+
+    if (isColumn) return columns.selectColumn(operandRecord.column as string);
+
+    const literal = operandRecord.literal;
+
+    if (
+      typeof literal !== "string" &&
+      typeof literal !== "number" &&
+      typeof literal !== "boolean"
+    ) {
+      throw new Error(CASE_LITERAL_MESSAGE);
+    }
+
+    if (
+      typeof literal === "boolean" &&
+      (dialect === "oracle" || dialect === "other")
+    ) {
+      throw new Error(BOOLEAN_CASE_MESSAGE);
+    }
+
+    if (literalType === undefined) {
+      literalType = typeof literal;
+    } else if (literalType !== typeof literal) {
+      throw new Error(caseLiteralTypesMessage(literalType, typeof literal));
+    }
+
+    return emitBinding({ literal });
+  };
+  const whens = branches.map((branchValue: unknown) => {
+    const branch = asRecord(branchValue);
+    const conditions = branch.if;
+
+    if (
+      !Array.isArray(conditions) ||
+      conditions.length < 1 ||
+      conditions.length > MAX_CASE_CONDITIONS
+    ) {
+      throw new Error(
+        `a CASE branch needs 1 to ${MAX_CASE_CONDITIONS} if conditions`,
+      );
+    }
+
+    const test = conditions
+      .map((condition: unknown) =>
+        emitCaseCondition(condition, dialect, columns),
+      )
+      .join(" AND ");
+
+    return `WHEN ${test} THEN ${operand(branch.then)}`;
+  });
+  const elseText =
+    record.else === undefined ? "" : ` ELSE ${operand(record.else)}`;
+
+  return `CASE ${whens.join(" ")}${elseText} END`;
 }
 
 // One source in FROM or a join, without its join keyword. On PostgreSQL and Redshift it is a closed projection:
@@ -2769,13 +3193,15 @@ function aliasedGroupKey(
 ): string {
   if (isAliasedSplit(entry)) throw new Error(ALIASED_SPLIT_MESSAGE);
 
+  if (isAliasedCase(entry)) throw new Error(CASE_IN_GROUP_BY_MESSAGE);
+
   if (isAliasedBucket(entry)) return bucketExpression(entry, dialect, columns);
 
   return columns.groupColumn(aliasedColumnOf(entry));
 }
 
-// One output in aliased mode, always with a bare `AS <result name>`: the column, its COALESCE, or a bucket (groupBy
-// only).
+// One output in aliased mode, always with a bare `AS <result name>`: the column, its COALESCE, a bucket (groupBy
+// only) or a CASE (columns only).
 function emitAliasedOutput(
   entry: AliasedSelect,
   grouped: boolean,
@@ -2784,6 +3210,10 @@ function emitAliasedOutput(
 ): string {
   if (isAliasedBucket(entry) && !grouped) {
     throw new Error("bucket is only valid in groupBy");
+  }
+
+  if (isAliasedCase(entry) && !grouped) {
+    return `${columns.caseExpression(entry.case)} AS ${emitResultName(entry.as)}`;
   }
 
   const expression = aliasedGroupKey(entry, dialect, columns);
@@ -2854,6 +3284,12 @@ function compileAliasedLevel(
   const projection = projectionOf(spec, sources, dialect);
   const columns = aliasedColumns(projection, dialect);
   const aggregates = spec.aggregates ?? [];
+  const caseCount =
+    (spec.columns ?? []).filter(isAliasedCase).length +
+    aggregates.filter((entry) => entry.case !== undefined).length;
+
+  if (caseCount > MAX_CASES_PER_LEVEL) throw new Error(CASE_CAP_MESSAGE);
+
   const groupBy = spec.groupBy ?? [];
   let outputs: string[];
   let names: (string | undefined)[];

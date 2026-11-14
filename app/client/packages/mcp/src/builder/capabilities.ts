@@ -676,7 +676,7 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       name: "create_query",
       gate: "data",
       summary:
-        "structured SQL query (filters: eq/ne/gt/gte/lt/lte/like/in, like match contains/prefix/suffix, isNull/notNull, anyOf OR groups, inList and ilike on PostgreSQL; skipWhenEmpty for filter bars; coalesce on selected and grouped columns; having on aggregated selects; split a delimited group column on PostgreSQL; aggregates: several count/sum/avg/min/max with abs and round; date bucket group keys on PostgreSQL and Redshift; distinct; from + joins over several tables on PostgreSQL, MySQL, MariaDB, Oracle and SQL Server)",
+        "structured SQL query (filters: eq/ne/gt/gte/lt/lte/like/in, like match contains/prefix/suffix, isNull/notNull, anyOf OR groups, inList and ilike on PostgreSQL; skipWhenEmpty for filter bars; coalesce on selected and grouped columns; having on aggregated selects; split a delimited group column on PostgreSQL; aggregates: several count/sum/avg/min/max with abs and round; date bucket group keys on PostgreSQL and Redshift; distinct; from + joins over several tables on PostgreSQL, MySQL, MariaDB, Oracle and SQL Server, with CASE)",
     },
     {
       name: "create_mongo_query",

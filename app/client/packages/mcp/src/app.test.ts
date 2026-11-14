@@ -7388,6 +7388,101 @@ describe("governance-wrapped layout mutations", () => {
     },
   );
 
+  // APP-16506 C: update_action compiles a CASE column through actionPatch, with the plugin's own form.
+  it.each([
+    [
+      "postgres-plugin",
+      'SELECT o."id" AS id, CASE WHEN c."tier" = {{ "gold" }} THEN {{ "priority" }} ELSE {{ "standard" }} END AS service FROM (SELECT "customer_id", "id" FROM orders) o INNER JOIN (SELECT "id", "tier" FROM customers) c ON c."id" = o."customer_id" LIMIT 20;',
+    ],
+    [
+      "oracle-plugin",
+      'SELECT o.id AS id, CASE WHEN c.tier = {{ "gold" }} THEN {{ "priority" }} ELSE {{ "standard" }} END AS service FROM orders o INNER JOIN customers c ON c.id = o.customer_id FETCH FIRST 20 ROWS ONLY;',
+    ],
+    [
+      "mssql-plugin",
+      'SELECT TOP (20) o."id" AS id, CASE WHEN c."tier" = {{ "gold" }} THEN {{ "priority" }} ELSE {{ "standard" }} END AS service FROM orders o INNER JOIN customers c ON c."id" = o."customer_id";',
+    ],
+  ])(
+    "APP-16506: should_store_a_case_column_when_update_action_runs_on_%s",
+    async (pluginId, sql) => {
+      // Given
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId },
+      ]);
+
+      // When
+      const updated = await updateWithJoin(server, {
+        columns: [
+          "o.id",
+          {
+            case: {
+              when: [
+                {
+                  if: [
+                    { column: "c.tier", op: "eq", value: { literal: "gold" } },
+                  ],
+                  then: { literal: "priority" },
+                },
+              ],
+              else: { literal: "standard" },
+            },
+            as: "service",
+          },
+        ],
+      });
+
+      // Then
+      expect(updated.body.updated).toBe(true);
+      expect(
+        mcpAuthoredBody(
+          storedSqlBody(
+            (
+              (updateAction.mock.calls[0] as unknown[])[1] as {
+                actionConfiguration: unknown;
+              }
+            ).actionConfiguration,
+          ),
+        ),
+      ).toBe(sql);
+    },
+  );
+
+  it("APP-16506: should_refuse_a_boolean_case_literal_before_any_write_when_update_action_runs_on_oracle", async () => {
+    // Given
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "ds1", name: "DB", pluginId: "oracle-plugin" },
+    ]);
+
+    // When
+    const updated = await updateWithJoin(server, {
+      columns: [
+        "o.id",
+        {
+          case: {
+            when: [
+              {
+                if: [{ column: "c.tier", op: "isNull" }],
+                then: { literal: true },
+              },
+            ],
+          },
+          as: "untiered",
+        },
+      ],
+    });
+
+    // Then
+    expect(updated.body.updated).not.toBe(true);
+    expect(updated.body.errors).toEqual([
+      {
+        path: "",
+        message:
+          "a boolean then or else is not available on Oracle or SQL Server; use a number or a string",
+      },
+    ]);
+    expect(updateAction).not.toHaveBeenCalled();
+  });
+
   it("APP-16506: should_refuse_joins_on_a_write_when_update_action_gets_an_update", async () => {
     // Given
     const { server, updateAction } = sqlUpdateServer([

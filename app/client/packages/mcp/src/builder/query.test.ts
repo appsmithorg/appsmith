@@ -5648,3 +5648,659 @@ describe("APP-16506 B: from + joins", () => {
     );
   });
 });
+
+// APP-16506 C: CASE, in aliased mode only.
+const REF_MESSAGE =
+  'must be alias.column, such as "o.status": a source alias from from or joins, a dot, then a plain column name';
+const CASE_IN_GROUP_BY =
+  "a CASE cannot be in groupBy: compute it in a with query, then group by that query's output";
+const NESTED_CASE = "a CASE cannot contain another CASE";
+const CASE_OPERAND =
+  'then and else take { column: "alias.column" } or { literal } (not a widget value)';
+const CASE_LITERAL =
+  "a CASE literal must be a string, number or boolean, not null";
+const CASE_CAP = "a query level can have at most 12 CASE expressions";
+const BOOLEAN_CASE =
+  "a boolean then or else is not available on Oracle or SQL Server; use a number or a string";
+
+function caseLiteralTypes(first: string, other: string) {
+  return `every literal then and else in one CASE has the same type: the first is a ${first}, this one is a ${other}`;
+}
+
+// A CASE that labels an order by its total.
+const bandCase = {
+  when: [
+    {
+      if: [{ column: "o.total", op: "gte", value: { literal: 1000 } }],
+      then: { literal: "large" },
+    },
+    {
+      if: [
+        { column: "o.total", op: "isNull" },
+        {
+          anyOf: [
+            { column: "o.status", op: "eq", value: { literal: "new" } },
+            { column: "o.status", op: "isNull" },
+          ],
+        },
+      ],
+      then: { column: "o.status" },
+    },
+  ],
+  else: { literal: "small" },
+};
+
+const caseColumns = {
+  ...base,
+  operation: "SELECT",
+  from: { table: "orders", as: "o" },
+  columns: ["o.id", { case: bandCase, as: "order_band" }],
+  limit: 50,
+};
+
+const caseAggregates = {
+  ...base,
+  operation: "SELECT",
+  from: { table: "orders", as: "o" },
+  groupBy: ["o.region"],
+  aggregates: [
+    {
+      fn: "sum",
+      case: {
+        when: [
+          {
+            if: [{ column: "o.status", op: "eq", value: { literal: "paid" } }],
+            then: { column: "o.total" },
+          },
+        ],
+        else: { literal: 0 },
+      },
+      as: "paid_total",
+    },
+    {
+      fn: "count",
+      case: {
+        when: [
+          {
+            if: [{ column: "o.refunded", op: "notNull" }],
+            then: { literal: 1 },
+          },
+        ],
+      },
+      as: "refunds",
+    },
+  ],
+  having: [{ column: "paid_total", op: "gt", value: { literal: 0 } }],
+  orderBy: [{ column: "paid_total", direction: "DESC" }],
+  limit: 20,
+};
+
+// Changes the CASE of caseColumns.
+function withBandCase(change: Record<string, unknown>) {
+  return {
+    ...caseColumns,
+    columns: ["o.id", { case: { ...bandCase, ...change }, as: "order_band" }],
+  };
+}
+
+const CASE_COLUMNS_POSTGRES =
+  'SELECT o."id" AS id, CASE WHEN o."total" >= {{ 1000 }} THEN {{ "large" }} WHEN o."total" IS NULL AND (o."status" = {{ "new" }} OR o."status" IS NULL) THEN o."status" ELSE {{ "small" }} END AS order_band FROM (SELECT "id", "total", "status" FROM orders) o LIMIT 50;';
+const CASE_COLUMNS_ORACLE =
+  'SELECT o.id AS id, CASE WHEN o.total >= {{ 1000 }} THEN {{ "large" }} WHEN o.total IS NULL AND (o.status = {{ "new" }} OR o.status IS NULL) THEN o.status ELSE {{ "small" }} END AS order_band FROM orders o FETCH FIRST 50 ROWS ONLY;';
+const CASE_COLUMNS_MSSQL =
+  'SELECT TOP (50) o."id" AS id, CASE WHEN o."total" >= {{ 1000 }} THEN {{ "large" }} WHEN o."total" IS NULL AND (o."status" = {{ "new" }} OR o."status" IS NULL) THEN o."status" ELSE {{ "small" }} END AS order_band FROM orders o;';
+const CASE_COLUMNS_MYSQL =
+  'SELECT o.id AS id, CASE WHEN o.total >= {{ 1000 }} THEN {{ "large" }} WHEN o.total <=> NULL AND (o.status = {{ "new" }} OR o.status <=> NULL) THEN o.status ELSE {{ "small" }} END AS order_band FROM orders o LIMIT 50;';
+const CASE_AGGREGATES_POSTGRES =
+  'SELECT o."region" AS region, SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o."refunded" IS NOT NULL THEN {{ 1 }} END) AS refunds FROM (SELECT "region", "status", "total", "refunded" FROM orders) o GROUP BY o."region" HAVING SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC LIMIT 20;';
+const CASE_AGGREGATES_ORACLE =
+  'SELECT o.region AS region, SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o.refunded IS NOT NULL THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o.region HAVING SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC FETCH FIRST 20 ROWS ONLY;';
+const CASE_AGGREGATES_MSSQL =
+  'SELECT TOP (20) o."region" AS region, SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o."refunded" IS NOT NULL THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o."region" HAVING SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC;';
+
+describe("APP-16506 C: CASE", () => {
+  describe("compiled bodies", () => {
+    it.each([
+      ["postgres-plugin", CASE_COLUMNS_POSTGRES],
+      ["oracle-plugin", CASE_COLUMNS_ORACLE],
+      ["mssql-plugin", CASE_COLUMNS_MSSQL],
+      ["mysql-plugin", CASE_COLUMNS_MYSQL],
+    ])(
+      "should_compile_a_case_column_when_plugin_is_%s",
+      (packageName, expected) => {
+        expect(compileFor(caseColumns, packageName)).toBe(expected);
+      },
+    );
+
+    it.each([
+      ["postgres-plugin", CASE_AGGREGATES_POSTGRES],
+      ["oracle-plugin", CASE_AGGREGATES_ORACLE],
+      ["mssql-plugin", CASE_AGGREGATES_MSSQL],
+    ])(
+      "should_compile_case_aggregate_inputs_and_having_when_plugin_is_%s",
+      (packageName, expected) => {
+        expect(compileFor(caseAggregates, packageName)).toBe(expected);
+      },
+    );
+
+    it("should_bind_a_boolean_case_literal_on_postgres", () => {
+      // Given
+      const spec = withBandCase({
+        when: [
+          {
+            if: [{ column: "o.total", op: "gte", value: { literal: 1000 } }],
+            then: { literal: true },
+          },
+        ],
+        else: { literal: false },
+      });
+
+      // When / Then
+      expect(compileFor(spec, "postgres-plugin")).toBe(
+        'SELECT o."id" AS id, CASE WHEN o."total" >= {{ 1000 }} THEN {{ true }} ELSE {{ false }} END AS order_band FROM (SELECT "id", "total" FROM orders) o LIMIT 50;',
+      );
+    });
+
+    it.each(["oracle-plugin", "mssql-plugin"])(
+      "should_refuse_a_boolean_case_literal_when_plugin_is_%s",
+      (packageName) => {
+        // Given
+        const spec = withBandCase({
+          when: [
+            {
+              if: [{ column: "o.total", op: "gte", value: { literal: 1 } }],
+              then: { literal: true },
+            },
+          ],
+          else: undefined,
+        });
+
+        // When / Then
+        expect(() => compileFor(spec, packageName)).toThrow(
+          new Error(BOOLEAN_CASE),
+        );
+      },
+    );
+
+    it.each(["oracle-plugin", "mssql-plugin"])(
+      "should_refuse_a_boolean_case_literal_in_else_only_when_plugin_is_%s",
+      (packageName) => {
+        // Given
+        const spec = withBandCase({
+          when: [
+            {
+              if: [{ column: "o.total", op: "gte", value: { literal: 1 } }],
+              then: { column: "o.status" },
+            },
+          ],
+          else: { literal: true },
+        });
+
+        // When / Then
+        expect(() => compileFor(spec, packageName)).toThrow(
+          new Error(BOOLEAN_CASE),
+        );
+      },
+    );
+
+    it("should_accept_twelve_case_expressions_in_one_level", () => {
+      // Given
+      const spec = {
+        ...caseColumns,
+        columns: Array.from({ length: 12 }, (_, index) => ({
+          case: bandCase,
+          as: `band_${index}`,
+        })),
+      };
+
+      // When / Then
+      expect(compileFor(spec, "mysql-plugin").match(/CASE WHEN/g)).toHaveLength(
+        12,
+      );
+    });
+  });
+
+  describe("querySpecSchema refusals", () => {
+    it("should_refuse_a_case_in_group_by_and_point_to_with", () => {
+      // Given
+      const spec = {
+        ...caseColumns,
+        columns: undefined,
+        groupBy: [{ case: bandCase, as: "order_band" }],
+        aggregates: [{ fn: "count" }],
+      };
+
+      // When / Then
+      expect(issuesOf(spec)).toEqual([
+        { path: ["groupBy", 0, "case"], message: CASE_IN_GROUP_BY },
+      ]);
+    });
+
+    it.each([
+      [
+        "a CASE inside a CASE",
+        withBandCase({
+          else: { case: bandCase },
+        }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "else"],
+            message: NESTED_CASE,
+          },
+        ],
+      ],
+      [
+        "a widget value as then",
+        withBandCase({
+          when: [
+            {
+              if: [{ column: "o.total", op: "isNull" }],
+              then: { widget: "Input1", property: "text" },
+            },
+          ],
+        }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "when", 0, "then"],
+            message: CASE_OPERAND,
+          },
+        ],
+      ],
+      [
+        "a null literal",
+        withBandCase({ else: { literal: null } }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "else", "literal"],
+            message: CASE_LITERAL,
+          },
+        ],
+      ],
+      [
+        "literals of two types",
+        withBandCase({ else: { literal: 0 } }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "else", "literal"],
+            message: caseLiteralTypes("string", "number"),
+          },
+        ],
+      ],
+      [
+        "skipWhenEmpty in a condition",
+        withBandCase({
+          when: [
+            {
+              if: [
+                {
+                  column: "o.status",
+                  op: "eq",
+                  value: { widget: "Status", property: "selectedOptionValue" },
+                  skipWhenEmpty: true,
+                },
+              ],
+              then: { literal: "x" },
+            },
+          ],
+        }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "when", 0, "if", 0, "skipWhenEmpty"],
+            message: "a CASE condition cannot use skipWhenEmpty",
+          },
+        ],
+      ],
+      [
+        "inList in a condition",
+        withBandCase({
+          when: [
+            {
+              if: [
+                {
+                  column: "o.status",
+                  op: "inList",
+                  value: { widget: "Tags", property: "selectedOptionValues" },
+                },
+              ],
+              then: { literal: "x" },
+            },
+          ],
+        }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "when", 0, "if", 0, "op"],
+            message: "a CASE condition cannot use inList",
+          },
+        ],
+      ],
+      [
+        "nine when branches",
+        withBandCase({
+          when: Array.from({ length: 9 }, () => bandCase.when[0]),
+        }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "when"],
+            message: "Array must contain at most 8 element(s)",
+          },
+        ],
+      ],
+      [
+        "no when branch",
+        withBandCase({ when: [] }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "when"],
+            message: "Array must contain at least 1 element(s)",
+          },
+        ],
+      ],
+      [
+        "five conditions in a branch",
+        withBandCase({
+          when: [
+            {
+              if: Array.from({ length: 5 }, () => ({
+                column: "o.total",
+                op: "isNull",
+              })),
+              then: { literal: "x" },
+            },
+          ],
+        }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "when", 0, "if"],
+            message: "Array must contain at most 4 element(s)",
+          },
+        ],
+      ],
+      [
+        "thirteen CASE expressions",
+        Array.from({ length: 13 }, (_, index) => ({
+          case: bandCase,
+          as: `band_${index}`,
+        })),
+        [{ path: ["columns", 12, "case"], message: CASE_CAP }],
+      ],
+      [
+        "a CASE column without as",
+        ["o.id", { case: bandCase }],
+        [{ path: ["columns", 1, "as"], message: "Required" }],
+      ],
+      [
+        "an unqualified column in a condition",
+        withBandCase({
+          when: [
+            {
+              if: [{ column: "total", op: "isNull" }],
+              then: { literal: "x" },
+            },
+          ],
+        }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "when", 0, "if", 0, "column"],
+            message: REF_MESSAGE,
+          },
+        ],
+      ],
+      [
+        "an alias that no source declares in then",
+        withBandCase({ else: { column: "x.status" } }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "else", "column"],
+            message:
+              '"x.status" uses the alias "x", which no source declares (aliases: o)',
+          },
+        ],
+      ],
+      [
+        "an injection string as the CASE result name",
+        ["o.id", { case: bandCase, as: "x; DROP TABLE y" }],
+        [
+          {
+            path: ["columns", 1, "as"],
+            message:
+              "must be a lower-case name: a letter, then letters, digits or _, up to 63 characters",
+          },
+        ],
+      ],
+      [
+        "template syntax in a CASE literal",
+        withBandCase({ else: { literal: "{{ evil() }}" } }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "else", "literal"],
+            message: "no template syntax",
+          },
+        ],
+      ],
+      [
+        "an injection string in a then column",
+        withBandCase({ else: { column: "o.id; DROP TABLE y" } }).columns,
+        [
+          {
+            path: ["columns", 1, "case", "else", "column"],
+            message: REF_MESSAGE,
+          },
+        ],
+      ],
+      [
+        "an unknown key in a CASE",
+        ["o.id", { case: { ...bandCase, then: "x" }, as: "order_band" }],
+        [
+          {
+            path: ["columns", 1, "case"],
+            message: "Unrecognized key(s) in object: 'then'",
+          },
+        ],
+      ],
+    ])("should_refuse_%s", (_label, columns, issues) => {
+      expect(issuesOf({ ...caseColumns, columns })).toEqual(issues);
+    });
+
+    it("should_refuse_an_aggregate_with_both_column_and_case", () => {
+      // Given
+      const spec = {
+        ...caseAggregates,
+        aggregates: [
+          { ...caseAggregates.aggregates[0], column: "o.total" },
+          caseAggregates.aggregates[1],
+        ],
+      };
+
+      // When / Then
+      expect(issuesOf(spec)).toEqual([
+        {
+          path: ["aggregates", 0, "case"],
+          message: "an aggregate takes column or case, not both",
+        },
+      ]);
+    });
+
+    it("should_refuse_a_case_column_in_single_table_mode", () => {
+      // Given
+      const spec = {
+        ...base,
+        operation: "SELECT",
+        table: "orders",
+        columns: [{ case: bandCase, as: "order_band" }],
+      };
+
+      // When / Then
+      expect(issuesOf(spec)).toEqual([
+        { path: ["columns", 0], message: "Invalid input" },
+      ]);
+    });
+  });
+
+  describe("the compiler fails closed on unparsed specs", () => {
+    function compileCase(
+      spec: Record<string, unknown>,
+      packageName = "postgres-plugin",
+    ) {
+      return () =>
+        compileQuery(spec as unknown as QuerySpec, {
+          dialect: sqlDialectFor(packageName),
+          packageName,
+        });
+    }
+
+    it.each([
+      [
+        "a CASE inside a CASE",
+        withBandCase({ else: { case: bandCase } }),
+        NESTED_CASE,
+      ],
+      [
+        "a null literal",
+        withBandCase({ else: { literal: null } }),
+        CASE_LITERAL,
+      ],
+      [
+        "an object literal",
+        withBandCase({ else: { literal: { a: 1 } } }),
+        CASE_LITERAL,
+      ],
+      [
+        "literals of two types",
+        withBandCase({ else: { literal: 0 } }),
+        caseLiteralTypes("string", "number"),
+      ],
+      [
+        "a widget operand",
+        withBandCase({ else: { widget: "W", property: "text" } }),
+        CASE_OPERAND,
+      ],
+      [
+        "an operand with column and literal",
+        withBandCase({ else: { column: "o.status", literal: "x" } }),
+        CASE_OPERAND,
+      ],
+      [
+        "nine when branches",
+        withBandCase({
+          when: Array.from({ length: 9 }, () => bandCase.when[0]),
+        }),
+        "a CASE needs 1 to 8 when branches",
+      ],
+      [
+        "a branch with no conditions",
+        withBandCase({ when: [{ if: [], then: { literal: "x" } }] }),
+        "a CASE branch needs 1 to 4 if conditions",
+      ],
+      [
+        "skipWhenEmpty in a condition",
+        withBandCase({
+          when: [
+            {
+              if: [
+                {
+                  column: "o.status",
+                  op: "eq",
+                  value: { widget: "S", property: "text" },
+                  skipWhenEmpty: true,
+                },
+              ],
+              then: { literal: "x" },
+            },
+          ],
+        }),
+        "a CASE condition cannot use skipWhenEmpty",
+      ],
+      [
+        "inList in a condition",
+        withBandCase({
+          when: [
+            {
+              if: [
+                {
+                  column: "o.status",
+                  op: "inList",
+                  value: { widget: "S", property: "selectedOptionValues" },
+                },
+              ],
+              then: { literal: "x" },
+            },
+          ],
+        }),
+        "a CASE condition cannot use inList",
+      ],
+      [
+        "an unknown filter op in a condition",
+        withBandCase({
+          when: [
+            {
+              if: [
+                {
+                  column: "o.status",
+                  op: "constructor",
+                  value: { literal: 1 },
+                },
+              ],
+              then: { literal: "x" },
+            },
+          ],
+        }),
+        'unknown filter op "constructor"',
+      ],
+      [
+        "an injection string in a then column",
+        withBandCase({ else: { column: "o.id; DROP TABLE y" } }),
+        'unsafe column reference: "o.id; DROP TABLE y"',
+      ],
+      [
+        "a CASE in groupBy",
+        {
+          ...caseColumns,
+          columns: undefined,
+          groupBy: [{ case: bandCase, as: "order_band" }],
+          aggregates: [{ fn: "count" }],
+        },
+        CASE_IN_GROUP_BY,
+      ],
+      [
+        "thirteen CASE expressions",
+        {
+          ...caseColumns,
+          columns: Array.from({ length: 13 }, (_, index) => ({
+            case: bandCase,
+            as: `band_${index}`,
+          })),
+        },
+        CASE_CAP,
+      ],
+      [
+        "an aggregate with column and case",
+        {
+          ...caseAggregates,
+          aggregates: [{ ...caseAggregates.aggregates[0], column: "o.total" }],
+          having: undefined,
+          orderBy: undefined,
+        },
+        "an aggregate takes column or case, not both",
+      ],
+    ])("should_throw_on_%s", (_label, spec, message) => {
+      expect(compileCase(spec)).toThrow(new Error(message));
+    });
+
+    it("should_refuse_a_case_aggregate_in_an_unparsed_single_table_spec", () => {
+      // Given
+      const spec = {
+        ...base,
+        operation: "SELECT",
+        table: "orders",
+        aggregates: [{ fn: "sum", case: bandCase, as: "x" }],
+      } as unknown as QuerySpec;
+
+      // When / Then
+      for (const dialect of DIALECTS) {
+        expect(() => compileQuery(spec, { dialect })).toThrow(
+          new Error("a CASE is only available in a query with from"),
+        );
+      }
+    });
+  });
+});

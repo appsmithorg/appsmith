@@ -3513,6 +3513,119 @@ const GOLDEN_PLUGIN_CASES = [
       "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
     },
   },
+  // APP-16506 C: CASE in columns, with a condition group and a column operand.
+  {
+    name: "CASE column",
+    spec: {
+      operation: "SELECT",
+      from: { table: "orders", as: "o" },
+      columns: [
+        "o.id",
+        {
+          case: {
+            when: [
+              {
+                if: [
+                  { column: "o.total", op: "gte", value: { literal: 1000 } },
+                ],
+                then: { literal: "large" },
+              },
+              {
+                if: [
+                  { column: "o.total", op: "isNull" },
+                  {
+                    anyOf: [
+                      {
+                        column: "o.status",
+                        op: "eq",
+                        value: { literal: "new" },
+                      },
+                      { column: "o.status", op: "isNull" },
+                    ],
+                  },
+                ],
+                then: { column: "o.status" },
+              },
+            ],
+            else: { literal: "small" },
+          },
+          as: "order_band",
+        },
+      ],
+      limit: 50,
+    },
+    expected: {
+      none: { throws: ALIASED_MODE_MESSAGE },
+      "postgres-plugin":
+        'SELECT o."id" AS id, CASE WHEN o."total" >= {{ 1000 }} THEN {{ "large" }} WHEN o."total" IS NULL AND (o."status" = {{ "new" }} OR o."status" IS NULL) THEN o."status" ELSE {{ "small" }} END AS order_band FROM (SELECT "id", "total", "status" FROM orders) o LIMIT 50;',
+      "mysql-plugin":
+        'SELECT o.id AS id, CASE WHEN o.total >= {{ 1000 }} THEN {{ "large" }} WHEN o.total <=> NULL AND (o.status = {{ "new" }} OR o.status <=> NULL) THEN o.status ELSE {{ "small" }} END AS order_band FROM orders o LIMIT 50;',
+      "mariadb-plugin":
+        'SELECT o.id AS id, CASE WHEN o.total >= {{ 1000 }} THEN {{ "large" }} WHEN o.total <=> NULL AND (o.status = {{ "new" }} OR o.status <=> NULL) THEN o.status ELSE {{ "small" }} END AS order_band FROM orders o LIMIT 50;',
+      "oracle-plugin":
+        'SELECT o.id AS id, CASE WHEN o.total >= {{ 1000 }} THEN {{ "large" }} WHEN o.total IS NULL AND (o.status = {{ "new" }} OR o.status IS NULL) THEN o.status ELSE {{ "small" }} END AS order_band FROM orders o FETCH FIRST 50 ROWS ONLY;',
+      "mssql-plugin":
+        'SELECT TOP (50) o."id" AS id, CASE WHEN o."total" >= {{ 1000 }} THEN {{ "large" }} WHEN o."total" IS NULL AND (o."status" = {{ "new" }} OR o."status" IS NULL) THEN o."status" ELSE {{ "small" }} END AS order_band FROM orders o;',
+      "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
+      "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
+    },
+  },
+  // APP-16506 C: CASE as an aggregate input, repeated in HAVING.
+  {
+    name: "CASE aggregate inputs with having",
+    spec: {
+      operation: "SELECT",
+      from: { table: "orders", as: "o" },
+      groupBy: ["o.region"],
+      aggregates: [
+        {
+          fn: "sum",
+          case: {
+            when: [
+              {
+                if: [
+                  { column: "o.status", op: "eq", value: { literal: "paid" } },
+                ],
+                then: { column: "o.total" },
+              },
+            ],
+            else: { literal: 0 },
+          },
+          as: "paid_total",
+        },
+        {
+          fn: "count",
+          case: {
+            when: [
+              {
+                if: [{ column: "o.refunded", op: "notNull" }],
+                then: { literal: 1 },
+              },
+            ],
+          },
+          as: "refunds",
+        },
+      ],
+      having: [{ column: "paid_total", op: "gt", value: { literal: 0 } }],
+      orderBy: [{ column: "paid_total", direction: "DESC" }],
+      limit: 20,
+    },
+    expected: {
+      none: { throws: ALIASED_MODE_MESSAGE },
+      "postgres-plugin":
+        'SELECT o."region" AS region, SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o."refunded" IS NOT NULL THEN {{ 1 }} END) AS refunds FROM (SELECT "region", "status", "total", "refunded" FROM orders) o GROUP BY o."region" HAVING SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC LIMIT 20;',
+      "mysql-plugin":
+        'SELECT o.region AS region, SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN NOT (o.refunded <=> NULL) THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o.region HAVING SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC LIMIT 20;',
+      "mariadb-plugin":
+        'SELECT o.region AS region, SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN NOT (o.refunded <=> NULL) THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o.region HAVING SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC LIMIT 20;',
+      "oracle-plugin":
+        'SELECT o.region AS region, SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o.refunded IS NOT NULL THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o.region HAVING SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC FETCH FIRST 20 ROWS ONLY;',
+      "mssql-plugin":
+        'SELECT TOP (20) o."region" AS region, SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o."refunded" IS NOT NULL THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o."region" HAVING SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC;',
+      "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
+      "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
+    },
+  },
 ];
 
 describe("APP-16506 golden: from and joins per plugin", () => {
