@@ -252,7 +252,21 @@ evaluated as code in a viewer's browser.
     null and never a widget value. All literal then and else values in one CASE have one type.
     Oracle and SQL Server refuse a boolean then or else.
   - No CASE inside a CASE, and none in groupBy: compute it in a with query, then group by that
-    query's output. At most 12 CASE expressions in one query level.`;
+    query's output. At most 12 CASE expressions in one query level.
+- WITH (only in a query with \`from\`; PostgreSQL, Oracle and SQL Server): \`"with": [{ "name":
+  "order_totals", "query": { "from": ..., "joins": ..., "columns": ..., "filters": ..., "groupBy":
+  ..., "aggregates": ..., "having": ..., "distinct": ... } }]\` (1 to 4).
+  - Read a with query with \`from\` or a join of \`{ "cte": "order_totals", "as": "t" }\`. A with query
+    can read only the ones declared before it. Every with query must be read.
+  - A with query's outputs are its result names. \`t.paid_total\` must name one of them.
+  - A with query has no orderBy, no limit and no with of its own. The outer query still needs a
+    limit.
+  - MySQL and MariaDB refuse WITH: their plugin returns rows only for a query that starts with
+    SELECT. Use joins there.
+  - A name is a lower-case name that is not a SQL keyword, and is never used as a table name or
+    an alias.
+  - To scope rows to the viewer, put the scoping filter in EVERY with query that reads the scoped
+    table. A filter in the outer query does not limit what a with query reads.`;
 
 const GUIDE_GIT = `# Git-connected applications guide
 

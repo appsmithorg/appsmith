@@ -1232,6 +1232,9 @@ const ON_SIDES_MESSAGE =
   "each on pair compares a column of this join's own alias with a column of a source declared before it";
 const BOTH_TABLE_AND_FROM_MESSAGE =
   "use table for a query on one table, or from (with joins) for several, not both";
+const SOURCE_TABLE_OR_CTE_MESSAGE = "a source names table or cte, not both";
+const CTE_ORDER_AND_LIMIT_MESSAGE =
+  "a with query has no orderBy and no limit; order and limit the outer query";
 const CASE_NEEDS_FROM_MESSAGE = "a CASE is only available in a query with from";
 const AGGREGATE_COLUMN_AND_CASE_MESSAGE =
   "an aggregate takes column or case, not both";
@@ -1252,9 +1255,30 @@ const aliasSchema = resultNameSchema.refine(
   `an alias cannot start with ${SPLIT_SOURCE}`,
 );
 
+// A source names a real table or, in a query with `with`, a CTE: exactly one of `table` and `cte`.
+function refineTableOrCte(
+  source: { table?: string; cte?: string },
+  ctx: z.RefinementCtx,
+): void {
+  if ((source.table === undefined) === (source.cte === undefined)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message:
+        source.table === undefined
+          ? "a source needs table or cte"
+          : SOURCE_TABLE_OR_CTE_MESSAGE,
+    });
+  }
+}
+
 const sourceSchema = z
-  .object({ table: tableNameSchema, as: aliasSchema })
-  .strict();
+  .object({
+    table: tableNameSchema.optional(),
+    cte: aliasSchema.optional(),
+    as: aliasSchema,
+  })
+  .strict()
+  .superRefine(refineTableOrCte);
 
 // The join keywords. The SQL comes from this map, never from agent text.
 const JOIN_TYPES = { inner: "INNER JOIN", left: "LEFT JOIN" } as const;
@@ -1263,7 +1287,8 @@ const JOIN_TYPES = { inner: "INNER JOIN", left: "LEFT JOIN" } as const;
 const joinSchema = z
   .object({
     type: z.enum(["inner", "left"]),
-    table: tableNameSchema,
+    table: tableNameSchema.optional(),
+    cte: aliasSchema.optional(),
     as: aliasSchema,
     on: z
       .array(
@@ -1272,7 +1297,8 @@ const joinSchema = z
       .min(1)
       .max(MAX_ON_PAIRS),
   })
-  .strict();
+  .strict()
+  .superRefine(refineTableOrCte);
 
 const aliasedFilterSchema = filterObjectSchema
   .extend({ column: columnRefSchema })
@@ -1754,25 +1780,64 @@ function refineAliasScope(
   });
 }
 
-// One query level as refineAliasedLevel reads it.
+// One query level as refineAliasedLevel reads it: the outer query, or the query of a CTE. A CTE's orderBy and limit
+// are read only to refuse them, so they are unknown here.
 interface AliasedRefineLevel {
-  from: { as: string };
-  joins?: { as: string; on: { left: string; right: string }[] }[];
+  from: { as: string; table?: string; cte?: string };
+  joins?: {
+    as: string;
+    table?: string;
+    cte?: string;
+    on: { left: string; right: string }[];
+  }[];
   columns?: AliasedSelect[];
   filters?: (Filter | FilterGroup)[];
   groupBy?: AliasedSelect[];
   aggregates?: (AggregateEntry & { case?: unknown })[];
   having?: { column: string }[];
-  orderBy?: { column: string }[];
+  orderBy?: unknown;
   distinct?: boolean;
-  limit?: number;
+  limit?: unknown;
 }
 
 type IssueAt = (path: (string | number)[], message: string) => void;
 
-// The rules for a query with `from`. Every check adds an issue and none throws.
+// The result names of a query level: a CTE's outputs. With aggregates they are the group keys and the aggregates;
+// without, the columns.
+function levelResultNames(level: AliasedRefineLevel): string[] {
+  const names =
+    level.aggregates !== undefined
+      ? [
+          ...(level.groupBy ?? []).map(aliasedResultName),
+          ...level.aggregates.map((entry) => resultNameOf(entry)),
+        ]
+      : (level.columns ?? []).map(aliasedResultName);
+
+  return names.filter((name): name is string => name !== undefined);
+}
+
+// The from source and each join, with the path of each.
+function levelSources(level: AliasedRefineLevel): {
+  source: { as: string; table?: string; cte?: string };
+  path: (string | number)[];
+}[] {
+  return [
+    { source: level.from, path: ["from"] },
+    ...(level.joins ?? []).map((join, index) => ({
+      source: join,
+      path: ["joins", index] as (string | number)[],
+    })),
+  ];
+}
+
+// The rules for a query with `from`, and its `with` queries. Every check adds an issue and none throws.
+// - Each CTE's query follows the level rules, and can read only the CTEs declared before it (no RECURSIVE).
+// - CTE names are unique, and every CTE must be read by a later CTE or the outer query.
 function refineAliasedSpec(
-  spec: AliasedRefineLevel & { operation: string },
+  spec: AliasedRefineLevel & {
+    operation: string;
+    with?: { name: string; query: AliasedRefineLevel & { with?: unknown } }[];
+  },
   ctx: z.RefinementCtx,
 ): void {
   const issue: IssueAt = (path, message) =>
@@ -1784,11 +1849,100 @@ function refineAliasedSpec(
     return;
   }
 
-  refineAliasedLevel(spec, issue);
+  const ctes = spec.with ?? [];
+  const cteNames = ctes.map((cte) => cte.name);
+  const scope = new Map<string, string[]>();
+
+  ctes.forEach((cte, index) => {
+    const issueIn: IssueAt = (path, message) =>
+      issue(["with", index, "query", ...path], message);
+
+    if (
+      cteNames
+        .slice(0, index)
+        .some((name) => name.toLowerCase() === cte.name.toLowerCase())
+    ) {
+      issue(
+        ["with", index, "name"],
+        `the with query name "${cte.name}" is used more than once`,
+      );
+    }
+
+    if (cte.query.with !== undefined) issueIn(["with"], NESTED_WITH_MESSAGE);
+
+    refineAliasedLevel(cte.query, issueIn, "cte", scope, cteNames);
+
+    if (!scope.has(cte.name)) {
+      scope.set(cte.name, levelResultNames(cte.query));
+    }
+  });
+
+  refineAliasedLevel(spec, issue, "outer", scope, cteNames);
+
+  const read = new Set(
+    [spec, ...ctes.map((cte) => cte.query)].flatMap((level) =>
+      levelSources(level).flatMap(({ source }) =>
+        source.cte === undefined ? [] : [source.cte],
+      ),
+    ),
+  );
+
+  // A name that breaks the name rules already has its own issue.
+  ctes.forEach((cte, index) => {
+    if (aliasSchema.safeParse(cte.name).success && !read.has(cte.name)) {
+      issue(
+        ["with", index, "name"],
+        `the with query ${cte.name} is not used; read it with from or a join { cte, as }`,
+      );
+    }
+  });
 }
 
-// The rules for one query level with `from`.
-function refineAliasedLevel(spec: AliasedRefineLevel, issue: IssueAt): void {
+// The rules for one query level with `from`. `kind` says which level it is: the outer query needs a limit, and a
+// CTE's query has no orderBy and no limit. `scope` holds the CTEs the level can read, and `cteNames` every CTE name.
+function refineAliasedLevel(
+  spec: AliasedRefineLevel,
+  issue: IssueAt,
+  kind: "outer" | "cte",
+  scope: CteScope,
+  cteNames: readonly string[],
+): void {
+  const isCteName = (name: string) =>
+    cteNames.some((cte) => cte.toLowerCase() === name.toLowerCase());
+
+  // A source reads a CTE in scope, or a table that a CTE name does not shadow. An alias is never a CTE name.
+  levelSources(spec).forEach(({ path, source }) => {
+    // A cte name that breaks the name rules already has its own issue.
+    if (
+      source.cte !== undefined &&
+      aliasSchema.safeParse(source.cte).success &&
+      !scope.has(source.cte)
+    ) {
+      issue(
+        [...path, "cte"],
+        `"${source.cte}" is not a with query declared before this query; a with query can read only the ones declared before it`,
+      );
+    }
+
+    if (
+      source.table !== undefined &&
+      !source.table.includes(".") &&
+      isCteName(source.table)
+    ) {
+      issue(
+        [...path, "table"],
+        `"${source.table}" is also the name of a with query: use { cte: "${source.table}" } to read the with query, or schema.table to read the table`,
+      );
+    }
+
+    if (isCteName(source.as)) {
+      issue(
+        [...path, "as"],
+        `the alias "${source.as}" is also the name of a with query; pick another alias`,
+      );
+    }
+  });
+
   const joins = spec.joins ?? [];
   const aliases = [spec.from.as, ...joins.map((join) => join.as)];
   const aliasPath = (index: number) =>
@@ -1810,9 +1964,47 @@ function refineAliasedLevel(spec: AliasedRefineLevel, issue: IssueAt): void {
   // they are skipped.
   if (aliases.every((alias) => aliasSchema.safeParse(alias).success)) {
     refineAliasScope(spec, aliases, issue);
+
+    // A reference through a CTE's alias must name one of the CTE's outputs.
+    // A source with both table and cte, or a CTE with no outputs, already has its own issue.
+    const cteOfAlias = new Map(
+      levelSources(spec).flatMap(({ source }) =>
+        source.cte !== undefined &&
+        source.table === undefined &&
+        scope.has(source.cte)
+          ? [[source.as, source.cte] as const]
+          : [],
+      ),
+    );
+
+    columnRefsOf(spec).forEach(({ path, ref }) => {
+      const parts = columnRefParts(ref);
+      const cte = parts === undefined ? undefined : cteOfAlias.get(parts.alias);
+
+      if (parts === undefined || cte === undefined) return;
+
+      const outputs = scope.get(cte) ?? [];
+
+      if (outputs.length > 0 && !outputs.includes(parts.column)) {
+        issue(
+          path,
+          `${notCteOutputMessage(parts.alias, parts.column, cte)} (outputs: ${outputs.join(", ")})`,
+        );
+      }
+    });
   }
 
-  if (spec.limit === undefined) issue(["limit"], ALIASED_LIMIT_MESSAGE);
+  if (kind === "outer" && spec.limit === undefined) {
+    issue(["limit"], ALIASED_LIMIT_MESSAGE);
+  }
+
+  if (kind === "cte") {
+    for (const field of ["orderBy", "limit"] as const) {
+      if (spec[field] !== undefined) {
+        issue([field], CTE_ORDER_AND_LIMIT_MESSAGE);
+      }
+    }
+  }
 
   const aggregates = spec.aggregates;
 
@@ -1970,17 +2162,52 @@ function refineAliasedLevel(spec: AliasedRefineLevel, issue: IssueAt): void {
     });
   }
 
-  (spec.orderBy ?? []).forEach((entry, index) => {
-    if (!names.includes(entry.column)) {
-      issue(
-        ["orderBy", index, "column"],
-        `with from and joins, orderBy can only name a result name (${names.map((name) => `"${name}"`).join(", ")})`,
-      );
-    }
-  });
+  // A CTE's orderBy is refused above, so only the outer query's is read here.
+  if (kind === "outer") {
+    ((spec.orderBy ?? []) as { column: string }[]).forEach((entry, index) => {
+      if (!names.includes(entry.column)) {
+        issue(
+          ["orderBy", index, "column"],
+          `with from and joins, orderBy can only name a result name (${names.map((name) => `"${name}"`).join(", ")})`,
+        );
+      }
+    });
+  }
 }
 
-// A SELECT over several tables. querySpecSchema picks it when the spec has `from` or `joins`.
+// --- WITH (aliased mode only) -----------------------------------------------------------------------------------------
+// `with: [{ name, query }]` compiles to `WITH name AS (SELECT ...), ... SELECT ...`. Depth 1, no RECURSIVE. A CTE's
+// query is a SELECT core: no orderBy, no limit and no `with` of its own. Those keys are listed only so that their
+// refusal can name them.
+const MAX_CTES = 4;
+
+const NESTED_WITH_MESSAGE =
+  "with queries cannot be nested; list every with query in the outer with";
+const WITH_ON_MYSQL_MESSAGE =
+  "with is not available on MySQL or MariaDB: their plugin returns rows only for a query whose first word is SELECT";
+
+const cteQuerySchema = z
+  .object({
+    from: sourceSchema,
+    joins: z.array(joinSchema).max(MAX_JOINS).optional(),
+    columns: z.array(aliasedSelectSchema).max(100).optional(),
+    filters: z.array(aliasedFilterEntrySchema).max(20).optional(),
+    aggregates: z.array(aliasedAggregateSchema).min(1).max(6).optional(),
+    groupBy: z.array(aliasedSelectSchema).max(20).optional(),
+    having: z.array(havingConditionSchema).max(10).optional(),
+    distinct: z.boolean().optional(),
+    orderBy: z.unknown().optional(),
+    limit: z.unknown().optional(),
+    with: z.unknown().optional(),
+  })
+  .strict();
+
+const withSchema = z
+  .array(z.object({ name: aliasSchema, query: cteQuerySchema }).strict())
+  .min(1)
+  .max(MAX_CTES);
+
+// A SELECT over several tables. querySpecSchema picks it when the spec has `from`, `joins` or `with`.
 const aliasedSpecSchema = z
   .object({
     name: bindingIdentifier,
@@ -1988,6 +2215,7 @@ const aliasedSpecSchema = z
     pageId: storedId,
     datasourceId: storedId,
     operation: z.enum(["SELECT", "INSERT", "UPDATE", "DELETE"]),
+    with: withSchema.optional(),
     from: sourceSchema,
     joins: z.array(joinSchema).max(MAX_JOINS).optional(),
     columns: z.array(aliasedSelectSchema).max(100).optional(),
@@ -2012,15 +2240,17 @@ function hasOwnValue(value: object, key: string): boolean {
   );
 }
 
-// A spec with `from` or `joins` is in aliased mode. Anything else is a query on one table, parsed exactly as before.
-// It returns the parsed spec, so each schema's own rules apply, and passes on each issue with its own path.
+// A spec with `from`, `joins` or `with` is in aliased mode. Anything else is a query on one table, parsed exactly as
+// before. It returns the parsed spec, so each schema's own rules apply, and passes on each issue with its own path.
 export const querySpecSchema = z
   .unknown()
   .transform((input, ctx): SingleTableSpec | AliasedSpec => {
     const aliased =
       typeof input === "object" &&
       input !== null &&
-      (hasOwnValue(input, "from") || hasOwnValue(input, "joins"));
+      (hasOwnValue(input, "from") ||
+        hasOwnValue(input, "joins") ||
+        hasOwnValue(input, "with"));
 
     if (aliased && hasOwnValue(input, "table")) {
       ctx.addIssue({
@@ -2809,15 +3039,21 @@ function checkedSourceTable(table: unknown, dialect: SqlDialect): string {
   return checked;
 }
 
-// One source of a query level: a real table.
+// The CTEs a query level can read: each name with its output names, in declaration order. A level can read only the
+// CTEs declared before it, so each level gets its own scope.
+type CteScope = ReadonlyMap<string, readonly string[]>;
+
+const NO_CTES: CteScope = new Map();
+
+// One source of a query level: a real table, or a CTE declared in `with`.
 type AliasedSource = {
   alias: string;
   // The join type (a JOIN_TYPES key). The first source has none.
   type?: string;
   on: { left: string; right: string }[];
-} & { kind: "table"; table: string };
+} & ({ kind: "table"; table: string } | { kind: "cte"; cte: string });
 
-// One query level with `from`.
+// One query level with `from`: the outer query, or the query of a CTE. A CTE has no orderBy and no limit.
 interface AliasedLevel {
   from: unknown;
   joins?: { on: { left: string; right: string }[] }[];
@@ -2838,11 +3074,70 @@ function asRecord(value: unknown): Record<string, unknown> {
   >;
 }
 
-// The sources of a query level, checked again: every alias, table, join type and on pair. One side of each on pair
-// uses the join's own alias, and the other an alias declared before it.
+// A CTE name, checked again: the alias rules, and declared in `scope`.
+function checkedCteName(name: unknown, scope: CteScope): string {
+  const checked = checkedAlias(name);
+
+  if (!scope.has(checked)) {
+    throw new Error(
+      `no with query declared before this one is named ${JSON.stringify(checked)}`,
+    );
+  }
+
+  return checked;
+}
+
+// One source, checked again: a table that is not a system catalog, or a CTE in scope. A single-part table name equal
+// to any CTE name (ignoring case) is refused, because the database would read the CTE instead.
+function checkedSource(
+  value: Record<string, unknown>,
+  dialect: SqlDialect,
+  scope: CteScope,
+  cteNames: readonly string[],
+): { kind: "table"; table: string } | { kind: "cte"; cte: string } {
+  if (Object.prototype.hasOwnProperty.call(value, "cte")) {
+    if (Object.prototype.hasOwnProperty.call(value, "table")) {
+      throw new Error(SOURCE_TABLE_OR_CTE_MESSAGE);
+    }
+
+    return { kind: "cte", cte: checkedCteName(value.cte, scope) };
+  }
+
+  const table = checkedSourceTable(value.table, dialect);
+
+  if (
+    !table.includes(".") &&
+    cteNames.some((name) => name.toLowerCase() === table.toLowerCase())
+  ) {
+    throw new Error(
+      `"${table}" is also the name of a with query; read the table as schema.table`,
+    );
+  }
+
+  return { kind: "table", table };
+}
+
+// An alias, checked again: the alias rules, and not a CTE name (ignoring case).
+function checkedLevelAlias(
+  alias: unknown,
+  cteNames: readonly string[],
+): string {
+  const checked = checkedAlias(alias);
+
+  if (cteNames.some((name) => name.toLowerCase() === checked.toLowerCase())) {
+    throw new Error(`the alias "${checked}" is also the name of a with query`);
+  }
+
+  return checked;
+}
+
+// The sources of a query level, checked again: every alias, table or CTE, join type and on pair. One side of each on
+// pair uses the join's own alias, and the other an alias declared before it.
 function checkedSources(
   level: AliasedLevel,
   dialect: SqlDialect,
+  scope: CteScope,
+  cteNames: readonly string[],
 ): AliasedSource[] {
   const from = asRecord(level.from);
   const joins: unknown = level.joins ?? [];
@@ -2853,17 +3148,16 @@ function checkedSources(
 
   const sources: AliasedSource[] = [
     {
-      alias: checkedAlias(from.as),
+      alias: checkedLevelAlias(from.as, cteNames),
       on: [],
-      kind: "table",
-      table: checkedSourceTable(from.table, dialect),
+      ...checkedSource(from, dialect, scope, cteNames),
     },
   ];
   const declared = new Set([sources[0].alias]);
 
   joins.forEach((value: unknown) => {
     const join = asRecord(value);
-    const alias = checkedAlias(join.as);
+    const alias = checkedLevelAlias(join.as, cteNames);
 
     if (declared.has(alias)) {
       throw new Error(`the alias "${alias}" is used more than once`);
@@ -2900,8 +3194,7 @@ function checkedSources(
       alias,
       type: join.type as string,
       on: pairs,
-      kind: "table",
-      table: checkedSourceTable(join.table, dialect),
+      ...checkedSource(join, dialect, scope, cteNames),
     });
   });
 
@@ -2920,17 +3213,32 @@ function projectedName(column: string, dialect: SqlDialect): string {
   return dialect === "redshift" ? name.toLowerCase() : name;
 }
 
-// The columns a query level reads through each alias, built from the spec before anything is emitted. Each
-// alias.column reference adds its column once, in the order the spec first names it. Every source must be read at
-// least once.
+function notCteOutputMessage(alias: string, column: string, cte: string) {
+  return `"${alias}.${column}" is not an output of the with query ${cte}`;
+}
+
+// What a query level reads through each alias, built from the spec before anything is emitted.
+// - A table alias: each alias.column reference adds its column once, in the order the spec first names it.
+// - A CTE alias: the CTE's declared outputs. Every reference must name one of them.
+// Every source must be read at least once.
 function projectionOf(
   level: AliasedLevel,
   sources: AliasedSource[],
   dialect: SqlDialect,
+  scope: CteScope,
 ): Map<string, string[]> {
-  const projection = new Map(
-    sources.map((source) => [source.alias, [] as string[]]),
-  );
+  const projection = new Map<string, string[]>();
+  const cteOf = new Map<string, string>();
+  const used = new Set<string>();
+
+  for (const source of sources) {
+    if (source.kind === "cte") {
+      projection.set(source.alias, [...(scope.get(source.cte) ?? [])]);
+      cteOf.set(source.alias, source.cte);
+    } else {
+      projection.set(source.alias, []);
+    }
+  }
 
   for (const { ref } of columnRefsOf(level)) {
     const { alias, column } = checkedColumnRef(ref);
@@ -2942,13 +3250,25 @@ function projectionOf(
       );
     }
 
+    used.add(alias);
+
+    const cte = cteOf.get(alias);
+
+    if (cte !== undefined) {
+      if (!names.includes(column)) {
+        throw new Error(notCteOutputMessage(alias, column, cte));
+      }
+
+      continue;
+    }
+
     const name = projectedName(column, dialect);
 
     if (!names.includes(name)) names.push(name);
   }
 
   for (const [alias, names] of projection) {
-    if (names.length === 0) {
+    if (names.length === 0 || !used.has(alias)) {
       throw new Error(`the alias "${alias}" is not used`);
     }
   }
@@ -2956,17 +3276,34 @@ function projectionOf(
   return projection;
 }
 
-// The resolver for a query level with `from`. A column is "alias.column", written alias."col" (bare on MySQL and
-// Oracle, see quoteIdentifier; on PostgreSQL and Redshift the name comes from projectedName). Before it writes one, it
-// checks that the column is in the alias's projection. So a reference that the projection missed never reaches the
-// SQL. On PostgreSQL this keeps alias."col" a column: for a missing column, PostgreSQL reads `alias.name` as the call
-// name(alias).
+// The resolver for a query level with `from`.
+// - A table column is "alias.column", written alias."col" (bare on MySQL and Oracle, see quoteIdentifier; on
+//   PostgreSQL and Redshift the name comes from projectedName). Before it writes one, it checks that the column is in
+//   the alias's projection. So a reference that the projection missed never reaches the SQL. On PostgreSQL this keeps
+//   alias."col" a column: for a missing column, PostgreSQL reads `alias.name` as the call name(alias).
+// - A CTE column is written bare, alias.name, as the CTE's own `AS name` is. It must be one of the CTE's outputs.
 function aliasedColumns(
+  sources: AliasedSource[],
   projection: ReadonlyMap<string, readonly string[]>,
   dialect: SqlDialect,
 ): ColumnResolver {
+  const cteOf = new Map(
+    sources.flatMap((source) =>
+      source.kind === "cte" ? [[source.alias, source.cte] as const] : [],
+    ),
+  );
   const reference = (ref: string): string => {
     const { alias, column } = checkedColumnRef(ref);
+    const cte = cteOf.get(alias);
+
+    if (cte !== undefined) {
+      if (projection.get(alias)?.includes(column) !== true) {
+        throw new Error(notCteOutputMessage(alias, column, cte));
+      }
+
+      return `${alias}.${emitResultName(column)}`;
+    }
+
     const name = projectedName(column, dialect);
 
     if (projection.get(alias)?.includes(name) !== true) {
@@ -3116,17 +3453,27 @@ function emitCaseExpression(
   return `CASE ${whens.join(" ")}${elseText} END`;
 }
 
-// One source in FROM or a join, without its join keyword. On PostgreSQL and Redshift it is a closed projection:
-// `(SELECT "c1", "c2" FROM schema.t) o`, which lists exactly the columns the spec reads through `o`. Inside it only one
-// table is in scope, so a missing column is an error, not a function call. The inner FROM has no alias, so only the
-// table's own name can read as the whole row, and refuseTableNamedColumn refuses it. Every other database gets
-// `schema.t o`. No database gets AS before the alias: Oracle does not accept it.
+// One source in FROM or a join, without its join keyword.
+// - A CTE: `name alias`. It needs no projection: its outputs are its declared result names, and every reference to
+//   them is checked against that list (see aliasedColumns).
+// - A table on PostgreSQL and Redshift: a closed projection, `(SELECT "c1", "c2" FROM schema.t) o`, which lists
+//   exactly the columns the spec reads through `o`. Inside it only one table is in scope, so a missing column is an
+//   error, not a function call. The inner FROM has no alias, so only the table's own name can read as the whole row,
+//   and refuseTableNamedColumn refuses it.
+// - A table on every other database: `schema.t o`.
+// No database gets AS before the alias: Oracle does not accept it.
 function emitAliasedSource(
   source: AliasedSource,
   projection: ReadonlyMap<string, readonly string[]>,
   dialect: SqlDialect,
+  scope: CteScope,
 ): string {
   const alias = checkedAlias(source.alias);
+
+  if (source.kind === "cte") {
+    return `${checkedCteName(source.cte, scope)} ${alias}`;
+  }
+
   const table = checkedSourceTable(source.table, dialect);
 
   if (dialect !== "postgres" && dialect !== "redshift") {
@@ -3164,12 +3511,13 @@ function emitAliasedFrom(
   projection: ReadonlyMap<string, readonly string[]>,
   columns: ColumnResolver,
   options: CompileQueryOptions,
+  scope: CteScope,
 ): string {
   const dialect = aliasedDialect(options);
 
   return sources
     .map((source, index) => {
-      const text = emitAliasedSource(source, projection, dialect);
+      const text = emitAliasedSource(source, projection, dialect, scope);
 
       if (index === 0) return text;
 
@@ -3268,21 +3616,33 @@ function emitAliasedHaving(
   return ` HAVING ${conditions.join(" AND ")}`;
 }
 
-// Compile one query level with `from`, without a trailing semicolon. limit is required. SQL Server has no LIMIT, so
-// the row cap there is `SELECT TOP (n)`. querySpecSchema already checks each rule below. They run again so that a
-// caller that skipped parsing fails closed.
+// Compile one query level with `from`, without a trailing semicolon. `kind` says which level it is:
+// - "outer": the query itself. limit is required. SQL Server has no LIMIT, so the row cap there is `SELECT TOP (n)`.
+// - "cte": the query of a CTE. It has no orderBy and no limit.
+// `scope` holds the CTEs this level can read, and `cteNames` every CTE name. It returns the SQL, the level's result
+// names (a CTE's outputs) and the CTEs it reads. querySpecSchema already checks each rule below. They run again so that
+// a caller that skipped parsing fails closed.
 function compileAliasedLevel(
   spec: AliasedLevel,
+  kind: "outer" | "cte",
   options: CompileQueryOptions,
-): string {
+  scope: CteScope,
+  cteNames: readonly string[] = [],
+): { sql: string; outputs: string[]; reads: string[] } {
   const dialect = aliasedDialect(options);
+  let rows: number | undefined;
 
-  if (spec.limit === undefined) throw new Error(ALIASED_LIMIT_MESSAGE);
+  if (kind === "outer") {
+    if (spec.limit === undefined) throw new Error(ALIASED_LIMIT_MESSAGE);
 
-  const rows = checkedLimit(spec.limit);
-  const sources = checkedSources(spec, dialect);
-  const projection = projectionOf(spec, sources, dialect);
-  const columns = aliasedColumns(projection, dialect);
+    rows = checkedLimit(spec.limit);
+  } else if (spec.limit !== undefined || spec.orderBy !== undefined) {
+    throw new Error(CTE_ORDER_AND_LIMIT_MESSAGE);
+  }
+
+  const sources = checkedSources(spec, dialect, scope, cteNames);
+  const projection = projectionOf(spec, sources, dialect, scope);
+  const columns = aliasedColumns(sources, projection, dialect);
   const aggregates = spec.aggregates ?? [];
   const caseCount =
     (spec.columns ?? []).filter(isAliasedCase).length +
@@ -3343,40 +3703,105 @@ function compileAliasedLevel(
     resultNames.add(checked);
   }
 
-  const top = options.packageName === "mssql-plugin" ? `TOP (${rows}) ` : "";
-  const limit = top === "" ? emitLimit(rows, dialect) : "";
+  const mssqlTop = rows !== undefined && options.packageName === "mssql-plugin";
+  const top = mssqlTop ? `TOP (${rows}) ` : "";
+  const limit = rows !== undefined && !mssqlTop ? emitLimit(rows, dialect) : "";
   const distinct = spec.distinct === true ? "DISTINCT " : "";
   const groupByClause =
     aggregates.length > 0 && groupBy.length > 0
       ? ` GROUP BY ${groupBy.map((entry) => aliasedGroupKey(entry, dialect, columns)).join(", ")}`
       : "";
 
-  return `SELECT ${distinct}${top}${outputs.join(", ")} FROM ${emitAliasedFrom(sources, projection, columns, options)}${emitWhere(spec.filters, dialect, columns)}${groupByClause}${emitAliasedHaving(spec, dialect, columns)}${emitOrderBy(spec.orderBy, columns, resultNames)}${limit}`;
+  return {
+    sql: `SELECT ${distinct}${top}${outputs.join(", ")} FROM ${emitAliasedFrom(sources, projection, columns, options, scope)}${emitWhere(spec.filters, dialect, columns)}${groupByClause}${emitAliasedHaving(spec, dialect, columns)}${emitOrderBy(spec.orderBy, columns, resultNames)}${limit}`,
+    outputs: [...resultNames],
+    reads: sources.flatMap((source) =>
+      source.kind === "cte" ? [source.cte] : [],
+    ),
+  };
 }
 
-// Compile a query with `from`: checks the plugin, then compiles the query level.
+// Compile a query with `from`: checks the plugin, compiles each CTE in order with the CTEs before it in scope, then the
+// outer level. Every CTE must be read. WITH is refused on MySQL and MariaDB (see WITH_ON_MYSQL_MESSAGE).
 function compileAliasedSelect(
   spec: AliasedSpec,
   options: CompileQueryOptions,
 ): string {
-  // Throws on a plugin that cannot run a query with from, before any other check.
-  aliasedDialect(options);
+  const dialect = aliasedDialect(options);
 
   if (hasOwnValue(spec, "table")) throw new Error(BOTH_TABLE_AND_FROM_MESSAGE);
 
   if (spec.operation !== "SELECT") throw new Error(ALIASED_SELECT_ONLY_MESSAGE);
 
-  return `${compileAliasedLevel(spec, options)};`;
+  const ctes: unknown = spec.with;
+
+  if (ctes === undefined) {
+    return `${compileAliasedLevel(spec, "outer", options, NO_CTES).sql};`;
+  }
+
+  if (dialect === "mysql") throw new Error(WITH_ON_MYSQL_MESSAGE);
+
+  if (!Array.isArray(ctes) || ctes.length < 1 || ctes.length > MAX_CTES) {
+    throw new Error(`with needs 1 to ${MAX_CTES} queries`);
+  }
+
+  const cteNames = ctes.map((cte: unknown) => checkedAlias(asRecord(cte).name));
+  const scope = new Map<string, readonly string[]>();
+  const read = new Set<string>();
+  const parts = ctes.map((value: unknown, index: number) => {
+    const cte = asRecord(value);
+    const name = cteNames[index];
+
+    if (
+      cteNames
+        .slice(0, index)
+        .some((earlier) => earlier.toLowerCase() === name.toLowerCase())
+    ) {
+      throw new Error(`the with query name "${name}" is used more than once`);
+    }
+
+    const query = asRecord(cte.query);
+
+    if (query.with !== undefined) throw new Error(NESTED_WITH_MESSAGE);
+
+    const level = compileAliasedLevel(
+      query as unknown as AliasedLevel,
+      "cte",
+      options,
+      scope,
+      cteNames,
+    );
+
+    level.reads.forEach((cteName) => read.add(cteName));
+    scope.set(name, level.outputs);
+
+    return `${name} AS (${level.sql})`;
+  });
+  const outer = compileAliasedLevel(spec, "outer", options, scope, cteNames);
+
+  outer.reads.forEach((cteName) => read.add(cteName));
+
+  for (const name of cteNames) {
+    if (!read.has(name)) {
+      throw new Error(`the with query ${name} is not used`);
+    }
+  }
+
+  return `WITH ${parts.join(", ")} ${outer.sql};`;
 }
 
 function isAliasedSpec(spec: QuerySpec): spec is AliasedSpec {
-  return hasOwnValue(spec, "from") || hasOwnValue(spec, "joins");
+  return (
+    hasOwnValue(spec, "from") ||
+    hasOwnValue(spec, "joins") ||
+    hasOwnValue(spec, "with")
+  );
 }
 
 // Compile a structured spec into a parameterized SQL body. Throws on an empty/oversized body or if the emitted body
 // somehow contains a brace pair that isn't a compiler-emitted binding (fail-closed defense-in-depth).
-// A spec with `from` or `joins` compiles in aliased mode (compileAliasedSelect). Every other spec compiles as a query
-// on one table.
+// A spec with `from`, `joins` or `with` compiles in aliased mode (compileAliasedSelect). Every other spec compiles as
+// a query on one table.
 export function compileQuery(
   spec: QuerySpec,
   options: CompileQueryOptions = {},

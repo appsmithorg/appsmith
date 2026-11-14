@@ -5649,7 +5649,7 @@ describe("APP-16506 B: from + joins", () => {
   });
 });
 
-// APP-16506 C: CASE, in aliased mode only.
+// APP-16506 C and D: CASE and WITH, in aliased mode only.
 const REF_MESSAGE =
   'must be alias.column, such as "o.status": a source alias from from or joins, a dot, then a plain column name';
 const CASE_IN_GROUP_BY =
@@ -5662,9 +5662,19 @@ const CASE_LITERAL =
 const CASE_CAP = "a query level can have at most 12 CASE expressions";
 const BOOLEAN_CASE =
   "a boolean then or else is not available on Oracle or SQL Server; use a number or a string";
+const CTE_ORDER_AND_LIMIT =
+  "a with query has no orderBy and no limit; order and limit the outer query";
+const NESTED_WITH =
+  "with queries cannot be nested; list every with query in the outer with";
+const WITH_ON_MYSQL =
+  "with is not available on MySQL or MariaDB: their plugin returns rows only for a query whose first word is SELECT";
 
 function caseLiteralTypes(first: string, other: string) {
   return `every literal then and else in one CASE has the same type: the first is a ${first}, this one is a ${other}`;
+}
+
+function laterCte(name: string) {
+  return `"${name}" is not a with query declared before this query; a with query can read only the ones declared before it`;
 }
 
 // A CASE that labels an order by its total.
@@ -6301,6 +6311,724 @@ describe("APP-16506 C: CASE", () => {
           new Error("a CASE is only available in a query with from"),
         );
       }
+    });
+  });
+});
+
+// Two CTEs: paid totals per customer, then the customers over 500. The outer query joins customers to the second.
+const withJoin = {
+  ...base,
+  operation: "SELECT",
+  with: [
+    {
+      name: "order_totals",
+      query: {
+        from: { table: "orders", as: "o" },
+        filters: [{ column: "o.status", op: "eq", value: { literal: "paid" } }],
+        groupBy: [{ column: "o.customer_id", as: "customer_id" }],
+        aggregates: [{ fn: "sum", column: "o.total", as: "paid_total" }],
+      },
+    },
+    {
+      name: "big_spenders",
+      query: {
+        from: { cte: "order_totals", as: "t" },
+        columns: ["t.customer_id", "t.paid_total"],
+        filters: [
+          { column: "t.paid_total", op: "gte", value: { literal: 500 } },
+        ],
+      },
+    },
+  ],
+  from: { table: "customers", as: "c" },
+  joins: [
+    {
+      type: "inner",
+      cte: "big_spenders",
+      as: "b",
+      on: [{ left: "b.customer_id", right: "c.id" }],
+    },
+  ],
+  columns: [{ column: "c.name", as: "customer" }, "b.paid_total"],
+  orderBy: [{ column: "paid_total", direction: "DESC" }],
+  limit: 10,
+};
+
+// Changes one CTE of withJoin.
+function withCte(index: number, change: Record<string, unknown>) {
+  return {
+    ...withJoin,
+    with: withJoin.with.map((cte, at) =>
+      at === index ? { ...cte, ...change } : cte,
+    ),
+  };
+}
+
+function withCteQuery(index: number, change: Record<string, unknown>) {
+  return withCte(index, {
+    query: { ...withJoin.with[index].query, ...change },
+  });
+}
+
+const WITH_JOIN_POSTGRES =
+  'WITH order_totals AS (SELECT o."customer_id" AS customer_id, SUM(o."total") AS paid_total FROM (SELECT "customer_id", "status", "total" FROM orders) o WHERE o."status" = {{ "paid" }} GROUP BY o."customer_id"), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT c."name" AS customer, b.paid_total AS paid_total FROM (SELECT "id", "name" FROM customers) c INNER JOIN big_spenders b ON b.customer_id = c."id" ORDER BY paid_total DESC LIMIT 10;';
+const WITH_JOIN_ORACLE =
+  'WITH order_totals AS (SELECT o.customer_id AS customer_id, SUM(o.total) AS paid_total FROM orders o WHERE o.status = {{ "paid" }} GROUP BY o.customer_id), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT c.name AS customer, b.paid_total AS paid_total FROM customers c INNER JOIN big_spenders b ON b.customer_id = c.id ORDER BY paid_total DESC FETCH FIRST 10 ROWS ONLY;';
+const WITH_JOIN_MSSQL =
+  'WITH order_totals AS (SELECT o."customer_id" AS customer_id, SUM(o."total") AS paid_total FROM orders o WHERE o."status" = {{ "paid" }} GROUP BY o."customer_id"), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT TOP (10) c."name" AS customer, b.paid_total AS paid_total FROM customers c INNER JOIN big_spenders b ON b.customer_id = c."id" ORDER BY paid_total DESC;';
+
+// The MRR report of the design (section 4), in the current spec shape. The bucket's result is named period, because
+// month is a reserved word.
+const mrrReport = {
+  ...base,
+  operation: "SELECT",
+  with: [
+    {
+      name: "invoice_mrr",
+      query: {
+        from: { table: "stripe.invoices", as: "i" },
+        joins: [
+          {
+            type: "inner",
+            table: "stripe.subscriptions",
+            as: "s",
+            on: [{ left: "s.id", right: "i.subscription_id" }],
+          },
+          {
+            type: "inner",
+            table: "stripe.subscription_items",
+            as: "si",
+            on: [{ left: "si.subscription_id", right: "s.id" }],
+          },
+          {
+            type: "inner",
+            table: "stripe.customers",
+            as: "c",
+            on: [{ left: "c.id", right: "i.customer_id" }],
+          },
+          {
+            type: "left",
+            table: "stripe.charges",
+            as: "ch",
+            on: [{ left: "ch.invoice_id", right: "i.id" }],
+          },
+          {
+            type: "left",
+            table: "cloud_services.users",
+            as: "u",
+            on: [{ left: "u.email", right: "c.email" }],
+          },
+        ],
+        filters: [
+          { column: "i.status", op: "eq", value: { literal: "paid" } },
+          {
+            anyOf: [
+              { column: "u.is_internal", op: "isNull" },
+              { column: "u.is_internal", op: "eq", value: { literal: false } },
+            ],
+          },
+        ],
+        groupBy: [
+          { column: "i.period_start", bucket: "month", as: "period" },
+          { column: "c.id", as: "customer_id" },
+        ],
+        aggregates: [
+          {
+            fn: "sum",
+            case: {
+              when: [
+                {
+                  if: [
+                    {
+                      column: "s.status",
+                      op: "eq",
+                      value: { literal: "active" },
+                    },
+                    {
+                      anyOf: [
+                        { column: "ch.refunded", op: "isNull" },
+                        {
+                          column: "ch.refunded",
+                          op: "eq",
+                          value: { literal: false },
+                        },
+                      ],
+                    },
+                  ],
+                  then: { column: "i.amount_paid" },
+                },
+              ],
+              else: { literal: 0 },
+            },
+            as: "mrr_cents",
+          },
+          {
+            fn: "sum",
+            case: {
+              when: [
+                {
+                  if: [
+                    {
+                      column: "si.plan_interval",
+                      op: "eq",
+                      value: { literal: "year" },
+                    },
+                  ],
+                  then: { column: "i.amount_paid" },
+                },
+              ],
+              else: { literal: 0 },
+            },
+            as: "annual_cents",
+          },
+        ],
+      },
+    },
+  ],
+  from: { cte: "invoice_mrr", as: "m" },
+  groupBy: ["m.period"],
+  aggregates: [
+    { fn: "sum", column: "m.mrr_cents", as: "mrr_cents" },
+    { fn: "sum", column: "m.annual_cents", as: "annual_cents" },
+    { fn: "count", column: "m.customer_id", as: "customers" },
+  ],
+  orderBy: [{ column: "period", direction: "ASC" }],
+  limit: 120,
+};
+
+const MRR_POSTGRES =
+  'WITH invoice_mrr AS (SELECT DATE_TRUNC(\'month\', i."period_start") AS period, c."id" AS customer_id, SUM(CASE WHEN s."status" = {{ "active" }} AND (ch."refunded" IS NULL OR ch."refunded" = {{ false }}) THEN i."amount_paid" ELSE {{ 0 }} END) AS mrr_cents, SUM(CASE WHEN si."plan_interval" = {{ "year" }} THEN i."amount_paid" ELSE {{ 0 }} END) AS annual_cents FROM (SELECT "subscription_id", "customer_id", "id", "period_start", "status", "amount_paid" FROM stripe.invoices) i INNER JOIN (SELECT "id", "status" FROM stripe.subscriptions) s ON s."id" = i."subscription_id" INNER JOIN (SELECT "subscription_id", "plan_interval" FROM stripe.subscription_items) si ON si."subscription_id" = s."id" INNER JOIN (SELECT "id", "email" FROM stripe.customers) c ON c."id" = i."customer_id" LEFT JOIN (SELECT "invoice_id", "refunded" FROM stripe.charges) ch ON ch."invoice_id" = i."id" LEFT JOIN (SELECT "email", "is_internal" FROM cloud_services.users) u ON u."email" = c."email" WHERE i."status" = {{ "paid" }} AND (u."is_internal" IS NULL OR u."is_internal" = {{ false }}) GROUP BY DATE_TRUNC(\'month\', i."period_start"), c."id") SELECT m.period AS period, SUM(m.mrr_cents) AS mrr_cents, SUM(m.annual_cents) AS annual_cents, COUNT(m.customer_id) AS customers FROM invoice_mrr m GROUP BY m.period ORDER BY period ASC LIMIT 120;';
+
+describe("APP-16506 D: WITH", () => {
+  describe("compiled bodies", () => {
+    it.each([
+      ["postgres-plugin", WITH_JOIN_POSTGRES],
+      ["oracle-plugin", WITH_JOIN_ORACLE],
+      ["mssql-plugin", WITH_JOIN_MSSQL],
+    ])(
+      "should_compile_two_ctes_and_a_join_on_a_cte_when_plugin_is_%s",
+      (packageName, expected) => {
+        expect(compileFor(withJoin, packageName)).toBe(expected);
+      },
+    );
+
+    it.each(["mysql-plugin", "mariadb-plugin"])(
+      "should_refuse_with_when_plugin_is_%s",
+      (packageName) => {
+        expect(() => compileFor(withJoin, packageName)).toThrow(
+          new Error(WITH_ON_MYSQL),
+        );
+      },
+    );
+
+    it("should_compile_the_mrr_report_on_postgres_within_the_body_cap", () => {
+      // When
+      const body = compileFor(mrrReport, "postgres-plugin");
+
+      // Then
+      expect(body).toBe(MRR_POSTGRES);
+      expect(Buffer.byteLength(body, "utf8")).toBe(1314);
+      expect(Buffer.byteLength(body, "utf8")).toBeLessThan(8 * 1024);
+    });
+
+    it("should_keep_case_in_a_cte_and_group_by_its_output", () => {
+      // Given
+      const spec = {
+        ...base,
+        operation: "SELECT",
+        with: [
+          {
+            name: "banded",
+            query: {
+              from: { table: "orders", as: "o" },
+              columns: ["o.id", { case: bandCase, as: "order_band" }],
+            },
+          },
+        ],
+        from: { cte: "banded", as: "b" },
+        groupBy: ["b.order_band"],
+        aggregates: [{ fn: "count", as: "orders" }],
+        limit: 10,
+      };
+
+      // When / Then
+      expect(compileFor(spec, "postgres-plugin")).toBe(
+        'WITH banded AS (SELECT o."id" AS id, CASE WHEN o."total" >= {{ 1000 }} THEN {{ "large" }} WHEN o."total" IS NULL AND (o."status" = {{ "new" }} OR o."status" IS NULL) THEN o."status" ELSE {{ "small" }} END AS order_band FROM (SELECT "id", "total", "status" FROM orders) o) SELECT b.order_band AS order_band, COUNT(*) AS orders FROM banded b GROUP BY b.order_band LIMIT 10;',
+      );
+    });
+  });
+
+  describe("querySpecSchema refusals", () => {
+    it.each([
+      [
+        "an orderBy in a with query",
+        withCteQuery(0, {
+          orderBy: [{ column: "paid_total", direction: "ASC" }],
+        }),
+        [
+          {
+            path: ["with", 0, "query", "orderBy"],
+            message: CTE_ORDER_AND_LIMIT,
+          },
+        ],
+      ],
+      [
+        "a limit in a with query",
+        withCteQuery(0, { limit: 5 }),
+        [{ path: ["with", 0, "query", "limit"], message: CTE_ORDER_AND_LIMIT }],
+      ],
+      [
+        "a nested with",
+        withCteQuery(0, { with: [{ name: "x", query: {} }] }),
+        [{ path: ["with", 0, "query", "with"], message: NESTED_WITH }],
+      ],
+      [
+        "a with query that reads a later one",
+        {
+          ...withJoin,
+          with: [
+            {
+              name: "order_totals",
+              query: {
+                ...withJoin.with[0].query,
+                from: { cte: "big_spenders", as: "o" },
+              },
+            },
+            withJoin.with[1],
+          ],
+        },
+        [
+          {
+            path: ["with", 0, "query", "from", "cte"],
+            message: laterCte("big_spenders"),
+          },
+        ],
+      ],
+      [
+        "a with query that reads itself",
+        withCteQuery(1, { from: { cte: "big_spenders", as: "t" } }),
+        [
+          {
+            path: ["with", 1, "query", "from", "cte"],
+            message: laterCte("big_spenders"),
+          },
+          {
+            path: ["with", 0, "name"],
+            message:
+              "the with query order_totals is not used; read it with from or a join { cte, as }",
+          },
+        ],
+      ],
+      [
+        "a cte with no with",
+        {
+          ...withJoin,
+          with: undefined,
+          columns: [{ column: "c.name", as: "customer" }, "b.customer_id"],
+          orderBy: undefined,
+        },
+        [
+          {
+            path: ["joins", 0, "cte"],
+            message: laterCte("big_spenders"),
+          },
+        ],
+      ],
+      [
+        "a repeated with query name",
+        withCte(1, { name: "order_totals" }),
+        [
+          {
+            path: ["with", 1, "name"],
+            message:
+              'the with query name "order_totals" is used more than once',
+          },
+          {
+            path: ["joins", 0, "cte"],
+            message: laterCte("big_spenders"),
+          },
+        ],
+      ],
+      [
+        "an unused with query",
+        {
+          ...withJoin,
+          with: [
+            ...withJoin.with,
+            {
+              name: "unused_totals",
+              query: withJoin.with[0].query,
+            },
+          ],
+        },
+        [
+          {
+            path: ["with", 2, "name"],
+            message:
+              "the with query unused_totals is not used; read it with from or a join { cte, as }",
+          },
+        ],
+      ],
+      [
+        "five with queries",
+        {
+          ...withJoin,
+          with: [
+            ...withJoin.with,
+            ...Array.from({ length: 3 }, (_, index) => ({
+              name: `extra_${index}`,
+              query: withJoin.with[0].query,
+            })),
+          ],
+        },
+        [
+          {
+            path: ["with"],
+            message: "Array must contain at most 4 element(s)",
+          },
+          ...[2, 3, 4].map((index) => ({
+            path: ["with", index, "name"],
+            message: `the with query extra_${index - 2} is not used; read it with from or a join { cte, as }`,
+          })),
+        ],
+      ],
+      [
+        "an empty with",
+        { ...withJoin, with: [] },
+        [
+          {
+            path: ["with"],
+            message: "Array must contain at least 1 element(s)",
+          },
+          {
+            path: ["joins", 0, "cte"],
+            message: laterCte("big_spenders"),
+          },
+        ],
+      ],
+      [
+        "an outer reference to an output the with query does not declare",
+        {
+          ...withJoin,
+          columns: [{ column: "c.name", as: "customer" }, "b.secret"],
+          orderBy: undefined,
+        },
+        [
+          {
+            path: ["columns", 1],
+            message:
+              '"b.secret" is not an output of the with query big_spenders (outputs: customer_id, paid_total)',
+          },
+        ],
+      ],
+      [
+        "a table named like a with query, ignoring case",
+        {
+          ...withJoin,
+          from: { table: "Order_Totals", as: "c" },
+        },
+        [
+          {
+            path: ["from", "table"],
+            message:
+              '"Order_Totals" is also the name of a with query: use { cte: "Order_Totals" } to read the with query, or schema.table to read the table',
+          },
+        ],
+      ],
+      [
+        "an alias that is a with query name",
+        {
+          ...withJoin,
+          joins: [
+            {
+              ...withJoin.joins[0],
+              as: "order_totals",
+              on: [{ left: "order_totals.customer_id", right: "c.id" }],
+            },
+          ],
+          columns: [
+            { column: "c.name", as: "customer" },
+            "order_totals.paid_total",
+          ],
+        },
+        [
+          {
+            path: ["joins", 0, "as"],
+            message:
+              'the alias "order_totals" is also the name of a with query; pick another alias',
+          },
+        ],
+      ],
+      [
+        "a source with table and cte",
+        {
+          ...withJoin,
+          from: { table: "customers", cte: "big_spenders", as: "c" },
+        },
+        [{ path: ["from"], message: "a source names table or cte, not both" }],
+      ],
+      [
+        "a source with neither table nor cte",
+        { ...withJoin, from: { as: "c" } },
+        [{ path: ["from"], message: "a source needs table or cte" }],
+      ],
+      [
+        "a reserved word as a with query name",
+        withCte(1, { name: "select" }),
+        [
+          {
+            path: ["with", 1, "name"],
+            message: '"select" is a reserved SQL word; pick another name',
+          },
+          {
+            path: ["joins", 0, "cte"],
+            message: laterCte("big_spenders"),
+          },
+        ],
+      ],
+      [
+        "an injection string as a with query name",
+        withCte(0, { name: "x; DROP TABLE y" }),
+        [
+          {
+            path: ["with", 0, "name"],
+            message:
+              "must be a lower-case name: a letter, then letters, digits or _, up to 63 characters",
+          },
+          {
+            path: ["with", 1, "query", "from", "cte"],
+            message: laterCte("order_totals"),
+          },
+        ],
+      ],
+      [
+        "an injection string in a cte source",
+        { ...withJoin, joins: [{ ...withJoin.joins[0], cte: "b; DROP" }] },
+        [
+          {
+            path: ["joins", 0, "cte"],
+            message:
+              "must be a lower-case name: a letter, then letters, digits or _, up to 63 characters",
+          },
+          {
+            path: ["with", 1, "name"],
+            message:
+              "the with query big_spenders is not used; read it with from or a join { cte, as }",
+          },
+        ],
+      ],
+      [
+        "an injection string as a cte source alias",
+        withCteQuery(1, { from: { cte: "order_totals", as: "x; DROP" } }),
+        [
+          {
+            path: ["with", 1, "query", "from", "as"],
+            message:
+              "must be a lower-case name: a letter, then letters, digits or _, up to 63 characters",
+          },
+        ],
+      ],
+      [
+        "a repeated output name in a with query",
+        withCteQuery(1, {
+          columns: ["t.customer_id", "t.paid_total", "t.paid_total"],
+        }),
+        [
+          {
+            path: ["with", 1, "query", "columns", 2],
+            message:
+              'the result name "paid_total" is used more than once (names ignore case); give each output its own name with as',
+          },
+        ],
+      ],
+      [
+        "SELECT * in a with query",
+        withCteQuery(1, { columns: undefined }),
+        [
+          {
+            path: ["with", 1, "query", "columns"],
+            message:
+              "with from and joins, list the columns to return in columns (SELECT * is not available)",
+          },
+        ],
+      ],
+      [
+        "a missing outer limit",
+        { ...withJoin, limit: undefined },
+        [
+          {
+            path: ["limit"],
+            message:
+              "limit is required with from and joins (at most 1000 rows)",
+          },
+        ],
+      ],
+      [
+        "a write",
+        { ...withJoin, operation: "DELETE" },
+        [
+          {
+            path: ["operation"],
+            message: "from and joins are only valid on a SELECT query",
+          },
+        ],
+      ],
+    ])("should_refuse_%s", (_label, spec, issues) => {
+      expect(issuesOf(spec)).toEqual(issues);
+    });
+
+    it("should_send_a_with_only_spec_to_the_aliased_schema", () => {
+      // Given
+      const spec = { ...base, operation: "SELECT", with: withJoin.with };
+
+      // When / Then
+      expect(issuesOf(spec)).toContainEqual({
+        path: ["from"],
+        message: "Required",
+      });
+    });
+  });
+
+  describe("the compiler fails closed on unparsed specs", () => {
+    function compileWith(
+      spec: Record<string, unknown>,
+      packageName = "postgres-plugin",
+    ) {
+      return () =>
+        compileQuery(spec as unknown as QuerySpec, {
+          dialect: sqlDialectFor(packageName),
+          packageName,
+        });
+    }
+
+    it.each([
+      [
+        "an outer reference to an output the with query does not declare",
+        {
+          ...withJoin,
+          columns: [{ column: "c.name", as: "customer" }, "b.secret"],
+          orderBy: undefined,
+        },
+        '"b.secret" is not an output of the with query big_spenders',
+      ],
+      [
+        "an orderBy in a with query",
+        withCteQuery(0, {
+          orderBy: [{ column: "paid_total", direction: "ASC" }],
+        }),
+        CTE_ORDER_AND_LIMIT,
+      ],
+      [
+        "a limit in a with query",
+        withCteQuery(0, { limit: 5 }),
+        CTE_ORDER_AND_LIMIT,
+      ],
+      ["a nested with", withCteQuery(0, { with: [] }), NESTED_WITH],
+      [
+        "a with query that reads a later one",
+        withCteQuery(0, { from: { cte: "big_spenders", as: "o" } }),
+        'no with query declared before this one is named "big_spenders"',
+      ],
+      [
+        "an unused with query",
+        {
+          ...withJoin,
+          with: [
+            ...withJoin.with,
+            { name: "unused_totals", query: withJoin.with[0].query },
+          ],
+        },
+        "the with query unused_totals is not used",
+      ],
+      [
+        "a repeated with query name",
+        withCte(1, { name: "order_totals" }),
+        'the with query name "order_totals" is used more than once',
+      ],
+      [
+        "five with queries",
+        {
+          ...withJoin,
+          with: [
+            ...withJoin.with,
+            ...Array.from({ length: 3 }, (_, index) => ({
+              name: `extra_${index}`,
+              query: withJoin.with[0].query,
+            })),
+          ],
+        },
+        "with needs 1 to 4 queries",
+      ],
+      [
+        "a table named like a with query",
+        { ...withJoin, from: { table: "ORDER_TOTALS", as: "c" } },
+        '"ORDER_TOTALS" is also the name of a with query; read the table as schema.table',
+      ],
+      [
+        "an alias that is a with query name",
+        {
+          ...withJoin,
+          joins: [
+            {
+              ...withJoin.joins[0],
+              as: "order_totals",
+              on: [{ left: "order_totals.customer_id", right: "c.id" }],
+            },
+          ],
+        },
+        'the alias "order_totals" is also the name of a with query',
+      ],
+      [
+        "an injection string as a with query name",
+        withCte(0, { name: "x; DROP TABLE y" }),
+        'unsafe alias: "x; DROP TABLE y"',
+      ],
+      [
+        "an injection string as a cte source alias",
+        withCteQuery(1, { from: { cte: "order_totals", as: "x; DROP" } }),
+        'unsafe alias: "x; DROP"',
+      ],
+      [
+        "a source with table and cte",
+        {
+          ...withJoin,
+          from: { table: "customers", cte: "big_spenders", as: "c" },
+        },
+        "a source names table or cte, not both",
+      ],
+    ])("should_throw_on_%s", (_label, spec, message) => {
+      expect(compileWith(spec)).toThrow(new Error(message));
+    });
+
+    // The projection of a CTE source is its declared outputs. orderBy names result names, so it adds nothing to the
+    // projection. A hand-built orderBy on b.secret is a reference that reaches the emitter unchecked: the emit-time
+    // check must refuse it rather than write b.secret.
+    it.each(["postgres-plugin", "oracle-plugin", "mssql-plugin"])(
+      "should_refuse_an_outer_reference_to_a_cte_output_that_is_not_declared_at_emit_when_plugin_is_%s",
+      (packageName) => {
+        // Given
+        const spec = {
+          ...withJoin,
+          orderBy: [{ column: "b.secret", direction: "ASC" }],
+        };
+
+        // When / Then
+        expect(compileWith(spec, packageName)).toThrow(
+          new Error(
+            '"b.secret" is not an output of the with query big_spenders',
+          ),
+        );
+      },
+    );
+
+    it("should_refuse_with_on_mysql_before_compiling_a_with_query", () => {
+      // Given
+      const spec = withCteQuery(0, { limit: 5 });
+
+      // When / Then
+      expect(compileWith(spec, "mysql-plugin")).toThrow(
+        new Error(WITH_ON_MYSQL),
+      );
     });
   });
 });

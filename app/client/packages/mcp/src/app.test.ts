@@ -2963,6 +2963,78 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     },
   );
 
+  // APP-16506 D: a WITH query. The outer query reads the CTE, which totals each customer's orders.
+  const withQuery = {
+    ...joinQuery,
+    with: [
+      {
+        name: "order_totals",
+        query: {
+          from: { table: "orders", as: "o" },
+          groupBy: [{ column: "o.customer_id", as: "customer_id" }],
+          aggregates: [{ fn: "sum", column: "o.total", as: "paid_total" }],
+        },
+      },
+    ],
+    from: { table: "customers", as: "c" },
+    joins: [
+      {
+        type: "inner",
+        cte: "order_totals",
+        as: "t",
+        on: [{ left: "t.customer_id", right: "c.id" }],
+      },
+    ],
+    columns: [{ column: "c.name", as: "customer" }, "t.paid_total"],
+  };
+  const WITH_POSTGRES_BODY =
+    'WITH order_totals AS (SELECT o."customer_id" AS customer_id, SUM(o."total") AS paid_total FROM (SELECT "customer_id", "total" FROM orders) o GROUP BY o."customer_id") SELECT c."name" AS customer, t.paid_total AS paid_total FROM (SELECT "id", "name" FROM customers) c INNER JOIN order_totals t ON t.customer_id = c."id" LIMIT 20;';
+
+  it("APP-16506: should_store_the_marked_body_when_create_query_uses_with_on_postgres", async () => {
+    // Given
+    const { api, createAction } = joinApi("postgres-plugin");
+
+    // When
+    const created = await callTool(api, "create_query", { query: withQuery });
+
+    // Then
+    expect(created.created).toBe(true);
+    expect(created.body).toBe(WITH_POSTGRES_BODY);
+
+    const stored = (
+      createAction.mock.calls[0][0] as {
+        actionConfiguration: { body: string };
+      }
+    ).actionConfiguration.body;
+
+    expect(stored.startsWith("-- appsmith-mcp:v1 sha256=")).toBe(true);
+    expect(mcpAuthoredBody(stored)).toBe(WITH_POSTGRES_BODY);
+  });
+
+  it.each(["mysql-plugin", "mariadb-plugin"])(
+    "APP-16506: should_return_a_compile_error_when_create_query_uses_with_on_%s",
+    async (pluginId) => {
+      // Given
+      const { api, createAction } = joinApi(pluginId);
+
+      // When
+      const refused = await callTool(api, "create_query", {
+        query: withQuery,
+      });
+
+      // Then
+      expect(refused.valid).toBe(false);
+      expect(refused.errors).toEqual([
+        {
+          path: "",
+          message:
+            "with is not available on MySQL or MariaDB: their plugin returns rows only for a query whose first word is SELECT",
+        },
+      ]);
+      expect(createAction).not.toHaveBeenCalled();
+    },
+  );
+
   it("APP-16506: should_refuse_joins_on_a_write_when_create_query_gets_a_delete", async () => {
     // Given
     const { api, createAction } = joinApi("postgres-plugin");
@@ -7478,6 +7550,80 @@ describe("governance-wrapped layout mutations", () => {
         path: "",
         message:
           "a boolean then or else is not available on Oracle or SQL Server; use a number or a string",
+      },
+    ]);
+    expect(updateAction).not.toHaveBeenCalled();
+  });
+
+  // APP-16506 D: update_action compiles a WITH query. The outer query joins customers to a CTE that totals each
+  // customer's orders.
+  const withChange = {
+    with: [
+      {
+        name: "order_totals",
+        query: {
+          from: { table: "orders", as: "o" },
+          groupBy: [{ column: "o.customer_id", as: "customer_id" }],
+          aggregates: [{ fn: "sum", column: "o.total", as: "paid_total" }],
+        },
+      },
+    ],
+    from: { table: "customers", as: "c" },
+    joins: [
+      {
+        type: "inner",
+        cte: "order_totals",
+        as: "t",
+        on: [{ left: "t.customer_id", right: "c.id" }],
+      },
+    ],
+    columns: [{ column: "c.name", as: "customer" }, "t.paid_total"],
+  };
+
+  it("APP-16506: should_store_the_marked_body_when_update_action_uses_with_on_postgres", async () => {
+    // Given
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+    ]);
+
+    // When
+    const updated = await updateWithJoin(server, withChange);
+
+    // Then
+    expect(updated.body.updated).toBe(true);
+
+    const stored = storedSqlBody(
+      (
+        (updateAction.mock.calls[0] as unknown[])[1] as {
+          actionConfiguration: unknown;
+        }
+      ).actionConfiguration,
+    );
+
+    expect(stored).toEqual(
+      expect.stringMatching(/^-- appsmith-mcp:v1 sha256=/),
+    );
+    expect(mcpAuthoredBody(stored)).toBe(
+      'WITH order_totals AS (SELECT o."customer_id" AS customer_id, SUM(o."total") AS paid_total FROM (SELECT "customer_id", "total" FROM orders) o GROUP BY o."customer_id") SELECT c."name" AS customer, t.paid_total AS paid_total FROM (SELECT "id", "name" FROM customers) c INNER JOIN order_totals t ON t.customer_id = c."id" LIMIT 20;',
+    );
+  });
+
+  it("APP-16506: should_refuse_with_before_any_write_when_update_action_runs_on_mysql", async () => {
+    // Given
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "ds1", name: "DB", pluginId: "mysql-plugin" },
+    ]);
+
+    // When
+    const updated = await updateWithJoin(server, withChange);
+
+    // Then
+    expect(updated.body.updated).not.toBe(true);
+    expect(updated.body.errors).toEqual([
+      {
+        path: "",
+        message:
+          "with is not available on MySQL or MariaDB: their plugin returns rows only for a query whose first word is SELECT",
       },
     ]);
     expect(updateAction).not.toHaveBeenCalled();
