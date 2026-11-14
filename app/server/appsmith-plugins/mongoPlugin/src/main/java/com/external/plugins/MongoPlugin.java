@@ -86,6 +86,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.EnumMap;
@@ -927,6 +928,39 @@ public class MongoPlugin extends BasePlugin {
         }
 
         /**
+         * Returns the positions of the query that are inside a string literal. A string literal starts at a single
+         * or double quote and ends at the next occurrence of the same quote that has no backslash before it. The
+         * position of the closing quote counts as inside, and the position of the opening quote does not.
+         *
+         * @param query - query text
+         * @return - one bit per character of the query, set when the character is inside a string literal
+         */
+        private static BitSet findStringLiteralPositions(String query) {
+            final BitSet inside = new BitSet(query.length());
+            char openQuote = 0;
+            for (int i = 0; i < query.length(); i++) {
+                final char current = query.charAt(i);
+                if (openQuote == 0) {
+                    if (current == '"' || current == '\'') {
+                        openQuote = current;
+                    }
+                    continue;
+                }
+                inside.set(i);
+                if (current == '\\') {
+                    // The next character is escaped, so it cannot close the string literal.
+                    i++;
+                    if (i < query.length()) {
+                        inside.set(i);
+                    }
+                } else if (current == openQuote) {
+                    openQuote = 0;
+                }
+            }
+            return inside;
+        }
+
+        /**
          * Smart Substitution Helper for mongo regex: Regex takes pattern as "<pattern>" or /<pattern>/,
          * Rest are not illegal arguments to the $regex attribute in mongo.
          * @Param: Smart substituted query string.
@@ -940,7 +974,17 @@ public class MongoPlugin extends BasePlugin {
             Pattern mongo$regexIdentifierPattern = Pattern.compile(mongo$regexWithNumberIdentifier);
             Matcher mongo$regexIdentifierMatcher = mongo$regexIdentifierPattern.matcher(inputQuery);
 
+            BitSet insideStringLiteral = null;
+
             while (mongo$regexIdentifierMatcher.find()) {
+
+                // Text inside a string literal is a value. It is never rewritten.
+                if (insideStringLiteral == null) {
+                    insideStringLiteral = findStringLiteralPositions(inputQuery);
+                }
+                if (insideStringLiteral.get(mongo$regexIdentifierMatcher.start())) {
+                    continue;
+                }
 
                 StringBuilder valueSB;
                 try {
