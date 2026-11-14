@@ -935,7 +935,8 @@ public class MongoPlugin extends BasePlugin {
         /**
          * Returns the positions of the query that are inside a string literal. A string literal starts at a single
          * or double quote and ends at the next occurrence of the same quote that has no backslash before it. The
-         * position of the closing quote counts as inside, and the position of the opening quote does not.
+         * position of the closing quote counts as inside, and the position of the opening quote does not. A quote
+         * inside a regex literal, such as /O'Reilly/, does not start a string literal.
          *
          * @param query - query text
          * @return - one bit per character of the query, set when the character is inside a string literal
@@ -948,6 +949,11 @@ public class MongoPlugin extends BasePlugin {
                 if (openQuote == 0) {
                     if (current == '"' || current == '\'') {
                         openQuote = current;
+                    } else if (current == '/') {
+                        final int regexLiteralEnd = findRegexLiteralEnd(query, i);
+                        if (regexLiteralEnd > i) {
+                            i = regexLiteralEnd;
+                        }
                     }
                     continue;
                 }
@@ -963,6 +969,26 @@ public class MongoPlugin extends BasePlugin {
                 }
             }
             return inside;
+        }
+
+        /**
+         * Returns the position of the slash that closes the regex literal that starts at the given slash, or -1
+         * when the literal is not closed on the same line. A slash that has a backslash before it does not close
+         * the literal.
+         */
+        private static int findRegexLiteralEnd(String query, int start) {
+            for (int i = start + 1; i < query.length(); i++) {
+                final char current = query.charAt(i);
+                if (current == '\n' || current == '\r') {
+                    return -1;
+                }
+                if (current == '\\') {
+                    i++;
+                } else if (current == '/') {
+                    return i;
+                }
+            }
+            return -1;
         }
 
         /**
