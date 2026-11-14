@@ -4425,3 +4425,191 @@ describe("buildActionDto", () => {
     expect(storedSqlBody(undefined)).toBeUndefined();
   });
 });
+
+// APP-16507: Redshift and Snowflake run SQL as plain text. The server pastes each {{ }} value into the query before it
+// runs, so a binding there is not a parameter. The compiler and buildActionDto refuse any binding for those plugins.
+describe("APP-16507: no bindings for plugins without prepared statements", () => {
+  const withValues: [string, Record<string, unknown>][] = [
+    [
+      "a widget-valued filter",
+      {
+        operation: "SELECT",
+        table: "users",
+        filters: [
+          {
+            column: "email",
+            op: "eq",
+            value: { widget: "EmailInput", property: "text" },
+          },
+        ],
+      },
+    ],
+    [
+      "a literal filter",
+      {
+        operation: "SELECT",
+        table: "users",
+        filters: [{ column: "status", op: "eq", value: { literal: "paid" } }],
+      },
+    ],
+    [
+      "a skipWhenEmpty filter",
+      {
+        operation: "SELECT",
+        table: "users",
+        filters: [
+          {
+            column: "email",
+            op: "eq",
+            value: { widget: "EmailInput", property: "text" },
+            skipWhenEmpty: true,
+          },
+        ],
+      },
+    ],
+    [
+      "a coalesce fallback",
+      {
+        operation: "SELECT",
+        table: "users",
+        columns: [{ column: "nickname", coalesce: { literal: "none" } }],
+      },
+    ],
+    [
+      "a having value",
+      {
+        operation: "SELECT",
+        table: "tickets",
+        groupBy: ["tag"],
+        aggregate: { fn: "count" },
+        having: [{ column: "count", op: "gt", value: { literal: 5 } }],
+      },
+    ],
+    [
+      "an UPDATE value",
+      {
+        operation: "UPDATE",
+        table: "users",
+        values: [{ column: "status", value: { literal: "closed" } }],
+        filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+      },
+    ],
+    [
+      "an INSERT value",
+      {
+        operation: "INSERT",
+        table: "users",
+        values: [
+          {
+            column: "email",
+            value: { widget: "EmailInput", property: "text" },
+          },
+        ],
+      },
+    ],
+  ];
+
+  const plugins: [string, string][] = [
+    ["redshift-plugin", "Redshift"],
+    ["snowflake-plugin", "Snowflake"],
+  ];
+
+  it.each(
+    plugins.flatMap(([packageName, database]) =>
+      withValues.map(
+        ([label, spec]) => [database, label, packageName, spec] as const,
+      ),
+    ),
+  )("refuses %s with %s", (database, _label, packageName, spec) => {
+    // Given
+    const parsed = parse({ ...base, ...spec });
+
+    // When
+    const compile = () =>
+      compileQuery(parsed, {
+        dialect: sqlDialectFor(packageName),
+        packageName,
+      });
+
+    // Then
+    expect(compile).toThrow(
+      `the ${database} plugin does not use prepared statements`,
+    );
+  });
+
+  it.each(plugins)("compiles a query with no values on %s", (packageName) => {
+    // Given
+    const parsed = parse({
+      ...base,
+      operation: "SELECT",
+      table: "users",
+      columns: ["id", "email"],
+      filters: [{ column: "deleted_at", op: "isNull" }],
+      orderBy: [{ column: "id", direction: "DESC" }],
+      limit: 50,
+    });
+
+    // When
+    const body = compileQuery(parsed, {
+      dialect: sqlDialectFor(packageName),
+      packageName,
+    });
+
+    // Then
+    expect(body).not.toContain("{{");
+    expect(body).toContain("LIMIT 50");
+  });
+
+  it.each(["postgres-plugin", "mysql-plugin", "mssql-plugin", "oracle-plugin"])(
+    "still binds values on %s, which uses prepared statements",
+    (packageName) => {
+      // Given
+      const parsed = parse({
+        ...base,
+        operation: "SELECT",
+        table: "users",
+        filters: [{ column: "status", op: "eq", value: { literal: "paid" } }],
+      });
+
+      // When
+      const body = compileQuery(parsed, {
+        dialect: sqlDialectFor(packageName),
+        packageName,
+      });
+
+      // Then
+      expect(body).toContain('{{ "paid" }}');
+    },
+  );
+
+  it.each(plugins)(
+    "buildActionDto refuses to store a binding for %s even when compiled without packageName",
+    (packageName, database) => {
+      // Given: compiled with no packageName, so compileQuery cannot refuse it.
+      const parsed = parse({
+        ...base,
+        operation: "SELECT",
+        table: "users",
+        filters: [
+          {
+            column: "email",
+            op: "eq",
+            value: { widget: "EmailInput", property: "text" },
+          },
+        ],
+      });
+      const body = compileQuery(parsed, {
+        dialect: sqlDialectFor(packageName),
+      });
+
+      // When
+      const store = () =>
+        buildActionDto(parsed, markMcpAuthoredBody(body), packageName);
+
+      // Then
+      expect(store).toThrow(
+        `the ${database} plugin does not use prepared statements`,
+      );
+    },
+  );
+});

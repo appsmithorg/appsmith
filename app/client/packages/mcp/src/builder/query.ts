@@ -305,8 +305,39 @@ export function sqlDialectFor(packageName: string | undefined): SqlDialect {
 
 export interface CompileQueryOptions {
   dialect?: SqlDialect;
-  // The datasource's plugin package, such as "oracle-plugin". It decides where the action stores its SQL.
+  // The datasource's plugin package, such as "oracle-plugin". It decides where the action stores its SQL, and
+  // whether the plugin can bind values (see UNBOUND_SQL_PACKAGES).
   packageName?: string;
+}
+
+// SQL plugins that run the query as plain text, with no prepared statement. Before such a query runs, the server
+// pastes each `{{ }}` value into the SQL text as it is, with no quoting. So a binding there is not a parameter:
+// - a widget value lets a viewer change the query, which runs with the datasource's credentials;
+// - a string literal lands unquoted and breaks the query.
+// The compiler must not emit any binding for these plugins. A query with no values still works.
+// - Redshift: RedshiftPlugin runs `connection.createStatement()` and `statement.execute(query)`.
+// - Snowflake: ExecutionUtils runs `createStatement()` and `executeQuery(query)`.
+const UNBOUND_SQL_PACKAGES: ReadonlyMap<string, string> = new Map([
+  ["redshift-plugin", "Redshift"],
+  ["snowflake-plugin", "Snowflake"],
+]);
+
+// Throws when the body holds a `{{ }}` binding and the plugin cannot bind values. An unknown plugin passes: the
+// tools resolve it from SQL_PLUGIN_IDS, which lists every SQL plugin they accept.
+export function assertBindingsSupported(
+  body: string,
+  packageName: string | undefined,
+): void {
+  const database =
+    packageName === undefined
+      ? undefined
+      : UNBOUND_SQL_PACKAGES.get(packageName);
+
+  if (database !== undefined && body.includes("{{")) {
+    throw new Error(
+      `the ${database} plugin does not use prepared statements, so a filter value, a fallback, a skipWhenEmpty guard or an INSERT or UPDATE value would be pasted into the SQL text. On ${database}, use a query with no values: columns, groupBy, aggregates, orderBy, limit and isNull or notNull filters only`,
+    );
+  }
 }
 
 // A selected or grouped column. A plain name, or `{ column, coalesce: { literal } }`, which reads a fallback for
@@ -1893,6 +1924,7 @@ export function compileQuery(
   }
 
   assertBodySafe(body);
+  assertBindingsSupported(body, options.packageName);
 
   return body;
 }
@@ -2001,6 +2033,10 @@ export function buildActionDto(
   body: string,
   packageName?: string,
 ): Record<string, unknown> {
+  // Checked again where the body is stored, so a caller that compiled without packageName cannot store a binding
+  // for a plugin that would paste it into the SQL text.
+  assertBindingsSupported(body, packageName);
+
   const actionConfiguration =
     packageName !== undefined && FORM_DATA_SQL_PACKAGES.has(packageName)
       ? {
