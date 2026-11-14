@@ -859,6 +859,11 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
+    public Flux<Datasource> findAllByIds(List<String> ids, AclPermission aclPermission) {
+        return repository.findAllByIds(ids, aclPermission);
+    }
+
+    @Override
     public Mono<Datasource> findByIdWithStorages(String id) {
         return repository.findById(id).flatMap(datasource -> {
             return datasourceStorageService
