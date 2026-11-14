@@ -27,6 +27,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.exceptions.MssqlErrorMessages;
 import com.external.plugins.exceptions.MssqlPluginError;
 import com.external.plugins.utils.MssqlDatasourceUtils;
@@ -75,6 +76,10 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 import static com.appsmith.external.constants.PluginConstants.PluginName.MSSQL_PLUGIN_NAME;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.applyQueryTimeout;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.isCancelEnabled;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.isQueryTimeoutCancellation;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.queryTimeoutError;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 import static com.external.plugins.constants.MssqlPluginConstants.GENERATE_CRUD_PAGE_SELECT_QUERY;
@@ -121,10 +126,20 @@ public class MssqlPlugin extends BasePlugin {
 
         private final ConnectionPoolConfig connectionPoolConfig;
 
+        private final SharedConfig sharedConfig;
+
         private final ObservationRegistry observationRegistry;
 
         public MssqlPluginExecutor(ConnectionPoolConfig connectionPoolConfig, ObservationRegistry observationRegistry) {
+            this(connectionPoolConfig, null, observationRegistry);
+        }
+
+        public MssqlPluginExecutor(
+                ConnectionPoolConfig connectionPoolConfig,
+                SharedConfig sharedConfig,
+                ObservationRegistry observationRegistry) {
             this.connectionPoolConfig = connectionPoolConfig;
+            this.sharedConfig = sharedConfig;
             this.observationRegistry = observationRegistry;
         }
 
@@ -271,6 +286,7 @@ public class MssqlPlugin extends BasePlugin {
                         try {
                             if (FALSE.equals(preparedStatement)) {
                                 statement = sqlConnectionFromPool.createStatement();
+                                applyQueryTimeout(statement, actionConfiguration, isCancelEnabled(sharedConfig));
                                 isResultSet = statement.execute(query);
                                 resultSet = statement.getResultSet();
                             } else {
@@ -289,6 +305,7 @@ public class MssqlPlugin extends BasePlugin {
                                                         parameters.get(i).getKey(),
                                                         parameters.get(i).getValue())));
 
+                                applyQueryTimeout(preparedQuery, actionConfiguration, isCancelEnabled(sharedConfig));
                                 isResultSet = preparedQuery.execute();
                                 resultSet = preparedQuery.getResultSet();
                             }
@@ -303,6 +320,9 @@ public class MssqlPlugin extends BasePlugin {
                                     preparedQuery);
 
                         } catch (SQLException e) {
+                            if (isQueryTimeoutCancellation(e, isCancelEnabled(sharedConfig))) {
+                                return Mono.error(queryTimeoutError(actionConfiguration.getTimeoutInMillisecond(), e));
+                            }
                             return Mono.error(new AppsmithPluginException(
                                     MssqlPluginError.QUERY_EXECUTION_FAILED,
                                     MssqlErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,

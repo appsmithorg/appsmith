@@ -14,6 +14,7 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.KeyPairAuth;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.exceptions.SnowflakeErrorMessages;
 import com.external.utils.SnowflakeKeyUtils;
 import com.external.utils.SqlUtils;
@@ -38,6 +39,8 @@ import java.util.*;
 import static com.appsmith.external.constants.Authentication.DB_AUTH;
 import static com.appsmith.external.constants.Authentication.SNOWFLAKE_KEY_PAIR_AUTH;
 import static com.appsmith.external.constants.PluginConstants.PluginName.SNOWFLAKE_PLUGIN_NAME;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.isCancelEnabled;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.toJdbcSeconds;
 import static com.external.utils.ExecutionUtils.getRowsFromQueryResult;
 import static com.external.utils.SnowflakeDatasourceUtils.getConnectionFromHikariConnectionPool;
 import static com.external.utils.ValidationUtils.validateWarehouseDatabaseSchema;
@@ -64,6 +67,16 @@ public class SnowflakePlugin extends BasePlugin {
     public static class SnowflakePluginExecutor implements PluginExecutor<HikariDataSource> {
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
+
+        private final SharedConfig sharedConfig;
+
+        public SnowflakePluginExecutor() {
+            this(null);
+        }
+
+        public SnowflakePluginExecutor(SharedConfig sharedConfig) {
+            this.sharedConfig = sharedConfig;
+        }
 
         @Override
         public Mono<ActionExecutionResult> execute(
@@ -116,7 +129,12 @@ public class SnowflakePlugin extends BasePlugin {
 
                         try {
                             // Connection staleness is checked as part of this method call.
-                            return getRowsFromQueryResult(connectionFromPool, query);
+                            return getRowsFromQueryResult(
+                                    connectionFromPool,
+                                    query,
+                                    isCancelEnabled(sharedConfig)
+                                            ? toJdbcSeconds(actionConfiguration.getTimeoutInMillisecond())
+                                            : 0);
                         } catch (AppsmithPluginException | StaleConnectionException e) {
                             throw e;
                         } finally {

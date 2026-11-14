@@ -14,6 +14,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.exceptions.RedshiftErrorMessages;
 import com.external.plugins.exceptions.RedshiftPluginError;
 import com.external.utils.RedshiftDatasourceUtils;
@@ -53,6 +54,10 @@ import static com.appsmith.external.constants.PluginConstants.PluginName.REDSHIF
 import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.JDBC_DRIVER_LOADING_ERROR_MSG;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.applyQueryTimeout;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.isCancelEnabled;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.isQueryTimeoutCancellation;
+import static com.appsmith.external.helpers.QueryTimeoutUtils.queryTimeoutError;
 import static com.external.utils.RedshiftDatasourceUtils.createConnectionPool;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -74,8 +79,15 @@ public class RedshiftPlugin extends BasePlugin {
 
         private final ConnectionPoolConfig connectionPoolConfig;
 
+        private final SharedConfig sharedConfig;
+
         public RedshiftPluginExecutor(ConnectionPoolConfig connectionPoolConfig) {
+            this(connectionPoolConfig, null);
+        }
+
+        public RedshiftPluginExecutor(ConnectionPoolConfig connectionPoolConfig, SharedConfig sharedConfig) {
             this.connectionPoolConfig = connectionPoolConfig;
+            this.sharedConfig = sharedConfig;
         }
 
         private static final String TABLES_QUERY =
@@ -252,6 +264,7 @@ public class RedshiftPlugin extends BasePlugin {
 
                         try {
                             statement = connection.createStatement();
+                            applyQueryTimeout(statement, actionConfiguration, isCancelEnabled(sharedConfig));
                             boolean isResultSet = statement.execute(query);
 
                             if (isResultSet) {
@@ -268,6 +281,9 @@ public class RedshiftPlugin extends BasePlugin {
                                         "affectedRows", ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0)));
                             }
                         } catch (SQLException e) {
+                            if (isQueryTimeoutCancellation(e, isCancelEnabled(sharedConfig))) {
+                                return Mono.error(queryTimeoutError(actionConfiguration.getTimeoutInMillisecond(), e));
+                            }
                             e.printStackTrace();
                             return Mono.error(new AppsmithPluginException(
                                     RedshiftPluginError.QUERY_EXECUTION_FAILED,
