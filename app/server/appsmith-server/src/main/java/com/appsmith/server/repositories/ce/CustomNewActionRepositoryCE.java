@@ -64,6 +64,8 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Mono<Integer> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission);
 
+    Mono<Integer> archiveAllByApplicationId(String applicationId, AclPermission permission);
+
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
 
     Flux<NewAction> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);

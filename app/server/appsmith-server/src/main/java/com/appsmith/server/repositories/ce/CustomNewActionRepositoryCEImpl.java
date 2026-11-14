@@ -406,6 +406,17 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
+    public Mono<Integer> archiveAllByApplicationId(String applicationId, AclPermission permission) {
+        BridgeUpdate update = Bridge.update();
+        update.set(NewAction.Fields.deleted, true);
+        update.set(NewAction.Fields.deletedAt, Instant.now());
+        return queryBuilder()
+                .criteria(getCriterionForFindByApplicationId(applicationId))
+                .permission(permission)
+                .updateAll(update);
+    }
+
+    @Override
     public Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId) {
         GroupOperation countByPluginType =
                 group(NewAction.Fields.pluginType).count().as("count");

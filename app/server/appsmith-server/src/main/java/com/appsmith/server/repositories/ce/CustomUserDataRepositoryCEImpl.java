@@ -49,10 +49,14 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
 
     @Override
     public Mono<Void> removeApplicationFromFavorites(String applicationId) {
-        // MongoDB update query to pull applicationId from all users' favoriteApplicationIds arrays
+        // MongoDB update query to pull applicationId from the favoriteApplicationIds arrays of only those users
+        // who have favorited it, instead of matching every user's document
         BridgeUpdate update = new BridgeUpdate();
         update.pull(UserData.Fields.favoriteApplicationIds, applicationId);
-        return queryBuilder().updateAll(update).then();
+        return queryBuilder()
+                .criteria(Bridge.equal(UserData.Fields.favoriteApplicationIds, applicationId))
+                .updateAll(update)
+                .then();
     }
 
     @Override

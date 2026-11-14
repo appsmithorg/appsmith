@@ -61,6 +61,17 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
+    public Mono<Integer> archiveAllByApplicationId(String applicationId, AclPermission aclPermission) {
+        BridgeUpdate update = Bridge.update();
+        update.set(NewPage.Fields.deleted, true);
+        update.set(NewPage.Fields.deletedAt, Instant.now());
+        return queryBuilder()
+                .criteria(Bridge.equal(NewPage.Fields.applicationId, applicationId))
+                .permission(aclPermission)
+                .updateAll(update);
+    }
+
+    @Override
     public Flux<NewPage> findByApplicationId(
             String applicationId, AclPermission aclPermission, List<String> includeFields) {
         return queryBuilder()

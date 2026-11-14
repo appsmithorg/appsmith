@@ -392,11 +392,9 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         // analytics/audit-log events and without cascading to child actions. Child actions are separately
         // archived by NewActionService.archiveActionsByApplicationId in the delete-application flow.
         // This avoids the OOM caused by hundreds of concurrent audit-log DB operations that previously
-        // exhausted heap memory and crashed the container.
-        return repository
-                .findByApplicationId(applicationId, permission, null)
-                .flatMap(repository::archive, 4)
-                .then();
+        // exhausted heap memory and crashed the container. A single bulk update archives all
+        // collections in one DB round trip.
+        return repository.archiveAllByApplicationId(applicationId, permission).then();
     }
 
     @Override
