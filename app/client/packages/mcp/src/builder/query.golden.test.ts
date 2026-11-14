@@ -32,6 +32,11 @@ const DIALECTS: SqlDialect[] = [
   "other",
 ];
 
+// APP-16506: the refusal of a system catalog table.
+function CATALOG_MESSAGE(table: string): string {
+  return `${JSON.stringify(table)} is in a system catalog, which the MCP does not query (a best-effort guard; the datasource's credentials decide what can be read). To see a datasource's tables and columns, call get_datasource_structure`;
+}
+
 function outcome(run: () => string): Outcome {
   try {
     return run();
@@ -2095,9 +2100,105 @@ const GOLDEN_CASES = [
         'DELETE FROM comments WHERE (comments.status = {{ "spam" }} OR comments.flagged = {{ true }}) AND comments.postId = {{ Table1.selectedRow.id }};',
     },
   },
+  // APP-16506 catalog refusal: a pg_ name is refused on PostgreSQL and Redshift only.
+  {
+    name: "pg_ table",
+    spec: {
+      operation: "SELECT",
+      table: "pg_user",
+    },
+    expected: {
+      none: "SELECT * FROM pg_user;",
+      postgres: {
+        throws: CATALOG_MESSAGE("pg_user"),
+      },
+      redshift: {
+        throws: CATALOG_MESSAGE("pg_user"),
+      },
+      mysql: "SELECT * FROM pg_user;",
+      oracle: "SELECT * FROM pg_user;",
+      other: "SELECT * FROM pg_user;",
+    },
+  },
+  // APP-16506 catalog refusal: Redshift system tables (stl_, stv_, svv_, svl_) on Redshift only.
+  {
+    name: "Redshift stl_ table",
+    spec: {
+      operation: "SELECT",
+      table: "stl_query",
+    },
+    expected: {
+      none: "SELECT * FROM stl_query;",
+      postgres: "SELECT * FROM stl_query;",
+      redshift: {
+        throws: CATALOG_MESSAGE("stl_query"),
+      },
+      mysql: "SELECT * FROM stl_query;",
+      oracle: "SELECT * FROM stl_query;",
+      other: "SELECT * FROM stl_query;",
+    },
+  },
+  // APP-16506 catalog refusal: Oracle's SYSTEM schema, ignoring case, on Oracle only.
+  {
+    name: "Oracle SYSTEM schema",
+    spec: {
+      operation: "SELECT",
+      table: "System.help",
+    },
+    expected: {
+      none: "SELECT * FROM System.help;",
+      postgres: "SELECT * FROM System.help;",
+      redshift: "SELECT * FROM System.help;",
+      mysql: "SELECT * FROM System.help;",
+      oracle: {
+        throws: CATALOG_MESSAGE("System.help"),
+      },
+      other: "SELECT * FROM System.help;",
+    },
+  },
 ];
 
 const GOLDEN_REFUSALS = [
+  // APP-16506 catalog refusal: system schemas, ignoring case, on every database.
+  {
+    name: "information_schema table",
+    spec: {
+      operation: "SELECT",
+      table: "information_schema.tables",
+    },
+    issues: [
+      {
+        path: ["table"],
+        message: CATALOG_MESSAGE("information_schema.tables"),
+      },
+    ],
+  },
+  {
+    name: "upper-case pg_catalog table",
+    spec: {
+      operation: "SELECT",
+      table: "PG_CATALOG.pg_class",
+    },
+    issues: [
+      {
+        path: ["table"],
+        message: CATALOG_MESSAGE("PG_CATALOG.pg_class"),
+      },
+    ],
+  },
+  {
+    name: "sys schema in a three-part name",
+    spec: {
+      operation: "DELETE",
+      table: "master.sys.objects",
+    },
+    issues: [
+      {
+        path: ["table"],
+        message: CATALOG_MESSAGE("master.sys.objects"),
+      },
+    ],
+  },
   {
     name: "table missing",
     spec: {
@@ -2607,6 +2708,15 @@ const GOLDEN_REFUSALS = [
 ];
 
 const GOLDEN_FAIL_CLOSED = [
+  // APP-16506 catalog refusal, for a caller that skipped parsing.
+  {
+    name: "information_schema table in an unparsed spec",
+    spec: {
+      operation: "SELECT",
+      table: "information_schema.columns",
+    },
+    throws: CATALOG_MESSAGE("information_schema.columns"),
+  },
   {
     name: "unsafe orderBy column",
     spec: {
@@ -3240,5 +3350,343 @@ describe("APP-16506 golden: buildActionDto stays the same", () => {
     });
 
     expect(buildActionDto(spec, body, packageName)).toEqual(entry.expected);
+  });
+});
+
+// APP-16506 B: queries with `from` and `joins`, compiled as the tools compile them, with the plugin's package name.
+// Only the five plugins that bind every value accept them. `none` is a call with no options, as EE workflow queries
+// make before the datasource is known.
+const PLUGINS = [
+  "postgres-plugin",
+  "mysql-plugin",
+  "mariadb-plugin",
+  "oracle-plugin",
+  "mssql-plugin",
+  "redshift-plugin",
+  "snowflake-plugin",
+] as const;
+
+type PluginOutcomes = Record<"none" | (typeof PLUGINS)[number], Outcome>;
+
+const ALIASED_MODE_MESSAGE =
+  "from and joins need a PostgreSQL, MySQL, MariaDB, Oracle or SQL Server datasource that the server can identify. Redshift and Snowflake are not supported: their plugins put values into the SQL text instead of binding them";
+const WITH_ON_MYSQL_MESSAGE =
+  "with is not available on MySQL or MariaDB: their plugin returns rows only for a query whose first word is SELECT";
+
+function compileForEveryPlugin(spec: Record<string, unknown>): PluginOutcomes {
+  const parsed = querySpecSchema.parse({ ...base, ...spec });
+  const outcomes = {
+    none: outcome(() => compileQuery(parsed)),
+  } as PluginOutcomes;
+
+  for (const packageName of PLUGINS) {
+    outcomes[packageName] = outcome(() =>
+      compileQuery(parsed, {
+        dialect: sqlDialectFor(packageName),
+        packageName,
+      }),
+    );
+  }
+
+  return outcomes;
+}
+
+const GOLDEN_PLUGIN_CASES = [
+  {
+    name: "left join on two pairs, coalesce, notNull and a viewer filter",
+    spec: {
+      operation: "SELECT",
+      from: { table: "sales.orders", as: "o" },
+      joins: [
+        {
+          type: "left",
+          table: "sales.customers",
+          as: "c",
+          on: [
+            { left: "c.id", right: "o.customer_id" },
+            { left: "c.region", right: "o.region" },
+          ],
+        },
+      ],
+      columns: [
+        "o.id",
+        { column: "c.name", as: "customer" },
+        { column: "c.tier", coalesce: { literal: "none" } },
+      ],
+      filters: [
+        { column: "o.total", op: "gte", value: { literal: 100 } },
+        { column: "c.email", op: "notNull" },
+        {
+          column: "o.owner",
+          op: "eq",
+          value: { widget: "appsmith", property: "user.email" },
+        },
+      ],
+      orderBy: [{ column: "customer", direction: "ASC" }],
+      limit: 25,
+    },
+    expected: {
+      none: { throws: ALIASED_MODE_MESSAGE },
+      "postgres-plugin":
+        'SELECT o."id" AS id, c."name" AS customer, COALESCE(c."tier", {{ "none" }}) AS tier FROM (SELECT "customer_id", "region", "id", "total", "owner" FROM sales.orders) o LEFT JOIN (SELECT "id", "region", "name", "tier", "email" FROM sales.customers) c ON c."id" = o."customer_id" AND c."region" = o."region" WHERE o."total" >= {{ 100 }} AND c."email" IS NOT NULL AND o."owner" = {{ appsmith.user.email }} ORDER BY customer ASC LIMIT 25;',
+      "mysql-plugin":
+        'SELECT o.id AS id, c.name AS customer, COALESCE(c.tier, {{ "none" }}) AS tier FROM sales.orders o LEFT JOIN sales.customers c ON c.id = o.customer_id AND c.region = o.region WHERE o.total >= {{ 100 }} AND NOT (c.email <=> NULL) AND o.owner = {{ appsmith.user.email }} ORDER BY customer ASC LIMIT 25;',
+      "mariadb-plugin":
+        'SELECT o.id AS id, c.name AS customer, COALESCE(c.tier, {{ "none" }}) AS tier FROM sales.orders o LEFT JOIN sales.customers c ON c.id = o.customer_id AND c.region = o.region WHERE o.total >= {{ 100 }} AND NOT (c.email <=> NULL) AND o.owner = {{ appsmith.user.email }} ORDER BY customer ASC LIMIT 25;',
+      "oracle-plugin":
+        'SELECT o.id AS id, c.name AS customer, COALESCE(c.tier, {{ "none" }}) AS tier FROM sales.orders o LEFT JOIN sales.customers c ON c.id = o.customer_id AND c.region = o.region WHERE o.total >= {{ 100 }} AND c.email IS NOT NULL AND o.owner = {{ appsmith.user.email }} ORDER BY customer ASC FETCH FIRST 25 ROWS ONLY;',
+      "mssql-plugin":
+        'SELECT TOP (25) o."id" AS id, c."name" AS customer, COALESCE(c."tier", {{ "none" }}) AS tier FROM sales.orders o LEFT JOIN sales.customers c ON c."id" = o."customer_id" AND c."region" = o."region" WHERE o."total" >= {{ 100 }} AND c."email" IS NOT NULL AND o."owner" = {{ appsmith.user.email }} ORDER BY customer ASC;',
+      "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
+      "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
+    },
+  },
+  {
+    name: "inner join with groupBy, aggregates and having",
+    spec: {
+      operation: "SELECT",
+      from: { table: "orders", as: "o" },
+      joins: [
+        {
+          type: "inner",
+          table: "items",
+          as: "i",
+          on: [{ left: "i.order_id", right: "o.id" }],
+        },
+      ],
+      groupBy: [{ column: "o.status", as: "status" }],
+      aggregates: [
+        { fn: "count", as: "line_count" },
+        { fn: "avg", column: "i.price", round: "floor", as: "avg_price" },
+      ],
+      having: [{ column: "line_count", op: "gte", value: { literal: 2 } }],
+      orderBy: [{ column: "line_count", direction: "DESC" }],
+      limit: 100,
+    },
+    expected: {
+      none: { throws: ALIASED_MODE_MESSAGE },
+      "postgres-plugin":
+        'SELECT o."status" AS status, COUNT(*) AS line_count, FLOOR(AVG(i."price")) AS avg_price FROM (SELECT "id", "status" FROM orders) o INNER JOIN (SELECT "order_id", "price" FROM items) i ON i."order_id" = o."id" GROUP BY o."status" HAVING COUNT(*) >= {{ 2 }} ORDER BY line_count DESC LIMIT 100;',
+      "mysql-plugin":
+        "SELECT o.status AS status, COUNT(*) AS line_count, FLOOR(AVG(i.price)) AS avg_price FROM orders o INNER JOIN items i ON i.order_id = o.id GROUP BY o.status HAVING COUNT(*) >= {{ 2 }} ORDER BY line_count DESC LIMIT 100;",
+      "mariadb-plugin":
+        "SELECT o.status AS status, COUNT(*) AS line_count, FLOOR(AVG(i.price)) AS avg_price FROM orders o INNER JOIN items i ON i.order_id = o.id GROUP BY o.status HAVING COUNT(*) >= {{ 2 }} ORDER BY line_count DESC LIMIT 100;",
+      "oracle-plugin":
+        "SELECT o.status AS status, COUNT(*) AS line_count, FLOOR(AVG(i.price)) AS avg_price FROM orders o INNER JOIN items i ON i.order_id = o.id GROUP BY o.status HAVING COUNT(*) >= {{ 2 }} ORDER BY line_count DESC FETCH FIRST 100 ROWS ONLY;",
+      "mssql-plugin":
+        'SELECT TOP (100) o."status" AS status, COUNT(*) AS line_count, FLOOR(AVG(i."price")) AS avg_price FROM orders o INNER JOIN items i ON i."order_id" = o."id" GROUP BY o."status" HAVING COUNT(*) >= {{ 2 }} ORDER BY line_count DESC;',
+      "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
+      "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
+    },
+  },
+  {
+    name: "mixed-case columns keep their case",
+    spec: {
+      operation: "SELECT",
+      from: { table: "orders", as: "o" },
+      joins: [
+        {
+          type: "inner",
+          table: "customers",
+          as: "c",
+          on: [{ left: "c.id", right: "o.customerId" }],
+        },
+      ],
+      columns: [
+        { column: "o.createdAt", as: "created_at" },
+        { column: "c.fullName", as: "full_name" },
+      ],
+      orderBy: [{ column: "created_at", direction: "DESC" }],
+      limit: 10,
+    },
+    expected: {
+      none: { throws: ALIASED_MODE_MESSAGE },
+      "postgres-plugin":
+        'SELECT o."createdAt" AS created_at, c."fullName" AS full_name FROM (SELECT "customerId", "createdAt" FROM orders) o INNER JOIN (SELECT "id", "fullName" FROM customers) c ON c."id" = o."customerId" ORDER BY created_at DESC LIMIT 10;',
+      "mysql-plugin":
+        "SELECT o.createdAt AS created_at, c.fullName AS full_name FROM orders o INNER JOIN customers c ON c.id = o.customerId ORDER BY created_at DESC LIMIT 10;",
+      "mariadb-plugin":
+        "SELECT o.createdAt AS created_at, c.fullName AS full_name FROM orders o INNER JOIN customers c ON c.id = o.customerId ORDER BY created_at DESC LIMIT 10;",
+      "oracle-plugin":
+        "SELECT o.createdAt AS created_at, c.fullName AS full_name FROM orders o INNER JOIN customers c ON c.id = o.customerId ORDER BY created_at DESC FETCH FIRST 10 ROWS ONLY;",
+      "mssql-plugin":
+        'SELECT TOP (10) o."createdAt" AS created_at, c."fullName" AS full_name FROM orders o INNER JOIN customers c ON c."id" = o."customerId" ORDER BY created_at DESC;',
+      "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
+      "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
+    },
+  },
+  // APP-16506 C: CASE in columns, with a condition group and a column operand.
+  {
+    name: "CASE column",
+    spec: {
+      operation: "SELECT",
+      from: { table: "orders", as: "o" },
+      columns: [
+        "o.id",
+        {
+          case: {
+            when: [
+              {
+                if: [
+                  { column: "o.total", op: "gte", value: { literal: 1000 } },
+                ],
+                then: { literal: "large" },
+              },
+              {
+                if: [
+                  { column: "o.total", op: "isNull" },
+                  {
+                    anyOf: [
+                      {
+                        column: "o.status",
+                        op: "eq",
+                        value: { literal: "new" },
+                      },
+                      { column: "o.status", op: "isNull" },
+                    ],
+                  },
+                ],
+                then: { column: "o.status" },
+              },
+            ],
+            else: { literal: "small" },
+          },
+          as: "order_band",
+        },
+      ],
+      limit: 50,
+    },
+    expected: {
+      none: { throws: ALIASED_MODE_MESSAGE },
+      "postgres-plugin":
+        'SELECT o."id" AS id, CASE WHEN o."total" >= {{ 1000 }} THEN {{ "large" }} WHEN o."total" IS NULL AND (o."status" = {{ "new" }} OR o."status" IS NULL) THEN o."status" ELSE {{ "small" }} END AS order_band FROM (SELECT "id", "total", "status" FROM orders) o LIMIT 50;',
+      "mysql-plugin":
+        'SELECT o.id AS id, CASE WHEN o.total >= {{ 1000 }} THEN {{ "large" }} WHEN o.total <=> NULL AND (o.status = {{ "new" }} OR o.status <=> NULL) THEN o.status ELSE {{ "small" }} END AS order_band FROM orders o LIMIT 50;',
+      "mariadb-plugin":
+        'SELECT o.id AS id, CASE WHEN o.total >= {{ 1000 }} THEN {{ "large" }} WHEN o.total <=> NULL AND (o.status = {{ "new" }} OR o.status <=> NULL) THEN o.status ELSE {{ "small" }} END AS order_band FROM orders o LIMIT 50;',
+      "oracle-plugin":
+        'SELECT o.id AS id, CASE WHEN o.total >= {{ 1000 }} THEN {{ "large" }} WHEN o.total IS NULL AND (o.status = {{ "new" }} OR o.status IS NULL) THEN o.status ELSE {{ "small" }} END AS order_band FROM orders o FETCH FIRST 50 ROWS ONLY;',
+      "mssql-plugin":
+        'SELECT TOP (50) o."id" AS id, CASE WHEN o."total" >= {{ 1000 }} THEN {{ "large" }} WHEN o."total" IS NULL AND (o."status" = {{ "new" }} OR o."status" IS NULL) THEN o."status" ELSE {{ "small" }} END AS order_band FROM orders o;',
+      "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
+      "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
+    },
+  },
+  // APP-16506 C: CASE as an aggregate input, repeated in HAVING.
+  {
+    name: "CASE aggregate inputs with having",
+    spec: {
+      operation: "SELECT",
+      from: { table: "orders", as: "o" },
+      groupBy: ["o.region"],
+      aggregates: [
+        {
+          fn: "sum",
+          case: {
+            when: [
+              {
+                if: [
+                  { column: "o.status", op: "eq", value: { literal: "paid" } },
+                ],
+                then: { column: "o.total" },
+              },
+            ],
+            else: { literal: 0 },
+          },
+          as: "paid_total",
+        },
+        {
+          fn: "count",
+          case: {
+            when: [
+              {
+                if: [{ column: "o.refunded", op: "notNull" }],
+                then: { literal: 1 },
+              },
+            ],
+          },
+          as: "refunds",
+        },
+      ],
+      having: [{ column: "paid_total", op: "gt", value: { literal: 0 } }],
+      orderBy: [{ column: "paid_total", direction: "DESC" }],
+      limit: 20,
+    },
+    expected: {
+      none: { throws: ALIASED_MODE_MESSAGE },
+      "postgres-plugin":
+        'SELECT o."region" AS region, SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o."refunded" IS NOT NULL THEN {{ 1 }} END) AS refunds FROM (SELECT "region", "status", "total", "refunded" FROM orders) o GROUP BY o."region" HAVING SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC LIMIT 20;',
+      "mysql-plugin":
+        'SELECT o.region AS region, SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN NOT (o.refunded <=> NULL) THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o.region HAVING SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC LIMIT 20;',
+      "mariadb-plugin":
+        'SELECT o.region AS region, SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN NOT (o.refunded <=> NULL) THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o.region HAVING SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC LIMIT 20;',
+      "oracle-plugin":
+        'SELECT o.region AS region, SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o.refunded IS NOT NULL THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o.region HAVING SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC FETCH FIRST 20 ROWS ONLY;',
+      "mssql-plugin":
+        'SELECT TOP (20) o."region" AS region, SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o."refunded" IS NOT NULL THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o."region" HAVING SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC;',
+      "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
+      "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
+    },
+  },
+  // APP-16506 D: two CTEs, the second reading the first, joined to a table. Refused on MySQL and MariaDB.
+  {
+    name: "WITH two CTEs joined to a table",
+    spec: {
+      operation: "SELECT",
+      with: [
+        {
+          name: "order_totals",
+          query: {
+            from: { table: "orders", as: "o" },
+            filters: [
+              { column: "o.status", op: "eq", value: { literal: "paid" } },
+            ],
+            groupBy: [{ column: "o.customer_id", as: "customer_id" }],
+            aggregates: [{ fn: "sum", column: "o.total", as: "paid_total" }],
+          },
+        },
+        {
+          name: "big_spenders",
+          query: {
+            from: { cte: "order_totals", as: "t" },
+            columns: ["t.customer_id", "t.paid_total"],
+            filters: [
+              { column: "t.paid_total", op: "gte", value: { literal: 500 } },
+            ],
+          },
+        },
+      ],
+      from: { table: "customers", as: "c" },
+      joins: [
+        {
+          type: "inner",
+          cte: "big_spenders",
+          as: "b",
+          on: [{ left: "b.customer_id", right: "c.id" }],
+        },
+      ],
+      columns: [{ column: "c.name", as: "customer" }, "b.paid_total"],
+      orderBy: [{ column: "paid_total", direction: "DESC" }],
+      limit: 10,
+    },
+    expected: {
+      none: { throws: ALIASED_MODE_MESSAGE },
+      "postgres-plugin":
+        'WITH order_totals AS (SELECT o."customer_id" AS customer_id, SUM(o."total") AS paid_total FROM (SELECT "customer_id", "status", "total" FROM orders) o WHERE o."status" = {{ "paid" }} GROUP BY o."customer_id"), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT c."name" AS customer, b.paid_total AS paid_total FROM (SELECT "id", "name" FROM customers) c INNER JOIN big_spenders b ON b.customer_id = c."id" ORDER BY paid_total DESC LIMIT 10;',
+      "mysql-plugin": { throws: WITH_ON_MYSQL_MESSAGE },
+      "mariadb-plugin": { throws: WITH_ON_MYSQL_MESSAGE },
+      "oracle-plugin":
+        'WITH order_totals AS (SELECT o.customer_id AS customer_id, SUM(o.total) AS paid_total FROM orders o WHERE o.status = {{ "paid" }} GROUP BY o.customer_id), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT c.name AS customer, b.paid_total AS paid_total FROM customers c INNER JOIN big_spenders b ON b.customer_id = c.id ORDER BY paid_total DESC FETCH FIRST 10 ROWS ONLY;',
+      "mssql-plugin":
+        'WITH order_totals AS (SELECT o."customer_id" AS customer_id, SUM(o."total") AS paid_total FROM orders o WHERE o."status" = {{ "paid" }} GROUP BY o."customer_id"), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT TOP (10) c."name" AS customer, b.paid_total AS paid_total FROM customers c INNER JOIN big_spenders b ON b.customer_id = c."id" ORDER BY paid_total DESC;',
+      "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
+      "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
+    },
+  },
+];
+
+describe("APP-16506 golden: from and joins per plugin", () => {
+  it.each(GOLDEN_PLUGIN_CASES)("$name", ({ expected, spec }) => {
+    expect(compileForEveryPlugin(spec)).toEqual(expected);
   });
 });
