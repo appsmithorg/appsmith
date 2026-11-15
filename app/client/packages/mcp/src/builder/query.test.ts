@@ -5975,6 +5975,42 @@ const CASE_AGGREGATES_MSSQL =
   'SELECT TOP (20) o."region" AS region, SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o."refunded" IS NOT NULL THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o."region" HAVING SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC;';
 
 describe("APP-16506 C: CASE", () => {
+  // JSON.stringify writes a very small or very large finite number in exponent form. The binding check must accept it.
+  it("should_bind_exponent_form_numbers_when_a_case_literal_is_very_small_or_very_large", () => {
+    // Given
+    const spec = withBandCase({
+      when: [
+        {
+          if: [{ column: "o.total", op: "gte", value: { literal: 1000 } }],
+          then: { literal: 0.0000001 },
+        },
+      ],
+      else: { literal: 1e21 },
+    });
+
+    // When
+    const body = compileFor(spec, "postgres-plugin");
+
+    // Then
+    expect(body).toContain("THEN {{ 1e-7 }} ELSE {{ 1e+21 }} END");
+  });
+
+  it("should_bind_an_exponent_form_number_when_a_filter_literal_is_very_small", () => {
+    // Given
+    const spec = parse({
+      ...base,
+      operation: "SELECT",
+      table: "readings",
+      filters: [{ column: "value", op: "lt", value: { literal: 0.0000001 } }],
+    });
+
+    // When
+    const body = compileQuery(spec, { dialect: "postgres" });
+
+    // Then
+    expect(body).toBe('SELECT * FROM readings WHERE "value" < {{ 1e-7 }};');
+  });
+
   describe("compiled bodies", () => {
     it.each([
       ["postgres-plugin", CASE_COLUMNS_POSTGRES],

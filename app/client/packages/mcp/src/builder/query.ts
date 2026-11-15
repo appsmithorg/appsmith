@@ -3972,8 +3972,10 @@ export function compileQuery(
 
 // Every `{{ ... }}` in the compiled body must be a compiler-emitted binding: either a dotted identifier path or a
 // JSON scalar literal. Anything else (or a stray `${`/backtick) means a bug or an escape — reject.
+// A number literal is what JSON.stringify writes for a finite number, which includes exponent form for very small or
+// very large values (0.0000001 is written 1e-7, and 1e21 is written 1e+21).
 const SAFE_BINDING =
-  /^\{\{ (?:[A-Za-z_][A-Za-z0-9_.]*|"(?:[^"\\]|\\.)*"|-?\d+(?:\.\d+)?|true|false|null) \}\}$/;
+  /^\{\{ (?:[A-Za-z_][A-Za-z0-9_.]*|"(?:[^"\\]|\\.)*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?|true|false|null) \}\}$/;
 
 // The only two expression bindings the compiler emits, for skipWhenEmpty and inList. Each is fixed template text
 // around ONE identifier path. A backreference repeats the path, so a different path cannot be slipped into
