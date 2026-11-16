@@ -8058,6 +8058,34 @@ describe("governance-wrapped layout mutations", () => {
       expect(deleteAction).not.toHaveBeenCalled();
     });
 
+    it("should_return_the_revision_of_the_copy_as_saved_after_the_pin", async () => {
+      // Given: the pin saves the copy again, so the server's copy has a later updatedAt than the create response.
+      const { getAction, server } = copyServer(PG_SOURCE);
+      const pinned = {
+        id: "act9",
+        name: "getUsersCopy",
+        pageId: "p2",
+        pluginType: "DB",
+        updatedAt: "2026-11-16T02:00:00.000Z",
+        datasource: { id: "dspg" },
+      };
+
+      getAction.mockImplementation((async (_app: string, actionId: string) =>
+        actionId === "act9" ? pinned : PG_SOURCE) as never);
+
+      // When
+      const copied = await copy(server);
+      const reread = await callTool(server, "get_action", {
+        applicationId: "app2",
+        actionId: "act9",
+      });
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(getAction).toHaveBeenCalledWith("app2", "act9");
+      expect(copied.body.revision).toBe(reread.body.revision);
+    });
+
     it("should_remove_the_copy_when_it_cannot_be_pinned_to_run_manually", async () => {
       // Given
       const { deleteAction, server, setActionRunBehaviour } =

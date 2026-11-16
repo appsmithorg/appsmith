@@ -8395,12 +8395,23 @@ export function buildMcpServer(
                   );
                 }
 
+                // Pinning saves the copy again and can change its updatedAt, so the revision comes from a read after
+                // the pin. If that read fails, the copy is still made and pinned: return the create response, and the
+                // agent re-reads with get_action before its next governed change.
+                let saved: unknown = created;
+
+                try {
+                  saved = await api.getAction(target.applicationId, createdId);
+                } catch {
+                  // Keep the create response.
+                }
+
                 return {
                   value: {
-                    action: projectAction(created),
-                    revision: fingerprintAction(created),
+                    action: projectAction(saved),
+                    revision: fingerprintAction(saved),
                   },
-                  revisionAfter: fingerprintAction(created),
+                  revisionAfter: fingerprintAction(saved),
                   rollback: {
                     createdActionId: (created as { id?: string } | null)?.id,
                   },
