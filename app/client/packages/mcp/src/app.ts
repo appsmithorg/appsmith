@@ -58,8 +58,10 @@ import {
   type McpSessionSummary,
 } from "./session/store.js";
 import {
+  buildCopyActionDto,
   buildDuplicateActionDto,
   buildUpdateActionDto,
+  copyActionSpecSchema,
   deleteActionSpecSchema,
   duplicateActionSpecSchema,
   updateActionSpecSchema,
@@ -147,6 +149,7 @@ import {
   querySpecSchema,
   sqlDialectFor,
   type SqlDialect,
+  unboundSqlDatabase,
 } from "./builder/query.js";
 import {
   buildMongoActionDto,
@@ -2112,6 +2115,142 @@ function cloneActionForDuplicate(
       ? { datasource: { id: entry.datasource.id } }
       : {}),
   };
+}
+
+// APP-16526: the new action for copy_action. It is built from the STORED source action, never from agent input:
+// - the name, target page and target datasource come from the checked request;
+// - the plugin is the source action's own plugin, which the caller has matched with the target datasource's plugin;
+// - the action configuration is copied as stored. It never reaches the agent.
+function cloneActionForCopy(
+  stored: unknown,
+  copy: {
+    name: string;
+    pageId: string;
+    pluginId: string;
+    datasourceId: string;
+  },
+): Record<string, unknown> {
+  const source = actionSource(stored);
+  const actionConfiguration = source?.actionConfiguration;
+  // Keep "ask before running" (the editor's copy keeps it too). Run on page load is not copied: the server always
+  // creates an action that runs manually.
+  const confirmBeforeExecute =
+    (stored as { confirmBeforeExecute?: unknown } | null)
+      ?.confirmBeforeExecute ?? source?.confirmBeforeExecute;
+
+  return {
+    name: copy.name,
+    pageId: copy.pageId,
+    pluginId: copy.pluginId,
+    ...(actionConfiguration !== undefined ? { actionConfiguration } : {}),
+    ...(typeof confirmBeforeExecute === "boolean"
+      ? { confirmBeforeExecute }
+      : {}),
+    datasource: { id: copy.datasourceId },
+  };
+}
+
+// True when the stored action configuration holds a `{{ }}` binding anywhere: the SQL text, Oracle's formData, or a
+// REST path, header, parameter or body. The text itself is never returned.
+function storedConfigHasBinding(stored: unknown): boolean {
+  const actionConfiguration = actionSource(stored)?.actionConfiguration;
+
+  return (
+    actionConfiguration !== undefined &&
+    JSON.stringify(actionConfiguration).includes("{{")
+  );
+}
+
+// True when the stored SQL action binds its `{{ }}` values as prepared-statement parameters. Oracle keeps the switch
+// in formData.preparedStatement.data; the other SQL plugins keep it in pluginSpecifiedTemplates[0].value. Only an
+// explicit `true` counts, so a missing or unreadable switch fails closed.
+function storedSqlUsesPreparedStatement(
+  stored: unknown,
+  packageName: string | undefined,
+): boolean {
+  const config = actionSource(stored)?.actionConfiguration as
+    | {
+        formData?: { preparedStatement?: { data?: unknown } };
+        pluginSpecifiedTemplates?: unknown;
+      }
+    | undefined;
+
+  if (packageName === "oracle-plugin") {
+    return config?.formData?.preparedStatement?.data === true;
+  }
+
+  const templates = config?.pluginSpecifiedTemplates;
+
+  return (
+    Array.isArray(templates) &&
+    (templates[0] as { value?: unknown } | undefined)?.value === true
+  );
+}
+
+// True when this server wrote the stored action and nobody edited it since (the marker hash still matches). Only
+// such an action may move to another datasource: an editor-written one can hold a secret, such as a token header or
+// a password in the SQL text, which a datasource the agent picked would receive.
+function storedActionIsMcpAuthored(
+  stored: unknown,
+  pluginType: unknown,
+): boolean {
+  const actionConfiguration = actionSource(stored)?.actionConfiguration;
+
+  if (pluginType === "DB") {
+    // Oracle runs formData.body.data and the other SQL plugins run body. Every text that is present must carry a
+    // valid marker, so a marked text in one field cannot vouch for a secret in the other.
+    const config = (actionConfiguration ?? {}) as {
+      body?: unknown;
+      formData?: { body?: { data?: unknown } };
+    };
+    const texts = [config.body, config.formData?.body?.data].filter(
+      (text) => text !== undefined && text !== null && text !== "",
+    );
+
+    return (
+      texts.length > 0 &&
+      texts.every((text) => mcpAuthoredBody(text) !== undefined)
+    );
+  }
+
+  return (
+    pluginType === "API" &&
+    mcpAuthoredRestConfig(actionConfiguration) !== undefined
+  );
+}
+
+// True for an EE module or workflow action, or any action whose context is not a page. Their queries can be private
+// to a package or a workflow, so copy_action never copies them into an app page.
+function storedActionOutsidePage(action: unknown): boolean {
+  const entries = [action, actionSource(action)] as (Record<
+    string,
+    unknown
+  > | null)[];
+
+  return entries.some(
+    (entry) =>
+      entry !== null &&
+      typeof entry === "object" &&
+      ((entry.moduleInstanceId !== undefined &&
+        entry.moduleInstanceId !== null) ||
+        (entry.rootModuleInstanceId !== undefined &&
+          entry.rootModuleInstanceId !== null) ||
+        (entry.workflowId !== undefined && entry.workflowId !== null) ||
+        (entry.contextType !== undefined &&
+          entry.contextType !== null &&
+          entry.contextType !== "PAGE")),
+  );
+}
+
+// The saved datasource id of a stored action, or undefined for an embedded datasource (one with no id).
+function storedActionDatasourceId(action: unknown): string | undefined {
+  const datasource = actionSource(action)?.datasource as
+    | { id?: unknown }
+    | undefined;
+
+  return typeof datasource?.id === "string" && datasource.id !== ""
+    ? datasource.id
+    : undefined;
 }
 
 // The fixed JS plugin id (agents never supply it). Resolved from the plugins list by type/packageName.
@@ -8001,6 +8140,304 @@ export function buildMcpServer(
             });
 
             return result({ duplicated: true, ...value, changeId });
+          } catch (error) {
+            return governanceError(error) ?? compileError(error);
+          }
+        },
+      );
+
+      registerTool(
+        "copy_action",
+        "Copy a stored SQL or REST query to a page of another app, or to another page of the same app. The query text and configuration are copied on the server and never returned. You need access to the source query in the editor (app viewers cannot copy it) and edit access to the target page. A query written or edited in the editor keeps its own datasource, so the target app must be in the same workspace. A query this server wrote and nobody edited can move to target.datasourceId, which must use the same plugin, such as PostgreSQL to PostgreSQL. A SQL query that reads widgets is copied only with prepared statements on (never on Redshift or Snowflake). The copy runs manually, not on page load; wire it with wire_event. Pass a revision from get_action. referencesAppValues: true means the query reads widgets or other queries, which the target app may not have. Governed.",
+        {
+          spec: z.record(z.unknown()),
+          branch: gitBranchParamSchema.optional(),
+        },
+        async ({ branch, spec }) => {
+          const parsed = copyActionSpecSchema.safeParse(spec);
+
+          if (!parsed.success) return validationError(parsed.error.issues);
+
+          const request = buildCopyActionDto(parsed.data);
+          const { target } = request;
+
+          // The new action lands in the target app, so its branch rules apply.
+          const gate = await gitBranchGate(target.applicationId, branch);
+
+          if (!gate.ok) return gate.result;
+
+          let targetPages: unknown;
+          let current: unknown;
+
+          try {
+            targetPages = await api.getApplicationPages(target.applicationId);
+            // The server lists an app's actions only with read:actions, which developers have and app viewers do
+            // not. Anyone who can read the action can already see its query in the editor.
+            current = await api.getAction(
+              request.applicationId,
+              request.actionId,
+            );
+          } catch (error) {
+            return compileError(error);
+          }
+
+          // Resolve the workspace from the target app on the server, and check that the page is in that app. The
+          // branch gate above and the datasource check below then apply to the page that gets the action.
+          const workspaceId = workspaceIdFromApplicationPages(targetPages);
+
+          if (typeof workspaceId !== "string") {
+            return result({
+              error: `could not resolve the workspace for application ${target.applicationId}`,
+            });
+          }
+
+          if (
+            !projectPages(targetPages).some((page) => page.id === target.pageId)
+          ) {
+            return result({
+              error: `page ${target.pageId} is not in application ${target.applicationId}`,
+            });
+          }
+
+          const pluginType =
+            (current as { pluginType?: unknown } | null)?.pluginType ??
+            actionSource(current)?.pluginType;
+
+          if (pluginType !== "DB" && pluginType !== "API") {
+            return result({
+              error:
+                "copy_action copies SQL and REST queries only. To copy a JS object, read it with read_js_object and create it with create_js_object",
+            });
+          }
+
+          if (storedActionOutsidePage(current)) {
+            return result({
+              error:
+                "copy_action copies page queries only, not module or workflow queries",
+            });
+          }
+
+          const sourcePluginId = storedActionPluginId(current);
+
+          if (sourcePluginId === undefined) {
+            return result({
+              error:
+                "could not find the plugin this query runs on, so it cannot be copied",
+            });
+          }
+
+          const sourceDatasourceId = storedActionDatasourceId(current);
+
+          if (sourceDatasourceId === undefined) {
+            return result({
+              error:
+                "this query has no saved datasource, so it cannot be copied. Save its datasource in the editor first",
+            });
+          }
+
+          const datasourceId = target.datasourceId ?? sourceDatasourceId;
+
+          // An editor-written query can hold a secret, such as a token header or a password in the SQL text. On
+          // another datasource, which the agent may have created, that secret would go to a host the agent picked. So
+          // only a query this server wrote, unedited, may change datasource.
+          if (
+            datasourceId !== sourceDatasourceId &&
+            !storedActionIsMcpAuthored(current, pluginType)
+          ) {
+            return result({
+              error:
+                "this query was written or edited in the editor, so it can be copied only with its own datasource. Copy it to an app in the same workspace, or rebuild it with create_query or create_rest_api",
+            });
+          }
+
+          const datasources = await api.listDatasources(workspaceId);
+
+          if (!datasourceAccessible(datasources, datasourceId)) {
+            return result({
+              error:
+                target.datasourceId === undefined
+                  ? `the source datasource is not in the target app's workspace. Pass target.datasourceId with a datasource of the same plugin from that workspace (see list_datasources)`
+                  : `datasource ${datasourceId} is not accessible in the target app's workspace`,
+            });
+          }
+
+          // APP-16517: the server runs an action on its own plugin. The copy keeps the source plugin, so its
+          // datasource must use that plugin too.
+          if (
+            datasourcePluginIdOf(datasources, datasourceId) !== sourcePluginId
+          ) {
+            return result({
+              error:
+                "the target datasource must use the same plugin as the source query, such as PostgreSQL to PostgreSQL",
+            });
+          }
+
+          const plugins = await api.listPlugins(workspaceId);
+          // The kind comes from the plugin, which the server decides, and must agree with the action's type.
+          const isSql = isSqlDatasource(datasources, plugins, datasourceId);
+          const isRest = isRestDatasource(datasources, plugins, datasourceId);
+
+          if (
+            !(isSql && pluginType === "DB") &&
+            !(isRest && pluginType === "API")
+          ) {
+            return result({
+              error:
+                "copy_action supports MariaDB, Microsoft SQL Server, MySQL, Oracle, PostgreSQL, Redshift, Snowflake and REST API queries",
+            });
+          }
+
+          const hasBinding = storedConfigHasBinding(current);
+          const packageName = datasourcePackageName(
+            datasources,
+            plugins,
+            datasourceId,
+          );
+
+          // A SQL query pastes `{{ }}` values into its text unless it uses prepared statements. In another app a
+          // widget name can belong to a different widget, which could then change the query. So a SQL query that
+          // reads values is copied only when its plugin binds them as parameters (APP-16507: never on Redshift and
+          // Snowflake) and its prepared-statement switch is on.
+          if (isSql && hasBinding) {
+            const database = unboundSqlDatabase(packageName);
+
+            if (database !== undefined) {
+              return result({
+                error: `the ${database} plugin pastes {{ }} values into the SQL text, so a ${database} query that reads widgets or other values cannot be copied. Rebuild it in the target app with create_query`,
+              });
+            }
+
+            if (!storedSqlUsesPreparedStatement(current, packageName)) {
+              return result({
+                error:
+                  "this query reads widgets or other values with prepared statements turned off, so the values are pasted into the SQL text. Turn on prepared statements in the editor, or rebuild it with create_query",
+              });
+            }
+          }
+
+          // Idempotency: return the existing query rather than creating a second one on a retry.
+          const existing = findExistingAction(
+            await api.listActions(target.applicationId),
+            request.name,
+            target.pageId,
+          );
+
+          if (existing !== undefined) {
+            return result({
+              copied: false,
+              reason:
+                "a query with this name already exists on the target page",
+              action: projectAction(existing),
+            });
+          }
+
+          try {
+            const { changeId, value } = await govData.execute({
+              actorId,
+              organizationId,
+              entityKey: `action:${request.actionId}`,
+              operation: "copy_action",
+              expectedRevision: request.revision,
+              currentRevision: fingerprintAction(current),
+              mutate: async () => {
+                // The checks above read the source before the lock. Read it again under the lock, so a change made
+                // in between (for example by update_action) is refused instead of copying the earlier version.
+                const latestRevision = fingerprintAction(
+                  await api.getAction(request.applicationId, request.actionId),
+                );
+
+                if (latestRevision !== fingerprintAction(current)) {
+                  throw new GovernanceRevisionConflictError(
+                    request.revision,
+                    latestRevision,
+                  );
+                }
+
+                const created = await api.createAction(
+                  cloneActionForCopy(current, {
+                    name: request.name,
+                    pageId: target.pageId,
+                    pluginId: sourcePluginId,
+                    datasourceId,
+                  }),
+                );
+                const createdId = (created as { id?: unknown } | null)?.id;
+
+                // Pin the copy to manual. Otherwise the server can switch it to run on page load when a widget
+                // binds to it, and the copy may write data. A copy that cannot be pinned is removed again (fail
+                // closed), as in create_mongo_query.
+                try {
+                  if (typeof createdId !== "string") {
+                    throw new Error("the create response carried no action id");
+                  }
+
+                  await api.setActionRunBehaviour(createdId, "MANUAL");
+                } catch (error) {
+                  const reason =
+                    error instanceof Error ? error.message : "unknown error";
+
+                  if (typeof createdId !== "string") {
+                    throw new Error(
+                      `a copy may have been created on page ${target.pageId}, but the server returned no id, so it could not be set to run manually. Check the page in the editor and set the copy to "Manual" or delete it`,
+                    );
+                  }
+
+                  try {
+                    await api.deleteAction(createdId);
+                  } catch {
+                    throw new Error(
+                      `the copy ${createdId} was created but could not be set to run manually (${reason}) or removed. Set it to "Manual" in the editor's run-behaviour dropdown, or delete it`,
+                    );
+                  }
+
+                  throw new Error(
+                    `the copy could not be set to run manually (${reason}), so it was not kept`,
+                  );
+                }
+
+                // Pinning saves the copy again and can change its updatedAt, so the revision comes from a read after
+                // the pin. If that read fails, the copy is still made and pinned, but its revision is unknown: the
+                // result leaves the revision out and tells the agent to read the copy with get_action first.
+                let saved: unknown;
+
+                try {
+                  saved = await api.getAction(target.applicationId, createdId);
+                } catch {
+                  saved = undefined;
+                }
+
+                return {
+                  value:
+                    saved === undefined
+                      ? {
+                          action: projectAction(created),
+                          revisionUnavailable:
+                            "read the copy with get_action before you change it",
+                        }
+                      : {
+                          action: projectAction(saved),
+                          revision: fingerprintAction(saved),
+                        },
+                  // The audit record keeps the best revision known.
+                  revisionAfter: fingerprintAction(saved ?? created),
+                  rollback: {
+                    createdActionId: (created as { id?: string } | null)?.id,
+                  },
+                  summary: {
+                    name: request.name,
+                    targetApplicationId: target.applicationId,
+                    targetPageId: target.pageId,
+                  },
+                };
+              },
+            });
+
+            return result({
+              copied: true,
+              ...value,
+              referencesAppValues: hasBinding,
+              changeId,
+            });
           } catch (error) {
             return governanceError(error) ?? compileError(error);
           }
