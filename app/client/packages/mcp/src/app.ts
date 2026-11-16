@@ -8340,6 +8340,19 @@ export function buildMcpServer(
               expectedRevision: request.revision,
               currentRevision: fingerprintAction(current),
               mutate: async () => {
+                // The checks above read the source before the lock. Read it again under the lock, so a change made
+                // in between (for example by update_action) is refused instead of copying the earlier version.
+                const latestRevision = fingerprintAction(
+                  await api.getAction(request.applicationId, request.actionId),
+                );
+
+                if (latestRevision !== fingerprintAction(current)) {
+                  throw new GovernanceRevisionConflictError(
+                    request.revision,
+                    latestRevision,
+                  );
+                }
+
                 const created = await api.createAction(
                   cloneActionForCopy(current, {
                     name: request.name,
@@ -8348,6 +8361,39 @@ export function buildMcpServer(
                     datasourceId,
                   }),
                 );
+                const createdId = (created as { id?: unknown } | null)?.id;
+
+                // Pin the copy to manual. Otherwise the server can switch it to run on page load when a widget
+                // binds to it, and the copy may write data. A copy that cannot be pinned is removed again (fail
+                // closed), as in create_mongo_query.
+                try {
+                  if (typeof createdId !== "string") {
+                    throw new Error("the create response carried no action id");
+                  }
+
+                  await api.setActionRunBehaviour(createdId, "MANUAL");
+                } catch (error) {
+                  const reason =
+                    error instanceof Error ? error.message : "unknown error";
+
+                  if (typeof createdId !== "string") {
+                    throw new Error(
+                      `a copy may have been created on page ${target.pageId}, but the server returned no id, so it could not be set to run manually. Check the page in the editor and set the copy to "Manual" or delete it`,
+                    );
+                  }
+
+                  try {
+                    await api.deleteAction(createdId);
+                  } catch {
+                    throw new Error(
+                      `the copy ${createdId} was created but could not be set to run manually (${reason}) or removed. Set it to "Manual" in the editor's run-behaviour dropdown, or delete it`,
+                    );
+                  }
+
+                  throw new Error(
+                    `the copy could not be set to run manually (${reason}), so it was not kept`,
+                  );
+                }
 
                 return {
                   value: {

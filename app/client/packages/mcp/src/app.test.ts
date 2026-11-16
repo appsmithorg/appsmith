@@ -7416,8 +7416,12 @@ describe("governance-wrapped layout mutations", () => {
         updatedAt: "2026-11-16T00:00:00.000Z",
       }));
       const getAction = jest.fn(async () => stored);
+      const setActionRunBehaviour = jest.fn(async () => ({}));
+      const deleteAction = jest.fn(async () => ({}));
       const api: AppsmithApi = {
         ...createApi()(),
+        setActionRunBehaviour: setActionRunBehaviour as never,
+        deleteAction: deleteAction as never,
         getApplicationPages: jest.fn(async (applicationId: string) =>
           applicationId === "app2"
             ? {
@@ -7453,7 +7457,13 @@ describe("governance-wrapped layout mutations", () => {
         ),
       });
 
-      return { server, createAction, getAction };
+      return {
+        server,
+        createAction,
+        getAction,
+        setActionRunBehaviour,
+        deleteAction,
+      };
     }
 
     async function copy(
@@ -8032,6 +8042,75 @@ describe("governance-wrapped layout mutations", () => {
 
       expect(payload).not.toHaveProperty("executeOnLoad");
       expect(payload.confirmBeforeExecute).toBe(false);
+    });
+
+    it("should_pin_the_copy_to_run_manually", async () => {
+      // Given
+      const { deleteAction, server, setActionRunBehaviour } =
+        copyServer(PG_SOURCE);
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(setActionRunBehaviour).toHaveBeenCalledWith("act9", "MANUAL");
+      expect(deleteAction).not.toHaveBeenCalled();
+    });
+
+    it("should_remove_the_copy_when_it_cannot_be_pinned_to_run_manually", async () => {
+      // Given
+      const { deleteAction, server, setActionRunBehaviour } =
+        copyServer(PG_SOURCE);
+
+      setActionRunBehaviour.mockRejectedValueOnce(new Error("pin refused"));
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.copied).toBeUndefined();
+      expect(JSON.stringify(copied.body)).toContain("so it was not kept");
+      expect(deleteAction).toHaveBeenCalledWith("act9");
+    });
+
+    it("should_tell_the_agent_to_fix_the_copy_when_it_can_be_neither_pinned_nor_removed", async () => {
+      // Given
+      const { deleteAction, server, setActionRunBehaviour } =
+        copyServer(PG_SOURCE);
+
+      setActionRunBehaviour.mockRejectedValueOnce(new Error("pin refused"));
+      deleteAction.mockRejectedValueOnce(new Error("delete refused"));
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.copied).toBeUndefined();
+      expect(JSON.stringify(copied.body)).toContain(
+        "the copy act9 was created but could not be set to run manually",
+      );
+    });
+
+    it("should_refuse_when_the_source_changes_before_the_lock", async () => {
+      // Given: reads 1 (get_action) and 2 (the checks) see the source; read 3, under the lock, sees an update.
+      const { createAction, getAction, server } = copyServer(PG_SOURCE);
+      let reads = 0;
+
+      getAction.mockImplementation(async () => {
+        reads += 1;
+
+        return reads < 3
+          ? PG_SOURCE
+          : { ...PG_SOURCE, updatedAt: "2026-11-16T01:00:00.000Z" };
+      });
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.code).toBe("revision_conflict");
+      expect(createAction).not.toHaveBeenCalled();
     });
 
     it("should_create_the_copy_when_the_name_is_used_on_another_page_of_the_target_app", async () => {
