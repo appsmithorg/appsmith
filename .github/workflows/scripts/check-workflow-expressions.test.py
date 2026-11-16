@@ -2,10 +2,14 @@
 
 import importlib.util
 import subprocess
+import sys
 import tempfile
 import textwrap
 import unittest
 from pathlib import Path
+
+# Loading the checker would otherwise write __pycache__ next to it, inside the repo.
+sys.dont_write_bytecode = True
 
 SCRIPT = Path(__file__).with_name("check-workflow-expressions.py")
 spec = importlib.util.spec_from_file_location("check_workflow_expressions", SCRIPT)
