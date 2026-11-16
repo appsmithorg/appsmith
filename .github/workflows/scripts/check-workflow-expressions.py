@@ -15,8 +15,12 @@
 
 Rule 2 applies to every file. Many workflows still break rule 1, so with
 ``--base`` it applies only to lines changed since that revision: new code must
-follow it, and old code is fixed when someone edits it. Without ``--base``,
-rule 1 applies to every line.
+follow it, and old code is fixed when someone edits it. A new, renamed or
+untracked file counts as added in full. Without ``--base``, rule 1 applies to
+every line. With ``--base``, ``--root`` must be the top of the git work tree.
+
+Line numbers come from the file's text, not from the parsed YAML values, so
+they are right for folded (``>``), plain and quoted multi-line scalars too.
 
 Usage:
   check-workflow-expressions.py [--root DIR] [--base REV]
@@ -48,12 +52,24 @@ def workflow_files(root):
     return sorted(set(files))
 
 
-def scalar_line(node, text, offset):
-    """Return the 1-based file line of ``text[offset]`` inside a scalar node."""
-    first = node.start_mark.line + 1
-    if node.style in ("|", ">"):
-        first += 1  # A block scalar's content starts on the line after the indicator.
-    return first + text.count("\n", 0, offset)
+def source_matches(node, source, pattern):
+    """Yield (first_line, last_line, text) for each ``pattern`` match in a scalar node.
+
+    Lines are 1-based and come from the file's own text, never from the parsed
+    value. Parsing folds ``>`` blocks, multi-line plain and quoted scalars, and
+    escapes, so offsets in ``node.value`` do not map back to source lines.
+    """
+    start, end = node.start_mark.index, node.end_mark.index
+    matches = list(pattern.finditer(source, start, end))
+    for match in matches:
+        first = source.count("\n", 0, match.start()) + 1
+        yield first, first + match.group(0).count("\n"), match.group(0)
+    parsed = [match.group(0) for match in pattern.finditer(node.value)]
+    if len(parsed) > len(matches):
+        # The parsed value holds a match the source text does not spell out,
+        # for example through a YAML escape. Fail closed: report the whole node.
+        first, last = node.start_mark.line + 1, source.count("\n", 0, end) + 1
+        yield first, last, parsed[0]
 
 
 def mapping_get(node, key):
@@ -69,74 +85,83 @@ def is_github_script(step_node):
 
 
 def find_violations(path):
-    """Return a sorted list of (line, rule, snippet) for one workflow or action file."""
-    with open(path, encoding="utf-8") as handle:
-        root = yaml.compose(handle)
+    """Return a sorted list of (first_line, last_line, rule, snippet) for one workflow or action file."""
+    source = Path(path).read_text(encoding="utf-8")
+    root = yaml.compose(source)
     found = []
 
-    def scan_script(node, rule):
-        for match in EXPRESSION.finditer(node.value):
-            found.append((scalar_line(node, node.value, match.start()), rule, match.group(0)))
+    def scan(node, pattern, rule):
+        for first, last, text in source_matches(node, source, pattern):
+            found.append((first, last, rule, text))
 
     def walk(node):
         if isinstance(node, yaml.MappingNode):
             run = mapping_get(node, "run")
             if isinstance(run, yaml.ScalarNode):
-                scan_script(run, "run")
+                scan(run, EXPRESSION, "run")
             if is_github_script(node):
                 with_node = mapping_get(node, "with")
                 script = mapping_get(with_node, "script") if isinstance(with_node, yaml.MappingNode) else None
                 if isinstance(script, yaml.ScalarNode):
-                    scan_script(script, "script")
+                    scan(script, EXPRESSION, "script")
             for _, value in node.value:
                 walk(value)
         elif isinstance(node, yaml.SequenceNode):
             for value in node.value:
                 walk(value)
         elif isinstance(node, yaml.ScalarNode):
-            for match in WHOLE_CONTEXT.finditer(node.value):
-                found.append((scalar_line(node, node.value, match.start()), "whole-context", match.group(0)))
+            scan(node, WHOLE_CONTEXT, "whole-context")
 
     if root is not None:
         walk(root)
     return sorted(found)
 
 
-def added_lines(root, base):
-    """Map each file under .github changed since ``base`` to its added line numbers."""
-    diff = subprocess.run(
-        ["git", "-C", str(root), "diff", "--no-color", "--no-ext-diff", "-U0", base, "--", ".github"],
-        check=True,
-        capture_output=True,
-        text=True,
-    ).stdout
-    added, current = {}, None
-    for line in diff.splitlines():
-        if line.startswith("+++ "):
-            current = line[6:] if line.startswith("+++ b/") else None
-            if current is not None:
-                added.setdefault(current, set())
-        elif current is not None:
-            hunk = HUNK.match(line)
-            if hunk:
-                start, length = int(hunk.group(1)), int(hunk.group(2) or "1")
-                added[current].update(range(start, start + length))
+def git(root, *args):
+    return subprocess.run(["git", "-C", str(root), *args], check=True, capture_output=True).stdout
+
+
+def added_lines(root, base, files):
+    """Map each file in ``files`` ({path relative to ``root``: Path}) to the lines added since ``base``.
+
+    ``root`` must be the top of the git work tree. Paths come from ``files``
+    and from NUL-delimited git output, never from diff headers, which git quotes
+    and escapes for unusual names. A renamed file, or one git does not track
+    yet, counts as added in full.
+    """
+    untracked = set(git(root, "ls-files", "-z", "--others", "--exclude-standard", "--", ".github").decode().split("\0"))
+    changed = set(git(root, "diff", "-z", "--name-only", "--no-renames", base, "--", ".github").decode().split("\0"))
+    added = {}
+    for rel, path in files.items():
+        if rel in untracked:
+            added[rel] = set(range(1, path.read_text(encoding="utf-8").count("\n") + 2))
+        elif rel in changed:
+            diff = git(
+                root, "diff", "--no-color", "--no-ext-diff", "--no-renames", "-U0", base, "--", f":(literal){rel}"
+            )
+            lines = set()
+            for line in diff.decode("utf-8", "replace").splitlines():
+                hunk = HUNK.match(line)
+                if hunk:
+                    start, length = int(hunk.group(1)), int(hunk.group(2) or "1")
+                    lines.update(range(start, start + length))
+            added[rel] = lines
     return added
 
 
 def check(root, base=None):
     """Return the list of error messages for the workflows under ``root``."""
-    changed = added_lines(root, base) if base else None
+    files = {path.relative_to(root).as_posix(): path for path in workflow_files(root)}
+    changed = added_lines(root, base, files) if base else None
     errors = []
-    for path in workflow_files(root):
-        rel = path.relative_to(root).as_posix()
-        for line, rule, snippet in find_violations(path):
+    for rel, path in files.items():
+        for line, last, rule, snippet in find_violations(path):
             if rule == "whole-context":
                 errors.append(
                     f"{rel}:{line}: {snippet} passes the whole context, which can exceed the 131,072-byte "
                     "limit for one environment string. Read single fields, or the file at $GITHUB_EVENT_PATH."
                 )
-            elif changed is None or line in changed.get(rel, ()):
+            elif changed is None or any(n in changed.get(rel, ()) for n in range(line, last + 1)):
                 errors.append(
                     f"{rel}:{line}: {snippet} is inside a {rule}: body. "
                     "Pass the value through env: and read the quoted variable."

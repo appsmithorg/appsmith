@@ -54,7 +54,27 @@ jobs:
       - name: Use env
         env:
           COMMIT_MESSAGE: ${{ github.event.commits[0].message }}
-        run: printf '%s\\n' "$COMMIT_MESSAGE" | head -n 1
+        run: echo "${COMMIT_MESSAGE%%$'\\n'*}"
+"""
+
+# A run: body whose style is filled in per test. Its content starts on line 8.
+FOLD_STEP = """\
+name: Test
+on: push
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - run: {style}
+"""
+
+ACTION = """\
+name: Action
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: echo "${{ inputs.title }}"
 """
 
 
@@ -66,6 +86,10 @@ class CheckWorkflowExpressionsTest(unittest.TestCase):
 
     def tearDown(self):
         self.tmp.cleanup()
+
+    def reset(self):
+        self.tearDown()
+        self.setUp()
 
     def write(self, name, content):
         (self.root / ".github" / "workflows" / name).write_text(textwrap.dedent(content))
@@ -171,6 +195,86 @@ class CheckWorkflowExpressionsTest(unittest.TestCase):
         # Then
         self.assertEqual(len(errors), 1)
         self.assertIn("w.yml:12: ${{ github.event.head_commit.message }} is inside a run: body", errors[0])
+
+    def test_should_flagAddedLine_when_scalarIsFoldedOrMultiLine(self):
+        # Folding joins lines in the parsed value, so a line taken from it points
+        # at the unchanged first line. Each case adds only the second content line.
+        for style in (">", ">-", ""):
+            with self.subTest(style=style or "plain"):
+                self.reset()
+                self.git("init", "-q")
+                head = FOLD_STEP.format(style=style)
+                self.write("w.yml", head + "          echo start\n")
+                self.commit_all()
+                self.write("w.yml", head + "          echo start\n          ${{ github.event.pull_request.title }}\n")
+
+                errors = checker.check(self.root, base="HEAD")
+
+                self.assertEqual(len(errors), 1, errors)
+                self.assertIn("w.yml:9: ${{ github.event.pull_request.title }} is inside a run: body", errors[0])
+
+    def test_should_flagExpression_when_onlyItsSecondLineIsAdded(self):
+        # Given
+        self.git("init", "-q")
+        self.write("w.yml", FOLD_STEP.format(style="|") + "          echo ${{ github.event\n")
+        self.commit_all()
+        self.write(
+            "w.yml",
+            FOLD_STEP.format(style="|") + "          echo ${{ github.event\n            .pull_request.title }}\n",
+        )
+
+        # When
+        errors = checker.check(self.root, base="HEAD")
+
+        # Then
+        self.assertEqual(len(errors), 1)
+        self.assertIn("w.yml:8: ${{ github.event\n", errors[0])
+
+    def test_should_flagExpression_when_yamlEscapeSpellsIt(self):
+        # Given
+        self.write(
+            "w.yml", FOLD_STEP.format(style="") + '          "echo \\x24{{ github.event.pull_request.title }}"\n'
+        )
+
+        # When
+        errors = checker.check(self.root)
+
+        # Then
+        self.assertEqual(len(errors), 1)
+        self.assertIn("w.yml:8: ${{ github.event.pull_request.title }} is inside a run: body", errors[0])
+
+    def test_should_flagAddedLines_when_actionPathNeedsGitQuoting(self):
+        # Git quotes non-ASCII and special names in diff headers; the glob
+        # characters would also act as a pathspec if passed unescaped.
+        for name in ("café", "a b", "x*[y]"):
+            with self.subTest(name=name):
+                self.reset()
+                self.git("init", "-q")
+                self.write("w.yml", SAFE)
+                self.commit_all()
+                action = self.root / ".github" / "actions" / name / "action.yml"
+                action.parent.mkdir(parents=True)
+                action.write_text(ACTION)
+                self.git("add", "-A")
+
+                errors = checker.check(self.root, base="HEAD")
+
+                self.assertEqual(len(errors), 1, errors)
+                self.assertIn(f".github/actions/{name}/action.yml:6: ${{{{ inputs.title }}}}", errors[0])
+
+    def test_should_flagAllLines_when_fileIsUntracked(self):
+        # Given
+        self.git("init", "-q")
+        self.write("w.yml", SAFE)
+        self.commit_all()
+        self.write("new.yml", SLACK_STEP)
+
+        # When
+        errors = checker.check(self.root, base="HEAD")
+
+        # Then
+        self.assertEqual(len(errors), 1)
+        self.assertIn("new.yml:11: ${{env.EVENT_COMMITS}} is inside a run: body", errors[0])
 
     def test_should_flagWholeContext_when_lineIsUnchangedSinceBase(self):
         # Given

@@ -228,7 +228,10 @@ jobs:
         run: |
           # The commit message is untrusted text. Read it only as a quoted variable,
           # never through an expression in this script.
-          slack_username=$(printf '%s\n' "$COMMIT_MESSAGE" | head -n 1 | tr -d "'")
+          # Parameter expansion, not a pipe into head: with pipefail, head closing
+          # the pipe early on a large message fails the step with SIGPIPE.
+          slack_username=${COMMIT_MESSAGE%%$'\n'*}
+          slack_username=${slack_username//\'/}
           dashboard="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${GITHUB_RUN_ID}&attempt=${GITHUB_RUN_ATTEMPT}"
           if [[ "$CI_TEST_RESULT" == 'failure' ]]; then
             message="There are test failures in the run. Cypress Dashboard: <${dashboard}&selectiontype=test&testsstatus=failed&specsstatus=fail|Click here!>"

@@ -77,8 +77,13 @@ value to a step-level `env:` key and read the quoted variable:
 ```yaml
 - env:
     COMMIT_MESSAGE: ${{ github.event.commits[0].message }}
-  run: printf '%s\n' "$COMMIT_MESSAGE" | head -n 1
+  run: echo "${COMMIT_MESSAGE%%$'\n'*}"
 ```
+
+Cut large values with Bash parameter expansion, as above, not with a pipe into `head`.
+Jobs that use `shell: bash` run with `-o pipefail`. `head` exits after the first line,
+so a value larger than the pipe buffer makes the writer fail with SIGPIPE, and the step
+fails.
 
 Do not pass `toJSON(github)` or `toJSON(github.event)` to a step. Read single fields,
 or the event file at `$GITHUB_EVENT_PATH`.
