@@ -55,3 +55,6 @@ TASKS.md
 .playwright-mcp/
 card-widget-height-verified.png
 card-bind-flow-dp.png
+# Python bytecode (for example from running the workflow script tests)
+__pycache__/
+*.py[cod]
