@@ -176,7 +176,8 @@
                             (@BeforeAll); the testDeny* / sendTestEmail_WhenBlockedHost* /
                             datasourceCreate_blockedHost_* methods across RestApiPluginTest,
                             ElasticSearchPluginTest, GraphQLPluginTest, EnvManagerTest, and
-                            RedisPluginTest at the method level (try-finally around the body).
+                            RedisPluginTest, and the host-policy should_* methods in
+                            SmtpPluginTest, at the method level (try-finally around the body).
                             Pair each setSsrfFilterDisabledForTesting(false) with
                             resetSsrfFilterDisabledForTesting() to restore this JVM-wide
                             default.

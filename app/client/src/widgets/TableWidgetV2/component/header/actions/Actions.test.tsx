@@ -63,6 +63,7 @@ describe("TableWidget Actions Component", () => {
     allowAddNewRow: false,
     onAddNewRow: jest.fn(),
     isInfiniteScrollEnabled: false,
+    isAutoHeightEnabled: false,
     isAddRowInProgress: false,
     onAddNewRowAction: jest.fn(),
     disabledAddNewRowSave: false,

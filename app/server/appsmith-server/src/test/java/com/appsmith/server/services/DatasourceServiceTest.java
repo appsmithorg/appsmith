@@ -174,7 +174,6 @@ public class DatasourceServiceTest {
     public void datasourceDefaultNameCounterAsPerWorkspaceId() {
         // Create new workspace
         Workspace workspace11 = new Workspace();
-        workspace11.setId("random-org-id-1");
         workspace11.setName("Random Org 1");
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
@@ -203,7 +202,6 @@ public class DatasourceServiceTest {
                         })
                         .flatMap(datasource1 -> {
                             Workspace workspace2 = new Workspace();
-                            workspace2.setId("random-org-id-2");
                             workspace2.setName("Random Org 2");
                             return Mono.zip(Mono.just(datasource1), workspaceService.create(workspace2));
                         })
@@ -227,10 +225,12 @@ public class DatasourceServiceTest {
                         }))
                 .assertNext(datasource -> {
                     assertThat(datasource.getT1().getName()).isEqualTo("Untitled datasource");
-                    assertThat(datasource.getT1().getWorkspaceId()).isEqualTo("random-org-id-1");
+                    assertThat(datasource.getT1().getWorkspaceId()).isNotBlank();
                     assertThat(datasource.getT1().getUserPermissions()).isNotEmpty();
                     assertThat(datasource.getT2().getName()).isEqualTo("Untitled datasource");
-                    assertThat(datasource.getT2().getWorkspaceId()).isEqualTo("random-org-id-2");
+                    assertThat(datasource.getT2().getWorkspaceId()).isNotBlank();
+                    assertThat(datasource.getT2().getWorkspaceId())
+                            .isNotEqualTo(datasource.getT1().getWorkspaceId());
                     assertThat(datasource.getT2().getUserPermissions()).isNotEmpty();
                 })
                 .verifyComplete();

@@ -4,6 +4,7 @@ import type { ColumnAction } from "components/propertyControls/ColumnActionSelec
 import type { IconName } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
 import type { BaseCellComponentProps } from "../Constants";
+import { getTableCellActionIconSize } from "../Constants";
 import { CellWrapper, IconButtonWrapper } from "../TableStyledWrappers";
 import { StyledButton } from "widgets/IconButtonWidget/component";
 
@@ -51,6 +52,8 @@ function IconButton(props: {
     }
   };
 
+  const actionIconSize = getTableCellActionIconSize(props.compactMode);
+
   return (
     <IconButtonWrapper disabled={props.disabled} onClick={handlePropagation}>
       <StyledButton
@@ -68,6 +71,8 @@ function IconButton(props: {
         hasOnClickAction
         icon={props.iconName}
         loading={loading}
+        minHeight={actionIconSize}
+        minWidth={actionIconSize}
         onClick={handleClick}
       />
     </IconButtonWrapper>

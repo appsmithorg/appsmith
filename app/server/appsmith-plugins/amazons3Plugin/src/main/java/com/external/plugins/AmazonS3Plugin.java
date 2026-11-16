@@ -1,20 +1,5 @@
 package com.external.plugins;
 
-import com.amazonaws.HttpMethod;
-import com.amazonaws.SdkClientException;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.DeleteObjectsRequest;
-import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.amazonaws.services.s3.transfer.TransferManager;
-import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
-import com.amazonaws.util.IOUtils;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.dtos.MultipartFormDataDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -43,6 +28,7 @@ import com.external.plugins.constants.AmazonS3Action;
 import com.external.plugins.exceptions.S3ErrorMessages;
 import com.external.plugins.exceptions.S3PluginError;
 import com.external.utils.AmazonS3ErrorUtils;
+import com.external.utils.S3Connection;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
@@ -53,15 +39,40 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import software.amazon.awssdk.awscore.exception.AwsErrorDetails;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.exception.SdkException;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.http.ContentStreamProvider;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.AbortMultipartUploadRequest;
+import software.amazon.awssdk.services.s3.model.Bucket;
+import software.amazon.awssdk.services.s3.model.CompleteMultipartUploadRequest;
+import software.amazon.awssdk.services.s3.model.CompletedMultipartUpload;
+import software.amazon.awssdk.services.s3.model.CompletedPart;
+import software.amazon.awssdk.services.s3.model.CreateMultipartUploadRequest;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
+import software.amazon.awssdk.services.s3.model.EncodingType;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsResponse;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Error;
+import software.amazon.awssdk.services.s3.model.S3Object;
+import software.amazon.awssdk.services.s3.model.UploadPartRequest;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -113,7 +124,7 @@ import static com.external.plugins.constants.S3PluginConstants.NO;
 import static com.external.plugins.constants.S3PluginConstants.S3_DRIVER;
 import static com.external.plugins.constants.S3PluginConstants.S3_SERVICE_PROVIDER_PROPERTY_INDEX;
 import static com.external.plugins.constants.S3PluginConstants.YES;
-import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
+import static com.external.utils.DatasourceUtils.createConnection;
 import static com.external.utils.TemplateUtils.getTemplates;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
@@ -126,7 +137,38 @@ public class AmazonS3Plugin extends BasePlugin {
     }
 
     @Extension
-    public static class S3PluginExecutor implements PluginExecutor<AmazonS3>, SmartSubstitutionInterface {
+    public static class S3PluginExecutor implements PluginExecutor<S3Connection>, SmartSubstitutionInterface {
+
+        /** Shortest validity a presigned URL can be signed for. */
+        private static final Duration MINIMUM_PRESIGNED_URL_VALIDITY = Duration.ofSeconds(1);
+
+        /** Content type of an upload whose body does not name one. */
+        private static final String DEFAULT_UPLOAD_CONTENT_TYPE = "application/octet-stream";
+
+        /**
+         * Largest upload sent as one PutObject. Larger ones are multipart uploads, so that a failed request resends one
+         * part rather than the whole object.
+         */
+        private static final long MULTIPART_UPLOAD_THRESHOLD = 16L * 1024 * 1024;
+
+        /** Smallest size S3 accepts for every part of a multipart upload but the last. */
+        private static final long MINIMUM_UPLOAD_PART_SIZE = 5L * 1024 * 1024;
+
+        /**
+         * Most parts S3 accepts in one multipart upload. Parts grow beyond the minimum size only for payloads above
+         * about 48 GiB, which a byte array cannot hold; the limit guards the part size calculation all the same.
+         */
+        private static final long MAXIMUM_UPLOAD_PARTS = 10_000;
+
+        /** Start of the error detail of a bulk delete that reports per-key errors in its response. */
+        private static final String BULK_DELETE_ERRORS_MESSAGE = "One or more objects could not be deleted";
+
+        /** Most objects the error detail of a bulk delete names; the others are counted. */
+        private static final int MAX_BULK_DELETE_ERRORS_NAMED = 10;
+
+        /** Most characters of a service message the error detail of a bulk delete repeats for one object. */
+        private static final int MAX_BULK_DELETE_ERROR_MESSAGE_LENGTH = 200;
+
         private final Scheduler scheduler = Schedulers.boundedElastic();
         private final FilterDataService filterDataService;
         private static final AmazonS3ErrorUtils amazonS3ErrorUtils;
@@ -146,7 +188,8 @@ public class AmazonS3Plugin extends BasePlugin {
         /*
          * - Exception thrown by this method is expected to be handled by the caller.
          */
-        ArrayList<String> getFilenamesFromObjectListing(ObjectListing objectListing) throws AppsmithPluginException {
+        ArrayList<String> getFilenamesFromObjectListing(ListObjectsResponse objectListing)
+                throws AppsmithPluginException {
             if (objectListing == null) {
                 throw new AppsmithPluginException(
                         S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
@@ -154,9 +197,9 @@ public class AmazonS3Plugin extends BasePlugin {
             }
 
             ArrayList<String> result = new ArrayList<>();
-            List<S3ObjectSummary> objects = objectListing.getObjectSummaries();
-            for (S3ObjectSummary os : objects) {
-                result.add(os.getKey());
+            List<S3Object> objects = objectListing.contents();
+            for (S3Object os : objects) {
+                result.add(os.key());
             }
 
             return result;
@@ -165,7 +208,7 @@ public class AmazonS3Plugin extends BasePlugin {
         /*
          * - Exception thrown by this method is expected to be handled by the caller.
          */
-        ArrayList<String> listAllFilesInBucket(AmazonS3 connection, String bucketName, String prefix)
+        ArrayList<String> listAllFilesInBucket(S3Connection connection, String bucketName, String prefix)
                 throws AppsmithPluginException {
             if (connection == null) {
                 throw new AppsmithPluginException(
@@ -190,38 +233,66 @@ public class AmazonS3Plugin extends BasePlugin {
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, S3ErrorMessages.EMPTY_PREFIX_ERROR_MSG);
             }
 
-            ObjectListing result = connection.listObjects(bucketName, prefix);
+            // Keys are requested URL-encoded so that keys with characters XML cannot carry are listed; the SDK decodes
+            // them in the response.
+            ListObjectsResponse result = connection
+                    .client()
+                    .listObjects(ListObjectsRequest.builder()
+                            .bucket(bucketName)
+                            .prefix(prefix)
+                            .encodingType(EncodingType.URL)
+                            .build());
             ArrayList<String> fileList = new ArrayList<>(getFilenamesFromObjectListing(result));
 
-            while (result.isTruncated()) {
-                result = connection.listNextBatchOfObjects(result);
+            while (Boolean.TRUE.equals(result.isTruncated())) {
+                result = connection.client().listObjects(nextBatchOfObjectsRequest(bucketName, result));
                 fileList.addAll(getFilenamesFromObjectListing(result));
             }
 
             return fileList;
         }
 
-        ArrayList<String> getSignedUrls(
-                AmazonS3 connection, String bucketName, ArrayList<String> listOfFiles, Date expiryDateTime) {
-            ArrayList<String> urlList = new ArrayList<>();
-
-            for (String filePath : listOfFiles) {
-                GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(
-                                bucketName, filePath)
-                        .withMethod(HttpMethod.GET)
-                        .withExpiration(expiryDateTime);
-
-                URL url = connection.generatePresignedUrl(generatePresignedUrlRequest);
-                urlList.add(url.toString());
+        /**
+         * The request for the page after a truncated listing: it repeats the listing's prefix, page size and encoding
+         * as the service echoed them, and starts after the listing's next marker. The service sends a next marker only
+         * when a delimiter is used; otherwise the last key listed is the marker.
+         */
+        private static ListObjectsRequest nextBatchOfObjectsRequest(String bucketName, ListObjectsResponse previous) {
+            String marker = previous.nextMarker();
+            if (marker == null && !previous.contents().isEmpty()) {
+                marker = previous.contents().get(previous.contents().size() - 1).key();
             }
+            return ListObjectsRequest.builder()
+                    .bucket(bucketName)
+                    .prefix(emptyToNull(previous.prefix()))
+                    .maxKeys(previous.maxKeys())
+                    .encodingType(previous.encodingType())
+                    .marker(marker)
+                    .build();
+        }
 
-            return urlList;
+        private static String emptyToNull(String value) {
+            return value == null || value.isEmpty() ? null : value;
+        }
+
+        /**
+         * Presigned GET URLs that stop being valid at {@code expiryDateTime}. Each URL is valid from the moment it is
+         * signed until that instant, and for at least {@link #MINIMUM_PRESIGNED_URL_VALIDITY}.
+         */
+        ArrayList<String> getSignedUrls(
+                S3Connection connection, String bucketName, ArrayList<String> listOfFiles, Date expiryDateTime) {
+            return new ArrayList<>(connection.presignedGetUrls(bucketName, listOfFiles, () -> {
+                Duration validFor = Duration.between(Instant.now(), expiryDateTime.toInstant());
+                return validFor.compareTo(MINIMUM_PRESIGNED_URL_VALIDITY) < 0
+                        ? MINIMUM_PRESIGNED_URL_VALIDITY
+                        : validFor;
+            }));
         }
 
         /**
          * This function returns the unsigned file urls for the files present in the body
          */
-        ArrayList<String> createFileUrlsFromBody(AmazonS3 connection, String bucketName, String path, String body)
+        ArrayList<String> createFileUrlsFromBody(S3Connection connection, String bucketName, String path, String body)
                 throws AppsmithPluginException {
             List<MultipartFormDataDTO> multipartFormDataDTOs;
             ArrayList<String> urlList = new ArrayList<>();
@@ -236,7 +307,7 @@ public class AmazonS3Plugin extends BasePlugin {
             multipartFormDataDTOs.forEach(multipartFormDataDTO -> {
                 final String filePath = path + multipartFormDataDTO.getName();
 
-                urlList.add(connection.getUrl(bucketName, filePath).toString());
+                urlList.add(connection.unsignedUrl(bucketName, filePath));
             });
             return urlList;
         }
@@ -244,8 +315,8 @@ public class AmazonS3Plugin extends BasePlugin {
         /**
          * This function returns the unsigned file url for the file path
          */
-        String createFileUrl(AmazonS3 connection, String bucketName, String path) {
-            return connection.getUrl(bucketName, path).toString();
+        String createFileUrl(S3Connection connection, String bucketName, String path) {
+            return connection.unsignedUrl(bucketName, path);
         }
 
         /*
@@ -253,13 +324,13 @@ public class AmazonS3Plugin extends BasePlugin {
          * - Returns signed url of the created file on success.
          */
         String uploadFileFromBody(
-                AmazonS3 connection,
+                S3Connection connection,
                 String bucketName,
                 String path,
                 String body,
                 Boolean usingFilePicker,
                 Date expiryDateTime)
-                throws InterruptedException, AppsmithPluginException {
+                throws AppsmithPluginException {
 
             byte[] payload;
             MultipartFormDataDTO multipartFormDataDTO;
@@ -320,7 +391,7 @@ public class AmazonS3Plugin extends BasePlugin {
          * - Returns signed url of the created file on success.
          */
         List<String> uploadMultipleFilesFromBody(
-                AmazonS3 connection,
+                S3Connection connection,
                 String bucketName,
                 String path,
                 String body,
@@ -368,14 +439,7 @@ public class AmazonS3Plugin extends BasePlugin {
                             .getBytes();
                 }
 
-                try {
-                    uploadFileInS3(payload, connection, multipartFormDataDTO, bucketName, filePath);
-                } catch (InterruptedException e) {
-                    throw new AppsmithPluginException(
-                            S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
-                            S3ErrorMessages.FILE_UPLOAD_INTERRUPTED_ERROR_MSG,
-                            e.getMessage());
-                }
+                uploadFileInS3(payload, connection, multipartFormDataDTO, bucketName, filePath);
 
                 listOfFiles.add(filePath);
             });
@@ -386,10 +450,14 @@ public class AmazonS3Plugin extends BasePlugin {
         /*
          * - Exception thrown here needs to be handled by the caller.
          */
-        String readFile(AmazonS3 connection, String bucketName, String path, Boolean encodeContent) throws IOException {
-            S3Object fullObject = connection.getObject(bucketName, path);
-            S3ObjectInputStream content = fullObject.getObjectContent();
-            byte[] bytes = IOUtils.toByteArray(content);
+        String readFile(S3Connection connection, String bucketName, String path, Boolean encodeContent) {
+            byte[] bytes = connection
+                    .client()
+                    .getObjectAsBytes(GetObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(path)
+                            .build())
+                    .asByteArrayUnsafe();
 
             String result;
             if (Boolean.TRUE.equals(encodeContent)) {
@@ -403,7 +471,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
         @Override
         public Mono<ActionExecutionResult> execute(
-                AmazonS3 connection,
+                S3Connection connection,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
             // Unused function
@@ -413,7 +481,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
         @Override
         public Mono<ActionExecutionResult> executeParameterized(
-                AmazonS3 connection,
+                S3Connection connection,
                 ExecuteActionDTO executeActionDTO,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
@@ -463,7 +531,7 @@ public class AmazonS3Plugin extends BasePlugin {
         }
 
         private Mono<ActionExecutionResult> executeCommon(
-                AmazonS3 connection,
+                S3Connection connection,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
@@ -475,7 +543,7 @@ public class AmazonS3Plugin extends BasePlugin {
             return Mono.fromCallable(() -> {
 
                         /*
-                         * - AmazonS3 API collection does not seem to provide any API to test connection validity or staleness.
+                         * - The S3 API does not provide any API to test connection validity or staleness.
                          *   Hence, unable to do stale connection check explicitly.
                          * - If connection object is null, then assume stale connection.
                          */
@@ -612,9 +680,8 @@ public class AmazonS3Plugin extends BasePlugin {
                                     ((ArrayList<Object>) actionResult).stream().forEach(item -> ((Map) item)
                                             .put(
                                                     "url", // key
-                                                    connection
-                                                            .getUrl(bucketName, (String) ((Map) item).get("fileName"))
-                                                            .toString() // value
+                                                    connection.unsignedUrl(
+                                                            bucketName, (String) ((Map) item).get("fileName")) // value
                                                     ));
                                 } else {
                                     requestParams.add(new RequestParamDTO(LIST_UNSIGNED_URL, NO, null, null, null));
@@ -778,7 +845,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                  * - If attempting to delete an object that does not exist, Amazon S3 returns a success message
                                  *   instead of an error message.
                                  */
-                                connection.deleteObject(bucketName, path);
+                                connection.client().deleteObject(deleteObjectRequest(bucketName, path));
                                 actionResult = Map.of("status", "File deleted successfully");
                                 break;
                             case DELETE_MULTIPLE_FILES:
@@ -795,20 +862,6 @@ public class AmazonS3Plugin extends BasePlugin {
                                 deleteMultipleObjects(s3Provider, connection, bucketName, path);
                                 actionResult = Map.of("status", "All files deleted successfully");
                                 break;
-                            /**
-                             * Commenting out this code section since we have not decided to expose this action to users
-                             * as of now. In the future, if we do decide to expose this action to the users, just uncommenting this
-                             * code should take care of gathering the list of buckets. Hence, leaving this commented but
-                             * intact for future use.
-                             *
-                             * case LIST_BUCKETS:
-                             * List<String> bucketNames = connection.listBuckets()
-                             * .stream()
-                             * .map(Bucket::getName)
-                             * .collect(Collectors.toList());
-                             * actionResult = Map.of("bucketList", bucketNames);
-                             * break;
-                             */
                             default:
                                 return Mono.error(new AppsmithPluginException(
                                         S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
@@ -853,7 +906,7 @@ public class AmazonS3Plugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private void deleteMultipleObjects(String s3Provider, AmazonS3 connection, String bucketName, String path)
+        private void deleteMultipleObjects(String s3Provider, S3Connection connection, String bucketName, String path)
                 throws AppsmithPluginException {
             List<String> listOfFiles;
             try {
@@ -869,12 +922,18 @@ public class AmazonS3Plugin extends BasePlugin {
             try {
                 if (GOOGLE_CLOUD_SERVICE_PROVIDER.equals(s3Provider)) {
                     for (String filePath : listOfFiles) {
-                        connection.deleteObject(bucketName, filePath);
+                        connection.client().deleteObject(deleteObjectRequest(bucketName, filePath));
                     }
                 } else {
-                    connection.deleteObjects(deleteObjectsRequest);
+                    DeleteObjectsResponse response = connection.client().deleteObjects(deleteObjectsRequest);
+                    if (response.hasErrors() && !response.errors().isEmpty()) {
+                        throw new AppsmithPluginException(
+                                S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
+                                S3ErrorMessages.FILE_CANNOT_BE_DELETED_ERROR_MSG,
+                                bulkDeleteErrorDetail(response.errors()));
+                    }
                 }
-            } catch (SdkClientException e) {
+            } catch (SdkException e) {
                 throw new AppsmithPluginException(
                         S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
                         S3ErrorMessages.FILE_CANNOT_BE_DELETED_ERROR_MSG,
@@ -882,15 +941,42 @@ public class AmazonS3Plugin extends BasePlugin {
             }
         }
 
-        private DeleteObjectsRequest getDeleteObjectsRequest(String bucketName, List<String> listOfFiles) {
-            DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucketName);
+        /**
+         * Names the first {@link #MAX_BULK_DELETE_ERRORS_NAMED} objects a bulk delete could not delete, each with the
+         * code and message S3 gave for it, and counts the others. A message longer than {@link
+         * #MAX_BULK_DELETE_ERROR_MESSAGE_LENGTH} characters is cut to that length and ends with "...".
+         */
+        private static String bulkDeleteErrorDetail(List<S3Error> errors) {
+            String named = errors.stream()
+                    .limit(MAX_BULK_DELETE_ERRORS_NAMED)
+                    .map(error -> error.key() + " (" + error.code() + ": " + truncated(error.message()) + ")")
+                    .collect(Collectors.joining(", ", BULK_DELETE_ERRORS_MESSAGE + ": ", ""));
+            int notNamed = errors.size() - MAX_BULK_DELETE_ERRORS_NAMED;
+            return notNamed > 0 ? named + ", and " + notNamed + " more" : named;
+        }
 
-            /* Ref: https://stackoverflow.com/questions/9863742/how-to-pass-an-arraylist-to-a-varargs-method-parameter */
-            return deleteObjectsRequest.withKeys(listOfFiles.toArray(new String[0]));
+        private static String truncated(String message) {
+            return message == null || message.length() <= MAX_BULK_DELETE_ERROR_MESSAGE_LENGTH
+                    ? message
+                    : message.substring(0, MAX_BULK_DELETE_ERROR_MESSAGE_LENGTH) + "...";
+        }
+
+        private static DeleteObjectRequest deleteObjectRequest(String bucketName, String key) {
+            return DeleteObjectRequest.builder().bucket(bucketName).key(key).build();
+        }
+
+        private DeleteObjectsRequest getDeleteObjectsRequest(String bucketName, List<String> listOfFiles) {
+            List<ObjectIdentifier> objects = listOfFiles.stream()
+                    .map(key -> ObjectIdentifier.builder().key(key).build())
+                    .collect(Collectors.toList());
+            return DeleteObjectsRequest.builder()
+                    .bucket(bucketName)
+                    .delete(Delete.builder().objects(objects).build())
+                    .build();
         }
 
         @Override
-        public Mono<AmazonS3> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+        public Mono<S3Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for AmazonS3 plugin.");
             try {
                 Class.forName(S3_DRIVER);
@@ -901,8 +987,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         e.getMessage()));
             }
 
-            return Mono.fromCallable(
-                            () -> getS3ClientBuilder(datasourceConfiguration).build())
+            return Mono.fromCallable(() -> createConnection(datasourceConfiguration))
                     .flatMap(client -> Mono.just(client))
                     .onErrorResume(e -> {
                         if (e instanceof AppsmithPluginException) {
@@ -918,19 +1003,13 @@ public class AmazonS3Plugin extends BasePlugin {
         }
 
         @Override
-        public void datasourceDestroy(AmazonS3 connection) {
+        public void datasourceDestroy(S3Connection connection) {
             log.debug(Thread.currentThread().getName() + ": datasourceDestroy() called for AmazonS3 plugin.");
             if (connection != null) {
-                Mono.fromCallable(() -> {
-                            connection.shutdown();
-                            return connection;
-                        })
-                        .onErrorResume(exception -> {
-                            log.error("Error closing S3 connection.", exception.getMessage());
-                            return Mono.empty();
-                        })
+                // Closing the client releases its HTTP connection pool; keep it off the caller thread.
+                Mono.fromRunnable(connection::close)
                         .subscribeOn(scheduler)
-                        .subscribe();
+                        .subscribe(ignored -> {}, error -> log.error("Error closing S3 connection.", error));
             }
         }
 
@@ -1017,19 +1096,17 @@ public class AmazonS3Plugin extends BasePlugin {
             return datasourceCreate(datasourceConfiguration)
                     .flatMap(connection -> Mono.fromCallable(() -> {
                                 /*
-                                 * - Please note that as of 28 Jan 2021, the way AmazonS3 client works, creating a connection
-                                 *   object with wrong credentials does not throw any exception.
+                                 * - Creating a connection object with wrong credentials does not throw any exception.
                                  * - Hence, adding a listBuckets() method call to test the connection.
                                  */
                                 log.debug(Thread.currentThread().getName()
                                         + ": listBuckets() called for AmazonS3 plugin.");
-                                connection.listBuckets();
+                                connection.client().listBuckets();
                                 return new DatasourceTestResult();
                             })
                             .onErrorResume(error -> {
-                                if (error instanceof AmazonS3Exception
-                                        && ACCESS_DENIED_ERROR_CODE.equals(
-                                                ((AmazonS3Exception) error).getErrorCode())) {
+                                if (error instanceof AwsServiceException serviceException
+                                        && ACCESS_DENIED_ERROR_CODE.equals(errorCode(serviceException))) {
                                     /**
                                      * Sometimes a valid account credential may not have permission to run listBuckets action
                                      * . In this case `AccessDenied` error is returned.
@@ -1043,9 +1120,14 @@ public class AmazonS3Plugin extends BasePlugin {
 
                                 return Mono.just(new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error)));
                             })
-                            .doFinally(signalType -> connection.shutdown()))
+                            .doFinally(signalType -> connection.close()))
                     .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())))
                     .subscribeOn(scheduler);
+        }
+
+        private static String errorCode(AwsServiceException serviceException) {
+            AwsErrorDetails details = serviceException.awsErrorDetails();
+            return details == null ? null : details.errorCode();
         }
 
         private Mono<DatasourceTestResult> testGoogleCloudStorage(DatasourceConfiguration datasourceConfiguration) {
@@ -1059,14 +1141,15 @@ public class AmazonS3Plugin extends BasePlugin {
 
             return datasourceCreate(datasourceConfiguration)
                     .flatMap(connection -> Mono.fromCallable(() -> {
-                                connection.listObjects(defaultBucket);
+                                connection.client().listObjects(list -> list.bucket(defaultBucket)
+                                        .encodingType(EncodingType.URL));
                                 log.debug(Thread.currentThread().getName()
                                         + ": connection.listObjects() called for AmazonS3 plugin.");
                                 return new DatasourceTestResult();
                             })
                             .onErrorResume(error -> {
-                                if (error instanceof AmazonS3Exception
-                                        && ((AmazonS3Exception) error).getStatusCode() == 404) {
+                                if (error instanceof AwsServiceException serviceException
+                                        && serviceException.statusCode() == 404) {
                                     return Mono.just(
                                             new DatasourceTestResult(S3ErrorMessages.NON_EXITED_BUCKET_ERROR_MSG));
                                 } else {
@@ -1074,7 +1157,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                             new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error)));
                                 }
                             })
-                            .doFinally(signalType -> connection.shutdown()))
+                            .doFinally(signalType -> connection.close()))
                     .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())))
                     .subscribeOn(scheduler);
         }
@@ -1085,7 +1168,7 @@ public class AmazonS3Plugin extends BasePlugin {
          */
         @Override
         public Mono<DatasourceStructure> getStructure(
-                AmazonS3 connection, DatasourceConfiguration datasourceConfiguration) {
+                S3Connection connection, DatasourceConfiguration datasourceConfiguration) {
 
             log.debug(Thread.currentThread().getName() + ": getStructure() called for AmazonS3 plugin.");
             return Mono.fromSupplier(() -> {
@@ -1093,9 +1176,9 @@ public class AmazonS3Plugin extends BasePlugin {
                         try {
                             log.debug(Thread.currentThread().getName()
                                     + ": connection.listBuckets() called for AmazonS3 plugin.");
-                            tableList = connection.listBuckets().stream()
+                            tableList = connection.client().listBuckets().buckets().stream()
                                     /* Get name of each bucket */
-                                    .map(Bucket::getName)
+                                    .map(Bucket::name)
                                     /* Get command templates and use it to create Table object */
                                     .map(bucketName -> new DatasourceStructure.Table(
                                             DatasourceStructure.TableType.BUCKET,
@@ -1106,7 +1189,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                             getTemplates(bucketName, DEFAULT_FILE_NAME)))
                                     /* Collect all Table objects in a list */
                                     .collect(Collectors.toList());
-                        } catch (SdkClientException e) {
+                        } catch (SdkException e) {
                             throw new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
                                     S3ErrorMessages.LIST_OF_BUCKET_FETCHING_ERROR_MSG,
@@ -1118,17 +1201,6 @@ public class AmazonS3Plugin extends BasePlugin {
                         return new DatasourceStructure(tableList);
                     })
                     .subscribeOn(scheduler);
-        }
-
-        private String getOneFileNameOrDefault(AmazonS3 connection, String bucketName, String defaultFileName) {
-            ArrayList<String> listOfFiles;
-            try {
-                listOfFiles = listAllFilesInBucket(connection, bucketName, "");
-            } catch (AppsmithPluginException e) {
-                return defaultFileName;
-            }
-
-            return CollectionUtils.isEmpty(listOfFiles) ? defaultFileName : listOfFiles.get(0);
         }
 
         @Override
@@ -1158,43 +1230,156 @@ public class AmazonS3Plugin extends BasePlugin {
             return encodedPayload;
         }
 
+        /**
+         * Uploads the payload as a single PutObject request, or as a multipart upload when it is larger than {@link
+         * #MULTIPART_UPLOAD_THRESHOLD}. The request bodies read the payload array in place; the array is not modified
+         * afterwards.
+         */
         void uploadFileInS3(
                 byte[] payload,
-                AmazonS3 connection,
+                S3Connection connection,
                 MultipartFormDataDTO multipartFormDataDTO,
                 String bucketName,
-                String path)
-                throws InterruptedException {
-            InputStream inputStream = new ByteArrayInputStream(payload);
-            TransferManager transferManager =
-                    TransferManagerBuilder.standard().withS3Client(connection).build();
-            final ObjectMetadata objectMetadata = new ObjectMetadata();
+                String path) {
+            if (payload.length > MULTIPART_UPLOAD_THRESHOLD) {
+                multipartUpload(payload, connection, multipartFormDataDTO, bucketName, path);
+                return;
+            }
 
-            // Set content length
-            objectMetadata.setContentLength(payload.length);
+            PutObjectRequest.Builder putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(path)
+                    // Set content length
+                    .contentLength((long) payload.length);
 
             // Only add content type if the user has mentioned it in the body
             if (multipartFormDataDTO.getType() != null) {
-                objectMetadata.setContentType(multipartFormDataDTO.getType());
+                putObjectRequest.contentType(multipartFormDataDTO.getType());
             }
 
             // Calculate and set Content-MD5 header for Object Lock compliance
+            String md5Base64 = contentMd5(payload, 0, payload.length);
+            if (md5Base64 != null) {
+                putObjectRequest.contentMD5(md5Base64);
+                log.debug("Set Content-MD5 header for S3 upload: {}", md5Base64);
+            }
+
+            RequestBody requestBody = RequestBody.fromContentProvider(
+                    ContentStreamProvider.fromByteArrayUnsafe(payload), payload.length, DEFAULT_UPLOAD_CONTENT_TYPE);
+            connection.client().putObject(putObjectRequest.build(), requestBody);
+        }
+
+        /**
+         * Uploads the payload in parts of {@link #MINIMUM_UPLOAD_PART_SIZE} or more, one after another, each with its
+         * own Content-MD5. A part that fails is retried on its own by the client's retry strategy. When the upload
+         * fails after it was created, for any reason, it is aborted so that the service discards the parts already
+         * stored, and the original failure is thrown.
+         */
+        private void multipartUpload(
+                byte[] payload,
+                S3Connection connection,
+                MultipartFormDataDTO multipartFormDataDTO,
+                String bucketName,
+                String path) {
+            S3Client client = connection.client();
+            String contentType = multipartFormDataDTO.getType() != null
+                    ? multipartFormDataDTO.getType()
+                    : DEFAULT_UPLOAD_CONTENT_TYPE;
+            String uploadId = client.createMultipartUpload(CreateMultipartUploadRequest.builder()
+                            .bucket(bucketName)
+                            .key(path)
+                            .contentType(contentType)
+                            .build())
+                    .uploadId();
+
+            try {
+                long partSize = Math.max(
+                        MINIMUM_UPLOAD_PART_SIZE, (payload.length + MAXIMUM_UPLOAD_PARTS - 1) / MAXIMUM_UPLOAD_PARTS);
+                List<CompletedPart> completedParts = new ArrayList<>();
+                for (int partNumber = 1, offset = 0; offset < payload.length; partNumber++) {
+                    int partOffset = offset;
+                    int partLength = (int) Math.min(partSize, payload.length - partOffset);
+                    UploadPartRequest.Builder uploadPartRequest = UploadPartRequest.builder()
+                            .bucket(bucketName)
+                            .key(path)
+                            .uploadId(uploadId)
+                            .partNumber(partNumber)
+                            .contentLength((long) partLength);
+                    String md5Base64 = contentMd5(payload, partOffset, partLength);
+                    if (md5Base64 != null) {
+                        uploadPartRequest.contentMD5(md5Base64);
+                    }
+                    RequestBody requestBody = RequestBody.fromContentProvider(
+                            () -> new ByteArrayInputStream(payload, partOffset, partLength),
+                            partLength,
+                            DEFAULT_UPLOAD_CONTENT_TYPE);
+                    String eTag = client.uploadPart(uploadPartRequest.build(), requestBody)
+                            .eTag();
+                    completedParts.add(CompletedPart.builder()
+                            .partNumber(partNumber)
+                            .eTag(eTag)
+                            .build());
+                    offset += partLength;
+                }
+
+                client.completeMultipartUpload(CompleteMultipartUploadRequest.builder()
+                        .bucket(bucketName)
+                        .key(path)
+                        .uploadId(uploadId)
+                        .multipartUpload(CompletedMultipartUpload.builder()
+                                .parts(completedParts)
+                                .build())
+                        .build());
+            } catch (Throwable e) {
+                abortMultipartUpload(client, bucketName, path, uploadId, e);
+                throw e;
+            }
+        }
+
+        /**
+         * Aborts a multipart upload that failed with the given error, so that the service discards its parts. The
+         * client refuses to send requests on an interrupted thread, as when the action times out: the interrupt is
+         * cleared for the abort and restored afterwards. An abort failure is attached to the error as suppressed.
+         */
+        private static void abortMultipartUpload(
+                S3Client client, String bucketName, String path, String uploadId, Throwable uploadError) {
+            boolean interrupted = Thread.interrupted();
+            try {
+                client.abortMultipartUpload(AbortMultipartUploadRequest.builder()
+                        .bucket(bucketName)
+                        .key(path)
+                        .uploadId(uploadId)
+                        .build());
+            } catch (RuntimeException abortError) {
+                log.warn(
+                        "Failed to abort multipart upload {} in bucket {} after the upload failed; its parts stay"
+                                + " stored until a lifecycle rule or a manual abort removes them",
+                        uploadId,
+                        bucketName,
+                        abortError);
+                uploadError.addSuppressed(abortError);
+            } finally {
+                if (interrupted) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+
+        /**
+         * The base64 MD5 digest of the given range of the payload, for the Content-MD5 header that Object Lock enabled
+         * buckets require; null when MD5 is not available, in which case the upload goes without the header.
+         */
+        private static String contentMd5(byte[] payload, int offset, int length) {
             try {
                 MessageDigest md5Digest = MessageDigest.getInstance("MD5");
-                byte[] md5Hash = md5Digest.digest(payload);
-                String md5Base64 = Base64.getEncoder().encodeToString(md5Hash);
-                objectMetadata.setContentMD5(md5Base64);
-                log.debug("Set Content-MD5 header for S3 upload: {}", md5Base64);
+                md5Digest.update(payload, offset, length);
+                return Base64.getEncoder().encodeToString(md5Digest.digest());
             } catch (NoSuchAlgorithmException e) {
                 log.warn(
                         "Failed to calculate MD5 checksum for S3 upload. Object Lock enabled buckets may reject this upload.",
                         e);
-                // Continue with upload without MD5 header - let AWS handle the error if Object Lock is enabled
+                return null;
             }
-
-            transferManager
-                    .upload(bucketName, path, inputStream, objectMetadata)
-                    .waitForUploadResult();
         }
 
         /**

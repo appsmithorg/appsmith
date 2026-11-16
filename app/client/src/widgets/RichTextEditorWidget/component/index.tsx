@@ -329,6 +329,7 @@ export interface RichtextEditorComponentProps {
   labelTooltip?: string;
   labelStyle?: string;
   isValid?: boolean;
+  isRequired?: boolean;
   onValueChange: (valueAsString: string) => void;
 }
 
@@ -423,6 +424,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     compactMode,
     isDisabled,
     isDynamicHeightEnabled,
+    isRequired,
     labelAlignment,
     labelPosition,
     labelStyle,
@@ -545,6 +547,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           fontStyle={labelStyle}
           helpText={labelTooltip}
           isDynamicHeightEnabled={isDynamicHeightEnabled}
+          isRequired={isRequired}
           position={labelPosition}
           text={labelText}
           width={labelWidth}

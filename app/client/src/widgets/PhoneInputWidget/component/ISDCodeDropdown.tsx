@@ -2,7 +2,7 @@ import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import type { DropdownOption } from "@design-system/widgets-old";
 import { Dropdown, Icon, IconSize } from "@design-system/widgets-old";
-import { countryToFlag } from "./utilities";
+import { countryToFlag, resolvePhoneCountry } from "./utilities";
 import type { ISDCodeProps } from "constants/ISDCodes_v2";
 import { ISDCodeOptions } from "constants/ISDCodes_v2";
 import { Colors } from "constants/Colors";
@@ -183,10 +183,10 @@ export const PopoverStyles = createGlobalStyle<{
 const getISDCodeOptions = (): Array<DropdownOption> => {
   return ISDCodeOptions.map((item: ISDCodeProps) => {
     return {
-      leftElement: countryToFlag(item.dial_code),
+      leftElement: countryToFlag(item.code),
       searchText: item.name,
       label: `${item.name} (${item.dial_code})`,
-      value: item.dial_code,
+      value: item.code,
       id: item.dial_code,
     };
   });
@@ -200,33 +200,19 @@ export const getDefaultISDCode = () => ({
   code: "US",
 });
 
-export const getSelectedISDCode = (dialCode?: string): DropdownOption => {
-  let selectedCountry: ISDCodeProps | undefined = ISDCodeOptions.find(
-    (item: ISDCodeProps) => item.dial_code === dialCode,
-  );
-
-  if (!selectedCountry) {
-    selectedCountry = getDefaultISDCode();
-  }
+export const getSelectedISDCode = (
+  dialCode?: string,
+  countryCode?: string,
+): DropdownOption => {
+  const selectedCountry =
+    resolvePhoneCountry(dialCode, countryCode) ?? getDefaultISDCode();
 
   return {
     label: `${selectedCountry.name} (${selectedCountry.dial_code})`,
     searchText: selectedCountry.name,
-    value: selectedCountry.dial_code,
+    value: selectedCountry.code,
     id: selectedCountry.dial_code,
   };
-};
-
-export const getCountryCode = (dialCode?: string) => {
-  const option = ISDCodeOptions.find((item: ISDCodeProps) => {
-    return item.dial_code === dialCode;
-  });
-
-  if (option) {
-    return option.code;
-  } else {
-    return "";
-  }
 };
 
 interface ISDCodeDropdownProps {
@@ -242,7 +228,7 @@ interface ISDCodeDropdownProps {
 }
 
 export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
-  const selectedCountry = getSelectedISDCode(props.selected.value);
+  const selectedCountry = props.selected;
   const dropdownTrigger = (
     <DropdownTriggerIconWrapper
       allowDialCodeChange={props.allowDialCodeChange}

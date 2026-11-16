@@ -355,6 +355,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
+      checkout-ref: ${{ needs.file-check.outputs.merge_sha }}
 
   rts-build:
     name: rts-build

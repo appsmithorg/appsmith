@@ -3,6 +3,7 @@ import type { WidgetNode } from "./layout.js";
 import {
   applyWidgetPatch,
   LITERAL_PROP_OWNERS,
+  removeWidgets,
   widgetPatchSchema,
   widgetPropsPatchSchema,
 } from "./editPatch.js";
@@ -52,6 +53,214 @@ function page(): WidgetNode {
     children: [text, container],
   });
 }
+
+describe("APP-16324 F7: removeWidgets (the approved removal)", () => {
+  // A container holding a text widget on its inner canvas, like Oracle's leftover "Card title" cards.
+  function pageWithCard(): WidgetNode {
+    const title = node({
+      widgetId: "title",
+      widgetName: "CardTitle",
+      type: "TEXT_WIDGET",
+      text: "Card title",
+    });
+    const cardCanvas = node({
+      widgetId: "cardCanvas",
+      widgetName: "CardCanvas",
+      type: "CANVAS_WIDGET",
+      children: [title],
+    });
+    const card = node({
+      widgetId: "card",
+      widgetName: "Card1",
+      type: "CONTAINER_WIDGET",
+      children: [cardCanvas],
+    });
+    const root = page();
+
+    root.children = [...(root.children ?? []), card];
+
+    return root;
+  }
+
+  it("names the remaining widgets whose bindings refer to a removed widget", () => {
+    const root = pageWithCard();
+
+    root.children = [
+      ...(root.children ?? []),
+      node({
+        widgetId: "copy",
+        widgetName: "CopyTitle",
+        type: "TEXT_WIDGET",
+        text: "{{ CardTitle.text }}",
+      }),
+      node({
+        widgetId: "open",
+        widgetName: "OpenCard",
+        type: "BUTTON_WIDGET",
+        onClick: "{{ showModal('Card1') }}",
+      }),
+      // A property that shares the removed widget's name is not a reference to it.
+      node({
+        widgetId: "other",
+        widgetName: "Other",
+        type: "TEXT_WIDGET",
+        text: "{{ Table1.Card1 }} Card1",
+      }),
+    ];
+
+    const { brokenReferences } = removeWidgets(root, ["Card1"]);
+
+    expect(brokenReferences).toEqual([
+      { widget: "CopyTitle", refersTo: ["CardTitle"] },
+      { widget: "OpenCard", refersTo: ["Card1"] },
+    ]);
+  });
+
+  it("reports no broken references when nothing refers to the removed widgets", () => {
+    expect(removeWidgets(pageWithCard(), ["Card1"]).brokenReferences).toEqual(
+      [],
+    );
+  });
+
+  it("removes a leaf widget and reports it", () => {
+    const { dsl, removed } = removeWidgets(page(), ["Greeting"]);
+
+    expect(dsl.children?.map((child) => child.widgetName)).toEqual(["Details"]);
+    expect(removed).toEqual([
+      { name: "Greeting", type: "TEXT_WIDGET", contains: [] },
+    ]);
+  });
+
+  it("removes a container with everything inside it, listing what it held", () => {
+    const { dsl, removed } = removeWidgets(pageWithCard(), ["Card1"]);
+
+    expect(dsl.children?.map((child) => child.widgetName)).toEqual([
+      "Greeting",
+      "Details",
+    ]);
+    expect(removed).toEqual([
+      { name: "Card1", type: "CONTAINER_WIDGET", contains: ["CardTitle"] },
+    ]);
+  });
+
+  it("removes several widgets, skipping one already inside another and duplicates", () => {
+    const { dsl, removed } = removeWidgets(pageWithCard(), [
+      "CardTitle",
+      "Card1",
+      "Greeting",
+      "Greeting",
+    ]);
+
+    expect(dsl.children?.map((child) => child.widgetName)).toEqual(["Details"]);
+    expect(removed.map((entry) => entry.name)).toEqual(["Card1", "Greeting"]);
+  });
+
+  it("does not change the DSL it was given", () => {
+    const original = pageWithCard();
+    const before = JSON.stringify(original);
+
+    removeWidgets(original, ["Card1"]);
+
+    expect(JSON.stringify(original)).toBe(before);
+  });
+
+  it("refuses a page built from sections and zones", () => {
+    const zone = node({
+      widgetId: "zone",
+      widgetName: "Zone1",
+      type: "ZONE_WIDGET",
+      children: [],
+    });
+    const section = node({
+      widgetId: "section",
+      widgetName: "Section1",
+      type: "SECTION_WIDGET",
+      children: [zone],
+    });
+    const root = page();
+
+    root.children = [...(root.children ?? []), section];
+
+    expect(() => removeWidgets(root, ["Greeting"])).toThrow(
+      "built from sections and zones",
+    );
+  });
+
+  it.each([
+    ["an unknown widget", ["Ghost"], 'widget "Ghost" was not found'],
+    ["the root canvas", ["MainContainer"], "root canvas"],
+    [
+      "an inner canvas on its own",
+      ["CardCanvas"],
+      "an inner canvas cannot be removed on its own",
+    ],
+    ["an empty list", [], "name at least one widget"],
+  ])("refuses %s", (_label, names, message) => {
+    expect(() => removeWidgets(pageWithCard(), names)).toThrow(message);
+  });
+
+  // List1 > ListCanvas > ItemTemplate > ItemCanvas > ItemTitle, the shape a List widget is built with.
+  function pageWithList(listType = "LIST_WIDGET_V2"): WidgetNode {
+    const itemTitle = node({
+      widgetId: "itemTitle",
+      widgetName: "ItemTitle",
+      type: "TEXT_WIDGET",
+    });
+    const itemCanvas = node({
+      widgetId: "itemCanvas",
+      widgetName: "ItemCanvas",
+      type: "CANVAS_WIDGET",
+      children: [itemTitle],
+    });
+    const template = node({
+      widgetId: "template",
+      widgetName: "ItemTemplate",
+      type: "CONTAINER_WIDGET",
+      children: [itemCanvas],
+    });
+    const listCanvas = node({
+      widgetId: "listCanvas",
+      widgetName: "ListCanvas",
+      type: "CANVAS_WIDGET",
+      children: [template],
+    });
+    const list = node({
+      widgetId: "list",
+      widgetName: "List1",
+      type: listType,
+      children: [listCanvas],
+    });
+    const root = page();
+
+    root.children = [...(root.children ?? []), list];
+
+    return root;
+  }
+
+  it.each(["LIST_WIDGET_V2", "LIST_WIDGET"])(
+    "refuses a %s item template on its own",
+    (listType) => {
+      expect(() =>
+        removeWidgets(pageWithList(listType), ["ItemTemplate"]),
+      ).toThrow('the item template of List "List1"');
+    },
+  );
+
+  it("removes a widget inside a List's item template, or the whole List", () => {
+    expect(
+      removeWidgets(pageWithList(), ["ItemTitle"]).removed.map((r) => r.name),
+    ).toEqual(["ItemTitle"]);
+    expect(
+      removeWidgets(pageWithList(), ["List1", "ItemTemplate"]).removed,
+    ).toEqual([
+      {
+        name: "List1",
+        type: "LIST_WIDGET_V2",
+        contains: ["ItemTemplate", "ItemTitle"],
+      },
+    ]);
+  });
+});
 
 describe("applyWidgetPatch", () => {
   it("updates only allowlisted literal properties and returns semantic details", () => {
@@ -718,7 +927,7 @@ describe("applyWidgetPatch", () => {
           },
         ],
       }),
-    ).toThrow(/must be a select or tabs control/);
+    ).toThrow(/must be a select, radio or tabs control/);
 
     // A literal isVisible alongside visibleWhen is ambiguous.
     expect(() =>
@@ -1161,7 +1370,7 @@ describe("applyWidgetPatch", () => {
           },
         ],
       }),
-    ).toThrow(/must be an input widget/);
+    ).toThrow(/must be a form control with a validity check/);
 
     // Ambiguous: literal isDisabled AND disableWhenInvalid.
     expect(() =>
@@ -3797,5 +4006,42 @@ describe("applyWidgetPatch — one update's props are bounded as a whole", () =>
         ],
       }).success,
     ).toBe(true);
+  });
+});
+
+describe("removeWidgets reports a table column click that refers to a removed widget (APP-16381)", () => {
+  it("lists the table whose button column opens the removed modal", () => {
+    const root = page();
+    const modalCanvas = node({
+      widgetId: "mc",
+      widgetName: "ExtendCanvas",
+      type: "CANVAS_WIDGET",
+      children: [],
+    });
+
+    root.children = [
+      ...(root.children ?? []),
+      node({
+        widgetId: "tbl",
+        widgetName: "Licenses",
+        type: "TABLE_WIDGET_V2",
+        primaryColumns: {
+          extend: {
+            columnType: "button",
+            onClick: "{{ showModal('ExtendModal') }}",
+          },
+        },
+      }),
+      node({
+        widgetId: "m",
+        widgetName: "ExtendModal",
+        type: "MODAL_WIDGET",
+        children: [modalCanvas],
+      }),
+    ];
+
+    expect(removeWidgets(root, ["ExtendModal"]).brokenReferences).toEqual([
+      { widget: "Licenses", refersTo: ["ExtendModal"] },
+    ]);
   });
 });

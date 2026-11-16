@@ -85,10 +85,11 @@ export function useSource(searchText: string) {
     widget,
   });
 
-  const { queryOptions, widgetOptions } = useConnectToOptions({
-    pluginImages,
-    widget,
-  });
+  const { queryOptions, visibleQueryOptions, widgetOptions } =
+    useConnectToOptions({
+      pluginImages,
+      widget,
+    });
 
   const otherOptions = useOtherOptions({
     widget,
@@ -110,9 +111,9 @@ export function useSource(searchText: string) {
   const [filteredDatasourceOptions, filteredQueryOptions] = useMemo(() => {
     return [
       datasourceOptions.filter((d) => filterOption(d, searchText)),
-      queryOptions.filter((d) => filterOption(d, searchText)),
+      visibleQueryOptions.filter((d) => filterOption(d, searchText)),
     ];
-  }, [searchText, datasourceOptions, otherOptions, queryOptions]);
+  }, [searchText, datasourceOptions, otherOptions, visibleQueryOptions]);
 
   const selected = useMemo(() => {
     let source;

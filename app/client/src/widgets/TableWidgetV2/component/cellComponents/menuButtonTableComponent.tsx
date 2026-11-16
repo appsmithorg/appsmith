@@ -35,6 +35,7 @@ import type {
   MenuItemsSource,
 } from "widgets/MenuButtonWidget/constants";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import { getTableCellActionIconSize } from "../Constants";
 import AutoToolTipComponent from "./AutoToolTipComponent";
 
 const MenuButtonContainer = styled.div`
@@ -120,7 +121,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
   border-radius: 0;
   box-shadow: none !important;
   min-height: ${({ compactMode }) =>
-    compactMode === "SHORT" ? "24px" : "30px"};
+    `${getTableCellActionIconSize(compactMode)}px`};
   font-size: ${({ compactMode }) =>
     compactMode === "SHORT" ? "12px" : "14px"};
   line-height: ${({ compactMode }) =>

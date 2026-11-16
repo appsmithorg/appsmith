@@ -21,6 +21,7 @@ import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.git.UserDiscardAudit;
 import com.appsmith.server.git.autocommit.AutoCommitService;
 import com.appsmith.server.git.central.CentralGitService;
 import com.appsmith.server.git.central.GitType;
@@ -250,8 +251,7 @@ public class GitApplicationControllerCE {
             operation = GitRouteOperation.DISCARD_CHANGES)
     public Mono<ResponseDTO<? extends Artifact>> discardChanges(@PathVariable String branchedApplicationId) {
         log.info("Going to discard changes for branchedApplicationId {}", branchedApplicationId);
-        return centralGitService
-                .discardChanges(branchedApplicationId, ARTIFACT_TYPE, GIT_TYPE)
+        return UserDiscardAudit.mark(centralGitService.discardChanges(branchedApplicationId, ARTIFACT_TYPE, GIT_TYPE))
                 .map(result -> new ResponseDTO<>((HttpStatus.OK), result));
     }
 

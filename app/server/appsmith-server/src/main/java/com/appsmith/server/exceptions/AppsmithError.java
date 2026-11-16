@@ -274,6 +274,14 @@ public enum AppsmithError {
             "Duplicate key",
             ErrorType.BAD_REQUEST,
             null),
+    STALE_LAYOUT_UPDATE(
+            409,
+            AppsmithErrorCode.STALE_LAYOUT_UPDATE.getCode(),
+            "The layout of page {0} changed after it was read. Read the layout again and retry the update.",
+            AppsmithErrorAction.DEFAULT,
+            "Layout changed",
+            ErrorType.BAD_REQUEST,
+            null),
     USER_ALREADY_EXISTS_SIGNUP(
             409,
             AppsmithErrorCode.USER_ALREADY_EXISTS_SIGNUP.getCode(),

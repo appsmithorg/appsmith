@@ -40,13 +40,19 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -364,6 +370,127 @@ public class ActionCollectionServiceImplTest {
                     assertTrue(actionDTO.getClientSideExecution());
                 })
                 .verifyComplete();
+    }
+
+    /**
+     * Regression test for the concurrent mutation of the {@code newlyAddedActions} list in
+     * {@link com.appsmith.server.actioncollections.base.ActionCollectionServiceCEImpl#validateAndSaveCollection}.
+     *
+     * <p>That method creates the collection's new JS actions with a concurrent {@code flatMap} and
+     * side-effects each created action into a shared list via {@code doOnNext(newlyAddedActions::add)}.
+     * In production each inner action-save completes on a MongoDB/Netty worker thread, so the adds race.
+     * A non-thread-safe {@link ArrayList} corrupts under that race — most visibly throwing
+     * {@link ArrayIndexOutOfBoundsException} from {@code ArrayList.add}, but it can also silently drop
+     * entries so that {@code postProcessNewlyAddedActions} sees fewer than were created.
+     *
+     * <p>This test forces that concurrency deterministically: every action-save is scheduled on its own
+     * worker thread and released simultaneously through a {@link CyclicBarrier}, so all the adds happen
+     * at once. It fails against the pre-fix source (non-thread-safe list) and passes once the list is
+     * made thread-safe.
+     */
+    @Test
+    public void testCreateCollection_concurrentJsActionCreation_createsEveryActionWithoutRace() throws IOException {
+        final int actionCount = 64;
+        final int iterations = 5;
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
+        final NewPage newPage = objectMapper.convertValue(jsonNode.get("newPage"), NewPage.class);
+
+        Mockito.when(newPageService.findById(Mockito.any(), Mockito.<AclPermission>any()))
+                .thenReturn(Mono.just(newPage));
+        Mockito.when(newPageService.findByRefTypeAndRefNameAndBasePageId(
+                        any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(newPage));
+        Mockito.when(refactoringService.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(true));
+
+        Mockito.when(newActionService.generateActionDomain(Mockito.any())).thenAnswer(invocation -> {
+            final ActionDTO argument = (ActionDTO) invocation.getArguments()[0];
+            NewAction newAction = new NewAction();
+            newAction.setUnpublishedAction(argument);
+            return newAction;
+        });
+
+        // One worker thread per action, released together, so every doOnNext(list::add) runs at the
+        // same instant — the same concurrency MongoDB/Netty produces in production.
+        final CyclicBarrier barrier = new CyclicBarrier(actionCount);
+        final Scheduler raceScheduler =
+                Schedulers.newBoundedElastic(actionCount + 4, Integer.MAX_VALUE, "jsaction-race-test");
+
+        Mockito.when(newActionService.validateAndSaveActionToRepository(Mockito.any()))
+                .thenAnswer(invocation -> {
+                    final NewAction argument = (NewAction) invocation.getArguments()[0];
+                    final ActionDTO unpublishedAction = argument.getUnpublishedAction();
+                    unpublishedAction.setId("id-" + unpublishedAction.getName());
+                    return Mono.fromCallable(() -> {
+                                barrier.await(20, TimeUnit.SECONDS);
+                                return unpublishedAction;
+                            })
+                            .subscribeOn(raceScheduler);
+                });
+
+        final List<Integer> postProcessedSizes = new CopyOnWriteArrayList<>();
+        Mockito.when(newActionService.postProcessNewlyAddedActions(Mockito.any()))
+                .thenAnswer(invocation -> {
+                    @SuppressWarnings("unchecked")
+                    final List<ActionDTO> list = (List<ActionDTO>) invocation.getArguments()[0];
+                    // size() is read after collectList() has completed (all adds done), so it is stable.
+                    postProcessedSizes.add(list.size());
+                    return Mono.empty().then();
+                });
+
+        Mockito.when(updateLayoutService.updatePageLayoutsByPageId(Mockito.anyString()))
+                .thenAnswer(invocationOnMock -> Mono.just("testPageId"));
+
+        Mockito.when(actionCollectionRepository.save(Mockito.any())).thenAnswer(invocation -> {
+            final ActionCollection argument = (ActionCollection) invocation.getArguments()[0];
+            argument.setId("testActionCollectionId");
+            return Mono.just(argument);
+        });
+        Mockito.when(layoutActionService.updateSingleAction(Mockito.any(), Mockito.any()))
+                .thenAnswer(invocation -> Mono.just((ActionDTO) invocation.getArguments()[1]));
+        Mockito.when(actionCollectionRepository.setUserPermissionsInObject(Mockito.any()))
+                .thenAnswer(invocation -> {
+                    final ActionCollection argument =
+                            (ActionCollection) invocation.getArguments()[0];
+                    argument.setId("testActionCollectionId");
+                    return Mono.just(argument);
+                });
+
+        try {
+            for (int iteration = 0; iteration < iterations; iteration++) {
+                ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+                actionCollectionDTO.setName("testCollection");
+                actionCollectionDTO.setPageId("testPageId");
+                actionCollectionDTO.setApplicationId("testApplicationId");
+                actionCollectionDTO.setWorkspaceId("testWorkspaceId");
+                actionCollectionDTO.setPluginId("testPluginId");
+                actionCollectionDTO.setPluginType(PluginType.JS);
+
+                List<ActionDTO> actions = new ArrayList<>();
+                for (int i = 0; i < actionCount; i++) {
+                    ActionDTO action = new ActionDTO();
+                    action.setName("testAction" + i);
+                    action.setClientSideExecution(true);
+                    actions.add(action);
+                }
+                actionCollectionDTO.setActions(actions);
+
+                final Mono<ActionCollectionDTO> actionCollectionDTOMono =
+                        layoutCollectionService.createCollection(actionCollectionDTO);
+
+                StepVerifier.create(actionCollectionDTOMono)
+                        .assertNext(result ->
+                                assertEquals(actionCount, result.getActions().size()))
+                        .verifyComplete();
+            }
+        } finally {
+            raceScheduler.dispose();
+        }
+
+        assertEquals(iterations, postProcessedSizes.size());
+        postProcessedSizes.forEach(size -> assertEquals(actionCount, size.intValue()));
     }
 
     @Test

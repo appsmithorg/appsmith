@@ -82,6 +82,11 @@ public interface DatasourceServiceCE {
 
     Mono<Datasource> createWithoutPermissions(Datasource datasource);
 
+    /**
+     * Creates the datasource without saving it, and adds its new storages to {@code datasourceStorageDryRunQueries}
+     * for a later bulk save. Import shares that map across concurrent calls, so implementations must add to it with
+     * {@link com.appsmith.server.helpers.DryOpsUtils#addDryOp}.
+     */
     Mono<Datasource> createWithoutPermissions(
             Datasource datasource, Map<DBOpsType, List<DatasourceStorage>> datasourceStorageDryRunQueries);
 

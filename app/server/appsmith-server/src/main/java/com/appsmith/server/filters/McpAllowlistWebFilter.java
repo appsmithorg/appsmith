@@ -90,6 +90,10 @@ public class McpAllowlistWebFilter implements WebFilter {
             rule(HttpMethod.GET, "/api/v1/git/applications/{id}/protected-branches"),
             rule(HttpMethod.GET, "/api/v1/git/applications/{id}/refs"),
             rule(HttpMethod.POST, "/api/v1/git/applications/{id}/create-ref"),
+            // checkout-ref is the only route that resolves a branch name to its branched application (GitRefDTO
+            // carries no id). create_branch calls it to return an existing mcp/ branch's applicationId on
+            // branch_exists. Local file-system checkout under the git lock; no remote fetch, no push.
+            rule(HttpMethod.POST, "/api/v1/git/applications/{id}/checkout-ref"),
             rule(HttpMethod.POST, "/api/v1/git/applications/{id}/commit"),
             rule(HttpMethod.GET, "/api/v1/datasources"),
             rule(HttpMethod.POST, "/api/v1/datasources"),

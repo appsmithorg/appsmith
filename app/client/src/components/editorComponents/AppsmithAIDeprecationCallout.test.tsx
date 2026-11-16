@@ -33,7 +33,9 @@ describe("AppsmithAIDeprecationCallout", () => {
     expect(
       screen.getByTestId("t--appsmith-ai-deprecation-callout"),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Appsmith AI is deprecated/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Appsmith AI stopped working/i),
+    ).toBeInTheDocument();
     expect(
       screen.getByText(new RegExp(APPSMITH_AI_KILL_DATE)),
     ).toBeInTheDocument();
