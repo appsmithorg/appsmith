@@ -18,6 +18,7 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.meta.validations.FileNameValidator;
 import com.appsmith.server.newpages.PageBaseIdAudit;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -526,6 +527,10 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .flatMap(dbPage -> {
+                    if (page.getName() != null && !FileNameValidator.isValidFileName(page.getName())) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.GENERIC_BAD_REQUEST, FileNameValidator.INVALID_PAGE_NAME_MESSAGE));
+                    }
                     copyNewFieldValuesIntoOldObject(page, dbPage.getUnpublishedPage());
                     if (!StringUtils.isEmpty(page.getName())) {
                         dbPage.getUnpublishedPage().setSlug(TextUtils.makeSlug(page.getName()));
