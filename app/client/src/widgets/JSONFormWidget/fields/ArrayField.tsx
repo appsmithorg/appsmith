@@ -26,7 +26,7 @@ import type {
   FieldState,
   SchemaItem,
 } from "../constants";
-import { ARRAY_ITEM_KEY } from "../constants";
+import { ARRAY_ITEM_KEY, FieldType } from "../constants";
 import { Colors } from "constants/Colors";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { generateReactKey } from "utils/generators";
@@ -157,6 +157,28 @@ const getDefaultValue = (
   return [];
 };
 
+/**
+ * Empty value for a newly added Array Item. Must match the item field type —
+ * pushing `{}` for scalar items stringifies to "[object Object]" in inputs.
+ * See https://github.com/appsmithorg/appsmith/issues/42599
+ */
+export const getEmptyArrayItemValue = (fieldType?: FieldType): unknown => {
+  switch (fieldType) {
+    case FieldType.OBJECT:
+      return {};
+    case FieldType.ARRAY:
+    case FieldType.MULTISELECT:
+      return [];
+    case FieldType.SWITCH:
+    case FieldType.CHECKBOX:
+      return false;
+    case FieldType.NUMBER_INPUT:
+      return undefined;
+    default:
+      return "";
+  }
+};
+
 function ArrayField({
   fieldClassName,
   name,
@@ -194,11 +216,14 @@ function ArrayField({
 
   const add = () => {
     let values = klonaRegularWithTelemetry(getValues(name), "ArrayField.add");
+    const emptyItem = getEmptyArrayItemValue(
+      schemaItem.children?.[ARRAY_ITEM_KEY]?.fieldType,
+    );
 
     if (values && values.length) {
-      values.push({});
+      values.push(emptyItem);
     } else {
-      values = [{}];
+      values = [emptyItem];
     }
 
     setValue(name, values);
