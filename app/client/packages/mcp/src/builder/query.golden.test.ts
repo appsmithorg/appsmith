@@ -32,6 +32,11 @@ const DIALECTS: SqlDialect[] = [
   "other",
 ];
 
+// APP-16506: the refusal of a system catalog table.
+function CATALOG_MESSAGE(table: string): string {
+  return `${JSON.stringify(table)} is in a system catalog, which the MCP does not query (a best-effort guard; the datasource's credentials decide what can be read). To see a datasource's tables and columns, call get_datasource_structure`;
+}
+
 function outcome(run: () => string): Outcome {
   try {
     return run();
@@ -66,7 +71,7 @@ const GOLDEN_CASES = [
       postgres: "SELECT * FROM users;",
       redshift: "SELECT * FROM users;",
       mysql: "SELECT * FROM users;",
-      oracle: "SELECT * FROM users;",
+      oracle: "SELECT * FROM users",
       other: "SELECT * FROM users;",
     },
   },
@@ -96,7 +101,7 @@ const GOLDEN_CASES = [
       mysql:
         'SELECT id, name FROM users WHERE users.status = {{ "active" }} LIMIT 50;',
       oracle:
-        'SELECT id, name FROM users WHERE users.status = {{ "active" }} FETCH FIRST 50 ROWS ONLY;',
+        'SELECT id, name FROM users WHERE users.status = {{ "active" }} FETCH FIRST 50 ROWS ONLY',
       other:
         'SELECT id, name FROM users WHERE users.status = {{ "active" }} LIMIT 50;',
     },
@@ -128,7 +133,7 @@ const GOLDEN_CASES = [
       mysql:
         "SELECT id, total, createdAt FROM public.orders ORDER BY createdAt DESC, id ASC LIMIT 10;",
       oracle:
-        "SELECT id, total, createdAt FROM public.orders ORDER BY createdAt DESC, id ASC FETCH FIRST 10 ROWS ONLY;",
+        "SELECT id, total, createdAt FROM public.orders ORDER BY createdAt DESC, id ASC FETCH FIRST 10 ROWS ONLY",
       other:
         'SELECT id, total, createdAt FROM public.orders ORDER BY "createdAt" DESC, "id" ASC LIMIT 10;',
     },
@@ -158,7 +163,7 @@ const GOLDEN_CASES = [
       mysql:
         "SELECT * FROM orders WHERE orders.id = {{ Table1.selectedRow.id }};",
       oracle:
-        "SELECT * FROM orders WHERE orders.id = {{ Table1.selectedRow.id }};",
+        "SELECT * FROM orders WHERE orders.id = {{ Table1.selectedRow.id }}",
       other:
         "SELECT * FROM orders WHERE orders.id = {{ Table1.selectedRow.id }};",
     },
@@ -215,7 +220,7 @@ const GOLDEN_CASES = [
       mysql:
         "SELECT * FROM items WHERE items.kind != {{ null }} AND items.price > {{ 1.5 }} AND items.qty >= {{ -2 }} AND items.rank < {{ 100 }} AND items.active <= {{ true }};",
       oracle:
-        "SELECT * FROM items WHERE items.kind != {{ null }} AND items.price > {{ 1.5 }} AND items.qty >= {{ -2 }} AND items.rank < {{ 100 }} AND items.active <= {{ true }};",
+        "SELECT * FROM items WHERE items.kind != {{ null }} AND items.price > {{ 1.5 }} AND items.qty >= {{ -2 }} AND items.rank < {{ 100 }} AND items.active <= {{ true }}",
       other:
         "SELECT * FROM items WHERE items.kind != {{ null }} AND items.price > {{ 1.5 }} AND items.qty >= {{ -2 }} AND items.rank < {{ 100 }} AND items.active <= {{ true }};",
     },
@@ -245,7 +250,7 @@ const GOLDEN_CASES = [
       mysql:
         "SELECT * FROM users WHERE users.id IN ({{ Select1.selectedOptionValue }});",
       oracle:
-        "SELECT * FROM users WHERE users.id IN ({{ Select1.selectedOptionValue }});",
+        "SELECT * FROM users WHERE users.id IN ({{ Select1.selectedOptionValue }})",
       other:
         "SELECT * FROM users WHERE users.id IN ({{ Select1.selectedOptionValue }});",
     },
@@ -274,7 +279,7 @@ const GOLDEN_CASES = [
       mysql:
         'SELECT * FROM people WHERE people.name = {{ "O\'Brien \\"x\\" \\\\ é" }};',
       oracle:
-        'SELECT * FROM people WHERE people.name = {{ "O\'Brien \\"x\\" \\\\ é" }};',
+        'SELECT * FROM people WHERE people.name = {{ "O\'Brien \\"x\\" \\\\ é" }}',
       other:
         'SELECT * FROM people WHERE people.name = {{ "O\'Brien \\"x\\" \\\\ é" }};',
     },
@@ -299,7 +304,7 @@ const GOLDEN_CASES = [
       postgres: 'SELECT * FROM users WHERE "email" LIKE {{ "a%@x.com" }};',
       redshift: 'SELECT * FROM users WHERE "email" LIKE {{ "a%@x.com" }};',
       mysql: 'SELECT * FROM users WHERE users.email LIKE {{ "a%@x.com" }};',
-      oracle: 'SELECT * FROM users WHERE users.email LIKE {{ "a%@x.com" }};',
+      oracle: 'SELECT * FROM users WHERE users.email LIKE {{ "a%@x.com" }}',
       other: 'SELECT * FROM users WHERE users.email LIKE {{ "a%@x.com" }};',
     },
   },
@@ -324,7 +329,7 @@ const GOLDEN_CASES = [
       postgres: 'SELECT * FROM users WHERE "name" LIKE {{ "%ann%" }};',
       redshift: 'SELECT * FROM users WHERE "name" LIKE {{ "%ann%" }};',
       mysql: 'SELECT * FROM users WHERE users.name LIKE {{ "%ann%" }};',
-      oracle: 'SELECT * FROM users WHERE users.name LIKE {{ "%ann%" }};',
+      oracle: 'SELECT * FROM users WHERE users.name LIKE {{ "%ann%" }}',
       other: 'SELECT * FROM users WHERE users.name LIKE {{ "%ann%" }};',
     },
   },
@@ -354,7 +359,7 @@ const GOLDEN_CASES = [
       mysql:
         'SELECT * FROM users WHERE users.name LIKE {{ (Search1.text ?? "") + "%" }};',
       oracle:
-        'SELECT * FROM users WHERE users.name LIKE {{ (Search1.text ?? "") + "%" }};',
+        'SELECT * FROM users WHERE users.name LIKE {{ (Search1.text ?? "") + "%" }}',
       other:
         'SELECT * FROM users WHERE users.name LIKE {{ (Search1.text ?? "") + "%" }};',
     },
@@ -380,7 +385,7 @@ const GOLDEN_CASES = [
       postgres: 'SELECT * FROM users WHERE "email" LIKE {{ "%@x.com" }};',
       redshift: 'SELECT * FROM users WHERE "email" LIKE {{ "%@x.com" }};',
       mysql: 'SELECT * FROM users WHERE users.email LIKE {{ "%@x.com" }};',
-      oracle: 'SELECT * FROM users WHERE users.email LIKE {{ "%@x.com" }};',
+      oracle: 'SELECT * FROM users WHERE users.email LIKE {{ "%@x.com" }}',
       other: 'SELECT * FROM users WHERE users.email LIKE {{ "%@x.com" }};',
     },
   },
@@ -406,7 +411,7 @@ const GOLDEN_CASES = [
       postgres: 'SELECT * FROM users WHERE "code" LIKE {{ Code1.text }};',
       redshift: 'SELECT * FROM users WHERE "code" LIKE {{ Code1.text }};',
       mysql: "SELECT * FROM users WHERE users.code LIKE {{ Code1.text }};",
-      oracle: "SELECT * FROM users WHERE users.code LIKE {{ Code1.text }};",
+      oracle: "SELECT * FROM users WHERE users.code LIKE {{ Code1.text }}",
       other: "SELECT * FROM users WHERE users.code LIKE {{ Code1.text }};",
     },
   },
@@ -516,7 +521,7 @@ const GOLDEN_CASES = [
       mysql:
         "SELECT * FROM tickets WHERE tickets.closedAt <=> NULL AND NOT (tickets.owner <=> NULL);",
       oracle:
-        "SELECT * FROM tickets WHERE tickets.closedAt IS NULL AND tickets.owner IS NOT NULL;",
+        "SELECT * FROM tickets WHERE tickets.closedAt IS NULL AND tickets.owner IS NOT NULL",
       other:
         "SELECT * FROM tickets WHERE tickets.closedAt IS NULL AND tickets.owner IS NOT NULL;",
     },
@@ -538,7 +543,7 @@ const GOLDEN_CASES = [
       postgres: 'SELECT * FROM t WHERE "null" IS NULL;',
       redshift: 'SELECT * FROM t WHERE "null" IS NULL;',
       mysql: "SELECT * FROM t WHERE t.null <=> NULL;",
-      oracle: "SELECT * FROM t WHERE t.null IS NULL;",
+      oracle: "SELECT * FROM t WHERE t.null IS NULL",
       other: "SELECT * FROM t WHERE t.null IS NULL;",
     },
   },
@@ -562,7 +567,7 @@ const GOLDEN_CASES = [
       postgres: 'SELECT * FROM users WHERE "status" = {{ "open" }};',
       redshift: 'SELECT * FROM users WHERE "status" = {{ "open" }};',
       mysql: 'SELECT * FROM users WHERE users.Status = {{ "open" }};',
-      oracle: 'SELECT * FROM users WHERE users.Status = {{ "open" }};',
+      oracle: 'SELECT * FROM users WHERE users.Status = {{ "open" }}',
       other: 'SELECT * FROM users WHERE users.Status = {{ "open" }};',
     },
   },
@@ -633,7 +638,7 @@ const GOLDEN_CASES = [
       mysql:
         "SELECT * FROM tickets WHERE ({{ (Select1.selectedOptionValue == null || Select1.selectedOptionValue.length === 0) ? 1 : 0 }} = 1 OR tickets.priority = {{ Select1.selectedOptionValue }});",
       oracle:
-        "SELECT * FROM tickets WHERE ({{ (Select1.selectedOptionValue == null || Select1.selectedOptionValue.length === 0) ? 1 : 0 }} = 1 OR tickets.priority = {{ Select1.selectedOptionValue }});",
+        "SELECT * FROM tickets WHERE ({{ (Select1.selectedOptionValue == null || Select1.selectedOptionValue.length === 0) ? 1 : 0 }} = 1 OR tickets.priority = {{ Select1.selectedOptionValue }})",
       other:
         "SELECT * FROM tickets WHERE ({{ (Select1.selectedOptionValue == null || Select1.selectedOptionValue.length === 0) ? 1 : 0 }} = 1 OR tickets.priority = {{ Select1.selectedOptionValue }});",
     },
@@ -707,7 +712,7 @@ const GOLDEN_CASES = [
       mysql:
         'SELECT * FROM tickets WHERE ({{ (Search1.text == null || Search1.text.length === 0) ? 1 : 0 }} = 1 OR tickets.title LIKE {{ "%" + (Search1.text ?? "") + "%" }});',
       oracle:
-        'SELECT * FROM tickets WHERE ({{ (Search1.text == null || Search1.text.length === 0) ? 1 : 0 }} = 1 OR tickets.title LIKE {{ "%" + (Search1.text ?? "") + "%" }});',
+        'SELECT * FROM tickets WHERE ({{ (Search1.text == null || Search1.text.length === 0) ? 1 : 0 }} = 1 OR tickets.title LIKE {{ "%" + (Search1.text ?? "") + "%" }})',
       other:
         'SELECT * FROM tickets WHERE ({{ (Search1.text == null || Search1.text.length === 0) ? 1 : 0 }} = 1 OR tickets.title LIKE {{ "%" + (Search1.text ?? "") + "%" }});',
     },
@@ -737,7 +742,7 @@ const GOLDEN_CASES = [
       mysql:
         "SELECT * FROM tickets WHERE tickets.owner = {{ appsmith.user.email }};",
       oracle:
-        "SELECT * FROM tickets WHERE tickets.owner = {{ appsmith.user.email }};",
+        "SELECT * FROM tickets WHERE tickets.owner = {{ appsmith.user.email }}",
       other:
         "SELECT * FROM tickets WHERE tickets.owner = {{ appsmith.user.email }};",
     },
@@ -787,7 +792,7 @@ const GOLDEN_CASES = [
       mysql:
         'SELECT * FROM tickets WHERE tickets.open = {{ true }} AND (tickets.title LIKE {{ "%" + (Search1.text ?? "") + "%" }} OR tickets.owner = {{ Search1.text }});',
       oracle:
-        'SELECT * FROM tickets WHERE tickets.open = {{ true }} AND (tickets.title LIKE {{ "%" + (Search1.text ?? "") + "%" }} OR tickets.owner = {{ Search1.text }});',
+        'SELECT * FROM tickets WHERE tickets.open = {{ true }} AND (tickets.title LIKE {{ "%" + (Search1.text ?? "") + "%" }} OR tickets.owner = {{ Search1.text }})',
       other:
         'SELECT * FROM tickets WHERE tickets.open = {{ true }} AND (tickets.title LIKE {{ "%" + (Search1.text ?? "") + "%" }} OR tickets.owner = {{ Search1.text }});',
     },
@@ -867,8 +872,7 @@ const GOLDEN_CASES = [
           "a filter cannot test a column named like its table (users) on PostgreSQL or Redshift, which would read it as the whole row",
       },
       mysql: 'SELECT * FROM public.users WHERE public.users.Users = {{ "x" }};',
-      oracle:
-        'SELECT * FROM public.users WHERE public.users.Users = {{ "x" }};',
+      oracle: 'SELECT * FROM public.users WHERE public.users.Users = {{ "x" }}',
       other: 'SELECT * FROM public.users WHERE public.users.Users = {{ "x" }};',
     },
   },
@@ -902,7 +906,7 @@ const GOLDEN_CASES = [
       mysql:
         'SELECT id, COALESCE(nickname, {{ "none" }}) AS nickname FROM users ORDER BY id ASC;',
       oracle:
-        'SELECT id, COALESCE(nickname, {{ "none" }}) AS nickname FROM users ORDER BY id ASC;',
+        'SELECT id, COALESCE(nickname, {{ "none" }}) AS nickname FROM users ORDER BY id ASC',
       other:
         'SELECT id, COALESCE(nickname, {{ "none" }}) AS nickname FROM users ORDER BY "id" ASC;',
     },
@@ -931,7 +935,7 @@ const GOLDEN_CASES = [
       mysql:
         "SELECT DISTINCT region, status FROM orders ORDER BY region ASC LIMIT 25;",
       oracle:
-        "SELECT DISTINCT region, status FROM orders ORDER BY region ASC FETCH FIRST 25 ROWS ONLY;",
+        "SELECT DISTINCT region, status FROM orders ORDER BY region ASC FETCH FIRST 25 ROWS ONLY",
       other:
         'SELECT DISTINCT region, status FROM orders ORDER BY "region" ASC LIMIT 25;',
     },
@@ -960,7 +964,7 @@ const GOLDEN_CASES = [
       mysql:
         'SELECT DISTINCT COALESCE(region, {{ "unknown" }}) AS region FROM orders;',
       oracle:
-        'SELECT DISTINCT COALESCE(region, {{ "unknown" }}) AS region FROM orders;',
+        'SELECT DISTINCT COALESCE(region, {{ "unknown" }}) AS region FROM orders',
       other:
         'SELECT DISTINCT COALESCE(region, {{ "unknown" }}) AS region FROM orders;',
     },
@@ -979,7 +983,7 @@ const GOLDEN_CASES = [
       postgres: "SELECT COUNT(*) AS count FROM users;",
       redshift: "SELECT COUNT(*) AS count FROM users;",
       mysql: "SELECT COUNT(*) AS count FROM users;",
-      oracle: "SELECT COUNT(*) AS count FROM users;",
+      oracle: "SELECT COUNT(*) AS count FROM users",
       other: "SELECT COUNT(*) AS count FROM users;",
     },
   },
@@ -1010,7 +1014,7 @@ const GOLDEN_CASES = [
       mysql:
         "SELECT region, SUM(amount) AS sum FROM orders GROUP BY region ORDER BY sum DESC LIMIT 5;",
       oracle:
-        "SELECT region, SUM(amount) AS sum FROM orders GROUP BY region ORDER BY sum DESC FETCH FIRST 5 ROWS ONLY;",
+        "SELECT region, SUM(amount) AS sum FROM orders GROUP BY region ORDER BY sum DESC FETCH FIRST 5 ROWS ONLY",
       other:
         'SELECT "region", SUM("amount") AS sum FROM orders GROUP BY "region" ORDER BY sum DESC LIMIT 5;',
     },
@@ -1061,7 +1065,7 @@ const GOLDEN_CASES = [
       mysql:
         'SELECT COALESCE(region, {{ "none" }}) AS region, status, AVG(amount) AS avg FROM orders WHERE orders.paid = {{ true }} GROUP BY region, status HAVING status != {{ "void" }};',
       oracle:
-        'SELECT COALESCE(region, {{ "none" }}) AS region, status, AVG(amount) AS avg FROM orders WHERE orders.paid = {{ true }} GROUP BY region, status HAVING status != {{ "void" }};',
+        'SELECT COALESCE(region, {{ "none" }}) AS region, status, AVG(amount) AS avg FROM orders WHERE orders.paid = {{ true }} GROUP BY region, status HAVING status != {{ "void" }}',
       other:
         'SELECT COALESCE("region", {{ "none" }}) AS "region", "status", AVG("amount") AS avg FROM orders WHERE orders.paid = {{ true }} GROUP BY "region", "status" HAVING "status" != {{ "void" }};',
     },
@@ -1101,7 +1105,7 @@ const GOLDEN_CASES = [
       mysql:
         "SELECT customerId, COUNT(id) AS count FROM orders GROUP BY customerId HAVING COUNT(id) > {{ 3 }} ORDER BY customerId ASC;",
       oracle:
-        "SELECT customerId, COUNT(id) AS count FROM orders GROUP BY customerId HAVING COUNT(id) > {{ 3 }} ORDER BY customerId ASC;",
+        "SELECT customerId, COUNT(id) AS count FROM orders GROUP BY customerId HAVING COUNT(id) > {{ 3 }} ORDER BY customerId ASC",
       other:
         'SELECT "customerId", COUNT("id") AS count FROM orders GROUP BY "customerId" HAVING COUNT("id") > {{ 3 }} ORDER BY "customerId" ASC;',
     },
@@ -1125,7 +1129,7 @@ const GOLDEN_CASES = [
       mysql:
         "SELECT region, region, COUNT(*) AS count FROM orders GROUP BY region, region;",
       oracle:
-        "SELECT region, region, COUNT(*) AS count FROM orders GROUP BY region, region;",
+        "SELECT region, region, COUNT(*) AS count FROM orders GROUP BY region, region",
       other:
         'SELECT "region", "region", COUNT(*) AS count FROM orders GROUP BY "region", "region";',
     },
@@ -1182,7 +1186,7 @@ const GOLDEN_CASES = [
       mysql:
         "SELECT currency, COUNT(*) AS count, SUM(ABS(amount)) AS sum, FLOOR(AVG(amount)) AS avg_amount, MAX(paidAt) AS last_paid, MIN(paidAt) AS first_paid FROM payments GROUP BY currency ORDER BY avg_amount DESC, currency ASC;",
       oracle:
-        "SELECT currency, COUNT(*) AS count, SUM(ABS(amount)) AS sum, FLOOR(AVG(amount)) AS avg_amount, MAX(paidAt) AS last_paid, MIN(paidAt) AS first_paid FROM payments GROUP BY currency ORDER BY avg_amount DESC, currency ASC;",
+        "SELECT currency, COUNT(*) AS count, SUM(ABS(amount)) AS sum, FLOOR(AVG(amount)) AS avg_amount, MAX(paidAt) AS last_paid, MIN(paidAt) AS first_paid FROM payments GROUP BY currency ORDER BY avg_amount DESC, currency ASC",
       other:
         'SELECT "currency", COUNT(*) AS count, SUM(ABS("amount")) AS sum, FLOOR(AVG("amount")) AS avg_amount, MAX("paidAt") AS last_paid, MIN("paidAt") AS first_paid FROM payments GROUP BY "currency" ORDER BY avg_amount DESC, "currency" ASC;',
     },
@@ -1208,7 +1212,7 @@ const GOLDEN_CASES = [
       postgres: 'SELECT CEIL(AVG("amount")) AS avg FROM payments;',
       redshift: 'SELECT CEIL(AVG("amount")) AS avg FROM payments;',
       mysql: "SELECT CEIL(AVG(amount)) AS avg FROM payments;",
-      oracle: "SELECT CEIL(AVG(amount)) AS avg FROM payments;",
+      oracle: "SELECT CEIL(AVG(amount)) AS avg FROM payments",
       other: {
         throws:
           'round "ceil" (on amount) is only available on a PostgreSQL, Redshift, MySQL or Oracle datasource; on other databases use round "floor" or no round',
@@ -1238,7 +1242,7 @@ const GOLDEN_CASES = [
       postgres: 'SELECT ROUND(SUM(ABS("delta"))) AS total FROM payments;',
       redshift: 'SELECT ROUND(SUM(ABS("delta"))) AS total FROM payments;',
       mysql: "SELECT ROUND(SUM(ABS(delta))) AS total FROM payments;",
-      oracle: "SELECT ROUND(SUM(ABS(delta))) AS total FROM payments;",
+      oracle: "SELECT ROUND(SUM(ABS(delta))) AS total FROM payments",
       other: {
         throws:
           'round "round" (on delta) is only available on a PostgreSQL, Redshift, MySQL or Oracle datasource; on other databases use round "floor" or no round',
@@ -1289,7 +1293,7 @@ const GOLDEN_CASES = [
       mysql:
         "SELECT region, COUNT(*) AS orders, SUM(amount) AS revenue FROM orders GROUP BY region HAVING SUM(amount) >= {{ Min1.text }} AND COUNT(*) < {{ 1000 }};",
       oracle:
-        "SELECT region, COUNT(*) AS orders, SUM(amount) AS revenue FROM orders GROUP BY region HAVING SUM(amount) >= {{ Min1.text }} AND COUNT(*) < {{ 1000 }};",
+        "SELECT region, COUNT(*) AS orders, SUM(amount) AS revenue FROM orders GROUP BY region HAVING SUM(amount) >= {{ Min1.text }} AND COUNT(*) < {{ 1000 }}",
       other:
         'SELECT "region", COUNT(*) AS orders, SUM("amount") AS revenue FROM orders GROUP BY "region" HAVING SUM("amount") >= {{ Min1.text }} AND COUNT(*) < {{ 1000 }};',
     },
@@ -1317,7 +1321,7 @@ const GOLDEN_CASES = [
           "an aggregate cannot use a column named like its table (amount) on PostgreSQL or Redshift, which would read it as the whole row",
       },
       mysql: "SELECT SUM(amount) AS sum FROM amount;",
-      oracle: "SELECT SUM(amount) AS sum FROM amount;",
+      oracle: "SELECT SUM(amount) AS sum FROM amount",
       other: 'SELECT SUM("amount") AS sum FROM amount;',
     },
   },
@@ -1342,7 +1346,7 @@ const GOLDEN_CASES = [
           "groupBy and having cannot use a column named like its table (region) on PostgreSQL or Redshift, which would read it as the whole row",
       },
       mysql: "SELECT region, COUNT(*) AS count FROM s.region GROUP BY region;",
-      oracle: "SELECT region, COUNT(*) AS count FROM s.region GROUP BY region;",
+      oracle: "SELECT region, COUNT(*) AS count FROM s.region GROUP BY region",
       other:
         'SELECT "region", COUNT(*) AS count FROM s.region GROUP BY "region";',
     },
@@ -1664,7 +1668,7 @@ const GOLDEN_CASES = [
       mysql:
         'INSERT INTO users (name, age, admin) VALUES ({{ "Ada" }}, {{ 30 }}, {{ false }});',
       oracle:
-        'INSERT INTO users (name, age, admin) VALUES ({{ "Ada" }}, {{ 30 }}, {{ false }});',
+        'INSERT INTO users (name, age, admin) VALUES ({{ "Ada" }}, {{ 30 }}, {{ false }})',
       other:
         'INSERT INTO users (name, age, admin) VALUES ({{ "Ada" }}, {{ 30 }}, {{ false }});',
     },
@@ -1699,7 +1703,7 @@ const GOLDEN_CASES = [
       mysql:
         "INSERT INTO crm.contacts (email, note) VALUES ({{ Email1.text }}, {{ null }});",
       oracle:
-        "INSERT INTO crm.contacts (email, note) VALUES ({{ Email1.text }}, {{ null }});",
+        "INSERT INTO crm.contacts (email, note) VALUES ({{ Email1.text }}, {{ null }})",
       other:
         "INSERT INTO crm.contacts (email, note) VALUES ({{ Email1.text }}, {{ null }});",
     },
@@ -1738,7 +1742,7 @@ const GOLDEN_CASES = [
       mysql:
         "UPDATE users SET name = {{ Name1.text }} WHERE users.id = {{ Table1.selectedRow.id }};",
       oracle:
-        "UPDATE users SET name = {{ Name1.text }} WHERE users.id = {{ Table1.selectedRow.id }};",
+        "UPDATE users SET name = {{ Name1.text }} WHERE users.id = {{ Table1.selectedRow.id }}",
       other:
         "UPDATE users SET name = {{ Name1.text }} WHERE users.id = {{ Table1.selectedRow.id }};",
     },
@@ -1792,7 +1796,7 @@ const GOLDEN_CASES = [
       mysql:
         'UPDATE tickets SET status = {{ "closed" }} WHERE tickets.deletedAt <=> NULL AND (tickets.code LIKE {{ "A-1" }} OR tickets.id IN ({{ Table1.selectedRow.id }}));',
       oracle:
-        'UPDATE tickets SET status = {{ "closed" }} WHERE tickets.deletedAt IS NULL AND (tickets.code LIKE {{ "A-1" }} OR tickets.id IN ({{ Table1.selectedRow.id }}));',
+        'UPDATE tickets SET status = {{ "closed" }} WHERE tickets.deletedAt IS NULL AND (tickets.code LIKE {{ "A-1" }} OR tickets.id IN ({{ Table1.selectedRow.id }}))',
       other:
         'UPDATE tickets SET status = {{ "closed" }} WHERE tickets.deletedAt IS NULL AND (tickets.code LIKE {{ "A-1" }} OR tickets.id IN ({{ Table1.selectedRow.id }}));',
     },
@@ -1816,7 +1820,7 @@ const GOLDEN_CASES = [
       postgres: 'UPDATE settings SET theme = {{ "dark" }};',
       redshift: 'UPDATE settings SET theme = {{ "dark" }};',
       mysql: 'UPDATE settings SET theme = {{ "dark" }};',
-      oracle: 'UPDATE settings SET theme = {{ "dark" }};',
+      oracle: 'UPDATE settings SET theme = {{ "dark" }}',
       other: 'UPDATE settings SET theme = {{ "dark" }};',
     },
   },
@@ -1841,7 +1845,7 @@ const GOLDEN_CASES = [
       postgres: 'DELETE FROM users WHERE "id" = {{ Table1.selectedRow.id }};',
       redshift: 'DELETE FROM users WHERE "id" = {{ Table1.selectedRow.id }};',
       mysql: "DELETE FROM users WHERE users.id = {{ Table1.selectedRow.id }};",
-      oracle: "DELETE FROM users WHERE users.id = {{ Table1.selectedRow.id }};",
+      oracle: "DELETE FROM users WHERE users.id = {{ Table1.selectedRow.id }}",
       other: "DELETE FROM users WHERE users.id = {{ Table1.selectedRow.id }};",
     },
   },
@@ -1874,7 +1878,7 @@ const GOLDEN_CASES = [
       mysql:
         "DELETE FROM audit.logs WHERE NOT (audit.logs.archivedAt <=> NULL) AND audit.logs.createdAt <= {{ Date1.selectedDate }};",
       oracle:
-        "DELETE FROM audit.logs WHERE audit.logs.archivedAt IS NOT NULL AND audit.logs.createdAt <= {{ Date1.selectedDate }};",
+        "DELETE FROM audit.logs WHERE audit.logs.archivedAt IS NOT NULL AND audit.logs.createdAt <= {{ Date1.selectedDate }}",
       other:
         "DELETE FROM audit.logs WHERE audit.logs.archivedAt IS NOT NULL AND audit.logs.createdAt <= {{ Date1.selectedDate }};",
     },
@@ -1890,7 +1894,7 @@ const GOLDEN_CASES = [
       postgres: "DELETE FROM tmp;",
       redshift: "DELETE FROM tmp;",
       mysql: "DELETE FROM tmp;",
-      oracle: "DELETE FROM tmp;",
+      oracle: "DELETE FROM tmp",
       other: "DELETE FROM tmp;",
     },
   },
@@ -1914,7 +1918,7 @@ const GOLDEN_CASES = [
       postgres: 'INSERT INTO users (name) VALUES ({{ "x" }});',
       redshift: 'INSERT INTO users (name) VALUES ({{ "x" }});',
       mysql: 'INSERT INTO users (name) VALUES ({{ "x" }});',
-      oracle: 'INSERT INTO users (name) VALUES ({{ "x" }});',
+      oracle: 'INSERT INTO users (name) VALUES ({{ "x" }})',
       other: 'INSERT INTO users (name) VALUES ({{ "x" }});',
     },
   },
@@ -1961,7 +1965,7 @@ const GOLDEN_CASES = [
       mysql:
         'SELECT region, COUNT(*) AS n, SUM(amount) AS total FROM orders GROUP BY region HAVING region = {{ "EU" }} AND SUM(amount) <= {{ 500 }};',
       oracle:
-        'SELECT region, COUNT(*) AS n, SUM(amount) AS total FROM orders GROUP BY region HAVING region = {{ "EU" }} AND SUM(amount) <= {{ 500 }};',
+        'SELECT region, COUNT(*) AS n, SUM(amount) AS total FROM orders GROUP BY region HAVING region = {{ "EU" }} AND SUM(amount) <= {{ 500 }}',
       other:
         'SELECT "region", COUNT(*) AS n, SUM("amount") AS total FROM orders GROUP BY "region" HAVING "region" = {{ "EU" }} AND SUM("amount") <= {{ 500 }};',
     },
@@ -2027,7 +2031,7 @@ const GOLDEN_CASES = [
       postgres: "SELECT id FROM users LIMIT 1;",
       redshift: "SELECT id FROM users LIMIT 1;",
       mysql: "SELECT id FROM users LIMIT 1;",
-      oracle: "SELECT id FROM users FETCH FIRST 1 ROWS ONLY;",
+      oracle: "SELECT id FROM users FETCH FIRST 1 ROWS ONLY",
       other: "SELECT id FROM users LIMIT 1;",
     },
   },
@@ -2043,7 +2047,7 @@ const GOLDEN_CASES = [
       postgres: "SELECT * FROM users LIMIT 1000;",
       redshift: "SELECT * FROM users LIMIT 1000;",
       mysql: "SELECT * FROM users LIMIT 1000;",
-      oracle: "SELECT * FROM users FETCH FIRST 1000 ROWS ONLY;",
+      oracle: "SELECT * FROM users FETCH FIRST 1000 ROWS ONLY",
       other: "SELECT * FROM users LIMIT 1000;",
     },
   },
@@ -2090,14 +2094,110 @@ const GOLDEN_CASES = [
       mysql:
         'DELETE FROM comments WHERE (comments.status = {{ "spam" }} OR comments.flagged = {{ true }}) AND comments.postId = {{ Table1.selectedRow.id }};',
       oracle:
-        'DELETE FROM comments WHERE (comments.status = {{ "spam" }} OR comments.flagged = {{ true }}) AND comments.postId = {{ Table1.selectedRow.id }};',
+        'DELETE FROM comments WHERE (comments.status = {{ "spam" }} OR comments.flagged = {{ true }}) AND comments.postId = {{ Table1.selectedRow.id }}',
       other:
         'DELETE FROM comments WHERE (comments.status = {{ "spam" }} OR comments.flagged = {{ true }}) AND comments.postId = {{ Table1.selectedRow.id }};',
+    },
+  },
+  // APP-16506 catalog refusal: a pg_ name is refused on PostgreSQL and Redshift only.
+  {
+    name: "pg_ table",
+    spec: {
+      operation: "SELECT",
+      table: "pg_user",
+    },
+    expected: {
+      none: "SELECT * FROM pg_user;",
+      postgres: {
+        throws: CATALOG_MESSAGE("pg_user"),
+      },
+      redshift: {
+        throws: CATALOG_MESSAGE("pg_user"),
+      },
+      mysql: "SELECT * FROM pg_user;",
+      oracle: "SELECT * FROM pg_user",
+      other: "SELECT * FROM pg_user;",
+    },
+  },
+  // APP-16506 catalog refusal: Redshift system tables (stl_, stv_, svv_, svl_) on Redshift only.
+  {
+    name: "Redshift stl_ table",
+    spec: {
+      operation: "SELECT",
+      table: "stl_query",
+    },
+    expected: {
+      none: "SELECT * FROM stl_query;",
+      postgres: "SELECT * FROM stl_query;",
+      redshift: {
+        throws: CATALOG_MESSAGE("stl_query"),
+      },
+      mysql: "SELECT * FROM stl_query;",
+      oracle: "SELECT * FROM stl_query",
+      other: "SELECT * FROM stl_query;",
+    },
+  },
+  // APP-16506 catalog refusal: Oracle's SYSTEM schema, ignoring case, on Oracle only.
+  {
+    name: "Oracle SYSTEM schema",
+    spec: {
+      operation: "SELECT",
+      table: "System.help",
+    },
+    expected: {
+      none: "SELECT * FROM System.help;",
+      postgres: "SELECT * FROM System.help;",
+      redshift: "SELECT * FROM System.help;",
+      mysql: "SELECT * FROM System.help;",
+      oracle: {
+        throws: CATALOG_MESSAGE("System.help"),
+      },
+      other: "SELECT * FROM System.help;",
     },
   },
 ];
 
 const GOLDEN_REFUSALS = [
+  // APP-16506 catalog refusal: system schemas, ignoring case, on every database.
+  {
+    name: "information_schema table",
+    spec: {
+      operation: "SELECT",
+      table: "information_schema.tables",
+    },
+    issues: [
+      {
+        path: ["table"],
+        message: CATALOG_MESSAGE("information_schema.tables"),
+      },
+    ],
+  },
+  {
+    name: "upper-case pg_catalog table",
+    spec: {
+      operation: "SELECT",
+      table: "PG_CATALOG.pg_class",
+    },
+    issues: [
+      {
+        path: ["table"],
+        message: CATALOG_MESSAGE("PG_CATALOG.pg_class"),
+      },
+    ],
+  },
+  {
+    name: "sys schema in a three-part name",
+    spec: {
+      operation: "DELETE",
+      table: "master.sys.objects",
+    },
+    issues: [
+      {
+        path: ["table"],
+        message: CATALOG_MESSAGE("master.sys.objects"),
+      },
+    ],
+  },
   {
     name: "table missing",
     spec: {
@@ -2607,6 +2707,15 @@ const GOLDEN_REFUSALS = [
 ];
 
 const GOLDEN_FAIL_CLOSED = [
+  // APP-16506 catalog refusal, for a caller that skipped parsing.
+  {
+    name: "information_schema table in an unparsed spec",
+    spec: {
+      operation: "SELECT",
+      table: "information_schema.columns",
+    },
+    throws: CATALOG_MESSAGE("information_schema.columns"),
+  },
   {
     name: "unsafe orderBy column",
     spec: {
@@ -3134,7 +3243,7 @@ const GOLDEN_DTOS = [
       actionConfiguration: {
         formData: {
           body: {
-            data: "SELECT * FROM users FETCH FIRST 5 ROWS ONLY;",
+            data: "SELECT * FROM users FETCH FIRST 5 ROWS ONLY",
           },
           preparedStatement: {
             data: true,
@@ -3157,7 +3266,7 @@ const GOLDEN_DTOS = [
       actionConfiguration: {
         formData: {
           body: {
-            data: "DELETE FROM users WHERE users.id = {{ 1 }};",
+            data: "DELETE FROM users WHERE users.id = {{ 1 }}",
           },
           preparedStatement: {
             data: true,
@@ -3240,5 +3349,343 @@ describe("APP-16506 golden: buildActionDto stays the same", () => {
     });
 
     expect(buildActionDto(spec, body, packageName)).toEqual(entry.expected);
+  });
+});
+
+// APP-16506 B: queries with `from` and `joins`, compiled as the tools compile them, with the plugin's package name.
+// Only the five plugins that bind every value accept them. `none` is a call with no options, as EE workflow queries
+// make before the datasource is known.
+const PLUGINS = [
+  "postgres-plugin",
+  "mysql-plugin",
+  "mariadb-plugin",
+  "oracle-plugin",
+  "mssql-plugin",
+  "redshift-plugin",
+  "snowflake-plugin",
+] as const;
+
+type PluginOutcomes = Record<"none" | (typeof PLUGINS)[number], Outcome>;
+
+const ALIASED_MODE_MESSAGE =
+  "from and joins need a PostgreSQL, MySQL, MariaDB, Oracle or SQL Server datasource that the server can identify. Redshift and Snowflake are not supported: their plugins put values into the SQL text instead of binding them";
+const WITH_ON_MYSQL_MESSAGE =
+  "with is not available on MySQL or MariaDB: their plugin returns rows only for a query whose first word is SELECT";
+
+function compileForEveryPlugin(spec: Record<string, unknown>): PluginOutcomes {
+  const parsed = querySpecSchema.parse({ ...base, ...spec });
+  const outcomes = {
+    none: outcome(() => compileQuery(parsed)),
+  } as PluginOutcomes;
+
+  for (const packageName of PLUGINS) {
+    outcomes[packageName] = outcome(() =>
+      compileQuery(parsed, {
+        dialect: sqlDialectFor(packageName),
+        packageName,
+      }),
+    );
+  }
+
+  return outcomes;
+}
+
+const GOLDEN_PLUGIN_CASES = [
+  {
+    name: "left join on two pairs, coalesce, notNull and a viewer filter",
+    spec: {
+      operation: "SELECT",
+      from: { table: "sales.orders", as: "o" },
+      joins: [
+        {
+          type: "left",
+          table: "sales.customers",
+          as: "c",
+          on: [
+            { left: "c.id", right: "o.customer_id" },
+            { left: "c.region", right: "o.region" },
+          ],
+        },
+      ],
+      columns: [
+        "o.id",
+        { column: "c.name", as: "customer" },
+        { column: "c.tier", coalesce: { literal: "none" } },
+      ],
+      filters: [
+        { column: "o.total", op: "gte", value: { literal: 100 } },
+        { column: "c.email", op: "notNull" },
+        {
+          column: "o.owner",
+          op: "eq",
+          value: { widget: "appsmith", property: "user.email" },
+        },
+      ],
+      orderBy: [{ column: "customer", direction: "ASC" }],
+      limit: 25,
+    },
+    expected: {
+      none: { throws: ALIASED_MODE_MESSAGE },
+      "postgres-plugin":
+        'SELECT o."id" AS id, c."name" AS customer, COALESCE(c."tier", {{ "none" }}) AS tier FROM (SELECT "customer_id", "region", "id", "total", "owner" FROM sales.orders) o LEFT JOIN (SELECT "id", "region", "name", "tier", "email" FROM sales.customers) c ON c."id" = o."customer_id" AND c."region" = o."region" WHERE o."total" >= {{ 100 }} AND c."email" IS NOT NULL AND o."owner" = {{ appsmith.user.email }} ORDER BY customer ASC LIMIT 25;',
+      "mysql-plugin":
+        'SELECT o.id AS id, c.name AS customer, COALESCE(c.tier, {{ "none" }}) AS tier FROM sales.orders o LEFT JOIN sales.customers c ON c.id = o.customer_id AND c.region = o.region WHERE o.total >= {{ 100 }} AND NOT (c.email <=> NULL) AND o.owner = {{ appsmith.user.email }} ORDER BY customer ASC LIMIT 25;',
+      "mariadb-plugin":
+        'SELECT o.id AS id, c.name AS customer, COALESCE(c.tier, {{ "none" }}) AS tier FROM sales.orders o LEFT JOIN sales.customers c ON c.id = o.customer_id AND c.region = o.region WHERE o.total >= {{ 100 }} AND NOT (c.email <=> NULL) AND o.owner = {{ appsmith.user.email }} ORDER BY customer ASC LIMIT 25;',
+      "oracle-plugin":
+        'SELECT o.id AS id, c.name AS customer, COALESCE(c.tier, {{ "none" }}) AS tier FROM sales.orders o LEFT JOIN sales.customers c ON c.id = o.customer_id AND c.region = o.region WHERE o.total >= {{ 100 }} AND c.email IS NOT NULL AND o.owner = {{ appsmith.user.email }} ORDER BY customer ASC FETCH FIRST 25 ROWS ONLY',
+      "mssql-plugin":
+        'SELECT TOP (25) o."id" AS id, c."name" AS customer, COALESCE(c."tier", {{ "none" }}) AS tier FROM sales.orders o LEFT JOIN sales.customers c ON c."id" = o."customer_id" AND c."region" = o."region" WHERE o."total" >= {{ 100 }} AND c."email" IS NOT NULL AND o."owner" = {{ appsmith.user.email }} ORDER BY customer ASC;',
+      "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
+      "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
+    },
+  },
+  {
+    name: "inner join with groupBy, aggregates and having",
+    spec: {
+      operation: "SELECT",
+      from: { table: "orders", as: "o" },
+      joins: [
+        {
+          type: "inner",
+          table: "items",
+          as: "i",
+          on: [{ left: "i.order_id", right: "o.id" }],
+        },
+      ],
+      groupBy: [{ column: "o.status", as: "status" }],
+      aggregates: [
+        { fn: "count", as: "line_count" },
+        { fn: "avg", column: "i.price", round: "floor", as: "avg_price" },
+      ],
+      having: [{ column: "line_count", op: "gte", value: { literal: 2 } }],
+      orderBy: [{ column: "line_count", direction: "DESC" }],
+      limit: 100,
+    },
+    expected: {
+      none: { throws: ALIASED_MODE_MESSAGE },
+      "postgres-plugin":
+        'SELECT o."status" AS status, COUNT(*) AS line_count, FLOOR(AVG(i."price")) AS avg_price FROM (SELECT "id", "status" FROM orders) o INNER JOIN (SELECT "order_id", "price" FROM items) i ON i."order_id" = o."id" GROUP BY o."status" HAVING COUNT(*) >= {{ 2 }} ORDER BY line_count DESC LIMIT 100;',
+      "mysql-plugin":
+        "SELECT o.status AS status, COUNT(*) AS line_count, FLOOR(AVG(i.price)) AS avg_price FROM orders o INNER JOIN items i ON i.order_id = o.id GROUP BY o.status HAVING COUNT(*) >= {{ 2 }} ORDER BY line_count DESC LIMIT 100;",
+      "mariadb-plugin":
+        "SELECT o.status AS status, COUNT(*) AS line_count, FLOOR(AVG(i.price)) AS avg_price FROM orders o INNER JOIN items i ON i.order_id = o.id GROUP BY o.status HAVING COUNT(*) >= {{ 2 }} ORDER BY line_count DESC LIMIT 100;",
+      "oracle-plugin":
+        "SELECT o.status AS status, COUNT(*) AS line_count, FLOOR(AVG(i.price)) AS avg_price FROM orders o INNER JOIN items i ON i.order_id = o.id GROUP BY o.status HAVING COUNT(*) >= {{ 2 }} ORDER BY line_count DESC FETCH FIRST 100 ROWS ONLY",
+      "mssql-plugin":
+        'SELECT TOP (100) o."status" AS status, COUNT(*) AS line_count, FLOOR(AVG(i."price")) AS avg_price FROM orders o INNER JOIN items i ON i."order_id" = o."id" GROUP BY o."status" HAVING COUNT(*) >= {{ 2 }} ORDER BY line_count DESC;',
+      "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
+      "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
+    },
+  },
+  {
+    name: "mixed-case columns keep their case",
+    spec: {
+      operation: "SELECT",
+      from: { table: "orders", as: "o" },
+      joins: [
+        {
+          type: "inner",
+          table: "customers",
+          as: "c",
+          on: [{ left: "c.id", right: "o.customerId" }],
+        },
+      ],
+      columns: [
+        { column: "o.createdAt", as: "created_at" },
+        { column: "c.fullName", as: "full_name" },
+      ],
+      orderBy: [{ column: "created_at", direction: "DESC" }],
+      limit: 10,
+    },
+    expected: {
+      none: { throws: ALIASED_MODE_MESSAGE },
+      "postgres-plugin":
+        'SELECT o."createdAt" AS created_at, c."fullName" AS full_name FROM (SELECT "customerId", "createdAt" FROM orders) o INNER JOIN (SELECT "id", "fullName" FROM customers) c ON c."id" = o."customerId" ORDER BY created_at DESC LIMIT 10;',
+      "mysql-plugin":
+        "SELECT o.createdAt AS created_at, c.fullName AS full_name FROM orders o INNER JOIN customers c ON c.id = o.customerId ORDER BY created_at DESC LIMIT 10;",
+      "mariadb-plugin":
+        "SELECT o.createdAt AS created_at, c.fullName AS full_name FROM orders o INNER JOIN customers c ON c.id = o.customerId ORDER BY created_at DESC LIMIT 10;",
+      "oracle-plugin":
+        "SELECT o.createdAt AS created_at, c.fullName AS full_name FROM orders o INNER JOIN customers c ON c.id = o.customerId ORDER BY created_at DESC FETCH FIRST 10 ROWS ONLY",
+      "mssql-plugin":
+        'SELECT TOP (10) o."createdAt" AS created_at, c."fullName" AS full_name FROM orders o INNER JOIN customers c ON c."id" = o."customerId" ORDER BY created_at DESC;',
+      "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
+      "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
+    },
+  },
+  // APP-16506 C: CASE in columns, with a condition group and a column operand.
+  {
+    name: "CASE column",
+    spec: {
+      operation: "SELECT",
+      from: { table: "orders", as: "o" },
+      columns: [
+        "o.id",
+        {
+          case: {
+            when: [
+              {
+                if: [
+                  { column: "o.total", op: "gte", value: { literal: 1000 } },
+                ],
+                then: { literal: "large" },
+              },
+              {
+                if: [
+                  { column: "o.total", op: "isNull" },
+                  {
+                    anyOf: [
+                      {
+                        column: "o.status",
+                        op: "eq",
+                        value: { literal: "new" },
+                      },
+                      { column: "o.status", op: "isNull" },
+                    ],
+                  },
+                ],
+                then: { column: "o.status" },
+              },
+            ],
+            else: { literal: "small" },
+          },
+          as: "order_band",
+        },
+      ],
+      limit: 50,
+    },
+    expected: {
+      none: { throws: ALIASED_MODE_MESSAGE },
+      "postgres-plugin":
+        'SELECT o."id" AS id, CASE WHEN o."total" >= {{ 1000 }} THEN {{ "large" }} WHEN o."total" IS NULL AND (o."status" = {{ "new" }} OR o."status" IS NULL) THEN o."status" ELSE {{ "small" }} END AS order_band FROM (SELECT "id", "total", "status" FROM orders) o LIMIT 50;',
+      "mysql-plugin":
+        'SELECT o.id AS id, CASE WHEN o.total >= {{ 1000 }} THEN {{ "large" }} WHEN o.total <=> NULL AND (o.status = {{ "new" }} OR o.status <=> NULL) THEN o.status ELSE {{ "small" }} END AS order_band FROM orders o LIMIT 50;',
+      "mariadb-plugin":
+        'SELECT o.id AS id, CASE WHEN o.total >= {{ 1000 }} THEN {{ "large" }} WHEN o.total <=> NULL AND (o.status = {{ "new" }} OR o.status <=> NULL) THEN o.status ELSE {{ "small" }} END AS order_band FROM orders o LIMIT 50;',
+      "oracle-plugin":
+        'SELECT o.id AS id, CASE WHEN o.total >= {{ 1000 }} THEN {{ "large" }} WHEN o.total IS NULL AND (o.status = {{ "new" }} OR o.status IS NULL) THEN o.status ELSE {{ "small" }} END AS order_band FROM orders o FETCH FIRST 50 ROWS ONLY',
+      "mssql-plugin":
+        'SELECT TOP (50) o."id" AS id, CASE WHEN o."total" >= {{ 1000 }} THEN {{ "large" }} WHEN o."total" IS NULL AND (o."status" = {{ "new" }} OR o."status" IS NULL) THEN o."status" ELSE {{ "small" }} END AS order_band FROM orders o;',
+      "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
+      "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
+    },
+  },
+  // APP-16506 C: CASE as an aggregate input, repeated in HAVING.
+  {
+    name: "CASE aggregate inputs with having",
+    spec: {
+      operation: "SELECT",
+      from: { table: "orders", as: "o" },
+      groupBy: ["o.region"],
+      aggregates: [
+        {
+          fn: "sum",
+          case: {
+            when: [
+              {
+                if: [
+                  { column: "o.status", op: "eq", value: { literal: "paid" } },
+                ],
+                then: { column: "o.total" },
+              },
+            ],
+            else: { literal: 0 },
+          },
+          as: "paid_total",
+        },
+        {
+          fn: "count",
+          case: {
+            when: [
+              {
+                if: [{ column: "o.refunded", op: "notNull" }],
+                then: { literal: 1 },
+              },
+            ],
+          },
+          as: "refunds",
+        },
+      ],
+      having: [{ column: "paid_total", op: "gt", value: { literal: 0 } }],
+      orderBy: [{ column: "paid_total", direction: "DESC" }],
+      limit: 20,
+    },
+    expected: {
+      none: { throws: ALIASED_MODE_MESSAGE },
+      "postgres-plugin":
+        'SELECT o."region" AS region, SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o."refunded" IS NOT NULL THEN {{ 1 }} END) AS refunds FROM (SELECT "region", "status", "total", "refunded" FROM orders) o GROUP BY o."region" HAVING SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC LIMIT 20;',
+      "mysql-plugin":
+        'SELECT o.region AS region, SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN NOT (o.refunded <=> NULL) THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o.region HAVING SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC LIMIT 20;',
+      "mariadb-plugin":
+        'SELECT o.region AS region, SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN NOT (o.refunded <=> NULL) THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o.region HAVING SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC LIMIT 20;',
+      "oracle-plugin":
+        'SELECT o.region AS region, SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o.refunded IS NOT NULL THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o.region HAVING SUM(CASE WHEN o.status = {{ "paid" }} THEN o.total ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC FETCH FIRST 20 ROWS ONLY',
+      "mssql-plugin":
+        'SELECT TOP (20) o."region" AS region, SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) AS paid_total, COUNT(CASE WHEN o."refunded" IS NOT NULL THEN {{ 1 }} END) AS refunds FROM orders o GROUP BY o."region" HAVING SUM(CASE WHEN o."status" = {{ "paid" }} THEN o."total" ELSE {{ 0 }} END) > {{ 0 }} ORDER BY paid_total DESC;',
+      "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
+      "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
+    },
+  },
+  // APP-16506 D: two CTEs, the second reading the first, joined to a table. Refused on MySQL and MariaDB.
+  {
+    name: "WITH two CTEs joined to a table",
+    spec: {
+      operation: "SELECT",
+      with: [
+        {
+          name: "order_totals",
+          query: {
+            from: { table: "orders", as: "o" },
+            filters: [
+              { column: "o.status", op: "eq", value: { literal: "paid" } },
+            ],
+            groupBy: [{ column: "o.customer_id", as: "customer_id" }],
+            aggregates: [{ fn: "sum", column: "o.total", as: "paid_total" }],
+          },
+        },
+        {
+          name: "big_spenders",
+          query: {
+            from: { cte: "order_totals", as: "t" },
+            columns: ["t.customer_id", "t.paid_total"],
+            filters: [
+              { column: "t.paid_total", op: "gte", value: { literal: 500 } },
+            ],
+          },
+        },
+      ],
+      from: { table: "customers", as: "c" },
+      joins: [
+        {
+          type: "inner",
+          cte: "big_spenders",
+          as: "b",
+          on: [{ left: "b.customer_id", right: "c.id" }],
+        },
+      ],
+      columns: [{ column: "c.name", as: "customer" }, "b.paid_total"],
+      orderBy: [{ column: "paid_total", direction: "DESC" }],
+      limit: 10,
+    },
+    expected: {
+      none: { throws: ALIASED_MODE_MESSAGE },
+      "postgres-plugin":
+        'WITH order_totals AS (SELECT o."customer_id" AS customer_id, SUM(o."total") AS paid_total FROM (SELECT "customer_id", "status", "total" FROM orders) o WHERE o."status" = {{ "paid" }} GROUP BY o."customer_id"), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT c."name" AS customer, b.paid_total AS paid_total FROM (SELECT "id", "name" FROM customers) c INNER JOIN big_spenders b ON b.customer_id = c."id" ORDER BY paid_total DESC LIMIT 10;',
+      "mysql-plugin": { throws: WITH_ON_MYSQL_MESSAGE },
+      "mariadb-plugin": { throws: WITH_ON_MYSQL_MESSAGE },
+      "oracle-plugin":
+        'WITH order_totals AS (SELECT o.customer_id AS customer_id, SUM(o.total) AS paid_total FROM orders o WHERE o.status = {{ "paid" }} GROUP BY o.customer_id), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT c.name AS customer, b.paid_total AS paid_total FROM customers c INNER JOIN big_spenders b ON b.customer_id = c.id ORDER BY paid_total DESC FETCH FIRST 10 ROWS ONLY',
+      "mssql-plugin":
+        'WITH order_totals AS (SELECT o."customer_id" AS customer_id, SUM(o."total") AS paid_total FROM orders o WHERE o."status" = {{ "paid" }} GROUP BY o."customer_id"), big_spenders AS (SELECT t.customer_id AS customer_id, t.paid_total AS paid_total FROM order_totals t WHERE t.paid_total >= {{ 500 }}) SELECT TOP (10) c."name" AS customer, b.paid_total AS paid_total FROM customers c INNER JOIN big_spenders b ON b.customer_id = c."id" ORDER BY paid_total DESC;',
+      "redshift-plugin": { throws: ALIASED_MODE_MESSAGE },
+      "snowflake-plugin": { throws: ALIASED_MODE_MESSAGE },
+    },
+  },
+];
+
+describe("APP-16506 golden: from and joins per plugin", () => {
+  it.each(GOLDEN_PLUGIN_CASES)("$name", ({ expected, spec }) => {
+    expect(compileForEveryPlugin(spec)).toEqual(expected);
   });
 });
