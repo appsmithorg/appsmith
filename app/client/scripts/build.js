@@ -137,7 +137,7 @@ function build(previousFileSizes) {
 
   const compiler = webpack(config);
   return new Promise((resolve, reject) => {
-    compiler.run((err, stats) => {
+    const handleBuild = (err, stats) => {
       let messages;
       if (err) {
         if (!err.message) {
@@ -205,6 +205,16 @@ function build(previousFileSizes) {
       }
 
       return resolve(resolveArgs);
+    };
+
+    compiler.run((err, stats) => {
+      // Closing the compiler writes the filesystem cache to disk.
+      compiler.close(closeErr => {
+        if (closeErr) {
+          return reject(closeErr);
+        }
+        handleBuild(err, stats);
+      });
     });
   });
 }

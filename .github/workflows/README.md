@@ -69,6 +69,15 @@ secrets, regardless of the `permissions:` block. The `ok-to-test` label path the
 cannot work for external contributions, and the run fails when it tries to write test
 status back to the PR.
 
+## Warming the client build cache
+
+`client-build.yml` restores the newest webpack cache saved by a release build of the same
+build mode, and saves one entry per build mode per day. Pull request builds compile in
+development mode, and only the `Client build cache seed` workflow saves a development-mode
+entry. It runs on weekdays at 00:30 UTC and on every push to `release` that changes
+`app/client/yarn.lock`. Run it by hand from Actions after a gap of more than a week, so the
+next pull request build starts warm.
+
 ## Slash commands
 
 These are still comment-triggered. They dispatch through a GitHub App and require write
