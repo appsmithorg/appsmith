@@ -8396,22 +8396,30 @@ export function buildMcpServer(
                 }
 
                 // Pinning saves the copy again and can change its updatedAt, so the revision comes from a read after
-                // the pin. If that read fails, the copy is still made and pinned: return the create response, and the
-                // agent re-reads with get_action before its next governed change.
-                let saved: unknown = created;
+                // the pin. If that read fails, the copy is still made and pinned, but its revision is unknown: the
+                // result leaves the revision out and tells the agent to read the copy with get_action first.
+                let saved: unknown;
 
                 try {
                   saved = await api.getAction(target.applicationId, createdId);
                 } catch {
-                  // Keep the create response.
+                  saved = undefined;
                 }
 
                 return {
-                  value: {
-                    action: projectAction(saved),
-                    revision: fingerprintAction(saved),
-                  },
-                  revisionAfter: fingerprintAction(saved),
+                  value:
+                    saved === undefined
+                      ? {
+                          action: projectAction(created),
+                          revisionUnavailable:
+                            "read the copy with get_action before you change it",
+                        }
+                      : {
+                          action: projectAction(saved),
+                          revision: fingerprintAction(saved),
+                        },
+                  // The audit record keeps the best revision known.
+                  revisionAfter: fingerprintAction(saved ?? created),
                   rollback: {
                     createdActionId: (created as { id?: string } | null)?.id,
                   },

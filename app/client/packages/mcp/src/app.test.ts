@@ -7409,13 +7409,27 @@ describe("governance-wrapped layout mutations", () => {
         gitAppId?: string;
       } = {},
     ) {
-      const createAction = jest.fn(async (action: Record<string, unknown>) => ({
-        id: "act9",
-        ...action,
-        pluginType: (stored as { pluginType?: unknown }).pluginType,
-        updatedAt: "2026-11-16T00:00:00.000Z",
-      }));
-      const getAction = jest.fn(async () => stored);
+      // getAction returns the source for act1 and, once created, the copy for act9.
+      let createdCopy: Record<string, unknown> | undefined;
+      const createAction = jest.fn(async (action: Record<string, unknown>) => {
+        createdCopy = {
+          id: "act9",
+          ...action,
+          pluginType: (stored as { pluginType?: unknown }).pluginType,
+          updatedAt: "2026-11-16T00:00:00.000Z",
+        };
+
+        return createdCopy;
+      });
+      const getAction = jest.fn(
+        async (_applicationId: string, actionId: string): Promise<unknown> => {
+          if (actionId === "act9" && createdCopy !== undefined) {
+            return createdCopy;
+          }
+
+          return stored;
+        },
+      );
       const setActionRunBehaviour = jest.fn(async () => ({}));
       const deleteAction = jest.fn(async () => ({}));
       const api: AppsmithApi = {
@@ -7520,6 +7534,11 @@ describe("governance-wrapped layout mutations", () => {
 
       // Then
       expect(copied.body.copied).toBe(true);
+      expect(copied.body.action).toMatchObject({
+        id: "act9",
+        name: "getUsersCopy",
+        pageId: "p2",
+      });
       expect(copied.body.referencesAppValues).toBe(true);
       expect(getAction).toHaveBeenCalledWith("app1", "act1");
       expect(createAction).toHaveBeenCalledTimes(1);
@@ -8084,6 +8103,28 @@ describe("governance-wrapped layout mutations", () => {
       expect(copied.body.copied).toBe(true);
       expect(getAction).toHaveBeenCalledWith("app2", "act9");
       expect(copied.body.revision).toBe(reread.body.revision);
+    });
+
+    it("should_leave_out_the_revision_when_the_copy_cannot_be_read_after_the_pin", async () => {
+      // Given
+      const { getAction, server } = copyServer(PG_SOURCE);
+
+      getAction.mockImplementation(async (_app: string, actionId: string) => {
+        if (actionId === "act9") throw new Error("read failed");
+
+        return PG_SOURCE;
+      });
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(copied.body.action.id).toBe("act9");
+      expect(copied.body).not.toHaveProperty("revision");
+      expect(copied.body.revisionUnavailable).toBe(
+        "read the copy with get_action before you change it",
+      );
     });
 
     it("should_remove_the_copy_when_it_cannot_be_pinned_to_run_manually", async () => {
