@@ -286,6 +286,45 @@ class RepositoryFileOperationsStayWithinRepositoryTest {
     }
 
     @Test
+    @DisplayName("GHSA-x4j8-9c4j-73r7")
+    void should_keepStaleFile_when_oneResourcePathLeavesRepository() throws IOException {
+        // Given
+        Path staleFile = Files.writeString(repository.resolve("stale.json"), "{}");
+        GitResourceMap resourcesFromFS = resourceMapWith("stale.json");
+        GitResourceMap resourcesFromDB =
+                resourceMapWith(pathRelativeToRepository(otherRepository.resolve("new-file.json")));
+
+        // When
+        ThrowingCallable operation = () -> fileUtils.updateEntitiesInRepo(resourcesFromDB, repository, resourcesFromFS);
+
+        // Then
+        assertThatThrownBy(operation)
+                .isInstanceOf(AppsmithPluginException.class)
+                .hasMessage(OUTSIDE_REPOSITORY_MESSAGE);
+        assertThat(staleFile).hasContent("{}");
+    }
+
+    @Test
+    @DisplayName("GHSA-x4j8-9c4j-73r7")
+    void should_keepStaleFileInFallback_when_oneResourcePathLeavesRepository() throws IOException {
+        // Given
+        Path staleFile = repository.resolve("pages/Removed Page/Removed Page.json");
+        Files.createDirectories(staleFile.getParent());
+        Files.writeString(staleFile, "{}");
+        GitResourceMap resourcesFromDB =
+                resourceMapWith(pathRelativeToRepository(otherRepository.resolve("new-file.json")));
+
+        // When
+        ThrowingCallable operation = () -> fileUtils.updateEntitiesInRepoFallback(resourcesFromDB, repository);
+
+        // Then
+        assertThatThrownBy(operation)
+                .isInstanceOf(AppsmithPluginException.class)
+                .hasMessage(OUTSIDE_REPOSITORY_MESSAGE);
+        assertThat(staleFile).hasContent("{}");
+    }
+
+    @Test
     void should_writeAndDeleteResources_when_pathsStayInRepository() throws IOException {
         // Given
         Path staleFile = repository.resolve("pages/Removed Page/Removed Page.json");
