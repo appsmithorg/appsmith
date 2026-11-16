@@ -4,6 +4,8 @@ import { isPlainObject, isNil, isString } from "lodash";
 import moment from "moment";
 import { neutralizeSpreadsheetFormula } from "widgets/TableWidgetV2/utilities/getExportCellValue";
 
+const escapeCsvField = (value: string) => value.replace(/"/g, '""');
+
 export function sortTableFunction(
   filteredTableData: Array<Record<string, unknown>>,
   columnType: string,
@@ -96,8 +98,14 @@ export const transformTableDataIntoCsv = (props: {
           value = neutralizeSpreadsheetFormula(value);
         }
 
-        if (isString(value) && value.includes(",")) {
-          csvDataRow.push(`"${value}"`);
+        // Quote when the field contains a comma or `"`. Otherwise a value like
+        // `"=1+2"` is written raw and CSV parsers treat the quotes as syntax,
+        // decoding the cell to `=1+2` and bypassing neutralization.
+        const shouldQuote =
+          isString(value) && (value.includes(",") || value.includes('"'));
+
+        if (shouldQuote) {
+          csvDataRow.push(`"${escapeCsvField(value)}"`);
         } else {
           csvDataRow.push(value);
         }
