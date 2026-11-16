@@ -842,9 +842,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     return cacheablePylonHelper
                             .getEmailHash(userFromDb)
                             .doOnNext(profile::setEmailVerificationHash)
-                            .then(Mono.defer(
-                                    () -> pacConfigurationService.setRolesAndGroups(profile, userFromDb, true)));
+                            .then(Mono.defer(() -> setRolesAndGroups(profile, userFromDb)));
                 });
+    }
+
+    protected Mono<UserProfileDTO> setRolesAndGroups(UserProfileDTO profile, User user) {
+        return pacConfigurationService.setRolesAndGroups(profile, user, true);
     }
 
     private EmailTokenDTO parseValueFromEncryptedToken(String encryptedToken) {

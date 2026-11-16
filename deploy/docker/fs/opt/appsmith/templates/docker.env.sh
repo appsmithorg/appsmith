@@ -85,4 +85,12 @@ APPSMITH_CUSTOM_DOMAIN=
 
 APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX=false
 
+# Comma-separated MongoDB collection names to omit from appsmithctl backup,
+# including scheduled backups. Names are case-sensitive.
+# A name may be the collection (auditLog) or database.collection (appsmith.auditLog).
+# database.collection is used only when that database is the one in APPSMITH_DB_URL.
+# APPSMITH_DB_URL must include the database name, for example /appsmith.
+# Appsmith does not run without it.
+#APPSMITH_BACKUP_EXCLUDE_COLLECTIONS=
+
 EOF

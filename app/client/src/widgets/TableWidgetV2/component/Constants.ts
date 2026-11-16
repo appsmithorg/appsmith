@@ -54,6 +54,23 @@ export enum ImageSizes {
   LARGE = "128px",
 }
 
+/**
+ * In-cell action control sizes. DEFAULT/TALL content budget is
+ * ROW_HEIGHT (40) − VERTICAL_PADDING (6×2) = 28px; 27 matches the
+ * Button column and leaves 1px slack so pageSize rows fit without a scrollbar.
+ * @see https://github.com/appsmithorg/appsmith/issues/37014
+ */
+export const TABLE_CELL_ACTION_ICON_SIZE = {
+  SHORT: 24,
+  DEFAULT: 27,
+} as const;
+
+export function getTableCellActionIconSize(compactMode?: string): number {
+  return compactMode === CompactModeTypes.SHORT
+    ? TABLE_CELL_ACTION_ICON_SIZE.SHORT
+    : TABLE_CELL_ACTION_ICON_SIZE.DEFAULT;
+}
+
 export const SCROLL_BAR_OFFSET = 2;
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
   [CompactModeTypes.DEFAULT]: {

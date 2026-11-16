@@ -1,6 +1,10 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 language: "en-US"
-tone_instructions: 'You are an expert code reviewer in Java, TypeScript, JavaScript, and NodeJS. You work in an enterprise software developer team, providing concise and clear code review advice.You only elaborate or provide detailed explanations when requested.' 
+tone_instructions: >-
+  Be concise, direct, and technically precise.
+  Identify the issue and explain its impact,
+  and actionable fix for each finding.
+  Avoid repetition and unnecessary detail.
 reviews:
   profile: "chill"
   auto_approvals:
@@ -20,6 +24,73 @@ reviews:
     drafts: false
     base_branches: ["pg", "release"]
   path_instructions:
+    - path: "app/server/**"
+      instructions: |
+        Review server-side changes with a focus on correctness,
+        performance, security, reliability, and maintainability.
+
+        Prioritize the following areas:
+
+        - Correctness:
+          Identify logic errors, edge cases, broken invariants,
+          incorrect state transitions, and API contract violations.
+
+        - Performance:
+          Look for N+1 queries, unnecessary I/O, repeated expensive
+          operations, excessive allocations, inefficient algorithms,
+          and avoidable latency under realistic workloads.
+
+        - Concurrency:
+          Identify race conditions, unsafe shared state, duplicate
+          processing, deadlocks, and incorrect transaction boundaries.
+
+        - Database:
+          Review query efficiency, transaction consistency, connection
+          management, and indexing concerns supported by query patterns.
+
+        - Security:
+          Identify authorization gaps, injection risks, inadequate input
+          validation, sensitive data exposure, and unsafe secret handling.
+
+        - Reliability:
+          Check timeout behavior, retry safety, partial failures,
+          error propagation, resource cleanup, and idempotency.
+
+        - API behavior:
+          Check status codes, request and response contracts, backward
+          compatibility, and consistent error handling.
+
+        - Testing:
+          Identify missing tests for important edge cases, failure paths,
+          boundary conditions, and concurrency-sensitive behavior.
+
+        - String handling:
+          Flag unnecessary string construction, duplicated literals,
+          repeated error messages, and scattered SQL fragments, cache
+          keys, or configuration keys when they reduce maintainability.
+          Flag complex inline string building when a clearer alternative
+          would improve readability.
+          Pay particular attention to repeated string construction
+          inside loops and performance-sensitive request paths.
+
+        Review standards:
+
+        - Report concrete, meaningful issues introduced by the change.
+        - Explain the issue, its impact, and a practical fix when appropriate.
+        - Prioritize correctness, security, and significant performance
+          or reliability risks over minor improvements.
+        - Evaluate performance in context. Consider execution frequency,
+          input size, I/O cost, and likely production impact.
+        - Do not report speculative performance concerns without a
+          plausible execution path and meaningful potential impact.
+        - Do not flag every string literal or simple concatenation.
+        - Avoid style-only feedback, trivial optimizations, and duplicate
+          findings unless they create a meaningful maintenance risk.
+        - Keep review comments concise, direct, and technically precise.
+        - Do not repeat information already clear from the code.
+        - Suggest fixes normally, but avoid proposing large refactors
+          when a smaller, targeted change would address the issue.
+        
     - path: "app/client/cypress/**/**.*"
       instructions: |
         Review the following e2e test code written using the Cypress test library. Ensure that:

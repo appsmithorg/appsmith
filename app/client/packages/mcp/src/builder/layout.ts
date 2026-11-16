@@ -11,7 +11,7 @@ export const ROOT_WIDGET_NAME = "MainContainer";
 // makes it rescale and rewrite our widgets (e.g. migration 075 flips a single-line input to MULTI_LINE_TEXT after an
 // earlier grid-density scale). Emitting LATEST means zero migrations run and our widgets render exactly as built.
 // A drift test asserts this equals the live constant so an Appsmith version bump can't silently regress it.
-export const LATEST_DSL_VERSION = 94;
+export const LATEST_DSL_VERSION = 95;
 const ROW_GAP = 1;
 // Recomputed by the layout engine on render; sensible seed values keep the imported DSL well-formed.
 const DEFAULT_PARENT_COLUMN_SPACE = 10;

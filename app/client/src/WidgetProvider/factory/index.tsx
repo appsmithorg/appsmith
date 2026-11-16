@@ -25,6 +25,7 @@ import {
   getDefaultOnCanvasUIConfig,
   PropertyPaneConfigTypes,
 } from "./helpers";
+import { addCustomStylingSection } from "ee/WidgetProvider/factory/customStylingSection";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import type BaseWidget from "widgets/BaseWidget";
 import { flow } from "lodash";
@@ -328,7 +329,10 @@ export class WidgetFactory {
         addPropertyConfigIds,
       ]);
       const enhancedPropertyPaneConfig = enhance(
-        addTabOrderToPropertyPaneConfig(type, propertyPaneConfig),
+        addCustomStylingSection(
+          type,
+          addTabOrderToPropertyPaneConfig(type, propertyPaneConfig),
+        ),
         features,
       );
 
@@ -438,7 +442,11 @@ export class WidgetFactory {
   ): readonly PropertyPaneConfig[] {
     const widget = WidgetFactory.widgetsMap.get(type);
 
-    const propertyPaneStyleConfig = widget?.getPropertyPaneStyleConfig();
+    // Runs even when the widget has no style config, so an edition can add one.
+    const propertyPaneStyleConfig = addCustomStylingSection(
+      type,
+      widget?.getPropertyPaneStyleConfig(),
+    );
 
     const features = widget?.getFeatures();
 

@@ -10,9 +10,23 @@ import VideoComponent from "./";
 import styled from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 
+/**
+ * Play control size for table video cells (PopoverVideo is only used from
+ * tables). 27px matches the Button / Icon Button / Menu Button in-cell size
+ * and fits the DEFAULT/TALL 28px content budget.
+ * @see https://github.com/appsmithorg/appsmith/issues/37014
+ */
+export const TABLE_VIDEO_PLAY_ICON_SIZE = 27;
+
 const PlayIcon = styled(ControlIcons.PLAY_VIDEO)`
   position: relative;
   cursor: pointer;
+
+  img {
+    height: ${TABLE_VIDEO_PLAY_ICON_SIZE}px !important;
+    width: ${TABLE_VIDEO_PLAY_ICON_SIZE}px !important;
+  }
+
   &:hover {
     svg {
       path {

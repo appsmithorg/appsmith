@@ -634,6 +634,53 @@ public class MySqlPluginTest {
     }
 
     /**
+     * A SQL body the MCP stores starts with a `--` marker line (APP-16324 F9). This plugin strips `--` comments and then
+     * reads the first word to decide whether the query returns rows, so a marked SELECT must still return its rows,
+     * not an affected-row count. The marker shape matches markMcpAuthoredBody in
+     * app/client/packages/mcp/src/builder/query.ts. Change both together.
+     */
+    @Test
+    public void testMcpMarkedSelectStillReturnsRows() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .map(connectionPool -> {
+                    instanceConnectionContext = connectionPool;
+                    return connectionPool;
+                });
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("-- appsmith-mcp:v1 sha256=" + "0".repeat(64)
+                + " (written by the Appsmith MCP server, editing it stops MCP clients from reading it)\n"
+                + "SELECT t.id FROM (SELECT 1 AS id UNION ALL SELECT 2) AS t WHERE t.id > {{binding1}} ORDER BY t.id;");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("binding1");
+        param1.setValue("1");
+        param1.setClientDataType(ClientDataType.NUMBER);
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> executeMono = connectionContextMono.flatMap(
+                conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    ArrayNode rows = (ArrayNode) result.getBody();
+                    assertEquals(1, rows.size());
+                    assertEquals(2, rows.get(0).get("id").asInt());
+                })
+                .verifyComplete();
+    }
+
+    /**
      * The MCP compiler emits isNull and notNull filters as `<=>` on MySQL, because this plugin refuses the IS keyword
      * in a prepared statement. The SQL shape matches app/client/packages/mcp/src/builder/query.test.ts. Change both
      * together.

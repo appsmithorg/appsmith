@@ -1,7 +1,8 @@
 name: Github Release
 
 # This workflow builds Docker images for server and client, and then pushes them to Docker Hub.
-# The docker-tag with which this push happens is `latest` and the release tag (e.g., v1.2.3 etc.).
+# The docker-tag with which this push happens is the release tag (e.g., v1.2.3 etc.), plus `latest` when no
+# published release has a higher version.
 # This workflow does NOT run tests.
 # This workflow is automatically triggered when a release is created on GitHub.
 
@@ -24,15 +25,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
-          fetch-depth: "5"
-          fetch-tags: "true"
 
       - name: Prelude checks and preparations
         uses: actions/github-script@v7
         id: main
         with:
           script: |
-            require(
+            await require(
               "${{ github.workspace }}/.github/workflows/scripts/github-release/prelude.js",
             )(
               { core, context, github },

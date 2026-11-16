@@ -40,8 +40,24 @@ public class McpTokenAuthenticationManager implements ReactiveAuthenticationMana
         }
 
         McpTokenAuthentication mcpTokenAuthentication = (McpTokenAuthentication) authentication;
+        final String userKey = (String) authentication.getCredentials();
         final String bucketKey = rateLimitKey(mcpTokenAuthentication);
 
+        // Fast path: a token that matches its auth cache entry is not charged to the bucket. The cache holds only
+        // tokens the store already accepted. Rotate overwrites the entry and revoke deletes it.
+        //
+        // Without this, a client that sends more requests at once than the bucket holds is refused for some of them
+        // before any success can reset the bucket. For example, read_pages fetches several pages in parallel.
+        //
+        // A token that does not match the cache takes the charged path below. Every wrong guess still spends from
+        // the bucket before the store is read.
+        return mcpTokenService
+                .authenticateCached(userKey)
+                .map(McpTokenAuthenticationManager::mcpAuthentication)
+                .switchIfEmpty(Mono.defer(() -> chargedAuthentication(userKey, bucketKey)));
+    }
+
+    private Mono<Authentication> chargedAuthentication(String userKey, String bucketKey) {
         // Spend a token BEFORE the credential check, not after. Reading the remaining count and then verifying the
         // credential leaves a window in which every concurrent request sees the same non-zero count, so an attacker
         // firing N requests at once gets N credential verifications regardless of the limit — the bucket only ever
@@ -62,12 +78,11 @@ public class McpTokenAuthenticationManager implements ReactiveAuthenticationMana
                     }
 
                     return mcpTokenService
-                            .authenticate((String) authentication.getCredentials())
+                            .authenticate(userKey)
                             .flatMap(user -> rateLimitService
                                     .resetCounter(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, bucketKey)
                                     .onErrorResume(error -> Mono.empty())
-                                    .thenReturn((Authentication) UsernamePasswordAuthenticationToken.authenticated(
-                                            user, null, mcpAuthorities(user))))
+                                    .thenReturn(mcpAuthentication(user)))
                             // The token was already spent above, so a failed attempt needs no further accounting.
                             .switchIfEmpty(invalidMcpToken());
                 });
@@ -98,6 +113,10 @@ public class McpTokenAuthenticationManager implements ReactiveAuthenticationMana
 
     private Mono<Authentication> invalidMcpToken() {
         return Mono.error(new BadCredentialsException("Invalid MCP token"));
+    }
+
+    private static Authentication mcpAuthentication(User user) {
+        return UsernamePasswordAuthenticationToken.authenticated(user, null, mcpAuthorities(user));
     }
 
     private static List<GrantedAuthority> mcpAuthorities(User user) {
