@@ -24,6 +24,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.DBOpsType;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DryOpsUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.ratelimiting.RateLimitService;
@@ -52,7 +53,6 @@ import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -288,13 +288,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                             .create(datasourceStorage, isDryOps)
                             .map(datasourceStorage1 -> {
                                 if (datasourceStorageDryRunQueries != null && isDryOps) {
-                                    List<DatasourceStorage> datasourceStorages =
-                                            datasourceStorageDryRunQueries.get(SAVE);
-                                    if (datasourceStorages == null) {
-                                        datasourceStorages = new ArrayList<>();
-                                    }
-                                    datasourceStorages.add(datasourceStorage1);
-                                    datasourceStorageDryRunQueries.put(SAVE, datasourceStorages);
+                                    // Import shares this map across concurrent creates, so add under its lock.
+                                    DryOpsUtils.addDryOp(datasourceStorageDryRunQueries, SAVE, datasourceStorage1);
                                 }
                                 return datasourceStorage1;
                             });

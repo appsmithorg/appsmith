@@ -96,12 +96,30 @@ export const duplicateActionSpecSchema = actionReferenceSchema
   })
   .strict();
 
+// APP-16526: copy a stored action to a page of another app, or another page of the same app. The source is the
+// stored action (actionId, applicationId, revision from get_action). The target names a page and, optionally, a
+// datasource. No action configuration is accepted: the MCP server copies the stored one.
+export const copyActionSpecSchema = actionReferenceSchema
+  .extend({
+    name: actionName,
+    target: z
+      .object({
+        applicationId: identifier,
+        pageId: identifier,
+        // Needed when the source datasource is not in the target app's workspace. It must use the same plugin.
+        datasourceId: identifier.optional(),
+      })
+      .strict(),
+  })
+  .strict();
+
 // Deletion intentionally has no optional fields: the application/revision pair is required for optimistic
 // concurrency, while the stored action ID is the only action identifier the caller may supply.
 export const deleteActionSpecSchema = actionReferenceSchema;
 
 export type UpdateActionSpec = z.infer<typeof updateActionSpecSchema>;
 export type DuplicateActionSpec = z.infer<typeof duplicateActionSpecSchema>;
+export type CopyActionSpec = z.infer<typeof copyActionSpecSchema>;
 export type DeleteActionSpec = z.infer<typeof deleteActionSpecSchema>;
 
 export interface ActionLifecycleRequest {
@@ -170,6 +188,27 @@ export function buildDuplicateActionDto(
     revision: spec.revision,
     kind: spec.kind,
     name: spec.name,
+  };
+}
+
+export interface CopyActionRequest extends ActionLifecycleRequest {
+  name: string;
+  target: { applicationId: string; pageId: string; datasourceId?: string };
+}
+
+export function buildCopyActionDto(spec: CopyActionSpec): CopyActionRequest {
+  return {
+    actionId: spec.actionId,
+    applicationId: spec.applicationId,
+    revision: spec.revision,
+    name: spec.name,
+    target: {
+      applicationId: spec.target.applicationId,
+      pageId: spec.target.pageId,
+      ...(spec.target.datasourceId !== undefined
+        ? { datasourceId: spec.target.datasourceId }
+        : {}),
+    },
   };
 }
 

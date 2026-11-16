@@ -219,7 +219,54 @@ evaluated as code in a viewer's browser.
   \`isoString\` and \`dateBucket\` keep their UTC meaning. Wrap a date picker's \`selectedDate\` (ISO
   text) in \`date\` before comparing it with \`lt\` / \`gt\`. Base a date default on
   \`startOfDay\` of \`now\`, so it does not move while the user is on the page. See
-  appsmith://recipe/conditional-form for a full example.`;
+  appsmith://recipe/conditional-form for a full example.
+- Reading several tables in one SQL query (from + joins): a \`create_query\` or \`update_action\`
+  SELECT names its first table with \`from: { "table": "orders", "as": "o" }\` instead of \`table\`,
+  and adds up to 7 \`joins\`: \`{ "type": "inner" | "left", "table": "customers", "as": "c",
+  "on": [{ "left": "c.id", "right": "o.customer_id" }] }\`.
+  - Only PostgreSQL, MySQL, MariaDB, Oracle and SQL Server datasources accept it. Redshift and
+    Snowflake are refused: their plugins put values into the SQL text instead of binding them.
+  - An alias is a lower-case name that is not a SQL keyword. Each source has its own alias, and
+    each alias must be used.
+  - Every column is "alias.column", in columns, filters (and anyOf members), groupBy, aggregates
+    and on. A plain column name is refused.
+  - Each \`on\` pair (1 to 4, ANDed, always \`=\`) compares a column of the new join with a column of
+    a source declared before it.
+  - Every output has a result name: \`"o.id"\` is shown as \`id\`, and \`{ "column": "c.name",
+    "as": "customer" }\` renames it. Names are unique, ignoring case. Add \`as\` when two columns share
+    a name, or when a name is not lower-case or is a SQL keyword. SELECT * is not available.
+  - With aggregates, list the columns to return in \`groupBy\`, not \`columns\`. \`{ column, coalesce,
+    as? }\` works in both, and \`{ column, bucket, as }\` works in groupBy on PostgreSQL. \`having\` and
+    \`orderBy\` name result names.
+  - \`limit\` is required (at most 1,000 rows). \`split\` is not available. \`inList\` and \`ilike\`
+    stay PostgreSQL only. A query with joins is SELECT only.
+  - To scope rows to the viewer, filter the table that holds the owner column, such as
+    \`{ "column": "o.owner_email", "op": "eq", "value": { "widget": "appsmith", "property":
+    "user.email" } }\`.
+- CASE (only in a query with \`from\`): a \`columns\` entry \`{ "case": { "when": [{ "if": [condition,
+  ...], "then": operand }], "else": operand }, "as": "band" }\`, or an aggregate input
+  \`{ "fn": "sum", "case": { ... }, "as": "paid_total" }\` (column or case, not both).
+  - A condition has the filters shape (a filter or an anyOf group) without skipWhenEmpty or
+    inList. Up to 8 \`when\` branches, each with 1 to 4 conditions, ANDed.
+  - then and else are \`{ "column": "o.total" }\` or \`{ "literal": ... }\`. A literal is bound, never
+    null and never a widget value. All literal then and else values in one CASE have one type.
+    Oracle and SQL Server refuse a boolean then or else.
+  - No CASE inside a CASE, and none in groupBy: compute it in a with query, then group by that
+    query's output. At most 12 CASE expressions in one query level.
+- WITH (only in a query with \`from\`; PostgreSQL, Oracle and SQL Server): \`"with": [{ "name":
+  "order_totals", "query": { "from": ..., "joins": ..., "columns": ..., "filters": ..., "groupBy":
+  ..., "aggregates": ..., "having": ..., "distinct": ... } }]\` (1 to 4).
+  - Read a with query with \`from\` or a join of \`{ "cte": "order_totals", "as": "t" }\`. A with query
+    can read only the ones declared before it. Every with query must be read.
+  - A with query's outputs are its result names. \`t.paid_total\` must name one of them.
+  - A with query has no orderBy, no limit and no with of its own. The outer query still needs a
+    limit.
+  - MySQL and MariaDB refuse WITH: their plugin returns rows only for a query that starts with
+    SELECT. Use joins there.
+  - A name is a lower-case name that is not a SQL keyword, and is never used as a table name or
+    an alias.
+  - To scope rows to the viewer, put the scoping filter in EVERY with query that reads the scoped
+    table. A filter in the outer query does not limit what a with query reads.`;
 
 const GUIDE_GIT = `# Git-connected applications guide
 

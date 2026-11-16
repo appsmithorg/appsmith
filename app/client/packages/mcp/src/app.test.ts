@@ -21,7 +21,11 @@ import {
 } from "./app.js";
 import { INSTRUCTION_DOCS } from "./builder/instructions.js";
 import { compileJsObject } from "./builder/jsObject.js";
-import { markMcpAuthoredBody, mcpAuthoredBody } from "./builder/query.js";
+import {
+  markMcpAuthoredBody,
+  mcpAuthoredBody,
+  storedSqlBody,
+} from "./builder/query.js";
 import {
   buildRestActionDto,
   compileRestApi,
@@ -2669,6 +2673,450 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
       }
     },
   );
+
+  it.each([
+    ["postgres-plugin", true],
+    ["redshift-plugin", true],
+    ["mysql-plugin", false],
+    ["oracle-plugin", false],
+    ["mssql-plugin", false],
+  ])(
+    "APP-16495: create_query compiles a date bucket with aggregates only on PostgreSQL or Redshift (%s)",
+    async (pluginId, allowed) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          groupBy: [{ column: "created_at", bucket: "week", as: "week" }],
+          aggregates: [{ fn: "count" }],
+          orderBy: [{ column: "week", direction: "ASC" }],
+        },
+      });
+
+      if (allowed) {
+        expect(body.created).toBe(true);
+        expect(body.body).toBe(
+          "SELECT DATE_TRUNC('week', \"created_at\") AS week, COUNT(*) AS count FROM users GROUP BY DATE_TRUNC('week', \"created_at\") ORDER BY week ASC;",
+        );
+      } else {
+        expect(body.valid).toBe(false);
+        expect(body.errors).toContainEqual(
+          expect.objectContaining({
+            message:
+              "bucket (on created_at) is only available on a PostgreSQL or Redshift datasource, which have DATE_TRUNC",
+            path: "",
+          }),
+        );
+        expect(createAction).not.toHaveBeenCalled();
+      }
+    },
+  );
+
+  // APP-16507: Redshift and Snowflake run SQL as plain text, so the server would paste a viewer's widget value into
+  // the query. create_query refuses any value there and stores nothing. A query with no values still works.
+  it.each([
+    ["redshift-plugin", "Redshift"],
+    ["snowflake-plugin", "Snowflake"],
+  ])(
+    "APP-16507: create_query refuses a widget-valued filter on %s and creates nothing",
+    async (pluginId, database) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          filters: [
+            {
+              column: "email",
+              op: "eq",
+              value: { widget: "EmailInput", property: "text" },
+            },
+          ],
+        },
+      });
+
+      expect(body.valid).toBe(false);
+      expect(JSON.stringify(body.errors)).toContain(
+        `the ${database} plugin does not use prepared statements`,
+      );
+      expect(createAction).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["redshift-plugin", "snowflake-plugin"])(
+    "APP-16507: create_query still creates a query with no values on %s",
+    async (pluginId) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          columns: ["id", "email"],
+          filters: [{ column: "deleted_at", op: "isNull" }],
+          limit: 50,
+        },
+      });
+
+      expect(body.created).toBe(true);
+      expect(body.body).not.toContain("{{");
+      expect(createAction).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  // Oracle "weekly resolution time", end to end: the stored body is the compiled SQL behind the MCP marker.
+  it("APP-16495: create_query compiles the Oracle weekly shape and stores it", async () => {
+    const createAction = jest.fn(async () => ({ id: "act1" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction: createAction as never,
+    };
+    const body = await callTool(api, "create_query", {
+      query: {
+        ...validQuery,
+        table: "public.oracle_support_ticket",
+        groupBy: [
+          { column: "created_at", bucket: "week", as: "week" },
+          "status",
+          "severity",
+          "support_level",
+        ],
+        aggregates: [
+          { fn: "avg", column: "resolution_time", abs: true, round: "floor" },
+          { fn: "count" },
+        ],
+        orderBy: [{ column: "week", direction: "ASC" }],
+      },
+    });
+    const sql =
+      'SELECT DATE_TRUNC(\'week\', "created_at") AS week, "status", "severity", "support_level", FLOOR(AVG(ABS("resolution_time"))) AS avg, COUNT(*) AS count FROM public.oracle_support_ticket GROUP BY DATE_TRUNC(\'week\', "created_at"), "status", "severity", "support_level" ORDER BY week ASC;';
+
+    expect(body.created).toBe(true);
+    expect(body.body).toBe(sql);
+    expect(
+      mcpAuthoredBody(
+        (
+          (createAction.mock.calls[0] as unknown[])[0] as {
+            actionConfiguration: { body: string };
+          }
+        ).actionConfiguration.body,
+      ),
+    ).toBe(sql);
+  });
+
+  it.each([
+    [
+      "aggregates",
+      {
+        operation: "DELETE",
+        filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+        aggregates: [{ fn: "count" }],
+      },
+    ],
+    [
+      "distinct",
+      {
+        operation: "UPDATE",
+        values: [{ column: "name", value: { literal: "x" } }],
+        filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+        distinct: true,
+      },
+    ],
+  ])(
+    "APP-16495: create_query refuses %s on a write before any API write",
+    async (field, query) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: { ...validQuery, ...query },
+      });
+
+      expect(body.valid).toBe(false);
+      expect(body.errors).toContainEqual({
+        path: field,
+        message: `${field} is only valid on a SELECT query`,
+      });
+      expect(createAction).not.toHaveBeenCalled();
+    },
+  );
+
+  // SQL Server spells these CEILING and ROUND(x, n), so ceil and round are refused there before any API write.
+  it.each([
+    ["mssql-plugin", "ceil", false],
+    ["mssql-plugin", "round", false],
+    ["mssql-plugin", "floor", true],
+    ["mysql-plugin", "ceil", true],
+  ])(
+    "APP-16495: create_query on %s with round %s",
+    async (pluginId, round, allowed) => {
+      const createAction = jest.fn(async () => ({ id: "act1" }));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "DB", pluginId },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: createAction as never,
+      };
+      const body = await callTool(api, "create_query", {
+        query: {
+          ...validQuery,
+          aggregates: [{ fn: "avg", column: "age", round }],
+        },
+      });
+
+      if (allowed) {
+        expect(body.created).toBe(true);
+        expect(createAction).toHaveBeenCalledTimes(1);
+      } else {
+        expect(body.valid).toBe(false);
+        expect(body.errors).toContainEqual(
+          expect.objectContaining({
+            message: `round "${round}" (on age) is only available on a PostgreSQL, Redshift, MySQL or Oracle datasource; on other databases use round "floor" or no round`,
+            path: "",
+          }),
+        );
+        expect(createAction).not.toHaveBeenCalled();
+      }
+    },
+  );
+
+  // APP-16506 A: a system catalog table is refused before any write. pg_ names are refused on PostgreSQL only, so this
+  // refusal comes from the compiler, after the datasource is known.
+  it("APP-16506: should_refuse_a_system_catalog_when_create_query_reads_pg_user_on_postgres", async () => {
+    // Given
+    const createAction = jest.fn(async () => ({ id: "act1" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction: createAction as never,
+    };
+
+    // When
+    const refused = await callTool(api, "create_query", {
+      query: { ...validQuery, table: "pg_user" },
+    });
+
+    // Then
+    expect(refused.valid).toBe(false);
+    expect(refused.errors).toEqual([
+      {
+        path: "",
+        message:
+          "\"pg_user\" is in a system catalog, which the MCP does not query (a best-effort guard; the datasource's credentials decide what can be read). To see a datasource's tables and columns, call get_datasource_structure",
+      },
+    ]);
+    expect(createAction).not.toHaveBeenCalled();
+  });
+
+  // APP-16506 B: a SELECT over several tables. Only plugins that bind every value accept from and joins.
+  const joinQuery = {
+    name: "getOrders",
+    applicationId: "app1",
+    pageId: "p1",
+    datasourceId: "ds1",
+    operation: "SELECT",
+    from: { table: "orders", as: "o" },
+    joins: [
+      {
+        type: "inner",
+        table: "customers",
+        as: "c",
+        on: [{ left: "c.id", right: "o.customer_id" }],
+      },
+    ],
+    columns: ["o.id", { column: "c.name", as: "customer" }],
+    limit: 20,
+  };
+  const JOIN_POSTGRES_BODY =
+    'SELECT o."id" AS id, c."name" AS customer FROM (SELECT "customer_id", "id" FROM orders) o INNER JOIN (SELECT "id", "name" FROM customers) c ON c."id" = o."customer_id" LIMIT 20;';
+
+  function joinApi(pluginId: string) {
+    const createAction = jest.fn<
+      Promise<{ id: string }>,
+      [Record<string, unknown>]
+    >(async () => ({ id: "act1" }));
+    const api: AppsmithApi = {
+      ...createApi()(),
+      listDatasources: jest.fn(async () => [
+        { id: "ds1", name: "DB", pluginId },
+      ]),
+      listActions: jest.fn(async () => []),
+      createAction,
+    };
+
+    return { api, createAction };
+  }
+
+  it("APP-16506: should_store_the_marked_body_when_create_query_joins_on_postgres", async () => {
+    // Given
+    const { api, createAction } = joinApi("postgres-plugin");
+
+    // When
+    const created = await callTool(api, "create_query", { query: joinQuery });
+
+    // Then
+    expect(created.created).toBe(true);
+    expect(created.body).toBe(JOIN_POSTGRES_BODY);
+
+    const stored = (
+      createAction.mock.calls[0][0] as {
+        actionConfiguration: { body: string };
+      }
+    ).actionConfiguration.body;
+
+    expect(stored.startsWith("-- appsmith-mcp:v1 sha256=")).toBe(true);
+    expect(mcpAuthoredBody(stored)).toBe(JOIN_POSTGRES_BODY);
+  });
+
+  it.each(["redshift-plugin", "snowflake-plugin"])(
+    "APP-16506: should_refuse_joins_before_any_write_when_create_query_runs_on_%s",
+    async (pluginId) => {
+      // Given
+      const { api, createAction } = joinApi(pluginId);
+
+      // When
+      const refused = await callTool(api, "create_query", {
+        query: joinQuery,
+      });
+
+      // Then
+      expect(refused.valid).toBe(false);
+      expect(refused.errors).toEqual([
+        {
+          path: "",
+          message:
+            "from and joins need a PostgreSQL, MySQL, MariaDB, Oracle or SQL Server datasource that the server can identify. Redshift and Snowflake are not supported: their plugins put values into the SQL text instead of binding them",
+        },
+      ]);
+      expect(createAction).not.toHaveBeenCalled();
+    },
+  );
+
+  // APP-16506 D: a WITH query. The outer query reads the CTE, which totals each customer's orders.
+  const withQuery = {
+    ...joinQuery,
+    with: [
+      {
+        name: "order_totals",
+        query: {
+          from: { table: "orders", as: "o" },
+          groupBy: [{ column: "o.customer_id", as: "customer_id" }],
+          aggregates: [{ fn: "sum", column: "o.total", as: "paid_total" }],
+        },
+      },
+    ],
+    from: { table: "customers", as: "c" },
+    joins: [
+      {
+        type: "inner",
+        cte: "order_totals",
+        as: "t",
+        on: [{ left: "t.customer_id", right: "c.id" }],
+      },
+    ],
+    columns: [{ column: "c.name", as: "customer" }, "t.paid_total"],
+  };
+  const WITH_POSTGRES_BODY =
+    'WITH order_totals AS (SELECT o."customer_id" AS customer_id, SUM(o."total") AS paid_total FROM (SELECT "customer_id", "total" FROM orders) o GROUP BY o."customer_id") SELECT c."name" AS customer, t.paid_total AS paid_total FROM (SELECT "id", "name" FROM customers) c INNER JOIN order_totals t ON t.customer_id = c."id" LIMIT 20;';
+
+  it("APP-16506: should_store_the_marked_body_when_create_query_uses_with_on_postgres", async () => {
+    // Given
+    const { api, createAction } = joinApi("postgres-plugin");
+
+    // When
+    const created = await callTool(api, "create_query", { query: withQuery });
+
+    // Then
+    expect(created.created).toBe(true);
+    expect(created.body).toBe(WITH_POSTGRES_BODY);
+
+    const stored = (
+      createAction.mock.calls[0][0] as {
+        actionConfiguration: { body: string };
+      }
+    ).actionConfiguration.body;
+
+    expect(stored.startsWith("-- appsmith-mcp:v1 sha256=")).toBe(true);
+    expect(mcpAuthoredBody(stored)).toBe(WITH_POSTGRES_BODY);
+  });
+
+  it.each(["mysql-plugin", "mariadb-plugin"])(
+    "APP-16506: should_return_a_compile_error_when_create_query_uses_with_on_%s",
+    async (pluginId) => {
+      // Given
+      const { api, createAction } = joinApi(pluginId);
+
+      // When
+      const refused = await callTool(api, "create_query", {
+        query: withQuery,
+      });
+
+      // Then
+      expect(refused.valid).toBe(false);
+      expect(refused.errors).toEqual([
+        {
+          path: "",
+          message:
+            "with is not available on MySQL or MariaDB: their plugin returns rows only for a query whose first word is SELECT",
+        },
+      ]);
+      expect(createAction).not.toHaveBeenCalled();
+    },
+  );
+
+  it("APP-16506: should_refuse_joins_on_a_write_when_create_query_gets_a_delete", async () => {
+    // Given
+    const { api, createAction } = joinApi("postgres-plugin");
+
+    // When
+    const refused = await callTool(api, "create_query", {
+      query: { ...joinQuery, operation: "DELETE" },
+    });
+
+    // Then
+    expect(refused.valid).toBe(false);
+    expect(refused.errors).toContainEqual({
+      path: "operation",
+      message: "from and joins are only valid on a SELECT query",
+    });
+    expect(createAction).not.toHaveBeenCalled();
+  });
 
   it("create_query refuses a datasource the caller cannot access (IDOR guard)", async () => {
     const createAction = jest.fn();
@@ -6551,11 +6999,18 @@ describe("governance-wrapped layout mutations", () => {
 
   // update_action recompiles a SQL spec, so it checks the datasource the same way create_query does. The
   // datasource must be in the application's workspace, and inList works only on PostgreSQL.
-  function sqlUpdateServer(datasources: unknown[]) {
-    const updateAction = jest.fn(async () => STORED_ACTION);
+  // The stored action runs on the first datasource's plugin, as an action created on that datasource would
+  // (APP-16517: a SQL update must keep the action's plugin). Pass storedPluginId to store it on another plugin.
+  function sqlUpdateServer(datasources: unknown[], storedPluginId?: string) {
+    const stored = {
+      ...STORED_ACTION,
+      pluginId:
+        storedPluginId ?? (datasources[0] as { pluginId?: string }).pluginId,
+    };
+    const updateAction = jest.fn(async () => stored);
     const api: AppsmithApi = {
       ...createApi()(),
-      getAction: jest.fn(async () => STORED_ACTION),
+      getAction: jest.fn(async () => stored),
       listDatasources: jest.fn(async () => datasources),
       updateAction: updateAction as never,
     };
@@ -6852,6 +7307,1756 @@ describe("governance-wrapped layout mutations", () => {
       expect(updateAction).not.toHaveBeenCalled();
     },
   );
+
+  it.each([
+    ["postgres-plugin", true],
+    ["mysql-plugin", false],
+  ])(
+    "APP-16495: update_action compiles a date bucket only on PostgreSQL or Redshift (%s)",
+    async (pluginId, allowed) => {
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId },
+      ]);
+      const read = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SQL",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: read.body.revision,
+          query: {
+            name: "OldName",
+            applicationId: "app1",
+            pageId: "p1",
+            datasourceId: "ds1",
+            operation: "SELECT",
+            table: "tickets",
+            groupBy: [{ column: "created_at", bucket: "month", as: "month" }],
+            aggregates: [{ fn: "count" }],
+          },
+        },
+      });
+
+      if (allowed) {
+        expect(updated.body.updated).toBe(true);
+        expect(
+          mcpAuthoredBody(
+            (
+              (updateAction.mock.calls[0] as unknown[])[1] as {
+                actionConfiguration: { body: string };
+              }
+            ).actionConfiguration.body,
+          ),
+        ).toBe(
+          "SELECT DATE_TRUNC('month', \"created_at\") AS month, COUNT(*) AS count FROM tickets GROUP BY DATE_TRUNC('month', \"created_at\");",
+        );
+      } else {
+        expect(updated.body.errors).toContainEqual(
+          expect.objectContaining({
+            message:
+              "bucket (on created_at) is only available on a PostgreSQL or Redshift datasource, which have DATE_TRUNC",
+            path: "",
+          }),
+        );
+        expect(updateAction).not.toHaveBeenCalled();
+      }
+    },
+  );
+
+  // APP-16526: copy_action copies a stored SQL or REST query to a page of another app. The query text stays on the
+  // server. Source app "app1" (workspace ws1, page p1); target app "app2" (page p2), in ws1 unless a test moves it.
+  describe("APP-16526: copy_action", () => {
+    const SECRET_SQL =
+      "SELECT secret_col FROM t WHERE id = {{Table1.selectedRow.id}}";
+    const PG_SOURCE = {
+      id: "act1",
+      name: "getUsers",
+      pageId: "p1",
+      pluginType: "DB",
+      pluginId: "postgres-plugin",
+      updatedAt: "2026-07-12T00:00:00.000Z",
+      datasource: { id: "dspg", pluginId: "postgres-plugin" },
+      actionConfiguration: {
+        body: SECRET_SQL,
+        pluginSpecifiedTemplates: [{ value: true }],
+      },
+    };
+    const WORKSPACE_DATASOURCES: Record<string, unknown[]> = {
+      ws1: [
+        { id: "dspg", name: "PG", pluginId: "postgres-plugin" },
+        { id: "dspg2", name: "PG two", pluginId: "postgres-plugin" },
+        { id: "dsmy", name: "MySQL", pluginId: "mysql-plugin" },
+        { id: "dsrs", name: "Redshift", pluginId: "redshift-plugin" },
+        { id: "dsmongo", name: "Mongo", pluginId: "mongo-plugin" },
+        { id: "dsrest", name: "API", pluginId: "restapi-plugin" },
+        { id: "dsrest2", name: "Other API", pluginId: "restapi-plugin" },
+        { id: "dsora", name: "Oracle", pluginId: "oracle-plugin" },
+        { id: "dsms", name: "SQL Server", pluginId: "mssql-plugin" },
+        { id: "dsmaria", name: "MariaDB", pluginId: "mariadb-plugin" },
+      ],
+      ws2: [{ id: "dspgB", name: "PG B", pluginId: "postgres-plugin" }],
+    };
+
+    function copyServer(
+      stored: unknown,
+      options: {
+        targetWorkspace?: string;
+        existing?: unknown[];
+        store?: MemoryGovernanceStore;
+        gitAppId?: string;
+      } = {},
+    ) {
+      // getAction returns the source for act1 and, once created, the copy for act9.
+      let createdCopy: Record<string, unknown> | undefined;
+      const createAction = jest.fn(async (action: Record<string, unknown>) => {
+        createdCopy = {
+          id: "act9",
+          ...action,
+          pluginType: (stored as { pluginType?: unknown }).pluginType,
+          updatedAt: "2026-11-16T00:00:00.000Z",
+        };
+
+        return createdCopy;
+      });
+      const getAction = jest.fn(
+        async (_applicationId: string, actionId: string): Promise<unknown> => {
+          if (actionId === "act9" && createdCopy !== undefined) {
+            return createdCopy;
+          }
+
+          return stored;
+        },
+      );
+      const setActionRunBehaviour = jest.fn(async () => ({}));
+      const deleteAction = jest.fn(async () => ({}));
+      const api: AppsmithApi = {
+        ...createApi()(),
+        setActionRunBehaviour: setActionRunBehaviour as never,
+        deleteAction: deleteAction as never,
+        getApplicationPages: jest.fn(async (applicationId: string) =>
+          applicationId === "app2"
+            ? {
+                workspaceId: options.targetWorkspace ?? "ws1",
+                pages: [{ id: "p2", name: "Reports" }],
+              }
+            : { workspaceId: "ws1", pages: [{ id: "p1", name: "Home" }] },
+        ),
+        getAction,
+        // Only options.gitAppId is git-connected, on branch feature/x.
+        getApplication: jest.fn(async (applicationId: string) =>
+          applicationId === options.gitAppId
+            ? {
+                id: applicationId,
+                gitApplicationMetadata: {
+                  branchName: "feature/x",
+                  defaultBranchName: "master",
+                },
+              }
+            : {},
+        ),
+        listDatasources: jest.fn(
+          async (workspaceId: string) => WORKSPACE_DATASOURCES[workspaceId],
+        ),
+        listPlugins: jest.fn(async () => []),
+        listActions: jest.fn(async () => options.existing ?? []),
+        createAction: createAction as never,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        dataEnabled: true,
+        governance: new McpGovernanceCoordinator(
+          options.store ?? new MemoryGovernanceStore(),
+        ),
+      });
+
+      return {
+        server,
+        createAction,
+        getAction,
+        setActionRunBehaviour,
+        deleteAction,
+      };
+    }
+
+    async function copy(
+      server: ReturnType<typeof createMcpHttpServer>,
+      target: Record<string, unknown> = { applicationId: "app2", pageId: "p2" },
+      revision?: string,
+    ) {
+      const read = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+
+      return callTool(server, "copy_action", {
+        spec: {
+          actionId: "act1",
+          applicationId: "app1",
+          revision: revision ?? read.body.revision,
+          name: "getUsersCopy",
+          target,
+        },
+      });
+    }
+
+    function restSource(actionConfiguration: Record<string, unknown>) {
+      return {
+        ...PG_SOURCE,
+        pluginType: "API",
+        pluginId: "restapi-plugin",
+        datasource: { id: "dsrest", pluginId: "restapi-plugin" },
+        actionConfiguration,
+      };
+    }
+
+    function mcpRestConfig(): Record<string, unknown> {
+      const spec = restApiSpecSchema.parse({
+        name: "getUsers",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "dsrest",
+        method: "GET",
+        path: "/v1/users",
+      });
+
+      return buildRestActionDto(spec, compileRestApi(spec))
+        .actionConfiguration as Record<string, unknown>;
+    }
+
+    it("should_copy_the_stored_query_with_its_datasource_when_the_target_app_is_in_the_same_workspace", async () => {
+      // Given
+      const { createAction, getAction, server } = copyServer(PG_SOURCE);
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(copied.body.action).toMatchObject({
+        id: "act9",
+        name: "getUsersCopy",
+        pageId: "p2",
+      });
+      expect(copied.body.referencesAppValues).toBe(true);
+      expect(getAction).toHaveBeenCalledWith("app1", "act1");
+      expect(createAction).toHaveBeenCalledTimes(1);
+      expect(createAction.mock.calls[0][0]).toEqual({
+        name: "getUsersCopy",
+        pageId: "p2",
+        pluginId: "postgres-plugin",
+        actionConfiguration: PG_SOURCE.actionConfiguration,
+        datasource: { id: "dspg" },
+      });
+      expect(JSON.stringify(copied.body)).not.toContain("secret_col");
+    });
+
+    it("should_copy_an_mcp_authored_query_to_a_same_plugin_datasource_in_another_workspace", async () => {
+      // Given
+      const stored = {
+        ...PG_SOURCE,
+        actionConfiguration: {
+          body: markMcpAuthoredBody("SELECT * FROM users;"),
+          pluginSpecifiedTemplates: [{ value: true }],
+        },
+      };
+      const { createAction, server } = copyServer(stored, {
+        targetWorkspace: "ws2",
+      });
+
+      // When
+      const copied = await copy(server, {
+        applicationId: "app2",
+        pageId: "p2",
+        datasourceId: "dspgB",
+      });
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(copied.body.referencesAppValues).toBe(false);
+      expect(createAction.mock.calls[0][0]).toMatchObject({
+        datasource: { id: "dspgB" },
+        pluginId: "postgres-plugin",
+      });
+    });
+
+    it("should_ask_for_a_target_datasource_when_the_source_datasource_is_in_another_workspace", async () => {
+      // Given
+      const { createAction, server } = copyServer(PG_SOURCE, {
+        targetWorkspace: "ws2",
+      });
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.error).toContain("Pass target.datasourceId");
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_refuse_to_move_an_editor_written_rest_query_with_a_token_header_to_another_datasource", async () => {
+      // Given: an editor-written REST query whose header holds a token.
+      const stored = restSource({
+        path: "/v1/users",
+        httpMethod: "GET",
+        headers: [{ key: "Authorization", value: "Bearer s3cr3t" }],
+      });
+      const { createAction, server } = copyServer(stored);
+
+      // When
+      const copied = await copy(server, {
+        applicationId: "app2",
+        pageId: "p2",
+        datasourceId: "dsrest2",
+      });
+
+      // Then
+      expect(copied.body.error).toContain(
+        "can be copied only with its own datasource",
+      );
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_refuse_to_move_an_editor_written_sql_query_to_another_datasource", async () => {
+      // Given
+      const { createAction, server } = copyServer(PG_SOURCE);
+
+      // When
+      const copied = await copy(server, {
+        applicationId: "app2",
+        pageId: "p2",
+        datasourceId: "dspg2",
+      });
+
+      // Then
+      expect(copied.body.error).toContain(
+        "can be copied only with its own datasource",
+      );
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_refuse_to_move_a_sql_query_when_a_marked_text_in_form_data_hides_an_unmarked_body", async () => {
+      // Given: PostgreSQL runs body, which holds a secret. formData.body.data holds a validly marked text.
+      const { createAction, server } = copyServer({
+        ...PG_SOURCE,
+        actionConfiguration: {
+          body: "SELECT * FROM t WHERE token = 's3cr3t'",
+          formData: { body: { data: markMcpAuthoredBody("SELECT 1;") } },
+          pluginSpecifiedTemplates: [{ value: true }],
+        },
+      });
+
+      // When
+      const copied = await copy(server, {
+        applicationId: "app2",
+        pageId: "p2",
+        datasourceId: "dspg2",
+      });
+
+      // Then
+      expect(copied.body.error).toContain(
+        "can be copied only with its own datasource",
+      );
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_copy_an_editor_written_rest_query_with_its_own_datasource", async () => {
+      // Given
+      const stored = restSource({
+        path: "/v1/users",
+        httpMethod: "GET",
+        headers: [{ key: "Authorization", value: "Bearer s3cr3t" }],
+      });
+      const { createAction, server } = copyServer(stored);
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(createAction.mock.calls[0][0]).toMatchObject({
+        datasource: { id: "dsrest" },
+        pluginId: "restapi-plugin",
+      });
+      expect(JSON.stringify(copied.body)).not.toContain("s3cr3t");
+    });
+
+    it("should_move_an_mcp_authored_rest_query_to_another_rest_datasource", async () => {
+      // Given
+      const { createAction, server } = copyServer(restSource(mcpRestConfig()));
+
+      // When
+      const copied = await copy(server, {
+        applicationId: "app2",
+        pageId: "p2",
+        datasourceId: "dsrest2",
+      });
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(createAction.mock.calls[0][0]).toMatchObject({
+        datasource: { id: "dsrest2" },
+      });
+    });
+
+    it("should_refuse_a_target_datasource_of_another_plugin", async () => {
+      // Given: an MCP-authored PostgreSQL query, so only the plugin rule can refuse.
+      const stored = {
+        ...PG_SOURCE,
+        actionConfiguration: {
+          body: markMcpAuthoredBody("SELECT * FROM users;"),
+          pluginSpecifiedTemplates: [{ value: true }],
+        },
+      };
+      const { createAction, server } = copyServer(stored);
+
+      // When
+      const copied = await copy(server, {
+        applicationId: "app2",
+        pageId: "p2",
+        datasourceId: "dsmy",
+      });
+
+      // Then
+      expect(copied.body.error).toBe(
+        "the target datasource must use the same plugin as the source query, such as PostgreSQL to PostgreSQL",
+      );
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_refuse_a_target_datasource_outside_the_target_workspace", async () => {
+      // Given
+      const stored = {
+        ...PG_SOURCE,
+        actionConfiguration: {
+          body: markMcpAuthoredBody("SELECT * FROM users;"),
+          pluginSpecifiedTemplates: [{ value: true }],
+        },
+      };
+      const { createAction, server } = copyServer(stored, {
+        targetWorkspace: "ws2",
+      });
+
+      // When
+      const copied = await copy(server, {
+        applicationId: "app2",
+        pageId: "p2",
+        datasourceId: "dspg2",
+      });
+
+      // Then
+      expect(copied.body.error).toBe(
+        "datasource dspg2 is not accessible in the target app's workspace",
+      );
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_refuse_a_page_that_is_not_in_the_target_app", async () => {
+      // Given
+      const { createAction, server } = copyServer(PG_SOURCE);
+
+      // When
+      const copied = await copy(server, {
+        applicationId: "app2",
+        pageId: "p1",
+      });
+
+      // Then
+      expect(copied.body.error).toBe("page p1 is not in application app2");
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["a JS action", { ...PG_SOURCE, pluginType: "JS" }, "SQL and REST"],
+      [
+        "a module action",
+        { ...PG_SOURCE, moduleInstanceId: "mod1" },
+        "not module or workflow",
+      ],
+      [
+        "a workflow action",
+        { ...PG_SOURCE, unpublishedAction: { workflowId: "wf1" } },
+        "not module or workflow",
+      ],
+      [
+        "an action outside a page",
+        { ...PG_SOURCE, contextType: "MODULE" },
+        "not module or workflow",
+      ],
+      [
+        "an embedded datasource",
+        { ...PG_SOURCE, datasource: { name: "inline" } },
+        "no saved datasource",
+      ],
+      [
+        "an unknown plugin",
+        {
+          ...PG_SOURCE,
+          pluginId: undefined,
+          datasource: { id: "dspg" },
+        },
+        "could not find the plugin",
+      ],
+      [
+        "a Mongo query",
+        {
+          ...PG_SOURCE,
+          pluginId: "mongo-plugin",
+          datasource: { id: "dsmongo" },
+        },
+        "copy_action supports",
+      ],
+      [
+        "a DB action on a REST plugin",
+        {
+          ...PG_SOURCE,
+          pluginId: "restapi-plugin",
+          datasource: { id: "dsrest" },
+        },
+        "copy_action supports",
+      ],
+    ])("should_refuse_%s", async (_label, stored, message) => {
+      // Given
+      const { createAction, server } = copyServer(stored);
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.error).toContain(message);
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_refuse_a_redshift_query_that_reads_a_widget", async () => {
+      // Given
+      const { createAction, server } = copyServer({
+        ...PG_SOURCE,
+        pluginId: "redshift-plugin",
+        datasource: { id: "dsrs" },
+      });
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.error).toContain(
+        "the Redshift plugin pastes {{ }} values into the SQL text",
+      );
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_copy_a_redshift_query_with_no_values", async () => {
+      // Given
+      const { createAction, server } = copyServer({
+        ...PG_SOURCE,
+        pluginId: "redshift-plugin",
+        datasource: { id: "dsrs" },
+        actionConfiguration: { body: "SELECT * FROM events;" },
+      });
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(createAction).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+      ["turned off", [{ value: false }]],
+      ["missing", undefined],
+      ["a string", [{ value: "true" }]],
+    ])(
+      "should_refuse_a_sql_query_that_reads_a_widget_when_prepared_statements_are_%s",
+      async (_label, pluginSpecifiedTemplates) => {
+        // Given
+        const { createAction, server } = copyServer({
+          ...PG_SOURCE,
+          actionConfiguration: { body: SECRET_SQL, pluginSpecifiedTemplates },
+        });
+
+        // When
+        const copied = await copy(server);
+
+        // Then
+        expect(copied.body.error).toContain("prepared statements turned off");
+        expect(createAction).not.toHaveBeenCalled();
+      },
+    );
+
+    it("should_read_the_oracle_prepared_statement_switch_from_form_data", async () => {
+      // Given
+      const oracle = (data: boolean) => ({
+        ...PG_SOURCE,
+        pluginId: "oracle-plugin",
+        datasource: { id: "dsora" },
+        actionConfiguration: {
+          formData: {
+            body: { data: SECRET_SQL },
+            preparedStatement: { data },
+          },
+        },
+      });
+
+      // When
+      const on = copyServer(oracle(true));
+      const off = copyServer(oracle(false));
+      const copiedOn = await copy(on.server);
+      const copiedOff = await copy(off.server);
+
+      // Then
+      expect(copiedOn.body.copied).toBe(true);
+      expect(copiedOff.body.error).toContain("prepared statements turned off");
+      expect(off.createAction).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["mysql-plugin", "dsmy"],
+      ["mssql-plugin", "dsms"],
+      ["mariadb-plugin", "dsmaria"],
+    ])(
+      "should_read_the_prepared_statement_switch_from_the_first_template_when_the_plugin_is_%s",
+      async (pluginId, datasourceId) => {
+        // Given
+        const source = (value: boolean) => ({
+          ...PG_SOURCE,
+          pluginId,
+          datasource: { id: datasourceId },
+          actionConfiguration: {
+            body: SECRET_SQL,
+            pluginSpecifiedTemplates: [{ value }],
+          },
+        });
+
+        // When
+        const on = copyServer(source(true));
+        const off = copyServer(source(false));
+        const copiedOn = await copy(on.server);
+        const copiedOff = await copy(off.server);
+
+        // Then
+        expect(copiedOn.body.copied).toBe(true);
+        expect(copiedOff.body.error).toContain(
+          "prepared statements turned off",
+        );
+        expect(off.createAction).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each([
+      [
+        "a header",
+        {
+          path: "/v1/users",
+          headers: [
+            { key: "Authorization", value: "Bearer s3cr3t" },
+            { key: "X-Id", value: "{{Input1.text}}" },
+          ],
+        },
+      ],
+      [
+        "the body",
+        {
+          path: "/v1/users",
+          headers: [{ key: "Authorization", value: "Bearer s3cr3t" }],
+          body: '{"id": "{{Input1.text}}"}',
+        },
+      ],
+    ])(
+      "should_copy_a_rest_query_that_reads_a_widget_in_%s_and_flag_it",
+      async (_label, actionConfiguration) => {
+        // Given
+        const { createAction, server } = copyServer(
+          restSource(actionConfiguration),
+        );
+
+        // When
+        const copied = await copy(server);
+
+        // Then
+        expect(copied.body.copied).toBe(true);
+        expect(copied.body.referencesAppValues).toBe(true);
+        expect(createAction.mock.calls[0][0]).toMatchObject({
+          actionConfiguration,
+        });
+        expect(JSON.stringify(copied.body)).not.toContain("s3cr3t");
+        expect(JSON.stringify(copied.body)).not.toContain("Input1");
+      },
+    );
+
+    it("should_copy_to_another_page_of_the_same_app", async () => {
+      // Given
+      const { createAction, server } = copyServer(PG_SOURCE);
+
+      // When
+      const copied = await copy(server, {
+        applicationId: "app1",
+        pageId: "p1",
+      });
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(createAction.mock.calls[0][0]).toMatchObject({
+        pageId: "p1",
+        datasource: { id: "dspg" },
+      });
+    });
+
+    it("should_return_an_error_and_create_nothing_when_the_source_cannot_be_read", async () => {
+      // Given
+      const { createAction, getAction, server } = copyServer(PG_SOURCE);
+
+      getAction.mockRejectedValue(
+        new Error("action act1 was not found in application app1"),
+      );
+
+      // When
+      const copied = await callTool(server, "copy_action", {
+        spec: {
+          actionId: "act1",
+          applicationId: "app1",
+          revision: "d".repeat(64),
+          name: "getUsersCopy",
+          target: { applicationId: "app2", pageId: "p2" },
+        },
+      });
+
+      // Then
+      expect(JSON.stringify(copied.body)).toContain("was not found");
+      expect(copied.body.copied).toBeUndefined();
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_return_an_error_and_release_the_lock_when_the_server_refuses_the_create", async () => {
+      // Given
+      const { createAction, server } = copyServer(PG_SOURCE);
+
+      createAction.mockRejectedValueOnce(new Error("duplicate name"));
+
+      // When
+      const failed = await copy(server);
+      const retried = await copy(server);
+
+      // Then
+      expect(failed.body.copied).toBeUndefined();
+      expect(JSON.stringify(failed.body)).toContain("duplicate name");
+      expect(retried.body.copied).toBe(true);
+      expect(createAction).toHaveBeenCalledTimes(2);
+    });
+
+    it("should_not_copy_run_on_page_load_and_should_keep_a_false_ask_before_running", async () => {
+      // Given
+      const { createAction, server } = copyServer({
+        ...PG_SOURCE,
+        executeOnLoad: true,
+        confirmBeforeExecute: false,
+      });
+
+      // When
+      await copy(server);
+
+      // Then
+      const payload = createAction.mock.calls[0][0];
+
+      expect(payload).not.toHaveProperty("executeOnLoad");
+      expect(payload.confirmBeforeExecute).toBe(false);
+    });
+
+    it("should_pin_the_copy_to_run_manually", async () => {
+      // Given
+      const { deleteAction, server, setActionRunBehaviour } =
+        copyServer(PG_SOURCE);
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(setActionRunBehaviour).toHaveBeenCalledWith("act9", "MANUAL");
+      expect(deleteAction).not.toHaveBeenCalled();
+    });
+
+    it("should_return_the_revision_of_the_copy_as_saved_after_the_pin", async () => {
+      // Given: the pin saves the copy again, so the server's copy has a later updatedAt than the create response.
+      const { getAction, server } = copyServer(PG_SOURCE);
+      const pinned = {
+        id: "act9",
+        name: "getUsersCopy",
+        pageId: "p2",
+        pluginType: "DB",
+        updatedAt: "2026-11-16T02:00:00.000Z",
+        datasource: { id: "dspg" },
+      };
+
+      getAction.mockImplementation((async (_app: string, actionId: string) =>
+        actionId === "act9" ? pinned : PG_SOURCE) as never);
+
+      // When
+      const copied = await copy(server);
+      const reread = await callTool(server, "get_action", {
+        applicationId: "app2",
+        actionId: "act9",
+      });
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(getAction).toHaveBeenCalledWith("app2", "act9");
+      expect(copied.body.revision).toBe(reread.body.revision);
+    });
+
+    it("should_leave_out_the_revision_when_the_copy_cannot_be_read_after_the_pin", async () => {
+      // Given
+      const { getAction, server } = copyServer(PG_SOURCE);
+
+      getAction.mockImplementation(async (_app: string, actionId: string) => {
+        if (actionId === "act9") throw new Error("read failed");
+
+        return PG_SOURCE;
+      });
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(copied.body.action.id).toBe("act9");
+      expect(copied.body).not.toHaveProperty("revision");
+      expect(copied.body.revisionUnavailable).toBe(
+        "read the copy with get_action before you change it",
+      );
+    });
+
+    it("should_remove_the_copy_when_it_cannot_be_pinned_to_run_manually", async () => {
+      // Given
+      const { deleteAction, server, setActionRunBehaviour } =
+        copyServer(PG_SOURCE);
+
+      setActionRunBehaviour.mockRejectedValueOnce(new Error("pin refused"));
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.copied).toBeUndefined();
+      expect(JSON.stringify(copied.body)).toContain("so it was not kept");
+      expect(deleteAction).toHaveBeenCalledWith("act9");
+    });
+
+    it("should_tell_the_agent_to_fix_the_copy_when_it_can_be_neither_pinned_nor_removed", async () => {
+      // Given
+      const { deleteAction, server, setActionRunBehaviour } =
+        copyServer(PG_SOURCE);
+
+      setActionRunBehaviour.mockRejectedValueOnce(new Error("pin refused"));
+      deleteAction.mockRejectedValueOnce(new Error("delete refused"));
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.copied).toBeUndefined();
+      expect(JSON.stringify(copied.body)).toContain(
+        "the copy act9 was created but could not be set to run manually",
+      );
+    });
+
+    it("should_refuse_when_the_source_changes_before_the_lock", async () => {
+      // Given: reads 1 (get_action) and 2 (the checks) see the source; read 3, under the lock, sees an update.
+      const { createAction, getAction, server } = copyServer(PG_SOURCE);
+      let reads = 0;
+
+      getAction.mockImplementation(async () => {
+        reads += 1;
+
+        return reads < 3
+          ? PG_SOURCE
+          : { ...PG_SOURCE, updatedAt: "2026-11-16T01:00:00.000Z" };
+      });
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.code).toBe("revision_conflict");
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_create_the_copy_when_the_name_is_used_on_another_page_of_the_target_app", async () => {
+      // Given
+      const { createAction, server } = copyServer(PG_SOURCE, {
+        existing: [{ id: "act7", name: "getUsersCopy", pageId: "p3" }],
+      });
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(createAction).toHaveBeenCalledTimes(1);
+    });
+
+    it("should_return_the_existing_query_when_the_target_page_already_has_the_name", async () => {
+      // Given
+      const { createAction, server } = copyServer(PG_SOURCE, {
+        existing: [
+          {
+            id: "act7",
+            name: "getUsersCopy",
+            pageId: "p2",
+            actionConfiguration: { body: "SELECT hidden FROM x" },
+          },
+        ],
+      });
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.copied).toBe(false);
+      expect(copied.body.action.id).toBe("act7");
+      expect(JSON.stringify(copied.body)).not.toContain("hidden");
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_refuse_a_stale_revision", async () => {
+      // Given
+      const { createAction, server } = copyServer(PG_SOURCE);
+
+      // When
+      const copied = await copy(server, undefined, "e".repeat(64));
+
+      // Then
+      expect(copied.body.code).toBe("revision_conflict");
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_apply_the_git_branch_rule_of_the_target_app_not_the_source_app", async () => {
+      // Given
+      const target = copyServer(PG_SOURCE, { gitAppId: "app2" });
+      const source = copyServer(PG_SOURCE, { gitAppId: "app1" });
+
+      // When
+      const toGitTarget = await copy(target.server);
+      const fromGitSource = await copy(source.server);
+
+      // Then
+      expect(toGitTarget.body.code).toBe("git_branch_required");
+      expect(target.createAction).not.toHaveBeenCalled();
+      expect(fromGitSource.body.copied).toBe(true);
+    });
+
+    it("should_keep_ask_before_running_when_the_source_asks_before_running", async () => {
+      // Given
+      const { createAction, server } = copyServer({
+        ...PG_SOURCE,
+        confirmBeforeExecute: true,
+      });
+
+      // When
+      await copy(server);
+
+      // Then
+      expect(createAction.mock.calls[0][0]).toMatchObject({
+        confirmBeforeExecute: true,
+      });
+    });
+
+    it("should_refuse_a_spec_that_carries_action_configuration", async () => {
+      // Given
+      const { createAction, server } = copyServer(PG_SOURCE);
+
+      // When
+      const copied = await callTool(server, "copy_action", {
+        spec: {
+          actionId: "act1",
+          applicationId: "app1",
+          revision: "d".repeat(64),
+          name: "getUsersCopy",
+          target: { applicationId: "app2", pageId: "p2" },
+          actionConfiguration: { body: "DROP TABLE users" },
+        },
+      });
+
+      // Then
+      expect(copied.body.valid).toBe(false);
+      expect(JSON.stringify(copied.body.errors)).toContain(
+        "actionConfiguration",
+      );
+      expect(createAction).not.toHaveBeenCalled();
+    });
+  });
+
+  // APP-16517: the server runs an action on its stored plugin, and an update keeps it. So update_action must not
+  // recompile a query for a datasource of another plugin.
+  describe("APP-16517: update_action keeps an action on its plugin", () => {
+    const PLUGIN_ERROR =
+      "an update must keep the action on a datasource of the same plugin, such as PostgreSQL to PostgreSQL. To use a datasource of another plugin, create a new query with create_query or create_rest_api";
+    const PG = [{ id: "dspg", name: "PG", pluginId: "postgres-plugin" }];
+
+    function storedServer(
+      stored: unknown,
+      datasources: unknown[],
+      store = new MemoryGovernanceStore(),
+    ) {
+      const updateAction = jest.fn(async () => stored);
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getAction: jest.fn(async () => stored),
+        listDatasources: jest.fn(async () => datasources),
+        updateAction: updateAction as never,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        dataEnabled: true,
+        governance: new McpGovernanceCoordinator(store),
+      });
+
+      return { server, updateAction, store };
+    }
+
+    async function sqlTo(
+      server: ReturnType<typeof createMcpHttpServer>,
+      datasourceId: string,
+      revision?: string,
+    ) {
+      const read = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+
+      return callTool(server, "update_action", {
+        spec: {
+          kind: "SQL",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: revision ?? read.body.revision,
+          query: {
+            name: "OldName",
+            applicationId: "app1",
+            pageId: "p1",
+            datasourceId,
+            operation: "SELECT",
+            table: "tickets",
+          },
+        },
+      });
+    }
+
+    async function restTo(
+      server: ReturnType<typeof createMcpHttpServer>,
+      datasourceId: string,
+    ) {
+      const read = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+
+      return callTool(server, "update_action", {
+        spec: {
+          kind: "REST",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: read.body.revision,
+          rest: {
+            name: "OldName",
+            applicationId: "app1",
+            pageId: "p1",
+            datasourceId,
+            method: "GET",
+            path: "/v1/users",
+          },
+        },
+      });
+    }
+
+    it("should_refuse_when_only_the_edit_copy_names_a_redshift_plugin", async () => {
+      // Given
+      const { server, updateAction } = storedServer(
+        {
+          id: "act1",
+          name: "OldName",
+          pageId: "p1",
+          pluginType: "DB",
+          unpublishedAction: {
+            name: "OldName",
+            pageId: "p1",
+            pluginId: "redshift-plugin",
+            datasource: { id: "dsrs" },
+          },
+        },
+        PG,
+      );
+
+      // When
+      const updated = await sqlTo(server, "dspg");
+
+      // Then
+      expect(updated.body.error).toBe(PLUGIN_ERROR);
+      expect(updateAction).not.toHaveBeenCalled();
+    });
+
+    it("should_use_the_action_plugin_over_its_datasource_plugin", async () => {
+      // Given: the action runs on Redshift although its stored datasource reference says PostgreSQL.
+      const { server, updateAction } = storedServer(
+        {
+          ...STORED_ACTION,
+          pluginId: "redshift-plugin",
+          datasource: { id: "dspg", pluginId: "postgres-plugin" },
+        },
+        PG,
+      );
+
+      // When
+      const updated = await sqlTo(server, "dspg");
+
+      // Then
+      expect(updated.body.error).toBe(PLUGIN_ERROR);
+      expect(updateAction).not.toHaveBeenCalled();
+    });
+
+    it("should_refuse_before_governance_records_anything", async () => {
+      // Given: a stale revision, so governance would also refuse if it ran first.
+      const store = new MemoryGovernanceStore();
+      const { server, updateAction } = storedServer(
+        { ...STORED_ACTION, pluginId: "redshift-plugin" },
+        PG,
+        store,
+      );
+
+      // When
+      const updated = await sqlTo(server, "dspg", "0".repeat(64));
+
+      // Then
+      expect(updated.body.error).toBe(PLUGIN_ERROR);
+      expect(updateAction).not.toHaveBeenCalled();
+      expect(store.changes).toHaveLength(0);
+    });
+
+    it("should_refuse_a_SQL_spec_on_an_action_stored_on_the_REST_plugin", async () => {
+      // Given
+      const { server, updateAction } = storedServer(
+        { ...STORED_ACTION, pluginType: "API", pluginId: "restapi-plugin" },
+        PG,
+      );
+
+      // When
+      const updated = await sqlTo(server, "dspg");
+
+      // Then
+      expect(updated.body.error).toBe(PLUGIN_ERROR);
+      expect(updateAction).not.toHaveBeenCalled();
+    });
+
+    it("should_refuse_when_the_new_datasource_has_no_plugin", async () => {
+      // Given: the workspace lists the datasource without a pluginId.
+      const { server, updateAction } = storedServer(
+        { ...STORED_ACTION, pluginId: "postgres-plugin" },
+        [{ id: "dspg", name: "PG" }],
+      );
+
+      // When
+      const updated = await sqlTo(server, "dspg");
+
+      // Then
+      expect(updated.body.updated).not.toBe(true);
+      expect(updateAction).not.toHaveBeenCalled();
+    });
+
+    it("should_refuse_a_REST_spec_that_names_a_SQL_datasource", async () => {
+      // Given: a PostgreSQL action, and a REST spec naming the same PostgreSQL datasource, so the plugins match.
+      const { server, updateAction } = storedServer(
+        { ...STORED_ACTION, pluginId: "postgres-plugin" },
+        PG,
+      );
+
+      // When
+      const updated = await restTo(server, "dspg");
+
+      // Then
+      expect(updated.body.error).toBe(
+        "a REST update needs a REST API datasource",
+      );
+      expect(updateAction).not.toHaveBeenCalled();
+    });
+
+    it("should_update_a_REST_action_on_a_REST_datasource", async () => {
+      // Given
+      const { server, updateAction } = storedServer(
+        { ...STORED_ACTION, pluginType: "API", pluginId: "restapi-plugin" },
+        [{ id: "dsrest", name: "API", pluginId: "restapi-plugin" }],
+      );
+
+      // When
+      const updated = await restTo(server, "dsrest");
+
+      // Then
+      expect(updated.body.updated).toBe(true);
+      expect(updateAction).toHaveBeenCalledTimes(1);
+    });
+
+    it("should_refuse_a_REST_datasource_outside_the_workspace", async () => {
+      // Given
+      const { server, updateAction } = storedServer(
+        { ...STORED_ACTION, pluginType: "API", pluginId: "restapi-plugin" },
+        [{ id: "other", name: "API", pluginId: "restapi-plugin" }],
+      );
+
+      // When
+      const updated = await restTo(server, "dsrest");
+
+      // Then
+      expect(updated.body.error).toBe(
+        "datasource dsrest is not accessible in this application's workspace",
+      );
+      expect(updateAction).not.toHaveBeenCalled();
+    });
+
+    async function updateTo(
+      server: ReturnType<typeof createMcpHttpServer>,
+      datasourceId: string,
+    ) {
+      const read = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+
+      return callTool(server, "update_action", {
+        spec: {
+          kind: "SQL",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: read.body.revision,
+          query: {
+            name: "OldName",
+            applicationId: "app1",
+            pageId: "p1",
+            datasourceId,
+            operation: "SELECT",
+            table: "tickets",
+            filters: [
+              {
+                column: "owner",
+                op: "eq",
+                value: { widget: "OwnerInput", property: "text" },
+              },
+            ],
+          },
+        },
+      });
+    }
+
+    it.each(["redshift-plugin", "snowflake-plugin"])(
+      "should_refuse_before_any_write_when_a_%s_action_is_moved_to_a_postgres_datasource",
+      async (storedPluginId) => {
+        // Given: the action runs on Redshift or Snowflake; the spec names a PostgreSQL datasource.
+        const { server, updateAction } = sqlUpdateServer(
+          [{ id: "dspg", name: "PG", pluginId: "postgres-plugin" }],
+          storedPluginId,
+        );
+
+        // When
+        const updated = await updateTo(server, "dspg");
+
+        // Then
+        expect(updated.body.updated).not.toBe(true);
+        expect(updated.body.error).toBe(
+          "an update must keep the action on a datasource of the same plugin, such as PostgreSQL to PostgreSQL. To use a datasource of another plugin, create a new query with create_query or create_rest_api",
+        );
+        expect(updateAction).not.toHaveBeenCalled();
+      },
+    );
+
+    // A REST body carries widget values. On a SQL action the SQL plugin would run it as SQL.
+    it.each(["redshift-plugin", "postgres-plugin"])(
+      "should_refuse_before_any_write_when_a_REST_spec_targets_a_%s_action",
+      async (storedPluginId) => {
+        // Given: the action runs on a SQL plugin; the spec is REST on a REST datasource.
+        const { server, updateAction } = sqlUpdateServer(
+          [{ id: "dsrest", name: "API", pluginId: "restapi-plugin" }],
+          storedPluginId,
+        );
+        const read = await callTool(server, "get_action", {
+          applicationId: "app1",
+          actionId: "act1",
+        });
+
+        // When
+        const updated = await callTool(server, "update_action", {
+          spec: {
+            kind: "REST",
+            actionId: "act1",
+            applicationId: "app1",
+            revision: read.body.revision,
+            rest: {
+              name: "OldName",
+              applicationId: "app1",
+              pageId: "p1",
+              datasourceId: "dsrest",
+              method: "GET",
+              path: "/v1/users",
+              queryParameters: [
+                {
+                  key: "q",
+                  value: { widget: "SearchInput", property: "text" },
+                },
+              ],
+            },
+          },
+        });
+
+        // Then
+        expect(updated.body.updated).not.toBe(true);
+        expect(updated.body.error).toBe(
+          "an update must keep the action on a datasource of the same plugin, such as PostgreSQL to PostgreSQL. To use a datasource of another plugin, create a new query with create_query or create_rest_api",
+        );
+        expect(updateAction).not.toHaveBeenCalled();
+      },
+    );
+
+    it("should_refuse_when_the_stored_action_has_no_plugin", async () => {
+      // Given: neither the action nor its stored datasource names a plugin.
+      const updateAction = jest.fn();
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getAction: jest.fn(async () => ({
+          ...STORED_ACTION,
+          datasource: { id: "ds1" },
+        })),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "PG", pluginId: "postgres-plugin" },
+        ]),
+        updateAction: updateAction as never,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        dataEnabled: true,
+        governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+      });
+
+      // When
+      const updated = await updateTo(server, "ds1");
+
+      // Then
+      expect(updated.body.updated).not.toBe(true);
+      expect(updated.body.error).toBe(
+        "could not find the plugin this action runs on, so its body cannot be rewritten. Create a new query instead",
+      );
+      expect(updateAction).not.toHaveBeenCalled();
+    });
+
+    it("should_update_when_the_query_moves_to_another_datasource_of_the_same_plugin", async () => {
+      // Given: two PostgreSQL datasources; the action runs on the PostgreSQL plugin.
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "PG one", pluginId: "postgres-plugin" },
+        { id: "ds2", name: "PG two", pluginId: "postgres-plugin" },
+      ]);
+
+      // When
+      const updated = await updateTo(server, "ds2");
+
+      // Then
+      expect(updated.body.updated).toBe(true);
+      expect(updateAction).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  // APP-16507: Redshift and Snowflake paste each {{ }} value into the SQL text, so update_action must not store one.
+  it.each([
+    ["redshift-plugin", "Redshift"],
+    ["snowflake-plugin", "Snowflake"],
+  ])(
+    "APP-16507: update_action refuses a widget-valued filter on %s before any API write",
+    async (pluginId, database) => {
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId },
+      ]);
+      const read = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SQL",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: read.body.revision,
+          query: {
+            name: "OldName",
+            applicationId: "app1",
+            pageId: "p1",
+            datasourceId: "ds1",
+            operation: "SELECT",
+            table: "tickets",
+            filters: [
+              {
+                column: "owner",
+                op: "eq",
+                value: { widget: "OwnerInput", property: "text" },
+              },
+            ],
+          },
+        },
+      });
+
+      expect(updated.body.updated).not.toBe(true);
+      expect(JSON.stringify(updated.body.errors)).toContain(
+        `the ${database} plugin does not use prepared statements`,
+      );
+      expect(updateAction).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([
+    [
+      "aggregates",
+      {
+        operation: "DELETE",
+        filters: [{ column: "id", op: "eq", value: { literal: 1 } }],
+        aggregates: [{ fn: "count" }],
+      },
+    ],
+    [
+      "distinct",
+      {
+        operation: "INSERT",
+        values: [{ column: "name", value: { literal: "x" } }],
+        distinct: true,
+      },
+    ],
+  ])(
+    "APP-16495: update_action refuses %s on a write before any API write",
+    async (field, query) => {
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+      ]);
+      const read = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SQL",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: read.body.revision,
+          query: {
+            name: "OldName",
+            applicationId: "app1",
+            pageId: "p1",
+            datasourceId: "ds1",
+            table: "tickets",
+            ...query,
+          },
+        },
+      });
+
+      expect(updated.body.updated).not.toBe(true);
+      expect(updated.body.errors).toContainEqual(
+        expect.objectContaining({
+          message: `${field} is only valid on a SELECT query`,
+          path: `query.${field}`,
+        }),
+      );
+      expect(updateAction).not.toHaveBeenCalled();
+    },
+  );
+
+  // APP-16506 B: update_action recompiles from and joins for the datasource's plugin, through actionPatch.
+  async function updateWithJoin(
+    server: ReturnType<typeof createMcpHttpServer>,
+    change: Record<string, unknown> = {},
+  ) {
+    const read = await callTool(server, "get_action", {
+      applicationId: "app1",
+      actionId: "act1",
+    });
+
+    return callTool(server, "update_action", {
+      spec: {
+        kind: "SQL",
+        actionId: "act1",
+        applicationId: "app1",
+        revision: read.body.revision,
+        query: {
+          name: "OldName",
+          applicationId: "app1",
+          pageId: "p1",
+          datasourceId: "ds1",
+          operation: "SELECT",
+          from: { table: "orders", as: "o" },
+          joins: [
+            {
+              type: "inner",
+              table: "customers",
+              as: "c",
+              on: [{ left: "c.id", right: "o.customer_id" }],
+            },
+          ],
+          columns: ["o.id", { column: "c.name", as: "customer" }],
+          limit: 20,
+          ...change,
+        },
+      },
+    });
+  }
+
+  it.each([
+    [
+      "postgres-plugin",
+      'SELECT o."id" AS id, c."name" AS customer FROM (SELECT "customer_id", "id" FROM orders) o INNER JOIN (SELECT "id", "name" FROM customers) c ON c."id" = o."customer_id" LIMIT 20;',
+    ],
+    [
+      "mysql-plugin",
+      "SELECT o.id AS id, c.name AS customer FROM orders o INNER JOIN customers c ON c.id = o.customer_id LIMIT 20;",
+    ],
+    [
+      "mariadb-plugin",
+      "SELECT o.id AS id, c.name AS customer FROM orders o INNER JOIN customers c ON c.id = o.customer_id LIMIT 20;",
+    ],
+    [
+      "oracle-plugin",
+      "SELECT o.id AS id, c.name AS customer FROM orders o INNER JOIN customers c ON c.id = o.customer_id FETCH FIRST 20 ROWS ONLY",
+    ],
+    [
+      "mssql-plugin",
+      'SELECT TOP (20) o."id" AS id, c."name" AS customer FROM orders o INNER JOIN customers c ON c."id" = o."customer_id";',
+    ],
+  ])(
+    "APP-16506: should_store_the_join_body_when_update_action_runs_on_%s",
+    async (pluginId, sql) => {
+      // Given
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId },
+      ]);
+
+      // When
+      const updated = await updateWithJoin(server);
+
+      // Then
+      expect(updated.body.updated).toBe(true);
+      expect(
+        mcpAuthoredBody(
+          storedSqlBody(
+            (
+              (updateAction.mock.calls[0] as unknown[])[1] as {
+                actionConfiguration: unknown;
+              }
+            ).actionConfiguration,
+          ),
+        ),
+      ).toBe(sql);
+    },
+  );
+
+  it.each(["redshift-plugin", "snowflake-plugin"])(
+    "APP-16506: should_refuse_joins_before_any_write_when_update_action_runs_on_%s",
+    async (pluginId) => {
+      // Given
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId },
+      ]);
+
+      // When
+      const updated = await updateWithJoin(server);
+
+      // Then
+      expect(updated.body.updated).not.toBe(true);
+      expect(updated.body.errors).toEqual([
+        {
+          path: "",
+          message:
+            "from and joins need a PostgreSQL, MySQL, MariaDB, Oracle or SQL Server datasource that the server can identify. Redshift and Snowflake are not supported: their plugins put values into the SQL text instead of binding them",
+        },
+      ]);
+      expect(updateAction).not.toHaveBeenCalled();
+    },
+  );
+
+  // APP-16506 C: update_action compiles a CASE column through actionPatch, with the plugin's own form.
+  it.each([
+    [
+      "postgres-plugin",
+      'SELECT o."id" AS id, CASE WHEN c."tier" = {{ "gold" }} THEN {{ "priority" }} ELSE {{ "standard" }} END AS service FROM (SELECT "customer_id", "id" FROM orders) o INNER JOIN (SELECT "id", "tier" FROM customers) c ON c."id" = o."customer_id" LIMIT 20;',
+    ],
+    [
+      "oracle-plugin",
+      'SELECT o.id AS id, CASE WHEN c.tier = {{ "gold" }} THEN {{ "priority" }} ELSE {{ "standard" }} END AS service FROM orders o INNER JOIN customers c ON c.id = o.customer_id FETCH FIRST 20 ROWS ONLY',
+    ],
+    [
+      "mssql-plugin",
+      'SELECT TOP (20) o."id" AS id, CASE WHEN c."tier" = {{ "gold" }} THEN {{ "priority" }} ELSE {{ "standard" }} END AS service FROM orders o INNER JOIN customers c ON c."id" = o."customer_id";',
+    ],
+  ])(
+    "APP-16506: should_store_a_case_column_when_update_action_runs_on_%s",
+    async (pluginId, sql) => {
+      // Given
+      const { server, updateAction } = sqlUpdateServer([
+        { id: "ds1", name: "DB", pluginId },
+      ]);
+
+      // When
+      const updated = await updateWithJoin(server, {
+        columns: [
+          "o.id",
+          {
+            case: {
+              when: [
+                {
+                  if: [
+                    { column: "c.tier", op: "eq", value: { literal: "gold" } },
+                  ],
+                  then: { literal: "priority" },
+                },
+              ],
+              else: { literal: "standard" },
+            },
+            as: "service",
+          },
+        ],
+      });
+
+      // Then
+      expect(updated.body.updated).toBe(true);
+      expect(
+        mcpAuthoredBody(
+          storedSqlBody(
+            (
+              (updateAction.mock.calls[0] as unknown[])[1] as {
+                actionConfiguration: unknown;
+              }
+            ).actionConfiguration,
+          ),
+        ),
+      ).toBe(sql);
+    },
+  );
+
+  it("APP-16506: should_refuse_a_boolean_case_literal_before_any_write_when_update_action_runs_on_oracle", async () => {
+    // Given
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "ds1", name: "DB", pluginId: "oracle-plugin" },
+    ]);
+
+    // When
+    const updated = await updateWithJoin(server, {
+      columns: [
+        "o.id",
+        {
+          case: {
+            when: [
+              {
+                if: [{ column: "c.tier", op: "isNull" }],
+                then: { literal: true },
+              },
+            ],
+          },
+          as: "untiered",
+        },
+      ],
+    });
+
+    // Then
+    expect(updated.body.updated).not.toBe(true);
+    expect(updated.body.errors).toEqual([
+      {
+        path: "",
+        message:
+          "a boolean then or else is not available on Oracle or SQL Server; use a number or a string",
+      },
+    ]);
+    expect(updateAction).not.toHaveBeenCalled();
+  });
+
+  // APP-16506 D: update_action compiles a WITH query. The outer query joins customers to a CTE that totals each
+  // customer's orders.
+  const withChange = {
+    with: [
+      {
+        name: "order_totals",
+        query: {
+          from: { table: "orders", as: "o" },
+          groupBy: [{ column: "o.customer_id", as: "customer_id" }],
+          aggregates: [{ fn: "sum", column: "o.total", as: "paid_total" }],
+        },
+      },
+    ],
+    from: { table: "customers", as: "c" },
+    joins: [
+      {
+        type: "inner",
+        cte: "order_totals",
+        as: "t",
+        on: [{ left: "t.customer_id", right: "c.id" }],
+      },
+    ],
+    columns: [{ column: "c.name", as: "customer" }, "t.paid_total"],
+  };
+
+  it("APP-16506: should_store_the_marked_body_when_update_action_uses_with_on_postgres", async () => {
+    // Given
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+    ]);
+
+    // When
+    const updated = await updateWithJoin(server, withChange);
+
+    // Then
+    expect(updated.body.updated).toBe(true);
+
+    const stored = storedSqlBody(
+      (
+        (updateAction.mock.calls[0] as unknown[])[1] as {
+          actionConfiguration: unknown;
+        }
+      ).actionConfiguration,
+    );
+
+    expect(stored).toEqual(
+      expect.stringMatching(/^-- appsmith-mcp:v1 sha256=/),
+    );
+    expect(mcpAuthoredBody(stored)).toBe(
+      'WITH order_totals AS (SELECT o."customer_id" AS customer_id, SUM(o."total") AS paid_total FROM (SELECT "customer_id", "total" FROM orders) o GROUP BY o."customer_id") SELECT c."name" AS customer, t.paid_total AS paid_total FROM (SELECT "id", "name" FROM customers) c INNER JOIN order_totals t ON t.customer_id = c."id" LIMIT 20;',
+    );
+  });
+
+  it("APP-16506: should_refuse_with_before_any_write_when_update_action_runs_on_mysql", async () => {
+    // Given
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "ds1", name: "DB", pluginId: "mysql-plugin" },
+    ]);
+
+    // When
+    const updated = await updateWithJoin(server, withChange);
+
+    // Then
+    expect(updated.body.updated).not.toBe(true);
+    expect(updated.body.errors).toEqual([
+      {
+        path: "",
+        message:
+          "with is not available on MySQL or MariaDB: their plugin returns rows only for a query whose first word is SELECT",
+      },
+    ]);
+    expect(updateAction).not.toHaveBeenCalled();
+  });
+
+  it("APP-16506: should_refuse_joins_on_a_write_when_update_action_gets_an_update", async () => {
+    // Given
+    const { server, updateAction } = sqlUpdateServer([
+      { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
+    ]);
+
+    // When
+    const updated = await updateWithJoin(server, { operation: "UPDATE" });
+
+    // Then
+    expect(updated.body.updated).not.toBe(true);
+    expect(updated.body.errors).toContainEqual({
+      path: "query.operation",
+      message: "from and joins are only valid on a SELECT query",
+    });
+    expect(updateAction).not.toHaveBeenCalled();
+  });
 
   it("APP-16164: update_action refuses a SQL spec on a datasource outside the application's workspace", async () => {
     const { server, updateAction } = sqlUpdateServer([

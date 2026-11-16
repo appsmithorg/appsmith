@@ -58,8 +58,10 @@ import {
   type McpSessionSummary,
 } from "./session/store.js";
 import {
+  buildCopyActionDto,
   buildDuplicateActionDto,
   buildUpdateActionDto,
+  copyActionSpecSchema,
   deleteActionSpecSchema,
   duplicateActionSpecSchema,
   updateActionSpecSchema,
@@ -147,6 +149,7 @@ import {
   querySpecSchema,
   sqlDialectFor,
   type SqlDialect,
+  unboundSqlDatabase,
 } from "./builder/query.js";
 import {
   buildMongoActionDto,
@@ -1837,6 +1840,42 @@ function fingerprintAction(action: unknown): string {
     .digest("hex");
 }
 
+// The plugin document id of a datasource in the workspace list, or undefined when the datasource or its id is missing.
+function datasourcePluginIdOf(
+  datasources: unknown,
+  datasourceId: string,
+): string | undefined {
+  if (!Array.isArray(datasources)) return undefined;
+
+  const entry = datasources.find(
+    (candidate) =>
+      candidate !== null &&
+      typeof candidate === "object" &&
+      (candidate as { id?: unknown }).id === datasourceId,
+  ) as { pluginId?: unknown } | undefined;
+
+  return typeof entry?.pluginId === "string" ? entry.pluginId : undefined;
+}
+
+// The plugin a stored action runs on. The server runs an action on its own pluginId (top level, or on the edit copy),
+// and falls back to its datasource's plugin only when the action has none.
+function storedActionPluginId(action: unknown): string | undefined {
+  const own = (action as { pluginId?: unknown } | null)?.pluginId;
+
+  if (typeof own === "string" && own !== "") return own;
+
+  const source = actionSource(action);
+  const edit = source?.pluginId;
+
+  if (typeof edit === "string" && edit !== "") return edit;
+
+  const datasource = source?.datasource as { pluginId?: unknown } | undefined;
+
+  return typeof datasource?.pluginId === "string" && datasource.pluginId !== ""
+    ? datasource.pluginId
+    : undefined;
+}
+
 function actionSource(action: unknown): Record<string, unknown> | null {
   const source =
     (action as { unpublishedAction?: unknown } | null)?.unpublishedAction ??
@@ -2076,6 +2115,142 @@ function cloneActionForDuplicate(
       ? { datasource: { id: entry.datasource.id } }
       : {}),
   };
+}
+
+// APP-16526: the new action for copy_action. It is built from the STORED source action, never from agent input:
+// - the name, target page and target datasource come from the checked request;
+// - the plugin is the source action's own plugin, which the caller has matched with the target datasource's plugin;
+// - the action configuration is copied as stored. It never reaches the agent.
+function cloneActionForCopy(
+  stored: unknown,
+  copy: {
+    name: string;
+    pageId: string;
+    pluginId: string;
+    datasourceId: string;
+  },
+): Record<string, unknown> {
+  const source = actionSource(stored);
+  const actionConfiguration = source?.actionConfiguration;
+  // Keep "ask before running" (the editor's copy keeps it too). Run on page load is not copied: the server always
+  // creates an action that runs manually.
+  const confirmBeforeExecute =
+    (stored as { confirmBeforeExecute?: unknown } | null)
+      ?.confirmBeforeExecute ?? source?.confirmBeforeExecute;
+
+  return {
+    name: copy.name,
+    pageId: copy.pageId,
+    pluginId: copy.pluginId,
+    ...(actionConfiguration !== undefined ? { actionConfiguration } : {}),
+    ...(typeof confirmBeforeExecute === "boolean"
+      ? { confirmBeforeExecute }
+      : {}),
+    datasource: { id: copy.datasourceId },
+  };
+}
+
+// True when the stored action configuration holds a `{{ }}` binding anywhere: the SQL text, Oracle's formData, or a
+// REST path, header, parameter or body. The text itself is never returned.
+function storedConfigHasBinding(stored: unknown): boolean {
+  const actionConfiguration = actionSource(stored)?.actionConfiguration;
+
+  return (
+    actionConfiguration !== undefined &&
+    JSON.stringify(actionConfiguration).includes("{{")
+  );
+}
+
+// True when the stored SQL action binds its `{{ }}` values as prepared-statement parameters. Oracle keeps the switch
+// in formData.preparedStatement.data; the other SQL plugins keep it in pluginSpecifiedTemplates[0].value. Only an
+// explicit `true` counts, so a missing or unreadable switch fails closed.
+function storedSqlUsesPreparedStatement(
+  stored: unknown,
+  packageName: string | undefined,
+): boolean {
+  const config = actionSource(stored)?.actionConfiguration as
+    | {
+        formData?: { preparedStatement?: { data?: unknown } };
+        pluginSpecifiedTemplates?: unknown;
+      }
+    | undefined;
+
+  if (packageName === "oracle-plugin") {
+    return config?.formData?.preparedStatement?.data === true;
+  }
+
+  const templates = config?.pluginSpecifiedTemplates;
+
+  return (
+    Array.isArray(templates) &&
+    (templates[0] as { value?: unknown } | undefined)?.value === true
+  );
+}
+
+// True when this server wrote the stored action and nobody edited it since (the marker hash still matches). Only
+// such an action may move to another datasource: an editor-written one can hold a secret, such as a token header or
+// a password in the SQL text, which a datasource the agent picked would receive.
+function storedActionIsMcpAuthored(
+  stored: unknown,
+  pluginType: unknown,
+): boolean {
+  const actionConfiguration = actionSource(stored)?.actionConfiguration;
+
+  if (pluginType === "DB") {
+    // Oracle runs formData.body.data and the other SQL plugins run body. Every text that is present must carry a
+    // valid marker, so a marked text in one field cannot vouch for a secret in the other.
+    const config = (actionConfiguration ?? {}) as {
+      body?: unknown;
+      formData?: { body?: { data?: unknown } };
+    };
+    const texts = [config.body, config.formData?.body?.data].filter(
+      (text) => text !== undefined && text !== null && text !== "",
+    );
+
+    return (
+      texts.length > 0 &&
+      texts.every((text) => mcpAuthoredBody(text) !== undefined)
+    );
+  }
+
+  return (
+    pluginType === "API" &&
+    mcpAuthoredRestConfig(actionConfiguration) !== undefined
+  );
+}
+
+// True for an EE module or workflow action, or any action whose context is not a page. Their queries can be private
+// to a package or a workflow, so copy_action never copies them into an app page.
+function storedActionOutsidePage(action: unknown): boolean {
+  const entries = [action, actionSource(action)] as (Record<
+    string,
+    unknown
+  > | null)[];
+
+  return entries.some(
+    (entry) =>
+      entry !== null &&
+      typeof entry === "object" &&
+      ((entry.moduleInstanceId !== undefined &&
+        entry.moduleInstanceId !== null) ||
+        (entry.rootModuleInstanceId !== undefined &&
+          entry.rootModuleInstanceId !== null) ||
+        (entry.workflowId !== undefined && entry.workflowId !== null) ||
+        (entry.contextType !== undefined &&
+          entry.contextType !== null &&
+          entry.contextType !== "PAGE")),
+  );
+}
+
+// The saved datasource id of a stored action, or undefined for an embedded datasource (one with no id).
+function storedActionDatasourceId(action: unknown): string | undefined {
+  const datasource = actionSource(action)?.datasource as
+    | { id?: unknown }
+    | undefined;
+
+  return typeof datasource?.id === "string" && datasource.id !== ""
+    ? datasource.id
+    : undefined;
 }
 
 // The fixed JS plugin id (agents never supply it). Resolved from the plugins list by type/packageName.
@@ -6980,7 +7155,7 @@ export function buildMcpServer(
 
     registerTool(
       "create_query",
-      "Create a SQL query (SELECT/INSERT/UPDATE/DELETE) on a datasource from a STRUCTURED spec — no raw SQL, no raw bindings. Values become prepared-statement parameters. SELECT supports columns/filters/limit plus orderBy [{column,direction}], aggregate {fn:count|sum|avg,column?}, and groupBy. A columns or groupBy entry can be { column, coalesce: { literal } } to show a fallback for NULL under the column's own name (COALESCE(col, $n) AS col; the GROUP BY still groups the stored column). On PostgreSQL, one groupBy entry can be { column, split: ',' } to group by each trimmed item of a delimited column (an aggregate is required; having and orderBy on that column use the item; rows where the column is NULL or '' are left out; an empty item, such as in 'a,,b', forms its own '' group, which having { column, op: 'ne', value: { literal: '' } } drops; a WHERE filter on that column still tests the whole value). An aggregated SELECT can add having [{ column, op: eq|ne|gt|gte|lt|lte, value }] (up to 10, ANDed), where column is the aggregate's name (count|sum|avg, matching aggregate.fn) or a groupBy column, for example { column: 'count', op: 'gt', value: { literal: 5 } }. A filter is { column, op: eq|ne|gt|gte|lt|lte|like|in|inList, value: { literal } | { widget, property }, skipWhenEmpty? }, or { column, op: isNull|notNull } with no value (IS NULL / IS NOT NULL, or <=> NULL on MySQL; use these for a missing value, since eq with a null literal never matches). A filters entry can also be an OR group { anyOf: [filter, ...] } (2-10 plain filters, one level, no skipWhenEmpty inside), compiled to (a OR b) and ANDed with the other filters, for example a status that is one of several values, or (owner isNull OR owner eq ''). 'in' binds ONE value; to match any of a multi-select's values use 'inList' with its selectedOptionValues (PostgreSQL datasources only; values are compared as text, so they must match the column's text form, and the column's index is not used). For a filter bar, set skipWhenEmpty: true on each widget-valued filter (SELECT only) so an empty control (null, '', []) means 'no filter' instead of matching nothing. Then re-run the query when a control changes: wire_event { run } on a select's onOptionChange or an input's onSubmit (a widget edited through a tool that exposes a change event such as onSelectionChange takes the same { run } there), or add an Apply button whose onClick runs it. 'like' adds no % wildcards unless you set match: contains|prefix|suffix (exact is the default); the % goes into the bound value, and a % or _ in the value itself still acts as a wildcard. 'ilike' is the case-insensitive form (PostgreSQL only). A wildcard match, and any like/ilike with a widget value, is SELECT-only, because the value could match every row. See the filter-bar recipe. Widgets then reference it by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
+      "Create a SQL query (SELECT/INSERT/UPDATE/DELETE) on a datasource from a STRUCTURED spec — no raw SQL, no raw bindings. Values become prepared-statement parameters. Redshift and Snowflake have no prepared statements, so there a query cannot hold any value (no filter value, coalesce fallback, skipWhenEmpty, or INSERT/UPDATE value); a query without values still works. SELECT supports columns/filters/limit plus orderBy [{column,direction}], aggregate {fn:count|sum|avg,column?}, and groupBy. For more than one aggregate, use aggregates [{ fn: count|sum|avg|min|max, column?, abs?, round?: floor|ceil|round, as? }] (1-6 entries, not together with aggregate): column is required except for count (COUNT(*)); abs: true wraps the input (AVG(ABS(col))), not with count; round wraps the result (FLOOR(AVG(...))), sum and avg only, and ceil and round need a PostgreSQL, Redshift, MySQL or Oracle datasource (floor works everywhere); as names the result (lower-case letters, digits and _, not a SQL keyword; the default is the fn name). For example [{ fn: 'avg', column: 'resolution_time', abs: true, round: 'floor' }, { fn: 'count' }] gives FLOOR(AVG(ABS(resolution_time))) AS avg, COUNT(*) AS count. On PostgreSQL and Redshift, a groupBy entry can be { column, bucket: day|week|month|quarter|year, as } to group a date column by DATE_TRUNC, for example { column: 'created_at', bucket: 'week', as: 'week' } (an aggregate is required; as is required; having cannot test the bucket or its column, so filter the column instead; a timestamptz column is cut in the database session's time zone). With aggregates or a bucket, every result name (each group key, bucket as and aggregate name) must be unique, ignoring case, and orderBy can only name one of them. distinct: true gives SELECT DISTINCT over columns (columns is required; not with aggregate, aggregates or groupBy; orderBy can only name a column in columns). A columns or groupBy entry can be { column, coalesce: { literal } } to show a fallback for NULL under the column's own name (COALESCE(col, $n) AS col; the GROUP BY still groups the stored column). On PostgreSQL, one groupBy entry can be { column, split: ',' } to group by each trimmed item of a delimited column (an aggregate is required; having and orderBy on that column use the item; rows where the column is NULL or '' are left out; an empty item, such as in 'a,,b', forms its own '' group, which having { column, op: 'ne', value: { literal: '' } } drops; a WHERE filter on that column still tests the whole value). An aggregated SELECT can add having [{ column, op: eq|ne|gt|gte|lt|lte, value }] (up to 10, ANDed), where column is an aggregate's result name (aggregate.fn, or an aggregates entry's as or fn) or a groupBy column, for example { column: 'count', op: 'gt', value: { literal: 5 } }. A filter is { column, op: eq|ne|gt|gte|lt|lte|like|in|inList, value: { literal } | { widget, property }, skipWhenEmpty? }, or { column, op: isNull|notNull } with no value (IS NULL / IS NOT NULL, or <=> NULL on MySQL; use these for a missing value, since eq with a null literal never matches). A filters entry can also be an OR group { anyOf: [filter, ...] } (2-10 plain filters, one level, no skipWhenEmpty inside), compiled to (a OR b) and ANDed with the other filters, for example a status that is one of several values, or (owner isNull OR owner eq ''). 'in' binds ONE value; to match any of a multi-select's values use 'inList' with its selectedOptionValues (PostgreSQL datasources only; values are compared as text, so they must match the column's text form, and the column's index is not used). For a filter bar, set skipWhenEmpty: true on each widget-valued filter (SELECT only) so an empty control (null, '', []) means 'no filter' instead of matching nothing. Then re-run the query when a control changes: wire_event { run } on a select's onOptionChange or an input's onSubmit (a widget edited through a tool that exposes a change event such as onSelectionChange takes the same { run } there), or add an Apply button whose onClick runs it. 'like' adds no % wildcards unless you set match: contains|prefix|suffix (exact is the default); the % goes into the bound value, and a % or _ in the value itself still acts as a wildcard. 'ilike' is the case-insensitive form (PostgreSQL only). A wildcard match, and any like/ilike with a widget value, is SELECT-only, because the value could match every row. See the filter-bar recipe. To read several tables in one SELECT, use from { table, as } and joins instead of table (PostgreSQL, MySQL, MariaDB, Oracle and SQL Server only; every column is 'alias.column'; limit is required); such a query can also use CASE and with queries (WITH is refused on MySQL and MariaDB). Read get_guide('bindings') first. Widgets then reference it by name (table.source={query} / button.onClick={run}). Idempotent by page + name.",
       {
         query: z.record(z.unknown()),
         branch: gitBranchParamSchema.optional(),
@@ -7022,7 +7197,7 @@ export function buildMcpServer(
         if (!isSqlDatasource(datasources, plugins, spec.datasourceId)) {
           return result({
             error:
-              "create_query currently supports only MariaDB, Microsoft SQL Server, MySQL, Oracle, PostgreSQL, and Snowflake datasources",
+              "create_query currently supports only MariaDB, Microsoft SQL Server, MySQL, Oracle, PostgreSQL, Redshift, and Snowflake datasources",
           });
         }
 
@@ -7051,8 +7226,13 @@ export function buildMcpServer(
         try {
           // inList binds a list as one SQL array parameter. Only PostgreSQL supports this, so the compiler refuses
           // inList on any other datasource and on a datasource it cannot resolve. On MySQL, isNull and notNull
-          // compile without the IS keyword, which the MySQL plugin refuses in a prepared statement.
-          body = compileQuery(spec, { dialect: sqlDialectFor(packageName) });
+          // compile without the IS keyword, which the MySQL plugin refuses in a prepared statement. On Redshift and
+          // Snowflake, which have no prepared statements, any value binding is refused (assertBindingsSupported).
+          // from and joins need the plugin too: only plugins that bind every value are allowed.
+          body = compileQuery(spec, {
+            dialect: sqlDialectFor(packageName),
+            packageName,
+          });
         } catch (error) {
           return compileError(error);
         }
@@ -7741,7 +7921,7 @@ export function buildMcpServer(
 
       registerTool(
         "update_action",
-        "Update a stored SQL or REST action from a STRUCTURED spec (no raw SQL, bindings, credentials, base URLs, or headers). A SQL spec uses create_query's vocabulary, including skipWhenEmpty, inList, isNull/notNull and anyOf OR-group filters. Pass a revision from get_action. Returns safe metadata, new revision, and change id.",
+        "Update a stored SQL or REST action from a STRUCTURED spec (no raw SQL, bindings, credentials, base URLs, or headers). A SQL spec uses create_query's vocabulary, including skipWhenEmpty, inList, isNull/notNull and anyOf OR-group filters, aggregates, bucket group keys (PostgreSQL and Redshift), distinct, and from + joins for several tables, with CASE and with queries (see get_guide('bindings')). On Redshift and Snowflake a SQL spec cannot hold any value, because those plugins have no prepared statements. Pass a revision from get_action. Returns safe metadata, new revision, and change id.",
         {
           spec: z.record(z.unknown()),
           branch: gitBranchParamSchema.optional(),
@@ -7760,10 +7940,14 @@ export function buildMcpServer(
           // inList is allowed.
           const sqlQuery =
             parsed.data.kind === "SQL" ? parsed.data.query : undefined;
+          // A SQL or REST spec rewrites the action's body and datasource. A name-only update does neither.
+          const newSource =
+            parsed.data.kind === "SQL" ? parsed.data.query : parsed.data.rest;
           let dialect: SqlDialect = "other";
           let packageName: string | undefined;
+          let datasourcePluginId: string | undefined;
 
-          if (sqlQuery !== undefined) {
+          if (newSource !== undefined) {
             const workspaceId = workspaceIdFromApplicationPages(
               await api.getApplicationPages(parsed.data.applicationId),
             );
@@ -7776,27 +7960,49 @@ export function buildMcpServer(
 
             const datasources = await api.listDatasources(workspaceId);
 
-            if (!datasourceAccessible(datasources, sqlQuery.datasourceId)) {
+            if (!datasourceAccessible(datasources, newSource.datasourceId)) {
               return result({
-                error: `datasource ${sqlQuery.datasourceId} is not accessible in this application's workspace`,
+                error: `datasource ${newSource.datasourceId} is not accessible in this application's workspace`,
               });
             }
 
-            const plugins = await api.listPlugins(workspaceId);
-
-            if (!isSqlDatasource(datasources, plugins, sqlQuery.datasourceId)) {
-              return result({
-                error:
-                  "a SQL update needs a MariaDB, Microsoft SQL Server, MySQL, Oracle, PostgreSQL, or Snowflake datasource",
-              });
-            }
-
-            packageName = datasourcePackageName(
+            datasourcePluginId = datasourcePluginIdOf(
               datasources,
-              plugins,
-              sqlQuery.datasourceId,
+              newSource.datasourceId,
             );
-            dialect = sqlDialectFor(packageName);
+
+            if (sqlQuery !== undefined) {
+              const plugins = await api.listPlugins(workspaceId);
+
+              if (
+                !isSqlDatasource(datasources, plugins, sqlQuery.datasourceId)
+              ) {
+                return result({
+                  error:
+                    "a SQL update needs a MariaDB, Microsoft SQL Server, MySQL, Oracle, PostgreSQL, Redshift, or Snowflake datasource",
+                });
+              }
+
+              packageName = datasourcePackageName(
+                datasources,
+                plugins,
+                sqlQuery.datasourceId,
+              );
+              dialect = sqlDialectFor(packageName);
+            } else {
+              // A REST body needs a REST datasource, as in create_rest_api. Otherwise a REST spec naming a SQL
+              // datasource would pass the plugin check below on a SQL action, and its SQL plugin would run the REST
+              // body.
+              const plugins = await api.listPlugins(workspaceId);
+
+              if (
+                !isRestDatasource(datasources, plugins, newSource.datasourceId)
+              ) {
+                return result({
+                  error: "a REST update needs a REST API datasource",
+                });
+              }
+            }
           }
 
           let request: ReturnType<typeof buildUpdateActionDto>;
@@ -7819,6 +8025,30 @@ export function buildMcpServer(
             );
           } catch (error) {
             return compileError(error);
+          }
+
+          // APP-16517: the server runs an action on its own stored plugin, not on its datasource's plugin, and an
+          // update keeps the stored plugin. The new body above was built for the new datasource's plugin. So an update
+          // that rewrites the body must stay on the same plugin. Otherwise, for example:
+          // - a Redshift action could get SQL compiled for PostgreSQL, with bound values, and still run on Redshift,
+          //   which pastes the values into the SQL text;
+          // - a SQL action could get a REST body, with widget values, that its SQL plugin then runs as SQL.
+          if (newSource !== undefined) {
+            const storedPluginId = storedActionPluginId(current);
+
+            if (storedPluginId === undefined) {
+              return result({
+                error:
+                  "could not find the plugin this action runs on, so its body cannot be rewritten. Create a new query instead",
+              });
+            }
+
+            if (storedPluginId !== datasourcePluginId) {
+              return result({
+                error:
+                  "an update must keep the action on a datasource of the same plugin, such as PostgreSQL to PostgreSQL. To use a datasource of another plugin, create a new query with create_query or create_rest_api",
+              });
+            }
           }
 
           try {
@@ -7910,6 +8140,304 @@ export function buildMcpServer(
             });
 
             return result({ duplicated: true, ...value, changeId });
+          } catch (error) {
+            return governanceError(error) ?? compileError(error);
+          }
+        },
+      );
+
+      registerTool(
+        "copy_action",
+        "Copy a stored SQL or REST query to a page of another app, or to another page of the same app. The query text and configuration are copied on the server and never returned. You need access to the source query in the editor (app viewers cannot copy it) and edit access to the target page. A query written or edited in the editor keeps its own datasource, so the target app must be in the same workspace. A query this server wrote and nobody edited can move to target.datasourceId, which must use the same plugin, such as PostgreSQL to PostgreSQL. A SQL query that reads widgets is copied only with prepared statements on (never on Redshift or Snowflake). The copy runs manually, not on page load; wire it with wire_event. Pass a revision from get_action. referencesAppValues: true means the query reads widgets or other queries, which the target app may not have. Governed.",
+        {
+          spec: z.record(z.unknown()),
+          branch: gitBranchParamSchema.optional(),
+        },
+        async ({ branch, spec }) => {
+          const parsed = copyActionSpecSchema.safeParse(spec);
+
+          if (!parsed.success) return validationError(parsed.error.issues);
+
+          const request = buildCopyActionDto(parsed.data);
+          const { target } = request;
+
+          // The new action lands in the target app, so its branch rules apply.
+          const gate = await gitBranchGate(target.applicationId, branch);
+
+          if (!gate.ok) return gate.result;
+
+          let targetPages: unknown;
+          let current: unknown;
+
+          try {
+            targetPages = await api.getApplicationPages(target.applicationId);
+            // The server lists an app's actions only with read:actions, which developers have and app viewers do
+            // not. Anyone who can read the action can already see its query in the editor.
+            current = await api.getAction(
+              request.applicationId,
+              request.actionId,
+            );
+          } catch (error) {
+            return compileError(error);
+          }
+
+          // Resolve the workspace from the target app on the server, and check that the page is in that app. The
+          // branch gate above and the datasource check below then apply to the page that gets the action.
+          const workspaceId = workspaceIdFromApplicationPages(targetPages);
+
+          if (typeof workspaceId !== "string") {
+            return result({
+              error: `could not resolve the workspace for application ${target.applicationId}`,
+            });
+          }
+
+          if (
+            !projectPages(targetPages).some((page) => page.id === target.pageId)
+          ) {
+            return result({
+              error: `page ${target.pageId} is not in application ${target.applicationId}`,
+            });
+          }
+
+          const pluginType =
+            (current as { pluginType?: unknown } | null)?.pluginType ??
+            actionSource(current)?.pluginType;
+
+          if (pluginType !== "DB" && pluginType !== "API") {
+            return result({
+              error:
+                "copy_action copies SQL and REST queries only. To copy a JS object, read it with read_js_object and create it with create_js_object",
+            });
+          }
+
+          if (storedActionOutsidePage(current)) {
+            return result({
+              error:
+                "copy_action copies page queries only, not module or workflow queries",
+            });
+          }
+
+          const sourcePluginId = storedActionPluginId(current);
+
+          if (sourcePluginId === undefined) {
+            return result({
+              error:
+                "could not find the plugin this query runs on, so it cannot be copied",
+            });
+          }
+
+          const sourceDatasourceId = storedActionDatasourceId(current);
+
+          if (sourceDatasourceId === undefined) {
+            return result({
+              error:
+                "this query has no saved datasource, so it cannot be copied. Save its datasource in the editor first",
+            });
+          }
+
+          const datasourceId = target.datasourceId ?? sourceDatasourceId;
+
+          // An editor-written query can hold a secret, such as a token header or a password in the SQL text. On
+          // another datasource, which the agent may have created, that secret would go to a host the agent picked. So
+          // only a query this server wrote, unedited, may change datasource.
+          if (
+            datasourceId !== sourceDatasourceId &&
+            !storedActionIsMcpAuthored(current, pluginType)
+          ) {
+            return result({
+              error:
+                "this query was written or edited in the editor, so it can be copied only with its own datasource. Copy it to an app in the same workspace, or rebuild it with create_query or create_rest_api",
+            });
+          }
+
+          const datasources = await api.listDatasources(workspaceId);
+
+          if (!datasourceAccessible(datasources, datasourceId)) {
+            return result({
+              error:
+                target.datasourceId === undefined
+                  ? `the source datasource is not in the target app's workspace. Pass target.datasourceId with a datasource of the same plugin from that workspace (see list_datasources)`
+                  : `datasource ${datasourceId} is not accessible in the target app's workspace`,
+            });
+          }
+
+          // APP-16517: the server runs an action on its own plugin. The copy keeps the source plugin, so its
+          // datasource must use that plugin too.
+          if (
+            datasourcePluginIdOf(datasources, datasourceId) !== sourcePluginId
+          ) {
+            return result({
+              error:
+                "the target datasource must use the same plugin as the source query, such as PostgreSQL to PostgreSQL",
+            });
+          }
+
+          const plugins = await api.listPlugins(workspaceId);
+          // The kind comes from the plugin, which the server decides, and must agree with the action's type.
+          const isSql = isSqlDatasource(datasources, plugins, datasourceId);
+          const isRest = isRestDatasource(datasources, plugins, datasourceId);
+
+          if (
+            !(isSql && pluginType === "DB") &&
+            !(isRest && pluginType === "API")
+          ) {
+            return result({
+              error:
+                "copy_action supports MariaDB, Microsoft SQL Server, MySQL, Oracle, PostgreSQL, Redshift, Snowflake and REST API queries",
+            });
+          }
+
+          const hasBinding = storedConfigHasBinding(current);
+          const packageName = datasourcePackageName(
+            datasources,
+            plugins,
+            datasourceId,
+          );
+
+          // A SQL query pastes `{{ }}` values into its text unless it uses prepared statements. In another app a
+          // widget name can belong to a different widget, which could then change the query. So a SQL query that
+          // reads values is copied only when its plugin binds them as parameters (APP-16507: never on Redshift and
+          // Snowflake) and its prepared-statement switch is on.
+          if (isSql && hasBinding) {
+            const database = unboundSqlDatabase(packageName);
+
+            if (database !== undefined) {
+              return result({
+                error: `the ${database} plugin pastes {{ }} values into the SQL text, so a ${database} query that reads widgets or other values cannot be copied. Rebuild it in the target app with create_query`,
+              });
+            }
+
+            if (!storedSqlUsesPreparedStatement(current, packageName)) {
+              return result({
+                error:
+                  "this query reads widgets or other values with prepared statements turned off, so the values are pasted into the SQL text. Turn on prepared statements in the editor, or rebuild it with create_query",
+              });
+            }
+          }
+
+          // Idempotency: return the existing query rather than creating a second one on a retry.
+          const existing = findExistingAction(
+            await api.listActions(target.applicationId),
+            request.name,
+            target.pageId,
+          );
+
+          if (existing !== undefined) {
+            return result({
+              copied: false,
+              reason:
+                "a query with this name already exists on the target page",
+              action: projectAction(existing),
+            });
+          }
+
+          try {
+            const { changeId, value } = await govData.execute({
+              actorId,
+              organizationId,
+              entityKey: `action:${request.actionId}`,
+              operation: "copy_action",
+              expectedRevision: request.revision,
+              currentRevision: fingerprintAction(current),
+              mutate: async () => {
+                // The checks above read the source before the lock. Read it again under the lock, so a change made
+                // in between (for example by update_action) is refused instead of copying the earlier version.
+                const latestRevision = fingerprintAction(
+                  await api.getAction(request.applicationId, request.actionId),
+                );
+
+                if (latestRevision !== fingerprintAction(current)) {
+                  throw new GovernanceRevisionConflictError(
+                    request.revision,
+                    latestRevision,
+                  );
+                }
+
+                const created = await api.createAction(
+                  cloneActionForCopy(current, {
+                    name: request.name,
+                    pageId: target.pageId,
+                    pluginId: sourcePluginId,
+                    datasourceId,
+                  }),
+                );
+                const createdId = (created as { id?: unknown } | null)?.id;
+
+                // Pin the copy to manual. Otherwise the server can switch it to run on page load when a widget
+                // binds to it, and the copy may write data. A copy that cannot be pinned is removed again (fail
+                // closed), as in create_mongo_query.
+                try {
+                  if (typeof createdId !== "string") {
+                    throw new Error("the create response carried no action id");
+                  }
+
+                  await api.setActionRunBehaviour(createdId, "MANUAL");
+                } catch (error) {
+                  const reason =
+                    error instanceof Error ? error.message : "unknown error";
+
+                  if (typeof createdId !== "string") {
+                    throw new Error(
+                      `a copy may have been created on page ${target.pageId}, but the server returned no id, so it could not be set to run manually. Check the page in the editor and set the copy to "Manual" or delete it`,
+                    );
+                  }
+
+                  try {
+                    await api.deleteAction(createdId);
+                  } catch {
+                    throw new Error(
+                      `the copy ${createdId} was created but could not be set to run manually (${reason}) or removed. Set it to "Manual" in the editor's run-behaviour dropdown, or delete it`,
+                    );
+                  }
+
+                  throw new Error(
+                    `the copy could not be set to run manually (${reason}), so it was not kept`,
+                  );
+                }
+
+                // Pinning saves the copy again and can change its updatedAt, so the revision comes from a read after
+                // the pin. If that read fails, the copy is still made and pinned, but its revision is unknown: the
+                // result leaves the revision out and tells the agent to read the copy with get_action first.
+                let saved: unknown;
+
+                try {
+                  saved = await api.getAction(target.applicationId, createdId);
+                } catch {
+                  saved = undefined;
+                }
+
+                return {
+                  value:
+                    saved === undefined
+                      ? {
+                          action: projectAction(created),
+                          revisionUnavailable:
+                            "read the copy with get_action before you change it",
+                        }
+                      : {
+                          action: projectAction(saved),
+                          revision: fingerprintAction(saved),
+                        },
+                  // The audit record keeps the best revision known.
+                  revisionAfter: fingerprintAction(saved ?? created),
+                  rollback: {
+                    createdActionId: (created as { id?: string } | null)?.id,
+                  },
+                  summary: {
+                    name: request.name,
+                    targetApplicationId: target.applicationId,
+                    targetPageId: target.pageId,
+                  },
+                };
+              },
+            });
+
+            return result({
+              copied: true,
+              ...value,
+              referencesAppValues: hasBinding,
+              changeId,
+            });
           } catch (error) {
             return governanceError(error) ?? compileError(error);
           }
