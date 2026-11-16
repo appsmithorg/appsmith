@@ -234,6 +234,30 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     return value;
   }, [value, inputText]);
 
+  /**
+   * What the input shows. It is usually the same as `text`, but a field can
+   * format its text while keeping the form value unformatted (for example the
+   * phone field shows "(202) 555-0106" and stores "2025550106").
+   * Keep what the user typed while it still matches the form value, otherwise
+   * format the form value itself (default value, reset or a value set from
+   * outside the field).
+   */
+  const displayText = useMemo(() => {
+    if (typeof value !== "string") return text;
+
+    if (
+      !isNil(inputText) &&
+      inputText !== value &&
+      transformValue(inputText, inputText).value === value
+    ) {
+      return inputText;
+    }
+
+    const formatted = transformValue(value, "");
+
+    return formatted.value === value ? formatted.text : text;
+  }, [text, value, inputText, transformValue]);
+
   const isValueValid = isValid(schemaItem, text);
 
   useRegisterFieldValidity({
@@ -291,7 +315,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
       const { onTextChanged } = schemaItem;
       // text - what we show in the component
       // value - what we store in the formData
-      const { text, value } = transformValue(inputValue, inputText || "");
+      const { text, value } = transformValue(inputValue, displayText || "");
 
       if (isNil(value)) {
         isNilSetByField.current = true;
@@ -311,7 +335,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
         });
       }
     },
-    [schemaItem.onTextChanged, transformValue, executeAction, inputText],
+    [schemaItem.onTextChanged, transformValue, executeAction, displayText],
   );
 
   const conditionalProps = useMemo(() => {
@@ -395,12 +419,13 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
         showError={isFocused}
         spellCheck={schemaItem.isSpellCheck}
         stepSize={1}
-        value={text || ""}
+        value={displayText || ""}
         widgetId=""
       />
     );
   }, [
     conditionalProps,
+    displayText,
     inputHTMLType,
     inputRef,
     isFocused,
