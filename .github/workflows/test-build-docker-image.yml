@@ -223,23 +223,32 @@ jobs:
         if: always()
         id: slack_notification
         env:
-          EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
+          COMMIT_MESSAGE: ${{ github.event.commits[0].message }}
+          CI_TEST_RESULT: ${{ needs.ci-test.result }}
         run: |
-          eventCommit=$(echo ${{env.EVENT_COMMITS}} | sed "s/'//g")
-          echo "slack_username=$(echo "$eventCommit" | awk -F '\\\\n' '{print $1}' | sed 's/^"//;s/"$//')" >> $GITHUB_OUTPUT
-          if [[ ${{ needs.ci-test.result }} == 'failure' ]]; then
-            echo "slack_message=There are test failures in the run. Cypress Dashboard: <https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail|Click here!>" >> $GITHUB_OUTPUT
-            echo "slack_color=#FF0000" >> $GITHUB_OUTPUT
-            echo "slack_icon=:no_entry:" >> $GITHUB_OUTPUT
-          elif [[ ${{ needs.ci-test.result }} == 'success' ]]; then
-            echo "slack_message=All tests passed successfully :tada: Cypress Dashboard: <https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}|Click here!>" >> $GITHUB_OUTPUT
-            echo "slack_color=#00FF00" >> $GITHUB_OUTPUT
-            echo "slack_icon=:white_check_mark:" >> $GITHUB_OUTPUT
+          # The commit message is untrusted text. Read it only as a quoted variable,
+          # never through an expression in this script.
+          slack_username=$(printf '%s\n' "$COMMIT_MESSAGE" | head -n 1 | tr -d "'")
+          dashboard="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${GITHUB_RUN_ID}&attempt=${GITHUB_RUN_ATTEMPT}"
+          if [[ "$CI_TEST_RESULT" == 'failure' ]]; then
+            message="There are test failures in the run. Cypress Dashboard: <${dashboard}&selectiontype=test&testsstatus=failed&specsstatus=fail|Click here!>"
+            color="#FF0000"
+            icon=":no_entry:"
+          elif [[ "$CI_TEST_RESULT" == 'success' ]]; then
+            message="All tests passed successfully :tada: Cypress Dashboard: <${dashboard}|Click here!>"
+            color="#00FF00"
+            icon=":white_check_mark:"
           else
-            echo "slack_message=There are build failures. To analyze run go <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>" >> $GITHUB_OUTPUT
-            echo "slack_color=#FF0000" >> $GITHUB_OUTPUT
-            echo "slack_icon=:warning:" >> $GITHUB_OUTPUT
+            message="There are build failures. To analyze run go <${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}|here>"
+            color="#FF0000"
+            icon=":warning:"
           fi
+          {
+            echo "slack_username=$slack_username"
+            echo "slack_message=$message"
+            echo "slack_color=$color"
+            echo "slack_icon=$icon"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Slack notification
         continue-on-error: true
@@ -256,14 +265,6 @@ jobs:
           MSG_MINIMAL: Ref,Event,Commit
           SLACK_FOOTER: "Push Workflow"
           SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}
-
-      # Dump github context for future use
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJSON(github) }}
-        run: |
-          echo "$GITHUB_CONTEXT"
-          echo ${{ github.repository }}
 
       # This step triggers an external workflow for automated analysis of Cypress test runs.
       - name: Invoke Automated analysis workflow
