@@ -2,6 +2,7 @@ import type { TableColumnProps } from "./Constants";
 import { ColumnTypes } from "./Constants";
 import { isPlainObject, isNil, isString } from "lodash";
 import moment from "moment";
+import { neutralizeSpreadsheetFormula } from "widgets/TableWidgetV2/utilities/getExportCellValue";
 
 export function sortTableFunction(
   filteredTableData: Array<Record<string, unknown>>,
@@ -89,6 +90,11 @@ export const transformTableDataIntoCsv = (props: {
           isString(value) && value.includes("\n")
             ? value.replace("\n", " ")
             : value;
+
+        // Match Table v2 CSV export: neutralize spreadsheet formula prefixes.
+        if (isString(value)) {
+          value = neutralizeSpreadsheetFormula(value);
+        }
 
         if (isString(value) && value.includes(",")) {
           csvDataRow.push(`"${value}"`);
