@@ -3,6 +3,7 @@ import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import type { UseFormReturn } from "react-hook-form";
 import { FormProvider, useForm } from "react-hook-form";
 import { ThemeProvider } from "styled-components";
+import { AsYouType } from "libphonenumber-js";
 import { RenderModes } from "constants/WidgetConstants";
 import { lightTheme } from "selectors/themeSelectors";
 import { DataType, FieldType } from "../constants";
@@ -141,6 +142,7 @@ describe("Phone Input Field", () => {
 describe("Phone Input Field formatting", () => {
   let formValues: () => Record<string, unknown>;
   let resetForm: (values: Record<string, unknown>) => void;
+  let changeCountry: (countryCode: string, dialCode: string) => void;
   const setMetaInternalFieldState = jest.fn();
 
   beforeEach(() => {
@@ -220,16 +222,21 @@ describe("Phone Input Field formatting", () => {
       ...schemaItemOverrides,
     } as unknown as PhoneInputFieldProps["schemaItem"];
 
-    const result = render(
+    const renderField = (item: PhoneInputFieldProps["schemaItem"]) => (
       <MockFormWrapper onFormReady={captureForm}>
         <PhoneInputField
           fieldClassName="phone"
           name="phone"
           propertyPath="schema.__root_schema__.children.phone"
-          schemaItem={schemaItem}
+          schemaItem={item}
         />
-      </MockFormWrapper>,
+      </MockFormWrapper>
     );
+
+    const result = render(renderField(schemaItem));
+
+    changeCountry = (countryCode: string, dialCode: string) =>
+      result.rerender(renderField({ ...schemaItem, countryCode, dialCode }));
 
     // The Field component applies the default value in a setTimeout.
     if (schemaItem.defaultValue !== undefined) {
@@ -296,6 +303,36 @@ describe("Phone Input Field formatting", () => {
     fireEvent.change(input, { target: { value: "(202 555-0106" } });
 
     expect(input.value).toBe("(202 555-0106");
+    expect(formValues().phone).toBe("2025550106");
+  });
+
+  it("keeps the digits as typed after every formatting character is deleted", async () => {
+    const input = await renderPhoneField({ defaultValue: "2025550106" });
+
+    expect(input.value).toBe("(202) 555-0106");
+
+    ["(", ")", " ", "-"].forEach((character) => {
+      fireEvent.change(input, {
+        target: { value: input.value.replace(character, "") },
+      });
+    });
+
+    expect(input.value).toBe("2025550106");
+    expect(formValues().phone).toBe("2025550106");
+  });
+
+  it("formats the typed number again when the country changes", async () => {
+    const input = await renderPhoneField();
+
+    typeInto(input, "2025550106");
+    expect(input.value).toBe("(202) 555-0106");
+
+    changeCountry("GB", "+44");
+
+    const gbText = new AsYouType("GB").input("2025550106");
+
+    expect(gbText).not.toBe("(202) 555-0106");
+    expect(input.value).toBe(gbText);
     expect(formValues().phone).toBe("2025550106");
   });
 

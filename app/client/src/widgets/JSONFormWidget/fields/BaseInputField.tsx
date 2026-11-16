@@ -169,6 +169,12 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
 
   const [isFocused, setIsFocused] = useState(false);
   const [inputText, setInputText] = useState<string | undefined | null>("");
+  // The text from the last edit in this field and the transformValue that
+  // produced it. Used to keep showing exactly what the user typed or deleted.
+  const [editedText, setEditedText] = useState<{
+    text: string;
+    transform: BaseInputFieldProps["transformValue"];
+  } | null>(null);
 
   const {
     field: { onBlur, onChange, value },
@@ -238,25 +244,26 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
    * What the input shows. It is usually the same as `text`, but a field can
    * format its text while keeping the form value unformatted (for example the
    * phone field shows "(202) 555-0106" and stores "2025550106").
-   * Keep what the user typed while it still matches the form value, otherwise
-   * format the form value itself (default value, reset or a value set from
-   * outside the field).
+   * Keep the text from the user's last edit while it still matches the form
+   * value and was produced by the current transformValue (for the phone field,
+   * the same country). Otherwise format the form value itself (default value,
+   * reset, a value set from outside the field or a country change).
    */
   const displayText = useMemo(() => {
     if (typeof value !== "string") return text;
 
     if (
-      !isNil(inputText) &&
-      inputText !== value &&
-      transformValue(inputText, inputText).value === value
+      editedText &&
+      editedText.transform === transformValue &&
+      transformValue(editedText.text, editedText.text).value === value
     ) {
-      return inputText;
+      return editedText.text;
     }
 
     const formatted = transformValue(value, "");
 
     return formatted.value === value ? formatted.text : text;
-  }, [text, value, inputText, transformValue]);
+  }, [text, value, editedText, transformValue]);
 
   const isValueValid = isValid(schemaItem, text);
 
@@ -323,6 +330,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
 
       fieldOnChangeHandler(value);
       setInputText(text);
+      setEditedText({ text, transform: transformValue });
 
       if (onTextChanged && executeAction) {
         executeAction({
