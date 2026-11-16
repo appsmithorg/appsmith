@@ -27,6 +27,7 @@ Usage:
 """
 
 import argparse
+import copy
 import re
 import subprocess
 import sys
@@ -40,6 +41,7 @@ except ImportError:  # Fail closed: a missing parser must not pass the check.
 
 EXPRESSION = re.compile(r"\$\{\{.*?\}\}", re.DOTALL)
 WHOLE_CONTEXT = re.compile(r"toJSON\(\s*github(\.event)?\s*\)", re.IGNORECASE)
+NODE_PROPERTIES = re.compile(r"(?:[&!]\S*\s+)*")
 HUNK = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
 
 
@@ -52,6 +54,38 @@ def workflow_files(root):
     return sorted(set(files))
 
 
+class AliasLoader(yaml.SafeLoader):
+    """Compose YAML, keeping where each alias is used.
+
+    PyYAML resolves ``*name`` to the anchored node itself, with the anchor's
+    marks, so the place the alias is used is lost. Here each use gets its own
+    shallow copy of that node, with ``alias_line`` set to the 1-based line of
+    the ``*name``. The copy keeps the anchor's marks, which locate the text.
+    """
+
+    def compose_node(self, parent, index):
+        if not self.check_event(yaml.AliasEvent):
+            return super().compose_node(parent, index)
+        line = self.peek_event().start_mark.line + 1
+        alias = copy.copy(super().compose_node(parent, index))
+        alias.alias_line = line
+        return alias
+
+
+def content_span(node, source):
+    """Return the (start, end) indexes of a scalar's content in ``source``.
+
+    The node's marks also cover its properties (``&anchor``, ``!tag``) and,
+    for a block scalar, the header line with its indicator and any comment.
+    None of that is part of the value.
+    """
+    start, end = NODE_PROPERTIES.match(source, node.start_mark.index).end(), node.end_mark.index
+    if node.style in ("|", ">"):
+        newline = source.find("\n", start, end)
+        start = end if newline < 0 else newline + 1
+    return start, end
+
+
 def source_matches(node, source, pattern):
     """Yield (first_line, last_line, text) for each ``pattern`` match in a scalar node.
 
@@ -59,7 +93,7 @@ def source_matches(node, source, pattern):
     value. Parsing folds ``>`` blocks, multi-line plain and quoted scalars, and
     escapes, so offsets in ``node.value`` do not map back to source lines.
     """
-    start, end = node.start_mark.index, node.end_mark.index
+    start, end = content_span(node, source)
     matches = list(pattern.finditer(source, start, end))
     for match in matches:
         first = source.count("\n", 0, match.start()) + 1
@@ -68,7 +102,7 @@ def source_matches(node, source, pattern):
     if len(parsed) > len(matches):
         # The parsed value holds a match the source text does not spell out,
         # for example through a YAML escape. Fail closed: report the whole node.
-        first, last = node.start_mark.line + 1, source.count("\n", 0, end) + 1
+        first, last = source.count("\n", 0, start) + 1, source.count("\n", 0, end) + 1
         yield first, last, parsed[0]
 
 
@@ -85,36 +119,51 @@ def is_github_script(step_node):
 
 
 def find_violations(path):
-    """Return a sorted list of (first_line, last_line, rule, snippet) for one workflow or action file."""
+    """Return a sorted list of (first_line, last_line, alias_lines, rule, snippet) for one file.
+
+    ``alias_lines`` holds the line of each alias that brings the match to where
+    it is. A change to any of them, or to the match's own lines, makes the
+    match new.
+    """
     source = Path(path).read_text(encoding="utf-8")
-    root = yaml.compose(source)
-    found = []
+    root = yaml.compose(source, Loader=AliasLoader)
+    found = set()
 
-    def scan(node, pattern, rule):
+    def scan(node, pattern, rule, via):
         for first, last, text in source_matches(node, source, pattern):
-            found.append((first, last, rule, text))
+            found.add((first, last, via, rule, text))
 
-    def walk(node):
+    def walk(node, via, path):
+        if id(node) in path:
+            return  # A recursive alias. GitHub rejects it; do not loop on it.
+        path = path | {id(node)}
+        if hasattr(node, "alias_line"):
+            via = via | {node.alias_line}
         if isinstance(node, yaml.MappingNode):
             run = mapping_get(node, "run")
             if isinstance(run, yaml.ScalarNode):
-                scan(run, EXPRESSION, "run")
+                scan(run, EXPRESSION, "run", via | alias_lines(run))
             if is_github_script(node):
                 with_node = mapping_get(node, "with")
                 script = mapping_get(with_node, "script") if isinstance(with_node, yaml.MappingNode) else None
                 if isinstance(script, yaml.ScalarNode):
-                    scan(script, EXPRESSION, "script")
-            for _, value in node.value:
-                walk(value)
+                    scan(script, EXPRESSION, "script", via | alias_lines(with_node) | alias_lines(script))
+            for key, value in node.value:
+                walk(key, via, path)
+                walk(value, via, path)
         elif isinstance(node, yaml.SequenceNode):
             for value in node.value:
-                walk(value)
+                walk(value, via, path)
         elif isinstance(node, yaml.ScalarNode):
-            scan(node, WHOLE_CONTEXT, "whole-context")
+            scan(node, WHOLE_CONTEXT, "whole-context", via)
 
     if root is not None:
-        walk(root)
-    return sorted(found)
+        walk(root, frozenset(), frozenset())
+    return sorted(found, key=lambda item: (item[0], item[1], sorted(item[2]), item[3], item[4]))
+
+
+def alias_lines(node):
+    return frozenset({node.alias_line}) if hasattr(node, "alias_line") else frozenset()
 
 
 def git(root, *args):
@@ -155,17 +204,23 @@ def check(root, base=None):
     changed = added_lines(root, base, files) if base else None
     errors = []
     for rel, path in files.items():
-        for line, last, rule, snippet in find_violations(path):
+        for line, last, aliases, rule, snippet in find_violations(path):
             if rule == "whole-context":
-                errors.append(
+                message = (
                     f"{rel}:{line}: {snippet} passes the whole context, which can exceed the 131,072-byte "
                     "limit for one environment string. Read single fields, or the file at $GITHUB_EVENT_PATH."
                 )
-            elif changed is None or any(n in changed.get(rel, ()) for n in range(line, last + 1)):
-                errors.append(
+            elif changed is None or (set(range(line, last + 1)) | aliases) & changed.get(rel, set()):
+                message = (
                     f"{rel}:{line}: {snippet} is inside a {rule}: body. "
                     "Pass the value through env: and read the quoted variable."
                 )
+                for alias in sorted(aliases):
+                    message += f" It reaches the script through the alias on line {alias}."
+            else:
+                continue
+            if message not in errors:
+                errors.append(message)
     return errors
 
 
