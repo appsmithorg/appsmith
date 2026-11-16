@@ -7366,6 +7366,779 @@ describe("governance-wrapped layout mutations", () => {
     },
   );
 
+  // APP-16526: copy_action copies a stored SQL or REST query to a page of another app. The query text stays on the
+  // server. Source app "app1" (workspace ws1, page p1); target app "app2" (page p2), in ws1 unless a test moves it.
+  describe("APP-16526: copy_action", () => {
+    const SECRET_SQL =
+      "SELECT secret_col FROM t WHERE id = {{Table1.selectedRow.id}}";
+    const PG_SOURCE = {
+      id: "act1",
+      name: "getUsers",
+      pageId: "p1",
+      pluginType: "DB",
+      pluginId: "postgres-plugin",
+      updatedAt: "2026-07-12T00:00:00.000Z",
+      datasource: { id: "dspg", pluginId: "postgres-plugin" },
+      actionConfiguration: {
+        body: SECRET_SQL,
+        pluginSpecifiedTemplates: [{ value: true }],
+      },
+    };
+    const WORKSPACE_DATASOURCES: Record<string, unknown[]> = {
+      ws1: [
+        { id: "dspg", name: "PG", pluginId: "postgres-plugin" },
+        { id: "dspg2", name: "PG two", pluginId: "postgres-plugin" },
+        { id: "dsmy", name: "MySQL", pluginId: "mysql-plugin" },
+        { id: "dsrs", name: "Redshift", pluginId: "redshift-plugin" },
+        { id: "dsmongo", name: "Mongo", pluginId: "mongo-plugin" },
+        { id: "dsrest", name: "API", pluginId: "restapi-plugin" },
+        { id: "dsrest2", name: "Other API", pluginId: "restapi-plugin" },
+        { id: "dsora", name: "Oracle", pluginId: "oracle-plugin" },
+        { id: "dsms", name: "SQL Server", pluginId: "mssql-plugin" },
+        { id: "dsmaria", name: "MariaDB", pluginId: "mariadb-plugin" },
+      ],
+      ws2: [{ id: "dspgB", name: "PG B", pluginId: "postgres-plugin" }],
+    };
+
+    function copyServer(
+      stored: unknown,
+      options: {
+        targetWorkspace?: string;
+        existing?: unknown[];
+        store?: MemoryGovernanceStore;
+        gitAppId?: string;
+      } = {},
+    ) {
+      const createAction = jest.fn(async (action: Record<string, unknown>) => ({
+        id: "act9",
+        ...action,
+        pluginType: (stored as { pluginType?: unknown }).pluginType,
+        updatedAt: "2026-11-16T00:00:00.000Z",
+      }));
+      const getAction = jest.fn(async () => stored);
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getApplicationPages: jest.fn(async (applicationId: string) =>
+          applicationId === "app2"
+            ? {
+                workspaceId: options.targetWorkspace ?? "ws1",
+                pages: [{ id: "p2", name: "Reports" }],
+              }
+            : { workspaceId: "ws1", pages: [{ id: "p1", name: "Home" }] },
+        ),
+        getAction,
+        // Only options.gitAppId is git-connected, on branch feature/x.
+        getApplication: jest.fn(async (applicationId: string) =>
+          applicationId === options.gitAppId
+            ? {
+                id: applicationId,
+                gitApplicationMetadata: {
+                  branchName: "feature/x",
+                  defaultBranchName: "master",
+                },
+              }
+            : {},
+        ),
+        listDatasources: jest.fn(
+          async (workspaceId: string) => WORKSPACE_DATASOURCES[workspaceId],
+        ),
+        listPlugins: jest.fn(async () => []),
+        listActions: jest.fn(async () => options.existing ?? []),
+        createAction: createAction as never,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        dataEnabled: true,
+        governance: new McpGovernanceCoordinator(
+          options.store ?? new MemoryGovernanceStore(),
+        ),
+      });
+
+      return { server, createAction, getAction };
+    }
+
+    async function copy(
+      server: ReturnType<typeof createMcpHttpServer>,
+      target: Record<string, unknown> = { applicationId: "app2", pageId: "p2" },
+      revision?: string,
+    ) {
+      const read = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+
+      return callTool(server, "copy_action", {
+        spec: {
+          actionId: "act1",
+          applicationId: "app1",
+          revision: revision ?? read.body.revision,
+          name: "getUsersCopy",
+          target,
+        },
+      });
+    }
+
+    function restSource(actionConfiguration: Record<string, unknown>) {
+      return {
+        ...PG_SOURCE,
+        pluginType: "API",
+        pluginId: "restapi-plugin",
+        datasource: { id: "dsrest", pluginId: "restapi-plugin" },
+        actionConfiguration,
+      };
+    }
+
+    function mcpRestConfig(): Record<string, unknown> {
+      const spec = restApiSpecSchema.parse({
+        name: "getUsers",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "dsrest",
+        method: "GET",
+        path: "/v1/users",
+      });
+
+      return buildRestActionDto(spec, compileRestApi(spec))
+        .actionConfiguration as Record<string, unknown>;
+    }
+
+    it("should_copy_the_stored_query_with_its_datasource_when_the_target_app_is_in_the_same_workspace", async () => {
+      // Given
+      const { createAction, getAction, server } = copyServer(PG_SOURCE);
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(copied.body.referencesAppValues).toBe(true);
+      expect(getAction).toHaveBeenCalledWith("app1", "act1");
+      expect(createAction).toHaveBeenCalledTimes(1);
+      expect(createAction.mock.calls[0][0]).toEqual({
+        name: "getUsersCopy",
+        pageId: "p2",
+        pluginId: "postgres-plugin",
+        actionConfiguration: PG_SOURCE.actionConfiguration,
+        datasource: { id: "dspg" },
+      });
+      expect(JSON.stringify(copied.body)).not.toContain("secret_col");
+    });
+
+    it("should_copy_an_mcp_authored_query_to_a_same_plugin_datasource_in_another_workspace", async () => {
+      // Given
+      const stored = {
+        ...PG_SOURCE,
+        actionConfiguration: {
+          body: markMcpAuthoredBody("SELECT * FROM users;"),
+          pluginSpecifiedTemplates: [{ value: true }],
+        },
+      };
+      const { createAction, server } = copyServer(stored, {
+        targetWorkspace: "ws2",
+      });
+
+      // When
+      const copied = await copy(server, {
+        applicationId: "app2",
+        pageId: "p2",
+        datasourceId: "dspgB",
+      });
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(copied.body.referencesAppValues).toBe(false);
+      expect(createAction.mock.calls[0][0]).toMatchObject({
+        datasource: { id: "dspgB" },
+        pluginId: "postgres-plugin",
+      });
+    });
+
+    it("should_ask_for_a_target_datasource_when_the_source_datasource_is_in_another_workspace", async () => {
+      // Given
+      const { createAction, server } = copyServer(PG_SOURCE, {
+        targetWorkspace: "ws2",
+      });
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.error).toContain("Pass target.datasourceId");
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_refuse_to_move_an_editor_written_rest_query_with_a_token_header_to_another_datasource", async () => {
+      // Given: an editor-written REST query whose header holds a token.
+      const stored = restSource({
+        path: "/v1/users",
+        httpMethod: "GET",
+        headers: [{ key: "Authorization", value: "Bearer s3cr3t" }],
+      });
+      const { createAction, server } = copyServer(stored);
+
+      // When
+      const copied = await copy(server, {
+        applicationId: "app2",
+        pageId: "p2",
+        datasourceId: "dsrest2",
+      });
+
+      // Then
+      expect(copied.body.error).toContain(
+        "can be copied only with its own datasource",
+      );
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_refuse_to_move_an_editor_written_sql_query_to_another_datasource", async () => {
+      // Given
+      const { createAction, server } = copyServer(PG_SOURCE);
+
+      // When
+      const copied = await copy(server, {
+        applicationId: "app2",
+        pageId: "p2",
+        datasourceId: "dspg2",
+      });
+
+      // Then
+      expect(copied.body.error).toContain(
+        "can be copied only with its own datasource",
+      );
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_refuse_to_move_a_sql_query_when_a_marked_text_in_form_data_hides_an_unmarked_body", async () => {
+      // Given: PostgreSQL runs body, which holds a secret. formData.body.data holds a validly marked text.
+      const { createAction, server } = copyServer({
+        ...PG_SOURCE,
+        actionConfiguration: {
+          body: "SELECT * FROM t WHERE token = 's3cr3t'",
+          formData: { body: { data: markMcpAuthoredBody("SELECT 1;") } },
+          pluginSpecifiedTemplates: [{ value: true }],
+        },
+      });
+
+      // When
+      const copied = await copy(server, {
+        applicationId: "app2",
+        pageId: "p2",
+        datasourceId: "dspg2",
+      });
+
+      // Then
+      expect(copied.body.error).toContain(
+        "can be copied only with its own datasource",
+      );
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_copy_an_editor_written_rest_query_with_its_own_datasource", async () => {
+      // Given
+      const stored = restSource({
+        path: "/v1/users",
+        httpMethod: "GET",
+        headers: [{ key: "Authorization", value: "Bearer s3cr3t" }],
+      });
+      const { createAction, server } = copyServer(stored);
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(createAction.mock.calls[0][0]).toMatchObject({
+        datasource: { id: "dsrest" },
+        pluginId: "restapi-plugin",
+      });
+      expect(JSON.stringify(copied.body)).not.toContain("s3cr3t");
+    });
+
+    it("should_move_an_mcp_authored_rest_query_to_another_rest_datasource", async () => {
+      // Given
+      const { createAction, server } = copyServer(restSource(mcpRestConfig()));
+
+      // When
+      const copied = await copy(server, {
+        applicationId: "app2",
+        pageId: "p2",
+        datasourceId: "dsrest2",
+      });
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(createAction.mock.calls[0][0]).toMatchObject({
+        datasource: { id: "dsrest2" },
+      });
+    });
+
+    it("should_refuse_a_target_datasource_of_another_plugin", async () => {
+      // Given: an MCP-authored PostgreSQL query, so only the plugin rule can refuse.
+      const stored = {
+        ...PG_SOURCE,
+        actionConfiguration: {
+          body: markMcpAuthoredBody("SELECT * FROM users;"),
+          pluginSpecifiedTemplates: [{ value: true }],
+        },
+      };
+      const { createAction, server } = copyServer(stored);
+
+      // When
+      const copied = await copy(server, {
+        applicationId: "app2",
+        pageId: "p2",
+        datasourceId: "dsmy",
+      });
+
+      // Then
+      expect(copied.body.error).toBe(
+        "the target datasource must use the same plugin as the source query, such as PostgreSQL to PostgreSQL",
+      );
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_refuse_a_target_datasource_outside_the_target_workspace", async () => {
+      // Given
+      const stored = {
+        ...PG_SOURCE,
+        actionConfiguration: {
+          body: markMcpAuthoredBody("SELECT * FROM users;"),
+          pluginSpecifiedTemplates: [{ value: true }],
+        },
+      };
+      const { createAction, server } = copyServer(stored, {
+        targetWorkspace: "ws2",
+      });
+
+      // When
+      const copied = await copy(server, {
+        applicationId: "app2",
+        pageId: "p2",
+        datasourceId: "dspg2",
+      });
+
+      // Then
+      expect(copied.body.error).toBe(
+        "datasource dspg2 is not accessible in the target app's workspace",
+      );
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_refuse_a_page_that_is_not_in_the_target_app", async () => {
+      // Given
+      const { createAction, server } = copyServer(PG_SOURCE);
+
+      // When
+      const copied = await copy(server, {
+        applicationId: "app2",
+        pageId: "p1",
+      });
+
+      // Then
+      expect(copied.body.error).toBe("page p1 is not in application app2");
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["a JS action", { ...PG_SOURCE, pluginType: "JS" }, "SQL and REST"],
+      [
+        "a module action",
+        { ...PG_SOURCE, moduleInstanceId: "mod1" },
+        "not module or workflow",
+      ],
+      [
+        "a workflow action",
+        { ...PG_SOURCE, unpublishedAction: { workflowId: "wf1" } },
+        "not module or workflow",
+      ],
+      [
+        "an action outside a page",
+        { ...PG_SOURCE, contextType: "MODULE" },
+        "not module or workflow",
+      ],
+      [
+        "an embedded datasource",
+        { ...PG_SOURCE, datasource: { name: "inline" } },
+        "no saved datasource",
+      ],
+      [
+        "an unknown plugin",
+        {
+          ...PG_SOURCE,
+          pluginId: undefined,
+          datasource: { id: "dspg" },
+        },
+        "could not find the plugin",
+      ],
+      [
+        "a Mongo query",
+        {
+          ...PG_SOURCE,
+          pluginId: "mongo-plugin",
+          datasource: { id: "dsmongo" },
+        },
+        "copy_action supports",
+      ],
+      [
+        "a DB action on a REST plugin",
+        {
+          ...PG_SOURCE,
+          pluginId: "restapi-plugin",
+          datasource: { id: "dsrest" },
+        },
+        "copy_action supports",
+      ],
+    ])("should_refuse_%s", async (_label, stored, message) => {
+      // Given
+      const { createAction, server } = copyServer(stored);
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.error).toContain(message);
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_refuse_a_redshift_query_that_reads_a_widget", async () => {
+      // Given
+      const { createAction, server } = copyServer({
+        ...PG_SOURCE,
+        pluginId: "redshift-plugin",
+        datasource: { id: "dsrs" },
+      });
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.error).toContain(
+        "the Redshift plugin pastes {{ }} values into the SQL text",
+      );
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_copy_a_redshift_query_with_no_values", async () => {
+      // Given
+      const { createAction, server } = copyServer({
+        ...PG_SOURCE,
+        pluginId: "redshift-plugin",
+        datasource: { id: "dsrs" },
+        actionConfiguration: { body: "SELECT * FROM events;" },
+      });
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(createAction).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+      ["turned off", [{ value: false }]],
+      ["missing", undefined],
+      ["a string", [{ value: "true" }]],
+    ])(
+      "should_refuse_a_sql_query_that_reads_a_widget_when_prepared_statements_are_%s",
+      async (_label, pluginSpecifiedTemplates) => {
+        // Given
+        const { createAction, server } = copyServer({
+          ...PG_SOURCE,
+          actionConfiguration: { body: SECRET_SQL, pluginSpecifiedTemplates },
+        });
+
+        // When
+        const copied = await copy(server);
+
+        // Then
+        expect(copied.body.error).toContain("prepared statements turned off");
+        expect(createAction).not.toHaveBeenCalled();
+      },
+    );
+
+    it("should_read_the_oracle_prepared_statement_switch_from_form_data", async () => {
+      // Given
+      const oracle = (data: boolean) => ({
+        ...PG_SOURCE,
+        pluginId: "oracle-plugin",
+        datasource: { id: "dsora" },
+        actionConfiguration: {
+          formData: {
+            body: { data: SECRET_SQL },
+            preparedStatement: { data },
+          },
+        },
+      });
+
+      // When
+      const on = copyServer(oracle(true));
+      const off = copyServer(oracle(false));
+      const copiedOn = await copy(on.server);
+      const copiedOff = await copy(off.server);
+
+      // Then
+      expect(copiedOn.body.copied).toBe(true);
+      expect(copiedOff.body.error).toContain("prepared statements turned off");
+      expect(off.createAction).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["mysql-plugin", "dsmy"],
+      ["mssql-plugin", "dsms"],
+      ["mariadb-plugin", "dsmaria"],
+    ])(
+      "should_read_the_prepared_statement_switch_from_the_first_template_when_the_plugin_is_%s",
+      async (pluginId, datasourceId) => {
+        // Given
+        const source = (value: boolean) => ({
+          ...PG_SOURCE,
+          pluginId,
+          datasource: { id: datasourceId },
+          actionConfiguration: {
+            body: SECRET_SQL,
+            pluginSpecifiedTemplates: [{ value }],
+          },
+        });
+
+        // When
+        const on = copyServer(source(true));
+        const off = copyServer(source(false));
+        const copiedOn = await copy(on.server);
+        const copiedOff = await copy(off.server);
+
+        // Then
+        expect(copiedOn.body.copied).toBe(true);
+        expect(copiedOff.body.error).toContain(
+          "prepared statements turned off",
+        );
+        expect(off.createAction).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each([
+      [
+        "a header",
+        {
+          path: "/v1/users",
+          headers: [
+            { key: "Authorization", value: "Bearer s3cr3t" },
+            { key: "X-Id", value: "{{Input1.text}}" },
+          ],
+        },
+      ],
+      [
+        "the body",
+        {
+          path: "/v1/users",
+          headers: [{ key: "Authorization", value: "Bearer s3cr3t" }],
+          body: '{"id": "{{Input1.text}}"}',
+        },
+      ],
+    ])(
+      "should_copy_a_rest_query_that_reads_a_widget_in_%s_and_flag_it",
+      async (_label, actionConfiguration) => {
+        // Given
+        const { createAction, server } = copyServer(
+          restSource(actionConfiguration),
+        );
+
+        // When
+        const copied = await copy(server);
+
+        // Then
+        expect(copied.body.copied).toBe(true);
+        expect(copied.body.referencesAppValues).toBe(true);
+        expect(createAction.mock.calls[0][0]).toMatchObject({
+          actionConfiguration,
+        });
+        expect(JSON.stringify(copied.body)).not.toContain("s3cr3t");
+        expect(JSON.stringify(copied.body)).not.toContain("Input1");
+      },
+    );
+
+    it("should_copy_to_another_page_of_the_same_app", async () => {
+      // Given
+      const { createAction, server } = copyServer(PG_SOURCE);
+
+      // When
+      const copied = await copy(server, {
+        applicationId: "app1",
+        pageId: "p1",
+      });
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(createAction.mock.calls[0][0]).toMatchObject({
+        pageId: "p1",
+        datasource: { id: "dspg" },
+      });
+    });
+
+    it("should_return_an_error_and_create_nothing_when_the_source_cannot_be_read", async () => {
+      // Given
+      const { createAction, getAction, server } = copyServer(PG_SOURCE);
+
+      getAction.mockRejectedValue(
+        new Error("action act1 was not found in application app1"),
+      );
+
+      // When
+      const copied = await callTool(server, "copy_action", {
+        spec: {
+          actionId: "act1",
+          applicationId: "app1",
+          revision: "d".repeat(64),
+          name: "getUsersCopy",
+          target: { applicationId: "app2", pageId: "p2" },
+        },
+      });
+
+      // Then
+      expect(JSON.stringify(copied.body)).toContain("was not found");
+      expect(copied.body.copied).toBeUndefined();
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_return_an_error_and_release_the_lock_when_the_server_refuses_the_create", async () => {
+      // Given
+      const { createAction, server } = copyServer(PG_SOURCE);
+
+      createAction.mockRejectedValueOnce(new Error("duplicate name"));
+
+      // When
+      const failed = await copy(server);
+      const retried = await copy(server);
+
+      // Then
+      expect(failed.body.copied).toBeUndefined();
+      expect(JSON.stringify(failed.body)).toContain("duplicate name");
+      expect(retried.body.copied).toBe(true);
+      expect(createAction).toHaveBeenCalledTimes(2);
+    });
+
+    it("should_not_copy_run_on_page_load_and_should_keep_a_false_ask_before_running", async () => {
+      // Given
+      const { createAction, server } = copyServer({
+        ...PG_SOURCE,
+        executeOnLoad: true,
+        confirmBeforeExecute: false,
+      });
+
+      // When
+      await copy(server);
+
+      // Then
+      const payload = createAction.mock.calls[0][0];
+
+      expect(payload).not.toHaveProperty("executeOnLoad");
+      expect(payload.confirmBeforeExecute).toBe(false);
+    });
+
+    it("should_create_the_copy_when_the_name_is_used_on_another_page_of_the_target_app", async () => {
+      // Given
+      const { createAction, server } = copyServer(PG_SOURCE, {
+        existing: [{ id: "act7", name: "getUsersCopy", pageId: "p3" }],
+      });
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.copied).toBe(true);
+      expect(createAction).toHaveBeenCalledTimes(1);
+    });
+
+    it("should_return_the_existing_query_when_the_target_page_already_has_the_name", async () => {
+      // Given
+      const { createAction, server } = copyServer(PG_SOURCE, {
+        existing: [
+          {
+            id: "act7",
+            name: "getUsersCopy",
+            pageId: "p2",
+            actionConfiguration: { body: "SELECT hidden FROM x" },
+          },
+        ],
+      });
+
+      // When
+      const copied = await copy(server);
+
+      // Then
+      expect(copied.body.copied).toBe(false);
+      expect(copied.body.action.id).toBe("act7");
+      expect(JSON.stringify(copied.body)).not.toContain("hidden");
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_refuse_a_stale_revision", async () => {
+      // Given
+      const { createAction, server } = copyServer(PG_SOURCE);
+
+      // When
+      const copied = await copy(server, undefined, "e".repeat(64));
+
+      // Then
+      expect(copied.body.code).toBe("revision_conflict");
+      expect(createAction).not.toHaveBeenCalled();
+    });
+
+    it("should_apply_the_git_branch_rule_of_the_target_app_not_the_source_app", async () => {
+      // Given
+      const target = copyServer(PG_SOURCE, { gitAppId: "app2" });
+      const source = copyServer(PG_SOURCE, { gitAppId: "app1" });
+
+      // When
+      const toGitTarget = await copy(target.server);
+      const fromGitSource = await copy(source.server);
+
+      // Then
+      expect(toGitTarget.body.code).toBe("git_branch_required");
+      expect(target.createAction).not.toHaveBeenCalled();
+      expect(fromGitSource.body.copied).toBe(true);
+    });
+
+    it("should_keep_ask_before_running_when_the_source_asks_before_running", async () => {
+      // Given
+      const { createAction, server } = copyServer({
+        ...PG_SOURCE,
+        confirmBeforeExecute: true,
+      });
+
+      // When
+      await copy(server);
+
+      // Then
+      expect(createAction.mock.calls[0][0]).toMatchObject({
+        confirmBeforeExecute: true,
+      });
+    });
+
+    it("should_refuse_a_spec_that_carries_action_configuration", async () => {
+      // Given
+      const { createAction, server } = copyServer(PG_SOURCE);
+
+      // When
+      const copied = await callTool(server, "copy_action", {
+        spec: {
+          actionId: "act1",
+          applicationId: "app1",
+          revision: "d".repeat(64),
+          name: "getUsersCopy",
+          target: { applicationId: "app2", pageId: "p2" },
+          actionConfiguration: { body: "DROP TABLE users" },
+        },
+      });
+
+      // Then
+      expect(copied.body.valid).toBe(false);
+      expect(JSON.stringify(copied.body.errors)).toContain(
+        "actionConfiguration",
+      );
+      expect(createAction).not.toHaveBeenCalled();
+    });
+  });
+
   // APP-16517: the server runs an action on its stored plugin, and an update keeps it. So update_action must not
   // recompile a query for a datasource of another plugin.
   describe("APP-16517: update_action keeps an action on its plugin", () => {
