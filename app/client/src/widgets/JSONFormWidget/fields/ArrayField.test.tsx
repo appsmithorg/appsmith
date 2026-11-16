@@ -215,58 +215,74 @@ describe("getEmptyArrayItemValue", () => {
     expect(getEmptyArrayItemValue(FieldType.MULTISELECT)).toEqual([]);
     expect(getEmptyArrayItemValue(FieldType.SWITCH)).toBe(false);
     expect(getEmptyArrayItemValue(FieldType.CHECKBOX)).toBe(false);
-    expect(getEmptyArrayItemValue(FieldType.NUMBER_INPUT)).toBeUndefined();
+    expect(getEmptyArrayItemValue(FieldType.NUMBER_INPUT)).toBeNull();
     expect(getEmptyArrayItemValue(FieldType.TEXT_INPUT)).toBe("");
     expect(getEmptyArrayItemValue(FieldType.EMAIL_INPUT)).toBe("");
     expect(getEmptyArrayItemValue()).toBe("");
   });
 });
 
+const renderArrayFieldWithAdd = ({
+  name,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  schemaItem,
+}: {
+  name: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  schemaItem: any;
+}) => {
+  const mocksetMetaInternalFieldState = jest.fn();
+  let getFormValues: (fieldName?: string) => unknown = () => undefined;
+
+  const TestComponent = () => {
+    const methods = useForm({
+      defaultValues: {
+        [name]: [],
+      },
+    });
+
+    getFormValues = methods.getValues;
+
+    return (
+      <ThemeProvider theme={theme}>
+        <FormContextProvider
+          executeAction={jest.fn}
+          renderMode="CANVAS"
+          setMetaInternalFieldState={mocksetMetaInternalFieldState}
+          updateFormData={jest.fn}
+          updateWidgetMetaProperty={jest.fn}
+          updateWidgetProperty={jest.fn}
+        >
+          <FormProvider {...methods}>
+            <ArrayField
+              fieldClassName={name}
+              name={name}
+              propertyPath={`schema.__root_schema__.children.${name}`}
+              schemaItem={schemaItem}
+            />
+          </FormProvider>
+        </FormContextProvider>
+      </ThemeProvider>
+    );
+  };
+
+  const view = render(<TestComponent />);
+  const addButton = view.container.querySelector(
+    ".t--jsonformfield-array-add-btn",
+  );
+
+  expect(addButton).not.toBeNull();
+  fireEvent.click(addButton as HTMLButtonElement);
+
+  return { ...view, getFormValues };
+};
+
 describe("ArrayField", () => {
   it("Add New for text Array Item leaves the value empty", () => {
-    const mocksetMetaInternalFieldState = jest.fn();
-    let getFormValues: (name?: string) => unknown = () => undefined;
-
-    const TestComponent = () => {
-      const methods = useForm({
-        defaultValues: {
-          profileIds: [],
-        },
-      });
-
-      getFormValues = methods.getValues;
-
-      return (
-        <ThemeProvider theme={theme}>
-          <FormContextProvider
-            executeAction={jest.fn}
-            renderMode="CANVAS"
-            setMetaInternalFieldState={mocksetMetaInternalFieldState}
-            updateFormData={jest.fn}
-            updateWidgetMetaProperty={jest.fn}
-            updateWidgetProperty={jest.fn}
-          >
-            <FormProvider {...methods}>
-              <ArrayField
-                fieldClassName={"profileIds"}
-                name={"profileIds"}
-                propertyPath={"schema.__root_schema__.children.profileIds"}
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                schemaItem={scalarArraySchemaItem as any}
-              />
-            </FormProvider>
-          </FormContextProvider>
-        </ThemeProvider>
-      );
-    };
-
-    const { container } = render(<TestComponent />);
-    const addButton = container.querySelector(
-      ".t--jsonformfield-array-add-btn",
-    );
-
-    expect(addButton).not.toBeNull();
-    fireEvent.click(addButton as HTMLButtonElement);
+    const { container, getFormValues } = renderArrayFieldWithAdd({
+      name: "profileIds",
+      schemaItem: scalarArraySchemaItem,
+    });
 
     expect(getFormValues("profileIds")).toEqual([""]);
     expect(
@@ -281,6 +297,56 @@ describe("ArrayField", () => {
     expect(input).not.toBeNull();
     expect(input?.value).toBe("");
     expect(input?.value).not.toBe("[object Object]");
+  });
+
+  it("Add New for number Array Item pushes null", () => {
+    const numberArraySchemaItem = {
+      ...scalarArraySchemaItem,
+      accessor: "scores",
+      identifier: "scores",
+      originalIdentifier: "scores",
+      label: "Scores",
+      children: {
+        __array_item__: {
+          ...scalarArraySchemaItem.children.__array_item__,
+          dataType: "number",
+          fieldType: FieldType.NUMBER_INPUT,
+          sourceData: 0,
+        },
+      },
+    };
+
+    const { getFormValues } = renderArrayFieldWithAdd({
+      name: "scores",
+      schemaItem: numberArraySchemaItem,
+    });
+
+    expect(getFormValues("scores")).toEqual([null]);
+  });
+
+  it("Add New for switch Array Item pushes false", () => {
+    const switchArraySchemaItem = {
+      ...scalarArraySchemaItem,
+      accessor: "flags",
+      identifier: "flags",
+      originalIdentifier: "flags",
+      label: "Flags",
+      children: {
+        __array_item__: {
+          ...scalarArraySchemaItem.children.__array_item__,
+          dataType: "boolean",
+          fieldType: FieldType.SWITCH,
+          sourceData: false,
+        },
+      },
+    };
+
+    const { getFormValues } = renderArrayFieldWithAdd({
+      name: "flags",
+      schemaItem: switchArraySchemaItem,
+    });
+
+    expect(getFormValues("flags")).toEqual([false]);
   });
 
   it("check if stringified defaultValue array generates correct number of array fields", async () => {
@@ -395,50 +461,13 @@ describe("ArrayField", () => {
   });
 
   it("Add New for object Array Item still pushes an empty object", () => {
-    const mocksetMetaInternalFieldState = jest.fn();
-    let getFormValues: (name?: string) => unknown = () => undefined;
-
-    const TestComponent = () => {
-      const methods = useForm({
-        defaultValues: {
-          genres: [],
-        },
-      });
-
-      getFormValues = methods.getValues;
-
-      return (
-        <ThemeProvider theme={theme}>
-          <FormContextProvider
-            executeAction={jest.fn}
-            renderMode="CANVAS"
-            setMetaInternalFieldState={mocksetMetaInternalFieldState}
-            updateFormData={jest.fn}
-            updateWidgetMetaProperty={jest.fn}
-            updateWidgetProperty={jest.fn}
-          >
-            <FormProvider {...methods}>
-              <ArrayField
-                fieldClassName={"genres"}
-                name={"genres"}
-                propertyPath={"schema.__root_schema__.children.genres"}
-                schemaItem={{
-                  ...schemaItem,
-                  defaultValue: [],
-                }}
-              />
-            </FormProvider>
-          </FormContextProvider>
-        </ThemeProvider>
-      );
-    };
-
-    const { container } = render(<TestComponent />);
-    const addButton = container.querySelector(
-      ".t--jsonformfield-array-add-btn",
-    );
-
-    fireEvent.click(addButton as HTMLButtonElement);
+    const { getFormValues } = renderArrayFieldWithAdd({
+      name: "genres",
+      schemaItem: {
+        ...schemaItem,
+        defaultValue: [],
+      },
+    });
 
     expect(getFormValues("genres")).toEqual([{}]);
   });

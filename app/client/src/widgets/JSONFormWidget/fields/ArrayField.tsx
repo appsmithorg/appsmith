@@ -173,7 +173,8 @@ export const getEmptyArrayItemValue = (fieldType?: FieldType): unknown => {
     case FieldType.CHECKBOX:
       return false;
     case FieldType.NUMBER_INPUT:
-      return undefined;
+      // Match InputField.transformValue empty clear → null (not undefined).
+      return null;
     default:
       return "";
   }
