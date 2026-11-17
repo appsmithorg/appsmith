@@ -1,5 +1,6 @@
 package com.external.plugins.utils;
 
+import microsoft.sql.DateTimeOffset;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.sql.Connection;
@@ -134,6 +135,12 @@ public class MssqlExecuteUtils {
 
                     } else {
                         value = resultSet.getObject(i);
+
+                        // A sql_variant column reports its own type name, so a datetimeoffset stored in one arrives
+                        // here as the driver's object. Return it in the same ISO 8601 form as a datetimeoffset column.
+                        if (value instanceof DateTimeOffset dateTimeOffset) {
+                            value = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(dateTimeOffset.getOffsetDateTime());
+                        }
                     }
 
                     row.put(metaData.getColumnName(i), value);
@@ -141,6 +148,44 @@ public class MssqlExecuteUtils {
 
                 rowsList.add(row);
             }
+        }
+
+        drainRemainingResults(FALSE.equals(preparedStatement) ? statement : preparedQuery);
+    }
+
+    /**
+     * Reads the results of the remaining statements in a query. The response still shows only the first result, but
+     * the driver raises an error from a later statement only when its result is read. Without this, a query such as
+     * {@code UPDATE ...; INSERT INTO missing_table ...} reported success. Other statements may already have run: the
+     * ones before the error, and, because SQL Server continues after many statement errors, some after it. Without an
+     * explicit transaction they are committed. So the error says so.
+     */
+    private static void drainRemainingResults(Statement statement) throws SQLException {
+        if (statement == null) {
+            return;
+        }
+
+        try {
+            while (true) {
+                if (statement.getMoreResults()) {
+                    // A later SELECT can fail while its rows are read, for example on a divide by zero in row 5.
+                    // Step through its rows (they are not returned) so that error surfaces too.
+                    try (ResultSet laterRows = statement.getResultSet()) {
+                        while (laterRows != null && laterRows.next()) {
+                            // Nothing to keep.
+                        }
+                    }
+                } else if (statement.getUpdateCount() == -1) {
+                    break;
+                }
+            }
+        } catch (SQLException e) {
+            throw new SQLException(
+                    "A statement in this query failed. Other statements in the query may already have run."
+                            + (e.getMessage() == null ? "" : " " + e.getMessage()),
+                    e.getSQLState(),
+                    e.getErrorCode(),
+                    e);
         }
     }
 }

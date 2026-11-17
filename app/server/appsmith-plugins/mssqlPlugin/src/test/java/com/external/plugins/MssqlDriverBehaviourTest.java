@@ -37,6 +37,7 @@ import static com.external.plugins.MssqlTestDBContainerManager.createDatasourceC
 import static com.external.plugins.MssqlTestDBContainerManager.mssqlPluginExecutor;
 import static com.external.plugins.MssqlTestDBContainerManager.runSQLQueryOnMssqlTestDB;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -258,6 +259,145 @@ public class MssqlDriverBehaviourTest {
         JsonNode body = ((ArrayNode) result.getBody()).get(0);
 
         assertEquals(expectedAffectedRows, body.get("affectedRows").asInt(), () -> label + ": " + result.getBody());
+    }
+
+    static Stream<Arguments> laterStatementErrors() {
+        return Stream.of(true, false)
+                .flatMap(prepared -> Stream.of(
+                        Arguments.of(
+                                "UPDATE driver_dml SET name = N'z'; INSERT INTO no_such_table VALUES (1)",
+                                "Invalid object name 'no_such_table'",
+                                prepared),
+                        Arguments.of(
+                                "UPDATE driver_dml SET name = N'z'; INSERT INTO driver_dml VALUES (1, N'dup')",
+                                "Violation of PRIMARY KEY constraint",
+                                prepared),
+                        Arguments.of(
+                                "UPDATE driver_dml SET name = N'z'; SELECT 1 / 0 AS x", "Divide by zero", prepared),
+                        Arguments.of(
+                                "UPDATE driver_dml SET name = N'y'; UPDATE driver_dml SET name = N'z';"
+                                        + " INSERT INTO no_such_table VALUES (1)",
+                                "Invalid object name 'no_such_table'",
+                                prepared)));
+    }
+
+    // An error in a later statement of a multi-statement query fails the query and names the error. Before
+    // APP-16536 it was hidden: the query reported success with the first statement's count. Other statements may
+    // already have run (here, the UPDATE before the error, committed without a transaction), so the message says so,
+    // and the table shows it.
+    @ParameterizedTest(name = "{0}, prepared statement {2}")
+    @MethodSource("laterStatementErrors")
+    public void laterStatementError_failsTheQuery(String sql, String expectedError, boolean preparedStatement)
+            throws SQLException {
+        runSQLQueryOnMssqlTestDB(
+                "DELETE FROM driver_audit; DELETE FROM driver_triggered; DELETE FROM driver_dml;"
+                        + " INSERT INTO driver_dml VALUES (1, N'a'), (2, N'b')",
+                pool);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(sql);
+        actionConfiguration.setPluginSpecifiedTemplates(
+                List.of(new Property("preparedStatement", String.valueOf(preparedStatement))));
+
+        ActionExecutionResult result = mssqlPluginExecutor
+                .executeParameterized(
+                        pool, new ExecuteActionDTO(), createDatasourceConfiguration(container), actionConfiguration)
+                .block();
+
+        assertNotNull(result);
+        assertFalse(result.getIsExecutionSuccess(), () -> "the query should fail: " + result.getBody());
+        assertTrue(
+                String.valueOf(result.getBody()).contains("A statement in this query failed")
+                        && String.valueOf(result.getBody()).contains(expectedError),
+                () -> "unexpected error: " + result.getBody());
+
+        // The UPDATE before the error committed.
+        assertEquals(
+                "[{\"name\":\"z\"},{\"name\":\"z\"}]",
+                run("SELECT name FROM driver_dml ORDER BY id", false).getBody().toString());
+    }
+
+    static Stream<Arguments> errorsAfterRows() {
+        return Stream.of(true, false)
+                .flatMap(prepared -> Stream.of(
+                        Arguments.of(
+                                "SELECT 1 AS a; INSERT INTO no_such_table VALUES (1)",
+                                "Invalid object name 'no_such_table'",
+                                prepared),
+                        Arguments.of("SELECT 1 AS a; RAISERROR('stop here', 16, 1)", "stop here", prepared),
+                        Arguments.of("EXEC driver_fails_after_rows", "Invalid object name 'no_such_table'", prepared)));
+    }
+
+    // A query whose first result is rows, followed by a failing statement, takes the rows branch before the remaining
+    // results are read. It fails too, and so does a stored procedure that fails after its first result.
+    @ParameterizedTest(name = "{0}, prepared statement {2}")
+    @MethodSource("errorsAfterRows")
+    public void errorAfterRows_failsTheQuery(String sql, String expectedError, boolean preparedStatement)
+            throws SQLException {
+        runSQLQueryOnMssqlTestDB(
+                "IF OBJECT_ID('driver_fails_after_rows') IS NULL EXEC('CREATE PROCEDURE driver_fails_after_rows AS"
+                        + " SELECT 1 AS first; INSERT INTO no_such_table VALUES (1)')",
+                pool);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(sql);
+        actionConfiguration.setPluginSpecifiedTemplates(
+                List.of(new Property("preparedStatement", String.valueOf(preparedStatement))));
+
+        ActionExecutionResult result = mssqlPluginExecutor
+                .executeParameterized(
+                        pool, new ExecuteActionDTO(), createDatasourceConfiguration(container), actionConfiguration)
+                .block();
+
+        assertNotNull(result);
+        assertFalse(result.getIsExecutionSuccess(), () -> "the query should fail: " + result.getBody());
+        assertTrue(
+                String.valueOf(result.getBody()).contains("A statement in this query failed")
+                        && String.valueOf(result.getBody()).contains(expectedError),
+                () -> "unexpected error: " + result.getBody());
+    }
+
+    static Stream<Arguments> multiResultQueriesThatSucceed() {
+        return Stream.of(true, false)
+                .flatMap(prepared -> Stream.of(
+                        Arguments.of("SELECT 1 AS a; SELECT 2 AS b", "[{\"a\":1}]", prepared),
+                        Arguments.of(
+                                "UPDATE driver_dml SET name = N'p'; PRINT 'done'", "[{\"affectedRows\":2}]", prepared),
+                        Arguments.of(
+                                "UPDATE driver_dml SET name = N'p'; RAISERROR('just information', 10, 1)",
+                                "[{\"affectedRows\":2}]",
+                                prepared),
+                        // SET options stay on the pooled connection, so the query turns NOCOUNT back off for the next
+                        // query.
+                        Arguments.of(
+                                "SET NOCOUNT ON; SELECT COUNT(*) AS n FROM driver_dml; SET NOCOUNT OFF",
+                                "[{\"n\":2}]",
+                                prepared),
+                        Arguments.of("EXEC driver_multi_results", "[{\"affectedRows\":2}]", prepared),
+                        Arguments.of("EXEC driver_multi_results_nocount", "[{\"first\":1}]", prepared)));
+    }
+
+    // Reading every result must not turn a good multi-result query into a failure. PRINT and RAISERROR with severity
+    // 10 or less are messages, not errors. The response is still the first result.
+    @ParameterizedTest(name = "{0}, prepared statement {2}")
+    @MethodSource("multiResultQueriesThatSucceed")
+    public void multiResultQuery_stillSucceeds(String sql, String expectedFirstResult, boolean preparedStatement)
+            throws SQLException {
+        runSQLQueryOnMssqlTestDB(
+                "DELETE FROM driver_audit; DELETE FROM driver_triggered; DELETE FROM driver_dml;"
+                        + " INSERT INTO driver_dml VALUES (1, N'a'), (2, N'b')",
+                pool);
+        runSQLQueryOnMssqlTestDB(
+                "IF OBJECT_ID('driver_multi_results') IS NULL EXEC('CREATE PROCEDURE driver_multi_results AS"
+                        + " SET NOCOUNT OFF; UPDATE driver_dml SET name = name; SELECT 1 AS first; SELECT 2 AS second')",
+                pool);
+        runSQLQueryOnMssqlTestDB(
+                "IF OBJECT_ID('driver_multi_results_nocount') IS NULL EXEC('CREATE PROCEDURE"
+                        + " driver_multi_results_nocount AS SET NOCOUNT ON; UPDATE driver_dml SET name = name;"
+                        + " SELECT 1 AS first; SELECT 2 AS second')",
+                pool);
+
+        assertEquals(expectedFirstResult, run(sql, preparedStatement).getBody().toString());
     }
 
     static Stream<Arguments> updateCountCasesBothModes() {

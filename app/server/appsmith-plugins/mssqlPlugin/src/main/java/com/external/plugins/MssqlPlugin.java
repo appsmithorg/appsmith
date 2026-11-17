@@ -701,6 +701,10 @@ public class MssqlPlugin extends BasePlugin {
         // earlier behavior, where it comes back as a JSON string.
         urlBuilder.append("vectorTypeSupport=off;");
 
+        // By default the driver sends a bound time value as datetime, so WHERE time_column = {{...}} failed with "The
+        // data types time and datetime are incompatible". Send it as time.
+        urlBuilder.append("sendTimeAsDatetime=false;");
+
         com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
         if (configurationConnection != null && configurationConnection.getMode() == READ_ONLY) {
             urlBuilder.append("ApplicationIntent=ReadOnly;");
