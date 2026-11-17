@@ -8,7 +8,7 @@
           "label": "Database URL",
           "configProperty": "datasourceConfiguration.url",
           "controlType": "INPUT_TEXT",
-          "isRequired": true,
+          "isRequired": false,
           "placeholderText": "https://your-project-id.firebaseio.com"
         },
         {

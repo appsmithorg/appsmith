@@ -943,11 +943,14 @@ public class FirestorePlugin extends BasePlugin {
                                     e.getMessage()));
                         }
 
-                        return FirebaseOptions.builder()
-                                .setDatabaseUrl(datasourceConfiguration.getUrl())
+                        FirebaseOptions.Builder optionsBuilder = FirebaseOptions.builder()
                                 .setProjectId(projectId)
-                                .setCredentials(credentials)
-                                .build();
+                                .setCredentials(credentials);
+                        // The Database URL is a Realtime Database setting. Firestore does not need it.
+                        if (!isBlank(datasourceConfiguration.getUrl())) {
+                            optionsBuilder.setDatabaseUrl(datasourceConfiguration.getUrl());
+                        }
+                        return optionsBuilder.build();
                     })
                     .onErrorMap(Exceptions::unwrap)
                     .map(options -> getOrInitializeApp(options, firebaseAppName(projectId, clientJson)))
@@ -1015,8 +1018,13 @@ public class FirestorePlugin extends BasePlugin {
                                 Collections.singletonList(FirestoreErrorMessages.META_DATA_ACCESS_MISSING_MESSAGE)));
                         return Mono.just(datasourceTestResult);
                     }
-                    return Mono.just(
-                            new DatasourceTestResult(FirestoreErrorMessages.DS_CONNECTION_FAILED_FOR_PROJECT_ID));
+                    // With a named database, the failure can come from the Database ID as well as the project.
+                    final boolean isDefaultDatabase =
+                            DEFAULT_DATABASE_ID.equals(resolveDatabaseId(datasourceConfiguration));
+                    return Mono.just(new DatasourceTestResult(
+                            isDefaultDatabase
+                                    ? FirestoreErrorMessages.DS_CONNECTION_FAILED_FOR_PROJECT_ID
+                                    : FirestoreErrorMessages.DS_CONNECTION_FAILED_FOR_DATABASE_ID));
                 }
                 return Mono.just(new DatasourceTestResult());
             });
@@ -1049,10 +1057,6 @@ public class FirestorePlugin extends BasePlugin {
                 if (StringUtils.isEmpty(authentication.getPassword())) {
                     invalids.add(FirestoreErrorMessages.DS_MISSING_CLIENTJSON_ERROR_MSG);
                 }
-            }
-
-            if (isBlank(datasourceConfiguration.getUrl())) {
-                invalids.add(FirestoreErrorMessages.DS_MISSING_FIRESTORE_URL_ERROR_MSG);
             }
 
             final String databaseId = resolveDatabaseId(datasourceConfiguration);

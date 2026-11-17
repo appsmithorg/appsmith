@@ -38,6 +38,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.testcontainers.containers.FirestoreEmulatorContainer;
@@ -968,6 +969,101 @@ public class FirestorePluginTest {
 
         // Then
         assertThat(databaseId).isEqualTo(FirestorePlugin.FirestorePluginExecutor.DEFAULT_DATABASE_ID);
+    }
+
+    static Stream<String> blankDatabaseUrls() {
+        return Stream.of(null, "", "  ");
+    }
+
+    @ParameterizedTest
+    @MethodSource("blankDatabaseUrls")
+    void should_returnNoErrors_when_databaseUrlIsBlank(String databaseUrl) {
+        // Given
+        DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig("some-project", "{}", null);
+        datasourceConfiguration.setUrl(databaseUrl);
+
+        // When
+        Set<String> invalids = pluginExecutor.validateDatasource(datasourceConfiguration);
+
+        // Then
+        assertThat(invalids).isEmpty();
+    }
+
+    @ParameterizedTest
+    @MethodSource("blankDatabaseUrls")
+    void should_createConnection_when_databaseUrlIsBlank(String databaseUrl) throws NoSuchAlgorithmException {
+        // Given
+        String projectId = "no-url-project";
+        String clientJson = serviceAccountJson(projectId, "sa@no-url-project.iam.gserviceaccount.com");
+        DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig(projectId, clientJson, null);
+        datasourceConfiguration.setUrl(databaseUrl);
+
+        // When
+        Mono<Firestore> result = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(firestore ->
+                        assertThat(firestore.getOptions().getProjectId()).isEqualTo(projectId))
+                .verifyComplete();
+        assertThat(firebaseOptionsOf(projectId, clientJson).getDatabaseUrl()).isNull();
+    }
+
+    @Test
+    void should_passDatabaseUrlToFirebaseOptions_when_databaseUrlIsSet() throws NoSuchAlgorithmException {
+        // Given
+        String projectId = "with-url-project";
+        String clientJson = serviceAccountJson(projectId, "sa@with-url-project.iam.gserviceaccount.com");
+        DatasourceConfiguration datasourceConfiguration = serviceAccountDatasourceConfig(projectId, clientJson, null);
+
+        // When
+        Mono<Firestore> result = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        // Then
+        StepVerifier.create(result).expectNextCount(1).verifyComplete();
+        assertThat(firebaseOptionsOf(projectId, clientJson).getDatabaseUrl())
+                .isEqualTo("https://with-url-project.firebaseio.com");
+    }
+
+    private static FirebaseOptions firebaseOptionsOf(String projectId, String clientJson) {
+        return FirebaseApp.getInstance(FirestorePlugin.FirestorePluginExecutor.firebaseAppName(projectId, clientJson))
+                .getOptions();
+    }
+
+    static Stream<Arguments> connectionErrorsByDatabaseId() {
+        return Stream.of(
+                Arguments.of(null, FirestoreErrorMessages.DS_CONNECTION_FAILED_FOR_PROJECT_ID),
+                Arguments.of("my-db", FirestoreErrorMessages.DS_CONNECTION_FAILED_FOR_DATABASE_ID));
+    }
+
+    @ParameterizedTest
+    @MethodSource("connectionErrorsByDatabaseId")
+    void should_returnConnectionErrorForConfiguredDatabase_when_listingCollectionsFails(
+            String databaseId, String expectedError) {
+        // Given
+        DatasourceConfiguration datasourceConfiguration =
+                serviceAccountDatasourceConfig("test-project-invalid", "{}", databaseId);
+        // The emulator rejects this project, so listing its collections fails.
+        FirebaseApp app = FirebaseApp.initializeApp(
+                FirebaseOptions.builder()
+                        .setProjectId("test-project-invalid")
+                        .setDatabaseUrl(emulator.getEmulatorEndpoint())
+                        .setCredentials(new EmulatorCredentials())
+                        .build(),
+                "rejected-project");
+        FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
+        Mockito.doReturn(Mono.just(FirestoreClient.getFirestore(app)))
+                .when(spyExecutor)
+                .datasourceCreate(datasourceConfiguration);
+
+        // When
+        Mono<DatasourceTestResult> result = spyExecutor.testDatasource(datasourceConfiguration);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(datasourceTestResult ->
+                        assertThat(datasourceTestResult.getInvalids()).containsExactly(expectedError))
+                .verifyComplete();
     }
 
     @Test
