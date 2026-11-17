@@ -72,13 +72,13 @@ describe(
         inputFieldName: "Table ID or name",
       });
       dataSources.RunQuery();
-      cy.fixture("hubspot_POST_Execute.json").then((fixture) => {
+      cy.fixture("hubspot_POST_Execute.json").then((fixture) =>
         agHelper.AssertContains(
           fixture.data.body.name,
           "exist",
           BottomTabs.response.locators.responseDataContainer,
-        );
-      });
+        ),
+      );
     });
 
     it("3. Validate widget binding with queries & deploying the app", () => {
@@ -89,9 +89,10 @@ describe(
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TEXT));
       agHelper.AssertElementVisibility(appSettings.locators._header);
       // Assert that the text widget contains the expected data
-      cy.get(locators._widgetInDeployed(draggableWidgets.TEXT)).should(
-        "contain.text",
-        "appsmith1",
+      cy.fixture("hubspot_POST_Execute.json").then((fixture) =>
+        cy
+          .get(locators._widgetInDeployed(draggableWidgets.TEXT))
+          .should("contain.text", fixture.data.body.name),
       );
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Api1", EntityType.Query);
@@ -142,13 +143,13 @@ describe(
         expectedStatus: false,
         toValidateResponse: true,
       });
-      cy.fixture("hubspot_POST_Execute_Unauthorized.json").then((fixture) => {
+      cy.fixture("hubspot_POST_Execute_Unauthorized.json").then((fixture) =>
         agHelper.AssertContains(
           fixture.data.pluginErrorDetails.downstreamErrorMessage,
           "exist",
           dataSources._queryError,
-        );
-      });
+        ),
+      );
     });
   },
 );
