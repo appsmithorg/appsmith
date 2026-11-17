@@ -448,6 +448,35 @@ class MongoPluginSmartSubstitutionTest {
     }
 
     @Test
+    void should_finishQuickly_when_queryHasUnclosedRegexLiteral() {
+        // Given
+        String unclosedRegexLiteral = "/" + "\\/".repeat(300_000);
+        String body =
+                "{ \"find\": \"users\", \"filter\": { \"code\": { $regex: 5 }, \"name\": {{Input1.text}}, \"note\": "
+                        + unclosedRegexLiteral + " } }";
+        Param param = new Param("Input1.text", "plain");
+        param.setClientDataType(ClientDataType.STRING);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setParams(new ArrayList<>(List.of(param)));
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, body);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(configMap);
+
+        // When / Then
+        // The null client fails with StaleConnectionException after smart substitution, so the exception shows that
+        // substitution completed; the timeout bounds it.
+        assertTimeoutPreemptively(Duration.ofSeconds(5), () -> assertThatThrownBy(
+                        () -> Mono.defer(() -> pluginExecutor.executeParameterized(
+                                        null, executeActionDTO, new DatasourceConfiguration(), actionConfiguration))
+                                .block())
+                .isInstanceOf(StaleConnectionException.class));
+    }
+
+    @Test
     void should_finishQuickly_when_rawBodyIsLarge() {
         // Given
         StringBuilder documents = new StringBuilder("[");
