@@ -13,6 +13,9 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { LightModeTheme } from "@appsmith/wds-theming";
 
+/** MIME types allowed for the instance branding logo. The server rejects SVG. */
+export const LOGO_IMAGE_TYPES = ["image/jpeg", "image/png"];
+
 const FAVICON_MAX_WIDTH = 48;
 const FAVICON_MAX_HEIGHT = 48;
 const DEFAULT_BRANDING_PRIMARY_COLOR = "#E15615";
@@ -119,9 +122,7 @@ export const logoImageValidator = (
   }
 
   // case 3: check image type
-  const validTypes = ["image/jpeg", "image/png"];
-
-  if (!validTypes.includes(file.type)) {
+  if (!LOGO_IMAGE_TYPES.includes(file.type)) {
     toast.show(createMessage(ADMIN_BRANDING_LOGO_FORMAT_ERROR), {
       kind: "error",
     });
