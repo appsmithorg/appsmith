@@ -317,6 +317,59 @@ public class MssqlDriverBehaviourTest {
                 run("SELECT name FROM driver_dml ORDER BY id", false).getBody().toString());
     }
 
+    // Test plan D-17: identity, default and computed (stored and not stored) columns, written by leaving columns out,
+    // with DEFAULT VALUES, with the DEFAULT keyword and with bound values. The same on driver 11.2.4 and 13.6.2.
+    // A whole-number decimal comes back in exponent form (10.00 as 1E+1): Jackson strips trailing zeros.
+    @ParameterizedTest(name = "prepared statement {0}")
+    @ValueSource(booleans = {true, false})
+    public void identityDefaultAndComputedColumns_workAndReadBack(boolean preparedStatement) throws SQLException {
+        String table = "d17_" + (preparedStatement ? "on" : "off");
+        runSQLQueryOnMssqlTestDB(
+                "CREATE TABLE " + table + " (id int IDENTITY(100, 5) PRIMARY KEY, qty int NOT NULL DEFAULT 1,"
+                        + " price decimal(10,2) NOT NULL DEFAULT 9.99, status nvarchar(20) NOT NULL DEFAULT N'new',"
+                        + " total AS (qty * price), total_stored AS (qty * price) PERSISTED,"
+                        + " label AS (CONCAT(status, N'-', id)))",
+                pool);
+
+        run("INSERT INTO " + table + " (qty) VALUES (2)", preparedStatement);
+        run("INSERT INTO " + table + " DEFAULT VALUES", preparedStatement);
+        run("INSERT INTO " + table + " (qty, price, status) VALUES (3, DEFAULT, DEFAULT)", preparedStatement);
+        assertEquals(
+                "[{\"id\":115,\"status\":\"new\",\"total\":1E+1,\"total_stored\":1E+1,\"label\":\"new-115\"}]",
+                run(
+                                "INSERT INTO " + table + " (qty, price) OUTPUT inserted.id, inserted.status,"
+                                        + " inserted.total, inserted.total_stored, inserted.label VALUES (4, 2.50)",
+                                preparedStatement)
+                        .getBody()
+                        .toString());
+
+        assertEquals(
+                "[{\"id\":100,\"qty\":2,\"price\":9.99,\"status\":\"new\",\"total\":19.98,\"total_stored\":19.98,"
+                        + "\"label\":\"new-100\"},"
+                        + "{\"id\":105,\"qty\":1,\"price\":9.99,\"status\":\"new\",\"total\":9.99,\"total_stored\":9.99,"
+                        + "\"label\":\"new-105\"},"
+                        + "{\"id\":110,\"qty\":3,\"price\":9.99,\"status\":\"new\",\"total\":29.97,\"total_stored\":29.97,"
+                        + "\"label\":\"new-110\"},"
+                        + "{\"id\":115,\"qty\":4,\"price\":2.5,\"status\":\"new\",\"total\":1E+1,\"total_stored\":1E+1,"
+                        + "\"label\":\"new-115\"}]",
+                run("SELECT * FROM " + table + " ORDER BY id", preparedStatement)
+                        .getBody()
+                        .toString());
+
+        ActionConfiguration computedInsert = new ActionConfiguration();
+        computedInsert.setBody("INSERT INTO " + table + " (qty, total) VALUES (1, 5)");
+        computedInsert.setPluginSpecifiedTemplates(
+                List.of(new Property("preparedStatement", String.valueOf(preparedStatement))));
+        ActionExecutionResult refused = mssqlPluginExecutor
+                .executeParameterized(
+                        pool, new ExecuteActionDTO(), createDatasourceConfiguration(container), computedInsert)
+                .block();
+
+        assertNotNull(refused);
+        assertFalse(refused.getIsExecutionSuccess());
+        assertTrue(String.valueOf(refused.getBody()).contains("cannot be modified because it is either a computed"));
+    }
+
     static Stream<Arguments> errorsAfterRows() {
         return Stream.of(true, false)
                 .flatMap(prepared -> Stream.of(
