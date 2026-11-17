@@ -13,6 +13,8 @@
   "c_datetime": "2024-02-29T13:45:30.123",
   "c_datetime2": "2024-02-29T13:45:30.123",
   "c_smalldatetime": "2024-02-29T13:45",
+  "c_datetimeoffset": "2024-02-29T13:45:30.1234567+05:30",
   "c_xml": "<a b=\"1\">text</a>",
+  "c_rowversion": "0x<rowversion>",
   "c_sql_variant": 42
 }

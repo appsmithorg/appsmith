@@ -55,23 +55,21 @@ public class MssqlDriverBehaviourTest {
 
     private static HikariDataSource pool;
 
-    // One row with every column type the test gate lists. SQL Server 2022 has no json or vector type. Two types are
-    // left out, because any SELECT that includes them already fails on driver 11.2.4 (existing bugs, not pinned here):
-    // - rowversion: the plugin reads it as a date ("The conversion from timestamp to DATE is unsupported").
-    // - datetimeoffset: the driver returns microsoft.sql.DateTimeOffset, which the plugin's JSON mapper cannot write.
+    // One row with every column type the test gate lists. SQL Server 2022 has no json or vector type. Before
+    // APP-16536, any SELECT of the rowversion or datetimeoffset column failed on both drivers.
     private static final String CREATE_TYPES_TABLE = "CREATE TABLE driver_types ("
             + " c_int int, c_bigint bigint, c_decimal decimal(10, 2), c_money money, c_bit bit,"
             + " c_float float, c_nvarchar nvarchar(50), c_varbinary varbinary(8), c_uniqueidentifier uniqueidentifier,"
             + " c_date date, c_time time, c_datetime datetime, c_datetime2 datetime2, c_smalldatetime smalldatetime,"
-            + " c_xml xml, c_sql_variant sql_variant)";
+            + " c_datetimeoffset datetimeoffset, c_xml xml, c_rowversion rowversion, c_sql_variant sql_variant)";
 
     private static final String INSERT_TYPES_ROW = "INSERT INTO driver_types (c_int, c_bigint, c_decimal, c_money,"
             + " c_bit, c_float, c_nvarchar, c_varbinary, c_uniqueidentifier, c_date, c_time, c_datetime, c_datetime2,"
-            + " c_smalldatetime, c_xml, c_sql_variant) VALUES ("
+            + " c_smalldatetime, c_datetimeoffset, c_xml, c_sql_variant) VALUES ("
             + " 2147483647, 9223372036854775807, 12345.67, 922337203685477.5807, 1,"
             + " 1.5, N'héllo wörld', 0xDEADBEEF, '6F9619FF-8B86-D011-B42D-00C04FC964FF',"
             + " '2024-02-29', '13:45:30.1234567', '2024-02-29 13:45:30.123', '2024-02-29 13:45:30.1234567',"
-            + " '2024-02-29 13:45:00', '<a b=\"1\">text</a>', CAST(42 AS int))";
+            + " '2024-02-29 13:45:00', '2024-02-29 13:45:30.1234567 +05:30', '<a b=\"1\">text</a>', CAST(42 AS int))";
 
     private static final String CREATE_DML_TABLE = "CREATE TABLE driver_dml (id int PRIMARY KEY, name nvarchar(20))";
     private static final String CREATE_AUDIT_TABLE = "CREATE TABLE driver_audit (id int, note nvarchar(20))";
@@ -153,10 +151,74 @@ public class MssqlDriverBehaviourTest {
                             .toString());
         }
 
+        // The server sets rowversion, so its value changes from run to run. Check its form (0x and 16 hex digits),
+        // then compare it as a fixed placeholder.
+        JsonNode rowversion = row.get("c_rowversion");
+
+        assertTrue(
+                rowversion.isTextual() && rowversion.asText().matches("0x[0-9A-F]{16}"),
+                () -> "rowversion should be 0x and 16 hex digits, got " + rowversion);
+        row.put("c_rowversion", "0x<rowversion>");
+
         assertEquals(
                 expectedTypeSnapshot(),
                 row.toString(),
                 () -> "column values changed. Actual row: " + row.toPrettyString());
+    }
+
+    static Stream<Arguments> offsetAndRowversionEdgeCases() {
+        return Stream.of(true, false)
+                .flatMap(prepared -> Stream.of(
+                        Arguments.of("SELECT CAST(NULL AS datetimeoffset) AS v", "null", prepared),
+                        Arguments.of("SELECT CAST(NULL AS rowversion) AS v", "null", prepared),
+                        // Offset 0 prints as Z, and trailing zeros in the fraction are dropped.
+                        Arguments.of(
+                                "SELECT CAST('2024-02-29 13:45:30.12 +00:00' AS datetimeoffset) AS v",
+                                "\"2024-02-29T13:45:30.12Z\"",
+                                prepared),
+                        Arguments.of(
+                                "SELECT CAST('2024-02-29 13:45:30.1234567 -08:00' AS datetimeoffset) AS v",
+                                "\"2024-02-29T13:45:30.1234567-08:00\"",
+                                prepared),
+                        // datetimeoffset(0) has no fraction.
+                        Arguments.of(
+                                "SELECT CAST('2024-02-29 13:45:30 -03:30' AS datetimeoffset(0)) AS v",
+                                "\"2024-02-29T13:45:30-03:30\"",
+                                prepared),
+                        // rowversion is 8 bytes, so the hex keeps leading zeros.
+                        Arguments.of(
+                                "SELECT CAST(CAST(4001 AS bigint) AS rowversion) AS v",
+                                "\"0x0000000000000FA1\"",
+                                prepared)));
+    }
+
+    // The exact text of a datetimeoffset or rowversion value, including NULL, offset 0, a negative offset and no
+    // fraction. Apps will read these strings, so the format is pinned.
+    @ParameterizedTest(name = "{0}, prepared statement {2}")
+    @MethodSource("offsetAndRowversionEdgeCases")
+    public void offsetAndRowversionValues_keepTheirFormat(String sql, String expectedJson, boolean preparedStatement) {
+        ActionExecutionResult result = run(sql, preparedStatement);
+
+        assertEquals(
+                expectedJson, ((ArrayNode) result.getBody()).get(0).get("v").toString());
+    }
+
+    // A view reports a rowversion column as "timestamp" too, and an alias does not change the type.
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    public void offsetAndRowversionValues_throughAViewAndAliases(boolean preparedStatement) throws SQLException {
+        runSQLQueryOnMssqlTestDB(
+                "IF OBJECT_ID('driver_types_view') IS NULL EXEC('CREATE VIEW driver_types_view AS"
+                        + " SELECT c_rowversion AS rv, c_datetimeoffset AS dto FROM driver_types')",
+                pool);
+
+        JsonNode row = ((ArrayNode)
+                        run("SELECT rv AS version, dto AS changed FROM driver_types_view", preparedStatement)
+                                .getBody())
+                .get(0);
+
+        assertTrue(row.get("version").asText().matches("0x[0-9A-F]{16}"), () -> "rowversion: " + row);
+        assertEquals("2024-02-29T13:45:30.1234567+05:30", row.get("changed").asText());
     }
 
     // Each case: label, SQL, affectedRows with prepared statements on, affectedRows with prepared statements off.

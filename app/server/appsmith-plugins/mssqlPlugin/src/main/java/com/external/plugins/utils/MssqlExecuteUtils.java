@@ -9,12 +9,14 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.MessageFormat;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.safelyCloseSingleConnectionFromHikariCP;
@@ -22,8 +24,15 @@ import static java.lang.Boolean.FALSE;
 
 public class MssqlExecuteUtils {
 
+    // 0x followed by upper-case hex digits, the way SQL Server shows binary values.
+    private static String toHexLiteral(byte[] bytes) {
+        return "0x" + HexFormat.of().withUpperCase().formatHex(bytes);
+    }
+
     private static final String DATE_COLUMN_TYPE_NAME = "date";
-    private static final String TIMESTAMP_TYPE_NAME = "timestamp";
+    // SQL Server reports a rowversion column as "timestamp", the type's older name.
+    private static final Set<String> ROWVERSION_TYPE_NAMES = Set.of("timestamp", "rowversion");
+    private static final String DATETIMEOFFSET_TYPE_NAME = "datetimeoffset";
     private static final String TIMESTAMPTZ_TYPE_NAME = "timestamptz";
     private static final String TIME_TYPE_NAME = "time";
     private static final String TIMETZ_TYPE_NAME = "timetz";
@@ -101,11 +110,17 @@ public class MssqlExecuteUtils {
                         value = DateTimeFormatter.ISO_DATE.format(
                                 resultSet.getDate(i).toLocalDate());
 
-                    } else if (TIMESTAMP_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                        value = DateTimeFormatter.ISO_DATE_TIME.format(LocalDateTime.of(
-                                        resultSet.getDate(i).toLocalDate(),
-                                        resultSet.getTime(i).toLocalTime()))
-                                + "Z";
+                    } else if (typeName != null && ROWVERSION_TYPE_NAMES.contains(typeName.toLowerCase(Locale.ROOT))) {
+                        // In SQL Server, timestamp is rowversion: 8 binary bytes, not a date. Return them as hex
+                        // (0x00000000000007D1), as SQL Server shows them. Reading them as a date failed every query.
+                        value = toHexLiteral(resultSet.getBytes(i));
+
+                    } else if (DATETIMEOFFSET_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                        // An ISO 8601 string that keeps the offset and every fractional digit, such as
+                        // 2024-02-29T13:45:30.1234567+05:30. The driver's own DateTimeOffset object cannot be written
+                        // as JSON, so returning it failed every query.
+                        value = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
+                                resultSet.getObject(i, OffsetDateTime.class));
 
                     } else if (TIMESTAMPTZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
                         value = DateTimeFormatter.ISO_DATE_TIME.format(resultSet.getObject(i, OffsetDateTime.class));
