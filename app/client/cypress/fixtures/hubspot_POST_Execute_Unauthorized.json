@@ -15,6 +15,14 @@
     "request": {
       "requestParams": {}
     },
-    "dataTypes": []
+    "dataTypes": [],
+    "pluginErrorDetails": {
+      "title": "Query execution error",
+      "errorType": "INTERNAL_ERROR",
+      "appsmithErrorCode": "PE-RST-5000",
+      "appsmithErrorMessage": "Query execution failed",
+      "downstreamErrorMessage": "401 Unauthorized from GET https://api.hubapi.com/cms/v3/hubdb/tables/appsmith1",
+      "downstreamErrorCode": "401"
+    }
   }
 }

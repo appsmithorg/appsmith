@@ -14,7 +14,9 @@ import EditorNavigation, {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
+import BottomTabs from "../../../../support/Pages/IDE/BottomTabs";
 const myDsName = "HubspotDS";
+const placeholderToken = "pat-na1-cypress-placeholder";
 
 // Hubspot queries run through cloud services against the live Hubspot API.
 // The stub keeps the spec on Appsmith's own behavior, independent of Hubspot's
@@ -52,7 +54,7 @@ describe(
       agHelper.PressEnter();
       agHelper.AssertElementVisibility(dataSources._datasourceCard, true);
       // Fill out the Hubspot configuration form and save the datasource
-      dataSources.FillHubspotDSForm();
+      dataSources.FillHubspotDSForm(undefined, placeholderToken);
       dataSources.SaveDatasource();
     });
 
@@ -70,9 +72,11 @@ describe(
         inputFieldName: "Table ID or name",
       });
       dataSources.RunQuery();
-      cy.get("@postExecute")
-        .its("response.body.data.body.name")
-        .should("equal", "appsmith1");
+      agHelper.AssertContains(
+        "appsmith1",
+        "exist",
+        BottomTabs.response.locators.responseDataContainer,
+      );
     });
 
     it("3. Validate widget binding with queries & deploying the app", () => {
@@ -112,7 +116,7 @@ describe(
         "HubspotDS datasource deleted successfully",
       );
     });
-    it("5. Validate connection error when misconfiguring datasource", () => {
+    it("5. Validate the query error shown for a misconfigured datasource", () => {
       stubHubspotExecute("hubspot_POST_Execute_Unauthorized.json");
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("HubSpot");
@@ -136,6 +140,11 @@ describe(
         expectedStatus: false,
         toValidateResponse: true,
       });
+      agHelper.AssertContains(
+        "401 Unauthorized",
+        "exist",
+        dataSources._queryError,
+      );
     });
   },
 );
