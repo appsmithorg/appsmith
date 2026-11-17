@@ -5,6 +5,7 @@ import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.McpTokenService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -50,6 +51,12 @@ class McpTokenAuthenticationManagerTest {
 
     @Mock
     private RateLimitService rateLimitService;
+
+    // Most tests exercise the charged path, so the cache misses unless a test says otherwise.
+    @BeforeEach
+    void cacheMissByDefault() {
+        lenient().when(mcpTokenService.authenticateCached(any())).thenReturn(Mono.empty());
+    }
 
     @Test
     void authenticate_usesValidatedTokenOwnerAsPrincipal() {
@@ -208,6 +215,66 @@ class McpTokenAuthenticationManagerTest {
                 .expectError(BadCredentialsException.class)
                 .verify();
 
+        verify(mcpTokenService, never()).authenticate(TOKEN_A);
+    }
+
+    // A token that matches its cache entry is not charged. read_pages sends 6 page reads at once, which is more than
+    // the bucket's capacity of 5. Charging them refused the extra reads with 401 before any success reset the bucket.
+    @Test
+    void authenticate_cachedTokenIsNotChargedToTheBucket() {
+        User user = mock(User.class);
+        McpTokenAuthenticationManager manager = manager();
+        when(mcpTokenService.authenticateCached(TOKEN_A)).thenReturn(Mono.just(user));
+
+        for (int request = 0; request < 6; request++) {
+            StepVerifier.create(manager.authenticate(new McpTokenAuthentication(TOKEN_A, LOOPBACK)))
+                    .assertNext(authentication -> {
+                        assertThat(authentication.isAuthenticated()).isTrue();
+                        assertThat(authentication.getPrincipal()).isSameAs(user);
+                        assertThat(authentication.getAuthorities())
+                                .extracting(GrantedAuthority::getAuthority)
+                                .contains(McpTokenAuthentication.MCP_AUTHORITY);
+                    })
+                    .verifyComplete();
+        }
+
+        verify(rateLimitService, never()).tryIncreaseCounter(any(), any());
+        verify(rateLimitService, never()).resetCounter(any(), any());
+        verify(mcpTokenService, never()).authenticate(any());
+    }
+
+    // An error on the fast path, such as MCP being turned off for the organization, is returned as is. It must not
+    // fall through to the charged path.
+    @Test
+    void authenticate_fastPathErrorIsNotRetriedOnTheChargedPath() {
+        McpTokenAuthenticationManager manager = manager();
+        when(mcpTokenService.authenticateCached(TOKEN_A)).thenReturn(Mono.error(new IllegalStateException("off")));
+
+        StepVerifier.create(manager.authenticate(new McpTokenAuthentication(TOKEN_A, LOOPBACK)))
+                .expectError(IllegalStateException.class)
+                .verify();
+
+        verify(rateLimitService, never()).tryIncreaseCounter(any(), any());
+        verify(mcpTokenService, never()).authenticate(any());
+    }
+
+    // A token that does not match the cache takes the charged path: the bucket is spent before the store is read,
+    // and an empty bucket still refuses the request without a store lookup.
+    @Test
+    void authenticate_cacheMissIsChargedBeforeTheStoreIsRead() {
+        McpTokenAuthenticationManager manager = manager();
+        String bucket = LOOPBACK + ":" + TOKEN_ID_A;
+        when(rateLimitService.tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, bucket))
+                .thenReturn(Mono.just(false));
+
+        StepVerifier.create(manager.authenticate(new McpTokenAuthentication(TOKEN_A, LOOPBACK)))
+                .expectError(BadCredentialsException.class)
+                .verify();
+
+        InOrder inOrder = inOrder(mcpTokenService, rateLimitService);
+        inOrder.verify(mcpTokenService).authenticateCached(TOKEN_A);
+        inOrder.verify(rateLimitService)
+                .tryIncreaseCounter(RateLimitConstants.BUCKET_KEY_FOR_MCP_AUTHENTICATION, bucket);
         verify(mcpTokenService, never()).authenticate(TOKEN_A);
     }
 

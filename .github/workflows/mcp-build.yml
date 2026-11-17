@@ -21,11 +21,35 @@ on:
         description: "Branch to build when pr is 0"
         required: false
         type: string
+      checkout-ref:
+        description: "Immutable commit SHA to checkout for an approved external PR"
+        required: false
+        type: string
+        default: ""
 
   pull_request:
     branches: [release, master]
     paths:
       - "app/client/packages/mcp/**"
+      # The MCP's widget-property ownership table is pinned against the client widgets' property panes and the
+      # widget factory (prop-owners-drift.test.ts). The authoritative gate for that test is client-unit-tests
+      # (yarn workspaces foreach, feeding ci/merge-gate); this filter only gives a pane change the fast standalone
+      # MCP check (~2 min) without waiting for the full quality-checks run. Not a required check: keep the path
+      # filter and the non-required status together, or a non-matching PR would wait on it forever.
+      - "app/client/src/widgets/**"
+      - "app/client/src/WidgetProvider/factory/helpers.ts"
+      # routeContract.test.ts reads the server's MCP allowlist rules and the CE controllers that serve the routes,
+      # and hardcodes the route constants from UrlCE.java and Entity.java.
+      # A PR that changes only those server files still runs the route check against the Node tools. For a
+      # server-only PR this is the only check that runs the test: client-unit-tests runs on app/client/** changes
+      # only, and this workflow is not a required check. Reviewers must read the mcp-build status by hand on such
+      # a PR. A fork PR gets this check only after /approve-ci.
+      - "app/server/appsmith-server/src/main/java/com/appsmith/server/filters/McpAllow*.java"
+      - "app/server/appsmith-server/src/main/java/com/appsmith/server/filters/ce/McpAllow*.java"
+      - "app/server/appsmith-server/src/main/java/com/appsmith/server/controllers/ce/*ControllerCE.java"
+      - "app/server/appsmith-server/src/main/java/com/appsmith/server/git/controllers/GitApplicationControllerCE.java"
+      - "app/server/appsmith-server/src/main/java/com/appsmith/server/constants/ce/UrlCE.java"
+      - "app/server/appsmith-server/src/main/java/com/appsmith/server/constants/Entity.java"
 
 defaults:
   run:
@@ -44,7 +68,7 @@ jobs:
       github.event_name == 'release'
     steps:
       - name: Checkout the merged pull-request commit
-        if: inputs.pr != 0
+        if: inputs.checkout-ref == '' && inputs.pr != 0
         uses: actions/checkout@v4
         with:
           fetch-tags: true
@@ -52,7 +76,7 @@ jobs:
           ref: refs/pull/${{ inputs.pr }}/merge
 
       - name: Checkout the specified branch
-        if: inputs.pr == 0 && inputs.branch != ''
+        if: inputs.checkout-ref == '' && inputs.pr == 0 && inputs.branch != ''
         uses: actions/checkout@v4
         with:
           fetch-tags: true
@@ -60,11 +84,22 @@ jobs:
           ref: ${{ inputs.branch }}
 
       - name: Checkout the head commit
-        if: inputs.pr == 0 && inputs.branch == ''
+        if: inputs.checkout-ref == '' && inputs.pr == 0 && inputs.branch == ''
         uses: actions/checkout@v4
         with:
           fetch-tags: true
           persist-credentials: false
+
+      # The approved-external-PR flow pins every build to the merge commit that the maintainer approved. Without
+      # this step, a force-push after approval would be built here while server, client and rts build the
+      # approved commit.
+      - name: Checkout the approved immutable commit
+        if: inputs.checkout-ref != ''
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          persist-credentials: false
+          ref: ${{ inputs.checkout-ref }}
 
       - name: Use Node.js
         uses: actions/setup-node@v4

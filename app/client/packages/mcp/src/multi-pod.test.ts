@@ -60,6 +60,7 @@ function stubApi(overrides: Partial<AppsmithApi> = {}): AppsmithApi {
     getGitProtectedBranches: jest.fn(async () => []),
     listGitBranches: jest.fn(async () => []),
     createGitBranch: jest.fn(async () => ({})),
+    checkoutGitBranch: jest.fn(async () => ({})),
     commitGitApplication: jest.fn(async () => "Commit Result : ok"),
     listActions: jest.fn(),
     createAction: jest.fn(),
@@ -77,6 +78,8 @@ function stubApi(overrides: Partial<AppsmithApi> = {}): AppsmithApi {
     listActionCollections: jest.fn(),
     createActionCollection: jest.fn(),
     updateActionCollection: jest.fn(),
+    updateActionCollectionBody: jest.fn(),
+    setActionRunBehaviour: jest.fn(),
     deleteActionCollection: jest.fn(),
     validateToken: jest.fn(async () => ({
       username: USER,

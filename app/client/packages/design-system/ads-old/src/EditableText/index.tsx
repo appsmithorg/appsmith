@@ -16,6 +16,9 @@ export type EditableTextProps = CommonComponentProps & {
   onBlur?: (value: string) => void; // This `Blur` will be called only when there is a change in the value after we unfocus from the input field
   onBlurEverytime?: (value: string) => void; // This `Blur` will be called everytime we unfocus from the input field
   onTextChanged?: (value: string) => void;
+  // Every keystroke, including empty and invalid drafts. `onTextChanged` only
+  // reports non-empty valid values.
+  onDraftChange?: (value: string) => void;
   valueTransform?: (value: string) => string;
   isEditingDefault?: boolean;
   forceDefault?: boolean;
@@ -26,6 +29,10 @@ export type EditableTextProps = CommonComponentProps & {
   underline?: boolean;
   isError?: boolean;
   wrapperRef?: React.RefObject<HTMLDivElement>;
+  // Edit in a wrapping textarea instead of a single-line input. Enter still
+  // confirms; mod+Enter inserts a line break.
+  multiline?: boolean;
+  maxLines?: number;
 };
 
 // Width of the component when the `filled` prop is false

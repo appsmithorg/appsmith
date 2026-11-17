@@ -354,6 +354,7 @@ export const WIDGET_TEMPLATES: Record<WidgetType, WidgetTemplate> = {
           inlineEditingSaveOption: "ROW_LEVEL",
           animateLoading: true,
           responsiveBehavior: "fill",
+          dynamicHeight: "FIXED",
           // A query source is a real dynamic binding; static rows are not.
           dynamicBindingPathList: bound ? [{ key: "tableData" }] : [],
           dynamicPropertyPathList: [],

@@ -60,7 +60,23 @@ export const APPSMITH_CUSTOM_DOMAINS: Setting = {
   controlType: SettingTypes.TEXTINPUT,
   controlSubType: SettingSubtype.TEXT,
   label: "Custom domain",
-  subText: "* Custom domain for your Appsmith instance",
+  subText:
+    "* Custom domain for your Appsmith instance. Enter the domain only, without http:// or https://.",
+  placeholder: "apps.example.com",
+  // The server stores the value without checking it. Caddy ignores the whole value if it starts with http:// or
+  // https://, so the instance silently runs without the custom domain. A path or a space breaks the site address.
+  // The value is saved as typed, so a leading or trailing space is refused, not trimmed.
+  validate: (value: string) => {
+    if (!value?.trim()) return;
+
+    if (value.includes("://")) {
+      return "Remove http:// or https://. Enter the domain only, for example apps.example.com";
+    }
+
+    if (/[/\s]/.test(value)) {
+      return "Enter the domain only, without a path or spaces. For example, apps.example.com";
+    }
+  },
 };
 
 export const APPSMITH_IS_ATOMIC_PUSH_ALLOWED: Setting = {

@@ -25,6 +25,7 @@ import com.appsmith.server.themes.base.ThemeService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,6 +35,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -939,6 +941,160 @@ public class ThemeServiceTest {
                 .expectErrorMatches(error -> error instanceof AppsmithException
                         && (((AppsmithException) error).getError() == AppsmithError.ACL_NO_RESOURCE_FOUND
                                 || ((AppsmithException) error).getError() == AppsmithError.NO_RESOURCE_FOUND))
+                .verify();
+    }
+
+    /**
+     * Creates an application owned by api_user with one named theme, then grants read access on it without
+     * edit permission. See GHSA-x2jf-gfvj-wfg2.
+     */
+    private Application createPublicApplicationWithNamedTheme() {
+        Application savedApplication = createApplication();
+
+        Theme namedTheme = new Theme();
+        namedTheme.setDisplayName("Named theme " + UUID.randomUUID());
+        themeService
+                .persistCurrentTheme(savedApplication.getId(), null, namedTheme)
+                .block();
+
+        makeApplicationPublic(savedApplication);
+        return savedApplication;
+    }
+
+    private void makeApplicationPublic(Application application) {
+        ApplicationAccessDTO publicAccess = new ApplicationAccessDTO();
+        publicAccess.setPublicAccess(true);
+        applicationService
+                .changeViewAccessForSingleBranchByBranchedApplicationId(application.getId(), publicAccess)
+                .block();
+    }
+
+    private static void assertNoResourceFound(Throwable error, String applicationId) {
+        assertThat(error)
+                .isInstanceOf(AppsmithException.class)
+                .hasMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, applicationId));
+        assertThat(((AppsmithException) error).getError()).isEqualTo(AppsmithError.NO_RESOURCE_FOUND);
+    }
+
+    private SecurityContext anonymousSecurityContext() {
+        User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
+        Authentication anonymousAuthentication =
+                new UsernamePasswordAuthenticationToken(anonymousUser, null, anonymousUser.getAuthorities());
+        return new SecurityContextImpl(anonymousAuthentication);
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    @DisplayName("Theme list is empty for a caller without edit permission (GHSA-x2jf-gfvj-wfg2)")
+    void should_listNoThemes_when_callerLacksEditPermission() {
+        // Given
+        Application publicApplication = createPublicApplicationWithNamedTheme();
+
+        // When
+        Flux<Theme> themesSeenByReader = themeService
+                .getApplicationThemes(publicApplication.getId())
+                .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(anonymousSecurityContext())));
+
+        // Then
+        StepVerifier.create(themesSeenByReader).verifyComplete();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    @DisplayName(
+            "Theme list by base application id is denied for a caller without edit permission (GHSA-x2jf-gfvj-wfg2)")
+    void should_denyThemeListByBaseApplicationId_when_callerLacksEditPermission() {
+        // Given
+        Application publicApplication = createPublicApplicationWithNamedTheme();
+
+        // When
+        Flux<Theme> themesSeenByReader = themeService
+                .getApplicationThemes(publicApplication.getId(), null)
+                .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(anonymousSecurityContext())));
+
+        // Then
+        StepVerifier.create(themesSeenByReader)
+                .expectErrorSatisfies(error -> assertNoResourceFound(error, publicApplication.getId()))
+                .verify();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    @DisplayName("Theme list holds the named and system themes for a caller with edit permission (GHSA-x2jf-gfvj-wfg2)")
+    void should_listNamedAndSystemThemes_when_callerHasEditPermission() {
+        // Given
+        Application publicApplication = createPublicApplicationWithNamedTheme();
+        List<Theme> systemThemes = themeService.getSystemThemes().collectList().block();
+
+        // When
+        Mono<List<Theme>> themesSeenByEditor =
+                themeService.getApplicationThemes(publicApplication.getId()).collectList();
+
+        // Then
+        StepVerifier.create(themesSeenByEditor)
+                .assertNext(themes -> {
+                    assertThat(themes).hasSize(systemThemes.size() + 1);
+                    assertThat(themes)
+                            .anyMatch(theme -> !theme.isSystemTheme()
+                                    && publicApplication.getId().equals(theme.getApplicationId()));
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * Fixture for the three-argument current-theme overload: published theme Sharp, edit-mode theme Classic,
+     * read access granted without edit permission. See GHSA-x2jf-gfvj-wfg2.
+     */
+    private Application createPublicApplicationWithDistinctEditAndPublishedThemes() {
+        Theme sharpTheme = themeService.getSystemTheme("Sharp").block();
+        Theme classicTheme = themeService.getSystemTheme("Classic").block();
+        Application savedApplication = createApplication();
+        themeService
+                .changeCurrentTheme(sharpTheme.getId(), savedApplication.getId())
+                .block();
+        applicationPageService.publish(savedApplication.getId(), TRUE).block();
+        themeService
+                .changeCurrentTheme(classicTheme.getId(), savedApplication.getId())
+                .block();
+        makeApplicationPublic(savedApplication);
+        return savedApplication;
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    @DisplayName(
+            "Published current theme by base application id stays readable without edit permission (GHSA-x2jf-gfvj-wfg2)")
+    void should_returnPublishedCurrentThemeByBaseApplicationId_when_callerLacksEditPermission() {
+        // Given
+        Application publicApplication = createPublicApplicationWithDistinctEditAndPublishedThemes();
+
+        // When
+        Mono<Theme> publishedThemeSeenByReader = themeService
+                .getApplicationTheme(publicApplication.getId(), ApplicationMode.PUBLISHED, null)
+                .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(anonymousSecurityContext())));
+
+        // Then
+        StepVerifier.create(publishedThemeSeenByReader)
+                .assertNext(theme -> assertThat(theme.getName()).isEqualTo("Sharp"))
+                .verifyComplete();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    @DisplayName(
+            "Edit-mode current theme by base application id is denied without edit permission (GHSA-x2jf-gfvj-wfg2)")
+    void should_denyEditModeCurrentThemeByBaseApplicationId_when_callerLacksEditPermission() {
+        // Given
+        Application publicApplication = createPublicApplicationWithDistinctEditAndPublishedThemes();
+
+        // When
+        Mono<Theme> editModeThemeSeenByReader = themeService
+                .getApplicationTheme(publicApplication.getId(), ApplicationMode.EDIT, null)
+                .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(anonymousSecurityContext())));
+
+        // Then
+        StepVerifier.create(editModeThemeSeenByReader)
+                .expectErrorSatisfies(error -> assertNoResourceFound(error, publicApplication.getId()))
                 .verify();
     }
 }

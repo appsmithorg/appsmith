@@ -9,6 +9,7 @@ import { Text } from "@blueprintjs/core";
 import useFixedFooter from "./useFixedFooter";
 import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BaseButton as Button } from "widgets/ButtonWidget/component";
+import { getSafeCssColor } from "widgets/ButtonWidget/component/utils";
 import { Colors } from "constants/Colors";
 import { FORM_PADDING_Y, FORM_PADDING_X } from "./styleConstants";
 import type { Schema } from "../constants";
@@ -38,6 +39,7 @@ export type FormProps<TValues = any> = PropsWithChildren<{
   submitButtonLabel: string;
   submitButtonStyles: ButtonStyleProps;
   title: string;
+  titleTextColor?: string;
   unregisterResetObserver: () => void;
   updateFormData: (values: TValues, skipConversion?: boolean) => void;
 }>;
@@ -87,6 +89,16 @@ const StyledFormFooter = styled.div<StyledFooterProps>`
   }
 `;
 
+/**
+ * Submitting is handled by the submit button's onClick. When the form has a
+ * single text field and no submit button (for example, the footer is hidden),
+ * pressing Enter makes the browser submit the form natively, which reloads
+ * the page. Block the native submit so that can't happen.
+ */
+const preventNativeSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+};
+
 const StyledForm = styled.form<StyledFormProps>`
   display: flex;
   flex-direction: column;
@@ -97,11 +109,14 @@ const StyledForm = styled.form<StyledFormProps>`
 
 const StyledTitle = styled(Text)<{
   children?: React.ReactNode;
+  $titleTextColor?: string;
 }>`
   font-weight: bold;
   font-size: ${TITLE_FONT_SIZE};
   word-break: break-word;
   margin-bottom: ${TITLE_MARGIN_BOTTOM}px;
+  ${({ $titleTextColor }) =>
+    $titleTextColor ? `color: ${$titleTextColor};` : ""}
 `;
 
 const StyledFormBody = styled.div<StyledFormBodyProps>`
@@ -142,6 +157,7 @@ function Form<TValues = any>(
     submitButtonLabel,
     submitButtonStyles,
     title,
+    titleTextColor,
     unregisterResetObserver,
     updateFormData,
   }: FormProps<TValues>,
@@ -277,6 +293,7 @@ function Form<TValues = any>(
     <FormProvider {...methods}>
       <StyledForm
         fixedFooter={fixedFooter}
+        onSubmit={preventNativeSubmit}
         ref={bodyRef as React.RefObject<HTMLFormElement>}
         scrollContents={scrollContents}
       >
@@ -284,7 +301,9 @@ function Form<TValues = any>(
           className="t--jsonform-body"
           stretchBodyVertically={stretchBodyVertically}
         >
-          <StyledTitle>{title}</StyledTitle>
+          <StyledTitle $titleTextColor={getSafeCssColor(titleTextColor)}>
+            {title}
+          </StyledTitle>
           {children}
         </StyledFormBody>
         {!hideFooter && (

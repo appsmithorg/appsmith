@@ -1,5 +1,5 @@
 import type { CurrencyInputWidgetProps } from "./index";
-import { defaultValueValidation } from "./index";
+import CurrencyInputWidget, { defaultValueValidation } from "./index";
 import _ from "lodash";
 
 describe("defaultValueValidation", () => {
@@ -54,4 +54,20 @@ describe("defaultValueValidation", () => {
       ],
     });
   });
+});
+
+describe("CurrencyInputWidget getWidgetView", () => {
+  it.each([true, false])(
+    "should pass isRequired=%s to the component",
+    (isRequired) => {
+      const widget = new CurrencyInputWidget({
+        isRequired,
+        label: "Salary",
+        text: "",
+        widgetId: "currency-input-widget",
+      } as unknown as CurrencyInputWidgetProps);
+
+      expect(widget.getWidgetView().props.isRequired).toBe(isRequired);
+    },
+  );
 });

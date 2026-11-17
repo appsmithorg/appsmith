@@ -21,7 +21,6 @@ import { connect } from "react-redux";
 import type { DefaultRootState } from "react-redux";
 import { selectCombinedPreviewMode } from "selectors/gitModSelectors";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { EVENTS } from "./customWidgetscript";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getAppsmithConfigs } from "ee/configs";
@@ -107,16 +106,6 @@ function CustomComponent(props: CustomComponentProps) {
               },
               "*",
             );
-
-            if (
-              props.renderMode === "DEPLOYED" ||
-              props.renderMode === "EDITOR"
-            ) {
-              AnalyticsUtil.logEvent("CUSTOM_WIDGET_LOAD_INIT", {
-                widgetId: props.widgetId,
-                renderMode: props.renderMode,
-              });
-            }
 
             break;
           case EVENTS.CUSTOM_WIDGET_UPDATE_MODEL:

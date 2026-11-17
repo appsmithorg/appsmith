@@ -213,3 +213,16 @@ describe("theme update payload builder", () => {
     expect(properties.borderRadius.appBorderRadius).toBe("1.5rem");
   });
 });
+
+describe("theme literals reject binding syntax and line separators", () => {
+  it("refuses {{ }}, }}, and U+2028/U+2029 in a font family", () => {
+    for (const fontFamily of [
+      "Inter {{ x }}",
+      "Inter }}",
+      "Inter\u2028",
+      "Inter\u2029",
+    ]) {
+      expect(themePatchSchema.safeParse({ fontFamily }).success).toBe(false);
+    }
+  });
+});

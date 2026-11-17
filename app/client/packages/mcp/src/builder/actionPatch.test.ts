@@ -6,6 +6,8 @@ import {
   duplicateActionSpecSchema,
   updateActionSpecSchema,
 } from "./actionPatch.js";
+import { markMcpAuthoredBody } from "./query.js";
+import { mcpAuthoredRestConfig } from "./restApi.js";
 
 const revision = "a".repeat(64);
 const reference = {
@@ -52,8 +54,30 @@ describe("action lifecycle builders", () => {
         // A SELECT runs on page load so a bound widget populates without a manual trigger.
         executeOnLoad: true,
         actionConfiguration: {
-          body: "SELECT * FROM users;",
+          // The stored body carries the MCP-authored marker (APP-16324 F9).
+          body: markMcpAuthoredBody("SELECT * FROM users;"),
           pluginSpecifiedTemplates: [{ value: true }],
+        },
+      },
+    });
+  });
+
+  it("compiles an isNull filter on the update_action path", () => {
+    const dto = buildUpdateActionDto(
+      parseUpdate({
+        ...reference,
+        kind: "SQL",
+        name: "ListUsers",
+        query: { ...query, filters: [{ column: "deleted_at", op: "isNull" }] },
+      }),
+    );
+
+    expect(dto).toMatchObject({
+      action: {
+        actionConfiguration: {
+          body: markMcpAuthoredBody(
+            "SELECT * FROM users WHERE users.deleted_at IS NULL;",
+          ),
         },
       },
     });
@@ -76,6 +100,37 @@ describe("action lifecycle builders", () => {
       },
     });
     expect(dto.action).not.toHaveProperty("applicationId");
+  });
+
+  // update_action rebuilds the whole REST config, so it writes a fresh marker that get_action accepts.
+  it("marks a REST update as MCP-authored", () => {
+    const dto = buildUpdateActionDto(
+      parseUpdate({ ...reference, kind: "REST", rest }),
+    );
+
+    expect(
+      mcpAuthoredRestConfig(
+        (dto.action as { actionConfiguration: unknown }).actionConfiguration,
+      ),
+    ).toMatchObject({ httpMethod: "GET", path: "/v1/users" });
+  });
+
+  it("stores an Oracle SQL update in formData", () => {
+    const dto = buildUpdateActionDto(
+      parseUpdate({ ...reference, kind: "SQL", query }),
+      { packageName: "oracle-plugin" },
+    );
+    const config = (
+      dto.action as {
+        actionConfiguration: {
+          body?: unknown;
+          formData: { body: { data: string } };
+        };
+      }
+    ).actionConfiguration;
+
+    expect(config.body).toBeUndefined();
+    expect(config.formData.body.data).toContain("SELECT");
   });
 
   it("allows a name-only update without an action configuration", () => {

@@ -1,5 +1,6 @@
 package com.appsmith.server.aspect.ce;
 
+import com.appsmith.external.dtos.GitRefDTO;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.constants.ce.RefType;
 import com.appsmith.git.configurations.GitServiceConfig;
@@ -14,7 +15,9 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.git.constants.GitRouteOperation;
 import com.appsmith.server.git.utils.GitProfileUtils;
+import com.appsmith.server.git.utils.McpCheckoutRefGuard;
 import com.appsmith.server.services.GitArtifactHelper;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.AllArgsConstructor;
@@ -238,9 +241,35 @@ public class GitRouteAspectCE {
 
         String fieldValue = extractFieldValue(joinPoint, gitRoute.fieldName());
         ctx.setFieldValue(fieldValue);
-        return run(ctx, State.ROUTE_FILTER).flatMap(unused -> {
-            return this.result(ctx);
-        });
+        // The MCP checkout guard runs before the FSM, so a refused request takes no lock and triggers no download,
+        // clone or remote fetch.
+        return mcpCheckoutGuard(ctx)
+                .then(Mono.defer(() -> run(ctx, State.ROUTE_FILTER)))
+                .flatMap(unused -> {
+                    return this.result(ctx);
+                });
+    }
+
+    /**
+     * For {@link GitRouteOperation#CHECKOUT_REF}, refuses an MCP-token principal's remote-branch or tag checkout before
+     * the in-memory Git flow starts. The ref is read from the first {@link GitRefDTO} argument; a route with no such
+     * argument, and every other operation, passes. {@code CentralGitServiceCEImpl.checkoutReference} runs the same
+     * check again, which covers file-system Git.
+     *
+     * @param ctx the FSM execution context
+     * @return Mono that completes empty when the flow may start, or errors with 403
+     */
+    protected Mono<Void> mcpCheckoutGuard(Context ctx) {
+        if (!GitRouteOperation.CHECKOUT_REF.equals(ctx.getGitRoute().operation())) {
+            return Mono.empty();
+        }
+
+        return Arrays.stream(ctx.getJoinPoint().getArgs())
+                .filter(GitRefDTO.class::isInstance)
+                .map(GitRefDTO.class::cast)
+                .findFirst()
+                .map(McpCheckoutRefGuard::rejectRemoteOrTagCheckout)
+                .orElseGet(Mono::empty);
     }
 
     /**

@@ -31,6 +31,7 @@ export type EditableTextSubComponentProps = CommonComponentProps & {
   onBlur?: (value: string) => void; // This `Blur` will be called only when there is a change in the value after we unfocus from the input field
   onBlurEverytime?: (value: string) => void; // This `Blur` will be called everytime we unfocus from the input field
   onTextChanged?: (value: string) => void;
+  onDraftChange?: (value: string) => void;
   valueTransform?: (value: string) => string;
   isEditingDefault?: boolean;
   isEditing: boolean;
@@ -44,6 +45,8 @@ export type EditableTextSubComponentProps = CommonComponentProps & {
   fill?: boolean;
   underline?: boolean;
   isError?: boolean;
+  multiline?: boolean;
+  maxLines?: number;
 };
 
 const editModeBgcolor = (
@@ -67,6 +70,7 @@ const TextContainer = styled.div<{
   isEditing: boolean;
   bgColor: string;
   underline?: boolean;
+  multiline?: boolean;
 }>`
   display: flex;
   align-items: center;
@@ -80,7 +84,14 @@ const TextContainer = styled.div<{
     color: var(--ads-editable-text-subcomponent-default-text-color);
     overflow: hidden;
     text-overflow: ellipsis;
-    ${(props) => (props.isEditing ? "display: none" : "display: block")};
+    /* Blueprint sizes a multiline textarea from this span, so it must stay in
+       the layout (hidden, not removed) while editing. */
+    ${(props) =>
+      props.isEditing && props.multiline
+        ? "visibility: hidden"
+        : props.isEditing
+          ? "display: none"
+          : "display: block"};
     width: fit-content !important;
     min-width: auto !important;
     line-height: inherit !important;
@@ -128,6 +139,7 @@ export const EditableTextSubComponent = React.forwardRef(
       isInvalid,
       onBlur,
       onBlurEverytime,
+      onDraftChange,
       onTextChanged,
       savingState,
       setIsEditing,
@@ -214,6 +226,8 @@ export const EditableTextSubComponent = React.forwardRef(
         const errorMessage = inputValidation && inputValidation(finalVal);
         const error = errorMessage ? errorMessage : false;
 
+        onDraftChange && onDraftChange(finalVal);
+
         if (!error && finalVal !== "") {
           setLastValidValue(finalVal);
           onTextChanged && onTextChanged(finalVal);
@@ -223,7 +237,7 @@ export const EditableTextSubComponent = React.forwardRef(
         setIsInvalid(error);
         setChangeStarted(true);
       },
-      [inputValidation, onTextChanged],
+      [inputValidation, onDraftChange, onTextChanged],
     );
 
     const iconName =
@@ -245,12 +259,16 @@ export const EditableTextSubComponent = React.forwardRef(
           data-cy={props.cypressSelector}
           isEditing={isEditing}
           isInvalid={!!isInvalid}
+          multiline={props.multiline}
           underline={props.underline}
         >
           <BlueprintEditableText
             className={props.className}
+            confirmOnEnterKey={props.multiline}
             disabled={!isEditing}
             isEditing={isEditing}
+            maxLines={props.maxLines}
+            multiline={props.multiline}
             onCancel={onConfirm}
             onChange={onInputchange}
             onConfirm={onConfirm}

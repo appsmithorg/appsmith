@@ -1,4 +1,5 @@
 import type { ToolAnnotations } from "@modelcontextprotocol/sdk/types.js";
+import { EXTENSION_TOOL_ANNOTATIONS } from "./ee/extensions/catalog.js";
 
 // MCP tool annotations for every registered tool. Hosted clients gate approvals on them: Codex / the ChatGPT app
 // treats a tool with NO annotations as destructive and open-world, so it demands a human approval for every call
@@ -49,7 +50,7 @@ const DESTRUCTIVE_EXTERNAL: ToolAnnotations = {
   openWorldHint: true,
 };
 
-export const TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
+const CORE_TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
   // Discovery and reads.
   list_workspaces: READ,
   resolve_workspace: READ,
@@ -87,6 +88,7 @@ export const TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
   update_theme: WRITE,
   create_page: WRITE,
   rename_page: WRITE,
+  set_page_visibility: WRITE,
   create_datasource: WRITE_IDEMPOTENT,
   create_query: WRITE_IDEMPOTENT,
   create_rest_api: WRITE_IDEMPOTENT,
@@ -98,6 +100,8 @@ export const TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
   create_sheets_query: WRITE_IDEMPOTENT,
   update_action: WRITE,
   duplicate_action: WRITE,
+  // Idempotent by target page + name, like the create_*_query tools.
+  copy_action: WRITE_IDEMPOTENT,
   create_js_object: WRITE,
   update_js_object: WRITE,
   // Creating an agent branch pushes the ref to the customer's remote.
@@ -108,17 +112,34 @@ export const TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
   prepare_publish: WRITE,
   prepare_commit: WRITE,
   prepare_delete_page: WRITE,
+  prepare_remove_widgets: WRITE,
   prepare_delete_action: WRITE,
   prepare_run_action: WRITE,
   prepare_delete_js_object: WRITE,
+  prepare_replace_js_object: WRITE,
 
   // confirm_* executes the irreversible half.
   confirm_rollback: DESTRUCTIVE,
   confirm_publish: DESTRUCTIVE,
   confirm_delete_page: DESTRUCTIVE,
+  confirm_remove_widgets: DESTRUCTIVE,
   confirm_delete_action: DESTRUCTIVE,
   confirm_delete_js_object: DESTRUCTIVE,
+  confirm_replace_js_object: DESTRUCTIVE,
   // Commit always pushes to the remote; a confirmed run executes an arbitrary action against its datasource.
   confirm_commit: DESTRUCTIVE_EXTERNAL,
   confirm_run_action: DESTRUCTIVE_EXTERNAL,
+};
+
+// Core annotations plus the edition's (ee/extensions/catalog.ts; none in CE). An extension may annotate only its own
+// tools: relabelling a core tool (say, marking a destructive one read-only) would change what hosted clients approve.
+for (const name of Object.keys(EXTENSION_TOOL_ANNOTATIONS)) {
+  if (Object.hasOwn(CORE_TOOL_ANNOTATIONS, name)) {
+    throw new Error(`MCP extension annotation "${name}" collides with core`);
+  }
+}
+
+export const TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
+  ...CORE_TOOL_ANNOTATIONS,
+  ...EXTENSION_TOOL_ANNOTATIONS,
 };

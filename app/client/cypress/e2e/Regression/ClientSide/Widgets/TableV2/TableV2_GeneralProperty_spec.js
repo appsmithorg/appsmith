@@ -74,14 +74,30 @@ describe(
     });
 
     it("4. Test to validate text format", function () {
-      // Select the bold font style
-      cy.get(widgetsPage.bold).click({ force: true });
+      // Cell Emphasis and Header emphasis both render an italic button.
+      // Scope each click to its control, then check the element that control styles.
+      cy.get(".t--property-control-emphasis")
+        .find(widgetsPage.bold)
+        .should("have.length", 1)
+        .click({ force: true });
       cy.wait(2000);
-      // Varify the font style is bold
       cy.readTableV2dataValidateCSS("1", "0", "font-weight", "700");
-      // Change the font style to italic
-      cy.get(widgetsPage.italics).click({ force: true });
-      // Verify the font style is italic
+      cy.get(".t--property-control-emphasis")
+        .find(widgetsPage.italics)
+        .should("have.length", 1)
+        .click({ force: true });
+      cy.readTableV2dataValidateCSS("1", "0", "font-style", "italic");
+      cy.get(".draggable-header")
+        .first()
+        .should("have.css", "font-style", "normal");
+
+      cy.get(".t--property-control-headeremphasis")
+        .find(widgetsPage.italics)
+        .should("have.length", 1)
+        .click({ force: true });
+      cy.get(".draggable-header")
+        .first()
+        .should("have.css", "font-style", "italic");
       cy.readTableV2dataValidateCSS("1", "0", "font-style", "italic");
       cy.moveToContentTab();
       // Change the font style to underline

@@ -117,6 +117,7 @@ export interface UpdateApplicationPayload {
   icon?: string;
   color?: string;
   name?: string;
+  description?: string;
   currentApp?: boolean;
   appLayout?: AppLayoutConfig;
   applicationVersion?: number;
@@ -215,6 +216,7 @@ export interface UpdateApplicationResponse {
   unreadCommentThreads: number;
   color: string;
   icon: IconNames;
+  description?: string;
   slug: string;
   lastDeployedAt: Date;
   evaluationVersion: number;

@@ -17,6 +17,7 @@ import com.appsmith.server.filters.ConditionalFilter;
 import com.appsmith.server.filters.LoginMetricsFilter;
 import com.appsmith.server.filters.LoginRateLimitFilter;
 import com.appsmith.server.filters.McpAllowlistWebFilter;
+import com.appsmith.server.filters.SignupRateLimitFilter;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.AnalyticsService;
@@ -320,6 +321,9 @@ public class SecurityConfig {
                         SecurityWebFiltersOrder.FORM_LOGIN)
                 .addFilterBefore(
                         new ConditionalFilter(new LoginRateLimitFilter(rateLimitService, meterRegistry), Url.LOGIN_URL),
+                        SecurityWebFiltersOrder.FORM_LOGIN)
+                .addFilterBefore(
+                        new ConditionalFilter(new SignupRateLimitFilter(rateLimitService, meterRegistry), USER_URL),
                         SecurityWebFiltersOrder.FORM_LOGIN)
                 .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationFailureHandler(failureHandler))
                 .formLogin(formLoginSpec -> formLoginSpec

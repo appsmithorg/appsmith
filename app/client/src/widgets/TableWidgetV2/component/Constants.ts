@@ -54,6 +54,26 @@ export enum ImageSizes {
   LARGE = "128px",
 }
 
+/**
+ * In-cell Icon Button sizes. Restores the pre-fix 30px control; Icon/Video
+ * cells use 0 vertical padding so ROW_HEIGHT (40) fits pageSize.
+ * Menu Button stays at Button-column size (27); see menuButtonTableComponent.
+ * @see https://github.com/appsmithorg/appsmith-ee/issues/10561
+ */
+export const TABLE_CELL_ACTION_ICON_SIZE = {
+  SHORT: 24,
+  DEFAULT: 30,
+} as const;
+
+/** Vertical padding for Icon Button / Video cells (px). */
+export const TABLE_CELL_ACTION_VERTICAL_PADDING = 0;
+
+export function getTableCellActionIconSize(compactMode?: string): number {
+  return compactMode === CompactModeTypes.SHORT
+    ? TABLE_CELL_ACTION_ICON_SIZE.SHORT
+    : TABLE_CELL_ACTION_ICON_SIZE.DEFAULT;
+}
+
 export const SCROLL_BAR_OFFSET = 2;
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
   [CompactModeTypes.DEFAULT]: {
@@ -293,6 +313,7 @@ export interface ColumnBaseProperties {
   isAscOrder?: boolean;
   alias: string;
   allowCellWrapping: boolean;
+  allowHeaderWrapping?: boolean;
 }
 
 export interface ColumnStyleProperties {

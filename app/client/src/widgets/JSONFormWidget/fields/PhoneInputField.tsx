@@ -11,11 +11,13 @@ import ISDCodeDropdown, {
   getSelectedISDCode,
   ISDCodeDropdownOptions,
 } from "widgets/PhoneInputWidget/component/ISDCodeDropdown";
+import { findCountryByIso } from "widgets/PhoneInputWidget/component/utilities";
 import { isEmpty } from "../helper";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 
 type PhoneInputComponentProps = BaseInputComponentProps & {
   allowDialCodeChange: boolean;
+  countryCode?: string;
   dialCode: string;
 };
 
@@ -24,6 +26,7 @@ export type PhoneInputFieldProps =
 
 interface ISDCodeDropdownComponentProps {
   allowDialCodeChange: boolean;
+  countryCode?: string;
   dialCode: string;
   fieldName: string;
   isDisabled: boolean;
@@ -32,6 +35,7 @@ interface ISDCodeDropdownComponentProps {
 
 const COMPONENT_DEFAULT_VALUES: PhoneInputComponentProps = {
   allowDialCodeChange: false,
+  countryCode: getDefaultISDCode().code,
   dialCode: getDefaultISDCode().dial_code,
   isDisabled: false,
   isRequired: false,
@@ -75,22 +79,34 @@ const transformValue = (value: string) => {
 
 function ISDCodeDropdownComponent({
   allowDialCodeChange,
+  countryCode,
   dialCode,
   fieldName,
   isDisabled,
   propertyPath,
 }: ISDCodeDropdownComponentProps) {
   const { renderMode, updateWidgetProperty } = useContext(FormContext);
+  const [metaCountryCode, setMetaCountryCode] = useState<string>();
   const [metaDialCode, setMetaDialCode] = useState<string>();
 
+  const selectedCountryCode = metaCountryCode || countryCode;
   const selectedDialCode = metaDialCode || dialCode;
-  const selectedISDCode = getSelectedISDCode(selectedDialCode);
+  const selectedISDCode = getSelectedISDCode(
+    selectedDialCode,
+    selectedCountryCode,
+  );
 
   const onISDCodeChange = (code?: string) => {
+    const country = findCountryByIso(code);
+
+    if (!country) return;
+
     if (renderMode === RenderModes.CANVAS) {
-      updateWidgetProperty?.(`${propertyPath}.dialCode`, code);
+      updateWidgetProperty?.(`${propertyPath}.countryCode`, country.code);
+      updateWidgetProperty?.(`${propertyPath}.dialCode`, country.dial_code);
     } else {
-      setMetaDialCode(code);
+      setMetaCountryCode(country.code);
+      setMetaDialCode(country.dial_code);
     }
   };
 
@@ -116,6 +132,7 @@ function PhoneInputField({
   const leftIcon = (
     <ISDCodeDropdownComponent
       allowDialCodeChange={schemaItem.allowDialCodeChange}
+      countryCode={schemaItem.countryCode}
       dialCode={schemaItem.dialCode}
       fieldName={name}
       isDisabled={schemaItem.isDisabled}

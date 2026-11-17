@@ -4,6 +4,7 @@ import React, {
   useContext,
   useCallback,
   useMemo,
+  useRef,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
 import type { ApplicationPayload } from "entities/Application";
@@ -42,7 +43,18 @@ import type {
 import {
   getIsSavingAppName,
   getIsErroredSavingAppName,
+  getIsSavingAppDescription,
 } from "ee/selectors/applicationSelectors";
+import {
+  APP_DESCRIPTION_MAX_LENGTH,
+  isAppDescriptionInputValid,
+  normalizeAppDescription,
+} from "utils/appDescription";
+import {
+  APP_CARD_DESCRIPTION_PLACEHOLDER,
+  GENERAL_SETTINGS_APP_DESCRIPTION_TOO_LONG,
+  createMessage,
+} from "ee/constants/messages";
 import ForkApplicationModal from "./ForkApplicationModal";
 import { getExportAppAPIRoute } from "ee/constants/ApiConstants";
 import { builderURL, viewerURL } from "ee/RouteBuilder";
@@ -75,6 +87,36 @@ interface ApplicationCardProps {
   workspaceId: string;
 }
 
+const DescriptionEditorWrapper = styled.div`
+  /* The empty state must read as a placeholder, not as a value. */
+  &&&& .bp3-editable-text-placeholder .bp3-editable-text-content {
+    color: var(--ads-v2-color-fg-muted);
+  }
+
+  /* Read mode wraps to three lines so a description is legible without opening
+     it. Blueprint sets the content height inline and ads-old's TextContainer pins
+     width, min-width and line-height with !important, hence the overrides. */
+  &&&& .bp3-editable-text:not(.bp3-editable-text-editing) {
+    height: auto !important;
+    white-space: normal !important;
+  }
+
+  &&&&
+    .bp3-editable-text:not(.bp3-editable-text-editing)
+    .bp3-editable-text-content {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+    white-space: normal !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    line-height: var(--ads-v2-line-height-4) !important;
+  }
+`;
+
 const IconScrollWrapper = styled.div`
   position: relative;
 
@@ -106,6 +148,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const theme = useContext(ThemeContext);
   const isSavingName = useSelector(getIsSavingAppName);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
+  const isSavingDescription = useSelector(getIsSavingAppDescription);
   const currentUser = useSelector(getCurrentUserSelector);
   const initialsAndColorCode = getInitialsAndColorCode(
     application.name,
@@ -122,7 +165,28 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const [isForkApplicationModalopen, setForkApplicationModalOpen] =
     useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
+  // Raw draft of the menu's description field (null until the user types),
+  // flushed when the menu closes without the field blurring first.
+  const [lastUpdatedDescription, setLastUpdatedDescription] = useState<
+    string | null
+  >(null);
+  // Last value handed to `update`; blur and menu-close can both fire for one edit.
+  const lastSubmittedDescriptionRef = useRef<string | null>(null);
+  const wasSavingDescriptionRef = useRef(false);
   const dispatch = useDispatch();
+
+  useEffect(
+    function forgetSubmittedDescriptionWhenSaveSettles() {
+      // Once the request has succeeded or failed, the store comparison alone
+      // decides whether a value is new, so the same value can be retried.
+      if (wasSavingDescriptionRef.current && !isSavingDescription) {
+        lastSubmittedDescriptionRef.current = null;
+      }
+
+      wasSavingDescriptionRef.current = isSavingDescription;
+    },
+    [isSavingDescription],
+  );
 
   const applicationId = application.id;
   const baseApplicationId = application.baseId;
@@ -241,6 +305,29 @@ export function ApplicationCard(props: ApplicationCardProps) {
         icon: icon,
       });
   };
+  // Shared by the field's blur and the menu-close flush; both are no-ops when
+  // nothing changed or the value is over the limit.
+  const saveDescription = (value: string | null) => {
+    if (value === null) return;
+
+    const trimmed = normalizeAppDescription(value);
+
+    if (!isAppDescriptionInputValid(trimmed)) return;
+
+    if (
+      trimmed === (application.description || "") ||
+      trimmed === lastSubmittedDescriptionRef.current
+    ) {
+      return;
+    }
+
+    lastSubmittedDescriptionRef.current = trimmed;
+    props.update &&
+      props.update(applicationId, {
+        description: trimmed,
+      });
+    setLastUpdatedDescription(null);
+  };
   const shareApp = () => {
     props.share && props.share(applicationId);
   };
@@ -329,6 +416,8 @@ export function ApplicationCard(props: ApplicationCardProps) {
             name: lastUpdatedValue,
           });
       }
+
+      saveDescription(lastUpdatedDescription);
     } else {
       setIsMenuOpen(true);
       setIsDeleting(false);
@@ -386,6 +475,34 @@ export function ApplicationCard(props: ApplicationCardProps) {
                 }
                 underline
               />
+              <DescriptionEditorWrapper data-testid="t--application-description-editor">
+                <EditableText
+                  className="px-3 pb-2 t--application-description"
+                  defaultValue={application.description || ""}
+                  editInteractionKind={EditInteractionKind.SINGLE}
+                  fill
+                  hideEditIcon={false}
+                  isInvalid={(value: string) =>
+                    isAppDescriptionInputValid(normalizeAppDescription(value))
+                      ? false
+                      : createMessage(
+                          GENERAL_SETTINGS_APP_DESCRIPTION_TOO_LONG,
+                          APP_DESCRIPTION_MAX_LENGTH,
+                        )
+                  }
+                  maxLines={3}
+                  multiline
+                  onBlurEverytime={saveDescription}
+                  onDraftChange={setLastUpdatedDescription}
+                  placeholder={createMessage(APP_CARD_DESCRIPTION_PLACEHOLDER)}
+                  savingState={
+                    isSavingDescription
+                      ? SavingState.STARTED
+                      : SavingState.NOT_STARTED
+                  }
+                  underline
+                />
+              </DescriptionEditorWrapper>
             </div>
           )}
           {hasEditPermission && (
@@ -550,6 +667,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       setShowOverlay={setShowOverlay}
       showGitBadge={Boolean(showGitBadge)}
       showOverlay={showOverlay}
+      subtitle={application.description}
       testId={`t--application-card ${application.name}`}
       title={application.name}
       titleTestId="t--app-card-name"

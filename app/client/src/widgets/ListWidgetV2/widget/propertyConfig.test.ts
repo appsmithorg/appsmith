@@ -3,6 +3,7 @@ import _ from "lodash";
 import {
   defaultSelectedItemValidation,
   primaryColumnValidation,
+  PropertyPaneContentConfig,
 } from "./propertyConfig";
 import type { ListWidgetProps } from ".";
 import type { ValidationResponse } from "constants/WidgetValidation";
@@ -312,5 +313,29 @@ describe(".defaultSelectedItemValidation", () => {
 
       expect(output).toEqual(expected(value));
     }
+  });
+});
+
+describe("disableSelection property config", () => {
+  const itemSelectionSection = PropertyPaneContentConfig.find(
+    (section) => section.sectionName === "Item selection",
+  );
+  const onItemClickConfig = itemSelectionSection?.children.find(
+    (child) => "propertyName" in child && child.propertyName === "onItemClick",
+  );
+  const hidden =
+    onItemClickConfig && "hidden" in onItemClickConfig
+      ? onItemClickConfig.hidden
+      : undefined;
+
+  it("hides onItemClick when disableSelection is true", () => {
+    expect(hidden?.({ disableSelection: true } as ListWidgetProps)).toBe(true);
+  });
+
+  it("shows onItemClick when disableSelection is missing or false", () => {
+    expect(hidden?.({} as ListWidgetProps)).toBe(false);
+    expect(hidden?.({ disableSelection: false } as ListWidgetProps)).toBe(
+      false,
+    );
   });
 });

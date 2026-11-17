@@ -233,6 +233,14 @@ export interface PropertyPaneControlConfig {
    */
   disabledHelpText?: string;
   /**
+   * When true and `shouldDisableSection` returns true, the pane shows the
+   * property's raw stored value as read-only text. A binding shows as its
+   * `{{ }}` source, not its evaluated result. Objects and arrays show
+   * nothing. When false or unset, a disabled property shows no value, as
+   * before.
+   */
+  showValueWhenDisabled?: boolean;
+  /**
    * If true, the property is hidden.
    * Note: hidden and invisible do the same thing but differently. hidden uses a callback to determine if the property should be hidden.
    * invisible is a boolean flag to hide the property.
@@ -320,6 +328,11 @@ export interface PropertyPaneControlConfig {
    * will depend on the control type and its individual requirements.
    */
   controlConfig?: Record<string, unknown>;
+  /**
+   * Text for the empty field of a `COLOR_PICKER` control. When unset, the
+   * field shows its own default text. Other controls ignore it.
+   */
+  colorPlaceholderText?: string;
   /**
    * The default value of the property.
    */

@@ -11,6 +11,9 @@ public class ElasticSearchErrorMessages extends BasePluginErrorMessages {
 
     public static final String QUERY_EXECUTION_FAILED_ERROR_MSG = "Error occurred while executing Elasticsearch query.";
 
+    public static final String INVALID_BINDING_ERROR_MSG =
+            "Elasticsearch action contains an invalid request body or path binding.";
+
     public static final String NOT_FOUND_ERROR_MSG =
             "Either your host URL is invalid or the page you are trying to access does not exist";
 

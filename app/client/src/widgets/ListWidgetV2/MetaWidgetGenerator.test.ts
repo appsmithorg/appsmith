@@ -90,7 +90,7 @@ const levelData: LevelData = {
       },
       List6: {
         entityDefinition:
-          "backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,triggeredItem: List6.triggeredItem,selectedItemView: List6.selectedItemView,triggeredItemView: List6.triggeredItemView,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize",
+          "backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,disableSelection: List6.disableSelection,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,triggeredItem: List6.triggeredItem,selectedItemView: List6.selectedItemView,triggeredItemView: List6.triggeredItemView,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize",
         rowIndex: 0,
         metaWidgetId: "fs2d2lqjgd",
         metaWidgetName: "List6",
@@ -753,7 +753,7 @@ describe("#generate", () => {
           },
           List6: {
             entityDefinition:
-              "backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItem: List6.triggeredItem,triggeredItemView: List6.triggeredItemView,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize,currentItemsView: List6.currentItemsView",
+              "backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,disableSelection: List6.disableSelection,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItem: List6.triggeredItem,triggeredItemView: List6.triggeredItemView,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize,currentItemsView: List6.currentItemsView",
             rowIndex: 0,
             metaWidgetId: "fs2d2lqjgd",
             metaWidgetName: "List6",
@@ -906,7 +906,7 @@ describe("#generate", () => {
     const expectedLevel_1 = {
       currentView: {
         List6:
-          "{{{backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,triggeredItem: List6.triggeredItem,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize}}}",
+          "{{{backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,disableSelection: List6.disableSelection,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,triggeredItem: List6.triggeredItem,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize}}}",
       },
     };
 
@@ -982,7 +982,7 @@ describe("#generate", () => {
     });
 
     const expectedDataBinding =
-      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        ,\n          List6: { backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItemView: List6.triggeredItemView,items: List6.items,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize,selectedItemIndex: List6.selectedItemIndex,triggeredItemIndex: List6.triggeredItemIndex }\n        \n      }\n    }}";
+      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        ,\n          List6: { backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,disableSelection: List6.disableSelection,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItemView: List6.triggeredItemView,items: List6.items,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize,selectedItemIndex: List6.selectedItemIndex,triggeredItemIndex: List6.triggeredItemIndex }\n        \n      }\n    }}";
 
     Object.values(initialResult.metaWidgets).forEach((widget) => {
       if (widget.type === "CONTAINER_WIDGET") {
@@ -1024,7 +1024,7 @@ describe("#generate", () => {
     };
 
     const expectedDataBinding =
-      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        ,\n          List6: { backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItem: List6.triggeredItem,triggeredItemView: List6.triggeredItemView,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize,currentItemsView: List6.currentItemsView }\n        \n      }\n    }}";
+      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        ,\n          List6: { backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,disableSelection: List6.disableSelection,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItem: List6.triggeredItem,triggeredItemView: List6.triggeredItemView,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize,currentItemsView: List6.currentItemsView }\n        \n      }\n    }}";
 
     const count = Object.keys(metaWidgets).length;
 

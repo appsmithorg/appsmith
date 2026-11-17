@@ -39,6 +39,7 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ArtifactCopyAudit;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -63,6 +64,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.UnaryOperator;
 
 import static com.appsmith.server.helpers.ce.PolicyUtil.policyMapToSet;
 
@@ -122,8 +124,16 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 .collectList()
                 .cache();
 
-        final Mono<String> updateTargetEnvironmentIdMono = workspaceService
-                .getDefaultEnvironmentId(toWorkspaceId, null)
+        // Resolved once, before anything is written to the destination, so a failure here leaves nothing behind.
+        // The override must yield exactly one transformer: an empty result would let destination creation proceed
+        // while every action's zipWith completes empty and drops the action, forking an application with no actions.
+        final Mono<UnaryOperator<ActionDTO>> forkedActionTransformerMono = getForkedActionTransformer(
+                        sourceMeta, toWorkspaceId)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)))
+                .cache();
+
+        final Mono<String> updateTargetEnvironmentIdMono = forkedActionTransformerMono
+                .then(Mono.defer(() -> workspaceService.getDefaultEnvironmentId(toWorkspaceId, null)))
                 .doOnNext(targetEnvironmentId -> {
                     targetMeta.setEnvironmentId(targetEnvironmentId);
                 });
@@ -304,6 +314,11 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                                 }
                                                 return Mono.zip(
                                                         actionMono
+                                                                .zipWith(
+                                                                        forkedActionTransformerMono,
+                                                                        (sourceActionDTO, forkedActionTransformer) ->
+                                                                                forkedActionTransformer.apply(
+                                                                                        sourceActionDTO))
                                                                 .flatMap(actionDTO -> {
                                                                     actionDTO.setId(null);
                                                                     // Indicates that source of action creation is fork
@@ -354,6 +369,19 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(appId -> applicationPageService.publish(appId, false).thenReturn(appId))
                 .collectList();
+    }
+
+    /**
+     * Resolves the transform applied to every action as it is forked into {@code toWorkspaceId}. It is resolved once,
+     * before anything is written to the destination, so an implementation can fail the fork when the source holds
+     * references that cannot be carried into the destination workspace. CE actions hold none, so this is identity.
+     *
+     * @param sourceMeta    source workspace and application of the fork
+     * @param toWorkspaceId destination workspace
+     */
+    protected Mono<UnaryOperator<ActionDTO>> getForkedActionTransformer(
+            ForkingMetaDTO sourceMeta, String toWorkspaceId) {
+        return Mono.just(UnaryOperator.identity());
     }
 
     /**
@@ -490,8 +518,10 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
         // means that even if the subscriber has cancelled its subscription, the create method still generates its
         // event.
-        return Mono.create(
-                sink -> forkApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+        // Suppress wraps the inner mono (same pattern as Git reload), so create/update/publish audit rows
+        // from the copy are skipped. The forked row is not in that skip list.
+        return Mono.create(sink -> ArtifactCopyAudit.suppress(forkApplicationMono)
+                .subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     public Mono<ApplicationImportDTO> forkApplicationToWorkspace(
@@ -531,11 +561,13 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     String sourceEnvironmentId = tuple.getT2();
                     return forkApplicationToWorkspaceWithEnvironment(
                                     fromApplicationId, targetWorkspaceId, sourceEnvironmentId)
-                            .flatMap(application -> importService.getArtifactImportDTO(
+                            // The response step runs the page layout pass again, after the copy
+                            // suppress above has ended. Skip those rows too. The fork row is already written.
+                            .flatMap(application -> ArtifactCopyAudit.suppress(importService.getArtifactImportDTO(
                                     application.getWorkspaceId(),
                                     application.getId(),
                                     application,
-                                    ArtifactType.APPLICATION))
+                                    ArtifactType.APPLICATION)))
                             .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
                 });
     }

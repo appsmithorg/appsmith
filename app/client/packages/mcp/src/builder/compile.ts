@@ -200,11 +200,12 @@ function compileWidgetAt(
       const tabId = ctx.idGen();
       const canvasId = ctx.idGen();
       const canvasName = ctx.names.allocate("Canvas");
+      // A tab's canvas is a full 64-column grid whatever the tabs widget's own span is (see INNER_CANVAS_COLUMNS).
       const inner = stackWidgets(
         tab.children ?? [],
         ctx,
         canvasId,
-        columns,
+        INNER_CANVAS_COLUMNS,
         0,
         depth + 1,
       );
@@ -216,7 +217,7 @@ function compileWidgetAt(
         canvasId,
         canvasName,
         widgetId,
-        columns,
+        INNER_CANVAS_COLUMNS,
         rows,
         inner.nodes,
       );
@@ -269,11 +270,13 @@ function compileWidgetAt(
   if (built.children !== undefined) {
     const innerId = ctx.idGen();
     const innerName = ctx.names.allocate("Canvas");
+    // The inner canvas is a full 64-column grid whatever the container's own span is (see INNER_CANVAS_COLUMNS):
+    // a modal 32 columns wide still lays its fields out across 64 inner columns.
     const inner = stackWidgets(
       built.children ?? [],
       ctx,
       innerId,
-      columns,
+      INNER_CANVAS_COLUMNS,
       0,
       depth + 1,
     );
@@ -282,7 +285,7 @@ function compileWidgetAt(
       innerId,
       innerName,
       widgetId,
-      columns,
+      INNER_CANVAS_COLUMNS,
       rows,
       inner.nodes,
     );
@@ -347,6 +350,9 @@ function compileCardWidget(
   params: CardWidgetParams,
 ): WidgetNode {
   const { columns, widgetId, widgetName } = params;
+  // Everything inside the list is laid out in its own 64-column canvases (see INNER_CANVAS_COLUMNS); `columns` is
+  // only the list widget's span in ITS parent's grid.
+  const cardColumns = INNER_CANVAS_COLUMNS;
   const mainCanvasId = ctx.idGen();
   const containerId = ctx.idGen();
   const innerCanvasId = ctx.idGen();
@@ -376,7 +382,7 @@ function compileCardWidget(
         parentId: innerCanvasId,
         topRow: cursor,
         leftColumn: 0,
-        columns,
+        columns: cardColumns,
         rows: CARD_IMAGE_ROWS,
         props,
       }),
@@ -406,7 +412,7 @@ function compileCardWidget(
       parentId: innerCanvasId,
       topRow: cursor,
       leftColumn: 0,
-      columns,
+      columns: cardColumns,
       rows: CARD_TEXT_ROWS,
       props: titleProps,
     }),
@@ -435,7 +441,7 @@ function compileCardWidget(
         parentId: innerCanvasId,
         topRow: cursor,
         leftColumn: 0,
-        columns,
+        columns: cardColumns,
         rows: CARD_TEXT_ROWS,
         props,
       }),
@@ -458,7 +464,7 @@ function compileCardWidget(
     innerCanvasId,
     innerCanvasName,
     containerId,
-    columns,
+    cardColumns,
     contentRows,
     templateChildren,
   );
@@ -475,7 +481,7 @@ function compileCardWidget(
     parentId: mainCanvasId,
     topRow: 0,
     leftColumn: 0,
-    columns,
+    columns: cardColumns,
     rows: contentRows,
     props: {
       isCanvas: true,
@@ -518,7 +524,7 @@ function compileCardWidget(
     topRow: 0,
     bottomRow: contentRows,
     leftColumn: 0,
-    rightColumn: columns,
+    rightColumn: cardColumns,
     parentColumnSpace: 1,
     parentRowSpace: 1,
     dynamicBindingPathList: [],
@@ -563,6 +569,13 @@ function compileCardWidget(
     children: [mainCanvas],
   });
 }
+
+// The column budget of every INNER canvas. The client snaps each canvas to GridDefaults.DEFAULT_GRID_COLUMNS (64)
+// regardless of its pixel width (getSnappedGrid: width / 64), so a widget inside a 32-column modal that spans columns
+// 0..32 renders across half the modal. Nested content is therefore always laid out in 64 columns; only the container
+// widget's own node carries its span in the parent grid. [Found on the deploy preview: modal fields in a half-width
+// strip, halving again per nesting level.]
+export const INNER_CANVAS_COLUMNS = GRID_COLUMNS;
 
 function stackWidgets(
   specs: WidgetSpec[],
@@ -872,10 +885,9 @@ export function applyEdit(
 
     if (placement.note) notes.push(placement.note);
 
-    const availableColumns =
-      placement.canvas.widgetId === ROOT_WIDGET_ID
-        ? GRID_COLUMNS
-        : placement.canvas.rightColumn;
+    // Every canvas, root or inner, is a 64-column grid (an inner canvas's stored rightColumn is the pixel width the
+    // client last rendered, not a column count).
+    const availableColumns = GRID_COLUMNS;
     // Single-spec design pass: the same role inference as build_application (so a KPI text appended via edit_page
     // styles identically to one built with the app), but no cross-widget packing and never a pageTitle — each
     // `add` entry places independently against its own placement target.
