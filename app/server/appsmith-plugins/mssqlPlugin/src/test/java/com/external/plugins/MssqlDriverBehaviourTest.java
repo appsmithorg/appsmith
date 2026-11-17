@@ -1,0 +1,245 @@
+package com.external.plugins;
+
+import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Property;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.zaxxer.hikari.HikariDataSource;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.stream.Stream;
+
+import static com.external.plugins.MssqlTestDBContainerManager.createDatasourceConfiguration;
+import static com.external.plugins.MssqlTestDBContainerManager.mssqlPluginExecutor;
+import static com.external.plugins.MssqlTestDBContainerManager.runSQLQueryOnMssqlTestDB;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/**
+ * Pins what the plugin returns for each SQL Server column type and for update counts. These values come from the JDBC
+ * driver, so a driver upgrade must keep them. The expected values were recorded on mssql-jdbc 11.2.4 (APP-16536).
+ */
+@Testcontainers
+public class MssqlDriverBehaviourTest {
+
+    @SuppressWarnings("rawtypes")
+    @Container
+    public static final MSSQLServerContainer container = MssqlTestDBContainerManager.getMssqlDBForTest();
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    private static HikariDataSource pool;
+
+    // One row with every column type the test gate lists. SQL Server 2022 has no json or vector type. Two types are
+    // left out, because any SELECT that includes them already fails on driver 11.2.4 (existing bugs, not pinned here):
+    // - rowversion: the plugin reads it as a date ("The conversion from timestamp to DATE is unsupported").
+    // - datetimeoffset: the driver returns microsoft.sql.DateTimeOffset, which the plugin's JSON mapper cannot write.
+    private static final String CREATE_TYPES_TABLE = "CREATE TABLE driver_types ("
+            + " c_int int, c_bigint bigint, c_decimal decimal(10, 2), c_money money, c_bit bit,"
+            + " c_float float, c_nvarchar nvarchar(50), c_varbinary varbinary(8), c_uniqueidentifier uniqueidentifier,"
+            + " c_date date, c_time time, c_datetime datetime, c_datetime2 datetime2, c_smalldatetime smalldatetime,"
+            + " c_xml xml, c_sql_variant sql_variant)";
+
+    private static final String INSERT_TYPES_ROW = "INSERT INTO driver_types (c_int, c_bigint, c_decimal, c_money,"
+            + " c_bit, c_float, c_nvarchar, c_varbinary, c_uniqueidentifier, c_date, c_time, c_datetime, c_datetime2,"
+            + " c_smalldatetime, c_xml, c_sql_variant) VALUES ("
+            + " 2147483647, 9223372036854775807, 12345.67, 922337203685477.5807, 1,"
+            + " 1.5, N'héllo wörld', 0xDEADBEEF, '6F9619FF-8B86-D011-B42D-00C04FC964FF',"
+            + " '2024-02-29', '13:45:30.1234567', '2024-02-29 13:45:30.123', '2024-02-29 13:45:30.1234567',"
+            + " '2024-02-29 13:45:00', '<a b=\"1\">text</a>', CAST(42 AS int))";
+
+    private static final String CREATE_DML_TABLE = "CREATE TABLE driver_dml (id int PRIMARY KEY, name nvarchar(20))";
+    private static final String CREATE_AUDIT_TABLE = "CREATE TABLE driver_audit (id int, note nvarchar(20))";
+    private static final String CREATE_TRIGGERED_TABLE =
+            "CREATE TABLE driver_triggered (id int PRIMARY KEY, name nvarchar(20))";
+    // The trigger writes 3 audit rows for each inserted row, so its update count (3) differs from the insert's (1).
+    private static final String CREATE_TRIGGER = "CREATE TRIGGER driver_triggered_audit ON driver_triggered"
+            + " AFTER INSERT AS INSERT INTO driver_audit (id, note)"
+            + " SELECT i.id, N'added' FROM inserted i CROSS JOIN (VALUES (1), (2), (3)) AS copies (n)";
+
+    @BeforeAll
+    public static void setUp() throws SQLException {
+        pool = mssqlPluginExecutor
+                .datasourceCreate(createDatasourceConfiguration(container))
+                .block();
+        runSQLQueryOnMssqlTestDB(CREATE_TYPES_TABLE, pool);
+        runSQLQueryOnMssqlTestDB(INSERT_TYPES_ROW, pool);
+        runSQLQueryOnMssqlTestDB(CREATE_DML_TABLE, pool);
+        runSQLQueryOnMssqlTestDB(CREATE_AUDIT_TABLE, pool);
+        runSQLQueryOnMssqlTestDB(CREATE_TRIGGERED_TABLE, pool);
+        runSQLQueryOnMssqlTestDB(CREATE_TRIGGER, pool);
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        if (pool != null) {
+            pool.close();
+        }
+    }
+
+    private ActionExecutionResult run(String sql, boolean preparedStatement) {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(sql);
+        actionConfiguration.setPluginSpecifiedTemplates(
+                List.of(new Property("preparedStatement", String.valueOf(preparedStatement))));
+
+        ActionExecutionResult result = mssqlPluginExecutor
+                .executeParameterized(pool, new ExecuteActionDTO(), dsConfig, actionConfiguration)
+                .block();
+
+        assertNotNull(result);
+        assertTrue(result.getIsExecutionSuccess(), () -> "query failed: " + sql + " -> " + result.getBody());
+
+        return result;
+    }
+
+    // The expected row as JSON text. Decimals are read as BigDecimal, so money and decimal keep every digit.
+    private static String expectedTypeSnapshot() throws IOException {
+        try (InputStream in = MssqlDriverBehaviourTest.class.getResourceAsStream("/mssql-driver-type-snapshot.json")) {
+            assertNotNull(in, "missing test resource mssql-driver-type-snapshot.json");
+            return objectMapper
+                    .copy()
+                    .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                    .readTree(in)
+                    .toString();
+        }
+    }
+
+    // The plugin returns datetime, datetime2 and smalldatetime as epoch milliseconds in the JVM's time zone. To keep
+    // the snapshot the same in any zone, each one must be a number, and is then compared as a local date-time.
+    private static final List<String> EPOCH_MILLIS_COLUMNS = List.of("c_datetime", "c_datetime2", "c_smalldatetime");
+
+    // Every column type comes back with the same JSON value, with prepared statements on and off. The values are
+    // compared as JSON text, so a number that turns into a string (or the reverse) fails too.
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    public void columnTypes_returnTheRecordedJson(boolean preparedStatement) throws IOException {
+        ActionExecutionResult result = run("SELECT * FROM driver_types", preparedStatement);
+        ObjectNode row = (ObjectNode) ((ArrayNode) result.getBody()).get(0).deepCopy();
+
+        for (String column : EPOCH_MILLIS_COLUMNS) {
+            JsonNode value = row.get(column);
+
+            assertTrue(value.isIntegralNumber(), () -> column + " should be epoch milliseconds, got " + value);
+            row.put(
+                    column,
+                    LocalDateTime.ofInstant(Instant.ofEpochMilli(value.asLong()), ZoneId.systemDefault())
+                            .toString());
+        }
+
+        assertEquals(
+                expectedTypeSnapshot(),
+                row.toString(),
+                () -> "column values changed. Actual row: " + row.toPrettyString());
+    }
+
+    // Each case: label, SQL, affectedRows with prepared statements on, affectedRows with prepared statements off.
+    static Stream<Arguments> updateCountCases() {
+        return Stream.of(
+                Arguments.of("an insert of two rows", "INSERT INTO driver_dml VALUES (1, N'a'), (2, N'b')", 2, 2),
+                Arguments.of("an update of one row", "UPDATE driver_dml SET name = N'c' WHERE id = 1", 1, 1),
+                Arguments.of("a delete of two rows", "DELETE FROM driver_dml WHERE id IN (1, 2)", 2, 2),
+                Arguments.of(
+                        "two statements",
+                        "INSERT INTO driver_dml VALUES (3, N'd'), (4, N'e'); UPDATE driver_dml SET name = N'f' WHERE id = 3",
+                        2,
+                        2),
+                // Driver 11.2.4 reported the trigger's count (3) in both modes. 13.6.2 reports the insert's own count
+                // (1) when prepared statements are off (APP-16536).
+                Arguments.of("an insert that fires a trigger", "INSERT INTO driver_triggered VALUES (1, N'f')", 3, 1));
+    }
+
+    // affectedRows is the driver's update count. 12.2 and 13.2 changed how the driver reports counts for several
+    // statements and for triggers, so each case is pinned with prepared statements on and off. The counts differ on
+    // purpose, so a change of which count the driver reports fails the test:
+    // - two statements: the first count is 2, the last is 1, and the sum is 3;
+    // - a trigger: the insert's count is 1, the trigger's is 3, and the sum is 4. The trigger runs without
+    //   SET NOCOUNT ON, so it has a count of its own.
+    @ParameterizedTest(name = "{0}, prepared statement {3}")
+    @MethodSource("updateCountCasesBothModes")
+    public void updateCounts_matchTheRecordedValues(
+            String label, String sql, int expectedAffectedRows, boolean preparedStatement) throws SQLException {
+        runSQLQueryOnMssqlTestDB(
+                "DELETE FROM driver_audit; DELETE FROM driver_triggered; DELETE FROM driver_dml", pool);
+
+        if (sql.startsWith("UPDATE") || sql.startsWith("DELETE")) {
+            runSQLQueryOnMssqlTestDB("INSERT INTO driver_dml VALUES (1, N'a'), (2, N'b')", pool);
+        }
+
+        ActionExecutionResult result = run(sql, preparedStatement);
+        JsonNode body = ((ArrayNode) result.getBody()).get(0);
+
+        assertEquals(expectedAffectedRows, body.get("affectedRows").asInt(), () -> label + ": " + result.getBody());
+    }
+
+    static Stream<Arguments> updateCountCasesBothModes() {
+        return updateCountCases().flatMap(args -> Stream.of(true, false).map(prepared -> {
+            Object[] values = args.get();
+
+            return Arguments.of(values[0], values[1], prepared ? values[2] : values[3], prepared);
+        }));
+    }
+
+    // Test configuration shows the driver's message for a failed login. Pin its text, so a driver upgrade cannot
+    // replace it with a less useful one.
+    @Test
+    public void testDatasource_withAWrongPassword_showsTheLoginFailedMessage() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        ((DBAuth) dsConfig.getAuthentication()).setPassword("wrong-password");
+
+        DatasourceTestResult result =
+                mssqlPluginExecutor.testDatasource(dsConfig).block();
+
+        assertNotNull(result);
+        assertTrue(
+                result.getInvalids().stream()
+                        .anyMatch(message ->
+                                message.contains("Login failed for user") && !message.contains("wrong-password")),
+                () -> "unexpected messages: " + result.getInvalids());
+    }
+
+    // Driver 13.2 returns SQL Server 2025 and Azure SQL vector columns as a driver object. The plugin turns it off,
+    // so a vector column keeps coming back as a JSON string.
+    @Test
+    public void connectionUrl_turnsOffTheNativeVectorType() {
+        HikariDataSource connectionPool = mssqlPluginExecutor
+                .datasourceCreate(createDatasourceConfiguration(container))
+                .block();
+
+        assertNotNull(connectionPool);
+
+        try {
+            assertTrue(
+                    connectionPool.getJdbcUrl().contains("vectorTypeSupport=off;"),
+                    () -> "JDBC URL should turn off the native vector type: " + connectionPool.getJdbcUrl());
+        } finally {
+            connectionPool.close();
+        }
+    }
+}
