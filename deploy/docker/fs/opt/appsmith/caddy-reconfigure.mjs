@@ -46,8 +46,46 @@ if (CUSTOM_DOMAIN !== "") {
 
 }
 
-const frameAncestorsPolicy = (process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS || "'self'")
-  .replace(/;.*$/, "")
+// One CSP frame-ancestors source expression: the wildcard, a scheme source, or
+// a host source with an optional scheme, wildcard label, port, and path.
+const FRAME_ANCESTORS_SOURCE =
+  /^(?:\*|[A-Za-z][A-Za-z0-9+.-]*:|(?:[A-Za-z][A-Za-z0-9+.-]*:\/\/)?(?:\*|(?:\*\.)?[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.?)(?::(?:[0-9]+|\*))?(?:\/[A-Za-z0-9._~%+:@=&\/-]*)?)$/
+
+// Returns the value as a space-separated list of CSP frame-ancestors source
+// expressions. Returns "" when the value is blank, and null when any part of
+// it is not a source expression. EnvManagerCEImpl applies the same rules when
+// an administrator saves the setting.
+function normalizeFrameAncestors(value) {
+  const text = value || ""
+  // A source expression holds printable ASCII only. This check covers the
+  // whole value, including line breaks and other control characters.
+  if (/[^\x20-\x7E]/.test(text)) {
+    return null
+  }
+  const tokens = text.split(" ").filter((token) => token !== "")
+  if (tokens.length === 1 && tokens[0].toLowerCase() === "'none'") {
+    return "'none'"
+  }
+  const sources = []
+  for (const token of tokens) {
+    if (token.toLowerCase() === "'self'") {
+      sources.push("'self'")
+    } else if (FRAME_ANCESTORS_SOURCE.test(token)) {
+      sources.push(token)
+    } else {
+      return null
+    }
+  }
+  return sources.join(" ")
+}
+
+let configuredFrameAncestors = normalizeFrameAncestors(process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS)
+if (configuredFrameAncestors === null) {
+  console.warn("APPSMITH_ALLOWED_FRAME_ANCESTORS is not a list of CSP frame-ancestors sources. Using 'self'.")
+  configuredFrameAncestors = ""
+}
+
+const frameAncestorsPolicy = configuredFrameAncestors || "'self'"
 
 const parts = []
 
