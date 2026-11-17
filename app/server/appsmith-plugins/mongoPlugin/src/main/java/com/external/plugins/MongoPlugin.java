@@ -936,7 +936,8 @@ public class MongoPlugin extends BasePlugin {
          * Returns the positions of the query that are inside a string literal. A string literal starts at a single
          * or double quote and ends at the next occurrence of the same quote that has no backslash before it. The
          * position of the closing quote counts as inside, and the position of the opening quote does not. A quote
-         * inside a regex literal, such as /O'Reilly/, does not start a string literal.
+         * inside a regex literal, such as /O'Reilly/, does not start a string literal. The scan reads each character
+         * a bounded number of times, so its cost is linear in the length of the query.
          *
          * @param query - query text
          * @return - one bit per character of the query, set when the character is inside a string literal
@@ -944,15 +945,20 @@ public class MongoPlugin extends BasePlugin {
         private static BitSet findStringLiteralPositions(String query) {
             final BitSet inside = new BitSet(query.length());
             char openQuote = 0;
+            // Where the last regex literal search stopped without a closing slash. A slash before this position was
+            // escaped in that search, and a search from it would stop at the same position, so it is not repeated.
+            int unclosedRegexSearchStop = -1;
             for (int i = 0; i < query.length(); i++) {
                 final char current = query.charAt(i);
                 if (openQuote == 0) {
                     if (current == '"' || current == '\'') {
                         openQuote = current;
-                    } else if (current == '/') {
-                        final int regexLiteralEnd = findRegexLiteralEnd(query, i);
-                        if (regexLiteralEnd > i) {
-                            i = regexLiteralEnd;
+                    } else if (current == '/' && i > unclosedRegexSearchStop) {
+                        final int regexLiteralStop = findRegexLiteralStop(query, i);
+                        if (regexLiteralStop < query.length() && query.charAt(regexLiteralStop) == '/') {
+                            i = regexLiteralStop;
+                        } else {
+                            unclosedRegexSearchStop = regexLiteralStop;
                         }
                     }
                     continue;
@@ -972,15 +978,15 @@ public class MongoPlugin extends BasePlugin {
         }
 
         /**
-         * Returns the position of the slash that closes the regex literal that starts at the given slash, or -1
-         * when the literal is not closed on the same line. A slash that has a backslash before it does not close
-         * the literal.
+         * Returns the position where the search for the end of the regex literal that starts at the given slash
+         * stops: the closing slash, a line break, or the end of the query. A slash that has a backslash before it
+         * does not close the literal.
          */
-        private static int findRegexLiteralEnd(String query, int start) {
+        private static int findRegexLiteralStop(String query, int start) {
             for (int i = start + 1; i < query.length(); i++) {
                 final char current = query.charAt(i);
                 if (current == '\n' || current == '\r') {
-                    return -1;
+                    return i;
                 }
                 if (current == '\\') {
                     i++;
@@ -988,7 +994,7 @@ public class MongoPlugin extends BasePlugin {
                     return i;
                 }
             }
-            return -1;
+            return query.length();
         }
 
         /**
