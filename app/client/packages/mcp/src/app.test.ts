@@ -405,7 +405,11 @@ function createApi(
     createDatasource: jest.fn(),
     getDatasourceStructure: jest.fn(),
     triggerDatasource: jest.fn(),
-    getApplicationPages: jest.fn(async () => ({ workspaceId: "ws1" })),
+    // Default: one page, p1, so the create tools find their target page in the application.
+    getApplicationPages: jest.fn(async () => ({
+      workspaceId: "ws1",
+      pages: [{ id: "p1", name: "Page1" }],
+    })),
     // Default: no layouts, so F3 layoutId surfacing degrades to undefined unless a test overrides it.
     getPage: jest.fn(async () => ({})),
     // Default: a non-git application (no gitApplicationMetadata) so layout-edit tests see no git warning and the
@@ -3157,7 +3161,10 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     );
     const api: AppsmithApi = {
       ...createApi()(),
-      getApplicationPages: jest.fn(async () => ({ workspaceId: "wsB" })),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "wsB",
+        pages: [{ id: "p1", name: "Page1" }],
+      })),
       listDatasources,
       listActions: jest.fn(async () => []),
       createAction,
@@ -3920,98 +3927,118 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
 
   // The "already exists" result of every create tool returns the action's safe metadata only. The stored action
   // can hold secrets in its configuration (a body, headers or an email), written by anyone who can edit it.
-  it.each([
-    ["create_query", "query", validQuery, "postgres-plugin"],
+  const CREATE_TOOL_CASES: [string, string, Record<string, unknown>, string][] =
     [
-      "create_rest_api",
-      "api",
-      {
-        name: "getUsers",
-        applicationId: "app1",
-        pageId: "p1",
-        datasourceId: "ds1",
-        method: "GET",
-        path: "/things",
-      },
-      "restapi-plugin",
-    ],
-    [
-      "create_mongo_query",
-      "query",
-      { ...mongoQuery, name: "getUsers" },
-      "mongo-plugin",
-    ],
-    [
-      "create_redis_query",
-      "query",
-      {
-        name: "getUsers",
-        applicationId: "app1",
-        pageId: "p1",
-        datasourceId: "ds1",
-        command: "GET",
-        key: "k",
-      },
-      "redis-plugin",
-    ],
-    [
-      "create_ai_query",
-      "query",
-      {
-        name: "getUsers",
-        applicationId: "app1",
-        pageId: "p1",
-        datasourceId: "ds1",
-        model: "gpt-4o",
-        messages: [{ role: "user", content: { literal: "hi" } }],
-      },
-      "openai-plugin",
-    ],
-    [
-      "create_s3_query",
-      "query",
-      {
-        name: "getUsers",
-        applicationId: "app1",
-        pageId: "p1",
-        datasourceId: "ds1",
-        operation: "upload",
-        bucket: "my-bucket",
-        path: { literal: "docs/a.txt" },
-        body: { widget: "Editor", property: "text" },
-      },
-      "amazons3-plugin",
-    ],
-    [
-      "create_graphql_query",
-      "query",
-      {
-        name: "getUsers",
-        applicationId: "app1",
-        pageId: "p1",
-        datasourceId: "ds1",
-        query: "query { a }",
-      },
-      "graphql-plugin",
-    ],
-    [
-      "create_sheets_query",
-      "query",
-      {
-        name: "getUsers",
-        applicationId: "app1",
-        pageId: "p1",
-        datasourceId: "ds1",
-        sheetUrl: "https://docs.google.com/spreadsheets/d/1AbC_dEf-123/edit",
-        sheetName: "Sheet1",
-        operation: "append",
-        row: [
-          { column: "name", value: { widget: "NameInput", property: "text" } },
-        ],
-      },
-      "google-sheets-plugin",
-    ],
-  ])(
+      ["create_query", "query", validQuery, "postgres-plugin"],
+      [
+        "create_rest_api",
+        "api",
+        {
+          name: "getUsers",
+          applicationId: "app1",
+          pageId: "p1",
+          datasourceId: "ds1",
+          method: "GET",
+          path: "/things",
+        },
+        "restapi-plugin",
+      ],
+      [
+        "create_mongo_query",
+        "query",
+        { ...mongoQuery, name: "getUsers" },
+        "mongo-plugin",
+      ],
+      [
+        "create_redis_query",
+        "query",
+        {
+          name: "getUsers",
+          applicationId: "app1",
+          pageId: "p1",
+          datasourceId: "ds1",
+          command: "GET",
+          key: "k",
+        },
+        "redis-plugin",
+      ],
+      [
+        "create_ai_query",
+        "query",
+        {
+          name: "getUsers",
+          applicationId: "app1",
+          pageId: "p1",
+          datasourceId: "ds1",
+          model: "gpt-4o",
+          messages: [{ role: "user", content: { literal: "hi" } }],
+        },
+        "openai-plugin",
+      ],
+      [
+        "create_s3_query",
+        "query",
+        {
+          name: "getUsers",
+          applicationId: "app1",
+          pageId: "p1",
+          datasourceId: "ds1",
+          operation: "upload",
+          bucket: "my-bucket",
+          path: { literal: "docs/a.txt" },
+          body: { widget: "Editor", property: "text" },
+        },
+        "amazons3-plugin",
+      ],
+      [
+        "create_graphql_query",
+        "query",
+        {
+          name: "getUsers",
+          applicationId: "app1",
+          pageId: "p1",
+          datasourceId: "ds1",
+          query: "query { a }",
+        },
+        "graphql-plugin",
+      ],
+      [
+        "create_sheets_query",
+        "query",
+        {
+          name: "getUsers",
+          applicationId: "app1",
+          pageId: "p1",
+          datasourceId: "ds1",
+          sheetUrl: "https://docs.google.com/spreadsheets/d/1AbC_dEf-123/edit",
+          sheetName: "Sheet1",
+          operation: "append",
+          row: [
+            {
+              column: "name",
+              value: { widget: "NameInput", property: "text" },
+            },
+          ],
+        },
+        "google-sheets-plugin",
+      ],
+      [
+        "create_smtp_query",
+        "query",
+        {
+          name: "getUsers",
+          applicationId: "app1",
+          pageId: "p1",
+          datasourceId: "ds1",
+          from: "noreply@example.com",
+          to: "ops@example.com",
+          subject: "Hello",
+        },
+        "smtp-plugin",
+      ],
+    ];
+
+  it.each(CREATE_TOOL_CASES)(
     "%s returns only safe metadata for an action that already exists",
     async (tool, argKey, spec, packageName) => {
       const createAction = jest.fn();
@@ -4045,6 +4072,35 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
       expect(body.created).toBe(false);
       expect(body.action).toMatchObject({ id: "existing", name: "getUsers" });
       expect(JSON.stringify(body)).not.toContain("SECRET");
+      expect(createAction).not.toHaveBeenCalled();
+    },
+  );
+
+  // The server files an action under its page's own application, so a page from another (for example a
+  // git-connected) application would skip the branch gate and datasource check run for applicationId.
+  it.each(CREATE_TOOL_CASES)(
+    "%s refuses a page that is not in the application",
+    async (tool, argKey, spec, packageName) => {
+      const createAction = jest.fn();
+      const listActions = jest.fn(async () => []);
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getApplicationPages: jest.fn(async () => ({
+          workspaceId: "ws1",
+          pages: [{ id: "p-other", name: "Home" }],
+        })),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "Source", pluginId: packageName },
+        ]),
+        listPlugins: jest.fn(async () => [{ id: packageName, packageName }]),
+        listActions,
+        createAction,
+      };
+      const body = await callTool(api, tool, { [argKey]: spec });
+
+      expect(body.code).toBe("page_not_found");
+      expect(body.error).toBe("page p1 is not in application app1");
+      expect(listActions).not.toHaveBeenCalled();
       expect(createAction).not.toHaveBeenCalled();
     },
   );
@@ -8026,6 +8082,7 @@ describe("governance-wrapped layout mutations", () => {
 
       // Then
       expect(copied.body.error).toBe("page p1 is not in application app2");
+      expect(copied.body.code).toBe("page_not_found");
       expect(createAction).not.toHaveBeenCalled();
     });
 
@@ -9897,6 +9954,37 @@ describe("governance-wrapped layout mutations", () => {
       expect(duplicated.body.revision).toBe(copy.body.revision);
     });
 
+    it("duplicate_action leaves the revision out when the copy cannot be read after the pin", async () => {
+      const stored = {
+        ...STORED_ACTION,
+        pluginId: "smtp-plugin",
+        datasource: { id: "ds1", pluginId: "smtp-plugin" },
+        actionConfiguration: SMTP_SEND,
+      };
+      const { server } = emailServer(SMTP_SEND, {
+        getAction: jest.fn(async (_applicationId: string, actionId: string) => {
+          if (actionId === "act1") return stored;
+
+          throw new Error("read failed");
+        }),
+      });
+      const before = await readAct1(server);
+      const duplicated = await callTool(server, "duplicate_action", {
+        spec: {
+          kind: "SMTP",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.revision,
+          name: "OldNameCopy",
+        },
+      });
+
+      // The pin moved the copy's revision on, so the revision from before the pin must not be returned.
+      expect(duplicated.body.duplicated).toBe(true);
+      expect(duplicated.body.revision).toBeUndefined();
+      expect(duplicated.body.revisionUnavailable).toMatch(/get_action/);
+    });
+
     it("duplicate_action pins a copy of an email whose plugin cannot be read (fail closed)", async () => {
       const { api, server } = emailServer(SMTP_SEND, {
         listPlugins: jest.fn(async () => {
@@ -11229,6 +11317,40 @@ describe("governance-wrapped layout mutations", () => {
     ).toBe("{{ appsmith.store.zipResults ?? [] }}");
   });
 
+  it("create_js_object refuses a page that is not in the application", async () => {
+    const createActionCollection = jest.fn();
+    const listActionCollections = jest.fn(async () => []);
+    const api: AppsmithApi = {
+      ...createApi()(),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "w".repeat(24),
+        pages: [{ id: "c".repeat(24), name: "Home" }],
+      })),
+      listPlugins: jest.fn(async () => [
+        { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
+      ]),
+      listActionCollections,
+      createActionCollection,
+    };
+    const server = createMcpHttpServer(API_BASE_URL, () => api, {
+      jsEnabled: true,
+      governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+    });
+    const created = await callTool(server, "create_js_object", {
+      spec: {
+        applicationId: "a".repeat(24),
+        pageId: "b".repeat(24),
+        name: "Helpers",
+        revision: "r".repeat(64),
+        functions: [{ name: "loadUsers", run: [{ query: "getUsers" }] }],
+      },
+    });
+
+    expect(created.body.code).toBe("page_not_found");
+    expect(listActionCollections).not.toHaveBeenCalled();
+    expect(createActionCollection).not.toHaveBeenCalled();
+  });
+
   it("create_js_object resolves plugin/workspace and commits a governed, restricted JS object", async () => {
     const store = new MemoryGovernanceStore();
     const APP = "a".repeat(24);
@@ -11240,6 +11362,7 @@ describe("governance-wrapped layout mutations", () => {
       ...createApi()(),
       getApplicationPages: jest.fn(async () => ({
         workspaceId: "w".repeat(24),
+        pages: [{ id: "b".repeat(24), name: "Home" }],
       })),
       listPlugins: jest.fn(async () => [
         { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
@@ -12267,6 +12390,7 @@ describe("governance-wrapped layout mutations", () => {
       ...createApi()(),
       getApplicationPages: jest.fn(async () => ({
         workspaceId: "w".repeat(24),
+        pages: [{ id: "b".repeat(24), name: "Home" }],
       })),
       listPlugins: jest.fn(async () => [
         { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
@@ -12440,6 +12564,7 @@ describe("governance-wrapped layout mutations", () => {
       ...createApi()(),
       getApplicationPages: jest.fn(async () => ({
         workspaceId: "w".repeat(24),
+        pages: [{ id: "b".repeat(24), name: "Home" }],
       })),
       listPlugins: jest.fn(async () => [
         { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
@@ -12802,6 +12927,7 @@ describe("governance-wrapped layout mutations", () => {
       ...createApi()(),
       getApplicationPages: jest.fn(async () => ({
         workspaceId: "w".repeat(24),
+        pages: [{ id: "b".repeat(24), name: "Home" }],
       })),
       listPlugins: jest.fn(async () => [
         { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
@@ -13040,6 +13166,7 @@ describe("governance-wrapped layout mutations", () => {
       ...createApi()(),
       getApplicationPages: jest.fn(async () => ({
         workspaceId: "w".repeat(24),
+        pages: [{ id: "b".repeat(24), name: "Home" }],
       })),
       listPlugins: jest.fn(async () => [
         { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
@@ -13581,6 +13708,7 @@ describe("governance-wrapped layout mutations", () => {
       ...createApi()(),
       getApplicationPages: jest.fn(async () => ({
         workspaceId: "w".repeat(24),
+        pages: [{ id: "b".repeat(24), name: "Home" }],
       })),
       listPlugins: jest.fn(async () => [
         { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },
@@ -13669,7 +13797,10 @@ describe("governance-wrapped layout mutations", () => {
       ...createApi()(),
       getApplicationPages: jest.fn(async () => ({
         workspaceId: "w".repeat(24),
-        pages: [{ id: "c".repeat(24), name: "Ticket Details" }],
+        pages: [
+          { id: "b".repeat(24), name: "Home" },
+          { id: "c".repeat(24), name: "Ticket Details" },
+        ],
       })),
       listPlugins: jest.fn(async () => [
         { id: "p".repeat(24), type: "JS", packageName: "js-plugin" },

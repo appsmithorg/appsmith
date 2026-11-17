@@ -65,11 +65,25 @@ function partsFormBinding(parts: readonly (string | WidgetRef)[]): boolean {
 
   if (RAW_EXPRESSION.test(literals)) return true;
 
-  return parts.some((part, index) => {
+  // Merge adjacent literals first, so the text that touches a reference is the whole run. Otherwise an empty
+  // literal, as in ["{", "", ref], would hide the brace from the check below.
+  const runs: (string | WidgetRef)[] = [];
+
+  for (const part of parts) {
+    const last = runs[runs.length - 1];
+
+    if (typeof part === "string" && typeof last === "string") {
+      runs[runs.length - 1] = last + part;
+    } else {
+      runs.push(part);
+    }
+  }
+
+  return runs.some((part, index) => {
     if (typeof part !== "string") return false;
 
-    const next = parts[index + 1];
-    const previous = parts[index - 1];
+    const next = runs[index + 1];
+    const previous = runs[index - 1];
 
     return (
       (next !== undefined && typeof next !== "string" && /[{$]$/.test(part)) ||

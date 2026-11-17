@@ -211,6 +211,9 @@ describe("create_smtp_query builder", () => {
       "a binding widened across references",
       ["a{", BASE.to, " + 1 ", BASE.to, "}"],
     ],
+    // An empty literal must not hide a brace from its reference.
+    ["an empty literal before a reference", ["{", "", BASE.to]],
+    ["an empty literal after a reference", [BASE.to, "", "}"]],
   ])("refuses list parts that join into a binding: %s", (_label, parts) => {
     expect(
       smtpQuerySpecSchema.safeParse({ ...BASE, body: parts }).success,

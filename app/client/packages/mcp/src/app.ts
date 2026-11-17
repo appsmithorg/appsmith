@@ -1450,6 +1450,11 @@ function workspaceIdFromApplicationPages(
   return typeof workspaceId === "string" ? workspaceId : undefined;
 }
 
+// Whether a page is in an application's page list (the getApplicationPages response).
+function pageInApplication(response: unknown, pageId: string): boolean {
+  return projectPages(response).some((page) => page.id === pageId);
+}
+
 // Safe page-list metadata: never returns DSL, actions, or bindings — only identity/name/slug/visibility. This is
 // both the read projection and the basis for the page-list revision used for optimistic concurrency on page CRUD.
 function projectPages(
@@ -7478,20 +7483,6 @@ export function buildMcpServer(
       );
     }
 
-    // The revision of an action, re-read after a change made outside the governed write (the Manual pin). Falls back
-    // to `fallback` when the re-read fails.
-    async function freshRevision(
-      scope: ActionScope,
-      actionId: string,
-      fallback: string,
-    ): Promise<string> {
-      try {
-        return fingerprintAction(await getScopedAction(scope, actionId));
-      } catch {
-        return fallback;
-      }
-    }
-
     // Whether an email query in this scope needs the Manual run-behaviour pin. Applications always do. A container
     // without page load (hasPageLoad false) does not.
     function scopeHasPageLoad(scope: ActionScope): boolean {
@@ -7583,13 +7574,23 @@ export function buildMcpServer(
 
         // Resolve the workspace SERVER-AUTHORITATIVELY from the application — never trust an agent-supplied
         // workspaceId — so a datasource can only be bound within the target page's own workspace (cross-tenant guard).
-        const workspaceId = workspaceIdFromApplicationPages(
-          await api.getApplicationPages(spec.applicationId),
+        const applicationPages = await api.getApplicationPages(
+          spec.applicationId,
         );
+        const workspaceId = workspaceIdFromApplicationPages(applicationPages);
 
         if (typeof workspaceId !== "string") {
           return result({
             error: `could not resolve the workspace for application ${spec.applicationId}`,
+          });
+        }
+
+        // The server files the action under its page's own application. So the page must be in the application
+        // that the branch gate above and the datasource check below ran for.
+        if (!pageInApplication(applicationPages, spec.pageId)) {
+          return result({
+            error: `page ${spec.pageId} is not in application ${spec.applicationId}`,
+            code: "page_not_found",
           });
         }
 
@@ -7675,13 +7676,23 @@ export function buildMcpServer(
 
         if (!gate.ok) return gate.result;
 
-        const workspaceId = workspaceIdFromApplicationPages(
-          await api.getApplicationPages(spec.applicationId),
+        const applicationPages = await api.getApplicationPages(
+          spec.applicationId,
         );
+        const workspaceId = workspaceIdFromApplicationPages(applicationPages);
 
         if (typeof workspaceId !== "string") {
           return result({
             error: `could not resolve the workspace for application ${spec.applicationId}`,
+          });
+        }
+
+        // The server files the action under its page's own application. So the page must be in the application
+        // that the branch gate above and the datasource check below ran for.
+        if (!pageInApplication(applicationPages, spec.pageId)) {
+          return result({
+            error: `page ${spec.pageId} is not in application ${spec.applicationId}`,
+            code: "page_not_found",
           });
         }
 
@@ -7756,13 +7767,23 @@ export function buildMcpServer(
 
         // Resolve the workspace SERVER-AUTHORITATIVELY from the application (cross-tenant guard), exactly like
         // create_query.
-        const workspaceId = workspaceIdFromApplicationPages(
-          await api.getApplicationPages(spec.applicationId),
+        const applicationPages = await api.getApplicationPages(
+          spec.applicationId,
         );
+        const workspaceId = workspaceIdFromApplicationPages(applicationPages);
 
         if (typeof workspaceId !== "string") {
           return result({
             error: `could not resolve the workspace for application ${spec.applicationId}`,
+          });
+        }
+
+        // The server files the action under its page's own application. So the page must be in the application
+        // that the branch gate above and the datasource check below ran for.
+        if (!pageInApplication(applicationPages, spec.pageId)) {
+          return result({
+            error: `page ${spec.pageId} is not in application ${spec.applicationId}`,
+            code: "page_not_found",
           });
         }
 
@@ -7889,13 +7910,23 @@ export function buildMcpServer(
 
         if (!gate.ok) return gate.result;
 
-        const workspaceId = workspaceIdFromApplicationPages(
-          await api.getApplicationPages(spec.applicationId),
+        const applicationPages = await api.getApplicationPages(
+          spec.applicationId,
         );
+        const workspaceId = workspaceIdFromApplicationPages(applicationPages);
 
         if (typeof workspaceId !== "string") {
           return result({
             error: `could not resolve the workspace for application ${spec.applicationId}`,
+          });
+        }
+
+        // The server files the action under its page's own application. So the page must be in the application
+        // that the branch gate above and the datasource check below ran for.
+        if (!pageInApplication(applicationPages, spec.pageId)) {
+          return result({
+            error: `page ${spec.pageId} is not in application ${spec.applicationId}`,
+            code: "page_not_found",
           });
         }
 
@@ -7967,13 +7998,23 @@ export function buildMcpServer(
 
         if (!gate.ok) return gate.result;
 
-        const workspaceId = workspaceIdFromApplicationPages(
-          await api.getApplicationPages(spec.applicationId),
+        const applicationPages = await api.getApplicationPages(
+          spec.applicationId,
         );
+        const workspaceId = workspaceIdFromApplicationPages(applicationPages);
 
         if (typeof workspaceId !== "string") {
           return result({
             error: `could not resolve the workspace for application ${spec.applicationId}`,
+          });
+        }
+
+        // The server files the action under its page's own application. So the page must be in the application
+        // that the branch gate above and the datasource check below ran for.
+        if (!pageInApplication(applicationPages, spec.pageId)) {
+          return result({
+            error: `page ${spec.pageId} is not in application ${spec.applicationId}`,
+            code: "page_not_found",
           });
         }
 
@@ -8051,13 +8092,23 @@ export function buildMcpServer(
 
         if (!gate.ok) return gate.result;
 
-        const workspaceId = workspaceIdFromApplicationPages(
-          await api.getApplicationPages(spec.applicationId),
+        const applicationPages = await api.getApplicationPages(
+          spec.applicationId,
         );
+        const workspaceId = workspaceIdFromApplicationPages(applicationPages);
 
         if (typeof workspaceId !== "string") {
           return result({
             error: `could not resolve the workspace for application ${spec.applicationId}`,
+          });
+        }
+
+        // The server files the action under its page's own application. So the page must be in the application
+        // that the branch gate above and the datasource check below ran for.
+        if (!pageInApplication(applicationPages, spec.pageId)) {
+          return result({
+            error: `page ${spec.pageId} is not in application ${spec.applicationId}`,
+            code: "page_not_found",
           });
         }
 
@@ -8129,13 +8180,23 @@ export function buildMcpServer(
 
         if (!gate.ok) return gate.result;
 
-        const workspaceId = workspaceIdFromApplicationPages(
-          await api.getApplicationPages(spec.applicationId),
+        const applicationPages = await api.getApplicationPages(
+          spec.applicationId,
         );
+        const workspaceId = workspaceIdFromApplicationPages(applicationPages);
 
         if (typeof workspaceId !== "string") {
           return result({
             error: `could not resolve the workspace for application ${spec.applicationId}`,
+          });
+        }
+
+        // The server files the action under its page's own application. So the page must be in the application
+        // that the branch gate above and the datasource check below ran for.
+        if (!pageInApplication(applicationPages, spec.pageId)) {
+          return result({
+            error: `page ${spec.pageId} is not in application ${spec.applicationId}`,
+            code: "page_not_found",
           });
         }
 
@@ -8219,13 +8280,23 @@ export function buildMcpServer(
 
         if (!gate.ok) return gate.result;
 
-        const workspaceId = workspaceIdFromApplicationPages(
-          await api.getApplicationPages(spec.applicationId),
+        const applicationPages = await api.getApplicationPages(
+          spec.applicationId,
         );
+        const workspaceId = workspaceIdFromApplicationPages(applicationPages);
 
         if (typeof workspaceId !== "string") {
           return result({
             error: `could not resolve the workspace for application ${spec.applicationId}`,
+          });
+        }
+
+        // The server files the action under its page's own application. So the page must be in the application
+        // that the branch gate above and the datasource check below ran for.
+        if (!pageInApplication(applicationPages, spec.pageId)) {
+          return result({
+            error: `page ${spec.pageId} is not in application ${spec.applicationId}`,
+            code: "page_not_found",
           });
         }
 
@@ -8294,13 +8365,23 @@ export function buildMcpServer(
 
         if (!gate.ok) return gate.result;
 
-        const workspaceId = workspaceIdFromApplicationPages(
-          await api.getApplicationPages(spec.applicationId),
+        const applicationPages = await api.getApplicationPages(
+          spec.applicationId,
         );
+        const workspaceId = workspaceIdFromApplicationPages(applicationPages);
 
         if (typeof workspaceId !== "string") {
           return result({
             error: `could not resolve the workspace for application ${spec.applicationId}`,
+          });
+        }
+
+        // The server files the action under its page's own application. So the page must be in the application
+        // that the branch gate above and the datasource check below ran for.
+        if (!pageInApplication(applicationPages, spec.pageId)) {
+          return result({
+            error: `page ${spec.pageId} is not in application ${spec.applicationId}`,
+            code: "page_not_found",
           });
         }
 
@@ -8809,7 +8890,8 @@ export function buildMcpServer(
                     placeKind,
                   ),
                 );
-                let revision = fingerprintAction(created);
+                // The copy as last read, or undefined when it could not be read after the pin.
+                let saved: unknown = created;
 
                 if (pinCopy) {
                   // Removes the copy again on failure. Throwing keeps the change out of the audit log.
@@ -8823,20 +8905,37 @@ export function buildMcpServer(
                     );
                   }
 
-                  // The pin changes the stored copy, so read its revision again.
+                  // The pin saves the copy again and can change its updatedAt, so the revision comes from a read
+                  // after the pin. If that read fails, the copy is still made and pinned, but its revision is
+                  // unknown: the result leaves the revision out and tells the agent to read the copy first, as
+                  // copy_action does.
                   const createdId = (created as { id?: unknown } | null)?.id;
 
+                  saved = undefined;
+
                   if (typeof createdId === "string") {
-                    revision = await freshRevision(scope, createdId, revision);
+                    try {
+                      saved = await getScopedAction(scope, createdId);
+                    } catch {
+                      saved = undefined;
+                    }
                   }
                 }
 
                 return {
-                  value: {
-                    action: projectAction(created),
-                    revision,
-                  },
-                  revisionAfter: revision,
+                  value:
+                    saved === undefined || saved === null
+                      ? {
+                          action: projectAction(created),
+                          revisionUnavailable:
+                            "read the copy with get_action before you change it",
+                        }
+                      : {
+                          action: projectAction(saved),
+                          revision: fingerprintAction(saved),
+                        },
+                  // The audit record keeps the best revision known.
+                  revisionAfter: fingerprintAction(saved ?? created),
                   rollback: {
                     createdActionId: (created as { id?: string } | null)?.id,
                   },
@@ -8910,11 +9009,10 @@ export function buildMcpServer(
             });
           }
 
-          if (
-            !projectPages(targetPages).some((page) => page.id === target.pageId)
-          ) {
+          if (!pageInApplication(targetPages, target.pageId)) {
             return result({
               error: `page ${target.pageId} is not in application ${target.applicationId}`,
+              code: "page_not_found",
             });
           }
 
@@ -9127,7 +9225,7 @@ export function buildMcpServer(
 
                 return {
                   value:
-                    saved === undefined
+                    saved === undefined || saved === null
                       ? {
                           action: projectAction(created),
                           revisionUnavailable:
@@ -9513,13 +9611,24 @@ export function buildMcpServer(
           if (!gate.ok) return gate.result;
 
           // Resolve workspace + JS plugin server-side; the agent never supplies these ids.
-          const workspaceId = workspaceIdFromApplicationPages(
-            await api.getApplicationPages(applicationId),
-          );
+          const applicationPages = await api.getApplicationPages(applicationId);
+          const workspaceId = workspaceIdFromApplicationPages(applicationPages);
 
           if (typeof workspaceId !== "string") {
             return result({
               error: "could not resolve the workspace or JS plugin",
+            });
+          }
+
+          // The server files the JS object under its page's own application. So the page must be in the application
+          // that the branch gate above and the governance lock below run for.
+          if (
+            typeof raw.pageId === "string" &&
+            !pageInApplication(applicationPages, raw.pageId)
+          ) {
+            return result({
+              error: `page ${raw.pageId} is not in application ${applicationId}`,
+              code: "page_not_found",
             });
           }
 
@@ -9549,10 +9658,7 @@ export function buildMcpServer(
               parsed.data.pageId,
             ) ??
             (navigateTargets(parsed.data).length > 0
-              ? missingNavigatePage(
-                  parsed.data,
-                  projectPages(await api.getApplicationPages(applicationId)),
-                )
+              ? missingNavigatePage(parsed.data, projectPages(applicationPages))
               : undefined);
 
           if (dangling !== undefined) return result({ error: dangling });
