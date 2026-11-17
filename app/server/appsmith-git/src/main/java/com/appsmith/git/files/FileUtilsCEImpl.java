@@ -13,6 +13,7 @@ import com.appsmith.external.git.operations.FileOperations;
 import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.CommonConstants;
+import com.appsmith.git.helpers.RepositoryPathValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.tracing.Span;
 import lombok.Getter;
@@ -240,12 +241,17 @@ public class FileUtilsCEImpl implements FileInterface {
         filePathsFromFS.remove(README_FILE_NAME);
         filePathsFromFS.removeAll(filesPathsFromDB);
 
+        // Resolve every path before the first delete or write, so that a path outside the repository
+        // directory fails the whole operation and leaves the file system unchanged.
+        Map<String, Path> deleteTargets = resolveDeleteTargets(baseRepo, filePathsFromFS);
+        Map<String, Path> writeTargets = resolveWriteTargets(baseRepo, filesPathsFromDB);
+
         // Delete all the files because they are no longer needed
         // This covers both older structures of storing files and,
         // legitimate changes in the artifact that might cause deletions
         filePathsFromFS.stream().parallel().forEach(filePath -> {
             try {
-                Files.deleteIfExists(baseRepo.resolve(filePath));
+                Files.deleteIfExists(deleteTargets.get(filePath));
             } catch (IOException e) {
                 // We ignore files that could not be deleted and expect to come back to this at a later point
                 log.error("Unable to delete file. path={}, repo={}", filePath, baseRepo, e);
@@ -272,7 +278,7 @@ public class FileUtilsCEImpl implements FileInterface {
                     if (resourceUpdated) {
                         log.debug("Resource updated: {}", key.getFilePath());
                         String filePath = key.getFilePath();
-                        saveResourceCommon(entry.getValue(), baseRepo.resolve(filePath));
+                        saveResourceCommon(entry.getValue(), writeTargets.get(filePath));
 
                         return filePath;
                     }
@@ -304,12 +310,17 @@ public class FileUtilsCEImpl implements FileInterface {
         filesInRepo.removeAll(updatedFilesToBeSerialized);
         filesInRepo.remove(README_FILE_NAME);
 
+        // Resolve every path before the first delete or write, so that a path outside the repository
+        // directory fails the whole operation and leaves the file system unchanged.
+        Map<String, Path> deleteTargets = resolveDeleteTargets(baseRepo, filesInRepo);
+        Map<String, Path> writeTargets = resolveWriteTargets(baseRepo, updatedFilesToBeSerialized);
+
         // Delete all the files because they are no longer needed
         // This covers both older structures of storing files and,
         // legitimate changes in the artifact that might cause deletions
         filesInRepo.stream().parallel().forEach(filePath -> {
             try {
-                Files.deleteIfExists(baseRepo.resolve(filePath));
+                Files.deleteIfExists(deleteTargets.get(filePath));
             } catch (IOException e) {
                 // We ignore files that could not be deleted and expect to come back to this at a later point
                 log.error("Unable to delete file. path={}, repo={}", filePath, baseRepo, e);
@@ -333,7 +344,7 @@ public class FileUtilsCEImpl implements FileInterface {
 
                     if (resourceUpdated) {
                         String filePath = key.getFilePath();
-                        saveResourceCommon(entry.getValue(), baseRepo.resolve(filePath));
+                        saveResourceCommon(entry.getValue(), writeTargets.get(filePath));
 
                         return filePath;
                     }
@@ -341,6 +352,22 @@ public class FileUtilsCEImpl implements FileInterface {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
+    }
+
+    private static Map<String, Path> resolveWriteTargets(Path baseRepo, Set<String> filePaths) {
+        Map<String, Path> targets = new HashMap<>();
+        for (String filePath : filePaths) {
+            targets.put(filePath, RepositoryPathValidator.resolveForWrite(baseRepo, filePath));
+        }
+        return targets;
+    }
+
+    private static Map<String, Path> resolveDeleteTargets(Path baseRepo, Set<String> filePaths) {
+        Map<String, Path> targets = new HashMap<>();
+        for (String filePath : filePaths) {
+            targets.put(filePath, RepositoryPathValidator.resolveForDelete(baseRepo, filePath));
+        }
+        return targets;
     }
 
     /**
