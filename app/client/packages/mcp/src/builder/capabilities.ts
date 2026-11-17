@@ -706,6 +706,12 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       summary: "structured Amazon S3 file action (list/read/upload/delete)",
     },
     {
+      name: "create_smtp_query",
+      gate: "data",
+      summary:
+        "structured SMTP email (from, to, cc, bcc, replyTo, subject, body, bodyType); never runs on page load",
+    },
+    {
       name: "create_graphql_query",
       gate: "data",
       summary: "structured GraphQL query/mutation (parameterized variables)",
@@ -719,7 +725,7 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       name: "get_action",
       gate: "data",
       summary:
-        "safe action read + revision; returns the body of SQL this server wrote and nobody edited since",
+        "safe action read + revision; returns the body of SQL this server wrote and nobody edited since, an email's addresses and subject, and an email body this server wrote and nobody edited since",
     },
     {
       name: "run_action",
@@ -776,7 +782,7 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       name: "create_js_object",
       gate: "js_governance",
       summary:
-        "create a restricted JS object from a declarative definition: constants + functions with params, a closed statement vocabulary (let/set, run with params, if/else, forEach, throw, return, showAlert, storeValue, resetWidget) and a bounded expression tree (string/array/number/date/boolean functions, comparisons, widget/query/store refs) — no raw JS (governed)",
+        "create a restricted JS object from a declarative definition: constants + functions with params, a closed statement vocabulary (let/set, run with params, if/else, forEach, throw, return, showAlert, storeValue, resetWidget, log) and a bounded expression tree (string/array/number/date/boolean functions, comparisons, widget/query/store refs) — no raw JS (governed)",
     },
     {
       name: "update_js_object",
