@@ -411,6 +411,15 @@ const UNBOUND_SQL_PACKAGES: ReadonlyMap<string, string> = new Map([
   ["snowflake-plugin", "Snowflake"],
 ]);
 
+// The database name when the plugin pastes `{{ }}` values into the SQL text, such as "Redshift". Otherwise undefined.
+export function unboundSqlDatabase(
+  packageName: string | undefined,
+): string | undefined {
+  return packageName === undefined
+    ? undefined
+    : UNBOUND_SQL_PACKAGES.get(packageName);
+}
+
 // Throws when the body holds a `{{ }}` binding and the plugin cannot bind values. An unknown plugin passes: the
 // tools resolve it from SQL_PLUGIN_IDS, which lists every SQL plugin they accept.
 export function assertBindingsSupported(

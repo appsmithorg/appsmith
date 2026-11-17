@@ -1148,6 +1148,20 @@ describe("M7 gate matrix — every pattern-copied gate call site refuses without
       mutators: ["createAction"],
     },
     {
+      // The gate checks the TARGET app, where the copy is written.
+      tool: "copy_action",
+      args: {
+        spec: {
+          actionId: ENTITY_ID,
+          applicationId: "e".repeat(24),
+          revision: REVISION,
+          name: "copyOfQuery",
+          target: { applicationId: APP_ID, pageId: PAGE_ID },
+        },
+      },
+      mutators: ["createAction"],
+    },
+    {
       tool: "update_js_object",
       args: {
         spec: {

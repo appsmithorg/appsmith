@@ -39,6 +39,12 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     }
 
     @Override
+    public Flux<Datasource> findAllByIds(List<String> ids, AclPermission permission) {
+        final BridgeQuery<Datasource> q = Bridge.in(Datasource.Fields.id, ids);
+        return queryBuilder().criteria(q).permission(permission).all();
+    }
+
+    @Override
     public Mono<Long> countByDeletedAtNull() {
         final BridgeQuery<Datasource> q = Bridge.isNull(Datasource.Fields.deletedAt);
         return queryBuilder().criteria(q).count();
