@@ -7526,6 +7526,7 @@ describe("governance-wrapped layout mutations", () => {
         { id: "dsora", name: "Oracle", pluginId: "oracle-plugin" },
         { id: "dsms", name: "SQL Server", pluginId: "mssql-plugin" },
         { id: "dsmaria", name: "MariaDB", pluginId: "mariadb-plugin" },
+        { id: "dssmtp", name: "Mail", pluginId: "smtp-plugin" },
       ],
       ws2: [{ id: "dspgB", name: "PG B", pluginId: "postgres-plugin" }],
     };
@@ -7934,6 +7935,19 @@ describe("governance-wrapped layout mutations", () => {
           ...PG_SOURCE,
           pluginId: "mongo-plugin",
           datasource: { id: "dsmongo" },
+        },
+        "copy_action supports",
+      ],
+      [
+        // An email copy would skip the Manual pin that duplicate_action gives emails, so copy_action refuses it.
+        "an SMTP email query",
+        {
+          ...PG_SOURCE,
+          pluginId: "smtp-plugin",
+          datasource: { id: "dssmtp" },
+          actionConfiguration: {
+            formData: { command: "SEND", send: { to: "x@example.com" } },
+          },
         },
         "copy_action supports",
       ],
@@ -9660,6 +9674,117 @@ describe("governance-wrapped layout mutations", () => {
 
       expect(updated.body.error).toMatch(/needs an SMTP datasource/);
       expect(updateAction).not.toHaveBeenCalled();
+    });
+
+    it("update_action refuses an SMTP spec that names a PostgreSQL datasource", async () => {
+      const { api, server, updateAction } = emailServer(SMTP_SEND);
+      const before = await readAct1(server);
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SMTP",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.revision,
+          email: { ...EMAIL_SPEC, datasourceId: "ds2" },
+        },
+      });
+
+      expect(updated.body.error).toBe(
+        "an SMTP update needs an SMTP datasource",
+      );
+      expect(updateAction).not.toHaveBeenCalled();
+      expect(api.setActionRunBehaviour).not.toHaveBeenCalled();
+    });
+
+    it("update_action refuses a REST spec for a stored email and writes nothing", async () => {
+      const { api, server, updateAction } = emailServer(SMTP_SEND, {
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "Mail", pluginId: "smtp-plugin" },
+          { id: "dsrest", name: "API", pluginId: "restapi-plugin" },
+        ]),
+        listPlugins: jest.fn(async () => [
+          { id: "smtp-plugin", packageName: "smtp-plugin" },
+          { id: "restapi-plugin", packageName: "restapi-plugin" },
+        ]),
+      });
+      const before = await readAct1(server);
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "REST",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.revision,
+          rest: {
+            name: "OldName",
+            applicationId: "app1",
+            pageId: "p1",
+            datasourceId: "dsrest",
+            method: "GET",
+            path: "/v1/users",
+          },
+        },
+      });
+
+      expect(updated.body.code).toBe("action_kind_mismatch");
+      expect(updateAction).not.toHaveBeenCalled();
+      expect(api.setActionRunBehaviour).not.toHaveBeenCalled();
+    });
+
+    // An email made in the editor may have no formData.send yet. The kind check then sees no email, so the
+    // same-plugin check is what stops a SQL body from landing on the SMTP plugin.
+    it("update_action refuses a SQL spec for an SMTP action without email fields, by its plugin", async () => {
+      const { api, server, updateAction } = emailServer({ body: "" });
+      const before = await readAct1(server);
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SQL",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.revision,
+          query: {
+            name: "OldName",
+            applicationId: "app1",
+            pageId: "p1",
+            datasourceId: "ds2",
+            operation: "SELECT",
+            table: "tickets",
+          },
+        },
+      });
+
+      expect(updated.body.error).toMatch(/same plugin/);
+      expect(updateAction).not.toHaveBeenCalled();
+      expect(api.setActionRunBehaviour).not.toHaveBeenCalled();
+    });
+
+    // The same-plugin check covers email updates too. It reads the plugin the server runs the action on (the
+    // top-level pluginId), so a stored email whose top-level plugin is another one is refused.
+    it("update_action refuses an SMTP spec when the action runs on another plugin", async () => {
+      const { api, server, updateAction } = emailServer(
+        SMTP_SEND,
+        {},
+        {
+          pluginId: "postgres-plugin",
+          unpublishedAction: {
+            pluginId: "smtp-plugin",
+            actionConfiguration: SMTP_SEND,
+          },
+        },
+      );
+      const before = await readAct1(server);
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SMTP",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.revision,
+          email: EMAIL_SPEC,
+        },
+      });
+
+      expect(updated.body.error).toMatch(/same plugin/);
+      expect(updateAction).not.toHaveBeenCalled();
+      expect(api.setActionRunBehaviour).not.toHaveBeenCalled();
     });
   });
 

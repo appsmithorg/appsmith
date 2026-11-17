@@ -8565,6 +8565,11 @@ export function buildMcpServer(
                 error: "an SMTP update needs an SMTP datasource",
               });
             }
+
+            datasourcePluginId = datasourcePluginIdOf(
+              datasources,
+              emailSpec.datasourceId,
+            );
           }
 
           let request: ReturnType<typeof buildUpdateActionDto>;
@@ -8623,7 +8628,9 @@ export function buildMcpServer(
           // - a Redshift action could get SQL compiled for PostgreSQL, with bound values, and still run on Redshift,
           //   which pastes the values into the SQL text;
           // - a SQL action could get a REST body, with widget values, that its SQL plugin then runs as SQL.
-          if (newSource !== undefined) {
+          // An email update rewrites the body too, so the same rule applies to it. Today only one plugin sends
+          // email, but this check reads the plugin the server runs on, not the one the email check above reads.
+          if (newSource !== undefined || emailSpec !== undefined) {
             const storedPluginId = storedActionPluginId(current);
 
             if (storedPluginId === undefined) {
