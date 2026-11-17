@@ -1,5 +1,6 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { klona } from "klona";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -221,6 +222,64 @@ describe("Form Component", () => {
 
       expect(container).toBeInTheDocument();
       expect(mockUpdateFormData).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("native form submit", () => {
+    let nativeSubmits: boolean[];
+    const recordNativeSubmit = (event: Event) =>
+      nativeSubmits.push(event.defaultPrevented);
+
+    beforeEach(() => {
+      mockUseForm();
+      nativeSubmits = [];
+      document.addEventListener("submit", recordNativeSubmit);
+    });
+
+    afterEach(() => {
+      document.removeEventListener("submit", recordNativeSubmit);
+    });
+
+    it("does not reload the page when Enter is pressed in the only field and the footer is hidden", async () => {
+      const onSubmit = jest.fn();
+      const { getByTestId } = render(
+        <Form {...defaultProps} hideFooter onSubmit={onSubmit}>
+          <input data-testid="t--jsonform-single-field" />
+        </Form>,
+      );
+
+      await userEvent.type(
+        getByTestId("t--jsonform-single-field"),
+        "hello{enter}",
+      );
+
+      expect(nativeSubmits).toEqual([true]);
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+
+    it("still runs onSubmit and does not reload the page when the submit button is clicked", () => {
+      const onSubmit = jest.fn();
+      const { getByTestId } = render(
+        <Form {...defaultProps} onSubmit={onSubmit}>
+          <input />
+        </Form>,
+      );
+
+      fireEvent.click(getByTestId(TEST_IDS.SUBMIT_BTN));
+
+      expect(onSubmit).toHaveBeenCalledTimes(1);
+      expect(nativeSubmits).toEqual([true]);
+    });
+
+    it("cancels a native submit event on the form element", () => {
+      const { container } = render(
+        <Form {...defaultProps} hideFooter>
+          <input />
+        </Form>,
+      );
+      const form = container.querySelector("form") as HTMLFormElement;
+
+      expect(fireEvent.submit(form)).toBe(false);
     });
   });
 });

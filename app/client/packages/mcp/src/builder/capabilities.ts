@@ -738,6 +738,12 @@ const CORE_TOOL_LIST: { name: string; gate: CoreToolGate; summary: string }[] =
       summary: "duplicate an action (governed)",
     },
     {
+      name: "copy_action",
+      gate: "data_governance",
+      summary:
+        "copy a SQL or REST query to a page of another app; the query text stays on the server (governed)",
+    },
+    {
       name: "prepare_delete_action",
       gate: "data_governance",
       summary: "prepare action delete",
