@@ -1,0 +1,20 @@
+{
+  "responseMeta": {
+    "status": 200,
+    "success": true
+  },
+  "data": {
+    "statusCode": "PE-RST-5000",
+    "title": "Query execution error",
+    "errorType": "INTERNAL_ERROR",
+    "headers": {},
+    "body": "401 Unauthorized from GET https://api.hubapi.com/cms/v3/hubdb/tables/appsmith1",
+    "readableError": "401 Unauthorized from GET https://api.hubapi.com/cms/v3/hubdb/tables/appsmith1",
+    "isExecutionSuccess": false,
+    "messages": [],
+    "request": {
+      "requestParams": {}
+    },
+    "dataTypes": []
+  }
+}
