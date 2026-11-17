@@ -8788,9 +8788,11 @@ export function buildMcpServer(
                 // run behaviour BEFORE the rewrite. If the pin fails, the email is not rewritten. The pin survives
                 // the update, because the server keeps userSetOnLoad when it updates an action. A container without
                 // page load needs no pin. If the pin succeeds and the rewrite then fails, the action stays pinned to
-                // Manual (the safe state) with no audit entry, and its revision moves on, so the agent must read it
-                // again before a retry.
-                if (emailUpdate && scopeHasPageLoad(scope)) {
+                // Manual (the safe state) with no audit entry, and its revision moves on. The error then tells the
+                // agent to read it again before a retry.
+                const pinFirst = emailUpdate && scopeHasPageLoad(scope);
+
+                if (pinFirst) {
                   try {
                     await api.setActionRunBehaviour(request.actionId, "MANUAL");
                   } catch (error) {
@@ -8802,10 +8804,21 @@ export function buildMcpServer(
                 }
 
                 // The update returns the action after the pin and the rewrite, so its revision is current.
-                const updated = await api.updateAction(
-                  request.actionId,
-                  request.action,
-                );
+                let updated: unknown;
+
+                try {
+                  updated = await api.updateAction(
+                    request.actionId,
+                    request.action,
+                  );
+                } catch (error) {
+                  if (!pinFirst) throw error;
+
+                  throw new GovernedRefusalError(
+                    `the email query was pinned to manual run behaviour, but its update failed (${error instanceof Error ? error.message : "unknown error"}). The pin changed its revision, so read it again with get_action and retry with the new revision`,
+                    "update_failed_after_pin",
+                  );
+                }
 
                 return {
                   value: {

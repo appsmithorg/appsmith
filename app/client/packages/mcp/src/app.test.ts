@@ -9644,8 +9644,11 @@ describe("governance-wrapped layout mutations", () => {
         },
       });
 
-      expect(updated.body.updated).not.toBe(true);
-      expect(JSON.stringify(updated.body)).toContain("update refused");
+      expect(updated.body.updated).toBe(false);
+      expect(updated.body.code).toBe("update_failed_after_pin");
+      expect(updated.body.error).toContain("update refused");
+      // The pin moved the revision on, so the error tells the agent to read the action again.
+      expect(updated.body.error).toContain("get_action");
       expect(api.setActionRunBehaviour).toHaveBeenCalledWith("act1", "MANUAL");
 
       // The pin moved the revision on, so the old one is stale.
