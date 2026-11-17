@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
-import { RAW_EXPRESSION, storedId } from "./schema.js";
+import { entityPropertyPath, RAW_EXPRESSION, storedId } from "./schema.js";
 import { canonicalStableSerialize } from "./semantic.js";
 
 // create_smtp_query: a STRUCTURED email query for the SMTP plugin's Send command. The agent never writes a raw
@@ -25,14 +25,10 @@ const bindingIdentifier = z
   .min(1)
   .max(64)
   .regex(/^[A-Za-z0-9_]+$/, "must be alphanumeric/underscore");
-const propertyPath = z
-  .string()
-  .min(1)
-  .max(128)
-  .regex(/^[A-Za-z_][A-Za-z0-9_.]*$/, "must be a dotted identifier path");
-
+// Every dot-separated segment must be a nonempty identifier, so "text." or "selectedRow..email" is refused instead
+// of compiling to a broken binding.
 const widgetRef = z
-  .object({ widget: bindingIdentifier, property: propertyPath })
+  .object({ widget: bindingIdentifier, property: entityPropertyPath })
   .strict();
 
 type WidgetRef = z.infer<typeof widgetRef>;
@@ -56,6 +52,34 @@ function literalText(max: number, header: boolean) {
     });
 }
 
+// Whether a list of parts would compile to text with binding syntax the compiler did not write. Each literal passes
+// alone, but the joined text can still form a binding in two ways:
+//   - Adjacent literals, such as "{", "{ appsmith.store.secret }" and "}". So the literals are checked joined, with
+//     the references left out.
+//   - A literal next to a reference. A reference compiles to "{{ … }}", so "{" or "$" just before it, or "}" just
+//     after it, would make "{{{", "${{" or "}}}" and widen the binding. So those edges are refused.
+function partsFormBinding(parts: readonly (string | WidgetRef)[]): boolean {
+  const literals = parts
+    .map((part) => (typeof part === "string" ? part : ""))
+    .join("");
+
+  if (RAW_EXPRESSION.test(literals)) return true;
+
+  return parts.some((part, index) => {
+    if (typeof part !== "string") return false;
+
+    const next = parts[index + 1];
+    const previous = parts[index - 1];
+
+    return (
+      (next !== undefined && typeof next !== "string" && /[{$]$/.test(part)) ||
+      (previous !== undefined &&
+        typeof previous !== "string" &&
+        part.startsWith("}"))
+    );
+  });
+}
+
 // One field: literal text, a widget reference, or a list of both that the compiler joins in order.
 function smtpText(max: number, header: boolean) {
   const literal = literalText(max, header);
@@ -66,7 +90,11 @@ function smtpText(max: number, header: boolean) {
     z
       .array(z.union([literal, widgetRef]))
       .min(1)
-      .max(SMTP_PARTS_MAX),
+      .max(SMTP_PARTS_MAX)
+      .refine((parts) => !partsFormBinding(parts), {
+        message:
+          "the parts must not join into binding/template syntax ({{ }}, ${ }, or backticks). A literal must not end with { or $ before a widget reference, or start with } after one",
+      }),
   ]);
 }
 
@@ -234,7 +262,8 @@ function smtpConfigDigest(actionConfiguration: unknown): string {
       canonicalStableSerialize({
         email: smtpEmailOf(actionConfiguration),
         isReplyTo: send.isReplyTo === true,
-        attachments: textOf(send.attachments),
+        // The stored value as it is, so a list of attachments changes the digest too. textOf would read a list as "".
+        attachments: send.attachments ?? "",
         body: textOf((actionConfiguration as { body?: unknown } | null)?.body),
       }),
       "utf8",

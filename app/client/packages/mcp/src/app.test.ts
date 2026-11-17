@@ -3918,6 +3918,137 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     expect(createAction).not.toHaveBeenCalled();
   });
 
+  // The "already exists" result of every create tool returns the action's safe metadata only. The stored action
+  // can hold secrets in its configuration (a body, headers or an email), written by anyone who can edit it.
+  it.each([
+    ["create_query", "query", validQuery, "postgres-plugin"],
+    [
+      "create_rest_api",
+      "api",
+      {
+        name: "getUsers",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        method: "GET",
+        path: "/things",
+      },
+      "restapi-plugin",
+    ],
+    [
+      "create_mongo_query",
+      "query",
+      { ...mongoQuery, name: "getUsers" },
+      "mongo-plugin",
+    ],
+    [
+      "create_redis_query",
+      "query",
+      {
+        name: "getUsers",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        command: "GET",
+        key: "k",
+      },
+      "redis-plugin",
+    ],
+    [
+      "create_ai_query",
+      "query",
+      {
+        name: "getUsers",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        model: "gpt-4o",
+        messages: [{ role: "user", content: { literal: "hi" } }],
+      },
+      "openai-plugin",
+    ],
+    [
+      "create_s3_query",
+      "query",
+      {
+        name: "getUsers",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        operation: "upload",
+        bucket: "my-bucket",
+        path: { literal: "docs/a.txt" },
+        body: { widget: "Editor", property: "text" },
+      },
+      "amazons3-plugin",
+    ],
+    [
+      "create_graphql_query",
+      "query",
+      {
+        name: "getUsers",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        query: "query { a }",
+      },
+      "graphql-plugin",
+    ],
+    [
+      "create_sheets_query",
+      "query",
+      {
+        name: "getUsers",
+        applicationId: "app1",
+        pageId: "p1",
+        datasourceId: "ds1",
+        sheetUrl: "https://docs.google.com/spreadsheets/d/1AbC_dEf-123/edit",
+        sheetName: "Sheet1",
+        operation: "append",
+        row: [
+          { column: "name", value: { widget: "NameInput", property: "text" } },
+        ],
+      },
+      "google-sheets-plugin",
+    ],
+  ])(
+    "%s returns only safe metadata for an action that already exists",
+    async (tool, argKey, spec, packageName) => {
+      const createAction = jest.fn();
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getApplicationPages: jest.fn(async () => ({
+          workspaceId: "ws1",
+          pages: [{ id: "p1", name: "Home" }],
+        })),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "Source", pluginId: packageName },
+        ]),
+        listPlugins: jest.fn(async () => [{ id: packageName, packageName }]),
+        listActions: jest.fn(async () => [
+          {
+            id: "existing",
+            name: "getUsers",
+            pageId: "p1",
+            pluginId: packageName,
+            actionConfiguration: {
+              body: "token=SECRET",
+              headers: [{ key: "Authorization", value: "Bearer SECRET" }],
+              formData: { send: { to: "SECRET@example.com" } },
+            },
+          },
+        ]),
+        createAction,
+      };
+      const body = await callTool(api, tool, { [argKey]: spec });
+
+      expect(body.created).toBe(false);
+      expect(body.action).toMatchObject({ id: "existing", name: "getUsers" });
+      expect(JSON.stringify(body)).not.toContain("SECRET");
+      expect(createAction).not.toHaveBeenCalled();
+    },
+  );
+
   it("create_redis_query refuses a non-Redis datasource", async () => {
     const createAction = jest.fn();
     const api: AppsmithApi = {
@@ -9370,8 +9501,42 @@ describe("governance-wrapped layout mutations", () => {
       });
     });
 
-    it("update_action reports, but keeps, an email update whose Manual pin fails", async () => {
-      const { server } = emailServer(
+    it("update_action pins Manual before it rewrites the email", async () => {
+      const { api, server, updateAction } = emailServer({
+        formData: { send: { to: "x@example.com" } },
+      });
+      const before = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SMTP",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.body.revision,
+          email: EMAIL_SPEC,
+        },
+      });
+
+      expect(updated.body.updated).toBe(true);
+
+      const pinOrder = (api.setActionRunBehaviour as jest.Mock).mock
+        .invocationCallOrder[0];
+
+      expect(pinOrder).toBeLessThan(updateAction.mock.invocationCallOrder[0]);
+
+      // The returned revision is the one get_action now reports, so a follow-up update is not refused as stale.
+      const after = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+
+      expect(updated.body.revision).toBe(after.body.revision);
+    });
+
+    it("update_action does not rewrite an email whose Manual pin fails", async () => {
+      const { server, updateAction } = emailServer(
         { formData: { send: { to: "x@example.com" } } },
         {
           setActionRunBehaviour: jest.fn(async () => {
@@ -9393,8 +9558,163 @@ describe("governance-wrapped layout mutations", () => {
         },
       });
 
-      expect(updated.body.updated).toBe(true);
+      expect(updated.body.updated).toBe(false);
       expect(updated.body.code).toBe("run_behaviour_not_pinned");
+      expect(updated.body.error).toContain("route down");
+      expect(updateAction).not.toHaveBeenCalled();
+    });
+
+    it("update_action leaves the email pinned and reports no update when the rewrite fails after the pin", async () => {
+      const { api, server } = emailServer(
+        { formData: { send: { to: "x@example.com" } } },
+        {
+          updateAction: jest.fn(async () => {
+            throw new Error("update refused");
+          }) as never,
+        },
+      );
+      const before = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SMTP",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.body.revision,
+          email: EMAIL_SPEC,
+        },
+      });
+
+      expect(updated.body.updated).not.toBe(true);
+      expect(JSON.stringify(updated.body)).toContain("update refused");
+      expect(api.setActionRunBehaviour).toHaveBeenCalledWith("act1", "MANUAL");
+
+      // The pin moved the revision on, so the old one is stale.
+      const after = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+
+      expect(after.body.revision).not.toBe(before.body.revision);
+    });
+
+    // A server whose stored email changes between update_action's first read and its read under the lock.
+    function emailServerChangingUnderLock(change: Record<string, unknown>) {
+      const base = {
+        ...STORED_ACTION,
+        pluginId: "smtp-plugin",
+        datasource: { id: "ds1", pluginId: "smtp-plugin" },
+        actionConfiguration: {
+          formData: { command: "SEND", send: { to: "x@example.com" } },
+        },
+      };
+      let armed = false;
+      let readsWhileArmed = 0;
+      const built = emailServer(
+        {},
+        {
+          getAction: jest.fn(async () => {
+            if (!armed) return base;
+
+            readsWhileArmed += 1;
+
+            return readsWhileArmed === 1 ? base : { ...base, ...change };
+          }),
+        },
+      );
+
+      return { ...built, arm: () => (armed = true) };
+    }
+
+    it("update_action refuses an email that changed before the lock was taken", async () => {
+      const { api, arm, server, updateAction } = emailServerChangingUnderLock({
+        updatedAt: "2026-11-12T00:00:00.000Z",
+      });
+      const before = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+
+      arm();
+
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SMTP",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.body.revision,
+          email: EMAIL_SPEC,
+        },
+      });
+
+      expect(updated.body.code).toBe("revision_conflict");
+      expect(api.setActionRunBehaviour).not.toHaveBeenCalled();
+      expect(updateAction).not.toHaveBeenCalled();
+    });
+
+    it("update_action refuses an email that gained attachments before the lock was taken", async () => {
+      const { api, arm, server, updateAction } = emailServerChangingUnderLock({
+        actionConfiguration: {
+          formData: {
+            command: "SEND",
+            send: { to: "x@example.com", attachments: [{ name: "a.pdf" }] },
+          },
+        },
+      });
+      const before = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+
+      arm();
+
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SMTP",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.body.revision,
+          email: EMAIL_SPEC,
+        },
+      });
+
+      expect(updated.body.code).toBe("smtp_attachments_present");
+      expect(api.setActionRunBehaviour).not.toHaveBeenCalled();
+      expect(updateAction).not.toHaveBeenCalled();
+    });
+
+    it("create_smtp_query returns only safe metadata for an action that already exists", async () => {
+      const { server } = emailServer(
+        {},
+        {
+          getApplicationPages: jest.fn(async () => ({
+            workspaceId: "ws1",
+            pages: [{ id: "p1", name: "Home" }],
+          })),
+          listActions: jest.fn(async () => [
+            {
+              id: "act1",
+              name: "OldName",
+              pageId: "p1",
+              pluginId: "smtp-plugin",
+              actionConfiguration: {
+                formData: { command: "SEND", send: { to: "x@example.com" } },
+                body: "token=SECRET",
+                headers: [{ key: "Authorization", value: "Bearer SECRET" }],
+              },
+            },
+          ]),
+        },
+      );
+      const body = await callTool(server, "create_smtp_query", {
+        query: EMAIL_SPEC,
+      });
+
+      expect(body.body.created).toBe(false);
+      expect(body.body.action).toMatchObject({ id: "act1", name: "OldName" });
+      expect(JSON.stringify(body.body)).not.toContain("SECRET");
     });
 
     const SMTP_SEND = {

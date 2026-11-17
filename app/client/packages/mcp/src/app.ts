@@ -2155,6 +2155,17 @@ async function pinManualRunBehaviour(
   }
 }
 
+// Thrown inside a governed mutate to refuse the change with a stable code, after a check that must run under the
+// lock. Throwing keeps the change out of the audit log. The handler returns the message and code.
+class GovernedRefusalError extends Error {
+  constructor(
+    message: string,
+    readonly code: string,
+  ) {
+    super(message);
+  }
+}
+
 // Thrown inside duplicate_action's governed mutate when the copy of an email query could not be pinned to Manual run
 // behaviour. Throwing keeps the change out of the audit log. `stillPresent` is true when the copy could not be removed.
 class RunBehaviourNotPinnedError extends Error {
@@ -7611,7 +7622,7 @@ export function buildMcpServer(
           return result({
             created: false,
             reason: "a query with this name already exists on this page",
-            action: existing,
+            action: projectAction(existing),
           });
         }
 
@@ -7700,7 +7711,7 @@ export function buildMcpServer(
           return result({
             created: false,
             reason: "an action with this name already exists on this page",
-            action: existing,
+            action: projectAction(existing),
           });
         }
 
@@ -7782,7 +7793,7 @@ export function buildMcpServer(
           return result({
             created: false,
             reason: "a query with this name already exists on this page",
-            action: existing,
+            action: projectAction(existing),
           });
         }
 
@@ -7914,7 +7925,7 @@ export function buildMcpServer(
           return result({
             created: false,
             reason: "a query with this name already exists on this page",
-            action: existing,
+            action: projectAction(existing),
           });
         }
 
@@ -7998,7 +8009,7 @@ export function buildMcpServer(
           return result({
             created: false,
             reason: "a query with this name already exists on this page",
-            action: existing,
+            action: projectAction(existing),
           });
         }
 
@@ -8076,7 +8087,7 @@ export function buildMcpServer(
           return result({
             created: false,
             reason: "a query with this name already exists on this page",
-            action: existing,
+            action: projectAction(existing),
           });
         }
 
@@ -8154,7 +8165,7 @@ export function buildMcpServer(
           return result({
             created: false,
             reason: "a query with this name already exists on this page",
-            action: existing,
+            action: projectAction(existing),
           });
         }
 
@@ -8245,7 +8256,7 @@ export function buildMcpServer(
           return result({
             created: false,
             reason: "a query with this name already exists on this page",
-            action: existing,
+            action: projectAction(existing),
           });
         }
 
@@ -8320,7 +8331,7 @@ export function buildMcpServer(
           return result({
             created: false,
             reason: "a query with this name already exists on this page",
-            action: existing,
+            action: projectAction(existing),
           });
         }
 
@@ -8669,6 +8680,47 @@ export function buildMcpServer(
               expectedRevision: parsed.data.revision,
               currentRevision: fingerprintAction(current),
               mutate: async () => {
+                // The revision and attachment checks above read the action before the lock. Read it again under the
+                // lock, so a change made in between is refused instead of overwritten. The server does not compare
+                // revisions, so this narrows the window. It cannot close it against an edit made in the editor.
+                const latest = await getScopedAction(scope, request.actionId);
+                const latestRevision = fingerprintAction(latest);
+
+                if (latestRevision !== fingerprintAction(current)) {
+                  throw new GovernanceRevisionConflictError(
+                    parsed.data.revision,
+                    latestRevision,
+                  );
+                }
+
+                if (
+                  emailSpec !== undefined &&
+                  smtpHasAttachments(actionSource(latest)?.actionConfiguration)
+                ) {
+                  throw new GovernedRefusalError(
+                    "this email has attachments set in the editor. An update here would remove them, so update it in the editor",
+                    "smtp_attachments_present",
+                  );
+                }
+
+                // An email query must never run on page load. One written in the editor may be set to, so pin Manual
+                // run behaviour BEFORE the rewrite. If the pin fails, the email is not rewritten. The pin survives
+                // the update, because the server keeps userSetOnLoad when it updates an action. A container without
+                // page load needs no pin. If the pin succeeds and the rewrite then fails, the action stays pinned to
+                // Manual (the safe state) with no audit entry, and its revision moves on, so the agent must read it
+                // again before a retry.
+                if (emailUpdate && scopeHasPageLoad(scope)) {
+                  try {
+                    await api.setActionRunBehaviour(request.actionId, "MANUAL");
+                  } catch (error) {
+                    throw new GovernedRefusalError(
+                      `the email query was not updated, because it could not be pinned to manual run behaviour first (${error instanceof Error ? error.message : "unknown error"}). Read it again with get_action and retry with the new revision, or set it to "Manual" in the editor's run-behaviour dropdown first`,
+                      "run_behaviour_not_pinned",
+                    );
+                  }
+                }
+
+                // The update returns the action after the pin and the rewrite, so its revision is current.
                 const updated = await api.updateAction(
                   request.actionId,
                   request.action,
@@ -8686,37 +8738,16 @@ export function buildMcpServer(
               },
             });
 
-            // An email query must never run on page load. One written in the editor may be set to, so pin Manual run
-            // behaviour after an SMTP update. The update is already recorded, so a failure is reported, not undone.
-            // A container without page load needs no pin.
-            if (emailUpdate && scopeHasPageLoad(scope)) {
-              try {
-                await api.setActionRunBehaviour(request.actionId, "MANUAL");
-              } catch (error) {
-                return result({
-                  updated: true,
-                  ...value,
-                  changeId,
-                  code: "run_behaviour_not_pinned",
-                  warning: `the email query was updated but could not be pinned to manual run behaviour (${error instanceof Error ? error.message : "unknown error"}); set it to "Manual" in the editor's run-behaviour dropdown so it never sends email on page load`,
-                });
-              }
-
-              // The pin changes the stored action, so the revision from the update is stale. Re-read it.
+            return result({ updated: true, ...value, changeId });
+          } catch (error) {
+            if (error instanceof GovernedRefusalError) {
               return result({
-                updated: true,
-                ...value,
-                revision: await freshRevision(
-                  scope,
-                  request.actionId,
-                  value.revision,
-                ),
-                changeId,
+                updated: false,
+                error: error.message,
+                code: error.code,
               });
             }
 
-            return result({ updated: true, ...value, changeId });
-          } catch (error) {
             return governanceError(error) ?? compileError(error);
           }
         },

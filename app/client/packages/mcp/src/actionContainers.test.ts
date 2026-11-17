@@ -568,6 +568,113 @@ describe("action containers", () => {
       }
     });
 
+    it("uses action:<actionId> for the governance lock when the container sets no entityKey", async () => {
+      mockContainer();
+      const store = new MemoryGovernanceStore();
+      const { call, client } = await connectIsolated(stubApi(), store);
+
+      try {
+        const read = await call("get_action", {
+          workflowId: "wf1",
+          actionId: "wact1",
+        });
+
+        await call("update_action", {
+          spec: {
+            kind: "SMTP",
+            workflowId: "wf1",
+            actionId: "wact1",
+            revision: read.revision,
+            name: "Renamed",
+          },
+        });
+
+        expect(store.lockedKeys).toEqual(["action:wact1"]);
+      } finally {
+        await client.close();
+      }
+    });
+
+    it.each(["prepareSpec", "placeAction"] as const)(
+      "reports a throw from %s as a compile error and writes nothing",
+      async (hook) => {
+        const hooks = mockContainer();
+
+        hooks[hook].mockImplementation(() => {
+          throw new Error(`${hook} failed`);
+        });
+
+        const api = stubApi();
+        const { call, client } = await connectIsolated(api);
+
+        try {
+          const updated = await call("update_action", {
+            spec: {
+              kind: "SMTP",
+              workflowId: "wf1",
+              actionId: "wact1",
+              revision: "a".repeat(64),
+              email: EMAIL,
+            },
+          });
+
+          expect(updated.valid).toBe(false);
+          expect(JSON.stringify(updated.errors)).toContain(`${hook} failed`);
+          expect(api.updateAction).not.toHaveBeenCalled();
+          expect(api.setActionRunBehaviour).not.toHaveBeenCalled();
+        } finally {
+          await client.close();
+        }
+      },
+    );
+
+    it("reports a throw from listActions while update_action reads the action as a compile error", async () => {
+      const hooks = mockContainer();
+
+      hooks.listActions.mockRejectedValue(new Error("listActions failed"));
+
+      const api = stubApi();
+      const { call, client } = await connectIsolated(api);
+
+      try {
+        const updated = await call("update_action", {
+          spec: {
+            kind: "SMTP",
+            workflowId: "wf1",
+            actionId: "wact1",
+            revision: "a".repeat(64),
+            email: EMAIL,
+          },
+        });
+
+        expect(updated.valid).toBe(false);
+        expect(JSON.stringify(updated.errors)).toContain("listActions failed");
+        expect(api.updateAction).not.toHaveBeenCalled();
+      } finally {
+        await client.close();
+      }
+    });
+
+    it("reports a throw from listActions in list_actions as a tool error", async () => {
+      const hooks = mockContainer();
+
+      hooks.listActions.mockRejectedValue(new Error("listActions failed"));
+
+      const { client } = await connectIsolated(stubApi());
+
+      try {
+        const response = (await client.callTool({
+          name: "list_actions",
+          arguments: { workflowId: "wf1" },
+        })) as { isError?: boolean; content: { text: string }[] };
+
+        expect(response.isError).toBe(true);
+        expect(response.content[0].text).toContain("listActions failed");
+      } finally {
+        await client.close();
+      }
+    });
+
     it("skips the Manual pins for a container without page load", async () => {
       mockContainer({ hasPageLoad: false });
       const api = stubApi();

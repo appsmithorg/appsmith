@@ -175,6 +175,59 @@ describe("create_smtp_query builder", () => {
         .success,
     ).toBe(true);
   });
+
+  it.each(["text.", ".text", "selectedRow..email", "__proto__"])(
+    "refuses the widget property path %p",
+    (property) => {
+      expect(
+        smtpQuerySpecSchema.safeParse({
+          ...BASE,
+          to: { widget: "inpEmail", property },
+        }).success,
+      ).toBe(false);
+    },
+  );
+
+  it("accepts a nested widget property path", () => {
+    expect(
+      smtpQuerySpecSchema.safeParse({
+        ...BASE,
+        to: { widget: "tblUsers", property: "selectedRow.email" },
+      }).success,
+    ).toBe(true);
+  });
+
+  it.each([
+    // Each part passes alone. Only the joined text holds a binding.
+    ["three literals", ["{", "{ appsmith.store.secret }", "}"]],
+    ["literals around a reference", ["{", BASE.to, "{ x }", "}"]],
+    ["a split template", ["$", "{ x }"]],
+    // The literals join to plain "{x}", but each brace touches a reference's own braces.
+    ["single braces around references", ["{", BASE.to, "x", BASE.to, "}"]],
+    ["a dollar before a reference", ["$", BASE.to]],
+    ["a closing brace after a reference", [BASE.to, "} tail"]],
+    // The security review's input: one binding segment that spans both references.
+    [
+      "a binding widened across references",
+      ["a{", BASE.to, " + 1 ", BASE.to, "}"],
+    ],
+  ])("refuses list parts that join into a binding: %s", (_label, parts) => {
+    expect(
+      smtpQuerySpecSchema.safeParse({ ...BASE, body: parts }).success,
+    ).toBe(false);
+    expect(
+      smtpQuerySpecSchema.safeParse({ ...BASE, subject: parts }).success,
+    ).toBe(false);
+  });
+
+  it("accepts list parts whose joined text is plain", () => {
+    expect(
+      smtpQuerySpecSchema.safeParse({
+        ...BASE,
+        body: ["Hi ", BASE.to, ", { braces } are fine. Cost: $", "5"],
+      }).success,
+    ).toBe(true);
+  });
 });
 
 describe("SMTP read projection and marker", () => {
@@ -250,6 +303,13 @@ describe("SMTP read projection and marker", () => {
         ((
           config.formData as { send: Record<string, unknown> }
         ).send.attachments = "[]x"),
+    ],
+    [
+      "an attachment list",
+      (config: Record<string, unknown>) =>
+        ((
+          config.formData as { send: Record<string, unknown> }
+        ).send.attachments = [{ name: "a.pdf" }]),
     ],
   ])("hides the body after an edit to %s", (_label, edit) => {
     const config = structuredClone(stored()) as Record<string, unknown>;
