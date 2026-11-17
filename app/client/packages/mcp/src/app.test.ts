@@ -3700,6 +3700,136 @@ describe("M4 data layer — sub-flag gates the data tools", () => {
     expect(createAction).not.toHaveBeenCalled();
   });
 
+  describe("create_smtp_query", () => {
+    const SMTP_QUERY = {
+      name: "SendWelcome",
+      applicationId: "app1",
+      pageId: "p1",
+      datasourceId: "ds1",
+      from: "noreply@example.com",
+      to: { widget: "inpEmail", property: "text" },
+      subject: "Welcome",
+      body: "Thanks for signing up.",
+    };
+
+    function smtpApi(overrides: Partial<AppsmithApi> = {}): AppsmithApi {
+      return {
+        ...createApi()(),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "Mail", pluginId: "656f00000000000000000040" },
+        ]),
+        listPlugins: jest.fn(async () => [
+          { id: "656f00000000000000000040", packageName: "smtp-plugin" },
+        ]),
+        listActions: jest.fn(async () => []),
+        createAction: jest.fn(async () => ({ id: "act-mail" })),
+        setActionRunBehaviour: jest.fn(async () => ({})),
+        deleteAction: jest.fn(async () => ({})),
+        ...overrides,
+      };
+    }
+
+    it("creates a Send query and pins it to Manual run behaviour", async () => {
+      const api = smtpApi();
+      const body = await callTool(api, "create_smtp_query", {
+        query: SMTP_QUERY,
+      });
+
+      expect(body.created).toBe(true);
+      expect(body.runBehaviour).toBe("MANUAL");
+
+      const dto = (api.createAction as jest.Mock).mock.calls[0][0] as {
+        executeOnLoad: boolean;
+        actionConfiguration: {
+          formData: { command: string; send: Record<string, unknown> };
+          body: string;
+        };
+      };
+
+      expect(dto.executeOnLoad).toBe(false);
+      expect(dto.actionConfiguration.formData.command).toBe("SEND");
+      expect(dto.actionConfiguration.formData.send.from).toBe(
+        "noreply@example.com",
+      );
+      expect(dto.actionConfiguration.body).toBe("Thanks for signing up.");
+      expect(api.setActionRunBehaviour).toHaveBeenCalledWith(
+        "act-mail",
+        "MANUAL",
+      );
+    });
+
+    it("removes the query again when Manual cannot be pinned (fail closed)", async () => {
+      const api = smtpApi({
+        setActionRunBehaviour: jest.fn(async () => {
+          throw new Error("route down");
+        }),
+      });
+      const body = await callTool(api, "create_smtp_query", {
+        query: SMTP_QUERY,
+      });
+
+      expect(body.created).toBe(false);
+      expect(body.code).toBe("run_behaviour_not_pinned");
+      expect(api.deleteAction).toHaveBeenCalledWith("act-mail");
+    });
+
+    it("reports the query as still present when the removal fails too", async () => {
+      const api = smtpApi({
+        setActionRunBehaviour: jest.fn(async () => {
+          throw new Error("route down");
+        }),
+        deleteAction: jest.fn(async () => {
+          throw new Error("delete down");
+        }),
+      });
+      const body = await callTool(api, "create_smtp_query", {
+        query: SMTP_QUERY,
+      });
+
+      expect(body.created).toBe(true);
+      expect(body.code).toBe("run_behaviour_not_pinned");
+      expect(body.error).toMatch(/could not be removed either/);
+    });
+
+    it("refuses a non-SMTP datasource", async () => {
+      const api = smtpApi({
+        listPlugins: jest.fn(async () => [
+          { id: "656f00000000000000000040", packageName: "postgres-plugin" },
+        ]),
+      });
+      const body = await callTool(api, "create_smtp_query", {
+        query: SMTP_QUERY,
+      });
+
+      expect(body.error).toMatch(/requires an existing SMTP datasource/);
+      expect(api.createAction).not.toHaveBeenCalled();
+    });
+
+    it("refuses template syntax in a literal before any call", async () => {
+      const api = smtpApi();
+      const body = await callTool(api, "create_smtp_query", {
+        query: { ...SMTP_QUERY, body: "Hi {{ secret }}" },
+      });
+
+      expect(body.valid).toBe(false);
+      expect(api.listDatasources).not.toHaveBeenCalled();
+    });
+
+    it("returns the existing query instead of a duplicate", async () => {
+      const api = smtpApi({
+        listActions: jest.fn(async () => [
+          { id: "old", name: "SendWelcome", pageId: "p1" },
+        ]),
+      });
+      const body = await callTool(api, "create_smtp_query", {
+        query: SMTP_QUERY,
+      });
+
+      expect(body.created).toBe(false);
+      expect(api.createAction).not.toHaveBeenCalled();
+    });
+  });
+
   it("create_ai_query is idempotent — returns the existing query, no duplicate write", async () => {
     const createAction = jest.fn();
     const api: AppsmithApi = {
@@ -9066,6 +9196,471 @@ describe("governance-wrapped layout mutations", () => {
 
     expect(updated.body.error).toMatch(/not accessible/);
     expect(updateAction).not.toHaveBeenCalled();
+  });
+
+  describe("SMTP (email) actions in get_action and update_action", () => {
+    const EMAIL_SPEC = {
+      name: "OldName",
+      applicationId: "app1",
+      pageId: "p1",
+      datasourceId: "ds1",
+      from: "noreply@example.com",
+      to: "ops@example.com",
+      cc: "lead@example.com",
+      subject: "Request rejected",
+      body: "Your request was rejected.",
+    };
+
+    // A server whose stored action "act1" is an email on the SMTP plugin, unless `storedOverrides` says otherwise.
+    // The Manual pin is recorded on the stored action, so it changes the action's revision as on a real server.
+    function emailServer(
+      actionConfiguration: Record<string, unknown>,
+      overrides: Partial<AppsmithApi> = {},
+      storedOverrides: Record<string, unknown> = {},
+    ) {
+      let stored: Record<string, unknown> = {
+        ...STORED_ACTION,
+        pluginId: "smtp-plugin",
+        datasource: { id: "ds1", pluginId: "smtp-plugin" },
+        actionConfiguration,
+        ...storedOverrides,
+      };
+      const copies = new Map<string, Record<string, unknown>>();
+      const updateAction = jest.fn(
+        async (_id: string, action: Record<string, unknown>) => {
+          stored = { ...stored, ...action };
+
+          return stored;
+        },
+      );
+      const api: AppsmithApi = {
+        ...createApi()(),
+        getAction: jest.fn(async (_applicationId: string, actionId: string) => {
+          const copy = copies.get(actionId);
+
+          if (copy !== undefined) return copy;
+
+          if (actionId !== stored.id) throw new Error("action not found");
+
+          return stored;
+        }),
+        createAction: jest.fn(async (action: Record<string, unknown>) => {
+          const copy = { ...action, id: "act-copy" };
+
+          copies.set("act-copy", copy);
+
+          return copy;
+        }),
+        deleteAction: jest.fn(async () => ({})),
+        listDatasources: jest.fn(async () => [
+          { id: "ds1", name: "Mail", pluginId: "smtp-plugin" },
+          { id: "ds2", name: "Tickets", pluginId: "postgres-plugin" },
+        ]),
+        listPlugins: jest.fn(async () => [
+          { id: "smtp-plugin", packageName: "smtp-plugin" },
+          { id: "postgres-plugin", packageName: "postgres-plugin" },
+        ]),
+        updateAction: updateAction as never,
+        setActionRunBehaviour: jest.fn(async (actionId: string) => {
+          // A real pin saves the action, so its updatedAt (part of the revision) moves on.
+          const pinned = {
+            runBehaviour: "MANUAL",
+            updatedAt: "2026-11-09T00:00:00.000Z",
+          };
+
+          if (actionId === stored.id) {
+            stored = { ...stored, ...pinned };
+          } else if (copies.has(actionId)) {
+            copies.set(actionId, { ...copies.get(actionId), ...pinned });
+          }
+
+          return {};
+        }),
+        ...overrides,
+      };
+      const server = createMcpHttpServer(API_BASE_URL, () => api, {
+        dataEnabled: true,
+        governance: new McpGovernanceCoordinator(new MemoryGovernanceStore()),
+      });
+
+      return { server, api, updateAction };
+    }
+
+    it("get_action returns an editor-written email's headers but never its body", async () => {
+      const { server } = emailServer({
+        formData: {
+          command: "SEND",
+          send: {
+            from: "a@example.com",
+            to: "{{ inpTo.text }}",
+            subject: "Hello",
+            bodyType: "text/html",
+          },
+        },
+        body: "token=SECRET",
+      });
+      const read = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+
+      expect(read.body.authoredBy).toBe("editor");
+      expect(read.body.email).toEqual({
+        from: "a@example.com",
+        to: "{{ inpTo.text }}",
+        cc: "",
+        bcc: "",
+        replyTo: "",
+        subject: "Hello",
+        bodyType: "text/html",
+      });
+      expect(JSON.stringify(read.body)).not.toContain("SECRET");
+      // An SMTP action is never read as SQL.
+      expect(read.body.body).toBeUndefined();
+    });
+
+    it("update_action rewrites an email, pins Manual, and get_action then returns the body", async () => {
+      const { api, server, updateAction } = emailServer({
+        formData: { send: { to: "x@example.com" } },
+        body: "old",
+      });
+      const before = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SMTP",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.body.revision,
+          email: EMAIL_SPEC,
+        },
+      });
+
+      expect(updated.body.updated).toBe(true);
+      expect(updateAction).toHaveBeenCalledTimes(1);
+      expect(api.setActionRunBehaviour).toHaveBeenCalledWith("act1", "MANUAL");
+
+      const after = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+
+      expect(after.body.authoredBy).toBe("mcp");
+      expect(after.body.email).toMatchObject({
+        cc: "lead@example.com",
+        subject: "Request rejected",
+        bodyType: "text/plain",
+        body: "Your request was rejected.",
+      });
+    });
+
+    it("update_action reports, but keeps, an email update whose Manual pin fails", async () => {
+      const { server } = emailServer(
+        { formData: { send: { to: "x@example.com" } } },
+        {
+          setActionRunBehaviour: jest.fn(async () => {
+            throw new Error("route down");
+          }),
+        },
+      );
+      const before = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SMTP",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.body.revision,
+          email: EMAIL_SPEC,
+        },
+      });
+
+      expect(updated.body.updated).toBe(true);
+      expect(updated.body.code).toBe("run_behaviour_not_pinned");
+    });
+
+    const SMTP_SEND = {
+      formData: { command: "SEND", send: { to: "x@example.com" } },
+      body: "old",
+    };
+
+    async function readAct1(
+      server: ReturnType<typeof createMcpHttpServer>,
+    ): Promise<Record<string, unknown>> {
+      return (
+        await callTool(server, "get_action", {
+          applicationId: "app1",
+          actionId: "act1",
+        })
+      ).body;
+    }
+
+    it("get_action returns no email for formData.send on a non-SMTP plugin", async () => {
+      const { server } = emailServer(
+        SMTP_SEND,
+        {},
+        {
+          pluginId: "postgres-plugin",
+          datasource: { id: "ds2", pluginId: "postgres-plugin" },
+        },
+      );
+      const read = await readAct1(server);
+
+      expect(read.email).toBeUndefined();
+      expect(read.authoredBy).toBe("editor");
+    });
+
+    it("get_action returns no email when the plugin cannot be resolved (fail closed)", async () => {
+      const { server } = emailServer(SMTP_SEND, {
+        listPlugins: jest.fn(async () => {
+          throw new Error("plugins down");
+        }),
+      });
+      const read = await readAct1(server);
+
+      expect(read.email).toBeUndefined();
+    });
+
+    it("update_action refuses an SMTP spec for a stored SQL action and writes nothing", async () => {
+      const { api, server, updateAction } = emailServer(
+        { body: "SELECT 1" },
+        {},
+        {
+          pluginId: "postgres-plugin",
+          datasource: { id: "ds2", pluginId: "postgres-plugin" },
+        },
+      );
+      const before = await readAct1(server);
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SMTP",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.revision,
+          email: EMAIL_SPEC,
+        },
+      });
+
+      expect(updated.body.code).toBe("action_kind_mismatch");
+      expect(updateAction).not.toHaveBeenCalled();
+      expect(api.setActionRunBehaviour).not.toHaveBeenCalled();
+    });
+
+    it("update_action refuses a SQL spec for a stored email and writes nothing", async () => {
+      const { api, server, updateAction } = emailServer(SMTP_SEND);
+      const before = await readAct1(server);
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SQL",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.revision,
+          query: {
+            name: "OldName",
+            applicationId: "app1",
+            pageId: "p1",
+            datasourceId: "ds2",
+            operation: "SELECT",
+            table: "tickets",
+          },
+        },
+      });
+
+      expect(updated.body.code).toBe("action_kind_mismatch");
+      expect(updateAction).not.toHaveBeenCalled();
+      expect(api.setActionRunBehaviour).not.toHaveBeenCalled();
+    });
+
+    it("update_action treats an email whose plugin cannot be read as an email (fail closed)", async () => {
+      const { api, server, updateAction } = emailServer(SMTP_SEND, {
+        listPlugins: jest.fn(async () => {
+          throw new Error("plugins down");
+        }),
+      });
+      const before = await readAct1(server);
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SQL",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.revision,
+          name: "Renamed",
+        },
+      });
+
+      expect(updated.body.code).toBe("action_kind_mismatch");
+      expect(updateAction).not.toHaveBeenCalled();
+      expect(api.setActionRunBehaviour).not.toHaveBeenCalled();
+    });
+
+    it("update_action refuses an email with attachments set in the editor", async () => {
+      const { api, server, updateAction } = emailServer({
+        formData: {
+          command: "SEND",
+          send: { to: "x@example.com", attachments: "{{ fpFiles.files }}" },
+        },
+      });
+      const before = await readAct1(server);
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SMTP",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.revision,
+          email: EMAIL_SPEC,
+        },
+      });
+
+      expect(updated.body.error).toMatch(/attachments set in the editor/);
+      expect(updateAction).not.toHaveBeenCalled();
+      expect(api.setActionRunBehaviour).not.toHaveBeenCalled();
+    });
+
+    it("update_action returns the revision of the action re-read after the Manual pin", async () => {
+      const { server } = emailServer(SMTP_SEND);
+      const before = await readAct1(server);
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SMTP",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.revision,
+          email: EMAIL_SPEC,
+        },
+      });
+      const after = await readAct1(server);
+
+      expect(updated.body.updated).toBe(true);
+      expect(updated.body.revision).toBe(after.revision);
+    });
+
+    it("duplicate_action pins a copy of a stored email to Manual, whatever kind the caller names", async () => {
+      const { api, server } = emailServer(SMTP_SEND);
+      const before = await readAct1(server);
+      const duplicated = await callTool(server, "duplicate_action", {
+        spec: {
+          kind: "SQL",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.revision,
+          name: "OldNameCopy",
+        },
+      });
+      const copy = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act-copy",
+      });
+
+      expect(duplicated.body.duplicated).toBe(true);
+      expect(api.setActionRunBehaviour).toHaveBeenCalledWith(
+        "act-copy",
+        "MANUAL",
+      );
+      expect(duplicated.body.revision).toBe(copy.body.revision);
+    });
+
+    it("duplicate_action pins a copy of an email whose plugin cannot be read (fail closed)", async () => {
+      const { api, server } = emailServer(SMTP_SEND, {
+        listPlugins: jest.fn(async () => {
+          throw new Error("plugins down");
+        }),
+      });
+      const before = await readAct1(server);
+      const duplicated = await callTool(server, "duplicate_action", {
+        spec: {
+          kind: "SQL",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.revision,
+          name: "OldNameCopy",
+        },
+      });
+
+      expect(duplicated.body.duplicated).toBe(true);
+      expect(api.setActionRunBehaviour).toHaveBeenCalledWith(
+        "act-copy",
+        "MANUAL",
+      );
+    });
+
+    it("duplicate_action removes the copy and fails when the Manual pin fails", async () => {
+      const { api, server } = emailServer(SMTP_SEND, {
+        setActionRunBehaviour: jest.fn(async () => {
+          throw new Error("route down");
+        }),
+      });
+      const before = await readAct1(server);
+      const duplicated = await callTool(server, "duplicate_action", {
+        spec: {
+          kind: "SMTP",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.revision,
+          name: "OldNameCopy",
+        },
+      });
+
+      expect(duplicated.body.duplicated).toBe(false);
+      expect(duplicated.body.code).toBe("run_behaviour_not_pinned");
+      expect(duplicated.body.error).toMatch(/removed again/);
+      expect(api.deleteAction).toHaveBeenCalledWith("act-copy");
+      expect(duplicated.body.changeId).toBeUndefined();
+    });
+
+    it("duplicate_action does not pin a copy of a stored SQL action", async () => {
+      const { api, server } = emailServer(
+        { body: "SELECT 1" },
+        {},
+        {
+          pluginId: "postgres-plugin",
+          datasource: { id: "ds2", pluginId: "postgres-plugin" },
+        },
+      );
+      const before = await readAct1(server);
+      const duplicated = await callTool(server, "duplicate_action", {
+        spec: {
+          kind: "SMTP",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.revision,
+          name: "OldNameCopy",
+        },
+      });
+
+      expect(duplicated.body.duplicated).toBe(true);
+      expect(api.setActionRunBehaviour).not.toHaveBeenCalled();
+    });
+
+    it("update_action refuses an SMTP spec on a non-SMTP datasource", async () => {
+      const { server, updateAction } = emailServer(
+        { formData: { send: {} } },
+        {
+          listPlugins: jest.fn(async () => [
+            { id: "smtp-plugin", packageName: "postgres-plugin" },
+          ]),
+        },
+      );
+      const before = await callTool(server, "get_action", {
+        applicationId: "app1",
+        actionId: "act1",
+      });
+      const updated = await callTool(server, "update_action", {
+        spec: {
+          kind: "SMTP",
+          actionId: "act1",
+          applicationId: "app1",
+          revision: before.body.revision,
+          email: EMAIL_SPEC,
+        },
+      });
+
+      expect(updated.body.error).toMatch(/needs an SMTP datasource/);
+      expect(updateAction).not.toHaveBeenCalled();
+    });
   });
 
   it("get_action returns safe metadata + revision, and update_action commits a governed rename", async () => {

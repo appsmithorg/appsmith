@@ -216,7 +216,10 @@ evaluated as code in a viewer's browser.
   \`{ "table": "T", "column": "end date", "row": "triggered" }\` (the row whose button column was
   clicked). Date functions \`addDays\`, \`addMonths\`, \`addYears\`, \`startOfDay\`, \`diffDays\`,
   \`isoDate\` work in the viewer's local time and read \`YYYY-MM-DD\` as local midnight; \`date\`,
-  \`isoString\` and \`dateBucket\` keep their UTC meaning. Wrap a date picker's \`selectedDate\` (ISO
+  \`isoString\` and \`dateBucket\` keep their UTC meaning. \`formatDate\` prints display text such as
+  \`"MMM d, yyyy"\` in UTC unless a third argument names an IANA time zone. For a large table, prefer
+  the table column's own date format over \`formatDate\` inside \`map\`. Each call costs about 40
+  microseconds. Wrap a date picker's \`selectedDate\` (ISO
   text) in \`date\` before comparing it with \`lt\` / \`gt\`. Base a date default on
   \`startOfDay\` of \`now\`, so it does not move while the user is on the page. See
   appsmith://recipe/conditional-form for a full example.

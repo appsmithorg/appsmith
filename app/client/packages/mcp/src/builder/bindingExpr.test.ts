@@ -114,6 +114,7 @@ const SAMPLE_ARGS: Record<Fn, unknown[]> = {
   startOfDay: ["2026-10-31"],
   diffDays: ["2026-10-31", "2026-11-01"],
   isoDate: ["2026-10-31"],
+  formatDate: [NESTED, "MMM d, yyyy 'at' h:mm a", "America/New_York"],
 };
 
 describe("binding expressions stay one {{ }} binding (APP-16381)", () => {
@@ -232,6 +233,8 @@ describe("existing jsExpr templates are unchanged", () => {
         "startOfDay",
         "diffDays",
         "isoDate",
+        // Added after this digest was taken. Excluding it keeps the digest a check on the older templates.
+        "formatDate",
       ].includes(fn),
   );
 
