@@ -102,7 +102,11 @@ import { toast } from "@appsmith/ads";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { ERROR_CODES } from "ee/constants/ApiConstants";
+import {
+  AXIOS_CONNECTION_ABORTED_CODE,
+  ERROR_CODES,
+  SERVER_ERROR_CODES,
+} from "ee/constants/ApiConstants";
 import { safeCrashAppRequest } from "actions/errorActions";
 import type { IconNames } from "@appsmith/ads";
 import {
@@ -117,10 +121,11 @@ import {
   getApplicationsOfWorkspace,
   getCurrentWorkspaceId,
 } from "ee/selectors/selectedWorkspaceSelectors";
+import { FAVORITES_KEY } from "ee/constants/workspaceConstants";
+import type { ApplicationPayload } from "entities/Application";
 import equal from "fast-deep-equal";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 import type { Page } from "entities/Page";
-import type { ApplicationPayload } from "entities/Application";
 import { objectKeys } from "@appsmith/utils";
 import { findDefaultPage } from "pages/utils";
 import { getIsAiAgentInstanceEnabled } from "ee/selectors/aiAgentSelectors";
@@ -591,11 +596,134 @@ export function* updateApplicationSaga(
   }
 }
 
+/**
+ * True when a failed delete may have succeeded on the server (timeout / disconnect /
+ * already-gone), so the workspace app list should be rechecked before showing an error.
+ */
+export function shouldRecoverDeleteApplicationFromError(
+  error: unknown,
+): boolean {
+  const err = error as {
+    code?: string;
+    message?: string;
+    response?: { status?: number };
+  };
+
+  if (
+    err?.code === ERROR_CODES.REQUEST_TIMEOUT ||
+    err?.code === AXIOS_CONNECTION_ABORTED_CODE ||
+    err?.code === "ECONNABORTED" ||
+    err?.code === ERROR_CODES.PAGE_NOT_FOUND
+  ) {
+    return true;
+  }
+
+  if (err?.code && SERVER_ERROR_CODES.RESOURCE_NOT_FOUND.includes(err.code)) {
+    return true;
+  }
+
+  if (err?.response?.status === 404) {
+    return true;
+  }
+
+  // Browser offline / dropped connection mid-request (no Axios timeout code).
+  if (
+    typeof err?.message === "string" &&
+    /network error|failed to fetch/i.test(err.message)
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+export interface DeleteApplicationRecoveryContext {
+  workspaceId: string | undefined;
+  /** Base/default-branch application id — what `/home` lists for Git apps. */
+  baseApplicationId: string | undefined;
+}
+
+/**
+ * Capture workspace + base application id before navigation can change selection.
+ * Editor delete pushes `/applications` without workspaceId; `/home` only returns
+ * base apps, so branch application ids must be compared via baseId.
+ */
+export function* resolveDeleteApplicationRecoveryContext(
+  applicationId: string,
+) {
+  const currentApplication: ApplicationPayload | undefined = yield select(
+    getCurrentApplication,
+  );
+
+  if (
+    currentApplication?.id === applicationId &&
+    currentApplication.workspaceId
+  ) {
+    return {
+      workspaceId: currentApplication.workspaceId,
+      baseApplicationId: currentApplication.baseId || currentApplication.id,
+    };
+  }
+
+  const applications: ApplicationPayload[] = yield select(
+    getApplicationsOfWorkspace,
+  );
+  const match = applications.find(
+    (application) =>
+      application.id === applicationId || application.baseId === applicationId,
+  );
+
+  if (match?.workspaceId) {
+    return {
+      workspaceId: match.workspaceId,
+      baseApplicationId: match.baseId || match.id,
+    };
+  }
+
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
+
+  if (workspaceId && workspaceId !== FAVORITES_KEY) {
+    return {
+      workspaceId,
+      // Best effort when we only know the deleted id (homepage non-Git card).
+      baseApplicationId: applicationId,
+    };
+  }
+
+  return { workspaceId: undefined, baseApplicationId: undefined };
+}
+
+/** True when /home still lists this app (by branch id or base id). */
+export function isApplicationPresentInHomeList(
+  homeApplications: Array<{ id: string; baseId?: string }>,
+  applicationId: string,
+  baseApplicationId?: string,
+): boolean {
+  const idsToMatch = new Set(
+    [applicationId, baseApplicationId].filter(
+      (id): id is string => typeof id === "string" && id.length > 0,
+    ),
+  );
+
+  return homeApplications.some(
+    (application) =>
+      idsToMatch.has(application.id) ||
+      (application.baseId != null && idsToMatch.has(application.baseId)),
+  );
+}
+
 export function* deleteApplicationSaga(
   action: ReduxAction<DeleteApplicationRequest>,
 ) {
+  const request: DeleteApplicationRequest = action.payload;
+  // Capture before the delete awaits — editor delete navigates home immediately and
+  // can reset the selected workspace to workspaces[0] / favorites.
+  const recoveryContext: DeleteApplicationRecoveryContext = yield call(
+    resolveDeleteApplicationRecoveryContext,
+    request.applicationId,
+  );
+
   try {
-    const request: DeleteApplicationRequest = action.payload;
     const response: ApiResponse = yield call(
       ApplicationApi.deleteApplication,
       request,
@@ -610,12 +738,102 @@ export function* deleteApplicationSaga(
       yield call(deleteRecentAppEntities, request.applicationId);
     }
   } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.DELETE_APPLICATION_ERROR,
-      payload: {
-        error,
-      },
+    const recovered: boolean = yield call(
+      recoverDeleteApplicationIfAlreadyGone,
+      request.applicationId,
+      error,
+      recoveryContext,
+    );
+
+    if (!recovered) {
+      yield put({
+        type: ReduxActionErrorTypes.DELETE_APPLICATION_ERROR,
+        payload: {
+          error,
+        },
+      });
+    }
+  }
+}
+
+/**
+ * After a flaky delete response, refetch apps for the workspace captured at delete
+ * start. If the base/home row is gone, treat the delete as successful so the
+ * dashboard card clears without a refresh.
+ */
+export function* recoverDeleteApplicationIfAlreadyGone(
+  applicationId: string,
+  error: unknown,
+  recoveryContext: DeleteApplicationRecoveryContext,
+) {
+  if (!shouldRecoverDeleteApplicationFromError(error)) {
+    return false;
+  }
+
+  const { baseApplicationId, workspaceId } = recoveryContext;
+
+  if (!workspaceId || workspaceId === FAVORITES_KEY) {
+    return false;
+  }
+
+  try {
+    const response: FetchApplicationsOfWorkspaceResponse = yield call(
+      ApplicationApi.fetchAllApplicationsOfWorkspace,
+      workspaceId,
+    );
+    const isValidResponse: boolean = yield call(validateResponse, response);
+
+    if (!isValidResponse) {
+      return false;
+    }
+
+    const stillPresent = isApplicationPresentInHomeList(
+      response.data,
+      applicationId,
+      baseApplicationId,
+    );
+
+    if (stillPresent) {
+      return false;
+    }
+
+    const applications = response.data.map((application) => {
+      const defaultPage = findDefaultPage(application.pages);
+
+      return {
+        ...application,
+        defaultPageId: defaultPage?.id,
+        defaultBasePageId: defaultPage?.baseId,
+      };
     });
+
+    // Do not overwrite the homepage list if the user is now viewing another workspace
+    // (common after editor delete → /applications without ?workspaceId=).
+    const currentWorkspaceId: string = yield select(getCurrentWorkspaceId);
+
+    if (currentWorkspaceId === workspaceId) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ALL_APPLICATIONS_OF_WORKSPACE_SUCCESS,
+        payload: applications,
+      });
+    }
+
+    // Prefer base id so selectedWorkspaceReducer removes the homepage card for Git apps.
+    const homeListApplicationId = baseApplicationId || applicationId;
+
+    yield put({
+      type: ReduxActionTypes.DELETE_APPLICATION_SUCCESS,
+      payload: { id: homeListApplicationId },
+    });
+    yield call(deleteRecentAppEntities, applicationId);
+
+    if (homeListApplicationId !== applicationId) {
+      yield call(deleteRecentAppEntities, homeListApplicationId);
+    }
+
+    return true;
+  } catch {
+    return false;
   }
 }
 

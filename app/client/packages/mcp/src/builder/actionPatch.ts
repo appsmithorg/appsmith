@@ -2,7 +2,9 @@ import { z } from "zod";
 import {
   buildActionDto,
   compileQuery,
+  markMcpAuthoredBody,
   querySpecSchema,
+  type CompileQueryOptions,
   type QuerySpec,
 } from "./query.js";
 import {
@@ -94,12 +96,30 @@ export const duplicateActionSpecSchema = actionReferenceSchema
   })
   .strict();
 
+// APP-16526: copy a stored action to a page of another app, or another page of the same app. The source is the
+// stored action (actionId, applicationId, revision from get_action). The target names a page and, optionally, a
+// datasource. No action configuration is accepted: the MCP server copies the stored one.
+export const copyActionSpecSchema = actionReferenceSchema
+  .extend({
+    name: actionName,
+    target: z
+      .object({
+        applicationId: identifier,
+        pageId: identifier,
+        // Needed when the source datasource is not in the target app's workspace. It must use the same plugin.
+        datasourceId: identifier.optional(),
+      })
+      .strict(),
+  })
+  .strict();
+
 // Deletion intentionally has no optional fields: the application/revision pair is required for optimistic
 // concurrency, while the stored action ID is the only action identifier the caller may supply.
 export const deleteActionSpecSchema = actionReferenceSchema;
 
 export type UpdateActionSpec = z.infer<typeof updateActionSpecSchema>;
 export type DuplicateActionSpec = z.infer<typeof duplicateActionSpecSchema>;
+export type CopyActionSpec = z.infer<typeof copyActionSpecSchema>;
 export type DeleteActionSpec = z.infer<typeof deleteActionSpecSchema>;
 
 export interface ActionLifecycleRequest {
@@ -112,7 +132,10 @@ export interface UpdateActionRequest extends ActionLifecycleRequest {
   action: Record<string, unknown>;
 }
 
-function buildUpdateAction(spec: UpdateActionSpec): Record<string, unknown> {
+function buildUpdateAction(
+  spec: UpdateActionSpec,
+  options: CompileQueryOptions,
+): Record<string, unknown> {
   const source = spec.kind === "SQL" ? spec.query : spec.rest;
   const action: Record<string, unknown> = { id: spec.actionId };
   const name = spec.name ?? source?.name;
@@ -123,8 +146,13 @@ function buildUpdateAction(spec: UpdateActionSpec): Record<string, unknown> {
 
   if (spec.kind === "SQL") {
     const query = source as QuerySpec;
-    const body = compileQuery(query);
-    const compiled = buildActionDto(query, body);
+    const body = compileQuery(query, options);
+    // The stored body carries the MCP-authored marker, so get_action can return it until someone edits it.
+    const compiled = buildActionDto(
+      query,
+      markMcpAuthoredBody(body),
+      options.packageName,
+    );
 
     return { id: spec.actionId, ...compiled };
   }
@@ -135,16 +163,18 @@ function buildUpdateAction(spec: UpdateActionSpec): Record<string, unknown> {
   return { id: spec.actionId, ...compiled };
 }
 
-// Builds the minimal, safe patch request. The output excludes every caller-controlled field except the closed
-// ActionDTO vocabulary produced by the structured SQL/REST compilers.
+// Builds the minimal, safe patch request. The output keeps only the ActionDTO fields that the structured SQL and
+// REST compilers produce; it drops every other caller-controlled field. `options.dialect` is the family of the SQL
+// datasource. The caller resolves it, and inList needs it.
 export function buildUpdateActionDto(
   spec: UpdateActionSpec,
+  options: CompileQueryOptions = {},
 ): UpdateActionRequest {
   return {
     actionId: spec.actionId,
     applicationId: spec.applicationId,
     revision: spec.revision,
-    action: buildUpdateAction(spec),
+    action: buildUpdateAction(spec, options),
   };
 }
 
@@ -158,6 +188,27 @@ export function buildDuplicateActionDto(
     revision: spec.revision,
     kind: spec.kind,
     name: spec.name,
+  };
+}
+
+export interface CopyActionRequest extends ActionLifecycleRequest {
+  name: string;
+  target: { applicationId: string; pageId: string; datasourceId?: string };
+}
+
+export function buildCopyActionDto(spec: CopyActionSpec): CopyActionRequest {
+  return {
+    actionId: spec.actionId,
+    applicationId: spec.applicationId,
+    revision: spec.revision,
+    name: spec.name,
+    target: {
+      applicationId: spec.target.applicationId,
+      pageId: spec.target.pageId,
+      ...(spec.target.datasourceId !== undefined
+        ? { datasourceId: spec.target.datasourceId }
+        : {}),
+    },
   };
 }
 

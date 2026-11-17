@@ -162,6 +162,7 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
               helpText={this.props.labelTooltip}
               inline={this.props.isLabelInline}
               isDynamicHeightEnabled={this.props.isDynamicHeightEnabled}
+              isRequired={!!this.props.label && this.props.isRequired}
               loading={this.props.isLoading}
               optionCount={1}
               position={this.props.labelPosition}

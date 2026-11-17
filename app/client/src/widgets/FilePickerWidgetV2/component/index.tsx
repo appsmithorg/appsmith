@@ -4,12 +4,6 @@ import { BaseButton } from "widgets/ButtonWidget/component";
 import { Colors } from "constants/Colors";
 
 function FilePickerComponent(props: FilePickerComponentProps) {
-  let computedLabel = props.label;
-
-  if (props.files && props.files.length) {
-    computedLabel = `${props.files.length} files selected`;
-  }
-
   return (
     <BaseButton
       borderRadius={props.borderRadius}
@@ -22,7 +16,7 @@ function FilePickerComponent(props: FilePickerComponentProps) {
       minWidth={props.minWidth}
       onClick={props.openModal}
       shouldFitContent={props.shouldFitContent}
-      text={computedLabel}
+      text={props.label}
     />
   );
 }
@@ -31,9 +25,6 @@ export interface FilePickerComponentProps extends ComponentProps {
   label: string;
   openModal: () => void;
   isLoading: boolean;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  files?: any[];
   buttonColor: string;
   borderRadius: string;
   boxShadow?: string;

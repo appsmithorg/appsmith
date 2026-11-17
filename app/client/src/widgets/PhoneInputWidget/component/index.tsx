@@ -6,6 +6,7 @@ import ISDCodeDropdown, {
 import type { BaseInputComponentProps } from "widgets/BaseInputWidget/component";
 import BaseInputComponent from "widgets/BaseInputWidget/component";
 import type { CountryCode } from "libphonenumber-js";
+import { resolvePhoneCountry } from "./utilities";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 
 class PhoneInputComponent extends React.PureComponent<PhoneInputComponentProps> {
@@ -18,7 +19,10 @@ class PhoneInputComponent extends React.PureComponent<PhoneInputComponentProps> 
   };
 
   getLeftIcon = () => {
-    const selectedISDCode = getSelectedISDCode(this.props.dialCode);
+    const selectedISDCode = getSelectedISDCode(
+      this.props.dialCode,
+      this.props.countryCode,
+    );
 
     return (
       <ISDCodeDropdown
@@ -45,8 +49,13 @@ class PhoneInputComponent extends React.PureComponent<PhoneInputComponentProps> 
   };
 
   componentDidMount() {
-    if (this.props.dialCode) {
-      this.props.onISDCodeChange(this.props.dialCode);
+    const country = resolvePhoneCountry(
+      this.props.dialCode,
+      this.props.countryCode,
+    );
+
+    if (country) {
+      this.props.onISDCodeChange(country.code);
     }
   }
 
@@ -71,6 +80,7 @@ class PhoneInputComponent extends React.PureComponent<PhoneInputComponentProps> 
         isDynamicHeightEnabled={this.props.isDynamicHeightEnabled}
         isInvalid={this.props.isInvalid}
         isLoading={this.props.isLoading}
+        isRequired={this.props.isRequired}
         label={this.props.label}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}

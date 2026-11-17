@@ -66,8 +66,8 @@ public class PlainToSdkTests {
                                         Map.of(
                                                 "M",
                                                 Map.of(
-                                                        "key1", "val1",
-                                                        "key2", "val2")),
+                                                        "key1", Map.of("S", "val1"),
+                                                        "key2", Map.of("S", "val2"))),
                                 "six", Map.of("N", "1234"),
                                 "seven", Map.of("NS", List.of("12", "34", "56")),
                                 "eight", Map.of("NULL", true),
@@ -106,8 +106,8 @@ public class PlainToSdkTests {
                                                 Map.of(
                                                         "M",
                                                         Map.of(
-                                                                "key1", "val1",
-                                                                "key2", "val2")),
+                                                                "key1", Map.of("S", "val1"),
+                                                                "key2", Map.of("S", "val2"))),
                                         "six", Map.of("N", "1234"),
                                         "seven", Map.of("NS", List.of("12", "34", "56")),
                                         "eight", Map.of("NULL", true),

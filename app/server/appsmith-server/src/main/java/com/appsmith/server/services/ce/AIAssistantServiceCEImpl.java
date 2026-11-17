@@ -3,11 +3,14 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.PluginType;
-import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.artifacts.base.ArtifactService;
+import com.appsmith.server.artifacts.base.artifactbased.ArtifactBasedService;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.AIAssistantConfig;
 import com.appsmith.server.domains.AIProvider;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.AIEditorContextDTO;
 import com.appsmith.server.dtos.AIMessageDTO;
@@ -22,7 +25,6 @@ import com.appsmith.server.services.AIReferenceService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
-import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
 import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -44,9 +46,11 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.server.constants.AIConstants.DEFAULT_AZURE_API_VERSION;
 import static com.appsmith.server.constants.AIConstants.DEFAULT_AZURE_MAX_COMPLETION_TOKENS;
@@ -83,8 +87,7 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
     // and the throttle is never silently absent.
     private RateLimitService rateLimitService;
     private SessionUserService sessionUserService;
-    private ApplicationService applicationService;
-    private ApplicationPermission applicationPermission;
+    private ArtifactService artifactService;
 
     @Autowired
     public void setRateLimitService(RateLimitService rateLimitService) {
@@ -97,13 +100,8 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
     }
 
     @Autowired
-    public void setApplicationService(ApplicationService applicationService) {
-        this.applicationService = applicationService;
-    }
-
-    @Autowired
-    public void setApplicationPermission(ApplicationPermission applicationPermission) {
-        this.applicationPermission = applicationPermission;
+    public void setArtifactService(ArtifactService artifactService) {
+        this.artifactService = artifactService;
     }
 
     private static final WebClient claudeWebClient = WebClientUtils.builder(
@@ -376,8 +374,7 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
      * whether the request ran. A caller without edit rights still got an answer and still spent provider credits.
      *
      * <p>So the authorization decision lives here, where an empty result is an error rather than a fallback.
-     * A request carrying no entity id has nothing to scope a check against and stays bounded by the per-user rate
-     * limit; that residual gap is a deliberate product decision, recorded on the PR.
+     * A request must name an entity or an artifact the caller can edit. A request that names neither is refused.
      */
     private Mono<Void> authorizeEntityContext(AIEditorContextDTO context) {
         if (context == null) {
@@ -396,23 +393,41 @@ public class AIAssistantServiceCEImpl implements AIAssistantServiceCE {
                     .then();
         }
 
-        // No entity — a widget property binding, for instance — so fall back to the application whose editor this
-        // came from. Ask AI has no surface outside the editor, so a caller who cannot edit the application has no
-        // legitimate way to reach this and is refused rather than merely rate-limited.
-        if (StringUtils.hasText(context.getApplicationId())) {
-            String applicationId = context.getApplicationId().trim();
+        // No entity, such as a widget property binding or a JS object. Fall back to the artifact whose editor the
+        // request came from. Ask AI exists only inside an editor, so a caller who cannot edit the artifact is refused,
+        // not just rate-limited.
+        if (StringUtils.hasText(context.getArtifactId())) {
+            ArtifactType artifactType = context.getArtifactType();
+            if (artifactType == null || !getAuthorizableArtifactTypes().contains(artifactType)) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "artifactType"));
+            }
+            String artifactId = context.getArtifactId().trim();
+            ArtifactBasedService<? extends Artifact> artifactBasedService =
+                    artifactService.getArtifactBasedService(artifactType);
 
-            return applicationService
-                    .findById(applicationId, applicationPermission.getEditPermission())
+            return artifactBasedService
+                    .findById(
+                            artifactId,
+                            artifactBasedService.getPermissionService().getEditPermission())
                     .switchIfEmpty(Mono.error(new AppsmithException(
-                            AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
+                            AppsmithError.ACL_NO_RESOURCE_FOUND, artifactType.lowerCaseName(), artifactId)))
                     .then();
         }
 
         // Nothing to authorize against. Refuse rather than fall through: an unscoped request cannot be shown to come
         // from a developer, and this endpoint spends the organization's provider credits.
         return Mono.error(new AppsmithException(
-                AppsmithError.INVALID_PARAMETER, "Editor context must identify an entity or an application"));
+                AppsmithError.INVALID_PARAMETER, "Editor context must identify an entity or an artifact"));
+    }
+
+    /**
+     * Returns the artifact types whose editors have Ask AI. A request for any other type is refused before the lookup.
+     *
+     * <p>Add a type only if its artifact service enforces the permission passed to {@code findById}. Not every service
+     * does, so the gate cannot rely on the lookup alone.
+     */
+    protected Set<ArtifactType> getAuthorizableArtifactTypes() {
+        return EnumSet.of(ArtifactType.APPLICATION);
     }
 
     private AIEditorContextDTO applyDatasourceSchemaToContext(

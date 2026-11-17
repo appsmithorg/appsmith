@@ -10,7 +10,11 @@ const StaticTable = (_: StaticTableProps, ref: React.Ref<SimpleBar>) => {
   const { scrollContainerStyles } = useAppsmithTable();
 
   return (
-    <SimpleBar ref={ref} style={scrollContainerStyles}>
+    <SimpleBar
+      data-testid="t--table-v2-static-body"
+      ref={ref}
+      style={scrollContainerStyles}
+    >
       <TableColumnHeader />
       <StaticTableBodyComponent />
     </SimpleBar>

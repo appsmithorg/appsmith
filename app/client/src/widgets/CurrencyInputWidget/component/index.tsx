@@ -55,6 +55,7 @@ class CurrencyInputComponent extends React.Component<CurrencyInputComponentProps
         isDynamicHeightEnabled={this.props.isDynamicHeightEnabled}
         isInvalid={this.props.isInvalid}
         isLoading={this.props.isLoading}
+        isRequired={this.props.isRequired}
         label={this.props.label}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}

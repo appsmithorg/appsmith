@@ -276,6 +276,13 @@ export const schemaItemDefaultValue = (
   }
 
   if (schemaItem.fieldType === FieldType.ARRAY) {
+    if (
+      Array.isArray(schemaItem.defaultValue) &&
+      schemaItem.defaultValue.length === 0
+    ) {
+      return [];
+    }
+
     const defaultArrayValue = processArray(schemaItem.children, toKey);
     let sanitizedDefaultValue: unknown[] = [];
 

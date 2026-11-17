@@ -120,7 +120,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
   border-radius: 0;
   box-shadow: none !important;
   min-height: ${({ compactMode }) =>
-    compactMode === "SHORT" ? "24px" : "30px"};
+    compactMode === "SHORT" ? "24px" : "27px"};
   font-size: ${({ compactMode }) =>
     compactMode === "SHORT" ? "12px" : "14px"};
   line-height: ${({ compactMode }) =>

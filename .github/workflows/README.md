@@ -5,6 +5,13 @@ Each one is named for what it does, and its `on:` block states its triggers.
 
 This README covers only what you cannot infer from the YAML: how to trigger CI by hand.
 
+## Docker configuration and Caddy route tests
+
+The `Caddy route tests` workflow can be run manually from Actions. It includes
+the data-only configuration loader and startup/service-restart boundary tests,
+shell checks, Docker configuration defaults, and Caddy routing tests. The loader
+tests use isolated fixtures without starting Appsmith's databases.
+
 ## Running Cypress on a PR
 
 1. Keep the `## Automation` section from the PR template in your PR description, and
@@ -34,12 +41,60 @@ The comment-triggered version of this command was retired in March 2024. Comment
 gets you a bot reply saying the method is defunct. Use the PR body and the label, as
 above.
 
+### Docs-only internal PRs do not need Cypress
+
+For a PR from a branch in this repository, `ci/merge-gate` lists the changed files
+through the GitHub API. When every changed file, and the old name of every renamed
+file, matches one of these patterns, the gate passes from Quality checks alone and its
+description says that Cypress was not required:
+
+- `docs/**`
+- `contributions/**`
+- `.cursor/**`
+- `.claude/**`
+- `*.md` and `*.mdc` outside `app/` and `deploy/`
+
+Any other file, including a workflow file under `.github/workflows/`, needs the full
+gate: the `ok-to-test` label and a green Cypress run. Fork PRs are not classified this
+way; they keep the credential-free validation and approved Cypress requirements. The
+decision lives in
+`scripts/merge-gate.js`; its unit tests run with
+`find .github/workflows/scripts -name '*.test.js' -exec node --test {} +` and in the `ci-scripts-tests` job
+of Quality checks.
+
 ### Fork PRs cannot run Cypress this way
 
 GitHub gives workflows on pull requests from forks a read-only token and no access to
 secrets, regardless of the `permissions:` block. The `ok-to-test` label path therefore
 cannot work for external contributions, and the run fails when it tries to write test
 status back to the PR.
+
+## Expressions in workflow scripts
+
+Do not write `${{ }}` inside a `run:` body or a `github-script` `script:`. Bind the
+value to a step-level `env:` key and read the quoted variable:
+
+```yaml
+- env:
+    COMMIT_MESSAGE: ${{ github.event.commits[0].message }}
+  run: echo "${COMMIT_MESSAGE%%$'\n'*}"
+```
+
+Cut large values with Bash parameter expansion, as above, not with a pipe into `head`.
+Jobs that use `shell: bash` run with `-o pipefail`. `head` exits after the first line,
+so a value larger than the pipe buffer makes the writer fail with SIGPIPE, and the step
+fails.
+
+Do not pass `toJSON(github)` or `toJSON(github.event)` to a step. Read single fields,
+or the event file at `$GITHUB_EVENT_PATH`.
+
+The `workflow-expressions` job in Quality checks and in External PR credential-free
+validation enforces both rules. Many workflows still have old expressions in `run:`
+bodies, so it checks only the lines a pull request adds. Run it locally with:
+
+```bash
+python3 .github/workflows/scripts/check-workflow-expressions.py --base origin/release
+```
 
 ## Slash commands
 

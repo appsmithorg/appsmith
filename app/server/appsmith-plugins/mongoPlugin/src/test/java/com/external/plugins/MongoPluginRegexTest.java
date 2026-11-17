@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -30,6 +31,7 @@ import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInForm
 import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -211,6 +213,45 @@ public class MongoPluginRegexTest {
                             List.of(new ParsedDataType(JSON), new ParsedDataType(RAW))
                                     .toString(),
                             actionExecutionResult.getDataTypes().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void should_quoteEveryNumericRegexValue_when_oneFilterHasTwo() {
+        // Given
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setEncodeParamsToggle(Boolean.TRUE);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+
+        String rawFind =
+                "{ find: \"teams\", filter: {\"goals_allowed\":{$regex: {{goals}}}, " + "\"xGD\":{$regex: {{xgd}}}}}";
+        setDataValueSafelyInFormData(configMap, BODY, rawFind);
+
+        actionConfiguration.setFormData(configMap);
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        Param goals = new Param("goals", "20");
+        goals.setClientDataType(ClientDataType.NUMBER);
+        Param xgd = new Param("xgd", "-2.5");
+        xgd.setClientDataType(ClientDataType.NUMBER);
+        executeActionDTO.setParams(List.of(goals, xgd));
+
+        // When
+        Mono<ActionExecutionResult> actionExecutionResultMono = dsConnectionMono.flatMap(clientConnection ->
+                pluginExecutor.executeParameterized(clientConnection, executeActionDTO, dsConfig, actionConfiguration));
+
+        // Then
+        StepVerifier.create(actionExecutionResultMono)
+                .assertNext(actionExecutionResult -> {
+                    assertThat(actionExecutionResult).isNotNull();
+                    assertThat(actionExecutionResult.getIsExecutionSuccess()).isTrue();
+                    assertThat((ArrayNode) actionExecutionResult.getBody()).hasSize(1);
                 })
                 .verifyComplete();
     }

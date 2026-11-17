@@ -34,6 +34,7 @@ import {
   getDatasources,
   getDatasourcesGroupedByPluginCategory,
   getDatasourcesUsedInApplicationByActions,
+  getHiddenPluginIds,
   getEditorConfig,
   getEntityExplorerDatasources,
   getGenerateCRUDEnabledPluginMap,
@@ -381,8 +382,14 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
  * 2. If it is the only item, navigate to the add url
  * 3. If there are other items, navigate to an item close to the current one
  * **/
-function* handleDatasourceDeleteRedirect(deletedDatasourceId: string) {
-  const allDatasources: Datasource[] = yield select(getDatasources);
+export function* handleDatasourceDeleteRedirect(deletedDatasourceId: string) {
+  // Redirect only to datasources the user can see in the list, so skip those
+  // of hidden plugins (see isHiddenPlugin). This reads getDatasources and
+  // filters here, because EE's copy of this file also uses getDatasources.
+  const hiddenPluginIds: Set<string> = yield select(getHiddenPluginIds);
+  const allDatasources: Datasource[] = (
+    (yield select(getDatasources)) as Datasource[]
+  ).filter((datasource) => !hiddenPluginIds.has(datasource.pluginId));
 
   const currentSelectedEntity = identifyEntityFromPath(
     window.location.pathname,
@@ -422,7 +429,9 @@ function* handleDatasourceDeleteRedirect(deletedDatasourceId: string) {
     }
   }
 
-  const groupDatasources = groupedDatasources[deletedGroup];
+  // A hidden datasource (see isHiddenPlugin) is in no group, so the group can
+  // be missing.
+  const groupDatasources = groupedDatasources[deletedGroup] ?? [];
   const remainingGroupDatasources = groupDatasources.filter(
     (d) => d.id !== deletedDatasourceId,
   );

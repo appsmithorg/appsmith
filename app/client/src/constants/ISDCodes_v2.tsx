@@ -197,7 +197,7 @@ export const ISDCodeOptions: Array<ISDCodeProps> = [
   },
   {
     name: "Cayman Islands",
-    dial_code: "+ 345",
+    dial_code: "+1345",
     code: "KY",
   },
   {
@@ -452,7 +452,7 @@ export const ISDCodeOptions: Array<ISDCodeProps> = [
   },
   {
     name: "Guyana",
-    dial_code: "+595",
+    dial_code: "+592",
     code: "GY",
   },
   {
@@ -462,7 +462,7 @@ export const ISDCodeOptions: Array<ISDCodeProps> = [
   },
   {
     name: "Holy See (Vatican City State)",
-    dial_code: "+379",
+    dial_code: "+39",
     code: "VA",
   },
   {

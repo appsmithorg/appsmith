@@ -502,6 +502,16 @@ class ButtonGroupWidget extends BaseWidget<
                   sectionName: "General",
                   children: [
                     {
+                      helpText: "Show helper text with button on hover",
+                      propertyName: "tooltip",
+                      label: "Tooltip",
+                      controlType: "INPUT_TEXT",
+                      placeholderText: "Downloads the report",
+                      isBindProperty: true,
+                      isTriggerProperty: false,
+                      validation: { type: ValidationTypes.TEXT },
+                    },
+                    {
                       propertyName: "isVisible",
                       helpText: "Controls the visibility of the widget",
                       label: "Visible",
@@ -876,6 +886,7 @@ export interface ButtonGroupWidgetProps extends WidgetProps {
       isDisabled?: boolean;
       disabledWhenInvalid?: boolean;
       label?: string;
+      tooltip?: string;
       buttonType?: string;
       buttonColor?: string;
       iconName?: IconName;
