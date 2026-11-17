@@ -27,12 +27,14 @@ import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.FirestoreException;
 import com.google.cloud.firestore.FirestoreOptions;
 import com.google.cloud.firestore.GeoPoint;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.internal.EmulatorCredentials;
+import io.grpc.Status;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -1043,18 +1045,11 @@ public class FirestorePluginTest {
         // Given
         DatasourceConfiguration datasourceConfiguration =
                 serviceAccountDatasourceConfig("test-project-invalid", "{}", databaseId);
-        // The emulator rejects this project, so listing its collections fails.
-        FirebaseApp app = FirebaseApp.initializeApp(
-                FirebaseOptions.builder()
-                        .setProjectId("test-project-invalid")
-                        .setDatabaseUrl(emulator.getEmulatorEndpoint())
-                        .setCredentials(new EmulatorCredentials())
-                        .build(),
-                "rejected-project");
+        Firestore unreachableFirestore = Mockito.mock(Firestore.class);
+        Mockito.when(unreachableFirestore.listCollections())
+                .thenThrow(FirestoreException.forServerRejection(Status.NOT_FOUND, "Not found"));
         FirestorePlugin.FirestorePluginExecutor spyExecutor = Mockito.spy(pluginExecutor);
-        Mockito.doReturn(Mono.just(FirestoreClient.getFirestore(app)))
-                .when(spyExecutor)
-                .datasourceCreate(datasourceConfiguration);
+        Mockito.doReturn(Mono.just(unreachableFirestore)).when(spyExecutor).datasourceCreate(datasourceConfiguration);
 
         // When
         Mono<DatasourceTestResult> result = spyExecutor.testDatasource(datasourceConfiguration);
