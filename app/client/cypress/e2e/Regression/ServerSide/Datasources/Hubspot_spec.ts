@@ -26,9 +26,7 @@ const stubHubspotExecute = (fixture: string) =>
     .intercept("POST", "/api/v1/actions/execute", { fixture })
     .as("postExecute");
 
-// Skipped while the live Hubspot API returns 403 for the test token.
-// https://linear.app/appsmith/issue/APP-16554 replaces the live calls with stubs.
-describe.skip(
+describe(
   "Hubspot Basic Tests",
   {
     tags: [
@@ -74,11 +72,13 @@ describe.skip(
         inputFieldName: "Table ID or name",
       });
       dataSources.RunQuery();
-      agHelper.AssertContains(
-        "appsmith1",
-        "exist",
-        BottomTabs.response.locators.responseDataContainer,
-      );
+      cy.fixture("hubspot_POST_Execute.json").then((fixture) => {
+        agHelper.AssertContains(
+          fixture.data.body.name,
+          "exist",
+          BottomTabs.response.locators.responseDataContainer,
+        );
+      });
     });
 
     it("3. Validate widget binding with queries & deploying the app", () => {
@@ -142,11 +142,13 @@ describe.skip(
         expectedStatus: false,
         toValidateResponse: true,
       });
-      agHelper.AssertContains(
-        "401 Unauthorized",
-        "exist",
-        dataSources._queryError,
-      );
+      cy.fixture("hubspot_POST_Execute_Unauthorized.json").then((fixture) => {
+        agHelper.AssertContains(
+          fixture.data.pluginErrorDetails.downstreamErrorMessage,
+          "exist",
+          dataSources._queryError,
+        );
+      });
     });
   },
 );
