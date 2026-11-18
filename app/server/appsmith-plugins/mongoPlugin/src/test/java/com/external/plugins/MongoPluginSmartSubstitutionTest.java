@@ -249,6 +249,24 @@ class MongoPluginSmartSubstitutionTest {
         assertThat(outer.get("missing")).isNull();
     }
 
+    static Stream<String> untypedValuesWithTextAfterArrayOrObject() {
+        return Stream.of(
+                "[\"ObjectId('" + OBJECT_ID + "')\"] trailing text []",
+                "{\"first\": \"ObjectId('" + OBJECT_ID + "')\"} trailing text {}");
+    }
+
+    @ParameterizedTest
+    @MethodSource("untypedValuesWithTextAfterArrayOrObject")
+    @DisplayName("GHSA-gcgj-p6xv-xpcp")
+    void should_keepBoundStringAsOneStringValue_when_untypedValueHasTextAfterArrayOrObject(String value) {
+        // Given / When
+        Document filter = substituteIntoFilter(value, null);
+
+        // Then
+        assertThat(filter.keySet()).containsExactly("name");
+        assertThat(filter.get("name")).isEqualTo(value);
+    }
+
     @ParameterizedTest
     @ValueSource(
             strings = {"Timestamp(4294967296, 1)", "Timestamp(1, 4294967296)", "Timestamp(99999999999999999999, 1)"})
