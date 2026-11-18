@@ -652,7 +652,10 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 return Mono.error(
                         new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID, basePageId));
             }
-            return Mono.just(basePageId);
+            return findById(basePageId, permission)
+                    .switchIfEmpty(Mono.error(
+                            new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, basePageId)))
+                    .map(NewPage::getId);
         }
         return repository
                 .findPageByRefTypeAndRefNameAndBasePageId(refType, refName, basePageId, permission, null)
@@ -719,16 +722,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     @Override
     public Mono<String> updateDependencyMap(
             String pageId, Map<String, List<String>> dependencyMap, RefType refType, String refName) {
-        Mono<Integer> updateResult;
-        if (refName != null) {
-            updateResult = findRefPageId(refType, refName, pageId, AclPermission.MANAGE_PAGES)
-                    .flatMap(refPageId -> repository.updateDependencyMap(refPageId, dependencyMap));
-        } else {
-            updateResult = findById(pageId, AclPermission.MANAGE_PAGES)
-                    .switchIfEmpty(Mono.error(
-                            new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
-                    .flatMap(page -> repository.updateDependencyMap(pageId, dependencyMap));
-        }
+        Mono<Integer> updateResult = findRefPageId(refType, refName, pageId, AclPermission.MANAGE_PAGES)
+                .flatMap(refPageId -> repository.updateDependencyMap(refPageId, dependencyMap));
 
         return updateResult.flatMap(count -> {
             if (count == 0) {
