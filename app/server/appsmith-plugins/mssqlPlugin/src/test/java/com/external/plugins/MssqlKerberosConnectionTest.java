@@ -5,8 +5,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.external.plugins.utils.MssqlAuthenticationSettings;
-import com.external.plugins.utils.MssqlKerberosLoginTest;
-import org.apache.kerby.kerberos.kerb.server.SimpleKdcServer;
+import com.external.plugins.utils.MssqlKerberosTestKdc;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -16,18 +15,16 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.test.StepVerifier;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.external.plugins.MssqlTestDBContainerManager.createDatasourceConfiguration;
 import static com.external.plugins.MssqlTestDBContainerManager.mssqlPluginExecutor;
-import static com.external.plugins.utils.MssqlKerberosLoginTest.PASSWORD;
-import static com.external.plugins.utils.MssqlKerberosLoginTest.SERVICE;
-import static com.external.plugins.utils.MssqlKerberosLoginTest.USER;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.external.plugins.utils.MssqlKerberosTestKdc.PASSWORD;
+import static com.external.plugins.utils.MssqlKerberosTestKdc.SERVICE;
+import static com.external.plugins.utils.MssqlKerberosTestKdc.USER;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Runs a Kerberos datasource through the whole plugin: the form settings, the Kerberos login against a test Kerberos
@@ -39,36 +36,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * to the domain, so it is done by hand.
  */
 @Testcontainers
-public class MssqlKerberosConnectionTest {
+class MssqlKerberosConnectionTest {
 
     @SuppressWarnings("rawtypes")
     @Container
-    public static final MSSQLServerContainer container = MssqlTestDBContainerManager.getMssqlDBForTest();
+    static final MSSQLServerContainer container = MssqlTestDBContainerManager.getMssqlDBForTest();
 
     @TempDir
     static Path workDir;
 
-    private static SimpleKdcServer kdc;
-    private static String previousKrb5Conf;
+    private static MssqlKerberosTestKdc kdc;
 
     @BeforeAll
     static void startKdc() throws Exception {
-        kdc = MssqlKerberosLoginTest.startKdc(workDir.toFile());
-        kdc.createPrincipal(USER, PASSWORD);
-        kdc.createPrincipal(SERVICE, "service-key-password");
-        previousKrb5Conf = System.getProperty("java.security.krb5.conf");
-        System.setProperty("java.security.krb5.conf", new File(workDir.toFile(), "krb5.conf").getAbsolutePath());
+        kdc = MssqlKerberosTestKdc.start(workDir.toFile());
     }
 
     @AfterAll
     static void stopKdc() throws Exception {
         if (kdc != null) {
-            kdc.stop();
-        }
-        if (previousKrb5Conf == null) {
-            System.clearProperty("java.security.krb5.conf");
-        } else {
-            System.setProperty("java.security.krb5.conf", previousKrb5Conf);
+            kdc.close();
         }
     }
 
@@ -87,46 +74,49 @@ public class MssqlKerberosConnectionTest {
         return dsConfig;
     }
 
-    @Test
-    public void kerberosDatasource_sendsAKerberosTicketToSqlServer() {
-        DatasourceConfiguration dsConfig = kerberosConfig(USER, PASSWORD);
-        assertTrue(mssqlPluginExecutor.validateDatasource(dsConfig).isEmpty());
+    private static String details(Throwable error) {
+        return error instanceof AppsmithPluginException pluginException
+                ? pluginException.getDownstreamErrorMessage()
+                : error.getMessage();
+    }
 
+    @Test
+    void should_sendAKerberosTicketToSqlServer_when_theAccountIsRight() {
+        // Given
+        DatasourceConfiguration dsConfig = kerberosConfig(USER, PASSWORD);
+        assertThat(mssqlPluginExecutor.validateDatasource(dsConfig)).isEmpty();
+
+        // When / Then: SQL Server got the ticket (error 18452), so the login and the handshake both worked.
         StepVerifier.create(mssqlPluginExecutor.datasourceCreate(dsConfig))
-                .expectErrorSatisfies(error -> {
-                    String details = error instanceof AppsmithPluginException pluginException
-                            ? pluginException.getDownstreamErrorMessage()
-                            : error.getMessage();
-                    // SQL Server got the ticket (error 18452), so the login and the handshake both worked.
-                    assertTrue(details.contains("untrusted domain"), details);
-                    assertFalse(details.contains("Kerberos login failed"), details);
-                })
+                .expectErrorSatisfies(error ->
+                        assertThat(details(error)).contains("untrusted domain").doesNotContain("Kerberos login failed"))
                 .verify();
     }
 
     @Test
-    public void kerberosDatasource_withAWrongPassword_failsAtTheKerberosLogin() {
+    void should_failAtTheKerberosLogin_when_thePasswordIsWrong() {
+        // Given
         DatasourceConfiguration dsConfig = kerberosConfig(USER, "wrong-password");
 
+        // When / Then
         StepVerifier.create(mssqlPluginExecutor.datasourceCreate(dsConfig))
-                .expectErrorSatisfies(error -> {
-                    String details = error instanceof AppsmithPluginException pluginException
-                            ? pluginException.getDownstreamErrorMessage()
-                            : error.getMessage();
-                    assertTrue(details.contains("Kerberos login failed for " + USER), details);
-                    assertFalse(details.contains("wrong-password"), details);
-                })
+                .expectErrorSatisfies(error -> assertThat(details(error))
+                        .contains("Kerberos login failed for " + USER)
+                        .contains("Check the username and password")
+                        .doesNotContain("wrong-password"))
                 .verify();
     }
 
     @Test
-    public void sqlServerLoginDatasource_stillConnects() {
+    void should_stillConnect_when_usingASqlServerLogin() {
+        // Given
         DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
         dsConfig.getConnection().setMode(com.appsmith.external.models.Connection.Mode.READ_WRITE);
 
+        // When / Then
         StepVerifier.create(mssqlPluginExecutor.datasourceCreate(dsConfig))
                 .assertNext(pool -> {
-                    assertTrue(pool.isRunning());
+                    assertThat(pool.isRunning()).isTrue();
                     pool.close();
                 })
                 .verifyComplete();

@@ -9,21 +9,20 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * MssqlAuthenticationSettings reads a value without its key from a fixed slot in
  * {@code datasourceConfiguration.properties}. These tests fail if form.json moves a field to another slot.
  */
-public class MssqlFormSlotsTest {
+class MssqlFormSlotsTest {
 
     private static JsonNode form;
 
     @BeforeAll
     static void readForm() throws Exception {
         try (InputStream in = MssqlFormSlotsTest.class.getResourceAsStream("/form.json")) {
-            assertNotNull(in, "form.json is on the classpath");
+            assertThat(in).as("form.json is on the classpath").isNotNull();
             form = new ObjectMapper().readTree(in);
         }
     }
@@ -31,7 +30,7 @@ public class MssqlFormSlotsTest {
     /** Finds the control with this configProperty anywhere in the form. */
     private static JsonNode control(String configProperty) {
         JsonNode found = find(form, configProperty);
-        assertNotNull(found, "form.json has " + configProperty);
+        assertThat(found).as("form.json has " + configProperty).isNotNull();
         return found;
     }
 
@@ -53,33 +52,36 @@ public class MssqlFormSlotsTest {
     }
 
     @Test
-    public void methodSlot_holdsTheMethodKeyAndChoices() {
+    void should_holdTheTypeKeyAndChoices_when_readingTheTypeSlot() {
+        // Given
         int index = MssqlAuthenticationSettings.METHOD_FORM_SLOT;
 
-        assertEquals(
-                MssqlAuthenticationSettings.METHOD_KEY,
-                control(slot(index, "key")).path("initialValue").asText());
-
+        // When
+        JsonNode key = control(slot(index, "key"));
         JsonNode dropdown = control(slot(index, "value"));
-        assertEquals(
-                MssqlAuthenticationSettings.SQL_SERVER_LOGIN,
-                dropdown.path("initialValue").asText());
+
+        // Then
+        assertThat(key.path("initialValue").asText()).isEqualTo(MssqlAuthenticationSettings.METHOD_KEY);
+        assertThat(dropdown.path("initialValue").asText()).isEqualTo(MssqlAuthenticationSettings.SQL_SERVER_LOGIN);
         Set<String> values = new HashSet<>();
         dropdown.path("options")
                 .forEach(option -> values.add(option.path("value").asText()));
-        assertEquals(
-                Set.of(MssqlAuthenticationSettings.SQL_SERVER_LOGIN, MssqlAuthenticationSettings.KERBEROS), values);
+        assertThat(values)
+                .containsExactlyInAnyOrder(
+                        MssqlAuthenticationSettings.SQL_SERVER_LOGIN, MssqlAuthenticationSettings.KERBEROS);
     }
 
     @Test
-    public void serverSpnSlot_holdsTheServerSpnKey() {
+    void should_holdTheServerSpnKey_when_readingTheServerSpnSlot() {
+        // Given
         int index = MssqlAuthenticationSettings.SERVER_SPN_FORM_SLOT;
 
-        assertEquals(
-                MssqlAuthenticationSettings.SERVER_SPN_KEY,
-                control(slot(index, "key")).path("initialValue").asText());
-        assertEquals(
-                MssqlAuthenticationSettings.KERBEROS,
-                control(slot(index, "value")).path("hidden").path("value").asText());
+        // When
+        JsonNode key = control(slot(index, "key"));
+        JsonNode input = control(slot(index, "value"));
+
+        // Then
+        assertThat(key.path("initialValue").asText()).isEqualTo(MssqlAuthenticationSettings.SERVER_SPN_KEY);
+        assertThat(input.path("hidden").path("value").asText()).isEqualTo(MssqlAuthenticationSettings.KERBEROS);
     }
 }

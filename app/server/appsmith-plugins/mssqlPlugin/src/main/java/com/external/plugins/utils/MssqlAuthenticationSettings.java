@@ -56,12 +56,16 @@ public final class MssqlAuthenticationSettings {
     }
 
     /**
-     * Returns an error message for a Kerberos username that cannot work, or null when it is fine. A blank username
-     * is reported by the caller, with the same message as for a SQL Server login.
+     * Returns an error message for a Kerberos username that cannot work, or null when it is fine. A null or empty
+     * username is reported by the caller, with the same message as for a SQL Server login. A username of only spaces
+     * gets that message here.
      */
     public static String kerberosUsernameError(String username) {
-        if (!StringUtils.hasText(username)) {
+        if (username == null || username.isEmpty()) {
             return null;
+        }
+        if (username.isBlank()) {
+            return MssqlErrorMessages.DS_MISSING_USERNAME_ERROR_MSG;
         }
         String trimmed = username.trim();
         if (trimmed.indexOf('\\') >= 0) {

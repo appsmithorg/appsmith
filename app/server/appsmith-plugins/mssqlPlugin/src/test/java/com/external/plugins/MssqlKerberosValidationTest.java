@@ -10,6 +10,7 @@ import com.external.plugins.exceptions.MssqlErrorMessages;
 import com.external.plugins.utils.MssqlAuthenticationSettings;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
@@ -17,16 +18,12 @@ import java.util.List;
 import java.util.Set;
 
 import static com.external.plugins.MssqlTestDBContainerManager.mssqlPluginExecutor;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Validation and settings for the "Windows (Kerberos)" authentication method. These tests need no database
- * container.
+ * Validation and settings for the "Windows (Kerberos)" authentication type. These tests need no database container.
  */
-public class MssqlKerberosValidationTest {
+class MssqlKerberosValidationTest {
 
     private static DatasourceConfiguration config(String username, List<Property> properties) {
         DBAuth auth = new DBAuth();
@@ -57,128 +54,204 @@ public class MssqlKerberosValidationTest {
     }
 
     @Test
-    public void datasourceWithoutTheSetting_staysOnSqlServerLogin() {
+    void should_useSqlServerLogin_when_theDatasourceHasNoSetting() {
+        // Given
         DatasourceConfiguration dsConfig = config("sa", null);
 
-        assertEquals(MssqlAuthenticationSettings.SQL_SERVER_LOGIN, MssqlAuthenticationSettings.method(dsConfig));
-        assertFalse(MssqlAuthenticationSettings.isKerberos(dsConfig));
-        assertTrue(mssqlPluginExecutor.validateDatasource(dsConfig).isEmpty());
+        // When
+        Set<String> invalids = mssqlPluginExecutor.validateDatasource(dsConfig);
+
+        // Then
+        assertThat(MssqlAuthenticationSettings.method(dsConfig))
+                .isEqualTo(MssqlAuthenticationSettings.SQL_SERVER_LOGIN);
+        assertThat(MssqlAuthenticationSettings.isKerberos(dsConfig)).isFalse();
+        assertThat(invalids).isEmpty();
     }
 
     @Test
-    public void sqlServerLogin_stillAcceptsADomainBackslashUserName() {
-        // Only Kerberos refuses DOMAIN\\user. A SQL Server login is passed on as it is, as before.
+    void should_acceptADomainBackslashUsername_when_usingASqlServerLogin() {
+        // Given: only Kerberos refuses a username in the DOMAIN-backslash-user form. A SQL Server login is passed on as
+        // it is, as before.
         List<Property> properties = new ArrayList<>(List.of(
                 new Property(MssqlAuthenticationSettings.METHOD_KEY, MssqlAuthenticationSettings.SQL_SERVER_LOGIN)));
 
-        assertTrue(mssqlPluginExecutor
-                .validateDatasource(config("CORP\\appsmith", properties))
-                .isEmpty());
+        // When
+        Set<String> invalids = mssqlPluginExecutor.validateDatasource(config("CORP\\appsmith", properties));
+
+        // Then
+        assertThat(invalids).isEmpty();
     }
 
     @Test
-    public void kerberos_withAPrincipal_isValid() {
+    void should_accept_when_kerberosHasAPrincipal() {
+        // Given
         DatasourceConfiguration dsConfig = config("svc_appsmith@corp.example.com", kerberos(null));
 
-        assertTrue(MssqlAuthenticationSettings.isKerberos(dsConfig));
-        assertTrue(mssqlPluginExecutor.validateDatasource(dsConfig).isEmpty());
+        // When
+        Set<String> invalids = mssqlPluginExecutor.validateDatasource(dsConfig);
+
+        // Then
+        assertThat(MssqlAuthenticationSettings.isKerberos(dsConfig)).isTrue();
+        assertThat(invalids).isEmpty();
     }
 
     @Test
-    public void kerberos_withADomainBackslashUserName_isRefusedWithAHint() {
-        Set<String> invalids = mssqlPluginExecutor.validateDatasource(config("CORP\\svc_appsmith", kerberos(null)));
+    void should_refuseWithAHint_when_kerberosHasADomainBackslashUsername() {
+        // Given
+        DatasourceConfiguration dsConfig = config("CORP\\svc_appsmith", kerberos(null));
 
-        assertEquals(Set.of(MssqlErrorMessages.DS_KERBEROS_DOMAIN_BACKSLASH_USERNAME_ERROR_MSG), invalids);
+        // When
+        Set<String> invalids = mssqlPluginExecutor.validateDatasource(dsConfig);
+
+        // Then
+        assertThat(invalids).containsExactly(MssqlErrorMessages.DS_KERBEROS_DOMAIN_BACKSLASH_USERNAME_ERROR_MSG);
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"svc appsmith@CORP", "svc@CORP@OTHER", "@CORP", "svc@", "svc\n@CORP"})
-    public void kerberos_withAMalformedUserName_isRefused(String username) {
-        Set<String> invalids = mssqlPluginExecutor.validateDatasource(config(username, kerberos(null)));
+    void should_refuse_when_theKerberosUsernameIsMalformed(String username) {
+        // Given
+        DatasourceConfiguration dsConfig = config(username, kerberos(null));
 
-        assertEquals(Set.of(MssqlErrorMessages.DS_INVALID_KERBEROS_USERNAME_ERROR_MSG), invalids);
+        // When
+        Set<String> invalids = mssqlPluginExecutor.validateDatasource(dsConfig);
+
+        // Then
+        assertThat(invalids).containsExactly(MssqlErrorMessages.DS_INVALID_KERBEROS_USERNAME_ERROR_MSG);
     }
 
     @Test
-    public void kerberos_stillNeedsAUserNameAndPassword() {
+    void should_reportMissingDetails_when_kerberosHasNoUsernameOrPassword() {
+        // Given
         DatasourceConfiguration dsConfig = config("", kerberos(null));
         ((DBAuth) dsConfig.getAuthentication()).setPassword(null);
 
+        // When
         Set<String> invalids = mssqlPluginExecutor.validateDatasource(dsConfig);
 
-        assertTrue(invalids.contains("Missing username for authentication."));
-        assertTrue(invalids.contains("Missing password for authentication."));
+        // Then
+        assertThat(invalids)
+                .contains(
+                        MssqlErrorMessages.DS_MISSING_USERNAME_ERROR_MSG,
+                        MssqlErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG);
     }
 
     @Test
-    public void kerberos_withAServerSpnContainingASpace_isRefused() {
-        Set<String> invalids = mssqlPluginExecutor.validateDatasource(
-                config("svc@CORP.EXAMPLE.COM", kerberos("MSSQLSvc/sql host:1433")));
+    void should_reportAMissingUsername_when_theKerberosUsernameIsOnlySpaces() {
+        // Given
+        DatasourceConfiguration dsConfig = config("   ", kerberos(null));
 
-        assertEquals(Set.of(MssqlErrorMessages.DS_INVALID_SERVER_SPN_ERROR_MSG), invalids);
+        // When
+        Set<String> invalids = mssqlPluginExecutor.validateDatasource(dsConfig);
+
+        // Then
+        assertThat(invalids).containsExactly(MssqlErrorMessages.DS_MISSING_USERNAME_ERROR_MSG);
     }
 
     @Test
-    public void unknownMethod_isRefused() {
+    void should_refuse_when_theServerSpnContainsASpace() {
+        // Given
+        DatasourceConfiguration dsConfig = config("svc@CORP.EXAMPLE.COM", kerberos("MSSQLSvc/sql host:1433"));
+
+        // When
+        Set<String> invalids = mssqlPluginExecutor.validateDatasource(dsConfig);
+
+        // Then
+        assertThat(invalids).containsExactly(MssqlErrorMessages.DS_INVALID_SERVER_SPN_ERROR_MSG);
+    }
+
+    @Test
+    void should_refuse_when_theAuthenticationTypeIsUnknown() {
+        // Given
         List<Property> properties =
                 new ArrayList<>(List.of(new Property(MssqlAuthenticationSettings.METHOD_KEY, "NTLM")));
 
+        // When
         Set<String> invalids = mssqlPluginExecutor.validateDatasource(config("svc", properties));
 
-        assertEquals(Set.of(MssqlErrorMessages.DS_INVALID_AUTHENTICATION_TYPE_ERROR_MSG), invalids);
+        // Then
+        assertThat(invalids).containsExactly(MssqlErrorMessages.DS_INVALID_AUTHENTICATION_TYPE_ERROR_MSG);
     }
 
     @Test
-    public void valueWithoutItsKey_inTheFormSlot_isStillRead() {
-        // Editing a datasource saved before this setting existed: the form does not fill in the hidden key.
+    void should_readTheFormSlots_when_theValuesArriveWithoutTheirKeys() {
+        // Given: editing a datasource saved before this setting existed, the form does not fill in the hidden key.
         List<Property> properties = new ArrayList<>();
         properties.add(new Property(null, MssqlAuthenticationSettings.KERBEROS));
         properties.add(new Property(null, "MSSQLSvc/alias.corp.example.com:1433"));
+
+        // When
         DatasourceConfiguration dsConfig = config("svc@CORP.EXAMPLE.COM", properties);
 
-        assertTrue(MssqlAuthenticationSettings.isKerberos(dsConfig));
-        assertEquals("MSSQLSvc/alias.corp.example.com:1433", MssqlAuthenticationSettings.serverSpn(dsConfig));
+        // Then
+        assertThat(MssqlAuthenticationSettings.isKerberos(dsConfig)).isTrue();
+        assertThat(MssqlAuthenticationSettings.serverSpn(dsConfig)).isEqualTo("MSSQLSvc/alias.corp.example.com:1433");
     }
 
     @Test
-    public void nullEntryInTheFormSlot_staysOnSqlServerLogin() {
-        // A sparse array from the editor can arrive with a null entry.
+    void should_useSqlServerLogin_when_theFormSlotIsNull() {
+        // Given: a sparse array from the editor can arrive with a null entry.
         List<Property> properties = new ArrayList<>();
         properties.add(null);
 
-        assertEquals(
-                MssqlAuthenticationSettings.SQL_SERVER_LOGIN,
-                MssqlAuthenticationSettings.method(config("svc", properties)));
+        // When
+        String method = MssqlAuthenticationSettings.method(config("svc", properties));
+
+        // Then
+        assertThat(method).isEqualTo(MssqlAuthenticationSettings.SQL_SERVER_LOGIN);
     }
 
     @Test
-    public void keyedProperty_winsOverAValueWithoutAKeyInTheSlot() {
+    void should_preferTheKeyedProperty_when_theSlotAlsoHasAValueWithoutAKey() {
+        // Given
         List<Property> properties = new ArrayList<>();
         properties.add(new Property(null, MssqlAuthenticationSettings.KERBEROS));
         properties.add(new Property(null, null));
         properties.add(
                 new Property(MssqlAuthenticationSettings.METHOD_KEY, MssqlAuthenticationSettings.SQL_SERVER_LOGIN));
 
-        assertFalse(MssqlAuthenticationSettings.isKerberos(config("svc", properties)));
+        // When
+        boolean kerberos = MssqlAuthenticationSettings.isKerberos(config("svc", properties));
+
+        // Then
+        assertThat(kerberos).isFalse();
     }
 
     @Test
-    public void propertyWithAnotherKey_inTheFormSlot_isNotRead() {
+    void should_ignoreTheSlot_when_itHoldsAnotherKey() {
+        // Given
         List<Property> properties = new ArrayList<>(List.of(new Property("somethingElse", "KERBEROS")));
 
-        assertFalse(MssqlAuthenticationSettings.isKerberos(config("svc", properties)));
+        // When
+        boolean kerberos = MssqlAuthenticationSettings.isKerberos(config("svc", properties));
+
+        // Then
+        assertThat(kerberos).isFalse();
     }
 
     @Test
-    public void blankServerSpn_isNull() {
-        assertNull(MssqlAuthenticationSettings.serverSpn(config("svc", kerberos("  "))));
+    void should_returnNull_when_theServerSpnIsBlank() {
+        // Given
+        DatasourceConfiguration dsConfig = config("svc", kerberos("  "));
+
+        // When
+        String serverSpn = MssqlAuthenticationSettings.serverSpn(dsConfig);
+
+        // Then
+        assertThat(serverSpn).isNull();
     }
 
-    @Test
-    public void kerberosPrincipal_upperCasesTheRealmOnly() {
-        assertEquals(
-                "Svc_Appsmith@CORP.EXAMPLE.COM",
-                MssqlAuthenticationSettings.kerberosPrincipal(" Svc_Appsmith@corp.example.com "));
-        assertEquals("svc_appsmith", MssqlAuthenticationSettings.kerberosPrincipal("svc_appsmith"));
+    @ParameterizedTest
+    @CsvSource({
+        "' Svc_Appsmith@corp.example.com ', Svc_Appsmith@CORP.EXAMPLE.COM",
+        "svc_appsmith@CORP.EXAMPLE.COM, svc_appsmith@CORP.EXAMPLE.COM",
+        "svc_appsmith, svc_appsmith"
+    })
+    void should_upperCaseOnlyTheRealm_when_makingThePrincipal(String username, String expectedPrincipal) {
+        // Given / When
+        String principal = MssqlAuthenticationSettings.kerberosPrincipal(username);
+
+        // Then
+        assertThat(principal).isEqualTo(expectedPrincipal);
     }
 }

@@ -1,7 +1,5 @@
 package com.external.plugins.utils;
 
-import org.apache.kerby.kerberos.kerb.server.SimpleKdcServer;
-import org.apache.kerby.util.NetworkUtil;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSManager;
@@ -12,83 +10,59 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import javax.security.auth.login.AppConfigurationEntry;
+import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import java.io.File;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.external.plugins.utils.MssqlKerberosTestKdc.PASSWORD;
+import static com.external.plugins.utils.MssqlKerberosTestKdc.REALM;
+import static com.external.plugins.utils.MssqlKerberosTestKdc.SERVICE;
+import static com.external.plugins.utils.MssqlKerberosTestKdc.USER;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Runs the Kerberos login against a real Kerberos server (Apache Kerby) inside the test. No SQL Server is needed.
  */
-public class MssqlKerberosLoginTest {
+class MssqlKerberosLoginTest {
 
-    public static final String REALM = "APPSMITH.TEST";
-    public static final String USER = "svc_appsmith@" + REALM;
-    public static final String PASSWORD = "correct-horse-battery";
-    public static final String SERVICE = "MSSQLSvc/sql.appsmith.test:1433@" + REALM;
-
-    private static SimpleKdcServer kdc;
-    private static String previousKrb5Conf;
+    private static MssqlKerberosTestKdc kdc;
 
     @TempDir
     static Path workDir;
 
     @BeforeAll
     static void startKdc() throws Exception {
-        kdc = startKdc(workDir.toFile());
-        kdc.createPrincipal(USER, PASSWORD);
-        kdc.createPrincipal(SERVICE, "service-key-password");
-
-        previousKrb5Conf = System.getProperty("java.security.krb5.conf");
-        // MssqlKerberosLogin sets refreshKrb5Config, so this file is read on the next login.
-        System.setProperty("java.security.krb5.conf", new File(workDir.toFile(), "krb5.conf").getAbsolutePath());
-    }
-
-    /** Starts a Kerberos server on a free TCP port. It writes krb5.conf into {@code dir}. */
-    public static SimpleKdcServer startKdc(File dir) throws Exception {
-        SimpleKdcServer server = new SimpleKdcServer();
-        server.setWorkDir(dir);
-        server.setKdcHost("localhost");
-        server.setKdcRealm(REALM);
-        server.setAllowUdp(false);
-        server.setAllowTcp(true);
-        server.setKdcTcpPort(NetworkUtil.getServerPort());
-        server.init();
-        server.start();
-        return server;
+        kdc = MssqlKerberosTestKdc.start(workDir.toFile());
     }
 
     @AfterAll
     static void stopKdc() throws Exception {
         if (kdc != null) {
-            kdc.stop();
-        }
-        if (previousKrb5Conf == null) {
-            System.clearProperty("java.security.krb5.conf");
-        } else {
-            System.setProperty("java.security.krb5.conf", previousKrb5Conf);
+            kdc.close();
         }
     }
 
     @Test
-    public void login_withTheRightPassword_returnsACredentialForThatAccount() throws Exception {
-        GSSCredential credential = MssqlKerberosLogin.login(USER, PASSWORD.toCharArray());
+    void should_returnACredentialForTheAccount_when_thePasswordIsRight() throws Exception {
+        // Given
+        char[] password = PASSWORD.toCharArray();
 
-        assertEquals(USER, credential.getName().toString());
-        assertTrue(credential.getRemainingLifetime() > 0);
-        assertEquals(GSSCredential.INITIATE_ONLY, credential.getUsage());
+        // When
+        GSSCredential credential = MssqlKerberosLogin.login(USER, password);
+
+        // Then
+        assertThat(credential.getName().toString()).isEqualTo(USER);
+        assertThat(credential.getRemainingLifetime()).isPositive();
+        assertThat(credential.getUsage()).isEqualTo(GSSCredential.INITIATE_ONLY);
     }
 
     @Test
-    public void credential_getsAServiceTicketForSqlServer() throws Exception {
-        // The driver does the same: it starts a security context to MSSQLSvc/host:port with the credential.
+    void should_getAServiceTicketForSqlServer_when_usingTheCredential() throws Exception {
+        // Given: the driver does the same, starting a security context to MSSQLSvc/host:port with the credential.
         GSSCredential credential = MssqlKerberosLogin.login(USER, PASSWORD.toCharArray());
         GSSManager manager = GSSManager.getInstance();
         GSSContext context = manager.createContext(
@@ -97,51 +71,100 @@ public class MssqlKerberosLoginTest {
                 credential,
                 GSSContext.DEFAULT_LIFETIME);
 
+        // When
         byte[] token = context.initSecContext(new byte[0], 0, 0);
 
-        assertNotNull(token);
-        assertTrue(token.length > 0);
+        // Then
+        assertThat(token).isNotEmpty();
         context.dispose();
     }
 
     @Test
-    public void login_withAWrongPassword_fails() {
-        assertThrows(LoginException.class, () -> MssqlKerberosLogin.login(USER, "wrong".toCharArray()));
+    void should_fail_when_thePasswordIsWrong() {
+        // Given
+        char[] wrongPassword = "wrong".toCharArray();
+
+        // When / Then
+        // A real domain controller's answer must count as a refusal, so the plugin waits before trying again.
+        assertThatThrownBy(() -> MssqlKerberosLogin.login(USER, wrongPassword))
+                .isInstanceOf(LoginException.class)
+                .satisfies(error ->
+                        assertThat(MssqlKerberosErrors.isAccountRefused(error)).isTrue());
     }
 
     @Test
-    public void login_withAnUnknownAccount_fails() {
-        assertThrows(LoginException.class, () -> MssqlKerberosLogin.login("nobody@" + REALM, PASSWORD.toCharArray()));
+    void should_fail_when_theAccountDoesNotExist() {
+        // Given
+        String unknownAccount = "nobody@" + REALM;
+
+        // When / Then
+        assertThatThrownBy(() -> MssqlKerberosLogin.login(unknownAccount, PASSWORD.toCharArray()))
+                .isInstanceOf(LoginException.class)
+                .satisfies(error ->
+                        assertThat(MssqlKerberosErrors.isAccountRefused(error)).isTrue());
     }
 
     @Test
-    public void login_withoutARealm_usesTheDefaultRealmFromKrb5Conf() throws Exception {
-        GSSCredential credential = MssqlKerberosLogin.login("svc_appsmith", PASSWORD.toCharArray());
+    void should_useTheDefaultRealm_when_theUsernameHasNoRealm() throws Exception {
+        // Given
+        String usernameWithoutRealm = "svc_appsmith";
 
-        assertEquals(USER, credential.getName().toString());
+        // When
+        GSSCredential credential = MssqlKerberosLogin.login(usernameWithoutRealm, PASSWORD.toCharArray());
+
+        // Then
+        assertThat(credential.getName().toString()).isEqualTo(USER);
     }
 
     @Test
-    public void loginConfiguration_neverUsesTheTicketCacheOrAKeytab() throws Exception {
+    void should_refuseTheLogin_when_theJvmPrincipalSettingNamesAnotherAccount() {
+        // Given
+        System.setProperty(MssqlKerberosLogin.PRINCIPAL_PROPERTY, "someone_else@" + REALM);
+        try {
+            // When / Then
+            assertThatThrownBy(() -> MssqlKerberosLogin.login(USER, PASSWORD.toCharArray()))
+                    .isInstanceOf(LoginException.class)
+                    .hasMessage(MssqlKerberosLogin.PRINCIPAL_PROPERTY_ERROR);
+        } finally {
+            System.clearProperty(MssqlKerberosLogin.PRINCIPAL_PROPERTY);
+        }
+    }
+
+    @Test
+    void should_logIn_when_theJvmPrincipalSettingNamesTheSameAccountWithoutARealm() throws Exception {
+        // Given
+        System.setProperty(MssqlKerberosLogin.PRINCIPAL_PROPERTY, "svc_appsmith");
+        try {
+            // When
+            GSSCredential credential = MssqlKerberosLogin.login(USER, PASSWORD.toCharArray());
+
+            // Then
+            assertThat(credential.getName().toString()).isEqualTo(USER);
+        } finally {
+            System.clearProperty(MssqlKerberosLogin.PRINCIPAL_PROPERTY);
+        }
+    }
+
+    @Test
+    void should_neverUseTheTicketCacheOrAKeytab_when_readingTheLoginConfiguration() throws Exception {
+        // Given
         Field field = MssqlKerberosLogin.class.getDeclaredField("LOGIN_CONFIGURATION");
         field.setAccessible(true);
-        javax.security.auth.login.Configuration configuration =
-                (javax.security.auth.login.Configuration) field.get(null);
+        Configuration configuration = (Configuration) field.get(null);
 
+        // When
         AppConfigurationEntry[] entries = configuration.getAppConfigurationEntry(MssqlKerberosLogin.LOGIN_ENTRY_NAME);
 
-        assertEquals(1, entries.length);
+        // Then
+        assertThat(entries).hasSize(1);
         Map<String, ?> options = entries[0].getOptions();
-        assertEquals("false", options.get("useTicketCache"));
-        assertEquals("false", options.get("useKeyTab"));
-        assertEquals("false", options.get("storeKey"));
+        assertThat(options.get("useTicketCache")).isEqualTo("false");
+        assertThat(options.get("useKeyTab")).isEqualTo("false");
+        assertThat(options.get("storeKey")).isEqualTo("false");
         // Other names, such as the driver's own "SQLJDBCDriver", are not answered.
-        assertEquals(null, configuration.getAppConfigurationEntry("SQLJDBCDriver"));
-        // Nothing is installed JVM-wide. With no JAAS file at all, the JDK throws a SecurityException, not a
-        // LoginException.
-        Exception error = assertThrows(Exception.class, () -> new LoginContext(MssqlKerberosLogin.LOGIN_ENTRY_NAME));
-        assertTrue(
-                error instanceof LoginException || error instanceof SecurityException,
-                "Expected no login entry, got " + error);
+        assertThat(configuration.getAppConfigurationEntry("SQLJDBCDriver")).isNull();
+        // Nothing is installed JVM-wide. With no JAAS file at all, the JDK throws a SecurityException instead.
+        assertThatThrownBy(() -> new LoginContext(MssqlKerberosLogin.LOGIN_ENTRY_NAME))
+                .isInstanceOfAny(LoginException.class, SecurityException.class);
     }
 }

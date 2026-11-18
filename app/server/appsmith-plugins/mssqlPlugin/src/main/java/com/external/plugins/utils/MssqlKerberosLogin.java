@@ -11,6 +11,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
@@ -62,7 +63,29 @@ public final class MssqlKerberosLogin {
         }
     };
 
+    static final String PRINCIPAL_PROPERTY = "sun.security.krb5.principal";
+
+    static final String PRINCIPAL_PROPERTY_ERROR = "The Appsmith server's Java setting " + PRINCIPAL_PROPERTY
+            + " names a different Kerberos account. Remove it from APPSMITH_JAVA_ARGS.";
+
     private MssqlKerberosLogin() {}
+
+    /**
+     * Returns true when two principal names are the same account. A name without a realm gets the default realm
+     * from krb5.conf. If that realm cannot be found, the names are compared as they are.
+     */
+    static boolean sameAccount(String first, String second) {
+        return normalized(first).equals(normalized(second));
+    }
+
+    /** Returns the principal name with the default realm filled in, or the trimmed name if that fails. */
+    static String normalized(String name) {
+        try {
+            return new KerberosPrincipal(name.trim()).getName();
+        } catch (IllegalArgumentException e) {
+            return name.trim();
+        }
+    }
 
     /**
      * Logs in as {@code principal} and returns a credential that can start a Kerberos session with a server.
@@ -74,10 +97,25 @@ public final class MssqlKerberosLogin {
      * @throws GSSException   when a credential cannot be made from the login
      */
     public static GSSCredential login(String principal, char[] password) throws LoginException, GSSException {
+        // Krb5LoginModule uses this JVM-wide setting instead of the name we give it, and no login option turns that
+        // off. Refuse to send this datasource's password for another account.
+        String overridingPrincipal = System.getProperty(PRINCIPAL_PROPERTY);
+        if (overridingPrincipal != null && !sameAccount(overridingPrincipal, principal)) {
+            throw new LoginException(PRINCIPAL_PROPERTY_ERROR);
+        }
+
         LoginContext loginContext = new LoginContext(
                 LOGIN_ENTRY_NAME, new Subject(), new PasswordHandler(principal, password), LOGIN_CONFIGURATION);
         loginContext.login();
         Subject subject = loginContext.getSubject();
+
+        // Check the account that actually logged in, in case anything else replaced the name.
+        boolean loggedInAsPrincipal = subject.getPrincipals(KerberosPrincipal.class).stream()
+                .anyMatch(loggedIn -> sameAccount(loggedIn.getName(), principal));
+        if (!loggedInAsPrincipal) {
+            loginContext.logout();
+            throw new LoginException(PRINCIPAL_PROPERTY_ERROR);
+        }
 
         try {
             // The credential is made from the ticket in this subject, never from a ticket cache.

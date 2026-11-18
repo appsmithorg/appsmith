@@ -14,7 +14,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import java.util.function.LongSupplier;
 import java.util.logging.Logger;
 
@@ -25,11 +24,11 @@ import java.util.logging.Logger;
  * again until it has less than {@link #RENEW_BEFORE_SECONDS} left, then the account logs in again. So a pool of ten
  * connections logs in to the domain controller once, not ten times.
  *
- * <p>After a failed login, the same error is returned without contacting the domain controller, first for
- * {@link #RETRY_AFTER_FAILURE_SECONDS}, then for twice as long after each further failure, up to
- * {@link #MAX_RETRY_AFTER_FAILURE_SECONDS}. The pool keeps trying to open connections, and each try with a wrong
- * password would count towards the account's lockout. Editing or testing the datasource makes a new pool, so a
- * corrected password is used at once.
+ * <p>When the domain controller refuses the account or its password, the refusal is recorded in
+ * {@link MssqlKerberosFailures}, which every pool on the server shares. Until the wait has passed, every pool with
+ * the same account and password gets the same error without contacting the domain controller. Each try with a wrong
+ * password would count towards the account's lockout. Other failures, such as an unreachable domain controller, are
+ * not recorded, so they can be retried at once after they are fixed.
  *
  * <p>The password is held only here, in memory, for the life of the pool.
  */
@@ -38,12 +37,6 @@ public class MssqlKerberosDataSource implements DataSource {
 
     /** Log in again when the credential has less than this many seconds left. */
     static final int RENEW_BEFORE_SECONDS = 5 * 60;
-
-    /** After the first failed login, wait this long before contacting the domain controller again. */
-    static final int RETRY_AFTER_FAILURE_SECONDS = 60;
-
-    /** The longest wait between logins after repeated failures. */
-    static final int MAX_RETRY_AFTER_FAILURE_SECONDS = 15 * 60;
 
     /**
      * Driver URL properties for Kerberos. The credential itself is set per connection.
@@ -68,15 +61,14 @@ public class MssqlKerberosDataSource implements DataSource {
     private final String url;
     private final String principal;
     private final char[] password;
+    private final String failureKey;
     private final String serverSpn;
     private final int socketTimeoutMs;
     private final CredentialSource credentialSource;
+    private final MssqlKerberosFailures failures;
     private final LongSupplier clockNanos;
 
     private GSSCredential credential;
-    private SQLException lastFailure;
-    private long lastFailureAtNanos;
-    private int failuresInARow;
     private int loginTimeoutSeconds;
 
     /** Makes a credential. Tests replace the Kerberos login with this. */
@@ -94,17 +86,15 @@ public class MssqlKerberosDataSource implements DataSource {
      */
     public MssqlKerberosDataSource(
             String url, String principal, String password, String serverSpn, int socketTimeoutMs) {
-        this(url, principal, password, serverSpn, socketTimeoutMs, MssqlKerberosLogin::login, System::nanoTime);
-    }
-
-    MssqlKerberosDataSource(
-            String url,
-            String principal,
-            String password,
-            String serverSpn,
-            int socketTimeoutMs,
-            CredentialSource credentialSource) {
-        this(url, principal, password, serverSpn, socketTimeoutMs, credentialSource, System::nanoTime);
+        this(
+                url,
+                principal,
+                password,
+                serverSpn,
+                socketTimeoutMs,
+                MssqlKerberosLogin::login,
+                MssqlKerberosFailures.SHARED,
+                System::nanoTime);
     }
 
     MssqlKerberosDataSource(
@@ -114,15 +104,18 @@ public class MssqlKerberosDataSource implements DataSource {
             String serverSpn,
             int socketTimeoutMs,
             CredentialSource credentialSource,
+            MssqlKerberosFailures failures,
             LongSupplier clockNanos) {
         // validateDatasource() already requires both. Fail clearly if a caller skipped it.
         this.principal = Objects.requireNonNull(principal, "A Kerberos datasource needs a username.");
         this.password = Objects.requireNonNull(password, "A Kerberos datasource needs a password.")
                 .toCharArray();
+        this.failureKey = MssqlKerberosFailures.key(this.principal, this.password);
         this.url = url;
         this.serverSpn = serverSpn;
         this.socketTimeoutMs = socketTimeoutMs;
         this.credentialSource = credentialSource;
+        this.failures = failures;
         this.clockNanos = clockNanos;
     }
 
@@ -146,54 +139,58 @@ public class MssqlKerberosDataSource implements DataSource {
 
     /**
      * Returns the kept credential, or logs in again when there is none or it is about to expire. Synchronized, so
-     * connections opened at the same time share one login. After a failed login, returns the same error until
-     * {@link #retryWaitSeconds()} have passed.
+     * connections opened at the same time share one login. While a refusal for this account and password is still
+     * waiting, returns that error without contacting the domain controller.
      */
     synchronized GSSCredential currentCredential() throws SQLException {
-        if (lastFailure != null) {
-            long waitedSeconds = TimeUnit.NANOSECONDS.toSeconds(clockNanos.getAsLong() - lastFailureAtNanos);
-            if (waitedSeconds < retryWaitSeconds()) {
-                throw new SQLException(
-                        String.format(
-                                MssqlErrorMessages.KERBEROS_RETRY_WAIT_ERROR_MSG,
-                                lastFailure.getMessage(),
-                                retryWaitSeconds()),
-                        lastFailure.getSQLState(),
-                        lastFailure);
-            }
-            lastFailure = null;
+        if (hasTimeLeft(credential)) {
+            return credential;
         }
+
+        MssqlKerberosFailures.Failure refused = failures.get(failureKey);
+        if (refused != null && refused.stillWaiting(clockNanos.getAsLong())) {
+            throw new SQLException(
+                    String.format(
+                            MssqlErrorMessages.KERBEROS_RETRY_WAIT_ERROR_MSG, refused.message(), refused.waitSeconds()),
+                    refused.sqlState());
+        }
+
         try {
-            if (credential == null || credential.getRemainingLifetime() < RENEW_BEFORE_SECONDS) {
-                credential = credentialSource.login(principal, password);
-                failuresInARow = 0;
-                log.debug(
-                        "Kerberos login for {} worked. The credential is valid for {} seconds.",
-                        principal,
-                        credential.getRemainingLifetime());
-            }
+            credential = credentialSource.login(principal, password);
+            failures.clear(failureKey);
+            log.debug(
+                    "Kerberos login for {} worked. The credential is valid for {} seconds.",
+                    principal,
+                    credential.getRemainingLifetime());
             return credential;
         } catch (LoginException | GSSException e) {
             credential = null;
             // The full error is only in the server log, at debug level. It never contains the password.
             log.debug("Kerberos login for {} failed: {}", principal, e.toString());
             // SQL state 28000: invalid authorization.
-            lastFailure = new SQLException(MssqlKerberosErrors.loginFailure(principal, e), "28000", e);
-            lastFailureAtNanos = clockNanos.getAsLong();
-            failuresInARow++;
-            throw lastFailure;
+            SQLException error = new SQLException(MssqlKerberosErrors.loginFailure(principal, e), "28000", e);
+            if (MssqlKerberosErrors.isAccountRefused(e)) {
+                failures.recordRefusal(failureKey, error.getMessage(), error.getSQLState(), clockNanos.getAsLong());
+            }
+            throw error;
         }
     }
 
-    /** 60 seconds after the first failure, doubling after each further failure, up to 15 minutes. */
-    long retryWaitSeconds() {
-        int doublings = Math.min(Math.max(failuresInARow - 1, 0), 10);
-        return Math.min((long) RETRY_AFTER_FAILURE_SECONDS << doublings, MAX_RETRY_AFTER_FAILURE_SECONDS);
+    /** Returns true when the credential can still be used. A credential that cannot report its lifetime is renewed. */
+    private static boolean hasTimeLeft(GSSCredential credential) {
+        if (credential == null) {
+            return false;
+        }
+        try {
+            return credential.getRemainingLifetime() >= RENEW_BEFORE_SECONDS;
+        } catch (GSSException e) {
+            return false;
+        }
     }
 
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
-        // The pool never passes a user name here, because none is set on it. Refuse one rather than ignore it.
+        // The pool never passes a username here, because none is set on it. Refuse one rather than ignore it.
         throw new SQLFeatureNotSupportedException("Kerberos connections use the datasource's own account.");
     }
 

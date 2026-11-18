@@ -31,8 +31,12 @@ final class MssqlKerberosErrors {
     private static final int CLOCK_SKEW_CODE = 37;
     private static final int WRONG_REALM_CODE = 68;
 
-    /** Java ends a Kerberos error message with the code, such as "... was invalid (24)". */
-    private static final Pattern CODE_AT_END = Pattern.compile("\\((\\d+)\\)\\s*$");
+    /**
+     * Java puts the code after the error text, such as "... was invalid (24)". When the domain controller adds detail
+     * text, Java adds it after the code: "... was invalid (24) - detail". So the code is followed by the end of the
+     * message or by " - ".
+     */
+    private static final Pattern KERBEROS_CODE = Pattern.compile("\\((\\d+)\\)(?:\\s*$|\\s+-\\s)");
 
     private static final int SQL_LOGIN_FAILED = 18456;
     private static final int SQL_UNTRUSTED_DOMAIN = 18452;
@@ -105,8 +109,23 @@ final class MssqlKerberosErrors {
         return new SQLException(hint + " " + message, error.getSQLState(), error.getErrorCode(), error);
     }
 
+    /**
+     * Returns true when the domain controller refused the account or its password. Only these failures count towards
+     * the account's lockout, so only these make Appsmith wait before it tries again. Other failures, such as a
+     * missing krb5.conf or an unreachable domain controller, can be retried at once after they are fixed.
+     */
+    static boolean isAccountRefused(Throwable error) {
+        for (Throwable cause = error; cause != null; cause = cause.getCause()) {
+            Integer code = cause.getMessage() == null ? null : kerberosCode(cause.getMessage());
+            if (code != null && WRONG_ACCOUNT_CODES.contains(code)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static Integer kerberosCode(String message) {
-        Matcher matcher = CODE_AT_END.matcher(message);
+        Matcher matcher = KERBEROS_CODE.matcher(message);
         return matcher.find() ? Integer.valueOf(matcher.group(1)) : null;
     }
 }
