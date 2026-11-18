@@ -5,11 +5,57 @@ on:
     branches: [release]
     types: [opened, reopened, edited]
 
+permissions:
+  pull-requests: write
+
 jobs:
-  build:
+  label:
+    # The token is read-only on a PR from a fork, so the labels cannot be set there.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
-      - uses: appsmithorg/labeler@master
+      - name: Set labels from the PR title
         env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          pr="$(gh api "repos/$GH_REPO/pulls/$PR_NUMBER")"
+          labels_api="repos/$GH_REPO/issues/$PR_NUMBER/labels"
+          title="$(jq -r '.title' <<<"$pr")"
+
+          # This workflow owns five labels. It sets a label when the title starts
+          # with one of the prefixes of that label, and removes the label otherwise.
+          # It leaves every other label on the PR alone.
+          case "$title" in
+            feat:* | feature:*) wanted="Enhancement" ;;
+            fix:*) wanted="Bug" ;;
+            ci:*) wanted="CI skip-changelog" ;;
+            test:*) wanted="Test skip-changelog" ;;
+            doc:* | chore:*) wanted="skip-changelog" ;;
+            *) wanted="" ;;
+          esac
+
+          for label in Enhancement Bug CI Test skip-changelog; do
+            # Label names are case-insensitive. Read the name as the PR carries it.
+            current="$(jq -r --arg label "$label" \
+              '.labels[].name | select(ascii_downcase == ($label | ascii_downcase))' <<<"$pr")"
+            case " $wanted " in
+              *" $label "*)
+                if [[ -z "$current" ]]; then
+                  gh api --silent --method POST "$labels_api" -f "labels[]=$label"
+                  echo "Added $label"
+                fi
+                ;;
+              *)
+                if [[ -n "$current" ]]; then
+                  gh api --silent --method DELETE "$labels_api/$current"
+                  echo "Removed $current"
+                fi
+                ;;
+            esac
+          done
