@@ -80,6 +80,8 @@ APPSMITH_CUSTOM_DOMAIN=
 # Default value, if commented or not set, is "'self'", which allows framing only by the Appsmith
 # instance itself (same origin) and blocks all cross-origin framing. Use "'none'" to block framing
 # entirely, or "*" to allow any origin (not recommended: exposes published apps to clickjacking).
+# Each address is a CSP frame-ancestors source: a host with an optional scheme, wildcard label, port,
+# and path, or a scheme such as "https:". A value with any other content is ignored, and "'self'" applies.
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
 #APPSMITH_ALLOWED_FRAME_ANCESTORS=
 

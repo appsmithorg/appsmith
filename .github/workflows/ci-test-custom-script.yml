@@ -119,19 +119,22 @@ jobs:
       - id: timestamp
         run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
-      # In case this is second attempt try restoring status of the prior attempt from cache
+      # On a re-run, restore the result of this shard's latest earlier attempt.
+      # Each attempt saves its own entry, so the primary key never matches.
+      # The prefix match returns the most recently saved entry. Keep the
+      # trailing "-" in restore-keys, so shard 1 does not match shard 10.
       - name: Restore the previous run result
         id: cache-appsmith
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}-${{ github.run_attempt }}
           restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}-
 
       - name: Get the previous run result
-        if: steps.cache-appsmith.outputs.cache-hit == 'true'
+        if: steps.cache-appsmith.outputs.cache-matched-key != ''
         id: run_result
         run: |
           run_result_env=$(cat ~/run_result)
@@ -159,7 +162,7 @@ jobs:
       # The build job pushed the SUT image to GHCR tagged with this run's id;
       # pull it from there (layer-parallel, no single-blob cache bottleneck).
       - name: Load Docker image
-        if: inputs.docker_image_name == ''
+        if: inputs.docker_image_name == '' && steps.run_result.outputs.run_result != 'success'
         env:
           GHCR_IMAGE: ghcr.io/${{ github.repository }}-citest:run-${{ github.run_id }}
         run: |
@@ -170,7 +173,7 @@ jobs:
       # A caller that passes docker_image_name, such as the daily run on
       # release, tests that published image instead of the runner-built one.
       - name: Pull the image under test
-        if: inputs.docker_image_name != ''
+        if: inputs.docker_image_name != '' && steps.run_result.outputs.run_result != 'success'
         env:
           DOCKER_IMAGE_NAME: ${{ inputs.docker_image_name }}
         run: |
@@ -351,6 +354,7 @@ jobs:
           ./cypress/setup-test-ci.sh
 
       - name: Install Google Chrome 156.0.8078.47
+        if: steps.run_result.outputs.run_result != 'success'
         env:
           CHROME_DEB_URL: https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_156.0.8078.47-1_amd64.deb
           CHROME_DEB_SHA256: 6c92cd22e90c6e3e255d782991543fa2091db8614e8536a971a7433a5c4d7ac8
@@ -400,7 +404,11 @@ jobs:
             echo "COMMIT_INFO_MESSAGE=$(echo "$eventCommit" | awk -F '\\\\n' '{print $1}' | sed 's/^"//;s/"$//')" >> $GITHUB_ENV
           fi
 
+      # A shard that passed in an earlier attempt skips this step and every
+      # step that prepares for it, so a re-run of all jobs keeps it green.
       - name: Run the cypress test
+        id: run_cypress
+        if: steps.run_result.outputs.run_result != 'success'
         env:
           # Untrusted on approved fork PRs: keep as an env var and reference it
           # quoted in the shell below — never interpolate ${{ inputs.spec }} into run:.
@@ -557,22 +565,6 @@ jobs:
           path: ${{ github.workspace }}/app/client/cypress/snapshots
           overwrite: true
 
-      # Set status = failedtest
-      - name: Set fail if there are test failures
-        if: failure()
-        run: |
-          echo "run_result=failedtest" >> $GITHUB_OUTPUT
-          echo "failedtest" > ~/run_result
-
-      # Force store previous run result to cache
-      - name: Store the previous run result
-        if: failure()
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
-
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
         uses: actions/upload-artifact@v4
@@ -583,20 +575,50 @@ jobs:
           overwrite: true
 
       - name: Collect docker log as file
-        if: always()
+        if: always() && steps.run_result.outputs.run_result != 'success'
         run: |
           docker logs appsmith >& app/server/docker-logs.log
 
       - name: Upload server docker logs bundle on failure
         uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && steps.run_result.outputs.run_result != 'success'
         with:
             name: docker-logs-${{ matrix.job }}
             path: app/server/docker-logs.log
             overwrite: true
 
-      # Set status = success
-      - name: Save the status of the run
+      # Record this attempt's result for a later attempt of the same run:
+      # - success: Cypress passed, so a later attempt skips the shard.
+      # - failedtest: Cypress failed, so a later attempt runs only the specs
+      #   that this attempt recorded as failed.
+      # - incomplete: Cypress did not run, or spec allocation failed, so this
+      #   attempt recorded no specs. A later attempt runs the full shard.
+      #   "Spec allocation failed for this runner." is the line that
+      #   staticSplit.splitSpecs logs when it throws.
+      - name: Record the run result
+        if: always() && steps.run_result.outputs.run_result != 'success'
+        env:
+          CYPRESS_OUTCOME: ${{ steps.run_cypress.outcome }}
         run: |
-          echo "run_result=success" >> $GITHUB_OUTPUT
-          echo "success" > ~/run_result
+          case "$CYPRESS_OUTCOME" in
+            success) run_result=success ;;
+            failure)
+              if grep -qs "Spec allocation failed for this runner." app/client/cy-repeat-output.txt; then
+                run_result=incomplete
+              else
+                run_result=failedtest
+              fi
+              ;;
+            *) run_result=incomplete ;;
+          esac
+          echo "$run_result" > ~/run_result
+          echo "Recorded run result: $run_result"
+
+      # A cache entry cannot be overwritten, so each attempt saves its own.
+      - name: Store the run result
+        if: always() && steps.run_result.outputs.run_result != 'success'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/run_result
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}-${{ github.run_attempt }}

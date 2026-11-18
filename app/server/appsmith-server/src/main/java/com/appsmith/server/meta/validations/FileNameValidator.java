@@ -16,6 +16,19 @@ public class FileNameValidator implements ConstraintValidator<FileName, String> 
             "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1",
             "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9");
 
+    /**
+     * States the rule that {@link #isValidFileName} applies to a page name, for use in error messages.
+     */
+    public static final String PAGE_NAME_RULE =
+            "A page name cannot be blank, cannot contain \\ / : < > \" | ? * or control characters, "
+                    + "cannot start or end with a dot, cannot be longer than 255 characters, "
+                    + "and cannot be a reserved device name such as CON or NUL.";
+
+    /**
+     * The message for a page name that {@link #isValidFileName} rejects.
+     */
+    public static final String INVALID_PAGE_NAME_MESSAGE = "The page name is not valid. " + PAGE_NAME_RULE;
+
     private boolean isNullValid;
 
     @Override
@@ -30,7 +43,14 @@ public class FileNameValidator implements ConstraintValidator<FileName, String> 
             return isNullValid;
         }
 
-        if (value.isBlank() || value.startsWith(".") || value.endsWith(".") || value.length() > 255) {
+        return isValidFileName(value);
+    }
+
+    /**
+     * Checks a non-null name against the file-name rule of the {@link FileName} constraint.
+     */
+    public static boolean isValidFileName(String value) {
+        if (value == null || value.isBlank() || value.startsWith(".") || value.endsWith(".") || value.length() > 255) {
             return false;
         }
 

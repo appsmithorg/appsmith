@@ -17,6 +17,8 @@ import {
   MULTISELECT_CHECKBOX_WIDTH,
   TABLE_SCROLLBAR_HEIGHT,
   TABLE_SCROLLBAR_WIDTH,
+  CompactModeTypes,
+  TABLE_CELL_ACTION_VERTICAL_PADDING,
 } from "./Constants";
 import type { Color } from "constants/Colors";
 import { Colors } from "constants/Colors";
@@ -715,6 +717,17 @@ export const CellWrapper = styled.div<{
       display: inline;
     }
   }
+`;
+
+/**
+ * Icon Button / Video cells: SHORT keeps 0 vertical padding; DEFAULT/TALL use
+ * TABLE_CELL_ACTION_VERTICAL_PADDING (including TALL, so a 30px control fits).
+ */
+export const ActionCellWrapper = styled(CellWrapper)<{ compactMode?: string }>`
+  padding: ${({ compactMode }) =>
+    compactMode === CompactModeTypes.SHORT
+      ? "0 10px"
+      : `${TABLE_CELL_ACTION_VERTICAL_PADDING}px 10px`};
 `;
 
 export const CellCheckboxWrapper = styled(CellWrapper)<{
