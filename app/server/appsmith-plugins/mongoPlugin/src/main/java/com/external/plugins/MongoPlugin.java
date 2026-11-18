@@ -248,6 +248,12 @@ public class MongoPlugin extends BasePlugin {
     private static final int COMPLETE_VALUE_PARSER_MODE = net.minidev.json.parser.JSONParser.MODE_PERMISSIVE
             & ~net.minidev.json.parser.JSONParser.ACCEPT_TAILLING_DATA;
 
+    /**
+     * The character that the JSON parser reads as the end of its input. A value that contains it is not written as
+     * an array or object, because the parser would stop at it and ignore the text after it.
+     */
+    private static final char JSON_PARSER_END_OF_INPUT = '\u001A';
+
     private static final int DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX = 1;
 
     private static final Integer MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE = 13;
@@ -759,7 +765,9 @@ public class MongoPlugin extends BasePlugin {
             final String trimmed = value == null ? "" : value.trim();
             final boolean isArrayText = trimmed.startsWith("[") && trimmed.endsWith("]");
             final boolean isObjectText = trimmed.startsWith("{") && trimmed.endsWith("}");
-            if ((!isArrayText && !isObjectText) || trimmed.indexOf('(') < 0) {
+            if ((!isArrayText && !isObjectText)
+                    || trimmed.indexOf('(') < 0
+                    || trimmed.indexOf(JSON_PARSER_END_OF_INPUT) >= 0) {
                 return false;
             }
             final Object parsed;
