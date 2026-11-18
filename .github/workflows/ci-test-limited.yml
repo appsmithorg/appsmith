@@ -277,7 +277,7 @@ jobs:
           
       - name: Install Google Chrome 156.0.8078.47
         env:
-          CHROME_DEB_URL: https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_156.0.8078.47-1_amd64.deb
+          CHROME_DEB_URL: https://appsmith-github-chrome-129-debian.s3.us-east-2.amazonaws.com/google-chrome-stable_156.0.8078.47-1_amd64.deb
           CHROME_DEB_SHA256: 6c92cd22e90c6e3e255d782991543fa2091db8614e8536a971a7433a5c4d7ac8
         run: |
           sudo apt-get remove -y google-chrome-stable || true
