@@ -12,12 +12,15 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @NoArgsConstructor
 public class URIUtils {
+
+    private static final Pattern SCHEME_PATTERN = Pattern.compile("^[a-zA-Z][a-zA-Z0-9+.-]*://");
 
     public URI createUriWithQueryParams(
             ActionConfiguration actionConfiguration,
@@ -61,8 +64,16 @@ public class URIUtils {
         return uriBuilder.build(true).toUri();
     }
 
+    /**
+     * Prepends {@code http://} when the URL does not already start with a URI scheme (e.g. {@code http://},
+     * {@code https://}, {@code ftp://}). Domains that merely start with {@code http} (such as {@code httpbin.org/get})
+     * still receive the {@code http://} prefix.
+     *
+     * @param url input URL string
+     * @return URL guaranteed to keep an existing scheme prefix or have {@code http://} prepended
+     */
     protected String addHttpToUrlWhenPrefixNotPresent(String url) {
-        if (url == null || url.toLowerCase().startsWith("http") || url.contains("://")) {
+        if (url == null || SCHEME_PATTERN.matcher(url).find()) {
             return url;
         }
         return "http://" + url;
