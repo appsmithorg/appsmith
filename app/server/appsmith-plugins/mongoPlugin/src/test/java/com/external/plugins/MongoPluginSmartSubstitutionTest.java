@@ -253,7 +253,8 @@ class MongoPluginSmartSubstitutionTest {
     static Stream<String> untypedValuesWithTextAfterArrayOrObject() {
         return Stream.of(
                 "[\"ObjectId('" + OBJECT_ID + "')\"] trailing text []",
-                "{\"first\": \"ObjectId('" + OBJECT_ID + "')\"} trailing text {}");
+                "{\"first\": \"ObjectId('" + OBJECT_ID + "')\"} trailing text {}",
+                "[\"ObjectId('" + OBJECT_ID + "')\"]\u001A trailing text []");
     }
 
     @ParameterizedTest
