@@ -1955,6 +1955,9 @@ export const END_BUTTON_TEXT = () => "Start building an app";
 
 export const CONTEXT_RENAME = () => "Rename";
 export const CONTEXT_SHOW_BINDING = () => "Show bindings";
+export const CONTEXT_COPY_WIDGET_NAME = () => "Copy widget name";
+export const WIDGET_NAME_COPIED = () => "Widget name copied to clipboard";
+export const WIDGET_NAME_COPY_FAILED = () => "Could not copy widget name";
 export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_COPY_TO_APP = () => "Copy to application";
