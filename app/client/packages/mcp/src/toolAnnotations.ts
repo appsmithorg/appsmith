@@ -96,6 +96,7 @@ const CORE_TOOL_ANNOTATIONS: Readonly<Record<string, ToolAnnotations>> = {
   create_redis_query: WRITE_IDEMPOTENT,
   create_ai_query: WRITE_IDEMPOTENT,
   create_s3_query: WRITE_IDEMPOTENT,
+  create_smtp_query: WRITE_IDEMPOTENT,
   create_graphql_query: WRITE_IDEMPOTENT,
   create_sheets_query: WRITE_IDEMPOTENT,
   update_action: WRITE,

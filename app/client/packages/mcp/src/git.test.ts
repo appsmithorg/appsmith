@@ -789,7 +789,10 @@ describe("the M7 branch gate on mutating tools", () => {
     const api: AppsmithApi = {
       ...stubApi(),
       getApplication: jest.fn(async () => GIT_APP),
-      getApplicationPages: jest.fn(async () => ({ workspaceId: "ws1" })),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "ws1",
+        pages: [{ id: "p1", name: "Page1" }],
+      })),
       listDatasources: jest.fn(async () => [
         { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
       ]),

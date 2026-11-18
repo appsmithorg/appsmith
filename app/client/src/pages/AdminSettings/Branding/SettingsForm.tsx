@@ -25,7 +25,11 @@ import {
 } from "ee/constants/messages";
 import { ColorInput } from "pages/AdminSettings/FormGroup/ColorInput";
 import { ImageInput } from "pages/AdminSettings/FormGroup/ImageInput";
-import { logoImageValidator, faivconImageValidator } from "utils/BrandingUtils";
+import {
+  LOGO_IMAGE_TYPES,
+  logoImageValidator,
+  faivconImageValidator,
+} from "utils/BrandingUtils";
 import { useBrandingForm } from "ee/pages/AdminSettings/Branding/useBrandingForm";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import styled from "styled-components";
@@ -87,6 +91,7 @@ function SettingsForm(props: SettingsFormProps) {
           name="brandLogo"
           render={({ field: { onChange, value } }) => (
             <ImageInput
+              accept={LOGO_IMAGE_TYPES.join(",")}
               className="t--settings-brand-logo-input"
               defaultValue={defaultValues.brandLogo}
               onChange={(e) => {

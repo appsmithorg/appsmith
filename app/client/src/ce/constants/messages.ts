@@ -1861,9 +1861,9 @@ export const ADMIN_BRANDING_LOGO_SIZE_ERROR = () =>
 export const ADMIN_BRANDING_LOGO_DIMENSION_ERROR = () =>
   `Logo should  be atleast 256px in height`;
 export const ADMIN_BRANDING_LOGO_FORMAT_ERROR = () =>
-  `Uploaded file must be in .SVG .PNG, and .JPG formats`;
+  `Uploaded file must be in .PNG or .JPG format`;
 export const ADMIN_BRANDING_LOGO_REQUIREMENT = () =>
-  `.SVG, .PNG, or .JPG only • Max 2MB`;
+  `.PNG or .JPG only • Max 2MB`;
 export const ADMIN_BRANDING_LOGO_SIZE_HELP = () =>
   "Set maximum logo size in pixels. Defaults to 10rem (160px) width and 1.5rem (24px) height.";
 export const ADMIN_BRANDING_FAVICON_DIMENSION_ERROR = () =>
