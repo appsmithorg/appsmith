@@ -11,8 +11,11 @@ import type { ReactTableColumnProps } from "./Constants";
 import { TableIconWrapper } from "./TableStyledWrappers";
 import TableAction from "./TableAction";
 import styled from "styled-components";
-import { transformTableDataIntoCsv } from "./CommonUtilities";
-import zipcelx from "zipcelx";
+import {
+  transformTableDataIntoCsv,
+  transformTableDataIntoExcel,
+} from "./CommonUtilities";
+import log from "loglevel";
 import { importSvg } from "@appsmith/ads-old";
 
 const DownloadIcon = importSvg(
@@ -62,11 +65,6 @@ interface TableDataDownloadProps {
 }
 
 type FileDownloadType = "CSV" | "EXCEL";
-
-interface DataCellProps {
-  value: string | number;
-  type: "string" | "number";
-}
 
 interface DownloadOptionProps {
   label: string;
@@ -134,60 +132,31 @@ function TableDataDownload(props: TableDataDownloadProps) {
       downloadTableDataAsExcel();
     }
   };
-  const downloadTableDataAsExcel = () => {
-    const tableData: Array<Array<DataCellProps>> = [];
-    const tableHeaders: Array<DataCellProps> = props.columns
-      .filter((column: ReactTableColumnProps) => {
-        return column.metaProperties && !column.metaProperties.isHidden;
-      })
-      .map((column: ReactTableColumnProps) => {
-        return {
-          value: column.Header,
-          type:
-            column.columnProperties?.columnType === "number"
-              ? "number"
-              : "string",
-        };
+  const downloadTableDataAsExcel = async () => {
+    try {
+      // SheetJS writes primitive strings as text cells, preventing formula execution.
+      const XLSX = await import("xlsx");
+      const tableData = transformTableDataIntoExcel({
+        columns: props.columns,
+        data: props.data,
       });
 
-    tableData.push(tableHeaders);
+      const ws = XLSX.utils.aoa_to_sheet(tableData);
+      const wb = XLSX.utils.book_new();
 
-    for (let row = 0; row < props.data.length; row++) {
-      // TODO: Fix this the next time the file is edited
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const data: { [key: string]: any } = props.data[row];
-      const tableRow: Array<DataCellProps> = [];
+      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
 
-      for (let colIndex = 0; colIndex < props.columns.length; colIndex++) {
-        const column = props.columns[colIndex];
-        const type =
-          column.columnProperties?.columnType === "number"
-            ? "number"
-            : "string";
-
-        if (column.metaProperties && !column.metaProperties.isHidden) {
-          tableRow.push({
-            value: data[column.accessor],
-            type: type,
-          });
-        }
-      }
-
-      tableData.push(tableRow);
+      XLSX.writeFile(wb, `${props.widgetName}.xlsx`);
+    } catch (error) {
+      log.error("Error loading Excel export functionality:", error);
     }
-
-    zipcelx({
-      filename: props.widgetName,
-      sheet: {
-        data: tableData,
-      },
-    });
   };
   const downloadTableDataAsCsv = () => {
     selectMenu(true);
     const csvData = transformTableDataIntoCsv({
       columns: props.columns,
       data: props.data,
+      delimiter: props.delimiter,
     });
 
     downloadDataAsCSV({

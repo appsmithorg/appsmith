@@ -2,6 +2,7 @@ import type { TableColumnProps } from "./Constants";
 import { ColumnTypes } from "./Constants";
 import { isPlainObject, isNil, isString } from "lodash";
 import moment from "moment";
+import { neutralizeSpreadsheetFormula } from "widgets/TableWidgetV2/utilities/getExportCellValue";
 
 export function sortTableFunction(
   filteredTableData: Array<Record<string, unknown>>,
@@ -56,17 +57,36 @@ export function sortTableFunction(
   );
 }
 
+const formatCsvCell = (rawValue: unknown, delimiter: string): unknown => {
+  if (!isString(rawValue)) {
+    return rawValue;
+  }
+
+  // Neutralize formula prefixes before collapsing newlines so values like "\r=cmd" are still caught.
+  const neutralized = neutralizeSpreadsheetFormula(rawValue);
+  // Collapse all newlines (CRLF, CR, LF) so a cell cannot split CSV rows.
+  const normalized = neutralized.replace(/\r\n|\r|\n/g, " ");
+
+  if (normalized.includes(delimiter) || normalized.includes('"')) {
+    return `"${normalized.replace(/"/g, '""')}"`;
+  }
+
+  return normalized;
+};
+
 export const transformTableDataIntoCsv = (props: {
   columns: TableColumnProps[];
   data: Array<Record<string, unknown>>;
+  delimiter?: string;
 }) => {
   const csvData = [];
+  const delimiter = props.delimiter || ",";
 
   csvData.push(
     props.columns
       .map((column: TableColumnProps) => {
         if (column.metaProperties && !column.metaProperties.isHidden) {
-          return column.Header;
+          return formatCsvCell(column.Header, delimiter);
         }
 
         return null;
@@ -82,19 +102,10 @@ export const transformTableDataIntoCsv = (props: {
 
     for (let colIndex = 0; colIndex < props.columns.length; colIndex++) {
       const column = props.columns[colIndex];
-      let value = data[column.accessor];
+      const value = data[column.accessor];
 
       if (column.metaProperties && !column.metaProperties.isHidden) {
-        value =
-          isString(value) && value.includes("\n")
-            ? value.replace("\n", " ")
-            : value;
-
-        if (isString(value) && value.includes(",")) {
-          csvDataRow.push(`"${value}"`);
-        } else {
-          csvDataRow.push(value);
-        }
+        csvDataRow.push(formatCsvCell(value, delimiter));
       }
     }
 
@@ -102,4 +113,37 @@ export const transformTableDataIntoCsv = (props: {
   }
 
   return csvData;
+};
+
+export const transformTableDataIntoExcel = (props: {
+  columns: TableColumnProps[];
+  data: Array<Record<string, unknown>>;
+}): Array<Array<unknown>> => {
+  const tableData: Array<Array<unknown>> = [];
+  const visibleColumns = props.columns.filter(
+    (column: TableColumnProps) =>
+      column.metaProperties && !column.metaProperties.isHidden,
+  );
+
+  tableData.push(visibleColumns.map((column) => column.Header));
+
+  for (let row = 0; row < props.data.length; row++) {
+    const data = props.data[row];
+    const tableRow: Array<unknown> = visibleColumns.map((column) => {
+      const value = data[column.accessor];
+
+      if (
+        column.columnProperties?.columnType === ColumnTypes.NUMBER &&
+        typeof value === "string"
+      ) {
+        return Number(value) || 0;
+      }
+
+      return value;
+    });
+
+    tableData.push(tableRow);
+  }
+
+  return tableData;
 };
