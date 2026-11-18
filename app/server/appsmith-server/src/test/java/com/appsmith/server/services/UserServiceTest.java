@@ -474,19 +474,23 @@ public class UserServiceTest {
                 })
                 .block();
 
-        // Now Sign Up as the new user
+        // Now try to sign up as the invited user
         User signUpUser = new User();
         signUpUser.setEmail(newUserEmail);
         signUpUser.setPassword("123456");
 
         Mono<User> invitedUserSignUpMono = userService.createUser(signUpUser).map(UserSignupDTO::getUser);
 
+        // Signup does not activate the invited account
         StepVerifier.create(invitedUserSignUpMono)
-                .assertNext(user -> {
-                    assertTrue(user.getIsEnabled());
-                    assertTrue(passwordEncoder.matches("123456", user.getPassword()));
-                })
-                .verifyComplete();
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && AppsmithError.USER_ALREADY_EXISTS_SIGNUP.equals(((AppsmithException) throwable).getError()))
+                .verify();
+
+        User invitedUser =
+                userRepository.findByEmail(newUserEmail.toLowerCase()).block();
+        assertThat(invitedUser.getIsEnabled()).isFalse();
+        assertThat(invitedUser.getPassword()).isNull();
 
         workspaceMono
                 .flatMap(workspace1 -> workspaceService.archiveById(workspace1.getId()))
