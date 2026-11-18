@@ -19,16 +19,27 @@ export default {
       return false;
     }
 
+    const granularity = ["day", "hour", "minute", "second"].includes(
+      props.timePrecision,
+    )
+      ? props.timePrecision
+      : undefined;
+
     if (props.minDate && props.maxDate) {
-      return parsedSelectedDate.isBetween(parsedMinDate, parsedMaxDate);
+      return parsedSelectedDate.isBetween(
+        parsedMinDate,
+        parsedMaxDate,
+        granularity,
+        "[]",
+      );
     }
 
     if (props.minDate) {
-      return parsedSelectedDate.isAfter(parsedMinDate);
+      return parsedSelectedDate.isSameOrAfter(parsedMinDate, granularity);
     }
 
     if (props.maxDate) {
-      return parsedSelectedDate.isBefore(parsedMaxDate);
+      return parsedSelectedDate.isSameOrBefore(parsedMaxDate, granularity);
     }
 
     return true;

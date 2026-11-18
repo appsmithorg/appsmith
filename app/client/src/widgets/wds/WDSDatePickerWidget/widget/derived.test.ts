@@ -61,4 +61,64 @@ describe("isValid function", () => {
 
     expect(derived.isValid(props, mockMoment)).toBe(true);
   });
+
+  it("should return true when selectedDate equals minDate with both minDate and maxDate set", () => {
+    const props = {
+      isDirty: true,
+      minDate: "2023-01-01",
+      maxDate: "2023-12-31",
+      selectedDate: "2023-01-01",
+    };
+
+    expect(derived.isValid(props, mockMoment)).toBe(true);
+  });
+
+  it("should return true when selectedDate equals maxDate with both minDate and maxDate set", () => {
+    const props = {
+      isDirty: true,
+      minDate: "2023-01-01",
+      maxDate: "2023-12-31",
+      selectedDate: "2023-12-31",
+    };
+
+    expect(derived.isValid(props, mockMoment)).toBe(true);
+  });
+
+  it("should return true when selectedDate equals minDate (only minDate set)", () => {
+    const props = {
+      isDirty: true,
+      minDate: "2023-01-01",
+      selectedDate: "2023-01-01",
+    };
+
+    expect(derived.isValid(props, mockMoment)).toBe(true);
+  });
+
+  it("should return true when selectedDate equals maxDate (only maxDate set)", () => {
+    const props = {
+      isDirty: true,
+      maxDate: "2023-12-31",
+      selectedDate: "2023-12-31",
+    };
+
+    expect(derived.isValid(props, mockMoment)).toBe(true);
+  });
+
+  it("should respect timePrecision day granularity on boundary dates with different time components", () => {
+    const props = {
+      isDirty: true,
+      timePrecision: "day",
+      minDate: "2023-01-01T14:30:00.000Z",
+      maxDate: "2023-12-31T08:00:00.000Z",
+      selectedDate: "2023-01-01T00:00:00.000Z",
+    };
+
+    expect(derived.isValid(props, mockMoment)).toBe(true);
+    expect(
+      derived.isValid(
+        { ...props, selectedDate: "2023-12-31T23:59:59.000Z" },
+        mockMoment,
+      ),
+    ).toBe(true);
+  });
 });
