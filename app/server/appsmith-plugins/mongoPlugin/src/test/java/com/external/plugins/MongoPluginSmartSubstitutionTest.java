@@ -19,6 +19,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -75,10 +76,10 @@ class MongoPluginSmartSubstitutionTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setFormData(formData);
 
-        assertThatThrownBy(() -> Mono.defer(() -> pluginExecutor.executeParameterized(
-                                null, executeActionDTO, new DatasourceConfiguration(), actionConfiguration))
-                        .block())
-                .isInstanceOf(StaleConnectionException.class);
+        StepVerifier.create(Mono.defer(() -> pluginExecutor.executeParameterized(
+                        null, executeActionDTO, new DatasourceConfiguration(), actionConfiguration)))
+                .expectError(StaleConnectionException.class)
+                .verify();
 
         String substitutedQuery = getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE);
         assertThatCode(() -> Document.parse(substitutedQuery))
@@ -307,10 +308,10 @@ class MongoPluginSmartSubstitutionTest {
         actionConfiguration.setFormData(formData);
 
         // When
-        assertThatThrownBy(() -> Mono.defer(() -> pluginExecutor.executeParameterized(
-                                null, executeActionDTO, new DatasourceConfiguration(), actionConfiguration))
-                        .block())
-                .isInstanceOf(StaleConnectionException.class);
+        StepVerifier.create(Mono.defer(() -> pluginExecutor.executeParameterized(
+                        null, executeActionDTO, new DatasourceConfiguration(), actionConfiguration)))
+                .expectError(StaleConnectionException.class)
+                .verify();
 
         // Then
         Document command = Document.parse(getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE));
@@ -487,11 +488,11 @@ class MongoPluginSmartSubstitutionTest {
         // When / Then
         // The null client fails with StaleConnectionException after smart substitution, so the exception shows that
         // substitution completed; the timeout bounds it.
-        assertTimeoutPreemptively(Duration.ofSeconds(5), () -> assertThatThrownBy(
-                        () -> Mono.defer(() -> pluginExecutor.executeParameterized(
-                                        null, executeActionDTO, new DatasourceConfiguration(), actionConfiguration))
-                                .block())
-                .isInstanceOf(StaleConnectionException.class));
+        assertTimeoutPreemptively(
+                Duration.ofSeconds(5), () -> StepVerifier.create(Mono.defer(() -> pluginExecutor.executeParameterized(
+                                null, executeActionDTO, new DatasourceConfiguration(), actionConfiguration)))
+                        .expectError(StaleConnectionException.class)
+                        .verify());
     }
 
     @Test
