@@ -67,6 +67,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -76,6 +77,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_ALLOWED_FRAME_ANCESTORS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_ENABLED;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_MAIL_FROM;
@@ -127,6 +129,13 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     private static final Pattern ENV_VARIABLE_PATTERN = Pattern.compile("^(?<name>[A-Z\\d_]+)\\s*=\\s*(?<value>.*)$");
 
     private static final Pattern SAFE_SHELL_VALUE_PATTERN = Pattern.compile("^[A-Za-z\\d_@%+=:,./-]*$");
+
+    /**
+     * One CSP frame-ancestors source expression: the wildcard, a scheme source, or a host source with an optional
+     * scheme, wildcard label, port, and path. caddy-reconfigure.mjs applies the same rules when it writes the header.
+     */
+    private static final Pattern FRAME_ANCESTORS_SOURCE_PATTERN = Pattern.compile(
+            "^(?:\\*|[A-Za-z][A-Za-z0-9+.-]*:|(?:[A-Za-z][A-Za-z0-9+.-]*://)?(?:\\*|(?:\\*\\.)?[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*\\.?)(?::(?:[0-9]+|\\*))?(?:/[A-Za-z0-9._~%+:@=&/-]*)?)$");
 
     private static final Set<String> VARIABLE_WHITELIST =
             Stream.of(EnvVariables.values()).map(Enum::name).collect(Collectors.toUnmodifiableSet());
@@ -321,9 +330,55 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return valueBuilder.toString();
     }
 
+    /**
+     * Returns the value as a space-separated list of CSP frame-ancestors source expressions. Returns an empty string
+     * when the value is blank.
+     *
+     * @throws AppsmithException when any part of the value is not a source expression
+     */
+    private static String normalizeFrameAncestors(String value) {
+        // A source expression holds printable ASCII only. This check covers the whole value, including line breaks
+        // and other control characters.
+        if (value.chars().anyMatch(c -> c < 0x20 || c > 0x7E)) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "Allowed frame ancestors");
+        }
+        final List<String> tokens = new ArrayList<>();
+        for (final String token : value.split(" ")) {
+            if (!token.isEmpty()) {
+                tokens.add(token);
+            }
+        }
+        if (tokens.size() == 1 && "'none'".equals(tokens.get(0).toLowerCase(Locale.ROOT))) {
+            return "'none'";
+        }
+        final List<String> sources = new ArrayList<>();
+        for (final String token : tokens) {
+            if ("'self'".equals(token.toLowerCase(Locale.ROOT))) {
+                sources.add("'self'");
+            } else if (FRAME_ANCESTORS_SOURCE_PATTERN.matcher(token).matches()) {
+                sources.add(token);
+            } else {
+                throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "Allowed frame ancestors");
+            }
+        }
+        return String.join(" ", sources);
+    }
+
     // Expect user object to be null when this method is getting called to run the org specific migrations without
     // user context
     private Mono<Void> validateChanges(User user, Map<String, String> changes) {
+        if (changes.containsKey(APPSMITH_ALLOWED_FRAME_ANCESTORS.name())) {
+            final String frameAncestors = changes.get(APPSMITH_ALLOWED_FRAME_ANCESTORS.name());
+            if (frameAncestors == null) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Allowed frame ancestors"));
+            }
+            try {
+                changes.put(APPSMITH_ALLOWED_FRAME_ANCESTORS.name(), normalizeFrameAncestors(frameAncestors));
+            } catch (AppsmithException e) {
+                return Mono.error(e);
+            }
+        }
+
         if (changes.containsKey(APPSMITH_ADMIN_EMAILS.name())) {
             String emailCsv = StringUtils.trimAllWhitespace(changes.get(APPSMITH_ADMIN_EMAILS.name()));
 
@@ -995,7 +1050,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.socketFactory", pinnedSocketFactory(resolvedAddress));
         // Never fall back to an unpinned plain socket if the factory fails — that would
-        // silently reopen the DNS-rebinding hole. (Angus 2.x defaults to false; be explicit.)
+        // silently reopen the DNS-rebinding hole. (Angus 2.x defaults the fallback to true.)
         props.put("mail.smtp.socketFactory.fallback", "false");
         // TLS server identity checking is the lynchpin of this configuration — don't rely on
         // the library default (it differed between JavaMail and Angus Mail generations).

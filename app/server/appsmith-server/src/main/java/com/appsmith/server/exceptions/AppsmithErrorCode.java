@@ -38,6 +38,7 @@ public enum AppsmithErrorCode {
     HEALTHCHECK_TIMEOUT("AE-APP-4080", "Connection timeout during health check"),
     DUPLICATE_KEY("AE-APP-4091", "Duplicate key"),
     DUPLICATE_KEY_OBJECT_CREATION("AE-APP-4092", "Duplicate key during object creation"),
+    STALE_LAYOUT_UPDATE("AE-APP-4096", "Layout changed since it was read"),
     INTERNAL_SERVER_ERROR("AE-APP-5000", "Internal server error"),
     REPOSITORY_SAVE_FAILED("AE-APP-5001", "Repository save failed"),
     PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR("AE-APP-5002", "Plugin installation failed download error"),

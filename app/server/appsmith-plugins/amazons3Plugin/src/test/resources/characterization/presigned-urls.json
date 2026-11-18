@@ -1,0 +1,1148 @@
+{
+  "upcloud | appsmith.de-fra1.upcloudobjects.com | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/dir/file.txt signed for de-fra1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/with%20space%2Bplus%25.txt signed for de-fra1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for de-fra1",
+      "my-bucket :: /leading.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com//leading.txt signed for de-fra1",
+      "my.dotted.bucket :: dir/file.txt": "https://appsmith.de-fra1.upcloudobjects.com/my.dotted.bucket/dir/file.txt signed for de-fra1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://appsmith.de-fra1.upcloudobjects.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for de-fra1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://appsmith.de-fra1.upcloudobjects.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for de-fra1",
+      "my.dotted.bucket :: /leading.txt": "https://appsmith.de-fra1.upcloudobjects.com/my.dotted.bucket//leading.txt signed for de-fra1",
+      "MyBucket :: dir/file.txt": "https://appsmith.de-fra1.upcloudobjects.com/MyBucket/dir/file.txt signed for de-fra1",
+      "MyBucket :: with space+plus%.txt": "https://appsmith.de-fra1.upcloudobjects.com/MyBucket/with%20space%2Bplus%25.txt signed for de-fra1",
+      "MyBucket :: ünï/文件.txt": "https://appsmith.de-fra1.upcloudobjects.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for de-fra1",
+      "MyBucket :: /leading.txt": "https://appsmith.de-fra1.upcloudobjects.com/MyBucket//leading.txt signed for de-fra1"
+    }
+  },
+  "upcloud | https://appsmith.de-fra1.upcloudobjects.com | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/dir/file.txt signed for de-fra1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/with%20space%2Bplus%25.txt signed for de-fra1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for de-fra1",
+      "my-bucket :: /leading.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com//leading.txt signed for de-fra1",
+      "my.dotted.bucket :: dir/file.txt": "https://appsmith.de-fra1.upcloudobjects.com/my.dotted.bucket/dir/file.txt signed for de-fra1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://appsmith.de-fra1.upcloudobjects.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for de-fra1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://appsmith.de-fra1.upcloudobjects.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for de-fra1",
+      "my.dotted.bucket :: /leading.txt": "https://appsmith.de-fra1.upcloudobjects.com/my.dotted.bucket//leading.txt signed for de-fra1",
+      "MyBucket :: dir/file.txt": "https://appsmith.de-fra1.upcloudobjects.com/MyBucket/dir/file.txt signed for de-fra1",
+      "MyBucket :: with space+plus%.txt": "https://appsmith.de-fra1.upcloudobjects.com/MyBucket/with%20space%2Bplus%25.txt signed for de-fra1",
+      "MyBucket :: ünï/文件.txt": "https://appsmith.de-fra1.upcloudobjects.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for de-fra1",
+      "MyBucket :: /leading.txt": "https://appsmith.de-fra1.upcloudobjects.com/MyBucket//leading.txt signed for de-fra1"
+    }
+  },
+  "upcloud | http://appsmith.de-fra1.upcloudobjects.com | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://my-bucket.appsmith.de-fra1.upcloudobjects.com/dir/file.txt signed for de-fra1",
+      "my-bucket :: with space+plus%.txt": "http://my-bucket.appsmith.de-fra1.upcloudobjects.com/with%20space%2Bplus%25.txt signed for de-fra1",
+      "my-bucket :: ünï/文件.txt": "http://my-bucket.appsmith.de-fra1.upcloudobjects.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for de-fra1",
+      "my-bucket :: /leading.txt": "http://my-bucket.appsmith.de-fra1.upcloudobjects.com//leading.txt signed for de-fra1",
+      "my.dotted.bucket :: dir/file.txt": "http://my.dotted.bucket.appsmith.de-fra1.upcloudobjects.com/dir/file.txt signed for de-fra1",
+      "my.dotted.bucket :: with space+plus%.txt": "http://my.dotted.bucket.appsmith.de-fra1.upcloudobjects.com/with%20space%2Bplus%25.txt signed for de-fra1",
+      "my.dotted.bucket :: ünï/文件.txt": "http://my.dotted.bucket.appsmith.de-fra1.upcloudobjects.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for de-fra1",
+      "my.dotted.bucket :: /leading.txt": "http://my.dotted.bucket.appsmith.de-fra1.upcloudobjects.com//leading.txt signed for de-fra1",
+      "MyBucket :: dir/file.txt": "http://appsmith.de-fra1.upcloudobjects.com/MyBucket/dir/file.txt signed for de-fra1",
+      "MyBucket :: with space+plus%.txt": "http://appsmith.de-fra1.upcloudobjects.com/MyBucket/with%20space%2Bplus%25.txt signed for de-fra1",
+      "MyBucket :: ünï/文件.txt": "http://appsmith.de-fra1.upcloudobjects.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for de-fra1",
+      "MyBucket :: /leading.txt": "http://appsmith.de-fra1.upcloudobjects.com/MyBucket//leading.txt signed for de-fra1"
+    }
+  },
+  "upcloud | appsmith.de-fra1.upcloudobjects.com:443 | region=": {
+    "create": "AppsmithPluginException: Your S3 endpoint URL seems to be incorrect for the selected S3 service provider. Please check your endpoint URL and the selected S3 service provider. [PE-DSE-5003 Datasource configuration is invalid]"
+  },
+  "upcloud | appsmith..de-fra1.upcloudobjects.com | region=": {
+    "create": "AppsmithPluginException: Your S3 endpoint URL seems to be incorrect for the selected S3 service provider. Please check your endpoint URL and the selected S3 service provider. [PE-DSE-5003 Datasource configuration is invalid]"
+  },
+  "wasabi | s3.eu-central-1.wasabisys.com | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/dir/file.txt signed for eu-central-1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/with%20space%2Bplus%25.txt signed for eu-central-1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for eu-central-1",
+      "my-bucket :: /leading.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com//leading.txt signed for eu-central-1",
+      "my.dotted.bucket :: dir/file.txt": "https://s3.eu-central-1.wasabisys.com/my.dotted.bucket/dir/file.txt signed for eu-central-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://s3.eu-central-1.wasabisys.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for eu-central-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://s3.eu-central-1.wasabisys.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for eu-central-1",
+      "my.dotted.bucket :: /leading.txt": "https://s3.eu-central-1.wasabisys.com/my.dotted.bucket//leading.txt signed for eu-central-1",
+      "MyBucket :: dir/file.txt": "https://s3.eu-central-1.wasabisys.com/MyBucket/dir/file.txt signed for eu-central-1",
+      "MyBucket :: with space+plus%.txt": "https://s3.eu-central-1.wasabisys.com/MyBucket/with%20space%2Bplus%25.txt signed for eu-central-1",
+      "MyBucket :: ünï/文件.txt": "https://s3.eu-central-1.wasabisys.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for eu-central-1",
+      "MyBucket :: /leading.txt": "https://s3.eu-central-1.wasabisys.com/MyBucket//leading.txt signed for eu-central-1"
+    }
+  },
+  "wasabi | https://s3.eu-central-1.wasabisys.com | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/dir/file.txt signed for eu-central-1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/with%20space%2Bplus%25.txt signed for eu-central-1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for eu-central-1",
+      "my-bucket :: /leading.txt": "https://my-bucket.s3.eu-central-1.wasabisys.com//leading.txt signed for eu-central-1",
+      "my.dotted.bucket :: dir/file.txt": "https://s3.eu-central-1.wasabisys.com/my.dotted.bucket/dir/file.txt signed for eu-central-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://s3.eu-central-1.wasabisys.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for eu-central-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://s3.eu-central-1.wasabisys.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for eu-central-1",
+      "my.dotted.bucket :: /leading.txt": "https://s3.eu-central-1.wasabisys.com/my.dotted.bucket//leading.txt signed for eu-central-1",
+      "MyBucket :: dir/file.txt": "https://s3.eu-central-1.wasabisys.com/MyBucket/dir/file.txt signed for eu-central-1",
+      "MyBucket :: with space+plus%.txt": "https://s3.eu-central-1.wasabisys.com/MyBucket/with%20space%2Bplus%25.txt signed for eu-central-1",
+      "MyBucket :: ünï/文件.txt": "https://s3.eu-central-1.wasabisys.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for eu-central-1",
+      "MyBucket :: /leading.txt": "https://s3.eu-central-1.wasabisys.com/MyBucket//leading.txt signed for eu-central-1"
+    }
+  },
+  "wasabi | s3.wasabisys.com | region=": {
+    "create": "AppsmithPluginException: Your S3 endpoint URL seems to be incorrect for the selected S3 service provider. Please check your endpoint URL and the selected S3 service provider. [PE-DSE-5003 Datasource configuration is invalid]"
+  },
+  "wasabi | https://s3.eu-central-1.wasabisys.com/base/path | region=": {
+    "create": "AppsmithPluginException: Your S3 endpoint URL seems to be incorrect for the selected S3 service provider. Please check your endpoint URL and the selected S3 service provider. [PE-DSE-5003 Datasource configuration is invalid]"
+  },
+  "digital-ocean-spaces | fra1.digitaloceanspaces.com | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.fra1.digitaloceanspaces.com/dir/file.txt signed for fra1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.fra1.digitaloceanspaces.com/with%20space%2Bplus%25.txt signed for fra1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.fra1.digitaloceanspaces.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for fra1",
+      "my-bucket :: /leading.txt": "https://my-bucket.fra1.digitaloceanspaces.com//leading.txt signed for fra1",
+      "my.dotted.bucket :: dir/file.txt": "https://fra1.digitaloceanspaces.com/my.dotted.bucket/dir/file.txt signed for fra1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://fra1.digitaloceanspaces.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for fra1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://fra1.digitaloceanspaces.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for fra1",
+      "my.dotted.bucket :: /leading.txt": "https://fra1.digitaloceanspaces.com/my.dotted.bucket//leading.txt signed for fra1",
+      "MyBucket :: dir/file.txt": "https://fra1.digitaloceanspaces.com/MyBucket/dir/file.txt signed for fra1",
+      "MyBucket :: with space+plus%.txt": "https://fra1.digitaloceanspaces.com/MyBucket/with%20space%2Bplus%25.txt signed for fra1",
+      "MyBucket :: ünï/文件.txt": "https://fra1.digitaloceanspaces.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for fra1",
+      "MyBucket :: /leading.txt": "https://fra1.digitaloceanspaces.com/MyBucket//leading.txt signed for fra1"
+    }
+  },
+  "digital-ocean-spaces | https://fra1.digitaloceanspaces.com | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.fra1.digitaloceanspaces.com/dir/file.txt signed for fra1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.fra1.digitaloceanspaces.com/with%20space%2Bplus%25.txt signed for fra1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.fra1.digitaloceanspaces.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for fra1",
+      "my-bucket :: /leading.txt": "https://my-bucket.fra1.digitaloceanspaces.com//leading.txt signed for fra1",
+      "my.dotted.bucket :: dir/file.txt": "https://fra1.digitaloceanspaces.com/my.dotted.bucket/dir/file.txt signed for fra1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://fra1.digitaloceanspaces.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for fra1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://fra1.digitaloceanspaces.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for fra1",
+      "my.dotted.bucket :: /leading.txt": "https://fra1.digitaloceanspaces.com/my.dotted.bucket//leading.txt signed for fra1",
+      "MyBucket :: dir/file.txt": "https://fra1.digitaloceanspaces.com/MyBucket/dir/file.txt signed for fra1",
+      "MyBucket :: with space+plus%.txt": "https://fra1.digitaloceanspaces.com/MyBucket/with%20space%2Bplus%25.txt signed for fra1",
+      "MyBucket :: ünï/文件.txt": "https://fra1.digitaloceanspaces.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for fra1",
+      "MyBucket :: /leading.txt": "https://fra1.digitaloceanspaces.com/MyBucket//leading.txt signed for fra1"
+    }
+  },
+  "digital-ocean-spaces | http://fra1.digitaloceanspaces.com | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://my-bucket.fra1.digitaloceanspaces.com/dir/file.txt signed for fra1",
+      "my-bucket :: with space+plus%.txt": "http://my-bucket.fra1.digitaloceanspaces.com/with%20space%2Bplus%25.txt signed for fra1",
+      "my-bucket :: ünï/文件.txt": "http://my-bucket.fra1.digitaloceanspaces.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for fra1",
+      "my-bucket :: /leading.txt": "http://my-bucket.fra1.digitaloceanspaces.com//leading.txt signed for fra1",
+      "my.dotted.bucket :: dir/file.txt": "http://my.dotted.bucket.fra1.digitaloceanspaces.com/dir/file.txt signed for fra1",
+      "my.dotted.bucket :: with space+plus%.txt": "http://my.dotted.bucket.fra1.digitaloceanspaces.com/with%20space%2Bplus%25.txt signed for fra1",
+      "my.dotted.bucket :: ünï/文件.txt": "http://my.dotted.bucket.fra1.digitaloceanspaces.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for fra1",
+      "my.dotted.bucket :: /leading.txt": "http://my.dotted.bucket.fra1.digitaloceanspaces.com//leading.txt signed for fra1",
+      "MyBucket :: dir/file.txt": "http://fra1.digitaloceanspaces.com/MyBucket/dir/file.txt signed for fra1",
+      "MyBucket :: with space+plus%.txt": "http://fra1.digitaloceanspaces.com/MyBucket/with%20space%2Bplus%25.txt signed for fra1",
+      "MyBucket :: ünï/文件.txt": "http://fra1.digitaloceanspaces.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for fra1",
+      "MyBucket :: /leading.txt": "http://fra1.digitaloceanspaces.com/MyBucket//leading.txt signed for fra1"
+    }
+  },
+  "dream-objects | objects-us-east-1.dream.io | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.objects-us-east-1.dream.io/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.objects-us-east-1.dream.io/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects-us-east-1.dream.io/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects-us-east-1.dream.io//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://objects-us-east-1.dream.io/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://objects-us-east-1.dream.io/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://objects-us-east-1.dream.io/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://objects-us-east-1.dream.io/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://objects-us-east-1.dream.io/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://objects-us-east-1.dream.io/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://objects-us-east-1.dream.io/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://objects-us-east-1.dream.io/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "dream-objects | https://objects-us-east-1.dream.io | region=": {
+    "create": "AppsmithPluginException: Your S3 endpoint URL seems to be incorrect for the selected S3 service provider. Please check your endpoint URL and the selected S3 service provider. [PE-DSE-5003 Datasource configuration is invalid]"
+  },
+  "minio | minio.example.com | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://minio.example.com/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://minio.example.com/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://minio.example.com/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://minio.example.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://minio.example.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://minio.example.com/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://minio.example.com/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://minio.example.com/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://minio.example.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://minio.example.com/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "minio | minio.example.com:9000 | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://minio.example.com:9000/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://minio.example.com:9000/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://minio.example.com:9000/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com:9000/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://minio.example.com:9000/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://minio.example.com:9000/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://minio.example.com:9000/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://minio.example.com:9000/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://minio.example.com:9000/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://minio.example.com:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://minio.example.com:9000/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "minio | http://minio.example.com:9000 | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://minio.example.com:9000/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "http://minio.example.com:9000/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "http://minio.example.com:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "http://minio.example.com:9000/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "http://minio.example.com:9000/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "http://minio.example.com:9000/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "http://minio.example.com:9000/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "http://minio.example.com:9000/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "http://minio.example.com:9000/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "http://minio.example.com:9000/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "http://minio.example.com:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "http://minio.example.com:9000/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "minio | https://minio.example.com | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://minio.example.com/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://minio.example.com/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://minio.example.com/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://minio.example.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://minio.example.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://minio.example.com/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://minio.example.com/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://minio.example.com/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://minio.example.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://minio.example.com/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "minio | https://minio.example.com/ | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://minio.example.com/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://minio.example.com/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://minio.example.com/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://minio.example.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://minio.example.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://minio.example.com/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://minio.example.com/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://minio.example.com/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://minio.example.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://minio.example.com/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "minio | 10.0.0.5:9000 | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://10.0.0.5:9000/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://10.0.0.5:9000/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://10.0.0.5:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://10.0.0.5:9000/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://10.0.0.5:9000/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://10.0.0.5:9000/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://10.0.0.5:9000/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://10.0.0.5:9000/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://10.0.0.5:9000/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://10.0.0.5:9000/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://10.0.0.5:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://10.0.0.5:9000/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "minio | http://10.0.0.5:9000 | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://10.0.0.5:9000/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "http://10.0.0.5:9000/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "http://10.0.0.5:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "http://10.0.0.5:9000/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "http://10.0.0.5:9000/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "http://10.0.0.5:9000/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "http://10.0.0.5:9000/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "http://10.0.0.5:9000/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "http://10.0.0.5:9000/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "http://10.0.0.5:9000/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "http://10.0.0.5:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "http://10.0.0.5:9000/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "minio | http://[::1]:9000 | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://[::1]:9000/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "http://[::1]:9000/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "http://[::1]:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "http://[::1]:9000/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "http://[::1]:9000/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "http://[::1]:9000/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "http://[::1]:9000/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "http://[::1]:9000/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "http://[::1]:9000/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "http://[::1]:9000/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "http://[::1]:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "http://[::1]:9000/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "minio | https://minio.example.com/base/path | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://minio.example.com/base/path/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://minio.example.com/base/path/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com/base/path/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://minio.example.com/base/path/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com/base/path/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://minio.example.com/base/path/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://minio.example.com/base/path/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://minio.example.com/base/path/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://minio.example.com/base/path/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://minio.example.com/base/path/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://minio.example.com/base/path/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://minio.example.com/base/path/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "minio | https://minio.example.com/base/path/ | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://minio.example.com/base/path/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://minio.example.com/base/path/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com/base/path/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://minio.example.com/base/path/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com/base/path/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://minio.example.com/base/path/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://minio.example.com/base/path/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://minio.example.com/base/path/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://minio.example.com/base/path/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://minio.example.com/base/path/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://minio.example.com/base/path/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://minio.example.com/base/path/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "minio | http://10.0.0.5:9000/base/path | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "http://10.0.0.5:9000/base/path/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "http://10.0.0.5:9000/base/path/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "http://10.0.0.5:9000/base/path/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "http://10.0.0.5:9000/base/path/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "minio | http://10.0.0.5:9000/base/path/ | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "http://10.0.0.5:9000/base/path/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "http://10.0.0.5:9000/base/path/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "http://10.0.0.5:9000/base/path/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "http://10.0.0.5:9000/base/path/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "minio | https://minio.example.com?x=1 | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://minio.example.com/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://minio.example.com/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://minio.example.com/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://minio.example.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://minio.example.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://minio.example.com/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://minio.example.com/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://minio.example.com/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://minio.example.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://minio.example.com/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "minio | https://minio.example.com#frag | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://minio.example.com/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://minio.example.com/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://minio.example.com/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://minio.example.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://minio.example.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://minio.example.com/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://minio.example.com/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://minio.example.com/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://minio.example.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://minio.example.com/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "minio | https://endpoint-user:endpoint-pass@minio.example.com | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://minio.example.com/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://minio.example.com/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://minio.example.com/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://minio.example.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://minio.example.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://minio.example.com/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://minio.example.com/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://minio.example.com/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://minio.example.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://minio.example.com/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "minio | https://endpoint-user:endpoint-pass@minio.example.com:9000/base/path/?x=1#frag | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://minio.example.com:9000/base/path/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://minio.example.com:9000/base/path/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://minio.example.com:9000/base/path/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://minio.example.com:9000/base/path/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://minio.example.com:9000/base/path/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://minio.example.com:9000/base/path/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://minio.example.com:9000/base/path/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://minio.example.com:9000/base/path/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://minio.example.com:9000/base/path/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://minio.example.com:9000/base/path/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://minio.example.com:9000/base/path/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://minio.example.com:9000/base/path/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "minio | //minio.example.com | region=": {
+    "create": "AppsmithPluginException: Your S3 endpoint URL seems to be incorrect for the selected S3 service provider. Please check your endpoint URL and the selected S3 service provider. [PE-DSE-5003 Datasource configuration is invalid]"
+  },
+  "google-cloud-storage | storage.googleapis.com | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.storage.googleapis.com/dir/file.txt signed for auto",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.storage.googleapis.com/with%20space%2Bplus%25.txt signed for auto",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com//leading.txt signed for auto",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com/my.dotted.bucket/dir/file.txt signed for auto",
+      "my.dotted.bucket :: with space+plus%.txt": "https://storage.googleapis.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my.dotted.bucket :: ünï/文件.txt": "https://storage.googleapis.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my.dotted.bucket :: /leading.txt": "https://storage.googleapis.com/my.dotted.bucket//leading.txt signed for auto",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com/MyBucket/dir/file.txt signed for auto",
+      "MyBucket :: with space+plus%.txt": "https://storage.googleapis.com/MyBucket/with%20space%2Bplus%25.txt signed for auto",
+      "MyBucket :: ünï/文件.txt": "https://storage.googleapis.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "MyBucket :: /leading.txt": "https://storage.googleapis.com/MyBucket//leading.txt signed for auto"
+    }
+  },
+  "google-cloud-storage | storage.googleapis.com:9000 | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.storage.googleapis.com:9000/dir/file.txt signed for auto",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.storage.googleapis.com:9000/with%20space%2Bplus%25.txt signed for auto",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com:9000/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com:9000//leading.txt signed for auto",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com:9000/my.dotted.bucket/dir/file.txt signed for auto",
+      "my.dotted.bucket :: with space+plus%.txt": "https://storage.googleapis.com:9000/my.dotted.bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my.dotted.bucket :: ünï/文件.txt": "https://storage.googleapis.com:9000/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my.dotted.bucket :: /leading.txt": "https://storage.googleapis.com:9000/my.dotted.bucket//leading.txt signed for auto",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com:9000/MyBucket/dir/file.txt signed for auto",
+      "MyBucket :: with space+plus%.txt": "https://storage.googleapis.com:9000/MyBucket/with%20space%2Bplus%25.txt signed for auto",
+      "MyBucket :: ünï/文件.txt": "https://storage.googleapis.com:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "MyBucket :: /leading.txt": "https://storage.googleapis.com:9000/MyBucket//leading.txt signed for auto"
+    }
+  },
+  "google-cloud-storage | http://storage.googleapis.com:9000 | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://my-bucket.storage.googleapis.com:9000/dir/file.txt signed for auto",
+      "my-bucket :: with space+plus%.txt": "http://my-bucket.storage.googleapis.com:9000/with%20space%2Bplus%25.txt signed for auto",
+      "my-bucket :: ünï/文件.txt": "http://my-bucket.storage.googleapis.com:9000/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my-bucket :: /leading.txt": "http://my-bucket.storage.googleapis.com:9000//leading.txt signed for auto",
+      "my.dotted.bucket :: dir/file.txt": "http://my.dotted.bucket.storage.googleapis.com:9000/dir/file.txt signed for auto",
+      "my.dotted.bucket :: with space+plus%.txt": "http://my.dotted.bucket.storage.googleapis.com:9000/with%20space%2Bplus%25.txt signed for auto",
+      "my.dotted.bucket :: ünï/文件.txt": "http://my.dotted.bucket.storage.googleapis.com:9000/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my.dotted.bucket :: /leading.txt": "http://my.dotted.bucket.storage.googleapis.com:9000//leading.txt signed for auto",
+      "MyBucket :: dir/file.txt": "http://storage.googleapis.com:9000/MyBucket/dir/file.txt signed for auto",
+      "MyBucket :: with space+plus%.txt": "http://storage.googleapis.com:9000/MyBucket/with%20space%2Bplus%25.txt signed for auto",
+      "MyBucket :: ünï/文件.txt": "http://storage.googleapis.com:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "MyBucket :: /leading.txt": "http://storage.googleapis.com:9000/MyBucket//leading.txt signed for auto"
+    }
+  },
+  "google-cloud-storage | https://storage.googleapis.com | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.storage.googleapis.com/dir/file.txt signed for auto",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.storage.googleapis.com/with%20space%2Bplus%25.txt signed for auto",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com//leading.txt signed for auto",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com/my.dotted.bucket/dir/file.txt signed for auto",
+      "my.dotted.bucket :: with space+plus%.txt": "https://storage.googleapis.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my.dotted.bucket :: ünï/文件.txt": "https://storage.googleapis.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my.dotted.bucket :: /leading.txt": "https://storage.googleapis.com/my.dotted.bucket//leading.txt signed for auto",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com/MyBucket/dir/file.txt signed for auto",
+      "MyBucket :: with space+plus%.txt": "https://storage.googleapis.com/MyBucket/with%20space%2Bplus%25.txt signed for auto",
+      "MyBucket :: ünï/文件.txt": "https://storage.googleapis.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "MyBucket :: /leading.txt": "https://storage.googleapis.com/MyBucket//leading.txt signed for auto"
+    }
+  },
+  "google-cloud-storage | https://storage.googleapis.com/ | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.storage.googleapis.com/dir/file.txt signed for auto",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.storage.googleapis.com/with%20space%2Bplus%25.txt signed for auto",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com//leading.txt signed for auto",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com/my.dotted.bucket/dir/file.txt signed for auto",
+      "my.dotted.bucket :: with space+plus%.txt": "https://storage.googleapis.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my.dotted.bucket :: ünï/文件.txt": "https://storage.googleapis.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my.dotted.bucket :: /leading.txt": "https://storage.googleapis.com/my.dotted.bucket//leading.txt signed for auto",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com/MyBucket/dir/file.txt signed for auto",
+      "MyBucket :: with space+plus%.txt": "https://storage.googleapis.com/MyBucket/with%20space%2Bplus%25.txt signed for auto",
+      "MyBucket :: ünï/文件.txt": "https://storage.googleapis.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "MyBucket :: /leading.txt": "https://storage.googleapis.com/MyBucket//leading.txt signed for auto"
+    }
+  },
+  "google-cloud-storage | 10.0.0.5:9000 | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://10.0.0.5:9000/my-bucket/dir/file.txt signed for auto",
+      "my-bucket :: with space+plus%.txt": "https://10.0.0.5:9000/my-bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my-bucket :: ünï/文件.txt": "https://10.0.0.5:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my-bucket :: /leading.txt": "https://10.0.0.5:9000/my-bucket//leading.txt signed for auto",
+      "my.dotted.bucket :: dir/file.txt": "https://10.0.0.5:9000/my.dotted.bucket/dir/file.txt signed for auto",
+      "my.dotted.bucket :: with space+plus%.txt": "https://10.0.0.5:9000/my.dotted.bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my.dotted.bucket :: ünï/文件.txt": "https://10.0.0.5:9000/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my.dotted.bucket :: /leading.txt": "https://10.0.0.5:9000/my.dotted.bucket//leading.txt signed for auto",
+      "MyBucket :: dir/file.txt": "https://10.0.0.5:9000/MyBucket/dir/file.txt signed for auto",
+      "MyBucket :: with space+plus%.txt": "https://10.0.0.5:9000/MyBucket/with%20space%2Bplus%25.txt signed for auto",
+      "MyBucket :: ünï/文件.txt": "https://10.0.0.5:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "MyBucket :: /leading.txt": "https://10.0.0.5:9000/MyBucket//leading.txt signed for auto"
+    }
+  },
+  "google-cloud-storage | http://10.0.0.5:9000 | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://10.0.0.5:9000/my-bucket/dir/file.txt signed for auto",
+      "my-bucket :: with space+plus%.txt": "http://10.0.0.5:9000/my-bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my-bucket :: ünï/文件.txt": "http://10.0.0.5:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my-bucket :: /leading.txt": "http://10.0.0.5:9000/my-bucket//leading.txt signed for auto",
+      "my.dotted.bucket :: dir/file.txt": "http://10.0.0.5:9000/my.dotted.bucket/dir/file.txt signed for auto",
+      "my.dotted.bucket :: with space+plus%.txt": "http://10.0.0.5:9000/my.dotted.bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my.dotted.bucket :: ünï/文件.txt": "http://10.0.0.5:9000/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my.dotted.bucket :: /leading.txt": "http://10.0.0.5:9000/my.dotted.bucket//leading.txt signed for auto",
+      "MyBucket :: dir/file.txt": "http://10.0.0.5:9000/MyBucket/dir/file.txt signed for auto",
+      "MyBucket :: with space+plus%.txt": "http://10.0.0.5:9000/MyBucket/with%20space%2Bplus%25.txt signed for auto",
+      "MyBucket :: ünï/文件.txt": "http://10.0.0.5:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "MyBucket :: /leading.txt": "http://10.0.0.5:9000/MyBucket//leading.txt signed for auto"
+    }
+  },
+  "google-cloud-storage | http://[::1]:9000 | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://[::1]:9000/my-bucket/dir/file.txt signed for auto",
+      "my-bucket :: with space+plus%.txt": "http://[::1]:9000/my-bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my-bucket :: ünï/文件.txt": "http://[::1]:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my-bucket :: /leading.txt": "http://[::1]:9000/my-bucket//leading.txt signed for auto",
+      "my.dotted.bucket :: dir/file.txt": "http://[::1]:9000/my.dotted.bucket/dir/file.txt signed for auto",
+      "my.dotted.bucket :: with space+plus%.txt": "http://[::1]:9000/my.dotted.bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my.dotted.bucket :: ünï/文件.txt": "http://[::1]:9000/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my.dotted.bucket :: /leading.txt": "http://[::1]:9000/my.dotted.bucket//leading.txt signed for auto",
+      "MyBucket :: dir/file.txt": "http://[::1]:9000/MyBucket/dir/file.txt signed for auto",
+      "MyBucket :: with space+plus%.txt": "http://[::1]:9000/MyBucket/with%20space%2Bplus%25.txt signed for auto",
+      "MyBucket :: ünï/文件.txt": "http://[::1]:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "MyBucket :: /leading.txt": "http://[::1]:9000/MyBucket//leading.txt signed for auto"
+    }
+  },
+  "google-cloud-storage | https://storage.googleapis.com/base/path | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.storage.googleapis.com/dir/file.txt signed for auto",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.storage.googleapis.com/with%20space%2Bplus%25.txt signed for auto",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com//leading.txt signed for auto",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com/my.dotted.bucket/dir/file.txt signed for auto",
+      "my.dotted.bucket :: with space+plus%.txt": "https://storage.googleapis.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my.dotted.bucket :: ünï/文件.txt": "https://storage.googleapis.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my.dotted.bucket :: /leading.txt": "https://storage.googleapis.com/my.dotted.bucket//leading.txt signed for auto",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com/MyBucket/dir/file.txt signed for auto",
+      "MyBucket :: with space+plus%.txt": "https://storage.googleapis.com/MyBucket/with%20space%2Bplus%25.txt signed for auto",
+      "MyBucket :: ünï/文件.txt": "https://storage.googleapis.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "MyBucket :: /leading.txt": "https://storage.googleapis.com/MyBucket//leading.txt signed for auto"
+    }
+  },
+  "google-cloud-storage | https://storage.googleapis.com/base/path/ | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.storage.googleapis.com/dir/file.txt signed for auto",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.storage.googleapis.com/with%20space%2Bplus%25.txt signed for auto",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com//leading.txt signed for auto",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com/my.dotted.bucket/dir/file.txt signed for auto",
+      "my.dotted.bucket :: with space+plus%.txt": "https://storage.googleapis.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my.dotted.bucket :: ünï/文件.txt": "https://storage.googleapis.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my.dotted.bucket :: /leading.txt": "https://storage.googleapis.com/my.dotted.bucket//leading.txt signed for auto",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com/MyBucket/dir/file.txt signed for auto",
+      "MyBucket :: with space+plus%.txt": "https://storage.googleapis.com/MyBucket/with%20space%2Bplus%25.txt signed for auto",
+      "MyBucket :: ünï/文件.txt": "https://storage.googleapis.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "MyBucket :: /leading.txt": "https://storage.googleapis.com/MyBucket//leading.txt signed for auto"
+    }
+  },
+  "google-cloud-storage | http://10.0.0.5:9000/base/path | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my-bucket/dir/file.txt signed for auto",
+      "my-bucket :: with space+plus%.txt": "http://10.0.0.5:9000/base/path/my-bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my-bucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my-bucket :: /leading.txt": "http://10.0.0.5:9000/base/path/my-bucket//leading.txt signed for auto",
+      "my.dotted.bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/dir/file.txt signed for auto",
+      "my.dotted.bucket :: with space+plus%.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my.dotted.bucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my.dotted.bucket :: /leading.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket//leading.txt signed for auto",
+      "MyBucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/MyBucket/dir/file.txt signed for auto",
+      "MyBucket :: with space+plus%.txt": "http://10.0.0.5:9000/base/path/MyBucket/with%20space%2Bplus%25.txt signed for auto",
+      "MyBucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "MyBucket :: /leading.txt": "http://10.0.0.5:9000/base/path/MyBucket//leading.txt signed for auto"
+    }
+  },
+  "google-cloud-storage | http://10.0.0.5:9000/base/path/ | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my-bucket/dir/file.txt signed for auto",
+      "my-bucket :: with space+plus%.txt": "http://10.0.0.5:9000/base/path/my-bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my-bucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my-bucket :: /leading.txt": "http://10.0.0.5:9000/base/path/my-bucket//leading.txt signed for auto",
+      "my.dotted.bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/dir/file.txt signed for auto",
+      "my.dotted.bucket :: with space+plus%.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my.dotted.bucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my.dotted.bucket :: /leading.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket//leading.txt signed for auto",
+      "MyBucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/MyBucket/dir/file.txt signed for auto",
+      "MyBucket :: with space+plus%.txt": "http://10.0.0.5:9000/base/path/MyBucket/with%20space%2Bplus%25.txt signed for auto",
+      "MyBucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "MyBucket :: /leading.txt": "http://10.0.0.5:9000/base/path/MyBucket//leading.txt signed for auto"
+    }
+  },
+  "google-cloud-storage | https://storage.googleapis.com?x=1 | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.storage.googleapis.com/dir/file.txt signed for auto",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.storage.googleapis.com/with%20space%2Bplus%25.txt signed for auto",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com//leading.txt signed for auto",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com/my.dotted.bucket/dir/file.txt signed for auto",
+      "my.dotted.bucket :: with space+plus%.txt": "https://storage.googleapis.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my.dotted.bucket :: ünï/文件.txt": "https://storage.googleapis.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my.dotted.bucket :: /leading.txt": "https://storage.googleapis.com/my.dotted.bucket//leading.txt signed for auto",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com/MyBucket/dir/file.txt signed for auto",
+      "MyBucket :: with space+plus%.txt": "https://storage.googleapis.com/MyBucket/with%20space%2Bplus%25.txt signed for auto",
+      "MyBucket :: ünï/文件.txt": "https://storage.googleapis.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "MyBucket :: /leading.txt": "https://storage.googleapis.com/MyBucket//leading.txt signed for auto"
+    }
+  },
+  "google-cloud-storage | https://storage.googleapis.com#frag | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.storage.googleapis.com/dir/file.txt signed for auto",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.storage.googleapis.com/with%20space%2Bplus%25.txt signed for auto",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com//leading.txt signed for auto",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com/my.dotted.bucket/dir/file.txt signed for auto",
+      "my.dotted.bucket :: with space+plus%.txt": "https://storage.googleapis.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my.dotted.bucket :: ünï/文件.txt": "https://storage.googleapis.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my.dotted.bucket :: /leading.txt": "https://storage.googleapis.com/my.dotted.bucket//leading.txt signed for auto",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com/MyBucket/dir/file.txt signed for auto",
+      "MyBucket :: with space+plus%.txt": "https://storage.googleapis.com/MyBucket/with%20space%2Bplus%25.txt signed for auto",
+      "MyBucket :: ünï/文件.txt": "https://storage.googleapis.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "MyBucket :: /leading.txt": "https://storage.googleapis.com/MyBucket//leading.txt signed for auto"
+    }
+  },
+  "google-cloud-storage | https://endpoint-user:endpoint-pass@storage.googleapis.com | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.storage.googleapis.com/dir/file.txt signed for auto",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.storage.googleapis.com/with%20space%2Bplus%25.txt signed for auto",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com//leading.txt signed for auto",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com/my.dotted.bucket/dir/file.txt signed for auto",
+      "my.dotted.bucket :: with space+plus%.txt": "https://storage.googleapis.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my.dotted.bucket :: ünï/文件.txt": "https://storage.googleapis.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my.dotted.bucket :: /leading.txt": "https://storage.googleapis.com/my.dotted.bucket//leading.txt signed for auto",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com/MyBucket/dir/file.txt signed for auto",
+      "MyBucket :: with space+plus%.txt": "https://storage.googleapis.com/MyBucket/with%20space%2Bplus%25.txt signed for auto",
+      "MyBucket :: ünï/文件.txt": "https://storage.googleapis.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "MyBucket :: /leading.txt": "https://storage.googleapis.com/MyBucket//leading.txt signed for auto"
+    }
+  },
+  "google-cloud-storage | https://endpoint-user:endpoint-pass@storage.googleapis.com:9000/base/path/?x=1#frag | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.storage.googleapis.com:9000/dir/file.txt signed for auto",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.storage.googleapis.com:9000/with%20space%2Bplus%25.txt signed for auto",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com:9000/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com:9000//leading.txt signed for auto",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com:9000/my.dotted.bucket/dir/file.txt signed for auto",
+      "my.dotted.bucket :: with space+plus%.txt": "https://storage.googleapis.com:9000/my.dotted.bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my.dotted.bucket :: ünï/文件.txt": "https://storage.googleapis.com:9000/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my.dotted.bucket :: /leading.txt": "https://storage.googleapis.com:9000/my.dotted.bucket//leading.txt signed for auto",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com:9000/MyBucket/dir/file.txt signed for auto",
+      "MyBucket :: with space+plus%.txt": "https://storage.googleapis.com:9000/MyBucket/with%20space%2Bplus%25.txt signed for auto",
+      "MyBucket :: ünï/文件.txt": "https://storage.googleapis.com:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "MyBucket :: /leading.txt": "https://storage.googleapis.com:9000/MyBucket//leading.txt signed for auto"
+    }
+  },
+  "google-cloud-storage | //storage.googleapis.com | region=": {
+    "create": "AppsmithPluginException: Your S3 endpoint URL seems to be incorrect for the selected S3 service provider. Please check your endpoint URL and the selected S3 service provider. [PE-DSE-5003 Datasource configuration is invalid]"
+  },
+  "other | objects.example.com | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.objects.example.com/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.objects.example.com/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://objects.example.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://objects.example.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://objects.example.com/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://objects.example.com/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://objects.example.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://objects.example.com/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "other | objects.example.com:9000 | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.objects.example.com:9000/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.objects.example.com:9000/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com:9000/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com:9000//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com:9000/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://objects.example.com:9000/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://objects.example.com:9000/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://objects.example.com:9000/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://objects.example.com:9000/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://objects.example.com:9000/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://objects.example.com:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://objects.example.com:9000/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "other | http://objects.example.com:9000 | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://my-bucket.objects.example.com:9000/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "http://my-bucket.objects.example.com:9000/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "http://my-bucket.objects.example.com:9000/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "http://my-bucket.objects.example.com:9000//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "http://my.dotted.bucket.objects.example.com:9000/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "http://my.dotted.bucket.objects.example.com:9000/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "http://my.dotted.bucket.objects.example.com:9000/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "http://my.dotted.bucket.objects.example.com:9000//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "http://objects.example.com:9000/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "http://objects.example.com:9000/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "http://objects.example.com:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "http://objects.example.com:9000/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "other | https://objects.example.com | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.objects.example.com/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.objects.example.com/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://objects.example.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://objects.example.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://objects.example.com/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://objects.example.com/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://objects.example.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://objects.example.com/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "other | https://objects.example.com/ | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.objects.example.com/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.objects.example.com/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://objects.example.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://objects.example.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://objects.example.com/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://objects.example.com/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://objects.example.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://objects.example.com/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "other | 10.0.0.5:9000 | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://10.0.0.5:9000/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://10.0.0.5:9000/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://10.0.0.5:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://10.0.0.5:9000/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://10.0.0.5:9000/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://10.0.0.5:9000/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://10.0.0.5:9000/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://10.0.0.5:9000/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://10.0.0.5:9000/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://10.0.0.5:9000/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://10.0.0.5:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://10.0.0.5:9000/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "other | http://10.0.0.5:9000 | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://10.0.0.5:9000/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "http://10.0.0.5:9000/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "http://10.0.0.5:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "http://10.0.0.5:9000/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "http://10.0.0.5:9000/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "http://10.0.0.5:9000/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "http://10.0.0.5:9000/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "http://10.0.0.5:9000/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "http://10.0.0.5:9000/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "http://10.0.0.5:9000/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "http://10.0.0.5:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "http://10.0.0.5:9000/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "other | http://[::1]:9000 | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://[::1]:9000/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "http://[::1]:9000/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "http://[::1]:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "http://[::1]:9000/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "http://[::1]:9000/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "http://[::1]:9000/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "http://[::1]:9000/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "http://[::1]:9000/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "http://[::1]:9000/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "http://[::1]:9000/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "http://[::1]:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "http://[::1]:9000/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "other | https://objects.example.com/base/path | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.objects.example.com/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.objects.example.com/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://objects.example.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://objects.example.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://objects.example.com/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://objects.example.com/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://objects.example.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://objects.example.com/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "other | https://objects.example.com/base/path/ | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.objects.example.com/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.objects.example.com/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://objects.example.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://objects.example.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://objects.example.com/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://objects.example.com/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://objects.example.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://objects.example.com/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "other | http://10.0.0.5:9000/base/path | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "http://10.0.0.5:9000/base/path/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "http://10.0.0.5:9000/base/path/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "http://10.0.0.5:9000/base/path/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "http://10.0.0.5:9000/base/path/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "other | http://10.0.0.5:9000/base/path/ | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "http://10.0.0.5:9000/base/path/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "http://10.0.0.5:9000/base/path/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "http://10.0.0.5:9000/base/path/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "http://10.0.0.5:9000/base/path/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "http://10.0.0.5:9000/base/path/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "http://10.0.0.5:9000/base/path/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "http://10.0.0.5:9000/base/path/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "other | https://objects.example.com?x=1 | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.objects.example.com/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.objects.example.com/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://objects.example.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://objects.example.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://objects.example.com/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://objects.example.com/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://objects.example.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://objects.example.com/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "other | https://objects.example.com#frag | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.objects.example.com/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.objects.example.com/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://objects.example.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://objects.example.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://objects.example.com/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://objects.example.com/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://objects.example.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://objects.example.com/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "other | https://endpoint-user:endpoint-pass@objects.example.com | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.objects.example.com/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.objects.example.com/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://objects.example.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://objects.example.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://objects.example.com/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://objects.example.com/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://objects.example.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://objects.example.com/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "other | https://endpoint-user:endpoint-pass@objects.example.com:9000/base/path/?x=1#frag | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.objects.example.com:9000/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.objects.example.com:9000/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com:9000/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com:9000//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com:9000/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://objects.example.com:9000/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://objects.example.com:9000/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://objects.example.com:9000/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://objects.example.com:9000/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://objects.example.com:9000/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://objects.example.com:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://objects.example.com:9000/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "other | //objects.example.com | region=": {
+    "create": "AppsmithPluginException: Your S3 endpoint URL seems to be incorrect for the selected S3 service provider. Please check your endpoint URL and the selected S3 service provider. [PE-DSE-5003 Datasource configuration is invalid]"
+  },
+  "minio | http://minio.example.com:9000 | region=eu-west-3": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://minio.example.com:9000/my-bucket/dir/file.txt signed for eu-west-3",
+      "my-bucket :: with space+plus%.txt": "http://minio.example.com:9000/my-bucket/with%20space%2Bplus%25.txt signed for eu-west-3",
+      "my-bucket :: ünï/文件.txt": "http://minio.example.com:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for eu-west-3",
+      "my-bucket :: /leading.txt": "http://minio.example.com:9000/my-bucket//leading.txt signed for eu-west-3",
+      "my.dotted.bucket :: dir/file.txt": "http://minio.example.com:9000/my.dotted.bucket/dir/file.txt signed for eu-west-3",
+      "my.dotted.bucket :: with space+plus%.txt": "http://minio.example.com:9000/my.dotted.bucket/with%20space%2Bplus%25.txt signed for eu-west-3",
+      "my.dotted.bucket :: ünï/文件.txt": "http://minio.example.com:9000/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for eu-west-3",
+      "my.dotted.bucket :: /leading.txt": "http://minio.example.com:9000/my.dotted.bucket//leading.txt signed for eu-west-3",
+      "MyBucket :: dir/file.txt": "http://minio.example.com:9000/MyBucket/dir/file.txt signed for eu-west-3",
+      "MyBucket :: with space+plus%.txt": "http://minio.example.com:9000/MyBucket/with%20space%2Bplus%25.txt signed for eu-west-3",
+      "MyBucket :: ünï/文件.txt": "http://minio.example.com:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for eu-west-3",
+      "MyBucket :: /leading.txt": "http://minio.example.com:9000/MyBucket//leading.txt signed for eu-west-3"
+    }
+  },
+  "minio | http://minio.example.com:9000 | region=  ": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "http://minio.example.com:9000/my-bucket/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "http://minio.example.com:9000/my-bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "http://minio.example.com:9000/my-bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "http://minio.example.com:9000/my-bucket//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "http://minio.example.com:9000/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "http://minio.example.com:9000/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "http://minio.example.com:9000/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "http://minio.example.com:9000/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "http://minio.example.com:9000/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "http://minio.example.com:9000/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "http://minio.example.com:9000/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "http://minio.example.com:9000/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "other | https://objects.example.com | region=us-west-2": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.objects.example.com/dir/file.txt signed for us-west-2",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.objects.example.com/with%20space%2Bplus%25.txt signed for us-west-2",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-west-2",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt signed for us-west-2",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt signed for us-west-2",
+      "my.dotted.bucket :: with space+plus%.txt": "https://objects.example.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-west-2",
+      "my.dotted.bucket :: ünï/文件.txt": "https://objects.example.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-west-2",
+      "my.dotted.bucket :: /leading.txt": "https://objects.example.com/my.dotted.bucket//leading.txt signed for us-west-2",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt signed for us-west-2",
+      "MyBucket :: with space+plus%.txt": "https://objects.example.com/MyBucket/with%20space%2Bplus%25.txt signed for us-west-2",
+      "MyBucket :: ünï/文件.txt": "https://objects.example.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-west-2",
+      "MyBucket :: /leading.txt": "https://objects.example.com/MyBucket//leading.txt signed for us-west-2"
+    }
+  },
+  "other | https://objects.example.com | region=auto": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.objects.example.com/dir/file.txt signed for auto",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.objects.example.com/with%20space%2Bplus%25.txt signed for auto",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt signed for auto",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt signed for auto",
+      "my.dotted.bucket :: with space+plus%.txt": "https://objects.example.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my.dotted.bucket :: ünï/文件.txt": "https://objects.example.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my.dotted.bucket :: /leading.txt": "https://objects.example.com/my.dotted.bucket//leading.txt signed for auto",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt signed for auto",
+      "MyBucket :: with space+plus%.txt": "https://objects.example.com/MyBucket/with%20space%2Bplus%25.txt signed for auto",
+      "MyBucket :: ünï/文件.txt": "https://objects.example.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "MyBucket :: /leading.txt": "https://objects.example.com/MyBucket//leading.txt signed for auto"
+    }
+  },
+  "other | https://objects.example.com | region=  ": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.objects.example.com/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.objects.example.com/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://objects.example.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://objects.example.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://objects.example.com/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://objects.example.com/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://objects.example.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://objects.example.com/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "other | https://objects.example.com | region= eu-west-3 ": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.objects.example.com/dir/file.txt signed for eu-west-3",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.objects.example.com/with%20space%2Bplus%25.txt signed for eu-west-3",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.objects.example.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for eu-west-3",
+      "my-bucket :: /leading.txt": "https://my-bucket.objects.example.com//leading.txt signed for eu-west-3",
+      "my.dotted.bucket :: dir/file.txt": "https://objects.example.com/my.dotted.bucket/dir/file.txt signed for eu-west-3",
+      "my.dotted.bucket :: with space+plus%.txt": "https://objects.example.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for eu-west-3",
+      "my.dotted.bucket :: ünï/文件.txt": "https://objects.example.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for eu-west-3",
+      "my.dotted.bucket :: /leading.txt": "https://objects.example.com/my.dotted.bucket//leading.txt signed for eu-west-3",
+      "MyBucket :: dir/file.txt": "https://objects.example.com/MyBucket/dir/file.txt signed for eu-west-3",
+      "MyBucket :: with space+plus%.txt": "https://objects.example.com/MyBucket/with%20space%2Bplus%25.txt signed for eu-west-3",
+      "MyBucket :: ünï/文件.txt": "https://objects.example.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for eu-west-3",
+      "MyBucket :: /leading.txt": "https://objects.example.com/MyBucket//leading.txt signed for eu-west-3"
+    }
+  },
+  "other | https://s3.eu-central-1.amazonaws.com | region=": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.s3.eu-central-1.amazonaws.com/dir/file.txt signed for us-east-1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.s3.eu-central-1.amazonaws.com/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.s3.eu-central-1.amazonaws.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my-bucket :: /leading.txt": "https://my-bucket.s3.eu-central-1.amazonaws.com//leading.txt signed for us-east-1",
+      "my.dotted.bucket :: dir/file.txt": "https://s3.eu-central-1.amazonaws.com/my.dotted.bucket/dir/file.txt signed for us-east-1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://s3.eu-central-1.amazonaws.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://s3.eu-central-1.amazonaws.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "my.dotted.bucket :: /leading.txt": "https://s3.eu-central-1.amazonaws.com/my.dotted.bucket//leading.txt signed for us-east-1",
+      "MyBucket :: dir/file.txt": "https://s3.eu-central-1.amazonaws.com/MyBucket/dir/file.txt signed for us-east-1",
+      "MyBucket :: with space+plus%.txt": "https://s3.eu-central-1.amazonaws.com/MyBucket/with%20space%2Bplus%25.txt signed for us-east-1",
+      "MyBucket :: ünï/文件.txt": "https://s3.eu-central-1.amazonaws.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for us-east-1",
+      "MyBucket :: /leading.txt": "https://s3.eu-central-1.amazonaws.com/MyBucket//leading.txt signed for us-east-1"
+    }
+  },
+  "google-cloud-storage | https://storage.googleapis.com | region=us-west-2": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.storage.googleapis.com/dir/file.txt signed for auto",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.storage.googleapis.com/with%20space%2Bplus%25.txt signed for auto",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.storage.googleapis.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my-bucket :: /leading.txt": "https://my-bucket.storage.googleapis.com//leading.txt signed for auto",
+      "my.dotted.bucket :: dir/file.txt": "https://storage.googleapis.com/my.dotted.bucket/dir/file.txt signed for auto",
+      "my.dotted.bucket :: with space+plus%.txt": "https://storage.googleapis.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for auto",
+      "my.dotted.bucket :: ünï/文件.txt": "https://storage.googleapis.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "my.dotted.bucket :: /leading.txt": "https://storage.googleapis.com/my.dotted.bucket//leading.txt signed for auto",
+      "MyBucket :: dir/file.txt": "https://storage.googleapis.com/MyBucket/dir/file.txt signed for auto",
+      "MyBucket :: with space+plus%.txt": "https://storage.googleapis.com/MyBucket/with%20space%2Bplus%25.txt signed for auto",
+      "MyBucket :: ünï/文件.txt": "https://storage.googleapis.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for auto",
+      "MyBucket :: /leading.txt": "https://storage.googleapis.com/MyBucket//leading.txt signed for auto"
+    }
+  },
+  "upcloud | appsmith.de-fra1.upcloudobjects.com | region=ignored-region": {
+    "create": "ok",
+    "urls": {
+      "my-bucket :: dir/file.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/dir/file.txt signed for de-fra1",
+      "my-bucket :: with space+plus%.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/with%20space%2Bplus%25.txt signed for de-fra1",
+      "my-bucket :: ünï/文件.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for de-fra1",
+      "my-bucket :: /leading.txt": "https://my-bucket.appsmith.de-fra1.upcloudobjects.com//leading.txt signed for de-fra1",
+      "my.dotted.bucket :: dir/file.txt": "https://appsmith.de-fra1.upcloudobjects.com/my.dotted.bucket/dir/file.txt signed for de-fra1",
+      "my.dotted.bucket :: with space+plus%.txt": "https://appsmith.de-fra1.upcloudobjects.com/my.dotted.bucket/with%20space%2Bplus%25.txt signed for de-fra1",
+      "my.dotted.bucket :: ünï/文件.txt": "https://appsmith.de-fra1.upcloudobjects.com/my.dotted.bucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for de-fra1",
+      "my.dotted.bucket :: /leading.txt": "https://appsmith.de-fra1.upcloudobjects.com/my.dotted.bucket//leading.txt signed for de-fra1",
+      "MyBucket :: dir/file.txt": "https://appsmith.de-fra1.upcloudobjects.com/MyBucket/dir/file.txt signed for de-fra1",
+      "MyBucket :: with space+plus%.txt": "https://appsmith.de-fra1.upcloudobjects.com/MyBucket/with%20space%2Bplus%25.txt signed for de-fra1",
+      "MyBucket :: ünï/文件.txt": "https://appsmith.de-fra1.upcloudobjects.com/MyBucket/%C3%BCn%C3%AF/%E6%96%87%E4%BB%B6.txt signed for de-fra1",
+      "MyBucket :: /leading.txt": "https://appsmith.de-fra1.upcloudobjects.com/MyBucket//leading.txt signed for de-fra1"
+    }
+  }
+}

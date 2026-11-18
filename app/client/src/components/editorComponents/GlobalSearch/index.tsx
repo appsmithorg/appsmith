@@ -61,7 +61,7 @@ import {
   datasourcesEditorIdURL,
   jsCollectionIdURL,
 } from "ee/RouteBuilder";
-import { getPlugins } from "ee/selectors/entitiesSelector";
+import { getPlugins, isHiddenPlugin } from "ee/selectors/entitiesSelector";
 import {
   DatasourceCreateEntryPoints,
   TEMP_DATASOURCE_ID,
@@ -236,17 +236,20 @@ function GlobalSearch() {
   }, [basePageIdToPageIdMap, currentBasePageId, reducerDatasources]);
 
   const filteredDatasources = useMemo(() => {
-    if (!query)
-      return datasourcesList.filter(
-        (datasource) => pluginById[datasource.pluginId]?.id,
-      );
+    // Skip datasources without a known plugin and those of hidden plugins.
+    const isListed = (datasource: (typeof datasourcesList)[number]) => {
+      const plugin = pluginById[datasource.pluginId];
+
+      return Boolean(plugin?.id) && !isHiddenPlugin(plugin);
+    };
+
+    if (!query) return datasourcesList.filter(isListed);
 
     return datasourcesList.filter(
       (datasource) =>
-        isMatching(datasource.name, query) &&
-        pluginById[datasource.pluginId]?.id,
+        isMatching(datasource.name, query) && isListed(datasource),
     );
-  }, [datasourcesList, query]);
+  }, [datasourcesList, pluginById, query]);
   const recentEntities = useRecentEntities();
   const recentEntityIds = recentEntities
     .map((r) => getEntityId(r))

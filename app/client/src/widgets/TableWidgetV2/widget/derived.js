@@ -155,6 +155,20 @@ export default {
   },
   //
   getPageSize: (props, moment, _) => {
+    /* With auto height the widget grows to fit its rows, so the page size comes from Rows per page instead of the height. Auto layout children never use auto height. */
+    if (
+      !props.isFlexChild &&
+      (props.dynamicHeight === "AUTO_HEIGHT" ||
+        props.dynamicHeight === "AUTO_HEIGHT_WITH_LIMITS")
+    ) {
+      const MAX_AUTO_HEIGHT_ROW_COUNT = 200;
+      const autoHeightRowCount = Math.floor(Number(props.autoHeightRowCount));
+
+      return autoHeightRowCount >= 1
+        ? Math.min(autoHeightRowCount, MAX_AUTO_HEIGHT_ROW_COUNT)
+        : 10;
+    }
+
     const TABLE_SIZES = {
       DEFAULT: {
         COLUMN_HEADER_HEIGHT: 32,

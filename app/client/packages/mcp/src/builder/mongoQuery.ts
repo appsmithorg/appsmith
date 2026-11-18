@@ -570,6 +570,9 @@ export function buildMongoActionDto(
     command: { data: compiled.command },
     collection: { data: compiled.collection },
     smartSubstitution: { data: true },
+    // Strict values: the Mongo plugin refuses a substituted value that is raw BSON or holds a key starting with "$",
+    // so a run-time value stays a value. An older server ignores the key.
+    strictValues: { data: true },
   };
 
   if (compiled.command === "FIND") {

@@ -15,10 +15,10 @@ on:
         type: string
         default: ad-hoc
       base-image-tag:
-        description: Base image tag to use for creating appsmith docker image. Defaults to nightly.
+        description: Base image tag to use for creating appsmith docker image. Defaults to release.
         required: false
         type: string
-        default: nightly
+        default: release
       pg_tag:
         description: Postgres tag to use for image
         required: false

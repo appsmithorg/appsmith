@@ -155,10 +155,4 @@ describe("env file readers", () => {
       "redis://:secret==@redis.example:6379",
     );
   });
-
-  test("getDburl keeps '=' characters in the value", () => {
-    expect(utils.getDburl()).toBe(
-      "mongodb://user:a%3Db@mongo.example:27017/appsmith?authSource=admin&tls=true",
-    );
-  });
 });

@@ -1,7 +1,7 @@
 package com.external.plugins.constants;
 
 public class S3PluginConstants {
-    public static final String S3_DRIVER = "com.amazonaws.services.s3.AmazonS3";
+    public static final String S3_DRIVER = "software.amazon.awssdk.services.s3.S3Client";
     public static final int S3_SERVICE_PROVIDER_PROPERTY_INDEX = 1;
     public static final int CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX = 2;
 

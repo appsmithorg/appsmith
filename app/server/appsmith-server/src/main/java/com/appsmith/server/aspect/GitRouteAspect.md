@@ -1,5 +1,7 @@
 ## GitRoute FSM Execution Flow
 
+Before the FSM starts, `mcpCheckoutGuard` runs for `CHECKOUT_REF`. It refuses an MCP-token principal's `origin/`-prefixed or tag checkout with 403, so a refused request takes no lock and triggers no download, clone or remote fetch. Every other request enters the FSM at `START`.
+
 ```mermaid
 flowchart TD
     flowchart TD

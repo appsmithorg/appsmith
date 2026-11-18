@@ -64,7 +64,7 @@ describe(
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.get(widgetsPage.filepickerwidgetv2).should(
         "contain",
-        "1 files selected",
+        "1 file selected",
       );
       cy.get(".t--widget-textwidget").should("contain", "testFile.mov");
     });

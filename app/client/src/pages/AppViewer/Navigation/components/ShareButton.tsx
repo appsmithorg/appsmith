@@ -49,6 +49,14 @@ const ShareButton = (props: ShareButtonProps) => {
 
   const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
+  // Hide only when explicitly false — unset means show (legacy apps).
+  if (
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.showShareApp === false
+  ) {
+    return null;
+  }
+
   return (
     <>
       <Tooltip

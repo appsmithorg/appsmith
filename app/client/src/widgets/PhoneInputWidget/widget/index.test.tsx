@@ -62,4 +62,20 @@ describe("PhoneInputWidget methods", () => {
       });
     });
   });
+
+  describe("getWidgetView", () => {
+    it.each([true, false])(
+      "should pass isRequired=%s to the component",
+      (isRequired) => {
+        const widget = new PhoneInputWidget({
+          isRequired,
+          label: "Phone",
+          text: "",
+          widgetId: "phone-input-widget",
+        } as unknown as PhoneInputWidgetProps);
+
+        expect(widget.getWidgetView().props.isRequired).toBe(isRequired);
+      },
+    );
+  });
 });

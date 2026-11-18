@@ -10,22 +10,24 @@ import { BackupState } from "./BackupState";
 export async function run(args: string[]) {
   await utils.ensureSupervisorIsRunning();
 
-  const state: BackupState = new BackupState(args);
-
-  const chain: Link[] = [
-    new linkClasses.BackupFolderLink(state),
-    new linkClasses.DiskSpaceLink(),
-    new linkClasses.ManifestLink(state),
-    new linkClasses.MongoDumpLink(state),
-    new linkClasses.GitStorageLink(state),
-    new linkClasses.EnvFileLink(state),
-
-    // Encryption link is best placed last so if any of the above links fail, we don't ask the user for a password and
-    // then do nothing with it.
-    new linkClasses.EncryptionLink(state),
-  ];
+  let state: BackupState | undefined;
 
   try {
+    state = new BackupState(args);
+
+    const chain: Link[] = [
+      new linkClasses.BackupFolderLink(state),
+      new linkClasses.DiskSpaceLink(),
+      new linkClasses.ManifestLink(state),
+      new linkClasses.MongoDumpLink(state),
+      new linkClasses.GitStorageLink(state),
+      new linkClasses.EnvFileLink(state),
+
+      // Encryption link is best placed last so if any of the above links fail, we don't ask the user for a password and
+      // then do nothing with it.
+      new linkClasses.EncryptionLink(state),
+    ];
+
     // PRE-BACKUP
     for (const link of chain) {
       await link.preBackup?.();
@@ -55,7 +57,7 @@ export async function run(args: string[]) {
     process.exitCode = 1;
     await logger.backup_error(err.stack);
 
-    if (state.args.includes("--error-mail")) {
+    if (state != null && state.args.includes("--error-mail")) {
       const currentTS = new Date().getTime();
       const lastMailTS = await utils.getLastBackupErrorMailSentInMilliSec();
 
@@ -70,14 +72,14 @@ export async function run(args: string[]) {
     }
 
     // Delete the archive, if exists, since its existence may mislead the user.
-    if (state.archivePath != null) {
+    if (state?.archivePath != null) {
       await fsPromises.rm(state.archivePath, {
         recursive: true,
         force: true,
       });
     }
   } finally {
-    if (state.backupRootPath != null) {
+    if (state?.backupRootPath != null) {
       await fsPromises.rm(state.backupRootPath, {
         recursive: true,
         force: true,

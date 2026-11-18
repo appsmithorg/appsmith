@@ -155,7 +155,8 @@ export const WidgetFeaturePropertyPaneEnhancements: Record<
       },
     });
 
-    if (widgetType === "MODAL_WIDGET") {
+    // Limits would put these widgets back inside a scroll box, so they only offer Auto Height and Fixed
+    if (widgetType === "MODAL_WIDGET" || widgetType === "TABLE_WIDGET_V2") {
       update = findAndUpdatePropertyPaneControlConfig(update, {
         dynamicHeight: {
           options: [

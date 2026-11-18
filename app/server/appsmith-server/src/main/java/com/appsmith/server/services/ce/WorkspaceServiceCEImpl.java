@@ -179,8 +179,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                             org.setPlugins(pluginList);
                             return org;
                         }))
-                // Save the workspace in the db
-                .flatMap(repository::save)
+                // Insert the workspace in the db. An insert never replaces an existing document.
+                .flatMap(repository::insert)
                 .zipWhen(createdWorkspace -> generateDefaultPermissionGroups(createdWorkspace, user))
                 .flatMap(tuple -> {
                     Workspace createdWorkspace = tuple.getT1();
@@ -192,6 +192,12 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     }
 
     protected void prepareWorkspaceToCreate(Workspace workspace, User user) {
+        // A create request never carries an identity. The server assigns the id, the policies and the
+        // default permission groups of a new workspace.
+        workspace.setId(null);
+        workspace.setPolicies(null);
+        workspace.setDefaultPermissionGroups(null);
+
         if (workspace.getEmail() == null) {
             workspace.setEmail(user.getEmail());
         }
