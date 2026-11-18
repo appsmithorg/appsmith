@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       ci-scripts: ${{ steps.filter.outputs.ci-scripts }}
+      workflows: ${{ steps.filter.outputs.workflows }}
       server: ${{ steps.filter.outputs.server }}
       client: ${{ steps.filter.outputs.client == 'true' && steps.filter.outputs.not-cypress-manual == 'true' }}
     steps:
@@ -28,6 +29,9 @@ jobs:
           filters: |
             ci-scripts:
               - '.github/workflows/scripts/**/*.js'
+            workflows:
+              - '.github/workflows/**'
+              - '.github/actions/**'
             server:
               - 'app/server/**'
             client:
@@ -48,6 +52,27 @@ jobs:
 
       - name: Run the workflow script unit tests
         run: find .github/workflows/scripts -name '*.test.js' -exec node --test {} +
+
+  workflow-expressions:
+    name: workflow-expressions
+    needs: path-filter
+    if: needs.path-filter.outputs.workflows == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      # fetch-depth 2 keeps the merge commit's first parent, the base branch tip.
+      - name: Checkout the merged commit from PR and base branch
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+          fetch-depth: 2
+
+      - name: Test the workflow expression check
+        run: python3 .github/workflows/scripts/check-workflow-expressions.test.py
+
+      # Fails on toJSON(github) anywhere, and on ${{ }} in run:/script: bodies
+      # on the lines this PR adds. See the script's docstring.
+      - name: Check workflow expressions
+        run: python3 .github/workflows/scripts/check-workflow-expressions.py --base HEAD^1
 
   server-spotless:
     name: server-spotless
@@ -119,6 +144,7 @@ jobs:
       [
         path-filter,
         ci-scripts-tests,
+        workflow-expressions,
         server-spotless,
         server-unit-tests,
         client-build,

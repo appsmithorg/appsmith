@@ -770,6 +770,14 @@ describe("jsExpr — every fn and op compiles to valid JS that computes the expe
       [[{ fn: "addYears", args: ["2026-10-31", 1] }], "2027-10-31"],
       [["nope"], null],
     ],
+    formatDate: [
+      [["2026-11-09T17:05:09Z", "MMM d, yyyy"], "Nov 9, 2026"],
+      [
+        ["2026-11-09T17:05:09Z", "EEEE h:mm a z", "America/New_York"],
+        "Monday 12:05 PM EST",
+      ],
+      [["nope", "yyyy"], null],
+    ],
   };
   const OP_CASES: Record<Op, [unknown[], unknown]> = {
     add: [[1, 2], 3],
@@ -1941,4 +1949,194 @@ describe("review regressions: local calendar parsing", () => {
       );
     },
   );
+});
+
+describe("jsExpr — formatDate and the log statement", () => {
+  const evaluate = (input: unknown, scope: Record<string, unknown> = {}) => {
+    const tree = expr(input);
+    const names = Object.keys(scope);
+
+    expect(validateExpr(tree, ctx({ vars: new Set(names) }))).toBeUndefined();
+
+    return new Function(...names, `return ${compileExpr(tree)};`)(
+      ...names.map((name) => scope[name]),
+    );
+  };
+
+  const problem = (input: unknown): string | undefined => {
+    const parsed = exprSchema.safeParse(input);
+
+    if (!parsed.success) return JSON.stringify(parsed.error.issues);
+
+    return validateExpr(parsed.data, ctx({ vars: new Set(["d", "p"]) }));
+  };
+
+  const at = "2026-11-09T17:05:09Z";
+
+  it("defaults to UTC and prints every token", () => {
+    expect(
+      evaluate({
+        fn: "formatDate",
+        args: [at, "yyyy yy MMMM MMM MM M dd d EEEE EEE HH H hh h mm ss a z"],
+      }),
+    ).toBe(
+      "2026 26 November Nov 11 11 09 9 Monday Mon 17 17 05 5 05 09 PM UTC",
+    );
+  });
+
+  it("formats in a named time zone, across a day boundary", () => {
+    // 01:30 UTC on 10 November is still 9 November in New York and already 10 November in Tokyo.
+    const late = "2026-11-10T01:30:00Z";
+
+    expect(
+      evaluate({
+        fn: "formatDate",
+        args: [late, "yyyy-MM-dd HH:mm", "America/New_York"],
+      }),
+    ).toBe("2026-11-09 20:30");
+    expect(
+      evaluate({ fn: "formatDate", args: [late, "MMM d", "Asia/Tokyo"] }),
+    ).toBe("Nov 10");
+  });
+
+  it("follows daylight saving time in a named zone, at both transitions", () => {
+    // New York moves to EDT at 07:00 UTC on 8 March 2026 and back to EST at 06:00 UTC on 1 November 2026.
+    const newYork = (iso: string) =>
+      evaluate({
+        fn: "formatDate",
+        args: [iso, "yyyy-MM-dd HH:mm z", "America/New_York"],
+      });
+
+    expect(newYork("2026-03-08T06:30:00Z")).toBe("2026-03-08 01:30 EST");
+    expect(newYork("2026-03-08T07:30:00Z")).toBe("2026-03-08 03:30 EDT");
+    expect(newYork("2026-11-01T05:30:00Z")).toBe("2026-11-01 01:30 EDT");
+    expect(newYork("2026-11-01T06:30:00Z")).toBe("2026-11-01 01:30 EST");
+  });
+
+  it("prints quoted text and punctuation as they are", () => {
+    expect(
+      evaluate({
+        fn: "formatDate",
+        args: [at, "EEE, MMM d, yyyy 'at' h:mm a (z)"],
+      }),
+    ).toBe("Mon, Nov 9, 2026 at 5:05 PM (UTC)");
+  });
+
+  it("prints midnight and noon on the 12-hour clock as 12", () => {
+    expect(
+      evaluate({ fn: "formatDate", args: ["2026-11-09T00:00:00Z", "h a"] }),
+    ).toBe("12 AM");
+    expect(
+      evaluate({ fn: "formatDate", args: ["2026-11-09T12:00:00Z", "hh a"] }),
+    ).toBe("12 PM");
+  });
+
+  it("prints YYYY-MM-DD text as that calendar day in any zone", () => {
+    for (const zone of ["UTC", "America/Los_Angeles", "Pacific/Kiritimati"]) {
+      expect(
+        evaluate({ fn: "formatDate", args: ["2026-11-09", "MMM d", zone] }),
+      ).toBe("Nov 9");
+    }
+  });
+
+  it("reads Dates and epoch numbers from locals", () => {
+    expect(
+      evaluate(
+        { fn: "formatDate", args: [{ var: "d" }, "yyyy-MM-dd"] },
+        { d: new Date(Date.UTC(2026, 0, 2, 3)) },
+      ),
+    ).toBe("2026-01-02");
+    expect(
+      evaluate(
+        { fn: "formatDate", args: [{ var: "d" }, "yyyy"] },
+        { d: Date.UTC(1999, 11, 31) },
+      ),
+    ).toBe("1999");
+  });
+
+  it.each([
+    null,
+    "",
+    false,
+    true,
+    "not a date",
+    "2026-02-30",
+    "2026-13-01",
+    "0000-06-01T00:00:00Z",
+    "+010000-01-01T00:00:00Z",
+  ])("returns null for %p", (value) => {
+    expect(
+      evaluate(
+        { fn: "formatDate", args: [{ var: "d" }, "yyyy"] },
+        { d: value },
+      ),
+    ).toBeNull();
+  });
+
+  it("refuses a pattern or time zone that is not a valid literal", () => {
+    expect(problem({ fn: "formatDate", args: [at, { var: "p" }] })).toMatch(
+      /argument 2 must be a string literal/,
+    );
+    expect(
+      problem({ fn: "formatDate", args: [at, "yyyy", { var: "p" }] }),
+    ).toMatch(/argument 3 must be a string literal/);
+    expect(problem({ fn: "formatDate", args: [at, "YYYY"] })).toMatch(
+      /"Y" is not a pattern token/,
+    );
+    expect(problem({ fn: "formatDate", args: [at, "d 'at"] })).toMatch(
+      /quoted text must be closed/,
+    );
+    expect(problem({ fn: "formatDate", args: [at, "d ''"] })).toMatch(
+      /quoted text must be closed and not empty/,
+    );
+    expect(problem({ fn: "formatDate", args: [at, "d 'a!'"] })).toMatch(
+      /quoted text may hold only/,
+    );
+    expect(problem({ fn: "formatDate", args: [at, "d#"] })).toMatch(
+      /"#" is not a pattern token/,
+    );
+    expect(problem({ fn: "formatDate", args: [at, "y".repeat(61)] })).toMatch(
+      /1-60 characters/,
+    );
+    expect(
+      problem({ fn: "formatDate", args: [at, "yyyy", "Mars/Base"] }),
+    ).toMatch(/not a known IANA time zone/);
+    expect(
+      problem({ fn: "formatDate", args: [at, "yyyy", "UTC; alert(1)"] }),
+    ).toMatch(/not a known IANA time zone/);
+    expect(problem({ fn: "formatDate", args: [at] })).toMatch(
+      /takes 2-3 argument/,
+    );
+  });
+
+  it("keeps its compiled template brace-balanced for {{ }} bindings", () => {
+    const source = compileExpr(
+      expr({
+        fn: "formatDate",
+        args: [at, "MMM d, yyyy 'at' h:mm a", "Europe/London"],
+      }),
+    );
+
+    expect(source).not.toMatch(/\{\{|\}\}/);
+    expect(source.split("{").length).toBe(source.split("}").length);
+  });
+
+  it("compiles log to console.log and validates its expression", () => {
+    const body = steps([
+      { let: "n", value: 2 },
+      { log: { var: "n" } },
+      { log: "done" },
+    ]);
+
+    expect(stepsProblem(body, ctx())).toBeUndefined();
+    expect(compileSteps(body)).toEqual([
+      "let n = 2;",
+      "console.log(n);",
+      'console.log("done");',
+    ]);
+    expect(stepsProblem(steps([{ log: { var: "missing" } }]), ctx())).toMatch(
+      /missing/,
+    );
+    expect(stepSchema.safeParse({ log: "x", extra: 1 }).success).toBe(false);
+  });
 });

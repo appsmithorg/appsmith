@@ -49,6 +49,15 @@ The `client-unit-tests` job runs unit tests for the client-side codebase. It run
 
 The `client-lint` job checks the client-side code for linting issues. It runs if changes related to the client were detected by the `path-filter` job.
 
+### `workflow-expressions`
+
+The `workflow-expressions` job runs `scripts/check-workflow-expressions.py` and its tests when a pull request changes `.github/workflows/**` or `.github/actions/**`. It fails when:
+
+- a `run:` body, or the `script:` input of `actions/github-script`, contains `${{ }}` on a line the pull request adds. The value is pasted into the script before it runs, so text such as a commit message runs as code. Pass the value through `env:` and read the quoted variable.
+- any workflow uses `toJSON(github)` or `toJSON(github.event)`. The whole context can exceed the 131,072-byte limit for one environment string, and the step then fails with "Argument list too long".
+
+External pull requests run the same job in `external-pr-validation.yml`.
+
 ### `qc-result`
 
 The final job, `qc-result`, collects the results from all the previous jobs and determines whether the quality checks passed or failed. It always runs, regardless of the results of the previous jobs.

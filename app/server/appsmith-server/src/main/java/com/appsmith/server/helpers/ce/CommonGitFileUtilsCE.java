@@ -264,9 +264,11 @@ public class CommonGitFileUtilsCE {
                     ActionDTO action = newAction.getUnpublishedAction();
                     final String actionFileName = action.getUserExecutableName().replace(".", "-");
                     validateGitSerializableName(actionFileName, "Action");
+                    final String actionContextName = action.calculateContextId();
+                    validateGitFilePathSegment(actionContextName, "Action context");
                     final String filePathPrefix = getContextDirectoryByType(action.getContextType())
                             + DELIMITER_PATH
-                            + action.calculateContextId()
+                            + actionContextName
                             + DELIMITER_PATH
                             + ACTION_DIRECTORY
                             + DELIMITER_PATH
@@ -325,9 +327,11 @@ public class CommonGitFileUtilsCE {
                     ActionCollectionDTO collection = actionCollection.getUnpublishedCollection();
                     final String collectionName = collection.getUserExecutableName();
                     validateGitSerializableName(collectionName, "ActionCollection");
+                    final String collectionContextName = collection.calculateContextId();
+                    validateGitFilePathSegment(collectionContextName, "ActionCollection context");
                     final String filePathPrefix = getContextDirectoryByType(collection.getContextType())
                             + DELIMITER_PATH
-                            + collection.calculateContextId()
+                            + collectionContextName
                             + DELIMITER_PATH
                             + ACTION_COLLECTION_DIRECTORY
                             + DELIMITER_PATH
@@ -685,6 +689,31 @@ public class CommonGitFileUtilsCE {
             log.error("SECURITY: Path traversal attempt detected in {} name: '{}'", resourceType, resourceName);
             throw new AppsmithException(
                     AppsmithError.GIT_FILE_SYSTEM_ERROR, "Path traversal detected in " + resourceType + " name");
+        }
+    }
+
+    /**
+     * Validates that a name used as one directory name or file name in a Git repository is a single
+     * path segment. A name is rejected when it is empty, is {@code .} or {@code ..}, or holds a
+     * directory separator or a NUL character. A {@code null} name is not checked.
+     *
+     * @param name         the name to validate
+     * @param resourceType a human-readable description of what the name belongs to (for error messages)
+     * @throws AppsmithException if the name is not a single path segment
+     */
+    public static void validateGitFilePathSegment(String name, String resourceType) {
+        if (name == null) {
+            return;
+        }
+        if (name.isEmpty()
+                || ".".equals(name)
+                || "..".equals(name)
+                || name.contains("/")
+                || name.contains("\\")
+                || name.indexOf('\0') >= 0) {
+            log.error("SECURITY: {} name is not a valid Git file path segment", resourceType);
+            throw new AppsmithException(
+                    AppsmithError.GIT_FILE_SYSTEM_ERROR, resourceType + " name is not a valid Git file path segment");
         }
     }
 

@@ -789,7 +789,10 @@ describe("the M7 branch gate on mutating tools", () => {
     const api: AppsmithApi = {
       ...stubApi(),
       getApplication: jest.fn(async () => GIT_APP),
-      getApplicationPages: jest.fn(async () => ({ workspaceId: "ws1" })),
+      getApplicationPages: jest.fn(async () => ({
+        workspaceId: "ws1",
+        pages: [{ id: "p1", name: "Page1" }],
+      })),
       listDatasources: jest.fn(async () => [
         { id: "ds1", name: "DB", pluginId: "postgres-plugin" },
       ]),
@@ -1143,6 +1146,20 @@ describe("M7 gate matrix — every pattern-copied gate call site refuses without
           applicationId: APP_ID,
           revision: REVISION,
           name: "copyOfQuery",
+        },
+      },
+      mutators: ["createAction"],
+    },
+    {
+      // The gate checks the TARGET app, where the copy is written.
+      tool: "copy_action",
+      args: {
+        spec: {
+          actionId: ENTITY_ID,
+          applicationId: "e".repeat(24),
+          revision: REVISION,
+          name: "copyOfQuery",
+          target: { applicationId: APP_ID, pageId: PAGE_ID },
         },
       },
       mutators: ["createAction"],
