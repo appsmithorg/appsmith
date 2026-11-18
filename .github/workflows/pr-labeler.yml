@@ -8,6 +8,12 @@ on:
 permissions:
   pull-requests: write
 
+concurrency:
+  # One run at a time per PR. A queued run starts after the active run ends, so it
+  # reads the labels that run left behind.
+  group: pr-labeler-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
 jobs:
   label:
     # The token is read-only on a PR from a fork, so the labels cannot be set there.
