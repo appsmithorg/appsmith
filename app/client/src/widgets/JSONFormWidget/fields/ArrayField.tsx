@@ -26,7 +26,7 @@ import type {
   FieldState,
   SchemaItem,
 } from "../constants";
-import { ARRAY_ITEM_KEY } from "../constants";
+import { ARRAY_ITEM_KEY, FieldType } from "../constants";
 import { Colors } from "constants/Colors";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { generateReactKey } from "utils/generators";
@@ -157,6 +157,30 @@ const getDefaultValue = (
   return [];
 };
 
+const getNewArrayItemDefaultValue = (arrayItemSchema?: SchemaItem): unknown => {
+  if (!arrayItemSchema) {
+    return {};
+  }
+
+  if (arrayItemSchema.fieldType === FieldType.OBJECT) {
+    return {};
+  }
+
+  if (arrayItemSchema.fieldType === FieldType.ARRAY) {
+    return Array.isArray(arrayItemSchema.defaultValue)
+      ? klonaRegularWithTelemetry(
+          arrayItemSchema.defaultValue,
+          "ArrayField.add",
+        )
+      : [];
+  }
+
+  return klonaRegularWithTelemetry(
+    arrayItemSchema.defaultValue,
+    "ArrayField.add",
+  );
+};
+
 function ArrayField({
   fieldClassName,
   name,
@@ -194,11 +218,14 @@ function ArrayField({
 
   const add = () => {
     let values = klonaRegularWithTelemetry(getValues(name), "ArrayField.add");
+    const newItemValue = getNewArrayItemDefaultValue(
+      schemaItem.children?.[ARRAY_ITEM_KEY],
+    );
 
-    if (values && values.length) {
-      values.push({});
+    if (Array.isArray(values) && values.length) {
+      values.push(newItemValue);
     } else {
-      values = [{}];
+      values = [newItemValue];
     }
 
     setValue(name, values);
