@@ -240,6 +240,14 @@ public class MongoPlugin extends BasePlugin {
      */
     private static final int MAX_VALUE_NESTING_DEPTH = 1000;
 
+    /**
+     * Parser mode for an array or object value that is written with its special data type members: permissive
+     * syntax, but the value must end after the array or object. Text after it makes the parse fail, so the value is
+     * not written as an array or object.
+     */
+    private static final int COMPLETE_VALUE_PARSER_MODE = net.minidev.json.parser.JSONParser.MODE_PERMISSIVE
+            & ~net.minidev.json.parser.JSONParser.ACCEPT_TAILLING_DATA;
+
     private static final int DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX = 1;
 
     private static final Integer MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE = 13;
@@ -685,8 +693,7 @@ public class MongoPlugin extends BasePlugin {
         private static String writeJsonWithSpecialTypeMembers(String value) {
             final Object parsed;
             try {
-                parsed = new net.minidev.json.parser.JSONParser(net.minidev.json.parser.JSONParser.MODE_PERMISSIVE)
-                        .parse(value);
+                parsed = new net.minidev.json.parser.JSONParser(COMPLETE_VALUE_PARSER_MODE).parse(value);
             } catch (net.minidev.json.parser.ParseException e) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, value, e.getMessage());
             }
@@ -757,8 +764,7 @@ public class MongoPlugin extends BasePlugin {
             }
             final Object parsed;
             try {
-                parsed = new net.minidev.json.parser.JSONParser(net.minidev.json.parser.JSONParser.MODE_PERMISSIVE)
-                        .parse(trimmed);
+                parsed = new net.minidev.json.parser.JSONParser(COMPLETE_VALUE_PARSER_MODE).parse(trimmed);
             } catch (net.minidev.json.parser.ParseException e) {
                 return false;
             }
