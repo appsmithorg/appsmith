@@ -15,7 +15,7 @@ import java.util.UUID;
 /**
  * Redis store for collected support diagnostics sections, plus a short per-section lock that keeps two requests from
  * collecting the same section at once. Redis outages never fail a request: reads come back empty, writes are skipped,
- * and the lock is reported as acquired. A Redis call that takes longer than {@link #REDIS_TIMEOUT} counts as an
+ * and the lock is reported as {@link DiagnosticsLockOutcome#UNCONFIRMED}. A Redis call that takes longer than {@link #REDIS_TIMEOUT} counts as an
  * outage.
  */
 @Slf4j
@@ -68,7 +68,7 @@ public class DiagnosticsResultStore {
                 });
     }
 
-    public Mono<Boolean> tryLock(String organizationId, DiagnosticsSectionId sectionId) {
+    public Mono<DiagnosticsLockOutcome> tryLock(String organizationId, DiagnosticsSectionId sectionId) {
         return Mono.defer(() -> redisOperations
                         .opsForValue()
                         .setIfAbsent(
@@ -76,10 +76,12 @@ public class DiagnosticsResultStore {
                                 UUID.randomUUID().toString(),
                                 LOCK_TTL))
                 .timeout(REDIS_TIMEOUT)
+                .map(set -> Boolean.TRUE.equals(set) ? DiagnosticsLockOutcome.ACQUIRED : DiagnosticsLockOutcome.HELD)
                 .onErrorResume(error -> {
                     logFailure("lock", sectionId, error);
-                    return Mono.just(true);
-                });
+                    return Mono.just(DiagnosticsLockOutcome.UNCONFIRMED);
+                })
+                .defaultIfEmpty(DiagnosticsLockOutcome.UNCONFIRMED);
     }
 
     public Mono<Void> unlock(String organizationId, DiagnosticsSectionId sectionId) {

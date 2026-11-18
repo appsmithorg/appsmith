@@ -126,7 +126,7 @@ class DiagnosticsResultStoreTest {
     }
 
     @Test
-    void should_returnTrue_when_lockIsAcquired() {
+    void should_returnAcquired_when_lockIsSet() {
         // Given
         when(redisOperations.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.setIfAbsent(
@@ -135,12 +135,12 @@ class DiagnosticsResultStoreTest {
 
         // When / Then
         StepVerifier.create(store.tryLock("org1", DiagnosticsSectionId.INSTANCE))
-                .expectNext(true)
+                .expectNext(DiagnosticsLockOutcome.ACQUIRED)
                 .verifyComplete();
     }
 
     @Test
-    void should_returnFalse_when_lockIsAlreadyHeld() {
+    void should_returnHeld_when_lockIsAlreadyHeld() {
         // Given
         when(redisOperations.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.setIfAbsent(
@@ -149,12 +149,12 @@ class DiagnosticsResultStoreTest {
 
         // When / Then
         StepVerifier.create(store.tryLock("org1", DiagnosticsSectionId.INSTANCE))
-                .expectNext(false)
+                .expectNext(DiagnosticsLockOutcome.HELD)
                 .verifyComplete();
     }
 
     @Test
-    void should_returnTrue_when_redisFailsOnTryLock() {
+    void should_returnUnconfirmed_when_redisFailsOnTryLock() {
         // Given
         when(redisOperations.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.setIfAbsent(anyString(), anyString(), any(Duration.class)))
@@ -162,7 +162,20 @@ class DiagnosticsResultStoreTest {
 
         // When / Then
         StepVerifier.create(store.tryLock("org1", DiagnosticsSectionId.INSTANCE))
-                .expectNext(true)
+                .expectNext(DiagnosticsLockOutcome.UNCONFIRMED)
+                .verifyComplete();
+    }
+
+    @Test
+    void should_returnUnconfirmed_when_redisTryLockCompletesEmpty() {
+        // Given
+        when(redisOperations.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.setIfAbsent(anyString(), anyString(), any(Duration.class)))
+                .thenReturn(Mono.empty());
+
+        // When / Then
+        StepVerifier.create(store.tryLock("org1", DiagnosticsSectionId.INSTANCE))
+                .expectNext(DiagnosticsLockOutcome.UNCONFIRMED)
                 .verifyComplete();
     }
 
@@ -192,7 +205,7 @@ class DiagnosticsResultStoreTest {
     }
 
     @Test
-    void should_returnTrueAfterTwoSeconds_when_redisTryLockNeverAnswers() {
+    void should_returnUnconfirmedAfterTwoSeconds_when_redisTryLockNeverAnswers() {
         // Given
         when(redisOperations.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.setIfAbsent(anyString(), anyString(), any(Duration.class)))
@@ -203,7 +216,7 @@ class DiagnosticsResultStoreTest {
                 .expectSubscription()
                 .expectNoEvent(Duration.ofMillis(1999))
                 .thenAwait(Duration.ofMillis(1))
-                .expectNext(true)
+                .expectNext(DiagnosticsLockOutcome.UNCONFIRMED)
                 .verifyComplete();
     }
 

@@ -80,14 +80,15 @@ public class SupportDiagnosticsServiceCEImpl implements SupportDiagnosticsServic
             if (collector == null) {
                 return Mono.just(DiagnosticsSectionResult.notSupported(sectionId));
             }
-            return resultStore.tryLock(organizationId, sectionId).flatMap(locked -> {
-                if (!Boolean.TRUE.equals(locked)) {
-                    return Mono.error(new AppsmithException(AppsmithError.TOO_MANY_REQUESTS));
-                }
-                return Mono.usingWhen(
-                        Mono.just(organizationId),
-                        id -> runCollector(id, collector),
-                        id -> resultStore.unlock(id, sectionId));
+            return resultStore.tryLock(organizationId, sectionId).flatMap(outcome -> switch (outcome) {
+                case HELD -> Mono.error(new AppsmithException(AppsmithError.TOO_MANY_REQUESTS));
+                // Redis did not confirm the lock, so another request's lock may be the one in place.
+                case UNCONFIRMED -> runCollector(organizationId, collector);
+                case ACQUIRED ->
+                    Mono.usingWhen(
+                            Mono.just(organizationId),
+                            id -> runCollector(id, collector),
+                            id -> resultStore.unlock(id, sectionId));
             });
         });
     }

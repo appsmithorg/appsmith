@@ -75,13 +75,24 @@ class SupportDiagnosticsServiceCEImplTest {
                 userUtils, sessionUserService, resultStore, redactionGuard, collectors);
     }
 
+    private SupportDiagnosticsServiceCEImpl newMultiOrgService(
+            List<DiagnosticsCollector> collectors, Mono<Boolean> multiOrgAnswer) {
+        return new SupportDiagnosticsServiceCEImpl(
+                userUtils, sessionUserService, resultStore, redactionGuard, collectors) {
+            @Override
+            protected Mono<Boolean> isMultiOrgInstance() {
+                return multiOrgAnswer;
+            }
+        };
+    }
+
     private void givenAccessAllowed(String organizationId) {
         when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(true));
         when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(userInOrganization(organizationId)));
     }
 
     private void givenLockAcquired() {
-        when(resultStore.tryLock(anyString(), any())).thenReturn(Mono.just(true));
+        when(resultStore.tryLock(anyString(), any())).thenReturn(Mono.just(DiagnosticsLockOutcome.ACQUIRED));
         when(resultStore.unlock(anyString(), any())).thenReturn(Mono.empty());
     }
 
@@ -133,7 +144,7 @@ class SupportDiagnosticsServiceCEImplTest {
         // The rest of the access path is stubbed so that a missing check would reach the store and the collector.
         // These stubs go unused when the check works, so they are lenient.
         lenient().when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(userInOrganization("org1")));
-        lenient().when(resultStore.tryLock(anyString(), any())).thenReturn(Mono.just(true));
+        lenient().when(resultStore.tryLock(anyString(), any())).thenReturn(Mono.just(DiagnosticsLockOutcome.ACQUIRED));
         lenient().when(resultStore.unlock(anyString(), any())).thenReturn(Mono.empty());
         lenient().when(resultStore.put(anyString(), any())).thenReturn(Mono.empty());
         lenient().when(resultStore.get(anyString(), any())).thenReturn(Mono.empty());
@@ -327,12 +338,57 @@ class SupportDiagnosticsServiceCEImplTest {
         verify(resultStore).unlock("org1", DiagnosticsSectionId.INSTANCE);
     }
 
+    static Stream<Arguments> multiOrgAnswers() {
+        return Stream.of(
+                Arguments.of(named("multi-org check returns true", Mono.just(true))),
+                Arguments.of(named("multi-org check completes empty", Mono.<Boolean>empty())));
+    }
+
+    @ParameterizedTest
+    @MethodSource("multiOrgAnswers")
+    void should_failWithUnsupportedOperationAndTouchNothing_when_instanceIsMultiOrgOrUnknown(
+            Mono<Boolean> multiOrgAnswer) {
+        // Given
+        when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(true));
+        DiagnosticsCollector collector = mock(DiagnosticsCollector.class);
+        when(collector.sectionId()).thenReturn(DiagnosticsSectionId.INSTANCE);
+        service = newMultiOrgService(List.of(collector), multiOrgAnswer);
+        clearInvocations(collector);
+
+        // When / Then
+        assertEveryMethodFailsWith(AppsmithError.UNSUPPORTED_OPERATION);
+        verifyNoInteractions(resultStore, sessionUserService, collector);
+    }
+
+    @Test
+    void should_collectAndStoreWithoutUnlocking_when_lockIsUnconfirmed() {
+        // Given
+        givenAccessAllowed("org1");
+        givenPutSucceeds();
+        when(resultStore.tryLock("org1", DiagnosticsSectionId.INSTANCE))
+                .thenReturn(Mono.just(DiagnosticsLockOutcome.UNCONFIRMED));
+        DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
+        when(collector.allowedKeys()).thenReturn(Set.of("edition"));
+        when(collector.collect()).thenReturn(Mono.just(Map.of("edition", "EE")));
+
+        // When
+        Mono<DiagnosticsSectionResult> result = service.collect(DiagnosticsSectionId.INSTANCE);
+
+        // Then
+        StepVerifier.create(result)
+                .assertNext(r -> assertThat(r.status()).isEqualTo(DiagnosticsStatus.OK))
+                .verifyComplete();
+        verify(resultStore).put(eq("org1"), any(DiagnosticsSectionResult.class));
+        verify(resultStore, never()).unlock(anyString(), any());
+    }
+
     @Test
     void should_failWithTooManyRequestsAndNotUnlock_when_sectionIsAlreadyBeingCollected() {
         // Given
         givenAccessAllowed("org1");
         DiagnosticsCollector collector = givenCollector(DiagnosticsSectionId.INSTANCE);
-        when(resultStore.tryLock("org1", DiagnosticsSectionId.INSTANCE)).thenReturn(Mono.just(false));
+        when(resultStore.tryLock("org1", DiagnosticsSectionId.INSTANCE))
+                .thenReturn(Mono.just(DiagnosticsLockOutcome.HELD));
 
         // When / Then
         StepVerifier.create(service.collect(DiagnosticsSectionId.INSTANCE))
