@@ -17,7 +17,9 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 const myDsName = "HubspotDS";
 
-describe(
+// Skipped while the live Hubspot API returns 403 for the test token.
+// https://linear.app/appsmith/issue/APP-16554 replaces the live calls with stubs.
+describe.skip(
   "Hubspot Basic Tests",
   {
     tags: [

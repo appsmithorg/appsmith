@@ -50,6 +50,12 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     Flux<NewPage> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
 
+    /**
+     * Sets the dependency map of the unpublished page. The update applies only when the current user has
+     * {@link AclPermission#MANAGE_PAGES} on the page.
+     *
+     * @return the number of pages matched: 1 when the page was updated, 0 otherwise
+     */
     Mono<Integer> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap);
 
     /**

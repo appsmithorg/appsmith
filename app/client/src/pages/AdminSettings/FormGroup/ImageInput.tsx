@@ -11,6 +11,8 @@ import { ContentBox } from "../components";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 interface ImageInputProps {
+  /** File types the picker offers, as in the input `accept` attribute. */
+  accept?: string;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value?: any;
@@ -25,7 +27,14 @@ interface ImageInputProps {
   defaultValue?: string;
 }
 export const ImageInput = (props: ImageInputProps) => {
-  const { className, defaultValue, onChange, validate, value } = props;
+  const {
+    accept = "image/*",
+    className,
+    defaultValue,
+    onChange,
+    validate,
+    value,
+  } = props;
   const [preview, setPreview] = useState<string | ArrayBuffer | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -80,7 +89,7 @@ export const ImageInput = (props: ImageInputProps) => {
       </div>
 
       <input
-        accept="image/*"
+        accept={accept}
         className="hidden"
         onChange={onFileInputChange}
         ref={fileInputRef}

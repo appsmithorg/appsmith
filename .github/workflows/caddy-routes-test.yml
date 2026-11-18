@@ -45,4 +45,7 @@ jobs:
       - name: caddy rate-limit key is not spoofable (GHSA-qrgm-h8c4-jjf7)
         run: deploy/docker/tests/caddy-rate-limit-key-test.sh
 
+      - name: caddy frame-ancestors value is a list of CSP sources (GHSA-cjj3-xcpr-v6hj)
+        run: node --test deploy/docker/tests/caddy-frame-ancestors.test.mjs
+
       - run: deploy/docker/route-tests/run.sh
