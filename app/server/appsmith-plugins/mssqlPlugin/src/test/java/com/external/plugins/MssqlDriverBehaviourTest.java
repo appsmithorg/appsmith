@@ -27,6 +27,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -493,6 +494,75 @@ public class MssqlDriverBehaviourTest {
             assertTrue(
                     connectionPool.getJdbcUrl().contains("vectorTypeSupport=off;"),
                     () -> "JDBC URL should turn off the native vector type: " + connectionPool.getJdbcUrl());
+        } finally {
+            connectionPool.close();
+        }
+    }
+
+    private static Stream<Arguments> endlessLaterResults() {
+        return Stream.of(true, false)
+                .flatMap(prepared -> Stream.of(
+                        // Endless result sets after the first.
+                        Arguments.of(
+                                "SELECT 1 AS first_result; WHILE 1 = 1 SELECT 1 AS later_result",
+                                prepared,
+                                "ran longer than its timeout of 3000 ms"),
+                        // Endless update counts after the first.
+                        Arguments.of(
+                                "SELECT 1 AS first_result; WHILE 1 = 1 UPDATE driver_dml SET name = name",
+                                prepared,
+                                "ran longer than its timeout of 3000 ms"),
+                        // One statement that runs longer than the timeout. The driver's query timeout stops it.
+                        Arguments.of("WAITFOR DELAY '00:00:20'", prepared, "The query has timed out")));
+    }
+
+    // AIP-FD-38: a query that runs past its timeout must not hold a pooled connection and a worker thread. The
+    // reactive timeout cannot interrupt the blocking JDBC call, so before the fix such a query ran on: the endless
+    // ones forever, because the plugin reads the later results to find errors (APP-16536).
+    @ParameterizedTest(name = "{0}, prepared statement {1}")
+    @MethodSource("endlessLaterResults")
+    public void endlessLaterResults_stopAtTheQueryTimeout(String sql, boolean preparedStatement, String expectedError)
+            throws InterruptedException {
+        HikariDataSource connectionPool = mssqlPluginExecutor
+                .datasourceCreate(createDatasourceConfiguration(container))
+                .block();
+        assertNotNull(connectionPool);
+
+        try {
+            ActionConfiguration actionConfiguration = new ActionConfiguration();
+            actionConfiguration.setBody(sql);
+            actionConfiguration.setTimeoutInMillisecond("3000");
+            actionConfiguration.setPluginSpecifiedTemplates(
+                    List.of(new Property("preparedStatement", String.valueOf(preparedStatement))));
+
+            // Before the fix, this call never returned: the reactive timeout cannot interrupt the blocking read.
+            Instant started = Instant.now();
+            ActionExecutionResult result = mssqlPluginExecutor
+                    .executeParameterized(
+                            connectionPool,
+                            new ExecuteActionDTO(),
+                            createDatasourceConfiguration(container),
+                            actionConfiguration)
+                    .block(Duration.ofSeconds(30));
+            Duration took = Duration.between(started, Instant.now());
+
+            assertNotNull(result);
+            assertFalse(result.getIsExecutionSuccess(), () -> "the query should fail: " + result.getBody());
+            assertTrue(
+                    String.valueOf(result.getBody()).contains(expectedError),
+                    () -> "expected \"" + expectedError + "\" in: " + result.getBody());
+            assertTrue(took.compareTo(Duration.ofSeconds(10)) < 0, () -> "the query stopped only after " + took);
+
+            // The connection goes back to the pool shortly after the timeout.
+            Instant giveUp = Instant.now().plusSeconds(10);
+            while (connectionPool.getHikariPoolMXBean().getActiveConnections() > 0
+                    && Instant.now().isBefore(giveUp)) {
+                Thread.sleep(200);
+            }
+            assertEquals(
+                    0,
+                    connectionPool.getHikariPoolMXBean().getActiveConnections(),
+                    "the query still holds its connection after the timeout");
         } finally {
             connectionPool.close();
         }

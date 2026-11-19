@@ -1,5 +1,6 @@
 package com.external.plugins.utils;
 
+import com.external.plugins.exceptions.MssqlErrorMessages;
 import microsoft.sql.DateTimeOffset;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -8,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.SQLTimeoutException;
 import java.sql.Statement;
 import java.text.MessageFormat;
 import java.time.OffsetDateTime;
@@ -82,8 +84,12 @@ public class MssqlExecuteUtils {
             boolean isResultSet,
             Boolean preparedStatement,
             Statement statement,
-            PreparedStatement preparedQuery)
+            PreparedStatement preparedQuery,
+            int timeoutMillis,
+            long deadlineNanos)
             throws SQLException {
+
+        Statement executed = FALSE.equals(preparedStatement) ? statement : preparedQuery;
 
         if (!isResultSet) {
             Object updateCount = FALSE.equals(preparedStatement)
@@ -97,6 +103,8 @@ public class MssqlExecuteUtils {
             columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
 
             while (resultSet.next()) {
+                stopAtDeadline(executed, timeoutMillis, deadlineNanos);
+
                 // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
                 Map<String, Object> row = new LinkedHashMap<>(colCount);
 
@@ -150,7 +158,43 @@ public class MssqlExecuteUtils {
             }
         }
 
-        drainRemainingResults(FALSE.equals(preparedStatement) ? statement : preparedQuery);
+        drainRemainingResults(executed, timeoutMillis, deadlineNanos);
+    }
+
+    /**
+     * Returns the JDBC query timeout, in whole seconds, for an action timeout in milliseconds. Rounds up, so the
+     * driver never stops a query before the action's own timeout. JDBC treats 0 as no timeout, so the result is at
+     * least 1.
+     */
+    public static int queryTimeoutSeconds(int timeoutMillis) {
+        return (int) Math.max(1, (timeoutMillis + 999L) / 1000);
+    }
+
+    /**
+     * Cancels the query on SQL Server and fails it when the action's timeout has passed. The driver's own query
+     * timeout should stop the query first. This check does not depend on it.
+     */
+    private static void stopAtDeadline(Statement statement, int timeoutMillis, long deadlineNanos) throws SQLException {
+        if (System.nanoTime() - deadlineNanos < 0) {
+            return;
+        }
+        DeadlineReached timeout = new DeadlineReached(timeoutMillis);
+        if (statement != null) {
+            try {
+                statement.cancel();
+            } catch (SQLException e) {
+                // Still report the timeout. Closing the statement afterwards ends the query.
+                timeout.addSuppressed(e);
+            }
+        }
+        throw timeout;
+    }
+
+    /** The plugin's own timeout error, so that it is not reported as a failed statement. */
+    private static final class DeadlineReached extends SQLTimeoutException {
+        private DeadlineReached(int timeoutMillis) {
+            super(String.format(MssqlErrorMessages.QUERY_TIMEOUT_ERROR_MSG, timeoutMillis));
+        }
     }
 
     /**
@@ -159,27 +203,40 @@ public class MssqlExecuteUtils {
      * {@code UPDATE ...; INSERT INTO missing_table ...} reported success. Other statements may already have run: the
      * ones before the error, and, because SQL Server continues after many statement errors, some after it. Without an
      * explicit transaction they are committed. So the error says so.
+     *
+     * <p>A query can return results without end, for example {@code WHILE 1 = 1 SELECT 1}. So the reading stops at
+     * the action's timeout: the query is cancelled on SQL Server and fails with a timeout error.
      */
-    private static void drainRemainingResults(Statement statement) throws SQLException {
+    private static void drainRemainingResults(Statement statement, int timeoutMillis, long deadlineNanos)
+            throws SQLException {
         if (statement == null) {
             return;
         }
 
         try {
             while (true) {
+                stopAtDeadline(statement, timeoutMillis, deadlineNanos);
                 if (statement.getMoreResults()) {
                     // A later SELECT can fail while its rows are read, for example on a divide by zero in row 5.
                     // Step through its rows (they are not returned) so that error surfaces too.
                     try (ResultSet laterRows = statement.getResultSet()) {
                         while (laterRows != null && laterRows.next()) {
-                            // Nothing to keep.
+                            stopAtDeadline(statement, timeoutMillis, deadlineNanos);
                         }
                     }
                 } else if (statement.getUpdateCount() == -1) {
                     break;
                 }
             }
+        } catch (DeadlineReached e) {
+            throw e;
         } catch (SQLException e) {
+            if (System.nanoTime() - deadlineNanos >= 0) {
+                // The driver's own query timeout stopped the query. Report a timeout, not a failed statement.
+                DeadlineReached timeout = new DeadlineReached(timeoutMillis);
+                timeout.initCause(e);
+                throw timeout;
+            }
             throw new SQLException(
                     "A statement in this query failed. Other statements in the query may already have run."
                             + (e.getMessage() == null ? "" : " " + e.getMessage()),

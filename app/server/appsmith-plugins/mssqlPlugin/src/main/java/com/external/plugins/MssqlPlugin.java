@@ -69,6 +69,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
@@ -268,9 +269,17 @@ public class MssqlPlugin extends BasePlugin {
                                 MessageFormat.format("Before executing Mssql query [{0}]", query), hikariDSConnection);
                         ;
 
+                        // The reactive timeout below cannot interrupt this blocking call: it reports the timeout only
+                        // after the call returns. So the query gets the same timeout here. The driver cancels the
+                        // query on SQL Server when it runs out, and the plugin stops reading results at the deadline.
+                        final int timeoutMillis = actionConfiguration.getTimeoutInMillisecond();
+                        final int queryTimeoutSeconds = MssqlExecuteUtils.queryTimeoutSeconds(timeoutMillis);
+                        final long deadlineNanos = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
+
                         try {
                             if (FALSE.equals(preparedStatement)) {
                                 statement = sqlConnectionFromPool.createStatement();
+                                statement.setQueryTimeout(queryTimeoutSeconds);
                                 isResultSet = statement.execute(query);
                                 resultSet = statement.getResultSet();
                             } else {
@@ -289,6 +298,7 @@ public class MssqlPlugin extends BasePlugin {
                                                         parameters.get(i).getKey(),
                                                         parameters.get(i).getValue())));
 
+                                preparedQuery.setQueryTimeout(queryTimeoutSeconds);
                                 isResultSet = preparedQuery.execute();
                                 resultSet = preparedQuery.getResultSet();
                             }
@@ -300,7 +310,9 @@ public class MssqlPlugin extends BasePlugin {
                                     isResultSet,
                                     preparedStatement,
                                     statement,
-                                    preparedQuery);
+                                    preparedQuery,
+                                    timeoutMillis,
+                                    deadlineNanos);
 
                         } catch (SQLException e) {
                             return Mono.error(new AppsmithPluginException(
